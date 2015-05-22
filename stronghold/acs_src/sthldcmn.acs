@@ -1,0 +1,33 @@
+#include "zcommon.acs"
+#library "sthldcmn"
+
+// Stronghold Common Script
+// Autoloaded script to help items and other things work even on levels not using the main library.
+
+#define S_AWARD_WATCHER	940
+#define S_NIGHTMARE_ATTACK 941
+
+script S_AWARD_WATCHER ENTER
+{
+	int AwardGiven = CheckInventory("AwardItem");
+	int AwardCurrent;
+	while(true)
+	{
+		AwardCurrent = CheckInventory("AwardItem");
+
+		if(AwardCurrent>AwardGiven)
+		{
+			GiveInventory("CoinItem", AwardCurrent-AwardGiven);
+			AwardGiven = AwardCurrent;
+		}
+
+		delay(1);
+	}
+}
+
+// Call with end = 0 at start of attack, end = 1 at end of attack
+script S_NIGHTMARE_ATTACK (int end)
+{
+	PrintBold(s:"TODO: Implement NightmareDemon's attack");
+}
+

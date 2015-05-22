@@ -1,0 +1,142 @@
+// a few internal wvars for the script
+
+	// TIDArray will give every monster a TID unique to its spawn zone and mission
+	// in this way, we'll be able to tell what zone a monster is from and also give
+	// it an independant mission that can be decided by any number of variables in
+	// the script, eg, what class it is, where it was spawned, or a random chance
+
+int TIDArray[NUM_ZONES][NUM_MISSIONS];
+
+int ThisWave;
+int ThisType;
+int ThisZone;
+int IsTesting;
+int MonsCount;
+int LastCount;
+
+#define NUM_MEDS 2
+#define WEAPON_TID 4900
+
+// Spawn numbers
+#define T_LANDMINELAYER 200
+#define T_LANDMINE 201
+#define T_STUNNERRIFLE 202
+#define T_DEVESTATOR 242
+#define T_RAILGUN 241
+#define T_HRL 240
+#define T_PYROCANNON 239
+#define T_FLAMER 238
+#define T_AUTOSHOTGUN 237
+#define T_REPEATER 236
+#define T_FREEZER 229
+#define T_DOOMSPHERE 228
+#define T_GAS 222
+#define T_FUEL 221
+
+int AmmoItems[10] = { T_CLIP, T_AMMOBOX, T_SHELLS, T_SHELLBOX, T_ROCKETAMMO, T_ROCKETBOX, T_CELL, T_BATTERY, T_GAS, T_FUEL };
+int AmmoPerItem[10] = { 10, 50, 4, 20, 1, 5, 20, 100, 24, 96 };
+
+int MediItems [NUM_MEDS] = { T_STIMPACK, T_MEDKIT };
+
+#define AMOUNT			1	// where the amount is located in relation to the type in the monster/powerup arrays
+						// yes I did just put it there to make the script look nicer
+
+// Obselete. See ThingCountName()
+	// here you must define the monsters you want to use. it is just a needed step to keep count of the monsters.
+	// you can also use decorate defined monsters, as long as you place them here also. for each one, add another
+	// case as shown, and make it return the spawnnum (not the DoomEdNum!). It is VERY IMPORTANT that the strings
+	// in this function are the first ones defined, so dont define any strings above this one
+/*
+function int T_GetNumForName ( str Classname ) // nostalgia ;)
+{
+	switch(Classname)
+	{
+		case "ZombieMan":		return T_ZOMBIE;
+		case "ShotgunGuy":	return T_SHOTGUY;
+		case "ChaingunGuy":	return T_CHAINGUY;
+		case "DoomImp":		return T_IMP;
+		case "Demon":		return T_DEMON ;
+		case "Spectre":		return T_SPECTRE;
+		case "LostSoul":		return T_LOSTSOUL;
+		case "Cacodemon":		return T_CACODEMON;
+		case "PainElemental":	return T_PAINELEMENTAL;
+		case "Fatso":		return T_MANCUBUS;
+		case "Revenant":		return T_REVENANT;
+		case "Archvile":		return T_VILE;
+		case "BaronOfHell":	return T_BARON;
+		case "HellKnight":	return T_HELLKNIGHT;
+		case "Cyberdemon":	return T_CYBERDEMON;
+		case "Arachnotron":	return T_ARACHNOTRON;
+		case "SpiderMastermind":return T_SPIDERMASTERMIND;
+	// Extra Monsters
+		case "HoloZombieman":	return 254;
+		case "HoloDoomImp":	return 255;
+		case "HoloDemon":	return 253;
+		case "BloodDemon":	return 252;
+		case "Cybruiser":	return 250;
+		case "Demolisher":	return 249;
+		case "NewMonster":	return 248;
+		case "FusionSpider":	return 247;
+		case "PyroDemon":	return 246;
+		case "EnhancedCaco":	return 245;
+		case "RocketGuy":	return 244;
+		case "SuicideBomber":	return 243;
+		case "Shadow":		return 235;
+		case "BruiserDemon":	return 234;
+		case "NightmareDemon":	return 233;
+		case "PhaseImp":	return 232;
+		case "Terminator":	return 231;
+		case "Catharsi":	return 230;
+		case "Wicked":		return 227;
+		case "Helemental":	return 226;
+		case "Hellion":		return 225;
+		case "HS":		return 224;
+		case "Hectebus":	return 223;
+		case "ArchonOfHell":	return 220;
+		case "Diabolist":	return 219;
+		case "GuardianCube":	return 218;
+		case "ZombieTank":	return 217;
+		case "Azazel":		return 216;
+		case "DuneWarrior":	return 215;
+		case "HellWarrior":	return 214;
+		case "Mancutank":	return 213;
+	// Duke Nukem 3D Monsters
+		case "DukeFodder":	return 160;
+		case "TeleFodder":	return 161;
+		case "PigCop":		return 162;
+		case "LizardCommando":	return 163;
+		case "OctaBrain":	return 164;
+		case "SuperBattleLord":	return 165;
+		case "BattleLordPal":	return 166;
+		case "BattleLord":	return 167;
+		case "Commander":	return 168;
+		case "KamikazeSentry":	return 169;
+		case "AlienDrone":	return 170;
+		case "Fatty":		return 171;
+		case "Cycloid":		return 172;
+		case "Queen":		return 173;
+
+	// TcotD Apocalypse Monsters
+		case "Apprentice":	return 174;
+		case "MiniSpider":	return 175;
+		case "LargeSpider":	return 176;
+		case "Thrall":		return 177;
+		case "Incarnate":	return 178;
+		case "HotDog":		return 179;
+		case "Vulgar":		return 180;
+		case "ESoul":		return 181;
+		case "WraithX":		return 182;
+		case "ChaingunCultist":	return 183;
+		case "FattyX":		return 185;
+		case "ZombieX":		return 186;
+		case "ShotgunCultist":	return 187;
+
+
+	// Footer
+	//	case "ADecorateMons":	return 123;		// like so, just to be clear
+		case "ENDMARKER":	return 1337;		// do not delete ENDMARKER!
+	}
+	printbold(s:"What the hell is a ",s:Classname, s:", eh?");	// error you get if you spell it wrong.
+	return 0;
+}
+*/

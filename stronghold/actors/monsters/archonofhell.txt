@@ -1,0 +1,165 @@
+ACTOR ArchonOfHell : BaronOfHell 30104
+{ 
+//$Category Stronghold_Monsters
+spawnid 220
+painchance "Stunner", 128
+
+Health 2000 
+Radius 24 
+Height 64 
+Mass 1000 
+Speed 8 
+PainChance 20 
+MONSTER
+MeleeDamage 10
+Obituary "%o was no match for an archon of hell."
+HitObituary "%o was ripped apart by an archon of hell."
+BloodColor "33 FF 00"
++NOTARGET
++FLOORCLIP 
++MISSILEMORE
++BOSS
++DONTHURTSPECIES
+SeeSound "monster/ar2sit" 
+PainSound "baron/pain" 
+DeathSound "monster/ar2dth"
+MeleeSound "baron/melee"
+SpawnID 174
+States 
+   { 
+   Spawn: 
+       BOS4 AB 10 A_Look 
+       Loop 
+   See:
+       BOS4 AABBCCDD 3 A_Chase 
+       Loop 
+   Missile:
+       BOS4 B 0 A_Jump(128,15)
+       BOS4 EF 8 Bright A_FaceTarget 
+       BOS4 G 0 Bright A_CustomMissile ("BaronBall",28,0,0,0)
+       BOS4 G 0 Bright A_CustomMissile ("BaronBall",28,0,-4,0)
+       BOS4 G 3 Bright A_CustomMissile ("BaronBall",28,0,4,0)
+       BOS4 H 3 Bright
+       BOS4 H 0 A_Jump(64,8)
+       BOS4 IJ 8 Bright A_FaceTarget 
+       BOS4 K 0 Bright A_CustomMissile ("BaronBall",28,0,0,0)
+       BOS4 K 0 Bright A_CustomMissile ("BaronBall",28,0,-4,0)
+       BOS4 K 3 Bright A_CustomMissile ("BaronBall",28,0,4,0)
+       BOS4 L 3 Bright
+       BOS4 L 0 A_Jump(64,1)
+       Goto See
+       BOS4 MN 8 Bright A_FaceTarget
+       BOS4 O 0 Bright A_Jump(128,3)
+       BOS4 O 4 Bright A_CustomMissile ("ArchonComet",28,0,0,0)
+       BOS4 P 4 Bright
+       Goto See
+       BOS4 O 0 A_CustomMissile ("BaronBall",28,0,-6,0)
+       BOS4 O 0 A_CustomMissile ("BaronBall",28,0,-4,0)
+       BOS4 O 0 A_CustomMissile ("BaronBall",28,0,-2,0)
+       BOS4 O 0 A_CustomMissile ("BaronBall",28,0,2,0)
+       BOS4 O 0 A_CustomMissile ("BaronBall",28,0,4,0)
+       BOS4 O 3 Bright A_CustomMissile ("BaronBall",28,0,6,0)
+       BOS4 P 3 Bright
+       Goto See
+   Melee:
+       BOS4 EF 8 Bright A_FaceTarget 
+       BOS4 G 3 Bright A_MeleeAttack
+       BOS4 H 3 Bright
+       BOS4 H 0 A_Jump (128,1)
+       Goto See
+       BOS4 IJ 8 Bright A_FaceTarget 
+       BOS4 K 3 Bright A_MeleeAttack
+       BOS4 L 3 Bright
+       BOS4 L 0 A_Jump (64,1)
+       Goto See
+       BOS4 MN 8 Bright A_FaceTarget
+       BOS4 O 0 Bright A_MeleeAttack
+       BOS4 O 3 Bright A_MeleeAttack
+       BOS4 P 3 Bright
+       Goto See
+   Pain: 
+       BOS4 Q 2 
+       BOS4 Q 2 A_Pain 
+       Goto See 
+   Pain.Stunner:
+       BOS4 Q 2 A_ChangeFlag("NoPain", 1)
+       BOS4 Q 300 A_Pain
+       BOS4 Q 0 A_ChangeFlag("NoPain", 0)
+       goto See       
+   Death:
+	TNT1 A 0 A_GiveToTarget("AwardItem", 12)
+       BOS4 R 6 Bright
+       BOS4 S 6 Bright A_Scream 
+       BOS4 T 6 Bright 
+       BOS4 U 6 Bright A_NoBlocking 
+       BOS4 VW 6 Bright 
+       BOS4 X 6 Bright A_SpawnItemEx("ArchonSoul",0,0,86,0,0,3,0,128)
+       BOS4 YZ 6 Bright 
+       BOZ4 Z 6 Bright A_Fall 
+       Stop
+     } 
+}
+
+ACTOR ArchonComet
+{
+   Radius 8
+   Height 12
+   Speed 25
+   Damage 20
+   Scale 1.0
+   SpawnID 251
+   PROJECTILE
+   RENDERSTYLE Normal
+   +THRUGHOST
+   SeeSound "weapons/firbfi"
+   DeathSound "weapons/hellex"
+   DONTHURTSHOOTER
+   +FIREDAMAGE
+   States
+   {
+   Spawn: 
+      ARCB AAAABBBBCCCC 1 Bright A_SpawnItemEx("ArchonCometTrail",0,0,0,0,0,0,0,128)
+      loop
+   Death:
+      ARCB J 0 Bright A_SetTranslucent (0.67,1)
+      ARCB J 3 Bright
+      ARCB K 3 Bright A_Explode(128,128,0)
+      ARCB LMN 3 Bright
+      stop
+   }
+}
+
+ACTOR ArchonSoul
+{   
+   Radius 1
+   Height 1
+   Speed 3
+   PROJECTILE
+   RENDERSTYLE ADD
+   ALPHA 0.80
+   States
+   {
+   Spawn:
+      BFX1 ABCD 6 BRIGHT
+      Stop 
+   }
+}
+
+ACTOR ArchonCometTrail
+{   
+   Radius 3
+   Height 3
+   Scale 0.75
+   Speed 0
+   PROJECTILE
+   RENDERSTYLE ADD
+   ALPHA 0.67
+   States
+   {
+   Spawn:
+      TNT1 A 3 Bright
+      ARCB DEFGHI 3 BRIGHT
+      Stop 
+   }
+}
+

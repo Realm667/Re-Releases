@@ -1,0 +1,123 @@
+/////////////////////////////
+//       GREEN BEAM        //
+//           AND           //
+//         RED BEAM        //
+// Based on SKYBEAM by     //
+//           Tormentor667  //
+/////////////////////////////
+
+// Used in STR09
+
+actor GREENBEAM_Projectile
+{
+	Height 32
+	Radius 32
+	Mass 0
+	+Missile +Nogravity
+	RenderStyle Add
+	XScale 2.0
+        Alpha 0.8
+	States
+	{
+	Spawn:
+	    TNT1 A 0
+	    SAWP A 60 Bright
+	    SAWP AAAAAAAAAAA 2 Bright A_FadeOut(0.1)
+	    Stop
+	Death:
+	    SAWP AAAAAAAAAAA 2 Bright A_FadeOut(0.1)
+ 	    Stop
+	}
+}
+
+actor GREENBEAM_ProjectileSmall : GREENBEAM_Projectile
+{
+	XScale 0.08
+	YScale 0.08
+	Alpha 0.6
+}
+
+actor GREENBEAM : Thunder_Generator 11491
+{
+//$Category Stronghold_SFX
+        XScale 1.5
+        YScale 4.0
+        Alpha 0.01
+        states
+        {
+        Spawn:
+           Active:
+                TNT1 A 0
+		  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
+                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("GREENBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
+                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
+                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("GREENBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
+                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
+                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("GREENBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
+                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
+                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("GREENBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
+                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
+                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("GREENBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
+                Loop
+           Inactive:
+	        TNT1 A 1
+	        Loop
+        }
+}
+
+actor REDBEAM_Projectile
+{
+	Height 32
+	Radius 32
+	Mass 0
+	+Missile +Nogravity
+	RenderStyle Add
+	XScale 2.0
+        Alpha 0.8
+	States
+	{
+	Spawn:
+	    TNT1 A 0
+	    SAWS ABABABABABABABABABAB 3 Bright
+	    SAWS ABABABABABAB 2 Bright A_FadeOut(0.1)
+	    Stop
+	Death:
+	    SAWS ABABABABABAB 2 Bright A_FadeOut(0.1)
+ 	    Stop
+	}
+}
+
+actor REDBEAM : Thunder_Generator 11492
+{
+//$Category Stronghold_SFX
+        XScale 1.5
+        YScale 4.0
+        Alpha 0.01
+        states
+        {
+        Spawn:
+           Active:
+                TNT1 A 0
+		  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
+                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("REDBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
+                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
+                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("REDBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
+                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
+                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("REDBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
+                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
+                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("REDBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
+                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
+                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("REDBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
+                Loop
+           Inactive:
+	        TNT1 A 1
+	        Loop
+        }
+}
+
+actor REDBEAM_ProjectileSmall : REDBEAM_Projectile
+{
+	XScale 0.25
+	YScale 0.25
+	Alpha 0.6
+}

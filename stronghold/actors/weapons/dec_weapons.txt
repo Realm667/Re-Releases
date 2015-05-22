@@ -1,0 +1,1866 @@
+
+actor StrongholdPlayer : DoomPlayer replaces DoomPlayer
+{
+	Player.StartItem "LifeItem", 3   // starting lives
+	Player.StartItem "CoinItem", 300 // starting money
+	Player.StartItem "DEPistol", 1
+	Player.StartItem "DEFist"
+	Player.StartItem "Clip", 50
+	+GHOST			// Fixing the Coop-Mine Problem
+	-TELESTOMP		// No more telefrags in coop games
+}
+
+////////////////////////////////////////////////////////
+////////////////// CHAINSAW ////////////////////////////
+////////////////////////////////////////////////////////
+actor DEChainsaw : Weapon replaces Chainsaw
+{
+  spawnid 32
+  obituary "%o was mowed over by %k's chainsaw."
+  radius 20
+  height 16
+  inventory.pickupmessage "A chainsaw! Find some meat!"
+  weapon.selectionorder 2200
+  weapon.upsound "weapons/sawup"
+  weapon.readysound "weapons/sawidle"
+  Weapon.SisterWeapon "PowerChainsaw"
+  Decal BulletChip
+  +WEAPON.MELEEWEAPON
+  +GHOST
+  states
+  {
+  Ready:
+    SAWG CD 4 A_WeaponReady
+    loop
+  Deselect:
+    SAWG C 0 A_Lower
+    SAWG C 1 A_Lower
+    loop
+  Select:
+    SAWG C 0 A_Raise
+    SAWG C 1 A_Raise
+    loop
+  Fire:
+    SAWG AABB 2 A_Saw
+    SAWG B 0 A_ReFire
+    goto Ready
+  Spawn:
+    CSAW A -1
+    stop
+  }
+}
+
+
+////////////////////////////////////////////////////////
+/////////////////////////// FIST ///////////////////////
+////////////////////////////////////////////////////////
+actor DEFist : Weapon replaces Fist
+{
+  obituary "%o chewed on %k's fist."
+  weapon.selectionorder 3700
+  weapon.kickback 100
+  Weapon.SisterWeapon "PowerFist"
+  +WEAPON.WIMPY_WEAPON
+  +WEAPON.MELEEWEAPON
+  Tag "Fist"
+  states
+  {
+  Ready:
+    PUNG A 1 A_WeaponReady
+    loop
+  Deselect:
+    PUNG A 0 A_Lower
+    PUNG A 1 A_Lower
+    loop
+  Select:
+    PUNG A 0 A_Raise
+    PUNG A 1 A_Raise
+    loop
+  Fire:
+    PUNG B 4
+    PUNG C 4 A_Punch
+    PUNG D 5
+    PUNG C 4
+    PUNG B 5 A_ReFire
+    goto Ready
+  }
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// DEVASTATOR ///////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+Actor DevPuff
+{
+   Radius 3
+   Height 3
+   RENDERSTYLE ADD
+   ALPHA 0.75
+   +ALWAYSPUFF
+   +PUFFONACTORS
+   +NOGRAVITY
+   DeathSound "weapons/buzz"
+   States
+   {
+   Spawn:
+      DLIT JKLJKLJKL 3 Bright
+      stop
+   Crash:
+      TNT1 A 1 Bright
+      stop
+   }
+}
+
+ACTOR Devastator : Weapon 20101
+{
+//$Category Stronghold_Weapons
+   spawnid 242
+   Inventory.PickupSound "misc/w_pkup"
+   Inventory.PickupMessage "You got the devastator! Hell yeah!"
+   Obituary "%o was desintergrated by %k's Devastator."
+   Weapon.AmmoType "Cell"
+   Weapon.AmmoGive 60
+   Weapon.AmmoUse 60
+   Weapon.SisterWeapon "PowerDevastator"
+   Damagetype "Normal"
+   Tag "Devastator"
+   +WEAPON.EXPLOSIVE
+   +WEAPON.BFG
+   +WEAPON.NOAUTOFIRE
+   States
+   {
+   Spawn:
+      WDEV A -1
+      Loop
+   Ready:
+      DEVG A 2 A_WeaponReady
+      Loop
+   Deselect:
+      DEVG A 0 A_Lower
+      DEVG A 1 A_Lower
+      Loop
+   Select:
+      DEVG A 0 A_Raise
+      DEVG A 1 A_Raise
+      Loop
+   Fire:
+      DEVG B 10 A_PlayWeaponSound("weapons/devchr")
+      DEVG CDEF 10 Bright
+      DEVG A 0 A_Refire
+      DEVG J 4 Bright A_GunFlash
+      DEVG J 1 Bright A_Playsound("weapons/devfir")
+      DEVG K 10 Bright A_FireCustomMissile ("DevastatorBall",0,1,0,0)
+      DEVG L 7 Bright
+      Goto Ready
+   Hold:
+      DEVG G 1 A_PlayWeaponSound("weapons/devfch")
+      DEVG G 3 Bright A_FireBullets(4,4,2,6,"DevPuff",0,64)
+      DEVG H 4 Bright A_FireBullets(4,4,2,6,"DevPuff",0,64)
+      DEVG I 4 Bright A_FireBullets(4,4,2,6,"DevPuff",0,64)
+      DEVG G 4 Bright A_FireBullets(4,4,2,6,"DevPuff",0,64)
+      DEVG H 4 Bright A_FireBullets(4,4,2,6,"DevPuff",0,64)
+      DEVG I 4 Bright A_FireBullets(4,4,2,6,"DevPuff",0,64)
+      DEVG I 0 A_Refire
+      DEVG J 4 Bright A_GunFlash
+      DEVG J 1 Bright A_Playsound("weapons/devfir")
+      DEVG K 10 Bright A_FireCustomMissile ("DevastatorBall",0,1,0,0)
+      DEVG L 7 Bright
+      Goto Ready
+   Flash:
+      TNT1 A 5 A_Light1
+      TNT1 A 10 A_Light2
+      TNT1 A 7 A_Light1
+      TNT1 A 5 A_Light0
+      stop
+   }
+}
+
+ACTOR DevastatorBall
+{
+   Radius 12
+   Height 8
+   Speed 30
+   Damage 256
+   PROJECTILE
+   ExplosionRadius 256
+   ExplosionDamage 320
+   RENDERSTYLE ADD
+   ALPHA 0.90
+   Damagetype "Normal"
+   +THRUGHOST
+   DeathSound "weapons/devexp"
+   Decal DevastatorLightning
+   States
+   {
+   Spawn:
+      DBAL AB 4 Bright
+      DBAL A 4 Bright A_Explode (128,128,1)
+      DBAL A 0 Bright A_Jump (160,3)
+      DBAL AAA 0 Bright A_CustomMissile("LiteShot",0,0,Random(0,360))
+      DBAL B 4 Bright A_Explode (128,128,1)
+      DBAL B 0 Bright A_Jump (160,3)
+      DBAL BBB 0 Bright A_CustomMissile("LiteShot",0,0,Random(0,360))
+      Goto Spawn+2
+   Death:
+      DBAL C 5 Bright
+      DBAL D 5 Bright A_Explode
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,18,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,36,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,54,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,72,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,90,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,108,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,126,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,144,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,144,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,162,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,180,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,196,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,216,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,234,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,252,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,270,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,288,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,306,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,324,2)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,342,2)
+      DBAL EFG 5 Bright A_Explode
+      DBAL HI 3 Bright
+      stop
+   }
+}
+
+/* ACTOR DevastatorBall
+{
+   Radius 12
+   Height 8
+   Speed 30
+   Damage 100
+   PROJECTILE
+   ExplosionRadius 256
+   ExplosionDamage 360
+   RENDERSTYLE ADD
+   ALPHA 0.90
+   Damagetype lightning
+   +THRUGHOST
+   +FORCERADIUSDMG
+   +FORCEXYBILLBOARD
+   DeathSound "weapons/devexp"
+   States
+   {
+   Spawn:
+      DBAL AB 4 Bright 
+      DBAL A 4 Bright A_Explode (128,128,0)
+      DBAL A 0 Bright
+      DBAL AAA 0 Bright A_SpawnItem("DevShooter")
+      DBAL B 4 Bright A_Explode (128,128,0)
+      DBAL B 0 Bright
+      DBAL BBB 0 Bright A_SpawnItem("DevShooter")
+      Goto Spawn+2
+   Death:
+      DBAL C 5 Bright 
+      DBAL D 5 Bright A_Explode
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,18,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,36,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,54,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,72,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,90,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,108,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,126,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,144,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,144,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,162,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,180,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,196,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,216,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,234,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,252,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,270,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,288,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,306,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,324,6)
+      DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,342,6)
+      DBAL EFG 5 Bright A_Explode
+      DBAL HI 3 Bright
+      stop
+   }
+} */
+
+ACTOR DevastatorBall2
+{
+   Radius 8
+   Height 8
+   Speed 10
+   Damage 10
+   PROJECTILE
+   RENDERSTYLE ADD
+   ALPHA 0.90
+   Damagetype lightning
+   Decal DoomImpScorch
+   +THRUGHOST
+   +FORCEXYBILLBOARD
+   SeeSound "weapons/devbal"
+   DeathSound "weapons/devex2" 
+   States
+   {
+   Spawn:
+      DBA2 AB 4 Bright
+      Loop
+   Death:
+      DBA2 C 1 Bright
+      DBA2 C 3 Bright A_Explode(64,64,0)
+      DBA2 DE 4 Bright
+      Stop
+   }
+}
+
+actor DevShooter
+{  
+   Radius 8
+   Height 8
+   MONSTER
+   Speed 0
+   +FRIENDLY
+   +NOGRAVITY
+   +NOCLIP
+   States
+   {
+   Spawn:
+      TNT1 A 0 A_Look
+   See:
+      TNT1 A 0 A_Chase
+   Missile:
+      TNT1 A 0 A_FaceTarget
+      TNT1 A 0 A_CustomMissile("LiteShot",0,0,0,0)
+      Stop
+    }
+}
+
+ACTOR LiteShot
+{
+   Radius 8
+   Height 12
+   Speed 32
+   Damage 10
+   PROJECTILE
+   RENDERSTYLE ADD
+   ALPHA 0.85
+   Damagetype lightning
+   +THRUGHOST
+   +RIPPER
+   +FORCEXYBILLBOARD
+   SeeSound "weapons/devlit"
+   DeathSound "weapons/devzap" 
+   States
+   {
+   Spawn:
+      DLIT AAABBBCCC 1 Bright A_SpawnItemEx("LiteTrail",0,0,0,0,0,0,0,0,128)
+      Loop
+   Death:
+      DLIT DEFGHIJKLMNO 1 Bright
+      Stop
+   }
+}
+
+ACTOR LiteTrail
+{
+   Radius 1
+   Height 1
+   PROJECTILE
+   RENDERSTYLE ADD
+   ALPHA 0.67
+   +FORCEXYBILLBOARD
+   States
+   {
+   Spawn:
+      DLIT ABC 3 Bright
+      stop
+   }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// RAILGUN    ///////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+ACTOR RailGun : Weapon 20102
+{
+//$Category Stronghold_Weapons
+   spawnid 241
+   Inventory.PickupSound "misc/w_pkup"
+   Inventory.PickupMessage "You got the railgun!"
+   Obituary "%o was railed by %k."
+   Damagetype "Normal"
+   Weapon.AmmoType "Cell"
+   Weapon.AmmoGive 40
+   Weapon.AmmoUse 5
+   Weapon.SisterWeapon "PowerRailGun"
+   Decal RailScorch
+   Tag "Railgun"
+   States
+   {
+   Spawn:
+      WRAL A -1
+      Loop
+   Ready:
+      RAIG A 2 A_WeaponReady
+      Loop
+   Deselect:
+      RAIG A 0 A_Lower
+      RAIG A 1 A_Lower
+      Loop
+   Select:
+      RAIG A 0 A_Raise
+      RAIG A 1 A_Raise
+      Loop
+   Fire:
+      RAIG A 0 A_JumpIfInventory("RailCharge",2,22)
+      RAIG A 0 A_JumpIfInventory("RailCharge",1,10)
+      RAIG B 6 A_PlayWeaponSound("weapons/railch")
+      RAIG B 6 Bright A_GiveInventory("RailCharge",1)
+      RAIG B 0 A_Refire
+      RAIG E 3 Bright A_GunFlash
+      RAIG E 1 A_PlayWeaponSound("weapons/railf1")
+      RAIG F 6 Bright A_RailAttack(100,0,1,"FF 00 00","FF FF FF")
+      RAIG A 4
+      RAIG K 15
+      RAIG A 0 A_TakeInventory("RailCharge",3)
+      Goto Ready
+      RAIG C 6 A_PlayWeaponSound("weapons/railch")
+      RAIG C 6 Bright A_GiveInventory("RailCharge",1)
+      RAIG C 0 A_Refire
+      RAIG G 3 Bright A_GunFlash
+      RAIG G 1 A_PlayWeaponSound("weapons/railf2")
+      RAIG H 0 Bright A_RailAttack(0,0,1,"FF FF 00","FF FF FF")
+      RAIG H 6 Bright A_RailAttack(200,0,1,"FF FF 00","FF 45 00")
+      RAIG A 4
+      RAIG K 15
+      RAIG A 0 A_TakeInventory("RailCharge",3)
+      Goto Ready
+      RAIG D 6 A_PlayWeaponSound("weapons/railch")
+      RAIG D 6 Bright
+      RAIG D 0 A_Refire
+      RAIG I 3 Bright A_GunFlash
+      RAIG I 1 A_PlayWeaponSound("weapons/railf3")
+      RAIG J 0 Bright A_RailAttack(0,0,1,"00 00 FF","00 45 FF")
+      RAIG J 0 Bright A_RailAttack(0,0,1,"00 00 FF","FF FF FF")
+      RAIG J 4 Bright A_RailAttack(300,0,1,"00 00 FF","00 FF 00")
+      RAIG A 4
+      RAIG K 15
+      RAIG A 0 A_TakeInventory("RailCharge",3)
+      Goto Ready
+   Flash:
+      TNT1 A 4 A_Light1
+      TNT1 A 4 A_Light2
+      TNT1 A 1 A_Light1
+      TNT1 A 0 A_Light0
+      stop
+   }
+}
+
+ACTOR RailCharge : Ammo
+{
+   Inventory.MaxAmount 3
+   Ammo.BackpackAmount 0
+   Ammo.BackpackMaxAmount 3
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// HOMING ROCKET LAUNCHER ///////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+ACTOR HRL : Weapon 20103
+{
+//$Category Stronghold_Weapons
+   spawnid 240
+   Inventory.PickupSound "misc/w_pkup"
+   Inventory.PickupMessage "You got the homing rocket launcher!"
+   Obituary "%o couldn't dodge %k's homing rockets."
+   Weapon.AmmoType "RocketAmmo"
+   Weapon.AmmoGive 4
+   Weapon.AmmoUse 1
+   Weapon.SisterWeapon "PowerHRL"
+   Tag "Homing Rocket Launcher"
+   States
+   {
+   Spawn:
+      WHRL A -1
+      Loop
+   Ready:
+      HRLG A 1 A_WeaponReady
+      Loop
+   Deselect:
+      HRLG A 0 A_Lower
+      HRLG A 1 A_Lower
+      Loop
+   Select:
+      HRLG A 0 A_Raise
+      HRLG A 1 A_Raise
+      Loop
+   Fire:
+      HRLG A 4
+      HRLG C 0 Bright A_GunFlash
+      HRLG C 5 Bright
+      HRLG D 0 Bright A_FireCustomMissile ("HomRocket1",-4,1,0,0)
+      HRLG D 6 Bright A_FireCustomMissile ("HomRocket1",4,1,0,0)
+      HRLG E 5 Bright
+      HRLG F 4 Bright
+      HRLG B 3 A_Refire
+      Goto Ready
+   Flash:
+      TNT1 A 5 A_Light1
+      TNT1 A 6 A_Light2
+      TNT1 A 5 A_Light1
+      TNT1 A 0 A_Light0
+      stop
+   }
+}
+
+ACTOR HomRocket1
+{
+   Radius 8
+   Height 11
+   Speed 30
+   Damage 15
+   PROJECTILE
+   DeathSound "weapons/hrlexp"
+   ExplosionDamage 128
+   ExplosionRadius 128
+   Damagetype "Normal"
+   +SeekerMissile
+   +Rockettrail
+   +THRUGHOST
+   SeeSound "weapons/hrlfir"
+   Decal Scorch
+   States
+   {
+   Spawn:
+      HMIS A 4 Bright A_SeekerMissile (25,35)
+      HMIS A 4 Bright
+      HMIS A 2 Bright A_SeekerMissile (10,25)
+      HMIS A 2 Bright
+      goto Spawn+2
+   Death:
+      MISL B 0 Bright A_SetTranslucent (0.67,1)
+      MISL C 8 Bright A_Explode
+      MISL D 5 Bright
+      stop
+   }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// ROCKET LAUNCHER //////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+ACTOR DERLauncher : RocketLauncher replaces RocketLauncher
+{
+   Weapon.SisterWeapon "PowerRLauncher"
+   Tag "Rocket Launcher"
+   States
+   {
+   Spawn:
+      LAUN A -1
+      Loop
+   Ready:
+      MISG A 1 A_WeaponReady
+      Loop
+   Deselect:
+      MISG A 0 A_Lower
+      MISG A 1 A_Lower
+      Loop
+   Select:
+      MISG A 0 A_Raise
+      MISG A 1 A_Raise
+      Loop
+   Fire:
+      MISF A 4 Bright A_GunFlash
+      MISF B 5 Bright A_FireCustomMissile("Rocket2",0,1,0,0)
+      MISF CD 5 Bright
+      MISG A 0 A_Refire
+      Goto Ready
+   Hold:
+      MISF A 4 Bright A_GunFlash
+      MISF B 5 Bright A_FireCustomMissile("Rocket2",0,1,0,0)
+      MISF CD 5 Bright
+      MISG A 0 A_Refire
+      Goto Ready
+   Flash:
+      TNT1 A 4 A_Light1
+      TNT1 A 5 A_Light2
+      TNT1 A 5 A_Light1
+      TNT1 A 5 A_Light0
+      stop
+   }
+}
+
+actor Rocket2 replaces Rocket
+{
+  obituary "%o rode %k's rocket."
+  radius 11
+  height 8
+  speed 20
+  damage 20
+  seesound "weapons/rocklf"
+  deathsound "weapons/rocklx"
+  Decal Scorch
+  PROJECTILE
+  Damagetype "Normal"
+  +RANDOMIZE
+  +ROCKETTRAIL
+  -THRUGHOST
+  states
+  {
+  Spawn:
+    MISL A 1 bright
+    loop
+  Death:
+    MISL B 0 bright A_SetTranslucent (0.67,1)
+    MISL B 8 bright A_Explode
+    MISL C 6 bright
+    MISL D 4 bright
+    stop
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// PLASMA RIFLE /////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+ACTOR DEPlasmaRifle : PlasmaRifle replaces PlasmaRifle
+{
+   Weapon.SisterWeapon "PowerPlasmaRifle"
+   Tag "Plasma Rifle"
+   States
+   {
+   Spawn:
+      PLAS A -1
+      Loop
+   Ready:
+      PLSG ABC 3 Bright A_WeaponReady
+      Loop
+   Deselect:
+      PLSG E 0 A_Lower
+      PLSG E 1 A_Lower
+      Loop
+   Select:
+      PLSG E 0 A_Raise
+      PLSG E 1 A_Raise
+      Loop
+   Fire:
+      PLSG F 0 Bright A_GunFlash
+      PLSG F 1 Bright A_FireCustomMissile("PlasmaBall",0,1,0,0)
+      PLSG G 1 Bright
+      PLSG H 1 Bright
+      PLSG D 20 A_Refire
+      Goto Ready
+   Hold:
+      PLSG F 0 Bright A_GunFlash
+      PLSG F 1 Bright A_FireCustomMissile("PlasmaBall",0,1,0,0)
+      PLSG G 1 Bright
+      PLSG H 1 Bright
+      PLSG D 20 A_Refire
+      Goto Ready
+   Flash:
+      TNT1 A 1 A_Light1
+      TNT1 A 1 A_Light2
+      TNT1 A 1 A_Light1
+      TNT1 A 1 A_Light0
+      stop
+   }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////  BFG9000   ///////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+actor DEBFG9000 : BFG9000 Replaces BFG9000
+{
+  Weapon.SisterWeapon "PowerBFG9000"
+  Tag "BFG 9000"
+  States
+  {
+  Spawn:
+    BFUG A -1
+    stop
+  Ready:
+      BFGG ABCD 3 Bright A_WeaponReady
+      loop
+  Deselect:
+      BFGG E 0 A_Lower
+      BFGG E 1 A_Lower
+      loop
+  Select:
+      BFGG E 0 A_Raise
+      BFGG E 1 A_Raise
+      loop
+  Fire:
+      BFGG F 5 Bright A_PlayWeaponSound ("weapons/bfgf")
+      BFGG G 5 Bright
+      BFGG H 5 Bright
+      BFGG I 5 Bright
+      BFGG J 4 Bright
+      BFGG K 7 Bright A_GunFlash
+      BFGG L 8 Bright A_FireCustomMissile ("BFGBall",0,1,0,0)
+      BFGG M 8 Bright
+      BFGG N 7 Bright
+      BFGG E 20 Bright A_ReFire
+      goto Ready
+  Hold:
+      BFGG F 5 Bright A_PlayWeaponSound ("weapons/bfgf")
+      BFGG G 5 Bright
+      BFGG H 5 Bright
+      BFGG I 5 Bright
+      BFGG J 4 Bright
+      BFGG K 7 Bright A_GunFlash
+      BFGG L 8 Bright A_FireCustomMissile ("BFGBall",0,1,0,0)
+      BFGG M 8 Bright
+      BFGG N 7 Bright
+      BFGG E 20 Bright A_ReFire
+      goto Ready
+   Flash:
+      TNT1 A 7 A_Light1
+      TNT1 A 8 A_Light2
+      TNT1 A 8 A_Light1
+      TNT1 A 0 A_Light1
+      TNT1 A 0 A_Light0
+    stop
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// PYRO CANNON //////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+ACTOR PyroCannon : Weapon 20107
+{
+//$Category Stronghold_Weapons
+   spawnid 239
+   Inventory.PickupSound "misc/w_pkup"
+   Inventory.PickupMessage "You got the pyro cannon prototype!"
+   Obituary "%o was incinerated by %k's pyro cannon."
+   Weapon.AmmoType "Gas"
+   Weapon.AmmoGive 48
+   Weapon.AmmoUse 48
+   Weapon.SisterWeapon "PowerPyroCannon"
+   Tag "Pyro Cannon"
+   +WEAPON.EXPLOSIVE
+   +WEAPON.BFG
+   +WEAPON.DONTBOB
+   +WEAPON.STAFF2_KICKBACK
+   States
+   {
+   Spawn:
+      WPYR A -1
+      Loop
+   Ready:
+      PYRG A 1 A_WeaponReady
+      Loop
+   Deselect:
+      PYRG A 0 A_Lower
+      PYRG A 1 A_Lower
+      Loop
+   Select:
+      PYRG A 0 A_Raise
+      PYRG A 1 A_Raise
+      Loop
+   Fire:
+      PYRG A 5
+      PYRG B 8 Bright A_GunFlash
+      PYRG C 10 Bright A_FireCustomMissile("PyroShot",0,1,0,0)
+      PYRG DEFG 5 Bright
+      PYRG A 5 A_Refire
+      Goto Ready
+   Hold:
+      PYRG A 5
+      PYRG B 8 Bright A_GunFlash
+      PYRG C 10 Bright A_FireCustomMissile("PyroShot",0,1,0,0)
+      PYRG DEFG 5 Bright
+      PYRG A 5 A_Refire
+      Goto Ready
+   Flash:
+      TNT1 A 8 A_Light1
+      TNT1 A 10 A_Light2
+      TNT1 A 15 A_Light1
+      TNT1 A 1 A_Light0
+      stop
+   }
+}
+
+ACTOR Gas : Ammo 22106
+{
+//$Category Stronghold_Weapons
+   SpawnID 222
+   RENDERSTYLE Normal
+   Inventory.PickupSound "misc/pickup"
+   Inventory.Amount 24
+   Inventory.MaxAmount 240
+   Ammo.BackpackAmount 24
+   Ammo.BackpackMaxAmount 480
+   Inventory.PickupMessage "Picked up a gas canister."
+   Inventory.Icon AGASA0
+   States
+   {
+   Spawn:
+      AGAS A 1
+      Loop
+   }
+}
+
+ACTOR Fuel : Gas 22107
+{
+//$Category Stronghold_Weapons
+   SpawnID 221
+   Inventory.Amount 96
+   Inventory.PickupMessage "Picked up a gas pack."
+   States
+   {
+   Spawn:
+      AGAS B 1
+      Loop
+   }
+}
+
+ACTOR PyroShot
+{
+   Radius 8
+   Height 12
+   Speed 30
+   Damage 180
+   PROJECTILE
+   RENDERSTYLE ADD
+   DamageType Fire
+   ALPHA 0.95
+   Scale 0.75
+   +THRUGHOST
+   SeeSound "weapons/hellfi"
+   DeathSound "weapons/hellex"
+   Decal BigScorch
+   States
+   {
+   Spawn:
+      PBAL ABA 4 Bright
+      PBAL BA 4 Bright A_Explode(128,128)
+      goto Spawn+3
+   Death:
+      PYXP AB 2 Bright
+      PYXP C 2 Bright A_Explode(192,128)
+      PYXP C 0 Bright A_CustomMissile("PyroSpawner",0,0,0,4)
+      PYXP C 0 Bright A_CustomMissile("PyroSpawner",0,0,45,4)
+      PYXP C 0 Bright A_CustomMissile("PyroSpawner",0,0,90,4)
+      PYXP C 0 Bright A_CustomMissile("PyroSpawner",0,0,135,4)
+      PYXP C 0 Bright A_CustomMissile("PyroSpawner",0,0,180,4)
+      PYXP C 0 Bright A_CustomMissile("PyroSpawner",0,0,225,4)
+      PYXP C 0 Bright A_CustomMissile("PyroSpawner",0,0,270,4)
+      PYXP C 0 Bright A_CustomMissile("PyroSpawner",0,0,315,4)
+      PYXP C 0 Bright A_Mushroom("PyroFlare",16)
+      PYXP DEFGHIJKLMNOPQRSTU 2 Bright
+      stop
+   }
+}
+
+ACTOR PyroSpawner
+{
+   Radius 1
+   Height 1
+   Damage 10
+   PROJECTILE
+   Speed 15
+   RENDERSTYLE NONE
+   +RIPPER
+   +BLOODLESSIMPACT
+   States
+   {
+   Spawn:
+      TNT1 AAAAA 5 Bright A_CustomMissile("PyroBoom",0,0,0,4)
+      stop
+   }
+}
+
+ACTOR PyroBoom
+{
+   Radius 0
+   Height 1
+   PROJECTILE
+   RENDERSTYLE ADD
+   DamageType Fire
+   ALPHA 0.95
+   Scale 0.67
+   +THRUGHOST
+   SeeSound "weapons/boom1"
+   States
+   {
+   Spawn:
+      PYXP AB 2 Bright
+      PYXP C 2 Bright A_Explode(192,128)
+      PYXP DEFGHIJKLMNOPQRSTU 2 Bright
+      stop
+   }
+}
+
+ACTOR PyroFlare
+{
+   Radius 8
+   Height 11
+   Speed 35
+   Damage 10
+   PROJECTILE
+   RENDERSTYLE ADD
+   DamageType Fire
+   Decal DoomImpScorch
+   ALPHA 0.95
+   -NOGRAVITY
+   +THRUGHOST
+   DeathSound "weapons/bang1"
+   States
+   {
+   Spawn:
+      TNT1 A 1 Bright A_SpawnItemEx("PyroFX",0,0,0,0,0,0,0,128)
+      loop
+   Death:
+      FRFX HIJ 2 Bright
+      FRFX J 0 A_Explode(64,64)
+      FRFX J 0 A_SpawnItem("DropFire",0,0)
+      FRFX KLMNO 2 Bright
+      stop
+   }
+}
+
+ACTOR PyroFX
+{
+   Radius 0
+   Height 1
+   Speed 0
+   PROJECTILE
+   RENDERSTYLE ADD
+   ALPHA 0.85
+   States
+   {
+   Spawn:
+      TNT1 A 3 Bright
+      PYFX ABCDE 3 Bright
+      Stop
+   }
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// SHOTGUN //////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+actor DEShotgun : Shotgun replaces Shotgun
+{
+  Weapon.SisterWeapon "PowerShotgun"
+  obituary "%o got pummeled by %k's shotgun."
+  radius 20
+  height 16
+  attacksound "weapons/shotgf"
+  inventory.pickupmessage "You got the shotgun!"
+  Tag "Shotgun"
+  weapon.selectionorder 1300
+  weapon.kickback 100
+  weapon.ammotype "Shell"
+  weapon.ammouse 1
+  weapon.ammogive 8
+  decal bulletchip
+  states
+  {
+  Spawn:
+    SHOT A -1
+    stop
+  Ready:
+    SHTG A 1 A_WeaponReady
+    loop
+  Deselect:
+    SHTG A 0 A_Lower
+    SHTG A 1 A_Lower
+    loop
+  Select:
+    SHTG A 0 A_Raise
+    SHTG A 1 A_Raise
+    loop
+  Fire:
+    SHTG A 3
+    SHTG E 0 A_GunFlash
+    SHTG E 2 A_FireBullets (4, 3, 7, 5, "BulletPuff")
+    SHTG F 3
+    SHTG G 2
+    SHTG BC 5
+    SHTG D 4
+    SHTG CB 5
+    SHTG A 3
+    SHTG A 7 A_ReFire
+    goto Ready
+  Hold:
+    SHTG A 3
+    SHTG E 0 A_GunFlash
+    SHTG E 2 A_FireBullets (4, 3, 7, 5, "BulletPuff")
+    SHTG F 3
+    SHTG G 2
+    SHTG BC 5
+    SHTG D 4
+    SHTG CB 5
+    SHTG A 3
+    SHTG A 7 A_ReFire
+    goto Ready
+  Flash:
+    TNT1 A 4 bright A_Light1
+    TNT1 A 3 bright A_Light2
+    TNT1 A 0 bright A_Light0
+    stop
+  }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// FLAMER ///////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+ACTOR Flamer : Weapon 20105
+{
+//$Category Stronghold_Weapons
+   spawnid 238
+   Inventory.PickupSound "misc/w_pkup"
+   Inventory.PickupMessage "You got the flamethrower! Time for a BBQ!"
+   Obituary "%o was BBQed by %k's flamethrower."
+   Weapon.AmmoType "Gas"
+   Weapon.AmmoGive 48
+   Weapon.AmmoUse 1
+   Weapon.SisterWeapon "PowerFlamer"
+   Tag "Flamethrower"
+   +WEAPON.EXPLOSIVE
+   States
+   {
+   Spawn:
+      WFLM A -1
+      Loop
+   Ready:
+      FLMG BCD 3 A_WeaponReady
+      Loop
+   Deselect:
+      FLMG A 0 A_Lower
+      FLMG A 1 A_Lower
+      Loop
+   Select:
+      FLMG A 0 A_Raise
+      FLMG A 1 A_Raise
+      Loop
+   Fire:
+      FLMG E 0 Bright A_GunFlash
+      FLMG E 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG F 1 Bright A_FireCustomMissile("FTFire",0,0,random(-4,4),0)
+      FLMG G 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG E 0 Bright A_GunFlash
+      FLMG E 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG F 1 Bright A_FireCustomMissile("FTFire",0,0,random(-4,4),0)
+      FLMG G 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG E 0 Bright A_GunFlash
+      FLMG E 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG F 1 Bright A_FireCustomMissile("FTFire",0,0,random(-4,4),0)
+      FLMG G 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG H 2 Bright A_Refire
+      Goto Ready
+   Hold:
+      FLMG E 0 Bright A_GunFlash
+      FLMG E 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG F 1 Bright A_FireCustomMissile("FTFire",0,0,random(-4,4),0)
+      FLMG G 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG E 0 Bright A_GunFlash
+      FLMG E 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG F 1 Bright A_FireCustomMissile("FTFire",0,0,random(-4,4),0)
+      FLMG G 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG E 0 Bright A_GunFlash
+      FLMG E 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG F 1 Bright A_FireCustomMissile("FTFire",0,0,random(-4,4),0)
+      FLMG G 1 Bright A_FireCustomMissile("FTFire",0,1,random(-4,4),0)
+      FLMG H 2 Bright A_Refire
+      Goto Ready
+   Flash:
+      TNT1 A 2 A_Light1
+      TNT1 A 2 A_Light2
+      TNT1 A 1 A_Light1
+      TNT1 A 1 A_Light0
+      stop
+   }
+}
+
+ACTOR FTFire
+{
+   Radius 2
+   Height 4
+   Speed 16
+   Damage 1
+   PROJECTILE
+   RENDERSTYLE ADD
+   DamageType Fire
+   ALPHA 0.67
+   Scale 0.67
+   SeeSound "weapons/flamer"
+   DeathSound "weapons/scorch"
+   DONTHURTSHOOTER
+   +THRUGHOST
+   +DONTSPLASH
+   States
+   {
+   Spawn:
+      TNT1 A 2 Bright
+      FRFX ABCD 2 Bright A_Explode(5,8,0)
+      FRFX D 0 Bright A_Lowgravity
+      FRFX EFG 2 Bright A_Explode(5,16,0)
+      FRFX HIJ 2 Bright A_Explode(5,32,0)
+      FRFX KLM 2 Bright A_Explode(5,64,0)
+      FRFX NO 2 Bright
+      stop
+   Death:
+      FRFX HIJ 2 Bright A_Explode(5,32,0)
+      FRFX J 0 A_CustomMissile ("DropFire",0,0,0,4)
+      FRFX KLM 2 Bright A_Explode(5,64,0)
+      FRFX NO 2 Bright
+      stop
+   }
+}
+
+ACTOR DropFire
+{
+   Radius 8
+   Height 40
+   PROJECTILE
+   RENDERSTYLE ADD
+   DamageType Fire
+   ALPHA 0.90
+   DONTHURTSHOOTER
+   -NOGRAVITY
+   +LOWGRAVITY
+   +NOEXPLODEFLOOR
+   +NODAMAGETHRUST
+   +THRUGHOST
+   +DONTSPLASH
+   States
+   {
+   Spawn:
+      FLME A 1 Bright A_Playsound("weapons/onfire")
+      FLME A 1 Bright A_Explode(5,16,0)
+      FLME BCDEFGHIJKLMN 2 Bright A_Explode(5,16,0)
+      FLME A 1 Bright A_Playsound("weapons/onfire")
+      FLME A 1 Bright A_Explode(5,32,0)
+      FLME BCDEFGHIJKLMN 2 Bright A_Explode(5,16,0)
+      FLME A 1 Bright A_Playsound("weapons/onfire")
+      FLME A 1 Bright A_Explode(5,32,0)
+      FLME BCDEFGHIJKLMN 2 Bright A_Explode(5,16,0)
+      FLME A 1 Bright A_Playsound("weapons/onfire")
+      FLME A 1 Bright A_Explode(5,32,0)
+      FLME BCDEFGHIJKLMN 2 Bright A_Explode(5,16,0)
+      FLME A 1 Bright A_Playsound("weapons/onfire")
+      FLME A 1 Bright A_Explode(5,32,0)
+      FLME BCDEFGHIJKLMN 2 Bright A_Explode(5,16,0)
+      FLME A 0 A_Jump(192,1)
+      loop
+      TNT1 A 0
+      goto death
+   Death:
+      TNT1 A 1 Bright
+      stop
+   }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// CHAINGUN /////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+actor DEChaingun : Chaingun replaces Chaingun
+{
+  spawnid 28
+  Weapon.SisterWeapon "PowerChaingun"
+  obituary "%o was mowed down by %k's chaingun."
+  radius 20
+  height 16
+  inventory.pickupmessage "You got the chaingun!"
+  Tag "Chaingun"
+  weapon.selectionorder 700
+  weapon.kickback 100
+  weapon.ammotype "Clip"
+  weapon.ammouse 1
+  weapon.ammogive 20
+  Damagetype "Normal"
+  decal bulletchip
+  states
+  {
+  Ready:
+    CHGG A 1 A_WeaponReady
+    loop
+  Deselect:
+    CHGG A 0 A_StopSoundEx("Weapon")
+    CHGG A 0 A_Lower
+    CHGG A 1 A_Lower
+    goto Deselect+1
+  Select:
+    CHGG A 0 A_Raise
+    CHGG A 1 A_Raise
+    loop
+  Fire:
+  	CHGG C 0 A_PlaySoundEx("weapons/chnglp","Weapon",1)
+    CHGG C 2 Bright A_GunFlash
+    CHGG D 2 Bright A_FireBullets (4,2.3,1,5,"BulletPuff")
+    CHGG E 2 Bright A_GunFlash
+    CHGG F 2 Bright A_FireBullets (4,2.3,1,5,"BulletPuff")
+    CHGG A 0 A_Refire
+	CHGG A 0 A_StopSoundEx("Weapon")
+	CHGG A 0 A_PlaySoundEx("weapons/chngdn","Weapon",0)
+    goto Ready
+  Hold:
+    CHGG C 2 Bright A_GunFlash
+    CHGG D 2 Bright A_FireBullets (4,2.3,1,5,"BulletPuff")
+    CHGG E 2 Bright A_GunFlash
+    CHGG F 2 Bright A_FireBullets (4,2.3,1,5,"BulletPuff")
+    CHGG A 0 A_Refire
+	CHGG A 0 A_StopSoundEx("Weapon")
+	CHGG A 0 A_PlaySoundEx("weapons/chngdn","Weapon",0)
+    goto Ready
+  Flash:
+    TNT1 A 2 bright A_Light1
+    TNT1 A 2 bright A_Light2
+    TNT1 A 0 bright A_Light0
+    stop
+  Spawn:
+    CHNG A -1
+    stop
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// PISTOL ///////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+actor DEPistol : Weapon replaces Pistol 
+{
+  obituary "%o was tickled by %k's pea shooter."
+  attacksound "weapons/pistol"
+  weapon.selectionorder 1900
+  weapon.kickback 100
+  weapon.ammotype "Clip"
+  weapon.ammouse 1
+  weapon.ammogive 20
+  Weapon.SisterWeapon "PowerPistol"
+  Tag "Pistol"
+  +WEAPON.WIMPY_WEAPON
+  decal bulletchip
+  states
+  {
+  Spawn:
+    PISW A -1
+    stop
+  Ready:
+    PISG A 0 A_JumpIfInventory("PCount",1,2)
+    PISG A 1
+    Goto Reload
+    PISG A 1 A_WeaponReady
+    Goto Ready
+  Deselect:
+    PISG A 0 A_Lower
+    PISG A 1 A_Lower
+    loop
+  Select:
+    PISG A 0 A_Raise
+    PISG A 1 A_Raise
+    loop
+  Fire:
+    PISG A 4
+    PISG B 0 A_FireBullets (5.6, 0, 1, 5, "BulletPuff")
+    PISF A 6 A_GunFlash
+    PISG C 4
+    PISG B 5 A_ReFire
+    goto Ready
+  Reload:
+    PISG D 5 A_PlaySound("weapons/clipou")
+    PISG EFGHIJK 4
+    PISG L 4 A_Playsound("weapons/clipin")
+    PISG MNO 4
+    PISG P 4 A_Playsound("weapons/clipre")
+    PISG QR 4
+    PISG S 4 A_GiveInventory("PCount",1)
+    Goto Ready
+  Flash:
+    PISF A 7 bright A_Light1
+    PISF A 0 bright A_Light0
+    stop
+  }
+}
+
+ACTOR PCount : Ammo
+{
+     Inventory.Amount 1
+     Inventory.MaxAmount 1
+     Ammo.BackpackAmount 0
+     Ammo.BackpackMaxAmount 1
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// SUPER SHOTGUN ////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+actor DESuperShotgun : SuperShotgun replaces SuperShotgun
+{
+  spawnid 33
+  obituary "%o was splattered by %k's super shotgun."
+  radius 20
+  height 16
+  attacksound "weapons/sshotf"
+  inventory.pickupmessage "You got the super shotgun!"
+  weapon.selectionorder 400
+  weapon.kickback 100
+  weapon.ammotype "Shell"
+  weapon.ammouse 2
+  weapon.ammogive 8
+  Weapon.SisterWeapon "PowerSuperShotgun"
+  Tag "Super Shotgun"
+  Damagetype "Normal"
+  decal bulletchip
+  states
+  {
+  Ready:
+    SHT2 A 1 A_WeaponReady
+    loop
+  Deselect:
+    SHT2 A 0 A_Lower
+    SHT2 A 1 A_Lower
+    loop
+  Select:
+    SHT2 A 0 A_Raise
+    SHT2 A 1 A_Raise
+    loop
+  Fire:
+    SHT2 A 3
+    SHT2 A 0 A_GunFlash
+    SHT2 M 2 Bright A_FireBullets (11.2,7.1,20,5,"BulletPuff")
+    SHT2 N 3 Bright
+    SHT2 O 2 Bright
+    SHT2 B 3
+    SHT2 C 4
+    SHT2 D 4 A_CheckReload
+    SHT2 C 3
+    SHT2 E 3 A_PlayWeaponSound ("weapons/sshoto")
+    SHT2 F 3
+    SHT2 G 4
+    SHT2 H 4
+    SHT2 I 3 A_PlayWeaponSound ("weapons/sshotl")
+    SHT2 J 3
+    SHT2 K 3
+    SHT2 L 4
+    SHT2 E 0 A_PlayWeaponSound ("weapons/sshotc")
+    SHT2 E 6 A_ReFire
+    SHT2 A 5 A_ReFire
+    goto Ready
+  Hold:
+    SHT2 A 3
+    SHT2 A 0 A_GunFlash
+    SHT2 M 2 Bright A_FireBullets (11.2,7.1,20,5,"BulletPuff")
+    SHT2 N 3 Bright
+    SHT2 O 2 Bright
+    SHT2 B 3
+    SHT2 C 4
+    SHT2 D 4 A_CheckReload
+    SHT2 C 3
+    SHT2 E 3 A_PlayWeaponSound ("weapons/sshoto")
+    SHT2 F 3
+    SHT2 G 4
+    SHT2 H 4
+    SHT2 I 3 A_PlayWeaponSound ("weapons/sshotl")
+    SHT2 J 3
+    SHT2 K 3
+    SHT2 L 4
+    SHT2 E 0 A_PlayWeaponSound ("weapons/sshotc")
+    SHT2 E 6 A_ReFire
+    SHT2 A 5 A_ReFire
+    goto Ready
+  Flash:
+    TNT1 A 2 bright A_Light1
+    TNT1 A 3 bright A_Light2
+    TNT1 A 2 bright A_Light1
+    TNT1 A 0 bright A_Light0
+    stop
+  Spawn:
+    SGN2 A -1
+    stop
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// AUTO SHOTGUN /////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+actor AutoShotgun : Weapon 5118
+{
+//$Category Stronghold_Weapons
+  +AMMO_OPTIONAL
+  spawnid 237
+  obituary "%o got blasted away by %k's autoshotgun."
+  radius 20
+  height 16
+  Inventory.PickupMessage "You got the automatic shotgun!"
+  Tag "Autoshotgun"
+  weapon.selectionorder 700
+  Weapon.AmmoType1 "Shell"
+  Weapon.AmmoType2 "ASGClip"
+  //Weapon.AmmoGive1 20
+  Weapon.AmmoGive2 20
+  Weapon.AmmoUse 1
+  Weapon.SisterWeapon "PowerAutoShotgun"
+  AttackSound "weapons/asgfir"
+  DamageType "Normal"
+  decal bulletchip
+  states
+  {
+  Spawn:
+    WASG A -1
+    stop
+  Ready:
+    ASGG A 1 A_WeaponReady
+    loop
+  Deselect:
+    ASGG A 0 A_Lower
+    ASGG A 1 A_Lower
+    loop
+  Select:
+    ASGG A 0 A_Raise
+    ASGG A 1 A_Raise
+    loop
+  Fire:
+  Hold:
+    ASGG A 0 A_JumpIfInventory("ASGClip",1,29)
+    ASGG A 0 A_JumpIfInventory("Shell",1,2)
+    ASGG A 2 A_PlayWeaponSound("Weapons/asgout")
+    Goto Ready
+    ASGG BCDEF 3
+    ASGG G 3 A_PlayWeaponSound("Weapons/asgout")
+    ASGG HIJ 3
+    ASGG k 15
+    ASGG JIH 3
+    ASGG G 0 A_TakeInventory("Shell",1)
+    ASGG G 0 A_GiveInventory("ASGClip",1)
+    ASGG G 0 A_JumpIfInventory("ASGClip",20,2)
+    ASGG G 0 A_JumpIfInventory("Shell",1,2)
+    ASGG G 0
+    Goto Fire+22
+    ASGG G 0
+    Goto Fire+16
+    ASGG G 3 A_PlayWeaponSound("Weapons/asgin")
+    ASGG FEDCB 3
+    ASGG A 8 A_PlaySoundEX("weapons/asgld1","auto",0)
+    goto Ready
+    ASGG A 1
+    ASGG L 0 A_GunFlash
+    ASGG A 0 A_TakeInventory("ASGClip",1)
+    ASGG L 2 A_FireBullets(5,4,7,5,"BulletPuff",0)
+    ASGG M 3
+    ASGG N 2
+    ASGG A 5 A_PlaySoundEX("weapons/asgld1","auto",0)
+    ASGG A 3
+    ASGG A 0 A_ReFire
+    goto Ready
+  Flash:
+    TNT1 A 4 bright A_Light1
+    TNT1 A 3 bright A_Light2
+    TNT1 A 0 bright A_Light0
+    stop
+  }
+}
+
+ACTOR ASGClip: Ammo
+{
+     Inventory.MaxAmount 20
+     Ammo.BackpackAmount 0
+     Ammo.BackpackMaxAmount 20
+     +Inventory.IgnoreSkill
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// REPEATER /////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+ACTOR Repeater : Weapon 20100
+{
+//$Category Stronghold_Weapons
+   spawnid 236
+   Inventory.PickupSound "misc/w_pkup"
+   Inventory.PickupMessage "You got the plasma repeater!"
+   Obituary "%o was disintegrated by %k's repeater."
+   Weapon.AmmoType1 "Cell"
+   Weapon.AmmoGive 20
+   Weapon.AmmoUse 1
+   Weapon.SisterWeapon "PowerRepeater"
+   +WEAPON.EXPLOSIVE
+   AttackSound "weapons/repfir"
+   Decal FireDemonScorch
+   Tag "Plasma Repeater"
+   States
+   {
+   Spawn:
+      WREP A -1
+      Loop
+   Ready:
+      REPG A 1 A_WeaponReady
+      Loop
+   Deselect:
+      REPG A 0 A_Lower
+      REPG A 1 A_Lower
+      Loop
+   Select:
+      REPG A 0 A_Raise
+      REPG A 1 A_Raise
+      Loop
+   Fire:
+      REPG A 4 A_PlaySound("weapons/repidl")
+      REPG BCD 4
+      REPG ABCD 3
+      REPG ABCD 2
+      REPG E 0 Bright A_Gunflash
+      REPG E 2 Bright A_FireBullets(4,4,2,9,RepPuff,1,10240)
+      REPG F 2 Bright
+      REPG G 2 Bright A_FireBullets(4,4,2,9,RepPuff,1,10240)
+      REPG H 2 Bright
+      REPG A 0 A_Refire
+      REPG A 2 A_PlaySound("weapons/repstp")
+      REPG BCD 2
+      REPG ABCD 3
+      REPG ABCD 4
+      Goto Ready
+   Hold:
+      REPG E 0 Bright A_Gunflash
+      REPG E 2 Bright A_FireBullets(4,4,2,9,RepPuff,1,10240)
+      REPG F 2 Bright
+      REPG G 2 Bright A_FireBullets(4,4,2,9,RepPuff,1,10240)
+      REPG H 2 Bright
+      REPG A 0 A_Refire
+      REPG A 2 A_PlaySound("weapons/repstp")
+      REPG BCD 2
+      REPG ABCD 3
+      REPG ABCD 4
+      REPG ABCD 5
+      Goto Ready
+   Flash:
+      TNT1 A 2 A_Light2
+      TNT1 A 2 A_Light1
+      TNT1 A 0 A_Light0
+      stop
+   }
+}
+
+Actor RepPuff
+{
+   Radius 3
+   Height 3
+   RENDERSTYLE ADD
+   ALPHA 0.75
+   Damagetype normal
+   ExplosionDamage 32
+   ExplosionRadius 88
+   +ALWAYSPUFF
+   +PUFFONACTORS
+   +NOGRAVITY
+   +NOBLOCKMAP
+   +PUFFGETSOWNER
+   DeathSound "weapons/buzz"
+   States
+   {
+   Spawn:
+      BLAS A 1 Bright
+      BLAS A 2 Bright A_Explode
+      BLAS BCDEFG 3 Bright
+      stop
+   }
+}
+
+ACTOR Heat : Ammo
+{
+     Inventory.MaxAmount 100
+     Ammo.BackpackAmount 0
+     Ammo.BackpackMaxAmount 100
+     Inventory.Icon STTPRCNT
+}
+
+Actor RepSteam
+{
+   Radius 0
+   Height 1
+   Speed 25
+   PROJECTILE
+   RENDERSTYLE TRANSLUCENT
+   ALPHA 0.35
+   SeeSound "weapons/repstm"
+   States
+   {
+   Spawn:
+      TNT1 A 3
+      WSMK ABCDE 2
+      Stop
+   }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// MINE LAYER ///////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+ACTOR LandMineLayer : Weapon 25084
+{
+//$Category Stronghold_Weapons
+   SpawnId 200
+   Inventory.PickupMessage "You got some land mines!"
+   Inventory.PickupSound "misc/w_pkup"
+   Weapon.AmmoType "Mines"
+   Weapon.AmmoGive 5
+   Weapon.AmmoUse 1
+   Weapon.AmmoType2 "Mines"
+   Weapon.AmmoUse2 1
+   Weapon.SisterWeapon "PowerLandMineLayer"
+   Tag "Land Mines"
+   States
+   {
+   Spawn:
+      MINE A -1
+      Loop
+   Ready:
+      LAYR A 1 A_WeaponReady
+      Loop
+   Deselect:
+      LAYR A 0 A_Lower
+      LAYR A 1 A_Lower
+      Loop
+   Select:
+      LAYR A 0 A_Raise
+      LAYR A 1 A_Raise
+      Loop
+   AltFire:
+      LAYR B 8 A_PlaySound("weapons/minebeep")
+      LAYD ABCDE 1
+      TNT1 A 10
+      LAYT A 1 A_PlaySound("weapons/minethrow")
+      LAYT BCDEFGH 1
+      LAYT I 1 A_FireCustomMissile("Landmine2",0,1,0,8)
+      LAYT JKLMNOPQR 1
+      TNT1 A 10
+      LAYU ABCDE 1
+      LAYR A 6
+      Goto Ready
+   Fire:
+      LAYR B 8 A_PlaySound("weapons/minebeep")
+      LAYD ABCDE 1
+      TNT1 A 5
+      TNT1 A 9 A_FireCustomMissile("Landmine3",0,1,0,0)
+      LAYU ABCDE 1
+      LAYR A 4
+      Goto Ready
+   }
+}
+
+ACTOR Landmine
+{
+   Radius 8 //was 5
+   Height 5
+   Mass 1000000
+   Health 20
+   Damage 10
+   SeeSound "weapons/tink"
+   ExplosionDamage 384
+   ExplosionRadius 160
+   DONTHURTSHOOTER
+   Speed 0
+   +NOBLOOD
+   -SHOOTABLE
+   +MISSILE
+   +THRUGHOST
+   States
+   {
+   Spawn:
+      MINE A 0 A_Gravity
+      MINE AB 5
+      Loop
+   Death:
+      MISL B 0 A_PlaySound("weapons/mineexpl")
+      MISL B 8 A_Explode
+      MISL C 6
+      MISL D 4
+      Stop
+   }
+}
+
+
+ACTOR Landmine2
+{
+   Radius 8 //was 5
+   Height 5
+   Mass 1000000
+   Health 20
+   Damage 10
+   SeeSound "weapons/tink"
+   DONTHURTSHOOTER
+   Speed 15
+   +NOBLOOD
+   -SHOOTABLE
+   +MISSILE
+   +DOOMBOUNCE
+   +THRUGHOST
+   States
+   {
+   Spawn:
+      MINE A 0 A_Gravity
+      MINE AB 5
+      Loop
+   Death:
+      MINE A 0 A_SpawnItem("Landmine")
+      Stop
+   }
+}
+
+ACTOR Landmine3 : Landmine2
+{
+   Speed 2
+}
+
+ACTOR Mines : Ammo 25085
+{
+//$Category Stronghold_Weapons
+   SpawnId 201
+   Inventory.Amount 2
+   Inventory.MaxAmount 20
+   Ammo.BackpackAmount 5
+   Ammo.BackpackMaxAmount 40
+   Inventory.PickupMessage "Picked up some additional landmines."
+   Inventory.PickupSound "misc/i_pkup"
+   Inventory.Icon MINEA0
+   States
+   {
+   Spawn:
+      MINE B -1
+      Stop
+   }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// STUNNER RIFLE ////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+ACTOR StunnerRifle : PlasmaRifle 23099
+{
+//$Category Stronghold_Weapons
+   SpawnID 202
+   Weapon.AmmoUse 5
+   Weapon.SisterWeapon "PowerStunnerRifle"
+   Inventory.PickupMessage "You got the stunner rifle!"
+   Tag "Stunner Rifle"
+   States
+   {
+   Spawn:
+      STPP A -1
+      Loop
+   Ready:
+      STPO ABC 3 Bright A_WeaponReady
+      Loop
+   Deselect:
+      STPO E 0 A_Lower
+      STPO E 1 A_Lower
+      Loop
+   Select:
+      STPO E 0 A_Raise
+      STPO E 1 A_Raise
+      Loop
+   Fire:
+   Hold:
+      STPO F 0 Bright A_GunFlash
+      STPO F 3 Bright A_FireCustomMissile("StunnerBall",0,1,0,0)
+      STPO GH 3 Bright
+      STPO E 4
+      STPO D 6 A_ReFire
+      Goto Ready
+   Flash:
+      TNT1 A 1 A_Light1
+      TNT1 A 1 A_Light2
+      TNT1 A 1 A_Light1
+      TNT1 A 1 A_Light0
+      stop
+   }
+}
+
+actor StunnerBall
+{
+  spawnid 10
+  radius 6
+  height 8
+  speed 20
+  scale 0.45
+  damagetype Stunner
+  damage 1
+  decal StunnerScorch
+  renderstyle Add
+  seesound "weapons/stunner/shot"
+  deathsound "weapons/stunner/hit"
+  translation "192:207=250:254"
+  PROJECTILE
+  +RANDOMIZE
+  +RIPPER
+  states
+  {
+  Spawn:
+    STPR A 1 bright A_SpawnItemEx("StunnerBallFX",0,0,0,0,0,0,0,128)
+    loop
+  Death:
+    PLSE ABCDE 4 bright
+    stop
+  }
+}
+
+actor StunnerBallFX
+{
+  +NOBLOCKMAP
+  +NOGRAVITY
+  scale 0.45
+  renderstyle Add
+  radius 1
+  height 2
+  States
+  {
+  Spawn:
+    STPR A 1 bright A_FadeOut(0.1)
+    Loop
+  }
+}
+
+
+/////////////////////
+// NEW BULLET PUFF //
+/////////////////////
+
+ACTOR NewPuff : BulletPuff replaces BulletPuff
+{
+	Alpha 1.0
+	Mass 1
+	States
+	{
+	Spawn:
+	Melee:
+	    PUFF A 2
+	    PUFF A 0 A_Jump(128,2)
+	    PUFF A 2 A_SpawnItemEx("Puff2",0,0,0,0,0,0,0,128)
+	    PUFF BCD 4
+	    Stop
+	}
+}
+
+ACTOR Puff2
+{
+	PROJECTILE
+	+NOCLIP
+	Mass 1
+	States
+	{
+	Spawn:
+		PUFF E 2
+		PUFF E 2 A_PlaySound("puff/ric")
+		PUFF FGH 4
+		Stop
+	}
+}

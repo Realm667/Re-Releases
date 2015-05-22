@@ -1,0 +1,125 @@
+ACTOR FusionSpider 20110
+{
+//$Category Stronghold_Monsters
+  painchance "Stunner", 255
+
+  spawnid 247
+  OBITUARY "%o was vaporized by a fusion cannon arachnotron." 
+  Health 600
+  Radius 64
+  Height 64
+  Mass 600
+  Speed 12
+  PainChance 30   
+  SEESOUND "baby/sight"
+  PAINSOUND "baby/pain"
+  DEATHSOUND "baby/death"
+  ACTIVESOUND "baby/active"
+  MONSTER
+  +FloorClip
+  +MissileMore
+  +MissileEvenMore
+  states
+  {
+  Spawn:
+    FSPI AB 10 A_Look
+    Loop
+  See:
+    FSPI A 20
+    FSPI A 3 A_BabyMetal
+    FSPI ABBCC 3 A_Chase
+    FSPI D 3 A_BabyMetal
+    FSPI DEEFF 3 A_Chase
+    Goto See+1
+  Missile:
+    FSPI A 4 BRIGHT A_FaceTarget
+    FSPI A 0 A_FaceTarget
+    FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,0)
+    FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,15)
+    FSPI G 0 A_FaceTarget
+    FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,-15)
+    FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,10)
+    FSPI G 0 A_FaceTarget
+    FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,-30)
+    FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,30)
+    FSPI G 0 A_FaceTarget
+    FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,-10)
+    FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,25)
+    FSPI G 0 A_FaceTarget
+    FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,5)
+    FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,-5)
+    FSPI G 0 A_FaceTarget
+    FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,0)
+    FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,-45)  
+    FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,40)
+    FSPI G 0 A_FaceTarget
+    FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,-20)
+    FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,10)
+    FSPI G 0 A_FaceTarget
+    FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,-35)
+    FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,50)
+    FSPI H 1 BRIGHT
+    Goto See+1
+  Pain:
+    FSPI I 3
+    FSPI I 3 A_Pain
+    Goto See+1
+  Pain.Stunner:
+    FSPI I 2 A_ChangeFlag("NoPain", 1)
+    FSPI I 300 A_Pain
+    FSPI I 0 A_ChangeFlag("NoPain", 0)
+    goto See
+  Death:
+    TNT1 A 0 A_GiveToTarget("AwardItem", 14)
+    FSPI J 20 A_Scream
+    FSPI K 7 A_NoBlocking
+    FSPI LMNO 7
+    FSPI P 3000 A_BossDeath
+    FSPI PPPPPPPPPPPP 2 A_FadeOut(0.1) 
+    Stop
+  Raise:
+    FSPI PONMLKJ 5
+    Goto See+1
+  }
+}
+
+ACTOR FusionShot
+{
+  Radius 13
+  Height 8
+  Speed 6
+  Damage 5  
+  Scale 1.0   
+  RENDERSTYLE Add
+  SEESOUND "fusionspid/see" 
+  DEATHSOUND "fusionspid/die"
+  PROJECTILE
+  states
+  {
+  Spawn:
+    FS03 AB 10 BRIGHT A_SpawnItemEx("FusionTrail",0,0,0,0,0,0,random(10,-10),128)
+    Loop
+  Death:
+    FS03 HIJG 3 BRIGHT
+    Stop
+  }
+}
+
+ACTOR FusionTrail
+{
+  Radius 4
+  Height 8
+  Speed 0
+  Damage 0
+  Scale 1.0 
+  RENDERSTYLE Add 
+  PROJECTILE
+  states
+  {
+  Spawn:
+    TNT0 A 2
+    FS03 FG 6 BRIGHT A_FadeOut
+    Stop
+  }
+}
+

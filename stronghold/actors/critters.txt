@@ -1,0 +1,363 @@
+
+// Crab
+actor Crab 8589
+{
+//$Category Stronghold_Critters
+    Health 1
+    Radius 8
+    Height 4
+    Speed 4
+    Scale 0.7
+    PainChance 0
+    Mass 10
+    MONSTER 
+    +FLOORCLIP
+    +Friendly
+    -COUNTKILL
+    -ACTIVATEMCROSS
+    -SOLID
+    States
+    {
+    Spawn:
+        CRAB ABCD 4 A_Wander
+        Loop
+    Death:
+        CRAB EFGHIJ 4
+        Stop
+    }
+}
+
+actor Babycrab 8590
+{
+//$Category Stronghold_Critters
+    Health 1
+    Radius 4
+    Height 2
+    Speed 2
+    Scale 0.4
+    PainChance 0
+    Mass 5
+    +FLOORCLIP
+    +Friendly
+    -countkill
+    -ACTIVATEMCROSS
+    -SOLID
+    States
+    {
+    Spawn:
+        CRAB ABCD 4 A_Wander
+        Loop
+    Death:
+        CRAB EFGHIJ 4 
+        Stop
+    }
+}
+
+ACTOR FireFly 3100
+{
+//$Category Stronghold_Critters
+    Health 2
+    Radius 1
+    Height 1
+    Speed 0.5
+    Mass 5
+    PainChance 0
+    Scale 0.25
+    +NOGRAVITY
+    +NOTARGET
+    +FloatBob
+    +SPAWNFLOAT 
+    +NOLIFTDROP
+    +DONTOVERLAP
+    +CANNOTPUSH
+    +RANDOMIZE 
+    +PUSHABLE 
+    +FRIENDLY
+    -ACTIVATEMCROSS
+    -SOLID
+    States
+     {
+    Spawn:
+        FFLY ABABABABABABABABABABABA 2 A_Wander
+        FFLY BBB 2  Bright A_Wander
+        Loop
+    Death:
+        FFLY A 2 A_Scream
+        FFLY B 2 A_Fall
+       
+        Stop
+    
+    }
+}
+
+ACTOR DragonFly 3103
+{
+//$Category Stronghold_Critters
+    Health 2
+    Radius 1
+    Height 1
+    Speed 10
+    Mass 5
+    PainChance 0
+    Scale 0.25
+    +NOGRAVITY
+    +NOTARGET
+    +FloatBob
+    +SPAWNFLOAT 
+    +NOLIFTDROP
+    +DONTOVERLAP
+    +CANNOTPUSH
+    +RANDOMIZE 
+    -PUSHABLE 
+    +FRIENDLY
+    -ACTIVATEMCROSS
+    -SOLID
+   States
+    {
+    Spawn:
+        DRAG AB 2 A_Wander
+        Loop
+    Death:
+        DRAG A 2 A_Scream
+        DRAG B 2 A_Fall
+        Stop
+    
+    }
+}
+
+actor StrangeLight_Red 3104
+{
+//$Category Stronghold_Critters
+    Radius 1
+    Height 1
+    Speed 1
+    Mass 5
+    PainChance 0
+    Renderstyle Add
+    Alpha 1.0
+    Scale 0.2
+    MONSTER
+    +NOGRAVITY
+    +NOTARGET
+    +FLOATBOB
+    +SPAWNFLOAT 
+    +NOLIFTDROP
+    +DONTOVERLAP
+    +CANNOTPUSH
+    +RANDOMIZE 
+    -PUSHABLE 
+    -SHOOTABLE
+    +FRIENDLY    
+    -ACTIVATEMCROSS
+    -SOLID
+    +ALLOWCLIENTSPAWN    
+   States
+    {
+    Spawn:
+        STLI A 2 A_Wander
+        Loop
+    }
+}
+
+actor StrangeLight_Blue 3105
+{
+//$Category Stronghold_Critters
+    Radius 1
+    Height 1
+    Speed 1
+    Mass 5
+    PainChance 0
+    Renderstyle Add
+    Alpha 1.0
+    Scale 0.2
+    MONSTER
+    +NOGRAVITY
+    +NOTARGET
+    +FLOATBOB
+    +SPAWNFLOAT 
+    +NOLIFTDROP
+    +DONTOVERLAP
+    +CANNOTPUSH
+    +RANDOMIZE 
+    -PUSHABLE 
+    -SHOOTABLE
+    +FRIENDLY
+    -ACTIVATEMCROSS
+    -SOLID
+    +ALLOWCLIENTSPAWN    
+   States
+    {
+    Spawn:
+        STLI B 2 A_Wander
+        Loop
+    }
+}
+
+actor StrangeLight_White 3106
+{
+//$Category Stronghold_Critters
+    Radius 1
+    Height 1
+    Speed 1
+    Mass 5
+    PainChance 0
+    Renderstyle Add
+    Alpha 1.0
+    Scale 0.2
+    MONSTER
+    +NOGRAVITY
+    +NOTARGET
+    +FLOATBOB
+    +SPAWNFLOAT 
+    +NOLIFTDROP
+    +DONTOVERLAP
+    +CANNOTPUSH
+    +RANDOMIZE 
+    -PUSHABLE 
+    -SHOOTABLE
+    +FRIENDLY    
+    -ACTIVATEMCROSS
+    +ALLOWCLIENTSPAWN    
+    -SOLID    
+   States
+    {
+    Spawn:
+        STLI C 2 A_Wander
+        Loop
+    }
+}
+
+actor StrangeLight_Green 3107
+{
+//$Category Stronghold_Critters
+    Radius 1
+    Height 1
+    Speed 1
+    Mass 5
+    PainChance 0
+    Renderstyle Add
+    Alpha 1.0
+    Scale 0.2
+    MONSTER
+    +NOGRAVITY
+    +NOTARGET
+    +FLOATBOB
+    +SPAWNFLOAT 
+    +NOLIFTDROP
+    +DONTOVERLAP
+    +CANNOTPUSH
+    +RANDOMIZE 
+    -PUSHABLE 
+    -SHOOTABLE
+    +FRIENDLY
+    -ACTIVATEMCROSS
+    +ALLOWCLIENTSPAWN    
+    -SOLID    
+   States
+    {
+    Spawn:
+        STLI D 2 A_Wander
+        Loop
+    }
+}
+
+Actor Creep2 19251
+{
+//$Category Stronghold_Critters
+	health 1
+	radius 2
+	height 2
+	scale 0.1
+	speed 2
+	maxstepheight 4
+	maxdropoffheight 4
+	bloodcolor red
+	+SHOOTABLE
+	+RANDOMIZE 
+	-SOLID
+	+FRIENDLY
+	-ACTIVATEMCROSS
+	States
+		{
+		Spawn:	
+		 CRIZ AAABBB 1 A_Wander
+		 CRIZ A 0 A_Jump(20,"Spawn2")
+		 loop
+		Spawn2:
+		 CRIZ A 5 A_Jump(20,"Spawn")
+		 loop
+		Death:
+		 CRIZ D 3 A_Playsound("Creep2/die")
+		 CRIZ E 3 A_UnsetShootable
+		 CRIZ F -1
+		stop
+		}
+}
+
+Actor Spiderbug_Brown 19252
+{
+//$Category Stronghold_Critters
+	health 1
+	radius 2
+	height 2
+	scale 0.2
+	translation "176:191=64:79", "32:47=64:79"
+	speed 2
+	maxstepheight 4
+	maxdropoffheight 4
+	bloodcolor green
+	+SHOOTABLE
+	+RANDOMIZE 
+	-SOLID
+	+FRIENDLY
+	-ACTIVATEMCROSS
+	States
+		{
+		Spawn:
+			CR3P AAAABBBBCCCC 1 A_Wander
+			CR3P A 0 A_Jump(20,"Jump")
+			loop
+		Jump:
+			CR3P A 1 ThrustThingZ(0,20,0,0)
+			Goto Spawn
+		Death:
+			CR3P D 3 A_Playsound("Creep/die")
+			CR3P EF 3 A_UnsetShootable
+			CR3P G -1
+			stop
+		}
+}
+
+Actor Spiderbug_Red 19253
+{
+//$Category Stronghold_Critters
+	health 1
+	radius 2
+	height 2
+	scale 0.2
+	speed 2
+	maxstepheight 4
+	maxdropoffheight 4
+	bloodcolor green
+	+SHOOTABLE
+	+RANDOMIZE 
+	-SOLID
+	+FRIENDLY
+	-ACTIVATEMCROSS
+	States
+		{
+		Spawn:
+			CR3P AAAABBBBCCCC 1 A_Wander
+			CR3P A 0 A_Jump(20,"Jump")
+			loop
+		Jump:
+			CR3P A 1 ThrustThingZ(0,20,0,0)
+			Goto Spawn
+		Death:
+			CR3P D 3 A_Playsound("Creep/die")
+			CR3P EF 3 A_UnsetShootable
+			CR3P G -1
+			stop
+		}
+}
+

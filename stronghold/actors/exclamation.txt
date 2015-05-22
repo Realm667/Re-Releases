@@ -1,0 +1,88 @@
+//////////////////////
+// EXCLAMATION MARK //
+//////////////////////
+
+actor Exclamation  21236
+{
+//$Category Stronghold
+  scale 1.2
+  alpha 1.0
+  renderstyle Add
+  -SOLID
+  +NOGRAVITY
+  +CLIENTSIDEONLY
+  states
+  {
+  Spawn:
+    EXCL A 1 Bright
+    loop
+  }
+}
+
+// Do not define DoomEdNums for these!
+actor Exclamation2 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,2,1) loop } }
+actor Exclamation3 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,3,1) loop } }
+actor Exclamation122 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,122,1) loop } }
+actor Exclamation9 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,9,1) loop } }
+actor Exclamation8 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,8,1) loop } }
+actor Exclamation10 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,10,1) loop } }
+actor Exclamation11 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,11,1) loop } }
+actor Exclamation12 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,12,1) loop } }
+actor Exclamation13 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,13,1) loop } }
+actor Exclamation14 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,14,1) loop } }
+actor Exclamation15 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,15,1) loop } }
+actor Exclamation16 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,16,1) loop } }
+actor Exclamation17 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,17,1) loop } }
+actor Exclamation20 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,20,1) loop } }
+actor Exclamation21 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,21,1) loop } }
+actor Exclamation22 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,22,1) loop } }
+actor Exclamation23 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,23,1) loop } }
+actor Exclamation24 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,24,1) loop } }
+actor Exclamation25 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,25,1) loop } }
+actor Exclamation36 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,36,1) loop } }
+actor Exclamation37 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,37,1) loop } }
+actor Exclamation38 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,38,1) loop } }
+actor Exclamation39 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,39,1) loop } }
+actor Exclamation40 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,40,1) loop } }
+actor Exclamation41 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,41,1) loop } }
+actor Exclamation44 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,44,1) loop } } 
+actor Exclamation46 : Exclamation { states { Spawn: EXCL A 1 Bright Thing_Move(0,46,1) EXCL A 0 Thing_ChangeTid(0,1200) loop } } 
+
+ACTOR ExclamationSpawner 21750 
+{
+//$Category Stronghold
+  +CLIENTSIDEONLY
+  states {
+  Spawn:
+    TNT1 A 0
+	TNT1 A 0 A_SpawnItemEx("Exclamation2")
+    TNT1 A 0 A_SpawnItemEx("Exclamation3")
+    TNT1 A 0 A_SpawnItemEx("Exclamation122")
+    TNT1 A 0 A_SpawnItemEx("Exclamation9")
+    TNT1 A 0 A_SpawnItemEx("Exclamation8")
+    TNT1 A 0 A_SpawnItemEx("Exclamation10")
+    TNT1 A 0 A_SpawnItemEx("Exclamation11")
+    TNT1 A 0 A_SpawnItemEx("Exclamation12")
+    TNT1 A 0 A_SpawnItemEx("Exclamation13")
+    TNT1 A 0 A_SpawnItemEx("Exclamation14")
+    TNT1 A 0 A_SpawnItemEx("Exclamation15")
+    TNT1 A 0 A_SpawnItemEx("Exclamation16")
+    TNT1 A 0 A_SpawnItemEx("Exclamation17")
+    TNT1 A 0 A_SpawnItemEx("Exclamation20")
+    TNT1 A 0 A_SpawnItemEx("Exclamation21")
+    TNT1 A 0 A_SpawnItemEx("Exclamation22")
+    TNT1 A 0 A_SpawnItemEx("Exclamation23")
+    TNT1 A 0 A_SpawnItemEx("Exclamation24")
+    TNT1 A 0 A_SpawnItemEx("Exclamation25")
+    TNT1 A 0 A_SpawnItemEx("Exclamation36")
+    TNT1 A 0 A_SpawnItemEx("Exclamation37")
+    TNT1 A 0 A_SpawnItemEx("Exclamation38")
+    TNT1 A 0 A_SpawnItemEx("Exclamation39")
+    TNT1 A 0 A_SpawnItemEx("Exclamation40")
+    TNT1 A 0 A_SpawnItemEx("Exclamation41")
+    TNT1 A 0 A_SpawnItemEx("Exclamation44")
+	TNT1 A 0 A_SpawnItemEx("Exclamation46")
+    stop
+  }
+}
+

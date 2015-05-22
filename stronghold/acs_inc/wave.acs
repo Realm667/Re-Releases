@@ -1,0 +1,496 @@
+#include "zcommon.acs"
+
+#include "declarations.acs"	// declarations.acs contains miscellaneous settings that dont really need changing
+#include "functions.acs"
+#include "missions.acs"
+
+/*********************      Waves Configurator      ************************/
+
+	// should you want to change a variable in the script that uses one of these
+	// #defines, change it here, or things are sure to break left and right
+
+#define PLAYER_TID	5000	// player 1 will be tid 5000, player 2 5001 ... player 8 5007
+
+#define LEVEL		2	// level number is here so its easy to change per script per map
+
+#define MSG_X		0.05	// these two determine how far from the edge of the screen messages
+#define MSG_Y		0.05	// should be
+
+#define COUNTS_PER_TIC	2	// how many monster classes to count each tic. decrease this if you
+				// are spawning an unreasonable amount of monsters and notice some slowdown...
+
+#define SPAWN_HEIGHT	8.0	// fiddle with this if the monsters keep spawning on each other
+
+#define TICS_BETWEEN_SPAWN	5	// you can set this to 0 if you want all the monsters to spawn at once
+					// but the script will runaway if there isnt enough room for them
+
+#define BREAK_SECONDS	9	// how many seconds between waves.
+
+#define START_TID	1000	// This is the base TID that you will use. There must be some room after it,
+				// so dont give anything else a TID higher than this. Eg with 6 zones and three
+				// species of monster per wave, the range of TID's used will be 1000 to 1018
+				// apart from that, you can ignore it completely.
+
+#define EPICENTRE_OF_HATE	996	// Epicentre of hate is the TID of a smokescreen Hate target which is used to make
+					// the monsters ignore the player, so you should place one in your map...
+
+#define TEST_TID	900	// Test_TID is used for spawning a test monster, and is only defined here in case
+				// there is a TID conflict anywhere.
+
+// Differ per level
+#define TEST_X		-128.0	// You must also define an out of the way place
+#define TEST_Y		-64.0	// to spawn the test monster (an error message is displayed
+#define TEST_Z	294.0		// if it cant be spawned
+
+#define NUM_ZONES	3	// Define the total amount of zones you are going to use here
+
+#define NUM_MISSIONS	1	// This determines how many custom missions you can set for each zone (including the defaults)
+
+#define NUM_WAVES	10	// predictably, the total number of waves before the level ends...
+
+#define NUM_TYPES	3	// this is how many different types of monster you would like to spawn per wave
+				// if you increse this number, you must fill in the extra columns that will be expected
+				// in the Waves[] array, so it may be more convenient to use script 667 to spawn just a
+				// a few different monsters in one wave
+
+#define NUM_POWERUPS	3	// as above, but for powerups
+
+
+#define POWERSPOTS	1	// how many mapspots you are going to use for each type of item spawn
+#define AMMOSPOTS	1
+#define MEDISPOTS	1
+#define WEAPONSPOTS	1
+
+
+/**********************     Prison / Extra Life System Config    ****************************/
+
+#define PRISONSPOT	678	// the place where dead players out of extra lifes were spawned, reserve 678+8 for each player
+#define PRISONEXIT	699	// the place where a player is teleportert after he goes through the prison teleporter
+
+#define PRISONCAM1	691	// all of the cam textures for the prison
+#define PRISONCAM2	692
+#define PRISONCAM3	693
+#define PRISONCAM4	694
+#define PRISONCAM5	695
+#define PRISONCAM6	696
+
+// these are the monster multipliers for each skill level, and the playercounts from 1 - 8
+int SkillScaler[5] =	{ 0.5, 0.75, 1.0, 1.5, 2.0 };
+int PlayerScaler[8] =	{ 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 3.0 };
+
+// define the bounding boxes that you want the monsters to spawn in here
+// coordinates MUST HAVE a decimal point in them, or the game will interpret
+// them as 65536 times smaller than you actually want them...
+
+int UseZones =	2;	// Usezones is the index in the zones array that the spawner should stop cycling after
+			// so Usezones = 2; only spawns monsters through the first two zones
+
+// origin x, origin y, length, height, sector floor, patrol goal, angle
+int Zones[NUM_ZONES][7];
+
+// In this case there is only one zone, so slot 0 defines the first and last zone.
+int ZoneTags[NUM_ZONES][2] = {{30, 31} , {32, 33} , {34, 35} };
+
+// Instead of manually setting all the values for each zone, which will need to be reset of that zone is moved,
+// the zones are measured by two MapSpots placed in the bottom left corner of the zone, and top right. The first
+// spot is tagged 30, and is placed at ground level. The second is tagged 31, and placed in the top right corner
+// of where you want the zone to end. You'll also need to set the Z height of the second spot to the height you
+// want the zone to end. They need to be place with equal x and y distances from eachother to form a square
+// and for everything to work properly, and the angle is set by the direction the first mapspot for the zone is facing.
+
+int PatrolTags[NUM_ZONES] = {4, 5, 1};
+// The tags of the patrol points that will corespond to your zones.
+
+	// define the monster set for each wave here. just put the
+	// actor name followed by the amount you want
+	// if you really need to have more than three different types of monster
+	// in a wave, just extend the table so it has another two columns and
+	// change NUM_TYPES to 4.
+
+int Waves[NUM_WAVES][NUM_TYPES*2] ={
+	{ "ZombieMan",	4,	"ShotgunGuy",	6,	"DoomImp",	0},
+	{ "ZombieMan",	6,	"ShotgunGuy",	6,	"DoomImp",	0},
+	{ "ZombieMan",	6,	"ShotgunGuy",	8,	"DoomImp",	10},
+	{ "Demon",	2,	"ShotgunGuy",	14,	"DoomImp",	12},
+	{ "DoomImp",	12,	"Demon",	4,	"ChaingunGuy",	1},
+	{ "DoomImp",	12,	"HellKnight",	4,	"Demon",	3},
+	{ "DoomImp",	14,	"Demon",	3,	"Spectre",	2},
+	{ "DoomImp",	20,	"Demon",	3,	"Spectre",	4},
+	{ "Demon",	2,	"Spectre",	2,	"HellKnight",	4},
+	{ "DoomImp",	0,	"Spectre",	4,	"BaronOfHell",	4},
+};
+
+str Messages[NUM_WAVES][3] = {
+	{ "Wave 1 complete", "Your text here", "Your text here" },
+	{ "Wave 2 complete", "Your text here", "Your text here" },
+	{ "Wave 3 complete", "Your text here", "Your text here" },
+	{ "Wave 4 complete", "Your text here", "Your text here" },
+	{ "Wave 5 complete", "Your text here", "Your text here" },
+	{ "Wave 6 complete", "Your text here", "Your text here" },
+	{ "Wave 7 complete", "Your text here", "Your text here" },
+	{ "Wave 8 complete", "Your text here", "Your text here" },
+	{ "Wave 9 complete", "Your text here", "Your text here" },
+	{ "Final Wave complete", "Your text here", "Your text here" },
+};
+
+// The spoils of war!
+
+int Spoils[NUM_WAVES][NUM_POWERUPS*2] = {
+{	0,	0,	0,	0,	0,	0	},
+{	T_GREENARMOR,	102,	0,	0,	0,	0	},
+{	0,	0,	0,	0,	0,	0	},
+{	T_BACKPACK,	102,	0,	0,	0,	0	},
+{	0,	0,	0,	0,	0,	0	},
+{	0,	102,	0,	0,	0,	0	},
+{	0,	0,	0,	0,	0,	0	},
+{	0,	0,	0,	0,	0,	0	},
+{	T_BLUEARMOR,	102,	0,	0,	0,	0	},
+{	0,	0,	0,	0,	0,	0	},
+	// last one will be reward for completeing the level
+};
+
+// This is to put the amount of ammo you would like the player to have after each wave
+int AmmoQuota[NUM_WAVES][5] = {
+	{	50,	8,	0,	0,	0	},
+	{	50,	12,	0,	0,	0	},
+	{	75,	20,	0,	0,	0	},
+	{	75,	20,	0,	0,	0	},
+	{	50,	40,	0,	0,	0	},
+	{	50,	40,	2,	0,	0	},
+	{	0,	80,	4,	0,	0	},
+	{	0,	80,	8,	0,	0	},
+	{	0,	80,	32,	0,	0	},
+	{	0,	0,	0,	0,	0	},
+	// last one will be reward for completeing the level
+};
+
+// the total amount of stimpacks, medikits, you want to have available on the map for each wave
+int MediQuota[NUM_WAVES][NUM_MEDS] = {
+	{	2,	0	},
+	{	2,	0	},
+	{	3,	0	},
+	{	4,	0	},
+	{	4,	0	},
+	{	5,	0	},
+	{	2,	2	},
+	{	2,	2	},
+	{	3,	2	},
+	{	3,	2	},
+};
+
+
+int WeaponItems[NUM_WAVES] =
+{	T_SHOTGUN,
+	0,
+	T_CHAINGUN,
+	0,
+	T_SUPERSHOTGUN,
+	T_LANDMINELAYER,
+	T_LANDMINELAYER,
+	T_ROCKETLAUNCHER,
+	0,
+	0
+};
+
+// define the location for each powerup type to spawn here
+
+int WeaponLoc[WEAPONSPOTS]	= { 103 };
+int PowerLoc[POWERSPOTS]	= { 102 };
+int AmmoLoc[AMMOSPOTS]	= { 101 };
+int MediLoc[MEDISPOTS]	= { 100 };
+
+int Victory;
+
+/****************************** Here Begins the meat of the script itself ******************************/
+
+	// This loop will spawn and advance waves, and spawn powerups.
+	// You can write any special action to take for completing a level at the bottom of it
+
+global int 2:STR02;	// Global Map Variable, number in name depends on "LEVEL", so STR05 is Level 5, STR06 is Level 6 and so on.
+
+script 666 OPEN
+{
+	if(STR02==1)
+		StartClock();
+	for (int i = 0; i < NUM_WAVES; i++)
+	{
+		ACS_Execute (100, 0);		// Spawn the wave of monsters
+		scriptwait (100);		// Wait till they're dead
+		if(STR02==1)
+			StopClock();		// Stop the time clock
+		ACS_Execute (667, 0);		// Execute any unique action for beating this wave
+		Delay(35*BREAK_SECONDS / 2);	// Give the player a breather
+		ReStock();			// Restock the player
+		Delay(35*BREAK_SECONDS / 2);	// Give the player a breather
+		ThisWave++;			// Start again on the next!
+		if(STR02==1 && ThisWave<NUM_WAVES)
+			StartClock();		// Start the clock again!
+	}
+
+	SetMusic("D_DUMMY");
+	SetActorProperty(996, APROP_Invulnerable, 1);	// Core is Invulnerable, so it can't be destroyed anymore after winning.
+	AmbientSound("TB_VICT", 127);
+	SetHudSize (640, 480, 1);
+	SetFont("HUDMC");
+	HudMessageBold (s:"a"; HUDMSG_FADEINOUT, 123, 0, 320.0, 240.0, 4.0, 0.5, 0.5);
+	Victory = 1;
+	delay(3*35);
+	SetFont("BLACKS");
+	HudMessageBold (s:"a"; HUDMSG_FADEINOUT, 12400, 0, 320.0, 240.0, 20.0, 3.0);
+	delay(5*35);
+
+	GiveInventory("CoinItem", 100);		// Reward for beating one map, given to each player
+
+
+	STR02=1;	// Tells the Intermap that this map has been beaten
+	Exit_Normal(0);
+}
+
+// in this script you will write the action to take after beating one wave
+
+script 667 (void)
+{
+	switch(ThisWave+1)
+	{
+	case 7:	// After Wave 7:
+		Floor_LowerByValue(3, 20, 120);
+		Usezones = 3;
+		break;
+	}
+}
+
+#define ONE_MINUTE	35*60*1
+#define TWO_MINUTES	35*60*2
+#define THREE_MINUTES	35*60*3
+#define FOUR_MINUTES	35*60*4
+#define FIVE_MINUTES	35*60*5
+#define SIX_MINUTES	35*60*6
+#define SEVEN_MINUTES	35*60*7
+#define EIGHT_MINUTES	35*60*8
+#define NINE_MINUTES	35*60*9
+#define TEN_MINUTES	35*60*10
+
+int Time[5] = { EIGHT_MINUTES, SEVEN_MINUTES, SIX_MINUTES, FIVE_MINUTES, FOUR_MINUTES };
+
+/////////////////////////////////////////////////////////////////////////////////////////
+///////////////////    BOSS / CORE LIFE DISPLAY SCRIPT     ////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////////
+
+// This has to be started in a external OPEN script when necessary. Use this in Core or
+// Overmind type maps. The only things that are needed to change have been commented.
+
+#define BOSS_HP	321
+#define FRAME_X	320.0
+#define FRAME_Y	240.0
+#define BOSS_X	40.0
+#define BOSS_Y	310.0
+#define HP_X	46.0
+#define HP_Y	320.0
+
+Script 321 (int toggle) {	// Start this script if you use a power core or overmind as main target
+						// Place your target and make sure it is the only object with TID 996
+						// If it's a overmind map, epicenter of hate and the overmind must have
+						// different TIDs, if it's a core map, the core and the epicenter of hate
+						// are the same.
+
+	int currenthp = 0;
+	int i = 996;
+	{
+	if (GetActorProperty(i, APROP_HEALTH) <= 0)
+	{
+	// Should there be code here?
+	}
+	else if (GetActorProperty(i, APROP_HEALTH) > 0) {currenthp += GetActorProperty(i, APROP_HEALTH); }
+	}
+
+	switch(toggle)
+	{
+	case 0:
+		int color = CR_GREEN;
+		int maxhp = currenthp;
+		toggle = 1;
+
+		SetHudSize(640, 480, 1);
+		SetFont("HUDGFXC");
+		HudMessageBold(s:"a"; HUDMSG_PLAIN, 80, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.0);
+
+		SetFont("SMALLFONT");
+		HudMessageBold(s:"Core"; HUDMSG_PLAIN, 81, CR_GRAY, BOSS_X, BOSS_Y, 0.0);	// Also try CR_GREY or CR_WHITE
+		// If necessary, change Core into Boss here...
+		delay(1);
+		restart;
+	case 1:
+		int percent = currenthp*100/maxhp;
+		if (percent <= 75 && percent > 50)	{ color = CR_YELLOW;	}
+		else if (percent <= 50 && percent > 25)	{ color = CR_ORANGE;	}
+		else if (percent <= 25 && percent > 0)	{ color = CR_RED;	}
+		else if (percent <= 0 && currenthp != 0)	{ percent = 1;	}
+		else if (currenthp == 0)		{ toggle = 2; percent = 0;	}
+
+		SetFont("BIGFONT");
+		HudMessageBold(d:percent, s:"%"; HUDMSG_PLAIN, 82, color, HP_X, HP_Y, 0.286);
+		delay(10);
+		restart;
+	case 2:
+		SetFont("HUDGFXC");
+		HudMessageBold(s:"a"; HUDMSG_FADEOUT, 80, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.286, 1.0);
+
+		SetFont("SMALLFONT");
+		HudMessageBold(s:"Core"; HUDMSG_FADEOUT, 81, CR_GRAY, BOSS_X, BOSS_Y, 0.286, 1.0);
+		// ...and here as well (Boss or Core)
+
+		SetFont("BIGFONT");
+		HudMessageBold(d:percent, s:"%"; HUDMSG_FADEOUT, 82, color, -HP_X, HP_Y, 0.286, 1.0);
+
+		acs_execute(255, 0, 0, 0, 0);	// This is what happens after the core or boss is destroyed. For destroyed core,
+				// start the "failure" script, for a destroyed boss, the map is won.
+	break;
+	}
+}
+
+
+
+///////////////////////////////////////////////////
+///////////   PRISON TELEPORTER   /////////////////
+///////////////////////////////////////////////////
+
+// In most of the cases, you don't have to change something here
+// as long as you haven't used scripts 897 to 899 in your map
+// somewhere else (make sure that 897 stays intact, it gets called
+// from the actor "LifeItem". Try to keep this part as it is and
+// just copy and paste your prison room from other maps or the
+// template.
+
+int prisonteleporter=0;
+
+script 897 (void)
+{
+	if(prisonteleporter==0)
+	{
+	thing_activate(99);	// Dynamic Lights have tid 98 and 99
+	thing_deactivate(98);
+	setlinetexture(99, SIDE_FRONT, TEXTURE_MIDDLE, "TELEPTY1");
+	prisonteleporter=1;
+	print(s:"\cGPrison teleporter has been activated!");
+	}
+	else
+	{
+	print(s:"\cGPrison teleporter has already been activated!");
+	GiveInventory("LifeItem", 1);
+	}
+}
+
+script 898 (int prison_thrust)		// Standard Battlefield Border Script
+{
+	if(prisonteleporter==0)
+	{
+	ThrustThing(prison_thrust, 30, 0);
+	print(s:"\cGNo extra life has been spent, teleporter disabled!");
+	}
+	else
+	{
+	teleport(PRISONEXIT);
+	prisonteleporter=0;
+	setlinetexture(99, SIDE_FRONT, TEXTURE_MIDDLE, "TELEPTX1");
+	thing_activate(98);
+	thing_deactivate(99);
+	acs_execute(895,0,0,0,0);
+	}
+}
+
+script 899 OPEN
+{
+	SetLineSpecial(99, 80, 898, 0, 0, 0, 0);
+}
+
+int prisoncounter=0;
+
+script 895 (int prisondiffer)
+{
+	if (prisondiffer==1 ) {
+		prisoncounter++;
+	} else {
+		prisoncounter--;
+	}
+}
+
+script 896 OPEN
+{
+	if (GameType()==GAME_SINGLE_PLAYER)
+	{
+
+	}
+	else
+	{
+		while (TRUE)	// Displays the amount of players in prison
+		{
+			SetHudSize (640, 480, 1);
+			SetFont("SMALLFONT");
+			HUDMessage(s:"\cGPrison:\cC", i:prisoncounter; HUDMSG_PLAIN, 200, 0, 610.0, 400.0, 0.05);
+			delay(1);
+		}
+	}
+}
+
+int prisonexit_open=0;
+
+script 893 OPEN
+{
+	if(PlayerCount()==prisoncounter)
+		{
+			printbold(s:"\cGAll Players are in prison, you may \cCexit \cGthis map!");
+			prisonexit_open=1;
+
+		}
+	else
+		{
+			prisonexit_open=0;
+		}
+	delay(10);
+	restart;
+}
+
+
+script 252 (void)
+{
+	if(prisonexit_open==0)
+	{
+		ThrustThing(128, 30, 0);
+		printbold(s:"\cGThere are still \cCplayers \cGon the battlefield!");
+	}
+	else
+	{
+		Exit_Normal(0);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//////   GAME OVER & BATTLEFIELD BORDER    //////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+
+// Standard Game Over Script
+script 255 (void)
+{
+	Failure();
+}
+
+// Standard Battlefield Border Script
+script 254 (int bf_thrust)
+{
+	ThrustThing(bf_thrust, 30, 0);
+	print(s:"\cGYou must not leave the battlefield!");
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////  Initialising Map Stuffage  ///////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+
+script 1 OPEN
+{
+	// Panning
+	sector_setfloorpanning(1, 32, 0, 32, 0);
+	sector_setfloorpanning(3, 32, 0, 0, 0);
+
+}

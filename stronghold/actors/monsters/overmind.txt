@@ -1,0 +1,172 @@
+ACTOR Overmind 16999
+{
+//$Category Stronghold_Monsters
+	damagefactor "corefriendly", 0
+	damagefactor "bossfactor", 0.01 //was 0.05
+	DamageFactor "Railgun", 0.0
+	Health 20000
+	Mass 8000
+	Radius 48
+	Height 256
+	Scale 3.0
+	Speed 12
+	PainChance 5
+	MaxStepHeight 32
+	MONSTER 
+	+FLOORCLIP
+	+BOSS
+	+NORADIUSDMG
+	+NOTIMEFREEZE
+	+MISSILEMORE
+	+MISSILEEVENMORE
+	+FULLVOLACTIVE
+	+DROPOFF
+	SeeSound "cycloid/sight"
+	PainSound "cycloid/pain"
+	DeathSound "cycloid/death"
+	ActiveSound "cycloid/roam"
+	Obituary "%o was slaughtered by the Overmind."
+	States
+	{
+	Spawn:
+		OYCL AB 30 A_Look
+		Loop
+	See:
+		OYCL A 0 Radius_Quake(4,8,0,32,0)
+		OYCL A 0 A_Explode(40,384)
+		OYCL AAAABBBB 4 A_Chase
+		OYCL C 0 Radius_Quake(4,8,0,32,0)
+		OYCL A 0 A_Explode(40,384)
+		OYCL CCCCDDDD 4 A_Chase
+		Loop
+	Missile:
+		OYCL E 0 A_PlaySoundEx("cycloid/attack","Auto",0,2)
+		OYCL E 0 A_Jump(64,2)
+		OYCL E 0 A_JumpIfCloser(1024,"Flame")
+		OYCL E 0 A_Jump(224,"Fireballs")
+		OYCL G 35 A_FaceTarget
+		OYCL GGGGG 5 Bright A_FaceTarget
+		OYCL E 0 A_PlaySoundEx("weapons/hellfi","Auto",0,2)
+		CYCL H 15 Bright A_CustomMissile("OvermindPyroShot",220,0,0)
+		Goto See
+	Fireballs:
+	    OYCL E 4 A_FaceTarget
+		OYCL F 1 A_CustomMissile("CatharsiBallLarge", 128, 0, 0)
+		OYCL FFF 1 A_CustomMissile("CatharsiBallLarge", 128, 0, random(-20,20))
+		OYCL E 4 A_FaceTarget
+		OYCL F 1 A_CustomMissile("CatharsiBallLarge", 128, 0, 0)
+		OYCL FFF 1 A_CustomMissile("CatharsiBallLarge", 128, 0, random(-20,20))
+		OYCL E 4 A_FaceTarget
+		OYCL F 1 A_CustomMissile("CatharsiBallLarge", 128, 0, 0)
+		OYCL FFF 1 A_CustomMissile("CatharsiBallLarge", 128, 0, random(-20,20))
+		OYCL E 4 A_FaceTarget
+		OYCL F 1 A_CustomMissile("CatharsiBallLarge", 128, 0, 0)
+		OYCL FFF 1 A_CustomMissile("CatharsiBallLarge", 128, 0, random(-20,20))
+		OYCL E 4 A_FaceTarget
+		OYCL F 1 A_CustomMissile("CatharsiBallLarge", 128, 0, 0)
+		OYCL FFF 1 A_CustomMissile("CatharsiBallLarge", 128, 0, random(-20,20))
+		OYCL E 4 A_FaceTarget
+		OYCL F 1 A_CustomMissile("CatharsiBallLarge", 128, 0, 0)
+		OYCL FFF 1 A_CustomMissile("CatharsiBallLarge", 128, 0, random(-20,20))
+		Goto See		
+	Flame:
+		OYCL E 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*48, 0, -3)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*43, 0, 5)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*44, 0, -7)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*46, 0, 6)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*45, 0, -1)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*43, 0, -3)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*42, 0, 4)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*46, 0, -7)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*44, 0, 8)
+		OYCL F 0 A_SpidRefire
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*44, 0, 1)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*46, 0, -3)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*43, 0, 5)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*44, 0, -7)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*46, 0, 6)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*45, 0, -1)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*43, 0, -3)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*42, 0, 4)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*46, 0, -7)
+		OYCL F 0 A_FaceTarget
+		OYCL F 1 A_CustomMissile("FlameBreathOvermind", 3*44, 0, 8)
+		OYCL F 0 A_SpidRefire
+		Goto See
+	Pain:
+		OYCL I 6
+		OYCL I 6 A_PlaySoundEx("cycloid/pain","Auto",0,2)
+		Goto See
+	Death:
+		OYCL I 12 A_GiveToTarget("AwardItem",800)
+		OYCL J 12 A_Scream
+		OYCL K 12 A_Fall
+		OYCL LMNOP 12
+		OYCL Q -1
+		Stop
+	}
+}
+
+
+
+ACTOR FlameBreathOvermind {
+   Radius 16
+   Height 1
+   Speed 34
+   RenderStyle ADD
+   Scale 1.0
+   damagetype "overmindfactor"
+   Projectile
+   Damage 3
+   ExplosionDamage 10
+   ExplosionRadius 62
+   +RIPPER
+   +NODAMAGETHRUST
+   +NOTIMEFREEZE
+   DontHurtShooter
+
+   SeeSound "duke/flame"
+
+   States
+   {
+   Spawn:
+      XPLO ABCDEFGHIJKLMN 2 BRIGHT A_Explode (10, 62, 0)
+      XPLO OPQRSTU 2 BRIGHT
+      Stop
+   }
+}
+
+actor CatharsiBallLarge : CatharsiBall
+{
+  damagetype "overmindfactor"
+  Scale 2.5
+  Speed 40
+  Damage 8
+  +NOTIMEFREEZE
+}
+
+actor OvermindPyroShot : PyroShot
+{
+  damagetype "overmindfactor"
+  Scale 1.5
+  Speed 42
+  +FULLVOLDEATH
+  +NOTIMEFREEZE
+}

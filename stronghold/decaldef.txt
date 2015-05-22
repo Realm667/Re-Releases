@@ -1,0 +1,66 @@
+decal DarkImpBallScorch1
+{
+	pic CBALSCR1
+	shade "00 00 00"
+	x-scale 0.78125
+	y-scale 0.78125
+	animator Clean
+	randomflipx
+	randomflipy
+}
+
+decal DarkImpBallScorch2
+{
+	pic CBALSCR2
+	shade "00 00 00"
+	x-scale 0.78125
+	y-scale 0.78125
+	animator Clean
+	randomflipx
+	randomflipy
+}
+
+decalgroup DarkImpBallScorch
+{
+	DarkImpBallScorch1	1
+	DarkImpBallScorch2	1
+}
+
+generator DarkImpBall			DarkImpBallScorch
+
+decal StunnerScorch
+{
+	pic STPRA0
+	add 1.0
+	x-scale 0.45
+	y-scale 0.45
+	fullbright
+	animator GoAway
+	lowerdecal PlasmaScorchLower
+}
+
+decal DevastatorLightning1
+{
+	pic BFGLITE1
+	shade "ff 00 00"
+	fullbright
+	randomflipx
+	animator GoAway2
+	lowerdecal BFGScorch
+}
+
+decal DevastatorLightning2
+{
+	pic BFGLITE2
+	shade "ff 00 00"
+	fullbright
+	randomflipy
+	animator GoAway2
+	lowerdecal BFGScorch
+}
+
+decalgroup DevastatorLightning
+{
+	DevastatorLightning1	1
+	DevastatorLightning2	1
+}

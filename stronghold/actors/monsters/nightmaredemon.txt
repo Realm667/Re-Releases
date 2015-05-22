@@ -1,0 +1,85 @@
+ACTOR NightmareDemon 10100 //NIGHTMARE DEMON
+{
+//$Category Stronghold_Monsters
+	painchance "Stunner", 128	
+
+	SpawnID 233
+	Health 260
+	Radius 30
+	Height 56
+	Speed 16
+	Mass 200
+	PainChance 200
+	RenderStyle TRANSLUCENT
+	Alpha 0.6
+	MONSTER
+	+FLOORCLIP
+	+LONGMELEERANGE
+	SeeSound "nightmareDemon/sight"
+	AttackSound "nightmareDemon/melee"
+	PainSound "nightmareDemon/pain"
+	DeathSound "nightmareDemon/death"
+	ActiveSound "nightmareDemon/active"
+        Obituary "%o was spooked by a Nightmare Demon."
+        States
+        {
+        Spawn:
+        	SAR2 AB 10 A_look
+        	Loop
+        See:
+        	SAR2 AABBCCDD 2 A_Chase
+        	Loop
+        Melee:
+        	SAR2 E 6 A_FaceTarget
+        	SAR2 F 6 A_FaceTarget
+        	SAR2 G 6 A_SargAttack
+        	Goto See
+        Missile:
+        	SAR2 O 6 A_FaceTarget
+        	SAR2 P 8 A_CustomMissile("NDemonBall", 24, 0, 0)
+        	Goto See
+        Pain:
+        	SAR2 H 3
+        	SAR2 H 3 A_Pain
+        	Goto See
+        Pain.Stunner:
+       		SAR2 H 2 A_ChangeFlag("NoPain", 1)
+       		SAR2 H 300 A_Pain
+       		SAR2 H 0 A_ChangeFlag("NoPain", 0)
+       		goto See
+        Death:
+        	TNT1 A 0 A_GiveToTarget("AwardItem", 8)
+        	SAR2 I 5
+        	SAR2 J 5 A_Scream
+        	SAR2 K 5
+        	SAR2 L 5 A_Fall
+        	SAR2 M 5
+        	SAR2 N 3000
+                SAR2 NNNNNNNNNNNN 2 A_FadeOut(0.1)
+        	Stop
+        Raise:
+        	SAR2 MLKJI 5
+        	Goto See
+        }
+}
+
+ACTOR NDemonBall //NIGHTMARE DEMON - Fireball
+{
+    Radius 8
+    Height 6
+    Speed 12
+    Damage 4
+    PROJECTILE
+    SeeSound "64ball/shoot"
+    DeathSound "64ball/explode"
+    States
+    {
+    Spawn:
+        NBAL AB 4 Bright
+        Loop
+    Death:
+        NBAL CDEFGH 4 Bright
+        Stop
+    }
+}
+

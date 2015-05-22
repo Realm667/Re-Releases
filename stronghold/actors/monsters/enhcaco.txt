@@ -1,0 +1,63 @@
+ACTOR EnhancedCaco 3118
+{
+//$Category Stronghold_Monsters
+   painchance "Stunner", 128
+
+   spawnid 245
+   Health 300
+   Speed 8
+   Radius 31
+   Height 56
+   PainChance 128
+   Mass 400
+   Meleedamage 6
+   REACTIONTIME 8
+   MONSTER
+   +NOGRAVITY
+   +FLOAT
+   SeeSound "caco/sight"
+   PainSound "caco/pain"
+   DeathSound "caco/death"
+   ActiveSound "caco/active"
+   HitObituary "%o was mowed down by an enhanced cacodemon."
+   Obituary "%o was made into a snack by the enhanced cacodemon."
+   States
+   {
+   Spawn:
+      ENCD A 10 A_Look
+      Loop
+   See:
+      ENCD A 3 A_Chase
+      Loop
+   Missile:
+      ENCD BC 5 A_FaceTarget
+      ENCD B 0 bright A_CustomMissile("CacodemonBall", 24, 0, 0, 1)
+      ENCD B 0 bright A_CustomMissile("CacodemonBall", 24, 0, -8, 1)
+      ENCD B 5 bright A_CustomMissile("CacodemonBall", 24, 0, 8, 1)
+      Goto See
+   Pain:
+      ENCD D 4
+      ENCD D 4 A_Pain
+      ENCD D 5
+      Goto See
+   Pain.Stunner:
+       ENCD D 2 A_ChangeFlag("NoPain", 1)
+       ENCD D 300 A_Pain
+       ENCD D 0 A_ChangeFlag("NoPain", 0)
+       goto See
+   Death:
+      TNT1 A 0 A_GiveToTarget("AwardItem", 8)
+      ENCD E 8
+      ENCD F 8 A_Scream
+      ENCD GH 8
+      ENCD I 8 A_NoBlocking
+      ENCD J 3000 A_SetFloorClip
+      ENCD JJJJJJJJJJJJ 2 A_FadeOut(0.1)
+      Stop
+   Raise:
+      ENCD J 8 A_UnsetFloorClip
+      ENCD IHGFE 8
+      Goto See
+   }
+}
+

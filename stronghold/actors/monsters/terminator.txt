@@ -1,0 +1,326 @@
+///////////////////////////////////////////////////////////////////
+//Terminator
+//created by: Vader
+///////////////////////////////////////////////////////////////////
+
+
+ACTOR Terminator 30666
+{ 
+//$Category Stronghold_Monsters
+painchance "Stunner", 128
+
+SpawnID 231
+Health 4000 
+Radius 24 
+Height 64 
+Mass 1500 
+Speed 12 
+PainChance 8
+scale 1.2
+MONSTER
+Obituary "%o was liquidated by a Terminator."
++FLOORCLIP 
++MISSILEMORE
++BOSS
++DONTHURTSPECIES
++NORADIUSDMG
+Missiletype Grenadeblast
+Damagefactor "Redblast", 0.0
+SeeSound "monster/termsit" 
+PainSound "monster/termpin" 
+DeathSound "monster/termdth"
+ActiveSound "Terminator/termact"
+States 
+   { 
+   Spawn: 
+       TERM AB 10 A_Look 
+       Loop 
+   See:
+       TERM A 1 A_Playsound("Terminator/terstepA")
+       TERM A 3 A_Chase
+       TERM A 4 A_Chase
+       TERM B 4 A_Chase
+       TERM B 4 A_Chase
+       TERM C 1 A_Playsound("Terminator/terstepA")
+       TERM C 3 A_Chase 
+       TERM C 4 A_Chase
+       TERM D 4 A_Chase
+       TERM D 4 A_Chase
+       Loop 
+   Pain:
+       TERM L 3 	
+       TERM L 3 A_Pain
+       Goto See
+   Pain.Stunner:
+       TERM L 2 A_ChangeFlag("NoPain", 1)
+       TERM L 300 A_Pain
+       TERM L 0 A_ChangeFlag("NoPain", 0)
+       goto See
+   Missile:
+       TERM E 0 A_Jump(192, 5) 
+       TERM E 8 A_FaceTarget
+       TERM F 8 Bright A_CustomMissile("TerminatorBlaster",38,15,0,0)
+       TERM E 0 A_jump(128, 1)
+       Goto See
+       TERM E 8 A_Spidrefire
+       Goto Missile+1
+       TERM G 0 A_Jump(160, 9)
+       TERM G 2 A_Facetarget
+       TERM H 1 Bright A_CustomBulletAttack (15, 8, 2, 4, "Terminatorpuff")
+       TERM H 1 Bright A_Playsound("Terminator/tershotB")
+       TERM G 2 A_Facetarget
+       TERM I 1 Bright A_CustomBulletAttack (15, 8, 2, 4, "Terminatorpuff")
+       TERM I 1 Bright A_Playsound("Terminator/tershotB")
+       TERM G 0 A_jump(16, 2)
+       TERM G 1 A_Spidrefire
+       Goto Missile+7
+       TERM J 0 A_Jump(128, 3)
+       TERM J 8 A_Facetarget
+       TERM K 8 Bright A_CustomMissile("Redstar", 38, -15, 0, 0)
+       Goto See
+       TERM J 0 A_Jumpifcloser(192, 3)
+       TERM J 8 A_Facetarget
+       TERM K 8 Bright A_CustomMissile("Redgrenade", 38, -15, 0, 0)
+       Goto See
+       TERM J 8 A_Facetarget
+       TERM K 8 Bright A_CustomMissile("Redstar", 38, -15, 0, 0)
+       Goto See   
+   Death:
+       TNT1 A 0 A_GiveToTarget("AwardItem", 48)
+       TERM M 6 A_Scream
+       TERM N 4 
+       TERM OPQ 4 Bright
+       TERM R 0 Bright A_SpawnItemEx("TerminatorHead", 15, 0, 90, 10, 0, 0, -170, 128)
+       TERM R 0 Bright A_SpawnItemEx("TerminatorShoulder", 60, 0, 75, 8, 0, 0, -70, 128)
+       TERM R 4 Bright A_SpawnItemEx("TerminatorArm", 60, 0, 0, 3, 0, 0, -90, 128)
+       TERM STUV 4 Bright
+       TERM W 4 
+       TERM X 6 A_Fall
+       TERM Y 6
+       TERM Z 1 A_Playsound("Terminator/terstepA")
+       TERM Z 5 
+       TERM [ 3000
+       TERM "[[[[[[[[[[[[" 2 A_FadeOut(0.1) 
+       Stop
+   } 
+}
+
+
+ACTOR TerminatorBlaster
+{
+   Radius 8
+   Height 12
+   Speed 24
+   Damage 15
+   SpawnID 251
+   PROJECTILE
+   RENDERSTYLE ADD
+   alpha 0.85
+   SeeSound "monster/brufir"
+   DeathSound "weapons/hellex"
+   DONTHURTSHOOTER
+   States
+   {
+   Spawn: 
+      BLST A 1 Bright 
+      loop
+   Death:
+      BLST B 6 Bright A_Explode(40,72,1)
+      BLST CDEFGHIJKL 3 Bright 
+      stop
+   }
+}
+
+actor Redstar
+{
+    Radius 10
+    Height 20
+    Speed 13
+    Damage 10
+    Scale 0.6
+    +SEEKERMISSILE
+    PROJECTILE
+    RENDERSTYLE ADD
+    ALPHA 0.8
+    SeeSound "Terminator/tershotA"
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+        STAX A 3 Bright A_SeekerMissile (10,15)
+        STAX B 3 Bright A_SeekerMissile (10,15)
+        STAX C 3 Bright A_SeekerMissile (10,15)
+        STAX D 3 Bright A_SeekerMissile (10,15)
+        Loop
+    Death:
+        STAX EFGHIJKLMNO 3 Bright
+        Stop
+    }
+}
+
+actor Redgrenade
+{
+    Radius 6
+    Height 12
+    Speed 20
+    Damage 5
+    PROJECTILE
+    +DoomBounce
+    -NoGravity
+    RENDERSTYLE ADD
+    ALPHA 0.8
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+    	TGND A 0
+    	TGND A 1 Bright Thrustthingz(0, 24, 0, 1)
+    	TGND A 1 Bright A_Playsound("Terminator/tershotA")
+    	TGND BBBBCCCCAAAA 1 Bright A_SpawnItemEx("grenadetrail",0,0,0,0,0,0,0,128)
+    	TGND A 0 A_Jumpifcloser(48, 1)
+        Goto Spawn+3
+    Death:
+    	STAR E 3 Bright A_Explode(40,72,1)
+    	STAR E 0 Bright A_custommissile("grenadeblast",0,0,0,2,0)
+    	STAR E 0 Bright A_custommissile("grenadeblast",0,0,20,2,0)
+    	STAR E 0 Bright A_custommissile("grenadeblast",0,0,40,2,0)
+    	STAR E 0 Bright A_custommissile("grenadeblast",0,0,60,2,0)
+    	STAR E 0 Bright A_custommissile("grenadeblast",0,0,80,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,100,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,120,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,140,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,160,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,180,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,200,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,220,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,240,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,260,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,280,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,300,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,320,2,0)
+        STAR E 0 Bright A_custommissile("grenadeblast",0,0,340,2,0)
+        STAR FGHIJKLMNO 3 Bright
+        Stop
+    }
+}
+
+ACTOR Grenadetrail
+{       
+   	PROJECTILE
+   	+NOCLIP
+    	Renderstyle ADD
+	Alpha 0.6
+	DamageType Redblast
+	States
+	{   
+	Spawn:
+	    TGTR ABCDEFGHI 4 Bright 
+	    Stop
+	}
+}  
+
+
+actor Grenadeblast
+{
+    Radius 6
+    Height 12
+    Speed 5
+    Damage 4
+    PROJECTILE
+    RENDERSTYLE ADD
+    +Ripper
+    ALPHA 0.8
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+    	TGBL ABCDEFGHIJK 2 Bright
+        stop
+    }
+}
+
+
+ACTOR Terminatorpuff : Bulletpuff
+{          
+    	Renderstyle ADD
+	Alpha 0.75
+	scale 0.75
+	States
+	{   
+	Spawn:
+	Melee:
+	    TPUF A 2 Bright
+	    TPUF A 0 A_Jump(128,10)
+	    TPUF BCDEFGH 2 Bright
+	    Stop
+	    TPUF IJKLMNO 2 Bright 
+	    Stop
+	}
+}  
+
+ACTOR TerminatorArm
+{
+	Radius 12
+	Height 15
+	Speed 3
+	Mass 1000
+	scale 1.2
+	+DOOMBOUNCE
+      States
+	{
+	Spawn:
+         TARM A 5
+         TARM B 5 A_Fall 
+         TARM CDE 5
+         TARM F 3000
+         TARM FFFFFFFFFFFF 2 A_FadeOut(0.1)
+         Stop
+	}
+}
+
+actor TerminatorHead
+{
+    Radius 6
+    Height 8
+    Speed 10
+    Mass 1000
+    +DOOMBOUNCE
+    +DROPOFF
+    +Missile
+    scale 1.2
+    
+    States
+    {
+    Spawn:
+    	THAD DEFGHABC 2
+        loop
+    Death:
+    	THAD I 3000
+	THAD IIIIIIIIIIII 2 A_FadeOut(0.1)
+        loop
+    }
+}
+
+actor TerminatorShoulder
+{
+    Radius 8
+    Height 8
+    Speed 8
+    Mass 1000
+    +DOOMBOUNCE
+    +DROPOFF
+    +Missile
+    scale 1.2
+    
+    States
+    {
+    Spawn:
+    	TSHO ABCDEFGH 2
+        loop
+    Death:
+    	TSHO I 3000
+	TSHO IIIIIIIIIIII 2 A_FadeOut(0.1)
+        loop
+    }
+}

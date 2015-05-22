@@ -1,0 +1,116 @@
+ACTOR Cybruiser : BaronOfHell 30128
+{
+//$Category Stronghold_Monsters
+painchance "Stunner", 160
+
+SpawnId 250
+Health 2000
+Radius 24
+Height 64
+Mass 1000
+Speed 8
+PainChance 20
+MONSTER
+MeleeDamage 10
+Obituary "%o was blown away by a Cybruiser."
+HitObituary "%o was smashed by a Cybruiser."
++FLOORCLIP
++MISSILEMORE
++DONTHURTSPECIES
+SeeSound "monster/brusit"
+PainSound "baron/pain"
+DeathSound "monster/brudth"
+MeleeSound "baron/melee"
+States
+   {
+   Spawn:
+       BRU2 AB 10 A_Look
+       Loop
+   See:
+       BRU2 A 1 A_Playsound("monster/bruwlk")
+       BRU2 A 2 A_Chase
+       BRU2 A 3 A_Chase
+       BRU2 BB 3 A_Chase
+       BRU2 C 1 A_Playsound("monster/bruwlk")
+       BRU2 C 2 A_Chase
+       BRU2 C 3 A_Chase
+       BRU2 DD 3 A_Chase
+       Loop
+   Missile:
+       BRU2 E 8 A_FaceTarget
+       BRU2 F 12 Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+       BRU2 E 12 A_FaceTarget
+       BRU2 F 12 Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+       BRU2 E 12 A_FaceTarget
+       BRU2 F 12 Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+       Goto See
+   Melee:
+       BRU2 GH 8 A_FaceTarget
+       BRU2 I 8 A_MeleeAttack
+       Goto See
+   Pain:
+       BRU2 J 2
+       BRU2 J 2 A_Pain
+       Goto See
+   Pain.Stunner:
+       BRU2 J 2 A_ChangeFlag("NoPain", 1)
+       BRU2 J 300 A_Pain
+       BRU2 J 0 A_ChangeFlag("NoPain", 0)
+       goto See
+   Death:
+       TNT1 A 0 A_GiveToTarget("AwardItem", 18)
+       BRU2 K 6 Bright A_Scream
+       BRU2 LMN 6 Bright
+       BRU2 O 6 Bright A_NoBlocking
+       BRU2 QRS 6 Bright
+       BRU2 T 3000 A_BossDeath
+       BRU2 TTTTTTTTTTTT 2 A_FadeOut(0.1)
+       Stop
+   }
+}
+
+ACTOR BruiserMissile
+{
+   Radius 8
+   Height 12
+   Speed 20
+   Damage 10
+   Scale 1.0
+   SpawnID 251
+   PROJECTILE
+   RENDERSTYLE Normal
+   SeeSound "monster/brufir"
+   DeathSound "weapons/hellex"
+   DONTHURTSHOOTER
+   +FIREDAMAGE
+   States
+   {
+   Spawn:
+      FBRS A 1 Bright
+      FBRS A 1 Bright A_SpawnItemEx("BruiserTrail",0,0,0,0,0,0,0,128)
+      loop
+   Death:
+      BAL3 C 0 Bright A_SetTranslucent (0.67,1)
+      BAL3 C 6 Bright
+      BAL3 D 6 Bright A_Explode(64,64,0)
+      BAL3 E 6 Bright
+      stop
+   }
+}
+
+ACTOR BruiserTrail
+{
+   Radius 3
+   Height 3
+   RENDERSTYLE Translucent
+   Alpha 0.67
+   PROJECTILE
+   States
+   {
+   Spawn:
+      TNT1 A 3 Bright
+      PUFF ABCD 4 BRIGHT
+      Stop
+   }
+}
+

@@ -1,0 +1,68 @@
+//////////////////////////////
+// RADIOACTIVE WASTE SHOWER //
+// by Tormentor667 ///////////
+//////////////////////////////
+
+Actor SFX_WaterSplash_Large
+{
+ +Missile
+ -Solid
+ Radius 1
+ Height 1
+ RenderStyle Add
+ Alpha 0.0
+ Scale 0.17
+ Gravity 1.0
+ States
+ {
+  Spawn:
+   TNT1 A 1
+   TNT1 A 1 A_Jump(128, "SplashC", "SplashB", "SplashA")
+   loop
+  SplashA:
+   WFXA AAAAA 1 A_FadeIn(0.12)
+   WFXA AAAAAAAAAA 2 A_FadeOut(0.04)
+   Stop
+  SplashB:
+   WFXB AAAAA 1 A_FadeIn(0.12)
+   WFXB AAAAAAAAAA 2 A_FadeOut(0.04)
+   Stop
+  SplashC:
+   WFXC AAAAA 1 A_FadeIn(0.12)
+   WFXC AAAAAAAAAA 2 A_FadeOut(0.04)
+   Stop
+  Death:
+   TNT1 AAA 1 A_SpawnItemEx ("SFX_WaterSplash_Small", 0, 0, 0, random(1,3), random(1,3), random(2,5), random(0,359), 129)
+   stop
+ }
+}
+
+Actor SFX_WaterSplash_Small : SFX_WaterSplash_Large
+{
+ Scale 0.08
+ States
+ {
+   Death:
+    TNT1 A 1
+    Stop
+ }
+}
+
+
+actor Watersplash_Medium : SwitchableDecoration 3799
+{
+//$Category Stronghold_SFX
+	+NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY
+        states
+        {
+        Spawn:
+           Active:
+        	TNT1 A 0
+        	TNT1 A 1 A_SpawnItemEx ("SFX_WaterSplash_Large", 0, 0, 0, random(2,6), 0, random(1,4), random(-10,10), 129)
+        	Loop
+           Inactive:
+		TNT1 A 1
+		Loop
+        }
+
+}

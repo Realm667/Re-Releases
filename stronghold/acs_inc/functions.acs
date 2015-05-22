@@ -1,0 +1,1083 @@
+
+/****************************		Functions	****************************/
+
+	// this contains various functions that are cobbled together to form
+	// some semblance of organisation. The keyword here is generic...
+
+	// this script passes through the arrays to set up the desired values
+	// it generates set of unique TID's for the mission picker and modifies
+	// the amount of monsters by the player and skill multipliers.
+	// note: may have to be changed for zdoom derivatives that have in game
+	// joining...
+
+/*********************		Math Functions		************************/
+
+
+function int abs (int x)
+{
+	if (x < 0)
+		return -x;
+	return x;
+}
+
+
+function int sqrt (int x)
+{
+	int r;
+	x = x + 1 >> 1;
+	r = 0;
+	while (x > r)
+		x -= r++;
+	return r;
+}
+
+script 998 open
+{
+	int difficultyscale = FixedMul(SkillScaler[gameskill()],PlayerScaler[PlayerCount() - 1]);
+
+	int monstid = START_TID;
+	for (int z; z < NUM_ZONES; z++)
+	{
+		for (int i; i < NUM_MISSIONS; i++)
+		{
+			TIDArray[z][i] = monstid++;
+		}
+		i=0;
+		for (int t; t < NUM_TYPES; t++)
+		{
+			Waves[z][t*2+AMOUNT] = FixedMul(Waves[z][t*2+AMOUNT]*65536, difficultyscale)/65536;
+			// the numbers wont be what you'd expect...strange
+		}
+		t=0;
+	}
+	for (int w; w < NUM_WAVES; w++)
+	{
+		for (int a; a < 5; a++)
+		{
+			if (AmmoQuota[w][a])
+			{
+				AmmoQuota[w][a] = FixedMul(AmmoQuota[w][a]*65536, PlayerScaler[PlayerCount() - 1])/65536;
+			}
+		}
+	}
+	for (w = 0; w < NUM_WAVES; w++)
+	{
+		for (int m = 0; m < NUM_MEDS; m++)
+		{
+			if (MediQuota[w][m])
+			{
+				if (PlayerCount() > 2 && PlayerCount() < 5)
+				{
+					MediQuota[w][m] *= 2;
+				}
+				else if (PlayerCount() > 5 && PlayerCount() < 7)
+				{
+					MediQuota[w][m] *= 3;
+				}
+				else if (PlayerCount() >= 7)
+				{
+					MediQuota[w][m] *= 4;
+				}
+			}
+		}
+	}
+}
+
+	// Test class will spawn a monster of the Classname given to it and give it a TID
+	// Then it will return the TID of that thing to whatever called it. Eg, if you do
+	// Thing_Destroy( TestClass("DoomImp"), 1 );
+	// Then an imp will be spawned and instantaneously be gibbed by the Thing_Destroy
+	// command. Therefore, this function can be used in any special that normally
+	// requires the TID of an existing map object
+
+function int TestClass (str ClassName)
+{
+	if (IsTesting) { PrintBold(s:"You didnt call endtest you plank!"); return 65535; }
+
+	IsTesting = 1;
+
+	if (Spawn(ClassName, TEST_X, TEST_Y, TEST_Z, TEST_TID, 0) > 0) { return TEST_TID; }
+
+	else { PrintBold(s:"TestClass() Couldnt spawn a test object!!"); return 65535; }
+
+	return 0;
+}
+
+	// anytime you use TestClass, it is important to call EndTest() immediately after whatever command it was inserted into,
+	// or the test monster will stick around on the map and prevent spawning any other test monsters
+function void EndTest ( void )
+{
+	Thing_Remove(TEST_TID);
+	IsTesting = 0;	// istesting corrects the monstercount and allows making another test
+}
+
+	// generates a new set of random coordinates in the zone that is being spawned in
+function int Coords (int axis)
+{
+	switch (axis)
+	{
+	case 0:	return random( Zones[ThisZone][0], Zones[ThisZone][0]+Zones[ThisZone][2] );
+	case 1: return random( Zones[ThisZone][1], Zones[ThisZone][1]+Zones[ThisZone][3] );
+	}
+	return 0;
+}
+
+/*********************		Various Spawning Loops		************************/
+
+	// here is the main monster spawning script itself.
+
+script 100 (void)
+{
+	while (ThisType < NUM_TYPES)
+	{
+		while (Waves [ThisWave] [ThisType*2+AMOUNT])
+		{
+
+		// Spawn apparently returns a positive value if succesful, so we can use that to decide
+		// whether or not to call GiveDefaults()
+
+			if (	Spawn ( Waves[ThisWave][ThisType*2],			// Get the Class to be spawned
+				Coords(0), Coords(1), Zones[ThisZone][4]+SPAWN_HEIGHT,	// generate some new coordinates
+				1023,							// give it a placeholder TID
+				Zones[ThisZone][6] )					// make it face the right angle
+			> 0) // if the spawn returned a number more than 0:
+
+			{
+				GiveDefaults(1023);
+					// set the monster moving
+
+				Spawn("TeleportFog", GetActorX(1023), GetActorY(1023), GetActorZ(1023), 0, 0);
+					// optional, you might want monsters to silently gate in
+
+				Thing_ChangeTID(1023, TIDArray[ThisZone][MissionPicker()]);
+					// change its TID to a new one based on its mission
+
+				Waves [ThisWave][ThisType*2+AMOUNT]--;
+					// reduce the quota for the spawned monster by 1
+			}
+
+			// else { /* do something on an unsuccsesful spawn here*/ }
+
+			delay(TICS_BETWEEN_SPAWN);
+
+			if (ThisZone == UseZones-1){ThisZone=0;}else{ThisZone++;}
+				// that cycles the zones, goes back to the first zone if at the last one
+		}
+
+		ThisType++;	// after succesfully spawning the quota of the first monster type, start the next type
+	}
+
+		// Now that the spawning is done, give everything its mission and reset the type index ready for next wave
+
+	GiveMissions(); // It is a cold, cruel, world...
+
+	ThisType=0;
+
+		// stall the script while the monsters are still alive
+
+	do { delay (10); } while (lastcount);
+
+		// and this is the end of the wave.
+
+	ACS_ExecuteAlways(997, 0); // Pronounce Victory!
+
+}
+
+function void ItemFogSpawner( int spot )
+{
+	Spawn("ItemFog",
+		GetActorX(Spot)+random(-8.0,8.0),
+		GetActorY(Spot)+random(-8.0,8.0),
+		GetActorZ(Spot)+random(8.0,16.0), 0, 0);
+	ThingSound(spot, "misc/spawn", 127); // lovely flange
+}
+
+function void StockAmmo ( void )
+{
+	int AmmoType;
+	int Spot;
+
+	while (AmmoType < 5)
+	{
+
+		while (	AmmoQuota [ThisWave] [AmmoType] >= AmmoPerItem [AmmoType*2] )
+		{
+			if (	AmmoQuota [ThisWave] [AmmoType] <	AmmoPerItem [AmmoType*2+1] )
+			{
+				Thing_ProjectileGravity(AmmoLoc[Spot],	AmmoItems[AmmoType*2], random(0,255), random(8,16), random(8,16));
+				AmmoQuota [ThisWave] [AmmoType] -=	AmmoPerItem[AmmoType*2];
+			}
+			else
+			{
+				Thing_ProjectileGravity(AmmoLoc[Spot],	AmmoItems[AmmoType*2+1], random(0,255), random(8,16), random(8,16));
+				AmmoQuota [ThisWave] [AmmoType] -=	AmmoPerItem[AmmoType*2+1];
+			}
+
+			ItemFogSpawner( AmmoLoc[Spot] );
+
+			if (Spot == AMMOSPOTS-1){Spot=0;}else{Spot++;} // cycle through each spot
+		}
+		AmmoType++;
+	}
+}
+
+
+function void StockPowerups ( void )
+{
+	int PowerupType;
+	int Spot;
+	int Angle;
+
+	while (PowerupType < NUM_POWERUPS*2)
+	{
+		while ( Thingcount ( Spoils [ThisWave] [PowerupType], 0) < Spoils [ThisWave] [PowerupType+AMOUNT]
+				&& Thingcount ( Spoils [ThisWave] [PowerupType], 0) < PlayerCount())
+		{
+			Thing_ProjectileGravity(PowerLoc[Spot], Spoils [ThisWave] [PowerupType], random(0,255), random(8,16), random(8,16));
+
+			if (Spot == POWERSPOTS-1){Spot=0;}else{Spot++;} // cycle through each spot
+		}
+		PowerupType+=2; // after succesfully spawning the quota of the first powerup type, start the next type
+	}
+	ItemFogSpawner( PowerLoc[Spot] );
+
+}
+
+
+function void StockMeds ( void )
+{
+	int MediType;
+	int Spot;
+
+	while (MediType < NUM_MEDS)
+	{
+		while ( Thingcount ( MediItems [MediType], 0) < MediQuota [ThisWave] [MediType])
+		{
+			Thing_ProjectileGravity(MediLoc[Spot], MediItems [MediType], random(0,255), random(8,16), random(8,16));
+
+			if (Spot == MEDISPOTS-1){Spot=0;}else{Spot++;} // cycle through each spot
+		}
+		MediType++; // after succesfully spawning the quota of the first powerup type, start the next type
+	}
+	ItemFogSpawner( MediLoc[Spot] );
+}
+
+function void StockWeapons (VOID)
+{
+	if (WeaponItems[ThisWave])	// if a weapon is set to spawn this wave
+	{
+		for (int spot=0; spot<WEAPONSPOTS; spot++)
+		{
+			// Thrust old weapon out of the way
+			ThrustThing(random(0,255), random(4,5), 0, WEAPON_TID);
+			ThrustThingZ(WEAPON_TID, random(16,32), 0, 0);
+			// Clear it's TID
+			Thing_ChangeTID(WEAPON_TID, 0);
+
+			// Spawn new one
+			Thing_Spawn(WeaponLoc[spot], WeaponItems[ThisWave], 0, WEAPON_TID);
+			SetActorProperty(WEAPON_TID, APROP_Dropped, 0);
+		}
+	}
+}
+
+function void ReStock ( void )
+{
+	StockAmmo();
+	StockPowerups();
+	StockMeds();
+	StockWeapons();
+}
+
+
+/****************************************	Heads up display	***************************************/
+
+	// The following scripts control the score readout
+
+int BodyCount;
+int Mins;
+int Secs;
+int Clock;
+int CounterClock;
+int CountType;
+int ResumeCount;
+
+function void TickTock (void)
+{
+
+	Clock++;
+	Secs = Clock/35;
+	Mins = Secs/60;
+	Secs = Secs % 60;
+
+}
+
+	// updatecount is slightly innacurate, but not unreasonably so. It will always catch up to the
+	// real count after about 10 - 20 tics, depending on how many types you are counting and how
+	// many get counted each tic
+
+function int UpdateCount (void)
+{
+	if (!ResumeCount)
+	{
+		lastcount = monscount;	// save the last count
+		monscount = 0;		// reset the count, because I am adding the amount of each group to it with each iteration
+	}
+
+	while (CountType < "ENDMARKER")
+	{
+		monscount += ThingCountName(CountType,0);
+				// add the next thingamy to the monstercount
+		CountType++;
+
+		if (CounterClock == COUNTS_PER_TIC) { CounterClock = 0; ResumeCount = 1; return lastcount;}
+				// if it didnt finish the count in time, return the last count
+				// the updated count will be continued on the next call
+
+		CounterClock++;
+	}
+	CountType=0;
+	ResumeCount=0;
+	return MonsCount;
+}
+
+#define THE_POPE		1
+#define CATHOLIC		1
+
+script 999 OPEN
+{
+	while (THE_POPE == CATHOLIC)
+	{
+		SetHudSize (640, 480, 1);
+		SetFont("HUDGFX");
+		HudMessage (s: "A";HUDMSG_PLAIN,1000,CR_UNTRANSLATED,320.0,240.0,0.0);
+
+		if (ThisWave < NUM_WAVES)
+		{
+			SetFont("BIGFONT");
+			HudMessageBold (d:Level;
+					HUDMSG_PLAIN, 1, CR_RED, 83.0, 15.0, 11);
+
+			HudMessageBold (d:ThisWave+1;
+					HUDMSG_PLAIN, 2, CR_RED, 192.0, 15.0, 11);
+
+			HudMessageBold (d:UpdateCount();
+					HUDMSG_PLAIN, 3, CR_RED, 180.0, 39.0, 11);
+
+		}
+
+		if (Secs < 10)
+		{
+
+			SetFont("BIGFONT");
+			HudMessageBold (d:Mins, s:":", s:"0", d:Secs;
+					HUDMSG_PLAIN, 4, CR_RED, 602.0, 15.0, 0);
+		} else	{
+			SetFont("BIGFONT");
+			HudMessageBold (d:Mins, s:":", d:Secs;
+					HUDMSG_PLAIN, 4, CR_RED, 602.0, 15.0, 0);
+		}
+			HudMessageBold (d:BodyCount;
+					HUDMSG_PLAIN, 5, CR_RED, 602.0, 39.0, 0);
+
+		TickTock();
+		delay(1);
+
+	}
+}
+
+	// this script is given to each monster to increment the kill counter
+	// but you can use it for any generic death action as well
+
+script 250 (void)
+{
+	BodyCount++;
+}
+
+	// This is the victory messages for each wave
+
+str WaveAnnouncements[9] = {"","T_WAVNR2","T_WAVNR3","T_WAVNR4","T_WAVNR5","T_WAVNR6","T_WAVNR7","T_WAVNR8","T_WAVNR9"};
+str WaveNumber[10] = {"First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eighth","Ninth","Final"};
+str RadioNames[2][5] = { {"DIALOG1","DIALOG1","DIALOG2","DIALOG1","DIALOG2"},
+						{"Cpl. S. Petersen","Sgt. R. Prince","Lt. J. Wilbur","Col. K. Cloud","Pvt. D. Taylor"} };
+
+int RadioFace = 0;
+script 996 OPEN { RadioFace = random(0,4); }
+
+script 997 (void)
+{
+	AmbientSound("T_WAVDON",127);
+	int IAmGoingToPrint = ThisWave; // ThisWave will change, and we don't want that
+
+	SetHudSize(512,384,1);
+	SetFont("BigFont");
+
+	if(ThisWave<NUM_WAVES-1)
+	{
+		Hudmessage(s:WaveNumber[ThisWave],s:" Wave \ccComplete!";
+		HUDMSG_FADEINOUT,0,CR_RED,256.0,128.1,3.0,1.0,1.0);
+	}
+	else
+	{
+		Hudmessage(s:"Final Wave \ccComplete!";
+		HUDMSG_FADEINOUT,0,CR_RED,256.0,128.1,3.0,1.0,1.0);
+	}
+
+	delay(35*BREAK_SECONDS/2);
+
+	SetHudSize(512,384,1);
+	SetFont(RadioNames[0][RadioFace]);
+	Hudmessage(s:"A";
+			HUDMSG_PLAIN, 0, -1, 25.1, 250.0, BREAK_SECONDS*1.0);
+
+	SetFont("ConFont");
+	Hudmessage(s:RadioNames[1][RadioFace];
+			HUDMSG_PLAIN, 0, CR_WHITE, 70.1, 250.0, BREAK_SECONDS*1.0);
+
+	SetHudSize(640,480,1);
+
+	SetFont("DIALOGBX");
+	Hudmessage(s:"A";
+			HUDMSG_PLAIN, 7, CR_WHITE, 32.1, 384.0, BREAK_SECONDS*1.0);
+
+	SetFont("ConFont");
+	Hudmessage(s:Messages[IAmGoingToPrint][1];
+			HUDMSG_TYPEON, 6, CR_GOLD, 44.1, 360.1, 99.0, 0.035, 0.5);
+
+	delay(35*BREAK_SECONDS/2);
+	Hudmessage(s:Messages[IAmGoingToPrint][2];
+			HUDMSG_TYPEON, 6, CR_GOLD, 44.1, 360.1, 99.0, 0.035, 0.5);
+
+	SetHudSize(512,384,1);
+	SetFont("BigFont");
+
+	if(ThisWave<NUM_WAVES)
+	{
+		if(ThisWave<NUM_WAVES-1)
+		{
+			Hudmessage(s:WaveNumber[ThisWave],s:"\cc Wave!";
+				HUDMSG_FADEINOUT,0,CR_RED,256.0,128.1,3.0,1.0,1.0);
+			AmbientSound(WaveAnnouncements[ThisWave],127);
+		} else {
+			Hudmessage(s:"Final \ccWave!";
+				HUDMSG_FADEINOUT,0,CR_RED,256.0,128.1,3.0,1.0,1.0);
+			AmbientSound("T_WAVFNL",127);
+		}
+	}
+
+	delay(35*BREAK_SECONDS/2);
+	Hudmessage(s:"";
+	HUDMSG_PLAIN,6,-1,0.0,0.0,1.0);
+}
+
+	// When failure occurs
+
+function void Failure (VOID)
+{
+	int AlreadyFailed=0;
+
+	if (AlreadyFailed==1)
+	{
+
+	}
+	else
+	{
+	SetMusic("D_DUMMY");
+	AmbientSound("TB_LOST", 127);
+	SetHudSize (640, 480, 1);
+
+	SetFont("BLACKS");
+	HudMessageBold (s:"a"; HUDMSG_FADEINOUT, 12400, 0, 320.0, 240.0, 20.0, 5.0);
+
+	SetFont("HUDGO");
+	HudMessageBold (s:"a"; HUDMSG_FADEINOUT, 123, 0, 320.0, 240.0, 5.0, 0.5, 0.5);
+	ACS_Execute(671, 0);
+	AlreadyFailed=1;
+	}
+}
+
+Script 671 (VOID)
+{
+	delay(35 * 3);
+	AmbientSound("J_FAIL", 127);
+	delay(35 * 4);
+
+	Exit_Normal(0);
+}
+
+
+/*********************		Set Cameras		************************/
+script 661 OPEN
+{
+	SetCameraToTexture(PRISONCAM1, "CT_1", 90 );
+	SetCameraToTexture(PRISONCAM2, "CT_2", 90 );
+	SetCameraToTexture(PRISONCAM3, "CT_3", 90 );
+	SetCameraToTexture(PRISONCAM4, "CT_4", 90 );
+	SetCameraToTexture(PRISONCAM5, "CT_5", 90 );
+	SetCameraToTexture(PRISONCAM6, "CT_6", 90 );
+}
+
+/*********************		Get Zones		************************/
+
+	// Here is where all the values are set for each zone
+
+Script 665 OPEN
+{
+	for (int i=0; i<NUM_ZONES; i++)
+	{
+		Zones[i][0] = GetActorX(ZoneTags[i][0]);
+		Zones[i][1] = GetActorY(ZoneTags[i][0]);
+		Zones[i][2] = abs(GetActorX(ZoneTags[i][0]) - GetActorX(ZoneTags[i][1]));
+		Zones[i][3] = abs(GetActorY(ZoneTags[i][1]) - GetActorY(ZoneTags[i][0]));
+		Zones[i][4] = GetActorZ(ZoneTags[i][0]);
+		Zones[i][5] = PatrolTags[i];
+		Zones[i][6] = GetActorAngle(ZoneTags[i][0]) / 256;
+	}
+}
+
+/*********************		Enter		************************/
+
+	// Static actions executed when the player first enters a map.
+
+Script 669 ENTER
+{
+	// Inventory Item for the scoreboard
+	GiveInventory("ScoreboardToggle",1);
+
+	// Alternate Clearing of Inventory to make sure that inventory Items do not get lost,
+	// but weapons and ammo were completely removed.
+	TakeInventory("DEChainsaw", 999);
+	TakeInventory("AutoShotgun", 999);
+	TakeInventory("DESuperShotgun", 999);
+	TakeInventory("SuperShotgun", 999);
+	TakeInventory("DEShotgun", 999);
+	TakeInventory("Shotgun", 999);
+	TakeInventory("DEChaingun", 999);
+	TakeInventory("Chaingun", 999);
+	TakeInventory("HRL", 999);
+	TakeInventory("LandMineLayer", 999);
+	TakeInventory("DERLauncher", 999);
+	TakeInventory("RocketLauncher", 999);
+	TakeInventory("Railgun", 999);
+	TakeInventory("StunnerRifle", 999);
+	TakeInventory("DEPlasmaRifle", 999);
+	TakeInventory("PlasmaRifle", 999);
+	TakeInventory("DEBFG9000", 999);
+	TakeInventory("BFG9000", 999);
+	TakeInventory("PyroCannon", 999);
+	TakeInventory("Flamer", 999);
+	TakeInventory("Devastator", 999);
+	TakeInventory("Repeater", 999);
+	TakeInventory("Clip", 999);
+	TakeInventory("Cell", 999);
+	TakeInventory("HRLAmmo", 999);
+	TakeInventory("RocketAmmo", 999);
+	TakeInventory("Gas", 999);
+	TakeInventory("Shell", 999);
+	TakeInventory("Mines", 999);
+	TakeInventory("Pistol", 999);
+	TakeInventory("DEFist", 999);
+	TakeInventory("BruiserWeapon", 999);
+
+	GiveInventory("DEPistol", 1);
+	GiveInventory("DEFist", 1);
+
+	switch (GameSkill())
+	{
+	case SKILL_VERY_EASY:
+	case SKILL_VERY_HARD:
+		GiveInventory("Clip", 25);
+		break;
+	default:
+		GiveInventory("Clip", 50);
+	}
+	SetWeapon("DEPistol");
+	Thing_ChangeTID(0, PLAYER_TID + PlayerNumber());
+	SetFont("BIGFONT");
+	SetHUDSize(640, 480, 1);
+	while (TRUE) // Shouldn't this be done by SBARINFO or something?
+	{
+		HUDMessage(s:"\cG", i:CheckInventory("LifeItem"); HUDMSG_PLAIN, 201, 0, 614.0, 376.0, 0.05);
+		delay(1);
+	}
+}
+
+/**************************       Death       *****************************/
+
+// Death - Continue?
+// AgentME: Doesn't seem this script is done, and has some serious problems
+//  with the way it's set up now, so I've disabled it.
+/*
+script 801 death
+{
+	int counter = 10;
+	if (CheckInventory("LifeItem") > 0)
+	{
+		SetFont("BIGFONT");
+		SetHUDSize(640, 480, 1);
+
+		while (counter > 0)
+		{
+			counter--;
+			// HUDMessage(s: "Continue?"; HUDMSG_PLAIN, 202, CR_WHITE, 320.0, 220.0, 1.0);
+			// HUDMessage(d: counter; HUDMSG_PLAIN, 203, CR_WHITE, 320.0, 240.0, 1.0);
+			delay(35);
+		}
+		Teleport_NoFog(900+PlayerNumber(), 0, 0);
+	}
+}
+*/
+
+/*********************		Respawn		************************/
+
+	// Static actions executed when the player respawns.
+
+script 670 RESPAWN
+{
+	// Make sure our old dead body doesn't still have our tid
+	Thing_ChangeTid(PLAYER_TID+PlayerNumber(),0);
+	Thing_ChangeTid(0,PLAYER_TID+PlayerNumber());
+
+	// Inventory Item for the scoreboard
+	GiveInventory("ScoreboardToggle",1);
+
+	if (CheckInventory("LifeItem") > 0)
+	{
+		TakeInventory("LifeItem", 1);
+	}
+	else
+	{
+		Teleport_NoFog(PRISONSPOT+PlayerNumber(), 0, 0);
+		acs_execute(895,0,1,0,0);
+		Thing_ChangeTID(0, 0);
+	}
+	// clear messages
+	HUDMessage(s:""; HUDMSG_PLAIN, 202, CR_WHITE, 0.0, 0.0, 0.0);
+	HUDMessage(s:""; HUDMSG_PLAIN, 203, CR_WHITE, 0.0, 0.0, 0.0);
+}
+
+/*********************     Time Trial Execution      ***********************/
+
+int HItimes[56][4] = {
+{	9,	9,	0,	0	}, // STR01 - not needed
+{	9,	9,	0,	0	}, // STR02
+{	9,	9,	0,	0	}, // STR03
+{	9,	9,	0,	0	}, // STR04
+{	9,	9,	0,	0	}, // STR05
+{	9,	9,	0,	0	}, // STR06
+{	9,	9,	0,	0	}, // STR07
+{	9,	9,	0,	0	}, // STR08
+{	9,	9,	0,	0	}, // STR09
+{	9,	9,	0,	0	}, // STR10
+{	9,	9,	0,	0	}, // STR11
+{	9,	9,	0,	0	}, // STR12
+{	9,	9,	0,	0	}, // STR13
+{	9,	9,	0,	0	}, // STR14
+{	9,	9,	0,	0	}, // STR15
+{	9,	9,	0,	0	}, // STR16
+{	9,	9,	0,	0	}, // STR17
+{	9,	9,	0,	0	}, // STR18
+{	9,	9,	0,	0	}, // STR19
+{	9,	9,	0,	0	}, // STR20
+{	9,	9,	0,	0	}, // STR21
+{	9,	9,	0,	0	}, // STR22
+{	9,	9,	0,	0	}, // STR23
+{	9,	9,	0,	0	}, // STR24
+{	9,	9,	0,	0	}, // STR25
+{	9,	9,	0,	0	}, // STR26
+{	9,	9,	0,	0	}, // STR27
+{	9,	9,	0,	0	}, // STR28
+{	9,	9,	0,	0	}, // STR29
+{	9,	9,	0,	0	}, // STR30
+{	9,	9,	0,	0	}, // STR31
+{	9,	9,	0,	0	}, // STR32
+{	9,	9,	0,	0	}, // STR33
+{	9,	9,	0,	0	}, // STR34
+{	9,	9,	0,	0	}, // STR35
+{	9,	9,	0,	0	}, // STR36
+{	9,	9,	0,	0	}, // STR37
+{	9,	9,	0,	0	}, // STR38
+{	9,	9,	0,	0	}, // STR39
+{},{},{},{},{},{},{},{},{},{},
+{	9,	9,	0,	0	}, // STR50
+{	9,	9,	0,	0	}, // STR51
+{	9,	9,	0,	0	}, // STR52
+{	9,	9,	0,	0	}, // STR53
+{	9,	9,	0,	0	}, // STR54
+{	9,	9,	0,	0	}, // STR55
+{	9,	9,	0,	0	}, // STR56
+	};
+
+int HIminutesten = 0;
+int HIminutes = 0;
+int HIsecondsten = 0;
+int HIseconds = 0;
+int HImillisten = 0;
+int HImillis = 0;
+
+int minutesten = 0;
+int minutes = 0;
+int secondsten = 0;
+int seconds = 0;
+int millisten = 0;
+int millis = 0;
+
+int timefailed = 0;
+int hicolor = CR_GOLD;
+int SecondsLeft = 0;
+str SecondAnnouncements[11] = {"T_TLIMIT","T_1SEC","T_2SEC","T_3SEC","T_4SEC","T_5SEC","T_6SEC","T_7SEC","T_8SEC","T_9SEC","T_10SEC"};
+
+function void StopClock ( void )
+{
+	ACS_Terminate(901,0);
+	if(ThisWave==NUM_WAVES-1)
+	{
+		HudMessageBold (d:minutesten,d:minutes,s:":",d:secondsten,d:seconds,s:":",d:millisten,d:millis;
+		HUDMSG_PLAIN, 92, CR_LIGHTBLUE, 540.1, 74.1, 9999.0);
+		ACS_Execute(902,0);
+	} else {
+		SetHUDSize(640,480,1);
+		SetFont("BigFont");
+		HudMessageBold (d:minutesten,d:minutes,s:":",d:secondsten,d:seconds,s:":",d:millisten,d:millis;
+		HUDMSG_PLAIN, 92, CR_YELLOW, 540.1, 74.1, 9999.0);
+	}
+}
+
+function void StartClock ( void )
+{
+	ACS_Execute(901,0);
+}
+
+script 901 ( void )
+{
+	HIminutesten = HItimes[GetLevelInfo(LEVELINFO_LEVELNUM)-1][0];
+	HIminutes = HItimes[GetLevelInfo(LEVELINFO_LEVELNUM)-1][1];
+	HIsecondsten = HItimes[GetLevelInfo(LEVELINFO_LEVELNUM)-1][2];
+	HIseconds = HItimes[GetLevelInfo(LEVELINFO_LEVELNUM)-1][3];
+
+	SetHUDSize(640,480,1);
+	SetFont("SmallFont");
+	HudMessageBold (s:"Your Time:";
+	HUDMSG_PLAIN, 91, CR_WHITE, 614.2, 64.1, 9999.0);
+	SetFont("BigFont");
+	HudMessageBold (d:minutesten,d:minutes,s:":",d:secondsten,d:seconds,s:":",d:millisten,d:millis;
+	HUDMSG_PLAIN, 92, hicolor, 540.1, 74.1, 9999.0);
+	// HudMessageBold (d:SecondsLeft;
+	// HUDMSG_PLAIN, 777, CR_GOLD, 400.1, 8.1, 9999.0);
+	SetFont("SmallFont");
+	HudMessageBold (s:"Time Trial Record:";
+	HUDMSG_PLAIN, 93, CR_WHITE, 614.2, 90.1, 9999.0);
+	SetFont("BigFont");
+	if (millis>=HImillis &&
+		millisten>=HImillisten &&
+		seconds>=HIseconds &&
+		secondsten>=HIsecondsten &&
+		minutes>=HIminutes &&
+		minutesten>=HIminutesten)
+	{
+		if(timefailed==0)
+		{
+			timefailed = 1;
+			HudMessageBold (d:minutesten,d:minutes,s:":",d:secondsten,d:seconds,s:":",d:millisten,d:millis;
+			HUDMSG_PLAIN, 92, CR_RED, 540.1, 74.1, 9999.0);
+			SetActorProperty(EPICENTRE_OF_HATE,APROP_Invulnerable,1);
+			Failure();
+			SetFont("HUDTH");
+			HudMessageBold (s:"a"; HUDMSG_FADEINOUT, 123, 0, 320.0, 240.0, 5.0, 0.5, 0.5);
+			terminate;
+		}
+	}
+
+	SecondsLeft =	(((HIminutesten*600)+HIminutes*60)+
+			((HIsecondsten*10)+HIseconds))-
+			(((minutesten*600)+minutes*60)+
+			((secondsten*10)+seconds));
+
+	if(millis+millisten==0)
+	{
+		switch(SecondsLeft)
+		{
+		case 300:
+			HudMessageBold(s:"5 minute warning!";
+			HUDMSG_FADEOUT,0,CR_WHITE,320.4,240.0,1.5,0.5);
+			AmbientSound("T_5MINS",127);
+			break;
+		case 180:
+			HudMessageBold(s:"3 minute warning!";
+			HUDMSG_FADEOUT,0,CR_GOLD,320.4,240.0,1.5,0.5);
+			AmbientSound("T_3MINS",127);
+			break;
+		case 60:
+			HudMessageBold(s:"1 minute warning!";
+			HUDMSG_FADEOUT,0,CR_DARKRED,320.4,240.0,1.5,0.5);
+			AmbientSound("T_1MIN",127);
+			break;
+		case 30:
+			HudMessageBold(s:"30 seconds remaining!";
+			HUDMSG_FADEOUT,0,CR_RED,320.4,240.0,1.5,0.5);
+			AmbientSound("T_30SEC",127);
+			break;
+		case 10: case 9: case 8: case 7: case 6:
+		case 5: case 4: case 3: case 2: case 1:
+			HudMessageBold(d:SecondsLeft,s:"...";
+				HUDMSG_FADEOUT,0,CR_RED,320.4,240.0,0.5,0.25);
+			AmbientSound(SecondAnnouncements[SecondsLeft],127);
+			break;
+		case 0:
+	//		Print(s:"");
+		}
+	}
+
+	HudMessageBold (d:himinutesten,d:himinutes,s:":",d:hisecondsten,d:hiseconds,s:":",d:himillisten,d:himillis;
+	HUDMSG_PLAIN, 94, CR_GOLD, 540.1, 100.1, 9999.0);
+
+	millis++;
+	if(millis==10) { millis=0; millisten++; }
+	if(millisten==3 && millis==5) { millisten=0; millis=0; seconds++; }
+	if(seconds==10) { seconds=0; secondsten++; }
+	if(secondsten==6) { secondsten=0; seconds=0; minutes++; }
+	if(minutes==10) { minutes=0; minutesten++; }
+
+	delay(1);
+	restart;
+}
+
+// Bonus Reward is: LevelNumber*50 + SecondsLeft*10
+
+// STR02 beaten with 75 seconds left: 100 + 750 = 950 gold
+// STR16 beaten with 40 seconds left: 800 + 400 = 1200 gold
+// STR20 beaten with 90 seconds left: 1000 + 900 = 1900 gold
+// STR27 beaten with 105 seconds left: 1350 + 1050 = 2400 gold... wow
+// etc...
+
+script 902 ( void )
+{
+	// StopClock();
+	SetHUDSize(640,480,1);
+	SetFont("BigFont");
+	HudMessageBold (s:"Time attack beaten!";
+	HUDMSG_PLAIN, 776, CR_WHITE, 320.4, 84.0, 9999.0);
+
+	int x = GetLevelInfo(LEVELINFO_LEVELNUM)*50; // level bonus
+	int y = SecondsLeft*10; // time bonus
+	int z = 0; // total reward
+
+	SetFont("SmallFont");
+	HudMessageBold (s:"Level Bonus: \cf",d:GetLevelInfo(LEVELINFO_LEVELNUM),s:" x 50 = ",d:x,
+		s:"\n\nTime Bonus: \cf",d:SecondsLeft,s:" x 10 = ",d:y,s:"\n\n\nReward:              ";
+		HUDMSG_PLAIN, 778, CR_WHITE, 320.4, 120.0, 9999.0);
+
+	SetFont("BigFont");
+	HudMessageBold (s:"$",d:z;
+	HUDMSG_PLAIN, 779, CR_YELLOW, 330.5, 137.0, 9999.0);
+
+	delay(35);
+
+	while(x>0)
+	{
+		x-=25;
+		z+=25;
+
+		SetFont("SmallFont");
+		HudMessageBold (s:"Level Bonus: \cf",d:GetLevelInfo(LEVELINFO_LEVELNUM),s:" x 50 = ",d:x,
+			s:"\n\nTime Bonus: \cf",d:SecondsLeft,s:" x 10 = ",d:y,s:"\n\n\nReward:              ";
+			HUDMSG_PLAIN, 778, CR_WHITE, 320.4, 120.0, 9999.0);
+
+		SetFont("BigFont");
+		HudMessageBold (s:"$",d:z;
+		HUDMSG_PLAIN, 779, CR_YELLOW, 330.5, 137.0, 9999.0);
+
+		delay(1);
+	}
+
+	while(y>0)
+	{
+		y-=10;
+		z+=10;
+
+		SetFont("SmallFont");
+		HudMessageBold (s:"Level Bonus: \cf",d:GetLevelInfo(LEVELINFO_LEVELNUM),s:" x 50 = ",d:x,
+			s:"\n\nTime Bonus: \cf",d:SecondsLeft,s:" x 10 = ",d:y,s:"\n\n\nReward:";
+			HUDMSG_PLAIN, 778, CR_WHITE, 320.4, 120.0, 9999.0);
+
+		SetFont("BigFont");
+		HudMessageBold (s:"$",d:z;
+		HUDMSG_PLAIN, 779, CR_YELLOW, 330.5, 137.0, 9999.0);
+
+		delay(1);
+	}
+
+	delay(35);
+
+	AmbientSound("Cash",128);
+	SetFont("BigFont");
+	HudMessageBold (s:"$",d:z;
+		HUDMSG_PLAIN, 779, CR_GOLD, 330.5, 137.0, 9999.0);
+	for(int p=0; p<PlayerCount(); p++)
+	{
+		GiveActorInventory(PLAYER_TID+p,"CoinItem",z);
+	}
+}
+
+/*********************		Highscore Display		************************/
+
+#define MAX_PLAYERS 256
+#define SCOREBOARD_HID_START 1300
+// Scoreboard can use Hudmessage Id's up to SCOREBOARD_HID_START + HUD_MSG_PER_PLAYER*MAX_PLAYERS + EXTRA_HUD_MSGS
+
+// Change next two to reflect number of times HudMessageBold is called in scoreboard script
+// Needed for Scoreboard clearing script
+#define HUD_MSG_PER_PLAYER 3
+#define EXTRA_HUD_MSGS 1
+
+// Entry 0 stores player number of 1st place player, entry 1 has 2nd place, etc.
+int PlayersByScore[MAX_PLAYERS];
+// Entry 0 stores 1st player's rank, ie 1 for 1st place, 2 for 2nd place, etc. Needed for resolving ties.
+int PlayersScoreRank[MAX_PLAYERS];
+
+int showScoreBrd[MAX_PLAYERS]; // Change to TRUE when scoreboard should be shown
+
+
+script 75 (int mode)	//	Scoreboard control script - Mode: 0 = Toggle, 1 = On, 2 = Off
+			//	Do not use 'puke' to call, use ScoreboardToggle item (check controls menu)
+{
+	switch (mode)
+	{
+	case 1:
+		showScoreBrd[PlayerNumber()] = TRUE;
+		break;
+	case 2:
+		showScoreBrd[PlayerNumber()] = FALSE;
+		break;
+	case 0:
+	default:
+		if(showScoreBrd[PlayerNumber()])
+		{	showScoreBrd[PlayerNumber()] = FALSE;	}
+		else
+		{	showScoreBrd[PlayerNumber()] = TRUE;	}
+		break;
+	}
+}
+
+script 600 (void) // Scoreboard script
+{
+	SortPlayersByScore();
+
+	// Configurable parts - DO NOT EDIT DECIMAL PART - LEAVE AS .0
+	int hud_x = 470.0;	// X position of left side of text
+	int hud_y_start = 165.0;	// Y position (top of the text) where first player is listed in scoreboard
+	int hud_y_difference = 8.0;	// Pixels between HudMessage's Y positions (increase for more spacing, etc.)
+
+	// Counters (don't edit these here)
+	int scoreboard_hid = SCOREBOARD_HID_START;
+	int hud_y_counter = 0;
+
+	SetHudSize(640,480,1);
+
+	ClearScoreBoard();
+
+	SetFont("SMALLFONT");	// I moved this outside of the loop so it only gets called once
+
+	int curPlayer;
+	for (int i=0; i<PlayerCount(); i++)
+	{
+		curPlayer = PlayersByScore[i];
+
+		// Make sure to change HUD_MSG_PER_PLAYER if you change number of times HudMessage is called here.
+
+		// Write ranks
+		HudMessage(d:PlayersScoreRank[curPlayer],s:"."; HUDMSG_PLAIN, scoreboard_hid++, CR_WHITE, hud_x+0.1, 0.1+hud_y_start+hud_y_counter, 0.0);
+
+		// Write scores
+		HudMessage(d:PlayerScore(curPlayer),s:" $"; HUDMSG_PLAIN, scoreboard_hid++, CR_GOLD, hud_x+60.2, 0.1+hud_y_start+hud_y_counter, 0.0);
+
+		// Write Player Names
+		HudMessage(n:curPlayer+1; HUDMSG_PLAIN, scoreboard_hid++, CR_RED, hud_x+68.1, 0.1+hud_y_start+hud_y_counter, 0.0);
+
+		// Increment counter so next set of HudMessages are below this one
+		hud_y_counter += hud_y_difference;
+	}
+
+	// Make sure EXTRA_HUD_MSGS is set to number of times HudMessage is called outside of loop here
+	SetFont("HUDSCR");
+	HudMessage(s:"a"; HUDMSG_PLAIN, scoreboard_hid++, 0, 320.0, 240.0, 0);
+}
+
+script 601 ENTER // Calls scoreboard script regularly if needed
+{
+	int status;
+	while(TRUE)
+	{
+		if(showScoreBrd[PlayerNumber()])
+		{
+			ACS_ExecuteAlways(600,0,0,0,0);
+			status = TRUE;
+		}
+		else if(status)
+		{
+		//	Clear scoreboard if it was turned off in the last cycle
+			ClearScoreBoard();
+			status = FALSE;
+		}
+		delay(25);
+	}
+}
+
+function int PlayerScore (int playernum)
+{
+	return CheckActorInventory(PLAYER_TID+playernum,"CoinItem");
+}
+
+function void ClearScoreBoard (void)
+{
+	int scoreboard_hid = SCOREBOARD_HID_START;
+	for (int i=0; i<HUD_MSG_PER_PLAYER*MAX_PLAYERS+EXTRA_HUD_MSGS; i++)
+	{
+		HudMessage(s:""; HUDMSG_PLAIN, scoreboard_hid++, 0, 0.0, 0.0, 0.1);
+	}
+}
+
+function void SortPlayersByScore (void)
+{
+	// Fill Array
+	int numOfPlayers = PlayerCount();
+	int offset = 0;
+	int i = 0;
+	for (i=0; i<numOfPlayers+offset; i++)
+	{
+		if(!PlayerInGame(i))
+		{
+			offset++;
+		} else {
+			PlayersByScore[i-offset] = i;
+		}
+	}
+
+	// Then sort it
+	i = 0;
+	while (i < numOfPlayers)
+	{
+		if (i == 0 || PlayerScore(PlayersByScore[i-1]) >= PlayerScore(PlayersByScore[i]))
+		{	i++;	}
+		else
+		{
+			int tmp = PlayersByScore[i];
+			PlayersByScore[i] = PlayersByScore[i-1];
+			PlayersByScore[--i] = tmp;
+		}
+	}
+
+	// Calculate Players' Score Rank Positions
+	for (i=0; i<numOfPlayers; i++)
+	{
+		// If this is the first player in the loop OR the previous player's score DOES NOT EQUAL this player's score
+		if (i == 0 || PlayerScore(PlayersByScore[i-1]) != PlayerScore(PlayersByScore[i]))
+		{	PlayersScoreRank[PlayersByScore[i]] = i+1; }
+		else
+		{
+		// So if this player's score EQUALS the previous player's score, then they both get the same rank
+			PlayersScoreRank[PlayersByScore[i]] = PlayersScoreRank[PlayersByScore[i-1]];
+		}
+	}
+}
+

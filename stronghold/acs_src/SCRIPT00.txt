@@ -1,0 +1,1773 @@
+#1 StrifePlayer
+ACTOR 1
+	DROP 0
+	IF_ITEM 112
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 3
+	NAME "Lt. R. Heit"
+	DIALOG "Greetings Marine! So you completed the training course? Great, time for some real action. Hellspawn managed to attack us on our own homeworld, and our only hope for survival was retreat. Our spearhead of operations is now here on Mars, and our main goal is to regain control over Earth and the rest of our supercluster."
+
+	CHOICE
+		TEXT "How will we regain control?"
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 1
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. R. Heit"
+	DIALOG "First of all, we need to secure our strongholds on several key planets in our galaxy and neighbouring galaxies. With these sites under our control, we can eradicate the demons from our homeworld and conduct our operations in deeper space regions to take the rest of 'em down."
+END
+
+ACTOR 1
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. R. Heit"
+	DIALOG "Hello again, marine! I see you did a fine job defending our facilities. No doubt we've driven those demons back and they won't be returning for a long time. Thanks to you, we can continue our operations in deep space without the hellspawn threatening our most vulnerable strongholds. We've certainly a lot to thank you for."
+
+	CHOICE
+		TEXT "Heh, I guess you do."
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+END
+
+ACTOR 1
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. R. Heit"
+	DIALOG "Guess you don't have a lot to do until your dropship gets here, so I suggest go around and say your final goodbyes to your friends. Dismissed!"
+END
+
+#2 WeaponSmith
+ACTOR 2
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Sgt. M. Niggel"
+	DIALOG "Hey, how are you? Ready for the next operation? I had a mission on Heloxyd a few days ago. We lost the UAC installation and several marines, it was a total disaster... I bought myself a weapon reinforcement unit but obviously I had bad luck. It's a well-priced item, but you never know what weapon might pop out."
+
+	CHOICE
+		TEXT "What else would you suggest?"
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 2
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Sgt. M. Niggel"
+	DIALOG "Listen to me, I find that sentry drones are of very good use in places filled with weaker hellspawn minions and wide open maps, but they fail in small corridors and canyons. You might also consider marine reinforcements but they are random recruits... in terms of both weapons and intelligence."
+
+	CHOICE
+		TEXT "What about weapon units?"
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+#3 BarKeep
+ACTOR 3
+	DROP 0
+	IF_ITEM 112
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 2
+	NAME "Prof. C. Oelckers"
+	DIALOG "Welcome to the latest UAC invention, the Health Pad 2000. As long as it's in an experimental state, it is absolutely free of charge! Just try it. It knits your wounds and regenerates your skin. You'll feel like you've just respawned."
+END
+
+ACTOR 3
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Prof. C. Oelckers"
+	DIALOG "The completion of the Health Pad 2000 has been a resounding success. And in honor of your victory we have decided to make its use absolutely free, to you and all other marines wounded during battle! Maybe now I can finally return to work on my greatest project ever, DoomScript! Or, maybe not..."
+END
+
+#4 Armorer
+ACTOR 4
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Sgt. Rowand"
+	DIALOG "Most of the shop's items are far too expensive... make sure to earn enough cash on the battlefields. The stronger the demon, the higher the bounty. And don't waste it either! Only buy things that you really need or that are useful!"
+END
+
+#5 Medic
+ACTOR 5
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. Toenail"
+	DIALOG "If an operation is too hard and you keep failing your objective, join another operation, and try again later if you have earned enough experience and money. If you're still having problems, recruit marines to help you!"
+
+	CHOICE
+		TEXT "Great, what about you?"
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 5
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. Toenail"
+	DIALOG "Forget about it. I'm already in training for the annual Skulltag championship and I'm not gonna let myself wind up in a Demon's belly."
+END
+
+#6 Peasant1
+ACTOR 6
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Prof. I. C. Tux"
+	DIALOG "Please make sure to visit the training grounds before you start with the real action. I know what I am talking about... If it is still too hard for you, consider a different skill setting. The amount of monsters per wave depends on the skill setting and the player count."
+END
+
+#7 Peasant2
+ACTOR 7
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Major B. Ostmann"
+	DIALOG "Hello marine, in need of some advice? Take it from me: it is highly essential that you equip yourself before any operation with body enhancements and portable items to use on the battlefield, which can be found at the shops throughout this facility. If you need more information on the items available, just ask."
+
+	CHOICE
+		TEXT "What about Sentry Drones?"
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+
+	CHOICE
+		TEXT "What about Marines?"
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+
+	CHOICE
+		TEXT "What about Auto Drones?"
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+END
+
+ACTOR 7
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Major B. Ostmann"
+	DIALOG "The static sentry drone is very useful when placed near demon spawn points, so while it's busy firing at the monsters, you can take care of the ones approaching from another point, or go and restock. It's quite powerful, and if you place it out of the demons' reach, it will last until the mission ends."
+
+	CHOICE
+		TEXT "Okay, I got that!"
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+ACTOR 7
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Major B. Ostmann"
+	DIALOG "Marine reinforcements are useful in large open areas or where the demons all come from one point. They are useful for taking out the lesser demons, but don't last long against the bigger ones. They also come equipped with a completely random weapon, anything from a simple shotgun to a nifty plasma rifle."
+
+	CHOICE
+		TEXT "Okay, understood!"
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+ACTOR 7
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Major B. Ostmann"
+	DIALOG "Auto drones are very powerful but only last for a short period of time. They follow you and immediately attack any demon within their sight with a devastating antimatter cannon. You can also utilize two at a time! It's best to use them as a last resort in the final waves against the strongest demons."
+
+	CHOICE
+		TEXT "Okay, got it!"
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+#8 Peasant3
+ACTOR 8
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Prof. M. Cutman"
+	DIALOG "You want to buy some equipment? No big deal: stand in front of the item of interest, press <use> once to read a closer description, and twice if you want to buy it. Just make sure that you have enough coins."
+END
+
+#9 Peasant4
+ACTOR 9
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Sgt. J. Paddock"
+	DIALOG "Hey marine, I see you've done your fair share of demon slaying for a while now. I'm a veteran stronghold defender, I've been keeping those demons behind our crucial control points for as long as I can remember. If you need some little bit of advice from my experience, just ask, and learn."
+
+	CHOICE
+		TEXT "What about Smart Bombs?"
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+
+	CHOICE
+		TEXT "What about Time Freezers?"
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+
+	CHOICE
+		TEXT "What about Walls?"
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+
+	CHOICE
+		TEXT "Anything else useful?"
+		YES "_"
+		COST 0 * -1
+		LINK -5
+	;
+END
+
+ACTOR 9
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Sgt. J. Paddock"
+	DIALOG "Smart Bombs are very useful as a last resort or when you're running low on ammo, and the demon hordes aren't showing any sign of stopping. Drop a Smart Bomb right in the middle of the crowd and watch the fireworks - but be sure to be out of its sight or you'll get frazzled by the blast."
+
+	CHOICE
+		TEXT "Got it."
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+ACTOR 9
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Sgt. J. Paddock"
+	DIALOG "Time freezers are pricey but useful, as they halt time for 30 seconds giving you time to restock, kill the demons closest to the deadline, and weaken any others. Time freezers can also be found as grey spheres on powerup pads, however, these activate instantly, so time using them wisely!"
+
+	CHOICE
+		TEXT "Gotcha!"
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+ACTOR 9
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Sgt. J. Paddock"
+	DIALOG "The wall powerup erects a red plasma shield that blocks demons and attacks. The obvious place to put them is in front of the objective, but they can also be used to block off openings to keep demons trapped in a room, then they're easy pickings. Just make sure you can shoot into that area yourself."
+
+	CHOICE
+		TEXT "Okay, cool."
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+ACTOR 9
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Sgt. J. Paddock"
+	DIALOG "This is kind of a secret, but you may find holdable powerups on some of the strongholds that you would normally have to buy to get. Don't be hasty and use them immediately - it may be wise to save them (and your money) for later."
+
+	CHOICE
+		TEXT "Sweet, thanks!"
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+#10 Peasant5
+ACTOR 10
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Cmd. Nick Baker"
+	DIALOG "...err...what? *hic* ...oh, it's you, Sgt... whatever... *hic* ...I just drank 6 or 7 bottles of the UAC's beshhht whiskey... *hic* ...I'm sure my colonel will have a few things to shhhay, *hic* but I don't care, my military career is over... *hic*"
+
+	CHOICE
+		TEXT "Why? What happened?"
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 10
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Cmd. Nick Baker"
+	DIALOG "I was *hic* commander of the UAC fleet in charge of our deep shhpace colony Indigo Prime... the demons overran our defense belt... killed almost everyone... *hic*... we had to retreat... it was all my fault... *hic* Never forget to buy powerful equipment for tough missions... I've said all I can, now leave me alone!"
+
+	CHOICE
+		TEXT "I'm looking for a keycard..."
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+END
+
+ACTOR 10
+	NAME "Cmd. Nick Baker"
+	DIALOG "Err... *hic* key... card? Oh yeah... I found Peg'shh key... heh... but that idiot still owes me some creditshh, so don't exshhpect me to give 'im the key back, 'cause he hasn't paid yet. *hic*... But if YOU have the money...I guesshh I could give it to you and we're done... agreed?"
+
+	CHOICE
+		GIVE 301
+		TEXT "Give me the keycard "
+		YES "Oh, thankshh so much, here's the key!"
+		NO "You don't got the money! No credits, no card!"
+		COST 300 * 5000
+		LINK -4
+	;
+END
+
+ACTOR 10
+	NAME "Cmd. Nick Baker"
+	DIALOG "You have the keycard... *hic*... now leave me to stew in my own self-pity... Go! Now!"
+END
+
+#11 Peasant6
+ACTOR 11
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Prof. D. Archon"
+	DIALOG "Have you seen these new powerups? They are the UAC's latest scientific breakthrough. Hundreds of scientists and engineers - including myself - worked on them for years. The Morphing Device I am especially proud of - it actually turns you into a bruiser demon for a short time. Don't worry, it's perfectly safe. Mostly."
+END
+
+#12 Peasant7
+ACTOR 12
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Cpl. L. W. Mouse"
+	DIALOG "Hey sweetie, got some time to look over the UAC's latest accessories? They look great, but it's hard to say which one is better... one of them regenerates your health over time, but the other one protects you almost completely. I think it all depends on the situation, but don't ask me, I'm not the expert!"
+END
+
+#13 Peasant8
+ACTOR 13
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. W. Weasel"
+	DIALOG "I don't like this pistol. I think it's ugly."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 13
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. W. Weasel"
+	DIALOG "Who's spending the military budget around here? They've got plasma guns in mass production and all I get is a 300-year-old shotgun?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+END
+
+ACTOR 13
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. W. Weasel"
+	DIALOG "When are they going to build that rocket-propelled chainsaw launcher everybody's talking about?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+END
+
+ACTOR 13
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. W. Weasel"
+	DIALOG "Since when is this crappy old shotgun more powerful than a freaking chaingun?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -5
+	;
+END
+
+ACTOR 13
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. W. Weasel"
+	DIALOG "Geez, I've got a pellet gun at home that's more powerful than this thing..."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -6
+	;
+END
+
+ACTOR 13
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. W. Weasel"
+	DIALOG "Did somebody squander the military budget on re-detailing the cafeteria again?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -7
+	;
+END
+
+ACTOR 13
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. W. Weasel"
+	DIALOG "Seriously, if I ever meet the guy that designed this chaingun, I'm gonna kick him in the teeth."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -8
+	;
+END
+
+ACTOR 13
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. W. Weasel"
+	DIALOG "How the hell do you reload this thing?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -9
+	;
+END
+
+ACTOR 13
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. W. Weasel"
+	DIALOG "Damn, you're pretty persistent if you listened to me witter on for that long. Go kill some demons!"
+
+	CHOICE
+		TEXT "That's ok, ramble on."
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+#14 Peasant9
+ACTOR 14
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. S. Priestess"
+	DIALOG "Where does the UAC get the money for all this?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 14
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. S. Priestess"
+	DIALOG "You would think that the UAC would stop using the technology that caused this mess in the first place."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+END
+
+ACTOR 14
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. S. Priestess"
+	DIALOG "I wonder what the next mission will be like. I hope it's not on a suspended platform. I always fall off of those."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+END
+
+ACTOR 14
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. S. Priestess"
+	DIALOG "Do you think Imps enjoy being killed?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -5
+	;
+END
+
+ACTOR 14
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. S. Priestess"
+	DIALOG "How many pinkies do you think I could kill in an hour?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -6
+	;
+END
+
+ACTOR 14
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. S. Priestess"
+	DIALOG "I really like the technology they made to transform into a bruiser. Occasionally, I just feel like setting demons on fire."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -7
+	;
+END
+
+ACTOR 14
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. S. Priestess"
+	DIALOG "I wonder what will happen to all the demon bodies when we're all done here."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -8
+	;
+END
+
+ACTOR 14
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. S. Priestess"
+	DIALOG "Have you tried out the Caco Plate? Neat stuff!"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -9
+	;
+END
+
+ACTOR 14
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. S. Priestess"
+	DIALOG "Are you STILL talking to me? Don't you have something better to do?"
+
+	CHOICE
+		TEXT "Not really."
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+#15 Peasant10
+ACTOR 15
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Leonidas OS"
+	DIALOG "Systems check: Passed. LEONIDAS is fully operational."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 15
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Leonidas OS"
+	DIALOG "Access internet connection. Now reading host name ''drdteam.org''... Failed, host timed out."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+END
+
+ACTOR 15
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Leonidas OS"
+	DIALOG "Now reading host name ''realm667.com''. . . . Success. Found important information regarding UAC strongholds."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+END
+
+ACTOR 15
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Leonidas OS"
+	DIALOG "Now listing important information... Warning. Levels of detail in UAC strongholds reported below 50 percent. Analysis: Needs more detail."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -5
+	;
+END
+
+ACTOR 15
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Leonidas OS"
+	DIALOG "Schematic scans of UAC stronghold show limit of 65535 sectors. Deemed insufficient for meaningful progress."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -6
+	;
+END
+
+ACTOR 15
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Leonidas OS"
+	DIALOG "Detecting visplane overflow. LEONIDAS rebooting..."
+
+	CHOICE
+		TEXT "*sigh*..."
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+#16 Peasant11
+ACTOR 16
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Dr. Dentz"
+	DIALOG "Why did they bring me here? I don't KNOW anything!"
+
+	CHOICE
+		TEXT "..."
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 16
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Dr. Dentz"
+	DIALOG "I can't believe those idiots on Phobos sometimes!"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+END
+
+ACTOR 16
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Dr. Dentz"
+	DIALOG "They ran the gateway test without changing the coordinates first! Am I the only one that noticed that?!"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+END
+
+ACTOR 16
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Dr. Dentz"
+	DIALOG "Aaargh! I must be the only one that went to college here!"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -5
+	;
+END
+
+ACTOR 16
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Dr. Dentz"
+	DIALOG "...is that my biology teacher standing over there in that suit of armor?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+#17 Peasant12
+ACTOR 17
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Blast Hardcheese"
+	DIALOG "This place isn't high-tech enough."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 17
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Blast Hardcheese"
+	DIALOG "I mean, like, where's the holodeck?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+END
+
+ACTOR 17
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Blast Hardcheese"
+	DIALOG "Why can't we just beam food into our rooms?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+END
+
+ACTOR 17
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Blast Hardcheese"
+	DIALOG "I want to hover everywhere! Is that too much to ask?"
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -1
+	;
+END
+
+#18 Peasant13
+ACTOR 18
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Greg T. Great"
+	DIALOG "...damn, I left my socks on my dresser again. Must be why these boots are so itchy."
+END
+
+#19 Peasant14
+ACTOR 19
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Private Gina"
+	DIALOG "What's this? Another marine? Well it's certainly nice of you to come talk to me."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "Does this gun make me look fat? "
+
+	CHOICE
+		TEXT "Yes"
+		YES "_"
+		COST 0 * 0
+		LINK -3
+	;
+
+	CHOICE
+		TEXT "No"
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "Well, you're fat too! Get your big butt out of my face!"
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "You're just being nice. I appreciate it, though."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * 0
+		LINK -5
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "Why do we all have to wear these ridiculous space suits? "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -6
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "Is it just me, or is it getting cold in this room? "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -7
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "Some marines are great. They're brave and heroic, and they fight 'till they're dead. And they're good, too. They make the others look like rats. "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -8
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "For being on such a crappy planet, they sure spruced up the station something nice. But it could use a little more decorating. To start, make the walls blue! "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -9
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "I really hate the UAC. The benefits suck, the pay sucks, and the only thing they give you as a reward is this useless pistol. "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -10
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "Ya know, someday, demons will overrun the entire universe. "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -11
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "I wonder what a day in the life of a Baron of Hell is like. "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -12
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "I was going to say something but I lost my train of thought. "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -13
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "Have you seen a missing pet demon? I know he was around here somewhere. "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -14
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "Now that Microsoft owns the UAC's computer system, I wonder how many security flaws it has... "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -15
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "I'm going to the bar tonight. Are you gonna be there? "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -16
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "Don't you have anything better to do? "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK 17
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "Oooh, look behind you! "
+
+	CHOICE
+		TEXT "...?!"
+		YES "_"
+		COST 0 * -1
+		LINK -18
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "*yawn* I'm gonna be asleep before the next mission. "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -19
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "This is my last month. When I get home, I will never try to remember this again. "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -20
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "Next time you go on a mission, bag me a few Catharsi. "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -21
+	;
+END
+
+ACTOR 19
+	NAME "Private Gina"
+	DIALOG "When someone says "go to hell", show them Deimos, and tell them you're already there. "
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+#20 Peasant15
+ACTOR 20
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Prof. Peg Kobb"
+	DIALOG "Hello marine, is there anything I can help you with?"
+
+	CHOICE
+		TEXT "I need a key for that door!"
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+
+	CHOICE
+		TEXT "Can you lend me some credits?"
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+END
+
+ACTOR 20
+	NAME "Prof. Peg Kobb"
+	DIALOG "That makes two of us. I must have lost it a few days ago while celebrating the birthday of my good friend Prof. Cutman... damn, that was some night, I've never seen so many naked... err... oh, yes, the key! We celebrated in the lounge below the mission control, maybe someone has found it."
+
+	CHOICE
+		TEXT "I have the key now."
+		YES "Oh, brilliant! Now you can open the door."
+		NO "I don't see any key on you!"
+		COST 301 * -1
+		LINK 4
+	;
+
+	CHOICE
+		TEXT "How can I earn money?"
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+END
+
+ACTOR 20
+	NAME "Prof. Peg Kobb"
+	DIALOG "I suggest participating in one of the stronghold defense missions. There you can gain reward money for destroying the demons, and even more for successfully defending a stronghold against the invaders."
+
+	CHOICE
+		TEXT "Where is the red keycard?"
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 20
+	NAME "Prof. Peg Kobb"
+	DIALOG "How can I be of service?"
+
+	CHOICE
+		TEXT "Do you have some money for me?"
+		YES "_"
+		COST 0 * -1
+		LINK -5
+	;
+END
+
+ACTOR 20
+	NAME "Prof. Peg Kobb"
+	DIALOG "Do I look like I'm made out of credits? Go and earn some money on the battlefield! ...Or if you're feeling up to it, visit a stronghold you've already successfully secured, and try to beat all the waves within the allotted timelimit."
+END
+
+ACTOR 20
+	NAME "Prof. Peg Kobb"
+	DIALOG "Great, you have the keycard, now open the door and do us a favor!"
+
+	CHOICE
+		TEXT "I have still a question."
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+END
+
+#21 Actor
+ACTOR 21
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Prof. G. Dragon"
+	DIALOG "Hello Marine, welcome to the amazing world of Yesterday:Today! After decades of research, we are finally able to give marines the chance to travel back in time and relive epic battles of the past! Although..."
+
+	CHOICE
+		TEXT "Yes?"
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 21
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Prof. G. Dragon"
+	DIALOG "Unfortunately the device is missing a blue and a green data disk that activate the two wormhole generators. Without them, even I am not able to activate the machine. Maybe you can help us find the disks?"
+
+	CHOICE
+		TEXT "What about the blue disk?"
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+
+	CHOICE
+		TEXT "Where's the green disk?"
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+
+END
+
+ACTOR 21
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Prof. G. Dragon"
+	DIALOG "The blue one was lost in one of our capital cities on Earth, where the latest attacks have been initiated. That's all I can remember."
+
+	CHOICE
+		TEXT "Got it."
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 21
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Prof. G. Dragon"
+	DIALOG "I really have no idea. I gave it to one of our SL4-TM type maintenance droids, that are used in hostile outside environments. I haven't seen it since."
+
+	CHOICE
+		TEXT "Gotcha!"
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+#22
+ACTOR 22
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Corp. McKenzie"
+	DIALOG "You know, I hear there's some secret areas inside this facility. Areas that open up to other universes. Maybe you've heard of them?"
+END
+
+#23
+ACTOR 23
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Priv. Reinhardt"
+	DIALOG "Have you ever wondered if this whole installation and the various worlds it links to never existed before, that it was just created by some random bunch of people, and we're just slaves to their creativity? People think I'm crazy, but I think I'm on to something here!"
+END
+
+#24
+ACTOR 24
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Sgt. Thatcher"
+	DIALOG "The music they have here is so boring. I've heard it a million times! When will they come up with some new stuff? I know back on Earth they had a whole selection of music!"
+END
+
+#25
+ACTOR 25
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Cpt. Demonslayer"
+	DIALOG "My Grandpa joined the UAC before the first demon war. He was the most powerful marine in his time, and he fought through hell and back to save the Earth. What have you ever done to save everybody, huh?"
+END
+
+#26
+ACTOR 26
+	NAME "F. Taggart Jr."
+	DIALOG "Have you ever fought toe to toe with a Terminator? I have. I won't ever tell you my secret though."
+
+
+	CHOICE
+		TEXT "Tell me, or...!"
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 26
+	NAME "F. Taggart Jr."
+	DIALOG "Oh fine. I had invulnerability and a fully charged BFG. There, now you know. You happy? Don't tell anyone. They won't think I'm a hero."
+END
+
+#27
+ACTOR 27
+	DROP 0
+	IF_ITEM 112
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 2
+	NAME "Lt. Carmack"
+	DIALOG "Greetings marine, you have done well to reach this tier. But let me assure you it won't get easier - the upcoming missions will be your hardest challenges yet! Expect multiple limit and milestone Strongholds, and some all-new methods of defense you will have to get accustomed to. Make sure you're totally prepared!"
+END
+
+ACTOR 27
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. Carmack"
+	DIALOG "At ease, marine."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+END
+
+ACTOR 27
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. Carmack"
+	DIALOG "I offer my congratulations. You've done the UAC proud. Thanks to you, thirty-three crucial strongholds have been successfully secured, and countless hordes of rampaging demon scum have been sent back to whence they came. We owe a lot to you - we couldn't have safely protected half of our strongholds without your aid."
+
+	CHOICE
+		TEXT "Thank you, sir!"
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+END
+
+ACTOR 27
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. Carmack"
+	DIALOG "You've shown strength and bravery far beyond your duty as a marine, and for that, I am honored to have instructed you throughout the course of your time here on Mars."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -5
+	;
+END
+
+ACTOR 27
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. Carmack"
+	DIALOG "However, I'm afraid to say the rest your time here will be somewhat limited. Your dropship will be arriving shortly to transfer you back to Earth, where I'm positive you deserve a well-earned break."
+
+	CHOICE
+		TEXT "Well, gee, that's..."
+		YES "_"
+		COST 0 * -1
+		LINK -6
+	;
+END
+
+ACTOR 27
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. Carmack"
+	DIALOG "Don't sell yourself short, marine. Those hellions never knew what hit them. A major setback for them, I'm certain."
+
+	CHOICE
+		TEXT "Yeah, I'm glad it's over."
+		YES "_"
+		COST 0 * -1
+		LINK -7
+	;
+END
+
+ACTOR 27
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. Carmack"
+	DIALOG "Yes. It's all over."
+
+	CHOICE
+		TEXT "..."
+		YES "_"
+		COST 0 * -1
+		LINK -8
+	;
+END
+
+ACTOR 27
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Lt. Carmack"
+	DIALOG "Dismissed, marine!"
+END
+
+#28
+ACTOR 28
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Corp. S. Scream"
+	DIALOG "Man, have you seen that 'I Win' Button? Neat stuff. I wish I could come up with the money to buy that thing, but whenever I'm on a mission, the goddamn Phase Imps always kill me! I need to start saving up for some high-quality armor or something."
+END
+
+#29
+ACTOR 29
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Sgt. M. Orpheus"
+	DIALOG "Sorry marine, no entrance through here. The gateways to the Tier 4 strongholds are still under maintenance, so come back later."
+END
+
+#30
+ACTOR 30
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Dr. Aeon D."
+	DIALOG "What's a well-trained marine like yourself doing ambling about like he has nothing to do? Shouldn't you be out vanquishing hellspawn?"
+
+	CHOICE
+		TEXT "I've defended 33 strongholds."
+		YES "_"
+		COST 0 * -1
+		LINK -2
+	;
+END
+
+ACTOR 30
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Dr. Aeon D."
+	DIALOG "Of course you have, but you don't know the REAL danger we are in! I just saw the most horrific monstrosity pass through sector 9, all the way from here! It was that large! If that monster returns and finds us here, it'll sweep us away with a flick of its massive wrist."
+
+	CHOICE
+		TEXT "Wait, what?"
+		YES "_"
+		COST 0 * -1
+		LINK -3
+	;
+END
+
+ACTOR 30
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Dr. Aeon D."
+	DIALOG "You heard me! That thing had a mouth the size of Io and a tail spanning several hundred yards. Bigger than twelve cyberdemons, at least."
+
+	CHOICE
+		TEXT "Are you kidding me?"
+		YES "_"
+		COST 0 * -1
+		LINK -4
+	;
+END
+
+ACTOR 30
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Dr. Aeon D."
+	DIALOG "Do I look like I kid? I tell you, the end of days is upon us!! This -- thing -- has brought the full brunt of Hell's forces here, to Mars, precisely with the intention of reducing all of our launch bases to smoking holes in the ground! I can hear the stomps of the demons' oversized hooves even now!"
+
+	CHOICE
+		TEXT "You're mad."
+		YES "_"
+		COST 0 * -1
+		LINK -5
+	;
+END
+
+ACTOR 30
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Dr. Aeon D."
+	DIALOG "Well, forgive me if I'm exhibiting a *little* nervous tension. Anyway, I've taken the liberty of notifying the rest of your cohorts of this impending strike, but I'm afraid their aid is all you're going to get in the event of an attack."
+
+	CHOICE
+		TEXT "Okay..."
+		YES "_"
+		COST 0 * -1
+		LINK -6
+	;
+END
+
+ACTOR 30
+	DROP 0
+	IF_ITEM 111
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 8
+	NAME "Dr. Aeon D."
+	DIALOG "You would do well to join them in fighting off this beast and his massive legions - I daresay no one else will. What say you, marine?"
+
+	CHOICE
+		GIVE 110
+		TEXT "Well... alright then."
+		YES "_"
+		LINK -7
+	;
+
+	CHOICE
+		TEXT "I need to go restock first."
+		YES "Well, hurry the hell up! We haven't time to spare!"
+		GIVE 111
+	;
+END
+
+ACTOR 30
+	NAME "Dr. Aeon D."
+	DIALOG "Alright. Come quickly, now, we haven't got much--"
+END
+
+ACTOR 30
+	DROP 0
+	IF_ITEM 0
+	IF_ITEM2 0
+	IF_ITEM3 0
+	GOTO 0
+	NAME "Dr. Aeon D."
+	DIALOG "Are you quite done yet?"
+
+	CHOICE
+		GIVE 110
+		TEXT "Let's go kick some ass."
+		YES "_"
+		LINK -7
+	;
+END

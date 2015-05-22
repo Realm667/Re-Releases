@@ -1,0 +1,53 @@
+
+/*********************		Mission Decider + Assigner		************************/
+
+	// a "mission" can be thought of as anything you can usually do to a monster using its TID
+	// for example, a "mission" could simply be a command to give each monster +10 health or
+	// make it 10% faster, or you might want it to go on a different path to the other monsters
+	// or ignore the player
+
+	// here we'll set a few things up for every monster. It will be called after a
+	// succesful spawn, and thus apply to EVERY monster spawned by the script
+	// note that this is called before everything is given its mission, so it is
+	// simply the default action to take if not given a specific mission.
+
+function void GiveDefaults ( int TID )
+{
+	SetThingSpecial( TID, ACS_ExecuteAlways, 250, 0);
+	// give the monster the bodycount script (god save those born to die...)
+	// SetActorProperty( TID, APROP_Ambush, 1);
+	// deafen it, so that it always runs to its goal if it cant see a player
+	Thing_SetGoal( TID, Zones[ThisZone][5], 0, 1);
+	Thing_Hate( TID, EPICENTRE_OF_HATE, 3);
+	// send it on its way, crippled and doomed to a terrible fate...
+}
+
+	// mission picker will give a monster a TID corresponding to its purpose when it
+	// is spawned, which you can use later in GiveMissions(). What it does now can be taken
+	// as an example, because you can use any criteria you like to assign missions, and the
+	// missions themselves can be anything.
+
+function int MissionPicker ( void )
+{
+	int ClassSpeed = GetActorProperty(TestClass(Waves[ThisWave][ThisType*2]), APROP_Speed);
+		// cunningly use the testclass function instead of a TID
+	EndTest();
+		// endtest has to be called before any return statement
+		// as they terminate the script
+	if(ClassSpeed*2 + random(0.0,60.0) > 50.0 )
+	{
+		return 1;
+	}
+	return 0;
+}
+
+	// and mission 1 is to run as fast as possible to the base. one player can run into the field
+	// and distract them from that if they like....
+
+function void GiveMissions ( void )
+{
+//	for(int Zone; Zone < NUM_ZONES; Zone++) // for things in every zone
+//	{
+//		Thing_Hate(TIDArray[Zone][1], EPICENTRE_OF_HATE, 3);
+//	}
+}
