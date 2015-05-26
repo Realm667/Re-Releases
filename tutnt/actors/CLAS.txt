@@ -1,0 +1,153 @@
+ACTOR Marine : PlayerPawn
+{
+   Speed 1
+   Health 100
+   Radius 16
+   Height 56
+   Mass 100
+   PainChance 255
+   Player.ColorRange 112, 127
+   Player.DisplayName "Marine"
+   Player.CrouchSprite "PLYC"
+   Player.StartItem "NewShotgun"
+   Player.StartItem "Fist"
+   Player.StartItem "Shell", 10
+   Player.maxhealth 100
+   
+   States
+   {
+   Spawn:
+      PLA3 A -1
+      Loop
+   See:
+      PLA3 ABCD 4
+      Loop
+   Missile:
+      PLA3 E 12
+      Goto Spawn
+   Melee:
+      PLA3 F 6 BRIGHT
+      Goto Missile
+   Pain:
+      PLA3 G 4
+      PLA3 G 4 A_Pain
+      Goto Spawn
+   Death:
+      PLA3 H 10 
+      PLA3 I 10 A_PlayerScream
+      PLA3 J 10 A_NoBlocking
+      PLA3 KLM 10
+      PLA3 N -1
+      Stop
+   XDeath:
+      PLA3 O 5 
+      PLA3 P 5 A_XScream
+      PLA3 Q 5 A_NoBlocking
+      PLA3 RSTUV 5
+      PLA3 W -1
+      Stop
+   }
+} 
+
+ACTOR Scout : Marine
+{
+   Speed 1.25
+   Health 75
+   Radius 16
+   Height 56
+   Mass 100
+   PainChance 255
+   Player.ColorRange 112, 127
+   Player.DisplayName "Scout"
+   Player.CrouchSprite "PLYC"
+   Player.StartItem "NewPistol"
+   Player.StartItem "Fist"
+   Player.StartItem "Clip", 60
+   Player.maxhealth 75
+   
+   States
+   {
+   Spawn:
+      PLA2 A -1
+      Loop
+   See:
+      PLA2 ABCD 4
+      Loop
+   Missile:
+      PLA2 E 12
+      Goto Spawn
+   Melee:
+      PLA2 F 6 BRIGHT
+      Goto Missile
+   Pain:
+      PLA2 G 4
+      PLA2 G 4 A_Pain
+      Goto Spawn
+   Death:
+      PLA2 H 10 
+      PLA2 I 10 A_PlayerScream
+      PLA2 J 10 A_NoBlocking
+      PLA2 KLM 10
+      PLA2 N -1
+      Stop
+   XDeath:
+      PLA2 O 5 
+      PLA2 P 5 A_XScream
+      PLA2 Q 5 A_NoBlocking
+      PLA2 RSTUV 5
+      PLA2 W -1
+      Stop
+   }
+}
+
+ACTOR Commando : Marine
+{
+   Speed 0.85
+   Health 150
+   Radius 16
+   Height 56
+   Mass 100
+   PainChance 255
+   Player.ColorRange 112, 127
+   Player.DisplayName "Commando"
+   Player.CrouchSprite "PLYC"
+   Player.StartItem "STMinigun"
+   Player.StartItem "Fist"
+   Player.StartItem "Clip", 100
+   Player.maxhealth 125
+   
+      States
+   {
+   Spawn:
+      PLA4 A -1
+      Loop
+   See:
+      PLA4 ABCD 4
+      Loop
+   Missile:
+      PLA4 E 12
+      Goto Spawn
+   Melee:
+      PLA4 F 6 BRIGHT
+      Goto Missile
+   Pain:
+      PLA4 G 4
+      PLA4 G 4 A_Pain
+      Goto Spawn
+   Death:
+      PLA4 H 10 
+      PLA4 I 10 A_PlayerScream
+      PLA4 J 10 A_NoBlocking
+      PLA4 KLM 10
+      PLA4 N -1
+      Stop
+   XDeath:
+      PLA4 O 5 
+      PLA4 P 5 A_XScream
+      PLA4 Q 5 A_NoBlocking
+      PLA4 RSTUV 5
+      PLA4 W -1
+      Stop
+   }
+}
+

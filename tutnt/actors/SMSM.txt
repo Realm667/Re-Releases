@@ -1,0 +1,309 @@
+//===========================
+//Super Mario Deco
+//===========================
+
+Mario_Hecke
+{
+DoomEdNum 22256
+Sprite SM_C
+Frames "4:A"
+Radius 32
+Height 32
+Solid
+}
+
+ACTOR Mario_Blume 22257
+{
+   Height 32
+   Radius 32
+   Health 20 
+   Speed 0  
+   Mass 0x7fffffff
+   +SOLID
+   MeleeDamage 20
+   States
+   {
+   Spawn:
+      SM_B ABC 4 A_Look
+      Loop
+   See:
+      SM_B ABC 4 A_Chase
+      Loop
+   Melee:
+      SM_B ABC 4 A_MeleeAttack
+      Goto See
+   }
+} 
+
+
+ACTOR Mario_Piranha 22258
+{
+   Height 32
+   Radius 32
+   Health 20 
+   Speed 0  
+   Mass 0x7fffffff
+   +SOLID
+   +NOGRAVITY
+   MeleeDamage 100
+   States
+   {
+   Spawn:
+      SM_P AB 4 A_Look
+      Loop
+   See:
+      SM_P AB 4 A_Chase
+      Loop
+   Melee:
+      SM_P AB 4 A_MeleeAttack
+      Goto See
+   }
+} 
+
+ACTOR Mario_Koopa 22259
+{
+   Height 64
+   Radius 32
+   Health 20 
+   Speed 10  
+   Mass 100
+   MeleeDamage 20
+   +SOLID
+   States
+   {
+   Spawn:
+      SM_G AB 8 A_Look
+      Loop
+   See:
+      SM_G AB 8 A_Chase
+      Loop
+   Melee:
+      SM_G AB 4 A_MeleeAttack
+      Goto See
+   }
+} 
+
+Mario_Blubb
+{
+DoomEdNum 22260
+Sprite SM_F
+Frames "4:AB"
+Alpha 0.5
+RenderStyle STYLE_Translucent
+Radius 32
+Height 32
+Solid
+}
+
+Mario_Blubb2
+{
+DoomEdNum 22261
+Sprite SM_S
+Frames "4:ABCDEFGHIJK"
+Radius 32
+Height 32
+Solid
+}
+
+ACTOR Mario_Yellow 22262
+{
+   Height 64
+   Radius 32
+   Health 20 
+   Speed 10  
+   Mass 100
+   MeleeDamage 100
+   +SOLID
+   States
+   {
+   Spawn:
+      SM_Z AB 8 A_Look
+      Loop
+   See:
+      SM_Z AB 8 A_Chase
+      Loop
+   Melee:
+      SM_Z AB 4 A_MeleeAttack
+      Goto See
+   }
+} 
+
+ACTOR Mario_FragezeichenWinged 22263
+{
+   Height 32
+   Radius 32
+   Health 20 
+   Speed 10  
+   Mass 100
+   +SOLID
+   +NOGRAVITY
+   +FLOAT
+   +SPAWNFLOAT
+   States
+   {
+   Spawn:
+      SM_W AB 8 A_Look
+      Loop
+   See:
+      SM_W AB 8 A_Chase
+      Loop
+   }
+} 
+
+Mario_Looker
+{
+DoomEdNum 22264
+Sprite SM_I
+Frames "8:ABCB"
+Radius 32
+Height 32
+Solid
+}
+
+pickup MarioCoin
+{
+DoomEdNum 22265
+Sprite SM_O
+Frames "2:ABCD"
+NoGravity
+Radius 32
+Height 32
+PickupMessage "You collected one coin."
+PickupSound "misc/sm_coin"
+}
+
+
+//===========================
+//Sam & Max Deco
+//===========================
+
+SamNMax_Ants
+{
+DoomEdNum 22270
+Sprite SMAN
+Frames "4:A"
+Radius 32
+Height 32
+Solid
+}
+
+SamNMax_Letters
+{
+DoomEdNum 22271
+Sprite SMBR
+Frames "4:A"
+Radius 0
+Height 0
+Solid
+}
+
+SamNMax_Stuhl
+{
+DoomEdNum 22272
+Sprite SMCH
+Frames "4:A"
+Radius 32
+Height 32
+Solid
+}
+
+SamNMax_CeilingLamp
+{
+DoomEdNum 22273
+Sprite SMCL
+Frames "4:A"
+Radius 32
+Height 48
+Solid
+NoGravity
+}
+
+SamNMax_Box
+{
+DoomEdNum 22274
+Sprite SMKI
+Frames "4:A"
+Radius 20
+Height 16
+Solid
+}
+
+SamNMax_Zeitung
+{
+DoomEdNum 22275
+Sprite SMNP
+Scale 0.75
+Frames "4:A"
+Radius 32
+Height 4
+Solid
+}
+
+SamNMax_Sandwich
+{
+DoomEdNum 22276
+Sprite SMSW
+Frames "4:A"
+Radius 8
+Height 2
+Solid
+}
+
+SamNMax_TV
+{
+DoomEdNum 22277
+Sprite SMTV
+Frames "4:A"
+Radius 20
+Height 48
+Solid
+}
+
+SamNMax_MaxnCat
+{
+DoomEdNum 22278
+Sprite SMMX
+Frames "4:ABCDEFGHIJKLMNOPQRSTUTSRQPONMLKJIHGFEDCBAABBAABBAABBA"
+Radius 32
+Height 64
+Solid
+}
+
+ACTOR SamNMax_Sam 22279
+{
+   Height 64
+   Radius 32
+   Health 20 
+   Speed 3  
+   Mass 100
+   +SOLID
+   States
+   {
+   Spawn:
+      SMSM ABCDEFGH 5 A_Look
+      Loop
+   See:
+      SMSM ABCDEFGH 5 A_Chase
+      Loop
+   }
+} 
+
+SamNMax_Telef
+{
+DoomEdNum 22280
+Sprite SMTE
+Frames "4:A"
+Radius 20
+Height 48
+Solid
+}
+
+SamNMax_Orb
+{
+DoomEdNum 22281
+Sprite SMOR
+Frames "4:A"
+Radius 20
+Height 48
+Solid
+}

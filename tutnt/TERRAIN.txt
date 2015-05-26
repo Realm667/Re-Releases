@@ -1,0 +1,204 @@
+splash Water
+{
+	smallclass		WaterSplashBase2
+	smallclip		12
+	smallsound		world/watersplashsmall
+
+	baseclass		WaterSplashBase2
+	chunkclass		WaterSplash2
+	chunkxvelshift	8
+	chunkyvelshift	8
+	chunkzvelshift	8
+	chunkbasezvel	2
+	NoAlert
+	sound			world/watersplash
+}
+
+splash Blood
+{
+	smallclass		BloodSplashBase2
+	smallclip		6
+	smallsound		world/sludgegloopsmall
+
+	baseclass		BloodSplashBase2
+	chunkclass		BloodSplash2
+	chunkxvelshift	8
+	chunkyvelshift	8
+	chunkzvelshift	8
+	chunkbasezvel	1
+	NoAlert
+	sound			world/sludgegloop
+}
+
+splash Nuke
+{
+	smallclass		SlimeSplash2
+	smallclip		2
+	smallsound		world/nukesplashsmall
+
+	baseclass		SlimeSplash2
+	chunkclass		SlimeChunk2
+	chunkxvelshift	8
+	chunkyvelshift	8
+	chunkzvelshift	8
+	chunkbasezvel	1
+	NoAlert
+	sound			world/nukesplash
+}
+
+splash Lava
+{
+	smallclass		LavaSmoke
+	smallclip		12
+	smallsound		world/lavasizzlesmall
+
+	baseclass		LavaSplash2
+	chunkclass		LavaSmoke
+	chunkxvelshift	-1
+	chunkyvelshift	-1
+	chunkzvelshift	7
+	chunkbasezvel	1
+	NoAlert
+	sound			world/lavasizzle
+}
+
+splash Slime
+{
+	smallclass		SludgeSplash2
+	smallclip		2
+	smallsound		world/sludgegloopsmall
+
+	baseclass		SludgeSplash2
+	chunkclass		SludgeChunk2
+	chunkxvelshift	8
+	chunkyvelshift	8
+	chunkzvelshift	8
+	chunkbasezvel	1
+	NoAlert
+	sound			world/sludgegloop
+}
+
+splash Slime2
+{
+	smallclass		SludgeSplash2
+	smallclip		10
+	smallsound		world/sludgegloopsmall
+
+	baseclass		SludgeSplash2
+	chunkclass		SludgeChunk2
+	chunkxvelshift	8
+	chunkyvelshift	8
+	chunkzvelshift	8
+	chunkbasezvel	1.5
+	NoAlert
+	sound			world/sludgegloop
+}
+
+splash Hot
+{
+	smallclass		LavaSmoke
+	smallclip		12
+	smallsound		world/lavasizzlesmall
+
+	baseclass		None
+	chunkclass		LavaSmoke
+	chunkxvelshift	-1
+	chunkyvelshift	-1
+	chunkzvelshift	7
+	chunkbasezvel	1
+	NoAlert
+	sound			world/lavasizzlesmall
+}
+
+terrain Water
+{
+	splash			Water
+	footclip		10
+	liquid
+}
+
+terrain Lava
+{
+	splash			Lava
+	footclip		10
+	liquid
+}
+
+terrain Blood
+{
+	splash			Blood
+	footclip		10
+	liquid
+}
+
+terrain Nuke
+{
+	splash			Nuke
+	footclip		10
+	liquid
+}
+
+terrain Slime
+{
+	splash			Slime
+	footclip		10
+	liquid
+}
+
+terrain Slime2
+{
+	splash			Slime2
+	footclip		10
+	liquid
+}
+
+terrain Hot
+{
+	splash			Hot
+	footclip		0
+	liquid
+}
+
+ifdoom
+floor BLOOD1 Blood
+floor BLOOD2 Blood
+floor BLOOD3 Blood
+floor QWATERT6 Blood
+floor SLIME01 Slime2
+floor SLIME02 Slime2
+floor SLIME03 Slime2
+floor SLIME04 Slime2
+floor QSLIME1 Slime
+floor QSLIME2 Slime
+floor QWATER2 Slime
+floor QWATER3 Slime
+floor NUKAGE1 Nuke
+floor NUKAGE2 Nuke
+floor NUKAGE3 Nuke
+floor FWATER1 Water
+floor FWATER2 Water
+floor FWATER3 Water
+floor FWATER4 Water
+floor QFWAT Water
+floor QWATER Water
+floor LAVA1 Lava
+floor LAVA2 Lava
+floor LAVA3 Lava
+floor LAVA4 Lava
+floor QLAVA Lava
+floor QLAVA2 Lava
+floor RROCK05 Hot
+floor RROCK06 Hot
+floor RROCK07 Hot
+floor RROCK08 Hot
+floor SLIME09 Hot
+floor SLIME10 Hot
+floor SLIME11 Hot
+floor SLIME12 Hot
+floor QWATER3A Hot
+floor SLIME05 Hot
+floor SLIME05B Hot
+floor SLIME06 Hot
+floor SLIME07 Hot
+floor SLIME08 Hot
+endif
