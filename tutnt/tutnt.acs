@@ -1,0 +1,459 @@
+#library "tutnt.acs"
+#include "zcommon.acs"
+
+str mapname;
+str objectives[3]={"","",""};
+//Intro Text
+script "IntroText" OPEN
+{
+	int mapnum=GetLevelInfo(LEVELINFO_LEVELNUM);
+	if(mapnum==99||mapnum==4||GameType()==GAME_TITLE_MAP)
+		terminate;
+	if(!mapnum==7&&!mapnum==8&&!mapnum==10)
+		sector_setcolor(28,255,69,0);
+	SetHudSize(640,480,0);
+	Setfont("dbigfont");
+	Hudmessage(s:"Torment And Torture"; HUDMSG_FADEINOUT,0,CR_WHITE,320.4,190.0,3.0,1.0,1.0);
+	Setfont("smallfont");
+	if(mapnum==1)
+	{
+		mapname="Episode 1: The Opening Abyss";
+		objectives[0]="-Fight your way to the Tech Center";
+		objectives[1]="-Pass the Dungeon passage and leave the first defence belt";
+	}
+	else if(mapnum==2)
+	{
+		mapname="Episode 2: The Armory of Pain";
+		objectives[0]="-Find the Facility A Control Room";
+		objectives[1]="-Enter the abandoned Facility B";
+		objectives[2]="-Find the cursed peak passage as an exit to leave the armory";
+	}
+	else if(mapnum==3)
+	{
+		mapname="Episode 3, Part 1: The Cursed Peak";
+		objectives[0]="-Fight your way to the storage area";
+		objectives[1]="-Find the mining facility";
+		objectives[2]="-Leave the installation in the south facing the fortress";
+	}
+	else if(mapnum==5)
+	{
+		mapname="Episode 3, Part 2: The Evil Heart";
+		objectives[0]="-Kill the portal guards";
+		objectives[1]="-Destroy the Dark Portal";
+	}
+	else if(mapnum==6)
+	{
+		mapname="Episode 4, Part 1: Into the Darkness";
+		objectives[0]="-Find the Plasma Rifle near the clocktower";
+		objectives[1]="-Kill the Spider Masterminds to lower the pillars";
+		objectives[2]="-Enter the Dark Portal";
+	}
+	else if(mapnum==7)
+	{
+		mapname="Episode 4, Part 2: Beyond the Dark Portal";
+		objectives[0]="-Find a way to the edge of chaos";
+		objectives[1]="-Find the BFG9000";
+	}
+	else if(mapnum==8)
+	{
+		mapname="Episode 4, Part 3: The Beginning and The End (Director's Cut)";
+		objectives[0]="-Fight your way to the eternal cave";
+		objectives[1]="-Destroy 'The Source' and its Guardians";
+	}
+	else if(mapnum==10)
+	{
+		mapname="Episode 4, Part 3: The Beginning and The End";
+		objectives[0]="-Fight your way to peak";
+		objectives[1]="-Destroy 'The Source' and its Guardians";
+	}
+	else if(mapnum==9)
+	{
+		mapname="Lost Episode: Fury of Fire";
+		objectives[0]="-Battle your way out of the caves to the top";
+		objectives[1]="-Find the Portal Core's Heart";
+	}
+	Hudmessage(s:mapname; HUDMSG_FADEINOUT,0,CR_RED,320.4,205.0,3.0,1.0,1.0);
+	delay(175);
+	hudmessagebold(s:"\cGObjectives:\n",
+		s:"\cC     ",s:objectives[0],s:"\n",
+		s:"\cC     ",s:objectives[1],s:"\n",
+		s:"\cC     ",s:objectives[2];
+		HUDMSG_FADEINOUT | HUDMSG_LOG,4,CR_UNTRANSLATED,320.0,200.0,5.0,1.0,1.0);
+}
+
+Script "FastMonsters"(void)
+{
+	if(GetCVar("sv_fastmonsters")||GameSkill()>=4)
+		SetResultValue(1);
+	else
+		SetResultValue(0);
+}
+
+//INTERMAP SCRIPT
+world int 1:NextMap;
+
+Script 222 (int mapnum)
+{
+	nextmap = mapnum;
+	Exit_Normal(0);
+}
+
+////////////////////
+//10% Below Script//
+////////////////////
+
+script 911 ENTER
+{
+	if(GetActorProperty(0, APROP_HEALTH) < 11 && GetActorProperty(0, APROP_HEALTH) > 0)
+   	{
+   		SetHudSize(640, 480, 0);
+        Setfont("M_INJ");
+		Hudmessage(s:"A"; HUDMSG_FADEINOUT, 0, CR_WHITE, 320.0, 240.0, 0.0, 0.5, 0.5);
+		localambientsound("heartb2", 120);
+		delay(15);
+		localambientsound("heartb2", 120);
+   	}
+   	delay(25);
+   	restart;
+}
+
+///////////////////////////////////
+// The Source End Battle Attacks //
+///////////////////////////////////
+
+script 130 (void)
+//Quake & Stones
+{
+	Radius_Quake(2, 20*20, 0, 20, 120);
+	delay(105);
+    for(int i=30;i<=300;i+=60)
+	{
+		SpawnProjectile(random(100,110),"FallingRock1",i,0,0,0,0);
+		delay(20);
+		SpawnProjectile(random(100,110),"FallingRock2",i+30,0,0,0,0);
+		delay(20);
+	}
+}
+
+script 131 (void)
+//Missile Attack
+{
+	delay(70);
+	for(int i=0;i<2;i++)
+	{
+		int at2_tid = 149;
+		for(int at2_angle=255;at2_angle > 0;at2_angle -= 13)
+		{
+			at2_tid--;
+			SpawnProjectile(at2_tid, "Comet", at2_angle, 30, random(-50, -90),0,0);
+			Delay(8);
+		}
+	}
+}
+
+script 132 (void)
+//Fire Attack
+{
+	delay(70);
+	for(int i=0;i<10;i++)
+	{
+		SpawnProjectile(160, "FlameBreathource", random(60, 68),   random(35,45), random(1,-6),0,0);
+		SpawnProjectile(161, "FlameBreathource", random(-4,  4),   random(35,45), random(1,-6),0,0);
+		SpawnProjectile(162, "FlameBreathource", random(188, 196), random(35,45), random(1,-6),0,0);
+		SpawnProjectile(163, "FlameBreathource", random(124, 132), random(35,45), random(1,-6),0,0);
+		delay(7);
+	}
+}
+
+///////////////////////////////
+// PHOBUS' CHECKPOINT SYSTEM //
+///////////////////////////////
+
+int position; //this variable logs your progress through the map. 0 means you're at the start still,and restart at the player starts.
+
+script 799 ENTER
+{
+	Thing_ChangeTID(0,1000+PlayerNumber());
+}
+
+script 800 RESPAWN
+{
+	//important stuff
+	Thing_ChangeTID(0,1000+PlayerNumber()); //This re-assigns the TID,more to ensure you have it than anything else.
+	Teleport((position*100)+1000+PlayerNumber()); //The player is teleported to their checkpoint as soon as they respawn
+}
+function void checkpoint(int pos)
+{
+	if(GameType() == GAME_NET_COOPERATIVE)
+	{
+		position=pos;
+   		SetHudSize(640,480,0);
+   		SetFont("SmallFont");
+		HudmessageBold(s:"\cCCoop \cGCheckpoint \cCReached"; HUDMSG_FADEINOUT,19,CR_UNTRANSLATED,320.0,470.0,1.0,1.0,1.0);
+	}
+}
+script 231(void) //CHECKPOINT AREA 1
+{
+	checkpoint(1);
+}
+script 232(void) //CHECKPOINT AREA 2
+{
+	checkpoint(2);
+}
+script 233(void) //CHECKPOINT AREA 3
+{
+	checkpoint(3);
+}
+
+//PORTAL SCRIPTS
+#define PORTAL_BASE_TID	180
+//This will be the first tid, set it here.  This will be your first tid,
+//make sure any extras you are given TIDs in consecutive order!
+
+#define T_PORTALEMBER	255
+
+int PortalOn;
+int PlayerSeesPortal[8];
+
+Script 176 (int tid)
+//If the NUM_PORTALS constant is set properly, and all your portal tids are in consecutive order,
+//this script will act as a smart switcher (works for multiplayer).  If no player can see the portal
+//it is switched off for better performance.  Use the special 226 (ACS_Executealways) to trigger the
+//script when a player passes over the line.  Passing over the front side of the line will turn it on,
+//passing over the back side will turn it off.  The first arguement is set to the TID of the portal decoration
+//you want to turn on/off.
+{
+	int x;
+	switch (LineSide ())
+	{
+	case LINE_FRONT:
+		PlayerSeesPortal[PlayerNumber ()] = TRUE;
+		if (!PortalOn)
+		{
+			Thing_Activate (tid);
+			PortalOn  = TRUE;
+		}
+		break;
+	case LINE_BACK:
+		PlayerSeesPortal[PlayerNumber ()] = FALSE;
+		for (int p=0; p<8; p++)
+			if (PlayerInGame (p) && PlayerSeesPortal[PlayerNumber ()])
+				x++;
+		if (!x)
+		{
+			Thing_Deactivate (tid);
+			PortalOn = FALSE;
+		}
+		break;
+	}
+}
+
+Script 777 (int length, int radius)
+{
+	int tid1 = -16384  + ActivatorTID () - PORTAL_BASE_TID;
+	int tid2 = 16384 + ActivatorTID () - PORTAL_BASE_TID;
+	length = random (-length / 2 + 16, length / 2 - 16) << 16;
+	radius <<= 16;
+	int a1 = GetActorAngle (0);
+	int x1 = GetActorX (0) + FixedMul (cos (a1 - 0.25), length);
+	int y1 = GetActorY (0) + FixedMul (sin (a1 - 0.25), length);
+	int z1 = random (GetActorFloorZ (0) + 16.0, GetActorCeilingZ (0) - 16.0);
+	int cz = (GetActorCeilingZ (0) - GetActorFloorZ (0)) / 2 + GetActorFloorZ (0);
+	//not a real pitch determination, just a hack to save some processing
+	if (z1 < cz)
+		int p = random (-0.0625, 0);
+	else
+		p = random (0, 0.0625);
+
+	//same for angle
+	if (length < 0)
+		int a2 = a1 + random (0, 0.0625);
+	else
+		a2 = a1 + random (-0.0625, 0);
+
+	Spawn ("PortalTarget", x1, y1, z1, tid1, 0);
+
+	int p1 = random (-0.0625, 0.0625);
+	int x2 = x1 + FixedMul (cos (p), FixedMul (cos (a2), radius));
+	int y2 = y1 + FixedMul (cos (p), FixedMul (sin (a2), radius));
+	int z2 = z1 + FixedMul (sin (p), radius);
+
+	Spawn ("MapSpot", x2, y2, z2, tid2, 0);
+
+	Thing_ProjectileAimed(tid2, T_PORTALEMBER, random (8, 32), tid1, 0);
+
+	Thing_Remove (tid1);
+	Thing_Remove (tid2);
+}
+
+Script 778 DEATH
+{
+	PlayerSeesPortal[PlayerNumber ()] = FALSE;
+}
+
+Script 779 (int p_num) DISCONNECT
+{
+	PlayerSeesPortal[p_num] = FALSE;
+}
+
+//Embers
+str p_spawner[2][6] =
+{
+	{"EmberShot", "EmberShot", "EmberShot", "EmberShot", "EmberShot", "EmberShot"},
+	{"SparkleShot_W", "SparkleShot_R", "SparkleShot_G", "SparkleShot_Y", "SparkleShot_O", "SparkleShot_B"},
+};
+
+Script 444 (int type, int color, int size)
+{
+	size = size / 2 << 16;
+	Spawn(p_spawner[type][color], GetActorX (0) + random (-size, size),
+		GetActorY (0) + random (-size, size), GetActorZ (0), 0, 0);
+}
+
+script "weatherfx"(void)
+{
+	SetResultValue(GetCVAR("weatherfx"));
+}
+
+#define FRAME_X 384.0           // <-- Hud x and y components, edit them here.
+#define FRAME_Y 74.0
+#define BOSS_X  295.0
+#define BOSS_Y  47.0
+#define HP_X    350.0
+#define HP_Y    46.0
+
+Script "BOSSHP"(int firstid, int lastid)
+{
+	SetHudSize(640, 480, 1);
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==1)
+		SetFont("M_HPB1");
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==2)
+		SetFont("M_HPB2");
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==5)
+		SetFont("M_HPB3");
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==9)
+		SetFont("M_HPB4");
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==8||GetLevelInfo(LEVELINFO_LEVELNUM)==10)
+		SetFont("M_HPB5");
+	HudMessageBold(s:"a"; HUDMSG_PLAIN, 3, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.0);
+	SetFont("NORMAL");
+	HudMessageBold(s:"Boss"; HUDMSG_PLAIN, 2, CR_GRAY, BOSS_X, BOSS_Y, 0.0);  //Also try CR_GREY or CR_WHITE
+	delay(1);
+	int color = CR_GREEN,toggle=1,currenthp;
+	for(int i=firstid; i<=lastid; i++)
+		currenthp += GetActorProperty(i, APROP_HEALTH);
+	int maxhp = currenthp;
+	while(toggle)
+	{
+		currenthp = 0;
+		for(i=firstid; i<=lastid; i++)
+		{
+			if (GetActorProperty(i, APROP_HEALTH) > 0)
+				currenthp += GetActorProperty(i, APROP_HEALTH);
+		}
+		int percent = currenthp*100/maxhp;
+		if (percent <= 75 && percent > 50)
+			color = CR_YELLOW;
+		else if (percent <= 50 && percent > 25)
+			color = CR_ORANGE;
+		else if (percent <= 25 && percent > 0)
+			color = CR_RED;
+		else if (percent <= 0 && currenthp != 0)
+			percent = 1;
+		else if (currenthp == 0)
+		{
+			toggle=0;
+			percent = 0;
+		}
+		SetFont("BIGFONT");
+		HudMessageBold(d:percent, s:"%"; HUDMSG_PLAIN, 1, color, HP_X, HP_Y, 0.286);
+		delay(10);
+	}
+	SetFont("NORMAL");
+	HudMessageBold(s:"Boss"; HUDMSG_FADEOUT, 2, CR_GRAY, BOSS_X, BOSS_Y, 0.286, 1.0);
+
+	SetFont("BIGFONT");
+	HudMessageBold(d:percent, s:"%"; HUDMSG_FADEOUT, 1, color, -HP_X, HP_Y, 0.286, 1.0);
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==1)
+	{
+		SetFont("M_HPB1");
+		HudMessageBold(s:"a"; HUDMSG_FADEOUT, 3, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.286, 1.0);
+
+		//  <-- Your commands here! ***
+		door_open(17,20);
+		SetMusic("D_TNT01");
+		delay(35);
+		LocalAmbientSound("VOC006", 127);
+		SetHudSize(640, 480, 0);
+		SetFont("SmallFont");
+		Hudmessage(s:"\cR''Next time, I'll remember to keep my mouth shut!''";
+			HUDMSG_FADEINOUT, 19, CR_UNTRANSLATED, 320.0, 470.0, 3.0, 0.5, 0.5);
+	}
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==2)
+	{
+		SetFont("M_HPB2");
+		HudMessageBold(s:"a"; HUDMSG_FADEOUT, 3, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.286, 1.0);
+
+		//  <-- Your commands here! ***
+		ceiling_raisebyvalue(57, 20, 32);
+		door_open(58, 20);
+		SetMusic("");
+		delay(70);
+		AmbientSound("VOC012", 127);
+		SetHudSize(640, 480, 0);
+		SetFont("SmallFont");
+		HudmessageBold(s:"\cR''Face the Maker!''";
+			HUDMSG_FADEINOUT, 19, CR_UNTRANSLATED, 320.0, 470.0, 2.0, 0.5, 0.5);
+	}
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==5)
+	{
+		SetFont("M_HPB3");
+		HudMessageBold(s:"a"; HUDMSG_FADEOUT, 3, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.286, 1.0);
+
+		//  <-- Your commands here! ***
+		acs_execute(99,0,0,0,0);
+		acs_execute(201,0,0,0,0);
+	}
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==9)
+	{
+		SetFont("M_HPB4");
+		HudMessageBold(s:"a"; HUDMSG_FADEOUT,3,CR_UNTRANSLATED,FRAME_X,FRAME_Y,0.286,1.0);
+
+		//  <-- Your commands here! ***
+		SetMusic("");
+		ACS_Terminate(40,0);
+		Radius_Quake(6,140,0,10,41);
+		delay(140);
+		ACS_Execute(222,0,19);
+	}
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==8||GetLevelInfo(LEVELINFO_LEVELNUM)==10)
+	{
+		SetFont("M_HPB5");
+		HudMessageBold(s:"a"; HUDMSG_FADEOUT, 3, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.286, 1.0);
+
+		//  <-- Your commands here! ***
+		//Music Change
+		thing_deactivate(52);
+		SetMusic("");
+
+		//Lines Normal
+		SetLineBlocking(99, BLOCK_NOTHING);
+		SetLineSpecial(99, 0, 0, 0, 0, 0, 0);
+		acs_terminate(701, 0);
+		acs_terminate(134, 0);
+		thing_destroy(667);
+		Radius_Quake(5, 16*20, 0, 20, 120);
+		light_fade(17, 112, 16*20);
+		light_fade(13, 112, 16*20);
+		light_fade(14, 112, 16*20);
+		for (int k = 250; k > 0; k -= 10)
+		{
+			TranslucentLine(88, k, 1);
+			TranslucentLine(99, k, 1);
+			TranslucentLine(96, k, 1);
+			Delay(16);
+		}
+		delay(140);
+		acs_execute(222, 0, 88);
+	}
+}

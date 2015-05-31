@@ -1,0 +1,129 @@
+ACTOR IceyStub 20001
+{
+	Height 26
+	+Solid
+	States
+	{
+	Spawn:
+		ICS1 A -1
+		Stop
+	}
+}
+
+ACTOR IceyTree 20002
+{
+	Radius 32
+	Height 96
+	+Solid
+	States
+	{
+	Spawn:
+		ICT1 A -1
+		Stop
+	}
+}
+
+ACTOR FogBlow 20003
+{
+	Alpha 0.8
+	RenderStyle Translucent
+	Radius 32
+	Height 96
+	States
+	{
+	Spawn:
+		FOB1 ABCD 5
+		Loop
+	}
+}
+
+ACTOR FrozenImp 20010
+{
+	Radius 1
+	Height 1
+	+SpawnCeiling
+	+NoGravity
+	+FloatBob
+	States
+	{
+	Spawn:
+		FRI1 A -1
+		Stop
+	}
+}
+
+ACTOR FrozenDemon : FrozenImp 20011
+{
+	States
+	{
+	Spawn:
+		FRD1 A -1
+		Stop
+	}
+}
+
+ACTOR FrozenPlayer : FrozenImp 20012
+{
+	States
+	{
+	Spawn:
+		FRP1 A -1
+		Stop
+	}
+}
+
+ACTOR Vader_Eye 22311
+{
+	Radius 16
+	Height 48
+	+Solid
+	States
+	{
+	Spawn:
+		VDRE A -1
+		Stop
+	}
+}
+
+ACTOR Scuba_Steve 24312
+{
+	Radius 12
+	Height 46
+	+Solid
+	States
+	{
+	Spawn:
+		SCUB A -1
+		Stop
+	}
+}
+
+// NEW CANDELABRA --------------------------------------------------------------
+
+ACTOR CandelabraNew : Candelabra 31991
+{
+	States
+	{
+	Spawn:
+		T6CB A -1 BRIGHT
+		Stop
+	}
+}
+
+/////////////////////////////////
+// TNTLE END PICKUP /////////////
+/////////////////////////////////
+
+ACTOR PortalCoreHeart : Key 18999
+{
+	Inventory.PickUpMessage "You got the portal core's heart."
+	Inventory.Icon "PHRTA0" // May want to this to something more suitable
+	+NOGRAVITY
+	+FLOATBOB
+	States
+	{
+	Spawn:
+		PHRT ABCD 4 LIGHT("PortalHeart")
+		Loop
+	}
+}

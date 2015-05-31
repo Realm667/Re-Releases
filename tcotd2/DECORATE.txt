@@ -1,50 +1,6 @@
-///////////////////
-// SNOW SPAWNERS //
-///////////////////
-
-Actor SnowParticle
-{
-  +MISSILE +NoBlockMap
-  Radius 1
-  Height 1
-  Damage 0
-  Projectile
-  RenderStyle Translucent
-  Alpha 0.0
-  Scale 0.7
-  States
-  {
-  Spawn:
-    SNOW AAAAAAAAA 4 A_FadeIn(0.05)
-    SNOW A 3
-    goto Spawn+9
-  Death:
-    SNOW AAAAAA 3 A_FadeOut(0.1)
-    stop
-  }
-}
-
-Actor SnowSpawner_512 23333
-{
-//$Category Weather
- +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY +SPAWNCEILING
- Radius 3
- Height 3
- RenderStyle Translucent
- Alpha 0.01
- States
- {
-  Spawn:
-  TNT1 A 0
-  TNT1 A 0 A_CheckSight("Unsighted")
-  TNT1 A 25 A_SpawnItemEx ("SnowParticle", 	random(256, -256), 	random(256, -256), 	0, 		random(0, 1), 		random(0, 1), 		random(-1, -3), 		0, 		128, 		0)
-  loop
-  Unsighted:
-  TNT1 A 1
-  Goto Spawn
- }
-}
-
+#include "actors/fire.txt"
+#include "actors/nashgore.txt"
+#include "actors/snow.txt"
 
 /////////////////////////
 // FOG by TORMENTOR667 //
@@ -52,71 +8,64 @@ Actor SnowSpawner_512 23333
 
 Actor FogCloud_Generator 9918
 {
- +Missile
- +NoBlockmap
- +NoGravity
- +NoSector
- +Clientsideonly
- Radius 1
- Height 1
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_Jump(128,1,2)
-   TNT1 A 0 A_SpawnItemEx ("FogCloud_V1", 0, 0, random(0, 32), 0, 0, 0, 0, 128)
-   TNT1 A 0 A_SpawnItemEx ("FogCloud_V2", 0, 0, random(0, 32), 0, 0, 0, 0, 128)
-   TNT1 A 0 A_SpawnItemEx ("FogCloud_V2", 0, 0, random(0, 32), 0, 0, 0, 0, 128)
-   stop
- }
+	+Missile
+	+NoBlockmap
+	+NoGravity
+	+NoSector
+	+Clientsideonly
+	Radius 1
+	Height 1
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(128,1,2)
+		TNT1 A 0 A_SpawnItemEx("FogCloud_V1",0,0,random(0,32))
+		TNT1 AA 0 A_SpawnItemEx("FogCloud_V2",0,0,random(0,32))
+		stop
+	}
 }
-
 
 Actor FogCloud_V1
 {
- +Missile
- +NoGravity
- +NoBlockmap
- Radius 1
- Height 1
- Speed 0
- RenderStyle Translucent
- Alpha 0.25
- Scale 3
- States
- {
-  Spawn:
-   TNT1 A 0
-   XSMK AAAAAAAAAAAAAAAAAAAA 10 A_FadeIn(0.002)
-   XSMK AAAAAAAAAAAAAAAAAAAA 10 A_FadeOut(0.002)
-   loop
- }
+	+Clientsideonly
+	+Missile
+	+NoGravity
+	+NoBlockmap
+	Radius 1
+	Height 1
+	RenderStyle Translucent
+	Alpha 0.25
+	Scale 3
+	States
+	{
+	Spawn:
+		XSMK AAAAAAAAAAAAAAAAAAAA 10 NODELAY A_FadeIn(0.002)
+		XSMK AAAAAAAAAAAAAAAAAAAA 10 A_FadeOut(0.002)
+		loop
+	}
 }
 
 Actor FogCloud_V2 : FogCloud_V1
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   XSMK AAAAAAAAAAAAAA 10 A_FadeIn(0.002)
-   XSMK AAAAAAAAAAAAAA 10 A_FadeOut(0.002)
-   loop
- }
+	States
+	{
+	Spawn:
+		XSMK AAAAAAAAAAAAAA 10 NODELAY A_FadeIn(0.002)
+		XSMK AAAAAAAAAAAAAA 10 A_FadeOut(0.002)
+		loop
+	}
 }
 
 Actor FogCloud_V3 : FogCloud_V1
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   XSMK AAAAAAAAAAAAAA 13 A_FadeIn(0.002)
-   XSMK AAAAAAAAAAAAAA 13 A_FadeOut(0.002)
-   loop
- }
+	States
+	{
+	Spawn:
+		XSMK AAAAAAAAAAAAAA 13 NODELAY A_FadeIn(0.002)
+		XSMK AAAAAAAAAAAAAA 13 A_FadeOut(0.002)
+		loop
+	}
 }
-
 
 //////////////////
 // PLAYER CLASS //
@@ -124,30 +73,30 @@ Actor FogCloud_V3 : FogCloud_V1
 
 ACTOR TCOTDPlayer : PlayerPawn
 {
-	Speed 0.60
-	Health 100
-	Radius 16
-	Height 56
-	Mass 100
-	PainChance 255
-	Player.ColorRange 112, 127
-	Player.DisplayName "TCOTDPlayer"
+	Scale .5
+	Player.ForwardMove .6,.6
+	Player.SideMove .6,.6
+	Player.DisplayName "Wanderer"
 	Player.CrouchSprite "PLYC"
-	Player.StartItem "NewFist"
-
+	Player.StartItem Fist
+	Player.WeaponSlot 1,Fist,Pitchfork
+	Player.WeaponSlot 2,RevolverBlood
+	Player.WeaponSlot 3,Sawedoff
+	Player.WeaponSlot 4,Thompson
+	Player.WeaponSlot 5,NapalmLauncher
 	states
 	{
 	Spawn:
-		PLAY A -1
+		PLAY Z -1
 		Loop
 	See:
-		PLAY ABCD 4
+		PLAY ABCDEF 4
 		Loop
 	Missile:
-		PLAY E 12
+		PLAY Z 12
 		Goto Spawn
 	Melee:
-		PLAY F 6 BRIGHT
+		PLAY Z 6 BRIGHT
 		Goto Missile
 	Pain:
 		PLAY G 4
@@ -159,199 +108,189 @@ ACTOR TCOTDPlayer : PlayerPawn
 		PLAY J 10 A_NoBlocking
 		PLAY KLM 10
 		PLAY N 300
-                PLAY NNNNNNNNNNN 3 A_FadeOut(0.1)
+		PLAY NNNNNNNNNNN 3 A_FadeOut(0.1,0)
+		TNT1 A -1
 		Stop
 	XDeath:
 		PLAY O 5
 		PLAY P 5 A_XScream
 		PLAY Q 5 A_NoBlocking
-		PLAY RSTUV 5
-		PLAY W 300
-                PLAY WWWWWWWWWWW 3 A_FadeOut(0.1)
+		PLAY RST 5
+		PLAY U 300
+		PLAY UUUUUUUUUUU 3 A_FadeOut(0.1,0)
+		TNT1 A -1
 		Stop
 	}
 }
-
 
 ////////////////
 // APPRENTICE //
 ////////////////
 ACTOR AoDGhost
 {
-    Radius 1
-    Height 1
-    Speed 0
-    PROJECTILE
-    RENDERSTYLE TRANSLUCENT
-    Alpha 0.75
-    +Noclip
-    SEESOUND "aod/ghost"
-    DropItem "Heart" 96
-    states
-    {
-    Spawn:
-    Death:
-        AODG ABCDEF 5 BRIGHT
-        AODG G 5 BRIGHT A_FadeOut
-        Stop
-    }
+	Radius 1
+	Height 1
+	PROJECTILE
+	RENDERSTYLE TRANSLUCENT
+	Alpha 0.75
+	+Noclip
+	SEESOUND "aod/ghost"
+	states
+	{
+	Spawn:
+	Death:
+		AODG ABCDEF 5 BRIGHT
+		AODG G 5 BRIGHT A_FadeOut
+		Stop
+	}
 }
 
 ACTOR FireBlast
 {
-    Speed 25
-    Scale 0.75
-    Damage 3
-    PROJECTILE
-    +StrifeDamage
-    +NoGravity
-    DEATHSOUND "fireblast/explode"
-    states
-    {
-    Spawn:
-          PROJ ABC 4 BRIGHT
-          Loop
-    Death:
-          PROJ D 4 BRIGHT A_Explode(8,64,0)
-          PROJ EFGH 4 BRIGHT
-          PROJ I 4 BRIGHT A_FadeOut(0.50)
-          Stop
-          }
+	Speed 25
+	Scale 0.75
+	Damage (random(1,4)*3)
+	PROJECTILE
+	DEATHSOUND "fireblast/explode"
+	states
+	{
+	Spawn:
+		PROJ ABC 4 BRIGHT LIGHT("FireBlast")
+		Loop
+	Death:
+		PROJ D 4 BRIGHT LIGHT("FireBlastX_1") A_Explode(8,64,0)
+		PROJ E 4 BRIGHT LIGHT("FireBlastX_2")
+		PROJ F 4 BRIGHT LIGHT("FireBlastX_3")
+		PROJ G 4 BRIGHT LIGHT("FireBlastX_4")
+		PROJ H 4 BRIGHT LIGHT("FireBlastX_5")
+		PROJ I 4 BRIGHT LIGHT("FireBlastX_6") A_FadeOut(0.50)
+		Stop
+	}
 }
 
 ACTOR SuperFireBlast : FireBlast
 {
-    Speed 16
-    Scale 1.5
-    Damage 24
-    DEATHSOUND "superfireblast/explode"
-    states
-    {
-    Spawn:
-          PROJ ABC 4 BRIGHT
-          Loop
-    Death:
-          PROJ D 4 BRIGHT A_Explode(256,128,0)
-          PROJ EFGH 4 BRIGHT
-          PROJ I 4 BRIGHT A_FadeOut(0.50)
-          Stop
-          }
+	Speed 16
+	Scale 1.5
+	Damage (random(1,4)*24)
+	DEATHSOUND "superfireblast/explode"
+	states
+	{
+	Death:
+		PROJ D 4 BRIGHT LIGHT("FireBlastX_1") A_Explode(256,128,0)
+		Goto Super::Death+1
+	}
 }
 
 ACTOR ApprenticeofDsparil 30000
 {
-    Health 500
-    Radius 20
-    Height 56
-    Speed 8
-    PainChance 100
-    MONSTER
-    +FloorClip
-    +NoGravity
-    +Float
-    SEESOUND "wizard/sight"
-    PAINSOUND "wizard/pain"
-    DEATHSOUND "wizard/death"
-    ACTIVESOUND "wizard/active"
-    OBITUARY "%o was spooked an Apprentice."
-    states
-    {
-    Spawn:
-        APDP AB 10 A_Look
-        Loop
-    See:
-        APDP A 0 A_SetTranslucent(1,0)
-        APDP AABB 3 A_Chase
-        Loop
-    Missile:
-        APDP C 0 A_FaceTarget
-        APDP C 2 A_SetTranslucent(.50,0)
-        APDP C 2 A_SetTranslucent(1,0)
-        APDP C 2 A_SetTranslucent(.50,0)
-        APDP C 2 A_SetTranslucent(1,0)
-        APDP C 2 A_SetTranslucent(.50,0)
-        APDP C 2 A_SetTranslucent(1,0)
-        APDP C 2 A_SetTranslucent(.50,0)
-        APDP C 2 A_SetTranslucent(1,0)
-        APDP C 0 A_Jump(128,6)
-        APDP C 0 A_Jump(64,128)
-        APDP C 0 A_PlaySound("wizard/attack")
-        APDP D 0 A_CustomMissile("FireBlast",30,-10,-4)
-        APDP D 0 A_CustomMissile("FireBlast",30,0,0)
-        APDP D 6 A_CustomMissile("FireBlast",30,10,4)
-        Goto See
-        APDP D 1 A_SetTranslucent(.90,0)
-        APDP D 1 A_SetTranslucent(.80,0)
-        APDP D 1 A_SetTranslucent(.70,0)
-        APDP D 1 A_SetTranslucent(.60,0)
-        APDP D 1 A_SetTranslucent(.50,0)
-        APDP D 1 A_SetTranslucent(.40,0)
-        APDP D 1 A_SetTranslucent(.30,0)
-        APDP D 1 A_SetTranslucent(.20,0)
-        APDP D 1 A_SetTranslucent(.10,0)
-        APDP D 1 A_SetTranslucent(.0,0)
-        APDP D 0 A_SetInvulnerable
-        APDP DDDDDDDDDDDDDDDD 2 A_Wander
-        APDP D 0 A_FaceTarget
-        APDP C 0 A_PlaySound("wizard/attack")
-        APDP D 0 A_CustomMissile("FireBlast",30,-10,-4)
-        APDP D 0 A_CustomMissile("FireBlast",30,0,0)
-        APDP D 6 A_CustomMissile("FireBlast",30,10,4)
-        APDP DDDDDDDDDDDDDDDD 2 A_Wander
-        APDP D 0 A_FaceTarget
-        APDP C 0 A_PlaySound("wizard/attack")
-        APDP D 0 A_CustomMissile("FireBlast",30,-10,-4)
-        APDP D 0 A_CustomMissile("FireBlast",30,0,0)
-        APDP D 6 A_CustomMissile("FireBlast",30,10,4)
-        APDP DDDDDDDDDDDDDDDD 2 A_Wander
-        APDP D 0 A_FaceTarget
-        APDP C 0 A_PlaySound("wizard/attack")
-        APDP D 0 A_CustomMissile("FireBlast",30,-10,-4)
-        APDP D 0 A_CustomMissile("FireBlast",30,0,0)
-        APDP D 6 A_CustomMissile("FireBlast",30,10,4)
-        APDP DDDDDDDDDDDDDDDD 2 A_Wander
-        APDP D 0 A_FaceTarget
-        APDP C 0 A_PlaySound("wizard/attack")
-        APDP D 0 A_CustomMissile("FireBlast",30,-10,-4)
-        APDP D 0 A_CustomMissile("FireBlast",30,0,0)
-        APDP D 6 A_CustomMissile("FireBlast",30,10,4)
-        APDP DDDDDDDDDDDDDDDD 2 A_Wander
-        APDP D 1 A_SetTranslucent(.10,0)
-        APDP D 1 A_SetTranslucent(.20,0)
-        APDP D 1 A_SetTranslucent(.30,0)
-        APDP D 1 A_SetTranslucent(.40,0)
-        APDP D 1 A_SetTranslucent(.50,0)
-        APDP D 1 A_SetTranslucent(.60,0)
-        APDP D 1 A_SetTranslucent(.70,0)
-        APDP D 1 A_SetTranslucent(.80,0)
-        APDP D 1 A_SetTranslucent(.90,0)
-        APDP D 1 A_UnsetInvulnerable
-        APDP D 1 A_SetTranslucent(1,0)
-        Goto See
-        APDP C 0 A_FaceTarget
-        APDP C 0 A_PlaySound("wizard/attack")
-        APDP D 4 A_CustomMissile("SuperFireBlast",15,0,0)
-        Goto See
-    Pain:
-        APDP E 0 A_SetTranslucent(1,0)
-        APDP E 2
-        APDP E 2 A_Pain
-        Goto See
-    Death:
-        APDP E 0 A_SetTranslucent(1,0)
-        APDP E 4
-        APDP F 4
-        APDP G 3 A_Scream
-        APDP H 3 A_CustomMissile("AoDGhost",8,0,0)
-        APDP I 3 A_Fall
-        APDP JKL 2
-        APDP M -1
-        Stop
-    Raise:
-        APDP ML 8
-        APDP KJI 6
-        Goto See
-    }
+	Health 500
+	Height 56
+	Speed 2.66666667
+	FloatSpeed 1.33333333
+	PainChance 100
+	MONSTER
+	+FloorClip
+	+NoGravity
+	+Float
+	SEESOUND "wizard/sight"
+	PAINSOUND "wizard/pain"
+	DEATHSOUND "wizard/death"
+	ACTIVESOUND "wizard/active"
+	OBITUARY "%o was spooked by an Apprentice."
+	states
+	{
+	Spawn:
+		APDP AB 10 A_Look
+		Loop
+	See:
+		APDP A 0 A_SetTranslucent(1)
+		APDP A 1 A_Chase
+		APDP AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		APDP A 1 A_Chase
+		APDP AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		APDP B 1 A_Chase
+		APDP BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		APDP B 1 A_Chase
+		APDP BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Missile:
+		APDP C 0 A_FaceTarget
+		APDP C 2 LIGHT("ApprenticeOfDSparil") A_SetTranslucent(.50)
+		APDP C 2 LIGHT("ApprenticeOfDSparil") A_SetTranslucent(1)
+		APDP C 2 LIGHT("ApprenticeOfDSparil") A_SetTranslucent(.50)
+		APDP C 2 LIGHT("ApprenticeOfDSparil") A_SetTranslucent(1)
+		APDP C 2 LIGHT("ApprenticeOfDSparil") A_SetTranslucent(.50)
+		APDP C 2 LIGHT("ApprenticeOfDSparil") A_SetTranslucent(1)
+		APDP C 2 LIGHT("ApprenticeOfDSparil") A_SetTranslucent(.50)
+		APDP C 2 LIGHT("ApprenticeOfDSparil") A_SetTranslucent(1)
+		APDP C 0 A_Jump(128,"Missile2")
+		APDP C 0 A_Jump(64,"Missile3")
+		APDP C 0 A_PlaySound("wizard/attack")
+		APDP D 0 A_CustomMissile("FireBlast",30,-10,-4)
+		APDP D 0 A_CustomMissile("FireBlast",30)
+		APDP D 6 A_CustomMissile("FireBlast",30,10,4)
+		Goto See
+	Missile2:
+		APDP DDDDDDDDDD 1 A_FadeOut(.1,0)
+		APDP D 0 A_SetInvulnerable
+		APDP DDDDDDDDDDDDDDDD 2 A_Wander
+		APDP D 0 A_FaceTarget
+		APDP D 0 A_PlaySound("wizard/attack")
+		APDP D 0 A_CustomMissile("FireBlast",30,-10,-4)
+		APDP D 0 A_CustomMissile("FireBlast",30)
+		APDP D 6 A_CustomMissile("FireBlast",30,10,4)
+		APDP DDDDDDDDDDDDDDDD 2 A_Wander
+		APDP D 0 A_FaceTarget
+		APDP D 0 A_PlaySound("wizard/attack")
+		APDP D 0 A_CustomMissile("FireBlast",30,-10,-4)
+		APDP D 0 A_CustomMissile("FireBlast",30)
+		APDP D 6 A_CustomMissile("FireBlast",30,10,4)
+		APDP DDDDDDDDDDDDDDDD 2 A_Wander
+		APDP D 0 A_FaceTarget
+		APDP D 0 A_PlaySound("wizard/attack")
+		APDP D 0 A_CustomMissile("FireBlast",30,-10,-4)
+		APDP D 0 A_CustomMissile("FireBlast",30)
+		APDP D 6 A_CustomMissile("FireBlast",30,10,4)
+		APDP DDDDDDDDDDDDDDDD 2 A_Wander
+		APDP D 0 A_FaceTarget
+		APDP D 0 A_PlaySound("wizard/attack")
+		APDP D 0 A_CustomMissile("FireBlast",30,-10,-4)
+		APDP D 0 A_CustomMissile("FireBlast",30)
+		APDP D 6 A_CustomMissile("FireBlast",30,10,4)
+		APDP DDDDDDDDDDDDDDDD 2 A_Wander
+		APDP DDDDDDDDD 1 A_FadeIn(.1)
+		APDP D 1 A_UnsetInvulnerable
+		APDP D 1 A_SetTranslucent(1)
+		Goto See
+	Missile3:
+		APDP D 0 A_FaceTarget
+		APDP D 0 A_PlaySound("wizard/attack")
+		APDP D 4 A_CustomMissile("SuperFireBlast",15)
+		Goto See
+	Pain:
+		APDP E 2 LIGHT("ApprenticeOfDSparilX_1") A_SetTranslucent(1)
+		APDP E 2 LIGHT("ApprenticeOfDSparilX_1") A_Pain
+		Goto See
+	Death:
+		APDP E 4 LIGHT("ApprenticeOfDSparilX_1") A_SetTranslucent(1)
+		APDP F 4 LIGHT("ApprenticeOfDSparilX_2")
+		APDP G 3 LIGHT("ApprenticeOfDSparilX_3") A_Scream
+		APDP H 3 LIGHT("ApprenticeOfDSparilX_4") A_SpawnItemEx("AoDGhost",0,0,8)
+		APDP I 3 LIGHT("ApprenticeOfDSparilX_5") A_NoBlocking
+		APDP J 2 LIGHT("ApprenticeOfDSparilX_6")
+		APDP K 2 LIGHT("ApprenticeOfDSparilX_7")
+		APDP L 2 LIGHT("ApprenticeOfDSparilX_8")
+		APDP M -1
+		Stop
+	Raise:
+		APDP M 8
+		APDP L 8 LIGHT("ApprenticeOfDSparilX_8")
+		APDP K 6 LIGHT("ApprenticeOfDSparilX_7")
+		APDP J 6 LIGHT("ApprenticeOfDSparilX_6")
+		APDP I 6 LIGHT("ApprenticeOfDSparilX_5")
+		Goto See
+	}
 }
 
 /////////////
@@ -359,91 +298,70 @@ ACTOR ApprenticeofDsparil 30000
 /////////////
 ACTOR MiniSpider 22290
 {
-   Radius 7
-   Height 15
-   Health 15
-   Scale 0.25
-   Translation 0
-   MONSTER
-   +FLOORCLIP
-   seesound "littlespider/sight"
-   attacksound "littlespider/attack"
-   painsound "littlespider/pain"
-   deathsound "littlespider/death"
-   activesound "littlespider/sight"
-   meleesound "littlespider/pain"
-   Speed 10
-   Damage 0
-   MeleeDamage 1
-   States
-   {
-   Spawn:
-     MNTR AB 10 A_Look
-     Loop
-   See:
-     MNTR ABCD 4 A_Chase
-     Loop
-   Melee:
-     MNTR VW 5 A_FaceTarget
-     MNTR X 5 A_MeleeAttack
-     Goto See
-   Death:
-     MNTS F 5
-     MNTS E 5 A_Scream
-     MNTS D 5
-     MNTS C 5 A_NoBlocking
-     MNTS B 5
-     MNTS A -1 A_BossDeath
-     Stop
-   }
+	Radius 7
+	Height 15
+	Health 15
+	Scale 0.25
+	Translation 0
+	MONSTER
+	+FLOORCLIP
+	seesound "littlespider/sight"
+	attacksound "littlespider/attack"
+	painsound "littlespider/pain"
+	deathsound "littlespider/death"
+	activesound "littlespider/sight"
+	Speed 2.5
+	States
+	{
+	Spawn:
+		MNTR AB 10 A_Look
+		Loop
+	See:
+		MNTR A 1 A_Chase
+		MNTR AAA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		MNTR B 1 A_Chase
+		MNTR BBB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		MNTR C 1 A_Chase
+		MNTR CCC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		MNTR D 1 A_Chase
+		MNTR DDD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Melee:
+		MNTR VW 5 A_FaceTarget
+		MNTR X 5 A_CustomMeleeAttack(random(1,8),"littlespider/pain")
+		Goto See
+	Death:
+		MNTS F 5
+		MNTS E 5 A_Scream
+		MNTS D 5
+		MNTS C 5 A_NoBlocking
+		MNTS B 5
+		MNTS A -1
+		Stop
+	}
 }
 
-ACTOR LargeSpider 22291
+ACTOR LargeSpider : MiniSpider 22291
 {
-   SpawnID 221
-   Radius 14
-   Height 30
-   Health 150
-   Scale 0.50
-   Translation 1
-   MONSTER
-   +FLOORCLIP
-   DropItem "Heart" 160
-   seesound "littlespider/sight"
-   attacksound "littlespider/attack"
-   painsound "littlespider/pain"
-   deathsound "littlespider/death"
-   activesound "littlespider/sight"
-   meleesound "littlespider/pain"
-   Speed 20
-   Damage 0
-   MeleeDamage 2
-   States
-   {
-   Spawn:
-     MNTR AB 10 A_Look
-     Loop
-   See:
-     MNTR ABCD 4 A_Chase
-     Loop
-   Missile:
-     MNTR A 10 A_FaceTarget
-     MNTR A 0 A_SkullAttack
-     MNTR ABCD 2
-     Goto Missile+2
-   Melee:
-     MNTR VW 5 A_FaceTarget
-     MNTR X 5 A_MeleeAttack
-     Goto See
-   Death:
-     MNTS F 5
-     MNTS E 5 A_Scream
-     MNTS D 5
-     MNTS C 5 A_NoBlocking
-     MNTS B 5
-     MNTS A -1 A_BossDeath
-     Stop
-   }
+	Radius 14
+	Height 30
+	Health 150
+	Scale 0.50
+	Translation 1
+	DropItem "Heart" 160
+	Speed 5
+	States
+	{
+	Missile:
+		MNTR A 10 A_FaceTarget
+		MNTR A 0 A_SkullAttack
+		MNTR ABCD 2
+		Goto Missile+2
+	Melee:
+		MNTR VW 5 A_FaceTarget
+		MNTR X 5 A_CustomMeleeAttack(2*random(1,8),"littlespider/pain")
+		Goto See
+	}
 }
 
 
@@ -452,83 +370,96 @@ ACTOR LargeSpider 22291
 /////////////////
 ACTOR Thrall 30119
 {
-Health 100
-PainChance 200
-Scale 0.90
-Speed 8
-Radius 20
-Height 56
-Mass 100
-MONSTER
-+FloorClip
-+DontHurtSpecies
--NoGravity
--Float
-OBITUARY "%o was killed by a lowly Cultist."
-SEESOUND "monster/culsit"
-ATTACKSOUND "monster/culatk"
-PAINSOUND "monster/culpai"
-DEATHSOUND "monster/culdth"
-ACTIVESOUND "monster/culact"
-states
-   {
-   Spawn:
-       CULT AB 10 A_Look
-       Loop
-   See:
-       CULT AABBCCDD 2 A_Chase
-       Loop
-   Missile:
-       CULT EE 5 A_FaceTarget
-       CULT F 0 BRIGHT A_CustomMissile ("ThrallShot1",42,-6,0,1,0)
-       CULT F 0 BRIGHT A_CustomMissile ("ThrallShot1",42,6,0,1,0)
-       CULT F 8 BRIGHT A_PlaySound("monster/culatk")
-       Goto See
-   Pain:
-       CULT G 2
-       CULT G 2 A_Pain
-       Goto See
-   Death:
-       CULT H 8
-       CULT I 8 A_Scream
-       CULT J 4
-       CULT K 4 A_NoBlocking
-       CULT L 4
-       CULT M -1
-       Stop
-   XDeath:
-       CULT N 5
-       CULT O 5 A_XScream
-       CULT P 5 A_NoBlocking
-       CULT QRSTUV 5
-       CULT W -1
-   Raise:
-       CULT MLKJHI 5
-       Goto See
-   }
+	Health 100
+	PainChance 200
+	Scale 0.90
+	Speed 4
+	Height 56
+	Mass 100
+	MONSTER
+	+FloorClip
+	OBITUARY "%o was killed by a lowly Cultist."
+	SEESOUND "monster/culsit"
+	ATTACKSOUND "monster/culatk"
+	PAINSOUND "monster/culpai"
+	DEATHSOUND "monster/culdth"
+	ACTIVESOUND "monster/culact"
+	states
+	{
+	Spawn:
+		CULT AB 10 A_Look
+		Loop
+	See:
+		CULT A 1 A_Chase
+		CULT A 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		CULT A 1 A_Chase
+		CULT A 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		CULT B 1 A_Chase
+		CULT B 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		CULT B 1 A_Chase
+		CULT B 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		CULT C 1 A_Chase
+		CULT C 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		CULT C 1 A_Chase
+		CULT C 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		CULT D 1 A_Chase
+		CULT D 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		CULT D 1 A_Chase
+		CULT D 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Missile:
+		CULT EE 5 A_FaceTarget
+		CULT F 0 A_CustomMissile("ThrallShot1",42,-6,0,1)
+		CULT F 0 A_CustomMissile("ThrallShot1",42,6,0,1)
+		CULT F 8 BRIGHT LIGHT("Thrall") A_PlaySound("monster/culatk")
+		Goto See
+	Pain:
+		CULT G 2
+		CULT G 2 A_Pain
+		Goto See
+	Death:
+		CULT H 8
+		CULT I 8 A_Scream
+		CULT J 4
+		CULT K 4 A_NoBlocking
+		CULT L 4
+		CULT M -1
+		Stop
+	XDeath:
+		CULT N 5
+		CULT O 5 A_XScream
+		CULT P 5 A_NoBlocking
+		CULT QRSTUV 5
+		CULT W -1
+	Raise:
+		CULT MLKJHI 5
+		Goto See
+	}
 }
 
 ACTOR ThrallShot1
 {
-   Radius 4
-   Height 6
-   Speed 14
-   Damage 1
-   RENDERSTYLE ADD
-   Alpha 0.67
-   PROJECTILE
-   +ThruGhost
-   DEATHSOUND "monster/disht1"
-   states
-   {
-   Spawn:
-      CFX4 A 2 BRIGHT
-      CFX4 B 2 BRIGHT
-      Loop
-   Death:
-      CFX4 CDEF 3 BRIGHT
-      Stop
-   }
+	Radius 4
+	Height 6
+	Speed 14
+	Damage 1
+	RENDERSTYLE ADD
+	Alpha 0.67
+	PROJECTILE
+	+ThruGhost
+	DEATHSOUND "monster/disht1"
+	states
+	{
+	Spawn:
+		CFX4 AB 2 BRIGHT LIGHT("ThrallShot")
+		Loop
+	Death:
+		CFX4 C 3 BRIGHT LIGHT("ThrallShotX_1")
+		CFX4 D 3 BRIGHT LIGHT("ThrallShotX_2")
+		CFX4 E 3 BRIGHT LIGHT("ThrallShotX_3")
+		CFX4 F 3 BRIGHT LIGHT("ThrallShotX_4")
+		Stop
+	}
 }
 
 
@@ -537,234 +468,172 @@ ACTOR ThrallShot1
 /////////////////////
 ACTOR Incarnate 30115
 {
-Health 400
-Radius 20
-Height 56
-Mass 500
-Speed 12
-Damage 1
-MeleeDamage 7
-PainChance 32
-DropItem "Heart" 160
-MONSTER
-+FloorClip
-+MissileMore
-+ShortMissileRange
-+DontHurtSpecies
-+NoTarget
-OBITUARY "%o was killed by a Death Incarnate's glaring eyes."
-HITOBITUARY "%o was beaten to death by a Death Incarnate."
-SEESOUND "monster/incsit"
-PAINSOUND "skeleton/pain"
-DEATHSOUND "monster/incdth"
-ACTIVESOUND "monster/incact"
-ATTACKSOUND "monster/incatk"
-MELEESOUND "monster/inchit"
-states
-   {
-   Spawn:
-       INCA AB 10 A_Look
-       Loop
-   See:
-       INCA AABBCCDDEEFF 2 A_Chase
-       Loop
-   Melee:
-       INCA G 0 A_Jump(128,5)
-       INCA G 0 A_FaceTarget
-       INCA G 6 A_SkelWhoosh
-       INCA H 6 A_FaceTarget
-       INCA I 6 A_MeleeAttack
-       Goto See
-       INCA R 0 A_FaceTarget
-       INCA R 5 A_SkelWhoosh
-       INCA S 5 A_FaceTarget
-       INCA T 5 A_MeleeAttack
-       INCA G 0 A_FaceTarget
-       INCA G 5 A_SkelWhoosh
-       INCA H 5 A_FaceTarget
-       INCA I 5 A_MeleeAttack
-       Goto See
-   Missile:
-       INCA J 5 A_FaceTarget
-       INCA J 5
-       INCA U 4 A_CustomMissile("ShadowBall", 64, 0, random(20, 10))
-       INCA U 4 A_CustomMissile("ShadowBall", 64, 0, random(-10, -20))
-       INCA U 4 A_CustomMissile("ShadowBall", 64, 0, random(0, 0))
-       INCA K 10
-       Goto See
-   Pain:
-       INCA L 5
-       INCA L 5 A_Pain
-       Goto See
-   Death:
-       INCA L 0 A_Jump(128,13)
-       INCX A 10 BRIGHT A_PlaySound("monster/incexp")
-       INCX BC 5 BRIGHT
-       INCX D 5 BRIGHT A_NoBlocking
-       INCX D 0 BRIGHT A_SpawnItem("HS",0,32)
-       INCX EFGHIJ 5 BRIGHT
-       INCX K -1
-       Stop
-       INCA LM 7
-       INCA N 7 A_Scream
-       INCA O 7 A_NoBlocking
-       INCA P 7
-       INCA Q 175
-       INCA Q 0 A_SpawnItem("DIHealer",0,0)
-       INCA Q -1
-       Stop
-   Raise:
-       INCA Q 0 A_KillChildren
-       INCA QPONML 5
-       Goto See
-   }
-}
-
-ACTOR DIHealer
-{
-Health 1
-Radius 0
-Height 1
-Mass 1000
-Speed 0
-Damage 0
-MeleeDamage 0
-RENDERSTYLE NONE
-PainChance 0
-ReactionTime 8
-MONSTER
-+DontGib
-+NoTarget
-+Invulnerable
-+Noclip
-+NonShootable
-+LookAllAround
-states
-   {
-   Spawn:
-       WRAI AB 10 A_Look
-       Loop
-   See:
-       WRAI AABB 3 A_VileChase
-       WRAI A 0 A_CountDown
-       Loop
-   Heal:
-       WRAI A 1
-       Goto Death
-   Pain:
-       WRAI A 3
-       WRAI A 3 A_Pain
-       Goto See
-   Death:
-       WRAI E 4 A_NoBlocking
-       WRAI F 5 A_Scream
-       WRAI GHIJ 4
-       Stop
-   }
+	Health 400
+	Radius 20
+	Height 56
+	Mass 500
+	Speed 6
+	PainChance 32
+	DropItem "Heart" 160
+	MONSTER
+	+FloorClip
+	+MissileMore
+	MaxTargetRange 1000
+	+NoTarget
+	OBITUARY "%o was killed by a Death Incarnate's glaring eyes."
+	HITOBITUARY "%o was beaten to death by a Death Incarnate."
+	SEESOUND "monster/incsit"
+	PAINSOUND "skeleton/pain"
+	DEATHSOUND "monster/incdth"
+	ACTIVESOUND "monster/incact"
+	ATTACKSOUND "monster/incatk"
+	states
+	{
+	Spawn:
+		INCA AB 10 A_Look
+		Loop
+	See:
+		INCA A 1 A_Chase
+		INCA A 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		INCA A 1 A_Chase
+		INCA A 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		INCA B 1 A_Chase
+		INCA B 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		INCA B 1 A_Chase
+		INCA B 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		INCA C 1 A_Chase
+		INCA C 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		INCA C 1 A_Chase
+		INCA C 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		INCA D 1 A_Chase
+		INCA D 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		INCA D 1 A_Chase
+		INCA D 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		INCA E 1 A_Chase
+		INCA E 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		INCA E 1 A_Chase
+		INCA E 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		INCA F 1 A_Chase
+		INCA F 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		INCA F 1 A_Chase
+		INCA F 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Melee:
+		INCA G 0 A_Jump(128,5)
+		INCA G 0 A_FaceTarget
+		INCA G 6 A_SkelWhoosh
+		INCA H 6 A_FaceTarget
+		INCA I 6 A_CustomMeleeAttack(7*random(1,8),"monster/inchit")
+		Goto See
+		INCA R 0 A_FaceTarget
+		INCA R 5 A_SkelWhoosh
+		INCA S 5 A_FaceTarget
+		INCA T 5 A_CustomMeleeAttack(7*random(1,8),"monster/inchit")
+		INCA G 0 A_FaceTarget
+		INCA G 5 A_SkelWhoosh
+		INCA H 5 A_FaceTarget
+		INCA I 5 A_CustomMeleeAttack(7*random(1,8),"monster/inchit")
+		Goto See
+	Missile:
+		INCA J 10 A_FaceTarget
+		INCA U 4 LIGHT("Incarnate") A_CustomMissile("ShadowBall",64,0,random(20,10))
+		INCA U 4 LIGHT("Incarnate") A_CustomMissile("ShadowBall",64,0,random(-10,-20))
+		INCA U 4 LIGHT("Incarnate") A_CustomMissile("ShadowBall",64)
+		INCA K 10
+		Goto See
+	Pain:
+		INCA L 5
+		INCA L 5 A_Pain
+		Goto See
+	Death:
+		INCX A 0 A_Jump(128,"Death2")
+		INCX A 10 BRIGHT LIGHT("IncarnateX_1") A_PlaySound("monster/incexp")
+		INCX B 5 BRIGHT LIGHT("IncarnateX_2")
+		INCX C 5 BRIGHT LIGHT("IncarnateX_3")
+		INCX D 5 BRIGHT LIGHT("IncarnateX_4") A_NoBlocking
+		INCX D 0 A_SpawnItemEx("HS",0,0,32)
+		INCX E 5 BRIGHT LIGHT("IncarnateX_5")
+		INCX F 5 BRIGHT LIGHT("IncarnateX_6")
+		INCX G 5 BRIGHT LIGHT("IncarnateX_7")
+		INCX H 5 BRIGHT LIGHT("IncarnateX_8")
+		INCX I 5 BRIGHT LIGHT("IncarnateX_9")
+		INCX J 5 BRIGHT LIGHT("IncarnateX_10")
+		INCX K -1
+		Stop
+	Death2:
+		INCA LM 7
+		INCA N 7 A_Scream
+		INCA O 7 A_NoBlocking
+		INCA P 7
+		INCA Q 175
+		INCA Q -1 Thing_Raise(0)
+		Stop
+	Raise:
+		INCA Q 5 A_KillChildren
+		INCA PONML 5
+		Goto See
+	}
 }
 
 ACTOR HS 30116
 {
-Health 35
-Radius 16
-Height 32
-Mass 3000
-Speed 10
-ExplosionDamage 128
-ExplosionRadius 112
-RENDERSTYLE Normal
-OBITUARY "%o was blown away by a Hades Sphere."
-PainChance 0
-MONSTER
-+LookAllAround
-+DontGib
-+NoTarget
-+NoGravity
-+Float
-+DontFall
-+DontHurtSpecies
-+LongMeleeRange
-SEESOUND "monster/hadsit"
-states
-   {
-   Spawn:
-       NULL A 1 BRIGHT A_Look
-       Loop
-   See:
-       HADE EFGH 4 BRIGHT
-       HADE A 2 BRIGHT A_PlaySound("monster/hadwlk")
-       HADE ABBCCDD 2 BRIGHT A_Chase
-       HADE D 0 BRIGHT A_Jump (32,1)
-       Goto See+4
-       HADE H 0 BRIGHT A_UnSetSolid
-       HADE H 0 BRIGHT A_UnSetShootable
-       HADE H 5 BRIGHT A_PlaySound("monster/hadtel")
-       HADE GFEIJKL 4 BRIGHT
-       NULL AAAAAAAA 2 BRIGHT A_Chase
-       NULL A 0 BRIGHT A_Jump (96,1)
-       Goto See+24
-       HADE L 3 BRIGHT A_PlaySound("monster/hadtel")
-       HADE KJIEFG 4 BRIGHT
-       HADE H 0 BRIGHT A_SetShootable
-       HADE H 0 BRIGHT A_SetSolid
-       Goto See+4
-   Melee:
-       HADE H 0 A_SetInvulnerable
-       HADE HGFE 4 BRIGHT
-       HADE E 0 BRIGHT A_NoBlocking
-       HADE E 0 BRIGHT A_CustomMissile("HSBoom",0,0,0,0)
-       Stop
-   Death:
-       HADE E 0 BRIGHT A_NoBlocking
-       HADE E 0 BRIGHT A_CustomMissile("HSBoom",0,0,0,0)
-       Stop
-   XDeath:
-       HADE N 0 BRIGHT A_NoBlocking
-       HADE H 5 BRIGHT A_PlaySound("monster/haddth")
-       HADE GFE 4 BRIGHT
-       HADE RSTUVWX 4 BRIGHT
-       Stop
-   }
-}
-
-ACTOR HSBoom
-{
-   Radius 1
-   Height 1
-   Speed 0
-   Damage 0
-   Alpha 0.90
-   ExplosionDamage 112
-   ExplosionRadius 112
-   PROJECTILE
-   RENDERSTYLE ADD
-   DontHurtShooter
-   SEESOUND "monster/hadexp"
-   states
-   {
-   Spawn:
-      NULL A 0 BRIGHT
-      Goto Death
-   Death:
-      HADE M 4 BRIGHT A_Explode
-      HADE NOPQ 5 BRIGHT
-      Stop
-   }
-}
-
-ACTOR DIPuff
-{
-   Radius 0
-   Height 1
-   Speed 0
-   PROJECTILE
-   RENDERSTYLE NONE
-   states
-   {
-   Spawn:
-      NULL A 2 BRIGHT
-      Stop
-   }
+	Health 35
+	Radius 16
+	Height 32
+	Mass 3000
+	Speed 5
+	Obituary "%o was blown away by a Hades Sphere."
+	Monster
+	+LOOKALLAROUND
+	+DONTGIB
+	+NOTARGET
+	+NOGRAVITY
+	+FLOAT
+	+DONTFALL
+	+DONTHARMCLASS
+	MeleeThreshold 192
+	SeeSound "monster/hadsit"
+	states
+	{
+	Spawn:
+		TNT1 A 1 A_Look
+		Loop
+	See:
+		HADE EFGH 4 BRIGHT
+		HADE A 2 BRIGHT A_PlaySound("monster/hadwlk")
+		HADE AABBBBCCCCDDDD 1 BRIGHT A_Chase
+		HADE D 0 A_Jump(32,1)
+		Goto See+4
+		HADE H 0 A_UnSetSolid
+		HADE H 0 A_UnSetShootable
+		HADE H 5 BRIGHT A_PlaySound("monster/hadtel")
+		HADE GFEIJKL 4 BRIGHT
+	Teleporting:
+		TNT1 AAAAAAAAAAAAAAAA 1 A_Chase
+		TNT1 A 0 A_Jump(96,1)
+		Loop
+		HADE L 3 BRIGHT A_PlaySound("monster/hadtel")
+		HADE KJIEFG 4 BRIGHT
+		HADE H 0 A_SetShootable
+		HADE H 0 A_SetSolid
+		Goto See+4
+	Melee:
+		HADE H 0 A_SetInvulnerable
+		HADE HGFE 4 BRIGHT
+		HADE E 0 A_Die
+	Death:
+		HADE M 0 A_NoBlocking
+		HADE M 0 A_SetTranslucent(.9,1)
+		HADE M 0 A_PlaySound("monster/hadexp")
+		HADE M 4 BRIGHT A_Explode(112,112,XF_NOTMISSILE)
+		HADE NOPQ 5 BRIGHT
+		Stop
+	XDeath:
+		HADE N 0 A_NoBlocking
+		HADE H 5 BRIGHT A_PlaySound("monster/haddth")
+		HADE GFERSTUVWX 4 BRIGHT
+		Stop
+	}
 }
 
 ////////////////
@@ -772,204 +641,165 @@ ACTOR DIPuff
 ////////////////
 ACTOR HotDog 30121
 {
-Health 300
-PainChance 128
-Speed 16
-Radius 30
-Height 50
-Mass 500
-MeleeDamage 7
-DropItem "Heart" 160
-MONSTER
-+FloorClip
-+FireResist
-+DontHurtSpecies
-OBITUARY "%o burned alive by a hellhound."
-HITOBITUARY "A hellhound had %o for dinner."
-SEESOUND "monster/dogsit"
-ATTACKSOUND "monster/dogatk"
-MELEESOUND "monster/dogbit"
-PAINSOUND "monster/dogpai"
-DEATHSOUND "monster/dogdth"
-ACTIVESOUND "monster/dogact"
-SpawnID 170
-states
-   {
-   Spawn:
-       HDOG AA 10 A_Look
-       Loop
-   See:
-       HDOG AAAABBBBCCCCDDDDEEEEFFFF 1 A_Chase
-       Loop
-   Melee:
-       HDOG GH 6 A_FaceTarget
-       HDOG I 6 A_MeleeAttack
-       Goto See
-   Missile:
-       HDOG G 0 A_JumpIfCloser(256,2)
-       HDOG G 0
-       Goto See
-       HDOG G 10 A_FaceTarget
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG H 1 A_CustomMissile ("DogFire",28,0,0,0,0)
-       HDOG I 6
-       Goto See
-   Pain:
-       HDOG J 2
-       HDOG J 2 A_Pain
-       Goto See
-   Death:
-       HDOG K 8
-       HDOG L 8 A_Scream
-       HDOG M 4
-       HDOG N 4 A_NoBlocking
-       HDOG OP 4
-       HDOG Q -1
-       Stop
-   Raise:
-       HDOG QPONMLK 5
-       Goto See
-   }
+	Health 300
+	PainChance 128
+	Speed 16
+	Radius 30
+	Height 50
+	Mass 500
+	DropItem "Heart" 160
+	MONSTER
+	+FloorClip
+	DamageFactor Fire,.5
+	+DONTHARMCLASS
+	OBITUARY "%o burned alive by a hellhound."
+	HITOBITUARY "A hellhound had %o for dinner."
+	SEESOUND "monster/dogsit"
+	ATTACKSOUND "monster/dogatk"
+	PAINSOUND "monster/dogpai"
+	DEATHSOUND "monster/dogdth"
+	ACTIVESOUND "monster/dogact"
+	MaxTargetRange 256
+	states
+	{
+	Spawn:
+		HDOG A 10 A_Look
+		Loop
+	See:
+		HDOG AAAABBBBCCCCDDDDEEEEFFFF 1 A_Chase
+		Loop
+	Melee:
+		HDOG GH 6 A_FaceTarget
+		HDOG I 6 A_CustomMeleeAttack(7*random(1,8),"monster/dogbit")
+		Goto See
+	Missile:
+		HDOG G 10 A_FaceTarget
+		HDOG HHHHHHHHHHHH 1 A_CustomMissile("DogFire",28)
+		HDOG I 6
+		Goto See
+	Pain:
+		HDOG J 2
+		HDOG J 2 A_Pain
+		Goto See
+	Death:
+		HDOG K 8
+		HDOG L 8 A_Scream
+		HDOG M 4
+		HDOG N 4 A_NoBlocking
+		HDOG OP 4
+		HDOG Q -1
+		Stop
+	Raise:
+		HDOG QPONMLK 5
+		Goto See
+	}
 }
 
 ACTOR DogFire
 {
-   Radius 2
-   Height 4
-   Speed 16
-   Damage 1
-   PROJECTILE
-   RENDERSTYLE ADD
-   DamageType Fire
-   Alpha 0.67
-   Scale 0.67
-   SEESOUND "weapons/bigbrn"
-   DEATHSOUND "weapons/bigbrn"
-   DontHurtShooter
-   +ThruGhost
-   states
-   {
-   Spawn:
-      NULL A 2 BRIGHT
-      FRFX ABCD 2 BRIGHT A_Explode(1,8)
-      FRFX D 0 BRIGHT A_LowGravity
-      FRFX EFG 2 BRIGHT A_Explode(1,16)
-      FRFX HIJ 2 BRIGHT A_Explode(1,32)
-      FRFX KLM 2 BRIGHT A_Explode(1,64)
-      FRFX NO 2 BRIGHT
-      Stop
-   Death:
-      FRFX HIJ 2 BRIGHT A_Explode(1,32)
-      FRFX KLM 2 BRIGHT A_Explode(1,64)
-      FRFX NO 2 BRIGHT
-      Stop
-   }
+	Radius 2
+	Height 4
+	Speed 16
+	Damage 1
+	PROJECTILE
+	RENDERSTYLE Add
+	DamageType Fire
+	Alpha 0.67
+	Scale 0.67
+	SEESOUND "weapons/bigbrn"
+	DEATHSOUND "weapons/bigbrn"
+	+ThruGhost
+	Gravity .125
+	states
+	{
+	Spawn:
+		TNT1 A 2
+		FRFX A 2 BRIGHT LIGHT("FlameX_1") A_Explode(1,8)
+		FRFX B 2 BRIGHT LIGHT("FlameX_2") A_Explode(1,8)
+		FRFX C 2 BRIGHT LIGHT("FlameX_3") A_Explode(1,8)
+		FRFX D 2 BRIGHT LIGHT("FlameX_4") A_Explode(1,8)
+		FRFX D 0 A_Gravity
+		FRFX E 2 BRIGHT LIGHT("FlameX_5") A_Explode(1,16)
+		FRFX F 2 BRIGHT LIGHT("FlameX_6") A_Explode(1,16)
+		FRFX G 2 BRIGHT LIGHT("FlameX_7") A_Explode(1,16)
+	Death:
+		FRFX H 2 BRIGHT LIGHT("FlameX_8") A_Explode(1,32)
+		FRFX I 2 BRIGHT LIGHT("FlameX_9") A_Explode(1,32)
+		FRFX J 2 BRIGHT LIGHT("FlameX_10") A_Explode(1,32)
+		FRFX K 2 BRIGHT LIGHT("FlameX_11") A_Explode(1,64)
+		FRFX L 2 BRIGHT LIGHT("FlameX_12") A_Explode(1,64)
+		FRFX M 2 BRIGHT LIGHT("FlameX_13") A_Explode(1,64)
+		FRFX N 2 BRIGHT LIGHT("FlameX_14")
+		FRFX O 2 BRIGHT LIGHT("FlameX_15")
+		Stop
+	}
 }
-
-ACTOR DogShot
-{
-   Radius 8
-   Height 12
-   Speed 16
-   Damage 7
-   PROJECTILE
-   RENDERSTYLE ADD
-   DamageType fire
-   +ThruGhost
-   SEESOUND "monster/dogsht"
-   DEATHSOUND "monster/doghit"
-   +FireDamage
-   states
-   {
-   Spawn:
-      NULL A 3
-      HHFX AABBCC 1 BRIGHT A_CustomMissile("DogTrail",0,0,0,0,0)
-      Goto Spawn+1
-   Death:
-      HHFX DFGH 4 BRIGHT
-      Stop
-   }
-}
-
-ACTOR DogTrail : BulletPuff
-{
-   RENDERSTYLE ADD
-   states
-   {
-   Spawn:
-      NULL A 5
-      HHFX DFGH 3 BRIGHT
-      Stop
-   }
-}
-
 
 ///////////////
 // NIGHTMARE //
 ///////////////
 ACTOR KDiZDNightmare 26000
 {
-    Health 100
-    Radius 20
-    Height 56
-    Speed 15
-    PainChance 144
-    MONSTER
-    +FloorClip
-    +Stealth
-    RENDERSTYLE Add
-    Alpha 0.4
-    SEESOUND "nightmare/sight"
-    PAINSOUND "nightmare/pain"
-    DEATHSOUND "nightmare/death"
-    ACTIVESOUND "nightmare/active"
-    MELEESOUND "nightmare/melee"
-    HITOBITUARY "%o was tormented by a nightmare."
-    MeleeDamage 4
-    states
-    {
-    Spawn:
-        NMRE AB 10 A_Look
-        Loop
-    See:
-        NMRE A 0 A_UnSetShootable
-        NMRE AABBCCDD 3 A_Chase
-        NMRE D 0 A_Jump(32,1)
-        Loop
-        NMRE D 0 A_CustomMissile("NightmareWisp",0,0,0)
-        Loop
-    Melee:
-        NMRE E 0 A_SetShootable
-        NMRE EF 9 A_FaceTarget
-        NMRE G 9 A_MeleeAttack
-        Goto See
-    Pain:
-        NMRE H 2 A_SetShootable
-        NMRE H 10 A_Pain
-        Goto See
-    Death:
-        NMRE I 3 A_ScreamAndUnblock
-        NMRE JKLMNO 3
-        Stop
-    }
+	Health 100
+	Height 56
+	Speed 5
+	PainChance 144
+	MONSTER
+	+FloorClip
+	+Stealth
+	RENDERSTYLE Add
+	Alpha 0.4
+	SEESOUND "nightmare/sight"
+	PAINSOUND "nightmare/pain"
+	DEATHSOUND "nightmare/death"
+	ACTIVESOUND "nightmare/active"
+	HITOBITUARY "%o was tormented by a nightmare."
+	states
+	{
+	Spawn:
+		NMRE AB 10 A_Look
+		Loop
+	See:
+		NMRE A 0 A_UnSetShootable
+		NMRE A 1 A_Chase
+		NMRE AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		NMRE A 1 A_Chase
+		NMRE AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		NMRE B 1 A_Chase
+		NMRE BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		NMRE B 1 A_Chase
+		NMRE BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		NMRE C 1 A_Chase
+		NMRE CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		NMRE C 1 A_Chase
+		NMRE CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		NMRE D 1 A_Chase
+		NMRE DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		NMRE D 1 A_Chase
+		NMRE DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+		NMRE D 0 A_SpawnItemEx("NightmareWisp",0,0,0,0,0,0,0,0,224)
+		Loop
+	Melee:
+		NMRE E 0 A_SetShootable
+		NMRE EF 9 A_FaceTarget
+		NMRE G 9 A_CustomMeleeAttack(random(1,8)*4,"nightmare/melee")
+		Goto See
+	Pain:
+		NMRE H 2 A_SetShootable
+		NMRE H 10 A_Pain
+		Goto See
+	Death:
+		NMRE I 3 A_ScreamAndUnblock
+		NMRE JKLMNO 3
+		Stop
+	}
 }
 
 ACTOR NightmareWisp
 {
 	Radius 4
 	Height 8
-	Speed 0
-	Damage 0
 	RENDERSTYLE ADD
 	Alpha 0.4
 	PROJECTILE
@@ -988,32 +818,34 @@ ACTOR NightmareWisp
 /////////////////////
 ACTOR SirenNightmare : KDiZDNightmare 31111
 {
-    SpawnID 247
-    Health 300
-    Radius 10
-    Height 30
-    Speed 30
-    Scale 1.5
-    MeleeDamage 100
-    -FloorClip
-    +ActivateMCross
-    SEESOUND "nightmare2/sight"
-    PAINSOUND "nightmare2/pain"
-    DEATHSOUND "nightmare2/death"
-    ACTIVESOUND "nightmare2/active"
-    MELEESOUND "nightmare2/melee"
+	Health 300
+	Radius 10
+	Height 30
+	Speed 10
+	Scale 1.5
+	SEESOUND "nightmare2/sight"
+	PAINSOUND "nightmare2/pain"
+	DEATHSOUND "nightmare2/death"
+	ACTIVESOUND "nightmare2/active"
+	states
+	{
+	Melee:
+		NMRE E 0 A_SetShootable
+		NMRE EF 9 A_FaceTarget
+		NMRE G 9 A_CustomMeleeAttack(100*random(1,8),"nightmare2/melee")
+		Goto See
+	}
 }
 ////////////
 // SHADOW //
 ////////////
 ACTOR Shadow 3126
 {
-        Health 300
-	Radius 20
+	Health 300
 	Height 56
 	Mass 100
-        Scale 1.5
-	RENDERSTYLE "Add"
+	Scale 1.5
+	RenderStyle Add
 	Alpha 0.9
 	Speed 8
 	PainChance 200
@@ -1024,33 +856,24 @@ ACTOR Shadow 3126
 	DEATHSOUND "imp/death"
 	ACTIVESOUND "imp/active"
 	OBITUARY "%o was assasined by a shadow."
-	MissileType ShadowBall
 	states
 	{
 	Spawn:
 	See:
 		TROX A 15
 		TROX AAA 1 A_Chase
-		TROX A 0 A_CustomMissile("ShadowGhostA", 0, 0, 0)
+		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		TROX BBB 1 A_Chase
-		TROX B 0 A_CustomMissile("ShadowGhostB", 0, 0, 0)
+		TROX B 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		TROX CCC 1 A_Chase
-		TROX C 0 A_CustomMissile("ShadowGhostC", 0, 0, 0)
+		TROX C 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		TROX DDD 1 A_Chase
-		TROX D 0 A_CustomMissile("ShadowGhostD", 0, 0, 0)
-		TROX AAA 1 A_Chase
-		TROX A 0 A_CustomMissile("ShadowGhostA", 0, 0, 0)
-		TROX BBB 1 A_Chase
-		TROX B 0 A_CustomMissile("ShadowGhostB", 0, 0, 0)
-		TROX CCC 1 A_Chase
-		TROX C 0 A_CustomMissile("ShadowGhostC", 0, 0, 0)
-		TROX DDD 1 A_Chase
-		TROX D 0 A_CustomMissile("ShadowGhostD", 0, 0, 0)
+		TROX D 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		Goto See+1
 	Missile:
 		TROX E 12 A_FaceTarget
 		TROX F 5
-		TROX G 5 BRIGHT A_MissileAttack
+		TROX G 5 BRIGHT A_CustomMissile("ShadowBall")
 		TROX F 5
 		TROX E 20
 		TROX E 1 A_SpidRefire
@@ -1062,8 +885,8 @@ ACTOR Shadow 3126
 	Death:
 		TROX I 6 A_Scream
 		TROX J 5
-		TROX K 5 A_CustomMissile("Shadowtorso", 0, 0, 0)
-		TROX L 5 A_Fall
+		TROX K 5 A_CustomMissile("Shadowtorso")
+		TROX L 5 A_NoBlocking
 		TROX MNO 6
 		TROX P -1
 		Stop
@@ -1071,14 +894,12 @@ ACTOR Shadow 3126
 		TROX W 5
 		TROX X 4 A_XScream
 		TROX Y 4
-		TROX Z 4 A_Fall
- 		TROX ] 4
- 		TROX [ 4
+		TROX Z 4 A_NoBlocking
+		TROX "][" 4
 		TROX \ -1
 		Stop
 	Raise:
-		TROX M 8
-		TROX KLJI 8
+		TROX MKLJI 8
 		Goto See
 	}
 }
@@ -1091,69 +912,39 @@ ACTOR ShadowBall
 	Damage 4
 	PROJECTILE
 	+Randomize
-	RENDERSTYLE "ADD"
+	RENDERSTYLE ADD
 	Alpha 0.75
 	SEESOUND "imp/attack"
 	DEATHSOUND "imp/shotx"
-	MissileType ShadowTrail
-	MissileHeight 0
 	Decal DoomImpScorch
 	states
 	{
 	Spawn:
-		SBAL ABC 4 BRIGHT A_MissileAttack
+		SBAL ABC 4 BRIGHT LIGHT("ShadowBall") A_SpawnItemEx("ShadowTrail")
 		Loop
 	Death:
-		SBAL C 5 BRIGHT
-		SBAL DEFGH 4 BRIGHT
+		SBAL C 5 BRIGHT LIGHT("ShadowBall")
+		SBAL D 4 BRIGHT LIGHT("ShadowBallX_1")
+		SBAL E 4 BRIGHT LIGHT("ShadowBallX_2")
+		SBAL F 4 BRIGHT LIGHT("ShadowBallX_3")
+		SBAL G 4 BRIGHT LIGHT("ShadowBallX_4")
+		SBAL H 4 BRIGHT LIGHT("ShadowBallX_5")
 		Stop
 	}
 }
 
-ACTOR ShadowGhostA
+ACTOR ShadowGhost
 {
 	Radius 4
 	Height 8
-	Speed 0
-	Damage 0
 	Mass 75
-	RENDERSTYLE "Add"
+	RENDERSTYLE Add
 	Alpha 0.3
 	PROJECTILE
 	states
 	{
 	Spawn:
-		TROX A 10
-		Stop
-	}
-}
-
-ACTOR ShadowGhostB : ShadowGhostA
-{
-	states
-	{
-	Spawn:
-		TROX B 10
-		Stop
-	}
-}
-
-ACTOR ShadowGhostC : ShadowGhostA
-{
-	states
-	{
-	Spawn:
-		TROX C 10
-		Stop
-	}
-}
-
-ACTOR ShadowGhostD : ShadowGhostA
-{
-	states
-	{
-	Spawn:
-		TROX D 10
+		"####" "#" 10
 		Stop
 	}
 }
@@ -1164,35 +955,34 @@ ACTOR Shadowtorso
 	Height 15
 	Speed 1
 	Mass 5000
-	RENDERSTYLE "Add"
+	RenderStyle Add
 	Alpha 0.7
-	+DoomBounce
-      states
+	BounceType Doom
+	states
 	{
 	Spawn:
-         TROX QRS 5
-         TROX T 5 A_Fall
-         TROX U 5
-         TROX V -1
-         Stop
+		TROX QRS 5
+		TROX T 5 A_NoBlocking
+		TROX U 5
+		TROX V -1
+		Stop
 	}
 }
 
 ACTOR ShadowTrail
 {
-    Radius 1
-    Height 1
-    Speed 0
-    PROJECTILE
-    RENDERSTYLE ADD
-    Alpha 0.6
-    +Noclip
-    states
-    {
-    Spawn:
-     SHTR ABCDEF 4 BRIGHT
-        Stop
-    }
+	Radius 1
+	Height 1
+	PROJECTILE
+	RENDERSTYLE ADD
+	Alpha 0.6
+	+Noclip
+	states
+	{
+	Spawn:
+		SHTR ABCDEF 4 BRIGHT
+		Stop
+	}
 }
 
 ////////////////////
@@ -1200,125 +990,142 @@ ACTOR ShadowTrail
 ////////////////////
 ACTOR SoulHarvester 3117
 {
-
-    Health 120
-    Radius 20
-    Height 56
-    Speed 8
-    PainChance 120
-    MONSTER
-    +FloorClip
-    DropItem "Heart" 160
-    SEESOUND "harvester/sight"
-    PAINSOUND "imp/pain"
-    DEATHSOUND "harvester/death"
-    ACTIVESOUND "imp/active"
-    MELEESOUND "imp/melee"
-    OBITUARY "%o couldn't evade the soul harvester's attack."
-    MissileType SoulHarvesterBall
-    MeleeDamage 3
-    states
-    {
-    Spawn:
-        SLHV AB 10 A_Look
-        Loop
-    See:
-        SLHV AABBCCDD 3 A_Chase
-        Loop
-    Melee:
-    Missile:
-        SLHV EFG 4 A_FaceTarget
-        SLHV HIJK 5 BRIGHT A_FaceTarget
-        SLHV L 8 BRIGHT A_MissileAttack
-        SLHV M 10
-        Goto See
-    Pain:
-    	SLHV N 3
-    	SLHV N 3 A_Pain
-    	Goto See
-    Death:
-        SLHV O 7 A_Scream
-        SLHV PQR 7
-        SLHV S 6 A_CustomMissile("SoulHarvesterGhost", 32, 0, 0)
-        SLHV T 5 A_Fall
-        SLHV UV 5
-        SLHV W -1
-        Stop
-    XDeath:
-        SLHV X 6 A_XScream
-        SLHV Y 6 A_CustomMissile("SoulHarvesterGhost", 32, 0, 0)
-        SLHV Z 6
-        SLHV [ 6 A_Fall
-        SLHV ] 6
-        SLHW A -1
-        Stop
-    Raise:
-        SLHV WVUTSRQPO 5
-        Goto See
-    }
+	Health 120
+	Height 56
+	Speed 2.66666667
+	PainChance 120
+	MONSTER
+	+FloorClip
+	DropItem "Heart" 160
+	SEESOUND "harvester/sight"
+	PAINSOUND "imp/pain"
+	DEATHSOUND "harvester/death"
+	ACTIVESOUND "imp/active"
+	OBITUARY "%o couldn't evade the soul harvester's attack."
+	states
+	{
+	Spawn:
+		SLHV AB 10 A_Look
+		Loop
+	See:
+		SLHV A 1 A_Chase
+		SLHV AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SLHV A 1 A_Chase
+		SLHV AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SLHV B 1 A_Chase
+		SLHV BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SLHV B 1 A_Chase
+		SLHV BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SLHV C 1 A_Chase
+		SLHV CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SLHV C 1 A_Chase
+		SLHV CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SLHV D 1 A_Chase
+		SLHV DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SLHV D 1 A_Chase
+		SLHV DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Melee:
+	Missile:
+		SLHV E 4 LIGHT("SoulHarvesterX_1") A_FaceTarget
+		SLHV F 4 LIGHT("SoulHarvesterX_2") A_FaceTarget
+		SLHV G 4 LIGHT("SoulHarvesterX_3") A_FaceTarget
+		SLHV H 5 BRIGHT LIGHT("SoulHarvesterX_4") A_FaceTarget
+		SLHV I 5 BRIGHT LIGHT("SoulHarvesterX_5") A_FaceTarget
+		SLHV J 5 BRIGHT LIGHT("SoulHarvesterX_6") A_FaceTarget
+		SLHV K 5 BRIGHT LIGHT("SoulHarvesterX_7") A_FaceTarget
+		SLHV L 8 BRIGHT LIGHT("SoulHarvesterX_8") A_CustomMissile("SoulHarvesterBall")
+		SLHV M 10 LIGHT("SoulHarvesterX_9")
+		Goto See
+	Pain:
+		SLHV N 3
+		SLHV N 3 A_Pain
+		Goto See
+	Death:
+		SLHV O 7 A_Scream
+		SLHV PQR 7
+		SLHV S 6 A_SpawnItemEx("SoulHarvesterGhost",0,0,32)
+		SLHV T 5 A_NoBlocking
+		SLHV UV 5
+		SLHV W -1
+		Stop
+	XDeath:
+		SLHV X 6 A_XScream
+		SLHV Y 6 A_SpawnItemEx("SoulHarvesterGhost",0,0,32)
+		SLHV Z 6
+		SLHV [ 6 A_NoBlocking
+		SLHV ] 6
+		SLHW A -1
+		Stop
+	Raise:
+		SLHV WVUTSRQPO 5
+		Goto See
+	}
 }
 
 ACTOR SoulHarvesterBall
 {
-    Radius 8
-    Height 6
-    Scale 0.4
-    Speed 9
-    Damage 2
-    +SeekerMissile
-    PROJECTILE
-    RENDERSTYLE ADD
-    SEESOUND "harvester/scream"
-    DEATHSOUND "imp/shotx"
+	Radius 8
+	Height 6
+	Scale 0.4
+	Speed 9
+	Damage 2
+	+SeekerMissile
+	PROJECTILE
+	RENDERSTYLE ADD
+	SEESOUND "harvester/scream"
+	DEATHSOUND "imp/shotx"
 	Decal DoomImpScorch
-    states
-    {
-    Spawn:
-    	SHBA A  0 BRIGHT A_CustomMissile("SoulBallTrail", 0, 0, 180)
-        SHBA AB 2 BRIGHT A_SeekerMissile (5,8)
-        Loop
-    Death:
-        SHBA CDEFGHIJKL 4 BRIGHT
-        Stop
-    }
+	states
+	{
+	Spawn:
+		SHBA A 0 A_SpawnItemEx("SoulBallTrail")
+		SHBA AB 2 BRIGHT LIGHT("SoulHarvesterBall") A_SeekerMissile(5,8)
+		Loop
+	Death:
+		SHBA C 4 BRIGHT LIGHT("SoulHarvesterBallX_1")
+		SHBA D 4 BRIGHT LIGHT("SoulHarvesterBallX_2")
+		SHBA E 4 BRIGHT LIGHT("SoulHarvesterBallX_3")
+		SHBA F 4 BRIGHT LIGHT("SoulHarvesterBallX_4")
+		SHBA G 4 BRIGHT LIGHT("SoulHarvesterBallX_5")
+		SHBA H 4 BRIGHT LIGHT("SoulHarvesterBallX_6")
+		SHBA I 4 BRIGHT LIGHT("SoulHarvesterBallX_7")
+		SHBA J 4 BRIGHT LIGHT("SoulHarvesterBallX_8")
+		SHBA K 4 BRIGHT LIGHT("SoulHarvesterBallX_9")
+		SHBA L 4 BRIGHT LIGHT("SoulHarvesterBallX_10")
+		Stop
+	}
 }
 
 ACTOR SoulHarvesterGhost
 {
-    Radius 1
-    Height 1
-    Speed 0
-    PROJECTILE
-    RENDERSTYLE ADD
-    Alpha 0.7
-    +Noclip
-    SEESOUND "harvester/ghost"
-    states
-    {
-    Spawn:
-    Death:
-        SHGH ABCDEFG 4 BRIGHT
-        Stop
-    }
+	Radius 1
+	Height 1
+	PROJECTILE
+	RENDERSTYLE ADD
+	Alpha 0.7
+	+Noclip
+	SEESOUND "harvester/ghost"
+	states
+	{
+	Spawn:
+	Death:
+		SHGH ABCDEFG 4 BRIGHT
+		Stop
+	}
 }
 
-ACTOR SoulBallTrail
+ACTOR SoulBallTrail : SoulHarvesterGhost
 {
-    Radius 1
-    Height 1
-    Speed 0
-    PROJECTILE
-    RENDERSTYLE ADD
-    Alpha 0.5
-    +Noclip
-    states
-    {
-    Spawn:
-    Death:
-    	SBTR H 6
-        SBTR ABCDEFG 4 BRIGHT
-        Stop
-    }
+	Alpha 0.5
+	states
+	{
+	Spawn:
+	Death:
+		SBTR H 6
+		SBTR ABCDEFG 4 BRIGHT
+		Stop
+	}
 }
 
 
@@ -1327,328 +1134,166 @@ ACTOR SoulBallTrail
 ////////////
 ACTOR Thamuz : Cyberdemon 7228
 {
-  Health 3200
-  Speed 16
-  PainChance 35
-  Mass 2000
-  Scale 1.1
-  Bloodcolor "00 aa 00"
-  MONSTER
-  +Boss
-  +NoRadiusDMG
-  +FloorClip
-  +MISSILEEVENMORE
-  +MISSILEMORE
-  MinMissileChance 5
-  SEESOUND "Thamuz/Idlesight"
-  PAINSOUND "Thamuz/Pain"
-  DEATHSOUND "Thamuz/death"
-  ACTIVESOUND "Thamuz/Idlesight"
-  OBITUARY "%o fell before Thamuz."
-  states
-  {
-  Spawn:
-    DCYB A 10 A_Look
-    Loop
-  See:
-    DCYB A 3 A_Chase
-      NULL A 0 A_SpawnItem("DarkCyberGhostA",0,0)
-    DCYB A 3 A_Chase
-      NULL A 0 A_SpawnItem("DarkCyberGhostA",0,0)
-    DCYB A 3 A_Chase
-      NULL A 0 A_SpawnItem("DarkCyberGhostB",0,0)
-    DCYB B 3 A_Chase
-      NULL A 0 A_SpawnItem("DarkCyberGhostB",0,0)
-    DCYB C 3 A_Chase
-      NULL A 0 A_SpawnItem("DarkCyberGhostC",0,0)
-    DCYB C 3 A_Chase
-      NULL A 0 A_SpawnItem("DarkCyberGhostC",0,0)
-    DCYB D 3 A_Chase
-      NULL A 0 A_SpawnItem("DarkCyberGhostD",0,0)
-    DCYB D 3 A_Chase
-      NULL A 0 A_SpawnItem("DarkCyberGhostD",0,0)
-    Loop
-  Missile:
-	NULL A 0 A_Jump(160,6)	//160
-    DCYB AE 5 A_FaceTarget
-    DCYB E 5 A_FaceTarget
-    DCYB F 10 A_CustomMissile("DCBMiss1",56,-25,0)
-    DCYB E 15 A_FaceTarget
-    Goto See
-	NULL A 0 A_Jump(160,31) //160
-	NULL A 0 A_SetInvulnerable
-    DCYB G 20 A_PlaySound("Apocalypse/cast")
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,20)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,40)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,60)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,80)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,100)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,120)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,140)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,160)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-20)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-40)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-60)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-80)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-100)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-120)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-140)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-160)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,180)
-    DCYB G 10 A_CustomMissile("DCBMiss3",50,0,0)
-	DCYB GGGGGGGG 10
-	NULL A 0 A_UnsetInvulnerable
-	DCYB G 10
-    Goto See
-    DCYB AE 3 A_FaceTarget
-    DCYB E 4 A_FaceTarget
-    DCYB F 4 A_CustomMissile("DCBMiss2",56,-25,0)
-    DCYB E 4 A_FaceTarget
-    DCYB F 4 A_CustomMissile("DCBMiss2",56,-25,0)
-    DCYB E 4 A_FaceTarget
-    DCYB F 4 A_CustomMissile("DCBMiss2",56,-25,0)
-    DCYB E 4 A_FaceTarget
-    DCYB F 4 A_CustomMissile("DCBMiss2",56,-25,0)
-    DCYB E 4 A_FaceTarget
-    DCYB F 4 A_CustomMissile("DCBMiss2",56,-25,0)
-    DCYB E 4 A_FaceTarget
-    DCYB F 4 A_CustomMissile("DCBMiss2",56,-25,0)
-    DCYB E 4 A_FaceTarget
-    DCYB F 4 A_CustomMissile("DCBMiss2",56,-25,0)
-    DCYB E 4 A_FaceTarget
-    DCYB F 4 A_CustomMissile("DCBMiss2",56,-25,0)
-    DCYB E 4 A_FaceTarget
-    DCYB F 4 A_CustomMissile("DCBMiss2",56,-25,0)
-    DCYB E 4 A_FaceTarget
-    DCYB F 4 A_CustomMissile("DCBMiss2",56,-25,0)
-    Goto See
-  Pain:
-    DCYB G 2
-    DCYB G 2 A_Pain
-    Goto See
-  Death:
-    DCYB H 5
-    DCYB I 5 A_Scream
-    NULL A 0 A_CustomMissile("BDS",0,0,0)
-    DCYB JKLMNO 5
-    DCYB P -1 A_NoBlocking
-    Stop
-  }
+	Health 3200
+	Speed 5.33333333
+	PainChance 35
+	Mass 2000
+	Scale 1.1
+	Bloodcolor "00 aa 00"
+	+MISSILEEVENMORE
+	+LOOKALLAROUND
+	MinMissileChance 5
+	SEESOUND "Thamuz/Idlesight"
+	PAINSOUND "Thamuz/Pain"
+	DEATHSOUND "Thamuz/death"
+	ACTIVESOUND "Thamuz/Idlesight"
+	OBITUARY "%o fell before Thamuz."
+	var int user_theta;
+	states
+	{
+	Spawn:
+		DCYB A 10 A_Look
+		Loop
+	See:
+		"####" A 1 A_Chase
+		"####" AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" A 0 A_SpawnItemEx("ThamuzGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		"####" A 1 A_Chase
+		"####" AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" A 0 A_SpawnItemEx("ThamuzGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		"####" B 1 A_Chase
+		"####" BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" B 0 A_SpawnItemEx("ThamuzGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		"####" B 1 A_Chase
+		"####" BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" B 0 A_SpawnItemEx("ThamuzGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		"####" C 1 A_Chase
+		"####" CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" C 0 A_SpawnItemEx("ThamuzGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		"####" C 1 A_Chase
+		"####" CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" C 0 A_SpawnItemEx("ThamuzGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		"####" D 1 A_Chase
+		"####" DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" D 0 A_SpawnItemEx("ThamuzGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		"####" D 1 A_Chase
+		"####" DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" D 0 A_SpawnItemEx("ThamuzGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		Loop
+	Missile:
+		"####" A 0 A_Jump(160,"Missile2")	//160
+		"####" AEE 5 A_FaceTarget
+		"####" F 10 A_CustomMissile("DCBMiss1",56,-25)
+		"####" E 15 A_FaceTarget
+		Goto See
+	Missile2:
+		"####" A 0 A_Jump(160,"Missile3") //160
+		"####" A 0 A_SetInvulnerable
+		"####" G 20 A_PlaySound("Apocalypse/cast")
+	Shock:
+		"####" G 0 A_CustomMissile("DCBMiss3",50,0,user_theta)
+		"####" G 0 A_SetUserVar("user_theta",user_theta+20)
+		"####" G 0 A_JumpIf(user_theta==360,1)
+		Loop
+		"####" G 90 A_SetUserVar("user_theta",0)
+		"####" G 10 A_UnsetInvulnerable
+		Goto See
+	Missile3:
+		DCYB AE 3 A_FaceTarget
+		DCYB E 4 A_FaceTarget
+		DCYB F 4 A_CustomMissile("DCBMiss2",56,-25)
+		DCYB E 4 A_FaceTarget
+		DCYB F 4 A_CustomMissile("DCBMiss2",56,-25)
+		DCYB E 4 A_FaceTarget
+		DCYB F 4 A_CustomMissile("DCBMiss2",56,-25)
+		DCYB E 4 A_FaceTarget
+		DCYB F 4 A_CustomMissile("DCBMiss2",56,-25)
+		DCYB E 4 A_FaceTarget
+		DCYB F 4 A_CustomMissile("DCBMiss2",56,-25)
+		DCYB E 4 A_FaceTarget
+		DCYB F 4 A_CustomMissile("DCBMiss2",56,-25)
+		DCYB E 4 A_FaceTarget
+		DCYB F 4 A_CustomMissile("DCBMiss2",56,-25)
+		DCYB E 4 A_FaceTarget
+		DCYB F 4 A_CustomMissile("DCBMiss2",56,-25)
+		DCYB E 4 A_FaceTarget
+		DCYB F 4 A_CustomMissile("DCBMiss2",56,-25)
+		DCYB E 4 A_FaceTarget
+		DCYB F 4 A_CustomMissile("DCBMiss2",56,-25)
+		Goto See
+	Pain:
+		"####" G 2
+		"####" G 2 A_Pain
+		"####" G 0 A_Jump(256,"See")
+	Death:
+		"####" GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG 1 A_SpawnItemEx("Thamuz_Blood",Random(-32,32),Random(-32,32),Random(0,64),Random(-16,16),Random(-16,16),Random(-16,16))
+		"####" H 0 A_PlaySound("SFX\Explosion1")
+		"####" HHHH 5 A_SpawnItemEx("Explosion_Green_A1A",Random(-64,64),Random(-64,64),Random(0,60))
+		"####" H 0 A_PlaySound("SFX\Explosion1")
+		"####" HHH 5 A_SpawnItemEx("Explosion_Green_A1A",Random(-64,64),Random(-64,64),Random(0,60))
+		"####" I 7 A_Scream
+		"####" A 0 A_PlaySound("Thamuz/death2",5)
+		"####" JJJJJJJKKKKKKKK 1 A_CustomMissile("SFX_Wraith",Random(0,64),0,Random(0,359),2,Random(-16,16))
+		"####" A 0 A_SpawnItemEx("Explosion_Green_A1A",Random(-64,64),Random(-64,64),Random(0,60))
+		"####" AAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("Thamuz_Blood",Random(-64,64),Random(-64,64),Random(0,128),Random(-16,16),Random(-16,16),Random(-16,16))
+		"####" MMMMMMMNNNNNNNOOOOOOO 1 A_CustomMissile("SFX_Wraith",Random(0,64),0,Random(0,359),2,Random(-16,16))
+		"####" P -1 A_NoBlocking
+		Stop
+	}
 }
 
 ///////////////////////////////////////////// TCHERNO START
 
 Actor Tchernobog : Thamuz 7258
 {
-  Bloodcolor "aa 00 00"
-  states
-  {
-  Spawn:
-    TCHR A 10 A_Look
-    Loop
-  See:
-    TCHR A 3 A_Chase
-      NULL A 0 A_SpawnItem("TchernoGhostA",0,0)
-    TCHR A 3 A_Chase
-      NULL A 0 A_SpawnItem("TchernoGhostA",0,0)
-    TCHR A 3 A_Chase
-      NULL A 0 A_SpawnItem("TchernoGhostB",0,0)
-    TCHR B 3 A_Chase
-      NULL A 0 A_SpawnItem("TchernoGhostB",0,0)
-    TCHR C 3 A_Chase
-      NULL A 0 A_SpawnItem("TchernoGhostC",0,0)
-    TCHR C 3 A_Chase
-      NULL A 0 A_SpawnItem("TchernoGhostC",0,0)
-    TCHR D 3 A_Chase
-      NULL A 0 A_SpawnItem("TchernoGhostD",0,0)
-    TCHR D 3 A_Chase
-      NULL A 0 A_SpawnItem("TchernoGhostD",0,0)
-    Loop
-  Missile:
-	NULL A 0 A_Jump(160,6)	//160
-    TCHR AE 5 A_FaceTarget
-    TCHR E 5 A_FaceTarget
-    TCHR F 10 A_CustomMissile("DCBMiss1",56,-25,0)
-    TCHR E 15 A_FaceTarget
-    Goto See
-	NULL A 0 A_Jump(160,31) //160
-	NULL A 0 A_SetInvulnerable
-    TCHR G 20 A_PlaySound("Apocalypse/cast")
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,20)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,40)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,60)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,80)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,100)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,120)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,140)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,160)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-20)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-40)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-60)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-80)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-100)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-120)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-140)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,-160)
-    NULL A 0 A_CustomMissile("DCBMiss3",50,0,180)
-    TCHR G 10 A_CustomMissile("DCBMiss3",50,0,0)
-	TCHR GGGGGGGG 10
-	NULL A 0 A_UnsetInvulnerable
-	TCHR G 10
-    Goto See
-    TCHR AE 3 A_FaceTarget
-    TCHR F 4 BRIGHT A_FaceTarget
-    TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64,0,0)
-    TCHR F 4 BRIGHT A_FaceTarget
-    TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64,0,0)
-    TCHR F 4 BRIGHT A_FaceTarget
-    TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64,0,0)
-    TCHR F 4 BRIGHT A_FaceTarget
-    TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64,0,0)
-    TCHR F 4 BRIGHT A_FaceTarget
-    TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64,0,0)
-    TCHR F 4 BRIGHT A_FaceTarget
-    TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64,0,0)
-    TCHR F 4 BRIGHT A_FaceTarget
-    TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64,0,0)
-    TCHR F 4 BRIGHT A_FaceTarget
-    TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64,0,0)
-    TCHR F 4 BRIGHT A_FaceTarget
-    TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64,0,0)
-    TCHR F 4 BRIGHT A_FaceTarget
-    TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64,0,0)
-    Goto See
-  Pain:
-    TCHR G 2
-    TCHR G 2 A_Pain
-    Goto See
-  Death:
-    TCHR Q 5
-    TCHR Q 5 A_Scream
-    NULL A 0 A_CustomMissile("BDS",0,0,0)
-    TCHR QRSTUVWX 5
-    TNT1 A -1 A_NoBlocking
-    Stop
-  }
+	//OBITUARY "%o fell before Tchernobog."
+	Bloodcolor "aa 00 00"
+	states
+	{
+	Spawn:
+		TCHR A 10 A_Look
+		Loop
+	Missile3:
+		TCHR AE 3 A_FaceTarget
+		TCHR F 4 BRIGHT A_FaceTarget
+		TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64)
+		TCHR F 4 BRIGHT A_FaceTarget
+		TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64)
+		TCHR F 4 BRIGHT A_FaceTarget
+		TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64)
+		TCHR F 4 BRIGHT A_FaceTarget
+		TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64)
+		TCHR F 4 BRIGHT A_FaceTarget
+		TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64)
+		TCHR F 4 BRIGHT A_FaceTarget
+		TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64)
+		TCHR F 4 BRIGHT A_FaceTarget
+		TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64)
+		TCHR F 4 BRIGHT A_FaceTarget
+		TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64)
+		TCHR F 4 BRIGHT A_FaceTarget
+		TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64)
+		TCHR F 4 BRIGHT A_FaceTarget
+		TCHR F 4 BRIGHT A_CustomMissile("DCBMiss2",64)
+		Goto See
+	}
 }
 
-ACTOR TchernoGhostA
+ACTOR ThamuzGhost
 {
-   Radius 2
-   Height 2
-   Speed 0
-   Scale 1.1
-   PROJECTILE
-   RENDERSTYLE Translucent
-   ALPHA 0.6
-   States
-   {
-   Spawn:
-      NULL A 3
-      TCHR A 3 A_FadeOut(0.10)
-      goto spawn+1
-   }
-}
-
-ACTOR TchernoGhostB : TchernoGhostA
-{
-   States
-   {
-   Spawn:
-      NULL A 3
-      TCHR B 3 A_FadeOut(0.10)
-      goto spawn+1
-   }
-}
-
-ACTOR TchernoGhostC : TchernoGhostA
-{
-   States
-   {
-   Spawn:
-      NULL A 3
-      TCHR C 3 A_FadeOut(0.10)
-      goto spawn+1
-   }
-}
-
-ACTOR TchernoGhostD : TchernoGhostA
-{
-   States
-   {
-   Spawn:
-      NULL A 3
-      TCHR D 3 A_FadeOut(0.10)
-      goto spawn+1
-   }
-}
-
-///////////////////////////////////// TCHERNOBOG END
-
-Actor BDS
-{
-   Radius 1
-   Height 1
-   Speed 1
-   SeeSound "Thamuz/death2"
-   PROJECTILE
-   States
-   {
-   Spawn:
-      NULL A 1
-	Stop
-   }
-}
-
-ACTOR DarkCyberGhostA
-{
-   Radius 2
-   Height 2
-   Speed 0
-   Scale 1.1
-   PROJECTILE
-   RENDERSTYLE Translucent
-   ALPHA 0.6
-   States
-   {
-   Spawn:
-      NULL A 3
-      DCYB A 3 A_FadeOut(0.10)
-      goto spawn+1
-   }
-}
-
-ACTOR DarkCyberGhostB : DarkCyberGhostA
-{
-   States
-   {
-   Spawn:
-      NULL A 3
-      DCYB B 3 A_FadeOut(0.10)
-      goto spawn+1
-   }
-}
-
-ACTOR DarkCyberGhostC : DarkCyberGhostA
-{
-   States
-   {
-   Spawn:
-      NULL A 3
-      DCYB C 3 A_FadeOut(0.10)
-      goto spawn+1
-   }
-}
-
-ACTOR DarkCyberGhostD : DarkCyberGhostA
-{
-   States
-   {
-   Spawn:
-      NULL A 3
-      DCYB D 3 A_FadeOut(0.10)
-      goto spawn+1
-   }
+	Radius 2
+	Height 2
+	Scale 1.1
+	PROJECTILE
+	ALPHA 0
+	States
+	{
+	Spawn:
+		"####" "#" 3
+		"####" "#" 0 A_SetTranslucent(.6)
+		"####" "#" 3 A_FadeOut
+		Wait
+	}
 }
 
 //************************************
@@ -1659,63 +1304,70 @@ ACTOR DCBMiss1
 	Speed 6
 	Damage 30
 	PROJECTILE
-      +SeekerMissile
-      +ExtremeDeath
+	+SeekerMissile
+	+ExtremeDeath
 	Renderstyle Add
 	SEESOUND "q2weapon/bfgball"
-    DEATHSOUND "q2weapon/bfgballexplo"
+	DEATHSOUND "q2weapon/bfgballexplo"
 	states
 	{
 	Spawn:
-		CBTS A 2 BRIGHT A_SeekerMissile(10,90)
-		NULL A 0 BRIGHT A_CustomMissile("DCBM1Trail",0,0,0)
-		CBTS B 2 BRIGHT A_SeekerMissile(10,90)
-		NULL A 0 BRIGHT A_CustomMissile("DCBM1Trail",0,0,0)
-		CBTS C 2 BRIGHT A_SeekerMissile(10,90)
-		NULL A 0 BRIGHT A_CustomMissile("DCBM1Trail",0,0,0)
-		CBTS D 2 BRIGHT A_SeekerMissile(10,90)
-		NULL A 0 BRIGHT A_CustomMissile("DCBM1Trail",0,0,0)
-		CBTS E 2 BRIGHT A_SeekerMissile(10,90)
-		NULL A 0 BRIGHT A_CustomMissile("DCBM1Trail",0,0,0)
-		CBTS F 2 BRIGHT A_SeekerMissile(10,90)
-		NULL A 0 BRIGHT A_CustomMissile("DCBM1Trail",0,0,0)
-		CBTS G 2 BRIGHT A_SeekerMissile(10,90)
-		NULL A 0 BRIGHT A_CustomMissile("DCBM1Trail",0,0,0)
-		CBTS H 2 BRIGHT A_SeekerMissile(10,90)
-		NULL A 0 BRIGHT A_CustomMissile("DCBM1Trail",0,0,0)
-		CBTS I 2 BRIGHT A_SeekerMissile(10,90)
-		NULL A 0 BRIGHT A_CustomMissile("DCBM1Trail",0,0,0)
-		CBTS J 2 BRIGHT A_SeekerMissile(10,90)
-		NULL A 0 BRIGHT A_CustomMissile("DCBM1Trail",0,0,0)
+		CBTS A 2 BRIGHT LIGHT("ThamuzMissile_1") A_SeekerMissile(10,90)
+		TNT1 A 0 A_SpawnItemEx("DCBM1Trail")
+		CBTS B 2 BRIGHT LIGHT("ThamuzMissile_1") A_SeekerMissile(10,90)
+		TNT1 A 0 A_SpawnItemEx("DCBM1Trail")
+		CBTS C 2 BRIGHT LIGHT("ThamuzMissile_1") A_SeekerMissile(10,90)
+		TNT1 A 0 A_SpawnItemEx("DCBM1Trail")
+		CBTS D 2 BRIGHT LIGHT("ThamuzMissile_1") A_SeekerMissile(10,90)
+		TNT1 A 0 A_SpawnItemEx("DCBM1Trail")
+		CBTS E 2 BRIGHT LIGHT("ThamuzMissile_1") A_SeekerMissile(10,90)
+		TNT1 A 0 A_SpawnItemEx("DCBM1Trail")
+		CBTS F 2 BRIGHT LIGHT("ThamuzMissile_1") A_SeekerMissile(10,90)
+		TNT1 A 0 A_SpawnItemEx("DCBM1Trail")
+		CBTS G 2 BRIGHT LIGHT("ThamuzMissile_1") A_SeekerMissile(10,90)
+		TNT1 A 0 A_SpawnItemEx("DCBM1Trail")
+		CBTS H 2 BRIGHT LIGHT("ThamuzMissile_1") A_SeekerMissile(10,90)
+		TNT1 A 0 A_SpawnItemEx("DCBM1Trail")
+		CBTS I 2 BRIGHT LIGHT("ThamuzMissile_1") A_SeekerMissile(10,90)
+		TNT1 A 0 A_SpawnItemEx("DCBM1Trail")
+		CBTS J 2 BRIGHT LIGHT("ThamuzMissile_1") A_SeekerMissile(10,90)
+		TNT1 A 0 A_SpawnItemEx("DCBM1Trail")
 		Loop
 	Death:
-		NULL AAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		NULL AAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		NULL AAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		NULL AAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		CBTS K 2 BRIGHT A_Explode(140,140)
-		CBTS LMNOPQRSTUVW 2 BRIGHT
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		CBTS K 2 BRIGHT LIGHT("ThamuzMissile_1X_1") A_Explode(140)
+		CBTS L 2 BRIGHT LIGHT("ThamuzMissile_1X_2")
+		CBTS M 2 BRIGHT LIGHT("ThamuzMissile_1X_3")
+		CBTS N 2 BRIGHT LIGHT("ThamuzMissile_1X_4")
+		CBTS O 2 BRIGHT LIGHT("ThamuzMissile_1X_5")
+		CBTS P 2 BRIGHT LIGHT("ThamuzMissile_1X_6")
+		CBTS Q 2 BRIGHT LIGHT("ThamuzMissile_1X_7")
+		CBTS R 2 BRIGHT LIGHT("ThamuzMissile_1X_8")
+		CBTS S 2 BRIGHT LIGHT("ThamuzMissile_1X_9")
+		CBTS T 2 BRIGHT LIGHT("ThamuzMissile_1X_10")
+		CBTS U 2 BRIGHT LIGHT("ThamuzMissile_1X_11")
+		CBTS V 2 BRIGHT LIGHT("ThamuzMissile_1X_12")
+		CBTS W 2 BRIGHT LIGHT("ThamuzMissile_1X_13")
 		Stop
 	}
 }
 
 ACTOR DCBM1Trail
 {
-   Radius 1
-   Height 1
-   Speed 0
-   Scale 0.8
-   +Noclip
-   PROJECTILE
-   RENDERSTYLE Add
-   Alpha 0.6
-   states
-   {
-   Spawn:
-      NULL A 4
-      CBTS LMNOPQRSTUVW 2 Bright A_FadeOut
-      Stop
-   }
+	Radius 1
+	Height 1
+	Scale 0.8
+	+Noclip
+	PROJECTILE
+	RENDERSTYLE Add
+	Alpha 0.6
+	states
+	{
+	Spawn:
+		TNT1 A 4
+		CBTS LMNOPQRSTUVW 2 Bright A_FadeOut
+		Stop
+	}
 }
 //************************************
 ACTOR DCBMiss2
@@ -1727,16 +1379,25 @@ ACTOR DCBMiss2
 	Damage 10
 	RENDERSTYLE Add
 	PROJECTILE
-	Translation "160:167=120:127", "208:223=120:127"
+	Translation "160:167=120:127","208:223=120:127"
 	SEESOUND "q2weapon/rocketlauncherfire"
-    DEATHSOUND "q2weapon/rocketexplo"
+	DEATHSOUND "q2weapon/rocketexplo"
 	states
 	{
 	Spawn:
-		THZ4 A 1 BRIGHT A_CustomMissile("DCBMiss2Trail",0,0,0)
+		THZ4 A 1 BRIGHT LIGHT("ThamuzMissile_2") A_SpawnItemEx("DCBMiss2Trail")
 		Loop
 	Death:
-		FSFX DEFGHIJKLM 2 BRIGHT
+		FSFX D 2 BRIGHT LIGHT("ThamuzMissile_2X_1")
+		FSFX E 2 BRIGHT LIGHT("ThamuzMissile_2X_2")
+		FSFX F 2 BRIGHT LIGHT("ThamuzMissile_2X_3")
+		FSFX G 2 BRIGHT LIGHT("ThamuzMissile_2X_4")
+		FSFX H 2 BRIGHT LIGHT("ThamuzMissile_2X_5")
+		FSFX I 2 BRIGHT LIGHT("ThamuzMissile_2X_6")
+		FSFX J 2 BRIGHT LIGHT("ThamuzMissile_2X_7")
+		FSFX K 2 BRIGHT LIGHT("ThamuzMissile_2X_8")
+		FSFX L 2 BRIGHT LIGHT("ThamuzMissile_2X_9")
+		FSFX M 2 BRIGHT LIGHT("ThamuzMissile_2X_10")
 		Stop
 	}
 }
@@ -1744,21 +1405,20 @@ ACTOR DCBMiss2
 
 ACTOR DCBMiss2Trail
 {
-   Radius 1
-   Height 1
-   Speed 0
-   Scale 0.25
-   +Noclip
-   PROJECTILE
-   RENDERSTYLE Add
-   Alpha 0.4
-   states
-   {
-   Spawn:
-		FSFX DEFGHIJKLM 1 BRIGHT
+	Radius 1
+	Height 1
+	Scale 0.25
+	+Noclip
+	PROJECTILE
+	RENDERSTYLE Add
+	Alpha 0.4
+	states
+	{
+	Spawn:
+		FSFX DEFGHIJKL 1 BRIGHT
 		FSFX M 1 Bright A_FadeOut
-      Wait
-   }
+		Wait
+	}
 }
 
 //************************************
@@ -1768,7 +1428,6 @@ ACTOR DCBMiss3
 	Height 1
 	Health 5
 	Speed 8
-	Damage 0
 	Scale 2
 	RENDERSTYLE Add
 	+BloodLessImpact
@@ -1779,15 +1438,14 @@ ACTOR DCBMiss3
 	states
 	{
 	Spawn:
-		NULL A 2 A_Gravity
+		TNT1 A 2 A_Gravity
 		Loop
 	Death:
-		FSFX NNNOOOPPPQQQRRRSSSTTTNNNOOOPPPQQQRRRSSSTTT 1 Bright A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX Z 0 A_CustomMissile("DCBMiss3M",0,0,180)
+		FSFX NNNOOOPPPQQQRRRSSSTTTNNNOOOPPPQQQRRRSSSTTT 1 BRIGHT LIGHT("ThamuzMissile_3") A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		TNT1 A 0 A_CustomMissile("DCBMiss3M",0,0,180)
 		Stop
 	}
 }
-
 
 ACTOR DCBMiss3M
 {
@@ -1803,64 +1461,38 @@ ACTOR DCBMiss3M
 	states
 	{
 	Spawn:
-		FSFX N 1 Bright A_SpawnItem("DCBMiss3MG",0,0)
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX N 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX N 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX O 1 Bright A_SpawnItem("DCBMiss3MG",0,0)
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX O 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX O 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX P 1 Bright A_SpawnItem("DCBMiss3MG",0,0)
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX P 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX P 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX Q 1 Bright A_SpawnItem("DCBMiss3MG",0,0)
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX Q 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX Q 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX R 1 Bright A_SpawnItem("DCBMiss3MG",0,0)
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX R 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX R 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX S 1 Bright A_SpawnItem("DCBMiss3MG",0,0)
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX S 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX S 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX T 1 Bright A_SpawnItem("DCBMiss3MG",0,0)
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX T 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX T 1 Bright
-		NULL AA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		FSFX N 1 Bright LIGHT("ThamuzMissile_3") A_SpawnItemEx("DCBMiss3MG")
+		FSFX NNOOOPPPQQQRRRSSSTTT 1 Bright LIGHT("ThamuzMissile_3") A_SpawnItemEx("DCBMiss3Extra")
 		Loop
 	Death:
-		NULL A 0 A_Explode(128,96)
-		NULL AAAAAAAAAA 0 A_SpawnItemEx("DCBMiss3Extra",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
-		FSFX UVW 3 Bright
+		TNT1 A 0 A_Explode(128,96)
+		TNT1 AAAAA 0 A_SpawnItemEx("DCBMiss3Extra")
+		FSFX U 3 Bright LIGHT("ThamuzMissile_3X_1")
+		FSFX V 3 Bright LIGHT("ThamuzMissile_3X_2")
+		FSFX W 3 Bright LIGHT("ThamuzMissile_3X_3")
 		Stop
 	}
 }
 
-Actor DCBMiss3Extra
+ACTOR DCBMiss3Extra
+{
+	+NOBLOCKMAP
+	+NOGRAVITY
+	Radius 1
+	Height 1
+	States
+	{
+	Spawn:
+		TNT1 AA 0 NODELAY A_SpawnItemEx("DCBMiss3Extra2",0,0,5,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		Stop
+	}
+}
+Actor DCBMiss3Extra2
 {
 	Projectile
 	Damage 2
 	+RIPPER
 	+BLOODLESSIMPACT
-	Speed 0
 	Radius 1
 	Height 1
 	Scale 0.18
@@ -1870,36 +1502,32 @@ Actor DCBMiss3Extra
 	{
 	Spawn:
 		CBTS SS 1 Bright A_Explode(12,32)
-		NULL A 0 A_Jump(120,1)
+		TNT1 A 0 A_Jump(120,1)
 		Loop
 		CBTS SSS 1 Bright A_Explode(12,32)
 		CBTS S 1 Bright A_FadeOut
 		Wait
-	Death:
-		NULL A 1
-		Stop
 	}
 }
 
 ACTOR DCBMiss3MG
 {
-   Radius 1
-   Height 1
-   Speed 0
-   Scale 0.8
-//   +Noclip
-   PROJECTILE
-   +RIPPER
-   Damage 5
-   RENDERSTYLE Add
-   Alpha 0.6
-   states
-   {
-   Spawn:
-      NULL A 4
-      FSFX NOPQRST 3 Bright
-      Stop
-   }
+	Radius 1
+	Height 1
+	Scale 0.8
+//	+Noclip
+	PROJECTILE
+	+RIPPER
+	Damage 5
+	RENDERSTYLE Add
+	Alpha 0.6
+	states
+	{
+	Spawn:
+		TNT1 A 4
+		FSFX NOPQRST 3 Bright
+		Stop
+	}
 }
 
 ////////////
@@ -1907,91 +1535,101 @@ ACTOR DCBMiss3MG
 ////////////
 actor Vulgar : DoomImp 30127
 {
-  obituary "%o was poisoned by a vulgar."
-  hitobituary "A Vulgar had %o for lunch."
-  health 100
-  radius 20
-  height 56
-  mass 120
-  speed 8
-  painchance 120
-  MeleeDamage 4
-  +DONTHURTSPECIES
-  seesound "monster/vulsit"
-  painsound "monster/vulpai"
-  deathsound "monster/vuldth"
-  activesound "monster/vulact"
-  meleesound "monster/vulhit"
-  DropItem "Heart" 128
-  MONSTER
-  +FLOORCLIP
-  states
-  {
-  Spawn:
-    VULG AB 10 A_Look
-    loop
-  See:
-    VULG AABBCCDD 3 A_Chase
-    loop
-  Melee:
-    Missile:
-    VULG E 8 A_FaceTarget
-    VULG F 1 A_PlaySound("monster/vulswg")
-    VULG F 7 A_FaceTarget
-    VULG G 6 A_MeleeAttack
-    goto See
-  Missile:
-    VULG EF 8 A_FaceTarget
-    VULG G 6 A_CustomMissile("VulgarShot",37,0,0,0,0)
-    goto See
-  Pain:
-    VULG H 2
-    VULG H 2 A_Pain
-    goto See
-  Death:
-    VULG I 8
-    VULG J 8 A_Scream
-    VULG KL 6
-    VULG M 6 A_NoBlocking
-    VULG N -1
-    stop
-  XDeath:
-    VULG O 5
-    VULG P 5 A_XScream
-    VULG Q 5
-    VULG R 5 A_NoBlocking
-    VULG STU 5
-    VULG V -1
-    stop
-  Raise:
-    VULG ML 8
-    VULG KJI 6
-    goto See
-  }
+	obituary "%o was poisoned by a vulgar."
+	hitobituary "A Vulgar had %o for lunch."
+	health 100
+	mass 120
+	speed 2.66666667
+	painchance 120
+	seesound "monster/vulsit"
+	painsound "monster/vulpai"
+	deathsound "monster/vuldth"
+	activesound "monster/vulact"
+	DropItem "Heart" 128
+	states
+	{
+	Spawn:
+		VULG AB 10 A_Look
+		loop
+	See:
+		VULG A 1 A_Chase
+		VULG AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		VULG A 1 A_Chase
+		VULG AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		VULG B 1 A_Chase
+		VULG BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		VULG B 1 A_Chase
+		VULG BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		VULG C 1 A_Chase
+		VULG CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		VULG C 1 A_Chase
+		VULG CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		VULG D 1 A_Chase
+		VULG DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		VULG D 1 A_Chase
+		VULG DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		loop
+	Melee:
+		VULG E 8 A_FaceTarget
+		VULG F 1 A_PlaySound("monster/vulswg")
+		VULG F 7 A_FaceTarget
+		VULG G 6 A_CustomMeleeAttack(4*random(1,8),"monster/vulhit")
+		goto See
+	Missile:
+		VULG EF 8 A_FaceTarget
+		VULG G 6 A_CustomMissile("VulgarShot",37)
+		goto See
+	Pain:
+		VULG H 2
+		VULG H 2 A_Pain
+		goto See
+	Death:
+		VULG I 8
+		VULG J 8 A_Scream
+		VULG KL 6
+		VULG M 6 A_NoBlocking
+		VULG N -1
+		stop
+	XDeath:
+		VULG O 5
+		VULG P 5 A_XScream
+		VULG Q 5
+		VULG R 5 A_NoBlocking
+		VULG STU 5
+		VULG V -1
+		stop
+	Raise:
+		VULG ML 8
+		VULG KJI 6
+		goto See
+	}
 }
 
 ACTOR VulgarShot
 {
-   Radius 8
-   Height 16
-   Speed 10
-   Damage 4
-   PoisonDamage 32
-   RENDERSTYLE ADD
-   ALPHA 0.67
-   PROJECTILE
-   +THRUGHOST
-   Seesound "poly/stmdr1"
-   DeathSound "weapons/bloodx"
-   States
-   {
-   Spawn:
-      FVUL AAABBB 1 Bright
-      loop
-   Death:
-      FVUL CDEF 4 Bright
-      stop
-   }
+	Radius 8
+	Height 16
+	Speed 10
+	Damage 4
+	PoisonDamage 32
+	RENDERSTYLE ADD
+	ALPHA 0.67
+	PROJECTILE
+	+THRUGHOST
+	Seesound "poly/stmdr1"
+	DeathSound "weapons/bloodx"
+	States
+	{
+	Spawn:
+		FVUL AB 3 Bright LIGHT("VulgarShot")
+		loop
+	Death:
+		FVUL C 4 Bright LIGHT("VulgarShotX_1")
+		FVUL D 4 Bright LIGHT("VulgarShotX_2")
+		FVUL E 4 Bright LIGHT("VulgarShotX_3")
+		FVUL F 4 Bright LIGHT("VulgarShotX_4")
+		stop
+	}
 }
 
 
@@ -2001,63 +1639,78 @@ ACTOR VulgarShot
 ///////////////////
 ACTOR ESoul 29012
 {
-  obituary "%o's soul was leeched by the etheral soul"
-  health 180
-  radius 16
-  height 32
-  mass 400
-  speed 5
-  damage 5
-  painchance 128
-  renderstyle Add
-  DropItem "Heart" 160
-  Alpha 0.4
-  attacksound "skull/melee"
-  PainSound "nightmare/pain"
-  DeathSound "nightmare/death"
-  ActiveSound "nightmare/active"
-  MONSTER
-  +FLOAT
-  +NOGRAVITY
-  +NOICEDEATH
-  +MISSILEMORE
-  +DONTFALL
-  +STEALTH
-  +NOBLOOD
-  states
-  {
-  Spawn:
-    ETHS ABCD 10 bright A_Look
-    loop
-  See:
-    ETHS AABBCCDD 3 bright A_Chase
-    loop
-  Missile:
-    ETHS C 0 bright A_Jump(128,9)
-    ETHS C 6 bright A_FaceTarget
-    ETHS E 4 bright A_SkullAttack
-    ETHS E 0 bright A_FaceTarget
-    ETHS F 4 bright A_SkullAttack
-    ETHS F 0 bright A_FaceTarget
-    ETHS E 4 bright A_SkullAttack
-    ETHS E 0 bright A_FaceTarget
-    ETHS F 4 bright A_SkullAttack
-    goto See
-    ETHS P 3 bright A_FaceTarget
-    ETHS Q 4 bright A_FaceTarget
-    ETHS R 5 bright A_CustomMissile("ShadowBall", 0, 0, 0)
-    ETHS E 4 bright
-    goto See
-  Pain:
-    ETHS G 3 bright
-    ETHS G 3 bright A_Pain
-    goto See
-  Death:
-    ETHS F 3 bright
-    ETHS H 3 bright A_ScreamAndUnblock
-    ETHS IJKLMNO 3 bright
-    stop
-  }
+	obituary "%o's soul was leeched by the etheral soul"
+	health 180
+	radius 16
+	height 32
+	mass 400
+	speed 1.66666667
+	damage 5
+	painchance 128
+	renderstyle Add
+	DropItem "Heart" 160
+	Alpha 0.4
+	attacksound "skull/melee"
+	PainSound "nightmare/pain"
+	DeathSound "nightmare/death"
+	ActiveSound "nightmare/active"
+	MONSTER
+	+FLOAT
+	+NOGRAVITY
+	+NOICEDEATH
+	+MISSILEMORE
+	+DONTFALL
+	+STEALTH
+	+NOBLOOD
+	states
+	{
+	Spawn:
+		ETHS ABCD 10 bright A_Look
+		loop
+	See:
+		ETHS A 1 bright A_Chase
+		ETHS AA 1 bright A_Chase("","",CHF_NOPLAYACTIVE)
+		ETHS A 1 bright A_Chase
+		ETHS AA 1 bright A_Chase("","",CHF_NOPLAYACTIVE)
+		ETHS B 1 bright A_Chase
+		ETHS BB 1 bright A_Chase("","",CHF_NOPLAYACTIVE)
+		ETHS B 1 bright A_Chase
+		ETHS BB 1 bright A_Chase("","",CHF_NOPLAYACTIVE)
+		ETHS C 1 bright A_Chase
+		ETHS CC 1 bright A_Chase("","",CHF_NOPLAYACTIVE)
+		ETHS C 1 bright A_Chase
+		ETHS CC 1 bright A_Chase("","",CHF_NOPLAYACTIVE)
+		ETHS D 1 bright A_Chase
+		ETHS DD 1 bright A_Chase("","",CHF_NOPLAYACTIVE)
+		ETHS D 1 bright A_Chase
+		ETHS DD 1 bright A_Chase("","",CHF_NOPLAYACTIVE)
+		loop
+	Missile:
+		ETHS C 0 A_Jump(128,9)
+		ETHS C 6 bright A_FaceTarget
+		ETHS E 4 bright A_SkullAttack
+		ETHS E 0 A_FaceTarget
+		ETHS F 4 bright A_SkullAttack
+		ETHS F 0 A_FaceTarget
+		ETHS E 4 bright A_SkullAttack
+		ETHS E 0 A_FaceTarget
+		ETHS F 4 bright A_SkullAttack
+		goto See
+		ETHS P 3 bright A_FaceTarget
+		ETHS Q 4 bright A_FaceTarget
+		ETHS R 5 bright A_CustomMissile("ShadowBall")
+		ETHS E 4 bright
+		goto See
+	Pain:
+		ETHS G 3 bright
+		ETHS G 3 bright A_Pain
+		goto See
+	Death:
+		ETHS F 3 bright
+		ETHS H 3 bright A_ScreamAndUnblock
+		ETHS IJKLMNO 3 bright
+		stop
+	}
 }
 
 
@@ -2067,61 +1720,64 @@ ACTOR ESoul 29012
 ////////////
 ACTOR DEWraith 30106
 {
-Health 50
-Radius 16
-Height 32
-Mass 50
-Speed 10
-Damage 2
-MeleeDamage 1
-RENDERSTYLE ADD
-OBITUARY "A wraith had it's way with %o."
-HITOBITUARY "%o got bitten by a wraith too many times."
-Alpha 0.67
-PainChance 64
-MONSTER
-+DontGib
-+NoTarget
-+NoGravity
-+Float
-+DontFall
-+DontHurtSpecies
-+ThruGhost
-ATTACKSOUND "monster/sprsit"
-MELEESOUND "monster/spratk"
-PAINSOUND "archvile/pain"
-DEATHSOUND "monster/sprdth"
-SpawnID 176
-states
-   {
-   Spawn:
-       WRAI AB 10 A_Look
-       Loop
-   See:
-       WRAI AABB 3 A_VileChase
-       Loop
-   Missile:
-       WRAI A 10 A_FaceTarget
-       WRAI B 4 A_SkullAttack
-       WRAI AB 4
-       Goto Missile+2
-   Melee:
-       WRAI A 5 A_FaceTarget
-       WRAI B 5 A_MeleeAttack
-       Goto See
-   Heal:
-       WRAI AB 3
-       Goto Death
-   Pain:
-       WRAI A 3
-       WRAI A 3 A_Pain
-       Goto See
-   Death:
-       WRAI E 4 A_NoBlocking
-       WRAI F 5 A_Scream
-       WRAI GHIJ 4
-       Stop
-   }
+	Health 50
+	Radius 16
+	Height 32
+	Mass 50
+	Speed 3.33333333
+	Damage 2
+	RENDERSTYLE ADD
+	OBITUARY "A wraith had its way with %o."
+	HITOBITUARY "%o got bitten by a wraith too many times."
+	Alpha 0.67
+	PainChance 64
+	MONSTER
+	+DontGib
+	+NoTarget
+	+NoGravity
+	+Float
+	+DontFall
+	+ThruGhost
+	ATTACKSOUND "monster/sprsit"
+	PAINSOUND "archvile/pain"
+	DEATHSOUND "monster/sprdth"
+	states
+	{
+	Spawn:
+		WRAI AB 10 A_Look
+		Loop
+	See:
+		WRAI A 1 A_VileChase
+		WRAI AA 1 A_Chase("","")
+		WRAI A 1 A_VileChase
+		WRAI AA 1 A_Chase("","")
+		WRAI B 1 A_VileChase
+		WRAI BB 1 A_Chase("","")
+		WRAI B 1 A_VileChase
+		WRAI BB 1 A_Chase("","")
+		Loop
+	Missile:
+		WRAI A 10 A_FaceTarget
+		WRAI B 4 A_SkullAttack
+		WRAI AB 4
+		Goto Missile+2
+	Melee:
+		WRAI A 5 A_FaceTarget
+		WRAI B 5 A_CustomMeleeAttack(random(1,8),"monster/spratk")
+		Goto See
+	Pain:
+		WRAI A 3
+		WRAI A 3 A_Pain
+		Goto See
+	Heal:
+		WRAI AB 3
+		TNT1 A 0 A_Die
+	Death:
+		WRAI E 4 A_NoBlocking
+		WRAI F 5 A_Scream
+		WRAI GHIJ 4
+		Stop
+	}
 }
 
 
@@ -2129,139 +1785,123 @@ states
 // SHOTGUN CULTIST //
 /////////////////////
 
-ACTOR ShotgunCultist 29011
+Actor TommyGunCultist 29011
 {
-  SpawnID 246
-  OBITUARY "%o was shot by a cultist with a thompson."
-  Health 60
-  Radius 20
-  Height 56
-  Mass 100
-  Speed 8
-  Scale 0.5
-  PainChance 100
-  SEESOUND "monster/culsit"
-  ATTACKSOUND "chainguy/attack"
-  PAINSOUND "monster/culpai"
-  DEATHSOUND "monster/culdth"
-  ACTIVESOUND "monster/culact"
-  DropItem "Clip" 255
-  DropItem "Clip" 255
-  MONSTER
-  +FloorClip
-  states
-  {
-  Spawn:
-    BCUL AB 10 A_Look
-    Loop
-  Frightened:
-    BCUL A 0 A_ChangeFlag("Frightened", 1)
-    BCUL AABBCCDD 3 A_Chase
-    loop
-  See:
-    BCUL A 0 A_JumpIfHealthLower(25, "Frightened")
-    BCUL AABBCCDD 3 A_Chase
-    Loop
-  Missile:
-    BCUL E 20 A_FaceTarget
-    BCUL FEFEFEFE 5 BRIGHT A_PosAttack
-    Goto See
-  Pain:
-    BCUL G 3
-    BCUL G 3 A_Pain
-    Goto See
-  Death:
-    BCUL H 5
-    BCUL I 5 A_Scream
-    BCUL J 5 A_NoBlocking
-    BCUL KLM 5
-    BCUL N -1
-    Stop
-  XDeath:
-    BCUL O 5
-    BCUL P 5 A_XScream
-    BCUL Q 5 A_NoBlocking
-    BCUL RST 5
-    BCUL U -1
-    Stop
-  Raise:
-    BCUL NMLKJIH 5
-    Goto See
-  }
+	OBITUARY "%o was shot by a cultist with a thompson."
+	Health 60
+	Height 56
+	Mass 100
+	Speed 2.66666667
+	Scale 0.5
+	PainChance 100
+	SEESOUND "monster/culsit"
+	ATTACKSOUND "chainguy/attack"
+	PAINSOUND "monster/culpai"
+	DEATHSOUND "monster/culdth"
+	ACTIVESOUND "monster/culact"
+	MONSTER
+	+FloorClip
+	DropItem "ClipBox" 80
+	states
+	{
+	Spawn:
+		BCUL AB 10 A_Look
+		Loop
+	Frightened:
+		BCUL A 0 A_ChangeFlag("Frightened",1)
+		Goto See+1
+	See:
+		BCUL A 0 A_JumpIfHealthLower(25,"Frightened")
+		BCUL A 1 A_Chase
+		BCUL AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BCUL A 1 A_Chase
+		BCUL AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BCUL B 1 A_Chase
+		BCUL BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BCUL B 1 A_Chase
+		BCUL BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BCUL C 1 A_Chase
+		BCUL CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BCUL C 1 A_Chase
+		BCUL CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BCUL D 1 A_Chase
+		BCUL DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BCUL D 1 A_Chase
+		BCUL DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Missile:
+		BCUL E 20 A_FaceTarget
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_PosAttack
+		BCUL E 3
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_PosAttack
+		BCUL E 3
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_PosAttack
+		BCUL E 3
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_PosAttack
+		BCUL E 3
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_PosAttack
+		BCUL E 3
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_PosAttack
+		BCUL E 3
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_PosAttack
+		BCUL E 3
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_PosAttack
+		BCUL E 3
+		Goto See
+	Pain:
+		BCUL G 3
+		BCUL G 3 A_Pain
+		Goto See
+	Death:
+		BCUL H 5
+		BCUL I 5 A_Scream
+		BCUL J 5 A_NoBlocking
+		BCUL KLM 5
+		BCUL N -1
+		Stop
+	XDeath:
+		BCUL O 5
+		BCUL P 5 A_XScream
+		BCUL Q 5 A_NoBlocking
+		BCUL RST 5
+		BCUL U -1
+		Stop
+	Raise:
+		BCUL NMLKJIH 5
+		Goto See
+	}
 }
 
-ACTOR ChainGunCultist : ShotgunCultist 29010
+ACTOR PumpCultist : TommyGunCultist 29010
 {
-  OBITUARY "%o was shot by a cultist with a shotgun."
-  Health 80
-  Translation "80:111=48:79"
-  DropItem "Shell" 96
-  states
-  {
-  Missile:
-    BCUL E 20 A_FaceTarget
-    BCUL F 10 BRIGHT A_SPosAttack
-    BCUL E 10
-    Goto See
-  }
+	OBITUARY "%o was shot by a cultist with a shotgun."
+	Health 80
+	Translation "80:111=48:79"
+	DropItem "Shell2" 80	// even if he does, he drops only 2 shells, so you don't get too much ammo
+	states
+	{
+	Missile:
+		BCUL E 20 A_FaceTarget
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_SPosAttack
+		BCUL E 18
+		Goto See
+	}
 }
 
 /////////////////////
 // FLEEING CULTIST //
 /////////////////////
 
-ACTOR AngstHase 29234
+ACTOR AngstHase : TommyGunCultist 29234
 {
-  SpawnID 219
-  OBITUARY "%o can't be killed."
-  Health 60
-  Radius 20
-  Height 56
-  Mass 100
-  Speed 8
-  Scale 0.5
-  PainChance 100
-  SEESOUND "monster/culsit"
-  ATTACKSOUND "chainguy/attack"
-  PAINSOUND "monster/culpai"
-  DEATHSOUND "monster/culdth"
-  ACTIVESOUND "monster/culflee"
-  DropItem "Clip" 255
-  MONSTER
-  +FloorClip
-  states
-  {
-  Spawn:
-    BCUL AB 10 A_Look
-    Loop
-  See:
-    BCUL AABBCCDD 3 A_Chase
-    Loop
-  Missile:
-    BCUL A 3 A_FaceTarget
-    Goto See
-  Pain:
-    BCUL G 3
-    BCUL G 3 A_Pain
-    Goto See
-  Death:
-    BCUL H 5
-    BCUL I 5 A_Scream
-    BCUL J 5 A_NoBlocking
-    BCUL KLM 5
-    BCUL N -1
-    Stop
-  XDeath:
-    BCUL O 5
-    BCUL P 5 A_XScream
-    BCUL Q 5 A_NoBlocking
-    BCUL RST 5
-    BCUL U -1
-    Stop
-  Raise:
-    BCUL NMLKJIH 5
-    Goto See
-  }
+	OBITUARY "%o can't be killed."
+	ACTIVESOUND "monster/culflee"
+	DropItem "Clip"
+	states
+	{
+	Missile:
+		Stop
+	}
 }
 
 /////////////////
@@ -2270,123 +1910,137 @@ ACTOR AngstHase 29234
 
 ACTOR Fatty 25010
 {
-  OBITUARY "%o couldn't evade the fattys pride."
-  HITOBITUARY "%o was punched by a fat zombie."
-  Health 300
-  Radius 12
-  Height 56
-  Mass 500
-  Speed 7
-  Scale 0.6
-  PainChance 100
-  SEESOUND "fatty/sit"
-  PAINSOUND "skeleton/pain"
-  DEATHSOUND "fatty/death"
-  ACTIVESOUND "fatty/act"
-  MONSTER
-  DropItem "Heart" 128
-  +FloorClip
-  +LongMeleeRange
-  +MissileMore
-  states
-  {
-  Spawn:
-    BFAT AB 10 A_Look
-    Loop
-  See:
-    BFAT AABBCCDDEEFF 4 A_Chase
-    Loop
-  Melee:
-    BFAT G 0 A_FaceTarget
-    BFAT G 6 A_SkelWhoosh
-    BFAT H 6 A_FaceTarget
-    BFAT I 6 A_SkelFist
-    Goto See
-  Missile:
-    BFAT J 0 A_FaceTarget
-    BFAT J 10 A_FaceTarget
-    BFAT J 0 A_Jump(128,3)
-    BFAT K 10 A_CustomMissile("FattyTracer1",32,0,0)
-    BFAT K 10 A_FaceTarget
-    Goto See
-    BFAT K 10 A_CustomMissile("FattyTracer2",32,0,0)
-    BFAT K 10 A_FaceTarget
-    Goto See
-  Pain:
-    BFAT L 5
-    BFAT L 5 A_Pain
-    Goto See
-  Death:
-    BFAT LM 9
-    BFAT N 9 A_Scream
-    BFAT O 9 A_NoBlocking
-    BFAT P 9
-    BFAT Q -1
-    Stop
-  Raise:
-    BFAT QPONML 5
-    Goto See
-  }
+	OBITUARY "%o couldn't evade the fatty's puke."
+	HITOBITUARY "%o was punched by a fat zombie."
+	Health 300
+	Radius 12
+	Height 56
+	Mass 500
+	Speed 1.75
+	Scale 0.6
+	PainChance 100
+	SEESOUND "fatty/sit"
+	PAINSOUND "skeleton/pain"
+	DEATHSOUND "fatty/death"
+	ACTIVESOUND "fatty/act"
+	MONSTER
+	DropItem "Heart" 128
+	+FloorClip
+	MeleeThreshold 192
+	+MissileMore
+	states
+	{
+	Spawn:
+		BFAT AB 10 A_Look
+		Loop
+	See:
+		BFAT A 1 A_Chase
+		BFAT AAA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT A 1 A_Chase
+		BFAT AAA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT B 1 A_Chase
+		BFAT BBB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT B 1 A_Chase
+		BFAT BBB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT C 1 A_Chase
+		BFAT CCC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT C 1 A_Chase
+		BFAT CCC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT D 1 A_Chase
+		BFAT DDD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT D 1 A_Chase
+		BFAT DDD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT E 1 A_Chase
+		BFAT EEE 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT E 1 A_Chase
+		BFAT EEE 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT F 1 A_Chase
+		BFAT FFF 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT F 1 A_Chase
+		BFAT FFF 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Melee:
+		BFAT G 0 A_FaceTarget
+		BFAT G 6 A_SkelWhoosh
+		BFAT H 6 A_FaceTarget
+		BFAT I 6 A_SkelFist
+		Goto See
+	Missile:
+		BFAT J 10 A_FaceTarget
+		BFAT J 0 A_Jump(128,3)
+		BFAT K 10 A_CustomMissile("FattyTracer1",32)
+		BFAT K 10 A_FaceTarget
+		Goto See
+		BFAT K 10 A_CustomMissile("FattyTracer2",32)
+		BFAT K 10 A_FaceTarget
+		Goto See
+	Pain:
+		BFAT L 5
+		BFAT L 5 A_Pain
+		Goto See
+	Death:
+		BFAT LM 9
+		BFAT N 9 A_Scream
+		BFAT O 9 A_NoBlocking
+		BFAT P 9
+		BFAT Q -1
+		Stop
+	Raise:
+		BFAT QPONML 5
+		Goto See
+	}
 }
 
 ACTOR FattyTracer1
 {
-  Radius 11
-  Height 8
-  Speed 10
-  Damage 10
-  SEESOUND "fatty/attack"
-  DEATHSOUND "fatty/attack"
-  PROJECTILE
-  +SeekerMissile
-  +Randomize
-  states
-  {
-  Spawn:
-    FATX AB 2
-    Loop
-  Death:
-    FBXX A 8
-    FBXX B 6
-    FBXX C 4
-    Stop
-  }
+	Radius 11
+	Height 8
+	Speed 10
+	Damage 10
+	SEESOUND "fatty/attack"
+	DEATHSOUND "fatty/attack"
+	PROJECTILE
+	+SeekerMissile
+	+Randomize
+	states
+	{
+	Spawn:
+		FATX AB 2
+		Loop
+	Death:
+		FBXX A 8
+		FBXX B 6
+		FBXX C 4
+		Stop
+	}
 }
 
 ACTOR FattyTracer2 : FattyTracer1
 {
-  states
-  {
-  Spawn:
-    FATX A 2 A_SeekerMissile(10,20)
-    FATX B 2 A_CustomMissile("FattyTracerTrail", 0, 0, 180)
-    Loop
-  Death:
-    FBXX A 8
-    FBXX B 6
-    FBXX C 4
-    Stop
-  }
+	states
+	{
+	Spawn:
+		FATX A 2 A_SeekerMissile(10,20)
+		FATX B 2 A_SpawnItemEx("FattyTracerTrail")
+		Loop
+	}
 }
 
 ACTOR FattyTracerTrail
 {
-    Radius 1
-    Height 1
-    Speed 0
-    PROJECTILE
-    RENDERSTYLE Translucent
-    Alpha 0.5
-    Scale 0.5
-    +Noclip
-    states
-    {
-    Spawn:
-    Death:
-    	FBXX ABC 3
-    	NULL A 1
-        Stop
-    }
+	Radius 1
+	Height 1
+	PROJECTILE
+	RENDERSTYLE Translucent
+	Alpha 0.5
+	Scale 0.5
+	+Noclip
+	states
+	{
+	Spawn:
+		FBXX ABC 3
+		Stop
+	}
 }
 
 ////////////
@@ -2395,53 +2049,66 @@ ACTOR FattyTracerTrail
 
 ACTOR ZombieBlood 31002
 {
-  HITOBITUARY "%o was slaughtered by a zombie."
-  Health 150
-  PainChance 0
-  Speed 9
-  Radius 30
-  DropItem "Heart" 160
-  Height 56
-  Mass 400
-  MeleeDamage 10
-  Scale 0.5
-  MELEESOUND "zombieblood/hit"
-  SEESOUND "zombieblood/sit"
-  ATTACKSOUND "zombieblood/fis"
-  PAINSOUND "zombieblood/pan"
-  DEATHSOUND "zombieblood/dth"
-  ACTIVESOUND "zombieblood/act"
-  MONSTER
-  +FloorClip
-  states
-  {
-  Spawn:
-    BZOM AB 10 A_Look
-    Loop
-  See:
-    BZOM AABBCCDD 3 A_Chase
-    Loop
-  Melee:
-    BZOM EF 8 A_FaceTarget
-    BZOM G 0 A_PlaySound("zombieblood/hit")
-    BZOM G 8 A_MeleeAttack
-    Goto See
-  Pain:
-    BZOM H 2
-    BZOM H 2 A_Pain
-    Goto See
-  Death:
-    BZOM I 8
-    BZOM J 8 A_Scream
-    BZOM K 4
-    BZOM L 4 A_NoBlocking
-    BZOM M 4
-    BZOM N -1
-    Stop
-  Raise:
-    BZOM NMLKJI 5
-    Goto See
-  }
+	HITOBITUARY "%o was slaughtered by a zombie."
+	Health 150
+	PainChance 0
+	Speed 3
+	Radius 30
+	DropItem "Heart" 160
+	Height 56
+	Mass 400
+	Scale 0.5
+	SEESOUND "zombieblood/sit"
+	ATTACKSOUND "zombieblood/fis"
+	PAINSOUND "zombieblood/pan"
+	DEATHSOUND "zombieblood/dth"
+	ACTIVESOUND "zombieblood/act"
+	MONSTER
+	+FloorClip
+	states
+	{
+	Spawn:
+		BZOM AB 10 A_Look
+		Loop
+	See:
+		BZOM A 1 A_Chase
+		BZOM AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BZOM A 1 A_Chase
+		BZOM AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BZOM B 1 A_Chase
+		BZOM BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BZOM B 1 A_Chase
+		BZOM BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BZOM C 1 A_Chase
+		BZOM CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BZOM C 1 A_Chase
+		BZOM CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BZOM D 1 A_Chase
+		BZOM DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BZOM D 1 A_Chase
+		BZOM DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Melee:
+		BZOM EF 8 A_FaceTarget
+		BZOM G 0 A_PlaySound("zombieblood/hit")
+		BZOM G 8 A_CustomMeleeAttack(10*random(1,8),"zombieblood/hit")
+		Goto See
+	Pain:
+		BZOM H 2
+		BZOM H 2 A_Pain
+		Goto See
+	Death:
+		BZOM I 8
+		BZOM J 8 A_Scream
+		BZOM K 4
+		BZOM L 4 A_NoBlocking
+		BZOM M 4
+		BZOM N -1
+		Stop
+	Raise:
+		BZOM NMLKJI 5
+		Goto See
+	}
 }
 
 //////////
@@ -2450,150 +2117,138 @@ ACTOR ZombieBlood 31002
 
 actor SkullKey : Key 10280
 {
-  inventory.pickupmessage "Picked up the skull key."
-  inventory.icon "M_KEY1"
-  scale 0.3
-  states
-  {
-  Spawn:
-    KEY1 A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up the skull key."
+	inventory.icon "M_KEY1"
+	scale 0.3
+	states
+	{
+	Spawn:
+		KEY1 A -1
+		stop
+	}
 }
 
-actor EyeKey : Key 10281
+actor EyeKey : SkullKey 10281
 {
-  inventory.pickupmessage "Picked up the eye key."
-  inventory.icon "M_KEY2"
-  scale 0.3
-  states
-  {
-  Spawn:
-    KEY2 A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up the eye key."
+	inventory.icon "M_KEY2"
+	states
+	{
+	Spawn:
+		KEY2 A -1
+		stop
+	}
 }
 
-actor FireKey : Key 10282
+actor FireKey : SkullKey 10282
 {
-  inventory.pickupmessage "Picked up the fire key."
-  inventory.icon "M_KEY3"
-  scale 0.3
-  states
-  {
-  Spawn:
-    KEY3 A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up the fire key."
+	inventory.icon "M_KEY3"
+	states
+	{
+	Spawn:
+		KEY3 A -1
+		stop
+	}
 }
 
-actor KniveKey : Key 10283
+actor KniveKey : SkullKey 10283
 {
-  inventory.pickupmessage "Picked up the knife key."
-  inventory.icon "M_KEY4"
-  scale 0.3
-  states
-  {
-  Spawn:
-    KEY4 A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up the knife key."
+	inventory.icon "M_KEY4"
+	states
+	{
+	Spawn:
+		KEY4 A -1
+		stop
+	}
 }
 
-actor SpiderKey : Key 10284
+actor SpiderKey : SkullKey 10284
 {
-  inventory.pickupmessage "Picked up the spider key."
-  inventory.icon "M_KEY5"
-  scale 0.3
-  states
-  {
-  Spawn:
-    KEY5 A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up the spider key."
+	inventory.icon "M_KEY5"
+	states
+	{
+	Spawn:
+		KEY5 A -1
+		stop
+	}
 }
 
-actor MoonKey : Key 10285
+actor MoonKey : SkullKey 10285
 {
-  inventory.pickupmessage "Picked up the moon key."
-  inventory.icon "M_KEY6"
-  scale 0.3
-  states
-  {
-  Spawn:
-    KEY6 A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up the moon key."
+	inventory.icon "M_KEY6"
+	states
+	{
+	Spawn:
+		KEY6 A -1
+		stop
+	}
 }
 
 actor TransBook : Key 10286
 {
-  inventory.pickupmessage "Picked up the translation book."
-  inventory.icon "M_TRANS"
-  scale 1.0
-  radius 32
-  height 8
-  states
-  {
-  Spawn:
-    TRAN A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up the translation book."
+	inventory.icon "M_TRANS"
+	radius 32
+	height 8
+	states
+	{
+	Spawn:
+		TRAN A -1
+		stop
+	}
 }
 
 actor SafeKey : Key 10287
 {
-  inventory.pickupmessage "Picked up the safe key."
-  inventory.icon "M_SAFE"
-  scale 0.7
-  states
-  {
-  Spawn:
-    SFKY A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up the safe key."
+	inventory.icon "M_SAFE"
+	scale 0.7
+	states
+	{
+	Spawn:
+		SFKY A -1
+		stop
+	}
 }
 
-actor Schaedel : Key 10288
+actor Schaedel : SafeKey 10288
 {
-  spawnid 231
-  inventory.pickupmessage "Picked up the skull of thamuz."
-  inventory.icon "M_KOPF"
-  scale 0.7
-  states
-  {
-  Spawn:
-    SCHA A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up the skull of thamuz."
+	inventory.icon "M_KOPF"
+	states
+	{
+	Spawn:
+		SCHA A -1
+		stop
+	}
 }
 
-actor Sanduhr : Key 10289
+actor Sanduhr : SafeKey 10289
 {
-  spawnid 232
-  inventory.pickupmessage "Picked up Gaul's hourglass of dimensions."
-  inventory.icon "M_UHR"
-  scale 0.7
-  states
-  {
-  Spawn:
-    ZEUH A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up Gaul's hourglass of dimensions."
+	inventory.icon "M_UHR"
+	states
+	{
+	Spawn:
+		ZEUH A -1
+		stop
+	}
 }
 
-actor Diamant : Key 10290
+actor Diamant : SafeKey 10290
 {
-  spawnid 233
-  inventory.pickupmessage "Picked up a flawless diamond."
-  inventory.icon "M_DIAM"
-  scale 0.7
-  states
-  {
-  Spawn:
-    DIAM A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up a flawless diamond."
+	inventory.icon "M_DIAM"
+	states
+	{
+	Spawn:
+		DIAM A -1
+		stop
+	}
 }
 
 ////////////////////////////
@@ -2601,14 +2256,12 @@ actor Diamant : Key 10290
 ////////////////////////////
 
 
-ACTOR NewTeleFog replaces TeleportFog
+/*ACTOR NewTeleFog replaces TeleportFog
 {
 	Radius 4
 	Height 8
-	Speed 0
-	Damage 0
 	RENDERSTYLE ADD
-	Alpha 0.4
+	Alpha .4
 	PROJECTILE
 	+Noclip
 	states
@@ -2617,304 +2270,242 @@ ACTOR NewTeleFog replaces TeleportFog
 		NMRE IJKLMNO 3
 		Stop
 	}
-}
+}*/
 
 actor Web2 20000
 {
-     Radius 8
-     Height 20
-     +SPAWNCEILING
-     +NOGRAVITY
-     RENDERSTYLE ADD
-     ALPHA 0.35
-     Mass 5
-     States
-     {
-     Spawn:
-      WEB3 A -1
-      Stop
-     }
+	Radius 8
+	Height 20
+	+SPAWNCEILING
+	+NOGRAVITY
+	RENDERSTYLE ADD
+	ALPHA 0.35
+	Mass 5
+	States
+	{
+	Spawn:
+		WEB3 A -1
+		Stop
+	}
 }
 
-actor Web3 20001
+actor Web3 : Web2 20001
 {
-     Radius 8
-     Height 20
-     RENDERSTYLE ADD
-     ALPHA 0.35
-     +SPAWNCEILING
-     +NOGRAVITY
-     Mass 5
-     States
-     {
-     Spawn:
-      WEB2 A -1
-      Stop
-     }
+	States
+	{
+	Spawn:
+		WEB2 A -1
+		Stop
+	}
 }
 
 ACTOR LargeDeadTree replaces FloatingSkull
 {
-  Radius 16
-  Height 26
-  +Solid
-  states
-  {
-  Spawn:
-    FSKU ABC 6
-    Loop
-  }
+	Radius 16
+	Height 26
+	+Solid
+	states
+	{
+	Spawn:
+		FSKU A -1
+		Loop
+	}
 }
 
 ACTOR LargeDeadTree2 replaces HeadCandles
 {
-  Radius 16
-  Height 42
-  +Solid
-  states
-  {
-  Spawn:
-    POL3 AB 6
-    Loop
-  }
+	Radius 16
+	Height 42
+	+Solid
+	states
+	{
+	Spawn:
+		POL3 A -1
+		Loop
+	}
 }
 
 ACTOR WallTorchX : SwitchableDecoration replaces BlueTorch
 {
-  Radius 16
-  Height 68
-  -Solid
-  states
-  {
-  Spawn:
-  Active:
-    TBLU ABCD 4
-    Loop
-  Inactive:
-    TBLX A -1
-    Stop
-  }
-}
-
-ACTOR StandingTorchX replaces ShortRedTorch
-{
-  Radius 16
-  Height 37
-  +Solid
-  states
-  {
-  Spawn:
-    SMRT ABCD 4
-    Loop
-  }
+	Radius 16
+	Height 68
+	states
+	{
+	Spawn:
+	Active:
+		TBLU ABCD 4
+		Loop
+	Inactive:
+		TBLX A -1
+		Stop
+	}
 }
 
 ACTOR CandleX replaces Candlestick
 {
-  Radius 20
-  Height 14
-  states
-  {
-  Spawn:
-    CAND A -1
-    Stop
-  }
+	Height 14
+	states
+	{
+	Spawn:
+		CAND A -1
+		Stop
+	}
 }
 
 ACTOR MaulotaurTorchX replaces RedTorch
 {
-  Radius 16
-  Height 68
-  +Solid
-  states
-  {
-  Spawn:
-    TRED ABCD 4
-    Loop
-  }
-}
-
-ACTOR StandingTorchX2 replaces ShortRedTorch
-{
-  Radius 16
-  Height 37
-  +Solid
-  states
-  {
-  Spawn:
-    SMRT ABCD 4
-    Loop
-  }
+	Radius 16
+	Height 68
+	+Solid
+	states
+	{
+	Spawn:
+		TRED ABCD 4
+		Loop
+	}
 }
 
 ACTOR StandingEinlauf 30999
 {
-  Radius 16
-  Height 56
-  +Solid
-  states
-  {
-  Spawn:
-    XB03 A -1
-    Loop
-  }
+	Radius 16
+	Height 56
+	+Solid
+	states
+	{
+	Spawn:
+		XB03 A -1
+		Loop
+	}
 }
 
 ACTOR BloodyTwitchBlood 22049
 {
-  Radius 16
-  Height 68
-  -Solid
-  +SpawnCeiling
-  +NoGravity
-  states
-  {
-  Spawn:
-    XB04 A 10
-    XB04 B 15
-    XB04 C 8
-    XB04 B 6
-    Loop
-  }
+	Radius 16
+	Height 68
+	+SpawnCeiling
+	+NoGravity
+	states
+	{
+	Spawn:
+		XB04 A 10
+		XB04 B 15
+		XB04 C 8
+		XB04 B 6
+		Loop
+	}
 }
 
 ACTOR DeadBody 22081
 {
-  Radius 20
-  Height 4
-  states
-  {
-  Spawn:
-    XB01 A -1
-    Stop
-  }
+	Height 4
+	states
+	{
+	Spawn:
+		XB01 A -1
+		Stop
+	}
 }
 
 ACTOR DeadBody2 22481
 {
-  Radius 20
-  Height 4
-  states
-  {
-  Spawn:
-    XB12 A -1
-    Stop
-  }
+	Height 4
+	states
+	{
+	Spawn:
+		XB12 A -1
+		Stop
+	}
 }
 
 ACTOR CandelabraBloodOne 22035
 {
-  Radius 16
-  Height 60
-  +Solid
-  states
-  {
-  Spawn:
-    XB02 A -1
-    Stop
-  }
+	Radius 16
+	Height 60
+	+Solid
+	states
+	{
+	Spawn:
+		XB02 A -1
+		Stop
+	}
 }
 
 ACTOR GoreHangingBlood1 22073
 {
-  Radius 16
-  Height 88
-  -Solid
-  +SpawnCeiling
-  +NoGravity
-  states
-  {
-  Spawn:
-    XB05 A -1
-    Stop
-  }
+	Radius 16
+	Height 88
+	+SpawnCeiling
+	+NoGravity
+	states
+	{
+	Spawn:
+		XB05 A -1
+		Stop
+	}
 }
 
-ACTOR GoreHangingBlood2 22074
+ACTOR GoreHangingBlood2 : GoreHangingBlood1 22074
 {
-  Radius 16
-  Height 88
-  -Solid
-  +SpawnCeiling
-  +NoGravity
-  states
-  {
-  Spawn:
-    XB06 A -1
-    Stop
-  }
+	states
+	{
+	Spawn:
+		XB06 A -1
+		Stop
+	}
 }
 
-ACTOR GoreHangingBlood3 22075
+ACTOR GoreHangingBlood3 : GoreHangingBlood1 22075
 {
-  Radius 16
-  Height 88
-  -Solid
-  +SpawnCeiling
-  +NoGravity
-  states
-  {
-  Spawn:
-    XB08 A -1
-    Stop
-  }
+	states
+	{
+	Spawn:
+		XB08 A -1
+		Stop
+	}
 }
 
-ACTOR GoreHangingBlood4 22076
+ACTOR GoreHangingBlood4 : GoreHangingBlood1 22076
 {
-  Radius 16
-  Height 88
-  -Solid
-  +SpawnCeiling
-  +NoGravity
-  states
-  {
-  Spawn:
-    XB09 A -1
-    Stop
-  }
+	states
+	{
+	Spawn:
+		XB09 A -1
+		Stop
+	}
 }
 
-ACTOR GoreHangingMeat 22079
+ACTOR GoreHangingMeat : GoreHangingBlood1 22079
 {
-  Radius 16
-  Height 88
-  +Solid
-  +SpawnCeiling
-  +NoGravity
-  states
-  {
-  Spawn:
-    XB10 A -1
-    Stop
-  }
+	+Solid
+	states
+	{
+	Spawn:
+		XB10 A -1
+		Stop
+	}
 }
 
-ACTOR CeilingLampBlood 22080
+ACTOR CeilingLampBlood : GoreHangingBlood1 22080
 {
-  Radius 16
-  Height 64
-  +Solid
-  +SpawnCeiling
-  +NoGravity
-  states
-  {
-  Spawn:
-    XB07 A -1
-    Stop
-  }
+	Height 64
+	+Solid
+	states
+	{
+	Spawn:
+		XB07 A -1
+		Stop
+	}
 }
 
 ACTOR Balloon1 22085
 {
-  Radius 20
-  Height 1
-  states
-  {
-  Spawn:
-    XB11 A -1
-    Stop
-  }
+	Height 1
+	states
+	{
+	Spawn:
+		XB11 A -1
+		Stop
+	}
 }
 
 ACTOR Balloon2 : Balloon1 22082
@@ -2934,838 +2525,683 @@ ACTOR Balloon4 : Balloon1 22084
 
 actor DeadDoc 22095
 {
-  Game Doom
-  States
-  {
-  Spawn:
-    XB15 A -1
-    Stop
-  }
+	States
+	{
+	Spawn:
+		XB15 A -1
+		Stop
+	}
 }
 
 actor DeadDoc2 22096
 {
-  Game Doom
-  States
-  {
-  Spawn:
-    XB16 A -1
-    Stop
-  }
+	States
+	{
+	Spawn:
+		XB16 A -1
+		Stop
+	}
 }
 
 actor DeadCrispy2 22097
 {
-  Game Doom
-  States
-  {
-  Spawn:
-    XB18 A -1
-    Stop
-  }
+	States
+	{
+	Spawn:
+		XB18 A -1
+		Stop
+	}
 }
 
 actor DeadCrispy1 22098
 {
-  Game Doom
-  States
-  {
-  Spawn:
-    XB17 A -1
-    Stop
-  }
+	States
+	{
+	Spawn:
+		XB17 A -1
+		Stop
+	}
 }
 
 actor ChairAlpha 22099
 {
-  radius 16
-  height 32
-  +SOLID
-  states
-  {
-  Spawn:
-    XB19 A -1
-    Stop
-  }
+	radius 16
+	height 32
+	+SOLID
+	states
+	{
+	Spawn:
+		XB19 A -1
+		Stop
+	}
 }
 
-actor ZombieBarrel 22199
+actor ZombieBarrel : ChairAlpha 22199
 {
-  radius 16
-  height 32
-  +SOLID
-  states
-  {
-  Spawn:
-    XCL5 A -1
-    Stop
-  }
-}
-
-actor Wurzel3 31821
-{
-  radius 16
-  height 80
-  +SPAWNCEILING
-  +NOGRAVITY
-  states
-  {
-  Spawn:
-    WURZ C -1
-    stop
-  }
-}
-
-actor Wurzel2 31820
-{
-  radius 16
-  height 70
-  +SPAWNCEILING
-  +NOGRAVITY
-  states
-  {
-  Spawn:
-    WURZ B -1
-    stop
-  }
+	states
+	{
+	Spawn:
+		XCL5 A -1
+		Stop
+	}
 }
 
 actor Wurzel1 31819
 {
-  radius 16
-  height 60
-  +SPAWNCEILING
-  +NOGRAVITY
-  states
-  {
-  Spawn:
-    WURZ A -1
-    stop
-  }
+	radius 16
+	height 60
+	+SPAWNCEILING
+	+NOGRAVITY
+	states
+	{
+	Spawn:
+		WURZ A -1
+		stop
+	}
 }
 
-actor PflanzeDecke2 31818
+actor Wurzel2 : Wurzel1 31820
 {
-  radius 16
-  height 50
-  +SOLID
-  +SPAWNCEILING
-  +NOGRAVITY
-  scale 0.5
-  states
-  {
-  Spawn:
-    PFDE B -1
-    stop
-  }
+	height 70
+	states
+	{
+	Spawn:
+		WURZ B -1
+		stop
+	}
+}
+
+actor Wurzel3 : Wurzel1 31821
+{
+	height 80
+	states
+	{
+	Spawn:
+		WURZ C -1
+		stop
+	}
 }
 
 actor PflanzeDecke 31817
 {
-  radius 16
-  height 60
-  +SOLID
-  +SPAWNCEILING
-  +NOGRAVITY
-  scale 0.5
-  states
-  {
-  Spawn:
-    PFDE A -1
-    stop
-  }
+	radius 16
+	height 60
+	+SOLID
+	+SPAWNCEILING
+	+NOGRAVITY
+	scale 0.5
+	states
+	{
+	Spawn:
+		PFDE A -1
+		stop
+	}
+}
+
+actor PflanzeDecke2 : PflanzeDecke 31818
+{
+	height 50
+	states
+	{
+	Spawn:
+		PFDE B -1
+		stop
+	}
 }
 
 actor KopfSpiess 31816
 {
-  radius 16
-  height 16
-  +SOLID
-  states
-  {
-  Spawn:
-    SPIS A -1
-    stop
-  }
+	radius 16
+	+SOLID
+	states
+	{
+	Spawn:
+		SPIS A -1
+		stop
+	}
 }
 
 actor WuddStrand 31815
 {
-  radius 16
-  height 16
-  +SOLID
-  states
-  {
-  Spawn:
-    WUDD A -1
-    stop
-  }
+	radius 16
+	+SOLID
+	states
+	{
+	Spawn:
+		WUDD A -1
+		stop
+	}
 }
 
 actor Treasure 31814
 {
-  radius 16
-  height 16
-  states
-  {
-  Spawn:
-    TREA A -1
-    stop
-  }
+	radius 16
+	states
+	{
+	Spawn:
+		TREA A -1
+		stop
+	}
 }
 
 actor Schaedel1 31813
 {
-  radius 16
-  height 16
-  states
-  {
-  Spawn:
-    SCHA D -1
-    stop
-  }
+	radius 16
+	states
+	{
+	Spawn:
+		SCHA D -1
+		stop
+	}
 }
 
 actor KnochenArmGelenk 31808
 {
-  radius 16
-  height 16
-  states
-  {
-  Spawn:
-    KNHA B -1
-    stop
-  }
+	radius 16
+	states
+	{
+	Spawn:
+		KNHA B -1
+		stop
+	}
 }
 
 actor Schaedel3 31810
 {
-  radius 16
-  height 16
-  states
-  {
-  Spawn:
-    SCHA C -1
-    stop
-  }
+	radius 16
+	states
+	{
+	Spawn:
+		SCHA C -1
+		stop
+	}
 }
 
 actor Schaedel2 31809
 {
-  radius 16
-  height 16
-  states
-  {
-  Spawn:
-    SCHA B -1
-    stop
-  }
+	radius 16
+	states
+	{
+	Spawn:
+		SCHA B -1
+		stop
+	}
 }
 
 actor LeichenhaufenGross 31807
 {
-  radius 16
-  height 16
-  states
-  {
-  Spawn:
-    LEHA B -1
-    stop
-  }
+	radius 16
+ 	states
+	{
+	Spawn:
+		LEHA B -1
+		stop
+	}
 }
 
 actor LeichenhaufenKlein 31806
 {
-  radius 16
-  height 16
-  states
-  {
-  Spawn:
-    LEHA A -1
-    stop
-  }
+	radius 16
+ 	states
+	{
+	Spawn:
+		LEHA A -1
+		stop
+	}
 }
 
 actor TierKnoch2 31805
 {
-  radius 16
-  height 16
-  states
-  {
-  Spawn:
-    KNHA A -1
-    stop
-  }
+	radius 16
+ 	states
+	{
+	Spawn:
+		KNHA A -1
+		stop
+	}
 }
 
 actor TierKnoch 31804
 {
-  radius 16
-  height 16
-  +SOLID
-  states
-  {
-  Spawn:
-    TIKN A -1
-    stop
-  }
+	radius 16
+ 	+SOLID
+	states
+	{
+	Spawn:
+		TIKN A -1
+		stop
+	}
 }
 
 actor Gebeine 31803
 {
-  radius 16
-  height 16
-  +SOLID
-  states
-  {
-  Spawn:
-    GEBY A -1
-    stop
-  }
+	radius 16
+ 	+SOLID
+	states
+	{
+	Spawn:
+		GEBY A -1
+		stop
+	}
 }
 
 actor StoneStatue 31802
 {
-  radius 16
-  height 40
-  +SOLID
-  states
-  {
-  Spawn:
-    YSTN A -1
-    stop
-  }
+	radius 16
+	height 40
+	+SOLID
+	states
+	{
+	Spawn:
+		YSTN A -1
+		stop
+	}
 }
 
 actor Feder 31801
 {
-  radius 8
-  height 8
-  states
-  {
-  Spawn:
-    FEDE A -1
-    stop
-  }
+	radius 8
+	height 8
+	states
+	{
+	Spawn:
+		FEDE A -1
+		stop
+	}
 }
 
 actor ExMark : SwitchableDecoration 31999
 {
-  Radius 0
-  Height 0
-  RENDERSTYLE ADD
-  Alpha 1.0
-  Scale 0.15
-  +NoGravity
-  +FloatBob
-  states
-  {
-  Spawn:
-  Active:
-    EXCL A -1
-    Stop
-  Inactive:
-    TNT0 A -1
-    Stop
-  }
+	Radius 0
+	Height 0
+	RENDERSTYLE ADD
+	Scale 0.15
+	+NoGravity
+	+FloatBob
+	states
+	{
+	Spawn:
+	Active:
+		EXCL A -1
+		Stop
+	Inactive:
+		TNT1 A -1
+		Stop
+	}
 }
 
 actor PushPuzz 31998
 {
-  MONSTER
-  radius 12
-  height 48
-  +PUSHABLE
-  +SOLID
-  +NOBLOOD
-  +INVULNERABLE
-  -COUNTKILL
-  states
-  {
-  Spawn:
-    SMPL A -1
-    stop
-  }
+	MONSTER
+	radius 12
+	height 48
+	+PUSHABLE
+	+NOBLOOD
+	+INVULNERABLE
+	-COUNTKILL
+	states
+	{
+	Spawn:
+		SMPL A -1
+		stop
+	}
 }
 
 /////////////////////
 // WEAPONS & ITEMS //
 /////////////////////
 
-actor NewFist : Weapon
+ACTOR Pitchfork : Weapon replaces Chainsaw
 {
-  obituary "%o chewed on %k's fist."
-  weapon.selectionorder 3700
-  weapon.kickback 100
-  +WEAPON.WIMPY_WEAPON
-  +WEAPON.MELEEWEAPON
-  scale 1.2
-  states
-  {
-  Ready:
-    PUNG A 1 A_WeaponReady
-    loop
-  Deselect:
-    PUNG A 1 A_Lower
-    loop
-  Select:
-    PUNG A 1 A_Raise
-    loop
-  Fire:
-    PUNG B 4
-    PUNG C 4 A_Punch
-    PUNG D 5
-    PUNG C 4
-    PUNG B 5 A_ReFire
-    goto Ready
-  }
-}
-
-ACTOR Pitchfork : Weapon 30876
-{
-obituary "%o was perforated by %k's pitchfork."
-weapon.selectionorder 3700
-weapon.kickback 100
-+WEAPON.WIMPY_WEAPON
-Scale 1.2
-Inventory.PickupSound "ITEMUP"
-Inventory.PickupMessage "You picked up the Pitchfork"
-states
-{
-  Ready:
-   XUNG A 1 A_WeaponReady
-   wait
-  Deselect:
-   XUNG A 1 A_Lower
-   wait
-   TNT1 A 1 A_Lower
-   wait
-  Select:
-   XUNG A 1 A_Raise
-   wait
-  Fire:
-   XUNG B 5
-   XUNG B 0 A_PlayWeaponSound("DSSKESWG")
-   XUNG C 5 A_CustomPunch(4,0,0,"HitPuff",96)
-   XUNG D 6
-   XUNG C 5
-   XUNG B 6 A_ReFire
-   goto Ready
-  AltFire:
-   XUNG B 2
-   XUNG C 0 A_PlayWeaponSound("DSSKESWG")
-   XUNG D 2 A_FireCustomMissile("Pitchfork_thrown",0,1,0,5)
-   XUNG D 0 A_TakeInventory("Pitchfork", 1)
-   Goto Deselect+1
-  Spawn:
-    XFOR A -1
-    Stop
-  }
+	obituary "%o was perforated by %k's pitchfork."
+	weapon.selectionorder 3700
+	weapon.kickback 100
+	+WEAPON.WIMPY_WEAPON
+	Scale 1.2
+	Inventory.PickupSound "ITEMUP"
+	Inventory.PickupMessage "You picked up the Pitchfork"
+	states
+	{
+	Ready:
+		XUNG A 1 A_WeaponReady
+		wait
+	Deselect:
+		XUNG A 1 A_Lower
+		wait
+		TNT1 A 1 A_Lower
+		wait
+	Select:
+		XUNG A 1 A_Raise
+		wait
+	Fire:
+		XUNG B 5
+		XUNG B 0 A_PlaySound("DSSKESWG",CHAN_WEAPON)
+		XUNG C 5 A_CustomPunch(4,0,0,"HitPuff",96)
+		XUNG D 6
+		XUNG C 5
+		XUNG B 6 A_ReFire
+		goto Ready
+	AltFire:
+		XUNG B 2
+		XUNG C 0 A_PlaySound("DSSKESWG",CHAN_WEAPON)
+		XUNG D 2 A_FireCustomMissile("Pitchfork_thrown",0,1,0,5)
+		XUNG D 0 A_TakeInventory("Pitchfork")
+		Goto Deselect+1
+	Spawn:
+		XFOR A -1
+		Stop
+	}
 }
 
 actor HitPuff
 {
-  +NOBLOCKMAP
-  +NOGRAVITY
-  +PUFFONACTORS
-  +ALLOWPARTICLES // this is necessary for it to still make sound on enemies
-  activesound ""
-  attacksound "" // what sound it makes when you hit a wall with it
-  seesound "DSPUNCH" // what sound it makes when you beat somebody up with it
-  states
-  {
-  Spawn:
-    TNT1 A 0
-    TNT1 A 1
-    stop
-  Crash:
-     TNT1 A 0
-     TNT1 A 1
-     stop
-  Melee:
-     TNT1 A 0
-     TNT1 A 1
-     stop
-  }
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+PUFFONACTORS	// this is necessary for it to still make sound on enemies
+	activesound ""
+	attacksound "" // what sound it makes when you hit a wall with it
+	seesound "DSPUNCH" // what sound it makes when you beat somebody up with it
+	states
+	{
+	Spawn:
+	Crash:
+	Melee:
+		TNT1 A 1
+		stop
+	}
 }
 
 ACTOR Pitchfork_thrown
 {
-Radius 2
-Height 1
-Speed 20
-Damage 5
-PROJECTILE
--NOGRAVITY
--NOBLOCKMAP
-+LOWGRAVITY
-+RIPPER
-States
-{
-Spawn:
-XIPP A -1
-Stop
-Death:
-XIPP A 0
-XIPP A 0 A_AlertMonsters
-XIPP A 4 A_SpawnItem("Pitchfork")
-Stop
-}
+	Radius 2
+	Height 1
+	Speed 20
+	Damage 5
+	PROJECTILE
+	-NOGRAVITY
+	-NOBLOCKMAP
+	Gravity .125
+	+RIPPER
+	States
+	{
+	Spawn:
+		XIPP A -1
+		Stop
+	Death:
+		XIPP A 0 A_AlertMonsters
+		XIPP A 4 A_SpawnItemEx("Pitchfork")
+		Stop
+	}
 }
 
+Actor RevolverBlood : Pistol replaces Pistol
+{
+	Tag "Anaconda"
+	Inventory.PickupMessage "You got the anaconda!"
+	attacksound "weapons/pistol"
+	weapon.selectionorder 190
+	states
+	{
+	Fire:
+		PISG A 6
+		PISG A 0 A_FireBullets(5.6,0,1,9,"BulletPuff")
+		PISG A 3 A_GunFlash
+		PISG B 4
+		PISG C 6
+		PISG B 8 A_ReFire
+		goto Ready
+	Flash:
+		PISF A 3 bright A_Light1
+		Goto LightDone
+	Spawn:
+		PIPP A -1
+		Stop
+	}
+}
+
+ACTOR Sawedoff : Shotgun replaces Shotgun
+{
+	Tag "Sawed off"
+	OBITUARY "%o chewed on %k's Sawed off."
+	ATTACKSOUND "dsSAWFIR"
+	Inventory.PickupMessage "You got the Sawed off!"
+	Weapon.SelectionOrder 130
+	Weapon.Kickback 100
+	Weapon.AmmoType2 "SawedoffLoaded"
+	Weapon.AmmoUse2 1
+	Weapon.AmmoGive2 2
+	+WEAPON.AMMO_CHECKBOTH
+	states
+	{
+	Ready:
+		SHTG A 0 A_JumpIfInventory("SawedoffLoaded",0,2)
+		SHTG A 0 A_JumpIfInventory("Shell",1,2)
+		SHTG A 1 A_WeaponReady
+		Loop
+		SHTG A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+		Loop
+	Fire:
+		SHTG A 0 A_JumpIfInventory("SawedoffLoaded",1,1)
+		Goto Reload
+		SHTG A 3
+		SHTG A 0 A_FireBullets(5.6,0,7,5,"BulletPuff",0)
+		SHTG A 0 A_TakeInventory("SawedoffLoaded",1)
+		SHTG A 8 A_Gunflash
+		SHTG A 0 A_JumpIfInventory("SawedoffLoaded",1,1)
+		Goto Reload
+		SHTG A 0 A_Refire
+		Goto Ready
+	Reload:
+		SHTG A 0 A_CheckReload
+		SHTG A 1 A_JumpIfInventory("Shell",2,1)
+		Goto Ready
+		SHTG EB 6
+		SHTG C 6 A_PlaySound("weapons/sshotc")
+		SHTG D 6
+	ReloadLoop:
+		TNT1 A 0 A_TakeInventory("Shell",1,TIF_NOTAKEINFINITE)
+		TNT1 A 0 A_GiveInventory("SawedoffLoaded")
+		TNT1 A 0 A_JumpIfInventory("SawedoffLoaded",0,2)
+		TNT1 A 0 A_JumpIfInventory("Shell",1,"ReloadLoop")
+		SHTG BEA 6
+		SHTG A 7 A_Refire
+		Goto Ready
+	AltFire:
+		SHTG A 0 A_JumpIfInventory("SawedoffLoaded",2,1)
+		Goto Fire
+		SHTG A 3
+		SHTG A 0 A_FireBullets(11.2,7.1,20,5,"BulletPuff",0)
+		SHTG A 0 A_TakeInventory("SawedoffLoaded",2)
+		SHTG A 0 A_PlaySound("weapons/sshotf")
+		SHTG A 8 A_Gunflash
+		SHTG A 0 A_JumpIfInventory("SawedoffLoaded",1,1)
+		Goto Reload
+		SHTG A 0 A_Refire
+		Goto Ready
+	}
+}
+
+ACTOR SawedoffLoaded : Ammo
+{
+	+INVENTORY.IGNORESKILL
+	Inventory.MaxAmount 2
+	Inventory.Icon SHOTA0
+}
+
+actor Thompson : Chaingun replaces Chaingun
+{
+	Tag "Thompson"
+	ATTACKSOUND "DSPISTOL"
+	Weapon.SelectionOrder 70
+	Weapon.AmmoUse2 1
+	Weapon.AmmoGive2 20
+	Weapon.AmmoType2 "Clip"
+	Inventory.PickupMessage "You got the thompson"
+	Obituary "%o was mowed down by %k's thompson."
+	States
+	{
+	Ready:
+		CHGG B 1 A_WeaponReady
+		Loop
+	Deselect:
+		CHGG B 1 A_Lower
+		Loop
+	Select:
+		CHGG B 1 A_Raise
+		Loop
+	Fire:
+		CHGG A 0 A_GunFlash
+		CHGG AB 4 A_FireBullets(5.6,0,1,9,"BulletPuff")
+		CHGG B 0 A_ReFire
+		Goto Ready
+	AltFire:
+		CHGG A 0 A_GunFlash
+		CHGG ABABABAB 2 A_FireBullets(5.6,0,1,9,"BulletPuff")
+		CHGG A 30
+		CHGG B 0 A_ReFire
+		Goto Ready
+	Flash:
+		CHGF A 4 Bright A_Light1
+		CHGF B 4 Bright A_Light2
+		Goto LightDone
+	AltFlash:
+		CHGF A 2 Bright A_Light1
+		CHGF B 2 Bright A_Light2
+		CHGF A 2 Bright A_Light1
+		CHGF B 2 Bright A_Light2
+		CHGF A 2 Bright A_Light1
+		CHGF B 2 Bright A_Light2
+		CHGF A 2 Bright A_Light1
+		CHGF B 2 Bright A_Light2
+		Goto LightDone
+	}
+}
+
+actor NapalmLauncher : RocketLauncher replaces RocketLauncher
+{
+	Tag "Napalm Launcher"
+	inventory.pickupmessage "You got the napalm launcher!"
+	weapon.selectionorder 250
+	weapon.ammotype "NapalmAmmo"
+	states
+	{
+	Ready:
+		RLXB A 1 A_WeaponReady
+		loop
+	Deselect:
+		RLXB A 1 A_Lower
+		loop
+	Select:
+		RLXB A 1 A_Raise
+		loop
+	Fire:
+		RLXB A 6 A_GunFlash
+		RLXB B 6 Bright A_FireCustomMissile("RocketBlood")
+		RLXB CD 6 Bright
+		RLXB A 24 A_ReFire
+		goto Ready
+	Flash:
+		TNT1 A 0
+		stop
+	}
+}
 
 ////////////////
 
-actor PistolBlood : Weapon
+actor AClip : Clip replaces Clip
 {
-  obituary "%o was tickled by %k's pea shooter."
-  Inventory.PickupMessage "You got the anaconda!"
-  attacksound "weapons/pistol"
-  Inventory.PickupSound "misc/w_pkup"
-  weapon.selectionorder 1900
-  weapon.kickback 100
-  weapon.ammotype "AClip"
-  weapon.ammouse 1
-  weapon.ammogive 20
-  +WEAPON.WIMPY_WEAPON
-  states
-  {
-  Ready:
-    PISG A 1 A_WeaponReady
-    loop
-  Deselect:
-    PISG A 1 A_Lower
-    loop
-  Select:
-    PISG A 1 A_Raise
-    loop
-  Fire:
-    PISG A 6
-    PISG A 0 A_FireBullets (5.6, 0, 1, 7, "BulletPuff")
-    PISG A 3 A_GunFlash
-    PISG B 4
-    PISG C 6
-    PISG B 8 A_ReFire
-    goto Ready
-  Flash:
-    PISF A 3 bright A_Light1
-    PISF A 0 bright A_Light0
-    stop
-  Spawn:
-    PIPP A -1
-    Stop
-
-  }
+	scale 0.8
+	inventory.pickupmessage "Picked up an Anaconda speedloader."
 }
 
-actor AClip : Ammo replaces Clip
+actor AClipBox : ClipBox replaces ClipBox
 {
-  spawnid 11
-  radius 20
-  height 16
-  scale 0.8
-  inventory.pickupmessage "Picked up an anaconda bullet round."
-  inventory.icon "CLIPA0"
-  inventory.amount 10
-  inventory.maxamount 200
-  ammo.backpackamount 10
-  ammo.backpackmaxamount 400
-  states
-  {
-  Spawn:
-    CLIP A -1
-    stop
-  }
+	inventory.pickupmessage "Picked up some Thompson ammo."
+	inventory.amount 25
 }
 
-actor AClipBox : AClip replaces ClipBox
+Actor Shell2 : Shell
 {
-  spawnid 139
-  radius 20
-  height 16
-  inventory.pickupmessage "Picked up thompson ammo."
-  inventory.amount 25
-  states
-  {
-  Spawn:
-    AMMO A -1
-    stop
-  }
-}
-
-ACTOR Sawedoff : Weapon 27010
-{
-  SpawnID 33
-  OBITUARY "%o chewed on %k's Sawed off."
-  Radius 20
-  Height 16
-  ATTACKSOUND "dsSAWFIR"
-  Inventory.PickupMessage "You got the Sawed off!"
-  Inventory.PickupSound "misc/w_pkup"
-  Weapon.SelectionOrder 1300
-  Weapon.Kickback 100
-  Weapon.AmmoType "AutoShotgunClip"
-  Weapon.AmmoUse 1
-  Weapon.AmmoType2 "Shell"
-  Weapon.AmmoUse2 2
-  Weapon.AmmoGive 2
-  Weapon.AmmoGive2 8
-  +AMMO_OPTIONAL
-  +ALT_AMMO_OPTIONAL
-  states
-  {
-  Ready:
-    SHTG A 1 A_WeaponReady
-    Loop
-  DeSelect:
-    SHTG A 1 A_Lower
-    Loop
-  Select:
-    SHTG A 1 A_Raise
-    Loop
-  Fire:
-    SHTG A 0 A_JumpIfInventory("AutoShotgunClip",1,1) //Fire if not empty
-    Goto Fire+8
-    SHTG A 3
-    SHTG A 0 A_FireBullets (5.6, 0, 7, 5, "BulletPuff")
-    SHTG A 8 A_Gunflash
-    SHTG A 0 A_JumpIfInventory("AutoShotgunClip",1,3)
-    SHTG A 0 A_JumpIfInventory("Shell",2,2)
-    SHTG A 0 ACS_Execute(99,0,3)  // Out of ammo, so autoswitch to best available weapon
-    SHTG A 0 A_Refire
-    Goto Ready
-    SHTG A 0 A_JumpIfInventory("Shell",2,2) //Make sure there are spare shells left
-    SHTG A 0 ACS_Execute(99,0,3)  // Out of ammo, so autoswitch to best available weapon
-    Goto Ready
-    SHTG EB 6
-    SHTG B 0 A_PlaySound ("weapons/sshotc")
-    SHTG CD 6
-    SHTG E 0 A_TakeInventory("Shell",2)
-    SHTG E 0 A_GiveInventory("AutoShotgunClip",2)
-    SHTG BEA 6
-    SHTG A 7 A_Refire
-    Goto Ready
-   AltFire:
-    SHTG A 0 A_JumpIfInventory("AutoShotgunClip",2,1) //Has the player fired once, if so, reload
-    Goto Fire+8
-    SHTG A 0 A_FireBullets (11.2, 7.1, 20, 5, "BulletPuff",0)
-    SHTG A 0 A_TakeInventory("AutoShotgunClip",2) //For constancy's sake, drain the altfire from the same well as the primary fire
-    SHTG A 0 A_PlaySound ("weapons/sshotf")
-    SHTG A 9 A_Gunflash
-    SHTG A 0 A_JumpIfInventory("Shell",2,2)
-    SHTG A 0 ACS_Execute(99,0,3) // Out of ammo, so autoswitch to best available weapon
-    SHTG A 0 A_Refire
-    Goto Ready
-  Flash:
-    SHTF A 4 BRIGHT A_Light1
-    SHTF B 3 BRIGHT A_Light2
-    SHTF B 0 BRIGHT A_Light0
-    Stop
-  Spawn:
-    SHOT A -1
-    Stop
-  }
-}
-
-
-
-actor Thompson : DoomWeapon 27012
-{
-   Game Doom
-   SpawnID 28
-    ATTACKSOUND "DSPISTOL"
-   Weapon.SelectionOrder 700
-   Weapon.AmmoUse 1
-   Weapon.AmmoUse2 1
-   Weapon.AmmoGive 20
-   Weapon.AmmoGive2 20
-   Weapon.AmmoType "AClip"
-   Weapon.AmmoType2 "AClip"
-   Inventory.PickupMessage "You got the thompson"
-   Obituary "%o was mowed down by %k's thompoen."
-   States
-   {
-   Ready:
-                CHGG B 1 A_WeaponReady
-      Loop
-   Deselect:
-      CHGG B 1 A_Lower
-      Loop
-   Select:
-      CHGG B 1 A_Raise
-      Loop
-   Fire:
-                CHGG A 0 A_GunFlash
-                CHGG AB 4 A_FireBullets(5.6,0,1,5,"BulletPuff")
-      CHGG B 0 A_ReFire
-      Goto Ready
-   AltFire:
-                CHGG A 0 A_GunFlash
-                CHGG ABABABAB 2 A_FireBullets(5.6,0,1,5,"BulletPuff")
-                CHGG A 30
-      CHGG B 0 A_ReFire
-      Goto Ready
-   Flash:
-      CHGF A 4 Bright A_Light1
-      CHGF B 4 Bright A_Light2
-                Goto LightDone
-   AltFlash:
-      CHGF A 2 Bright A_Light1
-      CHGF B 2 Bright A_Light2
-      CHGF A 2 Bright A_Light1
-      CHGF B 2 Bright A_Light2
-      CHGF A 2 Bright A_Light1
-      CHGF B 2 Bright A_Light2
-      CHGF A 2 Bright A_Light1
-      CHGF B 2 Bright A_Light2
-      Goto LightDone
-   Spawn:
-      MGUN A -1
-      Stop
-   }
-}
-
-ACTOR AutoShotgunClip : Ammo
-{
-   Inventory.MaxAmount 2
-   Ammo.BackpackAmount 0
-   Ammo.BackpackMaxAmount 5
-   Inventory.Icon SHOTA0
-}
-
-ACTOR Heart : Health replaces HealthBonus
-{
-Scale 0.5
-  SpawnID 152
-  Radius 20
-  Height 16
-  Inventory.PickupMessage "Picked up a Life Essence."
-  Inventory.Amount 5
-  Inventory.MaxAmount 200
-  Inventory.PickupSound "ITEMUP"
-  +CountItem
-  +INVENTORY.ALWAYSPICKUP
-  states
-  {
-  Spawn:
-    BON1 ABCD 6
-    Loop
-  }
-}
-
-actor NapalmLauncher : Weapon 21073
-{
-  spawnid 29
-  radius 20
-  height 16
-  inventory.pickupmessage "You got the napalm launcher!"
-  weapon.selectionorder 2500
-  weapon.kickback 100
-  weapon.ammotype "NapalmAmmo"
-  weapon.ammouse 1
-  weapon.ammogive 2
-  +WEAPON.NOAUTOFIRE
-  +WEAPON.EXPLOSIVE
-  states
-  {
-  Ready:
-    RLXB A 1 A_WeaponReady
-    loop
-  Deselect:
-    RLXB A 1 A_Lower
-    loop
-  Select:
-    RLXB A 1 A_Raise
-    loop
-  Fire:
-    RLXB A 6 A_GunFlash
-    RLXB B 6 Bright A_FireCustomMissile ("RocketBlood")
-    RLXB C 6 Bright
-    RLXB D 6 Bright
-    RLXB A 24 A_ReFire
-    goto Ready
-  Flash:
-    MISF D 0 bright A_Light0
-    stop
-  Spawn:
-    LAUN A -1
-    stop
-  }
-}
-
-actor RocketBlood
-{
-  obituary "%o rode %k's flame blast."
-  radius 11
-  height 8
-  speed 20
-  damage 80
-  scale 0.6
-  seesound "weapons/rocklf"
-  deathsound "weapons/rocklx"
-  PROJECTILE
-  +RANDOMIZE
-  renderstyle ADD
-  alpha 0.7
-  states
-  {
-  Spawn:
-    NULL AA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360), 0, 128)
-    XBPR A 3 bright
-    XBPR B 3 bright
-    XBPR C 3 bright
-    loop
-  Death:
-    XBPR D 3 bright A_Explode
-    NULL AA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360), 0, 128)
-    NULL AA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360), 0, 128)
-    NULL AA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360), 0, 128)
-    NULL AA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360), 0, 128)
-    NULL AA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360), 0, 128)
-    NULL AA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360), 0, 128)
-    NULL AA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360), 0, 128)
-    XBPR E 3 bright
-    XBPR F 3 bright
-    XBPR G 3 bright
-    XBPR H 3 bright
-    XBPR I 3 bright
-    XBPR J 3 bright
-    XBPR K 3 bright
-    XBPR L 3 bright
-    XBPR M 3 bright
-    XBPR N 3 bright
-    stop
-  }
+	Inventory.pickupmessage "Picked up 2 shotgun shells"
+	states
+	{
+	Spawn:
+		SHEL B -1
+		stop
+	}
 }
 
 actor NapalmAmmo : Ammo replaces RocketAmmo
 {
-  spawnid 140
-  radius 20
-  height 26
-  inventory.pickupmessage "Picked up a napalm bomb."
-  inventory.icon "ROCKA0"
-  inventory.amount 1
-  inventory.maxamount 50
-  ammo.backpackamount 1
-  ammo.backpackmaxamount 100
-  states
-  {
-  Spawn:
-    ROCK A -1
-    stop
-  }
+	Tag "Napalm"
+	height 26
+	inventory.pickupmessage "Picked up a napalm canister."
+	inventory.icon "ROCKA0"
+	inventory.maxamount 50
+	ammo.backpackamount 1
+	ammo.backpackmaxamount 100
+	states
+	{
+	Spawn:
+		ROCK A -1
+		stop
+	}
+}
+
+ACTOR Heart : HealthBonus replaces HealthBonus
+{
+	Scale 0.5
+	Inventory.PickupMessage "Picked up a Life Essence."
+	Inventory.Amount 5
+	Inventory.PickupSound "ITEMUP"
+	states
+	{
+	Spawn:
+		BON1 ABCD 6
+		Loop
+	}
+}
+
+actor RocketBlood : Rocket
+{
+	-DEHEXPLOSION
+	-ROCKETTRAIL
+	obituary "%o rode %k's flame blast."
+	damage 80
+	scale 0.6
+	renderstyle ADD
+	alpha 0.7
+	states
+	{
+	Spawn:
+		TNT1 AA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		XBPR ABC 3 BRIGHT LIGHT("Napalm")
+		loop
+	Death:
+		XBPR D 3 bright LIGHT("NapalmX_1") A_Explode
+		TNT1 AAAAAAAAAAAAAA 0 A_SpawnItemEx("WraithFX22",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		XBPR E 3 bright LIGHT("NapalmX_2")
+		XBPR F 3 bright LIGHT("NapalmX_3")
+		XBPR G 3 bright LIGHT("NapalmX_4")
+		XBPR H 3 bright LIGHT("NapalmX_5")
+		XBPR I 3 bright LIGHT("NapalmX_6")
+		XBPR J 3 bright LIGHT("NapalmX_7")
+		XBPR K 3 bright LIGHT("NapalmX_8")
+		XBPR L 3 bright LIGHT("NapalmX_9")
+		XBPR M 3 bright LIGHT("NapalmX_10")
+		XBPR N 3 bright LIGHT("NapalmX_11")
+		stop
+	}
 }
 
 Actor WraithFX22
 {
+	+CLIENTSIDEONLY
 	Projectile
-	Damage 0
 	+RIPPER
 	+BLOODLESSIMPACT
 	-NOGRAVITY
-        +LOWGRAVITY
-	Speed 0
+	Gravity .125
 	Radius 1
 	Height 1
 	Scale 0.60
@@ -3773,36 +3209,26 @@ Actor WraithFX22
 	{
 	Spawn:
 		WRBL KLKL 2 Bright
-		NULL A 0 A_Jump(128,1)
+		TNT1 A 0 A_Jump(128,1)
 		Loop
 		WRBL MNOP 2 Bright
 		WRBL P 1 Bright A_FadeOut
 		Wait
-	Death:
-		NULL A 1
-		Stop
 	}
 }
 
 ACTOR NewPuff : BulletPuff replaces BulletPuff
 {
-  spawnid 131
-  renderstyle Translucent
-  alpha 0.5
-  +NOBLOCKMAP
-  +NOGRAVITY
-  +ALLOWPARTICLES
-  states
-  {
-  Spawn:
-    NULL AA 0 A_SpawnItemEx("NewSparks",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360), 0, 128)
-    PUFF A 2 bright
-    PUFF A 2 A_SpawnItem("Puff2")
-    PUFF B 4
-  Melee:
-    PUFF CD 4
-    stop
-  }
+	states
+	{
+	Spawn:
+		PUFF A 2 BRIGHT LIGHT("PUFF") NODELAY A_SpawnItemEx("NewSparks",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		PUFF A 2 A_SpawnItemEx("Puff2")
+		PUFF B 4
+	Melee:
+		PUFF CD 4
+		stop
+	}
 }
 
 ACTOR Puff2
@@ -3825,40 +3251,34 @@ ACTOR NewSparks : WraithFX22
 	Scale 0.4
 }
 
-//Carrieable Medikit
-actor CMedikit : HealthPickup replaces Medikit
-{
-  spawnid 24
-  health 30
-  inventory.maxamount 5
-  inventory.icon "M_LMED"
-  inventory.pickupmessage "You picked up a large medikit."
-  +COUNTITEM
-  states
-  {
-  Spawn:
-    MEDI A -1
-    stop
-  }
-}
-
 //Carrieable Stimpack
 actor CStimpack : HealthPickup replaces Stimpack
 {
-  spawnid 23
-  radius 20
-  height 16
-  health 15
-  inventory.maxamount 5
-  inventory.icon "M_SMED"
-  inventory.pickupmessage "You picked up a small medikit."
-  +COUNTITEM
-  states
-  {
-  Spawn:
-    STIM A -1
-    stop
-  }
+	health 15
+	inventory.maxamount 5
+	inventory.icon "M_SMED"
+	inventory.pickupmessage "You picked up a small medikit."
+	+COUNTITEM
+	states
+	{
+	Spawn:
+		STIM A -1
+		stop
+	}
+}
+
+//Carrieable Medikit
+actor CMedikit : CStimpack replaces Medikit
+{
+	health 30
+	inventory.icon "M_LMED"
+	inventory.pickupmessage "You picked up a large medikit."
+	states
+	{
+	Spawn:
+		MEDI A -1
+		stop
+	}
 }
 
 
@@ -3868,1610 +3288,123 @@ actor CStimpack : HealthPickup replaces Stimpack
 
 actor MoonMarker : MapMarker 24570
 {
-obituary "Emergency Shelter"
-states
-{
-spawn:
-MOON A -1
-stop
-}
+	obituary "Emergency Shelter"
+	states
+	{
+	spawn:
+		MOON A -1
+		stop
+	}
 }
 
 //////////////
 // CIVILIAN //
 //////////////
 
-
 ACTOR Civilian 29237
 {
-  SpawnID 216
-  OBITUARY "%o can't be killed."
-  Health 999999
-  Radius 16
-  Height 56
-  Mass 999999
-  Speed 0
-  Scale 0.5
-  PainChance 0
-  MONSTER
-  +FloorClip
-  +NoBlood
-  states
-  {
-  Spawn:
-    CIVI PQ 30 A_Look
-    Loop
-  See:
-    CIVI PQ 30 A_Chase
-    Loop
-  Pain:
-    CIVI A 3
-    CIVI G 3 A_Pain
-    Goto See
-  Death:
-    CIVI G 5
-    CIVI H 5 A_Scream
-    CIVI I 5 A_NoBlocking
-    CIVI JKLMN 5
-    CIVI O -1
-    Stop
-  }
-}
-
-actor PistolBlood_ : Weapon replaces PistolBlood
-{
-  attacksound "weapons/pistol"
-  obituary "%o was tickled by %k's pea shooter."
-  weapon.selectionorder 1900
-  weapon.kickback 100
-  weapon.ammotype "AClip"
-  weapon.ammouse 1
-  weapon.ammogive 10
-  +WEAPON.WIMPY_WEAPON
-  states
-  {
-  Ready:
-    PISG A 1 A_WeaponReady
-    loop
-  Deselect:
-    PISG A 1 A_Lower
-    loop
-  Select:
-    PISG A 1 A_Raise
-    loop
-  Fire:
-    PISG A 6
-    PISG A 0 A_FireBullets (5.6, 0, 1, 8, "BulletPuff")
-    PISG A 3 A_GunFlash
-    PISG B 4
-    PISG C 6
-    PISG B 8 A_ReFire
-    goto Ready
-  Flash:
-    PISF A 3 bright A_Light1
-    PISF A 0 bright A_Light0
-    stop
-  Spawn:
-    PIPP A 1
-    PIPP A 0 A_SpawnItem("PistolBloodPickup")
-    Stop
-
-  }
-}
-
-actor PistolBloodPickup : CustomInventory 19999
-{
-
-  Inventory.PickupMessage "You got the anaconda!"
-  Inventory.PickupSound "misc/w_pkup"
-   states
-   {
-      Spawn:
-	PIPP A -1
-	stop
-      Pickup:
-	PIPP A 0 A_JumpIfInventory("PistolBlood_",1,2)
-	PIPP A 0 A_GiveInventory("PistolBlood_",1)
-	stop
-	PIPP A 0 A_GiveInventory("PistolBloodDual",1)
-	stop
-	}
-}
-
-///////////////////
-// DOUBLE PISTOL //
-///////////////////
-
-actor PistolBloodDual : PistolBlood_
-{
-  weapon.selectionorder 1901
-  states
-  {
-  Ready:
-    PISG D 1 A_WeaponReady
-    loop
-  Deselect:
-    PISG D 1 A_Lower
-    loop
-  Select:
-    PISG D 1 A_Raise
-    loop
-  Fire:
-    PISG D 6
-    PISG D 0 A_FireBullets (5.6, 0, 1, 9, "BulletPuff")
-    PISG D 3 A_GunFlash
-    PISG E 4
-    PISG F 3
-    PISG F 0 A_FireBullets (5.6, 0, 1, 9, "BulletPuff")
-    PISG F 3
-    PISG G 4
-    PISG H 4
-    PISG I 2
-    PISG J 6 A_ReFire
-    PISG J 2
-    goto Ready
-  Hold:
-    PISG J 0 A_FireBullets (5.6, 0, 1, 9, "BulletPuff")
-    PISG J 2 A_GunFlash
-    PISG D 1
-    PISG E 4
-    PISG F 3
-    PISG F 0 A_FireBullets (5.6, 0, 1, 9, "BulletPuff")
-    PISG F 3
-    PISG G 4
-    PISG H 4
-    PISG I 2
-    PISG J 6 A_ReFire
-    PISG J 2
-    goto Ready
-  Flash:
-    PISF A 3 bright A_Light1
-    PISF A 0 bright A_Light0
-    TNT1 A 7
-    PISF B 3 bright A_Light1
-    PISF B 0 bright A_Light0
-    stop
-  Spawn:
-    PIPP A 1
-    PIPP A 0 A_SpawnItem("PistolBloodPickup")
-    PIPP A 0 A_SpawnItem("PistolBloodPickup")
-    Stop
-
-  }
-}
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// JEKYLL GRIM PAINE /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-// this is done to remove dynamic lighting for Hellhound's fire breath - it's too intense and leads to slowdowns,
-// while it is not really necessary and doesn't add much visual beauty
-
-ACTOR DogFire_ : DogFire replaces DogFire
-{}
-
-ACTOR DogShot_ : DogShot replaces DogShot
-{}
-
-ACTOR DogTrail_ : DogTrail replaces DogTrail
-{}
-
-// ENEMIES
-// BTW, the original names are incorrect, ShotgunCultist is the guy with a Tommy-gun, while ChainGunCultist is
-// actually a culstist with a shotgun, but I renamed them to TommyGunCultist and PumpCultist correspondingly
-
-// Are you crazy? this guy MUST leave Tommy-gun and ammo behind! it is nonsense otherwise, besides, he's tough
-// and it takes plenty of ammo to bring him down, therefore there must be some real reward for killing him.
-
-Actor TommyGunCultist : ShotgunCultist replaces ShotgunCultist
-{
-  DropItem "AClipBox" 80 //so let's make him leave ammo with about 78% chance
-  DropItem "Thompson" 0 //and a Tommy-gun with 10% chance
-}
-
-// Remember, that amount of ammo dropped by an enemy, as well as amount of ammo given
-// by a weapon dropped by an enemy is always reduced twice, therefore I can't say
-// we get a lot of additional ammo. As for weapons, getting them earlier doesn't make
-// the game much easier. Really.
-
-// Same reason - he must leave something worthful behind, because the shortage of shells is horrible
-// and, believe me, even with these changes there won't be much shotgun ammo.
-// Besides, what if I don't realize that the shotgun is in the cemetery and don't go there for
-// a long time, should I really be tortured by the its absense? Nonsense.
-
-Actor PumpCultist : ChainGunCultist replaces ChainGunCultist
-{
-  DropItem "Shell2" 80  // even if he does, he drops only 2 shells, so you don't get too much ammo
-  DropItem "Sawedoff" 0
-}
-
-// This ammo is dropped by shotgun cultist, therefore the amount is reduced twice
-// so I make it the same as usual shotgun ammo (as it'll become 2 instead of 4 naturally
-// when cultist drops it), but make additional sprite which shows 2 shells.
-
-Actor Shell2 : Shell
-{
-inventory.pickupmessage "Picked up 2 shotgun shells"
-states
+	OBITUARY "%o can't be killed."
+	Health 999999
+	Radius 16
+	Height 56
+	Mass 999999
+	Scale 0.5
+	MONSTER
+	-COUNTKILL
+	+FloorClip
+	+NoBlood
+	states
 	{
 	Spawn:
-		SHEL B -1
-		stop
-	}
-}
-
-// WEAPONS
-
-// You might have not noticed, but if your weapon.selectionorder values are larger than the ones
-// for original weapons, then if someone uses cheats he'll get some of original weapons selected
-// instead of yours, so ALWAYS make weapon.selectionorder value for your new weapons smaller than
-// for original ones.
-// I reduced it 10 times to work OK. I didn't bother to correct it for fist and pitchfork though.
-
-// I don't know why the hell you replaced the revolver with a weaker one in the latest version of tcotd2,
-// but it isn't enough and it hadn't been enough before that replacement.
-// Most enemies are tough, no one wants to end up punching them and running around trying to avoid them.
-// Revolver must be more powerful, because otherwise it's stupid and frustrating. We run out of ammo
-// too soon, and enemies leave few ammo behind - even with the changes I made above! So if Revoler
-// isn't more powerful, it is simply useless.
-
-// And hell with dual revolver, it looks stupid and isn't necessary, as we added power to one revolver
-// so this thing replaces directly that custominventory that originally may give us first or second
-// revolver - it now just always gives one.
-
-
-Actor RevolverBlood : PistolBlood replaces PistolBloodPickup
-{
-  weapon.selectionorder 190
-states
-	{
-     Fire:
-        PISG A 6
-        PISG A 0 A_FireBullets (5.6, 0, 1, 9, "BulletPuff") //yes, 10 power is not much considering average enemy health!!
-        PISG A 3 A_GunFlash //besides, this thing doesn't have fast firespeed
-        PISG B 4
-        PISG C 6
-        PISG B 8 A_ReFire
-        goto Ready
-     Pickup:
-	PIPP A 0 A_JumpIfInventory("RevolverBlood",1,2)
-	PIPP A 0 A_GiveInventory("RevolverBlood",1)
-	stop
-	PIPP A 0 A_GiveInventory("PistolBloodDual",1)
-	stop
-    	}
-}
-
-
-Actor SawedOff_ : SawedOff replaces SawedOff
-{
-  Weapon.SelectionOrder 130
-}
-
-
-
-// Why the hell would we need such a weak Tommy-gun? There must be some reason to use it,
-// otherwise everyone will prefer revolver
-
-Actor Thompson_ : Thompson replaces Thompson
-{
-   Weapon.SelectionOrder 70
-states
-	{
-   Fire:
-      CHGG A 0 A_GunFlash
-      CHGG AB 4 A_FireBullets(5.6,0,1,9,"BulletPuff") //and yes, 10 power is not much at all!
-      CHGG B 0 A_ReFire
-      Goto Ready
-    	}
-}
-
-actor NapalmLauncher_ : NapalmLauncher replaces NapalmLauncher
-{
-  weapon.selectionorder 250
-}
-
-
-// STIMPACK
-
-// Many players use fullscreen hud. Fullscreen inventory bar shows all the inventory icons in one size.
-// And your stimpack and medikit sprites look almost the same. What the hell? Sorry, I have to replace
-// the sprite and inventory. icon.
-
-actor CStimpack_ : CStimpack replaces CStimpack
-{
-  inventory.icon "M_SMED"
-  states
-  {
-  Spawn:
-    STIM A -1
-    stop
-  }
-}
-
-actor Fire_1X : SwitchableDecoration 32700
-{
-  +NOCLIP +NOBLOCKMAP +NOGRAVITY +NOSECTOR +CLIENTSIDEONLY +NOINTERACTION
-  states
-  {
-  Spawn:
-  Active:
-    TNT1 A 0
-    TNT1 A 0 A_Jump (216, 3)
-    TNT1 A 1 A_SpawnItem ("Flame1A", 0, 0, 0)
-    TNT1 A 0 A_SpawnItem ("Ember1", 0, 0, 0)
-    loop
-    TNT1 A 0 A_Jump (176, 2)
-    TNT1 A 1 A_SpawnItem ("FLame1B", 0, 0, 0)
-    loop
-    TNT1 A 0 A_Jump (136, 2)
-    TNT1 A 1 A_SpawnItem ("Flame2A", 0, 0, 0)
-    loop
-    TNT1 A 0 A_Jump (96, 2)
-    TNT1 A 1 A_SpawnItem ("Flame2B", 0, 0, 0)
-    loop
-    TNT1 A 0 A_Jump (56, 2)
-    TNT1 A 1 A_SpawnItem ("Flame3A", 0, 0, 0)
-    loop
-    TNT1 A 1 A_SpawnItem ("Flame3B", 0, 0, 0)
-    loop
-  Inactive:
-    TNT1 A 1
-    loop
-  }
-}
-
-actor Flame1A
-{
-  height 2
-  radius 1
-  +NOGRAVITY +NOCLIP +NOBLOCKMAP +MISSILE +CLIENTSIDEONLY +NOINTERACTION
-  renderstyle Add
-  alpha 0.8
-  scale 0.35
-  states
-  {
-  Spawn:
-    FLM1 A 0
-    FLM1 A 0 ThrustThingZ (0, random (2, 6), 0, 0)
-    FLM1 A 0 ThrustThing (random (0, 255), random (0, 1), 0, 0)
-    FLM1 ABCDE 2 bright
-    FLM1 F 1 bright A_SetTranslucent (0.75, 1)
-    FLM1 F 1 bright A_SetTranslucent (0.7, 1)
-    FLM1 G 1 bright A_SetTranslucent (0.65, 1)
-    FLM1 G 1 bright A_SetTranslucent (0.6, 1)
-    FLM1 H 1 bright A_SetTranslucent (0.55, 1)
-    FLM1 H 1 bright A_SetTranslucent (0.5, 1)
-    FLM1 I 1 bright A_SetTranslucent (0.45, 1)
-    FLM1 I 1 bright A_SetTranslucent (0.4, 1)
-    FLM1 J 1 bright A_SetTranslucent (0.35, 1)
-    FLM1 J 1 bright A_SetTranslucent (0.3, 1)
-    FLM1 K 1 bright A_SetTranslucent (0.25, 1)
-    FLM1 K 1 bright A_SetTranslucent (0.2, 1)
-    FLM1 L 1 bright A_SetTranslucent (0.15, 1)
-    FLM1 L 1 bright A_SetTranslucent (0.1, 1)
-    stop
-  }
-}
-
-actor Ember1 : Flame1A
-{
-  scale 0.1
-  states
-  {
-  Spawn:
-    EMBR A 0
-    EMBR A 0 ThrustThingZ (0, random (4, 16), 0, 0)
-    EMBR A 0 ThrustThing (random (0, 255), random (0, 1), 0, 0)
-    EMBR A 32 bright
-  Death:
-    EMBR A 2 bright A_FadeOut (0.1)
-    loop
-  }
-}
-
-actor Flame1B : Flame1A
-{
-  states
-  {
-  Spawn:
-    FLM2 A 0
-    FLM2 A 0 ThrustThingZ (0, random (2, 6), 0, 0)
-    FLM2 A 0 ThrustThing (random (0, 255), random (0, 1), 0, 0)
-    FLM2 ABCDE 2 bright
-    FLM2 F 1 bright A_SetTranslucent (0.75, 1)
-    FLM2 F 1 bright A_SetTranslucent (0.7, 1)
-    FLM2 G 1 bright A_SetTranslucent (0.65, 1)
-    FLM2 G 1 bright A_SetTranslucent (0.6, 1)
-    FLM2 H 1 bright A_SetTranslucent (0.55, 1)
-    FLM2 H 1 bright A_SetTranslucent (0.5, 1)
-    FLM2 I 1 bright A_SetTranslucent (0.45, 1)
-    FLM2 I 1 bright A_SetTranslucent (0.4, 1)
-    FLM2 J 1 bright A_SetTranslucent (0.35, 1)
-    FLM2 J 1 bright A_SetTranslucent (0.3, 1)
-    FLM2 K 1 bright A_SetTranslucent (0.25, 1)
-    FLM2 K 1 bright A_SetTranslucent (0.2, 1)
-    FLM2 L 1 bright A_SetTranslucent (0.15, 1)
-    FLM2 L 1 bright A_SetTranslucent (0.1, 1)
-    stop
-  }
-}
-
-actor Flame2A : Flame1A
-{
-  states
-  {
-  Spawn:
-    FLM3 A 0
-    FLM3 A 0 ThrustThingZ (0, random (2, 6), 0, 0)
-    FLM3 A 0 ThrustThing (random (0, 255), random (0, 1), 0, 0)
-    FLM3 ABCDE 2 bright
-    FLM3 F 1 bright A_SetTranslucent (0.75, 1)
-    FLM3 F 1 bright A_SetTranslucent (0.7, 1)
-    FLM3 G 1 bright A_SetTranslucent (0.65, 1)
-    FLM3 G 1 bright A_SetTranslucent (0.6, 1)
-    FLM3 H 1 bright A_SetTranslucent (0.55, 1)
-    FLM3 H 1 bright A_SetTranslucent (0.5, 1)
-    FLM3 I 1 bright A_SetTranslucent (0.45, 1)
-    FLM3 I 1 bright A_SetTranslucent (0.4, 1)
-    FLM3 J 1 bright A_SetTranslucent (0.35, 1)
-    FLM3 J 1 bright A_SetTranslucent (0.3, 1)
-    FLM3 K 1 bright A_SetTranslucent (0.25, 1)
-    FLM3 K 1 bright A_SetTranslucent (0.2, 1)
-    FLM3 L 1 bright A_SetTranslucent (0.15, 1)
-    FLM3 L 1 bright A_SetTranslucent (0.1, 1)
-    stop
-  }
-}
-
-actor Flame2B : Flame1A
-{
-  states
-  {
-  Spawn:
-    FLM4 A 0
-    FLM4 A 0 ThrustThingZ (0, random (2, 6), 0, 0)
-    FLM4 A 0 ThrustThing (random (0, 255), random (0, 1), 0, 0)
-    FLM4 ABCDE 2 bright
-    FLM4 F 1 bright A_SetTranslucent (0.75, 1)
-    FLM4 F 1 bright A_SetTranslucent (0.7, 1)
-    FLM4 G 1 bright A_SetTranslucent (0.65, 1)
-    FLM4 G 1 bright A_SetTranslucent (0.6, 1)
-    FLM4 H 1 bright A_SetTranslucent (0.55, 1)
-    FLM4 H 1 bright A_SetTranslucent (0.5, 1)
-    FLM4 I 1 bright A_SetTranslucent (0.45, 1)
-    FLM4 I 1 bright A_SetTranslucent (0.4, 1)
-    FLM4 J 1 bright A_SetTranslucent (0.35, 1)
-    FLM4 J 1 bright A_SetTranslucent (0.3, 1)
-    FLM4 K 1 bright A_SetTranslucent (0.25, 1)
-    FLM4 K 1 bright A_SetTranslucent (0.2, 1)
-    FLM4 L 1 bright A_SetTranslucent (0.15, 1)
-    FLM4 L 1 bright A_SetTranslucent (0.1, 1)
-    stop
-  }
-}
-
-actor Flame3A : Flame1A
-{
-  states
-  {
-  Spawn:
-    FLM5 A 0
-    FLM5 A 0 ThrustThingZ (0, random (2, 6), 0, 0)
-    FLM5 A 0 ThrustThing (random (0, 255), random (0, 1), 0, 0)
-    FLM5 ABCDE 2 bright
-    FLM5 F 1 bright A_SetTranslucent (0.75, 1)
-    FLM5 F 1 bright A_SetTranslucent (0.7, 1)
-    FLM5 G 1 bright A_SetTranslucent (0.65, 1)
-    FLM5 G 1 bright A_SetTranslucent (0.6, 1)
-    FLM5 H 1 bright A_SetTranslucent (0.55, 1)
-    FLM5 H 1 bright A_SetTranslucent (0.5, 1)
-    FLM5 I 1 bright A_SetTranslucent (0.45, 1)
-    FLM5 I 1 bright A_SetTranslucent (0.4, 1)
-    FLM5 J 1 bright A_SetTranslucent (0.35, 1)
-    FLM5 J 1 bright A_SetTranslucent (0.3, 1)
-    FLM5 K 1 bright A_SetTranslucent (0.25, 1)
-    FLM5 K 1 bright A_SetTranslucent (0.2, 1)
-    FLM5 L 1 bright A_SetTranslucent (0.15, 1)
-    FLM5 L 1 bright A_SetTranslucent (0.1, 1)
-    stop
-  }
-}
-
-actor Flame3B : Flame1A
-{
-  states
-  {
-  Spawn:
-    FLM6 A 0
-    FLM6 A 0 ThrustThingZ (0, random (2, 6), 0, 0)
-    FLM6 A 0 ThrustThing (random (0, 255), random (0, 1), 0, 0)
-    FLM6 ABCDE 2 bright
-    FLM6 F 1 bright A_SetTranslucent (0.75, 1)
-    FLM6 F 1 bright A_SetTranslucent (0.7, 1)
-    FLM6 G 1 bright A_SetTranslucent (0.65, 1)
-    FLM6 G 1 bright A_SetTranslucent (0.6, 1)
-    FLM6 H 1 bright A_SetTranslucent (0.55, 1)
-    FLM6 H 1 bright A_SetTranslucent (0.5, 1)
-    FLM6 I 1 bright A_SetTranslucent (0.45, 1)
-    FLM6 I 1 bright A_SetTranslucent (0.4, 1)
-    FLM6 J 1 bright A_SetTranslucent (0.35, 1)
-    FLM6 J 1 bright A_SetTranslucent (0.3, 1)
-    FLM6 K 1 bright A_SetTranslucent (0.25, 1)
-    FLM6 K 1 bright A_SetTranslucent (0.2, 1)
-    FLM6 L 1 bright A_SetTranslucent (0.15, 1)
-    FLM6 L 1 bright A_SetTranslucent (0.1, 1)
-    stop
-  }
-}
-
-actor Alert
-{
-States
-   {
-   Spawn:
-    TNT1 A 0 A_Look
-    TNT1 A 8 A_AlertMonsters
-    Loop
-   }
-}
-
-// Modify the internal Blood actor to spawn flying blood
-actor NashGore_Blood : Blood replaces Blood
-{
- game Doom
- states
- {
-  Spawn:
-  BLUD C 8
-  BLUD B 8 A_SpawnItemEx("NashGore_FlyingBlood", 0, 0, 8, random(-4, 4), random(-4, 4), random(2, 5), 0, 15, 176) // [Nash] it used to use A_SpawnItem, but we're getting rid of that crap
-  BLUD A 8
-  stop
- }
-}
-
-
-// Blood sprite that flies outwards and leaves trails behind
-actor NashGore_FlyingBlood
-{
- game Doom
- scale 0.75
- health 1
- radius 8
- height 1
- mass 1
- +CORPSE
- +NOTELEPORT
- +NOBLOCKMAP
- states
- {
- Spawn:
-  TNT1 A 0
-  FBLD A 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
-  FBLD A 1
-  FBLD A 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
-  FBLD A 1
-  FBLD B 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
-  FBLD B 1
-  FBLD B 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
-  FBLD B 1
-  FBLD C 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
-  FBLD C 1
-  FBLD C 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
-  FBLD C 1
-  FBLD D 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
-  FBLD D 1
-  FBLD D 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
-  FBLD D 1
-  loop
- Crash:
-  TNT1 A 1 A_SpawnItem("NashGore_BloodSpot",0,0,0,1)
-  stop
- }
-}
-
-actor NashGore_BloodSpot
-{
- game Doom
- radius 12
- height 2
- mass 1
- +NOTELEPORT
- -NOBLOCKMAP
- states
- {
- Spawn:
-  TNT1 A 0
-  TNT1 A 0 A_PlaySound("bloodsplat")
-  TNT1 A 0 A_Jump(64,4)
-  TNT1 A 0 A_Jump(128,4)
-  TNT1 A 0 A_Jump(192,4)
-  TNT1 A 0 A_Jump(255,4)
-  // make the blood spots stay on the ground. 1500 is the default duration.
-  BSPT A 1500
-  stop
-  BSPT B 1500
-  stop
-  BSPT C 1500
-  stop
-  BSPT D 1500
-  stop
- }
-}
-
-// Blood trails spawned by FlyingBlood
-actor NashGore_FlyingBloodTrail
-{
- game Doom
- scale 0.70
- mass 1
- +LOWGRAVITY
- +NOTELEPORT
- +NOBLOCKMAP
- states
- {
-  Spawn:
-  BTRL A 4
-  BTRL B 4
-  BTRL C 4
-  BTRL D 4
-  stop
- }
-}
-
-// Modify all the internal monsters
-actor NashGore_ZombieMan : ZombieMan replaces ZombieMan
-{
-states
-	{
+		CIVI PQ 30 A_Wander
+		Loop
+	Pain:
+		CIVI A 3
+		CIVI G 3 A_Pain
+		Goto Spawn
 	Death:
-     POSS H 5
-     POSS I 5 A_Scream
-     POSS J 5 A_NoBlocking
-     POSS K 5
-	 POSS L -1
-     //POSS L 1 A_SpawnItem("NashGore_ZombieManDeadBody",0,0,0,0)
-     stop
-	XDeath:
-	 POSS M 0 A_SpawnDebris("NashGore_Gib9",0)
-	 POSS M 0 A_SpawnDebris("NashGore_Gib10",0)
-	 POSS M 0 A_SpawnDebris("NashGore_Gib11",0)
- 	 POSS M 0 A_SpawnDebris("NashGore_Gib11",0)
-	 POSS M 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     POSS M 5
-	 POSS N 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     POSS N 5 A_XScream
-	 POSS O 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     POSS O 5 A_NoBlocking
-	 POSS P 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     POSS PQRST 5
-     POSS U -1
-     stop
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_ShotgunGuy : ShotgunGuy replaces ShotgunGuy
-{
-states
-	{
-	XDeath:
-	 SPOS M 0 A_SpawnDebris("NashGore_Gib9",0)
-	 SPOS M 0 A_SpawnDebris("NashGore_Gib10",0)
-	 SPOS M 0 A_SpawnDebris("NashGore_Gib11",0)
- 	 SPOS M 0 A_SpawnDebris("NashGore_Gib11",0)
-	 SPOS M 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     SPOS M 5
-	 SPOS N 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     SPOS N 5 A_XScream
-	 SPOS O 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     SPOS O 5 A_NoBlocking
-	 SPOS P 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     SPOS PQRST 5
-     SPOS U -1
-     stop
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_ChaingunGuy : ChaingunGuy replaces ChaingunGuy
-{
-states
-	{
-	XDeath:
-	 CPOS O 0 A_SpawnDebris("NashGore_Gib9",0)
-	 CPOS O 0 A_SpawnDebris("NashGore_Gib10",0)
-	 CPOS O 0 A_SpawnDebris("NashGore_Gib11",0)
- 	 CPOS O 0 A_SpawnDebris("NashGore_Gib11",0)
-	 CPOS O 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     CPOS O 5
-	 CPOS P 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     CPOS P 5 A_XScream
-	 CPOS Q 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     CPOS Q 5 A_NoBlocking
-	 CPOS R 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     CPOS RS 5
-     CPOS T -1
-     stop
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_DoomImp : DoomImp replaces DoomImp
-{
-states
-	{
-	XDeath:
-	 TROO N 0 A_SpawnDebris("NashGore_Gib9",0)
-	 TROO N 0 A_SpawnDebris("NashGore_Gib10",0)
-	 TROO N 0 A_SpawnDebris("NashGore_Gib11",0)
- 	 TROO N 0 A_SpawnDebris("NashGore_Gib11",0)
-	 TROO N 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     TROO N 5
-	 TROO O 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     TROO O 5 A_XScream
-	 TROO P 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     TROO P 5
-	 TROO Q 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-     TROO Q 5 A_NoBlocking
-     TROO RST 5
-     TROO U -1
-     stop
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_Demon : Demon replaces Demon
-{
-states
-	{
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedMedium",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_Spectre : Spectre replaces Spectre
-{
-states
-	{
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedMedium",0,0,0,1)
-	 stop
-	}
-}
-
-actor NashGore_LostSoul : LostSoul replaces LostSoul
-{
-
-}
-
-actor NashGore_Cacodemon : Cacodemon replaces Cacodemon
-{
-bloodcolor "12 2 F0"
-states
-	{
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedMediumBlue",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_HellKnight : HellKnight replaces HellKnight
-{
-bloodcolor "0 C8 0"
-states
-	{
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedMediumGreen",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_BaronOfHell : BaronOfHell replaces BaronOfHell
-{
-bloodcolor "0 C8 0"
-states
-	{
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedMediumGreen",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_Arachnotron : Arachnotron replaces Arachnotron
-{
-states
-	{
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedMedium",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_PainElemental : PainElemental replaces PainElemental
-{
-
-}
-
-actor NashGore_Revenant : Revenant replaces Revenant
-{
-states
-	{
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedMedium",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_Fatso : Fatso replaces Fatso
-{
-states
-	{
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedMedium",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_Archvile : Archvile replaces Archvile
-{
-states
-	{
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedMedium",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_SpiderMasterMind : SpiderMasterMind replaces SpiderMasterMind
-{
-states
-	{
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedLarge",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_Cyberdemon : Cyberdemon replaces Cyberdemon
-{
-states
-	{
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedLarge",0,0,0,0)
-	 stop
-	}
-}
-
-actor NashGore_WolfensteinSS : WolfensteinSS replaces WolfensteinSS
-{
-
-}
-
-// Stealth monsters
-ACTOR NashGore_StealthArachnotron : StealthArachnotron replaces StealthArachnotron
-{}
-
-ACTOR NashGore_StealthArchvile : StealthArchvile replaces StealthArchvile
-{}
-
-ACTOR NashGore_StealthBaron : StealthBaron replaces StealthBaron
-{ bloodcolor "0 C8 0" }
-
-ACTOR NashGore_StealthCacodemon : StealthCacodemon replaces StealthCacodemon
-{ bloodcolor "12 2 F0" }
-
-ACTOR NashGore_StealthChaingunGuy : StealthChaingunGuy replaces StealthChaingunGuy
-{}
-
-ACTOR NashGore_StealthDemon : StealthDemon replaces StealthDemon
-{}
-
-ACTOR NashGore_StealthHellKnight : StealthHellKnight replaces StealthHellKnight
-{ bloodcolor "0 C8 0" }
-
-ACTOR NashGore_StealthDoomImp : StealthDoomImp replaces StealthDoomImp
-{}
-
-ACTOR NashGore_StealthFatso : StealthFatso replaces StealthFatso
-{}
-
-ACTOR NashGore_StealthRevenant : StealthRevenant replaces StealthRevenant
-{}
-
-ACTOR NashGore_StealthShotgunGuy : StealthShotgunGuy replaces StealthShotgunGuy
-{}
-
-ACTOR NashGore_StealthZombieMan : StealthZombieMan replaces StealthZombieMan
-{}
-
-/***** MONSTERS' DEAD BODIES *****/
-
-/*
-// ZombieMan
-actor NashGore_ZombieManDeadBody
-{
-health 50
-+ISMONSTER
-+SHOOTABLE
-+CORPSE
-states
-	{
-    Spawn:
-     POSS L -1
-     stop
-   	Raise:
-     POSS KJIH 5
-	 TNT1 A 1 A_SpawnItem("NashGore_Zombieman",0,0,0,0)
-	 stop
-	Death:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
-     stop
-	Crush:
-	 TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
-	 stop
-	}
-}
-*/
-
-/**** CRUSHED DEAD BODIES ****/
-
-// small
-actor NashGore_CrushedSmall
-{
-states
-	{
-	Spawn:
-	 CRS1 A -1
-	 loop
-	}
-}
-
-// medium
-actor NashGore_CrushedMedium
-{
-states
-	{
-	Spawn:
-	 CRS2 A -1
-	 loop
-	}
-}
-
-// large
-actor NashGore_CrushedLarge
-{
-states
-	{
-	Spawn:
-	 CRS3 A -1
-	 loop
-	}
-}
-
-// TRANSLATED CRUSHED BODIES
-actor NashGore_CrushedMediumGreen : NashGore_CrushedMedium
-{
-translation "16:47=112:127","168:191=112:127"
-}
-
-actor NashGore_CrushedMediumBlue : NashGore_CrushedMedium
-{
-translation "16:47=192:207","168:191=192:207"
-}
-
-/***** DECORATIONS *****/
-
-// Bloody twitch -----------------------------------------------------------
-
-ACTOR NashGore_BloodyTwitch : BloodyTwitch replaces BloodyTwitch
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Meat 2 ------------------------------------------------------------------
-
-ACTOR NashGore_Meat2 : Meat2 replaces Meat2
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Meat 3 ------------------------------------------------------------------
-
-ACTOR NashGore_Meat3 : Meat3 replaces Meat3
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Meat 4 ------------------------------------------------------------------
-
-ACTOR NashGore_Meat4 : Meat4 replaces Meat4
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Meat 5 ------------------------------------------------------------------
-
-ACTOR NashGore_Meat5 : Meat5 replaces Meat5
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Nonsolid meat -----------------------------------------------------------
-
-ACTOR NashGore_NonsolidMeat2 : NashGore_Meat2 replaces NonsolidMeat2
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-ACTOR NashGore_NonsolidMeat3 : NashGore_Meat3 replaces NonsolidMeat3
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-ACTOR NashGore_NonsolidMeat4 : NashGore_Meat4 replaces NonsolidMeat4
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-ACTOR NashGore_NonsolidMeat5 : NashGore_Meat5 replaces NonsolidMeat5
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Nonsolid bloody twitch --------------------------------------------------
-
-ACTOR NashGore_NonsolidTwitch : NashGore_BloodyTwitch replaces NonsolidTwitch
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Dead on a stick ---------------------------------------------------------
-
-ACTOR NashGore_DeadStick : DeadStick replaces DeadStick
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Still alive on a stick --------------------------------------------------
-
-ACTOR NashGore_LiveStick : LiveStick replaces LiveStick
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Hanging with no guts ----------------------------------------------------
-
-ACTOR NashGore_HangNoGuts : HangNoGuts replaces HangNoGuts
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Hanging from bottom with no brain ---------------------------------------
-
-ACTOR NashGore_HangBNoBrain : HangBNoBrain replaces HangBNoBrain
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Hanging from top, looking down ------------------------------------------
-
-ACTOR NashGore_HangTLookingDown : HangTLookingDown replaces HangTLookingDown
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Hanging from top, looking up --------------------------------------------
-
-ACTOR NashGore_HangTLookingUp : HangTLookingUp replaces HangTLookingUp
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Hanging from top, skully ------------------------------------------------
-
-ACTOR NashGore_HangTSkull : HangTSkull replaces HangTSkull
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Hanging from top without a brain ----------------------------------------
-
-ACTOR NashGore_HangTNoBrain : HangTNoBrain replaces HangTNoBrain
-{
-   mass 999999999
-   health -1
-   +SHOOTABLE
-}
-
-// Gib generator fixed by LilWhiteMouse - thanks LWM!
-actor NashGore_GibGenerator
-{
-states
-	{
-	Spawn:
-     TNT1 A 0
-     TNT1 A 0 A_Jump(128, 8)
-     TNT1 A 0 A_Jump(128, 4)
-     TNT1 A 0 A_Jump(128, 2)
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib1")
-     stop
-	 TNT1 A 1 A_SpawnDebris("NashGore_Gib2")
-     stop
-     TNT1 A 0 A_Jump(128, 2)
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib3")
-     stop
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib4")
-     stop
-     TNT1 A 0 A_Jump(128, 4)
-     TNT1 A 0 A_Jump(128, 2)
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib5")
-     stop
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib6")
-     stop
-     TNT1 A 0 A_Jump(128, 2)
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib7")
-     stop
-     TNT1 A 1 A_SpawnDebris("NashGore_Gib8")
-     stop
-   }
-}
-
-/*
-// Gib generator
-actor NashGore_GibGenerator
-{
-states
-	{
-	Spawn:
-	TNT1 A 0
-	TNT1 A 1 A_Jump(32,8)
-	TNT1 A 1 A_Jump(64,9)
-	TNT1 A 1 A_Jump(96,10)
-	TNT1 A 1 A_Jump(128,11)
-	TNT1 A 1 A_Jump(160,12)
-	TNT1 A 1 A_Jump(192,13)
-	TNT1 A 1 A_Jump(224,14)
-	TNT1 A 1 A_Jump(255,15)
-	TNT1 A 1 A_SpawnDebris("NashGore_Gib1")
-	TNT1 A 1 A_Jump(255,15)
-	TNT1 A 1 A_SpawnDebris("NashGore_Gib2")
-	TNT1 A 1 A_Jump(255,13)
-	TNT1 A 1 A_SpawnDebris("NashGore_Gib3")
-	TNT1 A 1 A_Jump(255,11)
-	TNT1 A 1 A_SpawnDebris("NashGore_Gib4")
-	TNT1 A 1 A_Jump(255,9)
-	TNT1 A 1 A_SpawnDebris("NashGore_Gib5")
-	TNT1 A 1 A_Jump(255,7)
-	TNT1 A 1 A_SpawnDebris("NashGore_Gib6")
-	TNT1 A 1 A_Jump(255,5)
-	TNT1 A 1 A_SpawnDebris("NashGore_Gib7")
-	TNT1 A 1 A_Jump(255,3)
-	TNT1 A 1 A_SpawnDebris("NashGore_Gib8")
-	TNT1 A 1 A_Jump(255,1)
-	TNT1 A 1
-	stop
-	}
-}
-*/
-
-// Gib 1
-actor NashGore_Gib1
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-states
-	{
-	Spawn:
-	 GIB1 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB1 A -1
-	 stop
-	}
-}
-
-// Gib 2
-actor NashGore_Gib2
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-states
-	{
-	Spawn:
-	 GIB2 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB2 A -1
-	 stop
-	}
-}
-
-// Gib 3
-actor NashGore_Gib3
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-states
-	{
-	Spawn:
-	 GIB3 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB3 A -1
-	 stop
-	}
-}
-
-// Gib 4
-actor NashGore_Gib4
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-states
-	{
-	Spawn:
-	 GIB4 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB4 A -1
-	 stop
-	}
-}
-
-// Gib 5
-actor NashGore_Gib5
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-states
-	{
-	Spawn:
-	 GIB5 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB5 A -1
-	 stop
-	}
-}
-
-// Gib 6
-actor NashGore_Gib6
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-states
-	{
-	Spawn:
-	 GIB6 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB6 A -1
-	 stop
-	}
-}
-
-// Gib 7
-actor NashGore_Gib7
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-states
-	{
-	Spawn:
-	 GIB7 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB7 A -1
-	 stop
-	}
-}
-
-// Gib 8
-actor NashGore_Gib8
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-states
-	{
-	Spawn:
-	 GIB8 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB8 A -1
-	 stop
-	}
-}
-
-// Gib 9 (hand)
-actor NashGore_Gib9
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-states
-	{
-	Spawn:
-	 GIB9 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB9 A -1
-	 stop
-	}
-}
-
-// Gib 10 (arm)
-actor NashGore_Gib10
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-states
-	{
-	Spawn:
-	 GIB0 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB0 A -1
-	 stop
-	}
-}
-
-// Gib 11 (eyeball)
-actor NashGore_Gib11
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-states
-	{
-	Spawn:
-	 GIBI A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIBI A -1
-	 stop
+		CIVI G 5
+		CIVI H 5 A_Scream
+		CIVI I 5 A_NoBlocking
+		CIVI JKLMN 5
+		CIVI O -1
+		Stop
 	}
 }
 
 Actor Explosion_Green_A1A
 {
- Radius 1
- Height 2
-
- +NoGravity
- +NoBlockmap
-
- -Solid
-
- States
- {
-  Spawn:
-   TNT1 A 1 Radius_Quake(8, 140, 0, 16, 0)
-   TNT1 AAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("GreenEmber_A1A", Random(-16, 16), Random(-16, 16), Random(0, 76), Random(-1, 1), Random(-1, 1), Random(1, 8), 0, 0, 128)
-   TNT1 AAAAA 0 A_SpawnItemEx("Fire_Green_A1A", Random(-8, 8), Random(-8, 8), Random(0, 16), Random(-1, 1), Random(-1, 1), Random(0, 8), 0, 0, 128)
-   TNT1 AAAAA 0 A_SpawnItemEx("Fire_Green_A1B", Random(-8, 8), Random(-8, 8), Random(0, 16), Random(-1, 1), Random(-1, 1), Random(0, 8), 0, 0, 128)
-   TNT1 AAAAA 0 A_CustomMissile("SFX_Wraith", Random(0, 64), 0, Random(0, 359), 2, Random(-16, 16))
-   Stop
- }
+	+CLIENTSIDEONLY
+	Radius 1
+	Height 2
+	+NoGravity
+	+NoBlockmap
+	States
+	{
+	Spawn:
+		TNT1 A 1 NODELAY Radius_Quake(8,140,0,16,0)
+		TNT1 AAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("GreenEmber_A1A",Random(-16,16),Random(-16,16),Random(0,76),Random(-1,1),Random(-1,1),Random(1,8))
+		TNT1 AAAAA 0 A_SpawnItemEx("Fire_Green_A1A",Random(-8,8),Random(-8,8),Random(0,16),Random(-1,1),Random(-1,1),Random(0,8))
+		TNT1 AAAAA 0 A_SpawnItemEx("Fire_Green_A1B",Random(-8,8),Random(-8,8),Random(0,16),Random(-1,1),Random(-1,1),Random(0,8))
+		TNT1 AAAAA 0 A_CustomMissile("SFX_Wraith",Random(0,64),0,Random(0,359),2,Random(-16,16))
+		Stop
+	}
 }
 
 Actor GreenEmber_A1A
 {
- Radius 1
- Height 2
-
- -Solid
-
- +NoBlockmap
- +NoGravity
-
- RenderStyle Add
- Scale 0.05
-
- States
- {
-  Spawn:
-   EMGR A 1 Bright A_FadeOut(0.005)
-   Loop
- }
+	+CLIENTSIDEONLY
+	Radius 1
+	Height 2
+	+NoBlockmap
+	+NoGravity
+	RenderStyle Add
+	Scale 0.05
+	States
+	{
+	Spawn:
+		EMGR A 1 Bright A_FadeOut(0.005)
+		Loop
+	}
 }
 
 Actor Fire_Green_A1A : GreenEmber_A1A
 {
- Scale 1.0
- States
- {
-  Spawn:
-   AFGR KJIHGFEDCBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 Bright A_FadeOut(0.02)
-   Stop
- }
+	Scale 1.0
+	States
+	{
+	Spawn:
+		AFGR KJIHGFEDCB 1 Bright A_FadeOut(0.02)
+		AFGR A 1 Bright A_FadeOut(0.02)
+		Wait
+	}
 }
 
-Actor Fire_Green_A1B : GreenEmber_A1A
+Actor Fire_Green_A1B : Fire_Green_A1A
 {
- Scale 1.0
- States
- {
-  Spawn:
-   AFG2 KJIHGFEDCBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 Bright A_FadeOut(0.02)
-   Stop
- }
+	States
+	{
+	Spawn:
+		AFG2 KJIHGFEDCB 1 Bright A_FadeOut(0.02)
+		AFG2 A 1 Bright A_FadeOut(0.02)
+		Wait
+	}
 }
 
 Actor SFX_Wraith
 {
- Translation "80:111=112:127"
- Projectile
- Speed 8
- RenderStyle Add
- Alpha 0.6
- SeeSound "Monster/SprSit"
- States
- {
-  Spawn:
-   WRAI AABB 5 A_FadeOut(0.05)
-   Loop
- }
-}
-
-//===================//==O
-//Thamuz DYING lol :D//************************************************************************************************
-//===================//==O
-
-Actor Thamuz_Blood : NashGore_Blood
-{
- Translation "168:191=112:127"
-}
-
-Actor SFX_Thamuz : Thamuz Replaces Thamuz
-{
- States
- {
-  Death:
-   DCYB GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG 1 A_SpawnItemEx("Thamuz_Blood", Random(-32, 32), Random(-32, 32), Random(0, 64), Random(-16, 16), Random(-16, 16), Random(-16, 16), 0, 0, 128)
-   DCYB H 0 A_PlaySound("SFX\Explosion1")
-   DCYB HHHH 5 A_SpawnItemEx("Explosion_Green_A1A", Random(-64, 64), Random(-64, 64), Random(0, 60), 0, 0, 0, 0, 0, 128)
-   DCYB H 0 A_PlaySound("SFX\Explosion1")
-   DCYB HHH 5 A_SpawnItemEx("Explosion_Green_A1A", Random(-64, 64), Random(-64, 64), Random(0, 60), 0, 0, 0, 0, 0, 128)
-   DCYB I 7 A_Scream
-   NULL A 0 A_CustomMissile("BDS",0,0,0)
-   DCYB JJJJJJJKKKKKKKK 1 A_CustomMissile("SFX_Wraith", Random(0, 64), 0, Random(0, 359), 2, Random(-16, 16))
-   DCYB A 0 A_SpawnItemEx("Explosion_Green_A1A", Random(-64, 64), Random(-64, 64), Random(0, 60), 0, 0, 0, 0, 0, 0)
-   DCYB AAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("Thamuz_Blood", Random(-64, 64), Random(-64, 64), Random(0, 128), Random(-16, 16), Random(-16, 16), Random(-16, 16), 0, 0, 128)
-   DCYB MMMMMMMNNNNNNNOOOOOOO 1 A_CustomMissile("SFX_Wraith", Random(0, 64), 0, Random(0, 359), 2, Random(-16, 16))
-   DCYB P -1 A_NoBlocking
-   Stop
- }
-}
-
-
-
-Actor TeleportFogHuge : Explosion_Green_A1A
-{
-
-}
-
-Actor SFX_Tcherno : Tchernobog Replaces Tchernobog
-{
- States
- {
-  Death:
-   TCHR GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG 1 A_SpawnItemEx("Thamuz_Blood", Random(-32, 32), Random(-32, 32), Random(0, 64), Random(-16, 16), Random(-16, 16), Random(-16, 16), 0, 0, 128)
-   TCHR H 0 A_PlaySound("SFX\Explosion1")
-   TCHR HHHH 5 A_SpawnItemEx("Explosion_Green_A1A", Random(-64, 64), Random(-64, 64), Random(0, 60), 0, 0, 0, 0, 0, 128)
-   TCHR H 0 A_PlaySound("SFX\Explosion1")
-   TCHR HHH 5 A_SpawnItemEx("Explosion_Green_A1A", Random(-64, 64), Random(-64, 64), Random(0, 60), 0, 0, 0, 0, 0, 128)
-   TCHR I 7 A_Scream
-   TCHR A 0 A_CustomMissile("BDS",0,0,0)
-   TCHR JJJJJJJKKKKKKKK 1 A_CustomMissile("SFX_Wraith", Random(0, 64), 0, Random(0, 359), 2, Random(-16, 16))
-   TCHR A 0 A_SpawnItemEx("Explosion_Green_A1A", Random(-64, 64), Random(-64, 64), Random(0, 60), 0, 0, 0, 0, 0, 0)
-   TCHR AAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("Thamuz_Blood", Random(-64, 64), Random(-64, 64), Random(0, 128), Random(-16, 16), Random(-16, 16), Random(-16, 16), 0, 0, 128)
-   TCHR MMMMMMMNNNNNNNOOOOOOO 1 A_CustomMissile("SFX_Wraith", Random(0, 64), 0, Random(0, 359), 2, Random(-16, 16))
-   TCHR P -1 A_NoBlocking
-   Stop
- }
+	Translation "80:111=112:127"
+	Projectile
+	Speed 8
+	RenderStyle Add
+	Alpha 0.6
+	SeeSound "Monster/SprSit"
+	States
+	{
+	Spawn:
+		WRAI AABB 5 A_FadeOut(0.05)
+		Loop
+	}
 }
 
 //==========================================================================================================================
@@ -5480,55 +3413,50 @@ Actor SFX_Tcherno : Tchernobog Replaces Tchernobog
 
 Actor FireParticle_Normal_A1A
 {
- +NoGravity
- +NoBlockmap
- +NOINTERACTION
- -Solid
-
- Height 2
- Radius 1
-
- Scale 1
-
- Alpha 0.9
- RenderStyle Add
-
- States
- {
-  Spawn:
-   AFNO AABBCCDDEEFFGGHHIIJJ 1 Bright A_FadeOut(0.05)
-   Stop
- }
+	+NoGravity
+	+NoBlockmap
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Height 2
+	Radius 1
+	Alpha 0.9
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		AFNO AABBCCDDEEFFGGHHIIJJ 1 Bright A_FadeOut(0.05)
+		Stop
+	}
 }
 
 Actor FireParticle_Normal_B1A : FireParticle_Normal_A1A
 {
- States
- {
-  Spawn:
-   AFN2 AABBCCDDEEFFGGHHIIJJ 1 Bright A_FadeOut(0.05)
-   Stop
- }
+	States
+	{
+	Spawn:
+		AFN2 AABBCCDDEEFFGGHHIIJJ 1 Bright A_FadeOut(0.05)
+		Stop
+	}
 }
 
 Actor FireParticle_Normal_C1A : FireParticle_Normal_A1A
 {
- States
- {
-  Spawn:
-   AFN3 AABBCCDDEEFFGGHHIIJJ 1 Bright A_FadeOut(0.05)
-   Stop
- }
+	States
+	{
+	Spawn:
+		AFN3 AABBCCDDEEFFGGHHIIJJ 1 Bright A_FadeOut(0.05)
+		Stop
+	}
 }
 
 Actor FireParticle_Normal_D1A : FireParticle_Normal_A1A
 {
- States
- {
-  Spawn:
-   AFN4 AABBCCDDEEFFGGHHIIJJ 1 Bright A_FadeOut(0.05)
-   Stop
- }
+	States
+	{
+	Spawn:
+		AFN4 AABBCCDDEEFFGGHHIIJJ 1 Bright A_FadeOut(0.05)
+		Stop
+	}
 }
 
 Actor FireParticle_Normal_A1B : FireParticle_Normal_A1A { Scale 0.75 }
@@ -5555,14 +3483,13 @@ Actor FireParticle_Normal_D1E : FireParticle_Normal_D1A { Scale 0.15 }
 
 Actor Ember_Normal_A1A : FireParticle_Normal_A1A
 {
- Scale 0.05
-
- States
- {
-  Spawn:
-   FPRY A 1 Bright A_FadeOut(0.005)
-   Loop
- }
+	Scale 0.05
+	States
+	{
+	Spawn:
+		FPRY A 1 Bright A_FadeOut(0.005)
+		Loop
+	}
 }
 
 Actor Ember_Normal_A1B : Ember_Normal_A1A { Scale 0.0475 }
@@ -5573,25 +3500,19 @@ Actor Ember_Normal_A1D : Ember_Normal_A1A { Scale 0.0225 }
 
 Actor Flare_Red_A1A
 {
- +NoGravity
- +NoBlockmap
- +NOINTERACTION
-
- -Solid
-
- Height 2
- Radius 1
-
- Scale 0.75
-
- RenderStyle Add
-
- States
- {
-  Spawn:
-   FLRE A 1 Bright
-   Loop
- }
+	+NoGravity
+	+NoBlockmap
+	+NOINTERACTION
+	Height 2
+	Radius 1
+	Scale 0.75
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		FLRE A -1 Bright
+		Loop
+	}
 }
 
 Actor Flare_Red_A1B : Flare_Red_A1A { Scale 1.25 }
@@ -5599,73 +3520,66 @@ Actor Flare_Red_A1C : Flare_Red_A1A { Scale 0.275 Alpha 0.5 }
 
 //=========================================================================================================================
 
-Actor Torch_A1A : StandingTorchX Replaces ShortRedTorch
-
+Actor Torch_A1A Replaces ShortRedTorch
 {
- States
- {
-  Spawn:
-   SMRT A 0
-   SMRT A 0 A_SpawnItemEx("Flare_Red_A1A", 0, 0, 62, 0, 0, 0, 0, 0, 0)
-   SMRT A 0
-   SMRT A 0 A_CheckSight(6)
-   SMRT A 1 A_Jump(8, 6)
-   SMRT A 0 A_SpawnItemEx("FireParticle_Normal_A1D", 0, 0, Random(64, 66), 0, 0, Random(1.000, 2.500), 0, 0, 128)
-   SMRT A 0 A_SpawnItemEx("FireParticle_Normal_B1D", 0, 0, Random(64, 66), 0, 0, Random(1.000, 2.500), 0, 0, 128)
-   SMRT A 0 A_SpawnItemEx("FireParticle_Normal_C1D", 0, 0, Random(64, 66), 0, 0, Random(1.000, 2.500), 0, 0, 128)
-   SMRT A 0 A_SpawnItemEx("FireParticle_Normal_D1D", 0, 0, Random(64, 66), 0, 0, Random(1.000, 2.500), 0, 0, 128)
-   SMRT A 1
-   Goto Spawn+2
-   SMRT A 0 A_SpawnItemEx("Ember_Normal_A1C", Random(-4, 4), Random(-4, 4), Random(64, 66), Random(-2, 2), Random(-2, 2), Random(2, 4), 0, 0, 0)
-   SMRT A 1
-   Goto Spawn+2
- }
+	Radius 16
+	Height 37
+	+Solid
+	States
+	{
+	Spawn:
+		SMRT A 0 NODELAY A_SpawnItemEx("Flare_Red_A1A",0,0,62)
+		SMRT A 0 A_CheckSight(6)
+		SMRT A 1 A_Jump(8,6)
+		SMRT A 0 A_SpawnItemEx("FireParticle_Normal_A1D",0,0,Random(64,66),0,0,Random(1.000,2.500))
+		SMRT A 0 A_SpawnItemEx("FireParticle_Normal_B1D",0,0,Random(64,66),0,0,Random(1.000,2.500))
+		SMRT A 0 A_SpawnItemEx("FireParticle_Normal_C1D",0,0,Random(64,66),0,0,Random(1.000,2.500))
+		SMRT A 0 A_SpawnItemEx("FireParticle_Normal_D1D",0,0,Random(64,66),0,0,Random(1.000,2.500))
+		SMRT A 1
+		Goto Spawn+1
+		SMRT A 1 A_SpawnItemEx("Ember_Normal_A1C",Random(-4,4),Random(-4,4),Random(64,66),Random(-2,2),Random(-2,2),Random(2,4))
+		Goto Spawn+1
+	}
 }
 
 Actor Torch_A1B : MaulotaurTorchX Replaces MaulotaurTorchX
 {
- States
- {
-  Spawn:
-   TRED A 0
-   TRED A 0 A_SpawnItemEx("Flare_Red_A1B", 0, 0, 40, 0, 0, 0, 0, 0, 0)
-   TRED A 0
-   TRED A 0 A_CheckSight(6)
-   TRED A 1 A_Jump(8, 6)
-   TRED A 0 A_SpawnItemEx("FireParticle_Normal_A1C", 0, 0, Random(38, 40), 0, 0, Random(1.000, 4.500), 0, 0, 128)
-   TRED A 0 A_SpawnItemEx("FireParticle_Normal_B1C", 0, 0, Random(38, 40), 0, 0, Random(1.000, 4.500), 0, 0, 128)
-   TRED A 0 A_SpawnItemEx("FireParticle_Normal_C1C", 0, 0, Random(38, 40), 0, 0, Random(1.000, 4.500), 0, 0, 128)
-   TRED A 0 A_SpawnItemEx("FireParticle_Normal_D1C", 0, 0, Random(38, 40), 0, 0, Random(1.000, 4.500), 0, 0, 128)
-   TRED A 1
-   Goto Spawn+2
-   TRED A 0 A_SpawnItemEx("Ember_Normal_A1A", Random(-4, 4), Random(-4, 4), Random(34, 34), Random(-2, 2), Random(-2, 2), Random(2, 4), 0, 0, 128)
-   TRED A 1
-   Goto Spawn+2
- }
+	States
+	{
+	Spawn:
+		TRED A 0 NODELAY A_SpawnItemEx("Flare_Red_A1B",0,0,40)
+		TRED A 0 A_CheckSight(6)
+		TRED A 1 A_Jump(8,6)
+		TRED A 0 A_SpawnItemEx("FireParticle_Normal_A1C",0,0,Random(38,40),0,0,Random(1.000,4.500))
+		TRED A 0 A_SpawnItemEx("FireParticle_Normal_B1C",0,0,Random(38,40),0,0,Random(1.000,4.500))
+		TRED A 0 A_SpawnItemEx("FireParticle_Normal_C1C",0,0,Random(38,40),0,0,Random(1.000,4.500))
+		TRED A 0 A_SpawnItemEx("FireParticle_Normal_D1C",0,0,Random(38,40),0,0,Random(1.000,4.500))
+		TRED A 1
+		Goto Spawn+1
+		TRED A 1 A_SpawnItemEx("Ember_Normal_A1A",Random(-4,4),Random(-4,4),Random(34,34),Random(-2,2),Random(-2,2),Random(2,4))
+		Goto Spawn+1
+	}
 }
 
 Actor Torch_A1C : WallTorchX Replaces WallTorchX
 {
- States
- {
-  Spawn:
-   Active:
-	TNT1 A 0
-    TBLX A 0 A_SpawnItemEx("Flare_Red_A1C", 0, 0, 72, 0, 0, 0, 0, 0, 0)
-	TNT1 A 0
-    TBLX A 0 A_CheckSight(6)
-    TBLX A 1 A_Jump(8, 6)
-    TBLX A 1 A_SpawnItemEx("FireParticle_Normal_A1E", 0, 0, 72, 0, 0, Random(1.000, 1.500), 0, 0, 174)
-    TBLX A 1 A_SpawnItemEx("FireParticle_Normal_B1E", 0, 0, 72, 0, 0, Random(1.000, 1.500), 0, 0, 174)
-    TBLX A 1 A_SpawnItemEx("FireParticle_Normal_C1E", 0, 0, 72, 0, 0, Random(1.000, 1.500), 0, 0, 174)
-    TBLX A 1 A_SpawnItemEx("FireParticle_Normal_D1E", 0, 0, 72, 0, 0, Random(1.000, 1.500), 0, 0, 174)
-	TBLX A 1
-    Goto Spawn+2
-    TBLX A 0 A_SpawnItemEx("Ember_Normal_A1D", Random(-4, 4), Random(-4, 4), Random(72, 72), Random(-2, 2), Random(-2, 2), Random(2, 4), 0, 0, 128)
-    TBLX A 1
-    Goto Spawn+2
-   InActive:
-    TBLX A 1 A_KillChildren
-    Loop
- }
+	States
+	{
+	Spawn:
+	Active:
+		TBLX A 0 NODELAY A_SpawnItemEx("Flare_Red_A1C",0,0,72)
+		TBLX A 0 A_CheckSight(6)
+		TBLX A 1 A_Jump(8,6)
+		TBLX A 1 A_SpawnItemEx("FireParticle_Normal_A1E",0,0,72,0,0,Random(1.000,1.500),0,0,174)
+		TBLX A 1 A_SpawnItemEx("FireParticle_Normal_B1E",0,0,72,0,0,Random(1.000,1.500),0,0,174)
+		TBLX A 1 A_SpawnItemEx("FireParticle_Normal_C1E",0,0,72,0,0,Random(1.000,1.500),0,0,174)
+		TBLX A 1 A_SpawnItemEx("FireParticle_Normal_D1E",0,0,72,0,0,Random(1.000,1.500),0,0,174)
+		TBLX A 1
+		Goto Spawn+1
+		TBLX A 1 A_SpawnItemEx("Ember_Normal_A1D",Random(-4,4),Random(-4,4),Random(72,72),Random(-2,2),Random(-2,2),Random(2,4))
+		Goto Spawn+1
+	InActive:
+		TBLX A 1 A_KillChildren
+		Loop
+	}
 }

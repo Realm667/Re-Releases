@@ -1,0 +1,56 @@
+LISTMENU "MainMenu"
+{
+	Position 97,72
+	Font "DBIGFONT","DarkBrown"
+	TextItem "New Game","n","PlayerclassMenu"
+	TextItem "Options","o","OptionsMenu"
+	TextItem "Load","l","LoadGameMenu"
+	TextItem "Save","s","SaveGameMenu"
+	TextItem "Quit","q","QuitMenu"
+}
+
+ListMenu "EpisodeMenu"
+{
+	NetgameMessage "$NEWGAME"
+	Position 48,63
+	StaticPatch 54,38,"M_EPISOD"
+	Font "DBIGFONT","DarkGray"
+}
+
+ListMenu "SkillMenu"
+{
+	StaticPatch 96, 14, "M_NEWG"
+	StaticPatch 54, 38, "M_SKILL"
+	Position 48, 63
+	Font "DBIGFONT","DarkBrown"
+}
+
+OptionMenu "OptionsMenu"
+{
+	Title "OPTIONS"
+	Submenu "Customize Controls",		"CustomizeControls"
+	Submenu "Mouse options",			"MouseOptions"
+	Submenu "Joystick options",			"JoystickOptions"
+	StaticText " "
+	Submenu "Player Setup",				"PlayerMenu"
+	Submenu "Gameplay Options",			"GameplayOptions"
+	Submenu "Compatibility Options",	"CompatibilityOptions"
+	Submenu "Automap Options",			"AutomapOptions"
+	Submenu "HUD Options",				"HUDOptions"
+	Submenu "Miscellaneous Options",	"MiscOptions"
+	Submenu "Sound Options",			"SoundOptions"
+	Submenu "Display Options",			"VideoOptions"
+	Submenu "Set video mode",			"VideoModeMenu"
+	StaticText " "
+	SafeCommand "Reset to defaults",	"reset2defaults"
+	SafeCommand	"Reset to last saved",	"reset2saved"
+	Command "Go to console",			"menuconsole"
+	StaticText " "
+	Submenu "TUTNT Options",			"TUTNTMenu"
+}
+
+OptionMenu "TUTNTMenu"
+{
+	Title "TUTNT Options"
+	Option "Weather Effects","weatherfx","OnOff"
+}

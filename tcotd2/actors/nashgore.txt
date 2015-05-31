@@ -1,0 +1,182 @@
+actor NashGore_Blood : Blood replaces Blood
+{
+	states
+	{
+	Spawn:
+		BLUD C 8
+		BLUD B 8 A_SpawnItemEx("NashGore_FlyingBlood",0,0,8,random(-4,4),random(-4,4),random(2,5),0,143,SXF_ABSOLUTEVELOCITY|SXF_NOCHECKPOSITION) // [Nash] it used to use A_SpawnItem, but we're getting rid of that crap
+		BLUD A 8
+		Stop
+	}
+}
+
+actor NashGore_Bloodsplatter : NashGore_Blood replaces Bloodsplatter{}
+
+actor NashGore_FlyingBlood
+{
+	+CLIENTSIDEONLY
+	scale 0.75
+	health 1
+	radius 8
+	height 1
+	mass 1
+	gravity 0.5 // [Nash] make it fall slower. pretty!
+	+CORPSE
+	+NOTELEPORT
+	+NOBLOCKMAP
+	states
+	{
+	Spawn:
+		FBLD AABBCCDD 2 NODELAY A_SpawnItemEx("NashGore_FlyingBloodTrail",0,0,0,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		loop
+	Crash:
+		TNT1 A 0 A_PlaySound("bloodsplat")
+		TNT1 A 0 A_Jump(256,1,2,3,4)
+		BSPT ABCD 0 A_Jump(256,"End")
+		// make the blood spots stay on the ground. 1500 is the default duration.
+		// Fadeout added by Zero Prophet for effect.
+	End:
+		BSPT "#" 1500
+		BSPT "#" 1 A_FadeOut(0.02)
+		Wait
+	}
+}
+
+actor NashGore_FlyingBloodTrail
+{
+	scale 0.70
+	mass 1
+	Gravity .125
+	+NOTELEPORT
+	+NOBLOCKMAP
+	states
+	{
+	Spawn:
+		BTRL ABCD 4
+		stop
+	}
+}
+
+// Gib generator fixed by LilWhiteMouse - thanks LWM!
+actor NashGore_GibGenerator
+{
+	states
+	{
+	Spawn:
+		TNT1 A 1 NODELAY A_SpawnDebris("NashGore_Gib",1)
+		stop
+	}
+}
+
+// Gib 1
+actor NashGore_Gib
+{
+	health 1
+	radius 8
+	height 8
+	mass 1
+	scale 0.75
+	+CORPSE
+	+NOTELEPORT
+	states
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4,5,6,7,8)
+		GIB1 A 0 A_Jump(256,"Fly")
+		GIB2 A 0 A_Jump(256,"Fly")
+		GIB3 A 0 A_Jump(256,"Fly")
+		GIB4 A 0 A_Jump(256,"Fly")
+		GIB5 A 0 A_Jump(256,"Fly")
+		GIB6 A 0 A_Jump(256,"Fly")
+		GIB7 A 0 A_Jump(256,"Fly")
+		GIB8 A 0 A_Jump(256,"Fly")
+	Fly:
+		"####" A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+		Wait
+	Crash:
+		"####" A 2100
+		"####" A 1 A_FadeOut(0.02)
+		Wait
+	}
+}
+
+// Gib 9 (hand)
+actor NashGore_Gib9 : NashGore_Gib
+{
+	states
+	{
+	Spawn:
+		GIB9 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+		loop
+	}
+}
+
+// Gib 10 (arm)
+actor NashGore_Gib10 : NashGore_Gib
+{
+	states
+	{
+	Spawn:
+		GIB0 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+		loop
+	}
+}
+
+// Gib 11 (eyeball)
+actor NashGore_Gib11 : NashGore_Gib
+{
+	states
+	{
+	Spawn:
+		GIBI A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+		loop
+	}
+}
+
+//***** DECORATIONS *****
+
+// Bloody twitch -----------------------------------------------------------
+
+ACTOR NashGore_BloodyTwitch : BloodyTwitch replaces BloodyTwitch
+{
+	Mass 0x7FFFFFFF
+	health -1
+	+SHOOTABLE
+}
+
+// Still alive on a stick --------------------------------------------------
+
+ACTOR NashGore_LiveStick : LiveStick replaces LiveStick
+{
+	Mass 0x7FFFFFFF
+	health -1
+	+SHOOTABLE
+}
+
+// Hanging with no guts ----------------------------------------------------
+
+ACTOR NashGore_HangNoGuts : HangNoGuts replaces HangNoGuts
+{
+	Mass 0x7FFFFFFF
+	health -1
+	+SHOOTABLE
+}
+
+// Hanging from bottom with no brain ---------------------------------------
+
+ACTOR NashGore_HangBNoBrain : HangBNoBrain replaces HangBNoBrain
+{
+	Mass 0x7FFFFFFF
+	health -1
+	+SHOOTABLE
+}
+
+//===================//==O
+//Thamuz DYING lol :D//************************************************************************************************
+//===================//==O
+
+Actor Thamuz_Blood : NashGore_Blood
+{
+	+CLIENTSIDEONLY
+	Translation "168:191=112:127"
+}

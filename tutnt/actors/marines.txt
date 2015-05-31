@@ -1,0 +1,282 @@
+/////////////////////////////
+//START OF SCRIPTED MARINES//
+/////////////////////////////
+
+ACTOR BerserkMarine 30000
+{
+	Health 100
+	Radius 16
+	Height 56
+	Speed 3
+	PainChance 255
+	SeeSound "marine/sight"
+	ActiveSound "marine/active"
+	DeathSound "marine/death"
+	PainSound "marine/pain"
+	TRANSLATION 2
+	MONSTER
+	+FLOORCLIP
+	Obituary "%o got beaten up by a berserker marine"
+	+DOHARMSPECIES
+	States
+	{
+	Spawn:
+		PLA1 AB 10 A_Look
+		Loop
+	See:
+		"####" AAAABBBBCCCCDDDD 1 A_Chase
+		Loop
+	Melee:
+        PLA1 D 4 A_FaceTarget
+		PLA1 E 13 A_CustomMeleeAttack(random(1,8)*25,"marine/punch")
+		Goto See
+	Pain:
+        "####" G 4
+		"####" G 4 A_Pain
+		Goto See
+	Death:
+        "####" H 10
+		"####" I 10 A_Scream
+		"####" J 10 A_Fall
+		"####" KLM 10
+		"####" M -1
+		Stop
+	XDeath:
+        "####" O 5
+		"####" P 5 A_XScream
+		"####" Q 5 A_Fall
+		"####" RSTUV 5
+		"####" W -1
+		Stop
+	}
+}
+
+ACTOR PistolMarine : BerserkMarine 30001
+{
+	TRANSLATION "0:0=0:0"
+	AttackSound "weapons/pistol"
+	Damage 1
+	Obituary "%o got shot by a pistol marine"
+	//DropItem Clip 255 15
+	//DropItem Clip 96 5
+	//DropItem Clip 8 5
+	States
+	{
+	Spawn:
+		PLA2 AB 10 A_Look
+		Loop
+	Missile:
+        PLA2 E 8 A_FaceTarget
+		PLA2 F 10 LIGHT("ZombieShot") A_BulletAttack
+		PLA2 E 4 A_FaceTarget
+		PLA2 E 0 A_CPosRefire
+		Goto Missile+1
+	}
+}
+
+ACTOR ShotgunMarine : BerserkMarine 30002
+{
+	TRANSLATION "0:0=0:0"
+	Damage 7
+	AttackSound "weapons/shotgf"
+	Obituary "%o was riddled full of buckshot by a shotgun marine"
+	//DropItem Shotgun
+	//DropItem Shell 24 4
+	States
+	{
+	Spawn:
+		PLA3 AB 10 A_Look
+		Loop
+	Missile:
+        PLA3 E 8 A_FaceTarget
+		PLA3 F 7 LIGHT("ZombieShot") A_BulletAttack
+		PLA3 E 27 A_FaceTarget
+		PLA3 E 0 A_Jump(32, 1)
+		PLA3 E 0 A_CPosRefire
+		Goto Missile+1
+		PLA3 E 7 A_FaceTarget
+		Goto See
+	}
+}
+
+ACTOR SuperShotgunMarine : BerserkMarine 30003
+{
+	Damage 7
+	AttackSound "weapons/sshotf"
+	Obituary "%o was shredded by a super shotgun marine"
+	//DropItem SuperShotgun
+	//DropItem Shell 24 4
+	States
+	{
+	Spawn:
+		PLA3 AB 10 A_Look
+		Loop
+	Missile:
+        PLA3 E 8 A_FaceTarget
+		PLA3 F 9 LIGHT("ZombieShot") A_CustomBulletAttack(12, 6, 20, 5, "BulletPuff")
+		PLA3 E 12 A_FaceTarget
+		PLA3 E 14 A_PlaySound ("weapons/sshoto")
+		PLA3 E 13 A_PlaySound ("weapons/sshotl")
+		PLA3 E 6 A_PlaySound ("weapons/sshotc")
+		PLA3 E 0 A_Jump(96,"See")
+		PLA3 E 0 A_CPosRefire
+		Goto Missile+1
+	}
+}
+
+ACTOR ChaingunMarine : BerserkMarine 30004
+{
+	Damage 1
+	AttackSound "weapons/chngun"
+	TRANSLATION 0
+	Obituary "%o got riddled full of holes by a chaingun marine"
+	//DropItem Chaingun
+	//DropItem Clip 160 10
+	//DropItem Clip 36 10
+	States
+	{
+	Spawn:
+		PLA4 AB 10 A_Look
+		Loop
+	Missile:
+        PLA4 E 8 A_FaceTarget
+		PLA4 F 4 LIGHT("ZombieShot") A_BulletAttack
+		PLA4 E 4 A_BulletAttack
+		PLA4 E 0 A_Jump(8, 2)
+		PLA4 E 0 A_CPosRefire
+		Goto Missile+1
+		PLA4 E 1
+		Goto See
+	}
+}
+
+ACTOR RocketMarine : BerserkMarine 30005
+{
+	TRANSLATION 1
+	Obituary "%o rode a marines rocket"
+	//DropItem RocketLauncher
+	//DropItem Rocket 196 1
+	//DropItem Rocket 16 1
+	States
+	{
+	Spawn:
+		GPOS AB 10 A_Look
+		Loop
+	Missile:
+        GPOS E 8 A_FaceTarget
+		GPOS F 4 A_FaceTarget
+		GPOS F 8 A_CyberAttack
+		GPOS E 8 A_FaceTarget
+		GPOS E 0 A_Jump(80,2)
+		GPOS E 0 A_CPosRefire
+		Goto Missile+1
+		GPOS E 1
+		Goto See
+	}
+}
+
+ACTOR PlasmaRifleMarine : BerserkMarine 30006
+{
+	TRANSLATION 0
+	Obituary "%o felt the energy of a plasma rifle marine"
+	//DropItem PlasmaRifle
+	//DropItem Cell 196 20
+	//DropItem Cell 64 20
+	States
+	{
+	Spawn:
+		GPOS AB 10 A_Look
+		Loop
+	Missile:
+        GPOS E 8 A_FaceTarget
+		GPOP A 2 A_CustomMissile("PlasmaBall",32)
+		GPOS E 1 LIGHT("ZombiePlasma") A_FaceTarget
+		GPOS E 0 A_Jump(80, 2)
+		GPOS E 0 A_CPosRefire
+		Goto Missile+1
+		GPOS E 0
+		Goto See
+	}
+}
+
+ACTOR RailgunMarine : BerserkMarine 30007
+{
+	TRANSLATION "0:0=0:0"
+	Damage 100
+	Obituary "%o was railed by a railgun marine"
+	//DropItem Cell 255 40
+	//DropItem Cell 96 20
+	//DropItem Cell 16 10
+	States
+	{
+	Spawn:
+		XXLF AB 10 A_Look
+		Loop
+	Missile:
+        XXLF E 8 A_FaceTarget
+		XXLF F 10 LIGHT("MarineRailShot") A_MonsterRail
+		XXLF E 15 A_FaceTarget
+		Goto See
+	}
+}
+
+ACTOR ChainsawMarine : BerserkMarine 30008
+{
+	Obituary "%o got chopped up by a chainsaw marine"
+	//DropItem Chainsaw
+	States
+	{
+	Spawn:
+		PLA8 A 4 A_Look
+		PLA8 A 0 A_PlaySound("weapons/sawidle",CHAN_WEAPON)
+		PLA8 A 4 A_Look
+		PLA8 A 0 A_PlaySound("weapons/sawidle",CHAN_WEAPON)
+        PLA8 AB 2 A_Look
+		PLA8 B 0 A_PlaySound("weapons/sawidle",CHAN_WEAPON)
+		PLA8 B 4 A_Look
+		PLA8 B 0 A_PlaySound("weapons/sawidle",CHAN_WEAPON)
+		PLA8 B 4 A_Look
+		PLA8 B 0 A_PlaySound("weapons/sawidle",CHAN_WEAPON)
+		Loop
+	See:
+		PLA8 AAAA 1 A_Chase
+		PLA8 A 0 A_PlaySound("weapons/sawidle",CHAN_WEAPON)
+		PLA8 BBBB 1 A_Chase
+		PLA8 B 0 A_PlaySound("weapons/sawidle",CHAN_WEAPON)
+		PLA8 CCCC 1 A_Chase
+		PLA8 C 0 A_PlaySound("weapons/sawidle",CHAN_WEAPON)
+		PLA8 DDDD 1 A_Chase
+		PLA8 D 0 A_PlaySound("weapons/sawidle",CHAN_WEAPON)
+		Loop
+	Melee:
+		PLA8 EF 4 A_CustomMeleeAttack(random(1,8)*4,"weapons/sawhit","weapons/sawful")
+		Goto See
+	}
+}
+
+ACTOR BFGMarine : BerserkMarine 30009
+{
+	TRANSLATION "0:0=0:0"
+	Obituary "%o was blown away by a BFG marine"
+	//DropItem BFG9000
+	//DropItem Cell 192 20
+	//DropItem Cell 48 15
+	//DropItem Cell 8 30
+	States
+	{
+	Spawn:
+		PLAY AB 10 A_Look
+		Loop
+	Missile:
+        PLAY E 0 A_PlaySound ("weapons/bfgf")
+		PLAY E 25 LIGHT("ZombieBFG") A_FaceTarget
+		PLAB A 8 A_FaceTarget
+		PLAY E 8 LIGHT("ZombieBFG") A_CustomMissile("BFGBall",32)
+		Goto See
+	}
+}
+
+ACTOR FistMarine : BerserkMarine 30010
+{
+	Obituary "%o got beaten up by a fist marine"
+}
