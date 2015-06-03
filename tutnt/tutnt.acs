@@ -81,6 +81,88 @@ script "IntroText" OPEN
 		HUDMSG_FADEINOUT | HUDMSG_LOG,4,CR_UNTRANSLATED,320.0,200.0,5.0,1.0,1.0);
 }
 
+str voiceclip[35]=
+{
+	"VOC001","VOC002","VOC003","VOC004","VOC005",
+	"VOC006","VOC007","VOC008","VOC009","VOC010",
+	"VOC011","VOC012","VOC013","VOC014","VOC015",
+	"VOC016","VOC017","VOC018","VOC019","VOC020",
+	"VOC021","VOC022","VOC023","VOC024","VOC025",
+	"VOC026","VOC027","VOC028","VOC029","VOC030",
+	"VOC031","VOC032","VOC033","VOC034","VOC035"
+};
+str voicetext[35]=
+{
+	"\cR''Right, let's find some meat!''",
+	"\cR''What the...!''",
+	"\cR''...mmmmh, it smells like death and danger in here...\n\cR  That could just be my aftershave!''",
+	"\cR''Uh oh!''",
+	"\cR''Hmhmhm... that was almost too easy!''",
+	"\cR''Next time, I'll remember to keep my mouth shut!''",
+	"\cR''The weather on Tei Tenga was much better...\n\cR  I should have stayed there!''",
+	"\cR''<almost an arch-vile>...yourself!''",
+	"\cR''Those who are about to die salute you!''",
+	"\cR''Is that the best you've got?!''",
+	"\cR''Uh oh!''",
+	"\cR''Face the Maker!''",
+	"\cR''I somehow liked the armory better, the comfortable warm\n\feeling of processed steel and exploding demon torsos.''",
+	"\cR''There are older and fouler things than Imps\n\in the deep places of the world.''",
+	"\cR''Oh yeah, that gives me a warm n'fuzzy feeling.''",
+	"\cR''Time to light the barbecue!''",
+	"\cR''Hmm... get out, get out, wherever you are...''",
+	"\cR''I hate spiders!''",
+	"\cR''There's no way back now... it's time to show\nwhat I'm made of!''",
+	"I can feel it...\nthe evil power\nthat lies beyond this dark portal\n...the source of evil,\n\nspawning hundreds of demons\nhunting down humankind\nthis time on our homeworld,\nearth itself\n\nI can almost feel\nthe cold hand of death touching me",
+	"and\n...reaching out for my soul...\nI know that this final mission \nwill claim my life.\n\nIt is my destiny,\n\nmy fate to die in this war...\nthe only chance...\nto save those I love... \nbut what if there is much more \nbeyond what I can feel? ...",
+	"\cR''Oh yeah, we're into it now boys!''",
+	"\cR''Got'em, time to leave this god-forsaken place now!''",
+	"\cR''Whoa... deja-vu!''",
+	"\cR''Well, I don't suppose he's gonna use it.''",
+	"\cR''Oh my god... this is hell!''",
+	"\cR''Is that all you've got?... bring on some more!''",
+	"\cR''I gues this is where it really begins... and this is\n\cRwhere it ends.. now!''",
+	"\cR''You won't stop me!''",
+	"\cR''Oops!''",
+	"\cR''Now I'm really in trouble... oh well then, Sieg Heil!''",
+	"\cR''It's a solid wall. It propably won't do anything if I push it!''",
+	"\cR''Yeah baby, lock and load!''",
+	"\cR''I swear I've seen this place before.''",
+	"\cR''I've got a bad feeling about this... whatever did\n\this was very powerful...''"
+};
+script "PlayerVoice"(int clip)
+{
+	int holdtime=2.0;
+	SetHudSize(640,480,0);
+	SetFont("SmallFont");
+	AmbientSound(voiceclip[clip-1],127);
+	if(clip==2||clip==4||clip==11||clip==20||clip==21)
+		holdtime=1.0;
+	else if(clip==6||clip==7||clip==8||clip==26||clip==34)
+		holdtime=3.0;
+	else if(clip==3||clip==14||clip==19||clip==27||clip==32)
+		holdtime=4.0;
+	else if(clip==13)
+		holdtime=7.0;
+	if(clip==20)
+	{
+		SetHudSize(400,300,0);
+		HudmessageBold(s:voicetext[clip-1]; HUDMSG_TYPEON,2,CR_ORANGE,200.0,170.0,2.0,0.08,1.0);
+	}
+	else if(clip==21)
+	{
+		SetHudSize(400,300,0);
+		HudmessageBold(s:voicetext[clip-1]; HUDMSG_TYPEON,3,CR_ORANGE,195.0,165.0,2.0,0.08,1.0);
+	}
+	else
+		HudmessageBold(s:voicetext[clip-1];	HUDMSG_FADEINOUT,19,CR_UNTRANSLATED,320.0,470.0,holdtime,0.5,0.5);
+	if(clip==2)
+	{
+		delay(210);
+		Hudmessage(s:"\cR''...damn, that's an evil machine!''";
+			HUDMSG_FADEINOUT,19,CR_UNTRANSLATED,320.0,470.0,2.0,0.5,0.5);
+	}
+}
+
 Script "FastMonsters"(void)
 {
 	if(GetCVar("sv_fastmonsters")||GameSkill()>=4)
@@ -90,12 +172,10 @@ Script "FastMonsters"(void)
 }
 
 //INTERMAP SCRIPT
-world int 1:NextMap;
-
-Script 222 (int mapnum)
+global int 2:CompletedMap;
+script "Exiting" UNLOADING
 {
-	nextmap = mapnum;
-	Exit_Normal(0);
+	CompletedMap=GetLevelInfo(LEVELINFO_LEVELNUM);
 }
 
 ////////////////////
@@ -104,14 +184,14 @@ Script 222 (int mapnum)
 
 script 911 ENTER
 {
-	if(GetActorProperty(0, APROP_HEALTH) < 11 && GetActorProperty(0, APROP_HEALTH) > 0)
+	if(GetActorProperty(0,APROP_HEALTH) < 11 && GetActorProperty(0,APROP_HEALTH) > 0)
    	{
-   		SetHudSize(640, 480, 0);
+   		SetHudSize(640,480,0);
         Setfont("M_INJ");
-		Hudmessage(s:"A"; HUDMSG_FADEINOUT, 0, CR_WHITE, 320.0, 240.0, 0.0, 0.5, 0.5);
-		localambientsound("heartb2", 120);
+		Hudmessage(s:"A"; HUDMSG_FADEINOUT,0,CR_WHITE,320.0,240.0,0.0,0.5,0.5);
+		localambientsound("heartb2",120);
 		delay(15);
-		localambientsound("heartb2", 120);
+		localambientsound("heartb2",120);
    	}
    	delay(25);
    	restart;
@@ -124,7 +204,7 @@ script 911 ENTER
 script 130 (void)
 //Quake & Stones
 {
-	Radius_Quake(2, 20*20, 0, 20, 120);
+	Radius_Quake(2,20*20,0,20,120);
 	delay(105);
     for(int i=30;i<=300;i+=60)
 	{
@@ -145,7 +225,7 @@ script 131 (void)
 		for(int at2_angle=255;at2_angle > 0;at2_angle -= 13)
 		{
 			at2_tid--;
-			SpawnProjectile(at2_tid, "Comet", at2_angle, 30, random(-50, -90),0,0);
+			SpawnProjectile(at2_tid,"Comet",at2_angle,30,random(-50,-90),0,0);
 			Delay(8);
 		}
 	}
@@ -157,10 +237,10 @@ script 132 (void)
 	delay(70);
 	for(int i=0;i<10;i++)
 	{
-		SpawnProjectile(160, "FlameBreathource", random(60, 68),   random(35,45), random(1,-6),0,0);
-		SpawnProjectile(161, "FlameBreathource", random(-4,  4),   random(35,45), random(1,-6),0,0);
-		SpawnProjectile(162, "FlameBreathource", random(188, 196), random(35,45), random(1,-6),0,0);
-		SpawnProjectile(163, "FlameBreathource", random(124, 132), random(35,45), random(1,-6),0,0);
+		SpawnProjectile(160,"FlameBreathource",random(60,68),random(35,45),random(1,-6),0,0);
+		SpawnProjectile(161,"FlameBreathource",random(-4,4),random(35,45),random(1,-6),0,0);
+		SpawnProjectile(162,"FlameBreathource",random(188,196),random(35,45),random(1,-6),0,0);
+		SpawnProjectile(163,"FlameBreathource",random(124,132),random(35,45),random(1,-6),0,0);
 		delay(7);
 	}
 }
@@ -248,39 +328,39 @@ Script 176 (int tid)
 	}
 }
 
-Script 777 (int length, int radius)
+Script 777 (int length,int radius)
 {
 	int tid1 = -16384  + ActivatorTID () - PORTAL_BASE_TID;
 	int tid2 = 16384 + ActivatorTID () - PORTAL_BASE_TID;
-	length = random (-length / 2 + 16, length / 2 - 16) << 16;
+	length = random (-length / 2 + 16,length / 2 - 16) << 16;
 	radius <<= 16;
 	int a1 = GetActorAngle (0);
-	int x1 = GetActorX (0) + FixedMul (cos (a1 - 0.25), length);
-	int y1 = GetActorY (0) + FixedMul (sin (a1 - 0.25), length);
-	int z1 = random (GetActorFloorZ (0) + 16.0, GetActorCeilingZ (0) - 16.0);
+	int x1 = GetActorX (0) + FixedMul (cos (a1 - 0.25),length);
+	int y1 = GetActorY (0) + FixedMul (sin (a1 - 0.25),length);
+	int z1 = random (GetActorFloorZ (0) + 16.0,GetActorCeilingZ (0) - 16.0);
 	int cz = (GetActorCeilingZ (0) - GetActorFloorZ (0)) / 2 + GetActorFloorZ (0);
 	//not a real pitch determination, just a hack to save some processing
 	if (z1 < cz)
-		int p = random (-0.0625, 0);
+		int p = random (-0.0625,0);
 	else
-		p = random (0, 0.0625);
+		p = random (0,0.0625);
 
 	//same for angle
 	if (length < 0)
-		int a2 = a1 + random (0, 0.0625);
+		int a2 = a1 + random (0,0.0625);
 	else
-		a2 = a1 + random (-0.0625, 0);
+		a2 = a1 + random (-0.0625,0);
 
-	Spawn ("PortalTarget", x1, y1, z1, tid1, 0);
+	Spawn ("PortalTarget",x1,y1,z1,tid1,0);
 
-	int p1 = random (-0.0625, 0.0625);
-	int x2 = x1 + FixedMul (cos (p), FixedMul (cos (a2), radius));
-	int y2 = y1 + FixedMul (cos (p), FixedMul (sin (a2), radius));
-	int z2 = z1 + FixedMul (sin (p), radius);
+	int p1 = random (-0.0625,0.0625);
+	int x2 = x1 + FixedMul (cos (p),FixedMul (cos (a2),radius));
+	int y2 = y1 + FixedMul (cos (p),FixedMul (sin (a2),radius));
+	int z2 = z1 + FixedMul (sin (p),radius);
 
-	Spawn ("MapSpot", x2, y2, z2, tid2, 0);
+	Spawn ("MapSpot",x2,y2,z2,tid2,0);
 
-	Thing_ProjectileAimed(tid2, T_PORTALEMBER, random (8, 32), tid1, 0);
+	Thing_ProjectileAimed(tid2,T_PORTALEMBER,random (8,32),tid1,0);
 
 	Thing_Remove (tid1);
 	Thing_Remove (tid2);
@@ -299,15 +379,15 @@ Script 779 (int p_num) DISCONNECT
 //Embers
 str p_spawner[2][6] =
 {
-	{"EmberShot", "EmberShot", "EmberShot", "EmberShot", "EmberShot", "EmberShot"},
-	{"SparkleShot_W", "SparkleShot_R", "SparkleShot_G", "SparkleShot_Y", "SparkleShot_O", "SparkleShot_B"},
+	{"EmberShot","EmberShot","EmberShot","EmberShot","EmberShot","EmberShot"},
+	{"SparkleShot_W","SparkleShot_R","SparkleShot_G","SparkleShot_Y","SparkleShot_O","SparkleShot_B"},
 };
 
-Script 444 (int type, int color, int size)
+Script 444 (int type,int color,int size)
 {
 	size = size / 2 << 16;
-	Spawn(p_spawner[type][color], GetActorX (0) + random (-size, size),
-		GetActorY (0) + random (-size, size), GetActorZ (0), 0, 0);
+	Spawn(p_spawner[type][color],GetActorX (0) + random (-size,size),
+		GetActorY (0) + random (-size,size),GetActorZ (0),0,0);
 }
 
 script "weatherfx"(void)
@@ -322,34 +402,26 @@ script "weatherfx"(void)
 #define HP_X    350.0
 #define HP_Y    46.0
 
-Script "BOSSHP"(int firstid, int lastid)
+str bossfont[5]={"M_HPB1","M_HPB2","M_HPB3","M_HPB4","M_HPB5"};
+Script "BOSSHP"(int firstid,int lastid,int boss)
 {
-	SetHudSize(640, 480, 1);
-	if(GetLevelInfo(LEVELINFO_LEVELNUM)==1)
-		SetFont("M_HPB1");
-	if(GetLevelInfo(LEVELINFO_LEVELNUM)==2)
-		SetFont("M_HPB2");
-	if(GetLevelInfo(LEVELINFO_LEVELNUM)==5)
-		SetFont("M_HPB3");
-	if(GetLevelInfo(LEVELINFO_LEVELNUM)==9)
-		SetFont("M_HPB4");
-	if(GetLevelInfo(LEVELINFO_LEVELNUM)==8||GetLevelInfo(LEVELINFO_LEVELNUM)==10)
-		SetFont("M_HPB5");
-	HudMessageBold(s:"a"; HUDMSG_PLAIN, 3, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.0);
+	SetHudSize(640,480,1);
+	SetFont(bossfont[boss-1]);
+	HudMessageBold(s:"a"; HUDMSG_PLAIN,3,CR_UNTRANSLATED,FRAME_X,FRAME_Y,0.0);
 	SetFont("NORMAL");
-	HudMessageBold(s:"Boss"; HUDMSG_PLAIN, 2, CR_GRAY, BOSS_X, BOSS_Y, 0.0);  //Also try CR_GREY or CR_WHITE
+	HudMessageBold(s:"Boss"; HUDMSG_PLAIN,2,CR_GRAY,BOSS_X,BOSS_Y,0.0);
 	delay(1);
-	int color = CR_GREEN,toggle=1,currenthp;
+	int color = CR_GREEN,alive=1,currenthp;
 	for(int i=firstid; i<=lastid; i++)
-		currenthp += GetActorProperty(i, APROP_HEALTH);
+		currenthp += GetActorProperty(i,APROP_HEALTH);
 	int maxhp = currenthp;
-	while(toggle)
+	while(alive)
 	{
 		currenthp = 0;
 		for(i=firstid; i<=lastid; i++)
 		{
-			if (GetActorProperty(i, APROP_HEALTH) > 0)
-				currenthp += GetActorProperty(i, APROP_HEALTH);
+			if (GetActorProperty(i,APROP_HEALTH) > 0)
+				currenthp += GetActorProperty(i,APROP_HEALTH);
 		}
 		int percent = currenthp*100/maxhp;
 		if (percent <= 75 && percent > 50)
@@ -362,98 +434,73 @@ Script "BOSSHP"(int firstid, int lastid)
 			percent = 1;
 		else if (currenthp == 0)
 		{
-			toggle=0;
+			alive=0;
 			percent = 0;
 		}
 		SetFont("BIGFONT");
-		HudMessageBold(d:percent, s:"%"; HUDMSG_PLAIN, 1, color, HP_X, HP_Y, 0.286);
+		HudMessageBold(d:percent,s:"%"; HUDMSG_PLAIN,1,color,HP_X,HP_Y,0.286);
 		delay(10);
 	}
 	SetFont("NORMAL");
-	HudMessageBold(s:"Boss"; HUDMSG_FADEOUT, 2, CR_GRAY, BOSS_X, BOSS_Y, 0.286, 1.0);
-
+	HudMessageBold(s:"Boss"; HUDMSG_FADEOUT,2,CR_GRAY,BOSS_X,BOSS_Y,0.286,1.0);
 	SetFont("BIGFONT");
-	HudMessageBold(d:percent, s:"%"; HUDMSG_FADEOUT, 1, color, -HP_X, HP_Y, 0.286, 1.0);
-	if(GetLevelInfo(LEVELINFO_LEVELNUM)==1)
+	HudMessageBold(d:percent,s:"%"; HUDMSG_FADEOUT,1,color,-HP_X,HP_Y,0.286,1.0);
+	SetFont(bossfont[boss-1]);
+	HudMessageBold(s:"a"; HUDMSG_FADEOUT,3,CR_UNTRANSLATED,FRAME_X,FRAME_Y,0.286,1.0);
+	if(boss==1)
 	{
-		SetFont("M_HPB1");
-		HudMessageBold(s:"a"; HUDMSG_FADEOUT, 3, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.286, 1.0);
-
-		//  <-- Your commands here! ***
+		SetMusic("*");
 		door_open(17,20);
-		SetMusic("D_TNT01");
 		delay(35);
-		LocalAmbientSound("VOC006", 127);
-		SetHudSize(640, 480, 0);
-		SetFont("SmallFont");
-		Hudmessage(s:"\cR''Next time, I'll remember to keep my mouth shut!''";
-			HUDMSG_FADEINOUT, 19, CR_UNTRANSLATED, 320.0, 470.0, 3.0, 0.5, 0.5);
+		ACS_NamedExecuteAlways("PlayerVoice",0,6);
 	}
-	if(GetLevelInfo(LEVELINFO_LEVELNUM)==2)
+	if(boss==2)
 	{
-		SetFont("M_HPB2");
-		HudMessageBold(s:"a"; HUDMSG_FADEOUT, 3, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.286, 1.0);
-
-		//  <-- Your commands here! ***
-		ceiling_raisebyvalue(57, 20, 32);
-		door_open(58, 20);
 		SetMusic("");
+		ceiling_raisebyvalue(57,20,32);
+		door_open(58,20);
 		delay(70);
-		AmbientSound("VOC012", 127);
-		SetHudSize(640, 480, 0);
-		SetFont("SmallFont");
-		HudmessageBold(s:"\cR''Face the Maker!''";
-			HUDMSG_FADEINOUT, 19, CR_UNTRANSLATED, 320.0, 470.0, 2.0, 0.5, 0.5);
+		ACS_NamedExecuteAlways("PlayerVoice",0,12);
 	}
-	if(GetLevelInfo(LEVELINFO_LEVELNUM)==5)
+	if(boss==3)
 	{
-		SetFont("M_HPB3");
-		HudMessageBold(s:"a"; HUDMSG_FADEOUT, 3, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.286, 1.0);
-
-		//  <-- Your commands here! ***
-		acs_execute(99,0,0,0,0);
-		acs_execute(201,0,0,0,0);
+		printbold (s: "\cCObjective Accomplished:\n\cGYou've killed the Portal Guards");
+		ambientsound("dudud",255);
+		delay(105);
+		setmusic("*");
+		door_open(7,20);
+		floor_lowertonearest(6,20);
 	}
-	if(GetLevelInfo(LEVELINFO_LEVELNUM)==9)
+	if(boss==4)
 	{
-		SetFont("M_HPB4");
-		HudMessageBold(s:"a"; HUDMSG_FADEOUT,3,CR_UNTRANSLATED,FRAME_X,FRAME_Y,0.286,1.0);
-
-		//  <-- Your commands here! ***
 		SetMusic("");
 		ACS_Terminate(40,0);
 		Radius_Quake(6,140,0,10,41);
 		delay(140);
-		ACS_Execute(222,0,19);
+		Teleport_NewMap(99,0);
 	}
-	if(GetLevelInfo(LEVELINFO_LEVELNUM)==8||GetLevelInfo(LEVELINFO_LEVELNUM)==10)
+	if(boss==5)
 	{
-		SetFont("M_HPB5");
-		HudMessageBold(s:"a"; HUDMSG_FADEOUT, 3, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.286, 1.0);
-
-		//  <-- Your commands here! ***
-		//Music Change
-		thing_deactivate(52);
 		SetMusic("");
-
+		thing_deactivate(52);
 		//Lines Normal
-		SetLineBlocking(99, BLOCK_NOTHING);
-		SetLineSpecial(99, 0, 0, 0, 0, 0, 0);
-		acs_terminate(701, 0);
-		acs_terminate(134, 0);
+		SetLineBlocking(99,BLOCK_NOTHING);
+		SetLineSpecial(99,0,0,0,0,0,0);
+		acs_terminate(701,0);
+		acs_terminate(134,0);
 		thing_destroy(667);
-		Radius_Quake(5, 16*20, 0, 20, 120);
-		light_fade(17, 112, 16*20);
-		light_fade(13, 112, 16*20);
-		light_fade(14, 112, 16*20);
+		Radius_Quake(5,16*20,0,20,120);
+		light_fade(17,112,16*20);
+		light_fade(13,112,16*20);
+		light_fade(14,112,16*20);
 		for (int k = 250; k > 0; k -= 10)
 		{
-			TranslucentLine(88, k, 1);
-			TranslucentLine(99, k, 1);
-			TranslucentLine(96, k, 1);
+			TranslucentLine(88,k,1);
+			TranslucentLine(99,k,1);
+			TranslucentLine(96,k,1);
 			Delay(16);
 		}
 		delay(140);
-		acs_execute(222, 0, 88);
+		Teleport_NewMap(99,0);
 	}
 }

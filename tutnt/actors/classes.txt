@@ -1,14 +1,17 @@
 ACTOR Marine : DoomPlayer
 {
-	Player.StartItem "NewShotgun"
-	Player.StartItem "Fist"
+	Player.StartItem "UTNTShotgun"
+	Player.StartItem "UTNTFist"
 	Player.StartItem "Shell",10
 	Player.maxhealth 100
-	Player.WeaponSlot 2,NewPistol
-	Player.WeaponSlot 3,NewShotgun,NewSuperShotgun
-	Player.WeaponSlot 4,NewChaingun,STMinigun
-	Player.WeaponSlot 6,PlasmaRifle,Flamer
-	Player.WeaponSlot 8,PyroCannon
+	Player.WeaponSlot 1,UTNTFist,UTNTChainsaw
+	Player.WeaponSlot 2,UTNTPistol
+	Player.WeaponSlot 3,UTNTShotgun,UTNTSuperShotgun
+	Player.WeaponSlot 4,UTNTChaingun,UTNTMinigun
+	Player.WeaponSlot 5,UTNTRocketLauncher
+	Player.WeaponSlot 6,UTNTPlasmaRifle,UTNTFlamer
+	Player.WeaponSlot 7,UTNTBFG9000
+	Player.WeaponSlot 8,UTNTPyroCannon
 	States
 	{
 	Spawn:
@@ -21,7 +24,8 @@ ACTOR Marine : DoomPlayer
 		"####" E 12
 		"####" E 0 A_Jump(256,"Spawn")
 	Melee:
-		"####" F 6 BRIGHT
+		"####" F 2 BRIGHT LIGHT("ZOMBIEATK")
+		"####" F 4 BRIGHT
 		Goto Missile
 	Pain:
 		"####" G 4
@@ -49,8 +53,8 @@ ACTOR Scout : Marine
 	Player.ForwardMove 1.25,1.25
 	Player.SideMove 1.25,1.25
 	Player.DisplayName "Scout"
-	Player.StartItem "NewPistol"
-	Player.StartItem "Fist"
+	Player.StartItem "UTNTPistol"
+	Player.StartItem "UTNTFist"
 	Player.StartItem "Clip",60
 	Player.maxhealth 75
 	States
@@ -70,8 +74,8 @@ ACTOR Commando : Marine
 	Player.SideMove 0.85,0.85
 	Health 150
 	Player.DisplayName "Commando"
-	Player.StartItem "STMinigun"
-	Player.StartItem "Fist"
+	Player.StartItem "UTNTMinigun"
+	Player.StartItem "UTNTFist"
 	Player.StartItem "Clip",100
 	Player.maxhealth 150
 	States

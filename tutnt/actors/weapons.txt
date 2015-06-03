@@ -1,7 +1,578 @@
+ACTOR NewPuff : BulletPuff
+{
+	Alpha 1.0
+	//Mass 12 //I like the fact puffs make big splashes.
+	// But as long as there are terrain sounds for solid floors puffs must not do them!
+	States
+	{
+	Spawn:
+	Melee:
+		PUFF A 2 LIGHT("BPUFF1")
+		PUFF A 0 A_Jump(128,2)
+		PUFF A 2 LIGHT("BPUFF1") A_SpawnItemEx("Puff2")
+		PUFF B 4 LIGHT("BPUFF2")
+		PUFF C 4 LIGHT("BPUFF3")
+		PUFF D 4 LIGHT("BPUFF4")
+		Stop
+	}
+}
+
+ACTOR Puff2
+{
+	+CLIENTSIDEONLY
+	PROJECTILE
+	+NOCLIP
+	Mass 1
+	States
+	{
+	Spawn:
+		PUFF E 2 Bright
+		PUFF E 2 Bright A_PlaySound("puff/ric")
+		PUFF FGH 4 Bright
+		Stop
+	}
+}
+
+ACTOR UTNTBerserk : Berserk replaces Berserk
+{
+	States
+	{
+	Pickup:
+		TNT1 A 0 A_GiveInventory("PowerStrength")
+		TNT1 A 0 HealThing(100,0)
+		TNT1 A 0 A_SelectWeapon("UTNTFist")
+		Stop
+	}
+}
+
+ACTOR UTNTFist : Fist replaces Fist
+{
+	States
+	{
+	Fire:
+		PKFS LBCD 1
+		PKFS E 2 A_Punch
+		PKFS FGHI 2
+		PKFS JKL 1
+		PUNG A 5 A_ReFire
+		Goto Ready
+	}
+}
+
+ACTOR UTNTChainsaw : Chainsaw replaces Chainsaw
+{
+	States
+	{
+	Ready:
+		SAWG CCDDEEFF 1 A_WeaponReady
+		Loop
+	Fire:
+		SAWG A 2 A_Saw
+		SAWG B 2
+		SAWG A 2 A_Saw
+		SAWG B 2
+    	SAWG B 0 A_ReFire
+   		Goto Ready
+	}
+}
+
+ACTOR UTNTPistol : Pistol replaces Pistol
+{
+	AttackSound "weapons/pistol"
+	Decal BulletChip
+	States
+	{
+	Ready:
+		PKPI A 1 A_WeaponReady
+		Loop
+	Deselect:
+		PKPI A 1 A_Lower
+		Loop
+	Select:
+		PKPI A 1 A_Raise
+		Loop
+	Fire:
+		PKPI A 3
+		PKPI B 0 A_GunFlash
+		PKPI B 0 A_SpawnItemEx("PisCaseSpawn",20,0,29)
+		PKPI B 2 A_FireBullets(4,4,1,5,"NewPuff")
+		PKPI CEDB 2
+		PKPI A 5 A_ReFire
+		Goto Ready
+	Flash:
+		PKPF A 2 Bright A_Light2
+		PKPF B 1 Bright A_Light1
+		Goto LightDone
+	}
+}
+
+ACTOR PisCaseSpawn
+{
+	+CLIENTSIDEONLY
+	PROJECTILE
+	+NOCLIP
+	States
+	{
+	Spawn:
+		TNT1 A 1
+		TNT1 A 1 A_SpawnItemEx("PistolCasing",0,0,0,4,0,Random(2,4),Random(85,95))
+		Stop
+	}
+}
+
+ACTOR PistolCasing
+{
+	+CLIENTSIDEONLY
+	Height 8
+	Radius 6
+	Speed 4
+	Scale 0.45
+	BounceFactor 0.4
+	Mass 1
+	PROJECTILE
+	BounceType Doom
+	-NOGRAVITY
+	-NOBLOCKMAP
+	BounceSound "weapons/case1"
+	States
+	{
+	Spawn:
+		CAS2 ABCD 2
+		Loop
+	Death:
+		CAS2 A 0 A_Jump(256,1,2,3,4)
+		CAS2 ABCD 0 A_Jump(256,"End")
+	End:
+		"####" "#" 350
+		Stop
+	}
+}
+
+ACTOR UTNTShotgun : Shotgun replaces Shotgun
+{
+	AttackSound "weapons/shotgf"
+	Decal BulletChip
+	States
+	{
+	Fire:
+		SHTG A 3
+		SHTG A 0 A_GunFlash
+		SHTG A 5 A_FireBullets(5.6,0,7,5,"NewPuff")
+		PKSG B 2
+		PKSG C 1
+		PKSG D 2
+		PKSG E 3
+		PKSG F 4
+		PKSG G 1
+		PKSG H 3 A_SpawnItemEx("ShotCaseSpawn",20,-4,24)
+		PKSG GFEDCB 2
+		SHTG A 1
+		SHTG A 7 A_ReFire
+		Goto Ready
+	Flash:
+		SHTF B 3 Bright A_Light2
+		SHTF A 2 Bright A_Light1
+		Goto LightDone
+	}
+}
+
+ACTOR UTNTSuperShotgun : SuperShotgun replaces SuperShotgun
+{
+	AttackSound "weapons/sshotf"
+	Decal BulletChip
+	States
+	{
+	Ready:
+		SHT2 A 1 A_WeaponReady
+		Loop
+	Deselect:
+		SHT2 A 1 A_Lower
+		Loop
+	Select:
+		SHT2 A 1 A_Raise
+		Loop
+	Fire:
+		SHT2 A 3
+		SHT2 A 0 A_GunFlash
+		SHT2 A 6 A_FireBullets(12,6,20,5,"NewPuff")
+		SHT2 A 3 A_Checkreload
+		PKS2 B 2
+		PKS2 C 3
+		PKS2 DE 4
+		PKS2 D 0 A_SpawnItemEx("ShotCaseSpawn",20,-2,30,0,0,0,180)
+		PKS2 D 0 A_SpawnItemEx("ShotCaseSpawn",20,2,30,0,0,0,180)
+		PKS2 F 2 A_PlaySound("weapons/sshoto")
+		PKS2 GHIJ 2
+		PKS2 K 3
+		PKS2 L 2 A_PlaySound("weapons/sshotl")
+		PKS2 M 3
+		PKS2 NOPQ 2
+		PKS2 R 3 A_PlaySound("weapons/sshotc")
+		PKS2 S 3
+		PKS2 T 1 A_ReFire
+		Goto Ready
+	Flash:
+		SHT2 J 3 Bright A_Light2
+		SHT2 I 2 Bright A_Light1
+		Goto LightDone
+	}
+}
+
+ACTOR ShotCaseSpawn : PisCaseSpawn
+{
+	States
+	{
+	Spawn:
+		TNT1 A 1
+		TNT1 A 1 A_SpawnItemEx("ShotgunCasing",0,0,0,4,0,Random(2,4),Random(-95,-85))
+		Stop
+	}
+}
+
+ACTOR ShotgunCasing : PistolCasing
+{
+	Height 12
+	Radius 9
+	Scale 0.7
+	BounceSound "weapons/shell"
+	States
+	{
+	Spawn:
+		D3S1 ACBHEGFD 1
+		Loop
+	Death:
+		D3S1 A 0 A_Jump(256,1,2,3,4,5,6,7,8)
+		D3S1 ABCDEFGH 0 A_Jump(256,"End")
+	}
+}
+
+ACTOR UTNTChaingun : Chaingun replaces Chaingun
+{
+	attacksound "weapons/chngun"
+	Decal BulletChip
+	States
+	{
+	Fire:
+		CHGG A 0 A_GunFlash
+		CHGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
+		CHGG A 1 A_FireBullets(4,4,1,5,"NewPuff")
+		PKCG BCD 1
+		CHGG A 0 A_CheckReload
+		CHGG A 0 A_GunFlash
+		CHGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
+		CHGG A 1 A_FireBullets(4,4,1,5,"NewPuff")
+		PKCG BCD 1
+		PKCG B 0 A_ReFire
+		CHGG A 1 A_Weaponready
+		PKCG BBCCCDDD 1 A_Weaponready
+		Goto Ready
+	Flash:
+		TNT1 A 0 A_Jump(128,4)
+		PKCF A 1 Bright A_Light1
+		PKCF B 1 Bright A_Light2
+		TNT1 A 2 A_Light1
+		Goto LightDone
+		PKCF C 1 Bright A_Light1
+		PKCF D 1 Bright A_Light2
+		TNT1 A 2 A_Light1
+		Goto LightDone
+	}
+}
+
+ACTOR UTNTMinigun : Weapon 20039
+{
+	Weapon.AmmoType "Clip"
+	Weapon.AmmoGive 20
+	Weapon.AmmoUse 1
+	Inventory.PickupMessage "You got the minigun!"
+	Obituary "%o was shredded by %k's minigun."
+	AttackSound "weapons/minigunfire"
+	Tag "Minigun"
+	States
+	{
+	Spawn:
+		MNGN A -1
+		Loop
+	Ready:
+		MNGG A 1 A_WeaponReady
+		Loop
+	Deselect:
+		MNGG A 1 A_Lower
+		Loop
+	Select:
+		MNGG A 1 A_Raise
+		Loop
+	Fire:
+		MNGG A 0 A_GunFlash
+		MNGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
+		MNGG A 1 A_FireBullets(5,1,1,5,"NewPuff")
+		MNGG C 1
+		MNGG A 0 A_CheckReload
+		MNGG A 0 A_GunFlash
+		MNGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
+		MNGG A 1 A_FireBullets(5,1,1,5,"NewPuff")
+		MNGG C 1
+		MNGG A 1 A_ReFire
+		MNGG BCDABCD 1
+		MNGG ABCDABCD 2
+		MNGG ABCDABCD 4
+		Goto Ready
+	Flash:
+		MNGF A 1 BRIGHT A_Light1
+		Goto LightDone
+	}
+}
+
+ACTOR UTNTRocketLauncher : RocketLauncher replaces RocketLauncher
+{
+	States
+	{
+	Fire:
+		MISG A 2
+		MISG A 4 A_GunFlash
+		PKRL B 2
+		PKRL D 3 A_FireMissile
+		PKRL C 3
+		PKRL BE 2
+		PKRL FG 1
+		MISG A 0 A_ReFire
+		Goto Ready
+	Flash:
+		PKRF A 3 Bright A_Light1
+		PKRF B 2 Bright
+		PKRF C 2 Bright A_Light2
+		PKRF DE 3 Bright
+		Goto LightDone
+	}
+}
+
+ACTOR UTNTPlasmaRifle : PlasmaRifle replaces PlasmaRifle
+{
+   	States
+   	{
+	Fire:
+		PLSF C 1 Bright A_FirePlasma
+		PLSF D 2 Bright
+		TNT1 A 0 A_ReFire
+		PLSF EFE 1 Bright
+		PKPL BDEF 1
+		PKPL G 6
+		PKPL FEDC 2
+		PKPL B 1
+		PLSG A 1
+		Goto Ready
+	Hold:
+		PLSF E 1 Bright A_FirePlasma
+		PLSF FE 1 Bright
+		PLSF C 1 Bright A_FirePlasma
+		Goto Fire+1
+   	Flash:
+      	TNT1 A 1 A_Light1
+      	Goto LightDone
+   	}
+}
+
+ACTOR PlasmaBallEnh : PlasmaBall replaces Plasmaball
+{
+	states
+	{
+	Spawn:
+		PLSS AB 6 Bright LIGHT("Plasma")
+		Loop
+	Death:
+		TNT1 A 0 A_CustomMissile("PSpark6_B1",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_B2",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_B3",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_B4",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_B5",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_B6",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_B7",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_B8",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_B9",0,0,random(0,360),2,random(-158,-22))
+		PLSE A 4 bright LIGHT("PlasmaX_1")
+		PLSE B 4 bright LIGHT("PlasmaX_2")
+		PLSE C 4 bright LIGHT("PlasmaX_3")
+		PLSE D 4 bright LIGHT("PlasmaX_4")
+		PLSE E 4 bright LIGHT("PlasmaX_5")
+		stop
+	}
+}
+
+Actor PSpark6_B1
+{
+	Speed 3
+	Height 2
+	Radius 1
+	Mass 0
+	+Missile
+	Gravity .125
+	RenderStyle Add
+	Scale 0.12
+	Translation "80:104=192:204","205:211=240:246","3:3=206:206"
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+		SPRK A 24 Bright
+	Death:
+		SPRK B 1 Bright A_SetTranslucent(.8,1)
+		SPRK CDEFGH 1 Bright A_FadeOut
+		Stop
+	}
+}
+
+Actor PSpark6_B2 : PSpark6_B1
+{
+	Scale 0.1
+}
+
+Actor PSpark6_B3 : PSpark6_B1
+{
+	Scale 0.08
+}
+
+Actor PSpark6_B4 : PSpark6_B1
+{
+	Speed 2
+}
+
+Actor PSpark6_B5 : PSpark6_B1
+{
+	Speed 2
+	Scale 0.1
+}
+
+Actor PSpark6_B6 : PSpark6_B1
+{
+	Speed 2
+	Scale 0.08
+}
+
+Actor PSpark6_B7 : PSpark6_B1
+{
+	Speed 1
+}
+
+Actor PSpark6_B8 : PSpark6_B1
+{
+	Speed 1
+	Scale 0.1
+}
+
+Actor PSpark6_B9 : PSpark6_B1
+{
+	Speed 1
+	Scale 0.08
+}
+
+Actor UTNTBFG9000 : BFG9000 replaces BFG9000
+{
+	States
+	{
+	Fire:
+		BFGG A 20 A_BFGSound
+		BFGG A 2 A_GunFlash
+		BFGN A 8
+		BFGN A 10 A_FireBFG
+		BFGG A 20 A_ReFire
+		goto Ready
+	Flash:
+		BFGW A 2 bright
+		BFGX HGFEDCBA 1 bright A_Light2
+		BFGY ABCDE 1 bright A_Light0
+		BFGY FGHIJKL 1
+		Goto LightDone
+	}
+}
+
+ACTOR BFGBallEnh : BFGBall replaces BFGBall
+{
+	states
+	{
+	Spawn:
+		BFS1 AB 4 Bright LIGHT("BFG")
+		Loop
+	Death:
+		TNT1 AAA 0 A_CustomMissile("PSpark6_G1",0,0,random(0,360),2,random(0,360))
+		TNT1 AAA 0 A_CustomMissile("PSpark6_G2",0,0,random(0,360),2,random(0,360))
+		TNT1 AAA 0 A_CustomMissile("PSpark6_G3",0,0,random(0,360),2,random(0,360))
+		TNT1 AAA 0 A_CustomMissile("PSpark6_G4",0,0,random(0,360),2,random(0,360))
+		TNT1 AAA 0 A_CustomMissile("PSpark6_G5",0,0,random(0,360),2,random(0,360))
+		TNT1 AAA 0 A_CustomMissile("PSpark6_G6",0,0,random(0,360),2,random(0,360))
+		TNT1 AAA 0 A_CustomMissile("PSpark6_G7",0,0,random(0,360),2,random(0,360))
+		TNT1 AAA 0 A_CustomMissile("PSpark6_G8",0,0,random(0,360),2,random(0,360))
+		TNT1 AAA 0 A_CustomMissile("PSpark6_G9",0,0,random(0,360),2,random(0,360))
+		BFE1 A 8 bright LIGHT("BFGX_1")
+		BFE1 B 8 bright LIGHT("BFGX_2")
+		BFE1 C 8 bright LIGHT("BFGX_3") A_BFGSpray
+		BFE1 D 8 bright LIGHT("BFGX_4")
+		BFE1 E 8 bright LIGHT("BFGX_5")
+		BFE1 F 8 bright LIGHT("BFGX_6")
+		stop
+	}
+}
+
+Actor PSpark6_G1 : PSpark6_B1
+{
+	Speed 6
+	Translation "80:111=112:127","3:3=125:125"
+	States
+	{
+	Spawn:
+		SPRK A 64 Bright
+		Goto Death
+	}
+}
+
+Actor PSpark6_G2 : PSpark6_G1
+{
+	Scale 0.1
+}
+
+Actor PSpark6_G3 : PSpark6_G1
+{
+	Scale 0.08
+	Speed 4
+}
+
+Actor PSpark6_G4 : PSpark6_G1
+{
+	Speed 4
+}
+
+Actor PSpark6_G5 : PSpark6_G1
+{
+	Speed 2
+	Scale 0.1
+}
+
+Actor PSpark6_G6 : PSpark6_G1
+{
+	Speed 2
+	Scale 0.08
+}
+
+Actor PSpark6_G7 : PSpark6_G1
+{
+	Speed 6
+}
+
+Actor PSpark6_G8 : PSpark6_G1
+{
+	Speed 4
+	Scale 0.1
+}
+
+Actor PSpark6_G9 : PSpark6_G1
+{
+	Speed 2
+	Scale 0.08
+}
+
 //TNT Fire Weapons By: Eric Ou
 //===================================WEAPONS====================================
 //Flamethrower
-ACTOR Flamer : Weapon 20105
+ACTOR UTNTFlamer : Weapon 20105
 {
 	Inventory.PickupMessage "You got the flamethrower! Time for a BBQ!"
 	Obituary "%o was BBQed by %k's flamethrower."
@@ -159,9 +730,9 @@ ACTOR BigGas : Gas 20195
 		Loop
 	}
 }
-//End of Flamer
+
 //PyroCannon
-ACTOR PyroCannon : Weapon 20107
+ACTOR UTNTPyroCannon : Weapon 20107
 {
 	Inventory.PickupMessage "You got the PyroCannon ProtoType!"
 	Obituary "%o was incinerated by %k's Pyrocannon."
@@ -333,326 +904,9 @@ ACTOR PyroFX
 	}
 }
 
-//End of PyroCannon
-//============================END OF WEAPONS=================================
-
-ACTOR NewPistol : Pistol replaces Pistol
+Actor PSpark6_Y1 : PSpark6_B1
 {
-	AttackSound "weapons/pistol"
-	Decal BulletChip
-	States
-	{
-	Fire:
-		PISG A 2
-		PISG A 1 A_SpawnItemEx("PisCaseSpawn",20,0,29)
-		PISG B 0 A_GunFlash
-		PISG B 6 A_FireBullets(4,4,1,5,"NewPuff",1)
-		PISG C 4
-		PISG B 5 A_Refire
-		Goto Ready
-	}
-}
-
-ACTOR PisCaseSpawn
-{
-	+CLIENTSIDEONLY
-	PROJECTILE
-	+NOCLIP
-	States
-	{
-	Spawn:
-		TNT1 A 1
-		TNT1 A 1 A_SpawnItemEx("PistolCasing",0,0,0,4,0,Random(2,4),Random(85,95))
-		Stop
-	}
-}
-
-ACTOR PistolCasing
-{
-	+CLIENTSIDEONLY
-	Height 8
-	Radius 6
-	Speed 4
-	Scale 0.45
-	BounceFactor 0.4
-	Mass 1
-	PROJECTILE
-	BounceType Doom
-	-NOGRAVITY
-	-NOBLOCKMAP
-	BounceSound "weapons/case1"
-	States
-	{
-	Spawn:
-		CAS2 ABCD 2
-		Loop
-	Death:
-		CAS2 A 0 A_Jump(256,1,2,3,4)
-		CAS2 ABCD 0 A_Jump(256,"End")
-	End:
-		"####" "#" 350
-		Stop
-	}
-}
-
-ACTOR NewShotgun : Shotgun replaces Shotgun
-{
-	AttackSound "weapons/shotgf"
-	Decal BulletChip
-	States
-	{
-	Fire:
-		SHTG A 3
-		SHTG A 0 A_GunFlash
-		SHTG A 7 A_FireBullets(5.6,0,7,5,"NewPuff")
-		SHTG BC 5
-		SHTG D 1
-		SHTG D 3 A_SpawnItemEx("ShotCaseSpawn",20,-4,24)
-		SHTG CB 5
-		SHTG A 3
-		SHTG A 7 A_Refire
-		Goto Ready
-	}
-}
-
-ACTOR NewSuperShotgun : SuperShotgun replaces SuperShotgun
-{
-	AttackSound "weapons/sshotf"
-	Decal BulletChip
-	States
-	{
-	Fire:
-		SHT2 A 3
-		SHT2 A 0 A_GunFlash
-		SHT2 A 7 A_FireBullets(12,6,20,5,"NewPuff")
-		SHT2 B 7 A_CheckReload
-		SHT2 C 7
-		SHT2 D 0 A_SpawnItemEx("ShotCaseSpawn",20,-2,30,0,0,0,180)
-		SHT2 D 0 A_SpawnItemEx("ShotCaseSpawn",20,2,30,0,0,0,180)
-		SHT2 D 7 A_PlaySound("weapons/sshoto")
-		SHT2 E 7
-		SHT2 F 7 A_PlaySound("weapons/sshotl")
-		SHT2 G 7
-		SHT2 H 0 A_Refire
-		SHT2 H 7 A_PlaySound("weapons/sshotc")
-		Goto Ready
-	}
-}
-
-ACTOR ShotCaseSpawn : PisCaseSpawn
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1
-		TNT1 A 1 A_SpawnItemEx("ShotgunCasing",0,0,0,4,0,Random(2,4),Random(-95,-85))
-		Stop
-	}
-}
-
-ACTOR ShotgunCasing : PistolCasing
-{
-	Height 12
-	Radius 9
-	Scale 0.7
-	BounceSound "weapons/shell"
-	States
-	{
-	Spawn:
-		D3S1 ACBHEGFD 1
-		Loop
-	Death:
-		D3S1 A 0 A_Jump(256,1,2,3,4,5,6,7,8)
-		D3S1 ABCDEFGH 0 A_Jump(256,"End")
-	}
-}
-
-ACTOR NewChaingun : Chaingun replaces Chaingun
-{
-	attacksound "weapons/chngun"
-	Decal BulletChip
-	States
-	{
-	Fire:
-		CHGG A 0 A_GunFlash
-		CHGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
-		CHGG A 4 A_FireBullets(4,4,1,5,"NewPuff",1)
-		CHGG A 0 A_CheckReload
-		CHGG A 0 A_GunFlash("Flash2")
-		CHGG B 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
-		CHGG B 4 A_FireBullets(4,4,1,5,"NewPuff",1)
-		CHGG B 0 A_Refire
-		Goto Ready
-	Flash:
-		CHGF A 5 BRIGHT A_Light1
-		Goto LightDone
-	Flash2:
-		CHGF B 5 BRIGHT A_Light2
-		Goto LightDone
-	}
-}
-
-ACTOR NewPuff : BulletPuff
-{
-	Alpha 1.0
-	//Mass 12 //I like the fact puffs make big splashes.
-	// But as long as there are terrain sounds for solid floors puffs must not do them!
-	States
-	{
-	Spawn:
-	Melee:
-		PUFF A 2 LIGHT("BPUFF1")
-		PUFF A 0 A_Jump(128,2)
-		PUFF A 2 LIGHT("BPUFF1") A_SpawnItemEx("Puff2")
-		PUFF B 4 LIGHT("BPUFF2")
-		PUFF C 4 LIGHT("BPUFF3")
-		PUFF D 4 LIGHT("BPUFF4")
-		Stop
-	}
-}
-
-ACTOR Puff2
-{
-	+CLIENTSIDEONLY
-	PROJECTILE
-	+NOCLIP
-	Mass 1
-	States
-	{
-	Spawn:
-		PUFF E 2 Bright
-		PUFF E 2 Bright A_PlaySound("puff/ric")
-		PUFF FGH 4 Bright
-		Stop
-	}
-}
-
-//// Skulltag Minigun
-
-ACTOR STMinigun : Weapon 20039
-{
-	Weapon.AmmoType "Clip"
-	Weapon.AmmoGive 20
-	Weapon.AmmoUse 1
-	Inventory.PickupMessage "You got the minigun!"
-	Obituary "%o was shredded by %k's minigun."
-	AttackSound "weapons/minigunfire"
-	Tag "Minigun"
-	States
-	{
-	Spawn:
-		MNGN A -1
-		Loop
-	Ready:
-		MNGG A 1 A_WeaponReady
-		Loop
-	Deselect:
-		MNGG A 1 A_Lower
-		Loop
-	Select:
-		MNGG A 1 A_Raise
-		Loop
-	Fire:
-		MNGG A 0 A_GunFlash
-		MNGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
-		MNGG A 2 A_FireBullets(5,1,1,5,"NewPuff",1)
-		MNGG B 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
-		MNGG B 2 A_FireBullets(5,1,1,5,"NewPuff",1)
-		MNGG B 2 A_ReFire
-		MNGG A 5
-		MNGG B 8
-		MNGG A 11
-		MNGG B 14
-		MNGG A 17
-		goto Ready
-	Flash:
-		MNGF A 3 BRIGHT A_Light1
-		MNGF B 3 BRIGHT A_Light0
-		Stop
-	}
-}
-
-//////////////////////////////////
-// WEAPON ENHANCEMENTS 4 BFG+PL //
-//////////////////////////////////
-
-Actor PSpark6_G1
-{
-	Speed 6
-	Height 2
-	Radius 1
-	Mass 0
-	+Missile
-	Gravity .125
-	RenderStyle Add
-	Scale 0.12
-	Translation "80:111=112:127","3:3=125:125"
-	States
-	{
-	Spawn:
-		SPRK A 64 Bright
-	Death:
-		SPRK B 1 Bright A_SetTranslucent(.8,1)
-		SPRK CDEFGH 1 Bright A_FadeOut
-		Stop
-	}
-}
-
-Actor PSpark6_G2 : PSpark6_G1
-{
-	Scale 0.1
-}
-
-Actor PSpark6_G3 : PSpark6_G1
-{
-	Scale 0.08
-	Speed 4
-}
-
-Actor PSpark6_G4 : PSpark6_G1
-{
-	Speed 4
-}
-
-Actor PSpark6_G5 : PSpark6_G1
-{
-	Speed 2
-	Scale 0.1
-}
-
-Actor PSpark6_G6 : PSpark6_G1
-{
-	Speed 2
-	Scale 0.08
-}
-
-Actor PSpark6_G7 : PSpark6_G1
-{
-	Speed 6
-}
-
-Actor PSpark6_G8 : PSpark6_G1
-{
-	Speed 4
-	Scale 0.1
-}
-
-Actor PSpark6_G9 : PSpark6_G1
-{
-	Speed 2
-	Scale 0.08
-}
-
-Actor PSpark6_Y1 : PSpark6_G1
-{
-	Speed 3
 	Translation "80:97=225:227","98:98=160:160","99:103=228:231","104:111=161:167","3:3=161:161"
-	States
-	{
-	Spawn:
-		SPRK A 24 Bright
-		Goto Death
-	}
 }
 
 Actor PSpark6_Y2 : PSpark6_Y1
@@ -697,143 +951,4 @@ Actor PSpark6_Y9 : PSpark6_Y1
 {
 	Speed 1
 	Scale 0.08
-}
-
-Actor PSpark6_B1 : PSpark6_Y1
-{
-	Translation "80:104=192:204","205:211=240:246","3:3=206:206"
-}
-
-Actor PSpark6_B2 : PSpark6_B1
-{
-	Scale 0.1
-}
-
-Actor PSpark6_B3 : PSpark6_B1
-{
-	Scale 0.08
-}
-
-Actor PSpark6_B4 : PSpark6_B1
-{
-	Speed 2
-}
-
-Actor PSpark6_B5 : PSpark6_B1
-{
-	Speed 2
-	Scale 0.1
-}
-
-Actor PSpark6_B6 : PSpark6_B1
-{
-	Speed 2
-	Scale 0.08
-}
-
-Actor PSpark6_B7 : PSpark6_B1
-{
-	Speed 1
-}
-
-Actor PSpark6_B8 : PSpark6_B1
-{
-	Speed 1
-	Scale 0.1
-}
-
-Actor PSpark6_B9 : PSpark6_B1
-{
-	Speed 1
-	Scale 0.08
-}
-
-ACTOR PlasmaBallEnh : PlasmaBall replaces Plasmaball
-{
-	states
-	{
-	Spawn:
-		PLSS AB 6 Bright LIGHT("Plasma")
-		Loop
-	Death:
-		PLSE A 4 bright LIGHT("PlasmaX_1") A_SpawnItemEx("PSpark6SpawnerB")
-		PLSE B 4 bright LIGHT("PlasmaX_2")
-		PLSE C 4 bright LIGHT("PlasmaX_3")
-		PLSE D 4 bright LIGHT("PlasmaX_4")
-		PLSE E 4 bright LIGHT("PlasmaX_5")
-		stop
-	}
-}
-
-Actor PSpark6SpawnerB
-{
-	+CLIENTSIDEONLY
-	States
-	{
-	Spawn:
-		TNT1 A 0 NODELAY A_CustomMissile("PSpark6_B1",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B2",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B3",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B4",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B5",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B6",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B7",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B8",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 1 A_CustomMissile("PSpark6_B9",0,0,random(0,360),2,random(-158,-22))
-		Stop
-	}
-}
-
-ACTOR BFGBallEnh : BFGBall replaces BFGBall
-{
-	states
-	{
-	Spawn:
-		BFS1 AB 4 Bright LIGHT("BFG")
-		Loop
-	Death:
-		BFE1 A 8 bright LIGHT("BFGX_1") A_SpawnItemEx("PSpark6SpawnerG")
-		BFE1 B 8 bright LIGHT("BFGX_2")
-		BFE1 C 8 bright LIGHT("BFGX_3") A_BFGSpray
-		BFE1 D 8 bright LIGHT("BFGX_4")
-		BFE1 E 8 bright LIGHT("BFGX_5")
-		BFE1 F 8 bright LIGHT("BFGX_6")
-		stop
-	}
-}
-
-Actor PSpark6SpawnerG : PSpark6SpawnerB
-{
-	States
-	{
-	Spawn:
-		TNT1 AAA 0 NODELAY A_CustomMissile("PSpark6_G1",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G2",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G3",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G4",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G5",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G6",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G7",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G8",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G9",0,0,random(0,360),2,random(0,360))
-		Stop
-	}
-}
-
-Actor PSpark6SpawnerY : PSpark6SpawnerB
-{
-	States
-	{
-	Spawn:
-		TNT1 A 0 NODELAY A_CustomMissile("PSpark6_Y1",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y2",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y3",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y4",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y5",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y6",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y7",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y8",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 1 A_CustomMissile("PSpark6_Y9",0,0,random(0,360),2,random(-158,-22))
-		Stop
-	}
 }

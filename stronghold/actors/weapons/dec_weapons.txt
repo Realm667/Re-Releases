@@ -1,13 +1,22 @@
-
 actor StrongholdPlayer : DoomPlayer replaces DoomPlayer
 {
-	Player.StartItem "LifeItem", 3   // starting lives
-	Player.StartItem "CoinItem", 300 // starting money
+	Player.DisplayName "Stronghold Marine"
+	//Player.StartItem "LifeItem", 3   // starting lives
+	//Player.StartItem "CoinItem", 300 // starting money
 	Player.StartItem "DEPistol", 1
 	Player.StartItem "DEFist"
 	Player.StartItem "Clip", 50
 	+GHOST			// Fixing the Coop-Mine Problem
 	-TELESTOMP		// No more telefrags in coop games
+	Player.WeaponSlot 1,DEFist,DEChainsaw
+	Player.WeaponSlot 2,DEPistol
+	Player.WeaponSlot 3,DEShotgun,DESuperShotgun,AutoShotgun
+	Player.WeaponSlot 4,DEChaingun
+	Player.WeaponSlot 5,LandMineLayer,DERLauncher,HRL
+	Player.WeaponSlot 6,RailGun,StunnerRifle,DEPlasmaRifle
+	Player.WeaponSlot 7,DEBFG9000
+	Player.WeaponSlot 8,PyroCannon,Flamer
+	Player.WeaponSlot 9,Devastator,Repeater
 }
 
 ////////////////////////////////////////////////////////
@@ -251,7 +260,7 @@ ACTOR DevastatorBall
    States
    {
    Spawn:
-      DBAL AB 4 Bright 
+      DBAL AB 4 Bright
       DBAL A 4 Bright A_Explode (128,128,0)
       DBAL A 0 Bright
       DBAL AAA 0 Bright A_SpawnItem("DevShooter")
@@ -260,7 +269,7 @@ ACTOR DevastatorBall
       DBAL BBB 0 Bright A_SpawnItem("DevShooter")
       Goto Spawn+2
    Death:
-      DBAL C 5 Bright 
+      DBAL C 5 Bright
       DBAL D 5 Bright A_Explode
       DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,18,6)
       DBAL D 0 Bright A_CustomMissile("DevastatorBall2",0,0,36,6)
@@ -302,7 +311,7 @@ ACTOR DevastatorBall2
    +THRUGHOST
    +FORCEXYBILLBOARD
    SeeSound "weapons/devbal"
-   DeathSound "weapons/devex2" 
+   DeathSound "weapons/devex2"
    States
    {
    Spawn:
@@ -317,7 +326,7 @@ ACTOR DevastatorBall2
 }
 
 actor DevShooter
-{  
+{
    Radius 8
    Height 8
    MONSTER
@@ -352,7 +361,7 @@ ACTOR LiteShot
    +RIPPER
    +FORCEXYBILLBOARD
    SeeSound "weapons/devlit"
-   DeathSound "weapons/devzap" 
+   DeathSound "weapons/devzap"
    States
    {
    Spawn:
@@ -1235,7 +1244,7 @@ actor DEChaingun : Chaingun replaces Chaingun
 /////////////////////////////////////// PISTOL ///////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
-actor DEPistol : Weapon replaces Pistol 
+actor DEPistol : Weapon replaces Pistol
 {
   obituary "%o was tickled by %k's pea shooter."
   attacksound "weapons/pistol"

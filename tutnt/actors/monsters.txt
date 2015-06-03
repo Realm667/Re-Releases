@@ -55,48 +55,50 @@ actor UTNTZombieMan : ZombieMan replaces ZombieMan
 	}
 }
 
-actor UTNTShotgunGuy : ShotgunGuy replaces ShotgunGuy
+actor UTNTShotgunGuy : UTNTZombieMan replaces ShotgunGuy
 {
+	Health 30
+	Mass 100
+	PainChance 170
+	SeeSound "shotguy/sight"
+	AttackSound "shotguy/attack"
+	PainSound "shotguy/pain"
+	DeathSound "shotguy/death"
+	ActiveSound "shotguy/active"
+	Obituary "$OB_SHOTGUY"
+	DropItem "Shotgun"
 	Speed 2.66666667
-	Decal BulletChip
+	Species ShotgunGuy
 	states
 	{
+	Spawn:
+		SPOS AB 10 A_Look
+		Loop
 	See:
-		SPOS A 1 A_Chase
-		SPOS AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SPOS A 1 A_Chase
-		SPOS AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SPOS B 1 A_Chase
-		SPOS BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SPOS B 1 A_Chase
-		SPOS BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SPOS C 1 A_Chase
-		SPOS CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SPOS C 1 A_Chase
-		SPOS CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SPOS D 1 A_Chase
-		SPOS DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SPOS D 1 A_Chase
-		SPOS DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" A 1 A_Chase
+		"####" AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" A 1 A_Chase
+		"####" AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" B 1 A_Chase
+		"####" BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" B 1 A_Chase
+		"####" BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" C 1 A_Chase
+		"####" CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" C 1 A_Chase
+		"####" CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" D 1 A_Chase
+		"####" DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" D 1 A_Chase
+		"####" DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		Loop
 	Missile:
 		SPOS E 10 A_FaceTarget
 		SPOS F 10 Bright LIGHT("ZOMBIEATK") A_SPosAttackUseAtkSound
 		SPOS E 10
 		Goto See
-	Pain:
-		SPOS G 3
-		SPOS G 3 A_Pain
-		Goto See
-	XDeath:
-		SPOS M 5 A_SpawnItemEx("NashgoreMasterGenerator")
-		SPOS N 5 A_XScream
-		SPOS O 5 A_NoBlocking
-		SPOS PQRST 5
-		SPOS U -1
-		stop
 	Raise:
-		SPOS LKJIH 5
+		"####" LKJIH 5
 		Goto See
 	}
 }
@@ -135,11 +137,11 @@ actor UTNTChaingunGuy : ChaingunGuy replaces ChaingunGuy
 		"####" G 3 A_Pain
 		Goto See
 	XDeath:
-		CPOS O 5 A_SpawnItemEx("NashgoreMasterGenerator")
-		CPOS P 5 A_XScream
-		CPOS Q 5 A_NoBlocking
-		CPOS RS 5
-		CPOS T -1
+		"####" O 5 A_SpawnItemEx("NashgoreMasterGenerator")
+		"####" P 5 A_XScream
+		"####" Q 5 A_NoBlocking
+		"####" RS 5
+		"####" T -1
 		stop
 	Raise:
 		"####" NMLKJIH 5
@@ -195,9 +197,15 @@ actor UTNTDoomImp : DoomImp replaces DoomImp
 		"####" U -1
 		stop
 	Raise:
-		TROO MLKJI 8
+		"####" MLKJI 8
 		Goto See
 	}
+}
+
+ACTOR UTNTDoomImpBall : DoomImpBall replaces DoomImpBall
+{
+	ALPHA 0.67
+	Decal DoomImpScorch
 }
 
 ACTOR UTNTDemon : Demon replaces Demon
@@ -328,15 +336,28 @@ ACTOR UTNTCacoDemon : Cacodemon replaces Cacodemon
 		HEAD D 5 BRIGHT A_HeadAttack
 		Goto See
 	Pain:
-		HEAD E 3
-		HEAD E 3 A_Pain
-		HEAD F 6
+		"####" E 3
+		"####" E 3 A_Pain
+		"####" F 6
 		Goto See
+	Death:
+		"####" G 8
+		"####" H 8 A_Scream
+		"####" IJ 8
+		"####" K 8 A_NoBlocking
+		"####" L -1 A_SetFloorClip
+		Stop
 	Raise:
-		HEAD L 8 A_UnSetFloorClip
-		HEAD KJIHG 8
+		"####" L 8 A_UnSetFloorClip
+		"####" KJIHG 8
 		Goto See
 	}
+}
+
+ACTOR UTNTCacodemonBall : CacodemonBall replaces CacodemonBall
+{
+	ALPHA 0.67
+	Decal CacoScorch
 }
 
 ACTOR UTNTBaronOfHell : BaronOfHell replaces BaronOfHell
@@ -458,7 +479,15 @@ ACTOR UTNTArachnotronPlasma : ArachnotronPlasma replaces ArachnotronPlasma
 		APLS AB 5 Bright LIGHT("ArachnotronPlasma")
 		Loop
 	Death:
-		TNT1 A 0 A_SpawnItemEx("PSpark6SpawnerY")
+		TNT1 A 0 A_CustomMissile("PSpark6_Y1",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y2",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y3",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y4",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y5",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y6",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y7",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y8",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y9",0,0,random(0,360),2,random(-158,-22))
 		APBX A 5 bright LIGHT("ArachnotronPlasmaX_1")
 		APBX B 5 bright LIGHT("ArachnotronPlasmaX_2")
 		APBX C 5 bright LIGHT("ArachnotronPlasmaX_3")
@@ -495,8 +524,8 @@ ACTOR UTNTPainElemental : PainElemental replaces PainElemental
 		PAIN F 1 BRIGHT A_PainAttack
 		Goto See
 	Pain:
-		PAIN G 6
-		PAIN G 6 A_Pain
+		"####" G 6
+		"####" G 6 A_Pain
 		Goto See
 	Raise:
 		"####" MLKJIH 8
@@ -598,8 +627,8 @@ ACTOR UTNTFatso : Fatso replaces Fatso
 		FATT IG 5
 		Goto See
 	Pain:
-		FATT J 3
-		FATT J 3 A_Pain
+		"####" J 3
+		"####" J 3 A_Pain
 		Goto See
 	Raise:
 		FATT RQPONMLK 5
@@ -1335,6 +1364,7 @@ ACTOR Queen : NetherworldDrone 31064
 		QUEE DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		Loop
 	Missile:
+		QUEE G 0 A_SetUserVar("user_theta",0)
 		QUEE S 0 A_Jump(85,"Missile2")
 		QUEE S 0 A_PlaySound("queen/scream")
 		QUEE STU 8 A_FaceTarget
@@ -1358,32 +1388,13 @@ ACTOR Queen : NetherworldDrone 31064
 		QUEE U 0 A_FaceTarget
 		QUEE U 1 BRIGHT A_CustomMissile("FlameBreath",44,0,8)
 		QUEE U 0 A_SpidRefire
-		QUEE U 1 BRIGHT A_CustomMissile("FlameBreath",44,0,1)
-		QUEE U 0 A_FaceTarget
-		QUEE U 1 BRIGHT A_CustomMissile("FlameBreath",46,0,-3)
-		QUEE U 0 A_FaceTarget
-		QUEE U 1 BRIGHT A_CustomMissile("FlameBreath",43,0,5)
-		QUEE U 0 A_FaceTarget
-		QUEE U 1 BRIGHT A_CustomMissile("FlameBreath",44,0,-7)
-		QUEE U 0 A_FaceTarget
-		QUEE U 1 BRIGHT A_CustomMissile("FlameBreath",46,0,6)
-		QUEE U 0 A_FaceTarget
-		QUEE U 1 BRIGHT A_CustomMissile("FlameBreath",45,0,-1)
-		QUEE U 0 A_FaceTarget
-		QUEE U 1 BRIGHT A_CustomMissile("FlameBreath",43,0,-3)
-		QUEE U 0 A_FaceTarget
-		QUEE U 1 BRIGHT A_CustomMissile("FlameBreath",42,0,4)
-		QUEE U 0 A_FaceTarget
-		QUEE U 1 BRIGHT A_CustomMissile("FlameBreath",46,0,-7)
-		QUEE U 0 A_FaceTarget
-		QUEE U 1 BRIGHT A_CustomMissile("FlameBreath",44,0,8)
-		QUEE U 0 A_SpidRefire
-		Goto See
+		QUEE G 0 A_SetUserVar("user_theta",user_theta+1)
+		QUEE G 0 A_JumpIf(user_theta==2,"See")
+		Goto Missile+6
 	Missile2:
 		QUEE E 6 A_FaceTarget
 		QUEE F 6 LIGHT("NetherworldQueen_Shock_1") A_FaceTarget
 		QUEE G 6 LIGHT("NetherworldQueen_Shock_2") A_FaceTarget
-		QUEE G 0 A_SetUserVar("user_theta",0)
 	Shock:
 		QUEE G 0 A_CustomMissile("QueenElectro",44,0,user_theta)
 		QUEE G 0 A_SetUserVar("user_theta",user_theta+20)
@@ -1399,20 +1410,14 @@ ACTOR Queen : NetherworldDrone 31064
 		Loop
 	Melee:
 		QUEE E 3 A_FaceTarget
+		QUEE G 0 A_SetUserVar("user_theta",0)
 		QUEE E 3 A_PlaySound("queen/shock")
 		QUEE F 3 BRIGHT LIGHT("NetherworldQueen_Shock_1") A_CustomMeleeAttack(random(1,8)*5)
 		QUEE G 3 BRIGHT LIGHT("NetherworldQueen_Shock_2") A_CustomMeleeAttack(random(1,8)*5)
 		QUEE F 0 A_FaceTarget
-		QUEE F 3 BRIGHT LIGHT("NetherworldQueen_Shock_1") A_CustomMeleeAttack(random(1,8)*5)
-		QUEE G 3 BRIGHT LIGHT("NetherworldQueen_Shock_2") A_CustomMeleeAttack(random(1,8)*5)
-		QUEE F 0 A_FaceTarget
-		QUEE F 3 BRIGHT LIGHT("NetherworldQueen_Shock_1") A_CustomMeleeAttack(random(1,8)*5)
-		QUEE G 3 BRIGHT LIGHT("NetherworldQueen_Shock_2") A_CustomMeleeAttack(random(1,8)*5)
-		QUEE F 0 A_FaceTarget
-		QUEE F 3 BRIGHT LIGHT("NetherworldQueen_Shock_1") A_CustomMeleeAttack(random(1,8)*5)
-		QUEE G 3 BRIGHT LIGHT("NetherworldQueen_Shock_2") A_CustomMeleeAttack(random(1,8)*5)
-		QUEE F 0 A_FaceTarget
-		Goto See
+		QUEE G 0 A_SetUserVar("user_theta",user_theta+1)
+		QUEE G 0 A_JumpIf(user_theta==4,"See")
+		Goto Melee+2
 	Pain:
 		QUEE S 3
 		QUEE S 3 A_Pain
@@ -1459,43 +1464,20 @@ actor QueenElectro
 	}
 }
 
-ACTOR Catharsi 29123
+ACTOR Catharsi : UTNTDoomImp 29123
 {
-	OBITUARY "%o was blasted by a catharsi."
+	Obituary "%o was blasted by a catharsi."
 	Health 120
-	Height 56
-	Mass 100
-	Speed 2.66666667
 	PainChance 140
 	SEESOUND "catharsi/sit"
 	PAINSOUND "catharsi/pain"
 	DEATHSOUND "catharsi/death"
-	ACTIVESOUND "imp/active"
-	MONSTER
-	+FloorClip
+	Species "Catharsi"
 	var int user_theta;
 	states
 	{
 	Spawn:
 		SDDM AB 10 A_Look
-		Loop
-	See:
-		SDDM A 1 A_Chase
-		SDDM AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SDDM A 1 A_Chase
-		SDDM AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SDDM B 1 A_Chase
-		SDDM BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SDDM B 1 A_Chase
-		SDDM BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SDDM C 1 A_Chase
-		SDDM CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SDDM C 1 A_Chase
-		SDDM CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SDDM D 1 A_Chase
-		SDDM DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		SDDM D 1 A_Chase
-		SDDM DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		Loop
 	Missile:
 		SDDM E 4
@@ -1504,13 +1486,13 @@ ACTOR Catharsi 29123
 		SSDM E 0 A_SetUserVar("user_theta",-4)
 		SDDM F 2 BRIGHT LIGHT("Catharsi") A_CustomMissile("CatharsiBall",30,8,user_theta)
 		SDDM E 2 A_SetUserVar("user_theta",user_theta+4)
-		QUEE G 0 A_JumpIf(user_theta>16,"See")
+		SDDM G 0 A_JumpIf(user_theta>16,"See")
 		Goto Missile+4
 	Missile2:
 		SSDM E 0 A_SetUserVar("user_theta",4)
 		SDDM F 2 BRIGHT LIGHT("Catharsi") A_CustomMissile("CatharsiBall",30,8,user_theta)
 		SDDM E 2 A_SetUserVar("user_theta",user_theta-4)
-		QUEE G 0 A_JumpIf(user_theta<-16,"See")
+		SDDM G 0 A_JumpIf(user_theta<-16,"See")
 		Goto Missile2+1
 	Pain:
 		SDDM G 3
@@ -1528,12 +1510,14 @@ ACTOR Catharsi 29123
 		SDDM O 5 A_SpawnItemEx("NashgoreMasterGenerator")
 		SDDM P 5 A_XScream
 		SDDM Q 5 A_NoBlocking
-		SDDM RSTUV 5
-		SDDM W -1
+		SDDM RSTU 5
+		SDDM V -1
 		Stop
 	Raise:
 		SDDM NMLKJIH 5
 		Goto See
+	Melee:
+		Stop
 	}
 }
 
@@ -1655,56 +1639,6 @@ actor SuicideBomber 22099
 		BMBE PQRST 5
 		BMBE U -1
 		stop
-	}
-}
-
-//===========================================================================
-//
-// ZombieMarine
-//
-// created by: Bouncy
-// graphics by: Ixnatifual
-//
-//===========================================================================
-
-ACTOR ZombieMarine : UTNTZombieman 3200
-{
-	Health 100
-	Speed 2.25
-	Obituary "%o was killed by A Zombie Marine!"
-	DropItem Clip
-	DropItem Clip
-	States
-	{
-	Spawn:
-		UDM2 AB 10 A_Look
-		Loop
-	Missile:
-		UDM2 E 2 A_FaceTarget
-		UDM2 F 2 Bright LIGHT("ZombieShot") A_PosAttack
-		UDM2 E 2 A_Cposrefire
-		Loop
-	Pain:
-		UDM2 G 5
-		UDM2 G 3 A_Pain
-		Goto See
-	Death:
-		UDM2 H 5
-		UDM2 I 5 A_Scream
-		UDM2 J 5 A_NoBlocking
-		UDM2 KLM 5
-		UDM2 N -1
-		Stop
-	XDeath:
-		UDM2 O 5 A_SpawnItemEx("NashgoreMasterGenerator")
-		UDM2 P 5 A_XScream
-		UDM2 Q 5 A_NoBlocking
-		UDM2 RSTU 5
-		UDM2 V -1
-		Stop
-	Raise:
-		UDM2 NMLKJIH 5
-		Goto See
 	}
 }
 
@@ -1876,18 +1810,18 @@ ACTOR ChainsawZombie 3204
 		CHAN H 5
 		CHAN I 5 A_Scream
 		CHAN J 5 A_NoBlocking
-		CHAN KLM 5
-		CHAN N -1
+		CHAN KL 5
+		CHAN M -1
 		Stop
 	XDeath:
-		CHAN O 5 A_SpawnItemEx("NashgoreMasterGenerator")
-		CHAN P 5 A_XScream
-		CHAN Q 5 A_NoBlocking
-		CHAN RSTUV 5
-		CHAN W -1
+		CHAN N 5 A_SpawnItemEx("NashgoreMasterGenerator")
+		CHAN O 5 A_XScream
+		CHAN P 5 A_NoBlocking
+		CHAN QRS 5
+		CHAN T -1
 		Stop
 	Raise:
-		CHAN NMLKJIH 5
+		CHAN MLKJIH 5
 		Goto See
 	}
 }
@@ -1926,11 +1860,11 @@ ACTOR PlasmaZombie : UTNTZombieMan 3205
 		ZMAY F 5 LIGHT("ZombiePlasma") A_CustomMissile("PlasmaBall")
 		Goto See
 	XDeath:
-		ZMAY O 5 A_SpawnItemEx("NashgoreMasterGenerator")
-		ZMAY P 5 A_XScream
-		ZMAY Q 5 A_NoBlocking
-		ZMAY RSTU 5
-		ZMAY V -1
+		ZMAY M 5 A_SpawnItemEx("NashgoreMasterGenerator")
+		ZMAY N 5 A_XScream
+		ZMAY O 5 A_NoBlocking
+		ZMAY PQRS 5
+		ZMAY T -1
 		Stop
 	}
 }
@@ -1958,10 +1892,13 @@ ACTOR ZombieRailgunner : UTNTZombieMan 3206
 		RPOS F 5 Light ("ZombieRailShot") A_CustomRailgun(30,0,ac1819,FF6C00)
 		RPOS E 4 A_FaceTarget
 		Goto See
-	Pain:
-		RPOS G 5
-		RPOS G 3 A_Pain
-		Goto See
+	Death:
+		RPOS H 5
+		RPOS I 5 A_Scream
+		RPOS J 5 A_NoBlocking
+		RPOS KLM 5
+		RPOS N -1
+		Stop
 	XDeath:
 		RPOS O 5 A_SpawnItemEx("NashgoreMasterGenerator")
 		RPOS P 5 A_XScream
@@ -2006,10 +1943,6 @@ actor NamiDarkImp : UTNTDoomImp 3100
 		DRKI EF 8 A_FaceTarget
 		DRKI G 6 A_CustomComboAttack("DarkSeeker",32,random(1,8)*3,"imp/melee")
 		Goto See
-	Raise:
-		"####" ML 8
-		"####" KJI 6
-		Goto See
 	}
 }
 
@@ -2049,8 +1982,7 @@ actor VoidDarkImp : NamiDarkImp 3101
 		DRKV P -1
 		Stop
 	Raise:
-		DRKV PO 8
-		DRKV NML 6
+		DRKV PONML 6
 		Goto See
 	}
 }
@@ -2073,14 +2005,10 @@ actor STDarkImp : NamiDarkImp 3102
 	}
 }
 
-actor DarkNormal : DoomImpBall
+actor DarkNormal : UTNTDoomImpBall
 {
-	Radius 8
-	Height 6
 	Speed 9
 	FastSpeed 18
-	ALPHA 0.67
-	Decal DoomImpScorch
 	States
 	{
 	Spawn:
@@ -2263,12 +2191,9 @@ actor StoneImp : UTNTDoomImp 3103
 		GIMP M 5
 		GIMP N -1
 		Stop
-	Raise:
-		GIMP ML 8
-		GIMP KJI 6
-		Goto See
 	}
 }
+
 //===========================================================================
 //
 // Arachnophyte
@@ -2301,7 +2226,7 @@ actor Arachnophyte 3104
 	States
 	{
 	Spawn:
-		APYT A 0 NODELAy A_PlaySound("arachnophyte/engine",5,1,1)
+		APYT A 0 NODELAY A_PlaySound("arachnophyte/engine",5,1,1)
 		APYT AB 4 A_Look
 		Loop
 	See:
@@ -2430,23 +2355,14 @@ actor ImpWarlord : UTNTDoomImp 3105
 		WARI V -1
 		Stop
 	Raise:
-		WARI VU 8
-		WARI TSR 6
+		WARI VUTSR 6
 		Goto See
 	}
 }
 
-//*********************
-
-actor GreenPoisonBall
+actor GreenPoisonBall : UTNTDoomImpBall
 {
-	Radius 8
-	Height 6
-	Speed 10
-	Damage 3
-	PROJECTILE
-	RENDERSTYLE ADD
-	ALPHA 0.67
+	SeeSound ""
 	DeathSound "imp/shotx"
 	States
 	{
@@ -2503,8 +2419,6 @@ actor YellowSkullSeeker : GreenPoisonBall
 	}
 }
 
-//*********************
-
 actor WarlordShield
 {
 	+CLIENTSIDEONLY
@@ -2530,8 +2444,6 @@ actor WarlordMace : WarlordShield
 		Stop
 	}
 }
-
-//*********************
 
 ACTOR FamiliarSpawner
 {
@@ -2622,7 +2534,6 @@ actor DragonFamiliar 3106
 		DFAM F 2 A_Pain
 		Goto See
 	Death:
-		DFAM G 0 A_Die
 		DFAM G 8 A_NoBlocking
 		DFAM H 8 A_Scream
 		DFAM I 6 A_SetFloorClip
@@ -2778,30 +2689,10 @@ ACTOR SnakeImp : UTNTDoomImp 3108
 		SIMP EF 8 A_FaceTarget
 		SIMP G 8 A_CustomMissile("SnakeImpFireball",40,0,0,1)
 		Goto See
-	Pain:
-		SIMP H 4 A_Pain
-		SIMP H 4
-		Goto See
-	Death:
-		SIMP I 6
-		SIMP J 6 A_Scream
-		SIMP KL 6
-		SIMP M 6 A_NoBlocking
-		SIMP M -1
-		Stop
-	XDeath:
-		SIMP N 6 A_XScream
-		SIMP O 6 A_NoBlocking
-		SIMP PQRST 6
-		SIMP U -1
-		Stop
-	Raise:
-		SIMP LKJI 5
-		Goto See
 	}
 }
 
-ACTOR SnakeImpFireball : DoomImpBall
+ACTOR SnakeImpFireball : UTNTDoomImpBall
 {
 	Radius 8
 	Height 16
@@ -2810,6 +2701,7 @@ ACTOR SnakeImpFireball : DoomImpBall
 	Damage 12
 	Mass 200
 	RenderStyle Normal
+	Alpha 1
 	Decal RevenantScorch
 	States
 	{
@@ -3047,13 +2939,11 @@ ACTOR CacolanternClone : UTNTCacoDemon 3111
 	}
 }
 
-actor CacolanternBall2 : CacodemonBall
+actor CacolanternBall2 : UTNTCacodemonBall
 {
 	Radius 13
 	Speed 20
 	Damage 9
-	ALPHA 0.67
-	Decal CacoScorch
 	States
 	{
 	Spawn:
@@ -3351,7 +3241,7 @@ ACTOR EnhancedCacodemon : UTNTCacoDemon 3118
 	Health 300
 	HitObituary "%o was mowed down by an enhanced cacodemon."
 	Obituary "%o saw something that resembled a cacodemon."
-	BloodColor ""
+	BloodColor "red"
 	States
 	{
 	Spawn:
@@ -3361,23 +3251,7 @@ ACTOR EnhancedCacodemon : UTNTCacoDemon 3118
 		ENCD BC 5 A_FaceTarget
 		ENCD B 0 A_CustomMissile("CacodemonBall",24,0,0,1)
 		ENCD B 0 A_CustomMissile("CacodemonBall",24,0,-8,1)
-		ENCD B 5 bright A_CustomMissile("CacodemonBall",24,0,8,1)
-		Goto See
-	Pain:
-		ENCD D 4
-		ENCD D 4 A_Pain
-		ENCD D 5
-		Goto See
-	Death:
-		ENCD E 8
-		ENCD F 8 A_Scream
-		ENCD GH 8
-		ENCD I 8 A_NoBlocking
-		ENCD J -1 A_SetFloorClip
-		Stop
-	Raise:
-		ENCD J 8 A_UnsetFloorClip
-		ENCD IHGFE 8
+		ENCD D 5 bright A_CustomMissile("CacodemonBall",24,0,8,1)
 		Goto See
 	}
 }
@@ -3513,21 +3387,15 @@ ACTOR HellWarriorShield
 //
 //===========================================================================
 
-ACTOR Afrit 3120
+ACTOR Afrit : UTNTBaronOfHell 3120
 {
 	//$Category "ZDoom Monster pack"
 	Health 800
 	Speed 3
 	FloatSpeed 2
-	Radius 24
 	Height 72
-	PainChance 50
 	Mass 500
-	SeeSound "baron/sight"
-	PainSound "baron/pain"
-	DeathSound "baron/death"
-	ActiveSound "baron/active"
-	MONSTER
+	-FLOORCLIP
 	+NORADIUSDMG
 	+NOGRAVITY
 	+NOBLOOD
@@ -3541,8 +3409,8 @@ ACTOR Afrit 3120
 	Spawn:
 		//FRIT A 0 NODELAY A_SpawnItemEx("OrbitComet",0,0,44,5)
 		//FRIT A 0 A_SpawnItemEx("OrbitComet2",0,0,44,5,0,0,180)
-		FRIT A 0 NODELAY A_CustomMissile("OrbitComet", 44, 0, 0, 2)
-		FRIT A 0 A_CustomMissile("OrbitComet2", 44, 0, 180, 2)
+		FRIT A 0 NODELAY A_CustomMissile("OrbitComet",44,0,0,2)
+		FRIT A 0 A_CustomMissile("OrbitComet2",44,0,180,2)
 	Idle:
 		FRIT ABCD 4 Bright LIGHT("Afrit") A_Look
 		Loop
@@ -3595,6 +3463,8 @@ ACTOR Afrit 3120
 		FRIT P 4 Bright LIGHT("AfritX_8")
 		FRIT Q 4 Bright LIGHT("AfritX_9")
 		FRIT R 4 Bright LIGHT("AfritX_10")
+		Stop
+	Raise:
 		Stop
 	}
 }
@@ -3676,7 +3546,7 @@ actor OrbitComet : Comet
 	{
 	Spawn:
 		COMT AABBCC 1 Bright A_SpawnItemEx("OrbitCometTail")
-		TNT1 A 0 A_CustomMissile("OrbitComet", 0, 0, 75)
+		TNT1 A 0 A_CustomMissile("OrbitComet",0,0,75)
 		//COMT A 0 A_SpawnItemEx("OrbitComet",0,0,0,5,0,0,75)
 		COMT A 0 A_SpawnItemEx("OrbitCometTail")
 		Stop
@@ -3691,7 +3561,7 @@ actor OrbitComet2 : OrbitComet
 	{
 	Spawn:
 		COMT AABBCC 1 Bright A_SpawnItemEx("OrbitCometTail")
-		TNT1 A 0 A_CustomMissile("OrbitComet2", 0, 0, -75)
+		TNT1 A 0 A_CustomMissile("OrbitComet2",0,0,-75)
 		//COMT A 0 A_SpawnItemEx("OrbitComet2",0,0,0,5,0,0,-75)
 		COMT A 0 A_SpawnItemEx("OrbitCometTail")
 		Stop
@@ -3888,15 +3758,10 @@ ACTOR TorturedSoul : UTNTPainElemental 3122
 		TORT D 10 A_FaceTarget
 		TORT D 0 A_Jump(128,4)
 		TORT E 4 A_FaceTarget
-		TORT E 0 A_PlaySound("torturedsoul/attack")
 		TORT F 4 A_CustomMissile("TorturedSoulBall",40)
 		Goto See
 		TORT D 0 A_PlaySound("torturedsoul/poison")
 		TORT D 4 A_CustomMissile("TorturedSoulPoison",16)
-		Goto See
-	Pain:
-		TORT G 3
-		TORT G 3 A_Pain
 		Goto See
 	Death:
 		TORT H 8
@@ -3916,16 +3781,11 @@ ACTOR TorturedSoul : UTNTPainElemental 3122
 	}
 }
 
-actor TorturedSoulBall
+actor TorturedSoulBall : UTNTDoomImpBall
 {
-	Radius 8
-	Height 6
 	Speed 20
 	Damage 5
-	PROJECTILE
-	RENDERSTYLE ADD
-	ALPHA 0.67
-	DeathSound "imp/shotx"
+	SeeSound "torturedsoul/attack"
 	States
 	{
 	Spawn:
@@ -4069,28 +3929,28 @@ ACTOR Shadow 3126
 	See:
 		TROX A 15
 		TROX AAA 1 A_Chase
-		TROX A 0 A_SpawnItemEx("ShadowGhostA")
+		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		TROX BBB 1 A_Chase
-		TROX B 0 A_SpawnItemEx("ShadowGhostB")
+		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		TROX CCC 1 A_Chase
-		TROX C 0 A_SpawnItemEx("ShadowGhostC")
+		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		TROX DDD 1 A_Chase
-		TROX D 0 A_SpawnItemEx("ShadowGhostD")
+		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		TROX AAA 1 A_Chase
-		TROX A 0 A_SpawnItemEx("ShadowGhostA")
+		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		TROX BBB 1 A_Chase
-		TROX B 0 A_SpawnItemEx("ShadowGhostB")
+		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		TROX CCC 1 A_Chase
-		TROX C 0 A_SpawnItemEx("ShadowGhostC")
+		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		TROX DDD 1 A_Chase
-		TROX D 0 A_SpawnItemEx("ShadowGhostD")
+		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		Goto See+1
 	Missile:
-		TROX E 30 A_FaceTarget
-		TROX F 5
+		TROX EEE 10 A_FaceTarget
+		TROX F 5 A_FaceTarget
 		TROX G 5 BRIGHT A_CustomMissile("ShadowBall")
 		TROX F 5
-		TROX E 20
+		TROX EE 10 A_FaceTarget
 		TROX E 1 A_SpidRefire
 		Goto Missile+1
 	Pain:
@@ -4132,9 +3992,7 @@ ACTOR Shadowtorso
 	States
 	{
 	Spawn:
-		TROX QRS 5
-		TROX T 5 A_NoBlocking
-		TROX U 5
+		TROX QRSTU 5
 		TROX V -1
 		Stop
 	}
@@ -4146,19 +4004,12 @@ ACTOR Shadowtorso
 //
 //===========================================================================
 
-ACTOR ShadowBall
+ACTOR ShadowBall : UTNTDoomImpBall
 {
-	Radius 6
-	Height 8
 	Speed 12
+	Fastspeed 12
 	Damage 4
-	Projectile
-	+RANDOMIZE
-	RenderStyle "ADD"
 	Alpha 0.75
-	SeeSound "Shadow/attack"
-	DeathSound "imp/shotx"
-	Decal DoomImpScorch
 	States
 	{
 	Spawn:
@@ -4180,7 +4031,7 @@ actor ShadowTrail
 	Radius 1
 	Height 1
 	PROJECTILE
-	RENDERSTYLE ADD
+	RENDERSTYLE Add
 	ALPHA 0.6
 	+NOCLIP
 	States
@@ -4197,48 +4048,18 @@ actor ShadowTrail
 //
 //============================================================================
 
-ACTOR ShadowGhostA
+ACTOR ShadowGhost
 {
 	Radius 4
 	Height 8
 	Mass 75
-	RenderStyle "Translucent"
+	RENDERSTYLE Add
 	Alpha 0.3
 	PROJECTILE
-	States
+	states
 	{
 	Spawn:
-		TROX A 10
-		Stop
-	}
-}
-
-ACTOR ShadowGhostB : ShadowGhostA
-{
-	States
-	{
-	Spawn:
-		TROX B 10
-		Stop
-	}
-}
-
-ACTOR ShadowGhostC : ShadowGhostA
-{
-	States
-	{
-	Spawn:
-		TROX C 10
-		Stop
-	}
-}
-
-ACTOR ShadowGhostD : ShadowGhostA
-{
-	States
-	{
-	Spawn:
-		TROX D 10
+		"####" "#" 10
 		Stop
 	}
 }
@@ -4252,7 +4073,7 @@ ACTOR ShadowGhostD : ShadowGhostA
 
 ACTOR HellsFury : UTNTBaronOfHell 3127
 {
-	BloodColor ""
+	BloodColor "red"
 	Speed 2
 	Obituary "%o felt the wrath of Hell's Fury"
 	HitObituary "%o got ripped apart by Hell's Fury"
@@ -4293,7 +4114,7 @@ ACTOR HellsFury : UTNTBaronOfHell 3127
 	Death:
 		HFRY I 8 A_Scream
 		HFRY J 0 A_FaceTarget
-		HFRY J 8 A_SpawnItemEx("HellsFurySkull",0,0,60,5,0,0,random(-2,2)*0)
+		HFRY J 8 A_SpawnItemEx("HellsFurySkull",0,0,60,5)
 		HFRY K 8
 		HFRY L 8 A_NoBlocking
 		HFRY MN 8
@@ -4365,10 +4186,6 @@ ACTOR PlasmaElemental : UTNTPainElemental 3129
 		PLEM F 1 A_FaceTarget
 		PLEM FFFF 1 A_CustomMissile("ElementalPlasma",22)
 		Goto See
-	Pain:
-		PLEM G 3
-		PLEM G 6 A_Pain
-		Goto See
 	Death:
 		PLEM H 8 LIGHT("PlasmaElementalX_1")
 		PLEM I 8 LIGHT("PlasmaElementalX_2") A_Scream
@@ -4393,7 +4210,15 @@ ACTOR ElementalPlasma : ArachnotronPlasma
 		APLS AB 5 BRIGHT LIGHT("ElementalPlasma")
 		Loop
 	Death:
-		TNT1 A 0 A_SpawnItemEx("PSpark6SpawnerY")
+		TNT1 A 0 A_CustomMissile("PSpark6_Y1",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y2",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y3",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y4",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y5",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y6",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y7",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y8",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_CustomMissile("PSpark6_Y9",0,0,random(0,360),2,random(-158,-22))
 		APBX A 5 BRIGHT LIGHT("ElementalPlasmaX_1")
 		APBX B 5 BRIGHT LIGHT("ElementalPlasmaX_2")
 		APBX C 5 BRIGHT LIGHT("ElementalPlasmaX_3")
@@ -4402,8 +4227,6 @@ ACTOR ElementalPlasma : ArachnotronPlasma
 		Stop
 	}
 }
-
-//********************
 
 //===============================================================================
 //
@@ -4434,13 +4257,12 @@ ACTOR Incarnate : UTNTRevenant 30115
 		INCA AB 10 A_Look
 		Loop
 	Melee:
-		INCA G 0 A_Jump(128,5)
-		INCA G 0 A_FaceTarget
+		INCA R 0 A_FaceTarget
+		INCA G 0 A_Jump(128,4)
 		INCA G 6 A_SkelWhoosh
 		INCA H 6 A_FaceTarget
 		INCA I 6 A_CustomMeleeAttack(random(1,8)*7,"monster/inchit")
 		Goto See
-		INCA R 0 A_FaceTarget
 		INCA R 5 A_SkelWhoosh
 		INCA S 5 A_FaceTarget
 		INCA T 5 A_CustomMeleeAttack(random(1,8)*7,"monster/inchit")
@@ -4456,8 +4278,8 @@ ACTOR Incarnate : UTNTRevenant 30115
 		INCA K 10
 		Goto See
 	Death:
-		INCA L 0 A_Jump(64,"XDeath")
-		INCA LM 7
+		INCA L 7 A_Jump(64,"XDeath")
+		INCA M 7
 		INCA N 7 A_Scream
 		INCA O 7 A_NoBlocking
 		INCA P 7
@@ -4471,30 +4293,19 @@ ACTOR Incarnate : UTNTRevenant 30115
 		INCX A 10 Bright A_Playsound("monster/incexp")
 		INCX BC 5 Bright
 		INCX D 5 Bright A_NoBlocking
-		INCX D 0 A_SpawnItemEx("HS",0,0,32)
+		INCX E 0 A_SpawnItemEx("HS",0,0,32)
 		INCX EFGHIJ 5 Bright
 		INCX K -1
 		Stop
 	}
 }
 
-ACTOR DIPuff
+ACTOR DIPuff : Bulletpuff
 {
-	Radius 0
-	Height 1
-	PROJECTILE
-	States
-	{
-	Spawn:
-		TNT1 A 2
-		Stop
-	}
+	RenderStyle None
 }
 
-//End of Incarnate
 //Hades Sphere
-//Monster-Wraith
-
 ACTOR HS 30116
 {
 	Health 35
@@ -4556,8 +4367,6 @@ ACTOR HS 30116
 	}
 }
 
-//End of Hades Sphere
-
 //Devil
 actor Devil : UTNTDoomImp 30120
 {
@@ -4600,10 +4409,6 @@ actor Devil : UTNTDoomImp 30120
 		TRO2 VW 6 A_FaceTarget
 		TRO2 X 4 A_TroopAttack
 		TRO2 D 2
-		goto See
-	Raise:
-		TRO2 ML 8
-		TRO2 KJI 6
 		goto See
 	}
 }
@@ -4656,7 +4461,7 @@ ACTOR ChaingunMajor : UTNTChaingunGuy 3311
 //
 //============================================================================
 
-ACTOR DoomTrooper : UTNTChaingunGuy 3312
+ACTOR DoomTrooper : UTNTShotgunGuy 3312
 {
 	Health 150
 	Speed 4
@@ -4675,24 +4480,13 @@ ACTOR DoomTrooper : UTNTChaingunGuy 3312
 		UDM2 F 4 BRIGHT LIGHT("ZombieShot") A_CPosAttack
 		UDM2 E 1 A_CPosRefire
 		Goto Missile+1
-	Death:
-		UDM2 H 5
-		UDM2 I 5 A_Scream
-		UDM2 J 5 A_NoBlocking
-		UDM2 K 5
-		UDM2 LM 1
-		UDM2 N -1
-		Stop
 	XDeath:
-		UDM2 O 5 A_SpawnItemEx("NashgoreMasterGenerator")
-		UDM2 P 5 A_XScream
-		UDM2 Q 5 A_NoBlocking
-		UDM2 RSTU 5
-		UDM2 V -1
+		UDM2 M 5 A_SpawnItemEx("NashgoreMasterGenerator")
+		UDM2 N 5 A_XScream
+		UDM2 O 5 A_NoBlocking
+		UDM2 PQRS 5
+		UDM2 T -1
 		Stop
-	Raise:
-		UDM2 MLKJIH 5
-		Goto See
 	}
 }
 
@@ -4713,6 +4507,9 @@ ACTOR TNTSpider : Minotaur 10906
 	Speed 3.2
 	States
 	{
+	Spawn:
+		MNTR AB 10 A_MinotaurLook
+		Loop
 	See:
 		MNTR A 1 A_Chase
 		MNTR AAAA 1 A_Chase("","",CHF_NOPLAYACTIVE)
@@ -4724,39 +4521,42 @@ ACTOR TNTSpider : Minotaur 10906
 		MNTR DDDD 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		Loop
 	Melee:
-		MNTR V 10 A_FaceTarget
+		MNTR U 10 A_FaceTarget
 		MNTR W 7 A_FaceTarget
 		MNTR X 12 A_MinotaurAtk1
 		Goto See
 	Missile:
-		MNTR V 10 A_MinotaurDecide
-		MNTR Y 4 A_FaceTarget
-		MNTR Z 9 A_MinotaurAtk2
+		MNTR U 10 A_MinotaurDecide
+		MNTR U 4 A_FaceTarget
+		MNTR W 9 A_MinotaurAtk2
 		Goto See
 	Hammer:
-		MNTR V 10 A_FaceTarget
+		MNTR U 10 A_FaceTarget
 		MNTR W 7 A_FaceTarget
 		MNTR X 12 A_MinotaurAtk3
 		Goto See
 	HammerLoop:
 		MNTR X 12
 		Goto Hammer
+	Charge:
+		MNTR U 2 A_MinotaurCharge
+		Loop
 	Pain:
 		MNTR E 3
 		MNTR E 6 A_Pain
 		Goto See
 	Death:
-		MNTR FG 5
-		MNTR H 5 A_Scream
-		MNTR IJKL 5
+		MNTR F 10
+		MNTR F 15 A_Scream
+		MNTR K 10
 		MNTR M 0 A_CustomMissile("TNTSpiderSpawner",32)
 		MNTR M 0 A_CustomMissile("TNTSpiderSpawner",32,0,72)
 		MNTR M 0 A_CustomMissile("TNTSpiderSpawner",32,0,144)
 		MNTR M 0 A_CustomMissile("TNTSpiderSpawner",32,0,216)
 		MNTR M 0 A_CustomMissile("TNTSpiderSpawner",32,0,288)
 		MNTR M 5 A_NoBlocking
-		MNTR OPQRS 5
-		MNTR T -1
+		MNTR OQ 10
+		MNTR S -1
 		Stop
 	}
 }
@@ -4815,7 +4615,7 @@ ACTOR TNTMiniSpider 22290
 		MNTR ABCD 2
 		Goto Missile+2
 	Melee:
-		MNTR VW 3 A_FaceTarget
+		MNTR UW 3 A_FaceTarget
 		MNTR X 3 A_CustomMeleeAttack(random(1,8)*2,"littlespider/pain")
 		Goto See
 	Death:
@@ -4865,9 +4665,6 @@ ACTOR HectebusNew : UTNTFatso 22250
 		HECT H 6 A_CustomMissile("Hecteball",20,-40,-5)
 		HECT I 6 A_FaceTarget
 		Goto See
-	Pain:
-		HECT J 8 A_Pain
-		Goto See
 	Death:
 		HECT K 6 A_Scream
 		HECT LM 6
@@ -4880,17 +4677,10 @@ ACTOR HectebusNew : UTNTFatso 22250
 	}
 }
 
-ACTOR Hecteball //Hectebus Fireball
+ACTOR Hecteball : FatShot //Hectebus Fireball
 {
 	Radius 10
-	Height 8
-	Speed 20
 	Damage 16
-	PROJECTILE
-	RENDERSTYLE ADD
-	ALPHA 0.97
-	SeeSound "imp/attack"
-	DeathSound "imp/shotx"
 	States
 	{
 	Spawn:
@@ -5021,18 +4811,14 @@ ACTOR BruiserDemon 3333
 	}
 }
 
-ACTOR BruiserBall
+ACTOR BruiserBall : UTNTBaronBall
 {
 	Radius 16
-	Height 16
 	Speed 18
+	FastSpeed 18
 	Damage 16
-	Projectile
-	+RANDOMIZE
 	RenderStyle ADD
 	Alpha 0.9
-	SeeSound "imp/attack"
-	DeathSound "imp/shotx"
 	Decal Scorch
 	States
 	{
