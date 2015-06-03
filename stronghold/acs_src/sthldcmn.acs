@@ -31,3 +31,12 @@ script S_NIGHTMARE_ATTACK (int end)
 	PrintBold(s:"TODO: Implement NightmareDemon's attack");
 }
 
+script "StartingLives" Enter	//Gives 3 lives and 300 coins to any playerclass
+{
+	if(!CheckInventory("StartingToken"))
+	{
+		GiveInventory("LifeItem",3);
+		GiveInventory("CoinItem",300);
+		GiveInventory("StartingToken",1);
+	}
+}

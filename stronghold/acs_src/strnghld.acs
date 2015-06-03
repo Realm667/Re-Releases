@@ -520,15 +520,6 @@ function int max (int a, int b)
 	return b;
 }
 
-function int sqrt (int x)
-{
-	int r = 0;
-	x = x + 1 >> 1;
-	while (x > r)
-		x -= r++;
-	return r;
-}
-
 function int fdistancexy (int x1, int y1, int x2, int y2)
 {
 	int len;
@@ -971,30 +962,30 @@ function void GetBonus ( int bonustype )
 script S_GETBONUS ( int bonustype )
 {
   SetHudSize(800,600,1);
-  
+
   SetFont("BigFont");
-  
+
   str bigmessage = "Extra Bonuses Awarded!";
   if(!bonuses[playernumber()]) bigmessage = " ";
-  
+
   HudMessage(s:bigmessage;
   HUDMSG_FADEOUT|HUDMSG_LOG,200,CR_WHITE,400.4,392.2,4.0+bonuses[playernumber()],1.0);
-  
+
   SetFont("ConFont");
-  
+
   for(int i=1; i<=bonuses[playernumber()]; i++)
   {
     HudMessage(s:BonusArray[BonusQueue[i]][1], s:" BONUS \cf($",d:BonusAwards[BonusQueue[i]],s:")";
     HUDMSG_FADEOUT|HUDMSG_LOG,200+i,CR_UNTRANSLATED,400.4,416.2+(8.0*i),4.0+bonuses[playernumber()],1.0);
-  
+
     HudMessage(s:BonusArray[BonusQueue[i]][2];
     HUDMSG_FADEOUT|HUDMSG_LOG,300+i,CR_WHITE,400.4,432.2+(8.0*i)+(8.0*bonuses[playernumber()]),4.0+bonuses[playernumber()],1.0);
-    
+
     GiveInventory("CoinItem",BonusAwards[BonusQueue[i]]);
   }
-  
+
   bonuses[playernumber()] = 0;
-  
+
   SetFont("BigFont");
   HudMessage(s:bigmessage;
   HUDMSG_FADEINOUT,199,CR_GOLD,400.4,392.2,0.0,0.5,0.5); delay(35);
@@ -1008,11 +999,11 @@ function void GetEndBonuses ( int correct )
 {
 	if (!correct) //Patch code to save me the trouble of trying to go through all themaps to fix this.
 	return;
-	
+
 	//log(s:"Game mode - ", i:gamemode, s:"  - Activator: ", n:playernumber()+1);
   if(GameMode==GAME_MILESTONE && CurrentMile==0)
     GetBonus(B_NOMILESTONES);
-  
+
   if(GameMode==GAME_GOAL && ThingCount(T_NONE, HateEpicenter)==NumberOfTargets)
     GetBonus(B_NOGOALS);
 
@@ -1028,7 +1019,7 @@ function void GetEndBonuses ( int correct )
 	else if(GetActorProperty(HateEpicenter,AProp_Health)>=900 && GetActorProperty(HateEpicenter,AProp_Health)<950)
 	  GetBonus(B_CORE90);
   }
-  
+
   if(GameMode==GAME_LIMIT)
   {
     if(LimitCounter==0) // Let no demons past the deadline.
@@ -1038,7 +1029,7 @@ function void GetEndBonuses ( int correct )
 	else if(LimitCounter<=LimitMax/2)
 	  GetBonus(B_LIMITHALF);
   }
-  
+
   if(DamageTaken[PlayerNumber()]==0) // Took no damage.
     GetBonus(B_NODAMAGE);
   else if(DamageTaken[PlayerNumber()]>=50 && DamageTaken[PlayerNumber()]<100) // Took between 50 and 99 damage.
@@ -1069,7 +1060,7 @@ script S_DAMAGECHECKS ENTER
    	delay(1);
 	newhealth = GetActorProperty(0,AProp_Health);
 	if(newhealth<oldhealth) DamageTaken[PlayerNumber()] = DamageTaken[PlayerNumber()] + (oldhealth-newhealth);
-	
+
   }
 }
 
@@ -1818,13 +1809,13 @@ script S_MISSION_COMPLETE (void)
 	{
 		bool newRecord = false;
 		bool MapCompleted = false;
-		
+
 		SetPlayerProperty(1, 2, PROP_INVULNERABILITY);
 		// Set the player invulverable so he can't die after winning the game
 
 		SetActorProperty(HateEpicenter, APROP_Invulnerable, true);
 		  // Core is made invulnerable so it can't be destroyed after winning.
-		
+
 		// Jimmy: I really butchered this script. Sorry about that. :S
 		if(MapScores[GetLevelInfo(LEVELINFO_LEVELNUM)]==0)
 			{
@@ -1982,7 +1973,7 @@ script S_DEADLINE (void)
 	{
 		if(!F_CallNextWave)
 			CallWave(ThisWave);
-		
+
 		while(! WaveFinishCallback[ThisWave] && !F_CallNextWave)
 		{	delay(1);	}
 
@@ -1992,12 +1983,12 @@ script S_DEADLINE (void)
 			// It allows players to read the last wavemessages on maps with high BreakTime (such as most limit maps).
 		}
 
-		if (F_CallNextWave) 
-		{  
+		if (F_CallNextWave)
+		{
 			//WaveFinishCallback[ThisWave] = TRUE;
 			delay(BreakTime);
 			if (F_CallNextWave > 1 && (F_CallNextWave - 1) + ThisWave < Waves)
-				ThisWave += (F_CallNextWave - 1); 
+				ThisWave += (F_CallNextWave - 1);
 			Else If (F_CallNextWave > 1 && (F_CallNextWave - 1) + ThisWave >= Waves)
 				{
 					acs_execute(S_MISSION_COMPLETE,0,0,0,0);
@@ -2007,9 +1998,9 @@ script S_DEADLINE (void)
 				ThisWave += (F_CallNextWave);
 			Else If (F_CallNextWave < 0 && (F_CallNextWave) + ThisWave <= 0)
 				ThisWave = 0;
-			
-			F_CallNextWave = 0; 
-			
+
+			F_CallNextWave = 0;
+
 		}
 		else
 		Delay(5*35);
@@ -2167,7 +2158,7 @@ script S_HEALTH_WATCH (int tid, int maxhealth, int data)
 	while(true)
 	{
 		curpercent = GetPercent( GetActorProperty(tid, APROP_Health), maxhealth );
-		
+
 		if(GameMode==GAME_CORE) color = GetPercentColorCore( curpercent );
 		else color = GetPercentColor( curpercent );
 
@@ -2182,7 +2173,7 @@ script S_HEALTH_WATCH (int tid, int maxhealth, int data)
 		delay(15);
 
 		// We don't need to update the screen until the health changes enough to change the
-		// actual percent display value	
+		// actual percent display value
 		while( GetPercent( GetActorProperty(tid, APROP_HEALTH), maxhealth ) == curpercent )
 		{	delay(5);	}
 	}
@@ -2331,7 +2322,7 @@ script S_OVERMIND (void)
 	SetActorProperty(BossMonster, APROP_Health, OriginalHealth);
 	Thing_Hate(BossMonster, BossTarget, 2);
 	Thing_Activate(BossMonster);
-	
+
 	NumberOfTargets = ThingCount( T_NONE, BossTarget );
 
 	HealthWatch(	BossMonster,
@@ -2446,7 +2437,7 @@ script S_GOAL_GAME (void)
 			WATCH_GOALS	);
 
 	NumberOfTargets = ThingCount( T_NONE, HateEpicenter );
-	
+
 	ACS_ExecuteWait(S_DEADLINE,0,0);
 }
 
@@ -2580,7 +2571,7 @@ script S_CALLWAVE (int wave)
 			{
 				// Every monster instance is given its own slot inside the EnemySpawnCache
 				for(int j=0; j<Multiplier( M_ENEMIES, EnemyEntries[i][2] ); j++)
-				{	
+				{
 					EnemySpawnCache[cacheId][cacheUsed++] = EnemyEntries[i][1];
 				}
 			}
@@ -2745,7 +2736,7 @@ script S_MESSAGE (int wave)
 			// Show Mug shot of speaker
 			// SetFont(RadioData[curFace][1]);
 			// HudmessageBold(s:"A"; HUDMSG_PLAIN, RadioMugHID, -1, 32.1, 100.0, 4.5);
-			
+
 			SetHudSize(800,600,1);
 
 			// Show his name
@@ -2753,13 +2744,13 @@ script S_MESSAGE (int wave)
 			HudmessageBold(s:RadioData[curFace][0]; HUDMSG_PLAIN, RadioNameHID, CR_WHITE, 44.1, 80.1, 4.5);
 
 			// Show message text
-			
+
 			HudmessageBold(s:RadioMessages[i][2]; HUDMSG_TYPEON|HUDMSG_LOG, RadioTextHID, CR_GOLD, 44.1, 110.1, 99.0, 0.03, 0.5);
 
 			// Show the dialog box
 			SetFont("DIALOGBX");
 			HudmessageBold(s:"A"; HUDMSG_FADEINOUT, RadioBoxHID, CR_WHITE, 32.1, 134.0, 4.35, 0.15, 0.0);
-			
+
 			AmbientSound("misc/chat", 64);
 
 			delay((4.5*35)/1.0);
@@ -2818,7 +2809,7 @@ script S_ENTER ENTER
 	TakeInventory("Gas", INT_MAX);
 	TakeInventory("Shell", INT_MAX);
 	TakeInventory("Mines", INT_MAX);
-	
+
 	if (PlayersAreLate)
 	{
 		if(PrisonSpot)
@@ -2869,7 +2860,7 @@ script S_ENTER ENTER
 			delay(35);	// Placed at beginning of loop, so that there is no chance this
 					// becomes a runaway script
 
-			if(!CheckWeapon("DEShrinkFist"))
+			if(!CheckWeapon("DEShrinkFist")&&CheckActorClass(0,"StrongholdPlayer"))
 			{
 				Print(s:"You're lucky you didn't get shot for holding a loaded weapon here!");
 				restart;	// Clear inventory again
@@ -2896,7 +2887,7 @@ script S_ENTER ENTER
 script S_LATEPLAYERS OPEN
 {
   delay(LatePlayersDelay);
-  
+
   PlayersAreLate++;
 }
 
@@ -3429,7 +3420,7 @@ script S_STR52CODEGET (void)	// Script 927
 	{
 		for(int i=0; i<5; i++)
 			str52code[i] = random(0,9);
-		
+
 		str52codeinit = TRUE;
 	}
 
