@@ -2,6 +2,24 @@
 #include "actors/nashgore.txt"
 #include "actors/snow.txt"
 
+ACTOR TCOTDExplosiveBarrel : ExplosiveBarrel replaces ExplosiveBarrel
+{
+	States
+	{
+	Spawn:
+		BAR1 A -1
+		Stop
+	Death:
+		BAR1 A 5 Bright
+		BEXP B 5 Bright A_Scream
+		BEXP D 5 Bright A_Explode
+		BEXP E 5 Bright
+		TNT1 A 1050 Bright A_BarrelDestroy
+		TNT1 A 5 A_Respawn
+		Wait
+	}
+}
+
 /////////////////////////
 // FOG by TORMENTOR667 //
 /////////////////////////
@@ -74,11 +92,12 @@ Actor FogCloud_V3 : FogCloud_V1
 ACTOR TCOTDPlayer : PlayerPawn
 {
 	Scale .5
-	Player.ForwardMove .6,.6
-	Player.SideMove .6,.6
+	Player.ForwardMove 0.6,0.6
+	Player.SideMove 0.6,0.6
 	Player.DisplayName "Wanderer"
 	Player.CrouchSprite "PLYC"
 	Player.StartItem Fist
+	Player.Face ""
 	Player.WeaponSlot 1,Fist,Pitchfork
 	Player.WeaponSlot 2,RevolverBlood
 	Player.WeaponSlot 3,Sawedoff
@@ -300,8 +319,8 @@ ACTOR MiniSpider 22290
 {
 	Radius 7
 	Height 15
-	Health 15
-	Scale 0.25
+	Health 20
+	Scale .25
 	Translation 0
 	MONSTER
 	+FLOORCLIP
@@ -327,7 +346,7 @@ ACTOR MiniSpider 22290
 		MNTR DDD 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		Loop
 	Melee:
-		MNTR VW 5 A_FaceTarget
+		MNTR UW 5 A_FaceTarget
 		MNTR X 5 A_CustomMeleeAttack(random(1,8),"littlespider/pain")
 		Goto See
 	Death:
@@ -346,7 +365,7 @@ ACTOR LargeSpider : MiniSpider 22291
 	Radius 14
 	Height 30
 	Health 150
-	Scale 0.50
+	Scale .50
 	Translation 1
 	DropItem "Heart" 160
 	Speed 5
@@ -358,12 +377,11 @@ ACTOR LargeSpider : MiniSpider 22291
 		MNTR ABCD 2
 		Goto Missile+2
 	Melee:
-		MNTR VW 5 A_FaceTarget
-		MNTR X 5 A_CustomMeleeAttack(2*random(1,8),"littlespider/pain")
+		MNTR UW 5 A_FaceTarget
+		MNTR X 5 A_CustomMeleeAttack(random(1,8)*2,"littlespider/pain")
 		Goto See
 	}
 }
-
 
 /////////////////
 // CULTIST ONE //
@@ -1246,7 +1264,7 @@ ACTOR Thamuz : Cyberdemon 7228
 
 Actor Tchernobog : Thamuz 7258
 {
-	//OBITUARY "%o fell before Tchernobog."
+	OBITUARY "%o fell before Tchernobog."
 	Bloodcolor "aa 00 00"
 	states
 	{
@@ -2046,7 +2064,6 @@ ACTOR FattyTracerTrail
 ////////////
 // ZOMBIE //
 ////////////
-
 ACTOR ZombieBlood 31002
 {
 	HITOBITUARY "%o was slaughtered by a zombie."
@@ -2090,7 +2107,6 @@ ACTOR ZombieBlood 31002
 		Loop
 	Melee:
 		BZOM EF 8 A_FaceTarget
-		BZOM G 0 A_PlaySound("zombieblood/hit")
 		BZOM G 8 A_CustomMeleeAttack(10*random(1,8),"zombieblood/hit")
 		Goto See
 	Pain:
@@ -2099,7 +2115,7 @@ ACTOR ZombieBlood 31002
 		Goto See
 	Death:
 		BZOM I 8
-		BZOM J 8 A_Scream
+		BZOM I 8 A_Scream
 		BZOM K 4
 		BZOM L 4 A_NoBlocking
 		BZOM M 4
@@ -2860,6 +2876,7 @@ ACTOR Pitchfork : Weapon replaces Chainsaw
 	Scale 1.2
 	Inventory.PickupSound "ITEMUP"
 	Inventory.PickupMessage "You picked up the Pitchfork"
+	AttackSound "zombieblood/hit"
 	states
 	{
 	Ready:
