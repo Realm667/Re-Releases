@@ -1,0 +1,348 @@
+ACTOR Pitchfork : Weapon replaces Chainsaw
+{
+	obituary "%o was perforated by %k's pitchfork."
+	weapon.selectionorder 3700
+	weapon.kickback 100
+	+WEAPON.WIMPY_WEAPON
+	Scale 1.2
+	Inventory.PickupSound "ITEMUP"
+	Inventory.PickupMessage "You picked up the Pitchfork"
+	AttackSound "zombieblood/hit"
+	states
+	{
+	Ready:
+		XUNG A 1 A_WeaponReady
+		wait
+	Deselect:
+		XUNG A 1 A_Lower
+		wait
+		TNT1 A 1 A_Lower
+		wait
+	Select:
+		XUNG A 1 A_Raise
+		wait
+	Fire:
+		XUNG A 5
+		XUNG A 0 A_PlaySound("DSSKESWG",CHAN_WEAPON)
+		XUNG B 5 A_CustomPunch(4,0,0,"HitPuff",96)
+		XUNG C 6
+		XUNG B 5
+		XUNG A 6 A_ReFire
+		goto Ready
+	AltFire:
+		XUNG B 2 A_PlaySound("DSSKESWG",CHAN_WEAPON)
+		XUNG C 2 A_FireCustomMissile("Pitchfork_thrown",0,1,0,5)
+		TNT1 A 0 A_TakeInventory("Pitchfork")
+		Goto Deselect+1
+	Spawn:
+		XFOR A -1
+		Stop
+	}
+}
+
+actor HitPuff
+{
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+PUFFONACTORS	// this is necessary for it to still make sound on enemies
+	activesound ""
+	attacksound "" // what sound it makes when you hit a wall with it
+	seesound "DSPUNCH" // what sound it makes when you beat somebody up with it
+	states
+	{
+	Spawn:
+	Crash:
+	Melee:
+		TNT1 A 1
+		stop
+	}
+}
+
+ACTOR Pitchfork_thrown
+{
+	Radius 2
+	Height 1
+	Speed 20
+	Damage 5
+	PROJECTILE
+	-NOGRAVITY
+	-NOBLOCKMAP
+	Gravity .125
+	+RIPPER
+	States
+	{
+	Spawn:
+		XIPP A -1
+		Stop
+	Death:
+		XIPP A 0 A_AlertMonsters
+		XIPP A 4 A_SpawnItemEx("Pitchfork")
+		Stop
+	}
+}
+
+Actor RevolverBlood : Pistol replaces Pistol
+{
+	Tag "Anaconda"
+	Inventory.PickupMessage "You got the Anaconda!"
+	attacksound "weapons/pistol"
+	weapon.selectionorder 190
+	states
+	{
+	Fire:
+		PISG A 6
+		PISG A 0 A_FireBullets(5.6,0,1,9,"NewPuff")
+		PISG A 2 A_GunFlash
+		PISG B 2
+		PISG C 5
+		PISG B 4
+		PISG A 8 A_ReFire
+		goto Ready
+	Flash:
+		PISF A 2 bright A_Light1
+		Goto LightDone
+	Spawn:
+		PIPP A -1
+		Stop
+	}
+}
+
+ACTOR Sawedoff : Shotgun replaces Shotgun
+{	
+	Scale .6
+	Tag "Sawed-off"
+	OBITUARY "%o chewed on %k's Sawed off."
+	ATTACKSOUND "dsSAWFIR"
+	Inventory.PickupMessage "You got the Sawed-off!"
+	Weapon.SelectionOrder 130
+	Weapon.Kickback 100
+	Weapon.AmmoType2 "SawedoffLoaded"
+	Weapon.AmmoUse2 1
+	Weapon.AmmoGive2 2
+	+WEAPON.AMMO_CHECKBOTH
+	states
+	{
+	Ready:
+		SHTG A 0 A_JumpIfInventory("SawedoffLoaded",0,2)
+		SHTG A 0 A_JumpIfInventory("Shell",1,2)
+		SHTG A 1 A_WeaponReady
+		Loop
+		SHTG A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+		Loop
+	Fire:
+		SHTG A 0 A_JumpIfInventory("SawedoffLoaded",1,1)
+		Goto Reload
+		SHTG A 3
+		SHTG A 0 A_FireBullets(5.6,0,7,5,"NewPuff",0)
+		SHTG A 0 A_TakeInventory("SawedoffLoaded",1)
+		SHTG A 2 BRIGHT A_Gunflash
+	FireFinish:
+		SHTG FG 1 BRIGHT
+		SHTG H 2
+		SHTG GF 1
+		SHTG A 0 A_JumpIfInventory("SawedoffLoaded",1,1)
+		Goto Reload
+		SHTG A 0 A_Refire
+		Goto Ready
+	Reload:
+		SHTG A 0 A_CheckReload
+		SHTG A 1 A_JumpIfInventory("Shell",1,1)
+		Goto Ready
+		SHTG EB 6
+		SHTG C 6 A_PlaySound("weapons/sshotc")
+		SHTG D 6
+	ReloadLoop:
+		TNT1 A 0 A_TakeInventory("Shell",1,TIF_NOTAKEINFINITE)
+		TNT1 A 0 A_GiveInventory("SawedoffLoaded")
+		TNT1 A 0 A_JumpIfInventory("SawedoffLoaded",0,2)
+		TNT1 A 0 A_JumpIfInventory("Shell",1,"ReloadLoop")
+		SHTG BEA 6
+		SHTG A 7 A_Refire
+		Goto Ready
+	AltFire:
+		SHTG A 0 A_JumpIfInventory("SawedoffLoaded",2,1)
+		Goto Fire
+		SHTG A 3
+		SHTG A 0 A_FireBullets(11.2,7.1,20,5,"NewPuff",0)
+		SHTG A 0 A_TakeInventory("SawedoffLoaded",2)
+		SHTG A 0 A_PlaySound("weapons/sshotf")
+		SHTG A 2 BRIGHT A_Gunflash("AltFlash")
+		Goto FireFinish
+	Flash:
+		SHTG N 3 A_JumpIfInventory("SawedoffLoaded",2,"Flash2")
+		SHTG I 2 BRIGHT A_Light2
+		SHTG J 2 BRIGHT A_Light1
+		SHTG K 1 BRIGHT A_Light0
+		Stop
+	Flash2:
+		SHTG M 3
+		SHTG L 2 BRIGHT A_Light2
+		SHTG M 2 BRIGHT A_Light1
+		SHTG N 1 BRIGHT A_Light0
+		Stop
+	AltFlash:
+		SHTG L 3
+		SHTG I 2 BRIGHT A_Light2
+		SHTG J 2 BRIGHT A_Light1
+		SHTG K 1 BRIGHT A_Light0
+		Stop
+	}
+}
+ACTOR SawedoffLoaded : Ammo
+{
+	+INVENTORY.IGNORESKILL
+	Inventory.MaxAmount 2
+	Inventory.Icon SHOTA0
+}
+
+actor Thompson : Chaingun replaces Chaingun
+{
+	Scale .6
+	Tag "Thompson"
+	ATTACKSOUND "DSPISTOL"
+	Weapon.SelectionOrder 70
+	Weapon.AmmoUse2 1
+	Weapon.AmmoGive2 20
+	Weapon.AmmoType2 "Clip"
+	Inventory.PickupMessage "You got the Thompson!"
+	Obituary "%o was mowed down by %k's Thompson."
+	States
+	{
+	Ready:
+		CHGG B 1 A_WeaponReady
+		Loop
+	Deselect:
+		CHGG B 1 A_Lower
+		Loop
+	Select:
+		CHGG B 1 A_Raise
+		Loop
+	Fire:
+		CHGG A 0 A_GunFlash
+		CHGG AB 4 A_FireBullets(5.6,0,1,9,"NewPuff")
+		CHGG B 0 A_ReFire
+		Goto Ready
+	AltFire:
+		CHGG A 0 A_GunFlash
+		CHGG ABABABAB 2 A_FireBullets(5.6,0,1,9,"NewPuff")
+		CHGG A 30
+		CHGG B 0 A_ReFire
+		Goto Ready
+	Flash:
+		CHGF A 4 Bright A_Light1
+		CHGF B 4 Bright A_Light2
+		Goto LightDone
+	AltFlash:
+		CHGF A 2 Bright A_Light1
+		CHGF B 2 Bright A_Light2
+		CHGF A 2 Bright A_Light1
+		CHGF B 2 Bright A_Light2
+		CHGF A 2 Bright A_Light1
+		CHGF B 2 Bright A_Light2
+		CHGF A 2 Bright A_Light1
+		CHGF B 2 Bright A_Light2
+		Goto LightDone
+	}
+}
+
+actor NapalmLauncher : RocketLauncher replaces RocketLauncher
+{
+	Scale .6
+	Tag "Napalm Launcher"
+	inventory.pickupmessage "You got the Napalm Launcher!"
+	weapon.selectionorder 250
+	weapon.ammotype "NapalmAmmo"
+	states
+	{
+	Ready:
+		RLXB A 1 A_WeaponReady
+		loop
+	Deselect:
+		RLXB A 1 A_Lower
+		loop
+	Select:
+		RLXB A 1 A_Raise
+		loop
+	Fire:
+		RLXB A 6 A_GunFlash
+		RLXB B 6 Bright A_FireCustomMissile("RocketBlood")
+		RLXB CD 6 Bright
+		RLXB A 24 A_ReFire
+		goto Ready
+	Flash:
+		TNT1 A 0
+		stop
+	}
+}
+
+actor RocketBlood : Rocket
+{
+	-DEHEXPLOSION
+	-ROCKETTRAIL
+	obituary "%o rode %k's flame blast."
+	damage 80
+	scale 0.6
+	renderstyle ADD
+	alpha 0.7
+	states
+	{
+	Spawn:
+		TNT1 AA 0 A_SpawnItemEx("NewSparks2",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		XBPR ABC 3 BRIGHT LIGHT("Napalm")
+		loop
+	Death:
+		XBPR D 3 bright LIGHT("NapalmX_1") A_Explode
+		TNT1 AAAAAAAAAAAAAA 0 A_SpawnItemEx("NewSparks2",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		XBPR E 3 bright LIGHT("NapalmX_2")
+		XBPR F 3 bright LIGHT("NapalmX_3")
+		XBPR G 3 bright LIGHT("NapalmX_4")
+		XBPR H 3 bright LIGHT("NapalmX_5")
+		XBPR I 3 bright LIGHT("NapalmX_6")
+		XBPR J 3 bright LIGHT("NapalmX_7")
+		XBPR K 3 bright LIGHT("NapalmX_8")
+		XBPR L 3 bright LIGHT("NapalmX_9")
+		XBPR M 3 bright LIGHT("NapalmX_10")
+		XBPR N 3 bright LIGHT("NapalmX_11")
+		stop
+	}
+}
+
+actor AClip : Clip replaces Clip
+{
+	scale 0.8
+	inventory.pickupmessage "Picked up an Anaconda speedloader."
+}
+
+actor AClipBox : ClipBox replaces ClipBox
+{
+	inventory.pickupmessage "Picked up some Thompson ammo."
+	inventory.amount 25
+}
+
+Actor Shell2 : Shell
+{
+	Inventory.pickupmessage "Picked up 2 shotgun shells"
+	states
+	{
+	Spawn:
+		SHEL B -1
+		stop
+	}
+}
+
+actor NapalmAmmo : Ammo replaces RocketAmmo
+{
+	Tag "Napalm"
+	height 26
+	inventory.pickupmessage "Picked up a napalm canister."
+	inventory.icon "ROCKA0"
+	inventory.maxamount 50
+	ammo.backpackamount 1
+	ammo.backpackmaxamount 100
+	states
+	{
+	Spawn:
+		ROCK A -1
+		stop
+	}
+}
