@@ -1,5 +1,5 @@
 ACTOR EnhancedCaco : StrongholdCacodemon 3118
-{ 
+{
 	//$Category Stronghold_Monsters
 	painchance "Stunner",128
 	Health 300
@@ -18,7 +18,7 @@ ACTOR EnhancedCaco : StrongholdCacodemon 3118
 		ENCD B 5 bright A_CustomMissile("CacodemonBall",24,0,8,1)
 		Goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",8)
+		ENCD A 0 A_GiveToTarget("AwardItem",8)
 		Goto Super::Death+1
 	}
 }
