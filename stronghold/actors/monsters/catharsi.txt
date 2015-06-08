@@ -101,14 +101,15 @@ ACTOR CatharsiDetonator
 	+NoGravity
 	+NoBlood
 	var int user_theta;
-	ReactionTime 5
 	states
 	{
 	Spawn:
 		THRM A 4 A_PlaySound("catharsi/thermtick")
-		THRM B 16
-		THRM A 0 A_CountDown
+		THRM B 16 A_SetUserVar("user_theta",user_theta+1)
+		THRM A 0 A_JumpIf(user_theta==5,1)
 		Loop
+		THRM A 0 A_SetUserVar("user_theta",0)
+		THRM A 0 A_Die
 	Death:
 		SDFB B 0 A_CustomMissile("CatharsiBall",4,2,user_theta)
 		SDFB B 0 A_SetUserVar("user_theta",user_theta+20)
