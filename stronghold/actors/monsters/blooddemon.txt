@@ -1,85 +1,100 @@
-ACTOR BloodDemon 3110
+ACTOR BloodDemon : StrongholdDemon 3110
 {
-//$Category Stronghold_Monsters
-    painchance "Stunner", 200
-
-    spawnid 252
-    Health 300
-    Speed 12
-    Height 56
-    Radius 30
-    Mass 400
-    PainChance 180
-    Meleedamage 5
-    REACTIONTIME 8
-    MONSTER
-    +FLOORCLIP
-    SeeSound "blooddemon/sight"
-    PainSound "blooddemon/pain"
-    DeathSound "blooddemon/death"
-    ActiveSound "blooddemon/active"
-    //MeleeSound "blooddemon/melee"
-    HitObituary "%o was chewed up and spat out by a blood demon."
-    States
-    {
-    Spawn:
-       SRG2 AB 10 A_Look
-       Loop
-    See:
-       SRG2 A 0 A_PlaySound("blooddemon/walk")
-       SRG2 AABB 2 A_Chase
-       SRG2 C 0 A_PlaySound("blooddemon/walk")
-       SRG2 CCDD 2 A_Chase
-       Loop
-    Melee:
-       SRG2 E 0 A_PlaySound("blooddemon/melee")
-       SRG2 EF 8 A_FaceTarget
-       SRG2 G 8 A_MeleeAttack
-       Goto See
-    Pain:
-       SRG2 H 2
-       SRG2 H 2 A_Pain
-       Goto See
-    Pain.Stunner:
-       SRG2 H 2 A_ChangeFlag("NoPain", 1)
-       SRG2 H 300 A_Pain
-       SRG2 H 0 A_ChangeFlag("NoPain", 0)
-       goto See
-    Death:
-       TNT1 A 0 A_GiveToTarget("AwardItem", 6)
-       SRG2 I 8
-       SRG2 I 0 A_FaceTarget
-       SRG2 J 0 A_SpawnItemEx("BloodDemonArm", 10, 0, 32, 0, 8, 0, 0, 128)
-       SRG2 J 8 A_Scream
-       SRG2 K 4
-       SRG2 L 4 A_NoBlocking
-       SRG2 M 4
-       SRG2 N 3000
-       SRG2 NNNNNNNNNNNN 2 A_FadeOut(0.1)
-       Stop
-    Raise:
-       SRG2 NMLKJI 5
-       Goto See
-    }
+	//$Category Stronghold_Monsters
+	painchance "Stunner",200
+	Health 300
+	Speed 6
+	Height 56
+	Radius 30
+	Mass 400
+	PainChance 180
+	Meleedamage 5
+	REACTIONTIME 8
+	MONSTER
+	+FLOORCLIP
+	SeeSound "blooddemon/sight"
+	PainSound "blooddemon/pain"
+	DeathSound "blooddemon/death"
+	ActiveSound "blooddemon/active"
+	AttackSound "blooddemon/melee"
+	HitObituary "%o was chewed up and spat out by a blood demon."
+	States
+	{
+	Spawn:
+		SRG2 AB 10 A_Look
+		Loop
+	See:
+		SRG2 A 0 A_PlaySound("blooddemon/walk")
+		SRG2 A 0 A_JumpIf(CallACS("FastMonsters"),"SeeFast")
+		SRG2 A 1 A_Chase
+		SRG2 A 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 A 1 A_Chase
+		SRG2 A 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 B 1 A_Chase
+		SRG2 B 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 B 1 A_Chase
+		SRG2 B 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 C 0 A_PlaySound("blooddemon/walk")
+		SRG2 C 1 A_Chase
+		SRG2 C 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 C 1 A_Chase
+		SRG2 C 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 D 1 A_Chase
+		SRG2 D 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 D 1 A_Chase
+		SRG2 D 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	SeeFast:
+		SRG2 A 0 A_Chase
+		SRG2 A 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 A 0 A_Chase
+		SRG2 A 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 B 0 A_Chase
+		SRG2 B 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 B 0 A_Chase
+		SRG2 B 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 C 0 A_PlaySound("blooddemon/walk")
+		SRG2 C 0 A_Chase
+		SRG2 C 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 C 0 A_Chase
+		SRG2 C 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 D 0 A_Chase
+		SRG2 D 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		SRG2 D 0 A_Chase
+		SRG2 D 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Death:
+		TNT1 A 0 A_GiveToTarget("AwardItem",6)
+		SRG2 I 8
+		SRG2 I 0 A_FaceTarget
+		SRG2 J 0 A_SpawnItemEx("BloodDemonArm",10,0,32,0,8)
+		SRG2 J 8 A_Scream
+		SRG2 K 4
+		SRG2 L 4 A_NoBlocking
+		SRG2 M 4
+		SRG2 N 3000
+		SRG2 N 2 A_FadeOut(0.1)
+		Wait
+	}
 }
 
 ACTOR BloodDemonArm
 {
+	+CLIENTSIDEONLY
 	Radius 8
 	Height 8
 	Speed 8
-	+DOOMBOUNCE
+	BounceType Doom
 	+DROPOFF
 	+Missile
-      States
+	States
 	{
 	Spawn:
-         SG2A ABCDEFGH 2
-         Loop
+		SG2A ABCDEFGH 2
+		Loop
 	Death:
-	 SG2A I 3000
-         SG2A IIIIIIIIIIII 2 A_FadeOut(0.1)
-	 Loop
+		SG2A I 3000
+		SG2A I 2 A_FadeOut(0.1)
+		Wait
 	}
 }
-

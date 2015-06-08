@@ -390,8 +390,8 @@ ACTOR UTNTBaronOfHell : BaronOfHell replaces BaronOfHell
 		"####" G 8 A_BruisAttack
 		Goto See
 	Pain:
-		"####" H  2
-		"####" H  2 A_Pain
+		"####" H 2
+		"####" H 2 A_Pain
 		Goto See
 	Death:
 		"####" I 8
@@ -465,7 +465,7 @@ ACTOR UTNTArachnotron : Arachnotron replaces Arachnotron
 		"####" I 3
 		"####" I 3 A_Pain
 		Goto See+1
-    Raise:
+	Raise:
 		"####" PONMLKJ 5
 		Goto See+1
 	}
@@ -1417,7 +1417,7 @@ ACTOR Queen : NetherworldDrone 31064
 		QUEE F 0 A_FaceTarget
 		QUEE G 0 A_SetUserVar("user_theta",user_theta+1)
 		QUEE G 0 A_JumpIf(user_theta==4,"See")
-		Goto Melee+2
+		Goto Melee+3
 	Pain:
 		QUEE S 3
 		QUEE S 3 A_Pain
@@ -3240,7 +3240,7 @@ ACTOR EnhancedCacodemon : UTNTCacoDemon 3118
 	//$Category "ZDoom Monster pack"
 	Health 300
 	HitObituary "%o was mowed down by an enhanced cacodemon."
-	Obituary "%o saw something that resembled a cacodemon."
+	Obituary "%o was made into a snack by the enhanced cacodemon."
 	BloodColor "red"
 	States
 	{
@@ -3275,6 +3275,9 @@ ACTOR HellWarrior : UTNTHellKnight 3119
 	Spawn:
 		HWAR AB 10 A_Look
 		Loop
+	See:
+		HWAR A 0 A_UnSetInvulnerable
+		Goto Super::See
 	Missile:
 		HWAR E 0 A_Jump(128,4)
 	Melee:
@@ -4322,7 +4325,7 @@ ACTOR HS 30116
 	+FLOAT
 	+DONTFALL
 	+DONTHARMCLASS
-	MeleeThreshold 192
+	MeleeThreshold 196
 	SeeSound "monster/hadsit"
 	States
 	{
@@ -4349,7 +4352,6 @@ ACTOR HS 30116
 		HADE H 0 A_SetSolid
 		Goto See+4
 	Melee:
-		HADE H 0 A_SetInvulnerable
 		HADE HGFE 4 BRIGHT
 		HADE E 0 A_Die
 	Death:
@@ -4652,8 +4654,36 @@ ACTOR HectebusNew : UTNTFatso 22250
 	Spawn:
 		HECT AB 10 A_Look
 		Loop
+	See:
+		"####" A 1 A_Chase
+		"####" AAA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" A 1 A_Chase
+		"####" AAA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" B 1 A_Chase
+		"####" BBB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" B 1 A_Chase
+		"####" BBB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" C 1 A_Chase
+		"####" CCC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" C 1 A_Chase
+		"####" CCC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" D 0 A_PlaySound("Hectebus/Step",7)
+		"####" D 1 A_Chase
+		"####" DDD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" D 1 A_Chase
+		"####" DDD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" E 1 A_Chase
+		"####" EEE 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" E 1 A_Chase
+		"####" EEE 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" F 1 A_Chase
+		"####" FFF 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" F 1 A_Chase
+		"####" FFF 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		"####" F 0 A_PlaySound("Hectebus/Step",7)
+		Loop
 	Missile:
-		HECT G 0 A_PlaySound("hectebus/attack")
+		HECT G 0 A_PlaySound("hectebus/attack",6)
 		HECT G 6 A_FaceTarget
 		HECT H 0 A_CustomMissile("Hecteball",20,20,-5)
 		HECT H 6 A_CustomMissile("Hecteball",20,-40,5)

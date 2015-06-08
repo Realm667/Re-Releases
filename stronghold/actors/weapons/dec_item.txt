@@ -4,141 +4,141 @@
 
 actor MarineItem : CustomInventory 25003
 {
-//$Category Stronghold_Items
-  inventory.pickupmessage "Picked up some marine reinforcements."
-  inventory.maxamount 5
-  Tag "Marine Reinforcements"
-  inventory.icon MARIA0
-  +INVENTORY.INVBAR
-  +GHOST
-  scale 0.75
-  states
-  {
-  Spawn:
-   	MARP A -1 BRIGHT
-    	stop
-  Use:
-        TNT1 A 1 A_SpawnItem("TeleportFog", 64, 16, 0, 1)
-        TNT1 A 0 A_Jump(128, 4)
-        TNT1 A 0 A_Jump(128, 2)
-        TNT1 A 0 A_SpawnItem("STMarineShotgun", 64, 16, 0, 1)
-        TNT1 A 0 A_SpawnItem("STMarineChaingun", 64, 16, 0, 1)
-        TNT1 A 0 A_Jump(128, 2)
-        TNT1 A 0 A_SpawnItem("STMarineSSG", 64, 16, 0, 1)
-        TNT1 A 0 A_Jump(128, 2)
-        TNT1 A 0 A_SpawnItem("STMarineRocket", 64, 16, 0, 1)
-        TNT1 A 0 A_SpawnItem("STMarinePlasma", 64, 16, 0, 1)
-  	stop
-  }
+	//$Category Stronghold_Items
+	inventory.pickupmessage "Picked up some marine reinforcements."
+	inventory.maxamount 5
+	Tag "Marine Reinforcements"
+	inventory.icon MARIA0
+	+INVENTORY.INVBAR
+	+GHOST
+	scale 0.75
+	states
+	{
+	Spawn:
+		MARP A -1 BRIGHT
+		stop
+	Use:
+		TNT1 A 1 A_SpawnItemEx("TeleportFog",64,0,16,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		TNT1 A 0 A_Jump(128,4)
+		TNT1 A 0 A_Jump(128,2)
+		TNT1 A 0 A_SpawnItemEx("STMarineShotgun",64,0,16,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		TNT1 A 0 A_SpawnItemEx("STMarineChaingun",64,0,16,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		TNT1 A 0 A_Jump(128,2)
+		TNT1 A 0 A_SpawnItemEx("STMarineSSG",64,0,16,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		TNT1 A 0 A_Jump(128,2)
+		TNT1 A 0 A_SpawnItemEx("STMarineRocket",64,0,16,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		TNT1 A 0 A_SpawnItemEx("STMarinePlasma",64,0,16,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		stop
+	}
 }
 
 actor STMarineShotgun : MarineShotgun 12851
 {
-//$Category Stronghold_Marines
-    SeeSound "marine/sight"
-    ActiveSound "marine/active"
-    DeathSound "marine/death"
-    PainSound "marine/pain"
-    MeleeSound "marine/punch"
+	//$Category Stronghold_Marines
+	SeeSound "marine/sight"
+	ActiveSound "marine/active"
+	DeathSound "marine/death"
+	PainSound "marine/pain"
+	MeleeSound "marine/punch"
 	Obituary "%o was shot down like a clay pigeon."
-    health 300
-    -ACTIVATEMCROSS
-    +NORADIUSDMG
-    +GHOST
+	health 300
+	-ACTIVATEMCROSS
+	+NORADIUSDMG
+	+GHOST
 	+NOTIMEFREEZE
 	States
 	{
 	Raise:
-	  stop
+		stop
 	}
 }
 
 actor STMarineChaingun : MarineChaingun 12852
 {
-//$Category Stronghold_Marines
-    SeeSound "marine/sight"
-    ActiveSound "marine/active"
-    DeathSound "marine/death"
-    PainSound "marine/pain"
-    MeleeSound "marine/punch"
+	//$Category Stronghold_Marines
+	SeeSound "marine/sight"
+	ActiveSound "marine/active"
+	DeathSound "marine/death"
+	PainSound "marine/pain"
+	MeleeSound "marine/punch"
 	Obituary "%o was ventilated by a chaingun-toting marine."
-    health 300
-    -ACTIVATEMCROSS
-    +NORADIUSDMG
-    +GHOST
+	health 300
+	-ACTIVATEMCROSS
+	+NORADIUSDMG
+	+GHOST
 	+NOTIMEFREEZE
 	States
 	{
 	Raise:
-	  stop
+		stop
 	}
 }
 
 actor STMarineSSG : MarineSSG 12853
 {
-//$Category Stronghold_Marines
-    SeeSound "marine/sight"
-    ActiveSound "marine/active"
-    DeathSound "marine/death"
-    PainSound "marine/pain"
-    MeleeSound "marine/punch"
+	//$Category Stronghold_Marines
+	SeeSound "marine/sight"
+	ActiveSound "marine/active"
+	DeathSound "marine/death"
+	PainSound "marine/pain"
+	MeleeSound "marine/punch"
 	Obituary "%o downed a devastating dosage of double-barrelled death."
-    health 300
-    -ACTIVATEMCROSS
-    +NORADIUSDMG
-    +GHOST
+	health 300
+	-ACTIVATEMCROSS
+	+NORADIUSDMG
+	+GHOST
 	+NOTIMEFREEZE
 	States
 	{
 	Raise:
-	  stop
+		stop
 	}
 }
 
 actor STMarineRocket : MarineRocket 12854
 {
-//$Category Stronghold_Marines
-    SeeSound "marine/sight"
-    ActiveSound "marine/active"
-    DeathSound "marine/death"
-    PainSound "marine/pain"
-    MeleeSound "marine/punch"
+	//$Category Stronghold_Marines
+	SeeSound "marine/sight"
+	ActiveSound "marine/active"
+	DeathSound "marine/death"
+	PainSound "marine/pain"
+	MeleeSound "marine/punch"
 	Obituary "%o boarded the express train to oblivion on a marine's rocket."
-    health 600
-    -ACTIVATEMCROSS
-    +NORADIUSDMG
-    +GHOST
+	health 600
+	-ACTIVATEMCROSS
+	+NORADIUSDMG
+	+GHOST
 	+NOTIMEFREEZE
-    States
-    {
+	States
+	{
 	Missile:
 	  PLAY E 8
 	  PLAY F 6 Bright A_M_FireMissile
 	  PLAY A 0 A_Jump(96, "See")
 	  Loop
 	Raise:
-	  stop
-    }
+		stop
+	}
 }
 
 actor STMarinePlasma : MarinePlasma 12855
 {
-//$Category Stronghold_Marines
-    SeeSound "marine/sight"
-    ActiveSound "marine/active"
-    DeathSound "marine/death"
-    PainSound "marine/pain"
-    MeleeSound "marine/punch"
+	//$Category Stronghold_Marines
+	SeeSound "marine/sight"
+	ActiveSound "marine/active"
+	DeathSound "marine/death"
+	PainSound "marine/pain"
+	MeleeSound "marine/punch"
 	Obituary "%o was atomized by a steady stream of blazing plasma."
-    health 200
-    -ACTIVATEMCROSS
-    +NORADIUSDMG
-    +GHOST
+	health 200
+	-ACTIVATEMCROSS
+	+NORADIUSDMG
+	+GHOST
 	+NOTIMEFREEZE
 	States
 	{
 	Raise:
-	  stop
+		stop
 	}
 }
 
@@ -148,93 +148,84 @@ actor STMarinePlasma : MarinePlasma 12855
 
 actor Sentry 12856
 {
-//$Category Stronghold_Marines
+	//$Category Stronghold_Marines
 	mass 9999999999
-        damagefactor "overmindfactor", 10
-        radius 16
-	height 16
+	damagefactor "overmindfactor", 10
+	radius 16
 	health 300
-        maxstepheight 512
-        maxdropoffheight 512
-	-solid
+	maxstepheight 512
+	maxdropoffheight 512
 	+shootable
 	+noblood
 	+friendly
 	+lookallaround
 	+missilemore
 	+missileevenmore
-        +NORADIUSDMG
-	speed 0
-
+	+NORADIUSDMG
 	states
  	{
-
  	spawn:
  		DGUN A 4 a_look
  		loop
-
  	see:
  		DGUN A 4 A_chase
  		loop
  	missile:
  		DGUN A 4 A_facetarget
- 		DGUN B 4 A_custommissile("SentryPlasma", 16, -10, 0)
- 		DGUN C 4 A_custommissile("SentryPlasma", 16, 10, 0)
+ 		DGUN B 4 A_custommissile("SentryPlasma",16,-10)
+ 		DGUN C 4 A_custommissile("SentryPlasma",16,10)
  		DGUN A 7 A_CPosRefire //was A 4
  		loop
  	death:
- 		TNT1 A 4
+ 		TNT1 A 1
  		stop
  	}
-
 }
 
-actor SentryPlasma
+actor SentryPlasma : PlasmaBall
 {
+	-RANDOMIZE
+	RenderStyle Normal
+	Alpha 1
 	radius 1
 	height 2
 	speed 20
-        damage 3
-        scale 0.3
+	damage 3
+	scale 0.3
 	damagetype "bossfactor"
 	+DONTBLAST
-        +THRUGHOST
-	projectile
-        translation "192:207=208:223","240:246=223:223"
-        SeeSound "weapons/repfir"
-        DeathSound "weapons/railf1"
+	+THRUGHOST
+	translation "192:207=208:223","240:246=223:223"
+	SeeSound "weapons/repfir"
+	DeathSound "weapons/railf1"
 	states
  	{
  	spawn:
    		PLSS AB 4 Bright
    		loop
- 	Death:
-   		PLSE ABCDE 4 Bright
-                TNT1 A 0
-  		Stop
  	}
 }
 
 actor SentryItem : CustomInventory 25004
 {
-//$Category Stronghold_Items
-  inventory.pickupmessage "Picked up a deployable sentry turret."
-  inventory.maxamount 3
-  inventory.icon SENIA0
-  Tag "Sentry Turret"
-  +INVENTORY.INVBAR
-  scale 0.75
-   states
-  {
-  Spawn:
-   		SENP A -1 BRIGHT
-    	stop
-  use:
-  		TNT1 A 1 A_PlaySound("DSSTPLAC", CHAN_AUTO, 0.7)
-		TNT1 A 1 A_SpawnItem("ItemFog", 64, 16, 0, 1)
-                TNT1 A 1 a_spawnitem("Sentry", 64, 0, 0, 1)
+	//$Category Stronghold_Items
+	inventory.pickupmessage "Picked up a deployable sentry turret."
+	inventory.maxamount 3
+	inventory.icon SENIA0
+	Tag "Sentry Turret"
+	+INVENTORY.INVBAR
+	scale 0.75
+	states
+	{
+	Spawn:
+		SENP A -1 BRIGHT
+		stop
+	use:
+  		TNT1 A 1 A_PlaySound("DSSTPLAC",CHAN_AUTO,0.7)
+		TNT1 A 1 A_SpawnItemEx("ItemFog",64,0,16,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		TNT1 A 1 A_SpawnItemEx("Sentry",64,0,0,0,0,0,0,SXF_TRANSFERTRANSLATION)
   		stop
-  }
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -243,63 +234,62 @@ actor SentryItem : CustomInventory 25004
 
 actor BarrelItem : CustomInventory 25005
 {
-//$Category Stronghold_Items
-  inventory.pickupmessage "Picked up a portable barrel."
-  inventory.maxamount 10
-  inventory.icon BARIA0
-  Tag "Barrel"
-  +INVENTORY.INVBAR
-  scale 0.75
-  states
-  {
-  Spawn:
-   	BARP A -1 BRIGHT
-    	stop
-  Use:
-        TNT1 A 1 A_SpawnItem("ItemFog", 64, 16, 0, 1)
-        TNT1 A 0 A_SpawnItem("ExplosiveBarrelTimer", 64, 16, 0, 1)
-  	stop
-  }
+	//$Category Stronghold_Items
+	inventory.pickupmessage "Picked up a portable barrel."
+	inventory.maxamount 10
+	inventory.icon BARIA0
+	Tag "Barrel"
+	+INVENTORY.INVBAR
+	scale 0.75
+	states
+	{
+	Spawn:
+		BARP A -1 BRIGHT
+		stop
+	Use:
+		TNT1 A 1 A_SpawnItemEx("ItemFog",64,0,16,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		TNT1 A 0 A_SpawnItemEx("ExplosiveBarrelTimer",64,0,16,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		stop
+	}
 }
 
 actor ExplosiveBarrelTimer
 {
-  obituary "%o went boom."
-  health 20
-  radius 10
-  height 34
-  deathsound "world/barrelx"
-  speed 0
-  MONSTER
-  +SOLID
-  +SHOOTABLE
-  +NOBLOOD
-  +DONTGIB
-  +NOICEDEATH
-  +FRIENDLY
-  +NORADIUSDMG
-  states
-  {
-  Spawn:
-    BAR1 A 35 A_ChangeFlag("INVULNERABLE",1)
-    BAR1 A 0 A_ChangeFlag("INVULNERABLE",0)
-    BAR1 AB 6 A_Look
-    Goto Spawn+2
-    loop
-  See:
-    BAR1 AB 2 A_Chase
-    loop
-  Melee:
-    BAR1 ABABABABABABABABABABABABABABABABAB 6
-    goto Death
-  Death:
-    BEXP A 5 bright
-    BEXP B 5 bright A_Scream
-    BEXP C 5 bright
-    BEXP D 10 bright A_Explode
-    BEXP E 10 bright
-    stop
-  }
+	obituary "%o went boom."
+	health 20
+	radius 10
+	height 34
+	deathsound "world/barrelx"
+	MONSTER
+	+SOLID
+	+SHOOTABLE
+	+NOBLOOD
+	+DONTGIB
+	+NOICEDEATH
+	+FRIENDLY
+	+NORADIUSDMG
+	+INVULNERABLE
+	states
+	{
+	Spawn:
+		BAR1 A 35
+		BAR1 A 0 A_ChangeFlag("INVULNERABLE",0)
+		BAR1 AB 6 A_Look
+		Goto Spawn+2
+	See:
+		BAR1 AB 2 A_Chase
+		loop
+	Melee:
+		BAR1 ABABABABABABABABABABABABABABABABAB 6
+		BAR1 A 0 A_Die
+	Death:
+		BEXP A 5 bright
+		BEXP B 5 bright A_Scream
+		BEXP C 5 bright
+		BEXP D 10 bright A_Explode
+		BEXP E 10 bright
+		stop
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -308,7 +298,7 @@ actor ExplosiveBarrelTimer
 
 actor CoinItem : CustomInventory 25006
 {
-//$Category Stronghold_Items
+	//$Category Stronghold_Items
 	ConversationID 300
 	gravity 0.6
 	inventory.pickupmessage "Picked up a coin."
@@ -321,10 +311,10 @@ actor CoinItem : CustomInventory 25006
 	Spawn:
 		COIN A 1500
 		COIN A 2 A_FadeOut
-		goto Spawn+1
+		Wait
 	Use:
-//TODO: Make it so it drops 10 or so coins
-		TNT1 A 0 A_SpawnItem("CoinItem", 64, 16, 0, 0)
+		//TODO: Make it so it drops 10 or so coins
+		TNT1 A 0 A_SpawnItemEx("CoinItem",64,0,16)
 		stop
 	}
 }
@@ -342,24 +332,24 @@ actor AwardItem : Inventory
 
 actor LifeItem : CustomInventory 25926
 {
-//$Category Stronghold_Items
-  scale 0.75
-  inventory.pickupmessage "Picked up an extra life!"
-  inventory.maxamount 9
-  inventory.icon HERIA0
-  Tag "Lives (Multiplayer Use Only)"
-  +INVENTORY.INVBAR
-  +INVENTORY.KEEPDEPLETED
-  +INVENTORY.UNDROPPABLE
-  states
-  {
-  Spawn:
-   	HERP A -1 Bright
-    	stop
-  Use:
-        TNT1 A 0 ACS_ExecuteWithResult(897, 0, 0, 0) // Allows the script to fail
-  	stop
-  }
+	//$Category Stronghold_Items
+	scale 0.75
+	inventory.pickupmessage "Picked up an extra life!"
+	inventory.maxamount 9
+	inventory.icon HERIA0
+	Tag "Lives (Multiplayer Use Only)"
+	+INVENTORY.INVBAR
+	+INVENTORY.KEEPDEPLETED
+	+INVENTORY.UNDROPPABLE
+	states
+	{
+	Spawn:
+		HERP A -1 Bright
+		stop
+	Use:
+		TNT1 A 0 ACS_ExecuteWithResult(897) // Allows the script to fail
+		stop
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -370,8 +360,7 @@ actor LifeItem : CustomInventory 25926
 actor JailTracker : Inventory
 {
 	+INVENTORY.UNDROPPABLE
-	+INVENTORY.INTERHUBSTRIP 
-	inventory.maxamount 1
+	+INVENTORY.INTERHUBSTRIP
 }
 
 // Player is given one of these per each player in jail
@@ -381,11 +370,11 @@ actor JailTrackerAllPlayers : Inventory
 	+INVENTORY.INTERHUBSTRIP
 	inventory.maxamount 10000
 }
-
+/*
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MONSTERTRACKER ///////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
+
 // Player is given one of these for each of the number of monsters left to kill this wave
 actor MonsterTracker : Inventory
 {
@@ -393,11 +382,11 @@ actor MonsterTracker : Inventory
 	+INVENTORY.INTERHUBSTRIP
 	inventory.maxamount 10000
 }
-*/
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // WAVETRACKER //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
+
 // Player is given one of these for each of the number of monsters left to kill this wave
 actor WaveTracker : Inventory
 {
@@ -406,13 +395,11 @@ actor WaveTracker : Inventory
 	inventory.maxamount 10000
 }
 
-
 actor HUDCredits : Inventory // Displays top bar when in Intermission
 {
 	+INVENTORY.UNDROPPABLE
 	+INVENTORY.INTERHUBSTRIP
-	Inventory.MaxAmount 1
-}  */
+}*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // THRUSTDUMMY //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -423,7 +410,6 @@ actor ThrustDummy : Inventory
 {
 	+INVENTORY.UNDROPPABLE
 	+INVENTORY.INTERHUBSTRIP
-	Inventory.MaxAmount 1
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -432,55 +418,53 @@ actor ThrustDummy : Inventory
 
 actor SuperShield : BasicArmorPickup 10716
 {
-//$Category Stronghold_Items
-  armor.savepercent 100.0
-  armor.saveamount 300
-  inventory.icon "ARMXA0"
-  inventory.pickupmessage "Picked up the super shield!"
-  states
-  {
-  Spawn:
-    ARMX AB 3 Bright
-    loop
-  }
+	//$Category Stronghold_Items
+	armor.savepercent 100.0
+	armor.saveamount 300
+	inventory.icon "ARMXA0"
+	inventory.pickupmessage "Picked up the super shield!"
+	states
+	{
+	Spawn:
+		ARMX AB 3 Bright
+		loop
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PORTABLE MEDICINE ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor PSuperMedKit : HealthPickup 12791
-{
-//$Category Stronghold_Items
-  health 100
-  inventory.maxamount 10
-  inventory.icon "PMH2A0"
-  inventory.pickupmessage "Picked up a portable super medkit."
-  Tag "Portable Super Medkit"
-  +COUNTITEM
-  states
-  {
-  Spawn:
-    PM02 A -1
-    stop
-  }
-}
-
 actor PMedKit : HealthPickup 12792
 {
-//$Category Stronghold_Items
-  health 25
-  inventory.maxamount 10
-  inventory.icon "PMH1A0"
-  inventory.pickupmessage "Picked up a portable medkit."
-  Tag "Portable Medkit"
-  +COUNTITEM
-  states
-  {
-  Spawn:
-    PM01 ABCD 2 
-    loop
-  }
+	//$Category Stronghold_Items
+	health 25
+	inventory.maxamount 10
+	inventory.icon "PMH1A0"
+	inventory.pickupmessage "Picked up a portable medkit."
+	Tag "Portable Medkit"
+	+COUNTITEM
+	states
+	{
+	Spawn:
+		PM01 ABCD 2
+		loop
+	}
+}
+
+actor PSuperMedKit : PMedKit 12791
+{
+	//$Category Stronghold_Items
+	health 100
+	inventory.icon "PMH2A0"
+	inventory.pickupmessage "Picked up a portable super medkit."
+	Tag "Portable Super Medkit"
+	states
+	{
+	Spawn:
+		PM02 A -1
+		stop
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -492,46 +476,39 @@ actor PMedKit : HealthPickup 12792
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 actor TimeFreezerItem : PowerupGiver 12793
 {
-//$Category Stronghold_Items
- scale 0.75
- inventory.pickupmessage "Picked up a time freeze sphere."
- inventory.icon "FRZIA0"
- inventory.maxamount 3
- inventory.usesound "pickups/slowmo"
- powerup.color "00 33 FF" 0.10
- powerup.type "TimeFreezer"
- powerup.duration 1050
- Tag "Time Freeze"
- +INVENTORY.FANCYPICKUPSOUND
- +INVENTORY.INVBAR
- states
- {
- Spawn:
-   FRZP A -1 BRIGHT
-   stop
- }
+	//$Category Stronghold_Items
+	scale 0.75
+	inventory.pickupmessage "Picked up a time freeze sphere."
+	inventory.icon "FRZIA0"
+	inventory.maxamount 3
+	inventory.usesound "pickups/slowmo"
+	powerup.color "00 33 FF" 0.10
+	powerup.type "TimeFreezer"
+	powerup.duration 1050
+	Tag "Time Freeze"
+	+INVENTORY.FANCYPICKUPSOUND
+	+INVENTORY.INVBAR
+	states
+	{
+	Spawn:
+		FRZP A -1 BRIGHT
+		stop
+	}
 }
 
-actor TimeFreezerPickup : PowerupGiver 24027
+actor TimeFreezerPickup : TimeFreezerItem 24027
 {
-//$Category Stronghold_Items
- SpawnID 229
- scale 0.75
- inventory.pickupmessage "Time freeze!"
- inventory.icon "TIMEA0"
- inventory.maxamount 10
- inventory.usesound "pickups/slowmo"
- powerup.color "00 33 FF" 0.10
- powerup.type "TimeFreezer"
- powerup.duration 1050
- +INVENTORY.FANCYPICKUPSOUND
- +INVENTORY.AUTOACTIVATE
- states
- {
- Spawn:
-   TIME ABCD 4 BRIGHT
-   loop
- }
+	//$Category Stronghold_Items
+	SpawnID 229
+	inventory.pickupmessage "Time freeze!"
+	inventory.icon "TIMEA0"
+	inventory.maxamount 10
+	states
+	{
+	Spawn:
+		TIME ABCD 4 BRIGHT
+		loop
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -540,50 +517,44 @@ actor TimeFreezerPickup : PowerupGiver 24027
 
 actor PowerQuadDamage : PowerDamage
 {
-damagefactor "normal", 4
-inventory.icon "DOOMA0"
+	damagefactor "normal", 4
+	inventory.icon "DOOMA0"
 }
 
 actor QuadDamageItem : PowerupGiver 12794
 {
-//$Category Stronghold_Items
- scale 0.75
- inventory.pickupmessage "Picked up a quad damage sphere."
- powerup.color RedMap
- inventory.maxamount 3
- inventory.usesound "pickups/slowmo"
- inventory.icon "DAMIA0"
- powerup.type QuadDamage
- powerup.duration 1050
- Tag "Quad Damage"
- +INVENTORY.FANCYPICKUPSOUND
-   states
- {
- Spawn:
-   DAMP A -1 BRIGHT
-   stop
- }
+	//$Category Stronghold_Items
+	scale 0.75
+	inventory.pickupmessage "Picked up a quad damage sphere."
+	powerup.color RedMap
+	inventory.maxamount 3
+	inventory.usesound "pickups/slowmo"
+	inventory.icon "DAMIA0"
+	powerup.type QuadDamage
+	powerup.duration 1050
+	Tag "Quad Damage"
+	+INVENTORY.FANCYPICKUPSOUND
+	states
+	{
+	Spawn:
+		DAMP A -1 BRIGHT
+		stop
+	}
 }
 
-actor QuadDamagePowerup : PowerupGiver 24028
+actor QuadDamagePowerup : QuadDamageItem 24028
 {
-//$Category Stronghold_Items
- SpawnID 228
- scale 0.75
- inventory.pickupmessage "Doomsphere!"
- powerup.color RedMap
- inventory.usesound "pickups/slowmo"
- inventory.icon "DOOMA0"
- powerup.type QuadDamage
- powerup.duration 1050
- +INVENTORY.FANCYPICKUPSOUND
- +INVENTORY.AUTOACTIVATE
-   states
- {
- Spawn:
-   DOOM ABCD 4 BRIGHT
-   loop
- }
+	//$Category Stronghold_Items
+	SpawnID 228
+	inventory.pickupmessage "Doomsphere!"
+	inventory.icon "DOOMA0"
+	+INVENTORY.AUTOACTIVATE
+	states
+	{
+	Spawn:
+		DOOM ABCD 4 BRIGHT
+		loop
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -592,23 +563,23 @@ actor QuadDamagePowerup : PowerupGiver 24028
 
 actor InvulnerabilityItem : PowerupGiver 12795
 {
-//$Category Stronghold_Items
- scale 0.75
- inventory.pickupmessage "Picked up an invulnerability sphere."
- inventory.icon "INVIA0"
- inventory.maxamount 3
- inventory.usesound "pickups/slowmo"
- powerup.color InverseMap
- powerup.type "Invulnerable"
- powerup.duration 1575
- Tag "Invulnerability"
- +INVENTORY.FANCYPICKUPSOUND
- states
- {
- Spawn:
-   INVP A -1 BRIGHT
-   stop
- }
+	//$Category Stronghold_Items
+	scale 0.75
+	inventory.pickupmessage "Picked up an invulnerability sphere."
+	inventory.icon "INVIA0"
+	inventory.maxamount 3
+	inventory.usesound "pickups/slowmo"
+	powerup.color InverseMap
+	powerup.type "Invulnerable"
+	powerup.duration 1575
+	Tag "Invulnerability"
+	+INVENTORY.FANCYPICKUPSOUND
+	states
+	{
+	Spawn:
+		INVP A -1 BRIGHT
+		stop
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -617,9 +588,7 @@ actor InvulnerabilityItem : PowerupGiver 12795
 
 ACTOR MaxArmorBonus2 : BasicArmorBonus 12796
 {
-//$Category Stronghold_Items
-	Radius 20
-	Height 16
+	//$Category Stronghold_Items
 	Inventory.Pickupmessage "Picked up a max armor bonus."
 	Armor.Savepercent 33.33333
 	Armor.Saveamount 5
@@ -635,44 +604,6 @@ ACTOR MaxArmorBonus2 : BasicArmorBonus 12796
 		loop
 	}
 }
-
-// The following is a hack separating the above into two actors, with one that stays in the player's inventory,
-// so that the game can count how many the player has. This ultimately wasn't needed so I've commented it out just
-// in case this ever becomes a problem. Make sure to comment out the above if you use this.
-/*
-ACTOR MaxArmorBonus2 : CustomInventory 12796
-{
-	Radius 20
-	Height 16
-	Inventory.Pickupmessage "Picked up a max armor bonus."
-	+COUNTITEM
-	+INVENTORY.UNDROPPABLE
-	+INVENTORY.ALWAYSPICKUP
-	states
-	{
-	Spawn:
-		BON4 ABCDCB 6 BRIGHT
-		loop
-	Pickup:
-		TNT1 A 0 A_GiveInventory ("MaxArmorBonus2real")
-		TNT1 A 0 A_GiveInventory ("MaxArmorBonus2counter")
-		stop
-	Use:	// Dummy use state to make item stay in inventory
-		TNT1 A 0
-		fail
-	}
-}
-
-ACTOR MaxArmorBonus2real : BasicArmorBonus
-{
-	Armor.Savepercent 33.33333
-	Armor.Saveamount 5
-	Armor.Maxsaveamount 200
-	Armor.MaxBonus 5
-	Armor.MaxBonusMax 50
-	+INVENTORY.ALWAYSPICKUP
-}
-*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MAX HEALTH+ /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -680,20 +611,18 @@ ACTOR MaxArmorBonus2real : BasicArmorBonus
 
 ACTOR MaxHealthBonus2 : UpgradeStamina 12797
 {
-//$Category Stronghold_Items
-Radius 20
-Height 16
-Inventory.Pickupmessage "Picked up a max health bonus."
-Inventory.Amount 5
-Inventory.MaxAmount 300
-+COUNTITEM
-+INVENTORY.ALWAYSPICKUP
-states
-  {
-  Spawn:
-    BON3 ABCDCB 6 BRIGHT
-    loop
-  }
+	//$Category Stronghold_Items
+	Inventory.Pickupmessage "Picked up a max health bonus."
+	Inventory.Amount 5
+	Inventory.MaxAmount 300
+	+COUNTITEM
+	+INVENTORY.ALWAYSPICKUP
+	states
+	{
+	Spawn:
+		BON3 ABCDCB 6 BRIGHT
+		loop
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -702,23 +631,23 @@ states
 
 actor RegenerationItem : PowerupGiver 24031
 {
-//$Category Stronghold_Items
- scale 0.75
- inventory.pickupmessage "Picked up a regeneration sphere."
- inventory.icon "RESIA0"
- inventory.maxamount 3
- inventory.usesound "pickups/slowmo"
- powerup.color "FF 00 AE" 0.10
- powerup.type "Regeneration"
- powerup.duration 1575
- Tag "Regeneration"
- +INVENTORY.FANCYPICKUPSOUND
- states
- {
- Spawn:
-   RESP A -1 BRIGHT
-   stop
- }
+	//$Category Stronghold_Items
+	scale 0.75
+	inventory.pickupmessage "Picked up a regeneration sphere."
+	inventory.icon "RESIA0"
+	inventory.maxamount 3
+	inventory.usesound "pickups/slowmo"
+	powerup.color "FF 00 AE" 0.10
+	powerup.type "Regeneration"
+	powerup.duration 1575
+	Tag "Regeneration"
+	+INVENTORY.FANCYPICKUPSOUND
+	states
+	{
+	Spawn:
+		RESP A -1 BRIGHT
+		stop
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -727,79 +656,75 @@ actor RegenerationItem : PowerupGiver 24031
 
 actor WallItem : CustomInventory 12798
 {
-//$Category Stronghold_Items
-  inventory.pickupmessage "Picked up a barrier kit."
-  inventory.pickupsound "misc/p_pkup"
-  inventory.maxamount 3
-  inventory.icon WALIA0
-  Tag "Barrier Kit"
-  +INVENTORY.INVBAR
-  scale 0.75
-   states
-  {
-  Spawn:
-   		WALP A -1 BRIGHT
-    	stop
-  use:
-  		TNT1 A 0 A_SpawnItemEx("WallSpawner",64,0,0,0,0,0,0,SXF_NOCHECKPOSITION,0)
+	//$Category Stronghold_Items
+	inventory.pickupmessage "Picked up a barrier kit."
+	inventory.pickupsound "misc/p_pkup"
+	inventory.maxamount 3
+	inventory.icon WALIA0
+	Tag "Barrier Kit"
+	+INVENTORY.INVBAR
+	scale 0.75
+	states
+	{
+	Spawn:
+		WALP A -1 BRIGHT
 		stop
-  }
+	use:
+  		TNT1 A 0 A_SpawnItemEx("WallSpawner",64,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		stop
+	}
 }
 
 actor WallSpawner
 {
-  +ISMONSTER
-  +NOBLOCKMAP
-  Radius 4
-  Height 4
-  States
-  {
-  Spawn:
-  		TNT1 A 0
-		TNT1 A 1 A_SpawnItemEx("WallPlaced",  60, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-		TNT1 A 1 A_SpawnItemEx("WallPlaced",  50, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-  		TNT1 A 1 A_SpawnItemEx("WallPlaced",  40, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-		TNT1 A 1 A_SpawnItemEx("WallPlaced",  30, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-  		TNT1 A 1 A_SpawnItemEx("WallPlaced",  20, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-  		TNT1 A 1 A_SpawnItemEx("WallPlaced",  10, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-  		TNT1 A 1 A_SpawnItemEx("WallPlaced",  0,  32, 0, 0, 0, 0, 90,  SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-  		TNT1 A 1 A_SpawnItemEx("WallPlaced",  -10, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-		TNT1 A 1 A_SpawnItemEx("WallPlaced",  -20, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-  		TNT1 A 1 A_SpawnItemEx("WallPlaced",  -30, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-  		TNT1 A 1 A_SpawnItemEx("WallPlaced",  -40, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-		TNT1 A 1 A_SpawnItemEx("WallPlaced",  -50, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-		TNT1 A 1 A_SpawnItemEx("WallPlaced",  -60, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION, 0)
-  SpawnLoop:
-		TNT1 A 1
-  		Loop
-  }
+	+ISMONSTER
+	+NOBLOCKMAP
+	Radius 4
+	Height 4
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 1 A_SpawnItemEx("WallPlaced",60, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+		TNT1 A 1 A_SpawnItemEx("WallPlaced",50, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+  		TNT1 A 1 A_SpawnItemEx("WallPlaced",40, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+		TNT1 A 1 A_SpawnItemEx("WallPlaced",30, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+  		TNT1 A 1 A_SpawnItemEx("WallPlaced",20, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+  		TNT1 A 1 A_SpawnItemEx("WallPlaced",10, 32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+  		TNT1 A 1 A_SpawnItemEx("WallPlaced",0,  32, 0, 0, 0, 0, 90,  SXF_SETMASTER | SXF_NOCHECKPOSITION)
+  		TNT1 A 1 A_SpawnItemEx("WallPlaced",-10,32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+		TNT1 A 1 A_SpawnItemEx("WallPlaced",-20,32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+  		TNT1 A 1 A_SpawnItemEx("WallPlaced",-30,32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+  		TNT1 A 1 A_SpawnItemEx("WallPlaced",-40,32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+		TNT1 A 1 A_SpawnItemEx("WallPlaced",-50,32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+		TNT1 A 1 A_SpawnItemEx("WallPlaced",-60,32, 0, 0, 0, 0, 90, SXF_SETMASTER | SXF_NOCHECKPOSITION)
+		Stop
+	}
 }
 
 actor WallBolt
 {
-  PROJECTILE
-  +NOCLIP
-  Speed 1
-  Damage 0
-  RenderStyle Add
-  Alpha 1.0
-  Scale 0.33
-  States
-  {
-  Spawn:
-    WLXP A 1 A_FadeOut(0.025)
-	Loop
-  }
+	PROJECTILE
+	+NOCLIP
+	Speed 1
+	RenderStyle Add
+	Scale 0.33
+	States
+	{
+	Spawn:
+		WLXP A 1 A_FadeOut(0.025)
+		Loop
+	}
 }
 
 actor WallBolt2 : WallBolt
 {
-  States
-  {
-  Spawn:
-    WLXP B 1 A_FadeOut(0.025)
-	Loop
-  }
+	States
+	{
+	Spawn:
+		WLXP B 1 A_FadeOut(0.025)
+		Loop
+	}
 }
 
 actor WallPlaced
@@ -808,9 +733,7 @@ actor WallPlaced
 	mass 0x7fffffff
 	radius 8
 	height 128
-	speed 0
 	scale 0.5
-	damage 0
 	+FRIENDLY
 	+DONTBLAST
 	+SOLID
@@ -819,16 +742,16 @@ actor WallPlaced
 	+NORADIUSDMG
 	+ISMONSTER
 	DeathSound "WallItem/Explode"
+	var int user_timer;
 	states
  	{
- 	Spawn:
+	Spawn:
 		TNT1 A 0
-		TNT1 A 0 A_JumpIfInventory("WallTimer",4200,3)
-		TNT1 A 0 A_SpawnItemEx("RedSparkleRandom",random(-10.0,10.0),0,0,0,0,random(0.05,2.00),0,128,192)
-		TNT1 A 1 A_GiveInventory("WallTimer",1)
+		TNT1 A 0 A_JumpIf(user_timer>=4200,3)
+		TNT1 A 0 A_SpawnItemEx("RedSparkleRandom",random(-10.0,10.0),0,0,0,0,random(0.05,2.00),0,0,192)
+		TNT1 A 1 A_SetUserVar("user_timer",user_timer+1)
   		Loop
-	    TNT1 A 1 A_Die
-		Wait
+		TNT1 A 1 A_Die
  	Death:
  		TNT1 A 0 A_Scream
 		TNT1 A 0 A_KillSiblings
@@ -838,35 +761,31 @@ actor WallPlaced
   	}
 }
 
-actor WallTimer : Inventory
-{
-  Inventory.MaxAmount 4200
-}
-
 actor RedSparkle
 {
-  height 2
-  radius 1
-  speed 1.0
-  +MISSILE +NOINTERACTION
-  renderstyle Add
-  alpha 0.9
-  translation "80:96=175:191"
-  states
-  {
-  Spawn:
-    PTCL ABCABCABCABCABCABC 2 bright
-  Death:
-    PTCL ABC 2 bright A_FadeOut (0.1)
-    loop
-  }
+	+CLIENTSIDEONLY
+	height 2
+	radius 1
+	+MISSILE
+	+NOINTERACTION
+	renderstyle Add
+	alpha 0.9
+	translation "80:96=175:191"
+	states
+	{
+	Spawn:
+		PTCL ABCABCABCABCABCABC 2 bright
+	Death:
+		PTCL ABC 2 bright A_FadeOut
+		loop
+	}
 }
 
 actor RedSparkleRandom : RandomSpawner
 {
-  DropItem "RedSparkleTiny"
-  DropItem "RedSparkleSmall"
-  DropItem "RedSparkleMedium"
+	DropItem "RedSparkleTiny"
+	DropItem "RedSparkleSmall"
+	DropItem "RedSparkleMedium"
 }
 
 actor RedSparkleTiny   : RedSparkle { scale 0.125 }
@@ -879,57 +798,56 @@ actor RedSparkleMedium : RedSparkle { scale 0.4 }
 
 actor RandomWeaponItem : CustomInventory 25023
 {
-//$Category Stronghold_Items
-  inventory.pickupmessage "Picked up a random weapon sphere."
-  inventory.maxamount 5
-  inventory.icon WEPIA0
-  Tag "Random Weapon"
-  +INVENTORY.INVBAR
-  scale 0.75
-  states
-  {
-  Spawn:
-   	WEPP A -1 BRIGHT
-    	stop
-  Use:
-        TNT1 A 0 A_Jump(64, 21)
-        TNT1 A 0 A_Jump(64, 19)
-        TNT1 A 0 A_Jump(64, 17)
-        TNT1 A 0 A_Jump(64, 15)
-        TNT1 A 0 A_Jump(64, 13)
-        TNT1 A 0 A_Jump(64, 11)
-        TNT1 A 0 A_Jump(64, 9)
-        TNT1 A 0 A_Jump(64, 7)
-        TNT1 A 0 A_Jump(64, 5)
-        TNT1 A 0 A_Jump(64, 3)
-        TNT1 A 0 A_Jump(64, 1)
-	TNT1 A 0 A_GiveInventory("DEBFG9000", 4)
-  	stop
-	TNT1 A 0 A_GiveInventory("Pyrocannon", 4)
-  	stop
-	TNT1 A 0 A_GiveInventory("Devastator", 4)
-  	stop
-	TNT1 A 0 A_GiveInventory("Repeater", 4)
-  	stop
-        TNT1 A 0 A_GiveInventory("Flamer", 4)
-  	stop
-	TNT1 A 0 A_GiveInventory("Railgun", 4)
-  	stop
-	TNT1 A 0 A_GiveInventory("StunnerRifle", 4)
-  	stop
-	TNT1 A 0 A_GiveInventory("DEPlasmaRifle", 4)
-  	stop
-        TNT1 A 0 A_GiveInventory("DERLauncher", 4)
-  	stop
-	TNT1 A 0 A_GiveInventory("HRL", 4)
-  	stop
-	TNT1 A 0 A_GiveInventory("LandMineLayer", 4)
-  	stop
-	TNT1 A 0 A_GiveInventory("Autoshotgun", 4)
-  	stop
-  }
+	//$Category Stronghold_Items
+	inventory.pickupmessage "Picked up a random weapon sphere."
+	inventory.maxamount 5
+	inventory.icon WEPIA0
+	Tag "Random Weapon"
+	+INVENTORY.INVBAR
+	scale 0.75
+	states
+	{
+	Spawn:
+		WEPP A -1 BRIGHT
+		stop
+	Use:
+		TNT1 A 0 A_Jump(64, 21)
+		TNT1 A 0 A_Jump(64, 19)
+		TNT1 A 0 A_Jump(64, 17)
+		TNT1 A 0 A_Jump(64, 15)
+		TNT1 A 0 A_Jump(64, 13)
+		TNT1 A 0 A_Jump(64, 11)
+		TNT1 A 0 A_Jump(64, 9)
+		TNT1 A 0 A_Jump(64, 7)
+		TNT1 A 0 A_Jump(64, 5)
+		TNT1 A 0 A_Jump(64, 3)
+		TNT1 A 0 A_Jump(64, 1)
+		TNT1 A 0 A_GiveInventory("StrongholdBFG9000", 4)
+		stop
+		TNT1 A 0 A_GiveInventory("Pyrocannon", 4)
+		stop
+		TNT1 A 0 A_GiveInventory("Devastator", 4)
+		stop
+		TNT1 A 0 A_GiveInventory("Repeater", 4)
+		stop
+		TNT1 A 0 A_GiveInventory("Flamer", 4)
+		stop
+		TNT1 A 0 A_GiveInventory("Railgun", 4)
+		stop
+		TNT1 A 0 A_GiveInventory("StunnerRifle", 4)
+		stop
+		TNT1 A 0 A_GiveInventory("StrongholdPlasmaRifle", 4)
+		stop
+		TNT1 A 0 A_GiveInventory("StrongholdRLauncher", 4)
+		stop
+		TNT1 A 0 A_GiveInventory("HRL", 4)
+		stop
+		TNT1 A 0 A_GiveInventory("LandMineLayer", 4)
+		stop
+		TNT1 A 0 A_GiveInventory("Autoshotgun", 4)
+		stop
+	}
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // AUTO DRONE ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -937,286 +855,234 @@ actor RandomWeaponItem : CustomInventory 25023
 
 ACTOR AutoDroneItem : CustomInventory 24025
 {
-//$Category Stronghold_Items
-  inventory.pickupmessage "Picked up an autodrone."
-  inventory.maxamount 2
-  inventory.icon DRNIA0
-  Tag "Autodrone"
-  +INVENTORY.INVBAR
-  scale 0.75
-  states
-  {
-  Spawn:
-   	DRNP A -1 BRIGHT
-    	stop
-  Use:
-       TNT1 A 0 A_JumpIfInventory("ForceCubeTimerRight",1,3)
-       TNT1 A 0 A_GiveInventory("ForceCubeTimerRight",1)
-       TNT1 A 0 A_SpawnItemEx("ForceCube1Right",0,0,0,0,0,0,0,33,0)
-       Stop
-       TNT1 A 0 A_JumpIfInventory("ForceCubeTimerLeft",1,3)
-       TNT1 A 0 A_GiveInventory("ForceCubeTimerLeft",1)
-       TNT1 A 0 A_SpawnItemEx("ForceCube1Left",0,0,0,0,0,0,0,33,0)
-       Stop
-       TNT1 A 0
-       Loop
-   }
+	//$Category Stronghold_Items
+	inventory.pickupmessage "Picked up an autodrone."
+	inventory.maxamount 2
+	inventory.icon DRNIA0
+	Tag "Autodrone"
+	+INVENTORY.INVBAR
+	scale 0.75
+	states
+	{
+	Spawn:
+		DRNP A -1 BRIGHT
+		stop
+	Use:
+		TNT1 A 0 A_JumpIfInventory("ForceCubeTimerRight",1,3)
+		TNT1 A 0 A_GiveInventory("ForceCubeTimerRight",1)
+		TNT1 A 0 A_SpawnItemEx("ForceCube1Right",0,0,0,0,0,0,0,33)
+		Stop
+		TNT1 A 0 A_JumpIfInventory("ForceCubeTimerLeft",1,3)
+		TNT1 A 0 A_GiveInventory("ForceCubeTimerLeft",1)
+		TNT1 A 0 A_SpawnItemEx("ForceCube1Left",0,0,0,0,0,0,0,33)
+		Stop
+		TNT1 A 0
+		Loop
+	}
 }
 
 ACTOR ForceCube1Right
 {
-    Radius 0
-    Height 0
-    +NOTIMEFREEZE
-    States
-    {
-    Spawn:
-        TNT1 A 0
-        TNT1 A 0 A_SpawnItemEx("ForceCubeGiverRight",0,0,0,0,0,0,0,33,0)
-        Stop
-    }
+	Radius 0
+	Height 0
+	+NOTIMEFREEZE
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("ForceCubeGiverRight",0,0,0,0,0,0,0,33)
+		Stop
+	}
 }
 
-ACTOR ForceCube1Left
+ACTOR ForceCube1Left : ForceCube1Right
 {
-    Radius 0
-    Height 0
-    +NOTIMEFREEZE
-    States
-    {
-    Spawn:
-        TNT1 A 0
-        TNT1 A 0 A_SpawnItemEx("ForceCubeGiverLeft",0,0,0,0,0,0,0,33,0)
-        Stop
-    }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("ForceCubeGiverLeft",0,0,0,0,0,0,0,33)
+		Stop
+	}
 }
 
 ACTOR ForceCube2Right : CustomInventory
 {
-    +AUTOACTIVATE
-    +NOTIMEFREEZE
-    States
-    {
-    Pickup:
-        TNT1 A 0 A_SpawnItemEx("RightCube",28,16,36,0,0,0,0,33,0)
-        Stop
-    }
+	+AUTOACTIVATE
+	+NOTIMEFREEZE
+	States
+	{
+	Pickup:
+		TNT1 A 0 A_SpawnItemEx("RightCube",28,16,36,0,0,0,0,33)
+		Stop
+	}
 }
 
 ACTOR ForceCube2Left : CustomInventory
 {
-    States
-    {
-    Pickup:
-        TNT1 A 0 A_SpawnItemEx("LeftCube",28,-16,36,0,0,0,0,33,0)
-        Stop
-    }
+	States
+	{
+	Pickup:
+		TNT1 A 0 A_SpawnItemEx("LeftCube",28,-16,36,0,0,0,0,33)
+		Stop
+	}
 }
 
 ACTOR ForceCubeTimerLeft : CustomInventory
 {
-   +NOTIMEFREEZE
-   +INVENTORY.INTERHUBSTRIP
-   States
-   {
-   Use:
-       TNT1 A 0
-       Stop
-   }
+	+NOTIMEFREEZE
+	+INVENTORY.INTERHUBSTRIP
+	States
+	{
+	Use:
+		TNT1 A 0
+		Stop
+	}
 }
 
-ACTOR ForceCubeTimerRight : CustomInventory
-{
-   +NOTIMEFREEZE
-   +INVENTORY.INTERHUBSTRIP
-   States
-   {
-   Use:
-       TNT1 A 0
-       Stop
-   }
-}
+ACTOR ForceCubeTimerRight : ForceCubeTimerLeft{}
 
 ACTOR ForceCubeTimer2 : Inventory
 {
-    +NOTIMEFREEZE
-    Inventory.Amount 1
-    Inventory.MaxAmount 4200
-    States
-    {
-    Spawn:
-        TNT1 A 0
-        Stop
-    }
+	+NOTIMEFREEZE
+	Inventory.MaxAmount 4200
 }
 
 ACTOR ForceCubeGiverRight
 {
-    Health 1000000000
-    Radius 0
-    Height 0
-    Speed 0
-    +NONSHOOTABLE
-    +MISSILEMORE
-    +MISSILEEVENMORE
-    +NOTIMEFREEZE
-    MinMissileChance 0
-    States
-    {
-    Spawn:
-        TNT1 A 1 A_Look
-        Loop
-    See:
-        TNT1 A 1 A_Chase
-        Loop
-    Missile:
-        TNT1 A 0 A_JumpIfInTargetInventory("ForceCubeTimerRight",1,2)
-        TNT1 A 0 A_Jump(256,"Death")
-        TNT1 A 0 A_JumpIfInventory("ForceCubeTimer2",4200,"Death")
-        TNT1 A 0 A_GiveInventory("ForceCubeTimer2",1)
-        TNT1 A 1 A_GiveToTarget("ForceCube2Right",1)
-        Loop
-    Death:
-        TNT1 A 0 A_TakeFromTarget("ForceCubeTimerRight",1)
-        Stop
-    }
+	Health 1000000000
+	Radius 0
+	Height 0
+	Speed 0
+	+NONSHOOTABLE
+	+MISSILEMORE
+	+MISSILEEVENMORE
+	+NOTIMEFREEZE
+	MinMissileChance 0
+	States
+	{
+	Spawn:
+		TNT1 A 1 A_Look
+		Loop
+	See:
+		TNT1 A 1 A_Chase
+		Loop
+	Missile:
+		TNT1 A 0 A_JumpIfInTargetInventory("ForceCubeTimerRight",1,2)
+		TNT1 A 0 A_Jump(256,"Death")
+		TNT1 A 0 A_JumpIfInventory("ForceCubeTimer2",4200,"Death")
+		TNT1 A 0 A_GiveInventory("ForceCubeTimer2",1)
+		TNT1 A 1 A_GiveToTarget("ForceCube2Right",1)
+		Loop
+	Death:
+		TNT1 A 0 A_TakeFromTarget("ForceCubeTimerRight",1)
+		Stop
+	}
 }
 
-ACTOR ForceCubeGiverLeft
+ACTOR ForceCubeGiverLeft : ForceCubeGiverRight
 {
-    Health 1000000000
-    Radius 0
-    Height 0
-    Speed 0
-    +NONSHOOTABLE
-    +MISSILEMORE
-    +MISSILEEVENMORE
-    +NOTIMEFREEZE
-    MinMissileChance 0
-    States
-    {
-    Spawn:
-        TNT1 A 1 A_Look
-        Loop
-    See:
-        TNT1 A 1 A_Chase
-        Loop
-    Missile:
-        TNT1 A 0 A_JumpIfInTargetInventory("ForceCubeTimerLeft",1,2)
-        TNT1 A 0 A_Jump(256,"Death")
-        TNT1 A 0 A_JumpIfInventory("ForceCubeTimer2",4200,"Death")
-        TNT1 A 0 A_GiveInventory("ForceCubeTimer2",1)
-        TNT1 A 1 A_GiveToTarget("ForceCube2Left",1)
-        Loop
-    Death:
-        TNT1 A 0 A_TakeFromTarget("ForceCubeTimerLeft",1)
-        Stop
-    }
+	States
+	{
+	Missile:
+		TNT1 A 0 A_JumpIfInTargetInventory("ForceCubeTimerLeft",1,2)
+		TNT1 A 0 A_Jump(256,"Death")
+		TNT1 A 0 A_JumpIfInventory("ForceCubeTimer2",4200,"Death")
+		TNT1 A 0 A_GiveInventory("ForceCubeTimer2",1)
+		TNT1 A 1 A_GiveToTarget("ForceCube2Left",1)
+		Loop
+	Death:
+		TNT1 A 0 A_TakeFromTarget("ForceCubeTimerLeft",1)
+		Stop
+	}
 }
 
 ACTOR RightCube
 {
-    Radius 0
-    Height 0
-    Speed 0
-    Scale 0.1
-    +FRIENDLY
-    +NOGRAVITY
-    +NOTIMEFREEZE
-    +MISSILEMORE
-    +MISSILEEVENMORE
-    MinMissileChance 0
-    States
-    {
-    Spawn:
-    	DRON AA 1 A_LookEx(2,0,800,0,135,"See")
-        Stop
-    See:
-	DRON A 0 A_Jump(240,3) // the higher the number, the less frequent it attacks
-        DRON A 1 A_CustomMissile("AutoDroneBall",8,0,0,0)
-        TNT1 A 0 A_PlaySound("ForceCube/Fire")
-        DRON A 1
-        Stop
-    }
+	Radius 0
+	Height 0
+	Speed 0
+	Scale 0.1
+	+FRIENDLY
+	+NOGRAVITY
+	+NOTIMEFREEZE
+	+MISSILEMORE
+	+MISSILEEVENMORE
+	MinMissileChance 0
+	States
+	{
+	Spawn:
+		DRON AA 1 A_LookEx(2,0,800,0,135,"See")
+		Stop
+	See:
+		DRON A 0 A_Jump(240,3) // the higher the number, the less frequent it attacks
+		DRON A 1 A_CustomMissile("AutoDroneBall",8,0,0,0)
+		TNT1 A 0 A_PlaySound("ForceCube/Fire")
+		DRON A 1
+		Stop
+	}
 }
 
-ACTOR LeftCube
+ACTOR LeftCube : RightCube
 {
-    Radius 0
-    Height 0
-    Speed 0
-    Scale 0.1
-    +FRIENDLY
-    +NOGRAVITY
-    +NOTIMEFREEZE
-    +MISSILEMORE
-    +MISSILEEVENMORE
-    MinMissileChance 0
-    States
-    {
-    Spawn:
-    	DRON AA 1 A_LookEx(2,0,800,0,135,"See")
-        Stop
-    See:
-	DRON A 0 A_Jump(240,3) // the higher the number, the less frequent it attacks
-        DRON A 1 A_CustomMissile("AutoDroneBall",8,0,0,0)
-        TNT1 A 0 A_PlaySound("ForceCube/Fire")
-        DRON A 1
-        Stop
-    }
+	States
+	{
+	See:
+		DRON A 0 A_Jump(240,3) // the higher the number, the less frequent it attacks
+		DRON A 1 A_CustomMissile("AutoDroneBall",8,0,0,0)
+		TNT1 A 0 A_PlaySound("ForceCube/Fire")
+		DRON A 1
+		Stop
+	}
 }
 
 ACTOR AutoDroneBall
 {
-   Radius 8
-   Height 8
-   Speed 20
-   Damage 48
-   PROJECTILE
-   RENDERSTYLE ADD
-   ALPHA 0.90
-   Scale 0.2
-   damagetype "bossfactor"
-   +NOTIMEFREEZE
-   +THRUGHOST
-   SeeSound "weapons/devbal"
-   DeathSound "weapons/devex2"
-   States
-   {
-   Spawn:
-      DBA2 AB 4 Bright
-      Loop
-   Death:
-      DBA2 C 4 Bright
-      DBA2 DE 4 Bright
-      Stop
-   }
+	Radius 8
+	Height 8
+	Speed 20
+	Damage 48
+	PROJECTILE
+	RENDERSTYLE ADD
+	ALPHA 0.90
+	Scale 0.2
+	damagetype "bossfactor"
+	+NOTIMEFREEZE
+	+THRUGHOST
+	SeeSound "weapons/devbal"
+	DeathSound "weapons/devex2"
+	States
+	{
+	Spawn:
+		DBA2 AB 4 Bright
+		Loop
+	Death:
+		DBA2 CDE 4 Bright
+		Stop
+	}
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SMARTBOMB ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 actor SmartBombItem : CustomInventory 24026
 {
-//$Category Stronghold_Items
-  inventory.pickupmessage "Picked up the smart bomb!"
-  inventory.maxamount 1
-  inventory.icon SMAIA0
-  Tag "Smart Bomb"
-  +INVENTORY.INVBAR
-  scale 0.75
-  states
-  {
-  Spawn:
-   	SMAP A -1 BRIGHT
-    	stop
-  Use:
-        TNT1 A 1 A_SpawnItemEx("SmartBombGrenade", 0, 0, 32, 0, 10, 6, 90)
-        stop
-  }
+	//$Category Stronghold_Items
+	inventory.pickupmessage "Picked up the smart bomb!"
+	inventory.icon SMAIA0
+	Tag "Smart Bomb"
+	+INVENTORY.INVBAR
+	scale 0.75
+	states
+	{
+	Spawn:
+		SMAP A -1 BRIGHT
+		stop
+	Use:
+		TNT1 A 1 A_SpawnItemEx("SmartBombGrenade", 0, 0, 32, 0, 10, 6, 90)
+		stop
+	}
 }
 
 actor SmartBombGrenade
@@ -1230,162 +1096,161 @@ actor SmartBombGrenade
 	+slidesonwalls
 	-noteleport
 	bouncefactor 0.6
-	painsound ""
-        damagetype "corefriendly"
+	damagetype "corefriendly"
 	obituary "%o got blinded by %k."
-        speed 6
+	speed 6
 	radius 2
 	height 2
-	damage 0
-        States
-        {
-         Spawn:
-          UVGR ABCD 1
-          UVGR ABCD 2
-          UVGR ABCD 4
-          UVGR A 16 A_Stop
-          UVGR A 0 A_PlaysoundEx("UVCharge","voice",0,1)
-          UVGR A 0 A_SpawnItemEx("smallestlightemmit", 0, 0, 0, 0, 0, 0, 0, 128)
-          UVGR A 0 A_SpawnItemEx("smallerlightemmit", 0, 0, 0, 0, 0, 0, 0, 128)
-          UVGR E 170 BRIGHT A_SpawnItemEx("smalllightemmit", 0, 0, 0, 0, 0, 0, 0, 128)
-          UVGR E 0 BRIGHT A_SpawnItemEx("Blindinglightemmit", 0, 0, 0, 0, 0, 0, 0, 128)
-          UVGR E 0 BRIGHT A_SpawnItemEx("MoreBlindinglightemmit", 0, 0, 0, 0, 0, 0, 0, 128)
-          UVGR E 0 BRIGHT A_SpawnItemEx("MostBlindinglightemmit", 0, 0, 0, 0, 0, 0, 0, 128)
-          UVGR E 0 BRIGHT A_CustomMissile("LightRailer", 0, 0, 0)
-          UVGR E 0 BRIGHT Radius_Quake(9,17,0,64,0)
-          UVGR E 1 BRIGHT A_SpawnItemEx("RingLightemmit1", 0, 0, 0, 0, 0, 0, 0, 128)
-	  UVGR E 1 BRIGHT A_SpawnItemEx("RingLightemmit2", 0, 0, 0, 0, 0, 0, 0, 128)
-	  UVGR E 1 BRIGHT A_SpawnItemEx("RingLightemmit3", 0, 0, 0, 0, 0, 0, 0, 128)
-	  UVGR E 1 BRIGHT A_SpawnItemEx("RingLightemmit4", 0, 0, 0, 0, 0, 0, 0, 128)
-	  UVGR E 1 BRIGHT A_SpawnItemEx("RingLightemmit5", 0, 0, 0, 0, 0, 0, 0, 128)
-          TNT1 A 15
-          stop
-		}
+	States
+	{
+	Spawn:
+		UVGR ABCD 1
+		UVGR ABCD 2
+		UVGR ABCD 4
+		UVGR A 16 A_Stop
+		UVGR A 0 A_PlaysoundEx("UVCharge","voice",0,1)
+		UVGR A 0 A_SpawnItemEx("smallestlightemmit")
+		UVGR A 0 A_SpawnItemEx("smallerlightemmit")
+		UVGR E 170 BRIGHT A_SpawnItemEx("smalllightemmit")
+		UVGR E 0 A_SpawnItemEx("Blindinglightemmit")
+		UVGR E 0 A_SpawnItemEx("MoreBlindinglightemmit")
+		UVGR E 0 A_SpawnItemEx("MostBlindinglightemmit")
+		UVGR E 0 A_CustomMissile("LightRailer", 0, 0, 0)
+		UVGR E 0 Radius_Quake(9,17,0,64,0)
+		UVGR E 1 BRIGHT A_SpawnItemEx("RingLightemmit1")
+		UVGR E 1 BRIGHT A_SpawnItemEx("RingLightemmit2")
+		UVGR E 1 BRIGHT A_SpawnItemEx("RingLightemmit3")
+		UVGR E 1 BRIGHT A_SpawnItemEx("RingLightemmit4")
+		UVGR E 1 BRIGHT A_SpawnItemEx("RingLightemmit5")
+		TNT1 A 15
+		stop
+	}
 }
 
 actor smalllightemmit
 {
- radius 0
- height 0
- Renderstyle ADD
- alpha 0.75
- scale 0.5
- States
- {
-   Spawn:
-    WHFL A 170 BRIGHT
-    WHFL A 1 BRIGHT A_Fadeout(0.05)
-    goto spawn+1
- }
+	+CLIENTSIDEONLY
+	radius 0
+	height 0
+	Renderstyle ADD
+	alpha 0.75
+	scale 0.5
+	States
+	{
+	Spawn:
+		WHFL A 170 BRIGHT
+		WHFL A 1 BRIGHT A_Fadeout(0.05)
+		Wait
+	}
 }
 
 actor smallerlightemmit : smalllightemmit
 {
-scale 0.35
+	scale 0.35
 }
 
 actor smallestlightemmit : smalllightemmit
 {
-scale 0.2
+	scale 0.2
 }
 
 actor Blindinglightemmit : smalllightemmit
 {
- alpha 0.5
- scale 1.0
- States
- {
-  Spawn:
-   WHFL A 50 BRIGHT
-   WHFL A 1 BRIGHT A_Fadeout(0.05)
-   goto spawn+1
-}
+	alpha 0.5
+	scale 1.0
+	States
+	{
+	Spawn:
+		WHFL A 50 BRIGHT
+		WHFL A 1 BRIGHT A_Fadeout(0.05)
+		Wait
+	}
 }
 
 actor moreBlindinglightemmit : Blindinglightemmit
 {
- scale 0.75
+	scale 0.75
 }
 
 actor mostBlindinglightemmit : Blindinglightemmit
 {
- scale 0.5
+	scale 0.5
 }
 
 actor Lightrailer
 {
-    +MissileMore
-    +LOOKALLAROUND
-    obituary "%o got blinded a smart bomb!"
-    reactiontime 25
-    MinMissileChance 0
-    damagetype "corefriendly"
-    Speed 0
-    Radius 0
-    Height 0
-    States
-    {
-    Spawn:
-        TNT1 A 0 A_Changeflag("FRIENDLY", 1)
-        TNT1 A 1 A_Look
-        TNT1 A 0 A_Changeflag("FRIENDLY", 0)
-        TNT1 A 1 A_Look
-        TNT1 A 0 A_Changeflag("FRIENDLY", 1)
-        TNT1 A 1 A_Look
-        TNT1 A 0 A_Changeflag("FRIENDLY", 0)
-        TNT1 A 1 A_Look
-        Stop
-    See:
-        TNT1 A 1 A_Facetarget
-        TNT1 A 1 A_CustomRailgun (200, 0, NONE, WHITE, 1)
-        TNT1 A 0 A_CustomRailgun (200, 0, NONE, GREY, 1)
-        TNT1 A 0 A_CustomRailgun (200, 0, NONE, GREY, 1)
-        TNT1 A 0 A_CustomRailgun (200, 0, NONE, WHITE, 1)
-        TNT1 A 0 A_CustomRailgun (200, 0, NONE, GREY, 1)
-        TNT1 A 0 A_CustomRailgun (200, 0, NONE, GREY, 1)
-        TNT1 A 0 A_CustomRailgun (200, 0, NONE, WHITE, 1)
-        TNT1 A 0 A_Countdown
-        goto spawn
-    }
+	+MissileMore
+	+LOOKALLAROUND
+	obituary "%o got blinded a smart bomb!"
+	reactiontime 25
+	MinMissileChance 0
+	damagetype "corefriendly"
+	Radius 0
+	Height 0
+	States
+	{
+	Spawn:
+		TNT1 A 0 A_Changeflag("FRIENDLY", 1)
+		TNT1 A 1 A_Look
+		TNT1 A 0 A_Changeflag("FRIENDLY", 0)
+		TNT1 A 1 A_Look
+		TNT1 A 0 A_Changeflag("FRIENDLY", 1)
+		TNT1 A 1 A_Look
+		TNT1 A 0 A_Changeflag("FRIENDLY", 0)
+		TNT1 A 1 A_Look
+		Stop
+	See:
+		TNT1 A 1 A_Facetarget
+		TNT1 A 1 A_CustomRailgun (200, 0, NONE, WHITE, 1)
+		TNT1 A 0 A_CustomRailgun (200, 0, NONE, GREY, 1)
+		TNT1 A 0 A_CustomRailgun (200, 0, NONE, GREY, 1)
+		TNT1 A 0 A_CustomRailgun (200, 0, NONE, WHITE, 1)
+		TNT1 A 0 A_CustomRailgun (200, 0, NONE, GREY, 1)
+		TNT1 A 0 A_CustomRailgun (200, 0, NONE, GREY, 1)
+		TNT1 A 0 A_CustomRailgun (200, 0, NONE, WHITE, 1)
+		TNT1 A 0 A_Countdown
+		goto spawn
+	}
 }
 
 actor RingLightemmit1
 {
- radius 0
- height 0
- Renderstyle ADD
- alpha 0.5
- scale 5.0
- States
-{
-Spawn:
- WHFL B 2 BRIGHT
- stop
-}
+	+CLIENTSIDEONLY
+	radius 0
+	height 0
+	Renderstyle ADD
+	alpha 0.5
+	scale 5.0
+	States
+	{
+	Spawn:
+		WHFL B 2 BRIGHT
+		stop
+	}
 }
 
 actor ringlightemmit2 : ringlightemmit1
 {
- alpha 0.4
- scale 6.0
+	alpha 0.4
+	scale 6.0
 }
 
 actor ringlightemmit3 : ringlightemmit1
 {
- alpha 0.3
- scale 7.0
+	alpha 0.3
+	scale 7.0
 }
 
 actor ringlightemmit4 : ringlightemmit1
 {
- alpha 0.2
- scale 8.0
+	alpha 0.2
+	scale 8.0
 }
 
 actor ringlightemmit5 : ringlightemmit1
 {
- alpha 0.1
- scale 9.0
+	alpha 0.1
+	scale 9.0
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1394,23 +1259,23 @@ actor ringlightemmit5 : ringlightemmit1
 
 actor DrainItem : PowerupGiver 24040
 {
-//$Category Stronghold_Items
- scale 0.75
- inventory.pickupmessage "Picked up a vampirism sphere."
- inventory.icon "VAMIA0"
- inventory.maxamount 3
- inventory.usesound "pickups/slowmo"
- powerup.color "AA 00 00" 0.20
- powerup.type "Drain"
- powerup.duration 1575
- Tag "Vampirism"
- +INVENTORY.FANCYPICKUPSOUND
- states
- {
- Spawn:
-   VAMP A -1 BRIGHT
-   stop
- }
+	//$Category Stronghold_Items
+	scale 0.75
+	inventory.pickupmessage "Picked up a vampirism sphere."
+	inventory.icon "VAMIA0"
+	inventory.maxamount 3
+	inventory.usesound "pickups/slowmo"
+	powerup.color "AA 00 00" 0.20
+	powerup.type "Drain"
+	powerup.duration 1575
+	Tag "Vampirism"
+	+INVENTORY.FANCYPICKUPSOUND
+	states
+	{
+	Spawn:
+		VAMP A -1 BRIGHT
+		stop
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1419,29 +1284,29 @@ actor DrainItem : PowerupGiver 24040
 
 actor PowerQuarterDamage : PowerProtection
 {
-damagefactor "normal", 0.25
-inventory.icon "MEGAA0"
+	damagefactor "normal", 0.25
+	inventory.icon "MEGAA0"
 }
 
 actor ProtectionItem : PowerupGiver 24041
 {
-//$Category Stronghold_Items
- scale 0.75
- inventory.pickupmessage "Picked up a protection sphere."
- inventory.icon "PROIA0"
- inventory.maxamount 3
- inventory.usesound "pickups/slowmo"
- powerup.color "FF AA 00" 0.10
- powerup.type QuarterDamage
- powerup.duration 1575
- Tag "Protection"
- +INVENTORY.FANCYPICKUPSOUND
- states
- {
- Spawn:
-   PROP A -1 BRIGHT
-   stop
- }
+	//$Category Stronghold_Items
+	scale 0.75
+	inventory.pickupmessage "Picked up a protection sphere."
+	inventory.icon "PROIA0"
+	inventory.maxamount 3
+	inventory.usesound "pickups/slowmo"
+	powerup.color "FF AA 00" 0.10
+	powerup.type QuarterDamage
+	powerup.duration 1575
+	Tag "Protection"
+	+INVENTORY.FANCYPICKUPSOUND
+	states
+	{
+	Spawn:
+		PROP A -1 BRIGHT
+		stop
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1450,22 +1315,22 @@ actor ProtectionItem : PowerupGiver 24041
 
 ACTOR MorphPlayerItem : PowerUpGiver 24042
 {
-//$Category Stronghold_Items
- scale 0.75
- Inventory.PickupMessage "Picked up a morph sphere."
- inventory.usesound "pickups/slowmo"
- inventory.maxamount 2
- inventory.icon "MORIA0"
- Powerup.Type MorphPlayer
- Powerup.Duration 1575
- Tag "Morpher"
- +INVENTORY.FANCYPICKUPSOUND
- states
- {
- Spawn:
-   MORP A -1 BRIGHT
-   stop
- }
+	//$Category Stronghold_Items
+	scale 0.75
+	Inventory.PickupMessage "Picked up a morph sphere."
+	inventory.usesound "pickups/slowmo"
+	inventory.maxamount 2
+	inventory.icon "MORIA0"
+	Powerup.Type MorphPlayer
+	Powerup.Duration 1575
+	Tag "Morpher"
+	+INVENTORY.FANCYPICKUPSOUND
+	states
+	{
+	Spawn:
+		MORP A -1 BRIGHT
+		stop
+	}
 }
 
 ACTOR PowerMorphPlayer : PowerMorph
@@ -1478,98 +1343,111 @@ ACTOR PowerMorphPlayer : PowerMorph
 // I WIN BUTTON - POWERUP ///////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor PowerOSPDamage : PowerDamage {
-  damagefactor "normal", 4
+actor PowerOSPDamage : PowerDamage
+{
+	damagefactor "normal", 4
 }
-actor PowerOSPSpeed : PowerSpeed {
-  Speed 2.0
-}
-
-actor OSPInv : PowerupGiver {
-  +INVENTORY.AUTOACTIVATE
-  +INVENTORY.ALWAYSPICKUP
-  Inventory.MaxAmount 0
-  Powerup.Duration 350
-  Powerup.Type "Invulnerable"
-  Powerup.Color GoldMap
-  States
-  {
-  Spawn:
-    MEGA A 6
-    Loop
-  }
-}
-actor OSPQuad : PowerupGiver {
-  +INVENTORY.AUTOACTIVATE
-  +INVENTORY.ALWAYSPICKUP
-  Inventory.MaxAmount 0
-  Powerup.Duration 350
-  Powerup.Type "OSPDamage"
-  Powerup.color "FF 00 00",0.35
-  States
-  {
-  Spawn:
-    MEGA A 6
-    Loop
-  }
-}
-actor OSPSpeed : PowerupGiver {
-  +INVENTORY.AUTOACTIVATE
-  +INVENTORY.ALWAYSPICKUP
-  Inventory.MaxAmount 0
-  Powerup.Duration 350
-  Powerup.Type "OSPSpeed"
-  States
-  {
-  Spawn:
-    MEGA A 6
-    Loop
-  }
-}
-actor OSPPower : PowerupGiver {
-  +INVENTORY.AUTOACTIVATE
-  +INVENTORY.ALWAYSPICKUP
-  Inventory.MaxAmount 0
-  Powerup.Duration 350
-  Powerup.Type "WeaponLevel2"
-  States
-  {
-  Spawn:
-    MEGA A 6
-    Loop
-  }
+actor PowerOSPSpeed : PowerSpeed
+{
+	Speed 2.0
 }
 
-actor OSPHealth : Health {
-  Inventory.Amount 100
-  Inventory.MaxAmount 100
-  States
-  {
-  Spawn:
-    SOUL A 6
-    Loop
-  }
+actor OSPSpeed : PowerupGiver
+{
+	+INVENTORY.AUTOACTIVATE
+	+INVENTORY.ALWAYSPICKUP
+	Inventory.MaxAmount 0
+	Powerup.Duration 350
+	Powerup.Type "OSPSpeed"
+	States
+	{
+	Spawn:
+		MEGA A -1
+		Loop
+	}
+}
+actor OSPInv : OSPSpeed
+{
+	Powerup.Type "Invulnerable"
+	Powerup.Color GoldMap
+}
+actor OSPQuad : OSPSpeed
+{
+	Powerup.Type "OSPDamage"
+	Powerup.color "FF 00 00",0.35
+}
+actor OSPPower : OSPSpeed
+{
+	Powerup.Type "WeaponLevel2"
+}
+
+actor OSPHealth : Health
+{
+	Inventory.Amount 100
+	Inventory.MaxAmount 100
+	States
+	{
+	Spawn:
+		SOUL A 6
+		Loop
+	}
 }
 
 actor IWinButtonItem : CustomInventory 23475
 {
-//$Category Stronghold_Items
-  inventory.maxamount 1
-  Inventory.Icon IWBIA0
-  Inventory.PickupMessage "You got the I Win Button. Yay!"
-  +INVENTORY.INVBAR
-  Tag "I Win Button"
-  states
-  {
-    Spawn:
-      IWBP A -1 BRIGHT
-      stop
-    Use:
-      TNT1 A 0 A_GiveInventory("OSPInv")
-      TNT1 A 0 A_GiveInventory("OSPQuad")
-      TNT1 A 0 A_GiveInventory("OSPSpeed")
-      TNT1 A 0 A_GiveInventory("OSPPower")
-      TNT1 A 0 A_GiveInventory("OSPHealth")
-      stop
-  }
+	//$Category Stronghold_Items
+	Inventory.Icon IWBIA0
+	Inventory.PickupMessage "You got the I Win Button. Yay!"
+	+INVENTORY.INVBAR
+	Tag "I Win Button"
+	states
+	{
+	Spawn:
+		IWBP A -1 BRIGHT
+		stop
+	Use:
+		TNT1 A 0 A_GiveInventory("OSPInv")
+		TNT1 A 0 A_GiveInventory("OSPQuad")
+		TNT1 A 0 A_GiveInventory("OSPSpeed")
+		TNT1 A 0 A_GiveInventory("OSPPower")
+		TNT1 A 0 A_GiveInventory("OSPHealth")
+		stop
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// POWERUP	///////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+actor WeaponPowerItem : CustomInventory 25007
+{
+	//$Category Stronghold_Items
+	inventory.pickupmessage "Picked up a weapon powerup kit."
+	inventory.maxamount 3
+	inventory.icon POWIA0
+	tag "Weapon Powerup Kit"
+	+INVENTORY.INVBAR
+	scale 0.75
+	states
+	{
+	Spawn:
+		POWP A -1 BRIGHT
+		stop
+	Pickup:
+		TNT1 A 1 A_PlaySound("pickup")
+		stop
+	Use:
+		TNT1 A 1 A_GiveInventory("WeaponPowerUpGiver")
+		stop
+	}
+}
+
+actor WeaponPowerupGiver : PowerupGiver
+{
+	powerup.color "80 00 ff",0.1
+	powerup.duration 2100 //60 seconds
+	powerup.type WeaponLevel2
+	+INVENTORY.ALWAYSPICKUP
+	+INVENTORY.AUTOACTIVATE
+	inventory.maxamount 0
 }

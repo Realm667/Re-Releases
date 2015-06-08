@@ -463,7 +463,6 @@ ACTOR ThrallShot1
 	RENDERSTYLE ADD
 	Alpha 0.67
 	PROJECTILE
-	+ThruGhost
 	DEATHSOUND "monster/disht1"
 	states
 	{
@@ -634,7 +633,6 @@ ACTOR HS 30116
 		HADE H 0 A_SetSolid
 		Goto See+4
 	Melee:
-		HADE H 0 A_SetInvulnerable
 		HADE HGFE 4 BRIGHT
 		HADE E 0 A_Die
 	Death:
@@ -724,7 +722,6 @@ ACTOR DogFire
 	Scale 0.67
 	SEESOUND "weapons/bigbrn"
 	DEATHSOUND "weapons/bigbrn"
-	+ThruGhost
 	Gravity .125
 	states
 	{
@@ -1147,7 +1144,7 @@ ACTOR SoulBallTrail : SoulHarvesterGhost
 ////////////
 // THAMUZ //
 ////////////
-ACTOR Thamuz : Cyberdemon 
+ACTOR Thamuz : Cyberdemon
 {
 	Health 3200
 	Speed 5.33333333
@@ -1573,7 +1570,7 @@ Actor SFX_Wraith
 ////////////////
 // TCHERNOBOG //
 ////////////////
-Actor Tchernobog : Thamuz 
+Actor Tchernobog : Thamuz
 {
 	OBITUARY "%o fell before Tchernobog."
 	Bloodcolor "aa 00 00"
@@ -1657,8 +1654,7 @@ actor Vulgar : DoomImp 30127
 		VULG V -1
 		stop
 	Raise:
-		VULG ML 8
-		VULG KJI 6
+		VULG MLKJI 6
 		goto See
 	}
 }
@@ -1673,7 +1669,6 @@ ACTOR VulgarShot
 	RENDERSTYLE ADD
 	ALPHA 0.67
 	PROJECTILE
-	+THRUGHOST
 	Seesound "poly/stmdr1"
 	DeathSound "weapons/bloodx"
 	States
@@ -1701,6 +1696,7 @@ ACTOR ESoul 29012
 	height 32
 	mass 400
 	speed 1.66666667
+	FloatSpeed 1.33333333
 	damage 5
 	painchance 128
 	renderstyle Add
@@ -1779,6 +1775,7 @@ ACTOR DEWraith 30106
 	Height 32
 	Mass 50
 	Speed 3.33333333
+	FloatSpeed 1.33333333
 	Damage 2
 	RENDERSTYLE ADD
 	OBITUARY "A wraith had its way with %o."
@@ -1791,7 +1788,6 @@ ACTOR DEWraith 30106
 	+NoGravity
 	+Float
 	+DontFall
-	+ThruGhost
 	ATTACKSOUND "monster/sprsit"
 	PAINSOUND "archvile/pain"
 	DEATHSOUND "monster/sprdth"
@@ -1885,19 +1881,19 @@ Actor TommyGunCultist 29011
 		BCUL E 20 A_FaceTarget
 		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)
 		BCUL E 3
-		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)  
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)
 		BCUL E 3
-		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)  
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)
 		BCUL E 3
-		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)  
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)
 		BCUL E 3
-		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)  
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)
 		BCUL E 3
-		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)  
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)
 		BCUL E 3
-		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)  
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)
 		BCUL E 3
-		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)  
+		BCUL F 2 BRIGHT LIGHT("CultistLight") A_CustomBulletAttack(22.5,0,1,random(1,5)*3,"NewPuff",0,CBAF_NORANDOM)
 		BCUL E 3
 		Goto See
 	Pain:
@@ -2062,6 +2058,7 @@ ACTOR FattyTracer2 : FattyTracer1
 
 ACTOR FattyTracerTrail
 {
+	+CLIENTSIDEONLY
 	Radius 1
 	Height 1
 	PROJECTILE
@@ -2875,7 +2872,7 @@ actor CMedikit : CStimpack replaces Medikit
 	}
 }
 
-ACTOR NewPuff : BulletPuff  
+ACTOR NewPuff : BulletPuff
 {
 	states
 	{
@@ -2904,7 +2901,7 @@ ACTOR Puff2
 	}
 }
 
-ACTOR NewSparks2 
+ACTOR NewSparks2
 {
 	+CLIENTSIDEONLY
 	Projectile

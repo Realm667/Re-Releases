@@ -1,0 +1,1672 @@
+#include "zcommon.acs"
+
+// a few internal wvars for the script
+
+	// TIDArray will give every monster a TID unique to its spawn zone and mission
+	// in this way, we'll be able to tell what zone a monster is from and also give
+	// it an independant mission that can be decided by any number of variables in
+	// the script, eg, what class it is, where it was spawned, or a random chance
+
+int TIDArray[NUM_ZONES][NUM_MISSIONS];
+
+int ThisWave;
+int ThisType;
+int ThisZone;
+int IsTesting;
+int MonsCount;
+int LastCount;
+
+#define NUM_MEDS 2
+#define WEAPON_TID 4900
+
+// Spawn numbers
+#define T_LANDMINELAYER 200
+#define T_LANDMINE 201
+#define T_STUNNERRIFLE 202
+#define T_DEVESTATOR 242
+#define T_RAILGUN 241
+#define T_HRL 240
+#define T_PYROCANNON 239
+#define T_FLAMER 238
+#define T_AUTOSHOTGUN 237
+#define T_REPEATER 236
+#define T_FREEZER 229
+#define T_DOOMSPHERE 228
+#define T_GAS 222
+#define T_FUEL 221
+
+int AmmoItems[10] = { T_CLIP, T_AMMOBOX, T_SHELLS, T_SHELLBOX, T_ROCKETAMMO, T_ROCKETBOX, T_CELL, T_BATTERY, T_GAS, T_FUEL };
+int AmmoPerItem[10] = { 10, 50, 4, 20, 1, 5, 20, 100, 24, 96 };
+
+int MediItems [NUM_MEDS] = { T_STIMPACK, T_MEDKIT };
+
+#define AMOUNT			1	// where the amount is located in relation to the type in the monster/powerup arrays
+						// yes I did just put it there to make the script look nicer
+
+/****************************		Functions	****************************/
+
+	// this contains various functions that are cobbled together to form
+	// some semblance of organisation. The keyword here is generic...
+
+	// this script passes through the arrays to set up the desired values
+	// it generates set of unique TID's for the mission picker and modifies
+	// the amount of monsters by the player and skill multipliers.
+	// note: may have to be changed for zdoom derivatives that have in game
+	// joining...
+
+/*********************		Math Functions		************************/
+
+
+function int abs (int x)
+{
+	if (x < 0)
+		return -x;
+	return x;
+}
+
+
+function int sqrt (int x)
+{
+	int r;
+	x = x + 1 >> 1;
+	r = 0;
+	while (x > r)
+		x -= r++;
+	return r;
+}
+
+script 998 open
+{
+	int difficultyscale = FixedMul(SkillScaler[gameskill()],PlayerScaler[PlayerCount() - 1]);
+
+	int monstid = START_TID;
+	for (int z; z < NUM_ZONES; z++)
+	{
+		for (int i; i < NUM_MISSIONS; i++)
+		{
+			TIDArray[z][i] = monstid++;
+		}
+		i=0;
+		for (int t; t < NUM_TYPES; t++)
+		{
+			Waves[z][t*2+AMOUNT] = FixedMul(Waves[z][t*2+AMOUNT]*65536, difficultyscale)/65536;
+			// the numbers wont be what you'd expect...strange
+		}
+		t=0;
+	}
+	for (int w; w < NUM_WAVES; w++)
+	{
+		for (int a; a < 5; a++)
+		{
+			if (AmmoQuota[w][a])
+			{
+				AmmoQuota[w][a] = FixedMul(AmmoQuota[w][a]*65536, PlayerScaler[PlayerCount() - 1])/65536;
+			}
+		}
+	}
+	for (w = 0; w < NUM_WAVES; w++)
+	{
+		for (int m = 0; m < NUM_MEDS; m++)
+		{
+			if (MediQuota[w][m])
+			{
+				if (PlayerCount() > 2 && PlayerCount() < 5)
+				{
+					MediQuota[w][m] *= 2;
+				}
+				else if (PlayerCount() > 5 && PlayerCount() < 7)
+				{
+					MediQuota[w][m] *= 3;
+				}
+				else if (PlayerCount() >= 7)
+				{
+					MediQuota[w][m] *= 4;
+				}
+			}
+		}
+	}
+}
+
+	// Test class will spawn a monster of the Classname given to it and give it a TID
+	// Then it will return the TID of that thing to whatever called it. Eg, if you do
+	// Thing_Destroy( TestClass("DoomImp"), 1 );
+	// Then an imp will be spawned and instantaneously be gibbed by the Thing_Destroy
+	// command. Therefore, this function can be used in any special that normally
+	// requires the TID of an existing map object
+
+function int TestClass (str ClassName)
+{
+	if (IsTesting) { PrintBold(s:"You didnt call endtest you plank!"); return 65535; }
+
+	IsTesting = 1;
+
+	if (Spawn(ClassName, TEST_X, TEST_Y, TEST_Z, TEST_TID, 0) > 0) { return TEST_TID; }
+
+	else { PrintBold(s:"TestClass() Couldnt spawn a test object!!"); return 65535; }
+
+	return 0;
+}
+
+	// anytime you use TestClass, it is important to call EndTest() immediately after whatever command it was inserted into,
+	// or the test monster will stick around on the map and prevent spawning any other test monsters
+function void EndTest ( void )
+{
+	Thing_Remove(TEST_TID);
+	IsTesting = 0;	// istesting corrects the monstercount and allows making another test
+}
+
+	// generates a new set of random coordinates in the zone that is being spawned in
+function int Coords (int axis)
+{
+	switch (axis)
+	{
+	case 0:	return random( Zones[ThisZone][0], Zones[ThisZone][0]+Zones[ThisZone][2] );
+	case 1: return random( Zones[ThisZone][1], Zones[ThisZone][1]+Zones[ThisZone][3] );
+	}
+	return 0;
+}
+
+/*********************		Various Spawning Loops		************************/
+
+	// here is the main monster spawning script itself.
+
+script 100 (void)
+{
+	while (ThisType < NUM_TYPES)
+	{
+		while (Waves [ThisWave] [ThisType*2+AMOUNT])
+		{
+
+		// Spawn apparently returns a positive value if succesful, so we can use that to decide
+		// whether or not to call GiveDefaults()
+
+			if (	Spawn ( Waves[ThisWave][ThisType*2],			// Get the Class to be spawned
+				Coords(0), Coords(1), Zones[ThisZone][4]+SPAWN_HEIGHT,	// generate some new coordinates
+				1023,							// give it a placeholder TID
+				Zones[ThisZone][6] )					// make it face the right angle
+			> 0) // if the spawn returned a number more than 0:
+
+			{
+				GiveDefaults(1023);
+					// set the monster moving
+
+				Spawn("TeleportFog", GetActorX(1023), GetActorY(1023), GetActorZ(1023), 0, 0);
+					// optional, you might want monsters to silently gate in
+
+				Thing_ChangeTID(1023, TIDArray[ThisZone][MissionPicker()]);
+					// change its TID to a new one based on its mission
+
+				Waves [ThisWave][ThisType*2+AMOUNT]--;
+					// reduce the quota for the spawned monster by 1
+			}
+
+			// else { /* do something on an unsuccsesful spawn here*/ }
+
+			delay(TICS_BETWEEN_SPAWN);
+
+			if (ThisZone == UseZones-1){ThisZone=0;}else{ThisZone++;}
+				// that cycles the zones, goes back to the first zone if at the last one
+		}
+
+		ThisType++;	// after succesfully spawning the quota of the first monster type, start the next type
+	}
+
+		// Now that the spawning is done, give everything its mission and reset the type index ready for next wave
+
+	GiveMissions(); // It is a cold, cruel, world...
+
+	ThisType=0;
+
+		// stall the script while the monsters are still alive
+
+	do { delay (10); } while (lastcount);
+
+		// and this is the end of the wave.
+
+	ACS_ExecuteAlways(997, 0); // Pronounce Victory!
+
+}
+
+function void ItemFogSpawner( int spot )
+{
+	Spawn("ItemFog",
+		GetActorX(Spot)+random(-8.0,8.0),
+		GetActorY(Spot)+random(-8.0,8.0),
+		GetActorZ(Spot)+random(8.0,16.0), 0, 0);
+	ThingSound(spot, "misc/spawn", 127); // lovely flange
+}
+
+function void StockAmmo ( void )
+{
+	int AmmoType;
+	int Spot;
+
+	while (AmmoType < 5)
+	{
+
+		while (	AmmoQuota [ThisWave] [AmmoType] >= AmmoPerItem [AmmoType*2] )
+		{
+			if (	AmmoQuota [ThisWave] [AmmoType] <	AmmoPerItem [AmmoType*2+1] )
+			{
+				Thing_ProjectileGravity(AmmoLoc[Spot],	AmmoItems[AmmoType*2], random(0,255), random(8,16), random(8,16));
+				AmmoQuota [ThisWave] [AmmoType] -=	AmmoPerItem[AmmoType*2];
+			}
+			else
+			{
+				Thing_ProjectileGravity(AmmoLoc[Spot],	AmmoItems[AmmoType*2+1], random(0,255), random(8,16), random(8,16));
+				AmmoQuota [ThisWave] [AmmoType] -=	AmmoPerItem[AmmoType*2+1];
+			}
+
+			ItemFogSpawner( AmmoLoc[Spot] );
+
+			if (Spot == AMMOSPOTS-1){Spot=0;}else{Spot++;} // cycle through each spot
+		}
+		AmmoType++;
+	}
+}
+
+
+function void StockPowerups ( void )
+{
+	int PowerupType;
+	int Spot;
+	int Angle;
+
+	while (PowerupType < NUM_POWERUPS*2)
+	{
+		while ( Thingcount ( Spoils [ThisWave] [PowerupType], 0) < Spoils [ThisWave] [PowerupType+AMOUNT]
+				&& Thingcount ( Spoils [ThisWave] [PowerupType], 0) < PlayerCount())
+		{
+			Thing_ProjectileGravity(PowerLoc[Spot], Spoils [ThisWave] [PowerupType], random(0,255), random(8,16), random(8,16));
+
+			if (Spot == POWERSPOTS-1){Spot=0;}else{Spot++;} // cycle through each spot
+		}
+		PowerupType+=2; // after succesfully spawning the quota of the first powerup type, start the next type
+	}
+	ItemFogSpawner( PowerLoc[Spot] );
+
+}
+
+
+function void StockMeds ( void )
+{
+	int MediType;
+	int Spot;
+
+	while (MediType < NUM_MEDS)
+	{
+		while ( Thingcount ( MediItems [MediType], 0) < MediQuota [ThisWave] [MediType])
+		{
+			Thing_ProjectileGravity(MediLoc[Spot], MediItems [MediType], random(0,255), random(8,16), random(8,16));
+
+			if (Spot == MEDISPOTS-1){Spot=0;}else{Spot++;} // cycle through each spot
+		}
+		MediType++; // after succesfully spawning the quota of the first powerup type, start the next type
+	}
+	ItemFogSpawner( MediLoc[Spot] );
+}
+
+function void StockWeapons (VOID)
+{
+	if (WeaponItems[ThisWave])	// if a weapon is set to spawn this wave
+	{
+		for (int spot=0; spot<WEAPONSPOTS; spot++)
+		{
+			// Thrust old weapon out of the way
+			ThrustThing(random(0,255), random(4,5), 0, WEAPON_TID);
+			ThrustThingZ(WEAPON_TID, random(16,32), 0, 0);
+			// Clear it's TID
+			Thing_ChangeTID(WEAPON_TID, 0);
+
+			// Spawn new one
+			Thing_Spawn(WeaponLoc[spot], WeaponItems[ThisWave], 0, WEAPON_TID);
+			SetActorProperty(WEAPON_TID, APROP_Dropped, 0);
+		}
+	}
+}
+
+function void ReStock ( void )
+{
+	StockAmmo();
+	StockPowerups();
+	StockMeds();
+	StockWeapons();
+}
+
+
+/****************************************	Heads up display	***************************************/
+
+	// The following scripts control the score readout
+
+int BodyCount;
+int Mins;
+int Secs;
+int Clock;
+int CounterClock;
+int CountType;
+int ResumeCount;
+
+function void TickTock (void)
+{
+
+	Clock++;
+	Secs = Clock/35;
+	Mins = Secs/60;
+	Secs = Secs % 60;
+
+}
+
+	// updatecount is slightly innacurate, but not unreasonably so. It will always catch up to the
+	// real count after about 10 - 20 tics, depending on how many types you are counting and how
+	// many get counted each tic
+
+function int UpdateCount (void)
+{
+	if (!ResumeCount)
+	{
+		lastcount = monscount;	// save the last count
+		monscount = 0;		// reset the count, because I am adding the amount of each group to it with each iteration
+	}
+
+	while (CountType < "ENDMARKER")
+	{
+		monscount += ThingCountName(CountType,0);
+				// add the next thingamy to the monstercount
+		CountType++;
+
+		if (CounterClock == COUNTS_PER_TIC) { CounterClock = 0; ResumeCount = 1; return lastcount;}
+				// if it didnt finish the count in time, return the last count
+				// the updated count will be continued on the next call
+
+		CounterClock++;
+	}
+	CountType=0;
+	ResumeCount=0;
+	return MonsCount;
+}
+
+#define THE_POPE		1
+#define CATHOLIC		1
+
+script 999 OPEN
+{
+	while (THE_POPE == CATHOLIC)
+	{
+		SetHudSize (640, 480, 1);
+		SetFont("HUDGFX");
+		HudMessage (s: "A";HUDMSG_PLAIN,1000,CR_UNTRANSLATED,320.0,240.0,0.0);
+
+		if (ThisWave < NUM_WAVES)
+		{
+			SetFont("BIGFONT");
+			HudMessageBold (d:Level;
+					HUDMSG_PLAIN, 1, CR_RED, 83.0, 15.0, 11);
+
+			HudMessageBold (d:ThisWave+1;
+					HUDMSG_PLAIN, 2, CR_RED, 192.0, 15.0, 11);
+
+			HudMessageBold (d:UpdateCount();
+					HUDMSG_PLAIN, 3, CR_RED, 180.0, 39.0, 11);
+
+		}
+
+		if (Secs < 10)
+		{
+
+			SetFont("BIGFONT");
+			HudMessageBold (d:Mins, s:":", s:"0", d:Secs;
+					HUDMSG_PLAIN, 4, CR_RED, 602.0, 15.0, 0);
+		} else	{
+			SetFont("BIGFONT");
+			HudMessageBold (d:Mins, s:":", d:Secs;
+					HUDMSG_PLAIN, 4, CR_RED, 602.0, 15.0, 0);
+		}
+			HudMessageBold (d:BodyCount;
+					HUDMSG_PLAIN, 5, CR_RED, 602.0, 39.0, 0);
+
+		TickTock();
+		delay(1);
+
+	}
+}
+
+	// this script is given to each monster to increment the kill counter
+	// but you can use it for any generic death action as well
+
+script 250 (void)
+{
+	BodyCount++;
+}
+
+	// This is the victory messages for each wave
+
+str WaveAnnouncements[9] = {"","T_WAVNR2","T_WAVNR3","T_WAVNR4","T_WAVNR5","T_WAVNR6","T_WAVNR7","T_WAVNR8","T_WAVNR9"};
+str WaveNumber[10] = {"First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eighth","Ninth","Final"};
+str RadioNames[2][5] = { {"DIALOG1","DIALOG1","DIALOG2","DIALOG1","DIALOG2"},
+						{"Cpl. S. Petersen","Sgt. R. Prince","Lt. J. Wilbur","Col. K. Cloud","Pvt. D. Taylor"} };
+
+int RadioFace = 0;
+script 996 OPEN { RadioFace = random(0,4); }
+
+script 997 (void)
+{
+	AmbientSound("T_WAVDON",127);
+	int IAmGoingToPrint = ThisWave; // ThisWave will change, and we don't want that
+
+	SetHudSize(512,384,1);
+	SetFont("BigFont");
+
+	if(ThisWave<NUM_WAVES-1)
+	{
+		Hudmessage(s:WaveNumber[ThisWave],s:" Wave \ccComplete!";
+		HUDMSG_FADEINOUT,0,CR_RED,256.0,128.1,3.0,1.0,1.0);
+	}
+	else
+	{
+		Hudmessage(s:"Final Wave \ccComplete!";
+		HUDMSG_FADEINOUT,0,CR_RED,256.0,128.1,3.0,1.0,1.0);
+	}
+
+	delay(35*BREAK_SECONDS/2);
+
+	SetHudSize(512,384,1);
+	SetFont(RadioNames[0][RadioFace]);
+	Hudmessage(s:"A";
+			HUDMSG_PLAIN, 0, -1, 25.1, 250.0, BREAK_SECONDS*1.0);
+
+	SetFont("ConFont");
+	Hudmessage(s:RadioNames[1][RadioFace];
+			HUDMSG_PLAIN, 0, CR_WHITE, 70.1, 250.0, BREAK_SECONDS*1.0);
+
+	SetHudSize(640,480,1);
+
+	SetFont("DIALOGBX");
+	Hudmessage(s:"A";
+			HUDMSG_PLAIN, 7, CR_WHITE, 32.1, 384.0, BREAK_SECONDS*1.0);
+
+	SetFont("ConFont");
+	Hudmessage(s:Messages[IAmGoingToPrint][1];
+			HUDMSG_TYPEON, 6, CR_GOLD, 44.1, 360.1, 99.0, 0.035, 0.5);
+
+	delay(35*BREAK_SECONDS/2);
+	Hudmessage(s:Messages[IAmGoingToPrint][2];
+			HUDMSG_TYPEON, 6, CR_GOLD, 44.1, 360.1, 99.0, 0.035, 0.5);
+
+	SetHudSize(512,384,1);
+	SetFont("BigFont");
+
+	if(ThisWave<NUM_WAVES)
+	{
+		if(ThisWave<NUM_WAVES-1)
+		{
+			Hudmessage(s:WaveNumber[ThisWave],s:"\cc Wave!";
+				HUDMSG_FADEINOUT,0,CR_RED,256.0,128.1,3.0,1.0,1.0);
+			AmbientSound(WaveAnnouncements[ThisWave],127);
+		} else {
+			Hudmessage(s:"Final \ccWave!";
+				HUDMSG_FADEINOUT,0,CR_RED,256.0,128.1,3.0,1.0,1.0);
+			AmbientSound("T_WAVFNL",127);
+		}
+	}
+
+	delay(35*BREAK_SECONDS/2);
+	Hudmessage(s:"";
+	HUDMSG_PLAIN,6,-1,0.0,0.0,1.0);
+}
+
+	// When failure occurs
+
+function void Failure (VOID)
+{
+	int AlreadyFailed=0;
+
+	if (AlreadyFailed==1)
+	{
+
+	}
+	else
+	{
+	SetMusic("D_DUMMY");
+	AmbientSound("TB_LOST", 127);
+	SetHudSize (640, 480, 1);
+
+	SetFont("BLACKS");
+	HudMessageBold (s:"a"; HUDMSG_FADEINOUT, 12400, 0, 320.0, 240.0, 20.0, 5.0);
+
+	SetFont("HUDGO");
+	HudMessageBold (s:"a"; HUDMSG_FADEINOUT, 123, 0, 320.0, 240.0, 5.0, 0.5, 0.5);
+	ACS_Execute(671, 0);
+	AlreadyFailed=1;
+	}
+}
+
+Script 671 (VOID)
+{
+	delay(35 * 3);
+	AmbientSound("J_FAIL", 127);
+	delay(35 * 4);
+
+	Exit_Normal(0);
+}
+
+
+/*********************		Set Cameras		************************/
+script 661 OPEN
+{
+	SetCameraToTexture(PRISONCAM1, "CT_1", 90 );
+	SetCameraToTexture(PRISONCAM2, "CT_2", 90 );
+	SetCameraToTexture(PRISONCAM3, "CT_3", 90 );
+	SetCameraToTexture(PRISONCAM4, "CT_4", 90 );
+	SetCameraToTexture(PRISONCAM5, "CT_5", 90 );
+	SetCameraToTexture(PRISONCAM6, "CT_6", 90 );
+}
+
+/*********************		Get Zones		************************/
+
+	// Here is where all the values are set for each zone
+
+Script 665 OPEN
+{
+	for (int i=0; i<NUM_ZONES; i++)
+	{
+		Zones[i][0] = GetActorX(ZoneTags[i][0]);
+		Zones[i][1] = GetActorY(ZoneTags[i][0]);
+		Zones[i][2] = abs(GetActorX(ZoneTags[i][0]) - GetActorX(ZoneTags[i][1]));
+		Zones[i][3] = abs(GetActorY(ZoneTags[i][1]) - GetActorY(ZoneTags[i][0]));
+		Zones[i][4] = GetActorZ(ZoneTags[i][0]);
+		Zones[i][5] = PatrolTags[i];
+		Zones[i][6] = GetActorAngle(ZoneTags[i][0]) / 256;
+	}
+}
+
+/*********************		Enter		************************/
+
+	// Static actions executed when the player first enters a map.
+
+Script 669 ENTER
+{
+	// Inventory Item for the scoreboard
+	GiveInventory("ScoreboardToggle",1);
+
+	// Alternate Clearing of Inventory to make sure that inventory Items do not get lost,
+	// but weapons and ammo were completely removed.
+	TakeInventory("DEChainsaw", 999);
+	TakeInventory("AutoShotgun", 999);
+	TakeInventory("DESuperShotgun", 999);
+	TakeInventory("SuperShotgun", 999);
+	TakeInventory("DEShotgun", 999);
+	TakeInventory("Shotgun", 999);
+	TakeInventory("DEChaingun", 999);
+	TakeInventory("Chaingun", 999);
+	TakeInventory("HRL", 999);
+	TakeInventory("LandMineLayer", 999);
+	TakeInventory("DERLauncher", 999);
+	TakeInventory("RocketLauncher", 999);
+	TakeInventory("Railgun", 999);
+	TakeInventory("StunnerRifle", 999);
+	TakeInventory("DEPlasmaRifle", 999);
+	TakeInventory("PlasmaRifle", 999);
+	TakeInventory("DEBFG9000", 999);
+	TakeInventory("BFG9000", 999);
+	TakeInventory("PyroCannon", 999);
+	TakeInventory("Flamer", 999);
+	TakeInventory("Devastator", 999);
+	TakeInventory("Repeater", 999);
+	TakeInventory("Clip", 999);
+	TakeInventory("Cell", 999);
+	TakeInventory("HRLAmmo", 999);
+	TakeInventory("RocketAmmo", 999);
+	TakeInventory("Gas", 999);
+	TakeInventory("Shell", 999);
+	TakeInventory("Mines", 999);
+	TakeInventory("Pistol", 999);
+	TakeInventory("DEFist", 999);
+	TakeInventory("BruiserWeapon", 999);
+
+	GiveInventory("DEPistol", 1);
+	GiveInventory("DEFist", 1);
+
+	switch (GameSkill())
+	{
+	case SKILL_VERY_EASY:
+	case SKILL_VERY_HARD:
+		GiveInventory("Clip", 25);
+		break;
+	default:
+		GiveInventory("Clip", 50);
+	}
+	SetWeapon("DEPistol");
+	Thing_ChangeTID(0, PLAYER_TID + PlayerNumber());
+	SetFont("BIGFONT");
+	SetHUDSize(640, 480, 1);
+	while (TRUE) // Shouldn't this be done by SBARINFO or something?
+	{
+		HUDMessage(s:"\cG", i:CheckInventory("LifeItem"); HUDMSG_PLAIN, 201, 0, 614.0, 376.0, 0.05);
+		delay(1);
+	}
+}
+
+/**************************       Death       *****************************/
+
+// Death - Continue?
+// AgentME: Doesn't seem this script is done, and has some serious problems
+//  with the way it's set up now, so I've disabled it.
+/*
+script 801 death
+{
+	int counter = 10;
+	if (CheckInventory("LifeItem") > 0)
+	{
+		SetFont("BIGFONT");
+		SetHUDSize(640, 480, 1);
+
+		while (counter > 0)
+		{
+			counter--;
+			// HUDMessage(s: "Continue?"; HUDMSG_PLAIN, 202, CR_WHITE, 320.0, 220.0, 1.0);
+			// HUDMessage(d: counter; HUDMSG_PLAIN, 203, CR_WHITE, 320.0, 240.0, 1.0);
+			delay(35);
+		}
+		Teleport_NoFog(900+PlayerNumber(), 0, 0);
+	}
+}
+*/
+
+/*********************		Respawn		************************/
+
+	// Static actions executed when the player respawns.
+
+script 670 RESPAWN
+{
+	// Make sure our old dead body doesn't still have our tid
+	Thing_ChangeTid(PLAYER_TID+PlayerNumber(),0);
+	Thing_ChangeTid(0,PLAYER_TID+PlayerNumber());
+
+	// Inventory Item for the scoreboard
+	GiveInventory("ScoreboardToggle",1);
+
+	if (CheckInventory("LifeItem") > 0)
+	{
+		TakeInventory("LifeItem", 1);
+	}
+	else
+	{
+		Teleport_NoFog(PRISONSPOT+PlayerNumber(), 0, 0);
+		acs_execute(895,0,1,0,0);
+		Thing_ChangeTID(0, 0);
+	}
+	// clear messages
+	HUDMessage(s:""; HUDMSG_PLAIN, 202, CR_WHITE, 0.0, 0.0, 0.0);
+	HUDMessage(s:""; HUDMSG_PLAIN, 203, CR_WHITE, 0.0, 0.0, 0.0);
+}
+
+/*********************     Time Trial Execution      ***********************/
+
+int HItimes[56][4] = {
+{	9,	9,	0,	0	}, // STR01 - not needed
+{	9,	9,	0,	0	}, // STR02
+{	9,	9,	0,	0	}, // STR03
+{	9,	9,	0,	0	}, // STR04
+{	9,	9,	0,	0	}, // STR05
+{	9,	9,	0,	0	}, // STR06
+{	9,	9,	0,	0	}, // STR07
+{	9,	9,	0,	0	}, // STR08
+{	9,	9,	0,	0	}, // STR09
+{	9,	9,	0,	0	}, // STR10
+{	9,	9,	0,	0	}, // STR11
+{	9,	9,	0,	0	}, // STR12
+{	9,	9,	0,	0	}, // STR13
+{	9,	9,	0,	0	}, // STR14
+{	9,	9,	0,	0	}, // STR15
+{	9,	9,	0,	0	}, // STR16
+{	9,	9,	0,	0	}, // STR17
+{	9,	9,	0,	0	}, // STR18
+{	9,	9,	0,	0	}, // STR19
+{	9,	9,	0,	0	}, // STR20
+{	9,	9,	0,	0	}, // STR21
+{	9,	9,	0,	0	}, // STR22
+{	9,	9,	0,	0	}, // STR23
+{	9,	9,	0,	0	}, // STR24
+{	9,	9,	0,	0	}, // STR25
+{	9,	9,	0,	0	}, // STR26
+{	9,	9,	0,	0	}, // STR27
+{	9,	9,	0,	0	}, // STR28
+{	9,	9,	0,	0	}, // STR29
+{	9,	9,	0,	0	}, // STR30
+{	9,	9,	0,	0	}, // STR31
+{	9,	9,	0,	0	}, // STR32
+{	9,	9,	0,	0	}, // STR33
+{	9,	9,	0,	0	}, // STR34
+{	9,	9,	0,	0	}, // STR35
+{	9,	9,	0,	0	}, // STR36
+{	9,	9,	0,	0	}, // STR37
+{	9,	9,	0,	0	}, // STR38
+{	9,	9,	0,	0	}, // STR39
+{},{},{},{},{},{},{},{},{},{},
+{	9,	9,	0,	0	}, // STR50
+{	9,	9,	0,	0	}, // STR51
+{	9,	9,	0,	0	}, // STR52
+{	9,	9,	0,	0	}, // STR53
+{	9,	9,	0,	0	}, // STR54
+{	9,	9,	0,	0	}, // STR55
+{	9,	9,	0,	0	}, // STR56
+	};
+
+int HIminutesten = 0;
+int HIminutes = 0;
+int HIsecondsten = 0;
+int HIseconds = 0;
+int HImillisten = 0;
+int HImillis = 0;
+
+int minutesten = 0;
+int minutes = 0;
+int secondsten = 0;
+int seconds = 0;
+int millisten = 0;
+int millis = 0;
+
+int timefailed = 0;
+int hicolor = CR_GOLD;
+int SecondsLeft = 0;
+str SecondAnnouncements[11] = {"T_TLIMIT","T_1SEC","T_2SEC","T_3SEC","T_4SEC","T_5SEC","T_6SEC","T_7SEC","T_8SEC","T_9SEC","T_10SEC"};
+
+function void StopClock ( void )
+{
+	ACS_Terminate(901,0);
+	if(ThisWave==NUM_WAVES-1)
+	{
+		HudMessageBold (d:minutesten,d:minutes,s:":",d:secondsten,d:seconds,s:":",d:millisten,d:millis;
+		HUDMSG_PLAIN, 92, CR_LIGHTBLUE, 540.1, 74.1, 9999.0);
+		ACS_Execute(902,0);
+	} else {
+		SetHUDSize(640,480,1);
+		SetFont("BigFont");
+		HudMessageBold (d:minutesten,d:minutes,s:":",d:secondsten,d:seconds,s:":",d:millisten,d:millis;
+		HUDMSG_PLAIN, 92, CR_YELLOW, 540.1, 74.1, 9999.0);
+	}
+}
+
+function void StartClock ( void )
+{
+	ACS_Execute(901,0);
+}
+
+script 901 ( void )
+{
+	HIminutesten = HItimes[GetLevelInfo(LEVELINFO_LEVELNUM)-1][0];
+	HIminutes = HItimes[GetLevelInfo(LEVELINFO_LEVELNUM)-1][1];
+	HIsecondsten = HItimes[GetLevelInfo(LEVELINFO_LEVELNUM)-1][2];
+	HIseconds = HItimes[GetLevelInfo(LEVELINFO_LEVELNUM)-1][3];
+
+	SetHUDSize(640,480,1);
+	SetFont("SmallFont");
+	HudMessageBold (s:"Your Time:";
+	HUDMSG_PLAIN, 91, CR_WHITE, 614.2, 64.1, 9999.0);
+	SetFont("BigFont");
+	HudMessageBold (d:minutesten,d:minutes,s:":",d:secondsten,d:seconds,s:":",d:millisten,d:millis;
+	HUDMSG_PLAIN, 92, hicolor, 540.1, 74.1, 9999.0);
+	// HudMessageBold (d:SecondsLeft;
+	// HUDMSG_PLAIN, 777, CR_GOLD, 400.1, 8.1, 9999.0);
+	SetFont("SmallFont");
+	HudMessageBold (s:"Time Trial Record:";
+	HUDMSG_PLAIN, 93, CR_WHITE, 614.2, 90.1, 9999.0);
+	SetFont("BigFont");
+	if (millis>=HImillis &&
+		millisten>=HImillisten &&
+		seconds>=HIseconds &&
+		secondsten>=HIsecondsten &&
+		minutes>=HIminutes &&
+		minutesten>=HIminutesten)
+	{
+		if(timefailed==0)
+		{
+			timefailed = 1;
+			HudMessageBold (d:minutesten,d:minutes,s:":",d:secondsten,d:seconds,s:":",d:millisten,d:millis;
+			HUDMSG_PLAIN, 92, CR_RED, 540.1, 74.1, 9999.0);
+			SetActorProperty(EPICENTRE_OF_HATE,APROP_Invulnerable,1);
+			Failure();
+			SetFont("HUDTH");
+			HudMessageBold (s:"a"; HUDMSG_FADEINOUT, 123, 0, 320.0, 240.0, 5.0, 0.5, 0.5);
+			terminate;
+		}
+	}
+
+	SecondsLeft =	(((HIminutesten*600)+HIminutes*60)+
+			((HIsecondsten*10)+HIseconds))-
+			(((minutesten*600)+minutes*60)+
+			((secondsten*10)+seconds));
+
+	if(millis+millisten==0)
+	{
+		switch(SecondsLeft)
+		{
+		case 300:
+			HudMessageBold(s:"5 minute warning!";
+			HUDMSG_FADEOUT,0,CR_WHITE,320.4,240.0,1.5,0.5);
+			AmbientSound("T_5MINS",127);
+			break;
+		case 180:
+			HudMessageBold(s:"3 minute warning!";
+			HUDMSG_FADEOUT,0,CR_GOLD,320.4,240.0,1.5,0.5);
+			AmbientSound("T_3MINS",127);
+			break;
+		case 60:
+			HudMessageBold(s:"1 minute warning!";
+			HUDMSG_FADEOUT,0,CR_DARKRED,320.4,240.0,1.5,0.5);
+			AmbientSound("T_1MIN",127);
+			break;
+		case 30:
+			HudMessageBold(s:"30 seconds remaining!";
+			HUDMSG_FADEOUT,0,CR_RED,320.4,240.0,1.5,0.5);
+			AmbientSound("T_30SEC",127);
+			break;
+		case 10: case 9: case 8: case 7: case 6:
+		case 5: case 4: case 3: case 2: case 1:
+			HudMessageBold(d:SecondsLeft,s:"...";
+				HUDMSG_FADEOUT,0,CR_RED,320.4,240.0,0.5,0.25);
+			AmbientSound(SecondAnnouncements[SecondsLeft],127);
+			break;
+		case 0:
+	//		Print(s:"");
+		}
+	}
+
+	HudMessageBold (d:himinutesten,d:himinutes,s:":",d:hisecondsten,d:hiseconds,s:":",d:himillisten,d:himillis;
+	HUDMSG_PLAIN, 94, CR_GOLD, 540.1, 100.1, 9999.0);
+
+	millis++;
+	if(millis==10) { millis=0; millisten++; }
+	if(millisten==3 && millis==5) { millisten=0; millis=0; seconds++; }
+	if(seconds==10) { seconds=0; secondsten++; }
+	if(secondsten==6) { secondsten=0; seconds=0; minutes++; }
+	if(minutes==10) { minutes=0; minutesten++; }
+
+	delay(1);
+	restart;
+}
+
+// Bonus Reward is: LevelNumber*50 + SecondsLeft*10
+
+// STR02 beaten with 75 seconds left: 100 + 750 = 950 gold
+// STR16 beaten with 40 seconds left: 800 + 400 = 1200 gold
+// STR20 beaten with 90 seconds left: 1000 + 900 = 1900 gold
+// STR27 beaten with 105 seconds left: 1350 + 1050 = 2400 gold... wow
+// etc...
+
+script 902 ( void )
+{
+	// StopClock();
+	SetHUDSize(640,480,1);
+	SetFont("BigFont");
+	HudMessageBold (s:"Time attack beaten!";
+	HUDMSG_PLAIN, 776, CR_WHITE, 320.4, 84.0, 9999.0);
+
+	int x = GetLevelInfo(LEVELINFO_LEVELNUM)*50; // level bonus
+	int y = SecondsLeft*10; // time bonus
+	int z = 0; // total reward
+
+	SetFont("SmallFont");
+	HudMessageBold (s:"Level Bonus: \cf",d:GetLevelInfo(LEVELINFO_LEVELNUM),s:" x 50 = ",d:x,
+		s:"\n\nTime Bonus: \cf",d:SecondsLeft,s:" x 10 = ",d:y,s:"\n\n\nReward:              ";
+		HUDMSG_PLAIN, 778, CR_WHITE, 320.4, 120.0, 9999.0);
+
+	SetFont("BigFont");
+	HudMessageBold (s:"$",d:z;
+	HUDMSG_PLAIN, 779, CR_YELLOW, 330.5, 137.0, 9999.0);
+
+	delay(35);
+
+	while(x>0)
+	{
+		x-=25;
+		z+=25;
+
+		SetFont("SmallFont");
+		HudMessageBold (s:"Level Bonus: \cf",d:GetLevelInfo(LEVELINFO_LEVELNUM),s:" x 50 = ",d:x,
+			s:"\n\nTime Bonus: \cf",d:SecondsLeft,s:" x 10 = ",d:y,s:"\n\n\nReward:              ";
+			HUDMSG_PLAIN, 778, CR_WHITE, 320.4, 120.0, 9999.0);
+
+		SetFont("BigFont");
+		HudMessageBold (s:"$",d:z;
+		HUDMSG_PLAIN, 779, CR_YELLOW, 330.5, 137.0, 9999.0);
+
+		delay(1);
+	}
+
+	while(y>0)
+	{
+		y-=10;
+		z+=10;
+
+		SetFont("SmallFont");
+		HudMessageBold (s:"Level Bonus: \cf",d:GetLevelInfo(LEVELINFO_LEVELNUM),s:" x 50 = ",d:x,
+			s:"\n\nTime Bonus: \cf",d:SecondsLeft,s:" x 10 = ",d:y,s:"\n\n\nReward:";
+			HUDMSG_PLAIN, 778, CR_WHITE, 320.4, 120.0, 9999.0);
+
+		SetFont("BigFont");
+		HudMessageBold (s:"$",d:z;
+		HUDMSG_PLAIN, 779, CR_YELLOW, 330.5, 137.0, 9999.0);
+
+		delay(1);
+	}
+
+	delay(35);
+
+	AmbientSound("Cash",128);
+	SetFont("BigFont");
+	HudMessageBold (s:"$",d:z;
+		HUDMSG_PLAIN, 779, CR_GOLD, 330.5, 137.0, 9999.0);
+	for(int p=0; p<PlayerCount(); p++)
+	{
+		GiveActorInventory(PLAYER_TID+p,"CoinItem",z);
+	}
+}
+
+/*********************		Highscore Display		************************/
+
+#define MAX_PLAYERS 256
+#define SCOREBOARD_HID_START 1300
+// Scoreboard can use Hudmessage Id's up to SCOREBOARD_HID_START + HUD_MSG_PER_PLAYER*MAX_PLAYERS + EXTRA_HUD_MSGS
+
+// Change next two to reflect number of times HudMessageBold is called in scoreboard script
+// Needed for Scoreboard clearing script
+#define HUD_MSG_PER_PLAYER 3
+#define EXTRA_HUD_MSGS 1
+
+// Entry 0 stores player number of 1st place player, entry 1 has 2nd place, etc.
+int PlayersByScore[MAX_PLAYERS];
+// Entry 0 stores 1st player's rank, ie 1 for 1st place, 2 for 2nd place, etc. Needed for resolving ties.
+int PlayersScoreRank[MAX_PLAYERS];
+
+int showScoreBrd[MAX_PLAYERS]; // Change to TRUE when scoreboard should be shown
+
+
+script 75 (int mode)	//	Scoreboard control script - Mode: 0 = Toggle, 1 = On, 2 = Off
+			//	Do not use 'puke' to call, use ScoreboardToggle item (check controls menu)
+{
+	switch (mode)
+	{
+	case 1:
+		showScoreBrd[PlayerNumber()] = TRUE;
+		break;
+	case 2:
+		showScoreBrd[PlayerNumber()] = FALSE;
+		break;
+	case 0:
+	default:
+		if(showScoreBrd[PlayerNumber()])
+		{	showScoreBrd[PlayerNumber()] = FALSE;	}
+		else
+		{	showScoreBrd[PlayerNumber()] = TRUE;	}
+		break;
+	}
+}
+
+script 600 (void) // Scoreboard script
+{
+	SortPlayersByScore();
+
+	// Configurable parts - DO NOT EDIT DECIMAL PART - LEAVE AS .0
+	int hud_x = 470.0;	// X position of left side of text
+	int hud_y_start = 165.0;	// Y position (top of the text) where first player is listed in scoreboard
+	int hud_y_difference = 8.0;	// Pixels between HudMessage's Y positions (increase for more spacing, etc.)
+
+	// Counters (don't edit these here)
+	int scoreboard_hid = SCOREBOARD_HID_START;
+	int hud_y_counter = 0;
+
+	SetHudSize(640,480,1);
+
+	ClearScoreBoard();
+
+	SetFont("SMALLFONT");	// I moved this outside of the loop so it only gets called once
+
+	int curPlayer;
+	for (int i=0; i<PlayerCount(); i++)
+	{
+		curPlayer = PlayersByScore[i];
+
+		// Make sure to change HUD_MSG_PER_PLAYER if you change number of times HudMessage is called here.
+
+		// Write ranks
+		HudMessage(d:PlayersScoreRank[curPlayer],s:"."; HUDMSG_PLAIN, scoreboard_hid++, CR_WHITE, hud_x+0.1, 0.1+hud_y_start+hud_y_counter, 0.0);
+
+		// Write scores
+		HudMessage(d:PlayerScore(curPlayer),s:" $"; HUDMSG_PLAIN, scoreboard_hid++, CR_GOLD, hud_x+60.2, 0.1+hud_y_start+hud_y_counter, 0.0);
+
+		// Write Player Names
+		HudMessage(n:curPlayer+1; HUDMSG_PLAIN, scoreboard_hid++, CR_RED, hud_x+68.1, 0.1+hud_y_start+hud_y_counter, 0.0);
+
+		// Increment counter so next set of HudMessages are below this one
+		hud_y_counter += hud_y_difference;
+	}
+
+	// Make sure EXTRA_HUD_MSGS is set to number of times HudMessage is called outside of loop here
+	SetFont("HUDSCR");
+	HudMessage(s:"a"; HUDMSG_PLAIN, scoreboard_hid++, 0, 320.0, 240.0, 0);
+}
+
+script 601 ENTER // Calls scoreboard script regularly if needed
+{
+	int status;
+	while(TRUE)
+	{
+		if(showScoreBrd[PlayerNumber()])
+		{
+			ACS_ExecuteAlways(600,0,0,0,0);
+			status = TRUE;
+		}
+		else if(status)
+		{
+		//	Clear scoreboard if it was turned off in the last cycle
+			ClearScoreBoard();
+			status = FALSE;
+		}
+		delay(25);
+	}
+}
+
+function int PlayerScore (int playernum)
+{
+	return CheckActorInventory(PLAYER_TID+playernum,"CoinItem");
+}
+
+function void ClearScoreBoard (void)
+{
+	int scoreboard_hid = SCOREBOARD_HID_START;
+	for (int i=0; i<HUD_MSG_PER_PLAYER*MAX_PLAYERS+EXTRA_HUD_MSGS; i++)
+	{
+		HudMessage(s:""; HUDMSG_PLAIN, scoreboard_hid++, 0, 0.0, 0.0, 0.1);
+	}
+}
+
+function void SortPlayersByScore (void)
+{
+	// Fill Array
+	int numOfPlayers = PlayerCount();
+	int offset = 0;
+	int i = 0;
+	for (i=0; i<numOfPlayers+offset; i++)
+	{
+		if(!PlayerInGame(i))
+		{
+			offset++;
+		} else {
+			PlayersByScore[i-offset] = i;
+		}
+	}
+
+	// Then sort it
+	i = 0;
+	while (i < numOfPlayers)
+	{
+		if (i == 0 || PlayerScore(PlayersByScore[i-1]) >= PlayerScore(PlayersByScore[i]))
+		{	i++;	}
+		else
+		{
+			int tmp = PlayersByScore[i];
+			PlayersByScore[i] = PlayersByScore[i-1];
+			PlayersByScore[--i] = tmp;
+		}
+	}
+
+	// Calculate Players' Score Rank Positions
+	for (i=0; i<numOfPlayers; i++)
+	{
+		// If this is the first player in the loop OR the previous player's score DOES NOT EQUAL this player's score
+		if (i == 0 || PlayerScore(PlayersByScore[i-1]) != PlayerScore(PlayersByScore[i]))
+		{	PlayersScoreRank[PlayersByScore[i]] = i+1; }
+		else
+		{
+		// So if this player's score EQUALS the previous player's score, then they both get the same rank
+			PlayersScoreRank[PlayersByScore[i]] = PlayersScoreRank[PlayersByScore[i-1]];
+		}
+	}
+}
+
+
+/*********************		Mission Decider + Assigner		************************/
+
+	// a "mission" can be thought of as anything you can usually do to a monster using its TID
+	// for example, a "mission" could simply be a command to give each monster +10 health or
+	// make it 10% faster, or you might want it to go on a different path to the other monsters
+	// or ignore the player
+
+	// here we'll set a few things up for every monster. It will be called after a
+	// succesful spawn, and thus apply to EVERY monster spawned by the script
+	// note that this is called before everything is given its mission, so it is
+	// simply the default action to take if not given a specific mission.
+
+function void GiveDefaults ( int TID )
+{
+	SetThingSpecial( TID, ACS_ExecuteAlways, 250, 0);
+	// give the monster the bodycount script (god save those born to die...)
+	// SetActorProperty( TID, APROP_Ambush, 1);
+	// deafen it, so that it always runs to its goal if it cant see a player
+	Thing_SetGoal( TID, Zones[ThisZone][5], 0, 1);
+	Thing_Hate( TID, EPICENTRE_OF_HATE, 3);
+	// send it on its way, crippled and doomed to a terrible fate...
+}
+
+	// mission picker will give a monster a TID corresponding to its purpose when it
+	// is spawned, which you can use later in GiveMissions(). What it does now can be taken
+	// as an example, because you can use any criteria you like to assign missions, and the
+	// missions themselves can be anything.
+
+function int MissionPicker ( void )
+{
+	int ClassSpeed = GetActorProperty(TestClass(Waves[ThisWave][ThisType*2]), APROP_Speed);
+		// cunningly use the testclass function instead of a TID
+	EndTest();
+		// endtest has to be called before any return statement
+		// as they terminate the script
+	if(ClassSpeed*2 + random(0.0,60.0) > 50.0 )
+	{
+		return 1;
+	}
+	return 0;
+}
+
+	// and mission 1 is to run as fast as possible to the base. one player can run into the field
+	// and distract them from that if they like....
+
+function void GiveMissions ( void )
+{
+//	for(int Zone; Zone < NUM_ZONES; Zone++) // for things in every zone
+//	{
+//		Thing_Hate(TIDArray[Zone][1], EPICENTRE_OF_HATE, 3);
+//	}
+}
+
+
+/*********************      Waves Configurator      ************************/
+
+	// should you want to change a variable in the script that uses one of these
+	// #defines, change it here, or things are sure to break left and right
+
+#define PLAYER_TID	5000	// player 1 will be tid 5000, player 2 5001 ... player 8 5007
+
+#define LEVEL		2	// level number is here so its easy to change per script per map
+
+#define MSG_X		0.05	// these two determine how far from the edge of the screen messages
+#define MSG_Y		0.05	// should be
+
+#define COUNTS_PER_TIC	2	// how many monster classes to count each tic. decrease this if you
+				// are spawning an unreasonable amount of monsters and notice some slowdown...
+
+#define SPAWN_HEIGHT	8.0	// fiddle with this if the monsters keep spawning on each other
+
+#define TICS_BETWEEN_SPAWN	5	// you can set this to 0 if you want all the monsters to spawn at once
+					// but the script will runaway if there isnt enough room for them
+
+#define BREAK_SECONDS	9	// how many seconds between waves.
+
+#define START_TID	1000	// This is the base TID that you will use. There must be some room after it,
+				// so dont give anything else a TID higher than this. Eg with 6 zones and three
+				// species of monster per wave, the range of TID's used will be 1000 to 1018
+				// apart from that, you can ignore it completely.
+
+#define EPICENTRE_OF_HATE	996	// Epicentre of hate is the TID of a smokescreen Hate target which is used to make
+					// the monsters ignore the player, so you should place one in your map...
+
+#define TEST_TID	900	// Test_TID is used for spawning a test monster, and is only defined here in case
+				// there is a TID conflict anywhere.
+
+// Differ per level
+#define TEST_X		-128.0	// You must also define an out of the way place
+#define TEST_Y		-64.0	// to spawn the test monster (an error message is displayed
+#define TEST_Z	294.0		// if it cant be spawned
+
+#define NUM_ZONES	3	// Define the total amount of zones you are going to use here
+
+#define NUM_MISSIONS	1	// This determines how many custom missions you can set for each zone (including the defaults)
+
+#define NUM_WAVES	10	// predictably, the total number of waves before the level ends...
+
+#define NUM_TYPES	3	// this is how many different types of monster you would like to spawn per wave
+				// if you increse this number, you must fill in the extra columns that will be expected
+				// in the Waves[] array, so it may be more convenient to use script 667 to spawn just a
+				// a few different monsters in one wave
+
+#define NUM_POWERUPS	3	// as above, but for powerups
+
+
+#define POWERSPOTS	1	// how many mapspots you are going to use for each type of item spawn
+#define AMMOSPOTS	1
+#define MEDISPOTS	1
+#define WEAPONSPOTS	1
+
+
+/**********************     Prison / Extra Life System Config    ****************************/
+
+#define PRISONSPOT	678	// the place where dead players out of extra lifes were spawned, reserve 678+8 for each player
+#define PRISONEXIT	699	// the place where a player is teleportert after he goes through the prison teleporter
+
+#define PRISONCAM1	691	// all of the cam textures for the prison
+#define PRISONCAM2	692
+#define PRISONCAM3	693
+#define PRISONCAM4	694
+#define PRISONCAM5	695
+#define PRISONCAM6	696
+
+// these are the monster multipliers for each skill level, and the playercounts from 1 - 8
+int SkillScaler[5] =	{ 0.5, 0.75, 1.0, 1.5, 2.0 };
+int PlayerScaler[8] =	{ 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 3.0 };
+
+// define the bounding boxes that you want the monsters to spawn in here
+// coordinates MUST HAVE a decimal point in them, or the game will interpret
+// them as 65536 times smaller than you actually want them...
+
+int UseZones =	2;	// Usezones is the index in the zones array that the spawner should stop cycling after
+			// so Usezones = 2; only spawns monsters through the first two zones
+
+// origin x, origin y, length, height, sector floor, patrol goal, angle
+int Zones[NUM_ZONES][7];
+
+// In this case there is only one zone, so slot 0 defines the first and last zone.
+int ZoneTags[NUM_ZONES][2] = {{30, 31} , {32, 33} , {34, 35} };
+
+// Instead of manually setting all the values for each zone, which will need to be reset of that zone is moved,
+// the zones are measured by two MapSpots placed in the bottom left corner of the zone, and top right. The first
+// spot is tagged 30, and is placed at ground level. The second is tagged 31, and placed in the top right corner
+// of where you want the zone to end. You'll also need to set the Z height of the second spot to the height you
+// want the zone to end. They need to be place with equal x and y distances from eachother to form a square
+// and for everything to work properly, and the angle is set by the direction the first mapspot for the zone is facing.
+
+int PatrolTags[NUM_ZONES] = {4, 5, 1};
+// The tags of the patrol points that will corespond to your zones.
+
+	// define the monster set for each wave here. just put the
+	// actor name followed by the amount you want
+	// if you really need to have more than three different types of monster
+	// in a wave, just extend the table so it has another two columns and
+	// change NUM_TYPES to 4.
+
+int Waves[NUM_WAVES][NUM_TYPES*2] ={
+	{ "ZombieMan",	4,	"ShotgunGuy",	6,	"DoomImp",	0},
+	{ "ZombieMan",	6,	"ShotgunGuy",	6,	"DoomImp",	0},
+	{ "ZombieMan",	6,	"ShotgunGuy",	8,	"DoomImp",	10},
+	{ "Demon",	2,	"ShotgunGuy",	14,	"DoomImp",	12},
+	{ "DoomImp",	12,	"Demon",	4,	"ChaingunGuy",	1},
+	{ "DoomImp",	12,	"HellKnight",	4,	"Demon",	3},
+	{ "DoomImp",	14,	"Demon",	3,	"Spectre",	2},
+	{ "DoomImp",	20,	"Demon",	3,	"Spectre",	4},
+	{ "Demon",	2,	"Spectre",	2,	"HellKnight",	4},
+	{ "DoomImp",	0,	"Spectre",	4,	"BaronOfHell",	4},
+};
+
+str Messages[NUM_WAVES][3] = {
+	{ "Wave 1 complete", "Your text here", "Your text here" },
+	{ "Wave 2 complete", "Your text here", "Your text here" },
+	{ "Wave 3 complete", "Your text here", "Your text here" },
+	{ "Wave 4 complete", "Your text here", "Your text here" },
+	{ "Wave 5 complete", "Your text here", "Your text here" },
+	{ "Wave 6 complete", "Your text here", "Your text here" },
+	{ "Wave 7 complete", "Your text here", "Your text here" },
+	{ "Wave 8 complete", "Your text here", "Your text here" },
+	{ "Wave 9 complete", "Your text here", "Your text here" },
+	{ "Final Wave complete", "Your text here", "Your text here" },
+};
+
+// The spoils of war!
+
+int Spoils[NUM_WAVES][NUM_POWERUPS*2] = {
+{	0,	0,	0,	0,	0,	0	},
+{	T_GREENARMOR,	102,	0,	0,	0,	0	},
+{	0,	0,	0,	0,	0,	0	},
+{	T_BACKPACK,	102,	0,	0,	0,	0	},
+{	0,	0,	0,	0,	0,	0	},
+{	0,	102,	0,	0,	0,	0	},
+{	0,	0,	0,	0,	0,	0	},
+{	0,	0,	0,	0,	0,	0	},
+{	T_BLUEARMOR,	102,	0,	0,	0,	0	},
+{	0,	0,	0,	0,	0,	0	},
+	// last one will be reward for completeing the level
+};
+
+// This is to put the amount of ammo you would like the player to have after each wave
+int AmmoQuota[NUM_WAVES][5] = {
+	{	50,	8,	0,	0,	0	},
+	{	50,	12,	0,	0,	0	},
+	{	75,	20,	0,	0,	0	},
+	{	75,	20,	0,	0,	0	},
+	{	50,	40,	0,	0,	0	},
+	{	50,	40,	2,	0,	0	},
+	{	0,	80,	4,	0,	0	},
+	{	0,	80,	8,	0,	0	},
+	{	0,	80,	32,	0,	0	},
+	{	0,	0,	0,	0,	0	},
+	// last one will be reward for completeing the level
+};
+
+// the total amount of stimpacks, medikits, you want to have available on the map for each wave
+int MediQuota[NUM_WAVES][NUM_MEDS] = {
+	{	2,	0	},
+	{	2,	0	},
+	{	3,	0	},
+	{	4,	0	},
+	{	4,	0	},
+	{	5,	0	},
+	{	2,	2	},
+	{	2,	2	},
+	{	3,	2	},
+	{	3,	2	},
+};
+
+
+int WeaponItems[NUM_WAVES] =
+{	T_SHOTGUN,
+	0,
+	T_CHAINGUN,
+	0,
+	T_SUPERSHOTGUN,
+	T_LANDMINELAYER,
+	T_LANDMINELAYER,
+	T_ROCKETLAUNCHER,
+	0,
+	0
+};
+
+// define the location for each powerup type to spawn here
+
+int WeaponLoc[WEAPONSPOTS]	= { 103 };
+int PowerLoc[POWERSPOTS]	= { 102 };
+int AmmoLoc[AMMOSPOTS]	= { 101 };
+int MediLoc[MEDISPOTS]	= { 100 };
+
+int Victory;
+
+/****************************** Here Begins the meat of the script itself ******************************/
+
+	// This loop will spawn and advance waves, and spawn powerups.
+	// You can write any special action to take for completing a level at the bottom of it
+
+global int 2:STR02;	// Global Map Variable, number in name depends on "LEVEL", so STR05 is Level 5, STR06 is Level 6 and so on.
+
+script 666 OPEN
+{
+	if(STR02==1)
+		StartClock();
+	for (int i = 0; i < NUM_WAVES; i++)
+	{
+		ACS_Execute (100, 0);		// Spawn the wave of monsters
+		scriptwait (100);		// Wait till they're dead
+		if(STR02==1)
+			StopClock();		// Stop the time clock
+		ACS_Execute (667, 0);		// Execute any unique action for beating this wave
+		Delay(35*BREAK_SECONDS / 2);	// Give the player a breather
+		ReStock();			// Restock the player
+		Delay(35*BREAK_SECONDS / 2);	// Give the player a breather
+		ThisWave++;			// Start again on the next!
+		if(STR02==1 && ThisWave<NUM_WAVES)
+			StartClock();		// Start the clock again!
+	}
+
+	SetMusic("D_DUMMY");
+	SetActorProperty(996, APROP_Invulnerable, 1);	// Core is Invulnerable, so it can't be destroyed anymore after winning.
+	AmbientSound("TB_VICT", 127);
+	SetHudSize (640, 480, 1);
+	SetFont("HUDMC");
+	HudMessageBold (s:"a"; HUDMSG_FADEINOUT, 123, 0, 320.0, 240.0, 4.0, 0.5, 0.5);
+	Victory = 1;
+	delay(3*35);
+	SetFont("BLACKS");
+	HudMessageBold (s:"a"; HUDMSG_FADEINOUT, 12400, 0, 320.0, 240.0, 20.0, 3.0);
+	delay(5*35);
+
+	GiveInventory("CoinItem", 100);		// Reward for beating one map, given to each player
+
+
+	STR02=1;	// Tells the Intermap that this map has been beaten
+	Exit_Normal(0);
+}
+
+// in this script you will write the action to take after beating one wave
+
+script 667 (void)
+{
+	switch(ThisWave+1)
+	{
+	case 7:	// After Wave 7:
+		Floor_LowerByValue(3, 20, 120);
+		Usezones = 3;
+		break;
+	}
+}
+
+#define ONE_MINUTE	35*60*1
+#define TWO_MINUTES	35*60*2
+#define THREE_MINUTES	35*60*3
+#define FOUR_MINUTES	35*60*4
+#define FIVE_MINUTES	35*60*5
+#define SIX_MINUTES	35*60*6
+#define SEVEN_MINUTES	35*60*7
+#define EIGHT_MINUTES	35*60*8
+#define NINE_MINUTES	35*60*9
+#define TEN_MINUTES	35*60*10
+
+int Time[5] = { EIGHT_MINUTES, SEVEN_MINUTES, SIX_MINUTES, FIVE_MINUTES, FOUR_MINUTES };
+
+/////////////////////////////////////////////////////////////////////////////////////////
+///////////////////    BOSS / CORE LIFE DISPLAY SCRIPT     //////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
+// This has to be started in a external OPEN script when necessary. Use this in Core or
+// Overmind type maps. The only things that are needed to change have been commented.
+
+#define BOSS_HP	321
+#define FRAME_X	320.0
+#define FRAME_Y	240.0
+#define BOSS_X	40.0
+#define BOSS_Y	310.0
+#define HP_X	46.0
+#define HP_Y	320.0
+
+Script 321 (int toggle) {	// Start this script if you use a power core or overmind as main target
+						// Place your target and make sure it is the only object with TID 996
+						// If it's a overmind map, epicenter of hate and the overmind must have
+						// different TIDs, if it's a core map, the core and the epicenter of hate
+						// are the same.
+
+	int currenthp = 0;
+	int i = 996;
+	{
+	if (GetActorProperty(i, APROP_HEALTH) <= 0)
+	{
+	// Should there be code here?
+	}
+	else if (GetActorProperty(i, APROP_HEALTH) > 0) {currenthp += GetActorProperty(i, APROP_HEALTH); }
+	}
+
+	switch(toggle)
+	{
+	case 0:
+		int color = CR_GREEN;
+		int maxhp = currenthp;
+		toggle = 1;
+
+		SetHudSize(640, 480, 1);
+		SetFont("HUDGFXC");
+		HudMessageBold(s:"a"; HUDMSG_PLAIN, 80, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.0);
+
+		SetFont("SMALLFONT");
+		HudMessageBold(s:"Core"; HUDMSG_PLAIN, 81, CR_GRAY, BOSS_X, BOSS_Y, 0.0);	// Also try CR_GREY or CR_WHITE
+		// If necessary, change Core into Boss here...
+		delay(1);
+		restart;
+	case 1:
+		int percent = currenthp*100/maxhp;
+		if (percent <= 75 && percent > 50)	{ color = CR_YELLOW;	}
+		else if (percent <= 50 && percent > 25)	{ color = CR_ORANGE;	}
+		else if (percent <= 25 && percent > 0)	{ color = CR_RED;	}
+		else if (percent <= 0 && currenthp != 0)	{ percent = 1;	}
+		else if (currenthp == 0)		{ toggle = 2; percent = 0;	}
+
+		SetFont("BIGFONT");
+		HudMessageBold(d:percent, s:"%"; HUDMSG_PLAIN, 82, color, HP_X, HP_Y, 0.286);
+		delay(10);
+		restart;
+	case 2:
+		SetFont("HUDGFXC");
+		HudMessageBold(s:"a"; HUDMSG_FADEOUT, 80, CR_UNTRANSLATED, FRAME_X, FRAME_Y, 0.286, 1.0);
+
+		SetFont("SMALLFONT");
+		HudMessageBold(s:"Core"; HUDMSG_FADEOUT, 81, CR_GRAY, BOSS_X, BOSS_Y, 0.286, 1.0);
+		// ...and here as well (Boss or Core)
+
+		SetFont("BIGFONT");
+		HudMessageBold(d:percent, s:"%"; HUDMSG_FADEOUT, 82, color, -HP_X, HP_Y, 0.286, 1.0);
+
+		acs_execute(255, 0, 0, 0, 0);	// This is what happens after the core or boss is destroyed. For destroyed core,
+				// start the "failure" script, for a destroyed boss, the map is won.
+	break;
+	}
+}
+
+
+
+///////////////////////////////////////////////////
+///////////   PRISON TELEPORTER   /////////////////
+///////////////////////////////////////////////////
+
+// In most of the cases, you don't have to change something here
+// as long as you haven't used scripts 897 to 899 in your map
+// somewhere else (make sure that 897 stays intact, it gets called
+// from the actor "LifeItem". Try to keep this part as it is and
+// just copy and paste your prison room from other maps or the
+// template.
+
+int prisonteleporter=0;
+
+script 897 (void)
+{
+	if(prisonteleporter==0)
+	{
+	thing_activate(99);	// Dynamic Lights have tid 98 and 99
+	thing_deactivate(98);
+	setlinetexture(99, SIDE_FRONT, TEXTURE_MIDDLE, "TELEPTY1");
+	prisonteleporter=1;
+	print(s:"\cGPrison teleporter has been activated!");
+	}
+	else
+	{
+	print(s:"\cGPrison teleporter has already been activated!");
+	GiveInventory("LifeItem", 1);
+	}
+}
+
+script 898 (int prison_thrust)		// Standard Battlefield Border Script
+{
+	if(prisonteleporter==0)
+	{
+	ThrustThing(prison_thrust, 30, 0);
+	print(s:"\cGNo extra life has been spent, teleporter disabled!");
+	}
+	else
+	{
+	teleport(PRISONEXIT);
+	prisonteleporter=0;
+	setlinetexture(99, SIDE_FRONT, TEXTURE_MIDDLE, "TELEPTX1");
+	thing_activate(98);
+	thing_deactivate(99);
+	acs_execute(895,0,0,0,0);
+	}
+}
+
+script 899 OPEN
+{
+	SetLineSpecial(99, 80, 898, 0, 0, 0, 0);
+}
+
+int prisoncounter=0;
+
+script 895 (int prisondiffer)
+{
+	if (prisondiffer==1 ) {
+		prisoncounter++;
+	} else {
+		prisoncounter--;
+	}
+}
+
+script 896 OPEN
+{
+	if (GameType()==GAME_SINGLE_PLAYER)
+	{
+
+	}
+	else
+	{
+		while (TRUE)	// Displays the amount of players in prison
+		{
+			SetHudSize (640, 480, 1);
+			SetFont("SMALLFONT");
+			HUDMessage(s:"\cGPrison:\cC", i:prisoncounter; HUDMSG_PLAIN, 200, 0, 610.0, 400.0, 0.05);
+			delay(1);
+		}
+	}
+}
+
+int prisonexit_open=0;
+
+script 893 OPEN
+{
+	if(PlayerCount()==prisoncounter)
+		{
+			printbold(s:"\cGAll Players are in prison, you may \cCexit \cGthis map!");
+			prisonexit_open=1;
+
+		}
+	else
+		{
+			prisonexit_open=0;
+		}
+	delay(10);
+	restart;
+}
+
+
+script 252 (void)
+{
+	if(prisonexit_open==0)
+	{
+		ThrustThing(128, 30, 0);
+		printbold(s:"\cGThere are still \cCplayers \cGon the battlefield!");
+	}
+	else
+	{
+		Exit_Normal(0);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//////   GAME OVER & BATTLEFIELD BORDER    //////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+
+// Standard Game Over Script
+script 255 (void)
+{
+	Failure();
+}
+
+// Standard Battlefield Border Script
+script 254 (int bf_thrust)
+{
+	ThrustThing(bf_thrust, 30, 0);
+	print(s:"\cGYou must not leave the battlefield!");
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////  Initialising Map Stuffage  ///////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+
+script 1 OPEN
+{
+	// Panning
+	sector_setfloorpanning(1, 32, 0, 32, 0);
+	sector_setfloorpanning(3, 32, 0, 0, 0);
+
+}

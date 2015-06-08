@@ -32,7 +32,7 @@ actor FakeGoalBase
 		TRGT A 1 A_SpawnItemEx("FakeGoalSparks", 0, 0, 20, random(-3,3), random(-3,3), random(-3,3), 0, SXF_TRANSFERTRANSLATION | 128)
 		loop
 	Death:
-		TNT1 A 1 
+		TNT1 A 1
 		TNT1 A 1 A_Scream	// Sound can't be played in first tic?
 		stop
 	}
@@ -376,7 +376,7 @@ actor Portal_ParticleLeecher 3194
 ////////////////////////////////////////
 
 
-Actor BaseCloud 
+Actor BaseCloud
 {
  +Missile
  +NoBlockmap
@@ -491,7 +491,7 @@ Actor White_Cloud 2998
  {
   Spawn:
    CLFX AA 3 A_FadeIn(0.1)
-   CLFX A 1 
+   CLFX A 1
    wait
   Death:
    CLFX AAAAAA 10 A_FadeOut(0.1)
@@ -4883,7 +4883,7 @@ Actor OvermindCore 29952
 		ZECR ABCD 4
 		loop
 	Death:
-		TNT1 A 0 
+		TNT1 A 0
 		TNT1 A 0 A_Scream
 		MISL BCD 3 Bright
 		stop
@@ -5146,7 +5146,7 @@ Actor SnowSpawner_512 23333
 ///////////////////////////////////////////
 
 Actor IWantToKickAss : CustomInventory
-{                             
+{
    ConversationID 110
    States
    {
@@ -5157,7 +5157,7 @@ Actor IWantToKickAss : CustomInventory
 }
 
 Actor IWantToGoRestock : Inventory
-{                             
+{
    ConversationID 111
 }
 
@@ -5166,31 +5166,14 @@ Actor AllTiersCompleted : Inventory
    ConversationID 112
 }
 
-// [SP] Soulsphere and Megasphere fixes for Skulltag
-actor STSTMegasphere : Megasphere replaces Megasphere { -NOGRAVITY }
-actor STSTSoulsphere : Soulsphere replaces Soulsphere { -NOGRAVITY }
-
 // Includes
 
-#include "actors/weapons/dec_altm.txt"
+#include "actors/weapons/dec_player.txt"
 #include "actors/weapons/dec_item.txt"
 #include "actors/weapons/dec_morp.txt"
-#include "actors/weapons/dec_pwr.txt"
 #include "actors/weapons/dec_weapons.txt"
 
-#include "actors/nashgore.txt"
-#include "actors/critters.txt"
-#include "actors/holo.txt"
-#include "actors/npcs.txt"
-#include "actors/models.txt"
-#include "actors/duke3d.txt"
-#include "actors/cityofsilence.txt"
-#include "actors/disco.txt"
-#include "actors/exclamation.txt"
-#include "actors/scoreboard.txt"
-#include "actors/skybeams.txt"
-#include "actors/splashes.txt"
-
+#include "actors/monsters/dec_altm.txt"
 #include "actors/monsters/bruiserdemon.txt"
 #include "actors/monsters/archonofhell.txt"
 #include "actors/monsters/azazel.txt"
@@ -5218,8 +5201,20 @@ actor STSTSoulsphere : Soulsphere replaces Soulsphere { -NOGRAVITY }
 #include "actors/monsters/wicked.txt"
 #include "actors/monsters/phaseimp.txt"
 #include "actors/monsters/bigboss.txt"
-
-#include "actors/hudstuff.txt"
-
 #include "actors/monsters/moloch.txt"
 #include "actors/monsters/infernodemon.txt"
+
+#include "actors/nashgore.txt"
+#include "actors/critters.txt"
+#include "actors/holo.txt"
+#include "actors/npcs.txt"
+#include "actors/models.txt"
+#include "actors/duke3d.txt"
+#include "actors/cityofsilence.txt"
+#include "actors/disco.txt"
+#include "actors/exclamation.txt"
+#include "actors/scoreboard.txt"
+#include "actors/skybeams.txt"
+#include "actors/splashes.txt"
+
+#include "actors/hudstuff.txt"

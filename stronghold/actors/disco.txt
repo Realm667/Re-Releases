@@ -4,112 +4,100 @@
 
 actor Disco_DJ 23057
 {
-//$Category Stronghold_Decoration
-radius 12
-height 72
-+SOLID
-States
-{
- Spawn:
-  VIDE A 8
-  VIDE B 5
-  loop
-}
+	//$Category Stronghold_Decoration
+	radius 12
+	height 72
+	+SOLID
+	States
+	{
+	Spawn:
+		VIDE A 8
+		VIDE B 5
+		loop
+	}
 }
 
 actor Disco_Stripper 23058
 {
-//$Category Stronghold_Decoration
-radius 20
-height 72
-scale 0.70
-+SOLID
-States
-{
- Spawn:
-  WOM4 A 5
-  WOM4 BC 4
-  WOM4 D 5
-  WOM4 CB 4
-  loop
-}
+	//$Category Stronghold_Decoration
+	height 72
+	scale 0.70
+	+SOLID
+	States
+	{
+	Spawn:
+		WOM4 A 5
+		WOM4 BC 4
+		WOM4 D 5
+		WOM4 CB 4
+		loop
+	}
 }
 
-actor Disco_Woman 23059
+actor Disco_Woman : Disco_Stripper 23059
 {
-//$Category Stronghold_Decoration
-radius 20
-height 72
-scale 0.70
-+SOLID
-States
-{
- Spawn:
-  WOM1 A 3
-  WOM1 BCD 4
-  WOM1 E 3
-  WOM1 DCB 4
-  loop
-}
+	//$Category Stronghold_Decoration
+	States
+	{
+	Spawn:
+		WOM1 A 3
+		WOM1 BCD 4
+		WOM1 E 3
+		WOM1 DCB 4
+		loop
+	}
 }
 
 actor Disco_Marine 23060
 {
-//$Category Stronghold_Decoration
-radius 24
-height 72
-+SOLID
-States
-{
- Spawn:
-  DDAN DAB 4
-  DDAN C 3
-  DDAN DEF 4
-  DDAN C 3
-  loop
-}
-}
-
-actor Disco_SittingMarine 23061
-{
-//$Category Stronghold_Decoration
-radius 24
-height 40
-+SOLID
-States
-{
- Spawn:
-  SIT3 A -1
-  stop
- }
+	//$Category Stronghold_Decoration
+	radius 24
+	height 72
+	+SOLID
+	States
+	{
+	Spawn:
+		DDAN DAB 4
+		DDAN C 3
+		DDAN DEF 4
+		DDAN C 3
+		loop
+	}
 }
 
-actor Disco_Marine2 23062
+actor Disco_Marine2 : Disco_Marine 23062
 {
-//$Category Stronghold_Decoration
-radius 24
-height 72
-+SOLID
-States
-{
- Spawn:
-  DDA2 A 3
-  DDA2 BCDCB 2
-  loop
-}
+	//$Category Stronghold_Decoration
+	States
+	{
+	Spawn:
+		DDA2 A 3
+		DDA2 BCDCB 2
+		loop
+	}
 }
 
 actor Disco_Marine3 23063
 {
-//$Category Stronghold_Decoration
-radius 24
-height 40
-+SOLID
-States
-{
- Spawn:
-  DDA3 ABCDEFGH 2
-  loop
-}
+	//$Category Stronghold_Decoration
+	radius 24
+	height 40
+	+SOLID
+	States
+	{
+	Spawn:
+		DDA3 ABCDEFGH 2
+		loop
+	}
 }
 
+actor Disco_SittingMarine : Disco_Marine3 23061
+{
+	//$Category Stronghold_Decoration
+	States
+	{
+	Spawn:
+		SIT3 A -1
+		stop
+	}
+}

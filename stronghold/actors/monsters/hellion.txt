@@ -1,119 +1,128 @@
 //Hellion
 actor Hellion 30132
 {
-//$Category Stronghold_Monsters
-  spawnid 225
-  painchance "Stunner", 128
-  
-  obituary "A Hellion burned %o to a crisp."
-  health 70
-  radius 20
-  height 56
-  mass 120
-  speed 10
-  painchance 24
-  seesound "monster/hlnsit"
-  painsound "monster/hlnpai"
-  deathsound "monster/hlndth"
-  activesound "monster/hlnact"
-  MONSTER
-  +FLOORCLIP
-  states
-  {
-  Spawn:
-    HELN AB 10 A_Look
-    loop
-  See:
-    HELN AABBCCDDEEFF 2 A_Chase
-    loop
-  Missile:
-    HELN G 0 A_VileStart
-    HELN GHIJK 6 Bright A_FaceTarget
-    HELN L 6 Bright A_CustomMissile("HellionBall",32,0,0,0,0)
-    HELN L 2
-    goto See
-  Pain:
-    HELN M 2
-    HELN M 2 A_Pain
-    goto See
-  Pain.Stunner:
-    HELN M 2 A_ChangeFlag("NoPain", 1)
-    HELN M 300 A_Pain
-    HELN M 0 A_ChangeFlag("NoPain", 0)
-    goto See    
-  Death:
-    TNT1 A 0 A_GiveToTarget("AwardItem", 10)
-    HELN N 6
-    HELN O 6 A_Scream
-    HELN PQR 6
-    HELN S 6 A_NoBlocking
-    HELN T 3000 
-    HELN TTTTTTTTTTTT 2 A_FadeOut(0.1) 
-    stop
-  XDeath:
-    TNT1 A 0 A_GiveToTarget("AwardItem", 19)
-    HELN U 5
-    HELN V 5 A_XScream
-    HELN W 5
-    HELN X 5 A_NoBlocking
-    HELN YZ 5
-    HELN "[\]" 5
-    HELN ] 3000 
-    HELN ] 2 A_FadeOut(0.1) 
-    HELN ] 2 A_FadeOut(0.1) 
-    HELN ] 2 A_FadeOut(0.1) 
-    HELN ] 2 A_FadeOut(0.1) 
-    HELN ] 2 A_FadeOut(0.1) 
-    HELN ] 2 A_FadeOut(0.1) 
-    HELN ] 2 A_FadeOut(0.1) 
-    HELN ] 2 A_FadeOut(0.1) 
-    HELN ] 2 A_FadeOut(0.1) 
-    HELN ] 2 A_FadeOut(0.1) 
-    HELN ] 2 A_FadeOut(0.1) 
-    HELN ] 2 A_FadeOut(0.1) 
-    stop
-  Raise:
-    HELN TSRQPON 6
-    goto See
-  }
+	//$Category Stronghold_Monsters
+	painchance "Stunner",128
+	obituary "A Hellion burned %o to a crisp."
+	health 70
+	height 56
+	mass 120
+	speed 5
+	painchance 24
+	seesound "monster/hlnsit"
+	painsound "monster/hlnpai"
+	deathsound "monster/hlndth"
+	activesound "monster/hlnact"
+	MONSTER
+	+FLOORCLIP
+	states
+	{
+	Spawn:
+		HELN AB 10 A_Look
+		loop
+	See:
+		HELN A 1 A_Chase
+		HELN A 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		HELN A 1 A_Chase
+		HELN A 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		HELN B 1 A_Chase
+		HELN B 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		HELN B 1 A_Chase
+		HELN B 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		HELN C 1 A_Chase
+		HELN C 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		HELN C 1 A_Chase
+		HELN C 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		HELN D 1 A_Chase
+		HELN D 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		HELN D 1 A_Chase
+		HELN D 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		HELN E 1 A_Chase
+		HELN E 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		HELN E 1 A_Chase
+		HELN E 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		HELN F 1 A_Chase
+		HELN F 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		HELN F 1 A_Chase
+		HELN F 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		loop
+	Missile:
+		HELN G 0 A_VileStart
+		HELN GHIJK 6 Bright A_FaceTarget
+		HELN L 6 Bright A_CustomMissile("HellionBall")
+		HELN L 2
+		goto See
+	Pain:
+		HELN M 2
+		HELN M 2 A_Pain
+		goto See
+	Pain.Stunner:
+		HELN M 2 A_ChangeFlag("NoPain",1)
+		HELN M 300 A_Pain
+		HELN M 0 A_ChangeFlag("NoPain",0)
+		goto See
+	Death:
+		TNT1 A 0 A_GiveToTarget("AwardItem",10)
+		HELN N 6
+		HELN O 6 A_Scream
+		HELN PQR 6
+		HELN S 6 A_NoBlocking
+		HELN T 3000
+		HELN T 2 A_FadeOut(0.1)
+		Wait
+	XDeath:
+		TNT1 A 0 A_GiveToTarget("AwardItem",19)
+		HELN U 5
+		HELN V 5 A_XScream
+		HELN W 5
+		HELN X 5 A_NoBlocking
+		HELN YZ 5
+		HELN "[\]" 5
+		HELN ] 3000
+		HELN ] 2 A_FadeOut(0.1)
+		Wait
+	Raise:
+		HELN TSRQPON 6
+		goto See
+	}
 }
 
 ACTOR HellionBall : CacodemonBall
 {
-Damage 8
-Speed 15
-Alpha 0.80
-DamageType fire
-+FORCEXYBILLBOARD
-SeeSound "Monster/hlnatk"
-DeathSound "Monster/hlnexp"
- states
-  {
-  Spawn:
-    HLBL AB 3 bright A_SpawnItemEx("HellionPuff",0,0,0,0,0,0,0,128)
-    loop
-  Death:
-    HLBL JKLMN 3 bright
-    stop
-  }
+	Damage 8
+	Speed 15
+	Alpha 0.80
+	DamageType fire
+	+FORCEXYBILLBOARD
+	SeeSound "Monster/hlnatk"
+	DeathSound "Monster/hlnexp"
+	states
+	{
+	Spawn:
+		HLBL AB 3 bright A_SpawnItemEx("HellionPuff")
+		loop
+	Death:
+		HLBL JKLMN 3 bright
+		stop
+	}
 }
 
 ACTOR HellionPuff
-{   
-   Radius 3
-   Height 3
-   RENDERSTYLE ADD
-   Alpha 0.67
-   +NOGRAVITY
-   +NOBLOCKMAP
-   +DONTSPLASH
-   +FORCEXYBILLBOARD
-   States
-   {
-   Spawn:
-      TNT1 A 3 Bright
-      HLBL CDEFGHI 3 BRIGHT
-      Stop 
-   }
+{
+	+CLIENTSIDEONLY
+	Radius 3
+	Height 3
+	RENDERSTYLE ADD
+	Alpha 0.67
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+DONTSPLASH
+	+FORCEXYBILLBOARD
+	States
+	{
+	Spawn:
+		TNT1 A 3
+		HLBL CDEFGHI 3 BRIGHT
+		Stop
+	}
 }
-//End of Hellion

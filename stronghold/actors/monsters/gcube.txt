@@ -1,105 +1,103 @@
 ACTOR Guardian 30102
 {
-//$Category Stronghold_Monsters
-spawnid 218
-painchance "Stunner", 128
-
-Health 80
-Radius 16
-Height 32
-Mass 150
-Speed 8
-PainChance 64
-MONSTER
-HITOBITUARY "%o got fried by a Guardian Cube."
-OBITUARY "%o got fried by a Guardian Cube."
-+NoGravity
-+Float
-+DontFall
-+NoBlood
-+DontHurtSpecies
-SEESOUND "monster/cubsit"
-PAINSOUND "weapons/bounc1"
-ACTIVESOUND "monster/cubfly"
-DEATHSOUND "monster/cubdth"
-SpawnID 172
-states
-   {
-   Spawn:
-       CUBE A 10 A_Look
-       Loop
-   See:
-       CUBE ABC 5 A_Chase
-       Loop
-   Missile:
-       CUBE D 5 BRIGHT A_FaceTarget
-       CUBE E 0 BRIGHT A_CustomMissile("CubeShot",10,4,0,1)
-       CUBE E 4 BRIGHT A_CustomMissile("CubeShot",10,-4,0,1)
-       CUBE D 4 BRIGHT A_FaceTarget
-       CUBE E 0 BRIGHT A_CustomMissile("CubeShot",10,4,0,1)
-       CUBE E 4 BRIGHT A_CustomMissile("CubeShot",10,-4,0,1)
-       CUBE D 4 BRIGHT A_FaceTarget
-       CUBE E 0 BRIGHT A_CustomMissile("CubeShot",10,4,0,1)
-       CUBE E 4 BRIGHT A_CustomMissile("CubeShot",10,-4,0,1)
-       CUBE D 4 BRIGHT A_FaceTarget
-       Goto See
-   Pain:
-       CUBE D 3
-       CUBE D 3 A_Pain
-       Goto See
-   Pain.Stunner:
-       CUBE D 2 A_ChangeFlag("NoPain", 1)
-       CUBE D 300 A_Pain
-       CUBE D 0 A_ChangeFlag("NoPain", 0)
-       goto See
-   Death:
-       TNT1 A 0 A_GiveToTarget("AwardItem", 5)
-       CUBE E 0 BRIGHT A_NoBlocking
-       CUBE E 0 BRIGHT A_SetFloorClip
-       CUBE E 6 BRIGHT A_Scream
-       CUBE FGH 6 BRIGHT
-       Stop
-   }
+	//$Category Stronghold_Monsters
+	painchance "Stunner",128
+	Health 80
+	Radius 16
+	Height 32
+	Mass 150
+	Speed 1.6
+	PainChance 64
+	MONSTER
+	OBITUARY "%o got fried by a Guardian Cube."
+	+NoGravity
+	+Float
+	+DontFall
+	+NoBlood
+	+DONTHARMCLASS
+	SEESOUND "monster/cubsit"
+	PAINSOUND "weapons/bounc1"
+	ACTIVESOUND "monster/cubfly"
+	DEATHSOUND "monster/cubdth"
+	states
+	{
+	Spawn:
+		CUBE A 10 A_Look
+		Loop
+	See:
+		CUBE A 1 A_Chase
+		CUBE AAAA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		CUBE B 1 A_Chase
+		CUBE BBBB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		CUBE C 1 A_Chase
+		CUBE CCCC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Missile:
+		CUBE D 5 BRIGHT A_FaceTarget
+		CUBE E 0 A_CustomMissile("CubeShot",10,4,0,1)
+		CUBE E 4 BRIGHT A_CustomMissile("CubeShot",10,-4,0,1)
+		CUBE D 4 BRIGHT A_FaceTarget
+		CUBE E 0 A_CustomMissile("CubeShot",10,4,0,1)
+		CUBE E 4 BRIGHT A_CustomMissile("CubeShot",10,-4,0,1)
+		CUBE D 4 BRIGHT A_FaceTarget
+		CUBE E 0 A_CustomMissile("CubeShot",10,4,0,1)
+		CUBE E 4 BRIGHT A_CustomMissile("CubeShot",10,-4,0,1)
+		CUBE D 4 BRIGHT A_FaceTarget
+		Goto See
+	Pain:
+		CUBE D 3
+		CUBE D 3 A_Pain
+		Goto See
+	Pain.Stunner:
+		CUBE D 2 A_ChangeFlag("NoPain",1)
+		CUBE D 300 A_Pain
+		CUBE D 0 A_ChangeFlag("NoPain",0)
+		goto See
+	Death:
+		TNT1 A 0 A_GiveToTarget("AwardItem",5)
+		CUBE E 0 A_SetFloorClip
+		CUBE E 6 BRIGHT A_ScreamAndUnblock
+		CUBE FGH 6 BRIGHT
+		Stop
+	}
 }
 
 ACTOR CubeShot
 {
-   Radius 5
-   Height 5
-   Speed 15
-   Damage 1
-   DamageType fire
-   RENDERSTYLE ADD
-   ALPHA 0.85
-   PROJECTILE
-   Seesound "weapons/firsfi"
-   DeathSound "weapons/maceex"
-   Obituary "%o got fried by a Guardian Cube."
-   States
-   {
-   Spawn:
-      CBAL AB 3 Bright A_SpawnItemEx("CubePuff",0,0,0,0,0,0,0,128)
-      loop
-   Death:
-      CBAL CDEFG 3 Bright
-      stop
-   }
+	Radius 5
+	Height 5
+	Speed 15
+	Damage 1
+	DamageType fire
+	RENDERSTYLE ADD
+	ALPHA 0.85
+	PROJECTILE
+	Seesound "weapons/firsfi"
+	DeathSound "weapons/maceex"
+	Obituary "%o got fried by a Guardian Cube."
+	States
+	{
+	Spawn:
+		CBAL AB 3 Bright A_SpawnItemEx("CubePuff")
+		loop
+	Death:
+		CBAL CDEFG 3 Bright
+		stop
+	}
 }
 
 ACTOR CubePuff
 {
-   Radius 2
-   Height 2
-   Speed 0
-   Scale 1.0
-   PROJECTILE
-   RENDERSTYLE ADD
-   ALPHA 0.67
-   States
-   {
-   Spawn:
-      CBAL HIJ 3 BRIGHT
-      Stop
-   }
+	+CLIENTSIDEONLY
+	Radius 2
+	Height 2
+	PROJECTILE
+	RENDERSTYLE ADD
+	ALPHA 0.67
+	States
+	{
+	Spawn:
+		CBAL HIJ 3 BRIGHT
+		Stop
+	}
 }
-
