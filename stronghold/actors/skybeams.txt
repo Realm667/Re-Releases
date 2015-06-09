@@ -1,32 +1,31 @@
 /////////////////////////////
-//       GREEN BEAM        //
-//           AND           //
-//         RED BEAM        //
-// Based on SKYBEAM by     //
-//           Tormentor667  //
+//	GREEN BEAM		//
+//		AND		//
+//		RED BEAM		//
+// Based on SKYBEAM by	//
+//		Tormentor667  //
 /////////////////////////////
 
 // Used in STR09
 
 actor GREENBEAM_Projectile
 {
+	+CLIENTSIDEONLY
 	Height 32
 	Radius 32
 	Mass 0
-	+Missile +Nogravity
+	+Missile
+	+Nogravity
 	RenderStyle Add
 	XScale 2.0
-        Alpha 0.8
+	Alpha 0.8
 	States
 	{
 	Spawn:
-	    TNT1 A 0
-	    SAWP A 60 Bright
-	    SAWP AAAAAAAAAAA 2 Bright A_FadeOut(0.1)
-	    Stop
+		SAWP A 60 Bright
 	Death:
-	    SAWP AAAAAAAAAAA 2 Bright A_FadeOut(0.1)
- 	    Stop
+		SAWP A 2 Bright A_FadeOut
+		Wait
 	}
 }
 
@@ -39,80 +38,44 @@ actor GREENBEAM_ProjectileSmall : GREENBEAM_Projectile
 
 actor GREENBEAM : Thunder_Generator 11491
 {
-//$Category Stronghold_SFX
-        XScale 1.5
-        YScale 4.0
-        Alpha 0.01
-        states
-        {
-        Spawn:
-           Active:
-                TNT1 A 0
-		  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
-                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("GREENBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
-                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
-                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("GREENBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
-                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
-                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("GREENBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
-                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
-                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("GREENBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
-                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
-                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("GREENBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
-                Loop
-           Inactive:
-	        TNT1 A 1
-	        Loop
-        }
-}
-
-actor REDBEAM_Projectile
-{
-	Height 32
-	Radius 32
-	Mass 0
-	+Missile +Nogravity
-	RenderStyle Add
-	XScale 2.0
-        Alpha 0.8
-	States
+	//$Category Stronghold_SFX
+	XScale 1.5
+	YScale 4.0
+	Alpha 0.01
+	states
 	{
 	Spawn:
-	    TNT1 A 0
-	    SAWS ABABABABABABABABABAB 3 Bright
-	    SAWS ABABABABABAB 2 Bright A_FadeOut(0.1)
-	    Stop
-	Death:
-	    SAWS ABABABABABAB 2 Bright A_FadeOut(0.1)
- 	    Stop
+	Active:
+		SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8))
+		Loop
+	Inactive:
+		TNT1 A -1
+		Loop
 	}
 }
 
-actor REDBEAM : Thunder_Generator 11492
+actor REDBEAM_Projectile : GREENBEAM_Projectile
 {
-//$Category Stronghold_SFX
-        XScale 1.5
-        YScale 4.0
-        Alpha 0.01
-        states
-        {
-        Spawn:
-           Active:
-                TNT1 A 0
-		  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
-                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("REDBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
-                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
-                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("REDBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
-                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
-                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("REDBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
-                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
-                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("REDBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
-                  //SKBM A 1 Bright A_SpawnItemEx("GREENBEAM_Projectile",      0, 0, 0, 0, 0, 30, 0, 128)
-                  SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("REDBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8), 0, 128)
-                Loop
-           Inactive:
-	        TNT1 A 1
-	        Loop
-        }
+	States
+	{
+	Spawn:
+		SAWS ABABABABABABABABABAB 3 Bright
+	Death:
+		SAWS AB 2 Bright A_FadeOut
+		Loop
+	}
+}
+
+actor REDBEAM : GREENBEAM 11492
+{
+	//$Category Stronghold_SFX
+	states
+	{
+	Spawn:
+	Active:
+		SKBM A 1 Bright A_SpawnItemEx("REDBEAM_ProjectileSmall", random(-32,32), random(-32,32), 0, 0, 0, random(5,8))
+		Loop
+	}
 }
 
 actor REDBEAM_ProjectileSmall : REDBEAM_Projectile

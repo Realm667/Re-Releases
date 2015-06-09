@@ -13,18 +13,13 @@ statusbar fullscreen, fullscreenoffsets
 	drawnumber 3, HUDFONT_DOOM, untranslated, armor, -41+center, -21;
 	drawimage "WIPCNTSM", -38+center, -16;
 
-	IsSelected not AutoShotgun
-	{
-		drawimage ammoicon1, -6+center, -7;
-		drawnumber 3, HUDFONT_DOOM, untranslated, ammo1, 49+center, -21;
-	}
 	IsSelected AutoShotgun
 	{
 		drawimage ammoicon2, -6+center, -29;
 		drawnumber 3, HUDFONT_DOOM, untranslated, ammo2, 49+center, -42;
-		drawimage ammoicon1, -6+center, -7;
-		drawnumber 3, HUDFONT_DOOM, untranslated, ammo1, 49+center, -21;
 	}
+	drawimage ammoicon1, -6+center, -7;
+	drawnumber 3, HUDFONT_DOOM, untranslated, ammo1, 49+center, -21;
 
 	drawnumber 3, HUDFONT_DOOM, untranslated, LifeItem, 85+center, -21;
 
@@ -48,20 +43,15 @@ statusbar normal
 	drawnumber 3, HUDFONT_DOOM, untranslated, armor, 216, 172;
 	// Special case for the Auto Shotgun - if AS is selected then display clip
 	// Don't worry, the shells remaining are still shown to the right.
-	IsSelected not AutoShotgun
-	{
-		drawnumber 3, HUDFONT_DOOM, untranslated, ammo1, 40, 172;
-	}
 	IsSelected AutoShotgun
 	{
 		drawnumber 3, HUDFONT_DOOM, gold, ammo2, 40, 172;
 	}
+	else
+	{
+		drawnumber 3, HUDFONT_DOOM, untranslated, ammo1, 40, 172;
+	}
 
-/*	//keys
-	drawswitchableimage BlueCard && BlueSkull, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 239, 171;
-	drawswitchableimage YellowCard && YellowSkull, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 239, 181;
-	drawswitchableimage RedCard && RedSkull, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 239, 191;
-*/
 	drawnumber 3, INDEXFON, gold, ammo Clip, 284, 173;
 	drawnumber 3, INDEXFON, gold, ammo Shell, 284, 182;
 	drawnumber 3, INDEXFON, gold, ammo RocketAmmo, 284, 191;
@@ -69,29 +59,14 @@ statusbar normal
 	drawnumber 3, INDEXFON, gold, ammo MineAmmo, 315, 182;
 	drawnumber 3, INDEXFON, gold, ammo Cell, 315, 191;
 
-/*	drawnumber 3, INDEXFON, gold, ammocapacity Clip, 314, 173;
-	drawnumber 3, INDEXFON, gold, ammocapacity Shell, 314, 179;
-	drawnumber 3, INDEXFON, gold, ammocapacity RocketAmmo, 314, 185;
-	drawnumber 3, INDEXFON, gold, ammocapacity Cell, 314, 191;
-*/
-/*	gamemode deathmatch, teamgame
-	{
-		drawnumber 2, HUDFONT_DOOM, untranslated, frags, 138, 171;
-	}
-*/
-
-//	gamemode cooperative, singleplayer
-//	{
-//		drawimage "STARMS", 104, 168;
-		drawswitchableimage weaponslot 2, "STGNUM2", "STYSNUM2", 106, 172;
-		drawswitchableimage weaponslot 3, "STGNUM3", "STYSNUM3", 114, 172;
-		drawswitchableimage weaponslot 4, "STGNUM4", "STYSNUM4", 122, 172;
-		drawswitchableimage weaponslot 5, "STGNUM5", "STYSNUM5", 130, 172;
-		drawswitchableimage weaponslot 6, "STGNUM6", "STYSNUM6", 106, 182;
-		drawswitchableimage weaponslot 7, "STGNUM7", "STYSNUM7", 114, 182;
-		drawswitchableimage weaponslot 8, "STGNUM8", "STYSNUM8", 122, 182;
-		drawswitchableimage weaponslot 9, "STGNUM9", "STYSNUM9", 130, 182;
-//	}
+	drawswitchableimage weaponslot 2, "STGNUM2", "STYSNUM2", 106, 172;
+	drawswitchableimage weaponslot 3, "STGNUM3", "STYSNUM3", 114, 172;
+	drawswitchableimage weaponslot 4, "STGNUM4", "STYSNUM4", 122, 172;
+	drawswitchableimage weaponslot 5, "STGNUM5", "STYSNUM5", 130, 172;
+	drawswitchableimage weaponslot 6, "STGNUM6", "STYSNUM6", 106, 182;
+	drawswitchableimage weaponslot 7, "STGNUM7", "STYSNUM7", 114, 182;
+	drawswitchableimage weaponslot 8, "STGNUM8", "STYSNUM8", 122, 182;
+	drawswitchableimage weaponslot 9, "STGNUM9", "STYSNUM9", 130, 182;
 
 	drawselectedinventory alternateonempty, INDEXFON, 140, 169
 	{
@@ -114,4 +89,3 @@ statusbar inventoryfullscreen, fullscreenoffsets // ZDoom HUD overlay.
 {
 	drawinventorybar Doom, translucent, 7, INDEXFONT, -106+center, -31, -80+center, -9;
 }*/
-
