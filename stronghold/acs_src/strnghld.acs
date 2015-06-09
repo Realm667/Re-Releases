@@ -1435,7 +1435,7 @@ function void Setup (void)
 	{
 		isSetup=TRUE;
 		lastWeaponTid=UniqueTid(4600,0);
-		MonstersTid=UniqueTid(4600,0);
+		MonstersTid=UniqueTid(4700,0);
 		randomRadioFace=random(0,LEN_RADIO-1);
 		if(PrisonCamStart)
 		{
@@ -2128,15 +2128,15 @@ script S_CALLWAVE (int wave)
 		//	* Split up EnemySpawnCache between zones, and give each zone its own
 		//	thread/script to control its spawning.
 		//		- A zone can take longer to spawn its monsters than other zones.
-			while(! spawned)
+			while(!spawned)
 			{
-				if( (!GameActive) || GameFinishing || F_CallNextWave)
+				if(!GameActive||GameFinishing||F_CallNextWave)
 					Terminate;
 				int tid=UniqueTid(4600,0);
-				spawned=Spawn( EnemySpawnCache[cacheId][curEnemyId],
+				spawned=Spawn(EnemySpawnCache[cacheId][curEnemyId],
 					RandomCoords(zone,0), RandomCoords(zone,1),
 					RandomCoords(zone,2), tid, ZoneData[zone][6]);
-				if( spawned )
+				if(spawned)
 				{
 					SpawnSpot("TeleportFog", tid);
 					// If the zone has no second patrol, or random==TRUE, pick first patrol
@@ -2325,13 +2325,12 @@ script S_ENTER ENTER
 	while(BriefNoGun)
 		delay(1);
 
-	if( GetLevelInfo(LEVELINFO_LEVELNUM)==999 )
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==999)
 	{
-		ACS_ExecuteAlways(S_HUD_COINS, 0, 0);
-		GiveInventory("StrongholdShrinkFist", 1);
+		ACS_ExecuteAlways(S_HUD_COINS,0,0);
+		GiveInventory("StrongholdShrinkFist",1);
 		SetWeapon("StrongholdShrinkFist");
 	//	GiveInventory("HUDCredits", 1);	// Enables intermission hud parts
-
 		while(true)
 		{
 			delay(35);	// Placed at beginning of loop, so that there is no chance this
@@ -2405,8 +2404,8 @@ script S_LIVE_WATCH ENTER
 // Player loses a life
 script 671 DEATH
 {
-	TakeInventory("ThrustDummy", 1);
-	if ( GameActive && (!GetLevelInfo(LEVELINFO_LEVELNUM)==999))
+	TakeInventory("ThrustDummy",1);
+	if(GameActive&&GetLevelInfo(LEVELINFO_LEVELNUM)!=999)
 		TakeInventory("LifeItem", 1);
 }
 
@@ -2802,7 +2801,7 @@ script S_STR52CODEGET (void)	// Script 927
 
 script S_HUD OPEN clientside
 {
-	if( GetLevelInfo(LEVELINFO_LEVELNUM)==999 )
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)==999)
 		Terminate;
 	// Launch a copy of the timer script clientside
 	ACS_Execute( S_TIMER, 0, 0 );

@@ -41,23 +41,13 @@ ACTOR PhaseImp : StrongholdDoomImp 24105
 		DIMP EEEEEEEEE 1 Bright A_FadeOut(0.1,0)
 		Goto See2
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",5)
-		DIMP I 8 A_SetTranslucent(1)
-		DIMP J 8 A_Scream
-		DIMP K 6
-		DIMP L 6 A_Fall
-		DIMP M 3000
-		DIMO M 2 A_FadeOut(0.1)
-		Wait
+		DIMP A 0 A_GiveToTarget("AwardItem",5)
+		DIMP I 0 A_SetTranslucent(1)
+		Goto Super::Death+1
 	XDeath:
 		TNT1 A 0 A_GiveToTarget("AwardItem",7)
-		DIMP N 5 A_SetTranslucent(1)
-		DIMP O 5 A_XScream
-		DIMP P 5 A_Fall
-		DIMP RST 5
-		DIMP U 3000
-		DIMP U 2 A_FadeOut(0.1)
-		Wait
+		DIMP N 0 A_SetTranslucent(1)
+		Goto Super::XDeath+1
 	}
 }
 

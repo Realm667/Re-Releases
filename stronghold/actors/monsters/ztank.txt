@@ -32,8 +32,7 @@ ACTOR ZombieTank 21012
 		ZTNK D 3 BRIGHT A_CustomBulletAttack (8,5,2,2,"BulletPuff")
 		ZTNK A 1 A_FaceTarget
 		ZTNK E 3 BRIGHT A_CustomBulletAttack (8,5,2,2,"BulletPuff")
-		ZTNK A 0 A_Jump(128,1)
-		goto See
+		ZTNK A 0 A_Jump(128,"See")
 		ZTNK A 0 A_CPosRefire
 		goto Missile
 	Pain:
@@ -57,8 +56,8 @@ ACTOR ZombieTank 21012
 		ZTNK M 8 A_SpawnItemEx("ZTankSmoke",0,0,48)
 		ZTNK N 8
 		ZTNK O 3000
-		ZTNK OOOOOOOOOOOO 2 A_FadeOut(0.1)
-		Stop
+		ZTNK O 1 A_FadeOut(0.05)
+		Wait
 	}
 }
 
@@ -73,7 +72,7 @@ ACTOR ZombieTankGun
 	+DROPOFF
 	+MISSILE
 	+NOTELEPORT
-	+DOOMBOUNCE
+	BounceType Doom
 	+NoTarget
 	States
 	{
@@ -82,7 +81,7 @@ ACTOR ZombieTankGun
 		Loop
 	Death:
 		ZTNG G 3000
-		ZTNG G 2 A_FadeOut(0.1)
+		ZTNG G 1 A_FadeOut(0.05)
 		Wait
 	}
 }
@@ -93,24 +92,18 @@ ACTOR ZombieTankExplosion
 	ALPHA 0.7
 	Radius 10
 	Height 32
-	Speed 0
 	SeeSound "ZTank/explode"
 	PROJECTILE
-	+FIREDAMAGE
+	DamageType Fire
 	+NOCLIP
 	States
 	{
 	Spawn:
 		ZTXP ABCD 2 BRIGHT
-		ZTXP E 2 BRIGHT A_Explode (32,128,0)
-		ZTXP FGHIJKLM 2 BRIGHT
-		ZTXP N 2 BRIGHT A_SetTranslucent(.7,1)
-		ZTXP O 2 BRIGHT A_SetTranslucent(.65,1)
-		ZTXP P 2 BRIGHT A_SetTranslucent(.6,1)
-		ZTXP Q 2 BRIGHT A_SetTranslucent(.55,1)
-		ZTXP R 2 BRIGHT A_SetTranslucent(.5,1)
-		ZTXP S 2 BRIGHT A_SetTranslucent(.4,1)
-		ZTXP T 2 BRIGHT A_SetTranslucent(.3,1)
+		ZTXP E 2 BRIGHT A_Explode(32,128,0)
+		ZTXP FGHIJKLMN 2 BRIGHT
+		ZTXP OPQR 2 BRIGHT A_FadeOut(.05)
+		ZTXP ST 2 BRIGHT A_FadeOut
 		Stop
 	}
 }

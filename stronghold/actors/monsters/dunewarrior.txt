@@ -71,7 +71,7 @@ ACTOR DuneWarrior : StrongholdZombieman 30040
 		ZHRT J 5 A_NoBlocking
 		ZHRT K 5
 		ZHRT L 3000
-		ZHRT L 2 A_FadeOut(0.1)
+		ZHRT L 1 A_FadeOut(0.05)
 		Wait
 	XDeath:
 		TNT1 A 0 A_GiveToTarget("AwardItem",6)
@@ -80,7 +80,7 @@ ACTOR DuneWarrior : StrongholdZombieman 30040
 		ZHRT Q 5 A_NoBlocking
 		ZHRT RTUV 5
 		ZHRT W 3000
-		ZHRT W 2 A_FadeOut(0.1)
+		ZHRT W 1 A_FadeOut(0.05)
 		Wait
 	}
 }
@@ -95,9 +95,8 @@ ACTOR DuneWarriorGrenade : CatharsiDetonator
 	Speed 20
 	BounceSound "dune/bounce"
 	-SOLID
-	-ISMONSTER
 	-FloatBob
-	-NoBlood
+	-SHOOTABLE
 	PROJECTILE
 	BounceType Doom
 	-NoGravity

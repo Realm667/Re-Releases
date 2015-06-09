@@ -85,7 +85,8 @@ actor Helemental 30130
 		goto See+1
 	Missile3:
 		HELE BC 5 Bright A_Facetarget
-		HELE D 5 Bright A_DualPainAttack("HS")
+		HELE D 0 A_PainAttack("HS",45,PAF_NOSKULLATTACK)
+		HELE D 5 Bright A_PainAttack("HS",-45,PAF_NOSKULLATTACK)
 		goto See+1
 	Melee:
 		HELE ABD 5 Bright A_Facetarget
@@ -105,14 +106,14 @@ actor Helemental 30130
 		HELE I 5 Bright A_Scream
 		HELE JKL 5 Bright
 		HELE M 5 Bright A_NoBlocking
-		HELE M 0 A_SpawnItemEx("HS",36,36)
-		HELE M 0 A_SpawnItemEx("HS",-36,36)
-		HELE M 0 A_SpawnItemEx("HS",-36,-36)
-		HELE M 0 A_SpawnItemEx("HS",36,-36)
+		HELE M 0 A_SpawnItemEx("HS",36,36,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		HELE M 0 A_SpawnItemEx("HS",-36,36,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		HELE M 0 A_SpawnItemEx("HS",-36,-36,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		HELE M 0 A_SpawnItemEx("HS",36,-36,0,0,0,0,0,SXF_NOCHECKPOSITION)
 		HELE NOP 5 Bright
 		HELE QRSTU 5
 		HELE V 3000 A_SetFloorClip
-		HELE V 2 A_FadeOut(0.1)
+		HELE V 1 A_FadeOut(0.05)
 		Wait
 	}
 }
@@ -242,7 +243,6 @@ ACTOR HS 30116
 	Melee:
 		HADE HGFE 4 Bright
 		HADE E 0 A_Die
-		stop
 	Death:
 		TNT1 A 0 A_GiveToTarget("AwardItem",12)
 		HADE M 0 A_NoBlocking

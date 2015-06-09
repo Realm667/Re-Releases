@@ -1,3 +1,214 @@
+ACTOR StrongholdScriptedMarine : ScriptedMarine
+{
+	Speed 2
+	States
+	{
+	See:
+		PLAY A 1 A_Chase
+		PLAY AAA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		PLAY B 1 A_Chase
+		PLAY BBB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		PLAY C 1 A_Chase
+		PLAY CCC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		PLAY D 1 A_Chase
+		PLAY DDD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Melee.Fist:
+		PLAY E 4 A_FaceTarget
+		PLAY E 4 A_M_Punch(1)
+		PLAY A 9
+		PLAY A 0 A_M_Refire(1)
+		Loop
+		PLAY A 5 A_FaceTarget
+		Goto See
+	Melee.Berserk:
+		PLAY E 4 A_FaceTarget
+		PLAY E 4 A_M_Punch(10)
+		PLAY A 9
+		PLAY A 0 A_M_Refire(1)
+		Loop
+		PLAY A 5 A_FaceTarget
+		Goto See
+	Melee.Chainsaw:
+		PLAY E 4 A_MarineNoise
+		PLAY E 4 A_M_Saw
+		PLAY E 0 A_M_SawRefire
+		Goto Melee.Chainsaw+1
+		PLAY A 0
+		Goto See
+	Missile.Pistol:
+		PLAY E 4 A_FaceTarget
+		PLAY F 6 Bright A_M_FirePistol(1)
+		PLAY A 4 A_FaceTarget
+		PLAY A 0 A_M_Refire
+		PLAY A 5
+		Goto See
+	Fireloop.Pistol:
+		PLAY F 6 Bright A_M_FirePistol(0)
+		PLAY A 4 A_FaceTarget
+		PLAY A 0 A_M_Refire
+		Goto Fireloop.Pistol
+		PLAY A 5
+		Goto See
+	Missile.Shotgun:
+		PLAY E 3 A_M_CheckAttack
+		PLAY F 7 Bright A_M_FireShotgun
+		Goto See
+	Missile.SSG:
+		PLAY E 3 A_M_CheckAttack
+		PLAY F 7 Bright A_M_FireShotgun2
+		Goto See
+	Missile.Chaingun:
+		PLAY E 4 A_FaceTarget
+		PLAY FF 4 Bright A_M_FireCGun(1)
+		PLAY FF 4 Bright A_M_FireCGun(0)
+		PLAY A 0 A_M_Refire
+		Goto Missile.Chaingun+3
+		PLAY A 0
+		Goto See
+	Missile.Rocket:
+		PLAY E 8
+		PLAY F 6 Bright A_M_FireMissile
+		PLAY E 6
+		PLAY A 0 A_M_Refire
+		Loop
+		PLAY A 0
+		Goto See
+	Missile.Plasma:
+		PLAY E 2 A_FaceTarget
+		PLAY E 0 A_FaceTarget
+		PLAY F 3 Bright A_M_FirePlasma
+		PLAY A 0 A_M_Refire
+		Goto Missile.Plasma+1
+		PLAY A 0
+		Goto See
+	Missile.Railgun:
+		PLAY E 4 A_M_CheckAttack
+		PLAY F 6 Bright A_M_FireRailgun
+		Goto See
+	Missile.BFG:
+		PLAY E 5 A_M_BFGSound
+		PLAY EEEEE 5 A_FaceTarget
+		PLAY F 6 Bright A_M_FireBFG
+		PLAY A 4 A_FaceTarget
+		PLAY A 0 A_M_Refire
+		Loop
+		PLAY A 0
+		Goto See
+	SkipAttack:
+		PLAY A 1
+		Goto See
+	Raise:
+		PLAY MLKJIH 5
+		Goto See
+	}
+}
+
+ACTOR StrongholdMarineFist : StrongholdScriptedMarine replaces MarineFist
+{
+	States
+	{
+	Melee:
+		Goto Super::Melee.Fist
+	Missile:
+		Stop
+	}
+}
+
+ACTOR StrongholdMarineBerserk : StrongholdScriptedMarine replaces MarineBerserk
+{
+	States
+	{
+	Melee:
+		Goto Super::Melee.Berserk
+	Missile:
+		Stop
+	}
+}
+
+ACTOR StrongholdMarineChainsaw : StrongholdScriptedMarine replaces MarineChainsaw
+{
+	States
+	{
+	Melee:
+		Goto Super::Melee.Chainsaw
+	Missile:
+		Stop
+	}
+}
+
+ACTOR StrongholdMarinePistol : StrongholdScriptedMarine replaces MarinePistol
+{
+	States
+	{
+	Missile:
+		Goto Super::Missile.Pistol
+	}
+}
+
+ACTOR StrongholdMarineShotgun : StrongholdScriptedMarine replaces MarineShotgun
+{
+	States
+	{
+	Missile:
+		Goto Super::Missile.Shotgun
+	}
+}
+
+ACTOR StrongholdMarineSSG : StrongholdScriptedMarine replaces MarineSSG
+{
+	States
+	{
+	Missile:
+		Goto Super::Missile.SSG
+	}
+}
+
+ACTOR StrongholdMarineChaingun : StrongholdScriptedMarine replaces MarineChaingun
+{
+	States
+	{
+	Missile:
+		Goto Super::Missile.Chaingun
+	}
+}
+
+ACTOR StrongholdMarineRocket : StrongholdMarineFist replaces MarineRocket
+{
+	States
+	{
+	Missile:
+		Goto Super::Missile.Rocket
+	}
+}
+
+ACTOR StrongholdMarinePlasma : StrongholdScriptedMarine replaces MarinePlasma
+{
+	States
+	{
+	Missile:
+		Goto Super::Missile.Plasma
+	}
+}
+
+ACTOR StrongholdMarineRailgun : StrongholdScriptedMarine replaces MarineRailgun
+{
+	States
+	{
+	Missile:
+		Goto Super::Missile.Railgun
+	}
+}
+
+ACTOR StrongholdMarineBFG : StrongholdScriptedMarine replaces MarineBFG
+{
+	States
+	{
+	Missile:
+		Goto Super::Missile.BFG
+	}
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MARINE REINFORCEMENTS ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,113 +243,82 @@ actor MarineItem : CustomInventory 25003
 	}
 }
 
-actor STMarineShotgun : MarineShotgun 12851
+ACTOR STScriptedMarine : StrongholdScriptedMarine
 {
-	//$Category Stronghold_Marines
 	SeeSound "marine/sight"
 	ActiveSound "marine/active"
 	DeathSound "marine/death"
 	PainSound "marine/pain"
 	MeleeSound "marine/punch"
+	health 300
+	-ACTIVATEMCROSS
+	+NORADIUSDMG
+	+GHOST
+	+NOTIMEFREEZE
+	States
+	{
+	Raise:
+		stop
+	}
+}
+
+actor STMarineShotgun : STScriptedMarine 12851
+{
+	//$Category Stronghold_Marines
 	Obituary "%o was shot down like a clay pigeon."
-	health 300
-	-ACTIVATEMCROSS
-	+NORADIUSDMG
-	+GHOST
-	+NOTIMEFREEZE
-	States
-	{
-	Raise:
-		stop
-	}
-}
-
-actor STMarineChaingun : MarineChaingun 12852
-{
-	//$Category Stronghold_Marines
-	SeeSound "marine/sight"
-	ActiveSound "marine/active"
-	DeathSound "marine/death"
-	PainSound "marine/pain"
-	MeleeSound "marine/punch"
-	Obituary "%o was ventilated by a chaingun-toting marine."
-	health 300
-	-ACTIVATEMCROSS
-	+NORADIUSDMG
-	+GHOST
-	+NOTIMEFREEZE
-	States
-	{
-	Raise:
-		stop
-	}
-}
-
-actor STMarineSSG : MarineSSG 12853
-{
-	//$Category Stronghold_Marines
-	SeeSound "marine/sight"
-	ActiveSound "marine/active"
-	DeathSound "marine/death"
-	PainSound "marine/pain"
-	MeleeSound "marine/punch"
-	Obituary "%o downed a devastating dosage of double-barrelled death."
-	health 300
-	-ACTIVATEMCROSS
-	+NORADIUSDMG
-	+GHOST
-	+NOTIMEFREEZE
-	States
-	{
-	Raise:
-		stop
-	}
-}
-
-actor STMarineRocket : MarineRocket 12854
-{
-	//$Category Stronghold_Marines
-	SeeSound "marine/sight"
-	ActiveSound "marine/active"
-	DeathSound "marine/death"
-	PainSound "marine/pain"
-	MeleeSound "marine/punch"
-	Obituary "%o boarded the express train to oblivion on a marine's rocket."
-	health 600
-	-ACTIVATEMCROSS
-	+NORADIUSDMG
-	+GHOST
-	+NOTIMEFREEZE
 	States
 	{
 	Missile:
-	  PLAY E 8
-	  PLAY F 6 Bright A_M_FireMissile
-	  PLAY A 0 A_Jump(96, "See")
-	  Loop
-	Raise:
-		stop
+		Goto Super::Missile.Shotgun
 	}
 }
 
-actor STMarinePlasma : MarinePlasma 12855
+actor STMarineChaingun : STScriptedMarine 12852
 {
 	//$Category Stronghold_Marines
-	SeeSound "marine/sight"
-	ActiveSound "marine/active"
-	DeathSound "marine/death"
-	PainSound "marine/pain"
-	MeleeSound "marine/punch"
-	Obituary "%o was atomized by a steady stream of blazing plasma."
-	health 200
-	-ACTIVATEMCROSS
-	+NORADIUSDMG
-	+GHOST
-	+NOTIMEFREEZE
+	Obituary "%o was ventilated by a chaingun-toting marine."
 	States
 	{
-	Raise:
-		stop
+	Missile:
+		Goto Super::Missile.Chaingun
+	}
+}
+
+actor STMarineSSG : STScriptedMarine 12853
+{
+	//$Category Stronghold_Marines
+	Obituary "%o downed a devastating dosage of double-barrelled death."
+	States
+	{
+	Missile:
+		Goto Super::Missile.SSG
+	}
+}
+
+actor STMarineRocket : STScriptedMarine 12854
+{
+	//$Category Stronghold_Marines
+	Obituary "%o boarded the express train to oblivion on a marine's rocket."
+	health 600
+	States
+	{
+	Missile:
+		PLAY E 8
+		PLAY F 6 Bright A_M_FireMissile
+		PLAY A 0 A_Jump(96,"See")
+		Loop
+	}
+}
+
+actor STMarinePlasma : STScriptedMarine 12855
+{
+	//$Category Stronghold_Marines
+	Obituary "%o was atomized by a steady stream of blazing plasma."
+	health 200
+	States
+	{
+	Missile:
+		Goto Super::Missile.Plasma
 	}
 }
 
@@ -469,14 +649,13 @@ actor TimeFreezerItem : PowerupGiver 12793
 actor TimeFreezerPickup : TimeFreezerItem 24027
 {
 	//$Category Stronghold_Items
-	SpawnID 229
 	inventory.pickupmessage "Time freeze!"
-	inventory.icon "TIMEA0"
 	inventory.maxamount 10
+	inventory.icon "TIMEZ0"
 	states
 	{
 	Spawn:
-		TIME ABCD 4 BRIGHT
+		TIME ABCD 4 BRIGHT LIGHT("TimeSphere")
 		loop
 	}
 }
@@ -515,14 +694,13 @@ actor QuadDamageItem : PowerupGiver 12794
 actor QuadDamagePowerup : QuadDamageItem 24028
 {
 	//$Category Stronghold_Items
-	SpawnID 228
 	inventory.pickupmessage "Doomsphere!"
 	inventory.icon "DOOMA0"
 	+INVENTORY.AUTOACTIVATE
 	states
 	{
 	Spawn:
-		DOOM ABCB 4 BRIGHT
+		DOOM ABCB 4 BRIGHT LIGHT("DoomSphere")
 		loop
 	}
 }
@@ -1078,7 +1256,7 @@ actor SmartBombGrenade
 		UVGR ABCD 2
 		UVGR ABCD 4
 		UVGR A 16 A_Stop
-		UVGR A 0 A_PlaysoundEx("UVCharge","voice",0,1)
+		UVGR A 0 A_PlaySound("UVCharge",CHAN_VOICE,1,0,ATTN_NONE)
 		UVGR A 0 A_SpawnItemEx("smallestlightemmit")
 		UVGR A 0 A_SpawnItemEx("smallerlightemmit")
 		UVGR E 170 BRIGHT A_SpawnItemEx("smalllightemmit")
@@ -1358,7 +1536,7 @@ actor OSPHealth : Health
 	States
 	{
 	Spawn:
-		SOUL A 6
+		SOUL A -1
 		Loop
 	}
 }

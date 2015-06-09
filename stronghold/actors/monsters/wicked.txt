@@ -83,8 +83,8 @@ ACTOR Wicked 30133
 		WICK P 0 A_SpawnItemEx("WickedTorso",0,0,48)
 		WICT A 5 A_NoBlocking
 		WICT G 3000 A_SetFloorClip
-		WICT GGGGGGGGGGGG 2 A_FadeOut(0.1)
-		Stop
+		WICT G 1 A_FadeOut(0.05)
+		Wait
 	Raise:
 		WICT G 0 A_KillChildren
 		WICK G 0 A_SpawnItemEx("WickedTorsoRes")
@@ -159,7 +159,7 @@ ACTOR WickedTorso
 		WICK S 5 A_SetFloorClip
 		WICK TUVW 5
 		WICK W 3000
-		WICK W 2 A_FadeOut(0.1)
+		WICK W 1 A_FadeOut(0.05)
 		Wait
 	}
 }
