@@ -3936,14 +3936,6 @@ ACTOR Shadow 3126
 		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		TROX DDD 1 A_Chase
 		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
-		TROX AAA 1 A_Chase
-		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
-		TROX BBB 1 A_Chase
-		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
-		TROX CCC 1 A_Chase
-		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
-		TROX DDD 1 A_Chase
-		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		Goto See+1
 	Missile:
 		TROX EEE 10 A_FaceTarget
@@ -4050,6 +4042,7 @@ actor ShadowTrail
 
 ACTOR ShadowGhost
 {
+	+CLIENTSIDEONLY
 	Radius 4
 	Height 8
 	Mass 75

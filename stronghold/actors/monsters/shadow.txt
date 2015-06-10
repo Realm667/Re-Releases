@@ -24,43 +24,35 @@ ACTOR Shadow 3126
 	See:
 		SHDW A 15
 		SHDW AAA 1 A_Chase
-		SHDW A 0 A_SpawnItemEx("ShadowGhostA")
+		SHDW A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		SHDW BBB 1 A_Chase
-		SHDW B 0 A_SpawnItemEx("ShadowGhostB")
+		SHDW B 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		SHDW CCC 1 A_Chase
-		SHDW C 0 A_SpawnItemEx("ShadowGhostC")
+		SHDW C 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		SHDW DDD 1 A_Chase
-		SHDW D 0 A_SpawnItemEx("ShadowGhostD")
-		SHDW AAA 1 A_Chase
-		SHDW A 0 A_SpawnItemEx("ShadowGhostA")
-		SHDW BBB 1 A_Chase
-		SHDW B 0 A_SpawnItemEx("ShadowGhostB")
-		SHDW CCC 1 A_Chase
-		SHDW C 0 A_SpawnItemEx("ShadowGhostC")
-		SHDW DDD 1 A_Chase
-		SHDW D 0 A_SpawnItemEx("ShadowGhostD")
+		SHDW D 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		Goto See+1
 	Missile:
-		SHDW E 30 A_FaceTarget
-		SHDW F 5
+		SHDW EEE 10 A_FaceTarget
+		SHDW F 5 A_FaceTarget
 		SHDW G 5 BRIGHT A_CustomMissile("ShadowBall")
 		SHDW F 5
-		SHDW E 20
-		SHDW F 5
+		SHDW EE 10 A_FaceTarget
+		SHDW F 5 A_FaceTarget
 		SHDW G 5 BRIGHT A_CustomMissile("ShadowBall")
 		SHDW F 5
-		SHDW E 20
-		SHDW F 5
+		SHDW EE 10 A_FaceTarget
+		SHDW F 5 A_FaceTarget
 		SHDW G 5 BRIGHT A_CustomMissile("ShadowBall")
 		SHDW F 5
-		SHDW E 20
+		SHDW EE 10 A_FaceTarget
 		Goto See+1
 	Pain:
 		SHDW H 4
 		SHDW H 4 A_Pain
 		Goto See+1
 	Pain.Stunner:
-		SHDW H 2 A_ChangeFlag("NoPain",1)
+		SHDW H 4 A_ChangeFlag("NoPain",1)
 		SHDW H 300 A_Pain
 		SHDW H 0 A_ChangeFlag("NoPain",0)
 		goto See+1
@@ -116,51 +108,19 @@ ACTOR ShadowBall
 	}
 }
 
-ACTOR ShadowGhostA
+ACTOR ShadowGhost
 {
 	+CLIENTSIDEONLY
 	Radius 4
 	Height 8
-	Speed 0
-	Damage 0
 	Mass 75
 	RenderStyle "Translucent"
 	Alpha 0.3
 	PROJECTILE
-	States
+	states
 	{
 	Spawn:
-		SHDW A 10
-		Stop
-	}
-}
-
-ACTOR ShadowGhostB : ShadowGhostA
-{
-	States
-	{
-	Spawn:
-		SHDW B 10
-		Stop
-	}
-}
-
-ACTOR ShadowGhostC : ShadowGhostA
-{
-	States
-	{
-	Spawn:
-		SHDW C 10
-		Stop
-	}
-}
-
-ACTOR ShadowGhostD : ShadowGhostA
-{
-	States
-	{
-	Spawn:
-		SHDW D 10
+		"####" "#" 10
 		Stop
 	}
 }

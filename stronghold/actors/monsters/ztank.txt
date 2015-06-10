@@ -36,11 +36,10 @@ ACTOR ZombieTank 21012
 		ZTNK A 0 A_CPosRefire
 		goto Missile
 	Pain:
-		ZTNK F 4 A_Pain
-		ZTNK F 4
+		ZTNK F 8 A_Pain
 		Goto See
 	Pain.Stunner:
-		ZTNK F 2 A_ChangeFlag("NoPain",1)
+		ZTNK F 0 A_ChangeFlag("NoPain",1)
 		ZTNK F 300 A_Pain
 		ZTNK F 0 A_ChangeFlag("NoPain",0)
 		goto See

@@ -2369,7 +2369,10 @@ script S_MISSION_COMPLETE (void)
 		}
 		SetPlayerProperty(1, false, PROP_INVULNERABILITY);
 		GiveMapRewards();
-		Exit_Normal(ExitPos);
+		if(GetLevelInfo(LEVELINFO_LEVELNUM)==35)
+			Exit_Secret(ExitPos);
+		else
+			Exit_Normal(ExitPos);
 	}
 }
 
