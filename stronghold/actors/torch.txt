@@ -3,239 +3,236 @@
 
 Actor FXRedTorch : RedTorch Replaces RedTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("RedTorchFlare", 0, 0, 55, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   TRCH A 1 A_SpawnItemEx("RedTorchFire1", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1 A_SpawnItemEx("RedTorchFire2", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("RedTorchFlare",0,0,55)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		TRCH A 1 A_SpawnItemEx("RedTorchFire1",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1 A_SpawnItemEx("RedTorchFire2",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1
+		Goto Spawn
+	}
 }
 
 Actor FXShortRedTorch : ShortRedTorch Replaces ShortRedTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("RedTorchFlare", 0, 0, 30, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   STCB A 1 A_SpawnItemEx("RedTorchFire1", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1 A_SpawnItemEx("RedTorchFire2", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("RedTorchFlare",0,0,30)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		STCB A 1 A_SpawnItemEx("RedTorchFire1",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1 A_SpawnItemEx("RedTorchFire2",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1
+		Goto Spawn
+	}
 }
 
 Actor RedTorchFlare
 {
- +NoGravity
- +NoInteraction
- +NoBlockmap
- +ForceXYBillboard
- RenderStyle Add
- Scale 0.4
- Alpha 0.6
- States
- {
-  Spawn:
-   RFLR A 2 Bright
-   Stop
- }
+	+CLIENTSIDEONLY
+	+NoGravity
+	+NoInteraction
+	+NoBlockmap
+	+ForceXYBillboard
+	+NoTeleport
+	RenderStyle Add
+	Scale 0.4
+	Alpha 0.6
+	States
+	{
+	Spawn:
+		RFLR A 2 Bright
+		Stop
+	}
 }
 
-Actor RedTorchFire1
+Actor RedTorchFire1 : RedTorchFlare
 {
- +NoGravity
- +NoInteraction
- +NoBlockmap
- +NoTeleport
- +ForceXYBillboard
- Radius 0
- Height 0
- RenderStyle Add
- Scale 0.175
- States
- {
-  Spawn:
-   FIR1 ABCDEFG 1 Bright
-   FIR1 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	Alpha 1
+	Radius 0
+	Height 0
+	Scale 0.175
+	States
+	{
+	Spawn:
+		FIR1 ABCDEFG 1 Bright
+		FIR1 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor RedTorchFire2 : RedTorchFire1
 {
- States
- {
-  Spawn:
-   FIR2 ABCDEFG 1 Bright
-   FIR2 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIR2 ABCDEFG 1 Bright
+		FIR2 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
- 
+
 Actor FXBlueTorch : BlueTorch Replaces BlueTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("BlueTorchFlare", 0, 0, 55, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   TRCH A 1 A_SpawnItemEx("BlueTorchFire1", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1 A_SpawnItemEx("BlueTorchFire2", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("BlueTorchFlare",0,0,55)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		TRCH A 1 A_SpawnItemEx("BlueTorchFire1",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1 A_SpawnItemEx("BlueTorchFire2",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1
+		Goto Spawn
+	}
 }
 
 Actor FXShortBlueTorch : ShortBlueTorch Replaces ShortBlueTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("BlueTorchFlare", 0, 0, 30, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   STCB A 1 A_SpawnItemEx("BlueTorchFire1", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1 A_SpawnItemEx("BlueTorchFire2", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("BlueTorchFlare",0,0,30)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		STCB A 1 A_SpawnItemEx("BlueTorchFire1",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1 A_SpawnItemEx("BlueTorchFire2",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1
+		Goto Spawn
+	}
 }
 
 Actor BlueTorchFire1 : RedTorchFire1
 {
- States
- {
-  Spawn:
-   FIB1 ABCDEFG 1 Bright
-   FIB1 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIB1 ABCDEFG 1 Bright
+		FIB1 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor BlueTorchFire2 : BlueTorchFire1
 {
- States
- {
-  Spawn:
-   FIB2 ABCDEFG 1 Bright
-   FIB2 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIB2 ABCDEFG 1 Bright
+		FIB2 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor BlueTorchFlare : RedTorchFlare
 {
- States
- {
-  Spawn:
-   BFLR A 2 Bright
-   Stop
- }
+	States
+	{
+	Spawn:
+		BFLR A 2 Bright
+		Stop
+	}
 }
 
 Actor FXGreenTorch : GreenTorch Replaces GreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("GreenTorchFlare", 0, 0, 55, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   TRCH A 1 A_SpawnItemEx("GreenTorchFire1", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1 A_SpawnItemEx("GreenTorchFire2", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("GreenTorchFlare",0,0,55)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		TRCH A 1 A_SpawnItemEx("GreenTorchFire1",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1 A_SpawnItemEx("GreenTorchFire2",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1
+		Goto Spawn
+	}
 }
 
 Actor FXShortGreenTorch : ShortGreenTorch Replaces ShortGreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("GreenTorchFlare", 0, 0, 30, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   STCB A 1 A_SpawnItemEx("GreenTorchFire1", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1 A_SpawnItemEx("GreenTorchFire2", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("GreenTorchFlare",0,0,30)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		STCB A 1 A_SpawnItemEx("GreenTorchFire1",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1 A_SpawnItemEx("GreenTorchFire2",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1
+		Goto Spawn
+	}
 }
 
 Actor GreenTorchFire1 : RedTorchFire1
 {
- States
- {
-  Spawn:
-   FIG1 ABCDEFG 1 Bright
-   FIG1 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIG1 ABCDEFG 1 Bright
+		FIG1 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor GreenTorchFire2 : GreenTorchFire1
 {
- States
- {
-  Spawn:
-   FIG2 ABCDEFG 1 Bright
-   FIG2 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIG2 ABCDEFG 1 Bright
+		FIG2 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor GreenTorchFlare : RedTorchFlare
 {
- States
- {
-  Spawn:
-   GFLR A 2 Bright
-   Stop
- }
+	States
+	{
+	Spawn:
+		GFLR A 2 Bright
+		Stop
+	}
 }
 
 Actor FXBurningBarrel : BurningBarrel Replaces BurningBarrel
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("BarrelFlare", 0, 0, 30, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(6)
-   TNT1 A 0 A_Jump(128, 2)
-   FCAN AAA 0 A_SpawnItemEx("BarrelFire", Random(-6, 6), Random(-6, 6), Random(24, 28), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   FCAN A 1
-   Goto Spawn
-   FCAN A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("BarrelFlare",0,0,30)
+		TNT1 A 0 A_CheckSight(6)
+		TNT1 A 0 A_Jump(128,2)
+		FCAN AAA 0 A_SpawnItemEx("BarrelFire",Random(-6,6),Random(-6,6),Random(24,28),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		FCAN A 1
+		Goto Spawn
+		FCAN A 1
+		Goto Spawn
+	}
 }
 
 Actor BarrelFlare : RedTorchFlare
@@ -243,12 +240,12 @@ Actor BarrelFlare : RedTorchFlare
  Scale 0.45
  RenderStyle Add
  Alpha 1
- States
- {
-  Spawn:
-   RFLR A 2
-   Stop
- }
+	States
+	{
+	Spawn:
+		RFLR A 2
+		Stop
+	}
 }
 
 Actor BarrelFire : RedTorchFire1
@@ -262,360 +259,360 @@ Actor BarrelFire : RedTorchFire1
 //Yellow Torch//
 ////////////////
 
-Actor FXYellowTorch : GreenTorch 
+Actor FXYellowTorch : GreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("YellowTorchFlare", 0, 0, 55, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   TRCH A 1 A_SpawnItemEx("YellowTorchFire1", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1 A_SpawnItemEx("YellowTorchFire2", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("YellowTorchFlare",0,0,55)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		TRCH A 1 A_SpawnItemEx("YellowTorchFire1",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1 A_SpawnItemEx("YellowTorchFire2",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1
+		Goto Spawn
+	}
 }
 
-Actor FXShortYellowTorch : ShortGreenTorch 
+Actor FXShortYellowTorch : ShortGreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("YellowTorchFlare", 0, 0, 30, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   STCB A 1 A_SpawnItemEx("YellowTorchFire1", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1 A_SpawnItemEx("YellowTorchFire2", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("YellowTorchFlare",0,0,30)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		STCB A 1 A_SpawnItemEx("YellowTorchFire1",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1 A_SpawnItemEx("YellowTorchFire2",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1
+		Goto Spawn
+	}
 }
 
 Actor YellowTorchFire1 : RedTorchFire1
 {
- States
- {
-  Spawn:
-   FIY1 ABCDEFG 1 Bright
-   FIY1 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIY1 ABCDEFG 1 Bright
+		FIY1 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor YellowTorchFire2 : GreenTorchFire1
 {
- States
- {
-  Spawn:
-   FIY2 ABCDEFG 1 Bright
-   FIY2 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIY2 ABCDEFG 1 Bright
+		FIY2 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor YellowTorchFlare : RedTorchFlare
 {
- States
- {
-  Spawn:
-   YFLR A 2 Bright
-   Stop
- }
+	States
+	{
+	Spawn:
+		YFLR A 2 Bright
+		Stop
+	}
 }
 
 ///////////////
 //Blood Torch//
 ///////////////
 
-Actor FXBloodTorch : GreenTorch 
+Actor FXBloodTorch : GreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("BloodTorchFlare", 0, 0, 55, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   TRCH A 1 A_SpawnItemEx("BloodTorchFire1", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1 A_SpawnItemEx("BloodTorchFire2", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("BloodTorchFlare",0,0,55)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		TRCH A 1 A_SpawnItemEx("BloodTorchFire1",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1 A_SpawnItemEx("BloodTorchFire2",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1
+		Goto Spawn
+	}
 }
 
-Actor FXShortBloodTorch : ShortGreenTorch 
+Actor FXShortBloodTorch : ShortGreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("BloodTorchFlare", 0, 0, 30, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   STCB A 1 A_SpawnItemEx("BloodTorchFire1", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1 A_SpawnItemEx("BloodTorchFire2", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("BloodTorchFlare",0,0,30)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		STCB A 1 A_SpawnItemEx("BloodTorchFire1",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1 A_SpawnItemEx("BloodTorchFire2",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1
+		Goto Spawn
+	}
 }
 
 Actor BloodTorchFire1 : RedTorchFire1
 {
- States
- {
-  Spawn:
-   FIX1 ABCDEFG 1 Bright
-   FIX1 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIX1 ABCDEFG 1 Bright
+		FIX1 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor BloodTorchFire2 : GreenTorchFire1
 {
- States
- {
-  Spawn:
-   FIX2 ABCDEFG 1 Bright
-   FIX2 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIX2 ABCDEFG 1 Bright
+		FIX2 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor BloodTorchFlare : RedTorchFlare
 {
- States
- {
-  Spawn:
-   XFLR A 2 Bright
-   Stop
- }
+	States
+	{
+	Spawn:
+		XFLR A 2 Bright
+		Stop
+	}
 }
 
 ////////////////
 //Purple Torch//
 ////////////////
 
-Actor FXPurpleTorch : GreenTorch 
+Actor FXPurpleTorch : GreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("PurpleTorchFlare", 0, 0, 55, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   TRCH A 1 A_SpawnItemEx("PurpleTorchFire1", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1 A_SpawnItemEx("PurpleTorchFire2", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("PurpleTorchFlare",0,0,55)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		TRCH A 1 A_SpawnItemEx("PurpleTorchFire1",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1 A_SpawnItemEx("PurpleTorchFire2",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1
+		Goto Spawn
+	}
 }
 
-Actor FXShortPurpleTorch : ShortGreenTorch 
+Actor FXShortPurpleTorch : ShortGreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("PurpleTorchFlare", 0, 0, 30, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   STCB A 1 A_SpawnItemEx("PurpleTorchFire1", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1 A_SpawnItemEx("PurpleTorchFire2", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("PurpleTorchFlare",0,0,30)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		STCB A 1 A_SpawnItemEx("PurpleTorchFire1",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1 A_SpawnItemEx("PurpleTorchFire2",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1
+		Goto Spawn
+	}
 }
 
 Actor PurpleTorchFire1 : RedTorchFire1
 {
- States
- {
-  Spawn:
-   FIP1 ABCDEFG 1 Bright
-   FIP1 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIP1 ABCDEFG 1 Bright
+		FIP1 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor PurpleTorchFire2 : GreenTorchFire1
 {
- States
- {
-  Spawn:
-   FIP2 ABCDEFG 1 Bright
-   FIP2 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIP2 ABCDEFG 1 Bright
+		FIP2 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor PurpleTorchFlare : RedTorchFlare
 {
- States
- {
-  Spawn:
-   PFLR A 2 Bright
-   Stop
- }
+	States
+	{
+	Spawn:
+		PFLR A 2 Bright
+		Stop
+	}
 }
 
 ///////////////
 //White Torch//
 ///////////////
 
-Actor FXWhiteTorch : GreenTorch 
+Actor FXWhiteTorch : GreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("WhiteTorchFlare", 0, 0, 55, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   TRCH A 1 A_SpawnItemEx("WhiteTorchFire1", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1 A_SpawnItemEx("WhiteTorchFire2", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("WhiteTorchFlare",0,0,55)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		TRCH A 1 A_SpawnItemEx("WhiteTorchFire1",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1 A_SpawnItemEx("WhiteTorchFire2",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1
+		Goto Spawn
+	}
 }
 
-Actor FXShortWhiteTorch : ShortGreenTorch 
+Actor FXShortWhiteTorch : ShortGreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("WhiteTorchFlare", 0, 0, 30, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   STCB A 1 A_SpawnItemEx("WhiteTorchFire1", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1 A_SpawnItemEx("WhiteTorchFire2", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("WhiteTorchFlare",0,0,30)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		STCB A 1 A_SpawnItemEx("WhiteTorchFire1",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1 A_SpawnItemEx("WhiteTorchFire2",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1
+		Goto Spawn
+	}
 }
 
 Actor WhiteTorchFire1 : RedTorchFire1
 {
- States
- {
-  Spawn:
-   FIW1 ABCDEFG 1 Bright
-   FIW1 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIW1 ABCDEFG 1 Bright
+		FIW1 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor WhiteTorchFire2 : GreenTorchFire1
 {
- States
- {
-  Spawn:
-   FIW2 ABCDEFG 1 Bright
-   FIW2 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIW2 ABCDEFG 1 Bright
+		FIW2 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor WhiteTorchFlare : RedTorchFlare
 {
- States
- {
-  Spawn:
-   WFLR A 2 Bright
-   Stop
- }
+	States
+	{
+	Spawn:
+		WFLR A 2 Bright
+		Stop
+	}
 }
 
 //////////////
 //Cyan Torch//
 //////////////
 
-Actor FXCyanTorch : GreenTorch 
+Actor FXCyanTorch : GreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("CyanTorchFlare", 0, 0, 55, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   TRCH A 1 A_SpawnItemEx("CyanTorchFire1", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1 A_SpawnItemEx("CyanTorchFire2", Random(-2, 2), Random(-2, 2), Random(53, 55), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   TRCH A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("CyanTorchFlare",0,0,55)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		TRCH A 1 A_SpawnItemEx("CyanTorchFire1",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1 A_SpawnItemEx("CyanTorchFire2",Random(-2,2),Random(-2,2),Random(53,55),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		TRCH A 1
+		Goto Spawn
+	}
 }
 
-Actor FXShortCyanTorch : ShortGreenTorch 
+Actor FXShortCyanTorch : ShortGreenTorch
 {
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("CyanTorchFlare", 0, 0, 30, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   STCB A 1 A_SpawnItemEx("CyanTorchFire1", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1 A_SpawnItemEx("CyanTorchFire2", Random(-2, 2), Random(-2, 2), Random(28, 30), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2400), 0, 128, 0)
-   Goto Spawn
-   STCB A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("CyanTorchFlare",0,0,30)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		STCB A 1 A_SpawnItemEx("CyanTorchFire1",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1 A_SpawnItemEx("CyanTorchFire2",Random(-2,2),Random(-2,2),Random(28,30),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(1000,2400))
+		Goto Spawn
+		STCB A 1
+		Goto Spawn
+	}
 }
 
 Actor CyanTorchFire1 : RedTorchFire1
 {
- States
- {
-  Spawn:
-   FIC1 ABCDEFG 1 Bright
-   FIC1 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIC1 ABCDEFG 1 Bright
+		FIC1 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor CyanTorchFire2 : GreenTorchFire1
 {
- States
- {
-  Spawn:
-   FIC2 ABCDEFG 1 Bright
-   FIC2 HIJKL 1 Bright A_FadeOut(0.15)
-   Stop
- }
+	States
+	{
+	Spawn:
+		FIC2 ABCDEFG 1 Bright
+		FIC2 HIJKL 1 Bright A_FadeOut(0.15)
+		Stop
+	}
 }
 
 Actor CyanTorchFlare : RedTorchFlare
 {
- States
- {
-  Spawn:
-   CFLR A 2 Bright
-   Stop
- }
+	States
+	{
+	Spawn:
+		CFLR A 2 Bright
+		Stop
+	}
 }
 
 //////////////////
@@ -625,152 +622,151 @@ Actor CyanTorchFlare : RedTorchFlare
 Actor FXRedWallTorch : RedTorch
 {
  +NOGRAVITY
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("RedTorchFlare", 0, 0, 35, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   WLTR A 1 A_SpawnItemEx("RedTorchFire1", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1 A_SpawnItemEx("RedTorchFire2", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("RedTorchFlare",0,0,35)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		WLTR A 1 A_SpawnItemEx("RedTorchFire1",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1 A_SpawnItemEx("RedTorchFire2",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1
+		Goto Spawn
+	}
 }
 
 Actor FXYellowWallTorch : RedTorch
 {
  +NOGRAVITY
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("YellowTorchFlare", 0, 0, 35, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   WLTR A 1 A_SpawnItemEx("YellowTorchFire1", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1 A_SpawnItemEx("YellowTorchFire2", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("YellowTorchFlare",0,0,35)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		WLTR A 1 A_SpawnItemEx("YellowTorchFire1",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1 A_SpawnItemEx("YellowTorchFire2",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1
+		Goto Spawn
+	}
 }
 
 Actor FXGreenWallTorch : RedTorch
 {
  +NOGRAVITY
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("GreenTorchFlare", 0, 0, 35, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   WLTR A 1 A_SpawnItemEx("GreenTorchFire1", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1 A_SpawnItemEx("GreenTorchFire2", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("GreenTorchFlare",0,0,35)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		WLTR A 1 A_SpawnItemEx("GreenTorchFire1",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1 A_SpawnItemEx("GreenTorchFire2",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1
+		Goto Spawn
+	}
 }
 
 Actor FXPurpleWallTorch : RedTorch
 {
  +NOGRAVITY
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("PurpleTorchFlare", 0, 0, 35, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   WLTR A 1 A_SpawnItemEx("PurpleTorchFire1", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1 A_SpawnItemEx("PurpleTorchFire2", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("PurpleTorchFlare",0,0,35)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		WLTR A 1 A_SpawnItemEx("PurpleTorchFire1",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1 A_SpawnItemEx("PurpleTorchFire2",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1
+		Goto Spawn
+	}
 }
 
 Actor FXBloodRedWallTorch : RedTorch
 {
  +NOGRAVITY
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("BloodTorchFlare", 0, 0, 35, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   WLTR A 1 A_SpawnItemEx("BloodTorchFire1", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1 A_SpawnItemEx("BloodTorchFire2", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("BloodTorchFlare",0,0,35)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		WLTR A 1 A_SpawnItemEx("BloodTorchFire1",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1 A_SpawnItemEx("BloodTorchFire2",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1
+		Goto Spawn
+	}
 }
 
-Actor FXCyanWallTorch : RedTorch 
+Actor FXCyanWallTorch : RedTorch
 {
  +NOGRAVITY
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("CyanTorchFlare", 0, 0, 35, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   WLTR A 1 A_SpawnItemEx("CyanTorchFire1", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1 A_SpawnItemEx("CyanTorchFire2", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("CyanTorchFlare",0,0,35)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		WLTR A 1 A_SpawnItemEx("CyanTorchFire1",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1 A_SpawnItemEx("CyanTorchFire2",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1
+		Goto Spawn
+	}
 }
 
-Actor FXWhiteWallTorch : RedTorch 
+Actor FXWhiteWallTorch : RedTorch
 {
  +NOGRAVITY
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("WhiteTorchFlare", 0, 0, 35, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   WLTR A 1 A_SpawnItemEx("WhiteTorchFire1", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1 A_SpawnItemEx("WhiteTorchFire2", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("WhiteTorchFlare",0,0,35)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		WLTR A 1 A_SpawnItemEx("WhiteTorchFire1",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1 A_SpawnItemEx("WhiteTorchFire2",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1
+		Goto Spawn
+	}
 }
 
-Actor FXBlueWallTorch : RedTorch 
+Actor FXBlueWallTorch : RedTorch
 {
  +NOGRAVITY
- States
- {
-  Spawn:
-   TNT1 A 0
-   TNT1 A 0 A_SpawnItemEx("BlueTorchFlare", 0, 0, 35, 0, 0, 0, 0, 128, 0)
-   TNT1 A 0 A_CheckSight(4)
-   TNT1 A 0 A_Jump(128, 2)
-   WLTR A 1 A_SpawnItemEx("BlueTorchFire1", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1 A_SpawnItemEx("BlueTorchFire2", Random(-2, 2), Random(-2, 2), Random(30, 32), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(100, 2000), 0, 128, 0)
-   Goto Spawn
-   WLTR A 1
-   Goto Spawn
- }
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_SpawnItemEx("BlueTorchFlare",0,0,35)
+		TNT1 A 0 A_CheckSight(4)
+		TNT1 A 0 A_Jump(128,2)
+		WLTR A 1 A_SpawnItemEx("BlueTorchFire1",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1 A_SpawnItemEx("BlueTorchFire2",Random(-2,2),Random(-2,2),Random(30,32),0.001 * Random(10,200),0.001 * Random(10,200),0.001 * Random(100,2000))
+		Goto Spawn
+		WLTR A 1
+		Goto Spawn
+	}
 }
-
