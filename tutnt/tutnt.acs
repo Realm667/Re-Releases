@@ -43,6 +43,7 @@ script "IntroText" OPEN
 	}
 	else if(mapnum==6)
 	{
+		delay(1860);
 		mapname="Episode 4, Part 1: Into the Darkness";
 		objectives[0]="-Find the Plasma Rifle near the clocktower";
 		objectives[1]="-Kill the Spider Masterminds to lower the pillars";
@@ -105,13 +106,13 @@ str voicetext[35]=
 	"\cR''Is that the best you've got?!''",
 	"\cR''Uh oh!''",
 	"\cR''Face the Maker!''",
-	"\cR''I somehow liked the armory better, the comfortable warm\n\feeling of processed steel and exploding demon torsos.''",
-	"\cR''There are older and fouler things than Imps\n\in the deep places of the world.''",
+	"\cR''I somehow liked the armory better, the comfortable warm\n\cR\feeling of processed steel and exploding demon torsos.''",
+	"\cR''There are older and fouler things than Imps\n\cR\in the deep places of the world.''",
 	"\cR''Oh yeah, that gives me a warm n'fuzzy feeling.''",
 	"\cR''Time to light the barbecue!''",
 	"\cR''Hmm... get out, get out, wherever you are...''",
 	"\cR''I hate spiders!''",
-	"\cR''There's no way back now... it's time to show\nwhat I'm made of!''",
+	"\cR''There's no way back now... it's time to show\n\cRwhat I'm made of!''",
 	"I can feel it...\nthe evil power\nthat lies beyond this dark portal\n...the source of evil,\n\nspawning hundreds of demons\nhunting down humankind\nthis time on our homeworld,\nearth itself\n\nI can almost feel\nthe cold hand of death touching me",
 	"and\n...reaching out for my soul...\nI know that this final mission \nwill claim my life.\n\nIt is my destiny,\n\nmy fate to die in this war...\nthe only chance...\nto save those I love... \nbut what if there is much more \nbeyond what I can feel? ...",
 	"\cR''Oh yeah, we're into it now boys!''",
@@ -127,7 +128,7 @@ str voicetext[35]=
 	"\cR''It's a solid wall. It propably won't do anything if I push it!''",
 	"\cR''Yeah baby, lock and load!''",
 	"\cR''I swear I've seen this place before.''",
-	"\cR''I've got a bad feeling about this... whatever did\n\this was very powerful...''"
+	"\cR''I've got a bad feeling about this... whatever did\n\cR\this was very powerful...''"
 };
 script "PlayerVoice"(int clip)
 {
@@ -464,7 +465,8 @@ Script "BOSSHP"(int firstid,int lastid,int boss)
 	}
 	if(boss==3)
 	{
-		printbold (s: "\cCObjective Accomplished:\n\cGYou've killed the Portal Guards");
+		SetFont("NORMAL");
+		printbold(s: "\cCObjective Accomplished:\n\cGYou've killed the Portal Guards");
 		ambientsound("dudud",255);
 		delay(105);
 		setmusic("*");
