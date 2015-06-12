@@ -347,9 +347,9 @@ actor StrongholdChaingun : Chaingun replaces Chaingun
 		CHGG A 1 A_Raise
 		loop
 	Fire:
-		CHGG C 0 A_PlaySound("weapons/chnglp",5,1,1)
 		CHGG C 0 A_JumpIfInventory("PowerWeaponLevel2",1,"SuperFire")
 	Hold:
+		CHGG C 0 A_PlaySound("weapons/chnglp",CHAN_WEAPON,1,1)
 		CHGG A 0 A_GunFlash
 		CHGG A 1 A_FireBullets(4,2.3,1,5,"BulletPuff")
 		CHGG BCD 1
@@ -358,32 +358,32 @@ actor StrongholdChaingun : Chaingun replaces Chaingun
 		CHGG BCD 1
 		CHGG A 0 A_Refire
 	WindDown:
-		CHGG A 0 A_StopSound(5)
-		CHGG A 0 A_PlaySound("weapons/chngdn",6)
+		CHGG A 0 A_StopSound(CHAN_WEAPON)
+		CHGG A 0 A_PlaySound("weapons/chngdn",5)
 		CHGG ABBCCCDDD 1 A_Weaponready
 		Goto Ready
 	SuperFire:
 		CHGG A 0 A_GunFlash
+		CHGG A 0 A_PlaySound("weapons/chngun",CHAN_WEAPON)
 		CHGG A 1 A_FireBullets(1,1.1,1,5,"BulletPuff")
 		CHGG BCD 1
 		CHGG A 0 A_GunFlash
+		CHGG A 0 A_PlaySound("weapons/chngun",CHAN_WEAPON)
 		CHGG A 1 A_FireBullets(3,2.1,1,5,"BulletPuff")
 		CHGG BCD 1
 		CHGG A 0 A_Refire("SuperHold")
 		Goto WindDown
 	SuperHold:
 		CHGG A 0 A_GunFlash("SuperFlash")
+		CHGG A 0 A_PlaySound("weapons/chngun",CHAN_WEAPON)
 		CHGG A 1 A_FireBullets(6,3.1,1,5,"BulletPuff")
 		CHGG C 1
 		CHGG A 0 A_GunFlash("SuperFlash")
+		CHGG A 0 A_PlaySound("weapons/chngun",CHAN_WEAPON)
 		CHGG A 1 A_FireBullets(6,3.1,1,5,"BulletPuff")
 		CHGG C 1
 		CHGG A 0 A_Refire("SuperHold")
-	WindDown:
-		CHGG A 0 A_StopSound(5)
-		CHGG A 0 A_PlaySound("weapons/chngdn",6)
-		CHGG ABBCCCDDD 1
-		Goto Ready
+		Goto WindDown+1
 	Flash:
 		TNT1 A 0 A_Jump(128,"Flash2")
 		CHGF A 1 BRIGHT A_Light2
