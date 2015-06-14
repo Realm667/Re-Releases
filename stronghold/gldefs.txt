@@ -23,12 +23,6 @@ flickerlight BPUFF2
 	chance 0.8
 }
 
-object NewPuff
-{
-	frame PUFFA{ light BPUFF1}
-	frame PUFFB{ light BPUFF2}
-}
-
 // Rocket
 pointlight ROCKET
 {
@@ -97,18 +91,6 @@ flickerlight PLASMA_X4
 	size 8
 	secondarySize 16
 	chance 0.4
-}
-
-object PlasmaBall
-{
-	frame PLSSA{ light PLASMABALL}
-	frame PLSSB{ light PLASMABALL}
-
-	frame PLSEA{ light PLASMA_X1}
-	frame PLSEB{ light PLASMA_X2}
-	frame PLSEC{ light PLASMA_X2}
-	frame PLSED{ light PLASMA_X3}
-	frame PLSEE{ light PLASMA_X4}
 }
 
 // BFG
@@ -5971,17 +5953,6 @@ Object ElectricalPuff
 	Frame PLSEE{Light ElecPunchE}
 }
 
-// Power plasma ball ===================================================================
-
-object PowerPlasmaBall
-{
-	frame PLSEA{ light PLASMA_X1}
-	frame PLSEB{ light PLASMA_X2}
-	frame PLSEC{ light PLASMA_X2}
-	frame PLSED{ light PLASMA_X3}
-	frame PLSEE{ light PLASMA_X4}
-}
-
 // 'Super' BFG Ball ====================================================================
 
 pointlight BFGBALLp //'nother shameless copy...
@@ -6085,21 +6056,6 @@ PointLight StunnerBallDeathE
 	Color 0.0125 0.0 0.0125
 	Offset 0 16 0
 	Size 45
-}
-
-Object StunnerBall
-{
-	Frame STPR{Light StunnerBallLight}
-	Frame PLSEA{Light StunnerBallDeathA}
-	Frame PLSEB{Light StunnerBallDeathB}
-	Frame PLSEC{Light StunnerBallDeathC}
-	Frame PLSED{Light StunnerBallDeathD}
-	Frame PLSEE{Light StunnerBallDeathE}
-}
-
-Object PowerStunnerBall
-{
-	Frame STPR{Light StunnerBallLight}
 }
 
 // Landmine ============================================================================
@@ -6772,4 +6728,88 @@ flickerlight SentryPlasma4
     size 1
     secondarySize 2
     chance 0.4
+}
+
+Object RedStar
+{
+	Frame STAXA { Light RedStar }
+	Frame STAXB { Light RedStar2 }
+	Frame STAXC { Light RedStar3 }
+	Frame STAXD { Light RedStar4 }
+	Frame STAXE { Light RedStar5 }
+	Frame STAXF { Light RedStar6 }
+	Frame STAXG { Light RedStar7 }
+	Frame STAXH { Light RedStar8 }
+	Frame STAXI { Light RedStar9 }
+	Frame STAXJ { Light RedStar10 }
+	Frame STAXK { Light RedStar11 }
+	Frame STAXL { Light RedStar12 }
+}
+
+FlickerLight DMissileTrail1
+{
+	Color 1.0 0.4 0.0
+	Size 40
+	SecondarySize 44
+	Chance 0.5
+}
+
+FlickerLight DMissileTrail2
+{
+	Color 1.0 0.4 0.0
+	Size 48
+	SecondarySize 56
+	Chance 0.4
+}
+
+flickerlight DMissileTrail3
+{
+	Color 1.0 0.4 0.0
+	Size 64
+	SecondarySize 72
+	Chance 0.4
+}
+
+FlickerLight DMissileTrail4
+{
+	Color 0.7 0.2 0.0
+	Size 48
+	SecondarySize 56
+	Chance 0.4
+}
+
+FlickerLight DMissileTrail5
+{
+	Color 0.5 0.1 0.0
+	Size 32
+	SecondarySize 40
+	Chance 0.4
+}
+
+FlickerLight DMissileTrail6
+{
+	Color 0.2 0.0 0.0
+	Size 24
+	SecondarySize 32
+	Chance 0.4
+}
+
+Object FlamePuff2
+{
+	Frame CFFXB { Light DMissileTrail2 }
+	Frame CFFXC { Light DMissileTrail3 }
+	Frame CFFXD { Light DMissileTrail3 }
+	Frame CFFXE { Light DMissileTrail3 }
+	Frame CFFXF { Light DMissileTrail3 }
+	Frame CFFXG { Light DMissileTrail3 }
+	Frame CFFXH { Light DMissileTrail3 }
+	Frame CFFXI { Light DMissileTrail3 }
+	Frame CFFXJ { Light DMissileTrail4 }
+	Frame CFFXK { Light DMissileTrail5 }
+	Frame CFFXL { Light DMissileTrail6 }
+}
+
+Object CFlameFloor
+{
+	Frame CFFX { Light DMissileTrail1 }
 }

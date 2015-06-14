@@ -102,14 +102,14 @@ actor StrongholdPistol : Pistol replaces Pistol
 		loop
 	Fire:
 		PISG A 4 A_JumpIfInventory("PowerWeaponLevel2",1,"SuperFire")
-		PISG B 0 A_FireBullets (5.6, 0, 1, 5, "BulletPuff")
+		PISG B 0 A_FireBullets (5.6, 0, 1, 5, "NewPuff")
 		PISF A 6 A_GunFlash
 		PISG C 4
 		PISG B 5 A_ReFire
 		goto Ready
 	SuperFire:
 		PISG A 2
-		PISG B 0 A_FireBullets (5.6, 0, 1, 5, "BulletPuff")
+		PISG B 0 A_FireBullets (5.6, 0, 1, 5, "NewPuff")
 		PISF A 3 A_GunFlash("SuperFlash")
 		PISG C 2
 		PISG B 5 A_ReFire
@@ -153,7 +153,7 @@ actor StrongholdShotgun : Shotgun replaces Shotgun
 		SHTG A 3
 		SHTG E 0 A_GunFlash
 		SHTG E 0 A_JumpIfInventory("PowerWeaponLevel2",1,"SuperFire")
-		SHTG E 2 A_FireBullets (4, 3, 7, 5, "BulletPuff")
+		SHTG E 2 A_FireBullets (4, 3, 7, 5, "NewPuff")
 		SHTG F 3
 		SHTG G 2
 		SHTG BC 5
@@ -163,7 +163,7 @@ actor StrongholdShotgun : Shotgun replaces Shotgun
 		SHTG A 7 A_ReFire
 		goto Ready
 	SuperFire:
-		SHTG E 2 A_FireBullets (1.5, 0.5, 10, 5, "BulletPuff")
+		SHTG E 2 A_FireBullets (1.5, 0.5, 10, 5, "NewPuff")
 		SHTG F 3
 		SHTG G 2
 		SHTG BCDCB 2
@@ -197,7 +197,7 @@ actor StrongholdSuperShotgun : SuperShotgun replaces SuperShotgun
 		SHT2 A 3
 		SHT2 A 0 A_GunFlash
 		SHT2 M 0 A_JumpIfInventory("PowerWeaponLevel2",1,"SuperFire")
-		SHT2 M 2 Bright A_FireBullets (11.2,7.1,20,5,"BulletPuff")
+		SHT2 M 2 Bright A_FireBullets (11.2,7.1,20,5,"NewPuff")
 		SHT2 N 3 Bright
 		SHT2 O 2 Bright
 		SHT2 B 3
@@ -242,7 +242,7 @@ ACTOR SSGRipper
 	States
 	{
 	Death:
-		TNT1 A 1 A_SpawnItemEx("BulletPuff",0,0,0,0,0,1,160,128)
+		TNT1 A 1 A_SpawnItemEx("NewPuff",0,0,0,0,0,1)
 		stop
 	}
 }
@@ -291,7 +291,7 @@ actor AutoShotgun : Weapon 5118
 		ASGG A 1
 		ASGG L 0 A_GunFlash
 		ASGG A 0 A_TakeInventory("ASGClip",1)
-		ASGG L 2 A_FireBullets(5,4,7,5,"BulletPuff",0)
+		ASGG L 2 A_FireBullets(5,4,7,5,"NewPuff",0)
 		ASGG M 3
 		ASGG N 2
 		ASGG A 4 A_PlaySound("weapons/asgld1",CHAN_AUTO)
@@ -351,10 +351,10 @@ actor StrongholdChaingun : Chaingun replaces Chaingun
 	Hold:
 		CHGG C 0 A_PlaySound("weapons/chnglp",CHAN_WEAPON,1,1)
 		CHGG A 0 A_GunFlash
-		CHGG A 1 A_FireBullets(4,2.3,1,5,"BulletPuff")
+		CHGG A 1 A_FireBullets(4,2.3,1,5,"NewPuff")
 		CHGG BCD 1
 		CHGG A 0 A_GunFlash
-		CHGG A 1 A_FireBullets(4,2.3,1,5,"BulletPuff")
+		CHGG A 1 A_FireBullets(4,2.3,1,5,"NewPuff")
 		CHGG BCD 1
 		CHGG A 0 A_Refire
 	WindDown:
@@ -365,22 +365,22 @@ actor StrongholdChaingun : Chaingun replaces Chaingun
 	SuperFire:
 		CHGG A 0 A_GunFlash
 		CHGG A 0 A_PlaySound("weapons/chngun",CHAN_WEAPON)
-		CHGG A 1 A_FireBullets(1,1.1,1,5,"BulletPuff")
+		CHGG A 1 A_FireBullets(1,1.1,1,5,"NewPuff")
 		CHGG BCD 1
 		CHGG A 0 A_GunFlash
 		CHGG A 0 A_PlaySound("weapons/chngun",CHAN_WEAPON)
-		CHGG A 1 A_FireBullets(3,2.1,1,5,"BulletPuff")
+		CHGG A 1 A_FireBullets(3,2.1,1,5,"NewPuff")
 		CHGG BCD 1
 		CHGG A 0 A_Refire("SuperHold")
 		Goto WindDown
 	SuperHold:
 		CHGG A 0 A_GunFlash("SuperFlash")
 		CHGG A 0 A_PlaySound("weapons/chngun",CHAN_WEAPON)
-		CHGG A 1 A_FireBullets(6,3.1,1,5,"BulletPuff")
+		CHGG A 1 A_FireBullets(6,3.1,1,5,"NewPuff")
 		CHGG C 1
 		CHGG A 0 A_GunFlash("SuperFlash")
 		CHGG A 0 A_PlaySound("weapons/chngun",CHAN_WEAPON)
-		CHGG A 1 A_FireBullets(6,3.1,1,5,"BulletPuff")
+		CHGG A 1 A_FireBullets(6,3.1,1,5,"NewPuff")
 		CHGG C 1
 		CHGG A 0 A_Refire("SuperHold")
 		Goto WindDown+1
@@ -764,6 +764,79 @@ ACTOR PowerHomRocket1 : HomRocket1
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// PLASMA RIFLE /////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+ACTOR StrongholdPlasmaRifle : PlasmaRifle replaces PlasmaRifle
+{
+	States
+	{
+	Ready:
+		PLSG ABC 3 Bright A_WeaponReady
+		Loop
+	Deselect:
+		PLSG E 0 A_Lower
+		PLSG E 1 A_Lower
+		Loop
+	Select:
+		PLSG E 0 A_Raise
+		PLSG E 1 A_Raise
+		Loop
+	Fire:
+		PLSG F 0 A_JumpIfInventory("PowerWeaponLevel2",1,"SuperFire")
+		PLSG F 0 A_GunFlash
+		PLSG F 1 Bright A_FireCustomMissile("StrongholdPlasmaBall")
+		PLSG GH 1 Bright
+		PLSG D 20 A_Refire
+		Goto Ready
+	SuperFire:
+		PLSG F 1 A_JumpIfInventory("Cell",2,1)
+		Goto Fire+3
+		PLSG F 1 Bright A_GunFlash
+		PLSG F 1 Bright A_FireCustomMissile("PowerPlasmaBall")
+		PLSG GH 1 Bright
+		PLSG D 20 A_Refire
+		Goto Ready
+	Flash:
+		TNT1 A 1 A_Light1
+		TNT1 A 1 A_Light2
+		TNT1 A 1 A_Light1
+		Goto LightDone
+	}
+}
+
+ACTOR StrongholdPlasmaBall : PlasmaBall
+{
+	States
+	{
+	Spawn:
+		PLSS AB 6 Bright LIGHT("PLASMABALL")
+		Loop
+	Death:
+		PLSE A 4 Bright LIGHT("PLASMA_X1")
+		PLSE BC 4 Bright LIGHT("PLASMA_X2")
+		PLSE D 4 Bright LIGHT("PLASMA_X3")
+		PLSE E 4 Bright LIGHT("PLASMA_X4")
+		Stop
+	}
+}
+
+actor PowerPlasmaBall : StrongholdPlasmaBall
+{
+	Radius 22.75
+	Height 14
+	Damage 9
+	Scale 0.8
+	BounceType Doom
+	Bouncecount 5
+	States
+	{
+	Spawn:
+		PLSE A -1 bright
+		loop
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// RAILGUN    ///////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 ACTOR RailGun : Weapon 20102
@@ -957,7 +1030,7 @@ ACTOR StunnerRifle : PlasmaRifle 23099
 	}
 }
 
-actor StunnerBall : PlasmaBall
+actor StunnerBall : StrongholdPlasmaBall
 {
 	height 8
 	speed 20
@@ -973,8 +1046,15 @@ actor StunnerBall : PlasmaBall
 	states
 	{
 	Spawn:
-		STPR A 1 bright A_SpawnItemEx("StunnerBallFX")
+		STPR A 1 bright LIGHT("StunnerBallLight") A_SpawnItemEx("StunnerBallFX")
 		loop
+	Death:
+		PLSE A 4 Bright LIGHT("StunnerBallDeathA")
+		PLSE B 4 Bright LIGHT("StunnerBallDeathB")
+		PLSE C 4 Bright LIGHT("StunnerBallDeathC")
+		PLSE D 4 Bright LIGHT("StunnerBallDeathD")
+		PLSE E 4 Bright LIGHT("StunnerBallDeathE")
+		Stop
 	}
 }
 
@@ -1004,65 +1084,7 @@ actor PowerStunnerBall : StunnerBall
 	Spawn:
 		STPR A 0 A_BishopMissileWeave
 		STPR A 0 A_Tracer2
-		STPR A 0 A_SpawnItemEx("StunnerBallFX")
-		STPR A 1 Bright
-		loop
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////// PLASMA RIFLE /////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////
-ACTOR StrongholdPlasmaRifle : PlasmaRifle replaces PlasmaRifle
-{
-	States
-	{
-	Ready:
-		PLSG ABC 3 Bright A_WeaponReady
-		Loop
-	Deselect:
-		PLSG E 0 A_Lower
-		PLSG E 1 A_Lower
-		Loop
-	Select:
-		PLSG E 0 A_Raise
-		PLSG E 1 A_Raise
-		Loop
-	Fire:
-		PLSG F 0 A_JumpIfInventory("PowerWeaponLevel2",1,"SuperFire")
-		PLSG F 0 A_GunFlash
-		PLSG F 1 Bright A_FireCustomMissile("PlasmaBall")
-		PLSG GH 1 Bright
-		PLSG D 20 A_Refire
-		Goto Ready
-	SuperFire:
-		PLSG F 1 A_JumpIfInventory("Cell",2,1)
-		Goto Fire+3
-		PLSG F 1 Bright A_GunFlash
-		PLSG F 1 Bright A_FireCustomMissile("PowerPlasmaBall")
-		PLSG GH 1 Bright
-		PLSG D 20 A_Refire
-		Goto Ready
-	Flash:
-		TNT1 A 1 A_Light1
-		TNT1 A 1 A_Light2
-		TNT1 A 1 A_Light1
-		Goto LightDone
-	}
-}
-
-actor PowerPlasmaBall : PlasmaBall
-{
-	Radius 22.75
-	Height 14
-	Damage 9
-	Scale 0.8
-	BounceType Doom
-	Bouncecount 5
-	States
-	{
-	Spawn:
-		PLSE A 6 bright
+		STPR A 1 bright LIGHT("StunnerBallLight") A_SpawnItemEx("StunnerBallFX")
 		loop
 	}
 }
@@ -1872,16 +1894,18 @@ Actor RepPuff
 
 ACTOR NewPuff : BulletPuff replaces BulletPuff
 {
+	+CLIENTSIDEONLY
 	Alpha 1.0
 	Mass 1
 	States
 	{
 	Spawn:
 	Melee:
-	    PUFF A 2
+	    PUFF A 2 LIGHT("BPUFF1")
 	    PUFF A 0 A_Jump(128,2)
-	    PUFF A 2 A_SpawnItemEx("Puff2")
-	    PUFF BCD 4
+	    PUFF A 2 LIGHT("BPUFF1") A_SpawnItemEx("Puff2")
+	    PUFF B 4 LIGHT("BPUFF2")
+	    PUFF CD 4
 	    Stop
 	}
 }
