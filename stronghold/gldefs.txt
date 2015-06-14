@@ -158,26 +158,6 @@ flickerlight BFGBALL_X5
 	chance 0.3
 }
 
-object BFGBall
-{
-	frame BFS1A{ light BFGBALL}
-	frame BFS1B{ light BFGBALL}
-
-	frame BFE1A{ light BFGBALL_X1}
-	frame BFE1B{ light BFGBALL_X2}
-	frame BFE1C{ light BFGBALL_X3}
-	frame BFE1D{ light BFGBALL_X1}
-	frame BFE1E{ light BFGBALL_X4}
-	frame BFE1F{ light BFGBALL_X5}
-
-	frame BFE2A{ light BFGBALL}
-	frame BFE2B{ light BFGBALL_X1}
-	frame BFE2C{ light BFGBALL_X4}
-	frame BFE2D{ light BFGBALL_X5}
-}
-
-
-
 // ----------------------
 // -- Doom Decorations --
 // ----------------------
@@ -6196,17 +6176,6 @@ FlickerLight2 RepPuffSpawnG
 	Interval 0.0125
 }
 
-Object RepPuff
-{
-	Frame BLASA{Light RepPuffSpawnG}
-	Frame BLASB{Light RepPuffSpawnF}
-	Frame BLASC{Light RepPuffSpawnE}
-	Frame BLASD{Light RepPuffSpawnD}
-	Frame BLASE{Light RepPuffSpawnC}
-	Frame BLASF{Light RepPuffSpawnB}
-	Frame BLASG{Light RepPuffSpawnA}
-}
-
 // Pyroshot ============================================================================
 
 // For reference.
@@ -6369,32 +6338,6 @@ PointLight PyroDeathU
 	Size 230
 }
 
-Object PyroShot
-{
-	Frame PBALAB{Light PyroSpawnAB}
-	Frame PYXPA{Light PyroDeathA}
-	Frame PYXPB{Light PyroDeathB}
-	Frame PYXPC{Light PyroDeathC}
-	Frame PYXPD{Light PyroDeathD}
-	Frame PYXPE{Light PyroDeathE}
-	Frame PYXPF{Light PyroDeathF}
-	Frame PYXPG{Light PyroDeathG}
-	Frame PYXPH{Light PyroDeathH}
-	Frame PYXPI{Light PyroDeathI}
-	Frame PYXPJ{Light PyroDeathJ}
-	Frame PYXPK{Light PyroDeathK}
-	Frame PYXPL{Light PyroDeathL}
-	Frame PYXPM{Light PyroDeathM}
-	Frame PYXPN{Light PyroDeathN}
-	Frame PYXPO{Light PyroDeathO}
-	Frame PYXPP{Light PyroDeathP}
-	Frame PYXPQ{Light PyroDeathQ}
-	Frame PYXPR{Light PyroDeathR}
-	Frame PYXPS{Light PyroDeathS}
-	Frame PYXPT{Light PyroDeathT}
-	Frame PYXPU{Light PyroDeathU}
-}
-
 // Flamethrower ========================================================================
 
 // FTFire for reference:
@@ -6493,11 +6436,6 @@ FlickerLight2 PowerFTFireBlue
 Object PowerFTFire
 {
 	Frame STEM{Light PowerFTFireBlue}
-}
-
-Object DropFire
-{
-	Frame FLME{Light FTFireSpawn}
 }
 
 // Devastator (damn) ===================================================================
@@ -6678,44 +6616,9 @@ Object DevPuff
 	Frame DLIT{Light DevPuffLight}
 }
 
-Object DevastatorBall
-{
-	Frame DBALA{Light DevBallLight}
-	Frame DBALB{Light DevBallLight}
-	Frame DBALC{Light DevBallBoomA}
-	Frame DBALD{Light DevBallBoomB}
-	Frame DBALE{Light DevBallBoomC}
-	Frame DBALF{Light DevBallBoomD}
-	Frame DBALG{Light DevBallBoomE}
-}
-
-Object DevastatorBall2
-{
-	Frame DBA2{Light DevPuffLight}
-}
-
 Object LiteTrail
 {
 	Frame DLIT{Light DevPuffLight}
-}
-
-Object LiteShot
-{
-	Frame DLITA{Light DevLiteABCD}
-	Frame DLITB{Light DevLiteABCD}
-	Frame DLITC{Light DevLiteABCD}
-	Frame DLITD{Light DevLiteABCD}
-	Frame DLITE{Light DevLiteE}
-	Frame DLITF{Light DevLiteF}
-	Frame DLITG{Light DevLiteG}
-	Frame DLITH{Light DevLiteH}
-	Frame DLITI{Light DevLiteI}
-	Frame DLITJ{Light DevLiteJ}
-	Frame DLITK{Light DevLiteK}
-	Frame DLITL{Light DevLiteL}
-	Frame DLITM{Light DevLiteM}
-	Frame DLITN{Light DevLiteN}
-	Frame DLITO{Light DevLiteO}
 }
 
 // Powered rocket launcher =============================================================
@@ -6831,4 +6734,42 @@ FlickerLight2 SuperBlindingWhiteFlare
 Object smalllightemmit
 {
 	Frame WHFL{Light SuperBlindingWhiteFlare}
+}
+
+pointlight SentryPlasma
+{
+    color 1.0 0.7 0.3
+    size 6
+}
+
+flickerlight SentryPlasma1
+{
+    color 1.0 0.7 0.3
+    size 7
+    secondarySize 8
+    chance 0.4
+}
+
+flickerlight SentryPlasma2
+{
+    color 0.8 0.56 0.24
+    size 9
+    secondarySize 10
+    chance 0.4
+}
+
+flickerlight SentryPlasma3
+{
+    color 0.5 0.35 0.15
+    size 7
+    secondarySize 8
+    chance 0.4
+}
+
+flickerlight SentryPlasma4
+{
+    color 0.2 0.14 0.06
+    size 1
+    secondarySize 2
+    chance 0.4
 }
