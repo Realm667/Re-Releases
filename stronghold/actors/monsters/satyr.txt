@@ -1,0 +1,79 @@
+//===========================================================================
+//
+// Satyr
+//
+// by: Nanami
+// New Sprites and additional scripting by: Vader
+//
+//===========================================================================
+
+actor Satyr 3109
+{
+	//$Category Monsters
+	PainChance "Stunner", 192
+	Health 400
+	Radius 18
+	Height 48
+	Scale 0.75
+	Speed 2.66666667
+	PainChance 50
+	Mass 350
+	MONSTER
+	+FLOORCLIP
+	SeeSound "satyr/sight"
+	PainSound "knight/pain"
+	DeathSound "satyr/death"
+	ActiveSound "knight/active"
+	HitObituary "%o was mauled by a satyr."
+	States
+	{
+	Spawn:
+		STYR AB 10 A_Look
+		Loop
+	See:
+		STYR A 1 A_Chase
+		STYR AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		STYR A 1 A_Chase
+		STYR AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		STYR B 1 A_Chase
+		STYR BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		STYR B 1 A_Chase
+		STYR BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		STYR C 1 A_Chase
+		STYR CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		STYR C 1 A_Chase
+		STYR CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		STYR D 1 A_Chase
+		STYR DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		STYR D 1 A_Chase
+		STYR DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Melee:
+		STYR EF 6 A_FaceTarget
+		STYR G 6 A_CustomMeleeAttack(random(1,8)*8,"baron/melee")
+		STYR PQ 5 A_FaceTarget
+		STYR R 6 A_CustomMeleeAttack(random(1,8)*8,"baron/melee")
+		Goto See
+	Pain:
+		STYR H 2
+		STYR H 2 A_Pain
+		Goto See
+	Pain.Stunner:
+		STYR H 2 A_ChangeFlag("NoPain",1)
+		STYR H 300 A_Pain
+		STYR H 0 A_ChangeFlag("NoPain",0)
+		goto See
+	Death:
+		STYR I 5 A_GiveToTarget("AwardItem",8)
+		STYR J 5 A_Scream
+		STYR K 6
+		STYR L 7 A_Fall
+		STYR MN 4
+		STYR O 3000
+		STYR O 1 A_FadeOut(0.05)
+		Wait
+	Raise:
+		STYR ONMLKJI 8
+		Goto See
+	}
+}

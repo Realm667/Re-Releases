@@ -51,7 +51,6 @@ ACTOR Apprentice 30000
 		APDP D 6 A_CustomMissile("FireBlast",30,10,4)
 		Goto See
 		APDP DDDDDDDDDD 1 A_FadeOut(.1,0)
-		APDP D 0 A_SetInvulnerable
 		APDP DDDDDDDDDDDDDDDD 2 A_Wander
 		APDP D 0 A_FaceTarget
 		APDP C 0 A_PlaySound("wizard/attack")
@@ -78,7 +77,7 @@ ACTOR Apprentice 30000
 		APDP D 6 A_CustomMissile("FireBlast",30,10,4)
 		APDP DDDDDDDDDDDDDDDD 2 A_Wander
 		APDP DDDDDDDDD 1 A_FadeIn(.10)
-		APDP D 1 A_UnsetInvulnerable
+		APDP D 1
 		APDP D 1 A_SetTranslucent(1)
 		Goto See
 		APDP C 0 A_FaceTarget

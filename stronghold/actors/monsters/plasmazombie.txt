@@ -1,0 +1,39 @@
+ACTOR PlasmaZombie : StrongholdZombieMan 3205
+{
+    Health 50
+    PainChance 100
+    PainChance "Stunner",255
+    Obituary "%o got burned by a plasma zombie."
+    DropItem Cell
+	Decal ""
+    States
+    {
+    Spawn:
+        ZMAY AB 10 A_Look
+        Loop
+	Missile:
+		ZMAY E 10 A_FaceTarget
+		ZMAY F 5 LIGHT("ZombiePlasma") A_CustomMissile("PlasmaBall")
+		ZMAY E 5 A_FaceTarget
+		ZMAY F 5 LIGHT("ZombiePlasma") A_CustomMissile("PlasmaBall")
+		ZMAY E 5 A_FaceTarget
+		ZMAY F 5 LIGHT("ZombiePlasma") A_CustomMissile("PlasmaBall")
+		ZMAY E 5 A_FaceTarget
+		ZMAY F 5 LIGHT("ZombiePlasma") A_CustomMissile("PlasmaBall")
+		ZMAY E 5 A_FaceTarget
+		ZMAY F 5 LIGHT("ZombiePlasma") A_CustomMissile("PlasmaBall")
+		Goto See
+    Death:
+        ZMAY H 0 A_GiveToTarget("AwardItem", 3)
+		Goto Super::Death+1
+    XDeath:
+		ZMAY A 0 A_GiveToTarget("AwardItem",5)
+		ZMAY M 5
+		ZMAY N 5 A_XScream
+		ZMAY O 5 A_NoBlocking
+		ZMAY PQRST 5
+		ZMAY T 3000
+		ZMAY T 1 A_FadeOut(0.05)
+		Wait
+    }
+}

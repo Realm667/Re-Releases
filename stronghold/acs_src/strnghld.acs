@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////
 // SHOP SYSTEM by Cutmanmike /////////////////////////////////////
-// [optimised by Jimmy]	  /////////////////////////////////////
+// [optimised by Jimmy]		 /////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 
 #define MAX_SHOPITEMS 27
@@ -190,6 +190,13 @@ str Shop[MAX_SHOPITEMS][7] =
 		"   and have access to all of its strengths, weaknesses, and -\n",
 		"   best of all - attacks.",
 	},
+	/*{"Terminator Mech", "MorphPlayerItem",
+		"   The UAC technology experts were able to create a replica of\n",
+		"   the terminator mech, complete with attacks, for the Marine's\n",
+		"   side. Sadly, we arent't able to replicate the Terminator's\n",
+		"   defensive forcefield, so you'll won't be quite as durable as\n",
+		"   the original Terminator. It's expensive, but worth it.",
+	},*/
 	{
 		"I Win Button","IWinButtonItem",
 		"   This amazing utility augments your arsenal and body in\n",
@@ -255,7 +262,7 @@ int PlayerConfirm[32];
 
 // Hopefully Cutmanmike doesn't mind me simplifying his shop script. :P
 // - Jimmy
-script "Shop" (int shopitem)
+script "Shop"(int shopitem)
 {
 	SetHudSize(640,480,0);
 	if(!PlayerConfirm[PlayerNumber()])
@@ -309,12 +316,12 @@ script "Shop" (int shopitem)
 			HudMessage(s:"Thank you!"; HUDMSG_FADEINOUT,998,CR_UNTRANSLATED,230.4,30.0,1.5,0.3,0.3);
 			LocalAmbientSound("Cash",128);
 			PlayerConfirm[PlayerNumber()] = 0;
-			delay(25);
+			delay(1);
 		}
 	}
 }
 
-script 4 (void)
+script 4(void)
 {
 	PlayerConfirm[PlayerNumber()] = 1;
 	SetPlayerProperty(0,1,PROP_TOTALLYFROZEN);
@@ -445,11 +452,11 @@ str mapinfo[56][11] =
 		"can't suffer a loss that great, so it's up to you to make this mission a success."
 	},
 	{
-		"Tier 4, Mission 2","Crimson","Smoldering Caves","Limit","10","$1700","P_STR18",
+		"Tier 4, Mission 2","Midnat II","Delta Bunker","Limit","10","$1700","P_STR18",
 		"An abandoned defense bunker that was utterly stormed during the last demon invasion.",
 		"Some of its defensive utilities are still intact, though you won't have many places",
 		"to hide, and even fewer chances to hold the advancing waves back. Do all you can under",
-		"the circumstances to stop the hellspawn from destroying it!"
+		"the circumstances to stop the hellspawn from destroying it!",
 	},
 	{
 		"Tier 4, Mission 3","Styx","Tarstone Fortress","Limit","10","$1800","P_STR19",
@@ -459,11 +466,11 @@ str mapinfo[56][11] =
 		"wreak havoc upon our homeworlds if we lose control of it. It's all up to you."
 	},
 	{
-		"Tier 4, Mission 4","Crimson","Dusk","Deadline","10","$1900","P_STR20",
-		"This planet has been renowned amongst UAC explorers and researchers for having many",
-		"paradoxical phenomena. It boasts several somewhat peculiar structures, including this",
-		"floating fortress, which the UAC is beginning to study in greater depth. However,",
-		"the area is already rife with demons, so expect the unexpected."
+		"Tier 4, Mission 4","Heloxyd","Snake Corridors","Limit","7","$1900","P_STR20",
+		"This dilapidated UAC warehouse was abandoned a while ago when deadly toxins from",
+		"the planet's underground began seeping into it. While the toxins were eventually",
+		"contained, the same can't be said for the hordes of fast, deadly demons that",
+		"endanger this stronghold. Defending this base sure won't be a walk in the park.",
 	},
 	{
 		"Tier 4, Mission 5","Midnat II","Overmind","Overmind (Intro)","10","$2000","P_STR21",
@@ -501,14 +508,14 @@ str mapinfo[56][11] =
 		"with intent to destroy its exterior core network - it must be kept intact!"
 	},
 	{
-		"Tier 5, Mission 5","Deep Space","Deepspace 12","Goals (Intro)","7","$2500","P_STR26",
+		"Tier 5, Mission 5","Deep Space","Deepspace 12","Goals (Intro)","16","$2500","P_STR26",
 		"This substantial space station is the hub of the UAC's inter-planetary research network.",
 		"Its massive data terminals house crucial information on all of the military branches",
 		"and strongholds in this sector. Exabytes of precious data is at stake. Protect every",
 		"single square inch of this station, or all will be lost."
 	},
 	{
-		"Tier 6, Mission 1","Cyclone","Cyclone","Milestone","10","$2600","P_STR27",
+		"Tier 6, Mission 1","Cyclone","Cyclone","Milestone","7","$2600","P_STR27",
 		"The skies of this elusive planet are constantly dancing with the aurora borealis",
 		"phenomenon, as it is known on Earth, and luminous crystals dot the landscape.",
 		"This planet is falling rapidly under the demons' influence - and what would",
@@ -536,18 +543,18 @@ str mapinfo[56][11] =
 		"marine, and block their entrance through the gate through any means necessary!"
 	},
 	{
-		"Tier 6, Mission 5","Null X-1","Black Gold","Core","10","$3000","P_STR31",
-		"Welcome back to this barren wasteland of a planet, marine. This time our oil-mining",
-		"stronghold has been placed in jeopardy by the spawning hordes of monsters. The core",
-		"powering the heavy mining machinery, which if destroyed could render the entire",
-		"facility useless, is unfortunately badly exposed. You must not fail us here."
+		"Tier 6, Mission 5","Null X-1","Shell Shock","Deadline","10","$3000","P_STR31",
+		"The demons are attacking one of our main defense installations here on Null X-1. We have",
+		"already lost the station's ion cannon amidst the chaos of their previous attack, and it",
+		"is likely they will make use of it during the course of this mission. You must prevent",
+		"the demons from destroying this base and stealing more of its destructive weaponry."
 	},
 	{
-		"Tier 6, Mission 6","Heloxyd","Snake Corridors","Limit","7","$3100","P_STR32",
-		"This dilapidated UAC warehouse was abandoned a while ago when deadly toxins from",
-		"the planet's underground began seeping into it. While the toxins were eventually",
-		"contained, the same can't be said for the hordes of fast, deadly demons that",
-		"endanger this stronghold. Defending this base sure won't be a walk in the park."
+		"Tier 6, Mission 6","Crimson","Dusk","Limit","11","$3100","P_STR32",
+		"This planet has been renowned amongst UAC explorers and researchers for having many",
+		"paradoxical phenomena. It boasts several somewhat peculiar structures, including this",
+		"floating fortress, which the UAC is beginning to study in greater depth. However,",
+		"the area is already rife with demons, so expect the unexpected."
 	},
 	{
 		"Tier 6, Mission 7","Photon","Antlion Nebula","Milestone","10","$3200","P_STR33",
@@ -557,7 +564,7 @@ str mapinfo[56][11] =
 		"this stronghold. We wish you luck - this will by no means be an easy task."
 	},
 	{
-		"Tier 6, Mission 8","Rouger","Three Ways to Die","Core","10","$3300","P_STR34",
+		"Tier 6, Mission 8","Rouger","Three Ways to Die","Goals","12","$3300","P_STR34",
 		"This planet's thin atmosphere and dangerous proximity to its lethally radioactive",
 		"sun make it a hazardous environment. Storms rage violently across its surface,",
 		"and a hefty battalion of demons encroaches a series of control towers situated in",
@@ -585,7 +592,7 @@ str mapinfo[56][11] =
 		"While hellspawn rampaged on Earth, the UAC launched their remaining task force against",
 		"the final demon gate in a bid to close it from the other side. One brave marine stood",
 		"up, and overthrew the hellish legions single-handedly. In a recreation of this",
-		"historic battle, your misssion is to seal the gate, and secure the control points."
+		"historic battle, your mission is to seal the gate, and secure the control points."
 	},
 	{},
 	{
@@ -597,12 +604,13 @@ str mapinfo[56][11] =
 	},
 };
 
-str MonsterNames[42] =
+str MonsterNames[45] =
 {
 	"Former Human",
 	"Former Human Sergeant",
 	"Former Human Commando",
 	"Former Human Rocketeer",
+	"Former Human Plasmagunner",
 	"Dune Warrior",
 	"Suicide Bomber",
 	"Zombie Tank",
@@ -623,11 +631,13 @@ str MonsterNames[42] =
 	//
 	"Cacodemon",
 	"Enhanced Cacodemon",
+	"Nightmare Cacodemon",
 	"Pain Elemental",
 	"Hades Elemental",
 	//
 	"Revenant",
 	//
+	"Satyr",
 	"Hell Knight",
 	"Baron of Hell",
 	"Hell Warrior",
@@ -661,12 +671,13 @@ str MonsterNames[42] =
 // \cg red >1000Very High
 // \ca brick >3000Insane
 
-str MonsterStats[42][9] =
+str MonsterStats[45][9] =
 {
 	{"HoloDeco_Zombieman","\cu20","\chSlow","\cuVery Low","Undead","Hitscan","$1-3","None","S. Priestess"},
 	{"HoloDeco_Shotgunguy","\cu30","\chSlow","\chLow","Undead","Hitscan","$2-4","None","S. Priestess"},
 	{"HoloDeco_Chaingunner","\ch60","\chSlow","\cdMedium","Undead","Hitscan (Continuous)","$5-8","None","S. Priestess"},
 	{"HoloDeco_RocketTrooper","\cu50","\chSlow","\cdMedium","Undead","Projectile","$3-5","None","W. Weasel"},
+	{"HoloDeco_Zombieman","\cu50","\chSlow","\cdMedium","Undead","Projectile","$3-5","None","R. West"},
 	{"HoloDeco_DuneWarrior","\cu120","\chSlow","\cdMedium","Undead","Projectile and Hitscan","$4-8","Cloak","J. Paddock"},
 	{"HoloDeco_SuicideBomber","\ch80","\cgFast","\cdMedium","Undead","Melee Only","$5","Kamikaze","W. Weasel"},
 	{"HoloDeco_ZombieTank","\ch600","\cgFast","\cdMedium","Undead/Mechanical","Hitscan (Semi-Continuous)","$8","None","J. Paddock"},
@@ -687,11 +698,13 @@ str MonsterStats[42][9] =
 	// 15
 	{"HoloDeco_Cacodemon","\cd400","\chSlow","\cdMedium","Demon","Projectile and Melee","$9","Flight","B. V. Ostmann"},
 	{"HoloDeco_EnhancedCaco","\cd300","\chSlow","\cdMedium","Mutant","Projectile and Melee","$10","Flight","W. Weasel"},
+	{"HoloDeco_Cacodemon","\cd700","\cfQuick","\cfMedium High","Demon/Nightmare","Projectile and Melee","$11","Flight","R. West"},
 	{"HoloDeco_PainElemental","\cd400","\chSlow","\cfMedium High","Demon","Spawn","$10","Flight, Death Spawn","W. Weasel"},
 	{"HoloDeco_Helemental","\cg1600","\chSlow","\cdVery High","Demon","\cgOH SHIT","$64","Flight, Phase","J. Paddock"},
 	// 19
 	{"HoloDeco_Revenant","\cd300","\cfQuick","\cfMedium High","Undead","Projectile, Tracer and Melee","$15","None","S. Priestess"},
 	// 20
+	{"HoloDeco_HellKnight","\cf400","\chSlow","\cdMedium","Demon","Melee","$8","None","R. West"},
 	{"HoloDeco_HellKnight","\cf500","\chSlow","\cdMedium","Demon","Projectile and Melee","$15","None","S. Priestess"},
 	{"HoloDeco_BaronOfHell","\ci1000","\chSlow","\cfMedium High","Demon","Projectile and Melee","$20","None","S. Priestess"},
 	{"HoloDeco_HellWarrior","\ci400","\chSlow","\cfMedium High","Demon","Projectile and Melee","$12","Shield","J. Paddock"},
@@ -718,7 +731,7 @@ str MonsterStats[42][9] =
 	// 35
 };
 
-str MonsterBio[42][8] =
+str MonsterBio[45][8] =
 {
 	//---ZOMBIES---//
 	//Zombieman
@@ -747,6 +760,14 @@ str MonsterBio[42][8] =
 		"careful. While they go down easy - they're only human, after all - it may be",
 		"more worthwhile to leave them alive for a while to let them accidentally fire",
 		"their weapons at larger monsters.","","",""
+	},
+	//Plasma Zombie
+	{
+		"Much like the other former humans, these guys will go down easily. Sadly, they",
+		"carry a plasma rifle, and while they don't fire it as fast as you do, it will",
+		"still incinerate you if you aren't careful. It is advised to not let them fire",
+		"upon you when you fight them. Worse still, they only drop an energy cell upon",
+		"death, rather than a plasma rifle.","","",""
 	},
 	//Dune Warrior
 	{
@@ -902,6 +923,14 @@ str MonsterBio[42][8] =
 		"harder to actually put down than your garden-variety Cacodemon. Just, uh,",
 		"remember to stay out of their way.","","",""
 	},
+	//Nightmare Cacodemon
+	{
+		"These spectral monstrosities make the nightmare demon look nice. Moving faster",
+		"than the ordinary cacodemon, these blue and partially invisible nightmares will",
+		"shoot blue fireballs which travel twice as fast as the normal cacodemon fireballs.",
+		"In addition to that, they shoot them out much faster than an ordinary cacodemon.",
+		"Adding to THAT is the fact that they are almost twice as tough as the cacodemon.","","",""
+	},
 	//Pain Elemental
 	{
 		"The Pain Elemental combines the two most irritating things in the world:",
@@ -929,6 +958,13 @@ str MonsterBio[42][8] =
 		"and personal, so watch out! He's moderately tough to kill.","","","","",""
 	},
 	//---NOBLES---//
+	//Satyr
+	{
+		"These minor nobles are just that - minor. They only have a melee attack, but",
+		"they attack faster than most demons, and do a lot of damage. They do have some",
+		"level of inherent toughness - but as long as you stay out of their range, they",
+		"shouldn't be a problem. Think of them like slower, but tougher blood demons.","","","",""
+	},
 	//Hell Knight
 	{
 		"A lesser version of the Baron of Hell, this creature's skin is not quite as",
@@ -1097,7 +1133,7 @@ str MonsterBio[42][8] =
 	//Terminator
 	{
 		"Hard to differentiate between demon and machine, the terminator is probably",
-		"the toughest ever enemy you will face during your missions. Its vital systems",
+		"the toughest enemy you will ever face during your missions. Its vital systems",
 		"are not only protected by heavy armor, but also by powerful invisible energy",
 		"fields, which allow it to absorb huge amounts of physical damage. In addition,",
 		"it seems to have a nigh-infinite arsenal of destructive weaponry. With arm",
@@ -1196,6 +1232,9 @@ Script "FastMonsters"(void)
 #libdefine	S_GOAL_DESTROYED	926
 #libdefine  S_CORE_WARNINGS     929
 
+#libdefine	S_HARD_MODE_CHECK	935
+#libdefine	S_I_WIN_BUTTON	936
+
 #libdefine	GOAL_RED	1
 #libdefine	GOAL_ORANGE	2
 #libdefine	GOAL_BLUE	3
@@ -1229,13 +1268,13 @@ Script "FastMonsters"(void)
 #libdefine B_INDIRECTKILLS1 16
 #libdefine B_INDIRECTKILLS2 17
 #libdefine B_INDIRECTKILLS3 18
-#libdefine B_CASH1000 19
-#libdefine B_CASH2000 20
-#libdefine B_CASH3000 21
+#libdefine B_CASH10K 19
+#libdefine B_CASH20K 20
+#libdefine B_CASH30K 21
 #libdefine B_DAMAGE100 22
 #libdefine B_DAMAGE50 23
 #libdefine B_NODAMAGE 24
-#libdefine B_NODEATHS 25
+#libdefine B_NIGHTMARE 25
 
 #libdefine GAME_DEADLINE 0
 #libdefine GAME_CORE 1
@@ -1252,12 +1291,12 @@ Script "FastMonsters"(void)
 ** *************************************** */
 int F_CallNextWave; //Cheat variable to force next wave.
 int Waves,GameMode=GAME_DEADLINE,HateEpicenter,NumberOfTargets,BossMonster,BossTarget,
-BossHealth=20000,EventScript,GoalScript,MileScript,CurrentMile,ExitPos,PrisonSpot,
+BossHealth=25000,EventScript,GoalScript,MileScript,CurrentMile,ExitPos,PrisonSpot,
 PrisonExit,PrisonCamStart,PrisonTeleporterLineId,PrisonTeleporterThrustAngle,PrisonExitThrustAngle=-1,
 TeleporterOnLight,TeleporterOffLight;
 int BreakTime=-1;	// Deadline default is 6*35. Can be overridden by map.
 int LimitMax=100;	// Can be overridden by map
-int tics_between_monster_spawns=5;	// Can be overridden, but highly not recommended to shorten this either.
+int tics_between_monster_spawns=1;	// Can be overridden, but highly not recommended to shorten this either.
 bool GameActive=TRUE;	// When this is false, the player can't lose lives
 bool GameVictory,TrainingMap,TimeAttackMode;
 bool GivePistol=TRUE;	// Set to false for Intermap
@@ -1265,11 +1304,10 @@ bool BriefSkippable=TRUE;	// If this is false, "Press <use> to skip" won't be sh
 bool BriefTalking;	// When true, talking animation in briefing happens
 bool BriefActive;	// Should be TRUE when players should be frozen (PROP_TOTALLY_FROZEN)
 bool BriefNoGun;	// The player won't be given a gun on first spawn while this is true
-str BriefBackground="TNTA0";
 int BriefScript;	// Set to script number of briefing script. See STR01 for example.
 int DamageTaken[32];
 bool PlayersAreLate;
-int LatePlayersDelay=35*20; // Time before late players are put into jail immediately.
+int LatePlayersDelay=35*60; // Time before late players are put into jail immediately.
 
 #libdefine RADIONAME_SIZE	16
 int RadioName[RADIONAME_SIZE];
@@ -1287,12 +1325,12 @@ int MapCoinReward[57]=
 int MapParTime[57]=
 {
 	0,
-	2*60,5*60,10*60,6*60,8*60,10*60,9*60,8*60,3*60,9*60,
-	9*60,10*60,8*60,10*60,11*60,19*60,10*60,15*60,15*60,10*60,
-	5*60,9*60,13*60,16*60,6*60,11*60,24*60,20*60,19*60,25*60,
-	13*60,22*60,14*60,19*60,30*60,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,9*60,
-	0,12*60,0,11*60,0,14*60
+	4*60,10*60,20*60,12*60,16*60,20*60,18*60,16*60,12*60,18*60,
+	18*60,20*60,16*60,22*60,25*60,45*60,20*60,32*60,30*60,25*60,
+	10*60,18*60,35*60,33*60,12*60,48*60,44*60,40*60,38*60,45*60,
+	20*60,50*60,36*60,60*60,90*60,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,20*60,
+	0,24*60,0,55*60,0,33*60
 };
 
 // 0=level not finished
@@ -1403,11 +1441,8 @@ int BriefX=370.0,BriefY=365.0,BriefHID=1004,BriefExtraHID=1003;
 #define	WatchHudSizeX	640
 #define	WatchHudSizeY	430
 
-str WatchHudFont="BIGFONT";	// Doesn't seem to work as a define
-
-int lastWeaponTid,MonstersTid,highestPlayerNumber,randomRadioFace;
+int lastWeaponTid,MonstersTid,highestPlayerNumber,randomRadioFace,msgEndOfLine,msgCurTurn,TimerIsLive;
 bool isSetup;
-int msgEndOfLine,msgCurTurn,TimerIsLive;
 int AllVarsLocal;	// If this is false, then we're a client in a Skulltag client/server setup
 
 int levelRunningTime,levelMinutes,levelSeconds;
@@ -1421,7 +1456,6 @@ int parTimeMode,parTime,parTimeMinutes,parTimeSeconds;
 str parTimeSecondsSpace="0";
 
 bool jailTeleporter;
-str TeleporterOnTexture="TELEPTY1",TeleporterOffTexture="TELEPTX1";
 int LimitCounter;	// Number of monsters that have crossed the limit
 int curWave;	// Only to be used for display purposes
 bool DisableAnnounceWaveDone;	// When TRUE, finishing a wave isn't announced. Used for Overmind mode.
@@ -1476,7 +1510,7 @@ str MileAnnounceSounds[MILE_ANNOUNCE_SOUNDS_LEN]=
 };
 
 #define MAXBONUSES 26
-int BonusArray[MAXBONUSES][3]={
+int BonusArray[MAXBONUSES][3] = {
 // Icon     Name                        Description                                                Award
 //-------------------------------------------------------------------------------------------------------
 // Time bonuses.
@@ -1489,35 +1523,35 @@ int BonusArray[MAXBONUSES][3]={
 {"B_KILL3", "\cgCATACLYSM",             "Killed 300 monsters in 1 minute.",                        },//750},
 // Defense bonuses.
 {"B_MILE",  "\chMILESTONE DEFENDER",    "Didn't let the demons cross one milestone.",              },//2000},
-{"B_GOAL",  "\chGOAL DEFENDER",         "Didn't let the demons destroy one goal.",                 },//800},
+{"B_GOAL",  "\chGOAL DEFENDER",         "Didn't let the demons destroy one goal.",                 },//1000},
 // Core bonuses.
-{"B_CORE1", "\cdCORE PROTECTOR",        "Completed the mission with the core at 90%-94%.",         },//500},
-{"B_CORE2", "\cdCORE PRESERVER",        "Completed the mission with the core at 95%-99%.",         },//750},
+{"B_CORE1", "\cdCORE PROTECTOR",        "Completed the mission with the core at 80%-89%.",         },//200},
+{"B_CORE2", "\cdCORE PRESERVER",        "Completed the mission with the core at 90%-99%.",         },//600},
 {"B_CORE3", "\cdCORE PERFECTOR",        "Completed the mission with the core at 100%!",            },//1000},
 // Limit bonuses.
-{"B_LIMIT1","\cfLIMIT PROTECTOR",       "Monster limit did not exceed half.",                      },//200},
-{"B_LIMIT2","\cfLIMIT PRESERVER",       "Monster limit did not exceed one third.",                 },//600},
+{"B_LIMIT1","\cfLIMIT PROTECTOR",       "Monster limit did not exceed half.",                      },//500},
+{"B_LIMIT2","\cfLIMIT PRESERVER",       "Monster limit did not exceed one quarter.",               },//750},
 {"B_LIMIT3","\cfLIMIT PERFECTOR",       "Didn't let a single demon pass the deadline!",            },//1000},
 // Overmind bonuses.
 {"B_OVER1", "\caOVERKILL",              "Killed the overmind without killing any other monsters.", },//1000},
-{"B_OVER2", "\caOVERRIDE",              "Didn't let the Overmind destroy one core.",               },//1000},
+{"B_OVER2", "\caOVERRIDE",              "Didn't let the Overmind destroy one core.",               },//3000},
 // Indirect kill bonuses.
 {"B_INDK1", "\ciMODERATOR",             "Killed 100 monsters indirectly.",                         },//200},
 {"B_INDK2", "\ciMANIPULATOR",           "Killed 200 monsters indirectly.",                         },//600},
 {"B_INDK3", "\ciMASTERMIND",            "Killed 300 monsters indirectly.",                         },//1000},
 // Cash bonuses.
-{"B_CASH1", "\cqMONEY MERCHANT",        "Earnt more than $1000 in one minute.",                    },//500},
-{"B_CASH2", "\cqMONEY MAGNET",          "Earnt more than $2000 in one minute.",                    },//1000},
-{"B_CASH3", "\cqMONEY MASTER",          "Earnt more than $3000 in one minute.",                    },//1500},
+{"B_CASH1", "\cqMONEY MERCHANT",        "Accumulated more than $10000 Credits.",                   },//500},
+{"B_CASH2", "\cqMONEY MAGNET",          "Accumulated more than $20000 Credits.",                   },//1000},
+{"B_CASH2", "\cqMONEY MASTER",          "Accumulated more than $30000 Credits.",                   },//1500},
 // Damage bonuses.
 {"B_DAMG1", "\ctUNSTOPPABLE",           "Took less than 100 damage overall.",                      },//1000},
 {"B_DAMG2", "\csINHUMAN",               "Took less than 50 damage overall.",                       },//2500},
 {"B_DAMG3", "\cnGODLIKE",               "Took no damage overall.",                                 },//5000},
-{"B_NODETH","\cbDOMINATOR",             "Didn't die once.",                                        },//2000},
+{"B_NIGHTM","\cbDOMINATOR",             "Played on Nightmare mode.",                               },//2000},
 };
 
-int BonusAwards[MAXBONUSES]=
-{500,1000,1500,250,500,750,2000,800,500,750,1000,200,600,1000,1000,1000,200,600,1000,500,1000,1500,1000,2500,5000,2000};
+int BonusAwards[MAXBONUSES] =
+{500,1000,1500,250,500,750,2000,1000,200,600,1000,500,750,1000,1000,3000,200,600,1000,500,1000,1500,1000,2500,5000,2000};
 
 // Spots arrays
 #define MAX_WEAPON_SPOTS	32
@@ -1539,7 +1573,7 @@ int PowerupSpotsUsed;
 // Object spawn arrays
 
 // EnemyEntries[] format is {int wave, str actor, int number}
-#define MAX_ENEMY_ENTRIES	72
+#define MAX_ENEMY_ENTRIES	512
 int EnemyEntries[MAX_ENEMY_ENTRIES][3];
 int EnemyEntriesUsed;
 
@@ -1550,21 +1584,21 @@ int ZoneData[MAX_ZONES][ZONEDATA_WIDTH];
 int ZoneDataUsed;
 
 // WeaponItems[] format is {int wave, str actor}
-#define MAX_WEAPON_ITEMS	32
+#define MAX_WEAPON_ITEMS	256
 int WeaponItems[MAX_WEAPON_ITEMS][2];
 int WeaponItemsUsed;
 
 // MedicItems[] format is {int wave, str actor, int number}
-#define MAX_MEDIC_ITEMS		128
+#define MAX_MEDIC_ITEMS		2048
 int MedicItems[MAX_MEDIC_ITEMS][3];
 int MedicItemsUsed;
 
-#define MAX_POWERUP_ITEMS	128
+#define MAX_POWERUP_ITEMS	1024
 int PowerupItems[MAX_POWERUP_ITEMS][3];
 int PowerupItemsUsed;
 
 // AmmoEntries[] format is {int wave, int type, int amount}
-#define MAX_AMMO_ENTRIES	256
+#define MAX_AMMO_ENTRIES	1024
 int AmmoEntries[MAX_AMMO_ENTRIES][3];
 int AmmoEntriesUsed;
 
@@ -1584,12 +1618,12 @@ int AmmoActorsNames[11]=
 };
 
 // MapRewards[] format is {str actor, int amount}
-#define MAX_MAP_REWARDS		8
+#define MAX_MAP_REWARDS		32
 int MapRewards[MAX_MAP_REWARDS][2];
 int MapRewardsUsed;
 
 // RadioMessages[] format is {int wave, int name, str message}
-#define MAX_RADIO_MSGS		80
+#define MAX_RADIO_MSGS		512
 #define RADIO_MSGS_WIDTH	3
 int RadioMessages[MAX_RADIO_MSGS][RADIO_MSGS_WIDTH];
 int RadioMessagesUsed;
@@ -1600,7 +1634,7 @@ int RadioMessagesUsed;
 #define MAX_NORMAL_WAVES	40
 int WaveFinishCallback[MAX_NORMAL_WAVES];
 
-#define MAX_ENEMIES_PER_WAVE	512
+#define MAX_ENEMIES_PER_WAVE	8192
 
 // EnemySpawnCache[] format is {int loc, str actor}
 // ENEMY_SPAWN_CACHE_LEN is the limit of how many concurrent waves can be running at once.
@@ -1622,28 +1656,28 @@ int ItemFogCacheLoc;
 ** Functions **
 ** ********* */
 
-function int abs (int x)
+function int abs(int x)
 {
-	if (x < 0)
+	if(x < 0)
 		return -x;
 	return x;
 }
 
-function int min (int a, int b)
+function int min(int a, int b)
 {
-	if (a < b)
+	if(a < b)
 		return a;
 	return b;
 }
 
-function int max (int a, int b)
+function int max(int a, int b)
 {
-	if (a > b)
+	if(a > b)
 		return a;
 	return b;
 }
 
-function int fdistancexy (int x1, int y1, int x2, int y2)
+function int fdistancexy(int x1, int y1, int x2, int y2)
 {
 	int len,ang,x=x1 - x2,y=y1 - y2;
 	ang=vectorangle(x,y);
@@ -1667,9 +1701,9 @@ function int fround(int fixedNumber)
 }
 
 // Function from http://zdoom.org/wiki/Getaspectratio
-#define ASPECT_4_3 (4.0 / 3)
+#define ASPECT_4_3(4.0 / 3)
 #define ASPECT_5_4 1.25
-#define ASPECT_16_9 (16.0 / 9)
+#define ASPECT_16_9(16.0 / 9)
 #define ASPECT_16_10 1.6
 
 function int getaspectratio(void)
@@ -1699,7 +1733,7 @@ function int getaspectratio(void)
 		return ASPECT_16_9;
 	if(abs((abs(fixedmul(height<<16, fixeddiv(16.0, 10.0)))>>16) - width) < 60)
 	{
-		if((width==320 && height==200) || (width==640 && height==400))
+		if((width==320 && height==200) ||(width==640 && height==400))
 			return ASPECT_4_3;
 		return ASPECT_16_10;
 	}
@@ -1730,67 +1764,67 @@ function int numLen(int num)
 	return i;
 }
 
-function int pow (int x, int n)
+function int pow(int x, int n)
 {
-	if (n < 1)
+	if(n < 1)
 		return 1;
 	int y=x;
-	while (--n)
+	while(--n)
 		y *=x;
 	return y;
 }
 
 // Level settings
 
-function void AddWeaponSpot (int tid)
+function void AddWeaponSpot(int tid)
 {
 	if(WeaponSpotsUsed==MAX_WEAPON_SPOTS)
 		PrintBold(s:"Error: WeaponSpots[] limit hit");
 	WeaponSpots[WeaponSpotsUsed++]=tid;
 }
 
-function void AddMedicSpot (int tid)
+function void AddMedicSpot(int tid)
 {
 	if(MedicSpotsUsed==MAX_MEDIC_SPOTS)
 		PrintBold(s:"Error: MedicSpots[] limit hit");
 	MedicSpots[MedicSpotsUsed++]=tid;
 }
 
-function void AddAmmoSpot (int tid)
+function void AddAmmoSpot(int tid)
 {
 	if(AmmoSpotsUsed==MAX_AMMO_SPOTS)
 		PrintBold(s:"Error: AmmoSpots[] limit hit");
 	AmmoSpots[AmmoSpotsUsed++]=tid;
 }
 
-function void AddPowerupSpot (int tid)
+function void AddPowerupSpot(int tid)
 {
 	if(PowerupSpotsUsed==MAX_POWERUP_SPOTS)
 		PrintBold(s:"Error: PowerupSpots[] limit hit");
 	PowerupSpots[PowerupSpotsUsed++]=tid;
 }
 
-function void AddZone (int bottomlefttid, int toprighttid, int patrolnode)
+function void AddZone(int bottomlefttid, int toprighttid, int patrolnode)
 {
 	AddZoneMile(bottomlefttid, toprighttid, patrolnode, 0);
 }
 
-function void AddZoneAlt (int bottomlefttid, int toprighttid, int patrol1, int patrol2)
+function void AddZoneAlt(int bottomlefttid, int toprighttid, int patrol1, int patrol2)
 {
 	AddZoneBase(bottomlefttid, toprighttid, patrol1, 0, patrol2, 0, 0);
 }
 
-function void AddZoneMile (int bottomlefttid, int toprighttid, int patrolnode, int mile)
+function void AddZoneMile(int bottomlefttid, int toprighttid, int patrolnode, int mile)
 {
 	AddZoneBase(bottomlefttid, toprighttid, patrolnode, mile, 0, 0, 0);
 }
 
-function void AddZoneAltMile (int bottomlefttid, int toprighttid, int patrol1, int patrol2, int mile)
+function void AddZoneAltMile(int bottomlefttid, int toprighttid, int patrol1, int patrol2, int mile)
 {
 	AddZoneBase(bottomlefttid, toprighttid, patrol1, mile, patrol2, 0, 0);
 }
 
-function void AddZoneBase (int bottomlefttid, int toprighttid, int patrol1, int mile, int patrol2, int unused1, int unused2)
+function void AddZoneBase(int bottomlefttid, int toprighttid, int patrol1, int mile, int patrol2, int unused1, int unused2)
 {
 	if(ZoneDataUsed==MAX_ZONES)
 		PrintBold(s:"Error: ZoneData[] limit hit");
@@ -1805,24 +1839,24 @@ function void AddZoneBase (int bottomlefttid, int toprighttid, int patrol1, int 
 			// Zone has already been added, so do nothing.
 			return;
 	}
-	ZoneData[ZoneDataUsed][0]=min( GetActorX(bottomlefttid), GetActorX(toprighttid) );
-	ZoneData[ZoneDataUsed][1]=min( GetActorY(bottomlefttid), GetActorY(toprighttid) );
-	ZoneData[ZoneDataUsed][2]=abs( GetActorX(bottomlefttid)-GetActorX(toprighttid) );
-	ZoneData[ZoneDataUsed][3]=abs( GetActorY(bottomlefttid)-GetActorY(toprighttid) );
-	ZoneData[ZoneDataUsed][4]=min( GetActorZ(bottomlefttid), GetActorZ(toprighttid) );
+	ZoneData[ZoneDataUsed][0]=min(GetActorX(bottomlefttid), GetActorX(toprighttid));
+	ZoneData[ZoneDataUsed][1]=min(GetActorY(bottomlefttid), GetActorY(toprighttid));
+	ZoneData[ZoneDataUsed][2]=abs(GetActorX(bottomlefttid)-GetActorX(toprighttid));
+	ZoneData[ZoneDataUsed][3]=abs(GetActorY(bottomlefttid)-GetActorY(toprighttid));
+	ZoneData[ZoneDataUsed][4]=min(GetActorZ(bottomlefttid), GetActorZ(toprighttid));
 	ZoneData[ZoneDataUsed][5]=patrol1;
 	ZoneData[ZoneDataUsed][6]=GetActorAngle(bottomlefttid) >> 8;
-	ZoneData[ZoneDataUsed][7]=abs( GetActorZ(bottomlefttid)-GetActorZ(toprighttid) );
+	ZoneData[ZoneDataUsed][7]=abs(GetActorZ(bottomlefttid)-GetActorZ(toprighttid));
 //	Store the tids used for the mapspots so that the zone can be referenced by functions
 //	such as RemoveZone() by them.
-	ZoneData[ZoneDataUsed][8]=min( bottomlefttid, toprighttid );
-	ZoneData[ZoneDataUsed][9]=max( bottomlefttid, toprighttid );
+	ZoneData[ZoneDataUsed][8]=min(bottomlefttid, toprighttid);
+	ZoneData[ZoneDataUsed][9]=max(bottomlefttid, toprighttid);
 	ZoneData[ZoneDataUsed][10]=mile;
 	ZoneData[ZoneDataUsed][11]=patrol2;
 	ZoneDataUsed++;
 }
 
-function bool RemoveWeaponSpot (int tid)
+function bool RemoveWeaponSpot(int tid)
 {
 	int i, j,foundTids;
 	for(i=0; i<WeaponSpotsUsed; i++)
@@ -1843,7 +1877,7 @@ function bool RemoveWeaponSpot (int tid)
 	return false;
 }
 
-function bool RemoveMedicSpot (int tid)
+function bool RemoveMedicSpot(int tid)
 {
 	int i, j,foundTids;
 	for(i=0; i<MedicSpotsUsed; i++)
@@ -1864,7 +1898,7 @@ function bool RemoveMedicSpot (int tid)
 	return false;
 }
 
-function bool RemoveAmmoSpot (int tid)
+function bool RemoveAmmoSpot(int tid)
 {
 	int i, j,foundTids;
 	for(i=0; i<AmmoSpotsUsed; i++)
@@ -1885,7 +1919,7 @@ function bool RemoveAmmoSpot (int tid)
 	return false;
 }
 
-function bool RemovePowerupSpot (int tid)
+function bool RemovePowerupSpot(int tid)
 {
 	int i, j,foundTids;
 	for(i=0; i<PowerupSpotsUsed; i++)
@@ -1904,7 +1938,7 @@ function bool RemovePowerupSpot (int tid)
 	return false;
 }
 
-function void ClearItemSpawnSpots (void)
+function void ClearItemSpawnSpots(void)
 {
 	WeaponSpotsUsed=0;
 	MedicSpotsUsed=0;
@@ -1912,13 +1946,13 @@ function void ClearItemSpawnSpots (void)
 	PowerupSpotsUsed=0;
 }
 
-function bool RemoveZone (int bottomlefttid, int toprighttid)
+function bool RemoveZone(int bottomlefttid, int toprighttid)
 {
 	int i, j, z,foundTids;
 	for(i=0; i<ZoneDataUsed; i++)
 	{
 		if((ZoneData[i][8]==min(bottomlefttid,toprighttid)) &&
-			(ZoneData[i][9]==max(bottomlefttid,toprighttid)) )
+			(ZoneData[i][9]==max(bottomlefttid,toprighttid)))
 		{
 			ZoneDataUsed--;
 			foundTids++;
@@ -1936,13 +1970,13 @@ function bool RemoveZone (int bottomlefttid, int toprighttid)
 	return false;
 }
 
-function bool ChangeZonePatrol (int bottomlefttid, int toprighttid, int newPatrol)
+function bool ChangeZonePatrol(int bottomlefttid, int toprighttid, int newPatrol)
 {
 	int changed;
 	for(int i=0; i<ZoneDataUsed; i++)
 	{
 		if((ZoneData[i][8]==min(bottomlefttid,toprighttid)) &&
-			(ZoneData[i][9]==max(bottomlefttid,toprighttid)) )
+			(ZoneData[i][9]==max(bottomlefttid,toprighttid)))
 		{
 			ZoneData[i][5]=newPatrol;
 			changed++;
@@ -1953,12 +1987,12 @@ function bool ChangeZonePatrol (int bottomlefttid, int toprighttid, int newPatro
 	return false;
 }
 
-function void ClearZones (void)
+function void ClearZones(void)
 {
 	ZoneDataUsed=0;
 }
 
-function void ClearSettings (void)
+function void ClearSettings(void)
 {
 	ClearZones();
 	ClearItemSpawnSpots();
@@ -1966,25 +2000,25 @@ function void ClearSettings (void)
 
 Script S_DETECTENDOFLVL ENTER
 {
-	while (!GameVictory)
+	while(!GameVictory)
 	{
-		while (TimeAttackMode)
+		/*while(TimeAttackMode)
 		{
-			if ((levelRunningTime / 35) > MapParTime[GetLevelInfo(LEVELINFO_LEVELNUM)] && MapParTime[GetLevelInfo(LEVELINFO_LEVELNUM)])
+			if((levelRunningTime / 35) > MapParTime[GetLevelInfo(LEVELINFO_LEVELNUM)] && MapParTime[GetLevelInfo(LEVELINFO_LEVELNUM)])
 			{
 				acs_execute(S_MISSION_FAIL,0,1,0,0);
 				//log(s:"SHIP IS GOING DOWN CAPTAIN! ",i:levelrunningtime, s:"  -  ", i:MapParTime[GetLevelInfo(LEVELINFO_LEVELNUM)]);
 				terminate;
 			}
 			delay(1);
-		}
+		}*/
 		delay(35);
 	}
-	if (GetLevelInfo(LEVELINFO_LEVELNUM)!=1)
+	if(GetLevelInfo(LEVELINFO_LEVELNUM)!=1)
 		GetEndBonuses(1);
 }
 
-function void AddMapReward (str actor, int amount)
+function void AddMapReward(str actor, int amount)
 {
 	if(MapRewardsUsed==MAX_MAP_REWARDS)
 		PrintBold(s:"Error: MapRewards[] limit hit");
@@ -1996,7 +2030,7 @@ function void AddMapReward (str actor, int amount)
 int bonuses[32];
 int BonusQueue[MAXBONUSES];
 
-function void GetBonus ( int bonustype )
+function void GetBonus(int bonustype)
 {
 	bonuses[playernumber()]++;
 	log(i:bonustype,s:"    ",i:bonuses[playernumber()]);
@@ -2004,7 +2038,7 @@ function void GetBonus ( int bonustype )
 	LocalAmbientSound("Cash",128);
 }
 
-script S_GETBONUS ( int bonustype )
+script S_GETBONUS(int bonustype)
 {
 	SetHudSize(800,600,1);
 	SetFont("BigFont");
@@ -2030,10 +2064,16 @@ script S_GETBONUS ( int bonustype )
 	}
 }
 
-function void GetEndBonuses ( int correct )
+function void GetEndBonuses(int correct)
 {
-	if (!correct) //Patch code to save me the trouble of trying to go through all themaps to fix this.
+	if(!correct) //Patch code to save me the trouble of trying to go through all themaps to fix this.
 		return;
+	if(CheckInventory("CoinItem") > 30000)
+		GetBonus(B_CASH30K);
+	else if(CheckInventory("CoinItem") > 20000)
+		GetBonus(B_CASH20K);
+	else if(CheckInventory("CoinItem") > 10000)
+		GetBonus(B_CASH10K);
 	//log(s:"Game mode - ", i:gamemode, s:"  - Activator: ", n:playernumber()+1);
 	if(GameMode==GAME_MILESTONE && CurrentMile==0)
 		GetBonus(B_NOMILESTONES);
@@ -2065,6 +2105,8 @@ function void GetEndBonuses ( int correct )
 		GetBonus(B_DAMAGE100);
 	else if(DamageTaken[PlayerNumber()]<50) //Took less than 50 damage.
 		GetBonus(B_DAMAGE50);
+	if(GameSkill() == SKILL_VERY_HARD)
+		GetBonus(B_NIGHTMARE);
 	if(MapScores[GetLevelInfo(LEVELINFO_LEVELNUM)]==-1) // If the map is in time attack mode.
 	{
 		//log(s:"Time checked");
@@ -2084,13 +2126,13 @@ script S_DAMAGECHECKS ENTER
 	delay(1);
 	int newhealth=GetActorProperty(0,AProp_Health);
 	if(newhealth<oldhealth)
-		DamageTaken[PlayerNumber()]=DamageTaken[PlayerNumber()] + (oldhealth-newhealth);
+		DamageTaken[PlayerNumber()]=DamageTaken[PlayerNumber()] +(oldhealth-newhealth);
 	restart;
 }
 
 // Wave settings
 
-function void WaveEnemy (int wave, str actor, int num)
+function void WaveEnemy(int wave, str actor, int num)
 {
 	if(EnemyEntriesUsed==MAX_ENEMY_ENTRIES)
 		PrintBold(s:"Error: EnemyEntries[] limit hit");
@@ -2099,12 +2141,12 @@ function void WaveEnemy (int wave, str actor, int num)
 	EnemyEntries[EnemyEntriesUsed++][2]=num;
 }
 
-function void ClearWaveEnemies (void)
+function void ClearWaveEnemies(void)
 {
 	EnemyEntriesUsed=0;
 }
 
-function void WaveMessage (int wave, int name, str message)
+function void WaveMessage(int wave, int name, str message)
 {
 	if(RadioMessagesUsed==MAX_RADIO_MSGS)
 		PrintBold(s:"Error: RadioMessages[] limit hit");
@@ -2114,12 +2156,12 @@ function void WaveMessage (int wave, int name, str message)
 }
 
 // Removes all messages of a certain wave
-function int RemoveWaveMessage (int wave)
+function int RemoveWaveMessage(int wave)
 {
 	int i, j, z,found;
 	for(i=0; i<RadioMessagesUsed; i++)
 	{
-		if( RadioMessages[i][0]==wave )
+		if(RadioMessages[i][0]==wave)
 		{
 			RadioMessagesUsed--;
 			found++;
@@ -2135,20 +2177,20 @@ function int RemoveWaveMessage (int wave)
 	return found;
 }
 
-function void ClearWaveMessages (void)
+function void ClearWaveMessages(void)
 {
 	RadioMessagesUsed=0;
 }
 
 //	This function is a little shortcut for maps to use. Good if we decide we want to change
 //	the exact ending message later.
-function void WaveMessageEnd (int wave, int name)
+function void WaveMessageEnd(int wave, int name)
 {
 	WaveMessage(wave,name,"Incredible job, marine!");
 	WaveMessage(wave,name,"You have successfully\ndefended this UAC\ninstallation!");
 }
 
-function void WaveWeapon (int wave, str actor)
+function void WaveWeapon(int wave, str actor)
 {
 	if(WeaponItemsUsed==MAX_WEAPON_ITEMS)
 		PrintBold(s:"Error: WeaponItems[] limit hit");
@@ -2156,7 +2198,7 @@ function void WaveWeapon (int wave, str actor)
 	WeaponItems[WeaponItemsUsed++][1]=actor;
 }
 
-function void WavePowerup (int wave, str actor, int num)
+function void WavePowerup(int wave, str actor, int num)
 {
 	if(PowerupItemsUsed==MAX_POWERUP_ITEMS)
 		PrintBold(s:"Error: PowerupItems[] limit hit");
@@ -2165,7 +2207,7 @@ function void WavePowerup (int wave, str actor, int num)
 	PowerupItems[PowerupItemsUsed++][2]=num;
 }
 
-function void WaveMedic (int wave, str actor, int num)
+function void WaveMedic(int wave, str actor, int num)
 {
 	if(MedicItemsUsed==MAX_MEDIC_ITEMS)
 		PrintBold(s:"Error: MedicItems[] limit hit");
@@ -2214,7 +2256,7 @@ function void ClearAll (void)
 // Do stuff
 function void CallWave (int wave)
 {
-	if( (wave>0) && (wave<MAX_NORMAL_WAVES))
+	if((wave>0) && (wave<MAX_NORMAL_WAVES))
 		WaveFinishCallback[wave]=FALSE;
 	ACS_ExecuteAlways(S_CALLWAVE,0,wave);
 }
@@ -2238,13 +2280,13 @@ function int SpawnAmmo (int wave)
 	{
 		if(AmmoEntries[i][0]==wave)
 		{
-			curAmmoQuota=Multiplier( M_AMMO, AmmoEntries[i][2] );
+			curAmmoQuota=Multiplier(M_AMMO, AmmoEntries[i][2]);
 			curAmmoActorIndex=FindAmmoActor(AmmoEntries[i][1],curAmmoQuota);
 			// If we don't even have enough ammo quota in the first loop to spawn even one ammo item, spawn
 			// one of the smallest size anyway. The logic is that the skill multiplier might have reduced the
 			// ammo quota to less than what's needed to spawn any, but the mapper still expects some ammo
 			// to be given.
-			if( (curAmmoActorIndex==-1) && (curAmmoQuota > 0) )
+			if((curAmmoActorIndex==-1) && (curAmmoQuota > 0))
 				curAmmoActorIndex=FindLeastAmmoActor(AmmoEntries[i][1]);
 			while(curAmmoActorIndex !=-1)
 			{
@@ -2274,11 +2316,11 @@ function int FindAmmoActor (int type, int amount)
 	int candidate=-1;
 	for(int i=0; i<AmmoActorsUsed; i++)
 	{
-		if( (AmmoActors[i][0]==type) && (AmmoActors[i][1]<=amount) )
+		if((AmmoActors[i][0]==type) && (AmmoActors[i][1]<=amount))
 		{
-			if( candidate==-1 )
+			if(candidate==-1)
 				candidate=i;
-			else if( AmmoActors[i][1]>AmmoActors[candidate][1] )
+			else if(AmmoActors[i][1]>AmmoActors[candidate][1])
 				candidate=i;
 		}
 	}
@@ -2290,11 +2332,11 @@ function int FindLeastAmmoActor (int type)
 	int candidate=-1;
 	for(int i=0; i<AmmoActorsUsed; i++)
 	{
-		if( AmmoActors[i][0]==type )
+		if(AmmoActors[i][0]==type)
 		{
-			if( candidate==-1 )
+			if(candidate==-1)
 				candidate=i;
-			else if( AmmoActors[i][1]<AmmoActors[candidate][1] )
+			else if(AmmoActors[i][1]<AmmoActors[candidate][1])
 				candidate=i;
 		}
 	}
@@ -2304,7 +2346,7 @@ function int FindLeastAmmoActor (int type)
 function int SpawnWeapons (int wave)
 {
 	int counter;
-	if( ! WeaponSpotsUsed )
+	if(! WeaponSpotsUsed)
 		return counter;
 	Setup();
 	bool weaponsThrusted;
@@ -2313,7 +2355,7 @@ function int SpawnWeapons (int wave)
 		if(WeaponItems[i][0]==wave)
 		{
 			counter++;	// Only count unique weapons spawned, not total
-			if( ! weaponsThrusted ) // Make sure we only thrust old weapons one time
+			if(! weaponsThrusted) // Make sure we only thrust old weapons one time
 			{
 				// Thrust old weapon(s) out of the way
 				int randomAngle=random(0,1.0),randomVelocity=random(0.75,1.0);
@@ -2326,7 +2368,7 @@ function int SpawnWeapons (int wave)
 			{
 				// Spawn new weapon
 				SpawnSpot(WeaponItems[i][1], WeaponSpots[spot], lastWeaponTid);
-				ItemFogSpawner( WeaponSpots[spot] );
+				ItemFogSpawner(WeaponSpots[spot]);
 			}
 		}
 	}
@@ -2338,14 +2380,14 @@ function int SpawnWeapons (int wave)
 function int SpawnPowerups (int wave)
 {
 	int counter;
-	if( ! PowerupSpotsUsed )
+	if(! PowerupSpotsUsed)
 		return counter;
 	int spot;
 	for(int i=0; i<PowerupItemsUsed; i++)
 	{
-		if( PowerupItems[i][0]==wave )
+		if(PowerupItems[i][0]==wave)
 		{
-			while( ThingCountName(PowerupItems[i][1], 0) < Multiplier( M_POWERUP, PowerupItems[i][2] ) )
+			while(ThingCountName(PowerupItems[i][1], 0) < Multiplier(M_POWERUP, PowerupItems[i][2]))
 			{
 				int tid=UniqueTid(4600,0);
 				SpawnSpot(PowerupItems[i][1], PowerupSpots[spot], tid);
@@ -2368,14 +2410,14 @@ function int SpawnPowerups (int wave)
 function int SpawnMedic (int wave)
 {
 	int counter;
-	if( ! MedicSpotsUsed )
+	if(! MedicSpotsUsed)
 		return counter;
 	int spot;
 	for(int i=0; i<MedicItemsUsed; i++)
 	{
-		if( MedicItems[i][0]==wave )
+		if(MedicItems[i][0]==wave)
 		{
-			while( ThingCountName(MedicItems[i][1], 0) < Multiplier( M_MEDIC, MedicItems[i][2] ) )
+			while(ThingCountName(MedicItems[i][1], 0) < Multiplier(M_MEDIC, MedicItems[i][2]))
 			{
 				int tid=UniqueTid(4600,0);
 				SpawnSpot(MedicItems[i][1], MedicSpots[spot], tid);
@@ -2395,7 +2437,7 @@ function int SpawnMedic (int wave)
 }
 
 // Note: ItemFogSpawner can only work on one thing at a time! Don't give it a tid of multiple things.
-function void ItemFogSpawner( int spot )
+function void ItemFogSpawner(int spot)
 {
 	// Have we called ItemFogSpawner for this same spot not too long ago?
 	// If so, do nothing and return out of the function.
@@ -2439,7 +2481,7 @@ function void AnnounceNewWave (int wave)
 			else
 				HudMessageBold(s:"Wave ",d:wave,s:"\cc!";
 					HUDMSG_FADEINOUT|HUDMSG_LOG,0,CR_RED,256.0,128.1,3.0,1.0,1.0);
-			if( wave<WAVE_ANNOUNCE_SOUNDS_LEN )
+			if(wave<WAVE_ANNOUNCE_SOUNDS_LEN)
 				AmbientSound(WaveAnnounceSounds[wave],127);
 	//	}
 	}
@@ -2475,7 +2517,7 @@ function void AnnounceNewMile (int mile)
 	else
 		HudmessageBold(s:"Milestone ",d:mile,s:" \cchas been breached!";
 			HUDMSG_FADEINOUT|HUDMSG_LOG,0,CR_BLACK,320.0,130.1,3.0,1.0,1.0);
-	if( mile<MILE_ANNOUNCE_SOUNDS_LEN )
+	if(mile<MILE_ANNOUNCE_SOUNDS_LEN)
 		AmbientSound(MileAnnounceSounds[mile],127);
 }
 
@@ -2485,13 +2527,13 @@ function int RandomCoords (int zone, int axis)	// 0 is x, 1 is y, 2 is z
 	switch (axis)
 	{
 	case 0:
-		result=random( ZoneData[zone][0], ZoneData[zone][0]+ZoneData[zone][2] ); // origin x, origin x + xlength
+		result=random(ZoneData[zone][0], ZoneData[zone][0]+ZoneData[zone][2]); // origin x, origin x + xlength
 		break;
 	case 1:
-		result=random( ZoneData[zone][1], ZoneData[zone][1]+ZoneData[zone][3] ); // origin y, origin y + yheight
+		result=random(ZoneData[zone][1], ZoneData[zone][1]+ZoneData[zone][3]); // origin y, origin y + yheight
 		break;
 	case 2:
-		result=random( ZoneData[zone][4], ZoneData[zone][4]+ZoneData[zone][7] ); // floor z, floor z + zheight
+		result=random(ZoneData[zone][4], ZoneData[zone][4]+ZoneData[zone][7]); // floor z, floor z + zheight
 		break;
 	default:
 		PrintBold(s:"Error: RandomCoords() called without a valid axis");
@@ -2501,9 +2543,9 @@ function int RandomCoords (int zone, int axis)	// 0 is x, 1 is y, 2 is z
 
 function void GiveDefaults (int tid, int patrolnode, int hatetarget)
 {
-	Thing_SetGoal( tid, patrolnode, 0, 1 );
+	Thing_SetGoal(tid, patrolnode, 0, 1);
 	if(hatetarget)
-		Thing_Hate( tid, hatetarget, 3);
+		Thing_Hate(tid, hatetarget, 3);
 }
 
 function void UpdateJailTrackers (void)
@@ -2542,22 +2584,22 @@ function void Setup (void)
 		randomRadioFace=random(0,LEN_RADIO-1);
 		if(PrisonCamStart)
 		{
-			SetCameraToTexture(PrisonCamStart, "CT_1", 90 );
-			SetCameraToTexture(PrisonCamStart+1, "CT_2", 90 );
-			SetCameraToTexture(PrisonCamStart+2, "CT_3", 90 );
-			SetCameraToTexture(PrisonCamStart+3, "CT_4", 90 );
-			SetCameraToTexture(PrisonCamStart+4, "CT_5", 90 );
-			SetCameraToTexture(PrisonCamStart+5, "CT_6", 90 );
+			SetCameraToTexture(PrisonCamStart, "CT_1", 90);
+			SetCameraToTexture(PrisonCamStart+1, "CT_2", 90);
+			SetCameraToTexture(PrisonCamStart+2, "CT_3", 90);
+			SetCameraToTexture(PrisonCamStart+3, "CT_4", 90);
+			SetCameraToTexture(PrisonCamStart+4, "CT_5", 90);
+			SetCameraToTexture(PrisonCamStart+5, "CT_6", 90);
 		}
 		if(PrisonTeleporterLineId)
 		{
-			SetLineSpecial(PrisonTeleporterLineId, ACS_ExecuteAlways, S_JAIL_LEAVE, 0, PrisonTeleporterThrustAngle );
-			SetJailTeleporter( FALSE );
+			SetLineSpecial(PrisonTeleporterLineId, ACS_ExecuteAlways, S_JAIL_LEAVE, 0, PrisonTeleporterThrustAngle);
+			SetJailTeleporter(FALSE);
 		}
 		AddMapReward("CoinItem", MapCoinReward[GetLevelInfo(LEVELINFO_LEVELNUM)]);
-		if ( MapScores[GetLevelInfo(LEVELINFO_LEVELNUM)]==-1 )
+		if (MapScores[GetLevelInfo(LEVELINFO_LEVELNUM)]==-1)
 			setParTime(MapParTime[GetLevelInfo(LEVELINFO_LEVELNUM)], 0);
-		else if ( MapScores[GetLevelInfo(LEVELINFO_LEVELNUM)] > 0 )
+		else if (MapScores[GetLevelInfo(LEVELINFO_LEVELNUM)] > 0)
 			setParTime(MapScores[GetLevelInfo(LEVELINFO_LEVELNUM)]/35, 1);
 	}
 }
@@ -2570,38 +2612,38 @@ function int Multiplier (int type, int amount)
 	if(amount < 0)
 		return 0 - amount;
 	int result=amount * RawMultiplier(type);
-	if( (result>0.0) && (result<1.0) )	// Make sure our answer is at least one
+	if((result>0.0) && (result<1.0))	// Make sure our answer is at least one
 		result=1;
 	else
 		result=result / 1.0;		// Make result an integer
 	return result;
 }
 
-int SkillScaler[5]={ 0.6, 0.75, 1.0, 1.5, 2.0 };
+int SkillScaler[5] =	{ 0.75, 0.75, 1.0, 1.5, 2.0 };
 
 // This function returns the multiplier as a fixed point value.
 // If the multiplier needs to be tweaked, this is the function to do it in.
 function int RawMultiplier (int type)
 {
-	int result=1.0;
+	int result = 1.0;
 	switch(type)
 	{
 	case M_POWERUP:
-		result=1.0*PlayerCount();
+		result = 1.0*PlayerCount();
 		break;
 	case M_MEDIC:
 	case M_AMMO:
-		result=0.3 + 0.71*PlayerCount();	// Slightly above 1.0 for one player to account for rounding errors
+		If(TimeAttackMode)
+		result = 0.33 + 1.18*PlayerCount();	// Slightly above 1.5 for one player to account for rounding errors
+		else
+		result = 0.1 + 1.11*PlayerCount();	// Slightly above 1.2 for one player to account for rounding errors
 		break;
 	case M_ENEMIES:
-		result=FixedMul(0.5 + 0.51*PlayerCount(), SkillScaler[GameSkill()]);
-		break;
 	case M_BOSSHEALTH:
-		// 1 player=1x
-		// 8 players=3x
-		// result=2/7 * playercount + 5/7
-		// result=(2*playercount + 5) / 7
-		result=( 2.0*PlayerCount() + 5.0 ) / 7; // Dividing fixed by int yields a fixed
+		If(TimeAttackMode)
+			result = FixedMul(0.55 + 0.96*PlayerCount(), SkillScaler[GameSkill()]);
+		else
+			result = FixedMul(0.05 + 0.96*PlayerCount(), SkillScaler[GameSkill()]);
 		break;
 	default:
 		PrintBold(s:"Error: Function Multiplier() called without a valid type argument");
@@ -2681,8 +2723,14 @@ script S_MISSION_COMPLETE (void)
 					HUDMSG_FADEINOUT|HUDMSG_LOG, 0, CR_GREEN, 240.0, 240.1, 6.0, 2.5, 1.0);
 			}
 			else
+			{
+				MapScores[GetLevelInfo(LEVELINFO_LEVELNUM)] = MapParTime[GetLevelInfo(LEVELINFO_LEVELNUM)];
 				HudMessageBold(s:"Record not beaten";
 					HUDMSG_FADEINOUT|HUDMSG_LOG, 0, CR_ORANGE, 240.0, 240.1, 6.0, 2.5, 1.0);
+			}
+			delay(10*35);
+			HudMessageBold(s:"Hard Mode Completed!";
+				HUDMSG_FADEINOUT|HUDMSG_LOG, 0, CR_GREEN, 240.0, 160.1, 6.0, 2.5, 1.0);
 			delay(10*35);
 			SetPlayerProperty(1, false, PROP_TOTALLYFROZEN);
 		}
@@ -2702,8 +2750,8 @@ script S_M_ACTIVATE_FAIL(int shopitem)
 		ACS_NamedExecuteAlways("Shop",0,shopitem);
 	// Don't continue if the activator is a dead monster or friendly
 	else if(GameActive &&
-		( (ClassifyActor(0) & ( ACTOR_MONSTER | ACTOR_DEAD )) !=( ACTOR_MONSTER | ACTOR_DEAD ) ) &&
-		( !GetActorProperty(0, APROP_Friendly) ) )
+		((ClassifyActor(0) & (ACTOR_MONSTER | ACTOR_DEAD)) !=(ACTOR_MONSTER | ACTOR_DEAD)) &&
+		(!GetActorProperty(0, APROP_Friendly)))
 		ACS_Execute(S_MISSION_FAIL, 0, 0);
 }
 
@@ -2716,25 +2764,20 @@ script S_MISSION_FAIL (void)
 	StopTimer();
 	SetMusic("");
 	AmbientSound("TB_LOST", 127);
-	SetHudSize (640, 480, 1);
-	if (MapScores[GetLevelInfo(LEVELINFO_LEVELNUM)]==-1)
-	{
+	SetHudSize(640, 480, 1);
+	/*if(MapScores[GetLevelInfo(LEVELINFO_LEVELNUM)]==-1)
 		SetFont("HUDTH");
-		HudMessageBold (s:"a"; HUDMSG_FADEINOUT, EndMessageHID, CR_UNTRANSLATED,320.0, 240.0,5.0, 0.5, 0.5);
-	}
-	else
-	{
+	else*/
 		SetFont("HUDGO");
-		HudMessageBold (s:"a"; HUDMSG_FADEINOUT, EndMessageHID, CR_UNTRANSLATED,320.0, 240.0,5.0, 0.5, 0.5);
-	}
-	ScreenFadeOut( 5.0 );
+	HudMessageBold(s:"a"; HUDMSG_FADEINOUT, EndMessageHID, CR_UNTRANSLATED,320.0, 240.0,5.0, 0.5, 0.5);
+	ScreenFadeOut(5.0);
 	delay(35 * 3);
 	AmbientSound("T_FAIL", 127); // "You have failed to defend your Stronghold"
 	delay(35 * 4);
 	Exit_Secret(ExitPos);
 }
 
-script S_DEADLINE (void)
+script S_DEADLINE(void)
 {
 	if(BreakTime==-1)	// Default setting
 		BreakTime=3*35;
@@ -2752,20 +2795,20 @@ script S_DEADLINE (void)
 		    BreakTime=3*35; // Added by Jimmy.
 			// It allows players to read the last wavemessages on maps with high BreakTime (such as most limit maps).
 		}
-		if (F_CallNextWave)
+		if(F_CallNextWave)
 		{
 			//WaveFinishCallback[ThisWave]=TRUE;
 			delay(BreakTime);
-			if (F_CallNextWave > 1 && (F_CallNextWave - 1) + ThisWave < Waves)
+			if(F_CallNextWave > 1 &&(F_CallNextWave - 1) + ThisWave < Waves)
 				ThisWave +=(F_CallNextWave - 1);
-			Else If (F_CallNextWave > 1 && (F_CallNextWave - 1) + ThisWave >=Waves)
+			Else If(F_CallNextWave > 1 &&(F_CallNextWave - 1) + ThisWave >=Waves)
 			{
 				acs_execute(S_MISSION_COMPLETE,0,0,0,0);
 				terminate;
 			}
-			if (F_CallNextWave < 0 && (F_CallNextWave) + ThisWave >=1)
+			if(F_CallNextWave < 0 &&(F_CallNextWave) + ThisWave >=1)
 				ThisWave +=(F_CallNextWave);
-			Else If (F_CallNextWave < 0 && (F_CallNextWave) + ThisWave <=0)
+			Else If(F_CallNextWave < 0 &&(F_CallNextWave) + ThisWave <=0)
 				ThisWave=0;
 			F_CallNextWave=0;
 		}
@@ -2779,8 +2822,10 @@ script S_DEADLINE (void)
 			// isn't too immediate.
 }
 
-script S_CORE_GAME (void)
+script S_CORE_GAME(void)
 {
+	if(BreakTime == -1)	// Default setting
+		BreakTime=6*35;
 	GameMode=GAME_CORE;
 	HealthWatch(HateEpicenter,GetActorProperty(HateEpicenter, APROP_SpawnHealth),S_MISSION_FAIL,WATCH_CORE);
 	ACS_ExecuteWait(S_DEADLINE,0,0);
@@ -2789,7 +2834,7 @@ script S_CORE_GAME (void)
 #define	MAX_WATCH_SLOTS	3
 int WatchSlot[MAX_WATCH_SLOTS];
 
-function int reserveOpenWatchSlot (void)
+function int reserveOpenWatchSlot(void)
 {
 	for(int i=0; i<MAX_WATCH_SLOTS; i++)
 	{
@@ -2803,7 +2848,7 @@ function int reserveOpenWatchSlot (void)
 	return 0;
 }
 
-function void ClearWatchHUD (int offset)
+function void ClearWatchHUD(int offset)
 {
 	HudMessageBold(s:""; HUDMSG_PLAIN, CoreLabelHID+CoreHIDOffset*offset,	CR_UNTRANSLATED, 0.0, 0.0, 0.1);
 	HudMessageBold(s:""; HUDMSG_PLAIN, CoreGraphicHID+CoreHIDOffset*offset,	CR_UNTRANSLATED, 0.0, 0.0, 0.1);
@@ -2870,7 +2915,7 @@ function void WatchAnnounceChange(int type, int value, int maxnum)
 		break;
 	}
 //	SetHudSize(WatchHudSizeX, WatchHudSizeY, 0);
-	SetFont(WatchHudFont);
+	SetFont("BIGFONT");
 }
 
 // Scripts can't have strings passed to them, so handle the string in a wrapper function
@@ -2878,21 +2923,21 @@ function void HealthWatch(int tid, int maxhealth, int deadscript, int type)
 {
 	int offset=reserveOpenWatchSlot();
 	WatchTitle(type, offset);
-	ACS_Execute( S_HEALTH_WATCH, 0, tid, maxhealth, deadscript | (offset<<12) | (type<<16) );
+	ACS_Execute(S_HEALTH_WATCH, 0, tid, maxhealth, deadscript |(offset<<12) |(type<<16));
 }
 
-script S_HEALTH_WATCH (int tid, int maxhealth, int data)
+script S_HEALTH_WATCH(int tid, int maxhealth, int data)
 {
 	int deadscript=(data&0x00000FFF),offset=(data&0x0000F000)>>12,type=(data&0x000F0000)>>16,color,curpercent;
 	SetHudSize(WatchHudSizeX, WatchHudSizeY, 0);
-	SetFont(WatchHudFont);
+	SetFont("BIGFONT");
 	while(true)
 	{
-		curpercent=GetPercent( GetActorProperty(tid, APROP_Health), maxhealth );
+		curpercent=GetPercent(GetActorProperty(tid, APROP_Health), maxhealth);
 		if(GameMode==GAME_CORE)
-			color=GetPercentColorCore( curpercent );
+			color=GetPercentColorCore(curpercent);
 		else
-			color=GetPercentColor( curpercent );
+			color=GetPercentColor(curpercent);
 		HudMessageBold(d:curpercent,s:"%";
 			HUDMSG_PLAIN, CorePercentHID+CoreHIDOffset*offset, color, CorePercentX, CorePercentY+CoreYOffset*offset, 0.0);
 		WatchAnnounceChange(type,curpercent,100);
@@ -2901,7 +2946,7 @@ script S_HEALTH_WATCH (int tid, int maxhealth, int data)
 		delay(15);
 		// We don't need to update the screen until the health changes enough to change the
 		// actual percent display value
-		while( GetPercent( GetActorProperty(tid, APROP_HEALTH), maxhealth )==curpercent )
+		while(GetPercent(GetActorProperty(tid, APROP_HEALTH), maxhealth)==curpercent)
 			delay(5);
 	}
 	delay(45);
@@ -2916,19 +2961,19 @@ function void CountWatch(int tid, int maxnum, int deadscript, int type)
 {
 	int offset=reserveOpenWatchSlot();
 	WatchTitle(type, offset);
-	ACS_Execute( S_COUNT_WATCH, 0, tid, maxnum, deadscript | (offset<<12) | (type<<16) );
+	ACS_Execute(S_COUNT_WATCH, 0, tid, maxnum, deadscript |(offset<<12) |(type<<16));
 }
 
-script S_COUNT_WATCH (int tid, int maxnum, int data)
+script S_COUNT_WATCH(int tid, int maxnum, int data)
 {
 	int deadscript=(data&0x00000FFF),offset=(data&0x0000F000)>>12,type=(data&0x000F0000)>>16,
 	color,curcount;
 	SetHudSize(WatchHudSizeX, WatchHudSizeY, 0);
-	SetFont(WatchHudFont);
+	SetFont("BIGFONT");
 	while(true)
 	{
-		curcount=ThingCount( T_NONE, tid );
-		color=GetPercentColor( GetPercent( curcount, maxnum ) );
+		curcount=ThingCount(T_NONE, tid);
+		color=GetPercentColor(GetPercent(curcount, maxnum));
 		HudMessageBold(d:curcount,s:"/",d:maxnum;
 			HUDMSG_PLAIN, CorePercentHID+CoreHIDOffset*offset, color, CorePercentX-15.2, CorePercentY+CoreYOffset*offset, 0.0);
 		WatchAnnounceChange(type,curcount,maxnum);
@@ -2936,7 +2981,7 @@ script S_COUNT_WATCH (int tid, int maxnum, int data)
 			break;
 		delay(5);
 		// We don't need to update the screen until the count changes
-		while( ThingCount( T_NONE, tid )==curcount )
+		while(ThingCount(T_NONE, tid)==curcount)
 			delay(5);
 	}
 	delay(45);
@@ -2951,21 +2996,21 @@ function void LimitWatch(int maxnum, int deadscript, int type)
 {
 	int offset=reserveOpenWatchSlot();
 	WatchTitle(type, offset);
-	ACS_Execute( S_LIMIT_WATCH, 0, maxnum, deadscript | (offset<<12) | (type<<16) );
+	ACS_Execute(S_LIMIT_WATCH, 0, maxnum, deadscript |(offset<<12) |(type<<16));
 }
 
-script S_LIMIT_WATCH (int maxnum, int data)
+script S_LIMIT_WATCH(int maxnum, int data)
 {
 	int deadscript=(data&0x00000FFF),offset=(data&0x0000F000)>>12,type=(data&0x000F0000)>>16,
 	color,curcount;
 
 	SetHudSize(WatchHudSizeX, WatchHudSizeY, 0);
-	SetFont(WatchHudFont);
+	SetFont("BIGFONT");
 	while(true)
 	{
 		curcount=LimitCounter;
 		// We want the color to match the percent of limits not reached yet
-		color=GetPercentColor( GetPercent( maxnum-curcount, maxnum ) );
+		color=GetPercentColor(GetPercent(maxnum-curcount, maxnum));
 		HudMessageBold(d:curcount,s:"/",d:maxnum;
 			HUDMSG_PLAIN, CorePercentHID+CoreHIDOffset*offset, color, CorePercentX-38.1, CorePercentY+CoreYOffset*offset, 0.0);
 		WatchAnnounceChange(type,curcount,maxnum);
@@ -2982,13 +3027,15 @@ script S_LIMIT_WATCH (int maxnum, int data)
 	ClearWatchHUD(offset);
 }
 
-script S_MILESTONE (void)
+script S_MILESTONE(void)
 {
 	GameMode=GAME_MILESTONE;
+	if(BreakTime == -1)	// Default setting
+		BreakTime=9*35;
 	ACS_ExecuteWait(S_DEADLINE,0,0);
 }
 
-script S_LIMIT_GAME (void)
+script S_LIMIT_GAME(void)
 {
 	GameMode=GAME_LIMIT;
 	if(BreakTime==-1)	// Default setting
@@ -2998,24 +3045,23 @@ script S_LIMIT_GAME (void)
 	ACS_ExecuteWait(S_DEADLINE,0,0);
 }
 
-script S_OVERMIND (void)
+script S_OVERMIND(void)
 {
 	// Set up boss monster
-	GameMode=GAME_OVERMIND;
-	int OriginalHealth=Multiplier( M_BOSSHEALTH, BossHealth );
-	SetActorProperty(BossMonster, APROP_Health, OriginalHealth);
-	Thing_Hate(BossMonster, BossTarget, 2);
+	GameMode = GAME_OVERMIND;
 	Thing_Activate(BossMonster);
-	NumberOfTargets=ThingCount( T_NONE, BossTarget );
+	Thing_Hate(BossMonster, BossTarget, 2);
+	int OriginalHealth = GetActorProperty(BossMonster, APROP_HEALTH);
+	NumberOfTargets = ThingCount( T_NONE, BossTarget );
 	HealthWatch(BossMonster,OriginalHealth,S_OVERMIND_COMPLETE,WATCH_BOSS);
-	CountWatch(BossTarget,ThingCount( T_NONE, BossTarget ),S_MISSION_FAIL,WATCH_BOSSTARGET);
+	CountWatch(BossTarget,ThingCount(T_NONE, BossTarget),S_MISSION_FAIL,WATCH_BOSSTARGET);
 	DisableAnnounceWaveDone=TRUE;
 	StartTimer();
 	for(int i=1; i<=Waves; i++)
 	{
 		CallWave(i);
 		Delay(4*35);
-		while( GetActorProperty(BossMonster, APROP_Health) > OriginalHealth * (Waves-i) / Waves )
+		while(GetActorProperty(BossMonster, APROP_Health) > OriginalHealth *(Waves-i) / Waves)
 			delay(5);
 	}
 	Suspend;
@@ -3023,21 +3069,21 @@ script S_OVERMIND (void)
 	// This script left suspended so that it can be terminated later, and level control continues.
 }
 
-script S_OVERMIND_COMPLETE (void)
+script S_OVERMIND_COMPLETE(void)
 {
 	if(MonstersTid)
 		Thing_Damage(MonstersTid, INT_MAX);
 	GameFinishing=TRUE;	// Stop all running waves
-	ACS_Suspend( S_OVERMIND, 0 );	// Pause Overmind script so it doesn't continue launching waves
+	ACS_Suspend(S_OVERMIND, 0);	// Pause Overmind script so it doesn't continue launching waves
 	StopTimer();
 	// Call the last wave, to spawn maybe extra items, do a special map action, or a message, but don't wait on it.
 	CallWave(Waves+1);
 	Delay(3*35);	// Wait a moment before ending the script, so the ending screen or whatever the map does next
 			// isn't too immediate.
-	ACS_Terminate( S_OVERMIND, 0 );
+	ACS_Terminate(S_OVERMIND, 0);
 }
 
-script S_MILE_MARKER (int mile)
+script S_MILE_MARKER(int mile)
 {
 	if(mile==0)
 		// There's no reason to call this script with mile==0, so this was most likely
@@ -3045,8 +3091,8 @@ script S_MILE_MARKER (int mile)
 		PrintBold(s:"Error: S_MILE_MARKER script #250 called with argument 0");
 	// Don't continue if the activator is a dead monster or friendly
 	if((mile>CurrentMile) &&
-		( (ClassifyActor(0) & ( ACTOR_MONSTER | ACTOR_DEAD )) !=( ACTOR_MONSTER | ACTOR_DEAD ) ) &&
-		( !GetActorProperty(0, APROP_Friendly) ) )
+		((ClassifyActor(0) &(ACTOR_MONSTER | ACTOR_DEAD)) !=(ACTOR_MONSTER | ACTOR_DEAD)) &&
+		(!GetActorProperty(0, APROP_Friendly)))
 	{
 		AnnounceNewMile(mile);
 		if(MileScript)
@@ -3066,29 +3112,29 @@ script S_MILE_MARKER (int mile)
 	}
 }
 
-script S_LIMIT_MARKER (void)
+script S_LIMIT_MARKER(void)
 {
 	// Don't continue if the activator is a dead monster or friendly
 	if(GameActive &&
-		( (ClassifyActor(0) & ACTOR_MONSTER)==ACTOR_MONSTER ) &&
-		( (ClassifyActor(0) & ( ACTOR_MONSTER | ACTOR_DEAD )) !=( ACTOR_MONSTER | ACTOR_DEAD ) ) &&
-		( !GetActorProperty(0, APROP_Friendly) ) )
+		((ClassifyActor(0) & ACTOR_MONSTER)==ACTOR_MONSTER) &&
+		((ClassifyActor(0) &(ACTOR_MONSTER | ACTOR_DEAD)) !=(ACTOR_MONSTER | ACTOR_DEAD)) &&
+		(!GetActorProperty(0, APROP_Friendly)))
 	{
-		Spawn("TeleportFog",GetActorX(0)+random(-8.0,8.0),GetActorY(0)+random(-8.0,8.0),GetActorZ(0)+random(8.0,16.0) );
+		Spawn("TeleportFog",GetActorX(0)+random(-8.0,8.0),GetActorY(0)+random(-8.0,8.0),GetActorZ(0)+random(8.0,16.0));
 		Thing_Remove(0);
 		LimitCounter++;
 	}
 }
 
-script S_GOAL_GAME (void)
+script S_GOAL_GAME(void)
 {
 	GameMode=GAME_GOAL;
-	CountWatch(HateEpicenter,ThingCount( T_NONE, HateEpicenter ),S_MISSION_FAIL,WATCH_GOALS);
-	NumberOfTargets=ThingCount( T_NONE, HateEpicenter );
+	CountWatch(HateEpicenter,ThingCount(T_NONE, HateEpicenter),S_MISSION_FAIL,WATCH_GOALS);
+	NumberOfTargets=ThingCount(T_NONE, HateEpicenter);
 	ACS_ExecuteWait(S_DEADLINE,0,0);
 }
 
-script S_GOAL_DESTROYED (int color)
+script S_GOAL_DESTROYED(int color)
 {
 	switch(color)
 	{
@@ -3112,10 +3158,10 @@ script S_GOAL_DESTROYED (int color)
 		Terminate;
 	}
 	if(GoalScript)
-		ACS_ExecuteAlways(GoalScript, 0, ThingCount(T_NONE, HateEpicenter) );
+		ACS_ExecuteAlways(GoalScript, 0, ThingCount(T_NONE, HateEpicenter));
 }
 
-script S_CORE_WARNINGS (int healthleft)
+script S_CORE_WARNINGS(int healthleft)
 {
 	SetHudSize(640,480,1);
 	SetFont("BigFont");
@@ -3144,32 +3190,32 @@ script S_CORE_WARNINGS (int healthleft)
 	delay(35*4);
 }
 
-function int GetPercent (int value, int maxval)
+function int GetPercent(int value, int maxval)
 {
 	int candidate=(value*100)/maxval;
 	// Check if we rounded down to zero; return at least 1 if we did
-	if( (candidate==0) && (value>0) )
+	if((candidate==0) &&(value>0))
 		return 1;
 	// Don't give a negative percent
-	return max( candidate, 0 );
+	return max(candidate, 0);
 }
 
-function int GetPercentColor (int percent)
+function int GetPercentColor(int percent)
 {
-	if (percent > 75)
+	if(percent > 75)
 		return CR_GREEN;
-	else if (percent <=75 && percent > 50)
+	else if(percent <=75 && percent > 50)
 		return CR_YELLOW;
-	else if (percent <=50 && percent > 25)
+	else if(percent <=50 && percent > 25)
 		return CR_ORANGE;
 	return CR_RED;
 }
 
-function int GetPercentColorCore (int percent)
+function int GetPercentColorCore(int percent)
 {
-	if (percent > 66)
+	if(percent > 66)
 		return CR_GREEN;
-	else if (percent <=66 && percent > 33)
+	else if(percent <=66 && percent > 33)
 		return CR_YELLOW;
 	return CR_RED;
 }
@@ -3177,7 +3223,7 @@ function int GetPercentColorCore (int percent)
 // Don't call this script directly, use CallWave() function
 // This is so that the WaveFinishCallback can be set to false synchronously, so that way it can be
 // waited on.
-script S_CALLWAVE (int wave)
+script S_CALLWAVE(int wave)
 {
 	Setup();
 	if(EventScript)
@@ -3186,12 +3232,12 @@ script S_CALLWAVE (int wave)
 			// Called even when there isn't an EventScript just for consistency.
 	SpawnStuff(wave);
 	// Give player time to grab items before wave messages and enemies spawn.
-	Delay( BreakTime );
+	Delay(BreakTime);
 	AnnounceNewWave(wave);
 	ACS_ExecuteAlways(S_MESSAGE,0,wave);
-	Delay( 5*35 );
+	Delay(5*35);
 	// Monster spawning
-	if( ZoneDataUsed )
+	if(ZoneDataUsed)
 	{
 		int cacheUsed,cacheId=EnemySpawnCacheLoc++;
 		if(EnemySpawnCacheLoc==ENEMY_SPAWN_CACHE_LEN)
@@ -3201,7 +3247,7 @@ script S_CALLWAVE (int wave)
 		{
 			if(EnemyEntries[i][0]==wave)
 				// Every monster instance is given its own slot inside the EnemySpawnCache
-				for(int j=0; j<Multiplier( M_ENEMIES, EnemyEntries[i][2] ); j++)
+				for(int j=0; j<Multiplier(M_ENEMIES, EnemyEntries[i][2]); j++)
 					EnemySpawnCache[cacheId][cacheUsed++]=EnemyEntries[i][1];
 		}
 		if(cacheUsed>MAX_ENEMIES_PER_WAVE)
@@ -3248,13 +3294,16 @@ script S_CALLWAVE (int wave)
 				{
 					SpawnSpot("TeleportFog", tid);
 					// If the zone has no second patrol, or random==TRUE, pick first patrol
-					if((!ZoneData[zone][11]) || (random(0,1)))
+					if((!ZoneData[zone][11]) ||(random(0,1)))
 						GiveDefaults(tid, ZoneData[zone][5], HateEpicenter);
 					else
 						GiveDefaults(tid, ZoneData[zone][11], HateEpicenter);
 					Thing_ChangeTID(tid, MonstersTid);
 				}
-				delay( tics_between_monster_spawns );
+				if(TimeAttackMode) //Variable name is outdated, but it's not worth the trouble to change it.
+					delay(Random(0,tics_between_monster_spawns));
+				else
+					delay(tics_between_monster_spawns);
 			}
 			// Remove the enemy just spawned from the cache
 			EnemySpawnCache[cacheId][curEnemyId]="NULL";
@@ -3272,12 +3321,12 @@ script S_CALLWAVE (int wave)
 
 function void WaveFinished(int wave)
 {
-	if( (wave>0) && (wave<MAX_NORMAL_WAVES))
+	if((wave>0) &&(wave<MAX_NORMAL_WAVES))
 		WaveFinishCallback[wave]=TRUE;
 }
 
 // Pick the first zone that is for the current mile
-function int PickZone (int mile)
+function int PickZone(int mile)
 {
 	int candidate=-1;
 	for(int i=0; i<ZoneDataUsed; i++)
@@ -3296,7 +3345,7 @@ function int PickZone (int mile)
 	return candidate;
 }
 
-function int GetNextZone (int curZone, int mile)
+function int GetNextZone(int curZone, int mile)
 {
 	int candidate=-1;
 	for(int i=curZone+1; i<ZoneDataUsed; i++)
@@ -3314,7 +3363,7 @@ function int GetNextZone (int curZone, int mile)
 }
 
 // Always use ACS_ExecuteAlways to call this script, and it will queue up messages if needed
-script S_MESSAGE (int wave)
+script S_MESSAGE(int wave)
 {
 	Setup();
 	int ticketNumber=msgEndOfLine++;
@@ -3360,7 +3409,7 @@ script S_ENTER ENTER
 		GiveInventory("StartingToken",1);
 	}
 	Thing_ChangeTID(0, PLAYER_TID_START + PlayerNumber());
-	highestPlayerNumber=max( PlayerNumber(), highestPlayerNumber );
+	highestPlayerNumber=max(PlayerNumber(), highestPlayerNumber);
 	// Weapons
 	TakeInventory("StrongholdChainsaw", INT_MAX);
 	TakeInventory("AutoShotgun", INT_MAX);
@@ -3389,11 +3438,16 @@ script S_ENTER ENTER
 	TakeInventory("StrongholdFist", INT_MAX);
 	TakeInventory("StrongholdShrinkFist", INT_MAX);
 	TakeInventory("BruiserWeapon", INT_MAX);
-	// Trackers (for SBARINFO)
+	TakeInventory("TerminatorWeapon", INT_MAX);
+	// Trackers(for SBARINFO)
 	TakeInventory("JailTracker", INT_MAX);
 	TakeInventory("JailTrackerAllPlayers", INT_MAX);
 	TakeInventory("HUDCredits", INT_MAX);
 	TakeInventory("ThrustDummy", INT_MAX);
+	// Bugs
+	TakeInventory("PowerQuadDamage", INT_MAX);
+	TakeInventory("PowerTimeFreezer", INT_MAX);
+	TakeInventory("PowerScannerSustain", INT_MAX);
 	// Ammo
 	TakeInventory("Clip", INT_MAX);
 	TakeInventory("Cell", INT_MAX);
@@ -3402,7 +3456,7 @@ script S_ENTER ENTER
 	TakeInventory("Shell", INT_MAX);
 	TakeInventory("MineAmmo", INT_MAX);
 
-	if (PlayersAreLate)
+	if(PlayersAreLate)
 	{
 		if(PrisonSpot)
 		{
@@ -3423,9 +3477,9 @@ script S_ENTER ENTER
 	// (The thrusting script can modify it.)
 	SetActorProperty(0, APROP_Speed, 1.0);
 	if(BriefActive)
-		SetPlayerProperty (1, true, PROP_TOTALLYFROZEN);
+		SetPlayerProperty(1, true, PROP_TOTALLYFROZEN);
 	else
-		SetPlayerProperty (0, false, PROP_TOTALLYFROZEN);
+		SetPlayerProperty(0, false, PROP_TOTALLYFROZEN);
 	delay(1);
 
 	// Pause this script while Brief is active, so that way the player gets his gun
@@ -3466,7 +3520,7 @@ script S_LATEPLAYERS OPEN
 }
 
 // Displays amount of user's coins at top of screen in the intermap
-script S_HUD_COINS (void)
+script S_HUD_COINS(void)
 {
 	sethudsize(640,480,0);
 	setfont("HUDINT");
@@ -3475,7 +3529,7 @@ script S_HUD_COINS (void)
 	int lastCoinAmount=-1;
 	while(true)
 	{
-		if( CheckInventory("CoinItem") !=lastCoinAmount )
+		if(CheckInventory("CoinItem") !=lastCoinAmount)
 		{
 			HudMessage(s:"\cGCredits\n$",i:CheckInventory("CoinItem");
 				HUDMSG_PLAIN, MoneyCountHID, CR_UNTRANSLATED, 570.0, 30.0, 0.0);
@@ -3490,12 +3544,12 @@ script S_HUD_COINS (void)
 script S_LIVE_WATCH ENTER
 {
 	// If the player has a JailTracker, then the respawn script is handling this, or he's in jail already
-	if ((CheckInventory("LifeItem")==0) && (CheckInventory("JailTracker")==0) && (CheckInventory("Health") > 0))
+	if((CheckInventory("LifeItem")==0) &&(CheckInventory("JailTracker")==0) &&(CheckInventory("Health") > 0))
 	{
 		if(PrisonSpot)
 		{
 			Print(s:"Warning: You are out of lives!\n\nYou are about to be teleported to jail");
-			delay(35*6);	// Give the player a moment, so he can pick the life back
+			delay(35*10);	// Give the player a moment, so he can pick the life back
 							// up if he accidentally dropped it.
 			ACS_ExecuteAlways(S_RESPAWN, 0, 0);
 		}
@@ -3524,7 +3578,7 @@ script S_RESPAWN RESPAWN
 	Thing_ChangeTid(0,PLAYER_TID_START+PlayerNumber());
 	TakeInventory("JailTracker", INT_MAX);
 	TakeInventory("ThrustDummy", 1);
-	if (CheckInventory("LifeItem")==0)
+	if(CheckInventory("LifeItem")==0)
 	{
 		if(PrisonSpot)
 		{
@@ -3541,35 +3595,35 @@ script S_RESPAWN RESPAWN
 	SetPlayerProperty(0,BriefActive,PROP_TOTALLYFROZEN);
 }
 
-script S_DISCONNECT (int gone) DISCONNECT
+script S_DISCONNECT(int gone) DISCONNECT
 {
 	UpdateJailTrackers();
 }
 
-function void SetJailTeleporter (bool setting)
+function void SetJailTeleporter(bool setting)
 {
 	jailTeleporter=setting;
-	if( jailTeleporter )
+	if(jailTeleporter)
 	{
 		thing_deactivate(TeleporterOffLight);	// Dynamic Lights
 		thing_activate(TeleporterOnLight);
-		setlinetexture(PrisonTeleporterLineId, SIDE_FRONT, TEXTURE_MIDDLE, TeleporterOnTexture);
+		setlinetexture(PrisonTeleporterLineId, SIDE_FRONT, TEXTURE_MIDDLE, "TELEPTY1");
 	}
 	else
 	{
 		thing_activate(TeleporterOffLight);
 		thing_deactivate(TeleporterOnLight);
-		setlinetexture(PrisonTeleporterLineId, SIDE_FRONT, TEXTURE_MIDDLE, TeleporterOffTexture);
+		setlinetexture(PrisonTeleporterLineId, SIDE_FRONT, TEXTURE_MIDDLE, "TELEPTX1");
 	}
 }
 
-script S_JAIL_LEAVE (int angle)
+script S_JAIL_LEAVE(int angle)
 {
-	if( jailTeleporter )
+	if(jailTeleporter)
 	{
-		if( Teleport(PrisonExit, 0, 0) )
+		if(Teleport(PrisonExit, 0, 0))
 		{
-			SetJailTeleporter( FALSE );
+			SetJailTeleporter(FALSE);
 			TakeInventory("JailTracker", 1);
 			GiveInventory("LifeItem", 1);
 			UpdateJailTrackers();
@@ -3587,7 +3641,7 @@ script S_JAIL_LEAVE (int angle)
 	}
 }
 
-script S_JAIL_GIVEUP (void)
+script S_JAIL_GIVEUP(void)
 {
 	if(CheckInventory("JailTrackerAllPlayers")==PlayerCount())
 		Exit_Normal(ExitPos);
@@ -3601,57 +3655,57 @@ script S_JAIL_GIVEUP (void)
 	}
 }
 
-script S_JAIL_OPEN (void) // This is the script called if you use a LifeItem
+script S_JAIL_OPEN(void) // This is the script called if you use a LifeItem
 {
 	// If the player is in jail, he can use his last LifeItem.
 	// (...This is impossible to do without cheats.)
-	if( (CheckInventory("LifeItem")==1) && (CheckInventory("JailTracker")==0) )
+	if((CheckInventory("LifeItem")==1) &&(CheckInventory("JailTracker")==0))
 	{
 		Print(s:"You can't use your last Life to open the jail teleporter!");
-		SetResultValue( FALSE );
+		SetResultValue(FALSE);
 		Terminate;
 	}
-	if( PrisonTeleporterLineId )
+	if(PrisonTeleporterLineId)
 	{
 		if(CheckInventory("JailTrackerAllPlayers") > 0)
 		{
-			if( ! jailTeleporter )
+			if(! jailTeleporter)
 			{
 				PrintBold(s:"Prison Teleporter Opened");
-				SetJailTeleporter( TRUE );
-				SetResultValue( TRUE );
+				SetJailTeleporter(TRUE);
+				SetResultValue(TRUE);
 			}
 			else
 			{
 				Print(s:"Prison Teleporter already Open");
-				SetResultValue( FALSE );
+				SetResultValue(FALSE);
 			}
 		}
 		else
 		{
 			Print(s:"No players are in jail!");
-			SetResultValue( FALSE );
+			SetResultValue(FALSE);
 		}
 	}
 	else
 	{
 		Print(s:"Not usable here!\n\nThis map does not have a jail teleporter to open.");
-		SetResultValue( FALSE );
+		SetResultValue(FALSE);
 	}
 }
 
-script S_BRIEF_MAIN (void)
+script S_BRIEF_MAIN(void)
 {
 	ACS_Execute(S_BRIEF_ANIMATE,0,0);
 	BriefActive=TRUE;
 	BriefNoGun=TRUE;
-	SetPlayerProperty (1, TRUE, PROP_TOTALLYFROZEN);
+	SetPlayerProperty(1, TRUE, PROP_TOTALLYFROZEN);
 	SetFont("BLACK");
 	SetHudSize(4,4,0);
-	HudMessageBold (s:"a"; HUDMSG_PLAIN, FadeOutHID, CR_UNTRANSLATED,2.0, 2.0, 0.0);
+	HudMessageBold(s:"a"; HUDMSG_PLAIN, FadeOutHID, CR_UNTRANSLATED,2.0, 2.0, 0.0);
 	SetHudSize(640, 480, 0);
-	SetFont(BriefBackground);
-	HudMessageBold (s:"a"; HUDMSG_PLAIN, BriefBGHID, 0, 320.0, 240.0, 0.0);
+	SetFont("TNTA0");
+	HudMessageBold(s:"a"; HUDMSG_PLAIN, BriefBGHID, 0, 320.0, 240.0, 0.0);
 	SetHudSize(640, 480, 1);
 	if(BriefSkippable)
 	{
@@ -3664,17 +3718,17 @@ script S_BRIEF_MAIN (void)
 	ACS_Execute(S_BRIEF_END, 0, 0);
 }
 
-script S_BRIEF_ANIMATE (void)
+script S_BRIEF_ANIMATE(void)
 {
 	sethudsize(640, 480, 1);
 	setfont("BIGFONT");
-	hudmessagebold (s:"\cGInstructor Lt. Carmack:\n";HUDMSG_PLAIN, BriefNameHID, CR_UNTRANSLATED, 345.0, 310.0, 0.0);
-	while( TRUE )
+	hudmessagebold(s:"\cGInstructor Lt. Carmack:\n";HUDMSG_PLAIN, BriefNameHID, CR_UNTRANSLATED, 345.0, 310.0, 0.0);
+	while(TRUE)
 	{
-		if (!BriefTalking)
+		if(!BriefTalking)
 		{
 			setfont("BRIEFTN2");
-			HudMessageBold (s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 0.0);
+			HudMessageBold(s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 0.0);
 			delay(25);
 			while(!BriefTalking)
 				delay(1);
@@ -3682,34 +3736,34 @@ script S_BRIEF_ANIMATE (void)
 		else
 		{
 			setfont("BRIEFTN2");
-			HudMessageBold (s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
+			HudMessageBold(s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
 			delay(10);
 			setfont("BRIEFTY2");
-			HudMessageBold (s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
+			HudMessageBold(s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
 			delay(10);
 			setfont("BRIEFTY1");
-			HudMessageBold (s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
+			HudMessageBold(s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
 			delay(10);
 			setfont("BRIEFTY2");
-			HudMessageBold (s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
+			HudMessageBold(s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
 			delay(10);
 			setfont("BRIEFTN2");
-			HudMessageBold (s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
+			HudMessageBold(s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
 			delay(10);
 			setfont("BRIEFTY1");
-			HudMessageBold (s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
+			HudMessageBold(s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
 			delay(10);
 			setfont("BRIEFTY2");
-			HudMessageBold (s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
+			HudMessageBold(s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
 			delay(10);
 			setfont("BRIEFTY1");
-			HudMessageBold (s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
+			HudMessageBold(s:"a"; HUDMSG_PLAIN, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 2.0);
 			delay(10);
 		}
 	}
 }
 
-script S_BRIEF_END (void)	// #251
+script S_BRIEF_END(void)	// #251
 {
 	if(!BriefActive)
 		terminate;
@@ -3722,25 +3776,25 @@ script S_BRIEF_END (void)	// #251
 	HudMessageBold(s:""; HUDMSG_PLAIN, BriefHID,		CR_UNTRANSLATED, 0.0, 0.0, 1.0); // Message Text
 	SetFont("BLACK");
 	SetHudSize(4,4,0);
-	HudMessageBold (s:"a"; HUDMSG_FADEOUT, FadeOutHID, CR_UNTRANSLATED,2.0, 2.0,0.0, 2.0);	// holdTime, outTime
+	HudMessageBold(s:"a"; HUDMSG_FADEOUT, FadeOutHID, CR_UNTRANSLATED,2.0, 2.0,0.0, 2.0);	// holdTime, outTime
 	SetHudSize(640, 480, 0);
-	SetFont(BriefBackground);
+	SetFont("TNTA0");
 	HudMessageBold(s:"a"; HUDMSG_FADEOUT, BriefBGHID, 0, 320.0, 240.0, 0.0, 2.0);
 	SetHudSize(640, 480, 1);
 	SetFont("BIGFONT");
 	HudMessageBold(s:"\cGInstructor Lt. Carmack:\n";
 		HUDMSG_FADEOUT, BriefNameHID, CR_UNTRANSLATED, 345.0, 310.0, 0.0, 0.5);
 	SetFont("BRIEFTN2");
-	HudMessageBold (s:"a"; HUDMSG_FADEOUT, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 0.2, 0.5);
+	HudMessageBold(s:"a"; HUDMSG_FADEOUT, BriefTalkBoxHID, 0, BriefTalkBoxX, BriefTalkBoxY, 0.2, 0.5);
 	Delay(1*35);
 	BriefNoGun=FALSE;	// This lets the player spawn with his gun a bit before unfreezing
 	Delay(2*35);
 	BriefActive=FALSE;
-	SetPlayerProperty (1, FALSE, PROP_TOTALLYFROZEN);
+	SetPlayerProperty(1, FALSE, PROP_TOTALLYFROZEN);
 }
 
 // Standard Battlefield Border Script
-script S_BF_THRUST (int byte_angle, int focustid) // #254
+script S_BF_THRUST(int byte_angle, int focustid) // #254
 {
 	Print(s:"\cGYou must not leave the battlefield!");
 //	ThrustThing(byte_angle, 30, 0, 0);
@@ -3749,9 +3803,9 @@ script S_BF_THRUST (int byte_angle, int focustid) // #254
 
 // Generic Thrust script, no angle needed
 // Optional arg, focustid: Thrust is towards it
-script S_G_THRUST (int focustid)
+script S_G_THRUST(int focustid)
 {
-	if((LineSide()==LINE_FRONT) && (!CheckInventory("ThrustDummy")))
+	if((LineSide()==LINE_FRONT) &&(!CheckInventory("ThrustDummy")))
 	{
 		GiveInventory("ThrustDummy", 1);
 		int oldx=GetActorX(0),oldy=GetActorY(0),oldz=GetActorZ(0),oldSpeed=GetActorProperty(0, APROP_Speed);
@@ -3762,30 +3816,30 @@ script S_G_THRUST (int focustid)
 			delay(1);
 			int newx=GetActorX(0),newy=GetActorY(0);
 			// Gets angle of opposite of current momentum
-			byte_angle=VectorAngle( oldx-newx, oldy-newy ) >> 8;
+			byte_angle=VectorAngle(oldx-newx, oldy-newy) >> 8;
 			SetActorPosition(0, oldx, oldy, oldz, false);
 		}
 		else
 		{
 			int focusx=GetActorX(focustid),focusy=GetActorY(focustid);
-			byte_angle=VectorAngle( focusx-oldx, focusy-oldy ) >> 8;
+			byte_angle=VectorAngle(focusx-oldx, focusy-oldy) >> 8;
 		}
 		Thing_Stop(0);
 		int i;
 		do
 		{
-			ThrustThing(byte_angle, max( min(i*3,30), 5), 0, 0);
-			if( (i%10)==0)
+			ThrustThing(byte_angle, max(min(i*3,30), 5), 0, 0);
+			if((i%10)==0)
 			{
-				if( i>35*13 )
+				if(i>35*13)
 					Thing_Damage(0,100000,MOD_UNKNOWN);
-				else if( i>35*5 )
+				else if(i>35*5)
 					Thing_Damage(0,20,MOD_UNKNOWN);
 			}
 			i++;
 			delay(1);
 		}
-		while ( (CheckInventory("ThrustDummy")>0) && (GetActorProperty(0, APROP_Health)>0) );
+		while((CheckInventory("ThrustDummy")>0) &&(GetActorProperty(0, APROP_Health)>0));
 			SetActorProperty(0, APROP_Speed, oldSpeed);
 	}
 	if(LineSide()==LINE_BACK)
@@ -3793,9 +3847,9 @@ script S_G_THRUST (int focustid)
 }
 
 // Does some sanity checks on the map
-script S_DEBUG (int wavemanip /*void*/) // 'puke 930'
+script S_DEBUG(int wavemanip /*void*/) // 'puke 930'
 {
-	if (wavemanip)
+	if(wavemanip)
 	{
 		F_CallNextWave=wavemanip;
 		terminate;
@@ -3875,12 +3929,11 @@ script S_DEBUG (int wavemanip /*void*/) // 'puke 930'
 		}
 	}
 	// The HateEpicenter should be a shootable thing.
-	// Can't directly check for that, so I check if the HateEpicenter is alive or is a HateTarget.
-	if(HateEpicenter&&!( ClassifyActor(HateEpicenter) & ACTOR_ALIVE ) &&!GetActorProperty(HateEpicenter, APROP_Health))
+	if(HateEpicenter&&!CheckFlag(HateEpicenter,"SHOOTABLE"))
 		PrintBold(s:"Error ",d:++errors,s:": There is no",
 			s:" HateTarget or living HateEpicenter, expecting tid ",d:HateEpicenter,
 			s:".\nRemove the HateEpicenter line from the map's script if you don't want one.");
-	if(BossMonster&&ThingCount(T_NONE,BossMonster) !=1 )
+	if(BossMonster&&ThingCount(T_NONE,BossMonster) !=1)
 		PrintBold(s:"Error ",d:++errors,s:": There is more or less",s:" than 1 actor with the BossMonster Tid.");
 	if(errors > 0)
 		PrintBold(s:"Debug script completed, with ",d:errors,s:" error(s)\n\nCheck your console");
@@ -3889,7 +3942,7 @@ script S_DEBUG (int wavemanip /*void*/) // 'puke 930'
 }
 
 // Randomizes the STR52 code if needed, and then prints the correct sequence to the screen.
-script S_STR52CODEGET (void)	// Script 927
+script S_STR52CODEGET(void)	// Script 927
 {
 	// Has the code been set yet? Set a code if not
 	if(!str52codeinit)
@@ -3912,7 +3965,7 @@ script S_HUD OPEN clientside
 	if(GetLevelInfo(LEVELINFO_LEVELNUM)==999)
 		Terminate;
 	// Launch a copy of the timer script clientside
-	ACS_Execute( S_TIMER, 0, 0 );
+	ACS_Execute(S_TIMER, 0, 0);
 	SetHudSize(640,480,1);
 	int aspect, adjWidth, left, right,showedPar;
 	while(true)
@@ -3936,73 +3989,73 @@ script S_HUD OPEN clientside
 		left=fround((640.0-adjWidth)/2);
 		right=fround((adjWidth+640.0)/2);
 		SetFont("HUDLEFT");
-		HudMessageBold(s:"A"; HUDMSG_PLAIN, HUDLeftHID, CR_UNTRANSLATED,left+0.1, 0.1,0.0 );
+		HudMessageBold(s:"A"; HUDMSG_PLAIN, HUDLeftHID, CR_UNTRANSLATED,left+0.1, 0.1,0.0);
 		SetFont("HUDRIGHT");
-		HudMessageBold(s:"A"; HUDMSG_PLAIN, HUDRightHID, CR_UNTRANSLATED,right+0.2, 0.1,0.0 );
+		HudMessageBold(s:"A"; HUDMSG_PLAIN, HUDRightHID, CR_UNTRANSLATED,right+0.2, 0.1,0.0);
 		SetFont("BIGFONT");
-		HudMessageBold (d:GetLevelInfo(LEVELINFO_LEVELNUM); HUDMSG_PLAIN, HUDLevelHID, CR_RED,left+83.0, 15.0,0.0 );
+		HudMessageBold(d:GetLevelInfo(LEVELINFO_LEVELNUM); HUDMSG_PLAIN, HUDLevelHID, CR_RED,left+83.0, 15.0,0.0);
 		// Show Par Time
 		if(parTimeMode !=0)
 		{
 			// Time
-			HudMessageBold (d:parTimeMinutes,s:":",s:parTimeSecondsSpace,d:parTimeSeconds;
-				HUDMSG_PLAIN, HUDParTimeHID, CR_DARKGRAY,right-38.0, 80.0,0.0 );
+			HudMessageBold(d:parTimeMinutes,s:":",s:parTimeSecondsSpace,d:parTimeSeconds;
+				HUDMSG_PLAIN, HUDParTimeHID, CR_DARKGRAY,right-38.0, 80.0,0.0);
 			// Label
 			if(parTimeMode==1)
-				HudMessageBold (s:"Par Time";
-					HUDMSG_PLAIN, HUDParTimeLabelHID, CR_DARKGRAY,right-70.0+0.2, 80.0,0.0 );
-			else if (parTimeMode==2)
-				HudMessageBold (s:"Best Time";
-					HUDMSG_PLAIN, HUDParTimeLabelHID, CR_DARKGRAY,right-70.0+0.2, 80.0,0.0 );
+				HudMessageBold(s:"Par Time";
+					HUDMSG_PLAIN, HUDParTimeLabelHID, CR_DARKGRAY,right-70.0+0.2, 80.0,0.0);
+			else if(parTimeMode==2)
+				HudMessageBold(s:"Best Time";
+					HUDMSG_PLAIN, HUDParTimeLabelHID, CR_DARKGRAY,right-70.0+0.2, 80.0,0.0);
 		}
 		else
 		{
-			HudMessageBold(s:""; HUDMSG_PLAIN, HUDParTimeHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5 );
-			HudMessageBold(s:""; HUDMSG_PLAIN, HUDParTimeLabelHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5 );
+			HudMessageBold(s:""; HUDMSG_PLAIN, HUDParTimeHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5);
+			HudMessageBold(s:""; HUDMSG_PLAIN, HUDParTimeLabelHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5);
 		}
 		showedPar=parTimeMode;
 		do
 		{
 			// Wave
-			HudMessageBold (d:curWave; HUDMSG_PLAIN, HUDWaveHID, CR_RED,left+192.0, 15.0,0.0 );
+			HudMessageBold(d:curWave; HUDMSG_PLAIN, HUDWaveHID, CR_RED,left+192.0, 15.0,0.0);
 			// Body count
-			HudMessageBold(d:GetLevelInfo(LEVELINFO_KILLED_MONSTERS); HUDMSG_PLAIN, HUDBodyCountHID, CR_RED,right-38.0, 39.0,0.0 );
+			HudMessageBold(d:GetLevelInfo(LEVELINFO_KILLED_MONSTERS); HUDMSG_PLAIN, HUDBodyCountHID, CR_RED,right-38.0, 39.0,0.0);
 			// Monsters left
-			HudMessageBold (d:GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)-GetLevelInfo(LEVELINFO_KILLED_MONSTERS);
-				HUDMSG_PLAIN, HUDMonstersHID, CR_RED,left+180.0, 39.0,0.0 );
+			HudMessageBold(d:GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)-GetLevelInfo(LEVELINFO_KILLED_MONSTERS);
+				HUDMSG_PLAIN, HUDMonstersHID, CR_RED,left+180.0, 39.0,0.0);
 			// Time Spent
-			HudMessageBold (d:levelMinutes,s:":",s:levelSecondsSpace,d:levelSeconds;
-				HUDMSG_PLAIN, HUDTimeHID, CR_RED,right-38.0, 15.0,0.0 );
+			HudMessageBold(d:levelMinutes,s:":",s:levelSecondsSpace,d:levelSeconds;
+				HUDMSG_PLAIN, HUDTimeHID, CR_RED,right-38.0, 15.0,0.0);
 			delay(1);
 		}
-		while( (aspect==getaspectratio()) && (showedPar==parTimeMode) && (!getcvar("sthd_hud_disable")) /* && (getcvar("screenblocks")!=12) */ );
+		while((aspect==getaspectratio()) &&(showedPar==parTimeMode) &&(!getcvar("sthd_hud_disable")) /* &&(getcvar("screenblocks")!=12) */);
 	}
 }
 
-function void clearHud (void)
+function void clearHud(void)
 {
-	HudMessageBold(s:""; HUDMSG_PLAIN, HUDLeftHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5 );
-	HudMessageBold(s:""; HUDMSG_PLAIN, HUDRightHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5 );
-	HudMessageBold(s:""; HUDMSG_PLAIN, HUDLevelHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5 );
-	HudMessageBold(s:""; HUDMSG_PLAIN, HUDWaveHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5 );
-	HudMessageBold(s:""; HUDMSG_PLAIN, HUDBodyCountHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5 );
-	HudMessageBold(s:""; HUDMSG_PLAIN, HUDMonstersHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5 );
-	HudMessageBold(s:""; HUDMSG_PLAIN, HUDTimeHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5 );
-	HudMessageBold(s:""; HUDMSG_PLAIN, HUDParTimeHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5 );
-	HudMessageBold(s:""; HUDMSG_PLAIN, HUDParTimeLabelHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5 );
+	HudMessageBold(s:""; HUDMSG_PLAIN, HUDLeftHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5);
+	HudMessageBold(s:""; HUDMSG_PLAIN, HUDRightHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5);
+	HudMessageBold(s:""; HUDMSG_PLAIN, HUDLevelHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5);
+	HudMessageBold(s:""; HUDMSG_PLAIN, HUDWaveHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5);
+	HudMessageBold(s:""; HUDMSG_PLAIN, HUDBodyCountHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5);
+	HudMessageBold(s:""; HUDMSG_PLAIN, HUDMonstersHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5);
+	HudMessageBold(s:""; HUDMSG_PLAIN, HUDTimeHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5);
+	HudMessageBold(s:""; HUDMSG_PLAIN, HUDParTimeHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5);
+	HudMessageBold(s:""; HUDMSG_PLAIN, HUDParTimeLabelHID, CR_UNTRANSLATED, 0.0, 0.0, 0.5);
 }
 
 script S_TIMER open
 {
 	if(MapScores[GetLevelInfo(LEVELINFO_LEVELNUM)]!=0)
 		TimeAttackMode=TRUE;
-	while( TRUE )
+	while(TRUE)
 	{
-		while( TimerIsLive )
+		while(TimerIsLive)
 		{
-			delay( 1 );
+			delay(1);
 			levelRunningTime++;
-			if( levelRunningTime % 35==0 )
+			if(levelRunningTime % 35==0)
 			{
 				levelMinutes=(levelRunningTime/35)/60;
 				levelSeconds=(levelRunningTime/35)%60;
@@ -4013,48 +4066,48 @@ script S_TIMER open
 	}
 }
 
-function void StartTimer (void)
+function void StartTimer(void)
 {
 	TimerIsLive=TRUE;
 	UpdateTime();
 }
 
-function void StopTimer (void)
+function void StopTimer(void)
 {
 	TimerIsLive=FALSE;
 	UpdateTime();
 }
 
-function void UpdateWaveTrackers (void)
+function void UpdateWaveTrackers(void)
 {
 //	PrintBold(s:"UpdateWaveTrackers - Curwave=",d:Curwave);
-	ACS_ExecuteAlways( S_SYNC, 0, SYNC_WAVE, Curwave);
+	ACS_ExecuteAlways(S_SYNC, 0, SYNC_WAVE, Curwave);
 }
 
 // Time is tricky to update, because levelRunningTime is a 4 byte integer, and
 // we can only send 3 bytes at a time in a script's arguments.
-function void UpdateTime (void)
+function void UpdateTime(void)
 {
 //	PrintBold(s:"UpdateTime - levelRunningTime=",d:levelRunningTime);
 //	Scripts in reverse order because they'll probably be sent together in the same
 //	packet, and executed backwards by clients.
-	ACS_ExecuteAlways( S_SYNC, 0, SYNC_LOTIME | (TimerIsLive<<7),(levelRunningTime>>8)%256,levelRunningTime%256);
-	ACS_ExecuteAlways( S_SYNC, 0, SYNC_HITIME,(levelRunningTime>>24),(levelRunningTime>>16)%256);
+	ACS_ExecuteAlways(S_SYNC, 0, SYNC_LOTIME |(TimerIsLive<<7),(levelRunningTime>>8)%256,levelRunningTime%256);
+	ACS_ExecuteAlways(S_SYNC, 0, SYNC_HITIME,(levelRunningTime>>24),(levelRunningTime>>16)%256);
 	// Maybe not the best place for sending the par time to clients, but it ensures no clients never get it
 	if(parTimeMode !=0)
-		ACS_ExecuteAlways( S_SYNC, 0, SYNC_PARTIME | ((parTimeMode-1)<<7),parTime>>8,parTime%256);
+		ACS_ExecuteAlways(S_SYNC, 0, SYNC_PARTIME |((parTimeMode-1)<<7),parTime>>8,parTime%256);
 }
 
 // Most significant byte first
 function int unpack(int byte1, int byte2, int byte3, int byte4)
 {
-	return (byte1<<24) + (byte2<<16) + (byte3<<8) + byte4;
+	return(byte1<<24) +(byte2<<16) +(byte3<<8) + byte4;
 }
 
 bool hiTimeBytesReady;
 int hiTimeByte1, hiTimeByte2;
 
-script S_SYNC (int flags, int byte1, int byte2) clientside
+script S_SYNC(int flags, int byte1, int byte2) clientside
 {
 //	PrintBold(s:"S_SYNC: flags=",x:flags,s:", byte1=",d:byte1,s:", byte2=",d:byte2);
 	if(AllVarsLocal)
@@ -4071,14 +4124,14 @@ script S_SYNC (int flags, int byte1, int byte2) clientside
 			break;
 		case SYNC_LOTIME:
 			// Wait until SYNC_HITIME call has been made
-			while( !hiTimeBytesReady )
+			while(!hiTimeBytesReady)
 				delay(1);
 			hiTimeBytesReady=FALSE;
 			levelRunningTime=unpack(hiTimeByte1, hiTimeByte2, byte1, byte2);
 			TimerIsLive=(flags&0x00000080)>>7;
 			break;
 		case SYNC_PARTIME:
-			setParTime( unpack(0,0,byte1,byte2), (flags&0x00000080)>>7 );
+			setParTime(unpack(0,0,byte1,byte2),(flags&0x00000080)>>7);
 			break;
 		default:
 			PrintBold(s:"Error: S_SYNC called with invalid flags ",x:flags);
@@ -4086,10 +4139,10 @@ script S_SYNC (int flags, int byte1, int byte2) clientside
 }
 
 // par in seconds, type=0 for "Par Time", type=1 for "Best Time"
-function void setParTime (int par, int type)
+function void setParTime(int par, int type)
 {
 	parTime=par;
-	if ( parTime > 0 )
+	if(parTime > 0)
 	{
 		parTimeMode=type+1;
 		parTimeMinutes=parTime / 60;
@@ -4103,4 +4156,21 @@ function void setParTime (int par, int type)
 script S_VAR_CHECK open
 {
 	AllVarsLocal=TRUE;
+}
+
+script S_HARD_MODE_CHECK (void)
+{
+	int Result;
+	if(PlayerCount()>=7)
+		Result = 1;
+	SetResultValue(Result);
+}
+
+script "AwardPoints"(void)
+{
+	int points;
+	if(CheckActorClass(0,"class"))
+		points=0;
+	SetActivator(0,AAPTR_TARGET);
+		GiveInventory("AwardItem",points);
 }

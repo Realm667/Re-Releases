@@ -3,7 +3,7 @@ ACTOR PyroDemon : StrongholdBaronOfHell 30105
 	Species "PyroDemon"
 	//$Category Stronghold_Monsters
 	painchance "Stunner",128
-	Health 2000
+	Health 2500
 	PainChance 20
 	OBITUARY "%o was burnt to a crisp by a pyro demon."
 	HITOBITUARY "%o was melted by a pyro demon."
@@ -122,7 +122,7 @@ ACTOR FireShot
 	Radius 3
 	Height 3
 	Speed 15
-	Damage 3
+	Damage 2
 	PROJECTILE
 	RENDERSTYLE ADD
 	ALPHA 0.67
@@ -218,7 +218,7 @@ ACTOR FirebombExplosion1
 		Loop
 	Death:
 		FRME A 0 A_PlaySound("pyro/blastexplosion")
-		FRME A 3 Bright A_Explode(128,144)
+		FRME A 3 Bright A_Explode
 		FRME B 1 Bright A_Mushroom("Pyroball",8)
 		FRME B 2 Bright A_CustomMissile("FirebombExplosion2",25,0,180)
 		FRME CDEFGHIJKLMNOPQRS 3 Bright
@@ -232,7 +232,7 @@ ACTOR FirebombExplosion2 : FirebombExplosion1
 	{
 	Death:
 		FRME A 0 A_PlaySound("pyro/blastexplosion")
-		FRME A 3 Bright A_Explode(128,136)
+		FRME A 3 Bright A_Explode(128,112)
 		FRME B 1 Bright
 		FRME B 2 Bright A_CustomMissile("FirebombExplosion3",20,0,180)
 		FRME CDEFGHIJKLMNOPQRS 3 Bright
@@ -249,7 +249,7 @@ ACTOR FirebombExplosion3 : FirebombExplosion1
 	Death:
 		FRME A 0
 		FRME A 0 A_PlaySound("pyro/blastexplosion")
-		FRME A 3 Bright A_Explode
+		FRME A 3 Bright A_Explode(128,96)
 		FRME BCDEFGHIJKLMNOPQRS 3 Bright
 		Stop
 	}

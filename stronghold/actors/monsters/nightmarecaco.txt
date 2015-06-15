@@ -1,0 +1,31 @@
+actor NightmareCaco : StrongholdCacodemon
+{
+	Health 700
+	Speed 4
+	FloatSpeed 2
+	RenderStyle translucent
+	Alpha 0.75
+	Translation "168:191=192:207", "192:207=168:191", "16:31=192:199", "32:63=200:207"
+	HitObituary "%o was snuck up on by the Nightmare Cacodemon."
+	Obituary "%o couldn't dodge the Nightmare Cacodemon's fireball."
+	States
+	{
+	See:
+		"####" A 1 A_Chase
+		"####" A 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		Loop
+	Missile:
+		HEAD B 0 A_Jump(128,1)
+		Goto See
+		HEAD BB 3 A_FaceTarget
+		HEAD C 4 A_HeadAttack
+		HEAD BB 3 A_FaceTarget
+		HEAD C 4 A_HeadAttack
+		HEAD BB 3 A_FaceTarget
+		HEAD C 4 A_HeadAttack
+		Goto See
+	Death:
+		"####" A 0 A_GiveToTarget("AwardItem",11)
+		Goto Super::Death+1
+	}
+}

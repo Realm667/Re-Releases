@@ -14,6 +14,7 @@ ACTOR MorphedPlayer : PlayerPawn
 	player.viewheight 64
 	player.morphweapon "BruiserWeapon"
 	DamageFactor "BruiserAttack",0
+	DamageFactor "MarineAlly",0
 	+NOSKIN
 	-TELESTOMP
 	States
@@ -47,10 +48,9 @@ ACTOR MorphedPlayer : PlayerPawn
 /////////////////////////////////////// BRUISER'S RANDOM ATTACK //////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
-ACTOR BruiserWeapon : Weapon 29100
+ACTOR BruiserWeapon : Weapon
 {
 	//$Category Stronghold_Weapons
-	+WEAPON.AMMO_OPTIONAL
 	+CHEATNOTWEAPON
 	+NOAUTOFIRE
 	States
@@ -59,40 +59,40 @@ ACTOR BruiserWeapon : Weapon 29100
 		BHND A 1 Bright A_WeaponReady
 		loop
 	Deselect:
-		BHND A 0 A_Lower
-		BHND A 1 Bright A_Lower
+		"####" A 0 A_Lower
+		"####" A 1 Bright A_Lower
 		Loop
 	Select:
-		BHND A 0 A_Raise
-		BHND A 1 Bright A_Raise
+		"####" A 0 A_Raise
+		"####" A 1 Bright A_Raise
 		Loop
 	Fire:
 		TNT1 A 0 A_JumpIfInventory("BruiserAttackType",2,"Huggers")
 		TNT1 A 0 A_JumpIfInventory("BruiserAttackType",1,"FireShower")
 	Meteor:
 		BHND IJK 3 Bright
-		BHND L 3 Bright A_FireCustomMissile("BruiserBall",0,0,0,0)
+		BHND L 3 Bright A_FireCustomMissile("BruiserBall")
 		BHND Z 15 Bright
 		TNT1 A 0 A_Refire
 		Goto Ready
 	FireShower:
 		BHND BCD 4 Bright
-		BHND E 1 Bright A_FireCustomMissile("BruiserBall2",20,0,0,0)
-		BHND E 1 Bright A_FireCustomMissile("BruiserBall2",15,0,0,0)
-		BHND E 1 Bright A_FireCustomMissile("BruiserBall2",10,0,0,0)
-		BHND E 1 Bright A_FireCustomMissile("BruiserBall2",5,0,0,0)
-		BHND F 1 Bright A_FireCustomMissile("BruiserBall2",0,0,0,0)
-		BHND F 1 Bright A_FireCustomMissile("BruiserBall2",-5,0,0,0)
-		BHND F 1 Bright A_FireCustomMissile("BruiserBall2",-10,0,0,0)
+		BHND E 1 Bright A_FireCustomMissile("BruiserBall2",20)
+		BHND E 1 Bright A_FireCustomMissile("BruiserBall2",15)
+		BHND E 1 Bright A_FireCustomMissile("BruiserBall2",10)
+		BHND E 1 Bright A_FireCustomMissile("BruiserBall2",5)
+		BHND F 1 Bright A_FireCustomMissile("BruiserBall2")
+		BHND F 1 Bright A_FireCustomMissile("BruiserBall2",-5)
+		BHND F 1 Bright A_FireCustomMissile("BruiserBall2",-10)
 		BHND F 1 Bright
 		BHND GHZ 4 Bright
 		TNT1 A 0 A_Refire
 		Goto Ready
 	Huggers:
 		BHND IJK 4 Bright
-		TNT1 A 0 A_FireCustomMissile("BruiserFireSpawner",15,0,0,0)
-		TNT1 A 0 A_FireCustomMissile("BruiserFireSpawner",0,0,0,0)
-		BHND L 4 A_FireCustomMissile("BruiserFireSpawner",-15,0,0,0)
+		TNT1 A 0 A_FireCustomMissile("BruiserFireSpawner",15)
+		TNT1 A 0 A_FireCustomMissile("BruiserFireSpawner")
+		BHND L 4 A_FireCustomMissile("BruiserFireSpawner",-15)
 		BHND Z 15 Bright
 		TNT1 A 0 A_Refire
 		Goto Ready
@@ -108,4 +108,305 @@ ACTOR BruiserWeapon : Weapon 29100
 actor BruiserAttackType : Inventory
 {
 	Inventory.MaxAmount 2
+}
+
+ACTOR MorphedPlayer2 : MorphedPlayer
+{
+	Health 4000
+	Mass 1500
+	Player.DisplayName "Terminator"
+	player.damagescreencolor "FF FF FF"
+	player.morphweapon "TerminatorWeapon"
+	DamageFactor "RedBlast",0
+	DamageFactor "MarineAlly",0
+	States
+	{
+	Spawn:
+		TERM AB 10 Bright
+		Loop
+	See:
+		TERM A 0 A_Playsound("Terminator/terstepA")
+		TERM AABB 4
+		TERM A 0 A_Playsound("Terminator/terstepA")
+		TERM CCDD 4
+		Loop
+	Missile:
+	Melee:
+		TERM A 0 A_JumpIfInventory ("TerminatorAttackType", 3, "Attack3")
+		TERM A 0 A_JumpIfInventory ("TerminatorAttackType", 2, "Attack3")
+		TERM A 0 A_JumpIfInventory ("TerminatorAttackType", 1, "Attack2")
+	Attack1:
+		TERM EF 5 BRIGHT
+		goto Spawn
+	Attack2:
+		TERM GH 2 BRIGHT
+		goto Spawn
+	Attack3:
+		TERM J 6
+		TERM K 6 BRIGHT
+		Goto Spawn
+	Pain:
+		TERM L 3 Bright A_Pain
+		Goto Spawn
+	Death:
+		TERM [ 0 A_TakeInventory("TerminatorWeapon")
+		TERM M 6 Bright A_PlayerScream
+		TERM N 4
+		TERM OPQ 4 Bright
+		TERM R 0 A_SpawnItemEx("TerminatorHead", 15, 0, 90, 10, 0, 0, -170, 128)
+		TERM R 0 A_SpawnItemEx("TerminatorShoulder", 60, 0, 75, 8, 0, 0, -70, 128)
+		TERM R 4 Bright A_SpawnItemEx("TerminatorArm", 60, 0, 0, 3, 0, 0, -90, 128)
+		TERM STUV 4 Bright
+		TERM W 4
+		TERM X 6 A_Fall
+		TERM Y 6
+		TERM Z 1 A_Playsound("Terminator/terstepA")
+		TERM [ -1
+		Stop
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// TERMINATORS'S RANDOM ATTACK //////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+ACTOR TerminatorWeapon : BruiserWeapon
+{
+	//$Category Stronghold_Weapons
+	+WEAPON.DONTBOB
+	States
+	{
+	Ready:
+		JUGS A 1 Bright A_WeaponReady
+		loop
+	Fire:
+		JUGS A 0 A_JumpIfInventory("TerminatorAttackType",3,"RedMissile")
+		JUGS A 0 A_JumpIfInventory("TerminatorAttackType",2,"RedStar")
+		JUGS A 0 A_JumpIfInventory("TerminatorAttackType",1,"SuperChaingun")
+	Blaster:
+		JUGS A 4
+		JUGS F 0 A_GunFlash
+		JUGS F 2 Bright A_FireCustomMissile("TerminatorBlaster2",Random(250,-250)/100.0,0,15,6)
+		JUGS B 2
+		TNT1 A 0 A_Refire
+		Goto Ready
+	SuperChaingun:
+		JUGS F 0 A_GunFlash
+		JUGS F 0 A_PlaySound("Terminator/tershotB",CHAN_WEAPON)
+		JUGS F 2 Bright A_FireBullets(20,10,10,5,"TerminatorPuff2")
+		JUGS A 2
+		JUGS F 0 A_GunFlash
+		JUGS F 0 A_PlaySound("Terminator/tershotB",CHAN_WEAPON)
+		JUGS F 2 Bright A_FireBullets(20,10,10,5,"TerminatorPuff2")
+		JUGS B 2
+		JUGS F 0 A_GunFlash
+		JUGS F 0 A_PlaySound("Terminator/tershotB",CHAN_WEAPON)
+		JUGS F 2 Bright A_FireBullets(20,10,10,5,"TerminatorPuff2")
+		JUGS A 2
+		JUGS F 0 A_GunFlash
+		JUGS F 0 A_PlaySound("Terminator/tershotB",CHAN_WEAPON)
+		JUGS F 2 Bright A_FireBullets(20,10,10,5,"TerminatorPuff2")
+		JUGS B 2
+		TNT1 A 0 A_Refire
+		Goto Ready
+	RedStar:
+		JUGS AB 3
+		JUGS F 0 A_GunFlash
+		JUGS F 2 Bright A_FireCustomMissile("RedStar2",Random(15,-15)/10.0,0,-15,6)
+		JUGS AB 2
+		JUGS AB 3
+		JUGS F 0 A_GunFlash
+		JUGS F 2 Bright A_FireCustomMissile("RedStar2",Random(15,-15)/10.0,0,15,6)
+		JUGS AB 2
+		TNT1 A 0 A_Refire
+		JUGS AB 2
+		JUGS AB 3
+		Goto Ready
+	RedMissile:
+		JUGS A 6
+		JUGS F 0 A_GunFlash
+		JUGS F 2 Bright A_FireCustomMissile("RedGrenade2",0,0,-15,6)
+		JUGS AB 2
+		JUGS ABAB 3
+		TNT1 A 0 A_Refire
+		Goto Ready
+	AltFire:
+		JUGS A 5
+		JUGS E 12
+		JUGS A 0 A_JumpIfInventory("TerminatorAttackType",3,2)
+		JUGS A 0 A_GiveInventory("TerminatorAttackType",1)
+		Goto Ready
+		JUGS A 1 A_TakeInventory("TerminatorAttackType",4)
+		Goto Ready
+	Flash:
+		TNT1 A 1 A_Light1
+		TNT1 A 1 A_Light2
+		Goto LightDone
+	}
+}
+ACTOR TerminatorBlaster2
+{
+	Radius 8
+	Height 12
+	Speed 35
+	FastSpeed 45
+	Damage 10
+	PROJECTILE
+	RENDERSTYLE ADD
+	alpha 0.85
+	SeeSound "monster/brufir"
+	DeathSound "weapons/hellex"
+	+FORCERADIUSDMG
+	States
+	{
+	Spawn:
+		BLST A -1 Bright
+		loop
+	Death:
+		BLST B 6 Bright A_Explode(64,128,0,0,96)
+		BLST CDEFGHIJKL 3 Bright
+		stop
+	}
+}
+ACTOR Redstar2
+{
+	Radius 10
+	Height 20
+	Speed 30
+	FastSpeed 40
+	Damage 8
+	Scale 0.6
+	+SEEKERMISSILE
+	+FORCERADIUSDMG
+	-EXTREMEDEATH
+	PROJECTILE
+	RENDERSTYLE ADD
+	ALPHA 0.8
+	SeeSound "Terminator/tershotA"
+	DeathSound "imp/shotx"
+	States
+	{
+	Spawn:
+		STAX A 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX A 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX A 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX A 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX A 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX A 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX A 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX A 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX B 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX B 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX B 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX B 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX B 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX B 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX B 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX B 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX C 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX C 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX C 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX C 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX C 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX C 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX C 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX C 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX D 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX D 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX D 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX D 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX D 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX D 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX D 0 A_SeekerMissile(2,10,SMF_LOOK)
+		STAX D 1 Bright A_SpawnItemEx("grenadetrail")
+		Loop
+	Death:
+		STAX E 3 Bright A_Explode(80,160,0,0,120)
+		STAX FGHIJKLMNO 3 Bright
+		Stop
+	}
+}
+ACTOR RedGrenade2
+{
+	Radius 6
+	Height 12
+	Speed 30
+	FastSpeed 45
+	Damage 8
+	PROJECTILE
+	RENDERSTYLE ADD
+	ALPHA 0.8
+	DeathSound "imp/shotx"
+	States
+	{
+	Spawn:
+		TGND A 0 A_Playsound("Terminator/tershotA")
+		TGND AAAABBBBCCCC 1 Bright A_SpawnItemEx("grenadetrail")
+		Goto Spawn+1
+	Death:
+		STAR E 3 Bright
+		STAR E 0 A_custommissile("grenadeblast2",0,0,0,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,20,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,40,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,60,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,80,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,100,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,120,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,140,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,160,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,180,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,200,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,220,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,240,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,260,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,280,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,300,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,320,2,0)
+		STAR E 0 A_custommissile("grenadeblast2",0,0,340,2,0)
+		STAR FGHIJKLMNO 3 Bright
+		Stop
+	}
+}
+
+ACTOR grenadeblast2
+{
+	Radius 6
+	Height 12
+	Speed 8
+	Damage 2
+	PROJECTILE
+	RENDERSTYLE ADD
+	+Ripper
+	ALPHA 0.8
+	SeeSound "imp/attack"
+	DeathSound "imp/shotx"
+	States
+	{
+	Spawn:
+		TGBL ABCDEFGHIJK 2 Bright
+		stop
+	}
+}
+
+actor Terminatorpuff2
+{
+	Renderstyle ADD
+	Alpha 0.75
+	scale 0.75
+	States
+	{
+	Spawn:
+	Melee:
+		TPUF A 2 Bright
+		TPUF A 0 A_Jump(128,10)
+		TPUF BCDEFGH 2 Bright
+		Stop
+		TPUF IJKLMNO 2 Bright
+		Stop
+	}
+}
+
+actor TerminatorAttackType : Inventory
+{
+	Inventory.MaxAmount 4
 }

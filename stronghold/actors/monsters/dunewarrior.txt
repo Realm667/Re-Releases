@@ -13,9 +13,10 @@ ACTOR DuneWarrior : StrongholdZombieman 30040
 	PAINSOUND "dune/pain"
 	DEATHSOUND "dune/death"
 	ActiveSound ""
-	DropItem "Clip" 128
-	DropItem "Shell" 128
-	DropItem "RocketAmmo" 128
+	DropItem "Clip" 256
+	DropItem "Shell" 256
+	DropItem "RocketAmmo" 256
+	DropItem "Cell" 256
 	RenderStyle Translucent
 	states
 	{
@@ -50,15 +51,11 @@ ACTOR DuneWarrior : StrongholdZombieman 30040
 		ZHRT F 12 A_CustomMissile("DuneWarriorMissile",32,0,random(16,-16))
 		Goto See
 	Missile4:
-		ZHRT A 0 A_SetInvulnerable
-		ZHRT A 0 A_UnSetShootable
 		ZHRT A 0 A_PlaySound("dune/active")
 		ZHRT AAAAA 1 A_FadeOut(0.2,0)
 		ZHRT AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDDAAAAAAAABBBBBBBBCCCCCCCCDDDDDDDDAAAAAAAABBBBBBBBCCCCCCCCDDDDDDDDAAAAAAAABBBBBBBBCCCCCCCCDDDDDDDD 1 A_Chase("","")
 		ZHRT A 0 A_PlaySound("dune/active")
 		ZHRT CCDDD 1 A_FadeIn(0.2)
-		ZHRT A 0 A_UnsetInvulnerable
-		ZHRT A 0 A_SetShootable
 		Goto Missile3
 	Pain:
 		ZHRT G 3 A_SetTranslucent(1)
