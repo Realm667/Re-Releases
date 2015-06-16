@@ -1272,7 +1272,7 @@ actor TimeFreezerItem : PowerupGiver 12793
 	inventory.usesound "pickups/slowmo"
 	powerup.color "00 33 FF" 0.10
 	powerup.type "TimeFreezer"
-	powerup.duration 1050
+	powerup.duration -30
 	Tag "Time Freeze"
 	+INVENTORY.FANCYPICKUPSOUND
 	+INVENTORY.INVBAR
@@ -1318,7 +1318,7 @@ actor QuadDamageItem : PowerupGiver 12794
 	inventory.usesound "pickups/slowmo"
 	inventory.icon "DAMIA0"
 	powerup.type QuadDamage
-	powerup.duration 1050
+	powerup.duration -30
 	Tag "Quad Damage"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
@@ -1357,7 +1357,7 @@ actor InvulnerabilityItem : PowerupGiver 12795
 	inventory.usesound "pickups/slowmo"
 	powerup.color InverseMap
 	powerup.type "Invulnerable"
-	powerup.duration 1575
+	powerup.duration -30
 	Tag "Invulnerability"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
@@ -1425,7 +1425,8 @@ actor RegenerationItem : PowerupGiver 24031
 	inventory.usesound "pickups/slowmo"
 	powerup.color "FF 00 AE" 0.10
 	powerup.type "Regeneration"
-	powerup.duration 1575
+	powerup.duration -30
+	Powerup.Strength 10
 	Tag "Regeneration"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
@@ -2053,7 +2054,7 @@ actor DrainItem : PowerupGiver 24040
 	inventory.usesound "pickups/slowmo"
 	powerup.color "AA 00 00" 0.20
 	powerup.type "Drain"
-	powerup.duration 1575
+	powerup.duration -45
 	Tag "Vampirism"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
@@ -2084,7 +2085,7 @@ actor ProtectionItem : PowerupGiver 24041
 	inventory.usesound "pickups/slowmo"
 	powerup.color "FF AA 00" 0.10
 	powerup.type QuarterDamage
-	powerup.duration 1575
+	powerup.duration -45
 	Tag "Protection"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
@@ -2108,7 +2109,7 @@ ACTOR MorphPlayerItem : PowerUpGiver 24042
 	inventory.maxamount 2
 	inventory.icon "MORIA0"
 	Powerup.Type MorphPlayer
-	Powerup.Duration 1575
+	Powerup.Duration -45
 	Tag "Morpher"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
@@ -2123,6 +2124,16 @@ ACTOR PowerMorphPlayer : PowerMorph
 {
 	PowerMorph.PlayerClass "MorphedPlayer"
 	PowerMorph.MorphStyle (MRF_FULLHEALTH|MRF_ADDSTAMINA|MRF_WHENINVULNERABLE|MRF_NEWTIDBEHAVIOUR|MRF_LOSEACTUALWEAPON)
+}
+
+ACTOR MorphPlayerItem2 : MorphPlayerItem
+{
+	Powerup.Type MorphPlayer2
+}
+
+ACTOR PowerMorphPlayer2 : PowerMorphPlayer
+{
+	PowerMorph.PlayerClass "MorphedPlayer2"
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2143,7 +2154,7 @@ actor OSPSpeed : PowerupGiver
 	+INVENTORY.AUTOACTIVATE
 	+INVENTORY.ALWAYSPICKUP
 	Inventory.MaxAmount 0
-	Powerup.Duration 350
+	Powerup.Duration -10
 	Powerup.Type "OSPSpeed"
 	States
 	{
@@ -2231,7 +2242,7 @@ actor WeaponPowerItem : CustomInventory 25007
 actor WeaponPowerupGiver : PowerupGiver
 {
 	powerup.color "80 00 ff",0.1
-	powerup.duration 2100 //60 seconds
+	powerup.duration -60
 	powerup.type WeaponLevel2
 	+INVENTORY.ALWAYSPICKUP
 	+INVENTORY.AUTOACTIVATE
