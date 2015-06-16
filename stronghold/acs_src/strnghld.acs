@@ -334,8 +334,8 @@ str mapinfo[56][11] =
 {
 	{
 		"Training Mission","Mars","Introduction","Deadline (Intro)","4","none","P_STR01",
-		"Welcome to the training course. Here you will be pitted against hologrammatic",
-		"renditions of the Hell's weakest minions to get a taste of what awaits on the",
+		"Welcome to the training course. Here you will be pitted against holographic",
+		"renditions of Hell's weakest minions to get a taste of what awaits on the",
 		"real battlefields. Don't be afraid, the holo-demons aren't able to harm you.",
 		"Lt. Carmack will give you further briefing on the premise of deadline defense."
 	},
@@ -604,65 +604,6 @@ str mapinfo[56][11] =
 	},
 };
 
-str MonsterNames[45] =
-{
-	"Former Human",
-	"Former Human Sergeant",
-	"Former Human Commando",
-	"Former Human Rocketeer",
-	"Former Human Plasmagunner",
-	"Dune Warrior",
-	"Suicide Bomber",
-	"Zombie Tank",
-	//
-	"Imp",
-	"Phase Imp",
-	"Shadow",
-	"Catharsi",
-	//
-	"Bull Demon (aka pinky)",
-	"Mech Demon / Blood Demon",
-	"Nightmare Demon",
-	//
-	"Lost Soul",
-	"Guardian Cube",
-	"Hades Sphere",
-	"Wicked",
-	//
-	"Cacodemon",
-	"Enhanced Cacodemon",
-	"Nightmare Cacodemon",
-	"Pain Elemental",
-	"Hades Elemental",
-	//
-	"Revenant",
-	//
-	"Satyr",
-	"Hell Knight",
-	"Baron of Hell",
-	"Hell Warrior",
-	"Bruiser Demon",
-	"Cyber Baron / Cybruiser",
-	"Archon of Hell",
-	"Azazel",
-	"Pyro Demon",
-	//
-	"Mancubus",
-	"Hectebus",
-	//
-	"Arachnotron",
-	"Fusion Cannon Arachnotron",
-	//
-	"Hellion",
-	"Arch-vile",
-	"Diabloist",
-	//
-	"Spider Mastermind",
-	"Spider Demolisher",
-	"Cyberdemon",
-	"Terminator",
-};
-
 // \ce brown <=50Very Low
 // \ch blue <=100Low
 // \cd green <=300Medium
@@ -671,106 +612,57 @@ str MonsterNames[45] =
 // \cg red >1000Very High
 // \ca brick >3000Insane
 
-str MonsterStats[45][9] =
+int MonsterBounty[45][2] =
 {
-	{"HoloDeco_Zombieman","\cu20","\chSlow","\cuVery Low","Undead","Hitscan","$1-3","None","S. Priestess"},
-	{"HoloDeco_Shotgunguy","\cu30","\chSlow","\chLow","Undead","Hitscan","$2-4","None","S. Priestess"},
-	{"HoloDeco_Chaingunner","\ch60","\chSlow","\cdMedium","Undead","Hitscan (Continuous)","$5-8","None","S. Priestess"},
-	{"HoloDeco_RocketTrooper","\cu50","\chSlow","\cdMedium","Undead","Projectile","$3-5","None","W. Weasel"},
-	{"HoloDeco_Zombieman","\cu50","\chSlow","\cdMedium","Undead","Projectile","$3-5","None","R. West"},
-	{"HoloDeco_DuneWarrior","\cu120","\chSlow","\cdMedium","Undead","Projectile and Hitscan","$4-8","Cloak","J. Paddock"},
-	{"HoloDeco_SuicideBomber","\ch80","\cgFast","\cdMedium","Undead","Melee Only","$5","Kamikaze","W. Weasel"},
-	{"HoloDeco_ZombieTank","\ch600","\cgFast","\cdMedium","Undead/Mechanical","Hitscan (Semi-Continuous)","$8","None","J. Paddock"},
-	// 5
-	{"HoloDeco_Imp","\ch60","\chSlow","\chLow","Demon","Projectile and Melee","$3-6","None","J. Paddock"},
-	{"HoloDeco_PhaseImp","\ch150","\ca???","\cfMedium High","Mutant","Tracer and Melee","$6-9","Phase","J. Paddock"},
-	{"HoloDeco_Shadow","\ch80","\cgFast","\cdMedium","Demon","Projectile (Continuous)","$5-8","None","B. V. Ostmann"},
-	{"HoloDeco_Catharsi","\ch120","\chSlow","\cdMedium","Alien","Projectile","$7-10","Bomb","W. Weasel"},
-	// 9
-	{"HoloDeco_Demon","\ch150","\cfQuick","\cdMedium","Demon","Melee Only","$5","None","W. Weasel"},
-	{"HoloDeco_BloodDemon","\cd300","\cgFast","\cdMedium","Demon/Cyborg","Melee Only","$8","None","W. Weasel"},
-	{"HoloDeco_NightmareDemon","\ch260","\cgFast","\cfMedium High","Demon","Projectile and Melee","$10","Stealth","J. Paddock"},
-	// 12
-	{"HoloDeco_LostSoul","\ch100","\cgFast","\cdMedium","Demon","Charge","$5","Flight","W. Weasel & S. Priestess"},
-	{"HoloDeco_GuardianCube","\ch80","\cfQuick","\cdMedium","Unknown","Projectile","$6","Flight","J. Paddock"},
-	{"HoloDeco_HS","\cu35","\cfQuick","\cfMedium High","Unknown","Melee Only","$12","Flight, Phase, Kamikaze","J. Paddock"},
-	{"HoloDeco_Wicked","\cd275","\chSlow","\cdMedium","Demon","Projectile","$8","Flight","J. Paddock"},
-	// 15
-	{"HoloDeco_Cacodemon","\cd400","\chSlow","\cdMedium","Demon","Projectile and Melee","$9","Flight","B. V. Ostmann"},
-	{"HoloDeco_EnhancedCaco","\cd300","\chSlow","\cdMedium","Mutant","Projectile and Melee","$10","Flight","W. Weasel"},
-	{"HoloDeco_Cacodemon","\cd700","\cfQuick","\cfMedium High","Demon/Nightmare","Projectile and Melee","$11","Flight","R. West"},
-	{"HoloDeco_PainElemental","\cd400","\chSlow","\cfMedium High","Demon","Spawn","$10","Flight, Death Spawn","W. Weasel"},
-	{"HoloDeco_Helemental","\cg1600","\chSlow","\cdVery High","Demon","\cgOH SHIT","$64","Flight, Phase","J. Paddock"},
-	// 19
-	{"HoloDeco_Revenant","\cd300","\cfQuick","\cfMedium High","Undead","Projectile, Tracer and Melee","$15","None","S. Priestess"},
-	// 20
-	{"HoloDeco_HellKnight","\cf400","\chSlow","\cdMedium","Demon","Melee","$8","None","R. West"},
-	{"HoloDeco_HellKnight","\cf500","\chSlow","\cdMedium","Demon","Projectile and Melee","$15","None","S. Priestess"},
-	{"HoloDeco_BaronOfHell","\ci1000","\chSlow","\cfMedium High","Demon","Projectile and Melee","$20","None","S. Priestess"},
-	{"HoloDeco_HellWarrior","\ci400","\chSlow","\cfMedium High","Demon","Projectile and Melee","$12","Shield","J. Paddock"},
-	{"HoloDeco_BruiserDemon","\cg1500","\chSlow","\cgVery High","Demon","Projectile, Floor Hugger","$30","None","W. Weasel"},
-	{"HoloDeco_Cybruiser","\cg2000","\chSlow","\cgVery High","Demon","Projectile and Melee","$15","None","W. Weasel"},
-	{"HoloDeco_ArchonOfHell","\cg2000","\chSlow","\cgVery High","Demon/Cyborg","Projectile and Melee","$22","None","W. Weasel"},
-	{"HoloDeco_Azazel","\cg2400","\chSlow","\caInsane!","Demon","\cgEverything!","$30","None","J. Paddock"},
-	{"HoloDeco_PyroDemon","\cg2000","\chSlow","\caInsane!","Demon","\cgEverything!","$40","Teleportation","S. Scream"},
-	// 25
-	{"HoloDeco_Fatso","\cf600","\chSlow","\cfMedium High","Demon/Cyborg","Projectile","$10","None","W. Weasel"},
-	{"HoloDeco_Hectebus","\cg1500","\chSlow","\ciHigh","Demon/Cyborg","Projectile","$16","None","J. Paddock"},
-	// 27
-	{"HoloDeco_Arachnotron","\cd500","\chSlow","\cfMedium High","Demon/Cyborg","Projectile (Continuous)","$12","None","S. Priestess"},
-	{"HoloDeco_FusionSpider","\ci600","\chSlow","\ciHigh","Demon/Cyborg","Projectile (Continuous)","$17","None","J. Paddock"},
-	// 29
-	{"HoloDeco_Hellion","\ch70","\cfQuick","\cdMedium","Demon","Projectile","$12","None","M. Orpheus"},
-	{"HoloDeco_ArchVile","\ci700","\cgFast","\cgVery High","Demon","Distance","$25","Resurrection","S. Priestess"},
-	{"HoloDeco_Diabolist","\ci1400","\cgFast","\cgVery High","Demon","Projectile, Tracer, Distance","$20","None","J. Paddock"},
-	// 31
-	{"HoloDeco_Mastermind","\ca3000","\chSlow","\cfMedium High","Demon/Cyborg","Hitscan (Continuous)","$50","None","W. Weasel"},
-	{"HoloDeco_Demolisher","\ca6000","\chSlow","\cgVery High","Demon/Cyborg","Projectile and Hitscan (Continuous)","$75","None","W. Weasel"},
-	{"HoloDeco_CyberDemon","\ca4000","\chSlow","\ciHigh","Demon/Cyborg","Projectile","$50","None","S. Priestess"},
-	{"HoloDeco_Terminator","\ca4000","\chSlow","\caInsane!","Cyborg","Projectile and Hitscan","$60","None","B. V. Ostmann"},
-	// 35
+	{1,3},{2,4},{5,8},{3,5},{3,5},
+	{4,8},{5,5},{8,8},{3,6},{6,9},
+	{5,8},{7,10},{5,5},{8,8},{10,10},
+	{5,5},{6,6},{12,12},{8,8},{9,9},
+	{10,10},{11,11},{10,10},{64,64},{15,15},
+	{8,8},{15,15},{20,20},{12,12},{30,30},
+	{15,15},{22,22},{30,30},{40,40},{10,10},
+	{16,16},{12,12},{17,17},{12,12},{25,25},
+	{20,20},{50,50},{75,75},{50,50},{60,60}
 };
-
-str MonsterBio[45][8] =
+str MonsterStats[45][15] =
 {
-	//---ZOMBIES---//
-	//Zombieman
 	{
+		"HoloDeco_Zombieman","\chSlow","\cuVery Low","Undead","Hitscan","None","S. Priestess",
 		"The weakest, and most common enemy. All they have is a pistol, and they're",
 		"really a poor shot. They're only really a threat in large groups, but even",
 		"then they probably cause more collateral damage than they'll do to you. They",
 		"don't put up much of a fight if you shoot them down quickly enough.","","","",""
 	},
-	//Shotgun Guy
 	{
+		"HoloDeco_Shotgunguy","\chSlow","\chLow","Undead","Hitscan","None","S. Priestess",
 		"A step up from the zombieman; this guy wields a shotgun. He is still not too",
 		"tough, but he'll get you good if you let your guard down.","","","","","",""
 	},
-	//Chaingunner
 	{
+		"HoloDeco_Chaingunner","\chSlow","\cdMedium","Undead","Hitscan (Continuous)","None","S. Priestess",
 		"Kill from a distance if you can. This guy's weapon will pulverize you in",
 		"seconds if you don't have suitable cover. If he's involved in a crossfire, he",
 		"will usually win because his attacks are so painful that they cause other",
 		"demons to slow down.","","","",""
 	},
-	//Rocket Zombie
 	{
+		"HoloDeco_RocketTrooper","\chSlow","\cdMedium","Undead","Projectile","None","W. Weasel",
 		"These men were once members of our Anti-Tank battalions. They carry the same",
 		"kind of rocket launcher as you, and pack a gigantic punch if you're not",
 		"careful. While they go down easy - they're only human, after all - it may be",
 		"more worthwhile to leave them alive for a while to let them accidentally fire",
 		"their weapons at larger monsters.","","",""
 	},
-	//Plasma Zombie
 	{
+		"HoloDeco_PlasmaZombie","\chSlow","\cdMedium","Undead","Projectile","None","R. West",
 		"Much like the other former humans, these guys will go down easily. Sadly, they",
 		"carry a plasma rifle, and while they don't fire it as fast as you do, it will",
 		"still incinerate you if you aren't careful. It is advised to not let them fire",
 		"upon you when you fight them. Worse still, they only drop an energy cell upon",
 		"death, rather than a plasma rifle.","","",""
 	},
-	//Dune Warrior
 	{
+		"HoloDeco_DuneWarrior","\chSlow","\cdMedium","Undead","Projectile and Hitscan","Cloak","J. Paddock",
 		"These guys were once some of our most elite stealth units, trained to brave",
 		"the harshest of climates. Their flame bomb launcher and semi-automatic",
 		"machinegun are nothing to get too concerned about, because they also possess a",
@@ -779,8 +671,8 @@ str MonsterBio[45][8] =
 		"they're around, throw a rocket into an open space and watch any of them nearby",
 		"go flying.",""
 	},
-	//Suicide Bomber
 	{
+		"HoloDeco_SuicideBomber","\cgFast","\cdMedium","Undead","Melee Only","Kamikaze","W. Weasel",
 		"A possessed soldier wired up with high explosives. His main goal in life is to",
 		"run towards something destructible and then detonate himself. He's rather hard",
 		"to miss; his insane screaming is quite loud and you'll probably hear it from a",
@@ -789,8 +681,8 @@ str MonsterBio[45][8] =
 		"similarly in their previous life. I guess if they did one thing well, they",
 		"could always do it again...",""
 	},
-	//Zombie Tank
 	{
+		"HoloDeco_ZombieTank","\cgFast","\cdMedium","Undead/Mechanical","Hitscan (Semi-Continuous)","None","J. Paddock",
 		"The zombies left with enough brain capacity to retain their driving skills you",
 		"will see swerving around the battlefield in these well-armored UAC vehicles,",
 		"firing the mounted gatling guns in every direction. They can also accelerate to",
@@ -799,9 +691,8 @@ str MonsterBio[45][8] =
 		"on you and make sure to take them out from a distance - destroying them causes",
 		"them to explode in a ball of flame, causing minor damage to everything nearby.",""
 	},
-	//---IMPS---//
-	//Imp
 	{
+		"HoloDeco_Imp","\chSlow","\chLow","Demon","Projectile and Melee","None","J. Paddock",
 		"Forget little dwarf faeries with pick-axes - the real demon is very different.",
 		"Imps are probably Hell's expendable worker drones, with fire-summoning attacks",
 		"that aren't terribly powerful but threatening all the same, especially when",
@@ -810,8 +701,8 @@ str MonsterBio[45][8] =
 		"one ready in case they choose to bring a few hundred or so of their buddies",
 		"along with them.",""
 	},
-	//Phase Imp
 	{
+		"HoloDeco_PhaseImp","\ca???","\cfMedium High","Mutant","Tracer and Melee","Phase","J. Paddock",
 		"Among the adjectives used to describe the phase imp are: fast, durable,",
 		"deadly, and annoying. Phase imps appear to be a sort of mutated form of the",
 		"regular imp, and unfortunately more than twice as threatening as their lesser",
@@ -821,8 +712,8 @@ str MonsterBio[45][8] =
 		"teleporting beyond the objective and possibly ending your mission in failure.",
 		"Make sure you have cover from their homing attacks, as well."
 	},
-	//Shadow
 	{
+		"HoloDeco_Shadow","\cgFast","\cdMedium","Demon","Projectile (Continuous)","None","B. V. Ostmann",
 		"This sneaky little stalker may appear weak at first, and its relatively low",
 		"health seems to back this up. However, its high speed and its semi-transparent",
 		"flesh makes this foe a much more serious threat, so stay on the lookout for",
@@ -830,8 +721,8 @@ str MonsterBio[45][8] =
 		"a very rare occurence, as they ALWAYS appear in swarms of varying sizes.",
 		"", "", ""
 	},
-	//Catharsi
 	{
+		"HoloDeco_Catharsi","\chSlow","\cdMedium","Alien","Projectile","Bomb","W. Weasel",
 		"Even extraterrestrial life believes in Hell, or at least a variant of it. The",
 		"Catharsi don't appear to be demons themselves, but are certainly operating",
 		"under Hell's influence. Their dedication is such that, even when near death,",
@@ -840,9 +731,8 @@ str MonsterBio[45][8] =
 		"these to their advantage, though, by killing one Catharsi in a group of other",
 		"monsters to soften up the rest of them a bit.",""
 	},
-	//---DEMONS---//
-	//Demon
 	{
+		"HoloDeco_Demon","\cfQuick","\cdMedium","Demon","Melee Only","None","W. Weasel",
 		"The first relatively serious threat to new marines, the Demon is fast and",
 		"powerful, and takes a beating. Presumably the Demon's origins come from the",
 		"departed souls of athletes who abused steroids, or perhaps they're the",
@@ -851,16 +741,16 @@ str MonsterBio[45][8] =
 		"Certain variants of these demons appear blurred to human eyes and are hard to",
 		"see effectively.",""
 	},
-	//Blood Demon
 	{
+		"HoloDeco_BloodDemon","\cgFast","\cdMedium","Demon/Cyborg","Melee Only","None","W. Weasel",
 		"Also nicknamed the \"Steam Demon\", the Blood Demon's craving for speed has",
 		"turned it towards cybernetics. Blood Demons are unique for their bionic legs,",
 		"which they use to run very, very quickly. The downside to that is that they",
 		"make quite a racket when moving around, so if you happen to lose one, listen",
 		"for that signature clanking noise.","","",""
 	},
-	//Nightmare Demon
 	{
+		"HoloDeco_NightmareDemon","\cgFast","\cfMedium High","Demon","Projectile and Melee","Stealth","J. Paddock",
 		"By the time you've noticed a swarm of Nightmare Demons approaching your",
 		"objective, it's usually too late to stop 'em in time. These guys are insanely",
 		"fast, and regurgiate plasma balls similar to those hurled by the hell nobles.",
@@ -869,9 +759,8 @@ str MonsterBio[45][8] =
 		"typically ambush strongholds in swarms, you'll have to have a weapon with a",
 		"high destructive capacity to make sure they're taken out with all speed.",""
 	},
-	//---FLIERS---//
-	//Lost Soul
 	{
+		"HoloDeco_LostSoul","\cgFast","\cdMedium","Demon","Charge","Flight","W. Weasel & S. Priestess",
 		"Hell's version of that hyper little puppy that never left you alone. When he",
 		"charges, he's going to be moving fast, so be ready with that itchy trigger",
 		"finger of yours or you're going to have a hell of a time keeping this guy away",
@@ -879,16 +768,16 @@ str MonsterBio[45][8] =
 		"great numbers. A good tactic is to try to line them up so that when they",
 		"attack you, they bump into each other, or a nearby demon.","",""
 	},
-	//Guardian Cube
 	{
+		"HoloDeco_GuardianCube","\cfQuick","\cdMedium","Unknown","Projectile","Flight","J. Paddock",
 		"The Guardian Cube is like a weak lost soul, but still annoying as hell. They",
 		"fly straight to their objective, being sure to brush away anything that they",
 		"see obscuring their goal. They have ranged attacks, too, which they will",
 		"launch constantly if their target is visible. Target immediately, and take",
 		"them down fast.","","",""
 	},
-	//Hades Sphere
 	{
+		"HoloDeco_HS","\cfQuick","\cfMedium High","Unknown","Melee Only","Flight, Phase, Kamikaze","J. Paddock",
 		"The hades sphere is not really a demon, more like a ball of sentient bloodlust",
 		"that phases in and out of existence to fool its opposition, before appearing",
 		"in front of them again and self-destructing with extreme force. You won't",
@@ -896,8 +785,8 @@ str MonsterBio[45][8] =
 		"Hades Elemental will vomit these guys out in twos, so if you can get a bead on",
 		"them, make it count, before the battlefield is swarmed by the bastards.","",""
 	},
-	//Wicked
 	{
+		"HoloDeco_Wicked","\chSlow","\cdMedium","Demon","Projectile","Flight","J. Paddock",
 		"This peculiar snake-like apparition is like an especially annoying version of",
 		"the cacodemon. He will charge, using his whip-like tail to accelerate towards",
 		"his foe, and when within range, launch a homing fireball which will sooner",
@@ -905,9 +794,8 @@ str MonsterBio[45][8] =
 		"clash heads with them for lengthy periods if you don't have a suitable weapon.",
 		"","",""
 	},
-	//---GASBALLS---//
-	//Cacodemon
 	{
+		"HoloDeco_Cacodemon","\chSlow","\cdMedium","Demon","Projectile and Melee","Flight","B. V. Ostmann",
 		"One of the more common enemies you will face while holding back the demonic",
 		"forces. The cacodemon contains a mixture of various noxious gases within its",
 		"body, which not only enables it to hover through the air, but also lets it",
@@ -915,24 +803,24 @@ str MonsterBio[45][8] =
 		"mean that it is incapable of defending itself in close combat; the razor-sharp",
 		"teeth and muscular jaws can and will cut through you in an instant.","",""
 	},
-	//Enhanced Cacodemon
 	{
+		"HoloDeco_EnhancedCaco","\chSlow","\cdMedium","Mutant","Projectile and Melee","Flight","W. Weasel",
 		"So far as we can tell, these guys are pretty much the same as the Cacodemons",
 		"you're used to seeing - helium-filled, projectile-spewing tomatoes. Except",
 		"these guys can shoot even more fireballs at once. The good part? They're no",
 		"harder to actually put down than your garden-variety Cacodemon. Just, uh,",
 		"remember to stay out of their way.","","",""
 	},
-	//Nightmare Cacodemon
 	{
+		"HoloDeco_NightmareCaco","\cfQuick","\cfMedium High","Demon/Nightmare","Projectile and Melee","Flight","R. West",
 		"These spectral monstrosities make the nightmare demon look nice. Moving faster",
 		"than the ordinary cacodemon, these blue and partially invisible nightmares will",
 		"shoot blue fireballs which travel twice as fast as the normal cacodemon fireballs.",
 		"In addition to that, they shoot them out much faster than an ordinary cacodemon.",
 		"Adding to THAT is the fact that they are almost twice as tough as the cacodemon.","","",""
 	},
-	//Pain Elemental
 	{
+		"HoloDeco_PainElemental","\chSlow","\cfMedium High","Demon","Spawn","Flight, Death Spawn","W. Weasel",
 		"The Pain Elemental combines the two most irritating things in the world:",
 		"missiles, and Lost Souls. This floating head - which bears an odd resemblance",
 		"to those other floaty monsters - launches Lost Souls at high speeds. Guard the",
@@ -941,8 +829,8 @@ str MonsterBio[45][8] =
 		"where you kill them, too, because they leave behind even more Lost Souls when",
 		"they explode.",""
 	},
-	//Hades Elemental
 	{
+		"HoloDeco_Helemental","\chSlow","\cdVery High","Demon","\cgOH SHIT","Flight, Phase","J. Paddock",
 		"You may well have just met your maker. The Hades Elemental is one of the most",
 		"powerful monsters you will encounter, with a deadly arsenal consisting of",
 		"lightning attacks, regurgitating Hades Spheres, teleportation, and a mouth so",
@@ -951,29 +839,28 @@ str MonsterBio[45][8] =
 		"even more Hades Spheres), so you are urged to ensure that you have an extremely",
 		"powerful firearm in your possession before confronting this behemoth.",""
 	},
-	//Revenant
 	{
+		"HoloDeco_Revenant","\cfQuick","\cfMedium High","Undead","Projectile, Tracer and Melee","None","S. Priestess",
 		"Hell doesn't make waste. Take a dead demon, and strap on some armor and homing",
 		"rocket launchers, and you've got this fellow. He also likes to get up close",
 		"and personal, so watch out! He's moderately tough to kill.","","","","",""
 	},
-	//---NOBLES---//
-	//Satyr
 	{
+		"HoloDeco_Satyr","\chSlow","\cdMedium","Demon","Melee","None","R. West",
 		"These minor nobles are just that - minor. They only have a melee attack, but",
 		"they attack faster than most demons, and do a lot of damage. They do have some",
 		"level of inherent toughness - but as long as you stay out of their range, they",
 		"shouldn't be a problem. Think of them like slower, but tougher blood demons.","","","",""
 	},
-	//Hell Knight
 	{
+		"HoloDeco_HellKnight","\chSlow","\cdMedium","Demon","Projectile and Melee","None","S. Priestess",
 		"A lesser version of the Baron of Hell, this creature's skin is not quite as",
 		"flushed, and can only take half the amount of damage as their stronger cousins",
 		"before dying. They do, however, attack with the same type of plasma, so",
 		"caution is still highly advised against them.","","","",""
 	},
-	//Baron of Hell
 	{
+		"HoloDeco_BaronOfHell","\chSlow","\cfMedium High","Demon","Projectile and Melee","None","S. Priestess",
 		"This creature has red flushed skin over the top half of his body, and goat",
 		"legs on the bottom. The Baron of Hell is not as common as some of the other",
 		"enemies, but that makes it no less of a threat. He hurls green plasma balls at",
@@ -981,8 +868,8 @@ str MonsterBio[45][8] =
 		"too, and it's going to take more than what it usually takes for other enemies",
 		"to put him down.","",""
 	},
-	//Hell Warrior
 	{
+		"HoloDeco_HellWarrior","\chSlow","\cfMedium High","Demon","Projectile and Melee","Shield","J. Paddock",
 		"The Hell Warrior's monstrous visage is the first thing you'll notice. Then",
 		"you'll notice the huge metal shield he carries. And if you're not careful you",
 		"won't be noticing much more after that. Despite only have 400 hit points",
@@ -991,8 +878,8 @@ str MonsterBio[45][8] =
 		"damage while the shield is raised in front of him. He has the standard noble",
 		"plasma attack, too.",""
 	},
-	//Bruiserdemon
 	{
+		"HoloDeco_BruiserDemon","\chSlow","\cgVery High","Demon","Projectile, Floor Hugger","None","W. Weasel",
 		"Ordinarily we would advise you to run the hell away from these things, but",
 		"considering you're supposed to be defending outposts and not saving your own",
 		"skin, that is unfortunately not an option. So our best advice to you is: take",
@@ -1000,8 +887,8 @@ str MonsterBio[45][8] =
 		"- just MAYBE - we might have a way for you to fight back against these things!",
 		"Until then...well, you're on your own.","",""
 	},
-	//Cybruiser
 	{
+		"HoloDeco_Cybruiser","\chSlow","\cgVery High","Demon","Projectile and Melee","None","W. Weasel",
 		"You probably remember the Amish: those Christian folks from Earth that ignored",
 		"technology in favor of simple lives and hard work. Well, after seeing",
 		"mechanical monstrosities like this, don't you wish Hell took a few pages from",
@@ -1011,8 +898,8 @@ str MonsterBio[45][8] =
 		"exemplifies why it's so important to guard the outposts in the first place -",
 		"to stop stuff like THIS from happening!"
 	},
-	//Archon of Hell
 	{
+		"HoloDeco_ArchonOfHell","\chSlow","\cgVery High","Demon/Cyborg","Projectile and Melee","None","W. Weasel",
 		"This guy truly stands out from the rest of the Hell nobles - in more ways than",
 		"one. First off, he has an unmistakeable black and red hide and boasts huge",
 		"spikes all down his upper body. Secondly, he is able to fire volleys of",
@@ -1022,8 +909,8 @@ str MonsterBio[45][8] =
 		"the Archon does take a few more hits to beat, and it's much harder to dodge his",
 		"attacks, so you still better have your wits about you when you confront him."
 	},
-	//Azazel
 	{
+		"HoloDeco_Azazel","\chSlow","\caInsane!","Demon","\cgEverything!","None","J. Paddock",
 		"Not much is known about the Azazel, mainly due to our unfortunate observers",
 		"getting fried every time they try to gather more tactical information on it.",
 		"Your best bet when you see it rear its ugly head is to run like hell in the",
@@ -1033,8 +920,8 @@ str MonsterBio[45][8] =
 		"projectiles your way, some of which are nigh-impossible to dodge. Easily one",
 		"of the most frustrating demons you'll deal with."
 	},
-	//Pyrodemon
 	{
+		"HoloDeco_PyroDemon","\chSlow","\caInsane!","Demon","\cgEverything!","Teleportation","S. Scream",
 		"These burning beasts' lust for fire has driven them to utter insanity. They",
 		"love to kill their victims in the most pyromanic ways, even by exploding into",
 		"a ball of fire and reappearing immediately in front of their target. They pay",
@@ -1042,17 +929,16 @@ str MonsterBio[45][8] =
 		"direction they possibly can, just to get a chance to see you burn. Never get",
 		"too close!","",""
 	},
-	//---FATSOS---//
-	//Mancubus
 	{
+		"HoloDeco_Fatso","\chSlow","\cfMedium High","Demon/Cyborg","Projectile","None","W. Weasel",
 		"The embodiment of gluttony, one of the seven deadly sins. Basically, the",
 		"Mancubus is the hellish reincarnation of that fat kid from school that gorged",
 		"himself on Twinkies. And now they've given him a pair of high-powered cannons",
 		"to compensate for the fact that he can barely move. All that fat will absorb",
 		"most of the damage you do to it, but luckily, he can't really aim very well.","","",""
 	},
-	//Hectebus
 	{
+		"HoloDeco_Hectebus","\chSlow","\ciHigh","Demon/Cyborg","Projectile","None","J. Paddock",
 		"The Hectebus can probably best be described as his lower cousin tanked-up on a",
 		"substantial amount of illegal substances. A considerable proportion larger",
 		"than the Mancubus, this colossus has been known to reduce stronghold defenders",
@@ -1060,16 +946,15 @@ str MonsterBio[45][8] =
 		"His horribly bulky structure makes him a formidably difficult foe to overcome,",
 		"so make sure you have a powerful weapon on you before confronting him.","",""
 	},
-	//---SPIDERS---//
-	//Arachnotron
 	{
+		"HoloDeco_Arachnotron","\chSlow","\cfMedium High","Demon/Cyborg","Projectile (Continuous)","None","S. Priestess",
 		"Every Arachnotron wants to be a Spider Mastermind someday. For now, they have",
 		"a plasma gun that really hurts if you stay still for too long. If you want to",
 		"kill these effectively, use hard heavy shots, and stay out of the plasma",
 		"stream. A few rockets will do the trick.","","","",""
 	},
-	//Fusion Spider
 	{
+		"HoloDeco_FusionSpider","\chSlow","\ciHigh","Demon/Cyborg","Projectile (Continuous)","None","J. Paddock",
 		"The arachnotron got a weapon upgrade. Instead of a slow-fire plasma cannon,",
 		"they now have a fusion energy launcher, which releases a field of slow-moving,",
 		"high-damage energy projectiles in an outward spread pattern. These walls of",
@@ -1078,24 +963,23 @@ str MonsterBio[45][8] =
 		"spider is now slightly harder to kill than its less dangerous, but equally",
 		"annoying, counterpart.",""
 	},
-	//---VILES---//
-	//Hellion
 	{
+		"HoloDeco_Hellion","\cfQuick","\cdMedium","Demon","Projectile","None","M. Orpheus",
 		"These nasty imp/archvile-like demons come from the deepest caverns of hell.",
 		"They have no hesitation in attacking you with deadly flame bursts. They",
 		"usually come in large hordes, much like Shadows, and are just as fast. So our",
 		"advice is to use an effective, rapid-fire weapon in order to take them down as",
 		"fast as possible.","","",""
 	},
-	//Archvile
 	{
+		"HoloDeco_ArchVile","\cgFast","\cgVery High","Demon","Distance","Resurrection","S. Priestess",
 		"If you thought battling demons ONCE was bad, then this guy will try to make",
 		"sure you face them again! And to make things worse, he's got an explosive fire",
 		"attack that will hurl you into the air, doing heavy damage. Quick termination",
 		"with extreme prejudice is advised.","","","",""
 	},
-	//Diabloist
 	{
+		"HoloDeco_Diabolist","\cgFast","\cgVery High","Demon","Projectile, Tracer, Distance","None","J. Paddock",
 		"Some suspect the Diabloist is a lesser incarnation of Satan himself. Anything",
 		"within this bastard's attack range (that is, anything within his line of",
 		"sight) soon turns to ash. He has several devastating attacks, all of which",
@@ -1103,17 +987,16 @@ str MonsterBio[45][8] =
 		"for cover. You've got nought else to do if you don't have a weapon equally",
 		"good at clearing a room as he is.","",""
 	},
-	//---BOSSES---//
-	//Spider Mastermind
 	{
+		"HoloDeco_Mastermind","\chSlow","\cfMedium High","Demon/Cyborg","Hitscan (Continuous)","None","W. Weasel",
 		"Mechanical spider, except with half the number of legs, but still deadly. The",
 		"best way to kill her is to attack from far away, and with a BFG. She does not",
 		"suffer explosions like other monsters do. Rumor has it that these brainpans-",
 		"on-legs used to take more of a beating than they do these days, but let's just",
 		"assume that we've gotten better at it. It's better for morale.","","",""
 	},
-	//Spider Demolisher
 	{
+		"HoloDeco_Demolisher","\chSlow","\cgVery High","Demon/Cyborg","Projectile and Hitscan (Continuous)","None","W. Weasel",
 		"Dear God, save us all. The demons got a hold of our BFG technology, and this",
 		"is the result. One of the most powerful demons we've seen in a long while,",
 		"only made far worse by double the usual firepower - and that doesn't even",
@@ -1121,8 +1004,8 @@ str MonsterBio[45][8] =
 		"Rest assured, Marine, we'll make damned sure you get enough firepower to take",
 		"this thing on, or else you're not going to be the only thing we lose!","",""
 	},
-	//Cyberdemon
 	{
+		"HoloDeco_CyberDemon","\chSlow","\ciHigh","Demon/Cyborg","Projectile","None","S. Priestess",
 		"Take a regular demon, supersize him, give him a rocket launcher and other",
 		"cybernetic attachments, and this guy is the result. The only way to fight this",
 		"guy is with good reflexes and a super fast gun. His rockets are hard to dodge,",
@@ -1130,8 +1013,8 @@ str MonsterBio[45][8] =
 		"suffers a direct impact so rockets and pyro cannons do far less damage to him",
 		"than they do to other creatures. Plasma rifles most effective.","",""
 	},
-	//Terminator
 	{
+		"HoloDeco_Terminator","\chSlow","\caInsane!","Cyborg","Projectile and Hitscan","None","B. V. Ostmann",
 		"Hard to differentiate between demon and machine, the terminator is probably",
 		"the toughest enemy you will ever face during your missions. Its vital systems",
 		"are not only protected by heavy armor, but also by powerful invisible energy",
@@ -1140,7 +1023,7 @@ str MonsterBio[45][8] =
 		"cannons that launch fast, explosive energy projectiles, missiles that home in",
 		"on their targets, a machinegun AND a grenade launcher, you must approach this",
 		"goliath with extreme caution, and perhaps a very big gun."
-	},
+	}
 };
 
 script 940 ENTER
@@ -1156,12 +1039,6 @@ script 940 ENTER
 		}
 		delay(1);
 	}
-}
-
-// Call with end=0 at start of attack, end=1 at end of attack
-script 941 (int end)
-{
-	PrintBold(s:"TODO: Implement NightmareDemon's attack");
 }
 
 Script "FastMonsters"(void)
@@ -1308,6 +1185,7 @@ int BriefScript;	// Set to script number of briefing script. See STR01 for examp
 int DamageTaken[32];
 bool PlayersAreLate;
 int LatePlayersDelay=35*60; // Time before late players are put into jail immediately.
+str BriefBackground;
 
 #libdefine RADIONAME_SIZE	16
 int RadioName[RADIONAME_SIZE];
@@ -2850,9 +2728,9 @@ function int reserveOpenWatchSlot(void)
 
 function void ClearWatchHUD(int offset)
 {
-	HudMessageBold(s:""; HUDMSG_PLAIN, CoreLabelHID+CoreHIDOffset*offset,	CR_UNTRANSLATED, 0.0, 0.0, 0.1);
-	HudMessageBold(s:""; HUDMSG_PLAIN, CoreGraphicHID+CoreHIDOffset*offset,	CR_UNTRANSLATED, 0.0, 0.0, 0.1);
-	HudMessageBold(s:""; HUDMSG_PLAIN, CorePercentHID+CoreHIDOffset*offset,	CR_UNTRANSLATED, 0.0, 0.0, 0.1);
+	HudMessageBold(s:""; HUDMSG_PLAIN, CoreLabelHID+CoreHIDOffset*offset,CR_UNTRANSLATED, 0.0, 0.0, 0.1);
+	HudMessageBold(s:""; HUDMSG_PLAIN, CoreGraphicHID+CoreHIDOffset*offset,CR_UNTRANSLATED, 0.0, 0.0, 0.1);
+	HudMessageBold(s:""; HUDMSG_PLAIN, CorePercentHID+CoreHIDOffset*offset,CR_UNTRANSLATED, 0.0, 0.0, 0.1);
 	WatchSlot[offset]=FALSE;
 }
 
@@ -3704,7 +3582,7 @@ script S_BRIEF_MAIN(void)
 	SetHudSize(4,4,0);
 	HudMessageBold(s:"a"; HUDMSG_PLAIN, FadeOutHID, CR_UNTRANSLATED,2.0, 2.0, 0.0);
 	SetHudSize(640, 480, 0);
-	SetFont("TNTA0");
+	SetFont(BriefBackground);
 	HudMessageBold(s:"a"; HUDMSG_PLAIN, BriefBGHID, 0, 320.0, 240.0, 0.0);
 	SetHudSize(640, 480, 1);
 	if(BriefSkippable)
@@ -3772,13 +3650,13 @@ script S_BRIEF_END(void)	// #251
 	if(BriefScript)
 		ACS_Terminate(BriefScript,0);
 	HudMessageBold(s:""; HUDMSG_PLAIN, BriefSkipHID, CR_UNTRANSLATED, 0.0, 0.0, 1.0); // Press use to skip
-	HudMessageBold(s:""; HUDMSG_PLAIN, BriefExtraHID,	CR_UNTRANSLATED, 0.0, 0.0, 1.0); // Extra pictures
-	HudMessageBold(s:""; HUDMSG_PLAIN, BriefHID,		CR_UNTRANSLATED, 0.0, 0.0, 1.0); // Message Text
+	HudMessageBold(s:""; HUDMSG_PLAIN, BriefExtraHID,CR_UNTRANSLATED, 0.0, 0.0, 1.0); // Extra pictures
+	HudMessageBold(s:""; HUDMSG_PLAIN, BriefHID,CR_UNTRANSLATED, 0.0, 0.0, 1.0); // Message Text
 	SetFont("BLACK");
 	SetHudSize(4,4,0);
 	HudMessageBold(s:"a"; HUDMSG_FADEOUT, FadeOutHID, CR_UNTRANSLATED,2.0, 2.0,0.0, 2.0);	// holdTime, outTime
 	SetHudSize(640, 480, 0);
-	SetFont("TNTA0");
+	SetFont(BriefBackground);
 	HudMessageBold(s:"a"; HUDMSG_FADEOUT, BriefBGHID, 0, 320.0, 240.0, 0.0, 2.0);
 	SetHudSize(640, 480, 1);
 	SetFont("BIGFONT");

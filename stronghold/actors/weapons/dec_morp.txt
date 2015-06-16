@@ -132,7 +132,6 @@ ACTOR MorphedPlayer2 : MorphedPlayer
 		Loop
 	Missile:
 	Melee:
-		TERM A 0 A_JumpIfInventory ("TerminatorAttackType", 3, "Attack3")
 		TERM A 0 A_JumpIfInventory ("TerminatorAttackType", 2, "Attack3")
 		TERM A 0 A_JumpIfInventory ("TerminatorAttackType", 1, "Attack2")
 	Attack1:
@@ -149,13 +148,12 @@ ACTOR MorphedPlayer2 : MorphedPlayer
 		TERM L 3 Bright A_Pain
 		Goto Spawn
 	Death:
-		TERM [ 0 A_TakeInventory("TerminatorWeapon")
 		TERM M 6 Bright A_PlayerScream
 		TERM N 4
 		TERM OPQ 4 Bright
-		TERM R 0 A_SpawnItemEx("TerminatorHead", 15, 0, 90, 10, 0, 0, -170, 128)
-		TERM R 0 A_SpawnItemEx("TerminatorShoulder", 60, 0, 75, 8, 0, 0, -70, 128)
-		TERM R 4 Bright A_SpawnItemEx("TerminatorArm", 60, 0, 0, 3, 0, 0, -90, 128)
+		TERM R 0 A_SpawnItemEx("TerminatorHead", 15, 0, 90, 10, 0, 0, -170)
+		TERM R 0 A_SpawnItemEx("TerminatorShoulder", 60, 0, 75, 8, 0, 0, -70)
+		TERM R 4 Bright A_SpawnItemEx("TerminatorArm", 60, 0, 0, 3, 0, 0, -90)
 		TERM STUV 4 Bright
 		TERM W 4
 		TERM X 6 A_Fall
