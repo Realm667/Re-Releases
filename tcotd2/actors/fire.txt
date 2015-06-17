@@ -3,14 +3,14 @@ Actor FireSpawner : SwitchableDecoration 32700
 	//$Category Special Effects
 	//$Title Fire Spawner
 	//$Color 12
-	
+
 	//$Arg0 "Size"
 	//$Arg0Type 11
 	//$Arg0Enum { 0 = "Small"; 1 = "Medium"; 2 = "Large"; }
 	//$Arg1 "Sound"
 	//$Arg1Type 11
 	//$Arg1Enum { 0 = "Yes"; 1 = "No"; }
-	
+
 	Height 40
 	Radius 30
 	+ClientSideOnly
@@ -111,7 +111,7 @@ Actor MediumFlame : SmallFlame
 		Stop
 	}
 }
-Actor LargeFlame : SmallFlame 
+Actor LargeFlame : SmallFlame
 {
 	States
 	{
@@ -364,7 +364,7 @@ Actor Ember2 : Ember1
 
 Actor FireParticle_Normal_A1C
 {
-	Scale 0.50 
+	Scale 0.50
 	+NoGravity
 	+NoBlockmap
 	+NOINTERACTION
@@ -383,15 +383,15 @@ Actor FireParticle_Normal_A1C
 }
 Actor FireParticle_Normal_A1D : FireParticle_Normal_A1C
 {
-	Scale 0.25 
+	Scale 0.25
 }
 Actor FireParticle_Normal_A1E : FireParticle_Normal_A1C
 {
-	Scale 0.15 
+	Scale 0.15
 }
 
 Actor FireParticle_Normal_B1C : FireParticle_Normal_A1C
-{	 
+{
 	States
 	{
 	Spawn:
@@ -401,33 +401,33 @@ Actor FireParticle_Normal_B1C : FireParticle_Normal_A1C
 }
 Actor FireParticle_Normal_B1D : FireParticle_Normal_B1C
 {
-	Scale 0.25  
+	Scale 0.25
 }
-Actor FireParticle_Normal_B1E : FireParticle_Normal_B1C 
+Actor FireParticle_Normal_B1E : FireParticle_Normal_B1C
 {
-	Scale 0.15  
+	Scale 0.15
 }
 
 Actor FireParticle_Normal_C1C : FireParticle_Normal_A1C
-{ 
+{
 	States
 	{
 	Spawn:
-		AFN3 A 0 
+		AFN3 A 0
 		Goto Super::Spawn+1
 	}
 }
 Actor FireParticle_Normal_C1D : FireParticle_Normal_C1C
 {
-	Scale 0.25  
+	Scale 0.25
 }
 Actor FireParticle_Normal_C1E : FireParticle_Normal_C1C
 {
-	Scale 0.15  
+	Scale 0.15
 }
 
 Actor FireParticle_Normal_D1C : FireParticle_Normal_A1C
-{ 
+{
 	States
 	{
 	Spawn:
@@ -437,16 +437,16 @@ Actor FireParticle_Normal_D1C : FireParticle_Normal_A1C
 }
 Actor FireParticle_Normal_D1D : FireParticle_Normal_D1C
 {
-	Scale 0.25 
+	Scale 0.25
 }
 Actor FireParticle_Normal_D1E : FireParticle_Normal_D1C
 {
-	Scale 0.15  
+	Scale 0.15
 }
 
 //=========================================================================================================================
 
-Actor Ember_Normal_A1A : FireParticle_Normal_A1C 
+Actor Ember_Normal_A1A : FireParticle_Normal_A1C
 {
 	Scale 0.05
 	States
@@ -458,12 +458,12 @@ Actor Ember_Normal_A1A : FireParticle_Normal_A1C
 }
 Actor Ember_Normal_A1B : Ember_Normal_A1A
 {
-	Scale 0.0350 	
+	Scale 0.0350
 }
- 
-Actor Ember_Normal_A1C : Ember_Normal_A1A 
+
+Actor Ember_Normal_A1C : Ember_Normal_A1A
 {
-	Scale 0.0225 
+	Scale 0.0225
 }
 
 //=========================================================================================================================
@@ -475,7 +475,7 @@ Actor Flare_Red_A1A
 	+NOINTERACTION
 	Height 2
 	Radius 1
-	Scale 1.25 
+	Scale 1.25
 	RenderStyle Add
 	States
 	{
@@ -485,14 +485,14 @@ Actor Flare_Red_A1A
 	}
 }
 
-Actor Flare_Red_A1B : Flare_Red_A1A 
+Actor Flare_Red_A1B : Flare_Red_A1A
 {
-	Scale .75 
+	Scale .75
 }
-Actor Flare_Red_A1C : Flare_Red_A1A 
+Actor Flare_Red_A1C : Flare_Red_A1A
 {
-	Scale 0.275 
-	Alpha 0.5 
+	Scale 0.275
+	Alpha 0.5
 }
 
 //=========================================================================================================================
@@ -532,6 +532,28 @@ Actor TCOTDMinotaurTorch : RedTorch replaces RedTorch
 		Goto Spawn+1
 		TRED A 1 A_SpawnItemEx("Ember_Normal_A1A",Random(-4,4),Random(-4,4),Random(34,34),Random(-2,2),Random(-2,2),Random(2,4))
 		Goto Spawn+1
+	}
+}
+
+ACTOR TCOTDStreetLamp : SwitchableDecoration replaces ShortBlueTorch
+{
+	Height 2
+	States
+	{
+	Spawn:
+	Active:
+		TNT1 A 1 A_Jump(8,6)
+		TNT1 A 0 A_SpawnItemEx("FireParticle_Normal_A1D",0,0,Random(24,26),0,0,Random(1.000,2.500))
+		TNT1 A 0 A_SpawnItemEx("FireParticle_Normal_B1D",0,0,Random(24,26),0,0,Random(1.000,2.500))
+		TNT1 A 0 A_SpawnItemEx("FireParticle_Normal_C1D",0,0,Random(24,26),0,0,Random(1.000,2.500))
+		TNT1 A 0 A_SpawnItemEx("FireParticle_Normal_D1D",0,0,Random(24,26),0,0,Random(1.000,2.500))
+		TNT1 A 1
+		Goto Spawn+1
+		TNT1 A 1 A_SpawnItemEx("Ember_Normal_A1B",Random(-4,4),Random(-4,4),Random(64,66),Random(-2,2),Random(-2,2),Random(2,4))
+		Goto Spawn+1
+	InActive:
+		TNT1 A -1
+		Loop
 	}
 }
 

@@ -3,6 +3,20 @@
 #include "actors/snow.txt"
 #include "actors/weapons.txt"
 
+ACTOR Siren : SwitchableDecoration 9000
+{
+	States
+	{
+	Spawn:
+	Inactive:
+		TNT1 A -1 A_StopSound
+		Stop
+	Active:
+		TNT1 A -1 A_PlaySound("AMB30",CHAN_VOICE,1,0,ATTN_NONE)
+		Stop
+	}
+}
+
 ACTOR TCOTDExplosiveBarrel : ExplosiveBarrel replaces ExplosiveBarrel
 {
 	States
@@ -561,7 +575,15 @@ ACTOR Incarnate 30115
 		INCA L 5 A_Pain
 		Goto See
 	Death:
-		INCX A 0 A_Jump(128,"Death2")
+		INCX A 0 A_Jump(128,"XDeath")
+		INCA LM 7
+		INCA N 7 A_Scream
+		INCA O 7 A_NoBlocking
+		INCA P 7
+		INCA Q 175
+		INCA Q -1 Thing_Raise(0)
+		Stop
+	XDeath:
 		INCX A 10 BRIGHT LIGHT("IncarnateX_1") A_PlaySound("monster/incexp")
 		INCX B 5 BRIGHT LIGHT("IncarnateX_2")
 		INCX C 5 BRIGHT LIGHT("IncarnateX_3")
@@ -574,14 +596,6 @@ ACTOR Incarnate 30115
 		INCX I 5 BRIGHT LIGHT("IncarnateX_9")
 		INCX J 5 BRIGHT LIGHT("IncarnateX_10")
 		INCX K -1
-		Stop
-	Death2:
-		INCA LM 7
-		INCA N 7 A_Scream
-		INCA O 7 A_NoBlocking
-		INCA P 7
-		INCA Q 175
-		INCA Q -1 Thing_Raise(0)
 		Stop
 	Raise:
 		INCA Q 5 A_KillChildren
@@ -864,10 +878,9 @@ ACTOR Shadow 3126
 	PainChance 200
 	MONSTER
 	+FloorClip
-	SEESOUND "imp/sight"
-	PAINSOUND "imp/pain"
-	DEATHSOUND "imp/death"
-	ACTIVESOUND "imp/active"
+	PainSound "Shadow/pain"
+	DeathSound "Shadow/death"
+	ActiveSound "Shadow/active"
 	OBITUARY "%o was assasinated by a shadow."
 	states
 	{
@@ -2135,7 +2148,7 @@ ACTOR ZombieBlood 31002
 		BZOM N -1
 		Stop
 	Raise:
-		BZOM NMLKJI 5
+		BZOM NMLKII 5
 		Goto See
 	}
 }
