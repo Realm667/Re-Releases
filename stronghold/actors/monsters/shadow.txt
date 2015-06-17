@@ -57,7 +57,7 @@ ACTOR Shadow 3126
 		SHDW H 0 A_ChangeFlag("NoPain",0)
 		goto See+1
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",4)
+		TNT1 A 0 ACS_NamedExecuteAlways("AwardPoints",0)
 		SHDW I 6 A_Scream
 		SHDW J 5
 		SHDW K 5 A_SpawnItemEx("Shadowtorso",0,0,0,1)
@@ -67,8 +67,7 @@ ACTOR Shadow 3126
 		SHDW P 1 A_FadeOut(0.05)
 		Wait
 	XDeath:
-		TNT1 A 0 A_GiveToTarget("AwardItem",6)
-		SHDX A 8
+		SHDX A 8 ACS_NamedExecuteAlways("AwardPoints",0,1)
 		SHDX B 6 A_XScream
 		SHDX C 6
 		SHDX D 6 A_Fall
@@ -99,11 +98,15 @@ ACTOR ShadowBall
 	States
 	{
 	Spawn:
-		SBAL ABC 4 BRIGHT A_SpawnItemEx("ShadowTrail")
+		SBAL ABC 4 BRIGHT LIGHT("ShadowBall") A_SpawnItemEx("ShadowTrail")
 		Loop
 	Death:
-		SBAL C 5 Bright
-		SBAL DEFGH 4 BRIGHT
+		SBAL C 5 Bright LIGHT("ShadowBall")
+		SBAL D 4 BRIGHT LIGHT("ShadowBall1")
+		SBAL E 4 BRIGHT LIGHT("ShadowBall2")
+		SBAL F 4 BRIGHT LIGHT("ShadowBall3")
+		SBAL G 4 BRIGHT LIGHT("ShadowBall4")
+		SBAL H 4 BRIGHT LIGHT("ShadowBall5")
 		Stop
 	}
 }

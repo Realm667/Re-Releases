@@ -54,10 +54,12 @@ ACTOR Guardian 30102
 		CUBE D 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",5)
+		TNT1 A 0 ACS_NamedExecuteAlways("AwardPoints",0)
 		CUBE E 0 A_SetFloorClip
 		CUBE E 6 BRIGHT A_ScreamAndUnblock
-		CUBE FGH 6 BRIGHT
+		CUBE F 6 BRIGHT LIGHT("GuardianExplode1")
+		CUBE G 6 BRIGHT LIGHT("GuardianExplode2")
+		CUBE H 6 BRIGHT LIGHT("GuardianExplode3")
 		Stop
 	}
 }
@@ -78,10 +80,14 @@ ACTOR CubeShot
 	States
 	{
 	Spawn:
-		CBAL AB 3 Bright A_SpawnItemEx("CubePuff")
+		CBAL AB 3 Bright LIGHT("CubeShot1") A_SpawnItemEx("CubePuff")
 		loop
 	Death:
-		CBAL CDEFG 3 Bright
+		CBAL C 3 Bright LIGHT("CubeShot2")
+		CBAL D 3 Bright LIGHT("CubeShot3")
+		CBAL E 3 Bright LIGHT("CubeShot4")
+		CBAL F 3 Bright LIGHT("CubeShot5")
+		CBAL G 3 Bright LIGHT("CubeShot6")
 		stop
 	}
 }

@@ -237,7 +237,7 @@ ACTOR Overmind 16999
 		TNT1 A 0 A_ChangeFlag("NOPAIN",0)
 		Goto See
 	Death:
-		OYCL I 12 A_GiveToTarget("AwardItem",800)
+		OYCL I 12 ACS_NamedExecuteAlways("AwardPoints",0)
 		OYCL J 12 A_Scream
 		OYCL K 12 A_Fall
 		OYCL LMNOP 12
@@ -262,9 +262,27 @@ ACTOR FlameBreathOvermind
 	States
 	{
 	Spawn:
-		XPLO ABCDEFG 2 BRIGHT A_Explode (12, 64, 0)
-		XPLO HIJKLMN 2 BRIGHT A_Explode (8, 48, 0)
-		XPLO OPQRSTU 2 BRIGHT A_Explode (4, 32, 0)
+		XPLO A 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_1") A_Explode(12,64,0)
+		XPLO B 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_2") A_Explode(12,64,0)
+		XPLO C 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_3") A_Explode(12,64,0)
+		XPLO D 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_4") A_Explode(12,64,0)
+		XPLO E 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_5") A_Explode(12,64,0)
+		XPLO F 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_6") A_Explode(12,64,0)
+		XPLO G 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_7") A_Explode(12,64,0)
+		XPLO H 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_8") A_Explode(8,48,0)
+		XPLO I 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_9") A_Explode(8,48,0)
+		XPLO J 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_10") A_Explode(8,48,0)
+		XPLO K 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_11") A_Explode(8,48,0)
+		XPLO L 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_12") A_Explode(8,48,0)
+		XPLO M 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_13") A_Explode(8,48,0)
+		XPLO N 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_14") A_Explode(8,48,0)
+		XPLO O 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_15") A_Explode(4,32,0)
+		XPLO P 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_16") A_Explode(4,32,0)
+		XPLO Q 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_17") A_Explode(4,32,0)
+		XPLO R 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_18") A_Explode(4,32,0)
+		XPLO S 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_19") A_Explode(4,32,0)
+		XPLO T 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_20") A_Explode(4,32,0)
+		XPLO U 2 BRIGHT LIGHT("NetherworldQueenFlameBreath_21") A_Explode(4,32,0)
 		Stop
 	}
 }

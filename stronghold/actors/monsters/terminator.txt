@@ -63,50 +63,55 @@ ACTOR Terminator 30666
 		TERM L 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Missile:
-		TERM E 0 A_JumpIfCloser(512, "Missile2")
-		TERM E 0 A_Jump(170, "Missile2")
+		TERM E 0 A_JumpIfCloser(512,"Missile2")
+		TERM E 0 A_Jump(170,"Missile2")
 		TERM E 5 A_FaceTarget
-		TERM F 5 Bright A_CustomMissile("TerminatorBlaster",38,15,Random(Random(2,Random(3,4)),Random(-2,(Random(-3,-4)))))
+		TERM F 5 Bright LIGHT("TerminatorAttack2") A_CustomMissile("TerminatorBlaster",38,15,Random(Random(2,Random(3,4)),Random(-2,(Random(-3,-4)))))
 		TERM F 0 A_Spidrefire
 		Goto Missile+2
 	Missile2:
-		TERM G 0 A_Jump(128, "Missile3")
+		TERM G 0 A_Jump(128,"Missile3")
 	Melee:
 		TERM G 2 A_Facetarget
-		TERM H 1 Bright A_CustomBulletAttack (24, 12, 6, 3, "Terminatorpuff")
-		TERM H 1 Bright A_Playsound("Terminator/tershotB")
+		TERM H 1 Bright LIGHT("TerminatorAttack1") A_CustomBulletAttack(24,12,6,3,"Terminatorpuff")
+		TERM H 1 Bright LIGHT("TerminatorAttack1") A_Playsound("Terminator/tershotB")
 		TERM G 2 A_Facetarget
-		TERM I 1 Bright A_CustomBulletAttack (24, 12, 6, 3, "Terminatorpuff")
-		TERM I 1 Bright A_Playsound("Terminator/tershotB")
+		TERM I 1 Bright LIGHT("TerminatorAttack1") A_CustomBulletAttack(24,12,6,3,"Terminatorpuff")
+		TERM I 1 Bright LIGHT("TerminatorAttack1") A_Playsound("Terminator/tershotB")
 		TERM G 1 A_Spidrefire
 		Goto Missile2+1
 	Missile3:
 		TERM J 0 A_Jump(128,"Missile5")
 		TERM K 0 A_JumpIfCloser(192,"Missile4")
 		TERM J 8 A_Facetarget
-		TERM K 8 Bright A_CustomMissile("Redgrenade", 38, -15, 0, 0)
+		TERM K 8 Bright LIGHT("TerminatorAttack3") A_CustomMissile("Redgrenade",38,-15)
 		Goto See
 	Missile4:
 		TERM J 6 A_Facetarget
-		TERM K 6 Bright A_CustomMissile("Redstar", 38, -15, 0, Random(2,-2))
+		TERM K 6 Bright LIGHT("TerminatorAttack3") A_CustomMissile("Redstar",38,-15,0,Random(2,-2))
 		TERM J 6 A_Facetarget
-		TERM K 6 Bright A_CustomMissile("Redstar", 38, -15, 0, Random(8,-8))
+		TERM K 6 Bright LIGHT("TerminatorAttack3") A_CustomMissile("Redstar",38,-15,0,Random(8,-8))
 	Missile5:
 		TERM J 6 A_Facetarget
-		TERM K 6 Bright A_CustomMissile("Redstar", 38, -15, 0, 0)
+		TERM K 6 Bright LIGHT("TerminatorAttack3") A_CustomMissile("Redstar",38,-15)
 		Goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",48)
-		TERM M 6 A_Scream
-		TERM N 4
-		TERM OPQ 4 Bright
+		TNT1 A 0 ACS_NamedExecuteAlways("AwardPoints",0)
+		TERM M 6 Light("TerminatorDeath1") A_Scream
+		TERM N 4 Light("TerminatorDeath2")
+		TERM O 4 Bright Light("TerminatorDeath3")
+		TERM P 4 Bright Light("TerminatorDeath4")
+		TERM Q 4 Bright Light("TerminatorDeath5")
 		TERM R 0 A_SpawnItemEx("TerminatorHead",15,0,90,10,0,0,-170)
 		TERM R 0 A_SpawnItemEx("TerminatorShoulder",60,0,75,8,0,0,-70)
-		TERM R 4 Bright A_SpawnItemEx("TerminatorArm",60,0,0,3,0,0,-90)
-		TERM STUV 4 Bright
-		TERM W 4
-		TERM X 6 A_Fall
-		TERM Y 6
+		TERM R 4 Bright Light("TerminatorDeath6") A_SpawnItemEx("TerminatorArm",60,0,0,3,0,0,-90)
+		TERM S 4 Bright Light("TerminatorDeath7")
+		TERM T 4 Bright Light("TerminatorDeath8")
+		TERM U 4 Bright Light("TerminatorDeath9")
+		TERM V 4 Bright Light("TerminatorDeath10")
+		TERM W 4 Light("TerminatorDeath11")
+		TERM X 6 Light("TerminatorDeath12") A_Fall
+		TERM Y 6 Light("TerminatorDeath13")
 		TERM Z 1 A_Playsound("Terminator/terstepA")
 		TERM Z 5
 		TERM [ 3000
@@ -131,11 +136,20 @@ ACTOR TerminatorBlaster
 	States
 	{
 	Spawn:
-		BLST A -1 Bright
+		BLST A -1 Bright LIGHT("TerminatorBlaster")
 		loop
 	Death:
-		BLST B 6 Bright A_Explode(16,128,1)
-		BLST CDEFGHIJKL 3 Bright
+		BLST B 6 Bright LIGHT("TerminatorBlaster2") A_Explode(16,128)
+		BLST C 3 Bright LIGHT("TerminatorBlaster3")
+		BLST D 3 Bright LIGHT("TerminatorBlaster4")
+		BLST E 3 Bright LIGHT("TerminatorBlaster5")
+		BLST F 3 Bright LIGHT("TerminatorBlaster6")
+		BLST G 3 Bright LIGHT("TerminatorBlaster7")
+		BLST H 3 Bright LIGHT("TerminatorBlaster8")
+		BLST I 3 Bright LIGHT("TerminatorBlaster9")
+		BLST J 3 Bright LIGHT("TerminatorBlaster10")
+		BLST K 3 Bright LIGHT("TerminatorBlaster11")
+		BLST L 3 Bright LIGHT("TerminatorBlaster12")
 		stop
 	}
 }
@@ -158,18 +172,25 @@ Actor Redstar
 	States
 	{
 	Spawn:
-		STAX A 0 A_SeekerMissile (15,45)
-		STAX AAAA 1 Bright A_SpawnItemEx("grenadetrail")
-		STAX B 0 A_SeekerMissile (15,45)
-		STAX BBBB 1 Bright A_SpawnItemEx("grenadetrail")
-		STAX C 0 A_SeekerMissile (15,45)
-		STAX CCCC 1 Bright A_SpawnItemEx("grenadetrail")
-		STAX D 0 A_SeekerMissile (15,45)
-		STAX DDDD 1 Bright A_SpawnItemEx("grenadetrail")
+		STAX A 0 A_SeekerMissile(15,45)
+		STAX AAAA 1 Bright LIGHT("RedStar") A_SpawnItemEx("grenadetrail")
+		STAX B 0 A_SeekerMissile(15,45)
+		STAX BBBB 1 Bright LIGHT("RedStar2") A_SpawnItemEx("grenadetrail")
+		STAX C 0 A_SeekerMissile(15,45)
+		STAX CCCC 1 Bright LIGHT("RedStar3") A_SpawnItemEx("grenadetrail")
+		STAX D 0 A_SeekerMissile(15,45)
+		STAX DDDD 1 Bright LIGHT("RedStar4") A_SpawnItemEx("grenadetrail")
 		Loop
 	Death:
-		STAX E 3 Bright A_Explode(20,192,1)
-		STAX FGHIJKLMNO 3 Bright
+		STAX E 3 Bright LIGHT("RedStar5") A_Explode(20,192,1)
+		STAX F 3 BRIGHT LIGHT("RedStar6")
+		STAX G 3 BRIGHT LIGHT("RedStar7")
+		STAX H 3 BRIGHT LIGHT("RedStar8")
+		STAX I 3 BRIGHT LIGHT("RedStar9")
+		STAX J 3 BRIGHT LIGHT("RedStar10")
+		STAX K 3 BRIGHT LIGHT("RedStar11")
+		STAX L 3 BRIGHT LIGHT("RedStar12")
+		STAX MNO 3 Bright
 		Stop
 	}
 }
@@ -191,7 +212,7 @@ actor Redgrenade
 	States
 	{
 	Spawn:
-		TGND AAAABBBBCCCC 1 Bright A_SpawnItemEx("grenadetrail")
+		TGND AAAABBBBCCCC 1 Bright LIGHT("Redgrenade") A_SpawnItemEx("grenadetrail")
 		Loop
 	Death:
 		STAR E 0 A_custommissile("grenadeblast",0,0,user_theta,2,0)
@@ -238,9 +259,18 @@ actor Grenadeblast
 	States
 	{
 	Spawn:
-		TGBL ABCDEF 2 BRIGHT
+		TGBL A 2 BRIGHT LIGHT("Grenadeblast1")
+		TGBL B 2 BRIGHT LIGHT("Grenadeblast2")
+		TGBL C 2 BRIGHT LIGHT("Grenadeblast3")
+		TGBL D 2 BRIGHT LIGHT("Grenadeblast4")
+		TGBL E 2 BRIGHT LIGHT("Grenadeblast5")
+		TGBL F 2 BRIGHT LIGHT("Grenadeblast6")
 	Death:
-		TGBL GHIJK 2 Bright
+		TGBL G 2 BRIGHT LIGHT("Grenadeblast7")
+		TGBL H 2 BRIGHT LIGHT("Grenadeblast8")
+		TGBL I 2 BRIGHT LIGHT("Grenadeblast9")
+		TGBL J 2 BRIGHT LIGHT("Grenadeblast10")
+		TGBL K 2 BRIGHT LIGHT("Grenadeblast11")
 		stop
 	}
 }
@@ -254,11 +284,23 @@ ACTOR Terminatorpuff : Bulletpuff
 	{
 	Spawn:
 	Melee:
-		TPUF A 2 Bright
+		TPUF A 2 Bright LIGHT("Terminatorpuff1")
 		TPUF A 0 A_Jump(128,10)
-		TPUF BCDEFGH 2 Bright
+		TPUF B 2 BRIGHT LIGHT("Terminatorpuff2")
+		TPUF C 2 BRIGHT LIGHT("Terminatorpuff3")
+		TPUF D 2 BRIGHT LIGHT("Terminatorpuff4")
+		TPUF E 2 BRIGHT LIGHT("Terminatorpuff5")
+		TPUF F 2 BRIGHT LIGHT("Terminatorpuff6")
+		TPUF G 2 BRIGHT LIGHT("Terminatorpuff7")
+		TPUF H 2 BRIGHT LIGHT("Terminatorpuff8")
 		Stop
-		TPUF IJKLMNO 2 Bright
+		TPUF I 2 BRIGHT LIGHT("Terminatorpuff9")
+		TPUF J 2 BRIGHT LIGHT("Terminatorpuff10")
+		TPUF K 2 BRIGHT LIGHT("Terminatorpuff11")
+		TPUF L 2 BRIGHT LIGHT("Terminatorpuff12")
+		TPUF M 2 BRIGHT LIGHT("Terminatorpuff13")
+		TPUF N 2 BRIGHT LIGHT("Terminatorpuff14")
+		TPUF O 2 BRIGHT LIGHT("Terminatorpuff15")
 		Stop
 	}
 }

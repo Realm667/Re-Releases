@@ -58,11 +58,16 @@ ACTOR Cybruiser : StrongholdBaronOfHell 30128
 		BRU2 J 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",18)
-		BRU2 K 6 Bright A_Scream
-		BRU2 LMN 6 Bright
-		BRU2 O 6 Bright A_NoBlocking
-		BRU2 QRS 6 Bright
+		TNT1 A 0 ACS_NamedExecuteAlways("AwardPoints",0)
+		BRU2 K 6 Bright LIGHT("CybruiserDeath1") A_Scream
+		BRU2 L 6 Bright LIGHT("CybruiserDeath2")
+		BRU2 M 6 Bright LIGHT("CybruiserDeath3")
+		BRU2 N 6 Bright LIGHT("CybruiserDeath4")
+		BRU2 O 6 Bright LIGHT("CybruiserDeath5") A_NoBlocking
+		BRU2 P 6 Bright LIGHT("CybruiserDeath6")
+		BRU2 Q 6 Bright LIGHT("CybruiserDeath7")
+		BRU2 R 6 Bright LIGHT("CybruiserDeath8")
+		BRU2 S 6 Bright
 		BRU2 T 3000 A_BossDeath
 		BRU2 T 1 A_FadeOut(0.05)
 		Wait
@@ -84,13 +89,12 @@ ACTOR BruiserMissile
 	States
 	{
 	Spawn:
-		FBRS A 1 Bright
-		FBRS A 1 Bright A_SpawnItemEx("BruiserTrail")
+		FBRS A 2 Bright LIGHT("BruiserMissile") A_SpawnItemEx("BruiserTrail")
 		loop
 	Death:
-		BAL3 C 6 Bright A_SetTranslucent (0.67,1)
-		BAL3 D 6 Bright A_Explode(64,64,0)
-		BAL3 E 6 Bright
+		BAL3 C 6 Bright LIGHT("BruiserMissile2") A_SetTranslucent(0.67,1)
+		BAL3 D 6 Bright LIGHT("BruiserMissile3") A_Explode(64,64,0)
+		BAL3 E 6 Bright LIGHT("BruiserMissile4")
 		stop
 	}
 }

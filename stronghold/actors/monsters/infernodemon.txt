@@ -20,8 +20,8 @@ ACTOR InfernoDemon 12345
 	+FLOORCLIP
 	+NOTARGET
 	+NOICEDEATH
-	damagefactor "Fire", 0.25
-	damagefactor "Inferno", 0
+	damagefactor "Fire",0.25
+	damagefactor "Inferno",0
 	MinMissileChance 128
 	SeeSound "Infdem/see"
 	PainSound "Infdem/pain"
@@ -585,7 +585,7 @@ ACTOR InfernoDemon 12345
 		XDIB K 5 A_FaceTarget
 		XDIB L 5 A_Scream
 		XDIB MNOPQ 5
-		XDIB R 10 A_GiveToTarget("AwardItem",400)
+		XDIB R 10 ACS_NamedExecuteAlways("AwardPoints",0)
 		XDIB S 5 Radius_Quake(20,200,0,40,0)
 		XDIB T 5 A_NoBlocking
 		XDIB UV 5
@@ -1322,7 +1322,7 @@ ACTOR FireBeam
 		HK04 A 0 NODELAY A_CountDown
 		HK04 A 0 A_PlaySound("monster/firebeamstart",CHAN_VOICE,1,1)
 		HK04 ABC 1 BRIGHT A_CustomMissile("BeamFire",0,0,0,4)
-		HK04 A 0 A_SeekerMissile (0,3)
+		HK04 A 0 A_SeekerMissile(0,3)
 		Loop
 	Death:
 		HK04 ABC 4

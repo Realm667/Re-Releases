@@ -41,14 +41,6 @@ ACTOR FusionSpider : StrongholdArachnotron 20110
 		FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,50)
 		FSPI H 1 BRIGHT
 		Goto See+1
-	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",14)
-		FSPI J 20 A_Scream
-		FSPI K 7 A_NoBlocking
-		FSPI LMNO 7
-		FSPI P 3000 A_BossDeath
-		FSPI P 1 A_FadeOut(0.05)
-		Wait
 	}
 }
 
@@ -65,7 +57,7 @@ ACTOR FusionShot
 	states
 	{
 	Spawn:
-		FS03 AB 10 BRIGHT A_SpawnItemEx("FusionTrail",0,0,0,0,0,0,random(10,-10))
+		FS03 AB 10 BRIGHT LIGHT("FusionShot") A_SpawnItemEx("FusionTrail",0,0,0,0,0,0,random(10,-10))
 		Loop
 	Death:
 		FS03 HIJG 3 BRIGHT

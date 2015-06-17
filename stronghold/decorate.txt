@@ -40,8 +40,7 @@ actor FakeGoalBase
 		TRGT A 1 A_SpawnItemEx("FakeGoalSparks",0,0,20,random(-3,3),random(-3,3),random(-3,3),0,SXF_TRANSFERTRANSLATION)
 		loop
 	Death:
-		TNT1 A 1
-		TNT1 A 1 A_Scream	// Sound can't be played in first tic?
+		TNT1 A 1 A_Scream
 		stop
 	}
 }
@@ -61,8 +60,6 @@ actor FakeGoalSparks
 	States
 	{
 	Spawn:
-	//	FGST ABCD 3
-	//	goto Death
 		TNT1 A 8
 		FGST ABCD 3 A_FadeIn(0.25)
 	Death:
@@ -4950,121 +4947,79 @@ actor AlarmSounder 21235
 // UTNT COMET //
 ////////////////
 
-Actor GlobalBaseComet
-{
-	+CLIENTSIDEONLY
- +Missile
- +NoGravity
- +NoBlockmap
- -Solid
- Radius 0
- Height 0
- RenderStyle Add
- Alpha 1.0
- States
- {
-  Spawn:
-   TNT1 A 0
-   Stop
- }
-}
-
 Actor CometLarge_Enhanced
 {
- Radius 6
- Height 8
- Speed 10
- Damage 5
- ExplosionDamage 40
- ExplosionRadius 80
- PROJECTILE
- SeeSound "comet/launch"
- DeathSound "comet/explosion"
- States
- {
-  Spawn:
-   TNT1 A 0
-   COMT AAAABBBBCCCC 1 Bright A_SpawnItemEx("CometFire_Orange",Random(-2,2),Random(-2,2),Random(-2,2))
-   Loop
-  Death:
-   COMT D 3 Bright
-   COMT E 3 Bright A_Explode
-   COMT FGHI 3 Bright
-  Stop
- }
+	Radius 6
+	Height 8
+	Speed 10
+	Damage 5
+	PROJECTILE
+	SeeSound "comet/launch"
+	DeathSound "comet/explosion"
+	States
+	{
+	Spawn:
+		COMT AAAABBBBCCCC 1 Bright LIGHT("Comet") A_SpawnItemEx("CometFire_Orange",Random(-2,2),Random(-2,2),Random(-2,2))
+		Loop
+	Death:
+		COMT D 3 Bright LIGHT("CometX_1")
+		COMT E 3 Bright LIGHT("CometX_2") A_Explode(40,80)
+		COMT FGHI 3 Bright
+		Stop
+	}
 }
 
 Actor CometLarge_Enhanced_NoDmg : CometLarge_Enhanced
 {
 	+CLIENTSIDEONLY
-	ExplosionDamage 0
- 	ExplosionRadius 0
 	Damage 0
+	States
+	{
+	Death:
+		COMT D 3 Bright LIGHT("CometX_1")
+		COMT E 3 Bright LIGHT("CometX_2")
+		COMT FGHI 3 Bright
+		Stop
+	}
 }
 
 Actor CometSpawner_512 23373
 {
-//$Category Stronghold_Weather
- +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY +SPAWNCEILING
- Radius 3
- Height 3
- States
- {
-  Spawn:
-  TNT1 A 0
-  TNT1 A 16 A_SpawnItemEx("CometLarge_Enhanced_NoDmg",random(512,-512),random(512,-512),-8,random(6,18),0,random(-6,-18),0,0,160)
-  loop
- }
-}
-
-Actor CometFire_Orange : GlobalBaseComet
-{
- Scale 1.6
- States
- {
-  Spawn:
-  TNT1 A 0
-  TNT1 A 0 ThrustThingZ(0,Random(2,4),0,0)
-  FORA AAABBCDEEEEEEEEEEEEEEEE 1 A_FadeOut(0.04)
-  Stop
- }
-}
-
-///////////////////////////////////
-// ALTERED RED KEY - DUKE SECRET //
-// and other secret keys //////////
-///////////////////////////////////
-
-actor RedCardDN : RedCard replaces RedCard
-{
-	//$Category Stronghold
-	-INVENTORY.INTERHUBSTRIP
-	ConversationID 301
-}
-
-actor AccessDiscBlue : Key 30910
-{
-	//$Category Stronghold
-	inventory.pickupmessage "Picked up a blue access disk."
-	inventory.icon "TNT1A0"
-	-INVENTORY.INTERHUBSTRIP
-	states
+	//$Category Stronghold_Weather
+	+NoBlockMap
+	+NoGravity
+	+NoInteraction
+	+NoClip
+	+CLIENTSIDEONLY
+	+SPAWNCEILING
+	Radius 3
+	Height 3
+	States
 	{
 	Spawn:
-		DDSC A -1
+		TNT1 A 0
+		TNT1 A 16 A_SpawnItemEx("CometLarge_Enhanced_NoDmg",random(512,-512),random(512,-512),-8,random(6,18),0,random(-6,-18),0,0,160)
 		loop
 	}
 }
 
-actor AccessDiscGreen : AccessDiscBlue 30911
+Actor CometFire_Orange
 {
-	//$Category Stronghold
-	inventory.pickupmessage "Picked up a green access disk."
-	states
+	+CLIENTSIDEONLY
+	+Missile
+	+NoGravity
+	+NoBlockmap
+	Radius 0
+	Height 0
+	RenderStyle Add
+	Scale 1.6
+	States
 	{
 	Spawn:
-		DDSC B -1
-		loop
+		TNT1 A 0
+		TNT1 A 0 ThrustThingZ(0,Random(2,4),0,0)
+		FORA AAABBCDEEEEEEEEEEEEEEEE 1 A_FadeOut(0.04)
+		Stop
 	}
 }
 
@@ -5095,12 +5050,11 @@ Actor AllTiersCompleted : Inventory
 
 // Includes
 
-#include "actors/weapons/dec_player.txt"
-#include "actors/weapons/dec_weapons.txt"
-#include "actors/weapons/dec_item.txt"
-#include "actors/weapons/dec_morp.txt"
+#include "actors/dec_player.txt"
+#include "actors/dec_weapons.txt"
+#include "actors/dec_item.txt"
 
-#include "actors/monsters/dec_altm.txt"
+#include "actors/monsters/doom.txt"
 #include "actors/monsters/bruiserdemon.txt"
 #include "actors/monsters/archonofhell.txt"
 #include "actors/monsters/azazel.txt"
@@ -5133,6 +5087,8 @@ Actor AllTiersCompleted : Inventory
 #include "actors/monsters/infernodemon.txt"
 #include "actors/monsters/satyr.txt"
 #include "actors/monsters/plasmazombie.txt"
+
+#include "actors/dec_morp.txt"
 
 #include "actors/nashgore.txt"
 #include "actors/critters.txt"

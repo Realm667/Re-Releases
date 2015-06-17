@@ -20,66 +20,56 @@ ACTOR Diabloist : StrongholdArchvile 30112
 		DIAB AB 10 A_Look
 		Loop
 	Missile:
-		DIAB G 0 A_Jump (128,"Missile2")
+		DIAB G 0 A_Jump(128,"Missile2")
 		DIAB G 0 A_FaceTarget
 		DIAB GH 3 BRIGHT A_FaceTarget
-		DIAB I 3 A_CustomMissile ("DFire")
+		DIAB I 3 A_CustomMissile("DFire")
 		DIAB HGHIHGHIHGHIGHI 3 Bright A_FaceTarget
-		DIAB G 0 A_Jump (128,"Missile3")
+		DIAB G 0 A_Jump(128,"Missile3")
 		Goto See
 	Missile2:
 		DIAB N 5 BRIGHT A_FaceTarget
-		DIAB O 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB O 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB P 0 A_FaceTarget
-		DIAB P 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB P 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB N 0 A_FaceTarget
-		DIAB N 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB N 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB O 0 A_FaceTarget
-		DIAB O 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB O 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB P 0 A_FaceTarget
-		DIAB P 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB P 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB N 0 A_FaceTarget
-		DIAB N 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB N 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB O 0 A_FaceTarget
-		DIAB O 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB O 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB P 0 A_FaceTarget
-		DIAB P 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB P 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB N 0 A_FaceTarget
-		DIAB N 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB N 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB O 0 A_FaceTarget
-		DIAB O 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB O 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB P 0 A_FaceTarget
-		DIAB P 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB P 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB N 0 A_FaceTarget
-		DIAB N 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
+		DIAB N 5 BRIGHT A_CustomMissile("DFlare",40,0,random(-4,4))
 		DIAB O 0 A_FaceTarget
 		DIAB P 5 BRIGHT
-		DIAB P 0 A_Jump (64,"Missile3")
-		DIAB P 0 A_Jump (128,"Missile4")
+		DIAB P 0 A_Jump(64,"Missile3")
+		DIAB P 0 A_Jump(128,"Missile4")
 		Goto See
 	Missile3:
 		DIAB GHIJKLM 5 BRIGHT A_FaceTarget
 		DIAB N 5 BRIGHT A_FaceTarget
-		DIAB O 1 BRIGHT A_Playsound ("weapons/firbfi")
-		DIAB O 4 BRIGHT A_CustomMissile ("DMissile",32)
+		DIAB O 1 BRIGHT A_Playsound("weapons/firbfi")
+		DIAB O 4 BRIGHT A_CustomMissile("DMissile",32)
 		DIAB P 5 BRIGHT
-		DIAB P 0 A_Jump (128,1)
+		DIAB P 0 A_Jump(128,1)
 		Goto See
 	Missile4:
 		DIAB "[\" 8 BRIGHT A_FaceTarget
-		DIAB ] 0 A_CustomMissile ("DTracer",0,-40)
-		DIAB ] 8 BRIGHT A_CustomMissile ("DTracer",0,40)
+		DIAB ] 0 A_CustomMissile("DTracer",0,-40)
+		DIAB ] 8 BRIGHT A_CustomMissile("DTracer",0,40)
 		Goto See
-	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",16)
-		DIAB Q 7
-		DIAB R 7 A_Scream
-		DIAB S 7 A_NoBlocking
-		DIAB TUVW 7
-		DIAB XY 5
-		DIAB Z 3000
-		DIAB Z 1 A_FadeOut(0.05)
-		Wait
 	Heal:
 		Stop
 	}
@@ -99,65 +89,65 @@ Actor DFire
 	States
 	{
 	Spawn:
-		HLFR A 2 Bright A_StartFire
+		HLFR A 2 Bright LIGHT("DiabloistFire1") A_StartFire
 		TNT1 A 0 A_Explode(4,32)
-		HLFR B 2 Bright A_Fire
+		HLFR B 2 Bright LIGHT("DiabloistFire2") A_Fire
 		TNT1 A 0 A_Explode(4,32)
-		HLFR A 2 Bright A_Fire
+		HLFR A 2 Bright LIGHT("DiabloistFire1") A_Fire
 		TNT1 A 0 A_Explode(4,32)
-		HLFR B 2 Bright A_Fire
+		HLFR B 2 Bright LIGHT("DiabloistFire2") A_Fire
 		TNT1 A 0 A_Explode(4,32)
-		HLFR C 2 Bright A_FireCrackle
+		HLFR C 2 Bright LIGHT("DiabloistFire3") A_FireCrackle
 		TNT1 A 0 A_Explode(4,32)
-		HLFR B 2 Bright A_Fire
+		HLFR B 2 Bright LIGHT("DiabloistFire2") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR C 2 Bright A_Fire
+		HLFR C 2 Bright LIGHT("DiabloistFire3") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR B 2 Bright A_Fire
+		HLFR B 2 Bright LIGHT("DiabloistFire2") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR C 2 Bright A_Fire
+		HLFR C 2 Bright LIGHT("DiabloistFire3") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR D 2 Bright A_Fire
+		HLFR D 2 Bright LIGHT("DiabloistFire4") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR C 2 Bright A_Fire
+		HLFR C 2 Bright LIGHT("DiabloistFire3") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR D 2 Bright A_Fire
+		HLFR D 2 Bright LIGHT("DiabloistFire4") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR C 2 Bright A_Fire
+		HLFR C 2 Bright LIGHT("DiabloistFire3") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR D 2 Bright A_Fire
+		HLFR D 2 Bright LIGHT("DiabloistFire4") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR E 2 Bright A_Fire
+		HLFR E 2 Bright LIGHT("DiabloistFire5") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR D 2 Bright A_Fire
+		HLFR D 2 Bright LIGHT("DiabloistFire4") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR E 2 Bright A_Fire
+		HLFR E 2 Bright LIGHT("DiabloistFire5") A_Fire
 		TNT1 A 0 A_Explode(5,32)
-		HLFR D 2 Bright A_Fire
+		HLFR D 2 Bright LIGHT("DiabloistFire4") A_Fire
 		TNT1 A 0 A_Explode(4,32)
-		HLFR E 2 Bright A_FireCrackle
+		HLFR E 2 Bright LIGHT("DiabloistFire5") A_FireCrackle
 		TNT1 A 0 A_Explode(4,32)
-		HLFR F 2 Bright A_Fire
+		HLFR F 2 Bright LIGHT("DiabloistFire6") A_Fire
 		TNT1 A 0 A_Explode(3,32)
-		HLFR E 2 Bright A_Fire
+		HLFR E 2 Bright LIGHT("DiabloistFire5") A_Fire
 		TNT1 A 0 A_Explode(3,32)
-		HLFR F 2 Bright A_Fire
+		HLFR F 2 Bright LIGHT("DiabloistFire6") A_Fire
 		TNT1 A 0 A_Explode(3,32)
-		HLFR E 2 Bright A_Fire
+		HLFR E 2 Bright LIGHT("DiabloistFire5") A_Fire
 		TNT1 A 0 A_Explode(2,32)
-		HLFR F 2 Bright A_Fire
+		HLFR F 2 Bright LIGHT("DiabloistFire6") A_Fire
 		TNT1 A 0 A_Explode(2,32)
-		HLFR G 2 Bright A_Fire
+		HLFR G 2 Bright LIGHT("DiabloistFire7") A_Fire
 		TNT1 A 0 A_Explode(2,32)
-		HLFR H 2 Bright A_Fire
+		HLFR H 2 Bright LIGHT("DiabloistFire8") A_Fire
 		TNT1 A 0 A_Explode(1,32)
-		HLFR G 2 Bright A_Fire
+		HLFR G 2 Bright LIGHT("DiabloistFire7") A_Fire
 		TNT1 A 0 A_Explode(1,32)
-		HLFR H 2 Bright A_Fire
+		HLFR H 2 Bright LIGHT("DiabloistFire8") A_Fire
 		TNT1 A 0 A_Explode(1,32)
-		HLFR G 2 Bright A_Fire
+		HLFR G 2 Bright LIGHT("DiabloistFire7") A_Fire
 		TNT1 A 0 A_Explode(1,32)
-		HLFR H 2 Bright A_Fire
+		HLFR H 2 Bright LIGHT("DiabloistFire8") A_Fire
 		stop
 	}
 }
@@ -178,10 +168,14 @@ ACTOR DFlare
 	States
 	{
 	Spawn:
-		VBAL AB 3 Bright A_SpawnItemEx("MFlareFX")
+		VBAL AB 3 Bright LIGHT("DiabloistFlare1") A_SpawnItemEx("MFlareFX")
 		loop
 	Death:
-		CBAL CDEFG 3 Bright
+		CBAL C 3 Bright LIGHT("DiabloistFlare2")
+		CBAL D 3 Bright LIGHT("DiabloistFlare3")
+		CBAL E 3 Bright LIGHT("DiabloistFlare4")
+		CBAL F 3 Bright LIGHT("DiabloistFlare5")
+		CBAL G 3 Bright LIGHT("DiabloistFlare6")
 		stop
 	}
 }
@@ -208,14 +202,16 @@ ACTOR DTracer
 	States
 	{
 	Spawn:
-		TNT1 A 1 Bright A_SeekerMissile (10,15)
+		TNT1 A 1 Bright A_SeekerMissile(10,15)
 		TNT1 A 0 A_Countdown
-		TNT1 A 0 A_CustomMissile("DTracerPuff",0,0,0,0)
+		TNT1 A 0 A_CustomMissile("DTracerPuff",0)
 		loop
 	Death:
-		FTRA K 4 Bright
-		FTRA L 4 Bright A_Explode(64)
-		FTRA MNO 3 Bright
+		FTRA K 4 Bright LIGHT("DiabloistTracer11")
+		FTRA L 4 Bright LIGHT("DiabloistTracer12") A_Explode(64)
+		FTRA M 3 Bright LIGHT("DiabloistTracer13")
+		FTRA N 3 Bright LIGHT("DiabloistTracer14")
+		FTRA O 3 Bright LIGHT("DiabloistTracer15")
 		stop
 	}
 }
@@ -248,7 +244,16 @@ ACTOR DTracerPuff
 	States
 	{
 	Spawn:
-		FTRA ABCDEFGHIJ 3 Bright A_Explode(4,8)
+		FTRA A 3 BRIGHT LIGHT("DiabloistTracer1") A_Explode(4,8)
+		FTRA B 3 BRIGHT LIGHT("DiabloistTracer2") A_Explode(4,8)
+		FTRA C 3 BRIGHT LIGHT("DiabloistTracer3") A_Explode(4,8)
+		FTRA D 3 BRIGHT LIGHT("DiabloistTracer4") A_Explode(4,8)
+		FTRA E 3 BRIGHT LIGHT("DiabloistTracer5") A_Explode(4,8)
+		FTRA F 3 BRIGHT LIGHT("DiabloistTracer6") A_Explode(4,8)
+		FTRA G 3 BRIGHT LIGHT("DiabloistTracer7") A_Explode(4,8)
+		FTRA H 3 BRIGHT LIGHT("DiabloistTracer8") A_Explode(4,8)
+		FTRA I 3 BRIGHT LIGHT("DiabloistTracer9") A_Explode(4,8)
+		FTRA J 3 BRIGHT LIGHT("DiabloistTracer10") A_Explode(4,8)
 		stop
 	}
 }

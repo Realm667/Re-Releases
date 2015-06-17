@@ -48,9 +48,13 @@ actor Hellion 30132
 		loop
 	Missile:
 		HELN G 0 A_VileStart
-		HELN GHIJK 6 Bright A_FaceTarget
-		HELN L 6 Bright A_CustomMissile("HellionBall")
-		HELN L 2
+		HELN G 6 Bright LIGHT("HellionG") A_FaceTarget
+		HELN H 6 Bright LIGHT("HellionH") A_FaceTarget
+		HELN I 6 Bright LIGHT("HellionI") A_FaceTarget
+		HELN J 6 Bright LIGHT("HellionJ") A_FaceTarget
+		HELN K 6 Bright LIGHT("HellionK") A_FaceTarget
+		HELN L 6 Bright LIGHT("HellionL") A_CustomMissile("HellionBall")
+		HELN L 2 LIGHT("HellionL")
 		goto See
 	Pain:
 		HELN M 2
@@ -62,8 +66,7 @@ actor Hellion 30132
 		HELN M 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",10)
-		HELN N 6
+		HELN N 6 ACS_NamedExecuteAlways("AwardPoints",0)
 		HELN O 6 A_Scream
 		HELN PQR 6
 		HELN S 6 A_NoBlocking
@@ -71,8 +74,7 @@ actor Hellion 30132
 		HELN T 1 A_FadeOut(0.05)
 		Wait
 	XDeath:
-		TNT1 A 0 A_GiveToTarget("AwardItem",19)
-		HELN U 5
+		HELN U 5 ACS_NamedExecuteAlways("AwardPoints",0,1)
 		HELN V 5 A_XScream
 		HELN W 5
 		HELN X 5 A_NoBlocking
@@ -99,10 +101,15 @@ ACTOR HellionBall : CacodemonBall
 	states
 	{
 	Spawn:
-		HLBL AB 3 bright A_SpawnItemEx("HellionPuff")
+		HLBL A 3 bright LIGHT("HellionballA") A_SpawnItemEx("HellionPuff")
+		HLBL B 3 bright LIGHT("HellionballB") A_SpawnItemEx("HellionPuff")
 		loop
 	Death:
-		HLBL JKLMN 3 bright
+		HLBL J 3 bright LIGHT("HellionballJ")
+		HLBL K 3 bright LIGHT("HellionballK")
+		HLBL L 3 bright LIGHT("HellionballL")
+		HLBL M 3 bright LIGHT("HellionballM")
+		HLBL N 3 bright LIGHT("HellionballN")
 		stop
 	}
 }
@@ -122,7 +129,13 @@ ACTOR HellionPuff
 	{
 	Spawn:
 		TNT1 A 3
-		HLBL CDEFGHI 3 BRIGHT
+		HLBL C 3 BRIGHT LIGHT("HellionballC")
+		HLBL D 3 BRIGHT LIGHT("HellionballD")
+		HLBL E 3 BRIGHT LIGHT("HellionballE")
+		HLBL F 3 BRIGHT LIGHT("HellionballF")
+		HLBL G 3 BRIGHT LIGHT("HellionballG")
+		HLBL H 3 BRIGHT LIGHT("HellionballH")
+		HLBL I 3 BRIGHT LIGHT("HellionballI")
 		Stop
 	}
 }

@@ -94,9 +94,8 @@ ACTOR Apprentice 30000
 		APDP E 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",10)
-		APDP E 0 A_SetTranslucent(1,0)
-		APDP E 4
+		TNT1 A 0 ACS_NamedExecuteAlways("AwardPoints",0)
+		APDP E 4 A_SetTranslucent(1,0)
 		APDP F 4
 		APDP G 3 A_Scream
 		APDP H 3 A_CustomMissile("AoDGhost",8,0,0)
@@ -205,8 +204,7 @@ ACTOR MiniSpider 22290
 		MNTR X 3 A_CustomMeleeAttack(random(1,8)*2,"littlespider/pain")
 		Goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",1)
-		MNTS F 5
+		MNTS F 5 ACS_NamedExecuteAlways("AwardPoints",0)
 		MNTS E 5 A_Scream
 		MNTS D 5
 		MNTS C 5 A_NoBlocking
@@ -237,9 +235,6 @@ ACTOR LargeSpider : MiniSpider 22291
 		MNTR UW 5 A_FaceTarget
 		MNTR X 5 A_CustomMeleeAttack(random(1,8)*2,"littlespider/pain")
 		Goto See
-	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",2)
-		Goto Super::Death+1
 	}
 }
 
@@ -300,8 +295,7 @@ ACTOR Thrall 30119
 		CULT G 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",2)
-		CULT H 8
+		CULT H 8 ACS_NamedExecuteAlways("AwardPoints",0)
 		CULT I 8 A_Scream
 		CULT J 4
 		CULT K 4 A_NoBlocking
@@ -309,8 +303,7 @@ ACTOR Thrall 30119
 		CULT M -1
 		Stop
 	XDeath:
-		TNT1 A 0 A_GiveToTarget("AwardItem",3)
-		CULT N 5
+		CULT N 5 ACS_NamedExecuteAlways("AwardPoints",0,1)
 		CULT O 5 A_XScream
 		CULT P 5 A_NoBlocking
 		CULT QRSTUV 5
@@ -429,7 +422,7 @@ ACTOR Incarnate 30115
 		INCA L 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",8)
+		TNT1 A 0 ACS_NamedExecuteAlways("AwardPoints",0)
 		INCX A 10 BRIGHT A_PlaySound("monster/incexp")
 		INCX BC 5 BRIGHT
 		INCX D 5 BRIGHT A_NoBlocking
@@ -438,8 +431,8 @@ ACTOR Incarnate 30115
 		INCX K -1
 		Stop
 	XDeath:
-		TNT1 A 0 A_GiveToTarget("AwardItem",8)
-		INCA LM 7
+		INCA L 7 ACS_NamedExecuteAlways("AwardPoints",0)
+		INCA M 7
 		INCA N 7 A_Scream
 		INCA O 7 A_NoBlocking
 		INCA P 7
@@ -501,8 +494,7 @@ ACTOR HotDog 30121
 		HDOG J 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",6)
-		HDOG K 8
+		HDOG K 8 ACS_NamedExecuteAlways("AwardPoints",0)
 		HDOG L 8 A_Scream
 		HDOG M 4
 		HDOG N 4 A_NoBlocking
@@ -576,16 +568,14 @@ actor Vulgar : StrongholdDoomImp 30127
 		VULG G 6 A_CustomMissile("VulgarShot",37,0,0,0,0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",2)
-		VULG I 8
+		VULG I 8 ACS_NamedExecuteAlways("AwardPoints",0)
 		VULG J 8 A_Scream
 		VULG KL 6
 		VULG M 6 A_NoBlocking
 		VULG N -1
 		stop
 	XDeath:
-		TNT1 A 0 A_GiveToTarget("AwardItem",3)
-		VULG O 5
+		VULG O 5 ACS_NamedExecuteAlways("AwardPoints",0,1)
 		VULG P 5 A_XScream
 		VULG Q 5
 		VULG R 5 A_NoBlocking
@@ -610,7 +600,7 @@ ACTOR VulgarShot
 	States
 	{
 	Spawn:
-		FVUL AAABBB 1 Bright
+		FVUL AB 3 Bright
 		loop
 	Death:
 		FVUL CDEF 4 Bright
@@ -695,8 +685,7 @@ ACTOR ESoul 29012
 		ETHS G 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",3)
-		ETHS F 3 bright
+		ETHS F 3 bright ACS_NamedExecuteAlways("AwardPoints",0)
 		ETHS H 3 bright A_ScreamAndUnblock
 		ETHS IJKLMNO 3 bright
 		stop
@@ -760,7 +749,7 @@ ACTOR WraithX 30106
 	Pain.Stunner:
 		TNT1 A 0 A_Die
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",3)
+		TNT1 A 0 ACS_NamedExecuteAlways("AwardPoints",0)
 		WRAI E 4 A_NoBlocking
 		WRAI F 5 A_Scream
 		WRAI GHIJ 4
@@ -840,16 +829,14 @@ ACTOR ChaingunCultist 29011
 		BCUL G 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",2)
-		BCUL H 5
+		BCUL H 5 ACS_NamedExecuteAlways("AwardPoints",0)
 		BCUL I 5 A_Scream
 		BCUL J 5 A_NoBlocking
 		BCUL KLM 5
 		BCUL N -1
 		Stop
 	XDeath:
-		TNT1 A 0 A_GiveToTarget("AwardItem",3)
-		BCUL O 5
+		BCUL O 5 ACS_NamedExecuteAlways("AwardPoints",0,1)
 		BCUL P 5 A_XScream
 		BCUL Q 5 A_NoBlocking
 		BCUL RST 5
@@ -956,8 +943,8 @@ ACTOR FattyX 25010
 		BFAT L 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",5)
-		BFAT LM 9
+		BFAT L 9 ACS_NamedExecuteAlways("AwardPoints",0)
+		BFAT M 9
 		BFAT N 9 A_Scream
 		BFAT O 9 A_NoBlocking
 		BFAT P 9
@@ -1073,8 +1060,7 @@ ACTOR ZombieX 31002
 		BZOM H 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",3)
-		BZOM I 8
+		BZOM I 8 ACS_NamedExecuteAlways("AwardPoints",0)
 		BZOM J 8 A_Scream
 		BZOM K 4
 		BZOM L 4 A_NoBlocking

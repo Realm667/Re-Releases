@@ -5,7 +5,7 @@ actor NightmareCaco : StrongholdCacodemon
 	FloatSpeed 2
 	RenderStyle translucent
 	Alpha 0.75
-	Translation "168:191=192:207", "192:207=168:191", "16:31=192:199", "32:63=200:207"
+	Translation "168:191=192:207","192:207=168:191","16:31=192:199","32:63=200:207"
 	HitObituary "%o was snuck up on by the Nightmare Cacodemon."
 	Obituary "%o couldn't dodge the Nightmare Cacodemon's fireball."
 	States
@@ -24,8 +24,5 @@ actor NightmareCaco : StrongholdCacodemon
 		HEAD BB 3 A_FaceTarget
 		HEAD C 4 A_HeadAttack
 		Goto See
-	Death:
-		"####" A 0 A_GiveToTarget("AwardItem",11)
-		Goto Super::Death+1
 	}
 }

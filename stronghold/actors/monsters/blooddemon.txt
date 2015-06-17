@@ -64,8 +64,7 @@ ACTOR BloodDemon : StrongholdDemon 3110
 		SRG2 D 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		Loop
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",6)
-		SRG2 I 8
+		SRG2 I 8 ACS_NamedExecuteAlways("AwardPoints",0)
 		SRG2 I 0 A_FaceTarget
 		SRG2 J 0 A_SpawnItemEx("BloodDemonArm",10,0,32,0,8)
 		SRG2 J 8 A_Scream

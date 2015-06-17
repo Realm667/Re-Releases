@@ -41,11 +41,11 @@ actor SuicideBomber 22099
 		BMBE A 0 A_ChangeFlag("NoPain",0)
 		goto See
 	Death:
-		TNT1 A 0 A_GiveToTarget("AwardItem",4)
+		TNT1 A 0 ACS_NamedExecuteAlways("AwardPoints",0)
 		BMBE M 0 A_Explode(50,128,XF_NOTMISSILE)
-		BMBE M 5 bright A_PlaySound ("weapons/rocklx")
-		BMBE N 5 bright A_XScream
-		BMBE O 5 A_NoBlocking
+		BMBE M 5 bright LIGHT("SuicideBomberDeath1") A_PlaySound("weapons/rocklx")
+		BMBE N 5 bright LIGHT("SuicideBomberDeath2") A_XScream
+		BMBE O 5 LIGHT("SuicideBomberDeath3") A_NoBlocking
 		BMBE PQRST 5
 		BMBE U 3000
 		BMBE U 1 A_FadeOut(0.05)

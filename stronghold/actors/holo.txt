@@ -9,20 +9,75 @@ actor HoloDecoBase
 	+FLOORCLIP
 }
 
-actor HoloDeco_HS : HoloDecoBase 21802
+actor HoloDeco_StrongholdZombieman : HoloDecoBase
 {
+	renderstyle Translucent
+	alpha 0.45
+	+FLOORCLIP
 	//$Category Stronghold_HoloDeco
-	Health 35
-	Tag "Hades Sphere"
+	Health 20
+	Tag "Former Human"
 	states
 	{
 	spawn:
-		YADE A -1 BRIGHT LIGHT("Holo")
+		YYSS A -1 BRIGHT LIGHT("Holo")
 		stop
 	}
 }
 
-actor HoloDeco_DuneWarrior : HoloDecoBase 21803
+actor HoloDeco_StrongholdShotgunGuy : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 30
+	Tag "Former Human Sergeant"
+	states
+	{
+	spawn:
+		YYOS A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_StrongholdChaingunGuy : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 70
+	Tag "Former Human Commando"
+	states
+	{
+	spawn:
+		YPOS A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_RocketGuy : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 50
+	Tag "Former Human Rocketeer"
+	states
+	{
+	spawn:
+		YXOS A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_PlasmaZombie : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+    Health 50
+	Tag "Former Human Plasmagunner"
+	states
+	{
+	spawn:
+		YYSS A -1 BRIGHT LIGHT("Holo")	//Placeholder
+		stop
+	}
+}
+
+actor HoloDeco_DuneWarrior : HoloDecoBase
 {
 	//$Category Stronghold_HoloDeco
 	Health 120
@@ -35,307 +90,7 @@ actor HoloDeco_DuneWarrior : HoloDecoBase 21803
 	}
 }
 
-actor HoloDeco_HellWarrior : HoloDecoBase 21804
-{
-	//$Category Stronghold_HoloDeco
-	Health 400
-	Tag "Hell Warrior"
-	states
-	{
-	spawn:
-		ZWAR A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Azazel : HoloDecoBase 21805
-{
-	//$Category Stronghold_HoloDeco
-	Health 2400
-	Tag "Azazel"
-	states
-	{
-	spawn:
-		ZZEA A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_GuardianCube : HoloDecoBase 21806
-{
-	//$Category Stronghold_HoloDeco
-	Health 80
-	Tag "Guardian Cube"
-	states
-	{
-	spawn:
-		ZUBE A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_ZombieTank : HoloDecoBase 21807
-{
-	//$Category Stronghold_HoloDeco
-	Health 600
-	Tag "Zombie Tank"
-	states
-	{
-	spawn:
-		XTNK A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_ArchonOfHell : HoloDecoBase 21808
-{
-	//$Category Stronghold_HoloDeco
-	Health 2000
-	Tag "Archon of Hell"
-	states
-	{
-	spawn:
-		ZOS4 A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Diabolist : HoloDecoBase 21809
-{
-	//$Category Stronghold_HoloDeco
-	Health 1400
-	Tag "Diabloist"
-	states
-	{
-	spawn:
-		ZIAB A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_PainElemental : HoloDecoBase 21810
-{
-	//$Category Stronghold_HoloDeco
-	Health 400
-	Tag "Pain Elemental"
-	states
-	{
-	spawn:
-		YAIN A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_NightmareDemon : HoloDecoBase 21811
-{
-	//$Category Stronghold_HoloDeco
-	Health 260
-	Tag "Nightmare Demon"
-	states
-	{
-	spawn:
-		YAR2 A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Demon : HoloDecoBase 21812
-{
-	//$Category Stronghold_HoloDeco
-	Health 150
-	Tag "Bull Demon (aka pinky)"
-	states
-	{
-	spawn:
-		YARG A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Fatso : HoloDecoBase 21813
-{
-	//$Category Stronghold_HoloDeco
-	Health 600
-	Tag "Mancubus"
-	states
-	{
-	spawn:
-		YATT A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Catharsi : HoloDecoBase 21814
-{
-	//$Category Stronghold_HoloDeco
-	Health 120
-	Tag "Catharsi"
-	states
-	{
-	spawn:
-		YDDM A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Cacodemon : HoloDecoBase 21815
-{
-	//$Category Stronghold_HoloDeco
-	Health 400
-	Tag "Cacodemon"
-	states
-	{
-	spawn:
-		YEAD A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Hectebus : HoloDecoBase 21816
-{
-	//$Category Stronghold_HoloDeco
-	Health 1500
-	Tag "Hectebus"
-	states
-	{
-	spawn:
-		YECT A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Helemental : HoloDecoBase 21817
-{
-	//$Category Stronghold_HoloDeco
-	health 1600
-	Tag "Hades Elemental"
-	states
-	{
-	spawn:
-		YELE A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Hellion : HoloDecoBase 21818
-{
-	//$Category Stronghold_HoloDeco
-	health 70
-	Tag "Hellion"
-	states
-	{
-	spawn:
-		YELN A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Demolisher : HoloDecoBase 21819
-{
-	//$Category Stronghold_HoloDeco
-	scale 0.6
-	Health 6000
-	Tag "Spider Demolisher"
-	states
-	{
-	spawn:
-		YEMO A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Terminator : HoloDecoBase 21820
-{
-	//$Category Stronghold_HoloDeco
-	Health 7000
-	Tag "Terminator"
-	states
-	{
-	spawn:
-		YERM A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Shadow : HoloDecoBase 21821
-{
-	//$Category Stronghold_HoloDeco
-	Health 80
-	Tag "Shadow"
-	states
-	{
-	spawn:
-		YHDW A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Wicked : HoloDecoBase 21822
-{
-	//$Category Stronghold_HoloDeco
-	Health 275
-	Tag "Wicked"
-	states
-	{
-	spawn:
-		YICK A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_ArchVile : HoloDecoBase 21823
-{
-	//$Category Stronghold_HoloDeco
-	Health 700
-	Tag "Arch-vile"
-	states
-	{
-	spawn:
-		YILE A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_PhaseImp : HoloDecoBase 21824
-{
-	//$Category Stronghold_HoloDeco
-	Health 150
-	Tag "Phase Imp"
-	states
-	{
-	spawn:
-		YIMP A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Revenant : HoloDecoBase 21825
-{
-	//$Category Stronghold_HoloDeco
-	Health 300
-	Tag "Revenant"
-	states
-	{
-	spawn:
-		YKEL A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_LostSoul : HoloDecoBase 21826
-{
-	//$Category Stronghold_HoloDeco
-	Health 100
-	Tag "Lost Soul"
-	states
-	{
-	spawn:
-		YKUL A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_SuicideBomber : HoloDecoBase 21827
+actor HoloDeco_SuicideBomber : HoloDecoBase
 {
 	//$Category Stronghold_HoloDeco
 	health 80
@@ -348,7 +103,176 @@ actor HoloDeco_SuicideBomber : HoloDecoBase 21827
 	}
 }
 
-actor HoloDeco_EnhancedCaco : HoloDecoBase 21828
+actor HoloDeco_ZombieTank : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 600
+	Tag "Zombie Tank"
+	states
+	{
+	spawn:
+		XTNK A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_StrongholdDoomImp : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 60
+	Tag "Imp"
+	states
+	{
+	spawn:
+		YROO A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_PhaseImp : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 150
+	Tag "Phase Imp"
+	states
+	{
+	spawn:
+		YIMP A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_Shadow : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 80
+	Tag "Shadow"
+	states
+	{
+	spawn:
+		YHDW A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_Catharsi : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 120
+	Tag "Catharsi"
+	states
+	{
+	spawn:
+		YDDM A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_StrongholdDemon : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 150
+	Tag "Bull Demon (aka pinky)"
+	states
+	{
+	spawn:
+		YARG A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_BloodDemon : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 300
+	Tag "Mech Demon / Blood Demon"
+	states
+	{
+	spawn:
+		YRG2 A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_NightmareDemon : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 260
+	Tag "Nightmare Demon"
+	states
+	{
+	spawn:
+		YAR2 A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_StrongholdLostSoul : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 100
+	Tag "Lost Soul"
+	states
+	{
+	spawn:
+		YKUL A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_Guardian : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 80
+	Tag "Guardian Cube"
+	states
+	{
+	spawn:
+		ZUBE A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_HS : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 35
+	Tag "Hades Sphere"
+	states
+	{
+	spawn:
+		YADE A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_Wicked : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 275
+	Tag "Wicked"
+	states
+	{
+	spawn:
+		YICK A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_StrongholdCacodemon : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 400
+	Tag "Cacodemon"
+	states
+	{
+	spawn:
+		YEAD A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_EnhancedCaco : HoloDecoBase
 {
 	//$Category Stronghold_HoloDeco
 	Health 300
@@ -374,6 +298,45 @@ actor HoloDeco_NightmareCaco : HoloDecoBase
 	}
 }
 
+actor HoloDeco_StrongholdPainElemental : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 400
+	Tag "Pain Elemental"
+	states
+	{
+	spawn:
+		YAIN A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_Helemental : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	health 1600
+	Tag "Hades Elemental"
+	states
+	{
+	spawn:
+		YELE A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_StrongholdRevenant : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 300
+	Tag "Revenant"
+	states
+	{
+	spawn:
+		YKEL A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
 actor HoloDeco_Satyr : HoloDecoBase
 {
 	//$Category Stronghold_HoloDeco
@@ -387,7 +350,7 @@ actor HoloDeco_Satyr : HoloDecoBase
 	}
 }
 
-actor HoloDeco_HellKnight : HoloDecoBase 21829
+actor HoloDeco_StrongholdHellKnight : HoloDecoBase
 {
 	//$Category Stronghold_HoloDeco
 	Health 500
@@ -400,7 +363,7 @@ actor HoloDeco_HellKnight : HoloDecoBase 21829
 	}
 }
 
-actor HoloDeco_BaronOfHell : HoloDecoBase 21830
+actor HoloDeco_StrongholdBaronOfHell : HoloDecoBase
 {
 	//$Category Stronghold_HoloDeco
 	Health 1000
@@ -413,7 +376,176 @@ actor HoloDeco_BaronOfHell : HoloDecoBase 21830
 	}
 }
 
-actor HoloDeco_Mastermind : HoloDecoBase 21831
+actor HoloDeco_HellWarrior : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 400
+	Tag "Hell Warrior"
+	states
+	{
+	spawn:
+		ZWAR A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_BruiserDemon : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 1500
+	Tag "Bruiser Demon"
+	states
+	{
+	spawn:
+		YRUS A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_Cybruiser : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 2000
+	Tag "Cyber Baron / Cybruiser"
+	states
+	{
+	spawn:
+		YRU2 A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_ArchonOfHell : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 2000
+	Tag "Archon of Hell"
+	states
+	{
+	spawn:
+		ZOS4 A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_Azazel : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 2400
+	Tag "Azazel"
+	states
+	{
+	spawn:
+		ZZEA A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_PyroDemon : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 2500
+	Tag "Pyro Demon"
+	states
+	{
+	spawn:
+		YYRO A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_StrongholdFatso : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 600
+	Tag "Mancubus"
+	states
+	{
+	spawn:
+		YATT A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_Hectebus : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 1500
+	Tag "Hectebus"
+	states
+	{
+	spawn:
+		YECT A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_StrongholdArachnotron : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 500
+	Tag "Arachnotron"
+	states
+	{
+	spawn:
+		YSPI A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_FusionSpider : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 600
+	Tag "Fusion Cannon Arachnotron"
+	states
+	{
+	spawn:
+		YXPI A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_Hellion : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	health 70
+	Tag "Hellion"
+	states
+	{
+	spawn:
+		YELN A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_StrongholdArchVile : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 700
+	Tag "Arch-vile"
+	states
+	{
+	spawn:
+		YILE A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_Diabloist : HoloDecoBase
+{
+	//$Category Stronghold_HoloDeco
+	Health 1400
+	Tag "Diabloist"
+	states
+	{
+	spawn:
+		ZIAB A -1 BRIGHT LIGHT("Holo")
+		stop
+	}
+}
+
+actor HoloDeco_StrongholdSpiderMastermind : HoloDecoBase
 {
 	//$Category Stronghold_HoloDeco
 	Health 3000
@@ -427,111 +559,21 @@ actor HoloDeco_Mastermind : HoloDecoBase 21831
 	}
 }
 
-actor HoloDeco_Chaingunner : HoloDecoBase 21832
+actor HoloDeco_Demolisher : HoloDecoBase
 {
 	//$Category Stronghold_HoloDeco
-	Health 70
-	Tag "Former Human Commando"
+	scale 0.6
+	Health 6000
+	Tag "Spider Demolisher"
 	states
 	{
 	spawn:
-		YPOS A -1 BRIGHT LIGHT("Holo")
+		YEMO A -1 BRIGHT LIGHT("Holo")
 		stop
 	}
 }
 
-actor HoloDeco_BloodDemon : HoloDecoBase 21833
-{
-	//$Category Stronghold_HoloDeco
-	Health 300
-	Tag "Mech Demon / Blood Demon"
-	states
-	{
-	spawn:
-		YRG2 A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Imp : HoloDecoBase 21834
-{
-	//$Category Stronghold_HoloDeco
-	Health 60
-	Tag "Imp"
-	states
-	{
-	spawn:
-		YROO A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Cybruiser : HoloDecoBase 21835
-{
-	//$Category Stronghold_HoloDeco
-	Health 2000
-	Tag "Cyber Baron / Cybruiser"
-	states
-	{
-	spawn:
-		YRU2 A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_BruiserDemon : HoloDecoBase 21836
-{
-	//$Category Stronghold_HoloDeco
-	Health 1500
-	Tag "Bruiser Demon"
-	states
-	{
-	spawn:
-		YRUS A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Arachnotron : HoloDecoBase 21837
-{
-	//$Category Stronghold_HoloDeco
-	Health 500
-	Tag "Arachnotron"
-	states
-	{
-	spawn:
-		YSPI A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_RocketTrooper : HoloDecoBase 21838
-{
-	//$Category Stronghold_HoloDeco
-	Health 50
-	Tag "Former Human Rocketeer"
-	states
-	{
-	spawn:
-		YXOS A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_FusionSpider : HoloDecoBase 21839
-{
-	//$Category Stronghold_HoloDeco
-	Health 600
-	Tag "Fusion Cannon Arachnotron"
-	states
-	{
-	spawn:
-		YXPI A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_CyberDemon : HoloDecoBase 21840
+actor HoloDeco_StrongholdCyberDemon : HoloDecoBase
 {
 	//$Category Stronghold_HoloDeco
 	scale 0.8
@@ -545,54 +587,15 @@ actor HoloDeco_CyberDemon : HoloDecoBase 21840
 	}
 }
 
-actor HoloDeco_Shotgunguy : HoloDecoBase 21841
+actor HoloDeco_Terminator : HoloDecoBase
 {
 	//$Category Stronghold_HoloDeco
-	Health 30
-	Tag "Former Human Sergeant"
+	Health 7000
+	Tag "Terminator"
 	states
 	{
 	spawn:
-		YYOS A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_PyroDemon : HoloDecoBase 21842
-{
-	//$Category Stronghold_HoloDeco
-	Health 2500
-	Tag "Pyro Demon"
-	states
-	{
-	spawn:
-		YYRO A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_Zombieman : HoloDecoBase 21843
-{
-	//$Category Stronghold_HoloDeco
-	Health 20
-	Tag "Former Human"
-	states
-	{
-	spawn:
-		YYSS A -1 BRIGHT LIGHT("Holo")
-		stop
-	}
-}
-
-actor HoloDeco_PlasmaZombie : HoloDecoBase
-{
-	//$Category Stronghold_HoloDeco
-    Health 50
-	Tag "Former Human Plasmagunner"
-	states
-	{
-	spawn:
-		YYSS A -1 BRIGHT LIGHT("Holo")	//Placeholder
+		YERM A -1 BRIGHT LIGHT("Holo")
 		stop
 	}
 }
