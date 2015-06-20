@@ -1,35 +1,125 @@
-ACTOR NewPuff : BulletPuff
+ACTOR NewPuff
 {
-	Alpha 1.0
-	//Mass 12 //I like the fact puffs make big splashes.
-	// But as long as there are terrain sounds for solid floors puffs must not do them!
+	+NOINTERACTION
 	States
 	{
 	Spawn:
-	Melee:
-		PUFF A 2 LIGHT("BPUFF1")
-		PUFF A 0 A_Jump(128,2)
-		PUFF A 2 LIGHT("BPUFF1") A_SpawnItemEx("Puff2")
-		PUFF B 4 LIGHT("BPUFF2")
-		PUFF C 4 LIGHT("BPUFF3")
-		PUFF D 4 LIGHT("BPUFF4")
+		TNT1 A 0 NODELAY A_Jump(128,2)
+		TNT1 A 0 A_PlaySound("puff/ric")
+		TNT1 AA 0 A_SpawnItemEx("PuffSmoke",0,0,0,0,0,frandom(0.1,0.3))
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("SparkExtra",0,0,0,frandom(0.1,0.5),0,0,random(1,360))
+		TNT1 A 1 A_SpawnItemEx("YellowSpark")
 		Stop
 	}
 }
 
-ACTOR Puff2
+Actor PuffSmoke
 {
-	+CLIENTSIDEONLY
-	PROJECTILE
-	+NOCLIP
-	Mass 1
+	+NOINTERACTION
+	+FORCEXYBILLBOARD
+	Scale 0.03
 	States
 	{
 	Spawn:
-		PUFF E 2 Bright
-		PUFF E 2 Bright A_PlaySound("puff/ric")
-		PUFF FGH 4 Bright
+		TNT1 A 0 NODELAY A_Jump(128,2)
+		X143 J 1 A_FadeOut(0.03)
+		Wait
+		X143 K 1 A_FadeOut(0.03)
+		Wait
+	}
+}
+
+Actor YellowSpark
+{
+	+NOINTERACTION
+	Scale 0.16
+	RenderStyle Add
+	+FORCEXYBILLBOARD
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_PlaySound("hxn2/weapons/baldehitwall")
+		TNT1 A 0 A_Jump(128,"Type2")
+		FX26 ABCD 2 Bright LIGHT("BPUFF1")
+		FX26 E 2 Bright LIGHT("BPUFF2")
+		FX26 F 2 Bright LIGHT("BPUFF3")
+		FX26 G 2 Bright LIGHT("BPUFF4")
+		FX26 HI 2 Bright
+		FX26 J 1 Bright A_FadeOut
+		Wait
+	Type2:
+		FX26 PQRS 2 Bright LIGHT("BPUFF1")
+		FX26 T 2 Bright LIGHT("BPUFF2")
+		FX26 U 2 Bright LIGHT("BPUFF3")
+		FX26 V 2 Bright LIGHT("BPUFF4")
+		FX26 WX 2 Bright
+		FX26 Y 1 Bright A_FadeOut
+		Wait
+	}
+}
+
+Actor SparkExtra
+{
+	Height 1
+	Radius 1
+	Speed 3
+	Scale 0.15
+	+NOCLIP
+	PROJECTILE
+	-NOGRAVITY
+	Gravity 0.09
+	+DONTSPLASH
+	+DONTBLAST
+	+THRUACTORS
+	RenderStyle Add
+	+FORCEXYBILLBOARD
+	States
+	{
+	Spawn:
+		FX26 K 1 NODELAY Bright ThrustThingZ(0,frandom(0.8,3.5),0,1)
+		FX26 KKKLMNO 3 Bright A_FadeOut(0.05)
 		Stop
+	}
+}
+
+ACTOR DBTSmokeSpawner
+{
+	Radius 1
+	Height 1
+	Speed 14
+	PROJECTILE
+	+NOTIMEFREEZE
+	States
+	{
+	Spawn:
+		TNT1 A 1
+		TNT1 A 2 A_SpawnItemEx("DBTSmoke",0,random(2,-2),0,0,0,frandom(0.1,0.25))
+		Stop
+	}
+}
+
+ACTOR DBTSmoke
+{
+	+NOINTERACTION
+	+FORCEXYBILLBOARD
+	Alpha 0.75
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256,1,2)
+		X143 JK 0 A_Jump(256,"Continue")
+	Continue:
+		"####" "#" 0 A_Jump(160,1,3,5)
+		"####" "#" 0 A_SetScale(0.04)
+		"####" "#" 2 A_FadeOut(0.035)
+		"####" "#" 0 A_SetScale(0.043)
+		"####" "#" 2 A_FadeOut(0.035)
+		"####" "#" 0 A_SetScale(0.046)
+		"####" "#" 2 A_FadeOut(0.035)
+	Looper:
+		"####" "#" 0 A_SetScale(ScaleX+0.003)
+		"####" "#" 2 A_FadeOut(0.035)
+		Loop
 	}
 }
 
@@ -94,9 +184,13 @@ ACTOR UTNTPistol : Pistol replaces Pistol
 	Fire:
 		PKPI A 3
 		PKPI B 0 A_GunFlash
+		TNT1 A 0 A_SetBlend("Orange",0.02,5)
 		PKPI B 0 A_SpawnItemEx("PisCaseSpawn",20,0,29)
-		PKPI B 2 A_FireBullets(4,4,1,5,"NewPuff")
-		PKPI CEDB 2
+		PKPI B 0 A_FireBullets(4,4,1,5,"NewPuff")
+		PKPI B 2 A_SetPitch(pitch-0.6)
+		PKPI CCE 1 A_SetPitch(pitch+0.2)
+		PKPI E 1
+		PKPI DB 2
 		PKPI A 5 A_ReFire
 		Goto Ready
 	Flash:
@@ -157,13 +251,17 @@ ACTOR UTNTShotgun : Shotgun replaces Shotgun
 	Fire:
 		SHTG A 3
 		SHTG A 0 A_GunFlash
-		SHTG A 5 A_FireBullets(5.6,0,7,5,"NewPuff")
-		PKSG B 2
+		TNT1 A 0 A_SetBlend("Orange",0.025,5)
+		TNT1 AA 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
+		SHTG A 0 A_FireBullets(5.6,0,7,5,"NewPuff")
+		SHTG A 2 A_SetPitch(pitch-2)
+		SHTG AAA 1 A_SetPitch(pitch+0.4)
+		PKSG BB 1 A_SetPitch(pitch+0.4)
 		PKSG C 1
 		PKSG D 2
 		PKSG E 3
 		PKSG F 4
-		PKSG G 1
+		PKSG G 1 A_PlaySound("weapons/shtgun_eject",5)
 		PKSG H 3 A_SpawnItemEx("ShotCaseSpawn",20,-4,24)
 		PKSG GFEDCB 2
 		SHTG A 1
@@ -194,13 +292,19 @@ ACTOR UTNTSuperShotgun : SuperShotgun replaces SuperShotgun
 	Fire:
 		SHT2 A 3
 		SHT2 A 0 A_GunFlash
-		SHT2 A 6 A_FireBullets(12,6,20,5,"NewPuff")
-		SHT2 A 3 A_Checkreload
+		SHT2 A 0 A_SetBlend("Orange",0.03,5)
+		SHT2 A 0 A_FireBullets(12,6,20,5,"NewPuff")
+		SHT2 AAAA 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
+		SHT2 A 2 A_SetPitch(pitch-3)
+		SHT2 AAAAA 1 A_SetPitch(pitch+0.6)
+		SHT2 A 2 A_Checkreload
 		PKS2 B 2
 		PKS2 C 3
-		PKS2 DE 4
+		PKS2 D 4
+		PKS2 E 2
 		PKS2 D 0 A_SpawnItemEx("ShotCaseSpawn",20,-2,30,0,0,0,180)
 		PKS2 D 0 A_SpawnItemEx("ShotCaseSpawn",20,2,30,0,0,0,180)
+		PKS2 E 2
 		PKS2 F 2 A_PlaySound("weapons/sshoto")
 		PKS2 GHIJ 2
 		PKS2 K 3
@@ -254,15 +358,26 @@ ACTOR UTNTChaingun : Chaingun replaces Chaingun
 	{
 	Fire:
 		CHGG A 0 A_GunFlash
+		TNT1 A 0 A_SetBlend("Orange",0.025,4)
 		CHGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
-		CHGG A 1 A_FireBullets(4,4,1,5,"NewPuff")
-		PKCG BCD 1
+		PKCG A 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
+		CHGG A 0 A_FireBullets(4,4,1,5,"NewPuff")
+		PKCG A 1 A_SetPitch(pitch-0.7)
+		PKCG B 1
+		PKCG C 1 A_SetPitch(pitch+0.7)
+		PKCG D 1
 		CHGG A 0 A_CheckReload
 		CHGG A 0 A_GunFlash
+		TNT1 A 0 A_SetBlend("Orange",0.025,4)
 		CHGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
-		CHGG A 1 A_FireBullets(4,4,1,5,"NewPuff")
-		PKCG BCD 1
+		PKCG A 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
+		CHGG A 0 A_FireBullets(4,4,1,5,"NewPuff")
+		PKCG A 1 A_SetPitch(pitch-0.7)
+		PKCG B 1
+		PKCG C 1 A_SetPitch(pitch+0.7)
+		PKCG D 1
 		PKCG B 0 A_ReFire
+		PKCG A 1 A_PlaySound("weapons/cgunspindown",5,0.6)
 		CHGG A 1 A_Weaponready
 		PKCG BBCCCDDD 1 A_Weaponready
 		Goto Ready
@@ -304,15 +419,22 @@ ACTOR UTNTMinigun : Weapon 20039
 		Loop
 	Fire:
 		MNGG A 0 A_GunFlash
+		TNT1 A 0 A_SetBlend("Orange",0.015,3)
 		MNGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
-		MNGG A 1 A_FireBullets(5,1,1,5,"NewPuff")
-		MNGG C 1
+		TNT1 A 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
+		MNGG A 0 A_FireBullets(5,1,1,5,"NewPuff")
+		MNGG A 1 A_setPitch(pitch+0.7)
+		MNGG C 1 A_setPitch(pitch-0.7)
 		MNGG A 0 A_CheckReload
 		MNGG A 0 A_GunFlash
+		TNT1 A 0 A_SetBlend("Orange",0.015,3)
 		MNGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
-		MNGG A 1 A_FireBullets(5,1,1,5,"NewPuff")
-		MNGG C 1
-		MNGG A 1 A_ReFire
+		TNT1 A 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
+		MNGG A 0 A_FireBullets(5,1,1,5,"NewPuff")
+		MNGG A 1 A_setPitch(pitch+0.7)
+		MNGG C 1 A_setPitch(pitch-0.7)
+		MNGG A 0 A_ReFire
+		MNGG A 1 A_PlaySound("weapons/mgunspindown",6,0.5)
 		MNGG BCDABCD 1
 		MNGG ABCDABCD 2
 		MNGG ABCDABCD 4
@@ -331,10 +453,11 @@ ACTOR UTNTRocketLauncher : RocketLauncher replaces RocketLauncher
 		MISG A 2
 		MISG A 4 A_GunFlash
 		PKRL B 2
-		PKRL D 3 A_FireMissile
-		PKRL C 3
-		PKRL BE 2
-		PKRL FG 1
+		PKRL D 0 A_SetBlend("Orange",0.1,7)
+		PKRL D 0 A_FireMissile
+		PKRL D 3 A_SetPitch(pitch-4.8)
+		PKRL C 1
+		PKRL CCBBEEFG 1 A_SetPitch(pitch+0.6)
 		MISG A 0 A_ReFire
 		Goto Ready
 	Flash:
@@ -346,13 +469,170 @@ ACTOR UTNTRocketLauncher : RocketLauncher replaces RocketLauncher
 	}
 }
 
+ACTOR UTNTRocket : Rocket replaces Rocket
+{
+	-ROCKETTRAIL
+	Scale 0.8
+	States
+	{
+	Spawn:
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,0,64/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,0,-64/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,12/6,63/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-12/6,-63/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,23/6,60/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-23/6,-60/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,34/6,54/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-34/6,-54/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,43/6,47/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-43/6,-47/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,51/6,39/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-51/6,-39/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,57/6,29/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-57/6,-29/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,62/6,18/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-62/6,-18/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,64/6,0)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-64/6,0)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,62/6,-18/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-62/6,18/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,57/6,-29/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-57/6,29/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,51/6,-39/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-51/6,39/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,43/6,-47/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-43/6,47/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,34/6,-54/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-34/6,54/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,23/6,-60/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-23/6,60/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,12/6,-63/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,-12/6,63/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		MISL A 1 BRIGHT LIGHT("ROCKET")
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,0,64/6)
+		MISL A 0 A_SpawnItemEx("RockTrailSmoke",0,0,-64/6)
+		MISL A 0 A_SpawnItemEx("RocketFireTrail",0,0,0,0,0,0,random(0,359))
+		Loop
+	Death:
+		TNT1 A 0 A_SpawnItemEx("NewExplosionMedium")
+		TNT1 A 0 A_Explode
+		TNT1 A 0 A_SetTranslucent(0.01,1)
+		MISL B 4 LIGHT("ROCKET_X1")
+		MISL C 4 LIGHT("ROCKET_X2")
+		MISL D 4 LIGHT("ROCKET_X3")
+		Stop
+	}
+}
+
+Actor RockTrailSmoke
+{
+	+NOINTERACTION
+	RenderStyle Translucent
+	Scale 0.13
+	Alpha 0
+	states
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4)
+		X038 A 0 A_Jump(256,"Choose")
+		X039 A 0 A_Jump(256,"Choose")
+		X040 A 0 A_Jump(256,"Choose")
+		X041 A 0 A_Jump(256,"Choose")
+	Choose:
+		"####" A 0 A_Jump(255,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22)
+		"####" ABCDEFGHIJKLMNOPQRSTUV 0 A_Jump(256,"Behavior")
+	Behavior:
+		"####" "######" 1 A_FadeTo(0.48,0.08)
+	SlowDown:
+		"####" "#" 2 A_FadeOut(0.023)
+		"####" "#" 0 A_ScaleVelocity(0.95)
+		Loop
+	}
+}
+
+Actor RocketFireTrail
+{
+	+NOINTERACTION
+	Scale 0.13
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[1,0.5,0]"
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("RocketSmokeCenter",0,0,0,0,0,frandom(0.1,0.6))
+		TNT1 A 0 A_Jump(128,"Two")
+	One:
+		X006 ABCDEFGHIJKLMNOP 1 bright
+		Stop
+	Two:
+		X007 ABCDEFGHIJ 1 bright
+		Stop
+	}
+}
+
+Actor RocketSmokeCenter
+{
+	+NOINTERACTION
+	RenderStyle Translucent
+	Alpha 0.1
+	Scale 0.2
+	States
+	{
+	Spawn:
+		TNT1 A 5
+		TNT1 A 0 A_Jump(256,1,2,3,4)
+		X037 ABCD 0 A_Jump(256,"Enter")
+	Enter:
+		X037 "##########" 1 A_FadeIn(0.05)
+	PlayOff:
+		"####" "#" 3 A_FadeOut(0.09)
+		"####" "#" 0 A_ScaleVelocity(0.95)
+		Loop
+	}
+}
+
 ACTOR UTNTPlasmaRifle : PlasmaRifle replaces PlasmaRifle
 {
    	States
    	{
 	Fire:
+		TNT1 A 0 A_SetBlend("Blue",0.03,2)
+		TNT1 A 0 A_SetPitch(pitch-0.7)
 		PLSF C 1 Bright A_FirePlasma
-		PLSF D 2 Bright
+		PLSF DF 1 Bright A_SetPitch(pitch+0.35)
 		TNT1 A 0 A_ReFire
 		PLSF EFE 1 Bright
 		PKPL BDEF 1
@@ -372,23 +652,20 @@ ACTOR UTNTPlasmaRifle : PlasmaRifle replaces PlasmaRifle
    	}
 }
 
-ACTOR PlasmaBallEnh : PlasmaBall replaces Plasmaball
+ACTOR UTNTPlasmaBall : PlasmaBall replaces Plasmaball
 {
+	scale 0.45
+	Translation "0:255=%[0,0,0]:[0.6,0.6,2.0]"
 	states
 	{
 	Spawn:
-		PLSS AB 6 Bright LIGHT("Plasma")
-		Loop
+		X029 A 0 NODELAY A_PlaySound("weapons/PlasmaFly",5,0.5)
+		X029 ABCDEFGHIJK 2 Bright LIGHT("Plasma") A_SpawnItemEx("PBTrail",random(4,-4),random(4,-4),random(4,-4))
+		Goto Spawn+1
 	Death:
-		TNT1 A 0 A_CustomMissile("PSpark6_B1",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B2",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B3",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B4",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B5",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B6",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B7",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B8",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_B9",0,0,random(0,360),2,random(-158,-22))
+		TNT1 A 0 A_SetScale(0.7)
+		TNT1 A 0 A_SpawnItemEx("PlasmaSmoke",random(3,-3),0,random(2,-2),0,0,frandom(0.2,0.5))
+		TNT1 AAAAAAA 0 A_SpawnItemEx("BlasterPuffParticle",0,0,0,frandom(5,-5),frandom(5,-5),frandom(5,-5),random(0,359),0,128)
 		PLSE A 4 bright LIGHT("PlasmaX_1")
 		PLSE B 4 bright LIGHT("PlasmaX_2")
 		PLSE C 4 bright LIGHT("PlasmaX_3")
@@ -398,71 +675,62 @@ ACTOR PlasmaBallEnh : PlasmaBall replaces Plasmaball
 	}
 }
 
-Actor PSpark6_B1
+Actor PBTrail
 {
-	Speed 3
-	Height 2
-	Radius 1
-	Mass 0
-	+Missile
-	Gravity .125
+	Translation "0:255=%[0,0,0]:[0.6,0.6,2.0]"
+	+NOINTERACTION
+	Scale 0.25
 	RenderStyle Add
-	Scale 0.12
-	Translation "80:104=192:204","205:211=240:246","3:3=206:206"
-	+CLIENTSIDEONLY
 	States
 	{
 	Spawn:
-		SPRK A 24 Bright
-	Death:
-		SPRK B 1 Bright A_SetTranslucent(.8,1)
-		SPRK CDEFGH 1 Bright A_FadeOut
-		Stop
+		TNT1 A 0 NODELAY A_Jump(240,4,8,12,16,20,24,28,32,36)
+		X103 ABCDEFGHIJKLMNOPQRSTUVXYZ 2 Bright A_FadeOut(0.07)
+		X104 ABCDEFGHIJKLMNOPQRSTUV 2 Bright A_FadeOut(0.07)
+		Goto Spawn+2
 	}
 }
 
-Actor PSpark6_B2 : PSpark6_B1
+Actor PlasmaSmoke
+{
+	+NOINTERACTION
+	RenderSTyle Add
+	Translation "0:255=%[0,0,0]:[0.6,0.6,2.0]"
+	Scale 0.32
+	Alpha 0.9
+	states
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SetScale(frandom(0.4,0.7))
+		X103 ABCDEF 2 Bright A_FadeOut(0.06)
+		TNT1 A 0 A_ScaleVelocity(0.5)
+		X103 GHIJKL 2 Bright A_FadeOut(0.06)
+		TNT1 A 0 A_ScaleVelocity(0.5)
+		X103 MNOPR 2 Bright A_FadeOut(0.06)
+		TNT1 A 0 A_ScaleVelocity(0.5)
+		X103 STUVWXYZ 2 Bright A_FadeOut(0.06)
+		TNT1 A 0 A_ScaleVelocity(0.5)
+		X104 ABCDEFGHIJKLMNOPQRSTUV 2 Bright A_FadeOut(0.065)
+		Goto Spawn+1
+	}
+}
+
+ACTOR BlasterPuffParticle
 {
 	Scale 0.1
-}
-
-Actor PSpark6_B3 : PSpark6_B1
-{
-	Scale 0.08
-}
-
-Actor PSpark6_B4 : PSpark6_B1
-{
-	Speed 2
-}
-
-Actor PSpark6_B5 : PSpark6_B1
-{
-	Speed 2
-	Scale 0.1
-}
-
-Actor PSpark6_B6 : PSpark6_B1
-{
-	Speed 2
-	Scale 0.08
-}
-
-Actor PSpark6_B7 : PSpark6_B1
-{
-	Speed 1
-}
-
-Actor PSpark6_B8 : PSpark6_B1
-{
-	Speed 1
-	Scale 0.1
-}
-
-Actor PSpark6_B9 : PSpark6_B1
-{
-	Speed 1
-	Scale 0.08
+	Translation "0:255=%[0,0,0]:[0.6,0.6,2.0]"
+	RenderStyle Add
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		X026 DD 1 Bright A_FadeOut(frandom(0.02,0.08))
+		X025 D 0 A_ScaleVelocity(0.9)
+		Loop
+	Death:
+		TNT1 A 1
+		Stop
+	}
 }
 
 Actor UTNTBFG9000 : BFG9000 replaces BFG9000
@@ -470,11 +738,35 @@ Actor UTNTBFG9000 : BFG9000 replaces BFG9000
 	States
 	{
 	Fire:
-		BFGG A 20 A_BFGSound
-		BFGG A 2 A_GunFlash
-		BFGN A 8
-		BFGN A 10 A_FireBFG
-		BFGG A 20 A_ReFire
+		BFGN A 0 A_PlaySound("weapons/BFGcharge",5)
+		BFGN A 0 A_BFGSound
+		BFGN A 2 A_SetPitch(pitch-0.2)
+		BFGN A 2 A_SetPitch(pitch+0.2)
+		BFGN A 2 A_SetPitch(pitch-0.3)
+		BFGN A 2 A_SetPitch(pitch+0.3)
+		BFGN A 2 A_SetPitch(pitch-0.4)
+		BFGN A 2 A_SetPitch(pitch+0.4)
+		BFGN A 2 A_SetPitch(pitch-0.5)
+		BFGN A 2 A_SetPitch(pitch+0.5)
+		BFGN A 2 A_SetPitch(pitch-0.6)
+		BFGN A 2 A_SetPitch(pitch+0.6)
+		BFGN A 0 A_GunFlash
+		BFGN A 1 A_SetPitch(pitch-0.7)
+		BFGN A 1 A_SetPitch(pitch+0.7)
+		BFGN A 1 A_SetPitch(pitch-0.8)
+		BFGN A 1 A_SetPitch(pitch+0.8)
+		BFGN A 1 A_SetPitch(pitch-0.8)
+		BFGN A 1 A_SetPitch(pitch+0.8)
+		BFGN A 1 A_SetPitch(pitch-0.8)
+		BFGN A 1 A_SetPitch(pitch+0.8)
+		BFGN A 1 A_SetPitch(pitch-0.9)
+		BFGN A 1 A_SetPitch(pitch+0.9)
+		BFGN A 0 A_SetBlend("Green",0.5,10)
+		BFGN A 0 A_PlaySound("weapons/BFGFire",6,1)
+		BFGN A 0 A_FireBFG
+		BFGN A 3 A_SetPitch(pitch-7)
+		BFGN AAAAAAA 1 A_SetPitch(pitch+1)
+		BFGN A 20 A_ReFire
 		goto Ready
 	Flash:
 		BFGW A 2 bright
@@ -485,88 +777,202 @@ Actor UTNTBFG9000 : BFG9000 replaces BFG9000
 	}
 }
 
-ACTOR BFGBallEnh : BFGBall replaces BFGBall
+ACTOR UTNTBFGBall : BFGBall replaces BFGBall
 {
+	Scale 0.7
+	Translation "0:255=%[0,0,0]:[0.65,0.81,0.34]"
 	states
 	{
 	Spawn:
-		BFS1 AB 4 Bright LIGHT("BFG")
+		X016 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYY 1 Bright LIGHT("BFGBALL") A_SpawnItemEx("BFGTrailSpawner")
 		Loop
 	Death:
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G1",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G2",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G3",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G4",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G5",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G6",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G7",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G8",0,0,random(0,360),2,random(0,360))
-		TNT1 AAA 0 A_CustomMissile("PSpark6_G9",0,0,random(0,360),2,random(0,360))
-		BFE1 A 8 bright LIGHT("BFGX_1")
-		BFE1 B 8 bright LIGHT("BFGX_2")
-		BFE1 C 8 bright LIGHT("BFGX_3") A_BFGSpray
-		BFE1 D 8 bright LIGHT("BFGX_4")
-		BFE1 E 8 bright LIGHT("BFGX_5")
-		BFE1 F 8 bright LIGHT("BFGX_6")
-		stop
+		TNT1 A 0 A_SpawnItemEx("BFGBlastExploBiggerFast")
+		TNT1 AAAAAAAAAAAAAAAA 0 A_SpawnItemEx("BFG10KBoltTrail",0,random(7,-7),random(5,-5),random(1,2),random(1,2),random(-2,2),random(1,360))
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("BFGBallSmoke",0,0,0,frandom(2.0,-2.0),frandom(2.0,-2.0),frandom(2.0,-2.0))
+		BFE1 A 3 LIGHT("BFGBALL_X1") A_SetTranslucent(0.01,1)
+		BFE1 B 6 LIGHT("BFGBALL_X2") A_SpawnItemEx("BFGBlastExplo1")
+		BFE1 C 7 LIGHT("BFGBALL_X3") A_SpawnItemEx("BFGBlastExploBiggerFast")
+		BFE1 D 3 LIGHT("BFGBALL_X1") A_BFGSpray
+		BFE1 E 6 LIGHT("BFGBALL_X4") A_SpawnItemEx("BFGBlastExploBigFast")
+		BFE1 F 6 LIGHT("BFGBALL_X5") A_SpawnItemEx("BFGBlastExplo2")
+		Stop
 	}
 }
 
-Actor PSpark6_G1 : PSpark6_B1
+Actor BFGTrailSpawner
 {
-	Speed 6
-	Translation "80:111=112:127","3:3=125:125"
+	Translation "0:255=%[0,0,0]:[0.65,0.81,0.34]"
+	+NOINTERACTION
 	States
 	{
 	Spawn:
-		SPRK A 64 Bright
-		Goto Death
+		TNT1 A 0 NODELAY A_SpawnItemEx("BFG10KMainTrail")
+		TNT1 A 0 A_SpawnItemEx("BFG10KTrailB",random(10,-10),random(10,-10),random(10,-10),0,0,0,random(1,360))
+		TNT1 AA 0 A_SpawnItemEx("BFG10KTrailA",0,0,0,random(-3,3),random(-3,3),random(-3,3),random(1,360))
+		TNT1 AAA 0 A_SpawnItemEx("BFG10KSpark",0,random(9,-9),random(7,-7),random(2,5),random(2,5),random(-5,5),random(1,360))
+		Stop
+	}
+}
+Actor BFG10KMainTrail : BFGTrailSpawner
+{
+	RenderStyle Add
+	Scale 0.6
+	Alpha 0.8
+	States
+	{
+	Spawn:
+		X016 ABCDEFGHIJKLMOPQRSTUVWXY 2 Bright A_FadeOut(0.09)
+		Wait
+	}
+}
+Actor BFG10KSpark : BFGTrailSpawner
+{
+	Scale 0.15
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4,5,6,7,8)
+		X079 ABCDEFGH 0 A_Jump(256,"Perform")
+	Perform:
+		"####" "#" 1 Bright A_SetScale(ScaleX+0.01)
+		"####" "#" 0 A_FadeOut(0.05)
+		Loop
+	}
+}
+ACTOR BFG10KTrailA : BFG10KSpark
+{
+	Alpha 0.7
+	States
+	{
+	Spawn:
+		X026 ABCDEFGHIJKLMNOPQRST 1 Bright A_FadeOut(0.02)
+		Wait
 	}
 }
 
-Actor PSpark6_G2 : PSpark6_G1
+ACTOR BFG10KTrailB : BFG10KTrailA
 {
-	Scale 0.1
+	Scale 0.45
+	States
+	{
+	Spawn:
+		X026 ABCDEFGHIJKLMNOPQRST 1 Bright A_FadeOut(0.03)
+		Wait
+	}
+}
+//-------------------------------------------------------------
+//Explosion effect
+//-----------------------------------------------------
+// Straight from SuperDoom3 Take II, by DBT
+// Idea of code optimization by Major Cooke
+// These are the circles when the projectile explodes
+
+//explosion slow
+Actor BFGBlastExplo1
+{
+	Translation "0:255=%[0,0,0]:[0.65,0.81,0.34]"
+	var int user_count;
+	+FORCEXYBILLBOARD
+	+NOINTERACTION
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		X060 A 0
+	SizeLoop:
+		X060 "#" 0 A_SetScale(20+(user_count*0.01))
+		X060 "#" 0 A_JumpIf(user_count>=75,"LoopEnd")
+		X060 "#" 2 Bright A_FadeOut(0.06)
+		X060 "#" 0 A_SetUserVar("user_count",user_count+5)
+		Loop
+	LoopEnd:
+		X060 "#" 2 Bright A_FadeOut(0.1)
+		Wait
+	}
 }
 
-Actor PSpark6_G3 : PSpark6_G1
+//explosion2 slow
+Actor BFGBlastExplo2 : BFGBlastExplo1
 {
-	Scale 0.08
-	Speed 4
+	States
+	{
+	Spawn:
+		X060 B 0
+		Goto SizeLoop
+	}
 }
 
-Actor PSpark6_G4 : PSpark6_G1
+//explosion fast bigger
+Actor BFGBlastExploBigFast : BFGBlastExplo1
 {
-	Speed 4
+	States
+	{
+	Spawn:
+		X060 A 0
+	SizeLoop:
+		X060 A 0 A_SetScale(25+(user_count*0.01))
+		X060 A 0 A_JumpIf(user_count>=125,"LoopEnd")
+		X060 A 1 Bright A_FadeOut(0.033)
+		X060 A 0 A_SetUserVar("user_count",user_count+5)
+		Loop
+	LoopEnd:
+		X060 "#" 1 Bright A_FadeOut(0.1)
+		Wait
+	}
 }
 
-Actor PSpark6_G5 : PSpark6_G1
+//explosion fast biggest
+Actor BFGBlastExploBiggerFast : BFGBlastExploBigFast
 {
-	Speed 2
-	Scale 0.1
+	States
+	{
+	Spawn:
+		X060 A 0
+	SizeLoop:
+		X060 A 0 A_SetScale(3+(user_count*0.01))
+		X060 A 0 A_JumpIf(user_count>=237,"LoopEnd")
+		X060 A 1 Bright A_FadeOut(0.028)
+		X060 A 0 A_SetUserVar("user_count",user_count+7)
+		Loop
+	}
 }
 
-Actor PSpark6_G6 : PSpark6_G1
+Actor BFGBallSmoke
 {
-	Speed 2
-	Scale 0.08
+	+NOINTERACTION
+	RenderStyle Add
+	Alpha 0.7
+	Scale 0.65
+	Translation "0:255=%[0.0,0.3,0.0]:[0.0,2.0,0.0]"
+	States
+	{
+	Spawn:
+		X003 ABCDE 2 Bright NODELAY A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.9)
+		X003 FGHIJ 2 Bright A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.75)
+		X003 KLMNO 2 Bright A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.6)
+		X003 PQRST 2 Bright A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.5)
+		X003 UVWXYZ 2 Bright A_FadeOut(0.03)
+		Stop
+	}
 }
 
-Actor PSpark6_G7 : PSpark6_G1
+Actor BFG10KBoltTrail
 {
-	Speed 6
-}
-
-Actor PSpark6_G8 : PSpark6_G1
-{
-	Speed 4
-	Scale 0.1
-}
-
-Actor PSpark6_G9 : PSpark6_G1
-{
-	Speed 2
-	Scale 0.08
+	+NOINTERACTION
+	Scale 0.4
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		EBLT ABCDEF 3 Bright
+		Stop
+	}
 }
 
 //TNT Fire Weapons By: Eric Ou
@@ -651,11 +1057,41 @@ ACTOR FTFire
 	{
 	Spawn:
 		TNT1 A 2
-		FRFX ABCD 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,8,0)
+		FRFX A 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,8,0)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail",random(-7,7),random(-5,5),random(-4,2),0,0,frandom(0,1))
+		FRFX BC 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,8,0)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail",random(-7,7),random(-5,5),random(-4,2),0,0,frandom(0,1))
+		FRFX D 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,8,0)
 		FRFX D 0 A_Gravity
-		FRFX EFG 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,16,0)
-		FRFX HIJ 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,32,0)
-		Goto Death+4
+		FRFX E 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,16,0)
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke",random(10,-10),random(5,-5),random(8,15),0,0,frandom(0.2,1.0))
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail",random(-7,7),random(-5,5),random(-4,2),0,0,frandom(0,1))
+		FRFX F 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,16,0)
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke",random(10,-10),random(5,-5),random(8,15),0,0,frandom(0.2,1.0))
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail",random(-7,7),random(-5,5),random(-4,2),0,0,frandom(0,1))
+		FRFX G 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,16,0)
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke2",random(10,-10),random(5,-5),random(8,15),0,0,frandom(0.2,1.0))
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-7,7),random(-5,5),random(-4,2),0,0,frandom(0,1))
+		FRFX H 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,32,0)
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke2",random(10,-10),random(5,-5),random(8,15),0,0,frandom(0.2,1.0))
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-7,7),random(-5,5),random(-4,2),0,0,frandom(0,1))
+		FRFX I 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,32,0)
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke2",random(10,-10),random(5,-5),random(8,15),0,0,frandom(0.2,1.0))
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-7,7),random(-5,5),random(-4,2),0,0,frandom(0,1))
+		FRFX J 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,32,0)
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke2",random(10,-10),random(5,-5),random(8,15),0,0,frandom(0.2,1.0))
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-7,7),random(-5,5),random(-4,2),0,0,frandom(0,1))
+		FRFX K 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,64,0)
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke2",random(10,-10),random(5,-5),random(8,15),0,0,frandom(0.2,1.0),0,32,128)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-7,7),random(-5,5),random(-4,2),0,0,frandom(0,1),0,32,128)
+		FRFX L 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,64,0)
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke2",random(10,-10),random(5,-5),random(8,15),0,0,frandom(0.2,1.0),0,32,128)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-7,7),random(-5,5),random(-4,2),0,0,frandom(0,1),0,32,128)
+		FRFX M 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,64,0)
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke2",random(10,-10),random(5,-5),random(8,15),0,0,frandom(0.2,1.0),0,32,128)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-7,7),random(-5,5),random(-4,2),0,0,frandom(0,1),0,32,128)
+		FRFX NO 2 Bright LIGHT("FlameThrowerFire")
+		Stop
 	Death:
 		FRFX HIJ 2 Bright LIGHT("FlameThrowerFire") A_Explode(8,32,0)
 		FRFX J 0 A_CustomMissile("DropFire",0)
@@ -665,8 +1101,79 @@ ACTOR FTFire
 	}
 }
 
+Actor FTFlameTrail
+{
+	//+NOINTERACTION
+	Projectile
+	+THRUACTORS
+	+BOUNCEONWALLS
+	+BOUNCEONCEILINGS
+	+BOUNCEONFLOORS
+	BounceFactor 0
+	WallBounceFactor 0.2
+	Scale 0.14
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Jump(256,1,2,3,4,5)
+		X052 A 0 A_Jump(256,"End")
+		X053 A 0 A_Jump(256,"End")
+		X054 A 0 A_Jump(256,"End")
+		X055 A 0 A_Jump(256,"End")
+		X056 A 0 A_Jump(256,"End")
+	End:
+		"####" AB 2 bright
+		"####" CDEFGH 3 bright A_ScaleVelocity(0.92)
+		"####" IJKLMNO 2 bright A_ScaleVelocity(0.9)
+		"####" PQRS 1 bright A_ScaleVelocity(0.87)
+		Stop
+	}
+}
+Actor FTFlameTrail2 : FTFlameTrail
+{
+	Scale 0.2
+}
+
+Actor FTFlameTrailBig : FTFlameTrail
+{
+	Scale 0.45
+}
+
+Actor FlmThrwrSmoke
+{
+	Scale 0.25
+	+NOINTERACTION
+	Radius 2
+	Height 2
+	RenderStyle Translucent
+	Alpha 0.0
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4)
+		X037 ABCD 0 A_Jump(256,"End")
+	End:
+		"####" "##########" 1 A_FadeIn
+		"####" "#" 2 A_FadeOut(0.03)
+		Wait
+	}
+}
+
+Actor FlmThrwrSmoke2 : FlmThrwrSmoke
+{
+	Scale 0.34
+}
+
+Actor FlmThrwrSmokeBig : FlmThrwrSmoke
+{
+	Scale 0.5
+}
+
 ACTOR DropFire
 {
+	var int user_count;
 	Radius 8
 	Height 40
 	PROJECTILE
@@ -679,23 +1186,13 @@ ACTOR DropFire
 	States
 	{
 	Spawn:
-		FLME A 1 Bright LIGHT("Flame") A_Playsound("weapons/onfire")
-		FLME A 1 Bright LIGHT("Flame") A_Explode(8,16)
-		FLME BCDEFGHIJKLMN 2 Bright LIGHT("Flame") A_Explode(8,16,0)
-		FLME A 1 Bright LIGHT("Flame") A_Playsound("weapons/onfire")
-		FLME A 1 Bright LIGHT("Flame") A_Explode(8,32)
-		FLME BCDEFGHIJKLMN 2 Bright LIGHT("Flame") A_Explode(8,16,0)
-		FLME A 1 Bright LIGHT("Flame") A_Playsound("weapons/onfire")
-		FLME A 1 Bright LIGHT("Flame") A_Explode(8,32)
-		FLME BCDEFGHIJKLMN 2 Bright LIGHT("Flame") A_Explode(8,16,0)
-		FLME A 1 Bright LIGHT("Flame") A_Playsound("weapons/onfire")
-		FLME A 1 Bright LIGHT("Flame") A_Explode(8,32)
-		FLME BCDEFGHIJKLMN 2 Bright LIGHT("Flame") A_Explode(8,16,0)
-		FLME A 1 Bright LIGHT("Flame") A_Playsound("weapons/onfire")
-		FLME A 1 Bright LIGHT("Flame") A_Explode(8,32)
-		FLME BCDEFGHIJKLMN 2 Bright LIGHT("Flame") A_Explode(8,16,0)
-		FLME A 0 A_Jump(192,1)
-		loop
+		FLME A 0 NODELAY A_Playsound("weapons/onfire",4,1,1)
+		FLME A 2 LIGHT("Flame") A_Explode(8,16)
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmokeBig",random(-20,20),random(20,-20),random(40,65),0,0,frandom(0.5,2.0),0,0,250)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrailBig",random(0,25),0,0,0,0,frandom(0,3),random(0,359),0,190)
+		TNT1 A 0 A_SetUserVar("user_count",user_count+1)
+		TNT1 A 0 A_JumpIf(user_count>=70,1)
+		Loop
 	Death:
 		TNT1 A 0
 		stop
@@ -760,8 +1257,13 @@ ACTOR UTNTPyroCannon : Weapon 20107
 	Fire:
 		PYRG A 5
 		PYRG B 8 Bright A_GunFlash
-		PYRG C 10 Bright A_FireCustomMissile("PyroShot")
-		PYRG DEFG 5 Bright
+		TNT1 A 0 A_SetBlend("Orange",0.75,20)
+		TNT1 a 0 A_PlaySound("weapons/PyroShot1",6)
+		TNT1 a 0 A_PlaySound("weapons/PyroShot2",5)
+		PYRG C 0 A_FireCustomMissile("PyroShot")
+		PYRG C 5 Bright A_SetPitch(pitch-7.5)
+		PYRG CCCCCDDDDDEEEEE 1 Bright A_SetPitch(pitch+0.5)
+		PYRG FG 5 Bright
 		PYRG A 5 A_Refire
 		Goto Ready
 	Flash:
@@ -788,10 +1290,15 @@ ACTOR PyroShot
 	States
 	{
 	Spawn:
-		PBAL ABA 4 Bright LIGHT("PyroShot")
-		PBAL BA 4 Bright LIGHT("PyroShot") A_Explode
-		goto Spawn+3
+		PBAL AAAABBBBAAAA 1 Bright LIGHT("PyroShot") A_SpawnItemEx("PyroShotTrailSpawner")
+	Looper:
+		TNT1 A 0 A_Explode
+		PBAL BBBB 1 Bright LIGHT("PyroShot") A_SpawnItemEx("PyroShotTrailSpawner")
+		TNT1 A 0 A_Explode
+		PBAL AAAA 1 Bright LIGHT("PyroShot") A_SpawnItemEx("PyroShotTrailSpawner")
+		Loop
 	Death:
+		TNT1 A 0 A_SpawnItemEx("PBExplosionSpawner")
 		PYXP C 2 Bright LIGHT("PyroShot_1") A_Explode(192,128)
 		TNT1 A 0 A_CustomMissile("PyroSpawner",0,0,0)
 		TNT1 A 0 A_CustomMissile("PyroSpawner",0,0,45)
@@ -824,6 +1331,33 @@ ACTOR PyroShot
 	}
 }
 
+Actor PyroShotTrailSpawner
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.75
+	States
+	{
+	SPawn:
+		TNT1 A 0
+		TNT1 AAA 0 A_SpawnItemEx("FTFlameTrailBig",random(-24,24),random(10,-5),random(0,20),0,0,frandom(0,2),0,32)
+	Looper:
+		PBAL A 1 A_FadeOut(0.03)
+		TNT1 A 0 A_SetScale(scalex-0.03,scaley-0.03)
+		PBAL A 1 A_FadeOut(0.03)
+		TNT1 A 0 A_SetScale(scalex-0.03,scaley-0.03)
+		PBAL A 1 A_FadeOut(0.03)
+		TNT1 A 0 A_SetScale(scalex-0.03,scaley-0.03)
+		PBAL B 1 A_FadeOut(0.03)
+		TNT1 A 0 A_SetScale(scalex-0.03,scaley-0.03)
+		PBAL B 1 A_FadeOut(0.03)
+		TNT1 A 0 A_SetScale(scalex-0.03,scaley-0.03)
+		PBAL B 1 A_FadeOut(0.03)
+		TNT1 A 0 A_SetScale(scalex-0.03,scaley-0.03)
+		Loop
+	}
+}
+
 ACTOR PyroBoom
 {
 	Radius 0
@@ -837,10 +1371,25 @@ ACTOR PyroBoom
 	States
 	{
 	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("PyroBoomEffects")
 		PYXP AB 2 Bright
 		PYXP C 2 Bright A_Explode(192,128)
-		PYXP DEFGHIJKLMNOPQRSTU 2 Bright
+		PYXP DEFGHIJKLMNOPQRSTU 1 Bright
 		stop
+	}
+}
+
+ACTOR PyroBoomEffects
+{
+	+NOINTERACTION
+	Scale 0.4
+	States
+	{
+	Spawn:
+		TNT1 AAA 0 NODELAY A_SpawnItemEx("FlmThrwrSmokeBig",random(-20,20),random(20,-20),random(10,20),0,0,frandom(0.3,1.5))
+		TNT1 AA 0 A_SpawnItemEx("FTFlameTrail2",random(3,25),0,0,0,0,frandom(0,3),random(0,359))
+		X125 ABCDEFGHIJKLMNOPQR 2 Bright
+		Stop
 	}
 }
 
@@ -871,7 +1420,6 @@ ACTOR PyroFlare
 	RENDERSTYLE ADD
 	DamageType Fire
 	ALPHA 0.95
-	+ROCKETTRAIL
 	-NOGRAVITY
 	DeathSound "weapons/bang1"
 	States
@@ -902,53 +1450,4 @@ ACTOR PyroFX
 		PYFX ABCDE 3 Bright
 		Stop
 	}
-}
-
-Actor PSpark6_Y1 : PSpark6_B1
-{
-	Translation "80:97=225:227","98:98=160:160","99:103=228:231","104:111=161:167","3:3=161:161"
-}
-
-Actor PSpark6_Y2 : PSpark6_Y1
-{
-	Scale 0.1
-}
-
-Actor PSpark6_Y3 : PSpark6_Y1
-{
-	Scale 0.08
-}
-
-Actor PSpark6_Y4 : PSpark6_Y1
-{
-	Speed 2
-}
-
-Actor PSpark6_Y5 : PSpark6_Y1
-{
-	Speed 2
-	Scale 0.1
-}
-
-Actor PSpark6_Y6 : PSpark6_y1
-{
-	Speed 2
-	Scale 0.08
-}
-
-Actor PSpark6_Y7 : PSpark6_Y1
-{
-	Speed 1
-}
-
-Actor PSpark6_Y8 : PSpark6_Y1
-{
-	Speed 1
-	Scale 0.1
-}
-
-Actor PSpark6_Y9 : PSpark6_Y1
-{
-	Speed 1
-	Scale 0.08
 }

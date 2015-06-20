@@ -1,3 +1,98 @@
+Actor TeleportEffects replaces TeleportFog
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.7
+	Translation "0:255=%[0,0,0]:[0.65,1.0,0.34]"
+	States
+	{
+	Spawn:
+		X010 A 0 NODELAY A_SpawnItemEx("TportSphere",0,0,26)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
+		X010 A 2 Bright LIGHT("OliveGreenFlicker1") A_FadeOut(0.02)
+		TNT1 AAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
+		X010 C 2 Bright LIGHT("OliveGreenFlicker2") A_FadeOut(0.02)
+		TNT1 AAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
+		X010 D 2 Bright LIGHT("OliveGreenFlicker3") A_FadeOut(0.02)
+		TNT1 AAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
+		X010 E 2 Bright LIGHT("OliveGreenFlicker4") A_FadeOut(0.02)
+		TNT1 AAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
+		X010 F 2 Bright LIGHT("OliveGreenFlicker5") A_FadeOut(0.02)
+		TNT1 AAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
+		X010 G 2 Bright LIGHT("OliveGreenFlicker6") A_FadeOut(0.02)
+		TNT1 AAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
+		X010 H 2 Bright LIGHT("OliveGreenFlicker7") A_FadeOut(0.02)
+		TNT1 AAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
+		X010 I 2 Bright LIGHT("OliveGreenFlicker8") A_FadeOut(0.02)
+		TNT1 AAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
+		X010 J 2 Bright LIGHT("OliveGreenFlicker9") A_FadeOut(0.02)
+		TNT1 AAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
+		X010 K 2 Bright LIGHT("OliveGreenFlicker9") A_FadeOut(0.02)
+		TNT1 AAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
+		X010 LMNOPQ 2 BRIGHT LIGHT("OliveGreenFlicker9") A_FadeOut(0.02)
+		X010 R 2 Bright LIGHT("OliveGreenFlicker8") A_FadeOut(0.02)
+		X010 S 2 Bright LIGHT("OliveGreenFlicker7") A_FadeOut(0.02)
+		X010 T 2 Bright LIGHT("OliveGreenFlicker6") A_FadeOut(0.02)
+		X010 U 2 Bright LIGHT("OliveGreenFlicker5") A_FadeOut(0.02)
+		X010 V 2 Bright LIGHT("OliveGreenFlicker4") A_FadeOut(0.02)
+		X010 W 2 Bright LIGHT("OliveGreenFlicker3") A_FadeOut(0.02)
+		X010 X 2 Bright LIGHT("OliveGreenFlicker2") A_FadeOut(0.02)
+		X010 Y 2 Bright LIGHT("OliveGreenFlicker1") A_FadeOut(0.02)
+		Stop
+	}
+
+}
+Actor TeleParticle
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Alpha 0.02
+	Scale 0.15
+	States
+	{
+	Spawn:
+		X010 A 2
+		X010 Y 0 A_ScaleVelocity(0.5)
+		X010 Y 1 Bright A_SetTranslucent(0.1,1)
+		X010 YY 1 Bright A_FadeIn
+		X010 Y 0 A_ScaleVelocity(0.5)
+		X010 YYY 1 Bright A_FadeIn
+		X010 Y 0 A_ScaleVelocity(0.5)
+		X010 YYY 1 Bright A_FadeIn
+		X010 Y 0 A_ScaleVelocity(0.5)
+		X010 Y 3 Bright A_FadeIn
+		X010 Y 2 Bright A_ScaleVelocity(-1.0)
+		X010 Y 0 A_ScaleVelocity(1.5)
+		X010 YYY 1 Bright A_FadeOut(0.05)
+		X010 Y 0 A_ScaleVelocity(1.5)
+		X010 YYY 1 Bright A_FadeOut(0.05)
+		X010 Y 0 A_ScaleVelocity(1.5)
+		X010 YYY 1 Bright A_FadeOut(0.05)
+		X010 Y 0 A_ScaleVelocity(1.5)
+		X010 YYY 1 Bright A_FadeOut(0.05)
+		X010 Y 0 A_ScaleVelocity(1.5)
+		X010 YYY 1 Bright A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor TportSphere
+{
+	+NOINTERACTION
+	RenderStyle Add
+	alpha 0.0
+	Scale 0.7
+	Translation "0:255=%[0,0,0]:[1.2,1.8,0.7]"
+	States
+	{
+	Spawn:
+		X122 ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP 1 A_FadeTo(0.992,0.031)
+	Looper:
+		X122 ABCDEFGHIJKLMNOP 1 A_FadeOut(0.03)
+		Loop
+	}
+}
+
 //////////////////////////
 // NEW WEATHER SPAWNERS //
 //////////////////////////
@@ -1507,14 +1602,14 @@ Actor FireSpawner : SwitchableDecoration 32700
 	//$Category Special Effects (Wolf3D)
 	//$Title Fire Spawner
 	//$Color 12
-	
+
 	//$Arg0 "Size"
 	//$Arg0Type 11
 	//$Arg0Enum { 0 = "Small"; 1 = "Medium"; 2 = "Large"; }
 	//$Arg1 "Sound"
 	//$Arg1Type 11
 	//$Arg1Enum { 0 = "Yes"; 1 = "No"; }
-	
+
 	Height 40
 	Radius 30
 	+ClientSideOnly
@@ -2645,4 +2740,1017 @@ Actor CometLarge_Enhanced : Comet
 		COMT AAAABBBBCCCC 1 Bright LIGHT("Comet") A_SpawnItemEx("CometFire_Orange",Random(-2,2), Random(-2,2), Random(-2,2))
 		Loop
 	}
+}
+
+//==================================================================================
+//==================================================================================
+// New smoke effects (used mostly for the generic explosions)
+// Sprites ripped by Major Cooke
+// Implemented by DBT
+//==================================================================================
+//==================================================================================
+Actor TT1
+{
+	+NOINTERACTION
+	RenderStyle Translucent
+	Alpha 0.57
+	Scale 0.4
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4)
+		X038 A 0 A_Jump(256,"Choose2")
+		X039 A 0 A_Jump(256,"Choose2")
+		X040 A 0 A_Jump(256,"Choose2")
+		X041 A 0 A_Jump(256,"Choose2")
+	Choose2:
+		"####" A 0 A_Jump(255,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22)
+		"####" ABCDEFGHIJKLMNOPQRSTUV 0 A_Jump(256,"Behavior")
+	Behavior:
+		"####" "#" 3 A_FadeOut(0.023)
+		"####" "#" 0 A_ScaleVelocity(0.95)
+		Loop
+	}
+}
+
+Actor TT2 : TT1
+{
+	Alpha 0.5
+	Scale 0.6
+}
+
+Actor TT3 : TT1
+{
+	Alpha 0.57
+	Scale 0.175
+}
+
+Actor TT4 : TT1
+{
+	Alpha 0.57
+	Scale 0.5
+}
+
+Actor TT5 : TT1
+{
+	Scale 0.04
+}
+
+//==================================================================================
+//==================================================================================
+//
+//	Generic explosions
+//	By DBThanatos
+//
+//==================================================================================
+//==================================================================================
+Actor NewExplosionMedium
+{
+	var int user_angle;
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploMediumBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+	MainLoop:
+		TNT1 A 0 A_Jumpif(user_angle>=345,"CheckSpawnPos")
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.5,1.8),0,0,user_angle,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_angle",user_angle+15)
+		Loop
+	CheckSpawnPos:
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,1.3),0,frandom(-1.3,1.3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.8),0,frandom(-1.8,1.8),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,1.3),0,frandom(0.3,1.6),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.8),0,frandom(0.3,1.9),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+//***************************************************
+Actor ExplosionMediumSprite
+{
+	+NOINTERACTION
+	Radius 3
+	Height 5
+	RenderStyle Add
+	Alpha 0.7
+	Scale 0.49
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(128,2,4,5)
+		X003 ABCDE 1 Bright A_FadeOut(0.025)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		X003 FGHIJ 1 Bright A_FadeOut(0.025)
+		TNT1 A 0 A_ScaleVelocity(0.7)
+		X003 KLMNO 1 Bright A_FadeOut(0.025)
+		TNT1 A 0 A_ScaleVelocity(0.55)
+		X003 PQRST 1 Bright A_FadeOut(0.025)
+		TNT1 A 0 A_ScaleVelocity(0.45)
+		X003 UVWXYZ 1 Bright A_FadeOut(0.025)
+		Stop
+	}
+}
+
+//**************************************************************************
+Actor ExploMediumBack1
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.8
+	States
+	{
+	Spawn:
+		X004 ABCDEFGHIJKLMNOPQ 1 Bright A_FadeOut(0.03)
+		Stop
+	}
+}
+
+//************************************************************************************************
+Actor NewExplosionMediumConcentrated : NewExplosionMedium
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploMediumBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+	MainLoop:
+		TNT1 A 0 A_Jumpif(user_angle>=345,"CheckSpawnPos")
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.3,1.2),0,0,user_angle,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_angle",user_angle+15)
+		Loop
+	CheckSpawnPos:
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,1.0),0,frandom(-1.0,1.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.2),0,frandom(-1.2,1.2),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,1.1),0,frandom(0.3,1.1),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.2),0,frandom(0.3,1.4),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+//************************************************************************************************
+Actor NewExplosionMediumBig : NewExplosionMedium
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploMediumBigBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+	MainLoop:
+		TNT1 A 0 A_Jumpif(user_angle>=345,"CheckSpawnPos")
+		TNT1 A 0 A_SpawnItemEx("TT4",0,0,0,frandom(0.5,2.6),0,0,user_angle,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_angle",user_angle+15)
+		Loop
+	CheckSpawnPos:
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("ExplosionMediumBigSprite",0,0,0,frandom(0.1,2.0),0,frandom(-2.0,2.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT4",0,0,0,frandom(0.5,2.6),0,frandom(-2.6,2.6),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("TT4",0,0,0,frandom(0.5,2.6),0,frandom(-2.6,2.6),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("ExplosionMediumBigSprite",0,0,0,frandom(0.1,2.0),0,frandom(0.3,2.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT4",0,0,0,frandom(0.5,2.6),0,frandom(0.6,2.8),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("TT4",0,0,0,frandom(0.5,2.6),0,frandom(0.6,2.8),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+//***************************************************
+Actor ExplosionMediumBigSprite
+{
+	+NOINTERACTION
+	Radius 3
+	Height 5
+	RenderStyle Add
+	Alpha 0.7
+	Scale 0.73
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(128,2,4,5)
+		X003 ABCDE 2 Bright A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		X003 FGHIJ 2 Bright A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.7)
+		X003 KLMNO 2 Bright A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.55)
+		X003 PQRST 2 Bright A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.45)
+		X003 UVWXYZ 2 Bright A_FadeOut(0.035)
+		Stop
+	}
+}
+
+//**************************************************************************
+Actor ExploMediumBigBack1
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 1.4
+	States
+	{
+	Spawn:
+		X004 ABCDEFGHIJKLMNOPQ 2 Bright A_FadeOut(0.03)
+		Stop
+	}
+}
+
+Actor ExploMediumBigBack2 : ExploMediumBigBack1
+{
+	Scale 1.3
+	States
+	{
+	Spawn:
+		X005 ABCDEFGHI 1 Bright A_FadeOut(0.015)
+		X005 JKLMNOPQRSTUVWX 2 Bright A_FadeOut(0.03)
+		Stop
+	}
+}
+
+Actor ExploMediumBigBack3: ExploMediumBigBack1
+{
+	Scale 1.3
+	States
+	{
+	Spawn:
+		X006 ABCDEFGHIJKLMNOP 2 Bright A_FadeOut(0.03)
+		Stop
+	}
+}
+
+Actor ExploMediumBigBack4: ExploMediumBigBack1
+{
+	Scale 2.7
+	States
+	{
+	Spawn:
+		X015 ABCDEFGHIJKLMNOPQRSTUVWX 2 Bright A_FadeOut(0.042)
+		Stop
+	}
+}
+
+//************************************************************************************************
+//************************************************************************************************
+
+//************************************************************************************************
+//************************************************************************************************
+
+Actor NewExplosionBig : NewExplosionMedium
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploBigBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+	MainLoop:
+		TNT1 A 0 A_Jumpif(user_angle>=345,"CheckSpawnPos")
+		TNT1 A 0 A_SpawnItemEx("TT2",0,0,0,frandom(0.5,5.0),0,0,user_angle,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_angle",user_angle+15)
+		Loop
+	CheckSpawnPos:
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("ExplosionBigSprite",0,0,0,frandom(0.1,4.0),0,frandom(-4.0,4.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT2",0,0,0,frandom(0.5,5.0),0,frandom(-5.0,5.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT2",0,0,0,frandom(0.5,5.0),0,frandom(-5.0,5.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("ExplosionBigSprite",0,0,0,frandom(0.1,4.0),0,frandom(0.3,4.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT2",0,0,0,frandom(5.0,5.0),0,frandom(0.6,5.5),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT2",0,0,0,frandom(5.0,5.0),0,frandom(0.6,5.5),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+//***************************************************
+Actor ExplosionBigSprite
+{
+	+NOINTERACTION
+	Radius 3
+	Height 5
+	RenderStyle Add
+	Alpha 0.7
+	Scale 0.9
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(128,2,4,5)
+		X003 ABCDE 2 Bright A_FadeOut(0.02)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		X003 FGHIJ 2 Bright A_FadeOut(0.02)
+		TNT1 A 0 A_ScaleVelocity(0.7)
+		X003 KLMNO 2 Bright A_FadeOut(0.02)
+		TNT1 A 0 A_ScaleVelocity(0.55)
+		X003 PQRST 2 Bright A_FadeOut(0.02)
+		TNT1 A 0 A_ScaleVelocity(0.45)
+		X003 UVWXYZ 2 Bright A_FadeOut(0.05)
+		Stop
+	}
+}
+
+//**************************************************************************
+Actor ExploBigBack1
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 1.8
+	States
+	{
+	Spawn:
+		X004 ABCDEFGHIJKLMNOPQ 2 Bright A_FadeOut(0.03)
+		Stop
+	}
+}
+
+//************************************************************************************************
+//************************************************************************************************
+
+//************************************************************************************************
+//************************************************************************************************
+Actor NewExplosionSmall : NewExplosionMedium
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploSmallBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AAAA 0 A_SpawnItemEx("ExplosionSmallSprite",0,0,0,frandom(0.05,0.3),0,frandom(0.05,0.3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(0.05,0.4),0,frandom(-0.4,0.4),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AAAA 0 A_SpawnItemEx("ExplosionSmallSprite",0,0,0,frandom(0.05,0.3),0,frandom(0.05,0.3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(-0.4,0.4),0,frandom(0.1,0.45),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+Actor NewExplosionSmallSimple : NewExplosionMedium
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploSmallBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AA 0 A_SpawnItemEx("ExplosionSmallSprite",0,0,0,frandom(0.05,0.3),0,frandom(0.05,0.3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(0.05,0.4),0,frandom(-0.4,0.4),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AA 0 A_SpawnItemEx("ExplosionSmallSprite",0,0,0,frandom(0.05,0.3),0,frandom(0.05,0.3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(-0.4,0.4),0,frandom(0.1,0.45),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+Actor NewExplosionSmallLittleBigger : NewExplosionSmall
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploSmallBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AAAA 0 A_SpawnItemEx("ExplosionSmallSprite",0,0,0,frandom(0.1,0.7),0,frandom(0.1,0.7),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(0.1,0.8),0,frandom(-0.1,0.8),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AAAA 0 A_SpawnItemEx("ExplosionSmallSprite",0,0,0,frandom(0.1,0.7),0,frandom(0.1,0.7),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(-0.8,0.8),0,frandom(0.1,0.8),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+Actor ExplosionSmallSprite
+{
+	+NOINTERACTION
+	Radius 3
+	Height 5
+	RenderStyle Add
+	Alpha 0.7
+	Scale 0.16
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(128,2,4,5)
+		X003 ABCDE 2 Bright A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		X003 FGHIJ 2 Bright A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.7)
+		X003 KLMNO 2 Bright A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.55)
+		X003 PQRST 2 Bright A_FadeOut(0.03)
+		TNT1 A 0 A_ScaleVelocity(0.45)
+		X003 UVWXYZ 2 Bright A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor ExploSmallBack1
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.28
+	States
+	{
+	Spawn:
+		X004 ABCDEFGHIJKLMNOPQ 1 Bright A_FadeOut(0.03)
+		Stop
+	}
+}
+
+//====================================================================
+//====================================================================
+
+//====================================================================
+//====================================================================
+Actor MonExplosionMedium : NewExplosionMedium
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploMediumBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+	MainLoop:
+		TNT1 A 0 A_Jumpif(user_angle>=315,"CheckSpawnPos")
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.5,1.8),0,0,user_angle,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_angle",user_angle+45)
+		Loop
+	CheckSpawnPos:
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AAAA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,1.3),0,frandom(-1.3,1.3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.8),0,frandom(-1.8,1.8),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AAAA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,1.3),0,frandom(0.3,1.6),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.8),0,frandom(0.3,1.9),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+Actor MonExplosionMediumSimple : NewExplosionMedium
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploMediumBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+	MainLoop:
+		TNT1 A 0 A_Jumpif(user_angle>=315,"CheckSpawnPos")
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.5,1.8),0,0,user_angle,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_angle",user_angle+45)
+		Loop
+	CheckSpawnPos:
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,1.3),0,frandom(-1.3,1.3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.8),0,frandom(-1.8,1.8),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,1.3),0,frandom(0.3,1.6),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.8),0,frandom(0.3,1.9),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+Actor MonExplosionMediumConcentrated : NewExplosionMedium
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploMediumBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+	MainLoop:
+		TNT1 A 0 A_Jumpif(user_angle>=315,"CheckSpawnPos")
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.3,1.2),0,0,user_angle,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_angle",user_angle+45)
+		Loop
+	CheckSpawnPos:
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AAAA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,1.0),0,frandom(-1.0,1.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.2),0,frandom(-1.2,1.2),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AAAA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,1.1),0,frandom(0.3,1.1),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.2),0,frandom(0.3,1.4),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+Actor MonExplosionMediumBig : NewExplosionMedium
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploMediumBigBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+	MainLoop:
+		TNT1 A 0 A_Jumpif(user_angle>=315,"CheckSpawnPos")
+		TNT1 A 0 A_SpawnItemEx("TT4",0,0,0,frandom(0.5,2.6),0,0,user_angle,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_angle",user_angle+45)
+		Loop
+	CheckSpawnPos:
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AAAAAA 0 A_SpawnItemEx("ExplosionMediumBigSprite",0,0,0,frandom(0.1,2.0),0,frandom(-2.0,2.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("TT4",0,0,0,frandom(0.5,2.6),0,frandom(-2.6,2.6),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AAAAAA 0 A_SpawnItemEx("ExplosionMediumBigSprite",0,0,0,frandom(0.1,2.0),0,frandom(0.3,2.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("TT4",0,0,0,frandom(0.5,2.6),0,frandom(0.6,2.8),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+Actor MonExplosionBig : NewExplosionMedium
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploBigBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+	MainLoop:
+		TNT1 A 0 A_Jumpif(user_angle>=330,"CheckSpawnPos")
+		TNT1 A 0 A_SpawnItemEx("TT2",0,0,0,frandom(0.5,5.0),0,0,user_angle,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_angle",user_angle+30)
+		Loop
+	CheckSpawnPos:
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("ExplosionBigSprite",0,0,0,frandom(0.1,4.0),0,frandom(-4.0,4.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT2",0,0,0,frandom(0.5,5.0),0,frandom(-5.0,5.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("ExplosionBigSprite",0,0,0,frandom(0.1,4.0),0,frandom(0.3,4.0),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TT2",0,0,0,frandom(5.0,5.0),0,frandom(0.6,5.5),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+Actor MonExplosionSmallTooSimple : NewExplosionMedium
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ExploSmallBack1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_CheckFloor("InFloor")
+	InAir:
+		TNT1 AA 0 A_SpawnItemEx("ExplosionSmallSprite",0,0,0,frandom(0.05,0.3),0,frandom(0.05,0.3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(0.05,0.4),0,frandom(-0.4,0.4),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	InFloor:
+		TNT1 AA 0 A_SpawnItemEx("ExplosionSmallSprite",0,0,0,frandom(0.05,0.3),0,frandom(0.05,0.3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(-0.4,0.4),0,frandom(0.1,0.45),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 10
+		Stop
+	}
+}
+
+//==================================================================================
+//==================================================================================
+/*
+New effects by Major Cooke
+
+Ripped straight from my Pipe Bomb addon that I made for fun one day.
+
+List of usable actor packages include:
+
+PBExplosionSpawner
+PBExplosionSpawnerHalf
+PBExplosionClusterSpawner
+PBExplosionSpawnerDebrisless
+*/
+//==================================================================================
+//==================================================================================
+
+Actor PBExplosionSpawner
+{
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_CheckFloor("Ground")
+	Air:
+		TNT1 AAA 0 A_SpawnItemEx("PBExploBack",random(-5,5),0,random(-5,5),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAA 0 A_SpawnItemEx("PBExploMiniBack",random(-5,5),0,random(-5,5),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION,192)
+		TNT1 A 2
+		TNT1 AAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBMidSmoke",frandom(0,3),0,frandom(0,3),frandom(-2,2),0,frandom(-3,3),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmoke",frandom(5,10),0,0,frandom(15,20),0,0,random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AA 0 A_SpawnItemEx("PBDebris",0,0,0,random(15,30),0,random(10,35),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("PBDebris",0,0,0,random(10,20),0,random(10,25),random(0,360),SXF_NOCHECKPOSITION,128)
+		Stop
+	Ground:
+		TNT1 AAA 0 A_SpawnItemEx("PBExploBack",random(0,5),0,random(1,8),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAA 0 A_SpawnItemEx("PBExploMiniBack",random(0,5),0,random(1,8),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION,192)
+		TNT1 A 2
+		TNT1 AAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBMidSmoke",frandom(0,3),0,frandom(0,3),frandom(0,2),0,frandom(0,3),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmoke",frandom(5,10),0,7,frandom(15,20),0,0,random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AA 0 A_SpawnItemEx("PBDebris",0,0,0,random(15,30),0,random(10,35),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("PBDebris",0,0,0,random(10,20),0,random(10,25),random(0,360),SXF_NOCHECKPOSITION,128)
+		Stop
+	}
+}
+
+Actor PBExplosionSpawnerSmokeless
+{
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_CheckFloor("Ground")
+	Air:
+		TNT1 AAAA 0 A_SpawnItemEx("PBExploBack",random(-5,5),0,random(-5,5),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("PBExploMiniBack",random(-5,5),0,random(-5,5),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION,192)
+		TNT1 A 2
+		Stop
+	Ground:
+		TNT1 AAAA 0 A_SpawnItemEx("PBExploBack",random(0,5),0,random(1,8),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("PBExploMiniBack",random(0,5),0,random(1,8),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION,192)
+		TNT1 A 2
+		Stop
+	}
+}
+
+Actor PBExplosionClusterSpawner
+{
+	Projectile
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_CheckFloor("Ground")
+	Air:
+		TNT1 AAAA 0 A_SpawnItemEx("PBExploBack",random(-5,5),0,random(-5,5),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("PBExploMiniBack",random(-5,5),0,random(-5,5),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION,192)
+		TNT1 A 2
+		TNT1 AAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBMidSmoke",frandom(0,3),0,frandom(0,3),frandom(-2,2),0,frandom(-3,3),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmoke",frandom(5,10),0,0,frandom(15,20),0,0,random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AA 0 A_SpawnItemEx("PBCluster",0,0,0,random(15,30),0,random(10,35),random(0,360),48)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("PBCluster",0,0,0,random(10,20),0,random(10,25),random(0,360),48,128)
+		Stop
+	Ground:
+		TNT1 AAAA 0 A_SpawnItemEx("PBExploBack",random(0,5),0,random(1,8),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("PBExploMiniBack",random(0,5),0,random(1,8),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION,192)
+		TNT1 A 2
+		TNT1 AAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBMidSmoke",frandom(0,3),0,frandom(0,3),frandom(0,2),0,frandom(0,3),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmoke",frandom(5,10),0,7,frandom(15,20),0,0,random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AA 0 A_SpawnItemEx("PBCluster",0,0,0,random(15,30),0,random(10,35),random(0,360),48)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("PBCluster",0,0,0,random(10,20),0,random(10,25),random(0,360),48,128)
+		Stop
+	}
+}
+
+Actor PBExplosionSpawnerDebrisless : PBExplosionSpawner
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_CheckFloor("Ground")
+	Air:
+		TNT1 AAAA 0 A_SpawnItemEx("PBExploBack",random(-5,5),0,random(-5,5),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("PBExploMiniBack",random(-5,5),0,random(-5,5),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION,192)
+		TNT1 A 2
+		TNT1 AAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBMidSmoke",frandom(0,3),0,frandom(0,3),frandom(-2,2),0,frandom(-3,3),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmoke",frandom(5,10),0,0,frandom(15,20),0,0,random(0,360),SXF_NOCHECKPOSITION)
+		Stop
+	Ground:
+		TNT1 AAAA 0 A_SpawnItemEx("PBExploBack",random(0,5),0,random(1,8),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("PBExploMiniBack",random(0,5),0,random(1,8),0,0,random(2,6),random(0,360),SXF_NOCHECKPOSITION,192)
+		TNT1 A 2
+		TNT1 AAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBMidSmoke",frandom(0,3),0,frandom(0,3),frandom(0,2),0,frandom(0,3),random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmoke",frandom(5,10),0,7,frandom(15,20),0,0,random(0,360),SXF_NOCHECKPOSITION)
+		Stop
+	}
+}
+
+Actor PBExploBack
+{
+	Scale 1.9
+	RenderStyle Add
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(128,"Two","Three")
+	One:
+		X006 ABCDEFGHIJKLMNOP 1 bright A_ScaleVelocity(0.98)
+		//X006 LMNOP 1 bright A_FadeOut(0.05)
+		Stop
+	Two:
+		X007 ABCDEFGHIJ 1 bright A_ScaleVelocity(0.98)
+		Stop
+	Three:
+		X033 ABCDEFGHIJKLMNOPQR 1 bright A_ScaleVelocity(0.98)
+		Stop
+	}
+}
+
+Actor PBFlash
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 1.3
+	States
+	{
+	Spawn:
+		CB02 ABCDEFGHIJKLMNOPQRS 1 bright A_FadeOut(0.02)
+		Stop
+	}
+}
+
+Actor PBExploMiniBack : PBExploBack
+{
+	Scale 1.4
+}
+
+Actor PBMidSmoke : TT1
+{
+	Scale 1.5
+}
+
+Actor PBShockwaveSmoke : TT1
+{
+	Scale 1
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4)
+		X037 ABCD 0 A_Jump(256,"End")
+	End:
+		X037 "#" 3 A_FadeOut(0.04)
+		X037 "#" 0 A_ScaleVelocity(0.75)
+		Loop
+	}
+}
+
+Actor PBDebris
+{
+	var int user_ticker;
+	var int user_limit;
+	Projectile
+	+ALLOWBOUNCEONACTORS
+	+BOUNCEONACTORS
+	+BOUNCEONWALLS
+	+BOUNCEONFLOORS
+	BounceType "Doom"
+	+CANBOUNCEWATER
+	+BOUNCEONCEILINGS
+	-NOGRAVITY
+	Speed 25
+	Radius 1
+	Height 1
+	Gravity 0.75
+	WallBounceFactor 0.9
+	BounceFactor 0.6
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SetUserVar("user_limit",random(20,400))
+		TNT1 A 0 A_SetUserVar("user_ticker",0)
+	ParticleSpawner:
+		TNT1 A 1 A_SpawnItemEx("PBDebrisPuff",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_ticker",user_ticker+1)
+		TNT1 A 0 A_JumpIf(user_ticker>=user_limit,"Death")
+		Loop
+	Death:
+		TNT1 A 0
+		Stop
+	}
+}
+
+Actor PBDebrisPuff
+{
+	+NOINTERACTION
+	Scale 0.25
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[1,0.5,0]"
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("PBDebrisSmoke",frandom(0,1),0,frandom(0,1),frandom(0,1),0,1,random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_Jump(128,"Two","Three")
+	One:
+		X006 ABCDEFGHIJKLMNOP 1 bright
+		//X006 LMNOP 1 bright A_FadeOut(0.05)
+		Stop
+	Two:
+		X007 ABCDEFGHIJ 1 bright
+		Stop
+	Three:
+		X033 ABCDEFGHIJKLMNOPQR 1 bright
+		Stop
+	}
+}
+
+Actor PBDebrisPuff2x : PBDebrisPuff
+{
+	Scale 0.5
+}
+
+Actor PBDebrisSmoke : TT1
+{
+	Alpha 0.1
+	Scale 0.6
+	States
+	{
+	Spawn:
+		TNT1 A 5
+		X037 AAAAAAAAAA 1 A_FadeIn(0.07)
+		TNT1 A 0 A_Jump(256,1,2,3,4)
+		X037 ABCD 0 A_Jump(256,"End")
+	End:
+		X037 "#" 3 A_FadeOut(0.055)
+		X037 "#" 0 A_ScaleVelocity(0.95)
+		Loop
+	}
+}
+
+Actor PBCluster : PBDebris
+{
+	Damage 2
+	+FORCERADIUSDMG
+	+EXTREMEDEATH
+	-BOUNCEONACTORS
+	+RIPPER
+	+DONTREFLECT
+	//DeathSound "PipeKaboom" //will need a new sound.
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SetUserVar("user_limit",random(100,400))
+		TNT1 A 0 A_SetUserVar("user_ticker",0)
+	ParticleSpawner:
+		TNT1 A 1 A_SpawnItemEx("PBDebrisPuff2x",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_ticker",user_ticker+1)
+		TNT1 A 0 A_JumpIf(user_ticker>=user_limit,"Death")
+		Loop
+	Death:
+		//TNT1 A 0 A_Explode(random(350,700),512,0) //One can make their own adjustments here if they wish.
+		TNT1 A 0 A_SpawnItemEx("PBExplosionSpawnerDebrisless",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		//TNT1 A 0 A_Scream
+		TNT1 A 7 Radius_Quake(3,7,0,25,0)
+		TNT1 A 5 Radius_Quake(2,5,0,25,0)
+		TNT1 A 4 Radius_Quake(1,4,0,25,0)
+		Stop
+	}
+}
+
+//==================================================================================
+//==================================================================================
+// L4D2-grenadeish explosion, smaller
+//==================================================================================
+//==================================================================================
+Actor PBExplosionSpawnerHalf : PBExplosionSpawner
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_CheckFloor("Ground")
+	Air:
+		TNT1 AAA 0 A_SpawnItemEx("PBExploBackHalf",frandom(-2.5,2.5),0,frandom(-2.5,2.5),0,0,random(1,3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAA 0 A_SpawnItemEx("PBExploMiniBackHalf",frandom(-2.5,2.5),0,frandom(-2.5,2.5),0,0,random(1,3),random(0,359),SXF_NOCHECKPOSITION,192)
+		TNT1 A 2
+		TNT1 AAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBMidSmokeHalf",frandom(0,1.5),0,frandom(0,1.5),frandom(-1,1),0,frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",frandom(2.5,5),0,0,frandom(7.5,10),0,0,random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SpawnItemEx("PBDebrisHalf",0,0,0,frandom(7.5,15),0,frandom(5,17.5),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAA 0 A_SpawnItemEx("PBDebrisHalf",0,0,0,random(5,10),0,frandom(5,12.5),random(0,359),SXF_NOCHECKPOSITION,128)
+		Stop
+	Ground:
+		TNT1 AAA 0 A_SpawnItemEx("PBExploBackHalf",frandom(0,2.5),0,frandom(0.5,4),0,0,random(1,3),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAA 0 A_SpawnItemEx("PBExploMiniBackHalf",frandom(0,2.5),0,frandom(0.5,4),0,0,random(1,3),random(0,359),SXF_NOCHECKPOSITION,192)
+		TNT1 A 2
+		TNT1 AAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBMidSmokeHalf",frandom(0,1.5),0,frandom(0,1.5),frandom(0,1),0,frandom(0,1.5),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",frandom(2.5,5),0,4,frandom(7.5,10),0,0,random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SpawnItemEx("PBDebrisHalf",0,0,0,frandom(7.5,15),0,frandom(7,10),random(0,359),SXF_NOCHECKPOSITION)
+		TNT1 AAA 0 A_SpawnItemEx("PBDebrisHalf",0,0,0,random(5,10),0,frandom(7,10),random(0,359),SXF_NOCHECKPOSITION,128)
+		Stop
+	}
+}
+
+Actor PBExploBackHalf
+{
+	Scale 1
+	RenderStyle Add
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(128,"Two","Three")
+	One:
+		X006 ABCDEFGHIJKLMNOP 1 bright A_ScaleVelocity(0.98)
+		//X006 LMNOP 1 bright A_FadeOut(0.05)
+		Stop
+	Two:
+		X007 ABCDEFGHIJ 1 bright A_ScaleVelocity(0.98)
+		Stop
+	Three:
+		X033 ABCDEFGHIJKLMNOPQR 1 bright A_ScaleVelocity(0.98)
+		Stop
+	}
+}
+
+Actor PBExploMiniBackHalf : PBExploMiniBack
+{
+	Scale 0.7
+}
+
+Actor PBDebrisPuffHalf : PBDebrisPuff
+{
+	+NOINTERACTION
+	Scale 0.13
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[1,0.5,0]"
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("PBDebrisSmokeHalf",frandom(0,1),0,frandom(0,1),frandom(0,1),0,1,random(0,360),SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_Jump(128,"Two","Three")
+	One:
+		X006 ABCDEFGHIJKLMNOP 1 bright
+		//X006 LMNOP 1 bright A_FadeOut(0.05)
+		Stop
+	Two:
+		X007 ABCDEFGHIJ 1 bright
+		Stop
+	Three:
+		X033 ABCDEFGHIJKLMNOPQR 1 bright
+		Stop
+	}
+}
+
+Actor PBDebrisPuff2xHalf : PBDebrisPuff2x
+{
+	Scale 0.25
+}
+
+Actor PBDebrisSmokeHalf : PBDebrisSmoke
+{
+	Scale 0.3
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		Goto Super::Spawn+1
+	}
+}
+
+Actor PBDebrisHalf : PBDebris
+{
+	BounceFactor 0.5
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SetUserVar("user_limit",random(20,300))
+		TNT1 A 0 A_SetUserVar("user_ticker",0)
+	ParticleSpawner:
+		TNT1 A 1 A_SpawnItemEx("PBDebrisPuffHalf",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		TNT1 A 0 A_SetUserVar("user_ticker",user_ticker+1)
+		TNT1 A 0 A_JumpIf(user_ticker>=user_limit,"Death")
+		Loop
+	Death:
+		TNT1 A 0
+		Stop
+	}
+}
+
+Actor PBMidSmokeHalf : PBMidSmoke
+{
+	Scale 0.75
+}
+
+Actor PBShockwaveSmokeHalf : PBShockwaveSmoke
+{
+	Scale 0.5
+}
+Actor PBShockwaveSmokeSmaller : PBShockwaveSmoke
+{
+	Scale 0.3
 }

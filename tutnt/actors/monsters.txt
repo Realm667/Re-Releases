@@ -1,3 +1,27 @@
+Actor GenericSmallParticle
+{
+	+NOINTERACTION
+	Scale 0.3
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		SBAL B 3 Bright A_FadeOut(0.07)
+		Loop
+	}
+}
+
+Actor GenericSmallSlowingParticle : GenericSmallParticle
+{
+	States
+	{
+	Spawn:
+		SBAL B 3 Bright A_FadeOut(0.07)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		Loop
+	}
+}
+
 ////////////////////////
 // MODIFIED ORIGINALS //
 ////////////////////////
@@ -206,6 +230,18 @@ ACTOR UTNTDoomImpBall : DoomImpBall replaces DoomImpBall
 {
 	ALPHA 0.67
 	Decal DoomImpScorch
+	States
+	{
+	Spawn:
+		BAL1 AAABBB 1 bright LIGHT("IMPBALL") A_SpawnItemEx("TT3",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.1,0.7),0,32)
+		loop
+	Death:
+		TNT1 AAAAAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(0.3,1.1),0,frandom(-0.9,0.9),random(0,359),32)
+		BAL1 C 3 bright LIGHT("IMPBALL_X1")
+		BAL1 D 3 bright LIGHT("IMPBALL_X2")
+		BAL1 E 3 bright LIGHT("IMPBALL_X3")
+		stop
+	}
 }
 
 ACTOR UTNTDemon : Demon replaces Demon
@@ -358,6 +394,131 @@ ACTOR UTNTCacodemonBall : CacodemonBall replaces CacodemonBall
 {
 	ALPHA 0.67
 	Decal CacoScorch
+	States
+	{
+	Spawn:
+		BAL2 AAABBB 1 bright LIGHT("CACOBALL") A_SpawnItemEx("UTNTCacoBallParticleSpawner")
+		loop
+	Death:
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359),32)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("UTNTCacoBallParticleSpawner")
+		TNT1 A 1 A_SpawnItemEx("UTNTCacoBallExplo")
+		TNT1 A 0 A_SetTranslucent(0.01,1)
+		BAL2 C 6 bright LIGHT("CACOBALL_X1")
+		BAL2 D 6 bright LIGHT("CACOBALL_X2")
+		BAL2 E 6 bright LIGHT("CACOBALL_X3")
+		stop
+	}
+}
+
+Actor UTNTCacoBallExplo
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.1
+	Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.0]"
+	+FORCEXYBILLBOARD
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 AA 0 A_SpawnItemEx("UTNTCacoExploFlash")
+		X060 B 2 Light("YellowSmallFlicker2") Bright A_SetScale(0.15)
+		TNT1 A 0 A_FadeOut(0.06)
+		X060 B 2 Light("YellowSmallFlicker1") Bright A_SetScale(0.2)
+		TNT1 A 0 A_FadeOut(0.06)
+		X060 B 2 Light("YellowMediumFlicker3") Bright A_SetScale(0.25)
+		TNT1 A 0 A_FadeOut(0.06)
+		X060 B 2 Light("YellowMediumFlicker2") Bright A_SetScale(0.3)
+		TNT1 A 0 A_FadeOut(0.06)
+		X060 B 2 Light("YellowMediumFlicker2") Bright A_SetScale(0.35)
+		TNT1 A 0 A_FadeOut(0.06)
+		X060 B 2 Light("YellowMediumFlicker2") Bright A_SetScale(0.4)
+		TNT1 A 0 A_FadeOut(0.06)
+		X060 B 2 Light("YellowMediumFlicker3") Bright A_SetScale(0.45)
+		TNT1 A 0 A_FadeOut(0.06)
+		X060 B 2 Light("YellowSmallFlicker1") Bright A_SetScale(0.5)
+		TNT1 A 0 A_FadeOut(0.06)
+		X060 B 2 Light("YellowSmallFlicker2") Bright A_SetScale(0.55)
+		TNT1 A 0 A_FadeOut(0.06)
+		X060 B 2 Light("YellowSmallFlicker2") Bright A_SetScale(0.6)
+		TNT1 A 0 A_FadeOut(0.06)
+		X060 B 2 Light("YellowSmallFlicker3") Bright A_SetScale(0.65)
+	Looper:
+		X060 B 2 Bright A_FadeOut(0.1)
+		TNT1 A 0 A_SetScale(ScaleX+0.05)
+		Loop
+	}
+}
+
+Actor UTNTCacoExploFlash
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Alpha 0.8
+	Scale 1.5
+	+FORCEXYBILLBOARD
+	Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.5]"
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4,5,6,7,8)
+		X153 EFGHIJKL 0 A_Jump(256,"End")
+	End:
+		X153 "#" 1 A_FadeOut(0.018)
+		Wait
+	}
+}
+
+Actor UTNTCacoBallParticleSpawner
+{
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("UTNTCacoBallTrail")
+		TNT1 A 1 A_SpawnItemEx("UTNTCacoBallTrailMini",0,0,0,frandom(-0.01,-2.0),frandom(4.0,-4.0),frandom(5.0,-2.0),random(0,359))
+		Stop
+	}
+}
+
+Actor UTNTCacoBallTrail
+{
+	+NOINTERACTION
+	Scale 0.45
+	RenderStyle Add
+	+FORCEXYBILLBOARD
+	Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.5]"
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Jump(200,2,4,6)
+		X029 ABCDEFGHIJK 2 Bright A_FadeOut(0.1)
+		Goto Spawn+2
+	}
+}
+
+Actor UTNTCacoBallTrailMini
+{
+	Projectile
+	+NOCLIP
+	-NOGRAVITY
+	Gravity 0.25
+	Mass 2
+	Scale 0.1
+	RenderStyle Add
+	+FORCEXYBILLBOARD
+	Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.0]"
+	States
+	{
+	Spawn:
+		X029 B 3 Bright
+		X029 B 0 A_jump(140,2,3,4)
+		X029 BBBBBBBBB 1 Bright
+		X029 B 1 A_FadeOut(0.2)
+		Wait
+	}
 }
 
 ACTOR UTNTBaronOfHell : BaronOfHell replaces BaronOfHell
@@ -410,6 +571,33 @@ ACTOR UTNTBaronOfHell : BaronOfHell replaces BaronOfHell
 ACTOR UTNTBaronBall : BaronBall replaces BaronBall
 {
 	ALPHA .67
+	states
+	{
+	Spawn:
+		BAL7 AAABBB 1 Bright LIGHT("BARONBALL") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		Loop
+	Death:
+		TNT1 A 0 A_SpawnItemEx("BaronBallExplo")
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359))
+		BAL7 C 5 Bright LIGHT("BARONBALL_X1") A_SetTranslucent(0.01,1)
+		BAL7 D 5 Bright LIGHT("BARONBALL_X2")
+		BAL7 E 5 Bright LIGHT("BARONBALL_X3")
+		Stop
+	}
+}
+
+Actor BaronBallExplo
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[0.65,0.81,0.34]"
+	Scale 0.7
+	States
+	{
+	Spawn:
+		BRNR CDEFGH 3 Bright A_FadeOut(0.05)
+		Stop
+	}
 }
 
 ACTOR UTNTHellKnight : UTNTBaronOfHell replaces HellKnight
@@ -476,23 +664,14 @@ ACTOR UTNTArachnotronPlasma : ArachnotronPlasma replaces ArachnotronPlasma
 	states
 	{
 	Spawn:
-		APLS AB 5 Bright LIGHT("ArachnotronPlasma")
+		APLS AB 5 Bright LIGHT("ARACHPLAS") A_SpawnItemEx("MonPlasmaTrail",random(4,-4),random(4,-4),random(4,-4))
 		Loop
 	Death:
-		TNT1 A 0 A_CustomMissile("PSpark6_Y1",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y2",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y3",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y4",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y5",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y6",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y7",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y8",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y9",0,0,random(0,360),2,random(-158,-22))
-		APBX A 5 bright LIGHT("ArachnotronPlasmaX_1")
-		APBX B 5 bright LIGHT("ArachnotronPlasmaX_2")
-		APBX C 5 bright LIGHT("ArachnotronPlasmaX_3")
-		APBX D 5 bright LIGHT("ArachnotronPlasmaX_4")
-		APBX E 5 bright LIGHT("ArachnotronPlasmaX_5")
+		TNT1 AAAAAAA 0 A_SpawnItemEx("MonBlasterPuffParticle",0,0,0,frandom(5,-5),frandom(5,-5),frandom(5,-5),random(0,359))
+		APBX A 5 bright LIGHT("ARACHPLAS_X1")
+		APBX BC 5 bright LIGHT("ARACHPLAS_X2")
+		APBX D 5 bright LIGHT("ARACHPLAS_X3")
+		APBX E 5 bright LIGHT("ARACHPLAS_X4")
 		stop
 	}
 }
@@ -586,6 +765,23 @@ ACTOR UTNTRevenant : Revenant replaces Revenant
 	}
 }
 
+Actor UTNTRevenantTracer : RevenantTracer replaces RevenantTracer
+{
+	States
+	{
+	Spawn:
+		FATB AB 2 Bright LIGHT("TRACER") A_Tracer
+		Loop
+	Death:
+		TNT1 AA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,0.6),0,frandom(-1.0,1.0),random(0,359))
+		TNT1 AAAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.0),0,frandom(-1.2,1.0),random(0,359))
+		FBXP A 8 bright LIGHT("TRACER_X1")
+		FBXP B 6 bright LIGHT("TRACER_X2")
+		FBXP C 4 bright LIGHT("TRACER_X3")
+		stop
+	}
+}
+
 ACTOR UTNTFatso : Fatso replaces Fatso
 {
 	Speed 2
@@ -633,6 +829,38 @@ ACTOR UTNTFatso : Fatso replaces Fatso
 	Raise:
 		FATT RQPONMLK 5
 		Goto See
+	}
+}
+
+ACTOR UTNTFatShot : FatShot Replaces FatShot
+{
+	States
+	{
+	Spawn:
+		MANF AAABBB 1 bright LIGHT("IMPBALL") A_SpawnItemEx("FatsoBallTrail")
+		loop
+	Death:
+		MISL B 3 BRIGHT LIGHT("ROCKET_X1") A_SpawnItemEx("MonExplosionMediumConcentrated")
+		MISL C 3 BRIGHT LIGHT("ROCKET_X2")
+		MISL D 3 BRIGHT LIGHT("ROCKET_X3")
+		Stop
+	}
+}
+
+Actor FatsoBallTrail
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.7
+	Alpha 0.7
+	Translation "0:255=%[0,0,0]:[1.5,0.4,0.0]"
+	States
+	{
+	Spawn:
+		X105 A 0
+		X105 A 0 A_Jump(240,3,6,9,12,15,18,21)
+		X105 ABCDEFGHIJKLMNOPQRSTUVWX 2 Bright A_FadeOut(0.07)
+		Goto Spawn+2
 	}
 }
 
@@ -685,6 +913,94 @@ ACTOR UTNTArchvile : Archvile replaces Archvile
 		VILE Q 5
 		VILE Q 5 A_Pain
 		Goto See
+	}
+}
+
+actor UTNTArchvileFire : ArchvileFire replaces ArchvileFire
+{
+	+NOBLOCKMAP
+	+NOGRAVITY
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE1") A_StartFire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE2") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE1") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE2") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE3") A_FireCrackle
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE2") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE3") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE2") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE3") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE4") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE3") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE4") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE3") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE4") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE5") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE4") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE5") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE4") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE5") A_FireCrackle
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE6") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE5") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE6") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE5") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE6") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE7") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE8") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE7") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE8") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE7") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		TNT1 A 2 LIGHT("ARCHFIRE8") A_Fire
+		TNT1 A 0 A_SpawnItemEx("ArchvileFireFx")
+		Stop
+	}
+}
+
+Actor ArchvileFireFx
+{
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 AA 0 A_SpawnItemEx("FlmThrwrSmoke",random(15,-15),random(0,10),random(25,47),0,0,frandom(0.2,1.0))
+		TNT1 AAA 0 A_SpawnItemEx("FTFlameTrail2",random(15,-15),random(0,10),random(20,40),0,0,frandom(0,1),0,0,64)
+		TNT1 A 1
+		TNT1 AA 0 A_SpawnItemEx("FlmThrwrSmoke",random(15,-15),random(0,10),random(25,47),0,0,frandom(0.2,1.0))
+		TNT1 AAA 0 A_SpawnItemEx("FTFlameTrail2",random(15,-15),random(0,10),random(20,40),0,0,frandom(0,1),0,0,64)
+		Stop
 	}
 }
 
@@ -1025,19 +1341,6 @@ ACTOR SourceGuardians 16999
 	}
 }
 
-actor SourceLifeSeed : Health 16998
-{
-	inventory.pickupmessage "Picked up a guardian's life seed."
-	inventory.amount 25
-	+FLOATBOB
-	states
-	{
-	Spawn:
-		REGN ABCD 4 Light("LifeSeed")
-		loop
-	}
-}
-
 ///////////////////////
 // MAIN ACTOR SOURCE //
 ///////////////////////
@@ -1187,30 +1490,132 @@ ACTOR FlameBreathource
 	+RIPPER
 	+NODAMAGETHRUST
 	SeeSound "duke/flame2"
+	Translation "0:255=%[0,0,0]:[1.5,0.7,0.0]"
 	States
 	{
 	Spawn:
-		XPLO A 3 BRIGHT Light("NetherworldQueenFlameBreath_1")
-		XPLO B 3 BRIGHT Light("NetherworldQueenFlameBreath_2") A_Explode(2,62,0)
-		XPLO C 3 BRIGHT Light("NetherworldQueenFlameBreath_3") A_Explode(2,62,0)
-		XPLO D 3 BRIGHT Light("NetherworldQueenFlameBreath_4") A_Explode(2,62,0)
-		XPLO E 3 BRIGHT Light("NetherworldQueenFlameBreath_5") A_Explode(2,62,0)
-		XPLO F 3 BRIGHT Light("NetherworldQueenFlameBreath_6") A_Explode(2,62,0)
-		XPLO G 3 BRIGHT Light("NetherworldQueenFlameBreath_7") A_Explode(2,62,0)
-		XPLO H 3 BRIGHT Light("NetherworldQueenFlameBreath_8") A_Explode(2,62,0)
-		XPLO I 3 BRIGHT Light("NetherworldQueenFlameBreath_9") A_Explode(2,62,0)
-		XPLO J 3 BRIGHT Light("NetherworldQueenFlameBreath_10") A_Explode(2,62,0)
-		XPLO K 3 BRIGHT Light("NetherworldQueenFlameBreath_11") A_Explode(2,62,0)
-		XPLO L 3 BRIGHT Light("NetherworldQueenFlameBreath_12") A_Explode(2,62,0)
-		XPLO M 3 BRIGHT Light("NetherworldQueenFlameBreath_13") A_Explode(2,62,0)
-		XPLO N 3 BRIGHT Light("NetherworldQueenFlameBreath_14") A_Explode(2,62,0)
-		XPLO O 3 BRIGHT Light("NetherworldQueenFlameBreath_15")
-		XPLO P 3 BRIGHT Light("NetherworldQueenFlameBreath_16")
-		XPLO Q 3 BRIGHT Light("NetherworldQueenFlameBreath_17")
-		XPLO R 3 BRIGHT Light("NetherworldQueenFlameBreath_18")
-		XPLO S 3 BRIGHT Light("NetherworldQueenFlameBreath_19")
-		XPLO T 3 BRIGHT Light("NetherworldQueenFlameBreath_20")
-		XPLO U 3 BRIGHT Light("NetherworldQueenFlameBreath_21")
+		X102 AA 1 BRIGHT Light("NetherworldQueenFlameBreath_1") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 B 1 BRIGHT Light("NetherworldQueenFlameBreath_2") A_SpawnItemEx("FlameBreathourceTrail")
+		X102 B 1 BRIGHT Light("NetherworldQueenFlameBreath_2") A_Explode (2, 62, 0)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 CC 1 Bright Light("NetherworldQueenFlameBreath_3") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 D 1 BRIGHT Light("NetherworldQueenFlameBreath_4") A_Explode (2, 62, 0)
+		X102 D 1 Bright Light("NetherworldQueenFlameBreath_4") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 E 1 Bright Light("NetherworldQueenFlameBreath_5") A_SpawnItemEx("FlameBreathourceTrail")
+		X102 E 1 BRIGHT Light("NetherworldQueenFlameBreath_5") A_Explode (2, 62, 0)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 FF 1 Bright Light("NetherworldQueenFlameBreath_6") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 G 1 BRIGHT Light("NetherworldQueenFlameBreath_7") A_Explode (2, 62, 0)
+		X102 G 1 Bright Light("NetherworldQueenFlameBreath_7") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 H 1 Bright Light("NetherworldQueenFlameBreath_8") A_SpawnItemEx("FlameBreathourceTrail")
+		X102 H 1 BRIGHT Light("NetherworldQueenFlameBreath_8") A_Explode (2, 62, 0)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 II 1 Bright Light("NetherworldQueenFlameBreath_9") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 J 1 BRIGHT Light("NetherworldQueenFlameBreath_10") A_Explode (2, 62, 0)
+		X102 J 1 Bright Light("NetherworldQueenFlameBreath_10") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 K 1 Bright Light("NetherworldQueenFlameBreath_11") A_SpawnItemEx("FlameBreathourceTrail")
+		X102 K 1 BRIGHT Light("NetherworldQueenFlameBreath_11") A_Explode (2, 62, 0)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 LL 1 Bright Light("NetherworldQueenFlameBreath_12") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 M 1 BRIGHT Light("NetherworldQueenFlameBreath_13") A_Explode (2, 62, 0)
+		X102 M 1 Bright Light("NetherworldQueenFlameBreath_13") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 N 1 Bright Light("NetherworldQueenFlameBreath_14") A_SpawnItemEx("FlameBreathourceTrail")
+		X102 N 1 BRIGHT Light("NetherworldQueenFlameBreath_14") A_Explode (2, 62, 0)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 OO 1 Bright Light("NetherworldQueenFlameBreath_15") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 P 1 BRIGHT BRIGHT Light("NetherworldQueenFlameBreath_16") A_Explode (2, 62, 0)
+		X102 P 1 Bright BRIGHT Light("NetherworldQueenFlameBreath_16") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 Q 1 Bright Light("NetherworldQueenFlameBreath_17") A_SpawnItemEx("FlameBreathourceTrail")
+		X102 Q 1 BRIGHT Light("NetherworldQueenFlameBreath_17") A_Explode (2, 62, 0)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 RR 1 Bright Light("NetherworldQueenFlameBreath_18") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 S 1 BRIGHT Light("NetherworldQueenFlameBreath_19") A_Explode (2, 62, 0)
+		X102 S 1 Bright Light("NetherworldQueenFlameBreath_19") A_SpawnItemEx("FlameBreathourceTrail")
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 T 1 Bright Light("NetherworldQueenFlameBreath_20") A_SpawnItemEx("FlameBreathourceTrail")
+		X102 T 1 BRIGHT Light("NetherworldQueenFlameBreath_20") A_Explode (2, 62, 0)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 UU 1 Bright Light("NetherworldQueenFlameBreath_21") A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,130)
+		TNT1 A 0 A_SetScale(Scalex-0.03)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 VV 1 BRIGHT A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,150)
+		TNT1 A 0 A_SetScale(Scalex-0.03)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 AA 1 BRIGHT A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,160)
+		TNT1 A 0 A_SetScale(Scalex-0.03)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 BB 1 BRIGHT A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,170)
+		TNT1 A 0 A_SetScale(Scalex-0.03)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 CC 1 BRIGHT A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,180)
+		TNT1 A 0 A_SetScale(Scalex-0.03)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 DD 1 BRIGHT A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,190)
+		TNT1 A 0 A_SetScale(Scalex-0.03)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 EE 1 BRIGHT A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,200)
+		TNT1 A 0 A_SetScale(Scalex-0.03)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 FF 1 BRIGHT A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,210)
+		TNT1 A 0 A_SetScale(Scalex-0.03)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 GG 1 BRIGHT A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,220)
+		TNT1 A 0 A_SetScale(Scalex-0.03)
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		X102 HH 1 BRIGHT A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,230)
+		TNT1 A 0 A_SetScale(Scalex-0.03)
+		X102 II 1 BRIGHT A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,240)
+		TNT1 A 0 A_SetScale(Scalex-0.03)
+		X102 J 1 BRIGHT A_SpawnItemEx("FlameBreathourceTrail",0,0,0,0,0,0,0,0,250)
+		Stop
+	}
+}
+
+Actor FlameBreathourceTrail
+{
+	Translation "0:255=%[0,0,0]:[1.5,0.7,0.0]"
+	var int user_count;
+	+NOINTERACTION
+	RenderStyle Add
+	Alpha 0.25
+	States
+	{
+	Spawn:
+		X123 A 0 NODELAY A_Warp(AAPTR_DEFAULT,frandom(0,4),0,frandom(-10,0),random(0,359),WARPF_NOCHECKPOSITION)
+		X123 A 0 A_SetScale(frandom(0.2,0.5))
+		X123 A 0 A_SetAngle(random(0,359))
+		X123 A 0 A_ChangeVelocity(frandom(0.1,2.0),0,frandom(0.3,2.0),3)
+		X123 A 0 A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21)
+	FireLooping:
+		X123 ABCDEFGHIJKLMNOPQRSTUVWX 1 bright A_ScaleVelocity(0.97)
+		X123 A 0 A_SetUserVar("user_count",user_count+1)
+		X123 A 0 A_JumpIf(user_count>=random(1,3),"FireLoopOut")
+	FireLoopOut:
+		X123 ABCDEFGHIJKLMNOPQRSTUVWX 1 bright A_FadeOut(0.02)
+		Loop
+	}
+}
+
+Actor FlameBreathourceTrailExtra
+{
+	+NOINTERACTION
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		X026 ABCDEFGHIJKLMNOPQRST 1 Bright A_FadeOut(0.04)
 		Stop
 	}
 }
@@ -1451,15 +1856,73 @@ actor QueenElectro
 	States
 	{
 	Spawn:
-		FX16 ABC 5 Bright LIGHT("NetherworldQueenElectroShot")
+		X024 AABB 1 Bright LIGHT("NetherworldQueenElectroShot") A_SpawnItemEx("LightningBallTrailSpawner")
+		TNT1 A 0 A_SeekerMissile(30,30)
+		X024 CCDD 1 Bright LIGHT("NetherworldQueenElectroShot") A_SpawnItemEx("LightningBallTrailSpawner")
+		TNT1 A 0 A_SeekerMissile(30,30)
+		X024 EEFF 1 Bright LIGHT("NetherworldQueenElectroShot") A_SpawnItemEx("LightningBallTrailSpawner")
+		TNT1 A 0 A_SeekerMissile(30,30)
+		X024 GGHH 1 Bright LIGHT("NetherworldQueenElectroShot") A_SpawnItemEx("LightningBallTrailSpawner")
+		TNT1 A 0 A_SeekerMissile(30,30)
+		X024 IIJJ 1 Bright LIGHT("NetherworldQueenElectroShot") A_SpawnItemEx("LightningBallTrailSpawner")
+		TNT1 A 0 A_SeekerMissile(30,30)
 		Loop
 	Death:
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("LightningBallTrailParticle1",0,0,0,random(-2,2),random(-2,2),random(-2,2),random(0,359))
+		TNT1 AAAAA 0 A_SpawnItemEx("LightningBallSpark",0,0,0,frandom(2.0,-2.0),frandom(2.0,-2.0),frandom(2.0,-2.0),0,0,64)
 		FX16 G 4 BRIGHT LIGHT("NetherworldQueenElectroShotX_1")
 		FX16 H 4 BRIGHT LIGHT("NetherworldQueenElectroShotX_2")
 		FX16 I 4 BRIGHT LIGHT("NetherworldQueenElectroShotX_3")
 		FX16 J 4 BRIGHT LIGHT("NetherworldQueenElectroShotX_4")
 		FX16 K 4 BRIGHT LIGHT("NetherworldQueenElectroShotX_5")
 		FX16 L 4 BRIGHT LIGHT("NetherworldQueenElectroShotX_6")
+		Stop
+	}
+}
+
+Actor LightningBallTrailSpawner
+{
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		TNT1 AA 0 NODELAY A_SpawnItemEx("LightningBallTrailParticle1",0,0,0,0,random(-2,2),random(-2,2),0,0,160)
+		TNT1 AA 0 A_SpawnItemEx("LightningBallSpark",0,0,0,frandom(2.0,-2.0),frandom(2.0,-2.0),frandom(2.0,-2.0),0,0,210)
+		TNT1 A 10
+		Stop
+	}
+}
+
+Actor LightningBallSpark
+{
+	+NOINTERACTION
+	Scale 0.18
+	RenderStyle Add
+	Alpha 1.0
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4,5,6,7,8)
+		X079 ABCDEFGH 0 A_Jump(256,"End")
+	End:
+		"####" "#" 1 Bright A_SetScale(ScaleX+0.005)
+		"####" "#" 0 A_FadeOut(0.05)
+		Loop
+	}
+}
+
+ACTOR LightningBallTrailParticle1
+{
+	Translation "0:255=%[0,0,0]:[1.3,0.9,0.55]"
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.6
+	States
+	{
+	Spawn:
+		FX16 DDDD 3 BRIGHT A_ScaleVelocity(0.9)
+		FX16 EEEE 3 BRIGHT A_ScaleVelocity(0.8)
+		FX16 FFFF 3 BRIGHT A_ScaleVelocity(0.7)
 		Stop
 	}
 }
@@ -1535,15 +1998,23 @@ ACTOR CatharsiBall
 	states
 	{
 	Spawn:
-		SDFB A -1 BRIGHT LIGHT("CatharsiBall")
+		SDFB A 1 BRIGHT LIGHT("CatharsiBall") A_SpawnItemEx("CatharsiBallParticle",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0,1),0,0,150)
 		Loop
 	Death:
+		TNT1 AAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(-0.4,0.4),0,frandom(0.1,0.45),random(0,359))
+		TNT1 AAAAAAA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),random(1,-1),random(1,-1),random(0,359))
 		SDFB B 6 BRIGHT LIGHT("CatharsiBallX_1")
 		SDFB C 6 BRIGHT LIGHT("CatharsiBallX_2")
 		SDFB D 6 BRIGHT LIGHT("CatharsiBallX_3")
 		SDFB E 6 BRIGHT LIGHT("CatharsiBallX_4")
 		stop
 	}
+}
+
+Actor CatharsiBallParticle : GenericSmallParticle
+{
+	Scale 0.5
+	Translation "0:255=%[0,0,0]:[1.5,0.7,0.0]"
 }
 
 ACTOR CatharsiDetonator
@@ -1574,6 +2045,7 @@ ACTOR CatharsiDetonator
 		SDFB B 0 A_SetUserVar("user_theta",user_theta+20)
 		SDFB B 0 A_JumpIf(user_theta==360,1)
 		Loop
+		TNT1 A 0 A_SpawnItemEx("NewExplosionSmallLittleBigger")
 		SDFB BCDE 6 BRIGHT
 		Stop
 	}
@@ -2006,17 +2478,39 @@ actor DarkNormal : UTNTDoomImpBall
 {
 	Speed 9
 	FastSpeed 18
+	Scale .75
 	States
 	{
 	Spawn:
-		DKB1 AB 4 Bright LIGHT("DarkSeeker")
+		DKB1 AABB 2 Bright LIGHT("DarkSeeker") A_SpawnItemEx("DarkNormalTrail")
 		Loop
 	Death:
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("DarkSeekerParticle",0,0,0,frandom(1,3),0,frandom(3,-3),random(0,359))
 		DKB1 C 4 Bright LIGHT("DarkSeekerX_1")
 		DKB1 D 4 Bright LIGHT("DarkSeekerX_2")
 		DKB1 E 4 Bright LIGHT("DarkSeekerX_3")
 		Stop
 	}
+}
+
+Actor DarkNormalTrail
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.8
+	Alpha 0.5
+	States
+	{
+	Spawn:
+		DKB1 AAABBB 1 Bright A_FadeOut(0.02)
+		Loop
+	}
+}
+
+Actor DarkSeekerParticle : GenericSmallSlowingParticle
+{
+	Scale 0.4
+	Translation "0:255=%[0,0,0]:[0.5,0.3,1.3]"
 }
 
 actor DarkStrong : DarkNormal
@@ -2027,12 +2521,33 @@ actor DarkStrong : DarkNormal
 	Spawn:
 		DKB2 AB 4 Bright LIGHT("DarkStrong") A_SpawnItemEx("DarkTail")
 		Loop
+	Spawn:
+		DKB2 A 1 NODELAY Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkTail")
+		DKB2 A 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkTail")
+		DKB2 B 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkTail")
+		DKB2 B 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkTail")
+		Loop
 	Death:
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("DarkSeekerParticle",0,0,0,frandom(1,3),0,frandom(3,-3),random(0,359))
+		TNT1 A 0 A_SpawnItemEx("DarkSeekerExplo")
 		DKB2 C 4 Bright LIGHT("DarkStrongX_1")
 		DKB2 D 4 Bright LIGHT("DarkStrongX_2")
 		DKB2 E 4 Bright LIGHT("DarkStrongX_3")
 		Stop
 	}
+}
+
+Actor DarkNormalParticle : DarkSeekerParticle
+{
+	Scale 0.55
 }
 
 actor DarkTail
@@ -2056,7 +2571,52 @@ actor DarkSeeker : DarkNormal
 	States
 	{
 	Spawn:
-		DKB1 AB 4 Bright LIGHT("DarkSeeker") A_SeekerMissile(5,10)
+		DKB1 A 0 A_SeekerMissile(5,10)
+		DKB1 A 0 A_SpawnItemEx("DarkSeekerTrail")
+		DKB1 AA 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,frandom(2,-2),frandom(1.5,-1.5))
+		DKB1 A 0 A_SpawnItemEx("DarkSeekerTrail")
+		DKB1 AA 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,frandom(2,-2),frandom(1.5,-1.5))
+		DKB1 B 0 A_SeekerMissile(5,10)
+		DKB1 B 0 A_SpawnItemEx("DarkSeekerTrail")
+		DKB1 BB 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,frandom(2,-2),frandom(1.5,-1.5))
+		DKB1 B 0 A_SpawnItemEx("DarkSeekerTrail")
+		DKB1 BB 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,frandom(2,-2),frandom(1.5,-1.5))
+		Loop
+	Death:
+		TNT1 A 0 A_SpawnItemEx("DarkSeekerExplo")
+		Goto Super::Death
+	}
+}
+
+Actor DarkSeekerExplo
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[1.5,0.3,0.9]"
+	States
+	{
+	Spawn:
+		X002 ABCDEFGHIJKLMNOPQRSTY 1 Bright
+		Stop
+	}
+}
+
+Actor DarkSeekerTrail
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Alpha 0.4
+	States
+	{
+	Spawn:
+		DKB1 A 1 Bright A_FadeOut(0.015)
+		TNT1 A 0 A_SetScale(ScaleX+0.05)
+		DKB1 A 1 Bright A_FadeOut(0.015)
+		TNT1 A 0 A_SetScale(ScaleX+0.05)
+		DKB1 B 1 Bright A_FadeOut(0.015)
+		TNT1 A 0 A_SetScale(ScaleX+0.05)
+		DKB1 B 1 Bright A_FadeOut(0.015)
+		TNT1 A 0 A_SetScale(ScaleX+0.05)
 		Loop
 	}
 }
@@ -2064,6 +2624,14 @@ actor DarkSeeker : DarkNormal
 actor DarkFast : DarkNormal
 {
 	Speed 18
+	States
+	{
+	Spawn:
+		DKB1 AAABBB 1 Bright A_SpawnItemEx("DarkNormalParticle",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.2),0,32)
+		Loop
+	Death:
+		Goto Super::Death+6
+	}
 }
 
 //===========================================================================
@@ -2364,15 +2932,44 @@ actor GreenPoisonBall : UTNTDoomImpBall
 	States
 	{
 	Spawn:
-		WLP1 ABCD 4 LIGHT("GreenPoison")
+		WLP1 ABCD 4 LIGHT("GreenPoison") A_SpawnItemEx("GreenPoisonDrop",frandom(3,-3),frandom(3,-3),frandom(3,-3),0,0,frandom(-0.2,-1.3))
 		Loop
 	Death:
+		TNT1 AAAAAA 0 A_SpawnItemEx("GreenPoisonExtra",0,0,0,random(1,-1),random(1,-1),random(0,2))
 		WLP1 E 4 LIGHT("GreenPoisonX_1")
 		WLP1 F 4 LIGHT("GreenPoisonX_2")
 		WLP1 G 4 LIGHT("GreenPoisonX_3")
 		WLP1 H 4
 		Stop
 	}
+}
+
+Actor GreenPoisonExtra
+{
+	Projectile
+	+NOCLIP
+	Scale 0.28
+	RenderStyle Add
+	Alpha 0.9
+	+THRUACTORS
+	Gravity .125
+	+DONTSPLASH
+	Translation "0:255=%[0,0,0]:[0,1,0]"
+	States
+	{
+	Spawn:
+		SBAL B 6 Bright
+		TNT1 A 0 A_Jump(80,1)
+		Loop
+		SBAL B 6 Bright A_FadeOut
+		Wait
+	}
+}
+
+Actor GreenPoisonDrop : GenericSmallParticle
+{
+	Translation "0:255=%[0,0,0]:[0,1,0]"
+	Scale 0.2
 }
 
 actor RedSkullBall : GreenPoisonBall
@@ -2384,14 +2981,53 @@ actor RedSkullBall : GreenPoisonBall
 	States
 	{
 	Spawn:
-		WLP4 ABCB 4 LIGHT("RedSkull")
+		IFX1 A 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,frandom(1,-1),frandom(1,-1))
+		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,frandom(1,-1),frandom(0,1),random(0,360),0,64)
+		IFX1 A 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,frandom(1,-1),frandom(1,-1))
+		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,frandom(1,-1),frandom(0,1),random(0,360),0,64)
+		IFX1 B 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,frandom(1,-1),frandom(1,-1))
+		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,frandom(1,-1),frandom(0,1),random(0,360),0,64)
+		IFX1 B 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,frandom(1,-1),frandom(1,-1))
+		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,frandom(1,-1),frandom(0,1),random(0,360),0,64)
 		Loop
 	Death:
-		WLP4 D 4 LIGHT("RedSkullX_1")
-		WLP4 E 4 LIGHT("RedSkullX_2")
-		WLP4 F 4 LIGHT("RedSkullX_3")
-		WLP4 G 4
+		TNT1 A 0 A_SpawnItemEx("RedSkullBallExp")
+		TNT1 AAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",frandom(1.5,5),0,4,frandom(2.5,5),0,0,random(0,359))
+		IFX1 I 4 LIGHT("RedSkullX_1")
+		IFX1 J 4 LIGHT("RedSkullX_2")
+		IFX1 K 4 LIGHT("RedSkullX_3")
+		IFX1 L 4
 		Stop
+	}
+}
+
+Actor RedSkullBallExp
+{
+	Projectile
+	+NOCLIP
+	RenderStyle Add
+	Scale 0.45
+	States
+	{
+	Spawn:
+		FX52 ABCDEFGHIJKLMN 2 Bright A_FadeOut(0.06)
+		Stop
+	}
+}
+
+Actor RedFlameSmall
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.15
+	Translation "0:255=%[0,0,0]:[1,0,0]"
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(190,4,7,10,14)
+		X123 ABCDEFGHIJKLMNOPQRSTUVWX 2 A_FadeOut(0.04)
+		Goto Spawn+1
 	}
 }
 
@@ -2409,10 +3045,38 @@ actor YellowSkullSeeker : GreenPoisonBall
 		WLP2 ABCD 3 Bright LIGHT("YellowSkull") A_SeekerMissile(5,10)
 		Loop
 	Death:
+		TNT1 AAAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.2),0,frandom(-1.2,1.2),random(0,359),32)
 		WLP2 E 4 Bright LIGHT("YellowSkullX_1")
 		WLP2 F 4 Bright LIGHT("YellowSkullX_2")
 		WLP2 G 4 Bright LIGHT("YellowSkullX_3")
 		Stop
+	Spawn:
+		WLP2 A 0 A_SeekerMissile(5,10)
+		WLP2 A 3 Bright A_SpawnItemEx("YellowSkullSeekerA",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		WLP2 A 0 A_SeekerMissile(5,10)
+		WLP2 B 3 Bright A_SpawnItemEx("YellowSkullSeekerA",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		WLP2 A 0 A_SeekerMissile(5,10)
+		WLP2 C 3 Bright A_SpawnItemEx("YellowSkullSeekerA",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		WLP2 A 0 A_SeekerMissile(5,10)
+		WLP2 D 3 Bright A_SpawnItemEx("YellowSkullSeekerA",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
+		Loop
+	Death:
+		WLP2 EFG 4 Bright
+		Stop
+	}
+}
+
+Actor YellowSkullSeekerA
+{
+	+NOINTERACTION
+	RenderStyle Add
+	scale 0.67
+	ALPHA 0.67
+	States
+	{
+	Spawn:
+		"####" "#" 1 Bright A_FadeOut(0.05)
+		Loop
 	}
 }
 
@@ -2456,6 +3120,7 @@ ACTOR FamiliarSpawner
 	Death:
 		WLP3 E 4
 		WLP3 F 6
+		TNT1 AAAAAAAAA 0 A_SpawnItemEx("FamiliarSpawnerParticle",0,0,0,random(2,-2),random(2,-2),frandom(0,3),0,0)
 		WLP3 F 0 A_Jump(85,3)
 		WLP3 G 8 A_SpawnItemEx("BatFamiliar",0,0,32)
 		WLP3 H 350
@@ -2464,6 +3129,12 @@ ACTOR FamiliarSpawner
 		WLP3 H 350
 		Stop
 	}
+}
+
+Actor FamiliarSpawnerParticle : GreenPoisonExtra
+{
+	Translation "0:255=%[0,0,0]:[1,0,0]"
+	Scale 0.6
 }
 
 //===========================================================================
@@ -2703,12 +3374,13 @@ ACTOR SnakeImpFireball : UTNTDoomImpBall
 	States
 	{
 	Spawn:
-		SIBA AB 8 LIGHT("SnakeImp")
+		SIBA AB 4 LIGHT("SnakeImp") A_SpawnItemEx("GreenPoisonDrop",frandom(3,-3),frandom(3,-3),frandom(3,-3),0,0,frandom(-0.2,-1.3))
 		loop
 	Death:
-		SIBA C 5 LIGHT("SnakeImpX_1")
-		SIBA D 5 LIGHT("SnakeImpX_2")
-		SIBA E 5 LIGHT("SnakeImpX_3")
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("GreenPoisonExtra",0,0,0,random(1,-1),random(1,-1),random(0,2))
+		SIBA CCCCC 1 LIGHT("SnakeImpX_1") A_FadeOut(0.07)
+		SIBA DDDDD 1 LIGHT("SnakeImpX_2") A_FadeOut(0.07)
+		SIBA EEEEE 1 LIGHT("SnakeImpX_3") A_FadeOut(0.07)
 		stop
 	}
 }
@@ -2910,7 +3582,7 @@ ACTOR CacolanternClone : UTNTCacoDemon 3111
 		Loop
 	Missile:
 		HED2 BC 5 bright LIGHT("CacoLantern") A_FaceTarget
-		HED2 D 5 bright LIGHT("CacoLantern") A_CustomComboAttack("CacolanternBall2",30,random(1,8)*6)
+		HED2 D 5 bright LIGHT("CacoLantern") A_CustomComboAttack("UTNTCacolanternBall",30,random(1,8)*6)
 		Goto See
 	Pain:
 		HED2 E 4 bright LIGHT("CacoLantern")
@@ -2936,7 +3608,7 @@ ACTOR CacolanternClone : UTNTCacoDemon 3111
 	}
 }
 
-actor CacolanternBall2 : UTNTCacodemonBall
+actor UTNTCacolanternBall : UTNTCacodemonBall
 {
 	Radius 13
 	Speed 20
@@ -2944,12 +3616,46 @@ actor CacolanternBall2 : UTNTCacodemonBall
 	States
 	{
 	Spawn:
-		BAL8 ABCDEFGH 5 Bright
+		BAL8 AAA 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		BAL8 BBB 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		BAL8 CCC 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		BAL8 DDD 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		BAL8 EEE 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		BAL8 FFF 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		BAL8 GGG 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		BAL8 HHH 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
 		Loop
 	Death:
-		BAL8 IJKL 4 Bright
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",frandom(1.5,5),0,4,frandom(0.5,2),0,0,random(0,359),32)
+		TNT1 AAAAAA 0 A_SpawnItemEx("LanternTrail",0,0,0,frandom(1,-1),frandom(1,-1),frandom(1.5,-1.5))
+		BAL8 I 4 Bright LIGHT("YellowMediumFlicker3")
+		BAL8 J 4 Bright LIGHT("YellowSmallFlicker1")
+		BAL8 K 4 Bright LIGHT("YellowSmallFlicker2")
+		BAL8 L 4 Bright LIGHT("YellowSmallFlicker3")
 		Stop
 	}
+}
+
+Actor LanternTrail : GenericSmallParticle
+{
+	Translation "0:255=%[0,0,0]:[1,0.6,0]"
+	Scale 0.4
 }
 
 //===========================================================================
@@ -2974,20 +3680,20 @@ ACTOR BelphegorClone : UTNTBaronOfHell 3112
 		Loop
 	Missile:
 		BOS3 EF 8 A_FaceTarget
-		BOS3 G 8 A_CustomComboAttack("BelphegorBall2",32,random(1,8)*15,"baron/melee")
+		BOS3 G 8 A_CustomComboAttack("UTNTBelphegorBall",32,random(1,8)*15,"baron/melee")
 		BOS3 F 8 A_FaceTarget
-		BOS3 G 8 A_CustomComboAttack("BelphegorBall2",32,random(1,8)*15,"baron/melee")
+		BOS3 G 8 A_CustomComboAttack("UTNTBelphegorBall",32,random(1,8)*15,"baron/melee")
 		BOS3 F 8 A_FaceTarget
-		BOS3 G 8 A_CustomComboAttack("BelphegorBall2",32,random(1,8)*15,"baron/melee")
+		BOS3 G 8 A_CustomComboAttack("UTNTBelphegorBall",32,random(1,8)*15,"baron/melee")
 		Goto See
 	Melee:
 		BOS3 EF 8 A_FaceTarget
-		BOS3 G 8 A_CustomComboAttack("BelphegorBall2",32,random(1,8)*15,"baron/melee")
+		BOS3 G 8 A_CustomComboAttack("UTNTBelphegorBall",32,random(1,8)*15,"baron/melee")
 		Goto See
 	}
 }
 
-actor BelphegorBall2 : BaronBall
+actor UTNTBelphegorBall : UTNTBaronBall
 {
 	Speed 20
 	Damage 10
@@ -3081,14 +3787,58 @@ actor HellGuardBall
 	States
 	{
 	Spawn:
-		HGFB ABCD 2 Bright LIGHT("HellGuard")
+		HGFB A 2 Bright LIGHT("HellGuard")
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		HGFB B 2 Bright LIGHT("HellGuard")
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		HGFB C 2 Bright LIGHT("HellGuard")
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		HGFB D 2 Bright LIGHT("HellGuard")
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
 		Loop
 	Death:
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeSmaller",frandom(1.5,5),0,4,frandom(0.5,2),0,0,random(0,359))
 		HGFB E 4 Bright LIGHT("HellGuardX_1")
 		HGFB F 4 Bright LIGHT("HellGuardX_2")
 		HGFB G 4 Bright LIGHT("HellGuardX_3")
 		HGFB H 4 Bright LIGHT("HellGuardX_4")
 		Stop
+	}
+}
+
+Actor HellGuardBallParticle
+{
+	+NOINTERACTION
+	Scale 0.2
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		X026 A 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 B 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 C 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 D 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 E 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 F 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 G 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 H 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 I 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 J 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 K 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 L 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 M 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 N 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 O 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 P 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 Q 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 R 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 S 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		X026 T 2 Bright A_FadeOut(0.07)	TNT1 A 0 A_ScaleVelocity(0.8)
+		sTOP
 	}
 }
 
@@ -3176,20 +3926,24 @@ actor SoulHarvesterBall
 	States
 	{
 	Spawn:
-		SHBA A 0 A_SpawnItemEx("SoulBallTrail")
-		SHBA AB 2 Bright LIGHT("SoulHarvesterBall") A_SeekerMissile(10,20)
+		SHBA A 0 A_SeekerMissile (10,20)
+		SHBA AA 1 Bright LIGHT("SoulHarvesterBall") A_SpawnItemEx("SoulBallTrail")
+		SHBA A 0 A_SeekerMissile (10,20)
+		SHBA BB 1 Bright LIGHT("SoulHarvesterBall") A_SpawnItemEx("SoulBallTrail")
 		Loop
 	Death:
-		SHBA C 4 Bright LIGHT("SoulHarvesterBallX_1")
-		SHBA D 4 Bright LIGHT("SoulHarvesterBallX_2")
-		SHBA E 4 Bright LIGHT("SoulHarvesterBallX_3")
-		SHBA F 4 Bright LIGHT("SoulHarvesterBallX_4")
-		SHBA G 4 Bright LIGHT("SoulHarvesterBallX_5")
-		SHBA H 4 Bright LIGHT("SoulHarvesterBallX_6")
-		SHBA I 4 Bright LIGHT("SoulHarvesterBallX_7")
-		SHBA J 4 Bright LIGHT("SoulHarvesterBallX_8")
-		SHBA K 4 Bright LIGHT("SoulHarvesterBallX_9")
-		SHBA L 4 Bright LIGHT("SoulHarvesterBallX_10")
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("SoulBallParticle",0,0,0,frandom(0.4,2),0,frandom(2,-2),random(0,359),32,32)
+		TNT1 A 0 A_SetScale(0.5)
+		SHBA CC 2 Bright LIGHT("SoulHarvesterBallX_1") A_FadeOut(0.06)
+		SHBA DD 2 Bright LIGHT("SoulHarvesterBallX_2") A_FadeOut(0.06)
+		SHBA EE 2 Bright LIGHT("SoulHarvesterBallX_3") A_FadeOut(0.06)
+		SHBA FF 2 Bright LIGHT("SoulHarvesterBallX_4") A_FadeOut(0.06)
+		SHBA GG 2 Bright LIGHT("SoulHarvesterBallX_5") A_FadeOut(0.06)
+		SHBA HH 2 Bright LIGHT("SoulHarvesterBallX_6") A_FadeOut(0.06)
+		SHBA II 2 Bright LIGHT("SoulHarvesterBallX_7") A_FadeOut(0.06)
+		SHBA JJ 2 Bright LIGHT("SoulHarvesterBallX_8") A_FadeOut(0.06)
+		SHBA KK 2 Bright LIGHT("SoulHarvesterBallX_9") A_FadeOut(0.06)
+		SHBA LL 2 Bright LIGHT("SoulHarvesterBallX_10") A_FadeOut(0.06)
 		Stop
 	}
 }
@@ -3206,8 +3960,34 @@ actor SoulBallTrail
 	States
 	{
 	Spawn:
-		SBTR H 6
-		SBTR ABCDEFG 4 Bright
+		SBTR H 2 A_SpawnItemEx("SoulBallParticle",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0,1),0,0,160)
+		SBTR ABCDEFG 3 Bright A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor SoulBallParticle
+{
+	+NOINTERACTION
+	Scale 0.4
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		SBTR A 3 Bright A_FadeOut(0.07)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		SBTR B 3 Bright A_FadeOut(0.07)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		SBTR C 3 Bright A_FadeOut(0.07)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		SBTR D 3 Bright A_FadeOut(0.07)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		SBTR E 3 Bright A_FadeOut(0.07)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		SBTR F 3 Bright A_FadeOut(0.07)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		SBTR G 3 Bright A_FadeOut(0.07)
+		TNT1 A 0 A_ScaleVelocity(0.8)
 		Stop
 	}
 }
@@ -3321,12 +4101,16 @@ actor HellWarriorBall : BaronBall
 {
 	Speed 14
 	FastSpeed 14
+	Translation "0:255=%[0,0,0]:[1,0.6,0.2]"
 	States
 	{
 	Spawn:
-		HWFB AB 5 Bright LIGHT("HellWarriorBall")
+		HWFB AAAABBBB 1 Bright LIGHT("HellWarriorBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
 		Loop
 	Death:
+		TNT1 A 0 A_SpawnItemEx("BaronBallExplo")
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359),SXF_TRANSFERTRANSLATION)
+		TNT1 A 0 A_SetTranslucent(0.01,1)
 		HWFB C 5 Bright LIGHT("HellWarriorBallX_1")
 		HWFB D 5 Bright LIGHT("HellWarriorBallX_2")
 		HWFB E 5 Bright LIGHT("HellWarriorBallX_3")
@@ -3342,20 +4126,33 @@ actor HellWarriorBall2 : HellWarriorBall
 	+RIPPER
 	ALPHA 0.8
 	SCALE 0.4
+	Translation "0:255=%[0,0,0]:[0,1,0]"
 	States
 	{
 	Spawn:
-		GRBA ABCDEFGH 2 Bright LIGHT("HellWarriorBall2")
+		MGS1 AABB 1 Bright LIGHT("HellWarriorBall2") A_SpawnItemEx("HellWarriorBall2Trail",0,0,0,frandom(0.2,2),0,frandom(2,-2),random(0,359),SXF_TRANSFERTRANSLATION)
 		Loop
 	Death:
-		GRBA A 3 Bright LIGHT("HellWarriorBall2")
-		GRBA I 3 Bright LIGHT("HellWarriorBall2X_1")
-		GRBA J 3 Bright LIGHT("HellWarriorBall2X_2")
-		GRBA K 3 Bright LIGHT("HellWarriorBall2X_3")
-		GRBA L 3 Bright LIGHT("HellWarriorBall2X_4")
-		GRBA M 3 Bright LIGHT("HellWarriorBall2X_5")
-		GRBA N 3 Bright LIGHT("HellWarriorBall2X_6")
+		MGS1 ABABABAB 2 A_SetScale(ScaleX-0.025)
+		MGS1 ABABABAB 2 A_SetScale(ScaleX-0.025)
 		Stop
+	}
+}
+
+Actor HellWarriorBall2Trail
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.3
+	States
+	{
+	Spawn:
+		TNT1 A 1
+		MGS1 A 0 A_Jump(128,1)
+		MGS1 AB 2 A_Fadeout(0.05)
+		TNT1 A 0 A_SetScale(ScaleX-0.04)
+		TNT1 A 0 A_ScaleVelocity(0.75)
+		Goto Spawn+2
 	}
 }
 
@@ -3407,8 +4204,6 @@ ACTOR Afrit : UTNTBaronOfHell 3120
 	States
 	{
 	Spawn:
-		//FRIT A 0 NODELAY A_SpawnItemEx("OrbitComet",0,0,44,5)
-		//FRIT A 0 A_SpawnItemEx("OrbitComet2",0,0,44,5,0,0,180)
 		FRIT A 0 NODELAY A_CustomMissile("OrbitComet",44,0,0,2)
 		FRIT A 0 A_CustomMissile("OrbitComet2",44,0,180,2)
 	Idle:
@@ -3469,8 +4264,6 @@ ACTOR Afrit : UTNTBaronOfHell 3120
 	}
 }
 
-//********************
-
 actor Comet
 {
 	Radius 6
@@ -3488,6 +4281,7 @@ actor Comet
 		COMT AAAABBBBCCCC 1 Bright LIGHT("Comet") A_SpawnItemEx("CometTail")
 		Loop
 	Death:
+		TNT1 A 0 A_SpawnItemEx("MonExplosionMedium")
 		COMT D 3 Bright LIGHT("CometX_1") A_SpawnItemEx("CometDeathGlow")
 		COMT E 3 Bright LIGHT("CometX_2") A_Explode(40,80)
 		COMT F 0 A_SetTranslucent(.7,1)
@@ -3496,8 +4290,6 @@ actor Comet
 		Stop
 	}
 }
-
-//********************
 
 actor CometTail
 {
@@ -3508,12 +4300,11 @@ actor CometTail
 	States
 	{
 	Spawn:
-		FRTB ABCDEFGHI 1 Bright
+		TNT1 AAAA 0 A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
+		FRTB ABCDEFGHI 2 Bright
 		Stop
 	}
 }
-
-//********************
 
 actor CometDeathGlow : CometTail
 {
@@ -3527,14 +4318,10 @@ actor CometDeathGlow : CometTail
 	}
 }
 
-//********************
-
 actor OrbitCometTail : CometTail
 {
 	Scale .5
 }
-
-//********************
 
 actor OrbitComet : Comet
 {
@@ -3547,13 +4334,10 @@ actor OrbitComet : Comet
 	Spawn:
 		COMT AABBCC 1 Bright A_SpawnItemEx("OrbitCometTail")
 		TNT1 A 0 A_CustomMissile("OrbitComet",0,0,75)
-		//COMT A 0 A_SpawnItemEx("OrbitComet",0,0,0,5,0,0,75)
 		COMT A 0 A_SpawnItemEx("OrbitCometTail")
 		Stop
 	}
 }
-
-//********************
 
 actor OrbitComet2 : OrbitComet
 {
@@ -3562,13 +4346,10 @@ actor OrbitComet2 : OrbitComet
 	Spawn:
 		COMT AABBCC 1 Bright A_SpawnItemEx("OrbitCometTail")
 		TNT1 A 0 A_CustomMissile("OrbitComet2",0,0,-75)
-		//COMT A 0 A_SpawnItemEx("OrbitComet2",0,0,0,5,0,0,-75)
 		COMT A 0 A_SpawnItemEx("OrbitCometTail")
 		Stop
 	}
 }
-
-//********************
 
 actor AfritBall : BaronBall
 {
@@ -3577,17 +4358,31 @@ actor AfritBall : BaronBall
 	States
 	{
 	Spawn:
-		FRTM AB 5 Bright LIGHT("AfritBall")
+		FRTM AAABBB 1 Bright LIGHT("AfritBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
 		Loop
 	Death:
-		FRTM C 6 Bright LIGHT("AfritBallX_1")
-		FRTM D 6 Bright LIGHT("AfritBallX_2")
-		FRTM E 6 Bright LIGHT("AfritBallX_3")
+		TNT1 AAAAAAAAAAAA 0 A_SpawnItemEx("AfritBallParticle",0,0,0,frandom(2,-2),frandom(2,-2),frandom(2,-2))
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359))
+		FRTM C 3 Bright LIGHT("AfritBallX_1")
+		FRTM D 3 Bright LIGHT("AfritBallX_2")
+		FRTM E 3 Bright LIGHT("AfritBallX_3")
 		Stop
 	}
 }
 
-//********************
+Actor AfritBallParticle
+{
+	+NOINTERACTION
+	Scale 0.15
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		FRTM F 3 Bright A_FadeOut(0.07)
+		TNT1 A 0 A_ScaleVelocity(0.8)
+		Loop
+	}
+}
 
 ACTOR HellFire
 {
@@ -3609,8 +4404,6 @@ ACTOR HellFire
 	}
 }
 
-//********************
-
 ACTOR HellFire1 : HellFire
 {
 	+NOCLIP
@@ -3631,8 +4424,6 @@ ACTOR HellFire1 : HellFire
 	}
 }
 
-//********************
-
 ACTOR HellFire2 : HellFire
 {
 	+NOCLIP
@@ -3646,24 +4437,27 @@ ACTOR HellFire2 : HellFire
 	Spawn:
 		TNT1 A 8
 		FRTF A 3 Bright LIGHT("HellFire") A_Explode(3,32)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
 		FRTF B 3 Bright LIGHT("HellFire_2") A_Explode(3,32)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
 		FRTF C 3 Bright LIGHT("HellFire_3") A_Explode(3,32)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
 		FRTF C 0 A_Jump(191,4)
 		FRTF C 0 A_SpawnItemEx("HellFire2",0,24)
 		FRTF C 0 A_SpawnItemEx("HellFire2")
 		FRTF C 0 A_SpawnItemEx("HellFire2",0,-24)
-		FRTF D 3 Bright LIGHT("HellFire_4")
-		FRTF E 3 Bright LIGHT("HellFire_5")
-		FRTF F 3 Bright LIGHT("HellFire_6")
-		FRTF G 3 Bright LIGHT("HellFire_7")
-		FRTF H 3 Bright LIGHT("HellFire_8")
-		FRTF I 3 Bright LIGHT("HellFire_9")
-		FRTF J 3 Bright LIGHT("HellFire_10")
-		FRTF K 3 Bright LIGHT("HellFire_11")
-		FRTF L 3 Bright LIGHT("HellFire_12")
-		FRTF M 3 Bright LIGHT("HellFire_13")
-		FRTF N 3 Bright LIGHT("HellFire_14")
-		FRTF O 3 Bright LIGHT("HellFire_15")
+		FRTF D 3 Bright LIGHT("HellFire_4") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF E 3 Bright LIGHT("HellFire_5") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF F 3 Bright LIGHT("HellFire_6") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF G 3 Bright LIGHT("HellFire_7") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF H 3 Bright LIGHT("HellFire_8") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF I 3 Bright LIGHT("HellFire_9") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF J 3 Bright LIGHT("HellFire_10") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF K 3 Bright LIGHT("HellFire_11") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF L 3 Bright LIGHT("HellFire_12") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF M 3 Bright LIGHT("HellFire_13") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF N 3 Bright LIGHT("HellFire_14") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF O 3 Bright LIGHT("HellFire_15") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
 		Stop
 	}
 }
@@ -3786,15 +4580,17 @@ actor TorturedSoulBall : UTNTDoomImpBall
 	Speed 20
 	Damage 5
 	SeeSound "torturedsoul/attack"
+	Translation "0:255=%[0,0,0]:[0.95,1.2,0.55]"
 	States
 	{
 	Spawn:
-		TRBL AB 4 LIGHT("TorturedSoulBall")
+		TRBL AAABBB 1 LIGHT("TorturedSoulBall") A_SpawnItemEx("TorturedSoulBallTrail")
 		Loop
 	Death:
-		TRBL C 4 LIGHT("TorturedSoulBallX_1")
-		TRBL D 4 LIGHT("TorturedSoulBallX_2")
-		TRBL E 4 LIGHT("TorturedSoulBallX_3")
+		TNT1 AAAAAAAAAAAAA 0 A_SpawnItemEx("TorturedSoulBallParticle",0,0,0,random(2,-2),random(2,-2),frandom(0,3),0,33)
+		TRBL CC 2 LIGHT("TorturedSoulBallX_1") A_FadeOut(0.06)
+		TRBL DD 2 LIGHT("TorturedSoulBallX_2") A_FadeOut(0.06)
+		TRBL EE 2 LIGHT("TorturedSoulBallX_3") A_FadeOut(0.06)
 		Stop
 	}
 }
@@ -3808,15 +4604,54 @@ actor TorturedSoulPoison
 	+RIPPER
 	PROJECTILE
 	RENDERSTYLE Translucent
-	ALPHA 0.67
+	ALPHA 0.99
+	Translation "0:255=%[0,0,0]:[0.95,1.2,0.55]"
 	States
 	{
 	Spawn:
-		TRPS ABCDEFGDEFGDEFGDEFGDEFGDCBA 4
-		Stop
 	Death:
-		TRPS DCBA 4
-		Stop
+		TNT1 A 0 NODELAY A_Jump(250,3,6,9,12,15,18,21)
+		X108 ABCDEFGHIJKLMNOPQRSTUVWX 2 A_FadeOut(0.0185)
+		Goto Spawn+1
+	}
+}
+
+Actor TorturedSoulBallTrail
+{
+	Translation "0:255=%[0,0,0]:[0.95,1.2,0.55]"
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.5
+	Alpha 0.7
+	States
+	{
+	Spawn:
+		X105 A 0 NODELAY A_Jump(240,3,6,9,12,15,18,21)
+		X105 ABCDEFGHIJKLMNOPQRSTUVWX 2 A_FadeOut(0.04)
+		Goto Spawn+1
+	}
+}
+
+Actor TorturedSoulBallParticle
+{
+	Translation "0:255=%[0,0,0]:[0.95,1.2,0.55]"
+	Projectile
+	+NOCLIP
+	Scale 0.35
+	RenderStyle Add
+	Alpha 0.9
+	+THRUACTORS
+	-NOGRAVITY
+	Gravity .125
+	+DONTSPLASH
+	States
+	{
+	Spawn:
+		SBAL B 6
+		TNT1 A 0 A_Jump(80,1)
+		Loop
+		SBAL B 3 A_FadeOut(0.1)
+		Wait
 	}
 }
 
@@ -3918,11 +4753,10 @@ ACTOR Shadow 3126
 	PainChance 200
 	Monster
 	+FLOORCLIP
-	SeeSound "imp/sight"
-	PainSound "imp/pain"
-	DeathSound "imp/death"
-	ActiveSound "imp/active"
-	Obituary "%o was assasined by a shadow."
+	PainSound "Shadow/pain"
+	DeathSound "Shadow/death"
+	ActiveSound "Shadow/active"
+	Obituary "%o was assasinated by a shadow."
 	States
 	{
 	Spawn:
@@ -3990,12 +4824,6 @@ ACTOR Shadowtorso
 	}
 }
 
-//===========================================================================
-//
-// Shadow fireball
-//
-//===========================================================================
-
 ACTOR ShadowBall : UTNTDoomImpBall
 {
 	Speed 12
@@ -4005,15 +4833,16 @@ ACTOR ShadowBall : UTNTDoomImpBall
 	States
 	{
 	Spawn:
-		SBAL ABC 4 BRIGHT LIGHT("ShadowBall") A_SpawnItemEx("ShadowTrail")
+		SBAL AAABBBCCC 1 BRIGHT LIGHT("ShadowBall") A_SpawnItemEx("ShadowTrail")
 		Loop
 	Death:
-		SBAL C 5 Bright LIGHT("ShadowBall")
-		SBAL D 4 BRIGHT LIGHT("ShadowBallX_1")
-		SBAL E 4 BRIGHT LIGHT("ShadowBallX_2")
-		SBAL F 4 BRIGHT LIGHT("ShadowBallX_3")
-		SBAL G 4 BRIGHT LIGHT("ShadowBallX_4")
-		SBAL H 4 BRIGHT LIGHT("ShadowBallX_5")
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("ShadowBallSmokeParticle",0,0,0,frandom(1,-1),frandom(1,-1),frandom(1,-1))
+		SBAL C 3 Bright LIGHT("ShadowBall")
+		SBAL D 3 BRIGHT LIGHT("ShadowBallX_1")
+		SBAL E 3 BRIGHT LIGHT("ShadowBallX_2")
+		SBAL F 3 BRIGHT LIGHT("ShadowBallX_3")
+		SBAL G 3 BRIGHT LIGHT("ShadowBallX_4")
+		SBAL H 3 BRIGHT LIGHT("ShadowBallX_5")
 		Stop
 	}
 }
@@ -4029,8 +4858,24 @@ actor ShadowTrail
 	States
 	{
 	Spawn:
-		SHTR ABCDEF 4 Bright
+		SHTR ABCDEF 3 Bright
 		Stop
+	}
+}
+
+Actor ShadowBallSmokeParticle
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.2
+	Alpha 0.99
+	Translation "0:255=%[0,0,0]:[1,0.15,0.15]"
+	States
+	{
+	Spawn:
+		X126 A 0 NODELAY A_SetScale(ScaleX+(0.01))
+		X126 A 1 A_FadeOut(0.04)
+		Loop
 	}
 }
 
@@ -4120,12 +4965,16 @@ ACTOR HellsFuryBall : BaronBall
 {
 	Speed 14
 	FastSpeed 14
+	Translation "0:255=%[0.2,0.05,0.05]:[1.4,0.2,0.2]"
 	States
 	{
 	Spawn:
-		HFBB AB 5 Bright LIGHT("HellsFuryBall")
+		HFBB AAABBB 1 Bright LIGHT("HellsFuryBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
 		Loop
 	Death:
+		TNT1 A 0 A_SpawnItemEx("BaronBallExplo",0,0,0,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359))
+		TNT1 A 0 A_SetTranslucent(0.01,1)
 		HFBB C 5 Bright LIGHT("HellsFuryBallX_1")
 		HFBB D 5 Bright LIGHT("HellsFuryBallX_2")
 		HFBB E 5 Bright LIGHT("HellsFuryBallX_3")
@@ -4200,24 +5049,47 @@ ACTOR ElementalPlasma : ArachnotronPlasma
 	States
 	{
 	Spawn:
-		APLS AB 5 BRIGHT LIGHT("ElementalPlasma")
+		APLS AABB 2 BRIGHT LIGHT("ElementalPlasma") A_SpawnItemEx("MonPlasmaTrail",random(4,-4),random(4,-4),random(4,-4))
 		Loop
 	Death:
-		TNT1 A 0 A_CustomMissile("PSpark6_Y1",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y2",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y3",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y4",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y5",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y6",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y7",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y8",0,0,random(0,360),2,random(-158,-22))
-		TNT1 A 0 A_CustomMissile("PSpark6_Y9",0,0,random(0,360),2,random(-158,-22))
+		TNT1 AAAAAAA 0 A_SpawnItemEx("MonBlasterPuffParticle",0,0,0,frandom(5,-5),frandom(5,-5),frandom(5,-5),random(0,359))
 		APBX A 5 BRIGHT LIGHT("ElementalPlasmaX_1")
 		APBX B 5 BRIGHT LIGHT("ElementalPlasmaX_2")
 		APBX C 5 BRIGHT LIGHT("ElementalPlasmaX_3")
 		APBX D 5 BRIGHT LIGHT("ElementalPlasmaX_4")
 		APBX E 5 BRIGHT LIGHT("ElementalPlasmaX_5")
 		Stop
+	}
+}
+
+Actor MonPlasmaTrail
+{
+	+NOINTERACTION
+	Scale 0.25
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[0.5,1.0,0.2]"
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(240,4,8,12,16,20,24,28,32,36)
+		X103 ABCDEFGHIJKLMNOPQRSTUVXYZ 2 Bright A_FadeOut(0.09)
+		X104 ABCDEFGHIJKLMNOPQRSTUV 2 Bright A_FadeOut(0.09)
+		Goto Spawn+1
+	}
+}
+
+ACTOR MonBlasterPuffParticle
+{
+	Scale 0.1
+	Translation "0:255=%[0,0,0]:[0.9,0.85,0.18]"
+	RenderStyle Add
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		X026 DD 1 Bright A_FadeOut(frandom(0.02,0.08))
+		X025 D 0 A_ScaleVelocity(0.9)
+		Loop
 	}
 }
 
@@ -4348,14 +5220,35 @@ ACTOR HS 30116
 		HADE M 0 A_NoBlocking
 		HADE M 0 A_SetTranslucent(.9,1)
 		HADE M 0 A_PlaySound("monster/hadexp")
-		HADE M 4 BRIGHT A_Explode(112,112,XF_NOTMISSILE)
-		HADE NOPQ 5 BRIGHT
+		HADE M 0 A_Explode(112,112,XF_NOTMISSILE)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("HSBoomParticle",0,0,15,frandom(3,-3),frandom(3,-3),frandom(3,-3))
+		HADE MMM 1 BRIGHT LIGHT("HadesBoom_1") A_FadeOut(0.04)
+		HADE NNN 1 BRIGHT LIGHT("HadesBoom_2") A_FadeOut(0.04)
+		HADE OOOO 1 BRIGHT LIGHT("HadesBoom_3") A_FadeOut(0.04)
+		HADE PPPP 1 BRIGHT LIGHT("HadesBoom_4") A_FadeOut(0.04)
+		HADE QQQQ 1 BRIGHT LIGHT("HadesBoom_5") A_FadeOut(0.04)
 		Stop
 	XDeath:
 		HADE N 0 A_NoBlocking
 		HADE H 5 BRIGHT A_PlaySound("monster/haddth")
 		HADE GFERSTUVWX 4 BRIGHT
 		Stop
+	}
+}
+
+Actor HSBoomParticle
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.3
+	Alpha 0.99
+	Translation "0:255=%[0,0,0]:[1,0.15,0.15]"
+	States
+	{
+	Spawn:
+		X126 A 0 NODELAY A_SetScale(ScaleX+(0.02))
+		X126 A 1 A_FadeOut(0.04)
+		Loop
 	}
 }
 
@@ -4553,6 +5446,70 @@ ACTOR TNTSpider : Minotaur 10906
 	}
 }
 
+ACTOR UTNTMinotaurFX1 : MinotaurFX1 replaces MinotaurFX1	//the 4 shots
+{
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		FX12 AAAABBBB 1 BRIGHT LIGHT("YellowMediumPoint2") A_SpawnItemEx("CatharsiBallParticle",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0,1))
+		Loop
+	Death:
+		TNT1 AAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(-0.4,0.4),0,frandom(0.1,0.45),random(0,359),32)
+		TNT1 AAAAAAA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),random(1,-1),random(1,-1),random(0,359),32)
+		FX12 C 4 BRIGHT LIGHT("YellowMediumPoint1")
+		FX12 DE 4 BRIGHT LIGHT("YellowMediumPoint2")
+		FX12 F 4 BRIGHT LIGHT("YellowMediumPoint3")
+		FX12 G 4 BRIGHT LIGHT("YellowMediumPoint1")
+		FX12 H 4 BRIGHT LIGHT("YellowMediumPoint2")
+		Stop
+	}
+}
+
+ACTOR UTNTMinotaurFX2 : MinotaurFX2 replaces MinotaurFX2	//floorshot
+{
+	States
+	{
+	Spawn:
+		FX13 A 2 A_MntrFloorFire
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke",random(5,-5),random(5,-5),random(5,10),0,0,frandom(0.2,1.0),0,0,64)
+		TNT1 AAAA 0 A_SpawnItemEx("FTFlameTrail",random(-7,7),random(-5,5),random(0,5),0,0,frandom(0,1))
+		TNT1 AA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),0,random(0.5,3),random(0,359))
+		Loop
+	Death:
+		TNT1 AAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,10,frandom(1,4),0,0,random(0,359))
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),0,random(0.5,3),random(0,359))
+		FX13 I 3 Bright LIGHT("YellowMediumFlicker2") A_Explode
+		FX13 J 3 Bright LIGHT("YellowMediumFlicker1")
+		FX13 K 3 Bright LIGHT("YellowMediumFlicker2")
+		FX13 L 3 Bright LIGHT("YellowMediumFlicker3")
+		FX13 M 3 Bright LIGHT("YellowSmallFlicker1")
+		Stop
+	}
+}
+
+ACTOR UTNTMinotaurFX3 : MinotaurFX3 replaces MinotaurFX3	//floortrail
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("FlmThrwrSmoke",random(5,-5),random(5,-5),random(5,10),0,0,frandom(0.2,1.0),0,32,64)
+		TNT1 AA 0 A_SpawnItemEx("FTFlameTrail",random(-7,7),random(-5,5),random(0,5),0,0,frandom(0,1))
+		FX13 DC 4 Bright LIGHT("YellowSmallFlicker2")
+		FX13 B 5 Bright LIGHT("YellowSmallFlicker1")
+		FX13 CDE 5 Bright LIGHT("YellowSmallFlicker2")
+		FX13 FGH 4 Bright LIGHT("YellowSmallFlicker3")
+		Stop
+	Death:
+		FX13 I 3 Bright LIGHT("YellowMediumFlicker2") A_Explode
+		FX13 J 3 Bright LIGHT("YellowMediumFlicker1")
+		FX13 K 3 Bright LIGHT("YellowMediumFlicker2")
+		FX13 L 3 Bright LIGHT("YellowMediumFlicker3")
+		FX13 M 3 Bright LIGHT("YellowSmallFlicker1")
+		Stop
+	}
+}
+
 ACTOR TNTSpiderSpawner
 {
 	+MISSILE
@@ -4701,16 +5658,131 @@ ACTOR Hecteball : FatShot //Hectebus Fireball
 {
 	Radius 10
 	Damage 16
+	Translation "0:255=%[0,0,0]:[0.65,0.81,0.34]"
 	States
 	{
 	Spawn:
-		HECF AB 4 Bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,0,64/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,0,-64/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,12/6,63/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-12/6,-63/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,23/6,60/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-23/6,-60/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF B 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,34/6,54/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-34/6,-54/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF B 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,43/6,47/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-43/6,-47/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF B 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,51/6,39/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-51/6,-39/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,57/6,29/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-57/6,-29/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,62/6,18/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-62/6,-18/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,64/6,0)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-64/6,0)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF B 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,62/6,-18/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-62/6,18/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF B 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,57/6,-29/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-57/6,29/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF B 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,51/6,-39/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-51/6,39/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,43/6,-47/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-43/6,47/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,34/6,-54/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-34/6,54/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,23/6,-60/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-23/6,60/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF B 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,12/6,-63/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-12/6,63/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF B 1 bright LIGHT("HectebusFireBall")
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,0,64/6)
+		HECF A 0 A_SpawnItemEx("HecRingTrail",0,0,-64/6)
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
 		Loop
 	Death:
-		HECF C 4 Bright LIGHT("HectebusFireBallX_1")
-		HECF D 4 Bright LIGHT("HectebusFireBallX_2")
-		HECF E 4 Bright LIGHT("HectebusFireBallX_3")
+		TNT1 AAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TorturedSoulBallParticle",0,0,0,frandom(4,-4),frandom(4,-4),frandom(0,4),0,1)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("HSBoomParticle",0,0,15,frandom(3,-3),frandom(3,-3),frandom(3,-3),0,1)
+		HECF CCCC 1 Bright LIGHT("HectebusFireBallX_1") A_FadeOut(0.09)
+		HECF DDDD 1 Bright LIGHT("HectebusFireBallX_2") A_FadeOut(0.09)
+		HECF EEEE 1 Bright LIGHT("HectebusFireBallX_3") A_FadeOut(0.09)
 		Stop
+	}
+}
+
+Actor HecCenterTrail : TorturedSoulBallTrail
+{
+	Scale 0.7
+	Translation "0:255=%[0,0,0]:[0.65,0.81,0.34]"
+}
+
+Actor HecRingTrail
+{
+	+NOINTERACTION
+	Scale 0.18
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[0.65,0.81,0.34]"
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(240,4,8,12,16,20,24,28,32,36)
+		X103 ABCDEFGHIJKLMNOPQRSTUVXYZ 2 Bright A_FadeOut(0.07)
+		X104 ABCDEFGHIJKLMNOPQRSTUV 2 Bright A_FadeOut(0.07)
+		Goto Spawn+1
+	}
+}
+
+Actor HectParticles
+{
+	Projectile
+	+NOCLIP
+	Scale 0.5
+	RenderStyle Add
+	Alpha 0.9
+	+THRUACTORS
+	-NOGRAVITY
+	Gravity .125
+	+DONTSPLASH
+	States
+	{
+	Spawn:
+		SBAL B 6
+		TNT1 A 0 A_Jump(80,1)
+		Loop
+		SBAL B 3 A_FadeOut
+		Wait
 	}
 }
 
@@ -4843,10 +5915,17 @@ ACTOR BruiserBall : UTNTBaronBall
 	States
 	{
 	Spawn:
-		BRBA AABB 2 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("BruiserBallTrail")
+		BRBA A 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		BRBA A 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		BRBA B 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
+		BRBA B 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
 		Loop
 	Death:
-		BRBA K 3 BRIGHT LIGHT("BruiserBallX_1")
+		BRBA K 3 BRIGHT LIGHT("BruiserBallX_1") A_SpawnItemEx("BruiserBallExplo")
 		BRBA K 3 BRIGHT LIGHT("BruiserBallX_2")
 		BRBA L 3 BRIGHT LIGHT("BruiserBallX_3")
 		BRBA M 3 BRIGHT LIGHT("BruiserBallX_4")
@@ -4865,6 +5944,79 @@ ACTOR BruiserBall : UTNTBaronBall
 	}
 }
 
+Actor BruiserBallExplo
+{
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("TT1",0,0,0,0,1.85)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.8,0.5)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.7,1.0)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.4,1.4)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.0,1.7)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,0.6,1.8)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,0,1.85)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.85)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.8,0.5)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.7,1.0)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.4,1.4)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.0,1.7)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-0.6,1.8)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.8,-0.5)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.7,-1.0)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.4,-1.4)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.0,-1.7)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,0.6,-1.8)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,0,-1.85)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.8,-0.5)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.7,-1.0)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.4,-1.4)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.0,-1.7)
+		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-0.6,-1.8)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.85)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.8,0.5)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.7,1.0)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.4,1.4)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.0,1.7)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),0.6,1.8)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),0,1.85)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.85)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.8,0.5)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.7,1.0)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.4,1.4)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.0,1.7)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-0.6,1.8)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.8,-0.5)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.7,-1.0)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.4,-1.4)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.0,-1.7)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),0.6,-1.8)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),0,-1.85)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.8,-0.5)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.7,-1.0)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.4,-1.4)
+		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.0,-1.7)
+		TNT1 A 1 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-0.6,-1.8)
+		Stop
+	}
+}
+
+Actor MeteoFlameImpactParticle
+{
+	+NOINTERACTION
+	RenderStyle Add
+	Scale 0.4
+	Alpha 0.7
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(200,2,3,4,5,6)
+		X026 ABCDEFGHIJKLMNOPQRT 1 Bright A_FadeOut(0.03)
+		Stop
+	}
+}
+
 actor BruiserBallTrail
 {
 	Radius 1
@@ -4872,11 +6024,12 @@ actor BruiserBallTrail
 	PROJECTILE
 	RENDERSTYLE ADD
 	ALPHA 0.70
+	Scale 0.8
 	+NOCLIP
 	States
 	{
 	Spawn:
-		BRBA CDEFGHIJ 4 Bright
+		BRBA CDEFGHIJ 2 Bright
 		Stop
 	}
 }
@@ -4890,9 +6043,21 @@ ACTOR BruiserBall2 : BruiserBall
 	States
 	{
 	Spawn:
-		BRB2 AB 6 BRIGHT LIGHT("BruiserBall")
+		BRB2 A 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
+		BRB2 A 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
+		BRB2 A 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
+		BRB2 B 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
+		BRB2 B 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
+		BRB2 B 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
 		Loop
 	Death:
+		TNT1 AAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359))
 		BRB2 C 3 Bright LIGHT("BruiserBall2X_1")
 		BRB2 D 3 Bright LIGHT("BruiserBall2X_2")
 		BRB2 E 3 Bright LIGHT("BruiserBall2X_3")
@@ -4935,26 +6100,40 @@ ACTOR BruiserFire
 	States
 	{
 	Spawn:
-		XXBF A 3 Bright LIGHT("BruiserFire_1")
+		XXBF A 3 NODELAY Bright LIGHT("BruiserFire_1") A_SpawnItemEx("BruiserFireExtraFX")
 		XXBF B 3 Bright LIGHT("BruiserFire_2")
-		XXBF C 3 Bright LIGHT("BruiserFire_3") A_Explode(48,128,0)
-		XXBF D 3 BRIGHT LIGHT("BruiserFire_4")
-		XXBF E 3 BRIGHT LIGHT("BruiserFire_5")
-		XXBF F 3 BRIGHT LIGHT("BruiserFire_6")
-		XXBF G 3 BRIGHT LIGHT("BruiserFire_7")
-		XXBF H 3 BRIGHT LIGHT("BruiserFire_8")
-		XXBF I 3 BRIGHT LIGHT("BruiserFire_9")
-		XXBF J 3 BRIGHT LIGHT("BruiserFire_10")
-		XXBF K 3 BRIGHT LIGHT("BruiserFire_11")
-		XXBF L 3 BRIGHT LIGHT("BruiserFire_12")
-		XXBF M 3 BRIGHT LIGHT("BruiserFire_13")
-		XXBF N 3 BRIGHT LIGHT("BruiserFire_14")
-		XXBF O 3 BRIGHT LIGHT("BruiserFire_15")
-		XXBF P 3 BRIGHT LIGHT("BruiserFire_16")
-		XXBF Q 3 BRIGHT LIGHT("BruiserFire_17")
-		XXBF R 3 BRIGHT LIGHT("BruiserFire_18")
-		XXBF S 3 BRIGHT LIGHT("BruiserFire_19")
-		XXBF T 3 Bright
+		XXBF C 2 Bright LIGHT("BruiserFire_3") A_Explode(48,128,0)
+		XXBF D 2 BRIGHT LIGHT("BruiserFire_4") A_FadeOut(0.03)
+		XXBF E 2 BRIGHT LIGHT("BruiserFire_5") A_FadeOut(0.03)
+		XXBF F 2 BRIGHT LIGHT("BruiserFire_6") A_FadeOut(0.03)
+		XXBF G 2 BRIGHT LIGHT("BruiserFire_7") A_FadeOut(0.03)
+		XXBF H 2 BRIGHT LIGHT("BruiserFire_8") A_FadeOut(0.03)
+		XXBF I 2 BRIGHT LIGHT("BruiserFire_9") A_FadeOut(0.03)
+		XXBF J 2 BRIGHT LIGHT("BruiserFire_10") A_FadeOut(0.03)
+		XXBF K 2 BRIGHT LIGHT("BruiserFire_11") A_FadeOut(0.03)
+		XXBF L 2 BRIGHT LIGHT("BruiserFire_12") A_FadeOut(0.03)
+		XXBF M 2 BRIGHT LIGHT("BruiserFire_13") A_FadeOut(0.03)
+		XXBF N 2 BRIGHT LIGHT("BruiserFire_14") A_FadeOut(0.03)
+		XXBF O 2 BRIGHT LIGHT("BruiserFire_15") A_FadeOut(0.03)
+		XXBF P 2 BRIGHT LIGHT("BruiserFire_16") A_FadeOut(0.03)
+		XXBF Q 2 BRIGHT LIGHT("BruiserFire_17") A_FadeOut(0.03)
+		XXBF R 2 BRIGHT LIGHT("BruiserFire_18") A_FadeOut(0.03)
+		XXBF S 2 BRIGHT LIGHT("BruiserFire_19") A_FadeOut(0.03)
+		XXBF T 2 BRIGHT
+		Stop
+	}
+}
+
+Actor BruiserFireExtraFX
+{
+	+NOINTERACTION
+	RenderStyle Add
+	States
+	{
+	Spawn:
+		TNT1 AAAAAAAAA 0 NODELAY A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(0,3),0,frandom(0.4,3),random(0,359))
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359))
+		X011 ABCDEFGHIJKLMNOPQRSTUVWX 2 Bright
 		Stop
 	}
 }

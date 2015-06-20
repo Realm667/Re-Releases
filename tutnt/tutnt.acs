@@ -1,8 +1,7 @@
 #library "tutnt.acs"
 #include "zcommon.acs"
 
-str mapname;
-str objectives[3]={"","",""};
+str mapname,objectives;
 //Intro Text
 script "IntroText" OPEN
 {
@@ -18,67 +17,64 @@ script "IntroText" OPEN
 	if(mapnum==1)
 	{
 		mapname="Episode 1: The Opening Abyss";
-		objectives[0]="-Fight your way to the Tech Center";
-		objectives[1]="-Pass the Dungeon passage and leave the first defence belt";
+		objectives="\cC     -Fight your way to the Tech Center
+		\n\cC     -Pass the Dungeon passage and leave the first defense belt";
 	}
 	else if(mapnum==2)
 	{
 		mapname="Episode 2: The Armory of Pain";
-		objectives[0]="-Find the Facility A Control Room";
-		objectives[1]="-Enter the abandoned Facility B";
-		objectives[2]="-Find the cursed peak passage as an exit to leave the armory";
+		objectives="\cC     -Find the Facility A Control Room
+		\n\cC     -Enter the abandoned Facility B
+		\n\cC     -Find the cursed peak passage as an exit to leave the armory";
 	}
 	else if(mapnum==3)
 	{
 		mapname="Episode 3, Part 1: The Cursed Peak";
-		objectives[0]="-Fight your way to the storage area";
-		objectives[1]="-Find the mining facility";
-		objectives[2]="-Leave the installation in the south facing the fortress";
+		objectives="\cC     -Fight your way to the storage area
+		\n\cC     -Find the mining facility
+		\n\cC     -Leave the installation in the south facing the fortress";
 	}
 	else if(mapnum==5)
 	{
 		mapname="Episode 3, Part 2: The Evil Heart";
-		objectives[0]="-Kill the portal guards";
-		objectives[1]="-Destroy the Dark Portal";
+		objectives="\cC     -Kill the portal guards
+		\n\cC     -Destroy the Dark Portal";
 	}
 	else if(mapnum==6)
 	{
 		delay(1860);
 		mapname="Episode 4, Part 1: Into the Darkness";
-		objectives[0]="-Find the Plasma Rifle near the clocktower";
-		objectives[1]="-Kill the Spider Masterminds to lower the pillars";
-		objectives[2]="-Enter the Dark Portal";
+		objectives="\cC     -Find the Plasma Rifle near the clocktower
+		\n\cC     -Kill the Spider Masterminds to lower the pillars
+		\n\cC     -Enter the Dark Portal";
 	}
 	else if(mapnum==7)
 	{
 		mapname="Episode 4, Part 2: Beyond the Dark Portal";
-		objectives[0]="-Find a way to the edge of chaos";
-		objectives[1]="-Find the BFG9000";
+		objectives="\cC     -Find a way to the edge of chaos
+		\n\cC     -Find the BFG9000";
 	}
 	else if(mapnum==8)
 	{
 		mapname="Episode 4, Part 3: The Beginning and The End (Director's Cut)";
-		objectives[0]="-Fight your way to the eternal cave";
-		objectives[1]="-Destroy 'The Source' and its Guardians";
+		objectives="\cC     -Fight your way to the eternal cave
+		\n\cC     -Destroy 'The Source' and its Guardians";
 	}
 	else if(mapnum==10)
 	{
 		mapname="Episode 4, Part 3: The Beginning and The End";
-		objectives[0]="-Fight your way to peak";
-		objectives[1]="-Destroy 'The Source' and its Guardians";
+		objectives="\cC     -Fight your way to peak
+		\n\cC     -Destroy 'The Source' and its Guardians";
 	}
 	else if(mapnum==9)
 	{
 		mapname="Lost Episode: Fury of Fire";
-		objectives[0]="-Battle your way out of the caves to the top";
-		objectives[1]="-Find the Portal Core's Heart";
+		objectives="\cC     -Battle your way out of the caves to the top
+		\n\cC     -Find the Portal Core's Heart";
 	}
 	Hudmessage(s:mapname; HUDMSG_FADEINOUT,0,CR_RED,320.4,205.0,3.0,1.0,1.0);
 	delay(175);
-	hudmessagebold(s:"\cGObjectives:\n",
-		s:"\cC     ",s:objectives[0],s:"\n",
-		s:"\cC     ",s:objectives[1],s:"\n",
-		s:"\cC     ",s:objectives[2];
+	hudmessagebold(s:"\cGObjectives:\n",s:objectives;
 		HUDMSG_FADEINOUT | HUDMSG_LOG,4,CR_UNTRANSLATED,320.0,200.0,5.0,1.0,1.0);
 }
 

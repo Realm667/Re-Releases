@@ -223,10 +223,20 @@ minotaur/fx2hit			phohit
 minotaur/fx3hit			phohit
 
 // HECTEBUS
-hectebus/sight		dshecsit
-hectebus/attack		dshecatk
-hectebus/pain		dshcpain
-hectebus/death		dshecdth
+hectebus/sight	dshecsit
+hectebus/pain	dshcpain
+hectebus/death	dshecdth
+hectebus/active dshecact
+$random hectebus/attack { hectatk1 hectatk2 }
+hectatk1		dshecatk
+hectatk2		dshcatk2
+$random hectebus/step { hectstp1 hectstp2 hectstp3 hectstp4 hectstp5 }
+hectstp1		dshecst1
+hectstp2		dshecst2
+hectstp3		dshecst3
+hectstp4		dshecst4
+hectstp5		dshecst5
+
 
 // MINI SPIDER
 littlespider/sight	SPIDSPOT
@@ -277,6 +287,16 @@ cycloid/attack b2atk02
 cycloid/pain b2pain03
 cycloid/death b2die03
 cycloid/bounce bounce
+
+//Shadow
+$random Shadow/active { act1 act2 }
+act1			SHDACT1
+act2			SHDACT2
+$random Shadow/pain { pain1 pain2 }
+pain1			SHDPAIN1
+pain2			SHDPAIN2
+Shadow/attack		SHDATTAK
+Shadow/death		SHDDEATH
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // MISC INGAME SOUNDS ///////////////////////////////////////////////////////////////////
@@ -525,3 +545,14 @@ SFX/FireLoop1	FIRELOP1
 SFX/FireLoop2	FIRELOP2
 SFX/FireLoop3	FIRELOP3
 SFX/FireDie		FIREDIE
+
+weapons/BFGcharge		"sounds/charging.ogg"
+weapons/BFGFire			"sounds/DMGFire.ogg"
+weapons/PyroShot1		"sounds/VOLFIRE.ogg"
+weapons/PyroShot2		"sounds/H2EIFEND.ogg"
+weapons/chngun			"sounds/RW04UZIF.ogg"
+weapons/minigunfire		"sounds/mgunshot.ogg"
+weapons/shtgun_eject	"sounds/shotgun_ejectshell.ogg"
+weapons/PlasmaFly		"sounds/PlasmaFly.OGG"
+weapons/mgunspindown	"sounds/SpinDown1"
+weapons/cgunspindown	"sounds/SpinDown2"

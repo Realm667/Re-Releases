@@ -1,0 +1,147 @@
+actor SourceLifeSeed : Health 16998
+{
+	inventory.pickupmessage "Picked up a guardian's life seed."
+	inventory.amount 25
+	+FLOATBOB
+	states
+	{
+	Spawn:
+		REGN ABCD 4 Light("LifeSeed")
+		TNT1 A 0 A_SpawnItemEx("SourceLifeShadow",0,0,18)
+		loop
+	}
+}
+
+actor SourceLifeShadow
+{
+	RenderStyle Add
+	+NOINTERACTION
+	Alpha 0.6
+	States
+	{
+	Spawn:
+		REGN E 2 Bright A_FadeOut(0.02)
+		TNT1 A 0 A_SetScale(ScaleX+0.07)
+		Loop
+	}
+}
+
+ACTOR UTNTInvulnerabilitySphere : InvulnerabilitySphere replaces InvulnerabilitySphere
+{
+	States
+	{
+	Spawn:
+		PINV AAABBBCC 2 Bright LIGHT("INVULN")
+		TNT1 A 0 A_SpawnItemEx("InvulnerabilityShadow",0,0,12)
+		PINV CDDDAAAB 2 Bright LIGHT("INVULN")
+		TNT1 A 0 A_SpawnItemEx("InvulnerabilityShadow",0,0,12)
+		PINV BBCCCDDD 2 Bright LIGHT("INVULN")
+		TNT1 A 0 A_SpawnItemEx("InvulnerabilityShadow",0,0,12)
+		Loop
+	}
+}
+
+Actor InvulnerabilityShadow
+{
+	+CLIENTSIDEONLY
+	RenderStyle Add
+	+NOINTERACTION
+	Alpha 0.6
+	States
+	{
+	Spawn:
+		PINV E 2 Bright A_FadeOut(0.02)	TNT1 A 0 A_SetScale(ScaleX+0.07)
+		Loop
+	}
+}
+
+ACTOR UTNTSoulsphere : Soulsphere replaces Soulsphere
+{
+	States
+	{
+	Spawn:
+		SOU2 ABCDCB 4 Bright LIGHT("SOULSPHERE")
+		TNT1 A 0 A_SpawnItemEx("SoulsphereShadow",0,0,27)
+		loop
+	}
+}
+
+Actor SoulsphereShadow
+{
+	+CLIENTSIDEONLY
+	RenderStyle Add
+	+NOINTERACTION
+	Alpha 0.6
+	States
+	{
+	Spawn:
+		SOUL E 2 Bright A_FadeOut(0.02)
+		TNT1 A 0 A_SetScale(ScaleX+0.07)
+		Loop
+	}
+}
+
+ACTOR UTNTMegasphere : Megasphere replaces Megasphere
+{
+	States
+	{
+	Spawn:
+		MEGA AAABBBCC 2 Bright LIGHT("MegSphere")
+		TNT1 A 0 A_SpawnItemEx("MegasphereShadow",0,0,20)
+		MEGA CDDDAAAB 2 Bright LIGHT("MegSphere")
+		TNT1 A 0 A_SpawnItemEx("MegasphereShadow",0,0,20)
+		MEGA BBCCCDDD 2 Bright LIGHT("MegSphere")
+		TNT1 A 0 A_SpawnItemEx("MegasphereShadow",0,0,20)
+		Loop
+	}
+}
+
+Actor MegasphereShadow
+{
+	RenderStyle Add
+	+NOINTERACTION
+	Alpha 0.4
+	States
+	{
+	Spawn:
+		MEGA E 2 Bright A_FadeOut(0.015)
+		TNT1 A 0 A_SetScale(ScaleX+0.07)
+		Loop
+	}
+}
+
+ACTOR UTNTBlurSphere : BlurSphere replaces BlurSphere
+{
+	States
+	{
+	Spawn:
+		PINS AAA 2 Bright LIGHT("BLURSPHERE1") LIGHT("BLURSPHERE2")
+		PINS BBB 2 Bright LIGHT("BLURSPHERE1") LIGHT("BLURSPHERE3")
+		PINS CC 2 Bright LIGHT("BLURSPHERE1") LIGHT("BLURSPHERE4")
+		TNT1 A 0 A_SpawnItemEx("BlurSphereShadow",0,0,27)
+		PINS C 2 Bright LIGHT("BLURSPHERE1") LIGHT("BLURSPHERE4")
+		PINS DDD 2 Bright LIGHT("BLURSPHERE1") LIGHT("BLURSPHERE5")
+		PINS AAA 2 Bright LIGHT("BLURSPHERE1") LIGHT("BLURSPHERE2")
+		PINS B 2 Bright LIGHT("BLURSPHERE1") LIGHT("BLURSPHERE3")
+		TNT1 A 0 A_SpawnItemEx("BlurSphereShadow",0,0,27)
+		PINS BB 2 Bright LIGHT("BLURSPHERE1") LIGHT("BLURSPHERE3")
+		PINS CCC 2 Bright LIGHT("BLURSPHERE1") LIGHT("BLURSPHERE4")
+		PINS DDD 2 Bright LIGHT("BLURSPHERE1") LIGHT("BLURSPHERE5")
+		TNT1 A 0 A_SpawnItemEx("BlurSphereShadow",0,0,27)
+		Loop
+	}
+}
+
+Actor BlurSphereShadow
+{
+	+CLIENTSIDEONLY
+	RenderStyle Add
+	+NOINTERACTION
+	Alpha 0.6
+	States
+	{
+	Spawn:
+		PINS E 2 Bright A_FadeOut(0.02)	TNT1 A 0 A_SetScale(ScaleX+0.07)
+		Loop
+	}
+}

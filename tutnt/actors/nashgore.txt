@@ -1,16 +1,53 @@
-actor NashGore_Blood : Blood replaces Blood
+Actor MCBloodFXMain replaces Blood
 {
-	states
+	+NOINTERACTION
+	+NOTIMEFREEZE
+	+DONTSPLASH
+	States
 	{
 	Spawn:
-		BLUD C 8
-		BLUD B 8 A_SpawnItemEx("NashGore_FlyingBlood",0,0,8,random(-4,4),random(-4,4),random(2,5),0,143,SXF_ABSOLUTEVELOCITY|SXF_NOCHECKPOSITION) // [Nash] it used to use A_SpawnItem, but we're getting rid of that crap
-		BLUD A 8
+		TNT1 A 0
+		BLUD B 0 A_SpawnItemEx("NashGore_FlyingBlood",0,0,8,random(-4,4),random(-4,4),random(2,5),0,143,176) // [Nash] it used to use A_SpawnItem, but we're getting rid of that crap
+		TNT1 A 2 A_SpawnItemEx("MCBloodParticle",frandom(0,2),0,random(1,4),frandom(0,1.5),0,frandom(0.1,2.0),random(0,359),33)
+		TNT1 AA 0 A_SpawnItemEx("MCBloodParticle",frandom(0,2),0,random(1,4),frandom(0,1.5),0,frandom(0.1,2.0),random(0,359),33)
 		Stop
 	}
 }
 
-actor NashGore_Bloodsplatter : NashGore_Blood replaces Bloodsplatter{}
+Actor MCBloodParticle : Blood
+{
+	+THRUACTORS
+	+DONTSPLASH
+	+DONTBLAST
+	//Translation "0:255=%[0,0,0]:[1,0,0]"
+	Renderstyle Translucent
+	Gravity 0.2
+	Scale 0.38
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12)
+	 	X057 A 0 A_Jump(256,"End")
+		XA57 A 0 A_Jump(256,"End")
+		XB57 A 0 A_Jump(256,"End")
+		XC57 A 0 A_Jump(256,"End")
+		X058 A 0 A_Jump(256,"End")
+		XA58 A 0 A_Jump(256,"End")
+		XB58 A 0 A_Jump(256,"End")
+		XC58 A 0 A_Jump(256,"End")
+		X059 A 0 A_Jump(256,"End")
+		XA59 A 0 A_Jump(256,"End")
+		XB59 A 0 A_Jump(256,"End")
+		XC59 A 0 A_Jump(256,"End")
+	End:
+		"####" ABCD 2 A_FadeOut(0.03)
+		"####" EFGHIJ 1 A_FadeOut(0.04)
+		"####" KLM 1 A_FadeOut(0.05)
+		Wait
+	}
+}
+
+Actor MCBloodSplatter : MCBloodParticle replaces BloodSplatter{}
 
 actor NashGore_FlyingBlood
 {
@@ -42,19 +79,9 @@ actor NashGore_FlyingBlood
 	}
 }
 
-actor NashGore_FlyingBloodTrail
+actor NashGore_FlyingBloodTrail : MCBloodParticle
 {
-	scale 0.70
-	mass 1
-	Gravity .125
-	+NOTELEPORT
-	+NOBLOCKMAP
-	states
-	{
-	Spawn:
-		BTRL ABCD 4
-		stop
-	}
+	Scale 0.28
 }
 
 // Gib generator fixed by LilWhiteMouse - thanks LWM!

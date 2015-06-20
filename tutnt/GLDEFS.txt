@@ -70,15 +70,6 @@ flickerlight ROCKET_X3
     chance 0.3
 }
 
-object Rocket
-{
-   	Frame MISLA {light ROCKET}
-
-   	Frame MISLB {light ROCKET_X1}
-   	Frame MISLC {light ROCKET_X2}
-   	Frame MISLD {light ROCKET_X3}
-}
-
 // ----------------------
 // -- Doom Decorations --
 // ----------------------
@@ -200,11 +191,6 @@ pulselight SOULSPHERE
    	Offset 0 16 0
 }
 
-object SoulSphere
-{
-   	Frame SOUL {light SOULSPHERE}
-}
-
 // Invulnerability Sphere
 pulselight INVULN
 {
@@ -213,11 +199,6 @@ pulselight INVULN
    	SecondarySize 42
    	Interval 2.0
    	Offset 0 16 0
-}
-
-object InvulnerabilitySphere
-{
-   	Frame PINV {light INVULN}
 }
 
 // Blur Sphere
@@ -254,16 +235,6 @@ pointlight BLURSPHERE5
    	Color 0.0 0.0 1.0
    	Size 8
    	Offset 0 16 0
-}
-
-object BlurSphere
-{
-   	Frame PINS {light BLURSPHERE1}
-
-   	Frame PINSA {light BLURSPHERE2}
-   	Frame PINSB {light BLURSPHERE3}
-   	Frame PINSC {light BLURSPHERE4}
-   	Frame PINSD {light BLURSPHERE5}
 }
 
 // Health Potion
@@ -3035,81 +3006,6 @@ FlickerLight2 BurningBarrelA
 	Offset 0 52 0
 }
 
-Object HS
-{
-	Frame HADEE {LIGHT HadesSphere_1}
-	Frame HADEF {LIGHT HadesSphere_2}
-	Frame HADEG {LIGHT HadesSphere_3}
-	Frame HADEH {LIGHT HadesSphere_4}
-	Frame HADEA {LIGHT HadesSphere}
-	Frame HADEB {LIGHT HadesSphere}
-	Frame HADEC {LIGHT HadesSphere}
-	Frame HADED {LIGHT HadesSphere}
-	Frame HADEG {LIGHT HadesSphere}
-	Frame HADEM {LIGHT HadesBoom_1}
-	Frame HADEN {LIGHT HadesBoom_2}
-	Frame HADEO {LIGHT HadesBoom_3}
-	Frame HADEP {LIGHT HadesBoom_4}
-	Frame HADEQ {LIGHT HadesBoom_5}
-}
-
-object FatShot
-{
-    frame MANFA {light IMPBALL}
-    frame MANFB {light IMPBALL}
-
-    frame MISLB {light ROCKET_X1}
-    frame MISLC {light ROCKET_X2}
-    frame MISLD {light ROCKET_X3}
-}
-object RevenantTracer
-{
-    frame FATBA {light TRACER}
-    frame FATBB {light TRACER}
-
-    frame FBXPA {light TRACER_X1}
-    frame FBXPB {light TRACER_X2}
-    frame FBXPC {light TRACER_X3}
-}
-object ArchvileFire
-{
-   	Frame FIREA {light ARCHFIRE1}
-   	Frame FIREB {light ARCHFIRE2}
-   	Frame FIREC {light ARCHFIRE3}
-   	Frame FIRED {light ARCHFIRE4}
-   	Frame FIREE {light ARCHFIRE5}
-   	Frame FIREF {light ARCHFIRE6}
-   	Frame FIREG {light ARCHFIRE7}
-   	Frame FIREH {light ARCHFIRE8}
-}
-object DoomImpBall
-{
-    frame BAL1A {light IMPBALL}
-    frame BAL1B {light IMPBALL}
-
-    frame BAL1C {light IMPBALL_X1}
-    frame BAL1D {light IMPBALL_X2}
-    frame BAL1E {light IMPBALL_X3}
-}
-object CacodemonBall
-{
-    frame BAL2A {light CACOBALL}
-    frame BAL2B {light CACOBALL}
-
-    frame BAL2C {light CACOBALL_X1}
-    frame BAL2D {light CACOBALL_X2}
-    frame BAL2E {light CACOBALL_X3}
-}
-object BaronBall
-{
-    frame BAL7A {light BARONBALL}
-    frame BAL7B {light BARONBALL}
-
-    frame BAL7C {light BARONBALL_X1}
-    frame BAL7D {light BARONBALL_X2}
-    frame BAL7E {light BARONBALL_X3}
-}
-
 /////////////////////////////////////////////////////
 // FIRE SPAWNER LIGHTS //////////////////////////////
 /////////////////////////////////////////////////////
@@ -3141,3 +3037,242 @@ Flickerlight FireSpawnerLarge
 Object SmallFlame { Frame TNT1 { Light FireSpawnerSmall } }
 Object MediumFlame { Frame TNT1 { Light FireSpawnerMedium } }
 Object LargeFlame { Frame TNT1 { Light FireSpawnerLarge } }
+
+pulselight MegSphere
+{
+    color 0.88 0.8 0.55
+    size 40
+    secondarySize 42
+    interval 2.0
+    offset 0 16 0
+}
+//Player Flash
+flickerlight PlayerBright
+{
+	OffSet 0 30 0
+    color 1.0 0.8 0.0
+    size 50
+    secondarySize 55
+    chance 0.4
+}
+
+// Teleport fog defs
+flickerlight OliveGreenFlicker1
+{
+    color 0.74 0.88 0.2
+    size 10
+    secondarySize 15
+    chance 0.4
+}
+flickerlight OliveGreenFlicker2
+{
+    color 0.74 0.88 0.2
+    size 15
+    secondarySize 25
+    chance 0.4
+}
+flickerlight OliveGreenFlicker3
+{
+    color 0.74 0.88 0.2
+    size 20
+    secondarySize 25
+    chance 0.4
+}
+flickerlight OliveGreenFlicker4
+{
+    color 0.74 0.88 0.2
+    size 25
+    secondarySize 30
+    chance 0.4
+}
+flickerlight OliveGreenFlicker5
+{
+    color 0.74 0.88 0.2
+    size 30
+    secondarySize 35
+    chance 0.4
+}
+flickerlight OliveGreenFlicker6
+{
+    color 0.74 0.88 0.2
+    size 35
+    secondarySize 40
+    chance 0.4
+}
+flickerlight OliveGreenFlicker7
+{
+    color 0.74 0.88 0.2
+    size 40
+    secondarySize 45
+    chance 0.4
+}
+flickerlight OliveGreenFlicker8
+{
+    color 0.74 0.88 0.2
+    size 50
+    secondarySize 55
+    chance 0.4
+}
+flickerlight OliveGreenFlicker9
+{
+    color 0.74 0.88 0.2
+    size 60
+    secondarySize 65
+    chance 0.4
+}
+
+//==============================================================================================================
+//==============================================================================================================
+//				YellowLights
+// 1.0 0.8 0.0
+//==============================================================================================================
+//==============================================================================================================
+
+flickerlight YellowBigFlicker1
+{
+    color 1.0 0.8 0.0
+    size 150
+    secondarySize 155
+    chance 0.4
+}
+flickerlight YellowBigFlicker2
+{
+    color 1.0 0.8 0.0
+    size 120
+    secondarySize 125
+    chance 0.4
+}
+flickerlight YellowBigFlicker3
+{
+    color 1.0 0.8 0.0
+    size 90
+    secondarySize 95
+    chance 0.4
+}
+
+//***************************************
+flickerlight YellowMediumFlicker1
+{
+    color 1.0 0.8 0.0
+    size 80
+    secondarySize 85
+    chance 0.4
+}
+flickerlight YellowMediumFlicker2
+{
+    color 1.0 0.8 0.0
+    size 60
+    secondarySize 65
+    chance 0.4
+}
+flickerlight YellowMediumFlicker3
+{
+    color 1.0 0.8 0.0
+    size 50
+    secondarySize 55
+    chance 0.4
+}
+
+//***************************************
+flickerlight YellowSmallFlicker1
+{
+    color 1.0 0.8 0.0
+    size 40
+    secondarySize 45
+    chance 0.4
+}
+flickerlight YellowSmallFlicker2
+{
+    color 1.0 0.8 0.0
+    size 20
+    secondarySize 25
+    chance 0.4
+}
+flickerlight YellowSmallFlicker3
+{
+    color 1.0 0.8 0.0
+    size 10
+    secondarySize 15
+    chance 0.4
+}
+
+//***************************************
+flickerlight FlamerYellowSmallFlicker1
+{
+    color 0.7 0.5 0.0
+    size 40
+    secondarySize 45
+    chance 0.4
+}
+flickerlight FlamerYellowSmallFlicker2
+{
+    color 0.7 0.5 0.0
+    size 20
+    secondarySize 25
+    chance 0.4
+}
+flickerlight FlamerYellowSmallFlicker3
+{
+    color 0.7 0.5 0.0
+    size 10
+    secondarySize 15
+    chance 0.4
+}
+flickerlight FlamerYellowSmallFlicker4
+{
+    color 0.9 0.7 0.0
+    size 20
+    secondarySize 25
+    chance 0.4
+}
+
+//***************************************
+pointlight YellowBigPoint1
+{
+    color 1.0 0.8 0.0
+    size 140
+}
+pointlight YellowBigPoint2
+{
+    color 1.0 0.8 0.0
+    size 110
+}
+pointlight YellowBigPoint3
+{
+    color 1.0 0.8 0.0
+    size 80
+}
+
+//***************************************
+pointlight YellowMediumPoint1
+{
+    color 1.0 0.8 0.0
+    size 75
+}
+pointlight YellowMediumPoint2
+{
+    color 1.0 0.8 0.0
+    size 55
+}
+pointlight YellowMediumPoint3
+{
+    color 1.0 0.8 0.0
+    size 45
+}
+
+//***************************************
+pointlight YellowSmallPoint1
+{
+    color 1.0 0.8 0.0
+    size 30
+}
+pointlight YellowSmallPoint2
+{
+    color 1.0 0.8 0.0
+    size 20
+}
+pointlight YellowSmallPoint3
+{
+    color 1.0 0.8 0.0
+    size 10
+}
