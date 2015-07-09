@@ -3455,6 +3455,7 @@ script S_HUD_COINS(void)
 // For if a player drops his last life while alive (respawn script handles spawning without a life)
 script "LivesWatch" ENTER
 {
+	delay(5);
 	// If the player has a JailTracker, then the respawn script is handling this, or he's in jail already
 	if((CheckInventory("LifeItem")==0) &&(CheckInventory("JailTracker")==0) &&(CheckInventory("Health") > 0))
 	{
@@ -3471,7 +3472,6 @@ script "LivesWatch" ENTER
 			delay(20*35); // Wait a bit so that this message isn't constant
 		}
 	}
-	delay(5);
 	restart;
 }
 
