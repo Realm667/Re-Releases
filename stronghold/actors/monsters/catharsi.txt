@@ -113,7 +113,7 @@ ACTOR CatharsiDetonator
 		THRM A 0 A_SetUserVar("user_theta",0)
 		THRM A 0 A_Die
 	Death:
-		SDFB B 0 A_CustomMissile("CatharsiBall",4,2,user_theta)
+		SDFB B 0 A_CustomMissile("CatharsiBall",4,0,user_theta,CMF_AIMDIRECTION)
 		SDFB B 0 A_SetUserVar("user_theta",user_theta+20)
 		SDFB B 0 A_JumpIf(user_theta==360,1)
 		Loop

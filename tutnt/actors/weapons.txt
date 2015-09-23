@@ -738,21 +738,21 @@ Actor UTNTBFG9000 : BFG9000 replaces BFG9000
 	States
 	{
 	Fire:
-		BFGN A 0 A_PlaySound("weapons/BFGcharge",5)
-		BFGN A 0 A_BFGSound
-		BFGN A 2 A_SetPitch(pitch-0.2)
-		BFGN A 2 A_SetPitch(pitch+0.2)
-		BFGN A 2 A_SetPitch(pitch-0.3)
-		BFGN A 2 A_SetPitch(pitch+0.3)
-		BFGN A 2 A_SetPitch(pitch-0.4)
-		BFGN A 2 A_SetPitch(pitch+0.4)
-		BFGN A 2 A_SetPitch(pitch-0.5)
-		BFGN A 2 A_SetPitch(pitch+0.5)
-		BFGN A 2 A_SetPitch(pitch-0.6)
-		BFGN A 2 A_SetPitch(pitch+0.6)
+		BFGG A 0 A_PlaySound("weapons/BFGcharge",5)
+		BFGG A 0 A_BFGSound
+		BFGG A 2 A_SetPitch(pitch-0.2)
+		BFGG A 2 A_SetPitch(pitch+0.2)
+		BFGG A 2 A_SetPitch(pitch-0.3)
+		BFGG A 2 A_SetPitch(pitch+0.3)
+		BFGG A 2 A_SetPitch(pitch-0.4)
+		BFGG A 2 A_SetPitch(pitch+0.4)
+		BFGG A 2 A_SetPitch(pitch-0.5)
+		BFGG A 2 A_SetPitch(pitch+0.5)
+		BFGG A 2 A_SetPitch(pitch-0.6)
+		BFGG A 2 A_SetPitch(pitch+0.6)
 		BFGN A 0 A_GunFlash
-		BFGN A 1 A_SetPitch(pitch-0.7)
-		BFGN A 1 A_SetPitch(pitch+0.7)
+		BFGG A 1 A_SetPitch(pitch-0.7)
+		BFGG A 1 A_SetPitch(pitch+0.7)
 		BFGN A 1 A_SetPitch(pitch-0.8)
 		BFGN A 1 A_SetPitch(pitch+0.8)
 		BFGN A 1 A_SetPitch(pitch-0.8)
@@ -766,7 +766,8 @@ Actor UTNTBFG9000 : BFG9000 replaces BFG9000
 		BFGN A 0 A_FireBFG
 		BFGN A 3 A_SetPitch(pitch-7)
 		BFGN AAAAAAA 1 A_SetPitch(pitch+1)
-		BFGN A 20 A_ReFire
+		BFGN A 2 A_ReFire
+		BFGG A 18
 		goto Ready
 	Flash:
 		BFGW A 2 bright
