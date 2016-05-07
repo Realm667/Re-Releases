@@ -2065,6 +2065,12 @@ ACTOR SourceGuardianDetonator : CatharsiDetonator
 	PROJECTILE
 	BounceType Doom
 	-NOGRAVITY
+	States
+	{
+	Death:
+		THR2 A 0 A_SetUserVar("user_theta",0)
+		Goto Super::Death
+	}
 }
 
 /////////////////////
