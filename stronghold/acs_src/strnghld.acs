@@ -1,5 +1,5 @@
-#include "zcommon.acs"
 #library "strnghld"
+#include "zcommon.acs"
 
 //////////////////////////////////////////////////////////////////
 // SHOP SYSTEM by Cutmanmike /////////////////////////////////////
@@ -3455,8 +3455,10 @@ script S_HUD_COINS(void)
 // For if a player drops his last life while alive (respawn script handles spawning without a life)
 script "LivesWatch" ENTER
 {
+	//Prevent the message from being printed if the game is just beginning
+	delay(1);
 	// If the player has a JailTracker, then the respawn script is handling this, or he's in jail already
-	if((CheckInventory("LifeItem")==0) &&(CheckInventory("JailTracker")==0) &&(CheckInventory("Health") > 0))
+	if(!CheckInventory("LifeItem")&&!CheckInventory("JailTracker")&&CheckInventory("Health")>0)
 	{
 		if(PrisonSpot)
 		{
