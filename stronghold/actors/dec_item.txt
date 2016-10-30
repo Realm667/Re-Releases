@@ -360,10 +360,10 @@ actor STMarineShotgun : STScriptedMarine 12851
 		PLA3 A 4 A_Look
 		Loop
 	Missile:
-		PLA3 E 0 A_JumpIfInventory("ShotgunmarineTimer",1,"See")
-		PLA3 E 3 A_FaceTarget
-		PLA3 F 7 bright A_CustomBulletAttack(4, 3, 7, 5, "MarineImmunePuff")
-		PLA3 F 0 A_GiveInventory("ShotgunmarineTimer")
+		"####" E 0 A_JumpIfInventory("ShotgunmarineTimer",1,"See")
+		"####" E 3 A_FaceTarget
+		"####" F 7 bright A_CustomBulletAttack(4, 3, 7, 5, "MarineImmunePuff")
+		"####" F 0 A_GiveInventory("ShotgunmarineTimer")
 		Goto See
 	}
 }
@@ -379,12 +379,12 @@ actor STMarineSSG : STScriptedMarine 12853
 		PLA9 A 4 A_Look
 		Loop
 	Missile:
-		PLA9 E 3 A_FaceTarget
-		PLA9 F 7 bright A_CustomBulletAttack(11.25, 7.125, 20, 5, "MarineImmunePuff")
-		PLA9 E 14
-		PLA9 E 14 A_PlaySound ("weapons/sshoto")
-		PLA9 E 13 A_PlaySound ("weapons/sshotl")
-		PLA9 E 11 A_PlaySound ("weapons/sshotc")
+		"####" E 3 A_FaceTarget
+		"####" F 7 bright A_CustomBulletAttack(11.25, 7.125, 20, 5, "MarineImmunePuff")
+		"####" E 14
+		"####" E 14 A_PlaySound ("weapons/sshoto")
+		"####" E 13 A_PlaySound ("weapons/sshotl")
+		"####" E 11 A_PlaySound ("weapons/sshotc")
 		Goto See
 	}
 }
@@ -429,10 +429,10 @@ actor STMarineChaingun : STScriptedMarine 12852
 		PLA4 A 4 A_Look
 		Loop
 	Missile:
-		PLA4 E 2 A_FaceTarget
-		PLA4 FF 4 bright A_CustomBulletAttack(0, 0, 1, 5, "MarineImmunePuff")
-		PLA4 FF 4 bright A_CustomBulletAttack(4.2, 3, 1, 5, "MarineImmunePuff")
-		TNT1 A 0 A_CPosRefire
+		"####" E 2 A_FaceTarget
+		"####" FF 4 bright A_CustomBulletAttack(0, 0, 1, 5, "MarineImmunePuff")
+		"####" FF 4 bright A_CustomBulletAttack(4.2, 3, 1, 5, "MarineImmunePuff")
+		"####" A 0 A_CPosRefire
 		Goto Missile+3
 	}
 }
@@ -447,9 +447,9 @@ actor STMarineRocket : STScriptedMarine 12854
 		PLA5 A 4 A_Look
 		Loop
 	Missile:
-		PLA5 E 8 A_FaceTarget
-		PLA5 F 12 bright A_CustomMissile("ZMarineRocket")
-		PLA5 E 8 A_SpidRefire
+		"####" E 8 A_FaceTarget
+		"####" F 12 bright A_CustomMissile("ZMarineRocket")
+		"####" E 8 A_SpidRefire
 		Goto Missile+1
 	}
 }
@@ -474,9 +474,9 @@ Actor STMarineHRL : STScriptedMarine
 		PHRL A 4 A_Look
 		Loop
 	Missile:
-		PLA5 E 8 A_FaceTarget
-		PLA5 F 12 bright A_CustomMissile("MarineHomRocket1")
-		PLA5 E 8 A_SpidRefire
+		"####" E 8 A_FaceTarget
+		"####" F 12 bright A_CustomMissile("MarineHomRocket1")
+		"####" E 8 A_SpidRefire
 		Goto Missile+1
 	Pain:
 		"####" G 4
@@ -513,9 +513,9 @@ actor STMarinePlasma : STScriptedMarine 12855
 		PLA6 A 4 A_Look
 		Loop
 	Missile:
-		PLA6 E 5 A_FaceTarget
-		PLA6 F 2 bright A_CustomMissile("MarinePlasmaBall")
-		PLA6 E 1 A_SpidRefire
+		"####" E 5 A_FaceTarget
+		"####" F 2 bright A_CustomMissile("MarinePlasmaBall")
+		"####" E 1 A_SpidRefire
 		Goto Missile+1
 	}
 }
@@ -534,24 +534,24 @@ Actor STMarineRailgun : STScriptedMarine
 		PRAI A 4 A_Look
 		Loop
 	Missile:
-		TNT1 A 0 A_PlaySound("weapons/railch")
-		TNT1 A 0 A_Jump(256, "Red", "Yellow", "Blue")
+		"####" A 0 A_PlaySound("weapons/railch")
+		"####" A 0 A_Jump(256, "Red", "Yellow", "Blue")
 	Red:
-		PRAI EE 6 A_FaceTarget
-		TNT1 A 0 A_StopSound(5)
-		PRAI F 4 bright A_CustomRailgun(100, 0, "Red", "white", 0, 1, 0, "MarineImmunePuff")
-		PRAI E 23
+		"####" EE 6 A_FaceTarget
+		"####" A 0 A_StopSound(5)
+		"####" F 4 bright A_CustomRailgun(100, 0, "Red", "white", 0, 1, 0, "MarineImmunePuff")
+		"####" E 23
 		Goto See
 	Yellow:
-		PRAI EEEE 6 A_FaceTarget
-		TNT1 A 0 A_StopSound(5)
-		PRAI G 4 bright A_CustomRailgun(200, 0, "Yellow", "white", 0, 1, 0, "MarineImmunePuff")
-		PRAI E 23
+		"####" EEEE 6 A_FaceTarget
+		"####" A 0 A_StopSound(5)
+		"####" G 4 bright A_CustomRailgun(200, 0, "Yellow", "white", 0, 1, 0, "MarineImmunePuff")
+		"####" E 23
 		Goto See
 	Blue:
-		PRAI EEEEEE 6 A_FaceTarget
-		PRAI H 4 bright A_CustomRailgun(300, 0, "Blue", "white", 0, 1, 0, "MarineImmunePuff")
-		PRAI E 23
+		"####" EEEEEE 6 A_FaceTarget
+		"####" H 4 bright A_CustomRailgun(300, 0, "Blue", "white", 0, 1, 0, "MarineImmunePuff")
+		"####" E 23
 		Goto See
 	}
 }
