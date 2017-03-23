@@ -3329,28 +3329,6 @@ script "EnterScript" ENTER
 	}
 	Thing_ChangeTID(0,PLAYER_TID_START + PlayerNumber());
 	highestPlayerNumber=max(PlayerNumber(),highestPlayerNumber);
-	// Weapons
-	TakeInventory("StrongholdChainsaw",INT_MAX);
-	TakeInventory("AutoShotgun",INT_MAX);
-	TakeInventory("StrongholdSuperShotgun",INT_MAX);
-	TakeInventory("StrongholdShotgun",INT_MAX);
-	TakeInventory("StrongholdChaingun",INT_MAX);
-	TakeInventory("HRL",INT_MAX);
-	TakeInventory("LandMineLayer",INT_MAX);
-	TakeInventory("StrongholdRLauncher",INT_MAX);
-	TakeInventory("Railgun",INT_MAX);
-	TakeInventory("StunnerRifle",INT_MAX);
-	TakeInventory("StrongholdPlasmaRifle",INT_MAX);
-	TakeInventory("StrongholdBFG9000",INT_MAX);
-	TakeInventory("PyroCannon",INT_MAX);
-	TakeInventory("Flamer",INT_MAX);
-	TakeInventory("Devastator",INT_MAX);
-	TakeInventory("Repeater",INT_MAX);
-	TakeInventory("StrongholdPistol",INT_MAX);
-	TakeInventory("StrongholdFist",INT_MAX);
-	TakeInventory("StrongholdShrinkFist",INT_MAX);
-	TakeInventory("BruiserWeapon",INT_MAX);
-	TakeInventory("TerminatorWeapon",INT_MAX);
 	// Trackers(for SBARINFO)
 	TakeInventory("JailTracker",INT_MAX);
 	TakeInventory("JailTrackerAllPlayers",INT_MAX);
@@ -3360,13 +3338,6 @@ script "EnterScript" ENTER
 	TakeInventory("PowerQuadDamage",INT_MAX);
 	TakeInventory("PowerTimeFreezer",INT_MAX);
 	TakeInventory("PowerScannerSustain",INT_MAX);
-	// Ammo
-	TakeInventory("Clip",INT_MAX);
-	TakeInventory("Cell",INT_MAX);
-	TakeInventory("RocketAmmo",INT_MAX);
-	TakeInventory("Gas",INT_MAX);
-	TakeInventory("Shell",INT_MAX);
-	TakeInventory("MineAmmo",INT_MAX);
 
 	if(PlayersAreLate)
 	{
@@ -3402,27 +3373,26 @@ script "EnterScript" ENTER
 	if(GetLevelInfo(LEVELINFO_LEVELNUM)==999)
 	{
 		ACS_ExecuteAlways(S_HUD_COINS,0,0);
-		GiveInventory("StrongholdShrinkFist",1);
-		SetWeapon("StrongholdShrinkFist");
-	//	GiveInventory("HUDCredits",1);	// Enables intermission hud parts
-		while(true)
+		//	GiveInventory("HUDCredits",1);	// Enables intermission hud parts
+		//Give custom players a pass on this next part
+		if(CheckActorClass(0,"StrongholdPlayer"))
 		{
-			delay(35);	// Placed at beginning of loop, so that there is no chance this
-						// becomes a runaway script
-			if(CheckActorClass(0,"StrongholdPlayer")&&!CheckWeapon("StrongholdShrinkFist"))
+			GiveInventory("StrongholdShrinkFist",1);
+			SetWeapon("StrongholdShrinkFist");
+			while(true)
 			{
-				Print(s:"You're lucky you didn't get shot for holding a loaded weapon here!");
-				restart;	// Clear inventory again
+				delay(35);	// Placed at beginning of loop, so that there is no chance this
+							// becomes a runaway script
+				if(!CheckWeapon("StrongholdShrinkFist"))
+				{
+					Print(s:"You're lucky you didn't get shot for holding a loaded weapon here!");
+					GiveInventory("StrongholdShrinkFist",1);
+					SetWeapon("StrongholdShrinkFist");
+					restart;	// Clear inventory again
+				}
 			}
 		}
 	}
-	if(GameSkill()==SKILL_VERY_EASY||GameSkill()==SKILL_VERY_HARD)
-		GiveInventory("Clip",5);
-	else
-		GiveInventory("Clip",30);
-	GiveInventory("StrongholdFist",1);
-	GiveInventory("StrongholdPistol",1);
-	SetWeapon("StrongholdPistol");
 }
 
 script S_LATEPLAYERS OPEN
