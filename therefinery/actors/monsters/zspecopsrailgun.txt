@@ -1,0 +1,250 @@
+Actor ZSpecOpsRailgun 24718
+{
+//$Category Z2M3_Monsters
+  Health 150
+  Height 56
+  Radius 20
+  Speed 8
+  PainChance 96
+  Monster
+  +FloorClip
+  +NoTarget
+  +NoInfighting
+  SeeSound "ZSpecOps/Sight"
+  ActiveSound "ZSpecOps/Sight"
+  PainSound "ZSpecOps/Pain"
+  DeathSound "ZSpecOps/Death"
+  Obituary "%o was railed by a ZSpecOps"
+  Decal RailScorch
+  //DropItem "AddYourMod'sRailgun"
+  States
+  {
+  Spawn:
+    ZSP3 AAAAAAAAAABBBBBBBBBB 1 A_Look
+    Loop
+
+  //Switching
+  See:
+    ZSP3 A 0 A_TakeInventory("ZSpecOpSnipe", 1)
+    ZSP3 A 0 A_TakeInventory("ZSpecOpWander", 1)
+    ZSP3 A 0 A_TakeInventory("ZSpecOpCreep", 1)
+    ZSP3 A 0 A_TakeInventory("ZSpecOpFlee", 1)
+    ZSP3 A 0 A_ChangeFlag("MissileMore", 0)
+    ZSP3 A 0 A_ChangeFlag("MissileEvenMore", 0)
+    ZSP3 A 0 A_ChangeFlag("AvoidMelee", 0)
+    ZSP3 A 0 A_ChangeFlag("Frightened", 0)
+    ZSP3 A 0 A_GiveInventory("ZSpecOpsRGSitRep", 1)
+    ZSP3 A 0 A_JumpIfInventory("ZSpecOpSnipe", 1, "SnipeSwitch")
+    ZSP3 A 0 A_JumpIfInventory("ZSpecOpWander", 1, "WanderSwitch")
+    ZSP3 A 0 A_JumpIfInventory("ZSpecOpCreep", 1, "CreepSwitch")
+    ZSP3 A 0 A_JumpIfInventory("ZSpecOpFlee", 1, "FleeSwitch")
+
+  //Snipe Mode
+  SnipeSwitch:
+    ZSP3 A 0 A_ChangeFlag("MissileMore", 1)
+    ZSP3 A 0 A_ChangeFlag("MissileEvenMore", 1)
+    Goto SnipeSee
+  SnipeSee:
+    ZSP3 E 0 A_Chase("", "SnipeMissile", 17)
+    ZSP3 EEEE 2 A_FaceTarget
+    ZSP3 E 0 A_JumpIfCloser(384, "See")
+    ZSP3 E 0 A_CheckSight("SnipeIdle")
+    Loop
+  SnipeIdle:
+    ZSP3 E 0 A_ClearTarget
+    ZSP3 E 1 A_LookEx(10, 0, 0, 0, 360, "SnipeSee")
+    Goto SnipeIdle+1
+  SnipeMissile:
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(128, 2)
+    ZSP3 E 2 A_FaceTarget
+    ZSP3 F 2 Bright A_CustomRailgun(40, 0, "Blue", "White", 0)
+    ZSP3 F 2 Bright A_FaceTarget
+    ZSP3 EEEEE 2 A_FaceTarget
+    ZSP3 E 0 A_Jump(192, "SnipeSee")
+    ZSP3 E 0 A_MonsterRefire(40, "SnipeSee")
+    Loop
+
+  //Wander Mode
+  WanderSwitch:
+    ZSP3 A 0 A_ClearTarget
+    Goto WanderSee
+  WanderSee:
+    ZSP3 A 4 A_Wander
+    ZSP3 A 0 A_LookEx(10, 0, 0, 0, 360, "See")
+    ZSP3 A 4 A_Wander
+    ZSP3 A 0 A_LookEx(10, 0, 0, 0, 360, "See")
+    ZSP3 B 4 A_Wander
+    ZSP3 A 0 A_LookEx(10, 0, 0, 0, 360, "See")
+    ZSP3 B 4 A_Wander
+    ZSP3 A 0 A_LookEx(10, 0, 0, 0, 360, "See")
+    ZSP3 C 4 A_Wander
+    ZSP3 A 0 A_LookEx(10, 0, 0, 0, 360, "See")
+    ZSP3 C 4 A_Wander
+    ZSP3 A 0 A_LookEx(10, 0, 0, 0, 360, "See")
+    ZSP3 D 4 A_Wander
+    ZSP3 A 0 A_LookEx(10, 0, 0, 0, 360, "See")
+    ZSP3 D 4 A_Wander
+    ZSP3 A 0 A_LookEx(10, 0, 0, 0, 360, "See")
+    Loop
+
+  //Creep Mode
+  CreepSwitch:
+    ZSP3 A 0 A_ChangeFlag("MissileMore", 1)
+    ZSP3 A 0 A_ChangeFlag("AvoidMelee", 1)
+    Goto CreepSee
+  CreepSee:
+    ZSP3 A 0 A_CheckSight("CreepCheck")
+    ZSP3 A 0 A_JumpIfHealthLower(50, "See")
+    ZSP3 AABBCCDD 5 A_Chase("", "CreepMissile", 2)
+    Loop
+  CreepCheck:
+    ZSP3 A 0 A_Jump(32, "See")
+    Goto CreepSee+1
+  CreepMissile:
+    ZSP3 EE 4 A_FaceTarget
+    ZSP3 F 2 Bright A_CustomRailgun(40, 0, "Blue", "White", 0)
+    ZSP3 F 2 Bright A_FaceTarget
+    ZSP3 EEEEE 2 A_FaceTarget
+    Goto CreepSee
+
+  //Flee Mode
+  FleeSwitch:
+    ZSP3 A 0 A_ChangeFlag("Frightened", 1)
+    Goto FleeSee
+  FleeSee:
+    ZSP3 AABBCCDD 2 A_Chase("", "FleeMissile")
+    ZSP3 A 0 A_Jump(128, 2)
+    ZSP3 A 0 A_JumpIfCloser(768, 1)
+    Goto See
+    ZSP3 A 0
+    Loop
+  FleeMissile:
+    ZSP3 EE 4 A_FaceTarget
+    ZSP3 F 2 Bright A_CustomRailgun(40, 0, "Blue", "White", 0)
+    ZSP3 F 2 Bright A_FaceTarget
+    ZSP3 EEEEE 2 A_FaceTarget
+    Goto FleeSee
+
+  //Misc hurting states
+  Pain:
+    ZSP3 G 4
+    ZSP3 G 4 A_Pain
+    ZSP3 G 0 A_Jump(96, "See")
+    Goto WhatPainState
+  WhatPainState:
+    ZSP3 G 0 A_JumpIfInventory("ZSpecOpSnipe", 1, "SnipeSee")
+    ZSP3 G 0 A_JumpIfInventory("ZSpecOpWander", 1, "WanderSee")
+    ZSP3 G 0 A_JumpIfInventory("ZSpecOpCreep", 1, "CreepSee")
+    ZSP3 G 0 A_JumpIfInventory("ZSpecOpFlee", 1, "FleeSee")
+    Goto AggressiveSee
+  Death:
+    ZSP3 H 5
+    ZSP3 I 5 A_Scream
+    ZSP3 J 5
+    ZSP3 K 5 A_NoBlocking
+    ZSP3 L -1
+  Raise:
+    ZSP3 LKJIH 5
+    Goto See
+  }
+}
+
+Actor ZSpecOpsRGSitRep : CustomInventory
+{
+  Inventory.MaxAmount 0
+  +Inventory.AutoActivate
+  States
+  {
+  Spawn:
+    TNT1 A 1
+    Fail
+
+  Use:
+    TNT1 A 0 A_JumpIfHealthLower(50, "LowHealth")
+    TNT1 A 0 A_CheckSight("OutOfSight")
+    TNT1 A 0 A_JumpIfCloser(384, "Close")
+  ChecksFailed:
+    TNT1 A 0 A_Jump(256, "SnipeMode")
+
+  LowHealth:
+    TNT1 A 0 A_CheckSight("LowHealthOutOfSight")
+    TNT1 A 0 A_JumpIfCloser(768, "LowHealthClose")
+    TNT1 A 0 A_Jump(256, "SnipeMode")
+  LowHealthOutOfSight:
+    TNT1 A 0 A_JumpIfCloser(768, "LowHealthOutOfSightClose")
+    TNT1 A 0 A_Jump(256, "SnipeMode")
+  LowHealthOutOfSightClose:
+    TNT1 A 0 A_Jump(256, "FleeMode", "SnipeMode")
+  LowHealthClose:
+    TNT1 A 0 A_Jump(256, "FleeMode")
+
+  OutOfSight:
+    TNT1 A 0 A_JumpIfCloser(384, "OutOfSightClose")
+    TNT1 A 0 A_Jump(256, "SnipeMode", "WanderMode", "CreepMode")
+  OutOfSightClose:
+    TNT1 A 0 A_Jump(256, "FleeMode", "CreepMode")
+
+  Close:
+    TNT1 A 0 A_Jump(256, "FleeMode", "CreepMode")
+
+  SnipeMode:
+    TNT1 A 0 A_GiveInventory("ZSpecOpSnipe", 1)
+    Stop
+  WanderMode:
+    TNT1 A 0 A_GiveInventory("ZSpecOpWander", 1)
+    Stop
+  CreepMode:
+    TNT1 A 0 A_GiveInventory("ZSpecOpCreep", 1)
+    Stop
+  FleeMode:
+    TNT1 A 0 A_GiveInventory("ZSpecOpFlee", 1)
+    Stop
+  }
+}
+
+Actor ZSpecOpSnipe : Inventory { Inventory.MaxAmount 1 }
+Actor ZSpecOpWander : Inventory { Inventory.MaxAmount 1 }
+Actor ZSpecOpCreep : Inventory { Inventory.MaxAmount 1 }
+Actor ZSpecOpFlee : Inventory { Inventory.MaxAmount 1 }

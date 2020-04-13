@@ -1,0 +1,145 @@
+fader DemonCubeAway
+{
+	DecayStart	0.75
+	DecayTime	2.0
+}
+
+fader RedstarAway
+{
+	DecayStart	1.0
+	DecayTime	3.5
+}
+
+decal RedstarScorchLower
+{
+	pic PLASMA2
+	shade "00 00 00"
+	x-scale 1.5
+	y-scale 1.5
+	randomflipx
+	randomflipy
+}
+
+decal RedstarScorch
+{
+	pic STARP0
+	add 1.0
+	fullbright
+	x-scale 0.75
+	y-scale 0.75
+	animator RedstarAway
+	lowerdecal PlasmaScorchLower
+}
+
+generator Redstar RedstarScorch
+
+decal DemonCubeScorch1
+{
+	pic BFGLITE1
+	shade "ff 80 00"
+	fullbright
+        x-scale 0.5
+        y-scale 0.5
+	animator DemonCubeAway
+	lowerdecal DemonCubeLower1
+}
+
+decal DemonCubeScorch2
+{
+	pic BFGLITE2
+	shade "ff 80 00"
+	fullbright
+        x-scale 0.5
+        y-scale 0.5
+	animator DemonCubeAway
+	lowerdecal DemonCubeLower2
+}
+
+decal DemonCubeLower1
+{
+	pic BFGLITE1
+	shade "00 00 00"
+        x-scale 0.5
+        y-scale 0.5
+}
+
+decal DemonCubeLower2
+{
+	pic BFGLITE2
+	shade "00 00 00"
+        x-scale 0.5
+        y-scale 0.5
+}
+
+decalgroup DemonCubeScorch
+{
+ 	DemonCubeScorch1 	1
+  	DemonCubeScorch2 	1
+}
+
+
+
+generator DemonCubeMissile	DemonCubeScorch
+
+
+decal CometScorch
+{
+	pic COMTSCRC
+	fullbright
+	add 0.5
+	animator GoAway
+	x-scale .4
+	y-scale .4
+	lowerdecal Scorch
+	randomflipx
+	randomflipy
+}
+
+decal SkullScorch1 
+{ 
+   pic PLASMA1 
+   shade "00 00 00" 
+   x-scale 0.6 
+   y-scale 0.6 
+   randomflipx 
+   randomflipy 
+} 
+
+decal SkullScorch2 
+{ 
+   pic PLASMA2 
+   shade "00 00 00" 
+   x-scale 0.6 
+   y-scale 0.6 
+   randomflipx 
+   randomflipy 
+} 
+
+decal RisenDecal 255
+{ 
+	pic RISDEC1 
+	shade "00 00 00"
+	x-scale 0.5
+	y-scale 0.5
+}
+
+decalgroup SkullScorch 
+{ 
+   SkullScorch1   1 
+   SkullScorch2   1 
+} 
+
+
+generator DarkSeeker		DoomImpScorch 
+generator DarkNormal		DoomImpScorch 
+generator DarkStrong		DoomImpScorch 
+generator DarkFast		DoomImpScorch 
+generator ShadowBall            DoomImpScorch
+generator HellWarriorBall	BaronScorch 
+generator SoulHarvesterBall	SkullScorch 
+generator HellsFuryBall		BaronScorch
+generator RapidFireTrooper      BulletChip
+Generator PlasmaBall      Scorch
+Generator BFGBall         BulletChip
+generator BruiserBall     Scorch
+generator BruiserBall2    DoomImpScorch

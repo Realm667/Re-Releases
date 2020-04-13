@@ -1,0 +1,20 @@
+ACTOR ZDCMP2_Cyberdemon : Cyberdemon replaces Cyberdemon
+{
+	DamageFactor "Cyber", 0.0
+	Species "Cyber"
+	States
+	{
+	Missile:
+		CYBR E 6 A_FaceTarget
+		CYBR F 12 A_CustomMissile("CyberRocket")
+		CYBR E 12 A_FaceTarget
+		CYBR F 12 A_CustomMissile("CyberRocket")
+		CYBR E 12 A_FaceTarget
+		CYBR F 12 A_CustomMissile("CyberRocket")
+		Goto See
+	}
+}
+ACTOR CyberRocket : Rocket
+{
+	DamageType "Cyber"
+}

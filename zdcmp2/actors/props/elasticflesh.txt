@@ -1,0 +1,61 @@
+ACTOR ElasticFlesh 13040
+{
+  Radius 16
+  Height 16
+  +NOGRAVITY
+  +RANDOMIZE
+  States
+  {
+  Spawn:
+    TNT1 A 0
+	TNT1 A 0 A_Jump (256, "Delay1", "Delay2", "Delay3")
+  Delay1:
+    MELF A 4
+	goto Squidgy
+  Delay2:
+    MELF A 8
+	goto Squidgy
+  Delay3:
+    MELF A 12
+	goto Squidgy
+  Squidgy:
+	MELF A 4 A_SetScale (1, 0.97)
+	MELF A 4 A_SetScale (1, 0.93)
+	MELF A 4 A_SetScale (1, 0.91)
+	MELF A 4 A_SetScale (1, 0.9)
+    MELF A 4 A_SetScale (1, 0.91)
+	MELF A 4 A_SetScale (1, 0.93)
+    Loop
+  }
+}
+
+ACTOR ElasticFlesh2 13041
+{
+  Radius 16
+  Height 16
+  +NOGRAVITY
+  +RANDOMIZE
+  States
+  {
+  Spawn:
+    TNT1 A 0
+	TNT1 A 0 A_Jump (256, "Delay1", "Delay2", "Delay3")
+  Delay1:
+    MELF B 4
+	goto Squidgy
+  Delay2:
+    MELF B 8
+	goto Squidgy
+  Delay3:
+    MELF B 12
+	goto Squidgy
+  Squidgy:
+	MELF B 4 A_SetScale (1, 0.97)
+	MELF B 4 A_SetScale (1, 0.93)
+	MELF B 4 A_SetScale (1, 0.91)
+	MELF B 4 A_SetScale (1, 0.9)
+    MELF B 4 A_SetScale (1, 0.91)
+	MELF B 4 A_SetScale (1, 0.93)
+    Loop
+  }
+}

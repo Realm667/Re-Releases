@@ -1,0 +1,86 @@
+ACTOR SeaMine 16004
+{
+  //$Category Decoration
+  Health 20
+  Radius 24
+  Height 32
+  Scale 0.6
+  Mass 9001
+  +SOLID
+  +SHOOTABLE
+  +NOBLOOD
+  +DONTGIB
+  +NOICEDEATH
+  +NOGRAVITY
+  +ISMONSTER
+  +TOUCHY
+  DeathSound "world/barrelx"
+  Obituary "%o was sunk."
+  States
+  {
+  Spawn:
+    SEAM E 0
+	SEAM E 1 A_SpawnItemEx ("MineChain", 0, 0, 0, 0, 0, -6, 0, SXF_SETMASTER, 0) 
+	//fall through
+  Drift:
+    SEAM E 6
+    Loop
+  Death:
+    TNT1 A 1 A_RemoveChildren (1)
+	TNT1 A 0 A_Scream
+	TNT1 A 0 A_Explode (64, 160)
+	TNT1 A 0 A_SpawnItem ("SeaMineBoomFX", 0, 16)
+    Stop
+  }
+}
+
+
+ACTOR SeaMineBoomFX
+{
+  Radius 2
+  Height 2
+  +NOINTERACTION
+  States
+  {
+  Spawn:
+    MISL B 8 Bright
+    MISL C 6 Bright
+    MISL D 4 Bright
+    Stop
+  }
+}
+
+actor MineChain
+{
+  Radius 2
+  Height 2
+  Speed 6
+  Damage 0
+  Projectile
+  States
+  {
+  Spawn:
+    TNT1 A 1 A_SpawnItem ("MineChainLink")
+    loop
+  Death:
+    TNT1 A 1
+    stop
+  }
+}
+
+ACTOR MineChainLink
+{
+  Radius 2
+  Height 2
+  +ISMONSTER
+  +NOGRAVITY
+  States
+  {
+  Spawn:
+    SCHN A 1
+    loop
+  Death:
+    TNT1 A 1
+    stop
+  }
+}

@@ -1,0 +1,61 @@
+// [XA] Simple glass break actor. I might adapt this into an SFX Shoppe entry later.
+
+// Arg 0: width
+// Arg 1: height
+// Arg 2: numshards
+ACTOR XAGlassBreak : SwitchableDecoration 11208
+{
+	Radius 1
+	Mass 1
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+	Inactive:
+		TNT1 A -1
+		Stop
+	Active:
+		TNT1 A 0 A_SpawnItemEx("XAGlassShard", 0, frandom(0,args[0])-(args[0]/2), frandom(0,args[1])-(args[1]/2), 10+frandom(-2,2),0,frandom(0,5),frandom(-15,15),0,0)
+		TNT1 A 0 A_CountDownArg(2, "Inactive")
+		Loop
+	}
+}
+
+ACTOR XAGlassShard
+{
+	Radius 5
+	Mass 5
+	Speed 10
+	Projectile
+	-ACTIVATEPCROSS
+	-ACTIVATEIMPACT
+	-NOGRAVITY
+	Gravity 0.8
+	BounceType "Doom"
+	BounceFactor 0.3
+	Renderstyle Translucent
+	Alpha 0.8
+	States
+	{
+	Spawn:
+		GSRD A 0
+		GSRD A 0 A_Jump(128,"Spawn2")
+	Spawn1:
+		GSRD ABCD 4 A_JumpIf(waterlevel > 2, "Sink")
+		Loop
+	Spawn2:
+		GSRD EFGH 4 A_JumpIf(waterlevel > 2, "Sink")
+		Loop
+	Sink:
+		GSRD A 0 A_ChangeFlag("DOOMBOUNCE",0)
+		GSRD A 0 A_ScaleVelocity(0.1)
+		GSRD A 0 A_SetMass(200)
+		GSRD A 0 A_Jump(256,1,2,3,4,5,6,7,8)
+		GSRD ABCDEFGH -1
+		Loop
+	Death:
+		GSRD D 300
+		GSRD DDDDDDDDDDDDDDDDDDDD 2 A_FadeOut(0.05)
+		Stop
+	}
+}

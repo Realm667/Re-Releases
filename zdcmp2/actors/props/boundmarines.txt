@@ -1,0 +1,55 @@
+ACTOR BoundPlayerShootable1 10800
+{
+  Radius 16
+  Height 40
+  Health 1
+  Mass 9001
+  DeathSound "bound/death"
+  +SOLID
+  +SHOOTABLE
+  +NOTAUTOAIMED // [Dusk]
+  States
+  {
+  Spawn:
+    BDOM A 6
+    Loop
+  Death:
+    BDOM B 6 A_Scream
+    BDOM CD 6
+	BDOM E -1 A_Fall
+	Stop
+  }
+}
+
+ACTOR BoundPlayerShootable2 10801
+{
+  Radius 16
+  Height 40
+  Health 1
+  Mass 9001
+  DeathSound "bound/death"
+  +SOLID
+  +SHOOTABLE
+  +NOTAUTOAIMED // [Dusk]
+  States
+  {
+  Spawn:
+    BDOM F 6
+    Loop
+  Death:
+    BDOM G 6 A_Scream
+    BDOM HI 6
+	BDOM J -1 A_Fall
+	Stop
+  }
+}
+
+ACTOR BoundPlayer1 : BoundPlayerShootable1 10802
+{
+  -SHOOTABLE
+}
+
+ACTOR BoundPlayer2 : BoundPlayerShootable2 10803
+{
+  -SHOOTABLE
+}

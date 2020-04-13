@@ -1,0 +1,52 @@
+// [XA] Falling rocks.
+
+// Arg 0: spawn radius
+// Arg 1: number of rocks per "volley"
+// Arg 2: chance of not spawning
+ACTOR XAFallingRockSpawner : SwitchableDecoration 11211
+{
+	Height 16
+	+NOINTERACTION
+	+SPAWNCEILING
+	States
+	{
+	Spawn:
+	Inactive:
+		TNT1 A -1
+		Stop
+	Active:	
+		TNT1 A 35 A_SetArg(4,args[1])
+		TNT1 AAAAAAAAAA 10 A_Jump(10,"ActStart")
+	ActStart:
+		TNT1 A 0 A_PlaySound("world/rockbreak", CHAN_VOICE)
+	ActLoop:
+		TNT1 A 3 A_SpawnItemEx("XAFallingRock", random(0-args[0], args[0]), random(0-args[0], args[0]), 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION, args[2])
+		TNT1 A 0 A_CountDownArg(4, "Active")
+		Loop
+	}	
+}
+
+ACTOR XAFallingRock
+{
+	Speed 0
+	Damage 5
+	DeathSound "world/rockhit"
+	Projectile
+	-NOGRAVITY
+	+NODAMAGETHRUST
+	+CEILINGHUGGER
+	States
+	{
+	Spawn:
+		ERKE A 0
+		ERKE A 0 A_ChangeFlag("CEILINGHUGGER",0)
+		ERKE A 0 A_Jump(256,1,2,3,4,5,6,7,8)
+		ERKE A -1
+		ERCK BCDEFGH -1
+		Stop
+	Death:
+		ERKE BCDE 4
+		TNT1 A 12
+		Stop
+	}
+}

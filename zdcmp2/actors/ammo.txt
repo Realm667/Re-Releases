@@ -1,0 +1,148 @@
+// Nail ------------------------------------------------------------------------
+
+ACTOR NailAmmo : Ammo 1008
+{
+	//$Category Ammunition
+	Tag "Nail"
+	Inventory.PickupMessage "$GOTNAIL"
+	Inventory.Amount 5
+	Inventory.MaxAmount 100
+	Ammo.BackpackAmount 10
+	Ammo.BackpackMaxAmount 200
+	Inventory.Icon "NPAKA0"
+	States
+	{
+	Spawn:
+		NPAK A -1
+		Stop
+	}
+}
+
+// Nail Box --------------------------------------------------------------------
+
+ACTOR NailBox : NailAmmo 1009
+{
+	//$Category Ammunition
+	//$Title "Box of Nails"
+	Inventory.PickupMessage "$GOTNAILBOX"
+	Inventory.Amount 25
+	States
+	{
+	Spawn:
+		NBOX A -1
+		Stop
+	}
+}
+
+
+// Napalm ----------------------------------------------------------------------
+
+ACTOR Napalm : Ammo 1010
+{
+	//$Category Ammunition
+	Tag "Napalm"
+	Inventory.PickupMessage "$GOTNAPALM"
+	Inventory.Amount 20
+	Inventory.MaxAmount 400
+	Ammo.BackpackAmount 20
+	Ammo.BackpackMaxAmount 800
+	Inventory.Icon "NAPLA0"
+	States
+	{
+	Spawn:
+		NAPL A -1
+		Stop
+	}
+}
+
+// Napalm Tank -----------------------------------------------------------------
+
+ACTOR NapalmTank : Napalm 1011
+{
+	//$Category Ammunition
+	//$Title "Napalm Tank"
+	Inventory.PickupMessage "$GOTNAPALMTANK"
+	Inventory.Amount 100
+	States
+	{
+	Spawn:
+		NAPT A -1
+		Stop
+	}
+}
+
+
+// Soul ------------------------------------------------------------------------
+
+ACTOR Soul : Ammo 1012
+{
+	//$Category Ammunition
+	//$Title "Soul"
+	Tag "Souls"
+	Inventory.PickupMessage "$GOTSOUL"
+	Inventory.Amount 10
+	Inventory.MaxAmount 200
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 400
+	Inventory.Icon "SOUAA0"
+	Renderstyle Add
+	+FLOATBOB
+	States
+	{
+	Spawn:
+		SOUA ABCD 4 Bright
+		Loop
+	}
+}
+
+// Soul Cluster ----------------------------------------------------------------
+
+ACTOR SoulCluster : Soul 1013
+{
+	//$Category Ammunition
+	//$Title "Soul Cluster"
+	Inventory.PickupMessage "$GOTSOULCLUSTER"
+	Inventory.Amount 50
+	States
+	{
+	Spawn:
+		SOUC ABCD 4 Bright
+		Loop
+	}
+}
+
+// Grenade ---------------------------------------------------------------------
+
+ACTOR GrenadeAmmo : Ammo 1014
+{
+	//$Category Ammunition
+	Tag "Grenade"
+	Inventory.PickupMessage "$GOTGRENADE"
+	Inventory.Amount 1
+	Inventory.MaxAmount 10
+	Ammo.BackpackAmount 1
+	Ammo.BackpackMaxAmount 20
+	Inventory.Icon "GRNDA0"
+	States
+	{
+	Spawn:
+		GRND A -1
+		Stop
+	}
+}
+
+// Grenade Box -----------------------------------------------------------------
+
+ACTOR GrenadeBox : GrenadeAmmo 1015
+{
+	//$Category Ammunition
+	//$Title "Box of Grenades"
+	Inventory.PickupMessage "$GOTGRENADEBOX"
+	Inventory.Amount 5
+	States
+	{
+	Spawn:
+		GBOX A -1
+		Stop
+	}
+}

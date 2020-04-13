@@ -1,0 +1,85 @@
+// Female Scientist -- by Scalliano
+
+ACTOR FemaleScientist 10557
+{
+	//$Category Monsters
+	Tag "Female Scientist"
+	Game Doom
+	Obituary "%o was stabbed by a zombie scientist."
+	Health 15
+	Mass 90
+	Speed 10
+	Radius 19
+	Height 52
+	Painchance 200
+	Seesound "fem/sight"
+	Painsound "fem/pain"
+	Deathsound "fem/death"
+	Activesound "fem/active"
+	MONSTER
+	+FLOORCLIP
+	States
+	{
+	Spawn:
+		FSZK AB 10 A_Look
+		Loop
+	See:
+		FSZK AABBCCDD 4 Fast A_Chase
+		Loop
+	Melee:
+		FSZK E 4 Fast A_FaceTarget
+		FSZK F 8 Fast A_CustomMeleeAttack (random (1, 5) *5, "KnifeHit", "skeleton/swing")
+		FSZK E 4 Fast 
+		goto See
+	Pain:
+		FSZK G 3 Fast
+		FSZK G 3 Fast A_Pain
+		Goto See
+	Death:
+		FSZK H 5
+		FSZK I 5 A_Scream
+		FSZK J 5 A_NoBlocking
+		FSZK K 5
+		FSZK L 5
+		FSZK M 5
+		FSZK N -1
+		Stop
+	XDeath:
+		FSZK O 0 A_SpawnItemEx("NashGore_GibPieceGenerator9",0,0,0,0,0,0,0,128)
+		FSZK O 0 A_SpawnItemEx("NashGore_GibPieceGenerator10",0,0,0,0,0,0,0,128)
+		FSZK O 0 A_SpawnItemEx("NashGore_GibPieceGenerator11",0,0,0,0,0,0,0,128)
+		FSZK O 0 A_SpawnItemEx("NashGore_GibPieceGenerator11",0,0,0,0,0,0,0,128)
+		FSZK O 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		FSZK O 5
+		FSZK P 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		FSZK P 5 A_XScream
+		FSZK Q 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		FSZK Q 5 A_NoBlocking
+		FSZK R 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		FSZK RSTUV 5
+		FSZK W -1
+		stop
+	// [Dusk] performance-friendly version for kill monsters cheat
+	Death.Massacre:
+	XDeath.Massacre:
+		FSZK O 5
+		FSZK P 5 A_XScream
+		FSZK Q 5 A_NoBlocking
+		FSZK RSTUV 5
+		FSZK W -1
+		stop
+	Raise:
+		FSZK MLKJIH 5
+		Goto See
+	Burn:
+		BURN A 3 Bright A_PlaySound("misc/burn", CHAN_AUTO)
+		BURN B 3 Bright A_Scream
+		BURN C 3 Bright A_PlaySound("misc/flame", CHAN_AUTO)
+		BURN D 3 Bright A_NoBlocking
+		BURN EFGHIJKLMNOP 3 Bright 
+		BURN Q 3 Bright A_PlaySound("misc/bodyhit", CHAN_VOICE)
+		BURN RSTU 3 Bright 		
+		BURN V -1
+		Stop
+	}
+}

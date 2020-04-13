@@ -1,0 +1,59 @@
+gameinfo 
+{
+	playerclasses = "RefineryPlayer"
+	dimcolor = "35 3C 23" 
+	dimamount = "0.7"
+	defaultdropstyle = "1"
+	pickupcolor = "FF FF FF"
+	menufontcolor_title     = "OLIVE"
+	menufontcolor_label     = "OLIVE" 
+	menufontcolor_value     = "GRAY" 
+	menufontcolor_action    = "GRAY"
+	menufontcolor_header    = "OLIVE" 
+	menufontcolor_highlight = "WHITE" 
+	menufontcolor_selection = "WHITE"
+	drawreadthis = false
+}
+
+clearepisodes
+episode Z2M3
+{
+	name = "The Refinery"
+	noskillmenu
+}
+
+map Z2M3 "The Refinery"
+{
+	next = "Z2M3"
+	smoothlighting
+	clipmidtextures
+	evenlighting
+	resetinventory
+}
+
+map TITLEMAP "Introduction"
+{
+	music = "D_INTER"
+	smoothlighting
+	evenlighting
+}
+
+
+clearskills
+
+skill first
+{
+  name = "Betatest this first!"
+  SpawnFilter = Baby
+  textcolor = black
+  Key = "1"
+}
+
+skill second
+{
+  name = "Betatest this later!"
+  textcolor = black
+  SpawnFilter = Easy
+  Key = "2"
+  mustconfirm = "Do not use! Only in case you have beta-tested on Skill 1"
+}

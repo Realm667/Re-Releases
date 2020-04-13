@@ -1,0 +1,309 @@
+// Abaddon -- by Xaser (sprites from Eradicator)
+
+ACTOR Abaddon 10569
+{ 
+	//$Category Monsters
+	Tag "Abaddon"
+	Health 12000
+	Radius 64 
+	Height 192
+	Mass 100000
+	Speed 20
+	MeleeRange 256
+	PainChance 5
+	MeleeDamage 15
+	Damage 15
+	// [Dusk] Better obits.. at least IMO!
+	Obituary "%o was vanquished by Abaddon."
+	HitObituary "%o knelt before Abaddon." // "couldn't stand"
+	// Obituary "%o was eradicated by Abaddon."
+	// HitObituary "%o was brutally violated by Abaddon."
+	Monster
+	+FLOORCLIP
+	+BOSS
+	+TELESTOMP
+	+DONTHARMSPECIES
+	Species "Abaddon"
+	SeeSound "abaddon/sight" 
+	ActiveSound "abaddon/active"
+	PainSound "abaddon/pain" 
+	DeathSound "abaddon/death"
+	MeleeSound "abaddon/meleehit"
+	Damagefactor "Soul", 0.5
+	Damagefactor "Fire", 2.0
+	Damagefactor "BFG", 0.25
+	var int user_enraged;
+	var int user_ragetimer;
+	var int user_maxrage;
+	States 
+	{ 
+	Spawn:
+		ABAD A 0 A_StopSound(CHAN_BODY)
+		ABAD A 0 A_SetUserVar("user_maxrage",10)
+		ABAD A 10 A_Look 
+		Loop 
+	See:
+		ABAD A 0 A_JumpIf(user_enraged == 1,"RageCheck")
+		ABAD A 0 A_PlaySound("abaddon/hover", CHAN_BODY, 1.0, 1)
+	Move:
+		ABAD BBCCDDEEDDCC 3 A_Chase
+		Loop 
+	Missile:
+		ABAD I 0 A_SetUserVar("user_ragetimer", user_ragetimer + 1)
+		ABAD I 0 A_JumpIf(user_ragetimer >= user_maxrage, "Rage")
+		ABAD I 0 A_Jump(128,"Hook")
+		
+		ABAD I 5 Bright A_PlaySound("abaddon/attack")
+		ABAD IIII 5 Bright A_FaceTarget
+		ABAD J 0 Bright A_CustomMissile("AbaddonShockwave",112,     -32,0,CMF_AIMDIRECTION)
+		ABAD J 0 Bright A_CustomMissile("AbaddonOrbiterN", 112 + 32,-32,0,CMF_AIMDIRECTION)
+		ABAD J 0 Bright A_CustomMissile("AbaddonOrbiterS", 112 - 32,-32,0,CMF_AIMDIRECTION)
+		ABAD J 8 Bright A_CustomMissile("AbaddonShot",     112,     -32,0,CMF_AIMDIRECTION)
+		ABAD J 8 Bright A_FaceTarget
+		ABAD I 16
+		Goto See
+	Hook:
+		ABAD F 0 A_PlaySound("abaddon/melee")
+		ABAD F 10 Bright A_FaceTarget
+		ABAD G 5  Bright A_FaceTarget
+		ABAD H 10 Bright A_CustomMissile("AbaddonHook", 48)
+		Goto See
+	Melee:
+		ABAD F 0 A_PlaySound("abaddon/melee")
+		ABAD F 10 Bright A_FaceTarget
+		ABAD G 5  Bright A_FaceTarget
+		ABAD H 10 Bright A_MeleeAttack
+		Goto See
+	Rage:
+		ABAD K 0 A_SetUserVar("user_enraged",1)
+		ABAD K 0 A_PlaySound("abaddon/rage")
+		ABAD KKKKK 10 A_FaceTarget
+	RageLoop:		
+		ABAD F 0 A_PlaySound("abaddon/melee")
+		ABAD F 10 Bright A_FaceTarget
+		ABAD G 5  Bright A_FaceTarget
+		ABAD H 15 Bright A_SkullAttack(40)
+	RageCheck:
+		ABAD H 0 A_Stop
+		ABAD H 0 A_SetUserVar("user_ragetimer", user_ragetimer - 1)
+		ABAD H 0 A_JumpIf(user_ragetimer == 0, "RageEnd")
+	RageSeek:
+		ABAD H 0 A_JumpIfTargetInLOS("RageLoop")
+		ABAD BBCCDDEEDDCC 1 A_Chase(0,0,CHF_NOPLAYACTIVE)
+		Loop
+	RageEnd:
+		ABAD A 0 A_SetUserVar("user_enraged",0)
+		Goto See
+	Pain: 
+		ABAD K 8 
+		ABAD L 8 A_Pain 
+		Goto Missile
+	Death:
+		ABAD K 0 Bright A_StopSound(CHAN_BODY)
+		ABAD K 0 Bright A_Quake(5, 175, 0, 1024)
+		ABAD K 40 Bright A_Scream
+		ABAD KKKKKKKKKKKKKKKKKKKKKKKKKKKKK 3 Bright A_SpawnItemEx("AbaddonDeathExplosion",random(-64,64), random(-64,64), random(32,160), 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+		ABAD MNOPQ 8 Bright
+		ABAD R 8 Bright A_NoBlocking
+		ABAD S -1 A_BossDeath
+		Stop
+	} 
+}
+ACTOR AbaddonDeathExplosion
+{
+	Alpha 1.0
+	Renderstyle Add
+	+NOINTERACTION
+	States
+	{
+	Spawn: 
+		MISL C 0 Bright
+		MISL C 0 Bright A_PlaySound("abaddon/explode")
+		MISL CDE 6 Bright
+		stop
+	}
+}
+
+
+// Dark Soulrender Attack
+
+ACTOR AbaddonShot
+{	
+	Radius 13
+	Height 8
+	Speed 12
+	Damage 0
+	Projectile
+	MinMissileChance 0
+	+FORCEXYBILLBOARD
+	+THRUACTORS
+	RenderStyle Translucent
+	Alpha 0.8
+	DeathSound "abaddon/shothit"
+	MissileHeight 0
+	States
+	{
+	Spawn:
+		ABSH ABCDEABCDE 2 Bright A_SpawnItemEx("AbaddonTrail",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0)
+	Zap:
+		ABSH ABCDE 2 Bright A_CustomMissile("AbaddonBlaster", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+		Loop
+	Death:
+		ABXP A 0 A_SetTranslucent(1.0, 1)
+		ABXP A 0 A_SpawnItemEx("AbaddonShockwave")
+		ABXP ABCDEF 4 Bright
+		Stop
+	}
+}
+ACTOR AbaddonOrbiter : AbaddonShot
+{
+	Scale 0.66
+	Alpha 0.75
+	SeeSound ""
+	States
+	{
+	Spawn:
+		ABSH A 0 A_SpawnItemEx("AbaddonTrailSmall",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0) ABSH AA 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH B 0 A_SpawnItemEx("AbaddonTrailSmall",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0) ABSH BB 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH C 0 A_SpawnItemEx("AbaddonTrailSmall",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0) ABSH CC 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH D 0 A_SpawnItemEx("AbaddonTrailSmall",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0) ABSH DD 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH E 0 A_SpawnItemEx("AbaddonTrailSmall",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0) ABSH EE 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH A 0 A_SpawnItemEx("AbaddonTrailSmall",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0) ABSH AA 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH B 0 A_SpawnItemEx("AbaddonTrailSmall",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0) ABSH BB 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH C 0 A_SpawnItemEx("AbaddonTrailSmall",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0) ABSH CC 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH D 0 A_SpawnItemEx("AbaddonTrailSmall",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0) ABSH DD 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH E 0 A_SpawnItemEx("AbaddonTrailSmall",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0) ABSH EE 1 Bright A_Weave(2, 2, 4.0, 4.0)
+	Zap:
+		ABSH A 0 A_CustomMissile("AbaddonBlasterSmall", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER) ABSH AA 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH B 0 A_CustomMissile("AbaddonBlasterSmall", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER) ABSH BB 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH C 0 A_CustomMissile("AbaddonBlasterSmall", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER) ABSH CC 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH D 0 A_CustomMissile("AbaddonBlasterSmall", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER) ABSH DD 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		ABSH E 0 A_CustomMissile("AbaddonBlasterSmall", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER) ABSH EE 1 Bright A_Weave(2, 2, 4.0, 4.0)
+		Loop
+	Death:
+		ABXP A 0 A_SetTranslucent(1.0, 1)
+		ABXP ABCDEF 3 Bright
+		Stop
+	}
+}
+ACTOR AbaddonOrbiterN : AbaddonOrbiter { WeaveIndexXY 32  WeaveIndexZ 16 }
+ACTOR AbaddonOrbiterS : AbaddonOrbiter { WeaveIndexXY  0  WeaveIndexZ 48 }
+ACTOR AbaddonShockwave
+{
+	Alpha 1.0
+	Renderstyle Add
+	+NOINTERACTION
+	States
+	{
+	Spawn: 
+		SHOK ABCDEFGHIJKLMNOPQR 1 Bright A_FadeOut(0.05)
+		stop
+	}
+}
+ACTOR AbaddonBlaster
+{	
+	Radius 2
+	Height 2
+	Speed 0
+	MinMissileChance 0
+	Projectile
+	+LOOKALLAROUND
+	+NOINTERACTION
+	+ISMONSTER
+	RenderStyle Add
+	AttackSound "abaddon/shotzap"
+	Obituary "%o was eradicated by Abaddon."
+	MissileHeight 0
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Explode(10,96,0,0,96)
+		TNT1 A 0 A_SpawnItemEx("AbaddonTrail",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0)
+		TNT1 A 2 A_Look
+		Stop
+	See:
+		TNT1 A 0 A_FaceTarget
+		TNT1 A 2 A_CustomRailgun(2, 0, None, "FF0000", RGF_NOPIERCING | RGF_FULLBRIGHT, 1, 16, "AbaddonPuff", 0, 0, 0, 2, 0, 0)
+		Goto Death
+	Death:
+		TNT1 A 2
+		Stop
+	}
+}
+ACTOR AbaddonBlasterSmall : AbaddonBlaster
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Explode(5,48,0,0,48)
+		TNT1 A 0 A_SpawnItemEx("AbaddonTrailSmall",0,0,8,0,0,0,0,SXF_CLIENTSIDE,0)
+		TNT1 A 2 A_Look
+		Stop
+	See:
+		TNT1 A 0 A_FaceTarget
+		TNT1 A 2 A_CustomRailgun(0, 0, None, "FF0000", RGF_NOPIERCING | RGF_FULLBRIGHT, 1, 16, "AbaddonPuff", 0, 0, 0, 2, 0, 0)
+		Goto Death
+	}
+}
+ACTOR AbaddonTrail
+{
+	+NOINTERACTION
+	Renderstyle Add
+	Alpha 1.0
+	Scale 0.5
+	States
+	{
+	Spawn:
+		SHOK HGFEDCBA 2 Bright A_FadeOut(0.1)
+		Stop
+	}
+}
+ACTOR AbaddonTrailSmall : AbaddonTrail
+{
+	Scale 0.25
+	States
+	{
+	Spawn:
+		SHOK HGFEDCBA 1 Bright A_FadeOut(0.1)
+		Stop
+	}
+}
+ACTOR AbaddonPuff
+{
+	+NODAMAGETHRUST
+	+PAINLESS
+}
+
+
+// "Hook" attack (Loremaster Shot, basically)
+
+ACTOR AbaddonHook : LoreShot
+{
+	-STRIFEDAMAGE
+	Damage 5
+	Radius 32
+	Height 32
+	Speed 50
+	Scale 0.33
+	States
+	{
+	Spawn:
+		ABSH ABCDE 1 Bright A_SpawnItemEx("AbaddonHookTrail")
+		Loop
+	Death:
+		ABXP A 0 A_SetTranslucent(1.0, 1)
+		ABXP ABCDEF 3 Bright
+		Stop
+	}
+}
+ACTOR AbaddonHookTrail : AbaddonTrailSmall
+{
+	States
+	{
+	Spawn:
+		ABXP CDEF 2 Bright
+		Stop
+	}
+}

@@ -1,0 +1,88 @@
+actor Aracnorb 32183
+{
+//$Category Z2M3_Monsters
+ MONSTER
+  +NOGRAVITY
+  +FLOAT
+  +FLOATBOB
+  Health 170
+  Radius 24
+  Height 56
+  Mass 400
+  Speed 12
+  PainChance 150
+  SeeSound "aracnorb/sight"
+  ActiveSound "baby/active"
+  PainSound "baby/pain"
+  DeathSound "aracnorb/death"
+  MeleeSound "aracnorb/melee"
+  MeleeDamage 6
+  MissileHeight 36
+  MissileType AracnorbBall
+  Obituary "%o suffered psychic trauma from an aracnorb's brainwaves."
+  HitObituary "%o had %p skull chewed by an aracnorb."
+  Scale 0.85
+  States
+  {
+  Spawn:
+    ACNB A 1 A_Look
+    Loop
+  See:
+    ACNB A 2 A_Chase
+    Loop
+  Melee:
+    ACNB AB 5
+    ACNB C 6 A_MeleeAttack
+    Goto See
+  Missile:
+    ACNB B 12 Bright A_FaceTarget
+    ACNB C 2 Bright A_MissileAttack
+    ACNB B 2 Bright
+    ACNB D 0 A_Jump(32,"See")
+    ACNB D 0 A_SpidRefire
+    Goto Missile+1
+  Pain:
+    ACNF I 2
+    ACNF I 2 A_Pain
+    Goto See
+  Death:
+    ACNB D 0 A_ChangeFlag("FLOATBOB",0)
+    ACNB D 0 A_Scream
+	ACNB D 6 A_Fall
+    ACNB D 1
+    Wait
+  Crash:
+    ACNB EFG 6
+    ACNB H -1
+    Stop
+  Raise:
+    ACNB HGFEDA 8
+    ACNB A 0 A_ChangeFlag("FLOATBOB",1)
+	Goto See
+  }
+}
+
+actor AracnorbBall
+{
+  Radius 13
+  Height 8
+  Speed 8
+  Damage 3
+  RenderStyle Add
+  Alpha 0.75
+  SeeSound "baby/attack"
+  DeathSound "baby/shotx"
+  PROJECTILE
+  +STRIFEDAMAGE
+  +SEEKERMISSILE
+  +RANDOMIZE
+  States
+  {
+  Spawn:
+    ACNF AABB 1 Bright A_BishopMissileWeave
+    Loop
+  Death:
+    ACNF CDEFG 5 Bright
+    Stop
+  }
+}

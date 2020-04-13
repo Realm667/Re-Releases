@@ -1,0 +1,46 @@
+// Keypad controls, by Isle (modified by Jimmy)
+
+actor wallcam : SecurityCamera
+{
+	+noclip
+}
+
+actor clicker : Weapon
+{
+  weapon.selectionorder 3700
+  weapon.kickback 0
+  +WEAPON.NOAUTOFIRE
+  +WEAPON.NOALERT
+  +WEAPON.CHEATNOTWEAPON 
+  states
+  {
+  Ready:
+    TNT1 A 1 A_WeaponReady
+    loop
+  Deselect:
+    TNT1 A 1 A_lower
+    loop
+  Select: 
+    TNT1 A 1 A_Raise
+    loop
+  Fire:
+    TNT1 A 1 ACS_NAMEDEXECUTE("Isle_KeypadClicker", 0)
+    goto Ready
+  }
+}
+
+actor blocker : SwitchableDecoration 10242
+{
+  height 56
+  radius 20
+  states
+  {
+  Spawn:
+  Active:
+    TNT1 A -1 A_UnsetSolid
+    stop
+  Inactive:
+    TNT1 A -1 A_SetSolid 
+    stop
+  }
+}

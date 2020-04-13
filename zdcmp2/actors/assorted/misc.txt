@@ -1,0 +1,154 @@
+ACTOR IndyHat 11212
+{	
+	//$Category Easteregg
+	Radius 4
+	Height 4
+	States
+	{
+	Spawn:
+		IHAT A -1
+		Stop
+	}
+}
+
+ACTOR ObjectiveMarker : MapMarker
+{
+	States
+	{
+	Spawn:
+		EXCL A -1
+		Stop
+	}
+}
+
+ACTOR LogBook : FakeInventory 11214 
+{          
+	inventory.pickupmessage "You found a data log!"
+	inventory.pickupsound "misc/k_pkup"
+	+COUNTITEM
+	states
+	{
+	Spawn:
+		LOGB ABCD 4 Bright
+		loop
+	}
+}
+ACTOR LogBookGold : LogBook 11216
+{
+	Translation "112:127=160:167", "152:159=80:111"
+}
+
+ACTOR BlankCard : FakeInventory 11215
+{
+	inventory.pickupmessage "Picked up a blank keycard."
+	inventory.pickupsound "misc/k_pkup"
+	+COUNTITEM
+	states
+	{
+	Spawn:
+		GKEY A -1
+		stop
+	}
+}
+
+ACTOR DeadScientist 11220
+{
+	+CORPSE
+	States
+	{
+	Spawn:
+		DSCI A -1
+		Stop
+	}	
+}
+ACTOR DeadDude1 11221
+{
+	States
+	{
+	Spawn:
+		DEDD A -1
+		Stop
+	}	
+}
+ACTOR DeadDude2 11222
+{
+	States
+	{
+	Spawn:
+		DEDD B -1
+		Stop
+	}	
+}
+
+// [XA] Object which executes its special when it sees a player. Handy for
+//      executing an action when a monster is activated, among other things. ;)
+ACTOR OnSightExecutor 11230
+{
+	Monster
+	-COUNTKILL
+	-SHOOTABLE
+	-SOLID
+	Health 99999
+	States
+	{
+	Spawn:
+		TNT1 A 10 A_Look
+		Loop
+	See:
+		TNT1 A 0 A_CallSpecial (Special, Args[0], Args[1], Args[2], Args[3], Args[4])
+		TNT1 A 0 A_Die
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+
+ACTOR Crowbargh 11298
+{
+	Scale 0.2
+	States
+	{
+	Spawn:
+		CBAR A -1
+		Stop
+	}	
+}
+
+ACTOR THE_CAPITOL_OF_THE_USA 11299
+{
+	Monster
+	-COUNTKILL
+	-SHOOTABLE
+	-SOLID
+	+FRIGHTENED
+	Health 9999
+	Speed 8
+	Scale 0.5
+	States
+	{
+	Spawn:
+		CAPI A 10 A_Look
+		Loop
+	See:
+		CAPI BBBBCCCCDDDD 1 A_Wander
+		Loop
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+
+Actor Twicane 30350
+{
+//$Category Easteregg
+Radius 8
+Height 23
+Scale 0.5
+-SOLID
+States
+{
+Spawn:
+	CANE A -1
+	Stop
+}
+}

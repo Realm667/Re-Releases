@@ -1,0 +1,106 @@
+//Captain Toenail's Ambient Audio Bonanza---------------------------------------
+//As far as I can tell random ambient sequences cannot be defined in SNDINFO
+//to my satisfaction so I had to resort to Decorate. ;)
+
+actor ComputerBeepBoop 23432
+{
+  +NOINTERACTION
+  States
+  {
+  Spawn:
+    TNT1 A 0
+	TNT1 A 0 A_PlaySound ("DSCOMHUM", 6, 0.5, 1, ATTN_STATIC)
+	//fall through
+  Spawn2:
+	TNT1 A 0 A_Jump (256, "Delay1", "Delay2", "Delay3", "Delay4", "Delay5")
+  Delay1:
+    TNT1 A 8 
+	TNT1 A 8 A_PlaySound ("Computer/BeepBoop", 5, 0.5, 0, 3)
+	goto Spawn2
+  Delay2:
+    TNT1 A 16 
+	TNT1 A 8 A_PlaySound ("Computer/BeepBoop", 5, 0.5, 0, 3)
+	goto Spawn2
+  Delay3:
+    TNT1 A 32 
+	TNT1 A 8 A_PlaySound ("Computer/BeepBoop", 5, 0.5, 0, 3)
+	goto Spawn2
+  Delay4:
+    TNT1 A 64 
+	TNT1 A 8 A_PlaySound ("Computer/BeepBoop", 5, 0.5, 0, 3)
+	goto Spawn2
+  Delay5:
+    TNT1 A 128 
+	TNT1 A 8 A_PlaySound ("Computer/BeepBoop", 5, 0.5, 0, 3)
+	goto Spawn2
+  }
+}
+
+
+actor ComputerBoopBeep 23433
+{
+  +NOINTERACTION
+  States
+  {
+  Spawn:
+    TNT1 A 0
+	TNT1 A 0 A_PlaySound ("DSCOMHUM", 6, 0.5, 1, ATTN_STATIC)
+	//fall through
+  Spawn2:
+	TNT1 A 0 A_Jump (256, "Delay1", "Delay2", "Delay3", "Delay4", "Delay5")
+  Delay1:
+    TNT1 A 8 
+	TNT1 A 8 A_PlaySound ("Computer/BoopBeep", 5, 0.5, 0, 3)
+	goto Spawn2
+  Delay2:
+    TNT1 A 16 
+	TNT1 A 8 A_PlaySound ("Computer/BoopBeep", 5, 0.5, 0, 3)
+	goto Spawn2
+  Delay3:
+    TNT1 A 32 
+	TNT1 A 8 A_PlaySound ("Computer/BoopBeep", 5, 0.5, 0, 3)
+	goto Spawn2
+  Delay4:
+    TNT1 A 64 
+	TNT1 A 8 A_PlaySound ("Computer/BoopBeep", 5, 0.5, 0, 3)
+	goto Spawn2
+  Delay5:
+    TNT1 A 128 
+	TNT1 A 8 A_PlaySound ("Computer/BoopBeep", 5, 0.5, 0, 3)
+	goto Spawn2
+  }
+}
+
+
+actor LavaSizzleBubble 23434
+{
+  +NOINTERACTION
+  States
+  {
+  Spawn:
+    TNT1 A 0
+	//fall through
+  Spawn2:
+	TNT1 A 0 A_Jump (256, "Delay1", "Delay2", "Delay3", "Delay4", "Delay5")
+  Delay1:
+    TNT1 A 32 
+	TNT1 A 8 A_PlaySound ("Lava/SizzleBubble", 5, 0.75, 0, ATTN_NORM)
+	goto Spawn2
+  Delay2:
+    TNT1 A 64 
+	TNT1 A 8 A_PlaySound ("Lava/SizzleBubble", 5, 0.75, 0, ATTN_NORM)
+	goto Spawn2
+  Delay3:
+    TNT1 A 96 
+	TNT1 A 8 A_PlaySound ("Lava/SizzleBubble", 5, 0.75, 0, ATTN_NORM)
+	goto Spawn2
+  Delay4:
+    TNT1 A 128 
+	TNT1 A 8 A_PlaySound ("Lava/SizzleBubble", 5, 0.75, 0, ATTN_NORM)
+	goto Spawn2
+  Delay5:
+    TNT1 A 160 
+	TNT1 A 8 A_PlaySound ("Lava/SizzleBubble", 5, 0.75, 0, ATTN_NORM)
+	goto Spawn2
+  }
+}

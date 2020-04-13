@@ -1,0 +1,132 @@
+gameinfo
+{
+	playerclasses = "ZDoomPlayer"
+	dimcolor = "35 3C 23"
+	dimamount = "0.7"
+	defaultdropstyle = "1"
+	pickupcolor = "FF FF FF"
+	menufontcolor_title     = "UNTRANSLATED"
+	menufontcolor_label     = "UNTRANSLATED"
+	menufontcolor_value     = "GRAY"
+	menufontcolor_action    = "GRAY"
+	menufontcolor_header    = "BRICK"
+	menufontcolor_highlight = "WHITE"
+	menufontcolor_selection = "WHITE"
+}
+
+clearepisodes
+episode ZDCMP2
+{
+	name = "ZDCMP2"
+}
+
+map ZDCMP2 "ZDoom Community Map Project 2"
+{
+	music = "MUSIC1"
+	next = "ZDCMP2"
+	smoothlighting
+	clipmidtextures
+	// Turn off most of the Doom strict/Boom strict compat options, they'd do
+	// more harm than good and some people always leave them on.
+	// corpsegibs and notossdrop are left to user preference.
+	// hitscan and wallrun cannot be turned off from MAPINFO.
+	compat_limitpain = 0
+	compat_crossdropoff = 0
+	compat_dehhealth = 0
+	compat_light = 0
+	compat_missileclip = 0
+	compat_nodoorlight = 0
+	compat_shorttex = 0
+	compat_soundtarget = 0
+	compat_spritesort = 0
+	compat_stairs = 0
+	compat_trace = 0
+	compat_useblocking = 0
+	compat_floormove = 0
+	compat_invisibility = 0
+	compat_nopassover = 0
+	compat_boomscroll = 0
+	compat_mbfmonstermove = 0
+	compat_badangles = 0
+	compat_maskedmidtex = 0
+}
+
+map TITLEMAP "Introduction"
+{
+	music = "D_DM2INT"
+}
+
+// [XA] "New" skills -- Skill 5 is set up to act as a "supreme monster rush"
+//      NG+ sort of mode, while Skill 6 ups the ante by adding fast monsters. Whoop!
+clearskills
+
+skill baby
+{
+	AutoUseHealth
+	AmmoFactor = 2
+	DamageFactor = 0.5
+	EasyBossBrain
+	SpawnFilter = Baby
+	Name = "$SKILL_BABY"
+	Key = "i"
+}
+
+skill easy
+{
+	EasyBossBrain
+	SpawnFilter = Easy
+	Name = "$SKILL_EASY"
+	Key = "h"
+}
+
+skill normal
+{
+	SpawnFilter = Normal
+	Key = "h"
+	Name = "$SKILL_NORMAL"
+	DefaultSkill
+}
+
+skill hard
+{
+	SpawnFilter = Hard
+	Name = "$SKILL_HARD"
+	Key = "u"
+}
+skill veryhard
+{
+	ACSReturn = 4
+	AmmoFactor = 1.5
+	SpawnFilter = Nightmare
+	PicName = "TNT1A0"
+	Name = "$SKILL_VERYHARD"
+	ReplaceActor = "SoulHarvester", "SoulHarvester2"
+	ReplaceActor = "Zombieman", "RapidFireTrooper"
+	ReplaceActor = "DoomImp", "Shadow"
+	ReplaceActor = "Demon", "Spectre"
+	ReplaceActor = "Cacodemon", "Grell"
+	ReplaceActor = "HellKnight", "HellWarrior"
+	ReplaceActor = "BaronOfHell", "Cybruiser"
+	ReplaceActor = "Revenant", "Vore"
+	MustConfirm
+}
+skill ultrahard
+{
+	ACSReturn = 5
+	AmmoFactor = 2
+	FastMonsters
+	SpawnFilter = Nightmare
+	PicName = "TNT1A0"
+	Name = "$SKILL_ULTRAHARD"
+	ReplaceActor = "SoulHarvester", "SoulHarvester2"
+	ReplaceActor = "Zombieman", "RapidFireTrooper"
+	ReplaceActor = "DoomImp", "Shadow"
+	ReplaceActor = "Demon", "Spectre"
+	ReplaceActor = "Cacodemon", "Grell"
+	ReplaceActor = "HellKnight", "HellWarrior"
+	ReplaceActor = "BaronOfHell", "Cybruiser"
+	ReplaceActor = "Revenant", "Vore"
+	ReplaceActor = "Fatso", "Vore"
+	ReplaceActor = "SuperSpecialShotgunPickup", "AutoShotgun"
+	MustConfirm
+}

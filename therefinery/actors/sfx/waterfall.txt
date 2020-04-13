@@ -1,0 +1,74 @@
+actor WaterfallParticleA1
+{
+	Height 16
+	Radius 8
+	Mass 0
+	Scale 0.05
+	Gravity 0.3
+	RenderStyle Add
+	Alpha 0.4
+	+MISSILE
+	+WINDTHRUST
+	+FORCEXYBILLBOARD
+	+DONTSPLASH
+	States
+	{
+	Spawn:
+		WFL1 A 1 A_SetScale(scaleX + 0.05)
+		loop
+	}
+}
+
+actor WaterfallParticleA2 : WaterfallParticleA1
+{
+	States
+	{
+	Spawn:
+		WFL2 A 1 A_SetScale(scaleX + 0.05)
+		loop
+	}
+}
+
+actor WaterfallParticleA3 : WaterfallParticleA1
+{
+	States
+	{
+	Spawn:
+		WFL3 A 1 A_SetScale(scaleX + 0.05)
+		loop
+	}
+}
+
+actor WaterfallParticleA4 : WaterfallParticleA1
+{
+	States
+	{
+	Spawn:
+		WFL4 A 1 A_SetScale(scaleX + 0.05)
+		loop
+	}
+}
+
+Actor Watersplashspawner : SwitchableDecoration 20121
+{
+  Height 2
+  Radius 1
+  Mass 0
+  +NoBlockMap
+  +NoGravity
+  +NoInteraction
+  +ClientSideOnly
+  States
+  {
+  Spawn:
+  Active:
+    TNT1 A 1 A_SpawnItemEx("WaterfallParticleA1", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
+    TNT1 A 1 A_SpawnItemEx("WaterfallParticleA2", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
+    TNT1 A 1 A_SpawnItemEx("WaterfallParticleA3", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
+    TNT1 A 1 A_SpawnItemEx("WaterfallParticleA4", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
+    Loop
+  Inactive:
+    TNT1 A 1
+    Loop
+  }
+}

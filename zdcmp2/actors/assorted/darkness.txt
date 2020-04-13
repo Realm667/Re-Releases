@@ -1,0 +1,45 @@
+Actor DarknessEasterEgg 32766
+{
+//$Category Easteregg
+  Health 9999999
+  Radius 1
+  Height 1
+  Speed 0
+  Mass 3000000
+  Bloodtype None
+  Monster
+  meleerange 1
+  meleedamage 1
+  minmissilechance 232
+  activesound "DarkRift/Active"
+  -COUNTKILL
+  +FLOORCLIP
+  +NOBLOODDECALS
+  +SOLID
+  +NORADIUSDMG
+  +FLOAT
+  +NOGRAVITY
+  +NOTARGET
+  +LOOKALLAROUND
+  HitObituary "%o was somehow killed by an Easter egg. Brilliant."
+  Obituary "%o was somehow killed by an Easter egg. Brilliant."
+  States
+  {
+  Spawn:
+    TNT1 A 0 A_PlaySoundEx("DarkRift/Loop", "SoundSlot7", 1)
+    TNT1 A 1 A_Look
+    Loop
+  See:
+    TNT1 A 0 A_PlaySoundEx("DarkRift/Loop", "SoundSlot7", 1)
+    TNT1 A 1 A_Chase
+    Loop
+  Melee:
+    TNT1 A 0 A_PlaySoundEx("DarkRift/Loop", "SoundSlot7", 1)
+    TNT1 A 1 A_MeleeAttack
+    Goto See
+  Death:
+    TNT1 A 0 A_StopSoundEx("SoundSlot7")
+    TNT1 A 1
+    Stop
+  }
+}

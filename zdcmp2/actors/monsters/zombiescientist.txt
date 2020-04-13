@@ -1,0 +1,85 @@
+// Zombie Scientist -- by Scalliano
+
+ACTOR ZombieScientist 10556
+{
+	//$Category Monsters
+	Tag "Zombie Scientist"
+	Game Doom
+	Obituary "%o was axe-murdered by a zombie scientist."
+	Health 20
+	Mass 90
+	Speed 8
+	Radius 20
+	Height 52
+	Painchance 200
+	Seesound "grunt/sight"
+	Painsound "grunt/pain"
+	Deathsound "grunt/death"
+	Activesound "grunt/active"
+	MONSTER
+	+FLOORCLIP
+	States
+	{
+	Spawn:
+		SCZA AB 10 A_Look
+		Loop
+	See:
+		SCZA AABBCCDD 4 Fast A_Chase
+		Loop
+	Melee:
+		SCZA E 8 Fast A_FaceTarget
+		SCZA F 16 Fast A_CustomMeleeAttack (random (2, 6) *5, "KnifeHit", "skeleton/swing")
+		SCZA E 4 Fast
+		Goto See
+	Pain:
+		SCZA G 3 Fast
+		SCZA G 3 Fast A_Pain
+		Goto See
+	Death:
+		SCZA H 5
+		SCZA I 5 A_Scream
+		SCZA J 5 A_NoBlocking
+		SCZA K 5
+		SCZA L 5
+		SCZA M 5
+		SCZA N -1
+		Stop
+	XDeath:
+		SCZA O 0 A_SpawnItemEx("NashGore_GibPieceGenerator9",0,0,0,0,0,0,0,128)
+		SCZA O 0 A_SpawnItemEx("NashGore_GibPieceGenerator10",0,0,0,0,0,0,0,128)
+		SCZA O 0 A_SpawnItemEx("NashGore_GibPieceGenerator11",0,0,0,0,0,0,0,128)
+		SCZA O 0 A_SpawnItemEx("NashGore_GibPieceGenerator11",0,0,0,0,0,0,0,128)
+		SCZA O 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		SCZA O 5
+		SCZA P 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		SCZA P 5 A_XScream
+		SCZA Q 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		SCZA Q 5 A_NoBlocking
+		SCZA R 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		SCZA RSTUV 5
+		SCZA W -1
+		Stop
+	// [Dusk] performance-friendly version for kill monsters cheat
+	Death.Massacre:
+	XDeath.Massacre:
+		SCZA O 5
+		SCZA P 5 A_XScream
+		SCZA Q 5 A_NoBlocking
+		SCZA RSTUV 5
+		SCZA W -1
+		Stop
+	Raise:
+		SCZA MLKJIH 5
+		Goto See
+	Burn:
+		BURN A 3 Bright A_PlaySound("misc/burn", CHAN_AUTO)
+		BURN B 3 Bright A_Scream
+		BURN C 3 Bright A_PlaySound("misc/flame", CHAN_AUTO)
+		BURN D 3 Bright A_NoBlocking
+		BURN EFGHIJKLMNOP 3 Bright 
+		BURN Q 3 Bright A_PlaySound("misc/bodyhit", CHAN_VOICE)
+		BURN RSTU 3 Bright 		
+		BURN V -1
+		Stop
+	}
+}

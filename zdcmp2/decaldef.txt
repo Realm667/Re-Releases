@@ -1,0 +1,462 @@
+/*
+ * Bloody chip decals for nailgun.
+ */
+decal NailBloodSplat1
+{
+	pic BSPLAT1
+	shade "BloodDefault"
+	x-scale 0.75
+	y-scale 0.75
+	randomflipx
+	randomflipy
+	lowerdecal BulletChip
+}
+
+decal NailBloodSplat2
+{
+	pic BSPLAT2
+	shade "BloodDefault"
+	x-scale 0.75
+	y-scale 0.75
+	randomflipx
+	randomflipy
+	lowerdecal BulletChip
+}
+
+decal NailBloodSplat3
+{
+	pic BSPLAT3
+	shade "BloodDefault"
+	x-scale 0.75
+	y-scale 0.75
+	randomflipx
+	randomflipy
+	lowerdecal BulletChip
+}
+
+decal NailBloodSplat4
+{
+	pic BSPLAT4
+	shade "BloodDefault"
+	x-scale 0.75
+	y-scale 0.75
+	randomflipx
+	randomflipy
+	lowerdecal BulletChip
+}
+
+decal NailBloodSplat5
+{
+	pic BSPLAT5
+	shade "BloodDefault"
+	x-scale 0.75
+	y-scale 0.75
+	randomflipx
+	randomflipy
+	lowerdecal BulletChip
+}
+
+decal NailBloodSplat6
+{
+	pic BSPLAT6
+	shade "BloodDefault"
+	x-scale 0.75
+	y-scale 0.75
+	randomflipx
+	randomflipy
+	lowerdecal BulletChip
+}
+
+decal NailBloodSplat7
+{
+	pic BSPLAT7
+	shade "BloodDefault"
+	x-scale 0.75
+	y-scale 0.75
+	randomflipx
+	randomflipy
+	lowerdecal BulletChip
+}
+
+decalgroup NailBloodSplat
+{
+	NailBloodSplat1	2
+	NailBloodSplat2	1
+	NailBloodSplat3	5
+	NailBloodSplat4	5
+	NailBloodSplat5	5
+	NailBloodSplat6	5
+	NailBloodSplat7	6
+}
+
+/*
+ * Flame scorch.
+ */  
+decal FlameScorch
+{
+	pic BLAST1
+	shade "00 00 00"
+	x-scale 0.5
+	y-scale 0.5
+	randomflipx
+	randomflipy
+}
+
+
+// Animated UAC decal
+
+   fader LetterFader
+   {
+   DecayStart 0
+   DecayTime 0.25
+   }
+
+   stretcher LetterStretcher
+   {
+   GoalX 1.5
+   GoalY 1.5
+   StretchStart 0
+   StretchTime 0.25
+   }
+
+   Combiner LetterAnimate
+   {
+   LetterFader
+   LetterStretcher
+   }
+
+   //RED
+   decal RedU
+   {
+       pic REDU
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal RedA
+   {
+       pic REDA
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal RedC
+   {
+       pic REDC
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   //GREEN
+   decal GreenU
+   {
+       pic GREENU
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal GreenA
+   {
+       pic GREENA
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal GreenC
+   {
+       pic GREENC
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   //BLUE
+   decal BlueU
+   {
+       pic BLUEU
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal BlueA
+   {
+       pic BLUEA
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal BlueC
+   {
+       pic BLUEC
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   //YELLOW
+   decal YellowU
+   {
+       pic YELLOWU
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal YellowA
+   {
+       pic YELLOWA
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal YellowC
+   {
+       pic YELLOWC
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+   
+
+// Smaller versions
+   stretcher LittleLetterStretcher
+   {
+   GoalX 0.5
+   GoalY 0.5
+   StretchStart 0
+   StretchTime 0.25
+   }
+   
+   Combiner LittleLetterAnimate
+   {
+   LetterFader
+   LittleLetterStretcher
+   }
+
+   //RED
+   decal LittleRedU
+   {
+       pic REDU
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+   
+   decal LittleRedA
+   {
+       pic REDA
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+   
+   decal LittleRedC
+   {
+       pic REDC
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+   
+   //GREEN
+   decal LittleGreenU
+   {
+       pic GREENU
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+   
+   decal LittleGreenA
+   {
+       pic GREENA
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+   
+   decal LittleGreenC
+   {
+       pic GREENC
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+   
+   //BLUE
+   decal LittleBlueU
+   {
+       pic BLUEU
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+   
+   decal LittleBlueA
+   {
+       pic BLUEA
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+   
+   decal LittleBlueC
+   {
+       pic BLUEC
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+   
+   //YELLOW
+   decal LittleYellowU
+   {
+       pic YELLOWU
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+   
+   decal LittleYellowA
+   {
+       pic YELLOWA
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+   
+   decal LittleYellowC
+   {
+       pic YELLOWC
+       x-scale 0.10
+       y-scale 0.10
+       add 1
+       fullbright
+       animator LittleLetterAnimate
+   }
+
+
+   // ZDoom Logo
+   decal ZDLogoZ
+   {
+       pic ZDLOGO_Z
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal ZDLogoD
+   {
+       pic ZDLOGO_D
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal ZDLogoO
+   {
+       pic ZDLOGO_O
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal ZDLogoM
+   {
+       pic ZDLOGO_M
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal ZDLogo2
+   {
+       pic ZDLOGO_2
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal ZDLogoC
+   {
+       pic ZDLOGO_C
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }
+
+   decal ZDLogoP
+   {
+       pic ZDLOGO_P
+       x-scale 0.5
+       y-scale 0.5
+       add 1
+       fullbright
+       animator LetterAnimate
+   }

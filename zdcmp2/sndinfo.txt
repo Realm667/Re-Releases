@@ -1,0 +1,778 @@
+// Weapons
+weapons/rifle          dsrifle
+weapons/riflealt       dsrifalt
+weapons/rifleopen      dsrifopn
+weapons/rifleload      dsriflod
+weapons/rifleclose     dsrifcls
+// [Blue Shadow] Reduce sound volume of these because they sound louder than other weapons
+$volume weapons/rifle      0.7
+$volume weapons/riflealt   0.7
+$volume weapons/rifleopen  0.8
+$volume weapons/rifleload  0.8
+$volume weapons/rifleclose 0.8
+
+weapons/autoshot1      dssweep1
+weapons/autoshot2      dssweep2
+weapons/autoshot3      dssweep3
+$random weapons/autoshot { weapons/autoshot1 weapons/autoshot2 weapons/autoshot3 }
+// [Blue Shadow] These ones too...
+$volume weapons/autoshot1 0.7
+$volume weapons/autoshot2 0.7
+$volume weapons/autoshot3 0.7
+
+weapons/nailgunfire    dsnailgn
+$limit weapons/nailgunfire 0
+weapons/nailgunhit     dsnailht
+weapons/nailgunblood   dsnailbl
+
+weapons/flamethrower   dsfthrow
+weapons/flameshot1     dsspray1
+weapons/flameshot2     dsspray2
+weapons/flameshot3     dsspray3
+$random weapons/flameshot { weapons/flameshot1 weapons/flameshot2 weapons/flameshot3 }
+$limit weapons/flameshot 0
+weapons/flamehit       dsflame
+weapons/fuelshot       dsspray
+weapons/fuelhit1       dsslsh1
+weapons/fuelhit2       dsslsh2
+weapons/fuelhit3       dsslsh3
+weapons/fuelhit4       dsslsh4
+$random weapons/fuelhit { weapons/fuelhit1 weapons/fuelhit2 weapons/fuelhit3 weapons/fuelhit4 }
+weapons/fuelslurp      dsslurp
+
+weapons/darkclawfire   dsdkclaw
+$limit weapons/darkclawfire 0
+weapons/darkclawhit    dsdkball
+weapons/darkclawbeam   dsdkbeam
+weapons/darkclawabsorb dsnailbl
+weapons/grenadepin     dsgrpin
+weapons/grenadetick    dsgrtick
+weapons/grenadethrow   dsgrtoss
+weapons/grenadebounce  dsgrdrop
+weapons/grenadeexplode dsgrboom
+
+weapons/gigercharge    dsgigchg
+weapons/gigerfire      dsgigfir
+weapons/gigerzap       dsgigzap
+weapons/gigerhit       dsgighit
+weapons/gigercancel    dsgigcan
+$limit weapons/gigerzap 1
+
+
+// Zombie Scientist
+KnifeHit        dsknife
+
+// Female Scientist
+fem/sight       femzsit
+fem/pain        femzpain
+fem/death       femzdht
+fem/active      femzact
+
+// Flesh Spawn
+flesh/sight     flspnsit
+flesh/melee     flspnatk
+flesh/pain      flspnhit
+flesh/death     flspndth
+flesh/active    flspnact
+
+// Cybruiser
+bruiser/sight   dsbrusit
+bruiser/walk    dsbruwlk
+bruiser/melee   dsclaw
+bruiser/pain    dsdmpain
+bruiser/death   dsbrudth
+bruiser/missilefire dsbrufir
+bruiser/missilehit  dshellex
+
+//$rolloff bruiser/walk 100 600 [XA] This makes their footsteps inaudible in normal gameplay!
+
+// Grell
+grell/sight     dsgresit
+grell/active    dsgreact
+grell/attack    dsgreatk
+grell/pain      dsgrepai
+grell/death     dsgredth
+grell/thud      dsgrethd
+grell/projhit   dsvulhit
+
+// Shadow
+$random shadow/active { shadow/act1 shadow/act2 }
+shadow/act1     SHDACT1
+shadow/act2     SHDACT2
+$random shadow/pain { shadow/pain1 shadow/pain2 }
+shadow/pain1    SHDPAIN1
+shadow/pain2    SHDPAIN2
+shadow/attack   SHDATTAK
+shadow/death    SHDDEATH
+
+// Soul Harvester
+$RANDOM harvester/sight { harvester/sight1 harvester/sight2 }
+harvester/sight1 shsight1
+harvester/sight2 shsight2
+$RANDOM harvester/death { harvester/death1 harvester/death2 }
+harvester/death1 shdeath1
+harvester/death2 shdeath2
+harvester/scream shfbscrm
+harvester/ghost shghscrm
+
+// Hell Warrior
+warrior/sight   dswarsit
+warrior/pain    dsdmpain
+warrior/death   dswardth
+warrior/active  dsdmact
+warrior/melee   dsclaw
+
+// Bruiser Demon
+superbaron/scream dssbsit
+superbaron/pain   dssbpain
+superbaron/death  dssbdth
+superbaron/act    dssbact
+
+// Angel of Death
+angel/sight			dsangsit
+angel/active		dssbact
+angel/pain          dsangpai
+angel/death			dsangdth
+
+$random angeltracer/explode 		{ angeltracer/explode1  angeltracer/explode2  angeltracer/explode3 }
+angeltracer/explode1                 ric01
+angeltracer/explode2                 ric02
+angeltracer/explode3                 ric03
+angeltracer/fire                     clank
+
+$random pipebomb/whoosh 		{ pipe/whoosh1  pipe/whoosh2  }
+pipebomb/fire                       pipesh
+pipebomb/explode                    boom1
+pipebomb/whoosh1                    pipe1
+pipebomb/whoosh2                    pipe2
+
+// Bodyguard
+bodyguard/sight       DSBDGSIT
+bodyguard/active      DSBDGACT
+bodyguard/hover       DSBDGHOV
+bodyguard/missilefire DSBRUFIR
+bodyguard/missilehit  DSHELLEX
+bodyguard/pain1       DSBDGPN1
+bodyguard/pain2       DSBDGPN2
+bodyguard/pain3       DSBDGPN3
+$random bodyguard/pain { bodyguard/pain1 bodyguard/pain2 bodyguard/pain3 }
+bodyguard/death       DSBDGDTH
+bodyguard/explode     DSBDGEXP
+$limit bodyguard/explode 5
+
+$rolloff bodyguard/active  300 1800
+$rolloff bodyguard/explode 300 1800
+
+// Abaddon
+abaddon/sight       DSABBSIT
+abaddon/active      DSABBACT
+abaddon/hover       DSABBHOV
+abaddon/melee		DSABBMEL
+abaddon/attack      DSABBGUN
+abaddon/shotzap     DSABBZAP
+abaddon/shothit     DSABBHIT
+abaddon/rage		DSABBSIT
+abaddon/pain1       DSABBPN1
+abaddon/pain2       DSABBPN2
+abaddon/pain3       DSABBPN3
+$random abaddon/pain { abaddon/pain1 abaddon/pain2 abaddon/pain3 }
+abaddon/death       DSABBDTH
+abaddon/explode     DSBDGEXP
+$limit abaddon/explode 5
+
+$rolloff abaddon/hover   300 1800
+$rolloff abaddon/sight   400 2400
+$rolloff abaddon/active  400 2400
+$rolloff abaddon/attack  400 2400
+$rolloff abaddon/melee   400 2400
+$rolloff abaddon/rage    400 2400
+$rolloff abaddon/pain    400 2400
+$rolloff abaddon/explode 400 2400
+$rolloff abaddon/shothit 300 1800
+
+// Vore
+Vore/Sight	VORESIGH
+Vore/Active	VOREACTI
+Vore/Attack	VOREATTK
+Vore/Throw	VORETHRW
+Vore/Hit	dsbarexp
+Vore/Pain	VOREPAIN
+Vore/Death	VOREDEAT
+Vore/Projectile VOREPROJ
+
+
+//Arachnotron
+Arachnotron/Death2	ATRNDTH2
+
+// Rolling boulders
+Boulder/Roll	DSBOLROL
+Boulder/Stop	DSBOLSTP
+
+// Darkness Prop
+DarkRift/Loop		DRFTLOOP
+DarkRift/Active		DRFTACT
+
+// Steam
+Steam/Loop	STEMLOOP
+Steam/Fire	STEMFIRE
+
+// Misc
+world/shatter		brkglas
+
+// Doors
+polyobj/close		doorcloz
+q2dr				door2
+ddoor    			ddoor
+hldoor1  			hldoor1
+hldoor3  			hldoor3
+q1door1  			q1door1
+q1door2a 			q1door2a
+sdoor2   			sdoor2
+sdoor4   			sdoor4
+sdoor5   			sdoor5
+udoor1a  			udoor1a
+udoor1b  			udoor1b
+udoor1c  			udoor1c
+hllift1a 			hllift1a
+hllift1b 			hllift1b
+q1lift2a 			q1lift2a
+q1lift2b 			q1lift2b
+q1lift2s 			q1lift2s
+slift1a  			slift1a
+slift1b  			slift1b
+slift1c  			slift1c
+ulift1a  			ulift1a
+ulift2a  			ulift2a
+ulift12b 			ulift12b
+ulift3a  			ulift3a
+ulift3b  			ulift3b
+
+// Damned souls
+DSDAMND1	DSDAMND1
+DSDAMND2	DSDAMND2
+DSDAMND3	DSDAMND3
+DSDAMND4	DSDAMND4
+
+$random DamnedSoul/Moan	{ DSDAMND1 DSDAMND2 DSDAMND3 DSDAMND4 }
+$limit DamnedSoul/Moan 0
+
+
+// Forcefield
+world/ff_active	FF_ACT
+world/ff_hit	FF_HIT
+world/ff_on	FF_ON
+world/ff_off	FF_OFF
+
+// TPortal
+TPortalLoop tp_loop
+TPZap1	tp_zap1
+TPZap2	tp_zap2
+$random TPortalZap {TPZap1 TPZap2}
+TPortalFade tp_fade
+TPortalAppear tp_app
+
+// Thundargh!
+$random thunder/hit { thunder/hit1 thunder/hit2 }
+thunder/hit1 THNDS01
+thunder/hit2 THNDS02
+
+// [XA] Thanks, Bouncy :P
+misc/weaponmod	weapmod
+
+//Blood
+$random gibbage/blood		{gibbage/blood1 gibbage/blood2 gibbage/blood3 gibbage/blood4}
+gibbage/blood1				blood1
+gibbage/blood2				blood2
+gibbage/blood3				blood3
+gibbage/blood4				blood4
+
+// PUFF RICOCHET
+$random puff/ric       { puff/ric1 puff/ric2 puff/ric3 puff/ric4 puff/ric5 puff/ric6 puff/ric7 }
+puff/ric1          dsrich1
+puff/ric2          dsrich2
+puff/ric3          dsrich3
+puff/ric4          dsrich4
+puff/ric5          dsrich5
+puff/ric6          dsrich6
+puff/ric7          dsrich7 
+
+// WEAPON ENHANCEMENTS
+$random weapons/case1		{weapons/case11 weapons/case12}
+weapons/case11			dscase11
+weapons/case12			dscase12   
+
+$random weapons/case2		{weapons/case21 weapons/case22}
+weapons/case21			dscase21
+weapons/case22			dscase22
+
+$random weapons/shell		{weapons/shell1 weapons/shell2 weapons/shell3}
+weapons/shell1			dsshell1
+weapons/shell2			dsshell2
+weapons/shell3			dsshell3   
+
+// other stuff O:
+
+tubes/break				TSTTB
+misc/burn				PLRBURN
+misc/flame				DSFLAME2
+misc/bodyhit			DSBODHIT
+misc/bridgesplash		BRSPLASH
+misc/helicopter			DSHELI
+misc/yeah				DSYEAH
+$rolloff misc/helicopter 400 2400
+
+world/distantexplosion1 BOMBS1
+world/distantexplosion2 BOMBS2
+$random world/distantexplosion { world/distantexplosion1 world/distantexplosion2 }
+$volume world/distantexplosion 1.75
+world/bigexplosion		DISTEXP
+
+world/explosionplume	DSBAREXP
+$rolloff world/explosionplume 400 2400
+
+world/bigquake			EQUAKE
+
+world/rockbreak1		ROCKBRK1
+world/rockbreak2		ROCKBRK2
+world/rockbreak3		ROCKBRK3
+world/rockbreak4		ROCKBRK4
+world/rockhit1			ROCKHIT1
+world/rockhit2			ROCKHIT2
+world/rockhit3			ROCKHIT3
+world/rockhit4			ROCKHIT4
+world/rockhit5			ROCKHIT5
+world/rockhit6			ROCKHIT6
+world/rockchip1			ROCKCHP1
+world/rockchip2			ROCKCHP2
+world/rockchip3			ROCKCHP3
+world/rockchip4			ROCKCHP4
+
+$random world/rockbreak { world/rockbreak1 world/rockbreak2 world/rockbreak3 world/rockbreak4 }
+$random world/rockhit { world/rockhit1 world/rockhit2 world/rockhit3 world/rockhit4 world/rockhit5 world/rockhit6 }
+$random world/rockchip { world/rockchip1 world/rockchip2 world/rockchip3 world/rockchip4 }
+$rolloff world/rockbreak 400 2400
+
+
+hud/info				DSINFO
+hud/newobjective		DSNEWOBJ
+hud/newlog				DSNEWLOG
+hud/keypad1				DSKEYPD1
+hud/keypad2				DSKEYPD2
+hud/keypadup			DSKEYPUP
+hud/keypaddenied		DSKEYDEN
+hud/keypadgranted		DSNEWLOG
+$random hud/keypad { hud/keypad1 hud/keypad2 }
+
+// Various
+scrm1	scrm1	
+scrm2	scrm2	
+scrm3	scrm3	
+scrm4	scrm4
+scrm5	scrm5	
+scrm6	scrm6	
+scrm7	scrm7	
+scrm8	scrm8
+scrm9	scrm9	
+scrm10	scrm10	
+scrm11	scrm11	
+scrm12	scrm12
+scrm13	scrm13	
+scrm14	scrm14	
+scrm15	scrm15	
+scrm16	scrm16
+scrm18	scrm17	
+scrm18	scrm18	
+scrm19	scrm19	
+scrm20	scrm20
+scrm21	scrm21	
+scrm22	scrm22	
+scrm23	scrm23	
+scrm24	scrm24
+scrm25	scrm25	
+scrm26	scrm26	
+scrm27	scrm27	
+scrm28	scrm28
+scrm29	scrm29	
+scrm30	scrm30	
+scrm31	scrm31	
+scrm32	scrm32
+scrm33	scrm33	
+scrm34	scrm34	
+scrm35	scrm35	
+scrm36	scrm36
+scrm37	scrm37	
+scrm38	scrm38	
+scrm39	scrm39	
+scrm40	scrm40
+scrm41	scrm41	
+scrm42	scrm42	
+scrm43	scrm43	
+scrm44	scrm44
+scrm45	scrm45	
+scrm46	scrm46	
+scrm47	scrm47	
+scrm48	scrm48	
+scrm49	scrm49	
+scrm50	scrm50
+scrm51	scrm51	
+scrm52	scrm52	
+scrm53	scrm53	
+scrm54	scrm54
+scrm55	scrm55	
+scrm56	scrm56	
+scrm57	scrm57	
+scrm58	scrm58	
+scrm59	scrm59
+
+$random screams	{ scrm1 scrm2 scrm3 scrm4 scrm5 scrm6 scrm7 scrm8 scrm9 scrm10 scrm11 scrm12 scrm13 scrm14 scrm15 scrm16 scrm17 scrm18 scrm19 scrm20 scrm21 scrm22 scrm23 scrm24 scrm25 scrm26 scrm27 scrm28 scrm29 scrm30 scrm31 scrm32 scrm33 scrm34 scrm35 scrm36 scrm37 scrm38 scrm39 scrm40 scrm41 scrm42 scrm43 scrm44 scrm45 scrm46 scrm47 scrm48 scrm49 scrm50 scrm51 scrm52 scrm53 scrm54 scrm55 scrm56 scrm57 scrm58 scrm59}
+
+
+///////////////////
+// SOUNDSEQ DEFS //
+///////////////////
+
+DSMEATO1	DSMEATO1
+DSMEATO2	DSMEATO2
+DSMEATS1	DSMEATS1
+DSMEATS2	DSMEATS2
+
+HydroDoor/Start		DSHYDOPN
+HydroDoor/Stop		DSHYDCLS
+
+$random MeatSector/Start	{ DSMEATO1 DSMEATO2 }
+$random MeatSector/Stop		{ DSMEATS1 DSMEATS2 }
+
+////////////////////
+// AMBIENT SOUNDS //
+////////////////////
+
+//The Soundslostmachine
+UWIN	UWIN
+
+$AMBIENT 1  world/ff_active POINT CONTINUOUS 1.0
+$AMBIENT 2 screams point 1.5 random 5 30 0.75
+
+//Captain Toenail's Ambient Audio Bonanza---------------------------------------
+//Sounds 'borrowed' from Blood, Quake, QuakeII, Findsounds.com, Star Trek TNG
+//& Half Life.
+//Also some sound files by BouncyTEM included.
+
+Ambience/EvilWind		DSASWIND
+Ambience/CaveDrip		DSASDRIP
+Ambience/WaterRush		DSASWAT1
+Ambience/WaterGentle	DSASWAT2
+Ambience/LightWind		DSASWIN2
+Ambience/GoopRush		DSASGOOP
+Ambience/PipeLoop		DSASPIPS
+Ambience/GoopPump		DSASPUMP
+Ambience/WubWubHum		DSASGENE
+Ambience/Portal			DSASPORT
+Ambience/FleshSlop		DSASSLOP
+Ambience/LabComputer1	DSASCOM1
+Ambience/LabComputer2	DSASCOM2
+Ambience/LabDrone		DSASLABD
+Ambience/HellDrone1		DSASHEL1
+Ambience/HellDrone2		DSASHEL2
+Ambience/HellGenerator  Hellgen
+
+
+$rolloff Ambience/EvilWind 200 1200
+$rolloff Ambience/CaveDrip 100 600
+$rolloff Ambience/WaterRush 200 1200
+$rolloff Ambience/WaterGentle 100 600
+$rolloff Ambience/LightWind 200 1200
+$rolloff Ambience/GoopRush 50 300
+$rolloff Ambience/PipeLoop 50 300
+$rolloff Ambience/GoopPump 100 600
+$rolloff Ambience/WubWubHum 50 300
+$rolloff Ambience/Portal 100 600
+$rolloff Ambience/FleshSlop 100 600
+$rolloff Ambience/LabComputer1 50 300
+$rolloff Ambience/LabComputer2 50 300
+$rolloff Ambience/LabDrone 100 600
+$rolloff Ambience/HellDrone1 400 2400
+$rolloff Ambience/HellDrone2 400 2400
+$rolloff Ambience/HellGenerator 400 2400
+
+
+$AMBIENT 30 Ambience/EvilWind POINT CONTINUOUS 0.75
+$AMBIENT 31 Ambience/CaveDrip POINT CONTINUOUS 0.75
+$AMBIENT 32 Ambience/WaterRush POINT CONTINUOUS 0.75
+$AMBIENT 33 Ambience/WaterGentle POINT CONTINUOUS 0.75
+$AMBIENT 34 Ambience/LightWind POINT CONTINUOUS 0.75
+$AMBIENT 35 Ambience/GoopRush POINT CONTINUOUS 0.75
+$AMBIENT 36 Ambience/PipeLoop POINT CONTINUOUS 0.75
+$AMBIENT 37 Ambience/GoopPump POINT CONTINUOUS 1
+$AMBIENT 38 Ambience/WubWubHum POINT CONTINUOUS 1
+$AMBIENT 39 Ambience/Portal POINT CONTINUOUS 1
+$AMBIENT 40 Ambience/FleshSlop POINT CONTINUOUS 1
+$AMBIENT 41 Ambience/LabComputer1 POINT CONTINUOUS 0.75
+$AMBIENT 42 Ambience/LabComputer2 POINT CONTINUOUS 0.75
+$AMBIENT 43 Ambience/LabDrone POINT CONTINUOUS 0.25
+$AMBIENT 44 Ambience/HellDrone1 POINT CONTINUOUS 0.5
+$AMBIENT 45 Ambience/HellDrone2 POINT CONTINUOUS 0.5
+$AMBIENT 46 Ambience/HellGenerator POINT CONTINUOUS 1.0
+
+
+DSBOOP1		DSBOOP1
+DSBOOP2		DSBOOP2
+DSBOOP3		DSBOOP3
+DSBOOP4		DSBOOP4
+DSBOOP5		DSBOOP5
+DSBOOP6		DSBOOP6
+DSBOOP7		DSBOOP7
+DSBOOP8		DSBOOP8
+DSBOOP9		DSBOOP9
+DSBOOP10	DSBOOP10
+DSBOOP11 	DSBOOP11
+DSBOOP12	DSBOOP12
+DSBOOP13	DSBOOP13
+DSBOOP14	DSBOOP14
+DSBOOP15	DSBOOP15
+DSBOOP16	DSBOOP16
+DSBOOP17	DSBOOP17
+DSBOOP18	DSBOOP18
+DSBOOP19	DSBOOP19
+DSBOOP20	DSBOOP20
+
+DSBEEP1		DSBEEP1
+DSBEEP2		DSBEEP2
+DSBEEP3		DSBEEP3
+DSBEEP4		DSBEEP4
+DSBEEP5		DSBEEP5
+DSBEEP6		DSBEEP6
+DSBEEP7		DSBEEP7
+DSBEEP8		DSBEEP8
+DSBEEP9		DSBEEP9
+DSBEEP10	DSBEEP10
+DSBEEP11	DSBEEP11
+DSBEEP12	DSBEEP12
+DSBEEP13	DSBEEP13
+DSBEEP14	DSBEEP14
+DSBEEP15	DSBEEP15
+DSBEEP16	DSBEEP16
+DSBEEP17	DSBEEP17
+DSBEEP18	DSBEEP18
+DSBEEP19	DSBEEP19
+DSBEEP20	DSBEEP20
+
+DSCOMHUM	DSCOMHUM
+
+DSASLAV1	DSASLAV1
+DSASLAV2	DSASLAV2
+DSASLAV3	DSASLAV3
+DSASLAV4	DSASLAV4
+
+DSCLCODE	DSCLCODE
+
+$random Computer/BeepBoop	{ DSBOOP1 DSBOOP2 DSBOOP3 DSBOOP4 DSBOOP5
+							DSBOOP6 DSBOOP7 DSBOOP8 DSBOOP9 DSBOOP10 DSBOOP11
+							DSBOOP12 DSBOOP13 DSBOOP14 DSBOOP15 DSBOOP16
+							DSBOOP17 DSBOOP18 DSBOOP19 DSBOOP20 }
+							
+$random Computer/BoopBeep	{ DSBEEP1 DSBEEP2 DSBEEP3 DSBEEP4 DSBEEP5
+							DSBEEP6 DSBEEP7 DSBEEP8 DSBEEP9 DSBEEP10 DSBEEP11
+							DSBEEP12 DSBEEP13 DSBEEP14 DSBEEP15 DSBEEP16
+							 DSBEEP19 } //17, 18 & 20 too Star Trekky
+							 
+$random Lava/SizzleBubble	{ DSASLAV1 DSASLAV2 DSASLAV3 DSASLAV4 }
+
+
+//Bound marines scream. AAARGH!
+DSPLDETH	DSPLDETH
+DSPDIEHI	DSPDIEHI
+
+$random Bound/Death	{ DSPLDETH DSPDIEHI }
+
+Script/VentBust ventbust
+
+//------------------------------------------------------------------------------
+
+///////////////////////
+// MUSIC ADJUSTMENTS //
+///////////////////////
+
+//$musicvolume MUSIC1 0.75 // [XA] No longer necessary, thanks to Icy's newest version
+
+//[TDA] New Zapper sounds from Capn. Toenail
+DSZAPON1	DSZAPON1
+DSZAPON2	DSZAPON2
+
+DSZAPOF1	DSZAPOF1
+DSZAPOF2	DSZAPOF2
+
+$random Zapper/On	{ DSZAPON1 DSZAPON2 }
+$random Zapper/Off	{ DSZAPOF1 DSZAPOF2 }
+Zapper/Loop		DSZAPLOP
+
+
+
+// Enjay Terrain
+//Stuff by Enjay, heh
+
+NJMT DSEMPTY
+
+//Sounds for my extra switch definitions
+
+switches/electri2		dselec2
+switches/electri3		dselec3
+switches/eclunk			dseclunk
+switches/clunk			dsclunk
+switches/china			dschina1
+switches/eye			dseye
+switches/bige			dsbige
+switches/keycard		dskeyc
+switches/gargoyle		dsgrgyle
+switches/skin			dsskinny
+switches/lever			dslever
+switches/lever2			dslever2
+switches/valve			dsvalve
+
+world/drip			dsempty
+world/watersplash		dssplash
+world/watersplashsmall		dssplsml
+world/sludgegloop		dsploosh
+world/sludgegloopsmall		dsplosml
+world/lavasizzle		dslvsiz
+world/lavsiz2			dslvsiz2
+world/lavasizzlesmall		dslavsml
+world/thunder			dsthun
+
+$limit world/drip 1
+$limit world/watersplash 1
+$limit world/watersplashsmall 2
+$limit world/sludgegloop 1
+$limit world/sludgegloopsmall 2
+$limit world/lavasizzle 1
+$limit world/lavsiz2 1
+$limit world/lavasizzlesmall 2
+
+//Carpet - soft ground
+$random floor/carpet		{ floor/carpet01  floor/carpet02 floor/carpet03 }
+floor/carpet01	dscarp1
+floor/carpet02	dscarp2
+floor/carpet03	dscarp3
+
+$limit floor/carpet 1
+
+//Dirt
+$random floor/dirt		{ floor/dirt01  floor/dirt02 floor/dirt03 floor/dirt04  floor/dirt05 floor/dirt06 }
+floor/dirt01	dsdirt1
+floor/dirt02	dsdirt2
+floor/dirt03	dsdirt3
+floor/dirt04	dsdirt4
+floor/dirt05	dsdirt5
+floor/dirt06	dsdirt6
+
+$limit floor/dirt 1
+
+//Gravel - loose crunchy surface
+$random floor/gravel		{ floor/grav01  floor/grav02 floor/grav03 floor/grav04 }
+floor/grav01	dsgrav1
+floor/grav02	dsgrav2
+floor/grav03	dsgrav3
+floor/grav04	dsgrav4
+
+$limit floor/gravel 1
+
+//Metal - hard metal
+$random floor/metal		{ floor/metl01  floor/metl02 floor/metl03 floor/metl04  floor/metl05 floor/metl06 }
+floor/metl01	dsmet01
+floor/metl02	dsmet02
+floor/metl03	dsmet03
+floor/metl04	dsmet04
+floor/metl05	dsmet05
+floor/metl06	dsmet06
+
+$limit floor/metal 1
+
+//Metal2 - clanky metal
+$random floor/met2		{ floor/met201  floor/met202 floor/met203 floor/met204 }
+floor/met201	dsmet201
+floor/met202	dsmet202
+floor/met203	dsmet203
+floor/met204	dsmet204
+
+$limit floor/met2 1
+
+//Rock - Hard outdoor type floor
+$random floor/rock		{ floor/rock01  floor/rock02 floor/rock03 floor/rock04  floor/rock05 floor/rock06 floor/rock07 floor/rock08 }
+floor/rock01	dsrock1
+floor/rock02	dsrock2
+floor/rock03	dsrock3
+floor/rock04	dsrock4
+floor/rock05	dsrock5
+floor/rock06	dsrock6
+floor/rock07	dsrock7
+floor/rock08	dsrock8
+
+$limit floor/rock 1
+
+//Snow
+$random floor/snow		{ floor/snow01  floor/snow02 floor/snow03 floor/snow04  floor/snow05 floor/snow06 }
+floor/snow01	dssnow1
+floor/snow02	dssnow2
+floor/snow03	dssnow3
+floor/snow04	dssnow4
+floor/snow05	dssnow5
+floor/snow06	dssnow6
+
+$limit floor/snow 1
+
+//Hard - generic hard floor
+$random floor/hard		{ floor/hard01  floor/hard02 floor/hard03 floor/hard04  floor/hard05 floor/hard06 }
+floor/hard01	dshard1
+floor/hard02	dshard2
+floor/hard03	dshard3
+floor/hard04	dshard4
+floor/hard05	dshard5
+floor/hard06	dshard6
+
+$limit floor/hard 1
+
+//Tile - Hard indoor floor
+$random floor/tile		{ floor/tile01  floor/tile02 floor/tile03 floor/tile04  floor/tile05 floor/tile06 }
+floor/tile01	dstile01
+floor/tile02	dstile02
+floor/tile03	dstile03
+floor/tile04	dstile04
+floor/tile05	dstile05
+floor/tile06	dstile06
+
+$limit floor/tile 1
+
+//Tile2 - More echoey traditional tile
+$random floor/tile2		{ floor/tile201  floor/tile202 floor/tile203 floor/tile204  floor/tile205 floor/tile206 floor/tile207 floor/tile208 }
+floor/tile201	dstile21
+floor/tile202	dstile22
+floor/tile203	dstile23
+floor/tile204	dstile24
+floor/tile205	dstile25
+floor/tile206	dstile26
+floor/tile207	dstile27
+floor/tile208	dstile28
+
+$limit floor/tile2 1
+
+//Wood
+$random floor/wood		{ floor/wood01  floor/wood02 floor/wood03 floor/wood04 }
+floor/wood01	dswood1
+floor/wood02	dswood2
+floor/wood03	dswood3
+floor/wood04	dswood4
+
+$limit floor/wood 1
+
+//Slimy - for the Doom snake floors
+$random floor/slimy		{ floor/slimy01  floor/slimy02 floor/slimy03 floor/slimy04 }
+floor/slimy01	dsslimy1
+floor/slimy02	dsslimy2
+floor/slimy03	dsslimy3
+floor/slimy04	dsslimy4
+
+$limit floor/slimy 1
+
+//Fans and electrical stuff
+floor/elec1	dselec1
+
+$limit floor/elec1 1

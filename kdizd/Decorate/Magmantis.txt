@@ -1,0 +1,243 @@
+//===========================================================================
+//
+// Magmantis 
+// by Vader
+//
+// sprites by: NMN
+//
+//===========================================================================
+
+ACTOR Magmantis 26660
+{
+	//$Category "Monsters"
+    Health 12000
+    Radius 120
+    Height 144
+    Mass 5000
+    Speed 15
+    PainChance 4
+    Scale 1.25
+    SeeSound "magmantis/sight"
+    PainSound "magmantis/pain"
+    DeathSound "magmantis/death"
+    ActiveSound "magmantis/active"
+    MONSTER 
+    +BOSS
+    +LOOKALLAROUND
+    +FLOORCLIP
+    +MISSILEEVENMORE
+    HitObituary "%o was eradicated by the Deimos Guardian"
+    States
+    {
+    Spawn:
+        	TNT1 A 6 A_UnSetSolid
+		DGRD ABCDEFG 6
+		DGRD H 6 A_SetSolid
+		DGRD H 3 A_Look
+        	Wait
+    See:
+		DGRD IJKL 8 A_Chase 
+        	Loop
+    Missile:
+    		DGRD M 0 A_Jump(128, 12)
+    		DGRD M 0 A_Jump(128, 5)
+		DGRD MNO 6 A_FaceTarget
+		DGRD P 30 A_Custommissile("Portal1", 240, 0, 0)
+		Goto See
+		DGRD QS 6 a_FaceTarget
+		DGRD S 0 A_Custommissile("BruiserBall", 40, 0, -10, 0)
+		DGRD S 0 A_Custommissile("BruiserBall", 40, 0, 0, 0)
+		DGRD T 6 A_Custommissile("BruiserBall", 40, 0, 10, 0)
+		DGRD U 6
+		Goto See
+		DGRD Q 0 A_Jump(128, 5)
+		DGRD MNO 6 A_FaceTarget
+		DGRD P 30 A_Custommissile("Portal2", 240, 0, 0) 
+		Goto See
+		DGRD M 0 A_Jump(128, 5)
+		DGRD MNO 6 A_FaceTarget
+		DGRD P 50 Acs_Execute(12, 0, 0, 0, 0)
+		Goto See
+		DGRD H 5 A_UnSetShootable
+ 		DGRD GFEDC 5
+		DGRD B 5 Acs_Execute(114, 0, 0, 0, 0)
+		DGRD A 5 A_UnSetSolid
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 6 A_Wander
+		DGRD A 5 A_SetSolid
+		DGRD BCDEF 5 A_FaceTarget
+		DGRD G 5 A_SetShootable
+		Goto See
+    Pain:
+        	DGRD X 5 A_Pain
+        	Goto See
+    Death:
+        	DGDD A 6 A_Scream
+        	DGDD BCDEFGH 6
+        	Stop
+    }
+}
+
+actor Portal1 
+{
+  obituary "%o was eradicated by the Deimos Guardian."
+  health 400
+  radius 31
+  height 56
+  mass 400
+  speed 0
+  renderstyle Add
+  alpha 0.8
+  painchance 0
+  MissileType Redstar
+  Missileheight 0
+  MONSTER
+  +FLOAT
+  +NOGRAVITY
+  +DONTFALL
+  +LOOKALLAROUND
+  +MISSILEEVENMORE
+  - Shootable
+  - Solid
+  - Countkill
+  states
+  {
+  Spawn:
+    TNT1 A 1 Bright A_Look
+    loop
+  See:
+    TNT1 A 1 Bright A_Chase
+    loop
+  Missile:
+    PORT ABCDEF 4 Bright
+    PORT GHIJKLMN 4 Bright A_FaceTarget
+    PORT T 4 bright A_Missileattack 
+    PORT GHIJKLMN 4 Bright A_FaceTarget
+    PORT T 4 bright A_Missileattack  
+    PORT GHIJKLMN 4 Bright A_FaceTarget
+    PORT T 4 bright A_Missileattack  
+    PORT GHIJKLMN 4 Bright A_FaceTarget
+    PORT T 4 bright A_Missileattack  
+    PORT GHIJKLMN 4 Bright A_FaceTarget
+    PORT T 4 bright A_Missileattack  
+    PORT GHIJKLMN 4 Bright A_FaceTarget
+    PORT T 4 bright A_Missileattack  
+    PORT GHIJKLMN 4 Bright A_FaceTarget
+    PORT T 4 bright A_Missileattack  
+    PORT GHIJKLMN 4 Bright A_FaceTarget
+    PORT T 4 bright A_Missileattack  
+    goto Death
+  Death:
+    PORT HIJKLMNGOPQRS 4 Bright
+    stop
+  }
+}
+
+actor Redstar
+{
+    Radius 10
+    Height 20
+    Speed 13
+    Damage 15
+    +SEEKERMISSILE
+    PROJECTILE
+    RENDERSTYLE ADD
+    ALPHA 0.8
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+        STAR A 3 Bright A_SeekerMissile (4,8)
+        STAR B 3 Bright
+        STAR C 3 Bright A_SeekerMissile (4,8)
+        STAR D 3 Bright
+        Loop
+    Death:
+        STAR EFGHIJKLMNO 4 Bright
+        Stop
+    }
+}
+
+
+ACTOR Portal2
+{
+	Radius 8
+	Height 8
+	Speed 0
+	Damage 0
+	+RIPPER
+	+BLOODLESSIMPACT
+	Renderstyle ADD
+	alpha 0.8
+	Projectile
+	MissileType MagmantisLostSoul
+	Missileheight 0
+	States
+	{
+	Spawn: 
+		PORT ABCDEF 4 Bright
+		PORT GHIJKLMN 4 Bright 
+  		PORT T 4 Bright A_MissileAttack
+  		PORT HIJKLMNGHIJKLMN 4 Bright
+  		PORT T 4 Bright A_MissileAttack
+  		PORT HIJKLMNGHIJKLMN 4 Bright
+  		PORT T 4 Bright A_MissileAttack
+  		PORT HIJKLMNGHIJKLMN 4 Bright
+  		PORT T 4 Bright A_MissileAttack
+  		PORT HIJKLMN 4 Bright
+		Goto Death
+	Death:	
+		PORT GOPQRS 4
+		Stop
+	}
+}
+
+actor MagmantisLostSoul 
+{
+  obituary "%o was spooked by a lost soul."
+  health 100
+  radius 16
+  height 56
+  mass 50
+  speed 8
+  damage 3
+  painchance 256
+  renderstyle SoulTrans
+  attacksound "skull/melee"
+  painsound "skull/pain"
+  deathsound "skull/death"
+  activesound "skull/active"
+  MONSTER
+  +FLOAT
+  +NOGRAVITY
+  +NOICEDEATH
+  +MISSILEMORE
+  +DONTFALL
+  +LOOKALLAROUND
+  - COUNTKILL
+  states
+  {
+  Spawn:
+    SKUL AB 10 bright A_Look
+    loop
+  See:
+    SKUL AB 6 bright A_Chase
+    loop
+  Missile:
+    SKUL C 10 bright A_FaceTarget
+    SKUL D 4 bright A_SkullAttack
+    SKUL CD 4 bright
+    goto Missile+2
+  Pain:
+    SKUL E 3 bright
+    SKUL E 3 bright A_Pain
+    goto See
+  Death:
+    SKUL F 6 bright
+    SKUL G 6 bright A_Scream
+    SKUL H 6 bright
+    SKUL I 6 bright A_NoBlocking
+    SKUL JK 6
+    stop
+  }
+}

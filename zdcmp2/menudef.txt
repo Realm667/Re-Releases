@@ -1,0 +1,122 @@
+//-------------------------------------------------------------------------------------------
+//
+// ZDCMP2 Modded menus -- used to display Jimmyfont using text instead of static patches.
+//
+//-------------------------------------------------------------------------------------------
+
+DefaultListMenu
+{
+	Font "BigFont", "Untranslated"
+	Selector "M_SKULL1", -32, -5
+	Linespacing 16
+}
+
+ListMenu "MainMenu"
+{
+	StaticPatch 94, 2, "M_DOOM"
+	Position 97, 64
+
+	TextItem "Start Map", "s", "PlayerclassMenu"
+	TextItem "Load Game", "l", "LoadGameMenu"
+	TextItem "Save Game", "s", "SaveGameMenu"
+	TextItem "Zdcmp2 Options", "z", "ZDCMP2Menu"
+	TextItem "Options","o", "OptionsMenu"
+	TextItem "Quit Game", "q", "QuitMenu"
+}
+
+
+//-------------------------------------------------------------------------------------------
+//
+// ZDCMP2 Options Menu -- Hooray consolidation!
+//
+//-------------------------------------------------------------------------------------------
+
+OptionMenu "ZDCMP2Menu"
+{
+	Title       "Zdcmp2 Options"
+	StaticText 	""
+	StaticText 	"ZDCMP2 Settings"              , 1
+	Option      "Scripted autosaves"           , "zdcmp2_autosave", "YesNo"
+	Option      "Watch endgame credits"        , "zdcmp2_credits",  "YesNo"
+	Option      "Enable CPU-intensive effects" , "zdcmp2_effects",  "YesNo"
+	StaticText 	""
+	StaticText 	"ZDCMP2 Controls"              , 1
+	Control		"Throw Grenade"                , "+zdcmp2grenade"
+	Control 	"Show Objectives Display"      , "showpop 3"
+	Control 	"Show Log Display"             , "showpop 1"
+	Control 	"Cycle Previous Log Entry"     , "zdcmp2prevLog"
+	Control 	"Cycle Next Log Entry"         , "zdcmp2nextLog"
+}
+
+
+//-------------------------------------------------------------------------------------------
+//
+// Controls Menu -- Xasermodded to put the ZDCMP2 stuff up top, since two of the Strife
+//                  popups are used as well as a totally new keybind. Need to group 'em.
+//
+//-------------------------------------------------------------------------------------------
+
+OptionMenu "CustomizeControls"
+{
+	Title "CUSTOMIZE CONTROLS"
+	ScrollTop 2
+	StaticTextSwitchable 	"ENTER to change, BACKSPACE to clear", "Press new key for control, ESC to cancel", "ControlMessage"
+	StaticText 	""
+	StaticText 	"ZDCMP2 Controls", 1
+	Control		"Throw Grenade"           , "+zdcmp2grenade"
+	Control 	"Show Objectives Display" , "showpop 3"
+	Control 	"Show Log Display"        , "showpop 1"
+	Control 	"Cycle Previous Log Entry", "zdcmp2prevLog"
+	Control 	"Cycle Next Log Entry"    , "zdcmp2nextLog"
+	StaticText 	""
+	StaticText 	"Controls", 1
+	Control 	"Fire",					"+attack"
+	Control 	"Secondary Fire",		"+altattack"
+	Control 	"Weapon Reload",			"+reload"
+	Control 	"Weapon Zoom",				"+zoom"
+	Control 	"Use / Open",			"+use"
+	Control 	"Move forward",			"+forward"
+	Control 	"Move backward",		"+back"
+	Control 	"Strafe left",			"+moveleft"
+	Control 	"Strafe right",			"+moveright"
+	Control 	"Turn left",			"+left"
+	Control 	"Turn right",			"+right"
+	Control 	"Jump",					"+jump"
+	Control 	"Crouch",				"+crouch"
+	Control 	"Crouch Toggle",		"crouch"
+	Control 	"Fly / Swim up",		"+moveup"
+	Control 	"Fly / Swim down",		"+movedown"
+	Control 	"Stop flying",			"land"
+	Control 	"Mouse look",			"+mlook"
+	Control 	"Keyboard look",		"+klook"
+	Control 	"Look up",				"+lookup"
+	Control 	"Look down",			"+lookdown"
+	Control 	"Center view",			"centerview"
+	Control 	"Run",					"+speed"
+	Control 	"Strafe",				"+strafe"
+	Control 	"Show Scoreboard",		"+showscores"
+	StaticText 	""
+	StaticText 	"Chat", 1
+	Control 	"Say",					"messagemode"
+	Control 	"Team say",				"messagemode2"
+	StaticText 	""
+	StaticText 	"Weapons", 1
+	Control 	"Next weapon",			"weapnext"
+	Control 	"Previous weapon",		"weapprev"
+	StaticText 	""
+	StaticText 	"Inventory", 1
+	Control 	"Activate item",		"invuse"
+	Control 	"Activate all items",	"invuseall"
+	Control 	"Next item",			"invnext"
+	Control 	"Previous item",		"invprev"
+	Control 	"Drop item",			"invdrop"
+	Control		"Query item",			"invquery"
+	Control 	"Drop weapon",			"weapdrop"
+	StaticText 	""
+	StaticText 	"Other", 1
+	Control 	"Toggle automap",		"togglemap"
+	Control 	"Chasecam",				"chase"
+	Control 	"Coop spy",				"spynext"
+	Control 	"Screenshot",			"screenshot"
+	Control  	"Open console",			"toggleconsole"
+}

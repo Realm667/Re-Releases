@@ -1,0 +1,33 @@
+// Shotgun Props for the Xasersecret
+ACTOR ShotgunProp
+{
+	-SOLID
+	Radius 2
+	Height 4
+	States
+	{
+	Spawn:
+		SHOT A -1
+		Stop
+	}
+}
+ACTOR AutoShotgunProp : ShotgunProp
+{
+	States
+	{
+	Spawn:
+		AUTO A -1
+		Stop
+	}
+}
+ACTOR XaserMapSpot : MapSpotGravity 8888
+{
+	Radius 2 // Default radius is 20. WHYWYHWYWHWWWYWYWYHWYWHW
+	Height 4
+	States
+	{
+	Spawn:
+		SHEL A -1
+		Stop
+	}	
+}

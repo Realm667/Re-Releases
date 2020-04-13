@@ -1,0 +1,444 @@
+// Modify the internal Blood actor to spawn flying blood
+ACTOR NashGore_Blood : Blood replaces Blood
+{
+  Game Doom
+  States
+  {
+  Spawn:
+    BLUD C 8
+    BLUD B 8 A_SpawnItemEx("NashGore_FlyingBlood", 0, 0, 8, random(-4, 4), random(-4, 4), random(2, 5), 0, 143, 176) // [Nash] it used to use A_SpawnItem, but we're getting rid of that crap
+    BLUD AAA 8
+    BLUD AAAAAAAAAA 1 A_FadeOut(0.1)
+    Stop
+  }
+}
+ACTOR NashGore_BloodSplatter : NashGore_Blood replaces BloodSplatter {}
+
+// Blood sprite that flies outwards and leaves trails behind
+ACTOR NashGore_FlyingBlood
+{
+  Game Doom
+  Scale 0.75
+  Health 1
+  Radius 8
+  Height 1
+  Mass 200 // [Blue Shadow] increasing the mass makes it sink faster in a 'swimmable water'
+  Gravity 0.5 // [Nash] make it fall slower. pretty!
+  +CORPSE
+  +NOTELEPORT
+  +NOBLOCKMAP
+  +DONTSPLASH // [XA] Needs this due to the mass increase. Don't want footstep sounds here!
+  -SOLID // [Nash] so that it doesn't stick into other actors
+  States
+  {
+  Spawn:
+    TNT1 A 0
+    FBLD A 1 A_SpawnItem("NashGore_FlyingBloodTrail", 0, 0, 0, 1)
+    FBLD A 1
+    FBLD A 1 A_SpawnItem("NashGore_FlyingBloodTrail", 0, 0, 0, 1)
+    FBLD A 1
+    FBLD B 1 A_SpawnItem("NashGore_FlyingBloodTrail", 0, 0, 0, 1)
+    FBLD B 1
+    FBLD B 1 A_SpawnItem("NashGore_FlyingBloodTrail", 0, 0, 0, 1)
+    FBLD B 1
+    FBLD C 1 A_SpawnItem("NashGore_FlyingBloodTrail", 0, 0, 0, 1)
+    FBLD C 1
+    FBLD C 1 A_SpawnItem("NashGore_FlyingBloodTrail", 0, 0, 0, 1)
+    FBLD C 1
+    FBLD D 1 A_SpawnItem("NashGore_FlyingBloodTrail", 0, 0, 0, 1)
+    FBLD D 1
+    FBLD D 1 A_SpawnItem("NashGore_FlyingBloodTrail", 0, 0, 0, 1)
+    FBLD D 1
+    Loop
+  Crash:
+    TNT1 A 1 A_SpawnItem("NashGore_BloodSpot", 0, 0, 0, 1)
+    Stop
+  }
+}
+
+
+ACTOR NashGore_BloodSpot
+{
+  Game Doom
+  Radius 12
+  Height 2
+  Mass 200 // [Blue Shadow] the same is here...
+  +NOTELEPORT
+  -NOBLOCKMAP
+  States
+  {
+  Spawn:
+    TNT1 A 0
+    TNT1 A 0 A_PlaySound("bloodsplat")
+    TNT1 A 0 A_Jump(64, 4)
+    TNT1 A 0 A_Jump(128, 54)
+    TNT1 A 0 A_Jump(192, 104)
+    TNT1 A 0 A_Jump(255, 154)
+    // make the blood spots stay on the ground. 1500 is the default duration.
+    // Fadeout added by Zero Prophet for effect.
+    BSPT A 70 // [Blue Shadow] 2 seconds is good enough, I think
+    BSPT AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 A_FadeOut(0.02)
+    Stop
+    BSPT B 70
+    BSPT BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB 1 A_FadeOut(0.02)
+    Stop
+    BSPT C 70
+    BSPT CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC 1 A_FadeOut(0.02)
+    Stop
+    BSPT D 70
+    BSPT DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD 1 A_FadeOut(0.02)
+    Stop
+  }
+}
+
+// Blood trails spawned by FlyingBlood
+ACTOR NashGore_FlyingBloodTrail
+{
+  Game Doom
+  Scale 0.70
+  Mass 1
+  +LOWGRAVITY
+  +NOTELEPORT
+  +NOBLOCKMAP
+  States
+  {
+  Spawn:
+    BTRL ABCD 4
+    Stop
+  }
+}
+
+
+// Gib generator fixed by LilWhiteMouse - thanks LWM!
+ACTOR NashGore_GibGenerator
+{
+  -SOLID
+  States
+  {
+  Spawn:
+    TNT1 A 0
+    TNT1 A 0 A_Jump(128, 8)
+    TNT1 A 0 A_Jump(128, 4)
+    TNT1 A 0 A_Jump(128, 2)
+    TNT1 A 1 A_SpawnDebris("NashGore_Gib1", 1)
+    Stop
+    TNT1 A 1 A_SpawnDebris("NashGore_Gib2", 1)
+    Stop
+    TNT1 A 0 A_Jump(128, 2)
+    TNT1 A 1 A_SpawnDebris("NashGore_Gib3", 1)
+    Stop
+    TNT1 A 1 A_SpawnDebris("NashGore_Gib4", 1)
+    Stop
+    TNT1 A 0 A_Jump(128, 4)
+    TNT1 A 0 A_Jump(128, 2)
+    TNT1 A 1 A_SpawnDebris("NashGore_Gib5", 1)
+    Stop
+    TNT1 A 1 A_SpawnDebris("NashGore_Gib6", 1)
+    Stop
+    TNT1 A 0 A_Jump(128, 2)
+    TNT1 A 1 A_SpawnDebris("NashGore_Gib7", 1)
+    Stop
+    TNT1 A 1 A_SpawnDebris("NashGore_Gib8", 1)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibGeneratorBlue : NashGore_GibGenerator { Translation "16:47=193:207", "168:191=192:207" }
+ACTOR NashGore_GibGeneratorGreen : NashGore_GibGenerator { Translation "16:47=112:127", "168:191=112:127" }
+
+// [Blue Shadow] The gib actors are now easier to manage thanks to the "keep previous sprite" trick :)
+// Gib 1
+ACTOR NashGore_Gib1
+{
+  Health 1
+  Radius 8
+  Height 8
+  Mass 300 // [Blue Shadow] guess what? :)
+  Scale 0.75
+  +CORPSE
+  +NOTELEPORT
+  States
+  {
+  Spawn:
+    GIB1 A 0
+  Spawn2:
+    "####" A 0 A_JumpIf(waterlevel > 0, "Underwater")
+    "####" A 8 A_SpawnDebris("NashGore_FlyingBlood", 1)
+    Loop
+  Underwater: // [Blue Shadow] when submerged, spawn blood 4 times only as opposed to until it hits the ground
+    "####" AAAA 8 A_SpawnDebris("NashGore_FlyingBlood", 1)
+    "####" A -1
+    Stop
+  Crash:
+    "####" A 70
+    "####" A 1 A_FadeOut(0.02)
+    Wait
+  }
+}
+
+// Gib 2
+ACTOR NashGore_Gib2 : NashGore_Gib1 // [Blue Shadow] inheritance, anyone? :p
+{
+  States
+  {
+  Spawn:
+    GIB2 A 0
+    Goto Spawn2
+  }
+}
+
+// Gib 3
+ACTOR NashGore_Gib3 : NashGore_Gib1
+{
+  States
+  {
+  Spawn:
+    GIB3 A 0
+    Goto Spawn2
+  }
+}
+
+// Gib 4
+ACTOR NashGore_Gib4 : NashGore_Gib1
+{
+  States
+  {
+  Spawn:
+    GIB4 A 0
+    Goto Spawn2
+  }
+}
+
+// Gib 5
+ACTOR NashGore_Gib5 : NashGore_Gib1
+{
+  States
+  {
+  Spawn:
+    GIB5 A 0
+    Goto Spawn2
+  }
+}
+
+// Gib 6
+ACTOR NashGore_Gib6 : NashGore_Gib1
+{
+  States
+  {
+  Spawn:
+    GIB6 A 0
+    Goto Spawn2
+  }
+}
+
+// Gib 7
+ACTOR NashGore_Gib7 : NashGore_Gib1
+{
+  States
+  {
+  Spawn:
+    GIB7 A 0
+    Goto Spawn2
+  }
+}
+
+// Gib 8
+ACTOR NashGore_Gib8 : NashGore_Gib1
+{
+  States
+  {
+  Spawn:
+    GIB8 A 0
+    Goto Spawn2
+  }
+}
+
+// Gib 9 (hand)
+ACTOR NashGore_Gib9 : NashGore_Gib1
+{
+  States
+  {
+  Spawn:
+    GIB9 A 0
+    Goto Spawn2
+  }
+}
+
+// Gib 10 (arm)
+ACTOR NashGore_Gib10 : NashGore_Gib1
+{
+  States
+  {
+  Spawn:
+    GIB0 A 0
+    Goto Spawn2
+  }
+}
+
+// Gib 11 (eyeball)
+ACTOR NashGore_Gib11 : NashGore_Gib1
+{
+  States
+  {
+  Spawn:
+    GIBI A 0
+    Goto Spawn2
+  }
+}
+
+// [Blue Shadow] Actually, this doesn't seem to be used, nor its generator actor...
+// Demon Gib - arm
+ACTOR NashGore_GibSarg : NashGore_Gib1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+    SARM A 4 A_SpawnDebris("NashGore_FlyingBlood", 1)
+    TNT1 A 0 A_JumpIf(waterlevel > 0, "Underwater")
+    SARM B 4 A_SpawnDebris("NashGore_FlyingBlood", 1)
+    TNT1 A 0 A_JumpIf(waterlevel > 0, "Underwater")
+    SARM C 4 A_SpawnDebris("NashGore_FlyingBlood", 1)
+  FrameD:
+    TNT1 A 0 A_JumpIf(waterlevel > 0, "Underwater")
+    SARM D 8 A_SpawnDebris("NashGore_FlyingBlood", 1)
+    Loop
+  Underwater:
+    SARM DDDD 8 A_SpawnDebris("NashGore_FlyingBlood", 1)
+    SARM D -1
+    Stop
+  Crash:
+    SARM EF 4
+    SARM G -1
+    Stop
+  }
+}
+
+
+//Some client-side spawners by Ghastly_dragon. Since A_SpawnDebris lags, spawn
+//these spawners client-side, so it won't.
+
+ACTOR NashGore_GibPieceGenerator1
+{
+  Height 56
+  Radius 20
+  -SOLID
+  -SHOOTABLE
+  +NONSHOOTABLE
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_Gib1", 0)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibPieceGenerator2 : NashGore_GibPieceGenerator1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_Gib2", 0)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibPieceGenerator3 : NashGore_GibPieceGenerator1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_Gib3", 0)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibPieceGenerator4 : NashGore_GibPieceGenerator1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_Gib4", 0)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibPieceGenerator5 : NashGore_GibPieceGenerator1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_Gib5", 0)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibPieceGenerator6 : NashGore_GibPieceGenerator1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_Gib6", 0)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibPieceGenerator7 : NashGore_GibPieceGenerator1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_Gib7", 0)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibPieceGenerator8 : NashGore_GibPieceGenerator1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_Gib8", 0)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibPieceGenerator9 : NashGore_GibPieceGenerator1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_Gib9", 0)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibPieceGenerator10 : NashGore_GibPieceGenerator1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_Gib10", 0)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibPieceGenerator11 : NashGore_GibPieceGenerator1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_Gib11", 0)
+    Stop
+  }
+}
+
+ACTOR NashGore_GibPieceGeneratorSarg : NashGore_GibPieceGenerator1
+{
+  States
+  {
+  Spawn:
+    TNT1 AA 0 A_SpawnDebris("NashGore_GibSarg", 0)
+    Stop
+  }
+}

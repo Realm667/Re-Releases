@@ -1,0 +1,87 @@
+// Abaddon's Bodyguard -- by Xaser (sprites from Eradicator)
+
+ACTOR Bodyguard 10568
+{ 
+	//$Category Monsters
+	Tag "Bodyguard"
+	Health 2500 
+	Radius 32 
+	Height 80 
+	Mass 100000 
+	Speed 12
+	PainChance 20
+	MeleeDamage 10
+	Obituary "%o was bounced by Abaddon's bodyguard."
+	HitObituary "%o was smashed by Abaddon's bodyguard."
+	Monster
+	+DROPOFF // [XA] needed for the arena to work...
+	+FLOORCLIP 
+	+MISSILEMORE
+	//+BOSS // Jimmy: Not needed for now.
+	+TELESTOMP
+	+DONTHARMSPECIES
+	Species "Abaddon"
+	SeeSound "bodyguard/sight" 
+	ActiveSound "bodyguard/active"
+	PainSound "bodyguard/pain" 
+	DeathSound "bodyguard/death"
+	MeleeSound "bodyguard/melee"
+	Damagefactor "Soul", 0.5
+	Damagefactor "Fire", 2.0
+	States 
+	{ 
+	Spawn:
+		BODG A 0 A_StopSound(CHAN_BODY)
+		BODG A 10 A_Look 
+		Loop 
+	See:	
+		BODG A 0 A_PlaySound("bodyguard/hover", CHAN_BODY, 1.0, 1)
+	Move:
+		BODG BBCCDD 3 A_FastChase
+		Loop 
+	Missile:
+		BODG E 5 A_FaceTarget 
+	MissileLoop:
+		BODG H 5 A_FaceTarget
+		BODG I 4 Bright A_CustomMissile("BruiserMissile",48,0,0,0)
+		BODG I 4 Bright A_FaceTarget
+		BODG I 4 Bright A_CustomMissile("BruiserMissile",48,0,frandom(-22,22),0)
+		BODG H 5 A_Jump(128, "MissileLoop")
+		Goto See
+	Melee:
+		BODG EF 4 A_FaceTarget
+		BODG G 4 A_MeleeAttack
+		BODG F 4 A_FaceTarget
+		Goto See
+	Pain: 
+		BODG J 2 
+		BODG J 2 A_Pain 
+		Goto See 
+	Death:
+		BODG K 0 Bright A_StopSound(CHAN_BODY)
+		BODG K 20 Bright A_Scream
+		BODG KKKKKKKKKK 4 Bright A_SpawnItemEx("BodyguardDeathExplosion",random(-32,32), random(-32,32), random(8,72), 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+		BODG LMN 7 Bright
+		BODG O 7 Bright A_NoBlocking
+		BODG P -1 A_BossDeath
+		Stop
+	} 
+}
+ACTOR BodyguardDeathExplosion
+{
+	Radius 2
+	Height 2
+	Alpha 0.8
+	Renderstyle Add
+	+NOINTERACTION
+	States
+	{
+	Spawn: 
+		BAL3 C 0 Bright
+		BAL3 C 0 Bright A_PlaySound("bodyguard/explode")
+		BAL3 CDE 6 Bright
+		stop
+	}
+}
+
+// BruiserMissile defined in Cybruiser class.

@@ -1,0 +1,1178 @@
+// --------------------------------------------------------------------------
+//
+// Rifle
+//
+// --------------------------------------------------------------------------
+
+ACTOR Rifle : DoomWeapon 1001
+{
+	//$Category Weapons
+	//$Title "Rifle"
+	Weapon.SelectionOrder 1400
+	Weapon.AmmoUse 2
+	Weapon.AmmoUse2 1
+	Weapon.AmmoGive 20
+	Weapon.AmmoGive2 2
+	Weapon.AmmoType "Clip"
+	Weapon.AmmoType2 "Shell"
+	Decal "BulletChip"
+	Inventory.PickupMessage "$GOTRIFLE"
+	Obituary "$OB_MPRIFLE"
+	Tag "$TAG_RIFLE"
+	+WEAPON.AMMO_CHECKBOTH
+	States
+	{
+	Ready:
+		RIFG A 1 A_WeaponReady
+		Loop
+	Deselect:
+		RIFG A 1 A_Lower
+		Loop
+	Select:
+		RIFG A 1 A_Raise
+		Loop
+	Fire:
+		RIFG A 0 A_JumpIfInventory("Clip",2,1) // Why do I still have to script this manually? O_O
+		Goto NoAmmo
+		RIFG A 0 A_GunFlash
+		RIFG A 0 A_SpawnItemEx("RifleCaseSpawn",20,0,29,0,0,0,0,128)
+		RIFG A 0 A_PlaySound("weapons/rifle", CHAN_WEAPON)
+		RIFG A 2 A_FireBullets (0, 0, 2, 5, "NewPuff", 1)
+		RIFG B 3
+		RIFG C 3
+		RIFG A 7
+		RIFG A 0 A_ReFire
+		Goto Ready
+	Flash:
+	AltFlash:
+		RIFF A 2 Bright A_Light1
+		RIFF B 2 Bright A_Light2
+		Goto LightDone
+	AltFire:
+		RIFG A 0 A_JumpIfInventory("Shell",1,1)
+		Goto NoAmmo
+		RIFG A 0 A_GunFlash
+		RIFG A 0 A_PlaySound("weapons/riflealt", CHAN_WEAPON)
+		RIFG A 2 A_FireBullets (0, 0, 7, 5, "NewPuff", 1)
+		RIFG B 10
+		RIFG B 0 A_JumpIfInventory("Shell",1,1)
+		Goto NoAmmo
+		RIFG D 3 A_PlaySound("weapons/rifleopen")
+		RIFG E 3 A_SpawnItemEx("ShotgunCasing",20,0,10,0,0,0,0,128)
+		RIFG F 12
+		RIFG G 3 A_PlaySound("weapons/rifleload")
+		RIFG HI 3
+		RIFG J 3 A_PlaySound("weapons/rifleclose")
+		RIFG A 3
+		Goto Ready
+	NoAmmo:
+		RIFG A 1 A_WeaponReady(WRF_NOFIRE)
+		Goto Ready
+	Spawn:
+		RIFL A -1
+		Stop
+	}
+}
+
+// --------------------------------------------------------------------------
+//
+// Auto Shotgun
+//
+// --------------------------------------------------------------------------
+
+ACTOR AutoShotgun : DoomWeapon 1006
+{
+	//$Category Weapons
+	//$Title "Auto Shotgun"
+	Weapon.SelectionOrder 100
+	Weapon.AmmoUse 1
+	Weapon.AmmoGive 8
+	Weapon.AmmoType "Shell"
+	Decal "BulletChip"
+	Inventory.PickupMessage "$GOTAUTOSHOTGUN"
+	Obituary "$OB_MPAUTOSHOTGUN"
+	Tag "$TAG_AUTOSHOTGUN"
+	States
+	{
+	Ready:
+		ASHG A 1 A_WeaponReady
+		Loop
+	Deselect:
+		ASHG A 1 A_Lower
+		Loop
+	Select:
+		ASHG A 1 A_Raise
+		Loop
+	Fire:
+		ASHG A 0 Bright A_FireBullets(5.6, 0, 7, 5, "NewPuff")
+	AfterFire:
+		ASHG A 0 A_PlaySound("weapons/autoshot", CHAN_WEAPON)
+		ASHG B 4 Bright A_GunFlash
+		ASHG C 3 A_SpawnItemEx("ShotCaseSpawn", 20, 0, 24, 0, 0, 0, 0, 128)
+		ASHG D 3
+		ASHG A 4
+		ASHG A 10 A_ReFire
+		Goto Ready
+	Hold:
+		ASHG A 0 Bright A_FireBullets(11.2, 0, 7, 5, "NewPuff")
+		Goto AfterFire
+	Spawn:
+		AUTO A -1
+		Stop
+	Flash:
+		ASHF A 2 Bright A_Light1
+		ASHF B 2 Bright A_Light2
+		Goto LightDone
+	}
+}
+ACTOR SuperSpecialShotgunPickup : WeaponGiver 11207 // becomes an AutoShotgun in NG++
+{
+	//$Category Weapons
+	//$Title "Shotgun/Auto Shotgun"
+	Inventory.PickupMessage "$GOTSHOTGUN"
+	DropItem "NewShotgun" // [Blue Shadow] This's supposed to drop NewShotgun, instead
+	States
+	{
+	Spawn:
+		SHOT A -1
+		Stop
+	}
+}
+
+// --------------------------------------------------------------------------
+//
+// Nailgun
+//
+// --------------------------------------------------------------------------
+
+ACTOR Nailgun : DoomWeapon 1002
+{
+	//$Category Weapons
+	//$Title "Nailgun"
+	Weapon.SelectionOrder 150
+	Weapon.AmmoUse 1
+	Weapon.AmmoGive 10
+	Weapon.AmmoType "NailAmmo"
+	Inventory.PickupMessage "$GOTNAILGUN"
+	Tag "$TAG_NAILGUN"
+	States
+	{
+	Ready:
+		NLGG A 1 A_WeaponReady
+		Loop
+	Deselect:
+		NLGG A 1 A_Lower
+		Loop
+	Select:
+		NLGG A 1 A_Raise
+		Loop
+	Fire:
+		NLGF A 0 A_CheckForReload(2, "Fire2")
+		NLGF A 2 Bright A_FireCustomMissile("Nail",0,1,-4)
+		NLGF B 2 Bright
+	FireEnd:
+		NLGG A 2
+		NLGG A 3 A_ReFire
+		Goto Ready
+	Fire2:
+		NLGF C 2 Bright A_FireCustomMissile("Nail",0,1, 4)
+		NLGF D 2 Bright
+		Goto FireEnd
+	Spawn:
+		NAIG A -1
+		Stop
+	}
+}
+
+ACTOR Nail
+{
+	Radius 4
+	Height 8
+	Speed 32
+	Damage 3
+	Projectile
+	+THRUACTORS
+	+NODAMAGETHRUST
+	+MOVEWITHSECTOR
+	+BLOODSPLATTER
+	SeeSound "weapons/nailgunfire"
+	Obituary "$OB_MPNAILGUN"
+	Decal "BulletChip"
+	var int user_xvel;
+	var int user_yvel;
+	var int user_zvel;
+	States
+	{
+	Spawn:
+		NAIL A 0
+		NAIL A 0 A_SetUserVar("user_xvel", velx)
+		NAIL A 0 A_SetUserVar("user_yvel", vely)
+		NAIL A 0 A_SetUserVar("user_zvel", velz)
+		NAIL A 0 A_Jump(256, "Fly")
+	Fly:
+		NAIL A -1 A_ChangeFlag("THRUACTORS",0)
+		Stop
+	Death:
+		NWAL B 0 A_PlaySound("weapons/nailgunhit")
+		NWAL B 0 A_JumpIf(z > ceilingz-9, "DeathC")
+		NWAL B 0 A_JumpIf(z == floorz, "DeathF")
+		Goto Fade
+	DeathF:
+		NWAL A 0
+		Goto Fade
+	DeathC:
+		NWAL C 0
+		Goto Fade
+	Fade:
+		NWAL "#" 40
+		NWAL "####################" 1 A_FadeOut(0.05)
+		Stop
+	Crash:
+		PUFF ABCD 3
+		Stop
+	Crush:
+		TNT1 A 1
+		Stop
+	XDeath:
+		TNT1 A 0 A_PlaySound("weapons/nailgunblood")
+//		TNT1 A 0 A_SpawnItemEx("Blood")
+	SpawnSubNail:
+		TNT1 A 1 A_SpawnItemEx("SubNail",0,0,0,user_xvel,user_yvel,user_zvel,angle,SXF_ABSOLUTEANGLE | SXF_ABSOLUTEMOMENTUM | SXF_NOCHECKPOSITION | SXF_TRANSFERPOINTERS)
+		Stop
+	}
+}
+ACTOR SubNail : Nail
+{
+	Decal "NailBloodSplat"
+	States
+	{
+	Fly:
+		NBLD A 1
+		NBLD A 0 A_ChangeFlag("THRUACTORS",0)
+		NBLD AAAAAA 1 A_SpawnItemEx("MiniBlood", frandom(-0.1,0.1), 0, frandom(-0.1,0.1))
+		NBLD A -1
+		Stop
+	XDeath:
+		TNT1 A 0 A_PlaySound("weapons/nailgunblood")
+//		TNT1 A 0 A_SpawnItemEx("Blood")
+		TNT1 A 1 A_Jump(128, "SpawnSubNail")
+		Stop
+	}
+}
+ACTOR MiniBlood : Blood
+{
+	Scale 0.5
+	Gravity 0.5
+}
+
+// --------------------------------------------------------------------------
+//
+// Flamethrower
+//
+// --------------------------------------------------------------------------
+
+ACTOR DoomFlameThrower : DoomWeapon 1003
+{
+	//$Category Weapons
+	//$Title "Flamethrower"
+	Weapon.SelectionOrder 1050
+	Weapon.AmmoUse 1
+	Weapon.AmmoUse2 1
+	Weapon.AmmoGive 40
+	Weapon.AmmoType "Napalm"
+	Weapon.AmmoType2 "Napalm"
+	Inventory.PickupMessage "$GOTFLAMETHROWER"
+	Tag "$TAG_FLAMETHROWER"
+	+NOALERT
+	States
+	{
+	Ready:
+		FLMG A 0 A_StopSound(CHAN_WEAPON)
+		FLMG A 1 A_WeaponReady
+		Wait
+	Deselect:
+		FLMG A 0 A_StopSound(CHAN_WEAPON)
+		FLMG A 1 A_Lower
+		Wait
+	Select:
+		FLMG A 1 A_Raise
+		Loop
+	Fire:
+		FLMG A 0 A_JumpIf(waterlevel >= 2, "InWater")
+		FLMG A 0 Bright A_GunFlash
+		FLMF AB 2 Bright A_FireCustomMissile("FlameShot",frandom(-2,2),1,0,-6,1,frandom(-2,2))
+		FLMG A 2 A_ReFire
+		Goto Ready
+	AltFire:
+		FLMG A 0 A_JumpIf(waterlevel >= 2, "InWater")
+		FLMG A 0 A_PlaySound("weapons/fuelshot",CHAN_WEAPON,1.0,1)
+	AltHold:
+		FLMG AA 2 A_FireCustomMissile("FuelShot",frandom(-2,2),1,0,-4,1,frandom(-2,2))
+		FLMG A 0 A_ReFire
+		FLMG A 2 A_StopSound(CHAN_WEAPON)
+		Goto Ready
+	InWater:
+		FLMG A 0 A_WeaponReady(WRF_NOFIRE)
+		Goto Ready
+	Flash:
+		TNT1 A 0 A_AlertMonsters
+		TNT1 A 2 A_Light2
+		TNT1 A 2 A_Light1
+		Goto LightDone
+	Spawn:
+		FLAM A -1
+		Stop
+	}
+}
+
+ACTOR FlameShot
+{
+	Radius 13
+	Height 8
+	Speed 25
+	Damage (random(1,4))
+	Projectile
+	+RANDOMIZE
+	+RIPPER
+	+NOBOSSRIP
+	+NODAMAGETHRUST
+	+PAINLESS
+	RenderStyle Add
+	Alpha 0.66
+	Scale 0.5
+	SeeSound "weapons/flameshot"
+	DeathSound "weapons/flamehit"
+	Obituary "$OB_MPFLAMETHROWER"
+	Decal "FlameScorch"
+	DamageType Fire
+	States
+	{
+	Spawn:
+		FIRE A 0
+		TNT1 A 1
+		FIRE AB 2 BRIGHT
+		FIRE C 2 BRIGHT A_PlaySound("weapons/flamehit")
+		FIRE DEFGH 2 BRIGHT A_Explode(1,64,0,0,64)
+		Stop
+	Death:
+		FIRE ABABCBCDC 2 BRIGHT A_Explode(1,64,0,0,64)
+		FIRE DEDEFEFGFGHGH 2 BRIGHT
+		Stop
+	}
+}
+ACTOR FlameShot2 : FlameShot // Map hack D:
+{
+	Decal ""
+	States
+	{
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+
+ACTOR FuelShot
+{
+	Radius 4
+	Height 8
+	Speed 25
+	Damage 0
+	Projectile
+	-NOGRAVITY
+	+PAINLESS
+	+NODAMAGETHRUST
+	RenderStyle Translucent
+	Alpha 0.75
+	DeathSound "weapons/fuelhit"
+	States
+	{
+	Spawn:
+		GASP A 0
+		GASP A 0 A_Jump(256, "FrameA", "FrameB", "FrameC", "FrameD", "FrameE", "FrameF")
+	FrameA:
+		GASP A 0
+		Goto CheckWater
+	FrameB:
+		GASP B 0
+		Goto CheckWater
+	FrameC:
+		GASP C 0
+		Goto CheckWater
+	FrameD:
+		GASP D 0
+		Goto CheckWater
+	FrameE:
+		GASP E 0
+		Goto CheckWater
+	FrameF:
+		GASP F 0
+
+	CheckWater:
+		"####" "#" 1 A_JumpIf(waterlevel >= 1, "Ignite")
+		Loop
+	Death:
+		TNT1 A 1 A_SpawnItemEx("FuelPuddle",0,0,0,0,0,0,0,SXF_TRANSFERPOINTERS)
+		Stop
+	Ignite:
+		FIRE A 0 A_Stop
+		FIRE A 0 A_PlaySound("weapons/flamehit", CHAN_VOICE)
+		FIRE A 2 BRIGHT A_SetTranslucent(0.8,1)
+		FIRE B 2 BRIGHT A_Scream
+		FIRE CDEF 2 BRIGHT A_Explode(5,96,1,1,64)
+		FIRE GH 2 BRIGHT
+		Stop
+	}
+}
+
+ACTOR FuelPuddle
+{
+	Radius 4
+	Height 8
+	Health 1
+	+VULNERABLE
+	+NODAMAGETHRUST
+	+NOBLOOD
+	RenderStyle Translucent
+	Alpha 0.75
+	DeathSound "weapons/flamehit"
+	Obituary "$OB_MPFLAMETHROWER"
+	DamageType Fire
+	States
+	{
+	Spawn:
+		GASO A -1
+		Stop
+	Death:
+		FIRE A 2 BRIGHT A_SetTranslucent(0.8,1)
+		FIRE B 2 BRIGHT A_Scream
+		FIRE CDEF 2 BRIGHT A_Explode(5,96,1,1,64)
+		FIRE GH 2 BRIGHT
+		Stop
+	}
+}
+
+ACTOR FlameTarget : HateTarget 999
+{
+	Health 1
+	DamageFactor "Normal", 0.0
+	DamageFactor "Soul", 0.0
+	DamageFactor "Drain", 0.0
+	DamageFactor "Ice", 0.0
+	DamageFactor "Fire", 1.0
+}
+
+// --------------------------------------------------------------------------
+//
+// Dark Claw
+//
+// --------------------------------------------------------------------------
+
+ACTOR DarkClaw : DoomWeapon 1004
+{
+	//$Category Weapons
+	//$Title "Dark Claw"
+	Radius 16 // FOR LAZY HACK
+	Weapon.SelectionOrder 50
+	Weapon.AmmoUse 2
+	Weapon.AmmoUse2 1
+	Weapon.AmmoGive 20
+	Weapon.AmmoType "Soul"
+	Weapon.AmmoType2 "Soul"
+	Decal "PlasmaScorchLower"
+	Inventory.PickupMessage "$GOTDARKCLAW"
+	Tag "$TAG_DARKCLAW"
+	States
+	{
+	Ready:
+		DKCG A 0 A_StopSound(CHAN_WEAPON)
+		DKCG A 1 A_WeaponReady
+		Wait
+	Deselect:
+		DKCG A 0 A_StopSound(CHAN_WEAPON)
+		DKCG A 1 A_Lower
+		Wait
+	Select:
+		DKCG A 1 A_Raise
+		Loop
+	Fire:
+		DKCF A 0 Bright A_GunFlash
+		DKCF A 2 Bright A_FireCustomMissile("ClawShot",0,1)
+		DKCG C 1
+		DKCG B 4
+		DKCG A 3 A_ReFire
+		Goto Ready
+	AltFire:
+		DKCF A 0 Bright A_PlaySound("weapons/darkclawbeam", CHAN_WEAPON, 1.0, 1)
+	AltHold:
+		DKCF A 0 Bright A_GunFlash
+		DKCF C 2 Bright A_RailAttack (2*random(1,8), 0, 1, None, None, RGF_SILENT | RGF_NOPIERCING, 0, "ClawBeamPuffB", 0, 0, 0, 0, 16.0, 0, "ClawBeamTrailB") //A_FireCustomMissile("ClawBeamB",0,1)
+		DKCF B 2 Bright A_RailAttack (2*random(1,8), 0, 0, None, None, RGF_SILENT | RGF_NOPIERCING, 0, "ClawBeamPuffA", 0, 0, 0, 0, 16.0, 0, "ClawBeamTrailA") //A_FireCustomMissile("ClawBeamA",0,0)
+		DKCF A 0 Bright A_GunFlash
+		DKCF B 2 Bright A_RailAttack (2*random(1,8), 0, 1, None, None, RGF_SILENT | RGF_NOPIERCING, 0, "ClawBeamPuffB", 0, 0, 0, 0, 16.0, 0, "ClawBeamTrailB")
+		DKCF B 2 Bright A_RailAttack (2*random(1,8), 0, 0, None, None, RGF_SILENT | RGF_NOPIERCING, 0, "ClawBeamPuffA", 0, 0, 0, 0, 16.0, 0, "ClawBeamTrailA")
+		DKCG C 1 A_ReFire
+		DKCG B 4 A_StopSound(CHAN_WEAPON)
+		DKCG A 3
+		Goto Ready
+	Flash:
+		TNT1 A 2 A_Light2
+		TNT1 A 2 A_Light1
+		Goto LightDone
+	Spawn:
+		DCLW A -1
+		Stop
+	}
+}
+
+ACTOR ClawShot
+{
+	Radius 13
+	Height 8
+	Speed 25
+	Damage 15
+	Projectile
+	+RANDOMIZE
+	+SEEKERMISSILE
+	+FORCEXYBILLBOARD
+	RenderStyle Add
+	Alpha 0.75
+	SeeSound "weapons/darkclawfire"
+	DeathSound "weapons/darkclawhit"
+	Obituary "$OB_MPDARKCLAW"
+	Decal "PlasmaScorchLower"
+	BounceType "Hexen"
+	BounceCount 3
+	DamageType "Soul"
+	States
+	{
+	Spawn:
+		DKCP A 0 Bright A_SeekerMissile(10, 10, SMF_LOOK | SMF_PRECISE, 128)
+		DKCP AA 2 A_SpawnItemEx("ClawTrailA")
+		DKCP B 0 Bright A_SeekerMissile(10, 10, SMF_LOOK | SMF_PRECISE, 128)
+		DKCP BB 2 A_SpawnItemEx("ClawTrailB")
+		Loop
+	Death:
+		DKCP CDEFGH 3 Bright
+		Stop
+	}
+}
+ACTOR ClawShotTrap : ClawShot
+{
+	Damage 3
+	BounceCount 2
+	-SEEKERMISSILE
+}
+
+ACTOR ClawTrailA
+{
+	Radius 4
+	Height 4
+	+NOBLOCKMAP
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.5
+	States
+	{
+	Spawn:
+		DKCP A 6 Bright
+		Stop
+	}
+}
+ACTOR ClawTrailB : ClawTrailA
+{
+	States
+	{
+	Spawn:
+		DKCP B 6 Bright
+		Stop
+	}
+}
+
+ACTOR ClawBeamPuffA : BulletPuff
+{
+	RenderStyle Add
+	Alpha 0.75
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	+PUFFGETSOWNER
+	+NODAMAGETHRUST
+	+PAINLESS
+	-ALLOWPARTICLES
+	Translation "250:254=172:186"
+	DamageType "Drain"
+	VSpeed 0
+	States
+	{
+	Spawn:
+		DKCP CDEFGH 3 Bright
+		Stop
+	}
+}
+ACTOR ClawBeamPuffB : ClawBeamPuffA
+{
+	States
+	{
+	Death.Extreme:
+		DKCP C 0 Bright
+		DKCP C 0 Bright A_PlaySound("weapons/darkclawabsorb")
+		DKCP C 0 Bright A_GiveToTarget("Health",1)
+		Goto Spawn
+	}
+}
+
+ACTOR ClawBeamTrailA
+{
+	Radius 4
+	Height 4
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+FORCEXYBILLBOARD
+	RenderStyle Add
+	Alpha 0.5
+	Scale 0.5
+	Translation "250:254=172:186"
+	States
+	{
+	Spawn:
+		DKCP A 3 Bright
+		Stop
+	}
+}
+ACTOR ClawBeamTrailB : ClawBeamTrailA
+{
+	States
+	{
+	Spawn:
+		DKCP B 3 Bright
+		Stop
+	}
+}
+
+// --------------------------------------------------------------------------
+//
+// Soulrender
+//
+// --------------------------------------------------------------------------
+
+ACTOR Soulrender : DoomWeapon 1005
+{
+	//$Category Weapons
+	//$Title "Soulrender"
+	Weapon.SelectionOrder 9999
+	Weapon.AmmoUse 10
+	Weapon.AmmoUse2 50
+	Weapon.AmmoGive 50
+	Weapon.AmmoType "Soul"
+	Weapon.AmmoType2 "Soul"
+	+NOAUTOAIM
+	+NOAUTOFIRE
+	Inventory.PickupMessage "$GOTSOULRENDER"
+	Tag "$TAG_SOULRENDER"
+	States
+	{
+	Ready:
+		GIGG A 1 Bright A_WeaponReady
+		Loop
+	Deselect:
+		GIGG A 1 Bright A_Lower
+		Loop
+	Select:
+		GIGG A 1 Bright A_Raise
+		Loop
+	Fire:
+		GIGG B 0 A_TakeInventory("SoulFinished",999)
+		GIGG B 0 A_TakeInventory("SoulCharge",999)
+		GIGG B 0 A_GunFlash
+		GIGG B 0 ACS_NamedExecute("ZDCMP2_SoulCharge")
+		GIGG B 3 Bright A_PlaySound("weapons/gigercharge", CHAN_WEAPON)
+		GIGG CCCCCCDEEEEEEFGGGGGGGHIJKKKLMMMMMMNOOOOOOPQQQQQQRSSSSSS 3 Bright A_JumpIfInventory("SoulFinished", 1, "FireSelect")
+		GIGG S 7 Bright
+		Goto FireHuge
+	FireSelect:
+		GIGG Q 0 A_JumpIfInventory("SoulCharge",8,"Fire8")
+		GIGG Q 0 A_JumpIfInventory("SoulCharge",7,"Fire7")
+		GIGG Q 0 A_JumpIfInventory("SoulCharge",6,"Fire6")
+		GIGG Q 0 A_JumpIfInventory("SoulCharge",5,"Fire5")
+		GIGG Q 0 A_JumpIfInventory("SoulCharge",4,"Fire4")
+		GIGG Q 0 A_JumpIfInventory("SoulCharge",3,"Fire3")
+		GIGG Q 0 A_JumpIfInventory("SoulCharge",2,"Fire2")
+		GIGG Q 0 A_JumpIfInventory("SoulCharge",1,"Fire1")
+	FireCancel:
+		GIGG A 0 A_GunFlash("FlashCancel")
+		GIGG A 0 A_PlaySound("weapons/gigercancel", CHAN_WEAPON)
+		Goto FireEnd
+	Fire1:
+		GIGF Q 0 Bright A_SetBlend("FFFFFF", 0.1, 5)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulCenter",0,1)
+		Goto FireRelease
+	Fire2:
+		GIGF Q 0 Bright A_SetBlend("FFFFFF", 0.2, 10)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterS" ,0,1, 00.00,-16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulCenter",0,1)
+		Goto FireRelease
+	Fire3:
+		GIGF Q 0 Bright A_SetBlend("FFFFFF", 0.3, 15)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterE" ,0,1, 16.00, 00.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterW" ,0,1,-16.00, 00.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulCenter",0,1)
+		Goto FireRelease
+	Fire4:
+		GIGF Q 0 Bright A_SetBlend("FFFFFF", 0.4, 20)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterHexNE",0,1, 13.86, 08.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterHexNW",0,1,-13.86, 08.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterS"    ,0,1, 00.00,-16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulCenter",0,1)
+		Goto FireRelease
+	Fire5:
+		GIGF Q 0 Bright A_SetBlend("FFFFFF", 0.5, 25)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterE" ,0,1, 16.00, 00.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterN" ,0,1, 00.00, 16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterW" ,0,1,-16.00, 00.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterS" ,0,1, 00.00,-16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulCenter",0,1)
+		Goto FireRelease
+	Fire6:
+		GIGF Q 0 Bright A_SetBlend("FFFFFF", 0.6, 30)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterE" ,0,1, 16.00, 00.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterN" ,0,1, 00.00, 16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterW" ,0,1,-16.00, 00.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterS" ,0,1, 00.00,-16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulShotBig",0,1)
+		GIGF Q 0 Bright A_FireCustomMissile("AmmoWaster",0,1)
+		Goto FireRelease
+	Fire7:
+		GIGF Q 0 Bright A_SetBlend("FFFFFF", 0.7, 35)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterHexNE",0,1, 13.86, 08.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterHexNW",0,1,-13.86, 08.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterS"    ,0,1, 00.00,-16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterN"    ,0,1, 00.00, 16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterHexSE",0,1, 13.86,-08.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterHexSW",0,1,-13.86,-08.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulCenter",0,1)
+		Goto FireRelease
+	Fire8:
+		GIGF Q 0 Bright A_SetBlend("FFFFFF", 0.8, 40)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterHexNE",0,1, 13.86, 08.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterHexNW",0,1,-13.86, 08.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterS"    ,0,1, 00.00,-16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterN"    ,0,1, 00.00, 16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterHexSE",0,1, 13.86,-08.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterHexSW",0,1,-13.86,-08.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulShotBig",0,1)
+		GIGF Q 0 Bright A_FireCustomMissile("AmmoWaster",0,1)
+		Goto FireRelease
+	FireHuge:
+		GIGF Q 0 A_JumpIfInventory("Soul", 100, 1)
+		Goto Fire8
+		GIGF Q 0 Bright A_SetBlend("FFFFFF", 1.0, 50)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterE" ,0,1, 16.00, 00.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterNE",0,1, 11.31, 11.31)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterN" ,0,1, 00.00, 16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterNW",0,1,-11.31, 11.31)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterW" ,0,1,-16.00, 00.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterSW",0,1,-11.31,-11.31)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterS" ,0,1, 00.00,-16.00)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulOrbiterSE",0,1, 11.31,-11.31)
+		GIGF Q 0 Bright A_FireCustomMissile("SoulShotBig",0,1)
+		GIGF Q 0 Bright A_FireCustomMissile("AmmoWaster",0,1)
+	FireRelease:
+		GIGF Q 0 Bright A_GunFlash("FlashRelease")
+		GIGF Q 2 Bright A_PlaySound("weapons/gigerfire", CHAN_WEAPON)
+		GIGF R 2 Bright
+		GIGG TUV 2 Bright
+		GIGG A 12 Bright
+	FireEnd:
+		GIGG A 0 Bright A_TakeInventory("SoulFinished",999)
+		GIGG A 0 Bright A_TakeInventory("SoulCharge",999)
+		Goto Ready
+	Flash:
+		GIGF A 3 Bright
+		GIGF BCDBCDBCDBCD 3 Bright A_Quake(1, 3, 0, 32*1, "")
+		GIGF BCDBCDBCDEFG 3 Bright A_Quake(2, 3, 0, 32*2, "")
+		GIGF HIJKLMHIJKLM 3 Bright A_Quake(3, 3, 0, 32*3, "")
+		GIGF HIJKLM 3 Bright A_Quake(4, 3, 0, 32*4, "")
+		GIGF HIJKLM 3 Bright A_Quake(5, 3, 0, 32*5, "")
+		GIGF HIJK 3 Bright A_Quake(6, 3, 0, 32*6, "")
+		GIGF LMN 3 Bright A_Quake(7, 3, 0, 32*7, "")
+		GIGF OP 3 Bright A_Quake(8, 3, 0, 32*8, "")
+		GIGF Q 1 Bright A_Quake(9, 5, 0, 32*9, "")
+	FlashRelease:
+		TNT1 A 2 Bright A_Light2
+		TNT1 A 2 Bright A_Light1
+	FlashCancel:
+		TNT1 A 0
+		Goto LightDone
+	Spawn:
+		GIGR A -1 Bright
+		Stop
+	}
+}
+ACTOR SoulFinished : Inventory { }
+ACTOR SoulCharge : Inventory { Inventory.MaxAmount 999 }
+
+ACTOR SoulCenter
+{
+	Radius 13
+	Height 8
+	Speed 8
+	Damage 0
+	Scale 0.5
+	Projectile
+	MinMissileChance 0
+	+FORCEXYBILLBOARD
+	+THRUACTORS
+	RenderStyle Add
+	SeeSound "weapons/darkclawfire"
+	DeathSound "weapons/gigerhit"
+	Obituary "$OB_SOULRENDER"
+	MissileHeight 0
+	DamageType "Soul"
+	States
+	{
+	Spawn:
+		SRBL ABCDE 2 Bright A_CustomMissile("SoulBlaster", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+		Loop
+	Death:
+		SBXP A 0 A_SetScale(1.0,1.0)
+		SBXP AAAAAAAA 0 A_SpawnItemEx("SoulTrail",0,frandom(-5,5),frandom(-5,5),0,frandom(-2.5,2.5),frandom(-2.5,2.5),0,SXF_CLIENTSIDE,0)
+		SBXP ABCDE 4 Bright A_FadeOut(0.15)
+		Stop
+	}
+}
+ACTOR SoulShotBig : SoulCenter
+{
+	States
+	{
+	Spawn:
+		SRBL AABBCCDDEE 2 Bright A_CustomMissile("SoulBlaster", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+		Loop
+	}
+}
+ACTOR SoulOrbiter : SoulCenter
+{
+	Scale 0.33
+	Alpha 0.75
+	SeeSound ""
+	States
+	{
+	Spawn:
+		SRBL A 0 A_CustomMissile("SoulBlasterSmall", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER) SRBL AA 1 Bright A_Weave(2, 2, 2.0, 2.0)
+		SRBL B 0 A_CustomMissile("SoulBlasterSmall", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER) SRBL BB 1 Bright A_Weave(2, 2, 2.0, 2.0)
+		SRBL C 0 A_CustomMissile("SoulBlasterSmall", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER) SRBL CC 1 Bright A_Weave(2, 2, 2.0, 2.0)
+		SRBL D 0 A_CustomMissile("SoulBlasterSmall", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER) SRBL DD 1 Bright A_Weave(2, 2, 2.0, 2.0)
+		SRBL E 0 A_CustomMissile("SoulBlasterSmall", -8, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER) SRBL EE 1 Bright A_Weave(2, 2, 2.0, 2.0)
+		Loop
+	Death:
+		SBXP AAAAAAAA 0 A_SpawnItemEx("SoulTrailSmall",0,frandom(-5,5),frandom(-5,5),0,frandom(-2.5,2.5),frandom(-2.5,2.5),0,SXF_CLIENTSIDE,0)
+		SBXP ABCDE 3 Bright A_FadeOut(0.15)
+		Stop
+	}
+}
+
+// Directional Variants
+ACTOR SoulOrbiterS : SoulOrbiter { WeaveIndexXY  0  WeaveIndexZ 48 }
+ACTOR SoulOrbiterSW: SoulOrbiter { WeaveIndexXY  8  WeaveIndexZ 56 }
+ACTOR SoulOrbiterW : SoulOrbiter { WeaveIndexXY 16  WeaveIndexZ  0 }
+ACTOR SoulOrbiterNW: SoulOrbiter { WeaveIndexXY 24  WeaveIndexZ  8 }
+ACTOR SoulOrbiterN : SoulOrbiter { WeaveIndexXY 32  WeaveIndexZ 16 }
+ACTOR SoulOrbiterNE: SoulOrbiter { WeaveIndexXY 40  WeaveIndexZ 24 }
+ACTOR SoulOrbiterE : SoulOrbiter { WeaveIndexXY 48  WeaveIndexZ 32 }
+ACTOR SoulOrbiterSE: SoulOrbiter { WeaveIndexXY 56  WeaveIndexZ 40 }
+
+ACTOR SoulOrbiterHexNW : SoulOrbiter { WeaveIndexXY 21  WeaveIndexZ  5 }
+ACTOR SoulOrbiterHexNE : SoulOrbiter { WeaveIndexXY 42  WeaveIndexZ 26 }
+ACTOR SoulOrbiterHexSE : SoulOrbiter { WeaveIndexXY 53  WeaveIndexZ 37 }
+ACTOR SoulOrbiterHexSW : SoulOrbiter { WeaveIndexXY 10  WeaveIndexZ 58 }
+
+ACTOR SoulBlaster
+{
+	Radius 2
+	Height 2
+	Speed 0
+	MinMissileChance 0
+	Projectile
+	+LOOKALLAROUND
+	+NOINTERACTION
+	+ISMONSTER
+	+FRIENDLY
+	RenderStyle Add
+	Obituary "$OB_SOULRENDER"
+	AttackSound "weapons/gigerzap"
+	MissileHeight 0
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Explode(10,96,0,0,96)
+		TNT1 A 0 A_SpawnItemEx("SoulTrail",frandom(-2,2),frandom(-2,2),frandom(-2,2)+8,0,0,0,0,SXF_CLIENTSIDE,0)
+		TNT1 A 2 A_Look
+		Stop
+	See:
+		TNT1 A 0 A_FaceTarget
+		TNT1 A 2 A_CustomRailgun(6, 0, None, "FFFFFF", RGF_NOPIERCING | RGF_FULLBRIGHT, 1, 16, "SoulPuff", 0, 0, 0, 2, 0, 0)
+		Goto Death
+	Death:
+		TNT1 A 2
+		Stop
+	}
+}
+ACTOR SoulBlasterSmall : SoulBlaster
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Explode(5,48,0,0,48)
+		TNT1 A 0 A_SpawnItemEx("SoulTrailSmall",frandom(-2,2),frandom(-2,2),frandom(-2,2)+8,0,0,0,0,SXF_CLIENTSIDE,0)
+		TNT1 A 2 A_Look
+		Stop
+	}
+}
+
+ACTOR SoulTrail
+{
+	+NOINTERACTION
+	Renderstyle Add
+	Alpha 0.75
+	States
+	{
+	Spawn:
+		STRL ABCD 4 Bright
+		Stop
+	}
+}
+ACTOR SoulTrailSmall : SoulTrail
+{
+	Scale 0.5
+	States
+	{
+	Spawn:
+		STRL ABCD 3 Bright
+		Stop
+	}
+}
+
+ACTOR SoulPuff
+{
+	DamageType "Soul"
+	+NODAMAGETHRUST
+	+PAINLESS
+}
+
+ACTOR AmmoWaster
+{
+	Projectile
+	Damage 0
+	Speed 0
+	States
+	{
+	Spawn:
+		TNT1 A 1
+		Stop
+	}
+}
+
+// --------------------------------------------------------------------------
+//
+// Grenade -- not technically a weapon, but uses one for the throwing animation.
+//
+// --------------------------------------------------------------------------
+
+ACTOR ThrowGrenade : Weapon
+{
+	Weapon.SelectionOrder 99999
+	Weapon.AmmoUse 1
+	Weapon.AmmoType GrenadeAmmo
+	+NOALERT
+	States
+	{
+	Ready:
+		TNT1 A 0 A_JumpIfNoAmmo(1)
+		Goto Fire
+		TNT1 A 1 A_SelectWeapon("Fist")
+		Goto Deselect
+	Deselect:
+		TNT1 AAAAAAAAAAAA 0 A_Lower
+		TNT1 A 1 A_Lower
+		Loop
+	Select:
+		HNDG A 0 A_JumpIfNoAmmo("NoAmmo")
+		HNDG A 0 A_Raise HNDG A 1 A_Raise
+		HNDG B 0 A_Raise HNDG B 1 A_Raise
+		HNDG B 0 A_Raise HNDG B 1 A_Raise
+		HNDG B 0 A_PlayWeaponSound("weapons/grenadepin")
+		HNDG B 0 A_Raise HNDG B 1 A_Raise
+		HNDG C 0 A_Raise HNDG C 1 A_Raise
+		HNDG C 0 A_Raise HNDG C 1 A_Raise
+		HNDG C 0 A_Raise HNDG C 1 A_Raise
+		Loop
+	NoAmmo:
+		TNT1 AAAAAAAAAAAA 0 A_Raise
+		TNT1 A 1 A_Raise
+		Loop
+
+	// Pull Pin
+	Fire:
+		HNDG D 2 //A_PlayWeaponSound("weapons/grenadepin")
+		HNDG EFG 2
+		TNT1 A 2
+//		TNT1 A 0 A_JumpIf(CallACS("ZDCMP2_CheckGrenadeReady") == 1,"Drop") // [XA] This mode is unpopular.
+		TNT1 A 0 A_GunFlash("TimerCountdown", GFF_NOEXTCHANGE)
+	// "Cook" grenade. Timer sequence started.
+	Cook:
+		TNT1 A 2 A_JumpIf(CallACS("ZDCMP2_CheckGrenadeReady") == 1,"Throw")
+		TNT1 A 0 A_JumpIfInventory("GrenadeTimer", 1, "Cook")
+		Goto SelfDestruct
+	// Throw grenade. Happens when player releases throw key.
+	Throw:
+		HNDG H 0 A_FireCustomMissile("GrenadeThrown",0,1,0,0,1,15)
+		HNDG H 2 A_PlayWeaponSound("weapons/grenadethrow")
+		HNDG I 2 A_TakeInventory("GrenadeTimer", 999) // stop timer state
+		HNDG JKL 2
+	EndAnim:
+		TNT1 A 10
+		TNT1 A 0 ACS_NamedExecute("ZDCMP2_GrenadeDone")
+		Goto Deselect
+	// Drop grenade at feet.
+	Drop:
+		TNT1 A 0 A_FireCustomMissile("GrenadeDropped",0,1)
+		Goto EndAnim
+	// Hold on to a grenade too long, and you'll go boom!
+	SelfDestruct:
+		TNT1 A 0 A_FireCustomMissile("GrenadeSelfDestruct",0,1)
+		Goto EndAnim+1
+
+	// Timer countdown. Ticks and decrements timer 'variable'.
+	// This 'var' is read via an ACS script and assigned to
+	// a thrown grenade, so the thrown grenade lasts for exactly
+	// 3 seconds minus the time held.
+	TimerCountdown:
+		TNT1 A 0 A_TakeInventory("GrenadeTimer", 999) // insurance!
+		TNT1 A 0 A_GiveInventory("GrenadeTimer", 54)
+	TimerLoop:
+		TNT1 A 0 A_PlayWeaponSound("weapons/grenadetick")
+		TNT1 AAAAAAAAAAAAAAAAAA 2 A_TakeInventory("GrenadeTimer", 1)
+		TNT1 A 0 A_JumpIfInventory("GrenadeTimer", 1, "TimerLoop")
+		TNT1 A 0 A_JumpIf(health <= 0, "PostMortemSelfDestruct")
+		Stop
+	PostMortemSelfDestruct:
+		TNT1 A 0 A_FireCustomMissile("GrenadeSelfDestruct",0,1)
+		Stop
+	}
+}
+ACTOR GrenadeTimer : Inventory { Inventory.MaxAmount 999 }
+
+ACTOR InvisiPuff
+{
+	Projectile
+	Damage 0
+	+THRUACTORS
+	States
+	{
+	Spawn:
+		TNT1 A 1 A_JumpIf(waterlevel < 1, "Death")
+		Wait
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+
+ACTOR GrenadeThrown
+{
+	Speed 20
+	Height 8
+	Radius 4
+	Damage 0
+	Projectile
+	-NOGRAVITY
+	MaxStepHeight 4
+	BounceType "Hexen"
+	BounceFactor 0.33
+	+BOUNCEAUTOOFF
+	+ALLOWBOUNCEONACTORS
+	+BOUNCEONACTORS
+	+CANBOUNCEWATER
+	+MOVEWITHSECTOR
+	BounceSound "weapons/grenadebounce"
+	Obituary "$OB_MPGRENADE"
+	Scale 0.25
+	var int user_countdown;
+	States
+	{
+	Spawn:
+		HGRN A 0
+		HGRN A 0 A_SetUserVar("user_countdown", CallACS("ZDCMP2_SetGrenadeTimer"))
+		Goto Bounce
+	Bounce:
+		HGRN A 2 A_JumpIf(user_countdown == 0, "Explode") HGRN A 0 A_SetUserVar("user_countdown", user_countdown - 1)
+		HGRN B 2 A_JumpIf(user_countdown == 0, "Explode") HGRN B 0 A_SetUserVar("user_countdown", user_countdown - 1)
+		HGRN C 2 A_JumpIf(user_countdown == 0, "Explode") HGRN C 0 A_SetUserVar("user_countdown", user_countdown - 1)
+		HGRN D 2 A_JumpIf(user_countdown == 0, "Explode") HGRN D 0 A_SetUserVar("user_countdown", user_countdown - 1)
+		HGRN E 2 A_JumpIf(user_countdown == 0, "Explode") HGRN E 0 A_SetUserVar("user_countdown", user_countdown - 1)
+		HGRN F 2 A_JumpIf(user_countdown == 0, "Explode") HGRN F 0 A_SetUserVar("user_countdown", user_countdown - 1)
+		Loop
+	Death:
+		HGRN A 2 A_JumpIf(user_countdown == 0, "Explode")
+		HGRN A 0 A_SetUserVar("user_countdown", user_countdown - 1)
+		Loop
+	Explode:
+		TNT1 A 0 A_PlaySound("weapons/grenadeexplode")
+		TNT1 A 0 A_Stop
+		TNT1 A 0 A_NoGravity
+		TNT1 A 0 A_AlertMonsters
+		TNT1 A 0 A_SetScale(1.0,1.0)
+		TNT1 A 0 A_SetTranslucent(0.75,1)
+		TNT1 A 0 A_JumpIf(waterlevel > 2, "WaterBoom")
+		GEXP A 2 Bright A_Explode(200,320,1,1,128) // [XA] Bigsplosion!
+		Goto Kaboom
+	WaterBoom:
+		TNT1 A 0 A_SpawnItemEx("InvisiPuff", 0, 0, 8, 0, 0, 64) // Make a splash
+		GEXP A 2 Bright A_Explode(320,480,1,1,256) // [Gez] Hugesplosion! :p
+	Kaboom:
+		GEXP BCDEFGHIJKLMNOPQRST 2 Bright
+		Stop
+	}
+}
+ACTOR GrenadeDropped : GrenadeThrown {
+	Speed 0
+	BounceType "None"
+	DeathSound "weapons/grenadebounce"
+	States
+	{
+	Spawn:
+		HGRN A 0
+		HGRN A 0 A_SetUserVar("user_countdown", 54)
+		Goto Bounce
+	}
+}
+
+ACTOR GrenadeSelfDestruct
+{
+	+NOBLOCKMAP
+	+NOGRAVITY
+	Renderstyle Add
+	Alpha 0.75
+	Obituary "$OB_MPGRENADESELFDESTRUCT"
+	SeeSound "weapons/grenadeexplode"
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		GEXP A 1 A_Explode(200,320,1,1,128)
+		GEXP BCDEFGHIJK 2 Bright
+		Stop
+	}
+}
+
+// One last thing: BFGBall replacement for damagetype purposes
+
+ACTOR BFGBallDamage : BFGBall replaces BFGBall
+{
+	Damagetype "BFG"
+}
+
+ACTOR BFGExtraDamage : BFGExtra replaces BFGExtra
+{
+	Damagetype "BFG"
+}

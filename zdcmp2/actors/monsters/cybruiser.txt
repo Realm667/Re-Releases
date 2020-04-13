@@ -1,0 +1,112 @@
+// Cybruiser -- by Eriance
+
+ACTOR Cybruiser : BaronOfHell 10559
+{ 
+	//$Category Monsters
+	Tag "Cybruiser"
+	Health 1250 
+	Radius 24 
+	Height 64 
+	Mass 1000 
+	Speed 8 
+	PainChance 20 
+	MeleeDamage 10
+	Obituary "%o was blown away by a Cybruiser."
+	HitObituary "%o was smashed by a Cybruiser."
+	Monster
+	+FLOORCLIP 
+	+MISSILEMORE
+	+BOSS
+	+DONTHURTSPECIES
+	SeeSound "bruiser/sight" 
+	PainSound "bruiser/pain" 
+	DeathSound "bruiser/death"
+	MeleeSound "bruiser/melee"
+	Species "Cyber"
+	DamageFactor "Cyber", 0.0
+	States 
+	{ 
+	Spawn: 
+		CBRU AB 10 A_Look 
+		Loop 
+	See:
+		CBRU A 1 A_Playsound("bruiser/walk")
+		CBRU A 2 A_Chase
+		CBRU A 3 A_Chase
+		CBRU BB 3 A_Chase
+		CBRU C 1 A_Playsound("bruiser/walk")
+		CBRU C 2 A_Chase
+		CBRU C 3 A_Chase 
+		CBRU DD 3 A_Chase
+		Loop 
+	Missile:
+		CBRU E 8 A_FaceTarget 
+		CBRU F 12 Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+		CBRU E 12 A_FaceTarget
+		CBRU F 12 Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+		CBRU E 12 A_FaceTarget
+		CBRU F 12 Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+		Goto See
+	Melee:
+		CBRU GH 8 A_FaceTarget
+		CBRU I 8 A_MeleeAttack
+		Goto See
+	Pain: 
+		CBRU J 2 
+		CBRU J 2 A_Pain 
+		Goto See 
+	Death: 
+		CBRU K 6 Bright A_Scream
+		CBRU LMN 6 Bright
+		CBRU O 6 Bright A_NoBlocking
+		CBRU QRS 6 Bright
+		CBRU T -1 A_BossDeath
+		Stop
+	} 
+}
+
+ACTOR BruiserMissile
+{
+	Radius 8
+	Height 12
+	Speed 20
+	Damage 10
+	Renderstyle Normal
+	Projectile
+	DontHurtShooter
+	+THRUGHOST
+	+FIREDAMAGE
+	SeeSound "bruiser/missilefire"
+	DeathSound "bruiser/missilehit"
+	DamageType "Cyber"
+	States
+	{
+	Spawn: 
+		FBRS A 1 Bright
+		FBRS A 1 Bright A_SpawnItem("BruiserTrail",0,0)
+		loop
+	Death:
+		BAL3 C 0 Bright A_SetTranslucent (0.67,1)
+		BAL3 C 6 Bright
+		BAL3 D 6 Bright A_Explode(64,64,0)
+		BAL3 E 6 Bright
+		stop
+	}
+}
+
+ACTOR BruiserTrail
+{   
+	Radius 3
+	Height 3
+	RenderStyle Translucent
+	Alpha 0.67
+	Projectile
+	States
+	{
+	Spawn:
+		NULL A 3 Bright
+		PUFF ABCD 4 BRIGHT
+		Stop 
+	}
+}
+

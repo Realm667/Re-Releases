@@ -1,0 +1,39 @@
+/*
+actor YellowKeycardSpawner : SwitchableDecoration 16010 {
+	+NOINTERACTION
+	states {
+	Spawn:
+		TNT1 A 0
+		// Request a tid. Without this, Thing_Move doesn't function :/
+		TNT1 A 0 ACS_ExecuteAlways (73, 0)
+		goto Inactive
+	Inactive:
+		TNT1 A -1
+		stop
+	Active:
+		TNT1 A 20 A_JumpIf (ACS_ExecuteWithResult (72) == 0, "Inactive")
+		wait
+	}
+}
+*/
+
+//[XA] I'm replacing this with a projectile instead.
+//   The use of the above confused the bugger out of me.
+actor YellowCardProjected {	
+	Radius 20
+	Height 16
+	Speed 10
+	Damage 0
+	Projectile
+	-NOGRAVITY
+	States
+	{
+	Spawn:
+		YKEY A 10
+		YKEY B 10 bright
+		loop
+	Death:
+		TNT1 A 1 bright A_SpawnItemEx("YellowCard",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		stop
+	}
+}

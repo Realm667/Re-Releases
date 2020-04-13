@@ -1,0 +1,109 @@
+// Grell -- by NMN (w/DECORATE by Xaser)
+
+actor Grell 10560
+{
+	//$Category Monsters
+	Tag "Grell"
+	health 300
+	radius 24
+	height 56
+	mass 400
+	speed 10
+	Obituary "%o was plagued by a grell." 
+	painchance 128
+	seesound "grell/sight"
+	painsound "grell/pain"
+	deathsound "grell/death"
+	activesound "grell/active"
+	Monster
+	+DROPOFF
+	+NOGRAVITY
+	+DONTHURTSPECIES
+	States
+	{
+	Spawn:
+		GREL A 10 A_Look
+		Loop
+	See:
+		GREL A 0 A_SentinelBob
+		GREL AAB 3 A_Chase
+		GREL B 0 A_SentinelBob
+		GREL BCC 3 A_Chase
+		Loop
+	Missile:
+		GREL D 0 A_PlaySound("grell/attack")
+		GREL D 4 A_FaceTarget
+		GREL E 4 Bright A_FaceTarget    
+		GREL F 4 Bright A_CustomMissile("GrellBall", 32, 0, 0) 
+		Goto See
+	Pain:
+		GREL G 3 
+		GREL G 3 A_Pain
+		Goto See
+	Death:
+		GREL H 5
+		GREL I 0 A_NoBlocking
+		GREL I -1 A_Scream
+	Crash:
+		GREL J 4 A_PlaySound("grell/thud", CHAN_AUTO)
+		GREL K 4 
+		GREL LM 4 A_SetFloorClip
+		GREL N -1 
+		Stop
+	Raise:
+		GREL M 5 A_UnSetFloorClip
+		GREL LKJIH 5
+		Goto See
+	}
+}
+
+ACTOR GrellBall
+{
+	Radius 8
+	Height 16
+	Speed 15
+	Damage 4
+	PoisonDamage 32
+	Renderstyle Add
+	Alpha 0.67
+	Projectile
+	DeathSound "grell/projhit"
+	States
+	{
+	Spawn:
+		FVUL AAABBB 1 Bright A_SpawnItemEx("BarbTrail",0,0,0,0,0,0,0,128,0)
+		loop
+	XDeath:
+		FVUL C 0 Bright A_RadiusGive("GrellSlowdown", 48, RGF_PLAYERS | RGF_CUBE, 1)
+	Death:
+		FVUL CDEF 4 Bright
+		stop
+	}
+}
+ACTOR PowerSlow : PowerSpeed
+{
+	Powerup.Duration -3
+	Speed 0.66
+}
+ACTOR GrellSlowdown : PowerupGiver
+{
+	+Inventory.AUTOACTIVATE
+	-Inventory.INVBAR
+	Powerup.Type "Slow"
+}
+
+ACTOR Barbtrail
+{   
+   Radius 0
+   Height 1
+   PROJECTILE
+   RENDERSTYLE ADD
+   ALPHA 0.75
+   States
+   {
+   Spawn:
+      NULL A 1 Bright
+      SSFX ABCDEFG 2 Bright
+      Stop 
+   }
+}

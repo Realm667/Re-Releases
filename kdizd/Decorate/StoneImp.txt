@@ -1,0 +1,59 @@
+//===========================================================================
+//
+// StoneImp
+//
+// created by: Espi 
+// death Sprites by: Vader
+//
+//===========================================================================
+
+actor StoneImp 3103
+{
+	//$Category Monsters
+    Health 180
+    Radius 20
+    Height 56
+    Speed 6
+    PainChance 50
+    Mass 400
+    MONSTER 
+    +FLOORCLIP
+    +NOBLOOD
+    +NORADIUSDMG
+    SeeSound "imp/sight"
+    PainSound "imp/pain"
+    DeathSound "imp/death"
+    ActiveSound "imp/active"
+    MeleeSound "stoneimp/hit"
+    Obituary "%o was smashed by a stone imp."
+    MeleeDamage 12
+    States
+    {
+    Spawn:
+        GIMP AB 10 A_Look
+        Loop
+    See:
+        GIMP AABBCCDD 3 A_Chase
+        Loop
+    Melee:
+        GIMP EF 8 A_FaceTarget
+        GIMP G 6 A_MeleeAttack
+        Goto See
+    Pain:
+        GIMP H 2
+        GIMP H 2 A_Pain
+        Goto See
+    Death:
+        GIMP I 6
+        GIMP J 6 A_Scream
+        GIMP K 5
+        GIMP L 5 A_Fall
+        GIMP M 5
+        GIMP N -1
+        Stop
+    Raise:
+        GIMP ML 8
+        GIMP KJI 6
+        Goto See
+    }
+}

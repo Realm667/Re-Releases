@@ -1,0 +1,66 @@
+//first argument controls whether it plays sound effect. 0 = play sound. 1 = silent.
+//second argument controls spawn radius of souls from centre.
+//third argument controls frequency. Lower number spawns more souls.
+//fourth argument controls the vertical speed of souls.
+
+actor DamnedSoulSpawner 12345
+{
+  //$Category Decoration
+  //$Title Damned Soul Generator
+  Radius 2
+  Height 2
+  +NOINTERACTION
+  States
+  {
+  Spawn:
+    TNT1 A 0
+    TNT1 A 0 A_JumpIf(Args[0] > 0, "Silent")
+    // fall through
+  Noisy:
+    TNT1 A 0
+    TNT1 A 8 A_SpawnItemEx ("DamnedSoul", random (-Args[1], Args[1]), 0, 0, 0, 0, Args[3], random (0, 360), 0, Args[2])
+    loop
+  Silent:
+    TNT1 A 0
+    TNT1 A 8 A_SpawnItemEx ("DamnedSoulSilent", random (-Args[1], Args[1]), 0, 0, 0, 0, Args[3], random (0, 360), 0, Args[2])
+    loop
+  }
+}
+
+
+actor DamnedSoul
+{
+  Radius 2
+  Height 2
+  Speed 1
+  Scale 0.5
+  RenderStyle Add
+  //alpha 0
+  projectile
+  +CLIENTSIDEONLY
+  +NOINTERACTION
+  States
+  {
+  Spawn:
+    DAMD A 0
+    DAMD A 0 A_PlaySound ("DamnedSoul/Moan")
+    //fall through
+  FadeIn:
+	DAMD A 0 A_SetTranslucent(0,1)
+	DAMD AAAAAAAAAAAAAAAAAAAA 1 BRIGHT A_FadeTo(1,0.05,0)
+    DAMD A 20 BRIGHT A_SetTranslucent(1,1)
+  FadeOut:
+    DAMD A 1 BRIGHT A_FadeOut(0.025)
+    loop
+  }
+}
+
+actor DamnedSoulSilent : DamnedSoul
+{
+  States
+  {
+  Spawn:
+    DAMD A 0
+	Goto FadeIn
+  }
+}

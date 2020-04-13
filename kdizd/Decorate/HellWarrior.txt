@@ -1,0 +1,148 @@
+//===========================================================================
+//
+// Hell Warrior
+//
+// by Tormentor667
+// new sprites and additional scripting by: Vader
+//
+//===========================================================================
+
+ACTOR HellWarrior 3119
+{ 
+	//$Category Monsters
+   Health 400 
+   Speed 8
+   Radius 24
+   Height 64
+   PainChance 50
+   Mass 1000
+   Meleedamage 8 
+   SeeSound "knight/sight"
+   PainSound "knight/pain"
+   DeathSound "knight/death"
+   ActiveSound "knight/active"
+   MeleeSound "baron/melee"
+   REACTIONTIME 8 
+   MONSTER 
+	+FLOORCLIP
+   Missiletype HellWarriorBall
+   Obituary "%o was tagged by the hell warrior's fireball." 
+   HitObituary "%o was torn apart by a hell warrior." 
+   States 
+   { 
+   Spawn: 
+      HWAR AB 10 A_Look 
+      Loop 
+   See: 
+      HWAR A 0 A_UnsetInvulnerable
+      HWAR AABBCCDD 3 A_Chase 
+      Loop 
+   Missile:
+      HWAR E 0 A_Jump(128, 4)
+      HWAR EF 8 A_FaceTarget
+      HWAR G 8 A_ComboAttack
+      Goto See
+      HWAR H 0 A_Jump(128, 6)
+      HWAR H 0 A_SetInvulnerable
+      HWAR H 6 A_FaceTarget
+      HWAR I 4 BRIGHT A_Custommissile(HellWarriorBall2, 25, 0, 0)
+      HWAR H 6 A_FaceTarget
+      HWAR H 0 A_UnSetInvulnerable
+      Goto See
+      HWAR H 0 A_SetInvulnerable
+      HWAR H 6 A_FaceTarget
+      HWAR I 4 BRIGHT A_Custommissile(HellWarriorBall2, 25, 0, 0)
+      HWAR H 16 A_SpidRefire
+      HWAR I 4 BRIGHT A_Custommissile(HellWarriorBall2, 25, 0, 0)
+      HWAR H 6 A_FaceTarget
+      HWAR H 0 A_UnSetInvulnerable
+      Goto See  
+   Melee: 
+      HWAR EF 8 A_FaceTarget 
+      HWAR G 8 A_ComboAttack 
+      Goto See 
+   Pain:
+      HWAR J 6 A_Pain 
+      HWAR H 0 A_SetInvulnerable
+      HWAR HHHHHHH 6 A_FaceTarget 
+      HWAR H 0 A_UnSetInvulnerable
+      Goto See 
+   Death: 
+      HWAR K 5 A_CustomMissile(HellWarriorShield, 25, 0, 60)
+      HWAR L 5 A_Scream
+      HWAR M 5
+      HWAR N 5 A_NoBlocking 
+      HWAR OPQRS 5  
+      HWAR T -1 
+      Stop 
+   Raise: 
+      HWAR QPONMLK 5 
+      Goto See 
+   } 
+}
+
+actor HellWarriorBall
+{
+    Radius 6
+    Height 8
+    Speed 14
+    Damage 8
+    PROJECTILE
+    RENDERSTYLE ADD
+    ALPHA 0.7
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+        HWFB AB 5 Bright
+        Loop
+    Death:
+        HWFB CDE 5 Bright
+        Stop
+    }
+}
+
+actor HellWarriorBall2
+{
+    Radius 6
+    Height 8
+    Speed 8
+    Damage 2
+    PROJECTILE
+    RENDERSTYLE ADD
+    +RANDOMIZE
+    +RIPPER
+    ALPHA 0.8
+    SCALE 0.4
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+        GRBA ABCDEFGH 2 Bright
+        Loop
+    Death:
+        GRBA AIJKLMN 3 Bright
+        Stop
+    }
+}
+
+ACTOR HellWarriorShield
+{
+	Radius 8
+	Height 8
+	Speed 6
+	+DOOMBOUNCE
+	+DROPOFF
+	+Missile
+      States
+	{
+	Spawn:
+         HWSH ABCDEFGH 3
+         Loop
+	Death:
+	 HWSH I -1
+	 Loop
+	}
+}

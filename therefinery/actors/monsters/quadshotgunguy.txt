@@ -1,0 +1,89 @@
+Actor QuadShotgunZombie 32129
+{
+//$Category Z2M3_Monsters
+  Health 100
+  Radius 20
+  Height 56
+  Mass 100
+  Speed 8
+  PainChance 60
+  Monster
+  +FloorClip
+  SeeSound "ShotGuy/Sight"
+  PainSound "ShotGuy/Pain"
+  DeathSound "ShotGuy/Death"
+  ActiveSound "ShotGuy/Active"
+  Obituary "%o was smeared by a Quad-Shotgun Zombie"
+  DropItem Shell
+  States
+  {
+  Spawn:
+    QSZM AAAAAAAAAABBBBBBBBBB 1 A_Look
+    Loop
+  See:
+    QSZM AABBCCDD 3 A_Chase
+    Loop
+  Missile:
+    QSZM E 0 A_JumpIfInventory("QuadShotgunZombieCounter", 1, "SingleShot")
+    QSZM E 0 A_Jump(64, "QuadShot")
+    Goto SingleShot
+  SingleShot:
+    QSZM EE 5 A_FaceTarget
+    QSZM F 0 Bright A_PlayWeaponSound("QuadShotgunZombie/SingleFire")
+    QSZM F 0 Bright A_GiveInventory("QuadShotgunZombieCounter", 1)
+    QSZM F 4 Bright A_CustomBulletAttack(6, 6, 5, 3, "Bulletpuff")
+    QSZM E 6 A_FaceTarget
+    QSZM E 0 A_JumpIfInventory("QuadShotgunZombieCounter", 4, "Reload")
+    QSZM E 0 A_Jump(96, "SingleShot")
+    QSZM EE 6 A_FaceTarget
+    Goto See
+  QuadShot:
+    QSZM E 0 A_JumpIfCloser(384, 1)
+    Goto SingleShot
+    QSZM EEE 5 A_FaceTarget
+    QSZM F 0 Bright A_PlayWeaponSound("QuadShotgunZombie/QuadFire")
+    QSZM F 0 Bright A_GiveInventory("QuadShotgunZombieCounter", 4)
+    QSZM F 4 Bright A_CustomBulletAttack(11, 11, 20, 3, "Bulletpuff")
+    QSZM EE 6 A_FaceTarget
+    Goto Reload
+  Reload:
+    QSZM E 0 A_ChangeFlag("NoPain", 1)
+    QSZM E 10 A_PlaySoundEx("QuadShotgunZombie/Reload1", "SoundSlot7", 0)
+    QSZM E 0 A_TakeInventory("QuadShotgunZombieCounter", 1)
+    QSZM E 10 A_PlaySoundEx("QuadShotgunZombie/Reload2", "SoundSlot6", 0)
+    QSZM E 0 A_JumpIfInventory("QuadShotgunZombieCounter", 1, 1)
+    Goto Reload+6
+    QSZM E 0
+    Goto Reload+2
+    QSZM E 10 A_PlaySoundEx("QuadShotgunZombie/Reload3", "SoundSlot7", 0)
+    QSZM E 0 A_ChangeFlag("NoPain", 0)
+    Goto See
+  Pain:
+    QSZM G 3
+    QSZM G 3 A_Pain
+    Goto See
+  Death:
+    QSZM H 8
+    QSZM I 8 A_Scream
+    QSZM J 8 A_NoBlocking
+    QSZM K 8
+    QSZM L -1
+    Stop
+  XDeath:
+    QSZM M 5
+    QSZM N 5 A_XScream
+    QSZM O 5 A_NoBlocking
+    QSZM PQRST 5
+    QSZM U -1
+    Stop
+  Raise:
+    QSZM L 5
+    QSZM KJIH 5
+    Goto See
+  }
+}
+
+Actor QuadShotgunZombieCounter : Inventory
+{
+  Inventory.MaxAmount 4
+}

@@ -1,0 +1,28 @@
+ACTOR DoomDoll 11202
+{
+//$Category Easteregg
+  Game Doom
+  Radius 16 // formerly 28, which broke everything :P
+  Height 9
+//  +SOLID // [XA] Why on Earth was this guy Solid? O_O
+  States
+  {
+  Spawn:
+    DDOL A -1
+    Stop
+  }
+}
+
+ACTOR DeadPlayerClone 11205 // regular deadplayer won't work
+{
+//$Category Easteregg
+  Game Doom
+  Radius 16
+  Height 9
+  States
+  {
+  Spawn:
+    PLAY N -1
+    Stop
+  }
+}

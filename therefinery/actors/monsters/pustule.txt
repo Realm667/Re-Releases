@@ -1,0 +1,109 @@
+actor Pustule : RandomSpawner 14000
+{
+//$Category Z2M3_Monsters
+    DropItem "Pustule1"
+    DropItem "Pustule2"
+    DropItem "Pustule3"
+}
+
+actor Pustule1
+{
+  obituary "%o was popped by a pustule."
+  health 40
+  radius 20
+  height 24
+  mass 100
+  speed 4
+  scale 0.8
+  PainChance 256
+  seesound "blob/sight"
+  painsound "blob/pain"
+  activesound "blob/active"
+  MONSTER
+  +FLOORCLIP
+  +LOOKALLAROUND
+  states
+  {
+  Spawn:
+    FLOB A 10 A_Look
+    loop
+  See:
+    FLOB AABBCCBB 3 A_Chase
+    loop
+  Pain:
+    FLOB A 1 A_Pain
+    FLOB A 0 A_Wander
+    FLOB ABBCCBB 1 A_Wander
+    FLOB AABBCCBB 1 A_Wander
+    goto See
+  Melee:
+    FLOB A 0 A_Die
+  Death:
+    FLOB F 2 A_PlaySound ("Blob/Explode")
+    FLOB F 0 A_SpawnItem ("PustuleDamage")
+    FLOB FFFFFFFFFFFFFFFFFFFF 0 A_SpawnItemEX("Blood", 0, 0, 0, random (4, 12), 0, random (4, 12), random(0, 360))
+    FLOB GH 2
+    stop
+  }
+}
+
+//smaller
+actor Pustule2 : Pustule1
+{
+  scale 0.7
+}
+
+//larger
+actor Pustule3 : Pustule1
+{
+  scale 0.6
+}
+
+actor PustuleDamage
+{
+  Radius 20
+  Height 24
+  +NOINTERACTION
+  obituary "%o was popped by a pustule."
+  States
+  {
+  Spawn:
+    TNT1 A 0
+    TNT1 A 1 A_Explode (35, 64, 0, 1, 1)
+    stop
+  }
+}
+
+actor BursterBlood
+{
+  Radius 2
+  Height 2
+  Speed 1
+  Damage 0
+  Decal "BloodSplat"
+  Projectile
+  -NOGRAVITY
+  States
+  {
+  Spawn:
+    TNT1 A 1 A_SpawnItemEX("BursterBloodTrail", random(-2, 2), 0, random(-2, 2), 0, 0, 0, random(0, 360))
+    loop
+  Death:
+    TNT1 A 4
+    stop
+  }
+}
+
+actor BursterBloodTrail
+{
+  Radius 2
+  Height 2
+  +NOINTERACTION
+  +CLIENTSIDEONLY 
+  States
+  {
+  Spawn:
+    BLUD CBA 3
+    stop
+  }
+}

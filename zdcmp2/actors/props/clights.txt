@@ -1,0 +1,57 @@
+
+ACTOR Greenlight : SwitchableDecoration 32003
+{
+    //$Category Light sources
+	//$Title Green alert light
+	radius 8
+	height 16
+	-SOLID
+	-SHOOTABLE
+	+SPAWNCEILING
+	+NOGRAVITY
+	+SYNCHRONIZED
+	states
+	{
+	Inactive:
+	Spawn:
+		GRLT A 6 Bright
+		GRLT BC 6
+		loop
+	Active:
+		RDLT A 6 Bright
+		RDLT BC 6
+		Loop
+	}
+}
+
+ACTOR yellowlight : GreenLight 32004
+{
+    //$Category Light sources
+	//$Title Yellow alert light
+	States
+	{
+	Inactive:
+	Active:
+	Spawn:
+		YELT A 6 Bright
+		YELT BC 6
+		loop
+	}
+}
+ACTOR Redlight : GreenLight 32005
+{
+    //$Category Light sources
+	//$Title Red alert light
+	States
+	{
+	Inactive:
+	Spawn:
+		RDLT A 6 Bright
+		RDLT BC 6
+		loop
+	Active:
+		GRLT A 6 Bright
+		GRLT BC 6
+		loop
+	}
+}

@@ -1,0 +1,88 @@
+actor JimmyGas
+{
+  States
+  {
+  Spawn:
+	TNT1 AAAAAAAA 0 A_SpawnItemEx("JimmyGasCloudRandom", random(-24,24), random(-24,24), random(0,16),
+																random(-3,3), random(-3,3), random(-1,1),
+												                0, 0, 48)
+	TNT1 A 0 A_GiveInventory("JimmyGasCheck",1)
+	TNT1 A 2 A_JumpIfInventory("JimmyGasCheck",240,1)
+	Loop
+	TNT1 A 0
+	Stop
+  }
+}
+
+actor JimmyGasCheck : Inventory { Inventory.MaxAmount 240 }
+
+actor JimmyGasCloud1
+{
+  PROJECTILE
+  +RIPPER
+  +BLOODLESSIMPACT
+  -NOGRAVITY
+  Translation "112:127=[0,255,0]:[0,20,0]"
+  Gravity 0.025
+  Scale 0.75
+  RenderStyle Add
+  Radius 3
+  Height 3
+  Damage (2)
+  States
+  {
+  Spawn:
+    PGAS ABCDABCDABCDABCDABCDABCD 4 Bright
+  Death:
+    PGAS AAAABBBBCCCCDDDD 1 A_FadeOut(0.0625)
+	Stop
+  }
+}
+
+actor JimmyGasCloud2 : JimmyGasCloud1
+{
+  Damage 0
+  States
+  {
+  Spawn:
+    PGAS ABCDABCDABCDABCDABCD 3 Bright
+  Death:
+    PGAS AAABBBCCCDDD 1 A_FadeOut(0.083)
+	Stop
+  }
+}
+
+actor JimmyGasCloud3 : JimmyGasCloud1
+{
+  Translation "176:191=[0,255,0]:[0,20,0]"
+  Damage 0
+  States
+  {
+  Spawn:
+    PGAS ABCDABCDABCDABCD 2 Bright
+  Death:
+    PGAS AABBCCDD 1 A_FadeOut(0.125)
+	Stop
+  }
+}
+
+actor JimmyGasCloud1Small : JimmyGasCloud1 { Scale 0.5 Damage 0 }
+actor JimmyGasCloud2Small : JimmyGasCloud2 { Scale 0.5 Damage 0 }
+actor JimmyGasCloud3Small : JimmyGasCloud3 { Scale 0.5 }
+
+actor JimmyGasCloud1Tiny : JimmyGasCloud1 { Scale 0.25 Damage 0 }
+actor JimmyGasCloud2Tiny : JimmyGasCloud2 { Scale 0.25 Damage 0 }
+actor JimmyGasCloud3Tiny : JimmyGasCloud3 { Scale 0.25 }
+
+actor JimmyGasCloudRandom : RandomSpawner
+{
+  DropItem JimmyGasCloud1 255 1
+  DropItem JimmyGasCloud2 255 1
+  DropItem JimmyGasCloud3 255 1
+  DropItem JimmyGasCloud1Small 255 1
+  DropItem JimmyGasCloud2Small 255 1
+  DropItem JimmyGasCloud3Small 255 1
+  DropItem JimmyGasCloud1Tiny 255 1
+  DropItem JimmyGasCloud2Tiny 255 1
+  DropItem JimmyGasCloud3Tiny 255 1
+}

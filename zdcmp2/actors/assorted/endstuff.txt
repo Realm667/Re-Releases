@@ -1,0 +1,109 @@
+ACTOR Helicopter : SwitchableDecoration //11206
+{
+	Game Doom
+	Radius 64
+	Height 96
+	Scale 1.5
+	States
+	{
+	Spawn:
+		HELI A 0
+	Active:
+		HELI A 0 A_PlaySound("misc/helicopter",CHAN_BODY,1.0,1)
+	Idle:
+		HELI AB 2
+		Loop
+	Inactive:
+		HELI A 0 A_StopSound(CHAN_BODY)
+		Goto Idle
+	}
+}
+ACTOR HelicopterSmall : Helicopter 11213 { Scale 0.85 }
+
+ACTOR YEAH
+{
+	Game Doom
+	Projectile
+	+FLOORHUGGER
+	+THRUACTORS
+	Speed 10
+	States
+	{
+	Spawn:
+		TNT1 A 7 Bright
+		YEAH ABCDABCDABCDABCDABCD 4 Bright
+		YEAH EFG 8 Bright
+		YEAH H 0 Bright A_PlaySound("misc/yeah")
+		YEAH H -1 Bright A_Stop
+		Stop
+	Death:
+		TNT1 A 1
+		Stop
+	}
+}
+ACTOR DEAD_YEAH : YEAH
+{
+	States
+	{
+	Spawn:
+		TNT1 A 7 Bright
+		YEAH ABCDABCDABCDABCDABCD 4 Bright
+		YEAH EF 8 Bright
+		YEAH G 8 Bright A_PlaySound("misc/yeah")
+		YEAH H 8 Bright A_Stop
+		YEAH H 0 Bright A_PlaySound("DSPDIEHI")
+		YEAH H 0 Bright A_PlaySound("gibbage/blood1", CHAN_AUTO)
+		YEAH H 0 Bright A_PlaySound("gibbage/blood2", CHAN_AUTO)
+		YEAH H 0 Bright A_SpawnItemEx("DEAD_HEAD",0,0,80,4,0,2,0,SXF_TRANSFERTRANSLATION)
+		YEAH H 0 Bright A_SpawnItemEx("DEAD_BODY",0,0,32,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		Stop
+	}
+}
+ACTOR DEAD_HEAD
+{
+	Game Doom
+	Projectile
+	+THRUACTORS
+	+DOOMBOUNCE
+	-NOGRAVITY
+	Speed 10
+	Gravity 0.25
+	States
+	{
+	Spawn:
+		YHED ABCD 4 Bright A_SpawnItemEx("NashGore_FlyingBlood")
+		Loop
+	Death:
+		YHED A -1 Bright
+		Stop
+	}
+}
+ACTOR DEAD_BODY
+{
+	Gravity 0.25
+	States
+	{
+	Spawn:
+		YDED AB 10 Bright
+		YDED CD 5 Bright
+		YDED E 5 Bright A_PlaySound("misc/bodyhit")
+		YDED F 5 Bright
+		YDED G -1 Bright
+		Stop
+	}
+}
+
+// [XA] I can't believe I actually have to make this actor... HACKHACKAHCKAHKCAHCKHAKHA
+ACTOR EarthquakeSoundActorHACX! : SwitchableDecoration 11210
+{
+	States
+	{
+	Spawn:
+	Inactive:
+		TNT1 A -1 A_StopSound(CHAN_VOICE)
+		Stop
+	Active:
+		TNT1 A -1 A_PlaySound("world/bigquake", CHAN_VOICE, 1.0, 1, ATTN_NONE)
+		Stop
+	}
+}

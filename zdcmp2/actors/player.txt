@@ -1,0 +1,26 @@
+ACTOR ZDoomPlayer : DoomPlayer {
+	Player.WeaponSlot 1, Fist, Chainsaw
+	Player.WeaponSlot 2, NewPistol, Rifle
+	Player.WeaponSlot 3, NewShotgun, NewSuperShotgun, AutoShotgun
+	Player.WeaponSlot 4, NewChaingun, Nailgun
+	Player.WeaponSlot 5, RocketLauncher, DoomFlameThrower
+	Player.WeaponSlot 6, PlasmaRifle, DarkClaw
+	Player.WeaponSlot 7, BFG9000, SoulRender
+	Player.StartItem "NewPistol"
+	Player.StartItem "Fist"
+	Player.StartItem "Clip", 50
+	Player.StartItem "ThrowGrenade"
+}
+
+// [XA] Random something-or-other for infinite ammo power.
+// It's a "player property" of sorts, so I'm putting it here.
+ACTOR InfiniteAmmo : PowerupGiver {
+	Powerup.Type "InfiniteAmmo"
+	Powerup.Duration 0x7FFFFFF
+	-INVENTORY.INVBAR
+	+INVENTORY.AUTOACTIVATE
+}
+
+// [XA] Armor units, for the VR scene.
+ACTOR GreenArmorUnit : GreenArmor {	Armor.SaveAmount 1 }
+ACTOR BlueArmorUnit  : BlueArmor  {	Armor.SaveAmount 1 }

@@ -1,0 +1,70 @@
+//===========================================================================
+//
+// Rocket Guy
+//
+// created by: The Innocent Crew
+//
+//===========================================================================
+
+ACTOR RocketGuy 3202
+{ 
+	//$Category Monsters
+   Health 50 
+   Radius 20 
+   Height 56 
+   Mass 100 
+   Speed 8 
+   PainChance 200 
+   MeleeDamage 1
+   Monster 
+   +FLOORCLIP 
+   SeeSound "grunt/sight" 
+   PainSound "grunt/pain" 
+   Deathsound "grunt/death" 
+   ActiveSound "grunt/active"
+   MeleeSound "Rocketeer/melee"
+   DropItem RocketAmmo
+   Obituary "%o was splattered by the zombie's rocket." 
+   HitObituary "%o was punched by a zombie."
+   States 
+   { 
+   Spawn: 
+      MPOS AB 10 A_Look 
+      Loop 
+   See: 
+      MPOS AABBCCDD 3 A_Chase 
+      Loop
+   Melee:
+      MPOS E 8 A_FaceTarget
+      MPOS G 8 A_MeleeAttack
+      MPOS E 8  
+      Goto See
+   Missile: 
+      MPOS EE 10 A_FaceTarget 
+      MPOS F 12 
+      MPOS F 5 Bright A_CyberAttack 
+      Goto See 
+   Pain: 
+      MPOS H 2 
+      MPOS H 2 A_Pain 
+      Goto See 
+   Death: 
+      MPOS I 5 
+      MPOS J 5 A_Scream 
+      MPOS K 5 
+      MPOS L 5 A_Fall 
+      MPOS M -1 
+      Stop 
+   XDeath: 
+      MPOS N 5 
+      MPOS O 5 A_XScream 
+      MPOS P 5 
+      MPOS Q 5 A_Fall 
+      MPOS RSTU 5 
+      MPOS V -1    
+      Stop 
+   Raise: 
+      MPOS MJKJI 5 
+      Goto See 
+   } 
+} 

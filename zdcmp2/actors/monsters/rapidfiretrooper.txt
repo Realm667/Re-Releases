@@ -1,0 +1,88 @@
+// Rapid-Fire Trooper -- by NMN & Vader
+
+ACTOR RapidFireTrooper 10562
+{
+	//$Category Monsters
+	Tag "Rapid-Fire Trooper"
+	Health 30
+	Radius 20
+	Height 56
+	Speed 8
+	PainChance 200
+	MONSTER 
+	+FLOORCLIP
+	DropItem Rifle // [XA] Added this, because why not? ;)
+	SeeSound "grunt/sight"
+	AttackSound "grunt/attack"
+	PainSound "grunt/pain"
+	DeathSound "grunt/death"
+	ActiveSound "grunt/active"
+	Obituary "%o was plugged by a rifle-toting zombie." 
+	Decal BulletChip
+	States 
+	{ 
+	Spawn: 
+		RFTR AB 10 A_Look 
+		Loop 
+	See: 
+		RFTR AABBCCDD 4 A_Chase
+		Loop 
+	Missile: 
+		RFTR E 10 A_FaceTarget 
+		RFTR F 5 Bright A_CustomBulletAttack(22.5, 0, 1, random(1, 5) * 3, "NewPuff", 0, CBAF_NORANDOM)
+		RFTR E 5 A_CPosRefire 
+		Goto Missile+1 
+	Pain: 
+		RFTR G 3 
+		RFTR G 3 A_Pain 
+		Goto See 
+	Death: 
+		RFTR H 5 
+		RFTR I 5 A_Scream 
+		RFTR J 5 A_Fall 
+		RFTR K 5 
+		RFTR L -1 
+		Stop
+	XDeath:
+		RFTR M 0 A_SpawnItemEx("NashGore_GibPieceGenerator9",0,0,0,0,0,0,0,128)
+		RFTR M 0 A_SpawnItemEx("NashGore_GibPieceGenerator10",0,0,0,0,0,0,0,128)
+		RFTR M 0 A_SpawnItemEx("NashGore_GibPieceGenerator11",0,0,0,0,0,0,0,128)
+		RFTR M 0 A_SpawnItemEx("NashGore_GibPieceGenerator11",0,0,0,0,0,0,0,128)
+		RFTR M 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		RFTR M 5
+		RFTR N 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		RFTR N 5 A_XScream
+		RFTR N 5
+		RFTR P 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		RFTR P 5 A_Fall
+		RFTR P 0 A_SpawnItemEx("NashGore_GibGenerator",0,0,0,0,0,0,0,128)
+		RFTR QRST 5
+		RFTR U -1
+		stop
+	// [Dusk] Use a more performance-friendly XDeath for kill monsters cheat
+	Death.Massacre:
+	XDeath.Massacre:
+		RFTR M 5
+		RFTR N 5 A_XScream
+		RFTR N 5
+		RFTR P 5 A_Fall
+		RFTR QRST 5
+		RFTR U -1
+		stop
+	Raise: 
+		RFTR KJ 5 
+		RFTR IH 5 
+		Goto See 
+	Burn:
+		BURN A 3 Bright A_PlaySound("misc/burn", CHAN_AUTO)
+		BURN B 3 Bright A_Scream
+		BURN C 3 Bright A_PlaySound("misc/flame", CHAN_AUTO)
+		BURN D 3 Bright A_NoBlocking
+		BURN EFGHIJKLMNOP 3 Bright 
+		BURN Q 3 Bright A_PlaySound("misc/bodyhit", CHAN_VOICE)
+		BURN RSTU 3 Bright 		
+		BURN V -1
+		Stop
+	} 
+}
+

@@ -1,0 +1,204 @@
+Actor Agaures 18989
+{
+//$Category Z2M3_Monsters
+  Obituary "%o fell before an agaures."
+  HitObituary "%o was cut open by an agaures."
+  Health 200
+  Radius 20
+  Height 56
+  Mass 500
+  Speed 8
+  PainChance 100
+  MeleeDamage 4
+  +DONTHURTSPECIES
+  SeeSound "agaures/sight"
+  PainSound "agaures/pain"
+  DeathSound "agaures/death"
+  ActiveSound "agaures/active"
+  MeleeSound "agaures/scratch"
+  MONSTER
+  +FLOORCLIP
+  States
+  {
+  Spawn:
+    AGUR AB 10 A_Look
+    loop
+  See:
+    AGUR AABBCCDD 3 A_Chase
+    loop
+  Melee:
+    AGUR W 8 A_FaceTarget
+    AGUR X 1 A_PlaySound("agaures/swing")
+    AGUR X 7 A_FaceTarget
+    AGUR Y 6 A_MeleeAttack
+    goto See
+  Missile:
+	AGUR A 0 A_Jump(100, "Missile2")
+	AGUR A 0 A_JumpIfCloser(256, "Missile3")
+    AGUR EF 8 A_FaceTarget
+    AGUR G 6 A_CustomMissile("AgauresBall", 37, 0, 0, 0, 0)
+    goto See
+  Missile2:
+    AGUR EF 8 A_FaceTarget
+	AGUR G 0 A_CustomMissile("SpeedyAgauresBall", 37, 0, -10, 0, 0)
+    AGUR G 6 A_CustomMissile("SpeedyAgauresBall", 37, 0, 10, 0, 0)
+	AGUR EF 8 A_FaceTarget
+    AGUR G 6 A_CustomMissile("AgauresBall", 37, 0, 0, 0, 0)
+	AGUR EF 8 A_FaceTarget
+	AGUR G 0 A_CustomMissile("SpeedyAgauresBall", 37, 0, -10, 0, 0)
+    AGUR G 6 A_CustomMissile("SpeedyAgauresBall",37,0,10,0,0)
+	AGUR EF 8 A_FaceTarget
+	AGUR G 0 A_CustomMissile("AgauresBall", 37, 0, -10, 0, 0)
+	AGUR G 0 A_CustomMissile("SpeedyAgauresBall", 37, 0, 0, 0, 0)
+    AGUR G 6 A_CustomMissile("AgauresBall", 37, 0, 10, 0, 0)
+	goto see
+  Missile3:
+    AGUR W 6 A_FaceTarget
+	AGUR W 6 A_FaceTarget
+    AGUR X 3 A_CustomMissile("DeathBreath", 45, 0, 0, 0, 0)
+	AGUR X 0 A_FaceTarget
+	AGUR X 3 A_CustomMissile("DeathBreath", 45, 0, 0, 0, 0)
+	AGUR X 0 A_FaceTarget
+	AGUR X 3 A_CustomMissile("DeathBreath", 45, 0, 0, 0, 0)
+	AGUR X 0 A_FaceTarget
+	AGUR X 3 A_CustomMissile("DeathBreath", 45, 0, 0, 0, 0)
+	AGUR X 0 A_FaceTarget
+	AGUR X 3 A_CustomMissile("DeathBreath", 45, 0, 0, 0, 0)
+	AGUR X 0 A_FaceTarget
+	AGUR X 3 A_CustomMissile("DeathBreath", 45, 0, 0, 0, 0)
+	AGUR X 0 A_FaceTarget
+	AGUR X 3 A_CustomMissile("DeathBreath", 45, 0, 0, 0, 0)
+	AGUR X 0 A_FaceTarget
+	AGUR X 3 A_CustomMissile("DeathBreath", 45, 0, 0, 0, 0)
+	AGUR X 0 A_FaceTarget
+	AGUR X 3 A_CustomMissile("DeathBreath", 45, 0, 0, 0, 0)
+    goto See
+  Pain:
+    AGUR H 2
+    AGUR H 2 A_Pain
+    goto See
+  Death:
+    AGUR I 8
+    AGUR J 8 A_Scream
+    AGUR KL 6
+    AGUR M 6 A_NoBlocking
+    AGUR N -1
+    stop
+  XDeath:
+    AGUR O 5
+    AGUR P 5 A_XScream
+    AGUR Q 5
+    AGUR R 5 A_NoBlocking
+    AGUR STU 5
+    AGUR V -1
+    stop
+  Raise:
+    AGUR ML 8
+    AGUR KJI 6
+    goto See
+  }
+}
+
+Actor GhostlyAgaures : Agaures 18990
+{
+//$Category Monsters
+   RenderStyle Add
+   Alpha 0.5
+   States
+   {
+  Missile3:
+   AGUR W 6 A_FaceTarget
+   AGUR W 6 A_FaceTarget
+   AGUR X 3 A_CustomMissile("GhostlyDeathBreath", 45, 0, 0, 0, 0)
+   AGUR X 0 A_FaceTarget
+   AGUR X 3 A_CustomMissile("GhostlyDeathBreath", 45, 0, 0, 0, 0)
+   AGUR X 0 A_FaceTarget
+   AGUR X 3 A_CustomMissile("GhostlyDeathBreath", 45, 0, 0, 0, 0)
+   AGUR X 0 A_FaceTarget
+   AGUR X 3 A_CustomMissile("GhostlyDeathBreath", 45, 0, 0, 0, 0)
+   AGUR X 0 A_FaceTarget
+   AGUR X 3 A_CustomMissile("GhostlyDeathBreath", 45, 0, 0, 0, 0)
+   AGUR X 0 A_FaceTarget
+   AGUR X 3 A_CustomMissile("GhostlyDeathBreath", 45, 0, 0, 0, 0)
+   AGUR X 0 A_FaceTarget
+   AGUR X 3 A_CustomMissile("GhostlyDeathBreath", 45, 0, 0, 0, 0)
+   AGUR X 0 A_FaceTarget
+   AGUR X 3 A_CustomMissile("GhostlyDeathBreath", 45, 0, 0, 0, 0)
+   AGUR X 0 A_FaceTarget
+   AGUR X 3 A_CustomMissile("GhostlyDeathBreath", 45, 0, 0, 0, 0)
+   goto See
+   }
+}
+
+Actor AgauresBall
+{
+   Radius 8
+   Height 16
+   Speed 10
+   Damage 5
+   RenderStyle Add
+   Alpha 0.67
+   PROJECTILE
+   +THRUGHOST
+   SeeSound "imp/attack"
+   DeathSound "imp/shotx"
+   States
+   {
+   Spawn:
+      BLVB AAABBB 1 Bright A_SpawnItemEx("AgauresBallTrail", 0, 0, 0, 0, 0, 0, 0, 128, 0)
+      loop
+   Death:
+      BLVB CDEF 4 Bright
+      stop
+   }
+}
+
+Actor SpeedyAgauresBall : AgauresBall
+{
+   Speed 15
+}
+
+Actor AgauresBallTrail
+{   
+   Radius 0
+   Height 1
+   PROJECTILE
+   RenderStyle Add
+   Alpha 0.75
+   States
+   {
+   Spawn:
+      NULL A 1 Bright
+      BLTR ABCDEFG 2 Bright
+      Stop 
+   }
+}
+
+Actor DeathBreath 
+{ 
+    Radius 24 
+    Height 6 
+    Speed 7 
+    Damage 1 
+	Scale 0.3
+    +STRIFEDAMAGE 
+    +RIPPER 
+    PROJECTILE 
+    RenderStyle Translucent 
+    Alpha 0.67 
+    States 
+    { 
+    Spawn: 
+        AGAS ABCDEFGDEFGDEFGDEFGDEFGDCBA 4 
+        Stop 
+    Death: 
+        AGAS DCBA 4 
+        Stop 
+    } 
+}
+
+Actor GhostlyDeathBreath : DeathBreath
+{
+	RenderStyle Add 
+    Alpha 0.5 
+}

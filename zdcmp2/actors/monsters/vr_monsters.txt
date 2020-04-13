@@ -1,0 +1,395 @@
+// Simulation monsters
+actor VR_DoomImpGreen : DoomImp
+{
+  //$Category Monsters
+  RenderStyle Add
+  Alpha 1.0
+  +BRIGHT
+  +DROPOFF // Needed to thrust the actor off the pillar thingo
+  +LOOKALLAROUND // To see the player properly
+  obituary "$OB_SIMUIMP"
+  hitobituary "$OB_SIMUIMP"
+  bloodtype "VR_Blood"
+  states
+  {
+  Spawn:
+    VROO AB 10 A_Look
+    loop
+  See:
+    VROO AABBCCDD 3 A_Chase
+    loop
+  Melee:
+  Missile:
+    VROO EF 8 A_FaceTarget
+    VROO G 6 A_BasicAttack (5, "imp/melee", "VR_DoomImpBallGreen", 24)
+    goto See
+  Pain:
+    VROO H 2
+    VROO H 2 A_Pain
+    goto See
+  Death:
+    VROO I 8
+    VROO J 8 A_Scream
+    VROO K 6
+    VROO L 6 A_NoBlocking
+    VROO M 6
+	VROO M -1 A_Jump(256, "Dissipate")
+    stop
+  XDeath:
+    VROO N 5
+    VROO O 5 A_XScream
+    VROO P 5
+    VROO Q 5 A_NoBlocking
+    VROO RSTU 5
+    VROO U -1 A_Jump(256, "Dissipate")
+    stop
+  Dissipate:
+	VROO M -1 A_Burst("streak_green")
+	Stop
+  }
+}
+
+actor VR_DoomImpBallGreen : DoomImpBall
+{
+  RenderStyle Add
+  Alpha 1.0
+  States
+  {
+  Spawn:
+    VRL1 AB 4 bright
+    loop
+  Death:
+    VRL1 CDE 6 bright
+    stop
+  }
+}
+
+// [Dusk] Yellow imp, greater strength
+actor VR_DoomImpYellow : VR_DoomImpGreen {
+	translation "112:127=160:166", "0:0=167:167", "5:8=167:167"
+	health 90
+	mass 150
+	speed 8
+	hitobituary "$OB_SIMUDEMON"
+	states {
+	Melee:
+	Missile:
+		VROO EF 8 A_FaceTarget
+		VROO G 6 A_BasicAttack (5, "imp/melee", "VR_DoomImpBallYellow", 24)
+		goto See
+	Dissipate:
+		VROO M -1 A_Burst("streak_yellow")
+		Stop
+	}
+}
+
+actor VR_DoomImpBallYellow : VR_DoomImpBallGreen {
+	translation "112:127=160:166", "0:0=167:167", "5:8=167:167"
+	damage 5
+	speed 12
+}
+
+// [Dusk] Red imp, greatest strength
+actor VR_DoomImpRed : VR_DoomImpGreen {
+	translation "112:127=176:191"
+	health 160
+	mass 250
+	speed 10
+	states {
+	Melee:
+	Missile:
+		VROO EF 8 A_FaceTarget
+		VROO G 6 A_BasicAttack (5, "imp/melee", "VR_DoomImpBallRed", 24)
+		goto See
+	Dissipate:
+		VROO M -1 A_Burst("streak_red")
+		Stop
+	}
+}
+
+actor VR_DoomImpBallRed : VR_DoomImpBallGreen {
+	translation "112:127=176:191"
+	damage 8
+	speed 16
+}
+
+// ============================================================================
+ACTOR VR_DemonGreen : Demon
+{
+  //$Category Monsters
+  RenderStyle Add
+  Alpha 1.0
+  +BRIGHT
+  +DROPOFF
+  +LOOKALLAROUND
+  obituary "$OB_SIMUDEMON"
+  hitobituary "$OB_SIMUDEMON"
+  bloodtype "VR_Blood"
+  States
+  {
+  Spawn:
+    VRRG AB 10 A_Look
+    Loop
+  See:
+    VRRG AABBCCDD 2 A_Chase
+    Loop
+  Melee:
+    VRRG EF 8 A_FaceTarget
+    VRRG G 8 A_SARGAttack
+    Goto See
+  Pain:
+    VRRG H 2
+    VRRG H 2 A_Pain
+    Goto See
+  Death:
+    VRRG I 8
+    VRRG J 8 A_Scream
+    VRRG K 4
+    VRRG L 4 A_NoBlocking
+    VRRG MN 4
+    VRRG N -1 A_Jump(256, "Dissipate")
+    Stop
+  Dissipate:
+	VRRG N -1 A_Burst("streak_green")
+	Stop
+  }
+}
+
+// [Dusk] Yellow pinky (that's not really pink though o.O)
+actor VR_DemonYellow : VR_DemonGreen {
+	health 220
+	speed 12
+	translation "112:127=160:166", "0:0=167:167", "5:8=167:167"
+	states {
+	Melee:
+		VRRG EF 8 A_FaceTarget
+		VRRG G 8 A_CustomMeleeAttack (7)
+		Goto See
+	Dissipate:
+		VRRG N -1 A_Burst("streak_yellow")
+		Stop
+	}
+}
+
+// [Dusk] Reddie?
+actor VR_DemonRed : VR_DemonGreen {
+	health 280
+	speed 15
+	translation "112:127=176:191"
+	states {
+	Melee:
+		VRRG EF 8 A_FaceTarget
+		VRRG G 8 A_CustomMeleeAttack (10)
+		Goto See
+	Dissipate:
+		VRRG N -1 A_Burst("streak_red")
+		Stop
+	}
+}
+
+actor VR_CacodemonGreen : Cacodemon
+{
+  //$Category Monsters
+  RenderStyle Add
+  Alpha 1.0
+  +BRIGHT
+  +DROPOFF
+  +LOOKALLAROUND
+  obituary "$OB_SIMUCACO"
+  hitobituary "$OB_SIMUCACO"
+  bloodtype "VR_Blood"
+  states
+  {
+  Spawn:
+    VRAD A 10 A_Look
+    loop
+  See:
+    VRAD A 3 A_Chase
+    loop
+  Missile:
+    VRAD BC 5 A_FaceTarget
+    VRAD D 5 bright A_BasicAttack (5, "caco/melee", "VR_CacodemonBallGreen", 24)
+    goto See
+  Pain:
+    VRAD E 3
+    VRAD E 3 A_Pain
+    VRAD F 6
+    goto See
+  Death:
+    VRAD G 8
+    VRAD H 8 A_Scream
+    VRAD IJ 8
+    VRAD K 8 A_NoBlocking
+    VRAD L 8 A_SetFloorClip
+	VRAD L -1 A_Jump(256, "Dissipate")
+    stop
+	Dissipate:
+		VRAD L -1 A_Burst("streak_green")
+		Stop
+  }
+}
+
+// [Dusk] Yellow cacodemon
+actor VR_CacodemonYellow : VR_CacodemonGreen {
+	health 500
+	speed 9
+	translation "112:127=160:166", "0:0=167:167", "5:8=167:167"
+	states {
+	Missile:
+		VRAD BC 5 A_FaceTarget
+		VRAD D 5 bright A_BasicAttack (8, "caco/melee", "VR_CacodemonBallYellow", 24)
+		goto See
+	Dissipate:
+		VRAD L -1 A_Burst("streak_yellow")
+		Stop
+	}
+}
+
+// [Dusk] Red cacodemon
+actor VR_CacodemonRed : VR_CacodemonGreen {
+	health 600
+	speed 10
+	translation "112:127=176:191"
+	states {
+	Missile:
+		VRAD BC 5 A_FaceTarget
+		VRAD D 5 bright A_BasicAttack (10, "caco/melee", "VR_CacodemonBallRed", 24)
+		goto See
+	Dissipate:
+		VRAD L -1 A_Burst("streak_red")
+		Stop
+	}
+}
+
+actor VR_CacodemonBallGreen : CacodemonBall
+{
+  RenderStyle Add
+  Alpha 1.0
+  States
+  {
+  Spawn:
+    VRL2 AB 4 bright
+    loop
+  Death:
+    VRL2 CDE 6 bright
+    stop
+  }
+}
+
+actor VR_CacodemonBallYellow : VR_CacodemonBallGreen {
+	damage 7
+	speed 13
+	fastspeed 26
+	translation "112:127=160:166", "0:0=167:167", "5:8=167:167"
+}
+
+actor VR_CacodemonBallRed : VR_CacodemonBallGreen {
+	damage 10
+	speed 16
+	fastspeed 32
+	translation "112:127=176:191"
+}
+
+// [XA] Virtual Blood. Setting them as +NOBLOOD is no funsies. Also breaks the nailgun ripping. :P
+
+ACTOR VR_Blood : Blood
+{
+  Game Doom
+  States
+  {
+  Spawn:
+    VLUD C 8
+    VLUD B 8 A_SpawnItemEx("VR_FlyingBlood", 0, 0, 8, random(-4, 4), random(-4, 4), random(2, 5), 0, 143, 176) // [Nash] it used to use A_SpawnItem, but we're getting rid of that crap
+    VLUD AAA 8
+    VLUD AAAAAAAAAA 1 A_FadeOut(0.1)
+    Stop
+  }
+}
+
+ACTOR VR_FlyingBlood
+{
+  Game Doom
+  Scale 0.75
+  Health 1
+  Radius 8
+  Height 1
+  Mass 200
+  Gravity 0.5
+  +CORPSE
+  +NOTELEPORT
+  +NOBLOCKMAP
+  -SOLID
+  States
+  {
+  Spawn:
+    TNT1 A 0
+    VBLD A 1 A_SpawnItem("VR_FlyingBloodTrail", 0, 0, 0, 1)
+    VBLD A 1
+    VBLD A 1 A_SpawnItem("VR_FlyingBloodTrail", 0, 0, 0, 1)
+    VBLD A 1
+    VBLD B 1 A_SpawnItem("VR_FlyingBloodTrail", 0, 0, 0, 1)
+    VBLD B 1
+    VBLD B 1 A_SpawnItem("VR_FlyingBloodTrail", 0, 0, 0, 1)
+    VBLD B 1
+    VBLD C 1 A_SpawnItem("VR_FlyingBloodTrail", 0, 0, 0, 1)
+    VBLD C 1
+    VBLD C 1 A_SpawnItem("VR_FlyingBloodTrail", 0, 0, 0, 1)
+    VBLD C 1
+    VBLD D 1 A_SpawnItem("VR_FlyingBloodTrail", 0, 0, 0, 1)
+    VBLD D 1
+    VBLD D 1 A_SpawnItem("VR_FlyingBloodTrail", 0, 0, 0, 1)
+    VBLD D 1
+    Loop
+  Crash:
+    TNT1 A 1 A_SpawnItem("VR_BloodSpot", 0, 0, 0, 1)
+    Stop
+  }
+}
+
+ACTOR VR_BloodSpot
+{
+  Game Doom
+  Radius 12
+  Height 2
+  Mass 200
+  +NOTELEPORT
+  -NOBLOCKMAP
+  States
+  {
+  Spawn:
+    TNT1 A 0
+    TNT1 A 0 A_PlaySound("bloodsplat")
+    TNT1 A 0 A_Jump(64, 4)
+    TNT1 A 0 A_Jump(128, 54)
+    TNT1 A 0 A_Jump(192, 104)
+    TNT1 A 0 A_Jump(255, 154)
+    VSPT A 1500
+    VSPT AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 A_FadeOut(0.02)
+    Stop
+    VSPT B 1500
+    VSPT BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB 1 A_FadeOut(0.02)
+    Stop
+    VSPT C 1500
+    VSPT CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC 1 A_FadeOut(0.02)
+    Stop
+    VSPT D 1500
+    VSPT DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD 1 A_FadeOut(0.02)
+    Stop
+  }
+}
+
+ACTOR VR_FlyingBloodTrail
+{
+  Game Doom
+  Scale 0.70
+  Mass 1
+  +LOWGRAVITY
+  +NOTELEPORT
+  +NOBLOCKMAP
+  States
+  {
+  Spawn:
+    VTRL ABCD 4
+    Stop
+  }
+}

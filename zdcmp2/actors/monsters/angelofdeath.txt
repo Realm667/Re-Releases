@@ -1,0 +1,129 @@
+// Angel of Death -- Melvinflynt (w/some Xaser Decorate edits)
+
+ACTOR AngelOfDeath 10567
+{
+	//$Category Monsters
+	Tag "Angel of Death"
+	// [Dusk] Touched up the obit to not be as cliche... (also uses "an"
+	// because there's multiple AoDs in ZDCMP2)
+	// [XA] I changed it again just to be a barg. :P
+	// Obituary "%o was obliterated by the Angel of Death."
+	// Obituary "%o was outgunned by an Angel of Death."
+	Obituary "%o was raptured by an Angel of Death."
+	Health 2000
+	Radius 30
+	Height 80
+	MeleeDamage 3 
+	Mass 1000
+	Speed 7
+	Painchance 50
+	SeeSound "angel/sight"
+	Painsound "angel/pain"
+	Deathsound "angel/death"
+	Activesound "angel/active"
+	MONSTER
+	+FLOORCLIP
+	+BOSS
+	States
+	{
+	Spawn:
+		LMDA AB 10 A_Look
+		loop
+	See:
+		LMDA AABBCCDD 3 A_Chase
+		loop
+	Missile:
+		LMDA A 0 A_Jump (128,"Chaingun")
+		LMDA I 8 A_FaceTarget
+		LMDA J 3 bright A_CustomMissile ("PipeBomb", 62, 0)
+		LMDA H 8 
+		LMDA I 4 A_FaceTarget
+		LMDA J 3 bright A_CustomMissile ("PipeBomb", 62, 0)
+		LMDA H 8
+		LMDA H 0 A_Jump (127,1)
+		Goto See
+		LMDA I 6 A_FaceTarget
+		LMDA J 3 bright A_CustomMissile ("PipeBomb", 62, 0)
+		LMDA H 8
+		Goto See
+	Chaingun:
+		LMDA E 10 A_FaceTarget
+		LMDA F 3 bright A_CustomMissile ("BulletPierce", 62, 18, 0, 0)
+		LMDA G 3 bright A_CustomMissile ("BulletPierce", 62, -18, 0, 0)
+		LMDA F 3 bright A_CustomMissile ("BulletPierce", 62, 18, 0, 0)
+		LMDA G 3 bright A_CustomMissile ("BulletPierce", 62, -18, 0, 0)
+		LMDA G 0 A_CPosRefire
+		goto Chaingun+1
+	Pain:
+		LMDA H 2
+		LMDA H 2 A_Pain
+		Goto See
+	Death:
+		LMDA J 4 A_Scream
+		LMDA KLMNOPQRSTU 6 A_NoBlocking
+		LMDA V -1
+		Stop
+	}
+}
+
+ACTOR PipeBomb
+{
+	Radius 6
+	Height 4
+	Speed 27
+	Damage 1
+	Seesound "pipebomb/fire"
+	Deathsound "pipebomb/explode"
+	Projectile
+	States
+	{
+	Spawn:
+		LMPI A 3 bright
+		LMPI B 3 bright A_PlaySound("pipe/whoosh")
+		LMPI C 3 bright
+		LMPI D 3 bright A_PlaySound("pipe/whoosh")
+		LMPI E 3 bright
+		loop
+	Death:
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0,  0,SXF_TRANSFERPOINTERS)
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0, 30,SXF_TRANSFERPOINTERS)
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0, 60,SXF_TRANSFERPOINTERS)
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0, 90,SXF_TRANSFERPOINTERS)
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0,120,SXF_TRANSFERPOINTERS)
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0,150,SXF_TRANSFERPOINTERS)
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0,180,SXF_TRANSFERPOINTERS)
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0,210,SXF_TRANSFERPOINTERS)
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0,240,SXF_TRANSFERPOINTERS)
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0,270,SXF_TRANSFERPOINTERS)
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0,300,SXF_TRANSFERPOINTERS)
+		FBXP A 0 A_SpawnItemEx("BulletPierce",0,0,0,35,0,0,330,SXF_TRANSFERPOINTERS)
+		FBXP ABC 5 bright
+		stop
+	}
+}
+
+ACTOR BulletPierce
+{
+	radius 3
+	height 4
+	speed 35
+	damage 1
+	seesound "angeltracer/fire"
+	bouncesound "angeltracer/explode"
+	deathsound "angeltracer/explode"
+	PROJECTILE
+	+RIPPER
+	Decal "BulletChip"
+	BounceType "Hexen"
+	BounceCount 2
+	BounceFactor 1.0
+	states
+	{
+	Spawn:
+		LMPB A 35 bright
+		Loop
+	Death:
+		TNT1 A 1 bright
+		Stop
+	}
+}

@@ -1,0 +1,64 @@
+//=========================================================================== 
+// 
+// Mauler Demon 
+//   - idea from Nimrod 
+//   - sprites by Eriance
+// 
+//=========================================================================== 
+
+ACTOR MaulerDemon 3123
+{              
+	//$Category Monsters
+   Health 150 
+   PainChance 180 
+   Speed 10 
+   Radius 30 
+   Height 56 
+   Mass 400 
+   Damage 2 //Horns = pain. I say no more 
+   Monster 
+   +FLOORCLIP 
+   SeeSound "demon/sight" 
+   AttackSound "demon/melee" 
+   PainSound "demon/pain" 
+   DeathSound "demon/death" 
+   ActiveSound "demon/active" 
+   Obituary "%o was gored by a Mauler Demon."
+   HitObituary "%o was mauled by a Mauler Demon"
+   States 
+   { 
+   Spawn: 
+      MAUD AB 10 A_Look 
+      Loop 
+   See: 
+      MAUD AABBCCDD 2 A_Chase 
+      Loop 
+   Melee: 
+      MAUD EF 8 A_FaceTarget 
+      MAUD G 8 A_SargAttack 
+      Goto See 
+   Missile: 
+      MAUD E 0 A_Jumpifcloser(224, 2)
+      Goto See
+      MAUD E 4 A_FaceTarget 
+      MAUD F 10 A_SkullAttack 
+      MAUD G 5 A_Gravity
+      Goto See 
+   Pain: 
+      MAUD H 2 
+      MAUD H 2 A_Pain 
+      Goto See 
+   Death: 
+      MAUD I 8 
+      MAUD J 8 A_Scream 
+      MAUD K 4 
+      MAUD L 4 A_Fall 
+      MAUD M 4 
+      MAUD N -1 
+      Stop 
+   Raise: 
+      MAUD N 5 
+      MAUD MLKJI 5 
+      Goto See 
+   } 
+} 

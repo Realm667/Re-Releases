@@ -1,0 +1,29 @@
+CLOUD
+-----
+The first argument sets the radius of the circle the clouds spawn in.
+If ARGS[0] is left as 0, the spawner defaults to a 96 radius circle.
+
+SPARKS
+------
+
+Use the first three arguments to control the frenquency and direction the particles are 
+spawned.
+
+First argument controls the direction. 0 is up, 1 is down, 2 is forward. Down-facing
+spawners should be placed 8 map units below the ceiling.
+
+The second argument controls the frequency of the spawner. Values are divided by 16,
+so you can't get a spawner that spawns every time. This argument is only used if the
+third argument is 0.
+
+The third argument prevents it from activating spontaneously, and can only be activated
+by the ACS function Thing_Activate. 0 will let it spawn automatically (using the second
+argument for frequency), and 1 makes it ACS-only.
+
+
+RATS
+----
+Place the rat spawner in your map, and use values set on the specials tab to modify it.
+
+The first argument sets the number of rats to spawn. This ranges from 1 to 5.
+The second argument sets the radius to spawn rats from the centre of the spawner.

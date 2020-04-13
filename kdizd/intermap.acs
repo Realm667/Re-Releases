@@ -1,0 +1,231 @@
+#include "zcommon.acs"
+#library "INTERMAP"
+
+#define i_kills 0
+#define i_monsters 1
+#define i_pickups 2
+#define i_items 3
+#define i_found 4
+#define i_secrets 5
+#define i_time 6
+#define i_par 7
+
+#define s_hgain 0
+#define s_hlost 1
+#define s_again 2
+#define s_alost 3
+#define s_bgain 4
+#define s_blost 5
+#define s_sgain 6
+#define s_slost 7
+#define s_rgain 8
+#define s_rlost 9
+#define s_cgain 10
+#define s_clost 11
+#define s_deaths 12
+#define s_exists 13
+
+global int 1:g_ms[];
+global int 2:g_ps[];
+global int 3:secretmap;
+global int 4:globalinit;
+global int 5:locations;
+
+int pasthealth[8];
+int pastarmor[8];
+int pastbullets[8];
+int pastshells[8];
+int pastrockets[8];
+int pastcells[8];
+int playerstat[8][14];
+int playerreporting[8];
+int mapstat[8];
+
+script 800 ENTER {
+	pasthealth[playernumber()] = CheckInventory("Health");	
+	pastarmor[playernumber()] = CheckInventory("Armor");	
+	pastbullets[playernumber()] = CheckInventory("Clip");	
+	pastshells[playernumber()] = CheckInventory("Shell");	
+	pastrockets[playernumber()] = CheckInventory("RocketAmmo");	
+	pastcells[playernumber()] = CheckInventory("RifleAmmo");
+	playerstat[playernumber()][s_exists] = 1;
+	playerreporting[playernumber()] = 1;
+	delay(1);
+	ACS_ExecuteAlways(801, 0, 0, 0, 0);
+}
+
+script 801 (void) {
+	if (playerreporting[playernumber()] >= 1) {
+		int currenthealth = CheckInventory("Health");
+		int currentarmor = CheckInventory("Armor");
+		int currentbullets = CheckInventory("Clip");
+		int currentshells = CheckInventory("Shell");
+		int currentrockets = CheckInventory("RocketAmmo");
+		int currentcells = CheckInventory("RifleAmmo");
+
+		if (pasthealth[playernumber()] > currenthealth) {
+			playerstat[playernumber()][s_hlost] += pasthealth[playernumber()] - currenthealth;
+		} else if (pasthealth[playernumber()] < currenthealth) {
+			playerstat[playernumber()][s_hgain] += currenthealth - pasthealth[playernumber()];
+		}
+
+		if (pastarmor[playernumber()] > currentarmor) {
+			playerstat[playernumber()][s_alost] += pastarmor[playernumber()] - currentarmor;
+		} else if (pastarmor[playernumber()] < currentarmor) {
+			playerstat[playernumber()][s_again] += currentarmor - pastarmor[playernumber()];
+		}
+
+		if (pastbullets[playernumber()] > currentbullets) {
+			playerstat[playernumber()][s_blost] += pastbullets[playernumber()] - currentbullets;
+		} else if (pastbullets[playernumber()] < currentbullets) {
+			playerstat[playernumber()][s_bgain] += currentbullets - pastbullets[playernumber()];
+		}
+
+		if (pastshells[playernumber()] > currentshells) {
+			playerstat[playernumber()][s_slost] += pastshells[playernumber()] - currentshells;
+		} else if (pastshells[playernumber()] < currentshells) {
+			playerstat[playernumber()][s_sgain] += currentshells - pastshells[playernumber()];
+		}
+
+		if (pastrockets[playernumber()] > currentrockets) {
+			playerstat[playernumber()][s_rlost] += pastrockets[playernumber()] - currentrockets;
+		} else if (pastrockets[playernumber()] < currentrockets) {
+			playerstat[playernumber()][s_rgain] += currentrockets - pastrockets[playernumber()];
+		}
+
+		if (pastcells[playernumber()] > currentcells) {
+			playerstat[playernumber()][s_clost] += pastcells[playernumber()] - currentcells;
+		} else if (pastcells[playernumber()] < currentcells) {
+			playerstat[playernumber()][s_cgain] += currentcells - pastcells[playernumber()];
+		}
+
+		pasthealth[playernumber()] = CheckInventory("Health");	
+		pastarmor[playernumber()] = CheckInventory("Armor");	
+		pastbullets[playernumber()] = CheckInventory("Clip");	
+		pastshells[playernumber()] = CheckInventory("Shell");	
+		pastrockets[playernumber()] = CheckInventory("RocketAmmo");	
+		pastcells[playernumber()] = CheckInventory("RifleAmmo");
+	}
+	delay(1);
+	restart;	
+}
+
+// use this script to exit the map
+script 803 UNLOADING {
+	mapstat[i_kills] = GetLevelInfo(LEVELINFO_KILLED_MONSTERS);
+	mapstat[i_monsters] = GetLevelInfo(LEVELINFO_TOTAL_MONSTERS);
+	mapstat[i_pickups] = GetLevelInfo(LEVELINFO_FOUND_ITEMS);
+	mapstat[i_items] = GetLevelInfo(LEVELINFO_TOTAL_ITEMS);
+	mapstat[i_found] = GetLevelInfo(LEVELINFO_FOUND_SECRETS);
+	mapstat[i_secrets] = GetLevelInfo(LEVELINFO_TOTAL_SECRETS);
+	mapstat[i_time] = timer() / 35;
+	mapstat[i_par] = GetLevelInfo(LEVELINFO_PAR_TIME);
+
+	// group map stats into single global
+	for (int s2=0; s2 < 8; s2++) {
+		g_ms[(GetLevelInfo(LEVELINFO_LEVELNUM)-1)*8 + s2] = mapstat[s2];
+	}
+	
+	// group player stats into single global
+	for (int p=0; p < 10; p++) {
+		for (int s=0; s < 14; s++) {
+			g_ps[(p*(10*14)) + ((GetLevelInfo(LEVELINFO_LEVELNUM)-1)*14) + s] = playerstat[p][s];
+		}
+	}
+}
+
+script 804 DEATH {
+	playerreporting[playernumber()] = 0;
+
+	playerstat[playernumber()][s_deaths]++;
+
+	int currenthealth = CheckInventory("Health");
+	int currentarmor = CheckInventory("Armor");
+	int currentbullets = CheckInventory("Clip");
+	int currentshells = CheckInventory("Shell");
+	int currentrockets = CheckInventory("RocketAmmo");
+	int currentcells = CheckInventory("RifleAmmo");
+
+	if (pasthealth[playernumber()] > currenthealth) {
+		playerstat[playernumber()][s_hlost] += pasthealth[playernumber()] - currenthealth;   
+	} else if (pasthealth[playernumber()] < currenthealth) {
+		playerstat[playernumber()][s_hgain] += currenthealth - pasthealth[playernumber()];
+	}
+
+	if (pastarmor[playernumber()] > currentarmor) {
+		playerstat[playernumber()][s_alost] += pastarmor[playernumber()] - currentarmor;
+	} else if (pastarmor[playernumber()] < currentarmor) {
+		playerstat[playernumber()][s_again] += currentarmor - pastarmor[playernumber()];
+	}
+
+	if (pastbullets[playernumber()] > currentbullets) {
+		playerstat[playernumber()][s_blost] += pastbullets[playernumber()] - currentbullets;
+	} else if (pastbullets[playernumber()] < currentbullets) {
+		playerstat[playernumber()][s_bgain] += currentbullets - pastbullets[playernumber()];
+	}
+
+	if (pastshells[playernumber()] > currentshells) {
+		playerstat[playernumber()][s_slost] += pastshells[playernumber()] - currentshells;
+	} else if (pastshells[playernumber()] < currentshells) {
+		playerstat[playernumber()][s_sgain] += currentshells - pastshells[playernumber()];
+	}
+
+	if (pastrockets[playernumber()] > currentrockets) {
+		playerstat[playernumber()][s_rlost] += pastrockets[playernumber()] - currentrockets;
+	} else if (pastrockets[playernumber()] < currentrockets) {
+		playerstat[playernumber()][s_rgain] += currentrockets - pastrockets[playernumber()];
+	}
+
+	if (pastcells[playernumber()] > currentcells) {
+		playerstat[playernumber()][s_clost] += pastcells[playernumber()] - currentcells;
+	} else if (pastcells[playernumber()] < currentcells) {
+		playerstat[playernumber()][s_cgain] += currentcells - pastcells[playernumber()];
+	}
+}
+
+script 805 RESPAWN {
+	pasthealth[playernumber()] = CheckInventory("Health");	
+	pastarmor[playernumber()] = CheckInventory("Armor");	
+	pastbullets[playernumber()] = CheckInventory("Clip");	
+	pastshells[playernumber()] = CheckInventory("Shell");	
+	pastrockets[playernumber()] = CheckInventory("RocketAmmo");	
+	pastcells[playernumber()] = CheckInventory("RifleAmmo");
+	playerreporting[playernumber()] = 1;
+}
+
+script 806 OPEN {
+	// initialize the globals (necessary for map skipping: secret map)
+	if (!globalinit) {
+		for (int a1=0; a1 < 8; a1++) {
+			for (int a2=0; a2 < 10; a2++) {
+				g_ms[a1*8 + a2] = 0;
+			}
+		}
+		
+		for (int p=0; p < 8; p++) {
+			for (int m=0; m < 10; m++) {
+				for (int s=0; s < 14; s++) {
+					g_ps[(p*(10*14)) + (m*14) + s] = 0;
+				}
+			}
+		}
+	}
+	globalinit = 1;
+
+	// turn on locators if active
+	if (locations == 1) {	
+		SpawnSpot("locator", 31000, 31001);
+	}
+}
+
+script 807 (void) net {
+	if (locations == 1) {	
+		Thing_Remove(31001);
+		locations = 2;
+		hudmessagebold(s:"Action indicators: OFF"; 1, 0, -1, 0.5, 0.5, 0.5, 0.5);
+	} else {
+		SpawnSpot("locator", 31000, 31001);
+		locations = 1;
+		hudmessagebold(s:"Action indicators: ON"; 1, 0, -1, 0.5, 0.5, 0.5, 0.5);
+	}
+}

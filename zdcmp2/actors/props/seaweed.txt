@@ -1,0 +1,39 @@
+ACTOR SeaWeed 12450
+{
+//$Category Vegetation
+  States
+  {
+  Spawn:
+    CWED AB 12
+    Loop
+  }
+}
+
+//This actor does not ripple correctly in OpenGl mode. Only recommended for software mode.
+//This is because doubling the size of the sprite, then halfing its scale using Decorate
+//produces a more subtle warping animation. This has no effect in OpenGl mode.
+
+ACTOR SeaWeedRipple1 12451
+{
+//$Category Vegetation
+  Scale 0.5
+  States
+  {
+  Spawn:
+    CRIP A -1
+    Stop
+  }
+}
+
+//This actor does not display correctly in software mode at all (bug?), so has been commented out.
+
+//ACTOR SeaWeedRipple2 12452
+//{
+//  Scale 0.25
+//  States
+//  {
+//  Spawn:
+//    CRIP B -1
+//    Stop
+//  }
+//}

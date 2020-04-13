@@ -1,0 +1,130 @@
+//===========================================================================
+//
+// Rotating Keycards 
+// Graphics and Coding by Nmn
+//
+//===========================================================================
+
+
+ACTOR KDiZDRedKey : RedCard replaces RedCard
+{ 
+States
+{
+Spawn:
+RKEY ABCDEFGHIJKL 2 Bright
+Loop
+}
+}
+
+ACTOR KDiZDBlueKey : BlueCard replaces BlueCard
+{ 
+States
+{
+Spawn:
+BKEY ABCDEFGHIJKL 2 Bright
+Loop
+}
+}
+
+ACTOR KDiZDYellowKey : YellowCard replaces YellowCard
+{ 
+States
+{
+Spawn:
+YKEY ABCDEFGHIJKL 2 Bright
+Loop
+}
+}
+
+ACTOR KDiZDSilverKey : BlueSkull replaces BlueSkull
+{
+Inventory.PickupMessage "Picked up a silver keycard" 
+States
+{
+Spawn:
+BSKU ABCDEFGHIJKL 2 Bright
+Loop
+}
+}
+
+ACTOR KDiZDGreenKey : YellowSkull replaces YellowSkull
+{ 
+Inventory.PickupMessage "Picked up a green keycard" 
+States
+{
+Spawn:
+YSKU ABCDEFGHIJKL 2 Bright
+Loop
+}
+}
+
+ACTOR KDiZDOrangeKey : RedSkull replaces RedSkull
+{ 
+Inventory.PickupMessage "Picked up an orange keycard" 
+States
+{
+Spawn:
+RSKU ABCDEFGHIJKL 2 Bright
+Loop
+}
+}
+
+//===========================================================================
+//
+// Purple Dildo 
+// By Vader
+//
+//===========================================================================
+
+pickup Purpledildo
+{
+	DoomEdNum 6002
+	Sprite PUDI
+	Frames "6:AB"
+	PickupMessage "You found the miraculous purple gay dildo."
+	PickupSound "misc/i_pkup"
+}
+
+//===========================================================================
+//
+// Twice Risen Laser Cannon 
+// by Risen
+//
+//===========================================================================
+
+pickup TwiceRisenLaserRifle
+{
+	DoomEdNum 6003
+	Sprite TRLR
+	Frames "A"
+	PickupMessage "Picked up the M-4000 laser cannon!"
+	PickupSound "misc/w_pkup"
+}
+
+//===========================================================================
+//
+// Terror Sphere
+// By Graf Zahl
+// Sprites by Vader
+//
+//===========================================================================
+
+ACTOR TerrorSphere : PowerupGiver 2030
+{
+   +COUNTITEM
+   +INVENTORY.AUTOACTIVATE
+   +INVENTORY.ALWAYSPICKUP
+   +INVENTORY.BIGPOWERUP
+   Inventory.MaxAmount 0
+   Powerup.Type Frightener
+   Powerup.Color GoldMap
+   Powerup.Duration 1600
+   Inventory.PickupMessage "The Terrorsphere!"
+   States
+   {
+   Spawn:
+       TERR ABCDE 6 Bright
+       Loop
+   }
+}
+

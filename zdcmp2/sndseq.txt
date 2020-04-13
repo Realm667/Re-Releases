@@ -1,0 +1,134 @@
+:PolyDoorClose
+	Door 12
+	playrepeat ULIFT1A
+	stopsound polyobj/close
+end
+
+[PolyDoor
+	Door 10
+	0 DoorOpenNormal
+	1 PolyDoorClose
+	2 DoorOpenBlazing
+	3 DoorCloseBlazing
+]
+
+:Q2Door
+	door		11
+	platform	11
+	playuntildone	q2dr
+	nostopcutoff
+end
+
+:Polydoor2
+door 2
+playuntildone	PolyDoor2Open
+stopsound plats/pt1_stop
+end
+
+:Door1
+        door            1
+        playuntildone   ddoor
+        nostopcutoff
+end
+
+:Door2
+        door            2
+        playuntildone   hldoor1
+        nostopcutoff
+end
+
+:Door3
+        door            3
+        playuntildone   hldoor3
+        nostopcutoff
+end
+
+:Door4
+        door            4
+        playuntildone   q1door1
+        nostopcutoff
+end
+
+:Door5
+        door            5
+        playrepeat      q1door2a
+        stopsound       q1lift2b
+end
+
+:Door6
+        door            6
+        playuntildone   sdoor2
+        nostopcutoff
+end
+
+:Door7
+        door            7
+        playuntildone   sdoor4
+        nostopcutoff
+end
+
+:Door8
+        door            8
+        playuntildone   sdoor5
+        nostopcutoff
+end
+
+:Door9
+        door            9
+        playuntildone   udoor1a
+        playrepeat      udoor1b
+        stopsound       udoor1c
+end
+
+:HydroDoor
+	door 		11
+	play HydroDoor/Start
+	stopsound HydroDoor/Stop
+end
+
+:Lift1
+        platform        1
+        playrepeat      hllift1a
+        stopsound       hllift1b
+end
+
+
+:Lift2
+        platform        2
+        playrepeat      q1lift2a
+        stopsound       q1lift2b
+end
+
+
+:Lift3
+        platform        3
+        playuntildone   slift1a
+        playrepeat      slift1b
+        stopsound       slift1c
+end
+
+
+:Lift4
+        platform        4
+        playrepeat      ulift1a
+        stopsound       ulift12b
+end
+
+
+:Lift5
+        platform        5
+        playrepeat      ulift2a
+        stopsound       ulift12b
+end
+
+:Lift6
+        platform        6
+        playrepeat      ulift3a
+        stopsound       ulift3b
+end
+
+:MovingMeatSector
+	platform	7
+	play MeatSector/Start
+	stopsound MeatSector/Stop
+end

@@ -1,0 +1,15 @@
+// Emitters
+
+Actor StreakEmitter { RenderStyle none +NOCLIP +NOGRAVITY }
+ACTOR streakemitter_red_inv : StreakEmitter 23001 {	States { Spawn: STRK A 2 A_SpawnItemEx("streak_red_inv", random(-32, 32), random(-32, 32), 152, 0, 0, -3, 0, SXF_CLIENTSIDE, 0) Loop } }
+ACTOR streakemitter_red : StreakEmitter /*23001*/ {	States { Spawn: STRK A 2 A_SpawnItemEx("streak_red", random(-32, 32), random(-32, 32), 0, 0, 0, 3, 0, SXF_CLIENTSIDE, 0) Loop } }
+ACTOR streakemitter_blue : StreakEmitter 23003 {	States { Spawn: STRK A 2 A_SpawnItemEx("streak_blue", random(-32, 32), random(-32, 32), 0, 0, 0, 3, 0, SXF_CLIENTSIDE, 0) Loop } }
+
+// Streaks
+Actor Streak {	RenderStyle add +FORCEYBILLBOARD +CLIENTSIDEONLY +NOINTERACTION }
+Actor streak_red : Streak { States { Spawn: STRK A 1 bright A_FadeOut(0.02) Loop } }
+Actor streak_blue : Streak { States { Spawn: STRK B 1 bright A_FadeOut(0.02) Loop } }
+Actor streak_yellow : Streak { States { Spawn: STRK C 1 bright A_FadeOut(0.02) Loop } }
+Actor streak_green : Streak { States { Spawn: STRK D 1 bright A_FadeOut(0.02) Loop } }
+
+Actor streak_red_inv : streak_red { Alpha 0 States { Spawn: STRK AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 bright A_FadeIn(0.02) Stop } }

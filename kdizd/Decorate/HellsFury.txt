@@ -1,0 +1,111 @@
+//===========================================================================
+//
+// Hell's Fury
+// Rotating Skull sptrites by Vader
+//
+//===========================================================================
+ACTOR HellsFury 3127
+{
+	//$Category Monsters
+	Health 1000
+	Radius 24
+	Height 64
+	Speed 8
+	PainChance 50
+	Mass 1000
+	MONSTER
+	+FLOORCLIP
+	SeeSound "baron/sight"
+	ActiveSound "baron/active"
+	PainSound "baron/pain"
+	DeathSound "baron/death"
+	MeleeSound "baron/melee"
+	Obituary "%o felt the wrath of Hell's Fury"
+	HitObituary "%o got ripped apart by Hell's Fury"
+	MissileType HellsFuryBall
+	MeleeDamage 11
+	States
+	{
+	Spawn:
+		HFRY AB 10 A_Look
+		Loop
+	See:
+		HFRY AABBCCDD 4 A_Chase
+		Loop
+	Missile:
+		HFRY E 0 A_Jump(96,4)
+		HFRY EF 8 A_FaceTarget
+		HFRY G 8 A_ComboAttack
+		Goto See
+		HFRY P 8 A_FaceTarget
+		HFRY Q 0 A_CustomMissile("SoulHarvesterBall", 60, 0, -45)
+		HFRY Q 0 A_CustomMissile("SoulHarvesterBall", 60, 0, 0)
+		HFRY Q 8 A_CustomMissile("SoulHarvesterBall", 60, 0, 45)
+		Goto See
+		Melee:
+		HFRY EF 8 A_FaceTarget
+		HFRY G 8 A_ComboAttack
+		Goto See
+	Pain:
+		HFRY H 2
+		HFRY H 2 A_Pain
+		Goto See
+	Death:
+		HFRY I 8 A_Scream
+		HFRY J 0 
+		HFRY J 0 A_Jump(51,5)
+		HFRY J 0 A_Jump(51,5)
+            	HFRY J 0 A_Jump(51,5)
+            	HFRY J 0 A_Jump(51,5)
+		HFRY J 0 A_CustomMissile("HellsFurySkull", 60, 0, 20)
+		Goto Death+12
+		HFRY J 0 A_CustomMissile("HellsFurySkull", 60, 0, 10)
+		Goto Death+12
+		HFRY J 0 A_CustomMissile("HellsFurySkull", 60, 0, 0)
+		Goto Death+12
+		HFRY J 0 A_CustomMissile("HellsFurySkull", 60, 0, -10)
+		Goto Death+12
+		HFRY J 0 A_CustomMissile("HellsFurySkull", 60, 0, -20)
+		Goto Death+12
+		HFRY J 8 
+		HFRY K 8
+		HFRY L 8 A_Fall
+		HFRY MN 8
+		HFRY O -1
+		Stop
+	Raise:
+		HFRY NMLKJI 8
+		Goto See
+ 	}
+}	 
+
+ACTOR HellsFuryBall : BaronBall
+{
+	Radius 6
+	Height 8
+	Speed 20
+	Damage 11
+	Translation 2
+      RenderStyle "ADD"
+      Decal BaronScorch
+}
+
+ACTOR HellsFurySkull
+{
+	Radius 5
+	Height 5
+	Speed 5
+	Mass 5000
+	+DROPOFF
+	+DOOMBOUNCE
+	+Missile
+      States
+	{
+	Spawn:
+         FSKL ABCDEFGHIJK 2
+         Loop
+	Death:
+	 FSKL L -1
+	 Loop
+	}
+} 	 

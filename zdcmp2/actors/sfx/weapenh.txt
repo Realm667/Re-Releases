@@ -1,0 +1,260 @@
+// Weapons w/Casings (fixed up by Xaser a bit)
+
+ACTOR PistolCasing
+{
+	Height 8
+	Radius 6
+	Speed 4
+	Scale 0.45
+	BounceFactor 0.4
+	Mass 200 // [Blue Shadow] increasing the mass makes it sink faster in a 'swimmable water'
+	PROJECTILE
+	+DOOMBOUNCE
+	+DONTSPLASH
+	- NOGRAVITY
+	- NOBLOCKMAP
+	Seesound "weapons/case1"
+	States
+	{
+	Spawn:
+		CAS2 A 0 A_Playsound("NULL")
+		CAS2 ABCD 2 A_JumpIf(waterlevel > 0, "Underwater")
+		Goto Spawn+1
+	Underwater:
+		CAS2 ABCD 2 A_ScaleVelocity(0.925) // [Blue Shadow] makes the it de-accelerate :)
+		Loop
+	Death:
+		CAS2 A 0 A_Jump(64,4)
+		CAS2 A 0 A_Jump(85,4)
+		CAS2 A 0 A_Jump(128,4)
+		CAS2 A 350
+		Stop
+		CAS2 B 350
+		Stop
+		CAS2 C 350
+		Stop
+		CAS2 D 350
+		Stop
+	}
+}
+
+ACTOR PisCaseSpawn
+{
+	Speed 20
+	PROJECTILE
+	+NOCLIP
+	States
+	{
+	Spawn:
+		TNT1 AA 1 A_SpawnItemEx("PistolCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(85, 95), 128)
+		Stop
+	}
+}
+
+ACTOR RifleCaseSpawn
+{
+	Speed 20
+	PROJECTILE
+	+NOCLIP
+	States
+	{
+	Spawn:
+		TNT1 AA 1 A_SpawnItemEx("PistolCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(-95, -85), 128)
+		Stop
+	}
+}
+
+ACTOR ShotgunCasing : PistolCasing
+{
+	Height 12
+	Radius 9
+	Scale 0.7
+	SeeSound "weapons/shell"
+	States
+	{
+	Spawn:
+		D3S1 A 0 A_PlaySound("NULL")
+		D3S1 ACBHEGFD 1 A_JumpIf(waterlevel > 0, "Underwater")
+		Goto Spawn+1
+	Underwater:
+		D3S1 ACBHEGFD 1 A_ScaleVelocity(0.925)
+		Loop
+	Death:
+		D3S1 A 0 A_Jump(32,8)
+		D3S1 A 0 A_Jump(37,8)
+		D3S1 A 0 A_Jump(43,8)
+		D3S1 A 0 A_Jump(51,8)
+		D3S1 A 0 A_Jump(64,8)
+		D3S1 A 0 A_Jump(85,8)
+		D3S1 A 0 A_Jump(128,8)
+		D3S1 A 350
+		Stop
+		D3S1 B 350
+		Stop
+		D3S1 C 350
+		Stop
+		D3S1 D 350
+		Stop
+		D3S1 E 350
+		Stop
+		D3S1 F 350
+		Stop
+		D3S1 G 350
+		Stop
+		D3S1 H 350
+		Stop
+	}
+}
+
+ACTOR ShotCaseSpawn : PisCaseSpawn
+{
+	States
+	{
+	Spawn:
+		TNT1 AA 1 A_SpawnItemEx("ShotgunCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(-95, -85), 128)
+		Stop
+	}
+}
+
+ACTOR SShotCaseSpawn : ShotCaseSpawn
+{
+	Speed 66
+	States
+	{
+		Spawn:
+		TNT1 AA 1 A_SpawnItemEx("ShotgunCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(-95, -85), 128)
+		Stop
+	}
+}
+
+ACTOR NewPistol : Pistol replaces Pistol
+{
+	AttackSound "weapons/pistol"
+	Decal BulletChip
+	States
+	{
+	Fire:
+	Hold:
+		PISG A 2
+		PISG A 1 A_SpawnItemEx("PisCaseSpawn",20,0,29,0,0,0,0,128)
+		PISG B 0 A_GunFlash
+		PISG B 6 A_FireBullets(5.6, 0, 1, 5, "NewPuff")
+		PISG C 4
+		PISG B 5 A_Refire
+		Goto Ready
+	}
+}
+
+ACTOR NewShotgun : Shotgun replaces Shotgun
+{
+	AttackSound "weapons/shotgf"
+	Decal BulletChip
+	States
+	{
+	Fire:
+	Hold:
+		SHTG A 3
+		SHTG A 0 A_GunFlash
+		SHTG A 7 A_FireBullets(5.6, 0, 7, 5, "NewPuff")
+		SHTG BC 5
+		SHTG D 1
+		SHTG D 3 A_SpawnItemEx("ShotCaseSpawn", 20, -4, 24, 0, 0, 0, 0, 128)
+		SHTG CB 5
+		SHTG A 3
+		SHTG A 7 A_Refire
+		Goto Ready
+	}
+}
+
+ACTOR NewSuperShotgun : SuperShotgun replaces SuperShotgun
+{
+	AttackSound "weapons/sshotf"
+	Decal BulletChip
+	States
+	{
+	Fire:
+		SHT2 A 3
+		SHT2 A 0 A_GunFlash
+		SHT2 A 7 A_FireBullets(11.2, 7.1, 20, 5, "NewPuff")
+		SHT2 B 7 A_CheckReload
+		SHT2 C 7
+		SHT2 D 0 A_SpawnItemEx("SShotCaseSpawn", 20, -2, 30, 0, 0, 0, 180, 128)
+		SHT2 D 0 A_SpawnItemEx("SShotCaseSpawn", 20, 2, 30, 0, 0, 0, 180, 128)
+		SHT2 D 7 A_PlaySound("weapons/sshoto")
+		SHT2 E 7
+		SHT2 F 7 A_PlaySound("weapons/sshotl")
+		SHT2 G 7
+		SHT2 H 0 A_Refire
+		SHT2 H 7 A_PlaySound("weapons/sshotc")
+		Goto Ready
+	}
+}
+
+ACTOR NewChaingun : Chaingun replaces Chaingun
+{
+	attacksound "weapons/chngun"
+	Decal BulletChip
+	States
+	{
+	Fire:
+	Hold:
+		CHGG A 0 A_GunFlash
+		CHGG A 0 A_SpawnItemEx("PisCaseSpawn", 20, 6, 20, 0, 0, 0, 0, 128)
+		CHGG A 4 A_FireBullets(5.6, 0, 1, 5, "NewPuff")
+		CHGG A 0 A_JumpIfNoAmmo(3)
+		CHGG B 0 A_SpawnItemEx("PisCaseSpawn", 20, 6, 20, 0, 0, 0, 0, 128)
+		CHGG B 4 A_FireBullets(5.6, 0, 1, 5, "NewPuff")
+		CHGG B 0 A_Refire
+		Goto Ready
+	Flash:
+		CHGF A 4 BRIGHT A_Light1
+		CHGF A 0 BRIGHT A_JumpIfNoAmmo(2)
+		CHGF B 4 BRIGHT A_Light2
+		TNT1 B 0 BRIGHT A_Light0
+	Stop
+	}
+}
+
+ACTOR NewPuff : BulletPuff //replaces BulletPuff
+{
+	Alpha 1.0
+	//Mass 12 //I like the fact puffs make big splashes.
+	// But as long as there are terrain sounds for solid floors puffs must not do them!
+	States
+	{
+	Spawn:
+	Melee:
+		PUFF A 2
+		PUFF A 0 A_Jump(128,2)
+		PUFF A 2 A_SpawnItemEx("Puff2", 0, 0, 0, 0, 0, 0, 0, 128)
+		PUFF BCD 3
+		Stop
+	}
+}
+
+ACTOR Puff2
+{
+	PROJECTILE
+	+NOCLIP
+	Mass 1
+	Scale 0.5
+	States
+	{
+	Spawn:
+		PUFF E 1 Bright
+		PUFF E 1 Bright A_PlaySound("puff/ric")
+		PUFF FGH 2 Bright
+		Stop
+	}
+}
+
+ACTOR BlankPuff
+{
+	+NOCLIP
+	States
+	{
+	Spawn:
+		TNT1 A 1
+		Stop
+	}
+}
