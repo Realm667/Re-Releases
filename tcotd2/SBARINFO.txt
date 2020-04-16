@@ -58,14 +58,14 @@ StatusBar fullscreen, fullscreenoffsets
 		DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 79+center, -9;
 
 		// AMMO OVERVIEW
-		drawnumber 3, INDEXFONT_DOOM, orange, ammo(Clip), 128+center, -27;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammo(Shell), 128+center, -21;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammo(RocketAmmo), 128+center, -15;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammo(Cell), 128+center, -9;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammocapacity(Clip), 154+center, -27;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammocapacity(Shell), 154+center, -21;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammocapacity(RocketAmmo), 154+center, -15;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammocapacity(Cell), 154+center, -9;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 128+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 128+center, -21;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(RocketAmmo), 128+center, -15;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Cell), 128+center, -9;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 154+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 154+center, -21;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(RocketAmmo), 154+center, -15;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Cell), 154+center, -9;
 
 		// WEAPONS
 	        GameMode singleplayer, cooperative
@@ -394,14 +394,14 @@ StatusBar normal, fullscreenoffsets
 		DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 79+center, -9;
 
 		// AMMO OVERVIEW
-		drawnumber 3, INDEXFONT_DOOM, orange, ammo(Clip), 128+center, -27;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammo(Shell), 128+center, -21;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammo(RocketAmmo), 128+center, -15;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammo(Cell), 128+center, -9;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammocapacity(Clip), 154+center, -27;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammocapacity(Shell), 154+center, -21;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammocapacity(RocketAmmo), 154+center, -15;
-		drawnumber 3, INDEXFONT_DOOM, orange, ammocapacity(Cell), 154+center, -9;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 128+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 128+center, -21;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(RocketAmmo), 128+center, -15;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Cell), 128+center, -9;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 154+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 154+center, -21;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(RocketAmmo), 154+center, -15;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Cell), 154+center, -9;
 
 		// WEAPONS
 	        GameMode singleplayer, cooperative
@@ -678,28 +678,18 @@ StatusBar normal, fullscreenoffsets
 // INVENTORY BAR (NORMAL)
 statusbar inventory, fullscreenoffsets
 {
-	drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -46;
+	drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -66;
 }
 
-// INVENTORY BAR (FULLSCREEN)
+// INVENTORY BAR (FULSCREEN)
 statusbar inventoryfullscreen, fullscreenoffsets
 {
-   	// SPLIT VERSION
-   	IfCVarInt fullhud_split, 1, equal
-   	{
-   		IfCVarInt fullhud_trans, 0, equal
-			drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -31;
-   		else
-		{
-			Alpha 0.6
-			drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -31;
-		}
-   	}
-
-   	// NON-SPLIT VERSION
-   	else
-		drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -66;
+	Alpha 0.6
+	drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -66;
 }
+
+
+
 
 // AUTOMAP STATUS BAR
 statusbar automap { }
