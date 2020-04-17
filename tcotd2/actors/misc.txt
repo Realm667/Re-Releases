@@ -103,22 +103,28 @@ ACTOR NewSparks : NewSparks2 { Scale 0.4 }
 ///////////
 //MARKERS//
 ///////////
-ACTOR ExMark : SwitchableDecoration 31999
+
+ACTOR ExMark 31999
 {
-	Radius 0
-	Height 0
-	RENDERSTYLE ADD
-	Scale 0.15
-	+NoGravity
-	+FloatBob
-	states
+	//$Title Exclamation Mark (greyed out on touching)
+	Radius 64
+	Height 64
+	Health 1
+	Scale 1.35
+	RenderStyle "Translucent"
+	Alpha 0.75
+	+CLIENTSIDEONLY
+	-SHOOTABLE
+	+NOBLOOD
+	+NOGRAVITY
+	+TOUCHY
+	States
 	{
 	Spawn:
-	Active:
-		EXCL A -1
-		Stop
-	Inactive:
-		TNT1 A -1
+		EXCL A 35 Bright
+		Loop
+	Death:
+		EXCL B -1
 		Stop
 	}
 }
