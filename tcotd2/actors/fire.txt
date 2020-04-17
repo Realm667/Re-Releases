@@ -11,11 +11,11 @@ ACTOR FireSpawner : SwitchableDecoration 32700
 	//$Arg1Enum { 0 = "Yes"; 1 = "No"; }
 	Height 40
 	Radius 30
-	+ClientSideOnly
-	+NoClip
-	+NoBlockMap
-	+NoGravity
-	+NoInteraction
+	+CLIENTSIDEONLY
+	+NOBLOCKMAP
+	+NOCLIP
+	+NOGRAVITY
+	+NOINTERACTION
 	States
 	{
 	Spawn:
@@ -88,11 +88,11 @@ ACTOR FireSpawner : SwitchableDecoration 32700
 //Dynamic Light actors
 ACTOR SmallFlame
 {
-	+ClientSideOnly
-	+NoClip
-	+NoBlockMap
-	+NoGravity
-	+NoInteraction
+	+CLIENTSIDEONLY
+	+NOBLOCKMAP
+	+NOCLIP
+	+NOGRAVITY
+	+NOINTERACTION
 	States
 	{
 	Spawn:
@@ -125,13 +125,13 @@ ACTOR Flame1A
 	DistanceCheck "tcotdlod"
 	height 2
 	radius 1
-	+NOGRAVITY
-	+NOCLIP
-	+NOBLOCKMAP
-	+MISSILE
 	+CLIENTSIDEONLY
+	+FORCEXYBILLBOARD
+	+MISSILE
+	+NOBLOCKMAP
+	+NOCLIP
+	+NOGRAVITY
 	+NOINTERACTION
-	+ForceXYBillboard
 	RenderStyle Add
 	Alpha 0.8
 	Scale 0.35
@@ -588,27 +588,11 @@ ACTOR TCOTDWallTorch : SwitchableDecoration replaces BlueTorch
 	States
 	{
 	Active:
-<<<<<<< HEAD
 		TBLX A 0 A_PlaySound("Ignite")
 		"####" A 0 {bDormant = FALSE;}
 	Spawn:
 		TBLX A 0 NODELAY
 		TBLX A 3 BRIGHT Light("WALLTORCH") A_SpawnItemEx("RedFire", Random(-2, 2), Random(-2, 2), Random(74, 76), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2000), 0, SXF_SETMASTER | SXF_CLIENTSIDE)
-=======
-		TBLX A 0 NODELAY A_SpawnItemEx("Flare_Red_A1C",0,0,72)
-		TBLX A 0 A_CheckSight(6)
-		TBLX A 1 A_Jump(8,6)
-		TBLX A 1 A_SpawnItemEx("FireParticle_Normal_A1E",0,0,72,0,0,fRandom(1.0,1.5),0,0,174)
-		TBLX A 1 A_SpawnItemEx("FireParticle_Normal_B1E",0,0,72,0,0,fRandom(1.0,1.5),0,0,174)
-		TBLX A 1 A_SpawnItemEx("FireParticle_Normal_C1E",0,0,72,0,0,fRandom(1.0,1.5),0,0,174)
-		TBLX A 1 A_SpawnItemEx("FireParticle_Normal_D1E",0,0,72,0,0,fRandom(1.0,1.5),0,0,174)
-		TBLX A 1
-		Goto Spawn+1
-		TBLX A 1 A_SpawnItemEx("Ember_Normal_A1C",Random(-4,4),Random(-4,4),Random(72,72),Random(-2,2),Random(-2,2),Random(2,4))
-		Goto Spawn+1
-	InActive:
-		TBLX A -1
->>>>>>> origin/master
 		Loop
 	Inactive:
 		"####" A 0 A_RemoveChildren(TRUE, RMVF_MISC)
