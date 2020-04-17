@@ -1,0 +1,498 @@
+////////////////////////////
+// OBJECTS AND DECORATION //
+////////////////////////////
+ACTOR Web2 20000
+{
+	Radius 8
+	Height 20
+	+SPAWNCEILING
+	+NOGRAVITY
+	RENDERSTYLE ADD
+	ALPHA 0.35
+	Mass 5
+	States
+	{
+	Spawn:
+		WEB3 A -1
+		Stop
+	}
+}
+
+ACTOR Web3 : Web2 20001
+{
+	States
+	{
+	Spawn:
+		WEB2 A -1
+		Stop
+	}
+}
+
+ACTOR LargeDeadTree replaces FloatingSkull
+{
+	Radius 16
+	Height 26
+	+Solid
+	states
+	{
+	Spawn:
+		FSKU A -1
+		Loop
+	}
+}
+
+ACTOR LargeDeadTree2 replaces HeadCandles
+{
+	Radius 16
+	Height 42
+	+Solid
+	states
+	{
+	Spawn:
+		POL3 A -1
+		Loop
+	}
+}
+
+ACTOR CandleX replaces Candlestick
+{
+	Height 14
+	states
+	{
+	Spawn:
+		CAND A -1
+		Stop
+	}
+}
+
+ACTOR StandingEinlauf 30999
+{
+	Radius 16
+	Height 56
+	+Solid
+	states
+	{
+	Spawn:
+		XB03 A -1
+		Loop
+	}
+}
+
+ACTOR BloodyTwitchBlood 22049
+{
+	Radius 16
+	Height 68
+	+SpawnCeiling
+	+NoGravity
+	states
+	{
+	Spawn:
+		XB04 A 10
+		XB04 B 15
+		XB04 C 8
+		XB04 B 6
+		Loop
+	}
+}
+
+ACTOR DeadBody 22081
+{
+	Height 4
+	states
+	{
+	Spawn:
+		XB01 A -1
+		Stop
+	}
+}
+
+ACTOR DeadBody2 22481
+{
+	Height 4
+	states
+	{
+	Spawn:
+		XB12 A -1
+		Stop
+	}
+}
+
+ACTOR GoreHangingBlood1 22073
+{
+	Radius 16
+	Height 88
+	+SpawnCeiling
+	+NoGravity
+	states
+	{
+	Spawn:
+		XB05 A -1
+		Stop
+	}
+}
+
+ACTOR GoreHangingBlood2 : GoreHangingBlood1 22074
+{
+	states
+	{
+	Spawn:
+		XB06 A -1
+		Stop
+	}
+}
+
+ACTOR GoreHangingBlood3 : GoreHangingBlood1 22075
+{
+	states
+	{
+	Spawn:
+		XB08 A -1
+		Stop
+	}
+}
+
+ACTOR GoreHangingBlood4 : GoreHangingBlood1 22076
+{
+	states
+	{
+	Spawn:
+		XB09 A -1
+		Stop
+	}
+}
+
+ACTOR GoreHangingMeat : GoreHangingBlood1 22079
+{
+	+Solid
+	states
+	{
+	Spawn:
+		XB10 A -1
+		Stop
+	}
+}
+
+ACTOR CeilingLampBlood : GoreHangingBlood1 22080
+{
+	Height 64
+	+Solid
+	states
+	{
+	Spawn:
+		XB07 A -1
+		Stop
+	}
+}
+
+ACTOR Balloon1 22085
+{
+	Height 1
+	states
+	{
+	Spawn:
+		XB11 A -1
+		Stop
+	}
+}
+
+ACTOR Balloon2 : Balloon1 22082
+{
+	Translation 0
+}
+
+ACTOR Balloon3 : Balloon1 22083
+{
+	Translation 1
+}
+
+ACTOR Balloon4 : Balloon1 22084
+{
+	Translation 2
+}
+
+ACTOR DeadDoc 22095
+{
+	States
+	{
+	Spawn:
+		XB15 A -1
+		Stop
+	}
+}
+
+ACTOR DeadDoc2 22096
+{
+	States
+	{
+	Spawn:
+		XB16 A -1
+		Stop
+	}
+}
+
+ACTOR DeadCrispy2 22097
+{
+	States
+	{
+	Spawn:
+		XB18 A -1
+		Stop
+	}
+}
+
+ACTOR DeadCrispy1 22098
+{
+	States
+	{
+	Spawn:
+		XB17 A -1
+		Stop
+	}
+}
+
+ACTOR ChairAlpha 22099
+{
+	radius 16
+	height 32
+	+SOLID
+	states
+	{
+	Spawn:
+		XB19 A -1
+		Stop
+	}
+}
+
+ACTOR ZombieBarrel : ChairAlpha 22199
+{
+	states
+	{
+	Spawn:
+		XCL5 A -1
+		Stop
+	}
+}
+
+ACTOR Wurzel1 31819
+{
+	radius 16
+	height 60
+	+SPAWNCEILING
+	+NOGRAVITY
+	states
+	{
+	Spawn:
+		WURZ A -1
+		stop
+	}
+}
+
+ACTOR Wurzel2 : Wurzel1 31820
+{
+	height 70
+	states
+	{
+	Spawn:
+		WURZ B -1
+		stop
+	}
+}
+
+ACTOR Wurzel3 : Wurzel1 31821
+{
+	height 80
+	states
+	{
+	Spawn:
+		WURZ C -1
+		stop
+	}
+}
+
+ACTOR PflanzeDecke 31817
+{
+	radius 16
+	height 60
+	+SOLID
+	+SPAWNCEILING
+	+NOGRAVITY
+	scale 0.5
+	states
+	{
+	Spawn:
+		PFDE A -1
+		stop
+	}
+}
+
+ACTOR PflanzeDecke2 : PflanzeDecke 31818
+{
+	height 50
+	states
+	{
+	Spawn:
+		PFDE B -1
+		stop
+	}
+}
+
+ACTOR KopfSpiess 31816
+{
+	radius 16
+	+SOLID
+	states
+	{
+	Spawn:
+		SPIS A -1
+		stop
+	}
+}
+
+ACTOR WuddStrand 31815
+{
+	radius 16
+	+SOLID
+	states
+	{
+	Spawn:
+		WUDD A -1
+		stop
+	}
+}
+
+ACTOR Treasure 31814
+{
+	radius 16
+	states
+	{
+	Spawn:
+		TREA A -1
+		stop
+	}
+}
+
+ACTOR Schaedel1 31813
+{
+	radius 16
+	states
+	{
+	Spawn:
+		SCHA D -1
+		stop
+	}
+}
+
+ACTOR KnochenArmGelenk 31808
+{
+	radius 16
+	states
+	{
+	Spawn:
+		KNHA B -1
+		stop
+	}
+}
+
+ACTOR Schaedel3 31810
+{
+	radius 16
+	states
+	{
+	Spawn:
+		SCHA C -1
+		stop
+	}
+}
+
+ACTOR Schaedel2 31809
+{
+	radius 16
+	states
+	{
+	Spawn:
+		SCHA B -1
+		stop
+	}
+}
+
+ACTOR LeichenhaufenGross 31807
+{
+	radius 16
+ 	states
+	{
+	Spawn:
+		LEHA B -1
+		stop
+	}
+}
+
+ACTOR LeichenhaufenKlein 31806
+{
+	radius 16
+ 	states
+	{
+	Spawn:
+		LEHA A -1
+		stop
+	}
+}
+
+ACTOR TierKnoch2 31805
+{
+	radius 16
+ 	states
+	{
+	Spawn:
+		KNHA A -1
+		stop
+	}
+}
+
+ACTOR TierKnoch 31804
+{
+	radius 16
+ 	+SOLID
+	states
+	{
+	Spawn:
+		TIKN A -1
+		stop
+	}
+}
+
+ACTOR Gebeine 31803
+{
+	radius 16
+ 	+SOLID
+	states
+	{
+	Spawn:
+		GEBY A -1
+		stop
+	}
+}
+
+ACTOR StoneStatue 31802
+{
+	radius 16
+	height 40
+	+SOLID
+	states
+	{
+	Spawn:
+		YSTN A -1
+		stop
+	}
+}
+
+ACTOR Feder 31801
+{
+	radius 8
+	height 8
+	states
+	{
+	Spawn:
+		FEDE A -1
+		stop
+	}
+}

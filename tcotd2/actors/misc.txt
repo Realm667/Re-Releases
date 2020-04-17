@@ -1,0 +1,134 @@
+ACTOR Siren : SwitchableDecoration 9000
+{
+	States
+	{
+	Spawn:
+	Inactive:
+		TNT1 A -1 A_StopSound
+		Stop
+	Active:
+		TNT1 A -1 A_PlaySound("AMB30",CHAN_VOICE,1,0,ATTN_NONE)
+		Stop
+	}
+}
+
+ACTOR TCOTDExplosiveBarrel : ExplosiveBarrel replaces ExplosiveBarrel
+{
+	States
+	{
+	Spawn:
+		BAR1 A -1
+		Stop
+	Death:
+		BAR1 A 5 Bright
+		BEXP B 5 Bright A_Scream
+		BEXP D 5 Bright A_Explode
+		BEXP E 5 Bright
+		TNT1 A 1050 Bright A_BarrelDestroy
+		TNT1 A 5 A_Respawn
+		Wait
+	}
+}
+ACTOR PushPuzz 31998
+{
+	MONSTER
+	radius 12
+	height 48
+	+PUSHABLE
+	+NOBLOOD
+	+INVULNERABLE
+	-COUNTKILL
+	states
+	{
+	Spawn:
+		SMPL A -1
+		stop
+	}
+}
+
+ACTOR NewPuff : BulletPuff
+{
+	states
+	{
+	Spawn:
+		PUFF A 2 BRIGHT LIGHT("PUFF") NODELAY A_SpawnItemEx("NewSparks",0,0,0,random(-5,5),random(-5,5),random(-5,5),random(1,360))
+		PUFF A 2 A_SpawnItemEx("Puff2")
+		PUFF B 4
+	Melee:
+		PUFF CD 4
+		stop
+	}
+}
+
+ACTOR Puff2
+{
+	PROJECTILE
+	+NOCLIP
+	Mass 1
+	States
+	{
+	Spawn:
+		PUFF E 2
+		PUFF E 2 A_PlaySound("puff/ric")
+		PUFF FGH 4
+		Stop
+	}
+}
+
+ACTOR NewSparks2
+{
+	+CLIENTSIDEONLY
+	Projectile
+	+RIPPER
+	+BLOODLESSIMPACT
+	-NOGRAVITY
+	Gravity .125
+	Radius 1
+	Height 1
+	Scale 0.60
+	States
+	{
+	Spawn:
+		WRBL KLKL 2 Bright
+		TNT1 A 0 A_Jump(128,1)
+		Loop
+		WRBL MNOP 2 Bright
+		WRBL P 1 Bright A_FadeOut
+		Wait
+	}
+}
+
+ACTOR NewSparks : NewSparks2 { Scale 0.4 }
+
+///////////
+//MARKERS//
+///////////
+ACTOR ExMark : SwitchableDecoration 31999
+{
+	Radius 0
+	Height 0
+	RENDERSTYLE ADD
+	Scale 0.15
+	+NoGravity
+	+FloatBob
+	states
+	{
+	Spawn:
+	Active:
+		EXCL A -1
+		Stop
+	Inactive:
+		TNT1 A -1
+		Stop
+	}
+}
+
+ACTOR MoonMarker : MapMarker 24570
+{
+	states
+	{
+	spawn:
+		MOON A -1
+		stop
+	}
+}

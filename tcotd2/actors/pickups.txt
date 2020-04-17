@@ -1,0 +1,43 @@
+ACTOR Heart : HealthBonus replaces HealthBonus
+{
+	Scale 0.5
+	Inventory.PickupMessage "Picked up a Life Essence."
+	Inventory.Amount 5
+	Inventory.PickupSound "ITEMUP"
+	states
+	{
+	Spawn:
+		BON1 ABCD 6
+		Loop
+	}
+}
+
+//Carrieable Stimpack
+ACTOR CStimpack : HealthPickup replaces Stimpack
+{
+	health 15
+	inventory.maxamount 5
+	inventory.icon "M_SMED"
+	inventory.pickupmessage "You picked up a small medikit."
+	+COUNTITEM
+	states
+	{
+	Spawn:
+		STIM A -1
+		stop
+	}
+}
+
+//Carrieable Medikit
+ACTOR CMedikit : CStimpack replaces Medikit
+{
+	health 30
+	inventory.icon "M_LMED"
+	inventory.pickupmessage "You picked up a large medikit."
+	states
+	{
+	Spawn:
+		MEDI A -1
+		stop
+	}
+}
