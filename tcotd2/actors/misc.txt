@@ -77,15 +77,15 @@ ACTOR Puff2
 
 ACTOR NewSparks2
 {
-	+CLIENTSIDEONLY
-	Projectile
-	+RIPPER
-	+BLOODLESSIMPACT
-	-NOGRAVITY
 	Gravity .125
 	Radius 1
 	Height 1
 	Scale 0.60
+	Projectile
+	+BLOODLESSIMPACT
+	+CLIENTSIDEONLY
+	+RIPPER
+	-NOGRAVITY
 	States
 	{
 	Spawn:
@@ -104,7 +104,7 @@ ACTOR NewSparks : NewSparks2 { Scale 0.4 }
 //MARKERS//
 ///////////
 
-ACTOR ExMark 31999
+ACTOR ExMark : SwitchableDecoration 31999
 {
 	//$Title Exclamation Mark (greyed out on touching)
 	Radius 64
@@ -114,16 +114,16 @@ ACTOR ExMark 31999
 	RenderStyle "Translucent"
 	Alpha 0.75
 	+CLIENTSIDEONLY
-	-SHOOTABLE
-	+NOBLOOD
 	+NOGRAVITY
-	+TOUCHY
 	States
 	{
 	Spawn:
-		EXCL A 35 Bright
+		EXCL A 0
+	Active:
+		EXCL A 1 BRIGHT A_CheckProximity("Inactive", "TCOTDPlayer", 72, 1)
 		Loop
-	Death:
+	Inactive:
+		EXCL A 35 BRIGHT
 		EXCL B -1
 		Stop
 	}
