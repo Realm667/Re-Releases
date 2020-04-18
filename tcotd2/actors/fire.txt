@@ -88,6 +88,7 @@ ACTOR FireSpawner : SwitchableDecoration 32700
 //Dynamic Light actors
 ACTOR SmallFlame
 {
+	Alpha 0.5
 	+CLIENTSIDEONLY
 	+NOBLOCKMAP
 	+NOCLIP
@@ -133,7 +134,7 @@ ACTOR Flame1A
 	+NOGRAVITY
 	+NOINTERACTION
 	RenderStyle Add
-	Alpha 0.8
+	Alpha 0.5
 	Scale 0.35
 	states
 	{
@@ -335,7 +336,7 @@ ACTOR Ember1 : Flame1A
 	Spawn:
 		EMBR A 0
 		EMBR A 0 ThrustThingZ(0,random(4,16),0,0)
-		EMBR A 0 ThrustThing(random(0,255),random(0,1),0,0)
+		EMBR A 0 ThrustThing(random(0,255),frandom(0.1,1.0),0,0)
 		EMBR A 32 Bright
 	Death:
 		EMBR A 2 Bright A_FadeOut
@@ -350,7 +351,7 @@ ACTOR Ember2 : Ember1
 	Spawn:
 		EMBR A 0
 		EMBR A 0 ThrustThingZ(0,random(4,16),0,0)
-		EMBR A 0 ThrustThing(random(0,255),random(0,1),0,0)
+		EMBR A 0 ThrustThing(random(0,255),frandom(0.1,1.0),0,0)
 		EMBR A 64 Bright
 		Goto Death
 	}
