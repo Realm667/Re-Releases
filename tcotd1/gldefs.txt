@@ -1375,3 +1375,93 @@ object TeleportFog
     frame TFOGI { light DTFOG4 }
     frame TFOGJ { light DTFOG3 }
 }
+
+flickerlight2 GhoulFire
+{
+    color 0.3 1.0 0.4
+    size 56
+    secondarySize 64
+    interval 1
+    offset 0 40 0
+}
+object RevGhoul
+{
+	frame GHULG { light GhoulFire }
+	frame GHULH { light GhoulFire }
+	frame GHULI { light GhoulFire }
+    frame GHULJ { light GhoulFire }
+}
+//projectile is borrowed from the one used by the Brown Chaos Serpent
+flickerlight GhoulBall_X1
+{
+    color 0.0 1.0 0.0
+    size 64
+    secondarySize 72
+    chance 0.5
+}
+flickerlight GhoulBall_X2
+{
+    color 0.0 0.8 0.0
+    size 72
+    secondarySize 80
+    chance 0.5
+}
+flickerlight GhoulBall_X3
+{
+    color 0.0 0.5 0.0
+    size 88
+    secondarySize 96
+    chance 0.5
+}
+flickerlight GhoulBall_X4
+{
+    color 0.0 0.2 0.0
+    size 96
+    secondarySize 104
+    chance 0.5
+}
+pointlight G_TRACER
+{
+    color 0.2 1.0 0.1
+    size 48
+}
+ Object GhoulMissile
+ {
+	frame GASBA { light G_TRACER }
+	frame GASBB { light G_TRACER }
+	frame GASBC { light G_TRACER }
+    frame GASXA { light GhoulBall_X1 }
+    frame GASXB { light GhoulBall_X2 }
+    frame GASXC { light GhoulBall_X2 }
+    frame GASXD { light GhoulBall_X3 }
+    frame GASXE { light GhoulBall_X4 }
+    frame GASXF { light GhoulBall_X4 }
+}
+
+Pointlight UNMNBALRT
+{
+Color 1.0 0.2 0.0
+Size 35
+Offset 0 48 32
+}
+
+Pointlight UNMNBALLF
+{
+Color 1.0 0.2 0.0
+Size 35
+Offset 0 48 -32
+}
+
+PointLight UNMNRALR
+{
+color 1.0 0.0 0.0
+size 35
+offset 0 48 32
+}
+
+PointLight UNMNRALL
+{
+color 1.0 0.0 0.0
+size 35
+offset 0 48 -32
+}
