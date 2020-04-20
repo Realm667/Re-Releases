@@ -1376,6 +1376,7 @@ object TeleportFog
     frame TFOGJ { light DTFOG3 }
 }
 
+//ghoul
 flickerlight2 GhoulFire
 {
     color 0.3 1.0 0.4
@@ -1384,6 +1385,7 @@ flickerlight2 GhoulFire
     interval 1
     offset 0 40 0
 }
+
 object RevGhoul
 {
 	frame GHULG { light GhoulFire }
@@ -1391,6 +1393,7 @@ object RevGhoul
 	frame GHULI { light GhoulFire }
     frame GHULJ { light GhoulFire }
 }
+
 //projectile is borrowed from the one used by the Brown Chaos Serpent
 flickerlight GhoulBall_X1
 {
@@ -1399,6 +1402,7 @@ flickerlight GhoulBall_X1
     secondarySize 72
     chance 0.5
 }
+
 flickerlight GhoulBall_X2
 {
     color 0.0 0.8 0.0
@@ -1406,6 +1410,7 @@ flickerlight GhoulBall_X2
     secondarySize 80
     chance 0.5
 }
+
 flickerlight GhoulBall_X3
 {
     color 0.0 0.5 0.0
@@ -1413,6 +1418,7 @@ flickerlight GhoulBall_X3
     secondarySize 96
     chance 0.5
 }
+
 flickerlight GhoulBall_X4
 {
     color 0.0 0.2 0.0
@@ -1420,48 +1426,82 @@ flickerlight GhoulBall_X4
     secondarySize 104
     chance 0.5
 }
+
 pointlight G_TRACER
 {
     color 0.2 1.0 0.1
     size 48
 }
- Object GhoulMissile
- {
+
+Object GhoulMissile
+{
 	frame GASBA { light G_TRACER }
 	frame GASBB { light G_TRACER }
 	frame GASBC { light G_TRACER }
-    frame GASXA { light GhoulBall_X1 }
-    frame GASXB { light GhoulBall_X2 }
-    frame GASXC { light GhoulBall_X2 }
-    frame GASXD { light GhoulBall_X3 }
-    frame GASXE { light GhoulBall_X4 }
-    frame GASXF { light GhoulBall_X4 }
+	frame GASXA { light GhoulBall_X1 }
+	frame GASXB { light GhoulBall_X2 }
+	frame GASXC { light GhoulBall_X2 }
+	frame GASXD { light GhoulBall_X3 }
+	frame GASXE { light GhoulBall_X4 }
+	frame GASXF { light GhoulBall_X4 }
 }
 
+//haedexebus
 Pointlight UNMNBALRT
 {
-Color 1.0 0.2 0.0
-Size 35
-Offset 0 48 32
+	Color 1.0 0.2 0.0
+	Size 35
+	Offset 0 48 32
 }
 
 Pointlight UNMNBALLF
 {
-Color 1.0 0.2 0.0
-Size 35
-Offset 0 48 -32
+	Color 1.0 0.2 0.0
+	Size 35
+	Offset 0 48 -32
 }
 
 PointLight UNMNRALR
 {
-color 1.0 0.0 0.0
-size 35
-offset 0 48 32
+	color 1.0 0.0 0.0
+	size 35
+	offset 0 48 32
 }
 
 PointLight UNMNRALL
 {
-color 1.0 0.0 0.0
-size 35
-offset 0 48 -32
+	color 1.0 0.0 0.0
+	size 35
+	offset 0 48 -32
+}
+
+
+//New Props for Remaster - Ozymandias81 defs//
+FlickerLight2 WALLTORCH
+{
+	Color 1.00 0.69 0.48
+	Size 24
+	SecondarySize 28
+	Interval 0.1
+	Offset 0 0 0
+}
+
+FlickerLight2 CREPLIT1
+{
+	Color 1.00 0.69 0.48
+	Size 32
+	SecondarySize 48
+	Interval 0.3
+	Offset 0 8 0
+	Attenuate 1
+}
+
+FlickerLight2 CREPLIT2
+{
+	Color 0.90 0.49 0.28
+	Size 16
+	SecondarySize 24
+	Interval 0.3
+	Offset 0 2 0
+	Attenuate 1
 }
