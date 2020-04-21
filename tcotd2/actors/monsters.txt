@@ -3,17 +3,17 @@
 //////////////
 ACTOR Civilian 29237
 {
-	OBITUARY "%o can't be killed."
 	Health 999999
 	Radius 16
 	Height 56
 	Mass 999999
 	Scale 0.7
-	MONSTER
+	Monster
 	-COUNTKILL
-	+FloorClip
-	+NoBlood
-	states
+	+FLOORCLIP
+	+NOBLOOD
+	Obituary "$OB_CIVL"
+	States
 	{
 	Spawn:
 		CIVI PQ 30 A_Wander
@@ -43,16 +43,16 @@ ACTOR ApprenticeofDsparil
 	Speed 2.66666667
 	FloatSpeed 1.33333333
 	PainChance 100
-	MONSTER
-	+FloorClip
-	+NoGravity
-	+Float
-	SEESOUND "wizard/sight"
-	PAINSOUND "wizard/pain"
-	DEATHSOUND "wizard/death"
-	ACTIVESOUND "wizard/active"
-	OBITUARY "%o was spooked by an Apprentice."
-	states
+	Monster
+	+FLOAT
+	+FLOORCLIP
+	+NOGRAVITY
+	SeeSound "wizard/sight"
+	PainSound "wizard/pain"
+	DeathSound "wizard/death"
+	ActiveSound "wizard/active"
+	Obituary "$OB_ADSP"
+	States
 	{
 	Spawn:
 		APDP AB 10 A_Look
@@ -151,12 +151,12 @@ ACTOR AoDGhost
 {
 	Radius 1
 	Height 1
-	PROJECTILE
-	RENDERSTYLE TRANSLUCENT
+	Projectile
+	RenderStyle Translucent
 	Alpha 0.75
-	+Noclip
-	SEESOUND "aod/ghost"
-	states
+	+NOCLIP
+	SeeSound "aod/ghost"
+	States
 	{
 	Spawn:
 	Death:
@@ -171,9 +171,9 @@ ACTOR FireBlast
 	Speed 25
 	Scale 0.75
 	Damage (random(1,4)*3)
-	PROJECTILE
-	DEATHSOUND "fireblast/explode"
-	states
+	Projectile
+	DeathSound "fireblast/explode"
+	States
 	{
 	Spawn:
 		PROJ ABC 4 BRIGHT LIGHT("FireBlast")
@@ -194,8 +194,8 @@ ACTOR SuperFireBlast : FireBlast
 	Speed 16
 	Scale 1.5
 	Damage (random(1,4)*24)
-	DEATHSOUND "superfireblast/explode"
-	states
+	DeathSound "superfireblast/explode"
+	States
 	{
 	Death:
 		PROJ D 4 BRIGHT LIGHT("FireBlastX_1") A_Explode(256,128,0)
@@ -210,17 +210,17 @@ ACTOR MiniSpider 22290
 {
 	Radius 7
 	Height 15
+	Speed 2.5
 	Health 20
 	Scale .25
 	Translation 0
-	MONSTER
+	Monster
 	+FLOORCLIP
-	seesound "littlespider/sight"
-	attacksound "littlespider/attack"
-	painsound "littlespider/pain"
-	deathsound "littlespider/death"
-	activesound "littlespider/sight"
-	Speed 2.5
+	SeeSound "littlespider/sight"
+	AttackSound "littlespider/attack"
+	PainSound "littlespider/pain"
+	DeathSound "littlespider/death"
+	ActiveSound "littlespider/sight"
 	States
 	{
 	Spawn:
@@ -285,15 +285,15 @@ ACTOR Thrall 30119
 	Speed 4
 	Height 56
 	Mass 100
-	MONSTER
-	+FloorClip
-	OBITUARY "%o was killed by a lowly Cultist."
-	SEESOUND "monster/culsit"
-	ATTACKSOUND "monster/culatk"
-	PAINSOUND "monster/culpai"
-	DEATHSOUND "monster/culdth"
-	ACTIVESOUND "monster/culact"
-	states
+	Monster
+	+FLOORCLIP
+	SeeSound "monster/culsit"
+	AttackSound "monster/culatk"
+	PainSound "monster/culpai"
+	DeathSound "monster/culdth"
+	ActiveSound "monster/culact"
+	Obituary "$OB_THRL"
+	States
 	{
 	Spawn:
 		CULT AB 10 A_Look
@@ -352,11 +352,11 @@ ACTOR ThrallShot1
 	Height 6
 	Speed 14
 	Damage 1
-	RENDERSTYLE ADD
+	RenderStyle Add
 	Alpha 0.67
-	PROJECTILE
-	DEATHSOUND "monster/disht1"
-	states
+	Projectile
+	DeathSound "monster/disht1"
+	States
 	{
 	Spawn:
 		CFX4 AB 2 BRIGHT LIGHT("ThrallShot")
@@ -381,20 +381,20 @@ ACTOR Incarnate 30115
 	Mass 500
 	Speed 6
 	PainChance 32
-	DropItem "Heart" 160
-	MONSTER
-	+FloorClip
-	+MissileMore
 	MaxTargetRange 1000
-	+NoTarget
-	OBITUARY "%o was killed by a Death Incarnate's glaring eyes."
-	HITOBITUARY "%o was beaten to death by a Death Incarnate."
-	SEESOUND "monster/incsit"
-	PAINSOUND "skeleton/pain"
-	DEATHSOUND "monster/incdth"
-	ACTIVESOUND "monster/incact"
-	ATTACKSOUND "monster/incatk"
-	states
+	Monster
+	+FLOORCLIP
+	+MISSILEMORE
+	+NOTARGET
+	SeeSound "monster/incsit"
+	PainSound "skeleton/pain"
+	DeathSound "monster/incdth"
+	ActiveSound "monster/incact"
+	AttackSound "monster/incatk"
+	Obituary "$OB_INCA"
+	HitObituary "$HB_INCA"
+	DropItem "Heart" 160
+	States
 	{
 	Spawn:
 		INCA AB 10 A_Look
@@ -489,18 +489,18 @@ ACTOR HS 30116
 	Height 32
 	Mass 3000
 	Speed 5
-	Obituary "%o was blown away by a Hades Sphere."
 	Monster
-	+LOOKALLAROUND
-	+DONTGIB
-	+NOTARGET
-	+NOGRAVITY
-	+FLOAT
 	+DONTFALL
+	+DONTGIB
 	+DONTHARMCLASS
+	+FLOAT
+	+LOOKALLAROUND
+	+NOGRAVITY
+	+NOTARGET
 	MeleeThreshold 196
 	SeeSound "monster/hadsit"
-	states
+	Obituary "$OB_HADE"
+	States
 	{
 	Spawn:
 		TNT1 A 1 A_Look
@@ -553,20 +553,20 @@ ACTOR HotDog 30121
 	Radius 30
 	Height 50
 	Mass 500
-	DropItem "Heart" 160
-	MONSTER
-	+FloorClip
-	DamageFACTOR Fire,.5
+	Monster
 	+DONTHARMCLASS
-	OBITUARY "%o was burned alive by a hellhound."
-	HITOBITUARY "A hellhound had %o for dinner."
-	SEESOUND "monster/dogsit"
-	ATTACKSOUND "monster/dogatk"
-	PAINSOUND "monster/dogpai"
-	DEATHSOUND "monster/dogdth"
-	ACTIVESOUND "monster/dogact"
+	+FLOORCLIP
+	SeeSound "monster/dogsit"
+	AttackSound "monster/dogatk"
+	PainSound "monster/dogpai"
+	DeathSound "monster/dogdth"
+	ActiveSound "monster/dogact"
 	MaxTargetRange 256
-	states
+	DamageFactor Fire,.5
+	Obituary "$OB_HOUN"
+	HitObituary "$HB_HOUN"
+	DropItem "Heart" 160
+	States
 	{
 	Spawn:
 		HDOG A 10 A_Look
@@ -607,15 +607,15 @@ ACTOR DogFire
 	Height 4
 	Speed 16
 	Damage 1
-	PROJECTILE
-	RENDERSTYLE Add
+	Projectile
+	RenderStyle Add
 	DamageType Fire
 	Alpha 0.67
 	Scale 0.67
-	SEESOUND "weapons/bigbrn"
-	DEATHSOUND "weapons/bigbrn"
+	SeeSound "weapons/bigbrn"
+	DeathSound "weapons/bigbrn"
 	Gravity .125
-	states
+	States
 	{
 	Spawn:
 		TNT1 A 2
@@ -649,17 +649,17 @@ ACTOR KDiZDNightmare 26000
 	Height 56
 	Speed 5
 	PainChance 144
-	MONSTER
-	+FloorClip
-	+Stealth
-	RENDERSTYLE Add
+	Monster
+	+FLOORCLIP
+	+STEALTH
+	RenderStyle Add
 	Alpha 0.4
-	SEESOUND "nightmare/sight"
-	PAINSOUND "nightmare/pain"
-	DEATHSOUND "nightmare/death"
-	ACTIVESOUND "nightmare/active"
-	HITOBITUARY "%o was tormented by a nightmare."
-	states
+	SeeSound "nightmare/sight"
+	PainSound "nightmare/pain"
+	DeathSound "nightmare/death"
+	ActiveSound "nightmare/active"
+	HitObituary "$HB_NITE"
+	States
 	{
 	Spawn:
 		NMRE AB 10 A_Look
@@ -705,11 +705,11 @@ ACTOR NightmareWisp
 {
 	Radius 4
 	Height 8
-	RENDERSTYLE ADD
+	RenderStyle Add
 	Alpha 0.4
-	PROJECTILE
-	+Noclip
-	states
+	Projectile
+	+NOCLIP
+	States
 	{
 	Spawn:
 		NMRE IJKLMNO 3
@@ -727,11 +727,11 @@ ACTOR SirenNightmare : KDiZDNightmare 31111
 	Height 30
 	Speed 10
 	Scale 1.5
-	SEESOUND "nightmare2/sight"
-	PAINSOUND "nightmare2/pain"
-	DEATHSOUND "nightmare2/death"
-	ACTIVESOUND "nightmare2/active"
-	states
+	SeeSound "nightmare2/sight"
+	PainSound "nightmare2/pain"
+	DeathSound "nightmare2/death"
+	ActiveSound "nightmare2/active"
+	States
 	{
 	Melee:
 		NMRE E 0 A_SetShootable
@@ -754,13 +754,13 @@ ACTOR Shadow 3126
 	Alpha 0.9
 	Speed 8
 	PainChance 200
-	MONSTER
-	+FloorClip
+	Monster
+	+FLOORCLIP
 	PainSound "Shadow/pain"
 	DeathSound "Shadow/death"
 	ActiveSound "Shadow/active"
-	OBITUARY "%o was assasinated by a shadow."
-	states
+	Obituary "$OB_SHDW"
+	States
 	{
 	Spawn:
 	See:
@@ -814,14 +814,14 @@ ACTOR ShadowBall
 	Height 8
 	Speed 12
 	Damage 4
-	PROJECTILE
-	+Randomize
-	RENDERSTYLE ADD
+	RenderStyle Add
 	Alpha 0.75
-	SEESOUND "imp/attack"
-	DEATHSOUND "imp/shotx"
+	Projectile
+	+RANDOMIZE
+	SeeSound "imp/attack"
+	DeathSound "imp/shotx"
 	Decal DoomImpScorch
-	states
+	States
 	{
 	Spawn:
 		SBAL ABC 4 BRIGHT LIGHT("ShadowBall") A_SpawnItemEx("ShadowTrail")
@@ -842,10 +842,10 @@ ACTOR ShadowGhost
 	Radius 4
 	Height 8
 	Mass 75
-	RENDERSTYLE Add
+	RenderStyle Add
 	Alpha 0.3
-	PROJECTILE
-	states
+	Projectile
+	States
 	{
 	Spawn:
 		"####" "#" 10
@@ -862,7 +862,7 @@ ACTOR Shadowtorso
 	RenderStyle Add
 	Alpha 0.7
 	BounceType Doom
-	states
+	States
 	{
 	Spawn:
 		TROX QRS 5
@@ -877,11 +877,11 @@ ACTOR ShadowTrail
 {
 	Radius 1
 	Height 1
-	PROJECTILE
-	RENDERSTYLE ADD
+	Projectile
+	RenderStyle Add
 	Alpha 0.6
-	+Noclip
-	states
+	+NOCLIP
+	States
 	{
 	Spawn:
 		SHTR ABCDEF 4 BRIGHT
@@ -898,15 +898,15 @@ ACTOR SoulHarvester 3117
 	Height 56
 	Speed 2.66666667
 	PainChance 120
-	MONSTER
-	+FloorClip
+	Monster
+	+FLOORCLIP
 	DropItem "Heart" 160
-	SEESOUND "harvester/sight"
-	PAINSOUND "imp/pain"
-	DEATHSOUND "harvester/death"
-	ACTIVESOUND "imp/active"
-	OBITUARY "%o couldn't evade the soul harvester's attack."
-	states
+	SeeSound "harvester/sight"
+	PainSound "imp/pain"
+	DeathSound "harvester/death"
+	ActiveSound "imp/active"
+	Obituary "$OB_HARV"
+	States
 	{
 	Spawn:
 		SLHV AB 10 A_Look
@@ -974,13 +974,13 @@ ACTOR SoulHarvesterBall
 	Scale 0.4
 	Speed 9
 	Damage 2
-	+SeekerMissile
-	PROJECTILE
-	RENDERSTYLE ADD
-	SEESOUND "harvester/scream"
-	DEATHSOUND "imp/shotx"
+	+SEEKERMISSILE
+	Projectile
+	RenderStyle Add
+	SeeSound "harvester/scream"
+	DeathSound "imp/shotx"
 	Decal DoomImpScorch
-	states
+	States
 	{
 	Spawn:
 		SHBA A 0 A_SpawnItemEx("SoulBallTrail")
@@ -1005,12 +1005,12 @@ ACTOR SoulHarvesterGhost
 {
 	Radius 1
 	Height 1
-	PROJECTILE
-	RENDERSTYLE ADD
+	Projectile
+	RenderStyle Add
 	Alpha 0.7
-	+Noclip
-	SEESOUND "harvester/ghost"
-	states
+	+NOCLIP
+	SeeSound "harvester/ghost"
+	States
 	{
 	Spawn:
 	Death:
@@ -1022,7 +1022,7 @@ ACTOR SoulHarvesterGhost
 ACTOR SoulBallTrail : SoulHarvesterGhost
 {
 	Alpha 0.5
-	states
+	States
 	{
 	Spawn:
 	Death:
@@ -1043,18 +1043,18 @@ ACTOR Thamuz : Cyberdemon
 	Mass 2000
 	Scale 1.1
 	Bloodcolor "00 aa 00"
-	+MISSILEEVENMORE
 	+LOOKALLAROUND
+	+MISSILEEVENMORE
 	MinMissileChance 5
-	SEESOUND "Thamuz/Idlesight"
-	PAINSOUND "Thamuz/Pain"
-	DEATHSOUND "Thamuz/death"
-	ACTIVESOUND "Thamuz/Idlesight"
-	OBITUARY "%o fell before Thamuz."
+	SeeSound "Thamuz/Idlesight"
+	PainSound "Thamuz/Pain"
+	DeathSound "Thamuz/death"
+	ActiveSound "Thamuz/Idlesight"
+	Obituary "$OB_THAM"
 	var int user_theta;
-	var int user_height;
+	var int user_Height;
 	var int user_offset;
-	states
+	States
 	{
 	Spawn:
 		DCYB A 10 NODELAY A_Look
@@ -1086,11 +1086,11 @@ ACTOR Thamuz : Cyberdemon
 		"####" D 0 A_SpawnItemEx("ThamuzGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME)
 		Loop
 	Missile:
-		"####" A 0 A_SetUserVar("user_height",56)
+		"####" A 0 A_SetUserVar("user_Height",56)
 		"####" A 0 A_SetUserVar("user_offset",-25)
 		"####" A 0 A_Jump(160,"Missile2")	//160
 		"####" AEE 5 A_FaceTarget
-		"####" F 10 A_CustomMissile("DCBMiss1",user_height,user_offset)
+		"####" F 10 A_CustomMissile("DCBMiss1",user_Height,user_offset)
 		"####" E 15 A_FaceTarget
 		Goto See
 	Missile2:
@@ -1108,25 +1108,25 @@ ACTOR Thamuz : Cyberdemon
 	Missile3:
 		"####" AE 3 A_FaceTarget
 		"####" E 4 A_FaceTarget
-		"####" F 4 A_CustomMissile("DCBMiss2",user_height,user_offset)
+		"####" F 4 A_CustomMissile("DCBMiss2",user_Height,user_offset)
 		"####" E 4 A_FaceTarget
-		"####" F 4 A_CustomMissile("DCBMiss2",user_height,user_offset)
+		"####" F 4 A_CustomMissile("DCBMiss2",user_Height,user_offset)
 		"####" E 4 A_FaceTarget
-		"####" F 4 A_CustomMissile("DCBMiss2",user_height,user_offset)
+		"####" F 4 A_CustomMissile("DCBMiss2",user_Height,user_offset)
 		"####" E 4 A_FaceTarget
-		"####" F 4 A_CustomMissile("DCBMiss2",user_height,user_offset)
+		"####" F 4 A_CustomMissile("DCBMiss2",user_Height,user_offset)
 		"####" E 4 A_FaceTarget
-		"####" F 4 A_CustomMissile("DCBMiss2",user_height,user_offset)
+		"####" F 4 A_CustomMissile("DCBMiss2",user_Height,user_offset)
 		"####" E 4 A_FaceTarget
-		"####" F 4 A_CustomMissile("DCBMiss2",user_height,user_offset)
+		"####" F 4 A_CustomMissile("DCBMiss2",user_Height,user_offset)
 		"####" E 4 A_FaceTarget
-		"####" F 4 A_CustomMissile("DCBMiss2",user_height,user_offset)
+		"####" F 4 A_CustomMissile("DCBMiss2",user_Height,user_offset)
 		"####" E 4 A_FaceTarget
-		"####" F 4 A_CustomMissile("DCBMiss2",user_height,user_offset)
+		"####" F 4 A_CustomMissile("DCBMiss2",user_Height,user_offset)
 		"####" E 4 A_FaceTarget
-		"####" F 4 A_CustomMissile("DCBMiss2",user_height,user_offset)
+		"####" F 4 A_CustomMissile("DCBMiss2",user_Height,user_offset)
 		"####" E 4 A_FaceTarget
-		"####" F 4 A_CustomMissile("DCBMiss2",user_height,user_offset)
+		"####" F 4 A_CustomMissile("DCBMiss2",user_Height,user_offset)
 		Goto See
 	Pain:
 		"####" G 2
@@ -1154,8 +1154,8 @@ ACTOR ThamuzGhost
 	Radius 2
 	Height 2
 	Scale 1.1
-	PROJECTILE
-	ALPHA 0
+	Projectile
+	Alpha 0
 	States
 	{
 	Spawn:
@@ -1172,13 +1172,13 @@ ACTOR DCBMiss1
 	Height 12
 	Speed 6
 	Damage 30
-	PROJECTILE
-	+SeekerMissile
-	+ExtremeDeath
-	Renderstyle Add
-	SEESOUND "q2weapon/bfgball"
-	DEATHSOUND "q2weapon/bfgballexplo"
-	states
+	Projectile
+	+EXTREMEDEATH
+	+SEEKERMISSILE
+	RenderStyle Add
+	SeeSound "q2weapon/bfgball"
+	DeathSound "q2weapon/bfgballexplo"
+	States
 	{
 	Spawn:
 		CBTS A 2 BRIGHT LIGHT("ThamuzMissile_1") A_SeekerMissile(10,90)
@@ -1226,11 +1226,11 @@ ACTOR DCBM1Trail
 	Radius 1
 	Height 1
 	Scale 0.8
-	+Noclip
-	PROJECTILE
-	RENDERSTYLE Add
+	+NOCLIP
+	Projectile
+	RenderStyle Add
 	Alpha 0.6
-	states
+	States
 	{
 	Spawn:
 		TNT1 A 4
@@ -1246,12 +1246,12 @@ ACTOR DCBMiss2
 	Health 5
 	Speed 28
 	Damage 10
-	RENDERSTYLE Add
-	PROJECTILE
+	RenderStyle Add
+	Projectile
 	Translation "160:167=120:127","208:223=120:127"
-	SEESOUND "q2weapon/rocketlauncherfire"
-	DEATHSOUND "q2weapon/rocketexplo"
-	states
+	SeeSound "q2weapon/rocketlauncherfire"
+	DeathSound "q2weapon/rocketexplo"
+	States
 	{
 	Spawn:
 		THZ4 A 1 BRIGHT LIGHT("ThamuzMissile_2") A_SpawnItemEx("DCBMiss2Trail")
@@ -1275,7 +1275,7 @@ ACTOR DCBMiss2Trail : DCBM1Trail
 {
 	Scale 0.25
 	Alpha 0.4
-	states
+	States
 	{
 	Spawn:
 		FSFX DEFGHIJKL 1 BRIGHT
@@ -1291,13 +1291,13 @@ ACTOR DCBMiss3
 	Health 5
 	Speed 8
 	Scale 2
-	RENDERSTYLE Add
-	+BloodLessImpact
-	+Ripper
-	+DontSplash
-	PROJECTILE
-	SEESOUND "h2necromancer/magiccast"
-	states
+	RenderStyle Add
+	Projectile
+	+BLOODLESSIMPACT
+	+DONTSPLASH
+	+RIPPER
+	SeeSound "h2necromancer/magiccast"
+	States
 	{
 	Spawn:
 		TNT1 A 2 A_Gravity
@@ -1316,11 +1316,11 @@ ACTOR DCBMiss3M
 	Speed 28
 	Damage 12
 	Scale 1.3
-	+FloorHugger
-	RENDERSTYLE Add
-	PROJECTILE
-	DEATHSOUND "comet/explosion"
-	states
+	RenderStyle Add
+	Projectile
+	+FLOORHUGGER
+	DeathSound "comet/explosion"
+	States
 	{
 	Spawn:
 		FSFX N 1 Bright LIGHT("ThamuzMissile_3") A_SpawnItemEx("DCBMiss3MG")
@@ -1338,10 +1338,10 @@ ACTOR DCBMiss3M
 
 ACTOR DCBMiss3Extra
 {
-	+NOBLOCKMAP
-	+NOGRAVITY
 	Radius 1
 	Height 1
+	+NOBLOCKMAP
+	+NOGRAVITY
 	States
 	{
 	Spawn:
@@ -1352,12 +1352,12 @@ ACTOR DCBMiss3Extra
 
 ACTOR DCBMiss3Extra2 : DCBMiss3Extra
 {
-	Projectile
 	Damage 2
-	+RIPPER
-	+BLOODLESSIMPACT
 	Scale 0.18
 	RenderStyle Add
+	Projectile
+	+BLOODLESSIMPACT
+	+RIPPER
 	Translation "168:191=80:82"
 	States
 	{
@@ -1376,13 +1376,12 @@ ACTOR DCBMiss3MG
 	Radius 1
 	Height 1
 	Scale 0.8
-	//+Noclip
-	PROJECTILE
-	+RIPPER
 	Damage 5
-	RENDERSTYLE Add
+	RenderStyle Add
 	Alpha 0.6
-	states
+	Projectile
+	+RIPPER
+	States
 	{
 	Spawn:
 		TNT1 A 4
@@ -1393,11 +1392,11 @@ ACTOR DCBMiss3MG
 
 ACTOR Explosion_Green_A1A
 {
-	+CLIENTSIDEONLY
 	Radius 1
 	Height 2
-	+NoGravity
-	+NoBlockmap
+	+CLIENTSIDEONLY
+	+NOBLOCKMAP
+	+NOGRAVITY
 	States
 	{
 	Spawn:
@@ -1449,7 +1448,7 @@ ACTOR SFX_Wraith
 	Speed 8
 	RenderStyle Add
 	Alpha 0.6
-	SeeSound "Monster/SprSit"
+	SeeSound "monster/SprSit"
 	States
 	{
 	Spawn:
@@ -1463,15 +1462,15 @@ ACTOR SFX_Wraith
 ////////////////
 ACTOR Tchernobog : Thamuz
 {
-	OBITUARY "%o fell before Tchernobog."
+	Obituary "$OB_TCHE"
 	Bloodcolor "aa 00 00"
-	states
+	States
 	{
 	Spawn:
 		TCHR A 10 NODELAY A_Look
 		Loop
 	Missile:
-		"####" A 0 A_SetUserVar("user_height",64)
+		"####" A 0 A_SetUserVar("user_Height",64)
 		Goto Super::Missile
 	}
 }
@@ -1481,22 +1480,22 @@ ACTOR Tchernobog : Thamuz
 ////////////
 ACTOR Vulgar : DoomImp 30127
 {
-	obituary "%o was poisoned by a vulgar."
-	hitobituary "A Vulgar had %o for lunch."
-	health 100
-	mass 120
-	speed 2.66666667
-	painchance 120
-	seesound "monster/vulsit"
-	painsound "monster/vulpai"
-	deathsound "monster/vuldth"
-	activesound "monster/vulact"
+	Health 100
+	Mass 120
+	Speed 2.66666667
+	PainChance 120
+	SeeSound "monster/vulsit"
+	PainSound "monster/vulpai"
+	DeathSound "monster/vuldth"
+	ActiveSound "monster/vulact"
+	Obituary "$OB_VULG"
+	HitObituary "$HB_VULG"
 	DropItem "Heart" 128
-	states
+	States
 	{
 	Spawn:
 		VULG AB 10 A_Look
-		loop
+		Loop
 	See:
 		VULG A 1 A_Chase
 		VULG AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
@@ -1514,7 +1513,7 @@ ACTOR Vulgar : DoomImp 30127
 		VULG DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		VULG D 1 A_Chase
 		VULG DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		loop
+		Loop
 	Melee:
 		VULG E 8 A_FaceTarget
 		VULG F 1 A_PlaySound("monster/vulswg")
@@ -1535,7 +1534,7 @@ ACTOR Vulgar : DoomImp 30127
 		VULG KL 6
 		VULG M 6 A_NoBlocking
 		VULG N -1
-		stop
+		Stop
 	XDeath:
 		VULG O 5
 		VULG P 5 A_XScream
@@ -1543,7 +1542,7 @@ ACTOR Vulgar : DoomImp 30127
 		VULG R 5 A_NoBlocking
 		VULG STU 5
 		VULG V -1
-		stop
+		Stop
 	Raise:
 		VULG MLKJI 6
 		goto See
@@ -1557,22 +1556,22 @@ ACTOR VulgarShot
 	Speed 10
 	Damage 4
 	PoisonDamage 32
-	RENDERSTYLE ADD
-	ALPHA 0.67
-	PROJECTILE
-	Seesound "poly/stmdr1"
+	RenderStyle Add
+	Alpha 0.67
+	Projectile
+	SeeSound "poly/stmdr1"
 	DeathSound "weapons/bloodx"
 	States
 	{
 	Spawn:
 		FVUL AB 3 Bright LIGHT("VulgarShot")
-		loop
+		Loop
 	Death:
 		FVUL C 4 Bright LIGHT("VulgarShotX_1")
 		FVUL D 4 Bright LIGHT("VulgarShotX_2")
 		FVUL E 4 Bright LIGHT("VulgarShotX_3")
 		FVUL F 4 Bright LIGHT("VulgarShotX_4")
-		stop
+		Stop
 	}
 }
 
@@ -1581,35 +1580,35 @@ ACTOR VulgarShot
 ///////////////////
 ACTOR ESoul 29012
 {
-	obituary "%o's soul was leeched by the etheral soul"
-	health 180
-	radius 16
-	height 32
-	mass 400
-	speed 1.66666667
+	Health 180
+	Radius 16
+	Height 32
+	Mass 400
+	Speed 1.66666667
 	FloatSpeed 1.33333333
-	damage 5
-	painchance 128
-	renderstyle Add
-	DropItem "Heart" 160
+	Damage 5
+	PainChance 128
+	RenderStyle Add
 	Alpha 0.4
-	attacksound "skull/melee"
+	Monster
+	+DONTFALL
+	+FLOAT
+	+MISSILEMORE
+	+NOBLOOD
+	+NOGRAVITY
+	+NOICEDEATH
+	+STEALTH
+	AttackSound "skull/melee"
 	PainSound "nightmare/pain"
 	DeathSound "nightmare/death"
 	ActiveSound "nightmare/active"
-	MONSTER
-	+FLOAT
-	+NOGRAVITY
-	+NOICEDEATH
-	+MISSILEMORE
-	+DONTFALL
-	+STEALTH
-	+NOBLOOD
-	states
+	Obituary "$OB_ESOL"
+	DropItem "Heart" 160
+	States
 	{
 	Spawn:
 		ETHS ABCD 10 bright A_Look
-		loop
+		Loop
 	See:
 		ETHS A 1 bright A_Chase
 		ETHS AA 1 bright A_Chase("","",CHF_NOPLAYACTIVE)
@@ -1627,7 +1626,7 @@ ACTOR ESoul 29012
 		ETHS DD 1 bright A_Chase("","",CHF_NOPLAYACTIVE)
 		ETHS D 1 bright A_Chase
 		ETHS DD 1 bright A_Chase("","",CHF_NOPLAYACTIVE)
-		loop
+		Loop
 	Missile:
 		ETHS C 0 A_Jump(128,9)
 		ETHS C 6 bright A_FaceTarget
@@ -1652,7 +1651,7 @@ ACTOR ESoul 29012
 		ETHS F 3 bright
 		ETHS H 3 bright A_ScreamAndUnblock
 		ETHS IJKLMNO 3 bright
-		stop
+		Stop
 	}
 }
 
@@ -1668,21 +1667,21 @@ ACTOR DEWraith 30106
 	Speed 3.33333333
 	FloatSpeed 1.33333333
 	Damage 2
-	RENDERSTYLE ADD
-	OBITUARY "A wraith had its way with %o."
-	HITOBITUARY "%o got bitten by a wraith too many times."
+	RenderStyle Add
 	Alpha 0.67
 	PainChance 64
-	MONSTER
-	+DontGib
-	+NoTarget
-	+NoGravity
-	+Float
-	+DontFall
-	ATTACKSOUND "monster/sprsit"
-	PAINSOUND "archvile/pain"
-	DEATHSOUND "monster/sprdth"
-	states
+	Monster
+	+DONTFALL
+	+DONTGIB
+	+FLOAT
+	+NOGRAVITY
+	+NOTARGET
+	AttackSound "monster/sprsit"
+	PainSound "archvile/pain"
+	DeathSound "monster/sprdth"
+	Obituary "$OB_WRTH"
+	HitObituary "$HB_WRTH"
+	States
 	{
 	Spawn:
 		WRAI AB 10 A_Look
@@ -1726,22 +1725,22 @@ ACTOR DEWraith 30106
 //////////////
 ACTOR TommyGunCultist 29011
 {
-	OBITUARY "%o was shot by a cultist with a thompson."
 	Health 60
 	Height 56
 	Mass 100
 	Speed 2.66666667
 	Scale 0.7
 	PainChance 100
-	SEESOUND "monster/culsit"
-	ATTACKSOUND "chainguy/attack"
-	PAINSOUND "monster/culpai"
-	DEATHSOUND "monster/culdth"
-	ACTIVESOUND "monster/culact"
-	MONSTER
-	+FloorClip
+	Monster
+	+FLOORCLIP
+	SeeSound "monster/culsit"
+	AttackSound "chainguy/attack"
+	PainSound "monster/culpai"
+	DeathSound "monster/culdth"
+	ActiveSound "monster/culact"
+	Obituary "$OB_CULT"
 	DropItem "ClipBox" 80
-	states
+	States
 	{
 	Spawn:
 		BCUL AB 10 A_Look
@@ -1813,12 +1812,12 @@ ACTOR TommyGunCultist 29011
 
 ACTOR PumpCultist : TommyGunCultist 29010
 {
-	OBITUARY "%o was shot by a cultist with a shotgun."
 	Health 80
-	Translation "80:111=48:79"
-	DropItem "Shell2" 80	// even if he does, he drops only 2 shells, so you don't get too much ammo
 	AttackSound "shotguy/attack"
-	states
+	Obituary "$OB_CUL2"
+	DropItem "Shell2" 80	// even if he does, he drops only 2 shells, so you don't get too much ammo
+	Translation "80:111=48:79"
+	States
 	{
 	Missile:
 		BCUL E 20 A_FaceTarget
@@ -1830,9 +1829,9 @@ ACTOR PumpCultist : TommyGunCultist 29010
 
 ACTOR AngstHase : TommyGunCultist 29234
 {
-	ACTIVESOUND "monster/culflee"
+	ActiveSound "monster/culflee"
 	DropItem "Clip"
-	states
+	States
 	{
 	Missile:
 		Stop
@@ -1844,18 +1843,18 @@ ACTOR AngstHase : TommyGunCultist 29234
 /////////////////
 ACTOR Fatty : Revenant 25010
 {
-	Species "Fatty"
-	OBITUARY "%o couldn't evade the fatty's puke."
-	HITOBITUARY "%o was punched by a fat zombie."
 	Radius 12
 	Speed 1.75
 	Scale 0.8
-	SEESOUND "fatty/sit"
-	PAINSOUND "skeleton/pain"
-	DEATHSOUND "fatty/death"
-	ACTIVESOUND "fatty/act"
+	SeeSound "fatty/sit"
+	PainSound "skeleton/pain"
+	DeathSound "fatty/death"
+	ActiveSound "fatty/act"
+	Obituary "$OB_FATY"
+	HitObituary "$HB_FATY"
 	DropItem "Heart" 128
-	states
+	Species "Fatty"
+	States
 	{
 	Spawn:
 		BFAT AB 10 A_Look
@@ -1920,10 +1919,10 @@ ACTOR Fatty : Revenant 25010
 
 ACTOR FattyTracer1 : RevenantTracer
 {
-	SEESOUND "fatty/attack"
-	DEATHSOUND "fatty/attack"
 	RenderStyle Normal
-	states
+	SeeSound "fatty/attack"
+	DeathSound "fatty/attack"
+	States
 	{
 	Spawn:
 		FATX AB 2
@@ -1938,7 +1937,7 @@ ACTOR FattyTracer1 : RevenantTracer
 
 ACTOR FattyTracer2 : FattyTracer1
 {
-	states
+	States
 	{
 	Spawn:
 		FATX A 2 A_SeekerMissile(10,20)
@@ -1949,15 +1948,15 @@ ACTOR FattyTracer2 : FattyTracer1
 
 ACTOR FattyTracerTrail
 {
-	+CLIENTSIDEONLY
 	Radius 1
 	Height 1
-	PROJECTILE
-	RENDERSTYLE Translucent
-	Alpha 0.5
 	Scale 0.5
-	+Noclip
-	states
+	RenderStyle Translucent
+	Alpha 0.5
+	Projectile
+	+CLIENTSIDEONLY
+	+NOCLIP
+	States
 	{
 	Spawn:
 		FBXX ABC 3
@@ -1970,23 +1969,23 @@ ACTOR FattyTracerTrail
 ////////////
 ACTOR ZombieBlood 31002
 {
-	HITOBITUARY "%o was slaughtered by a zombie."
 	Health 150
 	PainChance 0
 	Speed 3
 	Radius 30
-	DropItem "Heart" 160
 	Height 56
 	Mass 400
 	Scale 0.7
-	SEESOUND "zombieblood/sit"
-	ATTACKSOUND "zombieblood/fis"
-	PAINSOUND "zombieblood/pan"
-	DEATHSOUND "zombieblood/dth"
-	ACTIVESOUND "zombieblood/act"
-	MONSTER
-	+FloorClip
-	states
+	Monster
+	+FLOORCLIP
+	SeeSound "zombieblood/sit"
+	AttackSound "zombieblood/fis"
+	PainSound "zombieblood/pan"
+	DeathSound "zombieblood/dth"
+	ActiveSound "zombieblood/act"
+	HitObituary "$OB_ZOMB"
+	DropItem "Heart" 160
+	States
 	{
 	Spawn:
 		BZOM AB 10 A_Look
