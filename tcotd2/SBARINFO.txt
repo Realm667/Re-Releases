@@ -36,10 +36,11 @@ StatusBar fullscreen, fullscreenoffsets
 				DrawNumber 3, HUDFONT_DOOM, untranslated, health, interpolate(8), -73+center, -27;
 				DrawNumber 3, HUDFONT_DOOM, untranslated, armor, interpolate(8), 57+center, -27;
 
-	    // MUGSHOT + SELECTED INVENTORY ITEM
+	    // MUGSHOT + SELECTED INVENTORY ITEM //but don't overlay mug - ozy81
 		IfCVarInt fullhud_mugswitch, 1, equal
 		{
-			DrawSelectedInventory alternateonempty, INDEXFONT_DOOM, -17+center, -32 { DrawImage "STMS", -17+center, -32; }
+			DrawSelectedInventory alternateonempty, INDEXFONT_DOOM, -52+center, -29 {  }
+			DrawImage "STMS", -17+center, -32;
 		}
 
 		IfCVarInt fullhud_berserk, 1, equal
@@ -65,20 +66,20 @@ StatusBar fullscreen, fullscreenoffsets
 		
 
 		// AMMO OVERVIEW
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 128+center, -27;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 128+center, -21;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(NapalmAmmo), 128+center, -15;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 154+center, -27;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 154+center, -21;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(NapalmAmmo), 154+center, -15;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 139+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 139+center, -19;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(NapalmAmmo), 139+center, -11;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 156+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 156+center, -19;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(NapalmAmmo), 156+center, -11;
 
 		// WEAPONS
 	        GameMode singleplayer, cooperative
 	        {
-			DrawSwitchableImage weaponslot 2, "STGNUM2", "STYSNUM2", -49+center, -28;
-			DrawSwitchableImage weaponslot 3, "STGNUM3", "STYSNUM3", -37+center, -28;
-			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", -25+center, -28;
-			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", -49+center, -18;
+			DrawSwitchableImage weaponslot 2, "STGNUM2", "STYSNUM2", 82+center, -28;
+			DrawSwitchableImage weaponslot 3, "STGNUM3", "STYSNUM3", 94+center, -28;
+			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", 82+center, -18;
+			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", 94+center, -18;
 		}
 
 		// FRAGS
@@ -378,7 +379,8 @@ StatusBar normal, fullscreenoffsets
 	    // MUGSHOT + SELECTED INVENTORY ITEM
 		IfCVarInt fullhud_mugswitch, 1, equal
 		{
-			DrawSelectedInventory alternateonempty, INDEXFONT_DOOM, -17+center, -32 { DrawImage "STMS", -17+center, -32; }
+			DrawSelectedInventory alternateonempty, INDEXFONT_DOOM, -52+center, -29 {  }
+			DrawImage "STMS", -17+center, -32;
 		}
 
 		IfCVarInt fullhud_berserk, 1, equal
@@ -403,20 +405,20 @@ StatusBar normal, fullscreenoffsets
 		drawswitchableimage Sanduhr, "nullimage", "M_DUHR", 63+center, -42;
 
 		// AMMO OVERVIEW
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 128+center, -27;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 128+center, -21;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(NapalmAmmo), 128+center, -15;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 154+center, -27;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 154+center, -21;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(NapalmAmmo), 154+center, -15;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 139+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 139+center, -19;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(NapalmAmmo), 139+center, -11;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 156+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 156+center, -19;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(NapalmAmmo), 156+center, -11;
 
 		// WEAPONS
 	        GameMode singleplayer, cooperative
 	        {
-			DrawSwitchableImage weaponslot 2, "STGNUM2", "STYSNUM2", -49+center, -28;
-			DrawSwitchableImage weaponslot 3, "STGNUM3", "STYSNUM3", -37+center, -28;
-			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", -25+center, -28;
-			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", -49+center, -18;
+			DrawSwitchableImage weaponslot 2, "STGNUM2", "STYSNUM2", 82+center, -28;
+			DrawSwitchableImage weaponslot 3, "STGNUM3", "STYSNUM3", 94+center, -28;
+			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", 82+center, -18;
+			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", 94+center, -18;
 		}
 
 		// FRAGS
