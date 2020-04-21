@@ -1,4 +1,6 @@
 // DOOM FULLSCREEN STATUS BAR (BY NIGHTFRIGHT - INCLUDES CODE BY DTDSPHERE & M8F)
+
+base Doom;
 height 0;
 
 // FULLSCREEN STATUS BAR
@@ -14,15 +16,15 @@ StatusBar fullscreen, fullscreenoffsets
 	       	{
 				DrawImage translatable "STBAR", -160+center, -43;
 			}
-		
+
 	        GameMode deathmatch
 	        {
 			   	DrawImage translatable "STBAR", -160+center, -43;
 	        }
-     	
+
 			DrawString HUDFONT_DOOM, untranslated, "%", -56+center, -27;
 			DrawString HUDFONT_DOOM, untranslated, "%", 75+center, -27;
-			
+
 			usessecondaryammo not
 				DrawNumber 3, HUDFONT_DOOM, untranslated, ammo1, -118+center, -27;
 			else
@@ -30,16 +32,16 @@ StatusBar fullscreen, fullscreenoffsets
 				DrawNumber 3, SMALLFONT, untranslated, ammo1, -125+center, -28;
 				DrawNumber 3, SMALLFONT, untranslated, ammo2, -125+center, -20;
 			}
-			
+
 				DrawNumber 3, HUDFONT_DOOM, untranslated, health, interpolate(8), -73+center, -27;
 				DrawNumber 3, HUDFONT_DOOM, untranslated, armor, interpolate(8), 57+center, -27;
-				
+
 	    // MUGSHOT + SELECTED INVENTORY ITEM
 		IfCVarInt fullhud_mugswitch, 1, equal
 		{
 			DrawSelectedInventory alternateonempty, INDEXFONT_DOOM, -17+center, -32 { DrawImage "STMS", -17+center, -32; }
 		}
-		
+
 		IfCVarInt fullhud_berserk, 1, equal
 		{
 			InInventory "PowerStrength"
@@ -47,9 +49,20 @@ StatusBar fullscreen, fullscreenoffsets
 		}
 
 		// KEYS
-		DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 79+center, -27;
-		DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 79+center, -19;
-		DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 79+center, -9;
+		drawswitchableimage SkullKey, "nullimage", "M_KEY1", -83+center, -42;
+		drawswitchableimage EyeKey, "nullimage", "M_KEY2", -72+center, -42;
+		drawswitchableimage FireKey, "nullimage", "M_KEY3", -61+center, -42;
+		drawswitchableimage KniveKey, "nullimage", "M_KEY4", -50+center, -42;
+		drawswitchableimage SpiderKey, "nullimage", "M_KEY5", -39+center, -42;
+		drawswitchableimage MoonKey, "nullimage", "M_KEY6", -28+center, -42;
+		
+		// PUZZLEKEYS
+		drawswitchableimage Diamant, "nullimage", "M_DIAM", 19+center, -42;
+		drawswitchableimage Schaedel, "nullimage", "M_KOPF", 30+center, -42;
+		drawswitchableimage SafeKey, "nullimage", "M_SAFE", 41+center, -42;
+		drawswitchableimage TransBook, "nullimage", "M_TRAN", 52+center, -42;
+		drawswitchableimage Sanduhr, "nullimage", "M_DUHR", 63+center, -42;
+		
 
 		// AMMO OVERVIEW
 		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 128+center, -27;
@@ -67,13 +80,13 @@ StatusBar fullscreen, fullscreenoffsets
 			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", -25+center, -28;
 			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", -49+center, -18;
 		}
-		
+
 		// FRAGS
 	       	GameMode deathmatch, teamgame
 	       	{
 			drawnumber 2, HUDFONT_DOOM, untranslated, frags, -22+center, -27;
 		}
-        
+
 
 	// LEVEL STATS
 	GameMode singleplayer, cooperative
@@ -86,7 +99,7 @@ StatusBar fullscreen, fullscreenoffsets
 				{
 					IfCVarInt fullhud_fullstats, 1, equal
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1", 5, 5;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, 5;
@@ -96,7 +109,7 @@ StatusBar fullscreen, fullscreenoffsets
 					}
 					else
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1A", 5, 5;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, 5;
@@ -125,7 +138,7 @@ StatusBar fullscreen, fullscreenoffsets
 			{
 				IfCVarInt fullhud_fullstats, 1, equal
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2", 5, 5;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, 5;
@@ -135,7 +148,7 @@ StatusBar fullscreen, fullscreenoffsets
 				}
 				else
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2A", 5, 5;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, 5;
@@ -152,7 +165,7 @@ StatusBar fullscreen, fullscreenoffsets
 				{
 					IfCVarInt fullhud_fullstats, 1, equal
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1", -47, 5;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, 5;
@@ -162,7 +175,7 @@ StatusBar fullscreen, fullscreenoffsets
 					}
 					else
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1A", -47, 5;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, 5;
@@ -191,7 +204,7 @@ StatusBar fullscreen, fullscreenoffsets
 			{
 				IfCVarInt fullhud_fullstats, 1, equal
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2", -42, 5;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, 5;
@@ -201,7 +214,7 @@ StatusBar fullscreen, fullscreenoffsets
 				}
 				else
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2A", -42, 5;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, 5;
@@ -218,7 +231,7 @@ StatusBar fullscreen, fullscreenoffsets
 				{
 					IfCVarInt fullhud_fullstats, 1, equal
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1", 5, -60;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, -60;
@@ -228,7 +241,7 @@ StatusBar fullscreen, fullscreenoffsets
 					}
 					else
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1A", 5, -54;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, -54;
@@ -249,7 +262,7 @@ StatusBar fullscreen, fullscreenoffsets
 			{
 				IfCVarInt fullhud_fullstats, 1, equal
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2", 5, -60;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, -60;
@@ -259,7 +272,7 @@ StatusBar fullscreen, fullscreenoffsets
 				}
 				else
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2A", 5, -54;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, -54;
@@ -276,7 +289,7 @@ StatusBar fullscreen, fullscreenoffsets
 				{
 					IfCVarInt fullhud_fullstats, 1, equal
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1", -47, -60;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, -60;
@@ -286,7 +299,7 @@ StatusBar fullscreen, fullscreenoffsets
 					}
 					else
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1A", -47, -54;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, -54;
@@ -307,7 +320,7 @@ StatusBar fullscreen, fullscreenoffsets
 			{
 				IfCVarInt fullhud_fullstats, 1, equal
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2", -42, -60;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, -60;
@@ -317,7 +330,7 @@ StatusBar fullscreen, fullscreenoffsets
 				}
 				else
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2A", -42, -54;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, -54;
@@ -342,15 +355,15 @@ StatusBar normal, fullscreenoffsets
 	       	{
 				DrawImage translatable "STBAR", -160+center, -43;
 			}
-		
+
 	        GameMode deathmatch
 	        {
 			   	DrawImage translatable "STBAR", -160+center, -43;
 	        }
-     	
+
 			DrawString HUDFONT_DOOM, untranslated, "%", -56+center, -27;
 			DrawString HUDFONT_DOOM, untranslated, "%", 75+center, -27;
-			
+
 			usessecondaryammo not
 				DrawNumber 3, HUDFONT_DOOM, untranslated, ammo1, -118+center, -27;
 			else
@@ -358,16 +371,16 @@ StatusBar normal, fullscreenoffsets
 				DrawNumber 3, SMALLFONT, untranslated, ammo1, -125+center, -28;
 				DrawNumber 3, SMALLFONT, untranslated, ammo2, -125+center, -20;
 			}
-			
+
 				DrawNumber 3, HUDFONT_DOOM, untranslated, health, interpolate(8), -73+center, -27;
 				DrawNumber 3, HUDFONT_DOOM, untranslated, armor, interpolate(8), 57+center, -27;
-				
+
 	    // MUGSHOT + SELECTED INVENTORY ITEM
 		IfCVarInt fullhud_mugswitch, 1, equal
 		{
 			DrawSelectedInventory alternateonempty, INDEXFONT_DOOM, -17+center, -32 { DrawImage "STMS", -17+center, -32; }
 		}
-		
+
 		IfCVarInt fullhud_berserk, 1, equal
 		{
 			InInventory "PowerStrength"
@@ -375,9 +388,19 @@ StatusBar normal, fullscreenoffsets
 		}
 
 		// KEYS
-		DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 79+center, -27;
-		DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 79+center, -19;
-		DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 79+center, -9;
+		drawswitchableimage SkullKey, "nullimage", "M_KEY1", -83+center, -42;
+		drawswitchableimage EyeKey, "nullimage", "M_KEY2", -72+center, -42;
+		drawswitchableimage FireKey, "nullimage", "M_KEY3", -61+center, -42;
+		drawswitchableimage KniveKey, "nullimage", "M_KEY4", -50+center, -42;
+		drawswitchableimage SpiderKey, "nullimage", "M_KEY5", -39+center, -42;
+		drawswitchableimage MoonKey, "nullimage", "M_KEY6", -28+center, -42;
+		
+		// PUZZLEKEYS
+		drawswitchableimage Diamant, "nullimage", "M_DIAM", 19+center, -42;
+		drawswitchableimage Schaedel, "nullimage", "M_KOPF", 30+center, -42;
+		drawswitchableimage SafeKey, "nullimage", "M_SAFE", 41+center, -42;
+		drawswitchableimage TransBook, "nullimage", "M_TRAN", 52+center, -42;
+		drawswitchableimage Sanduhr, "nullimage", "M_DUHR", 63+center, -42;
 
 		// AMMO OVERVIEW
 		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 128+center, -27;
@@ -395,13 +418,13 @@ StatusBar normal, fullscreenoffsets
 			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", -25+center, -28;
 			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", -49+center, -18;
 		}
-		
+
 		// FRAGS
 	       	GameMode deathmatch, teamgame
 	       	{
 			drawnumber 2, HUDFONT_DOOM, untranslated, frags, -22+center, -27;
 		}
-        
+
 
 	// LEVEL STATS
 	GameMode singleplayer, cooperative
@@ -414,7 +437,7 @@ StatusBar normal, fullscreenoffsets
 				{
 					IfCVarInt fullhud_fullstats, 1, equal
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1", 5, 5;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, 5;
@@ -424,7 +447,7 @@ StatusBar normal, fullscreenoffsets
 					}
 					else
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1A", 5, 5;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, 5;
@@ -453,7 +476,7 @@ StatusBar normal, fullscreenoffsets
 			{
 				IfCVarInt fullhud_fullstats, 1, equal
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2", 5, 5;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, 5;
@@ -463,7 +486,7 @@ StatusBar normal, fullscreenoffsets
 				}
 				else
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2A", 5, 5;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, 5;
@@ -480,7 +503,7 @@ StatusBar normal, fullscreenoffsets
 				{
 					IfCVarInt fullhud_fullstats, 1, equal
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1", -47, 5;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, 5;
@@ -490,7 +513,7 @@ StatusBar normal, fullscreenoffsets
 					}
 					else
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1A", -47, 5;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, 5;
@@ -519,7 +542,7 @@ StatusBar normal, fullscreenoffsets
 			{
 				IfCVarInt fullhud_fullstats, 1, equal
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2", -42, 5;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, 5;
@@ -529,7 +552,7 @@ StatusBar normal, fullscreenoffsets
 				}
 				else
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2A", -42, 5;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, 5;
@@ -546,7 +569,7 @@ StatusBar normal, fullscreenoffsets
 				{
 					IfCVarInt fullhud_fullstats, 1, equal
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1", 5, -60;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, -60;
@@ -556,7 +579,7 @@ StatusBar normal, fullscreenoffsets
 					}
 					else
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1A", 5, -54;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, -54;
@@ -577,7 +600,7 @@ StatusBar normal, fullscreenoffsets
 			{
 				IfCVarInt fullhud_fullstats, 1, equal
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2", 5, -60;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, -60;
@@ -587,7 +610,7 @@ StatusBar normal, fullscreenoffsets
 				}
 				else
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2A", 5, -54;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, -54;
@@ -604,7 +627,7 @@ StatusBar normal, fullscreenoffsets
 				{
 					IfCVarInt fullhud_fullstats, 1, equal
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1", -47, -60;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, -60;
@@ -614,7 +637,7 @@ StatusBar normal, fullscreenoffsets
 					}
 					else
 					{
-						Alpha 0.7 
+						Alpha 0.7
 						{
 							DrawImage "STATS1A", -47, -54;
 							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, -54;
@@ -635,7 +658,7 @@ StatusBar normal, fullscreenoffsets
 			{
 				IfCVarInt fullhud_fullstats, 1, equal
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2", -42, -60;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, -60;
@@ -645,7 +668,7 @@ StatusBar normal, fullscreenoffsets
 				}
 				else
 				{
-					Alpha 0.7 
+					Alpha 0.7
 					{
 						DrawImage "STATS2A", -42, -54;
 						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, -54;
@@ -660,14 +683,27 @@ StatusBar normal, fullscreenoffsets
 // INVENTORY BAR (NORMAL)
 statusbar inventory, fullscreenoffsets
 {
-	drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -66;
+	drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -46;
 }
 
-// INVENTORY BAR (FULSCREEN)
+// INVENTORY BAR (FULLSCREEN)
 statusbar inventoryfullscreen, fullscreenoffsets
 {
-	Alpha 0.6
-	drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -66;
+   	// SPLIT VERSION
+   	IfCVarInt fullhud_split, 1, equal
+   	{
+   		IfCVarInt fullhud_trans, 0, equal
+			drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -31;
+   		else
+		{
+			Alpha 0.6
+			drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -31;
+		}
+   	}
+
+   	// NON-SPLIT VERSION
+   	else
+		drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -66;
 }
 
 // AUTOMAP STATUS BAR
