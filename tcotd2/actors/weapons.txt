@@ -22,13 +22,13 @@ ACTOR Pitchfork : Weapon replaces Chainsaw
 		XUNG A 1 A_Raise
 		wait
 	Fire:
-		XUNG A 5
+		XUNG BBB 3 A_WeaponReady(WRF_NOFIRE|WRF_NOSWITCH)
+		XUNG CC 3 A_WeaponReady(WRF_NOFIRE|WRF_NOSWITCH)
 		XUNG A 0 A_PlaySound("DSSKESWG",CHAN_WEAPON)
-		XUNG B 5 A_CustomPunch(4,0,0,"HitPuff",96)
-		XUNG C 6
-		XUNG B 5
-		XUNG A 6 A_ReFire
-		goto Ready
+		XUNG A 0 A_FireBullets(14, 0, 4, 1, "PitchforkPuff",1,96)
+		XUNG CCCBBBAA 3 A_WeaponReady(WRF_NOFIRE|WRF_NOSWITCH)
+		XUNG A 0 A_ReFire
+		Goto Ready
 	AltFire:
 		XUNG B 2 A_PlaySound("DSSKESWG",CHAN_WEAPON)
 		XUNG C 2 A_FireCustomMissile("Pitchfork_thrown",0,1,0,5)
@@ -36,6 +36,82 @@ ACTOR Pitchfork : Weapon replaces Chainsaw
 		Goto Deselect+1
 	Spawn:
 		XFOR A -1
+		Stop
+	}
+}
+
+ACTOR PitchforkSpark
+{
+	Radius 3
+	Height 4
+	Speed 25
+	RenderStyle "Add"
+	Scale 0.7
+	+CANNOTPUSH
+	+DONTSPLASH
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+RANDOMIZE
+	+THRUGHOST
+	SeeSound "Fork/Stab"
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		BSPR A 0 A_Jump(128,7)
+		BSPR ABCDEFG 2 BRIGHT
+		Stop
+		BSPR HIJKLMN 2 BRIGHT
+		Stop
+	XDeath:
+		TNT1 A 0
+		TNT1 A 0 A_PlaySound("Fork/Stab")
+		BLD2 A 0 A_Jump(128,"XDeath2")
+		BLD2 FGHI 4
+		Stop
+	XDeath2:
+		BLD2 OPQR 4
+		Stop
+	}
+}
+
+ACTOR PitchforkPuff
+{
+	Scale 0.8
+	Renderstyle Translucent
+	Alpha 0.5
+	Decal Bullet
+	+ALLOWPARTICLES
+	+NOBLOCKMAP
+	+NODAMAGETHRUST
+	+NOGRAVITY
+	+RANDOMIZE
+	+THRUGHOST
+	AttackSound "Fork/Attack"
+	SeeSound "Fork/Stab"
+	States
+	{
+	Spawn:
+		PUFF A 0
+		Stop
+	Melee:
+		TNT1 A 0
+		TNT1 A 0 A_PlaySound("Fork/Stab")
+		PUFF A 0 A_Jump(128,9)
+		PUFF ABCDEFGH 4
+		Stop
+		PUFF IJKLMNOP 4
+		Stop
+	Crash:
+		PUFF A 0 A_SpawnItem("PitchforkSpark")
+		Stop
+	XDeath:
+		TNT1 A 0 A_PlaySound("Fork/Stab")
+		BLD2 A 0 A_Jump(128,"XDeath2")
+		BLD2 FGHI 4
+		Stop
+	XDeath2:
+		BLD2 OPQR 4
 		Stop
 	}
 }
@@ -58,7 +134,7 @@ ACTOR HitPuff
 	}
 }
 
-ACTOR Pitchfork_thrown
+ACTOR Pitchfork_Thrown
 {
 	Radius 2
 	Height 1
@@ -188,6 +264,7 @@ ACTOR Sawedoff : Shotgun replaces Shotgun
 		Stop
 	}
 }
+
 ACTOR SawedoffLoaded : Ammo
 {
 	+INVENTORY.IGNORESKILL

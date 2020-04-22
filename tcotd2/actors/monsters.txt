@@ -4,6 +4,7 @@
 ACTOR Civilian 29237
 {
 	Health 999999
+	GibHealth 35
 	Radius 16
 	Height 56
 	Mass 999999
@@ -29,6 +30,9 @@ ACTOR Civilian 29237
 		CIVI JKLMN 5
 		CIVI O -1
 		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
+		Stop
 	}
 }
 
@@ -39,6 +43,7 @@ ACTOR Civilian 29237
 ACTOR ApprenticeofDsparil
 {
 	Health 500
+	GibHealth 35
 	Height 56
 	Speed 2.66666667
 	FloatSpeed 1.33333333
@@ -126,7 +131,7 @@ ACTOR ApprenticeofDsparil
 		APDP E 2 LIGHT("ApprenticeOfDSparilX_1") A_SetTranslucent(1)
 		APDP E 2 LIGHT("ApprenticeOfDSparilX_1") A_Pain
 		Goto See
-	Death:
+	Death: //no XDeath for this creature atm - ozy81
 		APDP E 4 LIGHT("ApprenticeOfDSparilX_1") A_SetTranslucent(1)
 		APDP F 4 LIGHT("ApprenticeOfDSparilX_2")
 		APDP G 3 LIGHT("ApprenticeOfDSparilX_3") A_Scream
@@ -280,6 +285,7 @@ ACTOR LargeSpider : MiniSpider
 ACTOR Thrall 30119
 {
 	Health 100
+	GibHealth 35
 	PainChance 200
 	Scale 1.1
 	Speed 4
@@ -335,11 +341,22 @@ ACTOR Thrall 30119
 		CULT M -1
 		Stop
 	XDeath:
+		CULT N 0 A_SpawnDebris("NashGore_Gib9",0)
+		CULT N 0 A_SpawnDebris("NashGore_Gib10",0)
+		CULT N 0 A_SpawnDebris("NashGore_Gib11",0)
+		CULT N 0 A_SpawnDebris("NashGore_Gib11",0)
+		CULT N 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 		CULT N 5
+		CULT O 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,2)
 		CULT O 5 A_XScream
+		CULT P 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,4)
 		CULT P 5 A_NoBlocking
 		CULT QRSTUV 5
 		CULT W -1
+		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
+		Stop
 	Raise:
 		CULT MLKJHI 5
 		Goto See
@@ -376,6 +393,7 @@ ACTOR ThrallShot1
 ACTOR Incarnate 30115
 {
 	Health 400
+	GibHealth 35
 	Radius 20
 	Height 56
 	Mass 500
@@ -464,16 +482,23 @@ ACTOR Incarnate 30115
 	XDeath:
 		INCX A 10 BRIGHT LIGHT("IncarnateX_1") A_PlaySound("monster/incexp")
 		INCX B 5 BRIGHT LIGHT("IncarnateX_2")
+		INCX A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 		INCX C 5 BRIGHT LIGHT("IncarnateX_3")
 		INCX D 5 BRIGHT LIGHT("IncarnateX_4") A_NoBlocking
+		INCX A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,2)
 		INCX D 0 A_SpawnItemEx("HS",0,0,32)
 		INCX E 5 BRIGHT LIGHT("IncarnateX_5")
 		INCX F 5 BRIGHT LIGHT("IncarnateX_6")
+		INCX A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,4)
 		INCX G 5 BRIGHT LIGHT("IncarnateX_7")
 		INCX H 5 BRIGHT LIGHT("IncarnateX_8")
+		INCX A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,5)
 		INCX I 5 BRIGHT LIGHT("IncarnateX_9")
 		INCX J 5 BRIGHT LIGHT("IncarnateX_10")
 		INCX K -1
+		Stop
+	Crush:
+		TNT1 A 1 { A_KillChildren; A_SpawnItem("NashGore_CrushedMedium",0,0,0,0); }
 		Stop
 	Raise:
 		INCA Q 5 A_KillChildren
@@ -595,6 +620,9 @@ ACTOR HotDog 30121
 		HDOG OP 4
 		HDOG Q -1
 		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedMedium",0,0,0,0)
+		Stop
 	Raise:
 		HDOG QPONMLK 5
 		Goto See
@@ -659,6 +687,8 @@ ACTOR KDiZDNightmare 26000
 	DeathSound "nightmare/death"
 	ActiveSound "nightmare/active"
 	HitObituary "$HB_NITE"
+	BloodType "Gore_TIvoryBlood"
+	BloodColor "Ivory"
 	States
 	{
 	Spawn:
@@ -747,6 +777,7 @@ ACTOR SirenNightmare : KDiZDNightmare 31111
 ACTOR Shadow 3126
 {
 	Health 300
+	GibHealth 35
 	Height 56
 	Mass 100
 	Scale 1.5
@@ -760,6 +791,8 @@ ACTOR Shadow 3126
 	DeathSound "Shadow/death"
 	ActiveSound "Shadow/active"
 	Obituary "$OB_SHDW"
+	BloodType "Gore_TOnyxBlood"
+	BloodColor "Onyx"
 	States
 	{
 	Spawn:
@@ -795,12 +828,21 @@ ACTOR Shadow 3126
 		TROX P -1
 		Stop
 	XDeath:
+		TROX A 0 A_SpawnDebris("Gore_TOnyxGib11",0)
+		TROX A 0 A_SpawnDebris("Gore_TOnyxGib11",0)
+		TROX A 0 A_SpawnItem("Gore_GibGeneratorTOnyx",0,0,0,0)
 		TROX W 5
+		TROX B 0 A_SpawnItem("Gore_GibGeneratorTOnyx",0,0,0,2)
 		TROX X 4 A_XScream
+		TROX C 0 A_SpawnItem("Gore_GibGeneratorTOnyx",0,0,0,4)
 		TROX Y 4
+		TROX D 0 A_SpawnItem("Gore_GibGeneratorTOnyx",0,0,0,6)
 		TROX Z 4 A_NoBlocking
 		TROX "][" 4
 		TROX \ -1
+		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedSmallTOnyx",0,0,0,0)
 		Stop
 	Raise:
 		TROX MKLJI 8
@@ -895,17 +937,18 @@ ACTOR ShadowTrail
 ACTOR SoulHarvester 3117
 {
 	Health 120
+	GibHealth 35
 	Height 56
 	Speed 2.66666667
 	PainChance 120
 	Monster
 	+FLOORCLIP
-	DropItem "Heart" 160
 	SeeSound "harvester/sight"
 	PainSound "imp/pain"
 	DeathSound "harvester/death"
 	ActiveSound "imp/active"
 	Obituary "$OB_HARV"
+	DropItem "Heart" 160
 	States
 	{
 	Spawn:
@@ -954,12 +997,21 @@ ACTOR SoulHarvester 3117
 		SLHV W -1
 		Stop
 	XDeath:
-		SLHV X 6 A_XScream
-		SLHV Y 6 A_SpawnItemEx("SoulHarvesterGhost",0,0,32)
+		SLHV X 0 A_SpawnDebris("NashGore_Gib11",0)
+		SLHV X 0 A_SpawnDebris("NashGore_Gib11",0)
+		SLHV X 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		SLHV X 6 A_Xscream
+		SLHV Y 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,2)
+		SLHV Y 6 A_SpawnItemEx("SoulHarvesterGhost", 0, 0, 32, 0, 0, 0, 0, 128)
+		SLHV Z 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,4)
 		SLHV Z 6
-		SLHV [ 6 A_NoBlocking
+		SLHV [ 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,6)
+		SLHV [ 6 A_Fall
 		SLHV ] 6
 		SLHW A -1
+		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
 		Stop
 	Raise:
 		SLHV WVUTSRQPO 5
@@ -1480,6 +1532,7 @@ ACTOR Tchernobog : Thamuz
 ////////////
 ACTOR Vulgar : DoomImp 30127
 {
+	Translation "16:47=112:127","168:191=114:128"
 	Health 100
 	Mass 120
 	Speed 2.66666667
@@ -1490,6 +1543,7 @@ ACTOR Vulgar : DoomImp 30127
 	ActiveSound "monster/vulact"
 	Obituary "$OB_VULG"
 	HitObituary "$HB_VULG"
+	BloodColor "0 a3 0"
 	DropItem "Heart" 128
 	States
 	{
@@ -1535,17 +1589,26 @@ ACTOR Vulgar : DoomImp 30127
 		VULG M 6 A_NoBlocking
 		VULG N -1
 		Stop
-	XDeath:
+	XDeath: //new
+		VULG O 0 A_SpawnDebris("Gore_GreenGib11",0)
+		VULG O 0 A_SpawnDebris("Gore_GreenGib11",0)
+		VULG O 0 A_SpawnItem("Gore_GibGeneratorGreen",0,0,0,0)
 		VULG O 5
+		VULG P 0 A_SpawnItem("Gore_GibGeneratorGreen",0,0,0,2)
 		VULG P 5 A_XScream
+		VULG Q 0 A_SpawnItem("Gore_GibGeneratorGreen",0,0,0,4)
 		VULG Q 5
+		VULG R 0 A_SpawnItem("Gore_GibGeneratorGreen",0,0,0,6)
 		VULG R 5 A_NoBlocking
 		VULG STU 5
 		VULG V -1
 		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedSmallGreen",0,0,0,0)
+		Stop
 	Raise:
 		VULG MLKJI 6
-		goto See
+		Goto See
 	}
 }
 
@@ -1798,11 +1861,21 @@ ACTOR TommyGunCultist 29011
 		BCUL N -1
 		Stop
 	XDeath:
+		BCUL O 0 A_SpawnDebris("NashGore_Gib9",0)
+		BCUL O 0 A_SpawnDebris("NashGore_Gib10",0)
+		BCUL O 0 A_SpawnDebris("NashGore_Gib11",0)
+		BCUL O 0 A_SpawnDebris("NashGore_Gib11",0)
+		BCUL O 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 		BCUL O 5
+		BCUL P 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,2)
 		BCUL P 5 A_XScream
+		BCUL Q 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,4)
 		BCUL Q 5 A_NoBlocking
 		BCUL RST 5
 		BCUL U -1
+		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
 		Stop
 	Raise:
 		BCUL NMLKJIH 5
@@ -1843,6 +1916,7 @@ ACTOR AngstHase : TommyGunCultist 29234
 /////////////////
 ACTOR Fatty : Revenant 25010
 {
+	GibHealth 35
 	Radius 12
 	Speed 1.75
 	Scale 0.8
@@ -1911,6 +1985,26 @@ ACTOR Fatty : Revenant 25010
 		BFAT P 9
 		BFAT Q -1
 		Stop
+	XDeath:
+		BBT2 M 0 A_SpawnDebris("NashGore_Gib9",0)
+		BBT2 M 0 A_SpawnDebris("NashGore_Gib10",0)
+		BBT2 M 0 A_SpawnDebris("NashGore_Gib11",0)
+		BBT2 M 0 A_SpawnDebris("NashGore_Gib11",0)
+		BBT2 M 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		BBT2 M 5 A_Scream
+		BBT2 N 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,2)
+		BBT2 N 5
+		BBT2 O 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,4)
+		BBT2 O 5 A_NoBlocking
+		BBT2 P 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,6)
+		BBT2 P 5
+		BBT2 PQRSTUV 5
+		BBT2 VWVWVWVWVVWVWVWVWVVWVWVWVWVVWVWVWVWV 5
+		BBT2 W -1
+		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedMedium",0,0,0,0)
+		Stop
 	Raise:
 		BFAT QPONML 5
 		Goto See
@@ -1970,6 +2064,7 @@ ACTOR FattyTracerTrail
 ACTOR ZombieBlood 31002
 {
 	Health 150
+	GibHealth 35
 	PainChance 0
 	Speed 3
 	Radius 30
@@ -2023,6 +2118,24 @@ ACTOR ZombieBlood 31002
 		BZOM L 4 A_NoBlocking
 		BZOM M 4
 		BZOM N -1
+		Stop
+	XDeath:
+		BZOX A 0 A_SpawnDebris("NashGore_Gib9",0)
+		BZOX A 0 A_SpawnDebris("NashGore_Gib10",0)
+		BZOX A 0 A_SpawnDebris("NashGore_Gib11",0)
+		BZOX A 0 A_SpawnDebris("NashGore_Gib11",0)
+		BZOX A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		BZOX A 5 A_Scream
+		BZOX B 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,2)
+		BZOX B 5
+		BZOX C 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,4)
+		BZOX C 5 A_NoBlocking
+		BZOX D 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,6)
+		BZOX DEFG 5
+		BZOX H -1
+		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
 		Stop
 	Raise:
 		BZOM NMLKII 5
