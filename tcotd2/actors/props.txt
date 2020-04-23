@@ -5,11 +5,11 @@ ACTOR Web2 20000
 {
 	Radius 8
 	Height 20
-	+SPAWNCEILING
-	+NOGRAVITY
-	RENDERSTYLE ADD
-	ALPHA 0.35
 	Mass 5
+	RenderStyle Add
+	Alpha 0.35
+	+NOGRAVITY
+	+SPAWNCEILING
 	States
 	{
 	Spawn:
@@ -32,8 +32,8 @@ ACTOR LargeDeadTree replaces FloatingSkull
 {
 	Radius 16
 	Height 26
-	+Solid
-	states
+	+SOLID
+	States
 	{
 	Spawn:
 		FSKU A -1
@@ -45,8 +45,8 @@ ACTOR LargeDeadTree2 replaces HeadCandles
 {
 	Radius 16
 	Height 42
-	+Solid
-	states
+	+SOLID
+	States
 	{
 	Spawn:
 		POL3 A -1
@@ -57,7 +57,7 @@ ACTOR LargeDeadTree2 replaces HeadCandles
 ACTOR CandleX replaces Candlestick
 {
 	Height 14
-	states
+	States
 	{
 	Spawn:
 		CAND A -1
@@ -69,8 +69,8 @@ ACTOR StandingEinlauf 30999
 {
 	Radius 16
 	Height 56
-	+Solid
-	states
+	+SOLID
+	States
 	{
 	Spawn:
 		XB03 A -1
@@ -82,9 +82,9 @@ ACTOR BloodyTwitchBlood 22049
 {
 	Radius 16
 	Height 68
-	+SpawnCeiling
-	+NoGravity
-	states
+	+NOGRAVITY
+	+SPAWNCEILING
+	States
 	{
 	Spawn:
 		XB04 A 10
@@ -98,7 +98,7 @@ ACTOR BloodyTwitchBlood 22049
 ACTOR DeadBody 22081
 {
 	Height 4
-	states
+	States
 	{
 	Spawn:
 		XB01 A -1
@@ -109,7 +109,7 @@ ACTOR DeadBody 22081
 ACTOR DeadBody2 22481
 {
 	Height 4
-	states
+	States
 	{
 	Spawn:
 		XB12 A -1
@@ -121,9 +121,9 @@ ACTOR GoreHangingBlood1 22073
 {
 	Radius 16
 	Height 88
-	+SpawnCeiling
-	+NoGravity
-	states
+	+NOGRAVITY
+	+SPAWNCEILING
+	States
 	{
 	Spawn:
 		XB05 A -1
@@ -133,7 +133,7 @@ ACTOR GoreHangingBlood1 22073
 
 ACTOR GoreHangingBlood2 : GoreHangingBlood1 22074
 {
-	states
+	States
 	{
 	Spawn:
 		XB06 A -1
@@ -143,7 +143,7 @@ ACTOR GoreHangingBlood2 : GoreHangingBlood1 22074
 
 ACTOR GoreHangingBlood3 : GoreHangingBlood1 22075
 {
-	states
+	States
 	{
 	Spawn:
 		XB08 A -1
@@ -153,7 +153,7 @@ ACTOR GoreHangingBlood3 : GoreHangingBlood1 22075
 
 ACTOR GoreHangingBlood4 : GoreHangingBlood1 22076
 {
-	states
+	States
 	{
 	Spawn:
 		XB09 A -1
@@ -163,8 +163,8 @@ ACTOR GoreHangingBlood4 : GoreHangingBlood1 22076
 
 ACTOR GoreHangingMeat : GoreHangingBlood1 22079
 {
-	+Solid
-	states
+	+SOLID
+	States
 	{
 	Spawn:
 		XB10 A -1
@@ -175,8 +175,8 @@ ACTOR GoreHangingMeat : GoreHangingBlood1 22079
 ACTOR CeilingLampBlood : GoreHangingBlood1 22080
 {
 	Height 64
-	+Solid
-	states
+	+SOLID
+	States
 	{
 	Spawn:
 		XB07 A -1
@@ -187,7 +187,7 @@ ACTOR CeilingLampBlood : GoreHangingBlood1 22080
 ACTOR Balloon1 22085
 {
 	Height 1
-	states
+	States
 	{
 	Spawn:
 		XB11 A -1
@@ -252,10 +252,10 @@ ACTOR DeadCrispy1 22098
 
 ACTOR ChairAlpha 22099
 {
-	radius 16
-	height 32
+	Radius 16
+	Height 32
 	+SOLID
-	states
+	States
 	{
 	Spawn:
 		XB19 A -1
@@ -265,7 +265,7 @@ ACTOR ChairAlpha 22099
 
 ACTOR ZombieBarrel : ChairAlpha 22199
 {
-	states
+	States
 	{
 	Spawn:
 		XCL5 A -1
@@ -275,11 +275,11 @@ ACTOR ZombieBarrel : ChairAlpha 22199
 
 ACTOR Wurzel1 31819
 {
-	radius 16
-	height 60
-	+SPAWNCEILING
+	Radius 16
+	Height 60
 	+NOGRAVITY
-	states
+	+SPAWNCEILING
+	States
 	{
 	Spawn:
 		WURZ A -1
@@ -289,8 +289,8 @@ ACTOR Wurzel1 31819
 
 ACTOR Wurzel2 : Wurzel1 31820
 {
-	height 70
-	states
+	Height 70
+	States
 	{
 	Spawn:
 		WURZ B -1
@@ -300,8 +300,8 @@ ACTOR Wurzel2 : Wurzel1 31820
 
 ACTOR Wurzel3 : Wurzel1 31821
 {
-	height 80
-	states
+	Height 80
+	States
 	{
 	Spawn:
 		WURZ C -1
@@ -311,13 +311,13 @@ ACTOR Wurzel3 : Wurzel1 31821
 
 ACTOR PflanzeDecke 31817
 {
-	radius 16
-	height 60
+	Radius 16
+	Height 60
+	Scale 0.5
+	+NOGRAVITY
 	+SOLID
 	+SPAWNCEILING
-	+NOGRAVITY
-	scale 0.5
-	states
+	States
 	{
 	Spawn:
 		PFDE A -1
@@ -327,8 +327,8 @@ ACTOR PflanzeDecke 31817
 
 ACTOR PflanzeDecke2 : PflanzeDecke 31818
 {
-	height 50
-	states
+	Height 50
+	States
 	{
 	Spawn:
 		PFDE B -1
@@ -338,9 +338,9 @@ ACTOR PflanzeDecke2 : PflanzeDecke 31818
 
 ACTOR KopfSpiess 31816
 {
-	radius 16
+	Radius 16
 	+SOLID
-	states
+	States
 	{
 	Spawn:
 		SPIS A -1
@@ -350,9 +350,9 @@ ACTOR KopfSpiess 31816
 
 ACTOR WuddStrand 31815
 {
-	radius 16
+	Radius 16
 	+SOLID
-	states
+	States
 	{
 	Spawn:
 		WUDD A -1
@@ -362,8 +362,8 @@ ACTOR WuddStrand 31815
 
 ACTOR Treasure 31814
 {
-	radius 16
-	states
+	Radius 16
+	States
 	{
 	Spawn:
 		TREA A -1
@@ -373,8 +373,8 @@ ACTOR Treasure 31814
 
 ACTOR Schaedel1 31813
 {
-	radius 16
-	states
+	Radius 16
+	States
 	{
 	Spawn:
 		SCHA D -1
@@ -384,8 +384,8 @@ ACTOR Schaedel1 31813
 
 ACTOR KnochenArmGelenk 31808
 {
-	radius 16
-	states
+	Radius 16
+	States
 	{
 	Spawn:
 		KNHA B -1
@@ -395,8 +395,8 @@ ACTOR KnochenArmGelenk 31808
 
 ACTOR Schaedel3 31810
 {
-	radius 16
-	states
+	Radius 16
+	States
 	{
 	Spawn:
 		SCHA C -1
@@ -406,8 +406,8 @@ ACTOR Schaedel3 31810
 
 ACTOR Schaedel2 31809
 {
-	radius 16
-	states
+	Radius 16
+	States
 	{
 	Spawn:
 		SCHA B -1
@@ -417,8 +417,8 @@ ACTOR Schaedel2 31809
 
 ACTOR LeichenhaufenGross 31807
 {
-	radius 16
- 	states
+	Radius 16
+ 	States
 	{
 	Spawn:
 		LEHA B -1
@@ -428,8 +428,8 @@ ACTOR LeichenhaufenGross 31807
 
 ACTOR LeichenhaufenKlein 31806
 {
-	radius 16
- 	states
+	Radius 16
+ 	States
 	{
 	Spawn:
 		LEHA A -1
@@ -439,8 +439,8 @@ ACTOR LeichenhaufenKlein 31806
 
 ACTOR TierKnoch2 31805
 {
-	radius 16
- 	states
+	Radius 16
+ 	States
 	{
 	Spawn:
 		KNHA A -1
@@ -450,9 +450,9 @@ ACTOR TierKnoch2 31805
 
 ACTOR TierKnoch 31804
 {
-	radius 16
+	Radius 16
  	+SOLID
-	states
+	States
 	{
 	Spawn:
 		TIKN A -1
@@ -462,9 +462,9 @@ ACTOR TierKnoch 31804
 
 ACTOR Gebeine 31803
 {
-	radius 16
+	Radius 16
  	+SOLID
-	states
+	States
 	{
 	Spawn:
 		GEBY A -1
@@ -474,10 +474,10 @@ ACTOR Gebeine 31803
 
 ACTOR StoneStatue 31802
 {
-	radius 16
-	height 40
+	Radius 16
+	Height 40
 	+SOLID
-	states
+	States
 	{
 	Spawn:
 		YSTN A -1
@@ -487,9 +487,9 @@ ACTOR StoneStatue 31802
 
 ACTOR Feder 31801
 {
-	radius 8
-	height 8
-	states
+	Radius 8
+	Height 8
+	States
 	{
 	Spawn:
 		FEDE A -1
@@ -499,10 +499,10 @@ ACTOR Feder 31801
 
 ACTOR Grass1
 {
+	DistanceCheck "tcotdgrs"
 	Radius 16
 	Height 16
 	Scale 0.5
-
 	States
 	{
 	Spawn:
@@ -527,7 +527,6 @@ ACTOR Grass2 : Grass1
 
 ACTOR Grass3 : Grass1
 {
-
 	States
 	{
 	Spawn:
@@ -552,6 +551,7 @@ ACTOR GrassSpawner : RandomSpawner 32765
 ACTOR BigBush 32766
 {
 	//$Title Big Bush
+	DistanceCheck "tcotdgrs"
 	Height 32
 	States
 	{

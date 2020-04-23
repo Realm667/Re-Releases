@@ -5,10 +5,10 @@ aod/ghost	AODSCRM
 wizard/sight			wiz2sit
 wizard/attack			wiz2atk
 wizard/death			wiz2dth
-wizard/pain			wizp2ai
+wizard/pain				wizp2ai
 wizard/active1			wiza2ct
 $random wizard/active 		{ wizard/sight wizard/active1 }
-fireblast/explode	DSFREXP
+fireblast/explode		DSFREXP
 superfireblast/explode	DSHELLEX
 
 ////Vulgar
@@ -126,6 +126,10 @@ fatty/attack	dsfatat
 fatty/act	dsfatact
 fatty/punch	dsfatpn
 
+fatty/wall1	ACIDHIT1
+fatty/wall2	ACIDHIT2
+$Random fatty/wall	{fatty/wall1 fatty/wall2}
+
 ////Zombie
 zombieblood/sit	 dszbsit
 zombieblood/dth1 dszbdth
@@ -156,6 +160,9 @@ Shadow/death		SHDDEATH
 
 //Walltorch
 Ignite	IGNITE
+
+//lowhealth
+HBEAT	HBEAT
 
 ////////////////////////////////////// AMBIENT SOUNDS //////////////////////////////
 AMB1   amb1  //LightHum
@@ -268,10 +275,14 @@ $limit bloodsplat 1
 
 SFX\Explosion1 EXPLO1
 
-
 //SFX Fire
 SFX/FireStart	FIRESTRT
 SFX/FireLoop1	FIRELOP1
 SFX/FireLoop2	FIRELOP2
 SFX/FireLoop3	FIRELOP3
 SFX/FireDie		FIREDIE
+$limit SFX/FireStart	0
+$limit SFX/FireLoop1	1
+$limit SFX/FireLoop2	1
+$limit SFX/FireLoop3	1
+$limit SFX/FireDie	0

@@ -1,9 +1,12 @@
 ACTOR Heart : HealthBonus replaces HealthBonus
 {
 	Scale 0.5
-	Inventory.PickupMessage "$ESSENCE"
+	RenderStyle Translucent
+	Alpha 0.95
 	Inventory.Amount 5
+	Inventory.PickupMessage "$IP_ESSE"
 	Inventory.PickupSound "ITEMUP"
+	+VISIBILITYPULSE
 	States
 	{
 	Spawn:
@@ -19,7 +22,7 @@ ACTOR CStimpack : HealthPickup replaces Stimpack
 	Health 15
 	Inventory.MaxAmount 5
 	Inventory.Icon "M_SMED"
-	Inventory.PickupMessage "$STIM"
+	Inventory.PickupMessage "$IP_STIM"
 	+COUNTITEM
 	States
 	{
@@ -35,7 +38,7 @@ ACTOR CMedikit : CStimpack replaces Medikit
 	Tag "Medikit"
 	Health 30
 	Inventory.Icon "M_LMED"
-	Inventory.PickupMessage "$MEDI"
+	Inventory.PickupMessage "$IP_MEDI"
 	States
 	{
 	Spawn:

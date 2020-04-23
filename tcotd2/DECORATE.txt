@@ -24,7 +24,7 @@ ACTOR TCOTDPlayer : PlayerPawn
 	Player.ForwardMove 0.6,0.6
 	Player.SideMove 0.6,0.6
 	Player.DisplayName "Wanderer"
-	Player.CrouchSprite "PLYC"
+	Player.CrouchSprite "PLAY"
 	Player.StartItem Fist
 	Player.WeaponSlot 1,Fist,Pitchfork
 	Player.WeaponSlot 2,RevolverBlood
@@ -34,16 +34,16 @@ ACTOR TCOTDPlayer : PlayerPawn
 	States
 	{
 	Spawn:
-		PLAY Z -1
+		PLAY A -1
 		Loop
 	See:
-		PLAY ABCDEF 4
+		PLAY AABBCCDD 4
 		Loop
 	Missile:
-		PLAY Z 12
+		PLAY E 12
 		Goto Spawn
 	Melee:
-		PLAY Z 6 BRIGHT
+		PLAY F 6 BRIGHT
 		Goto Missile
 	Pain:
 		PLAY G 4
@@ -54,18 +54,21 @@ ACTOR TCOTDPlayer : PlayerPawn
 		PLAY I 10 A_PlayerScream
 		PLAY J 10 A_NoBlocking
 		PLAY KLM 10
-		PLAY N 300
-		PLAY NNNNNNNNNNN 3 A_FadeOut(0.1,0)
-		TNT1 A -1
+		PLAY N -1
 		Stop
 	XDeath:
+		PLAY O 0 A_SpawnDebris("NashGore_Gib9",0)
+		PLAY O 0 A_SpawnDebris("NashGore_Gib10",0)
+		PLAY O 0 A_SpawnDebris("NashGore_Gib11",0)
+		PLAY O 0 A_SpawnDebris("NashGore_Gib11",0)
+		PLAY O 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
 		PLAY O 5
+		PLAY P 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,2)
 		PLAY P 5 A_XScream
+		PLAY Q 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,4)
 		PLAY Q 5 A_NoBlocking
 		PLAY RST 5
-		PLAY U 300
-		PLAY UUUUUUUUUUU 3 A_FadeOut(0.1,0)
-		TNT1 A -1
+		PLAY U -1
 		Stop
 	}
 }
