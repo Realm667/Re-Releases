@@ -1,0 +1,36 @@
+#library "mapstats"
+#include "zcommon.acs"
+
+global int 51:killprc;
+global int 52:itemprc;
+global int 53:scrtprc;
+global int 54:killcount;
+global int 55:itemcount;
+global int 56:scrtcount;
+
+script "statscalc" ENTER
+{
+	if (GameType() == GAME_TITLE_MAP || GameType() == GAME_NET_DEATHMATCH) { Terminate; }
+	while (1)
+	{
+		int mtotal  = GetLevelInfo (LEVELINFO_TOTAL_MONSTERS);
+		int mkilled = GetLevelInfo (LEVELINFO_KILLED_MONSTERS);
+		int itotal  = GetLevelInfo (LEVELINFO_TOTAL_ITEMS);
+		int ifound  = GetLevelInfo (LEVELINFO_FOUND_ITEMS);
+		int stotal  = GetLevelInfo (LEVELINFO_TOTAL_SECRETS);
+		int sfound  = GetLevelInfo (LEVELINFO_FOUND_SECRETS);
+
+		if (mtotal > 0) { killprc = (mkilled * 100) / mtotal; }
+			else { killprc = 100; }
+		if (itotal > 0) { itemprc = (ifound * 100) / itotal; }
+			else { itemprc = 100; }
+		if (stotal > 0) { scrtprc = (sfound * 100) / stotal; }
+			else { scrtprc = 100; }
+
+		killcount = mtotal - mkilled;
+		itemcount = itotal - ifound;
+		scrtcount = stotal - sfound;
+
+		delay(35);
+	}
+}
