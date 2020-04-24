@@ -1,0 +1,96 @@
+class TCOTDFogCloud : TCOTDDietActor
+{
+	double pulseRate;
+	transient CVar cvWeatherEnabled;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		RenderStyle "Translucent";
+		Alpha 0.88;
+		Scale 3.0;
+		FloatBobPhase 0;
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void PostBeginPlay(void)
+	{
+		Super.PostBeginPlay();
+
+		// randomize alpha pulsate speed
+		pulseRate = frandom(40.0, 120.0);
+
+		// the original had a random Z offset when spawned
+		Vec3Offset(0.0, 0.0, frandom(0.0, 32.0));
+	}
+
+	override void Tick(void)
+	{
+		// populate the CVar, if it still can't be found, just destory this actor
+		// because it will never function properly
+		if (!cvWeatherEnabled)
+		{
+			cvWeatherEnabled = CVar.GetCVar("tcotd2_weatherfx", players[consoleplayer]);
+			if (!cvWeatherEnabled)
+			{
+				Console.Printf("Warning: TCOTDFogCloud - could not find CVar reference");
+				Destroy();
+				return;
+			}
+		}
+
+		// make the actor invisible if feature is disabled
+		if (cvWeatherEnabled.GetBool() == false)
+		{
+			bInvisible = true;
+			return;
+		}
+
+		Super.Tick();
+		if (!bNoTimeFreeze && isFrozen()) return;
+
+		bInvisible = false;
+
+		// pulsate alpha
+		let ticRate = Thinker.TICRATE;
+		double pulseAlpha = abs(asin(sin(180.0 / (ticRate * pulseRate) * GetAge())) / 90);
+		pulseAlpha = clamp(pulseAlpha, default.Alpha, 1.0);
+
+		// fade alpha from camera distance
+		double cameraAlpha = 1.0;
+		let pmo = players[consoleplayer].mo;
+		if (pmo)
+		{
+			double maxDist = 150.0;
+			double dist = Distance2D(pmo);
+			cameraAlpha = 1.0 - (maxDist / dist);
+		}
+
+		Alpha = pulseAlpha * cameraAlpha;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	Spawn:
+		XSMK A -1;
+		Stop;
+	}
+}
