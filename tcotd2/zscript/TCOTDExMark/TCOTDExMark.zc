@@ -17,6 +17,7 @@ class TCOTDExMark : TCOTDDietActor
 		RenderStyle "Translucent";
 		Alpha 0.75;
 		FloatBobPhase 0;
+		+FORCEXYBILLBOARD
 		+SPECIAL
 		+NOGRAVITY
 	}
@@ -57,8 +58,36 @@ class TCOTDExMark : TCOTDDietActor
 		EXCL A 1 Bright;
 		Loop;
 	Inactive:
-		EXCL A 35 Bright;
+		EXCL A 35 Bright
+		{
+			A_SpawnItemEx("TCOTDExMarkTouchedFX");
+			A_StartSound("misc/p_pkup");
+		}
 		EXCL B -1;
 		Stop;
+	}
+}
+
+
+class TCOTDExMarkTouchedFX : TCOTDDietActor
+{
+	Default
+	{
+		RenderStyle "Shaded";
+		StencilColor "FF FF FF";
+		FloatBobPhase 0;
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+	}
+
+	States
+	{
+	Spawn:
+		EXCL A 1 Bright
+		{
+			A_SetScale(Scale.X * 1.05, Scale.Y * 1.02);
+			A_FadeOut(0.0225);
+		}
+		Loop;
 	}
 }
