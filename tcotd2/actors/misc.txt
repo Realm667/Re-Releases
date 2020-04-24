@@ -12,24 +12,6 @@ ACTOR Siren : SwitchableDecoration 9000
 	}
 }
 
-ACTOR TCOTDExplosiveBarrel : ExplosiveBarrel replaces ExplosiveBarrel
-{
-	States
-	{
-	Spawn:
-		BAR1 A -1
-		Stop
-	Death:
-		BAR1 A 5 BRIGHT
-		BEXP B 5 BRIGHT A_Scream
-		BEXP D 5 BRIGHT A_Explode
-		BEXP E 5 BRIGHT
-		TNT1 A 1050 BRIGHT A_BarrelDestroy
-		TNT1 A 5 A_Respawn
-		Wait
-	}
-}
-
 ACTOR PushPuzz 31998
 {
 	Monster

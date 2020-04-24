@@ -1,0 +1,17 @@
+class TCOTDExplosiveBarrel : ExplosiveBarrel replaces ExplosiveBarrel
+{
+	States
+	{
+		Spawn:
+		BAR1 A -1;
+		Stop;
+	Death:
+		BAR1 A 5 Bright;
+		BEXP B 5 Bright A_Scream();
+		BEXP D 5 Bright A_Explode();
+		BEXP E 5 Bright;
+		TNT1 A 1050 Bright A_BarrelDestroy();
+		TNT1 A 5 A_Respawn();
+		Wait;
+	}
+}
