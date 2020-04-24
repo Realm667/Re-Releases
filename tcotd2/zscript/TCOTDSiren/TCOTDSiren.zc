@@ -1,0 +1,13 @@
+class TCOTDSiren : SwitchableDecoration
+{
+	States
+	{
+	Spawn:
+	Inactive:
+		TNT1 A -1 A_StopSound;
+		Stop;
+	Active:
+		TNT1 A -1 A_StartSound("AMB30", CHAN_VOICE, volume: 1.0, ATTN_NONE);
+		Stop;
+	}
+}
