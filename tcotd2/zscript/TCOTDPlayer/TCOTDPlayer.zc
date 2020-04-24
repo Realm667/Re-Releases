@@ -1,0 +1,56 @@
+//////////////////
+// PLAYER CLASS //
+//////////////////
+class TCOTDPlayer : PlayerPawn
+{
+	Default
+	{
+		Scale 1.1;
+		Player.AttackZOffset 18.0;
+		Player.ViewHeight 50.0;
+		Player.ForwardMove 0.6, 0.6;
+		Player.SideMove 0.6, 0.6;
+		Player.DisplayName "$TCOTDPLAYER_DISPLAYNAME";
+		Player.CrouchSprite "PLAY";
+		Player.StartItem "Melee_Weapon";
+		Player.WeaponSlot 1, "Melee_Weapon";
+		Player.WeaponSlot 2, "RevolverBlood";
+		Player.WeaponSlot 3, "Sawedoff";
+		Player.WeaponSlot 4, "Thompson";
+		Player.WeaponSlot 5, "NapalmLauncher";
+	}
+
+	States
+	{
+	Spawn:
+		PLAY A -1;
+		Loop;
+	See:
+		PLAY AABBCCDD 4;
+		Loop;
+	Missile:
+		PLAY E 12;
+		Goto Spawn;
+	Melee:
+		PLAY F 6 BRIGHT;
+		Goto Missile;
+	Pain:
+		PLAY G 4;
+		PLAY G 4 A_Pain();
+		Goto Spawn;
+	Death:
+		PLAY H 10;
+		PLAY I 10 A_PlayerScream();
+		PLAY J 10 A_NoBlocking();
+		PLAY KLM 10;
+		PLAY N -1;
+		Stop;
+	XDeath:
+		PLAY O 5;
+		PLAY P 5 A_XScream();
+		PLAY Q 5 A_NoBlocking();
+		PLAY RST 5;
+		PLAY U -1;
+		Stop;
+	}
+}
