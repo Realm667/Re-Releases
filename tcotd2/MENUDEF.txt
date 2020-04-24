@@ -3,8 +3,17 @@ AddOptionMenu "OptionsMenu"
 	StaticText "WARNING: these settings may require level restart"
 	StaticText ""
 	StaticText "Decrease or turn off these options to improve performance"
-	StaticText "Distance is applied in map units"
 	StaticText ""
 	Option "Weather Effects","weatherfx","OnOff"
-	Slider "Rendering Distance","tcotdlod",1024,16384,1024, 0
+	Option "Rendering Distance","tcotdlod","RendDist"
+}
+
+OptionValue "RendDist"
+{
+	0, "None"
+	1024, "Near"
+	2048, "Normal"
+	4096, "Far"
+	8192, "Default"
+	16384, "Very Far"
 }
