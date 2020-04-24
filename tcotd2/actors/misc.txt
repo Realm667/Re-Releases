@@ -46,32 +46,3 @@ ACTOR PushPuzz 31998
 		stop
 	}
 }
-
-///////////
-//MARKERS//
-///////////
-
-ACTOR ExMark : SwitchableDecoration 31999
-{
-	//$Title Exclamation Mark (greyed out on touching)
-	Radius 64
-	Height 64
-	Health 1
-	Scale 1.35
-	RenderStyle "Translucent"
-	Alpha 0.75
-	+CLIENTSIDEONLY
-	+NOGRAVITY
-	States
-	{
-	Spawn:
-		EXCL A 0
-	Active:
-		EXCL A 1 BRIGHT A_CheckProximity("Inactive", "TCOTDPlayer", 72, 1)
-		Loop
-	Inactive:
-		EXCL A 35 BRIGHT
-		EXCL B -1
-		Stop
-	}
-}
