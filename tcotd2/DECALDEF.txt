@@ -1,7 +1,7 @@
 decal NewScorch
 {
 	pic FMSLSCRH
-	shade "00 00 00"
+	fullbright
 	animator GoAway
 	x-scale 0.2
 	y-scale 0.2
@@ -368,31 +368,6 @@ decalgroup Bullet
 	Bullet5	1
 }
 
-//**** Chainsaw marks *****/
-decal ChainsawMarkLower
-{
-	pic SAWMARK
-	translucent 0.75
-	shade "00 00 00"
-	x-scale 0.2
-	y-scale 0.5
-	randomflipx
-	randomflipy
-}
-
-decal ChainsawMark
-{
-	pic SAWMARK
-	fullbright
-	shade "FF C8 00"
-	x-scale 0.1
-	y-scale 0.4
-	randomflipx
-	randomflipy
-	lowerdecal ChainsawMarkLower
-	animator FastGoAway
-}
-
 //***** Plasma Rifle Scorches ***********************************************/
 decal PlasmaScorchLower1
 {
@@ -489,7 +464,6 @@ generator BFGBall						BFGLightning
 generator BaronBall						BaronScorch
 generator CacodemonBall					CacoScorch
 generator Chaingun						Bullet
-generator Chainsaw						ChainsawMark
 generator DoomImpBall					DoomImpScorch
 generator FatShot						NewScorch //Scorch replaced with new
 generator Pistol						Bullet
@@ -499,10 +473,11 @@ generator Rocket						NewScorch //Scorch replaced with new
 generator Shotgun						Bullet
 generator SuperShotgun					Bullet
 
-generator RevolverBlood					Bullet
+generator RevolverBlood					BulletChip
 generator RocketBlood					NewScorch
 generator Sawedoff						Bullet
 generator Thompson						Bullet
+generator HitPuffNew					Bullet
 
 generator ButcherVomit1					BaronScorch
 generator ButcherVomit2					BaronScorch

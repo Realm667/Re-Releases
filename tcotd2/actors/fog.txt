@@ -7,7 +7,6 @@ ACTOR FogCloud_Generator : SwitchableDecoration 9918
 	+MISSILE
 	+NOBLOCKMAP
 	+NOGRAVITY
-	+NOSECTOR
 	Radius 1
 	Height 1
 	States
@@ -28,7 +27,7 @@ ACTOR FogCloud_Generator : SwitchableDecoration 9918
 
 ACTOR FogCloud_V1
 {
-	DistanceCheck "tcotdlod"
+	DistanceCheck "tcotdsfx"
 	+CLIENTSIDEONLY
 	+MISSILE
 	+NOBLOCKMAP
@@ -42,29 +41,31 @@ ACTOR FogCloud_V1
 	{
 	Spawn:
 		XSMK AAAAAAAAAAAAAAAAAAAA 10 NODELAY A_FadeIn(0.002)
-		XSMK AAAAAAAAAAAAAAAAAAAA 10 A_FadeOut(0.002)
+		XSMK AAAAAAAAAAAAAAAAAAAA 10 A_FadeOut(0.002,FTF_REMOVE)
 		Loop
 	}
 }
 
 ACTOR FogCloud_V2 : FogCloud_V1
 {
+	DistanceCheck "tcotdsfx"
 	States
 	{
 	Spawn:
 		XSMK AAAAAAAAAAAAAA 10 NODELAY A_FadeIn(0.002)
-		XSMK AAAAAAAAAAAAAA 10 A_FadeOut(0.002)
+		XSMK AAAAAAAAAAAAAA 10 A_FadeOut(0.002,FTF_REMOVE)
 		Loop
 	}
 }
 
 ACTOR FogCloud_V3 : FogCloud_V1
 {
+	DistanceCheck "tcotdsfx"
 	States
 	{
 	Spawn:
 		XSMK AAAAAAAAAAAAAA 13 NODELAY A_FadeIn(0.002)
-		XSMK AAAAAAAAAAAAAA 13 A_FadeOut(0.002)
+		XSMK AAAAAAAAAAAAAA 13 A_FadeOut(0.002,FTF_REMOVE)
 		Loop
 	}
 }
