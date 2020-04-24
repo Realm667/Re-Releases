@@ -1,24 +1,60 @@
-class TCOTDExMark : SwitchableDecoration
+class TCOTDExMark : TCOTDDietActor
 {
+	bool touched;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	Default
 	{
 		//$Title Exclamation Mark (greyed out on touching)
 		Radius 64;
 		Height 64;
-		Health 1;
 		Scale 1.35;
 		RenderStyle "Translucent";
 		Alpha 0.75;
-		+CLIENTSIDEONLY
+		FloatBobPhase 0;
+		+SPECIAL
 		+NOGRAVITY
 	}
+
+	// FloatBobPhase must be 0, otherwise multiplayer will desync.
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Touch(Actor other)
+	{
+		if (touched) return;
+		else if (other && other is "PlayerPawn")
+		{
+			// only the player who touched it sees it as inactive
+			let pmo = TCOTDPlayer(other);
+			let p = pmo.player;
+			if (players[consoleplayer] == p)
+			{
+				SetStateLabel("Inactive");
+				touched = true;
+			}
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
 
 	States
 	{
 	Spawn:
-		EXCL A 0;
-	Active:
-		EXCL A 1 Bright A_CheckProximity("Inactive", "TCOTDPlayer", 72, 1);
+		EXCL A 1 Bright;
 		Loop;
 	Inactive:
 		EXCL A 35 Bright;
