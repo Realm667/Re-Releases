@@ -1,0 +1,122 @@
+class TCOTDSnowParticle : TCOTDDietActor
+{
+	const SNOW_ALPHA = 0.8;
+	const SNOW_VELOCITY_XY_BASE = 0.55;
+	const SNOW_FADE_SPEED = 0.045;
+	const SNOW_FADEOUT_START = 350;
+
+	double vx, vy, vz;
+
+	Default
+	{
+		RenderStyle "Translucent";
+		Alpha 0;
+		Gravity 0;
+		FloatBobPhase 0;
+		+DONTSPLASH
+		+FORCEXYBILLBOARD
+		-SOLID
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void BeginPlay(void)
+	{
+		vx += frandom(-SNOW_VELOCITY_XY_BASE, SNOW_VELOCITY_XY_BASE);
+		vy += frandom(-SNOW_VELOCITY_XY_BASE, SNOW_VELOCITY_XY_BASE);
+		vz += frandom(-2.0, -1.0);
+		Super.BeginPlay();
+	}
+
+	override void PostBeginPlay(void)
+	{
+		// destroy precipitation from other players
+		if (tracer && !tracer.CheckLocalView(consoleplayer))
+		{
+			Destroy();
+			return;
+		}
+
+		if (ceilingpic != skyflatnum)
+		{
+			Destroy();
+			return;
+		}
+
+		A_SetScale(frandom(0.3, 0.6));
+
+		Super.PostBeginPlay();
+	}
+
+	override void Tick()
+	{
+		Super.Tick();
+		if (!bNoTimeFreeze && isFrozen()) return;
+
+		// set velocity. SetXYZ is cheaper than SetOrigin
+		SetXYZ(Vec3Offset(vx, vx, vz));
+
+		// collided with the ground
+		if (Pos.Z <= FloorZ)
+		{
+			Destroy();
+			return;
+		}
+
+		// collided with water
+		UpdateWaterLevel();
+		if (waterlevel > 0)
+		{
+			Destroy();
+			return;
+		}
+
+		// end of lifetime
+		if (GetAge() > (35 * 20))
+		{
+			Destroy();
+			return;
+		}
+
+		// fade in
+		if (GetAge() < SNOW_FADEOUT_START)
+		{
+			if (Alpha < SNOW_ALPHA)
+			{
+				Alpha += SNOW_FADE_SPEED;
+			}
+		}
+
+		// fade out
+		else
+		{
+			if (Alpha > 0)
+			{
+				Alpha -= SNOW_FADE_SPEED;
+			}
+			else
+			{
+				Destroy();
+				return;
+			}
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	Spawn:
+		SNOW A -1;
+		Stop;
+	}
+}
+
