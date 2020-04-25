@@ -32,6 +32,14 @@
 
 class TCOTDFireSpawner : SwitchableDecoration
 {
+	bool inRange;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	Default
 	{
 		//$Category Special Effects
@@ -113,6 +121,9 @@ class TCOTDFireSpawner : SwitchableDecoration
 	FireLoop:
 		TNT1 A 1
 		{
+			inRange = !CheckRange(1000.0, true);
+			if (!inRange) return State(NULL);
+
 			let fire = Spawn("TCOTDFireFlame", Pos, NO_REPLACE);
 			if (fire)
 			{
@@ -176,6 +187,8 @@ class TCOTDFireSpawner : SwitchableDecoration
 				cls = "TCOTDFireLightLarge";
 			}
 			Spawn(cls, Pos, NO_REPLACE);
+
+			return State(NULL);
 		}
 		Loop;
 	Inactive:
