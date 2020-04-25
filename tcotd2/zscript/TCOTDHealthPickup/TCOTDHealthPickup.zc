@@ -1,0 +1,61 @@
+// Life Essence
+class TCOTDHealthPickupHeart : HealthBonus replaces HealthBonus
+{
+	Default
+	{
+		Scale 0.5;
+		RenderStyle "Translucent";
+		Alpha 0.95;
+		Inventory.Amount 5;
+		Inventory.PickupMessage "$IP_ESSE";
+		Inventory.PickupSound "ITEMUP";
+		+VISIBILITYPULSE
+	}
+
+	States
+	{
+	Spawn:
+		BON1 ABCD 6;
+		Loop;
+	}
+}
+
+// Carriable Stimpack
+class TCOTDHealthPickupStimpack : HealthPickup replaces Stimpack
+{
+	Default
+	{
+		Tag "$TAG_STIMPACK";
+		Health 15;
+		Inventory.MaxAmount 5;
+		Inventory.Icon "M_SMED";
+		Inventory.PickupMessage "$IP_STIM";
+		+COUNTITEM
+	}
+
+	States
+	{
+	Spawn:
+		STIM A -1;
+		Stop;
+	}
+}
+
+// Carriable Medikit
+class TCOTDHealthPickupMedikit : TCOTDHealthPickupStimpack replaces Medikit
+{
+	Default
+	{
+		Tag "$TAG_MEDIKIT";
+		Health 30;
+		Inventory.Icon "M_LMED";
+		Inventory.PickupMessage "$IP_MEDI";
+	}
+
+	States
+	{
+	Spawn:
+		MEDI A -1;
+		Stop;
+	}
+}
