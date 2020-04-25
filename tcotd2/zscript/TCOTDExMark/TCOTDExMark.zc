@@ -64,7 +64,7 @@ class TCOTDExMark : TCOTDDietActor
 
 	override void Touch(Actor other)
 	{
-		if (touched) return;
+		if (bDormant || touched) return;
 		else if (other && other is "PlayerPawn")
 		{
 			// only the player who touched it sees it as inactive
@@ -72,10 +72,22 @@ class TCOTDExMark : TCOTDDietActor
 			let p = pmo.player;
 			if (players[consoleplayer] == p)
 			{
-				SetStateLabel("Inactive");
+				SetStateLabel("Touched");
 				touched = true;
 			}
 		}
+	}
+
+	override void Activate (Actor activator)
+	{
+		bDormant = false;
+		SetStateLabel("Active");
+	}
+
+	override void Deactivate (Actor activator)
+	{
+		bDormant = true;
+		SetStateLabel("Inactive");
 	}
 
 	//===========================================================================
@@ -87,14 +99,26 @@ class TCOTDExMark : TCOTDDietActor
 	States
 	{
 	Spawn:
-		EXCL A 1 Bright;
+	Active:
+		EXCL A 1 Bright
+		{
+			// it was already touched before
+			if (touched)
+			{
+				SetStateLabel("TouchedLoop");
+			}
+		}
 		Loop;
 	Inactive:
+		TNT1 A -1;
+		Stop;
+	Touched:
 		EXCL A 35 Bright
 		{
 			A_SpawnItemEx("TCOTDExMarkTouchedFX");
 			A_StartSound("misc/p_pkup");
 		}
+	TouchedLoop:
 		EXCL B -1;
 		Stop;
 	}
