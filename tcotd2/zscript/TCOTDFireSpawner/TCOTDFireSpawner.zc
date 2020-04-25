@@ -241,7 +241,13 @@ class TCOTDFireFlame2 : TCOTDFireFlame
 	States
 	{
 	Spawn:
-		AFNO A 0;
+		TNT1 A 0 NoDelay A_Jump(256, "Flame1", "Flame2");
+		Stop;
+	Flame1:
+		AFN0 A 0;
+		Goto SpawnLoop;
+	Flame2:
+		AFN3 A 0;
 		Goto SpawnLoop;
 	}
 }
