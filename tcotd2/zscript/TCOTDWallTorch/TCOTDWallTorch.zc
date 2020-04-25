@@ -43,53 +43,17 @@ class TCOTDWallTorch : SwitchableDecoration replaces BlueTorch
 
 class TCOTDWallTorchFire : TCOTDDietActorWithVel
 {
-	bool fadedIn;
+	mixin TCOTDFireMixin;
 
 	Default
 	{
-		RenderStyle "Add";
-		Alpha 0;
 		Scale 0.175;
-		+ROLLSPRITE
-		+ROLLCENTER
-		+BRIGHT
-		+FORCEXYBILLBOARD
-		+NOINTERACTION
 	}
 
 	States
 	{
 	Spawn:
-		FIR1 A 0 NoDelay
-		{
-			bSpriteFlip = RandomPick(false, true);
-			A_SetRoll(frandom(0.0, 360.0));
-		}
-	SpawnLoop:
-		"####" "#" 1
-		{
-			int rollDir = bSpriteFlip ? -1 : 1;
-			double rollSpeed = 2.33 * rollDir;
-			A_SetRoll(Roll + rollSpeed, SPF_INTERPOLATE);
-
-			if (!fadedIn)
-			{
-				if (Alpha < 1.0)
-				{
-					A_FadeIn(0.1);
-				}
-				else
-				{
-					fadedIn = true;
-				}
-			}
-
-			if (fadedIn)
-			{
-				A_SetScale(Scale.X * 0.98);
-				A_FadeOut(0.025);
-			}
-		}
-		Loop;
+		FIR1 A 0 NoDelay;
+		Goto SpawnLoop;
 	}
 }

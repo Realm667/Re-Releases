@@ -1,0 +1,238 @@
+class TCOTDFireSpawner : SwitchableDecoration
+{
+	Default
+	{
+		//$Category Special Effects
+		//$Title Fire Spawner
+		//$Color 12
+		//$Arg0 "Size"
+		//$Arg0Type 11
+		//$Arg0Enum { 0 = "Small"; 1 = "Medium"; 2 = "Large"; }
+		//$Arg1 "Sound"
+		//$Arg1Type 11
+		//$Arg1Enum { 0 = "Yes"; 1 = "No"; }
+		Height 40;
+		Radius 30;
+		+NOINTERACTION
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	bool SoundEnabled(void)
+	{
+		return Args[1] == 1;
+	}
+
+	bool IsSmallFire(void)
+	{
+		return Args[0] == 0;
+	}
+
+	bool IsMediumFire(void)
+	{
+		return Args[0] == 1;
+	}
+
+	bool IsLargeFire(void)
+	{
+		return Args[0] == 2;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay;
+	Active:
+		TNT1 A 4;
+	Initialize:
+		TNT1 A 0
+		{
+			if (SoundEnabled())
+			{
+				A_StartSound("SFX/FireStart", CHAN_7);
+
+				Sound snd;
+				if (IsSmallFire())
+				{
+					snd = "SFX/FireLoop1";
+				}
+				else if (IsMediumFire())
+				{
+					snd = "SFX/FireLoop2";
+				}
+				else if (IsLargeFire())
+				{
+					snd = "SFX/FireLoop3";
+				}
+
+				A_StartSound(snd, CHAN_6, CHANF_LOOP, 1.0);
+			}
+		}
+	FireLoop:
+		TNT1 A 1
+		{
+			let fire = Spawn("TCOTDFireFlame", Pos, NO_REPLACE);
+			if (fire)
+			{
+				double fireScale;
+				double vx, vy, vz;
+
+				if (IsSmallFire())
+				{
+					fireScale = 0.35;
+					vx = frandom(-1.0, 1.0);
+					vy = frandom(-1.0, 1.0);
+					vz = frandom(2.0, 4.0);
+				}
+				else if (IsMediumFire())
+				{
+					fireScale = 0.7;
+					vx = frandom(-2.0, 2.0);
+					vy = frandom(-2.0, 2.0);
+					vz = frandom(6.0, 8.0);
+				}
+				else if (IsLargeFire())
+				{
+					fireScale = 1.4;
+					vx = frandom(-4.0, 4.0);
+					vy = frandom(-4.0, 4.0);
+					vz = frandom(10.0, 12.0);
+				}
+
+				fire.A_SetScale(fireScale);
+				fire.Vel = (vx, vy, vz);
+			}
+
+			// I'll do the embers later
+			/*
+			let ember = Spawn("TCOTDFireEmber", Pos, NO_REPLACE);
+			if (ember)
+			{
+				double ox, oy, oz;
+				double vx, vy, vz;
+
+				vx = frandom(-1.0, 1.0);
+				vy = frandom(-1.0, 1.0);
+				vz = frandom(1.0, 4.0);
+
+				ember.Vel = (vx, vy, vz);
+			}
+			*/
+
+			// To do: the lights look really weird. Improve this
+			String cls;
+			if (IsSmallFire())
+			{
+				cls = "TCOTDFireLightSmall";
+			}
+			else if (IsMediumFire())
+			{
+				cls = "TCOTDFireLightMedium";
+			}
+			else if (IsLargeFire())
+			{
+				cls = "TCOTDFireLightLarge";
+			}
+			Spawn(cls, Pos, NO_REPLACE);
+		}
+		Loop;
+	Inactive:
+		TNT1 A 0
+		{
+			if (SoundEnabled())
+			{
+				A_StartSound("SFX/FireDie", CHAN_7);
+			}
+		}
+		TNT1 A -1 A_StopSound(CHAN_6);
+		Stop;
+	}
+}
+
+class TCOTDFireFlame : TCOTDDietActorWithVel
+{
+	mixin TCOTDFireMixin;
+
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256, "Flame1", "Flame2", "Flame3");
+		Stop;
+	Flame1:
+		FLM1 A 0;
+		Goto SpawnLoop;
+	Flame2:
+		FLM3 A 0;
+		Goto SpawnLoop;
+	Flame3:
+		FLM5 A 0;
+		Goto SpawnLoop;
+	}
+}
+
+/*
+class TCOTDFireEmber : TCOTDDietActorWithVel
+{
+	mixin TCOTDFireMixin;
+
+	Default
+	{
+		Scale 0.1;
+	}
+
+	States
+	{
+	Spawn:
+		EMBR A 0;
+		Goto SpawnLoop;
+	}
+}
+*/
+
+class TCOTDFireLight : TCOTDDietActor
+{
+	Default
+	{
+		+NOINTERACTION
+	}
+}
+
+class TCOTDFireLightSmall : TCOTDFireLight
+{
+
+	States
+	{
+	Spawn:
+		TNT1 A 3 Light("FireSpawnerSmall");
+		Stop;
+	}
+}
+
+class TCOTDFireLightMedium : TCOTDFireLight
+{
+	States
+	{
+	Spawn:
+		TNT1 A 3 Light("FireSpawnerMedium");
+		Stop;
+	}
+}
+class TCOTDFireLightLarge : TCOTDFireLight
+{
+	States
+	{
+	Spawn:
+		TNT1 A 3 Light("FireSpawnerLarge");
+		Stop;
+	}
+}

@@ -1,0 +1,62 @@
+mixin class TCOTDFireMixin
+{
+	bool fadedIn;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		RenderStyle "Add";
+		Alpha 0;
+		+ROLLSPRITE
+		+ROLLCENTER
+		+BRIGHT
+		+FORCEXYBILLBOARD
+		+NOINTERACTION
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	SpawnLoop:
+		"####" "#" 0
+		{
+			bSpriteFlip = RandomPick(false, true);
+			A_SetRoll(frandom(0.0, 360.0));
+		}
+		"####" "#" 1
+		{
+			int rollDir = bSpriteFlip ? -1 : 1;
+			double rollSpeed = 2.33 * rollDir;
+			A_SetRoll(Roll + rollSpeed, SPF_INTERPOLATE);
+
+			if (!fadedIn)
+			{
+				if (Alpha < 0.5)
+				{
+					A_FadeIn(0.1);
+				}
+				else
+				{
+					fadedIn = true;
+				}
+			}
+
+			if (fadedIn)
+			{
+				A_SetScale(Scale.X * 0.98);
+				A_FadeOut(0.025);
+			}
+		}
+		Goto SpawnLoop + 1;
+	}
+}
