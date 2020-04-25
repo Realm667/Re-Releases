@@ -35,15 +35,19 @@ class TCOTDTallTorch : ShortRedTorch replaces ShortRedTorch
 	States
 	{
 	Spawn:
+		SMRT A 0 NoDelay
+		{
+			A_SpawnItemEx("TCOTDTallTorchLensFlare", 0, 0, 62.0);
+		}
 		SMRT A 1
 		{
 			if (!CheckRange(1000.0, true))
 			{
-				// To do: no embers and lens flare yet
+				// To do: no embers yet
 				A_SpawnItemEx("TCOTDTallTorchFlame", 0, 0, frandom(64.0, 66.0), 0, 0, frandom(1.0, 2.5));
 			}
 		}
-		Loop;
+		Goto Spawn + 1;
 	}
 }
 
@@ -61,5 +65,23 @@ class TCOTDTallTorchFlame : TCOTDDietActorWithVel
 	Spawn:
 		AFNO A 0;
 		Goto SpawnLoop;
+	}
+}
+
+class TCOTDTallTorchLensFlare : TCOTDDietActor
+{
+	Default
+	{
+		RenderStyle "Add";
+		Alpha 1.0;
+		Scale 0.75;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE A -1 Bright;
+		Stop;
 	}
 }

@@ -35,15 +35,19 @@ class TCOTDMinotaurTorch : RedTorch replaces RedTorch
 	States
 	{
 	Spawn:
+		TRED A 0 NoDelay
+		{
+			A_SpawnItemEx("TCOTDMinotaurTorchLensFlare", 0, 0, 40.0);
+		}
 		TRED A 1
 		{
 			if (!CheckSightOrRange(1000.0, true))
 			{
-				// To do: no embers and lens flare yet
+				// To do: no embers yet
 				A_SpawnItemEx("TCOTDMinotaurTorchFlame", 0, 0, frandom(38.0, 40.0), 0, 0, frandom(1.0, 4.5));
 			}
 		}
-		Loop;
+		Goto Spawn + 1;
 	}
 }
 
@@ -61,5 +65,23 @@ class TCOTDMinotaurTorchFlame : TCOTDDietActorWithVel
 	Spawn:
 		AFNO A 0;
 		Goto SpawnLoop;
+	}
+}
+
+class TCOTDMinotaurTorchLensFlare : TCOTDDietActor
+{
+	Default
+	{
+		RenderStyle "Add";
+		Alpha 1.0;
+		Scale 1.25;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE A -1 Bright;
+		Stop;
 	}
 }
