@@ -227,6 +227,7 @@ $random Coyote { Coyote1 Coyote2 Coyote3 Coyote4 }
 DockedBoat1	DOCKEDB1
 DockedBoat2	DOCKEDB2
 $random DockedBoat { DockedBoat1 DockedBoat2 }
+Swamp		SWAMP
 
 $AMBIENT  1 LightHum  POINT CONTINUOUS 1.0
 $AMBIENT  2 ScareHum  POINT CONTINUOUS 1.0
@@ -266,6 +267,25 @@ $AMBIENT 44 EvilSounds5 SURROUND RANDOM 10.0 20.0 0.7
 $AMBIENT 45 EvilSounds6 SURROUND RANDOM 10.0 20.0 0.7
 $AMBIENT 46 EvilSounds7 SURROUND RANDOM 10.0 20.0 0.7
 $AMBIENT 47 EvilSounds8 SURROUND RANDOM 10.0 20.0 0.7
+$AMBIENT 48 OldClock POINT PERIODIC 1.0 0.5
+$AMBIENT 49 Swamp POINT CONTINUOUS 1.0
+
+// OLD CLOCK TICK
+$random OldClock { ctick1 ctick2 ctick3 }
+ctick1 ctick1
+ctick2 ctick2
+ctick3 ctick3
+$pitchshift ctick1 0
+$pitchshift ctick2 0
+$pitchshift ctick3 0
+$volume oldclock/tick 0.2
+$rolloff oldclock/tick 32 450
+
+// WATER FILL
+waterfil waterfil
+
+// TIMER TICK
+world/ticktock TICKTOCK
 
 // MISC SOUNDS
 LIGHTON   SWTCH6
