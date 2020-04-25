@@ -1,0 +1,639 @@
+// Copyright 2020 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+class TCOTDProp : Actor
+{
+	Default
+	{
+		//$Category Props (TCOTD2)
+		//$Color 11
+	}
+}
+
+class Web2 : TCOTDProp
+{
+	Default
+	{
+		Radius 8;
+		Height 20;
+		Mass 5;
+		RenderStyle "Add";
+		Alpha 0.35;
+		+NOGRAVITY
+		+SPAWNCEILING
+	}
+
+	States
+	{
+	Spawn:
+		WEB3 A -1;
+		Stop;
+	}
+}
+
+class Web3 : Web2
+{
+	States
+	{
+	Spawn:
+		WEB2 A -1;
+		Stop;
+	}
+}
+
+class CandleX : TCOTDProp replaces Candlestick
+{
+	Default
+	{
+		Height 14;
+	}
+
+	States
+	{
+	Spawn:
+		CAND A -1;
+		Stop;
+	}
+}
+
+class StandingEinlauf : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+		Height 56;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		XB03 A -1;
+		Stop;
+	}
+}
+
+class BloodyTwitchBlood : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+		Height 68;
+		+NOGRAVITY
+		+SPAWNCEILING
+	}
+
+	States
+	{
+	Spawn:
+		XB04 A 10;
+		XB04 B 15;
+		XB04 C 8;
+		XB04 B 6;
+		Stop;
+	}
+}
+
+class DeadBody : TCOTDProp
+{
+	Default
+	{
+		Height 4;
+	}
+
+	States
+	{
+	Spawn:
+		XB01 A -1;
+		Stop;
+	}
+}
+
+class DeadBody2 : TCOTDProp
+{
+	Default
+	{
+		Height 4;
+	}
+
+	States
+	{
+	Spawn:
+		XB12 A -1;
+		Stop;
+	}
+}
+
+class GoreHangingBlood1 : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+		Height 88;
+		+NOGRAVITY
+		+SPAWNCEILING
+	}
+
+	States
+	{
+	Spawn:
+		XB05 A -1;
+		Stop;
+	}
+}
+
+class GoreHangingBlood2 : GoreHangingBlood1
+{
+	States
+	{
+	Spawn:
+		XB06 A -1;
+		Stop;
+	}
+}
+
+class GoreHangingBlood3 : GoreHangingBlood1
+{
+	States
+	{
+	Spawn:
+		XB08 A -1;
+		Stop;
+	}
+}
+
+class GoreHangingBlood4 : GoreHangingBlood1
+{
+	States
+	{
+	Spawn:
+		XB09 A -1;
+		Stop;
+	}
+}
+
+class GoreHangingMeat : GoreHangingBlood1
+{
+	Default
+	{
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		XB10 A -1;
+		Stop;
+	}
+}
+
+class CeilingLampBlood : GoreHangingBlood1
+{
+	Default
+	{
+		Height 64;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		XB07 A -1;
+		Stop;
+	}
+}
+
+class Balloon1 : TCOTDProp
+{
+	Default
+	{
+		Height 1;
+	}
+
+	States
+	{
+	Spawn:
+		XB11 A -1;
+		Stop;
+	}
+}
+
+class Balloon2 : Balloon1
+{
+	Default
+	{
+		Translation 0;
+	}
+}
+
+class Balloon3 : Balloon1
+{
+	Default
+	{
+		Translation 1;
+	}
+}
+
+class Balloon4 : Balloon1
+{
+	Default
+	{
+		Translation 2;
+	}
+}
+
+class DeadDoc : TCOTDProp
+{
+	States
+	{
+	Spawn:
+		XB15 A -1;
+		Stop;
+	}
+}
+
+class DeadDoc2 : TCOTDProp
+{
+	States
+	{
+	Spawn:
+		XB16 A -1;
+		Stop;
+	}
+}
+
+class DeadCrispy2 : TCOTDProp
+{
+	States
+	{
+	Spawn:
+		XB18 A -1;
+		Stop;
+	}
+}
+
+class DeadCrispy1 : TCOTDProp
+{
+	States
+	{
+	Spawn:
+		XB17 A -1;
+		Stop;
+	}
+}
+
+class ChairAlpha : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+		Height 32;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		XB19 A -1;
+		Stop;
+	}
+}
+
+class ZombieBarrel : ChairAlpha
+{
+	States
+	{
+	Spawn:
+		XCL5 A -1;
+		Stop;
+	}
+}
+
+class Wurzel1 : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+		Height 60;
+		+NOGRAVITY
+		+SPAWNCEILING
+	}
+
+	States
+	{
+	Spawn:
+		WURZ A -1;
+		Stop;
+	}
+}
+
+class Wurzel2 : Wurzel1
+{
+	Default
+	{
+		Height 70;
+	}
+
+	States
+	{
+	Spawn:
+		WURZ B -1;
+		Stop;
+	}
+}
+
+class Wurzel3 : Wurzel1
+{
+	Default
+	{
+		Height 80;
+	}
+
+	States
+	{
+	Spawn:
+		WURZ C -1;
+		Stop;
+	}
+}
+
+class PflanzeDecke : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+		Height 60;
+		Scale 0.5;
+		+NOGRAVITY
+		+SOLID
+		+SPAWNCEILING
+	}
+
+	States
+	{
+	Spawn:
+		PFDE A -1;
+		Stop;
+	}
+}
+
+class PflanzeDecke2 : PflanzeDecke
+{
+	Default
+	{
+		Height 50;
+	}
+
+	States
+	{
+	Spawn:
+		PFDE B -1;
+		Stop;
+	}
+}
+
+class KopfSpiess : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		SPIS A -1;
+		Stop;
+	}
+}
+
+class WuddStrand : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		WUDD A -1;
+		Stop;
+	}
+}
+
+class Treasure : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+	}
+
+	States
+	{
+	Spawn:
+		TREA A -1;
+		Stop;
+	}
+}
+
+class Schaedel1 : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+	}
+
+	States
+	{
+	Spawn:
+		SCHA D -1;
+		Stop;
+	}
+}
+
+class KnochenArmGelenk : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+	}
+
+	States
+	{
+	Spawn:
+		KNHA B -1;
+		Stop;
+	}
+}
+
+class Schaedel3 : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+	}
+
+	States
+	{
+	Spawn:
+		SCHA C -1;
+		Stop;
+	}
+}
+
+class Schaedel2 : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+	}
+
+	States
+	{
+	Spawn:
+		SCHA B -1;
+		Stop;
+	}
+}
+
+class LeichenhaufenGross : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+ 	}
+
+	States
+	{
+	Spawn:
+		LEHA B -1;
+		Stop;
+	}
+}
+
+class LeichenhaufenKlein : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+ 	}
+
+	States
+	{
+	Spawn:
+		LEHA A -1;
+		Stop;
+	}
+}
+
+class TierKnoch2 : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+	}
+
+ 	States
+	{
+	Spawn:
+		KNHA A -1;
+		Stop;
+	}
+}
+
+class TierKnoch : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		TIKN A -1;
+		Stop;
+	}
+}
+
+class Gebeine : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		GEBY A -1;
+		Stop;
+	}
+}
+
+class StoneStatue : TCOTDProp
+{
+	Default
+	{
+		Radius 16;
+		Height 40;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		YSTN A -1;
+		Stop;
+	}
+}
+
+class Feder : TCOTDProp
+{
+	Default
+	{
+		Radius 8;
+		Height 8;
+	}
+
+	States
+	{
+	Spawn:
+		FEDE A -1;
+		Stop;
+	}
+}
