@@ -32,14 +32,6 @@
 
 class TCOTDStreetLamp : SwitchableDecoration replaces ShortBlueTorch
 {
-	bool inRange;
-
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
-
 	Default
 	{
 		Height 24;
@@ -71,13 +63,11 @@ class TCOTDStreetLamp : SwitchableDecoration replaces ShortBlueTorch
 	Active:
 		TNT1 A 1
 		{
-			inRange = !CheckSightOrRange(1000.0, true);
-			if (!inRange) return State(NULL);
-
-			// To do: no embers yet
-			A_SpawnItemEx("TCOTDFireFlame2", 0, 0, -32.0 + frandom(24.0, 26.0), 0, 0, frandom(1.0, 2.5));
-
-			return State(NULL);
+			if (!CheckSightOrRange(1000.0, true))
+			{
+				// To do: no embers yet
+				A_SpawnItemEx("TCOTDFireFlame2", 0, 0, -32.0 + frandom(24.0, 26.0), 0, 0, frandom(1.0, 2.5));
+			}
 		}
 		Loop;
 	InActive:

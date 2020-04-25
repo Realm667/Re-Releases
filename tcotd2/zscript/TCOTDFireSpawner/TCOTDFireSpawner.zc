@@ -32,14 +32,6 @@
 
 class TCOTDFireSpawner : SwitchableDecoration
 {
-	bool inRange;
-
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
-
 	Default
 	{
 		//$Category Special Effects
@@ -121,74 +113,72 @@ class TCOTDFireSpawner : SwitchableDecoration
 	FireLoop:
 		TNT1 A 1
 		{
-			inRange = !CheckRange(1000.0, true);
-			if (!inRange) return State(NULL);
-
-			let fire = Spawn("TCOTDFireFlame", Pos, NO_REPLACE);
-			if (fire)
+			if (!CheckSightOrRange(1000.0, true))
 			{
-				double fireScale;
-				double vx, vy, vz;
-
-				if (IsSmallFire())
+				let fire = Spawn("TCOTDFireFlame", Pos, NO_REPLACE);
+				if (fire)
 				{
-					fireScale = 0.35;
+					double fireScale;
+					double vx, vy, vz;
+
+					if (IsSmallFire())
+					{
+						fireScale = 0.35;
+						vx = frandom(-1.0, 1.0);
+						vy = frandom(-1.0, 1.0);
+						vz = frandom(2.0, 4.0);
+					}
+					else if (IsMediumFire())
+					{
+						fireScale = 0.7;
+						vx = frandom(-2.0, 2.0);
+						vy = frandom(-2.0, 2.0);
+						vz = frandom(6.0, 8.0);
+					}
+					else if (IsLargeFire())
+					{
+						fireScale = 1.4;
+						vx = frandom(-4.0, 4.0);
+						vy = frandom(-4.0, 4.0);
+						vz = frandom(10.0, 12.0);
+					}
+
+					fire.A_SetScale(fireScale);
+					fire.Vel = (vx, vy, vz);
+				}
+
+				// I'll do the embers later
+				/*
+				let ember = Spawn("TCOTDFireEmber", Pos, NO_REPLACE);
+				if (ember)
+				{
+					double ox, oy, oz;
+					double vx, vy, vz;
+
 					vx = frandom(-1.0, 1.0);
 					vy = frandom(-1.0, 1.0);
-					vz = frandom(2.0, 4.0);
+					vz = frandom(1.0, 4.0);
+
+					ember.Vel = (vx, vy, vz);
+				}
+				*/
+
+				// To do: the lights look really weird. Improve this
+				String cls;
+				if (IsSmallFire())
+				{
+					cls = "TCOTDFireLightSmall";
 				}
 				else if (IsMediumFire())
 				{
-					fireScale = 0.7;
-					vx = frandom(-2.0, 2.0);
-					vy = frandom(-2.0, 2.0);
-					vz = frandom(6.0, 8.0);
+					cls = "TCOTDFireLightMedium";
 				}
 				else if (IsLargeFire())
 				{
-					fireScale = 1.4;
-					vx = frandom(-4.0, 4.0);
-					vy = frandom(-4.0, 4.0);
-					vz = frandom(10.0, 12.0);
+					cls = "TCOTDFireLightLarge";
 				}
-
-				fire.A_SetScale(fireScale);
-				fire.Vel = (vx, vy, vz);
+				Spawn(cls, Pos, NO_REPLACE);
 			}
-
-			// I'll do the embers later
-			/*
-			let ember = Spawn("TCOTDFireEmber", Pos, NO_REPLACE);
-			if (ember)
-			{
-				double ox, oy, oz;
-				double vx, vy, vz;
-
-				vx = frandom(-1.0, 1.0);
-				vy = frandom(-1.0, 1.0);
-				vz = frandom(1.0, 4.0);
-
-				ember.Vel = (vx, vy, vz);
-			}
-			*/
-
-			// To do: the lights look really weird. Improve this
-			String cls;
-			if (IsSmallFire())
-			{
-				cls = "TCOTDFireLightSmall";
-			}
-			else if (IsMediumFire())
-			{
-				cls = "TCOTDFireLightMedium";
-			}
-			else if (IsLargeFire())
-			{
-				cls = "TCOTDFireLightLarge";
-			}
-			Spawn(cls, Pos, NO_REPLACE);
-
-			return State(NULL);
 		}
 		Loop;
 	Inactive:

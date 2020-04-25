@@ -32,14 +32,6 @@
 
 class TCOTDWallTorch : SwitchableDecoration replaces BlueTorch
 {
-	bool inRange;
-
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
-
 	Default
 	{
 		Radius 16;
@@ -66,9 +58,7 @@ class TCOTDWallTorch : SwitchableDecoration replaces BlueTorch
 		TBLX A 0;
 		TBLX A 3 Bright Light("WALLTORCH")
 		{
-			inRange = !CheckRange(1000.0, true);
-
-			if (inRange)
+			if (!CheckRange(1000.0, true))
 			{
 				A_SpawnItemEx("TCOTDWallTorchFire",
 					frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(74.0, 76.0),

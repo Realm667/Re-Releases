@@ -32,22 +32,12 @@
 
 class TCOTDTallTorch : ShortRedTorch replaces ShortRedTorch
 {
-	bool inRange;
-
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
-
 	States
 	{
 	Spawn:
 		SMRT A 1
 		{
-			inRange = !CheckSightOrRange(1000.0, true);
-
-			if (inRange)
+			if (!CheckRange(1000.0, true))
 			{
 				// To do: no embers and lens flare yet
 				A_SpawnItemEx("TCOTDFireFlame2", 0, 0, frandom(64.0, 66.0), 0, 0, frandom(1.0, 2.5));
