@@ -32,7 +32,20 @@
 
 class TCOTDInteractiveSwitchableDecoration : SwitchableDecoration
 {
+	override void PostBeginPlay(void)
+	{
+		Super.PostBeginPlay();
+
+		bDormant = (SpawnFlags & MTF_DORMANT);
+	}
+
 	override bool Used(Actor user)
+	{
+		Toggle();
+		return false;
+	}
+
+	void Toggle(void)
 	{
 		if (bDormant)
 		{
@@ -44,8 +57,6 @@ class TCOTDInteractiveSwitchableDecoration : SwitchableDecoration
 		}
 
 		bDormant = !bDormant;
-
-		return false;
 	}
 
 	//===========================================================================
