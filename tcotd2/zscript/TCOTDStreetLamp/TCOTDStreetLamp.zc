@@ -66,12 +66,29 @@ class TCOTDStreetLamp : SwitchableDecoration replaces ShortBlueTorch
 			if (!CheckSightOrRange(1000.0, true))
 			{
 				// To do: no embers yet
-				A_SpawnItemEx("TCOTDFireFlame2", 0, 0, -32.0 + frandom(24.0, 26.0), 0, 0, frandom(1.0, 2.5));
+				A_SpawnItemEx("TCOTDStreetLampFlame", 0, 0, -32.0 + frandom(24.0, 26.0), 0, 0, frandom(1.0, 2.5));
 			}
 		}
 		Loop;
-	InActive:
+	Inactive:
 		TNT1 A -1;
 		Loop;
+	}
+}
+
+class TCOTDStreetLampFlame : TCOTDDietActorWithVel
+{
+	mixin TCOTDFireMixin;
+
+	Default
+	{
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNO A 0;
+		Goto SpawnLoop;
 	}
 }

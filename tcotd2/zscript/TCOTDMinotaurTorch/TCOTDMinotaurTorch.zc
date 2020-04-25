@@ -40,9 +40,26 @@ class TCOTDMinotaurTorch : RedTorch replaces RedTorch
 			if (!CheckSightOrRange(1000.0, true))
 			{
 				// To do: no embers and lens flare yet
-				A_SpawnItemEx("TCOTDFireFlame3", 0, 0, frandom(38.0, 40.0), 0, 0, frandom(1.0, 4.5));
+				A_SpawnItemEx("TCOTDMinotaurTorchFlame", 0, 0, frandom(38.0, 40.0), 0, 0, frandom(1.0, 4.5));
 			}
 		}
 		Loop;
+	}
+}
+
+class TCOTDMinotaurTorchFlame : TCOTDDietActorWithVel
+{
+	mixin TCOTDFireMixin;
+
+	Default
+	{
+		Scale 0.5;
+	}
+
+	States
+	{
+	Spawn:
+		AFNO A 0;
+		Goto SpawnLoop;
 	}
 }
