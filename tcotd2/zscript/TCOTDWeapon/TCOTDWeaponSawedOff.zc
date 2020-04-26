@@ -52,7 +52,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		Loop;
 	Fire:
 		TNT1 A 0 A_JumpIfInventory("SawedOffCheck", 1, 15);
-		SAWF A 1 A_PlayWeaponSound("SawedOff/Fire");
+		SAWF A 1 A_StartSound("SawedOff/Fire", CHAN_WEAPON);
 		TNT1 A 0 A_Overlay(-2, "GunSmoke");
 		TNT1 A 0 A_GunFlash();
 		SAWF B 1 A_FireBullets(5.6, 0, 7, 5, "TCOTDBulletPuff", FBF_USEAMMO);
@@ -67,7 +67,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		SAWF B 1 Offset(2, 36) A_GiveInventory("SawedOffCheck", 1);
 		SAWF B 2;
 		Goto Ready;
-		SAWF B 1 A_PlayWeaponSound("SawedOff/Fire");
+		SAWF B 1 A_StartSound("SawedOff/Fire", CHAN_WEAPON);
 		TNT1 A 0 A_Overlay(-2, "GunSmoke");
 		TNT1 A 0 A_GunFlash();
 		SAWF C 1 A_FireBullets(5.6, 0, 7, 5, "TCOTDBulletPuff", FBF_USEAMMO);
@@ -83,7 +83,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		SAWF C 1;
 		Goto Load;
 	AltFire:
-		SAWF A 1 A_PlayWeaponSound("SawedOff/AltFire");
+		SAWF A 1 A_StartSound("SawedOff/AltFire", CHAN_WEAPON);
 		TNT1 A 0 A_Overlay(-2, "BigGunSmoke");
 		TNT1 A 0 A_GunFlash();
 		SAWF C 1 A_FireBullets(11.2, 7.1, 20, 5, "TCOTDBulletPuff", FBF_USEAMMO);
@@ -105,7 +105,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		TNT1 A 0 A_TakeInventory("SawedOffCheck", 1);
 		SAWF C 1 A_CheckReload();
 		SAWF E 2;
-		SAWF F 2 A_PlaySound("SawedOff/Reload");
+		SAWF F 2 A_StartSound("SawedOff/Reload");
 		SAWF G 8 A_Overlay(2, "ElHando");
 		SAWF JE 2;
 		Goto Ready;
