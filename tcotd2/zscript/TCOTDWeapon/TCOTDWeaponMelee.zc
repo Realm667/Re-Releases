@@ -23,28 +23,28 @@ class TCOTDWeaponMelee : TCOTDWeapon
 	States
 	{
 	Ready:
-		TNT1 A 0 A_JumpIfInventory("PitchforkInv", 1, "PitchforkReady");
+		TNT1 A 0 A_JumpIfInventory("TCOTDPitchforkPickup", 1, "PitchforkReady");
 		FIST A 1 A_WeaponReady(WRF_NOSECONDARY);
 		Loop;
 	PitchforkReady:
 		FORK A 1 A_WeaponReady();
 		Goto Ready;
 	Deselect:
-		TNT1 A 0 A_JumpIfInventory("PitchforkInv", 1, "PitchforkDeselect");
+		TNT1 A 0 A_JumpIfInventory("TCOTDPitchforkPickup", 1, "PitchforkDeselect");
 		FIST A 1 A_Lower();
 		Loop;
 	PitchforkDeselect:
 		FORK A 1 A_Lower();
 		Loop;
 	Select:
-		TNT1 A 0 A_JumpIfInventory("PitchforkInv", 1, "PitchforkSelect");
+		TNT1 A 0 A_JumpIfInventory("TCOTDPitchforkPickup", 1, "PitchforkSelect");
 		FIST A 1 A_Raise();
 		Loop;
 	PitchforkSelect:
 		FORK A 1 A_Raise();
 		Loop;
 	Fire:
-		TNT1 A 0 A_JumpIfInventory("PitchforkInv", 1, "PitchforkFire");
+		TNT1 A 0 A_JumpIfInventory("TCOTDPitchforkPickup", 1, "PitchforkFire");
 		TNT1 A 0 A_Jump(160, 7);
 		FIST B 2;
 		FIST C 4 A_CustomPunch(random(3, 5), 0, 0, "BulletPuff", 0, 0, 0, "ArmorBonus", "Fist/Hit", 0);
@@ -60,7 +60,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		FORK A 1 Offset(0, 30);
 		FORK B 1;
 		FORK B 1 Offset(0, 30);
-		FORK C 5 A_CustomPunch(random(5, 7), 0, 0, "HitPuffNew", 96, 0, 0, "ArmorBonus", 0, "Pitchfork/Miss");
+		FORK C 5 A_CustomPunch(random(5, 7), 0, 0, "TCOTDPitchforkPuff", 96, 0, 0, "ArmorBonus", 0, "Pitchfork/Miss");
 		FORK C 1 Offset(0, 34);
 		FORK B 1;
 		FORK B 1 Offset(0, 34);
@@ -70,8 +70,8 @@ class TCOTDWeaponMelee : TCOTDWeapon
 	AltFire:
 		FORK B 1 A_PlaySound("Pitchfork/Throw", CHAN_WEAPON);
 		FORK C 1;
-		FORK D 1 A_FireCustomMissile("Pitchfork_Thrown", 0, 1, 0, 5);
-		FORK E 1 A_TakeInventory("PitchforkInv");
+		FORK D 1 A_FireCustomMissile("TCOTDPitchforkThrown", 0, 1, 0, 5);
+		FORK E 1 A_TakeInventory("TCOTDPitchforkPickup");
 		FORK E 1 Offset(-18, 48);
 		FORK E 1 Offset(-36, 64);
 		FORK E 1 Offset(-54, 80);
@@ -84,7 +84,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 	}
 }
 
-class PitchforkSpark : Actor
+class TCOTDPitchforkSpark : Actor
 {
 	Default
 	{
@@ -123,7 +123,7 @@ class PitchforkSpark : Actor
 	}
 }
 
-class HitPuffNew : Actor
+class TCOTDPitchforkPuff : Actor
 {
 	Default
 	{
@@ -140,7 +140,7 @@ class HitPuffNew : Actor
 	States
 	{
 	Crash:
-		PPUF A 0 A_SpawnItem("PitchforkSpark");
+		PPUF A 0 A_SpawnItem("TCOTDPitchforkSpark");
 		PPUF ABCDE 2;
 		Stop;
 	Spawn:
@@ -150,7 +150,7 @@ class HitPuffNew : Actor
 	}
 }
 
-class Pitchfork_Thrown : Actor
+class TCOTDPitchforkThrown : Actor
 {
 	Default
 	{
@@ -172,12 +172,12 @@ class Pitchfork_Thrown : Actor
 		Stop;
 	Death:
 		XIPP A 0 A_AlertMonsters();
-		XIPP A 4 A_SpawnItemEx("PitchforkInv");
+		XIPP A 4 A_SpawnItemEx("TCOTDPitchforkPickup");
 		Stop;
 	}
 }
 
-class PitchforkInv : Inventory replaces Chainsaw
+class TCOTDPitchforkPickup : Inventory replaces Chainsaw
 {
 	Default
 	{
