@@ -53,6 +53,28 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		}
 	}
 
+	action bool hasPitchfork(void)
+	{
+		if (!invoker.Owner) return false;
+		return invoker.Owner.CountInv("TCOTDPitchforkPickup");
+	}
+
+	action State A_CheckPitchfork(StateLabel label)
+	{
+		State st = ResolveState(label);
+		return hasPitchfork() ? st : NULL;
+	}
+
+	action void A_FistAttack(void)
+	{
+		A_CustomPunch(random(3, 5), meleesound: "Fist/Hit");
+	}
+
+	action void A_PitchforkAttack(void)
+	{
+		A_CustomPunch(random(5, 7), pufftype: "TCOTDPitchforkPuff", range: 96.0, misssound: "Pitchfork/Miss");
+	}
+
 	//===========================================================================
 	//
 	//
@@ -61,45 +83,60 @@ class TCOTDWeaponMelee : TCOTDWeapon
 
 	States
 	{
+	Spawn:
+		TNT1 A -1;
+		Stop;
 	Ready:
-		TNT1 A 0 A_JumpIfInventory("TCOTDPitchforkPickup", 1, "PitchforkReady");
+		TNT1 A 0 A_CheckPitchfork("PitchforkReady");
 		FIST A 1 A_WeaponReady(WRF_NOSECONDARY);
 		Loop;
+	Select:
+		TNT1 A 0 A_CheckPitchfork("PitchforkSelect");
+		FIST A 1 A_Raise();
+		Loop;
+	Deselect:
+		TNT1 A 0 A_CheckPitchfork("PitchforkDeselect");
+		FIST A 1 A_Lower();
+		Loop;
+	Fire:
+		TNT1 A 0 A_CheckPitchfork("PitchforkFire");
+		TNT1 A 0 A_Jump(160, "PunchRightHand");
+	PunchLeftHand:
+		FIST B 2;
+		FIST C 4 A_FistAttack();
+		FIST CBAA 2;
+		Goto Ready;
+	PunchRightHand:
+		FIST D 2;
+		FIST E 4 A_FistAttack();
+		FIST EDAA 2;
+		Goto Ready;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
 	PitchforkReady:
 		FORK A 1 A_WeaponReady();
 		Goto Ready;
-	Deselect:
-		TNT1 A 0 A_JumpIfInventory("TCOTDPitchforkPickup", 1, "PitchforkDeselect");
-		FIST A 1 A_Lower();
+	PitchforkSelect:
+		FORK A 1 A_Raise();
 		Loop;
 	PitchforkDeselect:
 		FORK A 1 A_Lower();
 		Loop;
-	Select:
-		TNT1 A 0 A_JumpIfInventory("TCOTDPitchforkPickup", 1, "PitchforkSelect");
-		FIST A 1 A_Raise();
-		Loop;
-	PitchforkSelect:
-		FORK A 1 A_Raise();
-		Loop;
-	Fire:
-		TNT1 A 0 A_JumpIfInventory("TCOTDPitchforkPickup", 1, "PitchforkFire");
-		TNT1 A 0 A_Jump(160, 7);
-		FIST B 2;
-		FIST C 4 A_CustomPunch(random(3, 5), 0, 0, "BulletPuff", 0, 0, 0, "ArmorBonus", "Fist/Hit", 0);
-		FIST CBAA 2;
-		Goto Ready;
-		FIST D 2;
-		FIST E 4 A_CustomPunch(random(3, 5), 0, 0, "BulletPuff", 0, 0, 0, "ArmorBonus", "Fist/Hit", 0);
-		FIST EDAA 2;
-		Goto Ready;
 	PitchforkFire:
 		FORK A 2;
 		TNT1 A 0;
 		FORK A 1 Offset(0, 30);
 		FORK B 1;
 		FORK B 1 Offset(0, 30);
-		FORK C 5 A_CustomPunch(random(5, 7), 0, 0, "TCOTDPitchforkPuff", 96, 0, 0, "ArmorBonus", 0, "Pitchfork/Miss");
+		FORK C 5 A_PitchforkAttack();
 		FORK C 1 Offset(0, 34);
 		FORK B 1;
 		FORK B 1 Offset(0, 34);
@@ -107,9 +144,9 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		FORK A 1 A_ReFire();
 		Goto Ready;
 	AltFire:
-		FORK B 1 A_PlaySound("Pitchfork/Throw", CHAN_WEAPON);
+		FORK B 1 A_StartSound("Pitchfork/Throw", CHAN_WEAPON);
 		FORK C 1;
-		FORK D 1 A_FireCustomMissile("TCOTDPitchforkThrown", 0, 1, 0, 5);
+		FORK D 1 A_FireProjectile("TCOTDPitchforkThrown", spawnheight: 5);
 		FORK E 1 A_TakeInventory("TCOTDPitchforkPickup");
 		FORK E 1 Offset(-18, 48);
 		FORK E 1 Offset(-36, 64);
@@ -117,9 +154,6 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		FORK E 1 Offset(-72, 92);
 		TNT1 A 2;
 		Goto Ready;
-	Spawn:
-		TNT1 A -1;
-		Stop;
 	}
 }
 
@@ -152,7 +186,7 @@ class TCOTDPitchforkSpark : Actor
 		Stop;
 	XDeath:
 		TNT1 A 0;
-		TNT1 A 0 A_PlaySound("Fork/Stab");
+		TNT1 A 0 A_StartSound("Fork/Stab");
 		BLD2 A 0 A_Jump(128,"XDeath2");
 		BLD2 FGHI 4;
 		Stop;
