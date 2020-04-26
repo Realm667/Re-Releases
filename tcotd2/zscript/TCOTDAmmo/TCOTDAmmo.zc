@@ -1,0 +1,53 @@
+class AClip : Clip replaces Clip
+{
+	Default
+	{
+		Scale 0.8;
+		Inventory.PickupMessage "$IP_PIS2";
+	}
+}
+
+class AClipBox : ClipBox replaces ClipBox
+{
+	Default
+	{
+		Inventory.PickupMessage "$IP_THO2";
+		Inventory.Amount 25;
+	}
+}
+
+class Shell2 : Shell
+{
+	Default
+	{
+		Inventory.PickupMessage "$IP_SHEL";
+	}
+
+	States
+	{
+	Spawn:
+		SHEL B -1;
+		Stop;
+	}
+}
+
+class NapalmAmmo : Ammo replaces RocketAmmo
+{
+	Default
+	{
+		Tag "Napalm";
+		Height 26;
+		Inventory.PickupMessage "$IP_NAP2";
+		Inventory.Icon "ROCKA0";
+		Inventory.MaxAmount 50;
+		Ammo.BackpackAmount 1;
+		Ammo.BackpackMaxAmount 100;
+	}
+
+	States
+	{
+	Spawn:
+		ROCK A -1;
+		Stop;
+	}
+}

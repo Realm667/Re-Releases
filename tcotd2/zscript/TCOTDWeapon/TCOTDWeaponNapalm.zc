@@ -1,0 +1,118 @@
+/*
+Credits:
+-Napalm sprites & sounds from Blood
+-Firing sound from Hexen
+-Smoke sprites by Kronos I guess?
+
+Original code inherited from the original TCoTD 2, modified by Gothic. Added bits from lolo_is_cool R667 submissions.
+*/
+
+// ZScript rewrite by Nash Muhandes
+
+class TCOTDWeaponNapalm : TCOTDWeapon replaces RocketLauncher
+{
+	Default
+	{
+		Radius 20;
+		Height 16;
+		Scale 0.6;
+		Tag "$TAG_NAPA";
+		Obituary "$OB_NAPA";
+		Inventory.PickupMessage "$IP_NAPA";
+		Weapon.SelectionOrder 250;
+		Weapon.AmmoType "NapalmAmmo";
+		Weapon.AmmoUse 1;
+		Weapon.AmmoGive 40;
+		+WEAPON.EXPLOSIVE
+	}
+
+	States
+	{
+	Spawn:
+		NPCK A -1;
+		Stop;
+	Ready:
+		NAPL A 1 A_WeaponReady();
+		Loop;
+	Deselect:
+		NAPL A 1 A_Lower();
+		Loop;
+	Select:
+		NAPL A 1 A_Raise();
+		Loop;
+	Fire:
+		NAPL A 3;
+		TNT1 A 0 A_PlaySound("Napalm/Shot");
+		TNT1 A 0 A_FireCustomMissile("RocketBlood");
+		NAPL B 2 Offset(15, 49) A_Overlay(-2, "Flash");
+		NAPL B 3 Offset(21, 57);
+		NAPL B 3 Offset(21, 59);
+		NAPL B 3 Offset(17, 53);
+		NAPL B 2 Offset(6, 42);
+		NAPL A 2 Offset(2, 35);
+		NAPL A 2 A_WeaponOffset(0, 32);
+		NAPL A 4;
+		NAPL A 1 A_Refire();
+		Goto Ready;
+	Flash:
+		TNT1 A 0 A_OverlayFlags(-2, PSPF_ADDWEAPON, false);
+		TNT1 A 0 A_OverlayOffset(-2, 0, 32);
+		NPFL AB 2 Bright A_Light2();
+		NPFL CD 2 Bright A_Light1();
+		NPFL E 2 Bright A_Light0();
+		NPFL FG 2 Bright;
+		Stop;
+	}
+}
+
+class RocketBlood : Rocket
+{
+	Default
+	{
+		Radius 8;
+		Height 8;
+		Speed 20;
+		Damage 80;
+		Scale 0.4;
+		SeeSound "Napalm/Fire";
+		DeathSound "Napalm/Impact";
+		Obituary "$OB_NAPR";
+		Projectile;
+		+RANDOMIZE
+	}
+
+	States
+	{
+	Spawn:
+		TNT1 AA 0 A_SpawnItemEx("NewSparks2", 0, 0, 0, random(-5, 5), random(-5, 5), random(-5, 5), random(1, 360));
+		NBLL ABC 2 Bright A_SpawnItemEx("NRocketTrail", 0, 0, 0, 2, 0, 0);
+		TNT1 AA 0 A_SpawnItemEx("NewSparks2", 0, 0, 0, random(-5, 5), random(-5, 5), random(-5, 5), random(1, 360));
+		NBLL DEF 2 Bright A_SpawnItemEx("NRocketTrail", 0, 0, 0, 2, 0, 0);
+		Loop;
+	Death:
+		TNT1 A 0 A_SetScale(0.9);
+		NEXP A 2 Bright A_Explode();
+		TNT1 AAAAAAAAAAAAAA 0 A_SpawnItemEx("NewSparks2", 0, 0, 0, random(-5, 5), random(-5, 5), random(-5, 5), random(1, 360));
+		NEXP BCDEFGHIJKLMN 2 Bright;
+		Stop;
+	}
+}
+
+class NRocketTrail : Actor
+{
+	Default
+	{
+		Scale 0.4;
+		RenderStyle "Translucent";
+		Alpha 0.4;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		NSMK ABCD 2;
+		NSMK EFGHI 2 A_FadeOut(0.06);
+		Stop;
+	}
+}
