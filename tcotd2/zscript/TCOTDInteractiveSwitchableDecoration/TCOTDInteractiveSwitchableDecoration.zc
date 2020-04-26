@@ -42,6 +42,13 @@ class TCOTDInteractiveSwitchableDecoration : SwitchableDecoration
 	override bool Used(Actor user)
 	{
 		Toggle();
+
+		// execute the things's special
+		if (Special)
+		{
+			A_CallSpecial(Special, Args[0], Args[1], Args[2], Args[3], Args[4]);
+		}
+
 		return false;
 	}
 
