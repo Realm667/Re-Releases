@@ -1,5 +1,7 @@
 class TCOTDSnowSpawner : TCOTDDietActor
 {
+	mixin TCOTDWeatherFXMixin;
+
 	Default
 	{
 		//$Category Weather
@@ -19,13 +21,14 @@ class TCOTDSnowSpawner : TCOTDDietActor
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_JumpIf(CallACS("weatherfx") == 0, "Unsighted");
-	SpawnLoop:
-		TNT1 A 0 A_CheckRange(1024.0, "Unsighted", true);
-		TNT1 A 5 A_SpawnItemEx("TCOTDSnowParticle", frandom(-256.0, 256.0), frandom(-256.0, 256.0), 0, frandom(-1.0, 1.0), frandom(-1.0, 1.0), frandom(-3.0, -1.0));
+		TNT1 A 5 NoDelay
+		{
+			CacheWeatherFXCVar();
+			if (!CheckRange(1024.0, true) && WeatherFXEnabled())
+			{
+				A_SpawnItemEx("TCOTDSnowParticle", frandom(-256.0, 256.0), frandom(-256.0, 256.0), 0, frandom(-1.0, 1.0), frandom(-1.0, 1.0), frandom(-3.0, -1.0));
+			}
+		}
 		Loop;
-	Unsighted:
-		TNT1 A 8;
-		Goto Spawn;
 	}
 }
