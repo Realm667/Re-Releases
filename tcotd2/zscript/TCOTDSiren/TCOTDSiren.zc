@@ -1,13 +1,36 @@
 class TCOTDSiren : SwitchableDecoration
 {
+	bool sirenOn;
+	double sirenVolume;
+
 	States
 	{
 	Spawn:
 	Inactive:
-		TNT1 A -1 A_StopSound;
-		Stop;
+		TNT1 A 1
+		{
+			if (sirenOn)
+			{
+				if (sirenVolume > 0.001)
+				{
+					sirenVolume *= 0.99;
+					A_SoundVolume(CHAN_VOICE, sirenVolume);
+				}
+				else
+				{
+					A_StopSound(CHAN_VOICE);
+					sirenOn = false;
+				}
+			}
+		}
+		Loop;
 	Active:
-		TNT1 A -1 A_StartSound("AMB30", CHAN_VOICE, volume: 1.0, ATTN_NONE);
+		TNT1 A -1
+		{
+			sirenVolume = 1.0;
+			A_StartSound("Siren", CHAN_VOICE, attenuation: ATTN_NONE);
+			sirenOn = true;
+		}
 		Stop;
 	}
 }
