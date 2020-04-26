@@ -2,30 +2,25 @@
 // COLORED BLOOD ORIGINALS //
 /////////////////////////////
 
-ACTOR BaronOfHellGreen : BaronOfHell 3003
+ACTOR BaronOfHellGreen : BaronOfHell
 { 
-	SpawnID 194
 	BloodColor "77 EF 01"
 }
 
-ACTOR HellKnightGreen : HellKnight 69
+ACTOR HellKnightGreen : HellKnight
 { 
-	SpawnID 193
 	BloodColor "77 EF 01"
 }
 
-ACTOR CacoDemonBlue : Cacodemon 3005
+ACTOR CacoDemonBlue : Cacodemon 
 { 
-	SpawnID 192
 	BloodColor "01 C8 DF"
 }
 
-ACTOR LostSoulSmoke : LostSoul 3006
-{
-	SpawnID 191 
+ACTOR LostSoulSmoke : LostSoul
+{ 
 	+NOBLOOD
 }
-
 
 //=================================
 //
@@ -33,9 +28,8 @@ ACTOR LostSoulSmoke : LostSoul 3006
 //
 //=================================
 
-ACTOR Hectebus 22250 
-{
-	SpawnID 253
+ACTOR Hectebus
+{ 
 	Health 1500
 	Radius 48
 	Height 64
@@ -45,12 +39,12 @@ ACTOR Hectebus 22250
 	BloodColor "73 00 00"
 	Mass 500
 	SeeSound "hectebus/sight"
-    	PainSound "hectebus/pain"
-    	DeathSound "hectebus/death"
-    	ActiveSound "demon/active"
+	PainSound "hectebus/pain"
+	DeathSound "hectebus/death"
+	ActiveSound "demon/active"
 	MONSTER
 	+FLOORCLIP
-	Obituary "%o was cremated by a Hectebus."
+	Obituary "$OB_HECT"
 
 	States
 	{
@@ -61,18 +55,18 @@ ACTOR Hectebus 22250
 		HECT ABCDEF 6 A_Chase
 		Loop
 	Missile:
-		HECT G 0 A_PlaySound("hectebus/attack")
+		HECT G 0 A_StartSound("hectebus/attack")
 		HECT G 6 A_FaceTarget
-		HECT H 0 A_CustomMissile("Hecteball",20,20,-5)
-		HECT H 6 A_CustomMissile("Hecteball",20,-40,5)
+		HECT H 0 A_SpawnProjectile("Hecteball",20,20,-5)
+		HECT H 6 A_SpawnProjectile("Hecteball",20,-40,5)
 		HECT I 6 A_FaceTarget
 		HECT G 6 A_FaceTarget
-		HECT H 0 A_CustomMissile("Hecteball",20,20,-10)
-		HECT H 6 A_CustomMissile("Hecteball",20,-40,10)
+		HECT H 0 A_SpawnProjectile("Hecteball",20,20,-10)
+		HECT H 6 A_SpawnProjectile("Hecteball",20,-40,10)
 		HECT I 6 A_FaceTarget
 		HECT G 6 A_FaceTarget
-		HECT H 0 A_CustomMissile("Hecteball",20,20,5)
-		HECT H 6 A_CustomMissile("Hecteball",20,-40,-5)
+		HECT H 0 A_SpawnProjectile("Hecteball",20,20,5)
+		HECT H 6 A_SpawnProjectile("Hecteball",20,-40,-5)
 		HECT I 6 A_FaceTarget
 		Goto See
 	Pain:
@@ -105,7 +99,7 @@ ACTOR Hecteball //Hectebus Fireball
 	RENDERSTYLE ADD
 	ALPHA 0.97
 	SeeSound "imp/attack"
-    	DeathSound "imp/shotx"
+    DeathSound "imp/shotx"
 	States
 	{
 	Spawn:
@@ -119,28 +113,27 @@ ACTOR Hecteball //Hectebus Fireball
 
 //Boss-Spider Demolisher
 
-ACTOR Demolisher 30110
+ACTOR Demolisher
 {
-Obituary "%o felt the power of the Spider-Demolisher."
-SpawnID 254
-Health 6000 
-Radius 96 
-Height 100 
-Mass 1000 
-Speed 16 
-PainChance 10 
-MONSTER
-+NOTARGET
-+FLOORCLIP 
-+BOSS 
-+MISSILEEVENMORE
-+NORADIUSDMG 
-SeeSound "monster/demsit" 
-AttackSound "spider/attack" 
-PainSound "spider/pain" 
-DeathSound "monster/demdth" 
-ActiveSound "spider/active" 
-States 
+	Obituary "$OB_DEMO"
+	Health 6000 
+	Radius 96 
+	Height 100 
+	Mass 1000 
+	Speed 16 
+	PainChance 10 
+	MONSTER
+	+NOTARGET
+	+FLOORCLIP 
+	+BOSS 
+	+MISSILEEVENMORE
+	+NORADIUSDMG 
+	SeeSound "monster/demsit" 
+	AttackSound "spider/attack" 
+	PainSound "spider/pain" 
+	DeathSound "monster/demdth" 
+	ActiveSound "spider/active" 
+	States 
    { 
    Spawn: 
        DEMO AB 10 A_Look 
@@ -163,7 +156,7 @@ States
        DEMO T 5 BRIGHT A_FaceTarget
        DEMO T 5 BRIGHT A_FaceTarget
        DEMO T 5 BRIGHT A_FaceTarget
-       DEMO U 10 BRIGHT A_CustomMissile ("BFGBall",32,0,0)
+       DEMO U 10 BRIGHT A_SpawnProjectile ("BFGBall",32,0,0)
        DEMO T 0 BRIGHT A_Jump (128,10)
        DEMO T 1 BRIGHT A_Playsound ("weapons/bfgf")
        DEMO T 4 BRIGHT A_FaceTarget
@@ -172,7 +165,7 @@ States
        DEMO T 5 BRIGHT A_FaceTarget
        DEMO T 5 BRIGHT A_FaceTarget
        DEMO T 5 BRIGHT A_FaceTarget 
-       DEMO U 10 BRIGHT A_CustomMissile ("BFGBall",32,0,0)
+       DEMO U 10 BRIGHT A_SpawnProjectile ("BFGBall",32,0,0)
        DEMO T 0 BRIGHT A_Jump (128,1)
        Goto See
        DEMO A 20 BRIGHT A_FaceTarget
