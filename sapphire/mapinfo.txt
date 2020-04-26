@@ -1,21 +1,46 @@
-map map01 "Sapphire Orbital Research"
-sky1 ORBITAL 0.0
-music "D_MAP01"
-par 1500
+defaultmap
+{
+	sky1 = "ORBITAL", 0.0
+	music = "D_MAP01"
+	cluster = 1
+	next = EndGame2
+	intermusic = "D_DM2TTL"
+	enterpic = "TGRRFL0"
+	exitpic = "TGRRFL0"
+}
+
+map map01 "Sapphire Orbital Research" { }
+
 cluster 1
-next EndGame2
-intermusic D_DM2TTL
-enterpic TGRRFL0
-exitpic TGRRFL0
+{
+	flat = "TGRRFL0"
+	music = "D_DM2TTL"
+	exittext=
+	"You enter the emergency exit hangar ",
+	"after you completely cleaned the Orbital",
+	"Research space station... well done, ",
+	"marine but it's not over yet, ",
+	"the planet's surface awaits you...",
+	"",
+	"...to be continued!"
+}
 
-clusterdef 1
-exittext
-"You enter the emergency exit hangar 
-after you completely cleaned the Orbital
-Research space station... well done, 
-marine but it's not over yet, 
-the planet's surface awaits you...
+doomednums
+{
+	69 = HellKnightGreen
+	3003 = BaronOfHellGreen
+	3005 = CacoDemonBlue
+	3006 = LostSoulSmoke
+	22250 = Hectebus
+	30110 = Demolisher
+}
 
-...to be continued!"
-flat TGRRFL0
-music D_DM2TTL
+spawnnums
+{
+	191 = LostSoulSmoke
+	192 = CacoDemonBlue
+	193 = HellKnightGreen
+	194 = BaronOfHellGreen
+	253 = Hectebus
+	254 = Demolisher
+}
