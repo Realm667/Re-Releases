@@ -20,6 +20,31 @@ class TCOTDFoliageHandler : EventHandler
 			}
 		}
 	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void NetworkProcess(ConsoleEvent e)
+	{
+		//let p = players[e.Player].mo;
+		//if (!p) return;
+
+		// debug command, remove on release
+		if (e.Name == 'EV_DestroyFoliage')
+		{
+			ft.Destroy();
+			ThinkerIterator it = ThinkerIterator.Create("TCOTDFoliage");
+			Actor mo;
+			while (mo = Actor(it.Next()))
+			{
+				mo.Destroy();
+			}
+		}
+	}
+
 }
 
 struct TCOTDFoliageHandlerData
