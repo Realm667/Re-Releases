@@ -1,0 +1,90 @@
+class TCOTDFoliageHandler : EventHandler
+{
+	TCOTDFoliageThinker ft;
+
+	override void WorldLoaded(WorldEvent e)
+	{
+		if (!ft)
+		{
+			ft = new("TCOTDFoliageThinker");
+		}
+
+		if (ft)
+		{
+			ThinkerIterator it = ThinkerIterator.Create("TCOTDFoliage");
+			Actor mo;
+			while (mo = Actor(it.Next()))
+			{
+				ft.Add(mo.Pos, mo.GetClass(), mo.sprite);
+				mo.Destroy();
+			}
+		}
+	}
+}
+
+struct TCOTDFoliageHandlerData
+{
+	Actor mo;
+	class<Actor> cls;
+	SpriteID spr;
+	Vector3 pos;
+}
+
+class TCOTDFoliageThinker : Thinker
+{
+	const MAX_RANGE = 1500 * 1500.;
+	const MAX_FOLIAGE = 65536;
+	const COOLDOWN = TICRATE / 2;
+
+	private TCOTDFoliageHandlerData positions[MAX_FOLIAGE];
+	private uint index;
+	private int timer;
+
+	void Add(Vector3 location, class<Actor> cls, SpriteID spr)
+	{
+		positions[index].cls = cls;
+		positions[index].spr = spr;
+		positions[index++].pos = location;
+		if (index >= MAX_FOLIAGE)
+			index = MAX_FOLIAGE - 1; // How did you even do that?
+	}
+
+	override void Tick(void)
+	{
+		if (--timer > 0)
+			return;
+
+		Vector3 diff;
+		for (uint i = 0; i < MAXPLAYERS; ++i)
+		{
+			if (!playeringame[i])
+				continue;
+
+			for (uint j = 0; j < index; ++j)
+			{
+				//Console.Printf("%d %d %d", positions[j].pos.X, positions[j].pos.Y, positions[j].spr);
+
+				/*
+				if (!positions[j].spr)
+					continue;
+				*/
+
+				diff = level.Vec3Diff(positions[j].pos, players[i].camera.Pos);
+				if ((diff dot diff) <= MAX_RANGE)
+				{
+					if (!positions[j].mo)
+					{
+						positions[j].mo = Actor.Spawn(positions[j].cls, positions[j].pos);
+						//positions[j].mo.sprite = positions[j].spr;
+					}
+				}
+				else if (positions[j].mo)
+				{
+					positions[j].mo.Destroy();
+				}
+			}
+		}
+
+		timer = COOLDOWN;
+	}
+}
