@@ -1,32 +1,39 @@
 map map01 "Upside Down"
-sky1 FORGE 0.20
-music D_MAP01
-par 1050
-next map02
+{
+	sky1 = "FORGE", 0.20
+	music = "D_MAP01"
+	par = "1050"
+	next = "map02"
+}
 
 map map02 "Easy In Easy Out"
-sky1 MARVE 0.0
-music D_MAP02
-par 1350
-next map03
+{
+	sky1 = "MARVE", 0.0
+	music = "D_MAP02"
+	par = "1350"
+	next = "map03"
+}
 
 map map03 "Red Moon"
-sky1 MARS 0.0
-music D_MAP03
-par 1560
+{
+	sky1 = "MARS", 0.0
+	music = "D_MAP03"
+	par = "1560"
+	cluster = 1
+	next = "EndGame3"
+}
+
 cluster 1
-next EndGame3
-
-clusterdef 1
-exittext
-"After hours of endless battles, you
-finally made it. You step outside the
-haunted and evil fortress of hell into
-peace and freedom... but is this already
-the end? No more fighting? ... a strange
-feeling crawls down your neck when a 
-huge portal opened, displaying a terrible
-and cruel advertisement banner..."
-flat ADEL_D01
-music D_BUNNY
-
+{
+	flat = "ADEL_D01"
+	music = "D_BUNNY"
+	exittext =
+	"After hours of endless battles, you",
+	"finally made it. You step outside the",
+	"haunted and evil fortress of hell into",
+	"peace and freedom... but is this already",
+	"the end? No more fighting? ... a strange",
+	"feeling crawls down your neck when a ",
+	"huge portal opened, displaying a terrible",
+	"and cruel advertisement banner..."
+}
