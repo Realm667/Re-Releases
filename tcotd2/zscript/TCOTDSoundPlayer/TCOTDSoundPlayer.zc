@@ -1,0 +1,460 @@
+// Copyright 2020 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+class TCOTDSoundPlayer : Actor
+{
+	enum ESoundPlayerChannels
+	{
+		SPCHAN_AUTO = 0,
+		SPCHAN_INSIDE = 1,
+		SPCHAN_OUTSIDE = 2,
+		SPCHAN_DECORATION = 666,
+	}
+
+	const VOL_DynamicVolume = 0.00000001;
+	const VOL_FadeAmount = 0.033;
+	double volInside, volOutside;
+
+	// the player who "owns" this sound player
+	PlayerPawn pmo;
+
+	double footstepCounter;
+
+	Sector oldCurSector, newCurSector;
+
+	Array<TCOTDSoundPlayerAmbientActorInfo> ambientActors;
+	Array<TCOTDFootstepInfo> footstepInfo;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		+NOINTERACTION
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void BeginPlay(void)
+	{
+		Super.BeginPlay();
+		BuildAmbientActorInfo();
+		BuildFootstepInfo();
+	}
+
+	override void PostBeginPlay(void)
+	{
+		Super.PostBeginPlay();
+
+		if (pmo == players[consoleplayer].mo)
+		{
+			// start the ambient sounds
+			int flags = CHANF_NOPAUSE | CHANF_LOOP;
+			Sound snd;
+			double st;
+
+			/*
+			snd = "TCOTDPlayer/environment/space_station01";
+			st = frandom(0.f, S_GetLength(snd));
+			A_StartSound(snd, SPCHAN_INSIDE, flags, VOL_DynamicVolume, ATTN_NONE, startTime: st);
+
+			snd = "TCOTDPlayer/environment/wind01";
+			st = frandom(0.f, S_GetLength(snd));
+			A_StartSound(snd, SPCHAN_OUTSIDE, flags, VOL_DynamicVolume, ATTN_NONE, startTime: st);
+			*/
+		}
+	}
+
+	override void Tick(void)
+	{
+		Super.Tick();
+
+		if (pmo)
+		{
+			UpdateCurrentSector();
+			UpdateAmbientVolume();
+			UpdateLoopingSounds();
+			DoFootSteps();
+		}
+	}
+
+	override void OnDestroy(void)
+	{
+		for (int i = 0; i < ambientActors.Size(); i++)
+		{
+			if (ambientActors[i])
+			{
+				ambientActors[i].Destroy();
+			}
+		}
+		ambientActors.Clear();
+
+		for (int i = 0; i < footstepInfo.Size(); i++)
+		{
+			if (footstepInfo[i])
+			{
+				footstepInfo[i].Destroy();
+			}
+		}
+		footstepInfo.Clear();
+
+		Super.OnDestroy();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static TCOTDSoundPlayer GetSoundPlayer(PlayerPawn pmo)
+	{
+		if (!pmo) return NULL;
+
+		TCOTDSoundPlayer spmo = NULL;
+
+		// find the specific sound player attached to this player
+		ThinkerIterator it = ThinkerIterator.Create("TCOTDSoundPlayer");
+		Actor mo;
+		while (mo = Actor(it.Next()))
+		{
+			if (TCOTDSoundPlayer(mo).pmo == pmo)
+			{
+				spmo = TCOTDSoundPlayer(mo);
+				break;
+			}
+		}
+
+		return spmo;
+	}
+
+	bool IsOutside(void)
+	{
+		if (!pmo) return false;
+		return (pmo.ceilingpic == skyflatnum);
+	}
+
+	Actor GetCamera(void)
+	{
+		if (!pmo) return NULL;
+		return pmo.player.camera;
+	}
+
+	void BuildAmbientActorInfo(void)
+	{
+		ambientActors.Clear();
+		INIFile data;
+		data.ReadLumpsNamed("ActorSounds");
+		data.MergeByActorClass(purgeSuperSubSections: true, purgeNoMatch: true);
+
+		uint i, s;
+		for (i = 0, s = data.Sections.Size(); i < s; i++)
+		{
+			let section = data.Sections[i];
+			if (!section) continue;
+
+			Class<Actor> cls = section.name;
+			Sound snd = data.Get(section.name, "Sound");
+
+			let ai = new('TCOTDSoundPlayerAmbientActorInfo');
+			ai.cls = cls;
+			ai.snd = snd;
+
+			ambientActors.Push(ai);
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void BuildFootstepInfo(void)
+	{
+		INIFile data;
+		data.ReadLumpsNamed("Footsteps");
+
+		uint i, s;
+		for (i = 0, s = data.Sections.Size(); i < s; i++)
+		{
+			// go through all sections
+			let section = data.Sections[i];
+			if (!section) continue;
+
+			// go through all keys
+			for (uint key = 0, keys = section.Keys.Size(); key < keys; key++)
+			{
+				String allTextures = data.Get(section.name, section.Keys[key]);
+
+				// split the string
+				Array<String> lines;
+				lines.Clear();
+				allTextures.Split(lines, ",", TOK_KEEPEMPTY);
+
+				for (int k = 0; k < lines.Size(); k++)
+				{
+					let tex = TexMan.CheckForTexture(lines[k], TexMan.Type_Any);
+					if (tex)
+					{
+						let fsi = new('TCOTDFootstepInfo');
+						fsi.tex = tex;
+						fsi.snd = section.name;
+
+						footstepInfo.Push(fsi);
+					}
+				}
+			}
+		}
+	}
+
+	Sound GetFootstepSound(void)
+	{
+		Sound snd = "step/default";
+
+		for (int i = 0; i < footstepInfo.Size(); i++)
+		{
+			if (footstepInfo[i] && pmo.floorpic == footstepInfo[i].tex)
+			{
+				snd = footstepInfo[i].snd;
+				break;
+			}
+		}
+
+		return snd;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void UpdateCurrentSector(void)
+	{
+		newCurSector = GetCamera().CurSector;
+
+		if (oldCurSector != newCurSector)
+		{
+			oldCurSector = newCurSector;
+		}
+	}
+
+	void UpdateAmbientVolume(void)
+	{
+		int totalNodes = 50;
+		double traceDist = 100.0;
+		int flags = TRF_THRUHITSCAN | TRF_ALLACTORS;
+		FLineTraceData t;
+		Actor a = GetCamera();
+
+		double xfade = 1.0;
+
+		for (int i = 0; i < totalNodes; i++)
+		{
+			double rayZ;
+			if (a.player) rayZ = a.player.viewheight;
+			else rayZ = a.height;
+			a.LineTrace(360.0 * (i / double(totalNodes)),  double(traceDist), 0, flags, rayZ, data: t);
+			let ray = Actor.Spawn("TCOTDSoundPlayerVolumeNode", t.HitLocation, NO_REPLACE);
+
+			if (ray && ray.ceilingpic != skyflatnum)
+			{
+				xfade -= (1.0 / totalNodes);
+			}
+		}
+
+		//Console.Printf("%f", xfade);
+
+		volInside = 1.0 - xfade;
+		volOutside = xfade;
+
+		volInside = clamp(volInside, 0.0, 1.0);
+		volOutside = clamp(volOutside, 0.0, 1.0);
+
+		// adjust volume
+		volInside *= 0.20;
+		volOutside *= 0.20;
+
+		// per-player volume adjustment
+		if (a == players[consoleplayer].mo)
+		{
+			A_SoundVolume(SPCHAN_INSIDE, volInside);
+			A_SoundVolume(SPCHAN_OUTSIDE, volOutside);
+		}
+	}
+
+	void DoFootSteps(void)
+	{
+		Actor a = pmo;
+
+		if (!TCOTDGameplayStatics.IsOnFloor(a)) return;
+
+		// get character velocity
+		double aVel = TCOTDGameplayStatics.GetVelocity(a, xyOnly: true);
+
+		// don't bother if moving too slow
+		if (aVel < 0.1) return;
+
+		// set the sound volume
+		double vol = min(aVel * 0.1, 1.0);
+		vol = clamp(vol, 0.0, 1.0);
+
+		// clamp the velocity value to pleasing values
+		// yay magic numbers!
+		aVel = clamp(aVel, 3.45, 6.37);
+
+		// add to counter if moving, decrease it otherwise
+		if (aVel < 0.01) footstepCounter *= 0.5;
+		else footstepCounter += aVel;
+
+		// play the footstep sound
+		double footstepInterval = 85.0;
+		if (footstepCounter > footstepInterval)
+		{
+			let fs = TCOTDFootstep(a.Spawn("TCOTDFootstep", a.Pos + (0, 0, 10.0), NO_REPLACE));
+
+			if (fs)
+			{
+				fs.pmo = pmo;
+				fs.vol = vol;
+				fs.snd = GetFootstepSound();
+			}
+
+			// reset footstep counter
+			footstepCounter = 0;
+		}
+	}
+
+	void UpdateLoopingSounds(void)
+	{
+		// look for looping sound sources around you and dynamically start
+		// or stop them
+		// because multiple looping sound sources can get expensive
+
+		double distance = 512.0;
+
+		BlockThingsIterator it = BlockThingsIterator.Create(GetCamera(), distance);
+		while (it.Next())
+		{
+			let other = it.Thing;
+
+			bool valid = false;
+			Sound snd;
+
+			for (int i = 0; i < ambientActors.Size(); i++)
+			{
+				if (ambientActors[i] && other is ambientActors[i].cls)
+				{
+					snd = ambientActors[i].snd;
+					valid = true;
+					break;
+				}
+			}
+
+			if (valid && GetCamera() == players[consoleplayer].mo)
+			{
+				if (GetCamera().Distance2D(other) < distance - 64)
+				{
+					if (!other.IsActorPlayingSound(SPCHAN_DECORATION))
+					{
+						int flags = CHANF_LOOP;
+						double pitch = frandom(1.0, 1.1);
+						double st = frandom(0.f, S_GetLength(snd));
+						other.A_StartSound(snd, SPCHAN_DECORATION, flags, pitch: pitch, startTime: st);
+					}
+				}
+				else
+				{
+					other.A_StopSound(SPCHAN_DECORATION);
+				}
+			}
+		}
+	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+class TCOTDSoundPlayerVolumeNode : Actor
+{
+	Default
+	{
+		Radius 1;
+		Height 2;
+		+NOTIMEFREEZE
+		+NOGRAVITY
+		+DONTSPLASH
+		-SOLID
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	Spawn:
+		TNT1 A 1 Bright;
+		Stop;
+	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+class TCOTDSoundPlayerAmbientActorInfo play
+{
+	class<Actor> cls;
+	Sound snd;
+}
+
+class TCOTDFootstepInfo play
+{
+	TextureID tex;
+	Sound snd;
+}

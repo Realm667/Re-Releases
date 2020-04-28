@@ -421,7 +421,7 @@ class TCOTDPlayer : PlayerPawn
 		//===========================================================================
 
 		// normalized strafe input
-		if (strafeTiltEnabled && TCOTDGameplayStatics.bIsOnFloor(self) && TCOTDGameplayStatics.bIsAlive(self))
+		if (strafeTiltEnabled && TCOTDGameplayStatics.IsOnFloor(self) && TCOTDGameplayStatics.IsAlive(self))
 		{
 			int dir;
 			if (strafeTiltReversed) dir = -1;
@@ -440,7 +440,7 @@ class TCOTDPlayer : PlayerPawn
 		//
 		//===========================================================================
 
-		if (moveTiltEnabled && TCOTDGameplayStatics.bIsOnFloor(self) && TCOTDGameplayStatics.bIsAlive(self))
+		if (moveTiltEnabled && TCOTDGameplayStatics.IsOnFloor(self) && TCOTDGameplayStatics.IsAlive(self))
 		{
 			// get player's velocity
 			v = TCOTDGameplayStatics.GetVelocity(self) * moveTiltScalar;
@@ -471,7 +471,7 @@ class TCOTDPlayer : PlayerPawn
 		//
 		//===========================================================================
 
-		if (turnTiltEnabled && TCOTDGameplayStatics.bIsAlive(self))
+		if (turnTiltEnabled && TCOTDGameplayStatics.IsAlive(self))
 		{
 			// get player look input
 			double xinput = GetPlayerInput(MODINPUT_YAW) * (turnTiltReversed ? -1 : 1);
@@ -517,7 +517,7 @@ class TCOTDPlayer : PlayerPawn
 		//
 		//===========================================================================
 
-		if (!TCOTDGameplayStatics.bIsAlive(self) && deathTiltEnabled)
+		if (!TCOTDGameplayStatics.IsAlive(self) && deathTiltEnabled)
 		{
 			double deathTiltSpeed = 1.0;
 
