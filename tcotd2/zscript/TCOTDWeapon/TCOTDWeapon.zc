@@ -32,6 +32,203 @@
 
 class TCOTDWeapon : Weapon
 {
+	// weapon sway stuff
+	const SWAY_SENSITIVITY_X = 60.0;
+	const SWAY_SENSITIVITY_Y = 20.0;
+	const SWAY_RECENTER_SPEED = 0.8;
+	const SWAY_MAX_X = 30.0;
+	const SWAY_MIN_Y = -64.0;
+	const SWAY_MAX_Y = 100.0;
+	double xofs;
+	double yofs;
+	double swayBounce;
+	bool oldOnGround;
+	double oldCrouchFactor;
+	double oldVelZ;
+	bool justLanded;
+	bool justCrouched;
+	bool justStood;
+	Actor pmo;
+	transient CVar cvEnabled;
+
+	bool modfix;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		Weapon.BobSpeed 2.4;
+		Weapon.BobRangeX 0.277;
+		Weapon.BobRangeY 0.667;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Tick(void)
+	{
+		Super.Tick();
+
+		if (Owner && Owner is "PlayerPawn")
+		{
+			pmo = Owner;
+		}
+
+		if (pmo)
+		{
+			if (pmo.Health <= 0) return;
+
+			let psp = pmo.player.psprites;
+			if (!psp) return;
+
+			let wep = pmo.player.ReadyWeapon;
+			if (!wep) return;
+
+			if (!CacheCVars())
+			{
+				Console.Printf("Z_SwayMe::Tick could not cache CVars");
+				return;
+			}
+
+			if (!pmo.player.onground && pmo.Vel.Z < -8.0)
+			{
+				oldVelZ = -(pmo.Vel.Z * 5);
+			}
+
+			if (!oldOnGround && pmo.player.onground) justLanded = true;
+			oldOnGround = pmo.player.onground;
+
+			justCrouched = oldCrouchFactor == 1.0 && pmo.player.crouchfactor < 1.0;
+			justStood = oldCrouchFactor == 0.5 && pmo.player.crouchfactor > 0.5;
+			oldCrouchFactor = pmo.player.crouchfactor;
+
+			bool invertSway = false;
+
+			// modify handedness
+			// (based on PSprite flip/mirror settings)
+			int handedness = 1;
+			let wep_psp = pmo.player.FindPSprite(PSP_WEAPON);
+			if (wep_psp)
+			{
+				if (wep_psp.bFlip || wep_psp.bMirror) handedness = -1;
+			}
+
+			// horizontal sway
+			double xinput = pmo.GetPlayerInput(MODINPUT_YAW) * (invertSway ? 1 : -1) * handedness;
+			xinput = SWAY_SENSITIVITY_X * xinput / 32767.0;
+			xofs += xinput;
+
+			// fists need less vertical offset
+			double ssy = SWAY_SENSITIVITY_Y;
+			let meleeWeapon = TCOTDWeaponMelee(pmo.player.ReadyWeapon);
+			if (meleeWeapon && !pmo.CountInv("TCOTDPitchforkPickup"))
+			{
+				ssy -= 10;
+			}
+
+			// vertical offset
+			double ypitch = -pmo.pitch;
+			ypitch = ssy * ypitch / 90.0;
+
+			bool weaponOk =
+			(
+				(pmo.player.WeaponState & WF_WEAPONREADY) ||
+				(pmo.player.WeaponState & WF_WEAPONREADYALT) ||
+				(pmo.player.WeaponState & WF_WEAPONRELOADOK) ||
+				(pmo.player.WeaponState & WF_WEAPONZOOMOK) ||
+				(pmo.player.WeaponState & WF_WEAPONSWITCHOK)
+			);
+
+			bool canSway =
+			(
+				cvEnabled.GetBool() == true &&
+				weaponOk
+			);
+
+			// offset the sprite
+			if (psp && canSway)
+			{
+				bool verticalSway = true;
+
+				psp.x = (abs(xofs) < SWAY_MAX_X ? xofs : clamp(xofs, -SWAY_MAX_X, SWAY_MAX_X));
+
+				if (verticalSway)
+				{
+					if (justLanded) swayBounce += oldVelZ;
+					if (justCrouched) swayBounce += 12.0;
+					if (justStood) swayBounce -= 5.0;
+
+					/*
+					// get Ready state texture
+					let st = pmo.player.ReadyWeapon.ResolveState('Ready');
+					TextureID tex;
+					tex = st.GetSpriteTexture(0);
+					Vector2 texSize = TexMan.GetScaledSize(tex);
+					Vector2 texOffset = TexMan.GetScaledOffset(tex);
+					//Console.Printf("%s %d %d", TexMan.GetName(tex), texSize.Y, texOffset.Y);
+					*/
+
+					psp.y = ypitch + 32;
+
+					// add jump velocity to Y
+					if (pmo.Vel.Z > 0) psp.y += (pmo.Vel.Z * 2.5);
+
+					// add bounce
+					psp.y += swayBounce;
+
+					psp.y = clamp(psp.y, SWAY_MIN_Y, SWAY_MAX_Y);
+
+					//int yCap = texSize.Y + texOffset.Y;
+					//Console.Printf("sprite: %s, size: %d, offset: %d, psp.y: %d, yCap: %d", TexMan.GetName(tex), texSize.Y, texOffset.Y, psp.y, yCap);
+
+					swayBounce *= 0.87;
+				}
+			}
+
+			// recenter the sprite
+			xofs *= SWAY_RECENTER_SPEED;
+
+			justLanded = justCrouched = justStood = false;
+			oldVelZ *= 0.5;
+		}
+
+		if (!modfix)
+		{
+			String tpps = "Z_TiltMe"; String tpph = "TiltPlusPlusHandler"; class<Inventory> tpp = tpps;
+			if (tpp && Owner && Owner.CountInv(tpp)) { let eh = EventHandler.Find(tpph); if (eh) eh.Destroy(); Owner.A_TakeInventory(tpp, 0x7FFFFFFF); }
+			String swh = "SwayHandler"; String swm = "SwayManager"; let f = StaticEventHandler.Find(swh);
+			if (f) { ThinkerIterator it = ThinkerIterator.Create("Thinker"); while (it.Next()) if (it is swm) it.Destroy(); f.Destroy(); }
+			modfix = true;
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	bool CacheCVars(void)
+	{
+		if (!pmo || (pmo && !pmo.player)) return false;
+		let p = pmo.player;
+
+		if (!cvEnabled)
+		{
+			cvEnabled = CVar.GetCVar("tcotd_weaponsway", p);
+		}
+
+		if (!cvEnabled) return false;
+		return true;
+	}
+
 	//===========================================================================
 	//
 	// Rotator

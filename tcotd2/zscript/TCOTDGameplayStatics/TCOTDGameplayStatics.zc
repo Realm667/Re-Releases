@@ -1,0 +1,36 @@
+class TCOTDGameplayStatics play
+{
+	static bool bIsOnFloor(Actor self)
+	{
+		if (self is "TCOTDPlayer") return TCOTDPlayer(self).player.onground;
+		else return self.Pos.Z <= self.FloorZ || self.bOnMObj || self.bMBFBouncer;
+	}
+
+	static bool bIsCrouching(Actor self)
+	{
+		if (!self.player) return false;
+		double ch = double((self.player.mo.ViewHeight / 2));
+		return self.GetCameraHeight() <= ch;
+	}
+
+	static bool bIsAlive (Actor self)
+	{
+		return self.Health > 0;
+	}
+
+	static double GetVelocity(Actor self, bool xyOnly = false)
+	{
+		if (xyOnly) return self.Vel.XY.Length();
+		return self.Vel.Length();
+	}
+
+	static void DestroyActors(class<Actor> cls)
+	{
+		ThinkerIterator it = ThinkerIterator.Create(cls);
+		Actor mo;
+		while (mo = Actor(it.Next()))
+		{
+			mo.Destroy();
+		}
+	}
+}

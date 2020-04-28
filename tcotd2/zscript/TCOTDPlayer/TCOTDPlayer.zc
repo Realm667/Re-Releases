@@ -32,8 +32,22 @@
 
 class TCOTDPlayer : PlayerPawn
 {
+	const DECEL_MULT = 0.86;
+	const WALK_SPEED = 0.735;
+	const RUN_SPEED = 1.46;
+
 	// remove this shit before release lmao
 	const DEBUG_MODE = 0;
+
+	double strafeInput;
+	double moveTiltOsc, underwaterTiltOsc;
+	double deathTiltOsc;
+	double deathTiltAngle;
+	double lastRoll;
+
+	// damage flinching
+	double flinchAmount;
+	bool wasDamaged;
 
 	//===========================================================================
 	//
@@ -46,8 +60,10 @@ class TCOTDPlayer : PlayerPawn
 		Scale 1.1;
 		Player.AttackZOffset 28.0;
 		Player.ViewHeight 56.0;
-		Player.ForwardMove 0.6, 0.6;
-		Player.SideMove 0.6, 0.6;
+		Player.ForwardMove WALK_SPEED, RUN_SPEED;
+		Player.SideMove WALK_SPEED, RUN_SPEED;
+		Player.JumpZ 8.00001;
+		Player.ViewBob 0.73;
 		Player.DisplayName "$TCOTDPLAYER_DISPLAYNAME";
 		Player.CrouchSprite "PLAY";
 		Player.StartItem "TCOTDWeaponMelee";
@@ -64,6 +80,34 @@ class TCOTDPlayer : PlayerPawn
 	//
 	//===========================================================================
 
+	override void Tick(void)
+	{
+		if (!player || !player.mo || player.mo != self)
+		{
+			Super.Tick();
+			return;
+		}
+
+		Super.Tick();
+
+		UpdateViewRoll();
+
+		// reset damage indicator
+		wasDamaged = false;
+	}
+
+	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
+	{
+		if (inflictor)
+		{
+			// flinch view
+			flinchAmount = double(damage);
+			wasDamaged = true;
+		}
+
+		return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+	}
+
 	override void PlayerThink(void)
 	{
 		Super.PlayerThink();
@@ -76,7 +120,463 @@ class TCOTDPlayer : PlayerPawn
 				A_SetHealth(666);
 				A_GiveInventory("TCOTDPlayerDebugDamagePower", 1);
 			}
+
+			bool isOnGround = player.onground;
+			bool isFloating = waterlevel >= 2 || bFly || (player.cheats & CF_NOCLIP2);
+
+			/*
+			bool isInPain = false;
+			State PainState = FindState('Pain', true);
+			if (PainState != NULL && InStateSequence(CurState, PainState))
+			{
+				isInPain = true;
+			}
+			*/
+
+			// reduce slippery movement
+			if (isOnGround || isFloating)
+			{
+				Vel.XY *= DECEL_MULT;
+				player.vel = Vel.XY;
+
+				// handle floating velocity
+				if (isFloating && !(Vel.Z ~== 0))
+				{
+					Vel.Z *= DECEL_MULT;
+				}
+			}
+
+			// zero out the velocity if moving slow enough
+			if (Vel.XY.Length() < 0.01)
+			{
+				Vel.XY *= 0;
+			}
+
+			// prevent stuck walking animation
+			if (!player.cmd.forwardmove && !player.cmd.sidemove && (!player.onground || player.vel.Length() < 0.1))
+			{
+				PlayIdle();
+			}
 		}
+	}
+
+	override void CalcHeight(void)
+	{
+		// currently just a straight copy/paste with only faster Z viewbob
+		// really customize this shit in future pls
+
+		let player = self.player;
+		double angle;
+		double bob;
+		bool still = false;
+
+		// Regular movement bobbing
+		// (needs to be calculated for gun swing even if not on ground)
+
+		// killough 10/98: Make bobbing depend only on player-applied motion.
+		//
+		// Note: don't reduce bobbing here if on ice: if you reduce bobbing here,
+		// it causes bobbing jerkiness when the player moves from ice to non-ice,
+		// and vice-versa.
+
+		if (player.cheats & CF_NOCLIP2)
+		{
+			player.bob = 0;
+		}
+		else if (bNoGravity && !player.onground)
+		{
+			player.bob = 0.5;
+		}
+		else
+		{
+			player.bob = player.Vel dot player.Vel;
+			if (player.bob == 0)
+			{
+				still = true;
+			}
+			else
+			{
+				player.bob *= player.GetMoveBob();
+
+				if (player.bob > MAXBOB)
+					player.bob = MAXBOB;
+			}
+		}
+
+		double defaultviewheight = ViewHeight + player.crouchviewdelta;
+
+		if (player.cheats & CF_NOVELOCITY)
+		{
+			player.viewz = pos.Z + defaultviewheight;
+
+			if (player.viewz > ceilingz-4)
+				player.viewz = ceilingz-4;
+
+			return;
+		}
+
+		if (still)
+		{
+			if (player.health > 0)
+			{
+				angle = Level.maptime / (120 * TICRATE / 35.) * 360.;
+				bob = player.GetStillBob() * sin(angle);
+			}
+			else
+			{
+				bob = 0;
+			}
+		}
+		else
+		{
+			// [Nash] I only changed these for now, heh
+			angle = Level.maptime / (13 * TICRATE / 35.) * 360.;
+			bob = player.bob * sin(angle) * (waterlevel > 1 ? 0.15f : 0.17f);
+		}
+
+		// move viewheight
+		if (player.playerstate == PST_LIVE)
+		{
+			player.viewheight += player.deltaviewheight;
+
+			if (player.viewheight > defaultviewheight)
+			{
+				player.viewheight = defaultviewheight;
+				player.deltaviewheight = 0;
+			}
+			else if (player.viewheight < (defaultviewheight/2))
+			{
+				player.viewheight = defaultviewheight/2;
+				if (player.deltaviewheight <= 0)
+					player.deltaviewheight = 1 / 65536.;
+			}
+
+			if (player.deltaviewheight)
+			{
+				player.deltaviewheight += 0.25;
+				if (!player.deltaviewheight)
+					player.deltaviewheight = 1/65536.;
+			}
+		}
+
+		if (player.morphTics)
+		{
+			bob = 0;
+		}
+		player.viewz = pos.Z + player.viewheight + (bob * clamp(ViewBob, 0. , 1.5)); // [SP] Allow DECORATE changes to view bobbing speed.
+		if (Floorclip && player.playerstate != PST_DEAD
+			&& pos.Z <= floorz)
+		{
+			player.viewz -= Floorclip;
+		}
+		if (player.viewz > ceilingz - 4)
+		{
+			player.viewz = ceilingz - 4;
+		}
+		if (player.viewz < floorz + 4)
+		{
+			player.viewz = floorz + 4;
+		}
+	}
+
+	override void MovePlayer(void)
+	{
+		// Based off code by Gutawer
+
+		let player = self.player;
+		UserCmd cmd = player.cmd;
+
+		// [RH] 180-degree turn overrides all other yaws
+		if (player.turnticks)
+		{
+			player.turnticks--;
+			// made this interpolate, looks way nicer
+			A_SetAngle(Angle + (180. / TURN180_TICKS), SPF_INTERPOLATE);
+		}
+		else Angle += cmd.yaw * (360. / 65536.);
+
+		player.onground = (Pos.Z <= FloorZ) || bOnMobj || bMBFBouncer || (player.cheats & CF_NOCLIP2);
+
+		// base movement vector
+		Vector2 moveVec = (0, 0);
+		double tweakedSideMove;
+		bool sprint = (player.cmd.buttons & BT_SPEED) != 0;
+		if (CVar.GetCVar("cl_run", player).GetBool() == true) sprint = !sprint;
+		sprint = sprint && Health > RunHealth;
+		tweakedSideMove = clamp(cmd.sidemove / (sprint ? 0.8 : 0.96), -0x3200, 0x3200);
+		moveVec = (tweakedSideMove, cmd.forwardmove);
+
+		if (moveVec != (0, 0))
+		{
+			double maxSpeed = (sprint ? 12800 : 6400);
+			double moveLength = moveVec.Length();
+			if (moveLength > maxSpeed)
+			{
+				moveVec *= maxSpeed / moveLength;
+			}
+
+			Vector2 origMoveVec = moveVec;
+			moveVec.y *= !sprint ? forwardMove1 : forwardMove2;
+			moveVec.x *= !sprint ? sideMove1 : sideMove2;
+
+			double bobfactor;
+			double friction, movefactor;
+			[friction, movefactor] = GetFriction();
+			bobfactor = friction < ORIG_FRICTION ? movefactor : ORIG_FRICTION_FACTOR;
+
+			if (!player.onground && !bNoGravity && waterlevel == 0)
+			{
+				// [RH] allow very limited movement if not on ground.
+				moveVec *= level.aircontrol;
+				bobfactor *= level.aircontrol;
+			}
+
+			// When crouching, speed and bobbing have to be reduced
+			if (CanCrouch() && player.crouchfactor != 1)
+			{
+				moveVec *= player.crouchfactor;
+				bobfactor *= player.crouchfactor;
+			}
+
+			if (player.morphTics == 0)
+			{
+				double factor = 1;
+				for (let it = inv; it != NULL; it = it.inv)
+				{
+					factor *= it.GetSpeedFactor();
+				}
+				moveVec *= factor;
+			}
+
+			moveVec *= movefactor * Speed / 256;
+
+			if (origMoveVec.Y != 0) Bob(Angle, origMoveVec.Y * bobfactor / 256.0, true );
+			if (origMoveVec.X != 0) Bob(Angle - 90, origMoveVec.X * bobfactor / 256.0, false);
+
+			if ((waterlevel > 0 || bNoGravity) && Pitch != 0 && !player.GetClassicFlight())
+			{
+				double zPush = moveVec.Y * sin(-Pitch);
+				if (!(waterlevel != 0 && waterlevel < 2 && zPush > 0))
+				{
+					Vel.Z += zPush;
+				}
+				moveVec.Y *= cos(Pitch);
+			}
+
+			Vel.XY += RotateVector(moveVec, Angle - 90);
+
+			if (player.cheats & CF_PREDICTING == 0 && (moveVec.Y != 0 || moveVec.X != 0))
+			{
+				PlayRunning();
+			}
+
+			if (player.cheats & CF_REVERTPLEASE != 0)
+			{
+				player.cheats &= ~CF_REVERTPLEASE;
+				player.camera = player.mo;
+			}
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void UpdateViewRoll(void)
+	{
+		// CVARS ///////////////////////////////////////////////////////////////
+		bool enableTiltEffects = tcotd2_tilteffects;
+		bool strafeTiltEnabled = enableTiltEffects;
+		bool moveTiltEnabled = enableTiltEffects;
+		bool turnTiltEnabled = enableTiltEffects;
+		bool underwaterTiltEnabled = enableTiltEffects;
+		bool deathTiltEnabled = true;
+
+		double strafeTiltSpeed = 0.15;
+		double strafeTiltAngle = 2.75;
+		bool strafeTiltReversed = false;
+
+		double moveTiltScalar = 0.4;
+		double moveTiltAngle = 0.033;
+		double moveTiltSpeed = 18.0;
+
+		double turnTiltScalar = 2.0;
+		bool turnTiltReversed = false;
+
+		double underwaterTiltSpeed = 0.8;
+		double underwaterTiltAngle = 0.05;
+		double underwaterTiltScalar = 1.0;
+
+		double flinchFactor = double(enableTiltEffects);
+
+		// Shared variables we'll need later
+		double r, v;
+
+		//===========================================================================
+		//
+		// Strafe Tilting
+		//
+		//===========================================================================
+
+		// normalized strafe input
+		if (strafeTiltEnabled && TCOTDGameplayStatics.bIsOnFloor(self) && TCOTDGameplayStatics.bIsAlive(self))
+		{
+			int dir;
+			if (strafeTiltReversed) dir = -1;
+			else dir = 1;
+			strafeInput = strafeTiltSpeed * (GetPlayerInput(MODINPUT_SIDEMOVE) / 10240.0);
+			strafeInput *= strafeTiltAngle;
+			strafeInput *= dir;
+		}
+
+		// tilt!
+		lastRoll += strafeInput;
+
+		//===========================================================================
+		//
+		// Movement Tilting
+		//
+		//===========================================================================
+
+		if (moveTiltEnabled && TCOTDGameplayStatics.bIsOnFloor(self) && TCOTDGameplayStatics.bIsAlive(self))
+		{
+			// get player's velocity
+			v = TCOTDGameplayStatics.GetVelocity(self) * moveTiltScalar;
+
+			// increment angle
+			moveTiltOsc += moveTiltSpeed;
+
+			// clamp angle
+			if (moveTiltOsc >= 360. || moveTiltOsc < 0.)
+			{
+				moveTiltOsc = 0.;
+			}
+
+			// calculate roll
+			r = sin(moveTiltOsc);
+			r *= moveTiltAngle;
+			r *= v;
+		}
+
+		// tilt!
+		double movebobfac = (1.0 * GetCVar("movebob") / 0.25);
+		r *= movebobfac;
+		lastRoll += r;
+
+		//===========================================================================
+		//
+		// Turn Tilting
+		//
+		//===========================================================================
+
+		if (turnTiltEnabled && TCOTDGameplayStatics.bIsAlive(self))
+		{
+			// get player look input
+			double xinput = GetPlayerInput(MODINPUT_YAW) * (turnTiltReversed ? -1 : 1);
+			xinput = turnTiltScalar * xinput / 32767.0;
+			r = xinput;
+		}
+
+		// tilt!
+		lastRoll += r;
+
+		//===========================================================================
+		//
+		// Underwater Tilting
+		//
+		//===========================================================================
+
+		if (waterlevel >= 3 && underwaterTiltEnabled)
+		{
+			// fixed rate of 15
+			v = 15. * underwaterTiltScalar;
+
+			// increment angle
+			underwaterTiltOsc += underwaterTiltSpeed;
+
+			// clamp angle
+			if (underwaterTiltOsc >= 360. || underwaterTiltOsc < 0.)
+			{
+				underwaterTiltOsc = 0.;
+			}
+
+			// calculate roll
+			r = sin(underwaterTiltOsc);
+			r *= underwaterTiltAngle;
+			r *= v;
+		}
+
+		// tilt!
+		lastRoll += r;
+
+		//===========================================================================
+		//
+		// Death Tilting
+		//
+		//===========================================================================
+
+		if (!TCOTDGameplayStatics.bIsAlive(self) && deathTiltEnabled)
+		{
+			double deathTiltSpeed = 1.0;
+
+			if (deathTiltAngle == 0)
+			{
+				// vary the angle a little
+				deathTiltAngle = -90.f;
+				deathTiltAngle += frandom(-45.f, 45.f);
+				deathTiltAngle *= RandomPick(-1, 1);
+			}
+
+			if (deathTiltOsc < 22.5)
+			{
+				deathTiltOsc += deathTiltSpeed;
+			}
+
+			r = sin(deathTiltOsc);
+			r *= deathTiltAngle;
+		}
+		else
+		{
+			deathTiltOsc = 0;
+			deathTiltAngle = 0;
+		}
+
+		// tilt!
+		lastRoll += r;
+
+		//===========================================================================
+		//
+		// Damage flinching
+		//
+		//===========================================================================
+		if (wasDamaged)
+		{
+			// cap the tilt amount
+			flinchAmount = clamp(flinchAmount, 0, 45);
+
+			flinchAmount *= flinchFactor;
+
+			lastRoll += FRandomPick(-flinchAmount, flinchAmount);
+			flinchAmount = 0;
+		}
+
+		//===========================================================================
+		//
+		// Tilt Post Processing
+		//
+		//===========================================================================
+
+		if (abs(lastRoll) > 0.000001)
+		{
+			// Stabilize tilt
+			lastRoll *= 0.75;
+		}
+
+		// Apply the sum of all rolling routines
+		// (including after stabilization)
+		A_SetRoll((Roll + lastRoll) * 0.5, SPF_INTERPOLATE);
 	}
 
 	//===========================================================================
