@@ -67,7 +67,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 
 	action void A_FistAttack(void)
 	{
-		A_CustomPunch(random(3, 5), meleesound: "Fist/Hit");
+		A_CustomPunch(random(3, 5), pufftype: "TCOTDPunchPuff", meleesound: "Fist/Hit");
 	}
 
 	action void A_PitchforkAttack(void)
@@ -175,6 +175,7 @@ class TCOTDPitchforkSpark : Actor
 		RenderStyle "Add";
 		Scale 0.7;
 		SeeSound "Fork/Stab";
+		+FORCEXYBILLBOARD
 		+CANNOTPUSH
 		+DONTSPLASH
 		+NOBLOCKMAP
@@ -212,6 +213,7 @@ class TCOTDPitchforkPuff : Actor
 		Activesound "";
 		Attacksound "Pitchfork/Wall";	// what sound it makes when you hit a wall with it
 		Seesound "Pitchfork/Flesh";		// what sound it makes when you beat somebody up with it
+		+FORCEXYBILLBOARD
 		+NOBLOCKMAP
 		+NOGRAVITY
 		+NOEXTREMEDEATH
@@ -242,6 +244,7 @@ class TCOTDPitchforkThrown : Actor
 		Gravity 0.125;
 		Projectile;
 		+RIPPER
+		+FORCEXYBILLBOARD
 		-NOBLOCKMAP
 		-NOGRAVITY
 	}

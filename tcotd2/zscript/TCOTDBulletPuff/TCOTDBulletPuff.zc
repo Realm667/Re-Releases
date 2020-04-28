@@ -7,6 +7,7 @@ class TCOTDBulletPuff : BulletPuff
 		RenderStyle "Normal";
 		Alpha 1.0;
 		+NOEXTREMEDEATH
+		+FORCEXYBILLBOARD
 	}
 
 	States
@@ -31,6 +32,7 @@ class TCOTDBulletSpark : Actor
 		Height 1;
 		Scale 0.40;
 		Projectile;
+		+FORCEXYBILLBOARD
 		+BLOODLESSIMPACT
 		+RIPPER
 		-NOGRAVITY
@@ -45,5 +47,13 @@ class TCOTDBulletSpark : Actor
 		WRBL MNOP 2 Bright;
 		WRBL P 1 Bright A_FadeOut();
 		Wait;
+	}
+}
+
+class TCOTDPunchPuff : BulletPuff
+{
+	Default
+	{
+		+FORCEXYBILLBOARD
 	}
 }
