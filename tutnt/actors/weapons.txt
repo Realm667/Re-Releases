@@ -399,8 +399,8 @@ ACTOR UTNTMinigun : Weapon 20039
 	Weapon.AmmoType "Clip"
 	Weapon.AmmoGive 20
 	Weapon.AmmoUse 1
-	Inventory.PickupMessage "You got the minigun!"
-	Obituary "%o was shredded by %k's minigun."
+	Inventory.PickupMessage "$PK_MINIG"
+	Obituary "$WB_MINIG"
 	AttackSound "weapons/minigunfire"
 	Tag "Minigun"
 	States
@@ -981,8 +981,8 @@ Actor BFG10KBoltTrail
 //Flamethrower
 ACTOR UTNTFlamer : Weapon 20105
 {
-	Inventory.PickupMessage "You got the flamethrower! Time for a BBQ!"
-	Obituary "%o was BBQed by %k's flamethrower."
+	Inventory.PickupMessage "$PK_FLAMT"
+	Obituary "$WB_FLAMT"
 	Weapon.AmmoType "Gas"
 	Weapon.AmmoGive 48
 	Weapon.AmmoUse 1
@@ -1206,7 +1206,7 @@ ACTOR Gas : Ammo 20106
 	Inventory.MaxAmount 240
 	Ammo.BackpackAmount 24
 	Ammo.BackpackMaxAmount 480
-	Inventory.PickupMessage "You picked up a small gasoline cannister."
+	Inventory.PickupMessage "$PK_GASOC"
 	Inventory.Icon AGASA0
 	States
 	{
@@ -1219,7 +1219,7 @@ ACTOR Gas : Ammo 20106
 ACTOR BigGas : Gas 20195
 {
 	Inventory.Amount 120
-	Inventory.PickupMessage "You picked up a gasoline Pack."
+	Inventory.PickupMessage "$PK_GASOP"
 	Inventory.Icon AGASB0
 	States
 	{
@@ -1233,8 +1233,8 @@ ACTOR BigGas : Gas 20195
 ACTOR UTNTPyroCannon : Weapon 20107
 {
 	Tag "PyroCannon"
-	Inventory.PickupMessage "You got the PyroCannon ProtoType!"
-	Obituary "%o was incinerated by %k's PyroCannon."
+	Inventory.PickupMessage "$PK_PYROC"
+	Obituary "$WB_PYROC"
 	Weapon.AmmoType "Gas"
 	Weapon.AmmoGive 96
 	Weapon.AmmoUse 48
