@@ -13,11 +13,11 @@ ACTOR BerserkMarine 30000
 	ActiveSound "marine/active"
 	DeathSound "marine/death"
 	PainSound "marine/pain"
-	TRANSLATION 2
 	MONSTER
-	+FLOORCLIP
-	Obituary "%o got beaten up by a berserker marine"
 	+DOHARMSPECIES
+	+FLOORCLIP
+	Translation 2
+	Obituary "$OB_MARIB"
 	States
 	{
 	Spawn:
@@ -56,7 +56,7 @@ ACTOR PistolMarine : BerserkMarine 30001
 	TRANSLATION "0:0=0:0"
 	AttackSound "weapons/pistol"
 	Damage 1
-	Obituary "%o got shot by a pistol marine"
+	Obituary "$OB_MARIP"
 	//DropItem Clip 255 15
 	//DropItem Clip 96 5
 	//DropItem Clip 8 5
@@ -79,7 +79,7 @@ ACTOR ShotgunMarine : BerserkMarine 30002
 	TRANSLATION "0:0=0:0"
 	Damage 7
 	AttackSound "weapons/shotgf"
-	Obituary "%o was riddled full of buckshot by a shotgun marine"
+	Obituary "$OB_MARIS"
 	//DropItem Shotgun
 	//DropItem Shell 24 4
 	States
@@ -103,7 +103,7 @@ ACTOR SuperShotgunMarine : BerserkMarine 30003
 {
 	Damage 7
 	AttackSound "weapons/sshotf"
-	Obituary "%o was shredded by a super shotgun marine"
+	Obituary "$OB_MARIT"
 	//DropItem SuperShotgun
 	//DropItem Shell 24 4
 	States
@@ -129,7 +129,7 @@ ACTOR ChaingunMarine : BerserkMarine 30004
 	Damage 1
 	AttackSound "weapons/chngun"
 	TRANSLATION 0
-	Obituary "%o got riddled full of holes by a chaingun marine"
+	Obituary "$OB_MARIC"
 	//DropItem Chaingun
 	//DropItem Clip 160 10
 	//DropItem Clip 36 10
@@ -153,7 +153,7 @@ ACTOR ChaingunMarine : BerserkMarine 30004
 ACTOR RocketMarine : BerserkMarine 30005
 {
 	TRANSLATION 1
-	Obituary "%o rode a marines rocket"
+	Obituary "$OB_MARIR"
 	//DropItem RocketLauncher
 	//DropItem Rocket 196 1
 	//DropItem Rocket 16 1
@@ -178,7 +178,7 @@ ACTOR RocketMarine : BerserkMarine 30005
 ACTOR PlasmaRifleMarine : BerserkMarine 30006
 {
 	TRANSLATION 0
-	Obituary "%o felt the energy of a plasma rifle marine"
+	Obituary "$OB_MARIL"
 	//DropItem PlasmaRifle
 	//DropItem Cell 196 20
 	//DropItem Cell 64 20
@@ -203,7 +203,7 @@ ACTOR RailgunMarine : BerserkMarine 30007
 {
 	TRANSLATION "0:0=0:0"
 	Damage 100
-	Obituary "%o was railed by a railgun marine"
+	Obituary "$OB_MARIG"
 	//DropItem Cell 255 40
 	//DropItem Cell 96 20
 	//DropItem Cell 16 10
@@ -222,7 +222,7 @@ ACTOR RailgunMarine : BerserkMarine 30007
 
 ACTOR ChainsawMarine : BerserkMarine 30008
 {
-	Obituary "%o got chopped up by a chainsaw marine"
+	Obituary "$OB_MARIW"
 	//DropItem Chainsaw
 	States
 	{
@@ -257,7 +257,7 @@ ACTOR ChainsawMarine : BerserkMarine 30008
 ACTOR BFGMarine : BerserkMarine 30009
 {
 	TRANSLATION "0:0=0:0"
-	Obituary "%o was blown away by a BFG marine"
+	Obituary "$OB_MARIF"
 	//DropItem BFG9000
 	//DropItem Cell 192 20
 	//DropItem Cell 48 15
@@ -278,5 +278,5 @@ ACTOR BFGMarine : BerserkMarine 30009
 
 ACTOR FistMarine : BerserkMarine 30010
 {
-	Obituary "%o got beaten up by a fist marine"
+	Obituary "$OB_MARIM"
 }

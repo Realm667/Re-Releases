@@ -1233,7 +1233,7 @@ ACTOR SourceGuardians 16999
 	PainSound "cycloid/pain"
 	DeathSound "cycloid/death"
 	ActiveSound "cycloid/active"
-	Obituary "%o didn't get past the Source Guardians."
+	Obituary "$OB_SOURCE"
 	States
 	{
 	Spawn:
@@ -1347,7 +1347,7 @@ ACTOR SourceGuardians 16999
 
 actor TheSource 24999
 {
-	obituary "%o faced the maker."
+	obituary "$OB_SOURCE2"
 	health 15000
 	radius 128
 	height 128
@@ -1637,7 +1637,7 @@ ACTOR NetherworldDrone 31002
 	DeathSound "alien/death"
 	ActiveSound "alien/active"
 	AttackSound "alien/attack"
-	Obituary "Its game over for %o."
+	Obituary "$OB_NDRONE"
 	States
 	{
 	Spawn:
@@ -1743,7 +1743,7 @@ ACTOR Queen : NetherworldDrone 31064
 	PainSound "queen/pain"
 	DeathSound "queen/death"
 	ActiveSound "queen/active"
-	Obituary "%o met the netherworld queen."
+	Obituary "$OB_NQUEN"
 	var int user_theta;
 	States
 	{
@@ -1929,7 +1929,7 @@ ACTOR LightningBallTrailParticle1
 
 ACTOR Catharsi : UTNTDoomImp 29123
 {
-	Obituary "%o was blasted by a catharsi."
+	Obituary "$OB_CATH"
 	Health 120
 	PainChance 140
 	SEESOUND "catharsi/sit"
@@ -2080,7 +2080,7 @@ ACTOR SourceGuardianDetonator : CatharsiDetonator
 
 actor SuicideBomber 22099
 {
-	obituary "%o was killed by a crazy suicide bomber."
+	obituary "$OB_SUICB"
 	health 80
 	height 56
 	mass 100
@@ -2166,7 +2166,7 @@ ACTOR RocketGuy 3202
 	Deathsound "grunt/death"
 	ActiveSound "grunt/active"
 	DropItem RocketAmmo
-	Obituary "%o was splattered by the zombie's rocket."
+	Obituary "$OB_ROKZOM"
 	States
 	{
 	Spawn:
@@ -2237,7 +2237,7 @@ ACTOR ChainsawZombie 3204
 	PainChance 200
 	MONSTER
 	+FLOORCLIP
-	Obituary "%o was sliced by a madman zombie with a chainsaw!"
+	Obituary "%OB_CHAZOM"
 	SeeSound "grunt/sight"
 	PainSound "grunt/pain"
 	DeathSound "grunt/death"
@@ -2315,7 +2315,7 @@ ACTOR PlasmaZombie : UTNTZombieMan 3205
 	Species "PlasmaZombie"
 	Health 50
 	PainChance 100
-	Obituary "%o got burned by a plasma zombie."
+	Obituary "$OB_PLAZOM"
 	DropItem Cell
 	Decal ""
 	States
@@ -2357,7 +2357,7 @@ ACTOR PlasmaZombie : UTNTZombieMan 3205
 ACTOR ZombieRailgunner : UTNTZombieMan 3206
 {
 	Health 45
-	Obituary "%o was killed by A Zombie Railgunner!"
+	Obituary "$OB_RAIZOM"
 	States
 	{
 	Spawn:
@@ -2407,8 +2407,8 @@ actor NamiDarkImp : UTNTDoomImp 3100
 {
 	Health 120
 	Speed 2.66666667
-	Obituary "%o was cursed by a dark imp."
-	HitObituary "%o was touched by a dark imp."
+	Obituary "$OB_DARKI"
+	HitObituary "$HB_DARKI"
 	States
 	{
 	Spawn:
@@ -2667,7 +2667,7 @@ ACTOR KDiZDNightmare 26000
 	PainSound "nightmare/pain"
 	DeathSound "nightmare/death"
 	ActiveSound "nightmare/active"
-	HitObituary "%o was tormented by a nightmare."
+	HitObituary "$OB_KNIGHT"
 	States
 	{
 	Spawn:
@@ -2742,7 +2742,7 @@ actor StoneImp : UTNTDoomImp 3103
 	Mass 400
 	+NOBLOOD
 	+NORADIUSDMG
-	HitObituary "%o was smashed by a stone imp."
+	HitObituary "$OB_STONI"
 	States
 	{
 	Spawn:
@@ -2793,7 +2793,7 @@ actor Arachnophyte 3104
 	PainSound "arachnophyte/pain"
 	DeathSound "arachnophyte/death"
 	AttackSound "spider/attack"
-	Obituary "%o was perforated by an Arachnophyte."
+	Obituary "$OB_PHYTE"
 	Decal BulletChip
 	States
 	{
@@ -2847,8 +2847,8 @@ actor ImpWarlord : UTNTDoomImp 3105
 	Health 180
 	Speed 3
 	PainChance 128
-	Obituary "%o couldn't run from the imp warlord's fireball."
-	HitObituary "%o was beaten to death by an imp warlord."
+	Obituary "$OB_WARLI"
+	HitObituary "$HB_WARLI"
 	States
 	{
 	Spawn:
@@ -2953,14 +2953,14 @@ actor GreenPoisonBall : UTNTDoomImpBall
 
 Actor GreenPoisonExtra
 {
-	Projectile
-	+NOCLIP
 	Scale 0.28
+	Gravity .125
 	RenderStyle Add
 	Alpha 0.9
-	+THRUACTORS
-	Gravity .125
+	Projectile
 	+DONTSPLASH
+	+NOCLIP
+	+THRUACTORS
 	Translation "0:255=%[0,0,0]:[0,1,0]"
 	States
 	{
@@ -3169,7 +3169,7 @@ actor DragonFamiliar 3106
 	PainSound "dragonfam/pain"
 	DeathSound "dragonfam/death"
 	ActiveSound "dragonfam/idle"
-	Obituary "%o was cooked by a dragon familiar."
+	Obituary "$OB_DRAFAM"
 	States
 	{
 	Spawn:
@@ -3272,7 +3272,7 @@ actor BatFamiliar 3107
 	PainSound "batfam/pain"
 	DeathSound "batfam/death"
 	ActiveSound "batfam/idle"
-	HitObituary "%o was scratched by a bat familiar"
+	HitObituary "$HB_BATFAM"
 	States
 	{
 	Spawn:
@@ -3333,8 +3333,8 @@ ACTOR SnakeImp : UTNTDoomImp 3108
 	Health 100
 	Height 60
 	Speed 2
-	Obituary "%o tasted the venom of the snake imp."
-	HitObituary "%o was shredded by a snake imp."
+	Obituary "$OB_SNAKI"
+	HitObituary "$HB_SNAKI"
 	States
 	{
 	Spawn:
@@ -3416,7 +3416,7 @@ actor Satyr 3109
 	PainSound "knight/pain"
 	DeathSound "satyr/death"
 	ActiveSound "knight/active"
-	HitObituary "%o was mauled by a satyr."
+	HitObituary "$HB_SATYR"
 	States
 	{
 	Spawn:
@@ -3482,7 +3482,7 @@ ACTOR BloodDemonClone : UTNTDemon 3110
 	DeathSound "blooddemon/death"
 	ActiveSound "blooddemon/active"
 	AttackSound "blooddemon/melee"
-	HitObituary "%o Was chewed up and spat out by a Mech-demon."
+	HitObituary "$HB_MECHD"
 	States
 	{
 	Spawn:
@@ -3576,8 +3576,8 @@ ACTOR CacolanternClone : UTNTCacoDemon 3111
 	//$Category "ZDoom Monster pack"
 	Health 800
 	BloodColor "EB 6F 0F"
-	HitObituary "%o admired the Cacolantern's teeth."
-	Obituary "%o couldn't take %h eyes off the eye."
+	HitObituary "$HB_CACOL"
+	Obituary "$OB_CACOL"
 	States
 	{
 	Spawn:
@@ -3678,8 +3678,8 @@ ACTOR BelphegorClone : UTNTBaronOfHell 3112
 {
 	//$Category "ZDoom Monster pack"
 	Health 1500
-	Obituary "%o was incinerated by a Belphegor."
-	HitObituary "the last thing %o saw was the Belphegor's abs."
+	Obituary "%$OB_BELPH"
+	HitObituary "$HB_BELPH"
 	States
 	{
 	Spawn:
@@ -3729,7 +3729,7 @@ actor HellGuard 3114
 	PainSound "knight/pain"
 	DeathSound "hellguard/death"
 	ActiveSound "hellguard/idle"
-	Obituary "%o was fried by a hell guard."
+	Obituary "$OB_HELLG"
 	States
 	{
 	Spawn:
@@ -3864,8 +3864,8 @@ actor SoulHarvester : UTNTDoomImp 3117
 	PainChance 160
 	SeeSound "harvester/sight"
 	DeathSound "harvester/death"
-	HitObituary "%o was slashed by a soul harvester."
-	Obituary "%o couldn't evade the soul harvester's attack."
+	HitObituary "$HB_SHARV"
+	Obituary "$OB_SHARV"
 	States
 	{
 	Spawn:
@@ -4023,8 +4023,8 @@ ACTOR EnhancedCacodemon : UTNTCacoDemon 3118
 {
 	//$Category "ZDoom Monster pack"
 	Health 300
-	HitObituary "%o was mowed down by an enhanced cacodemon."
-	Obituary "%o was made into a snack by the enhanced cacodemon."
+	HitObituary "$HB_ENCACO"
+	Obituary "$OB_ENCACO"
 	BloodColor "red"
 	States
 	{
@@ -4052,8 +4052,8 @@ ACTOR EnhancedCacodemon : UTNTCacoDemon 3118
 ACTOR HellWarrior : UTNTHellKnight 3119
 {
 	Health 400
-	Obituary "%o was tagged by the hell warrior's fireball."
-	HitObituary "%o was torn apart by a hell warrior."
+	Obituary "$OB_HELLW"
+	HitObituary "$HB_HELLW"
 	States
 	{
 	Spawn:
@@ -4206,8 +4206,8 @@ ACTOR Afrit : UTNTBaronOfHell 3120
 	+FLOATBOB
 	+FLOAT
 	+DONTFALL
-	Obituary "%o was scorched by an Afrit"
-	HitObituary "%o found the Afrit too hot to handle."
+	Obituary "$OB_AFRIT"
+	HitObituary "$HB_AFRIT"
 	States
 	{
 	Spawn:
@@ -4491,8 +4491,8 @@ ACTOR LordofHeresy : UTNTBaronOfHell 3121
 	Height 56
 	Speed 3.25
 	BloodColor "7D 9D 59"
-	Obituary "%o was annihilated by the heresy lord."
-	HitObituary "%o was annihilated by the heresy lord."
+	Obituary "$OB_HERESY"
+	HitObituary "$HB_HERESY"
 	States
 	{
 	Spawn:
@@ -4549,7 +4549,7 @@ ACTOR TorturedSoul : UTNTPainElemental 3122
 	PainSound "torturedsoul/pain"
 	DeathSound "torturedsoul/death"
 	ActiveSound "torturedsoul/active"
-	Obituary "%o was tormented by the Tortured Soul."
+	Obituary "$OB_TSOUL"
 	States
 	{
 	Spawn:
@@ -4641,16 +4641,16 @@ Actor TorturedSoulBallTrail
 
 Actor TorturedSoulBallParticle
 {
-	Translation "0:255=%[0,0,0]:[0.95,1.2,0.55]"
-	Projectile
-	+NOCLIP
 	Scale 0.35
+	Gravity .125
 	RenderStyle Add
 	Alpha 0.9
+	Projectile
+	+DONTSPLASH
+	+NOCLIP
 	+THRUACTORS
 	-NOGRAVITY
-	Gravity .125
-	+DONTSPLASH
+	Translation "0:255=%[0,0,0]:[0.95,1.2,0.55]"
 	States
 	{
 	Spawn:
@@ -4671,12 +4671,12 @@ Actor TorturedSoulBallParticle
 
 ACTOR Terror : UTNTLostSoul 3124
 {
-	Species "Terror"
 	//$Category "ZDoom Monster pack"
 	Damage 0
 	+NOBLOOD
 	-MISSILEMORE
-	Obituary "%o was blasted by a Terror."
+	Species "Terror"
+	Obituary "$OB_TERROR"
 	States
 	{
 	Spawn:
@@ -4719,7 +4719,7 @@ ACTOR RailArachnotron : UTNTArachnotron 3125
 {
 	//$Category "ZDoom Monster pack"
 	PainChance 192
-	Obituary "%o let an arachnotron rail %h."
+	Obituary "$OB_RAILA"
 	States
 	{
 	Spawn:
@@ -4763,7 +4763,7 @@ ACTOR Shadow 3126
 	PainSound "Shadow/pain"
 	DeathSound "Shadow/death"
 	ActiveSound "Shadow/active"
-	Obituary "%o was assasinated by a shadow."
+	Obituary "$OB_SHADOW"
 	States
 	{
 	Spawn:
@@ -4793,7 +4793,7 @@ ACTOR Shadow 3126
 	Death:
 		TROX I 6 A_Scream
 		TROX J 5
-		TROX K 5 A_SpawnItemEx("Shadowtorso",0,0,0,1)
+		TROX K 5 A_SpawnItemEx("ShadowTorso",0,0,0,1)
 		TROX L 5 A_NoBlocking
 		TROX MNO 6
 		TROX P -1
@@ -4812,7 +4812,7 @@ ACTOR Shadow 3126
 	}
 }
 
-ACTOR Shadowtorso
+ACTOR ShadowTorso
 {
 	+CLIENTSIDEONLY
 	Radius 12
@@ -4920,8 +4920,8 @@ ACTOR HellsFury : UTNTBaronOfHell 3127
 {
 	BloodColor "red"
 	Speed 2
-	Obituary "%o felt the wrath of Hell's Fury"
-	HitObituary "%o got ripped apart by Hell's Fury"
+	Obituary "$OB_HFURY"
+	HitObituary "$HB_HFURY"
 	States
 	{
 	Spawn:
@@ -4991,14 +4991,14 @@ ACTOR HellsFuryBall : BaronBall
 
 ACTOR HellsFurySkull
 {
-	+CLIENTSIDEONLY
 	Radius 5
 	Height 5
 	Speed 5
 	Mass 5000
-	+DROPOFF
 	BounceType Doom
-	+Missile
+	+CLIENTSIDEONLY
+	+DROPOFF
+	+MISSILE
 	States
 	{
 	Spawn:
@@ -5023,7 +5023,7 @@ ACTOR HellsFurySkull
 ACTOR PlasmaElemental : UTNTPainElemental 3129
 {
 	Health 450
-	Obituary "%o was fried by a Plasma Elemental."
+	Obituary "$OB_PLAELE"
 	var int user_theta;
 	States
 	{
@@ -5071,10 +5071,10 @@ ACTOR ElementalPlasma : ArachnotronPlasma
 
 Actor MonPlasmaTrail
 {
-	+NOINTERACTION
 	Scale 0.25
 	RenderStyle Add
 	Translation "0:255=%[0,0,0]:[0.5,1.0,0.2]"
+	+NOINTERACTION
 	States
 	{
 	Spawn:
@@ -5085,12 +5085,10 @@ Actor MonPlasmaTrail
 	}
 }
 
-ACTOR MonBlasterPuffParticle
+ACTOR MonBlasterPuffParticle : MonPlasmaTrail
 {
 	Scale 0.1
 	Translation "0:255=%[0,0,0]:[0.9,0.85,0.18]"
-	RenderStyle Add
-	+NOINTERACTION
 	States
 	{
 	Spawn:
@@ -5117,8 +5115,8 @@ ACTOR Incarnate : UTNTRevenant 30115
 	MaxTargetRange 1000
 	MeleeThreshold 0
 	+NOTARGET
-	Obituary "%o was killed by a Death Incarnate's glaring eyes."
-	HitObituary "%o was beaten to death by a Death Incarnate."
+	Obituary "$OB_INCAR"
+	HitObituary "$HB_INCAR"
 	SeeSound "monster/incsit"
 	DeathSound "monster/incdth"
 	ActiveSound "monster/incact"
@@ -5185,7 +5183,7 @@ ACTOR HS 30116
 	Height 32
 	Mass 3000
 	Speed 5
-	Obituary "%o was blown away by a Hades Sphere."
+	Obituary "$OB_HADES"
 	Monster
 	+LOOKALLAROUND
 	+DONTGIB
@@ -5262,8 +5260,8 @@ Actor HSBoomParticle
 //Devil
 actor Devil : UTNTDoomImp 30120
 {
-	obituary "%o was fried by a Devil."
-	hitobituary "%o was flayed by a Devil."
+	obituary "$OB_DEVIL"
+	hitobituary "$HB_DEVIL"
 	health 120
 	mass 120
 	speed 3.33333333
@@ -5316,7 +5314,7 @@ ACTOR ChaingunMajor : UTNTChaingunGuy 3311
 	Health 180
 	Painchance 40
 	Mass 5000
-	Obituary "%o was perforated by the chaingun major."
+	Obituary "$OB_MAJOR"
 	States
 	{
 	Spawn:
@@ -5358,7 +5356,7 @@ ACTOR DoomTrooper : UTNTShotgunGuy 3312
 	Health 150
 	Speed 4
 	PainChance 40
-	Obituary "was killed by a mutant space trooper."
+	Obituary "$OB_DOOMT"
 	Dropitem Clip
 	States
 	{
@@ -5394,7 +5392,7 @@ ACTOR TNTSpider : Minotaur 10906
 	Height 60
 	Health 1800
 	DropItem ""
-	Obituary "A giant spider became %o's worst nightmare."
+	Obituary "$OB_SPIDR"
 	Translation 2
 	Speed 3.2
 	States
@@ -5481,11 +5479,11 @@ ACTOR UTNTMinotaurFX2 : MinotaurFX2 replaces MinotaurFX2	//floorshot
 		FX13 A 2 A_MntrFloorFire
 		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke",random(5,-5),random(5,-5),random(5,10),0,0,frandom(0.2,1.0),0,0,64)
 		TNT1 AAAA 0 A_SpawnItemEx("FTFlameTrail",random(-7,7),random(-5,5),random(0,5),0,0,frandom(0,1))
-		TNT1 AA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),0,random(0.5,3),random(0,359))
+		TNT1 AA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),0,frandom(0.5,3),random(0,359))
 		Loop
 	Death:
 		TNT1 AAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,10,frandom(1,4),0,0,random(0,359))
-		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),0,random(0.5,3),random(0,359))
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),0,frandom(0.5,3),random(0,359))
 		FX13 I 3 Bright LIGHT("YellowMediumFlicker2") A_Explode
 		FX13 J 3 Bright LIGHT("YellowMediumFlicker1")
 		FX13 K 3 Bright LIGHT("YellowMediumFlicker2")
@@ -5540,8 +5538,8 @@ ACTOR TNTMiniSpider 22290
 	Radius 7
 	Height 15
 	Health 20
+	Speed 5
 	Scale .25
-	Translation 0
 	MONSTER
 	+FLOORCLIP
 	seesound "littlespider/sight"
@@ -5549,7 +5547,7 @@ ACTOR TNTMiniSpider 22290
 	painsound "littlespider/pain"
 	deathsound "littlespider/death"
 	activesound "littlespider/sight"
-	Speed 5
+	Translation 0
 	States
 	{
 	Spawn:
@@ -5602,7 +5600,7 @@ ACTOR HectebusNew : UTNTFatso 22250
 	PainSound "hectebus/pain"
 	DeathSound "hectebus/death"
 	ActiveSound "demon/active"
-	Obituary "%o was cremated by a Hectebus."
+	Obituary "$OB_HECT"
 	States
 	{
 	Spawn:
@@ -5773,15 +5771,15 @@ Actor HecRingTrail
 
 Actor HectParticles
 {
-	Projectile
-	+NOCLIP
 	Scale 0.5
+	Gravity .125
 	RenderStyle Add
 	Alpha 0.9
+	Projectile
+	+DONTSPLASH
+	+NOCLIP
 	+THRUACTORS
 	-NOGRAVITY
-	Gravity .125
-	+DONTSPLASH
 	States
 	{
 	Spawn:
@@ -5819,8 +5817,8 @@ ACTOR BruiserDemon 3333
 	PainSound "superbaron/pain"
 	DeathSound "superbaron/death"
 	ActiveSound "superbaron/act"
-	Obituary "%o was slaughtered by a Bruiserdemon."
-	HitObituary "%o was cremated by a Bruiserdemon."
+	Obituary "$OB_BRUISER"
+	HitObituary "$HB_BRUISER"
 	Scale 1.25
 	States
 	{
