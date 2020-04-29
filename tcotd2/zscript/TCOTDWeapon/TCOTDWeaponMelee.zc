@@ -79,7 +79,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 			int flags = FBF_EXPLICITANGLE | FBF_NORANDOMPUFFZ | FBF_NOFLASH;
 			double ang = cone * (i / double(angles));
 			int dmg = random(2, 3);
-			Fire3DBullets(invoker.Angle - (cone / 2) + ang, 0, 0, dmg, "TCOTDPitchforkPuff", flags, 96.0);
+			Fire3DBullets(invoker.Angle - (cone / 2) + ang + 4.0, 0, 0, dmg, "TCOTDPitchforkPuff", flags, 96.0);
 		}
 	}
 
