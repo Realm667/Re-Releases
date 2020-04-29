@@ -37,10 +37,44 @@ class TCOTDFoliage : TCOTDDietActor
 		FloatBobPhase 0;
 		+NOINTERACTION
 	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void PostBeginPlay(void)
+	{
+		Super.PostBeginPlay();
+		A_SetScale(Scale.X * frandom(0.9, 1.1));
+		bSpriteFlip = RandomPick(false, true);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	SpawnLoop:
+		"####" "#" -1;
+		Stop;
+	}
 }
 
-class TCOTDGrass : TCOTDFoliage
+class TCOTDGrassRandom : TCOTDFoliage
 {
+	String variationClassName;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	Default
 	{
 		//$Title Grass (Randomized)
@@ -51,30 +85,69 @@ class TCOTDGrass : TCOTDFoliage
 		Scale 0.5;
 	}
 
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void BeginPlay(void)
+	{
+		String variations[] =
+		{
+			"",
+			"TCOTDGrass01",
+			"TCOTDGrass02",
+			"TCOTDGrass03"
+		};
+
+		variationClassName = variations[random(1, 3)];
+
+		Super.BeginPlay();
+	}
+
 	States
 	{
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			A_SetScale(Scale.X * frandom(0.9, 1.1));
-			bSpriteFlip = RandomPick(false, true);
-
-			Name gspr[] =
+			class<Actor> cls = variationClassName;
+			if (cls)
 			{
-				'GRS1',
-				'GRS2',
-				'GRS3'
-			};
-
-			sprite = GetSpriteIndex(gspr[random(0, 2)]);
+				Spawn(cls, Pos, ALLOW_REPLACE);
+			}
 		}
-	SpawnLoop:
-		#### # -1;
 		Stop;
-	GrassVariations:
+	}
+}
+
+class TCOTDGrass01 : TCOTDGrassRandom
+{
+	States
+	{
+	Spawn:
 		GRS1 A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class TCOTDGrass02 : TCOTDGrassRandom
+{
+	States
+	{
+	Spawn:
 		GRS2 A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class TCOTDGrass03 : TCOTDGrassRandom
+{
+	States
+	{
+	Spawn:
 		GRS3 A 0;
+		Goto SpawnLoop;
 	}
 }
 
@@ -89,7 +162,7 @@ class TCOTDBigBush : TCOTDFoliage
 	States
 	{
 	Spawn:
-		BUSZ A -1 NoDelay A_SetScale(Scale.X * frandom(0.9, 1.1));
-		Stop;
+		BUSZ A 0;
+		Goto SpawnLoop;
 	}
 }

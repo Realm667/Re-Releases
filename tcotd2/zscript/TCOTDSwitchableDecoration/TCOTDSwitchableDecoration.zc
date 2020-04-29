@@ -26,51 +26,29 @@
 
 //===========================================================================
 //
-// Switchable decorations that can be toggled with the +use button
+// SwitchableDecoration with bDormant flag handling
 //
 //===========================================================================
 
-class TCOTDInteractiveSwitchableDecoration : TCOTDSwitchableDecoration
+class TCOTDSwitchableDecoration : SwitchableDecoration
 {
-	override bool Used(Actor user)
+	override void PostBeginPlay(void)
 	{
-		Toggle();
+		Super.PostBeginPlay();
 
-		// execute the things's special
-		if (Special)
-		{
-			A_CallSpecial(Special, Args[0], Args[1], Args[2], Args[3], Args[4]);
-		}
-
-		return false;
+		bDormant = (SpawnFlags & MTF_DORMANT);
 	}
 
-	void Toggle(void)
+	override void Activate(Actor activator)
 	{
-		if (bDormant)
-		{
-			Activate(self);
-		}
-		else
-		{
-			Deactivate(self);
-		}
+		Super.Activate(activator);
+		bDormant = !bDormant;
 	}
 
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
-
-	States
+	override void Deactivate(Actor activator)
 	{
-	Spawn:
-	Active:
-		TNT1 A -1;
-		Loop;
-	Inactive:
-		TNT1 A -1;
-		Loop;
+		Super.Deactivate(activator);
+		bDormant = !bDormant;
+		A_StopSound(TCOTDSoundPlayer.SPCHAN_DECORATION);
 	}
 }

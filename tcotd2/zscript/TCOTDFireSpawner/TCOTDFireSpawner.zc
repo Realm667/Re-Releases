@@ -30,7 +30,7 @@
 //
 //===========================================================================
 
-class TCOTDFireSpawner : SwitchableDecoration
+class TCOTDFireSpawner : TCOTDSwitchableDecoration
 {
 	Default
 	{
@@ -54,9 +54,24 @@ class TCOTDFireSpawner : SwitchableDecoration
 	//
 	//===========================================================================
 
+	override void PostBeginPlay(void)
+	{
+		if (!(SpawnFlags & MTF_DORMANT))
+		{
+			Activate(self);
+		}
+		Super.PostBeginPlay();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	bool SoundEnabled(void)
 	{
-		return Args[1] == 1;
+		return Args[1] == 0;
 	}
 
 	bool IsSmallFire(void)

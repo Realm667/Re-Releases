@@ -191,10 +191,12 @@ class TCOTDSoundPlayer : Actor
 
 			Class<Actor> cls = section.name;
 			Sound snd = data.Get(section.name, "Sound");
+			double vol = data.Get(section.name, "Volume").ToDouble();
 
 			let ai = new('TCOTDSoundPlayerAmbientActorInfo');
 			ai.cls = cls;
 			ai.snd = snd;
+			ai.vol = vol;
 
 			ambientActors.Push(ai);
 		}
@@ -368,7 +370,7 @@ class TCOTDSoundPlayer : Actor
 		// or stop them
 		// because multiple looping sound sources can get expensive
 
-		double distance = 512.0;
+		double distance = 1024.0;
 
 		BlockThingsIterator it = BlockThingsIterator.Create(GetCamera(), distance);
 		while (it.Next())
@@ -377,12 +379,14 @@ class TCOTDSoundPlayer : Actor
 
 			bool valid = false;
 			Sound snd;
+			double vol = 1.0;
 
 			for (int i = 0; i < ambientActors.Size(); i++)
 			{
 				if (ambientActors[i] && other is ambientActors[i].cls)
 				{
 					snd = ambientActors[i].snd;
+					vol = ambientActors[i].vol;
 					valid = true;
 					break;
 				}
@@ -392,12 +396,12 @@ class TCOTDSoundPlayer : Actor
 			{
 				if (GetCamera().Distance2D(other) < distance - 64)
 				{
-					if (!other.IsActorPlayingSound(SPCHAN_DECORATION))
+					if (!other.bDormant && !other.IsActorPlayingSound(SPCHAN_DECORATION))
 					{
 						int flags = CHANF_LOOP;
 						double pitch = frandom(1.0, 1.1);
 						double st = frandom(0.f, S_GetLength(snd));
-						other.A_StartSound(snd, SPCHAN_DECORATION, flags, pitch: pitch, startTime: st);
+						other.A_StartSound(snd, SPCHAN_DECORATION, flags, vol, pitch: pitch, startTime: st);
 					}
 				}
 				else
@@ -451,6 +455,7 @@ class TCOTDSoundPlayerAmbientActorInfo play
 {
 	class<Actor> cls;
 	Sound snd;
+	double vol;
 }
 
 class TCOTDFootstepInfo play
