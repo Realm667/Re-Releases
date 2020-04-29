@@ -1,4 +1,4 @@
-// Copyright 2020 Nash Muhandes
+// Copyright 2008 - 2020 Nash Muhandes
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -26,19 +26,15 @@
 
 //===========================================================================
 //
-//
+// This is a stripped down version of the precipitation system from Bumi, an
+// all-encompassing real-time weather and time cycle solution for GZDoom by
+// Nash Muhandes.
+// Bumi is (C) 2008 - 2020 Nash Muhandes
 //
 //===========================================================================
 
-class TCOTDSnowParticle : TCOTDDietActor
+class TCOTDSnowParticle : TCOTDDietActorWithVel
 {
-	const SNOW_ALPHA = 0.8;
-	const SNOW_VELOCITY_XY_BASE = 0.55;
-	const SNOW_FADE_SPEED = 0.045;
-	const SNOW_FADEOUT_START = 350;
-
-	double vx, vy, vz;
-
 	//===========================================================================
 	//
 	//
@@ -49,8 +45,9 @@ class TCOTDSnowParticle : TCOTDDietActor
 	{
 		RenderStyle "Translucent";
 		Alpha 0;
-		Gravity 0;
+		Scale 0.6;
 		FloatBobPhase 0;
+		+NOINTERACTION
 		+DONTSPLASH
 		+FORCEXYBILLBOARD
 		-SOLID
@@ -62,86 +59,26 @@ class TCOTDSnowParticle : TCOTDDietActor
 	//
 	//===========================================================================
 
-	override void BeginPlay(void)
-	{
-		vx += frandom(-SNOW_VELOCITY_XY_BASE, SNOW_VELOCITY_XY_BASE);
-		vy += frandom(-SNOW_VELOCITY_XY_BASE, SNOW_VELOCITY_XY_BASE);
-		vz += frandom(-2.0, -1.0);
-		Super.BeginPlay();
-	}
-
 	override void PostBeginPlay(void)
 	{
-		// destroy precipitation from other players
-		if (tracer && !tracer.CheckLocalView(consoleplayer))
+		bool isIndoors = ceilingpic != skyflatnum;
+		bool isNotCPlayer = (tracer && !tracer.CheckLocalView(consoleplayer));
+		if (isIndoors || isNotCPlayer)
 		{
 			Destroy();
 			return;
 		}
-
-		if (ceilingpic != skyflatnum)
-		{
-			Destroy();
-			return;
-		}
-
-		A_SetScale(frandom(0.3, 0.6));
-
 		Super.PostBeginPlay();
 	}
 
-	override void Tick()
+	override void Tick(void)
 	{
-		Super.Tick();
-		if (!bNoTimeFreeze && isFrozen()) return;
-
-		// set velocity. SetXYZ is cheaper than SetOrigin
-		SetXYZ(Vec3Offset(vx, vx, vz));
-
-		// collided with the ground
 		if (Pos.Z <= FloorZ)
 		{
 			Destroy();
 			return;
 		}
-
-		// collided with water
-		UpdateWaterLevel();
-		if (waterlevel > 0)
-		{
-			Destroy();
-			return;
-		}
-
-		// end of lifetime
-		if (GetAge() > (35 * 20))
-		{
-			Destroy();
-			return;
-		}
-
-		// fade in
-		if (GetAge() < SNOW_FADEOUT_START)
-		{
-			if (Alpha < SNOW_ALPHA)
-			{
-				Alpha += SNOW_FADE_SPEED;
-			}
-		}
-
-		// fade out
-		else
-		{
-			if (Alpha > 0)
-			{
-				Alpha -= SNOW_FADE_SPEED;
-			}
-			else
-			{
-				Destroy();
-				return;
-			}
-		}
+		Super.Tick();
 	}
 
 	//===========================================================================
@@ -153,8 +90,19 @@ class TCOTDSnowParticle : TCOTDDietActor
 	States
 	{
 	Spawn:
-		SNOW A -1;
-		Stop;
+		SNOW A 1 NoDelay
+		{
+			A_FadeIn(0.04);
+			if (Alpha >= 0.75 && GetAge() > 50)
+			{
+				return ResolveState("FadeOut");
+			}
+			return ResolveState(NULL);
+		}
+		Loop;
+	FadeOut:
+		"####" "#" 1 A_FadeOut(0.035);
+		Loop;
 	}
 }
 

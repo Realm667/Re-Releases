@@ -49,7 +49,7 @@ mixin class TCOTDWeatherFXMixin
 			cvWeatherEnabled = CVar.GetCVar("tcotd2_weatherfx", players[consoleplayer]);
 			if (!cvWeatherEnabled)
 			{
-				Console.Printf("Warning: could not find CVar reference");
+				Console.Printf("Warning: CacheWeatherFXCVar() could not find CVar reference");
 				Destroy();
 				return;
 			}
@@ -58,7 +58,11 @@ mixin class TCOTDWeatherFXMixin
 
 	bool WeatherFXEnabled(void)
 	{
-		if (!cvWeatherEnabled) return false;
+		if (!cvWeatherEnabled)
+		{
+			Console.Printf("Warning: WeatherFXEnabled() could not find CVar reference");
+			return false;
+		}
 		return cvWeatherEnabled.GetBool();
 	}
 }

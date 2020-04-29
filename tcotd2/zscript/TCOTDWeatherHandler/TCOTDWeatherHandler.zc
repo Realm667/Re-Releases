@@ -1,4 +1,4 @@
-// Copyright 2020 Nash Muhandes
+// Copyright 2008 - 2020 Nash Muhandes
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -26,45 +26,57 @@
 
 //===========================================================================
 //
-// Actors with minimal ticking. Useful for completely non-interactive stuff
+// This is a stripped down version of the precipitation system from Bumi, an
+// all-encompassing real-time weather and time cycle solution for GZDoom by
+// Nash Muhandes.
+// Bumi is (C) 2008 - 2020 Nash Muhandes
 //
 //===========================================================================
 
-class TCOTDDietActor : Actor
+class TCOTDWeatherHandler : EventHandler
 {
-	bool ticked;
+	const SNOW_SPAWN_RADIUS = 800.0;
+	const SNOW_SPAWN_HEIGHT = 400.0;
 
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
+	mixin TCOTDWeatherFXMixin;
 
-	override void Tick()
+	override void WorldTick(void)
 	{
-		if (!ticked)
+		for (int i = 0; i < MAXPLAYERS; i++)
 		{
-			Super.Tick();
-			ticked = true;
-			return;
-		}
-
-		if (!bNoTimeFreeze && isFrozen()) return;
-		if (tics != -1)
-		{
-			if (--tics <= 0)
+			if (playeringame[i] && players[i].mo && players[i].mo.player)
 			{
-				if (!SetState(curstate.NextState)) return;
+				if (gameaction == ga_savegame) continue;
+
+				CacheWeatherFXCVar();
+				if (!WeatherFXEnabled()) continue;
+
+				let pmo = players[i].mo;
+				int density = 6;
+				while (density--)
+				{
+					double spx = frandom(-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
+					double spy = frandom(-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
+					Vector3 sPos = pmo.Vec3Offset(spx, spy, SNOW_SPAWN_HEIGHT);
+					double cz = pmo.CurSector.HighestCeilingAt(sPos.XY);
+					if (sPos.Z >= cz) sPos.Z = cz;
+					if (!level.IsPointInLevel(sPos)) continue;
+					let snow = pmo.Spawn("TCOTDSnowParticle", sPos, NO_REPLACE);
+					if (snow)
+					{
+						snow.tracer = pmo;
+						snow.Vel.X = frandom(-0.8, 0.8);
+						snow.Vel.Y = frandom(-0.8, 0.8);
+						snow.Vel.Z = frandom(-4.0, -1.5);
+					}
+				}
 			}
 		}
-	}
-}
 
-class TCOTDDietActorWithVel : TCOTDDietActor
-{
-	override void Tick(void)
-	{
-		SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
-		Super.Tick();
+		// don't serialize the snow particles
+		if (gameaction == ga_savegame)
+		{
+			TCOTDGameplayStatics.DestroyActors("TCOTDSnowParticle");
+		}
 	}
 }

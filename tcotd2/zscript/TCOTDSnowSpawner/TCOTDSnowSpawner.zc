@@ -1,34 +1,10 @@
 class TCOTDSnowSpawner : TCOTDDietActor
 {
-	mixin TCOTDWeatherFXMixin;
-
-	Default
-	{
-		//$Category Weather
-		//$Title Snow Spawner (Simple)
-		//$Color 12
-		Radius 1;
-		Height 1;
-		+CLIENTSIDEONLY
-		+NOBLOCKMAP
-		+NOCLIP
-		+NOGRAVITY
-		+NOINTERACTION
-		+NOSECTOR
-		+SPAWNCEILING
-	}
-
+	// this actor is obsolete
 	States
 	{
 	Spawn:
-		TNT1 A 5 NoDelay
-		{
-			CacheWeatherFXCVar();
-			if (!CheckRange(1024.0, true) && WeatherFXEnabled())
-			{
-				A_SpawnItemEx("TCOTDSnowParticle", frandom(-256.0, 256.0), frandom(-256.0, 256.0), 0, frandom(-1.0, 1.0), frandom(-1.0, 1.0), frandom(-3.0, -1.0));
-			}
-		}
-		Loop;
+		TNT1 A 0;
+		Stop;
 	}
 }
