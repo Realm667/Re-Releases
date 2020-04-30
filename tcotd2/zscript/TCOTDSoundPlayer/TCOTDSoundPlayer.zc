@@ -49,8 +49,6 @@ class TCOTDSoundPlayer : Actor
 
 	double footstepCounter;
 
-	Sector oldCurSector, newCurSector;
-
 	Array<TCOTDSoundPlayerAmbientActorInfo> ambientActors;
 	Array<TCOTDFootstepInfo> footstepInfo;
 
@@ -103,11 +101,8 @@ class TCOTDSoundPlayer : Actor
 
 	override void Tick(void)
 	{
-		Super.Tick();
-
 		if (pmo)
 		{
-			UpdateCurrentSector();
 			UpdateAmbientVolume();
 			UpdateLoopingSounds();
 			DoFootSteps();
@@ -268,19 +263,9 @@ class TCOTDSoundPlayer : Actor
 	//
 	//===========================================================================
 
-	void UpdateCurrentSector(void)
-	{
-		newCurSector = GetCamera().CurSector;
-
-		if (oldCurSector != newCurSector)
-		{
-			oldCurSector = newCurSector;
-		}
-	}
-
 	void UpdateAmbientVolume(void)
 	{
-		int totalNodes = 50;
+		int totalNodes = 10;
 		double traceDist = 100.0;
 		int flags = TRF_THRUHITSCAN | TRF_ALLACTORS;
 		FLineTraceData t;
@@ -376,6 +361,10 @@ class TCOTDSoundPlayer : Actor
 		while (it.Next())
 		{
 			let other = it.Thing;
+
+			// skip unimportant actors
+			if (other is "TCOTDSnowParticle") continue;
+			if (other is "TCOTDFoliage") continue;
 
 			bool valid = false;
 			Sound snd;
