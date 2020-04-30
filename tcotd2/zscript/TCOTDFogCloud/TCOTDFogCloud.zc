@@ -79,27 +79,16 @@ class TCOTDFogCloud : TCOTDDietActor
 			return;
 		}
 
+		bInvisible = false;
+
 		Super.Tick();
 		if (!bNoTimeFreeze && isFrozen()) return;
-
-		bInvisible = false;
 
 		// pulsate alpha
 		let ticRate = Thinker.TICRATE;
 		double pulseAlpha = abs(asin(sin(180.0 / (ticRate * pulseRate) * GetAge())) / 90);
 		pulseAlpha = clamp(pulseAlpha, default.Alpha, 1.0);
-
-		// fade alpha from camera distance
-		double cameraAlpha = 1.0;
-		let pmo = players[consoleplayer].mo;
-		if (pmo)
-		{
-			double maxDist = 150.0;
-			double dist = Distance2D(pmo);
-			cameraAlpha = 1.0 - (maxDist / dist);
-		}
-
-		Alpha = pulseAlpha * cameraAlpha;
+		Alpha = pulseAlpha;
 	}
 
 	//===========================================================================
