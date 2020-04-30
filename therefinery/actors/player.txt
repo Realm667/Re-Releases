@@ -1,4 +1,5 @@
-ACTOR RefineryPlayer : DoomPlayer {
+ACTOR RefineryPlayer : DoomPlayer
+{
 	Speed 0.9
 	Player.WeaponSlot 1, Fist, Chainsaw
 	Player.WeaponSlot 2, NewPistol
@@ -7,15 +8,13 @@ ACTOR RefineryPlayer : DoomPlayer {
 	Player.WeaponSlot 5, RocketLauncher
 	Player.WeaponSlot 6, PlasmaRifle
 	Player.WeaponSlot 7, BFG9000
-	//Player.StartItem "NewPistol"
 	Player.StartItem "Fist"
-	//Player.StartItem "Clip", 50
-
 }
 
 // [XA] Random something-or-other for infinite ammo power.
 // It's a "player property" of sorts, so I'm putting it here.
-ACTOR InfiniteAmmo : PowerupGiver {
+ACTOR InfiniteAmmo : PowerupGiver 
+{
 	Powerup.Type "InfiniteAmmo"
 	Powerup.Duration 0x7FFFFFF
 	-INVENTORY.INVBAR
