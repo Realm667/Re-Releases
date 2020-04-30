@@ -32,6 +32,8 @@
 
 class TCOTDFireSpawner : TCOTDSwitchableDecoration
 {
+	Actor light;
+
 	Default
 	{
 		//$Category Special Effects
@@ -165,7 +167,12 @@ class TCOTDFireSpawner : TCOTDSwitchableDecoration
 		{
 			cls = "TCOTDFireSpawnerLightLarge";
 		}
-		Spawn(cls, Pos, NO_REPLACE);
+		light = Spawn(cls, Pos, NO_REPLACE);
+	}
+
+	void RemoveLight(void)
+	{
+		if (light) light.Destroy();
 	}
 
 	//===========================================================================
@@ -199,6 +206,8 @@ class TCOTDFireSpawner : TCOTDSwitchableDecoration
 				}
 
 				A_StartSound(snd, CHAN_6, CHANF_LOOP, 1.0);
+
+				SpawnLight();
 			}
 		}
 		TNT1 A 1
@@ -207,7 +216,6 @@ class TCOTDFireSpawner : TCOTDSwitchableDecoration
 			{
 				SpawnFire();
 				//SpawnEmber();
-				SpawnLight();
 			}
 		}
 		Goto Active + 1;
@@ -220,6 +228,8 @@ class TCOTDFireSpawner : TCOTDSwitchableDecoration
 			{
 				A_StartSound("SFX/FireDie", CHAN_7);
 			}
+
+			RemoveLight();
 		}
 		TNT1 A -1;
 		Stop;
@@ -261,8 +271,8 @@ class TCOTDFireSpawnerLightSmall : TCOTDFireSpawnerLight
 	States
 	{
 	Spawn:
-		TNT1 A 3 Light("FireSpawnerSmall");
-		Stop;
+		TNT1 A 1 Light("FireSpawnerSmall");
+		Loop;
 	}
 }
 
@@ -271,8 +281,8 @@ class TCOTDFireSpawnerLightMedium : TCOTDFireSpawnerLight
 	States
 	{
 	Spawn:
-		TNT1 A 3 Light("FireSpawnerMedium");
-		Stop;
+		TNT1 A 1 Light("FireSpawnerMedium");
+		Loop;
 	}
 }
 class TCOTDFireSpawnerLightLarge : TCOTDFireSpawnerLight
@@ -280,7 +290,7 @@ class TCOTDFireSpawnerLightLarge : TCOTDFireSpawnerLight
 	States
 	{
 	Spawn:
-		TNT1 A 3 Light("FireSpawnerLarge");
-		Stop;
+		TNT1 A 1 Light("FireSpawnerLarge");
+		Loop;
 	}
 }
