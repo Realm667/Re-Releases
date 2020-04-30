@@ -1,0 +1,72 @@
+Actor LightRay_Regular : SwitchableDecoration 31102
+{
+  +NOBLOCKMAP
+  +NOGRAVITY
+  Radius 8
+  Height 16
+  RenderStyle Translucent
+  Alpha 1.0
+  States
+  {
+  Spawn:
+  Active:
+    VOLT A -1 Bright
+    Stop
+  Inactive:
+    VOLT A 1
+    TNT1 A -1
+    Stop
+  }
+}
+
+Actor LightRay_Wallsprite : LightRay_Regular 31103
+{
+  +ROLLSPRITE
+  +WALLSPRITE
+}
+
+ACTOR Grass1
+{
+	Radius 16
+	Height 16
+	Scale 0.5
+	+DONTTHRUST
+	+NOTAUTOAIMED
+	States
+	{
+	Spawn:
+		GRS1 A -1
+		Stop
+	}
+}
+
+ACTOR Grass2 : Grass1
+{
+	States
+	{
+	Spawn:
+		GRS2 A -1
+		Stop
+	}
+}
+
+ACTOR Grass3 : Grass1
+{
+	States
+	{
+	Spawn:
+		GRS2 A -1
+		Stop
+	}
+}
+
+ACTOR GrassSpawner : RandomSpawner 31104
+{
+
+	DropItem "Grass1"
+	DropItem "Grass2"
+	DropItem "Grass3"
+	Radius 16
+	Height 16
+	Scale 0.5
+}
