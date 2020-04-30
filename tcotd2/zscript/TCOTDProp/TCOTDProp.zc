@@ -39,6 +39,57 @@ class TCOTDProp : Actor
 	}
 }
 
+class TCOTDPropBarrel01 : TCOTDProp replaces TallGreenColumn
+{
+	Default
+	{
+		Radius 16;
+		Height 36;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		COL1 A -1;
+		Stop;
+	}
+}
+
+class TCOTDPropBarrel02 : TCOTDProp replaces ShortGreenColumn
+{
+	Default
+	{
+		Radius 13;
+		Height 34;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		COL2 A -1;
+		Stop;
+	}
+}
+
+class TCOTDPropStalagmite : TCOTDProp replaces Stalagtite
+{
+	Default
+	{
+		Radius 18;
+		Height 73;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		SMIT A -1;
+		Stop;
+	}
+}
+
 class TCOTDPropWeb2 : TCOTDProp
 {
 	Default
@@ -90,7 +141,7 @@ class TCOTDPropIVPoleBlood : TCOTDProp
 	Default
 	{
 		Radius 16;
-		Height 56;
+		Height 92;
 		+SOLID
 	}
 
@@ -255,7 +306,8 @@ class TCOTDPropBalloon1 : TCOTDProp
 {
 	Default
 	{
-		Height 1;
+		Radius 8;
+		Height 78;
 	}
 
 	States
@@ -444,7 +496,8 @@ class TCOTDPropBonesSkullOnPike : TCOTDProp
 {
 	Default
 	{
-		Radius 16;
+		Radius 10;
+		Height 74;
 		+SOLID
 	}
 
@@ -460,7 +513,8 @@ class TCOTDPropLogs : TCOTDProp
 {
 	Default
 	{
-		Radius 16;
+		Radius 30;
+		Height 42;
 		+SOLID
 	}
 
@@ -630,8 +684,8 @@ class TCOTDPropStoneStatue : TCOTDProp
 {
 	Default
 	{
-		Radius 16;
-		Height 40;
+		Radius 19;
+		Height 84;
 		+SOLID
 	}
 
@@ -663,8 +717,8 @@ class TCOTDCrystalBall : TCOTDProp
 {
 	Default
 	{
-		Radius 4;
-		Height 4;
+		Radius 12;
+		Height 26;
 	}
 
 	States
