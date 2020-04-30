@@ -2,7 +2,7 @@ class TCOTDGameplayStatics play
 {
 	static bool IsOnFloor(Actor self)
 	{
-		if (self is "TCOTDPlayer") return TCOTDPlayer(self).player.onground;
+		if (self is "PlayerPawn") return PlayerPawn(self).player.onground;
 		else return self.Pos.Z <= self.FloorZ || self.bOnMObj || self.bMBFBouncer;
 	}
 
