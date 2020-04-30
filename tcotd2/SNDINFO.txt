@@ -180,6 +180,7 @@ AmbientLoopInside "sounds/amb_inside.ogg"
 LightHum	AMB1
 ScareHum	AMB2
 AnotherHum	AMB4
+$rolloff AnotherHum 250 450
 NightZirp	AMB6
 StrangeHum	AMB7
 Wind		AMB8
@@ -190,6 +191,7 @@ WindCanyon	AMB17
 Coast		AMB22
 Engine		AMB24
 LittleHum	AMB25
+$rolloff LittleHum 200 500
 Fire		FIRE
 FireWallTorch FIRE
 $rolloff FireWallTorch 64 256
@@ -243,10 +245,10 @@ DockedBoat2	DOCKEDB2
 $random DockedBoat { DockedBoat1 DockedBoat2 }
 Swamp		SWAMP
 
-$AMBIENT  1 LightHum  POINT CONTINUOUS 1.0
+$AMBIENT  1 LightHum  POINT CONTINUOUS 0.7
 $AMBIENT  2 ScareHum  POINT CONTINUOUS 1.0
 $AMBIENT  3 Crows POINT RANDOM 10.0 25.0 1.0
-$AMBIENT  4 AnotherHum  POINT CONTINUOUS 1.0
+$AMBIENT  4 AnotherHum  POINT CONTINUOUS 0.5
 $AMBIENT  5 Flies  POINT CONTINUOUS 1.0
 $AMBIENT  6 NightZirp  POINT CONTINUOUS 1.0
 $AMBIENT  7 StrangeHum  POINT CONTINUOUS 1.0
