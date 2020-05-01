@@ -1,0 +1,117 @@
+Actor LightRay_Regular : SwitchableDecoration
+{
+	Radius 8
+	Height 16
+	RenderStyle Translucent
+	Alpha 1.0
+	+NOBLOCKMAP
+	+NOGRAVITY
+	States
+	{
+	Spawn:
+	Active:
+		VOLT A -1 Bright
+		Stop
+	Inactive:
+		VOLT A 1
+		TNT1 A -1
+		Stop
+	}
+}
+
+Actor LightRay_Wallsprite : LightRay_Regular
+{
+	+ROLLSPRITE
+	+WALLSPRITE
+}
+
+ACTOR Grass1
+{
+	Radius 16
+	Height 16
+	Scale 0.5
+	+DONTTHRUST
+	+NOTAUTOAIMED
+	States
+	{
+	Spawn:
+		GRS1 A -1
+		Stop
+	}
+}
+
+ACTOR Grass2 : Grass1
+{
+	States
+	{
+	Spawn:
+		GRS2 A -1
+		Stop
+	}
+}
+
+ACTOR Grass3 : Grass1
+{
+	States
+	{
+	Spawn:
+		GRS2 A -1
+		Stop
+	}
+}
+
+ACTOR GrassSpawner : RandomSpawner
+{
+
+	DropItem "Grass1"
+	DropItem "Grass2"
+	DropItem "Grass3"
+	Radius 16
+	Height 16
+	Scale 0.5
+}
+
+ACTOR RedFire //straight from Demonic Uprising
+{
+	DistanceCheck "austerlod"
+	RenderStyle Add
+	Scale 0.175
+	+BRIGHT
+	+FORCEXYBILLBOARD
+	+NOGRAVITY
+	States
+	{
+	Spawn:
+		FIR1 A 0
+		FIR1 A 0 A_Jump(128, "Spawn2")
+		FIR1 ABCDEFG 3
+		FIR1 HIJKL 2 A_FadeOut(0.15)
+		Stop
+	Spawn2:
+		FIR2 ABCDEFG 3
+		FIR2 HIJKL 2 A_FadeOut(0.15)
+		Stop
+	}
+}
+
+ACTOR AusterTorch : SwitchableDecoration replaces RedTorch
+{
+	Radius 16
+	Height 68
+	ProjectilePassHeight -16
+	+SOLID
+	States
+	{
+	Active:
+		TBLX A 0 A_PlaySound("Ignite")
+		"####" A 0 {bDormant = FALSE;}
+	Spawn:
+		TBLX A 0 NODELAY
+		TBLX A 3 BRIGHT Light("WALLTORCH") A_SpawnItemEx("RedFire", Random(-2, 2), Random(-2, 2), Random(60, 62), 0.001 * Random(10, 200), 0.001 * Random(10, 200), 0.001 * Random(1000, 2000), 0, SXF_SETMASTER | SXF_CLIENTSIDE)
+		Loop
+	Inactive:
+		"####" A 0 A_RemoveChildren(TRUE, RMVF_MISC)
+		TBLX A -1 {bDormant = TRUE;}
+		Stop
+	}
+}
