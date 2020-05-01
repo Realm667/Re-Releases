@@ -32,9 +32,10 @@
 
 class TCOTDPlayer : PlayerPawn
 {
-	const DECEL_MULT = 0.86;
-	const WALK_SPEED = 0.735;
-	const RUN_SPEED = 1.46;
+	// slow walk speed is to help with the church puzzle
+	// run speed is original TCOTD2 speed
+	const WALK_SPEED = 0.3;
+	const RUN_SPEED = 0.6;
 
 	// remove this shit before release lmao
 	const DEBUG_MODE = 0;
@@ -65,7 +66,7 @@ class TCOTDPlayer : PlayerPawn
 		Player.ForwardMove WALK_SPEED, RUN_SPEED;
 		Player.SideMove WALK_SPEED, RUN_SPEED;
 		Player.JumpZ 8.00001;
-		Player.ViewBob 0.73;
+		Player.ViewBob 0.75;
 		Player.DisplayName "$TCOTDPLAYER_DISPLAYNAME";
 		Player.CrouchSprite "PLAY";
 		Player.StartItem "TCOTDWeaponMelee";
@@ -124,43 +125,6 @@ class TCOTDPlayer : PlayerPawn
 				A_GiveInventory("TCOTDPlayerDebugDamagePower", 1);
 			}
 
-			bool isOnGround = player.onground;
-			bool isFloating = waterlevel >= 2 || bFly || (player.cheats & CF_NOCLIP2);
-
-			/*
-			bool isInPain = false;
-			State PainState = FindState('Pain', true);
-			if (PainState != NULL && InStateSequence(CurState, PainState))
-			{
-				isInPain = true;
-			}
-			*/
-
-			// reduce slippery movement
-			if (isOnGround || isFloating)
-			{
-				Vel.XY *= DECEL_MULT;
-				player.vel = Vel.XY;
-
-				// handle floating velocity
-				if (isFloating && !(Vel.Z ~== 0))
-				{
-					Vel.Z *= DECEL_MULT;
-				}
-			}
-
-			// zero out the velocity if moving slow enough
-			if (Vel.XY.Length() < 0.01)
-			{
-				Vel.XY *= 0;
-			}
-
-			// prevent stuck walking animation
-			if (!player.cmd.forwardmove && !player.cmd.sidemove && (!player.onground || player.vel.Length() < 0.1))
-			{
-				PlayIdle();
-			}
-
 			// handle lantern dynamic light
 			let lp = TCOTDLanternPickup(FindInventory("TCOTDLanternPickup", true));
 			if (lp)
@@ -175,6 +139,15 @@ class TCOTDPlayer : PlayerPawn
 				}
 			}
 		}
+	}
+
+	override Vector2 BobWeapon(double ticfrac)
+	{
+		// [Nash] scale the weapon bobbing to player movement speed
+		Vector2 bob = Super.BobWeapon(ticfrac);
+		bob.X *= Vel.XY.Length() / 10.0;
+		bob.Y *= Vel.XY.Length() / 10.0;
+		return bob;
 	}
 
 	override void CalcHeight(void)
@@ -249,6 +222,9 @@ class TCOTDPlayer : PlayerPawn
 			// [Nash] I only changed these for now, heh
 			angle = Level.maptime / (13 * TICRATE / 35.) * 360.;
 			bob = player.bob * sin(angle) * (waterlevel > 1 ? 0.15f : 0.17f);
+
+			// scale the bobbing by movement speed
+			bob *= Vel.XY.Length() / 10.0;
 		}
 
 		// move viewheight
@@ -293,105 +269,6 @@ class TCOTDPlayer : PlayerPawn
 		if (player.viewz < floorz + 4)
 		{
 			player.viewz = floorz + 4;
-		}
-	}
-
-	override void MovePlayer(void)
-	{
-		// Based off code by Gutawer
-
-		let player = self.player;
-		UserCmd cmd = player.cmd;
-
-		// [RH] 180-degree turn overrides all other yaws
-		if (player.turnticks)
-		{
-			player.turnticks--;
-			// made this interpolate, looks way nicer
-			A_SetAngle(Angle + (180. / TURN180_TICKS), SPF_INTERPOLATE);
-		}
-		else Angle += cmd.yaw * (360. / 65536.);
-
-		player.onground = (Pos.Z <= FloorZ) || bOnMobj || bMBFBouncer || (player.cheats & CF_NOCLIP2);
-
-		// base movement vector
-		Vector2 moveVec = (0, 0);
-		double tweakedSideMove;
-		bool sprint = (player.cmd.buttons & BT_SPEED) != 0;
-		if (CVar.GetCVar("cl_run", player).GetBool() == true) sprint = !sprint;
-		sprint = sprint && Health > RunHealth;
-		tweakedSideMove = clamp(cmd.sidemove / (sprint ? 0.8 : 0.96), -0x3200, 0x3200);
-		moveVec = (tweakedSideMove, cmd.forwardmove);
-
-		if (moveVec != (0, 0))
-		{
-			double maxSpeed = (sprint ? 12800 : 6400);
-			double moveLength = moveVec.Length();
-			if (moveLength > maxSpeed)
-			{
-				moveVec *= maxSpeed / moveLength;
-			}
-
-			Vector2 origMoveVec = moveVec;
-			moveVec.y *= !sprint ? forwardMove1 : forwardMove2;
-			moveVec.x *= !sprint ? sideMove1 : sideMove2;
-
-			double bobfactor;
-			double friction, movefactor;
-			[friction, movefactor] = GetFriction();
-			bobfactor = friction < ORIG_FRICTION ? movefactor : ORIG_FRICTION_FACTOR;
-
-			if (!player.onground && !bNoGravity && waterlevel == 0)
-			{
-				// [RH] allow very limited movement if not on ground.
-				moveVec *= level.aircontrol;
-				bobfactor *= level.aircontrol;
-			}
-
-			// When crouching, speed and bobbing have to be reduced
-			if (CanCrouch() && player.crouchfactor != 1)
-			{
-				moveVec *= player.crouchfactor;
-				bobfactor *= player.crouchfactor;
-			}
-
-			if (player.morphTics == 0)
-			{
-				double factor = 1;
-				for (let it = inv; it != NULL; it = it.inv)
-				{
-					factor *= it.GetSpeedFactor();
-				}
-				moveVec *= factor;
-			}
-
-			moveVec *= movefactor * Speed / 256;
-
-			if (origMoveVec.Y != 0) Bob(Angle, origMoveVec.Y * bobfactor / 256.0, true );
-			if (origMoveVec.X != 0) Bob(Angle - 90, origMoveVec.X * bobfactor / 256.0, false);
-
-			if ((waterlevel > 0 || bNoGravity) && Pitch != 0 && !player.GetClassicFlight())
-			{
-				double zPush = moveVec.Y * sin(-Pitch);
-				if (!(waterlevel != 0 && waterlevel < 2 && zPush > 0))
-				{
-					Vel.Z += zPush;
-				}
-				moveVec.Y *= cos(Pitch);
-			}
-
-			Vel.XY += RotateVector(moveVec, Angle - 90);
-
-			if (player.cheats & CF_PREDICTING == 0 && (moveVec.Y != 0 || moveVec.X != 0))
-			{
-				PlayRunning();
-			}
-
-			if (player.cheats & CF_REVERTPLEASE != 0)
-			{
-				player.cheats &= ~CF_REVERTPLEASE;
-				player.camera = player.mo;
-			}
 		}
 	}
 
