@@ -1,0 +1,33 @@
+class TCOTDLanternOilPickup : CustomInventory
+{
+	Default
+	{
+		//$Category Items (TCOTD2)
+		//$Title Lantern Oil
+		//$Color 6
+		Scale 0.50;
+		-INVENTORY.INVBAR
+		Inventory.MaxAmount 12; //1000x12=12000
+		Inventory.PickupMessage "$IP_LOIL";
+		Inventory.PickupSound "lantern/oil";
+	}
+
+	States
+	{
+		Spawn:
+			LANT C -1;
+			Loop;
+		Pickup:
+			TNT1 A 0 A_GiveInventory("TCOTDLanternOil", 1000);
+			Stop;
+	}
+}
+
+class TCOTDLanternOil : Inventory
+{
+	Default
+	{
+		Inventory.Amount 1;
+		Inventory.MaxAmount 12000; //Near 5 mins maximum - ozy81
+	}
+}
