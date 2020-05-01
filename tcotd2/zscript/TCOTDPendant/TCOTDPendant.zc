@@ -43,7 +43,14 @@ class TCOTDPendant : Inventory
 
 	override void DoEffect(void)
 	{
-		//int next = ACS_ScriptCall("NightmareGetNextNightmare", 0);
-		//Console.Printf("%d", next);
+		int next = ACS_ScriptCall("NightmareGetCountdown", 0) / 35;
+		//Console.Printf("next nightmare in %d seconds", next);
+	}
+
+	States
+	{
+	Spawn:
+		PEND A -1 Bright;
+		Stop;
 	}
 }
