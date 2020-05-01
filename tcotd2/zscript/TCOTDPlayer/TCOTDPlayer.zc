@@ -49,6 +49,8 @@ class TCOTDPlayer : PlayerPawn
 	double flinchAmount;
 	bool wasDamaged;
 
+	TCOTDPlayerLanternLight myLantern;
+
 	//===========================================================================
 	//
 	//
@@ -91,6 +93,7 @@ class TCOTDPlayer : PlayerPawn
 		Super.Tick();
 
 		UpdateViewRoll();
+		UpdateLantern();
 
 		// reset damage indicator
 		wasDamaged = false;
@@ -156,6 +159,20 @@ class TCOTDPlayer : PlayerPawn
 			if (!player.cmd.forwardmove && !player.cmd.sidemove && (!player.onground || player.vel.Length() < 0.1))
 			{
 				PlayIdle();
+			}
+
+			// handle lantern dynamic light
+			let lp = TCOTDLanternPickup(FindInventory("TCOTDLanternPickup", true));
+			if (lp)
+			{
+				if (lp.active)
+				{
+					SpawnLantern();
+				}
+				else
+				{
+					DestroyLantern();
+				}
 			}
 		}
 	}
@@ -579,71 +596,63 @@ class TCOTDPlayer : PlayerPawn
 		A_SetRoll((Roll + lastRoll) * 0.5, SPF_INTERPOLATE);
 	}
 
-/*
-	SpawnEffect(class<PlayerEffect>)
-	RemoveEffect(class<PlayerEffect>)
-	- Used to spawn/remove an effect actor that follows the player around (e.g., glow for FireBrand)
-	- See PlayerEffect class information below
-	- Checks should be performed in DoTokenChecks:
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
 
-		// If current weapon is BFG9000, spawn swirlysparkles that follow the player
-		if (player && player.ReadyWeapon is "BFG9000") { SpawnEffect("SwirlySparkles"); }
-		else { RemoveEffect("SwirlySparkles"); }
-*/
-
-		//===========================================================================
-		//
-		// Lantern Effects - Code by AFADoomer and Talon1024 - Adapted by Ozy81
-		//
-		//===========================================================================
-
-	void DoTokenChecks()
+	void SpawnLantern(void)
 	{
-		if (health <= 0) { return; } // Don't change sprites if the player is dead
-		
-		// Lantern effect handling
-		TCOTDLanternPickup lantern = TCOTDLanternPickup(FindInventory("TCOTDLanternPickup"));
-
-		if (player && lantern && lantern.active) { SpawnEffect("LanternEffect"); }
-		else { RemoveEffect("LanternEffect"); }
-	}
-
-	// Function to spawn no more than a single copy of an effect actor as a child of the player
-	void SpawnEffect(class<PlayerEffect> effect)
-	{
-		ThinkerIterator it = ThinkerIterator.Create("PlayerEffect", Thinker.STAT_DEFAULT - 4);
-		PlayerEffect mo;
-
-		while (mo = PlayerEffect(it.Next()))
+		if (!myLantern)
 		{
-			if (mo.master && mo.master != self) { continue; } // Only look at effects that belong to this player actor
-			if (mo is effect) { return; } // The effect already exists, so abort so we don't spawn it again
-		}
+			myLantern = TCOTDPlayerLanternLight(Spawn("TCOTDPlayerLanternLight", Pos, NO_REPLACE));
 
-		// If it wasn't already there, spawn this effect
-		Actor newEffect = Spawn(effect);
-		if (newEffect) { newEffect.master = self; }
-	}
-
-	// Function to remove any spawned copy of an effect that is a child of the player
-	void RemoveEffect(class<PlayerEffect> effect)
-	{
-		ThinkerIterator it = ThinkerIterator.Create("PlayerEffect", Thinker.STAT_DEFAULT - 4);
-		PlayerEffect mo;
-
-		while (mo = PlayerEffect(it.Next()))
-		{
-			if (mo.master && mo.master != self) { continue; } // Only look at effects that belong to this player actor
-			if (mo is effect) { mo.SetStateLabel('null'); } // Remove the effect, if found
+			if (myLantern)
+			{
+				// A_Warp needs a built-in pointer
+				myLantern.tracer = self;
+			}
 		}
 	}
+
+	void DestroyLantern(void)
+	{
+		if (myLantern)
+		{
+			myLantern.Destroy();
+		}
+	}
+
+	void UpdateLantern(void)
+	{
+		if (!myLantern) return;
+		double forwardOffset = 6.0;
+		double sideOffset = 10.0;
+		double heightOffset = player.ViewHeight - 8.0;
+		double angleOffset = 9.0;
+		double pitchOffset = -5.0;
+		int warpFlags = WARPF_BOB | WARPF_INTERPOLATE | WARPF_COPYPITCH | WARPF_COPYVELOCITY;
+		myLantern.A_Warp
+		(
+			AAPTR_TRACER,
+			forwardOffset, sideOffset, heightOffset,
+			angle: angleOffset,
+			warpFlags,
+			pitch: pitchOffset
+		);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
 
 	States
 	{
 	Spawn:
-		PLAY A 0 DoTokenChecks(); // Must run the check once here because it can miss a frame somehow otherwise.  All other states are taken care of in the Tick function.
-	SpawnLoop:
-		"####" A -1;
+		PLAY A -1;
 		Loop;
 	See:
 		PLAY AABBCCDD 4;
@@ -683,132 +692,15 @@ class TCOTDPlayerDebugDamagePower : PowerDamage
 	}
 }
 
-class TCOTDLanternPickup : CustomInventory
-{
-	bool active;
-
-	Default
-	{
-		//$Category Items (TCOTD2)
-		//$Title Useable Lantern (requires Oil)
-		//$Color 6
-		Scale 0.5;
-		Tag "Lantern";
-		Inventory.Icon "LANTB0";
-		Inventory.PickupMessage "$IP_LANT";
-		Inventory.MaxAmount 1;
-		Inventory.PickupSound "lantern/pick";
-		+INVENTORY.INVBAR
-		+INVENTORY.UNDROPPABLE
-	}
-
-	States
-	{
-		Spawn:
-			LANT A -1;
-			Stop;
-		Pickup:
-			"####" A 0 A_GiveInventory("LanternOil", 1000);
-			Stop;
-		Use:
-			"####" A 0 {
-				invoker.active = !invoker.active;
-
-				if (invoker.active && !FindInventory("LanternOil")) { invoker.active = false; }
-			}
-			Fail;
-	}
-
-	override void Tick()
-	{
-		if (globalfreeze || level.Frozen) { return; }
-
-		if (owner && active)
-		{
-			if (owner.waterlevel >= 3)
-			{
-				A_StartSound("lantern/steam", CHAN_AUTO, Random(15, 45)); //requires sound
-				active = false;
-			}
-			else if (owner.FindInventory("LanternOil")) { owner.TakeInventory("LanternOil", 1); }
-			else { active = false; }
-		}
-	}
-}
-
-// Base class for simple visual effects that will always follow the player until removed
-class PlayerEffect : Actor
-{
-	Default
-	{
-		+NOINTERACTION
-	}
-
-	States
-	{
-		Spawn:
-			// This state should be replaced in child classes
-			UNKN A 1;
-			Loop;
-	}
-
-	override void BeginPlay()
-	{
-		ChangeStatNum(Thinker.STAT_DEFAULT - 4);
-	}
-
-	override void Tick()
-	{
-		// If a master is assigned, always move to its location
-		if (master) { A_Warp(AAPTR_MASTER, flags:WARPF_COPYPITCH | WARPF_COPYINTERPOLATION | WARPF_NOCHECKPOSITION); }
-		Super.Tick();
-	}
-
-}
-
-class LanternEffect : PlayerEffect
+class TCOTDPlayerLanternLight : TCOTDDietActor
 {
 	States
 	{
 		Spawn:
-			TNT1 A 4 NODELAY Light("LANT01");
+			TNT1 A 4 NoDelay Light("LANT01");
 			TNT1 A 4 Light("LANT02");
 		SpawnLoop:
 			TNT1 A 4 Light("LANT03") A_SetTics(Random(1, 3));
 			Loop;
-	}
-}
-
-class LanternOil : Inventory
-{
-	Default
-	{
-		Inventory.Amount 1;
-		Inventory.MaxAmount 12000; //Near 5 mins maximum - ozy81
-	}
-}
-
-class TCOTDOilPickup : CustomInventory
-{
-	Default
-	{
-		//$Category Items (TCOTD2)
-		//$Title Lantern Oil
-		//$Color 6
-		Scale 0.50;
-		-INVENTORY.INVBAR
-		Inventory.MaxAmount 12; //1000x12=12000
-		Inventory.PickupMessage "$IP_LOIL";
-		Inventory.PickupSound "lantern/oil";
-	}
-	
-	States
-	{
-		Spawn:
-			LANT C -1;
-			Loop;
-		Pickup:
-			TNT1 A 0 A_GiveInventory("LanternOil", 1000);
-			Stop;
 	}
 }

@@ -1,0 +1,113 @@
+class TCOTDLanternPickup : CustomInventory
+{
+	bool active;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		//$Category Items (TCOTD2)
+		//$Title Useable Lantern (requires Oil)
+		//$Color 6
+		Scale 0.5;
+		Tag "$TAG_LANTERN";
+		Inventory.Icon "LANTB0";
+		Inventory.PickupMessage "$IP_LANT";
+		Inventory.MaxAmount 1;
+		Inventory.PickupSound "lantern/pick";
+		+INVENTORY.INVBAR
+		+INVENTORY.UNDROPPABLE
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void DoEffect(void)
+	{
+		if (!Owner) return;
+
+		if (active)
+		{
+			// extinguish lantern when in water
+			if (Owner.waterlevel >= 3)
+			{
+				// requires sound
+				Owner.A_StartSound("lantern/steam");
+				A_ToggleLantern();
+				return;
+			}
+
+			// use oil resources
+			if (Owner.CountInv("TCOTDLanternOil") > 0)
+			{
+				Owner.TakeInventory("TCOTDLanternOil", 1);
+			}
+			else
+			{
+				A_ToggleLantern();
+			}
+
+			//Console.Printf("oil left: %d", Owner.CountInv("TCOTDLanternOil"));
+		}
+
+		// [Nash] I'm not sure if it's a good idea to let the lantern get affected by level freeze?
+		if (!bNoTimeFreeze && isFrozen()) return;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void A_ToggleLantern(void)
+	{
+		// to do: add on/off sounds
+		active = !active;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+		Spawn:
+			LANT A -1;
+			Stop;
+		Pickup:
+			"####" A 0 A_GiveInventory("TCOTDLanternOil", 1000);
+			Stop;
+		Use:
+			"####" A 0
+			{
+				bool localview = invoker.Owner.CheckLocalView();
+				if (invoker.Owner.waterlevel < 3)
+				{
+					if (invoker.Owner.CountInv("TCOTDLanternOil") > 0)
+					{
+						invoker.A_ToggleLantern();
+					}
+					else
+					{
+						// play empty sound?
+						PrintPickupMessage(localview, StringTable.Localize("$IP_LANT_NEEDS_OIL"));
+					}
+				}
+				else
+				{
+					PrintPickupMessage(localview, StringTable.Localize("$IP_LANT_UNDERWATER"));
+				}
+			}
+			Fail;
+	}
+}
