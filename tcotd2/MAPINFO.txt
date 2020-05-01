@@ -1,22 +1,22 @@
-gameinfo
+GameInfo
 {
-	playerclasses="TCOTDPlayer"
+	PlayerClasses = "TCOTDPlayer"
 
-	dimcolor = "011D33"
-	dimamount = 0.5
-	fullscreenautoaspect = 3
+	DimColor = "011D33"
+	DimAmount = 0.5
+	FullscreenAutoAspect = 3
 
-	addeventhandlers =
+	AddEventHandlers =
 		"TCOTDPlayerHandler",
 		"TCOTDWeatherHandler",
 		"SpriteShadowHandler"
 
-	infopage = "CREDIT"
-	addinfopage = "HELP"
-	borderflat = "ASTON66"
+	InfoPage = "CREDIT"
+	AddInfoPage = "HELP"
+	BorderFlat = "ASTON66"
 }
 
-doomednums
+DoomEdNums
 {
 	9000 = "TCOTDSiren"
 	9918 = "TCOTDFogCloud"
@@ -91,61 +91,50 @@ doomednums
 	32766 = "TCOTDBigBush"
 }
 
-clearskills
-skill Easy
+ClearSkills
+Skill Easy
 {
-	picname="M_HURT"
-	ammofactor=2.0
-	dropammofactor=2.0
-	damagefactor=0.5
-	spawnfilter="Easy"
+	PicName = "M_HURT"
+	AmmoFactor = 2.0
+	DropAmmoFactor = 2.0
+	DamageFactor = 0.5
+	SpawnFilter = "Easy"
 }
-skill Normal
+Skill Normal
 {
-	picname="M_ULTRA"
-	dropammofactor=1.0
-	spawnfilter="Normal"
+	PicName = "M_ULTRA"
+	DropAmmoFactor = 1.0
+	SpawnFilter = "Normal"
 }
 skill Hard
 {
-	picname="M_NMARE"
-	mustconfirm="Are you ready to face your worst Nightmares?"
-	damagefactor=1.2
-	aggressiveness=0.5
-	spawnfilter="Hard"
+	PicName = "M_NMARE"
+	MustConfirm = "$CONFIRM_NIGHTMARE"
+	DamageFactor = 1.2
+	Aggressiveness = 0.5
+	SpawnFilter = "Hard"
 }
 
-defaultmap
+DefaultMap
 {
-	cluster=1
-	aircontrol=0.1
-	music="D_DM2TTL"
-	sky1="SKYB"
-	horizwallshade=8
-	vertwallshade=0
-	lightmode=1
-	noinfighting
-	nointermission
-	next=EndPic,"VICTORY2"
+	Cluster = 1
+	AirControl = 0.1
+	Music = "D_DM2TTL"
+	Sky1 = "SKYB"
+	HorizWallShade = 8
+	VertWallShade = 0
+	lightmode = 1
+	NoInfighting
+	NoIntermission
+	Next = EndPic, "VICTORY2"
 }
-map titlemap "The City of the Damned - Apocalypse"{}
-map map01 "The City of the Damned - Apocalypse"{}
 
-cluster 1
+map TITLEMAP "$TCOTD_TITLE" {}
+map MAP01 "$LEVELNAME_MAP01" {}
+
+Cluster 1
 {
-	flat = "FINALBG"
-	music = "D_TENSE"
-	exittext=
-	"It is over.",
-	"",
-	"What's left is an abandoned and desolate",
-	"city in the silence of the dark night.",
-	"",
-	"Thamuz is dead and only his green and",
-	"gloomy remains witness his short visit",
-	"to our world.",
-	"",
-	"With killing the arch-demon you also",
-	"banished his minions back to where from",
-	"they came."
+	Flat = "FINALBG"
+	Music = "D_TENSE"
+	ExitText = "$ENDTEXT"
 }
