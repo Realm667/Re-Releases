@@ -1,4 +1,4 @@
-// Copyright 2008 - 2020 Nash Muhandes
+// Copyright 2020 Nash Muhandes
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -26,59 +26,66 @@
 
 //===========================================================================
 //
-// This is a stripped down version of the precipitation system from Bumi, an
-// all-encompassing real-time weather and time cycle solution for GZDoom by
-// Nash Muhandes.
-// Bumi is (C) 2008 - 2020 Nash Muhandes
+//
 //
 //===========================================================================
 
-class TCOTDWeatherHandler : EventHandler
+struct TCOTDClutterData
 {
-	const SNOW_SPAWN_RADIUS = 800.0;
-	const SNOW_SPAWN_HEIGHT = 400.0;
+	class<Actor> cls;
+	Vector3 pos;
 
-	mixin TCOTDWeatherFXMixin;
+	Actor mo;
+}
 
-	override void WorldTick(void)
+class TCOTDClutterThinker : Thinker
+{
+	const MAX_RANGE = 1200 * 1200.0;
+	const MAX_CLUTTER = 10000;
+	const TICK_INTERVAL_MAX = TICRATE / 2;
+
+	private TCOTDClutterData clutters[MAX_CLUTTER];
+	private uint index;
+	private uint tickInterval;
+
+	void Add(Vector3 location, class<Actor> cls)
 	{
+		clutters[index].cls = cls;
+		clutters[index++].pos = location;
+		if (index >= MAX_CLUTTER)
+		{
+			index = MAX_CLUTTER - 1;
+		}
+	}
+
+	override void Tick(void)
+	{
+		if (tickInterval-- > 0) return;
+
+		Vector3 diff;
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
-			if (playeringame[i] && players[i].mo && players[i].mo.player)
+			if (!playeringame[i]) continue;
+
+			for (int j = 0; j < index; j++)
 			{
-				if (gameaction == ga_savegame) continue;
+				if (!clutters[j].cls) continue;
 
-				CacheWeatherFXCVar();
-				if (!WeatherFXEnabled()) continue;
-
-				Actor pmo = players[i].mo;
-				Actor camera = players[i].camera;
-				Actor origin = camera ? camera : pmo;
-				int density = 6;
-				while (density--)
+				diff = level.Vec3Diff(clutters[j].pos, players[i].camera.Pos);
+				if ((diff dot diff) <= MAX_RANGE)
 				{
-					double spx = frandom(-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
-					double spy = frandom(-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
-					Vector3 sPos = origin.Vec3Offset(spx, spy, SNOW_SPAWN_HEIGHT);
-					double cz = origin.CurSector.HighestCeilingAt(sPos.XY);
-					if (sPos.Z >= cz) sPos.Z = cz;
-					if (!level.IsPointInLevel(sPos)) continue;
-					let snow = origin.Spawn("TCOTDSnowParticle", sPos, NO_REPLACE);
-					if (snow)
+					if (!clutters[j].mo)
 					{
-						snow.tracer = pmo;
-						snow.Vel.X = frandom(-0.8, 0.8);
-						snow.Vel.Y = frandom(-0.8, 0.8);
-						snow.Vel.Z = frandom(-4.0, -1.5);
+						clutters[j].mo = Actor.Spawn(clutters[j].cls, clutters[j].pos);
 					}
+				}
+				else if (clutters[j].mo)
+				{
+					clutters[j].mo.Destroy();
 				}
 			}
 		}
 
-		// don't serialize the snow particles
-		if (gameaction == ga_savegame)
-		{
-			TCOTDGameplayStatics.DestroyActors("TCOTDSnowParticle");
-		}
+		tickInterval = TICK_INTERVAL_MAX;
 	}
 }

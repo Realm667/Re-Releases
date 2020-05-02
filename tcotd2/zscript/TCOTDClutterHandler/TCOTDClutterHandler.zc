@@ -1,4 +1,4 @@
-// Copyright 2008 - 2020 Nash Muhandes
+// Copyright 2020 Nash Muhandes
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -10,7 +10,7 @@
 // 2. Redistributions in binary form must reproduce the above copyright
 //    notice, this list of conditions and the following disclaimer in the
 //    documentation and/or other materials provided with the distribution.
-// 3. The name of the author may not be used to endorse or promote products
+// 3. The name of the author may not be used to endorse or promote produchs
 //    derived from this software without specific prior written permission.
 //
 // THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
@@ -26,59 +26,63 @@
 
 //===========================================================================
 //
-// This is a stripped down version of the precipitation system from Bumi, an
-// all-encompassing real-time weather and time cycle solution for GZDoom by
-// Nash Muhandes.
-// Bumi is (C) 2008 - 2020 Nash Muhandes
+//
 //
 //===========================================================================
 
-class TCOTDWeatherHandler : EventHandler
+class TCOTDClutterHandler : EventHandler
 {
-	const SNOW_SPAWN_RADIUS = 800.0;
-	const SNOW_SPAWN_HEIGHT = 400.0;
+	private TCOTDClutterThinker ch;
 
-	mixin TCOTDWeatherFXMixin;
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void WorldLoaded(WorldEvent e)
+	{
+		if (!ch)
+		{
+			ch = new("TCOTDClutterThinker");
+		}
+	}
 
 	override void WorldTick(void)
 	{
-		for (int i = 0; i < MAXPLAYERS; i++)
+		if (level.time == 1)
 		{
-			if (playeringame[i] && players[i].mo && players[i].mo.player)
-			{
-				if (gameaction == ga_savegame) continue;
-
-				CacheWeatherFXCVar();
-				if (!WeatherFXEnabled()) continue;
-
-				Actor pmo = players[i].mo;
-				Actor camera = players[i].camera;
-				Actor origin = camera ? camera : pmo;
-				int density = 6;
-				while (density--)
-				{
-					double spx = frandom(-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
-					double spy = frandom(-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
-					Vector3 sPos = origin.Vec3Offset(spx, spy, SNOW_SPAWN_HEIGHT);
-					double cz = origin.CurSector.HighestCeilingAt(sPos.XY);
-					if (sPos.Z >= cz) sPos.Z = cz;
-					if (!level.IsPointInLevel(sPos)) continue;
-					let snow = origin.Spawn("TCOTDSnowParticle", sPos, NO_REPLACE);
-					if (snow)
-					{
-						snow.tracer = pmo;
-						snow.Vel.X = frandom(-0.8, 0.8);
-						snow.Vel.Y = frandom(-0.8, 0.8);
-						snow.Vel.Z = frandom(-4.0, -1.5);
-					}
-				}
-			}
+			AddClutter("TCOTDFoliage");
+			//AddClutter("TCOTDFogCloud");
 		}
+	}
 
-		// don't serialize the snow particles
-		if (gameaction == ga_savegame)
+	override void WorldUnloaded(WorldEvent e)
+	{
+		TCOTDGameplayStatics.DestroyActors("TCOTDFoliage");
+		TCOTDGameplayStatics.DestroyActors("TCOTDFogCloud");
+
+		// destroy clutter data
+		if (ch)
 		{
-			TCOTDGameplayStatics.DestroyActors("TCOTDSnowParticle");
+			ch.Destroy();
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void AddClutter(class<Actor> cls)
+	{
+		ThinkerIterator it = ThinkerIterator.Create(cls);
+		Actor mo;
+		while (mo = Actor(it.Next()))
+		{
+			ch.Add(mo.Pos, mo.GetClass());
+			mo.Destroy();
 		}
 	}
 }
