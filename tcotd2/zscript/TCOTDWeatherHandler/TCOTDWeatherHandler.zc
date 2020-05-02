@@ -51,17 +51,19 @@ class TCOTDWeatherHandler : EventHandler
 				CacheWeatherFXCVar();
 				if (!WeatherFXEnabled()) continue;
 
-				let pmo = players[i].mo;
+				Actor pmo = players[i].mo;
+				Actor camera = players[i].camera;
+				Actor origin = camera ? camera : pmo;
 				int density = 6;
 				while (density--)
 				{
 					double spx = frandom(-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
 					double spy = frandom(-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
-					Vector3 sPos = pmo.Vec3Offset(spx, spy, SNOW_SPAWN_HEIGHT);
-					double cz = pmo.CurSector.HighestCeilingAt(sPos.XY);
+					Vector3 sPos = origin.Vec3Offset(spx, spy, SNOW_SPAWN_HEIGHT);
+					double cz = origin.CurSector.HighestCeilingAt(sPos.XY);
 					if (sPos.Z >= cz) sPos.Z = cz;
 					if (!level.IsPointInLevel(sPos)) continue;
-					let snow = pmo.Spawn("TCOTDSnowParticle", sPos, NO_REPLACE);
+					let snow = origin.Spawn("TCOTDSnowParticle", sPos, NO_REPLACE);
 					if (snow)
 					{
 						snow.tracer = pmo;
