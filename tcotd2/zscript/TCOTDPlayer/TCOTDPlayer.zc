@@ -503,6 +503,9 @@ class TCOTDPlayer : PlayerPawn
 
 	void UpdateLantern(void)
 	{
+		// to do: use a line trace to offset the light position
+		// this will fix the big where the light will disappear when
+		// getting too close to walls
 		if (!myLantern) return;
 		double forwardOffset = 6.0;
 		double sideOffset = 10.0;
@@ -569,8 +572,13 @@ class TCOTDPlayerDebugDamagePower : PowerDamage
 	}
 }
 
-class TCOTDPlayerLanternLight : TCOTDDietActor
+class TCOTDPlayerLanternLight : Actor
 {
+	Default
+	{
+		+NOINTERACTION
+	}
+
 	States
 	{
 		Spawn:
