@@ -64,6 +64,7 @@ class TCOTDDietActorWithVel : TCOTDDietActor
 {
 	override void Tick(void)
 	{
+		if (!bNoTimeFreeze && isFrozen()) return;
 		SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
 		Super.Tick();
 	}
