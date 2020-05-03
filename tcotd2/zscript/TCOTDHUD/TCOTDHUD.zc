@@ -41,6 +41,7 @@ class TCOTDHUD : DoomStatusBar
 	{
 		if (state == HUD_StatusBar || state == HUD_Fullscreen)
 		{
+			BeginHUD();
 			DrawFullscreenHUD();
 		}
 
@@ -59,8 +60,6 @@ class TCOTDHUD : DoomStatusBar
 	void DrawFullscreenHUD(void)
 	{
 		if (automapactive) return;
-
-		BeginHUD();
 
 		int flags = DI_SCREEN_LEFT_BOTTOM;
 
