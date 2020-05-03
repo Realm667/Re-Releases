@@ -1,0 +1,148 @@
+// Copyright 2020 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+// Empty casings from fired weapons
+//
+//===========================================================================
+
+class TCOTDEmptyCasing : Actor
+{
+	int8 rollDir;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		Radius 4;
+		Height 8;
+		Mass 5;
+		Speed 1.2;
+		Gravity 0.44;
+		BounceType 'Doom';
+		Projectile;
+		+INTERPOLATEANGLES
+		+ROLLSPRITE
+		+ROLLCENTER
+		+FORCEXYBILLBOARD
+		+DONTSPLASH
+		-NOGRAVITY
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void BeginPlay(void)
+	{
+		A_SetRoll(frandom(0, 360));
+		A_SetScale(0.08);
+		A_SetSpeed(Default.Speed + frandom(0.0, 1.0));
+		bouncefactor *= frandom(0.2, 1.0);
+		rollDir = RandomPick(-1, 1);
+		Super.BeginPlay();
+	}
+
+	override void Tick(void)
+	{
+		Super.Tick();
+		if (!bNoTimeFreeze && isFrozen()) return;
+
+		// alter physics when underwater
+		if (waterlevel > 2)
+		{
+			bNoGravity = false;
+			bNoBounceSound = true;
+			bCanBounceWater = true;
+			Vel.X *= 0.9;
+			Vel.Y *= 0.9;
+			Vel.Z -= 0.2;
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	Spawn:
+		"####" A 1 NoDelay
+		{
+			A_SetRoll(Roll + (15.0 * rollDir), SPF_INTERPOLATE);
+			if (Scale.X < 0.15)
+			{
+				A_SetScale(Scale.X + 0.0025);
+			}
+		}
+		Loop;
+	Death:
+		"####" A 2100;
+		Stop;
+	}
+}
+
+class TCOTDEmptyCasingShell : TCOTDEmptyCasing
+{
+	Default
+	{
+		BounceSound "EmptyCasingShell";
+	}
+
+	States
+	{
+	Spawn:
+		ESHL A 0;
+		Goto Super::Spawn;
+	}
+}
+
+
+class TCOTDEmptyCasingBullet : TCOTDEmptyCasing
+{
+	Default
+	{
+		Speed 2.0;
+		Gravity 0.7;
+		BounceSound "EmptyCasingBullet";
+	}
+
+	States
+	{
+	Spawn:
+		EBUL A 0;
+		Goto Super::Spawn;
+	}
+}

@@ -231,6 +231,42 @@ class TCOTDWeapon : Weapon
 
 	//===========================================================================
 	//
+	//
+	//
+	//===========================================================================
+
+	action void A_SpawnWeaponFX(class<Actor> cls, double xyOffset = 0)
+	{
+		double ca = -90.0;
+
+		double sh = invoker.pmo.player.ViewHeight - 2;
+
+		let fx = invoker.pmo.A_SpawnProjectile
+		(
+			cls,
+			spawnheight: sh,
+			spawnofs_xy: xyOffset,
+			angle: ca,
+			flags: CMF_AIMDIRECTION,
+			pitch: -45
+		);
+
+		if (fx)
+		{
+			// nudge the object forward
+			// to do: use a line trace forward so that object doesn't get stuck in walls
+			double a = invoker.pmo.Angle;
+			double p = invoker.pmo.Pitch;
+			double r = invoker.pmo.Roll;
+			double fwDist = 8.0;
+			double xyr = fwDist * cos(p);
+			Vector3 cPos = fx.Vec3Offset(cos(a) * xyr, sin(a) * xyr, -sin(p) * fwDist);
+			fx.SetOrigin(cPos, false);
+		}
+	}
+
+	//===========================================================================
+	//
 	// Rotator
 	//
 	//===========================================================================
