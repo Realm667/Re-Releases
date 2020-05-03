@@ -742,3 +742,39 @@ class TCOTDCrystalBall : TCOTDProp
 		Stop;
 	}
 }
+
+class TCOTDPottedPlant01 : TCOTDProp
+{
+	Default
+	{
+		Scale 0.45;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		PPLN A -1;
+		Stop;
+	}
+}
+
+class TCOTDPottedPlant02 : TCOTDPottedPlant01
+{
+	States
+	{
+	Spawn:
+		PPLN B -1;
+		Stop;
+	}
+}
+
+class TCOTDPottedPlant03 : TCOTDPottedPlant01
+{
+	States
+	{
+	Spawn:
+		PPLN C -1;
+		Stop;
+	}
+}
