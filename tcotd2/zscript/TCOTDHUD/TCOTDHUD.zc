@@ -1,3 +1,132 @@
 class TCOTDHUD : DoomStatusBar
 {
+	HUDFont mHUDSmallNum;
+	HUDFont mHUDBigNum;
+
+	DynamicValueInterpolator mOilInterpolator;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Init(void)
+	{
+		Super.Init();
+		SetSize(0, 320, 200);
+		mHUDSmallNum = HUDFont.Create(Font.GetFont("SmallNumFn"));
+		mHUDBigNum = HUDFont.Create(Font.GetFont("BigNumFn"));
+		mOilInterpolator = DynamicValueInterpolator.Create(0, 0.125, 1, 5000);
+	}
+
+	override void NewGame(void)
+	{
+		Super.NewGame();
+		mOilInterpolator.Reset(0);
+	}
+
+	override void Tick(void)
+	{
+		Super.Tick();
+
+		let oil = CPlayer.mo.FindInventory("TCOTDLanternOil");
+		if (oil)
+		{
+			mOilInterpolator.Update(oil.Amount);
+		}
+	}
+
+	override void Draw (int state, double TicFrac)
+	{
+		if (state == HUD_StatusBar || state == HUD_Fullscreen)
+		{
+			DrawFullscreenHUD();
+		}
+
+		if (automapactive)
+		{
+			DoDrawAutomapHUD(Font.CR_GREY, gameinfo.gametype & GAME_DoomChex? Font.CR_UNTRANSLATED : Font.CR_YELLOW);
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void DrawFullscreenHUD(void)
+	{
+		if (automapactive) return;
+
+		BeginHUD();
+
+		int flags = DI_SCREEN_LEFT_BOTTOM;
+
+		// Health
+		DrawImage("graphics/hud/HUDHealth.png", (12, -4), flags);
+		DrawString(mHUDBigNum, FormatNumber(CPlayer.health, 3), (24, -15), flags);
+
+		// Armor
+		let armor = CPlayer.mo.FindInventory("BasicArmor");
+		if (armor && armor.Amount > 0)
+		{
+			DrawInventoryIcon(armor, (12, -24));
+			DrawString(mHUDBigNum, FormatNumber(armor.Amount, 3), (24, -35), flags);
+		}
+
+		// Pendant
+		let pendant = TCOTDPendant(CPlayer.mo.FindInventory("TCOTDPendant"));
+		if (pendant)
+		{
+			double py = (armor && armor.Amount > 0) ? -46 : -24;
+			DrawImage("PENDB0", (16, py), flags);
+			int next = pendant.next;
+			int nextMax = pendant.nextMax > 0 ? pendant.nextMax : 1;
+			double a = 1.0 - (1.0 * next / nextMax);
+			if (pendant.nextMax <= 0) a = 0.0;
+			DrawImage("graphics/hud/PendantGlow.png", (12.5, py - 2), flags, alpha: a);
+		}
+
+		// Right panel
+		flags = DI_SCREEN_RIGHT_BOTTOM;
+		DrawImage("graphics/hud/HUDStuff.png", (-28, 0), flags);
+
+		// Ammo
+		Inventory ammotype1, ammotype2;
+		[ammotype1, ammotype2] = GetCurrentAmmo();
+		if (ammotype1)
+		{
+			DrawInventoryIcon(ammotype1, (-48, -4), flags);
+			DrawString(mHUDBigNum, FormatNumber(ammotype1.Amount, 3), (-85, -15), flags);
+		}
+
+		// Arms
+		if (CPlayer.mo.FindInventory("TCOTDWeaponRevolver"))		DrawString(mHUDSmallNum, "2", (-57, -24), flags);
+		if (CPlayer.mo.FindInventory("TCOTDWeaponSawedOff"))		DrawString(mHUDSmallNum, "3", (-53, -24), flags);
+		if (CPlayer.mo.FindInventory("TCOTDWeaponThompson"))		DrawString(mHUDSmallNum, "4", (-49, -24), flags);
+		if (CPlayer.mo.FindInventory("TCOTDWeaponNapalmLauncher"))	DrawString(mHUDSmallNum, "5", (-45, -24), flags);
+
+		// Keys
+		if (CPlayer.mo.FindInventory("TCOTDKeySkullKey"))	DrawImage("M_KEY1", (-28, -46), flags);
+		if (CPlayer.mo.FindInventory("TCOTDKeyEyeKey"))		DrawImage("M_KEY2", (-17, -46), flags);
+		if (CPlayer.mo.FindInventory("TCOTDKeyFireKey"))	DrawImage("M_KEY3", (-6, -46), flags);
+		if (CPlayer.mo.FindInventory("TCOTDKeyKnifeKey"))	DrawImage("M_KEY4", (-28, -36), flags);
+		if (CPlayer.mo.FindInventory("TCOTDKeySpiderKey"))	DrawImage("M_KEY5", (-17, -36), flags);
+		if (CPlayer.mo.FindInventory("TCOTDKeyMoonKey"))	DrawImage("M_KEY6", (-6, -36), flags);
+
+		// Inventory
+		CPlayer.InventoryTics = 0;
+		if (!Level.NoInventoryBar && CPlayer.mo.InvSel != null)
+		{
+			DrawInventoryIcon(CPlayer.mo.InvSel, (-18, 0), flags);
+			DrawString(mHUDSmallNum, FormatNumber(CPlayer.mo.InvSel.Amount, 3), (-42, -8), flags);
+		}
+
+		// Lantern Oil
+		int oil = mOilInterpolator.GetValue();
+		int oilMax = 12 * 1000;
+		DrawBar("LANTBARF", "LANTBARB", oil, oilMax, (-18, -62), 0, SHADER_HORZ, flags);
+	}
 }

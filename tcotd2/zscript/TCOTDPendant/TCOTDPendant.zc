@@ -32,6 +32,15 @@
 
 class TCOTDPendant : Inventory
 {
+	int next;
+	int nextMax;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	Default
 	{
 		Tag "$TAG_PENDANT";
@@ -43,7 +52,8 @@ class TCOTDPendant : Inventory
 
 	override void DoEffect(void)
 	{
-		int next = ACS_ScriptCall("NightmareGetCountdown", 0) / 35;
+		next = ACS_ScriptCall("NightmareGetCountdown", 0) / 35;
+		nextMax = ACS_ScriptCall("NightmareGetCountdownMax", 0) / 35;
 		//Console.Printf("next nightmare in %d seconds", next);
 	}
 
