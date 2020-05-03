@@ -385,6 +385,43 @@ class TCOTDPropDeadCrispy1 : TCOTDProp
 	}
 }
 
+class TCOTDPropSeveredHead : TCOTDProp
+{
+	Default
+	{
+		Scale 0.4;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		DHED A -1;
+		Stop;
+	}
+}
+
+class TCOTDPropSeveredHeadAlive : TCOTDPropSeveredHead
+{
+	States
+	{
+	Spawn:
+		DHED A 1 NoDelay A_SetTics(random(35, 35 * 6));
+		DHED B 1 A_SetTics(random(15, 35 * 4));
+		Loop;
+	}
+}
+
+class TCOTDPropSeveredLeg : TCOTDPropSeveredHead
+{
+	States
+	{
+	Spawn:
+		DLEG A -1;
+		Stop;
+	}
+}
+
 class TCOTDPropChairAlpha : TCOTDProp
 {
 	Default
@@ -775,6 +812,78 @@ class TCOTDPottedPlant03 : TCOTDPottedPlant01
 	{
 	Spawn:
 		PPLN C -1;
+		Stop;
+	}
+}
+
+class TCOTDPropWineGlass : TCOTDProp
+{
+	Default
+	{
+		Scale 0.4;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		BGLS A -1;
+		Stop;
+	}
+}
+
+class TCOTDPropPitcher1 : TCOTDPropWineGlass
+{
+	States
+	{
+	Spawn:
+		BGLS B -1;
+		Stop;
+	}
+}
+
+class TCOTDPropPitcher2 : TCOTDPropWineGlass
+{
+	States
+	{
+	Spawn:
+		BGLS C -1;
+		Stop;
+	}
+}
+
+class TCOTDPropWineBottle : TCOTDPropWineGlass
+{
+	States
+	{
+	Spawn:
+		BGLS D -1;
+		Stop;
+	}
+}
+
+class TCOTDPropJar : TCOTDPropWineGlass
+{
+	States
+	{
+	Spawn:
+		BGLS E -1;
+		Stop;
+	}
+}
+
+class TCOTDPropPouch : TCOTDProp
+{
+	Default
+	{
+		Scale 0.33;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		BPOU A -1;
 		Stop;
 	}
 }
