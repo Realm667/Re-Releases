@@ -82,30 +82,57 @@ class TCOTDWeaponNapalmMissile : Rocket
 		+FORCEXYBILLBOARD
 	}
 
+	void A_ExplosionRumble(void)
+	{
+		int ix, iy, iz;
+		int qflags = QF_SCALEDOWN;
+
+		Sound snd;
+
+		ix = iy = iz = 2;
+		A_QuakeEx(ix, iy, iz, 70, 0, 512, snd, flags: qflags, falloff: 128);
+
+		ix = iy = iz = 1;
+		A_QuakeEx(ix, iy, iz, 100, 0, 1024, snd, flags: qflags, falloff: 128);
+	}
+
 	States
 	{
 	Spawn:
-		TNT1 AA 0 A_SpawnItemEx("TCOTDNapalmMissileSpark", 0, 0, 0, random(-5, 5), random(-5, 5), random(-5, 5), random(1, 360));
-		NBLL ABC 2 Bright A_SpawnItemEx("TCOTDNapalmTrail", 0, 0, 0, 2, 0, 0);
-		TNT1 AA 0 A_SpawnItemEx("TCOTDNapalmMissileSpark", 0, 0, 0, random(-5, 5), random(-5, 5), random(-5, 5), random(1, 360));
-		NBLL DEF 2 Bright A_SpawnItemEx("TCOTDNapalmTrail", 0, 0, 0, 2, 0, 0);
+		NBLL ABCDEF 2 Bright
+		{
+			A_SpawnItemEx("TCOTDNapalmSmokeTrail",  zvel: 1.0);
+			A_SpawnItemEx("TCOTDNapalmMissileSpark", 0, 0, 0, frandom(-5.0, 5.0), frandom(-5.0, 5.0), frandom(-5.0, 5.0), frandom(0.0, 360.0));
+			A_SpawnItemEx("TCOTDNapalmMissileSpark", 0, 0, 0, frandom(-5.0, 5.0), frandom(-5.0, 5.0), frandom(-5.0, 5.0), frandom(0.0, 360.0));
+		}
 		Loop;
 	Death:
 		TNT1 A 0 A_SetScale(0.9);
-		NEXP A 2 Bright A_Explode();
-		TNT1 AAAAAAAAAAAAAA 0 A_SpawnItemEx("TCOTDNapalmMissileSpark", 0, 0, 0, random(-5, 5), random(-5, 5), random(-5, 5), random(1, 360));
+		NEXP A 2 Bright { A_Explode(); A_ExplosionRumble(); }
+		TNT1 A 0
+		{
+			for (int i = 0; i < 100; i++)
+			{
+				A_SpawnItemEx("TCOTDNapalmMissileSpark",
+					frandom(-12.0, 12.0), frandom(-12.0, 12.0), frandom(24.0, 32.0),
+					frandom(-5.0, 5.0), frandom(-5.0, 5.0), frandom(-5.0, 5.0),
+					frandom(0.0, 360.0));
+			}
+		}
 		NEXP BCDEFGHIJKLMN 2 Bright;
 		Stop;
 	}
 }
 
-class TCOTDNapalmTrail : Actor
+class TCOTDNapalmSmokeTrail : TCOTDDietActorWithVel
 {
 	Default
 	{
 		Scale 0.4;
 		RenderStyle "Translucent";
 		Alpha 0.4;
+		+ROLLSPRITE
+		+ROLLCENTER
 		+NOINTERACTION
 		+FORCEXYBILLBOARD
 	}
@@ -113,9 +140,20 @@ class TCOTDNapalmTrail : Actor
 	States
 	{
 	Spawn:
-		NSMK ABCD 2;
-		NSMK EFGHI 2 A_FadeOut(0.06);
-		Stop;
+		TNT1 A 0 NoDelay
+		{
+			bSpriteFlip = RandomPick(false, true);
+		}
+		NSMK ABCDEFGH 1;
+	SpawnLoop:
+		NSMK I 1
+		{
+			double r = !bSpriteFlip? -1.0 : 1.0;
+			A_SetRoll(Roll + r, SPF_INTERPOLATE);
+			A_FadeOut(0.01);
+			A_SetScale(Scale.X * 1.05);
+		}
+		Loop;
 	}
 }
 

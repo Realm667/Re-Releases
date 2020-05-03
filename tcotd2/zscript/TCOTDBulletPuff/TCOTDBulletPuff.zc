@@ -33,20 +33,16 @@ class TCOTDBulletSpark : Actor
 		Scale 0.40;
 		Projectile;
 		+FORCEXYBILLBOARD
-		+BLOODLESSIMPACT
-		+RIPPER
+		+NOBLOCKMAP
+		-SOLID
 		-NOGRAVITY
 	}
 
 	States
 	{
 	Spawn:
-		WRBL KLKL 2 Bright;
-		TNT1 A 0 A_Jump(128, 1);
-		Loop;
-		WRBL MNOP 2 Bright;
-		WRBL P 1 Bright A_FadeOut();
-		Wait;
+		WRBL KLMNOP 10 Bright;
+		Stop;
 	}
 }
 
