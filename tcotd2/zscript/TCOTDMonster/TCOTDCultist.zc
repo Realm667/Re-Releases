@@ -1,0 +1,143 @@
+class TCOTDCultist : TCOTDMonster
+{
+	Default
+	{
+		Radius 18;
+		Height 70;
+		Mass 100;
+		Speed 2.66666667;
+		Scale 0.7;
+		PainChance 100;
+		SeeSound "monster/culsit";
+		PainSound "monster/culpai";
+		DeathSound "monster/culdth";
+		ActiveSound "monster/culact";
+	}
+
+	States
+	{
+	Spawn:
+		GCUL A 0;
+		Goto SpawnLoop;
+	SpawnLoop:
+		#### AB 10 A_Look();
+		Loop;
+	Frightened:
+		#### A 0
+		{
+			bFrightened = true;
+		}
+		Goto See + 1;
+	Cowardly:
+		#### A 0
+		{
+			ActiveSound = "monster/culflee";
+		}
+		Goto See + 1;
+	See:
+		#### A 0 A_JumpIfHealthLower(25, "Frightened");
+		#### A 1 A_Chase();
+		#### AA 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		#### A 1 A_Chase();
+		#### AA 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		#### B 1 A_Chase();
+		#### BB 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		#### B 1 A_Chase();
+		#### BB 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		#### C 1 A_Chase();
+		#### CC 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		#### C 1 A_Chase();
+		#### CC 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		#### D 1 A_Chase();
+		#### DD 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		#### D 1 A_Chase();
+		#### DD 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		#### E 1 A_Chase();
+		#### EE 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		#### E 1 A_Chase();
+		#### E 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		#### F 1 A_Chase();
+		#### FF 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		#### F 1 A_Chase();
+		#### FF 1 A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		Loop;
+	Pain:
+		#### I 3;
+		#### I 3 A_Pain();
+		Goto See;
+	Death:
+		#### J 5;
+		#### K 5 A_Scream();
+		#### L 5 A_NoBlocking();
+		#### MNOP 5;
+		#### Q -1;
+		Stop;
+	XDeath:
+		#### R 5;
+		#### S 5 A_XScream();
+		#### T 5 A_NoBlocking();
+		#### UVW 5;
+		#### X -1;
+		Stop;
+	Raise:
+		#### QPONMLKJ 5;
+		Goto See;
+	}
+}
+
+class TCOTDCultistTommy : TCOTDCultist
+{
+	Default
+	{
+		Health 60;
+		AttackSound "chainguy/attack";
+		Obituary "$OB_CULT";
+		DropItem "TCOTDAmmoTommy", 80;
+	}
+
+	States
+	{
+	Missile:
+		#### G 20 A_FaceTarget();
+		#### H 2 Bright Light("CultistLight") A_CustomBulletAttack(22.5, 0, 1, random(1, 5) * 3, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		#### G 3;
+		#### H 2 Bright Light("CultistLight") A_CustomBulletAttack(22.5, 0, 1, random(1, 5) * 3, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		#### G 3;
+		#### H 2 Bright Light("CultistLight") A_CustomBulletAttack(22.5, 0, 1, random(1, 5) * 3, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		#### G 3;
+		#### H 2 Bright Light("CultistLight") A_CustomBulletAttack(22.5, 0, 1, random(1, 5) * 3, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		#### G 3;
+		#### H 2 Bright Light("CultistLight") A_CustomBulletAttack(22.5, 0, 1, random(1, 5) * 3, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		#### G 3;
+		#### H 2 Bright Light("CultistLight") A_CustomBulletAttack(22.5, 0, 1, random(1, 5) * 3, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		#### G 3;
+		#### H 2 Bright Light("CultistLight") A_CustomBulletAttack(22.5, 0, 1, random(1, 5) * 3, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		#### G 3;
+		#### H 2 Bright Light("CultistLight") A_CustomBulletAttack(22.5, 0, 1, random(1, 5) * 3, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		#### G 3;
+		Goto See;
+	}
+}
+
+class TCOTDCultistShotgun : TCOTDCultist
+{
+	Default
+	{
+		Health 80;
+		AttackSound "shotguy/attack";
+		Obituary "$OB_CUL2";
+		DropItem "TCOTDAmmoShell", 80; // even if he does, he drops only 2 shells, so you don't get too much ammo
+	}
+
+	States
+	{
+	Spawn:
+		BCUL A 0;
+		Goto SpawnLoop;
+	Missile:
+		#### G 20 A_FaceTarget();
+		#### H 2 Bright Light("CultistLight") A_CustomBulletAttack(22.5, 0, 3, random(1, 5) * 3, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		#### G 18;
+		Goto See;
+	}
+}
