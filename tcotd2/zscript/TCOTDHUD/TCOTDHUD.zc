@@ -37,17 +37,13 @@ class TCOTDHUD : DoomStatusBar
 		}
 	}
 
-	override void Draw (int state, double TicFrac)
+	override void Draw(int state, double TicFrac)
 	{
+		BaseStatusBar.Draw(state, TicFrac);
 		if (state == HUD_StatusBar || state == HUD_Fullscreen)
 		{
 			BeginHUD();
 			DrawFullscreenHUD();
-		}
-
-		if (automapactive)
-		{
-			DoDrawAutomapHUD(Font.CR_GREY, gameinfo.gametype & GAME_DoomChex? Font.CR_UNTRANSLATED : Font.CR_YELLOW);
 		}
 	}
 
