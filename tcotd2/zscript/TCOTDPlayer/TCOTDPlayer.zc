@@ -272,6 +272,19 @@ class TCOTDPlayer : PlayerPawn
 		}
 	}
 
+	override void CheatGive (String name, int amount)
+	{
+		Super.CheatGive(name, amount);
+
+		Super.CheatGive("TCOTDPitchforkPickup", 1);
+
+		if (name ~== "all" || name ~== "armor")
+		{
+			CheatTake("armor", 1);
+			Super.CheatGive("TCOTDSuperArmor", 1);
+		}
+	}
+
 	//===========================================================================
 	//
 	//
