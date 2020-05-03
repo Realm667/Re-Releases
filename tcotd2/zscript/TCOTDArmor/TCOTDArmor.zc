@@ -2,8 +2,16 @@ class TCOTDBodyArmor : GreenArmor replaces GreenArmor
 {
 	Default
 	{
+		Scale 0.833;
 		Inventory.Pickupmessage "$IP_BODYARMOR";
 		Inventory.Icon "graphics/hud/HUDArmor1.png";
+	}
+
+	States
+	{
+	Spawn:
+		ARM1 A -1;
+		Stop;
 	}
 }
 
@@ -11,7 +19,15 @@ class TCOTDSuperArmor : BlueArmor replaces BlueArmor
 {
 	Default
 	{
+		Scale 0.833;
 		Inventory.Pickupmessage "$IP_SUPERARMOR";
 		Inventory.Icon "graphics/hud/HUDArmor2.png";
+	}
+
+	States
+	{
+	Spawn:
+		ARM2 A -1;
+		Stop;
 	}
 }
