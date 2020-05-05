@@ -1,5 +1,102 @@
-class AusterStatusScreen : DoomStatusScreen //straight from gzdoom.pk3 but with SPITEMX-Y values rearranged - ozy81
+class AusterStatusScreen : DoomStatusScreen //straight from gzdoom.pk3 but with SPITEMX-Y and drawLF/EF values rearranged - ozy81
 {
+	override int drawLF ()
+	{
+		bool ispatch = wbs.LName0.isValid();
+		int oldy = TITLEY+6 * CleanYfac;
+		int h;
+		
+		if (!ispatch)
+		{
+			let asc = mapname.mFont.GetMaxAscender(lnametexts[1]);
+			if (asc > TITLEY - 2)
+			{
+				oldy = (asc+2) * CleanYfac;
+			}
+		}
+		
+		int y = DrawName(oldy, wbs.LName0, lnametexts[0]);
+
+		// If the displayed info is made of patches we need some additional offsetting here.
+		if (ispatch) 
+		{
+			int disp = 0;
+			// The offset getting applied here must at least be as tall as the largest ascender in the following text to avoid overlaps.
+			if (authortexts[0].length() == 0)
+			{
+				int h1 = BigFont.GetHeight() - BigFont.GetDisplacement();
+				int h2 = (y - oldy) / CleanYfac / 4;
+				disp = min(h1, h2);
+				
+				if (!TexMan.OkForLocalization(finishedPatch, "$WI_FINISHED"))
+				{
+					disp += finished.mFont.GetMaxAscender("$WI_FINISHED");
+				}
+			}
+			else
+			{
+					disp += author.mFont.GetMaxAscender(authortexts[0]);
+			}
+			y += disp * CleanYfac;
+		}
+		
+		y = DrawAuthor(y, authortexts[0]);
+		
+		// draw "Finished!"
+
+		int statsy = multiplayer? NG_STATSY : SP_STATSY * CleanYFac;
+		if (y < (statsy - finished.mFont.GetHeight()*3/4) * CleanYfac)
+		{
+			// don't draw 'finished' if the level name is too tall
+			y = DrawPatchOrText(y, finished, finishedPatch, "$WI_FINISHED");
+		}
+		return y;
+	}
+
+	override void drawEL ()
+	{
+		bool ispatch = TexMan.OkForLocalization(enteringPatch, "$WI_ENTERING");
+		int oldy = TITLEY+6 * CleanYfac;
+
+		if (!ispatch)
+		{
+			let asc = entering.mFont.GetMaxAscender("$WI_ENTERING");
+			if (asc > TITLEY - 2)
+			{
+				oldy = (asc+2) * CleanYfac;
+			}
+		}
+
+		int y = DrawPatchOrText(oldy, entering, enteringPatch, "$WI_ENTERING");
+		
+		// If the displayed info is made of patches we need some additional offsetting here.
+		
+		if (ispatch)
+		{
+			int h1 = BigFont.GetHeight() - BigFont.GetDisplacement();
+			let size = TexMan.GetScaledSize(enteringPatch);
+			int h2 = int(size.Y);
+			let disp = min(h1, h2) / 4;
+			// The offset getting applied here must at least be as tall as the largest ascender in the following text to avoid overlaps.
+			if (!wbs.LName1.isValid())
+			{
+				disp += mapname.mFont.GetMaxAscender(lnametexts[1]);
+			}
+			y += disp * CleanYfac;
+		}
+
+		y = DrawName(y, wbs.LName1, lnametexts[1]);
+
+		if (wbs.LName1.isValid() && authortexts[1].length() > 0) 
+		{
+			// Consdider the ascender height of the following text.
+			y += author.mFont.GetMaxAscender(authortexts[1]) * CleanYfac;
+		}
+			
+		DrawAuthor(y, authortexts[1]);
+
+	}
+
 	override void drawStats (void)
 	{
 		// line height
