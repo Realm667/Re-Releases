@@ -1,0 +1,28 @@
+Class TCOTDFlare1 : SwitchableDecoration
+{
+	Default
+	{
+		//$Category Decorations (TCOTD)
+		//$Title Flare (white)
+		//$Color 12
+		Height 16;
+		Radius 16;
+		Scale 0.5;
+		RenderStyle "Add";
+		+NOBLOCKMAP
+		+NOCLIP
+		+NOGRAVITY
+		+NOINTERACTION
+	}
+	
+	States
+	{
+	Spawn:
+	Active:
+		FLAR A -1 BRIGHT;
+		Loop;
+	Inactive:
+		TNT1 A -1;
+		Loop;
+	}
+}
