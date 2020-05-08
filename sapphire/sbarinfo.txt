@@ -1,0 +1,697 @@
+// DOOM FULLSCREEN STATUS BAR (BY NIGHTFRIGHT - INCLUDES CODE BY DTDSPHERE & M8F)
+
+base Doom;
+height 0;
+
+// FULLSCREEN STATUS BAR
+StatusBar fullscreen, fullscreenoffsets
+{
+		// OVERLAYS
+			GameMode singleplayer
+	        {
+				Alpha 0.5
+				DrawImage "HUD_SP", -160+center, -32;
+			}
+  	        GameMode cooperative
+	       	{
+				DrawImage translatable "HUD_MP", -160+center, -32;
+			}
+
+	        GameMode deathmatch
+	        {
+			   	DrawImage translatable "HUD_DM", -160+center, -32;
+	        }
+
+			DrawString HUDFONT_DOOM, untranslated, "%", -58+center, -25;
+			DrawString HUDFONT_DOOM, untranslated, "%", 72+center, -25;
+
+			usessecondaryammo not
+				DrawNumber 3, HUDFONT_DOOM, untranslated, ammo1, -118+center, -25;
+			else
+			{
+				DrawNumber 3, SMALLFONT, untranslated, ammo1, -125+center, -26;
+				DrawNumber 3, SMALLFONT, untranslated, ammo2, -125+center, -18;
+			}
+
+			DrawNumber 3, HUDFONT_DOOM, untranslated, health, interpolate(8), -73+center, -25;
+			DrawNumber 3, HUDFONT_DOOM, untranslated, armor, interpolate(8), 57+center, -25;
+
+	    // MUGSHOT + SELECTED INVENTORY ITEM
+		IfCVarInt fullhud_mugswitch, 1, equal
+		{
+			DrawSelectedInventory alternateonempty, INDEXFONT_DOOM, -17+center, -32 { DrawMugShot "STF", 5, -17+center, -32; }
+		}
+
+		IfCVarInt fullhud_berserk, 1, equal
+		{
+			InInventory "PowerStrength"
+			DrawImage "BERSERK", 11+center, -7;
+		}
+
+		// KEYS
+		DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 80+center, -25;
+		DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 80+center, -17;
+		DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 80+center, -9;
+
+		// AMMO OVERVIEW
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 129+center, -25;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 129+center, -19;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(RocketAmmo), 129+center, -13;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Cell), 129+center, -7;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 153+center, -25;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 153+center, -19;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(RocketAmmo), 153+center, -13;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Cell), 153+center, -7;
+
+		// WEAPONS
+	        GameMode singleplayer, cooperative
+	        {
+			DrawSwitchableImage weaponslot 2, "STGNUM2", "STYSNUM2", -44+center, -25;
+			DrawSwitchableImage weaponslot 3, "STGNUM3", "STYSNUM3", -36+center, -25;
+			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", -28+center, -25;
+			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", -44+center, -18;
+			DrawSwitchableImage weaponslot 6, "STGNUM6", "STYSNUM6", -36+center, -18;
+			DrawSwitchableImage weaponslot 7, "STGNUM7", "STYSNUM7", -28+center, -18;
+		}
+
+		// FRAGS
+	       	GameMode deathmatch, teamgame
+	       	{
+			drawnumber 2, HUDFONT_DOOM, untranslated, frags, -22+center, -27;
+		}
+
+
+	// LEVEL STATS
+	GameMode singleplayer, cooperative
+	{
+		IfCVarInt fullhud_statspos, 0, equal
+		{
+			IfCVarInt fullhud_stats, 1
+			{
+				IfCVarInt not fullhud_stats, 3
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1", 5, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, interpolate(35), 41, 11;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), 41, 17;
+						}
+					}
+					else
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1A", 5, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), 41, 11;
+						}
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 2
+			{
+				IfCVarInt not fullhud_stats, 3, equal
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						DrawString MAPSTATS_FONT, untranslated, time, 5, 24;
+					}
+					else
+					{
+						Alpha 0.7
+						DrawString MAPSTATS_FONT, untranslated, time, 5, 18;
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 3
+			{
+				IfCVarInt fullhud_fullstats, 1, equal
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2", 5, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, interpolate(35), 65, 11;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), 65, 17;
+					}
+				}
+				else
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2A", 5, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), 65, 11;
+					}
+				}
+			}
+		}
+		IfCVarInt fullhud_statspos, 1, equal
+		{
+			IfCVarInt fullhud_stats, 1
+			{
+				IfCVarInt not fullhud_stats, 3
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1", -47, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, interpolate(35), -11, 11;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), -11, 17;
+						}
+					}
+					else
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1A", -47, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), -11, 11;
+						}
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 2
+			{
+				IfCVarInt not fullhud_stats, 3, equal
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						DrawString MAPSTATS_FONT, untranslated, time, -36, 24;
+					}
+					else
+					{
+						Alpha 0.7
+						DrawString MAPSTATS_FONT, untranslated, time, -36, 18;
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 3
+			{
+				IfCVarInt fullhud_fullstats, 1, equal
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2", -42, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, interpolate(35), -44, 11;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), -44, 17;
+					}
+				}
+				else
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2A", -42, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), -44, 11;
+					}
+				}
+			}
+		}
+		IfCVarInt fullhud_statspos, 2, equal
+		{
+			IfCVarInt fullhud_stats, 1
+			{
+				IfCVarInt not fullhud_stats, 3
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1", 5, -60;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, -60;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, interpolate(35), 41, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), 41, -48;
+						}
+					}
+					else
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1A", 5, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), 41, -48;
+						}
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 2
+			{
+				IfCVarInt not fullhud_stats, 3, equal
+				{
+					Alpha 0.7
+					DrawString MAPSTATS_FONT, untranslated, time, 5, -41;
+				}
+			}
+			IfCVarInt fullhud_stats, 3
+			{
+				IfCVarInt fullhud_fullstats, 1, equal
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2", 5, -60;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, -60;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, interpolate(35), 65, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), 65, -48;
+					}
+				}
+				else
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2A", 5, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), 65, -48;
+					}
+				}
+			}
+		}
+		IfCVarInt fullhud_statspos, 3
+		{
+			IfCVarInt fullhud_stats, 1
+			{
+				IfCVarInt not fullhud_stats, 3
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1", -47, -60;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, -60;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, interpolate(35), -11, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), -11, -48;
+						}
+					}
+					else
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1A", -47, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), -11, -48;
+						}
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 2
+			{
+				IfCVarInt not fullhud_stats, 3, equal
+				{
+					Alpha 0.7
+					DrawString MAPSTATS_FONT, untranslated, time, -36, -41;
+				}
+			}
+			IfCVarInt fullhud_stats, 3
+			{
+				IfCVarInt fullhud_fullstats, 1, equal
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2", -42, -60;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, -60;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, interpolate(35), -44, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), -44, -48;
+					}
+				}
+				else
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2A", -42, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), -44, -48;
+					}
+				}
+			}
+		}
+	}
+}
+
+// NORMAL STATUS BAR
+StatusBar normal, fullscreenoffsets
+{
+		// OVERLAYS
+			GameMode singleplayer
+	        {
+				Alpha 1.0
+				DrawImage "HUD_SP", -160+center, -32;
+			}
+  	        GameMode cooperative
+	       	{
+				DrawImage translatable "HUD_MP", -160+center, -32;
+			}
+
+	        GameMode deathmatch
+	        {
+			   	DrawImage translatable "HUD_DM", -160+center, -32;
+	        }
+
+			DrawString HUDFONT_DOOM, untranslated, "%", -58+center, -25;
+			DrawString HUDFONT_DOOM, untranslated, "%", 72+center, -25;
+
+			usessecondaryammo not
+				DrawNumber 3, HUDFONT_DOOM, untranslated, ammo1, -118+center, -25;
+			else
+			{
+				DrawNumber 3, SMALLFONT, untranslated, ammo1, -125+center, -26;
+				DrawNumber 3, SMALLFONT, untranslated, ammo2, -125+center, -18;
+			}
+
+			DrawNumber 3, HUDFONT_DOOM, untranslated, health, interpolate(8), -73+center, -25;
+			DrawNumber 3, HUDFONT_DOOM, untranslated, armor, interpolate(8), 57+center, -25;
+
+	    // MUGSHOT + SELECTED INVENTORY ITEM
+		IfCVarInt fullhud_mugswitch, 1, equal
+		{
+			DrawSelectedInventory alternateonempty, INDEXFONT_DOOM, -17+center, -32 { DrawMugShot "STF", 5, -17+center, -32; }
+		}
+
+		IfCVarInt fullhud_berserk, 1, equal
+		{
+			InInventory "PowerStrength"
+			DrawImage "BERSERK", 11+center, -7;
+		}
+
+		// KEYS
+		DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 80+center, -25;
+		DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 80+center, -17;
+		DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 80+center, -9;
+
+		// AMMO OVERVIEW
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 129+center, -25;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 129+center, -19;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(RocketAmmo), 129+center, -13;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Cell), 129+center, -7;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 153+center, -25;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 153+center, -19;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(RocketAmmo), 153+center, -13;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Cell), 153+center, -7;
+
+		// WEAPONS
+	        GameMode singleplayer, cooperative
+	        {
+			DrawSwitchableImage weaponslot 2, "STGNUM2", "STYSNUM2", -44+center, -25;
+			DrawSwitchableImage weaponslot 3, "STGNUM3", "STYSNUM3", -36+center, -25;
+			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", -28+center, -25;
+			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", -44+center, -18;
+			DrawSwitchableImage weaponslot 6, "STGNUM6", "STYSNUM6", -36+center, -18;
+			DrawSwitchableImage weaponslot 7, "STGNUM7", "STYSNUM7", -28+center, -18;
+		}
+
+		// FRAGS
+	       	GameMode deathmatch, teamgame
+	       	{
+			drawnumber 2, HUDFONT_DOOM, untranslated, frags, -22+center, -27;
+		}
+
+
+	// LEVEL STATS
+	GameMode singleplayer, cooperative
+	{
+		IfCVarInt fullhud_statspos, 0, equal
+		{
+			IfCVarInt fullhud_stats, 1
+			{
+				IfCVarInt not fullhud_stats, 3
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1", 5, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, interpolate(35), 41, 11;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), 41, 17;
+						}
+					}
+					else
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1A", 5, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), 41, 11;
+						}
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 2
+			{
+				IfCVarInt not fullhud_stats, 3, equal
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						DrawString MAPSTATS_FONT, untranslated, time, 5, 24;
+					}
+					else
+					{
+						Alpha 0.7
+						DrawString MAPSTATS_FONT, untranslated, time, 5, 18;
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 3
+			{
+				IfCVarInt fullhud_fullstats, 1, equal
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2", 5, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, interpolate(35), 65, 11;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), 65, 17;
+					}
+				}
+				else
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2A", 5, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), 65, 11;
+					}
+				}
+			}
+		}
+		IfCVarInt fullhud_statspos, 1, equal
+		{
+			IfCVarInt fullhud_stats, 1
+			{
+				IfCVarInt not fullhud_stats, 3
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1", -47, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, interpolate(35), -11, 11;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), -11, 17;
+						}
+					}
+					else
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1A", -47, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, 5;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), -11, 11;
+						}
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 2
+			{
+				IfCVarInt not fullhud_stats, 3, equal
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						DrawString MAPSTATS_FONT, untranslated, time, -36, 24;
+					}
+					else
+					{
+						Alpha 0.7
+						DrawString MAPSTATS_FONT, untranslated, time, -36, 18;
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 3
+			{
+				IfCVarInt fullhud_fullstats, 1, equal
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2", -42, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, interpolate(35), -44, 11;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), -44, 17;
+					}
+				}
+				else
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2A", -42, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, 5;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), -44, 11;
+					}
+				}
+			}
+		}
+		IfCVarInt fullhud_statspos, 2, equal
+		{
+			IfCVarInt fullhud_stats, 1
+			{
+				IfCVarInt not fullhud_stats, 3
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1", 5, -60;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, -60;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, interpolate(35), 41, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), 41, -48;
+						}
+					}
+					else
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1A", 5, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), 41, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), 41, -48;
+						}
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 2
+			{
+				IfCVarInt not fullhud_stats, 3, equal
+				{
+					Alpha 0.7
+					DrawString MAPSTATS_FONT, untranslated, time, 5, -41;
+				}
+			}
+			IfCVarInt fullhud_stats, 3
+			{
+				IfCVarInt fullhud_fullstats, 1, equal
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2", 5, -60;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, -60;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, interpolate(35), 65, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), 65, -48;
+					}
+				}
+				else
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2A", 5, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), 65, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), 65, -48;
+					}
+				}
+			}
+		}
+		IfCVarInt fullhud_statspos, 3
+		{
+			IfCVarInt fullhud_stats, 1
+			{
+				IfCVarInt not fullhud_stats, 3
+				{
+					IfCVarInt fullhud_fullstats, 1, equal
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1", -47, -60;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, -60;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, interpolate(35), -11, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), -11, -48;
+						}
+					}
+					else
+					{
+						Alpha 0.7
+						{
+							DrawImage "STATS1A", -47, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, interpolate(35), -11, -54;
+							DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, interpolate(35), -11, -48;
+						}
+					}
+				}
+			}
+			IfCVarInt fullhud_stats, 2
+			{
+				IfCVarInt not fullhud_stats, 3, equal
+				{
+					Alpha 0.7
+					DrawString MAPSTATS_FONT, untranslated, time, -36, -41;
+				}
+			}
+			IfCVarInt fullhud_stats, 3
+			{
+				IfCVarInt fullhud_fullstats, 1, equal
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2", -42, -60;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, -60;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, interpolate(35), -44, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), -44, -48;
+					}
+				}
+				else
+				{
+					Alpha 0.7
+					{
+						DrawImage "STATS2A", -42, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, interpolate(35), -44, -54;
+						DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, interpolate(35), -44, -48;
+					}
+				}
+			}
+		}
+	}
+}
+
+// INVENTORY BAR (NORMAL)
+statusbar inventory, fullscreenoffsets
+{
+	drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -46;
+}
+
+// INVENTORY BAR (FULLSCREEN)
+statusbar inventoryfullscreen, fullscreenoffsets
+{
+   	// SPLIT VERSION
+   	IfCVarInt fullhud_split, 1, equal
+   	{
+   		IfCVarInt fullhud_trans, 0, equal
+			drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -31;
+   		else
+		{
+			Alpha 0.6
+			drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -31;
+		}
+   	}
+
+   	// NON-SPLIT VERSION
+   	else
+		drawinventorybar Doom, noartibox, 7, INDEXFONT, -106+center, -66;
+}
+
+// AUTOMAP STATUS BAR
+statusbar automap { }

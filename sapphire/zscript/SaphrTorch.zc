@@ -1,0 +1,205 @@
+// Copyright 2020 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+// Actors with minimal ticking. Useful for completely non-interactive stuff
+//
+//===========================================================================
+
+class SaphrDietActor : Actor
+{
+	bool ticked;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Tick()
+	{
+		if (!ticked)
+		{
+			Super.Tick();
+			ticked = true;
+			return;
+		}
+
+		if (!bNoTimeFreeze && isFrozen()) return;
+		if (tics != -1)
+		{
+			if (--tics <= 0)
+			{
+				if (!SetState(curstate.NextState)) return;
+			}
+		}
+	}
+}
+
+class SaphrDietActorWithVel : SaphrDietActor
+{
+	override void Tick(void)
+	{
+		SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
+		Super.Tick();
+	}
+}
+
+//===========================================================================
+//
+// Common code for fire effects
+//
+//===========================================================================
+
+mixin class SaphrFireMixin
+{
+	bool fadedIn;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		RenderStyle "Add";
+		Alpha 0;
+		+ROLLSPRITE
+		+ROLLCENTER
+		+BRIGHT
+		+FORCEXYBILLBOARD
+		+NOINTERACTION
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	SpawnLoop:
+		"####" "#" 0
+		{
+			bSpriteFlip = RandomPick(false, true);
+			A_SetRoll(frandom(0.0, 360.0));
+		}
+		"####" "#" 1
+		{
+			int rollDir = bSpriteFlip ? -1 : 1;
+			double rollSpeed = 2.33 * rollDir;
+			A_SetRoll(Roll + rollSpeed, SPF_INTERPOLATE);
+
+			if (!fadedIn)
+			{
+				if (Alpha < 0.5)
+				{
+					A_FadeIn(0.1);
+				}
+				else
+				{
+					fadedIn = true;
+				}
+			}
+
+			if (fadedIn)
+			{
+				A_SetScale(Scale.X * 0.98);
+				A_FadeOut(0.025);
+			}
+		}
+		Goto SpawnLoop + 1;
+	}
+}
+
+class SaphrTorch : RedTorch replaces RedTorch
+{
+	Default
+	{
+		Radius 10;
+		Height 67;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		TBLX A 0 NoDelay
+		{
+			A_SpawnItemEx("SaphrTallTorchLensFlare", 0, 0, 62.0);
+		}
+		TBLX A 1
+		{
+			if (!CheckRange(1000.0, true))
+			{
+				// To do: no embers yet
+				A_SpawnItemEx("SaphrTorchFlame", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+			}
+		}
+		Goto Spawn + 1;
+	}
+}
+
+class SaphrTorchFlame : SaphrDietActorWithVel
+{
+	mixin SaphrFireMixin;
+
+	Default
+	{
+		DistanceCheck "saphrlod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNO A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class SaphrTallTorchLensFlare : SaphrDietActor
+{
+	Default
+	{
+		DistanceCheck "saphrlod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.5;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE A -1 Bright;
+		Stop;
+	}
+}
