@@ -6,6 +6,12 @@ height 0;
 // FULLSCREEN STATUS BAR
 StatusBar fullscreen, fullscreenoffsets
 {
+	InInventory "CutsceneEnabled"
+	{
+		// nothing to draw when using
+	}
+	else
+	{
 		// OVERLAYS
 			GameMode singleplayer
 	        {
@@ -333,11 +339,18 @@ StatusBar fullscreen, fullscreenoffsets
 			}
 		}
 	}
+  }
 }
 
 // NORMAL STATUS BAR
 StatusBar normal, fullscreenoffsets
 {
+	InInventory "CutsceneEnabled"
+	{
+		// nothing to draw when using
+	}
+	else
+	{
 		// OVERLAYS
 			GameMode singleplayer
 	        {
@@ -665,6 +678,7 @@ StatusBar normal, fullscreenoffsets
 			}
 		}
 	}
+  }
 }
 
 // INVENTORY BAR (NORMAL)
