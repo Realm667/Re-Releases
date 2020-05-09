@@ -155,14 +155,7 @@ class SaphrTorch : RedTorch replaces RedTorch
 		{
 			A_SpawnItemEx("SaphrTallTorchLensFlare", 0, 0, 62.0);
 		}
-		TBLX A 1
-		{
-			if (!CheckRange(1000.0, true))
-			{
-				// To do: no embers yet
-				A_SpawnItemEx("SaphrTorchFlame", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
-			}
-		}
+		TBLX A 1 A_SpawnItemEx("SaphrTorchFlame", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
 		Goto Spawn + 1;
 	}
 }
