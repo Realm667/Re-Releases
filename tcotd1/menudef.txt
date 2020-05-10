@@ -1,7 +1,15 @@
 AddOptionMenu "OptionsMenu"
 {
-	StaticText "Adjust these options to improve performance with flames particles"
-	StaticText "Distance is applied in map units"
+	StaticText "$MN_OPAUST"
 	StaticText ""
-	Slider "Rendering Distance","tcotd1lod",1024,16384,1024, 0
+	Option "$MN_OPDIST","tcotd1lod","Tcotd1Dist"
+}
+
+OptionValue "Tcotd1Dist"
+{
+	0, "$MN_OPNONE"
+	1024, "$MN_OPNEAR"
+	2048, "$MN_OPNORM"
+	4096, "$MN_OPFAR1"
+	8192, "$MN_OPFAR2"
 }
