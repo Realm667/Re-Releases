@@ -30,7 +30,7 @@ ACTOR TCOTDWallTorch : SwitchableDecoration replaces BlueTorch
 	States
 	{
 	Active:
-		TBLX A 0 A_PlaySound("Ignite")
+		TBLX A 0 A_StartSound("Ignite")
 		"####" A 0 {bDormant = FALSE;}
 	Spawn:
 		TBLX A 0 NODELAY
@@ -52,7 +52,7 @@ ACTOR TCOTDStickTorch : SwitchableDecoration replaces ShortRedTorch
 	States
 	{
 	Active:
-		TRCH A 0 A_PlaySound("Ignite")
+		TRCH A 0 A_StartSound("Ignite")
 		"####" A 0 {bDormant = FALSE;}
 	Spawn:
 		TRCH A 0 NODELAY
@@ -103,13 +103,7 @@ ACTOR CreepyCandle : SwitchableDecoration
 	}
 }
 
-ACTOR CreepyCandleS : CreepyCandle 21701
-{
-	//$Title Creepy Candle, Stackable (ON)
-	+NOGRAVITY
-}
-
-ACTOR CandelabraBloodOne : CreepyCandle 22035
+ACTOR CandelabraBloodOne : CreepyCandle
 {
 	//$Title Creepy Candlestick (ON)
 	Radius 16
