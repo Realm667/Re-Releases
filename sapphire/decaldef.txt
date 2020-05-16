@@ -393,7 +393,7 @@ decal ChainsawMark
 	animator FastGoAway
 }
 
-//***** Plasma Rifle Scorches ***********************************************/
+//***** Plasma Rifle Scorches ***********************************************//
 decal PlasmaScorchLower1
 {
 	pic PLASMA1
@@ -452,7 +452,7 @@ decalgroup PlasmaScorch
 	PlasmaScorch2	1
 }
 
-//***** Arachnotron Plasma Scorches *****************************************/
+//***** Arachnotron Plasma Scorches *****************************************//
 decal ArachScorch1
 {
 	pic APBXB0
@@ -481,6 +481,32 @@ decalgroup ArachnotronScorch
 {
 	ArachScorch1	1
 	ArachScorch2	1
+}
+
+//***** Black Hole Gun Defs *****//
+Fader PleaseDontGoAway
+{
+	DecayStart	9.0
+	DecayTime	3.0
+}
+
+Decal BigScorch2
+{
+	Pic SCORCH1
+	Shade "00 00 00"
+	X-Scale 0.85
+	Y-Scale 0.85
+}
+
+Decal BHoleDecal
+{
+	Pic Twirl
+	Shade "20 05 40"
+	FullBright
+	Animator PleaseDontGoAway
+	LowerDecal BigScorch2
+	X-Scale 0.75
+	Y-Scale 0.75
 }
 
 //***** Generators **********************************************************//

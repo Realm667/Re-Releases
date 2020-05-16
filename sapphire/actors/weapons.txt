@@ -1,0 +1,205 @@
+ACTOR BHGen : Weapon
+{
+	Weapon.SelectionOrder 2900
+	Weapon.SlotNumber 8
+	Weapon.AmmoUse 50
+	Weapon.AmmoGive 100
+	Weapon.AmmoType "Cell"
+	+WEAPON.NOAUTOAIM
+	Inventory.PickupMessage "$IP_BHOLE"
+	Obituary "$OB_BHOLE"
+	Tag "Black Hole Generator"
+	States
+	{
+	Spawn:
+		DCAN A -1
+		Stop
+	Select:
+		DMAT A 1 A_Raise
+		Loop
+	Deselect:
+		DMAT A 1 A_Lower
+		Loop
+	Ready:
+		DMAT A 1 A_WeaponReady
+		Loop
+	Fire:
+		DMAT A 30 A_PlayWeaponSound("DMC/Charge")
+		DMAT A 10 Bright
+		TNT1 A 0 A_PlayWeaponSound("DMC/Fire")
+		TNT1 A 0 A_GunFlash
+		DMAT B 4 BRIGHT A_FireCustomMissile("DMBall",0,1,0,0)
+		DMAT CD 4 Bright
+		DMAT A 10
+		Goto Ready
+	Flash:
+		TNT1 A 4 A_Light2
+		TNT1 A 3 A_Light1
+		TNT1 A 0 A_Light0
+		Stop
+	}
+}
+
+ACTOR DMBall
+{
+	Radius 13
+	Height 8
+	Speed 17
+	Damage 10
+	Projectile
+	+FORCERADIUSDMG
+	+FORCEXYBILLBOARD
+	+NODAMAGETHRUST
+	+RIPPER
+	Renderstyle Translucent
+	Alpha 0.75
+	DeathSound "DMBall/Impact"
+	Decal BHoleDecal
+	States
+	{
+	Spawn:
+		VOIP ABCDEF 2 BRIGHT A_SpawnItem("DMBTrail",0,0,0)
+		VOIP AA 1 BRIGHT A_RadiusThrust(-220,130)
+		TNT1 A 0 A_Explode(10,90,0)
+		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
+		VOIP BB 1 BRIGHT A_RadiusThrust(-220,150)
+		TNT1 A 0 A_Explode(10,90,0)
+		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
+		VOIP CC 1 BRIGHT A_RadiusThrust(-220,150)
+		TNT1 A 0 A_Explode(10,90,0)
+		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
+		VOIP DD 1 BRIGHT A_RadiusThrust(-220,150)
+		TNT1 A 0 A_Explode(10,90,0)
+		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
+		VOIP EE 1 BRIGHT A_RadiusThrust(-220,150)
+		TNT1 A 0 A_Explode(10,90,0)
+		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
+		VOIP FF 1 BRIGHT A_RadiusThrust(-220,150)
+		TNT1 A 0 A_Explode(10,90,0)
+		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
+		Goto Spawn+6
+	Death:
+		TNT1 A 0 A_SpawnItem("BlackHole",0,0,0)
+		TNT1 A 0 A_SetScale(1.2)
+		VORX ABCDEFGH 2 Bright
+		Stop
+	}
+}
+
+ACTOR DMBTrail
+{
+	Scale 0.7
+	RenderStyle Translucent
+	Alpha 0.70
+	+FORCEXYBILLBOARD
+	+NOGRAVITY
+	States
+	{
+	Spawn:
+		VORX ABCDEFGH 2 BRIGHT A_FadeOut(0.1)
+		Stop
+	}
+}
+
+ACTOR BlackHole
+{
+	Radius 20
+	Height 20
+	Speed 0
+	Scale 1.5
+	RenderStyle Translucent
+	Alpha 0.85
+	Projectile
+	+FORCERADIUSDMG
+	+FORCEXYBILLBOARD
+	+NOCLIP
+	+NODAMAGETHRUST
+	ReactionTime 30
+	Obituary "$OB_BHOL2"
+	States
+	{
+	Spawn:
+		TNT1 A 0 A_CountDown
+		TNT1 A 0 A_PlaySoundEx("BHole/Suck","Voice",1)
+		BHOL A 1 Light("BHOLE_1") A_RadiusThrust(-230,250)
+		TNT1 A 0 A_Explode(15,100)
+		BHOL B 1 Light("BHOLE_1") A_RadiusThrust(-230,250)
+		TNT1 A 0 A_Explode(15,100)
+		BHOL C 1 Light("BHOLE_1") A_RadiusThrust(-230,250)
+		TNT1 A 0 A_Explode(15,100)
+		BHOL D 1 Light("BHOLE_1") A_RadiusThrust(-230,250)
+		TNT1 A 0 A_Explode(15,100)
+		BHOL E 1 Light("BHOLE_1") A_RadiusThrust(-230,250)
+		TNT1 A 0 A_Explode(15,100)
+		BHOL F 1 Light("BHOLE_1") A_RadiusThrust(-230,250)
+		TNT1 A 0 A_Explode(15,100)
+		BHOL G 1 Light("BHOLE_1") A_RadiusThrust(-230,250)
+		TNT1 A 0 A_Explode(15,100)
+		BHOL H 1 Light("BHOLE_1") A_RadiusThrust(-230,250)
+		TNT1 A 0 A_Explode(15,100)
+		BHOL I 1 Light("BHOLE_1") A_RadiusThrust(-230,250)
+		TNT1 A 0 A_Explode(15,100)
+		Loop
+	Death:
+		TNT1 A 0 A_StopSoundEx("Voice")
+		TNT1 A 0 A_SpawnItem("BHSmoke",0,0,0)
+		TNT1 A 0 A_SpawnItem("BHExplosion",0,0,0)
+		TNT1 A 0 A_PlaySound("BHole/Explosion")
+		BHOL A 1 Light("BHOLE_2") A_FadeOut(0.08)
+		BHOL B 1 Light("BHOLE_3") A_FadeOut(0.08)
+		BHOL C 1 Light("BHOLE_4") A_FadeOut(0.08)
+		BHOL D 1 Light("BHOLE_5") A_FadeOut(0.08)
+		BHOL E 1 Light("BHOLE_6") A_FadeOut(0.08)
+		BHOL F 1 Light("BHOLE_7") A_FadeOut(0.08)
+		BHOL G 1 Light("BHOLE_8") A_FadeOut(0.08)
+		BHOL H 1 Light("BHOLE_9") A_FadeOut(0.08)
+		BHOL I 1 Light("BHOLE_10") A_FadeOut(0.08)
+		Stop
+	}
+}
+
+ACTOR BHSmoke : DMBTrail
+{
+	Scale 2.2
+	+FORCEXYBILLBOARD
+	+NOCLIP
+	+NOGRAVITY
+	States
+	{
+	Spawn:
+		BHXP ABCDEFGHIJKLMNO 2 A_FadeOut(0.03)
+		Stop
+	}
+}
+
+ACTOR BHExplosion
+{
+	+FORCEXYBILLBOARD
+	+NOCLIP
+	+NOGRAVITY
+	States
+	{
+	Spawn:
+		DBX3 A 1 Light("BHEXP_1") BRIGHT A_SetScale(1.2)
+		TNT1 A 0 A_FadeOut(0.13)
+		DBX3 A 1 Light("BHEXP_2") BRIGHT A_SetScale(1.4)
+		TNT1 A 0 A_FadeOut(0.13)
+		DBX3 A 1 Light("BHEXP_3") BRIGHT A_SetScale(1.6)
+		TNT1 A 0 A_FadeOut(0.13)
+		DBX3 A 1 Light("BHEXP_4") BRIGHT A_SetScale(1.8)
+		TNT1 A 0 A_FadeOut(0.13)
+		DBX3 A 1 Light("BHEXP_5") BRIGHT A_SetScale(2.0)
+		TNT1 A 0 A_FadeOut(0.13)
+		DBX3 A 1 Light("BHEXP_6") BRIGHT A_SetScale(2.2)
+		TNT1 A 0 A_FadeOut(0.13)
+		DBX3 A 1 Light("BHEXP_7") BRIGHT A_SetScale(2.4)
+		TNT1 A 0 A_FadeOut(0.13)
+		DBX3 A 1 BRIGHT A_SetScale(2.6)
+		TNT1 A 0 A_FadeOut(0.13)
+		DBX3 A 1 BRIGHT A_SetScale(2.8)
+		TNT1 A 0 A_FadeOut(0.13)
+		DBX3 A 1 BRIGHT A_SetScale(3.0)
+		TNT1 A 0 A_FadeOut(0.13)
+		Stop
+	}
+}
