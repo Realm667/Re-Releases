@@ -43,7 +43,7 @@ class TCOTDWeaponNapalmLauncher : TCOTDWeapon replaces RocketLauncher
 	Fire:
 		NAPL A 3;
 		TNT1 A 0 A_StartSound("Napalm/Shot");
-		TNT1 A 0 A_FireProjectile("TCOTDWeaponNapalmMissile", spawnheight: 4);
+		TNT1 A 0 A_FireProjectile("TCOTDWeaponNapalmMissile");
 		NAPL B 2 Offset(15, 49) A_Overlay(-2, "Flash");
 		NAPL B 3 Offset(21, 57);
 		NAPL B 3 Offset(21, 59);
@@ -73,13 +73,14 @@ class TCOTDWeaponNapalmMissile : Rocket
 		Height 8;
 		Speed 20;
 		Damage 80;
-		Scale 0.4;
+		Scale 0.35;
 		SeeSound "Napalm/Fire";
 		DeathSound "Napalm/Impact";
 		Obituary "$OB_NAPR";
 		Projectile;
 		+RANDOMIZE
 		+FORCEXYBILLBOARD
+		-ROCKETTRAIL
 	}
 
 	void A_ExplosionRumble(void)
@@ -107,8 +108,7 @@ class TCOTDWeaponNapalmMissile : Rocket
 		}
 		Loop;
 	Death:
-		TNT1 A 0 A_SetScale(0.9);
-		NEXP A 2 Bright { A_Explode(); A_ExplosionRumble(); }
+		NEXP A 2 Bright { A_Explode(); A_ExplosionRumble(); A_SetScale(0.9); }
 		TNT1 A 0
 		{
 			for (int i = 0; i < 100; i++)
@@ -128,7 +128,7 @@ class TCOTDNapalmSmokeTrail : TCOTDDietActorWithVel
 {
 	Default
 	{
-		Scale 0.4;
+		Scale 0.2;
 		RenderStyle "Translucent";
 		Alpha 0.4;
 		+ROLLSPRITE
