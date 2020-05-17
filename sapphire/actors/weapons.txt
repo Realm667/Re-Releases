@@ -25,11 +25,11 @@ ACTOR BHGen : Weapon
 		Loop
 	Fire:
 		DMAT A 30 A_PlayWeaponSound("DMC/Charge")
-		DMAT A 10 Bright
+		DMAT A 10
 		TNT1 A 0 A_PlayWeaponSound("DMC/Fire")
 		TNT1 A 0 A_GunFlash
-		DMAT B 4 BRIGHT A_FireCustomMissile("DMBall",0,1,0,0)
-		DMAT CD 4 Bright
+		DMAT B 4 A_FireProjectile("DMBall",0,1,0,0)
+		DMAT CD 4
 		DMAT A 10
 		Goto Ready
 	Flash:
@@ -47,41 +47,41 @@ ACTOR DMBall
 	Speed 17
 	Damage 10
 	Projectile
+	Renderstyle Add
+	Alpha 0.95
 	+FORCERADIUSDMG
 	+FORCEXYBILLBOARD
 	+NODAMAGETHRUST
-	+RIPPER
-	Renderstyle Translucent
-	Alpha 0.75
+	+VISIBILITYPULSE
 	DeathSound "DMBall/Impact"
 	Decal BHoleDecal
 	States
 	{
 	Spawn:
-		VOIP ABCDEF 2 BRIGHT A_SpawnItem("DMBTrail",0,0,0)
-		VOIP AA 1 BRIGHT A_RadiusThrust(-220,130)
+		VOIP ABCDEF 2 A_SpawnItem("DMBTrail",0,0,0)
+		VOIP AA 1 A_RadiusThrust(-220,130)
 		TNT1 A 0 A_Explode(10,90,0)
 		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
-		VOIP BB 1 BRIGHT A_RadiusThrust(-220,150)
+		VOIP BB 1 A_RadiusThrust(-220,150)
 		TNT1 A 0 A_Explode(10,90,0)
 		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
-		VOIP CC 1 BRIGHT A_RadiusThrust(-220,150)
+		VOIP CC 1 A_RadiusThrust(-220,150)
 		TNT1 A 0 A_Explode(10,90,0)
 		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
-		VOIP DD 1 BRIGHT A_RadiusThrust(-220,150)
+		VOIP DD 1 A_RadiusThrust(-220,150)
 		TNT1 A 0 A_Explode(10,90,0)
 		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
-		VOIP EE 1 BRIGHT A_RadiusThrust(-220,150)
+		VOIP EE 1 A_RadiusThrust(-220,150)
 		TNT1 A 0 A_Explode(10,90,0)
 		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
-		VOIP FF 1 BRIGHT A_RadiusThrust(-220,150)
+		VOIP FF 1 A_RadiusThrust(-220,150)
 		TNT1 A 0 A_Explode(10,90,0)
 		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
 		Goto Spawn+6
 	Death:
 		TNT1 A 0 A_SpawnItem("BlackHole",0,0,0)
 		TNT1 A 0 A_SetScale(1.2)
-		VORX ABCDEFGH 2 Bright
+		VORX ABCDEFGH 2
 		Stop
 	}
 }
@@ -89,14 +89,15 @@ ACTOR DMBall
 ACTOR DMBTrail
 {
 	Scale 0.7
-	RenderStyle Translucent
+	RenderStyle Add
 	Alpha 0.70
 	+FORCEXYBILLBOARD
 	+NOGRAVITY
+	+VISIBILITYPULSE
 	States
 	{
 	Spawn:
-		VORX ABCDEFGH 2 BRIGHT A_FadeOut(0.1)
+		VORX ABCDEFGH 2 A_FadeOut(0.1)
 		Stop
 	}
 }
@@ -107,13 +108,14 @@ ACTOR BlackHole
 	Height 20
 	Speed 0
 	Scale 1.5
-	RenderStyle Translucent
+	RenderStyle Add
 	Alpha 0.85
 	Projectile
 	+FORCERADIUSDMG
 	+FORCEXYBILLBOARD
 	+NOCLIP
 	+NODAMAGETHRUST
+	+VISIBILITYPULSE
 	ReactionTime 30
 	Obituary "$OB_BHOL2"
 	States
@@ -161,9 +163,7 @@ ACTOR BlackHole
 ACTOR BHSmoke : DMBTrail
 {
 	Scale 2.2
-	+FORCEXYBILLBOARD
 	+NOCLIP
-	+NOGRAVITY
 	States
 	{
 	Spawn:
@@ -174,31 +174,34 @@ ACTOR BHSmoke : DMBTrail
 
 ACTOR BHExplosion
 {
+	Renderstyle Add
+	Alpha 0.95
 	+FORCEXYBILLBOARD
 	+NOCLIP
 	+NOGRAVITY
+	+VISIBILITYPULSE
 	States
 	{
 	Spawn:
-		DBX3 A 1 Light("BHEXP_1") BRIGHT A_SetScale(1.2)
+		DBX3 A 1 Light("BHEXP_1") A_SetScale(1.2)
 		TNT1 A 0 A_FadeOut(0.13)
-		DBX3 A 1 Light("BHEXP_2") BRIGHT A_SetScale(1.4)
+		DBX3 A 1 Light("BHEXP_2") A_SetScale(1.4)
 		TNT1 A 0 A_FadeOut(0.13)
-		DBX3 A 1 Light("BHEXP_3") BRIGHT A_SetScale(1.6)
+		DBX3 A 1 Light("BHEXP_3") A_SetScale(1.6)
 		TNT1 A 0 A_FadeOut(0.13)
-		DBX3 A 1 Light("BHEXP_4") BRIGHT A_SetScale(1.8)
+		DBX3 A 1 Light("BHEXP_4") A_SetScale(1.8)
 		TNT1 A 0 A_FadeOut(0.13)
-		DBX3 A 1 Light("BHEXP_5") BRIGHT A_SetScale(2.0)
+		DBX3 A 1 Light("BHEXP_5") A_SetScale(2.0)
 		TNT1 A 0 A_FadeOut(0.13)
-		DBX3 A 1 Light("BHEXP_6") BRIGHT A_SetScale(2.2)
+		DBX3 A 1 Light("BHEXP_6") A_SetScale(2.2)
 		TNT1 A 0 A_FadeOut(0.13)
-		DBX3 A 1 Light("BHEXP_7") BRIGHT A_SetScale(2.4)
+		DBX3 A 1 Light("BHEXP_7") A_SetScale(2.4)
 		TNT1 A 0 A_FadeOut(0.13)
-		DBX3 A 1 BRIGHT A_SetScale(2.6)
+		DBX3 A 1 A_SetScale(2.6)
 		TNT1 A 0 A_FadeOut(0.13)
-		DBX3 A 1 BRIGHT A_SetScale(2.8)
+		DBX3 A 1 A_SetScale(2.8)
 		TNT1 A 0 A_FadeOut(0.13)
-		DBX3 A 1 BRIGHT A_SetScale(3.0)
+		DBX3 A 1 A_SetScale(3.0)
 		TNT1 A 0 A_FadeOut(0.13)
 		Stop
 	}
