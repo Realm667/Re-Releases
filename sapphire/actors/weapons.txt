@@ -21,16 +21,37 @@ ACTOR BHGen : Weapon
 		DMAT A 1 A_Lower
 		Loop
 	Ready:
-		DMAT A 1 A_WeaponReady
+		DMAT A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
-	Fire:
-		DMAT A 30 A_PlayWeaponSound("DMC/Charge")
-		DMAT A 10
-		TNT1 A 0 A_PlayWeaponSound("DMC/Fire")
-		TNT1 A 0 A_GunFlash
+	Fire: //zoom setup straight from D4T BFG9000, adapted for the weapon by Ozymandias81
+		DMAT A 1 A_ZoomFactor(1.000,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.998,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.996,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.994,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.990,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.986,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.981,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.975,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.969,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.961,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.953,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.944,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.935,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.925,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.914,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.902,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.889,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.876,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.863,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.833,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.801,ZOOM_NOSCALETURNING)
+		DMAT A 1 A_ZoomFactor(0.766,ZOOM_NOSCALETURNING)
+		DMAT A 1 { A_ZoomFactor(0.733,ZOOM_NOSCALETURNING); A_PlayWeaponSound("DMC/Charge");}
+		DMAT A 0 { A_ZoomFactor(1.0); A_StartSound("DMC/Fire",CHAN_WEAPON,CHANF_DEFAULT,3.0,0.8);}
+		DMAT A 0 A_GunFlash
 		DMAT B 4 A_FireProjectile("DMBall",0,1,0,0)
 		DMAT CD 4
-		DMAT A 10
+		DMAT A 5
 		Goto Ready
 	Flash:
 		TNT1 A 4 A_Light2
@@ -79,6 +100,7 @@ ACTOR DMBall
 		TNT1 A 0 A_SpawnItem("DMBTrail",0,0,0)
 		Goto Spawn+6
 	Death:
+		TNT1 A 0 A_SpawnItemEx("BHLightning")
 		TNT1 A 0 A_SpawnItem("BlackHole",0,0,0)
 		TNT1 A 0 A_SetScale(1.2)
 		VORX ABCDEFGH 2
@@ -203,6 +225,50 @@ ACTOR BHExplosion
 		TNT1 A 0 A_FadeOut(0.13)
 		DBX3 A 1 A_SetScale(3.0)
 		TNT1 A 0 A_FadeOut(0.13)
+		Stop
+	}
+}
+
+ACTOR BHLightning //zoom setup straight from D4T BFG9000, adapted for the weapon by Ozymandias81
+{
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.75
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	var int user_counter;
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(200,2,3,4,5,6,7,8)	//for sliiiigh randomization of when it spawns
+		TNT1 AAAAAAAAAA 1
+		TNT1 A 0 A_Jump(256,"T1","T2","T3","T4","T5")
+	T1:	DMA1 A 0 
+		Goto PlayOff
+	T2:	DMA2 A 0 
+		Goto PlayOff
+	T3:	DMA3 A 0 
+		Goto PlayOff
+	T4:	DMA4 A 0 
+		Goto PlayOff
+	T5:	DMA5 A 0 
+		Goto PlayOff
+	PlayOff:
+		"####" A 0 A_Jump(128,"FromL")
+	FromA:
+		"####" ABCDE 1 Bright
+		"####" FGHIJK 1 Bright
+		Goto Repeater
+	FromL:
+		"####" LMNOP 1 Bright
+		"####" QRSTUV 1 Bright
+		Goto Repeater		
+	Repeater:
+		TNT1 A 0 A_JumpIf(user_counter>=14,"Destroy")
+		TNT1 A 0 A_SetUserVar(user_counter,user_counter+1)
+		Goto Spawn
+	Destroy:
+		TNT1 A 5
 		Stop
 	}
 }
