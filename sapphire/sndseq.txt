@@ -1,0 +1,32 @@
+:Lift_Building
+        platform        1
+        playuntildone   slift1a
+        playrepeat      slift1b
+        stopsound       slift1c
+end
+
+:Astrostein_Door_Open
+   	playuntildone   doors/dr1_open
+   	playrepeat      doors/dr1_move
+   	stopsound	doors/dr1_stop
+end
+
+:Astrostein_Door_Close
+	play		doors/dr1_clos
+	stopsound	doors/dr1_stop
+end
+
+[Astrostein_Door
+   	DOOR      1
+   	0      Astrostein_Door_Open
+   	1      Astrostein_Door_Close
+   	2      Astrostein_Door_Open
+   	3      Astrostein_Door_Close
+]
+
+:Astrostein_DoorBHeavy
+        door 		2
+        playuntildone   ulift1a
+        playrepeat      ulift1b
+        stopsound       ulift1c
+end
