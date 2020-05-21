@@ -1,74 +1,19 @@
-/////////////////////////////
-// COLORED BLOOD ORIGINALS //
-/////////////////////////////
-
-ACTOR BaronOfHellGreen : NashGore_BaronOfHell
-{
-	BloodColor "77 EF 01"
-}
-
-ACTOR HellKnightGreen : NashGore_HellKnight
-{ 
-	BloodColor "77 EF 01"
-}
-
-ACTOR CacoDemonBlue : NashGore_Cacodemon 
-{ 
-	BloodColor "01 C8 DF"
-}
-
-ACTOR LostSoulSmoke : NashGore_LostSoul //this has BLOODDECALS compared to nash one... Here to not break scripts and actors inside map - ozy81
-{
-	-NOBLOODDECALS
-}
-
-//=================================
+//===========================================
 //
-//Boss-Spider Demolisher
+//Recolored Blood - Kept for not breaking map
 //
-//=================================
+//===========================================
 
-ACTOR SonicBeam
-{
-	Radius 20
-	Height 20
-	Speed 40
-	Damage 20
-	RenderStyle Add
-	Alpha 1
-	DeathSound "weapons/bfgx"
-	Projectile
-	+BRIGHT
-	+RIPPER
-	States
-	{
-	Spawn:
-		SONB ABCDEFGHIJKLMNOP 8
-		Loop
-	Death:
-		KAXP B 2 A_Quake(4,12,0,400)
-		KAXP B 1 A_Explode(70,400,0)
-		KAXP CDEFGHIJKLM 3 A_Quake(2,12,0,800)
-		Stop
-	}
-}
+ACTOR BaronOfHellGreen : NashGore_BaronOfHell { BloodColor "77 EF 01" }
+ACTOR CacoDemonBlue : NashGore_Cacodemon { BloodColor "01 C8 DF" }
+ACTOR HellKnightGreen : NashGore_HellKnight { BloodColor "77 EF 01" }
+ACTOR LostSoulSmoke : NashGore_LostSoul { -NOBLOODDECALS }
 
-ACTOR BeamFlash : CustomInventory
-{
-	+INVENTORY.QUIET
-	+INVENTORY.UNDROPPABLE
-	+INVENTORY.ALWAYSPICKUP
-	+INVENTORY.AUTOACTIVATE
-	+COUNTITEM
-	Inventory.Amount 1
-	Inventory.MaxAmount 0
-	States
-	{
-	Pickup:
-		TNT1 A 1 A_SetBlend("Green",1,100)
-		Stop
-	}
-}
+//========================
+//
+//Reworked Boss Demolisher
+//
+//========================
 
 ACTOR HoleFlash : BeamFlash
 {
@@ -82,12 +27,12 @@ ACTOR HoleFlash : BeamFlash
 
 ACTOR Demolisher
 {
-	Health 6000 
-	Radius 96 
-	Height 100 
-	Mass 1000 
-	Speed 16 
-	PainChance 20 
+	Health 6000
+	Radius 96
+	Height 100
+	Mass 1000
+	Speed 16
+	PainChance 20
 	Monster
 	+BOSS
 	+FLOORCLIP
@@ -95,83 +40,66 @@ ACTOR Demolisher
 	+NORADIUSDMG
 	+NOTARGET
 	Obituary "$OB_DEMO"
-	SeeSound "monster/demsit" 
-	AttackSound "monster/dematk" 
-	PainSound "spider/pain" 
-	DeathSound "monster/demdth" 
-	ActiveSound "spider/active" 
-	States 
+	SeeSound "monster/demsit"
+	AttackSound "monster/dematk"
+	PainSound "spider/pain"
+	DeathSound "monster/demdth"
+	ActiveSound "spider/active"
+	States
 	{
-	Spawn: 
-		DEMO AB 10 A_Look 
-		Loop 
-	See: 
-		DEMO A 3 A_Metal 
-		DEMO ABB 3 A_Chase 
-		DEMO C 3 A_Metal 
-		DEMO CDD 3 A_Chase 
-		DEMO E 3 A_Metal 
-		DEMO EFF 3 A_Chase 
-		Loop 
+	Spawn:
+		DEMO AB 10 A_Look
+		Loop
+	See:
+		DEMO A 3 A_Metal
+		DEMO ABB 3 A_Chase
+		DEMO C 3 A_Metal
+		DEMO CDD 3 A_Chase
+		DEMO E 3 A_Metal
+		DEMO EFF 3 A_Chase
+		Loop
 	Missile:
-		DEMO A 0 Bright A_Jump (128,"Missile2","Missile3","Missile4")
+		DEMO A 0 A_Jump (64,"Chaingun")
 		DEMO A 20 A_FaceTarget
-		DEMO T 1 Bright A_StartSound ("weapons/bfgf")
-		DEMO T 4 Bright A_FaceTarget
-		DEMO T 4 Bright A_FaceTarget
-		DEMO T 5 Bright A_FaceTarget
-		DEMO T 5 Bright A_FaceTarget
-		DEMO T 5 Bright A_FaceTarget
-		DEMO T 5 Bright A_FaceTarget
-		DEMO U 10 Bright A_SpawnProjectile ("BFGBall",32,0,0,0,CMF_CHECKTARGETDEAD)
-		DEMO T 0 Bright A_Jump (128,10)
-		DEMO T 1 Bright A_StartSound ("weapons/bfgf")
-		DEMO T 4 Bright A_FaceTarget
-		DEMO T 4 Bright A_FaceTarget
-		DEMO T 5 Bright A_FaceTarget
-		DEMO T 5 Bright A_FaceTarget
-		DEMO T 5 Bright A_FaceTarget
-		DEMO T 5 Bright A_FaceTarget 
-		DEMO U 10 Bright A_SpawnProjectile ("BFGBall",32,0,0,0,CMF_CHECKTARGETDEAD)
-		DEMO T 0 Bright A_Jump (192,1)
+		DEMO T 1 A_StartSound("SDCHARGE",CHAN_WEAPON,CHANF_DEFAULT,1.0)
+		DEMO T 4 A_FaceTarget
+		DEMO T 4 A_FaceTarget
+		DEMO T 5 A_FaceTarget
+		DEMO T 5 A_FaceTarget
+		DEMO T 5 A_FaceTarget
+		DEMO T 5 A_FaceTarget
+		DEMO T 0 { A_StartSound("SDBEAM",CHAN_AUTO,CHANF_DEFAULT,1.0); A_GiveToTarget("HoleFlash"); }
+		DEMO U 10 A_SpawnProjectile ("DMBall",32,0,0,0,CMF_CHECKTARGETDEAD)
+		DEMO T 0 A_Jump (128,11)
+		DEMO T 1 A_StartSound("SDCHARGE",CHAN_WEAPON,CHANF_DEFAULT,1.0)
+		DEMO T 4 A_FaceTarget
+		DEMO T 4 A_FaceTarget
+		DEMO T 5 A_FaceTarget
+		DEMO T 5 A_FaceTarget
+		DEMO T 5 A_FaceTarget
+		DEMO T 5 A_FaceTarget
+		DEMO T 0 { A_StartSound("SDBEAM",CHAN_AUTO,CHANF_DEFAULT,1.0); A_GiveToTarget("HoleFlash"); }
+		DEMO U 10 A_SpawnProjectile ("DMBall",32,0,0,0,CMF_CHECKTARGETDEAD)
+		DEMO T 0 A_Jump (192,1)
 		Goto See
-	Missile2:
+	Chaingun:
 		DEMO A 20 A_FaceTarget
-		DEMO G 0 Bright A_SPosAttack
-		DEMO G 4 Bright A_SPosAttack
-		DEMO H 0 Bright A_SPosAttack
-		DEMO H 4 Bright A_SPosAttack
-		DEMO H 1 Bright A_SpidRefire 
+		DEMO G 0 A_SPosAttack
+		DEMO G 4 A_SPosAttack
+		DEMO H 0 A_SPosAttack
+		DEMO H 4 A_SPosAttack
+		DEMO H 1 A_SpidRefire
 		Goto Missile+21
-	Missile3: //requires fitting frames yet - ozy81
-		DEMO T 0 A_StartSound("SDCHARGE",CHAN_WEAPON,CHANF_DEFAULT,1.0)
-		DEMO UVWTU 5 BRIGHT A_FaceTarget
-		DEMO VWTUV 4 BRIGHT A_FaceTarget
-		DEMO WTUVW 3 BRIGHT A_FaceTarget
-		DEMO TUVWT 2 BRIGHT A_FaceTarget
-		DEMO UVWTU 1 BRIGHT A_FaceTarget
-		DEMO VWTUV 1 BRIGHT A_FaceTarget
-		DEMO X 0 A_StartSound("SDBEAM",CHAN_AUTO,CHANF_DEFAULT,1.0)
-		DEMO X 0 A_GiveToTarget("BeamFlash")
-		DEMO XXXXXXXXXXXX 1 BRIGHT A_SpawnProjectile("SonicBeam",60,0,0)
+	Pain:
+		DEMO I 3
+		DEMO I 3 A_Pain
 		Goto See
-	Missile4: //requires fitting frames yet - ozy81
-		DEMO T 0 A_StartSound("SDCHARGE",CHAN_WEAPON,CHANF_DEFAULT,1.0)
-		DEMO TU 16 BRIGHT A_FaceTarget
-		DEMO U 0 A_StartSound("SDBEAM",CHAN_AUTO,CHANF_DEFAULT,1.0)
-		DEMO U 0 A_GiveToTarget("HoleFlash")
-		DEMO U 1 BRIGHT A_SpawnProjectile("DMBall",60,0,0)
-		Goto See
-	Pain: 
-		DEMO I 3 
-		DEMO I 3 A_Pain 
-		Goto See 
-	Death: 
-		DEMO J 20 Bright A_Scream 
-		DEMO K 10 Bright A_NoBlocking 
-		DEMO LMNOPQR 10 Bright
-		DEMO S 30 
-		DEMO S -1 A_BossDeath 
-		Stop 
-	} 
+	Death:
+		DEMO J 20 A_Scream
+		DEMO K 10 A_NoBlocking
+		DEMO LMNOPQR 10
+		DEMO S 30
+		DEMO S -1 A_BossDeath
+		Stop
+	}
 }
