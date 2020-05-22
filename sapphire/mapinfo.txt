@@ -27,11 +27,12 @@ map map01 "Sapphire Orbital Research"
 	sky1 = ORBITAL, 0.20
 	skyrotate = 0.6, 0.4, 0.3
 	music = "D_MAP01"
+	par = "2100"
 	cluster = 1
 	next = "ENDGAMEC"
 	intermusic = "D_DM2TTL"
-	enterpic = "TGRRFL0"
-	exitpic = "TGRRFL0"
+	enterpic = "INTERPIC"
+	exitpic = "INTERPIC"
 }
 
 doomednums
@@ -71,10 +72,10 @@ Intermission Inter_Cast
 		Time = -1
 		Music = "d_boss"
 	}
-	Link = TCotD1Cast
+	Link = SaphCast
 }
 
-Intermission TCotD1Cast
+Intermission SaphCast
 {
 	Cast
 	{
@@ -168,19 +169,19 @@ Intermission TCotD1Cast
 	}
 	Cast
 	{
-		CastClass = "Demolisher"
-		CastName = "$CC_SPIDER"
-		AttackSound = "Missile", 1, "spider/attack"
-		AttackSound = "Missile", 2, "spider/attack"
+		CastClass = "Hectebus"
+		CastName = "Hectebus"
+		AttackSound = "Missile", 5, "Hectebus/Attack"
+		AttackSound = "Missile", 7, "Hectebus/Attack"
+		AttackSound = "Missile2", 3, "Hectebus/Attack"
+		AttackSound = "Missile2", 6, "Hectebus/Attack"
 	}
 	Cast
 	{
-		CastClass = "Hectebus"
-		CastName = "Hectebus"
-		AttackSound = "Missile", 5, "UNMBWOSH"
-		AttackSound = "Missile", 7, "UNMBWOSH"
-		AttackSound = "Missile2", 3, "UNMBMACI"
-		AttackSound = "Missile2", 6, "UNMBMACI"
+		CastClass = "Demolisher"
+		CastName = "Demolisher"
+		AttackSound = "Missile", 1, "monster/dematk"
+		AttackSound = "Missile", 24, "spider/attack"
 	}
 	Cast
 	{
@@ -188,5 +189,5 @@ Intermission TCotD1Cast
 		CastName = "$CC_HERO"
 		AttackSound = "Missile", 0, "weapons/sshotf"
 	}
-	Link = Doom2Cast	// restart cast call
+	Link = SaphCast	// restart cast call
 }
