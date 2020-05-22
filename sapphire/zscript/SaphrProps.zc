@@ -84,3 +84,20 @@ Class GrassSpawner : RandomSpawner
 		Scale 0.5;
 	}
 }
+
+Class EndShip : SaphrDietActor
+{
+	Default
+	{
+		DistanceCheck "saphrlod";
+		+NOBLOCKMAP
+		+NOGRAVITY
+	}
+	
+	States
+	{
+	Spawn:
+		MDLA A -1;
+		Stop;
+	}
+}
