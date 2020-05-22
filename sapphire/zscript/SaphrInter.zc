@@ -4,9 +4,9 @@ class SaphStatusScreen : DoomStatusScreen
 	override int drawLF ()
 	{
 		bool ispatch = wbs.LName0.isValid();
-		int oldy = TITLEY+25 * CleanYfac;
+		int oldy = TITLEY+40 * CleanYfac;
 		int h;
-		
+
 		if (!ispatch)
 		{
 			let asc = mapname.mFont.GetMaxAscender(lnametexts[1]);
@@ -15,11 +15,11 @@ class SaphStatusScreen : DoomStatusScreen
 				oldy = (asc+2) * CleanYfac;
 			}
 		}
-		
+
 		int y = DrawName(oldy, wbs.LName0, lnametexts[0]);
 
 		// If the displayed info is made of patches we need some additional offsetting here.
-		if (ispatch) 
+		if (ispatch)
 		{
 			int disp = 0;
 			// The offset getting applied here must at least be as tall as the largest ascender in the following text to avoid overlaps.
@@ -28,7 +28,7 @@ class SaphStatusScreen : DoomStatusScreen
 				int h1 = BigFont.GetHeight() - BigFont.GetDisplacement();
 				int h2 = (y - oldy) / CleanYfac / 4;
 				disp = min(h1, h2);
-				
+
 				if (!TexMan.OkForLocalization(finishedPatch, "$WI_FINISHED"))
 				{
 					disp += finished.mFont.GetMaxAscender("$WI_FINISHED");
@@ -40,9 +40,9 @@ class SaphStatusScreen : DoomStatusScreen
 			}
 			y += disp * CleanYfac;
 		}
-		
+
 		y = DrawAuthor(y, authortexts[0]);
-		
+
 		// draw "Finished!"
 
 		int statsy = multiplayer? NG_STATSY : SP_STATSY * CleanYFac;
@@ -57,7 +57,7 @@ class SaphStatusScreen : DoomStatusScreen
 	override void drawEL ()
 	{
 		bool ispatch = TexMan.OkForLocalization(enteringPatch, "$WI_ENTERING");
-		int oldy = TITLEY+25 * CleanYfac;
+		int oldy = TITLEY+40 * CleanYfac;
 
 		if (!ispatch)
 		{
@@ -69,9 +69,9 @@ class SaphStatusScreen : DoomStatusScreen
 		}
 
 		int y = DrawPatchOrText(oldy, entering, enteringPatch, "$WI_ENTERING");
-		
+
 		// If the displayed info is made of patches we need some additional offsetting here.
-		
+
 		if (ispatch)
 		{
 			int h1 = BigFont.GetHeight() - BigFont.GetDisplacement();
@@ -88,12 +88,12 @@ class SaphStatusScreen : DoomStatusScreen
 
 		y = DrawName(y, wbs.LName1, lnametexts[1]);
 
-		if (wbs.LName1.isValid() && authortexts[1].length() > 0) 
+		if (wbs.LName1.isValid() && authortexts[1].length() > 0)
 		{
 			// Consdider the ascender height of the following text.
 			y += author.mFont.GetMaxAscender(authortexts[1]) * CleanYfac;
 		}
-			
+
 		DrawAuthor(y, authortexts[1]);
 
 	}
@@ -104,8 +104,8 @@ class SaphStatusScreen : DoomStatusScreen
 		int lh = IntermissionFont.GetHeight() * 3 / 2;
 
 		drawLF();
-		
-	
+
+
 		// For visual consistency, only use the patches here if all are present.
 		bool useGfx = TexMan.OkForLocalization(Kills, "$TXT_IMKILLS")
 			&& TexMan.OkForLocalization(Items, "$TXT_IMITEMS")
@@ -125,11 +125,11 @@ class SaphStatusScreen : DoomStatusScreen
 		if (useGfx)
 		{
 			printFont = IntermissionFont;
-			screen.DrawTexture (Kills, true, statsx, SP_STATSY, DTA_Clean, true);
-			screen.DrawTexture (Items, true, statsx, SP_STATSY+lh, DTA_Clean, true);
-			screen.DrawTexture (P_secret, true, statsx, SP_STATSY+2*lh, DTA_Clean, true);
-			screen.DrawTexture (Timepic, true, SP_TIMEX, SP_TIMEY-2*lh, DTA_Clean, true);
-			if (wbs.partime) screen.DrawTexture (Par, true, 160 + SP_TIMEX, SP_TIMEY-2*lh, DTA_Clean, true);
+			screen.DrawTexture (Kills, true, statsx, SP_STATSY+12, DTA_Clean, true);
+			screen.DrawTexture (Items, true, statsx, SP_STATSY+12+lh, DTA_Clean, true);
+			screen.DrawTexture (P_secret, true, statsx, SP_STATSY+12+2*lh, DTA_Clean, true);
+			screen.DrawTexture (Timepic, true, SP_TIMEX, SP_TIMEY+12-2*lh, DTA_Clean, true);
+			if (wbs.partime) screen.DrawTexture (Par, true, 160 + SP_TIMEX, SP_TIMEY+12-2*lh, DTA_Clean, true);
 		}
 		else
 		{
@@ -146,25 +146,25 @@ class SaphStatusScreen : DoomStatusScreen
 			}
 
 			printFont = generic_ui? IntermissionFont : BigFont;
-			screen.DrawText (textFont, tcolor, statsx, SP_STATSY, "$TXT_IMKILLS", DTA_Clean, true);
-			screen.DrawText (textFont, tcolor, statsx, SP_STATSY+lh, "$TXT_IMITEMS", DTA_Clean, true);
-			screen.DrawText (textFont, tcolor, statsx, SP_STATSY+2*lh, "$TXT_IMSECRETS", DTA_Clean, true);
-			screen.DrawText (textFont, tcolor, SP_TIMEX, SP_TIMEY-2*lh, "$TXT_IMTIME", DTA_Clean, true);
-			if (wbs.partime) screen.DrawText (textFont, tcolor, 160 + SP_TIMEX, SP_TIMEY-2*lh, "$TXT_IMPAR", DTA_Clean, true);
+			screen.DrawText (textFont, tcolor, statsx, SP_STATSY+12, "$TXT_IMKILLS", DTA_Clean, true);
+			screen.DrawText (textFont, tcolor, statsx, SP_STATSY+12+lh, "$TXT_IMITEMS", DTA_Clean, true);
+			screen.DrawText (textFont, tcolor, statsx, SP_STATSY+12+2*lh, "$TXT_IMSECRETS", DTA_Clean, true);
+			screen.DrawText (textFont, tcolor, SP_TIMEX, SP_TIMEY+12-2*lh, "$TXT_IMTIME", DTA_Clean, true);
+			if (wbs.partime) screen.DrawText (textFont, tcolor, 160 + SP_TIMEX, SP_TIMEY+12-2*lh, "$TXT_IMPAR", DTA_Clean, true);
 		}
-			 
-		drawPercent (printFont, 320 - statsx, SP_STATSY, cnt_kills[0], wbs.maxkills, true, tcolor);
-		drawPercent (printFont, 320 - statsx, SP_STATSY+lh, cnt_items[0], wbs.maxitems, true, tcolor);
-		drawPercent (printFont, 320 - statsx, SP_STATSY+2*lh, cnt_secret[0], wbs.maxsecret, true, tcolor);
-		drawTimeFont (printFont, 160 - SP_TIMEX, SP_TIMEY-2*lh, cnt_time, tcolor);
-			 
+
+		drawPercent (printFont, 320 - statsx, SP_STATSY+12, cnt_kills[0], wbs.maxkills, true, tcolor);
+		drawPercent (printFont, 320 - statsx, SP_STATSY+12+lh, cnt_items[0], wbs.maxitems, true, tcolor);
+		drawPercent (printFont, 320 - statsx, SP_STATSY+12+2*lh, cnt_secret[0], wbs.maxsecret, true, tcolor);
+		drawTimeFont (printFont, 160 - SP_TIMEX, SP_TIMEY+12-2*lh, cnt_time, tcolor);
+
 		// This really sucks - not just by its message - and should have been removed long ago!
 		// To avoid problems here, the "sucks" text only gets printed if the lump is present, this even applies to the text replacement.
-			 
+
 		if (cnt_time >= wbs.sucktime * 60 * 60 && wbs.sucktime > 0 && Sucks.IsValid())
 		{ // "sucks"
 			int x = 160 - SP_TIMEX;
-			int y = SP_TIMEY;
+			int y = SP_TIMEY+12;
 			if (useGfx && TexMan.OkForLocalization(Sucks, "$TXT_IMSUCKS"))
 			{
 				let size = TexMan.GetScaledSize(Sucks);
@@ -178,12 +178,12 @@ class SaphStatusScreen : DoomStatusScreen
 
 		if (wi_showtotaltime)
 		{
-			 drawTimeFont (printFont, 160 - SP_TIMEX, SP_TIMEY-2*lh + lh, cnt_total_time, tcolor);
+			 drawTimeFont (printFont, 160 - SP_TIMEX, SP_TIMEY+12-2*lh + lh, cnt_total_time, tcolor);
 		}
 
 		if (wbs.partime)
 		{
-			drawTimeFont (printFont, 320 - SP_TIMEX, SP_TIMEY-2*lh, cnt_par, tcolor);
+			drawTimeFont (printFont, 320 - SP_TIMEX, SP_TIMEY+12-2*lh, cnt_par, tcolor);
 		}
 	}
 }

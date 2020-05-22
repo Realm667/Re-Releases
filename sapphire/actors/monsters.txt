@@ -4,10 +4,33 @@
 //
 //===========================================
 
-ACTOR BaronOfHellGreen : NashGore_BaronOfHell { BloodColor "77 EF 01" }
-ACTOR CacoDemonBlue : NashGore_Cacodemon { BloodColor "01 C8 DF" }
-ACTOR HellKnightGreen : NashGore_HellKnight { BloodColor "77 EF 01" }
-ACTOR LostSoulSmoke : NashGore_LostSoul { -NOBLOODDECALS }
+ACTOR BaronOfHellGreen : NashGore_BaronOfHell
+{
+	//$Category Sapphire Monsters
+	//$Title "Baron Of Hell, recolored"
+	BloodColor "77 EF 01"
+}
+
+ACTOR CacoDemonBlue : NashGore_Cacodemon
+{
+	//$Category Sapphire Monsters
+	//$Title "CacoDemon, recolored"
+	BloodColor "01 C8 DF"
+}
+
+ACTOR HellKnightGreen : NashGore_HellKnight
+{
+	//$Category Sapphire Monsters
+	//$Title "Hell Knight, recolored"
+	BloodColor "77 EF 01"
+}
+
+ACTOR LostSoulSmoke : NashGore_LostSoul
+{
+	//$Category Sapphire Monsters
+	//$Title "Lost Soul, recolored"
+	-NOBLOODDECALS
+}
 
 //========================
 //
@@ -34,18 +57,20 @@ ACTOR HoleFlash : CustomInventory
 
 ACTOR Demolisher
 {
+	//$Category Sapphire Monsters
 	Health 600000
 	Radius 96
 	Height 100
 	Mass 1000
 	Speed 16
 	PainChance 20
+	DamageFactor "Electric", 0
 	Monster
 	+BOSS
-	+FLOORCLIP
-	+MISSILEEVENMORE
 	+DONTBLAST
 	+DONTTHRUST
+	+FLOORCLIP
+	+MISSILEEVENMORE
 	+NORADIUSDMG
 	+NOTARGET
 	Obituary "$OB_DEMO"
@@ -54,6 +79,7 @@ ACTOR Demolisher
 	PainSound "spider/pain"
 	DeathSound "monster/demdth"
 	ActiveSound "spider/active"
+	Species "BlackHole"
 	States
 	{
 	Spawn:
@@ -78,7 +104,7 @@ ACTOR Demolisher
 		DEMO T 5 A_FaceTarget
 		DEMO T 5 A_FaceTarget
 		DEMO T 0 { A_StartSound("SDBEAM",CHAN_AUTO,CHANF_DEFAULT,1.0); A_GiveToTarget("HoleFlash"); }
-		DEMO U 10 A_SpawnProjectile ("DMBallBoss",32,0,0,0,CMF_CHECKTARGETDEAD)
+		DEMO U 10 A_SpawnProjectile ("DMBall",32,0,0,0,CMF_CHECKTARGETDEAD)
 		DEMO T 0 A_Jump (128,11)
 		DEMO T 1 A_StartSound("SDCHARGE",CHAN_WEAPON,CHANF_DEFAULT,1.0)
 		DEMO T 4 A_FaceTarget
@@ -88,7 +114,7 @@ ACTOR Demolisher
 		DEMO T 5 A_FaceTarget
 		DEMO T 5 A_FaceTarget
 		DEMO T 0 { A_StartSound("SDBEAM",CHAN_AUTO,CHANF_DEFAULT,1.0); A_GiveToTarget("HoleFlash"); }
-		DEMO U 10 A_SpawnProjectile ("DMBallBoss",32,0,0,0,CMF_CHECKTARGETDEAD)
+		DEMO U 10 A_SpawnProjectile ("DMBall",32,0,0,0,CMF_CHECKTARGETDEAD)
 		DEMO T 0 A_Jump (32,1)
 		Goto See
 		DEMO A 20 A_FaceTarget

@@ -2,22 +2,24 @@ Class Hectebus : Actor
 {
 	Default
 	{
+		//$Category Sapphire Monsters
 		Health 1500;
 		Radius 56;
 		Height 80;
+		Mass 1500;
 		Scale 1.25;
 		Speed 12;
 		PainChance 32;
-		BloodColor "73 00 00";
-		Mass 1500;
+		Monster;
+		+FLOORCLIP
+		+MISSILEMORE
 		SeeSound "Hectebus/Sight";
 		PainSound "Hectebus/Pain";
 		DeathSound "Hectebus/Death";
 		ActiveSound "Hectebus/Active";
 		Obituary "$OB_HECT";
-		Monster;
-		+FLOORCLIP
-		+MISSILEMORE
+		BloodColor "73 00 00";
+		DropItem "Cell",96,2;
 	}
 
 	States
