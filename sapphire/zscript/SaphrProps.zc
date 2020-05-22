@@ -29,25 +29,20 @@ Class LightRay_Wallsprite : LightRay_Regular
 {
 	Default
 	{
-		//$Title Light Rays, Wallsprite
+		//$Title Light Rays, WallSprite
 		DistanceCheck "saphrlod";
 		+ROLLSPRITE
 		+WALLSPRITE
 	}
 }
 
-Class LightRay2_Regular : SwitchableDecoration
+Class LightRay2_Regular : LightRay_Regular
 {
 	Default
 	{
-		DistanceCheck "saphrlod";
-		Radius 8;
-		Height 16;
-		RenderStyle "Translucent";
-		Alpha 1.0;
-		+NOBLOCKMAP
-		+NOGRAVITY
+		//$Title Light Rays 2, Regular
 	}
+	
 	States
 	{
 	Spawn:
@@ -65,15 +60,16 @@ Class LightRay2_Wallsprite : LightRay2_Regular
 {
 	Default
 	{
-		DistanceCheck "saphrlod";
+		//$Title Light Rays 2, WallSprite
+	}
+	
+	Default
+	{
 		+ROLLSPRITE
 		+WALLSPRITE
 	}
 }
 
-
-
-//these should be replaced with something else I think, unless there will be a garden like on System Shock - ozy81
 Class Grass1 : SaphrDietActor
 {
 	Default
