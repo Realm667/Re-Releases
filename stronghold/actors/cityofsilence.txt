@@ -1,3 +1,20 @@
+ACTOR Heart : HealthBonus //little fix by Ozy81 - this actor was missing, imported Life Essence from TCOTD2 remaster
+{
+	Scale 0.5
+	RenderStyle "Translucent"
+	Alpha 0.95
+	Inventory.Amount 5
+	Inventory.PickupMessage "$IP_ESSE"
+	Inventory.PickupSound "ITEMUP"
+	+VISIBILITYPULSE
+	States
+	{
+	Spawn:
+		HERT ABCD 6
+		Loop
+	}
+}
+
 ACTOR Apprentice 30000
 {
 	//$Category Stronghold_CityOfSilence

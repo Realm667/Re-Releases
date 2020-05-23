@@ -1535,7 +1535,7 @@ actor WallPlaced
 	Spawn:
 		TNT1 A 0
 		TNT1 A 0 A_JumpIf(user_timer>=4200,3)
-		TNT1 A 0 A_SpawnItemEx("RedSparkleRandom",random(-10.0,10.0),0,0,0,0,random(0.05,2.00),0,0,192)
+		TNT1 A 0 A_SpawnItemEx("RedSparkleRandom",frandom(-10.0,10.0),0,0,0,0,frandom(0.05,2.00),0,0,192)
 		TNT1 A 1 A_SetUserVar("user_timer",user_timer+1)
   		Loop
 		TNT1 A 1 A_Die
