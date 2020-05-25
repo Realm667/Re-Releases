@@ -1,499 +1,353 @@
 /////////////// KDIZD FLARES AND GLOWS //////////////////
 /////////////// Made by Nmn ////////////////////////
 
-actor Glow1 31151
+ACTOR GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
+	Radius 1
+	Height 1
+	RenderStyle ADD
+	+BRIGHT
+	+FLOORCLIP
+	+NOGRAVITY
+}
+
+ACTOR Glow1
+{
+	States
+	{
+	Spawn:
+		GLO2 A -1
+		Stop
+	}
+}
+
+ACTOR Glow09 : GlowBase
+{
+	Scale 0.9
+	States
+	{
+	Spawn:
+		GLO2 A -1
+		Stop
+	}
+}
+
+ACTOR Glow08 : GlowBase
+{
+	Scale 0.8
+	States
+	{
+	Spawn:
+		GLO2 A -1
+		Stop
+	}
+}
+
+ACTOR Glow07 : GlowBase
+{
+	Scale 0.7
+	States
+	{
+	Spawn:
+		GLO2 A -1
+		Stop
+	}
+}
+
+ACTOR Glow06 : GlowBase
+{
+	Scale 0.6
+	States
+	{
+	Spawn:
+	GLO2 A -1
+	Stop
+	}
+}
+
+ACTOR Glow05 : GlowBase
+{
+Scale 0.5
 States
 {
 Spawn:
-GLO2 A -1 Bright
-Loop
+GLO2 A -1
+Stop
 }
 }
 
-actor Glow09 31170
+ACTOR Glow04 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.9
+Scale 0.4
 States
 {
 Spawn:
-GLO2 A -1 Bright
-Loop
+GLO2 A -1
+Stop
 }
 }
 
-actor Glow08 31160
+ACTOR Glow03 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.8
+Scale 0.3
 States
 {
 Spawn:
-GLO2 A -1 Bright
-Loop
+GLO2 A -1
+Stop
 }
 }
 
-actor Glow07 31171
+ACTOR Glow02 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.7
+Scale 0.2
 States
 {
 Spawn:
-GLO2 A -1 Bright
-Loop
+GLO2 A -1
+Stop
 }
 }
 
-actor Glow06 31161
+ACTOR GlowWeak1 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.6
 States
 {
 Spawn:
-GLO2 A -1 Bright
-Loop
+GLO1 A -1
+Stop
 }
 }
 
-actor Glow05 31172
+ACTOR GlowWeak09 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.5
+Scale 0.9
 States
 {
 Spawn:
-GLO2 A -1 Bright
-Loop
+GLO1 A -1
+Stop
 }
 }
 
-actor Glow04 31162
+ACTOR GlowWeak08 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.4
+Scale 0.8
 States
 {
 Spawn:
-GLO2 A -1 Bright
-Loop
+GLO1 A -1
+Stop
 }
 }
 
-actor Glow03 31173
+ACTOR GlowWeak07 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.3
+Scale 0.7
 States
 {
 Spawn:
-GLO2 A -1 Bright
-Loop
+GLO1 A -1
+Stop
 }
 }
 
-actor Glow02 31163
+ACTOR GlowWeak06 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.2
+Scale 0.6
 States
 {
 Spawn:
-GLO2 A -1 Bright
-Loop
+GLO1 A -1
+Stop
 }
 }
 
-actor GlowWeak1 31152
+ACTOR GlowWeak05 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
+Scale 0.5
 States
 {
 Spawn:
-GLO1 A -1 Bright
-Loop
+GLO1 A -1
+Stop
 }
 }
 
-actor GlowWeak09 31174
+ACTOR GlowWeak04 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.9
+Scale 0.4
 States
 {
 Spawn:
-GLO1 A -1 Bright
-Loop
+GLO1 A -1
+Stop
 }
 }
 
-actor GlowWeak08 31156
+ACTOR GlowWeak03 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.8
+Scale 0.3
 States
 {
 Spawn:
-GLO1 A -1 Bright
-Loop
+GLO1 A -1
+Stop
 }
 }
 
-actor GlowWeak07 31175
+ACTOR GlowWeak02 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.7
+Scale 0.2
 States
 {
 Spawn:
-GLO1 A -1 Bright
-Loop
+GLO1 A -1
+Stop
 }
 }
 
-actor GlowWeak06 31157
+ACTOR Flare1 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.6
 States
 {
 Spawn:
-GLO1 A -1 Bright
-Loop
+FLR3 A -1
+Stop
 }
 }
 
-actor GlowWeak05 31176
+ACTOR Flare2 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.5
 States
 {
 Spawn:
-GLO1 A -1 Bright
-Loop
+FLR4 A -1
+Stop
 }
 }
 
-actor GlowWeak04 31158
+ACTOR Flare3 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.4
 States
 {
 Spawn:
-GLO1 A -1 Bright
-Loop
+FLR5 A -1
+Stop
 }
 }
 
-actor GlowWeak03 31177
+ACTOR Yellowglow1 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.3
-States
-{
-Spawn:
-GLO1 A -1 Bright
-Loop
-}
-}
-
-actor GlowWeak02 31159
-{
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.2
-States
-{
-Spawn:
-GLO1 A -1 Bright
-Loop
-}
-}
-
-actor Flare1 31153
-{
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-States
-{
-Spawn:
-FLR3 A -1 Bright
-Loop
-}
-}
-
-actor Flare2 31154
-{
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-States
-{
-Spawn:
-FLR4 A -1 Bright
-Loop
-}
-}
-
-actor Flare3 31155
-{
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-States
-{
-Spawn:
-FLR5 A -1 Bright
-Loop
-}
-}
-
-actor Yellowglow1 31164
-{
-Radius 1
-Height 1
-RENDERSTYLE ADD
-Alpha 0.6
-+NOGRAVITY
-+FLOORCLIP
-States
-{
-Spawn:
-GLO5 A -1 Bright
-Loop
-}
-}
-
-actor Yellowglow07 31165
-{
-Radius 1
-Height 1
-RENDERSTYLE ADD
-Alpha 0.6
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.7
-States
-{
-Spawn:
-GLO5 A -1 Bright
-Loop
-}
-}
-
-actor Redglow07 31166
-{
-Radius 1
-Height 1
-RENDERSTYLE ADD
-Alpha 0.6
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.7
-States
-{
-Spawn:
-GLO4 A -1 Bright
-Loop
-}
-}
-
-actor Redglow1 31167
-{
-Radius 1
-Height 1
-RENDERSTYLE ADD
-Alpha 0.6
-+NOGRAVITY
-+FLOORCLIP
-States
-{
-Spawn:
-GLO4 A -1 Bright
-Loop
-}
-}
-
-actor Blueglow07 31168
-{
-Radius 1
-Height 1
-RENDERSTYLE ADD
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.7
 Alpha 0.6
 States
 {
 Spawn:
-GLO3 A -1 Bright
-Loop
+GLO5 A -1
+Stop
 }
 }
 
-actor Blueglow1 31169
+ACTOR Yellowglow07 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
 Alpha 0.6
-+NOGRAVITY
-+FLOORCLIP
+Scale 0.7
 States
 {
 Spawn:
-GLO3 A -1 Bright
-Loop
+GLO5 A -1
+Stop
 }
 }
 
-actor Greenglow1 31185
+ACTOR Redglow07 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
 Alpha 0.6
-+NOGRAVITY
-+FLOORCLIP
+Scale 0.7
 States
 {
 Spawn:
-GLO7 A -1 Bright
-Loop
+GLO4 A -1
+Stop
 }
 }
 
-actor Greenglow07 31184
+ACTOR Redglow1 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
 Alpha 0.6
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.7
 States
 {
 Spawn:
-GLO7 A -1 Bright
-Loop
+GLO4 A -1
+Stop
 }
 }
 
-actor OrangeGlow07 31183
+ACTOR Blueglow07 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
+Scale 0.7
 Alpha 0.6
-+NOGRAVITY
-+FLOORCLIP
-SCALE 0.7
 States
 {
 Spawn:
-GLO6 A -1 Bright
-Loop
+GLO3 A -1
+Stop
 }
 }
 
-actor OrangeGlow1 31182
+ACTOR Blueglow1 : GlowBase
 {
-Radius 1
-Height 1
-RENDERSTYLE ADD
 Alpha 0.6
-+NOGRAVITY
-+FLOORCLIP
 States
 {
 Spawn:
-GLO6 A -1 Bright
-Loop
+GLO3 A -1
+Stop
 }
 }
 
+ACTOR Greenglow1 : GlowBase
+{
+Alpha 0.6
+States
+{
+Spawn:
+GLO7 A -1
+Stop
+}
+}
+
+ACTOR Greenglow07 : GlowBase
+{
+Alpha 0.6
+Scale 0.7
+States
+{
+Spawn:
+GLO7 A -1
+Stop
+}
+}
+
+ACTOR OrangeGlow07 : GlowBase
+{
+Alpha 0.6
+Scale 0.7
+States
+{
+Spawn:
+GLO6 A -1
+Stop
+}
+}
+
+ACTOR OrangeGlow1 : GlowBase
+{
+Alpha 0.6
+States
+{
+Spawn:
+GLO6 A -1
+Stop
+}
+}

@@ -5,9 +5,9 @@
 // Created by Vader
 //
 //===========================================================================
-ACTOR BruiserDemon 3333
+ACTOR BruiserDemon
 {
-	//$Category Monsters
+	//$Category KDiZD Monsters
 	Health 3000
 	Radius 24
 	Height 64
@@ -26,8 +26,8 @@ ACTOR BruiserDemon 3333
 	DeathSound "superbaron/death"
 	ActiveSound "superbaron/act"
 	MeleeSound "baron/melee"
-	Obituary "%o was slaughtered by a Bruiserdemon."
-	HitObituary "%o was cremated by a Bruiserdemon."
+	Obituary "$OB_BRUD"
+	HitObituary "$HB_BRUD"
 	MeleeDamage 20
 	Scale 1.25
 	States
@@ -119,7 +119,7 @@ ACTOR BruiserBall
 	}
 }
 
-actor BruiserBallTrail
+ACTOR BruiserBallTrail
 {
     Radius 1
     Height 1
@@ -187,21 +187,21 @@ ACTOR BruiserFireSpawner
 ACTOR BruiserFire
 {
 	Radius 1
-    	Height 1
-    	Speed 0
-    	Damage 20
-    	PROJECTILE
-    	RENDERSTYLE ADD
-    	ALPHA 0.9
-    	+NOCLIP
+	Height 1
+	Speed 0
+	Damage 20
+	PROJECTILE
+	RENDERSTYLE ADD
+	ALPHA 0.9
+	+NOCLIP
 	+FLOORHUGGER
 	SeeSound "weapons/rocklx"
-    	States
-    	{
-    	Spawn:
-  		FIRE AB 3 Bright
-    		FIRE C 3 Bright A_Explode(48,128,0)
+	States
+	{
+	Spawn:
+		FIRE AB 3 Bright
+		FIRE C 3 Bright A_Explode(48,128,0)
 		FIRE DEFGHIJKLMNOPQRST 3 Bright
-     		Stop       
-   	}
+		Stop       
+	}
 }

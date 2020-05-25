@@ -1,3 +1,17 @@
+ACTOR DarkBase //base actor for projectiles  - Ozy81
+{
+	Radius 8
+	Height 6
+	Damage 3
+	Speed 9
+	Projectile
+	RenderStyle ADD
+	Alpha 0.67
+	SeeSound "imp/attack"
+	DeathSound "imp/shotx"
+	Decal DoomImpScorch
+}
+
 //===========================================================================
 //
 // NamiDarkImp
@@ -6,23 +20,23 @@
 //
 //===========================================================================
 
-actor NamiDarkImp 3100
+ACTOR NamiDarkImp
 {
-	//$Category Monsters
+	//$Category KDiZD Monsters
     Health 120
     Radius 20
     Height 56
     Speed 8
     PainChance 200
-    MONSTER 
+    MONSTER
     +FLOORCLIP
     SeeSound "imp/sight"
     PainSound "imp/pain"
     DeathSound "imp/death"
     ActiveSound "imp/active"
     MeleeSound "imp/melee"
-    Obituary "%o was cursed by a dark imp."
-    HitObituary "%o was touched by a dark imp."
+    Obituary "$OB_NIMP"
+    HitObituary "$HB_NIMP"
     MissileType DarkSeeker
     MeleeDamage 3
     States
@@ -64,19 +78,9 @@ actor NamiDarkImp 3100
     }
 }
 
-actor DarkSeeker
+ACTOR DarkSeeker : DarkBase
 {
-    Radius 8
-    Height 6
-    Speed 9
-    Damage 3
     +SEEKERMISSILE
-    PROJECTILE
-    RENDERSTYLE ADD
-    ALPHA 0.67
-    SeeSound "imp/attack"
-    DeathSound "imp/shotx"
-    Decal DoomImpScorch
     States
     {
     Spawn:
@@ -97,23 +101,23 @@ actor DarkSeeker
 //
 //===========================================================================
 
-actor VoidDarkImp 3101
+ACTOR VoidDarkImp
 {
-	//$Category Monsters
+	//$Category KDiZD Monsters
     Health 130
     Radius 20
     Height 56
     Speed 7
     PainChance 200
-    MONSTER 
+    MONSTER
     +FLOORCLIP
     SeeSound "imp/sight"
     PainSound "imp/pain"
     DeathSound "imp/death"
     ActiveSound "imp/active"
     MeleeSound "imp/melee"
-    Obituary "%o was cursed by a dark imp."
-    HitObituary "%o was touched by a dark imp."
+    Obituary "$OB_VIMP"
+    HitObituary "$HB_VIMP"
     MissileType DarkNormal
     MeleeDamage 3
     States
@@ -168,18 +172,8 @@ actor VoidDarkImp 3101
     }
 }
 
-actor DarkNormal
+ACTOR DarkNormal : DarkBase
 {
-    Radius 8
-    Height 6
-    Speed 9
-    Damage 3
-    PROJECTILE
-    RENDERSTYLE ADD
-    ALPHA 0.67
-    SeeSound "imp/attack"
-    DeathSound "imp/shotx"
-    Decal DoomImpScorch
     States
     {
     Spawn:
@@ -191,20 +185,11 @@ actor DarkNormal
     }
 }
 
-actor DarkStrong
+ACTOR DarkStrong : DarkBase
 {
-    Radius 8
-    Height 6
-    Speed 9
     Damage 6
-    PROJECTILE
-    RENDERSTYLE ADD
-    ALPHA 0.67
-    SeeSound "imp/attack"
-    DeathSound "imp/shotx"
-    MISSILEHEIGHT 0
+    MissileHeight 0
     MissileType DarkTail
-    Decal DoomImpScorch
     States
     {
     Spawn:
@@ -217,11 +202,11 @@ actor DarkStrong
     }
 }
 
-actor DarkTail
+ACTOR DarkTail
 {
     PROJECTILE
-    RENDERSTYLE ADD
     +NOCLIP
+    RenderStyle ADD
     ALPHA 0.5
     States
     {
@@ -240,23 +225,23 @@ actor DarkTail
 //
 //===========================================================================
 
-actor STDarkImp 3102
+ACTOR STDarkImp
 {
-	//$Category Monsters
+	//$Category KDiZD Monsters
     Health 110
     Radius 20
     Height 56
     Speed 9
     PainChance 200
-    MONSTER 
+    MONSTER
     +FLOORCLIP
     SeeSound "imp/sight"
     PainSound "imp/pain"
     DeathSound "imp/death"
     ActiveSound "imp/active"
     MeleeSound "imp/melee"
-    Obituary "%o was cursed by a dark imp."
-    HitObituary "%o was touched by a dark imp."
+    Obituary "$OB_STDI"
+    HitObituary "$HB_STDI"
     MissileType DarkFast
     MeleeDamage 3
     States
@@ -298,19 +283,10 @@ actor STDarkImp 3102
     }
 }
 
-actor DarkFast
+ACTOR DarkFast : DarkBase
 {
-    Radius 8
-    Height 6
     Speed 18
-    Damage 3
-    PROJECTILE
-    RENDERSTYLE ADD
-    ALPHA 0.67
-    SeeSound "imp/attack"
-    DeathSound "imp/shotx"
-    MISSILEHEIGHT 0
-    Decal DoomImpScorch
+    MissileHeight 0
     States
     {
     Spawn:
@@ -319,6 +295,5 @@ actor DarkFast
     Death:
         DKB1 CDE 4 Bright
         Stop
-    }   
+    }
 }
-

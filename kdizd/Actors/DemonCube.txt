@@ -8,9 +8,9 @@
 //
 //===========================================================================
 
-actor KDiZDDemonCube 26001
+ACTOR KDiZDDemonCube
 {
-	//$Category "Monsters"
+	//$Category KDiZD Monsters
     Health 50
     Radius 20
     Height 20
@@ -27,7 +27,7 @@ actor KDiZDDemonCube 26001
     PainSound "demon/pain"
     ActiveSound "demon/active"
     AttackSound "demoncube/attack"
-    Obituary "%o fell victim to a Demon Cube."
+    Obituary "$OB_KUBE"
     MissileType DemonCubeMissile
     States
     {
@@ -55,26 +55,24 @@ actor KDiZDDemonCube 26001
     }
 }
 
-
-
-actor DemonCubeMissile
+ACTOR DemonCubeMissile
 {
-    Radius 8
-    Height 8
-    Speed 18
-    Damage 4
-    PROJECTILE
-    RENDERSTYLE ADD
-    ALPHA 0.75
-    SeeSound "demoncube/attack"
-    DeathSound "imp/shotx"
-    States
-    {
-    Spawn:
-        DCPF AB 2 Bright
-        Loop
-    Death:
-        DCPF ABCDE 3 Bright
-        Stop
-    }
+	Radius 8
+	Height 8
+	Speed 18
+	Damage 4
+	PROJECTILE
+	RenderStyle ADD
+	ALPHA 0.75
+	SeeSound "demoncube/attack"
+	DeathSound "imp/shotx"
+	States
+	{
+	Spawn:
+		DCPF AB 2 Bright
+		Loop
+	Death:
+		DCPF ABCDE 3 Bright
+		Stop
+	}
 }

@@ -18,42 +18,48 @@ Actor KDiZDPlayer : DoomPlayer
 
 /////////////////////////////
 //
-/// Bio's E1M9
+// Bio's E1M9
 //
-//
-projectile RainDrop
+/////////////////////////////
+
+ACTOR RainDrop //this actor needs to be fixed or replaced - Ozy81
 {
-	SpawnNum 183
-	Sprite RAIN
-	Frames "A"
-	DeathSprite RAIN
-	DeathFrames "BCDE"
-	DeathSound "RainDrop"
+	SpawnID 183
 	Radius 1
 	Height 1
+	Mass 1
 	Speed 70
 	Damage 0
-	Mass 1
-	NoBlockmap
-	ActivatePCross
-	ActivateImpact
-	NoTeleport
+	Projectile
+	+DONTSPLASH
+	+NOBLOCKMAP
+	+NOTELEPORT
+	-NOGRAVITY
+	DeathSound "RainDrop"
+	States
+	{
+	Spawn:
+		RAIN A 1 A_JumpIf(WaterLevel > 0, "Death")
+		Loop
+	Death:
+		RAIN BCDE 4 A_FadeOut(0.15)
+		Stop
+	}
 }
-
 
 //////////////////////////////////////////////////
 
-actor Explosion
+ACTOR Explosion
 {
+    RenderStyle TRANSLUCENT
+    ALPHA 0.75
     +NOCLIP
     +NOGRAVITY
-    RENDERSTYLE TRANSLUCENT
-    ALPHA 0.75
     States
     {
     Spawn:
     Death:
-        MISL B 8 Bright 
+        MISL B 8 Bright
         MISL C 6 Bright A_Playsound("weapons/rocklx")
         MISL D 4 Bright
         Stop
@@ -63,57 +69,66 @@ actor Explosion
 ///////////////////////////////////////////////////////////////////////////////////
 ACTOR SlimeSplashB
 {
+	+CANNOTPUSH
+	+DONTSPLASH
+	+DROPOFF
+	+LOWGRAVITY
+	+MISSILE
+	+NOBLOCKMAP
+	+NOTELEPORT
 	States
 	{
 	Spawn:
-		SSPH	ABC	 8
-		SSPH	D	16
+		SSPH ABC 8
+		SSPH D 16
 		Stop
 	Death:
-		SSPH	E	10
+		SSPH E 10
 		Stop
 	}
-	+NOBLOCKMAP +MISSILE +DROPOFF +LOWGRAVITY +DONTSPLASH +NOTELEPORT +CANNOTPUSH
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////
 ACTOR SlimeSplashBaseB
 {
+	+CANNOTPUSH
+	+DONTSPLASH
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+NOTELEPORT
 	States
 	{
 	Spawn:
-		SSPH	 EFGHIJK 5
+		SSPH EFGHIJK 5
 		Stop
 	}
-	+NOBLOCKMAP +NOGRAVITY +DONTSPLASH +CANNOTPUSH +NOTELEPORT
 }
 
 //===========================================================================
 //
 // Action Locator
 //
-//
 //===========================================================================
-ACTOR locator
+ACTOR Locator
 {
-	RENDERSTYLE TRANSLUCENT
-	Alpha 0.5
 	Radius 1
 	Height 1
-	+NOGRAVITY
-	+NOBLOCKMAP
-	+NOLIFTDROP
-	+NOTARGET
+	+BRIGHT
 	+DONTMORPH
 	+DONTSQUASH
-	+NOTELEOTHER
 	+FLOATBOB
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+NOLIFTDROP
 	+NONSHOOTABLE
+	+NOTARGET
+	+NOTELEOTHER
+	RenderStyle Translucent
+	Alpha 0.5
 	States
 	{
 	Spawn:
-		ARRW A 4 Bright
+		ARRW A 4
 		Loop
 	}
 }
@@ -126,37 +141,34 @@ ACTOR locator
 //===========================================================================
 Actor TormentorHead 6667
 {
-	//$Category Monsters
-    	Health 200
-    	Radius 24
-    	Height 64
-   	Scale 0.40
-    	Speed 0
-    	PainChance 255
-    	Mass 100000
-    	MONSTER 
-    	+FLOORCLIP
-        PainSound "superbaron/pain"
-    	DeathSound "superbaron/death"
-    	States
-    	{
-    	Spawn:
-        TOHE A 10 A_Look
-        Loop
-    	See:
-    		TOHE A 5 A_Chase
-    		Loop
-    	Pain:
-        	TOHE B 4
-        	TOHE B 4 A_Pain
-        	Goto See
-    	Death:
-        	TOHE B 6
-        	TOHE C 6 A_Scream
-        	TOHE DEFG 6
-        	TOHE H -1
-    }
+	//$Category KDiZD Monsters
+	Health 200
+	Radius 24
+	Height 64
+	Scale 0.40
+	Speed 0
+	PainChance 255
+	Mass 100000
+	MONSTER
+	+FLOORCLIP
+	PainSound "superbaron/pain"
+	DeathSound "superbaron/death"
+	States
+	{
+	Spawn:
+		TOHE A 10 A_Look
+		Loop
+	See:
+		TOHE A 5 A_Chase
+		Loop
+	Pain:
+		TOHE B 4
+		TOHE B 4 A_Pain
+		Goto See
+	Death:
+		TOHE B 6
+		TOHE C 6 A_Scream
+		TOHE DEFG 6
+		TOHE H -1
+	}
 }
-
-
-
