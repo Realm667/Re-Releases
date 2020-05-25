@@ -285,8 +285,6 @@ ACTOR BlankPuff
 	}
 }
 
-
-
 ACTOR Rifle : Weapon replaces BFG9000
 {
 	Weapon.AmmoType "RifleAmmo"
@@ -408,6 +406,7 @@ ACTOR RifleCasing : PistolCasing
 
 ACTOR KDiZDGrenadeLauncher : Weapon replaces PlasmaRifle
 {
+	Tag "Grenade Launcher"
 	Weapon.AmmoType "RocketAmmo"
 	Weapon.AmmoGive 2
 	Weapon.AmmoUse 1
@@ -591,8 +590,8 @@ ACTOR GrenadePuff : BulletPuff
 {
 	States
 	{
-		Spawn:
-		   PUFF ABCD 4
-		   Stop
+	Spawn:
+	   PUFF ABCD 4
+	   Stop
 	}
 }
