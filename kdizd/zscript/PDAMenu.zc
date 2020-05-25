@@ -1,0 +1,197 @@
+// Copyright 2019 - 2020 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+// PDAMenu
+// A custom PDA menu
+// Powered by ZForms
+// ZForms is created by Gutawer and phantombeta
+//
+//===========================================================================
+
+class PDAMenu : PDAGenericMenu
+{
+	const BASE_RES_WIDTH = 640;
+	const BASE_RES_HEIGHT = 400;
+
+    PDAMenuHandler handler;
+	Font fnt;
+	PlayerPawn pmo;
+
+	// Colors
+	int fntColor;
+	Color UIColor;
+
+	// Widgets
+
+	// PDA list (left)
+	PDAClickableList pdaList;
+
+	// PDA content (right)
+	PDAImage pdaContentBackground;
+	PDAContentText pdaContentText;
+
+	//===========================================================================
+	//
+	//
+	//
+	//
+	//===========================================================================
+
+    override void Init(Menu parent)
+    {
+        Super.Init(parent);
+
+		pmo = players[consoleplayer].mo;
+
+		// Set PDA menu resolution
+        SetBaseResolution((BASE_RES_WIDTH, BASE_RES_HEIGHT));
+
+		// Set PDA menu font
+        fnt = Font.GetFont("PDAFONT");
+
+		// Customize UI colours
+		UIColor = Color(118, 118, 206);
+		fntColor = Font.CR_LightBlue;
+
+		// Assign the PDAMenuHandler
+        handler = new('PDAMenuHandler');
+        handler.menu = self;
+
+		// Create the PDA background
+		let backgroundPos = (0, 0);
+		let backgroundSize = (640, 400);
+        let background = new('PDAImage').Init(backgroundPos, backgroundSize, "graphics/PDA/PDA Background.png", PDAImage.AlignType_TopLeft);
+        background.Pack(mainFrame);
+
+		// Create the PDA list
+		let pdaListPos = (117, 84);
+		let pdaListSize = (140, 230);
+		pdaList = PDAClickableList(new('PDAClickableList').Init(pdaListPos, pdaListSize, self, "ActivatePDA"));
+
+		// Populate the PDA list
+		PopulatePDAList();
+
+		// Create the content background frame
+		let pdaContentPos = (261, 84);
+		let pdaContentSize = (262, 230);
+
+		pdaContentBackground = new('PDAImage').Init(pdaContentPos, pdaContentSize, "", PDAImage.AlignType_Center);
+		pdaContentBackground.Pack(mainFrame);
+
+		// Create the content frame
+		pdaContentText = PDAContentText(new('PDAContentText').Init(pdaContentPos, pdaContentSize, self));
+	}
+
+	override void Ticker(void)
+	{
+		if (!pmo)
+		{
+			Console.Printf("Error: PDAMenu without player pawn");
+			Close();
+			return;
+		}
+		Super.Ticker();
+	}
+
+	override void OnDestroy(void)
+	{
+		PlayerInfo p = players[consoleplayer];
+		if (pmo && p && players[consoleplayer].mo)
+		{
+			// Stop any PDA sounds currently playing when exiting the menu
+			let pdaReader = pmo.FindInventory("PDAReader", true);
+			if (pdaReader && pmo == players[consoleplayer].mo)
+			{
+				EventHandler.SendNetworkEvent("EV_StopPDASound");
+			}
+		}
+
+		Super.OnDestroy();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//
+	//===========================================================================
+
+	void PopulatePDAList(void)
+	{
+		// Build array of PDAs
+		Array<Inventory> myPDAs;
+		myPDAs.Clear();
+		int totalPDAs = GetTotalPDAs();
+		for (Inventory item = pmo.Inv; item != NULL; item = item.Inv)
+		{
+			if (item is "PDA")
+			{
+				myPDAs.Push(item);
+			}
+		}
+
+		// Sort PDA array alphabetically
+		for (int x = 0; x < myPDAs.Size(); x++)
+		{
+			for (int y = 0; y < myPDAs.Size() - 1; y++)
+			{
+				if (StringTable.Localize(myPDAs[y].GetTag()) > StringTable.Localize(myPDAs[y + 1].GetTag()))
+				{
+					let p = myPDAs[y + 1];
+					myPDAs[y + 1] = myPDAs[y];
+					myPDAs[y] = p;
+				}
+			}
+		}
+
+		// Add the PDAs to the PDA list
+		for (int i = 0; i < myPDAs.Size(); i++)
+		{
+			if (myPDAs[i])
+			{
+				pdaList.AddLine(myPDAs[i].GetClassName());
+			}
+		}
+	}
+
+	int GetTotalPDAs(void)
+	{
+		int totalPDAs = 0;
+		for (Inventory item = pmo.Inv; item != NULL; item = item.Inv)
+		{
+			if (item is "PDA") totalPDAs++;
+		}
+		return totalPDAs;
+	}
+
+	int GetFontHeight(void)
+	{
+		if (!fnt) return 0;
+		return fnt.GetHeight();
+	}
+}
