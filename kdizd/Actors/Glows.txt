@@ -1,10 +1,11 @@
-/////////////// KDIZD FLARES AND GLOWS //////////////////
-/////////////// Made by Nmn ////////////////////////
+/////////////// KDIZD FLARES AND GLOWS ///////////////////////////////////////
+/////////////// Made by Nmn, improved by Tormentor667 ////////////////////////
 
 ACTOR GlowBase
 {
 	Radius 1
 	Height 1
+	Scale 0.125
 	RenderStyle ADD
 	+BRIGHT
 	+FLOORCLIP
@@ -23,7 +24,7 @@ ACTOR Glow1
 
 ACTOR Glow09 : GlowBase
 {
-	Scale 0.9
+	Scale 0.1125
 	States
 	{
 	Spawn:
@@ -34,7 +35,7 @@ ACTOR Glow09 : GlowBase
 
 ACTOR Glow08 : GlowBase
 {
-	Scale 0.8
+	Scale 0.1
 	States
 	{
 	Spawn:
@@ -45,7 +46,7 @@ ACTOR Glow08 : GlowBase
 
 ACTOR Glow07 : GlowBase
 {
-	Scale 0.7
+	Scale 0.0875
 	States
 	{
 	Spawn:
@@ -56,7 +57,7 @@ ACTOR Glow07 : GlowBase
 
 ACTOR Glow06 : GlowBase
 {
-	Scale 0.6
+	Scale 0.075
 	States
 	{
 	Spawn:
@@ -67,7 +68,7 @@ ACTOR Glow06 : GlowBase
 
 ACTOR Glow05 : GlowBase
 {
-Scale 0.5
+Scale 0.0625
 States
 {
 Spawn:
@@ -78,7 +79,7 @@ Stop
 
 ACTOR Glow04 : GlowBase
 {
-Scale 0.4
+Scale 0.05
 States
 {
 Spawn:
@@ -89,7 +90,7 @@ Stop
 
 ACTOR Glow03 : GlowBase
 {
-Scale 0.3
+Scale 0.0375
 States
 {
 Spawn:
@@ -100,7 +101,7 @@ Stop
 
 ACTOR Glow02 : GlowBase
 {
-Scale 0.2
+Scale 0.025
 States
 {
 Spawn:
@@ -109,7 +110,7 @@ Stop
 }
 }
 
-ACTOR GlowWeak1 : GlowBase
+ACTOR GlowWeak1 : Glow1
 {
 States
 {
@@ -119,9 +120,8 @@ Stop
 }
 }
 
-ACTOR GlowWeak09 : GlowBase
+ACTOR GlowWeak09 : Glow09
 {
-Scale 0.9
 States
 {
 Spawn:
@@ -130,9 +130,8 @@ Stop
 }
 }
 
-ACTOR GlowWeak08 : GlowBase
+ACTOR GlowWeak08 : Glow08
 {
-Scale 0.8
 States
 {
 Spawn:
@@ -141,9 +140,8 @@ Stop
 }
 }
 
-ACTOR GlowWeak07 : GlowBase
+ACTOR GlowWeak07 : Glow07
 {
-Scale 0.7
 States
 {
 Spawn:
@@ -152,9 +150,8 @@ Stop
 }
 }
 
-ACTOR GlowWeak06 : GlowBase
+ACTOR GlowWeak06 : Glow06
 {
-Scale 0.6
 States
 {
 Spawn:
@@ -163,9 +160,8 @@ Stop
 }
 }
 
-ACTOR GlowWeak05 : GlowBase
+ACTOR GlowWeak05 : Glow05
 {
-Scale 0.5
 States
 {
 Spawn:
@@ -174,9 +170,8 @@ Stop
 }
 }
 
-ACTOR GlowWeak04 : GlowBase
+ACTOR GlowWeak04 : Glow04
 {
-Scale 0.4
 States
 {
 Spawn:
@@ -185,9 +180,8 @@ Stop
 }
 }
 
-ACTOR GlowWeak03 : GlowBase
+ACTOR GlowWeak03 : Glow03
 {
-Scale 0.3
 States
 {
 Spawn:
@@ -196,9 +190,8 @@ Stop
 }
 }
 
-ACTOR GlowWeak02 : GlowBase
+ACTOR GlowWeak02 : Glow02
 {
-Scale 0.2
 States
 {
 Spawn:
@@ -219,6 +212,7 @@ Stop
 
 ACTOR Flare2 : GlowBase
 {
+Scale 0.125
 States
 {
 Spawn:
@@ -229,6 +223,7 @@ Stop
 
 ACTOR Flare3 : GlowBase
 {
+Scale 0.125
 States
 {
 Spawn:
@@ -237,7 +232,7 @@ Stop
 }
 }
 
-ACTOR Yellowglow1 : GlowBase
+ACTOR Yellowglow1 : Glow1
 {
 Alpha 0.6
 States
@@ -248,10 +243,9 @@ Stop
 }
 }
 
-ACTOR Yellowglow07 : GlowBase
+ACTOR Yellowglow07 : Glow07
 {
 Alpha 0.6
-Scale 0.7
 States
 {
 Spawn:
@@ -260,19 +254,7 @@ Stop
 }
 }
 
-ACTOR Redglow07 : GlowBase
-{
-Alpha 0.6
-Scale 0.7
-States
-{
-Spawn:
-GLO4 A -1
-Stop
-}
-}
-
-ACTOR Redglow1 : GlowBase
+ACTOR Redglow07 : Glow07
 {
 Alpha 0.6
 States
@@ -283,9 +265,19 @@ Stop
 }
 }
 
-ACTOR Blueglow07 : GlowBase
+ACTOR Redglow1 : Glow1
 {
-Scale 0.7
+Alpha 0.6
+States
+{
+Spawn:
+GLO4 A -1
+Stop
+}
+}
+
+ACTOR Blueglow07 : Glow07
+{
 Alpha 0.6
 States
 {
@@ -295,7 +287,7 @@ Stop
 }
 }
 
-ACTOR Blueglow1 : GlowBase
+ACTOR Blueglow1 : Glow1
 {
 Alpha 0.6
 States
@@ -306,7 +298,7 @@ Stop
 }
 }
 
-ACTOR Greenglow1 : GlowBase
+ACTOR Greenglow1 : Glow1
 {
 Alpha 0.6
 States
@@ -317,10 +309,9 @@ Stop
 }
 }
 
-ACTOR Greenglow07 : GlowBase
+ACTOR Greenglow07 : Glow07
 {
 Alpha 0.6
-Scale 0.7
 States
 {
 Spawn:
@@ -329,10 +320,9 @@ Stop
 }
 }
 
-ACTOR OrangeGlow07 : GlowBase
+ACTOR OrangeGlow07 : Glow07
 {
 Alpha 0.6
-Scale 0.7
 States
 {
 Spawn:
@@ -341,7 +331,7 @@ Stop
 }
 }
 
-ACTOR OrangeGlow1 : GlowBase
+ACTOR OrangeGlow1 : Glow1
 {
 Alpha 0.6
 States
