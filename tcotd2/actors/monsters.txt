@@ -1023,11 +1023,11 @@ ACTOR SoulHarvesterGhost
 	RenderStyle Add
 	Alpha 0.7
 	+NOCLIP
-	SeeSound "harvester/ghost"
 	States
 	{
 	Spawn:
 	Death:
+		TNT1 A 0 NoDelay A_StartSound("Harvester/Ghost")
 		SHGH ABCDEFG 4 BRIGHT
 		Stop
 	}
@@ -1757,71 +1757,75 @@ ACTOR Fatty : Revenant 25010
 	States
 	{
 	Spawn:
-		BFAT AB 10 A_Look
+		BFAT A 10 A_Look
 		Loop
 	See:
 		BFAT A 1 A_Chase
-		BFAT AAA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		BFAT A 1 A_Chase
-		BFAT AAA 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		BFAT B 1 A_Chase
-		BFAT BBB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		BFAT B 1 A_Chase
-		BFAT BBB 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		BFAT C 1 A_Chase
-		BFAT CCC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		BFAT C 1 A_Chase
-		BFAT CCC 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		BFAT D 1 A_Chase
-		BFAT DDD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		BFAT D 1 A_Chase
-		BFAT DDD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		BFAT E 1 A_Chase
-		BFAT EEE 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT EE 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		BFAT E 1 A_Chase
-		BFAT EEE 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT EE 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		BFAT F 1 A_Chase
-		BFAT FFF 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT FF 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		BFAT F 1 A_Chase
-		BFAT FFF 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BFAT FF 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		Loop
 	Melee:
-		BFAT G 0 A_FaceTarget
-		BFAT G 6 A_SkelWhoosh
-		BFAT H 6 A_FaceTarget
-		BFAT I 6 A_SkelFist
+		BFAT H 4 A_FaceTarget
+		BFAT I 1 A_SkelWhoosh
+		BFAT I 3 A_FaceTarget
+		BFAT J 4 A_SkelFist
+		BFAT K 4
+		BFAT L 4
 		Goto See
 	Missile:
-		BFAT J 10 A_FaceTarget
-		BFAT J 0 A_Jump(128,3)
-		BFAT K 10 A_SpawnProjectile("ButcherVomit1",56,0,0,CMF_CHECKTARGETDEAD)
-		BFAT K 10 A_FaceTarget
+		BFAT M 4 A_FaceTarget
+		BFAT N 7 A_FaceTarget
+		BFAT O 5 A_FaceTarget
+		TNT1 A 0 A_Jump(128,3)
+		BFAT P 5 A_SpawnProjectile("ButcherVomit1",56,0,0,CMF_CHECKTARGETDEAD)
+		BFAT O 10 A_FaceTarget
 		Goto See
-		BFAT K 10 A_SpawnProjectile("ButcherVomit2",56,0,0,CMF_CHECKTARGETDEAD|CMF_AIMDIRECTION)
-		BFAT K 10 A_FaceTarget
+		BFAT P 5 A_SpawnProjectile("ButcherVomit2",56,0,0,CMF_CHECKTARGETDEAD|CMF_AIMDIRECTION)
+		BFAT O 10 A_FaceTarget
 		Goto See
 	Pain:
-		BFAT L 5
-		BFAT L 5 A_Pain
+		BFAT G 5
+		BFAT G 5 A_Pain
 		Goto See
 	Death:
-		BFAT LM 9
-		BFAT N 9 A_Scream
-		BFAT O 9 A_NoBlocking
-		BFAT P 9
-		BFAT Q -1
+		BFTD A 6 A_Scream
+		BFTD BC 6
+		BFTD D 6 A_NoBlocking
+		BFTD EF 6
+		BFTD G -1
 		Stop
 	XDeath:
-		BBT2 M 5 A_Scream
-		BBT2 N 5
-		BBT2 O 5 A_NoBlocking
-		BBT2 P 5
-		BBT2 PQRSTUV 5
-		BBT2 VWVWVWVWVVWVWVWVWVVWVWVWVWVVWVWVWVWV 5
-		BBT2 W -1
+		BFTD H 5 A_Scream
+		BFTD I 5
+		BFTD J 5 A_NoBlocking
+		BFTD K 5
+		BFTD LMNOPQ 5
+		BFTD QRQRRRQRQQRRQQ 10
+		BFTD R -1
 		Stop
 	Raise:
-		BFAT QPONML 5
+		BFTD GFEDCBA 5
 		Goto See
 	}
 }
@@ -1865,11 +1869,11 @@ ACTOR ButcherVomit1
 	{
 	Spawn:
 		BARF AB 3 LIGHT("GGLOW") A_SetAngle(angle+frandom(-5,5))
-		BARF AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
 		BARF CDEF 3 LIGHT("GGLOW") A_SetAngle(angle+frandom(-5,5))
-		BARF AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
 		BARF EF 3 LIGHT("GGLOW") A_SetAngle(angle+frandom(-5,5))
-		BARF AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
 		Loop
 	Death:
 		FBXX A 0 A_SetScale(1.0)
@@ -1888,15 +1892,16 @@ ACTOR ButcherVomit1
 
 ACTOR ButcherVomit2 : ButcherVomit1
 {
+//+SEEKERMISSILE
 	States
 	{
 	Spawn:
 		BARF AB 3 LIGHT("GGLOW") { A_SetAngle(angle+frandom(-5,5)); A_SeekerMissile(10,20); }
-		BARF AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
 		BARF CDEF 3 LIGHT("GGLOW") A_SetAngle(angle+frandom(-5,5))
-		BARF AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
 		BARF EF 3 LIGHT("GGLOW") { A_SetAngle(angle+frandom(-5,5)); A_SeekerMissile(10,20); }
-		BARF AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2))
 		Loop
 	}
 }
@@ -1913,7 +1918,8 @@ ACTOR ZombieBlood 31002
 	Radius 24
 	Height 82
 	Mass 400
-	Scale 0.7
+	Scale 0.62
+	MeleeRange 50
 	Monster
 	+FLOORCLIP
 	SeeSound "zombieblood/sit"
@@ -1926,51 +1932,49 @@ ACTOR ZombieBlood 31002
 	States
 	{
 	Spawn:
-		BZOM AB 10 A_Look
+		BZOM A 10 A_Look
 		Loop
 	See:
-		BZOM A 1 A_Chase
-		BZOM AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		BZOM A 1 A_Chase
-		BZOM AA 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		BZOM B 1 A_Chase
+		BZOM BB 1 A_Chase
 		BZOM BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		BZOM B 1 A_Chase
-		BZOM BB 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		BZOM C 1 A_Chase
+		BZOM CC 1 A_Chase
 		BZOM CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		BZOM C 1 A_Chase
-		BZOM CC 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		BZOM D 1 A_Chase
+		BZOM DD 1 A_Chase
 		BZOM DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
-		BZOM D 1 A_Chase
-		BZOM DD 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BZOM EE 1 A_Chase
+		BZOM EE 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BZOM FF 1 A_Chase
+		BZOM FF 1 A_Chase("","",CHF_NOPLAYACTIVE)
+		BZOM GG 1 A_Chase
+		BZOM GG 1 A_Chase("","",CHF_NOPLAYACTIVE)
 		Loop
 	Melee:
-		BZOM EF 8 A_FaceTarget
-		BZOM G 8 A_CustomMeleeAttack(10*random(1,8),"zombieblood/hit")
+		BZOM IJ 4 A_FaceTarget
+		BZOM K 3 A_FaceTarget
+		BZOM L 2 A_CustomMeleeAttack(10*random(1,8),"zombieblood/hit")
+		BZOM MNN 2
 		Goto See
 	Pain:
 		BZOM H 2
 		BZOM H 2 A_Pain
 		Goto See
 	Death:
-		BZOM I 8
-		BZOM I 8 A_Scream
-		BZOM K 4
-		BZOM L 4 A_NoBlocking
-		BZOM M 4
-		BZOM N -1
+		BZMD A 2
+		BZMD A 4 A_Scream
+		BZMD B 4
+		BZMD C 5 A_NoBlocking
+		BZMD D 5
+		BZMD E -1
 		Stop
 	XDeath:
-		BZOX A 5 A_Scream
-		BZOX B 5
-		BZOX C 5 A_NoBlocking
-		BZOX DEFG 5
-		BZOX H -1
+		BZMD L 5 A_Scream
+		BZMD M 5
+		BZMD N 5 A_NoBlocking
+		BZMD OPQR 5
+		BZMD S -1
 		Stop
 	Raise:
-		BZOM NMLKII 5
+		BZMD FGHIJK 5
 		Goto See
 	}
 }

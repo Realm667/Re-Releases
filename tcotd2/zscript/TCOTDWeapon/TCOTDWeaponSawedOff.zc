@@ -96,7 +96,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		TNT1 A 0 A_TakeInventory("SawedOffCheck", 1);
 		SAWF C 1 A_CheckReload();
 		SAWF E 2;
-		SAWF F 2 { A_StartSound("SawedOff/Reload"); A_SpawnWeaponFX("TCOTDEmptyCasingShell", 2); A_SpawnWeaponFX("TCOTDEmptyCasingShell", 4); }
+		SAWF F 2 { A_StartSound("SawedOff/Reload", CHAN_WEAPON, CHANF_OVERLAP); A_SpawnWeaponFX("TCOTDEmptyCasingShell", 2); A_SpawnWeaponFX("TCOTDEmptyCasingShell", 4); }
 		SAWF G 8 A_Overlay(2, "ElHando");
 		SAWF JE 2;
 		Goto Ready;
@@ -120,7 +120,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		TNT1 A 0 A_JumpIfInventory("SawedOffCheck", 1, 4);
 		SFFL ABC 2 Bright A_OverlayOffset(-2, 0, 32);
 		Stop;
-		SFFL ABC 2 Bright A_OverlayOffset(-2, 20, 32);
+		SFFL ABC 2 Bright A_OverlayOffset(-2, 16, 32);
 		Stop;
 	BigGunSmoke:
 		TNT1 A 0 A_OverlayFlags(-2, PSPF_ADDWEAPON, false);
