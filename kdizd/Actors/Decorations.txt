@@ -1,6 +1,4 @@
-//////////////DEAD BODIES AND GIBS//////////////
-///////////////and Decorations ////////////////
-
+//GIBS & BODIES
 ACTOR CarcassShirtlessMarine
 {
 	//$Category KDiZD Decoration
@@ -337,31 +335,6 @@ ACTOR NukedDuke : DeadDukePig
 	}
 }
 
-ACTOR AlarmFloor
-{
-	//$Category KDiZD Lights
-	Height 17
-	Radius 8
-	States
-	{
-	Spawn:
-		ALR1 ABCD 2
-		Loop
-	}
-}
-
-ACTOR AlarmCeiling : AlarmFloor
-{
-	+NOGRAVITY
-	+SPAWNCEILING
-	States
-	{
-	Spawn:
-		ALR2 ABCD 2
-		Loop
-	}
-}
-
 ACTOR BarrelNukeFallen
 {
 	//$Category KDiZD Decoration
@@ -456,6 +429,451 @@ ACTOR BarrelLavaFallen : BarrelNukeFallen
 	}
 }
 
+ACTOR SkinPillar1
+{
+	//$Category KDiZD Decoration
+	Height 104
+	Radius 50
+	+SOLID
+	States
+	{
+	Spawn:
+		SKP1 A -1
+		Stop
+	}
+}
+
+ACTOR SkinPillar2 : SkinPillar1
+{
+	States
+	{
+	Spawn:
+		SKP2 A -1
+		Stop
+	}
+}
+
+ACTOR UnderwaterWeed1
+{
+	//$Category KDiZD Decoration
+	Height 32
+	Radius 23
+	States
+	{
+	Spawn:
+		WED1 A -1
+		Stop
+	}
+}
+
+ACTOR UnderwaterWeed2 : UnderwaterWeed1
+{
+	Height 40
+	Radius 16
+	States
+	{
+	Spawn:
+		WED2 A -1
+		Stop
+	}
+}
+
+ACTOR WireCeiling
+{
+	//$Category KDiZD Decoration
+	Height 19
+	Radius 14
+	+NOGRAVITY
+	+SPAWNCEILING
+	States
+	{
+	Spawn:
+		WRE1 A -1
+		Stop
+	}
+}
+
+ACTOR Microscope
+{
+	//$Category KDiZD Decoration
+	Radius 2
+	Height 8
+	Scale 0.38
+	+FLOORCLIP
+	States
+	{
+	Spawn:
+		SCOP A -1
+		Stop
+	}
+}
+
+ACTOR Helmet : Microscope
+{
+	Radius 4
+	Scale 0.5
+	States
+	{
+	Spawn:
+		HELM A -1
+		Stop
+	}
+}
+
+ACTOR Jackhammer : Microscope
+{
+	Radius 24
+	Scale 0.6
+	States
+	{
+	Spawn:
+		JACK A -1
+		Stop
+	}
+}
+
+ACTOR E1M4VehicleDrill
+{
+	//$Category KDiZD Decoration
+	Radius 16
+	Height 28
+	+NOGRAVITY
+	+SOLID
+	States
+	{
+	Spawn:
+		DRIL A -1
+		Stop
+	}
+}
+
+ACTOR MiningBeacon
+{
+	//$Category KDiZD Decoration
+	Radius 8
+	Height 19
+	+SOLID
+	States
+	{
+	Spawn:
+		BEC1 A -1
+		Stop
+	}
+}
+
+ACTOR PhobosRock1
+{
+	//$Category KDiZD Decoration
+	Radius 24
+	Height 16
+	+SOLID
+	States
+	{
+	Spawn:
+		ROK1 A -1
+		Stop
+	}
+}
+
+ACTOR PhobosRock2 : PhobosRock1
+{
+	States
+	{
+	Spawn:
+		ROK2 A -1
+		Stop
+	}
+}
+
+ACTOR PhobosRockSmall
+{
+	//$Category KDiZD Decoration
+	Radius 1
+	Height 1
+	States
+	{
+	Spawn:
+		ROK3 A -1
+		Stop
+	}
+}
+
+ACTOR CaveStalagmiteFloor
+{
+	//$Category KDiZD Decoration
+	Radius 24
+	Height 52
+	+SOLID
+	States
+	{
+	Spawn:
+		CAV3 A -1
+		Stop
+	}
+}
+
+ACTOR CaveStalagmiteCeiling1
+{
+	//$Category KDiZD Decoration
+	Radius 24
+	Height 42
+	+NOGRAVITY
+	+SOLID
+	+SPAWNCEILING
+	States
+	{
+	Spawn:
+		CAV1 A -1
+		Stop
+	}
+}
+
+ACTOR CaveStalagmiteCeiling2 :  CaveStalagmiteCeiling1
+{
+	States
+	{
+	Spawn:
+		CAV2 A -1
+		Stop
+	}
+}
+
+ACTOR GreenGutsnBones
+{
+	//$Category KDiZD Decoration
+	Height 5
+	Radius 24
+	States
+	{
+	Spawn:
+		POL7 A -1
+		Stop
+	}
+}
+
+ACTOR BigBrownTreeVariant
+{
+	//$Category KDiZD Decoration
+	Height 100
+	Radius 32
+	+SOLID
+	States
+	{
+	Spawn:
+		TRE3 A -1
+		Stop
+	}
+}
+
+ACTOR NJayTechnicalColumn1
+{
+	//$Category KDiZD Decoration
+	Height 128
+	Radius 16
+	+SOLID
+	States
+	{
+	Spawn:
+		NJC1 A -1
+		Stop
+	}
+}
+
+ACTOR NJayTechnicalColumn2 : NJayTechnicalColumn1
+{
+	States
+	{
+	Spawn:
+		NJC2 A -1
+		Stop
+	}
+}
+
+ACTOR NJayTechnicalColumn3 : NJayTechnicalColumn1
+{
+	States
+	{
+	Spawn:
+		NJC3 A -1
+		Stop
+	}
+}
+
+ACTOR NJayTechnicalColumn4 : NJayTechnicalColumn1
+{
+	States
+	{
+	Spawn:
+		NJC4 A -1
+		Stop
+	}
+}
+
+ACTOR NJayTechnicalColumn5 : NJayTechnicalColumn1
+{
+	States
+	{
+	Spawn:
+		NJC6 A -1
+		Stop
+	}
+}
+
+ACTOR NJayTechnicalColumnX : NJayTechnicalColumn1
+{
+	States
+	{
+	Spawn:
+		NJC5 ABCD 4
+		Loop
+	}
+}
+
+ACTOR SpikedImp
+{
+	//$Category KDiZD Decoration
+	Height 60
+	Radius 18
+	+SOLID
+	States
+	{
+	Spawn:
+		NJDG A -1
+		Stop
+	}
+}
+
+ACTOR TorturedBaron
+{
+	//$Category KDiZD Decoration
+	Height 80
+	Radius 20
+	+NOGRAVITY
+	+SOLID
+	+SPAWNCEILING
+	States
+	{
+	Spawn:
+		NJDH A -1
+		Stop
+	}
+}
+
+ACTOR TankHellsFury
+{
+	//$Category KDiZD Decoration
+	+FLOATBOB
+	+NOGRAVITY
+	States
+	{
+	Spawn:
+		HFRY A -1
+		Stop
+	}
+}
+
+ACTOR TankVoidImp : TankHellsFury
+{
+	States
+	{
+	Spawn:
+		DRKV A -1
+		Stop
+	}
+}
+
+ACTOR TankShadow : TankHellsFury
+{
+	States
+	{
+	Spawn:
+		TROX A -1
+		Stop
+	}
+}
+
+ACTOR TankBloodDemon : TankHellsFury
+{
+	States
+	{
+	Spawn:
+		SRG2 A -1
+		Stop
+	}
+}
+
+ACTOR TankDemon : TankHellsFury
+{
+	//$Sprite SARGA1
+	States
+	{
+	Spawn:
+		SARG A -1
+		Stop
+	}
+}
+
+ACTOR TankImp : TankHellsFury
+{
+	//$Sprite TROOA1
+	States
+	{
+	Spawn:
+		TROO A -1
+		Stop
+	}
+}
+
+ACTOR TankHarvester : TankHellsFury
+{
+	States
+	{
+	Spawn:
+		SLHV A -1
+		Stop
+	}
+}
+
+ACTOR TankSatyr : TankHellsFury
+{
+	States
+	{
+	Spawn:
+		STYR A -1
+		Stop
+	}
+}
+
+ACTOR TankBaron : TankHellsFury
+{
+	//$Sprite BOSSA1
+	States
+	{
+	Spawn:
+		BOSS A -1
+		Stop
+	}
+}
+
+//SPECIAL EFFECTS
+ACTOR PlasmaStream
+{
+	//$Category KDiZD Special Effects
+	Radius 1
+	Height 1
+	RenderStyle ADD
+	Alpha 0.8
+	+BRIGHT
+	+FLOORCLIP
+	+NOGRAVITY
+	States
+	{
+	Spawn:
+		PLST ABC 3
+		Loop
+	}
+}
+
 ACTOR Bubbles
 {
 	//$Category KDiZD Special Effects
@@ -467,6 +885,59 @@ ACTOR Bubbles
 	{
 	Spawn:
 		BUBL ABCDEFGHIJKLMNOP 1 A_SetTics(random(4,8))
+		Loop
+	}
+}
+
+ACTOR SteamFloor
+{
+	//$Category KDiZD Special Effects
+	Height 66
+	Radius 32
+	RenderStyle Translucent
+	Alpha 0.4
+	States
+	{
+	Spawn:
+		STM1 ABCD 4
+		Loop
+	}
+}
+
+ACTOR SteamCeiling : SteamFloor
+{
+	+NOGRAVITY
+	+SPAWNCEILING
+	States
+	{
+	Spawn:
+		STM2 ABCD 4
+		Loop
+	}
+}
+
+//LIGHT SOURCES
+ACTOR AlarmFloor
+{
+	//$Category KDiZD Lights
+	Height 17
+	Radius 8
+	States
+	{
+	Spawn:
+		ALR1 ABCD 2
+		Loop
+	}
+}
+
+ACTOR AlarmCeiling : AlarmFloor
+{
+	+NOGRAVITY
+	+SPAWNCEILING
+	States
+	{
+	Spawn:
+		ALR2 ABCD 2
 		Loop
 	}
 }
@@ -610,63 +1081,13 @@ ACTOR FireLargeRed : FireSmallBlue
 	}
 }
 
-ACTOR SkinPillar1
-{
-	//$Category KDiZD Decoration
-	Height 104
-	Radius 50
-	+SOLID
-	States
-	{
-	Spawn:
-		SKP1 A -1
-		Stop
-	}
-}
-
-ACTOR SkinPillar2 : SkinPillar1
-{
-	States
-	{
-	Spawn:
-		SKP2 A -1
-		Stop
-	}
-}
-
 ACTOR ShortYellowTorch : ShortBlueTorch
 {
+	//$Category KDiZD Lights
 	States
 	{
 	Spawn:
 		SMYT ABCD 4
-		Loop
-	}
-}
-
-ACTOR SteamFloor
-{
-	//$Category KDiZD Special Effects
-	Height 66
-	Radius 32
-	RenderStyle Translucent
-	Alpha 0.4
-	States
-	{
-	Spawn:
-		STM1 ABCD 4
-		Loop
-	}
-}
-
-ACTOR SteamCeiling : SteamFloor
-{
-	+NOGRAVITY
-	+SPAWNCEILING
-	States
-	{
-	Spawn:
-		STM2 ABCD 4
 		Loop
 	}
 }
@@ -682,42 +1103,27 @@ ACTOR YellowTorch : BlueTorch
 	}
 }
 
-ACTOR UnderwaterWeed1
+ACTOR CaveLightCeiling
 {
-	//$Category KDiZD Decoration
-	Height 32
-	Radius 23
-	States
-	{
-	Spawn:
-		WED1 A -1
-		Stop
-	}
-}
-
-ACTOR UnderwaterWeed2 : UnderwaterWeed1
-{
-	Height 40
-	Radius 16
-	States
-	{
-	Spawn:
-		WED2 A -1
-		Stop
-	}
-}
-
-ACTOR WireCeiling
-{
-	//$Category KDiZD Decoration
-	Height 19
-	Radius 14
+	//$Category KDiZD Lights
+	Radius 1
+	Height 1
 	+NOGRAVITY
 	+SPAWNCEILING
 	States
 	{
 	Spawn:
-		WRE1 A -1
+		LIT5 A -1
+		Stop
+	}
+}
+
+ACTOR OrangeLampCeiling : CaveLightCeiling
+{
+	States
+	{
+	Spawn:
+		LMP4 A -1
 		Stop
 	}
 }
@@ -749,45 +1155,6 @@ ACTOR HeadLamp : BodyLamp
 	}
 }
 
-ACTOR Microscope
-{
-	//$Category KDiZD Decoration
-	Radius 2
-	Height 8
-	Scale 0.38
-	+FLOORCLIP
-	States
-	{
-	Spawn:
-		SCOP A -1
-		Stop
-	}
-}
-
-ACTOR Helmet : Microscope
-{
-	Radius 4
-	Scale 0.5
-	States
-	{
-	Spawn:
-		HELM A -1
-		Stop
-	}
-}
-
-ACTOR Jackhammer : Microscope
-{
-	Radius 24
-	Scale 0.6
-	States
-	{
-	Spawn:
-		JACK A -1
-		Stop
-	}
-}
-
 ACTOR LightbeamUp
 {
 	//$Category KDiZD Lights
@@ -807,35 +1174,6 @@ ACTOR LightbeamUp
 	}
 }
 
-ACTOR E1M4VehicleDrill
-{
-	//$Category KDiZD Decoration
-	Radius 16
-	Height 28
-	+NOGRAVITY
-	+SOLID
-	States
-	{
-	Spawn:
-		DRIL A -1
-		Stop
-	}
-}
-
-ACTOR MiningBeacon
-{
-	//$Category KDiZD Decoration
-	Radius 8
-	Height 19
-	+SOLID
-	States
-	{
-	Spawn:
-		BEC1 A -1
-		Stop
-	}
-}
-
 ACTOR MBeaconFlare
 {
 	//$Category KDiZD Lights
@@ -850,199 +1188,6 @@ ACTOR MBeaconFlare
 	{
 	Spawn:
 		BEC2 ABCB 3
-		Loop
-	}
-}
-
-ACTOR PhobosRock1
-{
-	//$Category KDiZD Decoration
-	Radius 24
-	Height 16
-	+SOLID
-	States
-	{
-	Spawn:
-		ROK1 A -1
-		Stop
-	}
-}
-
-ACTOR PhobosRock2 : PhobosRock1
-{
-	States
-	{
-	Spawn:
-		ROK2 A -1
-		Stop
-	}
-}
-
-ACTOR PhobosRockSmall
-{
-	//$Category KDiZD Decoration
-	Radius 1
-	Height 1
-	States
-	{
-	Spawn:
-		ROK3 A -1
-		Stop
-	}
-}
-
-ACTOR CaveStalagmiteFloor
-{
-	//$Category KDiZD Decoration
-	Radius 24
-	Height 52
-	+SOLID
-	States
-	{
-	Spawn:
-		CAV3 A -1
-		Stop
-	}
-}
-
-ACTOR CaveStalagmiteCeiling1
-{
-	//$Category KDiZD Decoration
-	Radius 24
-	Height 42
-	+NOGRAVITY
-	+SOLID
-	+SPAWNCEILING
-	States
-	{
-	Spawn:
-		CAV1 A -1
-		Stop
-	}
-}
-
-ACTOR CaveStalagmiteCeiling2 :  CaveStalagmiteCeiling1
-{
-	States
-	{
-	Spawn:
-		CAV2 A -1
-		Stop
-	}
-}
-
-ACTOR CaveLightCeiling
-{
-	//$Category KDiZD Lights
-	Radius 1
-	Height 1
-	+NOGRAVITY
-	+SPAWNCEILING
-	States
-	{
-	Spawn:
-		LIT5 A -1
-		Stop
-	}
-}
-
-ACTOR OrangeLampCeiling : CaveLightCeiling
-{
-	States
-	{
-	Spawn:
-		LMP4 A -1
-		Stop
-	}
-}
-
-ACTOR GreenGutsnBones
-{
-	//$Category KDiZD Decoration
-	Height 5
-	Radius 24
-	States
-	{
-	Spawn:
-		POL7 A -1
-		Stop
-	}
-}
-
-ACTOR BigBrownTreeVariant
-{
-	//$Category KDiZD Decoration
-	Height 100
-	Radius 32
-	+SOLID
-	States
-	{
-	Spawn:
-		TRE3 A -1
-		Stop
-	}
-}
-
-ACTOR NJayTechnicalColumn1
-{
-	//$Category KDiZD Decoration
-	Height 128
-	Radius 16
-	+SOLID
-	States
-	{
-	Spawn:
-		NJC1 A -1
-		Stop
-	}
-}
-
-ACTOR NJayTechnicalColumn2 : NJayTechnicalColumn1
-{
-	States
-	{
-	Spawn:
-		NJC2 A -1
-		Stop
-	}
-}
-
-ACTOR NJayTechnicalColumn3 : NJayTechnicalColumn1
-{
-	States
-	{
-	Spawn:
-		NJC3 A -1
-		Stop
-	}
-}
-
-ACTOR NJayTechnicalColumn4 : NJayTechnicalColumn1
-{
-	States
-	{
-	Spawn:
-		NJC4 A -1
-		Stop
-	}
-}
-
-ACTOR NJayTechnicalColumn5 : NJayTechnicalColumn1
-{
-	States
-	{
-	Spawn:
-		NJC6 A -1
-		Stop
-	}
-}
-
-ACTOR NJayTechnicalColumnX : NJayTechnicalColumn1
-{
-	States
-	{
-	Spawn:
-		NJC5 ABCD 4
 		Loop
 	}
 }
@@ -1069,149 +1214,6 @@ ACTOR CandelabraV2 : CandelabraV1
 	Spawn:
 		NJD7 A -1
 		Stop
-	}
-}
-
-ACTOR SpikedImp
-{
-	//$Category KDiZD Decoration
-	Height 60
-	Radius 18
-	+SOLID
-	States
-	{
-	Spawn:
-		NJDG A -1
-		Stop
-	}
-}
-
-ACTOR TorturedBaron
-{
-	//$Category KDiZD Decoration
-	Height 80
-	Radius 20
-	+NOGRAVITY
-	+SOLID
-	+SPAWNCEILING
-	States
-	{
-	Spawn:
-		NJDH A -1
-		Stop
-	}
-}
-
-ACTOR TankHellsFury
-{
-	//$Category KDiZD Decoration
-	+FLOATBOB
-	+NOGRAVITY
-	States
-	{
-	Spawn:
-		HFRY A -1
-		Stop
-	}
-}
-
-ACTOR TankVoidImp : TankHellsFury
-{
-	States
-	{
-	Spawn:
-		DRKV A -1
-		Stop
-	}
-}
-
-ACTOR TankShadow : TankHellsFury
-{
-	States
-	{
-	Spawn:
-		TROX A -1	
-		Stop
-	}
-}
-
-ACTOR TankBloodDemon : TankHellsFury
-{
-	States
-	{
-	Spawn:
-		SRG2 A -1
-		Stop
-	}
-}	
-
-ACTOR TankDemon : TankHellsFury
-{
-	//$Sprite SARGA1
-	States
-	{
-	Spawn:
-		SARG A -1
-		Stop
-	}
-}
-
-ACTOR TankImp : TankHellsFury
-{
-	//$Sprite TROOA1
-	States
-	{
-	Spawn:
-		TROO A -1
-		Stop
-	}
-}
-
-ACTOR TankHarvester : TankHellsFury
-{
-	States
-	{
-	Spawn:
-		SLHV A -1
-		Stop
-	}
-}
-
-ACTOR TankSatyr : TankHellsFury
-{
-	States
-	{
-	Spawn:
-		STYR A -1
-		Stop
-	}
-}
-
-ACTOR TankBaron : TankHellsFury
-{
-	//$Sprite BOSSA1
-	States
-	{
-	Spawn:
-		BOSS A -1
-		Stop
-	}
-}
-
-ACTOR PlasmaStream
-{
-	Radius 1
-	Height 1
-	RenderStyle ADD
-	Alpha 0.8
-	+BRIGHT
-	+FLOORCLIP
-	+NOGRAVITY
-	States
-	{
-	Spawn:
-		PLST ABC 3
-		Loop
 	}
 }
 

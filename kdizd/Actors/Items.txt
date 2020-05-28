@@ -5,68 +5,73 @@
 //
 //===========================================================================
 
-
 ACTOR KDiZDRedKey : RedCard replaces RedCard
-{ 
-States
 {
-Spawn:
-RKEY ABCDEFGHIJKL 2 Bright
-Loop
-}
+	+BRIGHT
+	States
+	{
+	Spawn:
+		RKEY ABCDEFGHIJKL 2
+		Loop
+	}
 }
 
 ACTOR KDiZDBlueKey : BlueCard replaces BlueCard
-{ 
-States
 {
-Spawn:
-BKEY ABCDEFGHIJKL 2 Bright
-Loop
-}
+	+BRIGHT 
+	States
+	{
+	Spawn:
+		BKEY ABCDEFGHIJKL 2
+		Loop
+	}
 }
 
 ACTOR KDiZDYellowKey : YellowCard replaces YellowCard
 { 
-States
-{
-Spawn:
-YKEY ABCDEFGHIJKL 2 Bright
-Loop
-}
+	+BRIGHT
+	States
+	{
+	Spawn:
+		YKEY ABCDEFGHIJKL 2
+		Loop
+	}
 }
 
 ACTOR KDiZDSilverKey : BlueSkull replaces BlueSkull
 {
-Inventory.PickupMessage "Picked up a silver keycard" 
-States
-{
-Spawn:
-BSKU ABCDEFGHIJKL 2 Bright
-Loop
-}
+	+BRIGHT
+	Inventory.PickupMessage "$IP_SILK" 
+	States
+	{
+	Spawn:
+		BSKU ABCDEFGHIJKL 2
+		Loop
+	}
 }
 
 ACTOR KDiZDGreenKey : YellowSkull replaces YellowSkull
 { 
-Inventory.PickupMessage "Picked up a green keycard" 
-States
-{
-Spawn:
-YSKU ABCDEFGHIJKL 2 Bright
-Loop
-}
+	+BRIGHT
+	Inventory.PickupMessage "$IP_GREK" 
+	States
+	{
+	Spawn:
+		YSKU ABCDEFGHIJKL 2
+		Loop
+	}
 }
 
 ACTOR KDiZDOrangeKey : RedSkull replaces RedSkull
 { 
-Inventory.PickupMessage "Picked up an orange keycard" 
-States
-{
-Spawn:
-RSKU ABCDEFGHIJKL 2 Bright
-Loop
-}
+	+BRIGHT
+	Inventory.PickupMessage "$IP_ORAK" 
+	States
+	{
+	Spawn:
+		RSKU ABCDEFGHIJKL 2
+		Loop
+	}
 }
 
 //===========================================================================
@@ -76,13 +81,22 @@ Loop
 //
 //===========================================================================
 
-pickup Purpledildo
+ACTOR PurpleDildo : CustomInventory
 {
-	DoomEdNum 6002
-	Sprite PUDI
-	Frames "6:AB"
-	PickupMessage "You found the miraculous purple gay dildo."
-	PickupSound "misc/i_pkup"
+	//$Category KDiZD Pickups
+	Radius 16
+	Height 32
+	+COUNTITEM
+	+INVENTORY.ALWAYSPICKUP
+	Inventory.MaxAmount 1
+	Inventory.PickupMessage "$IP_DILD"
+	Inventory.PickupSound "misc/i_pkup"
+	States
+	{
+	Spawn:
+		PUDI AB 6
+		Loop
+	}
 }
 
 //===========================================================================
@@ -92,13 +106,22 @@ pickup Purpledildo
 //
 //===========================================================================
 
-pickup TwiceRisenLaserRifle
+ACTOR TwiceRisenLaserRifle : CustomInventory
 {
-	DoomEdNum 6003
-	Sprite TRLR
-	Frames "A"
-	PickupMessage "Picked up the M-4000 laser cannon!"
-	PickupSound "misc/w_pkup"
+	//$Category KDiZD Pickups
+	Radius 16
+	Height 32
+	+COUNTITEM
+	+INVENTORY.ALWAYSPICKUP
+	Inventory.MaxAmount 1
+	Inventory.PickupMessage "$IP_RISN"
+	Inventory.PickupSound "misc/w_pkup"
+	States
+	{
+	Spawn:
+		TRLR A -1
+		Stop
+	}
 }
 
 //===========================================================================
@@ -109,22 +132,22 @@ pickup TwiceRisenLaserRifle
 //
 //===========================================================================
 
-ACTOR TerrorSphere : PowerupGiver 2030
+ACTOR TerrorSphere : PowerupGiver
 {
-   +COUNTITEM
-   +INVENTORY.AUTOACTIVATE
-   +INVENTORY.ALWAYSPICKUP
-   +INVENTORY.BIGPOWERUP
-   Inventory.MaxAmount 0
-   Powerup.Type Frightener
-   Powerup.Color GoldMap
-   Powerup.Duration 1600
-   Inventory.PickupMessage "The Terrorsphere!"
-   States
-   {
-   Spawn:
-       TERR ABCDE 6 Bright
-       Loop
-   }
+	+BRIGHT
+	+COUNTITEM
+	+INVENTORY.AUTOACTIVATE
+	+INVENTORY.ALWAYSPICKUP
+	+INVENTORY.BIGPOWERUP
+	Inventory.MaxAmount 0
+	Powerup.Type Frightener
+	Powerup.Color GoldMap
+	Powerup.Duration 1600
+	Inventory.PickupMessage "$IP_BOOO"
+	States
+	{
+	Spawn:
+		TERR ABCDE 6
+		Loop
+	}
 }
-
