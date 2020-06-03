@@ -5,73 +5,25 @@
 //
 //===========================================================================
 
-ACTOR KDiZDRedKey : RedCard replaces RedCard
-{
-	+BRIGHT
-	States
-	{
-	Spawn:
-		RKEY ABCDEFGHIJKL 2
-		Loop
-	}
-}
+ACTOR KDiZDRedKey : RedCard replaces RedCard {}
 
-ACTOR KDiZDBlueKey : BlueCard replaces BlueCard
-{
-	+BRIGHT 
-	States
-	{
-	Spawn:
-		BKEY ABCDEFGHIJKL 2
-		Loop
-	}
-}
+ACTOR KDiZDBlueKey : BlueCard replaces BlueCard {}
 
-ACTOR KDiZDYellowKey : YellowCard replaces YellowCard
-{ 
-	+BRIGHT
-	States
-	{
-	Spawn:
-		YKEY ABCDEFGHIJKL 2
-		Loop
-	}
-}
+ACTOR KDiZDYellowKey : YellowCard replaces YellowCard {}
 
 ACTOR KDiZDSilverKey : BlueSkull replaces BlueSkull
 {
-	+BRIGHT
-	Inventory.PickupMessage "$IP_SILK" 
-	States
-	{
-	Spawn:
-		BSKU ABCDEFGHIJKL 2
-		Loop
-	}
+	Inventory.PickupMessage "$IP_SILK"
 }
 
 ACTOR KDiZDGreenKey : YellowSkull replaces YellowSkull
-{ 
-	+BRIGHT
+{
 	Inventory.PickupMessage "$IP_GREK" 
-	States
-	{
-	Spawn:
-		YSKU ABCDEFGHIJKL 2
-		Loop
-	}
 }
 
 ACTOR KDiZDOrangeKey : RedSkull replaces RedSkull
-{ 
-	+BRIGHT
+{
 	Inventory.PickupMessage "$IP_ORAK" 
-	States
-	{
-	Spawn:
-		RSKU ABCDEFGHIJKL 2
-		Loop
-	}
 }
 
 //===========================================================================
