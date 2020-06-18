@@ -1,6 +1,6 @@
 //===========================================================================
 //
-// Nightmare 
+// Nightmare
 // by TheDarkArchon
 //
 // sprites by: Ezxariarch
@@ -14,8 +14,9 @@ ACTOR KDiZDNightmare 26000
     Radius 20
     Height 56
     Speed 15
+	FastSpeed 20
     PainChance 144
-    MONSTER 
+    MONSTER
     +FLOORCLIP
     +STEALTH
     RenderStyle Add
@@ -37,7 +38,7 @@ ACTOR KDiZDNightmare 26000
         NMRE AABBCCDD 3 A_Chase
         NMRE D 0 A_Jump(32,1)
         Loop
-        NMRE D 0 A_CustomMissile("NightmareWisp",0,0,0) 
+        NMRE D 0 A_CustomMissile("NightmareWisp",0,0,0)
         Loop
     Melee:
         NMRE E 0 A_SetShootable
@@ -50,7 +51,7 @@ ACTOR KDiZDNightmare 26000
         Goto See
     Death:
         NMRE I 3 A_ScreamAndUnblock
-        NMRE JKLMNO 3 
+        NMRE JKLMNO 3
         Stop
     }
 }

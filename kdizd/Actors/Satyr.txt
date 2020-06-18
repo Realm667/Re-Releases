@@ -7,54 +7,55 @@
 //
 //===========================================================================
 
-actor Satyr 3109
+ACTOR Satyr 3109
 {
 	//$Category KDiZD Monsters
-    Health 400
-    Radius 18
-    Height 48
-    Scale 0.75
-    Speed 8
-    PainChance 50
-    Mass 350
-    MONSTER 
-    +FLOORCLIP
-    SeeSound "knight/sight"
-    PainSound "knight/pain"
-    DeathSound "knight/death"
-    ActiveSound "knight/active"
-    MeleeSound "baron/melee"
-    HitObituary "%o was mauled by a satyr."
-    MeleeDamage 8
-    States
-    {
-    Spawn:
-        STYR AB 10 A_Look
-        Loop
-    See:
-        STYR AABBCCDD 3 A_Chase
-        Loop
-    Melee:
-        STYR EF 6 A_FaceTarget
-        STYR G 6 A_MeleeAttack
-        STYR PQ 5 A_FaceTarget
-        STYR R 6 A_MeleeAttack
-        Goto See
-    Pain:
-        STYR H 2
-        STYR H 2 A_Pain
-        Goto See
-    Death:
-        STYR I 5
-        STYR J 5 A_Scream
-        STYR K 6
-        STYR L 7 A_Fall
-        STYR M 4
-        STYR N 4
-        STYR O -1
-        Stop
-    Raise:
-        STYR ONMLKJI 8
-        Goto See
-    }
+	Health 400
+	Radius 18
+	Height 48
+	Scale 0.75
+	Speed 8
+	FastSpeed 16
+	PainChance 50
+	Mass 350
+	MONSTER
+	+FLOORCLIP
+	SeeSound "knight/sight"
+	PainSound "knight/pain"
+	DeathSound "knight/death"
+	ActiveSound "knight/active"
+	MeleeSound "baron/melee"
+	HitObituary "%o was mauled by a satyr."
+	MeleeDamage 8
+	States
+	{
+	Spawn:
+		STYR AB 10 A_Look
+		Loop
+	See:
+		STYR AABBCCDD 3 A_Chase
+		Loop
+	Melee:
+		STYR EF 6 A_FaceTarget
+		STYR G 6 A_MeleeAttack
+		STYR PQ 5 A_FaceTarget
+		STYR R 6 A_MeleeAttack
+		Goto See
+	Pain:
+		STYR H 2
+		STYR H 2 A_Pain
+		Goto See
+	Death:
+		STYR I 5
+		STYR J 5 A_Scream
+		STYR K 6
+		STYR L 7 A_Fall
+		STYR M 4
+		STYR N 4
+		STYR O -1
+		Stop
+	Raise:
+		STYR ONMLKJI 8
+		Goto See
+	}
 }

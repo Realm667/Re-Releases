@@ -16,6 +16,7 @@ ACTOR Shadow 3126
 	RenderStyle "Translucent"
 	Alpha 0.7
 	Speed 8
+	FastSpeed 16
 	PainChance 200
 	Monster
 	+FLOORCLIP
@@ -48,12 +49,12 @@ ACTOR Shadow 3126
 		Goto See+1
 	Missile:
 		TROX E 30 A_FaceTarget
-		TROX F 5 
+		TROX F 5
 		TROX G 5 BRIGHT A_MissileAttack
 		TROX F 5
 		TROX E 20
 		TROX E 1 A_SpidRefire
-		Goto Missile+1      
+		Goto Missile+1
 	Pain:
 		TROX H 4
 		TROX H 4 A_Pain
@@ -63,16 +64,16 @@ ACTOR Shadow 3126
 		TROX J 5
 		TROX K 5 A_CustomMissile("Shadowtorso", 0, 0, 0)
 		TROX L 5 A_Fall
-		TROX MNO 6 
+		TROX MNO 6
 		TROX P -1
 		Stop
 	XDeath:
 		TROX W 5
 		TROX X 4 A_XScream
-		TROX Y 4 
+		TROX Y 4
 		TROX Z 4 A_Fall
- 		TROX ] 4
- 		TROX [ 4
+		TROX ] 4
+		TROX [ 4
 		TROX "\" -1
 		Stop
 	Raise:
@@ -89,18 +90,18 @@ ACTOR Shadowtorso
 	Speed 1
 	Mass 5000
 	RenderStyle "Translucent"
-	alpha 0.7
-	+Doombounce
-      States
+	Alpha 0.7
+	+DOOMBOUNCE
+	States
 	{
 	Spawn:
-         TROX QRS 5
-         TROX T 5 A_Fall
-         TROX U 5
-         TROX V -1
-         Stop
+		TROX QRS 5
+		TROX T 5 A_Fall
+		TROX U 5
+		TROX V -1
+		Stop
 	}
-} 
+}
 
 
 
@@ -126,7 +127,7 @@ ACTOR ShadowBall
 	Decal DoomImpScorch
 	States
 	{
-	Spawn: 
+	Spawn:
 		SBAL ABC 4 BRIGHT A_MissileAttack
 		Loop
 	Death:
@@ -149,7 +150,7 @@ actor ShadowTrail
     {
     Spawn:
      SHTR ABCDEF 4 Bright
-        Stop       
+        Stop
     }
 }
 

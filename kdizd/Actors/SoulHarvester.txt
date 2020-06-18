@@ -7,15 +7,16 @@
 //
 //===========================================================================
 
-actor SoulHarvester 3117
+ACTOR SoulHarvester 3117
 {
 	//$Category KDiZD Monsters
     Health 100
     Radius 20
     Height 56
     Speed 8
+	FastSpeed 14
     PainChance 160
-    MONSTER 
+    MONSTER
     +FLOORCLIP
     SeeSound "harvester/sight"
     PainSound "imp/pain"
@@ -46,7 +47,7 @@ actor SoulHarvester 3117
     	Goto See
     Death:
         SLHV O 7 A_Scream
-        SLHV PQR 7 
+        SLHV PQR 7
         SLHV S 6 A_CustomMissile("SoulHarvesterGhost", 32, 0, 0)
         SLHV T 5 A_Fall
         SLHV UV 5
@@ -66,12 +67,13 @@ actor SoulHarvester 3117
     }
 }
 
-actor SoulHarvesterBall
+ACTOR SoulHarvesterBall
 {
     Radius 8
     Height 6
     Scale 0.4
     Speed 9
+	FastSpeed 16
     Damage 2
     +SEEKERMISSILE
     PROJECTILE
@@ -90,8 +92,8 @@ actor SoulHarvesterBall
         Stop
     }
 }
-	
-actor SoulHarvesterGhost
+
+ACTOR SoulHarvesterGhost
 {
     Radius 1
     Height 1
@@ -110,7 +112,7 @@ actor SoulHarvesterGhost
     }
 }
 
-actor SoulBallTrail
+ACTOR SoulBallTrail
 {
     Radius 1
     Height 1
@@ -123,9 +125,8 @@ actor SoulBallTrail
     {
     Spawn:
     Death:
-    	SBTR H 6 
+    	SBTR H 6
         SBTR ABCDEFG 4 Bright
         Stop
     }
 }
-
