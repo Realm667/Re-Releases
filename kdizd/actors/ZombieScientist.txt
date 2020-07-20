@@ -1,54 +1,63 @@
+//===========================================================================
+//
+// Zombie Scientist
+//
+// created by: scalliano
+// sprites by: scalliano, Xim, JoeyTD, iD Software
+//
+//===========================================================================
+
 ACTOR ZombieScientist
 {
-  Game Doom
-  obituary "%o was axe-murdered by a zombie scientist."
-  health 20
-  mass 90
-  speed 8
-  Radius 20
-  Height 52
-  painchance 200
-  seesound "grunt/sight"
-  painsound "grunt/pain"
-  deathsound "grunt/death"
-  activesound "grunt/active"
-  MONSTER
-  +FLOORCLIP
-  States
-  {
-   Spawn:
-    SCZA AB 10 A_Look
-    loop
-  See:
-    SCZA AABBCCDD 4 A_Chase
-    loop
-  Melee:
-    SCZA E 8 A_FaceTarget
-    SCZA F 16 A_CustomMeleeAttack (random (2, 6) *5, "KnifeHit", "skeleton/swing")
-    SCZA E 4
-    goto See
-  Pain:
-    SCZA G 3
-    SCZA G 3 A_Pain
-    goto See
-  Death:
-    SCZA H 5
-    SCZA I 5 A_Scream
-    SCZA J 5 A_NoBlocking
-    SCZA K 5
-    SCZA L 5
-    SCZA M 5
-    SCZA N -1
-    stop
-  XDeath:
-    SCZA O 5
-    SCZA P 5 A_XScream
-    SCZA Q 5 A_NoBlocking
-    SCZA RSTUV 5
-    SCZA W -1
-    stop
-  Raise:
-    SCZA MLKJIH 5
-    goto See
-  }
+	//$Category KDiZD Monsters
+	Health 20
+	Mass 90
+	Speed 8
+	Radius 20
+	Height 52
+	PainChance 200
+	MONSTER
+	+FLOORCLIP
+	SeeSound "grunt/sight"
+	PainSound "grunt/pain"
+	DeathSound "grunt/death"
+	ActiveSound "grunt/active"
+	Obituary "$OB_ZSCI"
+	States
+	{
+	Spawn:
+		SCZA AB 10 A_Look
+		Loop
+	See:
+		SCZA AABBCCDD 4 A_Chase
+		Loop
+	Melee:
+		SCZA E 8 A_FaceTarget
+		SCZA F 16 A_CustomMeleeAttack (random (2, 6) *5, "KnifeHit", "skeleton/swing")
+		SCZA E 4
+		Goto See
+	Pain:
+		SCZA G 3
+		SCZA G 3 A_Pain
+		Goto See
+	Death:
+		SCZA H 5
+		SCZA I 5 A_Scream
+		SCZA J 5 A_NoBlocking
+		SCZA K 5
+		SCZA L 5
+		SCZA M 5
+		SCZA N -1
+		stop
+	XDeath:
+		SCZA O 5
+		SCZA P 5 A_XScream
+		SCZA Q 5 A_NoBlocking
+		SCZA RSTUV 5
+		SCZA W -1
+		stop
+	Raise:
+		SCZA MLKJIH 5
+		Goto See
+	}
 }

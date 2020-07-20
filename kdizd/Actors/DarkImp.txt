@@ -104,6 +104,7 @@ ACTOR STDarkImp
     Height 56
     Speed 9
 	FastSpeed 18
+    MeleeDamage 3
     PainChance 200
     MONSTER
     +FLOORCLIP
@@ -114,8 +115,6 @@ ACTOR STDarkImp
     MeleeSound "imp/melee"
     Obituary "$OB_STDI"
     HitObituary "$HB_STDI"
-    MissileType DarkFast
-    MeleeDamage 3
     States
     {
     Spawn:
@@ -126,8 +125,21 @@ ACTOR STDarkImp
         Loop
     Melee:
     Missile:
+        DRKS E 0 A_Jump(128,"Missile.Normal","Missile.Strong","Missile.Seeker")
         DRKS EF 8 A_FaceTarget
-        DRKS G 6 A_ComboAttack
+        DRKS G 6 A_BasicAttack(3,"imp/melee","DarkFast",32)
+        Goto See
+    Missile.Normal:
+        DRKS EF 8 A_FaceTarget
+        DRKS G 6 A_BasicAttack(3,"imp/melee","DarkNormal",32)
+        Goto See
+    Missile.Strong:
+        DRKS EF 8 A_FaceTarget
+        DRKS G 6 A_BasicAttack(5,"imp/melee","DarkStrong",32) //strong does 2+ melee damage
+        Goto See
+    Missile.Seeker:
+        DRKS EF 8 A_FaceTarget
+        DRKS G 6 A_BasicAttack(3,"imp/melee","DarkSeeker",32)
         Goto See
     Pain:
         DRKS H 2

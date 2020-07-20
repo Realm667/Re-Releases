@@ -6,7 +6,7 @@
 // New sprites and additional scripting by Vader
 //
 //===========================================================================
-ACTOR Shadow 3126
+ACTOR Shadow
 {
 	//$Category KDiZD Monsters
 	Health 80
@@ -23,7 +23,7 @@ ACTOR Shadow 3126
 	PainSound "Shadow/pain"
 	DeathSound "Shadow/death"
 	ActiveSound "Shadow/active"
-	Obituary "%o was assassinated by a shadow."
+	Obituary "$OB_SHAD"
 	MissileType ShadowBall
 	States
 	{
@@ -103,13 +103,6 @@ ACTOR Shadowtorso
 	}
 }
 
-
-
-//===========================================================================
-//
-// Shadow fireball
-//
-//===========================================================================
 ACTOR ShadowBall
 {
 	Radius 6
@@ -123,7 +116,7 @@ ACTOR ShadowBall
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"
 	MissileType ShadowTrail
-	Missileheight 0
+	MissileHeight 0
 	Decal DoomImpScorch
 	States
 	{
@@ -137,28 +130,23 @@ ACTOR ShadowBall
 	}
 }
 
-actor ShadowTrail
+ACTOR ShadowTrail
 {
     Radius 1
     Height 1
     Speed 0
-    PROJECTILE
+    Projectile
     RenderStyle ADD
     ALPHA 0.6
     +NOCLIP
     States
     {
     Spawn:
-     SHTR ABCDEF 4 Bright
-        Stop
+		SHTR ABCDEF 4 Bright
+		Stop
     }
 }
 
-//============================================================================
-//
-//Shadow "Ghosts"
-//
-//============================================================================
 ACTOR ShadowGhostA
 {
 	Radius 4
