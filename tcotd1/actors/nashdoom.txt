@@ -58,16 +58,16 @@ ACTOR Gore_DemonArm //sprites by NeoWorm
 		Loop
 	Underwater:
 		SAAG ABCDEFGH 2 A_SpawnDebris("NashGore_FlyingBlood", 1)
-		SAAG I -1
+		SAAG I 350
 		Stop
 	Death:
-		SAAG I -1
+		SAAG I 350
 		Stop
 	Death.Sky: //prevent it to appear on sky - ozy81
 		SAAG A 1
 		Stop
 	Crash:
-		SAAG I -1
+		SAAG I 350
 		Stop
 	}
 }
@@ -85,7 +85,7 @@ ACTOR Gore_SpectreArm : Gore_DemonArm
 		Loop
 	Underwater:
 		SAAG ABCDEFGH 2 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
-		SAAG I -1
+		SAAG I 350
 		Stop
 	}
 }
