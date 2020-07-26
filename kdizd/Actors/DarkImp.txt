@@ -92,7 +92,8 @@ ACTOR DarkTail
 // STDarkImp
 //
 // from Skulltag
-// sprites by: Nanami, modified by Vader
+// sprites by: Nanami, modified by Vader (original)
+// new sprites by Amuscaria from Hell Forged
 //
 //===========================================================================
 
@@ -118,51 +119,51 @@ ACTOR STDarkImp
     States
     {
     Spawn:
-        DRKS AB 10 A_Look
+        DAKP AB 10 A_Look
         Loop
     See:
-        DRKS AABBCCDD 3 A_Chase
+        DAKP AABBCCDD 3 A_Chase
         Loop
     Melee:
-    Missile:
-        DRKS E 0 A_Jump(128,"Missile.Normal","Missile.Strong","Missile.Seeker")
-        DRKS EF 8 A_FaceTarget
-        DRKS G 6 A_BasicAttack(3,"imp/melee","DarkFast",32)
+    Missile: //HIJ unused yet - ozy81
+        DAKP E 0 A_Jump(128,"Missile.Normal","Missile.Strong","Missile.Seeker")
+        DAKP EF 8 A_FaceTarget
+        DAKP G 6 A_BasicAttack(3,"imp/melee","DarkFast",32)
         Goto See
     Missile.Normal:
-        DRKS EF 8 A_FaceTarget
-        DRKS G 6 A_BasicAttack(3,"imp/melee","DarkNormal",32)
+        DAKP EF 8 A_FaceTarget
+        DAKP G 6 A_BasicAttack(3,"imp/melee","DarkNormal",32)
         Goto See
     Missile.Strong:
-        DRKS EF 8 A_FaceTarget
-        DRKS G 6 A_BasicAttack(5,"imp/melee","DarkStrong",32) //strong does 2+ melee damage
+        DAKP EF 8 A_FaceTarget
+        DAKP G 6 A_BasicAttack(5,"imp/melee","DarkStrong",32) //strong does 2+ melee damage
         Goto See
     Missile.Seeker:
-        DRKS EF 8 A_FaceTarget
-        DRKS G 6 A_BasicAttack(3,"imp/melee","DarkSeeker",32)
+        DAKP EF 8 A_FaceTarget
+        DAKP G 6 A_BasicAttack(3,"imp/melee","DarkSeeker",32)
         Goto See
     Pain:
-        DRKS H 2
-        DRKS H 2 A_Pain
+        DAKP K 2
+        DAKP K 2 A_Pain
         Goto See
     Death:
-        DRKS I 8
-        DRKS J 8 A_Scream
-        DRKS K 6
-        DRKS L 6 A_Fall
-        DRKS M -1
+        DAKP L 8
+        DAKP M 8 A_Scream
+        DAKP N 6
+        DAKP O 6 A_Fall
+        DAKP P -1
         Stop
     XDeath:
-        DRKI N 5
-        DRKI O 5 A_XScream
-        DRKI P 5
-        DRKI Q 5 A_Fall
-        DRKI RST 5
-        DRKI U -1
+        DAKP Q 5
+        DAKP R 5 A_XScream
+        DAKP S 5
+        DAKP T 5 A_Fall
+        DAKP UVW 5
+        DAKP X -1
         Stop
     Raise:
-        DRKS ML 8
-        DRKS KJI 6
+        DAKP PO 8
+        DAKP NML 6
         Goto See
     }
 }
