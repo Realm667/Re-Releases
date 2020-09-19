@@ -48,14 +48,14 @@ ACTOR SoulHarvester
     Death:
         SLHV O 7 A_Scream
         SLHV PQR 7
-        SLHV S 6 A_CustomMissile("SoulHarvesterGhost", 32, 0, 0)
+        SLHV S 6 A_SpawnProjectile("SoulHarvesterGhost", 32, 0, 0)
         SLHV T 5 A_Fall
         SLHV UV 5
         SLHV W -1
         Stop
     XDeath:
         SLHV X 6 A_Xscream
-        SLHV Y 6 A_CustomMissile("SoulHarvesterGhost", 32, 0, 0)
+        SLHV Y 6 A_SpawnProjectile("SoulHarvesterGhost", 32, 0, 0)
         SLHV Z 6
         SLHV [ 6 A_Fall
         SLHV ] 6
@@ -84,7 +84,7 @@ ACTOR SoulHarvesterBall
     States
     {
     Spawn:
-    	SHBA A  0 Bright A_CustomMissile("SoulBallTrail", 0, 0, 180)
+    	SHBA A 0 Bright A_SpawnProjectile("SoulBallTrail", 0, 0, 180)
         SHBA AB 2 Bright A_SeekerMissile (10,20)
         Loop
     Death:

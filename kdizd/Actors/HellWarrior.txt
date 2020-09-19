@@ -36,7 +36,7 @@ ACTOR HellWarrior
 		HWAR AB 10 A_Look
 		Loop
 	See:
-		HWAR A 0 A_UnsetInvulnerable
+		HWAR A 0 A_UnSetInvulnerable
 		HWAR AABBCCDD 3 A_Chase
 		Loop
 	Missile:
@@ -47,15 +47,15 @@ ACTOR HellWarrior
 		HWAR H 0 A_Jump(128, 6)
 		HWAR H 0 A_SetInvulnerable
 		HWAR H 6 A_FaceTarget
-		HWAR I 4 BRIGHT A_Custommissile(HellWarriorBall2, 25, 0, 0)
+		HWAR I 4 BRIGHT A_SpawnProjectile(HellWarriorBall2, 25, 0, 0)
 		HWAR H 6 A_FaceTarget
 		HWAR H 0 A_UnSetInvulnerable
 		Goto See
 		HWAR H 0 A_SetInvulnerable
 		HWAR H 6 A_FaceTarget
-		HWAR I 4 BRIGHT A_Custommissile(HellWarriorBall2, 25, 0, 0)
+		HWAR I 4 BRIGHT A_SpawnProjectile(HellWarriorBall2, 25, 0, 0)
 		HWAR H 16 A_SpidRefire
-		HWAR I 4 BRIGHT A_Custommissile(HellWarriorBall2, 25, 0, 0)
+		HWAR I 4 BRIGHT A_SpawnProjectile(HellWarriorBall2, 25, 0, 0)
 		HWAR H 6 A_FaceTarget
 		HWAR H 0 A_UnSetInvulnerable
 		Goto See
@@ -70,7 +70,7 @@ ACTOR HellWarrior
 		HWAR H 0 A_UnSetInvulnerable
 		Goto See
 	Death:
-		HWAR K 5 A_CustomMissile(HellWarriorShield, 25, 0, 60)
+		HWAR K 5 A_SpawnProjectile(HellWarriorShield, 25, 0, 60)
 		HWAR L 5 A_Scream
 		HWAR M 5
 		HWAR N 5 A_NoBlocking
