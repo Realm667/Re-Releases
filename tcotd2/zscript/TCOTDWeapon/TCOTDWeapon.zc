@@ -235,20 +235,20 @@ class TCOTDWeapon : Weapon
 	//
 	//===========================================================================
 
-	action void A_SpawnWeaponFX(class<Actor> cls, double xyOffset = 0)
+	action void A_SpawnWeaponFX(class<Actor> cls, double xyOffset = 0.0, double heightOffset = 2.0, double pitchOffset = -45.0, double fwDist = 8.0)
 	{
 		double ca = -90.0;
 
-		double sh = invoker.pmo.player.ViewHeight - 2;
+		double sh = (invoker.pmo.player.viewz - invoker.pmo.Pos.Z) - heightOffset;
 
 		let fx = invoker.pmo.A_SpawnProjectile
 		(
 			cls,
 			spawnheight: sh,
 			spawnofs_xy: xyOffset,
-			angle: ca,
+			angle: ca + frandom(-10.0, 10.0),
 			flags: CMF_AIMDIRECTION,
-			pitch: -45
+			pitch: pitchOffset
 		);
 
 		if (fx)
@@ -258,10 +258,15 @@ class TCOTDWeapon : Weapon
 			double a = invoker.pmo.Angle;
 			double p = invoker.pmo.Pitch;
 			double r = invoker.pmo.Roll;
-			double fwDist = 8.0;
 			double xyr = fwDist * cos(p);
 			Vector3 cPos = fx.Vec3Offset(cos(a) * xyr, sin(a) * xyr, -sin(p) * fwDist);
 			fx.SetOrigin(cPos, false);
+			/*
+			FLineTraceData t;
+			int flags = TRF_SOLIDACTORS;
+			invoker.pmo.LineTrace(a, fwDist, p, flags, sh, data: t);
+			fx.SetOrigin(t.HitLocation, false);
+			*/
 		}
 	}
 
