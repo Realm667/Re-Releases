@@ -3,6 +3,7 @@
 7za a -tzip -x!".git" -xr!"*.dbs" -xr!"*.backup1" -xr!"*.backup2" -xr!"*.backup3" kdizd.pk3 .\kdizd\*
 7za a -tzip -x!".git" -xr!"*.dbs" -xr!"*.backup1" -xr!"*.backup2" -xr!"*.backup3" sapphire.pk3 .\sapphire\*
 7za a -tzip -x!".git" -xr!"*.dbs" -xr!"*.backup1" -xr!"*.backup2" -xr!"*.backup3" strnghld.pk3 .\stronghold\*
+7za a -tzip -x!".git" -xr!"*.dbs" -xr!"*.backup1" -xr!"*.backup2" -xr!"*.backup3" tcotd1.pk3 .\tcotd1\*
 7za a -tzip -x!".git" -xr!"*.dbs" -xr!"*.backup1" -xr!"*.backup2" -xr!"*.backup3" tcotd2.pk3 .\tcotd2\*
 7za a -tzip -x!".git" -xr!"*.dbs" -xr!"*.backup1" -xr!"*.backup2" -xr!"*.backup3" therefinery.pk3 .\therefinery\*
 7za a -tzip -x!".git" -xr!"*.dbs" -xr!"*.backup1" -xr!"*.backup2" -xr!"*.backup3" tnte1.pk3 .\tnte1\*
