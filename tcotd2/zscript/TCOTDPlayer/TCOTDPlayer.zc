@@ -319,7 +319,7 @@ class TCOTDPlayer : PlayerPawn
 		double flinchFactor = double(enableTiltEffects);
 
 		// Shared variables we'll need later
-		double r, v;
+		double r = 0.0, v = 0.0;
 
 		//===========================================================================
 		//
@@ -336,10 +336,10 @@ class TCOTDPlayer : PlayerPawn
 			strafeInput = strafeTiltSpeed * (GetPlayerInput(MODINPUT_SIDEMOVE) / 10240.0);
 			strafeInput *= strafeTiltAngle;
 			strafeInput *= dir;
-		}
 
-		// tilt!
-		lastRoll += strafeInput;
+			// tilt!
+			lastRoll += strafeInput;
+		}
 
 		//===========================================================================
 		//
@@ -365,12 +365,12 @@ class TCOTDPlayer : PlayerPawn
 			r = sin(moveTiltOsc);
 			r *= moveTiltAngle;
 			r *= v;
-		}
 
-		// tilt!
-		double movebobfac = (1.0 * GetCVar("movebob") / 0.25);
-		r *= movebobfac;
-		lastRoll += r;
+			// tilt!
+			double movebobfac = (1.0 * GetCVar("movebob") / 0.25);
+			r *= movebobfac;
+			lastRoll += r;
+		}
 
 		//===========================================================================
 		//
@@ -384,10 +384,12 @@ class TCOTDPlayer : PlayerPawn
 			double xinput = GetPlayerInput(MODINPUT_YAW) * (turnTiltReversed ? -1 : 1);
 			xinput = turnTiltScalar * xinput / 32767.0;
 			r = xinput;
-		}
 
-		// tilt!
-		lastRoll += r;
+			// tilt!
+			double movebobfac = (1.0 * GetCVar("movebob") / 0.25);
+			r *= movebobfac;
+			lastRoll += r;
+		}
 
 		//===========================================================================
 		//
@@ -413,10 +415,10 @@ class TCOTDPlayer : PlayerPawn
 			r = sin(underwaterTiltOsc);
 			r *= underwaterTiltAngle;
 			r *= v;
-		}
 
-		// tilt!
-		lastRoll += r;
+			// tilt!
+			lastRoll += r;
+		}
 
 		//===========================================================================
 		//
@@ -443,15 +445,15 @@ class TCOTDPlayer : PlayerPawn
 
 			r = sin(deathTiltOsc);
 			r *= deathTiltAngle;
+
+			// tilt!
+			lastRoll += r;
 		}
 		else
 		{
 			deathTiltOsc = 0;
 			deathTiltAngle = 0;
 		}
-
-		// tilt!
-		lastRoll += r;
 
 		//===========================================================================
 		//
@@ -483,7 +485,7 @@ class TCOTDPlayer : PlayerPawn
 
 		// Apply the sum of all rolling routines
 		// (including after stabilization)
-		A_SetRoll((Roll + lastRoll) * 0.5, SPF_INTERPOLATE);
+		A_SetViewRoll((ViewRoll + lastRoll) * 0.5, SPF_INTERPOLATE);
 	}
 
 	//===========================================================================
