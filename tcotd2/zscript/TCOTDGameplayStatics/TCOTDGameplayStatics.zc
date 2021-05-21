@@ -6,14 +6,14 @@ class TCOTDGameplayStatics play
 		else return self.Pos.Z <= self.FloorZ || self.bOnMObj || self.bMBFBouncer;
 	}
 
-	static bool IsCrouching(Actor self)
+	static bool IsCrouching(PlayerPawn self)
 	{
 		if (!self.player) return false;
 		double ch = double((self.player.mo.ViewHeight / 2));
 		return self.GetCameraHeight() <= ch;
 	}
 
-	static bool IsAlive (Actor self)
+	static bool IsAlive(Actor self)
 	{
 		return self.Health > 0;
 	}
