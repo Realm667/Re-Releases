@@ -13,11 +13,6 @@ class TCOTDGameplayStatics play
 		return self.GetCameraHeight() <= ch;
 	}
 
-	static bool IsAlive(Actor self)
-	{
-		return self.Health > 0;
-	}
-
 	static double GetVelocity(Actor self, bool xyOnly = false)
 	{
 		if (xyOnly) return self.Vel.XY.Length();
