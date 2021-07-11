@@ -4,6 +4,7 @@
 #include "actors/specific/t667two.txt"
 #include "actors/specific/tecu.txt"
 #include "actors/specific/xasect.txt"
+#include "actors/specific/vad01.txt"
 
 
 ////////////////////////////////////////
@@ -2361,4 +2362,70 @@ bloodcolor royalblue
 actor NewLostSoul : LostSoul replaces LostSoul
 {
 +NOBLOOD
+}
+
+actor EvilmarineSSG : MarineSSG 16555
+{
+  seesound "grunt/sight"
+  activesound "grunt/active"
+  painsound "grunt/pain"
+  deathsound "grunt/death"  
+  States
+  {
+ 	Pain:
+    	PLAY G 4
+    	PLAY G 4 A_Pain
+    	goto See
+  }
+}
+
+actor EvilmarinePlasma : MarinePlasma 16556
+{
+  seesound "grunt/sight"
+  activesound "grunt/active"
+  painsound "grunt/pain"
+  deathsound "grunt/death"
+  States
+  {
+ 	Pain:
+    	PLAY G 4
+    	PLAY G 4 A_Pain
+    	goto See
+  }
+}
+
+VaderOrakel
+{
+	//$Category Decoration
+Solid
+Height 64
+Radius 24
+DoomEdNum 8666
+Sprite ORBY
+Frames "A"
+}
+
+actor ExplosionVTMAP
+{
+  spawnid 209
+  obituary "%o was killed by an explosion."
+  radius 11
+  height 8
+  speed 20
+  damage 20
+  seesound "weapons/rocklx"
+  deathsound "weapons/rocklx"
+  PROJECTILE
+  +RANDOMIZE
+  states
+  {
+  Spawn:
+    goto Death
+  Death:
+    MISL B 0 bright A_PlaySound("weapons/rocklx")
+    MISL B 8 bright A_Explode 
+    MISL C 6 bright
+    MISL D 4 bright
+    stop
+  }
 }
