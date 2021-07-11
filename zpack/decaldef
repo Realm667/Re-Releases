@@ -1,0 +1,79 @@
+
+fader BlasterAway
+{
+	DecayStart	0.5
+	DecayTime	3.0
+}
+
+decal BlasterScorchLower
+{
+	pic PLASMA2
+	shade "00 00 00"
+	x-scale 1.2
+	y-scale 1.2
+	randomflipx
+	randomflipy
+}
+
+decal BlasterScorch
+{
+	pic BLSTA1A5
+	add 1.0
+	fullbright
+	x-scale 1.1
+	y-scale 1.1
+	animator BlasterAway
+	lowerdecal BlasterScorchLower
+}
+
+decal CometScorch
+{
+	pic COMTSCRC
+	fullbright
+	add 0.5
+	animator GoAway
+	x-scale .4
+	y-scale .4
+	lowerdecal Scorch
+	randomflipx
+	randomflipy
+}
+
+decal SkullScorch1 
+{ 
+   pic PLASMA1 
+   shade "00 00 00" 
+   x-scale 0.6 
+   y-scale 0.6 
+   randomflipx 
+   randomflipy 
+} 
+
+decal SkullScorch2 
+{ 
+   pic PLASMA2 
+   shade "00 00 00" 
+   x-scale 0.6 
+   y-scale 0.6 
+   randomflipx 
+   randomflipy 
+} 
+
+decalgroup SkullScorch 
+{ 
+   SkullScorch1   1 
+   SkullScorch2   1 
+} 
+ 
+generator ShadowBall		DoomImpScorch  
+generator SoulHarvesterBall	SkullScorch 
+generator BruiserMissile	Scorch
+generator BruiserBall     	Scorch
+generator BruiserBall2    	DoomImpScorch
+generator Comet     		CometScorch
+generator AfritBall     	BaronScorch
+generator CatharsiBall     	DoomImpScorch
+generator Redstar 		BaronScorch
+generator TerminatorBlaster 	BlasterScorch
+generator Terminator		Bulletchip
+generator Bloodshot		Bloodsplat
