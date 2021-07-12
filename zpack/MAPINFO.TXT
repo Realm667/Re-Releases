@@ -1,350 +1,420 @@
 clearepisodes
 
 episode E1M1
-name "The Remains of UAC"
+{
+	name = "The Remains of UAC"
+}
 
 map E1M1 "Vestibule"
-cluster 1
-next E1M2
-music "STLTHFRG"
-sky1 P_BLUE1 0.0
-par 300
+{
+	cluster = 1
+	next = E1M2
+	music = "STLTHFRG"
+	sky1 = P_BLUE1, 0.0
+	par = 300
+}
 
 map E1M2 "Blast"
-cluster 1
-next E1M3
-music D_PHBS3
-sky1 ESKY1 0.0
-par 400
+{
+	cluster = 1
+	next = E1M3
+	music = D_PHBS3
+	sky1 = ESKY1, 0.0
+	par = 400
+}
 
 map E1M3 "KDiZD Launch Site"
-cluster 1
-next E1M4
-secretnext VTMAP
-music "D_VTMAP"
-par 200
+{
+	cluster = 1
+	next = E1M4
+	secretnext = VTMAP
+	music = "D_VTMAP"
+	par = 200
+}
 
 map E1M4 "UAC Waste and Storage Facility"
-cluster 1
-next E1M5
-secretnext E1M0
-par 660
-sucktime 1
-music D_SOLOBT
+{
+	cluster = 1
+	next = E1M5
+	secretnext = E1M0
+	par = 660
+	sucktime = 1
+	music = D_SOLOBT
+}
 
 map E1M0 "Colossus reloaded"
-next E1M5
-music D_VAD04
-par 90
+{
+	next = E1M5
+	music = D_VAD04
+	par = 90
+	cluster = 6
+}
+
 cluster 6
-clusterdef 6
-flat VADROCK4	
-entertext "After diving through the dark tunnnel and 
-entering the teleporter at its end, 
-you suddenly find yourself in yet 
-another UAC building.
-
-The entry to this installation was surely 
-kept hidden for a reason, 
-so get your gears ready and be prepared...
-
-run or die!" 
-
+{
+	flat = VADROCK4
+	entertext = "After diving through the dark tunnnel and ",
+		"entering the teleporter at its end, ",
+		"you suddenly find yourself in yet ",
+		"another UAC building.",
+		"",
+		"The entry to this installation was surely ",
+		"kept hidden for a reason, ",
+		"so get your gears ready and be prepared...",
+		"",
+		"run or die!"
+}
 
 map E1M5 "Site X"
-cluster 1
-next E1M6
-music "D_SITEX"
-sky1 SKY_03 0.0
-par 540
+{
+	cluster = 1
+	next = E1M6
+	music = "D_SITEX"
+	sky1 = SKY_03, 0.0
+	par = 540
+}
 
 map E1M6 "Glacierbase"
-cluster 1
-next E1M7
-music "D_ICY2X"
-sky1 ESKY1 0.0
-par 540
+{
+	cluster = 1
+	next = E1M7
+	music = "D_ICY2X"
+	sky1 = ESKY1, 0.0
+	par = 540
+}
 
 map E1M7 "Nuclear Sky"
-cluster 1
-next E1M8
-par 1200
-music D_TNICK
+{
+	cluster = 1
+	next = E1M8
+	par = 1200
+	music = D_TNICK
+}
 
 map E1M8 "Thunderpeak Powerplant"
+{
+	cluster = 1
+	next = E1M9
+	music = D_VAD02
+	par = 600
+}
+
 cluster 1
-next E1M9
-music D_VAD02
-par 600
-
-clusterdef 1
-exittext "As the body of the cybernetic demon smashes
-against the ground, a door opens revealing
-an expansive chamber.  In its center is a
-bastard mixture of UAC's finest technology
-and corrupt demon magics, holding open a
-dimensional doorway to worlds that bridge
-Earth and Hell.  Naturally, you enter it.
-
-What you leave behind is nothing more than
-the smouldering remains of what was once
-the pride of the UAC, now a graveyard for
-rotting demon corpses.  Ahead lies what
-looks like the last twisted bastions of a
-reality that's on its way straight to Hell..."
-flat N_BKGR05
+{
+	exittext = "As the body of the cybernetic demon smashes",
+		"against the ground, a door opens revealing",
+		"an expansive chamber.  In its center is a",
+		"bastard mixture of UAC's finest technology",
+		"and corrupt demon magics, holding open a",
+		"dimensional doorway to worlds that bridge",
+		"Earth and Hell.  Naturally, you enter it.",
+		"",
+		"What you leave behind is nothing more than",
+		"the smouldering remains of what was once",
+		"the pride of the UAC, now a graveyard for",
+		"rotting demon corpses.  Ahead lies what",
+		"looks like the last twisted bastions of a",
+		"reality that's on its way straight to Hell..."
+	flat = N_BKGR05
+}
 
 map E1M9 "Termination"
-cluster 1
-next EndGame1
-music D_VAD03
-par 240
-/////////////////////////////////////////
+{
+	cluster = 1
+	next = EndGame1
+	music = D_VAD03
+	par = 240
+/////////////////////////////////////////
+}
 
 episode E2M1
-name "Descent to Darkness"
+{
+	name = "Descent to Darkness"
+}
 
 map E2M1 "Switchback"
-cluster 2
-next E2M2
-music D_PHOBUS
-sky1 SKY2 0.0
-par 540
+{
+	cluster = 2
+	next = E2M2
+	music = D_PHOBUS
+	sky1 = SKY2, 0.0
+	par = 540
+}
 
 map E2M2 "Ultimate Insanity"
-cluster 2
-next E2M3
-music D_INSANE
-sky1 ESKY5 0.0
-par 900
-evenlighting
-clipmidtextures
+{
+	cluster = 2
+	next = E2M3
+	music = D_INSANE
+	sky1 = ESKY5, 0.0
+	par = 900
+	evenlighting 
+	clipmidtextures 
+}
 
 map E2M3 "More Tricks & Traps"
-cluster 2
-next E2M4
-secretnext E2M0
-par 1200
-music D_T667TW
+{
+	cluster = 2
+	next = E2M4
+	secretnext = E2M0
+	par = 1200
+	music = D_T667TW
+}
 
 map E2M0 "For the Hell of it"
-next E2M4
-music D_PHBS2
-sky1 ESKY7 0.0
-par 780
-evenlighting
+{
+	next = E2M4
+	music = D_PHBS2
+	sky1 = ESKY7, 0.0
+	par = 780
+	evenlighting 
+	cluster = 5
+}
+
 cluster 5
-clusterdef 5
-flat FLAT5_5	
-entertext "You make your way down this secret path and
-find yourself at a door.
-
-Going through this door you are confronted
-by a conveyor belt and a long line of 
-whirring machinery. 
-So you get ready to ride it and 
-see where it goes, risking life and limb.
-
-Why? For The Hell Of It, of course!"
+{
+	flat = FLAT5_5
+	entertext = "You make your way down this secret path and",
+		"find yourself at a door.",
+		"",
+		"Going through this door you are confronted",
+		"by a conveyor belt and a long line of ",
+		"whirring machinery. ",
+		"So you get ready to ride it and ",
+		"see where it goes, risking life and limb.",
+		"",
+		"Why? For The Hell Of It, of course!"
+}
 
 map E2M4 "Command Center"
-cluster 2
-next E2M5
-sky1 ESKY7 0.01
-music "D_ICY666"
-par 780
+{
+	cluster = 2
+	next = E2M5
+	sky1 = ESKY7, 0.01
+	music = "D_ICY666"
+	par = 780
+}
 
 map E2M5 "Fanboy"
-cluster 2
-next E2M6
-evenlighting
-sky1 esky3 0.1
-music D_fanboy
-par 780
+{
+	cluster = 2
+	next = E2M6
+	evenlighting 
+	sky1 = esky3, 0.1
+	music = D_fanboy
+	par = 780
+}
 
 map E2M6 "Terror Cube"
-cluster 2
-next E2M7
-music "D_TECU"
-par 2280
-sky1 SKY1 0
-sky2 ESKY2 0
+{
+	cluster = 2
+	next = E2M7
+	music = "D_TECU"
+	par = 2280
+	sky1 = SKY1, 0
+	sky2 = ESKY2, 0
+}
 
 map E2M7 "Black Inferno"
-cluster 2
-next E2M8
-par 1920
-music D_T667
+{
+	cluster = 2
+	next = E2M8
+	par = 1920
+	music = D_T667
+}
 
 map E2M8 "Tearing 'n' Temptation"
+{
+	cluster = 2
+	next = E2M9
+	par = 450
+	music = D_ICYTNT
+}
+
 cluster 2
-next E2M9
-par 450
-music D_ICYTNT
-
-clusterdef 2
-exittext "The bloodlust within subsides as you walk
-over the formerly clean floor that is now
-covered with the remains of Hell's
-grotesque creations.
-
-In front of you lies a portal of flames.
-There's no doubt where this portal leads
-to. A feeling of discomfort stirs inside
-you as you think about your journey past,
-and what yet lies ahead.  Maybe you can
-find solace in the fact that you really
-don't have much of a choice anymore.
-There's only one way to go and Hell is
-waiting with open arms..."
-flat T6_RCK1
+{
+	exittext = "The bloodlust within subsides as you walk",
+		"over the formerly clean floor that is now",
+		"covered with the remains of Hell's",
+		"grotesque creations.",
+		"",
+		"In front of you lies a portal of flames.",
+		"There's no doubt where this portal leads",
+		"to. A feeling of discomfort stirs inside",
+		"you as you think about your journey past,",
+		"and what yet lies ahead.  Maybe you can",
+		"find solace in the fact that you really",
+		"don't have much of a choice anymore.",
+		"There's only one way to go and Hell is",
+		"waiting with open arms..."
+	flat = T6_RCK1
+}
 
 map E2M9 "Abyss to the BBQ"
-cluster 2
-next Endpic Victory
-music "D_TBOSS1"
-par 420
-/////////////////////////////////////////
+{
+	cluster = 2
+	next = endpic, Victory
+	music = "D_TBOSS1"
+	par = 420
+/////////////////////////////////////////
+}
 
 episode E3M1
-name "Armageddon"
+{
+	name = "Armageddon"
+}
 
 map E3M1 "Riveter"
-next E3M2
-music "D_SAW02"
-par 300
+{
+	next = E3M2
+	music = "D_SAW02"
+	par = 300
+}
 
-Map E3M2 "Infection"
-next E3M3
-Music D_E2M8 
-Sky1 Sky2 0.0
-Par 900
+map E3M2 "Infection"
+{
+	next = E3M3
+	Music = D_E2M8
+	Sky1 = Sky2, 0.0
+	Par = 900
+}
 
-Map E3M3 "Stereotomy"
-Next E3M4
-Music D_Stereo
-Par 780
-Sky1 SkyRed 1
-SKy2 ELFBLU 1
+map E3M3 "Stereotomy"
+{
+	Next = E3M4
+	Music = D_Stereo
+	Par = 780
+	Sky1 = SkyRed, 1
+	SKy2 = ELFBLU, 1
+}
 
 map E3M4 "Fried Fortress"
-next E3M5
-music "D_ICYTUX"
-Sky1 EFSKY1 0.0
-Par 1500
+{
+	next = E3M5
+	music = "D_ICYTUX"
+	Sky1 = EFSKY1, 0.0
+	Par = 1500
+}
 
 map E3M5 "The Spirit Underworld"
-Par 1620
-levelnum 77
-next E3M6
-secretnext E3M0
-music D_HN7TSU
-cluster 77
+{
+	Par = 1620
+	levelnum = 77
+	next = E3M6
+	secretnext = E3M0
+	music = D_HN7TSU
+	cluster = 77
+}
 
 map Part2 "The Spirit Underworld"
-Par 1620
-levelnum 78
-music D_HN7TSU
+{
+	Par = 1620
+	levelnum = 78
+	music = D_HN7TSU
+	cluster = 77
+}
+
 cluster 77
-clusterdef 77
-hub
+{
+	hub 
+}
 
 map E3M0 "Sector"
-next E3M6
-music D_XASECT
-sky1 sky1 0.0
-enterpic INTERXA1
-exitpic INTERXA2
+{
+	next = E3M6
+	music = D_XASECT
+	sky1 = sky1, 0.0
+	enterpic = INTERXA1
+	exitpic = INTERXA2
+	cluster = 10101033
+}
+
 cluster 10101033
-clusterdef 10101033
-flat XASTEX01	
-entertext "As you step through the gate,
-you suddenly realize something is wrong.
-Very, very wrong.
-Your thoughts and feelings cloud around you,
-strangling you, taking you away from reality.
-What is this place? 
-A voice taunts you, laughing hysterically.
-Laughing... laughing on...
-
-As the world begins to take shape
-around you, a single sentence pierces
-your soul, echoing through your head.
-
-'YOUR MIND IS MINE!'"
-
-exittext "...
-
-...now Normalcy?"
-
-
-//Old entertext, here for justice:
-
-/*
-entertext "As you enter this strange place you notice
-that you are no longer in hell.
-You are somewhere far worse.
-
-You find yourself in the grasp of the
-ever insane Xaser, and you must fight
-through the insanity that is his
-realm to return to your life..."
-
-//hnsolo wrote that, not me ;P
-
-*/
+{
+	flat = XASTEX01
+	entertext = "As you step through the gate,",
+		"you suddenly realize something is wrong.",
+		"Very, very wrong.",
+		"Your thoughts and feelings cloud around you,",
+		"strangling you, taking you away from reality.",
+		"What is this place? ",
+		"A voice taunts you, laughing hysterically.",
+		"Laughing... laughing on...",
+		"",
+		"As the world begins to take shape",
+		"around you, a single sentence pierces",
+		"your soul, echoing through your head.",
+		"",
+		"'YOUR MIND IS MINE!'"
+	exittext = "...",
+		"",
+		"...now Normalcy?"
+//Old entertext, here for justice:
+/*/**/*/
+*/e*/n*/t*/e*/r*/t*/e*/x*/t*/ */"*/A*/s*/ */y*/o*/u*/ */e*/n*/t*/e*/r*/ */t*/h*/i*/s*/ */s*/t*/r*/a*/n*/g*/e*/ */p*/l*/a*/c*/e*/ */y*/o*/u*/ */n*/o*/t*/i*/c*/e*/*/
+*/t*/h*/a*/t*/ */y*/o*/u*/ */a*/r*/e*/ */n*/o*/ */l*/o*/n*/g*/e*/r*/ */i*/n*/ */h*/e*/l*/l*/.*/*/
+*/Y*/o*/u*/ */a*/r*/e*/ */s*/o*/m*/e*/w*/h*/e*/r*/e*/ */f*/a*/r*/ */w*/o*/r*/s*/e*/.*/*/
+*/*/
+*/Y*/o*/u*/ */f*/i*/n*/d*/ */y*/o*/u*/r*/s*/e*/l*/f*/ */i*/n*/ */t*/h*/e*/ */g*/r*/a*/s*/p*/ */o*/f*/ */t*/h*/e*/*/
+*/e*/v*/e*/r*/ */i*/n*/s*/a*/n*/e*/ */X*/a*/s*/e*/r*/,*/ */a*/n*/d*/ */y*/o*/u*/ */m*/u*/s*/t*/ */f*/i*/g*/h*/t*/*/
+*/t*/h*/r*/o*/u*/g*/h*/ */t*/h*/e*/ */i*/n*/s*/a*/n*/i*/t*/y*/ */t*/h*/a*/t*/ */i*/s*/ */h*/i*/s*/*/
+*/r*/e*/a*/l*/m*/ */t*/o*/ */r*/e*/t*/u*/r*/n*/ */t*/o*/ */y*/o*/u*/r*/ */l*/i*/f*/e*/.*/.*/.*/"*/*/
+*/*/
+*//*//*/h*/n*/s*/o*/l*/o*/ */w*/r*/o*/t*/e*/ */t*/h*/a*/t*/,*/ */n*/o*/t*/ */m*/e*/ */;*/P*/*/
+*/*/
+*/}
 
 map E3M6 "The 13th Hour"
-cluster 3
-next E3M7
-sky1 STARRY 0
-par 1200
+{
+	cluster = 3
+	next = E3M7
+	sky1 = STARRY, 0
+	par = 1200
+}
 
 map E3M7 "Blackrock"
-cluster 3
-next E3M8
-par 1200
-music D_VAD01
+{
+	cluster = 3
+	next = E3M8
+	par = 1200
+	music = D_VAD01
+}
 
 map E3M8 "Point Hellfire"
+{
+	cluster = 3
+	next = E3M9
+	par = 1560
+	music = D_SAW01
+}
+
 cluster 3
-next E3M9
-par 1560
-music D_SAW01
-
-clusterdef 3
-exittext "The brood mother of Hell's swarms lay still
-before you, mangled and squished.  Climbing
-to the top of the tower, you gaze over the
-vast hellscape, brimming with magma and
-carrying the echoes of damned souls crying
-in agony.  Raising your shotgun into the
-air, you unleash a piercing scream of
-victory.  Every corner of Hell will be made
-to know your wrath.
-
-Long has humanity feared demons.  Now, at
-last, all the dark agents of Hell will hide
-in true fear at the thought of the one thing
-more terrifying than themselves: you."
-flat ICYROCK2
+{
+	exittext = "The brood mother of Hell's swarms lay still",
+		"before you, mangled and squished.  Climbing",
+		"to the top of the tower, you gaze over the",
+		"vast hellscape, brimming with magma and",
+		"carrying the echoes of damned souls crying",
+		"in agony.  Raising your shotgun into the",
+		"air, you unleash a piercing scream of",
+		"victory.  Every corner of Hell will be made",
+		"to know your wrath.",
+		"",
+		"Long has humanity feared demons.  Now, at",
+		"last, all the dark agents of Hell will hide",
+		"in true fear at the thought of the one thing",
+		"more terrifying than themselves: you."
+	flat = ICYROCK2
+}
 
 map E3M9 "Ancient hell"
-cluster 3
-music D_ICYMNI
-next EndGame3
-sky1 EFSKY1 0.0 
-Par 1500
+{
+	cluster = 3
+	music = D_ICYMNI
+	next = EndGame3
+	sky1 = EFSKY1, 0.0
+	Par = 1500
 
-//gameinfo
-//{
-//	dimcolor = "001F39"
-//	dimamount = 0.5
-//	fullscreenautoaspect = 3
-//
-//	infopage = "CREDIT"
-//	addinfopage = "HELP"
-//	borderflat = "AUTOPAGE"
-//	
-//	statscreen_single = "AusterStatusScreen"
-//}
+
+gameinfo{	dimcolor = "39342E"	dimamount = 0.5	fullscreenautoaspect = 3	infopage = "CREDIT"	addinfopage = "HELP"	borderflat = "AUTOPAGE"}
+
