@@ -1,0 +1,61 @@
+// Plasma Zombie
+ACTOR PlasmaZombie 3205
+{
+    Health 160
+    Radius 20
+    Height 56
+    Speed 8
+    PainChance 100
+    MONSTER 
+    +FloorClip
+    SEESOUND "grunt/sight"
+    ATTACKSOUND "grunt/attack"
+    PAINSOUND "grunt/pain"
+    DEATHSOUND "grunt/death"
+    ACTIVESOUND "grunt/active"
+    OBITUARY "%o got burned by a plasma zombie."
+    DropItem Cell
+    MissileType PlasmaBall
+    states
+    {
+    Spawn:
+        ZMAY AB 10 A_Look
+        Loop
+    See:
+        ZMAY AABBCCDD 4 A_Chase
+        Loop
+    Missile:
+        ZMAY E 10 A_FaceTarget
+        ZMAY F 5 A_MissileAttack
+        ZMAY E 5 A_FaceTarget
+        ZMAY F 5 A_MissileAttack
+        ZMAY E 5 A_FaceTarget
+        ZMAY F 5 A_MissileAttack
+        ZMAY E 5 A_FaceTarget
+        ZMAY F 5 A_MissileAttack
+        ZMAY E 5 A_FaceTarget
+        ZMAY F 5 A_MissileAttack
+        Goto See
+    Pain:
+        ZMAY G 3
+        ZMAY G 3 A_Pain
+        Goto See
+    Death:
+        ZMAY H 5
+        ZMAY I 5 A_Scream
+        ZMAY J 5 A_Fall
+        ZMAY K 5
+        ZMAY L -1
+        Stop
+    XDeath:
+        ZMAY O 5
+        ZMAY P 5 A_XScream
+        ZMAY Q 5 A_Fall
+        ZMAY RSTU 5
+        ZMAY V -1
+        Stop
+    Raise:
+        ZMAY KJIH 5
+        Goto See
+    }
+}

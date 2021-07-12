@@ -1,0 +1,39 @@
+//miscellanea, from props to special
+Actor VaderOrakel 8666
+{
+	//$Category Decoration
+	Height 64
+	Radius 24
+	+SOLID
+	States
+	{
+	Spawn:
+		ORBY A -1
+		Stop
+	}
+}
+
+actor ExplosionVTMAP
+{
+	spawnid 209
+	obituary "%o was killed by an explosion."
+	radius 11
+	height 8
+	speed 20
+	damage 20
+	seesound "weapons/rocklx"
+	deathsound "weapons/rocklx"
+	PROJECTILE
+	+RANDOMIZE
+	states
+	{
+	Spawn:
+		goto Death
+	Death:
+		MISL B 0 bright A_PlaySound("weapons/rocklx")
+		MISL B 8 bright A_Explode 
+		MISL C 6 bright
+		MISL D 4 bright
+	stop
+	}
+}

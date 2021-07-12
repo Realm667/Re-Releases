@@ -1,0 +1,85 @@
+Class LightRay_Regular : SwitchableDecoration
+{
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		Radius 8;
+		Height 16;
+		RenderStyle "Translucent";
+		Alpha 1.0;
+		+NOBLOCKMAP
+		+NOGRAVITY
+	}
+	States
+	{
+	Spawn:
+	Active:
+		VOLT A -1 Bright;
+		Stop;
+	Inactive:
+		VOLT A 1;
+		TNT1 A -1;
+		Stop;
+	}
+}
+
+Class LightRay_Wallsprite : LightRay_Regular
+{
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		+ROLLSPRITE
+		+WALLSPRITE
+	}
+}
+
+Class Grass1 : ZPackDietActor
+{
+	Default
+	{
+		Radius 16;
+		Height 16;
+		Scale 0.5;
+		+DONTTHRUST
+		+NOTAUTOAIMED
+	}
+	States
+	{
+	Spawn:
+		GRS1 A -1;
+		Stop;
+	}
+}
+
+Class Grass2 : Grass1
+{
+	States
+	{
+	Spawn:
+		GRS2 A -1;
+		Stop;
+	}
+}
+
+Class Grass3 : Grass1
+{
+	States
+	{
+	Spawn:
+		GRS2 A -1;
+		Stop;
+	}
+}
+
+Class GrassSpawner : RandomSpawner
+{
+	Default
+	{
+		DropItem "Grass1";
+		DropItem "Grass2";
+		DropItem "Grass3";
+		Radius 16;
+		Height 16;
+		Scale 0.5;
+	}
+}

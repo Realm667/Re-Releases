@@ -1,0 +1,68 @@
+// Heresy Lord
+ACTOR LordofHeresy 3121
+{ 
+	//$Category "ZDoom Monster pack"
+    Health 1250 
+    Radius 20 
+    Height 56 
+    Speed 13 
+    PainChance 50
+    bloodcolor darkolivegreen
+    Mass 1000
+    MONSTER 
+	+FLOORCLIP
+    Obituary "%o was annihilated by the heresy lord." 
+    SeeSound "LordOfHeresy/sight" 
+    PainSound "demon/pain" 
+    DeathSound "LordOfHeresy/death" 
+    ActiveSound "LordOfHeresy/act" 
+    States 
+    { 
+    Spawn: 
+        LOHS AB 10 A_Look 
+        Loop 
+    See: 
+        LOHS AABBCCDD 4 A_Chase 
+        Loop 
+    Missile: 
+        LOHS E 0 A_Jump(85,5) 
+        LOHS E 0 A_Jump(128,9)
+        LOHS E 8 A_FaceTarget 
+        LOHS F 8 A_FaceTarget 
+        LOHS G 8 A_BruisAttack 
+        Goto See 
+        LOHS E 8 A_FaceTarget 
+        LOHS F 8 A_FaceTarget 
+        LOHS G 0 A_Custommissile ("BaronBall", 32, 0, 8) 
+        LOHS G 0 A_Custommissile ("BaronBall", 32, 0, 0) 
+        LOHS G 8 A_Custommissile ("BaronBall", 32, 0, -8) 
+        Goto See 
+        LOHS E 8 A_FaceTarget 
+        LOHS F 8 A_FaceTarget 
+        LOHS G 0 A_Custommissile ("BaronBall", 32, 0, -20) 
+        LOHS G 8 A_Custommissile ("BaronBall", 32, 0, 0) 
+        LOHS E 8 A_FaceTarget 
+        LOHS F 8 A_FaceTarget 
+        LOHS G 0 A_Custommissile ("BaronBall", 32, 0, 20) 
+        LOHS G 8 A_Custommissile ("BaronBall", 32, 0, 0) 
+        LOHS E 8 A_FaceTarget 
+        LOHS F 8 A_FaceTarget 
+        LOHS G 0 A_Custommissile ("BaronBall", 32, 0, -12) 
+        LOHS G 8 A_Custommissile ("BaronBall", 32, 0, 12) 
+        Goto See 
+    Pain: 
+        LOHS H 5 
+        LOHS H 5 A_Pain 
+        Goto See 
+    Death: 
+        LOHS I 8 
+        LOHS J 8 A_Scream 
+        LOHS K 8 A_Fall 
+        LOHS LMN 8 
+        LOHS O -1 
+        Stop 
+    Raise: 
+        LOHS ONMLKJI 5 
+        Goto See 
+    } 
+}
