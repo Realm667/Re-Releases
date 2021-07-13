@@ -33,6 +33,40 @@ Class LightRay_Wallsprite : LightRay_Regular
 	}
 }
 
+Class LightRay2_Regular : LightRay_Regular
+{
+	Default
+	{
+		//$Title Light Rays 2, Regular
+	}
+	
+	States
+	{
+	Spawn:
+	Active:
+		VOLT B -1 Bright;
+		Stop;
+	Inactive:
+		VOLT B 1;
+		TNT1 B -1;
+		Stop;
+	}
+}
+
+Class LightRay2_Wallsprite : LightRay2_Regular
+{
+	Default
+	{
+		//$Title Light Rays 2, WallSprite
+	}
+	
+	Default
+	{
+		+ROLLSPRITE
+		+WALLSPRITE
+	}
+}
+
 Class Grass1 : ZPackDietActor
 {
 	Default
