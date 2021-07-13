@@ -2,7 +2,7 @@ clearepisodes
 
 episode E1M1
 {
-	name = "The Remains of UAC"
+	name = "\cCThe Remains of UAC"
 }
 
 map E1M1 "Vestibule"
@@ -128,7 +128,7 @@ map E1M9 "Termination"
 
 episode E2M1
 {
-	name = "Descent to Darkness"
+	name = "\cCDescent to Darkness"
 }
 
 map E2M1 "Switchback"
@@ -259,7 +259,7 @@ map E2M9 "Abyss to the BBQ"
 
 episode E3M1
 {
-	name = "Armageddon"
+	name = "\cCArmageddon"
 }
 
 map E3M1 "Riveter"
@@ -401,5 +401,150 @@ map E3M9 "Ancient hell"
 	Par = 1500
 }
 
+////////////////////////////
+// GAMEINFO ////////////////
+////////////////////////////
+
 gameinfo{	dimcolor = "39342E"	dimamount = 0.5	fullscreenautoaspect = 3	infopage = "CREDIT"	addinfopage = "HELP"	borderflat = "AUTOPAGE"}
 
+////////////////////////////
+// DOOMEDNUMS / SPAWNNUMS //
+////////////////////////////
+
+doomednums
+{
+	69 = HellKnightGreen
+	3003 = BaronOfHellGreen
+	3005 = CacoDemonBlue
+	3006 = LostSoulSmoke
+	31102 = LightRay_Regular
+	31103 = LightRay_Wallsprite
+	31104 = GrassSpawner
+	31105 = LightRay2_Regular
+	31106 = LightRay2_Wallsprite
+}
+
+spawnnums
+{
+	191 = LostSoulSmoke
+	192 = CacoDemonBlue
+	193 = HellKnightGreen
+	194 = BaronOfHellGreen
+}
+
+////////////////////////////////
+//////// CAST CALL /////////////
+////////////////////////////////
+
+Intermission Inter_Cast
+{
+	Image
+	{
+		// This is only here to initialize the background and the music
+		Background = "bossback"
+		Time = -1
+		Music = "d_boss"
+	}
+	Link = ZPackCast
+}
+
+Intermission ZPackCast
+{
+	Cast
+	{
+		CastClass = "Zombieman"
+		CastName = "$CC_ZOMBIE"
+		AttackSound = "Missile", 1, "grunt/attack"
+	}
+	Cast
+	{
+		CastClass = "ShotgunGuy"
+		CastName = "$CC_SHOTGUN"
+		AttackSound = "Missile", 1, "shotguy/attack"
+	}
+	Cast
+	{
+		CastClass = "ChaingunGuy"
+		CastName = "$CC_HEAVY"
+		AttackSound = "Missile", 1, "chainguy/attack"
+		AttackSound = "Missile", 2, "chainguy/attack"
+		AttackSound = "Missile", 3, "chainguy/attack"
+	}
+	Cast
+	{
+		CastClass = "DoomImp"
+		CastName = "$CC_IMP"
+		AttackSound = "Missile", 2, "imp/attack"
+	}
+	Cast
+	{
+		CastClass = "Demon"
+		CastName = "$CC_DEMON"
+		AttackSound = "Melee", 1, "demon/melee"
+	}
+	Cast
+	{
+		CastClass = "LostSoul"
+		CastName = "$CC_LOST"
+		AttackSound = "Missile", 1, "skull/melee"
+	}
+	Cast
+	{
+		CastClass = "Cacodemon"
+		CastName = "$CC_CACO"
+		AttackSound = "Missile", 1, "caco/attack"
+	}
+	Cast
+	{
+		CastClass = "HellKnight"
+		CastName = "$CC_HELL"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "BaronOfHell"
+		CastName = "$CC_BARON"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "Arachnotron"
+		CastName = "$CC_ARACH"
+		AttackSound = "Missile", 1, "baby/attack"
+	}
+	Cast
+	{
+		CastClass = "PainElemental"
+		CastName = "$CC_PAIN"
+		AttackSound = "Missile", 2, "skull/melee"
+	}
+	Cast
+	{
+		CastClass = "Revenant"
+		CastName = "$CC_REVEN"
+		AttackSound = "Missile", 1, "skeleton/attack"
+		AttackSound = "Melee", 1, "skeleton/swing"
+		AttackSound = "Melee", 3, "skeleton/melee"
+	}
+	Cast
+	{
+		CastClass = "Fatso"
+		CastName = "$CC_MANCU"
+		AttackSound = "Missile", 1, "fatso/attack"
+		AttackSound = "Missile", 4, "fatso/attack"
+		AttackSound = "Missile", 7, "fatso/attack"
+	}
+	Cast
+	{
+		CastClass = "Archvile"
+		CastName = "$CC_ARCH"
+		AttackSound = "Missile", 1, "vile/start"
+	}
+	Cast
+	{
+		CastClass = "DoomPlayer"
+		CastName = "$CC_HERO"
+		AttackSound = "Missile", 0, "weapons/sshotf"
+	}
+	Link = SaphCast	// restart cast call
+}
