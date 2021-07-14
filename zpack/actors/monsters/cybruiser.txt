@@ -1,63 +1,64 @@
 //Cybruiser
 ACTOR Cybruiser : BaronOfHell
-{ 
-	Health 2000 
-	Radius 24 
-	Height 64 
-	Mass 1000 
-	Speed 8 
-	PainChance 20 
+{
+	//$Category "ZPack Monsters"
+	Health 2000
+	Radius 24
+	Height 64
+	Mass 1000
+	Speed 8
+	PainChance 20
 	MONSTER
 	MeleeDamage 10
-	Obituary "%o was blown away by a Cybruiser."
-	HitObituary "%o was smashed by a Cybruiser."
-	+FLOORCLIP 
+	Obituary "$OB_CYBRS"
+	HitObituary "$HB_CYBRS"
+	+FLOORCLIP
 	+MISSILEMORE
 	+BOSS
 	+DONTHURTSPECIES
-	SeeSound "monster/brusit" 
-	PainSound "baron/pain" 
+	SeeSound "monster/brusit"
+	PainSound "baron/pain"
 	DeathSound "monster/brudth"
 	MeleeSound "baron/melee"
-	States 
-	{ 
-	Spawn: 
-		BRU2 AB 10 A_Look 
-		Loop 
+	States
+	{
+	Spawn:
+		BRU2 AB 10 A_Look
+		Loop
 	See:
-		BRU2 A 1 A_Playsound("monster/bruwlk")
+		BRU2 A 1 A_PlaySound("monster/bruwlk")
 		BRU2 A 2 A_Chase
 		BRU2 A 3 A_Chase
 		BRU2 BB 3 A_Chase
-		BRU2 C 1 A_Playsound("monster/bruwlk")
+		BRU2 C 1 A_PlaySound("monster/bruwlk")
 		BRU2 C 2 A_Chase
-		BRU2 C 3 A_Chase 
+		BRU2 C 3 A_Chase
 		BRU2 DD 3 A_Chase
-		Loop 
+		Loop
 	Missile:
-		BRU2 E 8 A_FaceTarget 
-		BRU2 F 12 Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+		BRU2 E 8 A_FaceTarget
+		BRU2 F 12 BRIGHT A_CustomMissile("BruiserMissile",38,15,0,0)
 		BRU2 E 12 A_FaceTarget
-		BRU2 F 12 Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+		BRU2 F 12 BRIGHT A_CustomMissile("BruiserMissile",38,15,0,0)
 		BRU2 E 12 A_FaceTarget
-		BRU2 F 12 Bright A_CustomMissile("BruiserMissile",38,15,0,0)
+		BRU2 F 12 BRIGHT A_CustomMissile("BruiserMissile",38,15,0,0)
 		Goto See
 	Melee:
 		BRU2 GH 8 A_FaceTarget
 		BRU2 I 8 A_MeleeAttack
 		Goto See
-	Pain: 
-		BRU2 J 2 
-		BRU2 J 2 A_Pain 
-		Goto See 
-	Death: 
-		BRU2 K 6 Bright A_Scream
-		BRU2 LMN 6 Bright
-		BRU2 O 6 Bright A_NoBlocking
-		BRU2 QRS 6 Bright
+	Pain:
+		BRU2 J 2
+		BRU2 J 2 A_Pain
+		Goto See
+	Death:
+		BRU2 K 6 BRIGHT A_Scream
+		BRU2 LMN 6 BRIGHT
+		BRU2 O 6 BRIGHT A_NoBlocking
+		BRU2 QRS 6 BRIGHT
 		BRU2 T -1 A_BossDeath
 		Stop
-	} 
+	}
 }
 
 ACTOR BruiserMissile
@@ -67,41 +68,40 @@ ACTOR BruiserMissile
 	Speed 20
 	Damage 10
 	Scale 1.0
-	SpawnID 251
+	RenderStyle Normal
 	PROJECTILE
-	RENDERSTYLE Normal
+	DONTHURTSHOOTER
+	+FIREDAMAGE
 	+THRUGHOST
 	SeeSound "monster/brufir"
 	DeathSound "weapons/hellex"
-	DONTHURTSHOOTER
-	+FIREDAMAGE
 	States
 	{
-	Spawn: 
-		FBRS A 1 Bright
-		FBRS A 1 Bright A_SpawnItem("BruiserTrail",0,0)
-		loop
+	Spawn:
+		FBRS A 1 BRIGHT
+		FBRS A 1 BRIGHT A_SpawnItem("BruiserTrail",0,0)
+		Loop
 	Death:
-		BAL3 C 0 Bright A_SetTranslucent (0.67,1)
-		BAL3 C 6 Bright
-		BAL3 D 6 Bright A_Explode(64,64,0)
-		BAL3 E 6 Bright
+		BAL3 C 0 BRIGHT A_SetTranslucent (0.67,1)
+		BAL3 C 6 BRIGHT
+		BAL3 D 6 BRIGHT A_Explode(64,64,0)
+		BAL3 E 6 BRIGHT
 		stop
 	}
 }
 
 ACTOR BruiserTrail
-{   
+{
 	Radius 3
 	Height 3
-	RENDERSTYLE Translucent
+	RenderStyle Translucent
 	Alpha 0.67
 	PROJECTILE
 	States
 	{
 	Spawn:
-		NULL A 3 Bright
+		TNT1 A 3 BRIGHT
 		PUFF ABCD 4 BRIGHT
-		Stop 
+		Stop
 	}
 }

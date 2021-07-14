@@ -1,13 +1,15 @@
 // Bruiser Demon
 ACTOR BruiserDemon
 {
-	//$Category Monsters
+	//$Category "ZPack Monsters"
 	Health 1500
 	Radius 24
 	Height 64
 	Mass 2000
 	Speed 8
 	PainChance 15
+	MeleeDamage 20
+	Scale 1.25
 	Monster
 	+BOSS
 	+FLOORCLIP
@@ -20,70 +22,68 @@ ACTOR BruiserDemon
 	DeathSound "superbaron/death"
 	ActiveSound "superbaron/act"
 	MeleeSound "baron/melee"
-	Obituary "%o was slaughtered by a Bruiserdemon."
-	HitObituary "%o was cremated by a Bruiserdemon."
-	MeleeDamage 20
-	Scale 1.25
+	Obituary "$OB_BRUSD"
+	HitObituary "$HB_BRUSD"
 	States
 	{
 	Spawn:
-		BRUS AB 10 Bright A_Look 
+		BRUS AB 10 BRIGHT A_Look
 		Loop
 	See:
-		BRUS AABBCCDD 3 Bright A_Chase
+		BRUS AABBCCDD 3 BRIGHT A_Chase
 		Loop
 	Melee:
-		BRUS E 6 Bright A_FaceTarget
-		BRUS F 6 Bright A_FaceTarget
-		BRUS G 6 Bright A_ComboAttack
+		BRUS E 6 BRIGHT A_FaceTarget
+		BRUS F 6 BRIGHT A_FaceTarget
+		BRUS G 6 BRIGHT A_ComboAttack
 		Goto See
 	Missile:
-		BRUS E 0 Bright A_Jump(144, 8)
-		BRUS EF 6 Bright A_FaceTarget
-		BRUS G 6 Bright A_MissileAttack
-		BRUS G 0 Bright A_Jump(96, 1)
+		BRUS E 0 BRIGHT A_Jump(144, 8)
+		BRUS EF 6 BRIGHT A_FaceTarget
+		BRUS G 6 BRIGHT A_MissileAttack
+		BRUS G 0 BRIGHT A_Jump(96, 1)
 		Goto See
-		BRUS HI 6 Bright A_FaceTarget
-		BRUS J 6 Bright A_MissileAttack
+		BRUS HI 6 BRIGHT A_FaceTarget
+		BRUS J 6 BRIGHT A_MissileAttack
 		Goto See
-		BRUS E 0 Bright A_Jump(96, 20)
-		BRUS E 6 Bright A_FaceTarget
-		BRUS F 4 Bright A_FaceTarget
-		BRUS F 2 Bright A_Custommissile("BruiserBall2",56,0,-40,0)
-		BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,-30,0)
-		BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,-20,0)
-		BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,-10,0)
-		BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,0,0)
-		BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,10,0)
-		BRUS G 1 Bright A_Custommissile("BruiserBall2",56,0,20,0)
-		BRUS G 0 Bright A_Jump(96, 1)
+		BRUS E 0 BRIGHT A_Jump(96, 20)
+		BRUS E 6 BRIGHT A_FaceTarget
+		BRUS F 4 BRIGHT A_FaceTarget
+		BRUS F 2 BRIGHT A_CustomMissile("BruiserBall2",56,0,-40,0)
+		BRUS G 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,-30,0)
+		BRUS G 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,-20,0)
+		BRUS G 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,-10,0)
+		BRUS G 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,0,0)
+		BRUS G 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,10,0)
+		BRUS G 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,20,0)
+		BRUS G 0 BRIGHT A_Jump(96, 1)
 		Goto See
-		BRUS H 6 Bright A_FaceTarget
-		BRUS I 4 Bright A_FaceTarget
-		BRUS I 2 Bright A_Custommissile("BruiserBall2",56,0,40,0)
-		BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,30,0)
-		BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,20,0)
-		BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,10,0)
-		BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,0,0)
-		BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,-10,0)
-		BRUS J 1 Bright A_Custommissile("BruiserBall2",56,0,-20,0)
+		BRUS H 6 BRIGHT A_FaceTarget
+		BRUS I 4 BRIGHT A_FaceTarget
+		BRUS I 2 BRIGHT A_CustomMissile("BruiserBall2",56,0,40,0)
+		BRUS J 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,30,0)
+		BRUS J 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,20,0)
+		BRUS J 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,10,0)
+		BRUS J 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,0,0)
+		BRUS J 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,-10,0)
+		BRUS J 1 BRIGHT A_CustomMissile("BruiserBall2",56,0,-20,0)
 		Goto See
-		BRUS KL 6 Bright A_FaceTarget
-		BRUS M 2 Bright A_Custommissile("BruiserFireSpawner",16,0,-15,0)
-		BRUS M 2 Bright A_Custommissile("BruiserFireSpawner",16,0,0,0)
-		BRUS M 2 Bright A_Custommissile("BruiserFireSpawner",16,0,15,0)
+		BRUS KL 6 BRIGHT A_FaceTarget
+		BRUS M 2 BRIGHT A_CustomMissile("BruiserFireSpawner",16,0,-15,0)
+		BRUS M 2 BRIGHT A_CustomMissile("BruiserFireSpawner",16,0,0,0)
+		BRUS M 2 BRIGHT A_CustomMissile("BruiserFireSpawner",16,0,15,0)
 		Goto See
 	Pain:
-		BRUS N 5 Bright A_Pain
+		BRUS N 5 BRIGHT A_Pain
  		Goto See
 	Death:
-		BRUD A 6 Bright A_Scream
-		BRUD BCD 4 Bright 
-		BRUD EFG 4 Bright
-		BRUD H 4 Bright A_Fall
-		BRUD IJKLMNOP 4 Bright
+		BRUD A 6 BRIGHT A_Scream
+		BRUD BCD 4 BRIGHT
+		BRUD EFG 4 BRIGHT
+		BRUD H 4 BRIGHT A_Fall
+		BRUD IJKLMNOP 4 BRIGHT
 		BRUD QRSTUV 4
-		BRUD W -1   
+		BRUD W -1
 		Stop
 	}
 }
@@ -94,21 +94,21 @@ ACTOR BruiserBall
 	Height 16
 	Speed 18
 	Damage 16
-	Projectile
+	PROJECTILE
 	+RANDOMIZE
-	RenderStyle "ADD"
+	RenderStyle Add
 	Alpha 0.9
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"
 	MissileType BruiserBallTrail
-	Missileheight 0
+	MissileHeight 0
 	States
 	{
-	Spawn: 
+	Spawn:
 		BRBA AABB 2 BRIGHT A_MissileAttack
 		Loop
 	Death:
-		BRBA KLMNOPQRSTUVWX 3 Bright
+		BRBA KLMNOPQRSTUVWX 3 BRIGHT
 		Stop
 	}
 }
@@ -119,84 +119,77 @@ ACTOR BruiserBall2
 	Height 8
 	Speed 10
 	Damage 8
-	Projectile
+	PROJECTILE
 	+RANDOMIZE
-	RenderStyle "ADD"
+	RenderStyle Add
 	Alpha 0.9
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"
 	States
 	{
-	Spawn: 
-		BRB2 AB 6 BRIGHT 
+	Spawn:
+		BRB2 AB 6 BRIGHT
 		Loop
 	Death:
-		BRB2 CDEFGHI 3 Bright
+		BRB2 CDEFGHI 3 BRIGHT
 		Stop
 	}
 }
 
 ACTOR BruiserFireSpawner
 {
-	SpawnID 180
 	Radius 8
 	Height 8
 	Speed 12
 	Damage 0
+	PROJECTILE
 	+RIPPER
-	+FLOORHUGGER
+	+FLOORHUGGER //requires performance tests
 	+BLOODLESSIMPACT
-	Projectile
 	MissileType BruiserFire
 	Missileheight 0
 	States
 	{
-	Spawn: 
-		TNT1 A 3 Bright A_MissileAttack
+	Spawn:
+		TNT1 A 3 BRIGHT A_MissileAttack
   		TNT1 A 3
   		TNT1 A 3
 		Loop
-	Death:	
+	Death:
 		TNT1 A 6
 		Stop
 	}
 }
 
-actor BruiserBallTrail
+ACTOR BruiserBallTrail
 {
     Radius 1
     Height 1
     Speed 0
     PROJECTILE
-    RENDERSTYLE ADD
-    ALPHA 0.70
+    RenderStyle Add
+    Alpha 0.70
     +NOCLIP
     States
     {
     Spawn:
-     	BRBA CDEFGHIJ 4 Bright
-     	Stop       
+     	BRBA CDEFGHIJ 4 BRIGHT
+     	Stop
     }
 }
 
-ACTOR BruiserFire
+ACTOR BruiserFire : BruiserBallTrail
 {
-	Radius 1
-	Height 1
-	Speed 0
 	Damage 20
-	PROJECTILE
-	RENDERSTYLE ADD
-	ALPHA 0.9
-	+NOCLIP
-	+FLOORHUGGER
+	Alpha 0.9
+	+FLOORHUGGER //requires performance tests
 	SeeSound "weapons/rocklx"
 	States
 	{
 	Spawn:
-		XXBF AB 3 Bright
-		XXBF C 3 Bright A_Explode(48,128,0)
-		XXBF DEFGHIJKLMNOPQRST 3 Bright
-		Stop       
+		XXBF AB 3 BRIGHT
+		XXBF C 3 BRIGHT A_Explode(48,128,0)
+		XXBF DEFGHIJKLMNOPQRST 3 BRIGHT
+		Stop
 	}
 }

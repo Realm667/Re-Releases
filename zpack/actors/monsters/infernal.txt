@@ -1,23 +1,22 @@
 //the spider boss
 ACTOR InfernalSpider
 {
+	//$Category "ZPack Monsters"
 	Radius 72
 	Height 120
 	Health 12000
 	Speed 30
-	mass 99999
-	meleerange 76
-	meleedamage 12
-	painchance 3
-	translation "152:159=216:223,9:9=223:223,76:70=216:223,129:132=216:223"
-	scale 2.0
+	Mass 99999
+	MeleeRange 76
+	MeleeDamage 12
+	PainChance 3
+	Translation "152:159=216:223,9:9=223:223,76:70=216:223,129:132=216:223"
+	Scale 2.0
 	SeeSound "spider2/sight"
 	DeathSound "spider2/death"
 	PainSound "spider2/pain"
 	ActiveSound "spider2/active"
-	Obituary "%o was burned to ashes by the infernalspider"
-	HitObituary "%o was eaten by the infernalspider"
-	MONSTER
+	Monster
 	+BOSS
 	+NORADIUSDMG
 	+MISSILEMORE
@@ -25,84 +24,86 @@ ACTOR InfernalSpider
 	+DONTHURTSPECIES
 	+NOTARGET
 	+FLOORCLIP
+	Obituary "$OB_INFSP"
+	HitObituary "$HB_INFSP"
 	States
 	{
 	Spawn:
 		SPI2 A 1 A_Look
-		loop
+		Loop
 	See:
-		TNT1 A 0 A_jumpifcloser(1024,9)
-		SPI2 E 12 A_Facetarget
-		MNTR E 0 A_Playsound ("spider/step")
-		MNTR E 0 A_setinvulnerable
-		MNTR E 0 A_Skullattack
-		SPI2 U 5 Thrustthingz (0, 82, 0, 1)
+		TNT1 A 0 A_Jumpifcloser(1024,9)
+		SPI2 E 12 A_FaceTarget
+		MNTR E 0 A_PlaySound ("spider/step")
+		MNTR E 0 A_SetInvulnerable
+		MNTR E 0 A_SkullAttack
+		SPI2 U 5 ThrustThingZ (0, 82, 0, 1)
 		SPI2 U 38 A_JumpIf (z-floorz<24,1)
 		MNTR A 0
-		MNTR A 0 A_Playsound ("spider/land")
-		MNTR A 0 A_Unsetinvulnerable
-		SPI2 A 1 A_stop
+		MNTR A 0 A_PlaySound ("spider/land")
+		MNTR A 0 A_UnSetInvulnerable
+		SPI2 A 1 A_Stop
 		SPI2 ABCD 2 A_Chase
-		MNTR A 0 A_playsound ("spider/step")
+		MNTR A 0 A_PlaySound ("spider/step")
 		SPI2 ABCD 2 A_Chase
-		MNTR A 0 A_playsound ("spider/step")
+		MNTR A 0 A_PlaySound ("spider/step")
 		SPI2 ABCD 2 A_Chase
-		MNTR A 0 A_playsound ("spider/step")
+		MNTR A 0 A_PlaySound ("spider/step")
 		SPI2 ABCD 2 A_Chase
-		MNTR A 0 A_playsound ("spider/step")
+		MNTR A 0 A_PlaySound ("spider/step")
 		SPI2 ABCD 2 A_Chase
-		MNTR A 0 A_playsound ("spider/step")
+		MNTR A 0 A_PlaySound ("spider/step")
 		SPI2 ABCD 2 A_Chase
-		MNTR A 0 A_playsound ("spider/step")
-		loop
+		MNTR A 0 A_PlaySound ("spider/step")
+		Loop
 	Melee:
-		MNTR E 0 A_Facetarget
+		MNTR E 0 A_FaceTarget
 		MNTR E 0 A_XScream
 		SPI2 E 5 A_Meleeattack
-		SPI2 A 13 A_Facetarget
-		goto see
+		SPI2 A 13 A_FaceTarget
+		Goto See
 	Missile:
 		MNTR V 0 A_Jump (82,15)
 		MNTR V 0 A_Jump (32,8)
-		SPI2 U 5 A_Facetarget
-		SPI2 X 2 A_custommissile("flameshot", 24, 0, -8, 0)
-		SPI2 X 2 A_custommissile("flameshot", 24, 0, 0, 0)
-		SPI2 X 2 A_custommissile("flameshot", 24, 0, 8, 0)
-		SPI2 X 3 A_Facetarget
+		SPI2 U 5 A_FaceTarget
+		SPI2 X 2 A_CustomMissile("flameshot", 24, 0, -8, 0)
+		SPI2 X 2 A_CustomMissile("flameshot", 24, 0, 0, 0)
+		SPI2 X 2 A_CustomMissile("flameshot", 24, 0, 8, 0)
+		SPI2 X 3 A_FaceTarget
 		SPI2 U 5
-		goto see
-		SPI2 E 5 A_Facetarget
-		SPI2 E 6 A_throwgrenade("minispider", 85, 10, 20)
-		SPI2 E 6 A_throwgrenade("minispider", 85, 10, 20)
-		SPI2 E 6 A_throwgrenade("minispider", 85, 10, 20)
+		Goto See
+		SPI2 E 5 A_FaceTarget
+		SPI2 E 6 A_ThrowGrenade("minispider", 85, 10, 20)
+		SPI2 E 6 A_ThrowGrenade("minispider", 85, 10, 20)
+		SPI2 E 6 A_ThrowGrenade("minispider", 85, 10, 20)
 		SPI2 E 5
-		goto see
-		SPI2 E 5 A_Facetarget
-		SPI2 U 5 A_Playsound("spider2/sight")
-		MNTR W 0 A_Facetarget
-		SPI2 X 5 A_Custommissile("Hellripper", 128, 0, 0, 0)
-		SPI2 X 17 A_Facetarget
-		SPI2 X 2 A_custommissile("flameshot", 24, 0, -8, 0)
-		SPI2 X 2 A_custommissile("flameshot", 24, 0, 0, 0)
-		SPI2 X 2 A_custommissile("flameshot", 24, 0, 8, 0)
-		SPI2 U 5 A_Facetarget
-		goto see
+		Goto See
+		SPI2 E 5 A_FaceTarget
+		SPI2 U 5 A_PlaySound("spider2/sight")
+		MNTR W 0 A_FaceTarget
+		SPI2 X 5 A_CustomMissile("Hellripper", 128, 0, 0, 0)
+		SPI2 X 17 A_FaceTarget
+		SPI2 X 2 A_CustomMissile("flameshot", 24, 0, -8, 0)
+		SPI2 X 2 A_CustomMissile("flameshot", 24, 0, 0, 0)
+		SPI2 X 2 A_CustomMissile("flameshot", 24, 0, 8, 0)
+		SPI2 U 5 A_FaceTarget
+		Goto See
 	Pain:
 		SPI2 E 2 A_Pain
-		MNTR E 0 A_Facetarget
-		SPI2 E 6 A_throwgrenade("minispider", 85, 10, 20)
-		SPI2 E 6 A_throwgrenade("minispider", 85, 10, 20)
-		SPI2 E 6 A_throwgrenade("minispider", 85, 10, 20)
-		goto see
+		MNTR E 0 A_FaceTarget
+		SPI2 E 6 A_ThrowGrenade("minispider", 85, 10, 20)
+		SPI2 E 6 A_ThrowGrenade("minispider", 85, 10, 20)
+		SPI2 E 6 A_ThrowGrenade("minispider", 85, 10, 20)
+		Goto See
 	Death:
 		MNTR A 0 A_Scream
-		MNTR A 0 A_Setfloorclip
-		MNTR A 0 A_Burst("archvilefire2")
-		stop
+		MNTR A 0 A_SetFloorClip
+		MNTR A 0 A_Burst("ArchvileFire2")
+		Stop
 	}
 }
 
-ACTOR flameshot : fatshot
+ACTOR FlameShot : FatShot
 {
 	Speed 25
 	SeeSound "skeleton/attack"
@@ -111,14 +112,14 @@ ACTOR flameshot : fatshot
 	{
 	Spawn:
 		SXAL ABC 5 BRIGHT
-		loop
+		Loop
 	Death:
 		SXAL DEFGH 3 BRIGHT
-		stop
+		Stop
 	}
 }
 
-Actor Hellripper : fatshot
+ACTOR HellRipper : FatShot
 {
 	Health 5
 	Speed 50
@@ -130,20 +131,20 @@ Actor Hellripper : fatshot
 	States
 	{
 	Spawn:
-		TNT1 A 1 Bright A_Custommissile("archvilefire2",0,0,90,0)
-		TNT1 A 0 Bright A_Custommissile("archvilefire2",0,0,-90,0)
+		TNT1 A 1 BRIGHT A_CustomMissile("archvilefire2",0,0,90,0)
+		TNT1 A 0 BRIGHT A_CustomMissile("archvilefire2",0,0,-90,0)
 		TNT1 A 0 A_JumpIf (z-floorz<24,1)
-		loop
+		Loop
 		TNT1 A 0 A_Explode
 		TNT1 A 0 ThrustThingZ (0, random(2,3), 0, 0)
-		loop
+		Loop
 	Death:
-		TNT1 B 5 A_Burst("archvilefire2")
-		stop
+		TNT1 B 5 A_Burst("ArchvileFire2")
+		Stop
 	}
 }
 
-Actor Archvilefire2 : archvilefire
+ACTOR ArchvileFire2 : ArchvileFire
 {
 	Damage 5
 	Speed 4
@@ -151,45 +152,46 @@ Actor Archvilefire2 : archvilefire
 
 ACTOR MiniSpider
 {
-	health 200
-	radius 26
-	height 42
-	speed 38
+	//$Category "ZPack Monsters"
+	Health 200
+	Radius 26
+	Height 42
+	Speed 38
 	Painchance 200
-	Obituary "%o was eaten by a spider"
-	HitObituary "%o was eaten by a spider"
+	Scale 1.0
+	MeleeDamage 6
+	Monster
+	+LOOKALLAROUND
+	+NOTARGET
+	Translation 1
+	Translation "96:111=64:79"
+	Obituary "$OB_MINSP"
+	HitObituary "$OB_MINSP" //same as above
 	SeeSound "spider2/sight"
 	DeathSound "spider2/pain"
 	PainSound "spider2/pain"
 	ActiveSound "spider2/sight"
-	translation 1
-	translation "96:111=64:79"
-	scale 1.0
-	meleedamage 6
-	MONSTER
-	+LOOKALLAROUND
-	+NOTARGET
 	States
 	{
-	spawn:
+	Spawn:
 		GAYS A 1 A_Look
-		loop
+		Loop
 	See:
-		GAYS ABCD 1 A_chase
-		loop
+		GAYS ABCD 1 A_Chase
+		Loop
 	Melee:
-		GAYS E 5 A_Facetarget
+		GAYS E 5 A_FaceTarget
 		GAYS E 0 A_XScream
 		GAYS E 8 A_Meleeattack
-		goto see
+		Goto See
 	Pain:
 		GAYS A 2 A_Pain
 		GAYS A 2
-		goto see
+		Goto See
 	Death:
-		GAYR FEDC 5 A_Setfloorclip
+		GAYR FEDC 5 A_SetFloorClip
 		GAYR B 5 A_Scream
 		GAYR A 5 A_Die
-		stop
+		Stop
 	}
 }

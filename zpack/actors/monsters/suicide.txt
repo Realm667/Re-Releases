@@ -1,42 +1,43 @@
 // Suicide Bomber
-actor SuicideBomber
+ACTOR SuicideBomber
 {
-  obituary "%o was killed by a crazy suicide bomber."
-  health 80
-  radius 20
-  height 56
-  mass 100
-  speed 10
-  painchance 20
-  seesound "suicide/sit"
-  attacksound "shotguy/death"
-  painsound "shotguy/pain"
-  deathsound "shotguy/death"
-  MONSTER
-  +FLOORCLIP
-  states
-  {
-  Spawn:
-    BMBE AB 10 A_Look
-    loop
-  See:
-    BMBE AAABBBCCCDDD 2 A_Chase
-    BMBE A 0 A_PlaySound("suicide/scream")
-    loop
-  Melee:
-    BMBE A 0 A_Die
-    stop
-  Pain:
-    BMBE A 3
-    BMBE A 3 A_Pain
-    goto See
-  Death:
-    BMBE M 0 bright A_Explode (50, 128)
-    BMBE M 5 bright A_PlaySound ("weapons/rocklx")
-    BMBE N 5 bright A_XScream
-    BMBE O 5 A_NoBlocking
-    BMBE PQRST 5
-    BMBE U -1
-    stop
-  }
+	//$Category ZPack Monsters
+	Radius 20
+	Height 56
+	Health 80
+	Mass 100
+	Speed 10
+	PainChance 20
+	SeeSound "suicide/sit"
+	AttackSound "shotguy/death"
+	PainSound "shotguy/pain"
+	DeathSound "shotguy/death"
+	MONSTER
+	+FLOORCLIP
+	Obituary "$OB_SUICB"
+	States
+	{
+	Spawn:
+		BMBE AB 10 A_Look
+		Loop
+	See:
+		BMBE AAABBBCCCDDD 2 A_Chase
+		BMBE A 0 A_PlaySound("suicide/scream")
+		Loop
+	Melee:
+		BMBE A 0 A_Die
+		Stop
+	Pain:
+		BMBE A 3
+		BMBE A 3 A_Pain
+		Goto See
+	Death:
+		BMBE M 0 BRIGHT A_Explode (50, 128)
+		BMBE M 5 BRIGHT A_PlaySound ("weapons/rocklx")
+		BMBE N 5 BRIGHT A_XScream
+		BMBE O 5 A_NoBlocking
+		BMBE PQRST 5
+		BMBE U -1
+		Stop
+	}
 }

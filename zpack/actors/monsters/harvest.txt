@@ -1,20 +1,20 @@
-//Soulharvester
-actor SoulHarvester
+//SoulHarvester
+ACTOR SoulHarvester
 {
-	//$Category Monsters
+	//$Category "ZPack Monsters"
     Health 100
     Radius 20
     Height 56
     Speed 8
     PainChance 160
-    MONSTER 
+    MONSTER
     +FLOORCLIP
     SeeSound "harvester/sight"
     PainSound "imp/pain"
     DeathSound "harvester/death"
     ActiveSound "imp/active"
     MeleeSound "imp/melee"
-    Obituary "%o couldn't evade the soul harvester's attack."
+    Obituary "$OB_SOULH"
     MissileType SoulHarvesterBall
     MeleeDamage 3
     States
@@ -28,8 +28,8 @@ actor SoulHarvester
     Melee:
     Missile:
         SLHV EFG 4 A_FaceTarget
-        SLHV HIJK 5 Bright A_FaceTarget
-        SLHV L 8 Bright A_MissileAttack
+        SLHV HIJK 5 BRIGHT A_FaceTarget
+        SLHV L 8 BRIGHT A_MissileAttack
         SLHV M 10
         Goto See
     Pain:
@@ -38,14 +38,14 @@ actor SoulHarvester
     	Goto See
     Death:
         SLHV O 7 A_Scream
-        SLHV PQR 7 
+        SLHV PQR 7
         SLHV S 6 A_CustomMissile("SoulHarvesterGhost", 32, 0, 0)
         SLHV T 5 A_Fall
         SLHV UV 5
         SLHV W -1
         Stop
     XDeath:
-        SLHV X 6 A_Xscream
+        SLHV X 6 A_XScream
         SLHV Y 6 A_CustomMissile("SoulHarvesterGhost", 32, 0, 0)
         SLHV Z 6
         SLHV [ 6 A_Fall
@@ -58,7 +58,7 @@ actor SoulHarvester
     }
 }
 
-actor SoulHarvesterBall
+ACTOR SoulHarvesterBall
 {
     Radius 8
     Height 6
@@ -67,56 +67,50 @@ actor SoulHarvesterBall
     Damage 2
     +SEEKERMISSILE
     PROJECTILE
-    Renderstyle ADD
+    RenderStyle Add
     SeeSound "harvester/scream"
     DeathSound "imp/shotx"
 	Decal DoomImpScorch
     States
     {
     Spawn:
-    	SHBA A  0 Bright A_CustomMissile("SoulBallTrail", 0, 0, 180)
-        SHBA AB 2 Bright A_SeekerMissile (10,20)
+    	SHBA A  0 BRIGHT A_CustomMissile("SoulBallTrail", 0, 0, 180)
+        SHBA AB 2 BRIGHT A_SeekerMissile (10,20)
         Loop
     Death:
-        SHBA CDEFGHIJKL 4 Bright
+        SHBA CDEFGHIJKL 4 BRIGHT
         Stop
     }
 }
 
-actor SoulHarvesterGhost
+ACTOR SoulHarvesterGhost
 {
     Radius 1
     Height 1
     Speed 0
     PROJECTILE
-    RENDERSTYLE ADD
-    ALPHA 0.7
+    RenderStyle Add
+    Alpha 0.7
     +NOCLIP
     SeeSound "harvester/ghost"
     States
     {
     Spawn:
     Death:
-        SHGH ABCDEFG 4 Bright
+        SHGH ABCDEFG 4 BRIGHT
         Stop
     }
 }
 
-actor SoulBallTrail
+ACTOR SoulBallTrail : SoulHarvesterGhost
 {
-    Radius 1
-    Height 1
-    Speed 0
-    PROJECTILE
-    RENDERSTYLE ADD
-    ALPHA 0.5
-    +NOCLIP
+    Alpha 0.5
     States
     {
     Spawn:
     Death:
-    	SBTR H 6 
-        SBTR ABCDEFG 4 Bright
+    	SBTR H 6
+        SBTR ABCDEFG 4 BRIGHT
         Stop
     }
 }

@@ -2,33 +2,34 @@ ACTOR TerrorCubeBlueSkull : CustomInventory
 {
 	Radius 8
 	Height 8
-	Inventory.PickUpMessage "Picked up a blue skull key."
+	Inventory.PickUpMessage "$PK_CUBEK"
 	+NOGRAVITY
-	+ACTIVATEPCROSS
+	+ACTIVATEPCROSS //why?
 	States
 	{
-		Spawn:
-			BSKU A 10
-			BSKU B 10 BRIGHT
-			Loop
-		Pickup:
-			BSKU A 0 A_GiveInventory("BlueSkull")
-			Stop
+	Spawn:
+		BSKU A 10
+		BSKU B 10 BRIGHT
+		Loop
+	Pickup:
+		BSKU A 0 A_GiveInventory("BlueSkull")
+		Stop
 	}
 }
 
-ACTOR TerrorCubeTeleporterBattery : Inventory 13579
+ACTOR TerrorCubeTeleporterBattery : Inventory
 {
-	Inventory.PickUpMessage "Picked up the teleporter battery."
+	//$Category ZPack Pickups
+	Inventory.PickUpMessage "$PK_CUBET"
 	Inventory.MaxAmount 0
 	+INVENTORY.AUTOACTIVATE
 	+INVENTORY.ALWAYSPICKUP
 	States
 	{
-		Spawn:
-			BATT A 10
-			BATT A 10 BRIGHT
-			Loop
+	Spawn:
+		BATT A 10
+		BATT A 10 BRIGHT
+		Loop
 	}
 }
 
@@ -38,8 +39,8 @@ ACTOR TerrorCubeTBDummy
 	Height 2
 	States
 	{
-		Spawn:
-			BATT A -1
-			Stop
+	Spawn:
+		BATT A -1
+		Stop
 	}
 }

@@ -1,55 +1,56 @@
 ACTOR Diabloist : Archvile
 {
-	Obituary "%o was set ablaze by a Diabloist."
+	//$Category "ZPack Monsters"
 	Health 1400
-	Radius 20 
-	Height 56 
-	Mass 500 
-	Speed 15 
+	Radius 20
+	Height 56
+	Mass 500
+	Speed 15
 	PainChance 10
 	BloodColor "08 08 08"
-	MONSTER
+	Monster
 	+FIRERESIST
-	+FLOORCLIP 
-	+NOTARGET 
+	+FLOORCLIP
+	+NOTARGET
 	+NORADIUSDMG
 	+MISSILEMORE
 	+BOSS
 	+DONTHURTSPECIES
-	SeeSound "monster/diasit" 
-	PainSound "monster/diapai" 
-	DeathSound "monster/diadth" 
-	ActiveSound "monster/diaact" 
-	States 
-	{ 
-	Spawn: 
-		DIAB AB 10 A_Look 
-		Loop 
-	See: 
-		DIAB AABBCCDDEEFF 2 A_Chase 
-		Loop 
+	SeeSound "monster/diasit"
+	PainSound "monster/diapai"
+	DeathSound "monster/diadth"
+	ActiveSound "monster/diaact"
+	Obituary "$OB_DIABL"
+	States
+	{
+	Spawn:
+		DIAB AB 10 A_Look
+		Loop
+	See:
+		DIAB AABBCCDDEEFF 2 A_Chase
+		Loop
 	Missile:
 		DIAB G 0 BRIGHT A_Jump (180,21)
 		DIAB G 0 BRIGHT A_FaceTarget
-		DIAB G 3 Bright A_FaceTarget
+		DIAB G 3 BRIGHT A_FaceTarget
 		DIAB H 3 BRIGHT A_FaceTarget
 		DIAB I 3 A_CustomMissile ("DFire",32,0,0)
 		DIAB H 3 BRIGHT A_FaceTarget
-		DIAB G 3 Bright A_FaceTarget
+		DIAB G 3 BRIGHT A_FaceTarget
 		DIAB H 3 BRIGHT A_FaceTarget
 		DIAB I 3 BRIGHT A_FaceTarget
 		DIAB H 3 BRIGHT A_FaceTarget
-		DIAB G 3 Bright A_FaceTarget
+		DIAB G 3 BRIGHT A_FaceTarget
 		DIAB H 3 BRIGHT A_FaceTarget
 		DIAB I 3 BRIGHT A_FaceTarget
 		DIAB H 3 BRIGHT A_FaceTarget
-		DIAB G 3 Bright A_FaceTarget
+		DIAB G 3 BRIGHT A_FaceTarget
 		DIAB H 3 BRIGHT A_FaceTarget
 		DIAB I 3 BRIGHT A_FaceTarget
-		DIAB G 3 Bright A_FaceTarget
+		DIAB G 3 BRIGHT A_FaceTarget
 		DIAB H 3 BRIGHT A_FaceTarget
 		DIAB I 3 BRIGHT A_FaceTarget
-		DIAB G 0 BRIGHT A_Jump (128,31)       
+		DIAB G 0 BRIGHT A_Jump (128,31)
 		Goto See
 		DIAB N 5 BRIGHT A_FaceTarget
 		DIAB O 5 BRIGHT A_CustomMissile ("DFlare",40,0,random(-4,4))
@@ -82,7 +83,7 @@ ACTOR Diabloist : Archvile
 		Goto See
 		DIAB GHIJKLM 5 BRIGHT A_FaceTarget
 		DIAB N 5 BRIGHT A_FaceTarget
-		DIAB O 1 BRIGHT A_Playsound ("weapons/firbfi")
+		DIAB O 1 BRIGHT A_PlaySound ("weapons/firbfi")
 		DIAB O 4 BRIGHT A_CustomMissile ("DMissile",32,0,0)
 		DIAB P 5 BRIGHT
 		DIAB P 0 BRIGHT A_Jump (128,1)
@@ -91,222 +92,214 @@ ACTOR Diabloist : Archvile
 		DIAB \ 8 BRIGHT A_FaceTarget
 		DIAB ] 0 BRIGHT A_CustomMissile ("DTracer",0,-40,0)
 		DIAB ] 8 BRIGHT A_CustomMissile ("DTracer",0,40,0)
-		Goto See 
-	Pain: 
-		DIAB Q 5 
-		DIAB Q 5 A_Pain 
-		Goto See 
-	Death: 
-		DIAB Q 7 
-		DIAB R 7 A_Scream 
-		DIAB S 7 A_NoBlocking 
-		DIAB TUVW 7 
-		DIAB XY 5 
-		DIAB Z -1 
-		Stop    
-	} 
+		Goto See
+	Pain:
+		DIAB Q 5
+		DIAB Q 5 A_Pain
+		Goto See
+	Death:
+		DIAB Q 7
+		DIAB R 7 A_Scream
+		DIAB S 7 A_NoBlocking
+		DIAB TUVW 7
+		DIAB XY 5
+		DIAB Z -1
+		Stop
+	}
 }
 
-Actor DFire
+ACTOR DFire
 {
-   Obituary "%o was set ablaze by a Diabloist."
-   Radius 0
-   Height 1
-   Speed 0
-   RENDERSTYLE ADD
-   DamageType fire
-   ALPHA 1.00
-   +NOGRAVITY
-   +SEEKERMISSILE
-   +NOTARGET
-   +NODAMAGETHRUST
-   States
-   {
-   Spawn:
-      HLFR A 2 Bright A_StartFire
-      NULL A 0 Bright 
-      HLFR B 2 Bright A_Fire
-      NULL A 0 Bright 
-      HLFR A 2 Bright A_Fire
-      NULL A 0 Bright 
-      HLFR B 2 Bright A_Fire
-      NULL A 0 Bright 
-      HLFR C 2 Bright A_FireCrackle
-      NULL A 0 Bright 
-      HLFR B 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(2,32)
-      HLFR C 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(2,32)
-      HLFR B 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(2,32)
-      HLFR C 2 Bright A_Fire 
-      NULL A 0 Bright A_Explode(2,32)
-      HLFR D 2 Bright A_Fire 
-      NULL A 0 Bright A_Explode(3,32)
-      HLFR C 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(3,32)
-      HLFR D 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(3,32)
-      HLFR C 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(3,32)
-      HLFR D 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(4,32)
-      HLFR E 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(4,32)
-      HLFR D 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(4,32)
-      HLFR E 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(4,32)
-      HLFR D 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(5,32)
-      HLFR E 2 Bright A_FireCrackle
-      NULL A 0 Bright A_Explode(5,32)
-      HLFR F 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(5,32)
-      HLFR E 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(5,32)
-      HLFR F 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(6,32)
-      HLFR E 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(6,32)
-      HLFR F 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(6,32)
-      HLFR G 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(6,32)
-      HLFR H 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(5,32)
-      HLFR G 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(4,32)
-      HLFR H 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(3,32)
-      HLFR G 2 Bright A_Fire
-      NULL A 0 Bright A_Explode(2,32)
-      HLFR H 2 Bright A_Fire
-      stop
-   }
+	Radius 0
+	Height 1
+	Speed 0
+	RenderStyle Add
+	DamageType Fire
+	Alpha 1.00
+	+NOGRAVITY
+	+SEEKERMISSILE
+	+NOTARGET
+	+NODAMAGETHRUST
+	Obituary "$OB_DIABL"
+	States
+	{
+	Spawn:
+		HLFR A 2 BRIGHT A_StartFire
+		TNT1 A 0 BRIGHT
+		HLFR B 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT
+		HLFR A 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT
+		HLFR B 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT
+		HLFR C 2 BRIGHT A_FireCrackle
+		TNT1 A 0 BRIGHT
+		HLFR B 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(2,32)
+		HLFR C 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(2,32)
+		HLFR B 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(2,32)
+		HLFR C 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(2,32)
+		HLFR D 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(3,32)
+		HLFR C 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(3,32)
+		HLFR D 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(3,32)
+		HLFR C 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(3,32)
+		HLFR D 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(4,32)
+		HLFR E 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(4,32)
+		HLFR D 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(4,32)
+		HLFR E 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(4,32)
+		HLFR D 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(5,32)
+		HLFR E 2 BRIGHT A_FireCrackle
+		TNT1 A 0 BRIGHT A_Explode(5,32)
+		HLFR F 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(5,32)
+		HLFR E 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(5,32)
+		HLFR F 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(6,32)
+		HLFR E 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(6,32)
+		HLFR F 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(6,32)
+		HLFR G 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(6,32)
+		HLFR H 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(5,32)
+		HLFR G 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(4,32)
+		HLFR H 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(3,32)
+		HLFR G 2 BRIGHT A_Fire
+		TNT1 A 0 BRIGHT A_Explode(2,32)
+		HLFR H 2 BRIGHT A_Fire
+		Stop
+	}
 }
 
 ACTOR DFlare
 {
-   Radius 5
-   Height 5
-   Speed 25
-   Damage 4
-   SpawnID 252
-   RENDERSTYLE ADD
-   DamageType fire
-   ALPHA 0.85
-   PROJECTILE
-   +THRUGHOST
-   Obituary "%o was set ablaze by a Diabloist."
-   Seesound "weapons/firmfi"
-   DeathSound "weapons/firex4"
-   States
-   {
-   Spawn:
-      VBAL AB 3 Bright A_CustomMissile("MFlareFX",0,0,0,0)
-      loop
-   Death:
-      CBAL CDEFG 3 Bright
-      stop
-   }
+	Radius 5
+	Height 5
+	Speed 25
+	Damage 4
+	RenderStyle Add
+	DamageType Fire
+	Alpha 0.85
+	PROJECTILE
+	+THRUGHOST
+	Obituary "$OB_DIABL"
+	SeeSound "weapons/firmfi"
+	DeathSound "weapons/firex4"
+	States
+	{
+	Spawn:
+		VBAL AB 3 BRIGHT A_CustomMissile("MFlareFX",0,0,0,0)
+		Loop
+	Death:
+		CBAL CDEFG 3 BRIGHT
+		Stop
+	}
 }
 
 ACTOR DMissile : CFlameMissile { +THRUGHOST }
 
-ACTOR DTracer
+ACTOR DTracer : DFlare
 {
-   Radius 5
-   Height 5
-   Speed 15
-   ReactionTime 175
-   Damage 10
-   ExplosionDamage 64
-   ExplosionRadius 64
-   DamageType fire
-   RenderStyle ADD
-   Alpha 0.67
-   PROJECTILE
-   +SEEKERMISSILE
-   +FLOORHUGGER
-   +THRUGHOST
-   -NOGRAVITY
-   Obituary "%o was set ablaze by a Diabloist."
-   Seesound "weapons/diasht"
-   DeathSound "weapons/firex3"   
-   States
-   {
-   Spawn:
-      NULL A 1 Bright A_SeekerMissile (10,15)
-      NULL A 0 Bright A_Countdown
-      NULL A 0 Bright A_CustomMissile("DTracerPuff",0,0,0,0)
-      loop
-   Death:
-      FTRA K 4 Bright
-      FTRA L 4 Bright A_Explode
-      FTRA MNO 3 Bright
-      stop
-   }
+	Speed 15
+	ReactionTime 175
+	Damage 10
+	ExplosionDamage 64
+	ExplosionRadius 64
+	Alpha 0.67
+	+SEEKERMISSILE
+	+FLOORHUGGER //requires performance testing
+	-NOGRAVITY
+	SeeSound "weapons/diasht"
+	DeathSound "weapons/firex3"
+	Obituary "$OB_DIABL"
+	States
+	{
+	Spawn:
+		TNT1 A 1 BRIGHT A_SeekerMissile (10,15)
+		TNT1 A 0 BRIGHT A_Countdown
+		TNT1 A 0 BRIGHT A_CustomMissile("DTracerPuff",0,0,0,0)
+		Loop
+	Death:
+		FTRA K 4 BRIGHT
+		FTRA L 4 BRIGHT A_Explode
+		FTRA MNO 3 BRIGHT
+		Stop
+	}
 }
 
 ACTOR MFlareFX
-{   
-   Radius 0
-   Height 1
-   Speed 0
-   PROJECTILE
-   RENDERSTYLE ADD
-   ALPHA 0.67
-   States
-   {
-   Spawn:
-      FDFX ABCDEF 4 Bright
-      Stop 
-   }
+{
+	Radius 0
+	Height 1
+	Speed 0
+	PROJECTILE
+	RenderStyle Add
+	Alpha 0.67
+	States
+	{
+	Spawn:
+		FDFX ABCDEF 4 BRIGHT
+		Stop
+	}
 }
 
 ACTOR DTracerPuff
 {
-   Radius 1
-   Height 1
-   Speed 0
-   RENDERSTYLE ADD
-   DamageType fire
-   ALPHA 0.67
-   PROJECTILE
-   +FLOORHUGGER
-   -NOGRAVITY
-   States
-   {
-   Spawn:
-      FTRA ABCDEFGHIJ 3 Bright A_Explode(4,8)
-      stop
-   }
+	Radius 1
+	Height 1
+	Speed 0
+	RenderStyle ADD
+	DamageType fire
+	Alpha 0.67
+	PROJECTILE
+	+FLOORHUGGER
+	-NOGRAVITY
+	States
+	{
+	Spawn:
+		FTRA ABCDEFGHIJ 3 BRIGHT A_Explode(4,8)
+		Stop
+	}
 }
 
 ACTOR DMissileTrail : CFlameFloor { +THRUGHOST }
 ACTOR DMissileCircle : CircleFlame { +THRUGHOST }
 
-actor XXLBall
+ACTOR XXLBall
 {
-	spawnid 207
-	radius 6
-	height 8
-	speed 10
-	damage 9
-	renderstyle Translucent
-	alpha 0.3
-	seesound ""
-	deathsound "weapons/firex4"
+	Radius 6
+	Height 8
+	Speed 10
+	Damage 9
+	RenderStyle Translucent
+	Alpha 0.3
+	SeeSound ""
+	DeathSound "weapons/firex4"
 	PROJECTILE
 	+RANDOMIZE
-	states
+	States
 	{
 	Spawn:
-		XXL1 AB 4 bright
-		loop
+		XXL1 AB 4 BRIGHT
+		Loop
 	Death:
-		XXL1 CDE 6 bright
-		stop
+		XXL1 CDE 6 BRIGHT
+		Stop
 	}
 }

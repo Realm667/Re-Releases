@@ -1,7 +1,7 @@
 //miscellanea, from props to special
-Actor VaderOrakel 8666
+ACTOR VaderOrakel
 {
-	//$Category Decoration
+	//$Category ZPack Decoration
 	Height 64
 	Radius 24
 	+SOLID
@@ -13,27 +13,44 @@ Actor VaderOrakel 8666
 	}
 }
 
-actor ExplosionVTMAP
+ACTOR LogBook : Inventory
 {
-	spawnid 209
-	obituary "%o was killed by an explosion."
-	radius 11
-	height 8
-	speed 20
-	damage 20
-	seesound "weapons/rocklx"
-	deathsound "weapons/rocklx"
-	PROJECTILE
-	+RANDOMIZE
-	states
+	//$Category ZPack Pickups
+	Height 8
+	Radius 4
+	+INVENTORY.AUTOACTIVATE
+	+INVENTORY.ALWAYSPICKUP
+	Inventory.PickUpSound "DSITEMUP"
+	Inventory.PickUpMessage "$PK_LOGBK"
+	Inventory.MaxAmount 0
+	States
 	{
 	Spawn:
-		goto Death
+		LOGB BCDA 8
+		Loop
+	}
+}
+
+ACTOR ExplosionVTMAP
+{
+	Radius 11
+	Height 8
+	Speed 20
+	Damage 20
+	SeeSound "weapons/rocklx" //no See state, this sounds isn't triggered
+	DeathSound "weapons/rocklx"
+	PROJECTILE
+	+RANDOMIZE
+	Obituary "OB_VTMAP"
+	States
+	{
+	Spawn:
+		Goto Death
 	Death:
-		MISL B 0 bright A_PlaySound("weapons/rocklx")
-		MISL B 8 bright A_Explode 
-		MISL C 6 bright
-		MISL D 4 bright
-	stop
+		MISL B 0 BRIGHT A_PlaySound("weapons/rocklx")
+		MISL B 8 BRIGHT A_Explode 
+		MISL C 6 BRIGHT
+		MISL D 4 BRIGHT
+		Stop
 	}
 }

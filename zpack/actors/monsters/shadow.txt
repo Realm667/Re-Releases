@@ -1,7 +1,7 @@
 //Shadow
 ACTOR Shadow
 {
-	//$Category Monsters
+	//$Category ZPack Monsters
 	Health 80
 	Radius 20
 	Height 56
@@ -15,7 +15,7 @@ ACTOR Shadow
 	PainSound "Shadow/pain"
 	DeathSound "Shadow/death"
 	ActiveSound "Shadow/active"
-	Obituary "%o was assassinated by a shadow."
+	Obituary "$OB_SHADW"
 	MissileType ShadowBall
 	States
 	{
@@ -41,12 +41,12 @@ ACTOR Shadow
 		Goto See+1
 	Missile:
 		SHDW E 30 A_FaceTarget
-		SHDW F 5 
+		SHDW F 5
 		SHDW G 5 BRIGHT A_MissileAttack
 		SHDW F 5
 		SHDW E 20
 		SHDW E 1 A_SpidRefire
-		Goto Missile+1      
+		Goto Missile+1
 	Pain:
 		SHDW H 4
 		SHDW H 4 A_Pain
@@ -54,15 +54,15 @@ ACTOR Shadow
 	Death:
 		SHDW I 6 A_Scream
 		SHDW J 5
-		SHDW K 5 A_CustomMissile("Shadowtorso", 0, 0, 0)
+		SHDW K 5 A_CustomMissile("ShadowTorso", 0, 0, 0)
 		SHDW L 5 A_Fall
-		SHDW MNO 6 
+		SHDW MNO 6
 		SHDW P -1
 		Stop
 	XDeath:
 		SHDX A 8
 		SHDX B 6 A_XScream
-		SHDX C 6 
+		SHDX C 6
 		SHDX D 6 A_Fall
  		SHDX E 6
  		SHDX F 6
@@ -83,20 +83,20 @@ ACTOR ShadowBall
 	Damage 4
 	Projectile
 	+RANDOMIZE
-	RenderStyle "ADD"
+	RenderStyle Add
 	Alpha 0.75
 	SeeSound "Shadow/attack"
 	DeathSound "imp/shotx"
 	MissileType ShadowTrail
-	Missileheight 0
+	MissileHeight 0
 	Decal DoomImpScorch
 	States
 	{
-	Spawn: 
+	Spawn:
 		SBAL ABC 4 BRIGHT A_MissileAttack
 		Loop
 	Death:
-		SBAL C 5 Bright
+		SBAL C 5 BRIGHT
 		SBAL DEFGH 4 BRIGHT
 		Stop
 	}
@@ -150,14 +150,14 @@ ACTOR ShadowGhostD : ShadowGhostA
 	}
 }
 
-ACTOR Shadowtorso
+ACTOR ShadowTorso
 {
 	Radius 12
 	Height 15
 	Speed 1
 	Mass 5000
 	RenderStyle "Translucent"
-	alpha 0.7
+	Alpha 0.7
 	+DOOMBOUNCE
 	States
 	{
@@ -170,19 +170,19 @@ ACTOR Shadowtorso
 	}
 }
 
-actor ShadowTrail
+ACTOR ShadowTrail
 {
 	Radius 1
 	Height 1
 	Speed 0
 	PROJECTILE
-	RENDERSTYLE ADD
-	ALPHA 0.6
+	RenderStyle Add
+	Alpha 0.6
 	+NOCLIP
 	States
 	{
 	Spawn:
-		SHTR ABCDEF 4 Bright
-		Stop       
+		SHTR ABCDEF 4 BRIGHT
+		Stop
 	}
 }

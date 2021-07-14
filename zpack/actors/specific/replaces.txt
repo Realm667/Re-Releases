@@ -1,50 +1,45 @@
-////////////////// CORRECT BLOOD COLORS
-actor NewBaronOfHell : BaronOfHell replaces BaronOfHell
+//Old Bloodcolors fixes //
+ACTOR NewBaronOfHell : BaronOfHell replaces BaronOfHell
+{ bloodcolor darkolivegreen }
+
+ACTOR NewHellknight : Hellknight replaces Hellknight
+{ bloodcolor darkolivegreen }
+
+ACTOR NewCacodemon : Cacodemon replaces Cacodemon
+{ bloodcolor royalblue }
+
+ACTOR NewLostSoul : LostSoul replaces LostSoul
+{ +NOBLOOD }
+
+//Marines Replacements//
+ACTOR EvilMarineSSG : MarineSSG
 {
-bloodcolor darkolivegreen
+	//$Category "ZPack Monsters"
+	SeeSound "grunt/sight"
+	ActiveSound "grunt/active"
+	PainSound "grunt/pain"
+	DeathSound "grunt/death"  
+	States
+	{
+	Pain:
+		PLAY G 4
+		PLAY G 4 A_Pain
+		Goto See
+	}
 }
 
-actor NewHellknight : Hellknight replaces Hellknight
+ACTOR EvilMarinePlasma : MarinePlasma
 {
-bloodcolor darkolivegreen
-}
-
-actor NewCacodemon : Cacodemon replaces Cacodemon
-{
-bloodcolor royalblue
-}
-
-actor NewLostSoul : LostSoul replaces LostSoul
-{
-+NOBLOOD
-}
-
-actor EvilmarineSSG : MarineSSG 16555
-{
-  seesound "grunt/sight"
-  activesound "grunt/active"
-  painsound "grunt/pain"
-  deathsound "grunt/death"  
-  States
-  {
- 	Pain:
-    	PLAY G 4
-    	PLAY G 4 A_Pain
-    	goto See
-  }
-}
-
-actor EvilmarinePlasma : MarinePlasma 16556
-{
-  seesound "grunt/sight"
-  activesound "grunt/active"
-  painsound "grunt/pain"
-  deathsound "grunt/death"
-  States
-  {
- 	Pain:
-    	PLAY G 4
-    	PLAY G 4 A_Pain
-    	goto See
-  }
+	//$Category "ZPack Monsters"
+	SeeSound "grunt/sight"
+	ActiveSound "grunt/active"
+	PainSound "grunt/pain"
+	DeathSound "grunt/death"
+	States
+	{
+	Pain:
+		PLAY G 4
+		PLAY G 4 A_Pain
+		Goto See
+	}
 }
