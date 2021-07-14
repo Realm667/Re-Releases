@@ -1,27 +1,27 @@
 //Terminator
-ACTOR Terminator 30666
+ACTOR Terminator
 { 
-Health 7000 
-Radius 24 
-Height 64 
-Mass 1500 
-Speed 12 
-PainChance 8
-scale 1.2
-MONSTER
-Obituary "%o was liquidated by a Terminator."
-+FLOORCLIP 
-+MISSILEMORE
-+BOSS
-+DONTHURTSPECIES
-+NORADIUSDMG
-Missiletype Grenadeblast
-Damagefactor "Redblast", 0.0
-SeeSound "monster/termsit" 
-PainSound "monster/termpin" 
-DeathSound "monster/termdth"
-ActiveSound "Terminator/termact"
-States 
+	Health 7000 
+	Radius 24 
+	Height 64 
+	Mass 1500 
+	Speed 12 
+	PainChance 8
+	scale 1.2
+	MONSTER
+	Obituary "%o was liquidated by a Terminator."
+	+FLOORCLIP 
+	+MISSILEMORE
+	+BOSS
+	+DONTHURTSPECIES
+	+NORADIUSDMG
+	Missiletype Grenadeblast
+	Damagefactor "Redblast", 0.0
+	SeeSound "monster/termsit" 
+	PainSound "monster/termpin" 
+	DeathSound "monster/termdth"
+	ActiveSound "Terminator/termact"
+	States 
    { 
    Spawn: 
        TERM AB 10 A_Look 
@@ -91,28 +91,28 @@ States
 
 ACTOR TerminatorBlaster
 {
-   Radius 8
-   Height 12
-   Speed 24
-   Damage 15
-   SpawnID 251
-   PROJECTILE
-   RENDERSTYLE ADD
-   alpha 0.85
-   +THRUGHOST
-   SeeSound "monster/brufir"
-   DeathSound "weapons/hellex"
-   DONTHURTSHOOTER
-   States
-   {
-   Spawn: 
-      BLST A 1 Bright 
-      loop
-   Death:
-      BLST B 6 Bright A_Explode(40,72,1)
-      BLST CDEFGHIJKL 3 Bright 
-      stop
-   }
+	SpawnID 251
+	Radius 8
+	Height 12
+	Speed 24
+	Damage 15
+	PROJECTILE
+	RENDERSTYLE ADD
+	alpha 0.85
+	+THRUGHOST
+	SeeSound "monster/brufir"
+	DeathSound "weapons/hellex"
+	DONTHURTSHOOTER
+	States
+	{
+	Spawn: 
+		BLST A 1 Bright 
+		loop
+	Death:
+		BLST B 6 Bright A_Explode(40,72,1)
+		BLST CDEFGHIJKL 3 Bright 
+		stop
+	}
 }
 
 actor Redstar
@@ -149,8 +149,8 @@ actor Redgrenade
     Speed 20
     Damage 5
     PROJECTILE
-    +DoomBounce
-    -NoGravity
+    +DOOMBOUNCE
+    -NOGRAVITY
     RENDERSTYLE ADD
     ALPHA 0.8
     DeathSound "imp/shotx"
@@ -192,7 +192,7 @@ ACTOR Grenadetrail
 {       
    	PROJECTILE
    	+NOCLIP
-    	Renderstyle ADD
+    Renderstyle ADD
 	Alpha 0.6
 	DamageType Redblast
 	States
@@ -225,7 +225,7 @@ actor Grenadeblast
 
 ACTOR Terminatorpuff : Bulletpuff
 {          
-    	Renderstyle ADD
+    Renderstyle ADD
 	Alpha 0.75
 	scale 0.75
 	Decal Bulletchip
@@ -248,52 +248,44 @@ ACTOR TerminatorArm
 	Height 15
 	Speed 3
 	Mass 1000
-	scale 1.2
+	Scale 1.2
 	+DOOMBOUNCE
-      States
+	States
 	{
 	Spawn:
-         TARM A 5
-         TARM B 5 A_Fall 
-         TARM CDE 5
-         TARM F -1
-         Stop
+		TARM A 5
+		TARM B 5 A_Fall 
+		TARM CDE 5
+		TARM F -1
+		Stop
 	}
 }
 
-actor TerminatorHead
+actor TerminatorHead : TerminatorArm
 {
-    Radius 6
-    Height 8
-    Speed 10
-    Mass 1000
-    +DOOMBOUNCE
-    +DROPOFF
-    +Missile
-    scale 1.2
-    
-    States
-    {
-    Spawn:
-    	THAD DEFGHABC 2
-        loop
-    Death:
-    	THAD I -1
-        loop
-    }
+	Radius 6
+	Height 8
+	Speed 10
+	+DROPOFF
+	+MISSILE
+	States
+	{
+	Spawn:
+		THAD DEFGHABC 2
+		loop
+	Death:
+		THAD I -1
+		loop
+	}
 }
 
-actor TerminatorShoulder
+actor TerminatorShoulder : TerminatorArm
 {
     Radius 8
     Height 8
     Speed 8
-    Mass 1000
-    +DOOMBOUNCE
     +DROPOFF
-    +Missile
-    scale 1.2
-    
+    +MISSILE
     States
     {
     Spawn:
