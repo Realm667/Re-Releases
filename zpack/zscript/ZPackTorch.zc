@@ -192,7 +192,366 @@ class ZPackTallTorchLensFlare : ZPackDietActor
 	States
 	{
 	Spawn:
-		FLRE A -1 Bright;
+		FLRE A -1 Bright Light("BIGREDTORCH");
+		Stop;
+	}
+}
+
+class ZPackTorchG : GreenTorch replaces GreenTorch
+{
+	Default
+	{
+		Radius 10;
+		Height 67;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		TBLX A 0 NoDelay
+		{
+			A_SpawnItemEx("ZPackTallTorchLensFlareG", 0, 0, 62.0);
+		}
+		TBLX A 1 A_SpawnItemEx("ZPackTorchFlameG", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class ZPackTorchFlameG : ZPackDietActorWithVel
+{
+	mixin ZPackFireMixin;
+
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNG A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZPackTallTorchLensFlareG : ZPackDietActor
+{
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.5;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE B -1 Bright Light("BIGGREENTORCH");
+		Stop;
+	}
+}
+
+class ZPackTorchB : BlueTorch replaces BlueTorch
+{
+	Default
+	{
+		Radius 10;
+		Height 67;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		TBLX A 0 NoDelay
+		{
+			A_SpawnItemEx("ZPackTallTorchLensFlareB", 0, 0, 62.0);
+		}
+		TBLX A 1 A_SpawnItemEx("ZPackTorchFlameB", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class ZPackTorchFlameB : ZPackDietActorWithVel
+{
+	mixin ZPackFireMixin;
+
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNB A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZPackTallTorchLensFlareB : ZPackDietActor
+{
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.5;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE C -1 Bright Light("BIGBLUETORCH");
+		Stop;
+	}
+}
+
+//Experimental yet
+mixin class ZPackFireMixinShort
+{
+	bool fadedIn;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		RenderStyle "Add";
+		Alpha 0;
+		+ROLLSPRITE
+		+ROLLCENTER
+		+BRIGHT
+		+FORCEXYBILLBOARD
+		+NOINTERACTION
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	SpawnLoop:
+		"####" "#" 0
+		{
+			bSpriteFlip = RandomPick(false, true);
+			A_SetRoll(frandom(0.0, 360.0));
+		}
+		"####" "#" 1
+		{
+			int rollDir = bSpriteFlip ? -1 : 1;
+			double rollSpeed = 2.33 * rollDir;
+			A_SetRoll(Roll + rollSpeed, SPF_INTERPOLATE);
+
+			if (!fadedIn)
+			{
+				if (Alpha < 0.5)
+				{
+					A_FadeIn(0.1);
+				}
+				else
+				{
+					fadedIn = true;
+				}
+			}
+
+			if (fadedIn)
+			{
+				A_SetScale(Scale.X * 0.58);
+				A_FadeOut(0.025);
+			}
+		}
+		Goto SpawnLoop + 1;
+	}
+}
+
+class ZPackShortRedTorch : ShortRedTorch replaces ShortRedTorch
+{
+	Default
+	{
+		Radius 8;
+		Height 32;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		SMRX A 0 NoDelay
+		{
+			A_SpawnItemEx("ZPackShortTorchLensFlare", 0, 0, 32.0);
+		}
+		SMRX A 1 A_SpawnItemEx("ZPackTorchFlameShort", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class ZPackTorchFlameShort : ZPackDietActorWithVel //necessary for diff mixin
+{
+	mixin ZPackFireMixinShort;
+
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNO A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZPackShortTorchLensFlare : ZPackDietActor
+{
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.25;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE A -1 Bright Light("SMALLREDTORCH");
+		Stop;
+	}
+}
+
+class ZPackShortGreenTorch : ShortGreenTorch replaces ShortGreenTorch
+{
+	Default
+	{
+		Radius 8;
+		Height 32;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		SMRX A 0 NoDelay
+		{
+			A_SpawnItemEx("ZPackShortTorchLensFlareG", 0, 0, 32.0);
+		}
+		SMRX A 1 A_SpawnItemEx("ZPackTorchFlameShortG", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class ZPackTorchFlameShortG : ZPackDietActorWithVel //necessary for diff mixin
+{
+	mixin ZPackFireMixinShort;
+
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNG A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZPackShortTorchLensFlareG : ZPackDietActor
+{
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.25;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE B -1 Bright Light("SMALLGREENTORCH");
+		Stop;
+	}
+}
+
+class ZPackShortBlueTorch : ShortBlueTorch replaces ShortBlueTorch
+{
+	Default
+	{
+		Radius 8;
+		Height 32;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		SMRX A 0 NoDelay
+		{
+			A_SpawnItemEx("ZPackShortTorchLensFlareB", 0, 0, 32.0);
+		}
+		SMRX A 1 A_SpawnItemEx("ZPackTorchFlameShortB", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class ZPackTorchFlameShortB : ZPackDietActorWithVel //necessary for diff mixin
+{
+	mixin ZPackFireMixinShort;
+
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNB A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZPackShortTorchLensFlareB : ZPackDietActor
+{
+	Default
+	{
+		DistanceCheck "ZPacklod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.25;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE C -1 Bright Light("SMALLBLUETORCH");
 		Stop;
 	}
 }
