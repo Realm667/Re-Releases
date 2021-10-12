@@ -1,0 +1,53 @@
+ACTOR VerticalRocket
+{
+  Radius 11
+  Height 8
+  Speed 20
+  Damage 20
+  Projectile
+  +RANDOMIZE
+  +DEHEXPLOSION
+  +ROCKETTRAIL
+  SeeSound "weapons/rocklf"
+  DeathSound "weapons/rocklx"
+  Obituary "$OB_MPROCKET" // "%o rode %k's rocket."
+  SpawnID 180
+  States
+  {
+  Spawn:
+    ROCK Z 1 Bright
+    Loop
+  Death:
+    MISL B 8 Bright A_Explode
+    MISL C 6 Bright
+    MISL D 4 Bright
+    Stop
+  }
+}
+
+ACTOR VerticalRocketUp
+{
+  Radius 11
+  Height 8
+  Speed 20
+  Damage 20
+  Projectile
+  +RANDOMIZE
+  +DEHEXPLOSION
+  +ROCKETTRAIL
+  SeeSound "weapons/rocklf"
+  DeathSound "weapons/rocklx"
+  Obituary "$OB_MPROCKET" // "%o rode %k's rocket."
+  SpawnID 181
+  States
+  {
+  Spawn:
+    ROCK Z 1 Bright
+    Loop
+  Death:
+    MISL B 8 Bright A_Explode
+    MISL C 6 Bright
+    MISL D 4 Bright
+    Stop
+  }
+}
