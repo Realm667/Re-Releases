@@ -1,8 +1,10 @@
 gameinfo 
 {
 	playerclasses = "RefineryPlayer"
+
 	dimcolor = "35 3C 23" 
 	dimamount = "0.7"
+
 	defaultdropstyle = "1"
 	pickupcolor = "FF FF FF"
 	menufontcolor_title     = "OLIVE"
@@ -13,6 +15,12 @@ gameinfo
 	menufontcolor_highlight = "WHITE" 
 	menufontcolor_selection = "WHITE"
 	drawreadthis = false
+
+	fullscreenautoaspect = 3
+
+	infopage = "CREDIT"
+	addinfopage = "HELP"
+	borderflat = "AUTOPAGE"
 }
 
 clearepisodes
@@ -69,4 +77,121 @@ doomednums
 	31103 = LightRay_Wallsprite
 	31105 = LightRay2_Regular
 	31106 = LightRay2_Wallsprite
+}
+
+////////////////////////////////
+//////// CAST CALL /////////////
+////////////////////////////////
+
+Intermission Inter_Cast
+{
+	Image
+	{
+		// This is only here to initialize the background and the music
+		Background = "bossback"
+		Time = -1
+		Music = "zcredit"
+	}
+	Link = RefineryCast
+}
+
+Intermission RefineryCast
+{
+	Cast
+	{
+		CastClass = "Zombieman"
+		CastName = "$CC_ZOMBIE"
+		AttackSound = "Missile", 1, "grunt/attack"
+	}
+	Cast
+	{
+		CastClass = "ShotgunGuy"
+		CastName = "$CC_SHOTGUN"
+		AttackSound = "Missile", 1, "shotguy/attack"
+	}
+	Cast
+	{
+		CastClass = "ChaingunGuy"
+		CastName = "$CC_HEAVY"
+		AttackSound = "Missile", 1, "chainguy/attack"
+		AttackSound = "Missile", 2, "chainguy/attack"
+		AttackSound = "Missile", 3, "chainguy/attack"
+	}
+	Cast
+	{
+		CastClass = "DoomImp"
+		CastName = "$CC_IMP"
+		AttackSound = "Missile", 2, "imp/attack"
+	}
+	Cast
+	{
+		CastClass = "Demon"
+		CastName = "$CC_DEMON"
+		AttackSound = "Melee", 1, "demon/melee"
+	}
+	Cast
+	{
+		CastClass = "LostSoul"
+		CastName = "$CC_LOST"
+		AttackSound = "Missile", 1, "skull/melee"
+	}
+	Cast
+	{
+		CastClass = "Cacodemon"
+		CastName = "$CC_CACO"
+		AttackSound = "Missile", 1, "caco/attack"
+	}
+	Cast
+	{
+		CastClass = "HellKnight"
+		CastName = "$CC_HELL"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "BaronOfHell"
+		CastName = "$CC_BARON"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "Arachnotron"
+		CastName = "$CC_ARACH"
+		AttackSound = "Missile", 1, "baby/attack"
+	}
+	Cast
+	{
+		CastClass = "PainElemental"
+		CastName = "$CC_PAIN"
+		AttackSound = "Missile", 2, "skull/melee"
+	}
+	Cast
+	{
+		CastClass = "Revenant"
+		CastName = "$CC_REVEN"
+		AttackSound = "Missile", 1, "skeleton/attack"
+		AttackSound = "Melee", 1, "skeleton/swing"
+		AttackSound = "Melee", 3, "skeleton/melee"
+	}
+	Cast
+	{
+		CastClass = "Fatso"
+		CastName = "$CC_MANCU"
+		AttackSound = "Missile", 1, "fatso/attack"
+		AttackSound = "Missile", 4, "fatso/attack"
+		AttackSound = "Missile", 7, "fatso/attack"
+	}
+	Cast
+	{
+		CastClass = "Archvile"
+		CastName = "$CC_ARCH"
+		AttackSound = "Missile", 1, "vile/start"
+	}
+	Cast
+	{
+		CastClass = "DoomPlayer"
+		CastName = "$CC_HERO"
+		AttackSound = "Missile", 0, "weapons/sshotf"
+	}
+	Link = RefineryCast	// restart cast call
 }
