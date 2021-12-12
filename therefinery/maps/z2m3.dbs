@@ -71,13 +71,13 @@ maps
 			backoffsety = 0;
 			backoffsetx = 0;
 			backscalex = 100;
-			gridsize = 8f;
+			gridsize = 8;
 			background = "";
 			backsource = 0;
 			backscaley = 100;
-			gridrotate = 0f;
-			gridoriginx = 0f;
-			gridoriginy = 0f;
+			gridrotate = 0;
+			gridoriginx = 0;
+			gridoriginy = 0;
 		}
 		
 		plugins
@@ -94,16 +94,29 @@ maps
 		
 		resources
 		{
-			
-			resource0
-			{
-				type = 1;
-				location = "L:\\DoomDev\\Projects\\Re-Releases\\therefinery";
-				option1 = 0;
-				option2 = 0;
-				notfortesting = 0;
-			}
 		}
+		defaultfloortexture = "CEIL5_2";
+		defaultceiltexture = "SHAWN2";
+		defaulttoptexture = "PIPEWAL1";
+		defaultwalltexture = "PIPEWAL1";
+		defaultbottomtexture = "PIPEWAL1";
+		custombrightness = 196;
+		customfloorheight = 0;
+		customceilheight = 128;
+		overridefloortexture = false;
+		overrideceiltexture = false;
+		overridetoptexture = false;
+		overridemiddletexture = false;
+		overridebottomtexture = false;
+		overridefloorheight = false;
+		overrideceilheight = false;
+		overridebrightness = false;
+		uselongtexturenames = false;
+		useresourcesinreadonlymode = false;
+		viewpositionx = 269.7888f;
+		viewpositiony = 4787.454f;
+		viewscale = 0.04666498f;
+		scriptcompiler = "zdoom_acs.cfg";
 		
 		fieldtypes
 		{
@@ -116,11 +129,11 @@ maps
 			
 			sidedef
 			{
-				offsetx_bottom = 1;
-				offsety_bottom = 1;
 				offsetx_mid = 1;
 				offsety_mid = 1;
+				offsetx_bottom = 1;
 				offsetx_top = 1;
+				offsety_bottom = 1;
 				offsety_top = 1;
 				light = 0;
 				lightabsolute = 3;
@@ -138,6 +151,7 @@ maps
 				xpanningfloor = 1;
 				rotationceiling = 1;
 				yscaleceiling = 1;
+				fadecolor = 0;
 				rotationfloor = 1;
 				yscalefloor = 1;
 				lightcolor = 0;
@@ -145,32 +159,71 @@ maps
 				lightfloor = 0;
 				xscalefloor = 1;
 				lightceiling = 0;
-				fadecolor = 0;
 				lightceilingabsolute = 3;
 				lightfloorabsolute = 3;
+				alphaceiling = 1;
+			}
+			
+			thing
+			{
+				renderstyle = 2;
+				fillcolor = 0;
+				alpha = 1;
+				arg0str = 2;
 			}
 		}
-		defaultfloortexture = "METL61";
-		defaultceiltexture = "PIPEG8H";
-		defaulttoptexture = "COMP20";
-		defaultwalltexture = "COMP20";
-		defaultbottomtexture = "COMP20";
-		custombrightness = 196;
-		customfloorheight = 0;
-		customceilheight = 128;
-		overridefloortexture = false;
-		overrideceiltexture = false;
-		overridetoptexture = false;
-		overridemiddletexture = false;
-		overridebottomtexture = false;
-		overridefloorheight = false;
-		overrideceilheight = false;
-		overridebrightness = false;
-		uselongtexturenames = false;
-		useresourcesinreadonlymode = false;
-		viewpositionx = -4541.528f;
-		viewpositiony = 2443.238f;
-		viewscale = 4.036714f;
-		scriptcompiler = "zdoom_acs.cfg";
+		
+		scriptdocuments
+		{
+			
+			document0
+			{
+				filename = "DIALOGUE";
+				hash = 3588187714;
+				resource;
+				tabtype = 0;
+				scripttype = 18;
+			}
+			
+			document1
+			{
+				filename = "SCRIPTS";
+				hash = 3469170009;
+				resource;
+				tabtype = 0;
+				scripttype = 1;
+				caretposition = 12573;
+				firstvisibleline = 561;
+				activetab = true;
+			}
+		}
+		
+		reloadresourceprecommand
+		{
+			autocloseonsuccess = true;
+			exitcodeiserror = true;
+			stderriserror = true;
+		}
+		
+		reloadresourcepostcommand
+		{
+			autocloseonsuccess = true;
+			exitcodeiserror = true;
+			stderriserror = true;
+		}
+		
+		testprecommand
+		{
+			autocloseonsuccess = true;
+			exitcodeiserror = true;
+			stderriserror = true;
+		}
+		
+		testpostcommand
+		{
+			autocloseonsuccess = true;
+			exitcodeiserror = true;
+			stderriserror = true;
+		}
 	}
 }
