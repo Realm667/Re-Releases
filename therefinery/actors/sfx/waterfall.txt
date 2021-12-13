@@ -5,8 +5,8 @@ actor WaterfallParticleA1
 	Mass 0
 	Scale 0.05
 	Gravity 0.3
-	RenderStyle Add
-	Alpha 0.4
+	RenderStyle Transparent
+	Alpha 0.5
 	+MISSILE
 	+WINDTHRUST
 	+FORCEXYBILLBOARD
@@ -15,6 +15,7 @@ actor WaterfallParticleA1
 	{
 	Spawn:
 		WFL1 A 1 A_SetScale(scaleX + 0.05)
+		WFL1 A 1 A_FadeOut(0.01)
 		loop
 	}
 }
@@ -25,6 +26,7 @@ actor WaterfallParticleA2 : WaterfallParticleA1
 	{
 	Spawn:
 		WFL2 A 1 A_SetScale(scaleX + 0.05)
+		WFL2 A 1 A_FadeOut(0.01)
 		loop
 	}
 }
@@ -35,6 +37,7 @@ actor WaterfallParticleA3 : WaterfallParticleA1
 	{
 	Spawn:
 		WFL3 A 1 A_SetScale(scaleX + 0.05)
+		WFL3 A 1 A_FadeOut(0.01)
 		loop
 	}
 }
@@ -45,6 +48,7 @@ actor WaterfallParticleA4 : WaterfallParticleA1
 	{
 	Spawn:
 		WFL4 A 1 A_SetScale(scaleX + 0.05)
+		WFL4 A 1 A_FadeOut(0.01)
 		loop
 	}
 }
