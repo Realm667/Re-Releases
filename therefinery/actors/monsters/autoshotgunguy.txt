@@ -81,6 +81,59 @@ ACTOR ASGGuy 32124
     }
 }
 
+ACTOR ASGGuy_CastCall
+{
+    Health 90
+    Radius 20
+    Height 56
+    Speed 8
+    PainChance 128
+    MONSTER
+    +FLOORCLIP
+    SeeSound "grunt/sight"
+    AttackSound "asgguy/asgfir"
+    PainSound "grunt/pain"
+    DeathSound "grunt/death"
+    ActiveSound "grunt/active"
+    Obituary "%o got emmenthal'd by an ASG guy."
+    DropItem Shell
+    States
+    {
+    Spawn:
+        ASGZ AB 10 A_Look
+        Loop
+    See:
+        ASGZ AABBCCDD 4 A_Chase
+        Loop
+    Missile:
+    	ASGZ E 4 A_FaceTarget
+    	ASGZ F 5 Bright A_CustomBulletAttack (5, 4, 3, 4, "BulletPuff", 0)
+    	ASGZ E 6
+        Goto See
+    Pain:
+        ASGZ G 3
+        ASGZ G 3 A_Pain
+        Goto See
+    Death:
+        ASGZ H 5
+        ASGZ I 5 A_Scream
+        ASGZ J 5 A_Fall
+        ASGZ KLM 5
+        ASGZ N -1
+        Stop
+    XDeath:
+        ASGZ O 5
+        ASGZ P 5 A_XScream
+        ASGZ Q 5 A_Fall
+        ASGZ RSTUV 5
+        ASGZ W -1
+        Stop
+    Raise:
+        ASGZ NMLKJIH 5
+        Goto See
+    }
+}
+
 ACTOR ASGZAmmo: Ammo
 {
      Inventory.MaxAmount 16

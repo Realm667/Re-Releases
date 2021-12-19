@@ -6,34 +6,49 @@
 //////////// SPECIAL EFFECTS //////////////////////
 ///////////////////////////////////////////////////
 
-Flickerlight FireSpawnerSmall
+// Fire Effect
+FlickerLight FireSpawnerSmall
 {
-Color 1.0 0.6 0.0
-Size 32
-SecondarySize 48
-Chance 0.6
+	Color 1.0 0.5 0.0
+	Size 128
+	SecondarySize 112
+	Chance 0.6
+	Attenuate 1
 }
 
-Flickerlight FireSpawnerMedium
+FlickerLight FireSpawnerMedium
 {
-Color 1.0 0.6 0.0
-Size 56
-SecondarySize 72
-Chance 0.6
+	Color 1.0 0.5 0.0
+	Size 132
+	SecondarySize 148
+	Chance 0.6
+	Attenuate 1
 }
 
-Flickerlight FireSpawnerLarge
+FlickerLight FireSpawnerLarge
 {
-Color 1.0 0.6 0.0
-Size 80
-SecondarySize 128
-Chance 0.6
+	Color 1.0 0.5 0.0
+	Size 168
+	SecondarySize 192
+	Chance 0.6
+	Attenuate 1
 }
 
 Object SmallFlame { Frame TNT1 { Light FireSpawnerSmall } }
 Object MediumFlame { Frame TNT1 { Light FireSpawnerMedium } }
 Object LargeFlame { Frame TNT1 { Light FireSpawnerLarge } }
 
+// Explosion Effect
+FlickerLight ExplosionSpawner
+{
+	Color 1.0 0.4 0.0
+	Size 128
+	SecondarySize 192
+	Chance 0.5
+	Attenuate 1
+}
+
+Object ExplosionLight { Frame TNT1 { Light ExplosionSpawner } }
 
 // Tall red torch
 flickerlight BIGREDTORCH
