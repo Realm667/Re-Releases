@@ -1,0 +1,68 @@
+Class LightRay_Regular : SwitchableDecoration
+{
+	Default
+	{
+		DistanceCheck "Reflod";
+		Radius 8;
+		Height 16;
+		RenderStyle "Translucent";
+		Alpha 1.0;
+		+NOBLOCKMAP
+		+NOGRAVITY
+	}
+	States
+	{
+	Spawn:
+	Active:
+		VOLT A -1 Bright;
+		Stop;
+	Inactive:
+		VOLT A 1;
+		TNT1 A -1;
+		Stop;
+	}
+}
+
+Class LightRay_Wallsprite : LightRay_Regular
+{
+	Default
+	{
+		DistanceCheck "Reflod";
+		+ROLLSPRITE
+		+WALLSPRITE
+	}
+}
+
+Class LightRay2_Regular : LightRay_Regular
+{
+	Default
+	{
+		//$Title Light Rays 2, Regular
+	}
+	
+	States
+	{
+	Spawn:
+	Active:
+		VOLT B -1 Bright;
+		Stop;
+	Inactive:
+		VOLT B 1;
+		TNT1 B -1;
+		Stop;
+	}
+}
+
+Class LightRay2_Wallsprite : LightRay2_Regular
+{
+	Default
+	{
+		//$Title Light Rays 2, WallSprite
+	}
+	
+	Default
+	{
+		+ROLLSPRITE
+		+WALLSPRITE
+	}
+}
