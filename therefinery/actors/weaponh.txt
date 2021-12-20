@@ -10,8 +10,8 @@ ACTOR PistolCasing
 	Mass 200 // [Blue Shadow] increasing the mass makes it sink faster in a 'swimmable water'
 	PROJECTILE
 	+DOOMBOUNCE
-	- NOGRAVITY
-	- NOBLOCKMAP
+	-NOGRAVITY
+	-NOBLOCKMAP
 	Seesound "weapons/case1"
 	States
 	{
@@ -272,13 +272,13 @@ ACTOR BlankPuff
 
 ACTOR RocketNew : Rocket Replaces Rocket
 {
--RocketTrail
-States
-{
-Spawn:
-    MISL A 1 Bright A_SpawnItemEx("RefRockettrail", -16, frandom(-0.1,0.1), frandom(3.0,4.0), 0, frandom(-0.4,0.4), frandom(0.0,0.5))
-    Loop
-}
+	-ROCKETTRAIL
+	States
+	{
+	Spawn:
+		MISL A 1 Bright A_SpawnItemEx("RefRockettrail", -16, frandom(-0.1,0.1), frandom(3.0,4.0), 0, frandom(-0.4,0.4), frandom(0.0,0.5))
+		Loop
+	}
 }
 
 actor RefRockettrail
