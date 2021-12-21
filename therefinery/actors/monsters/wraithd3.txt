@@ -1,119 +1,116 @@
-Actor D3Wraith 10077
+Actor D3Wraith
 {
-//$Category Z2M3_Monsters
-  HitObituary "%o was slashed by a Wraith"
-  Health 25
-  Radius 22
-  Height 56
-  Mass 200
-  Speed 12
-  PainChance 64
-  MeleeDamage 4
-  SeeSound "D3Wraith/Sight"
-  PainSound "D3Wraith/Pain"
-  DeathSound "D3Wraith/Death"
-  ActiveSound "D3Wraith/Active" //Wraith doesn't play any active sounds, in Doom 3, but here they are anyway
-  MeleeSound "Imp/Melee"
-  Monster
-  +FloorClip
-  States
-  {
-  Spawn:
-    3WRT A 1
-    3WRT A 0 A_JumpIf(Args[0] > 0, "Spawn2")
-    3WRT A 0 A_JumpIfInventory("WraithTeleporting", 1, "StopTeleport")
-    3WRT A 1 A_Look
-    Goto Spawn+1
-  Spawn2:
-    3WRT A 0 A_JumpIfInventory("WraithTeleporting", 1, "StopTeleport")
-    3WRT A 1 A_LookEx(8, 0, 0, 0, 0, "Teleport")
-    Loop
-  StopTeleport:
-    3WRT A 0 A_SpawnItem("TeleportFog")
-    3WRT A 0 A_ChangeFlag("Invulnerable", 0)
-    3WRT A 0 A_SetShootable
-    3WRT A 0 A_ChangeFlag("NonShootable", 0)
-    3WRT A 0 A_ChangeFlag("Shootable", 1)
-    3WRT A 0 A_ChangeFlag("NoTeleport", 0)
-    3WRT A 0 A_ChangeFlag("NoRadiusDMG", 0)
-    3WRT A 0 A_TakeInventory("WraithTeleporting", 1)
-    Goto Spawn
-  See:
-    3WRT B 2 A_Chase("", "", 0)
-    3WRT BBCCCDDDEEE 2 A_Chase
-    3WRT B 0 A_JumpIf(Args[1] > 0, 1)
-    Goto See+1
-    3WRT B 0 A_Jump(16, "Missile")
-    Goto See+1
-  Melee:
-    3WRT A 0 A_JumpIfInventory("WraithTeleporting", 1, 5)
-    3WRT A 6 A_FaceTarget
-    3WRT F 5 A_FaceTarget
-    3WRT G 0 A_PlayWeaponSound("D3Wraith/Attack")
-    3WRT G 8 A_MeleeAttack
-    goto see
-    3WRT A 0 A_SpawnItem("TeleportFog")
-    3WRT A 0 A_ChangeFlag("Invulnerable", 0)
-    3WRT A 0 A_SetShootable
-    3WRT A 0 A_ChangeFlag("NonShootable", 0)
-    3WRT A 0 A_ChangeFlag("Shootable", 1)
-    3WRT A 0 A_ChangeFlag("NoTeleport", 0)
-    3WRT A 0 A_ChangeFlag("NoRadiusDMG", 0)
-    3WRT A 0 A_ChangeFlag("DropOff", 0)
-    3WRT A 0 A_TakeInventory("WraithTeleporting", 1)
-    3WRT F 5 A_FaceTarget
-    3WRT G 0 A_PlayWeaponSound("D3Wraith/Attack")
-    3WRT G 8 A_MeleeAttack
-    Goto See
-  Missile:
-    3WRT A 0 A_JumpIfCloser(128, 2)
-    3WRT A 0 A_JumpIfCloser(1024, 2)
-    3WRT A 0
-    Goto See
-    3WRT A 0 A_Jump(128, "Teleport")
-    Goto See
-  Teleport:
-    3WRT AAA 6 A_FaceTarget
-    TNT1 A 0 A_GiveInventory("WraithTeleporting", 1)
-    TNT1 A 0 A_SpawnItem("TeleportFog")
-    TNT1 A 0 A_ChangeFlag("Invulnerable", 1)
-    TNT1 A 0 A_ChangeFlag("NonShootable", 1)
-    TNT1 A 0 A_ChangeFlag("NoTeleport", 1)
-    TNT1 A 0 A_ChangeFlag("NoRadiusDMG", 1)
-    TNT1 A 0 A_ChangeFlag("DropOff", 1)
-    TNT1 A 0 A_UnSetShootable
-    TNT1 AAAAAAAAAAAAAAAAAAAAAAAAA 0 A_ExtChase(1, 0, 0, 0)
-    TNT1 AAAAAAAAAAAAAAAAAAAAAAAAA 0 A_ExtChase(1, 0, 0, 0)
-    TNT1 A 1 A_ExtChase(1, 0, 0, 0)
-    3WRT A 0 A_SpawnItem("TeleportFog")
-    3WRT A 0 A_ChangeFlag("Invulnerable", 0)
-    3WRT A 0 A_SetShootable
-    3WRT A 0 A_ChangeFlag("NonShootable", 0)
-    3WRT A 0 A_ChangeFlag("Shootable", 1)
-    3WRT A 0 A_ChangeFlag("NoTeleport", 0)
-    3WRT A 0 A_ChangeFlag("NoRadiusDMG", 0)
-    3WRT A 0 A_ChangeFlag("DropOff", 0)
-    3WRT A 0 A_TakeInventory("WraithTeleporting", 1)
-    3WRT AA 6 A_FaceTarget
-    Goto See
-  Pain:
-    3WRT A 4
-    3WRT A 4 A_Pain
-    Goto See
-  Death:
-    3WRT H 8
-    3WRT I 8 A_Scream
-    3WRT J 6
-    3WRT K 6 A_NoBlocking
-    3WRT L -1
-    Stop
-  Raise:
-    TROO LKJIH 8
-    Goto See
-  }
+	//$Category Z2M3_Monsters
+	Health 25
+	Radius 22
+	Height 56
+	Mass 200
+	Speed 12
+	PainChance 64
+	MeleeDamage 4
+	Monster
+	+FLOORCLIP
+	SeeSound "D3Wraith/Sight"
+	PainSound "D3Wraith/Pain"
+	DeathSound "D3Wraith/Death"
+	ActiveSound "D3Wraith/Active" //Wraith doesn't play any active sounds, in Doom 3, but here they are anyway
+	MeleeSound "Imp/Melee"
+	HitObituary "$HB_D3WR"
+	States
+	{
+	Spawn:
+		3WRT A 1
+		3WRT A 0 A_JumpIf(Args[0] > 0, "Spawn2")
+		3WRT A 0 A_JumpIfInventory("WraithTeleporting", 1, "StopTeleport")
+		3WRT A 1 A_Look
+		Goto Spawn+1
+	Spawn2:
+		3WRT A 0 A_JumpIfInventory("WraithTeleporting", 1, "StopTeleport")
+		3WRT A 1 A_LookEx(8, 0, 0, 0, 0, "Teleport")
+		Loop
+	StopTeleport:
+		3WRT A 0 A_SpawnItem("TeleportFog")
+		3WRT A 0 A_ChangeFlag("Invulnerable", 0)
+		3WRT A 0 A_SetShootable
+		3WRT A 0 A_ChangeFlag("NonShootable", 0)
+		3WRT A 0 A_ChangeFlag("Shootable", 1)
+		3WRT A 0 A_ChangeFlag("NoTeleport", 0)
+		3WRT A 0 A_ChangeFlag("NoRadiusDMG", 0)
+		3WRT A 0 A_TakeInventory("WraithTeleporting", 1)
+		Goto Spawn
+	See:
+		3WRT B 2 A_Chase("", "", 0)
+		3WRT BBCCCDDDEEE 2 A_Chase
+		3WRT B 0 A_JumpIf(Args[1] > 0, 1)
+		Goto See+1
+		3WRT B 0 A_Jump(16, "Missile")
+		Goto See+1
+	Melee:
+		3WRT A 0 A_JumpIfInventory("WraithTeleporting", 1, 5)
+		3WRT A 6 A_FaceTarget
+		3WRT F 5 A_FaceTarget
+		3WRT G 0 A_PlayWeaponSound("D3Wraith/Attack")
+		3WRT G 8 A_MeleeAttack
+		goto see
+		3WRT A 0 A_SpawnItem("TeleportFog")
+		3WRT A 0 A_ChangeFlag("Invulnerable", 0)
+		3WRT A 0 A_SetShootable
+		3WRT A 0 A_ChangeFlag("NonShootable", 0)
+		3WRT A 0 A_ChangeFlag("Shootable", 1)
+		3WRT A 0 A_ChangeFlag("NoTeleport", 0)
+		3WRT A 0 A_ChangeFlag("NoRadiusDMG", 0)
+		3WRT A 0 A_ChangeFlag("DropOff", 0)
+		3WRT A 0 A_TakeInventory("WraithTeleporting", 1)
+		3WRT F 5 A_FaceTarget
+		3WRT G 0 A_PlayWeaponSound("D3Wraith/Attack")
+		3WRT G 8 A_MeleeAttack
+		Goto See
+	Missile:
+		3WRT A 0 A_JumpIfCloser(128, 2)
+		3WRT A 0 A_JumpIfCloser(1024, 2)
+		3WRT A 0
+		Goto See
+		3WRT A 0 A_Jump(128, "Teleport")
+		Goto See
+	Teleport:
+		3WRT AAA 6 A_FaceTarget
+		TNT1 A 0 A_GiveInventory("WraithTeleporting", 1)
+		TNT1 A 0 A_SpawnItem("TeleportFog")
+		TNT1 A 0 A_ChangeFlag("Invulnerable", 1)
+		TNT1 A 0 A_ChangeFlag("NonShootable", 1)
+		TNT1 A 0 A_ChangeFlag("NoTeleport", 1)
+		TNT1 A 0 A_ChangeFlag("NoRadiusDMG", 1)
+		TNT1 A 0 A_ChangeFlag("DropOff", 1)
+		TNT1 A 0 A_UnSetShootable
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAA 0 A_ExtChase(1, 0, 0, 0)
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAA 0 A_ExtChase(1, 0, 0, 0)
+		TNT1 A 1 A_ExtChase(1, 0, 0, 0)
+		3WRT A 0 A_SpawnItem("TeleportFog")
+		3WRT A 0 A_ChangeFlag("Invulnerable", 0)
+		3WRT A 0 A_SetShootable
+		3WRT A 0 A_ChangeFlag("NonShootable", 0)
+		3WRT A 0 A_ChangeFlag("Shootable", 1)
+		3WRT A 0 A_ChangeFlag("NoTeleport", 0)
+		3WRT A 0 A_ChangeFlag("NoRadiusDMG", 0)
+		3WRT A 0 A_ChangeFlag("DropOff", 0)
+		3WRT A 0 A_TakeInventory("WraithTeleporting", 1)
+		3WRT AA 6 A_FaceTarget
+		Goto See
+	Pain:
+		3WRT A 4
+		3WRT A 4 A_Pain
+		Goto See
+	Death:
+		3WRT H 8
+		3WRT I 8 A_Scream
+		3WRT J 6
+		3WRT K 6 A_NoBlocking
+		3WRT L -1
+		Stop
+	Raise:
+		TROO LKJIH 8
+		Goto See
+	}
 }
 
-Actor WraithTeleporting : Inventory
-{
-  Inventory.MaxAmount 1
-}
+Actor WraithTeleporting : Inventory { Inventory.MaxAmount 1 }

@@ -1,56 +1,55 @@
-ACTOR XimRocketGuy 3204
-{ 
-//$Category Z2M3_Monsters
-  health 80
-  obituary "%o was 'sploded by a rocketlauncher."
-  radius 20
-  height 56
-  mass 100
-  speed 8
-  painchance 170
-  seesound "shotguy/sight"
-  attacksound "shotguy/attack"
-  painsound "shotguy/pain"
-  deathsound "shotguy/death"
-  activesound "shotguy/active"
-  dropitem "RocketAmmo" 256
-  MONSTER
-  +FLOORCLIP
-   States 
-   { 
-   Spawn: 
-      MPO2 AB 10 A_Look 
-      Loop 
-   See: 
-      MPO2 AABBCCDD 3 A_Chase 
-      Loop 
-   Missile: 
-      MPO2 E 10 A_FaceTarget 
-      MPO2 F 10 bright A_CyberAttack 
-      MPO2 E 10 
-      Goto See 
-   Pain: 
-      MPO2 G 2 
-      MPO2 G 2 A_Pain 
-      Goto See 
-   Death: 
-      MPO2 H 5 
-      MPO2 I 5 A_Scream 
-      MPO2 J 5 
-      MPO2 K 5 A_Fall 
-      MPO2 L -1 
-      Stop 
-   XDeath: 
-      MPO2 M 5 
-      MPO2 N 5 A_XScream 
-      MPO2 O 5 
-      MPO2 P 5 A_Fall 
-      MPO2 QRST 5 
-      MPO2 U -1    
-      Stop 
-   Raise: 
-      MPO2 MJKJI 5 
-      Goto See 
-   } 
+ACTOR XimRocketGuy
+{
+	//$Category Z2M3_Monsters
+	health 80
+	obituary "$OB_XIMR"
+	radius 20
+	height 56
+	mass 100
+	speed 8
+	painchance 170
+	seesound "shotguy/sight"
+	attacksound "shotguy/attack"
+	painsound "shotguy/pain"
+	deathsound "shotguy/death"
+	activesound "shotguy/active"
+	dropitem "RocketAmmo" 256
+	MONSTER
+	+FLOORCLIP
+	States
+	{
+	Spawn:
+		MPO2 AB 10 A_Look
+		Loop
+	See:
+		MPO2 AABBCCDD 3 A_Chase
+		Loop
+	Missile:
+		MPO2 E 10 A_FaceTarget
+		MPO2 F 10 bright A_CyberAttack
+		MPO2 E 10
+		Goto See
+	Pain:
+		MPO2 G 2
+		MPO2 G 2 A_Pain
+		Goto See
+	Death:
+		MPO2 H 5
+		MPO2 I 5 A_Scream
+		MPO2 J 5
+		MPO2 K 5 A_Fall
+		MPO2 L -1
+		Stop
+	XDeath:
+		MPO2 M 5
+		MPO2 N 5 A_XScream
+		MPO2 O 5
+		MPO2 P 5 A_Fall
+		MPO2 QRST 5
+		MPO2 U -1
+		Stop
+	Raise:
+		MPO2 MJKJI 5
+		Goto See
+	}
 }
-

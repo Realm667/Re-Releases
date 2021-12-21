@@ -1,93 +1,93 @@
-Actor RepeaterZombie 32198
+Actor RepeaterZombie
 {
-//$Category Z2M3_Monsters
-  Health 100
-  Radius 20
-  Height 56
-  Speed 8
-  PainChance 96
-  Monster
-  +FloorClip
-  //DropItem CellPack //DropItem "Repeater", 256, 20
-  SeeSound "Grunt/Sight"
-  PainSound "Grunt/Pain"
-  DeathSound "Grunt/Death"
-  ActiveSound "Grunt/Active"
-  Obituary "%o was vapourized by a Zombie with a Repeater" 
-  Decal MummyScorch
-  States 
-  {
-  Spawn:
-    RPZM A 0 A_JumpIfInventory("RepeaterZombieFiring", 1, "SpinDown")
-    RPZM A 0 A_ChangeFlag("NoPain", 1)
-    RPZM AAAAAAAAAABBBBBBBBBB 1 A_Look 
-    Loop 
-  See:
-    RPZM A 0 A_JumpIfInventory("RepeaterZombieFiring", 1, "SpinDown")
-    RPZM A 0 A_ChangeFlag("NoPain", 0)
-    RPZM AABBCCDD 4 A_Chase 
-    Loop 
-  Missile:
-    RPZM E 0 A_ChangeFlag("NoPain", 1)
-    RPZM E 0 A_GiveInventory("RepeaterZombieFiring", 1)
-    RPZM E 0 A_PlaySoundEx("Weapons/RepeaterSpinUp", "SoundSlot7", 0)
-    RPZM EEFFEFEF 4 A_FaceTarget
-    RPZM E 0 A_JumpIfInventory("RepeaterZombieHeat", 20, "Overload")
-    RPZM E 0 A_GiveInventory("RepeaterZombieHeat", 1)
-    RPZM F 0 A_PlaySound("Weapons/RepeaterFire")
-    RPZM G 2 Bright A_CustomBulletAttack(12, 4, 2, 5, "RepeaterZombiePuff")
-    RPZM F 2
-    RPZM H 0 A_PlaySound("Weapons/RepeaterFire")
-    RPZM H 2 Bright A_CustomBulletAttack(12, 4, 2, 5, "RepeaterZombiePuff")
-    RPZM E 2
-    RPZM E 0 A_Jump(220, 2)
-    RPZM E 0 A_SpidRefire
-    RPZM E 0
-    Goto Missile+11
-  SpinDown:
-    RPZM E 0 A_PlaySoundEx("Weapons/RepeaterSpinDown", "SoundSlot7", 0)
-    RPZM E 0 A_TakeInventory("RepeaterZombieFiring", 1)
-    RPZM E 0 A_TakeInventory("RepeaterZombieHeat", 20)
-    RPZM EFEFEEFF 4
-    Goto See
-  Overload:
-    RPZM E 0 A_PlaySoundEx("Weapons/RepeaterSpinDown", "SoundSlot7", 0)
-    RPZM E 0 A_PlayWeaponSound("RepeaterZombie/Steam")
-    RPZM E 0 A_TakeInventory("RepeaterZombieFiring", 1)
-    RPZM E 0 A_TakeInventory("RepeaterZombieHeat", 20)
-    RPZM EEEEEFFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
-    RPZM EEEEEEFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
-    RPZM EEEEEFFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
-    RPZM EEEEEEFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
-    RPZM EEEEEFFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
-    RPZM EEEEEEFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
-    RPZM EEEEEFFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
-    Goto See
-  Pain:
-    RPZM I 0 A_StopSoundEx("SoundSlot7")
-    RPZM I 3 
-    RPZM I 3 A_Pain 
-    Goto See 
-  Death:
-    RPZM I 4 A_StopSoundEx("SoundSlot7")
-    RPZM J 5
-    RPZM K 5 A_Scream 
-    RPZM L 5 A_Fall 
-    RPZM M 5 
-    RPZM N -1 
-    Stop
-  XDeath:
-    RPZM O 5 A_StopSoundEx("SoundSlot7")
-    RPZM P 5 A_XScream
-    RPZM Q 5
-    RPZM R 5 A_Fall
-    RPZM STUV 5
-    RPZM W -1
-    Stop
-  Raise: 
-    RPZM NMLKJI 5
-    Goto See 
-  } 
+	//$Category Z2M3_Monsters
+	Health 100
+	Radius 20
+	Height 56
+	Speed 8
+	PainChance 96
+	Monster
+	+FLOORCLIP
+	Decal MummyScorch
+	SeeSound "Grunt/Sight"
+	PainSound "Grunt/Pain"
+	DeathSound "Grunt/Death"
+	ActiveSound "Grunt/Active"
+	Obituary "$OB_ZREP"
+	//DropItem CellPack //DropItem "Repeater", 256, 20
+	States
+	{
+	Spawn:
+		RPZM A 0 A_JumpIfInventory("RepeaterZombieFiring", 1, "SpinDown")
+		RPZM A 0 A_ChangeFlag("NoPain", 1)
+		RPZM AAAAAAAAAABBBBBBBBBB 1 A_Look
+		Loop
+	See:
+		RPZM A 0 A_JumpIfInventory("RepeaterZombieFiring", 1, "SpinDown")
+		RPZM A 0 A_ChangeFlag("NoPain", 0)
+		RPZM AABBCCDD 4 A_Chase
+		Loop
+	Missile:
+		RPZM E 0 A_ChangeFlag("NoPain", 1)
+		RPZM E 0 A_GiveInventory("RepeaterZombieFiring", 1)
+		RPZM E 0 A_PlaySoundEx("Weapons/RepeaterSpinUp", "SoundSlot7", 0)
+		RPZM EEFFEFEF 4 A_FaceTarget
+		RPZM E 0 A_JumpIfInventory("RepeaterZombieHeat", 20, "Overload")
+		RPZM E 0 A_GiveInventory("RepeaterZombieHeat", 1)
+		RPZM F 0 A_PlaySound("Weapons/RepeaterFire")
+		RPZM G 2 Bright A_CustomBulletAttack(12, 4, 2, 5, "RepeaterZombiePuff")
+		RPZM F 2
+		RPZM H 0 A_PlaySound("Weapons/RepeaterFire")
+		RPZM H 2 Bright A_CustomBulletAttack(12, 4, 2, 5, "RepeaterZombiePuff")
+		RPZM E 2
+		RPZM E 0 A_Jump(220, 2)
+		RPZM E 0 A_SpidRefire
+		RPZM E 0
+		Goto Missile+11
+	SpinDown:
+		RPZM E 0 A_PlaySoundEx("Weapons/RepeaterSpinDown", "SoundSlot7", 0)
+		RPZM E 0 A_TakeInventory("RepeaterZombieFiring", 1)
+		RPZM E 0 A_TakeInventory("RepeaterZombieHeat", 20)
+		RPZM EFEFEEFF 4
+		Goto See
+	Overload:
+		RPZM E 0 A_PlaySoundEx("Weapons/RepeaterSpinDown", "SoundSlot7", 0)
+		RPZM E 0 A_PlayWeaponSound("RepeaterZombie/Steam")
+		RPZM E 0 A_TakeInventory("RepeaterZombieFiring", 1)
+		RPZM E 0 A_TakeInventory("RepeaterZombieHeat", 20)
+		RPZM EEEEEFFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
+		RPZM EEEEEEFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
+		RPZM EEEEEFFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
+		RPZM EEEEEEFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
+		RPZM EEEEEFFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
+		RPZM EEEEEEFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
+		RPZM EEEEEFFFFFF 1 A_SpawnItemEx("RepeaterZombieSteam", -5, Random(12, 14), Random(31, 33), 4, 0, (0.1)*Random(-5, 5), Random(85, 90), 128)
+		Goto See
+	Pain:
+		RPZM I 0 A_StopSoundEx("SoundSlot7")
+		RPZM I 3
+		RPZM I 3 A_Pain
+		Goto See
+	Death:
+		RPZM I 4 A_StopSoundEx("SoundSlot7")
+		RPZM J 5
+		RPZM K 5 A_Scream
+		RPZM L 5 A_Fall
+		RPZM M 5
+		RPZM N -1
+		Stop
+	XDeath:
+		RPZM O 5 A_StopSoundEx("SoundSlot7")
+		RPZM P 5 A_XScream
+		RPZM Q 5
+		RPZM R 5 A_Fall
+		RPZM STUV 5
+		RPZM W -1
+		Stop
+	Raise:
+		RPZM NMLKJI 5
+		Goto See
+	}
 }
 
 Actor RepeaterZombieFiring : Inventory { Inventory.MaxAmount 1 }
@@ -95,55 +95,56 @@ Actor RepeaterZombieHeat : Inventory { Inventory.MaxAmount 20 }
 
 Actor RepeaterZombiePuff
 {
-  Radius 3
-  Height 3
-  RenderStyle Add
-  Alpha 0.75
-  +AlwaysPuff
-  +PuffOnActors
-  +NoGravity
-  +NoBlockMap
-  +BloodlessImpact
-  -BloodSplatter
-  States
-  {
-  Spawn:
-    RPUF A 1 Bright
-    RPUF A 0 Bright A_PlaySound("Weapons/RepeaterHit")
-    RPUF A 2 Bright
-    RPUF BCDEFG 3 Bright
-    Stop
-  }
+	Radius 3
+	Height 3
+	RenderStyle Add
+	Alpha 0.75
+	+ALWAYSPUFF
+	+BLOODLESSIMPACT
+	+BRIGHT
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+PUFFONACTORS
+	-BLOODSPLATTER
+	States
+	{
+	Spawn:
+		RPUF A 1
+		RPUF A 0 A_PlaySound("Weapons/RepeaterHit")
+		RPUF A 2
+		RPUF BCDEFG 3
+		Stop
+	}
 }
 
 Actor RepeaterZombieSteam
 {
-  Height 1
-  Radius 1
-  Speed 4
-  +Missile
-  +NoGravity
-  +NoBlockMap
-  +BloodlessImpact
-  -BloodSplatter
-  RenderStyle Add
-  Scale 0.3
-  Alpha 0.65
-  States
-  {
-  Spawn:
-    STEM A 1 A_SetTranslucent(0.6, 1)
-    STEM B 2 A_SetTranslucent(0.55, 1)
-    STEM C 1 A_SetTranslucent(0.5, 1)
-    STEM D 2 A_SetTranslucent(0.45, 1)
-    STEM E 1 A_SetTranslucent(0.4, 1)
-    STEM F 2 A_SetTranslucent(0.35, 1)
-    STEM G 1 A_SetTranslucent(0.3, 1)
-    STEM H 2 A_SetTranslucent(0.25, 1)
-    STEM I 1 A_SetTranslucent(0.2, 1)
-    STEM J 2 A_SetTranslucent(0.15, 1)
-    STEM K 1 A_SetTranslucent(0.1, 1)
-    STEM L 2 A_SetTranslucent(0.05, 1)
-    Stop
-  }
+	Height 1
+	Radius 1
+	Speed 4
+	Scale 0.3
+	RenderStyle Add
+	Alpha 0.65
+	+BLOODLESSIMPACT
+	+MISSILE
+	+NOBLOCKMAP
+	+NOGRAVITY
+	-BLOODSPLATTER
+	States
+	{
+	Spawn:
+		STEM A 1 A_SetTranslucent(0.6, 1)
+		STEM B 2 A_SetTranslucent(0.55, 1)
+		STEM C 1 A_SetTranslucent(0.5, 1)
+		STEM D 2 A_SetTranslucent(0.45, 1)
+		STEM E 1 A_SetTranslucent(0.4, 1)
+		STEM F 2 A_SetTranslucent(0.35, 1)
+		STEM G 1 A_SetTranslucent(0.3, 1)
+		STEM H 2 A_SetTranslucent(0.25, 1)
+		STEM I 1 A_SetTranslucent(0.2, 1)
+		STEM J 2 A_SetTranslucent(0.15, 1)
+		STEM K 1 A_SetTranslucent(0.1, 1)
+		STEM L 2 A_SetTranslucent(0.05, 1)
+		Stop
+	}
 }

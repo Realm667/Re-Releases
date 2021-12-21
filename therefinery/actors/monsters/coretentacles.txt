@@ -1,147 +1,144 @@
 //Monster-Core Tentacles
-actor Tentacle1 667
+actor Tentacle1
 {
-//$Category Z2M3_Monsters
-  obituary "%o was snared by a tentacle"
-  health 33
-  radius 40
-  height 112
-  scale 0.75
-  mass 9999999
-  speed 0
-  painchance 96
-  seesound "monster/tensit"
-  painsound "monster/tenpai"
-  deathsound "monster/tendth"
-  activesound "monster/tenact"
-  MONSTER
-  +BOSS
-  +FLOORCLIP
-  +DONTHURTSPECIES
-  +NOTARGET
-  +MISSILEEVENMORE
-  -FULLVOLACTIVE
-  states
-  {
-  Spawn:
-    TNT1 A 10 A_Look
-    loop
-  See:
-    TEN1 ABCD 4
-    TEN1 EFGH 4 A_Chase
-    goto See+4
-  Missile:
-    TEN1 F 5 A_FaceTarget
-    goto Missile1
-  Missile1:
-    TEN1 I 8 A_FaceTarget
-    TEN1 J 9 Bright A_CustomMissile("TentacleBall1",100,0,0,0,0)
-    TEN1 I 8 A_FaceTarget
-    TEN1 J 9 Bright A_CustomMissile("TentacleBall1",100,0,0,0,0)
-    TEN1 I 8 A_FaceTarget
-    TEN1 J 9 Bright A_CustomMissile("TentacleBall1",100,0,0,0,0)
-    TEN1 I 8
-    Goto See+4
-  Pain:
-    TEN1 L 3
-    TEN1 L 3 A_Pain
-    goto See+4
-  Death:
-    TEN1 M 4
-    TEN1 N 4 A_Scream
-    TEN1 O 4 A_NoBlocking
-    TEN1 PQRS 4
-    TEN1 T -1
-    stop
-  Raise:
-    TEN1 ABCD 4
-    goto See+4
-  }
+	//$Category Z2M3_Monsters
+	health 33
+	radius 40
+	height 112
+	scale 0.75
+	mass 9999999
+	speed 0
+	painchance 96
+	seesound "monster/tensit"
+	painsound "monster/tenpai"
+	deathsound "monster/tendth"
+	activesound "monster/tenact"
+	MONSTER
+	+BOSS
+	+FLOORCLIP
+	+DONTHURTSPECIES
+	+NOTARGET
+	+MISSILEEVENMORE
+	-FULLVOLACTIVE
+	Obituary "$OB_TENT"
+	States
+	{
+	Spawn:
+		TNT1 A 10 A_Look
+		loop
+	See:
+		TEN1 ABCD 4
+		TEN1 EFGH 4 A_Chase
+		goto See+4
+	Missile:
+		TEN1 F 5 A_FaceTarget
+		goto Missile1
+	Missile1:
+		TEN1 I 8 A_FaceTarget
+		TEN1 J 9 Bright A_CustomMissile("TentacleBall1",100,0,0,0,0)
+		TEN1 I 8 A_FaceTarget
+		TEN1 J 9 Bright A_CustomMissile("TentacleBall1",100,0,0,0,0)
+		TEN1 I 8 A_FaceTarget
+		TEN1 J 9 Bright A_CustomMissile("TentacleBall1",100,0,0,0,0)
+		TEN1 I 8
+		Goto See+4
+	Pain:
+		TEN1 L 3
+		TEN1 L 3 A_Pain
+		goto See+4
+	Death:
+		TEN1 M 4
+		TEN1 N 4 A_Scream
+		TEN1 O 4 A_NoBlocking
+		TEN1 PQRS 4
+		TEN1 T -1
+		stop
+	Raise:
+		TEN1 ABCD 4
+		goto See+4
+	}
 }
 
-actor Tentacle2 : Tentacle1 668
+actor Tentacle2 : Tentacle1
 {
-//$Category Z2M3_Monsters
-  +SPAWNCEILING
-  +NOGRAVITY
-  +DONTFALL
-  states
-  {
-  Spawn:
-    TNT1 A 10 A_Look
-    loop
-  See:
-    TEN2 ABCD 4
-    TEN2 EFGH 4 A_Chase
-    goto See+4
-  Missile:
-    TEN2 F 5 A_FaceTarget
-    goto Missile1
-  Missile1:
-    TEN2 I 8 A_FaceTarget
-    TEN2 J 9 Bright A_CustomMissile("TentacleBall1",4,0,0,0,0)
-    TEN2 I 8 A_FaceTarget
-    TEN2 J 9 Bright A_CustomMissile("TentacleBall1",4,0,0,0,0)
-    TEN2 I 8 A_FaceTarget
-    TEN2 J 9 Bright A_CustomMissile("TentacleBall1",4,0,0,0,0)
-    TEN2 I 8
-    Goto See+4
-  Pain:
-    TEN2 L 3
-    TEN2 L 3 A_Pain
-    goto See+4
-  Death:
-    TEN2 M 4
-    TEN2 N 4 A_Scream
-    TEN2 O 4 A_NoBlocking
-    TEN2 PQRS 4
-    TEN2 T -1
-    stop
-  Raise:
-    TEN2 ABCD 4
-    goto See+4
-  }
+	//$Category Z2M3_Monsters
+	+SPAWNCEILING
+	+NOGRAVITY
+	+DONTFALL
+	Atates
+	{
+	Spawn:
+		TNT1 A 10 A_Look
+		loop
+	See:
+		TEN2 ABCD 4
+		TEN2 EFGH 4 A_Chase
+		goto See+4
+	Missile:
+		TEN2 F 5 A_FaceTarget
+		goto Missile1
+	Missile1:
+		TEN2 I 8 A_FaceTarget
+		TEN2 J 9 Bright A_CustomMissile("TentacleBall1",4,0,0,0,0)
+		TEN2 I 8 A_FaceTarget
+		TEN2 J 9 Bright A_CustomMissile("TentacleBall1",4,0,0,0,0)
+		TEN2 I 8 A_FaceTarget
+		TEN2 J 9 Bright A_CustomMissile("TentacleBall1",4,0,0,0,0)
+		TEN2 I 8
+		Goto See+4
+	Pain:
+		TEN2 L 3
+		TEN2 L 3 A_Pain
+		goto See+4
+	Death:
+		TEN2 M 4
+		TEN2 N 4 A_Scream
+		TEN2 O 4 A_NoBlocking
+		TEN2 PQRS 4
+		TEN2 T -1
+		stop
+	Raise:
+		TEN2 ABCD 4
+		goto See+4
+	}
 }
 
 actor TentacleBall1
 {
-  radius 4
-  height 4
-  speed 25
-  damage 4
-  renderstyle Add
-  alpha 0.75
-  seesound "monster/tenatk"
-  deathsound "weapons/plasmax"
-  PROJECTILE
-  +RANDOMIZE
-  states
-  {
-  Spawn:
-    TNFX ABCD 3 bright
-    loop
-  Death:
-    TNFX EFGHIJK 4 bright
-    stop
-  }
+	radius 4
+	height 4
+	speed 25
+	damage 4
+	renderstyle Add
+	alpha 0.75
+	seesound "monster/tenatk"
+	deathsound "weapons/plasmax"
+	PROJECTILE
+	+RANDOMIZE
+	+BRIGHT
+	States
+	{
+	Spawn:
+		TNFX ABCD 3
+		loop
+	Death:
+		TNFX EFGHIJK 4
+		stop
+	}
 }
 
 actor TentacleBall2 : TentacleBall1
 {
-  speed 10
-  damage 4
-  seesound "imp/attack"
-  deathsound "imp/shotx"
-  PROJECTILE
-  +RANDOMIZE
-  states
-  {
-  Spawn:
-    TNFX LM 3 bright
-    loop
-  Death:
-    TNFX NOP 4 bright
-    stop
-  }
+	speed 10
+	seesound "imp/attack"
+	deathsound "imp/shotx"
+	states
+	{
+	Spawn:
+		TNFX LM 3
+		loop
+	Death:
+		TNFX NOP 4
+		stop
+	}
 }
-//End of Tentacles

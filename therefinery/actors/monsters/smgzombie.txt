@@ -1,32 +1,32 @@
-ACTOR SMGGuy : ShotgunGuy 10445
+ACTOR SMGGuy : ShotgunGuy
 {
-//$Category Z2M3_Monsters
-  spawnid 4
-  obituary "%o was shredded by SMG zombie."
-  health 60
-  dropitem "Clip" 256
-  dropItem "Clip" 256
-  Translation "112:127=[146,67,51]:[7,0,0]"
-  	AttackSound "weapons/smg"
-  states
-  {
-  Spawn:
-    PDWP AB 10 A_Look
-    loop
-  See:
-       PDWP AABBCCDD 4 A_Chase
-       Loop
-  Missile:
-    PDWP E 10 A_FaceTarget
-    PDWP F 2 bright A_CustomBulletAttack(10,10,1,1,"BulletPuff")
-    PDWP E 2 A_CPosRefire
-    goto Missile+1
-  Pain:
-    PDWP G 3
-    PDWP G 3 A_Pain
-    goto See
+	//$Category Z2M3_Monsters
+	spawnid 4
+	health 60
+	dropitem "Clip" 256
+	dropItem "Clip" 256
+	Translation "112:127=[146,67,51]:[7,0,0]"
+	AttackSound "weapons/smg"
+	obituary "$OB_SMGG"
+	states
+	{
+	Spawn:
+		PDWP AB 10 A_Look
+		loop
+	See:
+		PDWP AABBCCDD 4 A_Chase
+		Loop
+	Missile:
+		PDWP E 10 A_FaceTarget
+		PDWP F 2 bright A_CustomBulletAttack(10,10,1,1,"BulletPuff")
+		PDWP E 2 A_CPosRefire
+		goto Missile+1
+	Pain:
+		PDWP G 3
+		PDWP G 3 A_Pain
+		goto See
 	Death:
-		PDWP H 5 
+		PDWP H 5
 		PDWP I 5 A_Scream
 		PDWP J 5 A_NoBlocking
 		PDWP KLM 5
@@ -39,8 +39,8 @@ ACTOR SMGGuy : ShotgunGuy 10445
 		PDWP RSTUV 5
 		PDWP W -1
 		Stop
-  Raise:
-    PDWP NMLKJIH 5
-    goto See
-  }
+	Raise:
+		PDWP NMLKJIH 5
+		goto See
+	}
 }

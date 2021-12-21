@@ -26,7 +26,7 @@ Actor BlotSmoke
 	}
 }
 
-Actor Blot 20501
+Actor Blot //reworked
 {
 	//$Title Blot
 	//$Category Monsters
@@ -45,6 +45,7 @@ Actor Blot 20501
 	MONSTER
 	-SOLID
 	-CANPASS
+	-CASTSPRITESHADOW
 	+STANDSTILL
 	+MISSILEMORE
 	+MISSILEEVENMORE
@@ -114,131 +115,3 @@ Actor BlotDamage
 		Stop
 	}
 }
-
-/* Old Blot Decorate
-Actor BlotSmoke
-{
-	Radius 2
-	Height 2
-	+NOINTERACTION
-	RenderStyle Translucent
-	States
-	{
-	Spawn:
-	TNT1 A 0
-	TNT1 A 0 A_Jump (256, "Blot1", "Blot2", "Blot3", "Blot4")
-	Blot1:
-	BLOT A 2
-	BLOT B 2 A_SetTranslucent (0.4, 0)
-	BLOT C 2 A_SetTranslucent (0.3, 0)
-	BLOT D 2 A_SetTranslucent (0.2, 0)
-	BLOT E 2 A_SetTranslucent (0.1, 0)
-	stop
-	Blot2:
-	BLOT F 2
-	BLOT G 2 A_SetTranslucent (0.4, 0)
-	BLOT H 2 A_SetTranslucent (0.3, 0)
-	BLOT I 2 A_SetTranslucent (0.2, 0)
-	BLOT J 2 A_SetTranslucent (0.1, 0)
-	stop
-	Blot3:
-	BLOT K 2
-	BLOT L 2 A_SetTranslucent (0.4, 0)
-	BLOT M 2 A_SetTranslucent (0.3, 0)
-	BLOT N 2 A_SetTranslucent (0.2, 0)
-	BLOT O 2 A_SetTranslucent (0.1, 0)
-	stop
-	Blot4:
-	BLOT P 2
-	BLOT Q 2 A_SetTranslucent (0.4, 0)
-	BLOT R 2 A_SetTranslucent (0.3, 0)
-	BLOT S 2 A_SetTranslucent (0.2, 0)
-	BLOT T 2 A_SetTranslucent (0.1, 0)
-	stop
-  }
-}
-
-actor Blot 20501
-{
-	//$Category Z2M3_Monsters
-	obituary "%o was engulfed by a blot."
-	health 20
-	radius 24
-	height 24
-	mass 50
-	speed 0
-	seesound "Blot/Sight"
-	deathsound "Blot/Death"
-	damagefactor "blot", 0
-	BloodType None
-	MONSTER
-	+STANDSTILL
-	+MISSILEMORE
-	+MISSILEEVENMORE
-	+DONTHURTSPECIES
-	+NODAMAGETHRUST
-	+BLOODLESSIMPACT
-	+LOWGRAVITY
-	//+GHOST   < In Heretic or Hexen, this would fit rather well.
-	states
-	{
-	Spawn:
-	TNT1 A 10 A_Look
-	loop
-	See:
-	EYES A 1 bright A_Chase
-	EYES AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-1, 1), random (-1, 1), 0, 160)
-	loop
-	Missile:
-	EYES A 1 bright A_FaceTarget
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-1, 1), random (-1, 1), 0, 160)
-	EYES A 1 bright ThrustThingZ (0, 12, 0, 0)
-	TNT1 A 0 ThrustThing(angle*256/360, 8, 0, 0)
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-1, 1), random (-1, 1), 0, 160)
-	MidLeap:
-	EYES A 1 bright A_SpawnItem ("BlotDamage")
-	TNT1 A 0 A_CheckFloor ("Land")
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-1, 1), random (-1, 1), 0, 160)
-	loop
-	Land:
-	EYES A 1 bright A_Stop
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-1, 1), random (-1, 1), 0, 160)
-	goto Missile
-	Death:
-	TNT1 A 1 A_Stop
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-2, 2), random (-2, 2), 0, 160)
-	TNT1 A 1 A_ScreamAndUnblock
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-3, 3), random (-3, 3), 0, 160)
-	TNT1 A 1 A_Stop
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-4, 4), random (-4, 4), 0, 160)
-	TNT1 A 1 A_Stop
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-5, 5), random (-5, 5), 0, 160)
-	TNT1 A 1 A_Stop
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-6, 6), random (-6, 6), 0, 160)
-	TNT1 A 1 A_Stop
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-7, 7), random (-7, 7), 0, 160)
-	TNT1 A 1 A_Stop
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-8, 8), random (-8, 8), 0, 160)
-	TNT1 A 1 A_Stop
-	TNT1 AAAAA 0 A_SpawnItemEx ("BlotSmoke", -2, random (0, -8), random (-4, 4), 0, random (-9, 9), random (-9, 9), 0, 160)
-	stop
-	}
-}
-
-actor BlotDamage
-{
-	Radius 2
-	Height 2
-	Speed 0
-	damagetype "blot"
-	Projectile
-	+NODAMAGETHRUST
-	+BLOODLESSIMPACT
-	States
-	{
-	Spawn:
-		TNT1 A 1
-		TNT1 A 1 A_Explode (5, 40, 0)
-		stop
-	}
-}*/

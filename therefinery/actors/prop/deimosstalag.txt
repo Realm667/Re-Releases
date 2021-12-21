@@ -1,46 +1,39 @@
-actor CaveStalagmiteFloor 30357
+actor CaveStalagmiteFloor
 {
-//$Category Decoration
-Radius 24
-Height 52
-+SOLID
-States
-{
-Spawn:
-CAV3 A -1
-Loop
-}
-}
-
-
-actor CaveStalagmiteCeiling1 30358
-{
-//$Category Decoration
-Radius 24
-Height 52
-+SOLID
-+SPAWNCEILING 
-+NOGRAVITY 
-States
-{
-Spawn:
-CAV2 A -1
-Loop
-}
+	//$Category Decoration
+	Radius 24
+	Height 52
+	+SOLID
+	States
+	{
+	Spawn:
+		CAV3 A -1
+		Loop
+	}
 }
 
-actor CaveStalagmiteCeiling2 30359
+actor CaveStalagmiteCeiling1
 {
-//$Category Decoration
-Radius 24
-Height 52
-+SOLID
-+SPAWNCEILING 
-+NOGRAVITY 
-States
-{
-Spawn:
-CAV1 A -1
-Loop
+	//$Category Decoration
+	Radius 24
+	Height 52
+	+SOLID
+	+SPAWNCEILING
+	+NOGRAVITY
+	States
+	{
+	Spawn:
+		CAV2 A -1
+		Loop
+	}
 }
+
+actor CaveStalagmiteCeiling2 : CaveStalagmiteCeiling1
+{
+	States
+	{
+	Spawn:
+		CAV1 A -1
+		Loop
+	}
 }

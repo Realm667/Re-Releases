@@ -1,7 +1,7 @@
 //Shadow
-ACTOR Shadow 3126
+ACTOR Shadow
 {
-//$Category Z2M3_Monsters
+	//$Category Z2M3_Monsters
 	Health 80
 	Radius 20
 	Height 56
@@ -12,10 +12,11 @@ ACTOR Shadow 3126
 	PainChance 200
 	Monster
 	+FLOORCLIP
+	-CASTSPRITESHADOW
 	PainSound "Shadow/pain"
 	DeathSound "Shadow/death"
 	ActiveSound "Shadow/active"
-	Obituary "%o was assassinated by a shadow."
+	Obituary "$OB_SHAD"
 	MissileType ShadowBall
 	States
 	{
@@ -46,7 +47,7 @@ ACTOR Shadow 3126
 		SHDW F 5 A_FaceTarget
 		SHDW EEEEEEEEEE 2 A_FaceTarget
 		SHDW E 1 A_SpidRefire
-		Goto Missile+15     
+		Goto Missile+15
 	Pain:
 		SHDW H 4
 		SHDW H 4 A_Pain
@@ -56,16 +57,16 @@ ACTOR Shadow 3126
 		SHDW J 5
 		SHDW K 5 A_SpawnItemEx("Shadowtorso", 0, 0, 0, 1, 0, 0, 0, 128)
 		SHDW L 5 A_Fall
-		SHDW MNO 6 
+		SHDW MNO 6
 		SHDW P -1
 		Stop
 	XDeath:
 		SHDX A 8
 		SHDX B 6 A_XScream
-		SHDX C 6 
+		SHDX C 6
 		SHDX D 6 A_Fall
- 		SHDX E 6
- 		SHDX F 6
+		SHDX E 6
+		SHDX F 6
 		SHDX G -1
 		Stop
 	Raise:
@@ -82,6 +83,7 @@ ACTOR ShadowBall
 	Speed 12
 	Damage 4
 	Projectile
+	+BRIGHT
 	+RANDOMIZE
 	RenderStyle "ADD"
 	Alpha 0.75
@@ -90,12 +92,12 @@ ACTOR ShadowBall
 	Decal DoomImpScorch
 	States
 	{
-	Spawn: 
-		SBAL ABC 4 BRIGHT A_SpawnItemEx("ShadowTrail", 0, 0, 0, 0, 0, 0, 0, 128)
+	Spawn:
+		SBAL ABC 4 A_SpawnItemEx("ShadowTrail", 0, 0, 0, 0, 0, 0, 0, 128)
 		Loop
 	Death:
-		SBAL C 5 Bright
-		SBAL DEFGH 4 BRIGHT
+		SBAL C 5
+		SBAL DEFGH 4
 		Stop
 	}
 }
@@ -148,40 +150,40 @@ ACTOR ShadowGhostD : ShadowGhostA
 	}
 }
 
-ACTOR Shadowtorso
+ACTOR ShadowTorso
 {
 	Radius 12
 	Height 15
 	Speed 1
 	Mass 5000
 	RenderStyle "Translucent"
-	alpha 0.7
-	+Doombounce
-      States
+	Alpha 0.7
+	+DOOMBOUNCE
+	States
 	{
 	Spawn:
-         SHDW QRS 5
-         SHDW T 5 A_Fall
-         SHDW U 5
-         SHDW V -1
-         Stop
+		SHDW QRS 5
+		SHDW T 5 A_Fall
+		SHDW U 5
+		SHDW V -1
+		Stop
 	}
 }
 
 actor ShadowTrail
 {
-    Radius 1
-    Height 1
-    Speed 0
-    PROJECTILE
-    RENDERSTYLE ADD
-    ALPHA 0.6
-    +NOCLIP
-    States
-    {
-    Spawn:
-     SHTR ABCDEF 4 Bright
-        Stop       
-    }
+	Radius 1
+	Height 1
+	Speed 0
+	PROJECTILE
+	RENDERSTYLE ADD
+	ALPHA 0.6
+	+BRIGHT
+	+NOCLIP
+	States
+	{
+	Spawn:
+		SHTR ABCDEF 4
+		Stop
+	}
 }
-
