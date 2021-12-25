@@ -1,0 +1,39 @@
+ACTOR UACBattleRifle : Weapon
+{
+	 Inventory.PickupMessage "Picked up the UAC Standard Battle Rifle."
+	 Obituary "%o was anihilated by %k's BattleRifle."
+	 Weapon.SelectionOrder 1900
+	 Weapon.AmmoUse 1
+	 Weapon.SlotNumber 4
+	 Weapon.AmmoGive 30
+	 Weapon.AmmoType1 "Clip"
+	 Decal "BulletChip"
+	 AttackSound "weapons/UACBR"
+	 States
+	 {
+	 Spawn:
+		UACR C -1
+		Loop
+	 Ready:
+		UACR A 1 A_WeaponReady
+		Loop
+	 Select:
+		UACR A 1 A_Raise
+		Loop
+	 Deselect:
+		UACR A 1 A_Lower
+		Loop
+	 Fire:
+        UACR A 0 A_GunFlash
+		UACR A 0
+		UACR B 2 A_FireBullets(3, 2, 1, 8, "BulletPuff")
+		UACR B 2
+		UACR A 3
+		UACR A 3 A_ReFire
+        Goto Ready
+     Flash:
+        UACR D 1 Bright A_Light0
+        UACR E 1 Bright A_Light1
+        Goto LightDone
+     }
+}
