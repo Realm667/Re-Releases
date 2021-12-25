@@ -1,0 +1,175 @@
+Class ZombieFodder : Actor
+{
+  Default
+  {
+    Health 15;
+    GibHealth 20;
+    Radius 20;
+    Height 56;
+    Speed 7;
+    PainChance 256;
+    SeeSound "ZombieFodder/sight";
+    PainSound "ZombieFodder/pain";
+    DeathSound "ZombieFodder/death";
+    ActiveSound "ZombieFodder/active";
+    Obituary "%o joins the zombies.";
+    Monster;
+    +FLOORCLIP
+  }
+
+  States
+  {
+  Spawn:
+    ZFOD AB 10 A_Look();
+    Loop;
+  See:
+    ZFOD AABBCCDD 4 A_Chase();
+    Loop;
+  Melee:
+    ZFOD EF 10 A_FaceTarget();
+    ZFOD G 8 A_CustomMeleeAttack(random(2,16)*1,"ZombieFodder/Melee");
+    Goto See;
+  Pain:
+    ZFOD H 4;
+    ZFOD H 4 A_Pain();
+    Goto See;
+  Death:
+    ZFOD I 7;
+    ZFOD J 7 A_Scream();
+    ZFOD K 5 A_NoBlocking();
+    ZFOD L 5;
+    ZFOD M -1;
+    Stop;
+  XDeath:
+    ZFOD N 5;
+    ZFOD O 5 A_XScream();
+    ZFOD P 5 A_NoBlocking();
+    ZFOD QR 5;
+    ZFOD S -1;
+    Stop;
+  Raise:
+    ZFOD L 5;
+    ZFOD KJI 5;
+    Goto See;
+  }
+}
+
+Class QuakeFodder : ZombieFodder
+{
+  Default
+  {
+    Health 60;
+    GibHealth 16;
+    Obituary "%o joins the zombies.";
+  }
+
+  States
+  {
+  Missile:
+    ZFOD EF 10 A_FaceTarget();
+    ZFOD G 8 A_SpawnProjectile("ZombFlesh",32,0,0,0,30);
+    Goto See;
+  Death:
+    ZFOD I 0 A_UnsetSolid();
+    ZFOD I 0 A_UnsetShootable();
+    ZFOD I 7;
+    ZFOD J 7 A_Scream();
+    ZFOD K 5;
+    ZFOD L 5;
+    ZFOD M 500 { bLookAllAround=true; }
+    ZFOD L 5 A_XScream();
+    ZFOD K 5;
+    ZFOD J 5;
+    ZFOD I 5;
+    ZFOD I 0
+    {
+      A_SetSolid();
+      A_SetShootable();
+      A_SpawnItemEx("QuakeFodder", 0,0,0, 0,0,0, 0, SXF_TRANSFERPOINTERS | SXF_NOCHECKPOSITION);
+    }
+    Stop;
+  XDeath:
+    ZFOD N 5;
+    ZFOD O 5 A_XScream();
+    ZFOD P 5 A_NoBlocking();
+    ZFOD Q 5;
+    ZFOD R 0 A_Playsound("ZombieFodder/Soul");
+    ZFOD R 5 A_SpawnItemEx("FodderSoul", 0,0,10, 0,0,1);
+    ZFOD S -1;
+    Stop;
+  Raise:
+    Stop;
+  }
+}
+
+Class ZombFlesh : Actor
+{
+  Default
+  {
+    Radius 4;
+    Height 9;
+    Health 40;
+    Damage (10);
+    Speed 35;
+    Gravity 0.5;
+    Mass 0;
+    ReactionTime 120;
+    Seesound "ZFlesh/Throw";
+    PROJECTILE;
+    +CANBOUNCEWATER
+    -NOGRAVITY
+    +NOBLOCKMAP
+    +MISSILE
+  }
+
+  States
+  {
+  Spawn:
+    ZGIB A 1 A_SpawnItemEx("ZombFleshTrail", 0,0,0, 0,0,0, 0, 0);
+    Loop;
+  Death:
+    TNT1 B 1 A_PlaySound ("ZFlesh/miss");
+    Stop;
+  XDeath:
+    TNT1 B 1 A_PlaySound ("ZFlesh/hit");
+    Stop;
+  }
+}
+
+Class ZombFleshTrail : Actor
+{
+  Default
+  {
+    Health 3;
+    Scale 0.8;
+    RenderStyle "Translucent";
+    Alpha 0.8;
+    +NOBLOCKMAP
+    +NOTELEPORT
+    +NOGRAVITY
+  }
+
+  States
+  {
+  Spawn:
+    BL0D ABCD 3;
+    Stop;
+  }
+}
+
+Class FodderSoul : Actor
+{
+  Default
+  {
+    +NOBLOCKMAP
+    +NOGRAVITY
+  }
+
+  States
+  {
+  Spawn:
+    ZFSL ABC 5;
+    ZFSL DEFG 9;
+    Stop;
+  }
+}

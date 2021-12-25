@@ -339,16 +339,21 @@ monster/tenpn2                  dstenpn2
 monster/tenpn3                  dstenpn3
 monster/tendth                  dstendth
 
-//DEDABUS
-Daedabus/Sight		DAEDSIGH
-$Random Daedabus/Active	{ DAEDACT1 DAEDACT2 }
-DAEDACT1		DAEDACT1
-DAEDACT2		DAEDACT2
-Daedabus/Attack		DAEDATTK
-$Random Daedabus/pain	{ DAEDPAI1 DAEDPAI2 }
-DAEDPAI1		DAEDPAI1
-DAEDPAI2		DAEDPAI2
-Daedabus/Death 		DAEDDEAT
+//HECTEBUS
+Hectebus/Sight		DSHECSIT
+Hectebus/Pain		DSHCPAIN
+Hectebus/Death		DSHECDTH
+Hectebus/Active		DSHECACT
+$Random hectebus/attack	{ HectAtk1 HectAtk2 }
+HectAtk1		DSHECATK
+HectAtk2		DSHCATK2
+$Random hectebus/step { HectStp1 HectStp2 HectStp3 HectStp4 HectStp5 }
+HectStp1		DSHECST1
+HectStp2		DSHECST2
+HectStp3		DSHECST3
+HectStp4		DSHECST4
+HectStp5		DSHECST5
+
 
 //ARACNORB QUEEN
 queen/sight quesit
@@ -380,13 +385,6 @@ monster/nshpai                  dsnshpai
 monster/nshdth                  dsnshdth
 monster/nshatk                  dsnshatk
 monster/nshexp                  dsnshexp
-
-//PUSTULE
-Blob/Explode	DSBLBEXP
-Blob/Sight	DSBLBSEE
-Blob/Active	DSBLBACT
-Blob/Pain	DSBLBPAN
-$limit Blob/Pain	0
 
 //QUADSHOTGUNGUY
 $Random QuadShotgunZombie/SingleFire { QSGZFIR1 QSGZFIR2 }
@@ -513,3 +511,32 @@ $Volume Trite/Pain 0.5
 $Volume Trite/Death 0.5
 $Volume Trite/Splat 0.5
 $Volume Trite/Step 0.2
+
+//FLESH SPAWN
+flesh/sight		flspnsit
+flesh/melee		flspnatk
+flesh/pain		flspnhit
+flesh/death		flspndth
+flesh/active		flspnact
+
+//ZOMBIE FODDER
+$random ZombieFodder/Sight { FODDERSEE1 FODDERSEE2 }
+FODDERSEE1	FODDSEE1
+FODDERSEE2	FODDSEE2
+
+$random ZombieFodder/Active { FODDERACT1 FODDERACT2 }
+FODDERACT1	FODDACT1
+FODDERACT2	FODDACT2
+
+ZombieFodder/Pain	FODDPAIN
+
+$random ZombieFodder/Death { FODDERDIE1 FODDERDIE2 }
+FODDERDIE1	FODDDIE1
+FODDERDIE2	FODDDIE2
+
+ZombieFodder/Melee DSCLAW
+ZombieFodder/Soul	FODDSOUL
+
+ZFlesh/Throw	FODDATK
+ZFlesh/Miss		FODDMISS
+ZFlesh/Hit		FODDHIT
