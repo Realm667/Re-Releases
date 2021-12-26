@@ -87,14 +87,16 @@ ACTOR Swarm_CastCall : Swarm
 	{
 	Spawn:
 		SBOD D -1
+	See:
+		SBOD D 4
 	Melee:
-		"####" A 4 A_CustomMeleeAttack (3, "SwarmFlyAttack", "SwarmFlyAttack", Normal, 1)
+		SBOD D 4 A_CustomMeleeAttack (3, "SwarmFlyAttack", "SwarmFlyAttack", Normal, 1)
 		goto SeeGibbed
 	Death:
-		"####" A 0
-		"####" A 0 A_Fall
-		"####" A 0 A_Scream
-		"####" A 35
+		SBOD D 0
+		SBOD D 0 A_Fall
+		SBOD D 0 A_Scream
+		SBOD D 35
 		Stop
 	}
 }

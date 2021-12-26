@@ -270,3 +270,64 @@ Class Fleshspawngib6 : Fleshspawngib1
     stop;
   }
 }
+
+/////////////////////////////
+
+Class Fleshspawn_CastCall : Actor
+{
+  Default
+  {
+    Obituary "%o was burned by a FleshSpawn." ;
+    HitObituary "%o was devoured by a FleshSpawn.";
+    health 50;
+    radius 14;
+    height 30;
+    mass 80;
+    speed 10;
+    damage 2;
+    painchance 224;
+    bloodcolor "blue";
+    attacksound "flesh/melee";
+    seesound "flesh/sight";
+    painsound "flesh/pain";
+    deathsound "flesh/death";
+    activesound "flesh/active";
+    MONSTER;
+    +FLOAT
+    +NOGRAVITY
+    +DONTHARMCLASS
+    +NOINFIGHTING
+    +NOTARGET
+  }
+
+  States
+  {
+  Spawn:
+    FLSP AB 8 A_Look();
+    loop;
+  See:
+    FLSP AABB 2 A_Chase();
+    loop;
+  Missile:
+    FLSP G 6 A_FaceTarget();
+    FLSP H 6 Bright A_SpawnProjectile("Fleshspawnball", 12, 0, 0);
+    goto See;
+  Charge:
+    FLSP C 8 A_FaceTarget();
+    FLSP D 4 A_FaceTarget();
+    FLSP E 4 A_SkullAttack();
+	FLSP FEFE 4;
+  Pain:
+    FLSP I 3;
+    FLSP I 3 A_Pain();
+    Goto See;
+  Death:
+    FLSP I 5;
+    FLSP J 5 A_Scream();
+    FLSP K 5;
+    FLSP L 5 A_NoBlocking();
+    FLSP MN 5 A_SetFloorClip();
+    FLSP O -1;
+    Stop;
+  }
+}

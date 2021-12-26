@@ -85,3 +85,61 @@ Actor QuadShotgunZombie
 }
 
 Actor QuadShotgunZombieCounter : Inventory { Inventory.MaxAmount 4 }
+
+Actor QuadShotgunZombie_CastCall
+{
+	//$Category Z2M3_Monsters
+	Health 100
+	Radius 20
+	Height 56
+	Mass 100
+	Speed 8
+	PainChance 60
+	Monster
+	+FLOORCLIP
+	SeeSound "ShotGuy/Sight"
+	PainSound "ShotGuy/Pain"
+	DeathSound "ShotGuy/Death"
+	ActiveSound "ShotGuy/Active"
+	Obituary "$OB_QSZO"
+	DropItem Shell
+	Tag "Quadshotgun Guy"
+	States
+	{
+	Spawn:
+		QSZM AAAAAAAAAABBBBBBBBBB 1 A_Look
+		Loop
+	See:
+		QSZM AABBCCDD 3 A_Chase
+		Loop
+	Missile:
+		QSZM EEE 5 A_FaceTarget
+		QSZM F 0 Bright A_PlayWeaponSound("QuadShotgunZombie/QuadFire")
+		QSZM F 0 Bright A_GiveInventory("QuadShotgunZombieCounter", 4)
+		QSZM F 4 Bright A_CustomBulletAttack(11, 11, 20, 3, "Bulletpuff")
+		QSZM EE 6 A_FaceTarget
+		Goto See
+	Pain:
+		QSZM G 3
+		QSZM G 3 A_Pain
+		Goto See
+	Death:
+		QSZM H 6
+		QSZM I 6 A_Scream
+		QSZM J 6 A_NoBlocking
+		QSZM K 6
+		QSZM L -1
+		Stop
+	XDeath:
+		QSZM M 5
+		QSZM N 5 A_XScream
+		QSZM O 5 A_NoBlocking
+		QSZM PQRST 5
+		QSZM U -1
+		Stop
+	Raise:
+		QSZM L 5
+		QSZM KJIH 5
+		Goto See
+	}
+}
