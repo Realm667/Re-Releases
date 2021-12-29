@@ -25,3 +25,9 @@ ACTOR InfiniteAmmo : PowerupGiver
 // [XA] Armor units, for the VR scene.
 ACTOR GreenArmorUnit : GreenArmor {	Armor.SaveAmount 1 }
 ACTOR BlueArmorUnit  : BlueArmor  {	Armor.SaveAmount 1 }
+
+ACTOR isIntro : Inventory //needed to prevent Motion Blur working over cutscenes if we move mouse, give it to players at start and remove it at level start
+{
+	Inventory.Amount 1
+	Inventory.MaxAmount 1
+}
