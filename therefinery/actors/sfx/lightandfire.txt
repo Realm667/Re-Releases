@@ -4,387 +4,266 @@
 
 Actor BaseLensFlare
 {
-  +NOINTERACTION
-  +NOGRAVITY
-  //+FORCEXYBILLBOARD
-  renderstyle Add
-  radius 1
-  height 1
-  scale 0.9
+	+NOINTERACTION
+	+NOGRAVITY
+	//+FORCEXYBILLBOARD
+	renderstyle Add
+	radius 1
+	height 1
+	scale 0.9
 }
 
 ACTOR LampBase
 {
-   Game Doom
-    Radius 16
-    Mass 0x7FFFFFFF
-      +SOLID
-      -SHOOTABLE
-      +FLOORCLIP
-      +DONTSPLASH
-      +MOVEWITHSECTOR
+	Game Doom
+	Radius 16
+	Mass 0x7FFFFFFF
+	+SOLID
+	-SHOOTABLE
+	+FLOORCLIP
+	+DONTSPLASH
+	+MOVEWITHSECTOR
 }
 
+//following code has been kept in case it is used on some map script - ozy81
 ACTOR AR_BlueFlareTech : BaseLensflare
 {
-   scale 0.25
-   alpha 0.35
-   States
-   {
-   Spawn:
+	scale 0.25
+	alpha 0.35
+	States
+	{
+	Spawn:
 	TNT1 A 0
-    FLR5 A 2 BRIGHT
-    Stop
-   }
+	FLR5 A 2 BRIGHT
+	Stop
+	}
 }
 
 ACTOR AR_BlueFlareTech2 : BaseLensflare
 {
-   scale 0.35
-   alpha 0.35
-   States
-   {
-   Spawn:
+	scale 0.35
+	alpha 0.35
+	States
+	{
+	Spawn:
 	TNT1 A 0
-    FLR5 A 2 BRIGHT
-    Stop
-   }
+	FLR5 A 2 BRIGHT
+	Stop
+	}
 }
 
 ACTOR AR_BlueFlareSmall : BaseLensflare
 {
-   scale 0.15
-   States
-   {
-   Spawn:
+	scale 0.15
+	States
+	{
+	Spawn:
 	TNT1 A 0
-    FRLN C 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
-    FRLN C 1 BRIGHT A_CustomMissile("AR_BlueFlame",0,0,random(0,360), 2, random(85,95))
-    Stop
-   }
+	FRLN C 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
+	FRLN C 1 BRIGHT A_CustomMissile("AR_BlueFlame",0,0,random(0,360), 2, random(85,95))
+	Stop
+	}
 }
 
 ACTOR AR_GreenFlareSmall : BaseLensflare
 {
-   scale 0.15
-   States
-   {
-   Spawn:
+	scale 0.15
+	States
+	{
+	Spawn:
 	TNT1 A 0
-    FRLN B 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
-    FRLN B 1 BRIGHT A_CustomMissile("AR_GreenFlame",0,0,random(0,360), 2, random(85,95))
-    Stop
-   }
+	FRLN B 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
+	FRLN B 1 BRIGHT A_CustomMissile("AR_GreenFlame",0,0,random(0,360), 2, random(85,95))
+	Stop
+	}
 }
 
 ACTOR AR_RedFlareSmall : BaseLensflare
 {
-   scale 0.15
-   States
-   {
-   Spawn:
+	scale 0.15
+	States
+	{
+	Spawn:
 	TNT1 A 0
-    FRLN A 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
-    FRLN A 1 BRIGHT A_CustomMissile("AR_RedFlame",0,0,random(0,360), 2, random(85,95))
-    Stop
-   }
+	FRLN A 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
+	FRLN A 1 BRIGHT A_CustomMissile("AR_RedFlame",0,0,random(0,360), 2, random(85,95))
+	Stop
+	}
 }
 
 ACTOR AR_RedFlare : BaseLensflare
 {
-   scale 0.25
-   States
-   {
-   Spawn:
+	scale 0.25
+	States
+	{
+	Spawn:
 	TNT1 A 0
-    FRLN A 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
-    FRLN A 1 BRIGHT A_CustomMissile("AR_RedFlame",0,0,random(0,360), 2, random(85,95))
-    Stop
-   }
+	FRLN A 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
+	FRLN A 1 BRIGHT A_CustomMissile("AR_RedFlame",0,0,random(0,360), 2, random(85,95))
+	Stop
+	}
 }
 
 actor AR_RedFlame
 {
-  health 2
-  radius 1
-  height 1
-  +DOOMBOUNCE
-  -NOGRAVITY
-  +LOWGRAVITY
-  +NOBLOCKMAP
-  +RANDOMIZE
-  speed 3
-  RenderStyle Add
-//  alpha 0.50
-  scale 0.25
-  states
-  {
-  Spawn:
-    TNT1 A 0
-	TNT1 A 0 A_Jump(127, "Left")
-	TNT1 A 0 A_SetScale (frandom(0.15,0.25))
-    FIR1 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
-    Goto Death
-  Left:
-    TNT1 A 0
-	TNT1 A 0 A_SetScale (frandom(0.15,0.25))
-    FIR2 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
-    Goto Death	
-  Death:
-    TNT1 A 0
-    stop
-  }
+	health 2
+	radius 1
+	height 1
+	+DOOMBOUNCE
+	-NOGRAVITY
+	+LOWGRAVITY
+	+NOBLOCKMAP
+	+RANDOMIZE
+	speed 3
+	RenderStyle Add
+	//alpha 0.50
+	scale 0.25
+	states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Jump(127, "Left")
+		TNT1 A 0 A_SetScale (frandom(0.15,0.25))
+		FIR1 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
+		Goto Death
+	Left:
+		TNT1 A 0
+		TNT1 A 0 A_SetScale (frandom(0.15,0.25))
+		FIR2 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
+		Goto Death	
+	Death:
+		TNT1 A 0
+		stop
+	}
 }
 
 // Green
-
 ACTOR AR_GreenFlare : BaseLensflare
 {
-   scale 0.25
-   States
-   {
-   Spawn:
-	TNT1 A 0
-    FRLN B 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
-    FRLN B 1 BRIGHT A_CustomMissile("AR_GreenFlame",0,0,random(0,360), 2, random(85,95))
-    Stop
-   }
+	scale 0.25
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		FRLN B 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
+		FRLN B 1 BRIGHT A_CustomMissile("AR_GreenFlame",0,0,random(0,360), 2, random(85,95))
+		Stop
+	}
 }
 
 actor AR_GreenFlame
 {
-  health 2
-  radius 1
-  height 1
-  +DOOMBOUNCE
-  -NOGRAVITY
-  +LOWGRAVITY
-  +NOBLOCKMAP
-  +RANDOMIZE
-  speed 3
-  RenderStyle Add
-//  alpha 0.50
-  scale 0.25
-  states
-  {
-  Spawn:
-    TNT1 A 0
-	TNT1 A 0 A_Jump(127, "Left")
-	TNT1 A 0 A_SetScale (frandom(0.15,0.25))
-    FIG1 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
-    Goto Death
-  Left:
-    TNT1 A 0
-	TNT1 A 0 A_SetScale (frandom(0.15,0.25))
-    FIG2 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
-    Goto Death	
-  Death:
-    TNT1 A 0
-    stop
-  }
+	health 2
+	radius 1
+	height 1
+	+DOOMBOUNCE
+	-NOGRAVITY
+	+LOWGRAVITY
+	+NOBLOCKMAP
+	+RANDOMIZE
+	speed 3
+	RenderStyle Add
+	//alpha 0.50
+	scale 0.25
+	states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Jump(127, "Left")
+		TNT1 A 0 A_SetScale (frandom(0.15,0.25))
+		FIG1 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
+		Goto Death
+	Left:
+		TNT1 A 0
+		TNT1 A 0 A_SetScale (frandom(0.15,0.25))
+		FIG2 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
+		Goto Death	
+	Death:
+		TNT1 A 0
+		stop
+	}
 }
 
 // Blue
-
 ACTOR AR_BlueFlare : BaseLensflare
 {
-   scale 0.25
-   States
-   {
-   Spawn:
-	TNT1 A 0
-    FRLN C 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
-    FRLN C 1 BRIGHT A_CustomMissile("AR_BlueFlame",0,0,random(0,360), 2, random(85,95))
-    Stop
-   }
+	scale 0.25
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		FRLN C 1 BRIGHT //A_CustomMissile("RedSparks",0,0,random(0,360), 2, random(50,130))
+		FRLN C 1 BRIGHT A_CustomMissile("AR_BlueFlame",0,0,random(0,360), 2, random(85,95))
+		Stop
+	}
 }
 
 actor AR_BlueFlame
 {
-  health 2
-  radius 1
-  height 1
-  +DOOMBOUNCE
-  -NOGRAVITY
-  +LOWGRAVITY
-  +NOBLOCKMAP
-  +RANDOMIZE
-  speed 3
-  RenderStyle Add
-//  alpha 0.50
-  scale 0.25
-  states
-  {
-  Spawn:
-    TNT1 A 0
-	TNT1 A 0 A_Jump(127, "Left")
-	TNT1 A 0 A_SetScale (frandom(0.15,0.25))
-    FIB1 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
-    Goto Death
-  Left:
-    TNT1 A 0
-	TNT1 A 0 A_SetScale (frandom(0.15,0.25))
-    FIB2 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
-    Goto Death	
-  Death:
-    TNT1 A 0
-    stop
-  }
+	health 2
+	radius 1
+	height 1
+	+DOOMBOUNCE
+	-NOGRAVITY
+	+LOWGRAVITY
+	+NOBLOCKMAP
+	+RANDOMIZE
+	speed 3
+	RenderStyle Add
+	//alpha 0.50
+	scale 0.25
+	states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_Jump(127, "Left")
+		TNT1 A 0 A_SetScale (frandom(0.15,0.25))
+		FIB1 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
+		Goto Death
+	Left:
+		TNT1 A 0
+		TNT1 A 0 A_SetScale (frandom(0.15,0.25))
+		FIB2 ABCDEFGHIJKL 1 bright A_ScaleVelocity(frandom(1,1.1))
+		Goto Death	
+	Death:
+		TNT1 A 0
+		stop
+	}
 }
-
-/////////////
-// TORCHES //
-/////////////
-
-
-ACTOR AR_GreenTorch : LampBase replaces GreenTorch
-{
-  Game Doom
-  Radius 16
-  Height 68
-  +SOLID
-  States
-  {
-  Spawn:
-    TNT1 A 0
-    TNT1 A 0 A_PlaySoundEx ("torch/greenflame", "Body", 1, 0)
-    TNT1 A 0 A_PlaySoundEx ("torch/smallflame", "Weapon", 1, 0)
-	TNT1 A 0 A_CheckSight("Idle")
-	SPRT A 2 Bright A_SpawnItemEx("AR_GreenFlare",0,0,58,0,0,0,0,48)
-    Goto Spawn
-  Idle:
-    TNT1 A 0
-	SPRT A 2 bright
-	TNT1 A 0
-	Goto Spawn
-  }
-}
-
-ACTOR AR_BlueTorch : LampBase replaces BlueTorch
-{
-  Game Doom
-  Radius 16
-  Height 68
-  +SOLID
-  States
-  {
-  Spawn:
-    TNT1 A 0
-    TNT1 A 0 A_PlaySoundEx ("torch/blueflame", "Body", 1, 0)
-    TNT1 A 0 A_PlaySoundEx ("torch/smallflame", "Weapon", 1, 0)
-	TNT1 A 0 A_CheckSight("Idle")
-	SPRT A 2 Bright A_SpawnItemEx("AR_BlueFlare",0,0,58,0,0,0,0,48)
-    Goto Spawn
-  Idle:
-    TNT1 A 0
-	SPRT A 2 bright
-	TNT1 A 0
-	Goto Spawn
-  }
-}
-
-ACTOR AR_RedTorch : LampBase replaces RedTorch
-{
-  Game Doom
-  Radius 16
-  Height 68
-  +SOLID
-  States
-  {
-  Spawn:
-    TNT1 A 0
-    TNT1 A 0 A_PlaySoundEx ("torch/redflame", "Body", 1, 0)
-	TNT1 A 0 A_CheckSight("Idle")
-	SPRT A 2 Bright A_SpawnItemEx("AR_RedFlare",0,0,58,0,0,0,0,48)
-    Goto Spawn
-  Idle:
-    TNT1 A 0
-	SPRT A 2 bright
-	TNT1 A 0
-	Goto Spawn
-  }
-}
-
-//Torch Testing
 
 /*
-ACTOR AR_SmallBlueTorch replaces ShortBlueTorch
-{
-  Game Doom
-  Radius 16
-  Height 37
-  +SOLID
-  States
-  {
-  Spawn:
-    TNT1 A 0 A_PlaySoundEx ("torch/smallflame", "Body", 1, -1)
-    SPRT B 2 bright A_SpawnItemEx("AR_BlueFlareSmall",0,0,28,0,0,0,0,48)
-    Loop
-  }
-}
-
-ACTOR AR_SmallGreenTorch replaces ShortGreenTorch
-{
-  Game Doom
-  Radius 16
-  Height 37
-  +SOLID
-  States
-  {
-  Spawn:
-    TNT1 A 0 A_PlaySoundEx ("torch/smallflame", "Body", 1, -1)
-    SPRT B 2 bright A_SpawnItemEx("AR_GreenFlareSmall",0,0,28,0,0,0,0,48)
-    Loop
-  }
-}
-
-ACTOR AR_SmallRedTorch replaces ShortRedTorch
-{
-  Game Doom
-  Radius 16
-  Height 37
-  +SOLID
-  States
-  {
-  Spawn:
-    TNT1 A 0 A_PlaySoundEx ("torch/smallflame", "Body", 1, -1)
-    SPRT B 2 bright A_SpawnItemEx("AR_RedFlareSmall",0,0,28,0,0,0,0,48)
-    Loop
-  }
-}
-*/
-
+//Old basecode kept for the sake of, in case some script used them
 ACTOR SmallRedTorcher : SwitchableDecoration
 {
-  Game Doom
-  Radius 16
-  Height 48
-  DeathHeight 46
-  Mass 0x7FFFFFFF
-  +SOLID
-  +USESPECIAL
-  Activation THINGSPEC_Switch
-  States
-  {
-  Active:
-	SPRT B 0 A_PlaySoundEx("Engine/FlameStart", "SoundSlot6") //temporary
-	// The Fall Through
-  Lit:
-    TNT1 A 0 
-	TNT1 A 0 A_CheckSight("Idle")
-    TNT1 A 0 A_PlaySoundEx ("torch/smallflame", "Body", 1, -1)
-    SPRT B 2 bright A_SpawnItemEx("AR_RedFlareSmall",0,0,30,0,0,0,0,48)
-    Loop
-  Idle:
-	SPRT B 2 Bright
-	Goto Lit
-  Inactive:
-    COLU C 0 A_PlaySound("Engine/FlameEnd")
-	// Even More Fallthroughs
-   Spawn:
-    SPRT C -1
-	stop
-  }
+	Game Doom
+	Radius 16
+	Height 48
+	DeathHeight 46
+	Mass 0x7FFFFFFF
+	+SOLID
+	+USESPECIAL
+	Activation THINGSPEC_Switch
+	States
+	{
+	Active:
+		SPRT B 0 A_PlaySoundEx("Engine/FlameStart", "SoundSlot6") //temporary
+		//The Fall Through
+	Lit:
+		TNT1 A 0 
+		TNT1 A 0 A_CheckSight("Idle")
+		TNT1 A 0 A_PlaySoundEx ("torch/smallflame", "Body", 1, -1)
+		SPRT B 2 bright A_SpawnItemEx("AR_RedFlareSmall",0,0,30,0,0,0,0,48)
+		Loop
+	Idle:
+		SPRT B 2 Bright
+		Goto Lit
+	Inactive:
+		COLU C 0 A_PlaySound("Engine/FlameEnd")
+		//Even More Fallthroughs
+	Spawn:
+		SPRT C -1
+		stop
+	}
 }
 
 ACTOR SmallRedTorcherOn : SmallRedTorcher replaces ShortRedTorch
@@ -400,35 +279,35 @@ ACTOR SmallRedTorcherOn : SmallRedTorcher replaces ShortRedTorch
 
 ACTOR SmallGreenTorcher : SwitchableDecoration
 {
-  Game Doom
-  Radius 16
-  Height 48
-  DeathHeight 46
-  Mass 0x7FFFFFFF
-  +SOLID
-  +USESPECIAL
-  Activation THINGSPEC_Switch
-  States
-  {
-  Active:
-	SPRT B 0 A_PlaySoundEx("Engine/FlameStart", "SoundSlot6") //temporary
-	// The Fall Through
-  Lit:
-    TNT1 A 0 
-	TNT1 A 0 A_CheckSight("Idle")
-    TNT1 A 0 A_PlaySoundEx ("torch/smallflame", "Body", 1, -1)
-    SPRT B 2 bright A_SpawnItemEx("AR_GreenFlareSmall",0,0,30,0,0,0,0,48)
-    Loop
-  Idle:
-	SPRT B 2 Bright
-	Goto Lit
-  Inactive:
-    COLU C 0 A_PlaySound("Engine/FlameEnd")
-	// Even More Fallthroughs
-   Spawn:
-    SPRT C -1
-	stop
-  }
+	Game Doom
+	Radius 16
+	Height 48
+	DeathHeight 46
+	Mass 0x7FFFFFFF
+	+SOLID
+	+USESPECIAL
+	Activation THINGSPEC_Switch
+	States
+	{
+	Active:
+		SPRT B 0 A_PlaySoundEx("Engine/FlameStart", "SoundSlot6") //temporary
+		// The Fall Through
+	Lit:
+		TNT1 A 0 
+		TNT1 A 0 A_CheckSight("Idle")
+		TNT1 A 0 A_PlaySoundEx ("torch/smallflame", "Body", 1, -1)
+		SPRT B 2 bright A_SpawnItemEx("AR_GreenFlareSmall",0,0,30,0,0,0,0,48)
+		Loop
+	Idle:
+		SPRT B 2 Bright
+		Goto Lit
+	Inactive:
+		COLU C 0 A_PlaySound("Engine/FlameEnd")
+		// Even More Fallthroughs
+	Spawn:
+		SPRT C -1
+		stop
+	}
 }
 
 ACTOR SmallGreenTorcherOn : SmallGreenTorcher replaces ShortGreenTorch
@@ -444,35 +323,35 @@ ACTOR SmallGreenTorcherOn : SmallGreenTorcher replaces ShortGreenTorch
 
 ACTOR SmallBlueTorcher : SwitchableDecoration
 {
-  Game Doom
-  Radius 16
-  Height 48
-  DeathHeight 46
-  Mass 0x7FFFFFFF
-  +SOLID
-  +USESPECIAL
-  Activation THINGSPEC_Switch
-  States
-  {
-  Active:
-	SPRT B 0 A_PlaySoundEx("Engine/FlameStart", "SoundSlot6") //temporary
-	// The Fall Through
-  Lit:
-    TNT1 A 0
-	TNT1 A 0 A_CheckSight("Idle")
-    TNT1 A 0 A_PlaySoundEx ("torch/smallflame", "Body", 1, -1)
-    SPRT B 2 bright A_SpawnItemEx("AR_BlueFlareSmall",0,0,30,0,0,0,0,48)
-    Loop
-  Idle:
-	SPRT B 2 Bright
-	Goto Lit
-  Inactive:
-    COLU C 0 A_PlaySound("Engine/FlameEnd")
-	// Even More Fallthroughs
-   Spawn:
-    SPRT C -1
-	stop
-  }
+	Game Doom
+	Radius 16
+	Height 48
+	DeathHeight 46
+	Mass 0x7FFFFFFF
+	+SOLID
+	+USESPECIAL
+	Activation THINGSPEC_Switch
+	States
+	{
+	Active:
+		SPRT B 0 A_PlaySoundEx("Engine/FlameStart", "SoundSlot6") //temporary
+		// The Fall Through
+	Lit:
+		TNT1 A 0
+		TNT1 A 0 A_CheckSight("Idle")
+		TNT1 A 0 A_PlaySoundEx ("torch/smallflame", "Body", 1, -1)
+		SPRT B 2 bright A_SpawnItemEx("AR_BlueFlareSmall",0,0,30,0,0,0,0,48)
+		Loop
+	Idle:
+		SPRT B 2 Bright
+		Goto Lit
+	Inactive:
+		COLU C 0 A_PlaySound("Engine/FlameEnd")
+		// Even More Fallthroughs
+	Spawn:
+		SPRT C -1
+		stop
+	}
 }
 
 ACTOR SmallBlueTorcherOn : SmallBlueTorcher replaces ShortBlueTorch
@@ -485,55 +364,60 @@ ACTOR SmallBlueTorcherOn : SmallBlueTorcher replaces ShortBlueTorch
 		Goto Super::Lit
 	}
 }
+*/
 
 ///////////////////
 // LIGHT COLUMNS //
 ///////////////////
 
-ACTOR AR_Columns : SwitchableDecoration
+ACTOR AR_BaseLite : SwitchableDecoration
 {
-  Game Doom
-  Radius 16
-  Height 48
-  Health 10
-  DeathHeight 48
-  Mass 0x7FFFFFFF
-  +SOLID
-  +NOTARGET
-  +CANTSEEK
-  +SHOOTABLE
-  +DONTSPLASH
-  +NOBLOODDECALS
-  +NOBLOOD
-  +USESPECIAL
-  -PUSHABLE
-  -COUNTKILL
-  Activation THINGSPEC_Switch
-  States
-  {
-  Active:
-	COLU A 0 A_PlaySoundEx("Engine/SwitchOn", "SoundSlot6") //temporary
-	// The Fall Through
-  Lit:
-    TNT1 A 0 
-    TNT1 A 0 A_PlaySoundEX ("torch/columdoom", "Body", 1, -1)
-    COLU A 2 bright
-    Loop
-  Inactive:
-    COLU C 0 A_PlaySound("Engine/SwitchOff")
-	// Even More Fallthroughs
-   Spawn:
-    COLU C -1
-	stop
-   Death:
-    TNT1 A 0 A_StopSoundEx("Body")
-    TNT1 A 0
-	TNT1 A 0 A_ChangeFlag("USESPECIAL", 0)
-	TNT1 A 0 A_ChangeFlag("SHOOTABLE", 1)
-	COLU B 10
-    COLU B -1
-	stop
-  }
+	Game Doom
+	Radius 16
+	Height 48
+	Health 10
+	DeathHeight 48
+	Mass 0x7FFFFFFF
+	+SOLID
+	+NOTARGET
+	+CANTSEEK
+	+SHOOTABLE
+	+DONTSPLASH
+	+NOBLOODDECALS
+	+NOBLOOD
+	+USESPECIAL
+	-PUSHABLE
+	-COUNTKILL
+	Activation THINGSPEC_Switch
+}
+
+ACTOR AR_Columns : AR_BaseLite
+{
+	States
+	{
+	Active:
+		COLU A 0 A_PlaySoundEx("Engine/SwitchOn", "SoundSlot6") //temporary
+		// The Fall Through
+	Lit:
+		TNT1 A 0 
+		TNT1 A 0 A_PlaySoundEX ("torch/columdoom", "Body", 1, -1)
+		COLU A 2 bright
+	Loop
+		Inactive:
+		COLU C 0 A_PlaySound("Engine/SwitchOff")
+		// Even More Fallthroughs
+	Spawn:
+		COLU C -1
+		stop
+	Death:
+		TNT1 A 0 A_StopSoundEx("Body")
+		TNT1 A 0
+		TNT1 A 0 A_ChangeFlag("USESPECIAL", 0)
+		TNT1 A 0 A_ChangeFlag("SHOOTABLE", 1)
+		COLU B 10
+		COLU B -1
+		stop
+	}
 }
 
 ACTOR AR_ColumnOn : AR_Columns replaces Column
@@ -549,49 +433,49 @@ ACTOR AR_ColumnOn : AR_Columns replaces Column
 
 ACTOR AR_TechLampSmall : SwitchableDecoration
 {
-  Game Doom
-  Radius 16
-  Height 60
-  DeathHeight 60
-  Health 20
-  Mass 0x7FFFFFFF
-  +SOLID
-  +NOTARGET
-  +CANTSEEK
-  +SHOOTABLE
-  +DONTSPLASH
-  +NOBLOODDECALS
-  +NOBLOOD
-  +USESPECIAL
-  -PUSHABLE
-  -COUNTKILL
-  Activation THINGSPEC_Switch
-  States
-  {
-  Active:
+	Game Doom
+	Radius 16
+	Height 60
+	DeathHeight 60
+	Health 20
+	Mass 0x7FFFFFFF
+	+SOLID
+	+NOTARGET
+	+CANTSEEK
+	+SHOOTABLE
+	+DONTSPLASH
+	+NOBLOODDECALS
+	+NOBLOOD
+	+USESPECIAL
+	-PUSHABLE
+	-COUNTKILL
+	Activation THINGSPEC_Switch
+	States
+	{
+	Active:
 	TLP2 A 0 A_PlaySoundEx("Engine/SwitchOn", "SoundSlot6") //temporary
 	// Fall Through
-  Lit:
-    TNT1 A 0
+	Lit:
+	TNT1 A 0
 	TNT1 A 0 A_CheckSight("Idle")
-    TLP2 A 2 Bright A_SpawnItemEx("AR_BlueFlareTech",0,0,56,0,0,0,0,48)
-    Loop
-  InActive:
-    TNT1 A 0 A_PlaySound("Engine/SwitchOff")
-  Spawn:
-    TLP2 F -1
+	TLP2 A 2 Bright A_SpawnItemEx("AR_BlueFlareTech",0,0,56,0,0,0,0,48)
+	Loop
+	InActive:
+	TNT1 A 0 A_PlaySound("Engine/SwitchOff")
+	Spawn:
+	TLP2 F -1
 	stop
-  Death:
-    TNT1 A 0 A_StopSoundEx("Body")
+	Death:
+	TNT1 A 0 A_StopSoundEx("Body")
 	TNT1 A 0 A_ChangeFlag("USESPECIAL", 0)
 	TNT1 A 0 A_ChangeFlag("SHOOTABLE", 1)
 	TLP2 E 10
 	TLP2 E -1
 	stop
-   Idle:
-    TLP2 A 1 bright
+	Idle:
+	TLP2 A 1 bright
 	Goto Lit
-  }
+	}
 }
 
 ACTOR AR_TLamp2 : AR_TechLampSmall replaces TechLamp2
@@ -607,50 +491,50 @@ ACTOR AR_TLamp2 : AR_TechLampSmall replaces TechLamp2
 
 ACTOR AR_TechLampLarge : SwitchableDecoration
 {
-  Game Doom
-  Radius 16
-  Height 80
-  DeathHeight 80
-  Health 35
-  Mass 0x7FFFFFFF
-  +SOLID
-  +NOTARGET
-  +CANTSEEK
-  +SHOOTABLE
-  +DONTSPLASH
-  +NOBLOODDECALS
-  +NOBLOOD
-  +USESPECIAL
-  -PUSHABLE
-  -COUNTKILL
-  Activation THINGSPEC_Switch
-  States
-  {  
-  InActive:
-    TNT1 A 0
-    TNT1 A 0 A_PlaySound("Engine/SwitchOff")
-  Spawn:
-    TLMP F -1
-	stop
-  Active:
-	TNT1 A 0 A_PlaySoundEx("Engine/SwitchOn", "SoundSlot6") //temporary
-	// Fall Through
-  Lit:
-    TNT1 A 0
-	TNT1 A 0 A_CheckSight("Idle")
-    TLMP A 2 BRIGHT A_SpawnItemEx("AR_BlueFlareTech2",0,0,74,0,0,0,0,48)
-    Loop
-  Death:
-    TNT1 A 0 A_StopSoundEx("Body")
-	TNT1 A 0 A_ChangeFlag("USESPECIAL", 0)
-	TNT1 A 0 A_ChangeFlag("SHOOTABLE", 1)
-	TLMP E 10
-	TLMP E -1
-	stop
-   Idle:
-    TLMP A 1 Bright
-	Goto Lit
-  }
+	Game Doom
+	Radius 16
+	Height 80
+	DeathHeight 80
+	Health 35
+	Mass 0x7FFFFFFF
+	+SOLID
+	+NOTARGET
+	+CANTSEEK
+	+SHOOTABLE
+	+DONTSPLASH
+	+NOBLOODDECALS
+	+NOBLOOD
+	+USESPECIAL
+	-PUSHABLE
+	-COUNTKILL
+	Activation THINGSPEC_Switch
+	States
+	{  
+	InActive:
+		TNT1 A 0
+		TNT1 A 0 A_PlaySound("Engine/SwitchOff")
+	Spawn:
+		TLMP F -1
+		stop
+	Active:
+		TNT1 A 0 A_PlaySoundEx("Engine/SwitchOn", "SoundSlot6") //temporary
+		// Fall Through
+	Lit:
+		TNT1 A 0
+		TNT1 A 0 A_CheckSight("Idle")
+		TLMP A 2 BRIGHT A_SpawnItemEx("AR_BlueFlareTech2",0,0,74,0,0,0,0,48)
+		Loop
+	Death:
+		TNT1 A 0 A_StopSoundEx("Body")
+		TNT1 A 0 A_ChangeFlag("USESPECIAL", 0)
+		TNT1 A 0 A_ChangeFlag("SHOOTABLE", 1)
+		TLMP E 10
+		TLMP E -1
+		stop
+	Idle:
+		TLMP A 1 Bright
+		Goto Lit
+	}
 }
 
 ACTOR AR_TLamp : AR_TechLampLarge replaces Techlamp
@@ -663,4 +547,3 @@ ACTOR AR_TLamp : AR_TechLampLarge replaces Techlamp
 		Goto Super::Lit
 	}
 }
-
