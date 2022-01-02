@@ -1,0 +1,123 @@
+Actor BlackObelisk
+{ 
+	//$Title Black Obelisk
+	//$Category Decoration
+	//$IsDecoration
+	Radius 8
+	Height 16
+	+DontThrust
+	+Solid
+	+PuffOnActors
+	+Shootable
+	+NoDamage
+	+NoBlood
+	+NotAutoaimed
+	States
+	{
+		Spawn:
+			BLO1 A 0 NoDelay 
+			{
+			A_SpawnItemEx("TrunkBlocker1Bottom", 0, 0, 20, 0, 0, 0, 0, SXF_SETMASTER);
+			A_SpawnItemEx("TrunkBlocker1Top", 0, 0, 188, 0, 0, 0, 0, SXF_SETMASTER);
+			}
+			BLO1 A -1 
+			Stop
+	}
+}
+
+Actor BlackObeliskNoBase
+{ 
+	//$Title Black Obelisk(No Base)
+	//$Category Decoration
+	//$IsDecoration
+	Radius 8
+	Height 16
+	+DontThrust
+	+Solid
+	+PuffOnActors
+	+Shootable
+	+NoDamage
+	+NoBlood
+	+NotAutoaimed
+	States
+	{
+		Spawn:
+			BLO2 A 0 NoDelay A_SpawnItemEx("TrunkBlocker2", 0, 0, 100, 0, 0, 0, 0, SXF_SETMASTER) 
+			BLO2 A -1
+			Stop
+	}
+}
+
+Actor BlackObeliskFloat
+{ 
+	//$Title Black Obelisk(Floating)
+	//$Category Decoration
+	//$IsDecoration
+	Radius 8
+	Height 16
+	FloatBobStrength 0.25  
+	+Floatbob
+	+DontThrust
+	+NoGravity
+	+Solid
+	+PuffOnActors
+	+Shootable
+	+NoDamage
+	+NoBlood
+	+NotAutoaimed
+	States
+	{
+		Spawn:
+			BLO2 A 0 NoDelay A_SpawnItemEx("TrunkBlocker2", 0, 0, 100, 0, 0, 0, 0, SXF_SETMASTER) 
+			BLO2 A 1 A_SpawnParticle(FF0000, SPF_FULLBRIGHT, random(70, 90), random(15, 20), frandom(0.0, 1.0), random(-15, 15),  random(-15, 15), 0, frandom(-0.5, 0.5), frandom(-0.5, 0.5), -0.2, 0.0, 0.0, 0.05, 1.0, -1, frandom(-0.4, -0.2))
+			BLO2 A 1 A_SpawnParticle(AA0000, SPF_FULLBRIGHT, random(15, 30), random(50, 60), frandom(0.0, 1.0), random(-5, 5),  random(-5, 5), random(0, 5), 0.0, 0.0, 0.0, 0.0, 0.0, 0.05, 1.0, -1, 2)
+			Goto Spawn+1
+	}
+}
+
+Actor TrunkBlocker1Bottom
+{
+	Radius 22
+	Height 168
+	+DontThrust
+	+Solid
+	+PuffOnActors
+	+Shootable
+	+NoDamage
+	+NoBlood
+	+NotAutoaimed
+	+NoGravity
+	States
+	{
+		Spawn:
+			TNT1 A 1 A_Warp(AAPTR_MASTER,0,0,20,0,WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION)
+			Loop
+	}
+}
+
+
+Actor TrunkBlocker1Top : TrunkBlocker1Bottom
+{
+	Radius 15
+	Height 100
+	States
+	{
+		Spawn:
+			TNT1 A 1 A_Warp(AAPTR_MASTER,0,0,188,0,WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION)
+			Loop
+	}
+}
+
+Actor TrunkBlocker2 : TrunkBlocker1Bottom
+{
+	Radius 15
+	Height 100
+	States
+	{
+		Spawn:
+			TNT1 A 1 A_Warp(AAPTR_MASTER,0,0,100,0,WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION)
+			Loop
+	}
+}
+
+
