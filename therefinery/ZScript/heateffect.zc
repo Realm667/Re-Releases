@@ -84,12 +84,11 @@ class CustomShaderHandler : StaticEventHandler
 	}
 }
 
-class EffectSpawner : SwitchableDecoration
+class EffectSpawner : SwitchableDecoration //following code has been adapted by Ozymandias81 for this remaster, a bit different from BoA code
 {
 	transient CVar switchcvar;
 	String switchvar;
 	int range;
-	bool user_unmanaged;
 	int chunkx, chunky;
 
 	int flags;
@@ -120,19 +119,6 @@ class EffectSpawner : SwitchableDecoration
 
 		if (switchvar.length()) { switchcvar = CVar.FindCVar(switchvar); }
 
-		//manager = ParticleManager.GetManager();
-		//if (!manager) { return; }
-
-		//[chunkx, chunky] = EffectBlock.GetBlock(pos.x, pos.y);
-
-		if (user_unmanaged)
-		{
-			bDontCull = true;
-			bAllowTickDelay = false;
-		}
-
-		//if (range > 0 && !bDontCull) { EffectsManager.Add(self, range > 0 ? min(range, reflod) : reflod); }
-
 		if (bDoActivation)
 		{
 			if (bDormant || SpawnFlags & MTF_DORMANT) { Deactivate(null); }
@@ -157,13 +143,6 @@ class EffectSpawner : SwitchableDecoration
 		bDormant = true;
 		SetStateLabel("Inactive");
 	}
-
-	/*virtual void SpawnEffect()
-	{
-		if (!bAllowTickDelay || !manager) { return; }
-
-		tics += curState.tics + manager.GetDelay(chunkx, chunky);
-	}*/
 }
 
 // Shader effect givers
@@ -182,15 +161,15 @@ class EffectGiver : EffectSpawner
 		Radius 128;
 		Alpha 0.5;
 		RenderStyle "Stencil";
-		+SOLID
 		+NOCLIP
-		EffectSpawner.SwitchVar "shaderoverlayswitch";
+		+SOLID
+		EffectSpawner.SwitchVar "enh_shaderoverlayswitch";
 	}
 
 	States
 	{
 		Spawn:
-			MDLA A 1;
+			MDLS A 1;
 		Active:
 			TNT1 A 35;
 			Loop;
