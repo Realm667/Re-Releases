@@ -1,3 +1,37 @@
+//HeatEffect shader
+HardwareShader PostProcess scene {
+	Name "heatshader"
+	Shader "shaders/heat.fp" 330
+	Uniform float amount
+	Uniform float timer
+}
+
+//SandStorm shader
+HardwareShader PostProcess scene {
+	Name "sandshader"
+	Shader "shaders/snow.fp" 330
+	Uniform float angle
+	Uniform float pitch
+	Uniform float fov
+	Uniform vec3 position
+	Uniform vec3 particlecolor
+	Uniform float size
+	Uniform float timer
+	Uniform float alpha
+	Uniform float maxparticles
+}
+
+//MotionBlur shader
+HardwareShader PostProcess beforebloom
+{
+	Name "motionblur"
+	Shader "shaders/mblur.fp" 330
+	Uniform vec2 steps
+	Uniform int samples
+	Uniform float increment
+	Uniform int blendmode
+}	
+
 //Underwater shader
 HardwareShader PostProcess scene
 {

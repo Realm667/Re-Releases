@@ -29,6 +29,12 @@ ACTOR StartingToken : Inventory
 	+INVENTORY.UNDROPPABLE
 }
 
+ACTOR isIntro : Inventory //prevent Motion Blur working over cutscenes if we move mouse, give to players at start and remove it at level start
+{
+	Inventory.Amount 1
+	Inventory.MaxAmount 1
+}
+
 actor ShrunkenPlayer : StrongholdPlayer
 {
 	Scale .125
