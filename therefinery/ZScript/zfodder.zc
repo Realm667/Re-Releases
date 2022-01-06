@@ -54,6 +54,16 @@ Class ZombieFodder : Actor
   }
 }
 
+Class ZombieFodderWandering : ZombieFodder
+{
+	States
+	{
+	Spawn:
+    ZFOD AABBCCDD 4 A_Wander();
+    Loop;
+	}
+}
+
 Class QuakeFodder : ZombieFodder
 {
   Default
@@ -102,6 +112,16 @@ Class QuakeFodder : ZombieFodder
   }
 }
 
+Class QuakeFodderWandering : QuakeFodder
+{
+	States
+	{
+	Spawn:
+    ZFOD AABBCCDD 4 A_Wander();
+    Loop;
+	}
+}
+
 Class ZombFlesh : Actor
 {
   Default
@@ -110,8 +130,8 @@ Class ZombFlesh : Actor
     Height 9;
     Health 40;
     Damage (10);
-    Speed 35;
-    Gravity 0.5;
+    Speed 15;
+    Gravity 0.25;
     Mass 0;
     ReactionTime 120;
     Seesound "ZFlesh/Throw";
