@@ -434,8 +434,8 @@ class TCOTDPlayer : PlayerPawn
 			{
 				// vary the angle a little
 				deathTiltAngle = -90.f;
-				deathTiltAngle += frandom(-45.f, 45.f);
-				deathTiltAngle *= RandomPick(-1, 1);
+				deathTiltAngle += frandom[rnd_TiltPlusPlus](-45.f, 45.f);
+				deathTiltAngle *= RandomPick[rnd_TiltPlusPlus](-1, 1);
 			}
 
 			if (deathTiltOsc < 22.5)
@@ -467,7 +467,7 @@ class TCOTDPlayer : PlayerPawn
 
 			flinchAmount *= flinchFactor;
 
-			lastRoll += FRandomPick(-flinchAmount, flinchAmount);
+			lastRoll += FRandomPick[rnd_TiltPlusPlus](-flinchAmount, flinchAmount);
 			flinchAmount = 0;
 		}
 
