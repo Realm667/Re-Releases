@@ -56,10 +56,16 @@ Class ZombieFodder : Actor
 
 Class ZombieFodderWandering : ZombieFodder
 {
+	Default
+    {
+		+AMBUSH
+	} 
+	
 	States
 	{
 	Spawn:
     ZFOD AABBCCDD 4 A_Wander();
+	ZFOD A 0 A_Look();
     Loop;
 	}
 }
@@ -114,10 +120,16 @@ Class QuakeFodder : ZombieFodder
 
 Class QuakeFodderWandering : QuakeFodder
 {
+	Default
+    {
+		+AMBUSH
+	} 
+	
 	States
 	{
 	Spawn:
     ZFOD AABBCCDD 4 A_Wander();
+	ZFOD A 0 A_Look();
     Loop;
 	}
 }
