@@ -1,0 +1,299 @@
+#library "zdcmp2"
+#include "zcommon.acs"
+
+//////////////////////////////////////////////////////////////
+// Xaser's ZDCMP2 Resource Scripts (weapons n' objectives). //
+//////////////////////////////////////////////////////////////
+
+global int 56: GrenadeReady[];
+global str 57: LastWeapon[];
+
+/////////////////////////////
+// ZDCMP2 Weapon Scriptage //
+/////////////////////////////
+
+// Bindable script. Initiates the throwing of a grenade.
+Script "ZDCMP2_ThrowGrenade" (void) net
+{
+	// Check to see if the player has a grenade.
+	if(CheckInventory("GrenadeAmmo")) {
+	
+		// Store current weapon to switch back to later.
+		str weapon = GetWeapon();
+		if(StrCmp(weapon, "ThrowGrenade") != 0)
+			LastWeapon[PlayerNumber()] = weapon;
+	
+		// Set to false initially -- becomes true
+		// immediately when grenade is to be thrown.
+		GrenadeReady[PlayerNumber()] = false;
+		
+		// Begin grenade animation.
+		SetWeapon("ThrowGrenade");
+	}
+}
+
+// Signals the actual throwing sequence. Called when the
+// player releases the "throw grenade" key.
+Script "ZDCMP2_SetGrenadeReady" (void) net
+{
+	GrenadeReady[PlayerNumber()] = true;
+}
+
+// Checks if the grenade is ready to throw. Called by
+// the ThrowGrenade weapon.
+Script "ZDCMP2_CheckGrenadeReady" (void) net
+{
+	SetResultValue(GrenadeReady[PlayerNumber()]);
+}
+
+// Restore the player's previous weapon.
+// Called by the ThrowGrenade weapon.
+Script "ZDCMP2_GrenadeDone" (void) net
+{
+	// Restore last weapon used.
+	SetWeapon(LastWeapon[PlayerNumber()]);
+}
+
+// Sets the timer on a thrown grenade.
+// Called by the grenade actor upon spawning.
+Script "ZDCMP2_SetGrenadeTimer" (void) net
+{
+	// Get the timer from the player's weapon.
+	SetActivatorToTarget(0);
+	int time = CheckInventory("GrenadeTimer"); // I'd use a uservar, but they're broken for weapons.
+	
+	// Set grenade's timer variable.
+	SetResultValue(time);
+}
+
+// Soulrender Charge Script
+Script "ZDCMP2_SoulCharge" (void) net
+{
+	int charge = 0;
+	int chargestep = 21;
+	while ( (GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK)
+	     && ((charge/chargestep < CheckInventory("Soul")/10) || CheckInventory("PowerInfiniteAmmo") || GetCvar("dmflags") & 2048) ) {
+		charge++;
+		delay(const:1);
+	}
+	GiveInventory("SoulCharge",charge/chargestep);
+	GiveInventory("SoulFinished",1);
+}
+
+
+////////////////////////////////////////////////
+// Xaser's Cheap-ass Objective and Log System //
+////////////////////////////////////////////////
+
+global str 1: objPrimary;
+global str 2: objSecondary;
+global str 3: objDescription;
+global int 4: objIndex;
+global str 5: logSelectedTitle[];
+global str 6: logSelectedText[];
+global int 7: logSelectedIndex[];
+global str 8: logEntryTitle[];
+global str 9: logEntryText[];
+global int 10: logEntryFound[];
+global int 11: logEntryMaxIndex;
+
+#define MAX_PLAYERS 64
+int MAPMARKERTID = 0;
+
+// Initialize default objectives/logs
+script "InitializeObjLogSystem" OPEN {
+	if(objIndex == 0) {
+		objPrimary       = "No Objectives";
+		objSecondary     = "";
+		objDescription   = "";
+	}
+	logEntryTitle[0] = "No Log Data Available";
+	logEntryText [0] = "";
+	if(logEntryMaxIndex == 0)
+		setLogEntryAll(0);
+}
+
+// Assigns New Objective
+function void assignObjective(str primary, str secondary, str description, int markerTID, int showCompletionMessage) {
+	if(showCompletionMessage) {
+		queueMessageAll("\cgObjective Complete!", "New Objective assigned. Refer to \nobjectives screen for new orders.", "ICO_NOBJ", "hud/newobjective", 0.0);
+	}
+    
+	// Set the objective globalvars to the selected objective for SBARINFO display.
+	if(StrIcmp(primary, "") != 0)
+		objPrimary     = primary;
+	objSecondary   = secondary;
+	objDescription = description;
+    
+	// Clear previous automap marker and set new one at specified location.
+	if(MAPMARKERTID != 0)
+		Thing_Remove(MAPMARKERTID);
+	if(markerTID > 0) {
+		MAPMARKERTID = UniqueTID(0, 0);
+		SpawnSpot("ObjectiveMarker",markerTID,MAPMARKERTID,0);
+		SetThingSpecial(MAPMARKERTID,0,markerTID,0,0,0,0);
+	}
+}
+
+// Add Log Entry to the cycle list.
+function void addLogEntry(int index, str title, str text) {
+	if(index > 0) // Treat zero as special -- it's the "no logs found" message before the player picks up any.
+		queueMessageAll("\cdData Log Recovered", "Contents of data log recorded to PDA.\nOpen log screen to view log contents.", "ICO_NLOG", "hud/newlog", 0.0);
+	
+	// Store the new title andtext values.
+	logEntryTitle[index] = title;
+	logEntryText [index] = text;
+	logEntryFound[index] = true;
+		
+	// Increment the maximum log index if the new index is greater:
+	if(index > logEntryMaxIndex)
+		logEntryMaxIndex = index;
+		
+	// Set the log entry to the new one for all players.
+	setLogEntryAll(index);
+}
+
+// Set the displayed log entry to the specified index.
+function void setLogEntry(int playerNum, int index) {
+	logSelectedTitle[playerNum] = logEntryTitle[index];
+	logSelectedText [playerNum] = logEntryText [index];
+	logSelectedIndex[playerNum] = index;
+}
+
+// Do the above for all players
+function void setLogEntryAll(int index) {	
+	for(int playerNum = 0; playerNum < MAX_PLAYERS; playerNum++)
+		setLogEntry(playerNum, index);
+}
+
+// Cycle the displayed log entry forwards/backwards one place (depending on the value of "increment")
+function void cycleLogEntry(int playerNum, int increment) {
+
+	// Quick pre-check: If the maximum log entry is zero,
+	// then the player has no logs at all. Skip this whole script in such a case.
+	if(logEntryMaxIndex > 0) {
+		int newIndex = logSelectedIndex[playerNum];
+		
+		// Try and cycle forward to find the next available log.
+		do {
+			// Increment and wrap from max to zero (and vice versa).
+			newIndex += increment;
+			if(newIndex < 1)
+				newIndex = logEntryMaxIndex;
+			if(newIndex > logEntryMaxIndex)
+				newIndex = 1;
+				
+			// Check to see if the specified log has been found. If so, select the log.
+			if(logEntryFound[newIndex]) {
+				setLogEntry(playerNum, newIndex);
+				break;
+			}			
+		} while (newIndex != logSelectedIndex[playerNum]);	//give up if the loop wraps all around.
+	}
+}
+
+// Key-bindable log cycling scripts
+script "ZDCMP2_CycleLogNext" (void) net {
+	cycleLogEntry(PlayerNumber(), 1);
+}
+script "ZDCMP2_CycleLogPrev" (void) net {
+	cycleLogEntry(PlayerNumber(), -1);
+}
+
+
+////////////////////////////////////////////////////////
+// Xaser's Not-Quite-As-Cheap Message Box Thingamajig //
+////////////////////////////////////////////////////////
+
+// Display message.
+function void showMessage(str title, str message, str icon, str sound, int duration) {
+
+    // Set default duration and sound
+    if(duration == 0.0)
+        duration = 3.0;
+    if(StrIcmp(sound, "") == 0)
+        sound = "hud/info";
+        
+    // Play message sound
+    LocalAmbientSound(sound, 127);
+        
+    // Display message box and contents. Graphic is different depending on
+    // whether or not an icon is displayed.
+    SetHudSize(640,480,1);
+    if(StrIcmp(icon, "") == 0) {
+        SetFont("STINF");
+        HudMessage(s:"A"; HUDMSG_FADEINOUT, 204, CR_UNTRANSLATED, 640.2, 0.1, duration, 0.5, 0.5);
+        SetFont("LogFont");
+        HudMessage(s:title  ; HUDMSG_FADEINOUT, 201, CR_GOLD , 335.1, 10.1, duration, 0.5, 0.5);
+        HudMessage(s:message; HUDMSG_FADEINOUT, 202, CR_WHITE, 340.1, 22.1, duration, 0.5, 0.5);
+    } else {
+        SetFont("STINF2");
+        HudMessage(s:"A"; HUDMSG_FADEINOUT, 204, CR_UNTRANSLATED, 640.2, 0.1, duration, 0.5, 0.5);
+        SetFont(icon);
+        HudMessage(s:"A"; HUDMSG_FADEINOUT, 203, CR_UNTRANSLATED, 329.1, 5.1, duration, 0.5, 0.5);
+        SetFont("LogFont");
+        HudMessage(s:title  ; HUDMSG_FADEINOUT, 201, CR_GOLD , 382.1, 10.1, duration, 0.5, 0.5);
+        HudMessage(s:message; HUDMSG_FADEINOUT, 202, CR_WHITE, 387.1, 22.1, duration, 0.5, 0.5);
+    }
+    
+    // Log the message to the console. (Uses an invisible hudmessage to do so.)
+	SetFont("TNT1A0");
+    HudMessage(s:"\n \cf", s:title, s:"\n\n\cj", s:message, s:"\n";
+	HUDMSG_PLAIN | HUDMSG_LOG, 0, CR_WHITE, 0.0, 0.0, 0.01);
+}
+
+str MessageQueue[MAX_PLAYERS][32][5]; // [XA] Seriously, more than 32 messages queued per-player would be nuts! :P
+int QueueLength[MAX_PLAYERS];
+int PlayerSelector[64] =
+{	AAPTR_PLAYER1
+,	AAPTR_PLAYER2
+,	AAPTR_PLAYER3
+,	AAPTR_PLAYER4
+,	AAPTR_PLAYER5
+,	AAPTR_PLAYER6
+,	AAPTR_PLAYER7
+,	AAPTR_PLAYER8
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+};
+
+// Queue a message for display.
+function void queueMessage(int playerNum, str title, str message, str icon, str sound, int duration) {
+
+    // set default duration of 3 -- this is needed so queue delay works right.
+    // Either the special case goes here or there, so here we go. :P
+    if(duration == 0.0)
+        duration = 3.0;
+
+	int queueIndex = QueueLength[playerNum];
+	int queueRunning = (QueueLength[playerNum] > 0);
+        
+    MessageQueue[playerNum][queueIndex][0] = title;
+    MessageQueue[playerNum][queueIndex][1] = message;
+    MessageQueue[playerNum][queueIndex][2] = icon;
+    MessageQueue[playerNum][queueIndex][3] = sound;
+    MessageQueue[playerNum][queueIndex][4] = duration;
+    QueueLength[playerNum]++;
+	if(!queueRunning)
+		ACS_NamedExecuteAlways("ProcessMessageQueue", 0, playerNum);
+}
+function void queueMessageAll(str title, str message, str icon, str sound, int duration) {	
+	for(int playerNum = 0; playerNum < MAX_PLAYERS; playerNum++)
+		queueMessage(playerNum, title, message, icon, sound, duration);
+}
+
+script "ProcessMessageQueue" (int playerNum) {
+	SetActivator(0, PlayerSelector[playerNum]);
+	// Process entire "queue" -- show all messages until the
+	// end of the queue is reached.
+	for(int i = 0; i < QueueLength[playerNum]; i++) {
+		showMessage( MessageQueue[playerNum][i][0]
+		           , MessageQueue[playerNum][i][1]
+		           , MessageQueue[playerNum][i][2]
+		           , MessageQueue[playerNum][i][3]
+		           , MessageQueue[playerNum][i][4]);
+		delay(((MessageQueue[playerNum][i][4] + 1.0) * 35) >> 16); // Wait for (duration + 1) seconds.
+	}
+    
+	// Reset queue counter -- this will effectively "clear" the queue.
+	QueueLength[playerNum] = 0;
+}
