@@ -1,33 +1,166 @@
-terrain nukage
+////////////////////////////////////////
+// Splashes & Terrain Definitions //////
+////////////////////////////////////////
+
+splash Ref_Water
 {
-	//splash		<splash block name>
-	footclip		8
-	liquid
-	friction		0.8
+	smallclass		Ref_WaterSplash
+	smallclip		0
+	smallsound		world/drip
+	baseclass		Ref_WaterSplash
+	chunkclass		Ref_WaterSplash_Chunk
+	chunkxvelshift	9
+	chunkyvelshift	9
+	chunkzvelshift	7
+	chunkbasezvel	2
+	sound			world/watersplash
+	noalert
 }
 
-terrain blood
+terrain Ref_Water
 {
-	//splash		<splash block name>
-	footclip		8
+	splash	Ref_Water
 	liquid
-	friction		0.8
 }
 
-terrain lava
+splash Ref_Blood //why this doesn't get load at all ?!
 {
-	//splash		<splash block name>
-	footclip		8
-	liquid
-	friction		0.7
+	smallclass		Ref_BloodSplash
+	smallclip		0
+	smallsound		world/sludgegloopsmall
+	baseclass		Ref_BloodSplash
+	chunkclass		Ref_BloodSplash_Chunk
+	chunkxvelshift	8
+	chunkyvelshift	8
+	chunkzvelshift	8
+	chunkbasezvel	1
+	smallsound		world/sludgegloopsmall
+	noalert
 }
 
-floor WGSLIME nukage
-floor WNUKAGE nukage
-floor WATR_A01 nukage
-floor WATR_A02 nukage
-floor WBLOOD blood
-floor BLOD_A01 blood
-floor WLAVA lava
-floor LAVA_A02 lava
-floor LAVA_A02 lava
+terrain Ref_Blood
+{
+	splash	Ref_Blood
+	liquid
+}
+
+splash Ref_Lava
+{
+	smallclass		Ref_LavaSplash
+	smallclip		0
+	smallsound		world/lavasizzle
+	baseclass		Ref_LavaSplash
+	chunkclass		Ref_LavaSplash_Chunk
+	chunkxvelshift	-1
+	chunkyvelshift	-1
+	chunkzvelshift	7
+	chunkbasezvel	1
+	sound			world/lavasizzle
+	noalert
+}
+
+terrain Ref_Lava
+{
+	splash	Ref_Lava
+	liquid
+}
+
+splash Ref_Slime
+{
+	smallclass		Ref_SlimeSplash
+	smallclip		0
+	smallsound		world/sludgegloop
+	baseclass		Ref_SlimeSplash
+	chunkclass		Ref_SlimeSplash_Chunk
+	chunkxvelshift	8
+	chunkyvelshift	8
+	chunkzvelshift	8
+	chunkbasezvel	1
+	sound			world/sludgegloop
+	noalert
+}
+
+terrain Ref_Slime
+{
+	splash	Ref_Slime
+	liquid
+}
+
+splash Ref_Nukage
+{
+	smallclass		Ref_NukageSplash
+	smallclip		0
+	smallsound		world/lavasizzle
+	baseclass		Ref_NukageSplash
+	chunkclass		Ref_NukageSplash_Chunk
+	chunkxvelshift	9
+	chunkyvelshift	9
+	chunkzvelshift	7
+	chunkbasezvel	2
+	sound			world/lavasizzle
+	noalert
+}
+
+terrain Ref_Nukage
+{
+	splash	Ref_Nukage
+	liquid
+}
+
+splash Ref_Sizzle
+{
+	smallclass		Ref_LavaSmoke
+	smallclip		0
+	smallsound		world/lavasizzle
+	baseclass		Ref_LavaSmoke
+	chunkclass		none
+	chunkxvelshift	-1
+	chunkyvelshift	-1
+	chunkzvelshift	7
+	chunkbasezvel	1
+	sound			world/lavasizzle
+	noalert
+}
+
+terrain Ref_Sizzle
+{
+	splash	Ref_Sizzle
+}
+
+//Defs - longnamed tx not included!
+floor BLOOD1 	Ref_Blood
+floor BLOOD2 	Ref_Blood
+floor BLOOD3 	Ref_Blood
+floor DBRAIN1 	Ref_Lava
+floor DBRAIN2 	Ref_Lava
+floor DBRAIN3 	Ref_Lava
+floor DBRAIN4 	Ref_Lava
+floor FWATER1 	Ref_Water
+floor FWATER2 	Ref_Water
+floor FWATER3 	Ref_Water
+floor FWATER4 	Ref_Water
+floor LAVA1 	Ref_Lava
+floor LAVA2 	Ref_Lava
+floor LAVA3 	Ref_Lava
+floor LAVA4 	Ref_Lava
+floor NUKAGE1 	Ref_Nukage
+floor NUKAGE2 	Ref_Nukage
+floor NUKAGE3 	Ref_Nukage
+floor SLIME01 	Ref_Slime
+floor SLIME02 	Ref_Slime
+floor SLIME03 	Ref_Slime
+floor SLIME04 	Ref_Slime
+floor SLIME05 	Ref_Slime
+floor SLIME06 	Ref_Slime
+floor SLIME07 	Ref_Slime
+floor SLIME08 	Ref_Slime
+
+floor BLOD_A01 	Ref_Blood
+floor LAVA_A02 	Ref_Lava
+floor ROCK_Y01 	Ref_Sizzle
+floor WATR_A01 	Ref_Nukage
+floor WATR_A02 	Ref_Nukage
+floor WBLOOD 	Ref_Blood
+floor WGSLIME 	Ref_Slime
+floor WLAVA 	Ref_Lava
+floor WNUKAGE 	Ref_Nukage
