@@ -64,8 +64,11 @@ Class ZombieFodderWandering : ZombieFodder
 	States
 	{
 	Spawn:
-    ZFOD AABBCCDD 4 A_Wander();
-	ZFOD A 0 A_Look();
+      ZFOD AABBCCDD 4 
+	  {
+		A_Wander();
+		A_Look();
+	  }
     Loop;
 	}
 }
@@ -97,13 +100,17 @@ Class QuakeFodder : ZombieFodder
     ZFOD K 5;
     ZFOD J 5;
     ZFOD I 5;
-    ZFOD I 0
+	ZFOD I 0;
+	Stop;
+    /* 
+	ZFOD I 0
     {
       A_SetSolid();
       A_SetShootable();
       A_SpawnItemEx("QuakeFodder", 0,0,0, 0,0,0, 0, SXF_TRANSFERPOINTERS | SXF_NOCHECKPOSITION);
     }
     Stop;
+	*/
   XDeath:
     ZFOD N 5;
     ZFOD O 5 A_XScream();
@@ -128,8 +135,11 @@ Class QuakeFodderWandering : QuakeFodder
 	States
 	{
 	Spawn:
-    ZFOD AABBCCDD 4 A_Wander();
-	ZFOD A 0 A_Look();
+    ZFOD AABBCCDD 4 
+	  {
+		A_Wander();
+		A_Look();
+	  }
     Loop;
 	}
 }
