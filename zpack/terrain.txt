@@ -1,13 +1,162 @@
+////////////////////////////////////////
+// Splashes & Terrain Definitions //////
+////////////////////////////////////////
 
-// Terrain types -----------------------------------------------------------
-
-terrain Blood
+splash ZPack_Water
 {
-	footclip		16
+	smallclass		ZPack_WaterSplash
+	smallclip		0
+	smallsound		world/drip
+	baseclass		ZPack_WaterSplash
+	chunkclass		ZPack_WaterSplash_Chunk
+	chunkxvelshift	9
+	chunkyvelshift	9
+	chunkzvelshift	7
+	chunkbasezvel	2
+	sound			world/watersplash
+	noalert
+}
+
+terrain ZPack_Water
+{
+	splash	ZPack_Water
 	liquid
 }
 
-floor VADBLOD1 Blood
+splash ZPack_Blood //why this doesn't get load at all ?!
+{
+	smallclass		ZPack_BloodSplash
+	smallclip		0
+	smallsound		world/sludgegloopsmall
+	baseclass		ZPack_BloodSplash
+	chunkclass		ZPack_BloodSplash_Chunk
+	chunkxvelshift	8
+	chunkyvelshift	8
+	chunkzvelshift	8
+	chunkbasezvel	1
+	smallsound		world/sludgegloopsmall
+	noalert
+}
 
+terrain ZPack_Blood
+{
+	splash	ZPack_Blood
+	liquid
+}
 
+splash ZPack_Lava
+{
+	smallclass		ZPack_LavaSplash
+	smallclip		0
+	smallsound		world/lavasizzle
+	baseclass		ZPack_LavaSplash
+	chunkclass		ZPack_LavaSplash_Chunk
+	chunkxvelshift	-1
+	chunkyvelshift	-1
+	chunkzvelshift	7
+	chunkbasezvel	1
+	sound			world/lavasizzle
+	noalert
+}
 
+terrain ZPack_Lava
+{
+	splash	ZPack_Lava
+	liquid
+}
+
+splash ZPack_Slime
+{
+	smallclass		ZPack_SlimeSplash
+	smallclip		0
+	smallsound		world/sludgegloop
+	baseclass		ZPack_SlimeSplash
+	chunkclass		ZPack_SlimeSplash_Chunk
+	chunkxvelshift	8
+	chunkyvelshift	8
+	chunkzvelshift	8
+	chunkbasezvel	1
+	sound			world/sludgegloop
+	noalert
+}
+
+terrain ZPack_Slime
+{
+	splash	ZPack_Slime
+	liquid
+}
+
+splash ZPack_Nukage
+{
+	smallclass		ZPack_NukageSplash
+	smallclip		0
+	smallsound		world/lavasizzle
+	baseclass		ZPack_NukageSplash
+	chunkclass		ZPack_NukageSplash_Chunk
+	chunkxvelshift	9
+	chunkyvelshift	9
+	chunkzvelshift	7
+	chunkbasezvel	2
+	sound			world/lavasizzle
+	noalert
+}
+
+terrain ZPack_Nukage
+{
+	splash	ZPack_Nukage
+	liquid
+}
+
+splash ZPack_Sizzle
+{
+	smallclass		ZPack_LavaSmoke
+	smallclip		0
+	smallsound		world/lavasizzle
+	baseclass		ZPack_LavaSmoke
+	chunkclass		none
+	chunkxvelshift	-1
+	chunkyvelshift	-1
+	chunkzvelshift	7
+	chunkbasezvel	1
+	sound			world/lavasizzle
+	noalert
+}
+
+terrain ZPack_Sizzle
+{
+	splash	ZPack_Sizzle
+}
+
+//Defs - longnamed tx not included!
+floor BLOOD1 	ZPack_Blood
+floor BLOOD2 	ZPack_Blood
+floor BLOOD3 	ZPack_Blood
+floor DBRAIN1 	ZPack_Lava
+floor DBRAIN2 	ZPack_Lava
+floor DBRAIN3 	ZPack_Lava
+floor DBRAIN4 	ZPack_Lava
+floor FWATER1 	ZPack_Water
+floor FWATER2 	ZPack_Water
+floor FWATER3 	ZPack_Water
+floor FWATER4 	ZPack_Water
+floor LAVA1 	ZPack_Lava
+floor LAVA2 	ZPack_Lava
+floor LAVA3 	ZPack_Lava
+floor LAVA4 	ZPack_Lava
+floor NUKAGE1 	ZPack_Nukage
+floor NUKAGE2 	ZPack_Nukage
+floor NUKAGE3 	ZPack_Nukage
+floor SLIME01 	ZPack_Slime
+floor SLIME02 	ZPack_Slime
+floor SLIME03 	ZPack_Slime
+floor SLIME04 	ZPack_Slime
+floor SLIME05 	ZPack_Slime
+floor SLIME06 	ZPack_Slime
+floor SLIME07 	ZPack_Slime
+floor SLIME08 	ZPack_Slime
+
+floor LAVA_A02 	ZPack_Lava
+floor WBLOOD 	ZPack_Blood
+floor WLAVA 	ZPack_Lava
+
+floor VADBLOD1 	ZPack_Blood

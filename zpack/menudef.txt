@@ -4,6 +4,8 @@ AddOptionMenu "OptionsMenu"
 	StaticText ""
 	Control "$MN_OPWEAT",	"puke 777"
 	Option "$MN_OPDIST","zpacklod","ZPackDist"
+	Option "$MN_OPHEAT","enh_shaderoverlayswitch","YesNo"
+	Option "$MN_OPBLUR","motionblur","YesNo"
 }
 
 OptionValue "ZPackDist"
@@ -13,4 +15,11 @@ OptionValue "ZPackDist"
 	2048, "$MN_OPNORM"
 	4096, "$MN_OPFAR1"
 	8192, "$MN_OPFAR2"
+}
+
+OptionValue PreferBackend //override normal options to avoid unforeseen consequences
+{
+	0, "$OPTVAL_OPENGL"
+	1, "$OPTVAL_VULKAN"
+	//2, "$OPTVAL_SOFTPOLY" // Remove the SoftPoly option, since it will not work well
 }

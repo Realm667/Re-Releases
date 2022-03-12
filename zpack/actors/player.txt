@@ -12,4 +12,8 @@ ACTOR ZPackPlayer : DoomPlayer
         Player.StartItem "Clip", 50
 }
 
-
+ACTOR isIntro : Inventory //needed to prevent Motion Blur working over cutscenes if we move mouse, give it to players at start and remove it at level start
+{
+	Inventory.Amount 1
+	Inventory.MaxAmount 1
+}
