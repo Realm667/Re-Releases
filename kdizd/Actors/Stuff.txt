@@ -16,6 +16,12 @@ ACTOR KDiZDPlayer : DoomPlayer
 	Player.WeaponSlot 7, "Rifle"
 }
 
+ACTOR isIntro : Inventory //needed to prevent Motion Blur working over cutscenes if we move mouse, give it to players at start and remove it at level start
+{
+	Inventory.Amount 1
+	Inventory.MaxAmount 1
+}
+
 /////////////////////////////
 //
 // Bio's E1M9
@@ -23,7 +29,6 @@ ACTOR KDiZDPlayer : DoomPlayer
 /////////////////////////////
 ACTOR RainDrop //this actor needs to be fixed or replaced - Ozy81
 {
-	SpawnID 183
 	Radius 1
 	Height 1
 	Mass 1
