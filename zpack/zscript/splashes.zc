@@ -23,7 +23,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////// Water Splash ///////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-class ZPack_WaterSplash: Actor
+class ZPack_WaterSplash : Actor
 {
 	Default
 	{
@@ -82,7 +82,7 @@ class ZPack_BloodSplash : Actor
 	Default
 	{
 	RenderStyle "Translucent";
-	Alpha 0.0;
+	Alpha 0.3;
 	XScale 0.1;
 	YScale 0.2;
 	+DONTSPLASH
@@ -94,7 +94,7 @@ class ZPack_BloodSplash : Actor
 	{
 	Spawn:
 		BSPL A 0 A_SetScale(Scale.X+(frandom(-0.1,0.1)), Scale.Y+(frandom(-0.1,0.1)));
-		"####" "#" 0 A_SetTranslucent(frandom(0.6,0.3));
+		"####" "#" 0 A_SetTranslucent(frandom(0.8,0.5));
 	Death:
 		"####" "#" 0 A_FadeOut(0.1,FTF_REMOVE);
 		"####" "#" 1 A_SetScale(Scale.X+0.05, Scale.Y+0.05);
