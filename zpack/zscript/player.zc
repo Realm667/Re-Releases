@@ -1,0 +1,184 @@
+class ZPackPlayer : DoomPlayer
+{
+	Actor climbing;
+	static const int flyspeed[] = { 3 * 256, 6 * 256 };
+	
+	Default
+	{
+		Player.WeaponSlot 1, "Fist", "Chainsaw";
+		Player.WeaponSlot 2, "NewPistol";
+		Player.WeaponSlot 3, "NewShotgun", "NewSuperShotgun";
+		Player.WeaponSlot 4, "NewChaingun";
+		Player.WeaponSlot 5, "RocketLauncher";
+		Player.WeaponSlot 6, "PlasmaRifle";
+		Player.WeaponSlot 7, "BFG9000";
+		Player.StartItem "NewPistol";
+		Player.StartItem "Fist";
+		Player.StartItem "Clip", 50;
+	}
+	
+	//----------------------------------------------------------------------------
+	//
+	// PROC P_PlayerThink, here for checking Climbing, differs from BoA --ozy81
+	//
+	//----------------------------------------------------------------------------
+	
+	override void PlayerThink()
+	{
+		let player = self.player;
+		UserCmd cmd = player.cmd;
+		
+		CheckFOV();
+
+		if (player.inventorytics)
+		{
+			player.inventorytics--;
+		}
+		CheckCheats();
+
+		if (bJustAttacked)
+		{ // Chainsaw/Gauntlets attack auto forward motion
+			cmd.yaw = 0;
+			cmd.forwardmove = 0xc800/2;
+			cmd.sidemove = 0;
+			bJustAttacked = false;
+		}
+
+		bool totallyfrozen = CheckFrozen();
+
+		// Handle crouching
+		CheckCrouch(totallyfrozen);
+		CheckMusicChange();
+
+		if (player.playerstate == PST_DEAD)
+		{
+			DeathThink ();
+			return;
+		}
+		if (player.jumpTics != 0)
+		{
+			player.jumpTics--;
+			if (player.onground && player.jumpTics < -18)
+			{
+				player.jumpTics = 0;
+			}
+		}
+		if (player.morphTics && !(player.cheats & CF_PREDICTING))
+		{
+			MorphPlayerThink ();
+		}
+
+		// Crouching moves down while climbing
+		if (climbing && cmd.buttons & BT_CROUCH) { vel.z -= 0.95; }
+
+		CheckPitch();
+		HandleMovement();
+		
+		// Only recalculate the view position if you're not climbing or if you are climbing at speed
+		// Keeps the float bob effect from being visible to the player
+		if (!climbing || abs(vel.length()) > 1.0) { CalcHeight (); }
+		
+		//CalcHeight ();
+
+		if (!(player.cheats & CF_PREDICTING))
+		{
+			CheckEnvironment();
+			// Note that after this point the PlayerPawn may have changed due to getting unmorphed or getting its skull popped so 'self' is no longer safe to use.
+			// This also must not read mo into a local variable because several functions in this block can change the attached PlayerPawn.
+			player.mo.CheckUse();
+			player.mo.CheckUndoMorph();
+			// Cycle psprites.
+			player.mo.TickPSprites();
+			// Other Counters
+			if (player.damagecount)	player.damagecount--;
+			if (player.bonuscount) player.bonuscount--;
+
+			if (player.hazardcount)
+			{
+				player.hazardcount--;
+				if (player.hazardinterval <= 0)
+					player.hazardinterval = 32; // repair invalid hazardinterval
+				if (!(Level.maptime % player.hazardinterval) && player.hazardcount > 16*TICRATE)
+					player.mo.DamageMobj (NULL, NULL, 5, player.hazardtype);
+			}
+			player.mo.CheckPoison();
+			player.mo.CheckDegeneration();
+			player.mo.CheckAirSupply();
+		}
+	}
+
+	//----------------------------------------------------------------------------
+	//
+	// PROC P_CheckJump, here for checking Climbing, differs from BoA --ozy81
+	//
+	//----------------------------------------------------------------------------
+
+	override void CheckJump()
+	{
+		let player = self.player;
+		// [RH] check for jump
+		if (player.cmd.buttons & BT_JUMP)
+		{
+			if (player.crouchoffset != 0)
+			{
+				// Jumping while crouching will force an un-crouch but not jump
+				player.crouching = 1;
+			}
+			else if (waterlevel >= 2)
+			{
+				Vel.Z = 4 * Speed;
+			}
+			else if (bNoGravity && !climbing)
+			{
+				Vel.Z = 3.;
+			}
+			else if (climbing && !player.onground && level.IsJumpingAllowed())
+			{
+				if (abs(deltaangle(angle, AngleTo(climbing))) > 60)
+				{
+					if (player.cmd.forwardmove > 0)
+					{
+						Thrust(Speed / 2, angle);
+						Vel.Z = 2.0;
+					}
+				}
+				else
+				{
+					Vel.Z = 3.;
+				}
+			}
+			else if (level.IsJumpingAllowed() && player.onground && player.jumpTics == 0)
+			{
+				double jumpvelz = JumpZ * 35 / TICRATE;
+				double jumpfac = 0;
+
+				// [BC] If the player has the high jump power, double his jump velocity.
+				// (actually, pick the best factors from all active items.)
+				for (let p = Inv; p != null; p = p.Inv)
+				{
+					let pp = PowerHighJump(p);
+					if (pp)
+					{
+						double f = pp.Strength;
+						if (f > jumpfac) jumpfac = f;
+					}
+				}
+				if (jumpfac > 0) jumpvelz *= jumpfac;
+
+				Vel.Z += jumpvelz;
+				bOnMobj = false;
+				player.jumpTics = -1;
+				if (!(player.cheats & CF_PREDICTING)) A_StartSound("*jump", CHAN_BODY);
+			}
+		}
+	}
+}
+
+class isIntro : Inventory //prevent Motion Blur working over cutscenes if we move mouse, give it to players at start and remove it at level start
+{
+	Default
+	{
+		Inventory.Amount 1;
+		Inventory.MaxAmount 1;
+	}	
+}

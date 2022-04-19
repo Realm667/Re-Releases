@@ -258,6 +258,74 @@ dsthund2 dsthund2
 Steam/Loop	STEMLOOP
 Steam/Fire	STEMFIRE
 
+//Ladder Climbing
+$random world/ladder { LADDER1 LADDER2 LADDER3 LADDER4 LADDER5 LADDER6}
+LADDER1 LADDER1
+LADDER2 LADDER2
+LADDER3 LADDER3
+LADDER4 LADDER4
+LADDER5 LADDER5
+LADDER6 LADDER6
+$limit	world/ladder 1
+
+//Rope Climbing
+$random world/rope { ROPEMOV1 ROPEMOV2 ROPEMOV3 ROPEMOV4 }
+ROPEMOV1 ROPEMOV1
+ROPEMOV2 ROPEMOV2
+ROPEMOV3 ROPEMOV3
+ROPEMOV4 ROPEMOV4
+$limit	world/rope 1
+
+$random world/ropecreak { ROPE1 ROPE2 ROPE3 ROPE4 }
+ROPE1 ROPE1
+ROPE2 ROPE2
+ROPE3 ROPE3
+ROPE4 ROPE4
+$limit	world/ropecreak 3
+$pitchshift ROPE1 7
+$pitchshift ROPE2 7
+$pitchshift ROPE3 7
+$pitchshift ROPE4 7
+
+////////////
+// FLOORS //
+////////////
+
+//atm these are used for Climb inheritances --ozy81
+
+//Rock - Hard outdoor type floor
+$random floor/rock		{ floor/rock01  floor/rock02 floor/rock03 floor/rock04  floor/rock05 floor/rock06 floor/rock07 floor/rock08 }
+floor/rock01	dsrock1
+floor/rock02	dsrock2
+floor/rock03	dsrock3
+floor/rock04	dsrock4
+floor/rock05	dsrock5
+floor/rock06	dsrock6
+floor/rock07	dsrock7
+floor/rock08	dsrock8
+$limit floor/rock 2
+$volume floor/rock 0.4
+
+//Metal - hard metal
+$random floor/metal		{ floor/metl01  floor/metl02 floor/metl03 floor/metl04  floor/metl05 floor/metl06 }
+floor/metl01	dsmet01
+floor/metl02	dsmet02
+floor/metl03	dsmet03
+floor/metl04	dsmet04
+floor/metl05	dsmet05
+floor/metl06	dsmet06
+$limit floor/metal 2
+$volume floor/metal 0.4
+
+//Wood
+$random floor/wood		{ floor/wood01  floor/wood02 floor/wood03 floor/wood04 }
+floor/wood01	dswood1
+floor/wood02	dswood2
+floor/wood03	dswood3
+floor/wood04	dswood4
+$limit floor/wood 2
+$volume floor/wood 0.4
+
 ///////////////////////////////
 ///// WEAPON ENHANCEMENTS /////
 ///////////////////////////////
