@@ -119,6 +119,9 @@ nightmare/melee		DSNMRATK
 nightmare/death		DSNMRDTH
 nightmare/pain		DSNMRPAI
 nightmare/sight		DSNMRSIT
+nightmare/active	DSNMRACT
+monster/sprsit		DSSPRACT
+monster/spratk		DSSPRATK
 
 /////////////////
 // MISC SOUNDS //
@@ -155,6 +158,18 @@ puff/ric4 			dsrich4
 puff/ric5 			dsrich5
 puff/ric6 			dsrich6
 puff/ric7 			dsrich7
+
+//SFX Fire
+SFX/FireStart	FIRESTRT
+SFX/FireLoop1	FIRELOP1
+SFX/FireLoop2	FIRELOP2
+SFX/FireLoop3	FIRELOP3
+SFX/FireDie		FIREDIE
+$limit SFX/FireStart	0
+$limit SFX/FireLoop1	1
+$limit SFX/FireLoop2	1
+$limit SFX/FireLoop3	1
+$limit SFX/FireDie	0
 
 ////////////////////////
 // Ambient Sounds Def //
@@ -420,7 +435,6 @@ hectstp3		dshecst3
 hectstp4		dshecst4
 hectstp5		dshecst5
 
-
 //Helemental
 weapons/devzap                dsdevzap
 monster/hadsit                dshadsit
@@ -474,7 +488,7 @@ pyro/tele BE-TELE
 pyro/pain DE_PAIN_
 pyro/death BE-DEATH
 pyro/blast DP_ATTAC
-pyro/flame DSFLAMER
+pyro/flame DSFLAMPY
 pyro/explosion DSPIPEX1
 pyro/flamepoof DSHITW
 pyro/blastexplosion DSFRBXPL
@@ -493,7 +507,7 @@ catharsi/shotdth DSSLSHDT
 catharsi/thermtick DSSLTHTI
 catharsi/shotsit DSSLSHOT
 catharsi/shotdth DSSLSHDT
-duke/flame fire
+duke/flame FIREOVRM
 
 //Terminator
 monster/termsit tsight
@@ -604,7 +618,7 @@ $limit sentry/jet	1
 duke/bounce		pbombbnc
 duke/rocket		rpgfire
 duke/splode		exp1smal
-duke/flame		fire
+duke/flame		FIREDUKE
 duke/damn		damn03
 duke/babedie	fscrm10
 duke/shrink		shrink
@@ -736,7 +750,6 @@ $RANDOM monster/culact { monster/culac1 monster/culac2 }
 monster/culac1 dsculac1
 monster/culac2 dsculac2
 
-
 monster/incsit dsincsit
 
 monster/incdth dsincdth
@@ -744,7 +757,6 @@ monster/incact dsincact
 monster/incatk dsincatk
 monster/inchit dsinchit
 monster/incexp dsincexp
-
 
 monster/hadsit dshadsit
 monster/hadwlk dshadwlk
@@ -777,19 +789,12 @@ monster/vulswg dsvulswg
 poly/stmdr1 dsstmdr1
 weapons/bloodx dsbloodx
 
-nightmare/pain DSNMRPAI
-nightmare/death DSNMRDTH
-nightmare/active DSNMRACT
-monster/sprsit dsspract
-monster/spratk dsspratk
-
 monster/sprdth dssprdth
 $RANDOM monster/culsit { monster/culsi1 monster/culsi2 monster/culsi3 monster/culsi4 }
 monster/culsi1 dsculsi1
 monster/culsi2 dsculsi2
 monster/culsi3 dsculsi3
 monster/culsi4 dsculsi4
-
 
 monster/culpai dsculpai
 $RANDOM monster/culdth { monster/culdt1 monster/culdt2 }
@@ -890,8 +895,6 @@ mattack3 dsmolat3
 mattack4 dsmolat4
 $RANDOM moloch/attack { mattack1 mattack2 mattack3 mattack4 }
 
-
-
 //SENTRY PLACEMENT
 
 DSSTPLAC	DSSTPLAC
@@ -935,7 +938,6 @@ marine/sight7			dsmasit7
 marine/sight8			dsmasit8
 marine/sight9			dsmasit9
 marine/sight0			dsmasit0
-
 
 "Misc/Blank"                    "Sounds/Blank.lmp"
 
