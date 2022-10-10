@@ -77,7 +77,7 @@ Class QuakeFodder : ZombieFodder
 {
   Default
   {
-    Health 60;
+    Health 30;
     GibHealth 16;
     Obituary "%o joins the zombies.";
   }
@@ -95,6 +95,9 @@ Class QuakeFodder : ZombieFodder
     ZFOD J 7 A_Scream();
     ZFOD K 5;
     ZFOD L 5;
+	ZFOD M -1;
+	Stop;
+	/* 
     ZFOD M 500 { bLookAllAround=true; }
     ZFOD L 5 A_XScream();
     ZFOD K 5;
@@ -102,7 +105,7 @@ Class QuakeFodder : ZombieFodder
     ZFOD I 5;
 	ZFOD I 0;
 	Stop;
-    /* 
+
 	ZFOD I 0
     {
       A_SetSolid();
@@ -151,7 +154,7 @@ Class ZombFlesh : Actor
     Radius 4;
     Height 9;
     Health 40;
-    Damage (10);
+    Damage (5);
     Speed 15;
     Gravity 0.25;
     Mass 0;
