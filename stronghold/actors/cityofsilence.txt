@@ -15,7 +15,7 @@ ACTOR Heart : HealthBonus //little fix by Ozy81 - this actor was missing, import
 	}
 }
 
-ACTOR Apprentice 30000
+ACTOR Apprentice
 {
 	//$Category Stronghold_CityOfSilence
 	painchance "Stunner",128
@@ -26,14 +26,14 @@ ACTOR Apprentice 30000
 	Mass 500
 	PainChance 100
 	MONSTER
-	+FloorClip
-	+NoGravity
-	+Float
+	+FLOORCLIP
+	+NOGRAVITY
+	+FLOAT
 	SEESOUND "wizard/sight"
 	PAINSOUND "wizard/pain"
 	DEATHSOUND "wizard/death"
 	ACTIVESOUND "wizard/active"
-	OBITUARY "%o was spooked by an apprentice."
+	OBITUARY "OB_APPR"
 	states
 	{
 	Spawn:
@@ -171,7 +171,7 @@ ACTOR AoDGhost
 	PROJECTILE
 	RENDERSTYLE TRANSLUCENT
 	Alpha 0.75
-	+Noclip
+	+NOCLIP
 	SEESOUND "aod/ghost"
 	DropItem "Heart" 96
 	states
@@ -184,7 +184,7 @@ ACTOR AoDGhost
 	}
 }
 
-ACTOR MiniSpider 22290
+ACTOR MiniSpider
 {
 	//$Category Stronghold_CityOfSilence
 	Radius 7
@@ -199,7 +199,7 @@ ACTOR MiniSpider 22290
 	painsound "littlespider/pain"
 	deathsound "littlespider/death"
 	activesound "littlespider/sight"
-	Obituary "%o succumbed to the swarm."
+	Obituary "OB_MINIS"
 	Speed 5
 	States
 	{
@@ -231,7 +231,7 @@ ACTOR MiniSpider 22290
 	}
 }
 
-ACTOR LargeSpider : MiniSpider 22291
+ACTOR LargeSpider : MiniSpider
 {
 	//$Category Stronghold_CityOfSilence
 	Radius 14
@@ -255,7 +255,7 @@ ACTOR LargeSpider : MiniSpider 22291
 	}
 }
 
-ACTOR Thrall 30119
+ACTOR Thrall
 {
 	//$Category Stronghold_CityOfSilence
 	painchance "Stunner",128
@@ -266,8 +266,8 @@ ACTOR Thrall 30119
 	Height 56
 	Mass 100
 	MONSTER
-	+FloorClip
-	OBITUARY "%o was killed by a lowly cultist."
+	+FLOORCLIP
+	OBITUARY "OB_THRAL"
 	SEESOUND "monster/culsit"
 	ATTACKSOUND "monster/culatk"
 	PAINSOUND "monster/culpai"
@@ -352,7 +352,7 @@ ACTOR ThrallShot1
 	}
 }
 
-ACTOR Incarnate 30115
+ACTOR Incarnate
 {
 	//$Category Stronghold_CityOfSilence
 	painchance "Stunner",128
@@ -364,12 +364,12 @@ ACTOR Incarnate 30115
 	PainChance 32
 	DropItem "Heart" 160
 	MONSTER
-	+FloorClip
-	+MissileMore
+	+NOTARGET
+	+FLOORCLIP
+	+MISSILEMORE
 	MaxTargetRange 1000
-	+NoTarget
-	OBITUARY "%o was killed by a Death Incarnate's glaring eyes."
-	HITOBITUARY "%o was beaten to death by a Death Incarnate."
+	OBITUARY "OB_INCA"
+	HITOBITUARY "HB_INCA"
 	SEESOUND "monster/incsit"
 	PAINSOUND "skeleton/pain"
 	DEATHSOUND "monster/incdth"
@@ -461,7 +461,7 @@ ACTOR Incarnate 30115
 	}
 }
 
-ACTOR HotDog 30121
+ACTOR HotDog
 {
 	//$Category Stronghold_CityOfSilence
 	painchance "Stunner",128
@@ -473,11 +473,11 @@ ACTOR HotDog 30121
 	Mass 500
 	DropItem "Heart" 160
 	MONSTER
-	+FloorClip
-	DamageFactor Fire,.5
+	+FLOORCLIP
 	+DONTHARMCLASS
-	OBITUARY "%o was burned alive by a hellhound."
-	HITOBITUARY "A hellhound had %o for dinner."
+	DamageFactor Fire,.5
+	OBITUARY "OB_HDOG"
+	HITOBITUARY "HB_HDOG"
 	SEESOUND "monster/dogsit"
 	ATTACKSOUND "monster/dogatk"
 	PAINSOUND "monster/dogpai"
@@ -553,12 +553,12 @@ ACTOR DogFire
 	}
 }
 
-actor Vulgar : StrongholdDoomImp 30127
+actor Vulgar : StrongholdDoomImp
 {
 	//$Category Stronghold_CityOfSilence
 	painchance "Stunner",128
-	obituary "%o was poisoned by a vulgar."
-	hitobituary "A vulgar had %o for lunch."
+	obituary "OB_VULG"
+	hitobituary "HB_VULG"
 	health 100
 	mass 120
 	painchance 120
@@ -625,11 +625,11 @@ ACTOR VulgarShot
 	}
 }
 
-ACTOR ESoul 29012
+ACTOR ESoul
 {
 	//$Category Stronghold_CityOfSilence
 	painchance "Stunner",128
-	obituary "%o's soul was leeched by the etheral soul."
+	obituary "OB_ESOUL"
 	health 90
 	radius 16
 	height 32
@@ -709,7 +709,7 @@ ACTOR ESoul 29012
 	}
 }
 
-ACTOR WraithX 30106
+ACTOR WraithX
 {
 	//$Category Stronghold_CityOfSilence
 	painchance "Stunner",128
@@ -721,16 +721,16 @@ ACTOR WraithX 30106
 	FloatSpeed 1.33333333
 	Damage 2
 	RENDERSTYLE ADD
-	OBITUARY "A wraith had its way with %o."
-	HITOBITUARY "%o got bitten by a wraith too many times."
+	OBITUARY "OB_WRAIT"
+	HITOBITUARY "HB_WRAIT"
 	Alpha 0.67
 	PainChance 64
 	MONSTER
-	+DontGib
-	+NoTarget
-	+NoGravity
-	+Float
-	+DontFall
+	+DONTGIB
+	+NOTARGET
+	+NOGRAVITY
+	+FLOAT
+	+DONTFALL
 	ATTACKSOUND "monster/sprsit"
 	MELEESOUND "monster/spratk"
 	PAINSOUND "archvile/pain"
@@ -774,11 +774,11 @@ ACTOR WraithX 30106
 	}
 }
 
-ACTOR ChaingunCultist 29011
+ACTOR ChaingunCultist
 {
 	//$Category Stronghold_CityOfSilence
 	painchance "Stunner",128
-	OBITUARY "%o was shot by a cultist with a thompson."
+	OBITUARY "OB_CHCU"
 	Health 60
 	Height 56
 	Mass 100
@@ -793,7 +793,7 @@ ACTOR ChaingunCultist 29011
 	DropItem "Clip"
 	DropItem "Clip"
 	MONSTER
-	+FloorClip
+	+FLOORCLIP
 	states
 	{
 	Spawn:
@@ -865,10 +865,10 @@ ACTOR ChaingunCultist 29011
 	}
 }
 
-ACTOR ShotgunCultist : ChaingunCultist 29010
+ACTOR ShotgunCultist : ChaingunCultist
 {
 	//$Category Stronghold_CityOfSilence
-	OBITUARY "%o was shot by a cultist with a shotgun."
+	OBITUARY "OB_SHCU"
 	Health 80
 	Translation "80:111=48:79"
 	DropItem "Shell" 96
@@ -882,12 +882,12 @@ ACTOR ShotgunCultist : ChaingunCultist 29010
 	}
 }
 
-ACTOR FattyX 25010
+ACTOR FattyX
 {
 	//$Category Stronghold_CityOfSilence
 	painchance "Stunner",128
-	OBITUARY "%o couldn't evade the fat zombie's bile."
-	HITOBITUARY "%o was punched by a fat zombie."
+	OBITUARY "OB_FATY"
+	HITOBITUARY "HB_FATY"
 	Health 270
 	Radius 12
 	Height 56
@@ -895,15 +895,15 @@ ACTOR FattyX 25010
 	Speed 1.75
 	Scale 0.6
 	PainChance 100
+	+FLOORCLIP
+	+MISSILEMORE
 	SEESOUND "fatty/sit"
 	PAINSOUND "skeleton/pain"
 	DEATHSOUND "fatty/death"
 	ACTIVESOUND "fatty/act"
 	MONSTER
 	DropItem "Heart" 128
-	+FloorClip
 	MeleeThreshold 196
-	+MissileMore
 	states
 	{
 	Spawn:
@@ -1011,7 +1011,7 @@ ACTOR FattyTracerTrail
 	RENDERSTYLE Translucent
 	Alpha 0.5
 	Scale 0.5
-	+Noclip
+	+NOCLIP
 	states
 	{
 	Spawn:
@@ -1020,11 +1020,11 @@ ACTOR FattyTracerTrail
 	}
 }
 
-ACTOR ZombieX 31002
+ACTOR ZombieX
 {
 	//$Category Stronghold_CityOfSilence
 	painchance "Stunner",128
-	HITOBITUARY "%o was axed by a zombie."
+	HITOBITUARY "OB_ZOMB"
 	Health 150
 	PainChance 0
 	Speed 3
@@ -1039,7 +1039,7 @@ ACTOR ZombieX 31002
 	DEATHSOUND "zombieblood/dth"
 	ACTIVESOUND "zombieblood/act"
 	MONSTER
-	+FloorClip
+	+FLOORCLIP
 	states
 	{
 	Spawn:
