@@ -249,12 +249,12 @@ ACTOR StrongholdMarineBFG : StrongholdScriptedMarine replaces MarineBFG
 // MARINE REINFORCEMENTS ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor MarineItem : CustomInventory 25003
+actor MarineItem : CustomInventory
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Picked up some marine reinforcements."
+	inventory.pickupmessage "$IP_MARINE"
 	inventory.maxamount 10
-	Tag "Marine Reinforcements"
+	Tag "$TAG_MARINE"
 	inventory.icon MARIA0
 	+INVENTORY.INVBAR
 	+GHOST
@@ -289,12 +289,12 @@ actor MarineItem : CustomInventory 25003
 	}
 }
 
-Actor SuperMarineItem : MarineItem 25009
+Actor SuperMarineItem : MarineItem
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Picked up some elite marine reinforcements."
+	inventory.pickupmessage "$IP_MARIN2"
 	inventory.maxamount 3
-	Tag "Elite Marine Reinforcements"
+	Tag "$TAG_MARIN2"
 	inventory.icon SMRIA0
 	States
 	{
@@ -349,10 +349,10 @@ Actor SuperMarineTimer : Powerup
 	Powerup.Duration 52
 }
 
-actor STMarineShotgun : STScriptedMarine 12851
+actor STMarineShotgun : STScriptedMarine
 {
 	//$Category Stronghold_Marines
-	Obituary "%o was shot down like a clay pigeon."
+	Obituary "$OB_STMAS"
 	AttackSound "weapons/shotgf"
 	States
 	{
@@ -368,10 +368,10 @@ actor STMarineShotgun : STScriptedMarine 12851
 	}
 }
 
-actor STMarineSSG : STScriptedMarine 12853
+actor STMarineSSG : STScriptedMarine
 {
 	//$Category Stronghold_Marines
-	Obituary "%o downed a devastating dosage of double-barrelled death."
+	Obituary "$OB_STSSG"
 	AttackSound "weapons/sshotf"
 	States
 	{
@@ -418,10 +418,10 @@ Actor STMarineAutoShotgun : STScriptedMarine
 	}
 }
 
-actor STMarineChaingun : STScriptedMarine 12852
+actor STMarineChaingun : STScriptedMarine
 {
 	//$Category Stronghold_Marines
-	Obituary "%o was ventilated by a chaingun-toting marine."
+	Obituary "$OB_STCHM"
 	AttackSound "weapons/chngun"
 	States
 	{
@@ -437,10 +437,10 @@ actor STMarineChaingun : STScriptedMarine 12852
 	}
 }
 
-actor STMarineRocket : STScriptedMarine 12854
+actor STMarineRocket : STScriptedMarine
 {
 	//$Category Stronghold_Marines
-	Obituary "%o boarded the express train to oblivion on a marine's rocket."
+	Obituary "$OB_STRKM"
 	States
 	{
 	Spawn:
@@ -503,10 +503,10 @@ Actor MarineHomRocket1 : HomRocket1
 	}
 }
 
-actor STMarinePlasma : STScriptedMarine 12855
+actor STMarinePlasma : STScriptedMarine
 {
 	//$Category Stronghold_Marines
-	Obituary "%o was atomized by a steady stream of blazing plasma."
+	Obituary "$OB_STPLM"
 	States
 	{
 	Spawn:
@@ -918,7 +918,7 @@ Actor MarineImmuneRepPuff : RepPuff
 // SENTRY ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor Sentry 12856
+actor Sentry
 {
 	//$Category Stronghold_Marines
 	mass 9999999999
@@ -927,12 +927,12 @@ actor Sentry 12856
 	health 300
 	maxstepheight 512
 	maxdropoffheight 512
-	+shootable
-	+noblood
-	+friendly
-	+lookallaround
-	+missilemore
-	+missileevenmore
+	+SHOOTABLE
+	+NOBLOOD
+	+FRIENDLY
+	+LOOKALLAROUND
+	+MISSILEMORE
+	+MISSILEEVENMORE
 	+NORADIUSDMG
 	states
  	{
@@ -982,13 +982,13 @@ actor SentryPlasma
  	}
 }
 
-actor SentryItem : CustomInventory 25004
+actor SentryItem : CustomInventory
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Picked up a deployable sentry turret."
+	inventory.pickupmessage "$IP_SENTRY"
 	inventory.maxamount 5
 	inventory.icon SENIA0
-	Tag "Sentry Turret"
+	Tag "$TAG_SENTRY"
 	+INVENTORY.INVBAR
 	scale 0.75
 	states
@@ -1006,9 +1006,9 @@ actor SentryItem : CustomInventory 25004
 
 Actor SuperSentry : Sentry
 {
-	+nodamage
-	-shootable
-	+notarget
+	+NODAMAGE
+	-SHOOTABLE
+	+NOTARGET
 	states
  	{
 	missile:
@@ -1028,13 +1028,13 @@ Actor SuperSentryPlasma : SentryPlasma
 	+PAINLESS
 }
 
-Actor SuperSentryItem : SentryItem 25008
+Actor SuperSentryItem : SentryItem
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Picked up a deployable super sentry turret."
+	inventory.pickupmessage "$IP_SENTR2"
 	inventory.maxamount 2
 	inventory.icon SSEIA0
-	Tag "Super Sentry Turret"
+	Tag "$TAG_SENTR2"
 	States
 	{
 	Spawn:
@@ -1050,13 +1050,13 @@ Actor SuperSentryItem : SentryItem 25008
 // BARREL SPAWNER ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor BarrelItem : CustomInventory 25005
+actor BarrelItem : CustomInventory
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Picked up a portable barrel."
+	inventory.pickupmessage "$IP_BARREL"
 	inventory.maxamount 10
 	inventory.icon BARIA0
-	Tag "Barrel"
+	Tag "$TAG_BARREL"
 	+INVENTORY.INVBAR
 	scale 0.75
 	states
@@ -1073,7 +1073,7 @@ actor BarrelItem : CustomInventory 25005
 
 actor ExplosiveBarrelTimer
 {
-	obituary "%o went boom."
+	obituary "$OB_BARTIM"
 	health 20
 	radius 10
 	height 34
@@ -1114,15 +1114,15 @@ actor ExplosiveBarrelTimer
 // COINS ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor CoinItem : CustomInventory 25006
+actor CoinItem : CustomInventory
 {
 	//$Category Stronghold_Items
 	ConversationID 300
 	gravity 0.6
-	inventory.pickupmessage "Picked up a coin."
+	inventory.pickupmessage "$IP_COIN"
 	inventory.maxamount 100000
 	inventory.icon SACKA0
-	Tag "Credits"
+	Tag "$TAG_COIN"
 	+INVENTORY.KEEPDEPLETED
 	states
 	{
@@ -1148,14 +1148,14 @@ actor AwardItem : Inventory
 // LIFES ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor LifeItem : CustomInventory 25926
+actor LifeItem : CustomInventory
 {
 	//$Category Stronghold_Items
 	scale 0.75
-	inventory.pickupmessage "Picked up an extra life!"
+	inventory.pickupmessage "IP_LIFEIT"
 	inventory.maxamount 9
 	inventory.icon HERIA0
-	Tag "Lives (Multiplayer Use Only)"
+	Tag "$TAG_LIFEIT"
 	+INVENTORY.INVBAR
 	+INVENTORY.KEEPDEPLETED
 	+INVENTORY.UNDROPPABLE
@@ -1204,13 +1204,13 @@ actor ThrustDummy : Inventory
 // SUPER SHIELD ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor SuperShield : BasicArmorPickup 10716
+actor SuperShield : BasicArmorPickup
 {
 	//$Category Stronghold_Items
 	armor.savepercent 100
 	armor.saveamount 300
 	inventory.icon "ARMXA0"
-	inventory.pickupmessage "Picked up the super shield!"
+	inventory.pickupmessage "$IP_SUPAS"
 	states
 	{
 	Spawn:
@@ -1223,14 +1223,14 @@ actor SuperShield : BasicArmorPickup 10716
 // PORTABLE MEDICINE ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor PMedKit : HealthPickup 12792
+actor PMedKit : HealthPickup
 {
 	//$Category Stronghold_Items
 	health 25
 	inventory.maxamount 10
 	inventory.icon "PMH1A0"
-	inventory.pickupmessage "Picked up a portable medkit."
-	Tag "Portable Medkit"
+	inventory.pickupmessage "$IP_PMED"
+	Tag "$TAG_PMED"
 	+COUNTITEM
 	states
 	{
@@ -1240,13 +1240,13 @@ actor PMedKit : HealthPickup 12792
 	}
 }
 
-actor PSuperMedKit : PMedKit 12791
+actor PSuperMedKit : PMedKit
 {
 	//$Category Stronghold_Items
 	health 100
 	inventory.icon "PMH2A0"
-	inventory.pickupmessage "Picked up a portable super medkit."
-	Tag "Portable Super Medkit"
+	inventory.pickupmessage "$IP_SMED"
+	Tag "$TAG_SMED"
 	states
 	{
 	Spawn:
@@ -1262,18 +1262,18 @@ actor PSuperMedKit : PMedKit 12791
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TIME FREEZER //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-actor TimeFreezerItem : PowerupGiver 12793
+actor TimeFreezerItem : PowerupGiver
 {
 	//$Category Stronghold_Items
 	scale 0.75
-	inventory.pickupmessage "Picked up a time freeze sphere."
+	inventory.pickupmessage "$IP_TIMEF"
 	inventory.icon "FRZIA0"
 	inventory.maxamount 3
 	inventory.usesound "pickups/slowmo"
 	powerup.color "00 33 FF" 0.10
 	powerup.type "TimeFreezer"
 	powerup.duration -30
-	Tag "Time Freeze"
+	Tag "$TAG_TIMEF"
 	+INVENTORY.FANCYPICKUPSOUND
 	+INVENTORY.INVBAR
 	states
@@ -1284,10 +1284,10 @@ actor TimeFreezerItem : PowerupGiver 12793
 	}
 }
 
-actor TimeFreezerPickup : TimeFreezerItem 24027
+actor TimeFreezerPickup : TimeFreezerItem
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Time freeze!"
+	inventory.pickupmessage "$IP_TIMEP"
 	inventory.maxamount 10
 	inventory.icon "TIMEZ0"
 	states
@@ -1308,18 +1308,18 @@ actor PowerQuadDamage : PowerDamage
 	inventory.icon "DOOMA0"
 }
 
-actor QuadDamageItem : PowerupGiver 12794
+actor QuadDamageItem : PowerupGiver
 {
 	//$Category Stronghold_Items
 	scale 0.75
-	inventory.pickupmessage "Picked up a quad damage sphere."
+	inventory.pickupmessage "$IP_QUAD"
 	powerup.color RedMap
 	inventory.maxamount 3
 	inventory.usesound "pickups/slowmo"
 	inventory.icon "DAMIA0"
 	powerup.type QuadDamage
 	powerup.duration -30
-	Tag "Quad Damage"
+	Tag "$TAG_QUAD"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
 	{
@@ -1329,10 +1329,10 @@ actor QuadDamageItem : PowerupGiver 12794
 	}
 }
 
-actor QuadDamagePowerup : QuadDamageItem 24028
+actor QuadDamagePowerup : QuadDamageItem
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Doomsphere!"
+	inventory.pickupmessage "$IP_QUADP"
 	inventory.icon "DOOMA0"
 	+INVENTORY.AUTOACTIVATE
 	states
@@ -1347,18 +1347,18 @@ actor QuadDamagePowerup : QuadDamageItem 24028
 // INVULNERABILITY ///////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor InvulnerabilityItem : PowerupGiver 12795
+actor InvulnerabilityItem : PowerupGiver
 {
 	//$Category Stronghold_Items
 	scale 0.75
-	inventory.pickupmessage "Picked up an invulnerability sphere."
+	inventory.pickupmessage "$IP_INVU"
 	inventory.icon "INVIA0"
 	inventory.maxamount 3
 	inventory.usesound "pickups/slowmo"
 	powerup.color InverseMap
 	powerup.type "Invulnerable"
 	powerup.duration -30
-	Tag "Invulnerability"
+	Tag "$TAG_INVU"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
 	{
@@ -1372,10 +1372,10 @@ actor InvulnerabilityItem : PowerupGiver 12795
 // MAX ARMOR+ //////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ACTOR MaxArmorBonus2 : BasicArmorBonus 12796
+ACTOR MaxArmorBonus2 : BasicArmorBonus
 {
 	//$Category Stronghold_Items
-	Inventory.Pickupmessage "Picked up a max armor bonus."
+	Inventory.Pickupmessage "$IP_MAXA"
 	Armor.Savepercent 33.33333
 	Armor.Saveamount 5
 	Armor.Maxsaveamount 200
@@ -1395,10 +1395,10 @@ ACTOR MaxArmorBonus2 : BasicArmorBonus 12796
 // MAX HEALTH+ /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ACTOR MaxHealthBonus2 : UpgradeStamina 12797
+ACTOR MaxHealthBonus2 : UpgradeStamina
 {
 	//$Category Stronghold_Items
-	Inventory.Pickupmessage "Picked up a max health bonus."
+	Inventory.Pickupmessage "$IP_MAXH"
 	Inventory.Amount 5
 	Inventory.MaxAmount 300
 	+COUNTITEM
@@ -1415,11 +1415,11 @@ ACTOR MaxHealthBonus2 : UpgradeStamina 12797
 // REGENERATION //////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor RegenerationItem : PowerupGiver 24031
+actor RegenerationItem : PowerupGiver
 {
 	//$Category Stronghold_Items
 	scale 0.75
-	inventory.pickupmessage "Picked up a regeneration sphere."
+	inventory.pickupmessage "$IP_REGE"
 	inventory.icon "RESIA0"
 	inventory.maxamount 3
 	inventory.usesound "pickups/slowmo"
@@ -1427,7 +1427,7 @@ actor RegenerationItem : PowerupGiver 24031
 	powerup.type "Regeneration"
 	powerup.duration -30
 	Powerup.Strength 10
-	Tag "Regeneration"
+	Tag "$TAG_REGE"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
 	{
@@ -1441,14 +1441,14 @@ actor RegenerationItem : PowerupGiver 24031
 // BARRIER ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor WallItem : CustomInventory 12798
+actor WallItem : CustomInventory
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Picked up a barrier kit."
+	inventory.pickupmessage "$IP_BARK"
 	inventory.pickupsound "misc/p_pkup"
 	inventory.maxamount 3
 	inventory.icon WALIA0
-	Tag "Barrier Kit"
+	Tag "$TAG_BARK"
 	+INVENTORY.INVBAR
 	scale 0.75
 	states
@@ -1583,13 +1583,13 @@ actor RedSparkleMedium : RedSparkle { scale 0.4 }
 // RANDOM WEAPON ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor RandomWeaponItem : CustomInventory 25023
+actor RandomWeaponItem : CustomInventory
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Picked up a random weapon sphere."
+	inventory.pickupmessage "$IP_RANW"
 	inventory.maxamount 5
 	inventory.icon WEPIA0
-	Tag "Random Weapon"
+	Tag "$TAG_RANW"
 	+INVENTORY.INVBAR
 	scale 0.75
 	states
@@ -1640,13 +1640,13 @@ actor RandomWeaponItem : CustomInventory 25023
 // AUTO DRONE ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ACTOR AutoDroneItem : CustomInventory 24025
+ACTOR AutoDroneItem : CustomInventory
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Picked up an autodrone."
+	inventory.pickupmessage "$IP_AUDR"
 	inventory.maxamount 2
 	inventory.icon DRNIA0
-	Tag "Autodrone"
+	Tag "$TAG_AUDR"
 	+INVENTORY.INVBAR
 	scale 0.75
 	states
@@ -1853,12 +1853,12 @@ ACTOR AutoDroneBall
 // SMARTBOMB ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor SmartBombItem : CustomInventory 24026
+actor SmartBombItem : CustomInventory
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Picked up the smart bomb!"
+	inventory.pickupmessage "$IP_SBOMB"
 	inventory.icon SMAIA0
-	Tag "Smart Bomb"
+	Tag "$TAG_SBOMB"
 	+INVENTORY.INVBAR
 	scale 0.75
 	states
@@ -1875,16 +1875,16 @@ actor SmartBombItem : CustomInventory 24026
 actor SmartBombGrenade
 {
 	projectile
-	-nogravity
-	+hexenbounce
-	+bounceonactors
-	+canbouncewater
-	+noexplodefloor
-	+slidesonwalls
-	-noteleport
+	-NOGRAVITY
+	+HEXENBOUNCE
+	+BOUNCEONACTORS
+	+CANBOUNCEWATER
+	+NOEXPLODEFLOOR
+	+SLIDESONWALLS
+	-NOTELEPORT
 	bouncefactor 0.6
 	damagetype "corefriendly"
-	obituary "%o got blinded by %k."
+	obituary "$OB_SBOMB"
 	speed 6
 	radius 2
 	height 2
@@ -1966,9 +1966,9 @@ actor mostBlindinglightemmit : Blindinglightemmit
 
 actor Lightrailer
 {
-	+MissileMore
+	+MISSILEMORE
 	+LOOKALLAROUND
-	obituary "%o got blinded a smart bomb!"
+	obituary "$OB_SBOM2"
 	reactiontime 25
 	MinMissileChance 0
 	damagetype "corefriendly"
@@ -2044,18 +2044,18 @@ actor ringlightemmit5 : ringlightemmit1
 // VAMPIRISM / DRAIN /////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-actor DrainItem : PowerupGiver 24040
+actor DrainItem : PowerupGiver
 {
 	//$Category Stronghold_Items
 	scale 0.75
-	inventory.pickupmessage "Picked up a vampirism sphere."
+	inventory.pickupmessage "$IP_VAMP"
 	inventory.icon "VAMIA0"
 	inventory.maxamount 3
 	inventory.usesound "pickups/slowmo"
 	powerup.color "AA 00 00" 0.20
 	powerup.type "Drain"
 	powerup.duration -45
-	Tag "Vampirism"
+	Tag "$TAG_VAMP"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
 	{
@@ -2075,18 +2075,18 @@ actor PowerQuarterDamage : PowerProtection
 	inventory.icon "MEGAA0"
 }
 
-actor ProtectionItem : PowerupGiver 24041
+actor ProtectionItem : PowerupGiver
 {
 	//$Category Stronghold_Items
 	scale 0.75
-	inventory.pickupmessage "Picked up a protection sphere."
+	inventory.pickupmessage "$IP_PROT"
 	inventory.icon "PROIA0"
 	inventory.maxamount 3
 	inventory.usesound "pickups/slowmo"
 	powerup.color "FF AA 00" 0.10
 	powerup.type QuarterDamage
 	powerup.duration -45
-	Tag "Protection"
+	Tag "$TAG_PROT"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
 	{
@@ -2100,17 +2100,17 @@ actor ProtectionItem : PowerupGiver 24041
 // MORPHPOWERUP /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ACTOR MorphPlayerItem : PowerUpGiver 24042
+ACTOR MorphPlayerItem : PowerUpGiver
 {
 	//$Category Stronghold_Items
 	scale 0.75
-	Inventory.PickupMessage "Picked up a morph sphere."
+	Inventory.PickupMessage "$IP_MORPH"
 	inventory.usesound "pickups/slowmo"
 	inventory.maxamount 2
 	inventory.icon "MORIA0"
 	Powerup.Type MorphPlayer
 	Powerup.Duration -45
-	Tag "Morpher"
+	Tag "$TAG_MORPH"
 	+INVENTORY.FANCYPICKUPSOUND
 	states
 	{
@@ -2190,13 +2190,13 @@ actor OSPHealth : Health
 	}
 }
 
-actor IWinButtonItem : CustomInventory 23475
+actor IWinButtonItem : CustomInventory
 {
 	//$Category Stronghold_Items
 	Inventory.Icon IWBIA0
-	Inventory.PickupMessage "You got the I Win Button. Yay!"
+	Inventory.PickupMessage "$IP_IWIN"
 	+INVENTORY.INVBAR
-	Tag "I Win Button"
+	Tag "$TAG_IWIN"
 	states
 	{
 	Spawn:
@@ -2216,14 +2216,14 @@ actor IWinButtonItem : CustomInventory 23475
 /////////////////////////////////////// POWERUP	///////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
-actor WeaponPowerItem : CustomInventory 25007
+actor WeaponPowerItem : CustomInventory
 {
 	//$Category Stronghold_Items
-	inventory.pickupmessage "Picked up a weapon powerup kit."
+	inventory.pickupmessage "$IP_WEAPOW"
 	inventory.pickupsound "pickup"
 	inventory.maxamount 3
 	inventory.icon POWIA0
-	tag "Weapon Powerup Kit"
+	tag "$TAG_WEAPOW"
 	+INVENTORY.INVBAR
 	scale 0.75
 	states
@@ -2277,7 +2277,7 @@ actor StrongholdMegasphere : Megasphere replaces Megasphere
 
 actor InvulnPowerup: CustomInventory replaces InvulnerabilitySphere
 {
-	Inventory.PickupMessage "Invulnerability!"
+	Inventory.PickupMessage "$IP_INVUP"
 	+COUNTITEM
 	+INVENTORY.BIGPOWERUP
 	Inventory.PickupSound "misc/p_pkup"
@@ -2298,7 +2298,7 @@ actor InvulnPowerup: CustomInventory replaces InvulnerabilitySphere
 actor InvisPowerup : CustomInventory replaces BlurSphere
 {
 	Inventory.PickupSound "misc/p_pkup"
-	Inventory.PickupMessage "Partial Invisibility"
+	Inventory.PickupMessage "$IP_PARINS"
 	+COUNTITEM
 	+INVENTORY.BIGPOWERUP
 	States
@@ -2322,7 +2322,7 @@ actor LightAmp: CustomInventory replaces Infrared
 {
     +COUNTITEM
 	Inventory.PickupSound "misc/p_pkup"
-    Inventory.PickupMessage "Light Amplification Visor"
+    Inventory.PickupMessage "$IP_VISOR"
     States
     {
 	Spawn:
@@ -2345,7 +2345,7 @@ actor MegaMap : CustomInventory replaces AllMap
 	+INVENTORY.ALWAYSPICKUP
 	Inventory.MaxAmount 0
 	Inventory.PickupSound "misc/p_pkup"
-	Inventory.PickupMessage "Computer Area Map and Scanner!"
+	Inventory.PickupMessage "$IP_MAPSC"
 	states
 	{
 	Spawn:
@@ -2371,7 +2371,7 @@ actor DoomScanner : PowerupGiver
 actor AmmoBackpack : CustomInventory replaces Backpack
 {
 	Inventory.PickupSound "ammo/backpack"
-	Inventory.PickupMessage "Picked up a backpack full of ammo!"
+	Inventory.PickupMessage "$IP_BAMMO"
 	+COUNTITEM
 	States
 	{
@@ -2406,10 +2406,10 @@ actor RedCardDN : RedCard replaces RedCard
 	ConversationID 301
 }
 
-actor AccessDiscBlue : Key 30910
+actor AccessDiscBlue : Key
 {
 	//$Category Stronghold
-	inventory.pickupmessage "Picked up a blue access disk."
+	inventory.pickupmessage "$IP_BDISC"
 	inventory.icon "TNT1A0"
 	-INVENTORY.INTERHUBSTRIP
 	states
@@ -2420,10 +2420,10 @@ actor AccessDiscBlue : Key 30910
 	}
 }
 
-actor AccessDiscGreen : AccessDiscBlue 30911
+actor AccessDiscGreen : AccessDiscBlue
 {
 	//$Category Stronghold
-	inventory.pickupmessage "Picked up a green access disk."
+	inventory.pickupmessage "$IP_GDISC"
 	states
 	{
 	Spawn:
@@ -2433,7 +2433,7 @@ actor AccessDiscGreen : AccessDiscBlue 30911
 }
 
 //Don't know what this item is
-ACTOR WhyZandronumWhy 31505 //TELL US THE REASON WHY
+ACTOR WhyZandronumWhy //TELL US THE REASON WHY
 {
 	states
 	{

@@ -1,5 +1,4 @@
-// Crab
-actor Crab 8589
+ACTOR Crab
 {
 	//$Category Stronghold_Critters
 	Health 1
@@ -10,7 +9,7 @@ actor Crab 8589
 	Mass 10
 	MONSTER
 	+FLOORCLIP
-	+Friendly
+	+FRIENDLY
 	-COUNTKILL
 	-ACTIVATEMCROSS
 	-SOLID
@@ -25,7 +24,7 @@ actor Crab 8589
 	}
 }
 
-actor Babycrab : Crab 8590
+ACTOR Babycrab : Crab
 {
 	//$Category Stronghold_Critters
 	Radius 4
@@ -35,7 +34,7 @@ actor Babycrab : Crab 8590
 	Mass 5
 }
 
-ACTOR FireFly 3100
+ACTOR FireFly
 {
 	//$Category Stronghold_Critters
 	Health 2
@@ -46,7 +45,7 @@ ACTOR FireFly 3100
 	Scale 0.25
 	+NOGRAVITY
 	+NOTARGET
-	+FloatBob
+	+FLOATBOB
 	+SPAWNFLOAT
 	+NOLIFTDROP
 	+DONTOVERLAP
@@ -67,7 +66,7 @@ ACTOR FireFly 3100
 	}
 }
 
-ACTOR DragonFly : FireFly 3103
+ACTOR DragonFly : FireFly
 {
 	//$Category Stronghold_Critters
 	Speed 10
@@ -79,7 +78,7 @@ ACTOR DragonFly : FireFly 3103
 	}
 }
 
-actor StrangeLight_Red 3104
+ACTOR StrangeLight_Red
 {
 	//$Category Stronghold_Critters
 	Radius 1
@@ -111,7 +110,7 @@ actor StrangeLight_Red 3104
 	}
 }
 
-actor StrangeLight_Blue : StrangeLight_Red 3105
+ACTOR StrangeLight_Blue : StrangeLight_Red
 {
 	//$Category Stronghold_Critters
 	States
@@ -122,7 +121,7 @@ actor StrangeLight_Blue : StrangeLight_Red 3105
 	}
 }
 
-actor StrangeLight_White : StrangeLight_Red 3106
+ACTOR StrangeLight_White : StrangeLight_Red
 {
 	//$Category Stronghold_Critters
 	States
@@ -133,7 +132,7 @@ actor StrangeLight_White : StrangeLight_Red 3106
 	}
 }
 
-actor StrangeLight_Green : StrangeLight_Red 3107
+ACTOR StrangeLight_Green : StrangeLight_Red
 {
 	//$Category Stronghold_Critters
 	States
@@ -144,7 +143,7 @@ actor StrangeLight_Green : StrangeLight_Red 3107
 	}
 }
 
-Actor Creep2 19251
+ACTOR Creep2
 {
 	//$Category Stronghold_Critters
 	health 1
@@ -163,19 +162,19 @@ Actor Creep2 19251
 	Spawn:
 		CRIZ AAABBB 1 A_Wander
 		CRIZ A 0 A_Jump(20,"Spawn2")
-		loop
+		Loop
 	Spawn2:
 		CRIZ A 5 A_Jump(20,"Spawn")
-		loop
+		Loop
 	Death:
 		CRIZ D 3 A_Playsound("Creep2/die")
 		CRIZ E 3 A_UnsetShootable
 		CRIZ F -1
-		stop
+		Stop
 	}
 }
 
-Actor Spiderbug_Red : Creep2 19253
+ACTOR Spiderbug_Red : Creep2
 {
 	//$Category Stronghold_Critters
 	scale 0.2
@@ -185,7 +184,7 @@ Actor Spiderbug_Red : Creep2 19253
 	Spawn:
 		CR3P AAAABBBBCCCC 1 A_Wander
 		CR3P A 0 A_Jump(20,"Jump")
-		loop
+		Loop
 	Jump:
 		CR3P A 1 ThrustThingZ(0,20,0,0)
 		Goto Spawn
@@ -193,11 +192,11 @@ Actor Spiderbug_Red : Creep2 19253
 		CR3P D 3 A_Playsound("Creep/die")
 		CR3P EF 3 A_UnsetShootable
 		CR3P G -1
-		stop
+		Stop
 	}
 }
 
-Actor Spiderbug_Brown : Spiderbug_Red 19252
+ACTOR Spiderbug_Brown : Spiderbug_Red
 {
 	//$Category Stronghold_Critters
 	translation "176:191=64:79", "32:47=64:79"
