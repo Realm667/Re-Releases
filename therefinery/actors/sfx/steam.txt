@@ -15,6 +15,7 @@
 
 Actor SteamSpawner_White : SwitchableDecoration
 {
+	DistanceCheck "reflod"
 	Height 2
 	Radius 1
 	Mass 0
@@ -80,8 +81,9 @@ Actor SteamSpawner_White : SwitchableDecoration
 	}
 }
 
-Actor SteamParticle : SimpleActor
+Actor SteamParticle
 {
+	DistanceCheck "reflod"
 	Height 1
 	Radius 1
 	+MISSILE
@@ -102,6 +104,7 @@ Actor SteamParticle : SimpleActor
 
 Actor SteamSpawner_DarkGreen : SwitchableDecoration
 {
+	DistanceCheck "reflod"
 	Height 2
 	Radius 1
 	Mass 0
@@ -134,7 +137,7 @@ Actor SteamSpawner_DarkGreen : SwitchableDecoration
 		TNT1 A 1 A_SpawnItemEx("SteamParticle_DarkGreen", 0, 0, 0, (0.1)*Random(35, 40), 0, (0.1)*Random(-5, 5), Random(-8, 8), 128)
 		Loop
 	UpBurst:
-	TNT1 A 1 A_Jump(Args[2]/16, 1)
+		TNT1 A 1 A_Jump(Args[2]/16, 1)
 		Loop
 		TNT1 A 0 A_JumpIf(Args[3] > 0, 2)
 		TNT1 A 0 A_PlaySoundEx("Steam/Fire", "SoundSlot7", 0)
@@ -169,6 +172,7 @@ Actor SteamSpawner_DarkGreen : SwitchableDecoration
 
 Actor SteamParticle_DarkGreen
 {
+	DistanceCheck "reflod"
 	Height 1
 	Radius 1
 	Damage 20
