@@ -5,59 +5,61 @@
 
 Actor EmberParticle_Gravity
 {
- +THRUACTORS
- +MISSILE
- +LOWGRAVITY
- +FLOATBOB
- +FORCEXYBILLBOARD
- Radius 1
- Height 1
- BounceType Doom
- RenderStyle Add
- Alpha 1.0
- YScale 0.75
- XScale 0.75
- States
- {
-  Spawn:
-   EMB5 ABCDEFHIIIIIIII 5 Bright //A_Weave(1, 1, 1.0, 1.0)
-   EMB5 A 0 A_Die
-  Death: 
-   EMB5 IIIIII 3 Bright A_FadeOut(0.2)
-   Loop
- }
+	+THRUACTORS
+	+MISSILE
+	+LOWGRAVITY
+	+FLOATBOB
+	+FORCEXYBILLBOARD
+	Radius 1
+	Height 1
+	BounceType Doom
+	RenderStyle Add
+	Alpha 1.0
+	YScale 0.75
+	XScale 0.75
+	States
+	{
+	Spawn:
+		EMB5 ABCDEFHIIIIIIII 5 Bright //A_Weave(1, 1, 1.0, 1.0)
+		EMB5 A 0 A_Die
+	Death:
+		EMB5 IIIIII 3 Bright A_FadeOut(0.2)
+		Loop
+	}
 }
 
-
-actor ExplosionSpawner : SwitchableDecoration 305
+Actor ExplosionSpawner : SwitchableDecoration
 {
-	+NoGravity +NoInteraction +NoClip -Solid +CLIENTSIDEONLY 
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	+NOINTERACTION
+	+NOCLIP
+	-SOLID
 	RenderStyle Add
 	Alpha 1.0
 	Scale 0.06
-        states
-        {
-        Spawn:
-           Active:
+	States
+	{
+	Spawn:
+	Active:
 		EXN1 AAAAAA 1 BRIGHT A_SetScale(ScaleX + frandom(0.1,0.2), ScaleY + frandom(0.1,0.2))
-        	"####" A 0 BRIGHT A_PlaySoundEx("weapons/rocklx",0)
+		"####" A 0 BRIGHT A_PlaySoundEx("weapons/rocklx",0)
 		"####" A 0 BRIGHT A_SpawnItemEx ("ExplosionLight")
-        	"####" AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 BRIGHT
-			{
-				A_SpawnItemEx ("EmberParticle", 0, 0, 0, random(1,6), random(1,6), random(-5,5), random(0,359), SXF_CLIENTSIDE, 0);
-				A_SpawnItemEx ("SmokeExplosion", 0, 0, 0, frandom(0.0, 2.0), frandom(0.0, 2.0), 0, 0, 0, 192); 
-			}
+		"####" AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 BRIGHT
+		{
+		A_SpawnItemEx ("EmberParticle", 0, 0, 0, random(1,6), random(1,6), random(-5,5), random(0,359), SXF_CLIENTSIDE, 0);
+		A_SpawnItemEx ("SmokeExplosion", 0, 0, 0, frandom(0.0, 2.0), frandom(0.0, 2.0), 0, 0, 0, 192);
+		}
 		"####" AAA 1 BRIGHT
-			{
-				A_FadeOut(0.3);
-				A_SetScale(ScaleX + frandom(0.1,0.2), ScaleY + frandom(0.1,0.2));
-			}
+		{
+		A_FadeOut(0.3);
+		A_SetScale(ScaleX + frandom(0.1,0.2), ScaleY + frandom(0.1,0.2));
+		}
 		Goto Inactive
-	   Inactive:
+	Inactive:
 		TNT1 A 1
 		Loop
-        }     
-        
+	}
 }
 
 //////////////////////////
@@ -65,87 +67,90 @@ actor ExplosionSpawner : SwitchableDecoration 305
 //////////////////////////
 
 Actor ExplosionLight
-{ 
-  +ClientSideOnly
-  +NoClip
-  +NoBlockMap
-  +NoGravity
-  +NoInteraction
-  States
-  {
-  Spawn:
-   TNT1 A 10
-   Stop
-  }
+{
+	+CLIENTSIDEONLY
+	+NOCLIP
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+NOINTERACTION
+	States
+	{
+	Spawn:
+		TNT1 A 10
+		Stop
+	}
 }
 
-Actor SmokeExplosion : Flame1A 
+Actor SmokeExplosion : Flame1A
 {
-  Height 2
-  Radius 1
-  +NoGravity
-  +NoBlockMap
-  +Missile
-  +NoInteraction
-  +ForceXYBillboard
-  RenderStyle Translucent
-  Alpha 0.0
-  Scale 0.6
-  States
-  {
-  Spawn:
-    SMOC A 0 NoDelay
-  Smoke:
-    "####" A 0 ThrustThingZ(0, random(10, 40), 0, 0)
-    "####" A 0 ThrustThing(random(0, 255), frandom(1.0, 2.0), 0, 0)
-    "####" AAAAAAA 1 A_FadeIn(0.05)
-    "####" A 1		
-    {
-	A_FadeOut(frandom(0.005,0.007));
-	A_SetScale(ScaleX + frandom(0.01,0.015), ScaleY + frandom(0.01,0.015));
-	A_ChangeVelocity(VelX/1.05, VelY/1.05, VelZ/1.05, CVF_REPLACE);
-    }
-    Goto Smoke+9
-    Death:
-    SMOC A 0
-    Stop
-  }
+	Height 2
+	Radius 1
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+MISSILE
+	+NOINTERACTION
+	+FORCEXYBILLBOARD
+	RenderStyle Translucent
+	Alpha 0.0
+	Scale 0.6
+	States
+	{
+	Spawn:
+		SMOC A 0 NoDelay
+	Smoke:
+		"####" A 0 ThrustThingZ(0, random(10, 40), 0, 0)
+		"####" A 0 ThrustThing(random(0, 255), frandom(1.0, 2.0), 0, 0)
+		"####" AAAAAAA 1 A_FadeIn(0.05)
+		"####" A 1
+		{
+		A_FadeOut(frandom(0.005,0.007));
+		A_SetScale(ScaleX + frandom(0.01,0.015), ScaleY + frandom(0.01,0.015));
+		A_ChangeVelocity(VelX/1.05, VelY/1.05, VelZ/1.05, CVF_REPLACE);
+		}
+		Goto Smoke+9
+	Death:
+		SMOC A 0
+		Stop
+	}
 }
 
-actor StarParticle : EmberParticle_Gravity
+Actor StarParticle : EmberParticle_Gravity
 {
+	+NOGRAVITY
 	-FLOATBOB
-        +NOGRAVITY
 	-LOWGRAVITY
 	BounceType None
 	YScale 1.5
 	XScale 1.5
 	States
-	 {
-	  Spawn:
-	   EMB5 I 120 Bright 
-	   EMB5 A 0 A_Die
-	  Death: 
-	   EMB5 IIIIII 6 Bright A_FadeOut(0.2)
-	   Loop
-	 }
+	{
+	Spawn:
+		EMB5 I 120 Bright
+		EMB5 A 0 A_Die
+	Death:
+		EMB5 IIIIII 6 Bright A_FadeOut(0.2)
+		Loop
+	}
 }
 
-actor StarParticle_Spawner : SwitchableDecoration 309
+Actor StarParticle_Spawner : SwitchableDecoration
 {
-	+NoGravity +NoInteraction +NoClip -Solid +CLIENTSIDEONLY
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	+NOINTERACTION
+	+NOCLIP
+	-SOLID
 	RenderStyle Add
 	Alpha 1.0
-        states
-        {
-        Spawn:
-           Active:
-        	TNT1 A 1
-        	TNT1 A 5 A_SpawnItemEx ("StarParticle", 0, 0, 0, 0, random(2,8), -2, random(-2,2), SXF_CLIENTSIDE, 64) 
+	States
+	{
+	Spawn:
+	Active:
+		TNT1 A 1
+		TNT1 A 5 A_SpawnItemEx ("StarParticle", 0, 0, 0, 0, random(2,8), -2, random(-2,2), SXF_CLIENTSIDE, 64)
 		Loop
-	   Inactive:
+	Inactive:
 		TNT1 A 1
 		Loop
-        }     
-        
+	}
 }

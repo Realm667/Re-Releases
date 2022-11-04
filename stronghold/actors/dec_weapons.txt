@@ -148,7 +148,7 @@ actor StrongholdShotgun : Shotgun replaces Shotgun
 {
 	Weapon.AmmoUse2 1
 	Weapon.AmmoType2 "Shell"
-	obituary "%o got pummeled by %k's shotgun."
+	obituary "$WP_SHOT"
 	attacksound "weapons/shotgf"
 	decal bulletchip
 	states
@@ -288,13 +288,13 @@ actor StrongholdSuperShotgun : SuperShotgun replaces SuperShotgun
 //////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// AUTO SHOTGUN /////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
-actor AutoShotgun : Weapon 5118
+actor AutoShotgun : Weapon
 {
 	//$Category Stronghold_Weapons
 	+WEAPON.AMMO_CHECKBOTH
-	obituary "%o got blasted away by %k's autoshotgun."
-	Inventory.PickupMessage "You got the automatic shotgun!"
-	Tag "AutoShotgun"
+	obituary "$WP_AUTO"
+	Inventory.PickupMessage "$IP_AUTO"
+	Tag "$TAG_AUTO"
 	weapon.selectionorder 700
 	Weapon.AmmoType1 "Shell"
 	Weapon.AmmoType2 "ASGClip"
@@ -477,16 +477,16 @@ actor StrongholdChaingun : Chaingun replaces Chaingun
 //////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// MINE LAYER ///////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
-ACTOR LandMineLayer : Weapon 25084
+ACTOR LandMineLayer : Weapon
 {
 	//$Category Stronghold_Weapons
-	Inventory.PickupMessage "You got some land mines!"
+	Inventory.PickupMessage "$IP_MINE"
 	Weapon.AmmoType "MineAmmo"
 	Weapon.AmmoGive 5
 	Weapon.AmmoUse 1
 	Weapon.AmmoType2 "MineAmmo"
 	Weapon.AmmoUse2 1
-	Tag "Land Mines"
+	Tag "$TAG_MINE"
 	States
 	{
 	Spawn:
@@ -646,12 +646,12 @@ ACTOR MineAmmo : Ammo
 	Inventory.Icon MINEA0
 }
 
-ACTOR Mines : WeaponGiver 25085
+ACTOR Mines : WeaponGiver
 {
 	//$Category Stronghold_Weapons
 	DropItem LandMineLayer
 	Weapon.AmmoGive 2
-	Inventory.PickupMessage "Picked up some landmines."
+	Inventory.PickupMessage "$IP_MIN2"
 	States
 	{
 	Spawn:
@@ -737,7 +737,7 @@ actor PowerRocket2 : Rocket2
 	scale 0.5
 	translation "128:151=[192,192,192]:[64,64,64]","48:79=[255,255,255]:[0,0,0]","112:127=[255,255,255]:[0,0,0]"
 	+THRUGHOST
-	+SeekerMissile
+	+SEEKERMISSILE
 	states
 	{
 	Spawn:
@@ -755,17 +755,17 @@ actor PowerRocket2 : Rocket2
 //////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// HOMING ROCKET LAUNCHER ///////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
-ACTOR HRL : Weapon 20103
+ACTOR HRL : Weapon
 {
 	//$Category Stronghold_Weapons
-	Inventory.PickupMessage "You got the homing rocket launcher!"
-	Obituary "%o couldn't dodge %k's homing rockets."
+	Inventory.PickupMessage "$IP_HOME"
+	Obituary ""WP_HOME"
 	Weapon.AmmoType "RocketAmmo"
 	Weapon.AmmoGive 4
 	Weapon.AmmoUse 2
 	Weapon.AmmoType2 "RocketAmmo"
 	Weapon.AmmoUse2 2
-	Tag "Homing Rocket Launcher"
+	Tag "$TAG_HOME"
 	States
 	{
 	Spawn:
@@ -936,17 +936,17 @@ actor PowerPlasmaBall : StrongholdPlasmaBall
 //////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// RAILGUN    ///////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
-ACTOR RailGun : Weapon 20102
+ACTOR RailGun : Weapon
 {
 	//$Category Stronghold_Weapons
-	Inventory.PickupMessage "You got the railgun!"
-	Obituary "%o was railed by %k."
+	Inventory.PickupMessage "$IP_RAIL"
+	Obituary "$WP_RAIL"
 	DamageType Normal
 	Weapon.AmmoType "Cell"
 	Weapon.AmmoGive 40
 	Weapon.AmmoUse 5
 	Decal RailScorch
-	Tag "Railgun"
+	Tag "$TAG_RAIL"
 	States
 	{
 	Spawn:
@@ -1083,12 +1083,12 @@ ACTOR RailgunScope : Inventory{}
 //////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// STUNNER RIFLE ////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
-ACTOR StunnerRifle : PlasmaRifle 23099
+ACTOR StunnerRifle : PlasmaRifle
 {
 	Tag "Stunner Rifle"
 	//$Category Stronghold_Weapons
 	Weapon.AmmoUse 5
-	Inventory.PickupMessage "You got the stunner rifle!"
+	Inventory.PickupMessage "$IP_STUN"
 	States
 	{
 	Spawn:
@@ -1274,7 +1274,7 @@ actor PowerBFGBall : StrongholdBFGBall
 	Scale 0.6
 	+EXTREMEDEATH
 	+FORCERADIUSDMG
-	Obituary "$OB_MPBFG_BOOM" // "%o was splintered by %k's BFG."
+	Obituary "$WP_PBFG"
 	//SuicideObituary "%k couldn't handle the overwhelming power."
 	States
 	{
@@ -1291,15 +1291,15 @@ actor PowerBFGBall : StrongholdBFGBall
 //////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// PYRO CANNON //////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
-ACTOR PyroCannon : Weapon 20107
+ACTOR PyroCannon : Weapon
 {
 	//$Category Stronghold_Weapons
-	Inventory.PickupMessage "You got the pyro cannon prototype!"
-	Obituary "%o was incinerated by %k's pyro cannon."
+	Inventory.PickupMessage "$IP_PYROC"
+	Obituary "$WP_PYROC"
 	Weapon.AmmoType "Gas"
 	Weapon.AmmoGive 48
 	Weapon.AmmoUse 48
-	Tag "Pyro Cannon"
+	Tag "$TAG_PYROC"
 	+WEAPON.EXPLOSIVE
 	+WEAPON.BFG
 	+WEAPON.DONTBOB
@@ -1341,14 +1341,14 @@ ACTOR PyroCannon : Weapon 20107
 	}
 }
 
-ACTOR Gas : Ammo 22106
+ACTOR Gas : Ammo
 {
 	//$Category Stronghold_Weapons
 	Inventory.Amount 24
 	Inventory.MaxAmount 240
 	Ammo.BackpackAmount 24
 	Ammo.BackpackMaxAmount 480
-	Inventory.PickupMessage "Picked up a gas canister."
+	Inventory.PickupMessage "$IP_GAMMO"
 	Inventory.Icon AGASA0
 	States
 	{
@@ -1358,11 +1358,11 @@ ACTOR Gas : Ammo 22106
 	}
 }
 
-ACTOR Fuel : Gas 22107
+ACTOR Fuel : Gas
 {
 	//$Category Stronghold_Weapons
 	Inventory.Amount 96
-	Inventory.PickupMessage "Picked up a gas pack."
+	Inventory.PickupMessage "$IP_FUEL"
 	States
 	{
 	Spawn:
@@ -1525,15 +1525,15 @@ ACTOR ClusterPyroShot : PyroShot
 //////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// FLAMER ///////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
-ACTOR Flamer : Weapon 20105
+ACTOR Flamer : Weapon
 {
 	//$Category Stronghold_Weapons
-	Inventory.PickupMessage "You got the flamethrower! Time for a BBQ!"
-	Obituary "%o was BBQed by %k's flamethrower."
+	Inventory.PickupMessage "$IP_BBQ"
+	Obituary "$WP_BBQ"
 	Weapon.AmmoType "Gas"
 	Weapon.AmmoGive 48
 	Weapon.AmmoUse 1
-	Tag "Flamethrower"
+	Tag "$TAG_BBQ"
 	+WEAPON.EXPLOSIVE
 	States
 	{
@@ -1692,15 +1692,15 @@ ACTOR PowerFTFire : FTFire
 //////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// DEVASTATOR ///////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
-ACTOR Devastator : Weapon 20101
+ACTOR Devastator : Weapon
 {
 	//$Category Stronghold_Weapons
-	Inventory.PickupMessage "You got the devastator! Hell, yeah!"
-	Obituary "%o was disintergrated by %k's Devastator."
+	Inventory.PickupMessage "$IP_DEVAST"
+	Obituary "$WP_DEVAST"
 	Weapon.AmmoType "Cell"
 	Weapon.AmmoGive 60
 	Weapon.AmmoUse 60
-	Tag "Devastator"
+	Tag "$TAG_DEVAST"
 	+WEAPON.EXPLOSIVE
 	+WEAPON.BFG
 	+WEAPON.NOAUTOFIRE
@@ -2023,18 +2023,18 @@ Actor DevastatorEffect : DevastatorDec2
 //////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// REPEATER /////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
-ACTOR Repeater : Weapon 20100
+ACTOR Repeater : Weapon
 {
 	//$Category Stronghold_Weapons
-	Inventory.PickupMessage "You got the plasma repeater!"
-	Obituary "%o was disintegrated by %k's repeater."
+	Inventory.PickupMessage "$IP_REPEAT"
+	Obituary "$WP_REPEAT"
 	Weapon.AmmoType1 "Cell"
 	Weapon.AmmoGive 20
 	Weapon.AmmoUse 1
 	+WEAPON.EXPLOSIVE
 	AttackSound "weapons/repfir"
 	Decal FireDemonScorch
-	Tag "Plasma Repeater"
+	Tag "$TAG_REPEAT"
 	States
 	{
 	Spawn:

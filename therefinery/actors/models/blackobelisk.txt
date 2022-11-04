@@ -1,54 +1,47 @@
-Actor BlackObelisk
+Actor BaseObelisk
+{
+	//$Category Decoration
+	//$IsDecoration
+	Radius 8
+	Height 16
+	+DONTTHRUST
+	+SOLID
+	+PUFFONACTORS
+	+SHOOTABLE
+	+NODAMAGE
+	+NOBLOOD
+	+NOTAUTOAIMED
+}
+
+Actor BlackObelisk : BaseObelisk
 { 
 	//$Title Black Obelisk
-	//$Category Decoration
-	//$IsDecoration
-	Radius 8
-	Height 16
-	+DontThrust
-	+Solid
-	+PuffOnActors
-	+Shootable
-	+NoDamage
-	+NoBlood
-	+NotAutoaimed
 	States
 	{
-		Spawn:
-			BLO1 A 0 NoDelay 
-			{
-			A_SpawnItemEx("TrunkBlocker1Bottom", 0, 0, 20, 0, 0, 0, 0, SXF_SETMASTER);
-			A_SpawnItemEx("TrunkBlocker1Top", 0, 0, 188, 0, 0, 0, 0, SXF_SETMASTER);
-			}
-			BLO1 A -1 
-			Stop
+	Spawn:
+		BLO1 A 0 NoDelay 
+		{
+		A_SpawnItemEx("TrunkBlocker1Bottom", 0, 0, 20, 0, 0, 0, 0, SXF_SETMASTER);
+		A_SpawnItemEx("TrunkBlocker1Top", 0, 0, 188, 0, 0, 0, 0, SXF_SETMASTER);
+		}
+		BLO1 A -1 
+		Stop
 	}
 }
 
-Actor BlackObeliskNoBase
+Actor BlackObeliskNoBase : BaseObelisk
 { 
 	//$Title Black Obelisk(No Base)
-	//$Category Decoration
-	//$IsDecoration
-	Radius 8
-	Height 16
-	+DontThrust
-	+Solid
-	+PuffOnActors
-	+Shootable
-	+NoDamage
-	+NoBlood
-	+NotAutoaimed
 	States
 	{
-		Spawn:
-			BLO2 A 0 NoDelay A_SpawnItemEx("TrunkBlocker2", 0, 0, 100, 0, 0, 0, 0, SXF_SETMASTER) 
-			BLO2 A -1
-			Stop
+	Spawn:
+		BLO2 A 0 NoDelay A_SpawnItemEx("TrunkBlocker2", 0, 0, 100, 0, 0, 0, 0, SXF_SETMASTER) 
+		BLO2 A -1
+		Stop
 	}
 }
 
-Actor BlackObeliskFloat
+Actor BlackObeliskFloat : BaseObelisk
 { 
 	//$Title Black Obelisk(Floating)
 	//$Category Decoration
@@ -56,15 +49,8 @@ Actor BlackObeliskFloat
 	Radius 8
 	Height 16
 	FloatBobStrength 0.25  
-	+Floatbob
-	+DontThrust
-	+NoGravity
-	+Solid
-	+PuffOnActors
-	+Shootable
-	+NoDamage
-	+NoBlood
-	+NotAutoaimed
+	+FLOATBOB
+	+NOGRAVITY
 	States
 	{
 		Spawn:
@@ -75,23 +61,15 @@ Actor BlackObeliskFloat
 	}
 }
 
-Actor TrunkBlocker1Bottom
+Actor TrunkBlocker1Bottom : BaseObelisk
 {
 	Radius 22
 	Height 168
-	+DontThrust
-	+Solid
-	+PuffOnActors
-	+Shootable
-	+NoDamage
-	+NoBlood
-	+NotAutoaimed
-	+NoGravity
 	States
 	{
-		Spawn:
-			TNT1 A 1 A_Warp(AAPTR_MASTER,0,0,20,0,WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION)
-			Loop
+	Spawn:
+		TNT1 A 1 A_Warp(AAPTR_MASTER,0,0,20,0,WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION)
+		Loop
 	}
 }
 
@@ -102,9 +80,9 @@ Actor TrunkBlocker1Top : TrunkBlocker1Bottom
 	Height 100
 	States
 	{
-		Spawn:
-			TNT1 A 1 A_Warp(AAPTR_MASTER,0,0,188,0,WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION)
-			Loop
+	Spawn:
+		TNT1 A 1 A_Warp(AAPTR_MASTER,0,0,188,0,WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION)
+		Loop
 	}
 }
 
@@ -114,10 +92,8 @@ Actor TrunkBlocker2 : TrunkBlocker1Bottom
 	Height 100
 	States
 	{
-		Spawn:
-			TNT1 A 1 A_Warp(AAPTR_MASTER,0,0,100,0,WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION)
-			Loop
+	Spawn:
+		TNT1 A 1 A_Warp(AAPTR_MASTER,0,0,100,0,WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION)
+		Loop
 	}
 }
-
-

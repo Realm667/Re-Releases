@@ -53,26 +53,26 @@ actor WaterfallParticleA4 : WaterfallParticleA1
 	}
 }
 
-Actor Watersplashspawner : SwitchableDecoration 20121
+Actor WatersplashSpawner : SwitchableDecoration
 {
-  Height 2
-  Radius 1
-  Mass 0
-  +NoBlockMap
-  +NoGravity
-  +NoInteraction
-  +ClientSideOnly
-  States
-  {
-  Spawn:
-  Active:
-    TNT1 A 1 A_SpawnItemEx("WaterfallParticleA1", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
-    TNT1 A 1 A_SpawnItemEx("WaterfallParticleA2", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
-    TNT1 A 1 A_SpawnItemEx("WaterfallParticleA3", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
-    TNT1 A 1 A_SpawnItemEx("WaterfallParticleA4", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
-    Loop
-  Inactive:
-    TNT1 A 1
-    Loop
-  }
+	Height 2
+	Radius 1
+	Mass 0
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States
+	{
+	Spawn:
+	Active:
+		TNT1 A 1 A_SpawnItemEx("WaterfallParticleA1", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
+		TNT1 A 1 A_SpawnItemEx("WaterfallParticleA2", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
+		TNT1 A 1 A_SpawnItemEx("WaterfallParticleA3", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
+		TNT1 A 1 A_SpawnItemEx("WaterfallParticleA4", 0, 0, 1, Random(0, 3), 0, (0.1)*Random(35, 40), Random(0, 360), 128)
+		Loop
+	Inactive:
+		TNT1 A 1
+		Loop
+	}
 }

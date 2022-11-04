@@ -12,12 +12,8 @@ actor CaveStalagmiteFloor
 	}
 }
 
-actor CaveStalagmiteCeiling1
+actor CaveStalagmiteCeiling1 : CaveStalagmiteFloor
 {
-	//$Category Decoration
-	Radius 24
-	Height 52
-	+SOLID
 	+SPAWNCEILING
 	+NOGRAVITY
 	States
@@ -28,8 +24,10 @@ actor CaveStalagmiteCeiling1
 	}
 }
 
-actor CaveStalagmiteCeiling2 : CaveStalagmiteCeiling1
+actor CaveStalagmiteCeiling2 : CaveStalagmiteFloor
 {
+	+SPAWNCEILING
+	+NOGRAVITY
 	States
 	{
 	Spawn:
