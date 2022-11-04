@@ -2,21 +2,24 @@ LISTMENU "MainMenu"
 {
 	IfGame(Doom)
 	{
-		StaticPatch 32, 10, "M_DOOM"
-		Position 96, 96
+		StaticPatch 32, 8, "M_DOOM"
+		Position 40, 74
+		LineSpacing 15
 		PatchItem "M_NEWG", "N", "PlayerclassMenu"
 		PatchItem "M_LOADG", "L", "LoadGameMenu"
 		PatchItem "M_SAVEG", "S", "SaveGameMenu"
-		PatchItem "M_Option","O", "OptionsMenu"
+		PatchItem "M_REFOPT","R", "RefineryMenu"
+		PatchItem "M_OPTION","O", "OptionsMenu"
 		PatchItem "M_QUITG","Q", "QuitMenu"
     }
 }
 
-AddOptionMenu "OptionsMenu"
+OptionMenu "RefineryMenu"
 {
 	StaticText "$MN_OPREFI"
 	StaticText ""
 	Option "$MN_OPDIST","reflod","RefDist"
+	Option "$MN_OPPART","ref_stars","YesNo"
 	Option "$MN_OPHEAT","enh_shaderoverlayswitch","YesNo"
 	Option "$MN_OPBLUR","motionblur","YesNo"
 }

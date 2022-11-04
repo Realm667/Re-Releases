@@ -1,0 +1,56 @@
+class StarParticle_Spawner : EffectSpawner
+{
+	Default
+	{
+		//$Category Special Effects (BoA)
+		//$Title Startdust Spawner (horizontal)
+		//$Color 12
+		//$Sprite EMB5I0
+		-SOLID
+		+CLIENTSIDEONLY
+		+NOCLIP
+		+NOGRAVITY
+		+NOINTERACTION
+		RenderStyle "Add";
+		Alpha 1.0;
+		EffectSpawner.Range 1200;
+		EffectSpawner.SwitchVar "ref_stars";
+		+EffectSpawner.ALLOWTICKDELAY
+	}
+
+	States
+	{
+		Spawn:
+			TNT1 A 0;
+		Active:
+			"####" A 9 A_SpawnItemEx ("StarParticle", 0, 0, 0, 0, random(2,8), -2, random(-2,2), SXF_CLIENTSIDE, 64);
+			Loop;
+	}
+}
+
+class StarParticle : ParticleBase
+{
+	Default
+	{
+		Gravity 0.125;
+		Radius 1;
+		Height 1;
+		RenderStyle "Add";
+		Alpha 1.0;
+		YScale 1.0;
+		XScale 1.0;
+		+BRIGHT
+		+FORCEXYBILLBOARD
+		+MISSILE
+		+NOGRAVITY
+		+THRUACTORS
+		+ParticleBase.CHECKPOSITION
+	}
+
+	States
+	{
+		Spawn:
+			EMB5 I 150;
+			Stop;
+	}
+}
