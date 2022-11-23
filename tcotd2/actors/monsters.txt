@@ -2188,3 +2188,52 @@ ACTOR TCOTDGhul
 		Goto See
 	}
 }
+
+//////////////////
+// WALKING HAND //
+//////////////////
+
+Actor WalkingHand 9670
+{
+	//$Category LivingProps
+	//$Title "Walking Hand"
+	Monster
+	Health 25
+	Radius 10
+	Height 15
+	Speed 2
+	Mass 100
+	Scale 0.5
+	PainChance 255
+	-COUNTKILL
+	States
+	{
+		Spawn:
+			HAND A 10
+			Goto See
+		See:
+			HAND AABBCCDDEE 3 A_Wander
+		Loop
+		Pain:
+			HAND A 1
+			Goto RunAway
+		RunAway:
+			TNT1 A 0 A_ChangeFlag("Frightened", True)
+			TNT1 A 0 A_SetSpeed(5,AAPTR_DEFAULT)
+			HAND AABBCCDDEEAABBCCDDEE 2 A_Chase
+			TNT1 A 0 A_SetSpeed(2,AAPTR_DEFAULT)
+			TNT1 A 0 A_ChangeFlag("Frightened", False)
+			Goto See
+		Death:
+			TNT1 A 0 A_PlaySound("HandDeath/Death",0,1)
+			HDEA AABBCCDDEE 2
+			HDEA F -1
+			Stop
+		Burn:
+			TNT1 A 0 A_PlaySound("HandFire/Fire",0,1)
+			HDEA GGHHIIJJGGHHIIJJGGHHIIJJGGHHIIJJGGHHIIJJ 2
+			HDEA KKLLMM 2
+			HDEA N -1
+		Stop
+	}
+}
