@@ -1,0 +1,96 @@
+//Underwater shader
+HardwareShader PostProcess scene
+{
+	Name "watershader"
+	Shader "shaders/Water.frag" 330
+	Uniform float waterFactor
+	Uniform float timer // placeholder?
+}
+
+HardwareShader PostProcess scene
+{
+	Name "waterzoomshader"
+	Shader "shaders/WaterZoom.frag" 330
+	Uniform float zoomFactor
+}
+
+// Fog Cloud
+HardwareShader Sprite XSMKA0
+{
+	Shader "shaders/FogCloud.fp"
+}
+
+//Bush
+HardwareShader Sprite BUSZA0
+{
+	Shader "shaders/grass_sway.fp"
+	Speed 0.8
+}
+
+//Grasses
+HardwareShader Sprite GRS1A0
+{
+	Shader "shaders/grass_sway.fp"
+	Speed 1.0
+}
+
+HardwareShader Sprite GRS2A0
+{
+	Shader "shaders/grass_sway.fp"
+	Speed 1.05
+}
+
+HardwareShader Sprite GRS3A0
+{
+	Shader "shaders/grass_sway.fp"
+	Speed 1.04
+}
+
+HardwareShader Sprite TRE2A0
+{
+	Shader "shaders/trees_sway.fp"
+	Speed 0.75
+}
+
+HardwareShader Sprite ELECA0
+{
+	Shader "shaders/trees_sway.fp"
+	Speed 0.69
+}
+
+HardwareShader Sprite FSKUA0
+{
+	Shader "shaders/trees_sway.fp"
+	Speed 0.67
+}
+
+HardwareShader Sprite POL2A0
+{
+	Shader "shaders/trees_sway.fp"
+	Speed 0.67
+}
+
+HardwareShader Sprite POL3A0
+{
+	Shader "shaders/trees_sway.fp"
+	Speed 0.67
+}
+
+HardwareShader Sprite TRE1A0
+{
+	Shader "shaders/trees_sway.fp"
+	Speed 0.70
+}
+
+//Trees
+HardwareShader Texture X_WOOD01
+{
+	Shader "shaders/trees_sway.fp"
+	Speed 0.60
+}
+
+HardwareShader Texture X_WOOD02
+{
+	Shader "shaders/trees_sway.fp"
+	Speed 0.50
+}
