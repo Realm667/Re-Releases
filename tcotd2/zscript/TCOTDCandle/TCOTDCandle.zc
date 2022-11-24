@@ -33,3 +33,28 @@ class TCOTDCandleStackable : TCOTDCandle
 		+NOGRAVITY
 	}
 }
+
+class TCOTDCandleACS : TCOTDSwitchableDecoration //not interactive, see tagged 69 on map
+{
+	Default
+	{
+		//$Category New Lights (TCOTD2)
+		//$Title Creepy Candle (ACS Based)
+		//$Color 11
+		Radius 4;
+		Height 16;
+		Scale 0.8;
+		-SOLID
+	}
+
+	States
+	{
+	Spawn:
+	Active:
+		CDLE ABCD 4 Light("CREPLIT2");
+		Loop;
+	Inactive:
+		CDLE E -1;
+		Stop;
+	}
+}
