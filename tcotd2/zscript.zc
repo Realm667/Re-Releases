@@ -37,66 +37,6 @@ class SimpleActor : Actor
 	}
 }
 
-class EffectSpawner : SwitchableDecoration //following code has been adapted by Ozymandias81 for this remaster, a bit different from BoA code
-{
-	transient CVar switchcvar;
-	String switchvar;
-	int range;
-	int chunkx, chunky;
-
-	int flags;
-
-	FlagDef AllowTickDelay:flags, 0;
-	FlagDef DoActivation:flags, 1;
-
-	Property Range:range;
-	Property SwitchVar:switchvar;
-
-	Default
-	{
-		+EffectSpawner.DoActivation // Automatically activate/deactivate based on DORMANT flag by default
-	}
-
-	States
-	{
-		Spawn:
-		Inactive:
-			TNT1 A -1;
-			Wait;
-	}
-
-	override void PostBeginPlay()
-	{
-		Super.PostBeginPlay();
-
-		if (switchvar.length()) { switchcvar = CVar.FindCVar(switchvar); }
-
-		if (bDoActivation)
-		{
-			if (bDormant || SpawnFlags & MTF_DORMANT) { Deactivate(null); }
-			else { Activate(null); }
-		}
-
-		tics += Random(0, 35);
-	}
-
-	override void Activate(Actor activator)
-	{
-		if (switchcvar && !switchcvar.GetBool()) { SetStateLabel("Inactive"); }
-		else
-		{
-			bDormant = false;
-			SetStateLabel("Active");
-		}
-	}
-
-	override void Deactivate(Actor activator)
-	{
-		bDormant = true;
-		SetStateLabel("Inactive");
-	}
-}
-
 class ParticleBase : SimpleActor
 {
 	int checktimer;
@@ -212,8 +152,10 @@ class ParticleBase : SimpleActor
 // Misc
 #include "zscript/TCOTDExMark/TCOTDExMark.zc"
 #include "zscript/TCOTDMoonShelterMarker/TCOTDMoonShelterMarker.zc"
-#include "zscript/splashes.zc"
-#include "zscript/smoke.zc"
+#include "zscript/TCOTDOthers/heateffect.zc"
+#include "zscript/TCOTDOthers/mblur.zc"
+#include "zscript/TCOTDOthers/splashes.zc"
+#include "zscript/TCOTDOthers/smoke.zc"
 
 // HUD
 #include "zscript/TCOTDHUD/TCOTDHUD.zc"
@@ -234,4 +176,4 @@ class ParticleBase : SimpleActor
 #include "zscript/TCOTDNashgore2/NashGoreMenu.zc"
 
 // Underwater
-#include "zscript/underwater.zc"
+#include "zscript/TCOTDOthers/underwater.zc"

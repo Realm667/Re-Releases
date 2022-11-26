@@ -1,17 +1,52 @@
-AddOptionMenu "OptionsMenu"
+LISTMENU "MainMenu"
 {
-	StaticText "TCOTD2 Options"
-	StaticText ""
-	Option "Weather Effects", "tcotd2_weatherfx", "OnOff"
+	IfGame(Doom, Chex) //let's force it - ozy81
+	{
+		LineSpacing 16	// This must account for some single-graphic replacements, so it cannot be widened
+		StaticPatch 94, 2, "M_DOOM"
+		Position 97, 72
+		IfOption(ReadThis)
+		{
+			Position 97, 64
+		}
+	}
+	IfGame(Doom)
+	{
+		PatchItem "M_NGAME", "N", "PlayerclassMenu"
+		PatchItem "M_LOADG", "L", "LoadGameMenu"
+		PatchItem "M_SAVEG", "S", "SaveGameMenu"
+		PatchItem "M_TCOTD2","E", "TCOTD2Menu"
+		PatchItem "M_OPTION","O", "OptionsMenu"
+		PatchItem "M_QUITG","Q", "QuitMenu"
+    }
 }
 
-/////////////// Nashgore
-
-AddOptionMenu "OptionsMenu"
+OptionMenu "TCOTD2Menu"
 {
+	StaticText "$MN_OPTCOD"
 	StaticText ""
-	StaticText "Nash's Gore Mod: Vengeance Edition v1.01 Hotfix"
 	Submenu "$OPTMNU_NASHGORE", "NashGoreMenu"
+	StaticText ""
+	Option "$MN_OPWEAT","tcotd2_weatherfx", "OnOff"
+	Option "$MN_OPDIST","tcotd2lod","TCOTD2Dist"
+	Option "$MN_OPHEAT","enh_shaderoverlayswitch","YesNo"
+	Option "$MN_OPBLUR","motionblur","YesNo"
+}
+
+OptionValue "TCOTD2Dist"
+{
+	0, "$MN_OPNONE"
+	1024, "$MN_OPNEAR"
+	2048, "$MN_OPNORM"
+	4096, "$MN_OPFAR1"
+	8192, "$MN_OPFAR2"
+}
+
+OptionValue PreferBackend //override normal options to avoid unforeseen consequences
+{
+	0, "$OPTVAL_OPENGL"
+	1, "$OPTVAL_VULKAN"
+	//2, "$OPTVAL_SOFTPOLY" // Remove the SoftPoly option, since it will not work well
 }
 
 OptionMenu "NashGoreMenu"
