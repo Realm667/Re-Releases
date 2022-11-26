@@ -432,6 +432,29 @@ $limit SFX/FireLoop2	1
 $limit SFX/FireLoop3	1
 $limit SFX/FireDie	0
 
+////////////////////
+//TERRAIN SPLASHES//
+////////////////////
+
+// Splashes
+world/drip			gloop
+world/lavasizzle	acid5
+world/sludgegloop	muck5
+world/watersplash	gloop
+
+$random world/sludgegloopsmall { world/sludgegloopsmall1 world/sludgegloopsmall2 }
+world/sludgegloopsmall1	dsplosml
+world/sludgegloopsmall2	dsplosm2
+
+//you can override the limit values so multiple splashes can play simultaneously
+//note that this sounds bad if multiple splashes play all at once (such as when firing a shotgun into liquid), so override these values at your own discretion
+
+$limit world/drip 4
+$limit world/lavasizzle 4
+$limit world/sludgegloop 4
+$limit world/sludgegloopsmall 4
+$limit world/watersplash 4
+
 ///////////////////////////////////////////////////////
 ///// NEW WEAPON SOUNDS FROM GOTHIC'S IMPROVEMENTS ////
 ///////////////////////////////////////////////////////
