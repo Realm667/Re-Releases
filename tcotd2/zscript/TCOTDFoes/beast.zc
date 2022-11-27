@@ -40,45 +40,45 @@ Class TCOTDBeast : Actor
 		BESW A 1 A_ExtChase(0,0,0,0);
 		BESW A 1 A_Chase;
 		BESW A 1 A_ExtChase(0,0,0,0);
-		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
-		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		BESW A 0 ThrustThing((int) (angle*256/360), 1, 0, 0);
+		BESW A 0 A_JumpIfCloser(256, "Stomp");
 		BESW B 1 A_Chase;
 		BESW B 1 A_ExtChase(0,0,0,0);
 		BESW B 1 A_Chase;
 		BESW B 1 A_ExtChase(0,0,0,0);
-		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
-		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		BESW B 0 ThrustThing((int) (angle*256/360), 1, 0, 0);
+		BESW B 0 A_JumpIfCloser(256, "Stomp");
 		BESW C 1 A_Chase;
 		BESW C 1 A_ExtChase(0,0,0,0);
 		BESW C 1 A_Chase;
 		BESW C 1 A_ExtChase(0,0,0,0);
-		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
-		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		BESW C 0 ThrustThing((int) (angle*256/360), 1, 0, 0);
+		BESW C 0 A_JumpIfCloser(256, "Stomp");
 		BESW D 1 A_Chase;
 		BESW D 1 A_ExtChase(0,0,0,0);
 		BESW D 1 A_Chase;
 		BESW D 1 A_ExtChase(0,0,0,0);
-		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
-		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		BESW D 0 ThrustThing((int) (angle*256/360), 1, 0, 0);
+		BESW D 0 A_JumpIfCloser(256, "Stomp");
 		BESW E 1 A_Chase;
 		BESW E 1 A_ExtChase(0,0,0,0);
 		BESW E 1 A_Chase;
 		BESW E 1 A_ExtChase(0,0,0,0);
-		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
-		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		BESW E 0 ThrustThing((int) (angle*256/360), 1, 0, 0);
+		BESW E 0 A_JumpIfCloser(256, "Stomp");
 		BESW F 1 A_Chase;
 		BESW F 1 A_ExtChase(0,0,0,0);
 		BESW F 1 A_Chase;
 		BESW F 1 A_ExtChase(0,0,0,0);
-		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
-		TNT1 A 0 A_CheckFloor("jump");
-		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		BESW F 0 ThrustThing((int) (angle*256/360), 1, 0, 0);
+		BESW F 0 A_CheckFloor("jump");
+		BESW F 0 A_JumpIfCloser(256, "Stomp");
 		Loop;
 	Stomp:
 		BESS A 10 A_FaceTarget;
 		BESS B 10 A_FaceTarget;
 		BESS C 10 A_FaceTarget;
-		TNT1 A 0 A_StartSound("BeastStomp");
+		BESS C 0 A_StartSound("BeastStomp");
 		BESS D 5 A_SpawnItemEx("BeastStomp");
 		BESS E 6;
 		Goto See;
@@ -101,15 +101,15 @@ Class TCOTDBeast : Actor
 		BESD B 6 A_BossDeath;
 		BESD C 5 A_NoBlocking;
 		BESD DE 4;
-		BESD FFFFFFFF 4; //insert here possible gibs - ozy81
-		BESD EE 1; //insert here possible gibs - ozy81
-		BESD EE 2; //insert here possible gibs - ozy81
-		BESD DD 2; //insert here possible gibs - ozy81
-		BESD DD 1; //insert here possible gibs - ozy81
-		BESD DD 2; //insert here possible gibs - ozy81
-		BESD D 1; //insert here possible gibs - ozy81
-		BESD EE 2; //insert here possible gibs - ozy81
-		BESD E 1; //insert here possible gibs - ozy81
+		BESD FFFFFFFF 4;
+		BESD EE 1;
+		BESD EE 2;
+		BESD DD 2;
+		BESD DD 1;
+		BESD DD 2;
+		BESD D 1;
+		BESD EE 2;
+		BESD E 1;
 		BESD F -1;
 		Stop;
 	Jump:
