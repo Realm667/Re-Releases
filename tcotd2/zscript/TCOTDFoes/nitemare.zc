@@ -1,0 +1,115 @@
+///////////////
+// NIGHTMARE //
+///////////////
+Class KDiZDNightmare : Actor
+{
+	Default
+	{
+	Health 100;
+	Height 56;
+	Speed 5;
+	PainChance 144;
+	Monster;
+	+FLOORCLIP
+	+STEALTH
+	-CASTSPRITESHADOW
+	RenderStyle "Add";
+	Alpha 0.4;
+	Scale 1.1;
+	SeeSound "nightmare/sight";
+	PainSound "nightmare/pain";
+	DeathSound "nightmare/death";
+	ActiveSound "nightmare/active";
+	HitObituary "$HB_NITE";
+	}
+	
+	States
+	{
+	Spawn:
+		NMRE AB 10 A_Look;
+		Loop;
+	See:
+		NMRE A 0 A_UnSetShootable;
+		NMRE A 1 A_Chase;
+		NMRE AA 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		NMRE A 1 A_Chase;
+		NMRE AA 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		NMRE B 1 A_Chase;
+		NMRE BB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		NMRE B 1 A_Chase;
+		NMRE BB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		NMRE C 1 A_Chase;
+		NMRE CC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		NMRE C 1 A_Chase;
+		NMRE CC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		NMRE D 1 A_Chase;
+		NMRE DD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		NMRE D 1 A_Chase;
+		NMRE DD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		Loop;
+		NMRE D 0 A_SpawnItemEx("NightmareWisp",0,0,0,0,0,0,0,0,224);
+		Loop;
+	Melee:
+		NMRE E 0 A_SetShootable;
+		NMRE EF 9 A_FaceTarget;
+		NMRE G 9 A_CustomMeleeAttack(random(1,8)*4,"nightmare/melee");
+		Goto See;
+	Pain:
+		NMRE H 2 A_SetShootable;
+		NMRE H 10 A_Pain;
+		Goto See;
+	Death:
+		NMRE I 3 A_ScreamAndUnblock;
+		NMRE JKLMNO 3;
+		Stop;
+	}
+}
+
+Class NightmareWisp : Actor
+{
+	Default
+	{
+	Radius 4;
+	Height 8;
+	RenderStyle "Add";
+	Alpha 0.4;
+	Projectile;
+	+NOCLIP
+	}
+	
+	States
+	{
+	Spawn:
+		NMRE IJKLMNO 3;
+		Stop;
+	}
+}
+
+/////////////////////
+// SIREN NIGHTMARE //
+/////////////////////
+Class SirenNightmare : KDiZDNightmare
+{
+	Default
+	{
+	Health 300;
+	Radius 10;
+	Height 30;
+	Speed 10;
+	Scale 1.5;
+	-CASTSPRITESHADOW //let's force it just in case - ozy81
+	SeeSound "nightmare2/sight";
+	PainSound "nightmare2/pain";
+	DeathSound "nightmare2/death";
+	ActiveSound "nightmare2/active";
+	}
+	
+	States
+	{
+	Melee:
+		NMRE E 0 A_SetShootable;
+		NMRE EF 9 A_FaceTarget;
+		NMRE G 9 A_CustomMeleeAttack(100*random(1,8),"nightmare2/melee");
+		Goto See;
+	}
+}

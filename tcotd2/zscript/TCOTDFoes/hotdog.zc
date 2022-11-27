@@ -1,0 +1,105 @@
+////////////////
+// HELL HOUND //
+////////////////
+Class HotDog : Actor
+{
+	Default
+	{
+	Health 300;
+	PainChance 128;
+	Speed 16;
+	Radius 30;
+	Height 42;
+	Mass 500;
+	Monster;
+	+DONTHARMCLASS
+	+FLOORCLIP
+	SeeSound "monster/dogsit";
+	AttackSound "monster/dogatk";
+	PainSound "monster/dogpai";
+	DeathSound "monster/dogdth";
+	ActiveSound "monster/dogact";
+	MaxTargetRange 256;
+	DamageFactor "Fire", 0.5;
+	Obituary "$OB_HOUN";
+	HitObituary "$HB_HOUN";
+	DropItem "TCOTDHealthPickupHeart", 160;
+	}
+	
+	States
+	{
+	Spawn:
+		HDOG A 10 A_Look;
+		Loop;
+	See:
+		HDOG AAAABBBBCCCCDDDDEEEEFFFF 1 A_Chase;
+		Loop;
+	Melee:
+		HDOG GH 6 A_FaceTarget;
+		HDOG I 6 A_CustomMeleeAttack(7*random(1,8),"monster/dogbit");
+		Goto See;
+	Missile:
+		HDOG G 10 A_FaceTarget;
+		HDOG HHHHHHHHHHHH 1 A_CustomMissile("DogFire",28);
+		HDOG I 6;
+		Goto See;
+	Pain:
+		HDOG J 2;
+		HDOG J 2 A_Pain;
+		Goto See;
+	Death:
+		HDOG K 8;
+		HDOG L 8 A_Scream;
+		HDOG M 4;
+		HDOG N 4 A_NoBlocking;
+		HDOG OP 4;
+		HDOG Q -1;
+		Stop;
+	Raise:
+		HDOG QPONMLK 5;
+		Goto See;
+	}
+}
+
+Class DogFire : Actor
+{
+	Default
+	{
+	Radius 2;
+	Height 4;
+	Speed 16;
+	Damage 1;
+	Alpha 0.67;
+	Scale 0.67;
+	DamageType "Fire";
+	Projectile;
+	RenderStyle "Add";
+	SeeSound "weapons/bigbrn";
+	DeathSound "weapons/bigbrn";
+	Gravity 0.125;
+	}
+	
+	States
+	{
+	Spawn:
+		TNT1 A 2;
+		FRFX A 2 BRIGHT LIGHT("FlameX_1") A_Explode(1,8);
+		FRFX B 2 BRIGHT LIGHT("FlameX_2") A_Explode(1,8);
+		FRFX C 2 BRIGHT LIGHT("FlameX_3") A_Explode(1,8);
+		FRFX D 2 BRIGHT LIGHT("FlameX_4") A_Explode(1,8);
+		FRFX D 0 A_Gravity;
+		FRFX E 2 BRIGHT LIGHT("FlameX_5") A_Explode(1,16);
+		FRFX F 2 BRIGHT LIGHT("FlameX_6") A_Explode(1,16);
+		FRFX G 2 BRIGHT LIGHT("FlameX_7") A_Explode(1,16);
+	Death:
+		FRFX H 2 BRIGHT LIGHT("FlameX_8") A_Explode(1,32);
+		FRFX I 2 BRIGHT LIGHT("FlameX_9") A_Explode(1,32);
+		FRFX J 2 BRIGHT LIGHT("FlameX_10") A_Explode(1,32);
+		FRFX K 2 BRIGHT LIGHT("FlameX_11") A_Explode(1,64);
+		FRFX L 2 BRIGHT LIGHT("FlameX_12") A_Explode(1,64);
+		FRFX M 2 BRIGHT LIGHT("FlameX_13") A_Explode(1,64);
+		FRFX N 2 BRIGHT LIGHT("FlameX_14");
+		FRFX O 2 BRIGHT LIGHT("FlameX_15");
+		Stop;
+	}
+}

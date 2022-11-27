@@ -1,0 +1,169 @@
+////////////
+// SHADOW //
+////////////
+Class Shadow : Actor
+{
+	Default
+	{
+	Health 300;
+	GibHealth 35;
+	Height 56;
+	Mass 100;
+	Scale 1.5;
+	RenderStyle "Add";
+	Alpha 0.9;
+	Speed 8;
+	PainChance 200;
+	Monster;
+	+FLOORCLIP
+	-CASTSPRITESHADOW
+	PainSound "Shadow/pain";
+	DeathSound "Shadow/death";
+	ActiveSound "Shadow/active";
+	Obituary "$OB_SHDW";
+	BloodColor "08 08 08";
+	}
+	
+	States
+	{
+	Spawn:
+	See:
+		TROX A 15;
+		TROX AAA 1 A_Chase;
+		TROX A 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
+		TROX BBB 1 A_Chase;
+		TROX B 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
+		TROX CCC 1 A_Chase;
+		TROX C 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
+		TROX DDD 1 A_Chase;
+		TROX D 0 A_SpawnItemEx("ShadowGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
+		Goto See+1;
+	Missile:
+		TROX E 12 A_FaceTarget;
+		TROX F 5;
+		TROX G 5 BRIGHT A_CustomMissile("ShadowBall");
+		TROX F 5;
+		TROX E 20;
+		TROX E 1 A_SpidRefire;
+		Goto Missile+1;
+	Pain:
+		TROX H 4;
+		TROX H 4 A_Pain;
+		Goto See+1;
+	Death:
+		TROX I 6 A_Scream;
+		TROX J 5;
+		TROX K 5 A_CustomMissile("ShadowTorso");
+		TROX L 5 A_NoBlocking;
+		TROX MNO 6;
+		TROX P -1;
+		Stop;
+	XDeath:
+		TROX W 5;
+		TROX X 4 A_XScream;
+		TROX Y 4;
+		TROX Z 4 A_NoBlocking;
+		TROX "][" 4;
+		TROX \ -1;
+		Stop;
+	Raise:
+		TROX MKLJI 8;
+		Goto See;
+	}
+}
+
+Class ShadowBall : Actor
+{
+	Default
+	{
+	Radius 6;
+	Height 8;
+	Speed 12;
+	Damage 4;
+	RenderStyle "Add";
+	Alpha 0.75;
+	Projectile;
+	+RANDOMIZE
+	SeeSound "imp/attack";
+	DeathSound "imp/shotx";
+	}
+	
+	States
+	{
+	Spawn:
+		SBAL ABC 4 BRIGHT LIGHT("ShadowBall") A_SpawnItemEx("ShadowTrail");
+		Loop;
+	Death:
+		SBAL C 5 BRIGHT LIGHT("ShadowBall");
+		SBAL D 4 BRIGHT LIGHT("ShadowBallX_1");
+		SBAL E 4 BRIGHT LIGHT("ShadowBallX_2");
+		SBAL F 4 BRIGHT LIGHT("ShadowBallX_3");
+		SBAL G 4 BRIGHT LIGHT("ShadowBallX_4");
+		SBAL H 4 BRIGHT LIGHT("ShadowBallX_5");
+		Stop;
+	}
+}
+
+Class ShadowGhost : Actor
+{
+	Default
+	{
+	Radius 4;
+	Height 8;
+	Mass 75;
+	RenderStyle "Add";
+	Alpha 0.3;
+	Projectile;
+	}
+	
+	States
+	{
+	Spawn:
+		"####" "#" 10;
+		Stop;
+	}
+}
+
+Class ShadowTorso : Actor
+{
+	Default
+	{
+	Radius 12;
+	Height 15;
+	Speed 1;
+	Mass 5000;
+	RenderStyle "Add";
+	Alpha 0.7;
+	BounceType "Doom";
+	}
+	
+	States
+	{
+	Spawn:
+		TROX QRS 5;
+		TROX T 5 A_NoBlocking;
+		TROX U 5;
+		TROX V -1;
+		Stop;
+	}
+}
+
+Class ShadowTrail : Actor
+{
+	Default
+	{
+	Radius 1;
+	Height 1;
+	Projectile;
+	RenderStyle "Add";
+	Alpha 0.6;
+	+NOCLIP
+	}
+	
+	States
+	{
+	Spawn:
+		SHTR ABCDEF 4 BRIGHT;
+		Stop;
+	}
+}

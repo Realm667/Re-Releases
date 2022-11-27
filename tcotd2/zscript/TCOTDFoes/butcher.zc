@@ -1,0 +1,179 @@
+/////////////////
+// FAT ASSHOLE //
+/////////////////
+Class Fatty : Revenant
+{
+	Default
+	{
+	GibHealth 35;
+	Radius 12;
+	Speed 1.75;
+	Scale 0.8;
+	SeeSound "fatty/sit";
+	PainSound "fatty/pain";
+	DeathSound "fatty/death";
+	ActiveSound "fatty/act";
+	Obituary "$OB_FATY";
+	HitObituary "$HB_FATY";
+	DropItem "TCOTDHealthPickupHeart", 128;
+	Species "Fatty";
+	}
+	
+	States
+	{
+	Spawn:
+		BFAT A 10 A_Look;
+		Loop;
+	See:
+		BFAT A 1 A_Chase;
+		BFAT AA 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BFAT A 1 A_Chase;
+		BFAT AA 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BFAT B 1 A_Chase;
+		BFAT BB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BFAT B 1 A_Chase;
+		BFAT BB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BFAT C 1 A_Chase;
+		BFAT CC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BFAT C 1 A_Chase;
+		BFAT CC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BFAT D 1 A_Chase;
+		BFAT DD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BFAT D 1 A_Chase;
+		BFAT DD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BFAT E 1 A_Chase;
+		BFAT EE 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BFAT E 1 A_Chase;
+		BFAT EE 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BFAT F 1 A_Chase;
+		BFAT FF 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BFAT F 1 A_Chase;
+		BFAT FF 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		Loop;
+	Melee:
+		BFAT H 4 A_FaceTarget;
+		BFAT I 1 A_SkelWhoosh;
+		BFAT I 3 A_FaceTarget;
+		BFAT J 4 A_SkelFist;
+		BFAT K 4;
+		BFAT L 4;
+		Goto See;
+	Missile:
+		BFAT M 4 A_FaceTarget;
+		BFAT N 7 A_FaceTarget;
+		BFAT O 5 A_FaceTarget;
+		TNT1 A 0 A_Jump(128,3);
+		BFAT P 5 A_SpawnProjectile("ButcherVomit1",56,0,0,CMF_CHECKTARGETDEAD);
+		BFAT O 10 A_FaceTarget;
+		Goto See;
+		BFAT P 5 A_SpawnProjectile("ButcherVomit2",56,0,0,CMF_CHECKTARGETDEAD|CMF_AIMDIRECTION);
+		BFAT O 10 A_FaceTarget;
+		Goto See;
+	Pain:
+		BFAT G 5;
+		BFAT G 5 A_Pain;
+		Goto See;
+	Death:
+		BFTD A 6 A_Scream;
+		BFTD BC 6;
+		BFTD D 6 A_NoBlocking;
+		BFTD EF 6;
+		BFTD G -1;
+		Stop;
+	XDeath:
+		BFTD H 5 A_Scream;
+		BFTD I 5;
+		BFTD J 5 A_NoBlocking;
+		BFTD K 5;
+		BFTD LMNOPQ 5;
+		BFTD QRQRRRQRQQRRQQ 10;
+		BFTD R -1;
+		Stop;
+	Raise:
+		BFTD GFEDCBA 5;
+		Goto See;
+	}
+}
+
+Class ButcherGoo : Actor
+{
+	Default
+	{
+	Height 2;
+	Radius 2;
+	Damage 0;
+	Scale 0.2;
+	Alpha 0.85;
+	RenderStyle "Add";
+	+CANNOTPUSH
+	+CLIENTSIDEONLY
+	+LOWGRAVITY
+	-SOLID
+	}
+	
+	States
+	{
+	Spawn:
+		BARF ABCDEFABCDEFABCDEF 3 LIGHT("GGLOW2");
+	Death:
+		BARF AAAA 4 A_FadeOut(0.25);
+		Stop;
+	}
+}
+
+Class ButcherVomit1 : Actor
+{
+	Default
+	{
+	Height 8;
+	Radius 8;
+	DamageFunction (random(10,12));
+	Speed 18;
+	Scale 0.4;
+	RenderStyle "Add";
+	Alpha 0.85;
+	ReactionTime 3;
+	Projectile;
+	SeeSound "fatty/attack";
+	DeathSound "fatty/wall";
+	}
+	
+	States
+	{
+	Spawn:
+		BARF AB 3 LIGHT("GGLOW") A_SetAngle(angle+frandom(-5,5));
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2));
+		BARF CDEF 3 LIGHT("GGLOW") A_SetAngle(angle+frandom(-5,5));
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2));
+		BARF EF 3 LIGHT("GGLOW") A_SetAngle(angle+frandom(-5,5));
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2));
+		Loop;
+	Death:
+		FBXX A 0 A_SetScale(1.0);
+		FBXX A 8;
+		FBXX B 6;
+		FBXX C 4;
+		Stop;
+	Crash:
+		TNT1 A 0 { A_StartSound("fatty/wall"); A_SetScale(1.0); }
+		FBXX A 8;
+		FBXX B 6;
+		FBXX C 4;
+		Stop;
+	}
+}
+
+Class ButcherVomit2 : ButcherVomit1
+{
+	States
+	{
+	Spawn:
+		BARF AB 3 LIGHT("GGLOW") { A_SetAngle(angle+frandom(-5,5)); A_SeekerMissile(10,20); }
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2));
+		BARF CDEF 3 LIGHT("GGLOW") A_SetAngle(angle+frandom(-5,5));
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2));
+		BARF EF 3 LIGHT("GGLOW") { A_SetAngle(angle+frandom(-5,5)); A_SeekerMissile(10,20); }
+		TNT1 AA 0 A_SpawnItemEx("ButcherGoo",frandom(-2,2),frandom(-2,2),frandom(-3,3),frandom(-2,2),frandom(-2,2),frandom(-2,2));
+		Loop;
+	}
+}

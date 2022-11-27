@@ -1,0 +1,79 @@
+/////////////
+// SPIDERS //
+/////////////
+Class MiniSpider : Actor
+{
+	Default
+	{
+	Radius 7;
+	Height 15;
+	Speed 2.5;
+	Health 20;
+	Scale 0.25;
+	Translation 0;
+	Monster;
+	+FLOORCLIP
+	-CASTSPRITESHADOW
+	SeeSound "littlespider/sight";
+	AttackSound "littlespider/attack";
+	PainSound "littlespider/pain";
+	DeathSound "littlespider/death";
+	ActiveSound "littlespider/sight";
+	}
+	
+	States
+	{
+	Spawn:
+		MNTR AB 10 A_Look;
+		Loop;
+	See:
+		MNTR A 1 A_Chase;
+		MNTR AAA 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		MNTR B 1 A_Chase;
+		MNTR BBB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		MNTR C 1 A_Chase;
+		MNTR CCC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		MNTR D 1 A_Chase;
+		MNTR DDD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		Loop;
+	Melee:
+		MNTR UW 5 A_FaceTarget;
+		MNTR X 5 A_CustomMeleeAttack(random(1,8),"littlespider/pain");
+		Goto See;
+	Death:
+		MNTS F 5;
+		MNTS E 5 A_Scream;
+		MNTS D 5;
+		MNTS C 5 A_NoBlocking;
+		MNTS B 5;
+		MNTS A -1;
+		Stop;
+	}
+}
+
+Class LargeSpider : MiniSpider
+{
+	Default
+	{
+	Radius 14;
+	Height 30;
+	Speed 5;
+	Health 150;
+	Scale 0.50;
+	Translation 1;
+	DropItem "TCOTDHealthPickupHeart", 160;
+	}
+	
+	States
+	{
+	Missile:
+		MNTR A 10 A_FaceTarget;
+		MNTR A 0 A_SkullAttack;
+		MNTR ABCD 2;
+		Goto Missile+2;
+	Melee:
+		MNTR UW 5 A_FaceTarget;
+		MNTR X 5 A_CustomMeleeAttack(random(1,8)*2,"littlespider/pain");
+		Goto See;
+	}
+}

@@ -1,0 +1,153 @@
+//This actor comes from BlooM - Added by Ozymandias81
+Class TCOTDBeast : Actor
+{
+	Default
+	{
+	//$Title Beast
+	Health 1000;
+	Radius 24;
+	Height 56;
+	Mass 666;
+	Speed 7;
+	Scale 0.6;
+	MeleeDamage 10;
+	MeleeRange 64;
+	MeleeThreshold 96;
+	ProjectilePassHeight 62;
+	PainChance 8;
+	ActiveSound "BeastAct";
+	MeleeSound "BeastSlash";
+	SeeSound "BeastSee";
+	PainSound "BeastPain";
+	DeathSound "BeastDie";
+	Monster;
+	+BOSSDEATH
+	+FLOORCLIP
+	+MISSILEEVENMORE
+	+MISSILEMORE
+	+NOTARGET
+	+QUICKTORETALIATE
+	+SHORTMISSILERANGE
+	Obituary "$OB_BEAST";
+	HitObituary "$HB_BEAST";
+	}
+	
+	States
+	{
+	Spawn:
+		BESC A 10 A_Look;
+		Loop;
+	See:
+		BESW A 1 A_Chase;
+		BESW A 1 A_ExtChase(0,0,0,0);
+		BESW A 1 A_Chase;
+		BESW A 1 A_ExtChase(0,0,0,0);
+		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
+		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		BESW B 1 A_Chase;
+		BESW B 1 A_ExtChase(0,0,0,0);
+		BESW B 1 A_Chase;
+		BESW B 1 A_ExtChase(0,0,0,0);
+		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
+		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		BESW C 1 A_Chase;
+		BESW C 1 A_ExtChase(0,0,0,0);
+		BESW C 1 A_Chase;
+		BESW C 1 A_ExtChase(0,0,0,0);
+		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
+		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		BESW D 1 A_Chase;
+		BESW D 1 A_ExtChase(0,0,0,0);
+		BESW D 1 A_Chase;
+		BESW D 1 A_ExtChase(0,0,0,0);
+		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
+		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		BESW E 1 A_Chase;
+		BESW E 1 A_ExtChase(0,0,0,0);
+		BESW E 1 A_Chase;
+		BESW E 1 A_ExtChase(0,0,0,0);
+		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
+		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		BESW F 1 A_Chase;
+		BESW F 1 A_ExtChase(0,0,0,0);
+		BESW F 1 A_Chase;
+		BESW F 1 A_ExtChase(0,0,0,0);
+		TNT1 A 0 ThrustThing(angle*256/360, 1, 0, 0);
+		TNT1 A 0 A_CheckFloor("jump");
+		TNT1 A 0 A_JumpIfCloser(256, "Stomp");
+		Loop;
+	Stomp:
+		BESS A 10 A_FaceTarget;
+		BESS B 10 A_FaceTarget;
+		BESS C 10 A_FaceTarget;
+		TNT1 A 0 A_StartSound("BeastStomp");
+		BESS D 5 A_SpawnItemEx("BeastStomp");
+		BESS E 6;
+		Goto See;
+	Melee:
+		BESC AB 4 A_FaceTarget;
+		BESC C 3 A_FaceTarget;
+		BESC D 2 A_MeleeAttack;
+		BESC E 2 A_FaceTarget;
+		BESC FG 3 A_FaceTarget;
+		BESC H 4 A_MeleeAttack;
+		BESC IJ 3;
+		Goto See;
+	Pain:
+		BESP A 5;
+		BESP A 5 A_Pain;
+		Goto See;
+	XDeath:
+	Death:
+		BESD A 7 A_Scream;
+		BESD B 6 A_BossDeath;
+		BESD C 5 A_NoBlocking;
+		BESD DE 4;
+		BESD FFFFFFFF 4; //insert here possible gibs - ozy81
+		BESD EE 1; //insert here possible gibs - ozy81
+		BESD EE 2; //insert here possible gibs - ozy81
+		BESD DD 2; //insert here possible gibs - ozy81
+		BESD DD 1; //insert here possible gibs - ozy81
+		BESD DD 2; //insert here possible gibs - ozy81
+		BESD D 1; //insert here possible gibs - ozy81
+		BESD EE 2; //insert here possible gibs - ozy81
+		BESD E 1; //insert here possible gibs - ozy81
+		BESD F -1;
+		Stop;
+	Jump:
+		BESS DDD 2 A_Chase;
+		BESS BBB 2 ThrustThingz(0,30,0,0);
+		BESS CCC 2 A_Recoil(-4);
+		BESS EEE 2;
+		Goto See;
+	}
+}
+
+Class BeastStomp : Actor
+{
+	Default
+	{
+	Radius 1;
+	Height 1;
+	Damage 0;
+	DamageType "BeastStomp";
+	+BLOODLESSIMPACT
+	+DONTSPLASH
+	+NODAMAGETHRUST
+	+NOTIMEFREEZE
+	+PAINLESS
+	Obituary "$OB_STOMP";
+	}
+	
+    States
+	{
+	Spawn:
+		TNT1 A 1;
+		Goto Death;
+	Death:
+		TNT1 A 5 A_Quake(4,12,0,400);
+		TNT1 A 10 A_Quake(2,12,0,800);
+		TNT1 A 1 A_Explode(70,400,0);
+		Stop;
+	}
+}

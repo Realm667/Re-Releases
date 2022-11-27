@@ -1,0 +1,159 @@
+////////////////////
+// SOUL HARVESTER //
+////////////////////
+Class SoulHarvester : Actor
+{
+	Default
+	{
+	Health 120;
+	GibHealth 35;
+	Height 56;
+	Speed 2.66666667;
+	PainChance 120;
+	Monster;
+	Scale 1.1;
+	+FLOORCLIP
+	SeeSound "harvester/sight";
+	PainSound "imp/pain";
+	DeathSound "harvester/death";
+	ActiveSound "imp/active";
+	Obituary "$OB_HARV";
+	DropItem "TCOTDHealthPickupHeart", 160;
+	}
+	
+	States
+	{
+	Spawn:
+		SLHV AB 10 A_Look;
+		Loop;
+	See:
+		SLHV A 1 A_Chase;
+		SLHV AA 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		SLHV A 1 A_Chase;
+		SLHV AA 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		SLHV B 1 A_Chase;
+		SLHV BB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		SLHV B 1 A_Chase;
+		SLHV BB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		SLHV C 1 A_Chase;
+		SLHV CC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		SLHV C 1 A_Chase;
+		SLHV CC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		SLHV D 1 A_Chase;
+		SLHV DD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		SLHV D 1 A_Chase;
+		SLHV DD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		Loop;
+	Melee:
+	Missile:
+		SLHV E 4 LIGHT("SoulHarvesterX_1") A_FaceTarget;
+		SLHV F 4 LIGHT("SoulHarvesterX_2") A_FaceTarget;
+		SLHV G 4 LIGHT("SoulHarvesterX_3") A_FaceTarget;
+		SLHV H 5 BRIGHT LIGHT("SoulHarvesterX_4") A_FaceTarget;
+		SLHV I 5 BRIGHT LIGHT("SoulHarvesterX_5") A_FaceTarget;
+		SLHV J 5 BRIGHT LIGHT("SoulHarvesterX_6") A_FaceTarget;
+		SLHV K 5 BRIGHT LIGHT("SoulHarvesterX_7") A_FaceTarget;
+		SLHV L 8 BRIGHT LIGHT("SoulHarvesterX_8") A_CustomMissile("SoulHarvesterBall");
+		SLHV M 10 LIGHT("SoulHarvesterX_9");
+		Goto See;
+	Pain:
+		SLHV N 3;
+		SLHV N 3 A_Pain;
+		Goto See;
+	Death:
+		SLHV O 7 A_Scream;
+		SLHV PQR 7;
+		SLHV S 6 A_SpawnItemEx("SoulHarvesterGhost",0,0,32);
+		SLHV T 5 A_NoBlocking;
+		SLHV UV 5;
+		SLHV W -1;
+		Stop;
+	XDeath:
+		SLHV X 6 A_XScream;
+		SLHV Y 6 A_SpawnItemEx("SoulHarvesterGhost", 0, 0, 32, 0, 0, 0, 0, 128);
+		SLHV Z 6;
+		SLHV [ 6 A_Fall;
+		SLHV ] 6;
+		SLHW A -1;
+		Stop;
+	Raise:
+		SLHV WVUTSRQPO 5;
+		Goto See;
+	}
+}
+
+Class SoulHarvesterBall : Actor
+{
+	Default
+	{
+	Radius 8;
+	Height 6;
+	Scale 0.4;
+	Speed 9;
+	Damage 2;
+	Projectile;
+	+SEEKERMISSILE
+	RenderStyle "Add";
+	SeeSound "harvester/scream";
+	DeathSound "imp/shotx";
+	}
+	
+	States
+	{
+	Spawn:
+		SHBA A 0 A_SpawnItemEx("SoulBallTrail");
+		SHBA AB 2 BRIGHT LIGHT("SoulHarvesterBall") A_SeekerMissile(5,8);
+		Loop;
+	Death:
+		SHBA C 4 BRIGHT LIGHT("SoulHarvesterBallX_1");
+		SHBA D 4 BRIGHT LIGHT("SoulHarvesterBallX_2");
+		SHBA E 4 BRIGHT LIGHT("SoulHarvesterBallX_3");
+		SHBA F 4 BRIGHT LIGHT("SoulHarvesterBallX_4");
+		SHBA G 4 BRIGHT LIGHT("SoulHarvesterBallX_5");
+		SHBA H 4 BRIGHT LIGHT("SoulHarvesterBallX_6");
+		SHBA I 4 BRIGHT LIGHT("SoulHarvesterBallX_7");
+		SHBA J 4 BRIGHT LIGHT("SoulHarvesterBallX_8");
+		SHBA K 4 BRIGHT LIGHT("SoulHarvesterBallX_9");
+		SHBA L 4 BRIGHT LIGHT("SoulHarvesterBallX_10");
+		Stop;
+	}
+}
+
+Class SoulHarvesterGhost : Actor
+{
+	Default
+	{
+	Radius 1;
+	Height 1;
+	Projectile;
+	RenderStyle "Add";
+	Alpha 0.7;
+	+NOCLIP
+	}
+	
+	States
+	{
+	Spawn:
+	Death:
+		TNT1 A 0 NoDelay A_StartSound("Harvester/Ghost");
+		SHGH ABCDEFG 4 BRIGHT;
+		Stop;
+	}
+}
+
+Class SoulBallTrail : SoulHarvesterGhost
+{
+	Default
+	{
+	Alpha 0.5;
+	}
+	
+	States
+	{
+	Spawn:
+	Death:
+		SBTR H 6;
+		SBTR ABCDEFG 4 BRIGHT;
+		Stop;
+	}
+}
