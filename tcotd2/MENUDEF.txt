@@ -1,4 +1,4 @@
-LISTMENU "MainMenu"
+ListMenu "MainMenu"
 {
 	IfGame(Doom, Chex) //let's force it - ozy81
 	{
@@ -21,19 +21,31 @@ LISTMENU "MainMenu"
     }
 }
 
+ListMenu "SkillMenu"
+{
+	IfGame(Doom, Chex) //let's force it - ozy81
+	{
+		StaticPatch 96, 14, "M_NGAME", 0, "$MNU_NEWGAME"
+		LineSpacing 16
+		Position 97, 72
+	}
+}
+
 OptionMenu "TCOTD2Menu"
 {
+	Title "$OPTMNU_ENH"
+	StaticText ""
 	StaticText "$MN_OPTCOD"
 	StaticText ""
 	Submenu "$OPTMNU_NASHGORE", "NashGoreMenu"
 	StaticText ""
 	Option "$MN_OPWEAT","tcotd2_weatherfx", "OnOff"
-	Option "$MN_OPDIST","tcotd2lod","TCOTD2Dist"
-	Option "$MN_OPHEAT","enh_shaderoverlayswitch","YesNo"
-	Option "$MN_OPBLUR","motionblur","YesNo"
+	Option "$MN_OPTREE","tcotd2_tree", "TCOTD2Values"
+	Option "$MN_OPHEAT","enh_shaderoverlayswitch", "YesNo"
+	Option "$MN_OPBLUR","motionblur", "YesNo"
 }
 
-OptionValue "TCOTD2Dist"
+OptionValue "TCOTD2Values"
 {
 	0, "$MN_OPNONE"
 	1024, "$MN_OPNEAR"
