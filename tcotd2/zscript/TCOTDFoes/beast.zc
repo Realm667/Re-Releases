@@ -10,13 +10,11 @@ Class TCOTDBeast : Actor
 	Mass 666;
 	Speed 7;
 	Scale 0.6;
-	MeleeDamage 10;
 	MeleeRange 64;
 	MeleeThreshold 96;
 	ProjectilePassHeight 62;
 	PainChance 8;
 	ActiveSound "BeastAct";
-	MeleeSound "BeastSlash";
 	SeeSound "BeastSee";
 	PainSound "BeastPain";
 	DeathSound "BeastDie";
@@ -87,10 +85,10 @@ Class TCOTDBeast : Actor
 	Melee:
 		BESC AB 4 A_FaceTarget;
 		BESC C 3 A_FaceTarget;
-		BESC D 2 A_MeleeAttack;
+		BESC D 2 A_CustomMeleeAttack(10,"BeastSlash","","Melee",TRUE);
 		BESC E 2 A_FaceTarget;
 		BESC FG 3 A_FaceTarget;
-		BESC H 4 A_MeleeAttack;
+		BESC H 4 A_CustomMeleeAttack(10,"BeastSlash","","Melee",TRUE);
 		BESC IJ 3;
 		Goto See;
 	Pain:
