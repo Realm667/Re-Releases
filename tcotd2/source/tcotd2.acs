@@ -55,3 +55,89 @@ script "30Health" ENTER
 		Delay(1);
 	}
 }
+
+function int degsin(int x)
+{
+	int result;
+	if (x>=0)
+	{
+		result=sin(FixedMul(x<<16,0.0111111111)/4);
+	}
+	else 
+	{
+		result=-sin(FixedMul(-x<<16,0.0111111111)/4);
+	}
+	return result;
+}
+
+function int degcos(int x)
+{
+	return cos(FixedMul(x<<16,0.0111111111)/4);
+}
+
+function int sqrt_x3(int number)
+{
+	if(number <= 3)
+	{
+		if(number > 0)
+		{
+			return 1;
+		}
+		return 0;
+	}
+	int oldAns = number >> 1,
+	newAns = (oldAns + number / oldAns) >> 1;
+	while(newAns < oldAns)
+	{
+		oldAns = newAns;
+		newAns = (oldAns + number / oldAns) >> 1;
+	}
+	return oldAns;
+}
+
+function int abs(int x)
+{
+    if (x < 0) return -x;
+    return x;
+}
+
+function int sqrt_x(int x)
+{
+	int r;
+	x = x + 1 >> 1;
+	while (x > r) x-=r++;
+	return r;
+}
+
+function int dist (int tid1, int tid2)
+{
+	int x, y, z, d;
+	x = GetActorX(tid1) - GetActorX(tid2) >> 16; 
+	y = GetActorY(tid1) - GetActorY(tid2) >> 16;
+	z = GetActorZ(tid1) - GetActorZ(tid2) >> 16;
+	d = sqrt_x( x*x + y*y + z*z );
+	return d;
+}
+
+Script "SetActivatorTarget" (int tid)
+{
+	int k=activatorTID();
+	int subheight;
+	int grenangle;
+	int distancepro,d,i;
+	SetActivatorToTarget(0);
+	int distance=dist(0,k);
+	subheight=(GetActorZ(0)>>16)-(GetActorZ(k)>>16);
+	for (i=-89;i<=89;++i)
+	{
+		distancepro=sqrt_x3(distance*distance-abs((subheight>>16)*(subheight>>16)));
+		d=((FixedMul(distancepro<<16,FixedDiv(degsin(i),degcos(i))))>>16)-(((FixedMul(1.4,distancepro<<16))>>16)*distancepro)/((FixedMul(4050.0,FixedMul(degcos(i),degcos(i))))>>16);
+		if (d>subheight)
+		{
+			grenangle=i * 0.85;
+			break;
+		}
+	}
+	SetActivator(k);
+	SetResultValue(i);
+}
