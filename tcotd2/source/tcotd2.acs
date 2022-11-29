@@ -4,6 +4,15 @@
 #define MAX_VOLUME 127
 #define MAX_PLAYER_HEALTH 200
 
+int playerID;
+int playerNum;
+
+global int 1: fear;
+global int 2: fearTimer;
+global int 3: fearAng1;
+global int 4: fearAng2;
+global int 5: fearAng3;
+
 //fadescript for map setup
 script "Maplaunch" ENTER
 {
@@ -56,6 +65,104 @@ script "30Health" ENTER
 	}
 }
 
+//Code needed for Nightmares - ozy81, original code by MaxiClouds
+script "FearScreen" ENTER
+{
+	int width = 320, height = 240;
+	SetHudSize(width, height, 0);
+	SetFont("M_FEAR");
+
+	// Half width and height (in fixed-point).
+	int half_width  = (width / 2) << 16;
+	int half_height = (height / 2) << 16;
+
+	while (true)
+	{
+		int madness =  CheckInventory("FearIntensity");
+		if (madness > 1)
+		{
+			HudMessage(s:"A"; HUDMSG_FADEINOUT | HUDMSG_LAYER_UNDERHUD | HUDMSG_NOTWITHFULLMAP | HUDMSG_NOTWITHOVERLAYMAP | HUDMSG_ALPHA , 0, CR_UNTRANSLATED, half_width, half_height, 0.0, 0.5, madness, 0.2);
+		}
+		
+		Delay(1);
+	}
+}
+
+Script "FearCheck" (void)
+{
+	if (CheckActorInventory(playerID,"FearStop"))
+	{
+		ACS_NamedExecute("FearEffect",0);
+	}
+	Delay(1);
+	restart;
+}
+
+Script "FearEffect" (void)
+{
+	fear = CheckInventory("FearIntensity");
+	fear--;
+	if (fear < 0) fear = 0;	
+	int ftilt1 = 170;
+	int ftilt2 = 170;
+	int fpitch = 20;
+	feartimer+=15;
+	if (fear < 512)
+	{
+		int mul = (fear*65536)/512;
+		ftilt1 = FixedMul(ftilt1,mul);
+		ftilt2 = FixedMul(ftilt2,mul);
+		fpitch = FixedMul(fpitch,mul);
+	}
+	int sin2 = Sin(2*feartimer*32)/2;
+	int sin3 = Sin(3*feartimer*32)/2;
+	int sin4 = Sin(4*feartimer*32)/2;
+	int sin5 = Sin(5*feartimer*32)/2;
+	int gScreenTilt = FixedMul(sin2+sin3,ftilt1);
+	int fearTilt = FixedMul(sin3+sin4,ftilt2);
+	int fearPitch = FixedMul(sin4+sin5,fpitch);
+	int pitch = GetActorPitch(playerid);
+	int roll = GetActorRoll(playerid);
+	int angle = GetActorAngle(playerid);
+	ChangeActorPitch(playerid,(fearPitch-fearAng1)*32+Pitch);
+	ChangeActorRoll(playerid,(gScreenTilt-fearAng2)*32+Roll);
+	ChangeActorAngle(playerid,(fearTilt-fearAng3)*32+Angle);
+	fearAng1 = fearPitch;
+	fearAng2 = gScreenTilt;
+	fearAng3 = fearTilt;
+	TakeInventory("FearIntensity", 1);
+	Delay(1);
+	if (CheckInventory("FearIntensity") < 1 )
+		{
+			ACS_NamedExecute("FearCheck", 0);
+			terminate;
+		}
+	restart;
+}
+
+Script "Madness" ENTER //ozy81, original script by AFADoomer and Talon1024
+{
+	int width = 512, height = 384;
+	SetHudSize(width, height, 0);
+	SetFont("M_MADNES");
+
+	// Half width and height (in fixed-point).
+	int half_width  = (width / 2) << 16;
+	int half_height = (height / 2) << 16;
+
+	while (true)
+	{
+		int nightmare = GetActorPowerupTics(0, "PowerFear");
+		if (nightmare)
+		{
+			HudMessage(s:"A"; HUDMSG_FADEINOUT | HUDMSG_LAYER_UNDERHUD | HUDMSG_NOTWITHFULLMAP | HUDMSG_NOTWITHOVERLAYMAP | HUDMSG_ALPHA , 0, CR_UNTRANSLATED, half_width, half_height, 0.0, 0.5, nightmare, 0.2);
+		}
+		
+		Delay(1);
+	}
+}
+
+//Code necessary for CyberBog
 function int degsin(int x)
 {
 	int result;

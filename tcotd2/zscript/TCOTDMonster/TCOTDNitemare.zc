@@ -52,7 +52,9 @@ Class KDiZDNightmare : TCOTDMonster
 	Melee:
 		NMRE E 0 A_SetShootable;
 		NMRE EF 9 A_FaceTarget;
-		NMRE G 9 A_CustomMeleeAttack(random(1,8)*4,"nightmare/melee");
+		NMRE G 9 A_CustomMeleeAttack(random(1,8)*4,"nightmare/melee","","Fear",FALSE);
+		NMRE G 0 A_GiveToTarget("FearIntensity", 35);
+		NMRE G 0 A_GiveToTarget("FearStop", 1);
 		Goto See;
 	Pain:
 		NMRE H 2 A_SetShootable;
@@ -85,6 +87,26 @@ Class NightmareWisp : Actor
 	}
 }
 
+Class PowerFear : PowerSpeed
+{
+	Default
+	{
+		Powerup.Duration -4;
+		Speed 0.33;
+	}
+}
+
+Class Madness : PowerupGiver
+{
+	Default
+	{
+		+INVENTORY.AUTOACTIVATE
+		+INVENTORY.ADDITIVETIME
+		-INVENTORY.INVBAR
+		Powerup.Type "PowerFear";
+	}
+}
+
 /////////////////////
 // SIREN NIGHTMARE //
 /////////////////////
@@ -110,7 +132,7 @@ Class SirenNightmare : KDiZDNightmare
 	Melee:
 		NMRE E 0 A_SetShootable;
 		NMRE EF 9 A_FaceTarget;
-		NMRE G 9 A_CustomMeleeAttack(100*random(1,8),"nightmare2/melee");
+		NMRE G 9 A_CustomMeleeAttack(100*random(1,8),"nightmare2/melee","","Fear",FALSE);
 		Goto See;
 	}
 }
