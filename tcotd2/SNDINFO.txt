@@ -139,7 +139,7 @@ shdeath2 shdeath2
 harvester/scream shfbscrm
 harvester/ghost shghscrm
 
-////Thamuz
+////Thamuzbog (old Thamuz remastered)
 Apocalypse/cast			apocast
 Thamuz/Attack			nakrula2
 Thamuz/death			nakruld2
@@ -154,6 +154,56 @@ q2weapon/rocketlauncherfire	rocklf1a
 q2weapon/rocketexplo		q2roklx1
 h2necromancer/magiccast		h2ncmagh
 comet/explosion			cometexp
+
+////Tchernobog (new Thamuz)
+OmniWait OMNWAI1
+Omniwait2 OMNWAI2
+$rolloff OmniWait 1800 3400
+$rolloff OmniWait2 1800 3400
+$Random Omni/Wait {OmniWait Omniwait2}
+
+Omnibow1 OMNIBOW
+omnibow2 OMNIBOW2
+$Random Omni/Bow {Omnibow1 Omnibow2}
+$rolloff Omnibow1 3200 6400
+$rolloff Omnibow2 3200 6400
+
+Worship1 OMWOR1
+Worship2 OMWOR2
+$Random Omni/Worship {Worship1 Worship2}
+
+$Random Omni/Search {Omni/Wait Omni/Worship Omni/Laugh Omni/Bow Omni/Sacrifice}
+
+OMLaugh OMLAUGH
+OMLaugh2 OMLAUGH2
+OMLaugh3 OMLAUGH3
+OMLaugh4 OMLAUGH4
+OMLaugh5 OMLAUGH5
+$rolloff OMLaugh 2400 5600
+$rolloff OMLaugh2 2400 5600
+$rolloff OMLaugh3 2400 5600
+$rolloff OMLaugh4 2400 5600
+$rolloff OMLaugh5 2400 5600
+$Random Omni/Laugh {OMLaugh OMLaugh2 OMLaugh3 OMLaugh4 OMLaugh4 OMLaugh5}
+
+Sacrifice1 SACRI1
+Sacrifice2 SACRI2
+Sacrifice3 SACRI3
+$rolloff Sacrifice1 2400 2400
+$rolloff Sacrifice2 2400 2400
+$rolloff Sacrifice3 2400 2400
+$Random Omni/Sacrifice {Sacrifice1 Sacrifice2 Sacrifice3}
+
+Opain1 OMPAIN1
+Opain2 OMPAIN2
+Opain3 OMPAIN3
+Opain4 OMPAIN4
+Opain5 OMPAIN5
+Opain6 OMPAIN6
+Opain7 OMPAIN7
+$Random Omni/Pain {Opain1 Opain2 Opain3 Opain4 Opain5 Opain6 Opain7}
+
+Omni/Death OMDIE
 
 ////Wraith
 monster/sprsit dsspract
