@@ -631,26 +631,23 @@ class isIntro : Inventory //prevent Motion Blur working over cutscenes if we mov
 	}	
 }
 
-Class FearStop : Inventory
+//for Nightmare
+Class PowerFear : PowerSpeed
 {
 	Default
 	{
-		Inventory.MaxAmount 1;
-	}
-	
-	States
-	{
-	Spawn:
-		TNT1 A 1 A_TakeInventory("FearIntensity", 999);
-		Stop;
+		Powerup.Duration -4;
+		Speed 0.33;
 	}
 }
 
-Class FearIntensity : Inventory
+Class Madness : PowerupGiver
 {
 	Default
 	{
-		Inventory.Amount 1;
-		Inventory.MaxAmount 400;
+		+INVENTORY.AUTOACTIVATE
+		+INVENTORY.ADDITIVETIME
+		-INVENTORY.INVBAR
+		Powerup.Type "PowerFear";
 	}
 }
