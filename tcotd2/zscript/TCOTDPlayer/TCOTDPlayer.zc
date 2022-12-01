@@ -422,13 +422,19 @@ class TCOTDPlayer : PlayerPawn
 
 		//===========================================================================
 		//
-		// Death Tilting
+		// Death Tilting by Nash + & Siren Attack check by Ozy81
 		//
 		//===========================================================================
-
+		
 		if (Health <= 0 && deathTiltEnabled)
 		{
 			double deathTiltSpeed = 1.0;
+			
+				let madness = Madness(FindInventory("madness", true));
+				if (madness)			
+				{
+					A_StartSound("UWLAUGH",CHAN_BODY);
+				}
 
 			if (deathTiltAngle == 0)
 			{
@@ -559,14 +565,16 @@ class TCOTDPlayer : PlayerPawn
 		PLAY F 6 BRIGHT;
 		Goto Missile;
 	Pain.Fear:
+	Pain.Fear2:
 		PLAY G 0 A_SetBlend("White",0.85,190);
 		Goto Pain;
 	Pain:
 		PLAY G 4;
 		PLAY G 4 A_Pain();
 		Goto Spawn;
-	Death.Fear:
+	Death.Fear2: //only from Siren
 		PLAY H 0 A_SetBlend("White",-1,999);
+		PLAY H 35; //let's wait so we can see the roll death effect
 		PLAY H 0 A_GiveInventory("Madness", 1);
 	Death:
 		PLAY H 10;
