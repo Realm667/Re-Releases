@@ -1,26 +1,77 @@
-map map01 "Zdoom Comunity Map #1"
-music d_tndc
-next endgame1
-allowjump
+gameinfo
+{
+	//playerclasses = "ZDCMP1Player"
+
+	dimcolor = "323232"
+	dimamount = 0.5
+	//fullscreenautoaspect = 3
+
+	//infopage = "CREDIT"
+	//addinfopage = "HELP"
+	//borderflat = "AUTOPAGE"
+	
+	//statscreen_single = "ZPackStatusScreen"
+	
+	//EventHandlers="EnhWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
+}
+
+clearepisodes
+
+episode MAP01
+{
+	name = "\cCZDCMP1"
+}
+
+map MAP01 "Zdoom Comunity Map #1"
+{
+	cluster = 1
+	next = Endgame1
+	music = "d_tndc"
+	allowjump
 nocrouch
-compat_soundtarget 1
-compat_ravenscroll 0
-compat_nopassover 0
-compat_nodoorlight 0
+compat_soundtarget = 1
+compat_ravenscroll = 0
+compat_nopassover = 0
+compat_nodoorlight = 0
+}
+
 cluster 1
+//exittext "Congratulations, you have completed
+//the ZDoom community map project.
 
-clusterdef 1
-exittext "Congratulations, you have completed
-the ZDoom community map project.
+//This project is brought to you by
+//regular forum-goers and zdoom supporters
+//at http://www.zdoom.org/
 
-This project is brought to you by
-regular forum-goers and zdoom supporters
-at http://www.zdoom.org/
+//We hope you enjoyed playing this as
+//much as we enjoyed building it!
 
-We hope you enjoyed playing this as
-much as we enjoyed building it!
+//Watch for more community projects to be
+//released in the near future..."
 
-Watch for more community projects to be
-released in the near future..."
-music D_OBLVN
-flat NJGRNFLT
+
+{
+	exittext = "Congratulations, you have completed",
+		"the ZDoom community map project",
+		"",
+		"This project is brought to you by",
+		"regular forum-goers and zdoom supporters",
+		"at http://www.zdoom.org/",
+		"",
+		"We hope you enjoyed playing this as",
+		"much as we enjoyed building it!"
+	flat = NJGRNFLT
+	music = D_OBLVN
+}
+
+doomednums
+{	
+	31102 = "LightRay_Regular"
+	31103 = "LightRay_WallSprite"
+	31105 = "LightRay2_Regular"
+	31106 = "LightRay2_WallSprite"
+	31107 = "LightRay_RegularNL"
+	31108 = "LightRay_WallSpriteNL"
+	31109 = "LightRay2_RegularNL"
+	31110 = "LightRay2_WallSpriteNL"
+}

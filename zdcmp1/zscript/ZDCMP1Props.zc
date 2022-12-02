@@ -1,0 +1,138 @@
+Class LightRay_Regular : SwitchableDecoration
+{
+	Default
+	{
+		//$Category "ZDCMP1 Effects"
+		//DistanceCheck "ZDCMP1lod";
+		Radius 8;
+		Height 8;
+		RenderStyle "Translucent";
+		Alpha 1.0;
+		+NOBLOCKMAP
+		+NOGRAVITY
+	}
+	States
+	{
+	Spawn:
+	Active:
+		VOLT A -1 Bright;
+		Stop;
+	Inactive:
+		VOLT A 1;
+		TNT1 A -1;
+		Stop;
+	}
+}
+
+Class LightRay_WallSprite : LightRay_Regular
+{
+	Default
+	{
+		//DistanceCheck "ZDCMP1lod";
+		+ROLLSPRITE
+		+WALLSPRITE
+	}
+}
+
+Class LightRay2_Regular : LightRay_Regular
+{
+	Default
+	{
+		//$Title Light Rays 2, Regular
+	}
+	
+	States
+	{
+	Spawn:
+	Active:
+		VOLT B -1 Bright;
+		Stop;
+	Inactive:
+		VOLT B 1;
+		TNT1 B -1;
+		Stop;
+	}
+}
+
+Class LightRay2_WallSprite : LightRay2_Regular
+{
+	Default
+	{
+		//$Title Light Rays 2, WallSprite
+	}
+	
+	Default
+	{
+		+ROLLSPRITE
+		+WALLSPRITE
+	}
+}
+
+Class LightRay_RegularNL : SwitchableDecoration
+{
+	Default
+	{
+		//$Category "ZDCMP1 Effects"
+		Radius 8;
+		Height 8;
+		RenderStyle "Translucent";
+		Alpha 1.0;
+		+NOBLOCKMAP
+		+NOGRAVITY
+	}
+	States
+	{
+	Spawn:
+	Active:
+		VOLT A -1 Bright;
+		Stop;
+	Inactive:
+		VOLT A 1;
+		TNT1 A -1;
+		Stop;
+	}
+}
+
+Class LightRay_WallSpriteNL : LightRay_RegularNL
+{
+	Default
+	{
+		//DistanceCheck "ZDCMP1lod";
+		+ROLLSPRITE
+		+WALLSPRITE
+	}
+}
+
+Class LightRay2_RegularNL : LightRay_RegularNL
+{
+	Default
+	{
+		//$Title Light Rays 2, Regular NOLOD
+	}
+	
+	States
+	{
+	Spawn:
+	Active:
+		VOLT B -1 Bright;
+		Stop;
+	Inactive:
+		VOLT B 1;
+		TNT1 B -1;
+		Stop;
+	}
+}
+
+Class LightRay2_WallSpriteNL : LightRay2_RegularNL
+{
+	Default
+	{
+		//$Title Light Rays 2, WallSprite NOLOD
+	}
+	
+	Default
+	{
+		+ROLLSPRITE
+		+WALLSPRITE
+	}
+}
