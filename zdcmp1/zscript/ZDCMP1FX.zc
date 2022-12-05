@@ -1,0 +1,326 @@
+// Copyright 2020 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+// SwitchableDecoration with bDormant flag handling
+//
+//===========================================================================
+
+class ZDCMP1SwitchableDecoration : SwitchableDecoration
+{
+	override void PostBeginPlay(void)
+	{
+		Super.PostBeginPlay();
+
+		bDormant = (SpawnFlags & MTF_DORMANT);
+	}
+
+	override void Activate(Actor activator)
+	{
+		Super.Activate(activator);
+		bDormant = !bDormant;
+	}
+
+	override void Deactivate(Actor activator)
+	{
+		Super.Deactivate(activator);
+		bDormant = !bDormant;
+		A_StartSound("SFX/FireDie", CHAN_7);
+		A_StopSound(CHAN_6);
+	}
+}
+
+//===========================================================================
+//
+// Customizable fire spawner
+//
+//===========================================================================
+
+class ZDCMP1FireSpawner : ZDCMP1SwitchableDecoration
+{
+	Actor light;
+
+	Default
+	{
+		//$Category Special Effects
+		//$Title Fire Spawner
+		//$Color 12
+		//$Arg0 "Size"
+		//$Arg0Type 11
+		//$Arg0Enum { 0 = "Small"; 1 = "Medium"; 2 = "Large"; }
+		//$Arg1 "Sound"
+		//$Arg1Type 11
+		//$Arg1Enum { 0 = "Yes"; 1 = "No"; }
+		Height 40;
+		Radius 30;
+		+NOINTERACTION
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void PostBeginPlay(void)
+	{
+		if (!(SpawnFlags & MTF_DORMANT))
+		{
+			Activate(self);
+		}
+		Super.PostBeginPlay();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	bool SoundEnabled(void)
+	{
+		return Args[1] == 0;
+	}
+
+	bool IsSmallFire(void)
+	{
+		return Args[0] == 0;
+	}
+
+	bool IsMediumFire(void)
+	{
+		return Args[0] == 1;
+	}
+
+	bool IsLargeFire(void)
+	{
+		return Args[0] == 2;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void SpawnFire(void)
+	{
+		let fire = Spawn("ZDCMP1FireSpawnerFlame", Pos, NO_REPLACE);
+		if (fire)
+		{
+			double fireScale;
+			double vx, vy, vz;
+
+			if (IsSmallFire())
+			{
+				fireScale = 0.35;
+				vx = frandom(-1.0, 1.0);
+				vy = frandom(-1.0, 1.0);
+				vz = frandom(2.0, 4.0);
+			}
+			else if (IsMediumFire())
+			{
+				fireScale = 0.7;
+				vx = frandom(-2.0, 2.0);
+				vy = frandom(-2.0, 2.0);
+				vz = frandom(6.0, 8.0);
+			}
+			else if (IsLargeFire())
+			{
+				fireScale = 1.4;
+				vx = frandom(-4.0, 4.0);
+				vy = frandom(-4.0, 4.0);
+				vz = frandom(10.0, 12.0);
+			}
+
+			fire.A_SetScale(fireScale);
+			fire.Vel = (vx, vy, vz);
+		}
+	}
+
+	void SpawnEmber(void)
+	{
+		// To do: I'll do the embers later
+		/*
+		let ember = Spawn("ZDCMP1FireEmber", Pos, NO_REPLACE);
+		if (ember)
+		{
+			double ox, oy, oz;
+			double vx, vy, vz;
+
+			vx = frandom(-1.0, 1.0);
+			vy = frandom(-1.0, 1.0);
+			vz = frandom(1.0, 4.0);
+
+			ember.Vel = (vx, vy, vz);
+		}
+		*/
+	}
+
+	void SpawnLight(void)
+	{
+		// To do: the lights look really weird. Improve this
+		String cls;
+		if (IsSmallFire())
+		{
+			cls = "ZDCMP1FireSpawnerLightSmall";
+		}
+		else if (IsMediumFire())
+		{
+			cls = "ZDCMP1FireSpawnerLightMedium";
+		}
+		else if (IsLargeFire())
+		{
+			cls = "ZDCMP1FireSpawnerLightLarge";
+		}
+		light = Spawn(cls, Pos, NO_REPLACE);
+	}
+
+	void RemoveLight(void)
+	{
+		if (light) light.Destroy();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	Spawn:
+	Active:
+		TNT1 A 4
+		{
+			if (SoundEnabled())
+			{
+				A_StartSound("SFX/FireStart", CHAN_7);
+
+				Sound snd;
+				if (IsSmallFire())
+				{
+					snd = "SFX/FireLoop1";
+				}
+				else if (IsMediumFire())
+				{
+					snd = "SFX/FireLoop2";
+				}
+				else if (IsLargeFire())
+				{
+					snd = "SFX/FireLoop3";
+				}
+
+				A_StartSound(snd, CHAN_6, CHANF_LOOP, 1.0);
+
+				SpawnLight();
+			}
+		}
+		TNT1 A 1
+		{
+			if (!CheckSightOrRange(1000.0, true))
+			{
+				SpawnFire();
+				//SpawnEmber();
+			}
+		}
+		Goto Active + 1;
+	Inactive:
+		TNT1 A 0
+		{
+			A_StopSound(CHAN_6);
+
+			if (SoundEnabled())
+			{
+				A_StartSound("SFX/FireDie", CHAN_7);
+			}
+
+			RemoveLight();
+		}
+		TNT1 A -1;
+		Stop;
+	}
+}
+
+class ZDCMP1FireSpawnerFlame : ZDCMP1DietActorWithVel
+{
+	mixin ZDCMP1FireMixin;
+
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256, "Flame1", "Flame2", "Flame3");
+		Stop;
+	Flame1:
+		FLM1 A 0;
+		Goto SpawnLoop;
+	Flame2:
+		FLM3 A 0;
+		Goto SpawnLoop;
+	Flame3:
+		FLM5 A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZDCMP1FireSpawnerLight : ZDCMP1DietActor
+{
+	Default
+	{
+		+NOINTERACTION
+	}
+}
+
+class ZDCMP1FireSpawnerLightSmall : ZDCMP1FireSpawnerLight
+{
+
+	States
+	{
+	Spawn:
+		TNT1 A 1 Light("FireSpawnerSmall");
+		Loop;
+	}
+}
+
+class ZDCMP1FireSpawnerLightMedium : ZDCMP1FireSpawnerLight
+{
+	States
+	{
+	Spawn:
+		TNT1 A 1 Light("FireSpawnerMedium");
+		Loop;
+	}
+}
+class ZDCMP1FireSpawnerLightLarge : ZDCMP1FireSpawnerLight
+{
+	States
+	{
+	Spawn:
+		TNT1 A 1 Light("FireSpawnerLarge");
+		Loop;
+	}
+}

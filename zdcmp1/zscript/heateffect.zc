@@ -1,0 +1,283 @@
+/*
+ * Copyright (c) 2018-2020 Talon1024, AFADoomer
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+**/
+/*
+	Shader controller base class
+
+	This allows mappers to control shaders using the GiveInventory/TakeInventory
+	ACS functions.
+
+	Do not use this directly! Instead, make an actor class that inherits from
+	ShaderControl. Set the ShaderControl.Shader property to the name of the
+	shader to control. The shader must be defined in GLDEFS.
+
+	To enable a shader, give 2 of the ShaderControl subclass item to the player.
+	For example:
+
+	GiveInventory("ShakeShaderControl", 2);
+
+	To disable a shader, take 1 of the shader control item away so that the
+	player only has 1 of said item. For example:
+
+	TakeInventory("ShakeShaderControl", 1);
+	or
+	SetInventory("ShakeShaderControl", 1);
+
+	Note that the latter requires you to define the SetInventory function in
+	your ACS code.
+*/
+class ShaderControl : Inventory {
+	string ShaderToControl;
+	property Shader: ShaderToControl;
+	Default {
+		Inventory.MaxAmount 0x7fffffff;
+	}
+
+	virtual ui void SetUniforms(PlayerInfo p, RenderEvent e) {}
+}
+
+class CustomShaderHandler : StaticEventHandler
+{
+	override void RenderOverlay(RenderEvent e)
+	{
+		PlayerInfo p = players[consoleplayer];
+		ThinkerIterator shaderIter = ThinkerIterator.Create("ShaderControl");
+
+		ShaderControl shaderControl;
+
+		while (shaderControl = ShaderControl(shaderIter.Next()))
+		{
+			if (shaderControl.Owner && shaderControl.Owner == p.mo) {
+				//Console.Printf("Shader: %s", shaderControl.ShaderToControl);
+				if (shaderControl.amount >= 2)
+				{
+					Shader.SetUniform1f(p, shaderControl.ShaderToControl, "timer", gametic + e.FracTic);
+					Shader.SetUniform1f(p, shaderControl.ShaderToControl, "amount", shaderControl.amount - 1);
+					Shader.SetUniform1f(p, shaderControl.ShaderToControl, "alpha", shaderControl.alpha);
+					shaderControl.SetUniforms(p, e);
+					Shader.SetEnabled(p, shaderControl.ShaderToControl, true);
+				}
+				else
+				{
+					Shader.SetEnabled(p, shaderControl.ShaderToControl, false);
+				}
+			}
+		}
+	}
+}
+
+class EffectSpawner : SwitchableDecoration //following code has been adapted by Ozymandias81 for this remaster, a bit different from BoA code
+{
+	transient CVar switchcvar;
+	String switchvar;
+	int range;
+	int chunkx, chunky;
+
+	int flags;
+
+	FlagDef AllowTickDelay:flags, 0;
+	FlagDef DoActivation:flags, 1;
+
+	Property Range:range;
+	Property SwitchVar:switchvar;
+
+	Default
+	{
+		+EffectSpawner.DoActivation // Automatically activate/deactivate based on DORMANT flag by default
+	}
+
+	States
+	{
+		Spawn:
+		Inactive:
+			TNT1 A -1;
+			Wait;
+	}
+
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+
+		if (switchvar.length()) { switchcvar = CVar.FindCVar(switchvar); }
+
+		if (bDoActivation)
+		{
+			if (bDormant || SpawnFlags & MTF_DORMANT) { Deactivate(null); }
+			else { Activate(null); }
+		}
+
+		tics += Random(0, 35);
+	}
+
+	override void Activate(Actor activator)
+	{
+		if (switchcvar && !switchcvar.GetBool()) { SetStateLabel("Inactive"); }
+		else
+		{
+			bDormant = false;
+			SetStateLabel("Active");
+		}
+	}
+
+	override void Deactivate(Actor activator)
+	{
+		bDormant = true;
+		SetStateLabel("Inactive");
+	}
+}
+
+// Shader effect givers
+class EffectGiver : EffectSpawner
+{
+	bool Active;
+	Array<Actor> Activators;
+	class<ShaderControl> controlclass;
+
+	Property Control:controlclass;
+
+	Default
+	{
+		//$Category "ZDCMP1 Effects"
+		//$Color 12
+		Radius 128;
+		Alpha 0.5;
+		RenderStyle "Stencil";
+		+NOCLIP
+		+SOLID
+		EffectSpawner.SwitchVar "enh_shaderoverlayswitch";
+	}
+
+	States
+	{
+		Spawn:
+			MDLS A 1;
+		Active:
+			TNT1 A 35;
+			Loop;
+	}
+
+	override void PostBeginPlay()
+	{
+		bInvisible = True;
+
+		double fz = GetZAt(0, 0, 0, GZF_NO3DFLOOR);
+		double cz = GetZAt(0, 0, 0, GZF_CEILING | GZF_NO3DFLOOR);
+
+		SetOrigin((pos.xy, fz), false);
+
+		// Resize to the scaled size and fill the height of the sector, plus 32 units to allow for a border on the edges where the value will properly be zero
+		// This sets the actor size so that the player can touch it when the effect is still at amount zero, allowing gradual fade-in/out
+		A_SetSize(Radius * scale.x + 32, cz - fz); 
+
+		Super.PostBeginPlay();
+	}
+
+	override bool CanCollideWith(Actor other, bool passive)
+	{
+		if (!Activators.Size() && switchcvar && !switchcvar.GetBool()) { return false; }
+		if (other.player && Activators.Find(other) == Activators.Size()) { Activators.Push(other); return true; }
+
+		return false;		
+	}
+
+	override void Tick()
+	{
+		if (Activators.Size() && switchcvar && !switchcvar.GetBool())
+		{
+			for (int i = 0; i < Activators.Size(); i++)
+			{
+				Actor mo = Activators[i];
+
+				if (mo && mo is "PlayerPawn")
+				{
+					ShaderControl control = ShaderControl(mo.FindInventory(controlclass));
+					if (control) { control.amount = 1; }
+					Activators.Delete(i);
+				}
+			}
+		}
+		else if (!bDormant && level.time % 5 == 0)
+		{
+			for (int i = 0; i < Activators.Size(); i++)
+			{
+				Actor mo = Activators[i];
+
+				if (mo && mo is "PlayerPawn")
+				{
+					// Set the amount of the powerup based off of the original radius and scale values
+					// Always scale from 0 to 128, regardless of scale/radius of actor
+					int amt = clamp(int(128 * (1.0 - Distance2D(mo) / (Default.radius * scale.x))), 0, 128);
+
+					ShaderControl control = ShaderControl(mo.FindInventory(controlclass));
+					if (control)
+					{
+						if (amt - 5 >= control.amount) { SetParams(control); } // If this is the dominant giver, allow it to set shader parameters
+						amt = max(amt, control.amount); // Don't cancel out other givers - just go with whichever is giving the most
+					}
+
+					if (amt <= 1) { Activators.Delete(i); continue; }
+
+					mo.SetInventory(controlclass, min(1 + amt, 128));
+				}
+			}
+		}
+
+		Super.Tick();
+	}
+
+	virtual void SetParams(ShaderControl control) {}
+}
+
+class HeatEffectGiver : EffectGiver
+{
+	Default
+	{
+		//$Title Heat Effect Giver
+		StencilColor "Orange";
+		EffectGiver.Control "HeatShaderControl";
+	}
+}
+
+class HeatShaderControl : ShaderControl
+{
+	int holdTarget;
+
+	Default
+	{
+		ShaderControl.Shader "heatshader";
+		Inventory.MaxAmount 70;
+	}
+
+	override void DoEffect()
+	{
+		if (amount > 1) { holdTarget = level.time + amount; } // Set hold time based on amount in inventory
+
+		if (holdTarget && level.time > holdTarget) // If we've hit the hold time, remove the effect
+		{
+			amount = 1;
+			holdTarget = 0;
+		}
+		else if (holdTarget)
+		{
+			amount = max(amount - 8, 1);
+		}
+	}
+}

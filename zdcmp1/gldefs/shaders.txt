@@ -1,0 +1,65 @@
+//HeatEffect shader
+HardwareShader PostProcess scene {
+	Name "heatshader"
+	Shader "shaders/heat.fp" 330
+	Uniform float amount
+	Uniform float timer
+}
+
+//MotionBlur shader
+HardwareShader PostProcess beforebloom
+{
+	Name "motionblur"
+	Shader "shaders/mblur.fp" 330
+	Uniform vec2 steps
+	Uniform int samples
+	Uniform float increment
+	Uniform int blendmode
+}
+
+//Underwater shader
+HardwareShader PostProcess scene
+{
+	Name "watershader"
+	Shader "shaders/Water.frag" 330
+	Uniform float waterFactor
+	Uniform float timer // placeholder?
+}
+
+HardwareShader PostProcess scene
+{
+	Name "waterzoomshader"
+	Shader "shaders/WaterZoom.frag" 330
+	Uniform float zoomFactor
+}
+
+//Rotating Rocket Trail
+HardwareShader Sprite PDBAV0
+{
+	Shader "shaders/rotate.fp"
+	Speed 0.9
+}
+
+HardwareShader Sprite PDBAW0
+{
+	Shader "shaders/rotate.fp"
+	Speed 0.8
+}
+
+HardwareShader Sprite PDBAX0
+{
+	Shader "shaders/rotate.fp"
+	Speed 0.7
+}
+
+HardwareShader Sprite PDBAY0
+{
+	Shader "shaders/rotate.fp"
+	Speed 0.6
+}
+
+HardwareShader Sprite PDBAZ0
+{
+	Shader "shaders/rotate.fp"
+	Speed 0.5
+}
