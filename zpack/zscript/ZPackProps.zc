@@ -34,6 +34,34 @@ Class LightRay_WallSprite : LightRay_Regular
 	}
 }
 
+Class LightRay_RegularMove : SwitchableDecoration
+{
+	Default
+	{
+		//$Category "ZPack Effects"
+		DistanceCheck "ZPacklod";
+		Radius 2;
+		Height 2;
+		RenderStyle "Translucent";
+		Alpha 1.0;
+		+SOLID
+		+ROLLSPRITE
+		+WALLSPRITE
+		+MOVEWITHSECTOR
+	}
+	States
+	{
+	Spawn:
+	Active:
+		VOLT A -1 Bright;
+		Stop;
+	Inactive:
+		VOLT A 1;
+		TNT1 A -1;
+		Stop;
+	}
+}
+
 Class LightRay2_Regular : LightRay_Regular
 {
 	Default
