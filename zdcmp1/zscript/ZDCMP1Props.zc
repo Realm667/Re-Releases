@@ -136,3 +136,28 @@ Class LightRay2_WallSpriteNL : LightRay2_RegularNL
 		+WALLSPRITE
 	}
 }
+
+Class Forklift : Actor
+{
+	Default
+	{
+		//$Category Voxel Vehicles
+		//$Title Forklift
+		Radius 40;
+		Height 96;
+		Mass 5000;
+		+SOLID
+		+SHOOTABLE
+		+NODAMAGE
+		+NOBLOOD
+		+CANPASS
+		Scale 1.5;
+	}
+	
+	States
+	{
+	Spawn:
+		FORK A -1;
+		Stop;
+	}
+}
