@@ -21,3 +21,28 @@ class TCOTDCandelabra : TCOTDInteractiveSwitchableDecoration
 		Stop;
 	}
 }
+
+class TCOTDCastleLight : Actor
+{
+	Default
+	{
+		//$Category New Lights (TCOTD2)
+		//$Title Hanging Castle Candleabra
+		//$Color 11
+		Radius 16;
+		Height 88;
+		+SOLID
+		+NOGRAVITY
+		+SPAWNCEILING
+	}
+
+	States
+	{
+	Spawn:
+		GOR1 A 10;
+		GOR1 B 15;
+		GOR1 C 8;
+		GOR1 B 6;
+		Loop;
+	}
+}
