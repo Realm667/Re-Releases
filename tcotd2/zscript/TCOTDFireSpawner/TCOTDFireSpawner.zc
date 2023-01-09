@@ -112,21 +112,6 @@ class TCOTDFireSpawner : HeatEffectGiver
 	//
 	//===========================================================================
 
-	override void PostBeginPlay(void)
-	{
-		if (!(SpawnFlags & MTF_DORMANT))
-		{
-			Activate(self);
-		}
-		Super.PostBeginPlay();
-	}
-
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
-
 	bool SoundEnabled(void)
 	{
 		return Args[1] == 0;
