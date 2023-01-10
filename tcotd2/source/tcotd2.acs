@@ -26,7 +26,7 @@ script "30Health" ENTER
 		int health = GetActorProperty(0, APROP_HEALTH);
 		if (health > 0 && health <= 30)
 		{
-			HudMessage(s:"A"; HUDMSG_FADEINOUT, 0, CR_WHITE, half_width, half_height, 0.0, 0.5, 0.5);
+			HudMessage(s:"A"; HUDMSG_FADEINOUT | HUDMSG_NOTWITHFULLMAP, 0, CR_WHITE, half_width, half_height, 0.0, 0.5, 0.5);
 
 			// Volume and delay of heartbeat (faster and louder with less health).
 			int volume = MAX_VOLUME;
