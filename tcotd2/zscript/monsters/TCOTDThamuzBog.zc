@@ -28,114 +28,114 @@ Class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 
 	Default
 	{
-	//$Category New Monsters (TCOTD2)
-	//$Title ThamuzBog
-	Health 3200;
-	Radius 40;
-	Height 110;
-	Mass 2000;
-	Speed 5.33333333; //more rapid compared to Thamuz but doesn't summon tentacles
-	PainChance 35;
-	+BOSS
-	+MISSILEMORE
-	+NORADIUSDMG
-	+DONTMORPH
-	+BOSSDEATH
-	//+E2M8BOSS
-	//+E4M6BOSS
-	+LOOKALLAROUND
-	+MISSILEEVENMORE
-	MinMissileChance 5;
-	SeeSound "Thamuz/Idlesight";
-	PainSound "Thamuz/Pain";
-	DeathSound "Thamuz/death";
-	ActiveSound "Thamuz/Idlesight";
-	Obituary "$OB_THAM";
-	Species "Horror";
+		//$Category New Monsters (TCOTD2)
+		//$Title ThamuzBog
+		Health 3200;
+		Radius 40;
+		Height 110;
+		Mass 2000;
+		Speed 5.33333333; //more rapid compared to Thamuz but doesn't summon tentacles
+		PainChance 35;
+		MinMissileChance 5;
+		SeeSound "Thamuz/Idlesight";
+		PainSound "Thamuz/Pain";
+		DeathSound "Thamuz/death";
+		ActiveSound "Thamuz/Idlesight";
+		Obituary "$OB_THAM";
+		Species "Horror";
+		+BOSS
+		+MISSILEMORE
+		+NORADIUSDMG
+		+DONTMORPH
+		+BOSSDEATH
+		//+E2M8BOSS
+		//+E4M6BOSS
+		+LOOKALLAROUND
+		+MISSILEEVENMORE
 	}
 
 	States
 	{
 	Spawn:
-		BOGC AB 10 A_Look;
+		BOGC AB 10 A_Look();
 		Loop;
 	See:
 		"####" A 1 A_Hoof;
-		"####" AA 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		"####" A 0 A_SpawnItemEx("CyberBogGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
-		"####" A 1 A_Chase;
-		"####" AA 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		"####" A 0 A_SpawnItemEx("CyberBogGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
+		"####" AA 1 A_Chase2();
+		"####" A 0 A_SpawnItemEx("CyberBogGhost", flags: SXF_TRANSFERSPRITEFRAME);
+		"####" A 1 A_Chase();
+		"####" AA 1 A_Chase2();
+		"####" A 0 A_SpawnItemEx("CyberBogGhost", flags: SXF_TRANSFERSPRITEFRAME);
 		"####" B 1 A_Metal;
-		"####" BB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		"####" B 0 A_SpawnItemEx("CyberBogGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
+		"####" BB 1 A_Chase2();
+		"####" B 0 A_SpawnItemEx("CyberBogGhost", flags: SXF_TRANSFERSPRITEFRAME);
 		"####" B 1 { A_Chase(); A_SpawnItemEx("BeastStompND"); }
-		"####" BB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		"####" B 0 A_SpawnItemEx("CyberBogGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
+		"####" BB 1 A_Chase2();
+		"####" B 0 A_SpawnItemEx("CyberBogGhost", flags: SXF_TRANSFERSPRITEFRAME);
 		"####" C 1 A_Hoof;
-		"####" CC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		"####" C 0 A_SpawnItemEx("CyberBogGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
-		"####" C 1 A_Chase;
-		"####" CC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		"####" C 0 A_SpawnItemEx("CyberBogGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
+		"####" CC 1 A_Chase2();
+		"####" C 0 A_SpawnItemEx("CyberBogGhost", flags: SXF_TRANSFERSPRITEFRAME);
+		"####" C 1 A_Chase();
+		"####" CC 1 A_Chase2();
+		"####" C 0 A_SpawnItemEx("CyberBogGhost", flags: SXF_TRANSFERSPRITEFRAME);
 		"####" D 1 A_Metal;
-		"####" DD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		"####" D 0 A_SpawnItemEx("CyberBogGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
+		"####" DD 1 A_Chase2();
+		"####" D 0 A_SpawnItemEx("CyberBogGhost", flags: SXF_TRANSFERSPRITEFRAME);
 		"####" D 1 { A_Chase(); A_SpawnItemEx("BeastStompND"); }
-		"####" DD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		"####" D 0 A_SpawnItemEx("CyberBogGhost",0,0,0,0,0,0,0,SXF_TRANSFERSPRITEFRAME);
+		"####" DD 1 A_Chase2();
+		"####" D 0 A_SpawnItemEx("CyberBogGhost", flags: SXF_TRANSFERSPRITEFRAME);
 		Loop;
 	Missile:
-		"####" E 0 { user_height=64; }
-		"####" E 0 { user_offset=-25; }
-		"####" E 0 A_Jump(128,"Missile4");
+		"####" E 0 { user_height = 64; }
+		"####" E 0 { user_offset = -25; }
+		"####" E 0 A_Jump(128, "Missile4");
 	Missile1:
-		"####" S 0 A_Jump(160,"Missile2","Missile3");
-		"####" S 0 A_SetInvulnerable;
-		"####" G 20 {A_StartSound("Apocalypse/cast", CHAN_6); A_SpawnItemEx("ThamuzCircle",0,0);}
+		"####" S 0 A_Jump(160, "Missile2", "Missile3");
+		"####" S 0 A_SetInvulnerable();
+		"####" G 20 { A_StartSound("Apocalypse/cast", CHAN_6); A_SpawnItemEx("ThamuzCircle"); }
 	Stomp: //the sequence still needs to be adjusted
-		"####" S 0 A_SpawnProjectile("DCBMiss3",50,0,user_theta);
-		"####" S 0 { user_theta=user_theta+20; }
-		"####" S 0 A_JumpIf(user_theta==360,1);
+		"####" S 0 A_SpawnProjectile("DCBMiss3", 50, 0, user_theta);
+		"####" S 0 { user_theta = user_theta + 20; }
+		"####" S 0 A_JumpIf(user_theta == 360, 1);
 		Loop;
-		"####" T 2 A_StartSound("BeastStomp",CHAN_7);
+		"####" T 2 A_StartSound("BeastStomp", CHAN_7);
 		"####" UVWXY 6;
-		"####" Z 90 { user_theta=0; A_SpawnItemEx("BeastStomp"); }
-		"####" Y 2 A_UnSetInvulnerable;
+		"####" Z 90 { user_theta = 0; A_SpawnItemEx("BeastStomp"); }
+		"####" Y 2 A_UnSetInvulnerable();
 		"####" XWVUTS 6; //this moment grants an exploit for players to attack the boss for a better playism - ozy81
 		Goto See;
 	Missile2:
-		"####" E 3 A_FaceTarget;
-		"####" F 6 A_SpawnProjectile("TCOTDLavaBarf",62,-17.0,frandom(-10.0,10.0),CMF_AIMDIRECTION,(ACS_NamedExecuteWithResult("SetActivatorTarget", 0, tidtohate)*10)/frandom(20,40));
-		"####" E 6 A_FaceTarget;
-		"####" F 6 A_SpawnProjectile("TCOTDLavaBarf",62,-17.0,frandom(-10.0,10.0),CMF_AIMDIRECTION,(ACS_NamedExecuteWithResult("SetActivatorTarget", 0, tidtohate)*10)/frandom(20,40));
-		"####" E 6 A_FaceTarget;
-		"####" F 6 A_SpawnProjectile("TCOTDLavaBarf",62,-17.0,frandom(-10.0,10.0),CMF_AIMDIRECTION,(ACS_NamedExecuteWithResult("SetActivatorTarget", 0, tidtohate)*10)/frandom(20,40));
+		"####" E 3 A_FaceTarget();
+		"####" F 6 A_SpawnProjectile("TCOTDLavaBarf", 62, -17, frandom(-10, 10), CMF_AIMDIRECTION, (ACS_NamedExecuteWithResult("SetActivatorTarget", 0, tidtohate) * 10) / frandom(20, 40));
+		"####" E 6 A_FaceTarget();
+		"####" F 6 A_SpawnProjectile("TCOTDLavaBarf", 62, -17, frandom(-10, 10), CMF_AIMDIRECTION, (ACS_NamedExecuteWithResult("SetActivatorTarget", 0, tidtohate) * 10) / frandom(20, 40));
+		"####" E 6 A_FaceTarget();
+		"####" F 6 A_SpawnProjectile("TCOTDLavaBarf", 62, -17, frandom(-10, 10), CMF_AIMDIRECTION, (ACS_NamedExecuteWithResult("SetActivatorTarget", 0, tidtohate) * 10) / frandom(20, 40));
 		Goto See;
 	Missile3:
-		"####" E 3 A_FaceTarget;
-		"####" F 6 A_SpawnProjectile("TCOTDWeaponNapalmMissile",62,-17.0,0);
-		"####" E 6 A_FaceTarget;
-		"####" F 6 A_SpawnProjectile("TCOTDWeaponNapalmMissile",62,-17.0,0);
-		"####" E 6 A_FaceTarget;
-		"####" F 6 A_SpawnProjectile("TCOTDWeaponNapalmMissile",62,-17.0,0);
+		"####" E 3 A_FaceTarget();
+		"####" F 6 A_SpawnProjectile("TCOTDWeaponNapalmMissile", 62, -17, 0);
+		"####" E 6 A_FaceTarget();
+		"####" F 6 A_SpawnProjectile("TCOTDWeaponNapalmMissile", 62, -17, 0);
+		"####" E 6 A_FaceTarget();
+		"####" F 6 A_SpawnProjectile("TCOTDWeaponNapalmMissile", 62, -17, 0);
 		Goto See;
 	Missile4:
 		"####" P 6;
-		"####" Q 3 A_FaceTarget;
-		"####" R 1 A_SpawnProjectile("DCBMiss1",user_height,user_offset);
+		"####" Q 3 A_FaceTarget();
+		"####" R 1 A_SpawnProjectile("DCBMiss1", user_height, user_offset);
 		Goto See;
 	Pain:
-		"####" G 10 A_Pain;
+		"####" G 10 A_Pain();
 		Goto See;
 	Death: //include death effects here
 		"####" H 10;
-		"####" I 10 A_Scream;
+		"####" I 10 A_Scream();
 		"####" JKL 10;
-		"####" M 10 A_NoBlocking;
+		"####" M 10 A_NoBlocking();
 		"####" NO 10;
 		"####" O 30;
-		"####" O -1 A_BossDeath;
+		"####" O -1 A_BossDeath();
 		Stop;
 	}
 }
@@ -144,12 +144,12 @@ Class CyberBogGhost : Actor
 {
 	Default
 	{
-	Radius 2;
-	Height 2;
-	Projectile;
-	Alpha 0;
-	Species "Horror";
-	+THRUSPECIES
+		Radius 2;
+		Height 2;
+		Projectile;
+		Alpha 0;
+		Species "Horror";
+		+THRUSPECIES
 	}
 
 	States
@@ -157,7 +157,7 @@ Class CyberBogGhost : Actor
 	Spawn:
 		"####" "#" 3;
 		"####" "#" 0 A_SetTranslucent(0.6);
-		"####" "#" 3 A_FadeOut;
+		"####" "#" 3 A_FadeOut();
 		Wait;
 	}
 }
@@ -178,6 +178,8 @@ Class TCOTDLavaBarf : Actor
 		RenderStyle "Add";
 		Species "Horror";
 		Projectile;
+		SeeSound "Napalm/Fire";
+		DeathSound "Napalm/Impact";
 		+BRIGHT;
 		+CANBOUNCEWATER
 		+RANDOMIZE
@@ -186,8 +188,6 @@ Class TCOTDLavaBarf : Actor
 		+THRUSPECIES
 		+DONTSPLASH
 		-NOGRAVITY
-		SeeSound "Napalm/Fire";
-		DeathSound "Napalm/Impact";
 	}
 
 	States
@@ -195,12 +195,12 @@ Class TCOTDLavaBarf : Actor
   	Spawn:
 		NBLL A 2;
 		NBLL A 1 A_Jump(256,1,2,3,4,5,6);
-		NBLL AABBCCDDEEAABBCCDDEEAABBCCDDEEAABBCCDDEEAABBCCDDEEAABBCCDDEE 1 A_Explode(4,32);
-		NBLL A 1 A_Die;
+		NBLL AABBCCDDEEAABBCCDDEEAABBCCDDEEAABBCCDDEEAABBCCDDEEAABBCCDDEE 1 A_Explode(4, 32);
+		NBLL A 1 A_Die();
 		Goto Death;
   	Death:
-		MISL A 1 A_Scream;
-		MISL A 1 A_Explode(30,64,1);
+		MISL A 1 A_Scream();
+		MISL A 1 A_Explode(30, 64, 1);
 		MISL B 0; //explosion effect here - ozy81
 		Stop;
 	}

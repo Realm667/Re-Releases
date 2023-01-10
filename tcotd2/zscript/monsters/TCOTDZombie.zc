@@ -27,44 +27,44 @@ Class ZombieBlood : TCOTDMonster
 	States
 	{
 	Spawn:
-		BZOM A 10 A_Look;
+		BZOM A 10 A_Look();
 		Loop;
 	See:
-		BZOM BB 1 A_Chase;
-		BZOM BB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		BZOM CC 1 A_Chase;
-		BZOM CC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		BZOM DD 1 A_Chase;
-		BZOM DD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		BZOM EE 1 A_Chase;
-		BZOM EE 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		BZOM FF 1 A_Chase;
-		BZOM FF 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		BZOM GG 1 A_Chase;
-		BZOM GG 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		BZOM BB 1 A_Chase();
+		BZOM BB 1 A_Chase2();
+		BZOM CC 1 A_Chase();
+		BZOM CC 1 A_Chase2();
+		BZOM DD 1 A_Chase();
+		BZOM DD 1 A_Chase2();
+		BZOM EE 1 A_Chase();
+		BZOM EE 1 A_Chase2();
+		BZOM FF 1 A_Chase();
+		BZOM FF 1 A_Chase2();
+		BZOM GG 1 A_Chase();
+		BZOM GG 1 A_Chase2();
 		Loop;
 	Melee:
-		BZOM IJ 4 A_FaceTarget;
-		BZOM K 3 A_FaceTarget;
-		BZOM L 2 A_CustomMeleeAttack(10*random(1,8),"zombieblood/hit");
+		BZOM IJ 4 A_FaceTarget();
+		BZOM K 3 A_FaceTarget();
+		BZOM L 2 A_CustomMeleeAttack(10 * random(1, 8), "zombieblood/hit");
 		BZOM MNN 2;
 		Goto See;
 	Pain:
 		BZOM H 2;
-		BZOM H 2 A_Pain;
+		BZOM H 2 A_Pain();
 		Goto See;
 	Death:
 		BZMD A 2;
-		BZMD A 4 A_Scream;
+		BZMD A 4 A_Scream();
 		BZMD B 4;
-		BZMD C 5 A_NoBlocking;
+		BZMD C 5 A_NoBlocking();
 		BZMD D 5;
 		BZMD E -1;
 		Stop;
 	XDeath:
-		BZMD L 5 A_Scream;
+		BZMD L 5 A_Scream();
 		BZMD M 5;
-		BZMD N 5 A_NoBlocking;
+		BZMD N 5 A_NoBlocking();
 		BZMD OPQR 5;
 		BZMD S -1;
 		Stop;

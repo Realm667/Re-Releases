@@ -138,7 +138,8 @@ class TCOTDSoundPlayer : Actor
 
 	static TCOTDSoundPlayer GetSoundPlayer(PlayerPawn pmo)
 	{
-		if (!pmo) return NULL;
+		if (!pmo)
+			return NULL;
 
 		TCOTDSoundPlayer spmo = NULL;
 
@@ -159,13 +160,15 @@ class TCOTDSoundPlayer : Actor
 
 	bool IsOutside(void)
 	{
-		if (!pmo) return false;
+		if (!pmo)
+			return false;
 		return (pmo.ceilingpic == skyflatnum);
 	}
 
 	Actor GetCamera(void)
 	{
-		if (!pmo) return NULL;
+		if (!pmo)
+			return NULL;
 		return pmo.player.camera;
 	}
 
@@ -180,7 +183,8 @@ class TCOTDSoundPlayer : Actor
 		for (i = 0, s = data.Sections.Size(); i < s; i++)
 		{
 			let section = data.Sections[i];
-			if (!section) continue;
+			if (!section)
+				continue;
 
 			Class<Actor> cls = section.name;
 			Sound snd = data.Get(section.name, "Sound");
@@ -211,7 +215,8 @@ class TCOTDSoundPlayer : Actor
 		{
 			// go through all sections
 			let section = data.Sections[i];
-			if (!section) continue;
+			if (!section)
+				continue;
 
 			// go through all keys
 			for (uint key = 0, keys = section.Keys.Size(); key < keys; key++)
@@ -309,13 +314,15 @@ class TCOTDSoundPlayer : Actor
 	{
 		Actor a = pmo;
 
-		if (!TCOTDGameplayStatics.IsOnFloor(a)) return;
+		if (!TCOTDGameplayStatics.IsOnFloor(a))
+			return;
 
 		// get character velocity
 		double aVel = TCOTDGameplayStatics.GetVelocity(a, xyOnly: true);
 
 		// don't bother if moving too slow
-		if (aVel < 0.1) return;
+		if (aVel < 0.1)
+			return;
 
 		// set the sound volume
 		double vol = min(aVel * 0.1, 1.0);
@@ -326,7 +333,8 @@ class TCOTDSoundPlayer : Actor
 		aVel = clamp(aVel, 3.45, 6.37);
 
 		// add to counter if moving, decrease it otherwise
-		if (aVel < 0.01) footstepCounter *= 0.5;
+		if (aVel < 0.01)
+			footstepCounter *= 0.5;
 		else footstepCounter += aVel;
 
 		// play the footstep sound
@@ -361,8 +369,10 @@ class TCOTDSoundPlayer : Actor
 			let other = it.Thing;
 
 			// skip unimportant actors
-			if (other is "TCOTDSnowParticle") continue;
-			if (other is "TCOTDFoliage") continue;
+			if (other is "TCOTDSnowParticle")
+				continue;
+			if (other is "TCOTDFoliage")
+				continue;
 
 			bool valid = false;
 			Sound snd;

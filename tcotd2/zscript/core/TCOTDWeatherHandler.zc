@@ -46,10 +46,12 @@ class TCOTDWeatherHandler : EventHandler
 		{
 			if (playeringame[i] && players[i].mo && players[i].mo.player)
 			{
-				if (gameaction == ga_savegame) continue;
+				if (gameaction == ga_savegame)
+					continue;
 
 				CacheWeatherFXCVar();
-				if (!WeatherFXEnabled()) continue;
+				if (!WeatherFXEnabled())
+					continue;
 
 				Actor pmo = players[i].mo;
 				Actor camera = players[i].camera;
@@ -61,8 +63,10 @@ class TCOTDWeatherHandler : EventHandler
 					double spy = frandom(-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
 					Vector3 sPos = origin.Vec3Offset(spx, spy, SNOW_SPAWN_HEIGHT);
 					double cz = origin.CurSector.HighestCeilingAt(sPos.XY);
-					if (sPos.Z >= cz) sPos.Z = cz;
-					if (!level.IsPointInLevel(sPos)) continue;
+					if (sPos.Z >= cz)
+						sPos.Z = cz;
+					if (!level.IsPointInLevel(sPos))
+						continue;
 					let snow = origin.Spawn("TCOTDSnowParticle", sPos, NO_REPLACE);
 					if (snow)
 					{

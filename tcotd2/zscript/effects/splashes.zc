@@ -27,23 +27,24 @@ class TCOTD_WaterSplash : Actor
 {
 	Default
 	{
-	RenderStyle "Translucent";
-	Alpha 0.0;
-	XScale 0.1;
-	YScale 0.2;
-	+DONTSPLASH
-	+NOBLOCKMAP
-	+NOCLIP
-	+NOGRAVITY
+		RenderStyle "Translucent";
+		Alpha 0.0;
+		XScale 0.1;
+		YScale 0.2;
+		+DONTSPLASH
+		+NOBLOCKMAP
+		+NOCLIP
+		+NOGRAVITY
 	}
+
 	States
 	{
 	Spawn:
-		WSPL A 0 A_SetScale(Scale.X+(frandom(-0.1,0.1)), Scale.Y+(frandom(-0.1,0.1)));
-		"####" "#" 0 A_SetTranslucent(frandom(0.6,0.3));
+		WSPL A 0 A_SetScale(Scale.X + (frandom(-0.1, 0.1)), Scale.Y + (frandom(-0.1, 0.1)));
+		"####" "#" 0 A_SetTranslucent(frandom(0.6, 0.3));
 	Death:
-		"####" "#" 0 A_FadeOut(0.1,FTF_REMOVE);
-		"####" "#" 1 A_SetScale(Scale.X+0.05, Scale.Y+0.05);
+		"####" "#" 0 A_FadeOut(0.1, FTF_REMOVE);
+		"####" "#" 1 A_SetScale(Scale.X + 0.05, Scale.Y + 0.05);
 		Loop;
 	}
 }
@@ -52,24 +53,25 @@ class TCOTD_WaterSplash_Chunk : TCOTD_WaterSplash
 {
 	Default
 	{
-	Alpha 0.5;
-	Scale 0.1;
-	Gravity 0.1;
-	-NOGRAVITY
+		Alpha 0.5;
+		Scale 0.1;
+		Gravity 0.1;
+		-NOGRAVITY
 	}
+
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(127,2);
+		TNT1 A 0 NoDelay A_Jump(127, 2);
 		WSPL B 0;
 		Goto Active;
 		WSPL C 0;
 	Active:
-		"####" "#" 0 A_SetScale(Scale.X+(frandom(-0.05,0.05)), Scale.Y+(frandom(-0.05,0.05)));
-		"####" "#" 0 A_SetTranslucent(frandom(0.8,0.5));
+		"####" "#" 0 A_SetScale(Scale.X + (frandom(-0.05, 0.05)), Scale.Y + (frandom(-0.05, 0.05)));
+		"####" "#" 0 A_SetTranslucent(frandom(0.8, 0.5));
 	Death:
-		"####" "#" 0 A_FadeOut(0.1,FTF_REMOVE);
-		"####" "#" 3 A_SetScale(Scale.X+0.05, Scale.Y+0.05);
+		"####" "#" 0 A_FadeOut(0.1, FTF_REMOVE);
+		"####" "#" 3 A_SetScale(Scale.X + 0.05, Scale.Y + 0.05);
 		Loop;
 	}
 }
@@ -81,23 +83,24 @@ class TCOTD_BloodSplash : Actor
 {
 	Default
 	{
-	RenderStyle "Translucent";
-	Alpha 0.3;
-	XScale 0.1;
-	YScale 0.2;
-	+DONTSPLASH
-	+NOBLOCKMAP
-	+NOCLIP
-	+NOGRAVITY
+		RenderStyle "Translucent";
+		Alpha 0.3;
+		XScale 0.1;
+		YScale 0.2;
+		+DONTSPLASH
+		+NOBLOCKMAP
+		+NOCLIP
+		+NOGRAVITY
 	}
+
 	States
 	{
 	Spawn:
-		BSPL A 0 A_SetScale(Scale.X+(frandom(-0.1,0.1)), Scale.Y+(frandom(-0.1,0.1)));
-		"####" "#" 0 A_SetTranslucent(frandom(0.8,0.5));
+		BSPL A 0 A_SetScale(Scale.X + (frandom(-0.1, 0.1)), Scale.Y + (frandom(-0.1, 0.1)));
+		"####" "#" 0 A_SetTranslucent(frandom(0.8, 0.5));
 	Death:
-		"####" "#" 0 A_FadeOut(0.1,FTF_REMOVE);
-		"####" "#" 1 A_SetScale(Scale.X+0.05, Scale.Y+0.05);
+		"####" "#" 0 A_FadeOut(0.1, FTF_REMOVE);
+		"####" "#" 1 A_SetScale(Scale.X + 0.05, Scale.Y + 0.05);
 		Loop;
 	}
 }
@@ -106,24 +109,25 @@ class TCOTD_BloodSplash_Chunk : TCOTD_BloodSplash
 {
 	Default
 	{
-	Alpha 0.5;
-	Scale 0.1;
-	Gravity 0.1;
-	-NOGRAVITY
+		Alpha 0.5;
+		Scale 0.1;
+		Gravity 0.1;
+		-NOGRAVITY
 	}
+
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(127,2);
+		TNT1 A 0 NoDelay A_Jump(127, 2);
 		BSPL B 0;
 		Goto Active;
 		BSPL C 0;
 	Active:
-		"####" "#" 0 A_SetScale(Scale.X+(frandom(-0.05,0.05)), Scale.Y+(frandom(-0.05,0.05)));
-		"####" "#" 0 A_SetTranslucent(frandom(0.8,0.5));
+		"####" "#" 0 A_SetScale(Scale.X + (frandom(-0.05, 0.05)), Scale.Y + (frandom(-0.05, 0.05)));
+		"####" "#" 0 A_SetTranslucent(frandom(0.8, 0.5));
 	Death:
-		"####" "#" 0 A_FadeOut(0.1,FTF_REMOVE);
-		"####" "#" 3 A_SetScale(Scale.X+0.05, Scale.Y+0.05);
+		"####" "#" 0 A_FadeOut(0.1, FTF_REMOVE);
+		"####" "#" 3 A_SetScale(Scale.X + 0.05, Scale.Y + 0.05);
 		Loop;
 	}
 }
@@ -135,20 +139,21 @@ class TCOTD_LavaSplash : TCOTD_WaterSplash
 {
 	Default
 	{
-	RenderStyle "Add";
-	Alpha 1.0;
-	XScale 0.15;
-	YScale 0.1;
+		RenderStyle "Add";
+		Alpha 1.0;
+		XScale 0.15;
+		YScale 0.1;
 	}
+
 	States
 	{
 	Spawn:
-		LSPL A 0 A_SetScale(Scale.X+(frandom(-0.1,0.1)), Scale.Y+(frandom(-0.1,0.1)));
-		"####" "#" 0 A_SetTranslucent(frandom(1.0,0.7),1);
+		LSPL A 0 A_SetScale(Scale.X + (frandom(-0.1, 0.1)), Scale.Y + (frandom(-0.1, 0.1)));
+		"####" "#" 0 A_SetTranslucent(frandom(1.0, 0.7), 1);
 		"####" "#" 0 A_SpawnItemEx("DarkSmoke1");
 	Death:
-		"####" "#" 0 A_FadeOut(0.15,FTF_REMOVE);
-		"####" "#" 2 A_SetScale(Scale.X+0.03, Scale.Y+0.03);
+		"####" "#" 0 A_FadeOut(0.15, FTF_REMOVE);
+		"####" "#" 2 A_SetScale(Scale.X + 0.03, Scale.Y + 0.03);
 	Loop;
 	}
 }
@@ -157,23 +162,24 @@ class TCOTD_LavaSplash_Chunk : TCOTD_LavaSplash
 {
 	Default
 	{
-	Scale 0.1;
-	Gravity 0.1;
-	-NOGRAVITY
+		Scale 0.1;
+		Gravity 0.1;
+		-NOGRAVITY
 	}
+
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(127,2);
+		TNT1 A 0 NoDelay A_Jump(127, 2);
 		LSPL B 0;
 		Goto Active;
 		LSPL C 0;
 	Active:
-		"####" "#" 0 A_SetScale(Scale.X+(frandom(-0.05,0.05)), Scale.Y+(frandom(-0.05,0.05)));
-		"####" "#" 0 A_SetTranslucent(frandom(1.0,0.7),1);
+		"####" "#" 0 A_SetScale(Scale.X + (frandom(-0.05, 0.05)), Scale.Y + (frandom(-0.05, 0.05)));
+		"####" "#" 0 A_SetTranslucent(frandom(1.0, 0.7), 1);
 	Death:
-		"####" "#" 0 A_FadeOut(0.1,FTF_REMOVE);
-		"####" "#" 3 A_SetScale(Scale.X+0.05, Scale.Y+0.05);
+		"####" "#" 0 A_FadeOut(0.1, FTF_REMOVE);
+		"####" "#" 3 A_SetScale(Scale.X + 0.05, Scale.Y + 0.05);
 		Loop;
 	}
 }
@@ -198,23 +204,24 @@ class TCOTD_NukageSplash: Actor
 {
 	Default
 	{
-	RenderStyle "Add";
-	Alpha 0.0;
-	XScale 0.1;
-	YScale 0.2;
-	+DONTSPLASH
-	+NOBLOCKMAP
-	+NOCLIP
-	+NOGRAVITY
+		RenderStyle "Add";
+		Alpha 0.0;
+		XScale 0.1;
+		YScale 0.2;
+		+DONTSPLASH
+		+NOBLOCKMAP
+		+NOCLIP
+		+NOGRAVITY
 	}
+
 	States
 	{
 	Spawn:
-		SSPL A 0 A_SetScale(Scale.X+(frandom(-0.1,0.1)), Scale.Y+(frandom(-0.1,0.1)));
-		"####" "#" 0 A_SetTranslucent(frandom(1.0,0.7),1);
+		SSPL A 0 A_SetScale(Scale.X + (frandom(-0.1, 0.1)), Scale.Y + (frandom(-0.1, 0.1)));
+		"####" "#" 0 A_SetTranslucent(frandom(1.0, 0.7), 1);
 	Death:
-		"####" "#" 0 A_FadeOut(0.1,FTF_REMOVE);
-		"####" "#" 1 A_SetScale(Scale.X+0.05, Scale.Y+0.05);
+		"####" "#" 0 A_FadeOut(0.1, FTF_REMOVE);
+		"####" "#" 1 A_SetScale(Scale.X + 0.05, Scale.Y + 0.05);
 		Loop;
 	}
 }
@@ -223,24 +230,25 @@ class TCOTD_NukageSplash_Chunk : TCOTD_NukageSplash
 {
 	Default
 	{
-	Alpha 0.5;
-	Scale 0.1;
-	Gravity 0.1;
-	-NOGRAVITY
+		Alpha 0.5;
+		Scale 0.1;
+		Gravity 0.1;
+		-NOGRAVITY
 	}
+
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(127,2);
+		TNT1 A 0 NoDelay A_Jump(127, 2);
 		SSPL B 0;
 		Goto Active;
 		SSPL C 0;
 	Active:
-		"####" "#" 0 A_SetScale(Scale.X+(frandom(-0.05,0.05)), Scale.Y+(frandom(-0.05,0.05)));
-		"####" "#" 0 A_SetTranslucent(frandom(1.0,0.6),1);
+		"####" "#" 0 A_SetScale(Scale.X + (frandom(-0.05, 0.05)), Scale.Y + (frandom(-0.05, 0.05)));
+		"####" "#" 0 A_SetTranslucent(frandom(1.0, 0.6), 1);
 	Death:
-		"####" "#" 0 A_FadeOut(0.1,FTF_REMOVE);
-		"####" "#" 3 A_SetScale(Scale.X+0.05, Scale.Y+0.05);
+		"####" "#" 0 A_FadeOut(0.1, FTF_REMOVE);
+		"####" "#" 3 A_SetScale(Scale.X + 0.05, Scale.Y + 0.05);
 		Loop;
 	}
 }
@@ -252,23 +260,24 @@ class TCOTD_SlimeSplash: Actor
 {
 	Default
 	{
-	RenderStyle "Translucent";
-	Alpha 0.0;
-	XScale 0.2;
-	YScale 0.1;
-	+DONTSPLASH
-	+NOBLOCKMAP
-	+NOCLIP
-	+NOGRAVITY
+		RenderStyle "Translucent";
+		Alpha 0.0;
+		XScale 0.2;
+		YScale 0.1;
+		+DONTSPLASH
+		+NOBLOCKMAP
+		+NOCLIP
+		+NOGRAVITY
 	}
+
 	States
 	{
 	Spawn:
-		NSPL A 0 A_SetScale(Scale.X+(frandom(-0.1,0.1)), Scale.Y+(frandom(-0.1,0.1)));
-		"####" "#" 0 A_SetTranslucent(frandom(1.0,0.7));
+		NSPL A 0 A_SetScale(Scale.X + (frandom(-0.1, 0.1)), Scale.Y + (frandom(-0.1, 0.1)));
+		"####" "#" 0 A_SetTranslucent(frandom(1.0, 0.7));
 	Death:
-		"####" "#" 0 A_FadeOut(0.03,FTF_REMOVE);
-		"####" "#" 1 A_SetScale(Scale.X+0.015, Scale.Y+0.015);
+		"####" "#" 0 A_FadeOut(0.03, FTF_REMOVE);
+		"####" "#" 1 A_SetScale(Scale.X + 0.015, Scale.Y + 0.015);
 		Loop;
 	}
 }
@@ -277,24 +286,25 @@ class TCOTD_SlimeSplash_Chunk : TCOTD_SlimeSplash
 {
 	Default
 	{
-	Alpha 0.5;
-	Scale 0.1;
-	Gravity 0.1;
-	-NOGRAVITY
+		Alpha 0.5;
+		Scale 0.1;
+		Gravity 0.1;
+		-NOGRAVITY
 	}
+
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(127,2);
+		TNT1 A 0 NoDelay A_Jump(127, 2);
 		NSPL B 0;
 		Goto Active;
 		NSPL C 0;
 	Active:
-		"####" "#" 0 A_SetScale(Scale.X+(frandom(-0.05,0.05)), Scale.Y+(frandom(-0.05,0.05)));
-		"####" "#" 0 A_SetTranslucent(frandom(1.0,0.7));
+		"####" "#" 0 A_SetScale(Scale.X + (frandom(-0.05, 0.05)), Scale.Y + (frandom(-0.05, 0.05)));
+		"####" "#" 0 A_SetTranslucent(frandom(1.0, 0.7));
 	Death:
-		"####" "#" 0 A_FadeOut(0.1,FTF_REMOVE);
-		"####" "#" 6 A_SetScale(Scale.X+0.05, Scale.Y+0.05);
+		"####" "#" 0 A_FadeOut(0.1, FTF_REMOVE);
+		"####" "#" 6 A_SetScale(Scale.X + 0.05, Scale.Y + 0.05);
 		Loop;
 	}
 }

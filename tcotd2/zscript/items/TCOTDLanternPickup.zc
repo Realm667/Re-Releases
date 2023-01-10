@@ -36,7 +36,7 @@ class TCOTDLanternPickup : CustomInventory
 		if (active)
 		{
 			// extinguish lantern when in water
-			if (Owner.waterlevel >= 3)
+			if (Owner.WaterLevel >= 3)
 			{
 				// requires sound
 				Owner.A_StartSound("lantern/steam");
@@ -58,7 +58,8 @@ class TCOTDLanternPickup : CustomInventory
 		}
 
 		// [Nash] I'm not sure if it's a good idea to let the lantern get affected by level freeze?
-		if (!bNoTimeFreeze && isFrozen()) return;
+		if (!bNoTimeFreeze && isFrozen())
+			return;
 	}
 
 	//===========================================================================
@@ -91,7 +92,7 @@ class TCOTDLanternPickup : CustomInventory
 			"####" A 0
 			{
 				bool localview = invoker.Owner.CheckLocalView();
-				if (invoker.Owner.waterlevel < 3)
+				if (invoker.Owner.WaterLevel < 3)
 				{
 					if (invoker.Owner.CountInv("TCOTDLanternOil") > 0)
 					{

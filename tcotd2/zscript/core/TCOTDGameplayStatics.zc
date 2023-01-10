@@ -2,20 +2,23 @@ class TCOTDGameplayStatics play
 {
 	static bool IsOnFloor(Actor self)
 	{
-		if (self is "PlayerPawn") return PlayerPawn(self).player.onground;
-		else return self.Pos.Z <= self.FloorZ || self.bOnMObj || self.bMBFBouncer;
+		if (self is "PlayerPawn")
+			return PlayerPawn(self).player.onground;
+		return self.Pos.Z <= self.FloorZ || self.bOnMObj || self.bMBFBouncer;
 	}
 
 	static bool IsCrouching(PlayerPawn self)
 	{
-		if (!self.player) return false;
+		if (!self.player)
+			return false;
 		double ch = double((self.player.mo.ViewHeight / 2));
 		return self.GetCameraHeight() <= ch;
 	}
 
 	static double GetVelocity(Actor self, bool xyOnly = false)
 	{
-		if (xyOnly) return self.Vel.XY.Length();
+		if (xyOnly)
+			return self.Vel.XY.Length();
 		return self.Vel.Length();
 	}
 

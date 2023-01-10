@@ -5,66 +5,66 @@ Class DEWraith : TCOTDMonster
 {
 	Default
 	{
-	//$Title Wraith
-	Health 50;
-	Radius 16;
-	Height 32;
-	Mass 50;
-	Speed 3.33333333;
-	FloatSpeed 1.33333333;
-	Damage 2;
-	Scale 1.1;
-	RenderStyle "Add";
-	Alpha 0.67;
-	PainChance 64;
-	+DONTFALL
-	+DONTGIB
-	+FLOAT
-	+NOBLOOD
-	+NOGRAVITY
-	+NOTARGET
-	+NOSPRITESHADOW
-	AttackSound "monster/sprsit";
-	PainSound "archvile/pain";
-	DeathSound "monster/sprdth";
-	Obituary "$OB_WRTH";
-	HitObituary "$HB_WRTH";
+		//$Title Wraith
+		Health 50;
+		Radius 16;
+		Height 32;
+		Mass 50;
+		Speed 3.33333333;
+		FloatSpeed 1.33333333;
+		Damage 2;
+		Scale 1.1;
+		RenderStyle "Add";
+		Alpha 0.67;
+		PainChance 64;
+		AttackSound "monster/sprsit";
+		PainSound "archvile/pain";
+		DeathSound "monster/sprdth";
+		Obituary "$OB_WRTH";
+		HitObituary "$HB_WRTH";
+		+DONTFALL
+		+DONTGIB
+		+FLOAT
+		+NOBLOOD
+		+NOGRAVITY
+		+NOTARGET
+		+NOSPRITESHADOW
 	}
 
 	States
 	{
 	Spawn:
-		WRAI AB 10 A_Look;
+		WRAI AB 10 A_Look();
 		Loop;
 	See:
-		WRAI A 1 A_VileChase;
-		WRAI AA 1 A_Chase(null,null);
-		WRAI A 1 A_VileChase;
-		WRAI AA 1 A_Chase(null,null);
-		WRAI B 1 A_VileChase;
-		WRAI BB 1 A_Chase(null,null);
-		WRAI B 1 A_VileChase;
-		WRAI BB 1 A_Chase(null,null);
+		WRAI A 1 A_VileChase();
+		WRAI AA 1 A_Chase(NULL, NULL);
+		WRAI A 1 A_VileChase();
+		WRAI AA 1 A_Chase(NULL, NULL);
+		WRAI B 1 A_VileChase();
+		WRAI BB 1 A_Chase(NULL, NULL);
+		WRAI B 1 A_VileChase();
+		WRAI BB 1 A_Chase(NULL, NULL);
 		Loop;
 	Missile:
-		WRAI A 10 A_FaceTarget;
-		WRAI B 4 A_SkullAttack;
+		WRAI A 10 A_FaceTarget();
+		WRAI B 4 A_SkullAttack();
 		WRAI AB 4;
-		Goto Missile+2;
+		Goto Missile + 2;
 	Melee:
-		WRAI A 5 A_FaceTarget;
-		WRAI B 5 A_CustomMeleeAttack(random(1,8),"monster/spratk");
+		WRAI A 5 A_FaceTarget();
+		WRAI B 5 A_CustomMeleeAttack(random(1, 8), "monster/spratk");
 		Goto See;
 	Pain:
 		WRAI A 3;
-		WRAI A 3 A_Pain;
+		WRAI A 3 A_Pain();
 		Goto See;
 	Heal:
 		WRAI AB 3;
-		TNT1 A 0 A_Die;
+		TNT1 A 0 A_Die();
 	Death:
-		WRAI E 4 A_NoBlocking;
-		WRAI F 5 A_Scream;
+		WRAI E 4 A_NoBlocking();
+		WRAI F 5 A_Scream();
 		WRAI GHIJ 4;
 		Stop;
 	}

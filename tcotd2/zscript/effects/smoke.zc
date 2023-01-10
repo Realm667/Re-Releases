@@ -27,7 +27,8 @@ class DarkSmokeBase : ParticleBase
 	{
 		Height 2;
 		Radius 1;
-		+CLIENTSIDEONLY
+		Alpha 0.7;
+		Scale 0.3;
 		+DONTSPLASH
 		+FORCEXYBILLBOARD
 		+MISSILE
@@ -35,8 +36,6 @@ class DarkSmokeBase : ParticleBase
 		+NOGRAVITY
 		+NOINTERACTION
 		+WINDTHRUST
-		Alpha 0.7;
-		Scale 0.3;
 	}
 
 	States
@@ -54,7 +53,7 @@ class DarkSmokeBase : ParticleBase
 		Super.PostBeginPlay();
 
 		int spr = GetSpriteIndex(String.Format("DKS%c", RandomPick(77, 50))); // M or 2
-		if (spr != -1) { sprite = spr; }		
+		if (spr != -1) { sprite = spr; }
 	}
 }
 
@@ -64,8 +63,8 @@ class DarkSmoke1 : DarkSmokeBase
 	{
 		Super.PostBeginPlay();
 
-		Thrust(1, FRandom(0, 22.5));
-		vel.z = FRandom(3, 6) / 4;
+		Thrust(1, frandom(0, 22.5));
+		vel.z = frandom(3, 6) / 4;
 	}
 
 }
@@ -81,8 +80,8 @@ class DarkSmoke2 : DarkSmokeBase
 	{
 		Super.PostBeginPlay();
 
-		Thrust(FRandom(1, 2), FRandom(0, 22.5));
-		vel.z = FRandom(5, 9) / 4;
+		Thrust(frandom(1, 2), frandom(0, 22.5));
+		vel.z = frandom(5, 9) / 4;
 	}
 }
 
@@ -97,8 +96,8 @@ class DarkSmoke3 : DarkSmokeBase
 	{
 		Super.PostBeginPlay();
 
-		Thrust(FRandom(2, 4), FRandom(0, 22.5));
-		vel.z = FRandom(9, 15) / 4;
+		Thrust(frandom(2, 4), frandom(0, 22.5));
+		vel.z = frandom(9, 15) / 4;
 	}
 }
 
@@ -117,7 +116,6 @@ class DarkSmokeSpawner : EffectSpawner
 		//$Arg0Enum { 0 = "Small"; 1 = "Medium"; 2 = "Large"; }
 		Height 40;
 		Radius 30;
-		+CLIENTSIDEONLY
 		+DONTSPLASH
 		+NOBLOCKMAP
 		+NOCLIP

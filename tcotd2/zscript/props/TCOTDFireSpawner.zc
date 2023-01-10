@@ -43,7 +43,6 @@ class EmberBase : ParticleBase //class imported and adjusted by Ozymandias81 fro
 	{
 		Height 2;
 		Radius 1;
-		+CLIENTSIDEONLY
 		+DONTSPLASH
 		+FORCEXYBILLBOARD
 		+MISSILE
@@ -64,7 +63,7 @@ class EmberBase : ParticleBase //class imported and adjusted by Ozymandias81 fro
 		Spawn:
 			EMBR A -1;
 		FadeLoop:
-			EMBR A 2 BRIGHT A_FadeOut(0.05, FTF_REMOVE);
+			EMBR A 2 Bright A_FadeOut(0.05, FTF_REMOVE);
 			Loop;
 	}
 
@@ -72,8 +71,8 @@ class EmberBase : ParticleBase //class imported and adjusted by Ozymandias81 fro
 	{
 		Super.PostBeginPlay();
 
-		Thrust(FRandom(thrustmin, thrustmax), Random(0, 359));
-		vel.z = FRandom(thrustminz, thrustmaxz) / 4;
+		Thrust(frandom(thrustmin, thrustmax), random(0, 359));
+		vel.z = frandom(thrustminz, thrustmaxz) / 4;
 
 		tics = delay;
 	}
@@ -98,7 +97,6 @@ class TCOTDFireSpawner : HeatEffectGiver
 		//$Arg1Enum { 0 = "Yes"; 1 = "No"; }
 		Height 40;
 		Radius 30;
-		+CLIENTSIDEONLY
 		+DONTSPLASH
 		+NOCLIP
 		+NOGRAVITY

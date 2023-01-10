@@ -5,31 +5,31 @@ Class Civilian : TCOTDMonster
 {
 	Default
 	{
-	//$Title Civilian
-	Health 999999;
-	GibHealth 35;
-	Radius 16;
-	Height 56;
-	Mass 999999;
-	Scale 0.7;
-	-COUNTKILL
-	+NOBLOOD
-	Obituary "$OB_CIVL";
+		//$Title Civilian
+		Health 999999;
+		GibHealth 35;
+		Radius 16;
+		Height 56;
+		Mass 999999;
+		Scale 0.7;
+		Obituary "$OB_CIVL";
+		+NOBLOOD
+		-COUNTKILL
 	}
 
 	States
 	{
 	Spawn:
-		CIVI PQ 30 A_Wander;
+		CIVI PQ 30 A_Wander();
 		Loop;
 	Pain:
 		CIVI A 3;
-		CIVI G 3 A_Pain;
+		CIVI G 3 A_Pain();
 		Goto Spawn;
 	Death:
 		CIVI G 5;
-		CIVI H 5 A_Scream;
-		CIVI I 5 A_NoBlocking;
+		CIVI H 5 A_Scream();
+		CIVI I 5 A_NoBlocking();
 		CIVI JKLMN 5;
 		CIVI O -1;
 		Stop;

@@ -69,14 +69,14 @@ class NashGoreLiquidBlood : Actor
 
 		A_SetScale(Scale.X * 1.01);
 
-		if (waterlevel > 0)
+		if (WaterLevel > 0)
 		{
 			//bFlatSprite = false;
 			Destroy();
 			return;
 		}
 
-		if (waterlevel >= 3)
+		if (WaterLevel >= 3)
 		{
 			Vel.X = Vel.X + cos(Angle) * 0.06;
 			Vel.Y = Vel.Y + sin(Angle) * 0.06;

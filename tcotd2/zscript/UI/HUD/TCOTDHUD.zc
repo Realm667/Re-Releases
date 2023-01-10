@@ -45,10 +45,10 @@ class TCOTDHUD : DoomStatusBar
 		{
 			return;
 		}
-		
+
 		if (state == HUD_StatusBar || state == HUD_Fullscreen)
 		{
-			
+
 			BeginHUD();
 			DrawFullscreenHUD();
 		}
@@ -120,7 +120,7 @@ class TCOTDHUD : DoomStatusBar
 
 		// Inventory
 		CPlayer.InventoryTics = 0;
-		if (!Level.NoInventoryBar && CPlayer.mo.InvSel != null)
+		if (!Level.NoInventoryBar && CPlayer.mo.InvSel != NULL)
 		{
 			DrawInventoryIcon(CPlayer.mo.InvSel, (-18, 0), flags);
 			DrawString(mHUDSmallNum, FormatNumber(CPlayer.mo.InvSel.Amount, 3), (-42, -8), flags);

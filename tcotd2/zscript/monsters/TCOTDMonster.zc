@@ -8,4 +8,10 @@ class TCOTDMonster : Actor
 		+FLOORCLIP
 		+CASTSPRITESHADOW
 	}
+
+	// will be called frequently to simulate smoother movement
+	protected void A_Chase2(void)
+	{
+		A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+	}
 }

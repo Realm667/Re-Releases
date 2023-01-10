@@ -5,81 +5,81 @@ Class ESoul : TCOTDMonster //apparently replaced with TCOTDGhul, inheritances wi
 {
 	Default
 	{
-	//$Title Ethereal Soul
-	Health 180;
-	Radius 16;
-	Height 32;
-	Mass 400;
-	Speed 1.66666667;
-	FloatSpeed 1.33333333;
-	Scale 1.1;
-	Damage 5;
-	PainChance 128;
-	RenderStyle "Add";
-	Alpha 0.4;
-	+DONTFALL
-	+FLOAT
-	+MISSILEMORE
-	+NOBLOOD
-	+NOGRAVITY
-	+NOICEDEATH
-	+STEALTH
-	+NOSPRITESHADOW
-	AttackSound "skull/melee";
-	PainSound "nightmare/pain";
-	DeathSound "nightmare/death";
-	ActiveSound "nightmare/active";
-	Obituary "$OB_ESOL";
-	DropItem "TCOTDHealthPickupHeart", 160;
+		//$Title Ethereal Soul
+		Health 180;
+		Radius 16;
+		Height 32;
+		Mass 400;
+		Speed 1.66666667;
+		FloatSpeed 1.33333333;
+		Scale 1.1;
+		Damage 5;
+		PainChance 128;
+		RenderStyle "Add";
+		Alpha 0.4;
+		AttackSound "skull/melee";
+		PainSound "nightmare/pain";
+		DeathSound "nightmare/death";
+		ActiveSound "nightmare/active";
+		Obituary "$OB_ESOL";
+		DropItem "TCOTDHealthPickupHeart", 160;
+		+DONTFALL
+		+FLOAT
+		+MISSILEMORE
+		+NOBLOOD
+		+NOGRAVITY
+		+NOICEDEATH
+		+STEALTH
+		+NOSPRITESHADOW
 	}
 
 	States
 	{
 	Spawn:
-		ETHS ABCD 10 BRIGHT A_Look;
+		ETHS ABCD 10 Bright A_Look();
 		Loop;
 	See:
-		ETHS A 1 BRIGHT A_Chase;
-		ETHS AA 1 BRIGHT A_Chase(null,null,CHF_NOPLAYACTIVE);
-		ETHS A 1 BRIGHT A_Chase;
-		ETHS AA 1 BRIGHT A_Chase(null,null,CHF_NOPLAYACTIVE);
-		ETHS B 1 BRIGHT A_Chase;
-		ETHS BB 1 BRIGHT A_Chase(null,null,CHF_NOPLAYACTIVE);
-		ETHS B 1 BRIGHT A_Chase;
-		ETHS BB 1 BRIGHT A_Chase(null,null,CHF_NOPLAYACTIVE);
-		ETHS C 1 BRIGHT A_Chase;
-		ETHS CC 1 BRIGHT A_Chase(null,null,CHF_NOPLAYACTIVE);
-		ETHS C 1 BRIGHT A_Chase;
-		ETHS CC 1 BRIGHT A_Chase(null,null,CHF_NOPLAYACTIVE);
-		ETHS D 1 BRIGHT A_Chase;
-		ETHS DD 1 BRIGHT A_Chase(null,null,CHF_NOPLAYACTIVE);
-		ETHS D 1 BRIGHT A_Chase;
-		ETHS DD 1 BRIGHT A_Chase(null,null,CHF_NOPLAYACTIVE);
+		ETHS A 1 Bright A_Chase();
+		ETHS AA 1 Bright A_Chase2();
+		ETHS A 1 Bright A_Chase();
+		ETHS AA 1 Bright A_Chase2();
+		ETHS B 1 Bright A_Chase();
+		ETHS BB 1 Bright A_Chase2();
+		ETHS B 1 Bright A_Chase();
+		ETHS BB 1 Bright A_Chase2();
+		ETHS C 1 Bright A_Chase();
+		ETHS CC 1 Bright A_Chase2();
+		ETHS C 1 Bright A_Chase();
+		ETHS CC 1 Bright A_Chase2();
+		ETHS D 1 Bright A_Chase();
+		ETHS DD 1 Bright A_Chase2();
+		ETHS D 1 Bright A_Chase();
+		ETHS DD 1 Bright A_Chase2();
 		Loop;
 	Missile:
-		ETHS C 0 A_Jump(128,9);
-		ETHS C 6 BRIGHT A_FaceTarget;
-		ETHS E 4 BRIGHT A_SkullAttack;
-		ETHS E 0 A_FaceTarget;
-		ETHS F 4 BRIGHT A_SkullAttack;
-		ETHS F 0 A_FaceTarget;
-		ETHS E 4 BRIGHT A_SkullAttack;
-		ETHS E 0 A_FaceTarget;
-		ETHS F 4 BRIGHT A_SkullAttack;
+		ETHS C 0 A_Jump(128, 9);
+		ETHS C 6 Bright A_FaceTarget();
+		ETHS E 4 Bright A_SkullAttack();
+		ETHS E 0 A_FaceTarget();
+		ETHS F 4 Bright A_SkullAttack();
+		ETHS F 0 A_FaceTarget();
+		ETHS E 4 Bright A_SkullAttack();
+		ETHS E 0 A_FaceTarget();
+		ETHS F 4 Bright A_SkullAttack();
 		Goto See;
-		ETHS P 3 BRIGHT A_FaceTarget;
-		ETHS Q 4 BRIGHT A_FaceTarget;
-		ETHS R 5 BRIGHT A_SpawnProjectile("ShadowBall");
-		ETHS E 4 BRIGHT;
+		ETHS P 3 Bright A_FaceTarget();
+		ETHS Q 4 Bright A_FaceTarget();
+		ETHS R 5 Bright A_SpawnProjectile("ShadowBall");
+		ETHS E 4 Bright;
 		Goto See;
 	Pain:
-		ETHS G 3 BRIGHT;
-		ETHS G 3 BRIGHT A_Pain;
+		ETHS G 3 Bright;
+		ETHS G 3 Bright A_Pain();
 		Goto See;
 	Death:
-		ETHS F 3 BRIGHT;
-		ETHS H 3 BRIGHT A_ScreamAndUnblock;
-		ETHS IJKLMNO 3 BRIGHT;
+		ETHS F 3 Bright;
+		ETHS H 3 Bright A_ScreamAndUnblock();
+		ETHS IJKLMNO 3 Bright;
 		Stop;
 	}
 }

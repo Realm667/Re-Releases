@@ -76,10 +76,11 @@ class TCOTDEmptyCasing : Actor
 	override void Tick(void)
 	{
 		Super.Tick();
-		if (!bNoTimeFreeze && isFrozen()) return;
+		if (!bNoTimeFreeze && isFrozen())
+			return;
 
 		// alter physics when underwater
-		if (waterlevel > 2)
+		if (WaterLevel > 2)
 		{
 			bNoGravity = false;
 			bNoBounceSound = true;

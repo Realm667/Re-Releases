@@ -221,7 +221,7 @@ class TCOTDPlayer : PlayerPawn
 		{
 			// [Nash] I only changed these for now, heh
 			angle = Level.maptime / (13 * TICRATE / 35.) * 360.;
-			bob = player.bob * sin(angle) * (waterlevel > 1 ? 0.15f : 0.17f);
+			bob = player.bob * sin(angle) * (WaterLevel > 1 ? 0.15f : 0.17f);
 
 			// scale the bobbing by movement speed
 			bob *= Vel.XY.Length() / 10.0;
@@ -397,7 +397,7 @@ class TCOTDPlayer : PlayerPawn
 		//
 		//===========================================================================
 
-		if (waterlevel >= 3 && underwaterTiltEnabled)
+		if (WaterLevel >= 3 && underwaterTiltEnabled)
 		{
 			// fixed rate of 15
 			v = 15. * underwaterTiltScalar;
@@ -425,13 +425,13 @@ class TCOTDPlayer : PlayerPawn
 		// Death Tilting by Nash + & Siren Attack check by Ozy81
 		//
 		//===========================================================================
-		
+
 		if (Health <= 0 && deathTiltEnabled)
 		{
 			double deathTiltSpeed = 1.0;
-			
+
 				let madness = Madness(FindInventory("madness", true));
-				if (madness)			
+				if (madness)
 				{
 					A_StartSound("UWLAUGH",CHAN_BODY);
 				}
@@ -473,7 +473,7 @@ class TCOTDPlayer : PlayerPawn
 
 			flinchAmount *= flinchFactor;
 
-			lastRoll += FRandomPick[rnd_TiltPlusPlus](-flinchAmount, flinchAmount);
+			lastRoll += frandomPick[rnd_TiltPlusPlus](-flinchAmount, flinchAmount);
 			flinchAmount = 0;
 		}
 
@@ -527,7 +527,8 @@ class TCOTDPlayer : PlayerPawn
 		// to do: use a line trace to offset the light position
 		// this will fix the big where the light will disappear when
 		// getting too close to walls
-		if (!myLantern) return;
+		if (!myLantern)
+			return;
 		double forwardOffset = 6.0;
 		double sideOffset = 10.0;
 		double heightOffset = player.ViewHeight - 8.0;
@@ -562,7 +563,7 @@ class TCOTDPlayer : PlayerPawn
 		PLAY E 12;
 		Goto Spawn;
 	Melee:
-		PLAY F 6 BRIGHT;
+		PLAY F 6 Bright;
 		Goto Missile;
 	Pain.Fear:
 	Pain.Fear2:
@@ -614,7 +615,7 @@ class TCOTDPlayerLanternLight : Actor
 			TNT1 A 4 NoDelay Light("LANT01");
 			TNT1 A 4 Light("LANT02");
 		SpawnLoop:
-			TNT1 A 4 Light("LANT03") A_SetTics(Random(1, 3));
+			TNT1 A 4 Light("LANT03") A_SetTics(random(1, 3));
 			Loop;
 	}
 }
@@ -636,7 +637,7 @@ class isIntro : Inventory //prevent Motion Blur working over cutscenes if we mov
 	{
 		Inventory.Amount 1;
 		Inventory.MaxAmount 1;
-	}	
+	}
 }
 
 //for Nightmare

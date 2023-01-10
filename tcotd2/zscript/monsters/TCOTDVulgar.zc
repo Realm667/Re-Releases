@@ -5,76 +5,76 @@ Class Vulgar : TCOTDMonster
 {
 	Default
 	{
-	//$Category New Monsters (TCOTD2)
-	//$Title Vulgar
-	//$Color 12
-	Health 100;
-	Mass 120;
-	Radius 20;
-	Height 56;
-	Speed 2.66666667;
-	Scale 1.1;
-	PainChance 120;
-	SeeSound "monster/vulsit";
-	PainSound "monster/vulpai";
-	DeathSound "monster/vuldth";
-	ActiveSound "monster/vulact";
-	Obituary "$OB_VULG";
-	HitObituary "$HB_VULG";
-	BloodColor "0 a3 0";
-	Translation "16:47=112:127","168:191=114:128";
-	DropItem "TCOTDHealthPickupHeart", 128;
+		//$Category New Monsters (TCOTD2)
+		//$Title Vulgar
+		//$Color 12
+		Health 100;
+		Mass 120;
+		Radius 20;
+		Height 56;
+		Speed 2.66666667;
+		Scale 1.1;
+		PainChance 120;
+		SeeSound "monster/vulsit";
+		PainSound "monster/vulpai";
+		DeathSound "monster/vuldth";
+		ActiveSound "monster/vulact";
+		Obituary "$OB_VULG";
+		HitObituary "$HB_VULG";
+		BloodColor "0 a3 0";
+		Translation "16:47=112:127","168:191=114:128";
+		DropItem "TCOTDHealthPickupHeart", 128;
 	}
 
 	States
 	{
 	Spawn:
-		VULG AB 10 A_Look;
+		VULG AB 10 A_Look();
 		Loop;
 	See:
-		VULG A 1 A_Chase;
-		VULG AA 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		VULG A 1 A_Chase;
-		VULG AA 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		VULG B 1 A_Chase;
-		VULG BB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		VULG B 1 A_Chase;
-		VULG BB 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		VULG C 1 A_Chase;
-		VULG CC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		VULG C 1 A_Chase;
-		VULG CC 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		VULG D 1 A_Chase;
-		VULG DD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		VULG D 1 A_Chase;
-		VULG DD 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		VULG A 1 A_Chase();
+		VULG AA 1 A_Chase2();
+		VULG A 1 A_Chase();
+		VULG AA 1 A_Chase2();
+		VULG B 1 A_Chase();
+		VULG BB 1 A_Chase2();
+		VULG B 1 A_Chase();
+		VULG BB 1 A_Chase2();
+		VULG C 1 A_Chase();
+		VULG CC 1 A_Chase2();
+		VULG C 1 A_Chase();
+		VULG CC 1 A_Chase2();
+		VULG D 1 A_Chase();
+		VULG DD 1 A_Chase2();
+		VULG D 1 A_Chase();
+		VULG DD 1 A_Chase2();
 		Loop;
 	Melee:
-		VULG E 8 A_FaceTarget;
+		VULG E 8 A_FaceTarget();
 		VULG F 1 A_StartSound("monster/vulswg");
-		VULG F 7 A_FaceTarget;
-		VULG G 6 A_CustomMeleeAttack(4*random(1,8),"monster/vulhit");
+		VULG F 7 A_FaceTarget();
+		VULG G 6 A_CustomMeleeAttack(4 * random(1, 8), "monster/vulhit");
 		Goto See;
 	Missile:
-		VULG EF 8 A_FaceTarget;
-		VULG G 6 A_SpawnProjectile("VulgarShot",37);
+		VULG EF 8 A_FaceTarget();
+		VULG G 6 A_SpawnProjectile("VulgarShot", 37);
 		Goto See;
 	Pain:
 		VULG H 2;
-		VULG H 2 A_Pain;
+		VULG H 2 A_Pain();
 		Goto See;
 	Death:
 		VULG I 8;
-		VULG J 8 A_Scream;
+		VULG J 8 A_Scream();
 		VULG KL 6;
-		VULG M 6 A_NoBlocking;
+		VULG M 6 A_NoBlocking();
 		VULG N -1;
 		Stop;
 	XDeath: //new
 		VULG O 5;
-		VULG P 5 A_XScream;
+		VULG P 5 A_XScream();
 		VULG Q 5;
-		VULG R 5 A_NoBlocking;
+		VULG R 5 A_NoBlocking();
 		VULG STU 5;
 		VULG V -1;
 		Stop;
@@ -88,28 +88,28 @@ Class VulgarShot : Actor
 {
 	Default
 	{
-	Radius 8;
-	Height 16;
-	Speed 10;
-	Damage 4;
-	PoisonDamage 32;
-	RenderStyle "Add";
-	Alpha 0.67;
-	Projectile;
-	SeeSound "poly/stmdr1";
-	DeathSound "weapons/bloodx";
+		Radius 8;
+		Height 16;
+		Speed 10;
+		Damage 4;
+		PoisonDamage 32;
+		RenderStyle "Add";
+		Alpha 0.67;
+		Projectile;
+		SeeSound "poly/stmdr1";
+		DeathSound "weapons/bloodx";
 	}
 
 	States
 	{
 	Spawn:
-		FVUL AB 3 BRIGHT LIGHT("VulgarShot");
+		FVUL AB 3 Bright Light("VulgarShot");
 		Loop;
 	Death:
-		FVUL C 4 BRIGHT LIGHT("VulgarShotX_1");
-		FVUL D 4 BRIGHT LIGHT("VulgarShotX_2");
-		FVUL E 4 BRIGHT LIGHT("VulgarShotX_3");
-		FVUL F 4 BRIGHT LIGHT("VulgarShotX_4");
+		FVUL C 4 Bright Light("VulgarShotX_1");
+		FVUL D 4 Bright Light("VulgarShotX_2");
+		FVUL E 4 Bright Light("VulgarShotX_3");
+		FVUL F 4 Bright Light("VulgarShotX_4");
 		Stop;
 	}
 }

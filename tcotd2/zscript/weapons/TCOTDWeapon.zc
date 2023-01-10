@@ -218,7 +218,8 @@ class TCOTDWeapon : Weapon
 
 	bool CacheCVars(void)
 	{
-		if (!pmo || (pmo && !pmo.player)) return false;
+		if (!pmo || (pmo && !pmo.player))
+			return false;
 		let p = pmo.player;
 
 		if (!cvEnabled)
@@ -226,7 +227,8 @@ class TCOTDWeapon : Weapon
 			cvEnabled = CVar.GetCVar("tcotd2_weaponsway", p);
 		}
 
-		if (!cvEnabled) return false;
+		if (!cvEnabled)
+			return false;
 		return true;
 	}
 
@@ -323,10 +325,11 @@ class TCOTDWeapon : Weapon
 	//
 	//===========================================================================
 
-	action void Fire3DBullets(double spread_xy, double spread_z, int numbullets, int damageperbullet, class<Actor> pufftype = "BulletPuff", int flags = 1, double range = 0, class<Actor> missile = null, double Spawnheight = 32, double Spawnofs_xy = 0)
+	action void Fire3DBullets(double spread_xy, double spread_z, int numbullets, int damageperbullet, class<Actor> pufftype = "BulletPuff", int flags = 1, double range = 0, class<Actor> missile = NULL, double Spawnheight = 32, double Spawnofs_xy = 0)
 	{
 		let player = player;
-		if (!player) return;
+		if (!player)
+			return;
 
 		let pawn = PlayerPawn(self);
 		let weapon = player.ReadyWeapon;
@@ -336,15 +339,17 @@ class TCOTDWeapon : Weapon
 		double bslope = 0.;
 		int laflags = (flags & FBF_NORANDOMPUFFZ)? LAF_NORANDOMPUFFZ : 0;
 
-		if ((flags & FBF_USEAMMO) && weapon &&  stateinfo != null && stateinfo.mStateType == STATE_Psprite)
+		if ((flags & FBF_USEAMMO) && weapon &&  stateinfo != NULL && stateinfo.mStateType == STATE_Psprite)
 		{
 			if (!weapon.DepleteAmmo(weapon.bAltFire, true))
 				return;	// out of ammo
 		}
 
-		if (range == 0)	range = PLAYERMISSILERANGE;
+		if (range == 0)
+			range = PLAYERMISSILERANGE;
 
-		if (!(flags & FBF_NOFLASH)) pawn.PlayAttacking2 ();
+		if (!(flags & FBF_NOFLASH))
+			pawn.PlayAttacking2 ();
 
 		// [Nash] only changes here are the away the angles are calculated
 		Rotator r;
@@ -355,7 +360,8 @@ class TCOTDWeapon : Weapon
 			r.Rotate(frandom(-spread_xy, spread_xy), frandom(-spread_z, spread_z));
 		Vector2 bangles = r.GetAngles();
 
-		if (!(flags & FBF_NOPITCH)) bslope = bangles.Y;
+		if (!(flags & FBF_NOPITCH))
+			bslope = bangles.Y;
 		bangle = bangles.X;
 
 		if (pufftype == NULL) pufftype = 'BulletPuff';
@@ -374,7 +380,7 @@ class TCOTDWeapon : Weapon
 
 			let puff = LineAttack(bangle, range, bslope, damage, 'Hitscan', pufftype, laflags);
 
-			if (missile != null)
+			if (missile != NULL)
 			{
 				bool temp = false;
 				double ang = Angle - 90;
@@ -418,7 +424,7 @@ class TCOTDWeapon : Weapon
 
 				let puff = LineAttack(pangle, range, slope, damage, 'Hitscan', pufftype, laflags);
 
-				if (missile != null)
+				if (missile != NULL)
 				{
 					bool temp = false;
 					double ang = Angle - 90;

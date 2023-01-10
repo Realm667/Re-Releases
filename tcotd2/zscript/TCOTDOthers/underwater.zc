@@ -26,7 +26,7 @@ class EnhWaterHandler : StaticEventHandler {
 		PlayerInfo p = players[consoleplayer];
 		Shader.SetUniform1f(p, "watershader", "timer", gametic + e.FracTic);
 
-		if (p.mo.waterlevel >= 3) {
+		if (p.mo.WaterLevel >= 3) {
 			Shader.SetEnabled(p, "watershader", true);
 			Shader.SetEnabled(p, "waterzoomshader", true);
 			double effectSize = CVar.GetCVar("enh_uweffectsize", p).GetFloat();

@@ -204,7 +204,7 @@ class NashGoreBloodParticle1 : NashGoreBloodBase
 			return;
 		}
 
-		if (waterlevel > 0 && waterlevel < 3)
+		if (WaterLevel > 0 && WaterLevel < 3)
 		{
 			SetZ(Pos.Z - Vel.Z);
 			NashGoreLiquidBlood.SpawnLiquidBlood(self);
@@ -349,7 +349,7 @@ class NashGoreClassicBloodTrailSpawner : NashGoreBloodBase
 
 		Vel.XY *= DECELERATION_SPEED;
 
-		if (waterlevel >= 3)
+		if (WaterLevel >= 3)
 		{
 			A_FadeOut(0.07);
 		}
@@ -400,7 +400,7 @@ class NashGoreClassicBloodTrail : NashGoreBloodBase
 		Super.Tick();
 		if (!bNoTimeFreeze && (isFrozen() || Level.isFrozen())) return;
 
-		if (waterlevel > 0)
+		if (WaterLevel > 0)
 		{
 			A_FadeOut(0.01);
 			Vel.Z = -1;
@@ -537,7 +537,7 @@ class NashGoreBloodSpurt : NashGoreBloodBase
 		Super.Tick();
 		if (!bNoTimeFreeze && (isFrozen() || Level.isFrozen())) return;
 
-		if (waterlevel > 1)
+		if (WaterLevel > 1)
 		{
 			NashGoreLiquidBlood.SpawnLiquidBlood(self);
 			Destroy();
@@ -636,7 +636,7 @@ class NashGoreBloodFloorSplash : NashGoreBloodBase
 		Super.Tick();
 		if (!bNoTimeFreeze && (isFrozen() || Level.isFrozen())) return;
 
-		if (waterlevel > 1)
+		if (WaterLevel > 1)
 		{
 			Destroy();
 			return;

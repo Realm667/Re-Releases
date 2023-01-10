@@ -5,42 +5,42 @@ Class WalkingHand : TCOTDMonster //will be replaced with Bloom ChokingHand - ozy
 {
 	Default
 	{
-	//$Title Walking Hand
-	Health 25;
-	Radius 10;
-	Height 15;
-	Speed 2;
-	Mass 100;
-	Scale 0.5;
-	PainChance 255;
-	-COUNTKILL
+		//$Title Walking Hand
+		Health 25;
+		Radius 10;
+		Height 15;
+		Speed 2;
+		Mass 100;
+		Scale 0.5;
+		PainChance 255;
+		-COUNTKILL
 	}
-	
+
 	States
 	{
 	Spawn:
 		HAND A 10;
 		Goto See;
 	See:
-		HAND AABBCCDDEE 3 A_Wander;
+		HAND AABBCCDDEE 3 A_Wander();
 		Loop;
 	Pain:
 		HAND A 1;
 		Goto RunAway;
 	RunAway:
 		TNT1 A 0 {bFrightened=true;}
-		TNT1 A 0 A_SetSpeed(5,AAPTR_DEFAULT);
-		HAND AABBCCDDEEAABBCCDDEE 2 A_Chase;
-		TNT1 A 0 A_SetSpeed(2,AAPTR_DEFAULT);
-		TNT1 A 0 {bFrightened=false;}
+		TNT1 A 0 A_SetSpeed(5, AAPTR_DEFAULT);
+		HAND AABBCCDDEEAABBCCDDEE 2 A_Chase();
+		TNT1 A 0 A_SetSpeed(2, AAPTR_DEFAULT);
+		TNT1 A 0 { bFrightened = false; }
 		Goto See;
 	Death:
-		TNT1 A 0 A_StartSound("HandDeath/Death",CHAN_AUTO,CHANF_DEFAULT);
+		TNT1 A 0 A_StartSound("HandDeath/Death", CHAN_AUTO, CHANF_DEFAULT);
 		HDEA AABBCCDDEE 2;
 		HDEA F -1;
 		Stop;
 	Burn:
-		TNT1 A 0 A_StartSound("HandFire/Fire",CHAN_AUTO,CHANF_DEFAULT);
+		TNT1 A 0 A_StartSound("HandFire/Fire", CHAN_AUTO, CHANF_DEFAULT);
 		HDEA GGHHIIJJGGHHIIJJGGHHIIJJGGHHIIJJGGHHIIJJ 2;
 		HDEA KKLLMM 2;
 		HDEA N -1;

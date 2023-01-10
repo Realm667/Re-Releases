@@ -5,68 +5,68 @@ Class Thrall : TCOTDMonster
 {
 	Default
 	{
-	//$Title Thrall
-	Health 100;
-	GibHealth 35;
-	PainChance 200;
-	Scale 1.1;
-	Speed 4;
-	Radius 16;
-	Height 62;
-	Mass 100;
-	SeeSound "monster/culsit";
-	AttackSound "monster/culatk";
-	PainSound "monster/culpai";
-	DeathSound "monster/culdth";
-	ActiveSound "monster/culact";
-	Obituary "$OB_THRL";
+		//$Title Thrall
+		Health 100;
+		GibHealth 35;
+		PainChance 200;
+		Scale 1.1;
+		Speed 4;
+		Radius 16;
+		Height 62;
+		Mass 100;
+		SeeSound "monster/culsit";
+		AttackSound "monster/culatk";
+		PainSound "monster/culpai";
+		DeathSound "monster/culdth";
+		ActiveSound "monster/culact";
+		Obituary "$OB_THRL";
 	}
 
 	States
 	{
 	Spawn:
-		CULT AB 10 A_Look;
+		CULT AB 10 A_Look();
 		Loop;
 	See:
-		CULT A 1 A_Chase;
-		CULT A 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		CULT A 1 A_Chase;
-		CULT A 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		CULT B 1 A_Chase;
-		CULT B 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		CULT B 1 A_Chase;
-		CULT B 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		CULT C 1 A_Chase;
-		CULT C 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		CULT C 1 A_Chase;
-		CULT C 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		CULT D 1 A_Chase;
-		CULT D 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
-		CULT D 1 A_Chase;
-		CULT D 1 A_Chase(null,null,CHF_NOPLAYACTIVE);
+		CULT A 1 A_Chase();
+		CULT A 1 A_Chase2();
+		CULT A 1 A_Chase();
+		CULT A 1 A_Chase2();
+		CULT B 1 A_Chase();
+		CULT B 1 A_Chase2();
+		CULT B 1 A_Chase();
+		CULT B 1 A_Chase2();
+		CULT C 1 A_Chase();
+		CULT C 1 A_Chase2();
+		CULT C 1 A_Chase();
+		CULT C 1 A_Chase2();
+		CULT D 1 A_Chase();
+		CULT D 1 A_Chase2();
+		CULT D 1 A_Chase();
+		CULT D 1 A_Chase2();
 		Loop;
 	Missile:
-		CULT EE 5 A_FaceTarget;
-		CULT F 0 A_SpawnProjectile("ThrallShot1",42,-6,0,1);
-		CULT F 0 A_SpawnProjectile("ThrallShot1",42,6,0,1);
-		CULT F 8 BRIGHT LIGHT("Thrall") A_StartSound("monster/culatk");
+		CULT EE 5 A_FaceTarget();
+		CULT F 0 A_SpawnProjectile("ThrallShot1", 42, -6, 0, 1);
+		CULT F 0 A_SpawnProjectile("ThrallShot1", 42, 6, 0, 1);
+		CULT F 8 Bright Light("Thrall") A_StartSound("monster/culatk");
 		Goto See;
 	Pain:
 		CULT G 2;
-		CULT G 2 A_Pain;
+		CULT G 2 A_Pain();
 		Goto See;
 	Death:
 		CULT H 8;
-		CULT I 8 A_Scream;
+		CULT I 8 A_Scream();
 		CULT J 4;
-		CULT K 4 A_NoBlocking;
+		CULT K 4 A_NoBlocking();
 		CULT L 4;
 		CULT M -1;
 		Stop;
 	XDeath:
 		CULT N 5;
-		CULT O 5 A_XScream;
-		CULT P 5 A_NoBlocking;
+		CULT O 5 A_XScream();
+		CULT P 5 A_NoBlocking();
 		CULT QRSTUV 5;
 		CULT W -1;
 		Stop;
@@ -80,26 +80,26 @@ Class ThrallShot1 : Actor
 {
 	Default
 	{
-	Radius 4;
-	Height 6;
-	Speed 14;
-	Damage 1;
-	RenderStyle "Add";
-	Alpha 0.67;
-	Projectile;
-	DeathSound "monster/disht1";
+		Radius 4;
+		Height 6;
+		Speed 14;
+		Damage 1;
+		RenderStyle "Add";
+		Alpha 0.67;
+		Projectile;
+		DeathSound "monster/disht1";
 	}
 
 	States
 	{
 	Spawn:
-		CFX4 AB 2 BRIGHT LIGHT("ThrallShot");
+		CFX4 AB 2 Bright Light("ThrallShot");
 		Loop;
 	Death:
-		CFX4 C 3 BRIGHT LIGHT("ThrallShotX_1");
-		CFX4 D 3 BRIGHT LIGHT("ThrallShotX_2");
-		CFX4 E 3 BRIGHT LIGHT("ThrallShotX_3");
-		CFX4 F 3 BRIGHT LIGHT("ThrallShotX_4");
+		CFX4 C 3 Bright Light("ThrallShotX_1");
+		CFX4 D 3 Bright Light("ThrallShotX_2");
+		CFX4 E 3 Bright Light("ThrallShotX_3");
+		CFX4 F 3 Bright Light("ThrallShotX_4");
 		Stop;
 	}
 }

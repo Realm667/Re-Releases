@@ -43,14 +43,14 @@ class TCOTDMinotaurTorch : RedTorch replaces RedTorch
 	Spawn:
 		TRED A 0 NoDelay
 		{
-			A_SpawnItemEx("TCOTDMinotaurTorchLensFlare", 0, 0, 40.0);
+			A_SpawnItemEx("TCOTDMinotaurTorchLensFlare", 0, 0, 40);
 		}
 		TRED A 1
 		{
 			if (!CheckSightOrRange(1000.0, true))
 			{
 				// To do: no embers yet
-				A_SpawnItemEx("TCOTDMinotaurTorchFlame", 0, 0, frandom(38.0, 40.0), 0, 0, frandom(1.0, 4.5));
+				A_SpawnItemEx("TCOTDMinotaurTorchFlame", 0, 0, frandom(38, 40), 0, 0, frandom(1.0, 4.5));
 			}
 		}
 		Goto Spawn + 1;
