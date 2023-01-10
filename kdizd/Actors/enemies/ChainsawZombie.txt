@@ -1,0 +1,82 @@
+//===========================================================================
+//
+// Chainsaw Zombie
+//
+// created by: Bouncy
+// additional scripting by: Graf Zahl
+// New sprites and additional scripting by: Nmn
+//
+//===========================================================================
+
+ACTOR ChainsawZombie
+{
+	//$Category KDiZD Monsters
+    Health 30
+    Radius 20
+    Height 56
+    Speed 13
+	FastSpeed 18
+    MeleeDamage 3
+    PainChance 200
+    MONSTER
+    +FLOORCLIP
+    Obituary "$OB_CHAZ"
+    SeeSound "chainsawman/sight"
+    MeleeSound "weapons/sawhit"
+    PainSound "grunt/pain"
+    DeathSound "chainsawman/dead"
+    ActiveSound "grunt/active"
+    DropItem Chainsaw
+    States
+    {
+    Spawn:
+        CHAN A 4 A_Look
+        CHAN A 4 A_Look
+        CHAN B 4 A_Look
+        CHAN B 4 A_Look
+        Loop
+    See:
+        CHAN A 4 A_Chase
+        CHAN A 0 A_SpawnProjectile("Ball1Trail", 24, 0, 0, 0)
+        CHAN A 4 A_Chase
+        CHAN B 0 A_PlayWeaponSound("weapons/sawidle")
+        CHAN B 0 A_SpawnProjectile("Ball1Trail", 24, 0, 0, 0)
+        CHAN B 4 A_Chase
+        CHAN B 4 A_Chase
+        CHAN C 0 A_PlayWeaponSound("weapons/sawidle")
+        CHAN C 4 A_Chase
+        CHAN C 0 A_SpawnProjectile("Ball1Trail", 24, 0, 0, 0)
+        CHAN D 0 A_PlayWeaponSound("weapons/sawidle")
+        CHAN D 4 A_Chase
+        CHAN D 0 A_SpawnProjectile("Ball1Trail", 24, 0, 0, 0)
+        CHAN A 0 A_PlayWeaponSound("weapons/sawidle")
+        Loop
+    Melee:
+        CHAN E 1 A_FaceTarget
+        CHAN A 0 A_SpawnProjectile("Ball1Trail", 24, 0, 0, 0)
+        CHAN F 3 A_MeleeAttack
+        Goto See
+    Pain:
+        CHAN G 5
+        CHAN G 3 A_Pain
+        Goto See
+    Death:
+        CHAN H 6 A_Scream
+        CHAN I 6
+        CHAN J 6
+        CHAN KL 6
+        CHAN M 6 A_Fall
+        CHAN N -1
+        Stop
+    XDeath:
+        CHAN O 5
+        CHAN P 5 A_XScream
+        CHAN Q 5 A_Fall
+        CHAN RSTUV 5
+        CHAN W -1
+        Stop
+    Raise:
+        CHAN NMLKJIH 5
+        Goto See
+    }
+}

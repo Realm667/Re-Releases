@@ -1,0 +1,211 @@
+//===========================================================================
+//
+// Bruiserdemon
+//
+// Created by Vader
+//
+//===========================================================================
+ACTOR BruiserDemon
+{
+	//$Category KDiZD Monsters
+	Health 3000
+	Radius 24
+	Height 64
+	Mass 2000
+	Speed 8
+	FastSpeed 16
+	PainChance 15
+	Monster
+	+BOSS
+	+FLOORCLIP
+	+LOOKALLAROUND
+	+MISSILEEVENMORE
+	+NORADIUSDMG
+	MissileType BruiserBall
+	SeeSound "superbaron/scream"
+	PainSound "superbaron/pain"
+	DeathSound "superbaron/death"
+	ActiveSound "superbaron/act"
+	MeleeSound "baron/melee"
+	Obituary "$OB_BRUD"
+	HitObituary "$HB_BRUD"
+	MeleeDamage 20
+	Scale 1.25
+	States
+	{
+	Spawn:
+		BRUS AB 10 Bright A_Look
+		Loop
+	See:
+		BRUS AABBCCDD 3 Bright A_Chase
+		Loop
+	Melee:
+		BRUS E 6 Bright A_FaceTarget
+		BRUS F 6 Bright A_FaceTarget
+		BRUS G 6 Bright A_ComboAttack
+		Goto See
+	Missile:
+		BRUS E 0 Bright A_Jump(144, 8)
+		BRUS EF 6 Bright A_FaceTarget
+		BRUS G 6 Bright A_MissileAttack
+		BRUS G 0 Bright A_Jump(96, 1)
+		Goto See
+		BRUS HI 6 Bright A_FaceTarget
+		BRUS J 6 Bright A_MissileAttack
+		Goto See
+		BRUS E 0 Bright A_Jump(96, 20)
+		BRUS E 6 Bright A_FaceTarget
+		BRUS F 4 Bright A_FaceTarget
+		BRUS F 2 Bright A_SpawnProjectile("BruiserBall2",56,0,-40,0)
+		BRUS G 1 Bright A_SpawnProjectile("BruiserBall2",56,0,-30,0)
+		BRUS G 1 Bright A_SpawnProjectile("BruiserBall2",56,0,-20,0)
+		BRUS G 1 Bright A_SpawnProjectile("BruiserBall2",56,0,-10,0)
+		BRUS G 1 Bright A_SpawnProjectile("BruiserBall2",56,0,0,0)
+		BRUS G 1 Bright A_SpawnProjectile("BruiserBall2",56,0,10,0)
+		BRUS G 1 Bright A_SpawnProjectile("BruiserBall2",56,0,20,0)
+		BRUS G 0 Bright A_Jump(96, 1)
+		Goto See
+		BRUS H 6 Bright A_FaceTarget
+		BRUS I 4 Bright A_FaceTarget
+		BRUS I 2 Bright A_SpawnProjectile("BruiserBall2",56,0,40,0)
+		BRUS J 1 Bright A_SpawnProjectile("BruiserBall2",56,0,30,0)
+		BRUS J 1 Bright A_SpawnProjectile("BruiserBall2",56,0,20,0)
+		BRUS J 1 Bright A_SpawnProjectile("BruiserBall2",56,0,10,0)
+		BRUS J 1 Bright A_SpawnProjectile("BruiserBall2",56,0,0,0)
+		BRUS J 1 Bright A_SpawnProjectile("BruiserBall2",56,0,-10,0)
+		BRUS J 1 Bright A_SpawnProjectile("BruiserBall2",56,0,-20,0)
+		Goto See
+		BRUS KL 6 Bright A_FaceTarget
+		BRUS M 2 Bright A_SpawnProjectile("BruiserFireSpawner",16,0,-15,0)
+		BRUS M 2 Bright A_SpawnProjectile("BruiserFireSpawner",16,0,0,0)
+		BRUS M 2 Bright A_SpawnProjectile("BruiserFireSpawner",16,0,15,0)
+		Goto See
+	Pain:
+		BRUS N 5 Bright A_Pain
+ 		Goto See
+	Death:
+		BRUD A 6 Bright A_Scream
+		BRUD BCD 4 Bright
+		BRUD EFG 4 Bright
+		BRUD H 4 Bright A_Fall
+		BRUD IJKLMNOP 4 Bright
+		BRUD QRSTUV 4
+		BRUD W -1
+		Stop
+	}
+}
+
+ACTOR BruiserBall
+{
+	Radius 16
+	Height 16
+	Speed 18
+	FastSpeed 24
+	Damage 16
+	Projectile
+	+RANDOMIZE
+	RenderStyle ADD
+	Alpha 0.9
+	SeeSound "imp/attack"
+	DeathSound "imp/shotx"
+	MissileType BruiserBallTrail
+	Missileheight 0
+	States
+	{
+	Spawn:
+		BRBA AABB 2 BRIGHT A_MissileAttack
+		Loop
+	Death:
+		BRBA KLMNOPQRSTUVWX 3 Bright
+		Stop
+	}
+}
+
+ACTOR BruiserBallTrail
+{
+    Radius 1
+    Height 1
+    Speed 0
+    PROJECTILE
+    RenderStyle ADD
+    ALPHA 0.70
+    +NOCLIP
+    States
+    {
+    Spawn:
+     	BRBA CDEFGHIJ 4 Bright
+     	Stop
+    }
+}
+
+ACTOR BruiserBall2
+{
+	Radius 8
+	Height 8
+	Speed 10
+	FastSpeed 15
+	Damage 8
+	Projectile
+	+RANDOMIZE
+	RenderStyle ADD
+	Alpha 0.9
+	SeeSound "imp/attack"
+	DeathSound "imp/shotx"
+	States
+	{
+	Spawn:
+		BRB2 AB 6 BRIGHT
+		Loop
+	Death:
+		BRB2 CDEFGHI 3 Bright
+		Stop
+	}
+}
+
+ACTOR BruiserFireSpawner
+{
+	Radius 8
+	Height 8
+	Speed 12
+	FastSpeed 17
+	Damage 0
+	+RIPPER
+	+FLOORHUGGER
+	+BLOODLESSIMPACT
+	Projectile
+	MissileType BruiserFire
+	Missileheight 0
+	States
+	{
+	Spawn:
+		TNT1 A 3 Bright A_MissileAttack
+  		TNT1 A 3
+  		TNT1 A 3
+		Loop
+	Death:
+		TNT1 A 6
+		Stop
+	}
+}
+
+ACTOR BruiserFire
+{
+	Radius 1
+	Height 1
+	Speed 0
+	Damage 20
+	PROJECTILE
+	RenderStyle ADD
+	ALPHA 0.9
+	+NOCLIP
+	+FLOORHUGGER
+	SeeSound "weapons/rocklx"
+	States
+	{
+	Spawn:
+		FIRE AB 3 Bright
+		FIRE C 3 Bright A_Explode(48,128,0)
+		FIRE DEFGHIJKLMNOPQRST 3 Bright
+		Stop
+	}
+}

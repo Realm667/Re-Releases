@@ -1,0 +1,379 @@
+// Copyright 2019 - 2020 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+// PDAMenuElements
+// Base elements and custom widgets used by the PDA menu
+//
+//===========================================================================
+
+//===========================================================================
+//
+// PDAScrollableFrame
+// Base class for a generic scrollable frame
+//
+//===========================================================================
+
+class PDAScrollableFrame : PDAFrame
+{
+	// Reference to the menu is needed for fonts, colours, things like that
+	PDAMenu parentMenu;
+
+	// The content frame is dynamically moved and resized
+	PDAFrame content;
+
+	const SCROLLBAR_WIDTH = 4;
+	PDAColoredFrame scrollbarTrack;
+	PDAColoredFrame scrollbar;
+
+	int mouseX;
+	int mouseY;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	PDAScrollableFrame Init(Vector2 pos, Vector2 size, PDAMenu mnu)
+	{
+		parentMenu = mnu;
+
+		let f = PDAScrollableFrame(Super.Init(pos, size));
+		f.Pack(parentMenu.mainFrame);
+
+		// Initial Y size of content frame is 0 because it will be resized as new items are added
+		content = PDAFrame(new('PDAFrame').Init((0, 0), (size.X, 0)));
+		content.Pack(f);
+
+		// Create the scrollbar element, Y size also resized dynamically
+		scrollbarTrack = PDAColoredFrame(new('PDAColoredFrame').Init((size.X - SCROLLBAR_WIDTH, 0), (SCROLLBAR_WIDTH, size.Y)));
+		scrollbarTrack.fillColor = Color(parentMenu.UIColor.R / 2, parentMenu.UIColor.G / 2, parentMenu.UIColor.B / 2);
+		scrollbarTrack.pack(f);
+
+		scrollbar = PDAColoredFrame(new('PDAColoredFrame').Init((size.X - SCROLLBAR_WIDTH, 0), (SCROLLBAR_WIDTH, 0)));
+		scrollbar.fillColor = parentMenu.UIColor;
+		scrollbar.pack(f);
+
+		return f;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void OnUIEvent(PDAUiEvent ev)
+	{
+		Super.OnUIEvent(ev);
+
+		if (!content) return;
+
+		if (ev.Type == UIEvent.Type_MouseMove)
+		{
+			mouseX = ev.mouseX;
+			mouseY = ev.mouseY;
+		}
+
+		if (IsEnabled() && BoxToScreen().PointCollides((mouseX, mouseY)))
+		{
+			// Mousewheel scrolling
+			int scrollAmount = 5;
+			if (ev.Type == UIEvent.Type_WheelUp && content.box.pos.Y < 0)
+			{
+				content.box.pos.Y += (parentMenu.GetFontHeight() * scrollAmount);
+				ClampContentPos();
+
+			}
+			else if (ev.Type == UIEvent.Type_WheelDown && content.box.pos.Y > GetLowestPos())
+			{
+				content.box.pos.Y -= (parentMenu.GetFontHeight() * scrollAmount);
+				ClampContentPos();
+			}
+		}
+	}
+
+	override void Drawer(void)
+	{
+		Super.Drawer();
+
+		// Show scroll bar if content is long enough
+		if (GetMaxLines() > GetMaxShowableLines())
+		{
+			scrollbar.disabled = false;
+			scrollbar.hidden = false;
+
+			// Update the scrollbar
+			double scrollbarFrameHeight = box.size.Y;
+			double scrollbarContentHeight = content.box.size.Y;
+			double scrollbarRatio = scrollbarFrameHeight / scrollbarContentHeight;
+			double scrollBarArea = scrollbarFrameHeight;// - scrollbarArrowHeight * 2;
+			double scrollbarHeight = scrollBarArea * scrollbarRatio;
+			double scrollBarY = -(content.box.pos.Y * scrollbarRatio);
+
+			scrollbar.box.size.Y = scrollbarHeight;
+			scrollbar.box.pos.Y = scrollBarY;
+		}
+		else
+		{
+			scrollbar.disabled = true;
+			scrollbar.hidden = true;
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	// This is made overridable because different widgets may have different ways
+	// of keeping track of a content's length.
+	virtual int GetMaxLines(void) { return 0; }
+
+	int GetMaxShowableLines(void)
+	{
+		return int(box.size.Y / parentMenu.GetFontHeight());
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	int GetLowestPos(void)
+	{
+		return -(parentMenu.GetFontHeight() * (GetMaxLines() - GetMaxShowableLines()));
+	}
+
+	void ClampContentPos(void)
+	{
+		if (content.box.pos.Y > 0)
+			content.box.pos.Y = 0;
+		else if (content.box.pos.Y < GetLowestPos())
+			content.box.pos.Y = GetLowestPos();
+	}
+}
+
+//===========================================================================
+//
+// PDAClickableList
+// A scrollable frame with clickable items
+//
+//===========================================================================
+
+class PDAClickableList : PDAScrollableFrame
+{
+	// Command name to send to the handler when an item is clicked
+	String cmdName;
+
+	// Increases every time a new item is added to the list
+	int currentLineYPos;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	PDAClickableList Init(Vector2 pos, Vector2 size, PDAMenu mnu, String cmd)
+	{
+		let f = PDAClickableList(Super.Init(pos, size, mnu));
+		cmdName = cmd;
+		return f;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override int GetMaxLines(void)
+	{
+		return int(currentLineYPos / parentMenu.GetFontHeight());
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void AddLine(String newItem)
+	{
+		if (!content) return;
+
+		class<Actor> cls = newItem;
+		String newItemTitle = StringTable.Localize(GetDefaultByType((class<Actor>)(cls)).GetTag());
+
+		// Buttons and text have to be separate because
+		// button text is automatically center-aligned >_<
+
+		// Button element
+		let btn = PDAColoredButton(new('PDAColoredButton').Init
+		(
+			(0, currentLineYPos),
+			(box.size.X - SCROLLBAR_WIDTH, parentMenu.GetFontHeight()),
+			cmdHandler: parentMenu.handler,
+			command: cmdName .. ":" .. newItem
+		));
+		btn.SetTexture
+		(
+			"TNT1A0",
+			"TNT1A0",
+			"TNT1A0",
+			""
+		);
+		btn.fillColor = parentMenu.UIColor;
+		btn.Pack(content);
+
+		// Text element
+		let txt = new('PDALabel').Init
+		(
+			(0, currentLineYPos),
+			(0, 0),
+			text: newItemTitle,
+			fnt: parentMenu.fnt,
+			wrap: false,
+			autoSize: true,
+			textColor: parentMenu.fntColor
+		);
+		txt.Pack(content);
+
+		// Increase the Y size of the content frame
+		content.box.size.Y += parentMenu.GetFontHeight();
+
+		// Increase Y position of the next item to add
+		currentLineYPos += parentMenu.GetFontHeight();
+	}
+}
+
+//===========================================================================
+//
+// PDAContentText
+// A scrollable frame with text
+//
+//===========================================================================
+
+class PDAContentText : PDAScrollableFrame
+{
+	PDALabel text;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	PDAContentText Init(Vector2 pos, Vector2 size, PDAMenu mnu)
+	{
+		let f = PDAContentText(Super.Init(pos, size, mnu));
+
+		text = new('PDALabel').Init
+		(
+			(0, 0),
+			size,
+			text: "",
+			fnt: parentMenu.fnt,
+			wrap: true,
+			autoSize: true,
+			textColor: parentMenu.fntColor
+		);
+		text.Pack(content);
+
+		return f;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void SetText(String txt)
+	{
+		text.text = txt;
+
+		// Reset the content position and size
+		content.box.pos.Y = 0;
+		content.box.size.Y = 0;
+
+		// Increase the Y size of the content frame to the number of lines of text
+		BrokenLines textLines = parentMenu.fnt.breakLines(text.text, int(text.box.size.x / text.textScale));
+		for (int i = 0; i < textLines.count(); i++)
+		{
+			content.box.size.Y += parentMenu.GetFontHeight();
+		}
+	}
+
+	override int GetMaxLines(void)
+	{
+		BrokenLines textLines = parentMenu.fnt.breakLines(text.text, int(text.box.size.x / text.textScale));
+		return int((parentMenu.GetFontHeight() * textLines.count()) / parentMenu.GetFontHeight());
+	}
+}
+
+//===========================================================================
+//
+// PDAColoredFrame
+// Colorizable PDAFrame
+//
+//===========================================================================
+
+class PDAColoredFrame : PDAFrame
+{
+	Color fillColor;
+	override void Drawer(void)
+	{
+		Super.Drawer();
+		Fill((0, 0), box.size, fillColor, 1.0);
+	}
+}
+
+//===========================================================================
+//
+// PDAColoredButton
+// Colorizable PDAButton
+//
+//===========================================================================
+
+class PDAColoredButton : PDAButton
+{
+	Color fillColor;
+	override void Drawer(void)
+	{
+		Super.Drawer();
+
+		if (curButtonState == ButtonState_Hover)
+		{
+			Fill((0, 0), box.size, fillColor, 1.0);
+		}
+	}
+}

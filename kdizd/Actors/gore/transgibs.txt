@@ -1,0 +1,2453 @@
+//////////////////////////////////////////////////
+//Fuzzy Translations//////////////////////////////
+//////////////////////////////////////////////////
+ACTOR Gore_GibGeneratorFuzzy
+{
+Game Doom
+States
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(128, 8)
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_FuzzyGib1")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_FuzzyGib2")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_FuzzyGib3")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_FuzzyGib4")
+	Stop
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_FuzzyGib5")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_FuzzyGib6")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_FuzzyGib7")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_FuzzyGib8")
+	Stop
+	}
+}
+
+// Gib 1
+ACTOR Gore_FuzzyGib1 : NashGore_Gib1
+{
++SHADOW RenderStyle OptFuzzy Alpha 0.5
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB1 A 24 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB1 AAAA 24 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+	GIB1 A -1
+	Stop
+	}
+}
+
+// Gib 2
+ACTOR Gore_FuzzyGib2 : NashGore_Gib2
+{
++SHADOW RenderStyle OptFuzzy Alpha 0.5
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB2 A 24 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB2 AAAA 24 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+	GIB2 A -1
+	Stop
+	}
+}
+
+// Gib 3
+ACTOR Gore_FuzzyGib3 : NashGore_Gib3
+{
++SHADOW RenderStyle OptFuzzy Alpha 0.5
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB3 A 24 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB3 AAAA 24 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+	GIB3 A -1
+	Stop
+	}
+}
+
+// Gib 4
+ACTOR Gore_FuzzyGib4 : NashGore_Gib4
+{
++SHADOW RenderStyle OptFuzzy Alpha 0.5
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB4 A 24 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB4 AAAA 24 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+	GIB4 A -1
+	Stop
+	}
+}
+
+// Gib 5
+ACTOR Gore_FuzzyGib5 : NashGore_Gib5
+{
++SHADOW RenderStyle OptFuzzy Alpha 0.5
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB5 A 24 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB5 AAAA 24 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+	GIB5 A -1
+	Stop
+	}
+}
+
+// Gib 6
+ACTOR Gore_FuzzyGib6 : NashGore_Gib6
+{
++SHADOW RenderStyle OptFuzzy Alpha 0.5
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB6 A 24 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB6 AAAA 24 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+	GIB6 A -1
+	Stop
+	}
+}
+
+// Gib 7
+ACTOR Gore_FuzzyGib7 : NashGore_Gib7
+{
++SHADOW RenderStyle OptFuzzy Alpha 0.5
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB7 A 24 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB7 AAAA 24 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+	GIB7 A -1
+	Stop
+	}
+}
+
+// Gib 8
+ACTOR Gore_FuzzyGib8 : NashGore_Gib8
+{
++SHADOW RenderStyle OptFuzzy Alpha 0.5
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB8 A 24 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB8 AAAA 24 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+	GIB8 A -1
+	Stop
+	}
+}
+
+// Gib 9 (hand)
+ACTOR Gore_FuzzyGib9 : NashGore_Gib9
+{
++SHADOW RenderStyle OptFuzzy Alpha 0.5
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB9 A 24 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB9 AAAA 24 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+	GIB9 A -1
+	Stop
+	}
+}
+
+// Gib 10 (arm)
+ACTOR Gore_FuzzyGib10 : NashGore_Gib10
+{
++SHADOW RenderStyle OptFuzzy Alpha 0.5
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB0 A 24 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB0 AAAA 24 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+	GIB0 A -1
+	Stop
+	}
+}
+
+// Gib 11 (eyeball)
+ACTOR Gore_FuzzyGib11 : NashGore_Gib11
+{
++SHADOW RenderStyle OptFuzzy Alpha 0.5
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIBI A 24 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIBI AAAA 24 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+	GIBI A -1
+	Stop
+	}
+}
+
+//////////////////////////////////////////////////
+//Blue Translations///////////////////////////////
+//////////////////////////////////////////////////
+ACTOR Gore_GibGeneratorBlue
+{
+Game Doom
+States
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(128, 8)
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_BlueGib1")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_BlueGib2")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_BlueGib3")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_BlueGib4")
+	Stop
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_BlueGib5")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_BlueGib6")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_BlueGib7")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_BlueGib8")
+	Stop
+	}
+}
+
+// Gib 1
+ACTOR Gore_BlueGib1 : NashGore_Gib1
+{
+Translation "16:47=192:206","168:191=194:207"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB1 A 24 A_SpawnDebris("Gore_BlueFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB1 AAAA 24 A_SpawnDebris("Gore_BlueFlyingBlood", 1)
+	GIB1 A -1
+	Stop
+	}
+}
+
+// Gib 2
+ACTOR Gore_BlueGib2 : NashGore_Gib2
+{
+Translation "16:47=192:206","168:191=194:207"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB2 A 24 A_SpawnDebris("Gore_BlueFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB2 AAAA 24 A_SpawnDebris("Gore_BlueFlyingBlood", 1)
+	GIB2 A -1
+	Stop
+	}
+}
+
+// Gib 3
+ACTOR Gore_BlueGib3 : NashGore_Gib3
+{
+Translation "16:47=192:206","168:191=194:207"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB3 A 24 A_SpawnDebris("Gore_BlueFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB3 AAAA 24 A_SpawnDebris("Gore_BlueFlyingBlood", 1)
+	GIB3 A -1
+	Stop
+	}
+}
+
+// Gib 4
+ACTOR Gore_BlueGib4 : NashGore_Gib4
+{
+Translation "16:47=192:206","168:191=194:207"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB4 A 24 A_SpawnDebris("Gore_BlueFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB4 AAAA 24 A_SpawnDebris("Gore_BlueFlyingBlood", 1)
+	GIB4 A -1
+	Stop
+	}
+}
+
+// Gib 5
+ACTOR Gore_BlueGib5 : NashGore_Gib5
+{
+Translation "16:47=192:206","168:191=194:207"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB5 A 24 A_SpawnDebris("Gore_BlueFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB5 AAAA 24 A_SpawnDebris("Gore_BlueFlyingBlood", 1)
+	GIB5 A -1
+	Stop
+	}
+}
+
+// Gib 6
+ACTOR Gore_BlueGib6 : NashGore_Gib6
+{
+Translation "16:47=192:206","168:191=194:207"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB6 A 24 A_SpawnDebris("Gore_BlueFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB6 AAAA 24 A_SpawnDebris("Gore_BlueFlyingBlood", 1)
+	GIB6 A -1
+	Stop
+	}
+}
+
+// Gib 7
+ACTOR Gore_BlueGib7 : NashGore_Gib7
+{
+Translation "16:47=192:206","168:191=194:207"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB7 A 24 A_SpawnDebris("Gore_BlueFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB7 AAAA 24 A_SpawnDebris("Gore_BlueFlyingBlood", 1)
+	GIB7 A -1
+	Stop
+	}
+}
+
+// Gib 8
+ACTOR Gore_BlueGib8 : NashGore_Gib8
+{
+Translation "16:47=192:206","168:191=194:207"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB8 A 24 A_SpawnDebris("Gore_BlueFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB8 AAAA 24 A_SpawnDebris("Gore_BlueFlyingBlood", 1)
+	GIB8 A -1
+	Stop
+	}
+}
+
+// Gib 9 (hand)
+ACTOR Gore_BlueGib9 : NashGore_Gib9
+{
+Translation "16:47=192:206","168:191=194:207"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB9 A 24 A_SpawnDebris("Gore_BlueFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB9 AAAA 24 A_SpawnDebris("Gore_BlueFlyingBlood", 1)
+	GIB9 A -1
+	Stop
+	}
+}
+
+// Gib 10 (arm)
+ACTOR Gore_BlueGib10 : NashGore_Gib10
+{
+Translation "16:47=192:206","168:191=194:207"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB0 A 24 A_SpawnDebris("Gore_BlueFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB0 AAAA 24 A_SpawnDebris("Gore_BlueFlyingBlood", 1)
+	GIB0 A -1
+	Stop
+	}
+}
+
+// Gib 11 (eyeball)
+ACTOR Gore_BlueGib11 : NashGore_Gib11
+{
+Translation "16:47=192:206","168:191=194:207"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIBI A 24 A_SpawnDebris("Gore_BlueFlyingBlood",1)
+	Loop
+	Underwater:
+	GIBI AAAA 24 A_SpawnDebris("Gore_BlueFlyingBlood", 1)
+	GIBI A -1
+	Stop
+	}
+}
+
+//////////////////////////////////////////////////
+//Green Translations//////////////////////////////
+//////////////////////////////////////////////////
+ACTOR Gore_GibGeneratorGreen
+{
+Game Doom
+States
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(128, 8)
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_GreenGib1")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_GreenGib2")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_GreenGib3")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_GreenGib4")
+	Stop
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_GreenGib5")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_GreenGib6")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_GreenGib7")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_GreenGib8")
+	Stop
+	}
+}
+
+// Gib 1
+ACTOR Gore_GreenGib1 : NashGore_Gib1
+{
+Translation "16:47=112:127", "168:191=112:127"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB1 A 24 A_SpawnDebris("Gore_GreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB1 AAAA 24 A_SpawnDebris("Gore_GreenFlyingBlood", 1)
+	GIB1 A -1
+	Stop
+	}
+}
+
+// Gib 2
+ACTOR Gore_GreenGib2 : NashGore_Gib2
+{
+Translation "16:47=112:127", "168:191=112:127"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB2 A 24 A_SpawnDebris("Gore_GreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB2 AAAA 24 A_SpawnDebris("Gore_GreenFlyingBlood", 1)
+	GIB2 A -1
+	Stop
+	}
+}
+
+// Gib 3
+ACTOR Gore_GreenGib3 : NashGore_Gib3
+{
+Translation "16:47=112:127", "168:191=112:127"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB3 A 24 A_SpawnDebris("Gore_GreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB3 AAAA 24 A_SpawnDebris("Gore_GreenFlyingBlood", 1)
+	GIB3 A -1
+	Stop
+	}
+}
+
+// Gib 4
+ACTOR Gore_GreenGib4 : NashGore_Gib4
+{
+Translation "16:47=112:127", "168:191=112:127"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB4 A 24 A_SpawnDebris("Gore_GreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB4 AAAA 24 A_SpawnDebris("Gore_GreenFlyingBlood", 1)
+	GIB4 A -1
+	Stop
+	}
+}
+
+// Gib 5
+ACTOR Gore_GreenGib5 : NashGore_Gib5
+{
+Translation "16:47=112:127", "168:191=112:127"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB5 A 24 A_SpawnDebris("Gore_GreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB5 AAAA 24 A_SpawnDebris("Gore_GreenFlyingBlood", 1)
+	GIB5 A -1
+	Stop
+	}
+}
+
+// Gib 6
+ACTOR Gore_GreenGib6 : NashGore_Gib6
+{
+Translation "16:47=112:127", "168:191=112:127"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB6 A 24 A_SpawnDebris("Gore_GreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB6 AAAA 24 A_SpawnDebris("Gore_GreenFlyingBlood", 1)
+	GIB6 A -1
+	Stop
+	}
+}
+
+// Gib 7
+ACTOR Gore_GreenGib7 : NashGore_Gib7
+{
+Translation "16:47=112:127", "168:191=112:127"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB7 A 24 A_SpawnDebris("Gore_GreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB7 AAAA 24 A_SpawnDebris("Gore_GreenFlyingBlood", 1)
+	GIB7 A -1
+	Stop
+	}
+}
+
+// Gib 8
+ACTOR Gore_GreenGib8 : NashGore_Gib8
+{
+Translation "16:47=112:127", "168:191=112:127"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB8 A 24 A_SpawnDebris("Gore_GreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB8 AAAA 24 A_SpawnDebris("Gore_GreenFlyingBlood", 1)
+	GIB8 A -1
+	Stop
+	}
+}
+
+// Gib 9 (hand)
+ACTOR Gore_GreenGib9 : NashGore_Gib9
+{
+Translation "16:47=112:127", "168:191=112:127"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB9 A 24 A_SpawnDebris("Gore_GreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB9 AAAA 24 A_SpawnDebris("Gore_GreenFlyingBlood", 1)
+	GIB9 A -1
+	Stop
+	}
+}
+
+// Gib 10 (arm)
+ACTOR Gore_GreenGib10 : NashGore_Gib10
+{
+Translation "16:47=112:127", "168:191=112:127"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB0 A 24 A_SpawnDebris("Gore_GreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB0 AAAA 24 A_SpawnDebris("Gore_GreenFlyingBlood", 1)
+	GIB0 A -1
+	Stop
+	}
+}
+
+// Gib 11 (eyeball)
+ACTOR Gore_GreenGib11 : NashGore_Gib11
+{
+Translation "16:47=112:127", "168:191=112:127"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIBI A 24 A_SpawnDebris("Gore_GreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIBI AAAA 24 A_SpawnDebris("Gore_GreenFlyingBlood", 1)
+	GIBI A -1
+	Stop
+	}
+}
+//////////////////////////////////////////////////
+//Translucent Green Translations////////////////// - NightmareDemon Only
+//////////////////////////////////////////////////
+ACTOR Gore_GibGeneratorTGreen
+{
+Game Doom
+States
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(128, 8)
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TGreenGib1")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TGreenGib2")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TGreenGib3")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TGreenGib4")
+	Stop
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TGreenGib5")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TGreenGib6")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TGreenGib7")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TGreenGib8")
+	Stop
+	}
+}
+
+// Gib 1
+ACTOR Gore_TGreenGib1 : NashGore_Gib1
+{
+Translation "16:47=112:127", "168:191=112:127" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB1 A 24 A_SpawnDebris("Gore_TGreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB1 AAAA 24 A_SpawnDebris("Gore_TGreenFlyingBlood", 1)
+	GIB1 A -1
+	Stop
+	}
+}
+
+// Gib 2
+ACTOR Gore_TGreenGib2 : NashGore_Gib2
+{
+Translation "16:47=112:127", "168:191=112:127" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB2 A 24 A_SpawnDebris("Gore_TGreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB2 AAAA 24 A_SpawnDebris("Gore_TGreenFlyingBlood", 1)
+	GIB2 A -1
+	Stop
+	}
+}
+
+// Gib 3
+ACTOR Gore_TGreenGib3 : NashGore_Gib3
+{
+Translation "16:47=112:127", "168:191=112:127" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB3 A 24 A_SpawnDebris("Gore_TGreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB3 AAAA 24 A_SpawnDebris("Gore_TGreenFlyingBlood", 1)
+	GIB3 A -1
+	Stop
+	}
+}
+
+// Gib 4
+ACTOR Gore_TGreenGib4 : NashGore_Gib4
+{
+Translation "16:47=112:127", "168:191=112:127" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB4 A 24 A_SpawnDebris("Gore_TGreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB4 AAAA 24 A_SpawnDebris("Gore_TGreenFlyingBlood", 1)
+	GIB4 A -1
+	Stop
+	}
+}
+
+// Gib 5
+ACTOR Gore_TGreenGib5 : NashGore_Gib5
+{
+Translation "16:47=112:127", "168:191=112:127" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB5 A 24 A_SpawnDebris("Gore_TGreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB5 AAAA 24 A_SpawnDebris("Gore_TGreenFlyingBlood", 1)
+	GIB5 A -1
+	Stop
+	}
+}
+
+// Gib 6
+ACTOR Gore_TGreenGib6 : NashGore_Gib6
+{
+Translation "16:47=112:127", "168:191=112:127" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB6 A 24 A_SpawnDebris("Gore_TGreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB6 AAAA 24 A_SpawnDebris("Gore_TGreenFlyingBlood", 1)
+	GIB6 A -1
+	Stop
+	}
+}
+
+// Gib 7
+ACTOR Gore_TGreenGib7 : NashGore_Gib7
+{
+Translation "16:47=112:127", "168:191=112:127" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB7 A 24 A_SpawnDebris("Gore_TGreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB7 AAAA 24 A_SpawnDebris("Gore_TGreenFlyingBlood", 1)
+	GIB7 A -1
+	Stop
+	}
+}
+
+// Gib 8
+ACTOR Gore_TGreenGib8 : NashGore_Gib8
+{
+Translation "16:47=112:127", "168:191=112:127" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB8 A 24 A_SpawnDebris("Gore_TGreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB8 AAAA 24 A_SpawnDebris("Gore_TGreenFlyingBlood", 1)
+	GIB8 A -1
+	Stop
+	}
+}
+
+// Gib 9 (hand)
+ACTOR Gore_TGreenGib9 : NashGore_Gib9
+{
+Translation "16:47=112:127", "168:191=112:127" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB9 A 24 A_SpawnDebris("Gore_TGreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB9 AAAA 24 A_SpawnDebris("Gore_TGreenFlyingBlood", 1)
+	GIB9 A -1
+	Stop
+	}
+}
+
+// Gib 10 (arm)
+ACTOR Gore_TGreenGib10 : NashGore_Gib10
+{
+Translation "16:47=112:127", "168:191=112:127" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB0 A 24 A_SpawnDebris("Gore_TGreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB0 AAAA 24 A_SpawnDebris("Gore_TGreenFlyingBlood", 1)
+	GIB0 A -1
+	Stop
+	}
+}
+
+// Gib 11 (eyeball)
+ACTOR Gore_TGreenGib11 : NashGore_Gib11
+{
+Translation "16:47=112:127", "168:191=112:127" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIBI A 24 A_SpawnDebris("Gore_TGreenFlyingBlood",1)
+	Loop
+	Underwater:
+	GIBI AAAA 24 A_SpawnDebris("Gore_TGreenFlyingBlood", 1)
+	GIBI A -1
+	Stop
+	}
+}
+//////////////////////////////////////////////////
+//Grey Translations///////////////////////////////
+//////////////////////////////////////////////////
+ACTOR Gore_GibGeneratorGrey
+{
+Game Doom
+States
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(128, 8)
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_GreyGib1")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_GreyGib2")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_GreyGib3")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_GreyGib4")
+	Stop
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_GreyGib5")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_GreyGib6")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_GreyGib7")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_GreyGib8")
+	Stop
+	}
+}
+
+// Gib 1
+ACTOR Gore_GreyGib1 : NashGore_Gib1
+{
+Translation "16:47=90:103","168:191=92:104"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB1 A 24 A_SpawnDebris("Gore_GreyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB1 AAAA 24 A_SpawnDebris("Gore_GreyFlyingBlood", 1)
+	GIB1 A -1
+	Stop
+	}
+}
+
+// Gib 2
+ACTOR Gore_GreyGib2 : NashGore_Gib2
+{
+Translation "16:47=90:103","168:191=92:104"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB2 A 24 A_SpawnDebris("Gore_GreyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB2 AAAA 24 A_SpawnDebris("Gore_GreyFlyingBlood", 1)
+	GIB2 A -1
+	Stop
+	}
+}
+
+// Gib 3
+ACTOR Gore_GreyGib3 : NashGore_Gib3
+{
+Translation "16:47=90:103","168:191=92:104"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB3 A 24 A_SpawnDebris("Gore_GreyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB3 AAAA 24 A_SpawnDebris("Gore_GreyFlyingBlood", 1)
+	GIB3 A -1
+	Stop
+	}
+}
+
+// Gib 4
+ACTOR Gore_GreyGib4 : NashGore_Gib4
+{
+Translation "16:47=90:103","168:191=92:104"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB4 A 24 A_SpawnDebris("Gore_GreyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB4 AAAA 24 A_SpawnDebris("Gore_GreyFlyingBlood", 1)
+	GIB4 A -1
+	Stop
+	}
+}
+
+// Gib 5
+ACTOR Gore_GreyGib5 : NashGore_Gib5
+{
+Translation "16:47=90:103","168:191=92:104"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB5 A 24 A_SpawnDebris("Gore_GreyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB5 AAAA 24 A_SpawnDebris("Gore_GreyFlyingBlood", 1)
+	GIB5 A -1
+	Stop
+	}
+}
+
+// Gib 6
+ACTOR Gore_GreyGib6 : NashGore_Gib6
+{
+Translation "16:47=90:103","168:191=92:104"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB6 A 24 A_SpawnDebris("Gore_GreyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB6 AAAA 24 A_SpawnDebris("Gore_GreyFlyingBlood", 1)
+	GIB6 A -1
+	Stop
+	}
+}
+
+// Gib 7
+ACTOR Gore_GreyGib7 : NashGore_Gib7
+{
+Translation "16:47=90:103","168:191=92:104"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB7 A 24 A_SpawnDebris("Gore_GreyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB7 AAAA 24 A_SpawnDebris("Gore_GreyFlyingBlood", 1)
+	GIB7 A -1
+	Stop
+	}
+}
+
+// Gib 8
+ACTOR Gore_GreyGib8 : NashGore_Gib8
+{
+Translation "16:47=90:103","168:191=92:104"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB8 A 24 A_SpawnDebris("Gore_GreyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB8 AAAA 24 A_SpawnDebris("Gore_GreyFlyingBlood", 1)
+	GIB8 A -1
+	Stop
+	}
+}
+
+// Gib 9 (hand)
+ACTOR Gore_GreyGib9 : NashGore_Gib9
+{
+Translation "16:47=90:103","168:191=92:104"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB9 A 24 A_SpawnDebris("Gore_GreyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB9 AAAA 24 A_SpawnDebris("Gore_GreyFlyingBlood", 1)
+	GIB9 A -1
+	Stop
+	}
+}
+
+// Gib 10 (arm)
+ACTOR Gore_GreyGib10 : NashGore_Gib10
+{
+Translation "16:47=90:103","168:191=92:104"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB0 A 24 A_SpawnDebris("Gore_GreyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB0 AAAA 24 A_SpawnDebris("Gore_GreyFlyingBlood", 1)
+	GIB0 A -1
+	Stop
+	}
+}
+
+// Gib 11 (eyeball)
+ACTOR Gore_GreyGib11 : NashGore_Gib11
+{
+Translation "16:47=90:103","168:191=92:104"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIBI A 24 A_SpawnDebris("Gore_GreyFlyingBlood",1)
+	Loop
+	Underwater:
+	GIBI AAAA 24 A_SpawnDebris("Gore_GreyFlyingBlood", 1)
+	GIBI A -1
+	Stop
+	}
+}
+
+//////////////////////////////////////////////////
+//Ivory Translations//////////////////////////////
+//////////////////////////////////////////////////
+ACTOR Gore_GibGeneratorIvory
+{
+Game Doom
+States
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(128, 8)
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_IvoryGib1")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_IvoryGib2")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_IvoryGib3")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_IvoryGib4")
+	Stop
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_IvoryGib5")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_IvoryGib6")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_IvoryGib7")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_IvoryGib8")
+	Stop
+	}
+}
+
+// Gib 1
+ACTOR Gore_IvoryGib1 : NashGore_Gib1
+{
+Translation "16:47=80:100","168:191=82:102"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB1 A 24 A_SpawnDebris("Gore_IvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB1 AAAA 24 A_SpawnDebris("Gore_IvoryFlyingBlood", 1)
+	GIB1 A -1
+	Stop
+	}
+}
+
+// Gib 2
+ACTOR Gore_IvoryGib2 : NashGore_Gib2
+{
+Translation "16:47=80:100","168:191=82:102"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB2 A 24 A_SpawnDebris("Gore_IvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB2 AAAA 24 A_SpawnDebris("Gore_IvoryFlyingBlood", 1)
+	GIB2 A -1
+	Stop
+	}
+}
+
+// Gib 3
+ACTOR Gore_IvoryGib3 : NashGore_Gib3
+{
+Translation "16:47=80:100","168:191=82:102"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB3 A 24 A_SpawnDebris("Gore_IvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB3 AAAA 24 A_SpawnDebris("Gore_IvoryFlyingBlood", 1)
+	GIB3 A -1
+	Stop
+	}
+}
+
+// Gib 4
+ACTOR Gore_IvoryGib4 : NashGore_Gib4
+{
+Translation "16:47=80:100","168:191=82:102"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB4 A 24 A_SpawnDebris("Gore_IvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB4 AAAA 24 A_SpawnDebris("Gore_IvoryFlyingBlood", 1)
+	GIB4 A -1
+	Stop
+	}
+}
+
+// Gib 5
+ACTOR Gore_IvoryGib5 : NashGore_Gib5
+{
+Translation "16:47=80:100","168:191=82:102"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB5 A 24 A_SpawnDebris("Gore_IvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB5 AAAA 24 A_SpawnDebris("Gore_IvoryFlyingBlood", 1)
+	GIB5 A -1
+	Stop
+	}
+}
+
+// Gib 6
+ACTOR Gore_IvoryGib6 : NashGore_Gib6
+{
+Translation "16:47=80:100","168:191=82:102"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB6 A 24 A_SpawnDebris("Gore_IvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB6 AAAA 24 A_SpawnDebris("Gore_IvoryFlyingBlood", 1)
+	GIB6 A -1
+	Stop
+	}
+}
+
+// Gib 7
+ACTOR Gore_IvoryGib7 : NashGore_Gib7
+{
+Translation "16:47=80:100","168:191=82:102"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB7 A 24 A_SpawnDebris("Gore_IvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB7 AAAA 24 A_SpawnDebris("Gore_IvoryFlyingBlood", 1)
+	GIB7 A -1
+	Stop
+	}
+}
+
+// Gib 8
+ACTOR Gore_IvoryGib8 : NashGore_Gib8
+{
+Translation "16:47=80:100","168:191=82:102"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB8 A 24 A_SpawnDebris("Gore_IvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB8 AAAA 24 A_SpawnDebris("Gore_IvoryFlyingBlood", 1)
+	GIB8 A -1
+	Stop
+	}
+}
+
+// Gib 9 (hand)
+ACTOR Gore_IvoryGib9 : NashGore_Gib9
+{
+Translation "16:47=80:100","168:191=82:102"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB9 A 24 A_SpawnDebris("Gore_IvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB9 AAAA 24 A_SpawnDebris("Gore_IvoryFlyingBlood", 1)
+	GIB9 A -1
+	Stop
+	}
+}
+
+// Gib 10 (arm)
+ACTOR Gore_IvoryGib10 : NashGore_Gib10
+{
+Translation "16:47=80:100","168:191=82:102"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB0 A 24 A_SpawnDebris("Gore_IvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB0 AAAA 24 A_SpawnDebris("Gore_IvoryFlyingBlood", 1)
+	GIB0 A -1
+	Stop
+	}
+}
+
+// Gib 11 (eyeball)
+ACTOR Gore_IvoryGib11 : NashGore_Gib11
+{
+Translation "16:47=80:100","168:191=82:102"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIBI A 24 A_SpawnDebris("Gore_IvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIBI AAAA 24 A_SpawnDebris("Gore_IvoryFlyingBlood", 1)
+	GIBI A -1
+	Stop
+	}
+}
+
+//////////////////////////////////////////////////
+//Translucent Ivory Translations//////////////////
+//////////////////////////////////////////////////
+ACTOR Gore_GibGeneratorTIvory
+{
+Game Doom
+States
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(128, 8)
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TIvoryGib1")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TIvoryGib2")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TIvoryGib3")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TIvoryGib4")
+	Stop
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TIvoryGib5")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TIvoryGib6")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TIvoryGib7")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TIvoryGib8")
+	Stop
+	}
+}
+
+// Gib 1
+ACTOR Gore_TIvoryGib1 : NashGore_Gib1
+{
+Translation "16:47=80:100","168:191=82:102" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB1 A 24 A_SpawnDebris("Gore_TIvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB1 AAAA 24 A_SpawnDebris("Gore_TIvoryFlyingBlood", 1)
+	GIB1 A -1
+	Stop
+	}
+}
+
+// Gib 2
+ACTOR Gore_TIvoryGib2 : NashGore_Gib2
+{
+Translation "16:47=80:100","168:191=82:102" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB2 A 24 A_SpawnDebris("Gore_TIvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB2 AAAA 24 A_SpawnDebris("Gore_TIvoryFlyingBlood", 1)
+	GIB2 A -1
+	Stop
+	}
+}
+
+// Gib 3
+ACTOR Gore_TIvoryGib3 : NashGore_Gib3
+{
+Translation "16:47=80:100","168:191=82:102" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB3 A 24 A_SpawnDebris("Gore_TIvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB3 AAAA 24 A_SpawnDebris("Gore_TIvoryFlyingBlood", 1)
+	GIB3 A -1
+	Stop
+	}
+}
+
+// Gib 4
+ACTOR Gore_TIvoryGib4 : NashGore_Gib4
+{
+Translation "16:47=80:100","168:191=82:102" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB4 A 24 A_SpawnDebris("Gore_TIvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB4 AAAA 24 A_SpawnDebris("Gore_TIvoryFlyingBlood", 1)
+	GIB4 A -1
+	Stop
+	}
+}
+
+// Gib 5
+ACTOR Gore_TIvoryGib5 : NashGore_Gib5
+{
+Translation "16:47=80:100","168:191=82:102" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB5 A 24 A_SpawnDebris("Gore_TIvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB5 AAAA 24 A_SpawnDebris("Gore_TIvoryFlyingBlood", 1)
+	GIB5 A -1
+	Stop
+	}
+}
+
+// Gib 6
+ACTOR Gore_TIvoryGib6 : NashGore_Gib6
+{
+Translation "16:47=80:100","168:191=82:102" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB6 A 24 A_SpawnDebris("Gore_TIvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB6 AAAA 24 A_SpawnDebris("Gore_TIvoryFlyingBlood", 1)
+	GIB6 A -1
+	Stop
+	}
+}
+
+// Gib 7
+ACTOR Gore_TIvoryGib7 : NashGore_Gib7
+{
+Translation "16:47=80:100","168:191=82:102" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB7 A 24 A_SpawnDebris("Gore_TIvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB7 AAAA 24 A_SpawnDebris("Gore_TIvoryFlyingBlood", 1)
+	GIB7 A -1
+	Stop
+	}
+}
+
+// Gib 8
+ACTOR Gore_TIvoryGib8 : NashGore_Gib8
+{
+Translation "16:47=80:100","168:191=82:102" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB8 A 24 A_SpawnDebris("Gore_TIvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB8 AAAA 24 A_SpawnDebris("Gore_TIvoryFlyingBlood", 1)
+	GIB8 A -1
+	Stop
+	}
+}
+
+// Gib 9 (hand)
+ACTOR Gore_TIvoryGib9 : NashGore_Gib9
+{
+Translation "16:47=80:100","168:191=82:102" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB9 A 24 A_SpawnDebris("Gore_TIvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB9 AAAA 24 A_SpawnDebris("Gore_TIvoryFlyingBlood", 1)
+	GIB9 A -1
+	Stop
+	}
+}
+
+// Gib 10 (arm)
+ACTOR Gore_TIvoryGib10 : NashGore_Gib10
+{
+Translation "16:47=80:100","168:191=82:102" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB0 A 24 A_SpawnDebris("Gore_TIvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB0 AAAA 24 A_SpawnDebris("Gore_TIvoryFlyingBlood", 1)
+	GIB0 A -1
+	Stop
+	}
+}
+
+// Gib 11 (eyeball)
+ACTOR Gore_TIvoryGib11 : NashGore_Gib11
+{
+Translation "16:47=80:100","168:191=82:102" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIBI A 24 A_SpawnDebris("Gore_TIvoryFlyingBlood",1)
+	Loop
+	Underwater:
+	GIBI AAAA 24 A_SpawnDebris("Gore_TIvoryFlyingBlood", 1)
+	GIBI A -1
+	Stop
+	}
+}
+
+//////////////////////////////////////////////////
+//Orange Translations/////////////////////////////
+//////////////////////////////////////////////////
+ACTOR Gore_GibGeneratorOrange
+{
+Game Doom
+States
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(128, 8)
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_OrangeGib1")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_OrangeGib2")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_OrangeGib3")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_OrangeGib4")
+	Stop
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_OrangeGib5")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_OrangeGib6")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_OrangeGib7")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_OrangeGib8")
+	Stop
+	}
+}
+
+// Gib 1
+ACTOR Gore_OrangeGib1 : NashGore_Gib1
+{
+Translation "16:47=208:223","168:191=210:224"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB1 A 24 A_SpawnDebris("Gore_OrangeFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB1 AAAA 24 A_SpawnDebris("Gore_OrangeFlyingBlood", 1)
+	GIB1 A -1
+	Stop
+	}
+}
+
+// Gib 2
+ACTOR Gore_OrangeGib2 : NashGore_Gib2
+{
+Translation "16:47=208:223","168:191=210:224"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB2 A 24 A_SpawnDebris("Gore_OrangeFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB2 AAAA 24 A_SpawnDebris("Gore_OrangeFlyingBlood", 1)
+	GIB2 A -1
+	Stop
+	}
+}
+
+// Gib 3
+ACTOR Gore_OrangeGib3 : NashGore_Gib3
+{
+Translation "16:47=208:223","168:191=210:224"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB3 A 24 A_SpawnDebris("Gore_OrangeFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB3 AAAA 24 A_SpawnDebris("Gore_OrangeFlyingBlood", 1)
+	GIB3 A -1
+	Stop
+	}
+}
+
+// Gib 4
+ACTOR Gore_OrangeGib4 : NashGore_Gib4
+{
+Translation "16:47=208:223","168:191=210:224"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB4 A 24 A_SpawnDebris("Gore_OrangeFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB4 AAAA 24 A_SpawnDebris("Gore_OrangeFlyingBlood", 1)
+	GIB4 A -1
+	Stop
+	}
+}
+
+// Gib 5
+ACTOR Gore_OrangeGib5 : NashGore_Gib5
+{
+Translation "16:47=208:223","168:191=210:224"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB5 A 24 A_SpawnDebris("Gore_OrangeFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB5 AAAA 24 A_SpawnDebris("Gore_OrangeFlyingBlood", 1)
+	GIB5 A -1
+	Stop
+	}
+}
+
+// Gib 6
+ACTOR Gore_OrangeGib6 : NashGore_Gib6
+{
+Translation "16:47=208:223","168:191=210:224"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB6 A 24 A_SpawnDebris("Gore_OrangeFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB6 AAAA 24 A_SpawnDebris("Gore_OrangeFlyingBlood", 1)
+	GIB6 A -1
+	Stop
+	}
+}
+
+// Gib 7
+ACTOR Gore_OrangeGib7 : NashGore_Gib7
+{
+Translation "16:47=208:223","168:191=210:224"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB7 A 24 A_SpawnDebris("Gore_OrangeFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB7 AAAA 24 A_SpawnDebris("Gore_OrangeFlyingBlood", 1)
+	GIB7 A -1
+	Stop
+	}
+}
+
+// Gib 8
+ACTOR Gore_OrangeGib8 : NashGore_Gib8
+{
+Translation "16:47=208:223","168:191=210:224"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB8 A 24 A_SpawnDebris("Gore_OrangeFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB8 AAAA 24 A_SpawnDebris("Gore_OrangeFlyingBlood", 1)
+	GIB8 A -1
+	Stop
+	}
+}
+
+// Gib 9 (hand)
+ACTOR Gore_OrangeGib9 : NashGore_Gib9
+{
+Translation "16:47=208:223","168:191=210:224"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB9 A 24 A_SpawnDebris("Gore_OrangeFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB9 AAAA 24 A_SpawnDebris("Gore_OrangeFlyingBlood", 1)
+	GIB9 A -1
+	Stop
+	}
+}
+
+// Gib 10 (arm)
+ACTOR Gore_OrangeGib10 : NashGore_Gib10
+{
+Translation "16:47=208:223","168:191=210:224"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB0 A 24 A_SpawnDebris("Gore_OrangeFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB0 AAAA 24 A_SpawnDebris("Gore_OrangeFlyingBlood", 1)
+	GIB0 A -1
+	Stop
+	}
+}
+
+// Gib 11 (eyeball)
+ACTOR Gore_OrangeGib11 : NashGore_Gib11
+{
+Translation "16:47=208:223","168:191=210:224"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIBI A 24 A_SpawnDebris("Gore_OrangeFlyingBlood",1)
+	Loop
+	Underwater:
+	GIBI AAAA 24 A_SpawnDebris("Gore_OrangeFlyingBlood", 1)
+	GIBI A -1
+	Stop
+	}
+}
+
+//////////////////////////////////////////////////
+//Purple Translations/////////////////////////////
+//////////////////////////////////////////////////
+ACTOR Gore_GibGeneratorPurple
+{
+Game Doom
+States
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(128, 8)
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_PurpleGib1")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_PurpleGib2")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_PurpleGib3")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_PurpleGib4")
+	Stop
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_PurpleGib5")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_PurpleGib6")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_PurpleGib7")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_PurpleGib8")
+	Stop
+	}
+}
+
+// Gib 1
+ACTOR Gore_PurpleGib1 : NashGore_Gib1
+{
+Translation "16:47=[205,0,215]:[40,0,96]","168:191=[205,0,215]:[40,0,96]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB1 A 24 A_SpawnDebris("Gore_PurpleFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB1 AAAA 24 A_SpawnDebris("Gore_PurpleFlyingBlood", 1)
+	GIB1 A -1
+	Stop
+	}
+}
+
+// Gib 2
+ACTOR Gore_PurpleGib2 : NashGore_Gib2
+{
+Translation "16:47=[205,0,215]:[40,0,96]","168:191=[205,0,215]:[40,0,96]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB2 A 24 A_SpawnDebris("Gore_PurpleFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB2 AAAA 24 A_SpawnDebris("Gore_PurpleFlyingBlood", 1)
+	GIB2 A -1
+	Stop
+	}
+}
+
+// Gib 3
+ACTOR Gore_PurpleGib3 : NashGore_Gib3
+{
+Translation "16:47=[205,0,215]:[40,0,96]","168:191=[205,0,215]:[40,0,96]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB3 A 24 A_SpawnDebris("Gore_PurpleFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB3 AAAA 24 A_SpawnDebris("Gore_PurpleFlyingBlood", 1)
+	GIB3 A -1
+	Stop
+	}
+}
+
+// Gib 4
+ACTOR Gore_PurpleGib4 : NashGore_Gib4
+{
+Translation "16:47=[205,0,215]:[40,0,96]","168:191=[205,0,215]:[40,0,96]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB4 A 24 A_SpawnDebris("Gore_PurpleFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB4 AAAA 24 A_SpawnDebris("Gore_PurpleFlyingBlood", 1)
+	GIB4 A -1
+	Stop
+	}
+}
+
+// Gib 5
+ACTOR Gore_PurpleGib5 : NashGore_Gib5
+{
+Translation "16:47=[205,0,215]:[40,0,96]","168:191=[205,0,215]:[40,0,96]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB5 A 24 A_SpawnDebris("Gore_PurpleFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB5 AAAA 24 A_SpawnDebris("Gore_PurpleFlyingBlood", 1)
+	GIB5 A -1
+	Stop
+	}
+}
+
+// Gib 6
+ACTOR Gore_PurpleGib6 : NashGore_Gib6
+{
+Translation "16:47=[205,0,215]:[40,0,96]","168:191=[205,0,215]:[40,0,96]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB6 A 24 A_SpawnDebris("Gore_PurpleFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB6 AAAA 24 A_SpawnDebris("Gore_PurpleFlyingBlood", 1)
+	GIB6 A -1
+	Stop
+	}
+}
+
+// Gib 7
+ACTOR Gore_PurpleGib7 : NashGore_Gib7
+{
+Translation "16:47=[205,0,215]:[40,0,96]","168:191=[205,0,215]:[40,0,96]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB7 A 24 A_SpawnDebris("Gore_PurpleFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB7 AAAA 24 A_SpawnDebris("Gore_PurpleFlyingBlood", 1)
+	GIB7 A -1
+	Stop
+	}
+}
+
+// Gib 8
+ACTOR Gore_PurpleGib8 : NashGore_Gib8
+{
+Translation "16:47=[205,0,215]:[40,0,96]","168:191=[205,0,215]:[40,0,96]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB8 A 24 A_SpawnDebris("Gore_PurpleFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB8 AAAA 24 A_SpawnDebris("Gore_PurpleFlyingBlood", 1)
+	GIB8 A -1
+	Stop
+	}
+}
+
+// Gib 9 (hand)
+ACTOR Gore_PurpleGib9 : NashGore_Gib9
+{
+Translation "16:47=[205,0,215]:[40,0,96]","168:191=[205,0,215]:[40,0,96]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB9 A 24 A_SpawnDebris("Gore_PurpleFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB9 AAAA 24 A_SpawnDebris("Gore_PurpleFlyingBlood", 1)
+	GIB9 A -1
+	Stop
+	}
+}
+
+// Gib 10 (arm)
+ACTOR Gore_PurpleGib10 : NashGore_Gib10
+{
+Translation "16:47=[205,0,215]:[40,0,96]","168:191=[205,0,215]:[40,0,96]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB0 A 24 A_SpawnDebris("Gore_PurpleFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB0 AAAA 24 A_SpawnDebris("Gore_PurpleFlyingBlood", 1)
+	GIB0 A -1
+	Stop
+	}
+}
+
+// Gib 11 (eyeball)
+ACTOR Gore_PurpleGib11 : NashGore_Gib11
+{
+Translation "16:47=[205,0,215]:[40,0,96]","168:191=[205,0,215]:[40,0,96]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIBI A 24 A_SpawnDebris("Gore_PurpleFlyingBlood",1)
+	Loop
+	Underwater:
+	GIBI AAAA 24 A_SpawnDebris("Gore_PurpleFlyingBlood", 1)
+	GIBI A -1
+	Stop
+	}
+}
+
+//////////////////////////////////////////////////
+//Onyx Translations///////////////////////////////
+//////////////////////////////////////////////////
+ACTOR Gore_GibGeneratorOnyx
+{
+Game Doom
+States
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(128, 8)
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_OnyxGib1")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_OnyxGib2")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_OnyxGib3")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_OnyxGib4")
+	Stop
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_OnyxGib5")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_OnyxGib6")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_OnyxGib7")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_OnyxGib8")
+	Stop
+	}
+}
+
+// Gib 1
+ACTOR Gore_OnyxGib1 : NashGore_Gib1
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB1 A 24 A_SpawnDebris("Gore_OnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB1 AAAA 24 A_SpawnDebris("Gore_OnyxFlyingBlood", 1)
+	GIB1 A -1
+	Stop
+	}
+}
+
+// Gib 2
+ACTOR Gore_OnyxGib2 : NashGore_Gib2
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB2 A 24 A_SpawnDebris("Gore_OnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB2 AAAA 24 A_SpawnDebris("Gore_OnyxFlyingBlood", 1)
+	GIB2 A -1
+	Stop
+	}
+}
+
+// Gib 3
+ACTOR Gore_OnyxGib3 : NashGore_Gib3
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB3 A 24 A_SpawnDebris("Gore_OnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB3 AAAA 24 A_SpawnDebris("Gore_OnyxFlyingBlood", 1)
+	GIB3 A -1
+	Stop
+	}
+}
+
+// Gib 4
+ACTOR Gore_OnyxGib4 : NashGore_Gib4
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB4 A 24 A_SpawnDebris("Gore_OnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB4 AAAA 24 A_SpawnDebris("Gore_OnyxFlyingBlood", 1)
+	GIB4 A -1
+	Stop
+	}
+}
+
+// Gib 5
+ACTOR Gore_OnyxGib5 : NashGore_Gib5
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB5 A 24 A_SpawnDebris("Gore_OnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB5 AAAA 24 A_SpawnDebris("Gore_OnyxFlyingBlood", 1)
+	GIB5 A -1
+	Stop
+	}
+}
+
+// Gib 6
+ACTOR Gore_OnyxGib6 : NashGore_Gib6
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB6 A 24 A_SpawnDebris("Gore_OnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB6 AAAA 24 A_SpawnDebris("Gore_OnyxFlyingBlood", 1)
+	GIB6 A -1
+	Stop
+	}
+}
+
+// Gib 7
+ACTOR Gore_OnyxGib7 : NashGore_Gib7
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB7 A 24 A_SpawnDebris("Gore_OnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB7 AAAA 24 A_SpawnDebris("Gore_OnyxFlyingBlood", 1)
+	GIB7 A -1
+	Stop
+	}
+}
+
+// Gib 8
+ACTOR Gore_OnyxGib8 : NashGore_Gib8
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB8 A 24 A_SpawnDebris("Gore_OnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB8 AAAA 24 A_SpawnDebris("Gore_OnyxFlyingBlood", 1)
+	GIB8 A -1
+	Stop
+	}
+}
+
+// Gib 9 (hand)
+ACTOR Gore_OnyxGib9 : NashGore_Gib9
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB9 A 24 A_SpawnDebris("Gore_OnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB9 AAAA 24 A_SpawnDebris("Gore_OnyxFlyingBlood", 1)
+	GIB9 A -1
+	Stop
+	}
+}
+
+// Gib 10 (arm)
+ACTOR Gore_OnyxGib10 : NashGore_Gib10
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB0 A 24 A_SpawnDebris("Gore_OnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB0 AAAA 24 A_SpawnDebris("Gore_OnyxFlyingBlood", 1)
+	GIB0 A -1
+	Stop
+	}
+}
+
+// Gib 11 (eyeball)
+ACTOR Gore_OnyxGib11 : NashGore_Gib11
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]"
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIBI A 24 A_SpawnDebris("Gore_OnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIBI AAAA 24 A_SpawnDebris("Gore_OnyxFlyingBlood", 1)
+	GIBI A -1
+	Stop
+	}
+}
+
+//////////////////////////////////////////////////
+//Translucent Onyx Translations/////////////////// - Shadow Only
+//////////////////////////////////////////////////
+ACTOR Gore_GibGeneratorTOnyx
+{
+Game Doom
+States
+	{
+	Spawn:
+	TNT1 A 0
+	TNT1 A 0 A_Jump(128, 8)
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TOnyxGib1")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TOnyxGib2")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TOnyxGib3")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TOnyxGib4")
+	Stop
+	TNT1 A 0 A_Jump(128, 4)
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TOnyxGib5")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TOnyxGib6")
+	Stop
+	TNT1 A 0 A_Jump(128, 2)
+	TNT1 A 1 A_SpawnDebris("Gore_TOnyxGib7")
+	Stop
+	TNT1 A 1 A_SpawnDebris("Gore_TOnyxGib8")
+	Stop
+	}
+}
+
+// Gib 1
+ACTOR Gore_TOnyxGib1 : NashGore_Gib1
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB1 A 24 A_SpawnDebris("Gore_TOnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB1 AAAA 24 A_SpawnDebris("Gore_TOnyxFlyingBlood", 1)
+	GIB1 A -1
+	Stop
+	}
+}
+
+// Gib 2
+ACTOR Gore_TOnyxGib2 : NashGore_Gib2
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB2 A 24 A_SpawnDebris("Gore_TOnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB2 AAAA 24 A_SpawnDebris("Gore_TOnyxFlyingBlood", 1)
+	GIB2 A -1
+	Stop
+	}
+}
+
+// Gib 3
+ACTOR Gore_TOnyxGib3 : NashGore_Gib3
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB3 A 24 A_SpawnDebris("Gore_TOnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB3 AAAA 24 A_SpawnDebris("Gore_TOnyxFlyingBlood", 1)
+	GIB3 A -1
+	Stop
+	}
+}
+
+// Gib 4
+ACTOR Gore_TOnyxGib4 : NashGore_Gib4
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB4 A 24 A_SpawnDebris("Gore_TOnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB4 AAAA 24 A_SpawnDebris("Gore_TOnyxFlyingBlood", 1)
+	GIB4 A -1
+	Stop
+	}
+}
+
+// Gib 5
+ACTOR Gore_TOnyxGib5 : NashGore_Gib5
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB5 A 24 A_SpawnDebris("Gore_TOnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB5 AAAA 24 A_SpawnDebris("Gore_TOnyxFlyingBlood", 1)
+	GIB5 A -1
+	Stop
+	}
+}
+
+// Gib 6
+ACTOR Gore_TOnyxGib6 : NashGore_Gib6
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB6 A 24 A_SpawnDebris("Gore_TOnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB6 AAAA 24 A_SpawnDebris("Gore_TOnyxFlyingBlood", 1)
+	GIB6 A -1
+	Stop
+	}
+}
+
+// Gib 7
+ACTOR Gore_TOnyxGib7 : NashGore_Gib7
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB7 A 24 A_SpawnDebris("Gore_TOnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB7 AAAA 24 A_SpawnDebris("Gore_TOnyxFlyingBlood", 1)
+	GIB7 A -1
+	Stop
+	}
+}
+
+// Gib 8
+ACTOR Gore_TOnyxGib8 : NashGore_Gib8
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB8 A 24 A_SpawnDebris("Gore_TOnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB8 AAAA 24 A_SpawnDebris("Gore_TOnyxFlyingBlood", 1)
+	GIB8 A -1
+	Stop
+	}
+}
+
+// Gib 9 (hand)
+ACTOR Gore_TOnyxGib9 : NashGore_Gib9
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB9 A 24 A_SpawnDebris("Gore_TOnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB9 AAAA 24 A_SpawnDebris("Gore_TOnyxFlyingBlood", 1)
+	GIB9 A -1
+	Stop
+	}
+}
+
+// Gib 10 (arm)
+ACTOR Gore_TOnyxGib10 : NashGore_Gib10
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIB0 A 24 A_SpawnDebris("Gore_TOnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIB0 AAAA 24 A_SpawnDebris("Gore_TOnyxFlyingBlood", 1)
+	GIB0 A -1
+	Stop
+	}
+}
+
+// Gib 11 (eyeball)
+ACTOR Gore_TOnyxGib11 : NashGore_Gib11
+{
+Translation "16:47=[34,0,7]:[0,0,0]","168:191=[36,0,9]:[2,0,0]" RenderStyle Translucent Alpha 0.3
+States
+	{
+	Spawn:
+	TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
+	GIBI A 24 A_SpawnDebris("Gore_TOnyxFlyingBlood",1)
+	Loop
+	Underwater:
+	GIBI AAAA 24 A_SpawnDebris("Gore_TOnyxFlyingBlood", 1)
+	GIBI A -1
+	Stop
+	}
+}
+//////////////////////////////////////////////////
+//End Of Translations/////////////////////////////
+//////////////////////////////////////////////////

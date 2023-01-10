@@ -1,0 +1,66 @@
+//===========================================================================
+//
+// RapidFireTrooper
+//
+// created by: Graf Zahl
+// New sprites by: Nmn
+//
+//===========================================================================
+
+ACTOR RapidFireTrooper
+{
+	//$Category KDiZD Monsters
+	Health 30
+	Radius 20
+	Height 56
+	Speed 8
+	FastSpeed 18
+	PainChance 200
+	MONSTER
+	+FLOORCLIP
+	SeeSound "grunt/sight"
+	AttackSound "grunt/attack"
+	PainSound "grunt/pain"
+	DeathSound "grunt/death"
+	ActiveSound "grunt/active"
+	Obituary "$OB_RTRO"
+	Decal BulletChip
+	DropItem Clip
+	States
+	{
+	Spawn:
+		RFTR AB 10 A_Look
+		Loop
+	See:
+		RFTR AABBCCDD 4 A_Chase
+		Loop
+	Missile:
+		RFTR E 10 A_FaceTarget
+		RFTR F 5 Bright A_PosAttack
+		RFTR E 5 A_CPosRefire
+		Goto Missile+1
+	Pain:
+		RFTR G 3
+		RFTR G 3 A_Pain
+		Goto See
+	Death:
+		RFTR H 5
+		RFTR I 5 A_Scream
+		RFTR J 5 A_Fall
+		RFTR K 5
+		RFTR L -1
+		Stop
+	XDeath:
+		RFTR M 5
+		RFTR N 5 A_XScream
+		RFTR N 5
+		RFTR P 5 A_Fall
+		RFTR QRST 5
+		RFTR U -1
+		Stop
+	Raise:
+		RFTR KJ 5
+		RFTR IH 5
+		Goto See
+	}
+}

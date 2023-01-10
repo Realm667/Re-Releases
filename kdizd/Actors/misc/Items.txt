@@ -1,0 +1,104 @@
+//===========================================================================
+//
+// Rotating Keycards
+// Graphics and Coding by Nmn
+//
+//===========================================================================
+
+ACTOR KDiZDRedKey : RedCard replaces RedCard {}
+ACTOR KDiZDBlueKey : BlueCard replaces BlueCard {}
+ACTOR KDiZDYellowKey : YellowCard replaces YellowCard {}
+
+ACTOR KDiZDSilverKey : BlueSkull replaces BlueSkull
+{
+	Inventory.PickupMessage "$IP_SILK"
+}
+
+ACTOR KDiZDGreenKey : YellowSkull replaces YellowSkull
+{
+	Inventory.PickupMessage "$IP_GREK"
+}
+
+ACTOR KDiZDOrangeKey : RedSkull replaces RedSkull
+{
+	Inventory.PickupMessage "$IP_ORAK"
+}
+
+//===========================================================================
+//
+// Purple Dildo
+// By Vader
+//
+//===========================================================================
+
+ACTOR PurpleDildo : CustomInventory
+{
+	//$Category KDiZD Pickups
+	Radius 16
+	Height 32
+	+COUNTITEM
+	+INVENTORY.ALWAYSPICKUP
+	Inventory.MaxAmount 1
+	Inventory.PickupMessage "$IP_DILD"
+	Inventory.PickupSound "misc/i_pkup"
+	States
+	{
+	Spawn:
+		PUDI AB 6
+		Loop
+	}
+}
+
+//===========================================================================
+//
+// Twice Risen Laser Cannon
+// by Risen
+//
+//===========================================================================
+
+ACTOR TwiceRisenLaserRifle : CustomInventory
+{
+	//$Category KDiZD Pickups
+	Radius 16
+	Height 32
+	+COUNTITEM
+	+INVENTORY.ALWAYSPICKUP
+	Inventory.MaxAmount 1
+	Inventory.PickupMessage "$IP_RISN"
+	Inventory.PickupSound "misc/w_pkup"
+	States
+	{
+	Spawn:
+		TRLR A -1
+		Stop
+	}
+}
+
+//===========================================================================
+//
+// Terror Sphere
+// By Graf Zahl
+// Sprites by Vader
+//
+//===========================================================================
+
+ACTOR TerrorSphere : PowerupGiver
+{
+	//$Category KDiZD Powerups
+	+BRIGHT
+	+COUNTITEM
+	+INVENTORY.AUTOACTIVATE
+	+INVENTORY.ALWAYSPICKUP
+	+INVENTORY.BIGPOWERUP
+	Inventory.MaxAmount 0
+	Powerup.Type Frightener
+	Powerup.Color GoldMap
+	Powerup.Duration 1600
+	Inventory.PickupMessage "$IP_BOOO"
+	States
+	{
+	Spawn:
+		TERR ABCDE 6
+		Loop
+	}
+}
