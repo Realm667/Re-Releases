@@ -1,27 +1,34 @@
 /////////////////
 // FAT ASSHOLE //
 /////////////////
-Class Fatty : Revenant
+Class Fatty : TCOTDMonster
 {
 	Default
 	{
 	//$Category New Monsters (TCOTD2)
 	//$Title Butcher
 	//$Color 12
+	Health 300;
 	GibHealth 35;
 	Radius 12;
+	Height 56;
+	Mass 500;
 	Speed 1.75;
 	Scale 0.8;
+	MeleeThreshold 196;
+	PainChance 100;
 	SeeSound "fatty/sit";
 	PainSound "fatty/pain";
 	DeathSound "fatty/death";
 	ActiveSound "fatty/act";
 	Obituary "$OB_FATY";
 	HitObituary "$HB_FATY";
+	Tag "$OB_FATY";
 	DropItem "TCOTDHealthPickupHeart", 128;
 	Species "Fatty";
+	+MISSILEMORE
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -113,7 +120,7 @@ Class ButcherGoo : Actor
 	+LOWGRAVITY
 	-SOLID
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -140,7 +147,7 @@ Class ButcherVomit1 : Actor
 	SeeSound "fatty/attack";
 	DeathSound "fatty/wall";
 	}
-	
+
 	States
 	{
 	Spawn:

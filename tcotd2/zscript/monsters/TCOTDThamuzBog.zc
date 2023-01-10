@@ -20,21 +20,29 @@
  * SOFTWARE.
 **/
 
-Class ThamuzBog : Cyberdemon //the original CyberBog from Bloom was in Decorate format, this has been reworked for TCOTD2
+Class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorate format, this has been reworked for TCOTD2
 {
 	int user_theta;
 	int user_height;
 	int user_offset;
-	
+
 	Default
 	{
 	//$Category New Monsters (TCOTD2)
 	//$Title ThamuzBog
 	Health 3200;
+	Radius 40;
+	Height 110;
 	Mass 2000;
 	Speed 5.33333333; //more rapid compared to Thamuz but doesn't summon tentacles
 	PainChance 35;
 	+BOSS
+	+MISSILEMORE
+	+NORADIUSDMG
+	+DONTMORPH
+	+BOSSDEATH
+	//+E2M8BOSS
+	//+E4M6BOSS
 	+LOOKALLAROUND
 	+MISSILEEVENMORE
 	MinMissileChance 5;
@@ -45,7 +53,7 @@ Class ThamuzBog : Cyberdemon //the original CyberBog from Bloom was in Decorate 
 	Obituary "$OB_THAM";
 	Species "Horror";
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -143,7 +151,7 @@ Class CyberBogGhost : Actor
 	Species "Horror";
 	+THRUSPECIES
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -181,7 +189,7 @@ Class TCOTDLavaBarf : Actor
 		SeeSound "Napalm/Fire";
 		DeathSound "Napalm/Impact";
 	}
-	
+
 	States
   	{
   	Spawn:
