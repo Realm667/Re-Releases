@@ -4,10 +4,10 @@
 #define MAX_VOLUME 127
 #define MAX_PLAYER_HEALTH 200
 
-//fadescript for map setup
+// fadescript for map setup
 script "Maplaunch" ENTER
 {
-	FadeRange(0,0,0,1.0,0,0,0,0.0,1.5);
+	FadeRange(0, 0, 0, 1.0, 0, 0, 0, 0.0, 1.5);
 }
 
 //lowhealth scripts - from BoA
@@ -26,7 +26,7 @@ script "30Health" ENTER
 		int health = GetActorProperty(0, APROP_HEALTH);
 		if (health > 0 && health <= 30)
 		{
-			HudMessage(s:"A"; HUDMSG_FADEINOUT | HUDMSG_NOTWITHFULLMAP, 0, CR_WHITE, half_width, half_height, 0.0, 0.5, 0.5);
+			HudMessage(s: "A"; HUDMSG_FADEINOUT | HUDMSG_NOTWITHFULLMAP, 0, CR_WHITE, half_width, half_height, 0.0, 0.5, 0.5);
 
 			// Volume and delay of heartbeat (faster and louder with less health).
 			int volume = MAX_VOLUME;
@@ -59,7 +59,7 @@ script "30Health" ENTER
 //death script
 script "OhNoes!" DEATH
 {
-	if (CheckInventory("CutsceneEnabled")) { Terminate; }	
+	if (CheckInventory("CutsceneEnabled")) { Terminate; }
 
 	SetHudSize(320, 240, true);
 
@@ -73,17 +73,17 @@ script "OhNoes!" DEATH
 	}
 
 	SetFont("M_FADE");
-	HudMessage(s:"A"; HUDMSG_FADEINOUT | HUDMSG_NOWRAP | HUDMSG_LAYER_OVERHUD, -1000, CR_UNTRANSLATED, 160.0, 120.0, 999999.0, fadetime, 1.0);
+	HudMessage(s: "A"; HUDMSG_FADEINOUT | HUDMSG_NOWRAP | HUDMSG_LAYER_OVERHUD, -1000, CR_UNTRANSLATED, 160.0, 120.0, 999999.0, fadetime, 1.0);
 
 	// [ZK] If you resurrect, the death screen should disappear immediately
-	for (int i = 0; i < 35*6; i++)
+	for (int i = 0; i < 35 * 6; i++)
 	{
 		Delay(1);
 
 		if (GetActorProperty(0, APROP_HEALTH) > 0)
 		{
 			SetFont("M_FADE");
-			HudMessage(s:""; HUDMSG_PLAIN, -1000, CR_UNTRANSLATED, 0.0, 0.0, 0.0, 0.0);
+			HudMessage(s: ""; HUDMSG_PLAIN, -1000, CR_UNTRANSLATED, 0.0, 0.0, 0.0, 0.0);
 			LocalSetMusic("*");
 			terminate;
 		}
@@ -91,19 +91,20 @@ script "OhNoes!" DEATH
 
 	if (!generic)
 	{
-        sethudsize(160,120,1);
-        setfont("BIGFONT");
-        hudmessage(l:"YOU DIED"; HUDMSG_FADEINOUT | HUDMSG_NOWRAP | HUDMSG_LAYER_OVERHUD, -1001, CR_RED, 80.0, 60.0, 999999.0, 3.0, 1.0);
-        SetHudSize(320, 240, true); //reset dimensions
+		SetHudSize(160, 120, 1);
+		SetFont("BIGFONT");
+		HudMessage(l: "TXT_YOU_DIED"; HUDMSG_FADEINOUT | HUDMSG_NOWRAP | HUDMSG_LAYER_OVERHUD, -1001, CR_RED, 80.0, 60.0, 999999.0, 3.0, 1.0);
+		SetHudSize(320, 240, true); //reset dimensions
 	}
 
 	// [ZK] Delay 1 tic instead of 35
-	while(GetActorProperty(0,APROP_HEALTH) <= 0) Delay(1);
+	while (GetActorProperty(0, APROP_HEALTH) <= 0)
+		Delay(1);
 
 	//fadeback if resurrected
-	HudMessage(s:""; HUDMSG_FADEINOUT | HUDMSG_NOWRAP | HUDMSG_LAYER_OVERHUD, -1001, CR_UNTRANSLATED, 160.0, 120.0, 0.0, 0.0, 0.25);
+	HudMessage(s: ""; HUDMSG_FADEINOUT | HUDMSG_NOWRAP | HUDMSG_LAYER_OVERHUD, -1001, CR_UNTRANSLATED, 160.0, 120.0, 0.0, 0.0, 0.25);
 	SetFont("M_FADE");
-	HudMessage(s:"A"; HUDMSG_FADEINOUT | HUDMSG_NOWRAP | HUDMSG_LAYER_OVERHUD, -1000, CR_UNTRANSLATED, 160.0, 120.0, 0.0, 0.0, 1.0);
+	HudMessage(s: "A"; HUDMSG_FADEINOUT | HUDMSG_NOWRAP | HUDMSG_LAYER_OVERHUD, -1000, CR_UNTRANSLATED, 160.0, 120.0, 0.0, 0.0, 1.0);
 
 	// [ZK] restore music
 	LocalSetMusic("*");
@@ -124,9 +125,9 @@ Script "Madness" ENTER //ozy81, original script by AFADoomer and Talon1024
 		int nightmare = GetActorPowerupTics(0, "PowerFear");
 		if (nightmare)
 		{
-			HudMessage(s:"A"; HUDMSG_FADEINOUT | HUDMSG_NOWRAP | HUDMSG_LAYER_OVERHUD | HUDMSG_ALPHA , 0, CR_UNTRANSLATED, half_width, half_height, 0.0, 0.5, nightmare, 0.2);
+			HudMessage(s: "A"; HUDMSG_FADEINOUT | HUDMSG_NOWRAP | HUDMSG_LAYER_OVERHUD | HUDMSG_ALPHA , 0, CR_UNTRANSLATED, half_width, half_height, 0.0, 0.5, nightmare, 0.2);
 		}
-		
+
 		Delay(1);
 	}
 }
@@ -135,27 +136,27 @@ Script "Madness" ENTER //ozy81, original script by AFADoomer and Talon1024
 function int degsin(int x)
 {
 	int result;
-	if (x>=0)
+	if (x >= 0)
 	{
-		result=sin(FixedMul(x<<16,0.0111111111)/4);
+		result = sin(FixedMul(x << 16, 0.0111111111) / 4);
 	}
-	else 
+	else
 	{
-		result=-sin(FixedMul(-x<<16,0.0111111111)/4);
+		result = -sin(FixedMul(-x << 16, 0.0111111111) / 4);
 	}
 	return result;
 }
 
 function int degcos(int x)
 {
-	return cos(FixedMul(x<<16,0.0111111111)/4);
+	return cos(FixedMul(x << 16, 0.0111111111) / 4);
 }
 
 function int sqrt_x3(int number)
 {
-	if(number <= 3)
+	if (number <= 3)
 	{
-		if(number > 0)
+		if (number > 0)
 		{
 			return 1;
 		}
@@ -173,44 +174,46 @@ function int sqrt_x3(int number)
 
 function int abs(int x)
 {
-    if (x < 0) return -x;
-    return x;
+	if (x < 0)
+		return -x;
+	return x;
 }
 
 function int sqrt_x(int x)
 {
 	int r;
 	x = x + 1 >> 1;
-	while (x > r) x-=r++;
+	while (x > r)
+		x -= r++;
 	return r;
 }
 
-function int dist (int tid1, int tid2)
+function int dist(int tid1, int tid2)
 {
 	int x, y, z, d;
-	x = GetActorX(tid1) - GetActorX(tid2) >> 16; 
+	x = GetActorX(tid1) - GetActorX(tid2) >> 16;
 	y = GetActorY(tid1) - GetActorY(tid2) >> 16;
 	z = GetActorZ(tid1) - GetActorZ(tid2) >> 16;
-	d = sqrt_x( x*x + y*y + z*z );
+	d = sqrt_x(x * x + y * y + z * z);
 	return d;
 }
 
 Script "SetActivatorTarget" (int tid)
 {
-	int k=activatorTID();
+	int k = ActivatorTID();
 	int subheight;
 	int grenangle;
-	int distancepro,d,i;
+	int distancepro, d, i;
 	SetActivatorToTarget(0);
-	int distance=dist(0,k);
-	subheight=(GetActorZ(0)>>16)-(GetActorZ(k)>>16);
-	for (i=-89;i<=89;++i)
+	int distance = dist(0, k);
+	subheight = (GetActorZ(0) >> 16) - (GetActorZ(k) >> 16);
+	for (i= -89; i <= 89; ++i)
 	{
-		distancepro=sqrt_x3(distance*distance-abs((subheight>>16)*(subheight>>16)));
-		d=((FixedMul(distancepro<<16,FixedDiv(degsin(i),degcos(i))))>>16)-(((FixedMul(1.4,distancepro<<16))>>16)*distancepro)/((FixedMul(4050.0,FixedMul(degcos(i),degcos(i))))>>16);
-		if (d>subheight)
+		distancepro = sqrt_x3(distance * distance - abs((subheight >> 16) * (subheight >> 16)));
+		d = ((FixedMul(distancepro << 16, FixedDiv(degsin(i), degcos(i)))) >> 16) - (((FixedMul(1.4, distancepro << 16)) >> 16) * distancepro) / ((FixedMul(4050.0, FixedMul(degcos(i), degcos(i)))) >> 16);
+		if (d > subheight)
 		{
-			grenangle=i * 0.85;
+			grenangle = i * 0.85;
 			break;
 		}
 	}
