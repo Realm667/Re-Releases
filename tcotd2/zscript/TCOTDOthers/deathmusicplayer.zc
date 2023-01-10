@@ -1,0 +1,14 @@
+// -------------------------------------------------------------------------------------------------
+//
+// -------------------------------------------------------------------------------------------------
+
+class DeathMusicPlayer
+{
+	play static void PlayDeathMusic (Actor activator, String musicname)
+	{
+		if (activator && activator.CheckLocalView())
+		{
+			Object.S_ChangeMusic(musicname, looping: false);
+		}
+	}
+}
