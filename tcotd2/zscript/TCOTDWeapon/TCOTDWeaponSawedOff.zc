@@ -39,17 +39,17 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		Loop;
 	Deselect:
 		TNT1 A 0 A_JumpIfInventory("SawedOffCheck", 1, "Down1Shell");
-		SAWF A 1 A_Lower();
+		SAWF A 1 A_Lower(20);
 		Loop;
 	Down1Shell:
-		SAWF B 1 A_Lower();
+		SAWF B 1 A_Lower(20);
 		Loop;
 	Select:
 		TNT1 A 0 A_JumpIfInventory("SawedOffCheck", 1, "Up1Shell");
-		SAWF A 1 A_Raise();
+		SAWF A 1 A_Raise(20);
 		Loop;
 	Up1Shell:
-		SAWF B 1 A_Raise();
+		SAWF B 1 A_Raise(20);
 		Loop;
 	Fire:
 		TNT1 A 0 A_JumpIfInventory("SawedOffCheck", 1, "Fire1Shell");

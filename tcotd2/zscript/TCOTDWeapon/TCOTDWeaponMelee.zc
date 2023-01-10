@@ -101,11 +101,11 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		Loop;
 	Select:
 		TNT1 A 0 A_CheckPitchfork("PitchforkSelect");
-		FIST A 1 A_Raise();
+		FIST A 1 A_Raise(20);
 		Loop;
 	Deselect:
 		TNT1 A 0 A_CheckPitchfork("PitchforkDeselect");
-		FIST A 1 A_Lower();
+		FIST A 1 A_Lower(20);
 		Loop;
 	Fire:
 		TNT1 A 0 A_CheckPitchfork("PitchforkFire");
@@ -134,10 +134,10 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		FORK A 1 A_WeaponReady();
 		Goto Ready;
 	PitchforkSelect:
-		FORK A 1 A_Raise();
+		FORK A 1 A_Raise(20);
 		Loop;
 	PitchforkDeselect:
-		FORK A 1 A_Lower();
+		FORK A 1 A_Lower(20);
 		Loop;
 	PitchforkFire:
 		FORK A 2;
