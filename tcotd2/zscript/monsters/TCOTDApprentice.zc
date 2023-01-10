@@ -16,14 +16,14 @@ Class ApprenticeofDsparil : TCOTDMonster
 	+FLOAT
 	+FLOORCLIP
 	+NOGRAVITY
-	-CASTSPRITESHADOW
+	+NOSPRITESHADOW
 	SeeSound "wizard/sight";
 	PainSound "wizard/pain";
 	DeathSound "wizard/death";
 	ActiveSound "wizard/active";
 	Obituary "$OB_ADSP";
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -131,7 +131,7 @@ Class AoDGhost : Actor
 	+NOCLIP
 	SeeSound "aod/ghost";
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -152,7 +152,7 @@ Class FireBlast : Actor
 	Projectile;
 	DeathSound "fireblast/explode";
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -178,7 +178,7 @@ Class SuperFireBlast : FireBlast
 	DamageFunction (random(1,4)*24);
 	DeathSound "superfireblast/explode";
 	}
-	
+
 	States
 	{
 	Death:
