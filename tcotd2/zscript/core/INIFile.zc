@@ -15,7 +15,7 @@ struct INIFile {
 
 		// Find first non-whitespace character.
 		if (fromStart)
-		for (let i = 0; i < len; i++) {
+		for (uint i = 0; i < len; i++) {
 			let code = s.ByteAt(i);
 			if (
 				code == 32 ||
@@ -46,7 +46,7 @@ struct INIFile {
 	}
 
 	static bool IsAllSpace(String s) {
-		for (let i = 0, len = s.Length(); i < len; i++) {
+		for (uint i = 0, len = s.Length(); i < len; i++) {
 			let code = s.ByteAt(i);
 			if (
 				code != 32 &&
@@ -433,7 +433,7 @@ class INISection {
 	String Remove(String key) {
 		let idx = IndexOf(key), ov = "";
 
-		if (idx < Keys.Size()) {
+		if (int(idx) < Keys.Size()) {
 			ov = Values[idx];
 			Keys.Delete(idx);
 			Values.Delete(idx);
