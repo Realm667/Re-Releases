@@ -1,7 +1,7 @@
 //////////////////
 // WALKING HAND //
 //////////////////
-class WalkingHand : TCOTDMonster //will be replaced with Bloom ChokingHand - ozy81
+class WalkingHand : Actor /* TCOTDMonster */ //will be replaced with Bloom ChokingHand - ozy81
 {
 	Default
 	{
@@ -13,7 +13,9 @@ class WalkingHand : TCOTDMonster //will be replaced with Bloom ChokingHand - ozy
 		Mass 100;
 		Scale 0.5;
 		PainChance 255;
-		-COUNTKILL
+		+CANPASS
+		+SHOOTABLE
+		+SOLID
 	}
 
 	States
