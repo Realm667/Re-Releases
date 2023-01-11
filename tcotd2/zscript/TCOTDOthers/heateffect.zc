@@ -44,17 +44,17 @@
 	Note that the latter requires you to define the SetInventory function in
 	your ACS code.
 */
-class ShaderControl : Inventory 
+class ShaderControl : Inventory
 {
 	string ShaderToControl;
 	property Shader: ShaderToControl;
-	
-	Default 
+
+	Default
 	{
 		Inventory.MaxAmount 0x7fffffff;
 	}
 
-	virtual ui void SetUniforms(PlayerInfo p, RenderEvent e) {}
+	virtual ui void SetUniforms(RenderEvent e) {}
 }
 
 class CustomShaderHandler : StaticEventHandler
@@ -72,15 +72,15 @@ class CustomShaderHandler : StaticEventHandler
 				//Console.Printf("Shader: %s", shaderControl.ShaderToControl);
 				if (shaderControl.amount >= 2)
 				{
-					Shader.SetUniform1f(p, shaderControl.ShaderToControl, "timer", gametic + e.FracTic);
-					Shader.SetUniform1f(p, shaderControl.ShaderToControl, "amount", shaderControl.amount - 1);
-					Shader.SetUniform1f(p, shaderControl.ShaderToControl, "alpha", shaderControl.alpha);
-					shaderControl.SetUniforms(p, e);
-					Shader.SetEnabled(p, shaderControl.ShaderToControl, true);
+					PPShader.SetUniform1f(shaderControl.ShaderToControl, "timer", gametic + e.FracTic);
+					PPShader.SetUniform1f(shaderControl.ShaderToControl, "amount", shaderControl.amount - 1);
+					PPShader.SetUniform1f(shaderControl.ShaderToControl, "alpha", shaderControl.alpha);
+					shaderControl.SetUniforms(e);
+					PPShader.SetEnabled(shaderControl.ShaderToControl, true);
 				}
 				else
 				{
-					Shader.SetEnabled(p, shaderControl.ShaderToControl, false);
+					PPShader.SetEnabled(shaderControl.ShaderToControl, false);
 				}
 			}
 		}
@@ -188,7 +188,7 @@ class EffectGiver : EffectSpawner
 
 		// Resize to the scaled size and fill the height of the sector, plus 32 units to allow for a border on the edges where the value will properly be zero
 		// This sets the actor size so that the player can touch it when the effect is still at amount zero, allowing gradual fade-in/out
-		A_SetSize(Radius * scale.x + 32, cz - fz); 
+		A_SetSize(Radius * scale.x + 32, cz - fz);
 
 		Super.PostBeginPlay();
 	}
@@ -198,7 +198,7 @@ class EffectGiver : EffectSpawner
 		if (!Activators.Size() && switchcvar && !switchcvar.GetBool()) { return false; }
 		if (other.player && Activators.Find(other) == Activators.Size()) { Activators.Push(other); return true; }
 
-		return false;		
+		return false;
 	}
 
 	override void Tick()

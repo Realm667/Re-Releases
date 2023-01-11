@@ -26,20 +26,20 @@ class MBlurShaderHandler : StaticEventHandler
 	//===========================================================================
 	// PIXEL EATER MOTIONBLUR EVENTHANDLERS
 	//===========================================================================
-	
+
 	int			pitch, yaw ;
 	double		xtravel, ytravel ;
-	
+
 	override void PlayerEntered( PlayerEvent e )
 	{
 		PlayerInfo plr = players[ consoleplayer ];
 		if( plr )
-		{	
+		{
 			xtravel = 0 ;
 			ytravel = 0 ;
 		}
 	}
-	
+
 	override void WorldTick()
 	{
 		PlayerInfo	plr = players[ consoleplayer ];
@@ -49,7 +49,7 @@ class MBlurShaderHandler : StaticEventHandler
 			pitch	= -plr.mo.GetPlayerInput( ModInput_Pitch );
 		}
 	}
-	
+
 	override void NetworkProcess( ConsoleEvent e )
 	{
 		PlayerInfo	plr = players[ consoleplayer ];
@@ -60,7 +60,7 @@ class MBlurShaderHandler : StaticEventHandler
 			double amount		= Cvar.GetCVar( "motionblur_strength", plr ).GetFloat() * 10. / 32767 * sqrt( pitchdimin );
 			xtravel				= xtravel * decay + yaw * amount * .625 ;
 			ytravel				= ytravel * decay + pitch * amount ;
-			
+
 			if( Cvar.GetCVar( "motionblur_autostop", plr ).GetBool() )
 			{
 				double threshold = Cvar.GetCVar( "motionblur_threshold", plr ).GetFloat() * 30 ;
@@ -70,7 +70,7 @@ class MBlurShaderHandler : StaticEventHandler
 			}
 		}
 	}
-	
+
 	override void UiTick()
 	{
 		PlayerInfo	plr = players[ consoleplayer ];
@@ -79,21 +79,21 @@ class MBlurShaderHandler : StaticEventHandler
 			if( plr.health > 0 && Cvar.GetCVar( "motionblur", plr ).GetBool() && !plr.mo.FindInventory("isIntro") )//&& yaw && pitch )
 			{
 				EventHandler.SendNetworkEvent( "liveupdate" );
-				
+
 				int copies			= 1 + Cvar.GetCVar( "motionblur_samples", plr ).GetInt() ;
 				double increment	= 1. / copies ;
 				vector2 travel		= ( xtravel, ytravel ) / screen.getheight() ;
-				
-				Shader.SetUniform2f( plr, "motionblur", "steps", travel * increment );
-				Shader.SetUniform1f( plr, "motionblur", "samples", copies );
-				Shader.SetUniform1f( plr, "motionblur", "increment", increment );
-				Shader.SetUniform1f( plr, "motionblur", "blendmode", Cvar.GetCVar( "motionblur_blendmode", plr ).GetInt() );
-					
-				Shader.SetEnabled( plr, "motionblur", true );
+
+				PPShader.SetUniform2f( "motionblur", "steps", travel * increment );
+				PPShader.SetUniform1f( "motionblur", "samples", copies );
+				PPShader.SetUniform1f( "motionblur", "increment", increment );
+				PPShader.SetUniform1f( "motionblur", "blendmode", Cvar.GetCVar( "motionblur_blendmode", plr ).GetInt() );
+
+				PPShader.SetEnabled( "motionblur", true );
 			}
 			else
 			{
-				Shader.SetEnabled( plr, "motionblur", false );
+				PPShader.SetEnabled( "motionblur", false );
 			}
 		}
 	}
