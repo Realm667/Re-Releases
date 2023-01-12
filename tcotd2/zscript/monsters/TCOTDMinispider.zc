@@ -12,6 +12,7 @@ class MiniSpider : TCOTDMonster
 		Health 20;
 		Scale 0.25;
 		Translation 0;
+		GibHealth int.max; // [Blue Shadow] No gibs.
 		SeeSound "littlespider/sight";
 		AttackSound "littlespider/attack";
 		PainSound "littlespider/pain";
@@ -63,6 +64,7 @@ class LargeSpider : MiniSpider
 		Health 150;
 		Scale 0.50;
 		Translation 1;
+		GibHealth int.min;
 		Obituary "$OB_BSPID";
 		Tag "$FN_BSPID";
 		DropItem "TCOTDHealthPickupHeart", 160;
