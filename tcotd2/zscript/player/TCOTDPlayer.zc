@@ -274,15 +274,59 @@ class TCOTDPlayer : PlayerPawn
 
 	override void CheatGive (String name, int amount)
 	{
-		Super.CheatGive(name, amount);
-
-		Super.CheatGive("TCOTDPitchforkPickup", 1);
-
-		if (name ~== "all" || name ~== "armor")
+		if (player.mo == null || player.health <= 0)
 		{
-			CheatTake("armor", 1);
-			Super.CheatGive("TCOTDSuperArmor", 1);
+			return;
 		}
+
+		int giveall = ALL_NO;
+
+		if (name ~== "all")
+		{
+			giveall = ALL_YES;
+		}
+		else if (name ~== "everything")
+		{
+			giveall = ALL_YESYES;
+		}
+
+		if (giveall || name ~== "pitchfork")
+		{
+			GiveInventory("TCOTDPitchforkPickup", 1, true);
+
+			if (!giveall)
+				return;
+		}
+
+		if (giveall || name ~== "armor")
+		{
+			GiveInventory("TCOTDSuperArmor", 1, true);
+
+			if (!giveall)
+				return;
+		}
+
+		Super.CheatGive(name, amount);
+	}
+
+	override void CheatTake (String name, int amount)
+	{
+		if (player.mo == NULL || player.health <= 0)
+		{
+			return;
+		}
+
+		bool takeall = name ~== "all";
+
+		if (takeall || name ~== "pitchfork")
+		{
+			TakeInventory("TCOTDPitchforkPickup", 1);
+
+			if (!takeall)
+				return;
+		}
+
+		Super.CheatTake(name, amount);
 	}
 
 	//===========================================================================
