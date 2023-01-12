@@ -131,21 +131,29 @@ class TCOTDPropWeb3 : TCOTDPropWeb2
 	}
 }
 
-class TCOTDPropCandleX : TCOTDProp replaces Candlestick
+class TCOTDCastleLight : TCOTDProp
 {
+	// TO DO: should this be a TCOTDInteractiveSwitchableDecoration instead?
 	Default
 	{
 		//$Category New Lights (TCOTD2)
-		//$Title Candle
+		//$Title Hanging Castle Candleabra
 		//$Color 11
-		Height 14;
+		Radius 16;
+		Height 88;
+		+SOLID
+		+NOGRAVITY
+		+SPAWNCEILING
 	}
 
 	States
 	{
 	Spawn:
-		CAND A -1;
-		Stop;
+		GOR1 A 10;
+		GOR1 B 15;
+		GOR1 C 8;
+		GOR1 B 6;
+		Loop;
 	}
 }
 

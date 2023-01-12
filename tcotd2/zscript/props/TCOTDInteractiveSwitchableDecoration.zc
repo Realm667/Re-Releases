@@ -32,8 +32,19 @@
 
 class TCOTDInteractiveSwitchableDecoration : TCOTDSwitchableDecoration
 {
+	// When set, this object cannot be interacted with
+	// (pressing +use does nothing)
+	// Best used when assigned on individual things in the editor
+	// Note: its Active and Inactive state is still preserved
+	// (be sure to set your desired state with the "dormant" tick box
+	// when editing the thing in UDB)
+	bool user_NotInteractive;
+
 	override bool Used(Actor user)
 	{
+		if (user_NotInteractive)
+			return false;
+
 		Toggle();
 
 		// execute the things's special

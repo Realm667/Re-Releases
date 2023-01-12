@@ -60,6 +60,36 @@ class TCOTDPendant : Inventory
 		//Console.Printf("next nightmare in %d seconds", next);
 	}
 
+	override bool TryPickup(in out Actor toucher)
+	{
+		// you get a pendant, you get a pendant, everyone gets a pendant!
+		if (Super.TryPickup(toucher))
+		{
+			if (multiplayer && toucher is "PlayerPawn")
+			{
+				for (int i = 0; i < MAXPLAYERS; i++)
+				{
+					if (playeringame[i] && players[i].mo)
+					{
+						if (players[i].mo == toucher)
+						{
+							continue;
+						}
+
+						if (!players[i].mo.CountInv(self.GetClass()))
+						{
+							players[i].mo.GiveInventory(self.GetClass(), 1);
+						}
+					}
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	States
 	{
 	Spawn:
