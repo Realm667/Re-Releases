@@ -38,8 +38,6 @@ class TCOTDWeatherHandler : EventHandler
 	const SNOW_SPAWN_RADIUS = 800.0;
 	const SNOW_SPAWN_HEIGHT = 400.0;
 
-	mixin TCOTDWeatherFXMixin;
-
 	override void WorldTick(void)
 	{
 		for (int i = 0; i < MAXPLAYERS; i++)
@@ -49,8 +47,7 @@ class TCOTDWeatherHandler : EventHandler
 				if (gameaction == ga_savegame)
 					continue;
 
-				CacheWeatherFXCVar();
-				if (!WeatherFXEnabled())
+				if (!CVar.GetCVar("tcotd2_weatherfx", players[consoleplayer]).GetBool())
 					continue;
 
 				Actor pmo = players[i].mo;
