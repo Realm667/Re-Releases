@@ -49,7 +49,6 @@ class TCOTDWeapon : Weapon
 	bool justCrouched;
 	bool justStood;
 	Actor pmo;
-	transient CVar cvEnabled;
 
 	bool modfix;
 
@@ -91,12 +90,6 @@ class TCOTDWeapon : Weapon
 
 			let wep = pmo.player.ReadyWeapon;
 			if (!wep) return;
-
-			if (!CacheCVars())
-			{
-				Console.Printf("Z_SwayMe::Tick could not cache CVars");
-				return;
-			}
 
 			if (!pmo.player.onground && pmo.Vel.Z < -8.0)
 			{
@@ -149,7 +142,7 @@ class TCOTDWeapon : Weapon
 
 			bool canSway =
 			(
-				cvEnabled.GetBool() &&
+				CVar.GetCVar("tcotd2_weaponsway", pmo.player).GetBool() &&
 				weaponOk
 			);
 
@@ -208,28 +201,6 @@ class TCOTDWeapon : Weapon
 			if (f) { ThinkerIterator it = ThinkerIterator.Create("Thinker"); while (it.Next()) if (it is swm) it.Destroy(); f.Destroy(); }
 			modfix = true;
 		}
-	}
-
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
-
-	bool CacheCVars(void)
-	{
-		if (!pmo || (pmo && !pmo.player))
-			return false;
-		let p = pmo.player;
-
-		if (!cvEnabled)
-		{
-			cvEnabled = CVar.GetCVar("tcotd2_weaponsway", p);
-		}
-
-		if (!cvEnabled)
-			return false;
-		return true;
 	}
 
 	//===========================================================================

@@ -344,9 +344,10 @@ class TCOTDPlayer : PlayerPawn
 	void UpdateViewRoll(void)
 	{
 		// CVARS ///////////////////////////////////////////////////////////////
-		bool enableTiltEffects = tcotd2_tilteffects;
+		// CVars don't need to be cached anymore and can be called every tick with no performance impact >8]
+		bool enableTiltEffects =  CVar.GetCVar("tcotd2_tilteffects", player).GetBool();
 		bool strafeTiltEnabled = enableTiltEffects;
-		bool moveTiltEnabled = enableTiltEffects;
+		bool moveTiltEnabled = false;
 		bool turnTiltEnabled = enableTiltEffects;
 		bool underwaterTiltEnabled = enableTiltEffects;
 		bool deathTiltEnabled = true;
