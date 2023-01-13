@@ -30,7 +30,7 @@ class Incarnate : TCOTDMonster //inheritances with Shadow, define after it!
 
 	protected void A_IncarnateAttack(void)
 	{
-		A_CustomMeleeAttack(7 * random(1, 8), "monster/inchit");
+		A_CustomMeleeAttack(7 * random[rnd_IncarnPunchDmg](1, 8), "monster/inchit");
 	}
 
 	States
@@ -82,8 +82,8 @@ class Incarnate : TCOTDMonster //inheritances with Shadow, define after it!
 		Goto See;
 	Missile:
 		INCA J 10 A_FaceTarget();
-		INCA U 4 Light("Incarnate") A_SpawnProjectile("ShadowBall", 64, 0, frandom(20, 10));
-		INCA U 4 Light("Incarnate") A_SpawnProjectile("ShadowBall", 64, 0, frandom(-10, -20));
+		INCA U 4 Light("Incarnate") A_SpawnProjectile("ShadowBall", 64, 0, frandom[rnd_IncarnBall](20, 10));
+		INCA U 4 Light("Incarnate") A_SpawnProjectile("ShadowBall", 64, 0, frandom[rnd_IncarnBall](-10, -20));
 		INCA U 4 Light("Incarnate") A_SpawnProjectile("ShadowBall", 64);
 		INCA K 10;
 		Goto See;

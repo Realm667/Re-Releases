@@ -53,7 +53,7 @@ class KDiZDNightmare : TCOTDMonster
 	Melee:
 		NMRE E 0 A_SetShootable();
 		NMRE EF 9 A_FaceTarget();
-		NMRE G 9 A_CustomMeleeAttack(random(1 ,8) * 4, "nightmare/melee", "", "Fear", false);
+		NMRE G 9 A_CustomMeleeAttack(random[rnd_NightmareDmg](1 ,8) * 4, "nightmare/melee", "", "Fear", false);
 		Goto See;
 	Pain:
 		NMRE H 2 A_SetShootable();
@@ -110,7 +110,7 @@ class SirenNightmare : KDiZDNightmare
 	Melee:
 		NMRE E 0 A_SetShootable();
 		NMRE EF 9 A_FaceTarget();
-		NMRE G 9 A_CustomMeleeAttack(100 * random(1, 8), "nightmare2/melee", "", "Fear2", false);
+		NMRE G 9 A_CustomMeleeAttack(100 * random[rnd_SirenNightmareDmg](1, 8), "nightmare2/melee", "", "Fear2", false);
 		Goto See;
 	}
 }

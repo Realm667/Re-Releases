@@ -68,7 +68,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 
 	action void A_FistAttack(void)
 	{
-		A_CustomPunch(random(3, 5), pufftype: "TCOTDPunchPuff", meleesound: "Fist/Hit");
+		A_CustomPunch(random[rnd_FistDmg](3, 5), pufftype: "TCOTDPunchPuff", meleesound: "Fist/Hit");
 	}
 
 	action void A_PitchforkAttack(void)
@@ -79,7 +79,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		{
 			int flags = FBF_EXPLICITANGLE | FBF_NORANDOMPUFFZ | FBF_NOFLASH;
 			double ang = cone * (i / double(angles));
-			int dmg = random(2, 3);
+			int dmg = random[rnd_PitchforkDmg](2, 3);
 			Fire3DBullets(invoker.Angle - (cone / 2) + ang + 4.0, 0, 0, dmg, "TCOTDPitchforkPuff", flags, 96.0);
 		}
 	}

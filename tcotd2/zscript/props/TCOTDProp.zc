@@ -493,8 +493,8 @@ class TCOTDPropSeveredHeadAlive : TCOTDPropSeveredHead
 	States
 	{
 	Spawn:
-		DHED A 1 NoDelay A_SetTics(random(35, 35 * 6));
-		DHED B 1 A_SetTics(random(15, 35 * 4));
+		DHED A 1 NoDelay A_SetTics(random[rnd_SevHeadBlink](35, 35 * 6));
+		DHED B 1 A_SetTics(random[rnd_SevHeadBlink](15, 35 * 4));
 		Loop;
 	}
 }

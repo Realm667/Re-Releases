@@ -40,7 +40,7 @@ class MiniSpider : TCOTDMonster
 		Loop;
 	Melee:
 		MNTR UW 5 A_FaceTarget();
-		MNTR X 5 A_CustomMeleeAttack(random(1, 8), "littlespider/pain");
+		MNTR X 5 A_CustomMeleeAttack(random[rnd_MiniSpiderDmg](1, 8), "littlespider/pain");
 		Goto See;
 	Death:
 		MNTS F 5;
@@ -79,7 +79,7 @@ class LargeSpider : MiniSpider
 		Goto Missile + 2;
 	Melee:
 		MNTR UW 5 A_FaceTarget();
-		MNTR X 5 A_CustomMeleeAttack(random(1, 8) * 2, "littlespider/pain");
+		MNTR X 5 A_CustomMeleeAttack(random[rnd_LargeSpiderDmg](1, 8) * 2, "littlespider/pain");
 		Goto See;
 	}
 }

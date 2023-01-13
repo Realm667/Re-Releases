@@ -49,7 +49,7 @@ class TCOTDFoliage : TCOTDDietActor
 	override void PostBeginPlay(void)
 	{
 		Super.PostBeginPlay();
-		A_SetScale(Scale.X * frandom(0.9, 1.1));
+		A_SetScale(Scale.X * frandom[rnd_FoliageSpawn](0.9, 1.1));
 		bSpriteFlip = RandomPick(false, true);
 	}
 
@@ -102,7 +102,7 @@ class TCOTDGrassRandom : TCOTDFoliage
 			"TCOTDGrass03"
 		};
 
-		variationClassName = variations[random(1, 3)];
+		variationClassName = variations[random[rnd_FogCloudSpawnCls](1, 3)];
 
 		Super.BeginPlay();
 	}

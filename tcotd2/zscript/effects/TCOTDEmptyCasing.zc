@@ -65,10 +65,10 @@ class TCOTDEmptyCasing : Actor
 
 	override void BeginPlay(void)
 	{
-		A_SetRoll(frandom(0.0, 360.0));
+		A_SetRoll(frandom[rnd_EmptyCasingSpawn](0.0, 360.0));
 		A_SetScale(0.08);
-		A_SetSpeed(Default.Speed + frandom(0.0, 1.0));
-		bouncefactor *= frandom(0.2, 1.0);
+		A_SetSpeed(Default.Speed + frandom[rnd_EmptyCasingSpawn](0.0, 1.0));
+		bouncefactor *= frandom[rnd_EmptyCasingSpawn](0.2, 1.0);
 		rollDir = RandomPick(-1, 1);
 		Super.BeginPlay();
 	}

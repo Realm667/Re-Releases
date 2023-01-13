@@ -88,11 +88,11 @@ class TCOTDSoundPlayer : Actor
 			double st;
 
 			snd = "AmbientLoopInside";
-			st = frandom(0.f, S_GetLength(snd));
+			st = frandom[rnd_PSndLoopStart](0.f, S_GetLength(snd));
 			A_StartSound(snd, SPCHAN_INSIDE, flags, VOL_DynamicVolume, ATTN_NONE, startTime: st);
 
 			snd = "AmbientLoopOutside";
-			st = frandom(0.f, S_GetLength(snd));
+			st = frandom[rnd_PSndLoopStart](0.f, S_GetLength(snd));
 			A_StartSound(snd, SPCHAN_OUTSIDE, flags, VOL_DynamicVolume, ATTN_NONE, startTime: st);
 		}
 	}
@@ -396,8 +396,8 @@ class TCOTDSoundPlayer : Actor
 					if (!other.bDormant && !other.IsActorPlayingSound(SPCHAN_DECORATION))
 					{
 						int flags = CHANF_LOOP;
-						double pitch = frandom(1.0, 1.1);
-						double st = frandom(0.f, S_GetLength(snd));
+						double pitch = frandom[rnd_PSndPitchStart](1.0, 1.1);
+						double st = frandom[rnd_PSndPitchStart](0.f, S_GetLength(snd));
 						other.A_StartSound(snd, SPCHAN_DECORATION, flags, vol, pitch: pitch, startTime: st);
 					}
 				}

@@ -220,7 +220,7 @@ class TCOTDWeapon : Weapon
 			cls,
 			spawnheight: sh,
 			spawnofs_xy: xyOffset,
-			angle: ca + frandom(-10.0, 10.0),
+			angle: ca + frandom[rnd_SpawnWeaponFXAng](-10.0, 10.0),
 			flags: CMF_AIMDIRECTION,
 			pitch: pitchOffset
 		);
@@ -328,7 +328,7 @@ class TCOTDWeapon : Weapon
 		if (flags & FBF_EXPLICITANGLE)
 			r.Rotate(spread_xy, spread_z);
 		else
-			r.Rotate(frandom(-spread_xy, spread_xy), frandom(-spread_z, spread_z));
+			r.Rotate(frandom[rnd_Fire3DSpread](-spread_xy, spread_xy), frandom[rnd_Fire3DSpread](-spread_z, spread_z));
 		Vector2 bangles = r.GetAngles();
 
 		if (!(flags & FBF_NOPITCH))

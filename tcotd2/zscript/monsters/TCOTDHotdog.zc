@@ -36,7 +36,7 @@ class HotDog : TCOTDMonster
 		Loop;
 	Melee:
 		HDOG GH 6 A_FaceTarget();
-		HDOG I 6 A_CustomMeleeAttack(7 * random(1, 8), "monster/dogbit");
+		HDOG I 6 A_CustomMeleeAttack(7 * random[rnd_DogBiteDmg](1, 8), "monster/dogbit");
 		Goto See;
 	Missile:
 		HDOG G 10 A_FaceTarget();

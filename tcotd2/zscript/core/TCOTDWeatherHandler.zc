@@ -56,8 +56,8 @@ class TCOTDWeatherHandler : EventHandler
 				int density = 6;
 				while (density--)
 				{
-					double spx = frandom(-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
-					double spy = frandom(-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
+					double spx = frandom[rnd_SpawnPrecip](-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
+					double spy = frandom[rnd_SpawnPrecip](-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
 					Vector3 sPos = origin.Vec3Offset(spx, spy, SNOW_SPAWN_HEIGHT);
 					double cz = origin.CurSector.HighestCeilingAt(sPos.XY);
 					if (sPos.Z >= cz)
@@ -68,9 +68,9 @@ class TCOTDWeatherHandler : EventHandler
 					if (snow)
 					{
 						snow.tracer = pmo;
-						snow.Vel.X = frandom(-0.8, 0.8);
-						snow.Vel.Y = frandom(-0.8, 0.8);
-						snow.Vel.Z = frandom(-4.0, -1.5);
+						snow.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
+						snow.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
+						snow.Vel.Z = frandom[rnd_SpawnPrecip](-4.0, -1.5);
 					}
 				}
 			}
