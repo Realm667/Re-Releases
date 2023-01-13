@@ -85,7 +85,11 @@ class TCOTDCultist : TCOTDMonster
 	XDeath:
 		#### R 5;
 		#### S 5 A_XScream();
-		#### T 5 A_NoBlocking();
+		#### T 5
+		{
+			A_SpawnGibs();
+			A_NoBlocking();
+		}
 		#### UVW 5;
 		#### X -1;
 		Stop;

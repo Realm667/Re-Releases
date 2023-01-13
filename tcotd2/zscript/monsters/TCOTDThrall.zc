@@ -67,7 +67,11 @@ class Thrall : TCOTDMonster
 	XDeath:
 		CULT N 5;
 		CULT O 5 A_XScream();
-		CULT P 5 A_NoBlocking();
+		CULT P 5
+		{
+			A_SpawnGibs();
+			A_NoBlocking();
+		}
 		CULT QRSTUV 5;
 		CULT W -1;
 		Stop;

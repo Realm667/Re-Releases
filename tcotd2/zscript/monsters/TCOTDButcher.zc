@@ -93,7 +93,11 @@ class Fatty : TCOTDMonster
 	XDeath:
 		BFTD H 5 A_Scream();
 		BFTD I 5;
-		BFTD J 5 A_NoBlocking();
+		BFTD J 5
+		{
+			A_SpawnGibs();
+			A_NoBlocking();
+		}
 		BFTD K 5;
 		BFTD LMNOPQ 5;
 		BFTD QRQRRRQRQQRRQQ 10;

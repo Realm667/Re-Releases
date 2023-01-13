@@ -1,0 +1,142 @@
+// Copyright 2023 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote produchs
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+class TCOTDGib : Actor
+{
+	bool stopTicking;
+	double bounceZ;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		Radius 6;
+		Height 12;
+		Gravity 0.7;
+		Scale 0.7;
+		+FLOORCLIP
+		+DONTSPLASH
+		//+FORCEXYBILLBOARD
+		-SOLID
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void BeginPlay(void)
+	{
+		Super.BeginPlay();
+		bSpriteFlip = RandomPick[rnd_GibSpawn](false, true);
+		bounceZ = frandom[rnd_GibSpawn](1.5, 9.9);
+	}
+
+	override void PostBeginPlay(void)
+	{
+		Super.PostBeginPlay();
+		A_SpawnItemEx("Blood");
+	}
+
+	override void Tick(void)
+	{
+		Super.Tick();
+
+		if (stopTicking)
+			return;
+
+		if (!bNoTimeFreeze && isFrozen())
+			return;
+
+		if (bounceZ > 0.25)
+		{
+			if (Pos.Z <= FloorZ)
+			{
+				Vel.Z = bounceZ;
+				bounceZ *= 0.5;
+			}
+		}
+		else
+		{
+			Vel.XY *= 0.9;
+
+			if (Vel.Length() <= 0.1)
+			{
+				A_Stop();
+				bMoveWithSector = true;
+				bNoInteraction = true;
+				stopTicking = true;
+				return;
+			}
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256, "GibA", "GibB", "GibC", "GibD", "GibE", "GibF", "GibG");
+		"####" "#" -1;
+		Stop;
+	GibA:
+		BGIB A 0;
+		Goto Spawn + 1;
+	GibB:
+		BGIB B 0;
+		Goto Spawn + 1;
+	GibC:
+		BGIB C 0;
+		Goto Spawn + 1;
+	GibD:
+		BGIB D 0;
+		Goto Spawn + 1;
+	GibE:
+		BGIB E 0;
+		Goto Spawn + 1;
+	GibF:
+		BGIB F 0;
+		Goto Spawn + 1;
+	GibG:
+		BGIB G 0;
+		Goto Spawn + 1;
+	}
+}

@@ -65,7 +65,11 @@ class ZombieBlood : TCOTDMonster
 	XDeath:
 		BZMD L 5 A_Scream();
 		BZMD M 5;
-		BZMD N 5 A_NoBlocking();
+		BZMD N 5
+		{
+			A_SpawnGibs();
+			A_NoBlocking();
+		}
 		BZMD OPQR 5;
 		BZMD S -1;
 		Stop;

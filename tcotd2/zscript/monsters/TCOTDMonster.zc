@@ -9,9 +9,55 @@ class TCOTDMonster : Actor
 		+CASTSPRITESHADOW
 	}
 
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	/*
+	override void Tick(void)
+	{
+		Super.Tick();
+
+		// do billboarding when dead
+		bForceXYBillboard = (Health <= 0);
+	}
+	*/
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	// will be called frequently to simulate smoother movement
 	protected void A_Chase2(void)
 	{
 		A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	protected void A_SpawnGibs(void)
+	{
+		int size = int(Radius) / 2;
+		for (int i = 0; i < size; i++)
+		{
+			A_SpawnItemEx("TCOTDGib",
+				xofs: frandom[rnd_SpawnGibs](-(Radius / 2), (Radius / 2)),
+				yofs: frandom[rnd_SpawnGibs](-(Radius / 2), (Radius / 2)),
+				zofs: Height / 2 + frandom[rnd_SpawnGibs](-5, 5),
+				xvel: frandom[rnd_SpawnGibs](-2, 2),
+				yvel: frandom[rnd_SpawnGibs](-2, 2),
+				zvel: frandom[rnd_SpawnGibs](6, 12),
+				angle: frandom[rnd_SpawnGibs](0, 360),
+				flags: SXF_NOCHECKPOSITION | SXF_USEBLOODCOLOR,
+				failchance: 77);
+		}
 	}
 }
