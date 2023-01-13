@@ -1,0 +1,117 @@
+// -------------------------------------------------------------------------------------------------
+//
+// -------------------------------------------------------------------------------------------------
+
+class TCOTDPuzzleItem : Inventory
+{
+	Default
+	{
+		Inventory.InterHubAmount 0;
+		Inventory.PickupSound "misc/k_pkup";
+		+DONTGIB
+		+INVENTORY.INVBAR
+	}
+
+	override bool ShouldStay ()
+	{
+		return multiplayer;
+	}
+}
+
+class TCOTDKeyTransBook : TCOTDPuzzleItem
+{
+	Default
+	{
+		//$Category New Items (TCOTD2)
+		//$Title Transcribed Book
+		Radius 32;
+		Height 8;
+		Tag "$TAG_TRANSBOOK";
+		Inventory.Icon "TRANA0";
+		Inventory.PickupMessage "$IP_TRANSBOOK";
+	}
+
+	States
+	{
+	Spawn:
+		TRAN A -1;
+		Stop;
+	}
+}
+
+class TCOTDKeySafeKey : TCOTDPuzzleItem
+{
+	Default
+	{
+		//$Category New Items (TCOTD2)
+		//$Title Safe Key
+		Tag "$TAG_SAFEKEY";
+		Scale 0.7;
+		Inventory.Icon "SFKYA0";
+		Inventory.PickupMessage "$IP_SAFEKEY";
+	}
+
+	States
+	{
+	Spawn:
+		SFKY A -1;
+		Stop;
+	}
+}
+
+class TCOTDKeySkullOfThamuz : TCOTDPuzzleItem
+{
+	Default
+	{
+		//$Title Thamuz Skull
+		Scale 0.7;
+		Tag "$TAG_THAMUZKEY";
+		Inventory.Icon "SCHAA0";
+		Inventory.PickupMessage "$IP_THAMUZKEY";
+	}
+
+	States
+	{
+	Spawn:
+		SCHA A -1;
+		Stop;
+	}
+}
+
+class TCOTDKeyHourGlass : TCOTDPuzzleItem
+{
+	Default
+	{
+		//$Title Hourglass
+		Scale 0.7;
+		Tag "$TAG_HOURGLASSKEY";
+		Inventory.Icon "ZEUHA0";
+		Inventory.PickupMessage "$IP_HOURGLASSKEY";
+	}
+
+	States
+	{
+	Spawn:
+		ZEUH A -1;
+		Stop;
+	}
+}
+
+class TCOTDKeyDiamond : TCOTDPuzzleItem
+{
+	Default
+	{
+		//$Title Diamond Key
+		Scale 0.7;
+		Tag "$TAG_DIAMONDKEY";
+		Inventory.Icon "DIAMA0";
+		Inventory.PickupMessage "$IP_DIAMONDKEY";
+	}
+
+	States
+	{
+	Spawn:
+		DIAM A -1;
+		Stop;
+	}
+}
