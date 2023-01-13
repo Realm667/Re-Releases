@@ -70,8 +70,8 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 		"####" D 0 A_SpawnItemEx("ThamuzGhost", flags: SXF_TRANSFERSPRITEFRAME);
 		Loop;
 	Missile:
-		"####" A 0 { user_Height=96; }
-		"####" A 0 { user_offset=-25; }
+		"####" A 0 { user_Height = 96; }
+		"####" A 0 { user_offset = -25; }
 		"####" A 0 A_Jump(160,"Missile2");
 		"####" AGG 5 A_FaceTarget();
 		"####" H 10 A_SpawnItemEx("ThamuzCircle", flags: SXF_SETMASTER);
@@ -147,6 +147,7 @@ class ThamuzGhost : Actor
 		Scale 0.85;
 		Projectile;
 		Alpha 0;
+		+DONTSPLASH
 	}
 
 	States
@@ -169,6 +170,7 @@ class ThamuzCircle : Actor
 		Renderstyle "Add";
 		Alpha 0.65;
 		Species "Horror";
+		+DONTSPLASH
 		+BRIGHT
 		+NOBLOCKMAP
 		+NOINTERACTION
@@ -286,6 +288,7 @@ class Drt : Actor
 		+RANDOMIZE
 		+DONTSPLASH
 		+THRUSPECIES
+		+DONTSPLASH
 		-NOGRAVITY
 		-NOBLOCKMAP
 		-NOTELEPORT
@@ -330,6 +333,7 @@ class DCBMiss2 : Actor
 		Species "Horror";
 		SeeSound "q2weapon/rocketlauncherfire";
 		DeathSound "q2weapon/rocketexplo";
+		+DONTSPLASH
 		+THRUSPECIES
 	}
 
@@ -369,6 +373,7 @@ class DCBMiss1 : Actor
 		+EXTREMEDEATH
 		+SEEKERMISSILE
 		+THRUSPECIES
+		+DONTSPLASH
 	}
 
 	States
@@ -433,6 +438,7 @@ class DCBM1Trail : Actor
 		Projectile;
 		RenderStyle "Add";
 		Alpha 0.6;
+		+DONTSPLASH
 		+NOCLIP
 	}
 
@@ -508,6 +514,7 @@ class DCBMiss3M : Actor
 		DeathSound "comet/explosion";
 		+FLOORHUGGER
 		+THRUSPECIES
+		+DONTSPLASH
 	}
 
 	States
@@ -534,6 +541,7 @@ class DCBMiss3Extra : Actor
 		Height 1;
 		+NOBLOCKMAP
 		+NOGRAVITY
+		+DONTSPLASH
 	}
 
 	States
@@ -585,6 +593,7 @@ class DCBMiss3MG : Actor
 		Species "Horror";
 		+RIPPER
 		+THRUSPECIES
+		+DONTSPLASH
 	}
 
 	States
@@ -604,6 +613,7 @@ class Explosion_Green_A1A : Actor
 		Height 2;
 		+NOBLOCKMAP
 		+NOGRAVITY
+		+DONTSPLASH
 	}
 
 	States
@@ -668,6 +678,7 @@ class SFX_Wraith : Actor
 		RenderStyle "Add";
 		Alpha 0.6;
 		Translation "80:111=112:127";
+		+DONTSPLASH
 	}
 
 	States
