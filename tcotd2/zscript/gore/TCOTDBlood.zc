@@ -155,6 +155,7 @@ class TCOTDBloodTrailFX : Actor
 		Scale 0.66;
 		LightLevel 72;
 		+ADDLIGHTLEVEL
+		+FLOORCLIP
 		+NOCLIP
 		+CORPSE
 		+DONTSPLASH
@@ -215,23 +216,127 @@ class TCOTDBloodSplash : Actor
 
 class TCOTDBloodSpot : Actor
 {
+	mixin TCOTDClientSideOnlyMixin;
+
+	bool ticked;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	Default
 	{
-		RenderStyle "Translucent";
+		Radius 11;
+		Height 1;
+		DistanceCheck "tcotd2_bspot_dist";
+		+FLOORCLIP
 		+FLATSPRITE
+		+MOVEWITHSECTOR
 		+NOINTERACTION
 	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void PostBeginPlay(void)
+	{
+		Super.PostBeginPlay();
+
+		// reduce Z-fighting
+		WorldOffset = (0, 0, frandom[rnd_BloodZFightFix](0.0, 0.01));
+
+		double rs = frandom[rnd_BloodScale](0.5, 1.0);
+		A_SetScale(rs);
+		A_SetSize(Radius * rs, Height);
+
+		if (TCOTDFloaterDetector.IsFloating(self))
+		{
+			Destroy();
+			return;
+		}
+
+		AlignToPlane();
+	}
+
+	override void Tick(void)
+	{
+		if (!ticked)
+		{
+			Super.Tick();
+			ticked = true;
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void AlignToPlane(double pitchAdjust = 0, bool ceiling = false)
+	{
+		// AlignToPlane
+		// Original code written by ZZYZX
+		// Modifications and improvements by Nash Muhandes
+
+		// Note: I leave the 'self' references intact because in my other projects
+		// that reuse this method, this is usually a static method.
+		// This helps with copy/pasting when doing an update pass on all of them.
+
+		if (!self)
+			return;
+
+		Vector3 norm;
+
+		// [Nash] so many workarounds for 3D floors...
+		Sector floorSec, ceilSec;
+		F3DFloor f3d, c3d;
+		double fh, ch;
+		[fh, floorSec, f3d] = self.CurSector.NextLowestFloorAt(self.Pos.X, self.Pos.Y, self.Pos.Z + 0.001);
+		[ch, ceilSec, c3d] = self.CurSector.NextHighestCeilingAt(self.Pos.X, self.Pos.Y, self.Pos.Z - 0.001, self.Pos.Z + self.Height - 0.001);
+
+		if (!ceiling)
+		{
+			if (f3d)
+				norm = f3d.bottom.Normal;
+			else
+				norm = self.CurSector.FloorPlane.Normal;
+		}
+		else
+		{
+			if (c3d)
+				norm = c3d.top.Normal;
+			else
+				norm = self.CurSector.CeilingPlane.Normal;
+		}
+
+		Vector2 norm_p1 = (norm.X != 0 || norm.Y != 0) ? (norm.X, norm.Y).Unit() : (0, 0);
+		Vector2 norm_p2 = ((norm.X, norm.Y).Length(), norm.Z);
+		double dang = self.Angle;
+		double fang = atan2(norm_p1.Y, norm_p1.X);
+		double fpitch = atan2(norm_p2.X, norm_p2.Y);
+		double ddiff1 = sin(fang - (dang - pitchAdjust));
+		double ddiff2 = cos(fang - dang);
+		self.Pitch = (fpitch * ddiff2 - pitchAdjust);
+		self.Roll = -fpitch * ddiff1;
+		self.Angle = dang;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
 
 	States
 	{
 	Spawn:
-		BLUD P 200 NoDelay
-		{
-			A_SetTranslucent(frandom(0.5, 1.0));
-			A_SetScale(frandom(0.333, 0.666));
-		}
-	Fade:
-		"####" "#" 1 A_FadeOut(0.05);
-		Loop;
+		0000 A -1 NoDelay;
+		Stop;
 	}
 }

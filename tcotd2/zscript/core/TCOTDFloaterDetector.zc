@@ -1,0 +1,84 @@
+/*
+* Disdain Game Code
+* Copyright (C) 2020 - 2022  Nash Muhandes
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//===========================================================================
+//
+// TCOTDFloaterDetector
+// Written by Boondorl
+//
+//===========================================================================
+
+struct TCOTDFloaterDetector play
+{
+	static bool IsFloating(Actor mo, bool isOnCeiling = false)
+	{
+		if (!mo)
+			return false;
+
+		if ((!isOnCeiling && mo.Pos.Z > mo.FloorZ) || (isOnCeiling && mo.Pos.Z + mo.Height < mo.CeilingZ))
+			return true;
+
+		double temp;
+		Sector sec;
+		F3DFloor ffloor;
+		Vector3 normal;
+
+		if (isOnCeiling)
+		{
+			[temp, sec, ffloor] = mo.CurSector.NextHighestCeilingAt(mo.Pos.X, mo.Pos.Y, mo.Pos.Z, mo.Pos.Z + 1);
+			normal = ffloor ? ffloor.bottom.normal : sec.CeilingPlane.normal;
+		}
+		else
+		{
+			[temp, sec, ffloor] = mo.CurSector.NextLowestFloorAt(mo.Pos.X, mo.Pos.Y, mo.Pos.Z + MAP_EPSILON);
+			normal = ffloor ? ffloor.top.normal : sec.FloorPlane.normal;
+		}
+
+		Vector3 pos = mo.Pos;
+		if (isOnCeiling)
+			pos.Z += mo.Height;
+
+		return CheckFloatingRadius(pos, mo.Radius, normal, isOnCeiling) || CheckFloatingRadius(pos, mo.Radius * 0.5, normal, isOnCeiling);
+	}
+
+	private static bool CheckFloatingRadius(Vector3 pos, double radius, Vector3 axis, bool isOnCeiling)
+	{
+		Vector3 offset = axis cross (1, 0, 0);
+
+		for (double ang = 0; ang < 360; ang += 45)
+		{
+			Vector3 checkPos = Level.Vec3Offset(pos, RotateVector(offset, axis, ang) * radius);
+			double flZ = isOnCeiling ?
+				Level.PointInSector(checkPos.XY).NextHighestCeilingAt(checkPos.X, checkPos.Y, checkPos.Z, checkPos.Z + 1) :
+				Level.PointInSector(checkPos.XY).NextLowestFloorAt(checkPos.X, checkPos.Y, checkPos.Z + MAP_EPSILON);
+			if (!(flZ ~== checkPos.Z))
+				return true;
+		}
+
+		return false;
+	}
+
+	private static Vector3 RotateVector(Vector3 vec, Vector3 axis, double ang)
+	{
+		if (ang ~== 0)
+			return vec;
+
+		double c = cos(ang);
+		return (vec * c + (axis cross vec) * sin(ang) + axis * (axis dot vec) * (1 - c)).Unit();
+	}
+}
