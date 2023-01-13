@@ -1,3 +1,201 @@
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+Fader Bye
+{
+	DecayStart 5.0
+	DecayTime 1.0
+}
+
+Stretcher Stretchy
+{
+	GoalY 1.0125
+	StretchStart 0.001
+	StretchTime 15.0
+}
+
+Slider Slidey
+{
+	DistY -14
+	SlideStart 0.001
+	SlideTime 15.0
+}
+
+Combiner Yucky
+{
+	Stretchy
+	Slidey
+	//Bye
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+Fader NoBlood
+{
+	DecayStart 1
+	DecayTime 1
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+Decal NoBlood
+{
+	Pic "TNT1A0"
+	Animator NoBlood
+}
+
+//===========================================================================
+//
+// Blood Drip
+//
+//===========================================================================
+
+Decal BloodDrip
+{
+	Pic "graphics/decals/bdrip.png"
+	OpaqueBlood
+	X-Scale 0.7
+	Y-Scale 0.02
+	RandomFlipX
+	Animator Yucky
+}
+
+/***** Blood Decals ********************************************************/
+/*
+ * Blood splats just stick to the walls.
+ * Blood smears crawl down walls a bit like in Blood.
+ *
+ * These do not need generators; the engine will create them automatically
+ * when something bleeds. If a blood color is set, the shade color will be ignored,
+ * and the actor's blood color will be used instead.
+ */
+Decal BloodSplat1
+{
+	Pic BSPLAT1
+	OpaqueBlood
+	X-Scale 0.75
+	Y-Scale 0.75
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal BloodSplat2
+{
+	Pic BSPLAT2
+	OpaqueBlood
+	X-Scale 0.75
+	Y-Scale 0.75
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal BloodSplat3
+{
+	Pic BSPLAT3
+	OpaqueBlood
+	X-Scale 0.75
+	Y-Scale 0.75
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal BloodSplat4
+{
+	Pic BSPLAT4
+	OpaqueBlood
+	X-Scale 0.75
+	Y-Scale 0.75
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal BloodSplat5
+{
+	Pic BSPLAT5
+	OpaqueBlood
+	X-Scale 0.75
+	Y-Scale 0.75
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal BloodSplat6
+{
+	Pic BSPLAT6
+	OpaqueBlood
+	X-Scale 0.75
+	Y-Scale 0.75
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal BloodSplat7
+{
+	Pic BSPLAT7
+	OpaqueBlood
+	X-Scale 0.75
+	Y-Scale 0.75
+	RandomFlipX
+	RandomFlipY
+}
+
+// The smaller blood splats are more common than the big ones.
+
+DecalGroup BloodSplat
+{
+	BloodSplat1	2
+	BloodSplat2	1
+	BloodSplat3	5
+	BloodSplat4	5
+	BloodSplat5	5
+	BloodSplat6	5
+	BloodSplat7	6
+	BloodDrip 4
+}
+
+Decal BloodSmear1
+{
+	Pic BSMEAR1
+	X-Scale 0.625
+	Y-Scale 0.625
+	OpaqueBlood
+	RandomFlipX
+	Animator BloodSmearer
+}
+
+Decal BloodSmear2
+{
+	Pic BSMEAR2
+	X-Scale 0.625
+	Y-Scale 0.625
+	OpaqueBlood
+	RandomFlipX
+	Animator BloodSmearer
+}
+
+DecalGroup BloodSmear
+{
+	BloodSmear1	1
+	BloodSmear2	1
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 decal NewScorch
 {
 	pic FMSLSCRH

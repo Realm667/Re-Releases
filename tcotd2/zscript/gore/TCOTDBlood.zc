@@ -1,0 +1,237 @@
+// Copyright 2023 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote produchs
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+// B E S P O K E (tm) Gore
+// Made specifically for TCOTD2 by Nash Muhandes
+// Obviously a copy-cat of Blood's blood effects, but written from scratch
+// based on observation
+// It is not meant to be a 1:1 recreation
+//
+//===========================================================================
+
+class TCOTDBlood : Blood replaces Blood
+{
+	int rTics;
+
+	Default
+	{
+		Gravity 0.2;
+		LightLevel 72;
+		+ADDLIGHTLEVEL
+		+PUFFGETSOWNER
+		+FORCEXYBILLBOARD
+		+DONTSPLASH
+	}
+
+	override void BeginPlay(void)
+	{
+		Super.BeginPlay();
+		rTics = random[rnd_bloodTics](2, 4);
+	}
+
+	States
+	{
+	Spawn:
+		TNT1 AAA 0;
+		TNT1 A 0
+		{
+			Vector3 ofs =
+			(
+				frandom(-4, 4),
+				frandom(-4, 4),
+				frandom(-2, 2)
+			);
+			SetOrigin(Vec3Offset(ofs.X, ofs.Y, ofs.Z), false);
+
+			/*
+			bool ret;
+			Actor trail;
+			[ret, trail] =
+			*/
+			A_SpawnItemEx("TCOTDBloodTrail",
+				zofs: 10,
+				xvel: frandom(-5, 5),
+				yvel: frandom(-5, 5),
+				zvel: frandom(-2, 6),
+				flags: SXF_USEBLOODCOLOR | SXF_TRANSFERTRANSLATION,
+				failchance: 128);
+
+			for (int i = 0; i < 12; i++)
+			{
+				A_SpawnItemEx("TCOTDBloodSplash",
+					zofs: 10,
+					xvel: frandom(-4, 4),
+					yvel: frandom(-4, 4),
+					zvel: frandom(0, 8),
+					flags: SXF_USEBLOODCOLOR | SXF_TRANSFERTRANSLATION,
+					failchance: 188);
+			}
+
+			if (Target)
+			{
+				CopyBloodColor(Target);
+				for (int i = 0; i < 32; i++)
+				{
+					if (random[rnd_SprayWallBlood]() < 128)
+						TraceBleedAngle(random[rnd_SprayWallBlood](5, 15), frandom[rnd_SprayWallBlood](0.0, 360.0), frandom[rnd_SprayWallBlood](-70.0, 0.0));
+				}
+			}
+		}
+		BLUD ABCDE 1 A_SetTics(rTics);
+		Stop;
+	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+class TCOTDBloodTrail : Actor
+{
+	Default
+	{
+		Gravity 0.25;
+		+CORPSE
+		+DONTSPLASH
+		+NOCLIP
+		-SOLID
+	}
+
+	override void Tick(void)
+	{
+		Super.Tick();
+
+		if (!bNoTimeFreeze && isFrozen())
+			return;
+
+		if (GetAge() % 3 == 0)
+			A_SpawnItemEx("TCOTDBloodTrailFX", flags: SXF_TRANSFERTRANSLATION | SXF_NOCHECKPOSITION);
+
+		Vel.XY *= 0.987;
+
+		if (GetAge() > (Thinker.TICRATE * 10))
+			Destroy();
+	}
+
+	States
+	{
+	Crash:
+		TNT1 A 0;
+		Stop;
+	}
+}
+
+class TCOTDBloodTrailFX : Actor
+{
+	Default
+	{
+		Scale 0.66;
+		LightLevel 72;
+		+ADDLIGHTLEVEL
+		+NOCLIP
+		+CORPSE
+		+DONTSPLASH
+		+FORCEXYBILLBOARD
+		-SOLID
+	}
+
+	States
+	{
+	Spawn:
+		BLUD FGHIJ 5;
+		Loop;
+	Crash:
+		TNT1 A 0;
+		Stop;
+	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+class TCOTDBloodSplash : Actor
+{
+	Default
+	{
+		Gravity 0.420;
+		Scale 0.666;
+		LightLevel 72;
+		+ADDLIGHTLEVEL
+		+CORPSE
+		+DONTSPLASH
+		+NOCLIP
+		+FORCEXYBILLBOARD
+		-SOLID
+	}
+
+	States
+	{
+	Crash:
+		TNT1 A 0
+		{
+			A_SpawnItemEx("TCOTDBloodSpot", angle: frandom(0, 360), flags: SXF_TRANSFERTRANSLATION);
+			A_Stop();
+		}
+		BLUD KLMNO 4;
+		Stop;
+	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+class TCOTDBloodSpot : Actor
+{
+	Default
+	{
+		RenderStyle "Translucent";
+		+FLATSPRITE
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		BLUD P 200 NoDelay
+		{
+			A_SetTranslucent(frandom(0.5, 1.0));
+			A_SetScale(frandom(0.333, 0.666));
+		}
+	Fade:
+		"####" "#" 1 A_FadeOut(0.05);
+		Loop;
+	}
+}
