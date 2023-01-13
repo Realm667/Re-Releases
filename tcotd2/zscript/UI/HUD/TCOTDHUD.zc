@@ -122,8 +122,11 @@ class TCOTDHUD : DoomStatusBar
 		CPlayer.InventoryTics = 0;
 		if (!Level.NoInventoryBar && CPlayer.mo.InvSel != NULL)
 		{
-			DrawInventoryIcon(CPlayer.mo.InvSel, (-18, 0), flags);
-			DrawString(mHUDSmallNum, FormatNumber(CPlayer.mo.InvSel.Amount, 3), (-42, -8), flags);
+			DrawInventoryIcon(CPlayer.mo.InvSel, (-18, 0), flags, boxsize: (30, 30));
+			if (!(CPlayer.mo.InvSel is 'TCOTDPuzzleItem'))
+			{
+				DrawString(mHUDSmallNum, FormatNumber(CPlayer.mo.InvSel.Amount, 3), (-42, -8), flags);
+			}
 		}
 
 		// Lantern Oil
