@@ -1,0 +1,49 @@
+// -------------------------------------------------------------------------------------------------
+//
+// -------------------------------------------------------------------------------------------------
+
+class TCOTDAltHud : AltHud
+{
+	void DrawPendant (TCOTDPendant pendant, int x, int y)
+	{
+		DrawImageToBox(TexMan.CheckForTexture("PENDB0", TexMan.Type_MiscPatch), x, y, 31, 17);
+		int next = pendant.next;
+		int nextMax = pendant.nextMax > 0 ? pendant.nextMax : 1;
+		double a = 1.0 - (1.0 * next / nextMax);
+		if (pendant.nextMax <= 0) a = 0.0;
+		DrawImageToBox(TexMan.CheckForTexture("graphics/hud/PendantGlow.png", TexMan.Type_MiscPatch), x - 3, y - 2, 31, 17, a * 0.75);
+	}
+
+	override void DrawInGame (PlayerInfo CPlayer)
+	{
+		// No HUD in the title level!
+		if (gamestate == GS_TITLELEVEL || !CPlayer) return;
+
+		let pendant = TCOTDPendant(CPlayer.mo.FindInventory('TCOTDPendant'));
+
+		if (!deathmatch)
+		{
+			DrawStatus(CPlayer, 5, hudheight - (pendant ? 75 : 50));
+		}
+		else
+		{
+			DrawStatus(CPlayer, 5, hudheight - (pendant ? 100 : 75));
+			DrawFrags(CPlayer, 5, hudheight - (pendant ? 95 : 70));
+		}
+
+		if (pendant) DrawPendant(pendant, 9, hudheight - 70);
+		DrawHealth(CPlayer, 5, hudheight - 45);
+		DrawArmor(BasicArmor(CPlayer.mo.FindInventory('BasicArmor')), HexenArmor(CPlayer.mo.FindInventory('HexenArmor')), 5, hudheight - 20);
+		int y = DrawKeys(CPlayer, hudwidth - 4, hudheight - 10);
+		y = DrawAmmo(CPlayer, hudwidth - 5, y);
+		if (hud_showweapons) DrawWeapons(CPlayer, hudwidth - 5, y);
+		DrawInventory(CPlayer, 144, hudheight - 28);
+		if (idmypos) DrawCoordinates(CPlayer, true);
+
+		int h = SmallFont.GetHeight();
+		y = h;
+		if (DrawTime(y)) y += h;
+		if (DrawLatency(y)) y += h;
+		DrawPowerups(CPlayer, y - h + POWERUPICONSIZE * 5 / 4);
+	}
+}
