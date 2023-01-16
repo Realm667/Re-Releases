@@ -4,6 +4,10 @@
 
 class TCOTDAltHud : AltHud
 {
+	// ----------------------------------------------------------------------------------------
+	//
+	// ----------------------------------------------------------------------------------------
+
 	void DrawPendant (TCOTDPendant pendant, int x, int y)
 	{
 		DrawImageToBox(TexMan.CheckForTexture("PENDB0", TexMan.Type_MiscPatch), x, y, 31, 17);
@@ -14,10 +18,55 @@ class TCOTDAltHud : AltHud
 		DrawImageToBox(TexMan.CheckForTexture("graphics/hud/PendantGlow.png", TexMan.Type_MiscPatch), x - 3, y - 2, 31, 17, a * 0.75);
 	}
 
+	// ----------------------------------------------------------------------------------------
+	//
+	// ----------------------------------------------------------------------------------------
+
+	int DrawOil (PlayerInfo CPlayer, int x, int y)
+	{
+		let oil = CPlayer.mo.FindInventory('TCOTDLanternOil');
+		int ratio = oil ? oil.Amount * 100 / oil.MaxAmount : 0;
+
+		// [Blue Shadow] Only draw "0%" if the player has no oil whatsoever.
+		if (ratio < 1 && oil && oil.Amount > 0)
+		{
+			ratio = 1;
+		}
+
+		// [Blue Shadow] Handle positioning. Code was plucked from the ammo list drawing code.
+
+		String text = String.Format("%d%%", ratio);
+		int width = ConFont.StringWidth(text);
+		int xtext = x - width;
+		int ximage = x;
+
+		// [Blue Shadow] Icon first and counter next, or the other way around, sir?
+		// Yes, this relies on the hud_ammo_order CVAR, but the oil is drawn directly below the ammo list,
+		// with an icon and counter, too.
+		if (hud_ammo_order > 0)
+		{
+			xtext -= 24;
+			ximage -= 20;
+		}
+		else
+		{
+			ximage -= width + 20;
+		}
+
+		bool hasLantern = CPlayer.mo.FindInventory('TCOTDLanternPickup');
+		DrawHudText(ConFont, Font.CR_BROWN, text, xtext, y + ConFont.GetHeight(), hasLantern ? 0.75 : 0.375);
+		DrawImageToBox(TexMan.CheckForTexture("LANTC0", TexMan.Type_MiscPatch), ximage, y, 16, 8, hasLantern ? 0.75 : 0.375);
+		return y - 11;
+	}
+
+	// ----------------------------------------------------------------------------------------
+	//
+	// ----------------------------------------------------------------------------------------
+
 	override void DrawInGame (PlayerInfo CPlayer)
 	{
-		// No HUD in the title level!
-		if (gamestate == GS_TITLELEVEL || !CPlayer) return;
+		// No HUD in the title level or during cutscenes.
+		if (gamestate == GS_TITLELEVEL || !CPlayer || CPlayer.mo.FindInventory('CutsceneEnabled')) return;
 
 		let pendant = TCOTDPendant(CPlayer.mo.FindInventory('TCOTDPendant'));
 
@@ -35,6 +84,7 @@ class TCOTDAltHud : AltHud
 		DrawHealth(CPlayer, 5, hudheight - 45);
 		DrawArmor(BasicArmor(CPlayer.mo.FindInventory('BasicArmor')), HexenArmor(CPlayer.mo.FindInventory('HexenArmor')), 5, hudheight - 20);
 		int y = DrawKeys(CPlayer, hudwidth - 4, hudheight - 10);
+		y = DrawOil(CPlayer, hudwidth - 5, y);
 		y = DrawAmmo(CPlayer, hudwidth - 5, y);
 		if (hud_showweapons) DrawWeapons(CPlayer, hudwidth - 5, y);
 		DrawInventory(CPlayer, 144, hudheight - 28);
