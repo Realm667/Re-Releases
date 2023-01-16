@@ -53,7 +53,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		Loop;
 	Fire:
 		TNT1 A 0 A_JumpIfInventory("SawedOffCheck", 1, "Fire1Shell");
-		SAWF B 2 { A_StartSound("SawedOff/Fire", CHAN_WEAPON); A_Overlay(-2, "GunSmoke"); A_GunFlash(); A_FireBullets(5.6, 3.5, 7, 5, "TCOTDBulletPuff", FBF_USEAMMO); }
+		SAWF B 2 { A_StartSound("SawedOff/Fire", CHAN_WEAPON); A_Overlay(-2, "GunSmoke"); A_ViewKick(); A_GunFlash(); A_FireBullets(5.6, 3.5, 7, 5, "TCOTDBulletPuff", FBF_USEAMMO); }
 		SAWF B 1 Offset(10, 52);
 		SAWF B 1 Offset(14, 60);
 		SAWF B 2 Offset(16, 64);
@@ -65,7 +65,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		SAWF B 2 A_WeaponOffset(0, 32);
 		Goto Ready;
 	Fire1Shell:
-		SAWF C 2 { A_StartSound("SawedOff/Fire", CHAN_WEAPON); A_Overlay(-2, "GunSmoke"); A_GunFlash(); A_FireBullets(5.6, 3.5, 7, 5, "TCOTDBulletPuff", FBF_USEAMMO); }
+		SAWF C 2 { A_StartSound("SawedOff/Fire", CHAN_WEAPON); A_Overlay(-2, "GunSmoke"); A_ViewKick(); A_GunFlash(); A_FireBullets(5.6, 3.5, 7, 5, "TCOTDBulletPuff", FBF_USEAMMO); }
 		SAWF C 1 Offset(10, 52);
 		SAWF C 1 Offset(14, 60);
 		SAWF C 2 Offset(16, 64);
@@ -78,7 +78,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		Goto Load;
 	AltFire:
 		SAWF A 0 A_JumpIf(CountInv("SawedOffCheck"), "Fire");
-		SAWF C 2 { A_StartSound("SawedOff/AltFire", CHAN_WEAPON); A_Overlay(-2, "BigGunSmoke"); A_GunFlash(); A_FireBullets(11.2, 7.1, 20, 5, "TCOTDBulletPuff", FBF_USEAMMO); }
+		SAWF C 2 { A_StartSound("SawedOff/AltFire", CHAN_WEAPON); A_Overlay(-2, "BigGunSmoke"); A_ViewKick(); A_GunFlash(); A_FireBullets(11.2, 7.1, 20, 5, "TCOTDBulletPuff", FBF_USEAMMO); }
 		SAWF C 1 offset(10, 52);
 		SAWF C 1 offset(28, 68);
 		SAWF C 1 offset(32, 76);
@@ -126,6 +126,13 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 	BigGunSmoke:
 		TNT1 A 0 A_OverlayFlags(-2, PSPF_ADDWEAPON, false);
 		SFFL DEF 2 Bright A_OverlayOffset(-2, 0, 32);
+		Stop;
+	ViewKick:
+		TNT1 A 3 A_SetViewPitch(ViewPitch - 2.5);
+		TNT1 A 1 A_SetViewPitch(ViewPitch + 0.625);
+		TNT1 A 1 A_SetViewPitch(ViewPitch + 0.625);
+		TNT1 A 1 A_SetViewPitch(ViewPitch + 0.625);
+		TNT1 A 1 A_SetViewPitch(ViewPitch + 0.625);
 		Stop;
 	}
 }

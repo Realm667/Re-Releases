@@ -24,6 +24,7 @@ class TCOTDWeaponRevolver : TCOTDWeapon replaces Pistol
 		Weapon.AmmoGive 20;
 		Weapon.SelectionOrder 190;
 		+WEAPON.WIMPY_WEAPON
+		+WEAPON.NOAUTOFIRE
 	}
 
 	States
@@ -38,22 +39,29 @@ class TCOTDWeaponRevolver : TCOTDWeapon replaces Pistol
 		REVL A 1 A_WeaponReady();
 		Loop;
 	Fire:
-		REVL B 3 { A_Overlay(-2, "RevolverSmoke"); A_FireBullets(5.6, 1.7, 1, 9, "TCOTDBulletPuff"); }
+		REVL B 3 { A_Overlay(-2, "RevolverSmoke"); A_ViewKick(); A_FireBullets(5.6, 1.7, 1, 9, "TCOTDBulletPuff"); }
 		REVL CD 2;
-		REVL E 1 A_WeaponOffset(4, 33);
-		REVL F 1 A_WeaponOffset(5, 38);
-		REVL G 1 A_WeaponOffset(6, 42);
-		REVL H 1 A_WeaponOffset(6, 28);
-		REVL H 1 A_WeaponOffset(2, 32);
-		REVL H 1 A_WeaponOffset(-1, 36);
-		REVL A 1 A_WeaponOffset(2, 30);
-		REVL A 3 A_WeaponOffset(0, 32);
-		REVL A 1 A_ReFire();
+		REVL E 1 { A_WeaponOffset(4, 33); A_WeaponReady(WRF_NOSWITCH); }
+		REVL F 1 { A_WeaponOffset(5, 38); A_WeaponReady(WRF_NOSWITCH); }
+		REVL G 1 { A_WeaponOffset(6, 42); A_WeaponReady(WRF_NOSWITCH); }
+		REVL H 1 { A_WeaponOffset(6, 28); A_WeaponReady(WRF_NOSWITCH); }
+		REVL H 1 { A_WeaponOffset(2, 32); A_WeaponReady(WRF_NOSWITCH); }
+		REVL H 1 { A_WeaponOffset(-1, 36); A_WeaponReady(WRF_NOSWITCH); }
+		REVL A 1 { A_WeaponOffset(2, 30); A_WeaponReady(WRF_NOSWITCH); }
+		REVL A 3 { A_WeaponOffset(0, 32); A_WeaponReady(WRF_NOSWITCH); }
+		REVL A 1 A_WeaponReady(WRF_NOSWITCH);
 		goto Ready;
 	RevolverSmoke:
 		RVFL A 2 Bright A_Light2();
 		RVFL B 2 Bright A_Light1();
 		RVFL C 2 Bright A_Light0();
+		Stop;
+	ViewKick:
+		TNT1 A 3 A_SetViewPitch(ViewPitch - 1.73);
+		TNT1 A 1 A_SetViewPitch(ViewPitch + 0.4325);
+		TNT1 A 1 A_SetViewPitch(ViewPitch + 0.4325);
+		TNT1 A 1 A_SetViewPitch(ViewPitch + 0.4325);
+		TNT1 A 1 A_SetViewPitch(ViewPitch + 0.4325);
 		Stop;
 	Spawn:
 		RPCK A -1;

@@ -84,6 +84,17 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		}
 	}
 
+	private action void A_ViewPunch(void)
+	{
+		if (!player)
+			return;
+		if (!CVar.GetCVar("tcotd2_viewkick", player).GetBool())
+			return;
+
+		A_SetViewPitch(0);
+		A_Overlay(-4, "ViewPunch");
+	}
+
 	//===========================================================================
 	//
 	//
@@ -112,12 +123,12 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		TNT1 A 0 A_Jump(160, "PunchRightHand");
 	PunchLeftHand:
 		FIST B 2;
-		FIST C 4 A_FistAttack();
+		FIST C 4 { A_ViewPunch(); A_FistAttack(); }
 		FIST CBAA 2;
 		Goto Ready;
 	PunchRightHand:
 		FIST D 2;
-		FIST E 4 A_FistAttack();
+		FIST E 4 { A_ViewPunch(); A_FistAttack(); }
 		FIST EDAA 2;
 		Goto Ready;
 	}
@@ -145,7 +156,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		FORK A 1 Offset(0, 30);
 		FORK B 1;
 		FORK B 1 Offset(0, 30);
-		FORK C 5 A_PitchforkAttack();
+		FORK C 5 { A_ViewPunch(); A_PitchforkAttack(); }
 		FORK C 1 Offset(0, 34);
 		FORK B 1;
 		FORK B 1 Offset(0, 34);
@@ -163,6 +174,23 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		FORK E 1 Offset(-72, 92);
 		TNT1 A 2;
 		Goto Ready;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	ViewPunch:
+		TNT1 A 1 A_ZoomFactor(1.0100);
+		TNT1 A 1 A_ZoomFactor(1.0075);
+		TNT1 A 1 A_ZoomFactor(1.0050);
+		TNT1 A 1 A_ZoomFactor(1.0025);
+		TNT1 A 1 A_ZoomFactor(1.0);
+		Stop;
 	}
 }
 

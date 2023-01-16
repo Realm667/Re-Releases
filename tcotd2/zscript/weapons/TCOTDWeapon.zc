@@ -72,6 +72,18 @@ class TCOTDWeapon : Weapon
 	//
 	//===========================================================================
 
+	override void DoEffect(void)
+	{
+		Super.DoEffect();
+
+		if ((Owner.player.WeaponState & WF_WEAPONREADY && Owner.player.WeaponState && WF_WEAPONREADYALT) && Owner.ViewPitch != 0)
+		{
+			Owner.A_SetViewPitch(ViewPitch * 0.99, SPF_INTERPOLATE);
+			if(abs(ViewPitch) <= 0.1)
+				ViewPitch = 0;
+		}
+	}
+
 	override void Tick(void)
 	{
 		Super.Tick();
@@ -83,13 +95,16 @@ class TCOTDWeapon : Weapon
 
 		if (pmo)
 		{
-			if (pmo.Health <= 0) return;
+			if (pmo.Health <= 0)
+				return;
 
 			let psp = pmo.player.psprites;
-			if (!psp) return;
+			if (!psp)
+				return;
 
 			let wep = pmo.player.ReadyWeapon;
-			if (!wep) return;
+			if (!wep)
+				return;
 
 			if (!pmo.player.onground && pmo.Vel.Z < -8.0)
 			{
@@ -111,7 +126,8 @@ class TCOTDWeapon : Weapon
 			let wep_psp = pmo.player.FindPSprite(PSP_WEAPON);
 			if (wep_psp)
 			{
-				if (wep_psp.bFlip || wep_psp.bMirror) handedness = -1;
+				if (wep_psp.bFlip || wep_psp.bMirror)
+					handedness = -1;
 			}
 
 			// horizontal sway
@@ -413,5 +429,22 @@ class TCOTDWeapon : Weapon
 				}
 			}
 		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	protected action void A_ViewKick(void)
+	{
+		if (!player)
+			return;
+		if (!CVar.GetCVar("tcotd2_viewkick", player).GetBool())
+			return;
+
+		A_SetViewPitch(0);
+		A_Overlay(-3, "ViewKick");
 	}
 }
