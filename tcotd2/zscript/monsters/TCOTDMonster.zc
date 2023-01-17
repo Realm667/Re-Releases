@@ -1,5 +1,9 @@
 class TCOTDMonster : Actor
 {
+	// [Blue Shadow] Set this in the editor to 'true' so the monster dies upon spawning. This is for
+	// monsters which get resurrected later via scripting.
+	bool user_SpawnDead;
+
 	Default
 	{
 		//$Category New Monsters (TCOTD2)
@@ -7,6 +11,24 @@ class TCOTDMonster : Actor
 		Monster;
 		+FLOORCLIP
 		+CASTSPRITESHADOW
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+
+		if (user_SpawnDead)
+		{
+			ClearCounters();
+			Die(null, null);
+			A_ChangeCountFlags(1);
+		}
 	}
 
 	//===========================================================================
