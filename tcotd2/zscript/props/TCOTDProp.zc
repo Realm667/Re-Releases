@@ -535,10 +535,11 @@ class TCOTDPropChairAlpha : TCOTDProp
 	Default
 	{
 		//$Category New Obstacles (TCOTD2)
-		//$Title Office Chair
+		//$Title Creepy Chair
 		//$Color 11
 		Radius 16;
 		Height 32;
+		Scale 0.56;
 		+SOLID
 	}
 
@@ -546,6 +547,27 @@ class TCOTDPropChairAlpha : TCOTDProp
 	{
 	Spawn:
 		XB19 A -1;
+		Stop;
+	}
+}
+
+class TCOTDPropChairBar : TCOTDPropChairAlpha
+{
+	Default
+	{
+		//$Category New Obstacles (TCOTD2)
+		//$Title Bar Chair
+		//$Color 11
+		Radius 8;
+		Height 24;
+		Scale 0.48;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		XB19 B -1;
 		Stop;
 	}
 }
