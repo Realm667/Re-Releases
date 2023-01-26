@@ -9,7 +9,7 @@ GameInfo
 	AltHudClass = "TCOTDAltHud"
 	StatusBarClass = "TCOTDHUD"
 
-	AddEventHandlers = "TCOTDClutterHandler", "TCOTDPlayerHandler", "TCOTDWeatherHandler", "EnhWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
+	AddEventHandlers = "TCOTDPlayerHandler", "TCOTDWeatherHandler", "EnhWaterHandler", "MBlurShaderHandler"
 
 	InfoPage = "CREDIT"
 	AddInfoPage = "HELP"
@@ -154,8 +154,8 @@ DoomEdNums
 	31833 = "TCOTDRock04"
 	31998 = "TCOTDPushPuzz"
 	31999 = "TCOTDExMark"
-	32029 = "HeatEffectGiver"
-	32030 = "DarkSmokeSpawner"
+	//32029 = "TCOTDHeatHaze"
+	//32030 = "DarkSmokeSpawner"
 	32700 = "TCOTDFireSpawner"
 	32765 = "TCOTDGrassRandom"
 	32766 = "TCOTDBigBush"
@@ -167,6 +167,7 @@ DamageType "Cellar"
 }
 
 ClearSkills
+
 Skill Easy
 {
 	PicName = "M_HURT"
@@ -181,7 +182,8 @@ Skill Normal
 	DropAmmoFactor = 1.0
 	SpawnFilter = "Normal"
 }
-skill Hard
+
+Skill Hard
 {
 	PicName = "M_NMARE"
 	MustConfirm = "$CONFIRM_NIGHTMARE"

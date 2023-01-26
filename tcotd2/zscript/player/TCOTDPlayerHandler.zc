@@ -40,35 +40,22 @@ class TCOTDPlayerHandler : EventHandler
 
 	override void PlayerEntered(PlayerEvent e)
 	{
-		// Assign each player their own sound player
+		/*
 		PlayerPawn pmo = players[e.PlayerNumber].mo;
-
 		if (pmo)
 		{
-			let soundPlayer = TCOTDSoundPlayer(Actor.Spawn("TCOTDSoundPlayer", (0, 0, 0), NO_REPLACE));
-			if (soundPlayer)
-			{
-				soundPlayer.pmo = pmo;
-			}
 		}
+		*/
 	}
 
 	override void PlayerDisconnected(PlayerEvent e)
 	{
+		/*
 		PlayerPawn pmo = players[e.PlayerNumber].mo;
 		if (pmo)
 		{
-			// find the specific sound player attached to this player
-			ThinkerIterator it = ThinkerIterator.Create("TCOTDSoundPlayer");
-			Actor mo;
-			while (mo = Actor(it.Next()))
-			{
-				if (TCOTDSoundPlayer(mo).pmo == pmo)
-				{
-					mo.Destroy();
-				}
-			}
 		}
+		*/
 	}
 
 	//===========================================================================
@@ -83,9 +70,9 @@ class TCOTDPlayerHandler : EventHandler
 	}
 	*/
 
+	/*
 	override void WorldUnloaded(WorldEvent e)
 	{
-		// Destroy all sound players
-		TCOTDGameplayStatics.DestroyActors("TCOTDSoundPlayer");
 	}
+	*/
 }
