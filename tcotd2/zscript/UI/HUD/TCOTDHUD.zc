@@ -71,24 +71,37 @@ class TCOTDHUD : DoomStatusBar
 		DrawString(mHUDBigNum, FormatNumber(CPlayer.health, 3), (24, -15), flags);
 
 		// Armor
+		int ypos = -24;
 		let armor = CPlayer.mo.FindInventory("BasicArmor");
 		if (armor && armor.Amount > 0)
 		{
-			DrawInventoryIcon(armor, (12, -24));
-			DrawString(mHUDBigNum, FormatNumber(armor.Amount, 3), (24, -35), flags);
+			DrawInventoryIcon(armor, (12, ypos));
+			DrawString(mHUDBigNum, FormatNumber(armor.Amount, 3), (24, ypos - 11), flags);
+			ypos -= 22;
+		}
+
+		// Air
+		if (Level.airsupply > 0 && CPlayer.mo.AirCapacity > 0 &&
+			(CPlayer.air_finished + 1 - Level.maptime) < int(Level.airsupply * CPlayer.mo.AirCapacity))
+		{
+			int curpnts = Max(CPlayer.air_finished - Level.maptime, 0);
+			int maxpnts = int(Level.airsupply * CPlayer.mo.AirCapacity);
+			int ratio = curpnts * 100 / maxpnts;
+			DrawImage("graphics/hud/HUDAir.png", (12, ypos), flags);
+			DrawString(mHUDBigNum, FormatNumber(ratio, 3), (24, ypos - 11), flags);
+			ypos -= 22;
 		}
 
 		// Pendant
 		let pendant = TCOTDPendant(CPlayer.mo.FindInventory("TCOTDPendant"));
 		if (pendant)
 		{
-			double py = (armor && armor.Amount > 0) ? -46 : -24;
-			DrawImage("PENDB0", (16, py), flags);
+			DrawImage("PENDB0", (16, ypos), flags);
 			int next = pendant.next;
 			int nextMax = pendant.nextMax > 0 ? pendant.nextMax : 1;
 			double a = 1.0 - (1.0 * next / nextMax);
 			if (pendant.nextMax <= 0) a = 0.0;
-			DrawImage("graphics/hud/PendantGlow.png", (12.5, py - 2), flags, alpha: a);
+			DrawImage("graphics/hud/PendantGlow.png", (12.5, ypos - 2), flags, alpha: a);
 		}
 
 		// Right panel
