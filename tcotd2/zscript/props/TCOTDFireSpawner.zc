@@ -30,7 +30,7 @@
 //
 //===========================================================================
 
-class EmberBase : ParticleBase //class imported and adjusted by Ozymandias81 from BoA
+class EmberBase : TCOTDParticle // class imported and adjusted by Ozymandias81 from BoA
 {
 	double thrustmin, thrustmax, thrustminz, thrustmaxz;
 	int delay;
@@ -272,7 +272,7 @@ class TCOTDFireSpawner : HeatEffectGiver
 	}
 }
 
-class TCOTDFireSpawnerFlame : TCOTDDietActorWithVel
+class TCOTDFireSpawnerFlame : TCOTDParticle
 {
 	mixin TCOTDFireMixin;
 
@@ -293,7 +293,7 @@ class TCOTDFireSpawnerFlame : TCOTDDietActorWithVel
 	}
 }
 
-class TCOTDFireSpawnerLight : TCOTDDietActor
+class TCOTDFireSpawnerLight : TCOTDSimpleActor
 {
 	Default
 	{

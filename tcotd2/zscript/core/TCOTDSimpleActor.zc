@@ -1,0 +1,94 @@
+//===========================================================================
+//
+// TCOTDSimpleActor
+// Actor that does the bare minimum of ticking
+// Use for static, non-interactive actors, derived from bits and pieces of
+// p_mobj.cpp
+//===========================================================================
+
+class TCOTDSimpleActor : Actor
+{
+	Vector2 floorXY;
+	Vector3 oldPos;
+
+	override void Tick(void)
+	{
+		if (IsFrozen())
+			return;
+
+		// Hacky scroll check because MF8_INSCROLLSEC not externalized to ZScript?
+		Vector2 curfloorXY = (curSector.GetXOffset(Sector.floor), curSector.GetYOffset(Sector.floor));
+		bool doTick = (curfloorXY != floorXY) || curSector.flags & sector.SECF_PUSH || (Pos != oldPos);
+
+		// Only run a full Tick once; or if we are on a carrying floor, pushers are enabled in the sector (wind), or if we moved by some external force
+		if (doTick)
+		{
+			oldPos = Pos;
+			Super.Tick();
+			floorXY = curfloorXY;
+			return;
+		}
+
+		// Apply Velocity as required
+		if (Vel != (0, 0, 0))
+		{
+			// Vec3Offset is portal-aware; use instead of just Pos + Vel, which is not
+			SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
+		}
+
+		// Tick through actor states as normal
+		if (tics == -1)
+			return;
+		else if (--tics <= 0)
+		{
+			SetState(CurState.NextState);
+		}
+	}
+}
+
+//===========================================================================
+//
+// TCOTDParticle
+//
+//===========================================================================
+
+class TCOTDParticle : TCOTDSimpleActor
+{
+	int checkTimer;
+	int flags;
+
+	FlagDef CHECKPOSITION: flags, 0;
+
+	States
+	{
+		Fade:
+			"####" "#" 1 A_FadeOut(0.1, FTF_REMOVE);
+			Loop;
+	}
+
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+
+		// Set the initial check at a random tick so they don't all check at once...
+		checkTimer = random[rnd_TCOTDParticleSpawn](0, 35);
+	}
+
+	override void Tick()
+	{
+		Super.Tick();
+
+		if (bCheckPosition && checkTimer-- <= 0)
+		{
+			// If it's outside the level, remove it
+			if (!Level.IsPointInLeVel(Pos))
+			{
+				Destroy();
+				return;
+			}
+
+			// Check once every second
+			checkTimer = 35;
+		}
+	}
+}
