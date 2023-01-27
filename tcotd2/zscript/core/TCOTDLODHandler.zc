@@ -30,61 +30,84 @@
 //
 //===========================================================================
 
-class TCOTDFogCloud : TCOTDSimpleActor
+class TCOTDLODHandler : EventHandler
 {
-	mixin TCOTDClientsideOnlyMixin;
+	const MAX_RANGE = 3000 * 3000.;
+	const MAX_OBJECTS = 10000;
+	const TICK_INTERVAL_MAX = Thinker.TICRATE / 2;
 
-	double pulseRate;
-
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
-
-	Default
+	struct TCOTDLODActorData
 	{
-		//$Category Special Effects (TCOTD2)
-		//$Title Fog Cloud
-		//$Color 12
-		//$Sprite TNT1A0
-		RenderStyle "Translucent";
-		Alpha 0.88;
-		Scale 3.0;
+		class<Actor> cls;
+		Vector3 Pos;
+		Actor mo;
 	}
 
+	private TCOTDLODActorData objects[MAX_OBJECTS];
+	private uint index;
+	private uint tickInterval;
+
 	//===========================================================================
 	//
 	//
 	//
 	//===========================================================================
 
-	override void PostBeginPlay(void)
+	override void WorldTick(void)
 	{
-		Super.PostBeginPlay();
+		if (Level.maptime == 1)
+		{
+			MakeLODObject("TCOTDGrass01");
+			MakeLODObject("TCOTDGrass02");
+			MakeLODObject("TCOTDGrass03");
+			MakeLODObject("TCOTDBigBush");
+			MakeLODObject("TCOTDMushroom01");
+			MakeLODObject("TCOTDMushroom02");
+			MakeLODObject("TCOTDMushroom03");
+			MakeLODObject("TCOTDRock01");
+			MakeLODObject("TCOTDRock02");
+			MakeLODObject("TCOTDRock03");
+			MakeLODObject("TCOTDRock04");
+			//MakeLODObject("TCOTDTree01");
+			//MakeLODObject("TCOTDTree02");
+			//MakeLODObject("TCOTDTree03");
+			//MakeLODObject("TCOTDTree04");
+			//MakeLODObject("TCOTDTree05");
+			//MakeLODObject("TCOTDTree06");
+			//MakeLODObject("TCOTDTree07");
+			//MakeLODObject("TCOTDTree08");
+			//MakeLODObject("TCOTDFogCloud");
+		}
 
-		// randomize alpha pulsate speed
-		pulseRate = frandom[rnd_FogCloudSpawn](40.0, 120.0);
-
-		// the original had a random Z offset when spawned
-		Vec3Offset(0.0, 0.0, frandom[rnd_FogCloudSpawn](0.0, 32.0));
-	}
-
-	override void Tick(void)
-	{
-		// make the actor invisible if feature is disabled
-		bInvisible = !CVar.GetCVar("tcotd2_weatherfx", players[consoleplayer]).GetBool();
-
-		Super.Tick();
-
-		if (!bNoTimeFreeze && isFrozen())
+		if (tickInterval-- > 0)
 			return;
 
-		// pulsate alpha
-		let ticRate = Thinker.TICRATE;
-		double pulseAlpha = abs(asin(sin(180.0 / (ticRate * pulseRate) * GetAge())) / 90);
-		pulseAlpha = clamp(pulseAlpha, default.Alpha, 1.0);
-		Alpha = pulseAlpha;
+		Vector3 diff;
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (!playeringame[i])
+				continue;
+
+			for (uint j = 0; j < index; j++)
+			{
+				if (!objects[j].cls)
+					continue;
+
+				diff = level.Vec3Diff(objects[j].Pos, players[i].camera.Pos);
+				if ((diff dot diff) <= MAX_RANGE)
+				{
+					if (!objects[j].mo)
+					{
+						objects[j].mo = Actor.Spawn(objects[j].cls, objects[j].Pos);
+						objects[j].mo.ChangeStatNum(Thinker.STAT_INFO);
+					}
+				}
+				else if (objects[j].mo)
+					objects[j].mo.Destroy();
+			}
+		}
+
+		tickInterval = TICK_INTERVAL_MAX;
 	}
 
 	//===========================================================================
@@ -93,10 +116,17 @@ class TCOTDFogCloud : TCOTDSimpleActor
 	//
 	//===========================================================================
 
-	States
+	private void MakeLODObject(class<Actor> cls)
 	{
-	Spawn:
-		XSMK A -1;
-		Stop;
+		ThinkerIterator it = ThinkerIterator.Create(cls);
+		Actor mo;
+		while (mo = Actor(it.Next()))
+		{
+			objects[index].cls = mo.GetClass();
+			objects[index++].Pos = mo.Pos;
+			if (index >= MAX_OBJECTS)
+				index = MAX_OBJECTS - 1;
+			mo.Destroy();
+		}
 	}
 }
