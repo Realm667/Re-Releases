@@ -30,7 +30,7 @@
 //
 //===========================================================================
 
-class TCOTDTree : TCOTDSimpleActor
+class TCOTDTree : Actor
 {
 	Default
 	{
@@ -39,6 +39,14 @@ class TCOTDTree : TCOTDSimpleActor
 		Radius 16;
 		+SOLID
 	}
+
+	override void PostBeginPlay(void)
+	{
+		Super.PostBeginPlay();
+		ChangeStatNum(STAT_INFO);
+	}
+
+	override void Tick(void) {}
 }
 
 class TCOTDTree01 : TCOTDTree replaces FloatingSkull
