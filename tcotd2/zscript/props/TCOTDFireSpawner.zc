@@ -88,7 +88,9 @@ class TCOTDFireSpawner : TCOTDSwitchableDecoration
 			if (!CheckSightOrRange(1000.0, true))
 			{
 				SpawnFire();
-				TCOTDFire.SpawnEmbers(self);
+
+				if (GetAge() % 5 == 0)
+					TCOTDFire.SpawnEmbers(self);
 			}
 		}
 		Goto Active + 1;

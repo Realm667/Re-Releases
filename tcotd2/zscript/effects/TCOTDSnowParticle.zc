@@ -33,7 +33,7 @@
 //
 //===========================================================================
 
-class TCOTDSnowParticle : TCOTDParticle
+class TCOTDSnowParticle : Actor
 {
 	mixin TCOTDClientSideOnlyMixin;
 
@@ -75,12 +75,16 @@ class TCOTDSnowParticle : TCOTDParticle
 
 	override void Tick(void)
 	{
-		if (Pos.Z <= FloorZ)
-		{
-			Destroy();
+		if (Vel != (0, 0, 0))
+			SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
+
+		if (tics == -1)
 			return;
-		}
-		Super.Tick();
+		else if (--tics <= 0)
+			SetState(CurState.NextState);
+
+		if (Pos.Z <= FloorZ)
+			Destroy();
 	}
 
 	//===========================================================================
@@ -94,6 +98,12 @@ class TCOTDSnowParticle : TCOTDParticle
 	Spawn:
 		SNOW A 1 NoDelay
 		{
+			if (!Level.IsPointInLevel(Pos))
+			{
+				Destroy();
+				return ResolveState(NULL);
+			}
+
 			A_FadeIn(0.04);
 			if (Alpha >= 0.75 && GetAge() > 50)
 			{
