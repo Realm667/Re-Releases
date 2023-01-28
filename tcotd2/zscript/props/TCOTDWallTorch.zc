@@ -49,18 +49,28 @@ class TCOTDWallTorch : TCOTDSwitchableDecoration replaces BlueTorch
 	{
 	Spawn:
 	Active:
-		TBLX A 0 A_StartSound("Ignite");
-		TBLX A 3 Bright Light("WALLTORCH")
+		TBLX A 3 Bright NoDelay Light("WALLTORCH")
 		{
 			if (!CheckRange(1000.0, true))
 			{
+				if (!IsActorPlayingSound(CHAN_VOICE, "SFX/FireLoop1"))
+					A_StartSound("SFX/FireLoop1", CHAN_VOICE, CHANF_LOOP, volume: 0.1, startTime: frandom(0.f, S_GetLength("SFX/FireLoop1")));
+
 				A_SpawnItemEx("TCOTDWallTorchFlame",
 					frandom[rnd_WallTorchFireSpawn](-2.0, 2.0), frandom[rnd_WallTorchFireSpawn](-2.0, 2.0), frandom[rnd_WallTorchFireSpawn](74.0, 76.0),
 					0.001 * frandom[rnd_WallTorchFireSpawn](10.0, 200.0), 0.001 * frandom[rnd_WallTorchFireSpawn](10.0, 200.0), 0.001 * frandom[rnd_WallTorchFireSpawn](500.0, 1000.0));
 			}
+			else if (IsActorPlayingSound(CHAN_VOICE, "SFX/FireLoop1"))
+			{
+				A_StopSound(CHAN_VOICE);
+			}
 		}
-		Goto Active + 1;
+		Loop;
 	Inactive:
+		TBLX A 1
+		{
+			A_StopSound(CHAN_VOICE);
+		}
 		TBLX A -1;
 		Stop;
 	}
