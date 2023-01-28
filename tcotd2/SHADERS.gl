@@ -1,3 +1,9 @@
+//===========================================================================
+//
+// POST PROCESS SHADERS
+//
+//===========================================================================
+
 // Underwater shader
 HardwareShader PostProcess scene
 {
@@ -6,7 +12,8 @@ HardwareShader PostProcess scene
 	Uniform float timer
 }
 
-//HeatEffect shader
+// Heat haze shader
+/*
 HardwareShader PostProcess scene
 {
 	Name "heatshader"
@@ -14,8 +21,9 @@ HardwareShader PostProcess scene
 	Uniform float amount
 	Uniform float timer
 }
+*/
 
-//MotionBlur shader
+// MotionBlur shader
 HardwareShader PostProcess beforebloom
 {
 	Name "motionblur"
@@ -25,6 +33,12 @@ HardwareShader PostProcess beforebloom
 	Uniform float increment
 	Uniform int blendmode
 }
+
+//===========================================================================
+//
+// MATERIAL SHADERS
+//
+//===========================================================================
 
 // Fog Cloud
 HardwareShader Sprite XSMKA0
@@ -40,14 +54,14 @@ Material Texture BOSSWALL
 	Speed 0.6
 }
 
-//Bush
+// Bush
 HardwareShader Sprite BUSZA0
 {
 	Shader "shaders/grass_sway.fp"
 	Speed 0.8
 }
 
-//Grasses
+// Grasses
 HardwareShader Sprite GRS1A0
 {
 	Shader "shaders/grass_sway.fp"
@@ -102,7 +116,7 @@ HardwareShader Sprite TRE1A0
 	Speed 0.70
 }
 
-//Trees
+// Trees
 HardwareShader Texture X_WOOD01
 {
 	Shader "shaders/trees_sway.fp"
@@ -115,7 +129,7 @@ HardwareShader Texture X_WOOD02
 	Speed 0.50
 }
 
-//Swirl Flatsprite
+// Swirl Flatsprite
 HardwareShader Sprite SWRXA0
 {
 	Shader "shaders/rotate_cw.fp"
