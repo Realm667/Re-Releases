@@ -73,7 +73,7 @@ class TCOTDFogCloud : TCOTDSimpleActor
 	override void Tick(void)
 	{
 		// make the actor invisible if feature is disabled
-		bInvisible = !CVar.GetCVar("tcotd2_weatherfx", players[consoleplayer]).GetBool();
+		bInvisible = !CVar.GetCVar("tcotd2_fog", players[consoleplayer]).GetBool();
 
 		Super.Tick();
 
