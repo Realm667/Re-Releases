@@ -43,6 +43,12 @@ class TCOTDHeatHaze : TCOTDSwitchableDecoration
 
 	override void Touch(Actor other)
 	{
+		if (!other)
+			return;
+
+		if (!(other is "PlayerPawn"))
+			return;
+
 		Super.Touch(other);
 
 		if (bDormant)
