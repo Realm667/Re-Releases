@@ -37,6 +37,11 @@ class TCOTDPlayer : PlayerPawn
 	const WALK_SPEED = 0.3;
 	const RUN_SPEED = 0.6;
 
+	const CHAN_AMB_OUTSIDE = 777;
+	const CHAN_AMB_INSIDE = 778;
+
+	const SND_VOL_DYNAMIC = 0.00001;
+
 	double strafeInput;
 	double moveTiltOsc, underwaterTiltOsc;
 	double deathTiltOsc;
@@ -48,6 +53,8 @@ class TCOTDPlayer : PlayerPawn
 	bool wasDamaged;
 
 	TCOTDPlayerLanternLight myLantern;
+
+	double ambSoundVolOut;
 
 	//===========================================================================
 	//
@@ -90,6 +97,7 @@ class TCOTDPlayer : PlayerPawn
 
 		Super.Tick();
 
+		UpdateAmbientSoundLoop();
 		UpdateViewRoll();
 		UpdateLantern();
 
@@ -484,7 +492,7 @@ class TCOTDPlayer : PlayerPawn
 				let madness = Madness(FindInventory("madness", true));
 				if (madness)
 				{
-					A_StartSound("UWLAUGH",CHAN_BODY);
+					A_StartSound("UWLAUGH", CHAN_BODY);
 				}
 
 			if (deathTiltAngle == 0)
@@ -594,6 +602,41 @@ class TCOTDPlayer : PlayerPawn
 			warpFlags,
 			pitch: pitchOffset
 		);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void UpdateAmbientSoundLoop(void)
+	{
+		if (Level.maptime < 35)
+			return;
+
+		if (self == players[consoleplayer].mo)
+		{
+			if (!IsActorPlayingSound(CHAN_AMB_OUTSIDE, "AmbientLoopOutside"))
+				A_StartSound("AmbientLoopOutside", CHAN_AMB_OUTSIDE, CHANF_LOOP, volume: SND_VOL_DYNAMIC, attenuation: ATTN_NONE);
+
+			if (!IsActorPlayingSound(CHAN_AMB_INSIDE, "AmbientLoopInside"))
+				A_StartSound("AmbientLoopInside", CHAN_AMB_INSIDE, CHANF_LOOP, volume: SND_VOL_DYNAMIC, attenuation: ATTN_NONE);
+
+			let cam = players[consoleplayer].camera;
+			if (cam)
+			{
+				if (cam.ceilingpic == skyflatnum)
+					ambSoundVolOut += 0.05;
+				else
+					ambSoundVolOut -= 0.05;
+
+				ambSoundVolOut = clamp(ambSoundVolOut, 0, 1);
+
+				A_SoundVolume(CHAN_AMB_OUTSIDE, ambSoundVolOut * 0.17);
+				A_SoundVolume(CHAN_AMB_INSIDE, (1. - ambSoundVolOut) * 0.33);
+			}
+		}
 	}
 
 	//===========================================================================
