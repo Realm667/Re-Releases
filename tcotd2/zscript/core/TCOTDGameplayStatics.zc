@@ -31,4 +31,21 @@ class TCOTDGameplayStatics play
 			mo.Destroy();
 		}
 	}
+
+	static int SeedFromLevelChecksum(void)
+	{
+		String checksum = Level.GetChecksum();
+
+		// should be always 32 for MD5 checksum
+		int length = checksum.Length();
+
+		int seed = 0;
+
+		for (int i = 0; i < length; ++i)
+		{
+			seed ^= checksum.ByteAt(i) << 8 * (i % 4);
+		}
+
+		return seed;
+	}
 }

@@ -410,18 +410,23 @@ class TCOTDPropBalloon4 : TCOTDPropBalloon1
 	}
 }
 
-class TCOTDPropDeadDoc : TCOTDProp
+class TCOTDPropDeadDocRandomM : TCOTDProp
 {
 	Default
 	{
-		//$Title Dead Doctor A (Male)
+		//$Title Dead Doctor Randomized (Male)
 		Scale 0.6;
 	}
 
 	States
 	{
 	Spawn:
-		XB14 A 0 NoDelay A_Jump(256, 1, 2, 3, 4, 5);
+		XB14 A -1 NoDelay
+		{
+			frame = random[rnd_DocM](0, 4);
+		}
+		Stop;
+	Sprites:
 		XB14 A -1;
 		XB14 B -1;
 		XB14 C -1;
@@ -431,18 +436,23 @@ class TCOTDPropDeadDoc : TCOTDProp
 	}
 }
 
-class TCOTDPropDeadDoc2 : TCOTDProp
+class TCOTDPropDeadDocRandomF : TCOTDProp
 {
 	Default
 	{
-		//$Title Dead Doctor B (Female)
+		//$Title Dead Doctor Randomized (Female)
 		Scale 0.6;
 	}
 
 	States
 	{
 	Spawn:
-		XB14 F 0 NoDelay A_Jump(256, 1, 2, 3, 4, 5);
+		XB14 A -1 NoDelay
+		{
+			frame = random[rnd_DocF](5, 9);
+		}
+		Stop;
+	Sprites:
 		XB14 F -1;
 		XB14 G -1;
 		XB14 H -1;
