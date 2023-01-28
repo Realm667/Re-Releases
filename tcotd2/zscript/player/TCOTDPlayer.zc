@@ -56,6 +56,9 @@ class TCOTDPlayer : PlayerPawn
 
 	double ambSoundVolOut;
 
+	const FOOTSTEP_COUNTER_MAX = 85.;
+	double footstepCounter;
+
 	//===========================================================================
 	//
 	//
@@ -97,6 +100,7 @@ class TCOTDPlayer : PlayerPawn
 
 		Super.Tick();
 
+		DoFootSteps();
 		UpdateAmbientSoundLoop();
 		UpdateViewRoll();
 		UpdateLantern();
@@ -645,13 +649,101 @@ class TCOTDPlayer : PlayerPawn
 	//
 	//===========================================================================
 
+	private sound GetFootstepSound(void)
+	{
+		// default sound
+		Sound ret = "floor/default";
+
+		// use sound from terrain, if it exists
+		let tr = GetFloorTerrain();
+		if (tr && tr.LeftStepSound)
+		{
+			ret = tr.LeftStepSound;
+		}
+
+		return ret;
+	}
+
+	void DoFootsteps(void)
+	{
+		// immediately play a footstep sound if standing still
+		if (player.onground && Vel.XY.Length() ~== 0)
+		{
+			footstepCounter = FOOTSTEP_COUNTER_MAX;
+			return;
+		}
+
+		// no need to play footsteps when in deep water
+		if (WaterLevel > 1)
+			return;
+
+		bool shouldPlayFootstepSound = false;
+
+		// get character velocity
+		double aVel = TCOTDGameplayStatics.GetVelocity(self, xyOnly: true);
+
+		// don't bother if moving too slow
+		if (aVel < 0.1)
+			return;
+
+		// set the sound volume
+		double vol = min(aVel * 0.1, 1.0);
+		//vol *= 0.7;
+		if (CheckLocalView())
+			vol *= CVar.GetCVar("tcotd2_footstepvolume", player).GetFloat();
+		vol = clamp(vol, 0.0, 1.0);
+
+		// clamp the velocity value to pleasing values
+		// yay magic numbers!
+		aVel = clamp(aVel, 2.24, 7.35);
+
+		// add to counter if moving, decrease it otherwise
+		if (aVel < 0.01)
+			footstepCounter *= 0.5;
+		else
+			footstepCounter += aVel;
+
+		// play the footstep sound
+		if (footstepCounter > FOOTSTEP_COUNTER_MAX)
+		{
+			shouldPlayFootstepSound = true;
+		}
+
+		if (shouldPlayFootstepSound)
+		{
+			// TO DO: is Z offset portal aware or not?
+			Vector3 sPos =
+			(
+				0.0,
+				0.0,
+				TCOTDFootstep.GetZOffset(self)
+			);
+			let fs = TCOTDFootstep(self.Spawn("TCOTDFootstep", self.Pos + sPos, NO_REPLACE));
+			if (fs)
+			{
+				fs.pmo = self;
+				fs.vol = vol;
+				fs.snd = GetFootstepSound();
+			}
+
+			// reset footstep counter
+			footstepCounter = 0;
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	States
 	{
 	Spawn:
 		PLAY A -1;
 		Loop;
 	See:
-		PLAY AABBCCDD 4;
+		PLAY ABCD 4;
 		Loop;
 	Missile:
 		PLAY E 12;

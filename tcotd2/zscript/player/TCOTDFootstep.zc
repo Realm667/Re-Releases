@@ -26,13 +26,22 @@
 
 //===========================================================================
 //
-//
+// TCOTDFootstep
+// Plays a footstep sound when spawned
 //
 //===========================================================================
 
 class TCOTDFootstep : Actor
 {
-	PlayerPawn pmo;
+	mixin TCOTDClientsideOnlyMixin;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	TCOTDPlayer pmo;
 	double vol;
 	Sound snd;
 
@@ -44,6 +53,7 @@ class TCOTDFootstep : Actor
 
 	Default
 	{
+		RenderStyle "None";
 		+DONTSPLASH
 		+CORPSE
 		+NOTIMEFREEZE
@@ -77,10 +87,31 @@ class TCOTDFootstep : Actor
 		}
 	}
 
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static double GetZOffset(TCOTDPlayer self)
+	{
+		// determine how high up to spawn the footstep actor
+		return abs(self.Vel.Z);
+	}
+
 	void A_PlayFootstepSound(void)
 	{
 		int attn = (pmo == players[consoleplayer].mo) ? ATTN_NONE : ATTN_NORM;
 		A_StartSound(snd, volume: vol, attenuation: attn);
+
+		// add water splash sound
+		/*
+		if (pmo.WaterLevel == 1)
+		{
+			String liqType = TCOTDPlayer(pmo).GetLiquidStr();
+			A_StartSound(liqType .. "_splash_small", CHAN_AUTO, volume: vol, attenuation: attn);
+		}
+		*/
 	}
 
 	//===========================================================================
