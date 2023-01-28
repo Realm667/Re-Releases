@@ -40,19 +40,20 @@ class TCOTDFoliage : TCOTDSimpleActor
 		//$Color 2
 	}
 
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
-
-	States
+	override void PostBeginPlay(void)
 	{
-	SpawnLoop:
-		"####" "#" -1;
-		Stop;
+		Super.PostBeginPlay();
+		ChangeStatNum(STAT_INFO);
 	}
+
+	override void Tick(void) {}
 }
+
+//===========================================================================
+//
+// GRASS
+//
+//===========================================================================
 
 class TCOTDGrass : TCOTDFoliage
 {
@@ -72,8 +73,8 @@ class TCOTDGrass01 : TCOTDGrass
 	States
 	{
 	Spawn:
-		GRS1 A 0;
-		Goto SpawnLoop;
+		GRS1 A -1;
+		Stop;
 	}
 }
 
@@ -87,8 +88,8 @@ class TCOTDGrass02 : TCOTDGrass
 	States
 	{
 	Spawn:
-		GRS2 A 0;
-		Goto SpawnLoop;
+		GRS2 A -1;
+		Stop;
 	}
 }
 
@@ -102,10 +103,16 @@ class TCOTDGrass03 : TCOTDGrass
 	States
 	{
 	Spawn:
-		GRS3 A 0;
-		Goto SpawnLoop;
+		GRS3 A -1;
+		Stop;
 	}
 }
+
+//===========================================================================
+//
+// BUSHES
+//
+//===========================================================================
 
 class TCOTDBigBush : TCOTDFoliage
 {
@@ -118,10 +125,16 @@ class TCOTDBigBush : TCOTDFoliage
 	States
 	{
 	Spawn:
-		BUSZ A 0;
-		Goto SpawnLoop;
+		BUSZ A -1;
+		Stop;
 	}
 }
+
+//===========================================================================
+//
+// MUSHROOMS
+//
+//===========================================================================
 
 class TCOTDMushroom01 : TCOTDFoliage
 {
@@ -134,8 +147,8 @@ class TCOTDMushroom01 : TCOTDFoliage
 	States
 	{
 	Spawn:
-		MUSH A 0;
-		Goto SpawnLoop;
+		MUSH A -1;
+		Stop;
 	}
 }
 
@@ -149,8 +162,8 @@ class TCOTDMushroom02 : TCOTDFoliage
 	States
 	{
 	Spawn:
-		MUSH B 0;
-		Goto SpawnLoop;
+		MUSH B -1;
+		Stop;
 	}
 }
 
@@ -164,10 +177,16 @@ class TCOTDMushroom03 : TCOTDFoliage
 	States
 	{
 	Spawn:
-		MUSH C 0;
-		Goto SpawnLoop;
+		MUSH C -1;
+		Stop;
 	}
 }
+
+//===========================================================================
+//
+// ROCKS
+//
+//===========================================================================
 
 class TCOTDRock : TCOTDFoliage
 {
@@ -189,8 +208,8 @@ class TCOTDRock01 : TCOTDRock
 	States
 	{
 	Spawn:
-		BROC A 0;
-		Goto SpawnLoop;
+		BROC A -1;
+		Stop;
 	}
 }
 
@@ -204,8 +223,8 @@ class TCOTDRock02 : TCOTDRock
 	States
 	{
 	Spawn:
-		BROC B 0;
-		Goto SpawnLoop;
+		BROC B -1;
+		Stop;
 	}
 }
 
@@ -219,8 +238,8 @@ class TCOTDRock03 : TCOTDRock
 	States
 	{
 	Spawn:
-		BROC C 0;
-		Goto SpawnLoop;
+		BROC C -1;
+		Stop;
 	}
 }
 
@@ -234,7 +253,7 @@ class TCOTDRock04 : TCOTDRock
 	States
 	{
 	Spawn:
-		BROC D 0;
-		Goto SpawnLoop;
+		BROC D -1;
+		Stop;
 	}
 }

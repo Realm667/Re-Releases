@@ -55,30 +55,6 @@ class TCOTDLODHandler : EventHandler
 
 	override void WorldTick(void)
 	{
-		if (Level.maptime == 1)
-		{
-			MakeLODObject("TCOTDGrass01");
-			MakeLODObject("TCOTDGrass02");
-			MakeLODObject("TCOTDGrass03");
-			MakeLODObject("TCOTDBigBush");
-			MakeLODObject("TCOTDMushroom01");
-			MakeLODObject("TCOTDMushroom02");
-			MakeLODObject("TCOTDMushroom03");
-			MakeLODObject("TCOTDRock01");
-			MakeLODObject("TCOTDRock02");
-			MakeLODObject("TCOTDRock03");
-			MakeLODObject("TCOTDRock04");
-			//MakeLODObject("TCOTDTree01");
-			//MakeLODObject("TCOTDTree02");
-			//MakeLODObject("TCOTDTree03");
-			//MakeLODObject("TCOTDTree04");
-			//MakeLODObject("TCOTDTree05");
-			//MakeLODObject("TCOTDTree06");
-			//MakeLODObject("TCOTDTree07");
-			//MakeLODObject("TCOTDTree08");
-			//MakeLODObject("TCOTDFogCloud");
-		}
-
 		if (tickInterval-- > 0)
 			return;
 
@@ -129,4 +105,39 @@ class TCOTDLODHandler : EventHandler
 			mo.Destroy();
 		}
 	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+	/*
+	static void CreateLevelLODObjects(void)
+	{
+		let eh = TCOTDLODHandler(TCOTDLODHandler.Find("TCOTDLODHandler"));
+		if (!eh)
+			return;
+
+		eh.MakeLODObject("TCOTDGrass01");
+		eh.MakeLODObject("TCOTDGrass02");
+		eh.MakeLODObject("TCOTDGrass03");
+		eh.MakeLODObject("TCOTDBigBush");
+		eh.MakeLODObject("TCOTDMushroom01");
+		eh.MakeLODObject("TCOTDMushroom02");
+		eh.MakeLODObject("TCOTDMushroom03");
+		eh.MakeLODObject("TCOTDRock01");
+		eh.MakeLODObject("TCOTDRock02");
+		eh.MakeLODObject("TCOTDRock03");
+		eh.MakeLODObject("TCOTDRock04");
+		//MakeLODObject("TCOTDTree01");
+		//eh.MakeLODObject("TCOTDTree02");
+		//eh.MakeLODObject("TCOTDTree03");
+		//eh.MakeLODObject("TCOTDTree04");
+		//eh.MakeLODObject("TCOTDTree05");
+		//eh.MakeLODObject("TCOTDTree06");
+		//eh.MakeLODObject("TCOTDTree07");
+		//eh.MakeLODObject("TCOTDTree08");
+		//eh.MakeLODObject("TCOTDFogCloud");
+	}
+	*/
 }
