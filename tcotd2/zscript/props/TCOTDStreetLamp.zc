@@ -65,7 +65,6 @@ class TCOTDStreetLamp : TCOTDSwitchableDecoration replaces ShortBlueTorch
 		{
 			if (!CheckSightOrRange(1000.0, true))
 			{
-				// To do: no embers yet
 				A_SpawnItemEx("TCOTDStreetLampFlame", 0, 0, -32.0 + frandom[rnd_StreetLampFire](24.0, 26.0), 0, 0, frandom[rnd_StreetLampFire](1.0, 2.5));
 			}
 		}
@@ -76,10 +75,8 @@ class TCOTDStreetLamp : TCOTDSwitchableDecoration replaces ShortBlueTorch
 	}
 }
 
-class TCOTDStreetLampFlame : TCOTDParticle
+class TCOTDStreetLampFlame : TCOTDFire
 {
-	mixin TCOTDFireMixin;
-
 	Default
 	{
 		Scale 0.3;

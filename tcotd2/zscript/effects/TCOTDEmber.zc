@@ -1,47 +1,110 @@
-class TCOTDEmber : TCOTDParticle
-{
-	double thrustmin, thrustmax, thrustminz, thrustmaxz;
-	int delay;
+// Copyright 2020 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-	Property Thrust:thrustmin, thrustmax;
-	Property ThrustZ:thrustminz, thrustmaxz;
-	Property Delay:delay;
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+class TCOTDEmber : Actor
+{
+	const MAX_ALPHA = 0.8;
+	int fadeState;
+	int life;
+	bool ticked;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
 
 	Default
 	{
 		Height 2;
 		Radius 1;
+		RenderStyle "Add";
+		Alpha 1;
+		Scale 0.025;
+		+NOINTERACTION
+		+NOGRAVITY
 		+DONTSPLASH
 		+FORCEXYBILLBOARD
-		+MISSILE
-		+NOBLOCKMAP
-		+NOCLIP
-		+NOGRAVITY
-		+NOINTERACTION
-		RenderStyle "Add";
-		Alpha 0.8;
-		Scale 0.05;
-		TCOTDEmber.Thrust 0, 1;
-		TCOTDEmber.ThrustZ 1, 4;
-		TCOTDEmber.Delay 32;
 	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Tick(void)
+	{
+		if (!ticked)
+		{
+			Super.Tick();
+			ticked = true;
+		}
+
+		if (fadeState == 0)
+		{
+			if (Alpha < MAX_ALPHA)
+				Alpha += 0.007;
+			else
+				fadeState = 1;
+		}
+		else if (fadeState == 1)
+		{
+			if (life < 100)
+				life++;
+			else
+				fadeState = 2;
+		}
+		else if (fadeState == 2)
+		{
+			if (Alpha > 0)
+				Alpha -= 0.1;
+			else
+				Destroy();
+		}
+
+		SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
 
 	States
 	{
 		Spawn:
 			EMBR A -1;
-		FadeLoop:
-			EMBR A 2 Bright A_FadeOut(0.05, FTF_REMOVE);
-			Loop;
-	}
-
-	override void PostBeginPlay()
-	{
-		Super.PostBeginPlay();
-
-		Thrust(frandom(thrustmin, thrustmax), random(0, 359));
-		vel.z = frandom(thrustminz, thrustmaxz) / 4;
-
-		tics = delay;
+			Stop;
 	}
 }

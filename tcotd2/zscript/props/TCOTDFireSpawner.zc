@@ -26,56 +26,22 @@
 
 //===========================================================================
 //
-// Customizable fire spawner
+// FireSpawner
 //
 //===========================================================================
 
-class TCOTDFireSpawner : Actor
+class TCOTDFireSpawner : TCOTDSwitchableDecoration
 {
-	Actor light;
-
 	Default
 	{
 		//$Category Special Effects (TCOTD2)
 		//$Title Fire Spawner
 		//$Color 12
-		//$Arg0 "Size"
-		//$Arg0Type 11
-		//$Arg0Enum { 0 = "Small"; 1 = "Medium"; 2 = "Large"; }
-		//$Arg1 "Sound"
-		//$Arg1Type 11
-		//$Arg1Enum { 0 = "Yes"; 1 = "No"; }
 		Height 40;
 		Radius 30;
 		+DONTSPLASH
 		+NOCLIP
 		+NOGRAVITY
-	}
-
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
-
-	bool SoundEnabled(void)
-	{
-		return Args[1] == 0;
-	}
-
-	bool IsSmallFire(void)
-	{
-		return Args[0] == 0;
-	}
-
-	bool IsMediumFire(void)
-	{
-		return Args[0] == 1;
-	}
-
-	bool IsLargeFire(void)
-	{
-		return Args[0] == 2;
 	}
 
 	//===========================================================================
@@ -92,71 +58,14 @@ class TCOTDFireSpawner : Actor
 			double fireScale;
 			double vx, vy, vz;
 
-			if (IsSmallFire())
-			{
-				fireScale = 0.35;
-				vx = frandom(-1.0, 1.0);
-				vy = frandom(-1.0, 1.0);
-				vz = frandom(2.0, 4.0);
-			}
-			else if (IsMediumFire())
-			{
-				fireScale = 0.7;
-				vx = frandom(-2.0, 2.0);
-				vy = frandom(-2.0, 2.0);
-				vz = frandom(6.0, 8.0);
-			}
-			else if (IsLargeFire())
-			{
-				fireScale = 1.4;
-				vx = frandom(-4.0, 4.0);
-				vy = frandom(-4.0, 4.0);
-				vz = frandom(10.0, 12.0);
-			}
+			fireScale = 0.35;
+			vx = frandom[rnd_SpawnFire](-1.0, 1.0);
+			vy = frandom[rnd_SpawnFire](-1.0, 1.0);
+			vz = frandom[rnd_SpawnFire](2.0, 4.0);
 
 			fire.A_SetScale(fireScale);
 			fire.Vel = (vx, vy, vz);
 		}
-	}
-
-	void SpawnEmber(void)
-	{
-		let ember = Spawn("TCOTDEmber", Pos, NO_REPLACE);
-		if (ember)
-		{
-			double ox, oy, oz;
-			double vx, vy, vz;
-
-			vx = frandom(-1.0, 1.0);
-			vy = frandom(-1.0, 1.0);
-			vz = frandom(1.0, 4.0);
-
-			ember.Vel = (vx, vy, vz);
-		}
-	}
-
-	void SpawnLight(void)
-	{
-		// To do: the lights look really weird. Improve this
-		String cls;
-		if (IsSmallFire())
-		{
-			cls = "TCOTDFireSpawnerLightSmall";
-		}
-		else if (IsMediumFire())
-		{
-			cls = "TCOTDFireSpawnerLightMedium";
-		}
-		else if (IsLargeFire())
-		{
-			cls = "TCOTDFireSpawnerLightLarge";
-		}
-		light = Spawn(cls, Pos, NO_REPLACE);
-	}
-
-	void RemoveLight(void)
-	{
-		if (light) light.Destroy();
 	}
 
 	//===========================================================================
@@ -169,61 +78,33 @@ class TCOTDFireSpawner : Actor
 	{
 	Spawn:
 	Active:
-		TNT1 A 4
+		TNT1 A 4 NoDelay
 		{
-			if (SoundEnabled())
-			{
-				A_StartSound("SFX/FireStart", CHAN_7);
-
-				Sound snd;
-				if (IsSmallFire())
-				{
-					snd = "SFX/FireLoop1";
-				}
-				else if (IsMediumFire())
-				{
-					snd = "SFX/FireLoop2";
-				}
-				else if (IsLargeFire())
-				{
-					snd = "SFX/FireLoop3";
-				}
-
-				A_StartSound(snd, CHAN_6, CHANF_LOOP, 1.0);
-
-				SpawnLight();
-			}
+			A_StartSound("SFX/FireStart", CHAN_7);
+			A_StartSound("SFX/FireLoop2", CHAN_6, CHANF_LOOP, 1.0, startTime: frandom(0.f, S_GetLength("SFX/FireLoop2")));
 		}
 		TNT1 A 1
 		{
 			if (!CheckSightOrRange(1000.0, true))
 			{
 				SpawnFire();
-				SpawnEmber();
+				TCOTDFire.SpawnEmbers(self);
 			}
 		}
 		Goto Active + 1;
 	Inactive:
 		TNT1 A 0
 		{
+			A_StartSound("SFX/FireDie", CHAN_7);
 			A_StopSound(CHAN_6);
-
-			if (SoundEnabled())
-			{
-				A_StartSound("SFX/FireDie", CHAN_7);
-			}
-
-			RemoveLight();
 		}
 		TNT1 A -1;
 		Stop;
 	}
 }
 
-class TCOTDFireSpawnerFlame : TCOTDParticle
+class TCOTDFireSpawnerFlame : TCOTDFire
 {
-	mixin TCOTDFireMixin;
-
 	States
 	{
 	Spawn:
@@ -238,44 +119,5 @@ class TCOTDFireSpawnerFlame : TCOTDParticle
 	Flame3:
 		FLM5 A 0;
 		Goto SpawnLoop;
-	}
-}
-
-class TCOTDFireSpawnerLight : TCOTDSimpleActor
-{
-	Default
-	{
-		+NOINTERACTION
-	}
-}
-
-class TCOTDFireSpawnerLightSmall : TCOTDFireSpawnerLight
-{
-
-	States
-	{
-	Spawn:
-		TNT1 A 1 Light("FireSpawnerSmall");
-		Loop;
-	}
-}
-
-class TCOTDFireSpawnerLightMedium : TCOTDFireSpawnerLight
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 Light("FireSpawnerMedium");
-		Loop;
-	}
-}
-
-class TCOTDFireSpawnerLightLarge : TCOTDFireSpawnerLight
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 Light("FireSpawnerLarge");
-		Loop;
 	}
 }

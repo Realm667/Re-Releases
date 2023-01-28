@@ -49,18 +49,16 @@ class TCOTDMinotaurTorch : RedTorch replaces RedTorch
 		{
 			if (!CheckSightOrRange(1000.0, true))
 			{
-				// To do: no embers yet
 				A_SpawnItemEx("TCOTDMinotaurTorchFlame", 0, 0, frandom[rnd_MinoTorch](38, 40), 0, 0, frandom[rnd_MinoTorch](1.0, 4.5));
+				TCOTDFire.SpawnEmbers(self, Height / 2);
 			}
 		}
 		Goto Spawn + 1;
 	}
 }
 
-class TCOTDMinotaurTorchFlame : TCOTDParticle
+class TCOTDMinotaurTorchFlame : TCOTDFire
 {
-	mixin TCOTDFireMixin;
-
 	Default
 	{
 		Scale 0.5;

@@ -26,12 +26,14 @@
 
 //===========================================================================
 //
-// Common code for fire effects
+// Base class for fire effects
 //
 //===========================================================================
 
-mixin class TCOTDFireMixin
+class TCOTDFire : TCOTDParticle
 {
+	mixin TCOTDClientSideOnlyMixin;
+
 	bool fadedIn;
 
 	//===========================================================================
@@ -57,12 +59,42 @@ mixin class TCOTDFireMixin
 	//
 	//===========================================================================
 
+	static void SpawnEmbers(Actor self, double zOfs = 0, double defRange = 350., double xyOfsRange = 20.)
+	{
+		if (!self)
+			return;
+
+		if (self.CheckRange(defRange, true))
+			return;
+
+		let ember = self.Spawn("TCOTDEmber", self.Pos, NO_REPLACE);
+		if (ember)
+		{
+			double ox, oy, oz;
+			double vx, vy, vz;
+			vx = frandom[rnd_SpawnEmber](-0.12, 0.12);
+			vy = frandom[rnd_SpawnEmber](-0.12, 0.12);
+			vz = frandom[rnd_SpawnEmber](0.5, 1.0);
+			ox = frandom[rnd_SpawnEmber](-xyOfsRange, xyOfsRange);
+			oy = frandom[rnd_SpawnEmber](-xyOfsRange, xyOfsRange);
+			oz = frandom[rnd_SpawnEmber](5.0, 10.0);
+			ember.SetOrigin(ember.Vec3Offset(ox, oy, oz + zOfs), false);
+			ember.Vel = (vx, vy, vz);
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	States
 	{
 	SpawnLoop:
 		"####" "#" 0
 		{
-			bSpriteFlip = RandomPick(false, true);
+			bSpriteFlip = RandomPick[rnd_FireSpawn](false, true);
 			A_SetRoll(frandom[rnd_FireSpawn](0.0, 360.0));
 		}
 		"####" "#" 1

@@ -49,7 +49,6 @@ class TCOTDTallTorch : ShortRedTorch replaces ShortRedTorch
 		{
 			if (!CheckRange(1000.0, true))
 			{
-				// To do: no embers yet
 				A_SpawnItemEx("TCOTDTallTorchFlame", 0, 0, frandom[rnd_TallTorchFireSpawn](64.0, 66.0), 0, 0, frandom[rnd_TallTorchFireSpawn](1.0, 2.5));
 			}
 		}
@@ -57,10 +56,8 @@ class TCOTDTallTorch : ShortRedTorch replaces ShortRedTorch
 	}
 }
 
-class TCOTDTallTorchFlame : TCOTDParticle
+class TCOTDTallTorchFlame : TCOTDFire
 {
-	mixin TCOTDFireMixin;
-
 	Default
 	{
 		Scale 0.3;
