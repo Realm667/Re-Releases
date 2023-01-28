@@ -671,9 +671,18 @@ class TCOTDPlayerLanternLight : Actor
 	}
 }
 
-//Dummy Item for hiding the HUD
+// Dummy item for hiding the HUD
 class CutsceneEnabled : Inventory
 {
+	override void AttachToOwner(Actor other)
+	{
+		Super.AttachToOwner(other);
+		if (Owner && Owner is "PlayerPawn")
+		{
+			Owner.A_StopAllSounds();
+		}
+	}
+
 	States
 	{
 	Spawn:

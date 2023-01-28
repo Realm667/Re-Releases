@@ -32,6 +32,8 @@
 
 class TCOTDPlayerHandler : EventHandler
 {
+	ui double deathAlpha;
+
 	//===========================================================================
 	//
 	//
@@ -58,6 +60,27 @@ class TCOTDPlayerHandler : EventHandler
 		*/
 	}
 
+	override void PlayerDied(PlayerEvent e)
+	{
+		PlayerPawn pmo = players[e.PlayerNumber].mo;
+
+		if (pmo == players[consoleplayer].mo)
+		{
+			SetMusicVolume(0);
+			pmo.A_StartSound("fakemusic/THEEND", CHAN_AUTO, CHANF_UI);
+		}
+	}
+
+	override void PlayerRespawned(PlayerEvent e)
+	{
+		PlayerPawn pmo = players[e.PlayerNumber].mo;
+
+		if (pmo == players[consoleplayer].mo)
+		{
+			SetMusicVolume(snd_musicvolume);
+		}
+	}
+
 	//===========================================================================
 	//
 	//
@@ -75,4 +98,64 @@ class TCOTDPlayerHandler : EventHandler
 	{
 	}
 	*/
+
+	override void UITick(void)
+	{
+		let cplayer = players[consoleplayer];
+		let pmo = cplayer.mo;
+		if (cplayer && pmo)
+		{
+			if ((!multiplayer && Menu.GetCurrentMenu()) || paused || TCOTDGameplayStatics.IsConsoleVisible())
+				return;
+
+			if (pmo.CountInv("CutsceneEnabled"))
+			{
+				deathAlpha = 0;
+				return;
+			}
+
+			if (pmo.player.playerstate == PST_DEAD)
+			{
+				if (deathAlpha < 1.)
+					deathAlpha += 0.00420;
+
+				deathAlpha = clamp(deathAlpha, 0., 1.);
+			}
+			else
+			{
+				if (deathAlpha > 0)
+					deathAlpha *= 0.666;
+			}
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void RenderOverlay(RenderEvent e)
+	{
+		DrawLowHealth(e);
+		DrawDeathScreen(e);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	ui void DrawDeathScreen(RenderEvent e)
+	{
+		Color col = Color(0, 0, 0);
+		Screen.Dim(col, deathAlpha, 0, 0, Screen.GetWidth(), Screen.GetHeight());
+		String txt = StringTable.Localize("$TXT_YOU_DIED");
+		Screen.DrawText(BigFont, Font.CR_RED, 160 - (BigFont.StringWidth(txt) / 2), 100, txt, DTA_320x200, true, DTA_Alpha, deathAlpha);
+	}
+
+	ui void DrawLowHealth(RenderEvent e)
+	{
+	}
 }
