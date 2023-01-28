@@ -30,59 +30,47 @@
 //
 //===========================================================================
 
-class TCOTDGameplayStatics play
+class TCOTDPostProcessHandler : StaticEventHandler
 {
-	static bool IsOnFloor(Actor self)
-	{
-		if (self is "PlayerPawn")
-			return PlayerPawn(self).player.onground;
-		return self.Pos.Z <= self.FloorZ || self.bOnMObj || self.bMBFBouncer;
-	}
+	ui PlayerInfo plr;
 
-	static bool IsCrouching(PlayerPawn self)
-	{
-		if (!self.player)
-			return false;
-		double ch = double((self.player.mo.ViewHeight / 2));
-		return self.GetCameraHeight() <= ch;
-	}
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
 
-	static double GetVelocity(Actor self, bool xyOnly = false)
+	override void RenderOverlay(RenderEvent e)
 	{
-		if (xyOnly)
-			return self.Vel.XY.Length();
-		return self.Vel.Length();
-	}
+		if (!plr)
+			plr = players[consoleplayer];
 
-	static void DestroyActors(class<Actor> cls)
-	{
-		ThinkerIterator it = ThinkerIterator.Create(cls);
-		Actor mo;
-		while (mo = Actor(it.Next()))
+		if (plr)
 		{
-			mo.Destroy();
+			UnderwaterWarp(e);
 		}
 	}
 
-	static int SeedFromLevelChecksum(void)
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	ui void UnderwaterWarp(RenderEvent e)
 	{
-		String checksum = Level.GetChecksum();
+		if ((!multiplayer && Menu.GetCurrentMenu()) || paused || TCOTDGameplayStatics.IsConsoleVisible())
+			return;
 
-		// should be always 32 for MD5 checksum
-		int length = checksum.Length();
+		bool enabled =
+		(
+			CVar.GetCVar("tcotd2_underwaterwarp", plr).GetBool() &&
+			plr.mo.WaterLevel >= 3
+		);
 
-		int seed = 0;
+		PPShader.SetEnabled("underwaterwarpshader", enabled);
 
-		for (int i = 0; i < length; ++i)
-		{
-			seed ^= checksum.ByteAt(i) << 8 * (i % 4);
-		}
-
-		return seed;
-	}
-
-	clearscope static bool IsConsoleVisible(void)
-	{
-		return (!multiplayer && (ConsoleState == c_down || ConsoleState == c_falling));
+		// set the player's timer up correctly (more-than-1-tick precision)
+		PPShader.SetUniform1f("underwaterwarpshader", "timer", gametic + e.FracTic);
 	}
 }

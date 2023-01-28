@@ -1,3 +1,11 @@
+// Underwater shader
+HardwareShader PostProcess scene
+{
+	Name "underwaterwarpshader"
+	Shader "shaders/underwater.fp" 330
+	Uniform float timer
+}
+
 //HeatEffect shader
 HardwareShader PostProcess scene
 {
@@ -16,22 +24,6 @@ HardwareShader PostProcess beforebloom
 	Uniform int samples
 	Uniform float increment
 	Uniform int blendmode
-}
-
-//Underwater shader
-HardwareShader PostProcess scene
-{
-	Name "watershader"
-	Shader "shaders/Water.frag" 330
-	Uniform float waterFactor
-	Uniform float timer // placeholder?
-}
-
-HardwareShader PostProcess scene
-{
-	Name "waterzoomshader"
-	Shader "shaders/WaterZoom.frag" 330
-	Uniform float zoomFactor
 }
 
 // Fog Cloud
