@@ -48,6 +48,7 @@ class TCOTDPostProcessHandler : StaticEventHandler
 		if (plr)
 		{
 			UnderwaterWarp(e);
+			HeatHaze(e);
 		}
 	}
 
@@ -72,5 +73,18 @@ class TCOTDPostProcessHandler : StaticEventHandler
 
 		// set the player's timer up correctly (more-than-1-tick precision)
 		PPShader.SetUniform1f("underwaterwarpshader", "timer", gametic + e.FracTic);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	ui void HeatHaze(RenderEvent e)
+	{
+		PPShader.SetEnabled("heatshader", true);
+		PPShader.SetUniform1f("heatshader", "timer", gametic + e.FracTic);
+		PPShader.SetUniform1f("heatshader", "amount", double(plr.mo.CountInv("TCOTDHeatHazeAmount")));
 	}
 }
