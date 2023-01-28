@@ -35,6 +35,8 @@
 
 class TCOTDSnowParticle : TCOTDParticle
 {
+	mixin TCOTDClientSideOnlyMixin;
+
 	//===========================================================================
 	//
 	//
@@ -46,7 +48,6 @@ class TCOTDSnowParticle : TCOTDParticle
 		RenderStyle "Translucent";
 		Alpha 0;
 		Scale 0.6;
-		FloatBobPhase 0;
 		+NOINTERACTION
 		+DONTSPLASH
 		+FORCEXYBILLBOARD
@@ -62,7 +63,7 @@ class TCOTDSnowParticle : TCOTDParticle
 	override void PostBeginPlay(void)
 	{
 		bool isIndoors = ceilingpic != skyflatnum;
-		bool isNotCPlayer = (tracer && !tracer.CheckLocalView(consoleplayer));
+		bool isNotCPlayer = (Tracer && !Tracer.CheckLocalView(consoleplayer));
 		if (isIndoors || isNotCPlayer)
 		{
 			Destroy();

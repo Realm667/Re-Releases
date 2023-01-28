@@ -217,7 +217,7 @@ class EffectGiver : EffectSpawner
 				}
 			}
 		}
-		else if (!bDormant && level.time % 5 == 0)
+		else if (!bDormant && Level.time % 5 == 0)
 		{
 			for (int i = 0; i < Activators.Size(); i++)
 			{
@@ -271,9 +271,9 @@ class HeatShaderControl : ShaderControl
 
 	override void DoEffect()
 	{
-		if (amount > 1) { holdTarget = level.time + amount; } // Set hold time based on amount in inventory
+		if (amount > 1) { holdTarget = Level.time + amount; } // Set hold time based on amount in inventory
 
-		if (holdTarget && level.time > holdTarget) // If we've hit the hold time, remove the effect
+		if (holdTarget && Level.time > holdTarget) // If we've hit the hold time, remove the effect
 		{
 			amount = 1;
 			holdTarget = 0;

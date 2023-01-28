@@ -53,21 +53,23 @@ class TCOTDWeatherHandler : EventHandler
 				Actor pmo = players[i].mo;
 				Actor camera = players[i].camera;
 				Actor origin = camera ? camera : pmo;
+
+				// cheap hack
+				if (origin.WaterLevel >= 3)
+					continue;
+
 				int density = 6;
 				while (density--)
 				{
 					double spx = frandom[rnd_SpawnPrecip](-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
 					double spy = frandom[rnd_SpawnPrecip](-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
 					Vector3 sPos = origin.Vec3Offset(spx, spy, SNOW_SPAWN_HEIGHT);
-					double cz = origin.CurSector.HighestCeilingAt(sPos.XY);
-					if (sPos.Z >= cz)
-						sPos.Z = cz;
-					if (!level.IsPointInLevel(sPos))
-						continue;
+
 					let snow = origin.Spawn("TCOTDSnowParticle", sPos, NO_REPLACE);
 					if (snow)
 					{
-						snow.tracer = pmo;
+						snow.SetZ(min(snow.CeilingZ, sPos.Z));
+						snow.Tracer = pmo;
 						snow.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
 						snow.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
 						snow.Vel.Z = frandom[rnd_SpawnPrecip](-4.0, -1.5);
