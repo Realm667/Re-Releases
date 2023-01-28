@@ -270,6 +270,11 @@ class TCOTDBloodSpot : Actor
 			Super.Tick();
 			ticked = true;
 		}
+
+		if (tics == -1)
+			return;
+		else if (--tics <= 0)
+			SetState(CurState.NextState);
 	}
 
 	//===========================================================================
@@ -336,7 +341,9 @@ class TCOTDBloodSpot : Actor
 	States
 	{
 	Spawn:
-		0000 A -1 NoDelay;
-		Stop;
+		0000 A 1050 NoDelay;
+	FadeOut:
+		0000 A 1 A_FadeOut(0.05);
+		Loop;
 	}
 }
