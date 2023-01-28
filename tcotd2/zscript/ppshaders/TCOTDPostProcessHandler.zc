@@ -83,7 +83,7 @@ class TCOTDPostProcessHandler : StaticEventHandler
 
 	ui void HeatHaze(RenderEvent e)
 	{
-		PPShader.SetEnabled("heatshader", true);
+		PPShader.SetEnabled("heatshader", CVar.GetCVar("tcotd2_heathaze", plr).GetBool());
 		PPShader.SetUniform1f("heatshader", "timer", gametic + e.FracTic);
 		PPShader.SetUniform1f("heatshader", "amount", double(plr.mo.CountInv("TCOTDHeatHazeAmount")));
 	}
