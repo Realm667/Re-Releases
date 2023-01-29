@@ -35,6 +35,8 @@ class TCOTDPendant : Inventory
 	int next;
 	int nextMax;
 
+	int nightmaresPassed;
+
 	//===========================================================================
 	//
 	//
@@ -52,6 +54,12 @@ class TCOTDPendant : Inventory
 		+Inventory.UNDROPPABLE
 		-Inventory.INVBAR
 	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
 
 	override void DoEffect(void)
 	{
@@ -89,6 +97,39 @@ class TCOTDPendant : Inventory
 
 		return false;
 	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static void IncreaseNightmarePassed(Actor activator)
+	{
+		if (activator && activator.player)
+		{
+			let pendant = TCOTDPendant(activator.FindInventory("TCOTDPendant"));
+			if (pendant)
+			{
+				pendant.nightmaresPassed++;
+				//Console.Printf("Player %d passed %d nightmares", PlayerPawn(activator).PlayerNumber(), pendant.nightmaresPassed);
+
+				// break the pendant!
+				if (pendant.nightmaresPassed > 2)
+				{
+					activator.ACS_ScriptCall("NightmarePendantBrokenPrintMsg", 0);
+					activator.TakeInventory("TCOTDPendant", int.max);
+					activator.A_StartSound("BROKEN_PENDANT", CHAN_AUTO);
+				}
+			}
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
 
 	States
 	{
