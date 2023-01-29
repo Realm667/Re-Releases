@@ -1,5 +1,7 @@
 class TCOTDLanternPickup : CustomInventory
 {
+	mixin TCOTDCoopItemMixin;
+
 	bool active;
 
 	//===========================================================================
@@ -31,7 +33,8 @@ class TCOTDLanternPickup : CustomInventory
 
 	override void DoEffect(void)
 	{
-		if (!Owner) return;
+		if (!Owner)
+			return;
 
 		if (active)
 		{

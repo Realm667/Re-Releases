@@ -85,4 +85,29 @@ class TCOTDGameplayStatics play
 	{
 		return (!multiplayer && (ConsoleState == c_down || ConsoleState == c_falling));
 	}
+
+	clearscope static bool IsSkillNormal(void)
+	{
+		return (skill == 0);
+	}
+
+	clearscope static bool IsSkillHard(void)
+	{
+		return (skill == 1);
+	}
+
+	clearscope static bool IsSkillNightmare(void)
+	{
+		return (skill >= 2);
+	}
+
+	clearscope static bool IsCoop(void)
+	{
+		return (multiplayer && !deathmatch);
+	}
+
+	clearscope static bool IsDeathmatch(void)
+	{
+		return (multiplayer && deathmatch);
+	}
 }

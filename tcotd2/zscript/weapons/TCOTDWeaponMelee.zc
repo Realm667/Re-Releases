@@ -56,7 +56,8 @@ class TCOTDWeaponMelee : TCOTDWeapon
 
 	action bool hasPitchfork(void)
 	{
-		if (!invoker.Owner) return false;
+		if (!invoker.Owner)
+			return false;
 		return invoker.Owner.CountInv("TCOTDPitchforkPickup");
 	}
 

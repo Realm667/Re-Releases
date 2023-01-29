@@ -228,6 +228,68 @@ class TCOTDWeapon : Weapon
 	//
 	//===========================================================================
 
+	override bool TryPickup(in out Actor toucher)
+	{
+		// give every player this weapon in coop
+		if (Super.TryPickup(toucher))
+		{
+			if (TCOTDGameplayStatics.IsCoop())
+			{
+				if (toucher is "PlayerPawn")
+				{
+					for (int i = 0; i < MAXPLAYERS; i++)
+					{
+						if (playeringame[i] && players[i].mo)
+						{
+							if (players[i].mo == toucher)
+							{
+								continue;
+							}
+
+							if (!players[i].mo.CountInv(self.GetClass()))
+							{
+								players[i].mo.GiveInventory(self.GetClass(), 1);
+							}
+						}
+					}
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	override bool ShouldStay(void)
+	{
+		// in TCOTD coop, we force the weapons to not stay, because the weapon is given to all players
+		// as soon as a player picks it up, anyway
+		if (TCOTDGameplayStatics.IsCoop() && !bDropped)
+		{
+			return false;
+		}
+
+		return Super.ShouldStay();
+	}
+
+	override bool ShouldRespawn(void)
+	{
+		// no need to allow weapon respawn in coop, because all players would have already have all weapons anyway
+		if (TCOTDGameplayStatics.IsCoop())
+		{
+			return false;
+		}
+
+		return Super.ShouldRespawn();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	action void A_SpawnWeaponFX(class<Actor> cls, double xyOffset = 0.0, double heightOffset = 2.0, double pitchOffset = -45.0, double fwDist = 8.0)
 	{
 		double ca = -90.0;

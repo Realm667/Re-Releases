@@ -1,0 +1,172 @@
+// Copyright 2020 - 2023 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+// TCOTDCoopItemMixin
+// Handles item pickups in coop mode
+// Each player will have their own copy of the item to pick up
+// Implementation is a little janky, and probably doesn't properly account
+// in-game hop in/hop out - but for GZDoom's P2P netcode, it works fine
+//
+//===========================================================================
+
+mixin class TCOTDCoopItemMixin
+{
+	// the alpha value to set the item to when it's picked up in coop
+	const COOP_ITEM_ALPHA = 0.1;
+
+	bool[MAXPLAYERS] playerHasPickedUp;
+	bool allPlayersHavePickedUp;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Tick(void)
+	{
+		Super.Tick();
+
+		if (TCOTDGameplayStatics.IsCoop() && !bDropped)
+		{
+			double a = Default.Alpha;
+			let rs = Default.GetRenderStyle();
+
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i])
+				{
+					// handle item visibility for local player
+					if (players[i].mo.CheckLocalView())
+					{
+						if (playerHasPickedup[i])
+						{
+							a = COOP_ITEM_ALPHA;
+							rs = STYLE_TRANSLUCENT;
+							//SetState(ResolveState('Held'));
+						}
+					}
+				}
+				else
+				{
+					// if a player doesn't exist, just consider it picked up lol (hack)
+					playerHasPickedup[i] = true;
+				}
+			}
+
+			if (!bInvisible)
+			{
+				A_SetRenderStyle(a, rs);
+			}
+
+			// check that every player has already picked it up, so that hiding can commence
+			int pickedUp = 0;
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playerHasPickedUp[i])
+				{
+					pickedUp++;
+				}
+			}
+
+			if (pickedUp == (MAXPLAYERS - 1))
+			{
+				allPlayersHavePickedUp = true;
+			}
+		}
+	}
+
+	override void Touch (Actor toucher)
+	{
+		Super.Touch(toucher);
+
+		// clear the secret flag after it has been picked up by whoever picked it up first
+		// to prevent secret counter overflow
+		if (TCOTDGameplayStatics.IsCoop() && bCountSecret)
+		{
+			bCountSecret = false;
+		}
+	}
+
+	override bool TryPickup(in out Actor toucher)
+	{
+		// in other game modes than coop, or if the item isn't map-placed, use the standard behavior
+		if (!TCOTDGameplayStatics.IsCoop() || bDropped)
+		{
+			return Super.TryPickup(toucher);
+		}
+
+		bool ret = false;
+		if (toucher && toucher is "TCOTDPlayer")
+		{
+			let pmo = TCOTDPlayer(toucher);
+			if (pmo && pmo.player && playeringame[pmo.PlayerNumber()])
+			{
+				// only pick the item up if the player hasn't actually picked it up yet
+				if (!playerHasPickedUp[pmo.PlayerNumber()])
+				{
+					// mark the item as being picked up by that specific player,
+					// then actually pick the item up
+					if (Super.TryPickup(toucher))
+					{
+						playerHasPickedUp[pmo.PlayerNumber()] = true;
+						ret = true;
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	override bool ShouldStay(void)
+	{
+		if (TCOTDGameplayStatics.IsCoop() && !bDropped)
+		{
+			// if all players have already picked it up, let it be gone from the world
+			return !allPlayersHavePickedUp;
+		}
+
+		// in other game modes than coop, use the standard behavior
+		return Super.ShouldStay();
+	}
+
+	override void Hide(void)
+	{
+		// reset everything before hiding the item
+		if (TCOTDGameplayStatics.IsCoop())
+		{
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				playerHasPickedUp[i] = false;
+			}
+			allPlayersHavePickedUp = false;
+		}
+
+		Super.Hide();
+	}
+}
