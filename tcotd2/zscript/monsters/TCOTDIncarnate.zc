@@ -37,7 +37,7 @@ class Incarnate : TCOTDMonster //inheritances with Shadow, define after it!
 
 	protected void A_IncarnateDeathCheck(void)
 	{
-		if (bRisen || random[rnd_IncarnDeathCheck]() < int(256 * 0.4))
+		if (bRisen || random[rnd_IncarnDeathCheck]() < int(256 * 0.6))
 		{
 			SetStateLabel("XDeath");
 		}
@@ -46,6 +46,11 @@ class Incarnate : TCOTDMonster //inheritances with Shadow, define after it!
 	protected void A_IncarnateSetRisen(void)
 	{
 		bRisen = true;
+	}
+
+	override bool CanResurrect(Actor other, bool passive)
+	{
+		return other == self;
 	}
 
 	States
@@ -127,9 +132,8 @@ class Incarnate : TCOTDMonster //inheritances with Shadow, define after it!
 		INCX H 5 Bright Light("IncarnateX_8");
 		INCX I 5 Bright Light("IncarnateX_9");
 		INCX J 5 Bright Light("IncarnateX_10");
-		// [Blue Shadow] Prevents resurrection, namely by wraiths.
-		INCX K 1;
-		Wait;
+		INCX K -1;
+		Stop;
 	Raise:
 		INCA Q 5 A_IncarnateSetRisen();
 		INCA PONML 5;
