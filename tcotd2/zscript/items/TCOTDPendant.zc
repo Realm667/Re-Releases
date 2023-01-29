@@ -115,7 +115,8 @@ class TCOTDPendant : Inventory
 				//Console.Printf("Player %d passed %d nightmares", PlayerPawn(activator).PlayerNumber(), pendant.nightmaresPassed);
 
 				// break the pendant!
-				if (pendant.nightmaresPassed > 2)
+				int limit = 3 - skill;
+				if (pendant.nightmaresPassed >= limit)
 				{
 					activator.ACS_ScriptCall("NightmarePendantBrokenPrintMsg", 0);
 					activator.TakeInventory("TCOTDPendant", int.max);
