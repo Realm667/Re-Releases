@@ -54,7 +54,7 @@ class TCOTDWallTorch : TCOTDSwitchableDecoration replaces BlueTorch
 			if (!CheckRange(1000.0, true))
 			{
 				if (!IsActorPlayingSound(CHAN_VOICE, "SFX/FireLoop1"))
-					A_StartSound("SFX/FireLoop1", CHAN_VOICE, CHANF_LOOP, volume: 0.1, startTime: frandom(0.f, S_GetLength("SFX/FireLoop1")));
+					A_StartSound("SFX/FireLoop1", CHAN_VOICE, CHANF_LOOP, volume: 0.1, startTime: frandom[rnd_WallTorchFireSpawn](0.f, S_GetLength("SFX/FireLoop1")));
 
 				A_SpawnItemEx("TCOTDWallTorchFlame",
 					frandom[rnd_WallTorchFireSpawn](-2.0, 2.0), frandom[rnd_WallTorchFireSpawn](-2.0, 2.0), frandom[rnd_WallTorchFireSpawn](74.0, 76.0),

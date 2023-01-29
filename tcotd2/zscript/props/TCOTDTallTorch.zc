@@ -50,7 +50,7 @@ class TCOTDTallTorch : ShortRedTorch replaces ShortRedTorch
 			if (!CheckRange(1000.0, true))
 			{
 				if (!IsActorPlayingSound(CHAN_VOICE, "SFX/FireLoop2"))
-					A_StartSound("SFX/FireLoop2", CHAN_VOICE, CHANF_LOOP, volume: 0.333, startTime: frandom(0.f, S_GetLength("SFX/FireLoop2")));
+					A_StartSound("SFX/FireLoop2", CHAN_VOICE, CHANF_LOOP, volume: 0.333, startTime: frandom[rnd_TallTorchFireSpawn](0.f, S_GetLength("SFX/FireLoop2")));
 
 				A_SpawnItemEx("TCOTDTallTorchFlame", 0, 0, frandom[rnd_TallTorchFireSpawn](64.0, 66.0), 0, 0, frandom[rnd_TallTorchFireSpawn](1.0, 2.5));
 			}

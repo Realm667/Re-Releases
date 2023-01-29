@@ -81,7 +81,7 @@ class TCOTDFireSpawner : TCOTDSwitchableDecoration
 		TNT1 A 4 NoDelay
 		{
 			A_StartSound("SFX/FireStart", CHAN_7);
-			A_StartSound("SFX/FireLoop2", CHAN_6, CHANF_LOOP, 1.0, startTime: frandom(0.f, S_GetLength("SFX/FireLoop2")));
+			A_StartSound("SFX/FireLoop2", CHAN_6, CHANF_LOOP, 1.0, startTime: frandom[rnd_FireSpawn](0.f, S_GetLength("SFX/FireLoop2")));
 		}
 		TNT1 A 1 Light("FireSpawnerLarge")
 		{
