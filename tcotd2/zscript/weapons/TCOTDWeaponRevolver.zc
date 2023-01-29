@@ -102,7 +102,9 @@ class TCOTDWeaponRevolver : TCOTDWeapon replaces Pistol
 			{
 				invoker.shotsToReload--;
 				st = ResolveState("Reload2");
-				A_StartSound("EmptyCasingBullet", CHAN_AUTO);
+
+				// TO DO: this is a placeholder sound. find a better one!!
+				A_StartSound("lantern/pick", CHAN_AUTO);
 			}
 			return st;
 		}
