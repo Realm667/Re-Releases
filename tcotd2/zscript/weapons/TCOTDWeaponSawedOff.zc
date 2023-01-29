@@ -35,7 +35,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		TNT1 A 0 A_JumpIfInventory("SawedOffCheck", 1, 2);
 		SAWF A 1 A_WeaponReady();
 		Loop;
-		SAWF B 1 A_WeaponReady(WRF_NOSECONDARY);
+		SAWF B 1 A_WeaponReady();
 		Loop;
 	Deselect:
 		TNT1 A 0 A_JumpIfInventory("SawedOffCheck", 1, "Down1Shell");
@@ -77,7 +77,21 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		SAWF C 1 A_WeaponOffset(0, 32);
 		Goto Load;
 	AltFire:
-		SAWF A 0 A_JumpIf(CountInv("SawedOffCheck"), "Fire");
+		SAWF A 0
+		{
+			// JFC LOL - Nash
+			State st = NULL;
+			if (CountInv("SawedOffCheck"))
+			{
+				st = ResolveState("Fire1Shell");
+
+				// need to give 1 shell back because AltFire will always subtract 2
+				let a = invoker.Owner.FindInventory("TCOTDAmmoShell");
+				if (a)
+					a.amount += 1;
+			}
+			return st;
+		}
 		SAWF C 2 { A_StartSound("SawedOff/AltFire", CHAN_WEAPON); A_Overlay(-2, "BigGunSmoke"); A_ViewKick(); A_GunFlash(); A_FireBullets(11.2, 7.1, 20, 5, "TCOTDBulletPuff", FBF_USEAMMO); }
 		SAWF C 1 offset(10, 52);
 		SAWF C 1 offset(28, 68);
