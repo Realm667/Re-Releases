@@ -608,6 +608,20 @@ class TCOTDPlayer : PlayerPawn
 		);
 	}
 
+	static bool ACS_IsLanternLit(Actor activator)
+	{
+		bool ret = false;
+		if (activator && activator.player)
+		{
+			let pmo = TCOTDPlayer(activator);
+			if (pmo && pmo.myLantern)
+			{
+				ret = true;
+			}
+		}
+		return ret;
+	}
+
 	//===========================================================================
 	//
 	//
