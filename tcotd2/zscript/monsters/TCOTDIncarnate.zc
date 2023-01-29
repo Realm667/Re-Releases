@@ -3,6 +3,8 @@
 /////////////////////
 class Incarnate : TCOTDMonster //inheritances with Shadow, define after it!
 {
+	private bool bRisen;
+
 	Default
 	{
 		//$Title Incarnate
@@ -31,6 +33,19 @@ class Incarnate : TCOTDMonster //inheritances with Shadow, define after it!
 	protected void A_IncarnateAttack(void)
 	{
 		A_CustomMeleeAttack(7 * random[rnd_IncarnPunchDmg](1, 8), "monster/inchit");
+	}
+
+	protected void A_IncarnateDeathCheck(void)
+	{
+		if (bRisen || random[rnd_IncarnDeathCheck]() < int(256 * 0.4))
+		{
+			SetStateLabel("XDeath");
+		}
+	}
+
+	protected void A_IncarnateSetRisen(void)
+	{
+		bRisen = true;
 	}
 
 	States
@@ -92,14 +107,14 @@ class Incarnate : TCOTDMonster //inheritances with Shadow, define after it!
 		INCA L 5 A_Pain();
 		Goto See;
 	Death:
-		INCX A 0 A_Jump(128, "XDeath");
-		INCA LM 7;
+		INCX L 7 A_IncarnateDeathCheck();
+		INCA M 7;
 		INCA N 7 A_Scream();
-		INCA O 7 A_NoBlocking();
+		INCA O 7 A_NoBlocking(false); // [Blue Shadow] Don't drop a life essence, as this isn't a permanent death.
 		INCA P 7;
 		INCA Q 175;
-		INCA Q -1 Thing_Raise(0);
-		Stop;
+		INCA Q 35 CanRaise A_RaiseSelf();
+		Wait;
 	XDeath:
 		INCX A 10 Bright Light("IncarnateX_1") A_StartSound("monster/incexp");
 		INCX B 5 Bright Light("IncarnateX_2");
@@ -112,13 +127,11 @@ class Incarnate : TCOTDMonster //inheritances with Shadow, define after it!
 		INCX H 5 Bright Light("IncarnateX_8");
 		INCX I 5 Bright Light("IncarnateX_9");
 		INCX J 5 Bright Light("IncarnateX_10");
-		INCX K -1;
-		Stop;
-	Crush:
-		TNT1 A 1 A_KillChildren;
-		Stop;
+		// [Blue Shadow] Prevents resurrection, namely by wraiths.
+		INCX K 1;
+		Wait;
 	Raise:
-		INCA Q 5 A_KillChildren;
+		INCA Q 5 A_IncarnateSetRisen();
 		INCA PONML 5;
 		Goto See;
 	}
