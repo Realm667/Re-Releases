@@ -85,8 +85,14 @@ class TCOTDWeatherHandler : EventHandler
 		{
 			double spx = frandom[rnd_SpawnPrecip](-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
 			double spy = frandom[rnd_SpawnPrecip](-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
+
 			Vector3 sPos = cam.Vec3Offset(spx, spy, cam.Pos.Z);
+
 			Sector sec = Level.PointInSector(sPos.XY);
+
+			if (sec.GetTexture(Sector.ceiling) != skyflatnum)
+				continue;
+
 			double spz = sec.NextHighestCeilingAt(sPos.X, sPos.Y, cam.Pos.Z, cam.Pos.Z, 0) - 2.;
 			sPos.Z = min(spz, SNOW_SPAWN_HEIGHT);
 
