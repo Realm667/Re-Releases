@@ -12,6 +12,7 @@ Original code inherited from the original TCoTD 2, modified by Gothic.
 class TCOTDWeaponRevolver : TCOTDWeapon replaces Pistol
 {
 	uint8 shotsToReload;
+	double shotSpread;
 
 	Default
 	{
@@ -40,14 +41,20 @@ class TCOTDWeaponRevolver : TCOTDWeapon replaces Pistol
 	Ready:
 		REVL A 1
 		{
+			// reset spread once you've stopped firing
+			invoker.shotSpread = 0;
+
+			// check for empty chamber
 			State st = NULL;
 			if (invoker.shotsToReload >= 6)
 			{
 				st = ResolveState("Reload");
 				return st;
 			}
+
 			int flags = (invoker.shotsToReload != 0) ? WRF_ALLOWRELOAD : 0;
 			A_WeaponReady(flags);
+
 			return st;
 		}
 		REVL A 0 A_CheckReload();
@@ -56,12 +63,20 @@ class TCOTDWeaponRevolver : TCOTDWeapon replaces Pistol
 		REVL A 0 A_CheckReload();
 		REVL A 0
 		{
+			// check for empty chamber
 			State st = NULL;
 			if (invoker.shotsToReload >= 6)
 				st = ResolveState("Reload");
 			return st;
 		}
-		REVL B 3 { A_Overlay(-2, "RevolverSmoke"); A_ViewKick(); A_FireBullets(5.6, 1.7, 1, 9, "TCOTDBulletPuff"); invoker.shotsToReload++; }
+		REVL B 3
+		{
+			A_Overlay(-2, "RevolverSmoke");
+			A_ViewKick();
+			Fire3DBullets(invoker.shotSpread * 1.05, invoker.shotSpread, 1, 9, "TCOTDBulletPuff");
+			invoker.shotsToReload++;
+			invoker.shotSpread += frandom[rnd_RevSpread](0.1, 0.5);
+		}
 		REVL CD 2;
 		REVL E 1 { A_WeaponOffset(4, 33); A_WeaponReady(WRF_NOSWITCH); }
 		REVL F 1 { A_WeaponOffset(5, 38); A_WeaponReady(WRF_NOSWITCH); }
