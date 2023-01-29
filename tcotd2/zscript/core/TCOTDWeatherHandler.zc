@@ -35,11 +35,74 @@
 
 class TCOTDWeatherHandler : EventHandler
 {
-	const SNOW_SPAWN_RADIUS = 800.0;
+	const SNOW_SPAWN_RADIUS = 1000.0;
 	const SNOW_SPAWN_HEIGHT = 400.0;
+
+	FSpawnParticleParams snow;
 
 	override void WorldTick(void)
 	{
+		SpawnSnowParticles();
+		//SpawnSnowActors();
+	}
+
+	void SpawnSnowParticles(void)
+	{
+		if (!CVar.GetCVar("tcotd2_weatherfx", players[consoleplayer]).GetBool())
+			return;
+
+		if (Level.IsFrozen())
+			return;
+
+		Actor cam = players[consoleplayer].camera;
+
+		// cheap hack
+		if (cam.WaterLevel >= 3)
+			return;
+
+		if (!snow.texture)
+		{
+			snow.color1 = "FFFFFF";
+			snow.texture = TexMan.CheckForTexture("SNOWA0");
+			snow.style = STYLE_Add;
+			snow.flags = SPF_REPLACE;
+			snow.lifetime = 400;
+			snow.size = 6.;
+			//snow.size = 0.;
+			//snow.sizestep = 0.05;
+			snow.startalpha = 1.;
+			snow.fadestep = -0.01;
+		}
+
+		int density = 6;
+		while (density--)
+		{
+			double spx = frandom[rnd_SpawnPrecip](-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
+			double spy = frandom[rnd_SpawnPrecip](-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
+			Vector3 sPos = cam.Vec3Offset(spx, spy, cam.Pos.Z);
+			Sector sec = Level.PointInSector(sPos.XY);
+			double spz = sec.NextHighestCeilingAt(sPos.X, sPos.Y, cam.Pos.Z, cam.Pos.Z, 0) - 2.;
+			sPos.Z = min(spz, SNOW_SPAWN_HEIGHT);
+
+			snow.pos = sPos;
+			snow.vel =
+			(
+				frandom[rnd_SpawnPrecip](-0.2, 0.2),
+				frandom[rnd_SpawnPrecip](-0.2, 0.2),
+				frandom[rnd_SpawnPrecip](-4.0, -2.0)
+			);
+			snow.accel.X = frandom[rnd_SpawnPrecip](-0.01, 0.01);
+			snow.accel.Y = frandom[rnd_SpawnPrecip](-0.01, 0.01);
+
+			Level.SpawnParticle(snow);
+		}
+	}
+
+	void SpawnSnowActors(void)
+	{
+		if (Level.IsFrozen())
+			return;
+
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].mo && players[i].mo.player)
@@ -50,12 +113,10 @@ class TCOTDWeatherHandler : EventHandler
 				if (!CVar.GetCVar("tcotd2_weatherfx", players[consoleplayer]).GetBool())
 					continue;
 
-				Actor pmo = players[i].mo;
-				Actor camera = players[i].camera;
-				Actor origin = camera ? camera : pmo;
+				Actor cam = players[i].camera;
 
 				// cheap hack
-				if (origin.WaterLevel >= 3)
+				if (cam.WaterLevel >= 3)
 					continue;
 
 				int density = 6;
@@ -63,13 +124,13 @@ class TCOTDWeatherHandler : EventHandler
 				{
 					double spx = frandom[rnd_SpawnPrecip](-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
 					double spy = frandom[rnd_SpawnPrecip](-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);
-					Vector3 sPos = origin.Vec3Offset(spx, spy, SNOW_SPAWN_HEIGHT);
+					Vector3 sPos = cam.Vec3Offset(spx, spy, SNOW_SPAWN_HEIGHT);
 
-					let snow = origin.Spawn("TCOTDSnowParticle", sPos, NO_REPLACE);
+					let snow = cam.Spawn("TCOTDSnowParticle", sPos, NO_REPLACE);
 					if (snow)
 					{
 						snow.SetZ(min(snow.CeilingZ, sPos.Z));
-						snow.Tracer = pmo;
+						snow.Tracer = cam;
 						snow.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
 						snow.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
 						snow.Vel.Z = frandom[rnd_SpawnPrecip](-4.0, -1.5);
