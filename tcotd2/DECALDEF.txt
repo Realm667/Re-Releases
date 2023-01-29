@@ -227,134 +227,60 @@ fader GoAway
 	DecayTime	1.0
 }
 
-//ENJAY & T667 Enhancements - from hgarden.wad//
-//***** Bullet Chips *****/
-decal BulletChip1
+/***** Bullet Chips *****/
+
+Decal BulletChip1
 {
-	pic CHIP1
-	translucent 0.85
-	shade "00 00 00"
-	x-scale 0.8
-	y-scale 0.8
-	randomflipx
-	randomflipy
+	Pic CHIP1
+	X-Scale 0.5
+	Y-Scale 0.5
+	RandomFlipX
+	RandomFlipY
 }
 
-decal BulletChip2
+Decal BulletChip2
 {
-	pic CHIP2
-	translucent 0.85
-	shade "00 00 00"
-	x-scale 0.8
-	y-scale 0.8
-	randomflipx
-	randomflipy
+	Pic CHIP2
+	X-Scale 0.5
+	Y-Scale 0.5
+	RandomFlipX
+	RandomFlipY
 }
 
-decal BulletChip3
+Decal BulletChip3
 {
-	pic CHIP3
-	translucent 0.85
-	shade "00 00 00"
-	x-scale 0.8
-	y-scale 0.8
-	randomflipx
-	randomflipy
+	Pic CHIP3
+	X-Scale 0.5
+	Y-Scale 0.5
+	RandomFlipX
+	RandomFlipY
 }
 
-decal BulletChip4
+Decal BulletChip4
 {
-	pic CHIP4
-	translucent 0.85
-	shade "00 00 00"
-	x-scale 0.8
-	y-scale 0.8
-	randomflipx
-	randomflipy
+	Pic CHIP4
+	X-Scale 0.5
+	Y-Scale 0.5
+	RandomFlipX
+	RandomFlipY
 }
 
-decal BulletChip5
+Decal BulletChip5
 {
-	pic CHIP5
-	translucent 0.85
-	shade "00 00 00"
-	x-scale 0.8
-	y-scale 0.8
-	randomflipx
-	randomflipy
+	Pic CHIP5
+	X-Scale 0.5
+	Y-Scale 0.5
+	RandomFlipX
+	RandomFlipY
 }
 
-decalgroup BulletChip
+DecalGroup BulletChip
 {
 	BulletChip1	1
 	BulletChip2	1
 	BulletChip3	1
 	BulletChip4	1
 	BulletChip5	1
-}
-
-decal Bullet1
-{
-	pic CHIP1
-	shade "FF C8 00"
-	fullbright
-	x-scale 0.4
-	y-scale 0.4
-	lowerdecal BulletChip
-	animator GoAway
-}
-
-decal Bullet2
-{
-	pic CHIP2
-	shade "FF C8 00"
-	fullbright
-	x-scale 0.4
-	y-scale 0.4
-	lowerdecal BulletChip
-	animator GoAway
-}
-
-decal Bullet3
-{
-	pic CHIP3
-	shade "FF C8 00"
-	fullbright
-	x-scale 0.4
-	y-scale 0.4
-	lowerdecal BulletChip
-	animator GoAway
-}
-
-decal Bullet4
-{
-	pic CHIP4
-	shade "FF C8 00"
-	fullbright
-	x-scale 0.4
-	y-scale 0.4
-	lowerdecal BulletChip
-	animator GoAway
-}
-
-decal Bullet5
-{
-	pic CHIP5
-	shade "FF C8 00"
-	fullbright
-	x-scale 0.4
-	y-scale 0.4
-	lowerdecal BulletChip
-	animator GoAway
-}
-
-decalgroup Bullet
-{
-	Bullet1	1
-	Bullet2	1
-	Bullet3	1
-	Bullet4	1
-	Bullet5	1
 }
 
 //***** Plasma Rifle Scorches ***********************************************/
@@ -452,20 +378,20 @@ generator ArachnotronPlasma				ArachnotronScorch
 generator BFGBall						BFGLightning
 generator BaronBall						BaronScorch
 generator CacodemonBall					CacoScorch
-generator Chaingun						Bullet
+generator Chaingun						BulletChip
 generator DoomImpBall					DoomImpScorch
 generator FatShot						NewScorch //Scorch replaced with new
-generator Pistol						Bullet
+generator Pistol						BulletChip
 generator PlasmaBall					PlasmaScorch
 generator RevenantTracer				RevenantScorch
 generator Rocket						NewScorch //Scorch replaced with new
-generator Shotgun						Bullet
-generator SuperShotgun					Bullet
+generator Shotgun						BulletChip
+generator SuperShotgun					BulletChip
 
-generator TCOTDWeaponRevolver			Bullet
+generator TCOTDWeaponRevolver			BulletChip
 generator TCOTDWeaponNapalmMissile		NewScorch
-generator TCOTDWeaponSawedOff			Bullet
-generator TCOTDWeaponThompson			Bullet
+generator TCOTDWeaponSawedOff			BulletChip
+generator TCOTDWeaponThompson			BulletChip
 generator TCOTDPitchforkPuff			BulletChip
 
 generator ButcherVomit1					BaronScorch
@@ -475,5 +401,5 @@ generator FireBlast						CacoScorch
 generator ShadowBall					DoomImpScorch
 generator SoulHarvesterBall				DoomImpScorch
 generator SuperFireBlast				RevenantScorch
-generator ThrallShot1					Bullet
+generator ThrallShot1					BulletChip
 generator VulgarShot					DoomImpScorch
