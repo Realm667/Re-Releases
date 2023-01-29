@@ -39,7 +39,7 @@ class TCOTDLanternPickup : CustomInventory
 			if (Owner.WaterLevel >= 3)
 			{
 				// requires sound
-				Owner.A_StartSound("lantern/steam");
+				Owner.A_StartSound("lantern/steam", CHAN_AUTO);
 				A_ToggleLantern();
 				return;
 			}
@@ -70,6 +70,8 @@ class TCOTDLanternPickup : CustomInventory
 
 	void A_ToggleLantern(void)
 	{
+		Sound snd = !active ? "lantern/on" : "lantern/off";
+		Owner.A_StartSound(snd, CHAN_AUTO);
 		// to do: add on/off sounds
 		active = !active;
 	}
