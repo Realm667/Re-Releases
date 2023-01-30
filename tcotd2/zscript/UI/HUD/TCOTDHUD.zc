@@ -81,7 +81,7 @@ class TCOTDHUD : DoomStatusBar
 		}
 
 		// Air
-		if (Level.airsupply > 0 && CPlayer.mo.AirCapacity > 0 &&
+		if (CPlayer.health > 0 && CPlayer.mo.waterlevel > 2 && Level.airsupply > 0 && CPlayer.mo.AirCapacity > 0 &&
 			(CPlayer.air_finished + 1 - Level.maptime) < int(Level.airsupply * CPlayer.mo.AirCapacity))
 		{
 			int curpnts = Max(CPlayer.air_finished - Level.maptime, 0);
