@@ -75,6 +75,12 @@ class TCOTDSnowParticle : Actor
 
 	override void Tick(void)
 	{
+		if (Pos.Z <= FloorZ)
+		{
+			Destroy();
+			return;
+		}
+
 		if (Vel != (0, 0, 0))
 			SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
 
@@ -82,9 +88,6 @@ class TCOTDSnowParticle : Actor
 			return;
 		else if (--tics <= 0)
 			SetState(CurState.NextState);
-
-		if (Pos.Z <= FloorZ)
-			Destroy();
 	}
 
 	//===========================================================================
@@ -96,19 +99,27 @@ class TCOTDSnowParticle : Actor
 	States
 	{
 	Spawn:
-		SNOW A 1 NoDelay
+		TNT1 A 1;
+		TNT1 A 1
 		{
 			if (!Level.IsPointInLevel(Pos))
-			{
 				Destroy();
-				return ResolveState(NULL);
-			}
-
+			return ResolveState(NULL);
+		}
+	Spawn1:
+		SNOW A 1
+		{
 			A_FadeIn(0.04);
-			if (Alpha >= 0.75 && GetAge() > 50)
-			{
+			if (Alpha >= 0.75)
+				return ResolveState("Spawn2");
+			return ResolveState(NULL);
+		}
+		Loop;
+	Spawn2:
+		SNOW A 1
+		{
+			if (GetAge() > 50)
 				return ResolveState("FadeOut");
-			}
 			return ResolveState(NULL);
 		}
 		Loop;
@@ -117,4 +128,3 @@ class TCOTDSnowParticle : Actor
 		Loop;
 	}
 }
-

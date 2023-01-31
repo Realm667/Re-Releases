@@ -30,7 +30,7 @@
 //
 //===========================================================================
 
-class TCOTDFoliage : TCOTDSimpleActor
+class TCOTDFoliage : Actor
 {
 	mixin TCOTDClientSideOnlyMixin;
 
@@ -38,15 +38,14 @@ class TCOTDFoliage : TCOTDSimpleActor
 	{
 		//$Category New Foliage (TCOTD2)
 		//$Color 2
+		+NOINTERACTION
 	}
 
-	/*
 	override void PostBeginPlay(void)
 	{
 		Super.PostBeginPlay();
 		ChangeStatNum(STAT_INFO);
 	}
-	*/
 
 	override void Tick(void) {}
 }
