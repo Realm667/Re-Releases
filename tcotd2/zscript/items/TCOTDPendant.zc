@@ -34,7 +34,7 @@ class TCOTDPendant : Inventory
 {
 	int next;
 	int nextMax;
-
+	int warningLevel;
 	int nightmaresPassed;
 
 	//===========================================================================
@@ -63,9 +63,40 @@ class TCOTDPendant : Inventory
 
 	override void DoEffect(void)
 	{
+		Super.DoEffect();
 		next = ACS_ScriptCall("NightmareGetCountdown", 0) / 35;
 		nextMax = ACS_ScriptCall("NightmareGetCountdownMax", 0) / 35;
 		//Console.Printf("next nightmare in %d seconds", next);
+
+		if (Owner && nextMax > 0)
+		{
+			int pct = 100 * next / nextMax;
+
+			// reset warning
+			if (pct > 30 && warningLevel == 3)
+			{
+				warningLevel = 0;
+			}
+
+			// TO DO: add sounds for the notifications?
+			if (pct <= 30 && warningLevel == 0)
+			{
+				Console.Printf(StringTable.Localize("$PENDANT_WARN1"));
+				warningLevel = 1;
+			}
+
+			if (pct <= 15 && warningLevel == 1)
+			{
+				Console.Printf(StringTable.Localize("$PENDANT_WARN2"));
+				warningLevel = 2;
+			}
+
+			if (pct <= 5 && warningLevel == 2)
+			{
+				Console.Printf(StringTable.Localize("$PENDANT_WARN3"));
+				warningLevel = 3;
+			}
+		}
 	}
 
 	override bool TryPickup(in out Actor toucher)
