@@ -12,10 +12,43 @@ class TCOTDPuzzleItem : Inventory
 		+INVENTORY.INVBAR
 	}
 
-	override bool ShouldStay ()
+	override void AttachToOwner(Actor other)
 	{
-		return multiplayer;
+		Super.AttachToOwner(other);
+		if (Owner && Owner is "PlayerPawn")
+		{
+			// run custom scripts for the summon artifacts
+			SetCollected();
+		}
 	}
+
+	override bool TryPickup(in out Actor toucher)
+	{
+		// give everyone the pickup item
+		if (Super.TryPickup(toucher))
+		{
+			TCOTDGameplayStatics.GiveItemToAllPlayers(self.GetClass());
+			return true;
+		}
+
+		return false;
+	}
+
+	override bool ShouldStay(void)
+	{
+		if (TCOTDGameplayStatics.IsCoop())
+			return false;
+		return Super.ShouldStay();
+	}
+
+	override bool ShouldRespawn(void)
+	{
+		if (TCOTDGameplayStatics.IsCoop())
+			return false;
+		return Super.ShouldRespawn();
+	}
+
+	virtual void SetCollected(void) {}
 }
 
 class TCOTDKeyTransBook : TCOTDPuzzleItem
@@ -70,6 +103,11 @@ class TCOTDKeySkullOfThamuz : TCOTDPuzzleItem
 		Inventory.PickupMessage "$IP_THAMUZKEY";
 	}
 
+	override void SetCollected(void)
+	{
+		Owner.ACS_ScriptCall("SetSkullCollected", 0);
+	}
+
 	States
 	{
 	Spawn:
@@ -89,6 +127,11 @@ class TCOTDKeyHourGlass : TCOTDPuzzleItem
 		Inventory.PickupMessage "$IP_HOURGLASSKEY";
 	}
 
+	override void SetCollected(void)
+	{
+		Owner.ACS_ScriptCall("SetHourGlassCollected", 0);
+	}
+
 	States
 	{
 	Spawn:
@@ -106,6 +149,11 @@ class TCOTDKeyDiamond : TCOTDPuzzleItem
 		Tag "$TAG_DIAMONDKEY";
 		Inventory.Icon "DIAMA0";
 		Inventory.PickupMessage "$IP_DIAMONDKEY";
+	}
+
+	override void SetCollected(void)
+	{
+		Owner.ACS_ScriptCall("SetDiamondCollected", 0);
 	}
 
 	States

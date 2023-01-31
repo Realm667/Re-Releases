@@ -1167,3 +1167,42 @@ class TCOTDPropGibs04 : TCOTDPropGibs01
 		Stop;
 	}
 }
+
+class TCOTDFakePuzzleItem : TCOTDProp
+{
+	Default
+	{
+		+FORCEXYBILLBOARD
+		+NOINTERACTION
+	}
+}
+
+class TCOTDFakeSkullOfThamuz : TCOTDFakePuzzleItem
+{
+	States
+	{
+	Spawn:
+		SCHA A -1;
+		Stop;
+	}
+}
+
+class TCOTDFakeHourGlass : TCOTDFakePuzzleItem
+{
+	States
+	{
+	Spawn:
+		ZEUH A -1;
+		Stop;
+	}
+}
+
+class TCOTDFakeDiamond : TCOTDFakePuzzleItem
+{
+	States
+	{
+	Spawn:
+		DIAM A -1;
+		Stop;
+	}
+}

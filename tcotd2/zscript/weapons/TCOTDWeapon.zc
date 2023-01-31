@@ -233,28 +233,7 @@ class TCOTDWeapon : Weapon
 		// give every player this weapon in coop
 		if (Super.TryPickup(toucher))
 		{
-			if (TCOTDGameplayStatics.IsCoop())
-			{
-				if (toucher is "PlayerPawn")
-				{
-					for (int i = 0; i < MAXPLAYERS; i++)
-					{
-						if (playeringame[i] && players[i].mo)
-						{
-							if (players[i].mo == toucher)
-							{
-								continue;
-							}
-
-							if (!players[i].mo.CountInv(self.GetClass()))
-							{
-								players[i].mo.GiveInventory(self.GetClass(), 1);
-							}
-						}
-					}
-				}
-			}
-
+			TCOTDGameplayStatics.GiveItemToAllPlayers(self.GetClass());
 			return true;
 		}
 

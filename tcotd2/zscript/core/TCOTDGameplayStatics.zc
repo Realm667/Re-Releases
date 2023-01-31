@@ -64,6 +64,35 @@ class TCOTDGameplayStatics play
 		}
 	}
 
+	static void GiveItemToAllPlayers(class<Inventory> cls)
+	{
+		if (!cls)
+			return;
+
+		if (!TCOTDGameplayStatics.IsCoop())
+			return;
+
+
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i] && players[i].mo && !players[i].mo.CountInv(cls))
+				players[i].mo.GiveInventory(cls, 1);
+		}
+	}
+
+	static void TakeItemFromAllPlayers(String clsName)
+	{
+		class<Inventory> cls = clsName;
+		if (!cls)
+			return;
+
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i] && players[i].mo && players[i].mo.CountInv(cls))
+				players[i].mo.TakeInventory(cls, int.max);
+		}
+	}
+
 	static int SeedFromLevelChecksum(void)
 	{
 		String checksum = Level.GetChecksum();

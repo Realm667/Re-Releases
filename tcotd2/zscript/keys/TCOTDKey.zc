@@ -2,14 +2,48 @@
 // KEYS //
 //////////
 
-class TCOTDKeySkullKey : Key
+class TCOTDKey : Key
 {
 	Default
 	{
 		//$Category New Items (TCOTD2)
-		//$Title Skull Key
 		//$Color 6
 		Scale 0.3;
+	}
+
+	override bool TryPickup(in out Actor toucher)
+	{
+		// give everyone the pickup item
+		if (Super.TryPickup(toucher))
+		{
+			TCOTDGameplayStatics.GiveItemToAllPlayers(self.GetClass());
+			return true;
+		}
+
+		return false;
+	}
+
+	override bool ShouldStay(void)
+	{
+		if (TCOTDGameplayStatics.IsCoop())
+			return false;
+		return Super.ShouldStay();
+	}
+
+	override bool ShouldRespawn(void)
+	{
+		if (TCOTDGameplayStatics.IsCoop())
+			return false;
+		return Super.ShouldRespawn();
+	}
+}
+
+class TCOTDKeySkullKey : TCOTDKey
+{
+	Default
+	{
+		//$Title Skull Key
+
 		Inventory.PickupMessage "$IP_SKULLKEY";
 		Inventory.Icon "M_KEY1";
 		Inventory.AltHUDIcon "M_KEY1";
@@ -23,7 +57,7 @@ class TCOTDKeySkullKey : Key
 	}
 }
 
-class TCOTDKeyEyeKey : TCOTDKeySkullKey
+class TCOTDKeyEyeKey : TCOTDKey
 {
 	Default
 	{
@@ -41,7 +75,7 @@ class TCOTDKeyEyeKey : TCOTDKeySkullKey
 	}
 }
 
-class TCOTDKeyFireKey : TCOTDKeySkullKey
+class TCOTDKeyFireKey : TCOTDKey
 {
 	Default
 	{
@@ -59,7 +93,7 @@ class TCOTDKeyFireKey : TCOTDKeySkullKey
 	}
 }
 
-class TCOTDKeyKnifeKey : TCOTDKeySkullKey
+class TCOTDKeyKnifeKey : TCOTDKey
 {
 	Default
 	{
@@ -77,7 +111,7 @@ class TCOTDKeyKnifeKey : TCOTDKeySkullKey
 	}
 }
 
-class TCOTDKeySpiderKey : TCOTDKeySkullKey
+class TCOTDKeySpiderKey : TCOTDKey
 {
 	Default
 	{
@@ -95,7 +129,7 @@ class TCOTDKeySpiderKey : TCOTDKeySkullKey
 	}
 }
 
-class TCOTDKeyMoonKey : TCOTDKeySkullKey
+class TCOTDKeyMoonKey : TCOTDKey
 {
 	Default
 	{

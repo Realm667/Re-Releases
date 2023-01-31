@@ -101,7 +101,7 @@ mixin class TCOTDCoopItemMixin
 		}
 	}
 
-	override void Touch (Actor toucher)
+	override void Touch(Actor toucher)
 	{
 		Super.Touch(toucher);
 
@@ -153,6 +153,13 @@ mixin class TCOTDCoopItemMixin
 
 		// in other game modes than coop, use the standard behavior
 		return Super.ShouldStay();
+	}
+
+	override bool ShouldRespawn(void)
+	{
+		if (TCOTDGameplayStatics.IsCoop())
+			return false;
+		return Super.ShouldRespawn();
 	}
 
 	override void Hide(void)
