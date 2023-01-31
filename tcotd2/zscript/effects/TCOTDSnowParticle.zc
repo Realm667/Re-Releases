@@ -118,13 +118,9 @@ class TCOTDSnowParticle : Actor
 	Spawn2:
 		SNOW A 1
 		{
-			if (GetAge() > 50)
-				return ResolveState("FadeOut");
-			return ResolveState(NULL);
+			if (GetAge() > 175)
+				Destroy();
 		}
-		Loop;
-	FadeOut:
-		"####" "#" 1 A_FadeOut(0.035);
 		Loop;
 	}
 }
