@@ -1,0 +1,51 @@
+class TCOTDNash : Actor
+{
+	int busy;
+
+	Default
+	{
+		Radius 33;
+		Height 33;
+		Scale 0.4;
+		+FORCEXYBILLBOARD
+		+SPECIAL
+	}
+
+	override void Tick(void)
+	{
+		Super.Tick();
+
+		if (Level.IsFrozen())
+			return;
+
+		if (busy > 0)
+			busy--;
+	}
+
+	override void Touch(Actor other)
+	{
+		if (!busy)
+		{
+			if (other.CheckLocalView())
+			{
+				other.ACS_ScriptCall("NashEasterEggScript", 0);
+				A_StartSound("NashEasterEgg", CHAN_VOICE, attenuation: ATTN_NONE);
+				busy = Thinker.TICRATE * 10;
+			}
+		}
+	}
+
+	States
+	{
+	Spawn:
+		NASH A 9 NoDelay
+		{
+			bSpriteFlip = true;
+		}
+		NASH A 9
+		{
+			bSpriteFlip = false;
+		}
+		Loop;
+	}
+}

@@ -4,6 +4,16 @@
 #define MAX_VOLUME 127
 #define MAX_PLAYER_HEALTH 200
 
+/**************************************************************************************************
+Generates a HUDMessageID, for use with HUDMessage
+Example: MakeHUDMessage('L', 'O', 'G', 'O');
+**************************************************************************************************/
+function int MakeHUDMessageID(int a, int b, int c, int d)
+{
+	// MAKE_ID
+	return (a << 24) | ( b << 16) | (c << 8) | d;
+}
+
 // fadescript for map setup
 script "Maplaunch" ENTER
 {
@@ -165,4 +175,12 @@ Script "SetActivatorTarget" (int tid)
 	}
 	SetActivator(k);
 	SetResultValue(i);
+}
+
+//$Skip
+Script "NashEasterEggScript" (void)
+{
+	SetFont("NewConsoleFont");
+	SetHudSize(512, 384, TRUE);
+	HudMessage(l: "NASH_MSG"; HUDMSG_PLAIN, MakeHUDMessageID('N', 'A', 'S', 'H'), CR_ICE, 256.4, 192.0, 10.0);
 }
