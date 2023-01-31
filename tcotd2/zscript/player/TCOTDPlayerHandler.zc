@@ -201,10 +201,13 @@ class TCOTDPlayerHandler : EventHandler
 
 	ui void DrawDeathScreen(RenderEvent e)
 	{
-		Color col = Color(0, 0, 0);
-		Screen.Dim(col, deathAlpha, 0, 0, Screen.GetWidth(), Screen.GetHeight());
-		String txt = StringTable.Localize("$TXT_YOU_DIED");
-		Screen.DrawText(BigFont, Font.CR_RED, 160 - (BigFont.StringWidth(txt) / 2), 100, txt, DTA_320x200, true, DTA_Alpha, deathAlpha);
+		if (!TCOTDGameplayStatics.IsCoop() || (TCOTDGameplayStatics.IsCoop() && !tcotd_survival))
+		{
+			Color col = Color(0, 0, 0);
+			Screen.Dim(col, deathAlpha, 0, 0, Screen.GetWidth(), Screen.GetHeight());
+			String txt = StringTable.Localize("$TXT_YOU_DIED");
+			Screen.DrawText(BigFont, Font.CR_RED, 160 - (BigFont.StringWidth(txt) / 2), 100, txt, DTA_320x200, true, DTA_Alpha, deathAlpha);
+		}
 	}
 
 	ui void DrawLowHealth(RenderEvent e)
