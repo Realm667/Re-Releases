@@ -53,6 +53,7 @@ class TCOTDCampaignHandler : EventHandler
 		SetRandomSeed[rnd_DocF](seed);
 
 		CreateCampaign();
+		GetCampaign();
 	}
 
 	//===========================================================================
@@ -61,9 +62,21 @@ class TCOTDCampaignHandler : EventHandler
 	//
 	//===========================================================================
 
+	override void WorldLoaded(WorldEvent e)
+	{
+		if (!campaign)
+			GetCampaign();
+
+		// came from a failed survival run
+		if (campaign.survivalFailed)
+		{
+			campaign.survivalFailed = false;
+			campaign.SetSurvivalLives(tcotd_survival_lives);
+		}
+	}
+
 	override void WorldTick(void)
 	{
-		GetCampaign();
 		campaign.Tick();
 		TickSurvival();
 	}
@@ -179,7 +192,6 @@ class TCOTDCampaignHandler : EventHandler
 					}
 
 					survivalRestartCounter = 0;
-					campaign.survivalFailed = false;
 					int flags = CHANGELEVEL_NOINTERMISSION;
 					Level.ChangeLevel(Level.MapName, flags: flags, skill: -1);
 				}

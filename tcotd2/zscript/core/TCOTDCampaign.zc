@@ -41,7 +41,7 @@ class TCOTDCampaign : Thinker
 	// mark this game as survival coop
 	bool isSurvival;
 	bool survivalFailed;
-	uint8 survivalLives;
+	int8 survivalLives;
 
 	bool initDone;
 
@@ -65,6 +65,11 @@ class TCOTDCampaign : Thinker
 			{
 				isCoopGame = true;
 				isSurvival = tcotd_survival;
+
+				if (isSurvival)
+				{
+					SetSurvivalLives(tcotd_survival_lives);
+				}
 			}
 			initDone = true;
 		}
@@ -106,5 +111,21 @@ class TCOTDCampaign : Thinker
 		// STAT_STATIC thinkers don't automatically tick.
 		// This would usually be called by TCOTDHandler::WorldTick
 		campaignTime++;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	clearscope int GetSurvivalLives(void)
+	{
+		return survivalLives;
+	}
+
+	void SetSurvivalLives(int i)
+	{
+		survivalLives = i;
 	}
 }

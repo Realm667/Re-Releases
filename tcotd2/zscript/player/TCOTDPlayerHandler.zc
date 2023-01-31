@@ -76,6 +76,9 @@ class TCOTDPlayerHandler : EventHandler
 
 	override void PlayerRespawned(PlayerEvent e)
 	{
+		if (Level.time == 0)
+			return;
+
 		PlayerPawn pmo = players[e.PlayerNumber].mo;
 
 		if (pmo == players[consoleplayer].mo)
@@ -85,6 +88,15 @@ class TCOTDPlayerHandler : EventHandler
 		}
 
 		FindCheckpoint(pmo);
+
+		let campaign = TCOTDCampaign.GetInstance();
+
+		if (campaign.GetSurvivalLives() > -1 && !campaign.survivalFailed)
+		{
+			campaign.SetSurvivalLives(campaign.GetSurvivalLives() - 1);
+			String txt = String.Format(StringTable.Localize("$SURVIVAL_LIVES_LEFT"), pmo.player.GetUserName(), campaign.GetSurvivalLives());
+			Console.MidPrint(NULL, txt);
+		}
 	}
 
 	//===========================================================================
@@ -254,7 +266,9 @@ class TCOTDPlayerHandler : EventHandler
 		{
 			if (TCOTDGameplayStatics.IsKeyForCommand(e.KeyScan, useCmd))
 			{
-				if (tcotd_survival && pmo.player.playerstate == PST_DEAD)
+				// don't allow resurrection if the shared pool of lives have run out
+				let campaign = TCOTDCampaign.GetInstance();
+				if (tcotd_survival && campaign.GetSurvivalLives() <= 0 && pmo.player.playerstate == PST_DEAD)
 					return true;
 			}
 		}
