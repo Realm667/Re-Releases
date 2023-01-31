@@ -38,8 +38,8 @@ class TCOTDLanternPickup : CustomInventory
 
 		if (active)
 		{
-			// extinguish lantern when in water
-			if (Owner.WaterLevel >= 3)
+			// extinguish lantern when in water or if dead
+			if (Owner.WaterLevel >= 3 || (Owner.player && Owner.player.playerstate == PST_DEAD))
 			{
 				// requires sound
 				Owner.A_StartSound("lantern/steam", CHAN_AUTO);

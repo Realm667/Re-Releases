@@ -70,7 +70,7 @@ class TCOTDPlayerHandler : EventHandler
 		if (pmo == players[consoleplayer].mo)
 		{
 			SetMusicVolume(0);
-			pmo.A_StartSound("fakemusic/THEEND", CHAN_AUTO, CHANF_UI);
+			TCOTDSiren.PlayGameOverMusic();
 		}
 	}
 
@@ -81,6 +81,7 @@ class TCOTDPlayerHandler : EventHandler
 		if (pmo == players[consoleplayer].mo)
 		{
 			SetMusicVolume(snd_musicvolume);
+			TCOTDSiren.StopGameOverMusic();
 		}
 
 		FindCheckpoint(pmo);

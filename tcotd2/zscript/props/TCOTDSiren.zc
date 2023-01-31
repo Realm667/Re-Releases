@@ -44,6 +44,22 @@ class TCOTDSiren : TCOTDSwitchableDecoration
 		//$Title Siren Noise
 	}
 
+	static void PlayGameOverMusic(void)
+	{
+		ThinkerIterator it = ThinkerIterator.Create("TCOTDSiren");
+		let siren = TCOTDSiren(it.Next());
+		if (siren)
+			siren.A_StartSound("fakemusic/THEEND", CHAN_7, CHANF_UI, attenuation: ATTN_NONE);
+	}
+
+	static void StopGameOverMusic(void)
+	{
+		ThinkerIterator it = ThinkerIterator.Create("TCOTDSiren");
+		let siren = TCOTDSiren(it.Next());
+		if (siren)
+			siren.A_StopSound(CHAN_7);
+	}
+
 	States
 	{
 	Spawn:
