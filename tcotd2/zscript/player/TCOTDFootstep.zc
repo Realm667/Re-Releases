@@ -101,7 +101,7 @@ class TCOTDFootstep : Actor
 
 	void A_PlayFootstepSound(void)
 	{
-		int attn = (pmo == players[consoleplayer].mo) ? ATTN_NONE : ATTN_NORM;
+		int attn = (pmo.CheckLocalView()) ? ATTN_NONE : ATTN_NORM;
 		A_StartSound(snd, volume: vol, attenuation: attn);
 
 		// add water splash sound
