@@ -32,6 +32,9 @@
 
 class TCOTDPlayerHandler : EventHandler
 {
+	const togglemapCmd = "togglemap";
+	const useCmd = "+use";
+
 	ui double deathAlpha;
 
 	//===========================================================================
@@ -79,6 +82,8 @@ class TCOTDPlayerHandler : EventHandler
 		{
 			SetMusicVolume(snd_musicvolume);
 		}
+
+		FindCheckpoint(pmo);
 	}
 
 	//===========================================================================
@@ -147,6 +152,52 @@ class TCOTDPlayerHandler : EventHandler
 	//
 	//===========================================================================
 
+	override bool InputProcess(InputEvent e)
+	{
+		/*
+		if (CheckAutomapKey(e))
+			return true;
+		*/
+		if (CheckUseKey(e))
+			return true;
+		return Super.InputProcess(e);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void FindCheckpoint(PlayerPawn pmo)
+	{
+		if (!TCOTDGameplayStatics.IsCoop())
+			return;
+
+		if (!pmo)
+			return;
+
+		let eh = TCOTDCampaignHandler(TCOTDCampaignHandler.Find("TCOTDCampaignHandler"));
+		if (eh && eh.checkpoint)
+		{
+			// to do: vary the respawn pos a bit
+			Vector3 sPos =
+			(
+				eh.checkpoint.Pos.X + cos(eh.checkpoint.Angle) * eh.checkpoint.Radius,
+				eh.checkpoint.Pos.Y + sin(eh.checkpoint.Angle) * eh.checkpoint.Radius,
+				eh.checkpoint.Pos.Z
+			);
+			pmo.SetOrigin(sPos, false);
+			pmo.Spawn("TCOTDTeleportFog", pmo.Pos, ALLOW_REPLACE);
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	ui void DrawDeathScreen(RenderEvent e)
 	{
 		Color col = Color(0, 0, 0);
@@ -157,5 +208,53 @@ class TCOTDPlayerHandler : EventHandler
 
 	ui void DrawLowHealth(RenderEvent e)
 	{
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	ui bool CheckAutomapKey(InputEvent e)
+	{
+		let pmo = PlayerPawn(players[consoleplayer].mo);
+		if (!pmo)
+			return false;
+
+		if (e.type == InputEvent.Type_KeyDown)
+		{
+			if (TCOTDGameplayStatics.IsKeyForCommand(e.KeyScan, togglemapCmd))
+			{
+				Console.Printf("Pressed the automap key");
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	ui bool CheckUseKey(InputEvent e)
+	{
+		let pmo = PlayerPawn(players[consoleplayer].mo);
+		if (!pmo)
+			return false;
+
+		if (e.type == InputEvent.Type_KeyDown)
+		{
+			if (TCOTDGameplayStatics.IsKeyForCommand(e.KeyScan, useCmd))
+			{
+				if (tcotd_survival && pmo.player.playerstate == PST_DEAD)
+					return true;
+			}
+		}
+
+		return false;
 	}
 }

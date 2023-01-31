@@ -139,4 +139,28 @@ class TCOTDGameplayStatics play
 	{
 		return (multiplayer && deathmatch);
 	}
+
+	clearscope static bool IsTitleMap(void)
+	{
+		return Level.levelnum == 0x7FFFFFFF;
+	}
+
+	/*
+	clearscope static bool IsStartMap(void)
+	{
+		return Level.levelnum == 0x7FFFFFFE;
+	}
+
+	clearscope static bool IsPlayableMap(void)
+	{
+		return !IsTitleMap() && !IsStartMap();
+	}
+	*/
+
+	static ui bool IsKeyForCommand(int keyScan, String cmd)
+	{
+		Array<int> mapkeys;
+		Bindings.GetAllKeysForCommand(mapkeys, cmd);
+		return (mapkeys.Find(KeyScan) != mapkeys.Size());
+	}
 }

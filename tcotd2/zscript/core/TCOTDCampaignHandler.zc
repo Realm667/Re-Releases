@@ -1,0 +1,208 @@
+// Copyright 2023 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+// TCOTDCampaignHandler
+//
+//===========================================================================
+
+class TCOTDCampaignHandler : EventHandler
+{
+	// a reference to the campaign object MUST always exist!
+	TCOTDCampaign campaign;
+
+	// last checkpoint touched
+	TCOTDCoopCheckpoint checkpoint;
+
+	int survivalRestartCounter;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void NewGame(void)
+	{
+		int seed = TCOTDGameplayStatics.SeedFromLevelChecksum();
+		SetRandomSeed[rnd_DocM](seed);
+		SetRandomSeed[rnd_DocF](seed);
+
+		CreateCampaign();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void WorldTick(void)
+	{
+		GetCampaign();
+		campaign.Tick();
+		TickSurvival();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void CreateCampaign(void)
+	{
+		if (!campaign)
+		{
+			ThinkerIterator it = ThinkerIterator.Create("TCOTDCampaign", Thinker.STAT_STATIC);
+			let p = TCOTDCampaign(it.Next());
+			if (!p)
+			{
+				//Console.Printf("Creating a new campaign object...");
+				campaign = new("TCOTDCampaign").Init();
+			}
+		}
+	}
+
+	void GetCampaign(void)
+	{
+		if (!campaign)
+		{
+			campaign = TCOTDCampaign.GetInstance();
+		}
+
+		if (!campaign)
+		{
+			ThrowAbortException("TCOTDCampaignHandler::GetCampaign could not find a campaign object");
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void TickSurvival(void)
+	{
+		if (!multiplayer)
+			return;
+
+		if (!campaign)
+		{
+			ThrowAbortException("TickSurvival() can't find campaign object");
+		}
+
+		if (TCOTDGameplayStatics.IsCoop() && tcotd_survival)
+		{
+			Array<PlayerPawn> allPlayers;
+			allPlayers.Clear();
+
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i])
+				{
+					allPlayers.Push(PlayerPawn(players[i].mo));
+				}
+			}
+
+			int playerCount = allPlayers.Size();
+			int deadPlayers = 0;
+
+			if (playerCount > 0)
+			{
+				for (int i = 0; i < playerCount; i++)
+				{
+					if (allPlayers[i].player.health <= 0)
+					{
+						deadPlayers++;
+					}
+				}
+			}
+
+			if (deadPlayers == playerCount)
+			{
+				if (!campaign.survivalFailed)
+				{
+					survivalRestartCounter = SURVIVAL_RESPAWN_SECONDS;
+					campaign.survivalFailed = true;
+				}
+			}
+
+			if (campaign.survivalFailed)
+			{
+				if (Level.maptime % Thinker.TICRATE == 0)
+				{
+					String txt = String.Format(StringTable.Localize("$SURVIVAL_DEAD"), survivalRestartCounter);
+					Console.Printf(txt);
+					survivalRestartCounter--;
+				}
+
+				if (survivalRestartCounter <= -1)
+				{
+					// reset all players' items
+					for (int i = 0; i < MAXPLAYERS; i++)
+					{
+						if (playeringame[i])
+						{
+							let pmo = PlayerPawn(players[i].mo);
+							if (pmo)
+							{
+								pmo.ClearInventory();
+								pmo.GiveDefaultInventory();
+							}
+						}
+					}
+
+					survivalRestartCounter = 0;
+					campaign.survivalFailed = false;
+					int flags = CHANGELEVEL_NOINTERMISSION;
+					Level.ChangeLevel(Level.MapName, flags: flags, skill: -1);
+				}
+			}
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static void UpdateCheckpoint(TCOTDCoopCheckpoint cp)
+	{
+		if (!cp)
+			return;
+
+		let eh = TCOTDCampaignHandler(TCOTDCampaignHandler.Find("TCOTDCampaignHandler"));
+		if (eh)
+		{
+			Console.MidPrint(NULL, "$CHECKPOINT_ACTIVATED");
+			eh.checkpoint = cp;
+		}
+	}
+}
