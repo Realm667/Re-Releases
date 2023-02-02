@@ -26,4 +26,34 @@
 
 class TCOTDJournalMenu : TCOTDZFGenericMenu
 {
+	const RES_WIDTH = 1280;
+	const RES_HEIGHT = 720;
+
+	TCOTDZFHandler handler;
+	PlayerPawn pmo;
+
+	//===========================================================================
+	//
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Init(Menu parent)
+	{
+		Super.Init(parent);
+
+		SetBaseResolution((RES_WIDTH, RES_HEIGHT));
+
+		pmo = players[consoleplayer].mo;
+
+		handler = new('TCOTDZFHandler');
+		//handler.menu = self;
+
+		let mainBackgroundPos = (0, 0);
+		let mainBackgroundSize = (1280, 720);
+		let mainBackgroundImage = "graphics/journal/journal_main.png";
+		let mainBackground = new('TCOTDZFImage').Init(mainBackgroundPos, mainBackgroundSize, mainBackgroundImage, TCOTDZFImage.AlignType_TopLeft);
+		mainBackground.Pack(mainFrame);
+	}
 }
