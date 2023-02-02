@@ -45,7 +45,7 @@ class TCOTDExMark : TCOTDSimpleActor
 		//$Category Special Actors (TCOTD2)
 		//$Title Exclamation Mark (greyed out on touching)
 		//$Sprite EXCLA0
-		Radius 32;
+		Radius 40;
 		Height 64;
 		Scale 1.35;
 		RenderStyle "Translucent";
@@ -54,6 +54,7 @@ class TCOTDExMark : TCOTDSimpleActor
 		+FORCEXYBILLBOARD
 		+SPECIAL
 		+NOGRAVITY
+		+NOCLIP
 	}
 
 	// FloatBobPhase must be 0, otherwise multiplayer will desync.
@@ -81,13 +82,13 @@ class TCOTDExMark : TCOTDSimpleActor
 		}
 	}
 
-	override void Activate (Actor activator)
+	override void Activate(Actor activator)
 	{
 		bDormant = false;
 		SetStateLabel("Active");
 	}
 
-	override void Deactivate (Actor activator)
+	override void Deactivate(Actor activator)
 	{
 		bDormant = true;
 		SetStateLabel("Inactive");

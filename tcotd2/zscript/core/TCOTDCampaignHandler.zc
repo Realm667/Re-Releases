@@ -51,6 +51,7 @@ class TCOTDCampaignHandler : EventHandler
 		int seed = TCOTDGameplayStatics.SeedFromLevelChecksum();
 		SetRandomSeed[rnd_DocM](seed);
 		SetRandomSeed[rnd_DocF](seed);
+		SetRandomSeed[rnd_FogCloudSpawn](seed);
 
 		CreateCampaign();
 		GetCampaign();
@@ -68,10 +69,10 @@ class TCOTDCampaignHandler : EventHandler
 			GetCampaign();
 
 		// came from a failed survival run
-		if (campaign.survivalFailed)
+		if (campaign.GetSurvivalFailed())
 		{
-			campaign.survivalFailed = false;
-			campaign.SetSurvivalLives(tcotd_survival_lives);
+			campaign.SetSurvivalFailed(false);
+			campaign.SetSurvivalLives(tcotd2_survival_lives);
 		}
 	}
 
@@ -130,7 +131,7 @@ class TCOTDCampaignHandler : EventHandler
 			ThrowAbortException("TickSurvival() can't find campaign object");
 		}
 
-		if (TCOTDGameplayStatics.IsCoop() && tcotd_survival)
+		if (TCOTDGameplayStatics.IsCoop() && tcotd2_survival)
 		{
 			Array<PlayerPawn> allPlayers;
 			allPlayers.Clear();
@@ -159,14 +160,14 @@ class TCOTDCampaignHandler : EventHandler
 
 			if (deadPlayers == playerCount)
 			{
-				if (!campaign.survivalFailed)
+				if (!campaign.GetSurvivalFailed())
 				{
 					survivalRestartCounter = SURVIVAL_RESPAWN_SECONDS;
-					campaign.survivalFailed = true;
+					campaign.SetSurvivalFailed(true);
 				}
 			}
 
-			if (campaign.survivalFailed)
+			if (campaign.GetSurvivalFailed())
 			{
 				if (Level.maptime % Thinker.TICRATE == 0)
 				{
@@ -205,15 +206,16 @@ class TCOTDCampaignHandler : EventHandler
 	//
 	//===========================================================================
 
-	static void UpdateCheckpoint(TCOTDCoopCheckpoint cp)
+	static void UpdateCheckpoint(TCOTDCoopCheckpoint cp, PlayerPawn pmo)
 	{
-		if (!cp)
+		if (!cp || !pmo)
 			return;
 
 		let eh = TCOTDCampaignHandler(TCOTDCampaignHandler.Find("TCOTDCampaignHandler"));
 		if (eh)
 		{
-			Console.MidPrint(NULL, "$CHECKPOINT_ACTIVATED");
+			String txt = String.Format(StringTable.Localize("$CHECKPOINT_ACTIVATED"), pmo.player.GetUserName());
+			Console.MidPrint(NULL, txt);
 			eh.checkpoint = cp;
 		}
 	}

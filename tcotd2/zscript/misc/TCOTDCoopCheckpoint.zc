@@ -70,8 +70,12 @@ class TCOTDCoopCheckpoint : Actor
 		if (cpActivated)
 			return;
 
-		TCOTDCampaignHandler.UpdateCheckpoint(self);
-		SetState(ResolveState('Activated'));
+		let pmo = PlayerPawn(other);
+		if (!pmo)
+			return;
+
+		TCOTDCampaignHandler.UpdateCheckpoint(self, pmo);
+		SetState(ResolveState('CheckpointActivated'));
 		cpActivated = true;
 	}
 
@@ -86,7 +90,7 @@ class TCOTDCoopCheckpoint : Actor
 	Spawn:
 		CKPT A -1;
 		Stop;
-	Activated:
+	CheckpointActivated:
 		CKPT A -1 Bright;
 		Stop;
 	}

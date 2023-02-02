@@ -89,14 +89,17 @@ class TCOTDPlayerHandler : EventHandler
 
 		FindCheckpoint(pmo);
 
+		String txt = String.Format(StringTable.Localize("$COOP_PLAYER_RESPAWN"), pmo.player.GetUserName());
+
 		let campaign = TCOTDCampaign.GetInstance();
 
-		if (campaign.GetSurvivalLives() > -1 && !campaign.survivalFailed)
+		if (tcotd2_survival && campaign.GetSurvivalLives() > -1 && !campaign.GetSurvivalFailed())
 		{
 			campaign.SetSurvivalLives(campaign.GetSurvivalLives() - 1);
-			String txt = String.Format(StringTable.Localize("$SURVIVAL_LIVES_LEFT"), pmo.player.GetUserName(), campaign.GetSurvivalLives());
-			Console.MidPrint(NULL, txt);
+			txt = txt .. "\n\n" .. String.Format(StringTable.Localize("$SURVIVAL_LIVES_LEFT"), campaign.GetSurvivalLives());
 		}
+
+		Console.MidPrint(NULL, txt);
 	}
 
 	//===========================================================================
@@ -213,7 +216,7 @@ class TCOTDPlayerHandler : EventHandler
 
 	ui void DrawDeathScreen(RenderEvent e)
 	{
-		if (!TCOTDGameplayStatics.IsCoop() || (TCOTDGameplayStatics.IsCoop() && !tcotd_survival))
+		if (!TCOTDGameplayStatics.IsCoop() || (TCOTDGameplayStatics.IsCoop() && !tcotd2_survival))
 		{
 			Color col = Color(0, 0, 0);
 			Screen.Dim(col, deathAlpha, 0, 0, Screen.GetWidth(), Screen.GetHeight());
@@ -268,7 +271,7 @@ class TCOTDPlayerHandler : EventHandler
 			{
 				// don't allow resurrection if the shared pool of lives have run out
 				let campaign = TCOTDCampaign.GetInstance();
-				if (tcotd_survival && campaign.GetSurvivalLives() <= 0 && pmo.player.playerstate == PST_DEAD)
+				if (tcotd2_survival && campaign.GetSurvivalLives() <= 0 && pmo.player.playerstate == PST_DEAD)
 					return true;
 			}
 		}

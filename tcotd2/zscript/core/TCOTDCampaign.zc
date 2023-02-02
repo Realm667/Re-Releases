@@ -47,7 +47,18 @@ class TCOTDCampaign : Thinker
 
 	int campaignTime;
 
-	bool shouldAutosave;
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Tick(void)
+	{
+		// STAT_STATIC thinkers don't automatically tick.
+		// This would usually be called by TCOTDHandler::WorldTick
+		campaignTime++;
+	}
 
 	//===========================================================================
 	//
@@ -64,11 +75,11 @@ class TCOTDCampaign : Thinker
 			if (TCOTDGameplayStatics.IsCoop())
 			{
 				isCoopGame = true;
-				isSurvival = tcotd_survival;
+				isSurvival = tcotd2_survival;
 
 				if (isSurvival)
 				{
-					SetSurvivalLives(tcotd_survival_lives);
+					SetSurvivalLives(tcotd2_survival_lives);
 				}
 			}
 			initDone = true;
@@ -106,18 +117,15 @@ class TCOTDCampaign : Thinker
 	//
 	//===========================================================================
 
-	override void Tick(void)
+	clearscope bool GetSurvivalFailed(void)
 	{
-		// STAT_STATIC thinkers don't automatically tick.
-		// This would usually be called by TCOTDHandler::WorldTick
-		campaignTime++;
+		return survivalFailed;
 	}
 
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
+	void SetSurvivalFailed(bool set)
+	{
+		survivalFailed = set;
+	}
 
 	clearscope int GetSurvivalLives(void)
 	{
