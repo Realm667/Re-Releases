@@ -17,10 +17,10 @@ class Fatty : TCOTDMonster
 		Scale 0.8;
 		MeleeThreshold 196;
 		PainChance 100;
-		SeeSound "fatty/sit";
+		SeeSound "fatty/sight";
 		PainSound "fatty/pain";
 		DeathSound "fatty/death";
-		ActiveSound "fatty/act";
+		ActiveSound "fatty/active";
 		Obituary "$OB_FATY";
 		HitObituary "$HB_FATY";
 		Tag "$FN_FATY";
@@ -148,7 +148,7 @@ class ButcherVomit1 : Actor
 		ReactionTime 3;
 		Projectile;
 		SeeSound "fatty/attack";
-		DeathSound "fatty/wall";
+		DeathSound "fatty/vomitsplat";
 	}
 
 	protected void A_SpawnGoo(void)
@@ -179,7 +179,7 @@ class ButcherVomit1 : Actor
 		FBXX C 4;
 		Stop;
 	Crash:
-		TNT1 A 0 { A_StartSound("fatty/wall"); A_SetScale(1.0); }
+		TNT1 A 0 { A_StartSound("fatty/vomitsplat"); A_SetScale(1.0); }
 		FBXX A 8;
 		FBXX B 6;
 		FBXX C 4;

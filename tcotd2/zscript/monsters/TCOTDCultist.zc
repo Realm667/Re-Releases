@@ -8,10 +8,10 @@ class TCOTDCultist : TCOTDMonster
 		Speed 2.66666667;
 		Scale 0.7;
 		PainChance 100;
-		SeeSound "monster/culsit";
-		PainSound "monster/culpai";
-		DeathSound "monster/culdth";
-		ActiveSound "monster/culact";
+		SeeSound "cultist/sight";
+		PainSound "cultist/pain";
+		DeathSound "cultist/death";
+		ActiveSound "cultist/active";
 	}
 
 	protected void A_CultistShotgunAttack(void)
@@ -41,7 +41,7 @@ class TCOTDCultist : TCOTDMonster
 	Cowardly:
 		#### A 0
 		{
-			ActiveSound = "monster/culflee";
+			ActiveSound = "cultist/flee";
 		}
 		Goto See + 1;
 	See:

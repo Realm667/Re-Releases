@@ -15,11 +15,11 @@ class ZombieBlood : TCOTDMonster
 		Mass 400;
 		Scale 0.62;
 		MeleeRange 50;
-		SeeSound "zombieblood/sit";
-		AttackSound "zombieblood/fis";
-		PainSound "zombieblood/pan";
-		DeathSound "zombieblood/dth";
-		ActiveSound "zombieblood/act";
+		SeeSound "zombie/sight";
+		AttackSound "zombie/swing";
+		PainSound "zombie/pain";
+		DeathSound "zombie/death";
+		ActiveSound "zombie/active";
 		HitObituary "$OB_ZOMB";
 		Tag "$FN_ZOMB";
 		DropItem "TCOTDHealthPickupHeart", 160;
@@ -47,7 +47,7 @@ class ZombieBlood : TCOTDMonster
 	Melee:
 		BZOM IJ 4 A_FaceTarget();
 		BZOM K 3 A_FaceTarget();
-		BZOM L 2 A_CustomMeleeAttack(10 * random[rnd_ZombieDmg](1, 8), "zombieblood/hit");
+		BZOM L 2 A_CustomMeleeAttack(10 * random[rnd_ZombieDmg](1, 8), "zombie/hit");
 		BZOM MNN 2;
 		Goto See;
 	Pain:

@@ -20,10 +20,10 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 		Scale 0.85;
 		Bloodcolor "00 aa 00";
 		MinMissileChance 5;
-		SeeSound "Omni/Laugh";
-		PainSound "Omni/Pain";
-		DeathSound "Omni/Death";
-		ActiveSound "Omni/Search";
+		SeeSound "thamuzblood/laugh";
+		PainSound "thamuzblood/pain";
+		DeathSound "thamuzblood/die";
+		ActiveSound "thamuzblood/search";
 		Obituary "$OB_THAM";
 		Tag "$FN_THAM";
 		Species "Horror";
@@ -72,19 +72,19 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 	Missile:
 		"####" A 0 { user_Height = 96; }
 		"####" A 0 { user_offset = -25; }
-		"####" A 0 A_Jump(160,"Missile2");
+		"####" A 0 A_Jump(160, "Missile2");
 		"####" AGG 5 A_FaceTarget();
 		"####" H 10 A_SpawnItemEx("ThamuzCircle", flags: SXF_SETMASTER);
-		"####" H 0 A_SpawnItemEx("ThamuzTentacle", 64., 64., flags: SXF_SETMASTER);
-		"####" H 0 A_SpawnItemEx("ThamuzTentacle", 64., -64., flags: SXF_SETMASTER);
-		"####" H 0 A_SpawnItemEx("ThamuzTentacle", -64., 64., flags: SXF_SETMASTER);
-		"####" H 0 A_SpawnItemEx("ThamuzTentacle", -64., -64., flags: SXF_SETMASTER);
+		"####" H 0 A_SpawnItemEx("ThamuzTentacle", 64, 64, flags: SXF_SETMASTER);
+		"####" H 0 A_SpawnItemEx("ThamuzTentacle", 64, -64, flags: SXF_SETMASTER);
+		"####" H 0 A_SpawnItemEx("ThamuzTentacle", -64, 64, flags: SXF_SETMASTER);
+		"####" H 0 A_SpawnItemEx("ThamuzTentacle", -64, -64, flags: SXF_SETMASTER);
 		"####" G 15 A_FaceTarget();
 		Goto See;
 	Missile2:
 		"####" A 0 A_Jump(160, "Missile3");
 		"####" A 0 A_SetInvulnerable();
-		"####" G 20 { A_StartSound("Apocalypse/cast"); A_SpawnItemEx("ThamuzCircle"); }
+		"####" G 20 { A_StartSound("thamuzdoom/circle"); A_SpawnItemEx("ThamuzCircle"); }
 	Shock:
 		"####" G 0 A_SpawnProjectile("DCBMiss3", 50, 0, user_theta);
 		"####" G 0 { user_theta = user_theta + 20; }
@@ -127,7 +127,7 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 		"####" L 0 A_StartSound("SFX/Explosion1");
 		"####" MNO 5  A_SpawnItemEx("Explosion_Green_A1A", frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](0, 60));
 		"####" P 7 A_Scream();
-		"####" Q 0 A_StartSound("Thamuz/death2", CHAN_5);
+		"####" Q 0 A_StartSound("thamuzdoom/death2", CHAN_5);
 		"####" QQQQQQQRRRRRRR 1 A_SpawnProjectile("SFX_Wraith", frandom[rnd_TchernoBall1](0, 64), 0, frandom[rnd_TchernoBall1](0, 359), 2, frandom[rnd_TchernoBall1](-16, 16));
 		"####" S 0  A_SpawnItemEx("Explosion_Green_A1A", frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](0, 60));
 		"####" SSSSSSSTTTTTTTUUUUUUU 1 A_SpawnProjectile("SFX_Wraith", frandom[rnd_TchernoBall1](0, 64), 0, frandom[rnd_TchernoBall1](0, 359), 2, frandom[rnd_TchernoBall1](-16, 16));
@@ -206,14 +206,15 @@ class ThamuzTentacle : TCOTDMonster
 		Scale 0.85;
 		Alpha 0.25;
 		Renderstyle "Add";
-		ActiveSound "TentacleDown";
-		DeathSound "TentacleExplode";
-		SeeSound "TentacleUp";
-		Bloodcolor "00 aa 00";
+		ActiveSound "tentacle/down";
+		DeathSound "tentacle/explode";
+		SeeSound "tentacle/up";
+		Bloodcolor "00 AA 00";
 		Obituary "$OB_TENT";
 		Tag "$FN_TENT";
 		Species "Horror";
-		+BRIGHT //until I will make bmaps - ozy81
+		// until I will make bmaps - ozy81
+		+BRIGHT
 		+DONTSPLASH
 		+LOOKALLAROUND
 		+NOTARGETSWITCH
@@ -246,7 +247,7 @@ class ThamuzTentacle : TCOTDMonster
 	Melee:
 		TENT GH 4;
 		TENT HHHHHH 0 A_SpawnItemEx("Drt", 0, 0, 0, frandom[rnd_tentacledrt2](-3, 3), frandom[rnd_tentacledrt2](-3, 3), 3, 0, SXF_NOCHECKPOSITION);
-		TENT I 4 A_CustomMeleeAttack(random[rnd_tentacledmg](1, 2) * 4, "TentacleSwipe", "", "Fear", false);
+		TENT I 4 A_CustomMeleeAttack(random[rnd_tentacledmg](1, 2) * 4, "tentacle/swipe", "", "Fear", false);
 		TENT HG 4;
 		TENT G 0 A_CposRefire();
 		Goto See;
@@ -262,7 +263,7 @@ class ThamuzTentacle : TCOTDMonster
 		TEND E 4;
 		TEND F 4;
 		TENE A 35 A_SetTics(random[rnd_TentacleDeathTics](35, 75));
-		TENF B 4 A_StartSound("TentacleDown", CHAN_AUTO);
+		TENF B 4 A_StartSound("tentacle/down", CHAN_AUTO);
 		TENF C 4;
 		TENF D 4;
 		TENF E 4;
@@ -294,27 +295,27 @@ class Drt : Actor
 		-NOTELEPORT
 	}
 
-    States
-    {
-    Spawn:
-        DIRT A 0;
-        DIRT A 0 ThrustThingZ(0, 15, 0, 1);
+	States
+	{
+	Spawn:
+		DIRT A 0;
+		DIRT A 0 ThrustThingZ(0, 15, 0, 1);
 		DIRT A 0 A_Jump(256, "A", "B", "C");
-    A:
-        DIRT ABC 5 A_FadeOut(0.03);
-        Loop;
+	A:
+		DIRT ABC 5 A_FadeOut(0.03);
+		Loop;
 	B:
-		DIRT A 0 A_StartSound("TentacleDown", CHAN_AUTO);
+		DIRT A 0 A_StartSound("tentacle/down", CHAN_AUTO);
 	B2:
-        DIRT DEF 5 A_FadeOut(0.03);
-        Loop;
+		DIRT DEF 5 A_FadeOut(0.03);
+		Loop;
 	C:
-        DIRT GHI 5 A_FadeOut(0.03);
-        Loop;
-    Death:
-        DIRT JKL 3;
-        Stop;
-    }
+		DIRT GHI 5 A_FadeOut(0.03);
+		Loop;
+	Death:
+		DIRT JKL 3;
+		Stop;
+	}
 }
 
 class DCBMiss2 : Actor
@@ -331,8 +332,8 @@ class DCBMiss2 : Actor
 		RenderStyle "Add";
 		Projectile;
 		Species "Horror";
-		SeeSound "q2weapon/rocketlauncherfire";
-		DeathSound "q2weapon/rocketexplo";
+		SeeSound "thamuzdoom/missile";
+		DeathSound "thamuzdoom/missileexplode";
 		+DONTSPLASH
 		+THRUSPECIES
 	}
@@ -368,8 +369,8 @@ class DCBMiss1 : Actor
 		Projectile;
 		Species "Horror";
 		RenderStyle "Add";
-		SeeSound "q2weapon/bfgball";
-		DeathSound "q2weapon/bfgballexplo";
+		SeeSound "thamuzdoom/ball";
+		DeathSound "thamuzdoom/ballexplode";
 		+EXTREMEDEATH
 		+SEEKERMISSILE
 		+THRUSPECIES
@@ -478,7 +479,7 @@ class DCBMiss3 : Actor
 		Speed 8;
 		Scale 2;
 		RenderStyle "Add";
-		SeeSound "h2necromancer/magiccast";
+		SeeSound "thamuzdoom/missile3";
 		Projectile;
 		Species "Horror";
 		+BLOODLESSIMPACT
@@ -511,7 +512,7 @@ class DCBMiss3M : Actor
 		RenderStyle "Add";
 		Projectile;
 		Species "Horror";
-		DeathSound "comet/explosion";
+		DeathSound "thamuzdoom/missile3mexplode";
 		+FLOORHUGGER
 		+THRUSPECIES
 		+DONTSPLASH
@@ -673,7 +674,7 @@ class SFX_Wraith : Actor
 	Default
 	{
 		Projectile;
-		SeeSound "monster/SprSit";
+		SeeSound "wraith/sight";
 		Speed 8;
 		RenderStyle "Add";
 		Alpha 0.6;

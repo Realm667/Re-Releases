@@ -1,0 +1,376 @@
+//===========================================================================
+//
+// APPRENTICE
+//
+//===========================================================================
+
+wizard/sight WIZ2SIT
+wizard/attack WIZ2ATK
+wizard/death WIZ2DTH
+wizard/pain WIZ2PAI
+wizard/active1 WIZ2ACT
+fireblast/explode DSFREXP
+superfireblast/explode DSHELLEX
+aod/ghost AODSCRM
+
+$random wizard/active { wizard/sight wizard/active1 }
+
+//===========================================================================
+//
+// CULTIST
+//
+//===========================================================================
+
+beast/sight BSTSEE
+beast/die BSTDIE
+beast/pain BSTPAIN
+beast/active1 BSTACT1
+beast/active2 BSTACT2
+beast/active3 BSTACT3
+beast/stomp BSTSTOMP
+beast/slash1 BSTCUT1
+beast/slash2 BSTCUT2
+beast/slash3 BSTCUT3
+
+$random beast/active { beast/active1 beast/active2 beast/active3 }
+$random beast/slash { beast/slash1 beast/slash2 beast/slash3 }
+
+//===========================================================================
+//
+// CULTIST
+//
+//===========================================================================
+
+cultist/sight1 DSCULSI1
+cultist/sight2 DSCULSI2
+cultist/sight3 DSCULSI3
+cultist/sight4 DSCULSI4
+monster/culac1 DSCULAC1
+monster/culac2 DSCULAC2
+cultist/attack DSCULATK
+cultist/pain DSCULPAI
+cultist/death1 DSCULDT1
+cultist/death2 DSCULDT2
+cultist/flee1 CULTSCR1
+cultist/flee2 CULTSCR2
+cultist/flee3 CULTSCR3
+
+$random cultist/sight { cultist/sight1 cultist/sight2 cultist/sight3 cultist/sight4 }
+$random cultist/active { monster/culac1 monster/culac2 }
+$random cultist/death { cultist/death1 cultist/death2 }
+$random cultist/flee { cultist/flee1 cultist/flee2 cultist/flee3 }
+
+//===========================================================================
+//
+// DEATH INCARNATE
+//
+//===========================================================================
+
+incarnate/sight DSINCSIT
+incarnate/death DSINCDTH
+incarnate/active DSINCACT
+incarnate/attack DSINCATK
+incarnate/hit DSINCHIT
+incarnate/explode DSINCEXP
+
+//===========================================================================
+//
+// FATTY
+//
+//===========================================================================
+
+fatty/sight DSFATSIT
+fatty/active DSFATACT
+fatty/attack DSFATAT
+/*
+// unused?
+fatty/fist DSFATFIS
+fatty/punch DSFATPN
+*/
+fatty/vomitsplat1 ACIDHIT1
+fatty/vomitsplat2 ACIDHIT2
+fatty/pain1 UDPAIN1
+fatty/pain2 UDPAIN2
+fatty/pain3 UDPAIN3
+fatty/pain4 UDPAIN4
+fatty/pain5 UDPAIN5
+fatty/pain6 UDPAIN6
+fatty/pain7 UDPAIN7
+fatty/pain8 UDPAIN8
+fatty/pain9 UDPAIN9
+fatty/death1 FZOMDIE1
+fatty/death2 FZOMDIE2
+fatty/death3 FZOMDIE3
+
+$random fatty/vomitsplat { fatty/vomitsplat1 fatty/vomitsplat2 }
+$random fatty/pain { fatty/pain1 fatty/pain2 fatty/pain3 fatty/pain4 fatty/pain5 fatty/pain6 fatty/pain7 fatty/pain8 fatty/pain9 }
+$random fatty/death	{ fatty/death1 fatty/death2 fatty/death3 }
+
+//===========================================================================
+//
+// GHOUL
+//
+//===========================================================================
+
+ghoul/see1	GHULSEE1
+ghoul/see2	GHULSEE2
+ghoul/active1 GHULACT1
+ghoul/active2 GHULACT2
+ghoul/active3 GHULACT3
+ghoul/active4 GHULACT4
+ghoul/active5 GHULACT5
+ghoul/pain1 GHULPAI1
+ghoul/pain2 GHULPAI2
+ghoul/die1 GHULDIE1
+ghoul/die2 GHULDIE2
+
+$random ghoul/see { ghoul/see1 ghoul/see2 }
+$random ghoul/active { ghoul/active1 ghoul/active2 ghoul/active3 ghoul/active4 ghoul/active5 }
+$random ghoul/pain { ghoul/pain1 ghoul/pain2 }
+$random ghoul/die { ghoul/die1 ghoul/die2 }
+
+//===========================================================================
+//
+// HADES SPHERE
+//
+//===========================================================================
+
+hades/sight DSHADSIT
+hades/walk DSHADWLK
+hades/teleport DSHADTEL
+hades/death DSHADDTH
+hades/explode DSHADEXP
+
+//===========================================================================
+//
+// HAND
+//
+//===========================================================================
+
+hand/death HANDEATH
+hand/fire HANFIRE
+
+//===========================================================================
+//
+// HELL HOUND
+//
+//===========================================================================
+
+dog/sight DSDOGSIT
+dog/active DSDOGACT
+dog/attack DSDOGATK
+dog/bite DSDOGBIT
+dog/pain DSDOGPAIN
+dog/death1 DSDOGDT1
+dog/death2 DSDOGDT2
+dog/flame DSBIGBRN
+/*
+// unused?
+dog/shotfire DSDOGSHT
+dog/shothit DSDOGHIT
+*/
+
+$random dog/death { dog/death1 dog/death2 }
+
+//===========================================================================
+//
+// NIGHTMARE
+//
+//===========================================================================
+
+nightmare2/sight DSN2ACT
+nightmare2/pain DSN2PN
+nightmare2/death DSN2DTH
+nightmare2/active DSN2ACT
+nightmare2/melee DSN2ATK
+
+//===========================================================================
+//
+// NIGHTMARE (LESSER)
+//
+//===========================================================================
+
+nightmare/sight DSNMRSIT
+nightmare/pain DSNMRPAI
+nightmare/death DSNMRDTH
+nightmare/active DSNMRACT
+nightmare/melee DSNMRATK
+
+//===========================================================================
+//
+// SHADOW
+//
+//===========================================================================
+
+shadow/active1 SHDACT1
+shadow/active2 SHDACT2
+shadow/attack SHDATTAK
+shadow/pain1 SHDPAIN1
+shadow/pain2 SHDPAIN2
+shadow/death SHDDEATH
+
+$random shadow/active { shadow/active1 shadow/active2 }
+$random shadow/pain { shadow/pain1 shadow/pain2 }
+
+//===========================================================================
+//
+// SOUL HARVESTER
+//
+//===========================================================================
+
+harvester/sight1 SHSIGHT1
+harvester/sight2 SHSIGHT2
+harvester/death1 SHDEATH1
+harvester/death2 SHDEATH2
+harvester/ball shfbscrm SHFBSCRM
+harvester/ghost shghscrm SHGHSCRM
+
+$random harvester/sight { harvester/sight1 harvester/sight2 }
+$random harvester/death { harvester/death1 harvester/death2 }
+
+//===========================================================================
+//
+// SPIDER
+//
+//===========================================================================
+
+spider/sight SPIDSPOT
+spider/attack SPIDROAM
+spider/pain SPIDPAIN
+spider/death1 SPIDDIE1
+spider/death2 SPIDDIE2
+spider/death3 SPIDDIE3
+
+$random spider/death { spider/death1 spider/death2 spider/death3 }
+
+//===========================================================================
+//
+// TENTACLE
+//
+//===========================================================================
+
+tentacle/up TENTUP
+tentacle/down TENTDWN
+tentacle/explode TENTEXP
+tentacle/swipe TENTSWP
+
+//===========================================================================
+//
+// THAMUZ (DOOM)
+//
+//===========================================================================
+
+thamuzdoom/circle apocast
+thamuzdoom/attack nakrula2
+thamuzdoom/death nakruld2
+thamuzdoom/pain nakrulh2
+thamuzdoom/idle1 nakruls1
+thamuzdoom/idle2 nakruls2
+thamuzdoom/death2 megad1
+thamuzdoom/ball bfgnfire
+thamuzdoom/ballexplode bfgnx1b
+thamuzdoom/missile rocklf1a
+thamuzdoom/missileexplode q2roklx1
+thamuzdoom/missile3 h2ncmagh
+thamuzdoom/missile3mexplode cometexp
+
+$random thamuzdoom/idle	{ thamuzdoom/idle1 thamuzdoom/idle2 }
+
+//===========================================================================
+//
+// THAMUZ (BLOOD)
+//
+//===========================================================================
+
+thamuzblood/wait1 OMNWAI1
+thamuzblood/wait2 OMNWAI2
+thamuzblood/bow1 OMNIBOW
+thamuzblood/bow2 OMNIBOW2
+thamuzblood/worship1 OMWOR1
+thamuzblood/worship2 OMWOR2
+thamuzblood/laugh1 OMLAUGH
+thamuzblood/laugh2 OMLAUGH2
+thamuzblood/laugh3 OMLAUGH3
+thamuzblood/laugh4 OMLAUGH4
+thamuzblood/laugh5 OMLAUGH5
+thamuzblood/sacrifice1 SACRI1
+thamuzblood/sacrifice2 SACRI2
+thamuzblood/sacrifice3 SACRI3
+thamuzblood/pain1 OMPAIN1
+thamuzblood/pain2 OMPAIN2
+thamuzblood/pain3 OMPAIN3
+thamuzblood/pain4 OMPAIN4
+thamuzblood/pain5 OMPAIN5
+thamuzblood/pain6 OMPAIN6
+thamuzblood/pain7 OMPAIN7
+thamuzblood/die OMDIE
+
+$random thamuzblood/wait { thamuzblood/wait1 thamuzblood/wait2 }
+$random thamuzblood/bow { thamuzblood/bow1 thamuzblood/bow2 }
+$random thamuzblood/worship { thamuzblood/worship1 thamuzblood/worship2 }
+$random thamuzblood/search { thamuzblood/wait thamuzblood/worship thamuzblood/laugh thamuzblood/bow thamuzblood/sacrifice }
+$random thamuzblood/laugh { thamuzblood/laugh1 thamuzblood/laugh2 thamuzblood/laugh3 thamuzblood/laugh4 thamuzblood/laugh4 thamuzblood/laugh5 }
+$random thamuzblood/sacrifice { thamuzblood/sacrifice1 thamuzblood/sacrifice2 thamuzblood/sacrifice3 }
+$random thamuzblood/pain { thamuzblood/pain1 thamuzblood/pain2 thamuzblood/pain3 thamuzblood/pain4 thamuzblood/pain5 thamuzblood/pain6 thamuzblood/pain7 }
+
+$rolloff thamuzblood/bow1 3200 6400
+$rolloff thamuzblood/bow2 3200 6400
+$rolloff thamuzblood/wait1 1800 3400
+$rolloff thamuzblood/wait2 1800 3400
+$rolloff thamuzblood/laugh1 2400 5600
+$rolloff thamuzblood/laugh2 2400 5600
+$rolloff thamuzblood/laugh3 2400 5600
+$rolloff thamuzblood/laugh4 2400 5600
+$rolloff thamuzblood/laugh5 2400 5600
+$rolloff thamuzblood/sacrifice1 2400 2400
+$rolloff thamuzblood/sacrifice2 2400 2400
+$rolloff thamuzblood/sacrifice3 2400 2400
+
+//===========================================================================
+//
+// VULGAR
+//
+//===========================================================================
+
+vulgar/sight1 DSVULSI1
+vulgar/sight2 DSVULSI2
+vulgar/sight3 DSVULSI3
+vulgar/pain DSVULPAI
+vulgar/death1 DSVULDT1
+vulgar/death2 DSVULDT2
+vulgar/active DSVULACT
+vulgar/hit DSVULHIT
+vulgar/swing DSVULSWG
+vulgar/shot DSSTMDR1
+vulgar/shotexplode DSBLOODX
+
+$random vulgar/sight { vulgar/sight1 vulgar/sight2 vulgar/sight3 }
+$random vulgar/death { vulgar/death1 vulgar/death2 }
+
+//===========================================================================
+//
+// WRAITH
+//
+//===========================================================================
+
+wraith/sight DSSPRACT
+wraith/attack DSSPRATK
+wraith/death DSSPRDTH
+
+//===========================================================================
+//
+// ZOMBIE
+//
+//===========================================================================
+
+zombie/sight DSZBSIT
+zombie/active DSZBACT
+zombie/pain DSZBPAIN
+zombie/hit DSZBHIT
+zombie/swing DSSKESWG
+zombie/death1 DSZBDTH
+zombie/death2 AZOMDIE3
+zombie/death3 AZOMDIE2
+zombie/death4 AZOMDIE1
+
+$random zombie/death { zombie/death1 zombie/death2 zombie/death3 zombie/death4 }

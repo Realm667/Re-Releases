@@ -14,10 +14,10 @@ class TCOTDBeast : TCOTDMonster
 		MeleeThreshold 96;
 		ProjectilePassHeight 62;
 		PainChance 8;
-		ActiveSound "BeastAct";
-		SeeSound "BeastSee";
-		PainSound "BeastPain";
-		DeathSound "BeastDie";
+		ActiveSound "beast/active";
+		SeeSound "beast/sight";
+		PainSound "beast/pain";
+		DeathSound "beast/die";
 		Obituary "$OB_BEAST";
 		HitObituary "$HB_BEAST";
 		Tag "$FN_BEAST";
@@ -32,7 +32,7 @@ class TCOTDBeast : TCOTDMonster
 
 	protected void A_BeastAttack(void)
 	{
-		A_CustomMeleeAttack(10, "BeastSlash", "", "Melee", true);
+		A_CustomMeleeAttack(10, "beast/slash", "", "Melee", true);
 	}
 
 	States
@@ -83,7 +83,7 @@ class TCOTDBeast : TCOTDMonster
 		BESS A 10 A_FaceTarget();
 		BESS B 10 A_FaceTarget();
 		BESS C 10 A_FaceTarget();
-		BESS C 0 A_StartSound("BeastStomp");
+		BESS C 0 A_StartSound("beast/stomp");
 		BESS D 5 A_SpawnItemEx("BeastStomp");
 		BESS E 6;
 		Goto See;
@@ -133,7 +133,7 @@ class BeastStomp : Actor
 		Radius 1;
 		Height 1;
 		Damage 0;
-		DamageType "BeastStomp";
+		DamageType "beast/stomp";
 		Obituary "$OB_STOMP";
 		+BLOODLESSIMPACT
 		+DONTSPLASH
@@ -142,7 +142,7 @@ class BeastStomp : Actor
 		+PAINLESS
 	}
 
-    States
+	States
 	{
 	Spawn:
 		TNT1 A 1;
@@ -157,7 +157,7 @@ class BeastStomp : Actor
 
 class BeastStompND : BeastStomp //nodamage
 {
-    States
+	States
 	{
 	Spawn:
 		TNT1 A 1;

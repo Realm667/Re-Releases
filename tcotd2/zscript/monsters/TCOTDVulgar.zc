@@ -15,10 +15,10 @@ class Vulgar : TCOTDMonster
 		Speed 2.66666667;
 		Scale 1.1;
 		PainChance 120;
-		SeeSound "monster/vulsit";
-		PainSound "monster/vulpai";
-		DeathSound "monster/vuldth";
-		ActiveSound "monster/vulact";
+		SeeSound "vulgar/sight";
+		PainSound "vulgar/pain";
+		DeathSound "vulgar/death";
+		ActiveSound "vulgar/active";
 		Obituary "$OB_VULG";
 		HitObituary "$HB_VULG";
 		Tag "$FN_VULG";
@@ -52,9 +52,9 @@ class Vulgar : TCOTDMonster
 		Loop;
 	Melee:
 		VULG E 8 A_FaceTarget();
-		VULG F 1 A_StartSound("monster/vulswg");
+		VULG F 1 A_StartSound("vulgar/swing");
 		VULG F 7 A_FaceTarget();
-		VULG G 6 A_CustomMeleeAttack(4 * random[rnd_ThamuzBogDmg](1, 8), "monster/vulhit");
+		VULG G 6 A_CustomMeleeAttack(4 * random[rnd_ThamuzBogDmg](1, 8), "vulgar/hit");
 		Goto See;
 	Missile:
 		VULG EF 8 A_FaceTarget();
@@ -97,8 +97,8 @@ class VulgarShot : Actor
 		RenderStyle "Add";
 		Alpha 0.67;
 		Projectile;
-		SeeSound "poly/stmdr1";
-		DeathSound "weapons/bloodx";
+		SeeSound "vulgar/shot";
+		DeathSound "vulgar/shotexplode";
 	}
 
 	States

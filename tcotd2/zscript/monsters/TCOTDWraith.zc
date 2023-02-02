@@ -17,9 +17,9 @@ class DEWraith : TCOTDMonster
 		RenderStyle "Add";
 		Alpha 0.67;
 		PainChance 64;
-		AttackSound "monster/sprsit";
+		AttackSound "wraith/sight";
 		PainSound "archvile/pain";
-		DeathSound "monster/sprdth";
+		DeathSound "wraith/death";
 		Obituary "$OB_WRTH";
 		HitObituary "$HB_WRTH";
 		Tag "$FN_WRTH";
@@ -54,7 +54,7 @@ class DEWraith : TCOTDMonster
 		Goto Missile + 2;
 	Melee:
 		WRAI A 5 A_FaceTarget();
-		WRAI B 5 A_CustomMeleeAttack(random[rnd_WraithDmg](1, 8), "monster/spratk");
+		WRAI B 5 A_CustomMeleeAttack(random[rnd_WraithDmg](1, 8), "wraith/attack");
 		Goto See;
 	Pain:
 		WRAI A 3;

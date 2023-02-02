@@ -12,11 +12,11 @@ class HotDog : TCOTDMonster
 		Radius 30;
 		Height 42;
 		Mass 500;
-		SeeSound "monster/dogsit";
-		AttackSound "monster/dogatk";
-		PainSound "monster/dogpai";
-		DeathSound "monster/dogdth";
-		ActiveSound "monster/dogact";
+		SeeSound "dog/sight";
+		AttackSound "dog/attack";
+		PainSound "dog/pain";
+		DeathSound "dog/death";
+		ActiveSound "dog/active";
 		MaxTargetRange 256;
 		DamageFactor "Fire", 0.5;
 		Obituary "$OB_HOUN";
@@ -36,7 +36,7 @@ class HotDog : TCOTDMonster
 		Loop;
 	Melee:
 		HDOG GH 6 A_FaceTarget();
-		HDOG I 6 A_CustomMeleeAttack(7 * random[rnd_DogBiteDmg](1, 8), "monster/dogbit");
+		HDOG I 6 A_CustomMeleeAttack(7 * random[rnd_DogBiteDmg](1, 8), "dog/bite");
 		Goto See;
 	Missile:
 		HDOG G 10 A_FaceTarget();
@@ -111,8 +111,8 @@ class DogFire : Actor
 		DamageType "Fire";
 		Projectile;
 		RenderStyle "Add";
-		SeeSound "weapons/bigbrn";
-		DeathSound "weapons/bigbrn";
+		SeeSound "dog/flame";
+		DeathSound "dog/flame";
 		Gravity 0.125;
 		+DONTSPLASH
 	}

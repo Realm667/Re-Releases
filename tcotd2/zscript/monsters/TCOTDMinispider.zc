@@ -12,11 +12,11 @@ class MiniSpider : TCOTDMonster
 		Health 15;
 		Scale 0.25;
 		Translation 0;
-		SeeSound "littlespider/sight";
-		AttackSound "littlespider/attack";
-		PainSound "littlespider/pain";
-		DeathSound "littlespider/death";
-		ActiveSound "littlespider/sight";
+		SeeSound "spider/sight";
+		AttackSound "spider/attack";
+		PainSound "spider/pain";
+		DeathSound "spider/death";
+		ActiveSound "spider/sight";
 		Obituary "$OB_MSPID";
 		Tag "$FN_MSPID";
 		+NOSPRITESHADOW
@@ -39,7 +39,7 @@ class MiniSpider : TCOTDMonster
 		Loop;
 	Melee:
 		MNTR UW 5 A_FaceTarget();
-		MNTR X 5 A_CustomMeleeAttack(random[rnd_MiniSpiderDmg](1, 8), "littlespider/pain");
+		MNTR X 5 A_CustomMeleeAttack(random[rnd_MiniSpiderDmg](1, 8), "spider/pain");
 		Goto See;
 	Death:
 		MNTS F 5;
@@ -77,7 +77,7 @@ class LargeSpider : MiniSpider
 		Goto Missile + 2;
 	Melee:
 		MNTR UW 5 A_FaceTarget();
-		MNTR X 5 A_CustomMeleeAttack(random[rnd_LargeSpiderDmg](1, 8) * 2, "littlespider/pain");
+		MNTR X 5 A_CustomMeleeAttack(random[rnd_LargeSpiderDmg](1, 8) * 2, "spider/pain");
 		Goto See;
 	}
 }

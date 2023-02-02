@@ -14,11 +14,11 @@ class Thrall : TCOTDMonster
 		Radius 16;
 		Height 62;
 		Mass 100;
-		SeeSound "monster/culsit";
-		AttackSound "monster/culatk";
-		PainSound "monster/culpai";
-		DeathSound "monster/culdth";
-		ActiveSound "monster/culact";
+		SeeSound "cultist/sight";
+		AttackSound "cultist/attack";
+		PainSound "cultist/pain";
+		DeathSound "cultist/death";
+		ActiveSound "cultist/active";
 		Obituary "$OB_THRL";
 		Tag "$FN_THRL";
 	}
@@ -50,7 +50,7 @@ class Thrall : TCOTDMonster
 		CULT EE 5 A_FaceTarget();
 		CULT F 0 A_SpawnProjectile("ThrallShot1", 42, -6, 0, 1);
 		CULT F 0 A_SpawnProjectile("ThrallShot1", 42, 6, 0, 1);
-		CULT F 8 Bright Light("Thrall") A_StartSound("monster/culatk");
+		CULT F 8 Bright Light("Thrall") A_StartSound("cultist/attack");
 		Goto See;
 	Pain:
 		CULT G 2;
