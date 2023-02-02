@@ -11,6 +11,7 @@ class TCOTDMoon : TCOTDSimpleActor
 		Mass 5;
 		+NOINTERACTION
 		+FORCEXYBILLBOARD
+		//+INVISIBLEINMIRRORS
 	}
 
 	States
@@ -20,3 +21,16 @@ class TCOTDMoon : TCOTDSimpleActor
 		Stop;
 	}
 }
+
+/*
+class TCOTDMoon2 : TCOTDMoon
+{
+	Default
+	{
+		//$Title Moon (reflection only)
+		+ONLYVISIBLEINMIRRORS
+		-INVISIBLEINMIRRORS
+		-FORCEXYBILLBOARD
+	}
+}
+*/
