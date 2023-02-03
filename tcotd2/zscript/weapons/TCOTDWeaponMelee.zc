@@ -294,6 +294,7 @@ class TCOTDPitchforkThrown : Actor
 		Projectile;
 		+RIPPER
 		+FORCEXYBILLBOARD
+		+SKYEXPLODE
 		-NOBLOCKMAP
 		-NOGRAVITY
 	}
@@ -318,7 +319,8 @@ class TCOTDPitchforkPickup : Inventory replaces Chainsaw
 		Inventory.PickupMessage "$IP_FORK";
 		Inventory.PickupSound "items/pickup";
 		Inventory.MaxAmount 1;
-		-INVENTORY.INVBAR
+		-Inventory.INVBAR
+		+FORCEXYBILLBOARD
 	}
 
 	States
