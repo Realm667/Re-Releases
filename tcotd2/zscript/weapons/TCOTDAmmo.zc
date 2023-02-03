@@ -5,16 +5,16 @@ class TCOTDAmmoBullet : Ammo replaces Clip
 	Default
 	{
 		//$Category New Ammo (TCOTD2)
-		//$Title Bullets
+		//$Title Revolver Ammo
 		//$Color 9
 		Scale 0.8;
 		Tag "$AMMO_BULLET";
 		Inventory.PickupMessage "$IP_PIS2";
 		Inventory.Icon "graphics/hud/HUDAmmoBullets.png";
-		Inventory.Amount 10;
-		Inventory.MaxAmount 200;
-		Ammo.BackpackAmount 10;
-		Ammo.BackpackMaxAmount 400;
+		Inventory.Amount 6;
+		Inventory.MaxAmount 42;
+		Ammo.BackpackAmount 12;
+		Ammo.BackpackMaxAmount 72;
 		+FORCEXYBILLBOARD
 	}
 
@@ -26,15 +26,23 @@ class TCOTDAmmoBullet : Ammo replaces Clip
 	}
 }
 
-class TCOTDAmmoTommy : TCOTDAmmoBullet replaces ClipBox
+class TCOTDAmmoTommy : Ammo replaces ClipBox
 {
+	mixin TCOTDCoopItemMixin;
+
 	Default
 	{
 		//$Category New Ammo (TCOTD2)
-		//$Title Box of Bullets
+		//$Title Tommy Gun Ammo
 		//$Color 9
+		Scale 0.8;
+		Tag "$AMMO_BULLET";
 		Inventory.PickupMessage "$IP_THO2";
-		Inventory.Amount 25;
+		Inventory.Icon "graphics/hud/HUDAmmoTommy.png";
+		Inventory.Amount 20;
+		Inventory.MaxAmount 200;
+		Ammo.BackpackAmount 20;
+		Ammo.BackpackMaxAmount 400;
 	}
 
 	States
@@ -56,11 +64,11 @@ class TCOTDAmmoShell : Ammo replaces Shell
 		//$Color 9
 		Tag "$AMMO_SHELL";
 		Inventory.Amount 2;
-		Inventory.MaxAmount 50;
+		Inventory.MaxAmount 48;
 		Inventory.PickupMessage "$IP_SHEL";
 		Inventory.Icon "graphics/hud/HUDAmmoShells.png";
 		Ammo.BackpackAmount 4;
-		Ammo.BackpackMaxAmount 100;
+		Ammo.BackpackMaxAmount 96;
 		+FORCEXYBILLBOARD
 	}
 
@@ -104,9 +112,9 @@ class TCOTDAmmoNapalm : Ammo replaces RocketAmmo
 		Tag "$AMMO_NAPALM";
 		Inventory.PickupMessage "$IP_NAP2";
 		Inventory.Icon "graphics/hud/HUDAmmoNapalm.png";
-		Inventory.MaxAmount 50;
+		Inventory.MaxAmount 15;
 		Ammo.BackpackAmount 1;
-		Ammo.BackpackMaxAmount 100;
+		Ammo.BackpackMaxAmount 30;
 		+FORCEXYBILLBOARD
 	}
 
