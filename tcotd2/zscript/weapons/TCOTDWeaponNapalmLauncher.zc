@@ -43,7 +43,7 @@ class TCOTDWeaponNapalmLauncher : TCOTDWeapon replaces RocketLauncher
 		Loop;
 	Fire:
 		NAPL A 3;
-		TNT1 A 0 A_StartSound("Napalm/Shot");
+		TNT1 A 0 A_StartSound("napalm/shot");
 		TNT1 A 0
 		{
 			A_ViewKick();
@@ -89,8 +89,8 @@ class TCOTDWeaponNapalmMissile : Rocket
 		Speed 20;
 		Damage 80;
 		Scale 0.35;
-		SeeSound "Napalm/Fire";
-		DeathSound "Napalm/Impact";
+		SeeSound "napalm/fire";
+		DeathSound "napalm/explode";
 		Obituary "$OB_NAPR";
 		Projectile;
 		+RANDOMIZE

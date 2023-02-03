@@ -18,7 +18,7 @@ class TCOTDWeaponRevolver : TCOTDWeapon replaces Pistol
 	{
 		//$Title Revolver
 		Scale 0.6;
-		AttackSound "Revolver/Fire";
+		AttackSound "revolver/fire";
 		Tag "$TAG_PIST";
 		Obituary "$OB_PIST";
 		Inventory.PickupMessage "$IP_PIST";
@@ -104,7 +104,7 @@ class TCOTDWeaponRevolver : TCOTDWeapon replaces Pistol
 				st = ResolveState("Reload2");
 
 				// TO DO: this is a placeholder sound. find a better one!!
-				A_StartSound("lantern/pick", CHAN_AUTO);
+				A_StartSound("lantern/pickup", CHAN_AUTO);
 			}
 			return st;
 		}

@@ -69,7 +69,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 
 	action void A_FistAttack(void)
 	{
-		A_CustomPunch(random[rnd_FistDmg](3, 5), pufftype: "TCOTDPunchPuff", meleesound: "Fist/Hit");
+		A_CustomPunch(random[rnd_FistDmg](3, 5), pufftype: "TCOTDPunchPuff", meleesound: "fist/hit");
 	}
 
 	action void A_PitchforkAttack(void)
@@ -177,7 +177,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		FORK A 1 A_ReFire();
 		Goto Ready;
 	AltFire:
-		FORK B 1 A_StartSound("Pitchfork/Throw", CHAN_WEAPON);
+		FORK B 1 A_StartSound("pitchfork/throw", CHAN_WEAPON);
 		FORK C 1;
 		FORK D 1 A_FireProjectile("TCOTDPitchforkThrown", spawnheight: 5);
 		FORK E 1 A_TakeInventory("TCOTDPitchforkPickup");
@@ -260,8 +260,8 @@ class TCOTDPitchforkPuff : Actor
 	{
 		Scale 0.5;
 		Activesound "";
-		Attacksound "Pitchfork/Wall";	// what sound it makes when you hit a wall with it
-		Seesound "Pitchfork/Flesh";		// what sound it makes when you beat somebody up with it
+		Attacksound "pitchfork/wall";	// what sound it makes when you hit a wall with it
+		Seesound "pitchfork/flesh";		// what sound it makes when you beat somebody up with it
 		+FORCEXYBILLBOARD
 		+NOBLOCKMAP
 		+NOGRAVITY
@@ -316,7 +316,7 @@ class TCOTDPitchforkPickup : Inventory replaces Chainsaw
 	{
 		Scale 1.2;
 		Inventory.PickupMessage "$IP_FORK";
-		Inventory.PickupSound "ITEMUP";
+		Inventory.PickupSound "items/pickup";
 		Inventory.MaxAmount 1;
 		-INVENTORY.INVBAR
 	}

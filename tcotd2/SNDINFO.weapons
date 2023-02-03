@@ -1,0 +1,48 @@
+///////////////////////////////////////////////////////
+///// NEW WEAPON SOUNDS FROM GOTHIC'S IMPROVEMENTS ////
+///////////////////////////////////////////////////////
+
+// Richochets
+puff/ric1 DSRICH1
+puff/ric2 DSRICH2
+puff/ric3 DSRICH3
+puff/ric4 DSRICH4
+puff/ric5 DSRICH5
+puff/ric6 DSRICH6
+puff/ric7 DSRICH7
+$random puff/ric { puff/ric1 puff/ric2 puff/ric3 puff/ric4 puff/ric5 puff/ric6 puff/ric7 }
+
+// FIST
+fist/hit1 PUNCH1
+fist/hit2 PUNCH2
+$random fist/hit { fist/hit1 fist/hit2 }
+
+// PITCHFORK
+pitchfork/miss PFRKMISS
+pitchfork/wall1 PFRKWAL1
+pitchfork/wall2 PFRKWAL2
+pitchfork/flesh	PFRKHIT
+pitchfork/throw	PFRKTOSS
+$volume pitchfork/miss 0.7
+$random pitchfork/wall { pitchfork/wall1 pitchfork/wall2 }
+$volume pitchfork/wall 0.7
+$limit pitchfork/wall 0
+$volume pitchfork/flesh 0.7
+$limit pitchfork/flesh 0
+
+// REVOLVER
+revolver/fire REVFIRER
+
+// SHOTGUN
+sawedoff/fire SHOTFIRE
+sawedoff/altfire SHOTDBLF
+sawedoff/reload SAWCOCK1
+
+// TOMMY GUN
+thompson/fire ZB_THOMP
+
+// NAPALM CANNON
+napalm/shot NAPLFIRE
+napalm/fire NAPLPROJ
+napalm/explode NAPLEXPL
+$limit napalm/fire 6

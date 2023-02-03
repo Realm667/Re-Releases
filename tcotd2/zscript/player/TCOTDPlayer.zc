@@ -631,11 +631,11 @@ class TCOTDPlayer : PlayerPawn
 
 		if (self == players[consoleplayer].mo)
 		{
-			if (!IsActorPlayingSound(CHAN_AMB_OUTSIDE, "AmbientLoopOutside"))
-				A_StartSound("AmbientLoopOutside", CHAN_AMB_OUTSIDE, CHANF_LOOP, volume: SND_VOL_DYNAMIC, attenuation: ATTN_NONE);
+			if (!IsActorPlayingSound(CHAN_AMB_OUTSIDE, "playerambient/wind"))
+				A_StartSound("playerambient/wind", CHAN_AMB_OUTSIDE, CHANF_LOOP, volume: SND_VOL_DYNAMIC, attenuation: ATTN_NONE);
 
-			if (!IsActorPlayingSound(CHAN_AMB_INSIDE, "AmbientLoopInside"))
-				A_StartSound("AmbientLoopInside", CHAN_AMB_INSIDE, CHANF_LOOP, volume: SND_VOL_DYNAMIC, attenuation: ATTN_NONE);
+			if (!IsActorPlayingSound(CHAN_AMB_INSIDE, "playerambient/darkroom"))
+				A_StartSound("playerambient/darkroom", CHAN_AMB_INSIDE, CHANF_LOOP, volume: SND_VOL_DYNAMIC, attenuation: ATTN_NONE);
 
 			let cam = players[consoleplayer].camera;
 			if (cam)

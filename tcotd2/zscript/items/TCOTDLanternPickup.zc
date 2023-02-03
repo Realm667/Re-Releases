@@ -20,7 +20,7 @@ class TCOTDLanternPickup : CustomInventory
 		Inventory.Icon "LANTA0";
 		Inventory.PickupMessage "$IP_LANT";
 		Inventory.MaxAmount 1;
-		Inventory.PickupSound "lantern/pick";
+		Inventory.PickupSound "lantern/pickup";
 		+INVENTORY.INVBAR
 		+INVENTORY.UNDROPPABLE
 	}
@@ -42,7 +42,7 @@ class TCOTDLanternPickup : CustomInventory
 			if (Owner.WaterLevel >= 3 || (Owner.player && Owner.player.playerstate == PST_DEAD))
 			{
 				// requires sound
-				Owner.A_StartSound("lantern/steam", CHAN_AUTO);
+				Owner.A_StartSound("lantern/extinguish", CHAN_AUTO);
 				A_ToggleLantern();
 				return;
 			}

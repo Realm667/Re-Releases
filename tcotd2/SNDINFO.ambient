@@ -1,0 +1,126 @@
+LightHum			AMB1
+ScareHum			AMB2
+AnotherHum			AMB4
+NightZirp			AMB6
+StrangeHum			AMB7
+Wind				AMB8
+EnergyHum			AMB9
+WaterSmall			AMB12
+WaterBig			AMB13
+WindCanyon			AMB17
+Coast				AMB22
+CircularSaw			CSAW
+Engine				AMB24
+LittleHum			AMB25
+Fire				FIRE
+FireWallTorch		FIRE
+FireMinotaurTorch	FIRE
+FireStreetLamp		FIRE
+FireTallTorch		FIRE
+EvilScaryHum		MTLDRN
+Groawl				CHANT
+Elec				ELCLOOP
+Siren				SIREN1
+Whispers			WHISPERS
+Moans				MAONS
+Bell				BELL
+TrainHorn			TRNHRN
+HorrorTrain			HORTRN
+TelephoneRing		RING
+BusySignal			BUSYSIG
+EvilSounds1			EVIL1
+EvilSounds2			EVIL2
+EvilSounds3			EVIL3
+EvilSounds4			EVIL4
+EvilSounds5			EVIL5
+EvilSounds6			EVIL6
+EvilSounds7			EVIL7
+EvilSounds8			EVIL8
+Crow1				CROW1
+Crow2				CROW2
+Flies				FLIES
+WoodCreak1			WCREAK1
+WoodCreak2			WCREAK2
+WoodCreak3			WCREAK3
+WoodCreak4			WCREAK4
+WoodCreak5			WCREAK5
+WoodCreak6			WCREAK6
+Leaves				LEAVES
+Coyote1				COYOTE1
+Coyote2				COYOTE2
+Coyote3				COYOTE3
+Coyote4				COYOTE4
+DockedBoat1			DOCKEDB1
+DockedBoat2			DOCKEDB2
+Swamp				SWAMP
+CTick1				CTICK1
+CTick2				CTICK2
+CTick3				CTICK3
+
+$rolloff AnotherHum 250 450
+$rolloff LittleHum 200 500
+$rolloff FireWallTorch 64 256
+$limit FireWallTorch 10
+$rolloff FireMinotaurTorch 50 350
+$limit FireMinotaurTorch 5
+$rolloff FireStreetLamp 128 384
+$limit FireStreetLamp 10
+$rolloff FireTallTorch 64 256
+$limit FireTallTorch 10
+$random Crows { Crow1 Crow2 }
+$random WoodCreak { WoodCreak1 WoodCreak2 WoodCreak3 WoodCreak4 WoodCreak5 WoodCreak6 }
+$random Coyote { Coyote1 Coyote2 Coyote3 Coyote4 }
+$random DockedBoat { DockedBoat1 DockedBoat2 }
+$pitchshift CTick1 0
+$pitchshift CTick2 0
+$pitchshift CTick3 0
+$random OldClock { CTick1 CTick2 CTick3 }
+$volume OldClock 0.2
+$rolloff OldClock 32 450
+
+$ambient	1 LightHum  point continuous 0.7
+$ambient	2 ScareHum  point continuous 1.0
+$ambient	3 Crows point random 10.0 25.0 1.0
+$ambient 	4 AnotherHum point continuous 0.5
+$ambient	5 Flies point continuous 1.0
+$ambient	6 NightZirp point continuous 1.0
+$ambient	7 StrangeHum point continuous 1.0
+$ambient	8 Wind point continuous 1.0
+$ambient	9 EnergyHum point continuous 1.0
+$ambient	10 WoodCreak point random 10.0 25.0 1.0
+$ambient	11 Leaves point random 10.0 25.0 1.0
+$ambient	12 WaterSmall point continuous 1.0
+$ambient	13 WaterBig point continuous 1.0
+$ambient	14 Coyote point random 20.0 30.0 1.0
+$ambient	15 DockedBoat point random 10.0 20.0 1.0
+$ambient	17 WindCanyon point continuous 1.0
+$ambient	22 Coast point continuous 1.0
+$ambient	24 Engine point continuous 1.0
+$ambient	25 LittleHum point continuous 1.0
+$ambient	26 Fire point continuous 0.6
+$ambient	27 EvilScaryHum point continuous 1.0
+$ambient	28 Groawl point continuous 1.0
+$ambient	29 Elec point continuous 1.0
+$ambient	30 Siren surround random 500.0 500.0 1.0
+$ambient	31 Whispers point continuous 1.0
+$ambient	32 Moans point random 10.0 25.0 1.0
+$ambient	33 Bell point random 30.0 60.0 1.0
+$ambient	34 TrainHorn point random 10.0 30.0 1.0
+$ambient	35 TelephoneRing point random 30.0 60.0 1.0
+$ambient	36 BusySignal point random 30.0 60.0 1.0
+$ambient	40 EvilSounds1 surround random 10.0 20.0 0.7
+$ambient	41 EvilSounds2 surround random 10.0 20.0 0.7
+$ambient	42 EvilSounds3 surround random 10.0 20.0 0.7
+$ambient	43 EvilSounds4 surround random 10.0 20.0 0.7
+$ambient	44 EvilSounds5 surround random 10.0 20.0 0.7
+$ambient	45 EvilSounds6 surround random 10.0 20.0 0.7
+$ambient	46 EvilSounds7 surround random 10.0 20.0 0.7
+$ambient	47 EvilSounds8 surround random 10.0 20.0 0.7
+$ambient	48 OldClock point periodic 1.0 0.5
+$ambient	49 Swamp point continuous 1.0
+$ambient	50 CircularSaw point continuous 1.0
+
+// PLAYER AMBIENT SOUND LOOPS
+// (only heard locally by consoleplayer)
+playerambient/wind PAMBWIND
+playerambient/darkroom PAMBROOM

@@ -30,7 +30,7 @@
 //
 //===========================================================================
 
-class TCOTDEmptyCasing : Actor
+class TCOTDEmptyCasing : Actor abstract
 {
 	int8 rollDir;
 
@@ -119,7 +119,7 @@ class TCOTDEmptyCasingShell : TCOTDEmptyCasing
 {
 	Default
 	{
-		BounceSound "EmptyCasingShell";
+		BounceSound "casing/shell";
 	}
 
 	States
@@ -136,7 +136,7 @@ class TCOTDEmptyCasingBullet : TCOTDEmptyCasing
 	{
 		Speed 2.0;
 		Gravity 0.7;
-		BounceSound "EmptyCasingBullet";
+		BounceSound "casing/bullet";
 	}
 
 	States
