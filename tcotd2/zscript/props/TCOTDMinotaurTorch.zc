@@ -50,7 +50,8 @@ class TCOTDMinotaurTorch : RedTorch replaces RedTorch
 			if (!CheckSightOrRange(1000.0, true))
 			{
 				A_SpawnItemEx("TCOTDMinotaurTorchFlame", 0, 0, frandom[rnd_MinoTorch](38, 40), 0, 0, frandom[rnd_MinoTorch](1.0, 4.5));
-				TCOTDFire.SpawnEmbers(self, Height / 2);
+				if (GetAge() % 5 == 0)
+					TCOTDFire.SpawnEmbers(self, Height / 2);
 			}
 		}
 		Goto Spawn + 1;
