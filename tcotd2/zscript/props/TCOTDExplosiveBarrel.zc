@@ -17,7 +17,33 @@ class TCOTDExplosiveBarrel : ExplosiveBarrel replaces ExplosiveBarrel
 	Death:
 		BAR1 A 5 Bright;
 		BEXP B 5 Bright A_Scream();
-		BEXP D 5 Bright A_Explode();
+		BEXP D 5 Bright
+		{
+			A_Explode();
+			for (int i = 0; i < 7; i++)
+			{
+				static const String deb[] =
+				{
+					"TCOTDDebris02",
+					"TCOTDDebris03",
+					"TCOTDDebris04"
+				};
+
+				String cls = deb[random(0, deb.Size() - 1)];
+
+				TCOTDDebris.SpawnDebris
+				(
+					self,
+					frandom[rnd_debrisspawn](-Radius, Radius),
+					frandom[rnd_debrisspawn](-Radius, Radius),
+					frandom[rnd_debrisspawn](0, Default.Height),
+					frandom[rnd_debrisspawn](-2, 2),
+					frandom[rnd_debrisspawn](-2, 2),
+					frandom[rnd_debrisspawn](-4, 8),
+					cls
+				);
+			}
+		}
 		BEXP E 5 Bright;
 		TNT1 A 1050 Bright A_BarrelDestroy();
 		TNT1 A 5 A_Respawn();
