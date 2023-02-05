@@ -79,7 +79,10 @@ class TCOTDCampaign : Thinker
 
 				if (isSurvival)
 				{
-					SetSurvivalLives(tcotd2_survival_lives);
+					int maxLives = tcotd2_survival_lives;
+					if (maxLives < 0)
+						maxLives = 0;
+					SetSurvivalLives(maxLives);
 				}
 			}
 			initDone = true;

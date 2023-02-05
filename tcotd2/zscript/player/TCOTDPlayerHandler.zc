@@ -245,16 +245,16 @@ class TCOTDPlayerHandler : EventHandler
 	//
 	//===========================================================================
 
+	/*
 	override bool InputProcess(InputEvent e)
 	{
-		/*
 		if (CheckAutomapKey(e))
 			return true;
-		*/
 		if (CheckUseKey(e))
 			return true;
 		return Super.InputProcess(e);
 	}
+	*/
 
 	//===========================================================================
 	//
@@ -347,6 +347,7 @@ class TCOTDPlayerHandler : EventHandler
 	//
 	//===========================================================================
 
+	/*
 	ui bool CheckUseKey(InputEvent e)
 	{
 		let pmo = PlayerPawn(players[consoleplayer].mo);
@@ -359,11 +360,12 @@ class TCOTDPlayerHandler : EventHandler
 			{
 				// don't allow resurrection if the shared pool of lives have run out
 				let campaign = TCOTDCampaign.GetInstance();
-				if (tcotd2_survival && campaign.GetSurvivalLives() <= 0 && pmo.player.playerstate == PST_DEAD)
+				if (TCOTDGameplayStatics.IsCoop() && tcotd2_survival && campaign.GetSurvivalLives() <= 0 && pmo.player.playerstate == PST_DEAD)
 					return true;
 			}
 		}
 
 		return false;
 	}
+	*/
 }
