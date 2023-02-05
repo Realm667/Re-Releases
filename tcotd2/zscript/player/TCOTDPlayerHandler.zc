@@ -32,6 +32,8 @@
 
 class TCOTDPlayerHandler : EventHandler
 {
+	int quickHealCooldown[MAXPLAYERS];
+
 	const togglemapCmd = "togglemap";
 	const useCmd = "+use";
 
@@ -45,12 +47,11 @@ class TCOTDPlayerHandler : EventHandler
 
 	override void PlayerEntered(PlayerEvent e)
 	{
-		/*
 		PlayerPawn pmo = players[e.PlayerNumber].mo;
 		if (pmo)
 		{
+			ResetQuickHealCooldown(pmo.PlayerNumber());
 		}
-		*/
 	}
 
 	override void PlayerDisconnected(PlayerEvent e)
@@ -100,6 +101,8 @@ class TCOTDPlayerHandler : EventHandler
 		}
 
 		Console.MidPrint(NULL, txt);
+
+		ResetQuickHealCooldown(pmo.PlayerNumber());
 	}
 
 	//===========================================================================
@@ -119,6 +122,15 @@ class TCOTDPlayerHandler : EventHandler
 	{
 	}
 	*/
+
+	override void WorldTick(void)
+	{
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i] && quickHealCooldown[i] > 0)
+				quickHealCooldown[i]--;
+		}
+	}
 
 	override void UITick(void)
 	{
@@ -168,6 +180,71 @@ class TCOTDPlayerHandler : EventHandler
 	//
 	//===========================================================================
 
+	override void NetworkProcess(ConsoleEvent e)
+	{
+		PlayerPawn pmo = PlayerPawn(players[e.Player].mo);
+		if (!pmo)
+			return;
+		if (pmo && !pmo.player)
+			return;
+
+		bool isConsolePlayer = (pmo == PlayerPawn(players[consoleplayer].mo));
+
+		//===========================================================================
+		//
+		// EV_QuickHealth
+		//
+		//===========================================================================
+		if (e.Name == 'EV_QuickHealth')
+		{
+			if (quickHealCooldown[pmo.PlayerNumber()] > 0 || pmo.player.playerstate == PST_DEAD)
+				return;
+
+			if (pmo.Health >= 100)
+			{
+				Console.Printf(StringTable.Localize("$NONEEDQUICKHEAL"));
+				return;
+			}
+
+			int pref = CVar.GetCVar("tcotd2_quickhealpref", pmo.player).GetInt();
+			pref = clamp(pref, 0, 1);
+
+			HealthPickup hpu;
+
+			if (pref == 0)
+			{
+				hpu = HealthPickup(pmo.FindInventory("TCOTDHealthPickupStimpack"));
+				if (!hpu)
+					hpu = HealthPickup(pmo.FindInventory("TCOTDHealthPickupMedikit"));
+			}
+			else if (pref == 1)
+			{
+				hpu = HealthPickup(pmo.FindInventory("TCOTDHealthPickupMedikit"));
+				if (!hpu)
+					hpu = HealthPickup(pmo.FindInventory("TCOTDHealthPickupStimpack"));
+			}
+
+			if (!hpu)
+			{
+				Console.Printf(StringTable.Localize("$NOQUICKHEAL"));
+				return;
+			}
+
+			if (hpu && hpu.amount > 0)
+			{
+				pmo.UseInventory(hpu);
+				quickHealCooldown[pmo.PlayerNumber()] = Thinker.TICRATE;
+				Console.Printf(String.Format(StringTable.Localize("$USEDQUICKHEALITEM"), hpu.GetTag().MakeLower()));
+			}
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	override bool InputProcess(InputEvent e)
 	{
 		/*
@@ -177,6 +254,17 @@ class TCOTDPlayerHandler : EventHandler
 		if (CheckUseKey(e))
 			return true;
 		return Super.InputProcess(e);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void ResetQuickHealCooldown(int pnum)
+	{
+		quickHealCooldown[pnum] = 0;
 	}
 
 	//===========================================================================

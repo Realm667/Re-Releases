@@ -1,8 +1,10 @@
 ListMenu "MainMenu"
 {
-	IfGame(Doom, Chex) //let's force it - ozy81
+	// let's force it - ozy81
+	IfGame(Doom, Chex)
 	{
-		LineSpacing 16	// This must account for some single-graphic replacements, so it cannot be widened
+		// This must account for some single-graphic replacements, so it cannot be widened
+		LineSpacing 16
 		StaticPatch 94, 2, "M_DOOM"
 		Position 97, 72
 		IfOption(ReadThis)
@@ -23,7 +25,8 @@ ListMenu "MainMenu"
 
 ListMenu "SkillMenu"
 {
-	IfGame(Doom, Chex) //let's force it - ozy81
+	// let's force it - ozy81
+	IfGame(Doom, Chex)
 	{
 		StaticPatch 96, 14, "M_NGAME", 0, "$MNU_NEWGAME"
 		LineSpacing 16
@@ -34,18 +37,34 @@ ListMenu "SkillMenu"
 OptionMenu "TCOTD2Menu"
 {
 	Title "$OPTMNU_ENH"
-	StaticText ""
-	StaticText "$MN_OPTCOD"
-	StaticText ""
-	StaticText ""
-	Option "$MN_OPWEAT",			"tcotd2_weatherfx",			"OnOff"
-	Option "$MN_OPFOG",				"tcotd2_fog",				"OnOff"
-	StaticText ""
-	Option "$MN_OPUNDERWATERWARP",	"tcotd2_underwaterwarp",	"OnOff"
-	Option "$MN_OPHEAT",			"tcotd2_heathaze",			"OnOff"
-	Option "$MN_OPBLUR",			"motionblur",				"OnOff"
-	StaticText ""
-	Option "$MN_TILT",				"tcotd2_tilteffects",		"OnOff"
-	Option "$MN_SWAY",				"tcotd2_weaponsway",		"OnOff"
-	Option "$MN_VIEWKICK",			"tcotd2_viewkick",			"OnOff"
+
+	StaticText	""
+	StaticText	"$CNTRLMNU_ACTION_TITLE"
+
+	StaticText	""
+	Control 	"$MN_OPTCTRL",			"netevent EV_QuickHealth"
+	Option 		"$MN_QUICKHEALPREF",	"tcotd2_quickhealpref",		"QuickHealPrefs"
+
+	StaticText	""
+	StaticText	"$MN_OPTCOD"
+
+	StaticText 	""
+	Option 		"$MN_OPWEAT",			"tcotd2_weatherfx",			"OnOff"
+	Option 		"$MN_OPFOG",			"tcotd2_fog",				"OnOff"
+
+	StaticText	""
+	Option 		"$MN_OPUNDERWATERWARP",	"tcotd2_underwaterwarp",	"OnOff"
+	Option 		"$MN_OPHEAT",			"tcotd2_heathaze",			"OnOff"
+	Option 		"$MN_OPBLUR",			"motionblur",				"OnOff"
+
+	StaticText	""
+	Option 		"$MN_TILT",				"tcotd2_tilteffects",		"OnOff"
+	Option 		"$MN_SWAY",				"tcotd2_weaponsway",		"OnOff"
+	Option 		"$MN_VIEWKICK",			"tcotd2_viewkick",			"OnOff"
+}
+
+OptionValue "QuickHealPrefs"
+{
+	0, "$OPTVAL_QUICKHEALSMALL"
+	1, "$OPTVAL_QUICKHEALBIG"
 }
