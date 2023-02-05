@@ -53,7 +53,7 @@ class TCOTDPlayer : PlayerPawn
 	bool wasDamaged;
 
 	TCOTDPlayerLanternLight myLantern;
-
+	TCOTDPlayerMarker playerMarker;
 	double ambSoundVolOut;
 
 	const FOOTSTEP_COUNTER_MAX = 85.;
@@ -106,6 +106,7 @@ class TCOTDPlayer : PlayerPawn
 		UpdateAmbientSoundLoop();
 		UpdateViewRoll();
 		UpdateLantern();
+		DoPlayerMarker();
 
 		// reset damage indicator
 		wasDamaged = false;
@@ -845,6 +846,31 @@ class TCOTDPlayer : PlayerPawn
 
 			// reset footstep counter
 			footstepCounter = 0;
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void DoPlayerMarker(void)
+	{
+		if (!multiplayer || TCOTDGameplayStatics.IsDeathmatch() || player.playerstate == PST_DEAD)
+			return;
+
+		if (!playerMarker)
+		{
+			playerMarker = TCOTDPlayerMarker(Spawn("TCOTDPlayerMarker", Pos, ALLOW_REPLACE));
+			//playerMarker.args[2] = 1;
+		}
+
+		if (playerMarker)
+		{
+			playerMarker.SetXYZ(Pos);
+			if (player.playerstate == PST_DEAD)
+				playerMarker.Destroy();
 		}
 	}
 

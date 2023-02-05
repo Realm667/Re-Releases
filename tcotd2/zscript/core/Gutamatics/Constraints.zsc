@@ -1,0 +1,1210 @@
+class TCOTDGutamaticsVariable {
+	private uint id;
+
+	static TCOTDGutamaticsVariable internalCreate(uint curId) {
+		let ret = new();
+		ret.id = curId;
+		return ret;
+	}
+
+	uint getId() { return self.id; }
+}
+class TCOTDGutamaticsVariableHasher : TCOTDGutamaticsHasher {
+	override uint hash(Object o) { return TCOTDGutamaticsVariable(o).getId(); }
+	override bool eq(Object o0, Object o1) {
+		return TCOTDGutamaticsVariable(o0).getId() == TCOTDGutamaticsVariable(o1).getId();
+	}
+}
+
+struct TCOTDGutamaticsVariableManager {
+	private uint curId;
+
+	TCOTDGutamaticsVariable createVariable() {
+		let ret = TCOTDGutamaticsVariable.internalCreate(self.curId);
+		self.curId += 1;
+		return ret;
+	}
+}
+
+class TCOTDGutamaticsTerm {
+	TCOTDGutamaticsVariable variable;
+	double coefficient;
+
+	static TCOTDGutamaticsTerm create(TCOTDGutamaticsVariable variable, double coefficient) {
+		let ret = new();
+		ret.variable = variable;
+		ret.coefficient = coefficient;
+		return ret;
+	}
+}
+
+class TCOTDGutamaticsExpr {
+	Array<TCOTDGutamaticsTerm> terms;
+	double constant;
+
+	static TCOTDGutamaticsExpr fromConstant(double v) {
+		let ret = new();
+		ret.constant = v;
+		return ret;
+	}
+	static TCOTDGutamaticsExpr c(double v) { return TCOTDGutamaticsExpr.fromConstant(v); }
+
+	static TCOTDGutamaticsExpr fromTerm(TCOTDGutamaticsTerm term) {
+		let ret = new();
+		ret.terms.push(term);
+		return ret;
+	}
+
+	static TCOTDGutamaticsExpr fromVariable(TCOTDGutamaticsVariable variable) {
+		let ret = new();
+		ret.terms.push(TCOTDGutamaticsTerm.create(variable, 1.0));
+		return ret;
+	}
+	static TCOTDGutamaticsExpr v(TCOTDGutamaticsVariable variable) { return TCOTDGutamaticsExpr.fromVariable(variable); }
+
+	static TCOTDGutamaticsExpr create() {
+		let ret = new();
+		return ret;
+	}
+
+	void negate() {
+		self.constant = -self.constant;
+		for (let i = 0u; i < self.terms.size(); i++) {
+			let t = self.terms[i];
+			t.coefficient = -t.coefficient;
+		}
+	}
+
+	TCOTDGutamaticsExpr addAssignVariable(TCOTDGutamaticsVariable variable, double coefficient = 1.0) {
+		self.terms.push(TCOTDGutamaticsTerm.create(variable, coefficient));
+		return self;
+	}
+	TCOTDGutamaticsExpr addAssignConstant(double constant) {
+		self.constant += constant;
+		return self;
+	}
+	TCOTDGutamaticsExpr addAssignExpression(TCOTDGutamaticsExpr e) {
+		for (let i = 0u; i < e.terms.size(); i++) {
+			self.terms.push(e.terms[i]);
+		}
+		self.constant += e.constant;
+		return self;
+	}
+	TCOTDGutamaticsExpr mulAssign(double coeff) {
+		for (let i = 0u; i < self.terms.size(); i++) {
+			self.terms[i].coefficient *= coeff;
+		}
+		self.constant *= coeff;
+		return self;
+	}
+}
+
+struct TCOTDGutamaticsStrength {
+	static double create(double a, double b, double c, double w) {
+		return
+			clamp(a * w, 0.0, 1000.0) * 1000000.0 +
+			clamp(b * w, 0.0, 1000.0) * 1000.0 +
+			clamp(c * w, 0.0, 1000.0);
+	}
+
+	const REQUIRED = 1001001000.0;
+	const STRONG = 1000000.0;
+	const MEDIUM = 1000.0;
+	const WEAK = 1.0;
+
+	static double clip(double s) {
+		return clamp(s, 0.0, REQUIRED);
+	}
+}
+
+enum TCOTDGutamaticsRel {
+	TCOTDGutamaticsRel_LEq,
+	TCOTDGutamaticsRel_Eq,
+	TCOTDGutamaticsRel_GEq,
+}
+
+struct TCOTDGutamaticsConstraintManager {
+	private uint curId;
+
+	TCOTDGutamaticsConstraint createConstraint(TCOTDGutamaticsExpr e, TCOTDGutamaticsRel op, double strength) {
+		let ret = TCOTDGutamaticsConstraint.internalCreate(e, op, strength, self.curId);
+		self.curId += 1;
+		return ret;
+	}
+}
+
+class TCOTDGutamaticsConstraint {
+	private TCOTDGutamaticsExpr expression;
+	private double strength;
+	private TCOTDGutamaticsRel op;
+	private uint id;
+
+	static TCOTDGutamaticsConstraint internalCreate(TCOTDGutamaticsExpr e, TCOTDGutamaticsRel op, double strength, uint curId) {
+		let ret = new();
+		ret.expression = e;
+		ret.op = op;
+		ret.strength = strength;
+		ret.id = curId;
+		return ret;
+	}
+
+	TCOTDGutamaticsExpr getExpr() { return self.expression; }
+	TCOTDGutamaticsRel getOp() { return self.op; }
+	double getStrength() { return self.strength; }
+	uint getId() { return self.id; }
+}
+class TCOTDGutamaticsConstraintHasher : TCOTDGutamaticsHasher {
+	override uint hash(Object o) { return TCOTDGutamaticsConstraint(o).getId(); }
+	override bool eq(Object o0, Object o1) {
+		return TCOTDGutamaticsConstraint(o0).getId() == TCOTDGutamaticsConstraint(o1).getId();
+	}
+}
+
+class TCOTDGutamaticsConstraintBuilderWithRhs {
+	TCOTDGutamaticsExpr lhs;
+	TCOTDGutamaticsExpr rhs;
+	TCOTDGutamaticsRel rel;
+	double strength;
+}
+
+enum TCOTDGutamaticsSymbolKind {
+	TCOTDGutamaticsSymbolKind_Invalid,
+	TCOTDGutamaticsSymbolKind_External,
+	TCOTDGutamaticsSymbolKind_Slack,
+	TCOTDGutamaticsSymbolKind_Error,
+	TCOTDGutamaticsSymbolKind_Dummy,
+}
+
+class TCOTDGutamaticsSymbol {
+	uint id;
+	TCOTDGutamaticsSymbolKind kind;
+
+	static TCOTDGutamaticsSymbol invalid() {
+		let ret = new();
+		ret.id = 0;
+		ret.kind = TCOTDGutamaticsSymbolKind_Invalid;
+		return ret;
+	}
+
+	static TCOTDGutamaticsSymbol create(uint id, TCOTDGutamaticsSymbolKind kind) {
+		let ret = new();
+		ret.id = id;
+		ret.kind = kind;
+		return ret;
+	}
+
+	TCOTDGutamaticsSymbol clone() {
+		let ret = new();
+		ret.id = self.id;
+		ret.kind = self.kind;
+		return ret;
+	}
+
+	String repr() {
+		let ret = "Symbol(";
+		ret.appendFormat("%d, ", self.id);
+		switch (self.kind) {
+			case TCOTDGutamaticsSymbolKind_Invalid:  ret.appendFormat("Invalid"); break;
+			case TCOTDGutamaticsSymbolKind_External: ret.appendFormat("External"); break;
+			case TCOTDGutamaticsSymbolKind_Slack:    ret.appendFormat("Slack"); break;
+			case TCOTDGutamaticsSymbolKind_Error:    ret.appendFormat("Error"); break;
+			case TCOTDGutamaticsSymbolKind_Dummy:    ret.appendFormat("Dummy"); break;
+		}
+		ret.appendFormat(")");
+		return ret;
+	}
+}
+
+class TCOTDGutamaticsSymbolHasher : TCOTDGutamaticsHasher {
+	override uint hash(Object o) {
+		let o = TCOTDGutamaticsSymbol(o);
+		let seed = o.id;
+		hashCombine(seed, o.kind);
+		return seed;
+	}
+	override bool eq(Object o0, Object o1) {
+		let o0 = TCOTDGutamaticsSymbol(o0);
+		let o1 = TCOTDGutamaticsSymbol(o1);
+
+		return
+			o0.id == o1.id &&
+			o0.kind == o1.kind;
+	}
+}
+
+class TCOTDGutamaticsRow {
+	TCOTDGutamaticsHashMap/*<Symbol, BoxedDouble>*/ cells;
+	double constant;
+
+	static TCOTDGutamaticsRow create(double constant) {
+		let ret = new();
+		ret.cells = TCOTDGutamaticsHashMap.create(new("TCOTDGutamaticsSymbolHasher"));
+		ret.constant = constant;
+		return ret;
+	}
+
+	TCOTDGutamaticsRow clone() {
+		let ret = new();
+		ret.cells = TCOTDGutamaticsHashMap.create(new("TCOTDGutamaticsSymbolHasher"));
+		let iter = self.cells.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+			let k = TCOTDGutamaticsSymbol(ko);
+			let v = TCOTDGutamaticsBoxedDouble(vo);
+
+			ret.cells.insert(k.clone(), v.clone());
+		}
+		ret.constant = self.constant;
+		return ret;
+	}
+
+	double add(double v) {
+		self.constant += v;
+		return self.constant;
+	}
+
+	void insertSymbol(TCOTDGutamaticsSymbol s, double coefficient) {
+		let g = self.cells.get(s);
+		if (g is "TCOTDGutamaticsHashUnoccupied") {
+			if (!TCOTDGutamaticsGlobalMaths.nearZero(coefficient)) {
+				self.cells.insert(s, TCOTDGutamaticsBoxedDouble.create(coefficient));
+			}
+		} else {
+			let g = TCOTDGutamaticsBoxedDouble(g);
+			g.val += coefficient;
+			if (TCOTDGutamaticsGlobalMaths.nearZero(g.val)) {
+				self.cells.remove(s);
+			}
+		}
+	}
+
+	bool insertRow(TCOTDGutamaticsRow other, double coefficient) {
+		let constantDiff = other.constant * coefficient;
+		self.constant += constantDiff;
+		let iter = other.cells.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+			let s = TCOTDGutamaticsSymbol(ko);
+			let v = TCOTDGutamaticsBoxedDouble(vo).val;
+
+			self.insertSymbol(s, v * coefficient);
+		}
+		return constantDiff != 0.0;
+	}
+
+	void remove(TCOTDGutamaticsSymbol s) {
+		self.cells.remove(s);
+	}
+
+	void reverseSign() {
+		self.constant = -self.constant;
+		let iter = self.cells.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+			let v = TCOTDGutamaticsBoxedDouble(vo);
+			v.val = -v.val;
+		}
+	}
+
+	void solveForSymbol(TCOTDGutamaticsSymbol s) {
+		let e = TCOTDGutamaticsBoxedDouble(self.cells.remove(s)).val;
+		let coeff = -1.0 / e;
+		self.constant *= coeff;
+		let iter = self.cells.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+			let v = TCOTDGutamaticsBoxedDouble(vo);
+			v.val *= coeff;
+		}
+	}
+
+	void solveForSymbols(TCOTDGutamaticsSymbol lhs, TCOTDGutamaticsSymbol rhs) {
+		self.insertSymbol(lhs, -1.0);
+		self.solveForSymbol(rhs);
+	}
+
+	double coefficientFor(TCOTDGutamaticsSymbol s) {
+		let v = self.cells.get(s);
+		return (!(v is "TCOTDGutamaticsHashUnoccupied")) ? TCOTDGutamaticsBoxedDouble(v).val : 0.0;
+	}
+
+	bool substitute(TCOTDGutamaticsSymbol s, TCOTDGutamaticsRow row) {
+		let e = self.cells.remove(s);
+		if (!(e is "TCOTDGutamaticsHashUnoccupied")) {
+			let coeff = TCOTDGutamaticsBoxedDouble(e).val;
+			return self.insertRow(row, coeff);
+		} else {
+			return false;
+		}
+	}
+}
+
+enum TCOTDGutamaticsAddConstraintError {
+	TCOTDGutamaticsAddConstraintError_None,
+	TCOTDGutamaticsAddConstraintError_DuplicateConstraint,
+	TCOTDGutamaticsAddConstraintError_UnsatisfiableConstraint,
+}
+
+enum TCOTDGutamaticsRemoveConstraintError {
+	TCOTDGutamaticsRemoveConstraintError_None,
+	TCOTDGutamaticsRemoveConstraintError_UnknownConstraint,
+}
+
+enum TCOTDGutamaticsAddEditVariableError {
+	TCOTDGutamaticsAddEditVariableError_None,
+	TCOTDGutamaticsAddEditVariableError_DuplicateEditVariable,
+	TCOTDGutamaticsAddEditVariableError_BadRequiredStrength,
+}
+
+enum TCOTDGutamaticsRemoveEditVariableError {
+	TCOTDGutamaticsRemoveEditVariableError_None,
+	TCOTDGutamaticsRemoveEditVariableError_UnknownEditVariable,
+}
+
+enum TCOTDGutamaticsSuggestValueError {
+	TCOTDGutamaticsSuggestValueError_None,
+	TCOTDGutamaticsSuggestValueError_UnknownEditVariable,
+}
+
+class TCOTDGutamaticsTag {
+	TCOTDGutamaticsSymbol marker;
+	TCOTDGutamaticsSymbol other;
+
+	static TCOTDGutamaticsTag create(TCOTDGutamaticsSymbol marker = NULL, TCOTDGutamaticsSymbol other = NULL) {
+		let ret = new();
+		ret.marker = marker;
+		ret.other = other;
+		return ret;
+	}
+}
+
+class TCOTDGutamaticsEditInfo {
+	TCOTDGutamaticsTag tag;
+	TCOTDGutamaticsConstraint constraint;
+	double constant;
+
+	static TCOTDGutamaticsEditInfo create(TCOTDGutamaticsTag tag, TCOTDGutamaticsConstraint constraint, double constant) {
+		let ret = new();
+		ret.tag = tag;
+		ret.constraint = constraint;
+		ret.constant = constant;
+		return ret;
+	}
+}
+
+class TCOTDGutamaticsVarDataEntry {
+	double value;
+	TCOTDGutamaticsSymbol symbol;
+	uint count;
+
+	static TCOTDGutamaticsVarDataEntry create(double value, TCOTDGutamaticsSymbol symbol, uint count) {
+		let ret = new();
+		ret.value = value;
+		ret.symbol = symbol;
+		ret.count = count;
+		return ret;
+	}
+}
+
+class TCOTDGutamaticsPublicChangesEntry {
+	TCOTDGutamaticsVariable variable;
+	double value;
+
+	static TCOTDGutamaticsPublicChangesEntry create(TCOTDGutamaticsVariable variable, double value) {
+		let ret = new();
+		ret.variable = variable;
+		ret.value = value;
+		return ret;
+	}
+}
+
+class TCOTDGutamaticsSolver {
+	private TCOTDGutamaticsHashMap/*<Constraint, Tag>*/ cns;
+	private TCOTDGutamaticsHashMap/*<Variable, VarDataEntry>*/ varData;
+	private TCOTDGutamaticsHashMap/*<Symbol, Variable>*/ varForSymbol;
+	private Array<TCOTDGutamaticsPublicChangesEntry> publicChanges;
+	private TCOTDGutamaticsHashSet/*<Variable>*/ changed;
+	private bool shouldClearChanges;
+	private TCOTDGutamaticsHashMap/*<Symbol, Row>*/ rows;
+	private TCOTDGutamaticsHashMap/*<Variable, EditInfo>*/ edits;
+	private Array<TCOTDGutamaticsSymbol> infeasibleRows;
+	private TCOTDGutamaticsRow objective;
+	private /* Nullable */ TCOTDGutamaticsRow artificial;
+	private uint idTick;
+
+	private TCOTDGutamaticsVariableManager variableManager;
+	private TCOTDGutamaticsConstraintManager constraintManager;
+
+	static TCOTDGutamaticsSolver create() {
+		let constraintHasher = new("TCOTDGutamaticsConstraintHasher");
+		let variableHasher = new("TCOTDGutamaticsVariableHasher");
+		let symbolHasher = new("TCOTDGutamaticsSymbolHasher");
+
+		let ret = new();
+		ret.cns = TCOTDGutamaticsHashMap.create(constraintHasher);
+		ret.varData = TCOTDGutamaticsHashMap.create(variableHasher);
+		ret.varForSymbol = TCOTDGutamaticsHashMap.create(symbolHasher);
+		/* ret.publicChanges = default; */
+		ret.changed = TCOTDGutamaticsHashSet.create(variableHasher);
+		ret.shouldClearChanges = false;
+		ret.rows = TCOTDGutamaticsHashMap.create(symbolHasher);
+		ret.edits = TCOTDGutamaticsHashMap.create(variableHasher);
+		/* ret.infeasibleRows = default; */
+		ret.objective = TCOTDGutamaticsRow.create(0.0);
+		ret.artificial = NULL;
+		ret.idTick = 1;
+
+		return ret;
+	}
+
+	TCOTDGutamaticsVariable createVariable() {
+		return self.variableManager.createVariable();
+	}
+
+	TCOTDGutamaticsAddConstraintError, TCOTDGutamaticsConstraint addConstraintFromRelation(
+		TCOTDGutamaticsExpr lhs,
+		Name op,
+		TCOTDGutamaticsExpr rhs,
+		double strength = TCOTDGutamaticsStrength.REQUIRED
+	) {
+		rhs.negate();
+		lhs.addAssignExpression(rhs);
+		if (op != '==' && op != '<=' && op != '>=') {
+			throwAbortException("invalid op string '%s'", op);
+		}
+		let op = (op == '==') ? TCOTDGutamaticsRel_Eq : (op == '<=') ? TCOTDGutamaticsRel_Leq : TCOTDGutamaticsRel_Geq;
+		let constraint = self.constraintManager.createConstraint(lhs, op, strength);
+		return self.addConstraint(constraint), constraint;
+	}
+
+	TCOTDGutamaticsAddConstraintError addConstraint(TCOTDGutamaticsConstraint constraint) {
+		if (self.cns.containsKey(constraint)) {
+			return TCOTDGutamaticsAddConstraintError_DuplicateConstraint;
+		}
+
+		TCOTDGutamaticsRow row; TCOTDGutamaticsTag tag;
+		[row, tag] = self.createRow(constraint);
+		let subject = chooseSubject(row, tag);
+
+		if (subject.kind == TCOTDGutamaticsSymbolKind_Invalid && allDummies(row)) {
+			if (!TCOTDGutamaticsGlobalMaths.nearZero(row.constant)) {
+				return TCOTDGutamaticsAddConstraintError_UnsatisfiableConstraint;
+			} else {
+				subject = tag.marker;
+			}
+		}
+		if (subject.kind == TCOTDGutamaticsSymbolKind_Invalid) {
+			if (!self.addWithArtificialVariable(row)) {
+				return TCOTDGutamaticsAddConstraintError_UnsatisfiableConstraint;
+			}
+		} else {
+			row.solveForSymbol(subject);
+			self.substitute(subject, row);
+
+			if (subject.kind == TCOTDGutamaticsSymbolKind_External && row.constant != 0.0) {
+				let v = TCOTDGutamaticsVariable(self.varForSymbol.get(subject));
+				self.varChanged(v);
+			}
+			self.rows.insert(subject, row);
+		}
+
+		self.cns.insert(constraint, tag);
+
+		let objective = self.objective;
+		self.optimise(objective);
+
+		return TCOTDGutamaticsAddConstraintError_None;
+	}
+
+	TCOTDGutamaticsRemoveConstraintError removeConstraint(TCOTDGutamaticsConstraint constraint) {
+		let t = self.cns.remove(constraint);
+		if (t is "TCOTDGutamaticsHashUnoccupied") {
+			return TCOTDGutamaticsRemoveConstraintError_UnknownConstraint;
+		}
+		let tag = TCOTDGutamaticsTag(t);
+
+		self.removeConstraintEffects(constraint, tag);
+
+		if (self.rows.remove(tag.marker) is "TCOTDGutamaticsHashUnoccupied") {
+			TCOTDGutamaticsSymbol leaving; TCOTDGutamaticsRow row;
+			[leaving, row] = self.getMarkerLeavingRow(tag.marker);
+			row.solveForSymbols(leaving, tag.marker);
+			self.substitute(tag.marker, row);
+		}
+
+		let objective = self.objective;
+		self.optimise(objective);
+
+		let cexpr = constraint.getExpr();
+		for (let i = 0u; i < cexpr.terms.size(); i++) {
+			let term = cexpr.terms[i];
+			if (!TCOTDGutamaticsGlobalMaths.nearZero(term.coefficient)) {
+				let shouldRemove = false;
+				let v = self.varData.get(term.variable);
+				if (!(v is "TCOTDGutamaticsHashUnoccupied")) {
+					let v = TCOTDGutamaticsVarDataEntry(v);
+					v.count -= 1;
+					shouldRemove = v.count == 0;
+				}
+				if (shouldRemove) {
+					self.varForSymbol.remove(TCOTDGutamaticsVarDataEntry(self.varData.get(term.variable)).symbol);
+					self.varData.remove(term.variable);
+				}
+			}
+		}
+
+		return TCOTDGutamaticsRemoveConstraintError_None;
+	}
+
+	bool hasConstraint(TCOTDGutamaticsConstraint constraint) {
+		return self.cns.containsKey(constraint);
+	}
+
+	TCOTDGutamaticsAddEditVariableError addEditVariable(TCOTDGutamaticsVariable v, double strength) {
+		if (self.edits.containsKey(v)) {
+			return TCOTDGutamaticsAddEditVariableError_DuplicateEditVariable;
+		}
+		let strength = TCOTDGutamaticsStrength.clip(strength);
+		if (strength == TCOTDGutamaticsStrength.REQUIRED) {
+			return TCOTDGutamaticsAddEditVariableError_BadRequiredStrength;
+		}
+		let cn = self.constraintManager.createConstraint(
+			TCOTDGutamaticsExpr.fromTerm(TCOTDGutamaticsTerm.create(v, 1.0)),
+			TCOTDGutamaticsRel_Eq,
+			strength
+		);
+		{
+			let err = self.addConstraint(cn);
+			if (err != 0) { throwAbortException("shouldn't happen"); }
+		}
+		self.edits.insert(
+			v,
+			TCOTDGutamaticsEditInfo.create(
+				TCOTDGutamaticsTag(self.cns.get(cn)),
+				cn,
+				0.0
+			)
+		);
+
+		return TCOTDGutamaticsAddEditVariableError_None;
+	}
+
+	TCOTDGutamaticsRemoveEditVariableError removeEditVariable(TCOTDGutamaticsVariable v) {
+		let e = self.edits.remove(v);
+		if (!(e is "TCOTDGutamaticsHashUnoccupied")) {
+			let constraint = TCOTDGutamaticsEditInfo(e).constraint;
+			let err = self.removeConstraint(constraint);
+			if (err == TCOTDGutamaticsRemoveConstraintError_UnknownConstraint) {
+				throwAbortException("Edit constraint not in system.");
+			}
+			return TCOTDGutamaticsRemoveEditVariableError_None;
+		} else {
+			return TCOTDGutamaticsRemoveEditVariableError_UnknownEditVariable;
+		}
+	}
+
+	bool hasEditVariable(TCOTDGutamaticsVariable v) {
+		return self.edits.containsKey(v);
+	}
+
+	TCOTDGutamaticsSuggestValueError suggestValue(TCOTDGutamaticsVariable variable, double value) {
+		let i = self.edits.get(variable);
+		if (i is "TCOTDGutamaticsHashUnoccupied") {
+			return TCOTDGutamaticsSuggestValueError_UnknownEditVariable;
+		}
+		let info = TCOTDGutamaticsEditInfo(i);
+		let infoTagMarker = info.tag.marker;
+		let infoTagOther = info.tag.other;
+		let delta = value - info.constant;
+		info.constant = value;
+
+		{
+			let rm = self.rows.get(infoTagMarker);
+			let ro = self.rows.get(infoTagOther);
+			if (!(rm is "TCOTDGutamaticsHashUnoccupied")) {
+				let row = TCOTDGutamaticsRow(rm);
+				if (row.add(-delta) < 0.0) {
+					infeasibleRows.push(infoTagMarker);
+				}
+			} else if (!(ro is "TCOTDGutamaticsHashUnoccupied")) {
+				let row = TCOTDGutamaticsRow(ro);
+				if (row.add(delta) < 0.0) {
+					infeasibleRows.push(infoTagOther);
+				}
+			} else {
+				let iter = self.rows.iter();
+				while (true) {
+					Object ko, vo;
+					[ko, vo] = iter.next();
+					if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+					let symbol = TCOTDGutamaticsSymbol(ko);
+					let row = TCOTDGutamaticsRow(vo);
+
+					let coeff = row.coefficientFor(infoTagMarker);
+					let diff = delta * coeff;
+					if (diff != 0.0 && symbol.kind == TCOTDGutamaticsSymbolKind_External) {
+						let v = TCOTDGutamaticsVariable(self.varForSymbol.get(symbol));
+						if (self.shouldClearChanges) {
+							self.changed.clear();
+							self.shouldClearChanges = false;
+						}
+						self.changed.insert(v);
+					}
+					if (
+						coeff != 0.0 &&
+						row.add(diff) < 0.0 &&
+						symbol.kind != TCOTDGutamaticsSymbolKind_External
+					) {
+						infeasibleRows.push(symbol);
+					}
+				}
+			}
+		}
+
+		self.dualOptimise();
+
+		return TCOTDGutamaticsSuggestValueError_None;
+	}
+
+	private void varChanged(TCOTDGutamaticsVariable v) {
+		if (self.shouldClearChanges) {
+			self.changed.clear();
+			self.shouldClearChanges = false;
+		}
+		self.changed.insert(v);
+	}
+
+	void fetchChanges(out Array<TCOTDGutamaticsPublicChangesEntry> ret) {
+		if (self.shouldClearChanges) {
+			self.changed.clear();
+			self.shouldClearChanges = false;
+		} else {
+			self.shouldClearChanges = true;
+		}
+		self.publicChanges.clear();
+
+		let iter = self.changed.iter();
+		while (true) {
+			let vo = iter.next();
+			if (vo is "TCOTDGutamaticsHashUnoccupied") { break; }
+			let v = TCOTDGutamaticsVariable(vo);
+			
+			let vd = self.varData.get(v);
+			if (!(vd is "TCOTDGutamaticsHashUnoccupied")) {
+				let varData = TCOTDGutamaticsVarDataEntry(vd);
+				let r = self.rows.get(varData.symbol);
+				let newValue = 0.0;
+				if (!(r is "TCOTDGutamaticsHashUnoccupied")) {
+					newValue = TCOTDGutamaticsRow(r).constant;
+				}
+				let oldValue = varData.value;
+				if (oldValue != newValue) {
+					self.publicChanges.push(
+						TCOTDGutamaticsPublicChangesEntry.create(v, newValue)
+					);
+					varData.value = newValue;
+				}
+			}
+		}
+
+		ret.copy(self.publicChanges);
+	}
+
+	void reset() {
+		self.rows.clear();
+		self.cns.clear();
+		self.varData.clear();
+		self.varForSymbol.clear();
+		self.changed.clear();
+		self.shouldClearChanges = false;
+		self.edits.clear();
+		self.infeasibleRows.clear();
+		self.objective = TCOTDGutamaticsRow.create(0.0);
+		self.artificial = NULL;
+		self.idTick = 1;
+	}
+
+	private TCOTDGutamaticsSymbol getVarSymbol(TCOTDGutamaticsVariable v) {
+		TCOTDGutamaticsVarDataEntry value;
+		let vd = self.varData.get(v);
+		if (!(vd is "TCOTDGutamaticsHashUnoccupied")) {
+			value = TCOTDGutamaticsVarDataEntry(vd);
+		} else {
+			let s = TCOTDGutamaticsSymbol.create(self.idTick, TCOTDGutamaticsSymbolKind_External);
+			self.varForSymbol.insert(s, v);
+			self.idTick += 1;
+			value = TCOTDGutamaticsVarDataEntry.create(double.NAN, s, 0);
+			self.varData.insert(v, value);
+		}
+		value.count += 1;
+		return value.symbol;
+	}
+
+	private TCOTDGutamaticsRow, TCOTDGutamaticsTag createRow(TCOTDGutamaticsConstraint constraint) {
+		let expr = constraint.getExpr();
+		let row = TCOTDGutamaticsRow.create(expr.constant);
+		for (let i = 0u; i < expr.terms.size(); i++) {
+			let term = expr.terms[i]; 
+			if (!TCOTDGutamaticsGlobalMaths.nearZero(term.coefficient)) {
+				let symbol = self.getVarSymbol(term.variable);
+				let o = self.rows.get(symbol);
+				if (!(o is "TCOTDGutamaticsHashUnoccupied")) {
+					let otherRow = TCOTDGutamaticsRow(o);
+					row.insertRow(otherRow, term.coefficient);
+				} else {
+					row.insertSymbol(symbol, term.coefficient);
+				}
+			}
+		}
+
+		let objective = self.objective;
+
+		TCOTDGutamaticsTag tag;
+		let constraintOp = constraint.getOp();
+		switch (constraintOp) {
+		case TCOTDGutamaticsRel_Geq:
+		case TCOTDGutamaticsRel_Leq: {
+			let coeff = (constraintOp == TCOTDGutamaticsRel_Leq) ? 1.0 : -1.0;
+			let slack = TCOTDGutamaticsSymbol.create(self.idTick, TCOTDGutamaticsSymbolKind_Slack);
+			self.idTick += 1;
+			row.insertSymbol(slack, coeff);
+			let constraintStrength = constraint.getStrength();
+			if (constraintStrength < TCOTDGutamaticsStrength.REQUIRED) {
+				let error = TCOTDGutamaticsSymbol.create(self.idTick, TCOTDGutamaticsSymbolKind_Error);
+				self.idTick += 1;
+				row.insertSymbol(error, -coeff);
+				objective.insertSymbol(error, constraintStrength);
+				tag = TCOTDGutamaticsTag.create(
+					marker: slack,
+					other: error
+				);
+			} else {
+				tag = TCOTDGutamaticsTag.create(
+					marker: slack,
+					other: TCOTDGutamaticsSymbol.invalid()
+				);
+			}
+			break;
+		}
+		case TCOTDGutamaticsRel_Eq: {
+			let constraintStrength = constraint.getStrength();
+			if (constraintStrength < TCOTDGutamaticsStrength.REQUIRED) {
+				let errplus = TCOTDGutamaticsSymbol.create(self.idTick, TCOTDGutamaticsSymbolKind_Error);
+				self.idTick += 1;
+				let errminus = TCOTDGutamaticsSymbol.create(self.idTick, TCOTDGutamaticsSymbolKind_Error);
+				self.idTick += 1;
+				row.insertSymbol(errplus,  -1.0);
+				row.insertSymbol(errminus,  1.0);
+				objective.insertSymbol(errplus, constraintStrength);
+				objective.insertSymbol(errminus, constraintStrength);
+				tag = TCOTDGutamaticsTag.create(
+					marker: errplus,
+					other: errminus
+				);
+			} else {
+				let dummy = TCOTDGutamaticsSymbol.create(self.idTick, TCOTDGutamaticsSymbolKind_Dummy);
+				self.idTick += 1;
+				row.insertSymbol(dummy, 1.0);
+				tag = TCOTDGutamaticsTag.create(
+					marker: dummy,
+					other: TCOTDGutamaticsSymbol.invalid()
+				);
+			}
+			break;
+		}
+		default:
+			throwAbortException("shouldn't happen");
+		}
+
+		if (row.constant < 0.0) {
+			row.reverseSign();
+		}
+		return row, tag;
+	}
+
+	static private TCOTDGutamaticsSymbol chooseSubject(TCOTDGutamaticsRow row, TCOTDGutamaticsTag tag) {
+		let iter = row.cells.iter();
+		while (true) {
+			let ko = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+			let s = TCOTDGutamaticsSymbol(ko);
+
+			if (s.kind == TCOTDGutamaticsSymbolKind_External) {
+				return s;
+			}
+		}
+		if (tag.marker.kind == TCOTDGutamaticsSymbolKind_Slack || tag.marker.kind == TCOTDGutamaticsSymbolKind_Error) {
+			if (row.coefficientFor(tag.marker) < 0.0) {
+				return tag.marker;
+			}
+		}
+		if (tag.other.kind == TCOTDGutamaticsSymbolKind_Slack || tag.other.kind == TCOTDGutamaticsSymbolKind_Error) {
+			if (row.coefficientFor(tag.other) < 0.0) {
+				return tag.other;
+			}
+		}
+		return TCOTDGutamaticsSymbol.invalid();
+	}
+
+	private bool addWithArtificialVariable(TCOTDGutamaticsRow row) {
+		let art = TCOTDGutamaticsSymbol.create(self.idTick, TCOTDGutamaticsSymbolKind_Slack);
+		self.idTick += 1;
+		self.rows.insert(art, row.clone());
+		self.artificial = row.clone();
+
+		let artificial = self.artificial;
+		self.optimise(artificial);
+		let success = TCOTDGutamaticsGlobalMaths.nearZero(artificial.constant);
+		self.artificial = NULL;
+
+		let r = self.rows.remove(art);
+		if (!(r is "TCOTDGutamaticsHashUnoccupied")) {
+			let row = TCOTDGutamaticsRow(r);
+			if (row.cells.isEmpty()) {
+				return success;
+			}
+			let entering = anyPivotableSymbol(row);
+			if (entering.kind == TCOTDGutamaticsSymbolKind_Invalid) {
+				return false;
+			}
+			row.solveForSymbols(art, entering);
+			self.substitute(entering, row);
+			self.rows.insert(entering, row);
+		}
+
+		let iter = self.rows.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+			let row = TCOTDGutamaticsRow(vo);
+
+			row.remove(art);
+		}
+		self.objective.remove(art);
+		return success;
+	}
+
+	private void substitute(TCOTDGutamaticsSymbol symbol, TCOTDGutamaticsRow row) {
+		let iter = self.rows.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+			let otherSymbol = TCOTDGutamaticsSymbol(ko);
+			let otherRow = TCOTDGutamaticsRow(vo);
+
+			let constantChanged = otherRow.substitute(symbol, row);
+			if (otherSymbol.kind == TCOTDGutamaticsSymbolKind_External && constantChanged) {
+				let v = TCOTDGutamaticsVariable(self.varForSymbol.get(otherSymbol));
+				if (self.shouldClearChanges) {
+					self.changed.clear();
+					self.shouldClearChanges = false;
+				}
+				self.changed.insert(v);
+			}
+			if (otherSymbol.kind != TCOTDGutamaticsSymbolKind_External && otherRow.constant < 0.0) {
+				self.infeasibleRows.push(otherSymbol);
+			}
+		}
+		self.objective.substitute(symbol, row);
+		if (self.artificial != NULL) {
+			let artificial = self.artificial;
+			artificial.substitute(symbol, row);
+		}
+	}
+
+	private void optimise(TCOTDGutamaticsRow objective) {
+		while (true) {
+			let entering = getEnteringSymbol(objective);
+			if (entering.kind == TCOTDGutamaticsSymbolKind_Invalid) {
+				return;
+			}
+			TCOTDGutamaticsSymbol leaving;
+			TCOTDGutamaticsRow row;
+			[leaving, row] = self.getLeavingRow(entering);
+			if (leaving == NULL) {
+				throwAbortException("internal solver error: the objective is unbounded");
+			}
+			row.solveForSymbols(leaving, entering);
+			self.substitute(entering, row);
+			if (entering.kind == TCOTDGutamaticsSymbolKind_External && row.constant != 0.0) {
+				let v = TCOTDGutamaticsVariable(self.varForSymbol.get(entering));
+				self.varChanged(v);
+			}
+			self.rows.insert(entering, row);
+		}
+	}
+
+	private void dualOptimise() {
+		while (self.infeasibleRows.size() != 0u) {
+			let leaving = self.infeasibleRows[self.infeasibleRows.size() - 1];
+			self.infeasibleRows.pop();
+
+			TCOTDGutamaticsRow row;
+			let e = self.rows.get(leaving);
+			if (!(e is "TCOTDGutamaticsHashUnoccupied")) {
+				let entry = TCOTDGutamaticsRow(e);
+				if (entry.constant < 0.0) {
+					row = entry;
+					self.rows.remove(leaving);
+				} else {
+					row = NULL;
+				}
+			} else {
+				row = NULL;
+			}
+			if (row != NULL) {
+				let entering = self.getDualEnteringSymbol(row);
+				if (entering.kind == TCOTDGutamaticsSymbolKind_Invalid) {
+					throwAbortException("internal solver error: dual optimise failed");
+				}
+				row.solveForSymbols(leaving, entering);
+				self.substitute(entering, row);
+				if (entering.kind == TCOTDGutamaticsSymbolKind_External && row.constant != 0.0) {
+					let v = TCOTDGutamaticsVariable(self.varForSymbol.get(entering));
+					self.varChanged(v);
+				}
+				self.rows.insert(entering, row);
+			}
+		}
+	}
+
+	private TCOTDGutamaticsSymbol getEnteringSymbol(TCOTDGutamaticsRow objective) {
+		let iter = objective.cells.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+			let symbol = TCOTDGutamaticsSymbol(ko);
+			let value = TCOTDGutamaticsBoxedDouble(vo).val;
+
+			if (symbol.kind != TCOTDGutamaticsSymbolKind_Dummy && value < 0.0) {
+				return symbol;
+			}
+		}
+		return TCOTDGutamaticsSymbol.invalid();
+	}
+
+	private TCOTDGutamaticsSymbol getDualEnteringSymbol(TCOTDGutamaticsRow row) {
+		let entering = TCOTDGutamaticsSymbol.invalid();
+		let ratio = double.INFINITY;
+		let objective = self.objective;
+		let iter = row.cells.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+			let symbol = TCOTDGutamaticsSymbol(ko);
+			let value = TCOTDGutamaticsBoxedDouble(vo).val;
+
+			if (value > 0.0 && symbol.kind != TCOTDGutamaticsSymbolKind_Dummy) {
+				let coeff = objective.coefficientFor(symbol);
+				let r = coeff / value;
+				if (r < ratio) {
+					ratio = r;
+					entering = symbol;
+				}
+			}
+		}
+		return entering;
+	}
+
+	private static TCOTDGutamaticsSymbol anyPivotableSymbol(TCOTDGutamaticsRow row) {
+		let iter = row.cells.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+			let symbol = TCOTDGutamaticsSymbol(ko);
+
+			if (symbol.kind == TCOTDGutamaticsSymbolKind_Slack || symbol.kind == TCOTDGutamaticsSymbolKind_Error) {
+				return symbol;
+			}
+		}
+		return TCOTDGutamaticsSymbol.invalid();
+	}
+
+	private TCOTDGutamaticsSymbol, TCOTDGutamaticsRow getLeavingRow(TCOTDGutamaticsSymbol entering) {
+		let ratio = double.INFINITY;
+		TCOTDGutamaticsSymbol found = NULL;
+		let iter = self.rows.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+			let symbol = TCOTDGutamaticsSymbol(ko);
+			let row = TCOTDGutamaticsRow(vo);
+
+			if (symbol.kind != TCOTDGutamaticsSymbolKind_External) {
+				let temp = row.coefficientFor(entering);
+				if (temp < 0.0) {
+					let tempRatio = -row.constant / temp;
+					if (tempRatio < ratio) {
+						ratio = tempRatio;
+						found = symbol;
+					}
+				}
+			}
+		}
+		if (found != NULL) {
+			return found, TCOTDGutamaticsRow(self.rows.remove(found));
+		} else {
+			return NULL, NULL;
+		}
+	}
+
+	private TCOTDGutamaticsSymbol, TCOTDGutamaticsRow getMarkerLeavingRow(TCOTDGutamaticsSymbol marker) {
+		let r1 = double.INFINITY;
+		let r2 = r1;
+		TCOTDGutamaticsSymbol first = NULL;
+		TCOTDGutamaticsSymbol second = NULL;
+		TCOTDGutamaticsSymbol third = NULL;
+		let iter = self.rows.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+			let symbol = TCOTDGutamaticsSymbol(ko);
+			let row = TCOTDGutamaticsRow(vo);
+
+			let c = row.coefficientFor(marker);
+			if (c == 0.0) {
+				continue;
+			}
+			if (symbol.kind == TCOTDGutamaticsSymbolKind_External) {
+				third = symbol;
+			} else if (c < 0.0) {
+				let r = -row.constant / c;
+				if (r < r1) {
+					r1 = r;
+					first = symbol;
+				}
+			} else {
+				let r = row.constant / c;
+				if (r < r2) {
+					r2 = r;
+					second = symbol;
+				}
+			}
+		}
+		let s =
+			(first != NULL)
+			? first
+			: (second != NULL)
+			  ? second
+			  : third;
+		if (s != NULL) {
+			if (s.kind == TCOTDGutamaticsSymbolKind_External && TCOTDGutamaticsRow(self.rows.get(s)).constant != 0.0) {
+				let v = TCOTDGutamaticsVariable(self.varForSymbol.get(s));
+				self.varChanged(v);
+			}
+			let r = self.rows.remove(s);
+			if (!(r is "TCOTDGutamaticsHashUnoccupied")) {
+				return s, TCOTDGutamaticsRow(r);
+			} else {
+				return NULL, NULL;
+			}
+		} else {
+			return NULL, NULL;
+		}
+	}
+
+	private void removeConstraintEffects(TCOTDGutamaticsConstraint cn, TCOTDGutamaticsTag tag) {
+		if (tag.marker.kind == TCOTDGutamaticsSymbolKind_Error) {
+			self.removeMarkerEffects(tag.marker, cn.getStrength());
+		} else if (tag.other.kind == TCOTDGutamaticsSymbolKind_Error) {
+			self.removeMarkerEffects(tag.other, cn.getStrength());
+		}
+	}
+
+	private void removeMarkerEffects(TCOTDGutamaticsSymbol marker, double strength) {
+		let r = self.rows.get(marker);
+		if (!(r is "TCOTDGutamaticsHashUnoccupied")) {
+			let row = TCOTDGutamaticsRow(r);
+			self.objective.insertRow(row, -strength);
+		} else {
+			self.objective.insertSymbol(marker, -strength);
+		}
+	}
+
+	private static bool allDummies(TCOTDGutamaticsRow row) {
+		let iter = row.cells.iter();
+		while (true) {
+			let ko = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+			let s = TCOTDGutamaticsSymbol(ko);
+
+			if (s.kind != TCOTDGutamaticsSymbolKind_Dummy) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	static void printRow(TCOTDGutamaticsRow row) {
+		let ret = "row = Row {\n    cells: {\n";
+
+		let iter = row.cells.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+			let symbol = TCOTDGutamaticsSymbol(ko);
+			let val = TCOTDGutamaticsBoxedDouble(vo).val;
+
+			ret.appendFormat("        %s: %f,\n", symbol.repr(), val);
+		}
+		ret.appendFormat("    },\n    constant: %f,\n}", row.constant);
+		Console.printf(ret);
+	}
+
+	private void printRows() {
+		let ret = "self.rows = {\n";
+		let iter = self.rows.iter();
+		while (true) {
+			Object ko, vo;
+			[ko, vo] = iter.next();
+			if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+			let symbol = TCOTDGutamaticsSymbol(ko);
+			let row = TCOTDGutamaticsRow(vo);
+
+			ret.appendFormat("    %s: Row {\n        cells: {\n", symbol.repr());
+
+			let iter = row.cells.iter();
+			while (true) {
+				Object ko, vo;
+				[ko, vo] = iter.next();
+				if (ko is "TCOTDGutamaticsHashUnoccupied") { break; }
+
+				let symbol = TCOTDGutamaticsSymbol(ko);
+				let val = TCOTDGutamaticsBoxedDouble(vo).val;
+
+				ret.appendFormat("            %s: %f,\n", symbol.repr(), val);
+			}
+			ret.appendFormat("        },\n        constant: %f,\n    },\n", row.constant);
+		}
+		ret.appendFormat("}");
+		Console.printf(ret);
+	}
+}

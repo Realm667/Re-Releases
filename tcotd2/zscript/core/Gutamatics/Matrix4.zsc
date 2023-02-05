@@ -1,0 +1,545 @@
+class TCOTDGutamaticsProjectionCache {
+	TCOTDGutamaticsMatrix4 view;
+	TCOTDGutamaticsMatrix4 invView;
+
+	TCOTDGutamaticsMatrix4 proj;
+	TCOTDGutamaticsMatrix4 invProj;
+
+	TCOTDGutamaticsMatrix4 postProj;
+	TCOTDGutamaticsMatrix4 invPostProj;
+
+	TCOTDGutamaticsMatrix4 worldToClip;
+	TCOTDGutamaticsMatrix4 clipToWorld;
+
+	private double prevAspect;
+	private double prevFov;
+
+	private double planarYShiftMul;
+
+	private bool doneOnce;
+
+	void calculateMatrices(
+		double aspect,
+		double fov,
+		Vector3 viewPos,
+		double yaw,
+		double pitch,
+		double roll,
+		bool planar = false
+	) {
+		if (!self.doneOnce) {
+			self.postProj = TCOTDGutamaticsMatrix4.identity();
+			self.invPostProj = TCOTDGutamaticsMatrix4.identity();
+		}
+		if (!self.doneOnce || aspect != self.prevAspect || fov != self.prevFov) {
+			double fovy = TCOTDGutamaticsGlobalMaths.fovHToY(fov, aspect);
+			// 5 & 65535 are what are used internally, so they're used here for consistency
+			self.proj = TCOTDGutamaticsMatrix4.perspective(fovy, aspect, 5.0, 65535.0);
+			self.invProj = self.proj.inverse();
+			self.planarYShiftMul = 1.0 / tan(fovy / 2.0);
+		}
+		if (planar) {
+			let planarYShift = tan(pitch) * self.planarYShiftMul * level.pixelstretch;
+			self.postProj.values[1][3] = planarYShift;
+			self.invPostProj.values[1][3] = -planarYShift;
+
+			[self.view, self.invView] = TCOTDGutamaticsMatrix4.view(viewPos, yaw, 0.0, 0.0);
+			self.worldToClip = postProj.multiplyMatrix(self.proj).multiplyMatrix(self.view);
+			self.clipToWorld = self.invView.multiplyMatrix(self.invProj).multiplyMatrix(invPostProj);
+		} else {
+			self.postProj.values[1][3] = 0.0;
+			self.invPostProj.values[1][3] = 0.0;
+			[self.view, self.invView] = TCOTDGutamaticsMatrix4.view(viewPos, yaw, pitch, roll);
+			self.worldToClip = self.proj.multiplyMatrix(self.view);
+			self.clipToWorld = self.invView.multiplyMatrix(self.invProj);
+		}
+		self.doneOnce = true;
+		self.prevFov = fov;
+		self.prevAspect = aspect;
+	}
+}
+
+class TCOTDGutamaticsMatrix4 {
+	const ROWS = 4;
+	const COLUMNS = 4;
+
+	double values[ROWS][COLUMNS];
+
+	/// Initialises a new Matrix4 in a static context.
+	static TCOTDGutamaticsMatrix4 create() {
+		return new("TCOTDGutamaticsMatrix4");
+	}
+
+	/// Returns an identity matrix.
+	static TCOTDGutamaticsMatrix4 identity() {
+		let ret = TCOTDGutamaticsMatrix4.create();
+		ret.values[0][0] = 1;
+		ret.values[1][1] = 1;
+		ret.values[2][2] = 1;
+		ret.values[3][3] = 1;
+		return ret;
+	}
+
+	/// Returns a rotation matrix from euler angles.
+	static TCOTDGutamaticsMatrix4 fromEulerAngles(double yaw, double pitch, double roll) {
+		TCOTDGutamaticsMatrix4 rYaw = TCOTDGutamaticsMatrix4.identity();
+		double sYaw = sin(yaw);
+		double cYaw = cos(yaw);
+		rYaw.values[0][0] = cYaw;
+		rYaw.values[0][1] = -sYaw;
+		rYaw.values[1][0] = sYaw;
+		rYaw.values[1][1] = cYaw;
+
+		TCOTDGutamaticsMatrix4 rPitch = TCOTDGutamaticsMatrix4.identity();
+		double sPitch = sin(pitch);
+		double cPitch = cos(pitch);
+		rPitch.values[0][0] = cPitch;
+		rPitch.values[2][0] = -sPitch;
+		rPitch.values[0][2] = sPitch;
+		rPitch.values[2][2] = cPitch;
+
+		TCOTDGutamaticsMatrix4 rRoll = TCOTDGutamaticsMatrix4.identity();
+		double sRoll = sin(roll);
+		double cRoll = cos(roll);
+		rRoll.values[1][1] = cRoll;
+		rRoll.values[1][2] = -sRoll;
+		rRoll.values[2][1] = sRoll;
+		rRoll.values[2][2] = cRoll;
+
+		// concatenate ypr to get the final matrix
+		TCOTDGutamaticsMatrix4 ret = rYaw.multiplyMatrix(rPitch);
+		ret = ret.multiplyMatrix(rRoll);
+		return ret;
+	}
+
+	/// Returns a rotation matrix from an axis and an angle.
+	static TCOTDGutamaticsMatrix4 fromAxisAngle(Vector3 axis, double angle) {
+		TCOTDGutamaticsMatrix4 ret = TCOTDGutamaticsMatrix4.identity();
+		double c = cos(angle);
+		double s = sin(angle);
+		double x = axis.x;
+		double y = axis.y;
+		double z = axis.z;
+
+		ret.values[0][0] = (x * x * (1.0 - c) + c);
+		ret.values[0][1] = (x * y * (1.0 - c) - z * s);
+		ret.values[0][2] = (x * z * (1.0 - c) + y * s);
+		ret.values[1][0] = (y * x * (1.0 - c) + z * s);
+		ret.values[1][1] = (y * y * (1.0 - c) + c);
+		ret.values[1][2] = (y * z * (1.0 - c) - x * s);
+		ret.values[2][0] = (x * z * (1.0 - c) - y * s);
+		ret.values[2][1] = (y * z * (1.0 - c) + x * s);
+		ret.values[2][2] = (z * z * (1.0 - c) + c);
+
+		return ret;
+	}
+
+	/// Converts back from the rotation matrix to euler angles.
+	double, double, double rotationToEulerAngles() {
+		if (TCOTDGutamaticsGlobalMaths.closeEnough(values[2][0], -1)) {
+			double x = 90;
+			double y = 0;
+			double z = atan2(values[0][1], values[0][2]);
+			return z, x, y;
+		}
+		else if (TCOTDGutamaticsGlobalMaths.closeEnough(values[2][0], 1)) {
+			double x = -90;
+			double y = 0;
+			double z = atan2(-values[0][1], -values[0][2]);
+			return z, x, y;
+		}
+		else {
+			double x1 = -asin(values[2][0]);
+			double x2 = 180 - x1;
+
+			double y1 = atan2(values[2][1] / cos(x1), values[2][2] / cos(x1));
+			double y2 = atan2(values[2][1] / cos(x2), values[2][2] / cos(x2));
+
+			double z1 = atan2(values[1][0] / cos(x1), values[0][0] / cos(x1));
+			double z2 = atan2(values[1][0] / cos(x2), values[0][0] / cos(x2));
+
+			if ((abs(x1) + abs(y1) + abs(z1)) <= (abs(x2) + abs(y2) + abs(z2))) {
+				return z1, x1, y1;
+			}
+			else {
+				return z2, x2, y2;
+			}
+		}
+	}
+	
+	static TCOTDGutamaticsMatrix4 createTRSEuler(Vector3 translate, double yaw, double pitch, double roll, Vector3 scale) {
+		TCOTDGutamaticsMatrix4 translateMat = TCOTDGutamaticsMatrix4.identity();
+		translateMat.values[0][3] = translate.x;
+		translateMat.values[1][3] = translate.y;
+		translateMat.values[2][3] = translate.z;
+		
+		TCOTDGutamaticsMatrix4 rotateMat = TCOTDGutamaticsMatrix4.fromEulerAngles(yaw, pitch, roll);
+		
+		TCOTDGutamaticsMatrix4 scaleMat = TCOTDGutamaticsMatrix4.identity();
+		scaleMat.values[0][0] = scale.x;
+		scaleMat.values[1][1] = scale.y;
+		scaleMat.values[2][2] = scale.z;
+		
+		TCOTDGutamaticsMatrix4 ret = translateMat.multiplyMatrix(rotateMat);
+		ret = ret.multiplyMatrix(scaleMat);
+		return ret;
+	}
+	
+	static TCOTDGutamaticsMatrix4 createTRSAxisAngle(Vector3 translate, Vector3 axis, double angle, Vector3 scale) {
+		TCOTDGutamaticsMatrix4 translateMat = TCOTDGutamaticsMatrix4.identity();
+		translateMat.values[0][3] = translate.x;
+		translateMat.values[1][3] = translate.y;
+		translateMat.values[2][3] = translate.z;
+		
+		TCOTDGutamaticsMatrix4 rotateMat = TCOTDGutamaticsMatrix4.fromAxisAngle(axis, angle);
+		
+		TCOTDGutamaticsMatrix4 scaleMat = TCOTDGutamaticsMatrix4.identity();
+		scaleMat.values[0][0] = scale.x;
+		scaleMat.values[1][1] = scale.y;
+		scaleMat.values[2][2] = scale.z;
+		
+		TCOTDGutamaticsMatrix4 ret = translateMat.multiplyMatrix(rotateMat);
+		ret = ret.multiplyMatrix(scaleMat);
+		return ret;
+	}
+
+	/// Returns a view matrix, and its inverse.
+	static TCOTDGutamaticsMatrix4, TCOTDGutamaticsMatrix4 view(Vector3 camPos, double yaw, double pitch, double roll) {
+		// all of this is basically lifted and converted from PolyRenderer::SetupPerspectiveMatrix(),
+		// so credit goes to Graf Zahl/dpJudas/whoever else
+		// (well, that class doesn't exist anymore, and the code here is quite
+		// different now, but credit is still due lol)
+		// pitch needs to be adjusted by the pixel ratio
+		double pixelRatio = level.pixelstretch;
+		double angx = cos(pitch);
+		double angy = sin(pitch) * pixelRatio;
+		double alen = sqrt(angx * angx + angy * angy);
+		double adjustedPitch = asin(angy / alen);
+		double adjustedYaw = 90 - yaw;
+
+		// rotations
+		let cz = cos(roll);
+		let sz = sin(roll);
+		let cx = cos(adjustedPitch);
+		let sx = sin(adjustedPitch);
+		let cy = cos(adjustedYaw);
+		let sy = sin(adjustedYaw);
+
+		let rot = TCOTDGutamaticsMatrix4.create();
+		rot.values[0][0] = cz * cy - sz * sx * sy;
+		rot.values[0][2] = -sz * cx;
+		rot.values[0][1] = -(cz * sy + sz * sx * cy);
+
+		rot.values[1][0] = sz * cy + cz * sx * sy;
+		rot.values[1][2] = cz * cx;
+		rot.values[1][1] = -(sz * sy - cz * sx * cy);
+
+		rot.values[2][0] = -cx * sy;
+		rot.values[2][2] = sx;
+		rot.values[2][1] = -(cx * cy);
+
+		rot.values[3][3] = 1.0;
+
+		TCOTDGutamaticsMatrix4 ret = rot.clone();
+		ret.values[0][2] *= pixelRatio;
+		ret.values[1][2] *= pixelRatio;
+		ret.values[2][2] *= pixelRatio;
+		let translate = ret.multiplyVector3(-camPos);
+		ret.values[0][3] = translate.x;
+		ret.values[1][3] = translate.y;
+		ret.values[2][3] = translate.z;
+
+		TCOTDGutamaticsMatrix4 invRet = rot.transpose();
+		let invRatio = 1.0 / pixelRatio;
+		invRet.values[2][0] *= invRatio;
+		invRet.values[2][1] *= invRatio;
+		invRet.values[2][2] *= invRatio;
+		invRet.values[0][3] = camPos.x;
+		invRet.values[1][3] = camPos.y;
+		invRet.values[2][3] = camPos.z;
+
+		return ret, invRet;
+	}
+
+	/// Returns a perspective matrix (same format as gluPerspective).
+	static TCOTDGutamaticsMatrix4 perspective(double fovy, double aspect, double zNear, double zFar) {
+		TCOTDGutamaticsMatrix4 ret = TCOTDGutamaticsMatrix4.create();
+		double f = 1 / tan(fovy / 2.0);
+		// x coord
+		ret.values[0][0] = f / aspect;
+		// y coord
+		ret.values[1][1] = f;
+		// z buffer coord
+		ret.values[2][2] = (zFar + zNear) / (zNear - zFar);
+		ret.values[2][3] = (2 * zFar * zNear) / (zNear - zFar);
+		// w (homogeneous coordinates)
+		ret.values[3][2] = -1;
+		return ret;
+	}
+
+	/// Returns a world->clip coords matrix from the passed args.
+	static TCOTDGutamaticsMatrix4 worldToClip(Vector3 viewPos, double yaw, double pitch, double roll, double fov, double aspect) {
+		double fovy = TCOTDGutamaticsGlobalMaths.fovHToY(fov, aspect);
+		TCOTDGutamaticsMatrix4 view = TCOTDGutamaticsMatrix4.view(viewPos, yaw, pitch, roll);
+		// 5 & 65535 are what are used internally, so they're used here for consistency
+		TCOTDGutamaticsMatrix4 perp = TCOTDGutamaticsMatrix4.perspective(fovy, aspect, 5, 65535);
+		TCOTDGutamaticsMatrix4 worldToClip = perp.multiplyMatrix(view);
+		return worldToClip;
+	}
+
+	TCOTDGutamaticsMatrix4 clone() const {
+		let ret = TCOTDGutamaticsMatrix4.create();
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLUMNS; c++) {
+				ret.values[r][c] = self.values[r][c];
+			}
+		}
+		return ret;
+	}
+
+	TCOTDGutamaticsMatrix4 transpose() const {
+		let ret = TCOTDGutamaticsMatrix4.create();
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLUMNS; c++) {
+				ret.values[r][c] = self.values[c][r];
+			}
+		}
+		return ret;
+	}
+
+	/// Adds two matrices and returns the result.
+	TCOTDGutamaticsMatrix4 addMatrix(TCOTDGutamaticsMatrix4 other) const {
+		TCOTDGutamaticsMatrix4 ret = TCOTDGutamaticsMatrix4.create();
+		ret.values[0][0] = values[0][0] + other.values[0][0];
+		ret.values[0][1] = values[0][1] + other.values[0][1];
+		ret.values[0][2] = values[0][2] + other.values[0][2];
+		ret.values[0][3] = values[0][3] + other.values[0][3];
+		ret.values[1][0] = values[1][0] + other.values[1][0];
+		ret.values[1][1] = values[1][1] + other.values[1][1];
+		ret.values[1][2] = values[1][2] + other.values[1][2];
+		ret.values[1][3] = values[1][3] + other.values[1][3];
+		ret.values[2][0] = values[2][0] + other.values[2][0];
+		ret.values[2][1] = values[2][1] + other.values[2][1];
+		ret.values[2][2] = values[2][2] + other.values[2][2];
+		ret.values[2][3] = values[2][3] + other.values[2][3];
+		ret.values[3][0] = values[3][0] + other.values[3][0];
+		ret.values[3][1] = values[3][1] + other.values[3][1];
+		ret.values[3][2] = values[3][2] + other.values[3][2];
+		ret.values[3][3] = values[3][3] + other.values[3][3];
+		return ret;
+	}
+
+	/// Multiplies the matrix by a scalar and returns the result.
+	TCOTDGutamaticsMatrix4 multiplyScalar(double scalar) const {
+		TCOTDGutamaticsMatrix4 ret = TCOTDGutamaticsMatrix4.create();
+		ret.values[0][0] = values[0][0] * scalar;
+		ret.values[0][1] = values[0][1] * scalar;
+		ret.values[0][2] = values[0][2] * scalar;
+		ret.values[0][3] = values[0][3] * scalar;
+		ret.values[1][0] = values[1][0] * scalar;
+		ret.values[1][1] = values[1][1] * scalar;
+		ret.values[1][2] = values[1][2] * scalar;
+		ret.values[1][3] = values[1][3] * scalar;
+		ret.values[2][0] = values[2][0] * scalar;
+		ret.values[2][1] = values[2][1] * scalar;
+		ret.values[2][2] = values[2][2] * scalar;
+		ret.values[2][3] = values[2][3] * scalar;
+		ret.values[3][0] = values[3][0] * scalar;
+		ret.values[3][1] = values[3][1] * scalar;
+		ret.values[3][2] = values[3][2] * scalar;
+		ret.values[3][3] = values[3][3] * scalar;
+		return ret;
+	}
+
+	/// Multiplies two matrices and returns the result.
+	TCOTDGutamaticsMatrix4 multiplyMatrix(TCOTDGutamaticsMatrix4 other) const {
+		TCOTDGutamaticsMatrix4 ret = TCOTDGutamaticsMatrix4.create();
+		for (int row = 0; row < ROWS; row++) {
+			ret.values[row][0] =
+				values[row][0] * other.values[0][0] +
+				values[row][1] * other.values[1][0] +
+				values[row][2] * other.values[2][0] +
+				values[row][3] * other.values[3][0];
+
+			ret.values[row][1] =
+				values[row][0] * other.values[0][1] +
+				values[row][1] * other.values[1][1] +
+				values[row][2] * other.values[2][1] +
+				values[row][3] * other.values[3][1];
+
+			ret.values[row][2] =
+				values[row][0] * other.values[0][2] +
+				values[row][1] * other.values[1][2] +
+				values[row][2] * other.values[2][2] +
+				values[row][3] * other.values[3][2];
+
+			ret.values[row][3] =
+				values[row][0] * other.values[0][3] +
+				values[row][1] * other.values[1][3] +
+				values[row][2] * other.values[2][3] +
+				values[row][3] * other.values[3][3];
+		}
+		return ret;
+	}
+
+	/// Multiplies two matrices and returns the result, implicitly transposing the latter.
+	TCOTDGutamaticsMatrix4 multiplyTranspose(TCOTDGutamaticsMatrix4 other) const {
+		TCOTDGutamaticsMatrix4 ret = TCOTDGutamaticsMatrix4.create();
+		for (int row = 0; row < ROWS; row++) {
+			ret.values[row][0] =
+				values[row][0] * other.values[0][0] +
+				values[row][1] * other.values[0][1] +
+				values[row][2] * other.values[0][2] +
+				values[row][3] * other.values[0][3];
+
+			ret.values[row][1] =
+				values[row][0] * other.values[1][0] +
+				values[row][1] * other.values[1][1] +
+				values[row][2] * other.values[1][2] +
+				values[row][3] * other.values[1][3];
+
+			ret.values[row][2] =
+				values[row][0] * other.values[2][0] +
+				values[row][1] * other.values[2][1] +
+				values[row][2] * other.values[2][2] +
+				values[row][3] * other.values[2][3];
+
+			ret.values[row][3] =
+				values[row][0] * other.values[3][0] +
+				values[row][1] * other.values[3][1] +
+				values[row][2] * other.values[3][2] +
+				values[row][3] * other.values[3][3];
+		}
+		return ret;
+	}
+
+	/// Multiplies this Matrix by a 3D vector.
+	Vector3 multiplyVector3(Vector3 vec, TCOTDGutamaticsVectorType type = TCOTDGutamaticsVector_Position, bool divideW = true) const {
+		let vecW = (type == TCOTDGutamaticsVector_Position) ? 1.0 : 0.0;
+
+		let ret = (
+			values[0][0] * vec.x + values[0][1] * vec.y + values[0][2] * vec.z + values[0][3] * vecW,
+			values[1][0] * vec.x + values[1][1] * vec.y + values[1][2] * vec.z + values[1][3] * vecW,
+			values[2][0] * vec.x + values[2][1] * vec.y + values[2][2] * vec.z + values[2][3] * vecW
+		);
+
+		if (divideW) {
+			let retW  = values[3][0] * vec.x + values[3][1] * vec.y + values[3][2] * vec.z + values[3][3] * vecW;
+			ret /= retW;
+		}
+
+		return ret;
+	}
+
+	void swapEntries(int r0, int c0, int r1, int c1) {
+		let tmp = self.values[r0][c0];
+		self.values[r0][c0] = self.values[r1][c1];
+		self.values[r1][c1] = tmp;
+	}
+
+	void swapRows(int row0, int row1) {
+		for (int i = 0; i < ROWS; i++) {
+			self.swapEntries(row0, i, row1, i);
+		}
+	}
+
+	TCOTDGutamaticsMatrix4 inverse() const {
+		let n = ROWS;
+		let lhs = self.clone();
+		let rhs = TCOTDGutamaticsMatrix4.identity();
+		for (int p = 0; p < n; p++) {
+			let largestNum = abs(lhs.values[p][p]);
+			let largestRow = p;
+			for (int r = p + 1; r < n; r++) {
+				let test = abs(lhs.values[r][p]);
+				if (test > largestNum) {
+					largestNum = test;
+					largestRow = r;
+				}
+			}
+			lhs.swapRows(p, largestRow);
+			rhs.swapRows(p, largestRow);
+
+			let pivot = lhs.values[p][p];
+			let mul = 1.0 / pivot;
+
+			for (int i = 0; i < n; i++) {
+				lhs.values[p][i] = lhs.values[p][i] * mul;
+				rhs.values[p][i] = rhs.values[p][i] * mul;
+			}
+
+			for (int r = 0; r < n; r++) {
+				if (r == p) {
+					continue;
+				}
+				let mul = lhs.values[r][p];
+				for (int i = 0; i < n; i++) {
+					lhs.values[r][i] = lhs.values[r][i] - mul * lhs.values[p][i];
+					rhs.values[r][i] = rhs.values[r][i] - mul * rhs.values[p][i];
+				}
+			}
+		}
+		return rhs;
+	}
+
+	String repr() const {
+		let scientific = false;
+		for (let i = 0u; i < ROWS * COLUMNS; i++) {
+			let val = self.values[i / COLUMNS][i % COLUMNS];
+			scientific |= (abs(TCOTDGutamaticsGlobalMaths.getDoubleExponent(val)) > 4);
+			if (scientific) {
+				break;
+			}
+		}
+		Array<String> strs;
+		for (let i = 0u; i < ROWS * COLUMNS; i++) {
+			let val = self.values[i / COLUMNS][i % COLUMNS];
+			let str = scientific ? String.format("%e", val) : String.format("%g", val);
+			if (!scientific && val != double.infinity && val == val && str.indexOf(".") == -1) {
+				str.appendFormat(".0");
+			}
+			strs.push(str);
+		}
+		Array<uint> pointIndices;
+		let maxPointIndex = 0;
+		for (let i = 0u; i < ROWS * COLUMNS; i++) {
+			let str = strs[i];
+			let pointIndex = str.indexOf(".");
+			if (pointIndex == -1) {
+				pointIndex = 0;
+			}
+			pointIndices.push(pointIndex);
+			maxPointIndex = max(maxPointIndex, str.indexOf("."));
+		}
+		for (let i = 0u; i < ROWS * COLUMNS; i++) {
+			let str = strs[i];
+			strs[i] = String.format(
+				"% " .. str.length() + (maxPointIndex - pointIndices[i]) .. "s",
+				str
+			);
+		}
+		let maxLength = 0;
+		for (let i = 0u; i < self.values.size(); i++) {
+			let str = strs[i];
+			maxLength = max(maxLength, str.length());
+		}
+
+		String ret = "";
+		let fmt = "%-" .. maxLength .. "s";
+		for (let r = 0u; r < ROWS; r++) {
+			ret.appendFormat(r == 0 ? "[[ " : "\n [ ");
+			for (let c = 0u; c < COLUMNS; c++) {
+				ret.appendFormat(fmt, strs[COLUMNS * r + c]);
+				if (c != COLUMNS - 1) {
+					ret.appendFormat(", ");
+				}
+			}
+			ret.appendFormat(" ]");
+			if (r != ROWS - 1) {
+				ret.appendFormat(",");
+			}
+		}
+		ret.appendFormat("]");
+		return ret;
+	}
+}

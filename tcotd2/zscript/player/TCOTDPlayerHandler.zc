@@ -111,17 +111,15 @@ class TCOTDPlayerHandler : EventHandler
 	//
 	//===========================================================================
 
-	/*
 	override void WorldLoaded(WorldEvent e)
 	{
+		TCOTDGameplayStatics.DestroyActors("TCOTDPlayerMarker");
 	}
-	*/
 
-	/*
 	override void WorldUnloaded(WorldEvent e)
 	{
+		TCOTDGameplayStatics.DestroyActors("TCOTDPlayerMarker");
 	}
-	*/
 
 	override void WorldTick(void)
 	{
@@ -172,6 +170,11 @@ class TCOTDPlayerHandler : EventHandler
 	{
 		DrawLowHealth(e);
 		DrawDeathScreen(e);
+	}
+
+	override void RenderUnderlay(RenderEvent e)
+	{
+		DrawPlayerLocator(e);
 	}
 
 	//===========================================================================
@@ -368,4 +371,92 @@ class TCOTDPlayerHandler : EventHandler
 		return false;
 	}
 	*/
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	ui void DrawPlayerLocator(RenderEvent e)
+	{
+		if (!CVar.GetCVar("tcotd2_playerlocator", players[consoleplayer]).GetBool())
+			return;
+
+		if (automapactive)
+			return;
+
+		double alpha = 1.0;
+
+		let mnu = Menu.GetCurrentMenu();
+		if (mnu)
+		{
+			alpha = 0.2;
+
+			if (mnu is "ConversationMenu")
+			{
+				alpha = 0.0;
+			}
+		}
+
+		PlayerPawn pmo = PlayerPawn(players[consoleplayer].mo);
+		if (!pmo)
+			return;
+
+		if (!pmo.player)
+			return;
+
+		// store old view clip
+		int ox, oy, ow, oh;
+		[ox, oy, ow, oh] = Screen.GetClipRect();
+
+		// temporarily set new view clip
+		int nx, ny, nw, nh;
+		[nx, ny, nw, nh] = Screen.GetViewWindow();
+		Screen.SetClipRect(nx, ny, nw, nh);
+
+		TCOTDGutamaticsMatrix worldToClip = TCOTDGutamaticsMatrix.WorldToClip(e.ViewPos, e.ViewAngle, e.ViewPitch, e.ViewRoll, players[consoleplayer].FOV, Screen.GetAspectRatio());
+
+		Actor projActor;
+		ThinkerIterator it = ThinkerIterator.Create("PlayerPawn");
+		while ((projActor = Actor(it.Next())) != NULL)
+		{
+			// player can't be found
+			if (!projActor.player)
+				continue;
+
+			// don't draw your own name
+			if (projActor == e.Camera)
+				continue;
+
+			// fade alpha by distance
+			double maxDist = 2000.0;
+			double distFade = pmo.Distance3D(projActor);
+			double distFarFadeStart = maxDist * 0.2;
+			if (distFade >= distFarFadeStart)
+			{
+				double fade = 1.0 - (distFade - distFarFadeStart) / distFarFadeStart;
+				alpha *= fade;
+			}
+			if (alpha < 0.2) alpha = 0.2;
+
+			Vector3 adjustedWorldPos = e.ViewPos + Level.Vec3Diff(e.ViewPos, projActor.Pos);
+			Vector3 ndcPos = worldToClip.MultiplyVector3(adjustedWorldPos + (0, 0, projActor.Height)).AsVector3();
+			if (ndcPos.Z <= 1 && ndcPos.Z >= -1)
+			{
+				Vector2 drawPos = TCOTDGutamaticsGlobalMaths.NDCToViewPort(ndcPos);
+				String playerName = projActor.player.GetUserName();
+				let fnt = SmallFont;
+				Screen.DrawText(fnt, Font.CR_White,
+					drawPos.X - (fnt.StringWidth(playerName) * CleanXFac / 2.0),
+					drawPos.Y - (fnt.GetHeight() * CleanYFac / 2.0),
+					playerName,
+					DTA_CleanNoMove, true,
+					DTA_Alpha, alpha);
+			}
+		}
+
+		// restore view clip
+		Screen.SetClipRect(ox, oy, ow, oh);
+	}
 }

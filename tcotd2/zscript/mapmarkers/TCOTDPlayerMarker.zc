@@ -1,0 +1,16 @@
+class TCOTDPlayerMarker : MapMarker
+{
+	mixin TCOTDClientsideOnlyMixin;
+
+	Default
+	{
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		PMRK A -1;
+		Stop;
+	}
+}

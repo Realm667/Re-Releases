@@ -1,0 +1,1110 @@
+enum TCOTDGutamaticsVectorType {
+	TCOTDGutamaticsVector_Position,
+	TCOTDGutamaticsVector_Direction
+}
+
+class TCOTDGutamaticsMatrix {
+	private Array<double> values;
+	private int columns;
+	private int rows;
+
+	/// Initialises a new Matrix.
+	TCOTDGutamaticsMatrix init(int columns, int rows) {
+		if (columns <= 0 || rows <= 0) {
+			throwAbortException("Error: <%p>.init(%d, %d) - Matrix needs to be at least 1 * 1", self, columns, rows);
+		}
+
+		self.rows = rows;
+		self.columns = columns;
+		values.resize(columns * rows);
+		for (int i = 0; i < values.size(); i++) {
+			values[i] = 0;
+		}
+
+		return self;
+	}
+
+	/// Initialises a new Matrix in a static context.
+	static TCOTDGutamaticsMatrix create(int rows, int columns) {
+		return new("TCOTDGutamaticsMatrix").init(columns, rows);
+	}
+
+	/// Returns an identity matrix.
+	static TCOTDGutamaticsMatrix identity(int dimension) {
+		TCOTDGutamaticsMatrix ret = TCOTDGutamaticsMatrix.create(dimension, dimension);
+		for (int i = 0; i < dimension; i++) {
+			ret.set(i, i, 1);
+		}
+		return ret;
+	}
+
+	/// Returns a rotation matrix from euler angles.
+	static TCOTDGutamaticsMatrix fromEulerAngles(double yaw, double pitch, double roll) {
+		TCOTDGutamaticsMatrix rYaw = TCOTDGutamaticsMatrix.identity(4);
+		double sYaw = sin(yaw);
+		double cYaw = cos(yaw);
+		rYaw.set(0, 0,  cYaw);
+		rYaw.set(0, 1, -sYaw);
+		rYaw.set(1, 0,  sYaw);
+		rYaw.set(1, 1,  cYaw);
+
+		TCOTDGutamaticsMatrix rPitch = TCOTDGutamaticsMatrix.identity(4);
+		double sPitch = sin(pitch);
+		double cPitch = cos(pitch);
+		rPitch.set(0, 0,  cPitch);
+		rPitch.set(2, 0, -sPitch);
+		rPitch.set(0, 2,  sPitch);
+		rPitch.set(2, 2,  cPitch);
+
+		TCOTDGutamaticsMatrix rRoll = TCOTDGutamaticsMatrix.identity(4);
+		double sRoll = sin(roll);
+		double cRoll = cos(roll);
+		rRoll.set(1, 1,  cRoll);
+		rRoll.set(1, 2, -sRoll);
+		rRoll.set(2, 1,  sRoll);
+		rRoll.set(2, 2,  cRoll);
+
+		// concatenate ypr to get the final matrix
+		TCOTDGutamaticsMatrix ret = rYaw.multiplyMatrix(rPitch);
+		ret = ret.multiplyMatrix(rRoll);
+		return ret;
+	}
+
+	/// Returns a rotation matrix from an axis and an angle.
+	static TCOTDGutamaticsMatrix fromAxisAngle(Vector3 axis, double angle) {
+		TCOTDGutamaticsMatrix ret = TCOTDGutamaticsMatrix.identity(4);
+		double c = cos(angle);
+		double s = sin(angle);
+		double x = axis.x;
+		double y = axis.y;
+		double z = axis.z;
+
+		ret.set(0, 0, (x * x * (1.0 - c) + c));
+		ret.set(0, 1, (x * y * (1.0 - c) - z * s));
+		ret.set(0, 2, (x * z * (1.0 - c) + y * s));
+		ret.set(1, 0, (y * x * (1.0 - c) + z * s));
+		ret.set(1, 1, (y * y * (1.0 - c) + c));
+		ret.set(1, 2, (y * z * (1.0 - c) - x * s));
+		ret.set(2, 0, (x * z * (1.0 - c) - y * s));
+		ret.set(2, 1, (y * z * (1.0 - c) + x * s));
+		ret.set(2, 2, (z * z * (1.0 - c) + c));
+
+		return ret;
+	}
+
+	/// Converts back from the rotation matrix to euler angles.
+	double, double, double rotationToEulerAngles() {
+		if (TCOTDGutamaticsGlobalMaths.closeEnough(get(2, 0), -1)) {
+			double x = 90;
+			double y = 0;
+			double z = atan2(get(0, 1), get(0, 2));
+			return z, x, y;
+		}
+		else if (TCOTDGutamaticsGlobalMaths.closeEnough(get(2, 0), 1)) {
+			double x = -90;
+			double y = 0;
+			double z = atan2(-get(0, 1), -get(0, 2));
+			return z, x, y;
+		}
+		else {
+			double x1 = -asin(get(2, 0));
+			double x2 = 180 - x1;
+
+			double y1 = atan2(get(2, 1) / cos(x1), get(2, 2) / cos(x1));
+			double y2 = atan2(get(2, 1) / cos(x2), get(2, 2) / cos(x2));
+
+			double z1 = atan2(get(1, 0) / cos(x1), get(0, 0) / cos(x1));
+			double z2 = atan2(get(1, 0) / cos(x2), get(0, 0) / cos(x2));
+
+			if ((abs(x1) + abs(y1) + abs(z1)) <= (abs(x2) + abs(y2) + abs(z2))) {
+				return z1, x1, y1;
+			}
+			else {
+				return z2, x2, y2;
+			}
+		}
+	}
+	
+	static TCOTDGutamaticsMatrix createTRSEuler(Vector3 translate, double yaw, double pitch, double roll, Vector3 scale) {
+		TCOTDGutamaticsMatrix translateMat = TCOTDGutamaticsMatrix.identity(4);
+		translateMat.set(0, 3, translate.x);
+		translateMat.set(1, 3, translate.y);
+		translateMat.set(2, 3, translate.z);
+		
+		TCOTDGutamaticsMatrix rotateMat = TCOTDGutamaticsMatrix.fromEulerAngles(yaw, pitch, roll);
+		
+		TCOTDGutamaticsMatrix scaleMat = TCOTDGutamaticsMatrix.identity(4);
+		scaleMat.set(0, 0, scale.x);
+		scaleMat.set(1, 1, scale.y);
+		scaleMat.set(2, 2, scale.z);
+		
+		TCOTDGutamaticsMatrix ret = translateMat.multiplyMatrix(rotateMat);
+		ret = ret.multiplyMatrix(scaleMat);
+		return ret;
+	}
+	
+	static TCOTDGutamaticsMatrix createTRSAxisAngle(Vector3 translate, Vector3 axis, double angle, Vector3 scale) {
+		TCOTDGutamaticsMatrix translateMat = TCOTDGutamaticsMatrix.identity(4);
+		translateMat.set(0, 3, translate.x);
+		translateMat.set(1, 3, translate.y);
+		translateMat.set(2, 3, translate.z);
+		
+		TCOTDGutamaticsMatrix rotateMat = TCOTDGutamaticsMatrix.fromAxisAngle(axis, angle);
+		
+		TCOTDGutamaticsMatrix scaleMat = TCOTDGutamaticsMatrix.identity(4);
+		scaleMat.set(0, 0, scale.x);
+		scaleMat.set(1, 1, scale.y);
+		scaleMat.set(2, 2, scale.z);
+		
+		TCOTDGutamaticsMatrix ret = translateMat.multiplyMatrix(rotateMat);
+		ret = ret.multiplyMatrix(scaleMat);
+		return ret;
+	}
+
+	/// Returns a view matrix.
+	static TCOTDGutamaticsMatrix view(Vector3 camPos, double yaw, double pitch, double roll) {
+		// all of this is basically lifted and converted from PolyRenderer::SetupPerspectiveMatrix(),
+		// so credit goes to Graf Zahl/dpJudas/whoever else
+		// pitch needs to be adjusted by the pixel ratio
+		double pixelRatio = level.pixelstretch;
+		double angx = cos(pitch);
+		double angy = sin(pitch) * pixelRatio;
+		double alen = sqrt(angx * angx + angy * angy);
+		double adjustedPitch = asin(angy / alen);
+		double adjustedYaw = yaw - 90;
+
+		// rotations
+		TCOTDGutamaticsMatrix rotR = TCOTDGutamaticsMatrix.fromAxisAngle((0, 0, 1), roll);
+		TCOTDGutamaticsMatrix rotP = TCOTDGutamaticsMatrix.fromAxisAngle((1, 0, 0), adjustedPitch);
+		TCOTDGutamaticsMatrix rotY = TCOTDGutamaticsMatrix.fromAxisAngle((0, -1, 0), adjustedYaw);
+		// pixel ratio scaling
+		TCOTDGutamaticsMatrix scale = TCOTDGutamaticsMatrix.identity(4);
+		scale.set(1, 1, pixelRatio);
+		// swapping y and z
+		TCOTDGutamaticsMatrix swapYZ = TCOTDGutamaticsMatrix.create(4, 4);
+		swapYZ.set(0, 0, 1);
+		swapYZ.set(1, 2, 1);
+		swapYZ.set(2, 1, -1);
+		swapYZ.set(3, 3, 1);
+		// translation
+		TCOTDGutamaticsMatrix translate = TCOTDGutamaticsMatrix.identity(4);
+		translate.set(0, 3, -camPos.x);
+		translate.set(1, 3, -camPos.y);
+		translate.set(2, 3, -camPos.z);
+
+		// concatenate them all to get a final matrix
+		TCOTDGutamaticsMatrix ret = rotR.multiplyMatrix(rotP);
+		ret = ret.multiplyMatrix(rotY);
+		ret = ret.multiplyMatrix(scale);
+		ret = ret.multiplyMatrix(swapYZ);
+		ret = ret.multiplyMatrix(translate);
+
+		return ret;
+	}
+
+	/// Returns a perspective matrix (same format as gluPerspective).
+	static TCOTDGutamaticsMatrix perspective(double fovy, double aspect, double zNear, double zFar) {
+		TCOTDGutamaticsMatrix ret = TCOTDGutamaticsMatrix.create(4, 4);
+		double f = 1 / tan(fovy / 2.0);
+		// x coord
+		ret.set(0, 0, f / aspect);
+		// y coord
+		ret.set(1, 1, f);
+		// z buffer coord
+		ret.set(2, 2, (zFar + zNear) / (zNear - zFar));
+		ret.set(2, 3, (2 * zFar * zNear) / (zNear - zFar));
+		// w (homogeneous coordinates)
+		ret.set(3, 2, -1);
+		return ret;
+	}
+
+	/// Returns a world->clip coords matrix from the passed args.
+	static TCOTDGutamaticsMatrix worldToClip(Vector3 viewPos, double yaw, double pitch, double roll, double fov, double aspect) {
+		double fovy = TCOTDGutamaticsGlobalMaths.fovHToY(fov, aspect);
+		TCOTDGutamaticsMatrix view = TCOTDGutamaticsMatrix.view(viewPos, yaw, pitch, roll);
+		// 5 & 65535 are what are used internally, so they're used here for consistency
+		TCOTDGutamaticsMatrix perp = TCOTDGutamaticsMatrix.perspective(fovy, aspect, 5, 65535);
+		TCOTDGutamaticsMatrix worldToClip = perp.multiplyMatrix(view);
+		return worldToClip;
+	}
+
+	/// Gets the value at row, col.
+	double get(int row, int col) const {
+		if (row < 0) {
+			throwAbortException("Error: <%p>.get(%d, %d) - negative row", self, row, col);
+		}
+		if (row >= self.rows) {
+			throwAbortException("Error: <%p>.get(%d, %d) - row >= rows (= %d)", self, row, col, self.rows);
+		}
+		if (col < 0) {
+			throwAbortException("Error: <%p>.get(%d, %d) - negative col", self, row, col);
+		}
+		if (col >= self.columns) {
+			throwAbortException("Error: <%p>.get(%d, %d) - col >= columns (= %d)", self, row, col, self.columns);
+		}
+		return values[columns * row + col];
+	}
+
+	/// Sets the value at row, col.
+	void set(int row, int col, double val) {
+		if (row < 0) {
+			throwAbortException("Error: <%p>.set(%d, %d, ...) - negative row", self, row, col);
+		}
+		if (row >= self.rows) {
+			throwAbortException("Error: <%p>.set(%d, %d, ...) - row >= rows (= %d)", self, row, col, self.rows);
+		}
+		if (col < 0) {
+			throwAbortException("Error: <%p>.set(%d, %d, ...) - negative col", self, row, col);
+		}
+		if (col >= self.columns) {
+			throwAbortException("Error: <%p>.set(%d, %d, ...) - col >= columns (= %d)", self, row, col, self.columns);
+		}
+		values[columns * row + col] = val;
+	}
+
+	TCOTDGutamaticsMatrix clone() const {
+		let ret = TCOTDGutamaticsMatrix.create(self.rows, self.columns);
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < columns; c++) {
+				ret.set(r, c, self.get(r, c));
+			}
+		}
+		return ret;
+	}
+
+	TCOTDGutamaticsMatrix transpose() const {
+		let ret = TCOTDGutamaticsMatrix.create(self.columns, self.rows);
+		for (int r = 0; r < ret.rows; r++) {
+			for (int c = 0; c < ret.columns; c++) {
+				ret.set(r, c, self.get(c, r));
+			}
+		}
+		return ret;
+	}
+
+	/// Adds two matrices and returns the result.
+	TCOTDGutamaticsMatrix addMatrix(TCOTDGutamaticsMatrix other) const {
+		if (rows != other.rows || columns != other.columns) {
+			throwAbortException("Error: <%p>.addMatrix(<%p>) - Matrices need to be equal size", self, other);
+		}
+		TCOTDGutamaticsMatrix ret = TCOTDGutamaticsMatrix.create(rows, columns);
+		for (int row = 0; row < rows; row++) {
+			for (int col = 0; col < columns; col++) {
+				ret.set(row, col, get(row, col) + other.get(row, col));
+			}
+		}
+		return ret;
+	}
+
+	/// Subtracts two matrices and returns the result.
+	TCOTDGutamaticsMatrix subtractMatrix(TCOTDGutamaticsMatrix other) const {
+		if (rows != other.rows || columns != other.columns) {
+			throwAbortException("Error: <%p>.subtractMatrix(<%p>) - Matrices need to be equal size", self, other);
+		}
+		TCOTDGutamaticsMatrix ret = TCOTDGutamaticsMatrix.create(rows, columns);
+		for (int row = 0; row < rows; row++) {
+			for (int col = 0; col < columns; col++) {
+				ret.set(row, col, get(row, col) - other.get(row, col));
+			}
+		}
+		return ret;
+	}
+
+	/// Multiplies the matrix by a scalar and returns the result.
+	TCOTDGutamaticsMatrix multiplyScalar(double scalar) const {
+		TCOTDGutamaticsMatrix ret = TCOTDGutamaticsMatrix.create(rows, columns);
+		for (int row = 0; row < rows; row++) {
+			for (int col = 0; col < columns; col++) {
+				ret.set(row, col, get(row, col) * scalar);
+			}
+		}
+		return ret;
+	}
+
+	/// Multiplies two matrices and returns the result.
+	TCOTDGutamaticsMatrix multiplyMatrix(TCOTDGutamaticsMatrix other) const {
+		if (columns != other.rows) {
+			throwAbortException("Error: <%p>.multiplyMatrix(<%p>) - Matrix A columns needs to equal Matrix B rows", self, other);
+		}
+		TCOTDGutamaticsMatrix ret = TCOTDGutamaticsMatrix.create(rows, other.columns);
+		for (int row = 0; row < ret.rows; row++) {
+			for (int col = 0; col < ret.columns; col++) {
+				double val = 0;
+				for (int i = 0; i < columns; i++) {
+					val += get(row, i) * other.get(i, col);
+				}
+				ret.set(row, col, val);
+			}
+		}
+		return ret;
+	}
+	/// Multiplies two matrices and returns the result, implicitly tranposing the second one.
+	TCOTDGutamaticsMatrix multiplyTranspose(TCOTDGutamaticsMatrix other) const {
+		if (columns != other.columns) {
+			throwAbortException("Error: <%p>.multiplyTranspose(<%p>) - Matrix A columns needs to equal Matrix B columns", self, other);
+		}
+		TCOTDGutamaticsMatrix ret = TCOTDGutamaticsMatrix.create(rows, other.rows);
+		for (int row = 0; row < ret.rows; row++) {
+			for (int col = 0; col < ret.columns; col++) {
+				double val = 0;
+				for (int i = 0; i < columns; i++) {
+					val += get(row, i) * other.get(col, i);
+				}
+				ret.set(row, col, val);
+			}
+		}
+		return ret;
+	}
+	/// Multiplies two matrices and returns the result, implicitly transposing the first one.
+	TCOTDGutamaticsMatrix transposeMultiply(TCOTDGutamaticsMatrix other) const {
+		if (rows != other.rows) {
+			throwAbortException("Error: <%p>.transposeMultiply(<%p>) - Matrix A rows needs to equal Matrix B rows", self, other);
+		}
+		TCOTDGutamaticsMatrix ret = TCOTDGutamaticsMatrix.create(columns, other.columns);
+		for (int row = 0; row < ret.rows; row++) {
+			for (int col = 0; col < ret.columns; col++) {
+				double val = 0;
+				for (int i = 0; i < rows; i++) {
+					val += get(i, row) * other.get(i, col);
+				}
+				ret.set(row, col, val);
+			}
+		}
+		return ret;
+	}
+
+	/// Multiplies this Matrix by a 2D vector.
+	TCOTDGutamaticsMatrix multiplyVector2(Vector2 vec, TCOTDGutamaticsVectorType type = TCOTDGutamaticsVector_Position) const {
+		TCOTDGutamaticsMatrix vec2Matrix = TCOTDGutamaticsMatrix.create(3, 1);
+		vec2Matrix.set(0, 0, vec.x);
+		vec2Matrix.set(1, 0, vec.y);
+		if (type == TCOTDGutamaticsVector_Position)       vec2Matrix.set(2, 0, 1);
+		else if (type == TCOTDGutamaticsVector_Direction) vec2Matrix.set(2, 0, 0);
+		else throwAbortException("Error: Invalid vector type for multiplyVector2 (%d)", type);
+		return multiplyMatrix(vec2Matrix);
+	}
+
+	/// Multiplies this Matrix by a 3D vector.
+	TCOTDGutamaticsMatrix multiplyVector3(Vector3 vec, TCOTDGutamaticsVectorType type = TCOTDGutamaticsVector_Position) const {
+		TCOTDGutamaticsMatrix vec3Matrix = TCOTDGutamaticsMatrix.create(4, 1);
+		vec3Matrix.set(0, 0, vec.x);
+		vec3Matrix.set(1, 0, vec.y);
+		vec3Matrix.set(2, 0, vec.z);
+		if (type == TCOTDGutamaticsVector_Position)       vec3Matrix.set(3, 0, 1);
+		else if (type == TCOTDGutamaticsVector_Direction) vec3Matrix.set(3, 0, 0);
+		else throwAbortException("Error: Invalid vector type for multiplyVector3 (%d)", type);
+		return multiplyMatrix(vec3Matrix);
+	}
+
+	void swapEntries(int r0, int c0, int r1, int c1) {
+		let tmp = self.get(r0, c0);
+		self.set(r0, c0, self.get(r1, c1));
+		self.set(r1, c1, tmp);
+	}
+
+	void swapRows(int row0, int row1) {
+		for (int i = 0; i < self.columns; i++) {
+			self.swapEntries(row0, i, row1, i);
+		}
+	}
+	void swapCols(int col0, int col1) {
+		for (int i = 0; i < self.rows; i++) {
+			self.swapEntries(i, col0, i, col1);
+		}
+	}
+
+	TCOTDGutamaticsMatrix inverse() const {
+		if (self.columns != self.rows) {
+			throwAbortException("Error: <%p>.inverse() - Matrix needs to be square", self);
+		}
+		let n = self.columns;
+		let lhs = self.clone();
+		let rhs = TCOTDGutamaticsMatrix.identity(columns);
+		for (int p = 0; p < n; p++) {
+			let largestNum = abs(lhs.get(p, p));
+			let largestRow = p;
+			for (int r = p + 1; r < n; r++) {
+				let test = abs(lhs.get(r, p));
+				if (test > largestNum) {
+					largestNum = test;
+					largestRow = r;
+				}
+			}
+			lhs.swapRows(p, largestRow);
+			rhs.swapRows(p, largestRow);
+
+			let pivot = lhs.get(p, p);
+			let mul = 1.0 / pivot;
+
+			for (int i = 0; i < n; i++) {
+				lhs.set(p, i, lhs.get(p, i) * mul);
+				rhs.set(p, i, rhs.get(p, i) * mul);
+			}
+
+			for (int r = 0; r < n; r++) {
+				if (r == p) {
+					continue;
+				}
+				let mul = lhs.get(r, p);
+				for (int i = 0; i < n; i++) {
+					lhs.set(r, i, lhs.get(r, i) - mul * lhs.get(p, i));
+					rhs.set(r, i, rhs.get(r, i) - mul * rhs.get(p, i));
+				}
+			}
+		}
+		return rhs;
+	}
+
+	double normSquared() const {
+		let sum = 0.0;
+		for (int i = 0; i < self.values.size(); i++) {
+			let val = self.values[i];
+			sum += val * val;
+		}
+		return sum;
+	}
+	double norm() const {
+		return sqrt(self.normSquared());
+	}
+
+	TCOTDGutamaticsMatrix getCol(uint col) const {
+		let ret = TCOTDGutamaticsMatrix.create(self.rows, 1);
+		for (let r = 0u; r < self.rows; r++) {
+			ret.set(r, 0, self.get(r, col));
+		}
+		return ret;
+	}
+	void setCol(uint col, TCOTDGutamaticsMatrix m) {
+		for (let r = 0u; r < self.rows; r++) {
+			self.set(r, col, m.get(r, 0));
+		}
+	}
+	TCOTDGutamaticsMatrix getRow(uint row) const {
+		let ret = TCOTDGutamaticsMatrix.create(1, self.columns);
+		for (let c = 0u; c < self.columns; c++) {
+			ret.set(0, c, self.get(row, c));
+		}
+		return ret;
+	}
+	void setRow(uint row, TCOTDGutamaticsMatrix m) {
+		for (let c = 0u; c < self.columns; c++) {
+			self.set(row, c, m.get(0, c));
+		}
+	}
+
+	static TCOTDGutamaticsMatrix givensFromCS(uint dimension, uint i, uint j, double c, double s) {
+		if (j < i) {
+			let tmp = i;
+			i = j;
+			j = tmp;
+		}
+
+		let ret = TCOTDGutamaticsMatrix.identity(dimension);
+		ret.set(i, i, c);
+		ret.set(i, j, -s);
+
+		ret.set(j, i, s);
+		ret.set(j, j, c);
+
+		return ret;
+	}
+
+	static TCOTDGutamaticsMatrix givens(uint dimension, uint i, uint j, double theta) {
+		if (j < i) {
+			let tmp = i;
+			i = j;
+			j = tmp;
+		}
+
+		let c = cos(theta);
+		let s = sin(theta);
+
+		let ret = TCOTDGutamaticsMatrix.identity(dimension);
+		ret.set(i, i, c);
+		ret.set(i, j, -s);
+
+		ret.set(j, i, s);
+		ret.set(j, j, c);
+
+		return ret;
+	}
+
+	TCOTDGutamaticsMatrix slice(uint rowStart, uint rowEnd, uint colStart, uint colEnd) {
+		let rowDiff = rowEnd - rowStart;
+		let colDiff = colEnd - colStart;
+		let ret = TCOTDGutamaticsMatrix.create(rowEnd - rowStart, colEnd - colStart);
+		for (let r = 0u; r < rowDiff; r++) {
+			for (let c = 0u; c < colDiff; c++) {
+				ret.set(r, c, self.get(rowStart + r, colStart + c));
+			}
+		}
+		return ret;
+	}
+
+	private static void svdMultiplyHouseholderMatrix(TCOTDGutamaticsMatrix b, TCOTDGutamaticsMatrix w, double coeff) {
+		for (int i = 0; i < b.columns; i++) {
+			let col = b.getCol(i);
+			let newCol = col.subtractMatrix(w.multiplyScalar(w.transposeMultiply(col).get(0, 0) * coeff));
+			b.setCol(i, newCol);
+		}
+	}
+
+	private static void svdMultiplyMatrixHouseholder(TCOTDGutamaticsMatrix b, TCOTDGutamaticsMatrix w, double coeff) {
+		for (int i = 0; i < b.rows; i++) {
+			let row = b.getRow(i);
+			let newRow = row.subtractMatrix(w.transpose().multiplyScalar(row.multiplyMatrix(w).get(0, 0) * coeff));
+			b.setRow(i, newRow);
+		}
+	}
+
+	private static double svdMultiplyGivensBidiagK(
+		double alpha, double beta,
+		TCOTDGutamaticsMatrix diag, TCOTDGutamaticsMatrix superdiag, double block10,
+		TCOTDGutamaticsMatrix u,
+		uint k, uint n
+	) {
+		let rotTo = (alpha, beta).unit();
+		let c = rotTo.x;
+		let s = -rotTo.y;
+
+		svdMultiplyMatrixGivens(u, k, k + 1, c, -s);
+
+		let block00 = diag.get(k, 0);
+		let block01 = superdiag.get(k, 0);
+		let block11 = diag.get(k + 1, 0);
+
+		diag.set(k, 0, c * block00 - s * block10);
+
+		superdiag.set(k, 0, c * block01 - s * block11);
+		diag.set(k + 1, 0,  s * block01 + c * block11);
+
+		if (k < n - 2) {
+			let block02 = 0.0;
+			let block12 = superdiag.get(k + 1, 0);
+
+			let newBlock02 =        c * block02 - s * block12;
+			superdiag.set(k + 1, 0, s * block02 + c * block12);
+
+			return newBlock02;
+		}
+		return 0.0;
+	}
+
+	private static double svdMultiplyBidiagGivensK(
+		double alpha, double beta,
+		TCOTDGutamaticsMatrix diag, TCOTDGutamaticsMatrix superdiag, double blockM11,
+		TCOTDGutamaticsMatrix v,
+		uint k, uint n
+	) {
+		let rotTo = (alpha, beta).unit();
+		let c = rotTo.x;
+		let s = rotTo.y;
+
+		svdMultiplyGivensMatrix(v, k, k + 1, c, -s);
+
+		let block00 = diag.get(k, 0);
+		let block01 = superdiag.get(k, 0);
+		let block10 = 0.0;
+		let block11 = diag.get(k + 1, 0);
+
+		diag.set(k, 0,       c * block00 + s * block01);
+		superdiag.set(k, 0, -s * block00 + c * block01);
+
+		let newBlock10 =    c * block10 + s * block11;
+		diag.set(k + 1, 0, -s * block10 + c * block11);
+
+		if (k > 0) {
+			let blockM10 = superdiag.get(k - 1, 0);
+
+			superdiag.set(k - 1, 0, c * blockM10 + s * blockM11);
+		}
+
+		return newBlock10;
+	}
+
+	private static void svdMultiplyGivensMatrix(TCOTDGutamaticsMatrix m, uint i, uint j, double c, double s) {
+		if (j < i) {
+			let tmp = i;
+			i = j;
+			j = tmp;
+		}
+		for (let col = 0u; col < m.columns; col++) {
+			let topVal = m.get(i, col);
+			let botVal = m.get(j, col);
+
+			m.set(i, col, c * topVal - s * botVal);
+			m.set(j, col, s * topVal + c * botVal);
+		}
+	}
+
+	private static void svdMultiplyMatrixGivens(TCOTDGutamaticsMatrix m, uint i, uint j, double c, double s) {
+		if (j < i) {
+			let tmp = i;
+			i = j;
+			j = tmp;
+		}
+		for (let row = 0u; row < m.rows; row++) {
+			let leftVal = m.get(row, i);
+			let rightVal = m.get(row, j);
+
+			m.set(row, i,  c * leftVal + s * rightVal);
+			m.set(row, j, -s * leftVal + c * rightVal);
+		}
+	}
+
+	private static void svdRemoveSuperdiagonalZeroLast(
+		TCOTDGutamaticsMatrix diag, TCOTDGutamaticsMatrix superdiag,
+		TCOTDGutamaticsMatrix v,
+		uint i, uint n
+	) {
+		let outOfPlace = superdiag.get(i - 1, 0);
+		for (int s = 1; i - s >= 0; s++) {
+			let rotTo = (outOfPlace, diag.get(i - s, 0)).unit();
+			let co = rotTo.y;
+			let si = rotTo.x;
+
+			if (s == 1) {
+				superdiag.set(i - 1, 0, 0.0);
+			}
+			diag.set(i - s, 0, co * diag.get(i - s, 0) + si * outOfPlace);
+			if (i - s > 0) {
+				outOfPlace = -si * superdiag.get(i - s - 1, 0) /* + co * 0.0 */;
+				superdiag.set(i - s - 1, 0, co * superdiag.get(i - s - 1, 0) /* + si * 0.0 */);
+			}
+
+			svdMultiplyGivensMatrix(v, i - s, i, co, -si);
+		}
+	}
+
+	private static void svdRemoveSuperdiagonalZeroNotLast(
+		TCOTDGutamaticsMatrix diag, TCOTDGutamaticsMatrix superdiag,
+		TCOTDGutamaticsMatrix u,
+		uint i, uint n
+	) {
+		let outOfPlace = superdiag.get(i, 0);
+		for (int s = 1; i + s < n; s++) {
+			let rotTo = (outOfPlace, diag.get(i + s, 0)).unit();
+			let co = rotTo.y;
+			let si = rotTo.x;
+
+			if (s == 1) {
+				superdiag.set(i, 0, 0.0);
+			}
+			diag.set(i + s, 0, si * outOfPlace + co * diag.get(i + s, 0));
+			if (i + s < n - 1) {
+				outOfPlace = /* co * 0.0 + */ -si * superdiag.get(i + s, 0);
+				superdiag.set(i + s, 0, /* si * 0.0 + */ co * superdiag.get(i + s, 0));
+			}
+
+			svdMultiplyMatrixGivens(u, i, i + s, co, -si);
+		}
+	}
+
+	private static TCOTDGutamaticsMatrix svdBidiagToReprMatrix(TCOTDGutamaticsMatrix diag, TCOTDGutamaticsMatrix superdiag, uint n) {
+		let ret = TCOTDGutamaticsMatrix.create(n, n);
+		for (let i = 0u; i < n; i++) {
+			ret.set(i, i, diag.get(i, 0));
+		}
+		for (let i = 0u; i < n - 1; i++) {
+			ret.set(i, i + 1, superdiag.get(i, 0));
+		}
+		return ret;
+	}
+
+	TCOTDGutamaticsMatrix, TCOTDGutamaticsMatrix, TCOTDGutamaticsMatrix svdUnordered(uint maxit = 50) const {
+		// NOTE: this code is mostly entirely based on this article:
+		// https://www.cs.utexas.edu/users/inderjit/public_papers/HLA_SVD.pdf
+		// and a book it cites, Matrix Computations (3rd ed.).
+		// algorithm details are in those two sources, so this is lightly commented
+
+		let needsTranspose = self.rows < self.columns;
+		let b = needsTranspose ? self.transpose() : self.clone();
+		let n = b.columns;
+
+		maxit *= n;
+
+		let rowI = TCOTDGutamaticsMatrix.identity(b.columns);
+		let colI = TCOTDGutamaticsMatrix.identity(b.rows);
+
+		let u = colI.clone();
+		let v = rowI.clone();
+
+		// apply successive householder reflections to turn columns and rows
+		// to only have 0s in the right places
+		// i.e. bidiagonalize the matrix
+		for (let i = 0u; i < n; i++) {
+			// make column correct
+			{
+				let w = b.getCol(i);
+				for (let b = 0u; b < i; b++) {
+					w.set(b, 0, 0.0);
+				}
+				let colLength = w.norm();
+				w.set(i, 0, w.get(i, 0) - colLength);
+				let wLengthSquared = w.normSquared();
+				if (wLengthSquared != 0.0) {
+					let coeff = 2.0 / wLengthSquared;
+					svdMultiplyHouseholderMatrix(b, w, coeff);
+					svdMultiplyMatrixHouseholder(u, w, coeff);
+				}
+			}
+			// make row correct
+			if (i <= b.columns - 3) {
+				let w = b.getRow(i).transpose();
+				for (let b = 0u; b <= i; b++) {
+					w.set(b, 0, 0.0);
+				}
+				let rowLength = w.norm();
+				w.set(i + 1, 0, w.get(i + 1, 0) - rowLength);
+				let wLengthSquared = w.normSquared();
+				if (wLengthSquared != 0.0) {
+					let coeff = 2.0 / wLengthSquared;
+					svdMultiplyMatrixHouseholder(b, w, coeff);
+					svdMultiplyHouseholderMatrix(v, w, coeff);
+				}
+			}
+		}
+
+		// NOTE that the next part of the algorithm requires calculating
+		// eigenvalues of 2x2 submatrices and if the rows/columns == 1, that
+		// can't work luckily, the householder reflections will have solved the
+		// SVD anyway so no more work is necessary (this is because the
+		// singular value for a matrix like this is ||M||, which the
+		// reflections happen to set the top left element to)
+		if (self.rows == 1 || self.columns == 1) {
+			let diag = TCOTDGutamaticsMatrix.create(n, 1);
+			for (let i = 0u; i < n; i++) {
+				diag.set(i, 0, b.get(i, i));
+			}
+			if (needsTranspose) {
+				return v.transpose(), diag, u.transpose();
+			} else {
+				return u, diag, v;
+			}
+		}
+
+		// the book says to use a small multiple of the machine epsilon, i guess 4 is small
+		let EPSILON = 4.0 * double.epsilon;
+
+		// we now effectively throw away B as operations from this point on are
+		// completely inlined for performance
+		let diag = TCOTDGutamaticsMatrix.create(n, 1);
+		for (let i = 0u; i < n; i++) {
+			diag.set(i, 0, b.get(i, i));
+		}
+		let superdiag = TCOTDGutamaticsMatrix.create(n - 1, 1);
+		for (let i = 0u; i < n - 1; i++) {
+			superdiag.set(i, 0, b.get(i, i + 1));
+		}
+		for (let r = 0u; r < b.rows; r++) {
+			for (let c = 0u; c < b.columns; c++) {
+				if (r != c) {
+					b.set(r, c, 0.0);
+				}
+			}
+		}
+
+		let count = 0;
+		// apply successive givens rotations to decrease the magnitude of superdiagonal elements
+		while (true) {
+			if (count > maxit) {
+				break;
+			}
+			count += 1;
+			// get the matrices norm to do an epsilon check on diagonal entries
+			let bNorm = 0.0;
+			for (let i = 0u; i < n; i++) {
+				let val = diag.get(i, 0);
+				bNorm += val * val;
+				if (i != n - 1) {
+					let val = superdiag.get(i, 0);
+					bNorm += val * val;
+				}
+			}
+			bNorm = sqrt(bNorm);
+			// standard epsilon checks from the book
+			for (let i = 0u; i < n; i++) {
+				if (abs(diag.get(i, 0)) <= EPSILON * bNorm) {
+					diag.set(i, 0, 0.0);
+				}
+			}
+			for (let i = 0u; i < n - 1; i++) {
+				if (abs(superdiag.get(i, 0)) <= EPSILON * (abs(diag.get(i, 0)) + abs(diag.get(i + 1, 0)))) {
+					superdiag.set(i, 0, 0.0);
+				}
+			}
+			// see the sources for what p and q are - we calculate them by looking at superdiagonal elements
+			let q = 0u;
+			for (let qi = 0u; qi <= n; qi++) {
+				if (qi == n - 1) {
+					q = n;
+					break;
+				}
+				if (superdiag.get(n - qi - 2, 0) != 0.0) {
+					q = qi;
+					break;
+				}
+			}
+			// if the entire matrix is diagonal we're done
+			if (q == n) {
+				if (needsTranspose) {
+					return v.transpose(), diag, u.transpose();
+				} else {
+					return u, diag, v;
+				}
+			}
+			let p = 0u;
+			for (let pi = n - q - 1; pi >= 0; pi--) {
+				if (pi == 0 || superdiag.get(pi - 1, 0) == 0.0) {
+					p = pi;
+					break;
+				}
+			}
+
+			let anyZeros = false;
+			for (let i = p; i < n - q; i++) {
+				// if a diagonal is 0...
+				if (diag.get(i, 0) == 0.0) {
+					// and its not the final diagonal element, and the one next to it is 0...
+					if (i != n - 1 && superdiag.get(i, 0) != 0.0) {
+						// remove the superdiagonal zero by applying successive givens rotations
+						svdRemoveSuperdiagonalZeroNotLast(diag, superdiag, u, i, n);
+						anyZeros = true;
+						break;
+					// and it *is* the final diagonal element, and the one above it is 0...
+					} else if (i == n - 1 && superdiag.get(i - 1, 0) != 0.0) {
+						// remove the superdiagonal zero by applying successive givens rotations
+						svdRemoveSuperdiagonalZeroLast(diag, superdiag, v, i, n);
+						anyZeros = true;
+						break;
+					}
+				}
+			}
+			if (anyZeros) {
+				continue;
+			}
+
+			// this is an inlined calculation for the eigenvalues of the 2x2
+			// bottom right corner of B11^T * B11, which is equivalent to dot
+			// products of the columns of B11, of which the vast majority of
+			// entries are zero, so we only consider the ones that aren't zero
+
+			// diagram of entries:
+			// r0c0  0
+			// r1c1 r1c1
+			//  0   r2c1
+			// note that r0c0 might be outside of the matrix if it is 2x2, so guard against that
+
+			let r0c0 = (n - p - q - 3 >= 0) ? superdiag.get(n - p - q - 3, 0) : 0.0;
+			let r1c1 =                        superdiag.get(n - p - q - 2, 0);
+
+			let r1c0 = diag.get(n - p - q - 2, 0);
+			let r2c1 = diag.get(n - p - q - 1, 0);
+
+			// do the dot products - B11^T * B11 is definitely symmetric so c10 == c01
+			let c00 = r0c0 * r0c0 + r1c0 * r1c0;
+			let c01 = r1c0 * r1c1;
+			let c10 = c01;
+			let c11 = r1c1 * r1c1 + r2c1 * r2c1;
+
+			// compute the eigenvalues from a standard expression for 2x2
+			// eigenvalues based on the trace and determinant
+			let cTr = c00 + c11;
+			let cDet = c00 * c11 - c01 * c10;
+			let cTr2 = cTr / 2.0;
+			let plusOrMinus = sqrt(cTr * cTr - 4 * cDet) / 2.0;
+			let mu0 = cTr2 + plusOrMinus;
+			let mu1 = cTr2 - plusOrMinus;
+			// mu is defined as the closest eigenvalue to c11
+			let mu = 0.0;
+			if (abs(mu0 - c11) < abs(mu1 - c11)) {
+				mu = mu0;
+			} else {
+				mu = mu1;
+			}
+			let bpp = diag.get(p, 0);
+			let alpha = bpp * bpp - mu;
+			let beta = bpp * superdiag.get(p, 0);
+
+			// see the paper and book for more details, but essentially here we
+			// apply successive givens rotations which first introduce an
+			// off-bidiagonal element on purpose, and then "chase" it down the
+			// matrix to eventually get rid of it - with a correct choice of
+			// off-bidiagonal element (which is controlled by the choice for
+			// mu), the superdiagonal elements will reduce in magnitude in the
+			// process, and the diagonal elements will converge towards the
+			// singular values
+			let offDiag = 0.0;
+			for (let k = p; k < n - q - 1; k++) {
+				{
+					offDiag = svdMultiplyBidiagGivensK(alpha, beta, diag, superdiag, offDiag, v, k, n);
+					alpha = diag.get(k, 0);
+					beta = offDiag;
+				}
+				{
+					offDiag = svdMultiplyGivensBidiagK(alpha, beta, diag, superdiag, offDiag, u, k, n);
+					if (k < n - q - 2) {
+						alpha = superdiag.get(k, 0);
+						beta = offDiag;
+					}
+				}
+			}
+		}
+		return NULL, NULL, NULL;
+	}
+
+	TCOTDGutamaticsMatrix, TCOTDGutamaticsMatrix, TCOTDGutamaticsMatrix svd(uint maxit = 100) const {
+		TCOTDGutamaticsMatrix u, sigma, vt;
+		[u, sigma, vt] = self.svdUnordered(maxit);
+		if (sigma == NULL) {
+			return NULL, NULL, NULL;
+		}
+		Array<uint> indexMap;
+		for (let i = 0u; i < max(self.columns, self.rows); i++) {
+			indexMap.push(i);
+		}
+		for (let i = 1; i < sigma.rows; i++) {
+			let j = i;
+			while (j > 0 && sigma.get(j - 1, 0) < sigma.get(j, 0)) {
+				sigma.swapEntries(j - 1, 0, j, 0);
+				{
+					let tmp = indexMap[j - 1];
+					indexMap[j - 1] = indexMap[j];
+					indexMap[j] = tmp;
+				}
+				j = j - 1;
+			}
+		}
+
+		let newU = TCOTDGutamaticsMatrix.create(u.rows, u.columns);
+		let newVT = TCOTDGutamaticsMatrix.create(vt.rows, vt.columns);
+		for (let i = 0u; i < indexMap.size(); i++) {
+			let origI = indexMap[i];
+			if (i < newU.columns) {
+				newU.setCol(i, u.getCol(origI));
+			}
+			if (i < newVT.rows) {
+				newVT.setRow(i, vt.getRow(origI));
+			}
+		}
+
+		return newU, sigma, newVT;
+	}
+
+	TCOTDGutamaticsMatrix diagToMatrix(uint rows, uint columns) const {
+		let ret = TCOTDGutamaticsMatrix.create(rows, columns);
+		for (let i = 0u; i < self.rows; i++) {
+			ret.set(i, i, self.get(i, 0));
+		}
+		return ret;
+	}
+
+	TCOTDGutamaticsMatrix pInv() const {
+		TCOTDGutamaticsMatrix u, sigma, vt;
+		[u, sigma, vt] = self.svdUnordered();
+		let maxSigma = 0.0;
+		for (let i = 0u; i < sigma.rows; i++) {
+			maxSigma = max(maxSigma, sigma.get(i, 0));
+		}
+		let t = double.epsilon * max(self.rows, self.columns) * maxSigma;
+		for (let i = 0u; i < sigma.rows; i++) {
+			let val = sigma.get(i, 0);
+			if (val < t) {
+				sigma.set(i, 0, 0.0);
+			} else {
+				sigma.set(i, 0, 1.0 / val);
+			}
+		}
+		let sigmaPlus = sigma.diagToMatrix(self.columns, self.rows);
+		return vt.transposeMultiply(sigmaPlus).multiplyTranspose(u);
+	}
+
+	String repr() const {
+		let scientific = false;
+		for (let i = 0u; i < self.values.size(); i++) {
+			let val = self.values[i];
+			scientific |= (abs(TCOTDGutamaticsGlobalMaths.getDoubleExponent(val)) > 4);
+			if (scientific) {
+				break;
+			}
+		}
+		Array<String> strs;
+		for (let i = 0u; i < self.values.size(); i++) {
+			let val = self.values[i];
+			let str = scientific ? String.format("%e", val) : String.format("%g", val);
+			if (!scientific && val != double.infinity && val == val && str.indexOf(".") == -1) {
+				str.appendFormat(".0");
+			}
+			strs.push(str);
+		}
+		Array<uint> pointIndices;
+		let maxPointIndex = 0;
+		for (let i = 0u; i < self.values.size(); i++) {
+			let str = strs[i];
+			let pointIndex = str.indexOf(".");
+			if (pointIndex == -1) {
+				pointIndex = 0;
+			}
+			pointIndices.push(pointIndex);
+			maxPointIndex = max(maxPointIndex, str.indexOf("."));
+		}
+		for (let i = 0u; i < self.values.size(); i++) {
+			let str = strs[i];
+			strs[i] = String.format(
+				"% " .. str.length() + (maxPointIndex - pointIndices[i]) .. "s",
+				str
+			);
+		}
+		let maxLength = 0;
+		for (let i = 0u; i < self.values.size(); i++) {
+			let str = strs[i];
+			maxLength = max(maxLength, str.length());
+		}
+
+		String ret = "";
+		let fmt = "%-" .. maxLength .. "s";
+		for (let r = 0u; r < self.rows; r++) {
+			ret.appendFormat(r == 0 ? "[[ " : "\n [ ");
+			for (let c = 0u; c < self.columns; c++) {
+				ret.appendFormat(fmt, strs[self.columns * r + c]);
+				if (c != self.columns - 1) {
+					ret.appendFormat(", ");
+				}
+			}
+			ret.appendFormat(" ]");
+			if (r != self.rows - 1) {
+				ret.appendFormat(",");
+			}
+		}
+		ret.appendFormat("]");
+		return ret;
+	}
+
+	/// Returns the Matrix in Vector2 form, optionally dividing by z.
+	Vector2 asVector2(bool divideZ = true) const {
+		if (columns != 1 || rows != 3) {
+			throwAbortException("Error: <%p>.asVector2() - Matrix needs to be 3 * 1", self);
+		}
+		if (divideZ) return (get(0, 0), get(1, 0)) / get(2, 0);
+		else         return (get(0, 0), get(1, 0));
+	}
+
+	/// Returns the Matrix in Vector3 form, optionally dividing by w.
+	Vector3 asVector3(bool divideW = true) const {
+		if (columns != 1 || rows != 4) {
+			throwAbortException("Error: <%p>.asVector3() - Matrix needs to be 4 * 1", self);
+		}
+		if (divideW) return (get(0, 0), get(1, 0), get(2, 0)) / get(3, 0);
+		else         return (get(0, 0), get(1, 0), get(2, 0));
+	}
+
+	/// Returns the number of columns.
+	int getColumns() const {
+		return columns;
+	}
+
+	/// Returns the number of rows.
+	int getRows() const {
+		return rows;
+	}
+}
