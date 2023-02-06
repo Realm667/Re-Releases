@@ -1,0 +1,158 @@
+// Copyright 2023 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+class TCOTDObjective : Inventory abstract
+{
+	enum EObjectiveState
+	{
+		OBJECTIVE_INCOMPLETE,
+		OBJECTIVE_COMPLETE,
+		OBJECTIVE_FAIL
+	}
+
+	private uint objectiveState;
+
+	Default
+	{
+		Inventory.Amount 1;
+		Inventory.MaxAmount 1;
+		+Inventory.UNDROPPABLE
+		+Inventory.UNTOSSABLE
+		-Inventory.INVBAR
+	}
+
+	override void AttachToOwner(Actor other)
+	{
+		Super.AttachToOwner(other);
+
+		if (Owner && Owner is "PlayerPawn")
+		{
+			String t = "";
+			if (GetClass() == "TCOTDObjective")
+			{
+				t = "$OBJECTIVE_DEFAULT";
+			}
+			else
+			{
+				t = "$OBJECTIVE_" .. GetClassName();
+			}
+
+			SetTag(t);
+		}
+	}
+
+	static void Add(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
+	{
+		if (!pmo || !cls)
+			return;
+
+		// if no player is specified, add it to all players
+		if (pmo)
+		{
+			pmo.GiveInventory(cls, 1);
+		}
+		else
+		{
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i])
+				{
+					let pmo = players[i].mo;
+					pmo.GiveInventory(cls, 1);
+				}
+			}
+		}
+	}
+
+	static void Delete(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
+	{
+		if (!pmo || !cls)
+			return;
+
+		// if no player is specified, delete it from all players
+		if (pmo)
+		{
+			pmo.TakeInventory(cls, int.max);
+		}
+		else
+		{
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i])
+				{
+					let pmo = players[i].mo;
+					pmo.TakeInventory(cls, int.max);
+				}
+			}
+		}
+	}
+
+	private static void SetCompletion(class<TCOTDObjective> cls, uint set, PlayerPawn pmo = NULL)
+	{
+		if (!pmo || !cls)
+			return;
+
+		// if no player is specified, complete it for all players
+		if (pmo)
+		{
+			let obj = TCOTDObjective(pmo.FindInventory(cls));
+			if (obj)
+			{
+				obj.objectiveState = set;
+			}
+		}
+		else
+		{
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i])
+				{
+					let pmo = players[i].mo;
+					let obj = TCOTDObjective(pmo.FindInventory(cls));
+					if (obj)
+					{
+						obj.objectiveState = set;
+					}
+				}
+			}
+		}
+	}
+
+	static void Complete(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
+	{
+		SetCompletion(cls, TCOTDObjective.OBJECTIVE_COMPLETE, pmo);
+	}
+
+	static void Incomplete(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
+	{
+		SetCompletion(cls, TCOTDObjective.OBJECTIVE_INCOMPLETE, pmo);
+	}
+
+	static void Fail(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
+	{
+		SetCompletion(cls, TCOTDObjective.OBJECTIVE_FAIL, pmo);
+	}
+}

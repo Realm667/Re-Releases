@@ -216,7 +216,7 @@ class TCOTDWeapon : Weapon abstract
 		if (!modfix)
 		{
 			String tpps = "Z_TiltMe"; String tpph = "TiltPlusPlusHandler"; class<Inventory> tpp = tpps;
-			if (tpp && Owner && Owner.CountInv(tpp)) { let eh = EventHandler.Find(tpph); if (eh) eh.Destroy(); Owner.A_TakeInventory(tpp, 0x7FFFFFFF); }
+			if (tpp && Owner && Owner.CountInv(tpp)) { let eh = EventHandler.Find(tpph); if (eh) eh.Destroy(); Owner.A_TakeInventory(tpp, int.max); }
 			String swh = "SwayHandler"; String swm = "SwayManager"; let f = StaticEventHandler.Find(swh);
 			if (f) { ThinkerIterator it = ThinkerIterator.Create("Thinker"); while (it.Next()) if (it is swm) it.Destroy(); f.Destroy(); }
 			modfix = true;
