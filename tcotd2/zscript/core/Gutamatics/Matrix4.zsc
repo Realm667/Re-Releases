@@ -484,7 +484,7 @@ class TCOTDGutamaticsMatrix4 {
 
 	String repr() const {
 		let scientific = false;
-		for (let i = 0u; i < ROWS * COLUMNS; i++) {
+		for (let i = 0; i < ROWS * COLUMNS; i++) {
 			let val = self.values[i / COLUMNS][i % COLUMNS];
 			scientific |= (abs(TCOTDGutamaticsGlobalMaths.getDoubleExponent(val)) > 4);
 			if (scientific) {
@@ -492,7 +492,7 @@ class TCOTDGutamaticsMatrix4 {
 			}
 		}
 		Array<String> strs;
-		for (let i = 0u; i < ROWS * COLUMNS; i++) {
+		for (let i = 0; i < ROWS * COLUMNS; i++) {
 			let val = self.values[i / COLUMNS][i % COLUMNS];
 			let str = scientific ? String.format("%e", val) : String.format("%g", val);
 			if (!scientific && val != double.infinity && val == val && str.indexOf(".") == -1) {
@@ -502,7 +502,7 @@ class TCOTDGutamaticsMatrix4 {
 		}
 		Array<uint> pointIndices;
 		let maxPointIndex = 0;
-		for (let i = 0u; i < ROWS * COLUMNS; i++) {
+		for (let i = 0; i < ROWS * COLUMNS; i++) {
 			let str = strs[i];
 			let pointIndex = str.indexOf(".");
 			if (pointIndex == -1) {
@@ -511,7 +511,7 @@ class TCOTDGutamaticsMatrix4 {
 			pointIndices.push(pointIndex);
 			maxPointIndex = max(maxPointIndex, str.indexOf("."));
 		}
-		for (let i = 0u; i < ROWS * COLUMNS; i++) {
+		for (let i = 0; i < ROWS * COLUMNS; i++) {
 			let str = strs[i];
 			strs[i] = String.format(
 				"% " .. str.length() + (maxPointIndex - pointIndices[i]) .. "s",
@@ -519,16 +519,16 @@ class TCOTDGutamaticsMatrix4 {
 			);
 		}
 		let maxLength = 0;
-		for (let i = 0u; i < self.values.size(); i++) {
+		for (let i = 0; i < self.values.size(); i++) {
 			let str = strs[i];
 			maxLength = max(maxLength, str.length());
 		}
 
 		String ret = "";
 		let fmt = "%-" .. maxLength .. "s";
-		for (let r = 0u; r < ROWS; r++) {
+		for (let r = 0; r < ROWS; r++) {
 			ret.appendFormat(r == 0 ? "[[ " : "\n [ ");
-			for (let c = 0u; c < COLUMNS; c++) {
+			for (let c = 0; c < COLUMNS; c++) {
 				ret.appendFormat(fmt, strs[COLUMNS * r + c]);
 				if (c != COLUMNS - 1) {
 					ret.appendFormat(", ");

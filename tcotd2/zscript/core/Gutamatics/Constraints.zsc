@@ -69,7 +69,7 @@ class TCOTDGutamaticsExpr {
 
 	void negate() {
 		self.constant = -self.constant;
-		for (let i = 0u; i < self.terms.size(); i++) {
+		for (let i = 0; i < self.terms.size(); i++) {
 			let t = self.terms[i];
 			t.coefficient = -t.coefficient;
 		}
@@ -84,14 +84,14 @@ class TCOTDGutamaticsExpr {
 		return self;
 	}
 	TCOTDGutamaticsExpr addAssignExpression(TCOTDGutamaticsExpr e) {
-		for (let i = 0u; i < e.terms.size(); i++) {
+		for (let i = 0; i < e.terms.size(); i++) {
 			self.terms.push(e.terms[i]);
 		}
 		self.constant += e.constant;
 		return self;
 	}
 	TCOTDGutamaticsExpr mulAssign(double coeff) {
-		for (let i = 0u; i < self.terms.size(); i++) {
+		for (let i = 0; i < self.terms.size(); i++) {
 			self.terms[i].coefficient *= coeff;
 		}
 		self.constant *= coeff;
@@ -546,7 +546,7 @@ class TCOTDGutamaticsSolver {
 		self.optimise(objective);
 
 		let cexpr = constraint.getExpr();
-		for (let i = 0u; i < cexpr.terms.size(); i++) {
+		for (let i = 0; i < cexpr.terms.size(); i++) {
 			let term = cexpr.terms[i];
 			if (!TCOTDGutamaticsGlobalMaths.nearZero(term.coefficient)) {
 				let shouldRemove = false;
@@ -754,8 +754,8 @@ class TCOTDGutamaticsSolver {
 	private TCOTDGutamaticsRow, TCOTDGutamaticsTag createRow(TCOTDGutamaticsConstraint constraint) {
 		let expr = constraint.getExpr();
 		let row = TCOTDGutamaticsRow.create(expr.constant);
-		for (let i = 0u; i < expr.terms.size(); i++) {
-			let term = expr.terms[i]; 
+		for (let i = 0; i < expr.terms.size(); i++) {
+			let term = expr.terms[i];
 			if (!TCOTDGutamaticsGlobalMaths.nearZero(term.coefficient)) {
 				let symbol = self.getVarSymbol(term.variable);
 				let o = self.rows.get(symbol);
@@ -950,7 +950,7 @@ class TCOTDGutamaticsSolver {
 	}
 
 	private void dualOptimise() {
-		while (self.infeasibleRows.size() != 0u) {
+		while (self.infeasibleRows.size() != 0) {
 			let leaving = self.infeasibleRows[self.infeasibleRows.size() - 1];
 			self.infeasibleRows.pop();
 

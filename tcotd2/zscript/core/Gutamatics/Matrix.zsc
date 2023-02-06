@@ -469,25 +469,25 @@ class TCOTDGutamaticsMatrix {
 
 	TCOTDGutamaticsMatrix getCol(uint col) const {
 		let ret = TCOTDGutamaticsMatrix.create(self.rows, 1);
-		for (let r = 0u; r < self.rows; r++) {
+		for (let r = 0; r < self.rows; r++) {
 			ret.set(r, 0, self.get(r, col));
 		}
 		return ret;
 	}
 	void setCol(uint col, TCOTDGutamaticsMatrix m) {
-		for (let r = 0u; r < self.rows; r++) {
+		for (let r = 0; r < self.rows; r++) {
 			self.set(r, col, m.get(r, 0));
 		}
 	}
 	TCOTDGutamaticsMatrix getRow(uint row) const {
 		let ret = TCOTDGutamaticsMatrix.create(1, self.columns);
-		for (let c = 0u; c < self.columns; c++) {
+		for (let c = 0; c < self.columns; c++) {
 			ret.set(0, c, self.get(row, c));
 		}
 		return ret;
 	}
 	void setRow(uint row, TCOTDGutamaticsMatrix m) {
-		for (let c = 0u; c < self.columns; c++) {
+		for (let c = 0; c < self.columns; c++) {
 			self.set(row, c, m.get(0, c));
 		}
 	}
@@ -628,7 +628,7 @@ class TCOTDGutamaticsMatrix {
 			i = j;
 			j = tmp;
 		}
-		for (let col = 0u; col < m.columns; col++) {
+		for (let col = 0; col < m.columns; col++) {
 			let topVal = m.get(i, col);
 			let botVal = m.get(j, col);
 
@@ -643,7 +643,7 @@ class TCOTDGutamaticsMatrix {
 			i = j;
 			j = tmp;
 		}
-		for (let row = 0u; row < m.rows; row++) {
+		for (let row = 0; row < m.rows; row++) {
 			let leftVal = m.get(row, i);
 			let rightVal = m.get(row, j);
 
@@ -732,11 +732,11 @@ class TCOTDGutamaticsMatrix {
 		// apply successive householder reflections to turn columns and rows
 		// to only have 0s in the right places
 		// i.e. bidiagonalize the matrix
-		for (let i = 0u; i < n; i++) {
+		for (let i = 0; i < n; i++) {
 			// make column correct
 			{
 				let w = b.getCol(i);
-				for (let b = 0u; b < i; b++) {
+				for (let b = 0; b < i; b++) {
 					w.set(b, 0, 0.0);
 				}
 				let colLength = w.norm();
@@ -751,7 +751,7 @@ class TCOTDGutamaticsMatrix {
 			// make row correct
 			if (i <= b.columns - 3) {
 				let w = b.getRow(i).transpose();
-				for (let b = 0u; b <= i; b++) {
+				for (let b = 0; b <= i; b++) {
 					w.set(b, 0, 0.0);
 				}
 				let rowLength = w.norm();
@@ -773,7 +773,7 @@ class TCOTDGutamaticsMatrix {
 		// reflections happen to set the top left element to)
 		if (self.rows == 1 || self.columns == 1) {
 			let diag = TCOTDGutamaticsMatrix.create(n, 1);
-			for (let i = 0u; i < n; i++) {
+			for (let i = 0; i < n; i++) {
 				diag.set(i, 0, b.get(i, i));
 			}
 			if (needsTranspose) {
@@ -789,22 +789,22 @@ class TCOTDGutamaticsMatrix {
 		// we now effectively throw away B as operations from this point on are
 		// completely inlined for performance
 		let diag = TCOTDGutamaticsMatrix.create(n, 1);
-		for (let i = 0u; i < n; i++) {
+		for (let i = 0; i < n; i++) {
 			diag.set(i, 0, b.get(i, i));
 		}
 		let superdiag = TCOTDGutamaticsMatrix.create(n - 1, 1);
-		for (let i = 0u; i < n - 1; i++) {
+		for (let i = 0; i < n - 1; i++) {
 			superdiag.set(i, 0, b.get(i, i + 1));
 		}
-		for (let r = 0u; r < b.rows; r++) {
-			for (let c = 0u; c < b.columns; c++) {
+		for (let r = 0; r < b.rows; r++) {
+			for (let c = 0; c < b.columns; c++) {
 				if (r != c) {
 					b.set(r, c, 0.0);
 				}
 			}
 		}
 
-		let count = 0;
+		let count = 0u;
 		// apply successive givens rotations to decrease the magnitude of superdiagonal elements
 		while (true) {
 			if (count > maxit) {
@@ -813,7 +813,7 @@ class TCOTDGutamaticsMatrix {
 			count += 1;
 			// get the matrices norm to do an epsilon check on diagonal entries
 			let bNorm = 0.0;
-			for (let i = 0u; i < n; i++) {
+			for (let i = 0; i < n; i++) {
 				let val = diag.get(i, 0);
 				bNorm += val * val;
 				if (i != n - 1) {
@@ -823,19 +823,19 @@ class TCOTDGutamaticsMatrix {
 			}
 			bNorm = sqrt(bNorm);
 			// standard epsilon checks from the book
-			for (let i = 0u; i < n; i++) {
+			for (let i = 0; i < n; i++) {
 				if (abs(diag.get(i, 0)) <= EPSILON * bNorm) {
 					diag.set(i, 0, 0.0);
 				}
 			}
-			for (let i = 0u; i < n - 1; i++) {
+			for (let i = 0; i < n - 1; i++) {
 				if (abs(superdiag.get(i, 0)) <= EPSILON * (abs(diag.get(i, 0)) + abs(diag.get(i + 1, 0)))) {
 					superdiag.set(i, 0, 0.0);
 				}
 			}
 			// see the sources for what p and q are - we calculate them by looking at superdiagonal elements
-			let q = 0u;
-			for (let qi = 0u; qi <= n; qi++) {
+			let q = 0;
+			for (let qi = 0; qi <= n; qi++) {
 				if (qi == n - 1) {
 					q = n;
 					break;
@@ -853,7 +853,7 @@ class TCOTDGutamaticsMatrix {
 					return u, diag, v;
 				}
 			}
-			let p = 0u;
+			let p = 0;
 			for (let pi = n - q - 1; pi >= 0; pi--) {
 				if (pi == 0 || superdiag.get(pi - 1, 0) == 0.0) {
 					p = pi;
@@ -960,7 +960,7 @@ class TCOTDGutamaticsMatrix {
 			return NULL, NULL, NULL;
 		}
 		Array<uint> indexMap;
-		for (let i = 0u; i < max(self.columns, self.rows); i++) {
+		for (let i = 0; i < max(self.columns, self.rows); i++) {
 			indexMap.push(i);
 		}
 		for (let i = 1; i < sigma.rows; i++) {
@@ -978,7 +978,7 @@ class TCOTDGutamaticsMatrix {
 
 		let newU = TCOTDGutamaticsMatrix.create(u.rows, u.columns);
 		let newVT = TCOTDGutamaticsMatrix.create(vt.rows, vt.columns);
-		for (let i = 0u; i < indexMap.size(); i++) {
+		for (let i = 0; i < indexMap.size(); i++) {
 			let origI = indexMap[i];
 			if (i < newU.columns) {
 				newU.setCol(i, u.getCol(origI));
@@ -993,7 +993,7 @@ class TCOTDGutamaticsMatrix {
 
 	TCOTDGutamaticsMatrix diagToMatrix(uint rows, uint columns) const {
 		let ret = TCOTDGutamaticsMatrix.create(rows, columns);
-		for (let i = 0u; i < self.rows; i++) {
+		for (let i = 0; i < self.rows; i++) {
 			ret.set(i, i, self.get(i, 0));
 		}
 		return ret;
@@ -1003,11 +1003,11 @@ class TCOTDGutamaticsMatrix {
 		TCOTDGutamaticsMatrix u, sigma, vt;
 		[u, sigma, vt] = self.svdUnordered();
 		let maxSigma = 0.0;
-		for (let i = 0u; i < sigma.rows; i++) {
+		for (let i = 0; i < sigma.rows; i++) {
 			maxSigma = max(maxSigma, sigma.get(i, 0));
 		}
 		let t = double.epsilon * max(self.rows, self.columns) * maxSigma;
-		for (let i = 0u; i < sigma.rows; i++) {
+		for (let i = 0; i < sigma.rows; i++) {
 			let val = sigma.get(i, 0);
 			if (val < t) {
 				sigma.set(i, 0, 0.0);
@@ -1021,7 +1021,7 @@ class TCOTDGutamaticsMatrix {
 
 	String repr() const {
 		let scientific = false;
-		for (let i = 0u; i < self.values.size(); i++) {
+		for (let i = 0; i < self.values.size(); i++) {
 			let val = self.values[i];
 			scientific |= (abs(TCOTDGutamaticsGlobalMaths.getDoubleExponent(val)) > 4);
 			if (scientific) {
@@ -1029,7 +1029,7 @@ class TCOTDGutamaticsMatrix {
 			}
 		}
 		Array<String> strs;
-		for (let i = 0u; i < self.values.size(); i++) {
+		for (let i = 0; i < self.values.size(); i++) {
 			let val = self.values[i];
 			let str = scientific ? String.format("%e", val) : String.format("%g", val);
 			if (!scientific && val != double.infinity && val == val && str.indexOf(".") == -1) {
@@ -1039,7 +1039,7 @@ class TCOTDGutamaticsMatrix {
 		}
 		Array<uint> pointIndices;
 		let maxPointIndex = 0;
-		for (let i = 0u; i < self.values.size(); i++) {
+		for (let i = 0; i < self.values.size(); i++) {
 			let str = strs[i];
 			let pointIndex = str.indexOf(".");
 			if (pointIndex == -1) {
@@ -1048,7 +1048,7 @@ class TCOTDGutamaticsMatrix {
 			pointIndices.push(pointIndex);
 			maxPointIndex = max(maxPointIndex, str.indexOf("."));
 		}
-		for (let i = 0u; i < self.values.size(); i++) {
+		for (let i = 0; i < self.values.size(); i++) {
 			let str = strs[i];
 			strs[i] = String.format(
 				"% " .. str.length() + (maxPointIndex - pointIndices[i]) .. "s",
@@ -1056,16 +1056,16 @@ class TCOTDGutamaticsMatrix {
 			);
 		}
 		let maxLength = 0;
-		for (let i = 0u; i < self.values.size(); i++) {
+		for (let i = 0; i < self.values.size(); i++) {
 			let str = strs[i];
 			maxLength = max(maxLength, str.length());
 		}
 
 		String ret = "";
 		let fmt = "%-" .. maxLength .. "s";
-		for (let r = 0u; r < self.rows; r++) {
+		for (let r = 0; r < self.rows; r++) {
 			ret.appendFormat(r == 0 ? "[[ " : "\n [ ");
-			for (let c = 0u; c < self.columns; c++) {
+			for (let c = 0; c < self.columns; c++) {
 				ret.appendFormat(fmt, strs[self.columns * r + c]);
 				if (c != self.columns - 1) {
 					ret.appendFormat(", ");

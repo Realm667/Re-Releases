@@ -77,7 +77,7 @@ class TCOTDGutamaticsHashUnoccupied {}
 class TCOTDGutamaticsKVStorage {
 	Array<Object> keys;
 	Array<Object> values;
-	uint loadCount;
+	int loadCount;
 
 	TCOTDGutamaticsHashUnoccupied unoccupied;
 
@@ -113,7 +113,7 @@ class TCOTDGutamaticsKVStorage {
 
 		newKV.clear();
 
-		for (let i = 0u; i < self.keys.size(); i++) {
+		for (let i = 0; i < self.keys.size(); i++) {
 			let k = self.keys[i];
 			if (k != self.empty && k != self.tombstone) {
 				newKV.insert(k, self.values[i], hasher);
@@ -182,7 +182,7 @@ class TCOTDGutamaticsKVStorage {
 	}
 
 	bool isEmpty() {
-		for (let i = 0u; i < self.keys.size(); i++) {
+		for (let i = 0; i < self.keys.size(); i++) {
 			let k = self.keys[i];
 			if (k != self.empty && k != self.tombstone) {
 				return false;
@@ -192,17 +192,17 @@ class TCOTDGutamaticsKVStorage {
 	}
 
 	void clear() {
-		for (let i = 0u; i < self.keys.size(); i++) {
+		for (let i = 0; i < self.keys.size(); i++) {
 			self.keys[i] = self.empty;
 			self.values[i] = NULL;
 		}
-		self.loadCount = 0u;
+		self.loadCount = 0;
 	}
 }
 
 class TCOTDGutamaticsHashMapIterator {
 	private TCOTDGutamaticsKVStorage m;
-	private uint i;
+	private int i;
 
 	static TCOTDGutamaticsHashMapIterator internalCreate(TCOTDGutamaticsKVStorage kv) {
 		let ret = new();
@@ -278,7 +278,7 @@ class TCOTDGutamaticsHashMap {
 
 	String debugRepr() {
 		let ret = "";
-		for (let i = 0u; i < self.kv.keys.size(); i++) {
+		for (let i = 0; i < self.kv.keys.size(); i++) {
 			ret.appendFormat("%d : ", i);
 			let k = self.kv.keys[i];
 			if (k == self.kv.empty) {
