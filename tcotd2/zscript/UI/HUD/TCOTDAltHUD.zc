@@ -8,6 +8,16 @@ class TCOTDAltHud : AltHud
 	//
 	// ----------------------------------------------------------------------------------------
 
+	bool IsJournalOpen ()
+	{
+		let mnu = Menu.GetCurrentMenu();
+		return mnu && mnu is 'TCOTDJournalMenu';
+	}
+
+	// ----------------------------------------------------------------------------------------
+	//
+	// ----------------------------------------------------------------------------------------
+
 	void DrawPendant (TCOTDPendant pendant, int x, int y)
 	{
 		DrawImageToBox(TexMan.CheckForTexture("PENDB0", TexMan.Type_MiscPatch), x, y, 31, 17);
@@ -65,8 +75,8 @@ class TCOTDAltHud : AltHud
 
 	override void DrawInGame (PlayerInfo CPlayer)
 	{
-		// No HUD in the title level or during cutscenes.
-		if (gamestate == GS_TITLELEVEL || !CPlayer || CPlayer.mo.FindInventory('CutsceneEnabled')) return;
+		// No HUD in the title level, during cutscenes or if the journal is open.
+		if (gamestate == GS_TITLELEVEL || !CPlayer || CPlayer.mo.FindInventory('CutsceneEnabled') || IsJournalOpen()) return;
 
 		let pendant = TCOTDPendant(CPlayer.mo.FindInventory('TCOTDPendant'));
 
