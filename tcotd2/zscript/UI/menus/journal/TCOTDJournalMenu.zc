@@ -32,6 +32,10 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	TCOTDZFHandler handler;
 	PlayerPawn pmo;
 
+	TCOTDZFImage mainBackground;
+	TCOTDZFScrollableFrame objectivesFrame;
+	TCOTDZFScrollableFrame notesFrame;
+
 	//===========================================================================
 	//
 	//
@@ -48,10 +52,13 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 
 		handler = new('TCOTDZFHandler');
 
-		let mainBackgroundPos = (196, 80);
-		let mainBackgroundSize = (RES_WIDTH, RES_HEIGHT);
-		let mainBackgroundImage = "graphics/journal/journal_main.png";
-		let mainBackground = new('TCOTDZFImage').Init(mainBackgroundPos, mainBackgroundSize, mainBackgroundImage, TCOTDZFImage.AlignType_TopLeft);
+		mainBackground = new('TCOTDZFImage').Init
+		(
+			(196, 80),
+			(RES_WIDTH, RES_HEIGHT),
+			"graphics/journal/journal_main.png",
+			TCOTDZFImage.AlignType_TopLeft
+		);
 		mainBackground.Pack(mainFrame);
 	}
 

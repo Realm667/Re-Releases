@@ -1,0 +1,24 @@
+class TCOTDZFColoredFrame : TCOTDZFFrame
+{
+}
+
+class TCOTDZFScrollBar : TCOTDZFColoredFrame
+{
+}
+
+class TCOTDZFJournalItem : TCOTDZFButton
+{
+	// pointer to the item this button will act upon
+	Inventory item;
+}
+
+class TCOTDZFScrollableFrame : TCOTDZFColoredFrame
+{
+	bool shouldRefresh;
+
+	// the type of item to list
+	class<TCOTDZFJournalItem> itemClass;
+
+	// items of said class that you own
+	Array<TCOTDZFJournalItem> items;
+}
