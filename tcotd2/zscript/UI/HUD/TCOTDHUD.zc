@@ -44,8 +44,7 @@ class TCOTDHUD : DoomStatusBar
 		if (cutscene)
 			return;
 
-		let mnu = Menu.GetCurrentMenu();
-		if (mnu && mnu is "TCOTDJournalMenu")
+		if (TCOTDJournalMenu.IsOpen())
 			return;
 
 		if (state == HUD_StatusBar || state == HUD_Fullscreen)

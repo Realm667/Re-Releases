@@ -36,7 +36,6 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	//
 	//
 	//
-	//
 	//===========================================================================
 
 	override void Init(Menu parent)
@@ -54,5 +53,17 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		let mainBackgroundImage = "graphics/journal/journal_main.png";
 		let mainBackground = new('TCOTDZFImage').Init(mainBackgroundPos, mainBackgroundSize, mainBackgroundImage, TCOTDZFImage.AlignType_TopLeft);
 		mainBackground.Pack(mainFrame);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static bool IsOpen ()
+	{
+		let mnu = Menu.GetCurrentMenu();
+		return mnu && mnu is 'TCOTDJournalMenu';
 	}
 }
