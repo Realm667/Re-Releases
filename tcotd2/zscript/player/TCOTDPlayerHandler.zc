@@ -32,8 +32,6 @@
 
 class TCOTDPlayerHandler : EventHandler
 {
-	int quickHealCooldown[MAXPLAYERS];
-
 	const togglemapCmd = "togglemap";
 	const useCmd = "+use";
 
@@ -45,14 +43,15 @@ class TCOTDPlayerHandler : EventHandler
 	//
 	//===========================================================================
 
+	/*
 	override void PlayerEntered(PlayerEvent e)
 	{
 		PlayerPawn pmo = players[e.PlayerNumber].mo;
 		if (pmo)
 		{
-			ResetQuickHealCooldown(pmo.PlayerNumber());
 		}
 	}
+	*/
 
 	override void PlayerDisconnected(PlayerEvent e)
 	{
@@ -101,8 +100,6 @@ class TCOTDPlayerHandler : EventHandler
 		}
 
 		Console.MidPrint(NULL, txt);
-
-		ResetQuickHealCooldown(pmo.PlayerNumber());
 	}
 
 	//===========================================================================
@@ -121,14 +118,11 @@ class TCOTDPlayerHandler : EventHandler
 		TCOTDGameplayStatics.DestroyActors("TCOTDPlayerMarker");
 	}
 
+	/*
 	override void WorldTick(void)
 	{
-		for (int i = 0; i < MAXPLAYERS; i++)
-		{
-			if (playeringame[i] && quickHealCooldown[i] > 0)
-				quickHealCooldown[i]--;
-		}
 	}
+	*/
 
 	override void UITick(void)
 	{
@@ -200,7 +194,7 @@ class TCOTDPlayerHandler : EventHandler
 		//===========================================================================
 		if (e.Name == 'EV_QuickHealth')
 		{
-			if (quickHealCooldown[pmo.PlayerNumber()] > 0 || pmo.player.playerstate == PST_DEAD)
+			if (pmo.player.playerstate == PST_DEAD)
 				return;
 
 			if (pmo.Health >= 100)
@@ -236,7 +230,6 @@ class TCOTDPlayerHandler : EventHandler
 			if (hpu && hpu.amount > 0)
 			{
 				pmo.UseInventory(hpu);
-				quickHealCooldown[pmo.PlayerNumber()] = Thinker.TICRATE;
 				Console.Printf(String.Format(StringTable.Localize("$USEDQUICKHEALITEM"), hpu.GetTag().MakeLower()));
 			}
 		}
@@ -258,17 +251,6 @@ class TCOTDPlayerHandler : EventHandler
 		return Super.InputProcess(e);
 	}
 	*/
-
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
-
-	void ResetQuickHealCooldown(int pnum)
-	{
-		quickHealCooldown[pnum] = 0;
-	}
 
 	//===========================================================================
 	//
