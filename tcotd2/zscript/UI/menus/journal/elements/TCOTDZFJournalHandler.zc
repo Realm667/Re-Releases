@@ -49,50 +49,11 @@ class TCOTDZFJournalHandler : TCOTDZFHandler
 		if (strings.Size() < 2)
 			return;
 
-		/*
-		if ((strings[0] ~== "ActivatePDA"))
+		if ((strings[0] ~== "ActivateJournalItem"))
 		{
 			// Play activate sound
 			Menu.MenuSound("journal/click");
-
-			// Mark as read
-			let pda = PDA(menu.pmo.FindInventory(strings[1], true));
-			if (pda)
-			{
-				EventHandler.SendNetworkEvent("EV_MarkPDARead:" .. strings[1]);
-			}
-
-			class<PDA> cls = strings[1];
-			String txt = GetDefaultByType((class<PDA>)(cls)).pdaText;
-			String pdaText = StringTable.Localize(txt);
-
-			// Update content image and text
-			menu.pdaContentBackground.image = GetDefaultByType((class<PDA>)(cls)).pdaImage;
-			menu.pdaContentText.SetText(pdaText);
-
-			// Update current selection
-			int index = menu.pdaList.items.Find(PDAColoredButton(caller));
-			menu.pdaList.currentSelection = index;
-			menu.pdaList.UpdateSelection();
-
-			// Play sound if available
-			Sound snd = GetDefaultByType((class<PDA>)(cls)).pdaAudio;
-			if (snd)
-			{
-				// Find the PDA reader and play the sound from it (lol hack)
-				let pdaReader = menu.pmo.FindInventory("PDAReader", true);
-				if (pdaReader && menu.pmo == players[consoleplayer].mo)
-				{
-					pdaReader.A_StartSound(snd, CHAN_VOICE, CHANF_UI, snd_menuvolume, ATTN_NONE);
-				}
-			}
-			else
-			{
-				// Stop all sounds when clicking on a soundless PDA
-				EventHandler.SendNetworkEvent("EV_StopPDASound");
-			}
 		}
-		*/
 	}
 
 	override void ElementHoverChanged(TCOTDZFElement caller, string command, bool unhovered)
