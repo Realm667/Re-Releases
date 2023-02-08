@@ -48,12 +48,14 @@ class TCOTDObjective : Inventory abstract
 
 		if (Owner && Owner is "PlayerPawn")
 		{
-			String t = "";
+			String newTag = "";
+
 			if (GetClass() == "TCOTDObjective")
-				t = "$OBJECTIVE_DEFAULT";
+				newTag = "$OBJECTIVE_DEFAULT";
 			else
-				t = "$OBJECTIVE_" .. GetClassName();
-			SetTag(t);
+				newTag = "$OBJECTIVE_" .. String.Format("%s", String.Format("%s", GetClassName()).Mid("TCOTDObjective".Length())).MakeUpper();
+
+			SetTag(newTag);
 		}
 	}
 
