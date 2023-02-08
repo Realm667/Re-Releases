@@ -380,6 +380,9 @@ class TCOTDPlayerHandler : EventHandler
 		if (!pmo.player)
 			return;
 
+		if (TCOTDGameplayStatics.IsInCutscene(pmo))
+			return;
+
 		// store old view clip
 		int ox, oy, ow, oh;
 		[ox, oy, ow, oh] = Screen.GetClipRect();

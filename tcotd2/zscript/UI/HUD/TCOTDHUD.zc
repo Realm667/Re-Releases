@@ -64,8 +64,8 @@ class TCOTDHUD : DoomStatusBar
 	override void Draw(int state, double TicFrac)
 	{
 		BaseStatusBar.Draw(state, TicFrac);
-		let cutscene = CPlayer.mo.FindInventory("CutsceneEnabled");
-		if (cutscene)
+
+		if (TCOTDGameplayStatics.IsInCutscene(CPlayer.mo))
 			return;
 
 		if (TCOTDJournalMenu.IsOpen())

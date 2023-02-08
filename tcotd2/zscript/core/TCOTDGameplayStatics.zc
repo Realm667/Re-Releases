@@ -102,6 +102,18 @@ class TCOTDGameplayStatics play
 		return seed;
 	}
 
+	clearscope static bool IsInCutscene(PlayerPawn pmo)
+	{
+		if (!pmo)
+		 return false;
+
+		let cutscene = pmo.FindInventory("CutsceneEnabled");
+		if (cutscene)
+			return true;
+
+		return false;
+	}
+
 	clearscope static bool IsConsoleVisible(void)
 	{
 		return (!multiplayer && (ConsoleState == c_down || ConsoleState == c_falling));
