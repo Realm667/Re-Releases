@@ -27,12 +27,20 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	const RES_WIDTH = 1280;
 	const RES_HEIGHT = 720;
 
-	TCOTDZFHandler handler;
+	TCOTDZFJournalHandler handler;
 	PlayerPawn pmo;
 
+	Font fnt;
+	int fntColor;
+	Color UIColor;
+	int mouseScrollAmount;
+	int keyScrollAmount;
+	int scrollbarWidth;
+
 	TCOTDZFImage mainBackground;
-	TCOTDZFScrollableFrame objectivesFrame;
-	TCOTDZFScrollableFrame notesFrame;
+
+	TCOTDZFClickableFrame objectivesFrame;
+	TCOTDZFClickableFrame notesFrame;
 
 	//===========================================================================
 	//
@@ -46,9 +54,16 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 
 		SetBaseResolution((RES_WIDTH, RES_HEIGHT));
 
+		fnt = SmallFont;
+		fntColor = Font.CR_BROWN;
+		mouseScrollAmount = 5;
+		keyScrollAmount = 3;
+		scrollbarWidth = 4;
+
 		pmo = players[consoleplayer].mo;
 
-		handler = new('TCOTDZFHandler');
+		handler = new('TCOTDZFJournalHandler');
+		handler.menu = self;
 
 		mainBackground = new('TCOTDZFImage').Init
 		(
@@ -58,6 +73,39 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 			TCOTDZFImage.AlignType_TopLeft
 		);
 		mainBackground.Pack(mainFrame);
+
+		objectivesFrame = TCOTDZFClickableFrame(new('TCOTDZFClickableFrame').Init
+		(
+			(241, 166),
+			(362, 428),
+			self,
+			"ProcessObjective")
+		);
+		//objectivesFrame.Refresh();
+
+		/*
+		notesFrame = TCOTDZFClickableFrame(new('TCOTDZFClickableFrame').Init
+		(
+			(677, 166),
+			(362, 428),
+			self,
+			"ProcessNote")
+		);
+		//notesFrame.Refresh();
+		*/
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	int GetFontHeight(void)
+	{
+		if (!fnt)
+			return 0;
+		return fnt.GetHeight();
 	}
 
 	//===========================================================================

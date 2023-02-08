@@ -24,4 +24,11 @@
 
 class TCOTDZFColoredFrame : TCOTDZFFrame
 {
+	Color fillColor;
+
+	override void Drawer(void)
+	{
+		Super.Drawer();
+		Fill((0, 0), box.size, fillColor, 1.0);
+	}
 }

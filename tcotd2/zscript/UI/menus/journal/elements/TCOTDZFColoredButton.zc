@@ -18,12 +18,21 @@
 
 //===========================================================================
 //
-// TCOTDZFJournalItem
+// TCOTDZFColoredButton
 //
 //===========================================================================
 
-class TCOTDZFJournalItem : TCOTDZFButton
+class TCOTDZFColoredButton : TCOTDZFButton
 {
-	// pointer to the item this button will act upon
-	Inventory item;
+	Color fillColor;
+
+	override void Drawer(void)
+	{
+		Super.Drawer();
+
+		if (curButtonState == ButtonState_Hover)
+		{
+			Fill((0, 0), box.size, fillColor, 1.0);
+		}
+	}
 }

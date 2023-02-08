@@ -1,0 +1,230 @@
+/*
+* TCOTD2 Game Code
+* Copyright (C) 2020 - 2023  Nash Muhandes
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//===========================================================================
+//
+// TCOTDZFClickableFrame
+//
+//===========================================================================
+
+class TCOTDZFClickableFrame : TCOTDZFScrollableFrame
+{
+	// Command name to send to the handler when an item is clicked
+	String cmdName;
+
+	// Increases every time a new item is added to the list
+	int currentLineYPos;
+
+	// Keep track of what is highlighted
+	int currentSelection;
+	Array<TCOTDZFJournalItem> clickableItems;
+
+	// Empty text
+	TCOTDZFLabel emptyLabel;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	TCOTDZFClickableFrame Init(Vector2 pos, Vector2 size, TCOTDJournalMenu mnu, String cmd)
+	{
+		cmdName = cmd;
+		let f = TCOTDZFClickableFrame(Super.Init(pos, size, mnu));
+
+		String emptyStr = StringTable.Localize("$JRNL_CLICKABLEFRAME_EMPTY");
+		double emptyLabelXPos = self.box.size.X / 2;
+		double emptyLabelYPos = self.box.size.Y / 2;
+		double emptyLabelWidth = mnu.fnt.StringWidth(emptyStr);
+		emptyLabelXPos -= mnu.scrollbarWidth;
+		emptyLabelXPos -= (emptyLabelWidth / 2);
+		emptyLabelYPos -= mnu.GetFontHeight();
+
+		emptyLabel = new('TCOTDZFLabel').Init
+		(
+			(emptyLabelXPos, emptyLabelYPos),
+			(0, 0),
+			text: emptyStr,
+			fnt: parentMenu.fnt,
+			wrap: false,
+			autoSize: true,
+			textColor: parentMenu.fntColor
+		);
+		emptyLabel.Pack(self);
+
+		return f;
+	}
+
+	override void Ticker(void)
+	{
+		Super.Ticker();
+
+		// Erase the empty message if the menu isn't empty
+		if (clickableItems.Size() > 0)
+		{
+			emptyLabel.Unpack();
+		}
+	}
+
+	override void OnUIEvent(TCOTDZFUIEvent ev)
+	{
+		Super.OnUIEvent(ev);
+
+		for (int i = 0; i < clickableItems.Size(); i++)
+		{
+			if (clickableItems[i].curButtonState == clickableItems[i].ButtonState_Hover)
+			{
+				currentSelection = i;
+				UpdateSelection();
+				break;
+			}
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	int GetBottomMostSelection(void)
+	{
+		return GetMaxShowableLines() - 1;
+	}
+
+	int GetTopMostSelection(void)
+	{
+		return abs(int(content.box.pos.Y) / parentMenu.GetFontHeight());
+	}
+
+	void UpdateSelection(void)
+	{
+		for (int i = 0; i < clickableItems.Size(); i++)
+		{
+			if (clickableItems[i])
+			{
+				clickableItems[i].highlighted = false;
+
+				if (currentSelection >= 0)
+				{
+					clickableItems[currentSelection].highlighted = true;
+				}
+			}
+		}
+	}
+
+	void SelectPreviousItem(void)
+	{
+		int t = 0;
+		if (currentSelection > t)
+		{
+			currentSelection--;
+			UpdateSelection();
+			Menu.MenuSound("journal/hover");
+		}
+
+		if (currentSelection < GetTopMostSelection())
+		{
+			ScrollUp(1);
+		}
+	}
+
+	void SelectNextItem(void)
+	{
+		int t = (GetMaxLines() - 1);
+		if (currentSelection < t)
+		{
+			currentSelection++;
+			UpdateSelection();
+			Menu.MenuSound("journal/hover");
+		}
+
+		if (currentSelection > GetBottomMostSelection())
+		{
+			ScrollDown(1);
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override int GetMaxLines(void)
+	{
+		return int(currentLineYPos / parentMenu.GetFontHeight());
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	virtual void AddLine(String newItem)
+	{
+		if (!content)
+			return;
+
+		class<Actor> cls = newItem;
+		String newItemTitle = StringTable.Localize(GetDefaultByType((class<Actor>)(cls)).GetTag());
+
+		// Buttons and text have to be separate because
+		// button text is automatically center-aligned >_<
+
+		// Button element
+		let btn = TCOTDZFJournalItem(new('TCOTDZFJournalItem').Init
+		(
+			(0, currentLineYPos),
+			(box.size.X - parentMenu.scrollbarWidth, parentMenu.GetFontHeight()),
+			cmdHandler: parentMenu.handler,
+			command: cmdName .. ":" .. newItem
+		));
+		btn.SetTexture
+		(
+			"TNT1A0",
+			"TNT1A0",
+			"TNT1A0",
+			""
+		);
+		btn.fillColor = parentMenu.UIColor;
+		btn.Pack(content);
+		clickableItems.Push(btn);
+
+		// Text element
+		let txt = new('TCOTDZFLabel').Init
+		(
+			(0, currentLineYPos),
+			(0, 0),
+			text: newItemTitle,
+			fnt: parentMenu.fnt,
+			wrap: false,
+			autoSize: true,
+			textColor: parentMenu.fntColor
+		);
+		txt.Pack(content);
+
+		// Increase the Y size of the content frame
+		content.box.size.Y += parentMenu.GetFontHeight();
+
+		// Increase Y position of the next item to add
+		currentLineYPos += parentMenu.GetFontHeight();
+	}
+}

@@ -1,0 +1,190 @@
+/*
+* TCOTD2 Game Code
+* Copyright (C) 2020 - 2023  Nash Muhandes
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//===========================================================================
+//
+// TCOTDZFScrollableFrame
+//
+//===========================================================================
+
+class TCOTDZFScrollableFrame : TCOTDZFColoredFrame
+{
+	// Reference to the menu is needed for fonts, colours, things like that
+	TCOTDJournalMenu parentMenu;
+
+	// The content frame is dynamically moved and resized
+	TCOTDZFFrame content;
+
+	TCOTDZFScrollBarTrack scrollbarTrack;
+	TCOTDZFScrollBar scrollbar;
+
+	int mouseX;
+	int mouseY;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	TCOTDZFScrollableFrame Init(Vector2 pos, Vector2 size, TCOTDJournalMenu mnu)
+	{
+		parentMenu = mnu;
+
+		let f = TCOTDZFScrollableFrame(Super.Init(pos, size));
+		f.Pack(parentMenu.mainFrame);
+
+		// Initial Y size of content frame is 0 because it will be resized as new items are added
+		content = TCOTDZFFrame(new('TCOTDZFFrame').Init((0, 0), (size.X, 0)));
+		content.Pack(f);
+
+		// Create the scrollbar element, Y size also resized dynamically
+		scrollbarTrack = TCOTDZFScrollBarTrack(new('TCOTDZFScrollBarTrack').Init((size.X - parentMenu.scrollbarWidth, 0), (parentMenu.scrollbarWidth, size.Y), mnu));
+		scrollbarTrack.fillColor = Color(parentMenu.UIColor.R / 2, parentMenu.UIColor.G / 2, parentMenu.UIColor.B / 2);
+		scrollbarTrack.pack(f);
+
+		scrollbar = TCOTDZFScrollBar(new('TCOTDZFScrollBar').Init((size.X - parentMenu.scrollbarWidth, 0), (parentMenu.scrollbarWidth, 0)));
+		scrollbar.fillColor = parentMenu.UIColor;
+		scrollbar.pack(f);
+
+		return f;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void OnUIEvent(TCOTDZFUIEvent ev)
+	{
+		Super.OnUIEvent(ev);
+
+		if (!content)
+			return;
+
+		if (ev.Type == UIEvent.Type_MouseMove)
+		{
+			mouseX = ev.mouseX;
+			mouseY = ev.mouseY;
+		}
+
+		if (IsEnabled() && BoxToScreen().PointCollides((mouseX, mouseY)))
+		{
+			// Mousewheel scrolling
+			if (ev.Type == UIEvent.Type_WheelUp)
+			{
+				ScrollUp(parentMenu.mouseScrollAmount);
+			}
+			else if (ev.Type == UIEvent.Type_WheelDown)
+			{
+				ScrollDown(parentMenu.mouseScrollAmount);
+			}
+		}
+	}
+
+	override void Drawer(void)
+	{
+		Super.Drawer();
+
+		// Show scroll bar if content is long enough
+		if (GetMaxLines() > GetMaxShowableLines())
+		{
+			scrollbar.disabled = false;
+			scrollbar.hidden = false;
+
+			// Update the scrollbar
+			double scrollbarFrameHeight = box.size.Y;
+			double scrollbarContentHeight = content.box.size.Y;
+			double scrollbarRatio = scrollbarFrameHeight / scrollbarContentHeight;
+			double scrollBarArea = scrollbarFrameHeight;// - scrollbarArrowHeight * 2;
+			double scrollbarHeight = scrollBarArea * scrollbarRatio;
+			double scrollBarY = -(content.box.pos.Y * scrollbarRatio);
+
+			scrollbar.box.size.Y = scrollbarHeight;
+			scrollbar.box.pos.Y = scrollBarY;
+		}
+		else
+		{
+			scrollbar.disabled = true;
+			scrollbar.hidden = true;
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void Scroll(int scrollAmount)
+	{
+		content.box.pos.Y += (parentMenu.GetFontHeight() * scrollAmount);
+		ClampContentPos();
+	}
+
+	void ScrollUp(int scrollAmount = 5)
+	{
+		if (content.box.pos.Y < 0)
+		{
+			Scroll(scrollAmount);
+		}
+	}
+
+	void ScrollDown(int scrollAmount = 5)
+	{
+		if (content.box.pos.Y > GetLowestPos())
+		{
+			Scroll(-scrollAmount);
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	// This is made overridable because different widgets may have different ways
+	// of keeping track of a content's length.
+	virtual int GetMaxLines(void) { return 0; }
+
+	int GetMaxShowableLines(void)
+	{
+		return int(box.size.Y / parentMenu.GetFontHeight());
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	int GetLowestPos(void)
+	{
+		return -(parentMenu.GetFontHeight() * (GetMaxLines() - GetMaxShowableLines()));
+	}
+
+	void ClampContentPos(void)
+	{
+		if (content.box.pos.Y > 0)
+			content.box.pos.Y = 0;
+		else if (content.box.pos.Y < GetLowestPos())
+			content.box.pos.Y = GetLowestPos();
+	}
+}
