@@ -63,6 +63,9 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 
 	override void Init(Menu parent)
 	{
+		menuactive = Menu.OnNoPause;
+		DontDim = true;
+
 		Super.Init(parent);
 
 		pmo = TCOTDPlayer(players[consoleplayer].mo);
@@ -381,6 +384,12 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 
 	override void Drawer(void)
 	{
+		if (pmo.player.playerstate == PST_DEAD)
+		{
+			Close();
+			return;
+		}
+
 		// fill the entire screen with a black background
 		menuFill.Fill
 		(

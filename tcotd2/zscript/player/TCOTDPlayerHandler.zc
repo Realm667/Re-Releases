@@ -26,6 +26,7 @@ class TCOTDPlayerHandler : EventHandler
 {
 	const togglemapCmd = "togglemap";
 	const useCmd = "+use";
+	const journalCmd = "menu_help";
 
 	ui double deathAlpha;
 
@@ -284,16 +285,18 @@ class TCOTDPlayerHandler : EventHandler
 	//
 	//===========================================================================
 
-	/*
 	override bool InputProcess(InputEvent e)
 	{
+		/*
+		if (CheckUseKey(e))
+			return true;
+		*/
 		if (CheckAutomapKey(e))
 			return true;
-		if (CheckUseKey(e))
+		if (CheckJournalKey(e))
 			return true;
 		return Super.InputProcess(e);
 	}
-	*/
 
 	//===========================================================================
 	//
@@ -390,8 +393,9 @@ class TCOTDPlayerHandler : EventHandler
 		{
 			if (TCOTDGameplayStatics.IsKeyForCommand(e.KeyScan, togglemapCmd))
 			{
-				Console.Printf("Pressed the automap key");
-				return true;
+				//Console.Printf("Pressed the automap key");
+				if (pmo.player.playerstate == PST_DEAD)
+					return true;
 			}
 		}
 
@@ -425,6 +429,23 @@ class TCOTDPlayerHandler : EventHandler
 		return false;
 	}
 	*/
+
+	ui bool CheckJournalKey(InputEvent e)
+	{
+		let pmo = PlayerPawn(players[consoleplayer].mo);
+		if (!pmo)
+			return false;
+
+		if (e.type == InputEvent.Type_KeyDown)
+		{
+			if (TCOTDGameplayStatics.IsKeyForCommand(e.KeyScan, journalCmd) && pmo.player.playerstate == PST_DEAD)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	//===========================================================================
 	//

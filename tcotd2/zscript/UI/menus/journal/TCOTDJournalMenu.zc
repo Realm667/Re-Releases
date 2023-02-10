@@ -42,6 +42,9 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 
 	override void Init(Menu parent)
 	{
+		menuactive = Menu.OnNoPause;
+		DontDim = true;
+
 		Super.Init(parent);
 
 		SetBaseResolution((RES_WIDTH, RES_HEIGHT));
@@ -124,9 +127,9 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		notesHeader.Pack(mainFrame);
 	}
 
-	override void Ticker(void)
+	override void Drawer(void)
 	{
-		Super.Ticker();
+		Super.Drawer();
 
 		if (pmo.player.playerstate == PST_DEAD)
 		{
