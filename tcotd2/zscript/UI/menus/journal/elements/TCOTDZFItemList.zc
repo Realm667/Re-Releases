@@ -27,7 +27,7 @@ class TCOTDZFItemList : TCOTDZFFrame
 	TCOTDJournalMenu mJournalMenu;
 	String mFilterClassName;
 	Array<Inventory> mItems;
-	Array<TCOTDZFLabel> mItemLabels;
+	Array<TCOTDZFClickableItem> mClickableItems;
 
 	//===========================================================================
 	//
@@ -43,28 +43,30 @@ class TCOTDZFItemList : TCOTDZFFrame
 		return self;
 	}
 
-	override void Ticker(void)
-	{
-		Super.Ticker();
-
-		if (ShouldRefresh())
-			RefreshItems();
-	}
-
 	//===========================================================================
 	//
 	//
 	//
 	//===========================================================================
 
-	void RefreshItems(void)
+	void Refresh(void)
 	{
 		class<Inventory> cls = mFilterClassName;
 		if (!cls)
 			return;
 
 		// clear the array
-		mItems.Clear();
+		if (mItems.Size() > 0)
+			mItems.Clear();
+
+		if (mClickableItems.Size() > 0)
+		{
+			for (int i = mClickableItems.Size(); i --> 0;)
+			{
+				mClickableItems[i].Unpack();
+			}
+			mClickableItems.Clear();
+		}
 
 		// find the items on the player
 		Array<Inventory> tmpItems;
@@ -104,49 +106,45 @@ class TCOTDZFItemList : TCOTDZFFrame
 		// rebuild the list
 		if (mItems.Size() > 0)
 		{
-			mItemLabels.Clear();
 			double nextY = 0;
 			for (int i = 0; i < mItems.Size(); i++)
 			{
 				if (mItems[i])
 				{
-					String txt = String.Format("%s", StringTable.Localize(mItems[i].GetTag()));
-					let label = new('TCOTDZFLabel').Init
+					String txt = String.Format("- %s", StringTable.Localize(mItems[i].GetTag()));
+					let newItem = TCOTDZFClickableItem(new('TCOTDZFClickableItem').Init
 					(
 						(0, nextY),
 						(self.box.size.X, 0),
-						text: "- " .. txt,
+						text: txt,
 						fnt: SmallFont,
 						wrap: true,
 						autoSize: true,
 						textColor: SmallFont.FindFontColor('TCOTDJournalTextColor')
-					);
+					));
 
 					// for objectives, update completion status
+					// TO DO: move this out of init?
 					if (mItems[i] is 'TCOTDObjective')
 					{
 						if (TCOTDObjective(mItems[i]).GetObjectiveState() == TCOTDObjective.OBJECTIVE_COMPLETE)
-							label.textColor = SmallFont.FindFontColor('TCOTDJournalTextObjectiveComplete');
+							newItem.textColor = SmallFont.FindFontColor('TCOTDJournalTextObjectiveComplete');
 						else if (TCOTDObjective(mItems[i]).GetObjectiveState() == TCOTDObjective.OBJECTIVE_FAIL)
-							label.textColor = SmallFont.FindFontColor('TCOTDJournalTextObjectiveFailed');
+							newItem.textColor = SmallFont.FindFontColor('TCOTDJournalTextObjectiveFailed');
 					}
 
-					label.Pack(self);
+					newItem.Pack(self);
 
-					BrokenLines textLines = SmallFont.BreakLines(label.text, int(label.box.size.X / label.textScale));
+					BrokenLines textLines = SmallFont.BreakLines(newItem.text, int(newItem.box.size.X / newItem.textScale));
 					int prevLineCount = textLines.Count();
-					nextY += (SmallFont.GetHeight() * label.textScale * prevLineCount);
+					nextY += (SmallFont.GetHeight() * newItem.textScale * prevLineCount);
+
+					newItem.MakeButton(mJournalMenu.handler, prevLineCount, mFilterClassName, mItems[i].GetClassName());
+
+					mClickableItems.Push(newItem);
 				}
 			}
 		}
-
-		// already refreshed, need to remove the dummy item via network event
-		TCOTDPlayerHandler.SendNetworkEvent("EV_ClearJournalRefresh");
-	}
-
-	private bool ShouldRefresh(void)
-	{
-		return (mJournalMenu.pmo.CountInv("TCOTDPlayerRefreshJournalDummy") > 0);
 	}
 
 	/*

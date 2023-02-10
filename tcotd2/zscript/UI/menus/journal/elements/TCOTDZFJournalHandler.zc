@@ -37,8 +37,8 @@ class TCOTDZFJournalHandler : TCOTDZFHandler
 		if (!menu)
 			return;
 
-		if (!menu.objectivesFrame || !menu.notesFrame)
-			return;
+		// delete me
+		Console.Printf(command);
 
 		// Parse the command
 		Array<String> strings;
@@ -49,11 +49,13 @@ class TCOTDZFJournalHandler : TCOTDZFHandler
 		if (strings.Size() < 2)
 			return;
 
+		/*
 		if ((strings[0] ~== "ActivateJournalItem"))
 		{
 			// Play activate sound
 			Menu.MenuSound("journal/click");
 		}
+		*/
 	}
 
 	override void ElementHoverChanged(TCOTDZFElement caller, string command, bool unhovered)

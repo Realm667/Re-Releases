@@ -79,7 +79,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 			self
 		);
 		objectivesFrame.Pack(mainFrame);
-		objectivesFrame.RefreshItems();
+		objectivesFrame.Refresh();
 
 		String objectivesHeaderTxt = StringTable.Localize("$JRNL_OBJECTIVES");
 		let objectivesHeader = new('TCOTDZFLabel').Init
@@ -108,7 +108,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 			self
 		);
 		notesFrame.Pack(mainFrame);
-		notesFrame.RefreshItems();
+		notesFrame.Refresh();
 
 		String notesHeaderTxt = StringTable.Localize("$JRNL_NOTES");
 		let notesHeader = new('TCOTDZFLabel').Init
@@ -129,11 +129,6 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	//
 	//
 	//===========================================================================
-
-	static clearscope void Refresh(void)
-	{
-		TCOTDPlayerHandler.SendNetworkEvent("EV_MarkJournalRefresh");
-	}
 
 	static bool IsOpen ()
 	{

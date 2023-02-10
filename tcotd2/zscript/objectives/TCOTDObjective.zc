@@ -64,7 +64,6 @@ class TCOTDObjective : Inventory abstract
 			SetTag(newTag);
 
 			NotifyObjectiveAdded();
-			TCOTDJournalMenu.Refresh();
 		}
 	}
 
@@ -169,8 +168,6 @@ class TCOTDObjective : Inventory abstract
 		{
 			pmo.TakeInventory(cls, int.max);
 		}
-
-		TCOTDJournalMenu.Refresh();
 	}
 
 	//===========================================================================
@@ -216,8 +213,6 @@ class TCOTDObjective : Inventory abstract
 				}
 			}
 		}
-
-		TCOTDJournalMenu.Refresh();
 	}
 
 	static void Complete(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)

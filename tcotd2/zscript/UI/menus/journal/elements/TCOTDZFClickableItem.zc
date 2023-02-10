@@ -1,0 +1,47 @@
+/*
+* TCOTD2 Game Code
+* Copyright (C) 2020 - 2023  Nash Muhandes
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//===========================================================================
+//
+// TCOTDZFClickableItem
+//
+//===========================================================================
+
+class TCOTDZFClickableItem : TCOTDZFLabel
+{
+	void MakeButton(TCOTDZFJournalHandler handler, int lineCount, String cmdName, String itemClassName)
+	{
+		// create a clickable zone using an invisible button
+		let btn = TCOTDZFButton(new('TCOTDZFButton').Init
+		(
+			self.box.pos,
+			self.box.size,
+			cmdHandler: handler,
+			command: "TCOTDZFHandlerCommand" .. cmdName .. ":" .. itemClassName
+		));
+		btn.SetTexture
+		(
+			"TNT1A0",
+			"TNT1A0",
+			"TNT1A0",
+			""
+		);
+		btn.box.size.Y = (SmallFont.GetHeight() * textScale) * lineCount;
+		btn.Pack(master);
+	}
+}
