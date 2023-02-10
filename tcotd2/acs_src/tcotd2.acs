@@ -29,6 +29,11 @@ function void Objective_Fail(str objective, bool allPlayers)
 	ScriptCall("TCOTDObjective", "FailFromACS", objective, allPlayers);
 }
 
+function void Objective_Delete(str objective, bool allPlayers)
+{
+	ScriptCall("TCOTDObjective", "DeleteFromACS", objective, allPlayers);
+}
+
 // fadescript for map setup
 Script "MapStartFadeIn" ENTER
 {

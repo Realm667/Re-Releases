@@ -109,6 +109,14 @@ class TCOTDObjective : Inventory abstract
 		TCOTDObjective.Fail(clsName, PlayerPawn(activator));
 	}
 
+	static void DeleteFromACS(Actor activator, String clsName, bool allPlayers = false)
+	{
+		PlayerPawn pmo = NULL;
+		if (!allPlayers)
+			pmo = PlayerPawn(activator);
+		TCOTDObjective.Delete(clsName, PlayerPawn(activator));
+	}
+
 	//===========================================================================
 	//
 	//
@@ -161,6 +169,8 @@ class TCOTDObjective : Inventory abstract
 		{
 			pmo.TakeInventory(cls, int.max);
 		}
+
+		TCOTDJournalMenu.Refresh();
 	}
 
 	//===========================================================================

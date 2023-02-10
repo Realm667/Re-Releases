@@ -18,16 +18,15 @@
 
 //===========================================================================
 //
-// TCOTDZFClickableFrame
+// TCOTDZFItemList
 //
 //===========================================================================
 
-class TCOTDZFClickableFrame : TCOTDZFFrame
+class TCOTDZFItemList : TCOTDZFFrame
 {
+	TCOTDJournalMenu mJournalMenu;
 	String mFilterClassName;
 	Array<Inventory> mItems;
-	TCOTDJournalMenu mJournalMenu;
-
 	Array<TCOTDZFLabel> mItemLabels;
 
 	//===========================================================================
@@ -36,7 +35,7 @@ class TCOTDZFClickableFrame : TCOTDZFFrame
 	//
 	//===========================================================================
 
-	TCOTDZFClickableFrame Init(Vector2 pos, Vector2 size, String className, TCOTDJournalMenu mnu)
+	TCOTDZFItemList Init(Vector2 pos, Vector2 size, String className, TCOTDJournalMenu mnu)
 	{
 		Super.Init(pos, size);
 		mFilterClassName = className;
@@ -142,7 +141,7 @@ class TCOTDZFClickableFrame : TCOTDZFFrame
 		}
 
 		// already refreshed, need to remove the dummy item via network event
-		TCOTDPlayerHandler.SendNetworkEvent("EV_ResetJournalRefreshState");
+		TCOTDPlayerHandler.SendNetworkEvent("EV_ClearJournalRefresh");
 	}
 
 	private bool ShouldRefresh(void)

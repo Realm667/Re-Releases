@@ -243,12 +243,19 @@ class TCOTDPlayerHandler : EventHandler
 		}
 		//===========================================================================
 		//
-		// EV_ResetJournalRefreshState
+		// EV_ClearJournalRefresh
 		//
 		//===========================================================================
-		else if (e.Name == 'EV_ResetJournalRefreshState')
+		else if (e.Name == 'EV_ClearJournalRefresh')
 		{
-			pmo.TakeInventory("TCOTDPlayerRefreshJournalDummy", int.max);
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i])
+				{
+					let apmo = players[i].mo;
+					apmo.TakeInventory("TCOTDPlayerRefreshJournalDummy", int.max);
+				}
+			}
 		}
 		//===========================================================================
 		//
@@ -257,7 +264,14 @@ class TCOTDPlayerHandler : EventHandler
 		//===========================================================================
 		else if (e.Name == 'EV_MarkJournalRefresh')
 		{
-			pmo.GiveInventory("TCOTDPlayerRefreshJournalDummy", 1);
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i])
+				{
+					let apmo = players[i].mo;
+					apmo.GiveInventory("TCOTDPlayerRefreshJournalDummy", 1);
+				}
+			}
 		}
 	}
 
