@@ -24,4 +24,146 @@
 
 class TCOTDZFClickableFrame : TCOTDZFFrame
 {
+	String mFilterClassName;
+	Array<Inventory> mItems;
+	TCOTDJournalMenu mJournalMenu;
+
+	Array<TCOTDZFLabel> mItemLabels;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	TCOTDZFClickableFrame Init(Vector2 pos, Vector2 size, String className, TCOTDJournalMenu mnu)
+	{
+		Super.Init(pos, size);
+		mFilterClassName = className;
+		mJournalMenu = mnu;
+		return self;
+	}
+
+	override void Ticker(void)
+	{
+		Super.Ticker();
+
+		if (ShouldRefresh())
+			RefreshItems();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void RefreshItems(void)
+	{
+		class<Inventory> cls = mFilterClassName;
+		if (!cls)
+			return;
+
+		// clear the array
+		mItems.Clear();
+
+		// find the items on the player
+		Array<Inventory> tmpItems;
+		tmpItems.Clear();
+		//int count = GetItemCount();
+		for (Inventory item = mJournalMenu.pmo.Inv; item != NULL; item = item.Inv)
+		{
+			if (item is cls)
+			{
+				tmpItems.Push(item);
+			}
+		}
+
+		// sort by age
+		for (int x = 0; x < tmpItems.Size(); x++)
+		{
+			for (int y = 0; y < tmpItems.Size() - 1; y++)
+			{
+				if (tmpItems[y + 1].GetAge() > tmpItems[y].GetAge())
+				{
+					let p = tmpItems[y + 1];
+					tmpItems[y + 1] = tmpItems[y];
+					tmpItems[y] = p;
+				}
+			}
+		}
+
+		// actually add the items to the member array
+		for (int i = 0; i < tmpItems.Size(); i++)
+		{
+			if (tmpItems[i])
+			{
+				mItems.Push(tmpItems[i]);
+			}
+		}
+
+		// rebuild the list
+		if (mItems.Size() > 0)
+		{
+			mItemLabels.Clear();
+			double nextY = 0;
+			for (int i = 0; i < mItems.Size(); i++)
+			{
+				if (mItems[i])
+				{
+					String txt = String.Format("%s", StringTable.Localize(mItems[i].GetTag()));
+					let label = new('TCOTDZFLabel').Init
+					(
+						(0, nextY),
+						(self.box.size.X, 0),
+						text: "- " .. txt,
+						fnt: SmallFont,
+						wrap: true,
+						autoSize: true,
+						textColor: SmallFont.FindFontColor('TCOTDJournalTextColor')
+					);
+
+					// for objectives, update completion status
+					if (mItems[i] is 'TCOTDObjective')
+					{
+						if (TCOTDObjective(mItems[i]).GetObjectiveState() == TCOTDObjective.OBJECTIVE_COMPLETE)
+							label.textColor = SmallFont.FindFontColor('TCOTDJournalTextObjectiveComplete');
+						else if (TCOTDObjective(mItems[i]).GetObjectiveState() == TCOTDObjective.OBJECTIVE_FAIL)
+							label.textColor = SmallFont.FindFontColor('TCOTDJournalTextObjectiveFailed');
+					}
+
+					label.Pack(self);
+
+					BrokenLines textLines = SmallFont.BreakLines(label.text, int(label.box.size.X / label.textScale));
+					int prevLineCount = textLines.Count();
+					nextY += (SmallFont.GetHeight() * label.textScale * prevLineCount);
+				}
+			}
+		}
+
+		// already refreshed, need to remove the dummy item via network event
+		TCOTDPlayerHandler.SendNetworkEvent("EV_ResetJournalRefreshState");
+	}
+
+	private bool ShouldRefresh(void)
+	{
+		return (mJournalMenu.pmo.CountInv("TCOTDPlayerRefreshJournalDummy") > 0);
+	}
+
+	/*
+	int GetItemCount(void)
+	{
+		class<Inventory> cls = mFilterClassName;
+		if (!cls)
+			return 0;
+
+		int count = 0;
+		for (Inventory item = mJournalMenu.pmo.Inv; item != NULL; item = item.Inv)
+		{
+			if (item is cls)
+				count++;
+		}
+		return count;
+	}
+	*/
 }

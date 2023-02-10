@@ -941,6 +941,18 @@ class TCOTDPlayerLanternLight : Actor
 	}
 }
 
+// Tells the journal UI that the lists should be refreshed
+class TCOTDPlayerRefreshJournalDummy : Inventory
+{
+	Default
+	{
+		Inventory.Amount 1;
+		Inventory.MaxAmount 1;
+		+Inventory.UNTOSSABLE
+		-Inventory.INVBAR
+	}
+}
+
 // Dummy item for hiding the HUD
 class CutsceneEnabled : Inventory
 {

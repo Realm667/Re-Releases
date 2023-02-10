@@ -50,6 +50,12 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		handler = new('TCOTDZFJournalHandler');
 		handler.menu = self;
 
+		//===========================================================================
+		//
+		// background pic
+		//
+		//===========================================================================
+
 		mainBackground = new('TCOTDZFImage').Init
 		(
 			(196, 80),
@@ -58,6 +64,64 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 			TCOTDZFImage.AlignType_TopLeft
 		);
 		mainBackground.Pack(mainFrame);
+
+		//===========================================================================
+		//
+		// objectives
+		//
+		//===========================================================================
+
+		objectivesFrame = new('TCOTDZFClickableFrame').Init
+		(
+			(241, 166),
+			(362, 428),
+			"TCOTDObjective",
+			self
+		);
+		objectivesFrame.Pack(mainFrame);
+		objectivesFrame.RefreshItems();
+
+		String objectivesHeaderTxt = StringTable.Localize("$JRNL_OBJECTIVES");
+		let objectivesHeader = new('TCOTDZFLabel').Init
+		(
+			(objectivesFrame.box.pos.X + (objectivesFrame.box.size.X / 2.) - (SmallFont.StringWidth(objectivesHeaderTxt) / 2), objectivesFrame.box.pos.Y - (SmallFont.GetHeight() * 2)),
+			(0, 0),
+			text: objectivesHeaderTxt,
+			fnt: SmallFont,
+			wrap: false,
+			autoSize: true,
+			textColor: SmallFont.FindFontColor('TCOTDJournalTextColor')
+		);
+		objectivesHeader.Pack(mainFrame);
+
+		//===========================================================================
+		//
+		// notes
+		//
+		//===========================================================================
+
+		notesFrame = new('TCOTDZFClickableFrame').Init
+		(
+			(677, 166),
+			(362, 428),
+			"TCOTDNote",
+			self
+		);
+		notesFrame.Pack(mainFrame);
+		notesFrame.RefreshItems();
+
+		String notesHeaderTxt = StringTable.Localize("$JRNL_NOTES");
+		let notesHeader = new('TCOTDZFLabel').Init
+		(
+			(notesFrame.box.pos.X + (notesFrame.box.size.X / 2.) - (SmallFont.StringWidth(notesHeaderTxt) / 2), notesFrame.box.pos.Y - (SmallFont.GetHeight() * 2)),
+			(0, 0),
+			text: notesHeaderTxt,
+			fnt: SmallFont,
+			wrap: false,
+			autoSize: true,
+			textColor: SmallFont.FindFontColor('TCOTDJournalTextColor')
+		);
+		notesHeader.Pack(mainFrame);
 	}
 
 	//===========================================================================
@@ -65,6 +129,11 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	//
 	//
 	//===========================================================================
+
+	static clearscope void Refresh(void)
+	{
+		TCOTDPlayerHandler.SendNetworkEvent("EV_MarkJournalRefresh");
+	}
 
 	static bool IsOpen ()
 	{

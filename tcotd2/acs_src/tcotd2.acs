@@ -14,6 +14,21 @@ function int MakeHUDMessageID(int a, int b, int c, int d)
 	return (a << 24) | ( b << 16) | (c << 8) | d;
 }
 
+function void Objective_Add(str objective, bool allPlayers)
+{
+	ScriptCall("TCOTDObjective", "AddFromACS", objective, allPlayers);
+}
+
+function void Objective_Complete(str objective, bool allPlayers)
+{
+	ScriptCall("TCOTDObjective", "CompleteFromACS", objective, allPlayers);
+}
+
+function void Objective_Fail(str objective, bool allPlayers)
+{
+	ScriptCall("TCOTDObjective", "FailFromACS", objective, allPlayers);
+}
+
 // fadescript for map setup
 Script "MapStartFadeIn" ENTER
 {

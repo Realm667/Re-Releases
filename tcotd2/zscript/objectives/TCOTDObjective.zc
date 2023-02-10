@@ -42,6 +42,12 @@ class TCOTDObjective : Inventory abstract
 		-Inventory.INVBAR
 	}
 
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	override void AttachToOwner(Actor other)
 	{
 		Super.AttachToOwner(other);
@@ -56,84 +62,152 @@ class TCOTDObjective : Inventory abstract
 				newTag = "$OBJECTIVE_" .. String.Format("%s", String.Format("%s", GetClassName()).Mid("TCOTDObjective".Length())).MakeUpper();
 
 			SetTag(newTag);
+
+			NotifyObjectiveAdded();
+			TCOTDJournalMenu.Refresh();
 		}
 	}
 
-	static void Add(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	clearscope uint GetObjectiveState(void)
 	{
-		if (!pmo || !cls)
+		return objectiveState;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static void AddFromACS(Actor activator, String clsName, bool allPlayers = false)
+	{
+		PlayerPawn pmo = NULL;
+		if (!allPlayers)
+			pmo = PlayerPawn(activator);
+		TCOTDObjective.Add(clsName, pmo);
+	}
+
+	static void CompleteFromACS(Actor activator, String clsName, bool allPlayers = false)
+	{
+		PlayerPawn pmo = NULL;
+		if (!allPlayers)
+			pmo = PlayerPawn(activator);
+		TCOTDObjective.Complete(clsName, PlayerPawn(activator));
+	}
+
+	static void FailFromACS(Actor activator, String clsName, bool allPlayers = false)
+	{
+		PlayerPawn pmo = NULL;
+		if (!allPlayers)
+			pmo = PlayerPawn(activator);
+		TCOTDObjective.Fail(clsName, PlayerPawn(activator));
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static void Add(String clsName, PlayerPawn pmo = NULL)
+	{
+		class<TCOTDObjective> cls = clsName;
+
+		if (!cls)
 			return;
 
 		// if no player is specified, add it to all players
-		if (pmo)
-		{
-			pmo.GiveInventory(cls, 1);
-		}
-		else
+		if (!pmo)
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
 			{
 				if (playeringame[i])
 				{
-					let pmo = players[i].mo;
-					pmo.GiveInventory(cls, 1);
+					let apmo = players[i].mo;
+					apmo.GiveInventory(cls, 1);
 				}
 			}
+		}
+		else
+		{
+			pmo.GiveInventory(cls, 1);
 		}
 	}
 
 	static void Delete(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
 	{
-		if (!pmo || !cls)
+		if (!cls)
 			return;
 
 		// if no player is specified, delete it from all players
-		if (pmo)
-		{
-			pmo.TakeInventory(cls, int.max);
-		}
-		else
+		if (!pmo)
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
 			{
 				if (playeringame[i])
 				{
-					let pmo = players[i].mo;
-					pmo.TakeInventory(cls, int.max);
+					let apmo = players[i].mo;
+					apmo.TakeInventory(cls, int.max);
 				}
 			}
 		}
+		else
+		{
+			pmo.TakeInventory(cls, int.max);
+		}
 	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
 
 	private static void SetCompletion(class<TCOTDObjective> cls, uint set, PlayerPawn pmo = NULL)
 	{
-		if (!pmo || !cls)
+		if (!cls)
 			return;
 
 		// if no player is specified, complete it for all players
-		if (pmo)
-		{
-			let obj = TCOTDObjective(pmo.FindInventory(cls));
-			if (obj)
-			{
-				obj.objectiveState = set;
-			}
-		}
-		else
+		if (!pmo)
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
 			{
 				if (playeringame[i])
 				{
-					let pmo = players[i].mo;
-					let obj = TCOTDObjective(pmo.FindInventory(cls));
+					let apmo = players[i].mo;
+					let obj = TCOTDObjective(apmo.FindInventory(cls));
 					if (obj)
 					{
-						obj.objectiveState = set;
+						if (obj.objectiveState != set)
+						{
+							obj.objectiveState = set;
+							obj.NotifyCompletion(set);
+						}
 					}
 				}
 			}
 		}
+		else
+		{
+			let obj = TCOTDObjective(pmo.FindInventory(cls));
+			if (obj)
+			{
+				if (obj.objectiveState != set)
+				{
+					obj.objectiveState = set;
+					obj.NotifyCompletion(set);
+				}
+			}
+		}
+
+		TCOTDJournalMenu.Refresh();
 	}
 
 	static void Complete(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
@@ -149,5 +223,42 @@ class TCOTDObjective : Inventory abstract
 	static void Fail(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
 	{
 		SetCompletion(cls, TCOTDObjective.OBJECTIVE_FAIL, pmo);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	private void NotifyObjectiveAdded(void)
+	{
+		if (Owner == players[consoleplayer].mo)
+		{
+			// to do: make this queued, add a fancy text drawer and sound like in the Bethesda games?
+			String txt = String.Format(StringTable.Localize("$JRNL_OBJECTIVE_ADDED"), GetTag());
+			Console.Printf(txt);
+		}
+	}
+
+	private void NotifyCompletion(uint set)
+	{
+		if (!Owner)
+			return;
+
+		String txt = "";
+		if (set == TCOTDObjective.OBJECTIVE_COMPLETE)
+		{
+			txt = String.Format(StringTable.Localize("$JRNL_OBJECTIVE_COMPLETE"), GetTag());
+		}
+		else if (set == TCOTDObjective.OBJECTIVE_FAIL)
+		{
+			txt = String.Format(StringTable.Localize("$JRNL_OBJECTIVE_FAIL"), GetTag());
+		}
+
+		if (Owner == players[consoleplayer].mo)
+		{
+			Console.Printf(txt);
+		}
 	}
 }

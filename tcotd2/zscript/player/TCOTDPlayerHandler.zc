@@ -225,6 +225,40 @@ class TCOTDPlayerHandler : EventHandler
 				Console.Printf(String.Format(StringTable.Localize("$USEDQUICKHEALITEM"), hpu.GetTag().MakeLower()));
 			}
 		}
+		//===========================================================================
+		//
+		// EV_AddAllObjectives (debug, remove this on release)
+		//
+		//===========================================================================
+		else if (e.Name == 'EV_AddAllObjectives')
+		{
+			for (int i = AllClasses.Size(); i --> 0;)
+			{
+				if (AllClasses[i] is 'TCOTDObjective' && AllClasses[i] != 'TCOTDObjective')
+				{
+					String objectiveClassName = AllClasses[i].GetClassName();
+					TCOTDObjective.Add(objectiveClassName);
+				}
+			}
+		}
+		//===========================================================================
+		//
+		// EV_ResetJournalRefreshState
+		//
+		//===========================================================================
+		else if (e.Name == 'EV_ResetJournalRefreshState')
+		{
+			pmo.TakeInventory("TCOTDPlayerRefreshJournalDummy", int.max);
+		}
+		//===========================================================================
+		//
+		// EV_MarkJournalRefresh
+		//
+		//===========================================================================
+		else if (e.Name == 'EV_MarkJournalRefresh')
+		{
+			pmo.GiveInventory("TCOTDPlayerRefreshJournalDummy", 1);
+		}
 	}
 
 	//===========================================================================
