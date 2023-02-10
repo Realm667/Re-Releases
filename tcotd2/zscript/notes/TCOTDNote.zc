@@ -25,11 +25,7 @@
 
 class TCOTDNote : Inventory abstract
 {
-	uint noteNumber;
-	property NoteNumber: noteNumber;
-
 	String noteText;
-
 	String notePic;
 	property NotePic: notePic;
 
@@ -72,6 +68,25 @@ class TCOTDNote : Inventory abstract
 
 			//Console.Printf(GetTag());
 			//Console.Printf(StringTable.Localize(noteText));
+		}
+	}
+
+	static void ReadNoteFromACS(Actor activator, String noteClassName)
+	{
+		// every player gets a copy of the note
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i])
+			{
+				let pmo = players[i].mo;
+				pmo.GiveInventory(noteClassName, 1);
+			}
+		}
+
+		// open the note only for the player who clicked on it
+		if (activator == players[consoleplayer].mo)
+		{
+			EventHandler.SendNetworkEvent("EV_SetNoteToRead:" .. noteClassName);
 		}
 	}
 }
