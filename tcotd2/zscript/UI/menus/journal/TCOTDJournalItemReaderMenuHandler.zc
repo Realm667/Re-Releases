@@ -1,0 +1,56 @@
+//===========================================================================
+//
+// Darkadia Game Code License
+//
+// Copyright (C) 2020 - 2021 Nash Muhandes
+//
+// This ZScript source code is licensed under the Darkadia Game Code License
+// and is only permitted for use within the Darkadia game.
+//
+// You may not copy, modify or sell any of the ZScript files used in this
+// game.
+//
+//===========================================================================
+
+//===========================================================================
+//
+// TCOTDJournalItemReaderMenuHandler
+//
+//===========================================================================
+
+class TCOTDJournalItemReaderMenuHandler : TCOTDZFHandler
+{
+	TCOTDJournalItemReaderMenu mMenu;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void ElementHoverChanged(TCOTDZFElement caller, string command, bool unhovered)
+	{
+		if (!unhovered && !caller.disabled)
+		{
+			Menu.MenuSound("menu/hover");
+		}
+		Super.ElementHoverChanged(caller, command, unhovered);
+	}
+
+	override void ButtonClickCommand(TCOTDZFButton caller, String command)
+	{
+		if (!mMenu)
+			return;
+
+		if (command == "CMD_MemoPrevPage")
+		{
+			bool ret = mMenu.MenuEvent(mMenu.MKEY_LEFT, false);
+			return;
+		}
+		else if (command == "CMD_MemoNextPage")
+		{
+			bool ret = mMenu.MenuEvent(mMenu.MKEY_RIGHT, false);
+			return;
+		}
+	}
+}

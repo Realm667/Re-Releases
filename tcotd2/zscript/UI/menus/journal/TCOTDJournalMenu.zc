@@ -133,6 +133,19 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	static bool IsOpen ()
 	{
 		let mnu = Menu.GetCurrentMenu();
-		return mnu && mnu is 'TCOTDJournalMenu';
+		return mnu &&
+			(mnu is 'TCOTDJournalMenu' || mnu is 'TCOTDJournalItemReaderMenu');
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static double GetScaleFactor(void)
+	{
+		//return Screen.GetHeight() / double(TCOTDJournalMenu.RES_HEIGHT);
+		return Screen.GetHeight() / double(400);
 	}
 }

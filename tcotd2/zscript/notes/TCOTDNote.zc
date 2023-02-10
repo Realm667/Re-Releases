@@ -18,51 +18,59 @@
 
 //===========================================================================
 //
-// TCOTDZFJournalHandler
+// TCOTDNote
+// Notes, AKA "letters"
 //
 //===========================================================================
 
-class TCOTDZFJournalHandler : TCOTDZFHandler
+class TCOTDNote : Inventory abstract
 {
-	TCOTDJournalMenu menu;
+	uint noteNumber;
+	property NoteNumber: noteNumber;
 
-	//===========================================================================
-	//
-	//
-	//
-	//===========================================================================
+	String noteText;
 
-	override void ButtonClickCommand(TCOTDZFButton caller, String command)
+	String notePic;
+	property NotePic: notePic;
+
+	Default
 	{
-		if (!menu)
-			return;
-
-		//Console.Printf(command);
-
-		// Parse the command
-		Array<String> strings;
-		strings.Clear();
-		command.Split(strings, ":");
-
-		// Return if the array has less than 2 strings
-		if (strings.Size() < 2)
-			return;
-
-		// Play activate sound
-		Menu.MenuSound("journal/click");
-
-		if ((strings[0] ~== "TCOTDZFHandlerCommandTCOTDNote"))
-		{
-			EventHandler.SendNetworkEvent("EV_SetNoteToRead:" .. strings[1]);
-		}
+		Inventory.Amount 1;
+		Inventory.MaxAmount 1;
+		+Inventory.UNDROPPABLE
+		+Inventory.UNTOSSABLE
+		-Inventory.INVBAR
 	}
 
-	override void ElementHoverChanged(TCOTDZFElement caller, string command, bool unhovered)
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void AttachToOwner(Actor other)
 	{
-		if (!unhovered && !caller.disabled)
+		Super.AttachToOwner(other);
+
+		if (Owner && Owner is "PlayerPawn")
 		{
-			Menu.MenuSound("journal/hover");
+			String newTag = "";
+
+			if (GetClass() == "TCOTDNote")
+			{
+				newTag = "$NOTE_DEFAULT";
+				noteText = "$NOTETXT_DEFAULT";
+			}
+			else
+			{
+				newTag = "$NOTE_" .. String.Format("%s", String.Format("%s", GetClassName()).Mid("TCOTDNOTE".Length())).MakeUpper();
+				noteText = "$NOTETXT_" .. String.Format("%s", String.Format("%s", GetClassName()).Mid("TCOTDNOTE".Length())).MakeUpper();
+			}
+
+			SetTag(newTag);
+
+			Console.Printf(GetTag());
+			Console.Printf(StringTable.Localize(noteText));
 		}
-		Super.ElementHoverChanged(caller, command, unhovered);
 	}
 }

@@ -1,0 +1,472 @@
+/*
+* TCOTD2 Game Code
+* Copyright (C) 2020 - 2023  Nash Muhandes
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//===========================================================================
+//
+// TCOTDJournalItemReaderMenu
+//
+//===========================================================================
+
+class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
+{
+	const TXT_SHADOW_X = 3.0;
+	const TXT_SHADOW_Y = 2.0;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	TCOTDJournalItemReaderMenuHandler handler;
+	Font mFont;
+	TCOTDPlayer pmo;
+
+	TCOTDNote note;
+
+	// ZForms elements
+	TCOTDZFFrame menuFill;
+	TCOTDZFImage noteBackdrop;
+	TCOTDZFFrame noteTextFrame;
+	TCOTDZFLabel noteTextShadow;
+	TCOTDZFLabel notePageIndicatorShadow;
+	TCOTDZFLabel noteText;
+	TCOTDZFLabel notePageIndicator;
+	TCOTDZFImage notePrevPageButtonImage;
+	TCOTDZFImage noteNextPageButtonImage;
+	TCOTDZFButton notePrevPageButton;
+	TCOTDZFButton noteNextPageButton;
+
+	int mPageNumber;
+	int mMenuPadding;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Init(Menu parent)
+	{
+		Super.Init(parent);
+
+		pmo = TCOTDPlayer(players[consoleplayer].mo);
+
+		if (!pmo)
+		{
+			ThrowAbortException("Tried to open TCOTDJournalItemReaderMenu with an invalid player");
+		}
+
+		// set the actual note to be read
+		note = pmo.noteToRead;
+
+		if (!note)
+		{
+			ThrowAbortException("Tried to open TCOTDJournalItemReaderMenu with an invalid note");
+		}
+
+		// Set menu resolution
+		SetBaseResolution((Screen.GetWidth(), Screen.GetHeight()));
+
+		// Set menu font
+		mFont = SmallFont;
+
+		mMenuPadding = 80;
+
+		// Assign the menu handler
+		handler = new('TCOTDJournalItemReaderMenuHandler');
+		handler.mMenu = self;
+
+		//===========================================================================
+		//
+		// BLACK FILL
+		//
+		//===========================================================================
+
+		menuFill = new('TCOTDZFFrame').Init
+		(
+			(0, 0),
+			(Screen.GetWidth(), Screen.GetHeight())
+		);
+		menuFill.Pack(mainFrame);
+
+		//===========================================================================
+		//
+		// BACKDROP
+		//
+		//===========================================================================
+
+		noteBackdrop = new('TCOTDZFImage').Init
+		(
+			(0, 0),
+			(640, 400),
+			imageScale: (TCOTDJournalMenu.GetScaleFactor(), TCOTDJournalMenu.GetScaleFactor())
+		);
+		noteBackdrop.box.size.X *= TCOTDJournalMenu.GetScaleFactor();
+		noteBackdrop.box.size.Y *= TCOTDJournalMenu.GetScaleFactor();
+		double screenCenterX = Screen.GetWidth() / 2;
+		double screenCenterY = Screen.GetHeight() / 2;
+		double noteCenterX = noteBackdrop.box.size.X / 2;
+		double noteCenterY = noteBackdrop.box.size.Y / 2;
+		noteBackdrop.box.pos.X = screenCenterX - noteCenterX;
+		noteBackdrop.box.pos.Y= screenCenterY - noteCenterY;
+		noteBackdrop.alpha = 1.0;
+		noteBackdrop.Pack(mainFrame);
+
+		//===========================================================================
+		//
+		// NOTE TEXT
+		//
+		//===========================================================================
+
+		int borderPadding = GetMenuPadding();
+
+		noteTextFrame = new('TCOTDZFFrame').Init
+		(
+			(borderPadding * TCOTDJournalMenu.GetScaleFactor(), borderPadding * TCOTDJournalMenu.GetScaleFactor()),
+			(Screen.GetWidth() - ((borderPadding * 2) * TCOTDJournalMenu.GetScaleFactor()), (mFont.GetHeight() * TCOTDJournalMenu.GetScaleFactor()) * GetMaxShowableLines())
+		);
+		noteTextFrame.Pack(mainFrame);
+
+		noteTextShadow = new('TCOTDZFLabel').Init
+		(
+			(0.0, 0.0),
+			(0, 0),
+			text: "",
+			fnt: mFont,
+			wrap: true,
+			autosize: true,
+			textScale: TCOTDJournalMenu.GetScaleFactor(),
+			textColor: Font.FindFontColor('TCOTDBlack')
+
+		);
+		noteTextShadow.box.size.X = noteTextFrame.box.size.X;
+		noteTextShadow.Pack(noteTextFrame);
+
+		noteText = new('TCOTDZFLabel').Init
+		(
+			(0, 0),
+			(0, 0),
+			text: "",
+			fnt: mFont,
+			wrap: true,
+			autosize: true,
+			textScale: TCOTDJournalMenu.GetScaleFactor(),
+			textColor: Font.CR_UNTRANSLATED
+
+		);
+		noteText.box.size.X = noteTextFrame.box.size.X;
+		noteText.Pack(noteTextFrame);
+
+		//===========================================================================
+		//
+		// NOTE PAGE INDICATOR
+		//
+		//===========================================================================
+
+		notePageIndicatorShadow = new('TCOTDZFLabel').Init
+		(
+			(TXT_SHADOW_X, TXT_SHADOW_Y),
+			(0, 0),
+			text: "",
+			fnt: mFont,
+			wrap: true,
+			autosize: true,
+			textScale: TCOTDJournalMenu.GetScaleFactor(),
+			textColor: Font.FindFontColor('TCOTDBlack')
+
+		);
+		notePageIndicatorShadow.Pack(mainFrame);
+
+		notePageIndicator = new('TCOTDZFLabel').Init
+		(
+			(0, 0),
+			(0, 0),
+			text: "",
+			fnt: mFont,
+			wrap: true,
+			autosize: true,
+			textScale: TCOTDJournalMenu.GetScaleFactor(),
+			textColor: Font.CR_UNTRANSLATED
+
+		);
+		notePageIndicator.Pack(mainFrame);
+
+		//===========================================================================
+		//
+		// NOTE PAGE BUTTONS
+		//
+		//===========================================================================
+
+		//let prevPageBtn = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollLeft.png", false);
+		//let prevPageBtnHover = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollLeft_Hover.png", false);
+		//let nextPageBtn = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollRight.png", false);
+		//let nextPageBtnHover = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollRight_Hover.png", false);
+		String prevPageBtn = "graphics/journal/ItemScrollLeft.png";
+		String prevPageBtnHover = "graphics/journal/ItemScrollLeft_Hover.png";
+		String nextPageBtn = "graphics/journal/ItemScrollRight.png";
+		String nextPageBtnHover = "graphics/journal/ItemScrollRight_Hover.png";
+
+		// the actual clickable part is invisible because the button image has tiling.
+		// we'll put the image separately under the button.
+
+		// PREV PAGE
+
+		notePrevPageButtonImage = new('TCOTDZFImage').Init
+		(
+			(0, 0),
+			(9 * TCOTDJournalMenu.GetScaleFactor(), 17 * TCOTDJournalMenu.GetScaleFactor()),
+			imageScale: (TCOTDJournalMenu.GetScaleFactor(), TCOTDJournalMenu.GetScaleFactor())
+		);
+		notePrevPageButtonImage.Pack(mainFrame);
+
+		notePrevPageButton = new('TCOTDZFButton').Init
+		(
+			(0, 0),
+			notePrevPageButtonImage.box.size,
+			cmdHandler: TCOTDJournalItemReaderMenuHandler(handler),
+			command: "CMD_MemoPrevPage"
+			/*
+			prevPageBtn,
+			prevPageBtnHover,
+			prevPageBtn,
+			prevPageBtn
+			*/
+		);
+		notePrevPageButton.SetTexture
+		(
+			prevPageBtn,
+			prevPageBtnHover,
+			prevPageBtn,
+			prevPageBtn
+		);
+		notePrevPageButton.hidden = true;
+		notePrevPageButton.Pack(mainFrame);
+
+		// NEXT PAGE
+
+		noteNextPageButtonImage = new('TCOTDZFImage').Init
+		(
+			(0, 0),
+			(9 * TCOTDJournalMenu.GetScaleFactor(), 17 * TCOTDJournalMenu.GetScaleFactor()),
+			imageScale: (TCOTDJournalMenu.GetScaleFactor(), TCOTDJournalMenu.GetScaleFactor())
+		);
+		noteNextPageButtonImage.Pack(mainFrame);
+
+		noteNextPageButton = new('TCOTDZFButton').Init
+		(
+			(0, 0),
+			noteNextPageButtonImage.box.size,
+			cmdHandler: TCOTDJournalItemReaderMenuHandler(handler),
+			command: "CMD_MemoNextPage"
+			/*
+			nextPageBtn,
+			nextPageBtnHover,
+			nextPageBtn,
+			nextPageBtn
+			*/
+		);
+		noteNextPageButton.SetTexture
+		(
+			nextPageBtn,
+			nextPageBtnHover,
+			nextPageBtn,
+			nextPageBtn
+		);
+		noteNextPageButton.hidden = true;
+		noteNextPageButton.Pack(mainFrame);
+	}
+
+	override void Ticker(void)
+	{
+		if (!note)
+		{
+			ThrowAbortException("Tried to open TCOTDJournalItemReaderMenu with an invalid note object");
+		}
+
+		// backdrop image
+		noteBackdrop.image = "";
+
+		// get note text contents
+		if (note is 'TCOTDObjective')
+		{
+			// nothing
+		}
+		else if (note is 'TCOTDNote')
+		{
+			noteText.text = StringTable.Localize(TCOTDNote(note).noteText);
+			noteBackdrop.image = TCOTDNote(note).notePic;
+		}
+
+		noteTextShadow.text = noteText.text;
+
+		// text page position
+		double fontHeight = mFont.GetHeight() * TCOTDJournalMenu.GetScaleFactor();
+		noteText.box.pos.Y = 0 - ((mPageNumber * fontHeight) * GetMaxShowableLines());
+
+		// text page shadow position
+		noteTextShadow.box.pos.X = noteText.box.pos.X + TXT_SHADOW_X;
+		noteTextShadow.box.pos.Y = noteText.box.pos.Y + TXT_SHADOW_Y;
+
+		// page indicator
+		int curPage = mPageNumber + 1;
+		int maxPage = GetTotalPages() + 1;
+		String pageIndicatorTxt = String.Format(StringTable.Localize("$NOTEPAGEINDICATOR"), curPage, maxPage);
+		notePageIndicator.text = pageIndicatorTxt;
+		notePageIndicator.box.size.X = mFont.StringWidth(pageIndicatorTxt) * TCOTDJournalMenu.GetScaleFactor();
+		notePageIndicator.box.size.Y = mFont.GetHeight() * TCOTDJournalMenu.GetScaleFactor();
+		notePageIndicator.box.pos.X = (Screen.GetWidth() / 2) - (notePageIndicator.box.size.X / 2);
+		notePageIndicator.box.pos.Y = Screen.GetHeight() - ((mFont.GetHeight() * TCOTDJournalMenu.GetScaleFactor()) * 2);
+		// shadow
+		notePageIndicatorShadow.text = notePageIndicator.text;
+		notePageIndicatorShadow.box.size.X = notePageIndicator.box.size.X + TXT_SHADOW_X;
+		notePageIndicatorShadow.box.size.Y = notePageIndicator.box.size.Y + TXT_SHADOW_Y;
+		notePageIndicatorShadow.box.pos.X = notePageIndicator.box.pos.X + TXT_SHADOW_X;
+		notePageIndicatorShadow.box.pos.Y = notePageIndicator.box.pos.Y + TXT_SHADOW_Y;
+
+		// page buttons
+		double PageBtnPosY = notePageIndicator.box.pos.Y;
+		double btnPadding = 10 * TCOTDJournalMenu.GetScaleFactor();
+		Vector2 prevPageBtnPos = (notePageIndicator.box.pos.X - notePrevPageButtonImage.box.size.X - btnPadding, PageBtnPosY);
+		Vector2 nextPageBtnPos = (notePageIndicator.box.pos.X + notePageIndicator.box.size.X + btnPadding, PageBtnPosY);
+
+		notePrevPageButtonImage.box.pos = prevPageBtnPos;
+		notePrevPageButton.box.pos = prevPageBtnPos;
+
+		noteNextPageButtonImage.box.pos = nextPageBtnPos;
+		noteNextPageButton.box.pos = nextPageBtnPos;
+
+		// make the images use the same texture as the buttons
+		String img = "";
+
+		if (notePrevPageButton.isHovered)
+			//img = notePrevPageButton.textures[notePrevPageButton.ButtonState_Hover].boxTexture;
+			img = notePrevPageButton.btnTextures[notePrevPageButton.ButtonState_Hover];
+		else
+			//img = notePrevPageButton.textures[notePrevPageButton.ButtonState_Inactive].boxTexture;
+			img = notePrevPageButton.btnTextures[notePrevPageButton.ButtonState_Inactive];
+		notePrevPageButtonImage.image = img;
+
+		if (noteNextPageButton.isHovered)
+			//img = noteNextPageButton.textures[noteNextPageButton.ButtonState_Hover].boxTexture;
+			img = noteNextPageButton.btnTextures[noteNextPageButton.ButtonState_Hover];
+		else
+			//img = noteNextPageButton.textures[noteNextPageButton.ButtonState_Inactive].boxTexture;
+			img = noteNextPageButton.btnTextures[noteNextPageButton.ButtonState_Inactive];
+		noteNextPageButtonImage.image = img;
+
+		Super.Ticker();
+	}
+
+	/*
+	override void Drawer(void)
+	{
+		// fill the entire screen with a black background
+		menuFill.Fill
+		(
+			(0, 0),
+			(Screen.GetWidth(), Screen.GetHeight()),
+			Color(0, 0, 0),
+			1.0
+		);
+
+		Super.Drawer();
+	}
+	*/
+
+	override bool MenuEvent(int mkey, bool fromcontroller)
+	{
+		switch (mkey)
+		{
+			bool changedPage = false;
+
+			case MKEY_Back:
+				Close();
+				MenuSound(GetCurrentMenu() != NULL ? "menu/backup" : "menu/clear");
+				// clear "the note to read" reference on the player pawn
+				EventHandler.SendNetworkEvent("EV_ClearNoteToRead");
+				return true;
+			case MKEY_Left:
+				if (mPageNumber > 0)
+				{
+					mPageNumber--;
+					changedPage = true;
+				}
+				break;
+			case MKEY_Right:
+				if (mPageNumber < GetTotalPages())
+				{
+					mPageNumber++;
+					changedPage = true;
+				}
+				break;
+		}
+
+		if (changedPage)
+		{
+			Menu.MenuSound("note/page");
+		}
+
+		return Super.MenuEvent(mkey, fromcontroller);
+	}
+
+	override bool OnUIEvent(UIEvent ev)
+	{
+		if (ev.Type == UIEvent.Type_WheelUp)
+		{
+			return MenuEvent(MKEY_Left, false);
+		}
+		else if (ev.Type == UIEvent.Type_WheelDown)
+		{
+			return MenuEvent(MKEY_Right, false);
+		}
+		return Super.OnUIEvent(ev);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	int GetTotalPages(void)
+	{
+		return GetTotalLines() / GetMaxShowableLines();
+	}
+
+	int GetTotalLines(void)
+	{
+		let text = noteText.text;
+		int maxWidth = int(noteTextFrame.box.size.X / TCOTDJournalMenu.GetScaleFactor());
+		BrokenLines lines = mFont.BreakLines(text, maxWidth);
+		return lines.Count();
+	}
+
+	int GetMaxShowableLines(void)
+	{
+		double fontHeight = mFont.GetHeight() * TCOTDJournalMenu.GetScaleFactor();
+
+		// we subtract some lines to leave space for the navigation widgets
+		return int((mainFrame.box.size.Y - GetMenuPadding()) / fontHeight) - 6;
+	}
+
+	int GetMenuPadding(void)
+	{
+		return mMenuPadding;
+	}
+}
