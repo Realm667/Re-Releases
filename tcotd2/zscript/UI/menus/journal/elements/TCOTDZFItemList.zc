@@ -123,15 +123,7 @@ class TCOTDZFItemList : TCOTDZFFrame
 						textColor: SmallFont.FindFontColor('TCOTDJournalTextColor')
 					));
 
-					// for objectives, update completion status
-					// TO DO: move this out of init?
-					if (mItems[i] is 'TCOTDObjective')
-					{
-						if (TCOTDObjective(mItems[i]).GetObjectiveState() == TCOTDObjective.OBJECTIVE_COMPLETE)
-							newItem.textColor = SmallFont.FindFontColor('TCOTDJournalTextObjectiveComplete');
-						else if (TCOTDObjective(mItems[i]).GetObjectiveState() == TCOTDObjective.OBJECTIVE_FAIL)
-							newItem.textColor = SmallFont.FindFontColor('TCOTDJournalTextObjectiveFailed');
-					}
+					newItem.mItem = mItems[i];
 
 					newItem.Pack(self);
 

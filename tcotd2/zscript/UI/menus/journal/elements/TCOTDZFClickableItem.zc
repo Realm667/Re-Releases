@@ -24,10 +24,52 @@
 
 class TCOTDZFClickableItem : TCOTDZFLabel
 {
+	TCOTDZFItemListButton mButton;
+	bool isHighlighted;
+	Inventory mItem;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Drawer(void)
+	{
+		Super.Drawer();
+
+		if (isHighlighted)
+		{
+			textColor = SmallFont.FindFontColor('TCOTDJournalTextHighlighted');
+		}
+		else
+		{
+			if (mItem is 'TCOTDObjective')
+			{
+				if (TCOTDObjective(mItem).GetObjectiveState() == TCOTDObjective.OBJECTIVE_COMPLETE)
+					textColor = SmallFont.FindFontColor('TCOTDJournalTextObjectiveComplete');
+				else if (TCOTDObjective(mItem).GetObjectiveState() == TCOTDObjective.OBJECTIVE_FAIL)
+					textColor = SmallFont.FindFontColor('TCOTDJournalTextObjectiveFailed');
+				else
+					textColor = SmallFont.FindFontColor('TCOTDJournalTextColor');
+			}
+			else
+			{
+				textColor = SmallFont.FindFontColor('TCOTDJournalTextColor');
+			}
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	void MakeButton(TCOTDZFJournalHandler handler, int lineCount, String cmdName, String itemClassName)
 	{
 		// create a clickable zone using an invisible button
-		let btn = TCOTDZFButton(new('TCOTDZFButton').Init
+		let btn = TCOTDZFItemListButton(new('TCOTDZFItemListButton').Init
 		(
 			self.box.pos,
 			self.box.size,
@@ -43,5 +85,7 @@ class TCOTDZFClickableItem : TCOTDZFLabel
 		);
 		btn.box.size.Y = (SmallFont.GetHeight() * textScale) * lineCount;
 		btn.Pack(master);
+		btn.mClickableItem = self;
+		mButton = btn;
 	}
 }

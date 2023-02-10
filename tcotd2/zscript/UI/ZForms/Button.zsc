@@ -22,6 +22,9 @@ class TCOTDZFButton : TCOTDZFElement {
 
 	Vector2 mousePos;
 
+	// [Nash] ZForms 1x
+	AlignType textAlignment;
+
 	void setTexture(string inactive, string hover, string click, string disabled) {
 		self.btnTextures[ButtonState_Inactive] = inactive;
 		self.btnTextures[ButtonState_Hover] = hover;
@@ -34,7 +37,7 @@ class TCOTDZFButton : TCOTDZFElement {
 	            TCOTDZFBoxTextures inactive = NULL, TCOTDZFBoxTextures hover = NULL,
 	            TCOTDZFBoxTextures click = NULL, TCOTDZFBoxTextures disabled = NULL,
 	            Font fnt = NULL, double textScale = 1, int textColor = Font.CR_WHITE,
-	            int holdInterval = -1) {
+	            int holdInterval = -1, AlignType textAlignment = AlignType_Center) {
 		if (fnt == NULL) {
 			self.fnt = smallfont;
 		}
@@ -46,6 +49,7 @@ class TCOTDZFButton : TCOTDZFElement {
 		self.holdTicInterval = holdInterval;
 		self.text = text;
 		self.textScale = textScale;
+		self.textAlignment = textAlignment;
 		self.textures[ButtonState_Inactive] = inactive;
 		self.textures[ButtonState_Hover] = hover;
 		self.textures[ButtonState_Click] = click;
@@ -58,8 +62,8 @@ class TCOTDZFButton : TCOTDZFElement {
 	TCOTDZFButton init(Vector2 pos, Vector2 size, string text = "", TCOTDZFHandler cmdHandler = NULL, string command = "",
 	               TCOTDZFBoxTextures inactive = NULL, TCOTDZFBoxTextures hover = NULL, TCOTDZFBoxTextures click = NULL,
 	               TCOTDZFBoxTextures disabled = NULL, Font fnt = NULL, double textScale = 1, int textColor = Font.CR_WHITE,
-	               int holdInterval = -1) {
-		self.config(text, cmdHandler, command, inactive, hover, click, disabled, fnt, textScale, textColor, holdInterval);
+	               int holdInterval = -1, AlignType textAlignment = AlignType_Center) {
+		self.config(text, cmdHandler, command, inactive, hover, click, disabled, fnt, textScale, textColor, holdInterval, textAlignment);
 		self.setBox(pos, size);
 
 		return self;
@@ -100,9 +104,10 @@ class TCOTDZFButton : TCOTDZFElement {
 			drawBox((0, 0), box.size, textures, true);
 		}
 
-		// draw the text in the middle of the button
+		// [Nash] ZForms 1x
+		// draw aligned text
 		Vector2 textSize = (fnt.stringWidth(text), fnt.getHeight()) * textScale;
-		Vector2 textPos = (box.size - textSize) / 2;
+		Vector2 textPos = getAlignedDrawPos(box.size, textSize, textAlignment);
 		drawText(textPos, fnt, text, textColor, textScale);
 	}
 
