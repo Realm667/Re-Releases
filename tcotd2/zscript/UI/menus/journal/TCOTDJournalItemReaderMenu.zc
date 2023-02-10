@@ -115,7 +115,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		(
 			(0, 0),
 			(Screen.GetWidth(), Screen.GetHeight()),
-			imageScale: (Screen.GetWidth() / 1280., Screen.GetHeight() / 800.)
+			imageScale: ((Screen.GetWidth() / 1280.) * 0.8333, Screen.GetHeight() / 960.)
 		);
 		//noteBackdrop.box.size.X *= TCOTDJournalMenu.GetScaleFactor();
 		//noteBackdrop.box.size.Y *= TCOTDJournalMenu.GetScaleFactor();
@@ -123,9 +123,9 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		double screenCenterY = Screen.GetHeight() / 2;
 		double noteCenterX = noteBackdrop.box.size.X / 2;
 		double noteCenterY = noteBackdrop.box.size.Y / 2;
-		noteBackdrop.box.pos.X = screenCenterX - noteCenterX;
+		noteBackdrop.box.pos.X = (screenCenterX * 1.2) - noteCenterX;
 		noteBackdrop.box.pos.Y = screenCenterY - noteCenterY;
-		noteBackdrop.alpha = 1.0;
+		noteBackdrop.alpha = note.Alpha;
 		noteBackdrop.Pack(mainFrame);
 
 		//===========================================================================
@@ -379,7 +379,6 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		Super.Ticker();
 	}
 
-	/*
 	override void Drawer(void)
 	{
 		// fill the entire screen with a black background
@@ -388,12 +387,11 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 			(0, 0),
 			(Screen.GetWidth(), Screen.GetHeight()),
 			Color(0, 0, 0),
-			1.0
+			0.2
 		);
 
 		Super.Drawer();
 	}
-	*/
 
 	override bool MenuEvent(int mkey, bool fromcontroller)
 	{
