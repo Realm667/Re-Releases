@@ -124,7 +124,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		double noteCenterX = noteBackdrop.box.size.X / 2;
 		double noteCenterY = noteBackdrop.box.size.Y / 2;
 		noteBackdrop.box.pos.X = screenCenterX - noteCenterX;
-		noteBackdrop.box.pos.Y= screenCenterY - noteCenterY;
+		noteBackdrop.box.pos.Y = screenCenterY - noteCenterY;
 		noteBackdrop.alpha = 1.0;
 		noteBackdrop.Pack(mainFrame);
 
@@ -299,6 +299,12 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 			ThrowAbortException("Tried to open TCOTDJournalItemReaderMenu with an invalid note object");
 		}
 
+		if (pmo.player.playerstate == PST_DEAD)
+		{
+			Close();
+			return;
+		}
+
 		// backdrop image
 		noteBackdrop.image = "";
 
@@ -340,7 +346,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		notePageIndicatorShadow.box.pos.Y = notePageIndicator.box.pos.Y + TXT_SHADOW_Y;
 
 		// page buttons
-		double PageBtnPosY = notePageIndicator.box.pos.Y;
+		double PageBtnPosY = notePageIndicator.box.pos.Y - 8;
 		double btnPadding = 10 * TCOTDJournalMenu.GetScaleFactor();
 		Vector2 prevPageBtnPos = (notePageIndicator.box.pos.X - notePrevPageButtonImage.box.size.X - btnPadding, PageBtnPosY);
 		Vector2 nextPageBtnPos = (notePageIndicator.box.pos.X + notePageIndicator.box.size.X + btnPadding, PageBtnPosY);

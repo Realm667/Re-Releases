@@ -35,15 +35,14 @@ class TCOTDPlayerHandler : EventHandler
 	//
 	//===========================================================================
 
-	/*
 	override void PlayerEntered(PlayerEvent e)
 	{
 		PlayerPawn pmo = players[e.PlayerNumber].mo;
 		if (pmo)
 		{
+			ClearNoteToRead(TCOTDPlayer(pmo));
 		}
 	}
-	*/
 
 	override void PlayerDisconnected(PlayerEvent e)
 	{
@@ -61,6 +60,7 @@ class TCOTDPlayerHandler : EventHandler
 
 		if (pmo == players[consoleplayer].mo)
 		{
+			ClearNoteToRead(TCOTDPlayer(pmo));
 			SetMusicVolume(0);
 			TCOTDSiren.PlayGameOverMusic();
 		}
@@ -75,6 +75,7 @@ class TCOTDPlayerHandler : EventHandler
 
 		if (pmo == players[consoleplayer].mo)
 		{
+			ClearNoteToRead(TCOTDPlayer(pmo));
 			SetMusicVolume(snd_musicvolume);
 			TCOTDSiren.StopGameOverMusic();
 		}
@@ -340,6 +341,10 @@ class TCOTDPlayerHandler : EventHandler
 	{
 		if (!note || !pmo)
 			return;
+
+		if (pmo.player.playerstate == PST_DEAD)
+			return;
+
 		pmo.noteToRead = note;
 		if (pmo == players[consoleplayer].mo)
 		{

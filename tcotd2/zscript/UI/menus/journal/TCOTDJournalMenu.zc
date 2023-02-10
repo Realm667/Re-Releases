@@ -124,6 +124,17 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		notesHeader.Pack(mainFrame);
 	}
 
+	override void Ticker(void)
+	{
+		Super.Ticker();
+
+		if (pmo.player.playerstate == PST_DEAD)
+		{
+			Close();
+			return;
+		}
+	}
+
 	//===========================================================================
 	//
 	//
