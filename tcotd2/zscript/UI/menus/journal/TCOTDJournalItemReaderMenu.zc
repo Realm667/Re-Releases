@@ -114,11 +114,11 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		noteBackdrop = new('TCOTDZFImage').Init
 		(
 			(0, 0),
-			(640, 400),
-			imageScale: (TCOTDJournalMenu.GetScaleFactor(), TCOTDJournalMenu.GetScaleFactor())
+			(Screen.GetWidth(), Screen.GetHeight()),
+			imageScale: (Screen.GetWidth() / 1280., Screen.GetHeight() / 800.)
 		);
-		noteBackdrop.box.size.X *= TCOTDJournalMenu.GetScaleFactor();
-		noteBackdrop.box.size.Y *= TCOTDJournalMenu.GetScaleFactor();
+		//noteBackdrop.box.size.X *= TCOTDJournalMenu.GetScaleFactor();
+		//noteBackdrop.box.size.Y *= TCOTDJournalMenu.GetScaleFactor();
 		double screenCenterX = Screen.GetWidth() / 2;
 		double screenCenterY = Screen.GetHeight() / 2;
 		double noteCenterX = noteBackdrop.box.size.X / 2;
