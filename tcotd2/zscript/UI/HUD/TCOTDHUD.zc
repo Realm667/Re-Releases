@@ -63,13 +63,16 @@ class TCOTDHUD : DoomStatusBar
 
 	override void Draw(int state, double TicFrac)
 	{
-		BaseStatusBar.Draw(state, TicFrac);
+		if (TCOTDJournalMenu.IsOpen())
+			return;
 
 		if (TCOTDGameplayStatics.IsInCutscene(CPlayer.mo))
 			return;
 
 		if (TCOTDJournalMenu.IsOpen())
 			return;
+
+		BaseStatusBar.Draw(state, TicFrac);
 
 		if (state == HUD_StatusBar || state == HUD_Fullscreen)
 		{
