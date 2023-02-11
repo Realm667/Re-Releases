@@ -131,7 +131,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	{
 		Super.Drawer();
 
-		if (pmo.player.playerstate == PST_DEAD)
+		if (pmo.player.playerstate == PST_DEAD || pmo.CountInv("CutsceneEnabled"))
 		{
 			Close();
 			return;

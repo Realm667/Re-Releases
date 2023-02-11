@@ -394,7 +394,7 @@ class TCOTDPlayerHandler : EventHandler
 			if (TCOTDGameplayStatics.IsKeyForCommand(e.KeyScan, togglemapCmd))
 			{
 				//Console.Printf("Pressed the automap key");
-				if (pmo.player.playerstate == PST_DEAD)
+				if (pmo.player.playerstate == PST_DEAD || pmo.CountInv("CutsceneEnabled"))
 					return true;
 			}
 		}
@@ -438,7 +438,7 @@ class TCOTDPlayerHandler : EventHandler
 
 		if (e.type == InputEvent.Type_KeyDown)
 		{
-			if (TCOTDGameplayStatics.IsKeyForCommand(e.KeyScan, journalCmd) && pmo.player.playerstate == PST_DEAD)
+			if (TCOTDGameplayStatics.IsKeyForCommand(e.KeyScan, journalCmd) && (pmo.player.playerstate == PST_DEAD || pmo.CountInv("CutsceneEnabled")))
 			{
 				return true;
 			}

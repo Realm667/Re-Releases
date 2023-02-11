@@ -302,7 +302,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 			ThrowAbortException("Tried to open TCOTDJournalItemReaderMenu with an invalid note object");
 		}
 
-		if (pmo.player.playerstate == PST_DEAD)
+		if (pmo.player.playerstate == PST_DEAD || pmo.CountInv("CutsceneEnabled"))
 		{
 			Close();
 			return;
@@ -384,7 +384,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 
 	override void Drawer(void)
 	{
-		if (pmo.player.playerstate == PST_DEAD)
+		if (pmo.player.playerstate == PST_DEAD || pmo.CountInv("CutsceneEnabled"))
 		{
 			Close();
 			return;
