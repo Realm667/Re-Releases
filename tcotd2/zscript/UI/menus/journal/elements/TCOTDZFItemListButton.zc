@@ -26,6 +26,22 @@ class TCOTDZFItemListButton : TCOTDZFButton
 {
 	TCOTDZFClickableItem mClickableItem;
 
+	static TCOTDZFItemListButton Create(Vector2 pos, Vector2 size, string text = "", TCOTDZFHandler cmdHandler = NULL, string command = "",
+		TCOTDZFBoxTextures inactive = NULL, TCOTDZFBoxTextures hover = NULL, TCOTDZFBoxTextures click = NULL,
+		TCOTDZFBoxTextures disabled = NULL, Font fnt = NULL, double textScale = 1, int textColor = Font.CR_WHITE,
+		int holdInterval = -1,
+		TCOTDZFClickableItem clickableItem = NULL)
+	{
+		let ret = new('TCOTDZFItemListButton');
+
+		ret.Config(text, cmdHandler, command, inactive, hover, click, disabled, fnt, textScale, textColor, holdInterval);
+		ret.SetBox(pos, size);
+
+		ret.mClickableItem = clickableItem;
+
+		return ret;
+	}
+
 	override void Drawer(void)
 	{
 		Super.Drawer();

@@ -34,6 +34,21 @@ class TCOTDZFClickableItem : TCOTDZFLabel
 	//
 	//===========================================================================
 
+	static TCOTDZFClickableItem Create(Vector2 pos, Vector2 size, string text = "", Font fnt = NULL, AlignType alignment = AlignType_TopLeft,
+		bool wrap = true, bool autoSize = false, double textScale = 1, int textColor = Font.CR_WHITE,
+		double lineSpacing = 0,
+		Inventory item = NULL)
+	{
+		let ret = new('TCOTDZFClickableItem');
+
+		ret.Config(text, fnt, alignment, wrap, autoSize, textScale, textColor, lineSpacing);
+		ret.SetBox(pos, size);
+
+		ret.mItem = item;
+
+		return ret;
+	}
+
 	override void Drawer(void)
 	{
 		Super.Drawer();
@@ -69,23 +84,21 @@ class TCOTDZFClickableItem : TCOTDZFLabel
 	void MakeButton(TCOTDZFJournalHandler handler, int lineCount, String cmdName, String itemClassName)
 	{
 		// create a clickable zone using an invisible button
-		let btn = TCOTDZFItemListButton(new('TCOTDZFItemListButton').Init
+		let bt = TCOTDZFBoxTextures.CreateSingleTexture("TNT1A0", false);
+		let btn = TCOTDZFItemListButton.Create
 		(
 			self.box.pos,
 			self.box.size,
 			cmdHandler: handler,
-			command: "TCOTDZFHandlerCommand" .. cmdName .. ":" .. itemClassName
-		));
-		btn.SetTexture
-		(
-			"TNT1A0",
-			"TNT1A0",
-			"TNT1A0",
-			""
+			command: "TCOTDZFHandlerCommand" .. cmdName .. ":" .. itemClassName,
+			bt,
+			bt,
+			bt,
+			bt,
+			clickableItem: self
 		);
 		btn.box.size.Y = (SmallFont.GetHeight() * textScale) * lineCount;
 		btn.Pack(master);
-		btn.mClickableItem = self;
 		mButton = btn;
 	}
 }

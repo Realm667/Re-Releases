@@ -59,7 +59,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		//
 		//===========================================================================
 
-		mainBackground = new('TCOTDZFImage').Init
+		mainBackground = TCOTDZFImage.Create
 		(
 			(196, 80),
 			(RES_WIDTH, RES_HEIGHT),
@@ -74,7 +74,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		//
 		//===========================================================================
 
-		objectivesFrame = new('TCOTDZFItemList').Init
+		objectivesFrame = TCOTDZFItemList.Create
 		(
 			(241, 166),
 			(362, 428),
@@ -85,7 +85,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		objectivesFrame.Refresh();
 
 		String objectivesHeaderTxt = StringTable.Localize("$JRNL_OBJECTIVES");
-		let objectivesHeader = new('TCOTDZFLabel').Init
+		let objectivesHeader = TCOTDZFLabel.Create
 		(
 			(objectivesFrame.box.pos.X + (objectivesFrame.box.size.X / 2.) - (SmallFont.StringWidth(objectivesHeaderTxt) / 2), objectivesFrame.box.pos.Y - (SmallFont.GetHeight() * 2)),
 			(0, 0),
@@ -103,7 +103,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		//
 		//===========================================================================
 
-		notesFrame = new('TCOTDZFItemList').Init
+		notesFrame = TCOTDZFItemList.Create
 		(
 			(677, 166),
 			(362, 428),
@@ -114,7 +114,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		notesFrame.Refresh();
 
 		String notesHeaderTxt = StringTable.Localize("$JRNL_NOTES");
-		let notesHeader = new('TCOTDZFLabel').Init
+		let notesHeader = TCOTDZFLabel.Create
 		(
 			(notesFrame.box.pos.X + (notesFrame.box.size.X / 2.) - (SmallFont.StringWidth(notesHeaderTxt) / 2), notesFrame.box.pos.Y - (SmallFont.GetHeight() * 2)),
 			(0, 0),

@@ -12,11 +12,13 @@ class TCOTDZFFrame : TCOTDZFElement {
 		}
 	}
 
-	TCOTDZFFrame init(Vector2 pos, Vector2 size) {
-		self.setBox(pos, size);
-		self.alpha = 1;
+	static TCOTDZFFrame create(Vector2 pos, Vector2 size) {
+		let ret = new('TCOTDZFFrame');
 
-		return self;
+		ret.setBox(pos, size);
+		ret.alpha = 1;
+
+		return ret;
 	}
 
 	override void ticker() {

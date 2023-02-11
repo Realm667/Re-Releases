@@ -12,8 +12,6 @@ class TCOTDZFButton : TCOTDZFElement {
 	double textScale;
 
 	TCOTDZFBoxTextures textures[4];
-	string btnTextures [4];
-	bool singleTex;
 
 	int holdTicInterval;
 	int currentHoldTicsRemaining;
@@ -22,22 +20,18 @@ class TCOTDZFButton : TCOTDZFElement {
 
 	Vector2 mousePos;
 
-	// [Nash] ZForms 1x
-	AlignType textAlignment;
-
-	void setTexture(string inactive, string hover, string click, string disabled) {
-		self.btnTextures[ButtonState_Inactive] = inactive;
-		self.btnTextures[ButtonState_Hover] = hover;
-		self.btnTextures[ButtonState_Click] = click;
-		self.btnTextures[ButtonState_Disabled] = disabled;
-		self.singleTex = true;
+	void setTextures(TCOTDZFBoxTextures inactive, TCOTDZFBoxTextures hover, TCOTDZFBoxTextures click, TCOTDZFBoxTextures disabled) {
+		self.textures[ButtonState_Inactive] = inactive;
+		self.textures[ButtonState_Hover] = hover;
+		self.textures[ButtonState_Click] = click;
+		self.textures[ButtonState_Disabled] = disabled;
 	}
 
 	void config(string text = "", TCOTDZFHandler cmdHandler = NULL, string command = "",
 	            TCOTDZFBoxTextures inactive = NULL, TCOTDZFBoxTextures hover = NULL,
 	            TCOTDZFBoxTextures click = NULL, TCOTDZFBoxTextures disabled = NULL,
 	            Font fnt = NULL, double textScale = 1, int textColor = Font.CR_WHITE,
-	            int holdInterval = -1, AlignType textAlignment = AlignType_Center) {
+	            int holdInterval = -1) {
 		if (fnt == NULL) {
 			self.fnt = smallfont;
 		}
@@ -49,24 +43,24 @@ class TCOTDZFButton : TCOTDZFElement {
 		self.holdTicInterval = holdInterval;
 		self.text = text;
 		self.textScale = textScale;
-		self.textAlignment = textAlignment;
 		self.textures[ButtonState_Inactive] = inactive;
 		self.textures[ButtonState_Hover] = hover;
 		self.textures[ButtonState_Click] = click;
 		self.textures[ButtonState_Disabled] = disabled;
-		self.singleTex = false;
 		self.textColor = textColor;
 		self.alpha = 1;
 	}
 
-	TCOTDZFButton init(Vector2 pos, Vector2 size, string text = "", TCOTDZFHandler cmdHandler = NULL, string command = "",
+	static TCOTDZFButton create(Vector2 pos, Vector2 size, string text = "", TCOTDZFHandler cmdHandler = NULL, string command = "",
 	               TCOTDZFBoxTextures inactive = NULL, TCOTDZFBoxTextures hover = NULL, TCOTDZFBoxTextures click = NULL,
 	               TCOTDZFBoxTextures disabled = NULL, Font fnt = NULL, double textScale = 1, int textColor = Font.CR_WHITE,
-	               int holdInterval = -1, AlignType textAlignment = AlignType_Center) {
-		self.config(text, cmdHandler, command, inactive, hover, click, disabled, fnt, textScale, textColor, holdInterval, textAlignment);
-		self.setBox(pos, size);
+	               int holdInterval = -1) {
+		let ret = new('TCOTDZFButton');
 
-		return self;
+		ret.config(text, cmdHandler, command, inactive, hover, click, disabled, fnt, textScale, textColor, holdInterval);
+		ret.setBox(pos, size);
+
+		return ret;
 	}
 
 	override void ticker() {
@@ -95,19 +89,12 @@ class TCOTDZFButton : TCOTDZFElement {
 	}
 
 	override void drawer() {
-		if (singleTex) {
-			string texture = btnTextures[curButtonState];
-			drawTiledImage((0, 0), box.size, texture, true);
-		}
-		else {
-			TCOTDZFBoxTextures textures = textures[curButtonState];
-			drawBox((0, 0), box.size, textures, true);
-		}
+		TCOTDZFBoxTextures textures = textures[curButtonState];
+		drawBox((0, 0), box.size, textures, true);
 
-		// [Nash] ZForms 1x
-		// draw aligned text
+		// draw the text in the middle of the button
 		Vector2 textSize = (fnt.stringWidth(text), fnt.getHeight()) * textScale;
-		Vector2 textPos = getAlignedDrawPos(box.size, textSize, textAlignment);
+		Vector2 textPos = (box.size - textSize) / 2;
 		drawText(textPos, fnt, text, textColor, textScale);
 	}
 

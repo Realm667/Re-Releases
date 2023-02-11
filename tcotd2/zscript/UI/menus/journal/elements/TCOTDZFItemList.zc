@@ -35,12 +35,16 @@ class TCOTDZFItemList : TCOTDZFFrame
 	//
 	//===========================================================================
 
-	TCOTDZFItemList Init(Vector2 pos, Vector2 size, String className, TCOTDJournalMenu mnu)
+	static TCOTDZFItemList Create(Vector2 pos, Vector2 size, String className, TCOTDJournalMenu mnu)
 	{
-		Super.Init(pos, size);
-		mFilterClassName = className;
-		mJournalMenu = mnu;
-		return self;
+		let ret = new('TCOTDZFItemList');
+		ret.SetBox(pos, size);
+		ret.alpha = 1;
+
+		ret.mFilterClassName = className;
+		ret.mJournalMenu = mnu;
+
+		return ret;
 	}
 
 	//===========================================================================
@@ -112,7 +116,7 @@ class TCOTDZFItemList : TCOTDZFFrame
 				if (mItems[i])
 				{
 					String txt = String.Format("- %s", StringTable.Localize(mItems[i].GetTag()));
-					let newItem = TCOTDZFClickableItem(new('TCOTDZFClickableItem').Init
+					let newItem = TCOTDZFClickableItem.Create
 					(
 						(0, nextY),
 						(self.box.size.X, 0),
@@ -120,8 +124,9 @@ class TCOTDZFItemList : TCOTDZFFrame
 						fnt: SmallFont,
 						wrap: true,
 						autoSize: true,
-						textColor: SmallFont.FindFontColor('TCOTDJournalTextColor')
-					));
+						textColor: SmallFont.FindFontColor('TCOTDJournalTextColor'),
+						item: mItems[i]
+					);
 
 					newItem.mItem = mItems[i];
 

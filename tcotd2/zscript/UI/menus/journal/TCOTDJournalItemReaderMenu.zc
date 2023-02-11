@@ -101,7 +101,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		//
 		//===========================================================================
 
-		menuFill = new('TCOTDZFFrame').Init
+		menuFill = TCOTDZFFrame.Create
 		(
 			(0, 0),
 			(Screen.GetWidth(), Screen.GetHeight())
@@ -114,7 +114,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		//
 		//===========================================================================
 
-		noteBackdrop = new('TCOTDZFImage').Init
+		noteBackdrop = TCOTDZFImage.Create
 		(
 			(0, 0),
 			(Screen.GetWidth(), Screen.GetHeight()),
@@ -139,14 +139,14 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 
 		int borderPadding = GetMenuPadding();
 
-		noteTextFrame = new('TCOTDZFFrame').Init
+		noteTextFrame = TCOTDZFFrame.Create
 		(
 			(borderPadding * TCOTDJournalMenu.GetScaleFactor(), borderPadding * TCOTDJournalMenu.GetScaleFactor()),
 			(Screen.GetWidth() - ((borderPadding * 2) * TCOTDJournalMenu.GetScaleFactor()), (mFont.GetHeight() * TCOTDJournalMenu.GetScaleFactor()) * GetMaxShowableLines())
 		);
 		noteTextFrame.Pack(mainFrame);
 
-		noteTextShadow = new('TCOTDZFLabel').Init
+		noteTextShadow = TCOTDZFLabel.Create
 		(
 			(0.0, 0.0),
 			(0, 0),
@@ -161,7 +161,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		noteTextShadow.box.size.X = noteTextFrame.box.size.X;
 		noteTextShadow.Pack(noteTextFrame);
 
-		noteText = new('TCOTDZFLabel').Init
+		noteText = TCOTDZFLabel.Create
 		(
 			(0, 0),
 			(0, 0),
@@ -182,7 +182,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		//
 		//===========================================================================
 
-		notePageIndicatorShadow = new('TCOTDZFLabel').Init
+		notePageIndicatorShadow = TCOTDZFLabel.Create
 		(
 			(TXT_SHADOW_X, TXT_SHADOW_Y),
 			(0, 0),
@@ -196,7 +196,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		);
 		notePageIndicatorShadow.Pack(mainFrame);
 
-		notePageIndicator = new('TCOTDZFLabel').Init
+		notePageIndicator = TCOTDZFLabel.Create
 		(
 			(0, 0),
 			(0, 0),
@@ -216,21 +216,17 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		//
 		//===========================================================================
 
-		//let prevPageBtn = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollLeft.png", false);
-		//let prevPageBtnHover = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollLeft_Hover.png", false);
-		//let nextPageBtn = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollRight.png", false);
-		//let nextPageBtnHover = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollRight_Hover.png", false);
-		String prevPageBtn = "graphics/journal/ItemScrollLeft.png";
-		String prevPageBtnHover = "graphics/journal/ItemScrollLeft_Hover.png";
-		String nextPageBtn = "graphics/journal/ItemScrollRight.png";
-		String nextPageBtnHover = "graphics/journal/ItemScrollRight_Hover.png";
+		let prevPageBtn = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollLeft.png", false);
+		let prevPageBtnHover = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollLeft_Hover.png", false);
+		let nextPageBtn = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollRight.png", false);
+		let nextPageBtnHover = TCOTDZFBoxTextures.CreateSingleTexture("graphics/journal/ItemScrollRight_Hover.png", false);
 
 		// the actual clickable part is invisible because the button image has tiling.
 		// we'll put the image separately under the button.
 
 		// PREV PAGE
 
-		notePrevPageButtonImage = new('TCOTDZFImage').Init
+		notePrevPageButtonImage = TCOTDZFImage.Create
 		(
 			(0, 0),
 			(9 * TCOTDJournalMenu.GetScaleFactor(), 17 * TCOTDJournalMenu.GetScaleFactor()),
@@ -238,21 +234,12 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		);
 		notePrevPageButtonImage.Pack(mainFrame);
 
-		notePrevPageButton = new('TCOTDZFButton').Init
+		notePrevPageButton = TCOTDZFButton.Create
 		(
 			(0, 0),
 			notePrevPageButtonImage.box.size,
 			cmdHandler: TCOTDJournalItemReaderMenuHandler(handler),
-			command: "CMD_MemoPrevPage"
-			/*
-			prevPageBtn,
-			prevPageBtnHover,
-			prevPageBtn,
-			prevPageBtn
-			*/
-		);
-		notePrevPageButton.SetTexture
-		(
+			command: "CMD_MemoPrevPage",
 			prevPageBtn,
 			prevPageBtnHover,
 			prevPageBtn,
@@ -263,7 +250,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 
 		// NEXT PAGE
 
-		noteNextPageButtonImage = new('TCOTDZFImage').Init
+		noteNextPageButtonImage = TCOTDZFImage.Create
 		(
 			(0, 0),
 			(9 * TCOTDJournalMenu.GetScaleFactor(), 17 * TCOTDJournalMenu.GetScaleFactor()),
@@ -271,21 +258,12 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		);
 		noteNextPageButtonImage.Pack(mainFrame);
 
-		noteNextPageButton = new('TCOTDZFButton').Init
+		noteNextPageButton = TCOTDZFButton.Create
 		(
 			(0, 0),
 			noteNextPageButtonImage.box.size,
 			cmdHandler: TCOTDJournalItemReaderMenuHandler(handler),
-			command: "CMD_MemoNextPage"
-			/*
-			nextPageBtn,
-			nextPageBtnHover,
-			nextPageBtn,
-			nextPageBtn
-			*/
-		);
-		noteNextPageButton.SetTexture
-		(
+			command: "CMD_MemoNextPage",
 			nextPageBtn,
 			nextPageBtnHover,
 			nextPageBtn,
@@ -364,19 +342,15 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		String img = "";
 
 		if (notePrevPageButton.isHovered)
-			//img = notePrevPageButton.textures[notePrevPageButton.ButtonState_Hover].boxTexture;
-			img = notePrevPageButton.btnTextures[notePrevPageButton.ButtonState_Hover];
+			img = notePrevPageButton.textures[notePrevPageButton.ButtonState_Hover].boxTexture;
 		else
-			//img = notePrevPageButton.textures[notePrevPageButton.ButtonState_Inactive].boxTexture;
-			img = notePrevPageButton.btnTextures[notePrevPageButton.ButtonState_Inactive];
+			img = notePrevPageButton.textures[notePrevPageButton.ButtonState_Inactive].boxTexture;
 		notePrevPageButtonImage.image = img;
 
 		if (noteNextPageButton.isHovered)
-			//img = noteNextPageButton.textures[noteNextPageButton.ButtonState_Hover].boxTexture;
-			img = noteNextPageButton.btnTextures[noteNextPageButton.ButtonState_Hover];
+			img = noteNextPageButton.textures[noteNextPageButton.ButtonState_Hover].boxTexture;
 		else
-			//img = noteNextPageButton.textures[noteNextPageButton.ButtonState_Inactive].boxTexture;
-			img = noteNextPageButton.btnTextures[noteNextPageButton.ButtonState_Inactive];
+			img = noteNextPageButton.textures[noteNextPageButton.ButtonState_Inactive].boxTexture;
 		noteNextPageButtonImage.image = img;
 
 		Super.Ticker();
