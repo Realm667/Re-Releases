@@ -161,7 +161,7 @@ class TCOTDHUD : DoomStatusBar
 		CPlayer.InventoryTics = 0;
 		if (!Level.NoInventoryBar && CPlayer.mo.InvSel != NULL)
 		{
-			DrawInventoryIcon(CPlayer.mo.InvSel, (-18, 0), flags, boxsize: (30, 30));
+			DrawInventoryIcon(CPlayer.mo.InvSel, (-18, -15), flags | DI_ITEM_CENTER, boxsize: (30, 30));
 			if (CPlayer.mo.InvSel.MaxAmount > 1)
 			{
 				DrawString(mHUDSmallNum, FormatNumber(CPlayer.mo.InvSel.Amount, 3), (-42, -8), flags);
