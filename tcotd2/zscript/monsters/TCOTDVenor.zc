@@ -52,7 +52,7 @@ Class Venor : Actor
 		Goto Spawn+1;
 	See:
 		VNR1 A 6 {
-			if(target && GetDistance(TRUE, AAPTR_TARGET) <= 192) {
+			if(target && Distance3D(target) <= 192) {
 				if(target.player) {
 					isPlayer = TRUE;
 				}
@@ -74,7 +74,7 @@ Class Venor : Actor
 		VNR2 FGCDE 4 {
 			A_SeekerMissile(30, 45, SMF_LOOK);
 			A_FaceTarget();
-			if(GetDistance(FALSE, AAPTR_TARGET) < 96) {
+			if(Distance2D(target) < 96) {
 				return ResolveState("Melee");
 			}
 			return ResolveState(null);
