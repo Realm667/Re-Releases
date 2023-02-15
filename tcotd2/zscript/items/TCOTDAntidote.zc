@@ -1,0 +1,50 @@
+// -------------------------------------------------------------------------------------------
+//
+// -------------------------------------------------------------------------------------------
+
+class TCOTDAntidote : Inventory
+{
+	mixin TCOTDCoopItemMixin;
+
+	Default
+	{
+		//$Category New Health and Armor (TCOTD2)
+		//$Title Antidote
+		Scale 0.65;
+		Tag "$TAG_ANTIDOTE";
+		Inventory.Icon "graphics/hud/antidote.png";
+		Inventory.MaxAmount 3;
+		Inventory.PickupMessage "$IP_ANTIDOTE";
+		Inventory.UseSound "misc/p_pkup";
+		+FORCEXYBILLBOARD
+		+COUNTITEM
+		+INVENTORY.INVBAR
+	}
+
+	override bool Use (bool pickup)
+	{
+		if (Owner)
+		{
+			let poison = Owner.FindInventory("TCOTDPoisonAilment");
+
+			if (poison)
+			{
+				poison.Destroy();
+				return true;
+			}
+			else
+			{
+				Owner.A_Log(StringTable.Localize("$ANTIDOTE_NOTNEEDED"), true);
+			}
+		}
+
+		return false;
+	}
+
+	States
+	{
+	Spawn:
+		PSNH ABC 6;
+		Loop;
+	}
+}
