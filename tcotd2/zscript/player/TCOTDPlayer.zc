@@ -62,6 +62,7 @@ class TCOTDPlayer : PlayerPawn
 	Default
 	{
 		Scale 1.1;
+		Player.DamageScreenColor "000001", 0, "PoisonAilment";
 		Player.AttackZOffset 28.0;
 		Player.ViewHeight 56.0;
 		Player.ForwardMove WALK_SPEED, RUN_SPEED;
@@ -115,7 +116,14 @@ class TCOTDPlayer : PlayerPawn
 			wasDamaged = true;
 		}
 
-		return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		int dmg = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+
+		if (dmg > 0 && health > 0 && mod == 'Poison')
+		{
+			GiveInventory("TCOTDPoisonAilment", 1);
+		}
+
+		return dmg;
 	}
 
 	override void PlayerThink(void)
@@ -866,6 +874,17 @@ class TCOTDPlayer : PlayerPawn
 			if (player.playerstate == PST_DEAD)
 				playerMarker.Destroy();
 		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	bool IsPoisoned() const
+	{
+		return !!FindInventory("TCOTDPoisonAilment");
 	}
 
 	//===========================================================================

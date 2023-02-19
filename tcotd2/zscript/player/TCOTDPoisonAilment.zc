@@ -1,0 +1,60 @@
+// -------------------------------------------------------------------------------------------------
+//
+// -------------------------------------------------------------------------------------------------
+
+class TCOTDPoisonAilment : Powerup
+{
+	Default
+	{
+		+INVENTORY.HUBPOWER
+	}
+
+	private bool IsAtInterval (int interval)
+	{
+		int age = GetAge();
+		return (age != 0 && (age % interval) == 0);
+	}
+
+	override void Tick ()
+	{
+		if (!Owner)
+		{
+			Destroy();
+		}
+	}
+
+	override void InitEffect ()
+	{
+		Super.InitEffect();
+
+		if (Owner)
+		{
+			Owner.A_Log(StringTable.Localize("$POISON_INFLICT"), true);
+		}
+	}
+
+	override void EndEffect ()
+	{
+		Super.EndEffect();
+
+		if (Owner && Owner.health > 0)
+		{
+			Owner.A_Log(StringTable.Localize("$POISON_RECOVER"), true);
+		}
+	}
+
+	override void DoEffect ()
+	{
+		Super.DoEffect();
+
+		if (Owner && Owner.health > 1 && IsAtInterval(3 * TICRATE))
+		{
+			Owner.DamageMobj(nullptr, nullptr, 1, 'PoisonAilment', DMG_NO_PAIN | DMG_NO_ARMOR);
+		}
+	}
+
+	/* override double GetSpeedFactor ()
+	{
+		return 0.75;
+	} */
+}
