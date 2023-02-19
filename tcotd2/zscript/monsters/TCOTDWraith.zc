@@ -3,6 +3,8 @@
 ////////////
 class DEWraith : TCOTDMonster
 {
+	private bool bChargingWhenDamaged, bFlinched;
+
 	Default
 	{
 		//$Title Wraith
@@ -30,6 +32,50 @@ class DEWraith : TCOTDMonster
 		+NOGRAVITY
 		+NOTARGET
 		+NOSPRITESHADOW
+		+ONLYSLAMSOLID
+	}
+
+	void A_WraithFlinched ()
+	{
+		bFlinched = true;
+	}
+
+	override int DamageMobj (Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
+	{
+		bChargingWhenDamaged = bSkullFly;
+		bFlinched = false;
+
+		if (bChargingWhenDamaged)
+		{
+			// [Blue Shadow] Monster is charging. Don't let it be thrust by damage and clear the SKULLFLY flag
+			// so that its velocity isn't zeroed and it can be subject to pain.
+			bDontThrust = true;
+			bSkullFly = false;
+		}
+
+		// [Blue Shadow] Inflict the damage.
+		int dmg = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+
+		if (bChargingWhenDamaged)
+		{
+			// [Blue Shadow] The flag served its purpose now the damage has been inflicted, so clear it.
+			bDontThrust = false;
+
+			if (!bFlinched && health > 0)
+			{
+				// [Blue Shadow] Monster didn't enter the Pain state sequence and it's still alive. Let it continue
+				// charging and set the SKULLFLY flag back so it can slam-damage whatever it hits.
+				bSkullFly = true;
+			}
+			else
+			{
+				// [Blue Shadow] Monster either entered the Pain state sequence or it died from the damage. Stop it
+				// dead in its tracks.
+				Vel = (0, 0, 0);
+			}
+		}
+
+		return dmg;
 	}
 
 	States
@@ -57,7 +103,7 @@ class DEWraith : TCOTDMonster
 		WRAI B 5 A_CustomMeleeAttack(random[rnd_WraithDmg](1, 8), "wraith/attack");
 		Goto See;
 	Pain:
-		WRAI A 3;
+		WRAI A 3 A_WraithFlinched();
 		WRAI A 3 A_Pain();
 		Goto See;
 	Heal:
