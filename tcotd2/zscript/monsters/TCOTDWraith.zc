@@ -3,7 +3,7 @@
 ////////////
 class DEWraith : TCOTDMonster
 {
-	private bool bChargingWhenDamaged, bFlinched;
+	private bool bFlinched;
 
 	Default
 	{
@@ -18,7 +18,7 @@ class DEWraith : TCOTDMonster
 		Scale 1.1;
 		RenderStyle "Add";
 		Alpha 0.67;
-		PainChance 64;
+		PainChance int(256 * 0.33335);
 		AttackSound "wraith/sight";
 		PainSound "archvile/pain";
 		DeathSound "wraith/death";
@@ -42,7 +42,7 @@ class DEWraith : TCOTDMonster
 
 	override int DamageMobj (Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
-		bChargingWhenDamaged = bSkullFly;
+		bool bChargingWhenDamaged = bSkullFly;
 		bFlinched = false;
 
 		if (bChargingWhenDamaged)
