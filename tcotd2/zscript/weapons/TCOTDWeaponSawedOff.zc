@@ -50,21 +50,13 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 
 	override bool CheckAmmo (int fireMode, bool autoSwitch, bool requireAmmo, int ammocount)
 	{
-		if (sv_infiniteammo || Owner.FindInventory('PowerInfiniteAmmo', true))
+		if (sv_infiniteammo || Owner.FindInventory('PowerInfiniteAmmo', true) || (Ammo1 ? Ammo1.Amount : 0) >= AmmoUse1)
 		{
-			// Infinite ammo is enabled, which means there's always enough ammo.
+			// There's enough ammo.
 			return true;
 		}
 
-		int ammoAmount = Ammo1 ? Ammo1.Amount : 0;
-
-		if ((ammoAmount >= AmmoUse2) || (ammoAmount >= AmmoUse1))
-		{
-			// There's enough ammo to at least use one of the firing modes.
-			return true;
-		}
-
-		// out of ammo, pick a weapon to change to
+		// Out of ammo, pick a weapon to change to.
 		if (autoSwitch)
 		{
 			PlayerPawn(Owner).PickNewWeapon(nullptr);
@@ -97,7 +89,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		}
 		else
 		{
-			// There isn't enough ammo to fire the weapon.
+			// Ammo couldn't be consumed.
 			return false;
 		}
 
@@ -177,7 +169,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		}
 		else if (invoker.loadedAmmo == 1)
 		{
-			// Only one shell is loaded. Jump to the one-shell-loaded firing sequence.
+			// Only one shell is loaded. The state sequence to enter is the one-shell-loaded firing sequence.
 			st = ResolveState("Fire.OneShell");
 		}
 
@@ -201,8 +193,8 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		}
 		else if (invoker.loadedAmmo == 1)
 		{
-			// Only one shell is loaded. Do the single-barrel attack, instead, and jump to the one-shell-loaded
-			// firing sequence.
+			// Only one shell is loaded. Do the single-barrel attack, instead.
+			// The state sequence to enter is the one-shell-loaded firing sequence.
 			A_SawedOffOneBarrelAtk();
 			st = ResolveState("Fire.OneShell");
 		}
