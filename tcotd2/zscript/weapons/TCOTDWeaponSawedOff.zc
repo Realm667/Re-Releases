@@ -290,23 +290,23 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 		Goto Ready;
 	Deselect:
 		SAWF A 0 A_CheckBarrels(LABEL_Deselect);
-		SAWF A 1 A_Lower(20);
+		SAWF A 1 A_Lower(RAISELOWERSPEED);
 		Wait;
 	Deselect.OneShell:
-		SAWF B 1 A_Lower(20);
+		SAWF B 1 A_Lower(RAISELOWERSPEED);
 		Loop;
 	Deselect.Empty:
-		SAWF C 1 A_Lower(20);
+		SAWF C 1 A_Lower(RAISELOWERSPEED);
 		Loop;
 	Select:
 		SAWF A 0 A_CheckBarrels(LABEL_Select);
-		SAWF A 1 A_Raise(20);
+		SAWF A 1 A_Raise(RAISELOWERSPEED);
 		Wait;
 	Select.OneShell:
-		SAWF B 1 A_Raise(20);
+		SAWF B 1 A_Raise(RAISELOWERSPEED);
 		Loop;
 	Select.Empty:
-		SAWF C 1 A_Raise(20);
+		SAWF C 1 A_Raise(RAISELOWERSPEED);
 		Loop;
 	Fire:
 		SAWF B 2 A_FireSawedOffPrimary();
