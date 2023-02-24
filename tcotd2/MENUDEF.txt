@@ -14,7 +14,7 @@ ListMenu "MainMenu"
 	}
 	IfGame(Doom)
 	{
-		Font "ChuggaChug"
+		Font "BigFont" 
 
 		// PatchItem "M_NGAME",	"N", "PlayerclassMenu"
 		Textitem "$M_NGAME", "N", "PlayerclassMenu"
@@ -22,12 +22,12 @@ ListMenu "MainMenu"
 		TextItem "$M_LOADG",	"L", "LoadGameMenu"
 		// PatchItem "M_SAVEG",	"S", "SaveGameMenu"
 		TextItem "$M_SAVEG",	"S", "SaveGameMenu"
-		// PatchItem "M_TCOTD2",	"E", "TCOTD2Menu"
-		TextItem "M_TCOTD2",	"E", "TCOTD2Menu"
 		// PatchItem "M_OPTION",	"O", "OptionsMenu"
-		TextItem "M_OPTION",	"O", "OptionsMenu"
+		TextItem "$M_OPTION",	"O", "OptionsMenu"
+		// PatchItem "M_TCOTD2",	"E", "TCOTD2Menu"
+		TextItem "$M_TCOTD2",	"E", "TCOTD2Menu"
 		// PatchItem "M_QUITG",	"Q", "QuitMenu"
-		TextItem "M_QUITG",	"Q", "QuitMenu"
+		TextItem "$M_QUITG",	"Q", "QuitMenu"
 	}
 }
 
@@ -36,7 +36,8 @@ ListMenu "SkillMenu"
 	// let's force it - ozy81
 	IfGame(Doom, Chex)
 	{
-		StaticPatch 96, 14, "M_NGAME", 0, "$MNU_NEWGAME"
+		// StaticPatch 96, 14, "M_NGAME", 0, "$MNU_NEWGAME"
+		StaticText 96, 14, "$M_NGAME", "TCOTDDarkGrey"
 		LineSpacing 16
 		Position 97, 72
 	}
