@@ -93,9 +93,8 @@ class TCOTDHUD : DoomStatusBar
 		int flags = DI_SCREEN_LEFT_BOTTOM;
 
 		// Health
-		int healthfontcolor = TCOTDPlayer(CPlayer.mo).IsPoisoned() ? Font.CR_PURPLE : Font.CR_UNTRANSLATED;
 		DrawImage("graphics/hud/HUDHealth.png", (12, -4), flags);
-		DrawString(mHUDBigNum, FormatNumber(CPlayer.health, 3), (24, -15), flags, healthfontcolor);
+		DrawString(mHUDBigNum, FormatNumber(CPlayer.health, 3), (24, -15), flags);
 
 		// Armor
 		int ypos = -24;

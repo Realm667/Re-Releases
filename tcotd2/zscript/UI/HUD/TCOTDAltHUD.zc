@@ -63,30 +63,6 @@ class TCOTDAltHud : AltHud
 	//
 	// ----------------------------------------------------------------------------------------
 
-	override void DrawHealth(PlayerInfo CPlayer, int x, int y)
-	{
-		int health = CPlayer.health;
-
-		// decide on the color first
-		int fontcolor =
-			TCOTDPlayer(CPlayer.mo).IsPoisoned() ? Font.CR_PURPLE :
-			health < hud_health_red ? Font.CR_RED :
-			health < hud_health_yellow ? Font.CR_GOLD :
-			health <= hud_health_green ? Font.CR_GREEN :
-			Font.CR_BLUE;
-
-		bool haveBerserk = hud_berserk_health
-			&& !gameinfo.berserkpic.IsNull()
-			&& CPlayer.mo.FindInventory('PowerStrength');
-
-		DrawImageToBox(haveBerserk ? gameinfo.berserkpic : gameinfo.healthpic, x, y, 31, 17);
-		DrawHudNumber(HudFont, fontcolor, health, x + 33, y + 17);
-	}
-
-	// ----------------------------------------------------------------------------------------
-	//
-	// ----------------------------------------------------------------------------------------
-
 	override void DrawInGame (PlayerInfo CPlayer)
 	{
 		// No HUD in the title level, during cutscenes or if the journal is open.

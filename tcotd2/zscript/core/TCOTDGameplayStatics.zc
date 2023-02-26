@@ -31,6 +31,11 @@ class TCOTDGameplayStatics play
 		return self.Pos.Z <= self.FloorZ || self.bOnMObj || self.bMBFBouncer;
 	}
 
+	static bool IsPoisoned(Actor self)
+	{
+		return !!self.FindInventory("TCOTDPoisonAilment");
+	}
+
 	static bool IsCrouching(PlayerPawn self)
 	{
 		if (!self.player)

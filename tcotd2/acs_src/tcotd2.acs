@@ -70,7 +70,6 @@ Script "DrawLowHealth" ENTER
 {
 	int width = 640, height = 480;
 	SetHudSize(width, height, 0);
-	SetFont("M_INJ");
 
 	// Half width and height (in fixed-point).
 	int half_width  = (width / 2) << 16;
@@ -78,10 +77,22 @@ Script "DrawLowHealth" ENTER
 
 	while (true)
 	{
+		bool poisoned = ScriptCall("TCOTDGameplayStatics", "IsPoisoned");
 		int health = GetActorProperty(0, APROP_HEALTH);
-		if (health > 0 && health <= 30)
+		bool lowHealth = health > 0 && health <= 30;
+
+		if (poisoned || lowHealth)
 		{
-			HudMessage(s: "A"; HUDMSG_FADEINOUT | HUDMSG_NOTWITHFULLMAP, 0, CR_WHITE, half_width, half_height, 0.0, 0.5, 0.5);
+			if (poisoned)
+			{
+				SetFont("poisoned");
+			}
+			else if (lowHealth)
+			{
+				SetFont("M_INJ");
+			}
+
+			HudMessage(s:"A"; HUDMSG_FADEINOUT | HUDMSG_NOTWITHFULLMAP | HUDMSG_LAYER_UNDERHUD, 0, -1, half_width, half_height, 0.0, 0.5, 0.5);
 
 			// Volume and delay of heartbeat (faster and louder with less health).
 			int volume = MAX_VOLUME;
