@@ -23,18 +23,21 @@ class TCOTDAntidote : Inventory
 
 	override bool Use (bool pickup)
 	{
-		if (Owner)
+		let pmo = TCOTDPlayer(Owner);
+
+		if (pmo)
 		{
-			let poison = Owner.FindInventory("TCOTDPoisonAilment");
+			let poison = pmo.FindInventory("TCOTDPoisonAilment");
 
 			if (poison)
 			{
+				pmo.poisonBuildup = 0;
 				poison.Destroy();
 				return true;
 			}
 			else
 			{
-				Owner.A_Log(StringTable.Localize("$ANTIDOTE_NOTNEEDED"), true);
+				pmo.A_Log(StringTable.Localize("$ANTIDOTE_NOTNEEDED"), true);
 			}
 		}
 

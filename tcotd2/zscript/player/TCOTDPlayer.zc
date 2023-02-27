@@ -44,6 +44,8 @@ class TCOTDPlayer : PlayerPawn
 	double flinchAmount;
 	bool wasDamaged;
 
+	int poisonBuildup;
+
 	TCOTDPlayerLanternLight myLantern;
 	TCOTDPlayerMarker playerMarker;
 	double ambSoundVolOut;
@@ -120,7 +122,12 @@ class TCOTDPlayer : PlayerPawn
 
 		if (dmg > 0 && health > 0 && mod == 'Poison')
 		{
-			GiveInventory("TCOTDPoisonAilment", 1);
+			poisonBuildup += dmg;
+
+			if (poisonBuildup >= 16)
+			{
+				GiveInventory("TCOTDPoisonAilment", 1);
+			}
 		}
 
 		return dmg;
@@ -160,6 +167,12 @@ class TCOTDPlayer : PlayerPawn
 				{
 					DestroyLantern();
 				}
+			}
+
+			// [Blue Shadow] Reduce poison buildup every 30 seconds.
+			if (poisonBuildup > 0 && !(Level.maptime % (30 * TICRATE)))
+			{
+				poisonBuildup--;
 			}
 		}
 	}
