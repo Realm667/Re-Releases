@@ -73,10 +73,10 @@ class Fatty : TCOTDMonster
 		BFAT N 7 A_FaceTarget();
 		BFAT O 5 A_FaceTarget();
 		TNT1 A 0 A_Jump(128, 3);
-		BFAT P 5 A_SpawnProjectile("ButcherVomit1", 56, 0, 0, CMF_CHECKTARGETDEAD);
+		BFAT P 5 A_SpawnProjectile("ButcherVomit1", 56, flags: CMF_AIMDIRECTION);
 		BFAT O 10 A_FaceTarget();
 		Goto See;
-		BFAT P 5 A_SpawnProjectile("ButcherVomit2", 56, 0, 0, CMF_AIMDIRECTION | CMF_CHECKTARGETDEAD);
+		BFAT P 5 A_SpawnProjectile("ButcherVomit2", 56, flags: CMF_AIMDIRECTION);
 		BFAT O 10 A_FaceTarget();
 		Goto See;
 	Pain:
