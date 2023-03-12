@@ -378,7 +378,7 @@ class TCOTDWeapon : Weapon abstract
 
 		// [Nash] only changes here are the away the angles are calculated
 		Rotator r;
-		r.SetAngles(Angle, Pitch, Roll);
+		r.SetAngles(Angle, BulletSlope(), Roll);
 		if (flags & FBF_EXPLICITANGLE)
 			r.Rotate(spread_xy, spread_z);
 		else
