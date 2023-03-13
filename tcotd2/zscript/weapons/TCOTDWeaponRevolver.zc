@@ -95,7 +95,7 @@ class TCOTDWeaponRevolver : TCOTDWeapon replaces Pistol
 		{
 			A_Overlay(-2, "RevolverSmoke");
 			A_ViewKick();
-			Fire3DBullets(invoker.shotSpread * 1.05, invoker.shotSpread, 1, int(22.5 * frandom[rnd_RevDmg](0.8, 1)), "TCOTDBulletPuff", FBF_NORANDOM);
+			Fire3DBullets(invoker.shotSpread * 1.05, invoker.shotSpread, 1, 18 * random[rnd_RevDmg](90, 110) / 100, "TCOTDBulletPuff", FBF_USEAMMO | FBF_NORANDOM);
 			invoker.shotsToReload++;
 			invoker.shotSpread += frandom[rnd_RevSpread](0.1, 0.5);
 		}
