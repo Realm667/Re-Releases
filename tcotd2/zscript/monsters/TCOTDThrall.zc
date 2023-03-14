@@ -6,11 +6,11 @@ class Thrall : TCOTDMonster
 	Default
 	{
 		//$Title Thrall
-		Health 100;
+		Health 55;
 		GibHealth 35;
-		PainChance 200;
+		PainChance 170;
 		Scale 1.1;
-		Speed 4;
+		Speed 3.5;
 		Radius 16;
 		Height 62;
 		Mass 100;
@@ -30,27 +30,24 @@ class Thrall : TCOTDMonster
 		Loop;
 	See:
 		CULT A 1 A_Chase();
-		CULT A 1 A_Chase2();
-		CULT A 1 A_Chase();
-		CULT A 1 A_Chase2();
+		CULT AAA 1 A_Chase2();
 		CULT B 1 A_Chase();
-		CULT B 1 A_Chase2();
-		CULT B 1 A_Chase();
-		CULT B 1 A_Chase2();
+		CULT BBB 1 A_Chase2();
 		CULT C 1 A_Chase();
-		CULT C 1 A_Chase2();
-		CULT C 1 A_Chase();
-		CULT C 1 A_Chase2();
+		CULT CCC 1 A_Chase2();
 		CULT D 1 A_Chase();
-		CULT D 1 A_Chase2();
-		CULT D 1 A_Chase();
-		CULT D 1 A_Chase2();
+		CULT DDD 1 A_Chase2();
 		Loop;
 	Missile:
-		CULT EE 5 A_FaceTarget();
-		CULT F 0 A_SpawnProjectile("ThrallShot1", 42, -6, 0, 1);
-		CULT F 0 A_SpawnProjectile("ThrallShot1", 42, 6, 0, 1);
-		CULT F 8 Bright Light("Thrall") A_StartSound("cultist/attack");
+		CULT E 6 A_FaceTarget();
+		CULT F 7 A_FaceTarget();
+		CULT F 8 Bright Light("Thrall")
+		{
+			A_FaceTarget();
+			A_StartSound("cultist/attack");
+			A_SpawnProjectile("ThrallShot1", 52, -6, flags: CMF_AIMOFFSET);
+			A_SpawnProjectile("ThrallShot1", 52,  6, flags: CMF_AIMOFFSET);
+		}
 		Goto See;
 	Pain:
 		CULT G 2;
@@ -87,12 +84,13 @@ class ThrallShot1 : Actor
 	{
 		Radius 4;
 		Height 6;
-		Speed 14;
-		Damage 1;
+		Speed 20;
+		DamageFunction 8 * random[rnd_ThrallShot](85, 115) / 100;
 		RenderStyle "Add";
 		Alpha 0.67;
 		Projectile;
 		DeathSound "monster/disht1";
+		+PIERCEARMOR
 	}
 
 	States
