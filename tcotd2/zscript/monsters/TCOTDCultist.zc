@@ -34,7 +34,7 @@ class TCOTDCultist : TCOTDMonster
 			{
 				double ang = bangle + random2[CultistShotgunAttack]() * (5.625 * 1.75 / 256);
 				double pit = bslope + random2[CultistShotgunAttack]() * (3.5485 * 1.75 / 256);
-				int damage = 5 * random[CultistShotgunAttack](85, 115) / 100;
+				int damage = TCOTDGameplayStatics.GetAttackDamage(5);
 				LineAttack(ang, MISSILERANGE, pit, damage, 'Hitscan', "TCOTDBulletPuff");
 			}
 		}
@@ -42,7 +42,7 @@ class TCOTDCultist : TCOTDMonster
 
 	protected void A_CultistTommyAttack(void)
 	{
-		A_CustomBulletAttack(5.625 * 1.375, 3.5485 * 1.375, 1, 5 * random[rnd_CultistTommyDmg](85, 115) / 100, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		A_CustomBulletAttack(5.625 * 1.375, 3.5485 * 1.375, 1, TCOTDGameplayStatics.GetAttackDamage(5), "TCOTDBulletPuff", 0, CBAF_NORANDOM);
 	}
 
 	States

@@ -205,7 +205,7 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 
 		for (int i = 0; i < numbullets; i++)
 		{
-			int damage = 12 * random[rnd_FireSawedOff](85, 115) / 100;
+			int damage = TCOTDGameplayStatics.GetAttackDamage(12);
 			double ang = angle + random2[rnd_FireSawedOff]() * (spread_xy / 256);
 			LineAttack(ang, PLAYERMISSILERANGE, pitch + random2[rnd_FireSawedOff]() * (spread_z / 256), damage, 'Hitscan', "TCOTDBulletPuff");
 		}
