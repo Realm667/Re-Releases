@@ -1,0 +1,16 @@
+@echo off
+CALL austerity_build.bat
+CALL kdizd_build.bat
+CALL sapphire_build.bat
+CALL stronghold_build.bat
+CALL tcotd1_build.bat
+CALL tcotd2_build.bat
+CALL therefinery_build.bat
+CALL tnte1_build.bat
+CALL tnte2_build.bat
+CALL tnte3_build.bat
+CALL tntle_build.bat
+CALL tutnt_build.bat
+CALL zdcmp1_build.bat
+CALL zdcmp2_build.bat
+CALL zpack_build.bat
