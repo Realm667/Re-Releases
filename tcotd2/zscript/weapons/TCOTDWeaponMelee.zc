@@ -19,6 +19,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		Weapon.KickBack 100;
 		+WEAPON.WIMPY_WEAPON
 		+WEAPON.NOALERT
+		+WEAPON.NOAUTOFIRE
 	}
 
 	//===========================================================================
@@ -69,7 +70,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 
 	action void A_FistAttack(void)
 	{
-		A_CustomPunch(random[rnd_FistDmg](3, 5), pufftype: "TCOTDPunchPuff", meleesound: "fist/hit");
+		A_CustomPunch(TCOTDGameplayStatics.GetAttackDamage(10.5), true, CPF_NOTURN, "TCOTDPunchPuff", meleesound: "fist/hit");
 	}
 
 	action void A_PitchforkAttack(void)
@@ -80,8 +81,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		{
 			int flags = FBF_EXPLICITANGLE | FBF_NORANDOMPUFFZ | FBF_NOFLASH;
 			double ang = cone * (i / double(angles));
-			int dmg = random[rnd_PitchforkDmg](2, 3);
-			Fire3DBullets(invoker.Angle - (cone / 2) + ang + 4.0, 0, 0, dmg, "TCOTDPitchforkPuff", flags, 96.0);
+			Fire3DBullets(invoker.Angle - (cone / 2) + ang + 4.0, 0, 0, 7, "TCOTDPitchforkPuff", flags, DEFMELEERANGE * 4 / 3.);
 		}
 	}
 
@@ -129,7 +129,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 			A_ViewPunch();
 			A_FistAttack();
 		}
-		FIST CBAA 2;
+		FIST CB 2;
 		Goto Ready;
 	PunchRightHand:
 		FIST D 2;
@@ -138,7 +138,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 			A_ViewPunch();
 			A_FistAttack();
 		}
-		FIST EDAA 2;
+		FIST ED 2;
 		Goto Ready;
 	}
 
@@ -160,21 +160,16 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		FORK A 1 A_Lower(RAISELOWERSPEED);
 		Loop;
 	PitchforkFire:
-		FORK A 2;
-		TNT1 A 0;
 		FORK A 1 A_WeaponOffset(0, 30, WOF_INTERPOLATE);
-		FORK B 1;
-		FORK B 1 A_WeaponOffset(0, 30, WOF_INTERPOLATE);
-		FORK C 5
+		FORK B 2;
+		FORK C 8
 		{
 			A_ViewPunch();
 			A_PitchforkAttack();
 		}
 		FORK C 1 A_WeaponOffset(0, 34, WOF_INTERPOLATE);
-		FORK B 1;
-		FORK B 1 A_WeaponOffset(0, 34, WOF_INTERPOLATE);
-		FORK A 2 A_WeaponOffset(0, 32,  WOF_INTERPOLATE);
-		FORK A 1 A_ReFire();
+		FORK B 2;
+		FORK A 1 A_WeaponOffset(0, 32, WOF_INTERPOLATE);
 		Goto Ready;
 	AltFire:
 		FORK B 1 A_StartSound("pitchfork/throw", CHAN_WEAPON);
@@ -258,6 +253,7 @@ class TCOTDPitchforkPuff : Actor
 {
 	Default
 	{
+		DamageType "Stab";
 		Scale 0.5;
 		Activesound "";
 		Attacksound "pitchfork/wall";	// what sound it makes when you hit a wall with it
@@ -289,7 +285,7 @@ class TCOTDPitchforkThrown : Actor
 		Radius 2;
 		Height 1;
 		Speed 20;
-		Damage 5;
+		DamageFunction TCOTDGameplayStatics.GetAttackDamage(25);
 		Gravity 0.125;
 		Projectile;
 		+RIPPER
