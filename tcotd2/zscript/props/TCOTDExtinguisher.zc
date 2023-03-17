@@ -1,0 +1,78 @@
+class TCOTDExtinguisher : ExplosiveBarrel
+{
+	Default
+	{
+		//$Category New Obstacles (TCOTD2)
+		//$Title Extinguisher (Destroyable)
+		//$Color 11
+		Height 32;
+		Radius 8;
+		Scale 0.5;
+		DeathSound "napalm/explode";
+		Obituary "$OBEXTING"; //not included yet
+		+DONTFALL
+		+DONTTHRUST
+		+NOGRAVITY
+	}
+
+	void A_ExplosionRumble2(void) //might define mixins, but well if it works... - ozy81
+	{
+		int ix, iy, iz;
+		int qflags = QF_SCALEDOWN;
+
+		Sound snd;
+
+		ix = iy = iz = 2;
+		A_QuakeEx(ix, iy, iz, 35, 0, 256, snd, flags: qflags, falloff: 128);
+
+		ix = iy = iz = 1;
+		A_QuakeEx(ix, iy, iz, 70, 0, 512, snd, flags: qflags, falloff: 128);
+	}
+
+	States
+	{
+		Spawn:
+		GASF A -1;
+		Stop;
+	Death:
+		NEXP A 2 Bright { A_Explode(); A_ExplosionRumble2(); A_SetScale(0.7); }
+		TNT1 A 0
+		{
+			for (int i = 0; i < 100; i++)
+			{
+				A_SpawnItemEx("TCOTDNapalmMissileSpark",
+					frandom[rnd_NapalmSpark](-12.0, 12.0), frandom[rnd_NapalmSpark](-12.0, 12.0), frandom[rnd_NapalmSpark](24.0, 32.0),
+					frandom[rnd_NapalmSpark](-5.0, 5.0), frandom[rnd_NapalmSpark](-5.0, 5.0), frandom[rnd_NapalmSpark](-5.0, 5.0),
+					frandom[rnd_NapalmSpark](0.0, 360.0));
+			}
+		}
+		NEXP BCDEFG 2 Bright
+		{
+			for (int i = 0; i < 7; i++)
+			{
+				static const String deb[] =
+				{
+					"TCOTDDebris02",
+					"TCOTDDebris03",
+					"TCOTDDebris04"
+				};
+
+				String cls = deb[random[rnd_expbarrel](0, deb.Size() - 1)];
+
+				TCOTDDebris.SpawnDebris
+				(
+					self,
+					frandom[rnd_debrisspawn](-Radius, Radius),
+					frandom[rnd_debrisspawn](-Radius, Radius),
+					frandom[rnd_debrisspawn](0, Default.Height),
+					frandom[rnd_debrisspawn](-2, 2),
+					frandom[rnd_debrisspawn](-2, 2),
+					frandom[rnd_debrisspawn](-4, 8),
+					cls
+				);
+			}
+		}
+		NEXP HIJKLM 2 Bright;
+		Stop;
+	}
+}
