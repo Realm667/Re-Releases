@@ -20,6 +20,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		+WEAPON.WIMPY_WEAPON
 		+WEAPON.NOALERT
 		+WEAPON.NOAUTOFIRE
+		+THRUGHOST
 	}
 
 	//===========================================================================
@@ -162,7 +163,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 	PitchforkFire:
 		FORK A 1 A_WeaponOffset(0, 30, WOF_INTERPOLATE);
 		FORK B 2;
-		FORK C 8
+		FORK C 9
 		{
 			A_ViewPunch();
 			A_PitchforkAttack();
@@ -286,9 +287,11 @@ class TCOTDPitchforkThrown : Actor
 		Height 1;
 		Speed 20;
 		DamageFunction TCOTDGameplayStatics.GetAttackDamage(25);
+		DamageType "Stab";
 		Gravity 0.125;
 		Projectile;
 		+RIPPER
+		+THRUGHOST
 		+FORCEXYBILLBOARD
 		+SKYEXPLODE
 		-NOBLOCKMAP
