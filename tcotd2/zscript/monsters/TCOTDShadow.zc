@@ -6,23 +6,41 @@ class Shadow : TCOTDMonster
 	Default
 	{
 		//$Title Shadow
-		Health 300;
+		Health 340;
 		GibHealth 35;
 		Height 72;
-		Mass 100;
+		Mass 500;
 		Scale 1.5;
 		RenderStyle "Add";
 		Alpha 0.9;
 		Speed 8;
-		PainChance 200;
+		PainChance 64;
+		PainChance "Stab", 64 / 4;
 		PainSound "shadow/pain";
 		DeathSound "shadow/death";
 		ActiveSound "shadow/active";
 		Obituary "$OB_SHDW";
 		Tag "$FN_SHDW";
 		BloodColor "08 08 08";
-		+FLOORCLIP
 		+NOSPRITESHADOW
+	}
+
+	protected void A_ShadowAttack(void)
+	{
+		let misl = A_SpawnProjectile("ShadowBall", 50);
+
+		if (misl)
+		{
+			misl.VelIntercept(target);
+		}
+	}
+
+	protected void A_ShadowAdjustRefireDelay(void)
+	{
+		if (target)
+		{
+			tics = int(clamp(20 * Distance3D(target) / 480, 8, 20));
+		}
 	}
 
 	States
@@ -42,9 +60,9 @@ class Shadow : TCOTDMonster
 	Missile:
 		TROX E 12 A_FaceTarget();
 		TROX F 5;
-		TROX G 5 Bright A_SpawnProjectile("ShadowBall");
+		TROX G 5 Bright A_ShadowAttack();
 		TROX F 5;
-		TROX E 20;
+		TROX E 20 A_ShadowAdjustRefireDelay();
 		TROX E 1 A_SpidRefire();
 		Goto Missile + 1;
 	Pain:
@@ -77,12 +95,13 @@ class ShadowBall : Actor
 {
 	Default
 	{
-		Radius 6;
-		Height 8;
-		Speed 12;
-		Damage 4;
+		Radius 8;
+		Height 11;
+		Speed 16;
+		DamageFunction TCOTDGameplayStatics.GetAttackDamage(13);
 		RenderStyle "Add";
 		Alpha 0.75;
+		Scale 1.5;
 		Projectile;
 		SeeSound "imp/attack";
 		DeathSound "imp/shotx";
@@ -158,6 +177,7 @@ class ShadowTrail : Actor
 		Projectile;
 		RenderStyle "Add";
 		Alpha 0.6;
+		Scale 1.5;
 		+NOCLIP
 	}
 
