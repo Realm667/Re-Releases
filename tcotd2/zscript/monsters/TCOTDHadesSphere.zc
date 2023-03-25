@@ -3,18 +3,16 @@ class HS : TCOTDMonster
 	Default
 	{
 		//$Title Hades Sphere
-		Health 35;
+		Health 65;
 		Radius 16;
 		Height 32;
-		Mass 3000;
-		Speed 5;
-		Monster;
-		MeleeThreshold 196;
+		Speed 7;
 		SeeSound "hades/sight";
 		Obituary "$OB_HADE";
 		Tag "$FN_HADE";
 		+DONTFALL
 		+DONTGIB
+		+DONTTHRUST
 		+DONTHARMCLASS
 		+FLOAT
 		+LOOKALLAROUND
@@ -33,7 +31,7 @@ class HS : TCOTDMonster
 		HADE EFGH 4 Bright;
 		HADE A 2 Bright A_StartSound("hades/walk");
 		HADE AABBBBCCCCDDDD 1 Bright A_Chase();
-		HADE D 0 A_Jump(32, 1);
+		//HADE D 0 A_Jump(32, 1); // [Blue Shadow] Disable the teleportation ability. We don't want it.
 		Goto See + 4;
 		HADE H 0 A_UnSetSolid();
 		HADE H 0 A_UnSetShootable();
@@ -49,16 +47,17 @@ class HS : TCOTDMonster
 		HADE H 0 A_SetSolid;
 		Goto See + 4;
 	Melee:
-		HADE HGFE 4 Bright A_SetShootable();
-		HADE E 0 A_Die();
-	Death:
+		HADE H 4 Bright A_UnSetShootable();
+		HADE GFE 4 Bright;
+		HADE E 0 { DamageType = 'Boom'; Die(nullptr, nullptr); }
+	Death.Boom:
 		HADE M 0 A_NoBlocking();
 		HADE M 0 A_SetTranslucent(0.9, 1);
 		HADE M 0 A_StartSound("hades/explode");
-		HADE M 4 Bright A_Explode(112, 112, XF_NOTMISSILE);
+		HADE M 4 Bright A_Explode(health, 176, XF_NOTMISSILE | XF_EXPLICITDAMAGETYPE, false, 96);
 		HADE NOPQ 5 Bright;
 		Stop;
-	XDeath:
+	Death:
 		HADE N 0 A_NoBlocking();
 		HADE H 5 Bright A_StartSound("hades/death");
 		HADE GFERSTUVWX 4 Bright;
