@@ -130,6 +130,12 @@ class TCOTDPlayer : PlayerPawn
 			}
 		}
 
+		// Soul Harvester's life steal ability. The damage dealt returns as health to the monster.
+		if (dmg > 0 && source && inflictor && inflictor is 'SoulHarvesterBall')
+		{
+			source.GiveBody(dmg);
+		}
+
 		return dmg;
 	}
 
