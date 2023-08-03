@@ -8,6 +8,7 @@ Actor TeleportEffects replaces TeleportFog
 	{
 	Spawn:
 		X010 A 0 NODELAY A_SpawnItemEx("TportSphere",0,0,26)
+		TNT1 A 0 A_Playsound("misc/teleport")
 		TNT1 AAAAAAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
 		X010 A 2 Bright LIGHT("OliveGreenFlicker1") A_FadeOut(0.02)
 		TNT1 AAAA 0 A_SpawnItemEx("TeleParticle",0,0,26,frandom(8.0,-8.0),0,frandom(8.0,-8.0),random(0,359),SXF_TRANSFERTRANSLATION)
