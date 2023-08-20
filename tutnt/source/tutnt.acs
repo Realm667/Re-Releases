@@ -1,8 +1,28 @@
 #library "tutnt.acs"
 #include "zcommon.acs"
 
+#define MAX_VOLUME 127
+#define MAX_PLAYER_HEALTH 200
+#define PORTAL_BASE_TID	180 //This will be the first tid, set it here.  This will be your first tid, make sure any extras you are given TIDs in consecutive order!
+#define T_PORTALEMBER	255
+
+#define FRAME_X 384.0           // <-- Hud x and y components, edit them here.
+#define FRAME_Y 74.0
+#define BOSS_X  295.0
+#define BOSS_Y  47.0
+#define HP_X    350.0
+#define HP_Y    46.0
+
+int position; //this variable logs your progress through the map. 0 means you're at the start still,and restart at the player starts.
+int PortalOn;
+int PlayerSeesPortal[8];
+
+global int 2:CompletedMap;
+
 str mapname,objectives;
-//Intro Text
+str bossfont[5]={"M_HPB1","M_HPB2","M_HPB3","M_HPB4","M_HPB5"};
+
+//Intro Text - should be exported to language --ozy81
 script "IntroText" OPEN
 {
 	int mapnum=GetLevelInfo(LEVELINFO_LEVELNUM);
@@ -160,38 +180,62 @@ script "PlayerVoice"(int clip)
 	}
 }
 
-Script "FastMonsters"(void)
-{
-	if(GetCVar("sv_fastmonsters")||GameSkill()>=4)
-		SetResultValue(1);
-	else
-		SetResultValue(0);
-}
-
 //INTERMAP SCRIPT
-global int 2:CompletedMap;
 script "Exiting" UNLOADING
 {
 	CompletedMap=GetLevelInfo(LEVELINFO_LEVELNUM);
 }
 
-////////////////////
-//10% Below Script//
-////////////////////
-
-script 911 ENTER
+//fadescript for map setup
+script "Maplaunch" ENTER
 {
-	if(GetActorProperty(0,APROP_HEALTH) < 11 && GetActorProperty(0,APROP_HEALTH) > 0)
-   	{
-   		SetHudSize(640,480,0);
-        Setfont("M_INJ");
-		Hudmessage(s:"A"; HUDMSG_FADEINOUT,0,CR_WHITE,320.0,240.0,0.0,0.5,0.5);
-		localambientsound("heartb2",120);
-		delay(15);
-		localambientsound("heartb2",120);
-   	}
-   	delay(25);
-   	restart;
+	FadeRange(0,0,0,1.0,0,0,0,0.0,1.5);
+}
+
+//lowhealth scripts - from BoA
+script "30Health" ENTER
+{
+	int width = 640, height = 480;
+	SetHudSize(width, height, 0);
+	SetFont("M_INJ");
+
+	// Half width and height (in fixed-point).
+	int half_width  = (width / 2) << 16;
+	int half_height = (height / 2) << 16;
+
+	while (true)
+	{
+		int health = GetActorProperty(0, APROP_HEALTH);
+		if (health > 0 && health <= 30)
+		{
+			HudMessage(s:"A"; HUDMSG_FADEINOUT, 0, CR_WHITE, half_width, half_height, 0.0, 0.5, 0.5);
+
+			// Volume and delay of heartbeat (faster and louder with less health).
+			int volume = MAX_VOLUME;
+			int delay1 = 10;
+			int delay2 = 14;
+
+			if (health > 20)
+			{
+				volume = MAX_VOLUME - 50;
+				delay1 = 21;
+				delay2 = 34;
+			}
+			else if (health > 10)
+			{
+				volume = MAX_VOLUME - 25;
+				delay1 = 18;
+				delay2 = 24;
+			}
+
+			LocalAmbientSound("hbeat", volume);
+			Delay(delay1);
+			LocalAmbientSound("hbeat", volume);
+			Delay(delay2);
+		}
+
+		Delay(1);
+	}
 }
 
 ///////////////////////////////////
@@ -246,8 +290,6 @@ script 132 (void)
 // PHOBUS' CHECKPOINT SYSTEM //
 ///////////////////////////////
 
-int position; //this variable logs your progress through the map. 0 means you're at the start still,and restart at the player starts.
-
 script 799 ENTER
 {
 	Thing_ChangeTID(0,1000+PlayerNumber());
@@ -259,6 +301,7 @@ script 800 RESPAWN
 	Thing_ChangeTID(0,1000+PlayerNumber()); //This re-assigns the TID,more to ensure you have it than anything else.
 	Teleport((position*100)+1000+PlayerNumber()); //The player is teleported to their checkpoint as soon as they respawn
 }
+
 function void checkpoint(int pos)
 {
 	if(GameType() == GAME_NET_COOPERATIVE)
@@ -269,36 +312,33 @@ function void checkpoint(int pos)
 		HudmessageBold(s:"\cCCoop \cGCheckpoint \cCReached"; HUDMSG_FADEINOUT,19,CR_UNTRANSLATED,320.0,470.0,1.0,1.0,1.0);
 	}
 }
+
 script 231(void) //CHECKPOINT AREA 1
 {
 	checkpoint(1);
 }
+
 script 232(void) //CHECKPOINT AREA 2
 {
 	checkpoint(2);
 }
+
 script 233(void) //CHECKPOINT AREA 3
 {
 	checkpoint(3);
 }
 
-//PORTAL SCRIPTS
-#define PORTAL_BASE_TID	180
-//This will be the first tid, set it here.  This will be your first tid,
-//make sure any extras you are given TIDs in consecutive order!
+//PORTAL SCRIPTS - to be replaced possibly --ozy81
 
-#define T_PORTALEMBER	255
 
-int PortalOn;
-int PlayerSeesPortal[8];
-
-Script 176 (int tid)
 //If the NUM_PORTALS constant is set properly, and all your portal tids are in consecutive order,
 //this script will act as a smart switcher (works for multiplayer).  If no player can see the portal
 //it is switched off for better performance.  Use the special 226 (ACS_Executealways) to trigger the
 //script when a player passes over the line.  Passing over the front side of the line will turn it on,
 //passing over the back side will turn it off.  The first arguement is set to the TID of the portal decoration
 //you want to turn on/off.
+
+script 176 (int tid)
 {
 	int x;
 	switch (LineSide ())
@@ -325,7 +365,7 @@ Script 176 (int tid)
 	}
 }
 
-Script 777 (int length,int radius)
+script 777 (int length,int radius)
 {
 	int tid1 = -16384  + ActivatorTID () - PORTAL_BASE_TID;
 	int tid2 = 16384 + ActivatorTID () - PORTAL_BASE_TID;
@@ -363,12 +403,26 @@ Script 777 (int length,int radius)
 	Thing_Remove (tid2);
 }
 
-Script 778 DEATH
+//checkers - some to be removed --ozy81
+script "FastMonsters"(void)
+{
+	if(GetCVar("sv_fastmonsters")||GameSkill()>=4)
+		SetResultValue(1);
+	else
+		SetResultValue(0);
+}
+
+script "weatherfx"(void)
+{
+	SetResultValue(GetCVAR("weatherfx"));
+}
+
+script 778 DEATH
 {
 	PlayerSeesPortal[PlayerNumber ()] = FALSE;
 }
 
-Script 779 (int p_num) DISCONNECT
+script 779 (int p_num) DISCONNECT
 {
 	PlayerSeesPortal[p_num] = FALSE;
 }
@@ -380,27 +434,15 @@ str p_spawner[2][6] =
 	{"SparkleShot_W","SparkleShot_R","SparkleShot_G","SparkleShot_Y","SparkleShot_O","SparkleShot_B"},
 };
 
-Script 444 (int type,int color,int size)
+script 444 (int type,int color,int size) //to be removed, spams script calls
 {
 	size = size / 2 << 16;
 	Spawn(p_spawner[type][color],GetActorX (0) + random (-size,size),
 		GetActorY (0) + random (-size,size),GetActorZ (0),0,0);
 }
 
-script "weatherfx"(void)
-{
-	SetResultValue(GetCVAR("weatherfx"));
-}
-
-#define FRAME_X 384.0           // <-- Hud x and y components, edit them here.
-#define FRAME_Y 74.0
-#define BOSS_X  295.0
-#define BOSS_Y  47.0
-#define HP_X    350.0
-#define HP_Y    46.0
-
-str bossfont[5]={"M_HPB1","M_HPB2","M_HPB3","M_HPB4","M_HPB5"};
-Script "BOSSHP"(int firstid,int lastid,int boss)
+//Healthbars - warning! related to maps -  to be replaced possibly --ozy81
+script "BOSSHP"(int firstid,int lastid,int boss)
 {
 	SetHudSize(640,480,1);
 	SetFont(bossfont[boss-1]);
