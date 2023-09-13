@@ -205,7 +205,10 @@ class TCOTDWeaponMelee : TCOTDWeapon
 				let q = Spawn("TCOTDViewPunchQuake", invoker.Owner.Pos, NO_REPLACE);
 				if (q)
 				{
+					/* only GZDoom 4.11 supports floating point values for A_QuakeEx
 					q.A_QuakeEx(0.75, 0.75, 0.05,
+					*/
+					q.A_QuakeEx(1, 1, 1,
 						8, 0, 64, "", QF_RELATIVE | QF_SCALEDOWN);
 				}
 			}
