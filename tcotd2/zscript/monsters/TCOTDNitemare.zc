@@ -6,12 +6,14 @@ class KDiZDNightmare : TCOTDMonster
 	Default
 	{
 		//$Title Nightmare
-		Health 100;
+		Health 140;
 		Height 56;
-		Speed 5;
-		PainChance 144;
+		Speed 4.5;
+		PainChance 40;
+		MeleeRange 50;
 		RenderStyle "Add";
-		Alpha 0.4;
+		Alpha 0.125;
+		StealthAlpha 0.125;
 		Scale 1.1;
 		SeeSound "nightmare/sight";
 		PainSound "nightmare/pain";
@@ -19,9 +21,12 @@ class KDiZDNightmare : TCOTDMonster
 		ActiveSound "nightmare/active";
 		Obituary "$OB_NITE";
 		Tag "$FN_NITE";
+		+GHOST
 		+STEALTH
+		+DONTTHRUST
 		+NOSPRITESHADOW
 		+NOBLOOD
+		-SHOOTABLE
 	}
 
 	States
@@ -47,18 +52,15 @@ class KDiZDNightmare : TCOTDMonster
 		NMRE DD 1 A_Chase2();
 		NMRE D 1 A_Chase();
 		NMRE DD 1 A_Chase2();
-		Loop;
-		// wtf is this?? was there supposed to a state label here??? - Nash
-		NMRE D 0 A_SpawnItemEx("NightmareWisp", failchance: 224);
-		Loop;
+		Goto See + 1;
 	Melee:
-		NMRE E 0 A_SetShootable();
-		NMRE EF 9 A_FaceTarget();
-		NMRE G 9 A_CustomMeleeAttack(random[rnd_NightmareDmg](1 ,8) * 4, "nightmare/melee", "", "Fear", false);
+		NMRE E 9 { A_SetShootable(); A_FaceTarget(); }
+		NMRE F 5 A_FaceTarget();
+		NMRE G 7 A_MonsterMeleeAttack(13, hitSound: "nightmare/melee", damageType: 'Ghost');
 		Goto See;
 	Pain:
-		NMRE H 2 A_SetShootable();
-		NMRE H 10 A_Pain();
+		NMRE H 2;
+		NMRE H 15 A_Pain();
 		Goto See;
 	Death:
 		NMRE I 3 A_ScreamAndUnblock();
@@ -67,52 +69,70 @@ class KDiZDNightmare : TCOTDMonster
 	}
 }
 
-class NightmareWisp : Actor
+/////////////////////
+// SIREN NIGHTMARE //
+/////////////////////
+class SirenNightmare : TCOTDMonster
 {
 	Default
 	{
-		Radius 4;
-		Height 8;
+		//$Title Siren
+		Radius 10;
+		Height 30;
+		Speed 10;
+		MeleeRange 50;
 		RenderStyle "Add";
-		Alpha 0.4;
-		Projectile;
-		+NOCLIP
+		Alpha 0.125;
+		Scale 1.5;
+		SeeSound "nightmare2/sight";
+		//PainSound "nightmare2/pain";
+		//DeathSound "nightmare2/death";
+		ActiveSound "nightmare2/active";
+		Obituary "$OB_NITE";
+		Tag "$FN_NITE";
+		+NOSPRITESHADOW
+		-SHOOTABLE
+		-COUNTKILL
+	}
+
+	void A_SirenNightmareAttack(void)
+	{
+		if (target && CheckMeleeRange(96))
+		{
+			A_StartSound("nightmare2/melee", CHAN_WEAPON);
+			int damage = target.health;
+			int newdam = target.DamageMobj(self, self, damage, 'Fear2', DMG_NO_ARMOR);
+			target.TraceBleed(newdam > 0 ? newdam : damage, self);
+		}
 	}
 
 	States
 	{
 	Spawn:
-		NMRE IJKLMNO 3;
-		Stop;
-	}
-}
-
-/////////////////////
-// SIREN NIGHTMARE //
-/////////////////////
-class SirenNightmare : KDiZDNightmare
-{
-	Default
-	{
-		//$Title Siren
-		Health 300;
-		Radius 10;
-		Height 30;
-		Speed 10;
-		Scale 1.5;
-		SeeSound "nightmare2/sight";
-		PainSound "nightmare2/pain";
-		DeathSound "nightmare2/death";
-		ActiveSound "nightmare2/active";
-		-COUNTKILL
-	}
-
-	States
-	{
+		NMRE AB 10 A_Look();
+		Loop;
+	See:
+		NMRE A 1 A_Chase();
+		NMRE AA 1 A_Chase2();
+		NMRE A 1 A_Chase();
+		NMRE AA 1 A_Chase2();
+		NMRE B 1 A_Chase();
+		NMRE BB 1 A_Chase2();
+		NMRE B 1 A_Chase();
+		NMRE BB 1 A_Chase2();
+		NMRE C 1 A_Chase();
+		NMRE CC 1 A_Chase2();
+		NMRE C 1 A_Chase();
+		NMRE CC 1 A_Chase2();
+		NMRE D 1 A_Chase();
+		NMRE DD 1 A_Chase2();
+		NMRE D 1 A_Chase();
+		NMRE DD 1 A_Chase2();
+		Goto See;
 	Melee:
-		NMRE E 0 A_SetShootable();
-		NMRE EF 9 A_FaceTarget();
-		NMRE G 9 A_CustomMeleeAttack(100 * random[rnd_SirenNightmareDmg](1, 8), "nightmare2/melee", "", "Fear2", false);
+		NMRE E 9 A_FaceTarget();
+		NMRE F 5 A_FaceTarget();
+		NMRE G 7 A_SirenNightmareAttack();
 		Goto See;
 	}
 }
