@@ -2,31 +2,31 @@
 // BASE STATISTS //
 ///////////////////
 
-actor StatistMarine1 25101
+actor StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
 	Height 56
-	speed .75
+	Speed .75
 	MaxStepHeight 16
 	MaxDropoffHeight 32
 	MONSTER
 	+FLOORCLIP
 	+FRIENDLY
 	-SHOOTABLE
-	states
+	States
 	{
 	Spawn:
 		PLAY A 0
 	See:
 		"####" AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDD 1 A_Wander
-		loop
+		Loop
 	}
 }
 
-actor StatistMarine2 : StatistMarine1 25102
+actor StatistMarine2 : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	states
+	States
 	{
 	Spawn:
 		PLA2 A 0
@@ -34,10 +34,10 @@ actor StatistMarine2 : StatistMarine1 25102
 	}
 }
 
-actor StatistScientist : StatistMarine1 25103
+actor StatistScientist : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	states
+	States
 	{
 	Spawn:
 		SCIN U 0
@@ -45,10 +45,10 @@ actor StatistScientist : StatistMarine1 25103
 	}
 }
 
-actor StatistArmorer : StatistMarine1 25104
+actor StatistArmorer : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	states
+	States
 	{
 	Spawn:
 		MRST A 80
@@ -56,28 +56,28 @@ actor StatistArmorer : StatistMarine1 25104
 		MRST A 80
 		MRLK B 40
 		MRBD ABC 80
-		loop
+		Loop
 	}
 }
 
-actor StatistSellerr : StatistMarine1 25105
+actor StatistSellerr : StatistMarine1 //two r ?
 {
 	//$Category Stronghold_StatistNPCs
-	states
+	States
 	{
 	Spawn:
 		LEDR A 80
 		LEDR B 40
 		LEDR A 80
 		LEDR C 40
-		loop
+		Loop
 	}
 }
 
-actor StatistMarine5 : StatistMarine1 25106
+actor StatistMarine5 : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	states
+	States
 	{
 	Spawn:
 		HAVC A 0
@@ -85,10 +85,10 @@ actor StatistMarine5 : StatistMarine1 25106
 	}
 }
 
-actor StatistMarine6 : StatistMarine1 25107
+actor StatistMarine6 : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	states
+	States
 	{
 	Spawn:
 		RAVW A 0
@@ -96,10 +96,10 @@ actor StatistMarine6 : StatistMarine1 25107
 	}
 }
 
-actor StatistMarine7 : StatistMarine1 25108
+actor StatistMarine7 : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	states
+	States
 	{
 	Spawn:
 		REEG A 0
@@ -107,10 +107,10 @@ actor StatistMarine7 : StatistMarine1 25108
 	}
 }
 
-actor StatistFemaleMarine : StatistMarine1 25109
+actor StatistFemaleMarine : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	states
+	States
 	{
 	Spawn:
 		FEML A 0
@@ -122,117 +122,102 @@ actor StatistFemaleMarine : StatistMarine1 25109
 // STRIFE INTERMAP SCRIPTS //
 /////////////////////////////
 
-actor LtRandyHeit : StatistMarine1 28001
+actor LtRandyHeit : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 1 //this value will be referenced from in the dialog editor.
 	Translation 2
 }
 
-actor SgtMNiggel : StatistMarine2 28002
+actor SgtMNiggel : StatistMarine2
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 2
 	Translation 2
 }
 
-actor ProfDrOelckers : StatistScientist 28003
+actor ProfDrOelckers : StatistScientist
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 3
 	Translation 2
 }
 
-actor SgtRowand : StatistMarine1 28004
+actor SgtRowand : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 4
 	Translation 0
 }
 
-actor LTToenail : StatistMarine2 28005
+actor LTToenail : StatistMarine2
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 5
 	Translation 0
 }
 
-actor ProfICTux : StatistScientist 28006
+actor ProfICTux : StatistScientist
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 6
 	Translation 0
 }
 
-actor MajorBjoernV : StatistMarine1 28007
+actor MajorBjoernV : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 7
 	Translation 2
 	speed 0
-	states
+	States
 	{
 	Spawn:
 		LEDR ABAC 50 A_Wander
-		loop
+		Loop
 	}
 }
 
-actor ProfMikeCutman : StatistScientist 28008
+actor ProfMikeCutman : StatistScientist
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 8
 	Translation 0
 }
 
-actor SgtJPaddock : StatistMarine5 28009
+actor SgtJPaddock : StatistMarine5
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 9
 	Translation 1
 }
 
-actor CmdNickBaker : StatistMarine7 28010
+actor CmdNickBaker : StatistMarine7
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 10
 	Translation 2
 }
 
-actor ProfDArchon : StatistScientist 28011
+actor ProfDArchon : StatistScientist
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 11
 	Translation 0
 }
 
-actor ColLWMouse : StatistFemaleMarine 28012
+actor ColLWMouse : StatistFemaleMarine
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 12
 	Translation 1
 }
 
-actor LtWWeasel : StatistMarine6 28013
+actor LtWWeasel : StatistMarine6
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 13
 	Translation 2
 }
 
-actor LtSPriestess : StatistFemaleMarine 28014
+actor LtSPriestess : StatistFemaleMarine
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 14
 	Translation 0
 }
 
-actor Leonidas : StatistMarine2 28015
+actor Leonidas : StatistMarine2
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 15
 	Speed 0
-	states
+	States
 	{
 	Spawn:
 		TNT1 A -1
@@ -240,45 +225,40 @@ actor Leonidas : StatistMarine2 28015
 	}
 }
 
-actor DrDentz : StatistScientist 28016
+actor DrDentz : StatistScientist
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 16
 	Translation 1
 }
 
-actor BlastHardcheese : StatistMarine7 28017
+actor BlastHardCheese : StatistMarine7
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 17
 	Translation 2
 }
 
-actor GregTGreat : StatistMarine5 28018
+actor GregTGreat : StatistMarine5
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 18
 	Translation 1
 }
 
-actor PrivateGina : StatistFemaleMarine 28019
+actor PrivateGina : StatistFemaleMarine
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 19
 	Translation 2
 }
 
-actor ProfDrPegCOp : StatistScientist 28020
+actor ProfDrPegCop : StatistScientist
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 20
 	Translation 0
 }
 
-actor FemaleScientist : StatistMarine1 28021
+actor FemaleScientist : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	states
+	States
 	{
 	Spawn:
 		SCI3 N 0
@@ -286,80 +266,70 @@ actor FemaleScientist : StatistMarine1 28021
 	}
 }
 
-actor ProfGDragon : FemaleScientist 28022
+actor ProfGDragon : FemaleScientist
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 21
 }
 
-actor McKenzie : StatistMarine6 28023
+actor McKenzie : StatistMarine6
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 22
 	Translation 1
 }
 
-actor Reinhardt : StatistMarine5 28024
+actor Reinhardt : StatistMarine5
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 23
 	Translation 0
 }
 
-actor Thatcher : StatistMarine2 28025
+actor Thatcher : StatistMarine2
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 24
 	Translation 1
 }
 
-actor Demonslayer : StatistMarine7 28026
+actor Demonslayer : StatistMarine7
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 25
 	Translation 2
 }
 
-actor Shoemaker : StatistMarine2 28027
+actor Shoemaker : StatistMarine2
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 26
 	Translation 0
 }
 
-actor LtCarmack : StatistMarine1 28028
+actor LtCarmack : StatistMarine1
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 27
-	states
+	States
 	{
 	Spawn:
 		LTCR A -1
-		loop
+		Loop
 	}
 }
 
-actor Starscream : StatistMarine7 28029
+actor StarScream : StatistMarine7
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 28
 	Translation 2
 }
 
-actor SgtMOrpheus : StatistMarine7 28030
+actor SgtMorpheus : StatistMarine7
 {
 	//$Category Stronghold_StatistNPCs
-	ConversationID 29
 	Translation 1
 }
 
 actor DrAeonD : StatistMarine1 //No doomednum necessary.
 {
-	ConversationID 30
-	states
+	States
 	{
 	Spawn:
 		LANN A -1
-		loop
+		Loop
 	}
 }
