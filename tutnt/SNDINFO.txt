@@ -44,14 +44,13 @@ voc040 voc040
 voc041 voc041
 voc042 voc042
 voc043 voc043
-voc044 voc044
 
 //////////////////////////////////////////////////////////////////////////////////
 // POINT MUSIC ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
 // MARIO KART
-D_MAKA d_maka
+D_MAKA D_MAKA
 
 // HORST WESSEL
 D_HORST D_HORST
@@ -62,10 +61,6 @@ D_HORST D_HORST
 
 // ZOMBIE MARINE
 zombie/rifle			dsrifle
-
-// SHADOW
-shadow/sight			dsgssit
-shadow/death			dsgsdth
 
 // CATHARI
 catharsi/sit DSSLSIT
@@ -325,9 +320,12 @@ puff/ric7          dsrich7
 misc/sm_coin	DSSMCOIN
 misc/sm_bdor    DSMARBD
 
+//lowhealth
+HBEAT	HBEAT
+
 // ENDMAP SOUNDS
-heartb		heartb
-heartb2		heartb2
+heartb		heartb	//these needs to be verified in game
+heartb2		heartb2	//these needs to be verified in game
 bombs1  	bombs1
 bombs2  	bombs2
 
@@ -399,18 +397,6 @@ $AMBIENT 35 D_MAKA POINT CONTINUOUS 1.0
 ///////////////////////////////////////////////////////////////////////////////////////
 
 marine/punch DSPUNCH
-
-$random marine/active 		{ human/idle1  human/idle2  human/idle3  human/idle4  human/idle5  human/idle6 human/idle7 human/idle8 human/idle9 }
-human/idle1  			DSIDLE01
-human/idle2  			DSIDLE02
-human/idle3  			DSIDLE03
-human/idle4  			DSIDLE04
-human/idle5  			DSIDLE05
-human/idle6  			DSIDLE06
-human/idle7  			DSIDLE07
-human/idle8  			DSIDLE08
-human/idle9  			DSIDLE09
-
 marine/pain			dsmapain
 
 $random marine/death		{ marine/death1  marine/death2  marine/death3  marine/death4  marine/death5  marine/death6  marine/death7  marine/death8  marine/death9 }
@@ -522,7 +508,6 @@ $random world/nukesplashsmall		{ world/nukesplashsmall1  world/nukesplashsmall2 
 world/nukesplashsmall1	dsnukes3
 world/nukesplashsmall2	dsnukes4
 
-$limit world/drip1 1
 $limit world/watersplash 1
 $limit world/watersplashsmall 2
 $limit world/sludgegloop 1
@@ -532,9 +517,6 @@ $limit world/lavsiz2 1
 $limit world/lavasizzlesmall 2
 $limit world/nukesplash 1
 $limit world/nukesplashsmall 2
-
-//Heartbeat
-hbeat	HBEAT
 
 ////////////////////
 // SOUND SEQUENCES //

@@ -1,0 +1,23 @@
+Notes of things to do in PK3:
+
+Following textures in textures/ are redundant. Simplify to one texture using TEXTURES lump.
+	pipeh.png
+	pipesh1.png
+	pipesh2.png
+Also some redundancy:
+	n_warn??.png
+
+Split up decorate.txt file more.
+
+Make sure all monsters call A_GiveToTarget("CoinItem", 5) at the very beginning of their Death/XDeath
+states, so that way the reward is immediate (especially for when time is frozen).
+--DONE--
+
+NightmareDemon is broken. Where's ACS script 200 and 201? (Now in sthldcmn.acs, incomplete)
+REALLY IMPORTANT: Make sure all deadlines are ACS_Execute(255,0,0), monster activated,
+and _repeatable action_ !
+STR14 needs more ammo.
+
+Fix the font: 5 and 6, comma and period look too similar.
+
+Make use of language lump for possible future translations.

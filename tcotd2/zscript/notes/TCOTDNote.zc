@@ -56,12 +56,12 @@ class TCOTDNote : Inventory abstract
 			if (GetClass() == "TCOTDNote")
 			{
 				newTag = "$NOTE_DEFAULT";
-				noteText = "$NOTETXT_DEFAULT";
+				noteText = "$NOTE_TXT_DEFAULT";
 			}
 			else
 			{
 				newTag = "$NOTE_" .. String.Format("%s", String.Format("%s", GetClassName()).Mid("TCOTDNOTE".Length())).MakeUpper();
-				noteText = "$NOTETXT_" .. String.Format("%s", String.Format("%s", GetClassName()).Mid("TCOTDNOTE".Length())).MakeUpper();
+				noteText = "$NOTE_TXT_" .. String.Format("%s", String.Format("%s", GetClassName()).Mid("TCOTDNOTE".Length())).MakeUpper();
 			}
 
 			SetTag(newTag);
