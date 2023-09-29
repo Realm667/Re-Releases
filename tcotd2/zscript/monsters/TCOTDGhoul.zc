@@ -7,18 +7,15 @@ class TCOTDGhul : TCOTDMonster
 		Radius 20;
 		Height 74;
 		Mass 500;
-		Speed 12;
-		PainChance 100;
-		MeleeThreshold 196;
+		Speed 5;
+		PainChance 56;
+		PainChance "Stab", 56 / 4;
 		SeeSound "ghoul/see";
 		PainSound "ghoul/pain";
 		DeathSound "ghoul/die";
 		ActiveSound "ghoul/active";
-		MeleeSound "skeleton/melee";
-		HitObituary "$OB_GHUL";
+		Obituary "$OB_GHUL";
 		Tag "$FN_GHUL";
-		+ALWAYSFAST
-		+MISSILEMORE
 	}
 
 	States
@@ -27,18 +24,23 @@ class TCOTDGhul : TCOTDMonster
 		ZKEL AB 10 A_Look();
 		Loop;
 	See:
-		ZKEL AABBCCDDEEFF 5 A_Chase();
+		ZKEL A 1 A_Chase();
+		ZKEL AAA 1 A_Chase2();
+		ZKEL B 1 A_Chase();
+		ZKEL BBB 1 A_Chase2();
+		ZKEL C 1 A_Chase();
+		ZKEL CCC 1 A_Chase2();
+		ZKEL D 1 A_Chase();
+		ZKEL DDD 1 A_Chase2();
+		ZKEL E 1 A_Chase();
+		ZKEL EEE 1 A_Chase2();
+		ZKEL F 1 A_Chase();
+		ZKEL FFF 1 A_Chase2();
 		Loop;
 	Melee:
-		ZKEL G 1 A_FaceTarget();
-		ZKEL G 6 A_SkelWhoosh();
-		ZKEL H 0 A_FaceTarget();
-		ZKEL H 2 A_Recoil(-3);
-		ZKEL H 0 A_FaceTarget();
-		ZKEL H 2 A_Recoil(-4);
-		ZKEL H 0 A_FaceTarget();
-		ZKEL H 2 A_Recoil(-4);
-		ZKEL I 6 A_SkelFist();
+		ZKEL G 6 { A_FaceTarget(); A_SkelWhoosh(); }
+		ZKEL H 6 A_FaceTarget();
+		ZKEL I 6 A_MonsterMeleeAttack(17, 108, "skeleton/melee", damageType: 'Poison');
 		Goto See;
 	Pain:
 		ZKEL L 5;
@@ -52,8 +54,7 @@ class TCOTDGhul : TCOTDMonster
 		ZKEL Q -1;
 		Stop;
 	Raise:
-		ZKEL Q 5;
-		ZKEL PONML 5;
+		ZKEL QPONML 5;
 		Goto See;
 	}
 }
