@@ -9,7 +9,7 @@ class MiniSpider : TCOTDMonster
 		Radius 7;
 		Height 15;
 		Speed 2.5;
-		Health 15;
+		Health 8;
 		Scale 0.25;
 		Translation 0;
 		SeeSound "spider/sight";
@@ -39,7 +39,7 @@ class MiniSpider : TCOTDMonster
 		Loop;
 	Melee:
 		MNTR UW 5 A_FaceTarget();
-		MNTR X 5 A_CustomMeleeAttack(random[rnd_MiniSpiderDmg](1, 8), "spider/pain");
+		MNTR X 5 A_MonsterMeleeAttack(3, hitSound: "spider/pain");
 		Goto See;
 	Death:
 		MNTS F 5;
@@ -59,7 +59,8 @@ class LargeSpider : MiniSpider
 		//$Title Spider (Large)
 		Radius 14;
 		Height 30;
-		Speed 5;
+		Speed 4.5;
+		MeleeThreshold 128;
 		Health 150;
 		Scale 0.50;
 		Translation 1;
@@ -68,16 +69,30 @@ class LargeSpider : MiniSpider
 		DropItem "TCOTDHealthPickupHeart", 160;
 	}
 
+	override int DamageMobj (Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
+	{
+		int dmg = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+
+		// [Blue Shadow] Prevent the monster from drifting backwards if it was charging.
+		if (bSkullFly && health > 0)
+		{
+			Vel = (0, 0, 0);
+		}
+
+		return dmg;
+	}
+
 	States
 	{
 	Missile:
-		MNTR A 10 A_FaceTarget();
+		MNTR UWW 5 A_FaceTarget();
 		MNTR A 0 A_SkullAttack();
+	ChargeLoop:
 		MNTR ABCD 2;
-		Goto Missile + 2;
+		Loop;
 	Melee:
 		MNTR UW 5 A_FaceTarget();
-		MNTR X 5 A_CustomMeleeAttack(random[rnd_LargeSpiderDmg](1, 8) * 2, "spider/pain");
+		MNTR X 5 A_MonsterMeleeAttack(8, hitSound: "spider/pain", damageType: 'Poison');
 		Goto See;
 	}
 }
