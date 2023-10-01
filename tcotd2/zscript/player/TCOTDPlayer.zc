@@ -125,7 +125,7 @@ class TCOTDPlayer : PlayerPawn
 		{
 			poisonBuildup += dmg;
 
-			if (poisonBuildup >= 25)
+			if (poisonBuildup > 50)
 			{
 				GiveInventory("TCOTDPoisonAilment", 1);
 			}
@@ -176,10 +176,11 @@ class TCOTDPlayer : PlayerPawn
 				}
 			}
 
-			// [Blue Shadow] Reduce poison buildup every 30 seconds.
-			if (poisonBuildup > 0 && !(Level.maptime % (30 * TICRATE)))
+			// [Blue Shadow] Reduce poison buildup every 12 seconds.
+			if (poisonBuildup > 0 && !(Level.maptime % (12 * TICRATE)))
 			{
-				poisonBuildup--;
+				poisonBuildup -= 2;
+				if (poisonBuildup < 0) poisonBuildup = 0;
 			}
 		}
 	}
