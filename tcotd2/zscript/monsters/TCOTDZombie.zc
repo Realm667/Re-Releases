@@ -6,15 +6,15 @@ class ZombieBlood : TCOTDMonster
 	Default
 	{
 		//$Title Zombie
-		Health 150;
+		Health 135;
 		GibHealth 35;
-		PainChance 0;
-		Speed 3;
+		PainChance 32;
+		PainChance "Stab", 32 / 4;
+		Speed 4;
 		Radius 24;
 		Height 74;
 		Mass 400;
 		Scale 0.62;
-		MeleeRange 50;
 		SeeSound "zombie/sight";
 		AttackSound "zombie/swing";
 		PainSound "zombie/pain";
@@ -31,28 +31,28 @@ class ZombieBlood : TCOTDMonster
 		BZOM A 10 A_Look();
 		Loop;
 	See:
-		BZOM BB 1 A_Chase();
-		BZOM BB 1 A_Chase2();
-		BZOM CC 1 A_Chase();
-		BZOM CC 1 A_Chase2();
-		BZOM DD 1 A_Chase();
-		BZOM DD 1 A_Chase2();
-		BZOM EE 1 A_Chase();
-		BZOM EE 1 A_Chase2();
-		BZOM FF 1 A_Chase();
-		BZOM FF 1 A_Chase2();
-		BZOM GG 1 A_Chase();
-		BZOM GG 1 A_Chase2();
+		BZOM B 1 A_Chase();
+		BZOM BBB 1 A_Chase2();
+		BZOM C 1 A_Chase();
+		BZOM CCC 1 A_Chase2();
+		BZOM D 1 A_Chase();
+		BZOM DDD 1 A_Chase2();
+		BZOM E 1 A_Chase();
+		BZOM EEE 1 A_Chase2();
+		BZOM F 1 A_Chase();
+		BZOM FFF 1 A_Chase2();
+		BZOM G 1 A_Chase();
+		BZOM GGG 1 A_Chase2();
 		Loop;
 	Melee:
 		BZOM IJ 4 A_FaceTarget();
 		BZOM K 3 A_FaceTarget();
-		BZOM L 2 A_CustomMeleeAttack(10 * random[rnd_ZombieDmg](1, 8), "zombie/hit");
+		BZOM L 2 A_MonsterMeleeAttack(16, hitSound: "zombie/hit");
 		BZOM MNN 2;
 		Goto See;
 	Pain:
 		BZOM H 2;
-		BZOM H 2 A_Pain();
+		BZOM H 6 A_Pain();
 		Goto See;
 	Death:
 		BZMD A 2;

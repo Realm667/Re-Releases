@@ -6,11 +6,12 @@ class SoulHarvester : TCOTDMonster
 	Default
 	{
 		//$Title Soul Harvester
-		Health 120;
+		Health 90;
 		GibHealth 35;
 		Height 56;
 		Speed 2.66666667;
-		PainChance 120;
+		PainChance 44;
+		PainChance "Stab", 44 / 4;
 		Scale 1.1;
 		SeeSound "harvester/sight";
 		PainSound "vulgar/pain";
@@ -28,33 +29,40 @@ class SoulHarvester : TCOTDMonster
 		Loop;
 	See:
 		SLHV A 1 A_Chase();
-		SLHV AA 1 A_Chase2();
+		SLHV A 1 A_Chase2();
 		SLHV A 1 A_Chase();
-		SLHV AA 1 A_Chase2();
+		SLHV A 1 A_Chase2();
+		SLHV A 1 A_Chase();
+		SLHV A 1 A_Chase2();
 		SLHV B 1 A_Chase();
-		SLHV BB 1 A_Chase2();
+		SLHV B 1 A_Chase2();
 		SLHV B 1 A_Chase();
-		SLHV BB 1 A_Chase2();
+		SLHV B 1 A_Chase2();
+		SLHV B 1 A_Chase();
+		SLHV B 1 A_Chase2();
 		SLHV C 1 A_Chase();
-		SLHV CC 1 A_Chase2();
+		SLHV C 1 A_Chase2();
 		SLHV C 1 A_Chase();
-		SLHV CC 1 A_Chase2();
+		SLHV C 1 A_Chase2();
+		SLHV C 1 A_Chase();
+		SLHV C 1 A_Chase2();
 		SLHV D 1 A_Chase();
-		SLHV DD 1 A_Chase2();
+		SLHV D 1 A_Chase2();
 		SLHV D 1 A_Chase();
-		SLHV DD 1 A_Chase2();
+		SLHV D 1 A_Chase2();
+		SLHV D 1 A_Chase();
+		SLHV D 1 A_Chase2();
 		Loop;
-	Melee:
 	Missile:
-		SLHV E 4 Light("SoulHarvesterX_1") A_FaceTarget();
-		SLHV F 4 Light("SoulHarvesterX_2") A_FaceTarget();
-		SLHV G 4 Light("SoulHarvesterX_3") A_FaceTarget();
-		SLHV H 5 Bright Light("SoulHarvesterX_4") A_FaceTarget();
-		SLHV I 5 Bright Light("SoulHarvesterX_5") A_FaceTarget();
-		SLHV J 5 Bright Light("SoulHarvesterX_6") A_FaceTarget();
-		SLHV K 5 Bright Light("SoulHarvesterX_7") A_FaceTarget();
-		SLHV L 8 Bright Light("SoulHarvesterX_8") A_SpawnProjectile("SoulHarvesterBall");
-		SLHV M 10 Light("SoulHarvesterX_9");
+		SLHV E 3 Light("SoulHarvesterX_1") A_FaceTarget();
+		SLHV F 3 Light("SoulHarvesterX_2") A_FaceTarget();
+		SLHV G 3 Light("SoulHarvesterX_3") A_FaceTarget();
+		SLHV H 4 Bright Light("SoulHarvesterX_4") A_FaceTarget();
+		SLHV I 4 Bright Light("SoulHarvesterX_5") A_FaceTarget();
+		SLHV J 4 Bright Light("SoulHarvesterX_6") A_FaceTarget();
+		SLHV K 4 Bright Light("SoulHarvesterX_7") A_FaceTarget();
+		SLHV L 7 Bright Light("SoulHarvesterX_8") A_SpawnProjectile("SoulHarvesterBall", 40);
+		SLHV M 9 Light("SoulHarvesterX_9");
 		Goto See;
 	Pain:
 		SLHV N 3;
@@ -70,9 +78,9 @@ class SoulHarvester : TCOTDMonster
 		Stop;
 	XDeath:
 		SLHV X 6 A_XScream();
-		SLHV Y 6 A_SpawnItemEx("SoulHarvesterGhost", 0, 0, 32, 0, 0, 0, 0, SXF_TELEFRAG);
+		SLHV Y 6 A_SpawnItemEx("SoulHarvesterGhost", 0, 0, 32);
 		SLHV Z 6;
-		SLHV [ 6 A_Fall;
+		SLHV [ 6 A_NoBlocking();
 		SLHV ] 6;
 		SLHW A -1;
 		Stop;
@@ -90,7 +98,8 @@ class SoulHarvesterBall : Actor
 		Height 6;
 		Scale 0.4;
 		Speed 9;
-		Damage 2;
+		DamageFunction TCOTDGameplayStatics.GetAttackDamage(9.5);
+		DamageType "Ghost";
 		Projectile;
 		RenderStyle "Add";
 		SeeSound "harvester/ball";
@@ -102,7 +111,7 @@ class SoulHarvesterBall : Actor
 	{
 	Spawn:
 		SHBA A 0 A_SpawnItemEx("SoulBallTrail");
-		SHBA AB 2 Bright Light("SoulHarvesterBall") A_SeekerMissile(5, 8);
+		SHBA AB 2 Bright Light("SoulHarvesterBall") A_SeekerMissile(5, 8, SMF_PRECISE);
 		Loop;
 	Death:
 		SHBA C 4 Bright Light("SoulHarvesterBallX_1");

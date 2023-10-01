@@ -13,6 +13,7 @@ class ApprenticeofDsparil : TCOTDMonster
 		FloatSpeed 1.33333333;
 		Scale 1.1;
 		PainChance 100;
+		PainChance "Stab", 100 / 4;
 		SeeSound "wizard/sight";
 		PainSound "wizard/pain";
 		DeathSound "wizard/death";
@@ -20,7 +21,6 @@ class ApprenticeofDsparil : TCOTDMonster
 		Obituary "$OB_ADSP";
 		Tag "$FN_ADSP";
 		+FLOAT
-		+FLOORCLIP
 		+NOGRAVITY
 		+NOSPRITESHADOW
 	}
@@ -149,7 +149,7 @@ class FireBlast : Actor
 	{
 		Speed 25;
 		Scale 0.75;
-		DamageFunction (random[rnd_ApprenticeDmg1](1, 4) * 3);
+		DamageFunction TCOTDGameplayStatics.GetAttackDamage(6);
 		Projectile;
 		DeathSound "fireblast/explode";
 	}
@@ -176,7 +176,7 @@ class SuperFireBlast : FireBlast
 	{
 		Speed 16;
 		Scale 1.5;
-		DamageFunction (random[rnd_ApprenticeDmg2](1, 4) * 24);
+		DamageFunction TCOTDGameplayStatics.GetAttackDamage(42.5);
 		DeathSound "superfireblast/explode";
 	}
 

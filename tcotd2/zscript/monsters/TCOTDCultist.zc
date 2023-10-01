@@ -2,26 +2,48 @@ class TCOTDCultist : TCOTDMonster
 {
 	Default
 	{
+		Health 60;
 		Radius 18;
 		Height 70;
 		Mass 100;
-		Speed 2.66666667;
 		Scale 0.7;
-		PainChance 100;
+		PainChance 192;
+		PainChance "Stab", 192 / 4;
 		SeeSound "cultist/sight";
 		PainSound "cultist/pain";
 		DeathSound "cultist/death";
 		ActiveSound "cultist/active";
 	}
 
+	override void Tick(void)
+	{
+		Super.Tick();
+
+		bFrightened = health < (GetMaxHealth() / 4);
+	}
+
 	protected void A_CultistShotgunAttack(void)
 	{
-		A_CustomBulletAttack(22.5, 0, 3, random[rnd_CultistShotgunDmg](1, 5) * 3, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		if (target)
+		{
+			A_StartSound(AttackSound, CHAN_WEAPON);
+			A_FaceTarget();
+			double bangle = self.Angle;
+			double bslope = AimLineAttack(bangle, MISSILERANGE);
+
+			for (int i = 0; i < 7; i++)
+			{
+				double ang = bangle + random2[CultistShotgunAttack]() * (5.625 * 1.75 / 256);
+				double pit = bslope + random2[CultistShotgunAttack]() * (3.5485 * 1.75 / 256);
+				int damage = TCOTDGameplayStatics.GetAttackDamage(5);
+				LineAttack(ang, MISSILERANGE, pit, damage, 'Hitscan', "TCOTDBulletPuff");
+			}
+		}
 	}
 
 	protected void A_CultistTommyAttack(void)
 	{
-		A_CustomBulletAttack(22.5, 0, 1, random[rnd_CultistTommyDmg](1, 5) * 3, "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+		A_CustomBulletAttack(5.625 * 1.375, 3.5485 * 1.375, 1, TCOTDGameplayStatics.GetAttackDamage(5), "TCOTDBulletPuff", 0, CBAF_NORANDOM);
 	}
 
 	States
@@ -32,12 +54,6 @@ class TCOTDCultist : TCOTDMonster
 	SpawnLoop:
 		#### AB 10 A_Look();
 		Loop;
-	Frightened:
-		#### A 0
-		{
-			bFrightened = true;
-		}
-		Goto See + 1;
 	Cowardly:
 		#### A 0
 		{
@@ -45,7 +61,6 @@ class TCOTDCultist : TCOTDMonster
 		}
 		Goto See + 1;
 	See:
-		#### A 0 A_JumpIfHealthLower(25, "Frightened");
 		#### A 1 A_Chase();
 		#### AA 1 A_Chase2();
 		#### A 1 A_Chase();
@@ -104,7 +119,7 @@ class TCOTDCultistTommy : TCOTDCultist
 	Default
 	{
 		//$Title Cultist TommyGun
-		Health 60;
+		Speed 3;
 		AttackSound "chainguy/attack";
 		Obituary "$OB_CULT";
 		Tag "$FN_CULT";
@@ -114,7 +129,7 @@ class TCOTDCultistTommy : TCOTDCultist
 	States
 	{
 	Missile:
-		#### G 20 A_FaceTarget();
+		#### G 17 A_FaceTarget();
 		#### H 2 Light("CultistLight") A_CultistTommyAttack();
 		#### G 3;
 		#### H 2 Light("CultistLight") A_CultistTommyAttack();
@@ -140,7 +155,7 @@ class TCOTDCultistShotgun : TCOTDCultist
 	Default
 	{
 		//$Title Cultist Sawed-Off
-		Health 80;
+		Speed 4;
 		AttackSound "shotguy/attack";
 		Obituary "$OB_CUL2";
 		Tag "$FN_CUL2";
@@ -153,9 +168,9 @@ class TCOTDCultistShotgun : TCOTDCultist
 		BCUL A 0;
 		Goto SpawnLoop;
 	Missile:
-		#### G 20 A_FaceTarget();
+		#### G 17 A_FaceTarget();
 		#### H 2 Light("CultistLight") A_CultistShotgunAttack();
-		#### G 18;
+		#### G 15;
 		Goto See;
 	}
 }

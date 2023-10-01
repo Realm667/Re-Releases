@@ -178,13 +178,49 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 	//
 	// -------------------------------------------------------------------------------------------------
 
+	action void A_FireSawedOff (double spread_xy, double spread_z, int numbullets, Sound snd)
+	{
+		if (player == nullptr)
+		{
+			return;
+		}
+
+		A_StartSound(snd, CHAN_WEAPON);
+
+		Weapon weap = player.ReadyWeapon;
+
+		if (weap != nullptr && invoker == weap && stateinfo != nullptr && stateinfo.mStateType == STATE_Psprite)
+		{
+			if (!weap.DepleteAmmo(weap.bAltFire, true))
+			{
+				return;
+			}
+
+			player.SetPsprite(PSP_FLASH, weap.FindState('Flash'), true);
+		}
+
+		player.mo.PlayAttacking2();
+
+		double pitch = BulletSlope();
+
+		for (int i = 0; i < numbullets; i++)
+		{
+			int damage = TCOTDGameplayStatics.GetAttackDamage(12);
+			double ang = angle + random2[rnd_FireSawedOff]() * (spread_xy / 256);
+			LineAttack(ang, PLAYERMISSILERANGE, pitch + random2[rnd_FireSawedOff]() * (spread_z / 256), damage, 'Hitscan', "TCOTDBulletPuff");
+		}
+	}
+
+	// -------------------------------------------------------------------------------------------------
+	//
+	// -------------------------------------------------------------------------------------------------
+
 	action void A_SawedOffOneBarrelAtk ()
 	{
-		A_StartSound("sawedoff/fire", CHAN_WEAPON);
 		A_Overlay(-PSP_FLASH, "GunSmoke");
 		A_ViewKick();
 		A_GunFlash();
-		A_FireBullets(5.6, 3.5, 7, 5, "TCOTDBulletPuff", FBF_USEAMMO);
+		A_FireSawedOff(5.625, 3.5485, 7, "sawedoff/fire");
 	}
 
 	// -------------------------------------------------------------------------------------------------
@@ -193,11 +229,10 @@ class TCOTDWeaponSawedOff : TCOTDWeapon replaces Shotgun
 
 	action void A_SawedOffBothBarrelsAtk ()
 	{
-		A_StartSound("sawedoff/altfire", CHAN_WEAPON);
 		A_Overlay(-PSP_FLASH, "BigGunSmoke");
 		A_ViewKick();
 		A_GunFlash();
-		A_FireBullets(11.2, 7.1, 20, 5, "TCOTDBulletPuff", FBF_USEAMMO);
+		A_FireSawedOff(11.25, 7.097, 20, "sawedoff/altfire");
 	}
 
 	// -------------------------------------------------------------------------------------------------

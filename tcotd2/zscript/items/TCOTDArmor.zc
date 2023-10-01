@@ -51,3 +51,39 @@ class TCOTDSuperArmor : BlueArmor replaces BlueArmor
 		Stop;
 	}
 }
+
+class TCOTDGhostDamageHandler : Inventory
+{
+	override void AbsorbDamage (int damage, Name damageType, out int newdamage, Actor inflictor, Actor source, int flags)
+	{
+		if (damageType == 'Ghost')
+		{
+			let ba = Owner ? BasicArmor(Owner.FindInventory('BasicArmor')) : nullptr;
+
+			if (ba && ba.ArmorType == 'TCOTDSuperArmor')
+			{
+				int saved = int(damage * 0.33335);
+
+				if (ba.Amount < saved)
+				{
+					saved = ba.Amount;
+				}
+
+				newdamage -= saved;
+				ba.Amount -= saved;
+
+				if (ba.Amount == 0)
+				{
+					// The armor has become useless
+					ba.SavePercent = 0;
+					ba.ArmorType = 'None'; // Not BasicArmor.
+				}
+			}
+		}
+	}
+
+    override Inventory CreateTossable (int amt)
+    {
+        return nullptr;
+    }
+}

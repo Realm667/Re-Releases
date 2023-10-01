@@ -51,6 +51,11 @@ class TCOTDGameplayStatics play
 		return self.Vel.Length();
 	}
 
+	static int GetAttackDamage (double baseDamage)
+	{
+		return int(baseDamage * frandom[rnd_AttackDamage](0.85, 1.15));
+	}
+
 	static void DestroyActors(class<Actor> cls)
 	{
 		ThinkerIterator it = ThinkerIterator.Create(cls);

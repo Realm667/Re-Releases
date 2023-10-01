@@ -8,15 +8,15 @@ class Fatty : TCOTDMonster
 		//$Category New Monsters (TCOTD2)
 		//$Title Butcher
 		//$Color 12
-		Health 300;
+		Health 200;
 		GibHealth 35;
 		Radius 20;
 		Height 77;
 		Mass 500;
-		Speed 1.75;
+		Speed 2;
 		Scale 0.8;
-		MeleeThreshold 196;
-		PainChance 100;
+		PainChance 48;
+		PainChance "Stab", 48 / 4;
 		SeeSound "fatty/sight";
 		PainSound "fatty/pain";
 		DeathSound "fatty/death";
@@ -25,8 +25,21 @@ class Fatty : TCOTDMonster
 		HitObituary "$HB_FATY";
 		Tag "$FN_FATY";
 		DropItem "TCOTDHealthPickupHeart", 128;
-		Species "Fatty";
-		+MISSILEMORE
+	}
+
+	protected void A_ButcherVomit(void)
+	{
+		Actor vomit;
+
+		for (int i = 0; i < 5; i++)
+		{
+			vomit = A_SpawnProjectile("ButcherVomit", 62, 0, i != 0 ? frandom[rnd_Butcher](-6, 6) : 0, CMF_AIMDIRECTION);
+
+			if (vomit && i != 0)
+			{
+				vomit.Vel.Z += frandom[rnd_Butcher](0, 4.5);
+			}
+		}
 	}
 
 	States
@@ -62,22 +75,21 @@ class Fatty : TCOTDMonster
 		Loop;
 	Melee:
 		BFAT H 4 A_FaceTarget();
-		BFAT I 1 A_SkelWhoosh();
-		BFAT I 3 A_FaceTarget();
-		BFAT J 4 A_SkelFist();
-		BFAT K 4;
-		BFAT L 4;
+		BFAT I 4 A_SkelWhoosh();
+		BFAT J 4 A_MonsterMeleeAttack(15, 78, "skeleton/melee");
+		BFAT KL 4;
 		Goto See;
-	Missile:
+	Vomit:
 		BFAT M 4 A_FaceTarget();
 		BFAT N 7 A_FaceTarget();
 		BFAT O 5 A_FaceTarget();
-		BFAT P 5 A_SpawnProjectile("ButcherVomit1", 56, flags: CMF_AIMDIRECTION);
+		BFAT P 5 A_ButcherVomit();
 		BFAT O 10 A_FaceTarget();
 		Goto See;
 	Pain:
-		BFAT G 5;
-		BFAT G 5 A_Pain();
+		BFAT G 2;
+		BFAT G 6 A_Pain();
+		BFAT G 0 A_JumpIfCloser(144, "Vomit");
 		Goto See;
 	Death:
 		BFTD A 6 A_Scream();
@@ -111,71 +123,67 @@ class ButcherGoo : Actor
 	{
 		Height 2;
 		Radius 2;
-		Damage 0;
+		Gravity 0.125;
 		Scale 0.2;
 		Alpha 0.85;
-		RenderStyle "Add";
+		RenderStyle "Translucent";
 		+CANNOTPUSH
-		+LOWGRAVITY
-		-SOLID
 	}
 
 	States
 	{
 	Spawn:
-		BARF ABCDEFABCDEFABCDEF 3 Light("GGLOW2");
+		BARF ABCDEFABCDEFABCDEF 3;
 	Death:
 		BARF AAAA 4 A_FadeOut(0.25);
 		Stop;
 	}
 }
 
-class ButcherVomit1 : Actor
+class ButcherVomit : Actor
 {
 	Default
 	{
 		Height 8;
 		Radius 8;
-		DamageFunction (random[rnd_ButcherDmg](10, 12));
+		DamageFunction TCOTDGameplayStatics.GetAttackDamage(4);
 		Speed 18;
 		Scale 0.4;
-		RenderStyle "Add";
+		RenderStyle "Translucent";
 		Alpha 0.85;
-		ReactionTime 3;
+		Decal "BaronScorch";
 		Projectile;
 		SeeSound "fatty/attack";
 		DeathSound "fatty/vomitsplat";
+		-NOGRAVITY
 	}
 
 	protected void A_SpawnGoo(void)
 	{
-		A_SpawnItemEx("ButcherGoo",
-			frandom[rnd_bvomit1](-2, 2),
-			frandom[rnd_bvomit1](-2, 2),
-			frandom[rnd_bvomit1](-3, 3),
-			frandom[rnd_bvomit1](-2, 2),
-			frandom[rnd_bvomit1](-2, 2),
-			frandom[rnd_bvomit1](-2, 2));
+		for (int i = 0; i < 2; i++)
+		{
+			A_SpawnItemEx("ButcherGoo",
+				frandom[rnd_ButcherVomit](-2, 2),
+				frandom[rnd_ButcherVomit](-2, 2),
+				frandom[rnd_ButcherVomit](-3, 3),
+				frandom[rnd_ButcherVomit](-2, 2),
+				frandom[rnd_ButcherVomit](-2, 2),
+				frandom[rnd_ButcherVomit](-2, 2));
+		}
 	}
 
 	States
 	{
 	Spawn:
-		BARF AB 3 Light("GGLOW") A_SetAngle(Angle + frandom[rnd_bvomit2](-5., 5.));
-		TNT1 AA 0 A_SpawnGoo();
-		BARF CDEF 3 Light("GGLOW") A_SetAngle(Angle + frandom[rnd_bvomit2](-5., 5.));
-		TNT1 AA 0 A_SpawnGoo();
-		BARF EF 3 Light("GGLOW") A_SetAngle(Angle + frandom[rnd_bvomit2](-5., 5.));
-		TNT1 AA 0 A_SpawnGoo();
+		BARF AB 3 A_SetAngle(Angle + frandom[rnd_ButcherVomit](-5, 5));
+		BARF C 0 A_SpawnGoo();
+		BARF CDEF 3 A_SetAngle(Angle + frandom[rnd_ButcherVomit](-5, 5));
+		BARF E 0 A_SpawnGoo();
+		BARF EF 3 A_SetAngle(Angle + frandom[rnd_ButcherVomit](-5, 5));
+		BARF A 0 A_SpawnGoo();
 		Loop;
 	Death:
 		FBXX A 0 A_SetScale(1.0);
-		FBXX A 8;
-		FBXX B 6;
-		FBXX C 4;
-		Stop;
-	Crash:
-		TNT1 A 0 { A_StartSound("fatty/vomitsplat"); A_SetScale(1.0); }
 		FBXX A 8;
 		FBXX B 6;
 		FBXX C 4;

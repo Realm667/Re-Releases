@@ -9,6 +9,7 @@ class TCOTDMonster : Actor abstract
 		//$Category New Monsters (TCOTD2)
 		//$Color 12
 		Monster;
+		MeleeRange 56;
 		+FLOORCLIP
 		+CASTSPRITESHADOW
 	}
@@ -55,7 +56,44 @@ class TCOTDMonster : Actor abstract
 	// will be called frequently to simulate smoother movement
 	protected void A_Chase2(void)
 	{
-		A_Chase(NULL, NULL, CHF_NOPLAYACTIVE);
+		A_Chase('Melee', NULL, CHF_NOPLAYACTIVE);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	protected void A_MonsterMeleeAttack(double baseDamage, double range = 0, Sound hitSound = "", Sound missSound = "", Name damageType = 'None')
+	{
+		if (target == nullptr)
+		{
+			return;
+		}
+
+		if (range == 0)
+		{
+			range = 92;
+		}
+
+		A_FaceTarget();
+
+		if (CheckMeleeRange(range))
+		{
+			if (hitSound)
+			{
+				A_StartSound(hitSound, CHAN_WEAPON);
+			}
+
+			int damage = TCOTDGameplayStatics.GetAttackDamage(baseDamage);
+			int newdam = target.DamageMobj(self, self, damage, damageType == 'None' ? 'Melee' : damageType);
+			target.TraceBleed(newdam > 0 ? newdam : damage, self);
+		}
+		else if (missSound)
+		{
+			A_StartSound(missSound, CHAN_WEAPON);
+		}
 	}
 
 	//===========================================================================

@@ -75,6 +75,7 @@ class TCOTDPlayer : PlayerPawn
 		Player.CrouchSprite "PLAY";
 		Player.StartItem "TCOTDWeaponMelee";
 		Player.StartItem "TCOTDJournalItem";
+		Player.StartItem "TCOTDGhostDamageHandler";
 		Player.WeaponSlot 1, "TCOTDWeaponMelee";
 		Player.WeaponSlot 2, "TCOTDWeaponRevolver";
 		Player.WeaponSlot 3, "TCOTDWeaponSawedOff";
@@ -124,10 +125,16 @@ class TCOTDPlayer : PlayerPawn
 		{
 			poisonBuildup += dmg;
 
-			if (poisonBuildup >= 16)
+			if (poisonBuildup > 50)
 			{
 				GiveInventory("TCOTDPoisonAilment", 1);
 			}
+		}
+
+		// Soul Harvester's life steal ability. The damage dealt returns as health to the monster.
+		if (dmg > 0 && source && inflictor && inflictor is 'SoulHarvesterBall')
+		{
+			source.GiveBody(dmg);
 		}
 
 		return dmg;
@@ -169,10 +176,11 @@ class TCOTDPlayer : PlayerPawn
 				}
 			}
 
-			// [Blue Shadow] Reduce poison buildup every 30 seconds.
-			if (poisonBuildup > 0 && !(Level.maptime % (30 * TICRATE)))
+			// [Blue Shadow] Reduce poison buildup every 12 seconds.
+			if (poisonBuildup > 0 && !(Level.maptime % (12 * TICRATE)))
 			{
-				poisonBuildup--;
+				poisonBuildup -= 2;
+				if (poisonBuildup < 0) poisonBuildup = 0;
 			}
 		}
 	}

@@ -8,13 +8,15 @@ class Vulgar : TCOTDMonster
 		//$Category New Monsters (TCOTD2)
 		//$Title Vulgar
 		//$Color 12
-		Health 100;
+		Health 115;
 		Mass 120;
 		Radius 20;
 		Height 60;
-		Speed 2.66666667;
+		Speed 3;
 		Scale 1.1;
-		PainChance 120;
+		PainChance 64;
+		PainChance "Stab", 64 / 4;
+		MeleeThreshold 100;
 		SeeSound "vulgar/sight";
 		PainSound "vulgar/pain";
 		DeathSound "vulgar/death";
@@ -34,35 +36,44 @@ class Vulgar : TCOTDMonster
 		Loop;
 	See:
 		VULG A 1 A_Chase();
-		VULG AA 1 A_Chase2();
+		VULG A 1 A_Chase2();
 		VULG A 1 A_Chase();
-		VULG AA 1 A_Chase2();
+		VULG A 1 A_Chase2();
+		VULG A 1 A_Chase();
+		VULG A 1 A_Chase2();
 		VULG B 1 A_Chase();
-		VULG BB 1 A_Chase2();
+		VULG B 1 A_Chase2();
 		VULG B 1 A_Chase();
-		VULG BB 1 A_Chase2();
+		VULG B 1 A_Chase2();
+		VULG B 1 A_Chase();
+		VULG B 1 A_Chase2();
 		VULG C 1 A_Chase();
-		VULG CC 1 A_Chase2();
+		VULG C 1 A_Chase2();
 		VULG C 1 A_Chase();
-		VULG CC 1 A_Chase2();
+		VULG C 1 A_Chase2();
+		VULG C 1 A_Chase();
+		VULG C 1 A_Chase2();
 		VULG D 1 A_Chase();
-		VULG DD 1 A_Chase2();
+		VULG D 1 A_Chase2();
 		VULG D 1 A_Chase();
-		VULG DD 1 A_Chase2();
+		VULG D 1 A_Chase2();
+		VULG D 1 A_Chase();
+		VULG D 1 A_Chase2();
 		Loop;
 	Melee:
-		VULG E 8 A_FaceTarget();
-		VULG F 1 A_StartSound("vulgar/swing");
-		VULG F 7 A_FaceTarget();
-		VULG G 6 A_CustomMeleeAttack(4 * random[rnd_ThamuzBogDmg](1, 8), "vulgar/hit");
+		VULG E 5 A_FaceTarget();
+		VULG F 5 { A_FaceTarget(); A_StartSound("vulgar/swing"); }
+		VULG G 4 A_FaceTarget();
+		VULG G 4 A_MonsterMeleeAttack(16, hitSound: "vulgar/hit");
 		Goto See;
 	Missile:
-		VULG EF 8 A_FaceTarget();
-		VULG G 6 A_SpawnProjectile("VulgarShot", 37);
+		VULG EEE 5 A_FaceTarget();
+		VULG FG 5 A_FaceTarget();
+		VULG G 7 A_SpawnProjectile("VulgarShot", 48);
 		Goto See;
 	Pain:
 		VULG H 2;
-		VULG H 2 A_Pain();
+		VULG H 8 A_Pain();
 		Goto See;
 	Death:
 		VULG I 8;
@@ -91,8 +102,8 @@ class VulgarShot : Actor
 	{
 		Radius 8;
 		Height 16;
-		Speed 10;
-		Damage 2;
+		Speed 20;
+		DamageFunction TCOTDGameplayStatics.GetAttackDamage(12);
 		DamageType "Poison";
 		RenderStyle "Add";
 		Alpha 0.67;
