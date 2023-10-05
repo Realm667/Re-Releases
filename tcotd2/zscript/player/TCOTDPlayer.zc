@@ -121,20 +121,32 @@ class TCOTDPlayer : PlayerPawn
 
 		int dmg = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 
-		if (dmg > 0 && health > 0 && mod == 'Poison')
+		if (dmg > 0)
 		{
-			poisonBuildup += dmg;
-
-			if (poisonBuildup > 50)
+			if (health > 0 && mod == 'Poison')
 			{
-				GiveInventory("TCOTDPoisonAilment", 1);
-			}
-		}
+				poisonBuildup += dmg;
 
-		// Soul Harvester's life steal ability. The damage dealt returns as health to the monster.
-		if (dmg > 0 && source && inflictor && inflictor is 'SoulHarvesterBall')
-		{
-			source.GiveBody(dmg);
+				if (poisonBuildup > 50)
+				{
+					GiveInventory("TCOTDPoisonAilment", 1);
+				}
+			}
+
+			if (inflictor)
+			{
+				// Nightmare's blinding effect.
+				if (inflictor is 'KDiZDNightmare')
+				{
+					A_SetBlend("White", 0.85, 190);
+				}
+
+				// Soul Harvester's life steal ability. The damage dealt returns as health to the monster.
+				if (source && inflictor is 'SoulHarvesterBall')
+				{
+					source.GiveBody(dmg);
+				}
+			}
 		}
 
 		return dmg;
@@ -917,7 +929,6 @@ class TCOTDPlayer : PlayerPawn
 	Melee:
 		PLAY F 6 Bright;
 		Goto Missile;
-	Pain.Fear:
 	Pain.Fear2:
 		PLAY G 0 A_SetBlend("White",0.85,190);
 		Goto Pain;
