@@ -29,6 +29,9 @@ class TCOTDPlayer : PlayerPawn
 	const WALK_SPEED = 0.3;
 	const RUN_SPEED = 0.6;
 
+	// makes platforming easier by almost eliminating the delay before being able to jump repeatedly
+	const EASY_JUMPING = 1;
+
 	const CHAN_AMB_OUTSIDE = 777;
 	const CHAN_AMB_INSIDE = 778;
 
@@ -195,6 +198,18 @@ class TCOTDPlayer : PlayerPawn
 				if (poisonBuildup < 0) poisonBuildup = 0;
 			}
 		}
+	}
+
+	override void CheckJump(void)
+	{
+		// [Nash] auto-bunnyhopping
+		if (EASY_JUMPING)
+		{
+			if (player.onground && player.jumpTics > 0)
+				player.jumpTics = 1;
+		}
+
+		Super.CheckJump();
 	}
 
 	override Vector2 BobWeapon(double ticfrac)
