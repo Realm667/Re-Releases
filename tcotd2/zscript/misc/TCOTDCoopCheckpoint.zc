@@ -77,6 +77,27 @@ class TCOTDCoopCheckpoint : Actor
 	//
 	//===========================================================================
 
+	static void ActivateFromACS(Actor activator, int checkpointTID)
+	{
+		if (checkpointTID > 0)
+		{
+			let it = Level.CreateActorIterator(checkpointTID);
+			Actor mo;
+			while (mo = it.Next())
+			{
+				let cp = TCOTDCoopCheckpoint(mo);
+				if (cp)
+					cp.Touch(activator);
+			}
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	States
 	{
 	Spawn:
