@@ -8,8 +8,18 @@ class TCOTDKey : Key abstract
 	{
 		//$Category New Items (TCOTD2)
 		//$Color 6
-		Scale 0.3;
+		Scale 0.425;
+		FloatBobPhase 1;
+		FloatBobStrength 0.5;
 		+FORCEXYBILLBOARD
+		+BRIGHT
+		+FLOATBOB
+	}
+
+	override void PostBeginPlay(void)
+	{
+		Super.PostBeginPlay();
+		WorldOffset = (0, 0, 12);
 	}
 
 	override bool TryPickup(in out Actor toucher)
