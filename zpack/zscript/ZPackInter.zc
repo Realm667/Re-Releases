@@ -9,13 +9,13 @@ Class CutsceneEnabled : Inventory
 	}
 }
 
-//straight from gzdoom.pk3 but with SPITEMX-Y and drawLF/EF values rearranged - ozy81
+//straight from gzdoom.pk3 but with SPITEMX-Y and drawLF/EF values rearranged, this approach is not perfect and usually not recommended by GZDoom devs but idk alternatives - ozy81
 class ZPackStatusScreen : DoomStatusScreen
 {
 	override int drawLF ()
 	{
 		bool ispatch = wbs.LName0.isValid();
-		int oldy = TITLEY+6 * CleanYfac;
+		int oldy = TITLEY+32 * CleanYfac;
 		int h;
 		
 		if (!ispatch)
@@ -68,7 +68,7 @@ class ZPackStatusScreen : DoomStatusScreen
 	override void drawEL ()
 	{
 		bool ispatch = TexMan.OkForLocalization(enteringPatch, "$WI_ENTERING");
-		int oldy = TITLEY+6 * CleanYfac;
+		int oldy = TITLEY+32 * CleanYfac;
 
 		if (!ispatch)
 		{
@@ -131,6 +131,7 @@ class ZPackStatusScreen : DoomStatusScreen
 		Font printFont;
 		Font textFont = generic_ui? NewSmallFont : content.mFont;
 		int statsx = SP_STATSX;
+		int fix = 40;
 
 
 		if (useGfx)
@@ -139,8 +140,8 @@ class ZPackStatusScreen : DoomStatusScreen
 			screen.DrawTexture (Kills, true, statsx, SP_STATSY, DTA_Clean, true);
 			screen.DrawTexture (Items, true, statsx, SP_STATSY+lh, DTA_Clean, true);
 			screen.DrawTexture (P_secret, true, statsx, SP_STATSY+2*lh, DTA_Clean, true);
-			screen.DrawTexture (Timepic, true, SP_TIMEX, SP_TIMEY-2*lh, DTA_Clean, true);
-			if (wbs.partime) screen.DrawTexture (Par, true, 160 + SP_TIMEX, SP_TIMEY-2*lh, DTA_Clean, true);
+			screen.DrawTexture (Timepic, true, SP_TIMEX, SP_TIMEY-2*lh + fix, DTA_Clean, true);
+			if (wbs.partime) screen.DrawTexture (Par, true, 160 + SP_TIMEX, SP_TIMEY-2*lh + fix, DTA_Clean, true);
 		}
 		else
 		{
@@ -160,41 +161,25 @@ class ZPackStatusScreen : DoomStatusScreen
 			screen.DrawText (textFont, tcolor, statsx, SP_STATSY, "$TXT_IMKILLS", DTA_Clean, true);
 			screen.DrawText (textFont, tcolor, statsx, SP_STATSY+lh, "$TXT_IMITEMS", DTA_Clean, true);
 			screen.DrawText (textFont, tcolor, statsx, SP_STATSY+2*lh, "$TXT_IMSECRETS", DTA_Clean, true);
-			screen.DrawText (textFont, tcolor, SP_TIMEX, SP_TIMEY-2*lh, "$TXT_IMTIME", DTA_Clean, true);
-			if (wbs.partime) screen.DrawText (textFont, tcolor, 160 + SP_TIMEX, SP_TIMEY-2*lh, "$TXT_IMPAR", DTA_Clean, true);
+			screen.DrawText (textFont, tcolor, SP_TIMEX, SP_TIMEY-2*lh + fix, "$TXT_IMTIME", DTA_Clean, true);
+			if (wbs.partime) screen.DrawText (textFont, tcolor, 160 + SP_TIMEX, SP_TIMEY-2*lh + fix, "$TXT_IMPAR", DTA_Clean, true);
 		}
 			 
 		drawPercent (printFont, 320 - statsx, SP_STATSY, cnt_kills[0], wbs.maxkills, true, tcolor);
 		drawPercent (printFont, 320 - statsx, SP_STATSY+lh, cnt_items[0], wbs.maxitems, true, tcolor);
 		drawPercent (printFont, 320 - statsx, SP_STATSY+2*lh, cnt_secret[0], wbs.maxsecret, true, tcolor);
-		drawTimeFont (printFont, 160 - SP_TIMEX, SP_TIMEY-2*lh, cnt_time, tcolor);
+		drawTimeFont (printFont, 160 - SP_TIMEX, SP_TIMEY-2*lh + fix, cnt_time, tcolor);
 			 
-		// This really sucks - not just by its message - and should have been removed long ago!
-		// To avoid problems here, the "sucks" text only gets printed if the lump is present, this even applies to the text replacement.
-			 
-		if (cnt_time >= wbs.sucktime * 60 * 60 && wbs.sucktime > 0 && Sucks.IsValid())
-		{ // "sucks"
-			int x = 160 - SP_TIMEX;
-			int y = SP_TIMEY;
-			if (useGfx && TexMan.OkForLocalization(Sucks, "$TXT_IMSUCKS"))
-			{
-				let size = TexMan.GetScaledSize(Sucks);
-				screen.DrawTexture (Sucks, true, x - size.X, y - size.Y - 2, DTA_Clean, true);
-			}
-			else
-			{
-				screen.DrawText (textFont, tColor, x  - printFont.StringWidth("$TXT_IMSUCKS"), y - printFont.GetHeight() - 2,	"$TXT_IMSUCKS", DTA_Clean, true);
-			}
-		}
+		// The "sucks" related code has been removed, we don't need it - ozy81
 
 		if (wi_showtotaltime)
 		{
-			 drawTimeFont (printFont, 160 - SP_TIMEX, SP_TIMEY-2*lh + lh, cnt_total_time, tcolor);
+			 drawTimeFont (printFont, 160 - SP_TIMEX, SP_TIMEY-2*lh + lh + fix, cnt_total_time, tcolor);
 		}
 
 		if (wbs.partime)
 		{
-			drawTimeFont (printFont, 320 - SP_TIMEX, SP_TIMEY-2*lh, cnt_par, tcolor);
+			drawTimeFont (printFont, 320 - SP_TIMEX, SP_TIMEY-2*lh + fix, cnt_par, tcolor);
 		}
 	}
 }

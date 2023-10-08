@@ -12,7 +12,7 @@ gameinfo
 	
 	statscreen_single = "ZPackStatusScreen"
 	
-	EventHandlers="EnhWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
+	EventHandlers = "EnhWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
 }
 
 clearepisodes
@@ -22,7 +22,12 @@ episode E1M1
 	name = "\cCThe Remains of UAC"
 }
 
-map E1M1 "Vestibule"
+map TITLEMAP lookup "ZTITL"
+{
+	//nothing
+}
+
+map E1M1 lookup "ZE1M1"
 {
 	cluster = 1
 	next = E1M2
@@ -31,7 +36,7 @@ map E1M1 "Vestibule"
 	par = 300
 }
 
-map E1M2 "Blast"
+map E1M2 lookup "ZE1M2"
 {
 	cluster = 1
 	next = E1M3
@@ -40,7 +45,7 @@ map E1M2 "Blast"
 	par = 400
 }
 
-map E1M3 "KDiZD Launch Site"
+map E1M3 lookup "ZE1M3"
 {
 	cluster = 1
 	next = E1M4
@@ -49,17 +54,16 @@ map E1M3 "KDiZD Launch Site"
 	par = 200
 }
 
-map E1M4 "UAC Waste and Storage Facility"
+map E1M4 lookup "ZE1M4"
 {
 	cluster = 1
 	next = E1M5
 	secretnext = E1M0
 	par = 660
-	sucktime = 1
 	music = D_SOLOBT
 }
 
-map E1M0 "Colossus reloaded"
+map E1M0 lookup "ZE1M0"
 {
 	next = E1M5
 	music = D_VAD04
@@ -82,7 +86,7 @@ cluster 6
 		"run or die!"
 }
 
-map E1M5 "Site X"
+map E1M5 lookup "ZE1M5"
 {
 	cluster = 1
 	next = E1M6
@@ -91,7 +95,7 @@ map E1M5 "Site X"
 	par = 540
 }
 
-map E1M6 "Glacierbase"
+map E1M6 lookup "ZE1M6"
 {
 	cluster = 1
 	next = E1M7
@@ -100,7 +104,7 @@ map E1M6 "Glacierbase"
 	par = 540
 }
 
-map E1M7 "Nuclear Sky"
+map E1M7 lookup "ZE1M7"
 {
 	cluster = 1
 	next = E1M8
@@ -108,7 +112,7 @@ map E1M7 "Nuclear Sky"
 	music = D_TNICK
 }
 
-map E1M8 "Thunderpeak Powerplant"
+map E1M8 lookup "ZE1M8"
 {
 	cluster = 1
 	next = E1M9
@@ -135,7 +139,7 @@ cluster 1
 	flat = N_BKGR05
 }
 
-map E1M9 "Termination"
+map E1M9 lookup "ZE1M9"
 {
 	cluster = 1
 	next = EndGame1
@@ -148,7 +152,7 @@ episode E2M1
 	name = "\cCDescent to Darkness"
 }
 
-map E2M1 "Switchback"
+map E2M1 lookup "ZE2M1"
 {
 	cluster = 2
 	next = E2M2
@@ -157,7 +161,7 @@ map E2M1 "Switchback"
 	par = 540
 }
 
-map E2M2 "Ultimate Insanity"
+map E2M2 lookup "ZE2M2"
 {
 	cluster = 2
 	next = E2M3
@@ -168,7 +172,7 @@ map E2M2 "Ultimate Insanity"
 	clipmidtextures 
 }
 
-map E2M3 "More Tricks & Traps"
+map E2M3 lookup "ZE2M3"
 {
 	cluster = 2
 	next = E2M4
@@ -177,7 +181,7 @@ map E2M3 "More Tricks & Traps"
 	music = D_T667TW
 }
 
-map E2M0 "Forgone Destruction ZDoom Edition"
+map E2M0 lookup "ZE2M0"
 {
 	next = E2M4
 	music = D_T667CC3 //D_PHBS2
@@ -202,7 +206,7 @@ cluster 5
 		"You get a sense of foregone destruction."
 }
 
-map E2M4 "Command Center"
+map E2M4 lookup "ZE2M4"
 {
 	cluster = 2
 	next = E2M5
@@ -211,7 +215,7 @@ map E2M4 "Command Center"
 	par = 780
 }
 
-map E2M5 "Fanboy"
+map E2M5 lookup "ZE2M5"
 {
 	cluster = 2
 	next = E2M6
@@ -221,7 +225,7 @@ map E2M5 "Fanboy"
 	par = 780
 }
 
-map E2M6 "Terror Cube"
+map E2M6 lookup "ZE2M6"
 {
 	cluster = 2
 	next = E2M7
@@ -231,7 +235,7 @@ map E2M6 "Terror Cube"
 	sky2 = ESKY2, 0
 }
 
-map E2M7 "Black Inferno"
+map E2M7 lookup "ZE2M7"
 {
 	cluster = 2
 	next = E2M8
@@ -239,7 +243,7 @@ map E2M7 "Black Inferno"
 	music = D_T667
 }
 
-map E2M8 "Tearing 'n' Temptation"
+map E2M8 lookup "ZE2M8"
 {
 	cluster = 2
 	next = E2M9
@@ -266,7 +270,7 @@ cluster 2
 	flat = T6_RCK1
 }
 
-map E2M9 "Abyss to the BBQ"
+map E2M9 lookup "ZE2M9"
 {
 	cluster = 2
 	next = endpic, E2END
@@ -279,14 +283,14 @@ episode E3M1
 	name = "\cCArmageddon"
 }
 
-map E3M1 "Riveter"
+map E3M1 lookup "ZE3M1"
 {
 	next = E3M2
 	music = "D_SAW02"
 	par = 300
 }
 
-map E3M2 "Infection"
+map E3M2 lookup "ZE3M2"
 {
 	next = E3M3
 	Music = D_E2M8
@@ -294,7 +298,7 @@ map E3M2 "Infection"
 	Par = 900
 }
 
-map E3M3 "Stereotomy"
+map E3M3 lookup "ZE3M3"
 {
 	Next = E3M4
 	Music = D_Stereo
@@ -303,7 +307,7 @@ map E3M3 "Stereotomy"
 	SKy2 = ELFBLU, 1
 }
 
-map E3M4 "Fried Fortress"
+map E3M4 lookup "ZE3M4"
 {
 	next = E3M5
 	music = "D_ICYTUX"
@@ -311,30 +315,16 @@ map E3M4 "Fried Fortress"
 	Par = 1500
 }
 
-map E3M5 "The Spirit Underworld"
+map E3M5 lookup "ZE3M5"
 {
 	Par = 1620
 	levelnum = 77
 	next = E3M6
 	secretnext = E3M0
 	music = D_HN7TSU
-	cluster = 77
 }
 
-map Part2 "The Spirit Underworld"
-{
-	Par = 1620
-	levelnum = 78
-	music = D_HN7TSU
-	cluster = 77
-}
-
-cluster 77
-{
-	hub 
-}
-
-map E3M0 "Sector"
+map E3M0 lookup "ZE3M0"
 {
 	next = E3M6
 	music = D_XASECT
@@ -366,7 +356,7 @@ cluster 10101033
 		"...now Normalcy?"
 }
 
-map E3M6 "The 13th Hour"
+map E3M6 lookup "ZE3M6"
 {
 	cluster = 3
 	next = E3M7
@@ -374,7 +364,7 @@ map E3M6 "The 13th Hour"
 	par = 1200
 }
 
-map E3M7 "Blackrock"
+map E3M7 lookup "ZE3M7"
 {
 	cluster = 3
 	next = E3M8
@@ -382,7 +372,7 @@ map E3M7 "Blackrock"
 	music = D_VAD01
 }
 
-map E3M8 "Point Hellfire"
+map E3M8 lookup "ZE3M8"
 {
 	cluster = 3
 	next = E3M9
@@ -409,7 +399,7 @@ cluster 3
 	flat = ICYROCK2
 }
 
-map E3M9 "Ancient hell"
+map E3M9 lookup "ZE3M9"
 {
 	cluster = 3
 	music = D_ICYMNI
@@ -461,6 +451,7 @@ doomednums
 	22099 = "SuicideBomber"
 	22295 = "Tagg"
 	29123 = "Catharsi"
+	29877 = "SteamSpawner"
 	29878 = "HazmatZombie"
 	29999 = "InfernalSpider"
 	30088 = "YKMarker"
@@ -498,13 +489,15 @@ SpawnNums
 {
 	171 = "Lurker"
 	180 = "BruiserFireSpawner"
+	180 = "VerticalRocket" //this should be changed and then applied over maps which uses it - ozy81
+	181 = "VerticalRocketUp"
 	207 = "XXLBall"
 	209 = "ExplosionVTMap"
 	233 = "Afrit"
 	250 = "Comet"
 	251 = "TerminatorBlaster"
+	251 = "BruiserMissile" //this should be changed and then applied over maps which uses it - ozy81
 	252 = "DFlare"
-	253 = "BruiserMissile" //this was 251 initially and needs to be fixed mapwise and a diff num is required
 	255 = "LogBook"
 }
 
