@@ -34,7 +34,6 @@ class Venor : TCOTDMonster
 		+SEEKERMISSILE
 		+MISSILEMORE
 		+MISSILEEVENMORE
-		+ALWAYSFAST
 		+DONTGIB
 		-SOLID
 	}
@@ -73,14 +72,14 @@ class Venor : TCOTDMonster
 	Spawn:
 		VNR1 A 0 NoDelay { ang = 0; A_ClearTarget(); }
 	Idle:
-		VNR1 A 5
+		VNR1 A 1
 		{
 			int flags = CLOFF_NOAIM | CLOFF_JUMPNONHOSTILE | CLOFF_SKIPOBJECT | CLOFF_JUMPENEMY |
 				CLOFF_MUSTBESHOOTABLE | CLOFF_SETTARGET | CLOFF_ALLOWNULL | CLOFF_CHECKPARTIAL;
 
 			bool t = CheckLOF(flags, 256, 0, ang, 0, -16);
 
-			if (t)
+			if (t && !(Target && Target.player && (Target.player.cheats & CF_NOTARGET)))
 			{
 				SetStateLabel("See");
 				return;
@@ -142,7 +141,7 @@ class Venor : TCOTDMonster
 			bSolid = true;
 			A_VileTarget("VenorSpawn");
 			A_SpawnItemEx("VenorSpawn", flags: SXF_TRANSFERPOINTERS);
-			A_MonsterMeleeAttack(5.6, MeleeRange, "imp/melee");
+			A_MonsterMeleeAttack(9, MeleeRange, "imp/melee");
 		}
 		VNR2 JKL 6
 		{
@@ -169,7 +168,7 @@ class Venor : TCOTDMonster
 			ThrustTarget(100, 24);
 			A_VileTarget("VenorHands");
 			A_SpawnItemEx("VenorHands", flags: SXF_TRANSFERPOINTERS);
-			A_MonsterMeleeAttack(2.8, MeleeRange, "imp/melee");
+			A_MonsterMeleeAttack(3.5, MeleeRange, "imp/melee");
 		}
 		VNR2 IJKL 3 A_FaceTarget();
 		Goto Melee + 5;
