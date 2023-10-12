@@ -82,7 +82,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		{
 			int flags = FBF_EXPLICITANGLE | FBF_NORANDOMPUFFZ | FBF_NOFLASH;
 			double ang = cone * (i / double(angles));
-			Fire3DBullets(invoker.Angle - (cone / 2) + ang + 4.0, 0, 0, 7, "TCOTDPitchforkPuff", flags, DEFMELEERANGE * 4 / 3.);
+			Fire3DBullets(invoker.Angle - (cone / 2) + ang + 4.0, 0, 0, 8.5, "TCOTDPitchforkPuff", flags, DEFMELEERANGE * 4 / 3.);
 		}
 	}
 
@@ -281,21 +281,50 @@ class TCOTDPitchforkPuff : Actor
 
 class TCOTDPitchforkThrown : Actor
 {
+	protected Array<Actor> victims;
+
 	Default
 	{
-		Radius 2;
-		Height 1;
+		Radius 10;
+		Height 5;
 		Speed 20;
-		DamageFunction TCOTDGameplayStatics.GetAttackDamage(25);
-		DamageType "Stab";
+		DamageFunction GetDamage(61.5);
 		Gravity 0.125;
 		Projectile;
 		+RIPPER
 		+THRUGHOST
 		+FORCEXYBILLBOARD
 		+SKYEXPLODE
+		+NOEXTREMEDEATH
 		-NOBLOCKMAP
 		-NOGRAVITY
+	}
+
+	private double GetDamage(double baseDamage)
+	{
+		if (victims.Size() > 1)
+		{
+			baseDamage = 52.5;
+		}
+
+		return TCOTDGameplayStatics.GetAttackDamage(baseDamage);
+	}
+
+	override int SpecialMissileHit(Actor victim)
+	{
+		if (victim && target && victim != target)
+		{
+			if (victims.Find(victim) == victims.Size())
+			{
+				victims.Push(victim);
+			}
+			else
+			{
+				return 1;
+			}
+		}
+
+		return -1;
 	}
 
 	States
