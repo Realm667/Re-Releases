@@ -23,30 +23,6 @@ class TCOTDCultist : TCOTDMonster
 		bFrightened = health < (GetMaxHealth() / 4);
 	}
 
-	protected void A_CultistShotgunAttack(void)
-	{
-		if (target)
-		{
-			A_StartSound(AttackSound, CHAN_WEAPON);
-			A_FaceTarget();
-			double bangle = self.Angle;
-			double bslope = AimLineAttack(bangle, MISSILERANGE);
-
-			for (int i = 0; i < 7; i++)
-			{
-				double ang = bangle + random2[CultistShotgunAttack]() * (5.625 * 1.75 / 256);
-				double pit = bslope + random2[CultistShotgunAttack]() * (3.5485 * 1.75 / 256);
-				int damage = TCOTDGameplayStatics.GetAttackDamage(5);
-				LineAttack(ang, MISSILERANGE, pit, damage, 'Hitscan', "TCOTDBulletPuff");
-			}
-		}
-	}
-
-	protected void A_CultistTommyAttack(void)
-	{
-		A_CustomBulletAttack(5.625 * 1.375, 3.5485 * 1.375, 1, TCOTDGameplayStatics.GetAttackDamage(5), "TCOTDBulletPuff", 0, CBAF_NORANDOM);
-	}
-
 	States
 	{
 	Spawn:
@@ -117,37 +93,41 @@ class TCOTDCultist : TCOTDMonster
 
 class TCOTDCultistTommy : TCOTDCultist
 {
+	private int attackCount;
+
 	Default
 	{
 		//$Title Cultist TommyGun
 		Speed 3;
-		AttackSound "chainguy/attack";
+		AttackSound "cultist/tommyatk";
 		Obituary "$OB_CULT";
 		Tag "$FN_CULT";
 		DropItem "TCOTDAmmoTommy", 80;
 	}
 
+	protected void A_CultistTommySetAttackCount(void)
+	{
+		attackCount = random[rnd_CultistTommyAttackCount](5, 8);
+	}
+
+	protected bool A_CultistTommyShouldAbortAttck(void)
+	{
+		return (--attackCount <= 0 || (target && target.health <= 0));
+	}
+
+	protected void A_CultistTommyAttack(void)
+	{
+		A_CustomBulletAttack(5.625 * 1.375, 3.5485 * 1.375, 1, TCOTDGameplayStatics.GetAttackDamage(5), "TCOTDBulletPuff", 0, CBAF_NORANDOM);
+	}
+
 	States
 	{
 	Missile:
-		#### G 17 A_FaceTarget();
+		#### G 17 { A_CultistTommySetAttackCount(); A_FaceTarget(); }
 		#### H 2 Light("CultistLight") A_CultistTommyAttack();
-		#### G 3;
-		#### H 2 Light("CultistLight") A_CultistTommyAttack();
-		#### G 3;
-		#### H 2 Light("CultistLight") A_CultistTommyAttack();
-		#### G 3;
-		#### H 2 Light("CultistLight") A_CultistTommyAttack();
-		#### G 3;
-		#### H 2 Light("CultistLight") A_CultistTommyAttack();
-		#### G 3;
-		#### H 2 Light("CultistLight") A_CultistTommyAttack();
-		#### G 3;
-		#### H 2 Light("CultistLight") A_CultistTommyAttack();
-		#### G 3;
-		#### H 2 Light("CultistLight") A_CultistTommyAttack();
-		#### G 3;
-		Goto See;
+		#### G random(1, 2);
+		#### G 0 { if (A_CultistTommyShouldAbortAttck()) SetStateLabel("See"); }
+		Goto Missile + 1;
 	}
 }
 
@@ -161,6 +141,25 @@ class TCOTDCultistShotgun : TCOTDCultist
 		Obituary "$OB_CUL2";
 		Tag "$FN_CUL2";
 		DropItem "TCOTDAmmoShell", 80; // even if he does, he drops only 2 shells, so you don't get too much ammo
+	}
+
+	protected void A_CultistShotgunAttack(void)
+	{
+		if (target)
+		{
+			A_StartSound(AttackSound, CHAN_WEAPON);
+			A_FaceTarget();
+			double bangle = self.Angle;
+			double bslope = AimLineAttack(bangle, MISSILERANGE);
+
+			for (int i = 0; i < 7; i++)
+			{
+				double ang = bangle + random2[CultistShotgunAttack]() * (5.625 * 1.75 / 256);
+				double pit = bslope + random2[CultistShotgunAttack]() * (3.5485 * 1.75 / 256);
+				int damage = TCOTDGameplayStatics.GetAttackDamage(5);
+				LineAttack(ang, MISSILERANGE, pit, damage, 'Hitscan', "TCOTDBulletPuff");
+			}
+		}
 	}
 
 	States
