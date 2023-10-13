@@ -30,6 +30,8 @@ class TCOTDSnowParticle : Actor
 {
 	mixin TCOTDClientSideOnlyMixin;
 
+	bool ffc;
+
 	//===========================================================================
 	//
 	//
@@ -45,6 +47,7 @@ class TCOTDSnowParticle : Actor
 		+DONTSPLASH
 		+FORCEXYBILLBOARD
 		+INVISIBLEINMIRRORS
+		+NOSAVEGAME
 		-SOLID
 	}
 
@@ -63,12 +66,15 @@ class TCOTDSnowParticle : Actor
 			Destroy();
 			return;
 		}
+		WorldOffset = (0, 0, 24.);
 		Super.PostBeginPlay();
 	}
 
 	override void Tick(void)
 	{
-		if (Pos.Z <= FloorZ)
+		UpdateWaterLevel();
+
+		if (Pos.Z <= FloorZ || WaterLevel >= 3)
 		{
 			Destroy();
 			return;
@@ -97,6 +103,7 @@ class TCOTDSnowParticle : Actor
 		{
 			if (!Level.IsPointInLevel(Pos))
 				Destroy();
+			FindFloorCeiling();
 			return ResolveState(NULL);
 		}
 	Spawn1:
