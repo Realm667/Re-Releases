@@ -24,6 +24,8 @@
 
 class TCOTDEmber : Actor
 {
+	mixin TCOTDClientSideOnlyMixin;
+
 	const MAX_ALPHA = 0.8;
 	int fadeState;
 	int life;
@@ -46,6 +48,7 @@ class TCOTDEmber : Actor
 		+NOGRAVITY
 		+DONTSPLASH
 		+FORCEXYBILLBOARD
+		+NOSAVEGAME
 	}
 
 	//===========================================================================

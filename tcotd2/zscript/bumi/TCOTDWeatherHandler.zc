@@ -126,10 +126,6 @@ class TCOTDWeatherHandler : EventHandler
 
 				Actor cam = players[i].camera;
 
-				// cheap hack
-				if (cam.WaterLevel >= 3)
-					continue;
-
 				int density = 6;
 				while (density--)
 				{
@@ -148,12 +144,6 @@ class TCOTDWeatherHandler : EventHandler
 					}
 				}
 			}
-		}
-
-		// don't serialize the snow particles
-		if (gameaction == ga_savegame)
-		{
-			TCOTDGameplayStatics.DestroyActors("TCOTDSnowParticle");
 		}
 	}
 }
