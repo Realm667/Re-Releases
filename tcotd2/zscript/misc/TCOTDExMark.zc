@@ -25,6 +25,8 @@
 
 class TCOTDExMark : TCOTDSimpleActor
 {
+	mixin TCOTDClientsideOnlyMixin;
+
 	bool touched;
 
 	//===========================================================================
@@ -43,14 +45,11 @@ class TCOTDExMark : TCOTDSimpleActor
 		Scale 1.35;
 		RenderStyle "Translucent";
 		Alpha 0.75;
-		FloatBobPhase 0;
 		+FORCEXYBILLBOARD
 		+SPECIAL
 		+NOGRAVITY
 		+NOCLIP
 	}
-
-	// FloatBobPhase must be 0, otherwise multiplayer will desync.
 
 	//===========================================================================
 	//
@@ -61,7 +60,9 @@ class TCOTDExMark : TCOTDSimpleActor
 	override void Touch(Actor other)
 	{
 		if (bDormant || touched)
+		{
 			return;
+		}
 		else if (other && other is "PlayerPawn")
 		{
 			// only the player who touched it sees it as inactive
@@ -118,6 +119,62 @@ class TCOTDExMark : TCOTDSimpleActor
 	TouchedLoop:
 		EXCL B -1;
 		Stop;
+	}
+}
+
+//===========================================================================
+//
+// TCOTDExMarkNoTouch
+// Does not activate when touched; must be activated manually via scripts
+//
+//===========================================================================
+
+class TCOTDExMarkNoTouch : TCOTDExMark
+{
+	Default
+	{
+		//$Title Exclamation Mark (no touch activation)
+		Radius 8;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Touch(Actor other)
+	{
+		return;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static void TouchFromACS(Actor activator, int markTID)
+	{
+		//Console.Printf("%s, %d", activator.player.GetUserName(), markTID);
+		if (markTID > 0)
+		{
+			let it = Level.CreateActorIterator(markTID);
+			Actor mo;
+			while(mo = it.Next())
+			{
+				let mark = TCOTDExMarkNoTouch(mo);
+
+				// only the script's activator player sees it as inactive
+				let pmo = PlayerPawn(activator);
+				let p = pmo.player;
+				if (players[consoleplayer] == p)
+				{
+					mark.SetStateLabel("Touched");
+					mark.touched = true;
+				}
+			}
+		}
 	}
 }
 
