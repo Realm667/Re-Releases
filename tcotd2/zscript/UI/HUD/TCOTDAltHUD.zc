@@ -50,6 +50,40 @@ class TCOTDAltHud : AltHud
 	//
 	// ----------------------------------------------------------------------------------------
 
+	override void DrawHealth (PlayerInfo CPlayer, int x, int y)
+	{
+		int health = CPlayer.health;
+
+		// decide on the color first
+		int fontcolor =
+			health < hud_health_red ? Font.CR_RED :
+			health < hud_health_yellow ? Font.CR_GOLD :
+			health <= hud_health_green ? Font.CR_GREEN :
+			Font.CR_BLUE;
+
+		TextureID icon; icon.SetNull();
+
+		if (CPlayer.mo.FindInventory('TCOTDPoisonAilment'))
+		{
+			icon = TexMan.CheckForTexture("graphics/hud/HUDPoison.png", TexMan.Type_MiscPatch);
+		}
+		else if (hud_berserk_health && !gameinfo.berserkpic.IsNull() && CPlayer.mo.FindInventory('PowerStrength'))
+		{
+			icon = gameinfo.berserkpic;
+		}
+		else
+		{
+			icon = gameinfo.healthpic;
+		}
+
+		DrawImageToBox(icon, x, y, 31, 17);
+		DrawHudNumber(HudFont, fontcolor, health, x + 33, y + 17);
+	}
+
+	// ----------------------------------------------------------------------------------------
+	//
+	// ----------------------------------------------------------------------------------------
+
 	int DrawOil (PlayerInfo CPlayer, int x, int y)
 	{
 		let oil = CPlayer.mo.FindInventory('TCOTDLanternOil');

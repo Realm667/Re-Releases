@@ -93,7 +93,8 @@ class TCOTDHUD : DoomStatusBar
 		int flags = DI_SCREEN_LEFT_BOTTOM;
 
 		// Health
-		DrawImage("graphics/hud/HUDHealth.png", (12, -4), flags);
+		String hpicon = !CPlayer.mo.FindInventory("TCOTDPoisonAilment") ? "HUDHealth" : "HUDPoison";
+		DrawImage("graphics/hud/" .. hpicon .. ".png", (12, -4), flags);
 		DrawString(mHUDBigNum, FormatNumber(CPlayer.health, 3), (24, -15), flags);
 
 		// Armor
