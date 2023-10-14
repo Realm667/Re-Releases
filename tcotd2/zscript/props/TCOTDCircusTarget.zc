@@ -1,0 +1,62 @@
+// shootable circus target (minigame)
+
+class TCOTDCircusTarget1 : Actor
+{
+    Default
+    {
+        Radius 8;
+        Height 16;
+        Health 1;
+        +SOLID
+        +SHOOTABLE
+        +NOBLOOD
+        +WALLSPRITE
+    }
+
+    override bool CanCollideWith(Actor other, bool passive)
+    {
+        return false;
+    }
+
+    protected void A_Move(double ang)
+    {
+       VelFromAngle(0.5, ang);
+    }
+
+    States
+    {
+    Spawn:
+        CTGT A 1 A_Move(90);
+        Loop;
+    Death:
+        TNT1 A 0
+        {
+			for (int i = 0; i < 7; i++)
+			{
+				TCOTDDebris.SpawnDebris
+				(
+					self,
+					frandom[rnd_debrisspawn](-Radius, Radius),
+					frandom[rnd_debrisspawn](-Radius, Radius),
+					frandom[rnd_debrisspawn](0, Default.Height),
+					frandom[rnd_debrisspawn](-2, 2),
+					frandom[rnd_debrisspawn](-2, 2),
+					frandom[rnd_debrisspawn](-4, 8),
+					"TCOTDDebrisCircusTarget"
+				);
+			}
+        }
+        RPUF BCDEFG 2 Bright;
+        Stop;
+    }
+}
+
+class TCOTDCircusTarget2 : TCOTDCircusTarget1
+{
+    States
+    {
+    Spawn:
+        CTGT B 1 A_Move(-90);
+        Loop;
+    }
+}
