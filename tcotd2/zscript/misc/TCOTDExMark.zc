@@ -165,6 +165,9 @@ class TCOTDExMarkNoTouch : TCOTDExMark
 			{
 				let mark = TCOTDExMarkNoTouch(mo);
 
+				if (mark.touched)
+					continue;
+
 				// only the script's activator player sees it as inactive
 				let pmo = PlayerPawn(activator);
 				let p = pmo.player;
