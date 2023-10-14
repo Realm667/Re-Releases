@@ -20,9 +20,10 @@ function int MakeHUDMessageID(int a, int b, int c, int d)
 //
 //===========================================================================
 
-function void ReadNote (str noteClassName)
+function void ReadNote (str noteClassName, int exMarkTID)
 {
 	ScriptCall("TCOTDNote", "ReadNoteFromACS", noteClassName);
+	ScriptCall("TCOTDExMarkNoTouch", "TouchFromACS", exMarkTID);
 }
 
 //===========================================================================
