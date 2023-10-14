@@ -118,6 +118,29 @@ class TCOTDPlayerHandler : EventHandler
 	}
 	*/
 
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	// didn't want to make a new event handler class just for this lol
+	override void WorldThingGround(WorldEvent e)
+	{
+		// spawn a new actor so that it doesn't inherit the crushed thing's scale
+		let mo = e.Thing;
+		let gib = mo.Spawn("TCOTDCrushedGib", mo.Pos, ALLOW_REPLACE);
+		gib.A_StartSound("misc/gibbed", CHAN_BODY);
+		gib.Translation = mo.BloodTranslation;
+		mo.Destroy();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	override void UITick(void)
 	{
 		let cplayer = players[consoleplayer];
