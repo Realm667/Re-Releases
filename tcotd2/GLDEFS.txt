@@ -1363,6 +1363,22 @@ FlickerLight2 LANT03
 	Attenuate 1
 }
 
+FlickerLight2 CHANDELIER // From Hexen
+{
+	attenuate 1
+	color 1.0 1.0 0.0
+	size 96
+	secondarysize 104
+	interval 0.1
+}
+
+Object TCOTDCastleLight
+{
+	Frame GOR1A { Light CHANDELIER }
+	Frame GOR1B { Light CHANDELIER }
+	Frame GOR1C { Light CHANDELIER }
+}
+
 Material Flat "ANUK0W"
 {
 	Shader "shaders/QWater.fp"
