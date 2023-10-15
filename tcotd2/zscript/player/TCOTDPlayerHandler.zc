@@ -235,6 +235,9 @@ class TCOTDPlayerHandler : EventHandler
 			if (pmo.player.playerstate == PST_DEAD)
 				return;
 
+			if ((pmo.player.cheats & CF_FROZEN) || (pmo.player.cheats & CF_TOTALLYFROZEN))
+				return;
+
 			if (pmo.Health >= 100)
 			{
 				Console.Printf(StringTable.Localize("$NONEEDQUICKHEAL"));
