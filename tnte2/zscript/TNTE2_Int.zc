@@ -1,16 +1,5 @@
-//Dummy Item for hiding the HUD
-Class CutsceneEnabled : Inventory
-{
-	States
-	{
-	Spawn:
-		TNT1 A -1;
-		Stop;
-	}
-}
-
 //straight from gzdoom.pk3 but with SPITEMX-Y and drawLF/EF values rearranged - ozy81
-class AusterStatusScreen : DoomStatusScreen
+class TNTE2StatusScreen : DoomStatusScreen
 {
 	override int drawLF ()
 	{
@@ -42,7 +31,7 @@ class AusterStatusScreen : DoomStatusScreen
 				
 				if (!TexMan.OkForLocalization(finishedPatch, "$WI_FINISHED"))
 				{
-					disp += finished.mFont.GetMaxAscender("$WI_FINISHED");
+					disp += finishedp.mFont.GetMaxAscender("$WI_FINISHED");
 				}
 			}
 			else
@@ -57,10 +46,10 @@ class AusterStatusScreen : DoomStatusScreen
 		// draw "Finished!"
 
 		int statsy = multiplayer? NG_STATSY : SP_STATSY * CleanYFac;
-		if (y < (statsy - finished.mFont.GetHeight()*3/4) * CleanYfac)
+		if (y < (statsy - finishedp.mFont.GetHeight()*3/4) * CleanYfac)
 		{
 			// don't draw 'finished' if the level name is too tall
-			y = DrawPatchOrText(y, finished, finishedPatch, "$WI_FINISHED");
+			y = DrawPatchOrText(y, finishedp, finishedPatch, "$WI_FINISHED");
 		}
 		return y;
 	}
