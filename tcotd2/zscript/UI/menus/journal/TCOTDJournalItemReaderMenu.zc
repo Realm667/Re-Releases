@@ -27,6 +27,8 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 	const TXT_SHADOW_X = 3.0;
 	const TXT_SHADOW_Y = 2.0;
 
+	const FADE_SPD = 0.0789;
+
 	//===========================================================================
 	//
 	//
@@ -54,6 +56,8 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 
 	int mPageNumber;
 	int mMenuPadding;
+
+	double mAlpha;
 
 	//===========================================================================
 	//
@@ -285,6 +289,11 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 			return;
 		}
 
+		if (mAlpha < 1.)
+			mAlpha += FADE_SPD;
+
+		mAlpha = clamp(mAlpha, 0., 1.);
+
 		// backdrop image
 		noteBackdrop.image = "";
 
@@ -371,6 +380,19 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 			Color(0, 0, 0),
 			0.2
 		);
+
+		// fade in the stuff
+		noteBackdrop.alpha = note.alpha * mAlpha;
+		menuFill.alpha =
+		noteTextFrame.alpha =
+		noteTextShadow.alpha =
+		notePageIndicatorShadow.alpha =
+		noteText.alpha =
+		notePageIndicator.alpha =
+		notePrevPageButtonImage.alpha =
+		noteNextPageButtonImage.alpha =
+		notePrevPageButton.alpha =
+		noteNextPageButton.alpha = mAlpha;
 
 		Super.Drawer();
 	}
