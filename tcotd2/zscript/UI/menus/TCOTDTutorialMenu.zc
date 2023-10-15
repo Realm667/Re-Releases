@@ -26,7 +26,7 @@ class TCOTDTutorialMenu : GenericMenu
 {
 	const FADE_SPD = 0.05;
 
-    ui double txtAlpha;
+	ui double txtAlpha;
 
 	override void Drawer(void)
 	{
@@ -42,7 +42,7 @@ class TCOTDTutorialMenu : GenericMenu
 		BrokenLines lines = fnt.BreakLines(txt, Screen.GetWidth() / 2);
 		int count = lines.Count();
 
-        drawPos.Y = 100 - ((fntHeight * count) / 2);
+		drawPos.Y = 100 - ((fntHeight * count) / 2);
 
 		for (int i = 0; i < count; i++)
 		{
@@ -52,13 +52,13 @@ class TCOTDTutorialMenu : GenericMenu
 		}
 	}
 
-    override void Ticker(void)
-    {
-        if (txtAlpha < 1.)
-            txtAlpha += FADE_SPD;
+	override void Ticker(void)
+	{
+		if (txtAlpha < 1.)
+			txtAlpha += FADE_SPD;
 
-        txtAlpha = clamp(txtAlpha, 0., 1.);
-    }
+		txtAlpha = clamp(txtAlpha, 0., 1.);
+	}
 
 	clearscope static void Show(void)
 	{

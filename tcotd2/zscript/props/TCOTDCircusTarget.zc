@@ -20,35 +20,35 @@
 
 class TCOTDCircusTarget1 : Actor
 {
-    Default
-    {
-        Radius 8;
-        Height 16;
-        Health 1;
-        +SOLID
-        +SHOOTABLE
-        +NOBLOOD
-        +WALLSPRITE
-    }
+	Default
+	{
+		Radius 8;
+		Height 16;
+		Health 1;
+		+SOLID
+		+SHOOTABLE
+		+NOBLOOD
+		+WALLSPRITE
+	}
 
-    override bool CanCollideWith(Actor other, bool passive)
-    {
-        return false;
-    }
+	override bool CanCollideWith(Actor other, bool passive)
+	{
+		return false;
+	}
 
-    protected void A_Move(double ang)
-    {
-       VelFromAngle(0.5, ang);
-    }
+	protected void A_Move(double ang)
+	{
+		VelFromAngle(0.5, ang);
+	}
 
-    States
-    {
-    Spawn:
-        CTGT A 1 A_Move(90);
-        Loop;
-    Death:
-        TNT1 A 0
-        {
+	States
+	{
+	Spawn:
+		CTGT A 1 A_Move(90);
+		Loop;
+	Death:
+		TNT1 A 0
+		{
 			for (int i = 0; i < 7; i++)
 			{
 				TCOTDDebris.SpawnDebris
@@ -63,18 +63,18 @@ class TCOTDCircusTarget1 : Actor
 					"TCOTDDebrisCircusTarget"
 				);
 			}
-        }
-        RPUF BCDEFG 2 Bright;
-        Stop;
-    }
+		}
+		RPUF BCDEFG 2 Bright;
+		Stop;
+	}
 }
 
 class TCOTDCircusTarget2 : TCOTDCircusTarget1
 {
-    States
-    {
-    Spawn:
-        CTGT B 1 A_Move(-90);
-        Loop;
-    }
+	States
+	{
+	Spawn:
+		CTGT B 1 A_Move(-90);
+		Loop;
+	}
 }
