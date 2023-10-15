@@ -24,8 +24,14 @@
 
 class TCOTDJournalMenu : TCOTDZFGenericMenu
 {
-	const RES_WIDTH = 1280;
-	const RES_HEIGHT = 720;
+	const RES_WIDTH = 960;
+	const RES_HEIGHT = 540;
+
+	// the frame size of "contents"
+	const SUB_FRAME_WIDTH = 362;
+	const SUB_FRAME_HEIGHT = 428;
+
+	const TXT_SCALE = 1.5;
 
 	TCOTDZFJournalHandler handler;
 	PlayerPawn pmo;
@@ -60,7 +66,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 
 		mainBackground = TCOTDZFImage.Create
 		(
-			(196, 80),
+			(37, -6),
 			(RES_WIDTH, RES_HEIGHT),
 			"graphics/journal/journal_main.png",
 			TCOTDZFImage.AlignType_TopLeft
@@ -75,23 +81,25 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 
 		objectivesFrame = TCOTDZFItemList.Create
 		(
-			(241, 166),
-			(362, 428),
+			(81, 76),
+			(SUB_FRAME_WIDTH, SUB_FRAME_HEIGHT),
 			"TCOTDObjective",
 			self
 		);
+		objectivesFrame.box.size.Y -= ((SUB_FRAME_HEIGHT / GetMaxShowableLines()) / 2);
 		objectivesFrame.Pack(mainFrame);
 		objectivesFrame.Refresh();
 
 		String objectivesHeaderTxt = StringTable.Localize("$JRNL_OBJECTIVES");
 		let objectivesHeader = TCOTDZFLabel.Create
 		(
-			(objectivesFrame.box.pos.X + (objectivesFrame.box.size.X / 2.) - (SmallFont.StringWidth(objectivesHeaderTxt) / 2), objectivesFrame.box.pos.Y - (SmallFont.GetHeight() * 2)),
+			(objectivesFrame.box.pos.X + (objectivesFrame.box.size.X / 2.) - ((SmallFont.StringWidth(objectivesHeaderTxt) * TXT_SCALE) / 2), objectivesFrame.box.pos.Y - ((SmallFont.GetHeight() * TXT_SCALE) * 2)),
 			(0, 0),
 			text: objectivesHeaderTxt,
 			fnt: SmallFont,
 			wrap: false,
 			autoSize: true,
+			textScale: TXT_SCALE,
 			textColor: SmallFont.FindFontColor('TCOTDJournalTextColor')
 		);
 		objectivesHeader.Pack(mainFrame);
@@ -104,23 +112,25 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 
 		notesFrame = TCOTDZFItemList.Create
 		(
-			(677, 166),
-			(362, 428),
+			(517, 76),
+			(SUB_FRAME_WIDTH, SUB_FRAME_HEIGHT),
 			"TCOTDNote",
 			self
 		);
+		notesFrame.box.size.Y -= ((SUB_FRAME_HEIGHT / GetMaxShowableLines()) / 2);
 		notesFrame.Pack(mainFrame);
 		notesFrame.Refresh();
 
 		String notesHeaderTxt = StringTable.Localize("$JRNL_NOTES");
 		let notesHeader = TCOTDZFLabel.Create
 		(
-			(notesFrame.box.pos.X + (notesFrame.box.size.X / 2.) - (SmallFont.StringWidth(notesHeaderTxt) / 2), notesFrame.box.pos.Y - (SmallFont.GetHeight() * 2)),
+			(notesFrame.box.pos.X + (notesFrame.box.size.X / 2.) - ((SmallFont.StringWidth(notesHeaderTxt) * TXT_SCALE) / 2), notesFrame.box.pos.Y - ((SmallFont.GetHeight() * TXT_SCALE) * 2)),
 			(0, 0),
 			text: notesHeaderTxt,
 			fnt: SmallFont,
 			wrap: false,
 			autoSize: true,
+			textScale: TXT_SCALE,
 			textColor: SmallFont.FindFontColor('TCOTDJournalTextColor')
 		);
 		notesHeader.Pack(mainFrame);
@@ -162,5 +172,17 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	{
 		//return Screen.GetHeight() / double(TCOTDJournalMenu.RES_HEIGHT);
 		return Screen.GetHeight() / double(400);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static int GetMaxShowableLines(void)
+	{
+		double fontHeight = SmallFont.GetHeight() * TXT_SCALE;
+		return int(SUB_FRAME_HEIGHT / fontHeight);
 	}
 }
