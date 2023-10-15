@@ -63,6 +63,9 @@ class TCOTDHUD : DoomStatusBar
 
 	override void Draw(int state, double TicFrac)
 	{
+		if (Menu.GetCurrentMenu())
+			return;
+
 		if (TCOTDJournalMenu.IsOpen())
 			return;
 
