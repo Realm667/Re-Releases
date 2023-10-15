@@ -1,29 +1,33 @@
 map map01 "Torment and Torture"
+{
+	cluster = 1
+	music = d_runnin
+	sky1 = sky1, 0.0
+	next = EndGame2
+}
+
 cluster 1
-music d_runnin
-sky1 sky1 0.0
-next map02
-
-
-clusterdef 1
-
-exittext
-"It seemed to be impossible to get 
-out of this building of hell, but 
-finally you managed it! With bloody 
-hands and smoking weapons, you look 
-to the heaven... 
-
-the sky is still red... 
-
-the fight is not over...
-
-CONTINOUS on the next 
-     ...NewDoom Contest!!!!"
-
-flat cfloor3
+{
+	exittext = "Escaping the jaws of this infernal fortress was a battle in itself, but you've defied the odds once more! Amidst your blood-soaked path and the smoldering barrels of your spent weapons, you raise your gaze to the scarlet heavens above. The war rages on, the fire still burns... and your next mission awaits."
+	flat = cfloor3
+}
 
 GameInfo
 {
 	AddEventHandlers = "NashGoreHandler"
+
+	dimcolor = "441410"
+	dimamount = 0.75
+	fullscreenautoaspect = 3
+
+	infopage = "CREDIT"
+	borderflat = "AUTOPAGE"
+
+    	MenuFontColor_Title = "Blue"
+    	MenuFontColor_Selection = "Blue"
+	MenuFontColor_Highlight = "BlueAlt" 
+
+	MenuFontColor_Label = "BlueAlt" 
 }
+
+
