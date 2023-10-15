@@ -6,7 +6,7 @@ height 0;
 // FULLSCREEN STATUS BAR
 StatusBar fullscreen, fullscreenoffsets
 {
-	InInventory "CutsceneEnabled"
+	InInventory "isIntro"
 	{
 		// nothing to draw when using
 	}
@@ -28,19 +28,19 @@ StatusBar fullscreen, fullscreenoffsets
 			   	DrawImage translatable "HUD_DM", -160+center, -32;
 	        }
 
-			DrawString HUDFONT_DOOM, untranslated, "%", -58+center, -25;
-			DrawString HUDFONT_DOOM, untranslated, "%", 72+center, -25;
+			DrawString HUDFONT_DOOM, untranslated, "%", -62+center, -29;
+			DrawString HUDFONT_DOOM, untranslated, "%", 76+center, -29;
 
 			usessecondaryammo not
-				DrawNumber 3, HUDFONT_DOOM, untranslated, ammo1, -118+center, -25;
+				DrawNumber 3, HUDFONT_DOOM, untranslated, ammo1, -117+center, -29;
 			else
 			{
-				DrawNumber 3, SMALLFONT, untranslated, ammo1, -125+center, -26;
-				DrawNumber 3, SMALLFONT, untranslated, ammo2, -125+center, -18;
+				DrawNumber 3, SMALLFONT, untranslated, ammo1, -128+center, -30;
+				DrawNumber 3, SMALLFONT, untranslated, ammo2, -128+center, -22;
 			}
 
-			DrawNumber 3, HUDFONT_DOOM, untranslated, health, interpolate(8), -73+center, -25;
-			DrawNumber 3, HUDFONT_DOOM, untranslated, armor, interpolate(8), 57+center, -25;
+			DrawNumber 3, HUDFONT_DOOM, untranslated, health, interpolate(8), -72+center, -29;
+			DrawNumber 3, HUDFONT_DOOM, untranslated, armor, interpolate(8), 61+center, -29;
 
 	    // MUGSHOT + SELECTED INVENTORY ITEM
 		IfCVarInt fullhud_mugswitch, 1, equal
@@ -55,34 +55,34 @@ StatusBar fullscreen, fullscreenoffsets
 		}
 
 		// KEYS
-		DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 80+center, -25;
-		DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 80+center, -17;
-		DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 80+center, -9;
+		DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 103+center, -27;
+		DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 103+center, -19;
+		DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 103+center, -11;
 
 		// AMMO OVERVIEW
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 129+center, -25;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 129+center, -19;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(RocketAmmo), 129+center, -13;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Cell), 129+center, -7;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 153+center, -25;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 153+center, -19;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(RocketAmmo), 153+center, -13;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Cell), 153+center, -7;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 129+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 129+center, -21;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(RocketAmmo), 129+center, -15;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Cell), 129+center, -9;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 153+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 153+center, -21;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(RocketAmmo), 153+center, -15;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Cell), 153+center, -9;
 
 		// WEAPONS
-	        GameMode singleplayer, cooperative
-	        {
-			DrawSwitchableImage weaponslot 2, "STGNUM2", "STYSNUM2", -44+center, -25;
-			DrawSwitchableImage weaponslot 3, "STGNUM3", "STYSNUM3", -36+center, -25;
-			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", -28+center, -25;
-			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", -44+center, -18;
-			DrawSwitchableImage weaponslot 6, "STGNUM6", "STYSNUM6", -36+center, -18;
-			DrawSwitchableImage weaponslot 7, "STGNUM7", "STYSNUM7", -28+center, -18;
+		GameMode singleplayer, cooperative
+		{
+			DrawSwitchableImage weaponslot 2, "STGNUM2", "STYSNUM2", -44+center, -27;
+			DrawSwitchableImage weaponslot 3, "STGNUM3", "STYSNUM3", -36+center, -27;
+			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", -28+center, -27;
+			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", -44+center, -20;
+			DrawSwitchableImage weaponslot 6, "STGNUM6", "STYSNUM6", -36+center, -20;
+			DrawSwitchableImage weaponslot 7, "STGNUM7", "STYSNUM7", -28+center, -20;
 		}
 
 		// FRAGS
-	       	GameMode deathmatch, teamgame
-	       	{
+		GameMode deathmatch, teamgame
+		{
 			drawnumber 2, HUDFONT_DOOM, untranslated, frags, -22+center, -27;
 		}
 
@@ -345,7 +345,7 @@ StatusBar fullscreen, fullscreenoffsets
 // NORMAL STATUS BAR
 StatusBar normal, fullscreenoffsets
 {
-	InInventory "CutsceneEnabled"
+	InInventory "isIntro"
 	{
 		// nothing to draw when using
 	}
@@ -367,19 +367,19 @@ StatusBar normal, fullscreenoffsets
 			   	DrawImage translatable "HUD_DM", -160+center, -32;
 	        }
 
-			DrawString HUDFONT_DOOM, untranslated, "%", -58+center, -25;
-			DrawString HUDFONT_DOOM, untranslated, "%", 72+center, -25;
+			DrawString HUDFONT_DOOM, untranslated, "%", -62+center, -29;
+			DrawString HUDFONT_DOOM, untranslated, "%", 76+center, -29;
 
 			usessecondaryammo not
-				DrawNumber 3, HUDFONT_DOOM, untranslated, ammo1, -118+center, -25;
+				DrawNumber 3, HUDFONT_DOOM, untranslated, ammo1, -117+center, -29;
 			else
 			{
-				DrawNumber 3, SMALLFONT, untranslated, ammo1, -125+center, -26;
-				DrawNumber 3, SMALLFONT, untranslated, ammo2, -125+center, -18;
+				DrawNumber 3, SMALLFONT, untranslated, ammo1, -128+center, -30;
+				DrawNumber 3, SMALLFONT, untranslated, ammo2, -128+center, -22;
 			}
 
-			DrawNumber 3, HUDFONT_DOOM, untranslated, health, interpolate(8), -73+center, -25;
-			DrawNumber 3, HUDFONT_DOOM, untranslated, armor, interpolate(8), 57+center, -25;
+			DrawNumber 3, HUDFONT_DOOM, untranslated, health, interpolate(8), -72+center, -29;
+			DrawNumber 3, HUDFONT_DOOM, untranslated, armor, interpolate(8), 61+center, -29;
 
 	    // MUGSHOT + SELECTED INVENTORY ITEM
 		IfCVarInt fullhud_mugswitch, 1, equal
@@ -394,34 +394,34 @@ StatusBar normal, fullscreenoffsets
 		}
 
 		// KEYS
-		DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 80+center, -25;
-		DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 80+center, -17;
-		DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 80+center, -9;
+		DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 103+center, -27;
+		DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 103+center, -19;
+		DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 103+center, -11;
 
 		// AMMO OVERVIEW
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 129+center, -25;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 129+center, -19;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(RocketAmmo), 129+center, -13;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Cell), 129+center, -7;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 153+center, -25;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 153+center, -19;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(RocketAmmo), 153+center, -13;
-		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Cell), 153+center, -7;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Clip), 129+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Shell), 129+center, -21;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(RocketAmmo), 129+center, -15;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammo(Cell), 129+center, -9;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Clip), 153+center, -27;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Shell), 153+center, -21;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(RocketAmmo), 153+center, -15;
+		drawnumber 3, INDEXFONT_DOOM, gray, ammocapacity(Cell), 153+center, -9;
 
 		// WEAPONS
-	        GameMode singleplayer, cooperative
-	        {
-			DrawSwitchableImage weaponslot 2, "STGNUM2", "STYSNUM2", -44+center, -25;
-			DrawSwitchableImage weaponslot 3, "STGNUM3", "STYSNUM3", -36+center, -25;
-			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", -28+center, -25;
-			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", -44+center, -18;
-			DrawSwitchableImage weaponslot 6, "STGNUM6", "STYSNUM6", -36+center, -18;
-			DrawSwitchableImage weaponslot 7, "STGNUM7", "STYSNUM7", -28+center, -18;
+		GameMode singleplayer, cooperative
+		{
+			DrawSwitchableImage weaponslot 2, "STGNUM2", "STYSNUM2", -44+center, -27;
+			DrawSwitchableImage weaponslot 3, "STGNUM3", "STYSNUM3", -36+center, -27;
+			DrawSwitchableImage weaponslot 4, "STGNUM4", "STYSNUM4", -28+center, -27;
+			DrawSwitchableImage weaponslot 5, "STGNUM5", "STYSNUM5", -44+center, -20;
+			DrawSwitchableImage weaponslot 6, "STGNUM6", "STYSNUM6", -36+center, -20;
+			DrawSwitchableImage weaponslot 7, "STGNUM7", "STYSNUM7", -28+center, -20;
 		}
 
 		// FRAGS
-	       	GameMode deathmatch, teamgame
-	       	{
+		GameMode deathmatch, teamgame
+		{
 			drawnumber 2, HUDFONT_DOOM, untranslated, frags, -22+center, -27;
 		}
 

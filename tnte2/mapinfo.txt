@@ -1,9 +1,31 @@
-map map01 "Torment and Torture 2"
+gameinfo
+{
+	EventHandlers = "NashGoreHandler", "TNTWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
+
+	dimcolor = "441410"
+	dimamount = 0.75
+	fullscreenautoaspect = 3
+
+	infopage = "CREDIT"
+	addinfopage = "CREDIT2"
+	addinfopage = "HELP"
+	borderflat = "AUTOPAGE"
+
+	MenuFontColor_Title = "DarkRed"
+	MenuFontColor_Selection = "DarkRed"
+	MenuFontColor_Highlight = "DarkRed" 
+
+	MenuFontColor_Label = "DarkRed" 
+	
+	statscreen_single = "TNTE2StatusScreen"
+}
+
+map map01 lookup "TUTNTMAP02"
 {
 	cluster = 1
 	music = d_bluff
 	sky1 = sky1, 0.0
-	next = map02
+	next = map02 //endscreen not defined yet - ozy81
 }
 
 cluster 1
@@ -22,7 +44,15 @@ cluster 1
 	flat = cfloor3
 }
 
-GameInfo
+doomednums
 {
-	AddEventHandlers = "NashGoreHandler"
+	31102 = "LightRay_Regular"
+	31103 = "LightRay_WallSprite"
+	31105 = "LightRay2_Regular"
+	31106 = "LightRay2_WallSprite"
+	31107 = "LightRay_RegularNL"
+	31108 = "LightRay_WallSpriteNL"
+	31109 = "LightRay2_RegularNL"
+	31110 = "LightRay2_WallSpriteNL"
+	32029 = "HeatEffectGiver"
 }
