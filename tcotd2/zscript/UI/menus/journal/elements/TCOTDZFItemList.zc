@@ -116,6 +116,20 @@ class TCOTDZFItemList : TCOTDZFFrame
 				if (mItems[i])
 				{
 					String txt = String.Format("- %s", StringTable.Localize(mItems[i].GetTag()));
+
+					let newItemShadow = TCOTDZFLabel.Create
+					(
+						(0 + 1.5, nextY + 1.5),
+						(self.box.size.X, 0),
+						text: txt,
+						fnt: SmallFont,
+						wrap: true,
+						autoSize: true,
+						textScale: TCOTDJournalMenu.TXT_SCALE,
+						textColor: SmallFont.FindFontColor('TCOTDBlack')
+					);
+					newItemShadow.alpha = 0.89;
+
 					let newItem = TCOTDZFClickableItem.Create
 					(
 						(0, nextY),
@@ -126,11 +140,13 @@ class TCOTDZFItemList : TCOTDZFFrame
 						autoSize: true,
 						textScale: TCOTDJournalMenu.TXT_SCALE,
 						textColor: SmallFont.FindFontColor('TCOTDJournalTextColor'),
-						item: mItems[i]
+						item: mItems[i],
+						shadow: newItemShadow
 					);
 
 					newItem.mItem = mItems[i];
 
+					newItemShadow.Pack(self);
 					newItem.Pack(self);
 
 					BrokenLines textLines = SmallFont.BreakLines(newItem.text, int(newItem.box.size.X / newItem.textScale));

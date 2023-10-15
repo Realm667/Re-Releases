@@ -27,6 +27,7 @@ class TCOTDZFClickableItem : TCOTDZFLabel
 	TCOTDZFItemListButton mButton;
 	bool isHighlighted;
 	Inventory mItem;
+	TCOTDZFLabel mShadow;
 
 	//===========================================================================
 	//
@@ -37,7 +38,7 @@ class TCOTDZFClickableItem : TCOTDZFLabel
 	static TCOTDZFClickableItem Create(Vector2 pos, Vector2 size, string text = "", Font fnt = NULL, AlignType alignment = AlignType_TopLeft,
 		bool wrap = true, bool autoSize = false, double textScale = 1, int textColor = Font.CR_WHITE,
 		double lineSpacing = 0,
-		Inventory item = NULL)
+		Inventory item = NULL, TCOTDZFLabel shadow = NULL)
 	{
 		let ret = new('TCOTDZFClickableItem');
 
@@ -45,6 +46,7 @@ class TCOTDZFClickableItem : TCOTDZFLabel
 		ret.SetBox(pos, size);
 
 		ret.mItem = item;
+		ret.mShadow = shadow;
 
 		return ret;
 	}
@@ -56,6 +58,7 @@ class TCOTDZFClickableItem : TCOTDZFLabel
 		if (isHighlighted)
 		{
 			textColor = SmallFont.FindFontColor('TCOTDJournalTextHighlighted');
+			mShadow.hidden = false;
 		}
 		else
 		{
@@ -72,6 +75,7 @@ class TCOTDZFClickableItem : TCOTDZFLabel
 			{
 				textColor = SmallFont.FindFontColor('TCOTDJournalTextColor');
 			}
+			mShadow.hidden = true;
 		}
 	}
 
