@@ -235,3 +235,103 @@ class TCOTDDebrisCircusTarget : TCOTDDebris03
 		Stop;
 	}
 }
+
+//===========================================================================
+//
+// TCOTDDebrisWeb01
+//
+//===========================================================================
+
+class TCOTDDebrisWeb01 : TCOTDDebris
+{
+	int rollDir;
+
+	Default
+	{
+		Scale 0.9;
+		Gravity 0.2;
+		RenderStyle "Translucent";
+		Alpha 0.7;
+		+ROLLSPRITE
+		+INTERPOLATEANGLES
+	}
+
+	protected void A_WebDebris(void)
+	{
+		if (rollDir == 0)
+		{
+			Roll = frandom[rnd_WebDebris](0., 360.);
+			bSpriteFlip = RandomPick[rnd_WebDebris](false, true);
+			rollDir = RandomPick[rnd_WebDebris](-1, 1);
+		}
+
+		A_SetRoll(Roll + (11.25 * rollDir), SPF_INTERPOLATE);
+	}
+
+	States
+	{
+	Spawn:
+		DWEB A 1 A_WebDebris();
+		Loop;
+	Crash:
+		DWEB A 1 A_SetRoll(0);
+		Goto Super::Dead;
+	}
+}
+
+//===========================================================================
+//
+// TCOTDDebrisWeb02
+//
+//===========================================================================
+
+class TCOTDDebrisWeb02 : TCOTDDebrisWeb01
+{
+	States
+	{
+	Spawn:
+		DWEB B 1 A_WebDebris();
+		Loop;
+	Crash:
+		DWEB B 1 A_SetRoll(0);
+		Goto Super::Dead;
+	}
+}
+
+//===========================================================================
+//
+// TCOTDDebrisWeb03
+//
+//===========================================================================
+
+class TCOTDDebrisWeb03 : TCOTDDebrisWeb01
+{
+	States
+	{
+	Spawn:
+		DWEB C 1 A_WebDebris();
+		Loop;
+	Crash:
+		DWEB C 1 A_SetRoll(0);
+		Goto Super::Dead;
+	}
+}
+
+//===========================================================================
+//
+// TCOTDDebrisWeb04
+//
+//===========================================================================
+
+class TCOTDDebrisWeb04 : TCOTDDebrisWeb01
+{
+	States
+	{
+	Spawn:
+		DWEB D 1 A_WebDebris();
+		Loop;
+	Crash:
+		DWEB D 1 A_SetRoll(0);
+		Goto Super::Dead;
+	}
+}
