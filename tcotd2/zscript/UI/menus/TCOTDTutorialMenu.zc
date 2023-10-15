@@ -1,0 +1,65 @@
+/*
+* TCOTD2 Game Code
+* Copyright (C) 2020 - 2023  Nash Muhandes
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//===========================================================================
+//
+// TCOTDTutorialMenu
+//
+//===========================================================================
+
+class TCOTDTutorialMenu : GenericMenu
+{
+    ui double txtAlpha;
+
+	override void Drawer(void)
+	{
+		Super.Drawer();
+
+		String txt = String.Format(StringTable.Localize("$TUT_JOURNAL"), TCOTDStrLib.GetFirstKeyName("menu_help"));
+
+		Vector2 drawPos = (0, 0);
+		let fnt = smallfont;
+		let clr = Font.CR_WHITE;
+		let fntHeight = fnt.GetHeight();
+
+		BrokenLines lines = fnt.BreakLines(txt, Screen.GetWidth() / 2);
+		int count = lines.Count();
+
+        drawPos.Y = 100 - ((fntHeight * count) / 2);
+
+		for (int i = 0; i < count; i++)
+		{
+			drawPos.X = 160 - (lines.StringWidth(i) / 2);
+			Screen.DrawText(fnt, clr, drawPos.X, drawPos.Y, lines.StringAt(i), DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Alpha, txtAlpha);
+			drawPos.Y += fntHeight;
+		}
+	}
+
+    override void Ticker(void)
+    {
+        if (txtAlpha < 1.)
+            txtAlpha += 0.05;
+
+        txtAlpha = clamp(txtAlpha, 0., 1.);
+    }
+
+	clearscope static void Show(void)
+	{
+		Menu.SetMenu("TCOTDTutorialMenu");
+	}
+}

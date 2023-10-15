@@ -30,6 +30,9 @@ class TCOTDPlayerHandler : EventHandler
 
 	ui double deathAlpha;
 
+	ui int ticsForTutorial;
+	ui bool hasSeenTutorial;
+
 	//===========================================================================
 	//
 	//
@@ -149,6 +152,20 @@ class TCOTDPlayerHandler : EventHandler
 		{
 			if ((!multiplayer && Menu.GetCurrentMenu()) || paused || TCOTDGameplayStatics.IsConsoleVisible())
 				return;
+
+			// show the tutorial shortly after reading the note by the boat
+			if (!hasSeenTutorial && pmo.CountInv("TCOTDNoteSurvivor"))
+			{
+				if (ticsForTutorial < 15)
+				{
+					ticsForTutorial++;
+				}
+				else
+				{
+					TCOTDTutorialMenu.Show();
+					hasSeenTutorial = true;
+				}
+			}
 
 			if (pmo.CountInv("CutsceneEnabled"))
 			{

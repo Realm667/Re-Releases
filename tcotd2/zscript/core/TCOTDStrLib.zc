@@ -1,0 +1,84 @@
+/*
+* TCOTD2 Game Code
+* Copyright (C) 2020 - 2023  Nash Muhandes
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//===========================================================================
+//
+// TCOTDStrLib
+//
+//===========================================================================
+
+class TCOTDStrLib
+{
+	clearscope static String TrimColorSequences(String input)
+	{
+		String result = "";
+
+		for (uint c, i = 0; i < input.Length();)
+		{
+			[c, i] = input.GetNextCodePoint(i);
+
+			if (c == 0x1C)
+				i = SkipColorSequence(input, i);
+			else
+				result = String.Format("%s%c", result, c);
+		}
+
+		return result;
+	}
+
+	private clearscope static int SkipColorSequence(String input, uint i)
+	{
+		if (i >= input.Length())
+			return i;
+
+		int c;
+		[c, i] = input.GetNextCodePoint(i);
+
+		if (c != 0x5B) // [
+			return i;
+
+		while (i < input.Length() && c != 0x5D) // ]
+			[c, i] = input.GetNextCodePoint(i);
+
+		return i;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	clearscope static String GetAllKeyNames(String cmd)
+	{
+		Array<int> keys;
+		Bindings.GetAllKeysForCommand(keys, cmd);
+		return KeyBindings.NameAllKeys(keys);
+	}
+
+	clearscope static String GetFirstKeyName(String cmd)
+	{
+		String txt = GetAllKeyNames(cmd);
+		Array<String> keys;
+		keys.Clear();
+		txt.Split(keys, ",");
+		if (keys.Size() > 0)
+			return TrimColorSequences(keys[0]);
+		return "<unbound>";
+	}
+}
