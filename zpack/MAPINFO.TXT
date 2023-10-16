@@ -12,7 +12,7 @@ gameinfo
 	
 	statscreen_single = "ZPackStatusScreen"
 	
-	EventHandlers = "EnhWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
+	AddEventHandlers = "EnhWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
 }
 
 clearepisodes
@@ -500,9 +500,24 @@ SpawnNums
 	255 = "LogBook"
 }
 
-////////////////////////////////
-//////// CAST CALL /////////////
-////////////////////////////////
+/////////////////////////////////
+//////// CAST CALLS /////////////
+/////////////////////////////////
+
+Intermission Inter_Bunny
+{
+	Scroller
+	{
+		ScrollDirection = Left
+		Background = "PFUB1"
+		Background2 = "PFUB2"
+		Music = "$MUSIC_BUNNY"
+		InitialDelay = -230
+		Scrolltime = -640
+		Time = -1130
+	}
+	Link = TheEnd
+}
 
 Intermission Inter_Cast
 {
@@ -614,5 +629,5 @@ Intermission ZPackCast
 		CastName = "$CC_HERO"
 		AttackSound = "Missile", 0, "weapons/sshotf"
 	}
-	Link = SaphCast	// restart cast call
+	Link = ZPackCast	// restart cast call
 }

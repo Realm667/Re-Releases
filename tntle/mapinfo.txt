@@ -1,6 +1,6 @@
 gameinfo
 {
-	EventHandlers = "NashGoreHandler", "TNTWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
+	AddEventHandlers = "NashGoreHandler", "TNTWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
 
 	dimcolor = "441410"
 	dimamount = 0.75
@@ -11,13 +11,68 @@ gameinfo
 	addinfopage = "HELP"
 	borderflat = "AUTOPAGE"
 
-	MenuFontColor_Title = "DarkRed"
-	MenuFontColor_Selection = "DarkRed"
-	MenuFontColor_Highlight = "DarkRed" 
-
-	MenuFontColor_Label = "DarkRed" 
+	MenuFontColor_Action = "Dark Brown"
+	MenuFontColor_Header = "Dark Brown" 
+	MenuFontColor_Highlight = "Dark Brown" 
+	MenuFontColor_Label = "Dark Brown" 
+	MenuFontColor_Selection = "Dark Brown"
+	MenuFontColor_Title = "Dark Brown"
+	MenuFontColor_Value = "Dark Brown" 
 	
-	statscreen_single = "TNTELStatusScreen"
+	StatScreen_MapNameFont = "*DBIGFONT", "Dark Brown"
+	StatScreen_FinishedFont = "*DBIGFONT", "Dark Brown"
+	StatScreen_EnteringFont = "*DBIGFONT", "Dark Brown"
+	StatScreen_ContentFont = "*DBIGFONT", "Dark Brown"
+	StatScreen_AuthorFont = "*DBIGFONT", "Dark Brown"
+	
+	StatScreen_Single = "TNTELStatusScreen"
+}
+
+clearskills
+skill baby
+{
+	AutoUseHealth
+	AmmoFactor = 2
+	DamageFactor = 0.5
+	EasyBossBrain
+	SpawnFilter = Baby
+	Name = "Newbie"
+	Key = "n"
+}
+
+skill easy
+{
+	EasyBossBrain
+	SpawnFilter = Easy
+	Name = "Easy"
+	Key = "e"
+}
+
+skill normal
+{
+	DefaultSkill
+	SpawnFilter = Normal
+	Name = "Normal"
+	Key = "n"
+}
+
+skill hard
+{
+	SpawnFilter = Hard
+	Name = "Hard"
+	Key = "h"
+}
+
+skill nightmare
+{
+	AmmoFactor = 2
+	FastMonsters
+	DisableCheats
+	MustConfirm
+	RespawnTime = 12
+	SpawnFilter = Nightmare
+	Name = "Nightmare"
+	Key = "n"
 }
 
 map map01 lookup "TUTNTMAPLE"
@@ -25,7 +80,7 @@ map map01 lookup "TUTNTMAPLE"
 	cluster = 1
 	music = D_RUNNIN
 	nointermission 
-	next = EndGame2
+	next = EndGame2 //not defined yet - ozy81
 }
 
 cluster 1

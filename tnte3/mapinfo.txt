@@ -1,6 +1,6 @@
 gameinfo
 {
-	EventHandlers = "NashGoreHandler", "TNTWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
+	AddEventHandlers = "NashGoreHandler", "TNTWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
 
 	dimcolor = "441410"
 	dimamount = 0.75
@@ -11,20 +11,76 @@ gameinfo
 	addinfopage = "HELP"
 	borderflat = "AUTOPAGE"
 
-	MenuFontColor_Title = "DarkRed"
-	MenuFontColor_Selection = "DarkRed"
-	MenuFontColor_Highlight = "DarkRed" 
-
-	MenuFontColor_Label = "DarkRed" 
+	MenuFontColor_Action = "Dark Brown"
+	MenuFontColor_Header = "Dark Brown" 
+	MenuFontColor_Highlight = "Dark Brown" 
+	MenuFontColor_Label = "Dark Brown" 
+	MenuFontColor_Selection = "Dark Brown"
+	MenuFontColor_Title = "Dark Brown"
+	MenuFontColor_Value = "Dark Brown" 
 	
-	statscreen_single = "TNTE3StatusScreen"
+	StatScreen_MapNameFont = "*DBIGFONT", "Dark Brown"
+	StatScreen_FinishedFont = "*DBIGFONT", "Dark Brown"
+	StatScreen_EnteringFont = "*DBIGFONT", "Dark Brown"
+	StatScreen_ContentFont = "*DBIGFONT", "Dark Brown"
+	StatScreen_AuthorFont = "*DBIGFONT", "Dark Brown"
+	
+	StatScreen_Single = "TNTE3StatusScreen"
+}
+
+clearskills
+skill baby
+{
+	AutoUseHealth
+	AmmoFactor = 2
+	DamageFactor = 0.5
+	EasyBossBrain
+	SpawnFilter = Baby
+	Name = "Newbie"
+	Key = "n"
+}
+
+skill easy
+{
+	EasyBossBrain
+	SpawnFilter = Easy
+	Name = "Easy"
+	Key = "e"
+}
+
+skill normal
+{
+	DefaultSkill
+	SpawnFilter = Normal
+	Name = "Normal"
+	Key = "n"
+}
+
+skill hard
+{
+	SpawnFilter = Hard
+	Name = "Hard"
+	Key = "h"
+}
+
+skill nightmare
+{
+	AmmoFactor = 2
+	FastMonsters
+	DisableCheats
+	MustConfirm
+	RespawnTime = 12
+	SpawnFilter = Nightmare
+	Name = "Nightmare"
+	Key = "n"
 }
 
 map map01 lookup "TUTNTMAP03A"
 {
+	lightmode = 1 //avoid too much dark places - ozy81
 	cluster = 1
 	music = d_botma9
-	nointermission 
+	nointermission //stats not necessary then?
 	next = map02
 }
 
@@ -50,10 +106,11 @@ cluster 1
 
 map map02 lookup "TUTNTMAP03B"
 {
+	lightmode = 1 //avoid too much dark places - ozy81
 	cluster = 2
 	music = d_alfop
-	nointermission 
-	next = EndGame2
+	nointermission //stats not necessary then? 
+	next = EndGame2 //not defined yet - ozy81
 }
 
 cluster 2
