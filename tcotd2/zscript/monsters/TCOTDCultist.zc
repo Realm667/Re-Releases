@@ -23,6 +23,15 @@ class TCOTDCultist : TCOTDMonster
 		bFrightened = health < (GetMaxHealth() / 4);
 	}
 
+	protected void A_CultistDropItem(class<Actor> cls, int chance)
+	{
+		// don't drop ammo if meant to be spawned dead, to reduce ammo abundance
+		if (user_SpawnDead || !cls)
+			return;
+
+		A_DropItem(cls, 0, chance);
+	}
+
 	States
 	{
 	Spawn:
@@ -102,7 +111,6 @@ class TCOTDCultistTommy : TCOTDCultist
 		AttackSound "cultist/tommyatk";
 		Obituary "$OB_CULT";
 		Tag "$FN_CULT";
-		DropItem "TCOTDAmmoTommy", 80;
 	}
 
 	protected void A_CultistTommySetAttackCount(void)
@@ -122,6 +130,9 @@ class TCOTDCultistTommy : TCOTDCultist
 
 	States
 	{
+	Death:
+		#### # 0 A_CultistDropItem("TCOTDAmmoTommy", 80);
+		Goto Super::Death;
 	Missile:
 		#### G 17 { A_CultistTommySetAttackCount(); A_FaceTarget(); }
 		#### H 2 Light("CultistLight") A_CultistTommyAttack();
@@ -140,7 +151,6 @@ class TCOTDCultistShotgun : TCOTDCultist
 		AttackSound "shotguy/attack";
 		Obituary "$OB_CUL2";
 		Tag "$FN_CUL2";
-		DropItem "TCOTDAmmoShell", 80; // even if he does, he drops only 2 shells, so you don't get too much ammo
 	}
 
 	protected void A_CultistShotgunAttack(void)
@@ -172,5 +182,8 @@ class TCOTDCultistShotgun : TCOTDCultist
 		#### H 2 Light("CultistLight") A_CultistShotgunAttack();
 		#### G 15;
 		Goto See;
+	Death:
+		#### # 0 A_CultistDropItem("TCOTDAmmoShell", 80); // even if he does, he drops only 2 shells, so you don't get too much ammo
+		Goto Super::Death;
 	}
 }
