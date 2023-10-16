@@ -76,7 +76,7 @@ class TCOTDWeapon : Weapon abstract
 		if ((Owner.player.WeaponState & WF_WEAPONREADY && Owner.player.WeaponState && WF_WEAPONREADYALT) && Owner.ViewPitch != 0)
 		{
 			Owner.A_SetViewPitch(Owner.ViewPitch * 0.99, SPF_INTERPOLATE);
-			if(abs(Owner.ViewPitch) <= 0.1)
+			if (abs(Owner.ViewPitch) <= 0.1)
 				Owner.ViewPitch = 0;
 		}
 	}

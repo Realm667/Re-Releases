@@ -20,6 +20,19 @@ function int MakeHUDMessageID(int a, int b, int c, int d)
 //
 //===========================================================================
 
+function void TCOTD_AutoSave(void)
+{
+	// Can only autosave on "Normal" and in single player...
+	if (GameType() == GAME_SINGLE_PLAYER && GameSkill() == 0)
+		AutoSave();
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 function void ReadNote (str noteClassName, int exMarkTID)
 {
 	ScriptCall("TCOTDNote", "ReadNoteFromACS", noteClassName);
