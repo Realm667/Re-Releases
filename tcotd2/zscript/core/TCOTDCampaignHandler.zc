@@ -57,6 +57,8 @@ class TCOTDCampaignHandler : EventHandler
 
 	override void WorldLoaded(WorldEvent e)
 	{
+		//TCOTDGameplayStatics.SetupSaveRules();
+
 		if (!campaign)
 			GetCampaign();
 
@@ -73,7 +75,11 @@ class TCOTDCampaignHandler : EventHandler
 		campaign.Tick();
 		TickSurvival();
 	}
+}
 
+class ns : Inventory { CVar a; }
+extend class TCOTDCampaignHandler
+{
 	//===========================================================================
 	//
 	//
