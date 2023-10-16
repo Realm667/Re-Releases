@@ -1,0 +1,135 @@
+//actors roughly converted from DEHACKED to DECORATE by Ozymandias81 - these still doesn't use altdeaths too
+ACTOR DoomTrooper : WolfensteinSS replaces WolfensteinSS
+{
+	Tag "Doom Trooper" 
+    Health 300
+    Radius 20
+    Height 56
+    Speed 12
+    PainChance 40
+    MONSTER 
+    +FLOORCLIP
+    Obituary "$OB_DTRO"
+    SeeSound "grunt/sight" //wolfss sounds would be lame here
+    AttackSound "grunt/attack"
+    PainSound "grunt/pain"
+    DeathSound "grunt/death"
+    ActiveSound "grunt/active"
+    DropItem Clip
+    DropItem Clip
+    Decal Bulletchip
+    States
+    {
+	Spawn:
+		SSWV AB 10 A_Look
+		Loop
+	See:
+		SSWV AABBCCDD 3 A_Chase
+		Loop
+	Missile:
+		SSWV E 10 A_FaceTarget
+		SSWV F 10 A_FaceTarget
+		SSWV G 4 BRIGHT A_CPosAttack
+		SSWV F 6 A_FaceTarget
+		SSWV G 4 BRIGHT A_CPosAttack
+		SSWV F 1 A_CPosRefire
+		Goto Missile+1
+	Pain:
+		SSWV H 3
+		SSWV H 3 A_Pain
+		Goto See
+	Death:
+		SSWV I 5
+		SSWV J 5 A_Scream
+		SSWV K 5 A_NoBlocking
+		SSWV L 5
+		SSWV M -1
+		Stop
+	XDeath:
+		SSWV N 5
+		SSWV O 5 A_XScream
+		SSWV P 5 A_NoBlocking
+		SSWV QRSTU 5
+		SSWV V -1
+		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
+		Stop
+	Raise:
+		SSWV M 5
+		SSWV LKJI 5
+		Goto See
+    }
+}
+
+Actor ChaingunMajor : Spectre replaces Spectre
+{
+	Tag "Chaingun Major"
+	Health 300
+	Radius 20
+	Height 56
+	Mass 100
+	Speed 8
+	PainChance 40
+	MONSTER
+	-SHADOW
+	+FLOORCLIP
+	RenderStyle "Normal"
+	SeeSound "chainguy/sight"
+	PainSound "chainguy/pain"
+	DeathSound "chainguy/death"
+	ActiveSound "chainguy/active"
+	AttackSound "chainguy/attack"
+	Obituary "$OB_CMAJ"
+	Dropitem "Chaingun"
+	Decal Bulletchip
+	SpawnID 58 //uses Berserk spawnid for some reason
+	Translation 0 //turns grey as seen on the original wad
+	States
+	{
+	Spawn:
+		CPOS AB 10 A_Look
+		Loop
+	See:
+		CPOS AABBCCDD 3 A_Chase
+		Loop
+	Missile:
+		CPOS E 10 A_FaceTarget
+		CPOS FE 4 BRIGHT A_CPosAttack
+		CPOS F 1 A_CPosRefire
+		Goto Missile+1
+	Pain:
+		CPOS G 3
+		CPOS G 3 A_Pain
+		Goto See
+	Death:
+		CPOS H 5
+		CPOS I 5 A_Scream
+		CPOS J 5 A_NoBlocking
+		CPOS KLM 5
+		CPOS N -1
+		Stop
+	XDeath:
+		CPOS O 0 A_SpawnDebris("NashGore_Gib9",0)
+		CPOS O 0 A_SpawnDebris("NashGore_Gib10",0)
+		CPOS O 0 A_SpawnDebris("NashGore_Gib11",0)
+		CPOS O 0 A_SpawnDebris("NashGore_Gib11",0)
+		CPOS O 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+		CPOS O 5
+		CPOS P 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,2)
+		CPOS P 5 A_XScream
+		CPOS Q 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,4)
+		CPOS Q 5 A_NoBlocking
+		CPOS R 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,6)
+		CPOS RS 5
+		CPOS T -1
+		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedSmall",0,0,0,0)
+		Stop
+	Raise:
+		CPOS N 5
+		CPOS MLKJIH 5
+		Goto See
+	}
+}
