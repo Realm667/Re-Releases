@@ -1,0 +1,91 @@
+//////////////////
+// SPIDER QUEEN //
+//////////////////
+
+// Sprites by Nash Muhandes
+// Note: Due to her very limited encounter, and long she actually survives in combat, I have decided to only
+// do front-facing sprites for the time being. Given more time, I would be able to extend her to full rotations,
+// but that time isn't now...
+
+// currently she's just a reskinned baron...
+class TCOTDSpiderQueen : TCOTDMonster
+{
+	Default
+	{
+		//$Title Spider Queen
+		Health 1000;
+		Radius 24;
+		Height 64;
+		Mass 1000;
+		Speed 6;
+		PainChance 50;
+		Monster;
+		SeeSound "spiderqueen/sight";
+		PainSound "spiderqueen/pain";
+		DeathSound "spiderqueen/death";
+		ActiveSound "spiderqueen/active";
+		Obituary "$OB_QUEEN";
+		HitObituary "$OB_QUEENHIT";
+		Tag "$FN_QUEEN";
+		+BOSSDEATH
+	}
+
+	States
+	{
+	Spawn:
+		QUIN AB 10 A_Look();
+		Loop;
+	See:
+		QUIN A 1 A_Chase();
+		QUIN A 1 A_Chase2();
+		QUIN A 1 A_Chase();
+		QUIN A 1 A_Chase2();
+		QUIN A 1 A_Chase();
+		QUIN A 1 A_Chase2();
+		QUIN B 1 A_Chase();
+		QUIN B 1 A_Chase2();
+		QUIN B 1 A_Chase();
+		QUIN B 1 A_Chase2();
+		QUIN B 1 A_Chase();
+		QUIN B 1 A_Chase2();
+		QUIN C 1 A_Chase();
+		QUIN C 1 A_Chase2();
+		QUIN C 1 A_Chase();
+		QUIN C 1 A_Chase2();
+		QUIN C 1 A_Chase();
+		QUIN C 1 A_Chase2();
+		QUIN D 1 A_Chase();
+		QUIN D 1 A_Chase2();
+		QUIN D 1 A_Chase();
+		QUIN D 1 A_Chase2();
+		QUIN D 1 A_Chase();
+		QUIN D 1 A_Chase2();
+		Loop;
+	Melee:
+		QUIN E 8;
+		QUIN FG 4 A_FaceTarget();
+		QUIN H 6 A_MonsterMeleeAttack(32, hitSound: "vulgar/hit");
+		Goto See;
+	Missile:
+		QUIN E 8;
+		QUIN FG 4 A_FaceTarget();
+		QUIN H 6 A_QueenMissile();
+		Goto See;
+	Summon:
+		QUIN IJ 5;
+		QUIN K 5 A_QueenSummon();
+		Goto See;
+	Pain:
+		QUIN L  2;
+		QUIN L  2 A_Pain();
+		Goto See;
+	Death:
+		QUIN M  8;
+		QUIN N  8 A_Scream();
+		QUIN O  8;
+		QUIN P  8 A_NoBlocking();
+		QUIN QR 8;
+		QUIN S -1 A_BossDeath();
+		Stop;
+	}
+}
