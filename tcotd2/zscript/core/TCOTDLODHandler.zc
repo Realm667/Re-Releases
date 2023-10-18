@@ -31,8 +31,9 @@ class TCOTDLODHandler : EventHandler
 	struct TCOTDLODActorData
 	{
 		class<Actor> cls;
-		Vector3 Pos;
 		Actor mo;
+		Vector3 mPos;
+		double mAng;
 	}
 
 	private TCOTDLODActorData objects[MAX_OBJECTS];
@@ -61,17 +62,22 @@ class TCOTDLODHandler : EventHandler
 				if (!objects[j].cls)
 					continue;
 
-				diff = Level.Vec3Diff(objects[j].Pos, players[i].camera.Pos);
+				diff = Level.Vec3Diff(objects[j].mPos, players[i].camera.Pos);
 				if ((diff dot diff) <= MAX_RANGE)
 				{
 					if (!objects[j].mo)
 					{
-						objects[j].mo = Actor.Spawn(objects[j].cls, objects[j].Pos);
+						objects[j].mo = Actor.Spawn(objects[j].cls, objects[j].mPos);
+						objects[j].mo.Angle = objects[j].mAng;
+						objects[j].mo.BeginPlay();
 						objects[j].mo.ChangeStatNum(Thinker.STAT_INFO);
+						objects[j].mo.PostBeginPlay();
 					}
 				}
 				else if (objects[j].mo)
+				{
 					objects[j].mo.Destroy();
+				}
 			}
 		}
 
@@ -91,7 +97,9 @@ class TCOTDLODHandler : EventHandler
 		while (mo = Actor(it.Next()))
 		{
 			objects[index].cls = mo.GetClass();
-			objects[index++].Pos = mo.Pos;
+			objects[index].mPos = mo.Pos;
+			objects[index].mAng = mo.Angle;
+			index++;
 			if (index >= MAX_OBJECTS)
 				index = MAX_OBJECTS - 1;
 			mo.Destroy();
@@ -129,5 +137,7 @@ class TCOTDLODHandler : EventHandler
 		eh.MakeLODObject("TCOTDTree06");
 		eh.MakeLODObject("TCOTDTree07");
 		eh.MakeLODObject("TCOTDTree08");
+
+		// TO DO: a bunch of stuff in TCOTDProp.zc could probably go here too... ?
 	}
 }
