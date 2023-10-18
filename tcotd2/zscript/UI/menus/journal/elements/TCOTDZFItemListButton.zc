@@ -46,6 +46,9 @@ class TCOTDZFItemListButton : TCOTDZFButton
 	{
 		Super.Ticker();
 
+		// Logic should be put in Ticker, not Drawer - we don't want to run any unecessary code per frame if we don't have to.
+		// (in general, Drawer should only be reserved purely for drawing and not logic)
+
 		if (curButtonState == ButtonState_Hover || curButtonState == ButtonState_Click)
 			mClickableItem.isHighlighted = true;
 		else
