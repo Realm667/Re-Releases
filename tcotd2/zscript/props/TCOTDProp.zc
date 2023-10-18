@@ -197,6 +197,7 @@ class TCOTDPropIVPoleBlood : TCOTDPropShootable
 		{
 			for (int i = 0; i < 10; i++)
 			{
+				A_StartSound("sfx/glass_smash");
 				A_SpawnItemEx("Blood",
 					frandom[rnd_poleblood](-Radius, Radius),
 					frandom[rnd_poleblood](-Radius, Radius),
@@ -219,6 +220,7 @@ class TCOTDPropIVPoleBlood : TCOTDPropShootable
 				);
 			}
 		}
+		TNT1 A 200;
 		Stop;
 	}
 }
@@ -654,6 +656,8 @@ class TCOTDPropZombieBarrel : TCOTDPropShootable
 	Death:
 		TNT1 A 1
 		{
+			A_StartSound("sfx/barrel_smash");
+
 			for (int i = 0; i < 10; i++)
 			{
 				static const String deb[] =
@@ -696,6 +700,7 @@ class TCOTDPropZombieBarrel : TCOTDPropShootable
 					failchance: 175);
 			}
 		}
+		TNT1 A 200;
 		Stop;
 	}
 }

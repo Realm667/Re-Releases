@@ -133,7 +133,7 @@ class TCOTDPlayerHandler : EventHandler
 		// spawn a new actor so that it doesn't inherit the crushed thing's scale
 		let mo = e.Thing;
 		let gib = mo.Spawn("TCOTDCrushedGib", mo.Pos, ALLOW_REPLACE);
-		gib.A_StartSound("misc/gibbed", CHAN_BODY);
+		gib.A_StartSound("gore/gib_squelch", CHAN_BODY);
 		gib.Translation = mo.BloodTranslation;
 		mo.Destroy();
 	}
