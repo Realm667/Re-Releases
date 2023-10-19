@@ -61,7 +61,7 @@ class TCOTDGib : Actor
 	override void PostBeginPlay(void)
 	{
 		Super.PostBeginPlay();
-		A_SpawnItemEx("Blood");
+		A_SpawnItemEx("Blood", flags: SXF_NOCHECKPOSITION | SXF_USEBLOODCOLOR);
 	}
 
 	override void Tick(void)

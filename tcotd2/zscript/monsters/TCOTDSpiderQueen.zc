@@ -7,37 +7,35 @@
 // do front-facing sprites for the time being. Given more time, I would be able to extend her to full rotations,
 // but that time isn't now...
 
-// currently she's just a reskinned baron...
+// currently she's just a reskinned melee-only baron... her room is too cramped to allow projectiles
 class TCOTDSpiderQueen : TCOTDMonster
 {
+	int dcnt;
+
+	bool seenPlayer;
+
 	Default
 	{
 		//$Title Spider Queen
-		Health 1000;
-		Radius 24;
-		Height 64;
+		Health 1200;
+		Radius 35;
+		Height 80;
 		Mass 1000;
-		Speed 6;
-		PainChance 50;
+		Speed 5;
+		Scale 1.2;
+		PainChance 31;
 		Monster;
+		BloodColor "9d71d2";
 		SeeSound "spiderqueen/sight";
+		ActiveSound "spiderqueen/active";
 		PainSound "spiderqueen/pain";
 		DeathSound "spiderqueen/death";
-		ActiveSound "spiderqueen/active";
 		Obituary "$OB_QUEEN";
 		HitObituary "$OB_QUEENHIT";
 		Tag "$FN_QUEEN";
+		DropItem "TCOTDHealthPickupHeart", HEARTDROPCHANCE, 10;
+		+BOSS
 		+BOSSDEATH
-	}
-
-	private void A_QueenMissile(void)
-	{
-
-	}
-
-	private void A_QueenSummon(void)
-	{
-
 	}
 
 	States
@@ -46,7 +44,21 @@ class TCOTDSpiderQueen : TCOTDMonster
 		QUIN AB 10 A_Look();
 		Loop;
 	See:
-		QUIN A 1 A_Chase();
+		#### # 0
+		{
+			if (!seenPlayer)
+			{
+				seenPlayer = true;
+				return ResolveState("Summon");
+			}
+
+			return ResolveState("See2");
+		}
+		Stop;
+	Summon:
+		QUIN IJKK 12;
+	See2:
+		QUIN A 1 { A_Chase(); A_StartSound("spiderqueen/step", CHAN_AUTO); }
 		QUIN A 1 A_Chase2();
 		QUIN A 1 A_Chase();
 		QUIN A 1 A_Chase2();
@@ -58,7 +70,7 @@ class TCOTDSpiderQueen : TCOTDMonster
 		QUIN B 1 A_Chase2();
 		QUIN B 1 A_Chase();
 		QUIN B 1 A_Chase2();
-		QUIN C 1 A_Chase();
+		QUIN C 1 { A_Chase(); A_StartSound("spiderqueen/step", CHAN_AUTO); }
 		QUIN C 1 A_Chase2();
 		QUIN C 1 A_Chase();
 		QUIN C 1 A_Chase2();
@@ -72,30 +84,55 @@ class TCOTDSpiderQueen : TCOTDMonster
 		QUIN D 1 A_Chase2();
 		Loop;
 	Melee:
-		QUIN E 8;
-		QUIN FG 4 A_FaceTarget();
-		QUIN H 6 A_MonsterMeleeAttack(32, hitSound: "vulgar/hit");
-		Goto See;
-	Missile:
-		QUIN E 8;
-		QUIN FG 4 A_FaceTarget();
-		QUIN H 6 A_QueenMissile();
-		Goto See;
-	Summon:
-		QUIN IJ 5;
-		QUIN K 5 A_QueenSummon();
+		QUIN E 8 A_StartSound("spiderqueen/attack", CHAN_VOICE);
+		QUIN F 4 A_FaceTarget();
+		QUIN G 4 { A_FaceTarget(); A_StartSound("beast/slash", CHAN_AUTO); }
+		QUIN H 6 { A_FaceTarget(); A_MonsterMeleeAttack(32, hitSound: "vulgar/hit", damageType: 'Poison'); }
 		Goto See;
 	Pain:
-		QUIN L  2;
-		QUIN L  2 A_Pain();
+		QUIN L 10;
+		QUIN L 10 A_Pain();
 		Goto See;
 	Death:
-		QUIN M  8;
-		QUIN N  8 A_Scream();
-		QUIN O  8;
-		QUIN P  8 A_NoBlocking();
-		QUIN QR 8;
-		QUIN S -1 A_BossDeath();
+	XDeath:
+		QUIN M 52 A_Scream();
+	DeathShake:
+		QUIN M 1
+		{
+			// intentionally dramatic death... >8]
+			if (dcnt < 120)
+			{
+				WorldOffset = (frandom[QueenDeath](-2., 2.), frandom[QueenDeath](-2., 2.), 0);
+
+				if (random[QueenDeath]() < 60)
+					A_StartSound("gore/gib_squelch", CHAN_AUTO);
+
+				if (random[QueenDeath]() < 45)
+				{
+					let bld = Spawn("Blood", Vec3Offset(0, 0, Default.Height), ALLOW_REPLACE);
+					bld.Translation = BloodTranslation;
+				}
+
+				if (random[QueenDeath]() < 15)
+					A_SpawnGibs();
+
+				dcnt++;
+			}
+			else
+			{
+				WorldOffset = (0, 0, 0);
+				return ResolveState("DeathForReal");
+			}
+
+			return ResolveState(NULL);
+		}
+		Loop;
+	DeathForReal:
+		QUIN N 7 A_StartSound("spider/webexplode", CHAN_VOICE);
+		QUIN O 6;
+		QUIN P 5 A_NoBlocking();
+		QUIN Q 4;
+		QUIN R -1 A_BossDeath();
 		Stop;
 	}
 }
