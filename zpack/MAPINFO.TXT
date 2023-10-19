@@ -408,20 +408,6 @@ map E3M9 lookup "ZE3M9"
 }
 
 ////////////////////////////
-// GAMEINFO ////////////////
-////////////////////////////
-
-gameinfo
-{
-	dimcolor = "39342E"
-	dimamount = 0.5
-	fullscreenautoaspect = 3
-	infopage = "CREDIT"
-	addinfopage = "HELP"
-	borderflat = "AUTOPAGE"
-}
-
-////////////////////////////
 // DOOMEDNUMS / SPAWNNUMS //
 ////////////////////////////
 
@@ -489,13 +475,13 @@ SpawnNums
 	171 = "Lurker"
 	180 = "BruiserFireSpawner"
 	181 = "VerticalRocketUp"
-        182 = "VerticalRocket"
+	182 = "VerticalRocket"
 	207 = "XXLBall"
 	209 = "ExplosionVTMap"
 	233 = "Afrit"
 	250 = "Comet"
 	251 = "TerminatorBlaster"
-	251 = "BruiserMissile" //this should be changed and then applied over maps which uses it - ozy81
+	//251 = "BruiserMissile" //this should be changed and then applied over maps which uses it - ozy81
 	252 = "DFlare"
 	255 = "LogBook"
 }
@@ -516,7 +502,7 @@ Intermission Inter_Bunny
 		Scrolltime = -640
 		Time = -1130
 	}
-	Link = TheEnd
+	Link = TheEnd //uses gzdoom.pk3 common Doom1 TheEnd sequence
 }
 
 Intermission Inter_Cast
@@ -524,14 +510,14 @@ Intermission Inter_Cast
 	Image
 	{
 		// This is only here to initialize the background and the music
-		Background = "bossback"
+		Background = "BOSSBACK"
 		Time = -1
-		Music = "d_boss"
+		Music = "D_BOSS"
 	}
 	Link = ZPackCast
 }
 
-Intermission ZPackCast
+Intermission ZPackCast //unused atm
 {
 	Cast
 	{
