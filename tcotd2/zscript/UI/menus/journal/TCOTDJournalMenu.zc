@@ -191,6 +191,12 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 			mCurrentlyFocused = notesFrame;
 			switchedSides = true;
 			break;
+		case MKEY_PageUp:
+			ScrollDown();
+			break;
+		case MKEY_PageDown:
+			ScrollUp();
+			break;
 		case MKEY_Back:
 			break;
 		}
@@ -291,7 +297,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 			return;
 
 		mCurrentlyFocused.mSelected += i;
-		mCurrentlyFocused.mSelected = clamp(mCurrentlyFocused.mSelected, 0, mCurrentlyFocused.GetTotalItems());
+		mCurrentlyFocused.mSelected = clamp(mCurrentlyFocused.mSelected, 0, mCurrentlyFocused.GetTotalItems() - 1);
 
 		mCurrentlyFocused.UpdateHighlighted();
 	}
@@ -304,6 +310,32 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	void SelectDown(void)
 	{
 		ChangeSelection(1);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void ScrollDown(void)
+	{
+		for (int i = 0; i < mCurrentlyFocused.mClickableItems.Size(); i++)
+		{
+			mCurrentlyFocused.mClickableItems[i].box.pos.Y += SmallFont.GetHeight() * TXT_SCALE;
+			mCurrentlyFocused.mClickableItems[i].mButton.box.pos.Y += SmallFont.GetHeight() * TXT_SCALE;
+			mCurrentlyFocused.mClickableItems[i].mShadow.box.pos.Y += SmallFont.GetHeight() * TXT_SCALE;
+		}
+	}
+
+	void ScrollUp(void)
+	{
+		for (int i = 0; i < mCurrentlyFocused.mClickableItems.Size(); i++)
+		{
+			mCurrentlyFocused.mClickableItems[i].box.pos.Y -= SmallFont.GetHeight() * TXT_SCALE;
+			mCurrentlyFocused.mClickableItems[i].mButton.box.pos.Y -= SmallFont.GetHeight() * TXT_SCALE;
+			mCurrentlyFocused.mClickableItems[i].mShadow.box.pos.Y -= SmallFont.GetHeight() * TXT_SCALE;
+		}
 	}
 
 	//===========================================================================
