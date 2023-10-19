@@ -3,7 +3,7 @@
 //////////////////
 
 // Sprites by Nash Muhandes
-// Note: Due to her very limited encounter, and most likely short survival time in combat, I have decided to only
+// Note: Due to her very limited encounter, and her (most probably) short survival time in combat, I have decided to only
 // do front-facing sprites for the time being. Given more time, I would be able to extend her to full rotations,
 // but that time isn't now...
 
@@ -11,7 +11,6 @@
 class TCOTDSpiderQueen : TCOTDMonster
 {
 	int dcnt;
-
 	bool seenPlayer;
 
 	Default
@@ -31,11 +30,9 @@ class TCOTDSpiderQueen : TCOTDMonster
 		PainSound "spiderqueen/pain";
 		DeathSound "spiderqueen/death";
 		Obituary "$OB_QUEEN";
-		HitObituary "$OB_QUEENHIT";
 		Tag "$FN_QUEEN";
 		DropItem "TCOTDHealthPickupHeart", HEARTDROPCHANCE, 10;
 		+BOSS
-		+BOSSDEATH
 	}
 
 	States
@@ -132,7 +129,7 @@ class TCOTDSpiderQueen : TCOTDMonster
 		QUIN O 6;
 		QUIN P 5 A_NoBlocking();
 		QUIN Q 4;
-		QUIN R -1 A_BossDeath();
+		QUIN R -1;
 		Stop;
 	}
 }
