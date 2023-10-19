@@ -35,6 +35,36 @@ class TCOTDSpiderQueen : TCOTDMonster
 		+BOSS
 	}
 
+	private State A_QueenDeath(void)
+	{
+		// intentionally dramatic death... >8]
+		if (dcnt < 120)
+		{
+			WorldOffset = (frandom[QueenDeath](-2., 2.), frandom[QueenDeath](-2., 2.), 0);
+
+			if (random[QueenDeath]() < 60)
+				A_StartSound("gore/gib_squelch", CHAN_AUTO);
+
+			if (random[QueenDeath]() < 45)
+			{
+				let bld = Spawn("Blood", Vec3Offset(0, 0, Default.Height), ALLOW_REPLACE);
+				bld.Translation = BloodTranslation;
+			}
+
+			if (random[QueenDeath]() < 15)
+				A_SpawnGibs();
+
+			dcnt++;
+		}
+		else
+		{
+			WorldOffset = (0, 0, 0);
+			return ResolveState("DeathForReal");
+		}
+
+		return ResolveState(NULL);
+	}
+
 	States
 	{
 	Spawn:
@@ -92,37 +122,9 @@ class TCOTDSpiderQueen : TCOTDMonster
 		Goto See;
 	Death:
 	XDeath:
-		QUIN M 52 A_Scream();
+		QUIN L 52 A_Scream();
 	DeathShake:
-		QUIN M 1
-		{
-			// intentionally dramatic death... >8]
-			if (dcnt < 120)
-			{
-				WorldOffset = (frandom[QueenDeath](-2., 2.), frandom[QueenDeath](-2., 2.), 0);
-
-				if (random[QueenDeath]() < 60)
-					A_StartSound("gore/gib_squelch", CHAN_AUTO);
-
-				if (random[QueenDeath]() < 45)
-				{
-					let bld = Spawn("Blood", Vec3Offset(0, 0, Default.Height), ALLOW_REPLACE);
-					bld.Translation = BloodTranslation;
-				}
-
-				if (random[QueenDeath]() < 15)
-					A_SpawnGibs();
-
-				dcnt++;
-			}
-			else
-			{
-				WorldOffset = (0, 0, 0);
-				return ResolveState("DeathForReal");
-			}
-
-			return ResolveState(NULL);
-		}
+		QUIN LLLLLMMMMMMMMLLLLMMMMLLLLMMMMLMMMLLLLMMMMMLMMMLLLM 1 A_QueenDeath();
 		Loop;
 	DeathForReal:
 		QUIN N 7 A_StartSound("spider/webexplode", CHAN_VOICE);
