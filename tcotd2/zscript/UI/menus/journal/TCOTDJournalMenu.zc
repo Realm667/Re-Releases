@@ -151,6 +151,23 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	//
 	//===========================================================================
 
+	override void Ticker(void)
+	{
+		Super.Ticker();
+
+		if (pmo.player.playerstate == PST_DEAD || pmo.CountInv("CutsceneEnabled"))
+		{
+			Close();
+			return;
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	override bool MenuEvent(int mkey, bool fromcontroller)
 	{
 		bool switchedSides = false;
