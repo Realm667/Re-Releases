@@ -42,20 +42,21 @@ class TCOTDZFItemListButton : TCOTDZFButton
 		return ret;
 	}
 
-	override void Ticker(void)
+	// Not sure why TCOTDZFButton::Drawer is so darn slow but since we're not really
+	// meant to draw anything anyway, just skip it entirely for a massive performance boost.
+	override void Drawer(void) {}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void UpdateHover(void)
 	{
-		Super.Ticker();
-
-		// Logic should be put in Ticker, not Drawer - we don't want to run any unecessary code per frame if we don't have to.
-		// (in general, Drawer should only be reserved purely for drawing and not logic)
-
 		if (curButtonState == ButtonState_Hover || curButtonState == ButtonState_Click)
 			mClickableItem.isHighlighted = true;
 		else
 			mClickableItem.isHighlighted = false;
 	}
-
-	// Not sure why TCOTDZFButton::Drawer is so darn slow but since we're not really
-	// meant to draw anything anyway, just skip it entirely for a massive performance boost.
-	override void Drawer(void) {}
 }

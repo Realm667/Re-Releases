@@ -40,6 +40,9 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	TCOTDZFItemList objectivesFrame;
 	TCOTDZFItemList notesFrame;
 
+	// The list that's currently in focus and will react to inputs
+	TCOTDZFItemList mCurrentlyFocused;
+
 	//===========================================================================
 	//
 	//
@@ -87,6 +90,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 			self
 		);
 		objectivesFrame.box.size.Y -= ((SUB_FRAME_HEIGHT / GetMaxShowableLines()) / 2);
+		objectivesFrame.mID = 'LIST_OBJECTIVES';
 		objectivesFrame.Pack(mainFrame);
 		objectivesFrame.Refresh();
 
@@ -118,6 +122,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 			self
 		);
 		notesFrame.box.size.Y -= ((SUB_FRAME_HEIGHT / GetMaxShowableLines()) / 2);
+		notesFrame.mID = 'LIST_NOTES';
 		notesFrame.Pack(mainFrame);
 		notesFrame.Refresh();
 
@@ -134,6 +139,101 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 			textColor: SmallFont.FindFontColor('TCOTDJournalTextColor')
 		);
 		notesHeader.Pack(mainFrame);
+
+		// Default focus is on the notes, as it's the only one now that is actually activatable
+		mCurrentlyFocused = notesFrame;
+		mCurrentlyFocused.UpdateHighlighted();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override bool MenuEvent(int mkey, bool fromcontroller)
+	{
+		bool switchedSides = false;
+
+		switch (mkey)
+		{
+		case MKEY_Enter:
+			ActivateSelection();
+			break;
+		case MKEY_Up:
+			SelectUp();
+			break;
+		case MKEY_Down:
+			SelectDown();
+			break;
+		case MKEY_Left:
+			mCurrentlyFocused = objectivesFrame;
+			switchedSides = true;
+			break;
+		case MKEY_Right:
+			mCurrentlyFocused = notesFrame;
+			switchedSides = true;
+			break;
+		case MKEY_Back:
+			break;
+		}
+
+		if (switchedSides)
+		{
+
+			for (int i = 0; i < objectivesFrame.mClickableItems.Size(); i++)
+			{
+				objectivesFrame.mClickableItems[i].isHighlighted = false;
+			}
+
+			for (int i = 0; i < notesFrame.mClickableItems.Size(); i++)
+			{
+				notesFrame.mClickableItems[i].isHighlighted = false;
+			}
+
+			mCurrentlyFocused.UpdateHover();
+			mCurrentlyFocused.UpdateHighlighted();
+		}
+
+		return Super.MenuEvent(mkey, fromcontroller);
+	}
+
+	override bool OnUIEvent(UIEvent ev)
+	{
+		objectivesFrame.UpdateHover();
+		notesFrame.UpdateHover();
+
+		if (mCurrentlyFocused && mCurrentlyFocused.mClickableItems.Size() > 0)
+		{
+			if (ev.type == UIEvent.Type_MouseMove || ev.type == UIEvent.Type_LButtonClick)
+			{
+				// force recalculate highlighted stuff
+				for (int i = 0; i < objectivesFrame.mClickableItems.Size(); i++)
+				{
+					objectivesFrame.mClickableItems[i].isHighlighted = false;
+					objectivesFrame.mClickableItems[i].mButton.UpdateHover();
+
+					if (objectivesFrame.mClickableItems[i].isHighlighted)
+						objectivesFrame.mSelected = i;
+				}
+
+				for (int i = 0; i < notesFrame.mClickableItems.Size(); i++)
+				{
+					notesFrame.mClickableItems[i].isHighlighted = false;
+					notesFrame.mClickableItems[i].mButton.UpdateHover();
+
+					if (notesFrame.mClickableItems[i].isHighlighted)
+						notesFrame.mSelected = i;
+				}
+			}
+		}
+
+		if (ev.Type == UIEvent.Type_WheelUp)
+			return MenuEvent(MKEY_PageUp, false);
+		else if (ev.Type == UIEvent.Type_WheelDown)
+			return MenuEvent(MKEY_PageDown, false);
+
+		return Super.OnUIEvent(ev);
 	}
 
 	override void Drawer(void)
@@ -147,6 +247,46 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		}
 
 		DontDim = true;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void ActivateSelection(void)
+	{
+		if (!mCurrentlyFocused)
+			return;
+
+		if (mCurrentlyFocused.mClickableItems.Size() == 0)
+			return;
+
+		int i = mCurrentlyFocused.mSelected;
+		let btn = mCurrentlyFocused.mClickableItems[i].mButton;
+		handler.ButtonClickCommand(btn, btn.command);
+	}
+
+	void ChangeSelection(int i)
+	{
+		if (!mCurrentlyFocused)
+			return;
+
+		mCurrentlyFocused.mSelected += i;
+		mCurrentlyFocused.mSelected = clamp(mCurrentlyFocused.mSelected, 0, mCurrentlyFocused.GetTotalItems());
+
+		mCurrentlyFocused.UpdateHighlighted();
+	}
+
+	void SelectUp(void)
+	{
+		ChangeSelection(-1);
+	}
+
+	void SelectDown(void)
+	{
+		ChangeSelection(1);
 	}
 
 	//===========================================================================

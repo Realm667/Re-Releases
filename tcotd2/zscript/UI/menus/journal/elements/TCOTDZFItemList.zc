@@ -24,10 +24,21 @@
 
 class TCOTDZFItemList : TCOTDZFFrame
 {
+	// A reference to the journal menu must always exist
 	TCOTDJournalMenu mJournalMenu;
+
+	// A unique ID for this widget
+	Name mID;
+
+	// The inventory class that this widget will show
 	String mFilterClassName;
+
+	// The actual list of items
 	Array<Inventory> mItems;
 	Array<TCOTDZFClickableItem> mClickableItems;
+
+	// The currently selected item
+	int mSelected;
 
 	//===========================================================================
 	//
@@ -45,6 +56,49 @@ class TCOTDZFItemList : TCOTDZFFrame
 		ret.mJournalMenu = mnu;
 
 		return ret;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Ticker(void)
+	{
+		Super.Ticker();
+
+		if (!mJournalMenu)
+			return;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void UpdateHover(void)
+	{
+		// TO DO: clear the focus if mouse is outside of hover range
+		if (isHovered)
+			mJournalMenu.mCurrentlyFocused = self;
+	}
+
+	void UpdateHighlighted(void)
+	{
+		if (mClickableItems.Size() == 0)
+			return;
+
+		if (mSelected < 0)
+			return;
+
+		for (int i = 0; i < mClickableItems.Size(); i++)
+		{
+			mClickableItems[i].isHighlighted = false;
+		}
+
+		mClickableItems[mSelected].isHighlighted = true;
 	}
 
 	//===========================================================================
@@ -177,4 +231,9 @@ class TCOTDZFItemList : TCOTDZFFrame
 		return count;
 	}
 	*/
+
+	int GetTotalItems(void)
+	{
+		return mItems.Size();
+	}
 }
