@@ -401,28 +401,28 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 	{
 		switch (mkey)
 		{
-			bool changedPage = false;
+		bool changedPage = false;
 
-			case MKEY_Back:
-				Close();
-				MenuSound(GetCurrentMenu() != NULL ? "menu/backup" : "menu/clear");
-				// clear "the note to read" reference on the player pawn
-				EventHandler.SendNetworkEvent("EV_ClearNoteToRead");
-				return true;
-			case MKEY_Left:
-				if (mPageNumber > 0)
-				{
-					mPageNumber--;
-					changedPage = true;
-				}
-				break;
-			case MKEY_Right:
-				if (mPageNumber < GetTotalPages())
-				{
-					mPageNumber++;
-					changedPage = true;
-				}
-				break;
+		case MKEY_Back:
+			Close();
+			MenuSound(GetCurrentMenu() != NULL ? "menu/backup" : "menu/clear");
+			// clear "the note to read" reference on the player pawn
+			EventHandler.SendNetworkEvent("EV_ClearNoteToRead");
+			return true;
+		case MKEY_Left:
+			if (mPageNumber > 0)
+			{
+				mPageNumber--;
+				changedPage = true;
+			}
+			break;
+		case MKEY_Right:
+			if (mPageNumber < GetTotalPages())
+			{
+				mPageNumber++;
+				changedPage = true;
+			}
+			break;
 		}
 
 		if (changedPage)
