@@ -23,6 +23,18 @@ class SoulHarvester : TCOTDMonster
 		+CASTSPRITESHADOW
 	}
 
+	protected void A_HarvesterNoBlocking(void)
+	{
+		if (user_SpawnDead)
+		{
+			A_NoBlocking(false);
+			user_SpawnDead = false;
+			return;
+		}
+
+		A_NoBlocking(true);
+	}
+
 	States
 	{
 	Spawn:
@@ -73,7 +85,7 @@ class SoulHarvester : TCOTDMonster
 		SLHV O 7 A_Scream();
 		SLHV PQR 7;
 		SLHV S 6 A_SpawnItemEx("SoulHarvesterGhost", 0, 0, 32);
-		SLHV T 5 A_NoBlocking();
+		SLHV T 5 A_HarvesterNoBlocking();
 		SLHV UV 5;
 		SLHV W -1;
 		Stop;
@@ -81,7 +93,7 @@ class SoulHarvester : TCOTDMonster
 		SLHV X 6 A_XScream();
 		SLHV Y 6 A_SpawnItemEx("SoulHarvesterGhost", 0, 0, 32);
 		SLHV Z 6;
-		SLHV [ 6 A_NoBlocking();
+		SLHV [ 6 A_HarvesterNoBlocking();
 		SLHV ] 6;
 		SLHW A -1;
 		Stop;
