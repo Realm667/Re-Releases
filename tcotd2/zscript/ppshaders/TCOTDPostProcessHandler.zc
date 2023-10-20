@@ -55,10 +55,12 @@ class TCOTDPostProcessHandler : StaticEventHandler
 		if ((!multiplayer && Menu.GetCurrentMenu()) || paused || TCOTDGameplayStatics.IsConsoleVisible())
 			return;
 
+		let cam = plr.camera;
+
 		bool enabled =
 		(
 			CVar.GetCVar("tcotd2_underwaterwarp", plr).GetBool() &&
-			plr.mo.WaterLevel >= 3
+			cam.WaterLevel >= 3
 		);
 
 		PPShader.SetEnabled("underwaterwarpshader", enabled);
@@ -75,8 +77,9 @@ class TCOTDPostProcessHandler : StaticEventHandler
 
 	ui void HeatHaze(RenderEvent e)
 	{
+		let cam = plr.camera;
 		PPShader.SetEnabled("heatshader", CVar.GetCVar("tcotd2_heathaze", plr).GetBool());
 		PPShader.SetUniform1f("heatshader", "timer", gametic + e.FracTic);
-		PPShader.SetUniform1f("heatshader", "amount", double(plr.mo.CountInv("TCOTDHeatHazeAmount")));
+		PPShader.SetUniform1f("heatshader", "amount", double(cam.CountInv("TCOTDHeatHazeAmount")));
 	}
 }
