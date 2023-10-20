@@ -83,10 +83,6 @@ class TCOTDNote : Inventory abstract
 			}
 		}
 
-		// open the note only for the player who clicked on it
-		if (activator == players[consoleplayer].mo)
-		{
-			EventHandler.SendNetworkEvent("EV_SetNoteToRead:" .. noteClassName);
-		}
+		EventHandler.SendNetworkEvent("EV_SetNoteToRead:" .. noteClassName);
 	}
 }

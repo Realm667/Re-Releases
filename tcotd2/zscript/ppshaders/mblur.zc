@@ -73,6 +73,13 @@ class MBlurShaderHandler : StaticEventHandler
 
 	override void UiTick()
 	{
+		// [Nash] 20/10/2023
+		// This is a source of crashing in multiplayer (it is sending a networked event filtered by consoleplayer
+		// which is a GIANT NO NO!!! to the engine.
+		// I can't be bothered to figure this out right now so just disable this stuff for multiplayer.
+		if (multiplayer)
+			return;
+
 		PlayerInfo	plr = players[ consoleplayer ];
 		if( plr && plr.mo )
 		{
