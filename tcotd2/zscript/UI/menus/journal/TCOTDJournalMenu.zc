@@ -58,6 +58,11 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		SetBaseResolution((RES_WIDTH, RES_HEIGHT));
 
 		pmo = players[consoleplayer].mo;
+		if (!pmo)
+		{
+			ThrowAbortException("Tried to open TCOTDJournalMenu with an invalid player");
+		}
+
 		handler = new('TCOTDZFJournalHandler');
 		handler.menu = self;
 

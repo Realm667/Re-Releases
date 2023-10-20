@@ -512,19 +512,17 @@ class TCOTDPlayerHandler : EventHandler
 			alpha = 0.2;
 
 			if (mnu is "ConversationMenu")
-			{
 				alpha = 0.0;
-			}
 		}
 
-		PlayerPawn pmo = PlayerPawn(players[consoleplayer].mo);
-		if (!pmo)
+		let cam = TCOTDPlayer(e.Camera);
+		if (!cam)
 			return;
 
-		if (!pmo.player)
+		if (!cam.player)
 			return;
 
-		if (TCOTDGameplayStatics.IsInCutscene(pmo))
+		if (TCOTDGameplayStatics.IsInCutscene(cam))
 			return;
 
 		// store old view clip
@@ -547,12 +545,12 @@ class TCOTDPlayerHandler : EventHandler
 				continue;
 
 			// don't draw your own name
-			if (projActor == e.Camera)
+			if (projActor == cam)
 				continue;
 
 			// fade alpha by distance
 			double maxDist = 2000.0;
-			double distFade = pmo.Distance3D(projActor);
+			double distFade = cam.Distance3D(projActor);
 			double distFarFadeStart = maxDist * 0.2;
 			if (distFade >= distFarFadeStart)
 			{
