@@ -59,6 +59,8 @@ class TCOTDPlayer : PlayerPawn
 	transient ui TCOTDNote noteToRead;
 	transient ui bool shouldRefreshJournalInCoop;
 
+	bool spawnedPlayerMarker;
+
 	//===========================================================================
 	//
 	//
@@ -897,10 +899,11 @@ class TCOTDPlayer : PlayerPawn
 		if (!multiplayer || TCOTDGameplayStatics.IsDeathmatch() || player.playerstate == PST_DEAD)
 			return;
 
-		if (!playerMarker)
+		if (!playerMarker && !spawnedPlayerMarker)
 		{
 			playerMarker = TCOTDPlayerMarker(Spawn("TCOTDPlayerMarker", Pos, ALLOW_REPLACE));
 			//playerMarker.args[2] = 1;
+			spawnedPlayerMarker = true;
 		}
 
 		if (playerMarker)
