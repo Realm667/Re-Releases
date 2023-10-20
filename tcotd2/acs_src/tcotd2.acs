@@ -1,6 +1,9 @@
 #library "TCOTD2"
 #include "zcommon.acs"
 
+#libdefine ONE_SECOND 35
+#libdefine MAX_PLAYERS 8
+#libdefine INT_MAX 0x7FFFFFFF
 #libdefine HUDMSG_TIC 1.0 / 35 + 1
 
 #define MAX_VOLUME 127
@@ -39,6 +42,33 @@ function void TCOTD_RaiseThing(int tid)
 {
 	Thing_Raise(tid);
 	SetUserVariable(tid, "user_ReviveSelfOnly", FALSE);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+function void TCOTD_MovePlayersToActivator(void)
+{
+	if (!GameType() == GAME_NET_COOPERATIVE)
+		return;
+
+	int atid = ActivatorTID();
+
+	if (atid == 0)
+		return;
+
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		SetActivator(0, AAPTR_PLAYER1 << i);
+
+		if (ActivatorTID() == atid)
+			continue;
+
+		SetActorPosition(ActivatorTID(), GetActorX(atid), GetActorY(atid), GetActorZ(atid), TRUE);
+	}
 }
 
 //===========================================================================
