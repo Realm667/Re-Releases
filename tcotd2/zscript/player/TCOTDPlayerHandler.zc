@@ -150,11 +150,11 @@ class TCOTDPlayerHandler : EventHandler
 		let pmo = cplayer.mo;
 		if (cplayer && pmo)
 		{
-			if ((!multiplayer && Menu.GetCurrentMenu()) || paused || TCOTDGameplayStatics.IsConsoleVisible())
+			if (Menu.GetCurrentMenu() || paused || TCOTDGameplayStatics.IsConsoleVisible())
 				return;
 
 			// show the tutorial shortly after reading the note by the boat
-			if (!hasSeenTutorial && pmo.CountInv("TCOTDNoteSurvivor"))
+			if (!hasSeenTutorial && pmo.CountInv("PickedUpSurvivorNote"))
 			{
 				if (ticsForTutorial < 15)
 				{
