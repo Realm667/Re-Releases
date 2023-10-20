@@ -6,6 +6,10 @@ class TCOTDMonster : Actor abstract
 	// monsters which get resurrected later via scripting.
 	bool user_SpawnDead;
 
+	// [Blue Shadow] Set this in the editor to 'true' so the monster can only revive itself (a monster
+	// being brought back from the dead via Thing_Raise is treated as reviving itself).
+	bool user_ReviveSelfOnly;
+
 	Default
 	{
 		//$Category New Monsters (TCOTD2)
@@ -47,6 +51,17 @@ class TCOTDMonster : Actor abstract
 		bForceXYBillboard = (Health <= 0);
 	}
 	*/
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override bool CanResurrect(Actor other, bool passive)
+	{
+		return !(passive && user_ReviveSelfOnly);
+	}
 
 	//===========================================================================
 	//

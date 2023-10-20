@@ -35,6 +35,18 @@ function void TCOTD_AutoSave(void)
 //
 //===========================================================================
 
+function void TCOTD_RaiseThing(int tid)
+{
+	Thing_Raise(tid);
+	SetUserVariable(tid, "user_ReviveSelfOnly", FALSE);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 function void ReadNote (str noteClassName, int exMarkTID)
 {
 	ScriptCall("TCOTDNote", "ReadNoteFromACS", noteClassName);
