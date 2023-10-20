@@ -7,6 +7,14 @@ class TCOTDArmorBonus : ArmorBonus replaces ArmorBonus
 		Armor.SaveAmount 3;
 		+FORCEXYBILLBOARD
 	}
+
+	override void PostBeginPlay ()
+	{
+		Super.PostBeginPlay();
+
+		if (TCOTDGameplayStatics.IsCoop())
+			bAlwaysPickup = false;
+	}
 }
 
 class TCOTDBodyArmor : GreenArmor replaces GreenArmor
@@ -21,6 +29,14 @@ class TCOTDBodyArmor : GreenArmor replaces GreenArmor
 		+FORCEXYBILLBOARD
 		Inventory.Pickupmessage "$IP_BODYARMOR";
 		Inventory.Icon "graphics/hud/HUDArmor1.png";
+	}
+
+	override void PostBeginPlay ()
+	{
+		Super.PostBeginPlay();
+
+		if (TCOTDGameplayStatics.IsCoop())
+			bAlwaysPickup = false;
 	}
 
 	States

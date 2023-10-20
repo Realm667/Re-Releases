@@ -21,6 +21,9 @@ class TCOTDHealthPickupHeart : HealthBonus replaces HealthBonus
 	{
 		Super.PostBeginPlay();
 
+		if (TCOTDGameplayStatics.IsCoop())
+			bAlwaysPickup = false;
+
 		// [Blue Shadow] Don't count towards the items statistics if dropped by something.
 		if (bDropped)
 		{
