@@ -160,6 +160,9 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	{
 		Super.Ticker();
 
+		if (TCOTDPlayer(pmo) && TCOTDPlayer(pmo).shouldRefreshJournalInCoop)
+			TCOTDPlayer(pmo).shouldRefreshJournalInCoop = false;
+
 		if (pmo.player.playerstate == PST_DEAD || pmo.CountInv("CutsceneEnabled"))
 		{
 			Close();

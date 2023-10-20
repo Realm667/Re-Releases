@@ -46,6 +46,21 @@ class TCOTDZFItemList : TCOTDZFFrame
 	//
 	//===========================================================================
 
+	override void Ticker(void)
+	{
+		Super.Ticker();
+
+		let pmo = TCOTDPlayer(mJournalMenu.pmo);
+		if (pmo.shouldRefreshJournalInCoop)
+			RefreshJournalCoop();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	static TCOTDZFItemList Create(Vector2 pos, Vector2 size, String className, TCOTDJournalMenu mnu)
 	{
 		let ret = new('TCOTDZFItemList');
@@ -92,6 +107,27 @@ class TCOTDZFItemList : TCOTDZFFrame
 	//
 	//
 	//===========================================================================
+
+	void RefreshJournalCoop(void)
+	{
+		// previous selection might be invalid, so just reset it
+		mSelected = 0;
+
+		// unpack everything first
+		for (int i = 0; i < mClickableItems.Size(); i++)
+		{
+			// need to retrieve all the elements...
+			let ci =  mClickableItems[i];
+			let btn = mClickableItems[i].mButton;
+			let shdw = mClickableItems[i].mShadow;
+			shdw.Unpack();
+			btn.Unpack();
+			ci.Unpack();
+		}
+
+		// now rebuild the list
+		Refresh();
+	}
 
 	void Refresh(void)
 	{

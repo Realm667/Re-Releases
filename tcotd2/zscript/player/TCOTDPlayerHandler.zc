@@ -316,6 +316,27 @@ class TCOTDPlayerHandler : EventHandler
 
 	override void InterfaceProcess(ConsoleEvent e)
 	{
+		//===========================================================================
+		//
+		// EV_RefreshJournalCoop
+		//
+		//===========================================================================
+		if (e.Name == 'EV_RefreshJournalCoop')
+		{
+			if (TCOTDGameplayStatics.IsCoop())
+			{
+				for (int i = 0; i < MAXPLAYERS; i++)
+				{
+					if (playeringame[i])
+					{
+						let pmo = TCOTDPlayer(players[i].mo);
+						if (pmo)
+							pmo.shouldRefreshJournalInCoop = true;
+					}
+				}
+			}
+		}
+
 		Array<String> strings;
 		strings.Clear();
 		e.Name.Split(strings, ":");

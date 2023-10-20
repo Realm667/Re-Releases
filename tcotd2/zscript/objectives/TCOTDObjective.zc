@@ -145,6 +145,8 @@ class TCOTDObjective : Inventory abstract
 		{
 			pmo.GiveInventory(cls, 1);
 		}
+
+		EventHandler.SendInterfaceEvent(consoleplayer, "EV_RefreshJournalCoop");
 	}
 
 	static void Delete(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
@@ -168,6 +170,8 @@ class TCOTDObjective : Inventory abstract
 		{
 			pmo.TakeInventory(cls, int.max);
 		}
+
+		EventHandler.SendInterfaceEvent(consoleplayer, "EV_RefreshJournalCoop");
 	}
 
 	//===========================================================================
@@ -221,6 +225,8 @@ class TCOTDObjective : Inventory abstract
 				}
 			}
 		}
+
+		EventHandler.SendInterfaceEvent(consoleplayer, "EV_RefreshJournalCoop");
 	}
 
 	static void Complete(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
