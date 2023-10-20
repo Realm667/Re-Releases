@@ -35,8 +35,8 @@ class TCOTDUIHandler : StaticEventHandler
 
 	override void UITick(void)
 	{
-		let mnu = Menu.GetCurrentMenu();
-		if (mnu && mnu is "TCOTDJournalMenu")
+		let mnu = TCOTDJournalMenu(Menu.GetCurrentMenu());
+		if (mnu && mnu.pmo == players[consoleplayer].mo)
 		{
 			if (ShouldRefreshJournalCoop())
 				SetShouldRefreshJournalCoop(false);

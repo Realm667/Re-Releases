@@ -52,7 +52,7 @@ class TCOTDObjective : Inventory abstract
 	{
 		Super.AttachToOwner(other);
 
-		if (Owner && Owner is "PlayerPawn")
+		if (Owner && Owner is "TCOTDPlayer")
 		{
 			String newTag = "";
 
@@ -84,36 +84,24 @@ class TCOTDObjective : Inventory abstract
 	//
 	//===========================================================================
 
-	static void AddFromACS(Actor activator, String clsName, bool allPlayers = false)
+	static void AddFromACS(Actor activator, String clsName, bool allPlayers)
 	{
-		PlayerPawn pmo = NULL;
-		if (!allPlayers)
-			pmo = PlayerPawn(activator);
-		TCOTDObjective.Add(clsName, pmo);
+		TCOTDObjective.Add(clsName, activator, allPlayers);
 	}
 
-	static void CompleteFromACS(Actor activator, String clsName, bool allPlayers = false)
+	static void CompleteFromACS(Actor activator, String clsName, bool allPlayers)
 	{
-		PlayerPawn pmo = NULL;
-		if (!allPlayers)
-			pmo = PlayerPawn(activator);
-		TCOTDObjective.Complete(clsName, pmo);
+		TCOTDObjective.Complete(clsName, activator, allPlayers);
 	}
 
-	static void FailFromACS(Actor activator, String clsName, bool allPlayers = false)
+	static void FailFromACS(Actor activator, String clsName, bool allPlayers)
 	{
-		PlayerPawn pmo = NULL;
-		if (!allPlayers)
-			pmo = PlayerPawn(activator);
-		TCOTDObjective.Fail(clsName, pmo);
+		TCOTDObjective.Fail(clsName, activator, allPlayers);
 	}
 
-	static void DeleteFromACS(Actor activator, String clsName, bool allPlayers = false)
+	static void DeleteFromACS(Actor activator, String clsName, bool allPlayers)
 	{
-		PlayerPawn pmo = NULL;
-		if (!allPlayers)
-			pmo = PlayerPawn(activator);
-		TCOTDObjective.Delete(clsName, pmo);
+		TCOTDObjective.Delete(clsName, activator, allPlayers);
 	}
 
 	//===========================================================================
@@ -122,15 +110,17 @@ class TCOTDObjective : Inventory abstract
 	//
 	//===========================================================================
 
-	static void Add(String clsName, PlayerPawn pmo = NULL)
+	static void Add(String clsName, Actor activator, bool allPlayers)
 	{
 		class<TCOTDObjective> cls = clsName;
-
 		if (!cls)
 			return;
 
-		// if no player is specified, add it to all players
+		let pmo = TCOTDPlayer(activator);
 		if (!pmo)
+			return;
+
+		if (allPlayers)
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
 			{
@@ -149,13 +139,16 @@ class TCOTDObjective : Inventory abstract
 		EventHandler.SendInterfaceEvent(consoleplayer, "EV_RefreshJournalCoop");
 	}
 
-	static void Delete(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
+	static void Delete(class<TCOTDObjective> cls, Actor activator, bool allPlayers)
 	{
 		if (!cls)
 			return;
 
-		// if no player is specified, delete it from all players
+		let pmo = TCOTDPlayer(activator);
 		if (!pmo)
+			return;
+
+		if (allPlayers)
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
 			{
@@ -180,13 +173,16 @@ class TCOTDObjective : Inventory abstract
 	//
 	//===========================================================================
 
-	private static void SetCompletion(class<TCOTDObjective> cls, uint set, PlayerPawn pmo = NULL)
+	private static void SetCompletion(class<TCOTDObjective> cls, uint set, Actor activator, bool allPlayers)
 	{
 		if (!cls)
 			return;
 
-		// if no player is specified, complete it for all players
+		let pmo = TCOTDPlayer(activator);
 		if (!pmo)
+			return;
+
+		if (allPlayers)
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
 			{
@@ -229,19 +225,28 @@ class TCOTDObjective : Inventory abstract
 		EventHandler.SendInterfaceEvent(consoleplayer, "EV_RefreshJournalCoop");
 	}
 
-	static void Complete(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
+	static void Complete(class<TCOTDObjective> cls, Actor activator, bool allPlayers)
 	{
-		SetCompletion(cls, TCOTDObjective.OBJECTIVE_COMPLETE, pmo);
+		if (!cls)
+			return;
+
+		SetCompletion(cls, TCOTDObjective.OBJECTIVE_COMPLETE, activator, allPlayers);
 	}
 
-	static void Incomplete(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
+	static void Incomplete(class<TCOTDObjective> cls, Actor activator, bool allPlayers)
 	{
-		SetCompletion(cls, TCOTDObjective.OBJECTIVE_INCOMPLETE, pmo);
+		if (!cls)
+			return;
+
+		SetCompletion(cls, TCOTDObjective.OBJECTIVE_INCOMPLETE, activator, allPlayers);
 	}
 
-	static void Fail(class<TCOTDObjective> cls, PlayerPawn pmo = NULL)
+	static void Fail(class<TCOTDObjective> cls, Actor activator, bool allPlayers)
 	{
-		SetCompletion(cls, TCOTDObjective.OBJECTIVE_FAIL, pmo);
+		if (!cls)
+			return;
+
+		SetCompletion(cls, TCOTDObjective.OBJECTIVE_FAIL, activator, allPlayers);
 	}
 
 	//===========================================================================

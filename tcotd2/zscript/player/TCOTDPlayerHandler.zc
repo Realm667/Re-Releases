@@ -41,7 +41,7 @@ class TCOTDPlayerHandler : EventHandler
 
 	override void PlayerEntered(PlayerEvent e)
 	{
-		PlayerPawn pmo = players[e.PlayerNumber].mo;
+		let pmo = TCOTDPlayer(players[e.PlayerNumber].mo);
 		if (pmo)
 		{
 			EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "EV_ClearNoteToRead");
@@ -50,18 +50,16 @@ class TCOTDPlayerHandler : EventHandler
 
 	override void PlayerDisconnected(PlayerEvent e)
 	{
-		/*
-		PlayerPawn pmo = players[e.PlayerNumber].mo;
+		let pmo = TCOTDPlayer(players[e.PlayerNumber].mo);
 		if (pmo)
 		{
+			PlayerCleanup(pmo);
 		}
-		*/
 	}
 
 	override void PlayerDied(PlayerEvent e)
 	{
-		PlayerPawn pmo = players[e.PlayerNumber].mo;
-
+		let pmo = TCOTDPlayer(players[e.PlayerNumber].mo);
 		if (pmo == players[consoleplayer].mo)
 		{
 			EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "EV_ClearNoteToRead");
@@ -75,7 +73,9 @@ class TCOTDPlayerHandler : EventHandler
 		if (Level.time == 0)
 			return;
 
-		PlayerPawn pmo = players[e.PlayerNumber].mo;
+		TCOTDPlayer pmo = TCOTDPlayer(players[e.PlayerNumber].mo);
+		if (!pmo)
+			return;
 
 		if (pmo == players[consoleplayer].mo)
 		{
@@ -213,13 +213,13 @@ class TCOTDPlayerHandler : EventHandler
 
 	override void NetworkProcess(ConsoleEvent e)
 	{
-		PlayerPawn pmo = PlayerPawn(players[e.Player].mo);
+		TCOTDPlayer pmo = TCOTDPlayer(players[e.Player].mo);
 		if (!pmo)
 			return;
 		if (pmo && !pmo.player)
 			return;
 
-		bool isConsolePlayer = (pmo == PlayerPawn(players[consoleplayer].mo));
+		bool isConsolePlayer = (pmo == TCOTDPlayer(players[consoleplayer].mo));
 
 		Array<String> strings;
 		strings.Clear();
@@ -287,12 +287,12 @@ class TCOTDPlayerHandler : EventHandler
 		//===========================================================================
 		else if (e.Name == 'EV_AddAllObjectives')
 		{
-			for (int i = AllClasses.Size(); i --> 0;)
+			for (int i = AllClasses.Size(); i-- > 0;)
 			{
 				if (AllClasses[i] is 'TCOTDObjective' && AllClasses[i] != 'TCOTDObjective')
 				{
 					String objectiveClassName = AllClasses[i].GetClassName();
-					TCOTDObjective.Add(objectiveClassName);
+					TCOTDObjective.Add(objectiveClassName, pmo, true);
 				}
 			}
 		}
@@ -303,7 +303,7 @@ class TCOTDPlayerHandler : EventHandler
 		//===========================================================================
 		else if (e.Name == 'EV_AddAllNotes')
 		{
-			for (int i = AllClasses.Size(); i --> 0;)
+			for (int i = AllClasses.Size(); i-- > 0;)
 			{
 				if (AllClasses[i] is 'TCOTDNote' && AllClasses[i] != 'TCOTDNote')
 				{
@@ -379,7 +379,23 @@ class TCOTDPlayerHandler : EventHandler
 	//
 	//===========================================================================
 
-	void FindCheckpoint(PlayerPawn pmo)
+	void PlayerCleanup(TCOTDPlayer pmo)
+	{
+		if (!pmo)
+			return;
+
+		pmo.DestroyLantern();
+		if (pmo.playerMarker)
+			pmo.playerMarker.Destroy();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void FindCheckpoint(TCOTDPlayer pmo)
 	{
 		if (!TCOTDGameplayStatics.IsCoop())
 			return;
@@ -431,7 +447,7 @@ class TCOTDPlayerHandler : EventHandler
 
 	ui bool CheckAutomapKey(InputEvent e)
 	{
-		let pmo = PlayerPawn(players[consoleplayer].mo);
+		let pmo = TCOTDPlayer(players[consoleplayer].mo);
 		if (!pmo)
 			return false;
 
@@ -457,7 +473,7 @@ class TCOTDPlayerHandler : EventHandler
 	/*
 	ui bool CheckUseKey(InputEvent e)
 	{
-		let pmo = PlayerPawn(players[consoleplayer].mo);
+		let pmo = TCOTDPlayer(players[consoleplayer].mo);
 		if (!pmo)
 			return false;
 
@@ -478,7 +494,7 @@ class TCOTDPlayerHandler : EventHandler
 
 	ui bool CheckJournalKey(InputEvent e)
 	{
-		let pmo = PlayerPawn(players[consoleplayer].mo);
+		let pmo = TCOTDPlayer(players[consoleplayer].mo);
 		if (!pmo)
 			return false;
 
@@ -540,7 +556,7 @@ class TCOTDPlayerHandler : EventHandler
 		TCOTDGutamaticsMatrix worldToClip = TCOTDGutamaticsMatrix.WorldToClip(e.ViewPos, e.ViewAngle, e.ViewPitch, e.ViewRoll, players[consoleplayer].FOV, Screen.GetAspectRatio());
 
 		Actor projActor;
-		ThinkerIterator it = ThinkerIterator.Create("PlayerPawn");
+		ThinkerIterator it = ThinkerIterator.Create("TCOTDPlayer");
 		while ((projActor = Actor(it.Next())) != NULL)
 		{
 			// player can't be found

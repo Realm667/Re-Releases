@@ -184,13 +184,9 @@ class TCOTDPlayer : PlayerPawn
 			if (lp)
 			{
 				if (lp.active)
-				{
 					SpawnLantern();
-				}
 				else
-				{
 					DestroyLantern();
-				}
 			}
 
 			// [Blue Shadow] Reduce poison buildup every 12 seconds.
@@ -431,7 +427,7 @@ class TCOTDPlayer : PlayerPawn
 		// [TCOTD2] coop survival mode
 		// don't allow resurrection if the shared pool of lives have run out
 		// TO DO: make this a virtual (CheckRespawn(), needs GZDoom PR) so that we don't have to copy/paste all of DeathThink just to get here
-		// also add bRespawn to easily enable lives system without a custom PlayerPawn (for universal mods)
+		// also add bRespawn to easily enable lives system without a custom TCOTDPlayer (for universal mods)
 		let campaign = TCOTDCampaign.GetInstance();
 		if (TCOTDGameplayStatics.IsCoop() && tcotd2_survival && campaign.GetSurvivalLives() <= 0 && player.playerstate == PST_DEAD)
 			return;
@@ -729,27 +725,25 @@ class TCOTDPlayer : PlayerPawn
 	void DestroyLantern(void)
 	{
 		if (myLantern)
-		{
 			myLantern.Destroy();
-		}
 	}
 
 	void UpdateLantern(void)
 	{
-		if (!myLantern)
-			return;
+		if (myLantern)
+		{
+			myLantern.Angle = Angle;
 
-		myLantern.Angle = Angle;
-
-		double dist = Radius * 2.;
-		double angOffs = -33.3;
-		double h = player.viewheight;
-		double ang = Angle + angOffs;
-		FLineTraceData t;
-		int flags = TRF_THRUACTORS | TRF_THRUBLOCK | TRF_THRUHITSCAN;
-		LineTrace(ang, dist, 0., flags, h, data: t);
-		//myLantern.SetOrigin((Vec2Offset(cos(ang) * t.Distance, sin(ang) * t.Distance), t.HitLocation.Z) + t.HitDir * (-16.), true);
-		myLantern.SetOrigin(t.HitLocation + t.HitDir * (-16.), true);
+			double dist = Radius * 2.;
+			double angOffs = -33.3;
+			double h = player.viewheight;
+			double ang = Angle + angOffs;
+			FLineTraceData t;
+			int flags = TRF_THRUACTORS | TRF_THRUBLOCK | TRF_THRUHITSCAN;
+			LineTrace(ang, dist, 0., flags, h, data: t);
+			//myLantern.SetOrigin((Vec2Offset(cos(ang) * t.Distance, sin(ang) * t.Distance), t.HitLocation.Z) + t.HitDir * (-16.), true);
+			myLantern.SetOrigin(t.HitLocation + t.HitDir * (-16.), true);
+		}
 	}
 
 	static bool ACS_IsLanternLit(Actor activator)
