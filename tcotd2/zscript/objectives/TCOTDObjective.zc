@@ -97,7 +97,7 @@ class TCOTDObjective : Inventory abstract
 		PlayerPawn pmo = NULL;
 		if (!allPlayers)
 			pmo = PlayerPawn(activator);
-		TCOTDObjective.Complete(clsName, PlayerPawn(activator));
+		TCOTDObjective.Complete(clsName, pmo);
 	}
 
 	static void FailFromACS(Actor activator, String clsName, bool allPlayers = false)
@@ -105,7 +105,7 @@ class TCOTDObjective : Inventory abstract
 		PlayerPawn pmo = NULL;
 		if (!allPlayers)
 			pmo = PlayerPawn(activator);
-		TCOTDObjective.Fail(clsName, PlayerPawn(activator));
+		TCOTDObjective.Fail(clsName, pmo);
 	}
 
 	static void DeleteFromACS(Actor activator, String clsName, bool allPlayers = false)
@@ -113,7 +113,7 @@ class TCOTDObjective : Inventory abstract
 		PlayerPawn pmo = NULL;
 		if (!allPlayers)
 			pmo = PlayerPawn(activator);
-		TCOTDObjective.Delete(clsName, PlayerPawn(activator));
+		TCOTDObjective.Delete(clsName, pmo);
 	}
 
 	//===========================================================================
@@ -190,6 +190,14 @@ class TCOTDObjective : Inventory abstract
 				{
 					let apmo = players[i].mo;
 					let obj = TCOTDObjective(apmo.FindInventory(cls));
+
+					// the player doesn't have the objective, so forcefully add it
+					if (!obj)
+					{
+						apmo.GiveInventory(cls, 1);
+						obj = TCOTDObjective(apmo.FindInventory(cls));
+					}
+
 					if (obj)
 					{
 						if (obj.objectiveState != set)
