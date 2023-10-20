@@ -775,27 +775,25 @@ class TCOTDPlayer : PlayerPawn
 		if (Level.maptime < 35)
 			return;
 
-		if (self == players[consoleplayer].mo)
+		let cam = players[consoleplayer].camera;
+
+		if (!IsActorPlayingSound(CHAN_AMB_OUTSIDE, "playerambient/wind"))
+			A_StartSound("playerambient/wind", CHAN_AMB_OUTSIDE, CHANF_LOOP, volume: SND_VOL_DYNAMIC, attenuation: ATTN_NONE);
+
+		if (!IsActorPlayingSound(CHAN_AMB_INSIDE, "playerambient/darkroom"))
+			A_StartSound("playerambient/darkroom", CHAN_AMB_INSIDE, CHANF_LOOP, volume: SND_VOL_DYNAMIC, attenuation: ATTN_NONE);
+
+		if (cam.ceilingpic == skyflatnum)
+			ambSoundVolOut += 0.05;
+		else
+			ambSoundVolOut -= 0.05;
+
+		ambSoundVolOut = clamp(ambSoundVolOut, 0, 1);
+
+		if (cam.CheckLocalView())
 		{
-			if (!IsActorPlayingSound(CHAN_AMB_OUTSIDE, "playerambient/wind"))
-				A_StartSound("playerambient/wind", CHAN_AMB_OUTSIDE, CHANF_LOOP, volume: SND_VOL_DYNAMIC, attenuation: ATTN_NONE);
-
-			if (!IsActorPlayingSound(CHAN_AMB_INSIDE, "playerambient/darkroom"))
-				A_StartSound("playerambient/darkroom", CHAN_AMB_INSIDE, CHANF_LOOP, volume: SND_VOL_DYNAMIC, attenuation: ATTN_NONE);
-
-			let cam = players[consoleplayer].camera;
-			if (cam)
-			{
-				if (cam.ceilingpic == skyflatnum)
-					ambSoundVolOut += 0.05;
-				else
-					ambSoundVolOut -= 0.05;
-
-				ambSoundVolOut = clamp(ambSoundVolOut, 0, 1);
-
-				A_SoundVolume(CHAN_AMB_OUTSIDE, ambSoundVolOut * 0.17);
-				A_SoundVolume(CHAN_AMB_INSIDE, (1. - ambSoundVolOut) * 0.33);
-			}
+			A_SoundVolume(CHAN_AMB_OUTSIDE, ambSoundVolOut * 0.17);
+			A_SoundVolume(CHAN_AMB_INSIDE, (1. - ambSoundVolOut) * 0.33);
 		}
 	}
 
