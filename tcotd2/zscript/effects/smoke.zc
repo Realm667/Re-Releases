@@ -52,7 +52,7 @@ class DarkSmokeBase : TCOTDParticle
 	{
 		Super.PostBeginPlay();
 
-		int spr = GetSpriteIndex(String.Format("DKS%c", RandomPick(77, 50))); // M or 2
+		int spr = GetSpriteIndex(String.Format("DKS%c", RandomPick[rnd_DarkSmoke](77, 50))); // M or 2
 		if (spr != -1) { sprite = spr; }
 	}
 }
@@ -63,8 +63,8 @@ class DarkSmoke1 : DarkSmokeBase
 	{
 		Super.PostBeginPlay();
 
-		Thrust(1, frandom(0, 22.5));
-		vel.z = frandom(3, 6) / 4;
+		Thrust(1, frandom[rnd_DarkSmoke](0, 22.5));
+		vel.z = frandom[rnd_DarkSmoke](3, 6) / 4;
 	}
 
 }
@@ -80,8 +80,8 @@ class DarkSmoke2 : DarkSmokeBase
 	{
 		Super.PostBeginPlay();
 
-		Thrust(frandom(1, 2), frandom(0, 22.5));
-		vel.z = frandom(5, 9) / 4;
+		Thrust(frandom[rnd_DarkSmoke](1, 2), frandom[rnd_DarkSmoke](0, 22.5));
+		vel.z = frandom[rnd_DarkSmoke](5, 9) / 4;
 	}
 }
 
@@ -96,7 +96,7 @@ class DarkSmoke3 : DarkSmokeBase
 	{
 		Super.PostBeginPlay();
 
-		Thrust(frandom(2, 4), frandom(0, 22.5));
-		vel.z = frandom(9, 15) / 4;
+		Thrust(frandom[rnd_DarkSmoke](2, 4), frandom[rnd_DarkSmoke](0, 22.5));
+		vel.z = frandom[rnd_DarkSmoke](9, 15) / 4;
 	}
 }

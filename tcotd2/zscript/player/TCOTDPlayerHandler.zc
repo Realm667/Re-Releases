@@ -283,7 +283,8 @@ class TCOTDPlayerHandler : EventHandler
 		{
 			let cls = strings[1];
 			let note = TCOTDNote(pmo.FindInventory(cls));
-			if (note)
+			int pnum = e.Args[0];
+			if (note && pmo.PlayerNumber() == pnum)
 			{
 				SetNoteToRead(TCOTDPlayer(pmo), note);
 			}
@@ -392,6 +393,7 @@ class TCOTDPlayerHandler : EventHandler
 			return;
 
 		pmo.noteToRead = note;
+
 		if (pmo == players[consoleplayer].mo)
 		{
 			// open the note reader menu after properly assigning the note to read

@@ -136,7 +136,7 @@ class TCOTDCultistTommy : TCOTDCultist
 	Missile:
 		#### G 17 { A_CultistTommySetAttackCount(); A_FaceTarget(); }
 		#### H 2 Light("CultistLight") A_CultistTommyAttack();
-		#### G random(1, 2);
+		#### G 0 A_SetTics(random[rnd_CultTommyFire](1, 2));
 		#### G 0 { if (A_CultistTommyShouldAbortAttck()) SetStateLabel("See"); }
 		Goto Missile + 1;
 	}
