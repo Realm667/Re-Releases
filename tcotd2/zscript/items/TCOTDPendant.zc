@@ -75,19 +75,25 @@ class TCOTDPendant : Inventory
 			// TO DO: add sounds for the notifications?
 			if (pct <= 30 && warningLevel == 0)
 			{
-				Console.Printf(StringTable.Localize("$PENDANT_WARN1"));
+				if (Owner == players[consoleplayer].mo)
+					Console.Printf(StringTable.Localize("$PENDANT_WARN1"));
+
 				warningLevel = 1;
 			}
 
 			if (pct <= 15 && warningLevel == 1)
 			{
-				Console.Printf(StringTable.Localize("$PENDANT_WARN2"));
+				if (Owner == players[consoleplayer].mo)
+					Console.Printf(StringTable.Localize("$PENDANT_WARN2"));
+
 				warningLevel = 2;
 			}
 
 			if (pct <= 5 && warningLevel == 2)
 			{
-				Console.Printf(StringTable.Localize("$PENDANT_WARN3"));
+				if (Owner == players[consoleplayer].mo)
+					Console.Printf(StringTable.Localize("$PENDANT_WARN3"));
+
 				warningLevel = 3;
 			}
 		}
