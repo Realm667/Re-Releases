@@ -47,9 +47,9 @@ function void TCOTD_RaiseThing(int tid)
 //
 //===========================================================================
 
-function void ReadNote (str noteClassName, int exMarkTID)
+function void ReadNote(str noteClassName, int exMarkTID)
 {
-	ScriptCall("TCOTDNote", "ReadNoteFromACS", noteClassName);
+	ScriptCall("TCOTDNote", "ReadNoteFromACS", noteClassName, PlayerNumber());
 	ScriptCall("TCOTDExMarkNoTouch", "TouchFromACS", exMarkTID);
 }
 

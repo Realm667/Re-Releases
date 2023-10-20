@@ -71,7 +71,7 @@ class TCOTDNote : Inventory abstract
 		}
 	}
 
-	static void ReadNoteFromACS(Actor activator, String noteClassName)
+	static void ReadNoteFromACS(Actor activator, String noteClassName, int pnum)
 	{
 		// every player gets a copy of the note
 		for (int i = 0; i < MAXPLAYERS; i++)
@@ -83,6 +83,6 @@ class TCOTDNote : Inventory abstract
 			}
 		}
 
-		EventHandler.SendNetworkEvent("EV_SetNoteToRead:" .. noteClassName);
+		EventHandler.SendNetworkEvent("EV_SetNoteToRead:" .. noteClassName, pnum);
 	}
 }

@@ -53,7 +53,8 @@ class TCOTDZFJournalHandler : TCOTDZFHandler
 
 		if ((strings[0] ~== "TCOTDZFHandlerCommandTCOTDNote"))
 		{
-			EventHandler.SendNetworkEvent("EV_SetNoteToRead:" .. strings[1]);
+			int pnum = players[consoleplayer].mo.PlayerNumber();
+			EventHandler.SendNetworkEvent("EV_SetNoteToRead:" .. strings[1], pnum);
 		}
 	}
 
