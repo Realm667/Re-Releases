@@ -240,7 +240,9 @@ class TCOTDPlayerHandler : EventHandler
 
 			if (pmo.Health >= 100)
 			{
-				Console.Printf(StringTable.Localize("$NONEEDQUICKHEAL"));
+				if (pmo.player == players[consoleplayer])
+					Console.Printf(StringTable.Localize("$NONEEDQUICKHEAL"));
+
 				return;
 			}
 
@@ -264,14 +266,18 @@ class TCOTDPlayerHandler : EventHandler
 
 			if (!hpu)
 			{
-				Console.Printf(StringTable.Localize("$NOQUICKHEAL"));
+				if (pmo.player == players[consoleplayer])
+					Console.Printf(StringTable.Localize("$NOQUICKHEAL"));
+
 				return;
 			}
 
 			if (hpu && hpu.amount > 0)
 			{
 				pmo.UseInventory(hpu);
-				Console.Printf(String.Format(StringTable.Localize("$USEDQUICKHEALITEM"), hpu.GetTag().MakeLower()));
+
+				if (pmo.player == players[consoleplayer])
+					Console.Printf(String.Format(StringTable.Localize("$USEDQUICKHEALITEM"), hpu.GetTag().MakeLower()));
 			}
 		}
 		//===========================================================================
