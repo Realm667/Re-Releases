@@ -405,8 +405,7 @@ class TCOTDJournalItemReaderMenu : TCOTDZFGenericMenu
 		case MKEY_Back:
 			Close();
 			MenuSound(GetCurrentMenu() != NULL ? "menu/backup" : "menu/clear");
-			// clear "the note to read" reference on the player pawn
-			EventHandler.SendNetworkEvent("EV_ClearNoteToRead");
+			EventHandler.SendInterfaceEvent(pmo.PlayerNumber(), "EV_ClearNoteToRead");
 			return true;
 		case MKEY_Left:
 			if (mPageNumber > 0)

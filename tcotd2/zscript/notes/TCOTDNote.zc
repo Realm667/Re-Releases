@@ -83,6 +83,6 @@ class TCOTDNote : Inventory abstract
 			}
 		}
 
-		EventHandler.SendNetworkEvent("EV_SetNoteToRead:" .. noteClassName, pnum);
+		EventHandler.SendInterfaceEvent(pnum, "EV_SetNoteToRead:" .. noteClassName);
 	}
 }
