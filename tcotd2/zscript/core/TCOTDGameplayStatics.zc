@@ -194,4 +194,67 @@ class TCOTDGameplayStatics play
 		Bindings.GetAllKeysForCommand(mapkeys, cmd);
 		return (mapkeys.Find(KeyScan) != mapkeys.Size());
 	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	const PARTY_DISTANCE = 64.0;
+
+	static bool PartyGathered(void)
+	{
+		bool gathered = true;
+
+		Array<PlayerPawn> allPlayers;
+		allPlayers.Clear();
+
+		// store all online players in the array
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i])
+			{
+				let pmo = players[i].mo;
+				if (pmo)
+				{
+					allPlayers.Push(pmo);
+					//Console.Printf("%s added into allPlayers", pmo.player.GetUserName());
+				}
+			}
+		}
+
+		// check distance between each player
+		// if even one player fails the distance check, consider party not gathered
+		for (int i = 0; i < allPlayers.Size(); i++)
+		{
+			let currentPlayer = allPlayers[i];
+
+			// check the next player, but the last player must check against the first player
+			let otherPlayer = i < (allPlayers.Size() - 1) ? allPlayers[i + 1] : allPlayers[0];
+
+			if (currentPlayer && otherPlayer)
+			{
+				//Console.Printf("%s is checking against %s...", currentPlayer.player.GetUserName(), otherPlayer.player.GetUserName());
+
+				// too far! abort the search
+				if (currentPlayer.Distance3D(otherPlayer) > PARTY_DISTANCE)
+				{
+					//Console.Printf("%s is too far from %s", currentPlayer.player.GetUserName(), otherPlayer.player.GetUserName());
+					gathered = false;
+					break;
+				}
+				else
+				{
+					//Console.Printf("%s is close to %s", currentPlayer.player.GetUserName(), otherPlayer.player.GetUserName());
+					continue;
+				}
+			}
+		}
+
+		if (!gathered)
+			Console.MidPrint(NULL, StringTable.Localize("$COOP_PLAYERS_SCATTERED"));
+
+		return gathered;
+	}
 }
