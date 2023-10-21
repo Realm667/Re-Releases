@@ -1,0 +1,80 @@
+/*
+* TCOTD2 Game Code
+* Copyright (C) 2020 - 2023  Nash Muhandes
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//===========================================================================
+//
+// TCOTDUIHandler
+//
+//===========================================================================
+
+class TCOTDUIHandler : StaticEventHandler
+{
+	ui bool bShouldRefreshJournalCoop;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+
+	override void UITick(void)
+	{
+		let mnu = TCOTDJournalMenu(Menu.GetCurrentMenu());
+		if (mnu && mnu.pmo == players[consoleplayer].mo)
+		{
+			if (ShouldRefreshJournalCoop())
+				SetShouldRefreshJournalCoop(false);
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static ui void SetShouldRefreshJournalCoop(bool set)
+	{
+		let seh = TCOTDUIHandler(TCOTDUIHandler.Find("TCOTDUIHandler"));
+		if (seh)
+			seh.bShouldRefreshJournalCoop = set;
+	}
+
+	static ui bool ShouldRefreshJournalCoop(void)
+	{
+		let seh = TCOTDUIHandler(TCOTDUIHandler.Find("TCOTDUIHandler"));
+		if (seh)
+			return seh.bShouldRefreshJournalCoop;
+
+		return false;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	/*
+	static double CheckLocalView(Actor activator)
+	{
+		return (players[consoleplayer].camera == activator) ? 1. : 0.;
+	}
+	*/
+}

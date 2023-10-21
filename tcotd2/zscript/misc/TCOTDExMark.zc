@@ -63,10 +63,10 @@ class TCOTDExMark : TCOTDSimpleActor
 		{
 			return;
 		}
-		else if (other && other is "PlayerPawn")
+		else if (other && other is "TCOTDPlayer")
 		{
 			// only the player who touched it sees it as inactive
-			let pmo = PlayerPawn(other);
+			let pmo = TCOTDPlayer(other);
 			let p = pmo.player;
 			if (players[consoleplayer] == p)
 			{
@@ -169,7 +169,7 @@ class TCOTDExMarkNoTouch : TCOTDExMark
 					continue;
 
 				// only the script's activator player sees it as inactive
-				let pmo = PlayerPawn(activator);
+				let pmo = TCOTDPlayer(activator);
 				let p = pmo.player;
 				if (players[consoleplayer] == p)
 				{

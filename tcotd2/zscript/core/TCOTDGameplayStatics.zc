@@ -26,8 +26,8 @@ class TCOTDGameplayStatics play
 {
 	static bool IsOnFloor(Actor self)
 	{
-		if (self is "PlayerPawn")
-			return PlayerPawn(self).player.onground;
+		if (self is "TCOTDPlayer")
+			return TCOTDPlayer(self).player.onground;
 		return self.Pos.Z <= self.FloorZ || self.bOnMObj || self.bMBFBouncer;
 	}
 
@@ -36,7 +36,7 @@ class TCOTDGameplayStatics play
 		return !!self.FindInventory("TCOTDPoisonAilment");
 	}
 
-	static bool IsCrouching(PlayerPawn self)
+	static bool IsCrouching(TCOTDPlayer self)
 	{
 		if (!self.player)
 			return false;
@@ -126,7 +126,7 @@ class TCOTDGameplayStatics play
 	}
 	*/
 
-	clearscope static bool IsInCutscene(PlayerPawn pmo)
+	clearscope static bool IsInCutscene(TCOTDPlayer pmo)
 	{
 		if (!pmo)
 		 return false;

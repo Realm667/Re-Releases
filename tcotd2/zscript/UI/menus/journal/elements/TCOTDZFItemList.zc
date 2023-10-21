@@ -50,8 +50,7 @@ class TCOTDZFItemList : TCOTDZFFrame
 	{
 		Super.Ticker();
 
-		let pmo = TCOTDPlayer(mJournalMenu.pmo);
-		if (pmo.shouldRefreshJournalInCoop)
+		if (TCOTDUIHandler.ShouldRefreshJournalCoop())
 			RefreshJournalCoop();
 	}
 

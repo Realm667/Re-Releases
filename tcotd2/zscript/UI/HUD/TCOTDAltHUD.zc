@@ -131,7 +131,7 @@ class TCOTDAltHud : AltHud
 			return;
 
 		// No HUD in the title level, during cutscenes or if the journal is open.
-		if (gamestate == GS_TITLELEVEL || !CPlayer || TCOTDGameplayStatics.IsInCutscene(CPlayer.mo) || TCOTDJournalMenu.IsOpen())
+		if (gamestate == GS_TITLELEVEL || !CPlayer || TCOTDGameplayStatics.IsInCutscene(TCOTDPlayer(CPlayer.mo)) || TCOTDJournalMenu.IsOpen())
 			return;
 
 		int y = DrawAir(CPlayer, 5, hudheight - 70);

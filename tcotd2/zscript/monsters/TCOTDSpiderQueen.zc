@@ -10,8 +10,8 @@
 // currently she's just a reskinned melee-only baron... her room is too cramped to allow projectiles
 class TCOTDSpiderQueen : TCOTDMonster
 {
-	int dcnt;
-	bool seenPlayer;
+	private int dcnt;
+	protected bool seenPlayer;
 
 	Default
 	{
@@ -20,10 +20,11 @@ class TCOTDSpiderQueen : TCOTDMonster
 		Radius 35;
 		Height 80;
 		Mass 1000;
-		Speed 5;
+		Speed 5.75;
 		Scale 1.2;
-		PainChance 31;
-		Monster;
+		PainChance 24;
+		PainChance "Stab", 24 / 3;
+		PainThreshold 13;
 		BloodColor "9d71d2";
 		SeeSound "spiderqueen/sight";
 		ActiveSound "spiderqueen/active";
@@ -33,6 +34,7 @@ class TCOTDSpiderQueen : TCOTDMonster
 		Tag "$FN_QUEEN";
 		DropItem "TCOTDHealthPickupHeart", HEARTDROPCHANCE, 10;
 		+BOSS
+		+CASTSPRITESHADOW
 	}
 
 	private State A_QueenDeath(void)
@@ -111,13 +113,13 @@ class TCOTDSpiderQueen : TCOTDMonster
 		QUIN D 1 A_Chase2();
 		Loop;
 	Melee:
-		QUIN E 8 A_StartSound("spiderqueen/attack", CHAN_VOICE);
+		QUIN E 6 A_StartSound("spiderqueen/attack", CHAN_VOICE);
 		QUIN F 4 A_FaceTarget();
-		QUIN G 4 { A_FaceTarget(); A_StartSound("beast/slash", CHAN_AUTO); }
-		QUIN H 6 { A_FaceTarget(); A_MonsterMeleeAttack(32, hitSound: "vulgar/hit", damageType: 'Poison'); }
+		QUIN G 2 { A_FaceTarget(); A_StartSound("beast/slash", CHAN_AUTO); }
+		QUIN H 5 A_MonsterMeleeAttack(25, 112, "vulgar/hit", damageType: 'Poison');
 		Goto See;
 	Pain:
-		QUIN L 10;
+		QUIN L 5;
 		QUIN L 10 A_Pain();
 		Goto See;
 	Death:

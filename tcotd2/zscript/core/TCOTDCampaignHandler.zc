@@ -131,14 +131,14 @@ extend class TCOTDCampaignHandler
 
 		if (TCOTDGameplayStatics.IsCoop() && tcotd2_survival)
 		{
-			Array<PlayerPawn> allPlayers;
+			Array<TCOTDPlayer> allPlayers;
 			allPlayers.Clear();
 
 			for (int i = 0; i < MAXPLAYERS; i++)
 			{
 				if (playeringame[i])
 				{
-					allPlayers.Push(PlayerPawn(players[i].mo));
+					allPlayers.Push(TCOTDPlayer(players[i].mo));
 				}
 			}
 
@@ -181,7 +181,7 @@ extend class TCOTDCampaignHandler
 					{
 						if (playeringame[i])
 						{
-							let pmo = PlayerPawn(players[i].mo);
+							let pmo = TCOTDPlayer(players[i].mo);
 							if (pmo)
 							{
 								pmo.ClearInventory();
@@ -204,7 +204,7 @@ extend class TCOTDCampaignHandler
 	//
 	//===========================================================================
 
-	static void UpdateCheckpoint(TCOTDCoopCheckpoint cp, PlayerPawn pmo)
+	static void UpdateCheckpoint(TCOTDCoopCheckpoint cp, TCOTDPlayer pmo)
 	{
 		if (!cp || !pmo)
 			return;

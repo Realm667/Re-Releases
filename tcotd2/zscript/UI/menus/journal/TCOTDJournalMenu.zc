@@ -34,7 +34,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	const TXT_SCALE = 1.5;
 
 	TCOTDZFJournalHandler handler;
-	PlayerPawn pmo;
+	TCOTDPlayer pmo;
 
 	TCOTDZFImage mainBackground;
 	TCOTDZFItemList objectivesFrame;
@@ -57,7 +57,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 
 		SetBaseResolution((RES_WIDTH, RES_HEIGHT));
 
-		pmo = players[consoleplayer].mo;
+		pmo = TCOTDPlayer(players[consoleplayer].mo);
 		if (!pmo)
 		{
 			ThrowAbortException("Tried to open TCOTDJournalMenu with an invalid player");
@@ -160,13 +160,19 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	{
 		Super.Ticker();
 
-		if (TCOTDPlayer(pmo) && TCOTDPlayer(pmo).shouldRefreshJournalInCoop)
-			TCOTDPlayer(pmo).shouldRefreshJournalInCoop = false;
-
 		if (pmo.player.playerstate == PST_DEAD || pmo.CountInv("CutsceneEnabled"))
 		{
 			Close();
 			return;
+		}
+	}
+
+	override void OnReturn(void)
+	{
+		if (TCOTDGameplayStatics.IsCoop())
+		{
+			objectivesFrame.RefreshJournalCoop();
+			notesFrame.RefreshJournalCoop();
 		}
 	}
 
