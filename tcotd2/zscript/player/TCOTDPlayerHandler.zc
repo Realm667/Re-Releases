@@ -428,6 +428,9 @@ class TCOTDPlayerHandler : EventHandler
 	{
 		if (!TCOTDGameplayStatics.IsCoop() || (TCOTDGameplayStatics.IsCoop() && !tcotd2_survival))
 		{
+			if (e.Camera != players[consoleplayer].mo)
+				return;
+
 			Color col = Color(0, 0, 0);
 			Screen.Dim(col, deathAlpha, 0, 0, Screen.GetWidth(), Screen.GetHeight());
 			String txt = StringTable.Localize("$TXT_YOU_DIED");

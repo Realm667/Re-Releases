@@ -448,6 +448,35 @@ class TCOTDPlayer : PlayerPawn
 		}
 	}
 
+	override bool OnGiveSecret(bool printmsg, bool playsound)
+	{
+		String finder = player.GetUserName();
+
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i])
+			{
+				let pmo = TCOTDPlayer(players[i].mo);
+				if (pmo)
+				{
+					if (self == pmo)
+						continue;
+
+					if (players[consoleplayer].mo == pmo)
+					{
+						if (printmsg)
+							Console.MidPrint(NULL, String.Format(StringTable.Localize("$COOPSECRETMESSAGE"), finder.Filter()));
+
+						if (playsound)
+							pmo.A_StartSound("misc/secret", CHAN_AUTO, CHANF_UI, attenuation: ATTN_NORM);
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
 	override void CheatGive (String name, int amount)
 	{
 		if (player.mo == null || player.health <= 0)
