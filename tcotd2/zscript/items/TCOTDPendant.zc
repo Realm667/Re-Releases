@@ -117,23 +117,30 @@ class TCOTDPendant : Inventory
 	//
 	//===========================================================================
 
-	static void IncreaseNightmarePassed(Actor activator)
+	static void IncreaseNightmarePassed(void)
 	{
-		if (activator && activator.player)
+		for (int i = 0; i < MAXPLAYERS; i++)
 		{
-			let pendant = TCOTDPendant(activator.FindInventory("TCOTDPendant"));
-			if (pendant)
+			if (playeringame[i])
 			{
-				pendant.nightmaresPassed++;
-				//Console.Printf("Player %d passed %d nightmares", TCOTDPlayer(activator).PlayerNumber(), pendant.nightmaresPassed);
-
-				// break the pendant!
-				int limit = 3 - skill;
-				if (pendant.nightmaresPassed >= limit)
+				let pmo = players[i].mo;
+				if (pmo)
 				{
-					activator.ACS_ScriptCall("NightmarePendantBrokenPrintMsg", 0);
-					activator.TakeInventory("TCOTDPendant", int.max);
-					activator.A_StartSound("pendant/shatter", CHAN_AUTO);
+					let pendant = TCOTDPendant(pmo.FindInventory("TCOTDPendant"));
+					if (pendant)
+					{
+						pendant.nightmaresPassed++;
+						Console.Printf("Player %d passed %d nightmares", TCOTDPlayer(pmo).PlayerNumber(), pendant.nightmaresPassed);
+
+						// break the pendant!
+						int limit = (3 - skill);
+						if (pendant.nightmaresPassed >= limit)
+						{
+							pmo.ACS_ScriptCall("NightmarePendantBrokenPrintMsg", 0);
+							pmo.TakeInventory("TCOTDPendant", int.max);
+							pmo.A_StartSound("pendant/shatter", CHAN_AUTO);
+						}
+					}
 				}
 			}
 		}
