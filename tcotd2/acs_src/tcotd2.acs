@@ -52,7 +52,7 @@ function void TCOTD_RaiseThing(int tid)
 
 function void TCOTD_MovePlayersToActivator(void)
 {
-	if (!GameType() == GAME_NET_COOPERATIVE)
+	if (GameType() != GAME_NET_COOPERATIVE)
 		return;
 
 	int atid = ActivatorTID();
