@@ -21,6 +21,7 @@ class TCOTDWeaponMelee : TCOTDWeapon
 		+WEAPON.NOALERT
 		+WEAPON.NOAUTOFIRE
 		+THRUGHOST
+		+Inventory.UNDROPPABLE
 	}
 
 	//===========================================================================
@@ -347,8 +348,9 @@ class TCOTDPitchforkPickup : Inventory replaces Chainsaw
 		Inventory.PickupMessage "$IP_FORK";
 		Inventory.PickupSound "items/pickup";
 		Inventory.MaxAmount 1;
-		-Inventory.INVBAR
 		+FORCEXYBILLBOARD
+		+Inventory.UNTOSSABLE
+		-Inventory.INVBAR
 	}
 
 	States
