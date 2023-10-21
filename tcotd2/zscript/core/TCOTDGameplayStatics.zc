@@ -78,7 +78,7 @@ class TCOTDGameplayStatics play
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].mo && !players[i].mo.CountInv(cls))
-				players[i].mo.GiveInventory(cls, 1);
+				players[i].mo.A_GiveInventory(cls, 1);
 		}
 	}
 
@@ -91,7 +91,7 @@ class TCOTDGameplayStatics play
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].mo && players[i].mo.CountInv(cls))
-				players[i].mo.TakeInventory(cls, int.max);
+				players[i].mo.A_TakeInventory(cls, int.max);
 		}
 	}
 

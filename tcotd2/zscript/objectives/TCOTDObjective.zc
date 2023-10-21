@@ -114,7 +114,7 @@ class TCOTDObjective : Inventory abstract
 	{
 		class<TCOTDObjective> cls = clsName;
 		if (!cls)
-			return;
+			ThrowAbortException("%s couldn't be found!");
 
 		let pmo = TCOTDPlayer(activator);
 		if (!pmo)
@@ -127,22 +127,23 @@ class TCOTDObjective : Inventory abstract
 				if (playeringame[i])
 				{
 					let apmo = players[i].mo;
-					apmo.GiveInventory(cls, 1);
+					apmo.A_GiveInventory(cls, 1);
 				}
 			}
 		}
 		else
 		{
-			pmo.GiveInventory(cls, 1);
+			pmo.A_GiveInventory(cls, 1);
 		}
 
 		EventHandler.SendInterfaceEvent(consoleplayer, "EV_RefreshJournalCoop");
 	}
 
-	static void Delete(class<TCOTDObjective> cls, Actor activator, bool allPlayers)
+	static void Delete(String clsName, Actor activator, bool allPlayers)
 	{
+		class<TCOTDObjective> cls = clsName;
 		if (!cls)
-			return;
+			ThrowAbortException("%s couldn't be found!");
 
 		let pmo = TCOTDPlayer(activator);
 		if (!pmo)
@@ -173,10 +174,32 @@ class TCOTDObjective : Inventory abstract
 	//
 	//===========================================================================
 
-	private static void SetCompletion(class<TCOTDObjective> cls, uint set, Actor activator, bool allPlayers)
+	static void Complete(String clsName, Actor activator, bool allPlayers)
 	{
+		SetCompletion(clsName, TCOTDObjective.OBJECTIVE_COMPLETE, activator, allPlayers);
+	}
+
+	static void Incomplete(String clsName, Actor activator, bool allPlayers)
+	{
+		SetCompletion(clsName, TCOTDObjective.OBJECTIVE_INCOMPLETE, activator, allPlayers);
+	}
+
+	static void Fail(String clsName, Actor activator, bool allPlayers)
+	{
+		SetCompletion(clsName, TCOTDObjective.OBJECTIVE_FAIL, activator, allPlayers);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	private static void SetCompletion(String clsName, uint set, Actor activator, bool allPlayers)
+	{
+		class<TCOTDObjective> cls = clsName;
 		if (!cls)
-			return;
+			ThrowAbortException("%s couldn't be found!");
 
 		let pmo = TCOTDPlayer(activator);
 		if (!pmo)
@@ -194,17 +217,14 @@ class TCOTDObjective : Inventory abstract
 					// the player doesn't have the objective, so forcefully add it
 					if (!obj)
 					{
-						apmo.GiveInventory(cls, 1);
+						apmo.A_GiveInventory(cls, 1);
 						obj = TCOTDObjective(apmo.FindInventory(cls));
 					}
 
-					if (obj)
+					if (obj.objectiveState != set)
 					{
-						if (obj.objectiveState != set)
-						{
-							obj.objectiveState = set;
-							obj.NotifyCompletion(set);
-						}
+						obj.objectiveState = set;
+						obj.NotifyCompletion(set);
 					}
 				}
 			}
@@ -223,30 +243,6 @@ class TCOTDObjective : Inventory abstract
 		}
 
 		EventHandler.SendInterfaceEvent(consoleplayer, "EV_RefreshJournalCoop");
-	}
-
-	static void Complete(class<TCOTDObjective> cls, Actor activator, bool allPlayers)
-	{
-		if (!cls)
-			return;
-
-		SetCompletion(cls, TCOTDObjective.OBJECTIVE_COMPLETE, activator, allPlayers);
-	}
-
-	static void Incomplete(class<TCOTDObjective> cls, Actor activator, bool allPlayers)
-	{
-		if (!cls)
-			return;
-
-		SetCompletion(cls, TCOTDObjective.OBJECTIVE_INCOMPLETE, activator, allPlayers);
-	}
-
-	static void Fail(class<TCOTDObjective> cls, Actor activator, bool allPlayers)
-	{
-		if (!cls)
-			return;
-
-		SetCompletion(cls, TCOTDObjective.OBJECTIVE_FAIL, activator, allPlayers);
 	}
 
 	//===========================================================================
