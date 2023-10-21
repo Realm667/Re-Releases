@@ -1,7 +1,5 @@
 class TCOTDLanternPickup : CustomInventory
 {
-	mixin TCOTDCoopItemMixin;
-
 	bool active;
 
 	//===========================================================================
@@ -64,6 +62,37 @@ class TCOTDLanternPickup : CustomInventory
 		// [Nash] I'm not sure if it's a good idea to let the lantern get affected by level freeze?
 		if (!bNoTimeFreeze && isFrozen())
 			return;
+	}
+
+	override bool TryPickup(in out Actor toucher)
+	{
+		if (Super.TryPickup(toucher))
+		{
+			TCOTDGameplayStatics.GiveItemToAllPlayers(self.GetClass());
+			return true;
+		}
+
+		return false;
+	}
+
+	override bool ShouldStay(void)
+	{
+		if (TCOTDGameplayStatics.IsCoop())
+		{
+			return false;
+		}
+
+		return Super.ShouldStay();
+	}
+
+	override bool ShouldRespawn(void)
+	{
+		if (TCOTDGameplayStatics.IsCoop())
+		{
+			return false;
+		}
+
+		return Super.ShouldRespawn();
 	}
 
 	//===========================================================================
