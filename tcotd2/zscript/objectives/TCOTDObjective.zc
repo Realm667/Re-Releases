@@ -116,10 +116,6 @@ class TCOTDObjective : Inventory abstract
 		if (!cls)
 			ThrowAbortException("%s couldn't be found!");
 
-		let pmo = TCOTDPlayer(activator);
-		if (!pmo)
-			return;
-
 		if (allPlayers)
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
@@ -133,7 +129,9 @@ class TCOTDObjective : Inventory abstract
 		}
 		else
 		{
-			pmo.A_GiveInventory(cls, 1);
+			let pmo = TCOTDPlayer(activator);
+			if (pmo)
+				pmo.A_GiveInventory(cls, 1);
 		}
 
 		EventHandler.SendInterfaceEvent(consoleplayer, "EV_RefreshJournalCoop");
@@ -145,10 +143,6 @@ class TCOTDObjective : Inventory abstract
 		if (!cls)
 			ThrowAbortException("%s couldn't be found!");
 
-		let pmo = TCOTDPlayer(activator);
-		if (!pmo)
-			return;
-
 		if (allPlayers)
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
@@ -156,13 +150,15 @@ class TCOTDObjective : Inventory abstract
 				if (playeringame[i])
 				{
 					let apmo = players[i].mo;
-					apmo.TakeInventory(cls, int.max);
+					apmo.A_TakeInventory(cls, int.max);
 				}
 			}
 		}
 		else
 		{
-			pmo.TakeInventory(cls, int.max);
+			let pmo = TCOTDPlayer(activator);
+			if (pmo)
+				pmo.A_TakeInventory(cls, int.max);
 		}
 
 		EventHandler.SendInterfaceEvent(consoleplayer, "EV_RefreshJournalCoop");
@@ -201,10 +197,6 @@ class TCOTDObjective : Inventory abstract
 		if (!cls)
 			ThrowAbortException("%s couldn't be found!");
 
-		let pmo = TCOTDPlayer(activator);
-		if (!pmo)
-			return;
-
 		if (allPlayers)
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
@@ -231,13 +223,18 @@ class TCOTDObjective : Inventory abstract
 		}
 		else
 		{
-			let obj = TCOTDObjective(pmo.FindInventory(cls));
-			if (obj)
+
+			let pmo = TCOTDPlayer(activator);
+			if (pmo)
 			{
-				if (obj.objectiveState != set)
+				let obj = TCOTDObjective(pmo.FindInventory(cls));
+				if (obj)
 				{
-					obj.objectiveState = set;
-					obj.NotifyCompletion(set);
+					if (obj.objectiveState != set)
+					{
+						obj.objectiveState = set;
+						obj.NotifyCompletion(set);
+					}
 				}
 			}
 		}
