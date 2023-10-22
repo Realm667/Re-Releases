@@ -206,10 +206,10 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 			switchedSides = true;
 			break;
 		case MKEY_PageUp:
-			ScrollUp();
+			ScrollUp(true);
 			break;
 		case MKEY_PageDown:
-			ScrollDown();
+			ScrollDown(true);
 			break;
 		case MKEY_Back:
 			break;
@@ -266,9 +266,15 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		}
 
 		if (ev.Type == UIEvent.Type_WheelUp)
-			return MenuEvent(MKEY_PageUp, false);
+		{
+			ScrollUp();
+			return Super.OnUIEvent(ev);
+		}
 		else if (ev.Type == UIEvent.Type_WheelDown)
-			return MenuEvent(MKEY_PageDown, false);
+		{
+			ScrollDown();
+			return Super.OnUIEvent(ev);
+		}
 
 		return Super.OnUIEvent(ev);
 	}
@@ -319,11 +325,13 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	void SelectUp(void)
 	{
 		ChangeSelection(-1);
+		ScrollUp();
 	}
 
 	void SelectDown(void)
 	{
 		ChangeSelection(1);
+		ScrollDown();
 	}
 
 	//===========================================================================
@@ -332,7 +340,7 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 	//
 	//===========================================================================
 
-	void ScrollUp(void)
+	void ScrollUp(bool fromButton = false)
 	{
 		if (mCurrentlyFocused.currentScrollPos == 0)
 			return;
@@ -344,11 +352,16 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 			mCurrentlyFocused.mClickableItems[i].mShadow.box.pos.Y += SmallFont.GetHeight() * TXT_SCALE;
 		}
 
-
 		mCurrentlyFocused.currentScrollPos++;
+
+		if (fromButton)
+		{
+			mCurrentlyFocused.mSelected--;
+			mCurrentlyFocused.UpdateHighlighted();
+		}
 	}
 
-	void ScrollDown(void)
+	void ScrollDown(bool fromButton = false)
 	{
 		int lc = 0;
 		for (int i = 0; i < mCurrentlyFocused.mClickableItems.Size(); i++)
@@ -366,6 +379,12 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		}
 
 		mCurrentlyFocused.currentScrollPos--;
+
+		if (fromButton)
+		{
+			mCurrentlyFocused.mSelected++;
+			mCurrentlyFocused.UpdateHighlighted();
+		}
 	}
 
 	//===========================================================================
