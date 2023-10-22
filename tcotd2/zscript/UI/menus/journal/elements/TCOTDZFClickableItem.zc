@@ -105,4 +105,17 @@ class TCOTDZFClickableItem : TCOTDZFLabel
 		btn.Pack(master);
 		mButton = btn;
 	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	int GetLineCount(void)
+	{
+		int fntHeight = fnt.GetHeight();
+		BrokenLines textLines = fnt.BreakLines(text, int(box.size.X / textScale));
+		return textLines.Count();
+	}
 }
