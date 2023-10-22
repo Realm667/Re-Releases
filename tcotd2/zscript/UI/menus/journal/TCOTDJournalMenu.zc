@@ -471,6 +471,10 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		{
 			lc += 1 * (mCurrentlyFocused.mClickableItems[i].GetLineCount());
 		}
+
+		if (lc < GetMaxShowableLines())
+			return;
+
 		if (abs(mCurrentlyFocused.currentScrollPos) >= abs(lc - GetMaxShowableLines()))
 			return;
 
