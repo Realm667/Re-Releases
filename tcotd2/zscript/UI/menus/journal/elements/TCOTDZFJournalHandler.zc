@@ -39,6 +39,28 @@ class TCOTDZFJournalHandler : TCOTDZFHandler
 
 		//Console.Printf(command);
 
+		// Parse scrolling button commands
+		if (command ~== "TCOTDZFHandlerCommandScrollUpObjectives")
+		{
+			menu.mCurrentlyFocused = menu.objectivesFrame;
+			menu.ScrollUp();
+		}
+		else if (command ~== "TCOTDZFHandlerCommandScrollDownObjectives")
+		{
+			menu.mCurrentlyFocused = menu.objectivesFrame;
+			menu.ScrollDown();
+		}
+		else if (command ~== "TCOTDZFHandlerCommandScrollUpNotes")
+		{
+			menu.mCurrentlyFocused = menu.notesFrame;
+			menu.ScrollUp();
+		}
+		else if (command ~== "TCOTDZFHandlerCommandScrollDownNotes")
+		{
+			menu.mCurrentlyFocused = menu.notesFrame;
+			menu.ScrollDown();
+		}
+
 		// Parse the command
 		Array<String> strings;
 		strings.Clear();

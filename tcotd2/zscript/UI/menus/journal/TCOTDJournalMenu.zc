@@ -145,6 +145,109 @@ class TCOTDJournalMenu : TCOTDZFGenericMenu
 		);
 		notesHeader.Pack(mainFrame);
 
+		//===========================================================================
+		//
+		// scroll up/down arrows
+		//
+		//===========================================================================
+
+		let arrowSizeX = 29;
+		let arrowSizeY = 34;
+
+		let scrollUpImageObjectives = TCOTDZFImage.Create
+		(
+			((objectivesFrame.box.pos.X + objectivesFrame.box.size.X / 2) - (arrowSizeX / 2) - arrowSizeX, objectivesFrame.box.size.Y + (arrowSizeY * 2.125)),
+			(arrowSizeX, arrowSizeY),
+			"graphics/journal/journal_ScrollUp.png"
+		);
+		scrollUpImageObjectives.Pack(mainFrame);
+
+		let scrollDownImageObjectives = TCOTDZFImage.Create
+		(
+			((objectivesFrame.box.pos.X + objectivesFrame.box.size.X / 2) - (arrowSizeX / 2) + arrowSizeX, objectivesFrame.box.size.Y + (arrowSizeY * 2.125)),
+			(arrowSizeX, arrowSizeY),
+			"graphics/journal/journal_ScrollDown.png"
+		);
+		scrollDownImageObjectives.Pack(mainFrame);
+
+		let scrollUpImageNotes = TCOTDZFImage.Create
+		(
+			((notesFrame.box.pos.X + notesFrame.box.size.X / 2) - (arrowSizeX / 2) - arrowSizeX, notesFrame.box.size.Y + (arrowSizeY * 2.125)),
+			(arrowSizeX, arrowSizeY),
+			"graphics/journal/journal_ScrollUp.png"
+		);
+		scrollUpImageNotes.Pack(mainFrame);
+
+		let scrollDownImageNotes = TCOTDZFImage.Create
+		(
+			((notesFrame.box.pos.X + notesFrame.box.size.X / 2) - (arrowSizeX / 2) + arrowSizeX, notesFrame.box.size.Y + (arrowSizeY * 2.125)),
+			(arrowSizeX, arrowSizeY),
+			"graphics/journal/journal_ScrollDown.png"
+		);
+		scrollDownImageNotes.Pack(mainFrame);
+
+		// make invisible clickable buttons for the scrolling
+		let bt = TCOTDZFBoxTextures.CreateSingleTexture("TNT1A0", false);
+		TCOTDZFItemListButton btn = NULL;
+
+		btn = TCOTDZFItemListButton.Create
+		(
+			scrollUpImageObjectives.box.pos,
+			scrollUpImageObjectives.box.size,
+			cmdHandler: handler,
+			command: "TCOTDZFHandlerCommandScrollUpObjectives",
+			bt,
+			bt,
+			bt,
+			bt
+		);
+		btn.Pack(mainFrame);
+
+		btn = TCOTDZFItemListButton.Create
+		(
+			scrollDownImageObjectives.box.pos,
+			scrollDownImageObjectives.box.size,
+			cmdHandler: handler,
+			command: "TCOTDZFHandlerCommandScrollDownObjectives",
+			bt,
+			bt,
+			bt,
+			bt
+		);
+		btn.Pack(mainFrame);
+
+		btn = TCOTDZFItemListButton.Create
+		(
+			scrollUpImageNotes.box.pos,
+			scrollUpImageNotes.box.size,
+			cmdHandler: handler,
+			command: "TCOTDZFHandlerCommandScrollUpNotes",
+			bt,
+			bt,
+			bt,
+			bt
+		);
+		btn.Pack(mainFrame);
+
+		btn = TCOTDZFItemListButton.Create
+		(
+			scrollDownImageNotes.box.pos,
+			scrollDownImageNotes.box.size,
+			cmdHandler: handler,
+			command: "TCOTDZFHandlerCommandScrollDownNotes",
+			bt,
+			bt,
+			bt,
+			bt
+		);
+		btn.Pack(mainFrame);
+
+		//===========================================================================
+		//
+		//
+		//
+		//===========================================================================
+
 		// Default focus is on the notes, as it's the only one now that is actually activatable
 		mCurrentlyFocused = notesFrame;
 		mCurrentlyFocused.UpdateHighlighted();
