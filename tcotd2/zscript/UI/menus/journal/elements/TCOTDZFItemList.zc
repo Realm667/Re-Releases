@@ -40,6 +40,9 @@ class TCOTDZFItemList : TCOTDZFFrame
 	// The currently selected item
 	int mSelected;
 
+	// Scrolling position
+	int currentScrollPos;
+
 	//===========================================================================
 	//
 	//
@@ -224,8 +227,7 @@ class TCOTDZFItemList : TCOTDZFFrame
 					newItemShadow.Pack(self);
 					newItem.Pack(self);
 
-					BrokenLines textLines = SmallFont.BreakLines(newItem.text, int(newItem.box.size.X / newItem.textScale));
-					int prevLineCount = textLines.Count();
+					int prevLineCount =  newItem.GetLineCount();
 					nextY += (SmallFont.GetHeight() * newItem.textScale * prevLineCount);
 
 					newItem.MakeButton(mJournalMenu.handler, prevLineCount, mFilterClassName, mItems[i].GetClassName());
