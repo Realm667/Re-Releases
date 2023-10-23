@@ -16,18 +16,12 @@ ListMenu "MainMenu"
 	{
 		Font "BigFont" 
 
-		// PatchItem "M_NGAME",	"N", "PlayerclassMenu"
 		Textitem "$M_NGAME", "N", "PlayerclassMenu"
-		// PatchItem "M_LOADG",	"L", "LoadGameMenu"
-		TextItem "$M_LOADG",	"L", "LoadGameMenu"
-		// PatchItem "M_SAVEG",	"S", "SaveGameMenu"
-		TextItem "$M_SAVEG",	"S", "SaveGameMenu"
-		// PatchItem "M_OPTION",	"O", "OptionsMenu"
-		TextItem "$M_OPTION",	"O", "OptionsMenu"
-		// PatchItem "M_TCOTD2",	"E", "TCOTD2Menu"
-		TextItem "$M_TCOTD2",	"E", "TCOTD2Menu"
-		// PatchItem "M_QUITG",	"Q", "QuitMenu"
-		TextItem "$M_QUITG",	"Q", "QuitMenu"
+		TextItem "$M_LOADG", "L", "LoadGameMenu"
+		TextItem "$M_SAVEG", "S", "SaveGameMenu"
+		TextItem "$M_OPTION", "O", "OptionsMenu"
+		TextItem "$M_TCOTD2", "E", "TCOTD2Menu"
+		TextItem "$M_QUITG", "Q", "QuitMenu"
 	}
 }
 
@@ -36,7 +30,6 @@ ListMenu "SkillMenu"
 	// let's force it - ozy81
 	IfGame(Doom, Chex)
 	{
-		// StaticPatch 96, 14, "M_NGAME", 0, "$MNU_NEWGAME"
 		StaticText 96, 14, "$M_NGAME", "TCOTDDarkGrey"
 		LineSpacing 16
 		Position 97, 72
@@ -94,7 +87,7 @@ OptionString "LanguageOptions"
 	/* "fi", "Suomi (Finnish)" */
 	/* "fr", "Français (French)" */
 	/* "hu", "Magyar (Hungarian)" */
-	/* "it", "Italiano (Italian)" */
+	"it", "Italiano (Italian)"
 	/* "jp", "日本語 (Japanese)" */
 	/* "ko", "한국어 (Korean)" */
 	/* "nl", "Nederlands (Dutch)" */
@@ -112,4 +105,11 @@ OptionValue "QuickHealPrefs"
 {
 	0, "$OPTVAL_QUICKHEALSMALL"
 	1, "$OPTVAL_QUICKHEALBIG"
+}
+
+OptionValue PreferBackend //override normal options to avoid unforeseen consequences
+{
+	0, "$OPTVAL_OPENGL"
+	1, "$OPTVAL_VULKAN"
+	//2, "$OPTVAL_SOFTPOLY" // Remove the SoftPoly option, since it will not work well
 }
