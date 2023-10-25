@@ -71,6 +71,12 @@ class TCOTDFogCloud : TCOTDSimpleActor
 
 		Super.Tick();
 
+		if (vid_preferbackend == 2)
+		{
+			bInvisible = true;
+			return;
+		}
+
 		if (!bNoTimeFreeze && isFrozen())
 			return;
 
