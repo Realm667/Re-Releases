@@ -71,7 +71,7 @@ class TCOTDFogCloud : TCOTDSimpleActor
 
 		Super.Tick();
 
-		if (vid_preferbackend == 2)
+		if (CVar.GetCVar("vid_preferbackend", players[consoleplayer]).GetInt() == 2)
 		{
 			bInvisible = true;
 			return;
