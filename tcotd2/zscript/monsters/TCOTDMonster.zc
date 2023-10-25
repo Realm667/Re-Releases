@@ -10,6 +10,9 @@ class TCOTDMonster : Actor abstract
 	// being brought back from the dead via Thing_Raise is treated as reviving itself).
 	bool user_ReviveSelfOnly;
 
+	private int monflags;
+	flagdef InflictBlindness: monflags, 0;
+
 	Default
 	{
 		//$Category New Monsters (TCOTD2)
@@ -81,7 +84,7 @@ class TCOTDMonster : Actor abstract
 	//
 	//===========================================================================
 
-	protected void A_MonsterMeleeAttack(double baseDamage, double range = 0, Sound hitSound = "", Sound missSound = "", Name damageType = 'None')
+	protected void A_MonsterMeleeAttack(double baseDamage, double range = 0, Sound hitSound = "", Sound missSound = "", Name damageType = 'None', bool bleed = true)
 	{
 		if (target == nullptr)
 		{
@@ -104,7 +107,7 @@ class TCOTDMonster : Actor abstract
 
 			int damage = TCOTDGameplayStatics.GetAttackDamage(baseDamage);
 			int newdam = target.DamageMobj(self, self, damage, damageType == 'None' ? 'Melee' : damageType);
-			target.TraceBleed(newdam > 0 ? newdam : damage, self);
+			if (bleed) target.TraceBleed(newdam > 0 ? newdam : damage, self);
 		}
 		else if (missSound)
 		{
