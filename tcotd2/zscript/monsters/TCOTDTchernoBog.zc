@@ -43,9 +43,16 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 	protected void A_ThamuzCircle(bool playsnd = true)
 	{
 		A_FaceTarget();
-		A_SetInvulnerable();
+		bNoPain = true;
+		DamageFactor = 0.33335;
 		if (playsnd) A_StartSound("thamuzdoom/circle");
 		A_SpawnItemEx("ThamuzCircle", zofs: 0.1);
+	}
+
+	protected void A_ThamuzSpellEnd(void)
+	{
+		bNoPain = false;
+		DamageFactor = 1.0;
 	}
 
 	protected void A_ThamuzSpawnTentacles(void)
@@ -56,7 +63,7 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 		A_SpawnItemEx("ThamuzTentacle", -64, -64, flags: SXF_SETMASTER);
 	}
 
-	protected void A_ThamuzInvulSpellFlames(void)
+	protected void A_ThamuzFlamesSpellFlames(void)
 	{
 		for (int i = 0; i < 360; i += 20)
 		{
@@ -64,7 +71,7 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 		}
 	}
 
-	protected void A_ThamuzInvulSpellAOE(void)
+	protected void A_ThamuzFlamesSpellAOE(void)
 	{
 		A_Explode(TCOTDGameplayStatics.GetAttackDamage(15), 96, XF_NOTMISSILE | XF_THRUSTLESS, fulldamagedistance: 96);
 	}
@@ -105,19 +112,19 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 		TCHR DD 1 A_Chase2();
 		Loop;
 	Missile:
-		TCHR A 0 A_Jump(160, "Missile.InvulSpell");
+		TCHR A 0 A_Jump(160, "Missile.FlamesSpell");
 	Missile.SummonTentacles:
 		TCHR G 20 A_ThamuzCircle(false);
 		TCHR H 15 A_ThamuzSpawnTentacles();
-		TCHR G 10 A_UnSetInvulnerable();
+		TCHR G 10 A_ThamuzSpellEnd();
 		Goto See;
-	Missile.InvulSpell:
+	Missile.FlamesSpell:
 		TCHR A 0 A_Jump(160, "Missile.Fireballs");
 		TCHR G 20 A_ThamuzCircle();
-		TCHR G 14 { A_ThamuzInvulSpellFlames(); A_ThamuzInvulSpellAOE(); }
-		TCHR G 14 A_ThamuzInvulSpellAOE();
-		TCHR G 62 A_ThamuzInvulSpellAOE();
-		TCHR G 10 A_UnSetInvulnerable();
+		TCHR G 14 { A_ThamuzFlamesSpellFlames(); A_ThamuzFlamesSpellAOE(); }
+		TCHR G 14 A_ThamuzFlamesSpellAOE();
+		TCHR G 62 A_ThamuzFlamesSpellAOE();
+		TCHR G 10 A_ThamuzSpellEnd();
 		Goto See;
 	Missile.Fireballs:
 		TCHR GG 3 A_FaceTarget();
