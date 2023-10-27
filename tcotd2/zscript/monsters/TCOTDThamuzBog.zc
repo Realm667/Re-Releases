@@ -78,6 +78,11 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 		}
 	}
 
+	protected void A_ThamuzInvulSpellAOE(void)
+	{
+		A_Explode(TCOTDGameplayStatics.GetAttackDamage(15), 96, XF_NOTMISSILE | XF_THRUSTLESS, fulldamagedistance: 96);
+	}
+
 	protected void A_ThamuzBouncingFireballAtk(void)
 	{
 		A_SpawnProjectile("TCOTDLavaBarf", 62, -17, frandom[rnd_ThamuzBogLavaBarf](-10, 10), CMF_AIMDIRECTION, (ACS_NamedExecuteWithResult("SetActivatorTarget", 0, tidtohate) * 10) / frandom[rnd_ThamuzBogLavaBarf](20, 40));
@@ -116,8 +121,12 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 	Missile.InvulSpell:
 		BOGC S 0 A_Jump(160, "Missile.BouncingFireballs", "Missile.Napalm");
 		BOGC G 20 { A_SetInvulnerable(); A_StartSound("thamuzdoom/circle", CHAN_6); A_SpawnItemEx("ThamuzCircle"); }
-		BOGC T 2 { A_ThamuzInvulSpellFlames(); A_StartSound("beast/stomp", CHAN_7); }
-		BOGC UVWXY 6;
+		BOGC T 2 { A_ThamuzInvulSpellFlames(); A_ThamuzInvulSpellAOE(); A_StartSound("beast/stomp", CHAN_7); }
+		BOGC UV 6;
+		BOGC W 6 A_ThamuzInvulSpellAOE();
+		BOGC X 6;
+		BOGC Y 2;
+		BOGC Y 4 A_ThamuzInvulSpellAOE();
 		BOGC Z 90 A_SpawnItemEx("BeastStomp");
 		BOGC Y 2 A_UnSetInvulnerable();
 		BOGC XWVUTS 6; // this moment grants an exploit for players to attack the boss for a better playism - ozy81
