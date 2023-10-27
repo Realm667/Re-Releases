@@ -32,6 +32,7 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 		Mass 2000;
 		Speed 5.33333333; //more rapid compared to Thamuz but doesn't summon tentacles
 		PainChance 35;
+		PainChance "Stab", 35 / 3;
 		MinMissileChance 5;
 		SeeSound "thamuzdoom/idle";
 		PainSound "thamuzdoom/pain";
@@ -120,7 +121,7 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 		BOGC E 0 A_Jump(128, "Missile.HomingFireball");
 	Missile.InvulSpell:
 		BOGC S 0 A_Jump(160, "Missile.BouncingFireballs", "Missile.Napalm");
-		BOGC G 20 { A_SetInvulnerable(); A_StartSound("thamuzdoom/circle", CHAN_6); A_SpawnItemEx("ThamuzCircle"); }
+		BOGC G 20 { A_FaceTarget(); A_SetInvulnerable(); A_StartSound("thamuzdoom/circle", CHAN_6); A_SpawnItemEx("ThamuzCircle", zofs: 0.1); }
 		BOGC T 2 { A_ThamuzInvulSpellFlames(); A_ThamuzInvulSpellAOE(); A_StartSound("beast/stomp", CHAN_7); }
 		BOGC UV 6;
 		BOGC W 6 A_ThamuzInvulSpellAOE();
