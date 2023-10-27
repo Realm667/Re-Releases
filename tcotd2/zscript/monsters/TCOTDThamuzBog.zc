@@ -91,7 +91,7 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 
 	protected void A_ThamuzNapalmAtk(void)
 	{
-		A_SpawnProjectile("TCOTDWeaponNapalmMissile", 62, -17);
+		A_SpawnProjectile("ThamuzNapalmMissile", 62, -17);
 	}
 
 	States
@@ -141,12 +141,12 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 		BOGC F 6 A_ThamuzBouncingFireballAtk();
 		Goto See;
 	Missile.Napalm:
-		BOGC E 3 A_FaceTarget();
-		BOGC F 6 A_ThamuzNapalmAtk();
 		BOGC E 6 A_FaceTarget();
-		BOGC F 6 A_ThamuzNapalmAtk();
-		BOGC E 6 A_FaceTarget();
-		BOGC F 6 A_ThamuzNapalmAtk();
+		BOGC F 9 A_ThamuzNapalmAtk();
+		BOGC E 9 A_FaceTarget();
+		BOGC F 9 A_ThamuzNapalmAtk();
+		BOGC E 9 A_FaceTarget();
+		BOGC F 9 A_ThamuzNapalmAtk();
 		Goto See;
 	Missile.HomingFireball:
 		BOGC P 6;
@@ -184,6 +184,21 @@ class CyberBogGhost : Actor
 		"####" "#" 0 A_SetRenderStyle(0.6, STYLE_Translucent);
 		"####" "#" 3 A_FadeOut();
 		Wait;
+	}
+}
+
+class ThamuzNapalmMissile : TCOTDWeaponNapalmMissile
+{
+	Default
+	{
+		DamageFunction TCOTDGameplayStatics.GetAttackDamage(70);
+	}
+
+	States
+	{
+	Death:
+		NEXP A 2 Bright { A_Explode(TCOTDGameplayStatics.GetAttackDamage(30), 128); A_ExplosionRumble(); A_SetScale(0.9); }
+		Goto Super::Death + 1;
 	}
 }
 
