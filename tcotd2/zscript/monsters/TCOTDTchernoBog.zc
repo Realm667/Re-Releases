@@ -3,10 +3,6 @@
 ////////////
 class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - ozy81
 {
-	int user_theta;
-	int user_height;
-	int user_offset;
-
 	Default
 	{
 		//$Category New Monsters (TCOTD2)
@@ -30,109 +26,116 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 		+BOSS
 		+MISSILEMORE
 		+NORADIUSDMG
-		+DONTMORPH
-		+BOSSDEATH
 		+LOOKALLAROUND
 		+MISSILEEVENMORE
 		+CASTSPRITESHADOW
 	}
 
+	protected void A_ThamuzChase(bool stomp = false)
+	{
+		if (stomp) A_SpawnItemEx("BeastStompND");
+		A_SpawnItemEx("ThamuzGhost", flags: SXF_TRANSFERSPRITEFRAME);
+		A_Chase();
+	}
+
+	protected void A_ThamuzSpawnTentacles(void)
+	{
+		A_SpawnItemEx("ThamuzCircle");
+		A_SpawnItemEx("ThamuzTentacle", 64, 64, flags: SXF_SETMASTER);
+		A_SpawnItemEx("ThamuzTentacle", 64, -64, flags: SXF_SETMASTER);
+		A_SpawnItemEx("ThamuzTentacle", -64, 64, flags: SXF_SETMASTER);
+		A_SpawnItemEx("ThamuzTentacle", -64, -64, flags: SXF_SETMASTER);
+	}
+
+	protected void A_ThamuzInvulSpellFlames(void)
+	{
+		for (int i = 0; i < 360; i += 20)
+		{
+			A_SpawnItemEx("DCBMiss3", 72, angle: i);
+		}
+	}
+
+	protected void A_ThamuzFireballAtk(void)
+	{
+		A_SpawnProjectile("DCBMiss2", 96);
+	}
+
 	States
 	{
 	Spawn:
-		TCHR A 10 NoDelay A_Look();
+		TCHR A 10 A_Look();
 		Loop;
 	See:
-		"####" A 1 A_Chase();
-		"####" AA 1 A_Chase2();
-		"####" A 0 A_SpawnItemEx("ThamuzGhost", flags: SXF_TRANSFERSPRITEFRAME);
-		"####" A 1 A_Chase();
-		"####" AA 1 A_Chase2();
-		"####" A 0 A_SpawnItemEx("ThamuzGhost", flags: SXF_TRANSFERSPRITEFRAME);
-		"####" B 1 { A_Chase(); A_SpawnItemEx("BeastStompND"); }
-		"####" BB 1 A_Chase2();
-		"####" B 0 A_SpawnItemEx("ThamuzGhost", flags: SXF_TRANSFERSPRITEFRAME);
-		"####" B 1 A_Chase();
-		"####" BB 1 A_Chase2();
-		"####" B 0 A_SpawnItemEx("ThamuzGhost", flags: SXF_TRANSFERSPRITEFRAME);
-		"####" C 1 A_Chase();
-		"####" CC 1 A_Chase2();
-		"####" C 0 A_SpawnItemEx("ThamuzGhost", flags: SXF_TRANSFERSPRITEFRAME);
-		"####" C 1 A_Chase();
-		"####" CC 1 A_Chase2();
-		"####" C 0 A_SpawnItemEx("ThamuzGhost", flags: SXF_TRANSFERSPRITEFRAME);
-		"####" D 1 { A_Chase(); A_SpawnItemEx("BeastStompND"); }
-		"####" DD 1 A_Chase2();
-		"####" D 0 A_SpawnItemEx("ThamuzGhost", flags: SXF_TRANSFERSPRITEFRAME);
-		"####" D 1 A_Chase();
-		"####" DD 1 A_Chase2();
-		"####" D 0 A_SpawnItemEx("ThamuzGhost", flags: SXF_TRANSFERSPRITEFRAME);
+		TCHR A 1 A_ThamuzChase();
+		TCHR AA 1 A_Chase2();
+		TCHR A 1 A_ThamuzChase();
+		TCHR AA 1 A_Chase2();
+		TCHR B 1 A_ThamuzChase(true);
+		TCHR BB 1 A_Chase2();
+		TCHR B 1 A_ThamuzChase();
+		TCHR BB 1 A_Chase2();
+		TCHR C 1 A_ThamuzChase();
+		TCHR CC 1 A_Chase2();
+		TCHR C 1 A_ThamuzChase();
+		TCHR CC 1 A_Chase2();
+		TCHR D 1 A_ThamuzChase(true);
+		TCHR DD 1 A_Chase2();
+		TCHR D 1 A_ThamuzChase();
+		TCHR DD 1 A_Chase2();
 		Loop;
 	Missile:
-		"####" A 0 { user_Height = 96; }
-		"####" A 0 { user_offset = -25; }
-		"####" A 0 A_Jump(160, "Missile2");
-		"####" AGG 5 A_FaceTarget();
-		"####" H 10 A_SpawnItemEx("ThamuzCircle", flags: SXF_SETMASTER);
-		"####" H 0 A_SpawnItemEx("ThamuzTentacle", 64, 64, flags: SXF_SETMASTER);
-		"####" H 0 A_SpawnItemEx("ThamuzTentacle", 64, -64, flags: SXF_SETMASTER);
-		"####" H 0 A_SpawnItemEx("ThamuzTentacle", -64, 64, flags: SXF_SETMASTER);
-		"####" H 0 A_SpawnItemEx("ThamuzTentacle", -64, -64, flags: SXF_SETMASTER);
-		"####" G 15 A_FaceTarget();
+		TCHR A 0 A_Jump(160, "Missile.InvulSpell");
+	Missile.SummonTentacles:
+		TCHR AGG 5 A_FaceTarget();
+		TCHR H 10 A_ThamuzSpawnTentacles();
+		TCHR G 15 A_FaceTarget();
 		Goto See;
-	Missile2:
-		"####" A 0 A_Jump(160, "Missile3");
-		"####" A 0 A_SetInvulnerable();
-		"####" G 20 { A_StartSound("thamuzdoom/circle"); A_SpawnItemEx("ThamuzCircle"); }
-	Shock:
-		"####" G 0 A_SpawnProjectile("DCBMiss3", 50, 0, user_theta);
-		"####" G 0 { user_theta = user_theta + 20; }
-		"####" G 0 A_JumpIf(user_theta == 360, 1);
-		Loop;
-		"####" G 90 { user_theta = 0; }
-		"####" G 10 A_UnsetInvulnerable();
+	Missile.InvulSpell:
+		TCHR A 0 A_Jump(160, "Missile.Fireballs");
+		TCHR G 20 { A_SetInvulnerable(); A_StartSound("thamuzdoom/circle"); A_SpawnItemEx("ThamuzCircle"); }
+		TCHR G 90 A_ThamuzInvulSpellFlames();
+		TCHR G 10 A_UnsetInvulnerable();
 		Goto See;
-	Missile3:
-		"####" AG 3 A_FaceTarget();
-		"####" G 4 A_FaceTarget();
-		"####" H 4 A_SpawnProjectile("DCBMiss2", user_height, 0);
-		"####" I 4 A_FaceTarget();
-		"####" J 4 A_SpawnProjectile("DCBMiss2", user_height, 0);
-		"####" I 4 A_FaceTarget();
-		"####" H 4 A_SpawnProjectile("DCBMiss2", user_height, 0);
-		"####" I 4 A_FaceTarget();
-		"####" J 4 A_SpawnProjectile("DCBMiss2", user_height, 0);
-		"####" I 4 A_FaceTarget();
-		"####" H 4 A_SpawnProjectile("DCBMiss2", user_height, 0);
-		"####" I 4 A_FaceTarget();
-		"####" J 4 A_SpawnProjectile("DCBMiss2", user_height, 0);
-		"####" I 4 A_FaceTarget();
-		"####" H 4 A_SpawnProjectile("DCBMiss2", user_height, 0);
-		"####" I 4 A_FaceTarget();
-		"####" J 4 A_SpawnProjectile("DCBMiss2", user_height, 0);
-		"####" I 4 A_FaceTarget();
-		"####" H 4 A_SpawnProjectile("DCBMiss2", user_height, 0);
-		"####" I 4 A_FaceTarget();
-		"####" J 4 A_SpawnProjectile("DCBMiss2", user_height, 0);
+	Missile.Fireballs:
+		TCHR AG 3 A_FaceTarget();
+		TCHR G 4 A_FaceTarget();
+		TCHR H 4 A_ThamuzFireballAtk();
+		TCHR I 4 A_FaceTarget();
+		TCHR J 4 A_ThamuzFireballAtk();
+		TCHR I 4 A_FaceTarget();
+		TCHR H 4 A_ThamuzFireballAtk();
+		TCHR I 4 A_FaceTarget();
+		TCHR J 4 A_ThamuzFireballAtk();
+		TCHR I 4 A_FaceTarget();
+		TCHR H 4 A_ThamuzFireballAtk();
+		TCHR I 4 A_FaceTarget();
+		TCHR J 4 A_ThamuzFireballAtk();
+		TCHR I 4 A_FaceTarget();
+		TCHR H 4 A_ThamuzFireballAtk();
+		TCHR I 4 A_FaceTarget();
+		TCHR J 4 A_ThamuzFireballAtk();
+		TCHR I 4 A_FaceTarget();
+		TCHR H 4 A_ThamuzFireballAtk();
+		TCHR I 4 A_FaceTarget();
+		TCHR J 4 A_ThamuzFireballAtk();
 		Goto See;
 	Pain:
-		"####" L 2;
-		"####" L 2 A_Pain();
-		"####" L 0 A_Jump(256, "See");
-	XDeath:
+		TCHR L 2;
+		TCHR L 2 A_Pain();
+		Goto See;
 	Death:
-		"####" L 0 A_StartSound("sfx/explosion1");
-		"####" LLLL 5  A_SpawnItemEx("Explosion_Green_A1A", frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](0, 60));
-		"####" L 0 A_StartSound("sfx/explosion1");
-		"####" MNO 5  A_SpawnItemEx("Explosion_Green_A1A", frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](0, 60));
-		"####" P 7 A_Scream();
-		"####" Q 0 A_StartSound("thamuzdoom/death2", CHAN_5);
-		"####" QQQQQQQRRRRRRR 1 A_SpawnProjectile("SFX_Wraith", frandom[rnd_TchernoBall1](0, 64), 0, frandom[rnd_TchernoBall1](0, 359), 2, frandom[rnd_TchernoBall1](-16, 16));
-		"####" S 0  A_SpawnItemEx("Explosion_Green_A1A", frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](0, 60));
-		"####" SSSSSSSTTTTTTTUUUUUUU 1 A_SpawnProjectile("SFX_Wraith", frandom[rnd_TchernoBall1](0, 64), 0, frandom[rnd_TchernoBall1](0, 359), 2, frandom[rnd_TchernoBall1](-16, 16));
-		"####" U 1 A_NoBlocking();
-		"####" U 5 A_KillChildren; //remove summoned tentacles
-		"####" U 3 A_Fadeout;
+		TCHR L 0 A_StartSound("sfx/explosion1");
+		TCHR LLLL 5 A_SpawnItemEx("Explosion_Green_A1A", frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](0, 60));
+		TCHR L 0 A_StartSound("sfx/explosion1");
+		TCHR MNO 5 A_SpawnItemEx("Explosion_Green_A1A", frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](0, 60));
+		TCHR P 7 A_Scream();
+		TCHR Q 0 A_StartSound("thamuzdoom/death2", CHAN_5);
+		TCHR QQQQQQQRRRRRRR 1 A_SpawnProjectile("SFX_Wraith", frandom[rnd_TchernoBall1](0, 64), 0, frandom[rnd_TchernoBall1](0, 359), 2, frandom[rnd_TchernoBall1](-16, 16));
+		TCHR S 0  A_SpawnItemEx("Explosion_Green_A1A", frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](-64, 64), frandom[rnd_TchernoBall1](0, 60));
+		TCHR SSSSSSSTTTTTTTUUUUUUU 1 A_SpawnProjectile("SFX_Wraith", frandom[rnd_TchernoBall1](0, 64), 0, frandom[rnd_TchernoBall1](0, 359), 2, frandom[rnd_TchernoBall1](-16, 16));
+		TCHR U 1 A_NoBlocking();
+		TCHR U 5 A_KillChildren; //remove summoned tentacles
+		TCHR U 3 A_Fadeout;
 		Wait;
 	}
 }
@@ -141,40 +144,31 @@ class ThamuzGhost : Actor
 {
 	Default
 	{
-		Radius 2;
-		Height 2;
 		Scale 0.85;
-		Projectile;
 		Alpha 0;
-		+DONTSPLASH
 		+FORCEXYBILLBOARD
+		+NOINTERACTION
 	}
 
 	States
 	{
 	Spawn:
 		"####" "#" 3;
-		"####" "#" 0 A_SetTranslucent(0.6);
+		"####" "#" 0 A_SetRenderStyle(0.6, STYLE_Translucent);
 		"####" "#" 3 A_FadeOut();
 		Wait;
 	}
 }
 
-//Circle and Tentacle comes from unreleased version of Hyperion mod by Drugod and Rolls3D, adapted for TCOTD2 by Ozy81
+// Circle and Tentacle come from unreleased version of Hyperion mod by Drugod and Rolls3D, adapted for TCOTD2 by Ozy81
 class ThamuzCircle : Actor
 {
 	Default
 	{
-		Radius 32;
-		Height 0;
 		Renderstyle "Add";
 		Alpha 0.65;
-		Species "Horror";
-		+DONTSPLASH
 		+BRIGHT
-		+NOBLOCKMAP
 		+NOINTERACTION
-		+THRUSPECIES
 	}
 
 	States
@@ -226,6 +220,11 @@ class ThamuzTentacle : TCOTDMonster
 		-COUNTKILL
 	}
 
+	protected void A_TentacleSpawnDirt(void)
+	{
+		A_SpawnItemEx("Drt", 0, 0, 0, frandom[rnd_tentacledrt](-3, 3), frandom[rnd_tentacledrt](-3, 3), 3);
+	}
+
 	States
 	{
 	Spawn:
@@ -233,20 +232,20 @@ class ThamuzTentacle : TCOTDMonster
 		Loop;
 	See:
 		TENT AA 3 A_Chase();
-		TENT B 0 A_SpawnItemEx("Drt", 0, 0, 0, frandom[rnd_tentacledrt](-3, 3), frandom[rnd_tentacledrt](-3, 3), 3, 0, SXF_NOCHECKPOSITION);
+		TENT B 0 A_TentacleSpawnDirt();
 		TENT BB 3 A_Chase();
-		TENT C 0 A_SpawnItemEx("Drt", 0, 0, 0, frandom[rnd_tentacledrt](-3, 3), frandom[rnd_tentacledrt](-3, 3), 3, 0, SXF_NOCHECKPOSITION);
+		TENT C 0 A_TentacleSpawnDirt();
 		TENT CC 3 A_Chase();
-		TENT D 0 A_SpawnItemEx("Drt", 0, 0, 0, frandom[rnd_tentacledrt](-3, 3), frandom[rnd_tentacledrt](-3, 3), 3, 0, SXF_NOCHECKPOSITION);
+		TENT D 0 A_TentacleSpawnDirt();
 		TENT DD 3 A_Chase();
-		TENT E 0 A_SpawnItemEx("Drt", 0, 0, 0, frandom[rnd_tentacledrt](-3, 3), frandom[rnd_tentacledrt](-3, 3), 3, 0, SXF_NOCHECKPOSITION);
+		TENT E 0 A_TentacleSpawnDirt();
 		TENT EE 3 A_Chase();
-		TENT F 0 A_SpawnItemEx("Drt", 0, 0, 0, frandom[rnd_tentacledrt](-3, 3), frandom[rnd_tentacledrt](-3, 3), 3, 0, SXF_NOCHECKPOSITION);
+		TENT F 0 A_TentacleSpawnDirt();
 		TENT FF 3 A_Chase();
 		Loop;
 	Melee:
 		TENT GH 4;
-		TENT HHHHHH 0 A_SpawnItemEx("Drt", 0, 0, 0, frandom[rnd_tentacledrt2](-3, 3), frandom[rnd_tentacledrt2](-3, 3), 3, 0, SXF_NOCHECKPOSITION);
+		TENT HHHHHH 0 A_TentacleSpawnDirt();
 		TENT I 4 A_CustomMeleeAttack(random[rnd_tentacledmg](1, 2) * 4, "tentacle/swipe", "", "Fear", false);
 		TENT HG 4;
 		TENT G 0 A_CposRefire();
@@ -260,15 +259,10 @@ class ThamuzTentacle : TCOTDMonster
 		TEND B 4 A_Scream();
 		TEND C 4;
 		TEND D 4 A_NoBlocking();
-		TEND E 4;
-		TEND F 4;
+		TEND EF 4;
 		TENE A 35 A_SetTics(random[rnd_TentacleDeathTics](35, 75));
 		TENF B 4 A_StartSound("tentacle/down", CHAN_AUTO);
-		TENF C 4;
-		TENF D 4;
-		TENF E 4;
-		TENF F 4;
-		TENF G 4;
+		TENF CDEFG 4;
 		Stop;
 	}
 }
@@ -278,8 +272,7 @@ class Drt : Actor
 	Default
 	{
 		Radius 2;
-		Damage 0;
-		Speed 5;
+		Height 4;
 		Gravity 0.5;
 		Alpha 0.25;
 		Renderstyle "Add";
@@ -289,10 +282,7 @@ class Drt : Actor
 		+RANDOMIZE
 		+DONTSPLASH
 		+THRUSPECIES
-		+DONTSPLASH
 		-NOGRAVITY
-		-NOBLOCKMAP
-		-NOTELEPORT
 	}
 
 	States
@@ -324,7 +314,6 @@ class DCBMiss2 : Actor
 	{
 		Radius 12;
 		Height 8;
-		Health 5;
 		Speed 10;
 		FastSpeed 20;
 		Damage 10;
@@ -334,6 +323,7 @@ class DCBMiss2 : Actor
 		Species "Horror";
 		SeeSound "thamuzdoom/missile";
 		DeathSound "thamuzdoom/missileexplode";
+		+BRIGHT
 		+FORCEXYBILLBOARD
 		+DONTSPLASH
 		+THRUSPECIES
@@ -342,115 +332,19 @@ class DCBMiss2 : Actor
 	States
 	{
 	Spawn:
-		CFX5 A 1 Bright Light("ThamuzMissile_2") A_SpawnItemEx("DCBMiss2Trail");
+		CFX5 A 1 Light("ThamuzMissile_2") A_SpawnItemEx("DCBMiss2Trail");
 		Loop;
 	Death:
-		CFX3 A 2 Bright Light("ThamuzMissile_2X_1");
-		CFX3 B 2 Bright Light("ThamuzMissile_2X_2");
-		CFX3 C 2 Bright Light("ThamuzMissile_2X_3");
-		CFX3 D 2 Bright Light("ThamuzMissile_2X_4");
-		CFX3 E 2 Bright Light("ThamuzMissile_2X_5");
-		CFX3 F 2 Bright Light("ThamuzMissile_2X_6");
-		CFX3 G 2 Bright Light("ThamuzMissile_2X_7");
-		CFX3 G 2 Bright Light("ThamuzMissile_2X_8");
-		CFX3 G 2 Bright Light("ThamuzMissile_2X_9");
-		CFX3 G 2 Bright Light("ThamuzMissile_2X_10");
-		Stop;
-	}
-}
-
-class DCBMiss1 : Actor
-{
-	Default
-	{
-		Radius 12;
-		Height 12;
-		Speed 6;
-		Damage 30;
-		Projectile;
-		Species "Horror";
-		RenderStyle "Add";
-		SeeSound "thamuzdoom/ball";
-		DeathSound "thamuzdoom/ballexplode";
-		+FORCEXYBILLBOARD
-		+EXTREMEDEATH
-		+SEEKERMISSILE
-		+THRUSPECIES
-		+DONTSPLASH
-	}
-
-	States
-	{
-	Spawn:
-		CBTS A 2 Bright Light("ThamuzMissile_1") A_SeekerMissile(10, 90);
-		TNT1 A 0 A_SpawnItemEx("DCBM1Trail");
-		CBTS B 2 Bright Light("ThamuzMissile_1") A_SeekerMissile(10, 90);
-		TNT1 A 0 A_SpawnItemEx("DCBM1Trail");
-		CBTS C 2 Bright Light("ThamuzMissile_1") A_SeekerMissile(10, 90);
-		TNT1 A 0 A_SpawnItemEx("DCBM1Trail");
-		CBTS D 2 Bright Light("ThamuzMissile_1") A_SeekerMissile(10, 90);
-		TNT1 A 0 A_SpawnItemEx("DCBM1Trail");
-		CBTS E 2 Bright Light("ThamuzMissile_1") A_SeekerMissile(10, 90);
-		TNT1 A 0 A_SpawnItemEx("DCBM1Trail");
-		CBTS F 2 Bright Light("ThamuzMissile_1") A_SeekerMissile(10, 90);
-		TNT1 A 0 A_SpawnItemEx("DCBM1Trail");
-		CBTS G 2 Bright Light("ThamuzMissile_1") A_SeekerMissile(10, 90);
-		TNT1 A 0 A_SpawnItemEx("DCBM1Trail");
-		CBTS H 2 Bright Light("ThamuzMissile_1") A_SeekerMissile(10, 90);
-		TNT1 A 0 A_SpawnItemEx("DCBM1Trail");
-		CBTS I 2 Bright Light("ThamuzMissile_1") A_SeekerMissile(10, 90);
-		TNT1 A 0 A_SpawnItemEx("DCBM1Trail");
-		CBTS J 2 Bright Light("ThamuzMissile_1") A_SeekerMissile(10, 90);
-		TNT1 A 0 A_SpawnItemEx("DCBM1Trail");
-		Loop;
-	Death:
-		TNT1 A 0
-		{
-			for (int i = 0; i <= 76; i++)
-			{
-				A_SpawnItemEx("DCBMiss3Extra",
-					0, 0, 5,
-					frandom[rnd_DCBDeath](-5, 5), frandom[rnd_DCBDeath](-5, 5), frandom[rnd_DCBDeath](-5, 5),
-					frandom[rnd_DCBDeath](0, 360));
-			}
-		}
-		CBTS K 2 Bright Light("ThamuzMissile_1X_1") A_Explode(140);
-		CBTS L 2 Bright Light("ThamuzMissile_1X_2");
-		CBTS M 2 Bright Light("ThamuzMissile_1X_3");
-		CBTS N 2 Bright Light("ThamuzMissile_1X_4");
-		CBTS O 2 Bright Light("ThamuzMissile_1X_5");
-		CBTS P 2 Bright Light("ThamuzMissile_1X_6");
-		CBTS Q 2 Bright Light("ThamuzMissile_1X_7");
-		CBTS R 2 Bright Light("ThamuzMissile_1X_8");
-		CBTS S 2 Bright Light("ThamuzMissile_1X_9");
-		CBTS T 2 Bright Light("ThamuzMissile_1X_10");
-		CBTS U 2 Bright Light("ThamuzMissile_1X_11");
-		CBTS V 2 Bright Light("ThamuzMissile_1X_12");
-		CBTS W 2 Bright Light("ThamuzMissile_1X_13");
-		Stop;
-	}
-}
-
-class DCBM1Trail : Actor
-{
-	Default
-	{
-		Radius 1;
-		Height 1;
-		Scale 0.8;
-		Projectile;
-		RenderStyle "Add";
-		Alpha 0.6;
-		+FORCEXYBILLBOARD
-		+DONTSPLASH
-		+NOCLIP
-	}
-
-	States
-	{
-	Spawn:
-		TNT1 A 4;
-		CBTS LMNOPQRSTUVW 2 Bright A_FadeOut();
+		CFX3 A 2 Light("ThamuzMissile_2X_1");
+		CFX3 B 2 Light("ThamuzMissile_2X_2");
+		CFX3 C 2 Light("ThamuzMissile_2X_3");
+		CFX3 D 2 Light("ThamuzMissile_2X_4");
+		CFX3 E 2 Light("ThamuzMissile_2X_5");
+		CFX3 F 2 Light("ThamuzMissile_2X_6");
+		CFX3 G 2 Light("ThamuzMissile_2X_7");
+		CFX3 G 2 Light("ThamuzMissile_2X_8");
+		CFX3 G 2 Light("ThamuzMissile_2X_9");
+		CFX3 G 2 Light("ThamuzMissile_2X_10");
 		Stop;
 	}
 }
@@ -466,8 +360,8 @@ class DCBMiss2Trail : DCBM1Trail
 	States
 	{
 	Spawn:
-		FSFX DEFGHIJKL 1 Bright;
-		FSFX M 1 Bright A_FadeOut();
+		FSFX DEFGHIJKL 1;
+		FSFX M 1 A_FadeOut();
 		Wait;
 	}
 }
@@ -476,30 +370,23 @@ class DCBMiss3 : Actor
 {
 	Default
 	{
-		Radius 1;
-		Height 1;
-		Health 5;
-		Speed 8;
 		Scale 2;
 		RenderStyle "Add";
-		SeeSound "thamuzdoom/missile3";
-		Projectile;
-		Species "Horror";
+		+BRIGHT
 		+FORCEXYBILLBOARD
-		+BLOODLESSIMPACT
-		+DONTSPLASH
-		+RIPPER
-		+THRUSPECIES
+		+NOINTERACTION
 	}
 
 	States
 	{
 	Spawn:
-		TNT1 A 2 A_Gravity();
-		Loop;
-	Death:
-		FSFX NNNOOOPPPQQQRRRSSSTTTNNNOOOPPPQQQRRRSSSTTT 1 Bright Light("ThamuzMissile_3") A_SpawnItemEx("DCBMiss3Extra", 0, 0, 5, frandom[rnd_DCB3Death](-5, 5), frandom[rnd_DCB3Death](-5, 5), frandom[rnd_DCB3Death](-5, 5), frandom[rnd_DCB3Death](0, 360));
-		TNT1 A 0 A_SpawnProjectile("DCBMiss3M", 0, 0, 180);
+		FSFX N 0 NoDelay A_StartSound("thamuzdoom/missile3");
+		FSFX NNNOOOPPPQQQRRRSSSTTTNNNOOOPPPQQQRRRSSSTTT 1 Light("ThamuzMissile_3") A_SpawnItemEx("DCBMiss3Extra", 0, 0, 5, frandom[rnd_DCB3Death](-5, 5), frandom[rnd_DCB3Death](-5, 5), frandom[rnd_DCB3Death](-5, 5), frandom[rnd_DCB3Death](0, 360));
+		FSFX T 0
+		{
+			let mobj = A_SpawnProjectile("DCBMiss3M", 0, angle: 180);
+			if (mobj) mobj.target = self.target;
+		}
 		Stop;
 	}
 }
@@ -521,20 +408,21 @@ class DCBMiss3M : Actor
 		+FLOORHUGGER
 		+THRUSPECIES
 		+DONTSPLASH
+		+BRIGHT
 	}
 
 	States
 	{
 	Spawn:
-		FSFX N 1 Bright Light("ThamuzMissile_3") A_SpawnItemEx("DCBMiss3MG");
-		FSFX NNOOOPPPQQQRRRSSSTTT 1 Bright Light("ThamuzMissile_3") A_SpawnItemEx("DCBMiss3Extra");
+		FSFX N 1 Light("ThamuzMissile_3") A_SpawnItemEx("DCBMiss3MG");
+		FSFX NNOOOPPPQQQRRRSSSTTT 1 Light("ThamuzMissile_3") A_SpawnItemEx("DCBMiss3Extra");
 		Loop;
 	Death:
 		FSFX A 0 A_Explode(128, 96);
 		FSFX AAAAA 0 A_SpawnItemEx("DCBMiss3Extra");
-		FSFX U 3 Bright Light("ThamuzMissile_3X_1");
-		FSFX V 3 Bright Light("ThamuzMissile_3X_2");
-		FSFX W 3 Bright Light("ThamuzMissile_3X_3");
+		FSFX U 3 Light("ThamuzMissile_3X_1");
+		FSFX V 3 Light("ThamuzMissile_3X_2");
+		FSFX W 3 Light("ThamuzMissile_3X_3");
 		Stop;
 	}
 }
