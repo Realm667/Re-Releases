@@ -71,7 +71,14 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 
 	protected void A_ThamuzFireballAtk(void)
 	{
-		A_SpawnProjectile("DCBMiss2", 96);
+		A_FaceTarget();
+
+		let misl = A_SpawnProjectile("DCBMiss2", 96);
+
+		if (misl)
+		{
+			misl.VelIntercept(target);
+		}
 	}
 
 	States
@@ -113,7 +120,7 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 		TCHR G 10 A_UnSetInvulnerable();
 		Goto See;
 	Missile.Fireballs:
-		TCHR AG 3 A_FaceTarget();
+		TCHR GG 3 A_FaceTarget();
 		TCHR G 4 A_FaceTarget();
 		TCHR H 4 A_ThamuzFireballAtk();
 		TCHR I 4 A_FaceTarget();
@@ -329,9 +336,8 @@ class DCBMiss2 : Actor
 	{
 		Radius 12;
 		Height 8;
-		Speed 10;
-		FastSpeed 20;
-		Damage 10;
+		Speed 15;
+		DamageFunction TCOTDGameplayStatics.GetAttackDamage(30);
 		Alpha 0.65;
 		RenderStyle "Add";
 		Projectile;
