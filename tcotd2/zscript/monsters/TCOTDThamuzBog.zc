@@ -149,12 +149,13 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 		BOGC F 9 A_ThamuzNapalmAtk();
 		Goto See;
 	Missile.HomingFireball:
-		BOGC P 6;
-		BOGC Q 3 A_FaceTarget();
-		BOGC R 1 A_SpawnProjectile("DCBMiss1", 64, -25);
+		BOGC PP 6 A_FaceTarget();
+		BOGC Q 6 A_FaceTarget();
+		BOGC R 9 { A_FaceTarget(); A_SpawnProjectile("DCBMiss1", 88); }
 		Goto See;
 	Pain:
-		BOGC G 10 A_Pain();
+		BOGC G 5;
+		BOGC G 5 A_Pain();
 		Goto See;
 	Death: //include death effects here
 		BOGC H 10;
@@ -207,15 +208,14 @@ class DCBMiss1 : Actor
 	Default
 	{
 		Radius 12;
-		Height 12;
+		Height 24;
 		Speed 6;
-		Damage 30;
+		DamageFunction TCOTDGameplayStatics.GetAttackDamage(35);
 		Projectile;
 		RenderStyle "Add";
 		SeeSound "thamuzdoom/ball";
 		DeathSound "thamuzdoom/ballexplode";
 		+FORCEXYBILLBOARD
-		+EXTREMEDEATH
 		+SEEKERMISSILE
 		+DONTSPLASH
 		+BRIGHT
@@ -237,7 +237,7 @@ class DCBMiss1 : Actor
 					frandom[rnd_DCDMissExtra](0, 360));
 			}
 		}
-		CBTS K 2 Light("ThamuzMissile_1X_1") A_Explode(140);
+		CBTS K 2 Light("ThamuzMissile_1X_1") A_Explode(TCOTDGameplayStatics.GetAttackDamage(25), 96);
 		CBTS L 2 Light("ThamuzMissile_1X_2");
 		CBTS M 2 Light("ThamuzMissile_1X_3");
 		CBTS N 2 Light("ThamuzMissile_1X_4");
