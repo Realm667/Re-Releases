@@ -36,6 +36,53 @@ class ThamuzBase : TCOTDMonster abstract
 		A_Chase();
 	}
 
+	protected void A_ThamuzAttackDecide(void)
+	{
+		StateLabel attackSeq = nullptr;
+		int hp = health * 100 / GetMaxHealth();
+		int chance = random[rnd_ThamuzAttackDecide]() * 100 / 255;
+
+		/*---------------------------------------------------------
+		|                     |            Probability            |
+		|     HP Thresold     |-----------------------------------|
+		|                     |  Primary  | Secondary |   Spell   |
+		|---------------------|-----------------------------------|
+		| 75% or above        |   100%    |    0%     |    0%     |
+		| Between 45% and 75% |    65%    |    35%    |    0%     |
+		| Less than 45%       |    50%    |    20%    |    30%    |
+		---------------------------------------------------------*/
+
+		if (hp >= 75)
+		{
+			attackSeq = 'Missile.Primary';
+		}
+		else if (hp >= 45)
+		{
+			if (chance >= 35)
+			{
+				attackSeq = 'Missile.Primary';
+			}
+			else
+			{
+				attackSeq = 'Missile.Secondary';
+			}
+		}
+		else if (chance >= 50)
+		{
+			attackSeq = 'Missile.Primary';
+		}
+		else if (chance >= 30)
+		{
+			attackSeq = 'Missile.Secondary';
+		}
+		else
+		{
+			attackSeq = 'Missile.Spell';
+		}
+
+		SetStateLabel(attackSeq);
+	}
+
 	protected void A_ThamuzCircle(bool playsnd = true)
 	{
 		A_FaceTarget();
