@@ -84,13 +84,9 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 		A_Explode(TCOTDGameplayStatics.GetAttackDamage(15), 96, XF_NOTMISSILE | XF_THRUSTLESS, fulldamagedistance: 96);
 	}
 
-	protected void A_ThamuzBouncingFireballAtk(void)
-	{
-		A_SpawnProjectile("TCOTDLavaBarf", 62, -17, frandom[rnd_ThamuzBogLavaBarf](-10, 10), CMF_AIMDIRECTION, (ACS_NamedExecuteWithResult("SetActivatorTarget", 0, tidtohate) * 10) / frandom[rnd_ThamuzBogLavaBarf](20, 40));
-	}
-
 	protected void A_ThamuzNapalmAtk(void)
 	{
+		A_FaceTarget();
 		A_SpawnProjectile("ThamuzNapalmMissile", 62, -17);
 	}
 
@@ -120,7 +116,7 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 	Missile:
 		BOGC E 0 A_Jump(128, "Missile.HomingFireball");
 	Missile.FlamesSpell:
-		BOGC S 0 A_Jump(160, "Missile.BouncingFireballs", "Missile.Napalm");
+		BOGC S 0 A_Jump(160, "Missile.Napalm");
 		BOGC G 20 { A_FaceTarget(); bNoPain = true; DamageFactor = 0.33335; A_StartSound("thamuzdoom/circle", CHAN_6); A_SpawnItemEx("ThamuzCircle", zofs: 0.1); }
 		BOGC T 2 { A_ThamuzFlamesSpellFlames(); A_ThamuzFlamesSpellAOE(); A_StartSound("beast/stomp", CHAN_7); }
 		BOGC UV 6;
@@ -131,14 +127,6 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 		BOGC Z 90 A_SpawnItemEx("BeastStomp");
 		BOGC Y 2 { bNoPain = false; DamageFactor = 1.0; }
 		BOGC XWVUTS 6; // this moment grants an exploit for players to attack the boss for a better playism - ozy81
-		Goto See;
-	Missile.BouncingFireballs:
-		BOGC E 3 A_FaceTarget();
-		BOGC F 6 A_ThamuzBouncingFireballAtk();
-		BOGC E 6 A_FaceTarget();
-		BOGC F 6 A_ThamuzBouncingFireballAtk();
-		BOGC E 6 A_FaceTarget();
-		BOGC F 6 A_ThamuzBouncingFireballAtk();
 		Goto See;
 	Missile.Napalm:
 		BOGC E 6 A_FaceTarget();
@@ -271,48 +259,6 @@ class DCBM1Trail : Actor
 	Spawn:
 		TNT1 A 4;
 		CBTS LMNOPQRSTUVW 2 A_FadeOut();
-		Stop;
-	}
-}
-
-class TCOTDLavaBarf : Actor
-{
-	Default
-	{
-		Radius 8;
-		Height 8;
-		Speed 20;
-		Gravity 0.75;
-		Scale 0.5;
-		Damage 10;
-		DamageType "Fire";
-		BounceType "Doom";
-		BounceCount 4;
-		RenderStyle "Add";
-		Projectile;
-		SeeSound "napalm/fire";
-		DeathSound "napalm/explode";
-		+FORCEXYBILLBOARD
-		+BRIGHT
-		+CANBOUNCEWATER
-		+RANDOMIZE
-		+RIPPER
-		+STRIFEDAMAGE
-		+DONTSPLASH
-		-NOGRAVITY
-	}
-
-	States
-  	{
-  	Spawn:
-		NBLL A 2;
-		NBLL A 1 A_Jump(256, 1, 2, 3, 4, 5, 6);
-		NBLL AABBCCDDEEAABBCCDDEEAABBCCDDEEAABBCCDDEEAABBCCDDEEAABBCCDDEE 1 A_Explode(4, 32);
-		NBLL A 1;
-  	Death:
-		MISL A 1 A_Scream();
-		MISL A 1 A_Explode(30, 64, 1);
-		MISL B 0; //explosion effect here - ozy81
 		Stop;
 	}
 }
