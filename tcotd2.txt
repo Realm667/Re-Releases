@@ -114,6 +114,54 @@ Special thanks          : Ozymandias81, Blue Shadow, Nash Muhandes for working w
 
 ===========================================================================
 
+* MULTIPLAYER INFORMATION *
+
+This mod fully supports cooperative play over GZDoom's peer-to-peer networking. To start multiplayer, you must start GZDoom either
+from the command line, or through a launcher, because certain parameters will have to be passed to GZDoom to enable multiplayer gaming.
+
+First, make sure you are not placed behind a NAT by your ISP. The only way to find this out is to call your ISP. If you ARE behind a NAT,
+consider using a virtual LAN program like RadminVPN.
+
+Next, be sure port forwarding is set up correctly for your router. The port to open for GZDoom is 5029.
+
+As the host, launch the game with the following parameters:
+
+-noautoload -iwad doom2.wad -file tcotd2.pk3 +skill 0 +sv_noplayerclip 1 -host 2
+
+Replace the number after +skill to set the difficulty, valid numbers are 0, 1 and 2 (Normal, Hard and Nightmare, respectively.
+-host 2 indicates the number of players to host, including yourself. To increase the number of players, simply increase the number (up to 8).
+Note that hosting more than 2 players over the internet may be unstable (but should be completely fine over physical LAN)
+
+As the client/joiner, launch the game with the following parameters:
+
+-noautoload -iwad doom2.wad -file tcotd2.pk3 -join <IP or network address of host>
+
+Note that some parameters are intentionally omitted from the client's parameters, which is fine as those parameters will be set by the host.
+
+* ABOUT MULTIPLAYER LOAD AND SAVE GAMES *
+
+To save the game, one should open the console and type: save <name of save game>. This tends to be more reliable than using the menus to
+save the game. The save file should be created on all players' machines simultaneously.
+
+For example:
+
+save tcotd2
+
+This will create a file called tcotd2.zds on all machines (the file extension will automatically be added).
+
+To actually load the saved games, then, it has to be done from the command prompt/launcher too (so you'll have to quit actively running games
+and restart the entire process of hosting and connecting). The parameters to load a saved game are:
+
+Host
+
+-noautoload -iwad doom2.wad -file tcotd2.pk3 +skill 0 +sv_noplayerclip 1 -host 2 -loadgame <name of save game>
+
+Client
+
+-noautoload -iwad doom2.wad -file tcotd2.pk3 -join <IP or network address of host> -loadgame <name of save game>
+
+===========================================================================
+
 * Play Information *
 
 Maps                    : 1 (MAP01)
