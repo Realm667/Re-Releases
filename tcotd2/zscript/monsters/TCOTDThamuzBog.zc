@@ -20,74 +20,40 @@
  * SOFTWARE.
 **/
 
-class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorate format, this has been reworked for TCOTD2
+class ThamuzBog : ThamuzBase //the original CyberBog from Bloom was in Decorate format, this has been reworked for TCOTD2
 {
 	Default
 	{
 		//$Category New Monsters (TCOTD2)
 		//$Title ThamuzBog
-		Health 3200;
-		Radius 40;
-		Height 110;
-		Mass 2000;
 		Speed 5.33333333; //more rapid compared to Thamuz but doesn't summon tentacles
-		PainChance 35;
-		PainChance "Stab", 35 / 3;
-		MinMissileChance 5;
 		SeeSound "thamuzdoom/idle";
 		PainSound "thamuzdoom/pain";
 		DeathSound "thamuzdoom/death";
 		ActiveSound "thamuzdoom/idle";
-		Obituary "$OB_THAM";
-		Tag "$FN_THAM";
-		+BOSS
-		+MISSILEMORE
-		+NORADIUSDMG
-		+LOOKALLAROUND
-		+MISSILEEVENMORE
-		+CASTSPRITESHADOW
-	}
-
-	private void SpawnGhost(void)
-	{
-		A_SpawnItemEx("CyberBogGhost", flags: SXF_TRANSFERSPRITEFRAME);
 	}
 
 	protected void A_ThamuzHoof(void)
 	{
-		SpawnGhost();
+		A_ThamuzSpawnGhost();
 		A_Hoof();
 	}
 	protected void A_ThamuzMetal(void)
 	{
-		SpawnGhost();
+		A_ThamuzSpawnGhost();
 		A_Metal();
-	}
-
-	protected void A_ThamuzChase(bool stomp = false)
-	{
-		if (stomp) A_SpawnItemEx("BeastStompND");
-		SpawnGhost();
-		A_Chase();
-	}
-
-	protected void A_ThamuzFlamesSpellFlames(void)
-	{
-		for (int i = 0; i < 360; i += 20)
-		{
-			A_SpawnItemEx("DCBMiss3", 72, angle: i);
-		}
-	}
-
-	protected void A_ThamuzFlamesSpellAOE(void)
-	{
-		A_Explode(TCOTDGameplayStatics.GetAttackDamage(15), 96, XF_NOTMISSILE | XF_THRUSTLESS, fulldamagedistance: 96);
 	}
 
 	protected void A_ThamuzNapalmAtk(void)
 	{
 		A_FaceTarget();
 		A_SpawnProjectile("ThamuzNapalmMissile", 62, -17);
+	}
+
+	protected void A_ThamuzHomingFireballAtk(void)
+	{
+		A_FaceTarget();
+		A_SpawnProjectile("DCBMiss1", 88);
 	}
 
 	States
@@ -117,7 +83,7 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 		BOGC E 0 A_Jump(128, "Missile.HomingFireball");
 	Missile.FlamesSpell:
 		BOGC S 0 A_Jump(160, "Missile.Napalm");
-		BOGC G 20 { A_FaceTarget(); bNoPain = true; DamageFactor = 0.33335; A_StartSound("thamuzdoom/circle", CHAN_6); A_SpawnItemEx("ThamuzCircle", zofs: 0.1); }
+		BOGC G 20 A_ThamuzCircle();
 		BOGC T 2 { A_ThamuzFlamesSpellFlames(); A_ThamuzFlamesSpellAOE(); A_StartSound("beast/stomp", CHAN_7); }
 		BOGC UV 6;
 		BOGC W 6 A_ThamuzFlamesSpellAOE();
@@ -125,7 +91,7 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 		BOGC Y 2;
 		BOGC Y 4 A_ThamuzFlamesSpellAOE();
 		BOGC Z 90 A_SpawnItemEx("BeastStomp");
-		BOGC Y 2 { bNoPain = false; DamageFactor = 1.0; }
+		BOGC Y 2 A_ThamuzSpellEnd();
 		BOGC XWVUTS 6; // this moment grants an exploit for players to attack the boss for a better playism - ozy81
 		Goto See;
 	Missile.Napalm:
@@ -139,7 +105,7 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 	Missile.HomingFireball:
 		BOGC PP 6 A_FaceTarget();
 		BOGC Q 6 A_FaceTarget();
-		BOGC R 9 { A_FaceTarget(); A_SpawnProjectile("DCBMiss1", 88); }
+		BOGC R 9 A_ThamuzHomingFireballAtk();
 		Goto See;
 	Pain:
 		BOGC G 5;
@@ -154,25 +120,6 @@ class ThamuzBog : TCOTDMonster //the original CyberBog from Bloom was in Decorat
 		BOGC O 30;
 		BOGC O -1;
 		Stop;
-	}
-}
-
-class CyberBogGhost : Actor
-{
-	Default
-	{
-		Alpha 0;
-		+FORCEXYBILLBOARD
-		+NOINTERACTION
-	}
-
-	States
-	{
-	Spawn:
-		"####" "#" 3;
-		"####" "#" 0 A_SetRenderStyle(0.6, STYLE_Translucent);
-		"####" "#" 3 A_FadeOut();
-		Wait;
 	}
 }
 

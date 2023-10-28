@@ -1,58 +1,20 @@
 ////////////
 // THAMUZ //
 ////////////
-class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - ozy81
+class Thamuz : ThamuzBase //kept actor original name for scripts purposes - ozy81
 {
 	Default
 	{
 		//$Category New Monsters (TCOTD2)
 		//$Title Tchernobog
-		Health 3200;
-		Radius 40;
-		Height 110;
 		Speed 4.33333333; //slower compared to Cyberbog but summon tentacles
-		PainChance 35;
-		PainChance "Stab", 35 / 3;
-		Mass 2000;
 		Scale 0.85;
-		Bloodcolor "00 aa 00";
-		MinMissileChance 5;
+		BloodColor "00 aa 00";
 		SeeSound "thamuzblood/laugh";
 		PainSound "thamuzblood/pain";
 		DeathSound "thamuzblood/die";
 		ActiveSound "thamuzblood/search";
-		Obituary "$OB_THAM";
-		Tag "$FN_THAM";
-		Species "Horror";
-		+BOSS
-		+MISSILEMORE
-		+NORADIUSDMG
 		+DONTHARMSPECIES
-		+LOOKALLAROUND
-		+MISSILEEVENMORE
-		+CASTSPRITESHADOW
-	}
-
-	protected void A_ThamuzChase(bool stomp = false)
-	{
-		if (stomp) A_SpawnItemEx("BeastStompND");
-		A_SpawnItemEx("ThamuzGhost", flags: SXF_TRANSFERSPRITEFRAME);
-		A_Chase();
-	}
-
-	protected void A_ThamuzCircle(bool playsnd = true)
-	{
-		A_FaceTarget();
-		bNoPain = true;
-		DamageFactor = 0.33335;
-		if (playsnd) A_StartSound("thamuzdoom/circle");
-		A_SpawnItemEx("ThamuzCircle", zofs: 0.1);
-	}
-
-	protected void A_ThamuzSpellEnd(void)
-	{
-		bNoPain = false;
-		DamageFactor = 1.0;
 	}
 
 	protected void A_ThamuzSpawnTentacles(void)
@@ -61,19 +23,6 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 		A_SpawnItemEx("ThamuzTentacle", 64, -64, flags: SXF_SETMASTER);
 		A_SpawnItemEx("ThamuzTentacle", -64, 64, flags: SXF_SETMASTER);
 		A_SpawnItemEx("ThamuzTentacle", -64, -64, flags: SXF_SETMASTER);
-	}
-
-	protected void A_ThamuzFlamesSpellFlames(void)
-	{
-		for (int i = 0; i < 360; i += 20)
-		{
-			A_SpawnItemEx("DCBMiss3", 72, angle: i);
-		}
-	}
-
-	protected void A_ThamuzFlamesSpellAOE(void)
-	{
-		A_Explode(TCOTDGameplayStatics.GetAttackDamage(15), 96, XF_NOTMISSILE | XF_THRUSTLESS, fulldamagedistance: 96);
 	}
 
 	protected void A_ThamuzFireballAtk(void)
@@ -150,8 +99,8 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 		TCHR J 4 A_ThamuzFireballAtk();
 		Goto See;
 	Pain:
-		TCHR L 2;
-		TCHR L 2 A_Pain();
+		TCHR L 5;
+		TCHR L 5 A_Pain();
 		Goto See;
 	Death:
 		TCHR L 0 A_StartSound("sfx/explosion1");
@@ -166,26 +115,6 @@ class Thamuz : TCOTDMonster //kept actor original name for scripts purposes - oz
 		TCHR U 1 A_NoBlocking();
 		TCHR U 5 A_KillChildren; //remove summoned tentacles
 		TCHR U 3 A_Fadeout;
-		Wait;
-	}
-}
-
-class ThamuzGhost : Actor
-{
-	Default
-	{
-		Scale 0.85;
-		Alpha 0;
-		+FORCEXYBILLBOARD
-		+NOINTERACTION
-	}
-
-	States
-	{
-	Spawn:
-		"####" "#" 3;
-		"####" "#" 0 A_SetRenderStyle(0.6, STYLE_Translucent);
-		"####" "#" 3 A_FadeOut();
 		Wait;
 	}
 }
@@ -237,7 +166,7 @@ class ThamuzTentacle : TCOTDMonster
 		Bloodcolor "00 AA 00";
 		Obituary "$OB_TENT";
 		Tag "$FN_TENT";
-		Species "Horror";
+		Species "Thamuz";
 		// until I will make bmaps - ozy81
 		+BRIGHT
 		+DONTSPLASH
@@ -306,7 +235,7 @@ class Drt : Actor
 		Alpha 0.25;
 		Renderstyle "Add";
 		Projectile;
-		Species "Horror";
+		Species "Thamuz";
 		+BRIGHT
 		+RANDOMIZE
 		+DONTSPLASH
@@ -348,7 +277,7 @@ class DCBMiss2 : Actor
 		Alpha 0.65;
 		RenderStyle "Add";
 		Projectile;
-		Species "Horror";
+		Species "Thamuz";
 		SeeSound "thamuzdoom/missile";
 		DeathSound "thamuzdoom/missileexplode";
 		+BRIGHT
@@ -427,7 +356,7 @@ class DCBMiss3M : Actor
 		Scale 1.3;
 		RenderStyle "Add";
 		Projectile;
-		Species "Horror";
+		Species "Thamuz";
 		DeathSound "thamuzdoom/missile3mexplode";
 		+NOEXTREMEDEATH
 		+FORCEXYBILLBOARD
