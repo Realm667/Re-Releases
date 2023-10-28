@@ -33,6 +33,8 @@ class TCOTDPlayerHandler : EventHandler
 	ui int ticsForTutorial;
 	ui bool hasSeenTutorial;
 
+	//ui Array<String> precachedLetters;
+
 	//===========================================================================
 	//
 	//
@@ -600,4 +602,29 @@ class TCOTDPlayerHandler : EventHandler
 		// restore view clip
 		Screen.SetClipRect(ox, oy, ow, oh);
 	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	/*
+	ui void PrecacheLetters(void)
+	{
+		// unfinished function - running out of time
+		// fix for future update
+		if (precachedLetters.Size() == 0)
+		{
+			for (int i = AllClasses.Size(); i-- > 0;)
+			{
+				if (AllClasses[i] is 'TCOTDNote' && AllClasses[i] != 'TCOTDNote')
+				{
+					class<Actor> cls = GetDefaultByType(Actor(AllClasses[i]));
+					//precachedLetters.Push(notePic);
+				}
+			}
+		}
+	}
+	*/
 }
