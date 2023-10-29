@@ -35,6 +35,8 @@ class TCOTDPlayerHandler : EventHandler
 
 	//ui Array<String> precachedLetters;
 
+	bool doneBrightMode;
+
 	//===========================================================================
 	//
 	//
@@ -117,11 +119,10 @@ class TCOTDPlayerHandler : EventHandler
 		TCOTDGameplayStatics.DestroyActors("TCOTDPlayerMarker");
 	}
 
-	/*
 	override void WorldTick(void)
 	{
+		DoBrightMode();
 	}
-	*/
 
 	//===========================================================================
 	//
@@ -627,4 +628,35 @@ class TCOTDPlayerHandler : EventHandler
 		}
 	}
 	*/
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	void DoBrightMode(void)
+	{
+		if (doneBrightMode != tcotd2_brightmode)
+		{
+			doneBrightMode = tcotd2_brightmode;
+
+			// 10 is too little, 11 is just nice IMO
+			int amount = 11;
+
+			for (int i = 0; i < Level.Sectors.Size(); i++)
+			{
+				let sec = Level.Sectors[i];
+
+				// don't touch intentionally-dark sectors
+				if (sec.lightlevel > 0)
+				{
+					if (tcotd2_brightmode)
+						sec.lightlevel += amount;
+					else
+						sec.lightlevel -= amount;
+				}
+			}
+		}
+	}
 }
