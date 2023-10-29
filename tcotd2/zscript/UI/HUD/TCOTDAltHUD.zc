@@ -4,6 +4,8 @@
 
 class TCOTDAltHud : AltHud
 {
+	const LEFT_ELEMENT_YOFFSET = 25;
+
 	// ----------------------------------------------------------------------------------------
 	//
 	// ----------------------------------------------------------------------------------------
@@ -84,6 +86,29 @@ class TCOTDAltHud : AltHud
 	//
 	// ----------------------------------------------------------------------------------------
 
+	override void DrawArmor(BasicArmor barmor, HexenArmor harmor, int x, int y)
+	{
+		if (barmor)
+		{
+			int ap = barmor.Amount;
+
+			// decide on color
+			int fontcolor =
+				ap < hud_armor_red ? Font.CR_RED :
+				ap < hud_armor_yellow ? Font.CR_GOLD :
+				ap <= hud_armor_green ? Font.CR_GREEN :
+				Font.CR_BLUE;
+
+			TextureID icon = ap > 0 ? barmor.Icon : TexMan.CheckForTexture("graphics/hud/HUDArmor1.png", TexMan.Type_MiscPatch);
+			DrawImageToBox(icon, x, y, 31, 17, ap > 0 ? 0.75 : 0.28125);
+			DrawHudNumber(HudFont, fontcolor, ap, x + 33, y + 17, ap > 0 ? 0.75 : 0.28125);
+		}
+	}
+
+	// ----------------------------------------------------------------------------------------
+	//
+	// ----------------------------------------------------------------------------------------
+
 	int DrawOil (PlayerInfo CPlayer, int x, int y)
 	{
 		let oil = CPlayer.mo.FindInventory('TCOTDLanternOil');
@@ -147,8 +172,26 @@ class TCOTDAltHud : AltHud
 			DrawFrags(CPlayer, 5, y);
 		}
 
-		DrawHealth(CPlayer, 5, hudheight - 45);
-		DrawArmor(BasicArmor(CPlayer.mo.FindInventory('BasicArmor')), HexenArmor(CPlayer.mo.FindInventory('HexenArmor')), 5, hudheight - 20);
+		// [Blue Shadow] First (bottom) and second (top) elements' Y position. These refer to health and
+		// armor, as being the first and second elements (from the bottom). Which is first and which is
+		// second depends on the swap option's setting.
+		int bottomYpos = 20, topYpos = bottomYpos + LEFT_ELEMENT_YOFFSET;
+		int healthYpos, armorYpos;
+
+		let hud_swaphealthandarmor = CVar.GetCVar('tcotd2_hud_swaphealthandarmor', CPlayer);
+		if (hud_swaphealthandarmor && hud_swaphealthandarmor.GetBool())
+		{
+			healthYpos = topYpos;
+			armorYpos = bottomYpos;
+		}
+		else
+		{
+			healthYpos = bottomYpos;
+			armorYpos = topYpos;
+		}
+
+		DrawHealth(CPlayer, 5, hudheight - healthYpos);
+		DrawArmor(BasicArmor(CPlayer.mo.FindInventory('BasicArmor')), nullptr, 5, hudheight - armorYpos);
 		y = DrawKeys(CPlayer, hudwidth - 4, hudheight - 10);
 		y = DrawOil(CPlayer, hudwidth - 5, y);
 		y = DrawAmmo(CPlayer, hudwidth - 5, y);

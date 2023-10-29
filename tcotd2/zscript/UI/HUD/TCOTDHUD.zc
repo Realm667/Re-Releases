@@ -24,6 +24,8 @@
 
 class TCOTDHUD : DoomStatusBar
 {
+	const LEFT_ELEMENT_YOFFSET = 22;
+
 	HUDFont mHUDSmallNum;
 	HUDFont mHUDBigNum;
 
@@ -95,20 +97,42 @@ class TCOTDHUD : DoomStatusBar
 	{
 		int flags = DI_SCREEN_LEFT_BOTTOM;
 
+		// [Blue Shadow] First (bottom) and second (top) elements' Y position. These refer to health and
+		// armor, as being the first and second elements (from the bottom). Which is first and which is
+		// second depends on the swap option's setting.
+		int bottomYpos = -4, topYpos = bottomYpos - LEFT_ELEMENT_YOFFSET;
+		int healthYpos, armorYpos;
+
+		let cvar_hud_swaphealthandarmor = CVar.GetCVar('tcotd2_hud_swaphealthandarmor', CPlayer);
+		if (cvar_hud_swaphealthandarmor && cvar_hud_swaphealthandarmor.GetBool())
+		{
+			healthYpos = topYpos;
+			armorYpos = bottomYpos;
+		}
+		else
+		{
+			healthYpos = bottomYpos;
+			armorYpos = topYpos;
+		}
+
 		// Health
 		String hpicon = !CPlayer.mo.FindInventory("TCOTDPoisonAilment") ? "HUDHealth" : "HUDPoison";
-		DrawImage("graphics/hud/" .. hpicon .. ".png", (12, -4), flags);
-		DrawString(mHUDBigNum, FormatNumber(CPlayer.health, 3), (24, -15), flags);
+		DrawImage("graphics/hud/" .. hpicon .. ".png", (12, healthYpos), flags);
+		DrawString(mHUDBigNum, FormatNumber(CPlayer.health, 3), (24, healthYpos - 11), flags);
 
 		// Armor
-		int ypos = -24;
 		let armor = CPlayer.mo.FindInventory("BasicArmor");
-		if (armor && armor.Amount > 0)
+		if (armor)
 		{
-			DrawInventoryIcon(armor, (12, ypos));
-			DrawString(mHUDBigNum, FormatNumber(armor.Amount, 3), (24, ypos - 11), flags);
-			ypos -= 22;
+			if (armor.Amount > 0)
+				DrawInventoryIcon(armor, (12, armorYpos));
+			else
+				DrawImage("graphics/hud/HUDArmor1.png", (12, armorYpos), Alpha: 0.375);
+
+			DrawString(mHUDBigNum, FormatNumber(armor.Amount, 3), (24, armorYpos - 11), flags, Alpha: armor.Amount > 0 ? 1.0 : 0.375);
 		}
+
+		int ypos = bottomYpos - LEFT_ELEMENT_YOFFSET * 2;
 
 		// Air
 		if (CPlayer.health > 0 && CPlayer.mo.waterlevel > 2 && Level.airsupply > 0 && CPlayer.mo.AirCapacity > 0 &&
@@ -119,7 +143,7 @@ class TCOTDHUD : DoomStatusBar
 			int ratio = curpnts * 100 / maxpnts;
 			DrawImage("graphics/hud/HUDAir.png", (12, ypos), flags);
 			DrawString(mHUDBigNum, FormatNumber(ratio, 3), (24, ypos - 11), flags);
-			ypos -= 22;
+			ypos -= LEFT_ELEMENT_YOFFSET;
 		}
 
 		// Pendant
