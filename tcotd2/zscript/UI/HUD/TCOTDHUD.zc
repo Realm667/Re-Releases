@@ -65,16 +65,8 @@ class TCOTDHUD : DoomStatusBar
 
 	override void Draw(int state, double TicFrac)
 	{
-		if (Menu.GetCurrentMenu())
-			return;
-
-		if (TCOTDJournalMenu.IsOpen())
-			return;
-
-		if (TCOTDGameplayStatics.IsInCutscene(TCOTDPlayer(CPlayer.mo)))
-			return;
-
-		if (TCOTDJournalMenu.IsOpen())
+		// No HUD in the title level, during cutscenes or if the journal is open.
+		if (gamestate == GS_TITLELEVEL || !CPlayer || TCOTDGameplayStatics.IsInCutscene(TCOTDPlayer(CPlayer.mo)) || TCOTDJournalMenu.IsOpen())
 			return;
 
 		BaseStatusBar.Draw(state, TicFrac);

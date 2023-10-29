@@ -152,9 +152,6 @@ class TCOTDAltHud : AltHud
 
 	override void DrawInGame (PlayerInfo CPlayer)
 	{
-		if (Menu.GetCurrentMenu())
-			return;
-
 		// No HUD in the title level, during cutscenes or if the journal is open.
 		if (gamestate == GS_TITLELEVEL || !CPlayer || TCOTDGameplayStatics.IsInCutscene(TCOTDPlayer(CPlayer.mo)) || TCOTDJournalMenu.IsOpen())
 			return;
