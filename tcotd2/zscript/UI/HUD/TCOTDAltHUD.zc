@@ -10,6 +10,16 @@ class TCOTDAltHud : AltHud
 	//
 	// ----------------------------------------------------------------------------------------
 
+	override void Init(void)
+	{
+		Super.Init();
+		HudFont = Font.FindFont("BigNumFn");
+	}
+
+	// ----------------------------------------------------------------------------------------
+	//
+	// ----------------------------------------------------------------------------------------
+
 	int DrawAir (PlayerInfo CPlayer, int x, int y)
 	{
 		if (CPlayer.health > 0 && CPlayer.mo.waterlevel > 2 && Level.airsupply > 0 && CPlayer.mo.AirCapacity > 0 &&
