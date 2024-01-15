@@ -80,7 +80,7 @@ map map01 lookup "TUTNTMAP03A"
 	lightmode = 1 //avoid too much dark places - ozy81
 	cluster = 1
 	music = D_TNT03A
-	nointermission //stats not necessary then?
+	// nointermission
 	next = map02
 }
 
@@ -101,7 +101,7 @@ cluster 1
 		   "",
 		   "The end of this reign of terror is nigh, ", 
 		   "and with it, a new dawn of hope beckons."
-	flat = qflat06
+	pic = CREDIT0
 	music = d_alfop
 }
 
@@ -110,8 +110,8 @@ map map02 lookup "TUTNTMAP03B"
 	lightmode = 1 //avoid too much dark places - ozy81
 	cluster = 2
 	music = d_alfop
-	nointermission //stats not necessary then? 
-	next = EndGame2 //not defined yet - ozy81
+	// nointermission
+	next = EndGameC
 }
 
 cluster 2
@@ -129,7 +129,7 @@ cluster 2
 		   "you stepped into the void, your mission teetering on ", 
 		   "the edge of failure."
 		
-	flat = qflat06
+	pic = CREDIT1
 	music = d_alfop
 }
 
@@ -144,4 +144,139 @@ doomednums
 	31109 = "LightRay2_RegularNL"
 	31110 = "LightRay2_WallSpriteNL"
 	32029 = "HeatEffectGiver"
+}
+
+////////////////////////////////
+//////// CAST CALL /////////////
+////////////////////////////////
+
+Intermission Inter_Cast
+{
+	Image
+	{
+		// This is only here to initialize the background and the music
+		Background = "bossback"
+		Time = -1
+		Music = "d_dm2ttl"
+	}
+	Link = TCotD1Cast
+}
+
+Intermission TCotD1Cast
+{
+	Cast
+	{
+		CastClass = "Zombieman"
+		CastName = "$CC_ZOMBIE"
+		AttackSound = "Missile", 1, "grunt/attack"
+	}
+	Cast
+	{
+		CastClass = "ShotgunGuy"
+		CastName = "$CC_SHOTGUN"
+		AttackSound = "Missile", 1, "shotguy/attack"
+	}
+	Cast
+	{
+		CastClass = "NashGore_ChaingunGuy"
+		CastName = "Heavy Weapon Dude"
+		AttackSound = "Missile", 1, "chainguy/attack"
+		AttackSound = "Missile", 2, "chainguy/attack"
+		AttackSound = "Missile", 3, "chainguy/attack"
+	}
+	Cast
+	{
+		CastClass = "DoomImp"
+		CastName = "$CC_IMP"
+		AttackSound = "Missile", 2, "imp/attack"
+	}
+	Cast
+	{
+		CastClass = "MummyLeader"
+		CastName = "Soul Harvester"
+		AttackSound = "Missile", 1, "mummy/head"
+	}
+	Cast
+	{
+		CastClass = "Demon"
+		CastName = "$CC_DEMON"
+		AttackSound = "Melee", 1, "demon/melee"
+	}
+	Cast
+	{
+		CastClass = "LostSoul"
+		CastName = "$CC_LOST"
+		AttackSound = "Missile", 1, "skull/melee"
+	}
+	Cast
+	{
+		CastClass = "Cacodemon"
+		CastName = "$CC_CACO"
+		AttackSound = "Missile", 1, "caco/attack"
+	}
+	Cast
+	{
+		CastClass = "Wizard"
+		CastName = "Enhanced Cacodemon"
+		AttackSound = "Missile", 1, "wizard/attack"
+	}
+	Cast
+	{
+		CastClass = "CentaurLeader"
+		CastName = "Hell Warrior"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "HellKnight"
+		CastName = "$CC_HELL"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "BaronOfHell"
+		CastName = "$CC_BARON"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "Arachnotron"
+		CastName = "$CC_ARACH"
+		AttackSound = "Missile", 1, "baby/attack"
+	}
+	Cast
+	{
+		CastClass = "PainElemental"
+		CastName = "$CC_PAIN"
+		AttackSound = "Missile", 2, "skull/melee"
+	}
+	Cast
+	{
+		CastClass = "Revenant"
+		CastName = "$CC_REVEN"
+		AttackSound = "Missile", 1, "skeleton/attack"
+		AttackSound = "Melee", 1, "skeleton/swing"
+		AttackSound = "Melee", 3, "skeleton/melee"
+	}
+	Cast
+	{
+		CastClass = "Fatso"
+		CastName = "$CC_MANCU"
+		AttackSound = "Missile", 1, "fatso/attack"
+		AttackSound = "Missile", 4, "fatso/attack"
+		AttackSound = "Missile", 7, "fatso/attack"
+	}
+	Cast
+	{
+		CastClass = "Archvile"
+		CastName = "$CC_ARCH"
+		AttackSound = "Missile", 1, "vile/start"
+	}
+	Cast
+	{
+		CastClass = "Minotaur"
+		CastName = "Hell Spider"
+		AttackSound = "Hammer", 1, "minotaur/attack1"
+	}
+	Link = Doom2Cast	// restart cast call
 }
