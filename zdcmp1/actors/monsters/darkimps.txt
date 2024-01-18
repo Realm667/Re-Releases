@@ -1,0 +1,201 @@
+//Dark Imps for ZDCMP1
+
+ACTOR NamiDarkImp : DoomImp 3100
+{
+	Health 120
+	Radius 20
+	Height 56
+	Speed 8
+	PainChance 200
+	MONSTER
+	+FLOORCLIP
+	SeeSound "imp/sight"
+	PainSound "imp/pain"
+	DeathSound "imp/death"
+	ActiveSound "imp/active"
+	MeleeSound "imp/melee"
+	Obituary "%o was cursed by a dark imp."
+	HitObituary "%o was touched by a dark imp."
+	MissileType DarkSeeker
+	MeleeDamage 3
+	States
+	{
+	Spawn:
+		DRKI AB 10 A_Look
+		Loop
+	See:
+		DRKI AABBCCDD 3 A_Chase
+		Loop
+	Melee:
+	Missile:
+		DRKI EF 8 A_FaceTarget
+		DRKI G 6 A_ComboAttack
+		Goto See
+	Pain:
+		DRKI H 2
+		DRKI H 2 A_Pain
+		Goto See
+	Death:
+		DRKI I 8
+		DRKI J 8 A_Scream
+		DRKI K 6
+		DRKI L 6 A_Fall
+		DRKI M -1
+		Stop
+	XDeath:
+		DRKI N 5
+		DRKI O 5 A_XScream
+		DRKI P 5
+		DRKI Q 5 A_Fall
+		DRKI RST 5
+		DRKI U -1
+		Stop
+	Raise:
+		DRKI ML 8
+		DRKI KJI 6
+		Goto See
+	}
+}
+
+ACTOR DarkSeeker
+{
+	Radius 8
+	Height 6
+	Speed 9
+	Damage 3
+	PROJECTILE
+	RENDERSTYLE ADD
+	ALPHA 0.67
+	+BRIGHT
+	+SEEKERMISSILE
+	SeeSound "imp/attack"
+	DeathSound "imp/shotx"
+	States
+	{
+	Spawn:
+		DKB1 AB 4 A_SeekerMissile (5,10)
+		Loop
+	Death:
+		DKB1 CDE 4
+		Stop
+	}
+}
+
+ACTOR VoidDarkImp : DoomImp 3101
+{
+	Health 120
+	Radius 20
+	Height 56
+	Speed 8
+	PainChance 200
+	MONSTER
+	+FLOORCLIP
+	SeeSound "imp/sight"
+	PainSound "imp/pain"
+	DeathSound "imp/death"
+	ActiveSound "imp/active"
+	MeleeSound "imp/melee"
+	Obituary "%o was cursed by a dark imp."
+	HitObituary "%o was touched by a dark imp."
+	MissileType DarkNormal
+	MeleeDamage 3
+	States
+	{
+	Spawn:
+		DRKI AB 10 A_Look
+		Loop
+	See:
+		DRKI AABBCCDD 3 A_Chase
+		Loop
+	Melee:
+		DRKI EF 8 A_FaceTarget
+		DRKI G 6 A_ComboAttack
+		Goto See
+	Missile:
+		DRKI E 0 A_Jump(64,4)
+		DRKI EF 8 A_FaceTarget
+		DRKI G 6 A_CustomMissile("DarkNormal", 32, 0, 0)
+		Goto Missile+7
+		DRKI EF 8 A_FaceTarget
+		DRKI G 6 A_CustomMissile("DarkStrong", 32, 0, 0)
+		DRKI E 0 A_Jump(64,4)
+		DRKI EF 8 A_FaceTarget
+		DRKI G 6 A_CustomMissile("DarkNormal", 32, 0, 0)
+		Goto See
+		DRKI EF 8 A_FaceTarget
+		DRKI G 6 A_CustomMissile("DarkStrong", 32, 0, 0)
+		Goto See
+	Pain:
+		DRKI H 2
+		DRKI H 2 A_Pain
+		Goto See
+	Death:
+		DRKI I 8
+		DRKI J 8 A_Scream
+		DRKI K 6
+		DRKI L 6 A_Fall
+		DRKI M -1
+		Stop
+	XDeath:
+		DRKI N 5
+		DRKI O 5 A_XScream
+		DRKI P 5
+		DRKI Q 5 A_Fall
+		DRKI RST 5
+		DRKI U -1
+		Stop
+	Raise:
+		DRKI ML 8
+		DRKI KJI 6
+		Goto See
+	}
+}
+
+ACTOR DarkNormal
+{
+	Radius 8
+	Height 6
+	Speed 9
+	Damage 3
+	PROJECTILE
+	RENDERSTYLE ADD
+	ALPHA 0.67
+	+BRIGHT
+	SeeSound "imp/attack"
+	DeathSound "imp/shotx"
+	States
+	{
+	Spawn:
+		DKB1 AB 4
+		Loop
+	Death:
+		DKB1 CDE 4
+		Stop
+	}
+}
+
+ACTOR DarkStrong
+{
+	Radius 8
+	Height 6
+	Speed 9
+	Damage 6
+	PROJECTILE
+	RENDERSTYLE ADD
+	ALPHA 0.67
+	+BRIGHT
+	SeeSound "imp/attack"
+	DeathSound "imp/shotx"
+	MISSILEHEIGHT 0
+	MissileType Blood
+	States
+	{
+	Spawn:
+		DKB2 A 4 A_MissileAttack
+		DKB2 B 4
+		Loop
+	Death:
+		DKB2 CDE 4
+		Stop
+	}
+}

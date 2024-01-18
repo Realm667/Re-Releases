@@ -2,7 +2,7 @@ gameinfo
 {
 	playerclasses = "ZDCMP1Player"
 
-	AddEventHandlers = "NashGoreHandler"
+	AddEventHandlers = "NashGoreHandler", "EnhWaterHandler", "MBlurShaderHandler" //, "CustomShaderHandler"
 
 	dimcolor = "323232"
 	dimamount = 0.5
@@ -13,9 +13,7 @@ gameinfo
 	addinfopage = "HELP"
 	borderflat = "AUTOPAGE"
 	
-	statscreen_single = "ZPackStatusScreen"
-	
-	EventHandlers="EnhWaterHandler", "MBlurShaderHandler" //, "CustomShaderHandler"
+	statscreen_single = "ZDCMPStatusScreen"
 }
 
 clearepisodes
@@ -83,7 +81,7 @@ doomednums
 	31108 = "LightRay_WallSpriteNL"
 	31109 = "LightRay2_RegularNL"
 	31110 = "LightRay2_WallSpriteNL"
-	31104=GrassSpawner
+	31104 = "GrassSpawner"
 }
 
 ////////////////////////////////
@@ -99,10 +97,10 @@ Intermission Inter_Cast
 		Time = -1
 		Music = "d_dm2ttl"
 	}
-	Link = TCotD1Cast
+	Link = ZDCMPCast
 }
 
-Intermission TCotD1Cast
+Intermission ZDCMPCast
 {
 	Cast
 	{
@@ -255,5 +253,5 @@ Intermission TCotD1Cast
 		AttackSound = "Missile", 1, "spider/attack"
 		AttackSound = "Missile", 2, "spider/attack"
 	}
-	Link = Doom2Cast	// restart cast call
+	Link = ZDCMPCast	// restart cast call
 }

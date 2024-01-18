@@ -1,0 +1,300 @@
+//Oblivion Boss and related code
+
+ACTOR OblivionDemon 222
+{
+	Health 6000
+	Speed 12
+	Radius 64
+	Height 200
+	Scale 3.0
+	PainChance 12
+	Mass 16000
+	Meleedamage 40
+	SeeSound "OblivSight"
+	PainSound "baron/pain"
+	DeathSound "OblivDeath"
+	ActiveSound "baron/active"
+	MeleeSound "baron/melee"
+	Missiletype "OblivionBall"
+	MissileHeight 88
+	REACTIONTIME 8
+	MONSTER
+	+BOSS
+	+FLOORCLIP
+	+NORADIUSDMG
+	+NOGRAVITY
+	+FLOATBOB
+	+FLOAT
+	Obituary "%o was nuked into oblivion by the Oblivion Demon"
+	HitObituary "%o found the Oblivion Demon too hot to handle."
+	States
+	{
+	Spawn:
+		FRIT ABCD 4 Bright A_Look
+		Loop
+	See:
+		FRIT A 0 A_CustomMissile("OblivionOrbitComet", 44, 0, 0)
+		FRIT A 0 A_CustomMissile("OblivionOrbitComet2", 44, 0, 180)
+		FRIT AABBCCDD 2 Bright A_Chase
+		Goto See +2
+	Melee:
+		FRIT ST 8 Bright A_FaceTarget
+		FRIT U 6 Bright A_MeleeAttack
+		Goto See +2
+	Missile:
+		FRIT E 0 A_Jump(196,15)
+		FRIT EF 6 BRIGHT A_FaceTarget
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, 0)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, 30)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, 60)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, 90)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, 120)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, 150)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, 180)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, -150)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, -120)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, -90)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, -60)
+		FRIT G 6 BRIGHT A_CustomMissile ("OblivionFireSummoner", 88, 0, -30)
+		GoTo See +2
+		FRIT E 0 A_Jump(160,4)
+		FRIT EF 6 Bright A_FaceTarget
+		FRIT G 6 Bright A_CustomMissile ("OblivionBall", 88, 0, 0)
+		Goto See +2
+		FRIT E 0 A_Jump(128,8)
+		FRIT EF 6 Bright A_FaceTarget
+		FRIT G 0 BRIGHT A_StartSound("OblivAttack")
+		FRIT G 0 Bright A_CustomMissile("OblivionComet", 88, 0, 0)
+		FRIT G 0 Bright A_CustomMissile("OblivionComet", 88, 0, 30)
+		FRIT G 5 BRIGHT A_CustomMissile("OblivionComet", 88, 0, -30)
+		FRIT G 0 Bright A_CustomMissile("OblivionComet", 88, 0, 15)
+		FRIT G 5 Bright A_CustomMissile("OblivionComet", 88, 0, -15)
+		Goto See +2
+		FRIT EF 6 BRIGHT A_FaceTarget
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionBall", 88, 0, 0)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionBall", 88, 0, 10)
+		FRIT G 0 BRIGHT A_CustomMissile ("OblivionBall", 88, 0, -10)
+		GoTo See +2
+	Pain:
+		FRIT HH 4 Bright A_Pain
+		Goto See +2
+	Death:
+		FRIT I 0 Bright A_NoGravity
+		FRIT I 6 Bright A_Scream
+		FRIT J 5 Bright A_NoBlocking
+		FRIT KLMNOPQR 4 Bright
+		Stop
+	}
+}
+
+ACTOR OblivionComet
+{
+	Radius 12
+	Height 16
+	Speed 10
+	Damage 20
+	ExplosionDamage 160
+	ExplosionRadius 320
+	Scale 1.1
+	PROJECTILE
+	SeeSound "OvlivAttack"
+	DeathSound "CometExplosion"
+	MissileType OblivionCometTail
+	MissileHeight 0
+	States
+	{
+	Spawn:
+		COML AAAABBBBCCCC 1 Bright A_MissileAttack
+		Loop
+	Death:
+		COML D 3 Bright A_CustomMissile("OblivionCometDeathGlow", 0, 0, 0)
+		COML E 3 Bright A_Explode
+		COML E 0 A_CustomMissile("OblivionCometDeath", 0, 0, 0)
+		Stop
+	}
+}
+
+ACTOR OblivionCometTail
+{
+	PROJECTILE
+	RENDERSTYLE ADD
+	+BRIGHT
+	+NOCLIP
+	Scale 2.0
+	ALPHA 0.4
+	States
+	{
+	Spawn:
+		FRTB ABCDEFGHI 1
+		Stop
+	}
+}
+
+ACTOR OblivionCometDeath
+{
+    PROJECTILE
+    RENDERSTYLE ADD
+	+BRIGHT
+    +NOCLIP
+    Scale 2.0
+    ALPHA 0.7
+    States
+    {
+    Spawn:
+        COML FGHI 3
+        Stop
+    }
+}
+
+ACTOR OblivionCometDeathGlow : OblivionCometTail
+{
+    Scale 4.0
+    Alpha 0.6
+    States
+    {
+    Spawn:
+        FRTB ABCDEFGHI 3
+        Stop
+    }
+}
+
+ACTOR OblivionOrbitCometTail : OblivionCometTail
+{
+    Scale 1.0
+}
+
+ACTOR OblivionOrbitComet : OblivionComet
+{
+	Scale 1.0
+	Speed 10
+	+NOCLIP
+	MissileType OblivionOrbitCometTail
+	MissileHeight 0
+	SeeSound ""
+	States
+	{
+	Spawn:
+		COML AABBCC 1 Bright A_MissileAttack
+		COML A 0 A_CustomMissile("OblivionOrbitComet", 0, 0, 75)
+		COML A 0 A_MissileAttack
+		Stop
+	}
+}
+
+ACTOR OblivionOrbitComet2 : OblivionOrbitComet
+{
+	Speed 10
+	Scale 1.0
+	MissileType OblivionOrbitCometTail
+	MissileHeight 0
+	States
+	{
+	Spawn:
+		COML AABBCC 1 Bright A_MissileAttack
+		COML A 0 A_CustomMissile("OblivionOrbitComet2", 0, 0, -75)
+		COML A 0 A_MissileAttack
+		Stop
+	}
+}
+
+ACTOR OblivionBall
+{
+    Radius 12
+    Height 16
+    Speed 30
+    Damage 10
+    Scale 2.0
+    DONTHURTSHOOTER //to be removed, apply on A_Explode
+    PROJECTILE
+    RENDERSTYLE ADD
+    ALPHA 0.8
+	+BRIGHT
+    SeeSound "OblivAttack"
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+        FRTM AB 5
+        Loop
+    Death:
+        FRTM CDE 6
+        Stop
+    }
+}
+
+ACTOR OblivionFireSummoner
+{
+	spawnID 238
+	Radius 0
+	Height 0
+	Speed 20
+	Scale 0.25
+	PROJECTILE
+	-NOGRAVITY
+	States
+	{
+	Spawn:
+		COML ABCD 4
+		Loop
+	Death:
+		COML D 3 Bright A_CustomMissile("OblivionCometDeathGlow", 0, 0, 0)
+		COML E 3 Bright A_Explode
+		COML E 0 A_CustomMissile("BurningDeath", 0, 0, 150)
+		COML E 0 A_CustomMissile("BurningDeath", 0, 0, -150)
+		COML E 0 A_CustomMissile("BurningDeath", 0, 0, 180)
+		Stop
+	}
+}
+
+ACTOR BurningDeath
+{
+	Height 60
+	Radius 24
+	Speed 36
+	Damage 4
+	PROJECTILE
+	RenderStyle ADD
+	+BRIGHT
+	+FLOORHUGGER
+	+RIPPER
+	SeeSound "OblivAttack"
+	DeathSound "CometExplosion"
+	States
+	{
+	Spawn:
+		FIRE ABCD 4
+		FIRE EF 4
+		GoTo Spawn+4
+	Death:
+		FIRE EFGH 4
+		Stop
+	}
+}
+
+ACTOR Fake_OblivionComet
+{
+	SpawnID 237
+	Radius 12
+	Height 16
+	Speed 10
+	Damage 5
+	ExplosionDamage 5
+	ExplosionRadius 16
+	Scale 1.1
+	PROJECTILE
+	SeeSound "OvlivAttack"
+	DeathSound "CometExplosion"
+	MissileType OblivionCometTail
+	MissileHeight 0
+	States
+	{
+	Spawn:
+		COML AAAABBBBCCCC 1 Bright A_MissileAttack
+		Loop
+	Death:
+		COML D 3 Bright A_CustomMissile("OblivionCometDeathGlow", 0, 0, 0)
+		COML E 3 Bright A_Explode
+		COML E 0 A_CustomMissile("OblivionCometDeath", 0, 0, 0)
+		Stop
+	}
+}

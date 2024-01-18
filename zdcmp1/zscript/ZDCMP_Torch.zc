@@ -1,0 +1,512 @@
+// Copyright 2020 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+// Common code for fire effects
+//
+//===========================================================================
+
+mixin class ZDCMP1FireMixin
+{
+	bool fadedIn;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		RenderStyle "Add";
+		Alpha 0;
+		+ROLLSPRITE
+		+ROLLCENTER
+		+BRIGHT
+		+FORCEXYBILLBOARD
+		+NOINTERACTION
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	SpawnLoop:
+		"####" "#" 0
+		{
+			bSpriteFlip = RandomPick(false, true);
+			A_SetRoll(frandom(0.0, 360.0));
+		}
+		"####" "#" 1
+		{
+			int rollDir = bSpriteFlip ? -1 : 1;
+			double rollSpeed = 2.33 * rollDir;
+			A_SetRoll(Roll + rollSpeed, SPF_INTERPOLATE);
+
+			if (!fadedIn)
+			{
+				if (Alpha < 0.5)
+				{
+					A_FadeIn(0.1);
+				}
+				else
+				{
+					fadedIn = true;
+				}
+			}
+
+			if (fadedIn)
+			{
+				A_SetScale(Scale.X * 0.98);
+				A_FadeOut(0.025);
+			}
+		}
+		Goto SpawnLoop + 1;
+	}
+}
+
+class ZDCMP1Torch : RedTorch replaces RedTorch
+{
+	Default
+	{
+		Radius 10;
+		Height 67;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		TBLX A 0 NoDelay
+		{
+			A_SpawnItemEx("ZDCMP1TallTorchLensFlare", 0, 0, 62.0);
+		}
+		TBLX A 1 A_SpawnItemEx("ZDCMP1TorchFlame", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class ZDCMP1TorchFlame : ZDCMP1DietActorWithVel
+{
+	mixin ZDCMP1FireMixin;
+
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNO A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZDCMP1TallTorchLensFlare : ZDCMP1DietActor
+{
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.5;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE A -1 Bright Light("BIGREDTORCH");
+		Stop;
+	}
+}
+
+class ZDCMP1TorchG : GreenTorch replaces GreenTorch
+{
+	Default
+	{
+		Radius 10;
+		Height 67;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		TBLX A 0 NoDelay
+		{
+			A_SpawnItemEx("ZDCMP1TallTorchLensFlareG", 0, 0, 62.0);
+		}
+		TBLX A 1 A_SpawnItemEx("ZDCMP1TorchFlameG", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class ZDCMP1TorchFlameG : ZDCMP1DietActorWithVel
+{
+	mixin ZDCMP1FireMixin;
+
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNG A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZDCMP1TallTorchLensFlareG : ZDCMP1DietActor
+{
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.5;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE B -1 Bright Light("BIGGREENTORCH");
+		Stop;
+	}
+}
+
+class ZDCMP1TorchB : BlueTorch replaces BlueTorch
+{
+	Default
+	{
+		Radius 10;
+		Height 67;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		TBLX A 0 NoDelay
+		{
+			A_SpawnItemEx("ZDCMP1TallTorchLensFlareB", 0, 0, 62.0);
+		}
+		TBLX A 1 A_SpawnItemEx("ZDCMP1TorchFlameB", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class ZDCMP1TorchFlameB : ZDCMP1DietActorWithVel
+{
+	mixin ZDCMP1FireMixin;
+
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNB A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZDCMP1TallTorchLensFlareB : ZDCMP1DietActor
+{
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.5;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE C -1 Bright Light("BIGBLUETORCH");
+		Stop;
+	}
+}
+
+//Experimental yet
+mixin class ZDCMP1FireMixinShort
+{
+	bool fadedIn;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		RenderStyle "Add";
+		Alpha 0;
+		+ROLLSPRITE
+		+ROLLCENTER
+		+BRIGHT
+		+FORCEXYBILLBOARD
+		+NOINTERACTION
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	SpawnLoop:
+		"####" "#" 0
+		{
+			bSpriteFlip = RandomPick(false, true);
+			A_SetRoll(frandom(0.0, 360.0));
+		}
+		"####" "#" 1
+		{
+			int rollDir = bSpriteFlip ? -1 : 1;
+			double rollSpeed = 2.33 * rollDir;
+			A_SetRoll(Roll + rollSpeed, SPF_INTERPOLATE);
+
+			if (!fadedIn)
+			{
+				if (Alpha < 0.5)
+				{
+					A_FadeIn(0.1);
+				}
+				else
+				{
+					fadedIn = true;
+				}
+			}
+
+			if (fadedIn)
+			{
+				A_SetScale(Scale.X * 0.58);
+				A_FadeOut(0.025);
+			}
+		}
+		Goto SpawnLoop + 1;
+	}
+}
+
+class ZDCMP1ShortRedTorch : ShortRedTorch replaces ShortRedTorch
+{
+	Default
+	{
+		Radius 8;
+		Height 32;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		SMRX A 0 NoDelay
+		{
+			A_SpawnItemEx("ZDCMP1ShortTorchLensFlare", 0, 0, 32.0);
+		}
+		SMRX A 1 A_SpawnItemEx("ZDCMP1TorchFlameShort", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class ZDCMP1TorchFlameShort : ZDCMP1DietActorWithVel //necessary for diff mixin
+{
+	mixin ZDCMP1FireMixinShort;
+
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNO A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZDCMP1ShortTorchLensFlare : ZDCMP1DietActor
+{
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.25;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE A -1 Bright Light("SMALLREDTORCH");
+		Stop;
+	}
+}
+
+class ZDCMP1ShortGreenTorch : ShortGreenTorch replaces ShortGreenTorch
+{
+	Default
+	{
+		Radius 8;
+		Height 32;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		SMRX A 0 NoDelay
+		{
+			A_SpawnItemEx("ZDCMP1ShortTorchLensFlareG", 0, 0, 32.0);
+		}
+		SMRX A 1 A_SpawnItemEx("ZDCMP1TorchFlameShortG", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class ZDCMP1TorchFlameShortG : ZDCMP1DietActorWithVel //necessary for diff mixin
+{
+	mixin ZDCMP1FireMixinShort;
+
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNG A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZDCMP1ShortTorchLensFlareG : ZDCMP1DietActor
+{
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.25;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE B -1 Bright Light("SMALLGREENTORCH");
+		Stop;
+	}
+}
+
+class ZDCMP1ShortBlueTorch : ShortBlueTorch replaces ShortBlueTorch
+{
+	Default
+	{
+		Radius 8;
+		Height 32;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		SMRX A 0 NoDelay
+		{
+			A_SpawnItemEx("ZDCMP1ShortTorchLensFlareB", 0, 0, 32.0);
+		}
+		SMRX A 1 A_SpawnItemEx("ZDCMP1TorchFlameShortB", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class ZDCMP1TorchFlameShortB : ZDCMP1DietActorWithVel //necessary for diff mixin
+{
+	mixin ZDCMP1FireMixinShort;
+
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNB A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class ZDCMP1ShortTorchLensFlareB : ZDCMP1DietActor
+{
+	Default
+	{
+		DistanceCheck "ZDCMP1_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.25;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE C -1 Bright Light("SMALLBLUETORCH");
+		Stop;
+	}
+}

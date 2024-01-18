@@ -74,12 +74,59 @@ class ParticleBase : SimpleActor
 	}
 }
 
-#include "zscript/mblur.zc"
-#include "zscript/player.zc"
-#include "zscript/rings.zc"
-#include "zscript/underwater.zc"
+//===========================================================================
+//
+// Actors with minimal ticking. Useful for completely non-interactive stuff
+//
+//===========================================================================
 
-#include "zscript/ZDCMP1Props.zc"
+class ZDCMP1DietActor : Actor
+{
+	bool ticked;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Tick()
+	{
+		if (!ticked)
+		{
+			Super.Tick();
+			ticked = true;
+			return;
+		}
+
+		if (!bNoTimeFreeze && isFrozen()) return;
+		if (tics != -1)
+		{
+			if (--tics <= 0)
+			{
+				if (!SetState(curstate.NextState)) return;
+			}
+		}
+	}
+}
+
+class ZDCMP1DietActorWithVel : ZDCMP1DietActor
+{
+	override void Tick(void)
+	{
+		SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
+		Super.Tick();
+	}
+}
+
+#include "zscript/ZDCMP_Int.zc"
+#include "zscript/ZDCMP_Mblur.zc"
+#include "zscript/ZDCMP_Player.zc"
+#include "zscript/ZDCMP_Rings.zc"
+#include "zscript/ZDCMP_Underwater.zc"
+#include "zscript/ZDCMP_Props.zc"
+#include "zscript/ZDCMP_Torch.zc"
+//heat, fx not included yet
 
 #include "zscript/NashGoreCommon.zc"
 #include "zscript/NashGoreStatics.zc"
