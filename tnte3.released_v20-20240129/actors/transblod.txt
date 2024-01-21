@@ -1,48 +1,65 @@
 //Fuzzy Translations///////////////////////////////
 actor Gore_FuzzyBlood : Blood
 {
-game Doom
-states
+	+SHADOW
+	Game Doom
+	Renderstyle STYLE_OptFuzzy
+	Alpha 0.5
+	States
 	{
 	Spawn:
-	BLUD C 8
-	BLUD B 8 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
-	BLUD A 8
-	stop
+		BLUD C 8
+		BLUD B 8 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+		BLUD A 8
+		Stop
 	}
 }
 
 actor Gore_FuzzyFlyingBlood : NashGore_FlyingBlood
-{+SHADOW RenderStyle OptFuzzy Alpha 0.5
-states
+{
+	+SHADOW
+	Renderstyle STYLE_OptFuzzy
+	Alpha 0.5
+	States
 	{
 	Spawn:
-	TNT1 A 0
-	FBLD A 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,1)
-	FBLD A 1
-	FBLD A 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,2)
-	FBLD A 1
-	FBLD B 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,3)
-	FBLD B 1
-	FBLD B 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,4)
-	FBLD B 1
-	FBLD C 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,5)
-	FBLD C 1
-	FBLD C 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,6)
-	FBLD C 1
-	FBLD D 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,7)
-	FBLD D 1
-	FBLD D 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,8)
-	FBLD D 1
-	loop
+		TNT1 A 0
+		FBLD A 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,1)
+		FBLD A 1
+		FBLD A 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,2)
+		FBLD A 1
+		FBLD B 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,3)
+		FBLD B 1
+		FBLD B 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,4)
+		FBLD B 1
+		FBLD C 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,5)
+		FBLD C 1
+		FBLD C 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,6)
+		FBLD C 1
+		FBLD D 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,7)
+		FBLD D 1
+		FBLD D 1 A_SpawnItem("Gore_FuzzyFlyingBloodTrail",0,0,0,8)
+		FBLD D 1
+		loop
 	Crash:
-	TNT1 A 1 A_SpawnItem("Gore_FuzzyBloodSpot",0,0,0,1)
-	stop
+		TNT1 A 1 A_SpawnItem("Gore_FuzzyBloodSpot",0,0,0,1)
+		stop
 	}
 }
 
-actor Gore_FuzzyBloodSpot : NashGore_BloodSpot {+SHADOW RenderStyle OptFuzzy Alpha 0.5}
-actor Gore_FuzzyFlyingBloodTrail : NashGore_FlyingBloodTrail {+SHADOW RenderStyle OptFuzzy Alpha 0.5}
+actor Gore_FuzzyBloodSpot : NashGore_BloodSpot
+{
+	+SHADOW
+	Renderstyle STYLE_OptFuzzy
+	Alpha 0.5
+}
+
+actor Gore_FuzzyFlyingBloodTrail : NashGore_FlyingBloodTrail
+{
+	+SHADOW
+	Renderstyle STYLE_OptFuzzy
+	Alpha 0.5
+}
 
 //Blue Translations///////////////////////////////
 actor Gore_BlueFlyingBlood : NashGore_FlyingBlood

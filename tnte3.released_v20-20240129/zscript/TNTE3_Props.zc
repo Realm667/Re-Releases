@@ -20,6 +20,43 @@
  * SOFTWARE.
 **/
 
+// Kept for savegame compatibility - Talon1024 and N00b
+class SnowParticle : SimpleActor replaces BrainStem //attempt to improve performance replacing very old solution for snow particles - spawned via map scripts btw
+{
+	Default
+	{
+		DistanceCheck "TNTE3_lod";
+		Radius 1;
+		Height 3;
+		Projectile;
+		RenderStyle "Add";
+		Alpha 0.6;
+		Scale 0.6;
+		+CLIENTSIDEONLY
+		+DONTSPLASH
+		+FORCEXYBILLBOARD
+		+NOBLOCKMAP
+	}
+
+	States
+	{
+	Spawn:
+		SNOW AAAAAAAA 1 NoDelay A_FadeIn(0.01);
+		SNOW A -1;
+		Stop;
+	Death:
+		SNOW A 1 A_FadeOut(0.01, FTF_REMOVE);
+		Loop;
+	}
+
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		scale.x = scale.y = FRandom(0.3, 0.6);
+	}
+}
+
+//Lightrays
 Class LightRay_Regular : SwitchableDecoration
 {
 	Default

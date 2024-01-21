@@ -54,10 +54,10 @@ ACTOR Gore_DemonArm //sprites by NeoWorm
 	{
 	Spawn:
 		TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
-		SAAG ABCDEFGH 2 A_SpawnDebris("NashGore_FlyingBlood",1)
+		SAAG ABCDEFGH 2 A_SpawnDebris("NashGore_FlyingBlood",TRUE)
 		Loop
 	Underwater:
-		SAAG ABCDEFGH 2 A_SpawnDebris("NashGore_FlyingBlood", 1)
+		SAAG ABCDEFGH 2 A_SpawnDebris("NashGore_FlyingBlood",TRUE)
 		SAAG I -1
 		Stop
 	Death:
@@ -81,10 +81,10 @@ ACTOR Gore_SpectreArm : Gore_DemonArm
 	{
 	Spawn:
 		TNT1 AA 0 A_JumpIf(waterlevel > 0, "Underwater")
-		SAAG ABCDEFGH 2 A_SpawnDebris("Gore_FuzzyFlyingBlood",1)
+		SAAG ABCDEFGH 2 A_SpawnDebris("Gore_FuzzyFlyingBlood",TRUE)
 		Loop
 	Underwater:
-		SAAG ABCDEFGH 2 A_SpawnDebris("Gore_FuzzyFlyingBlood", 1)
+		SAAG ABCDEFGH 2 A_SpawnDebris("Gore_FuzzyFlyingBlood",TRUE)
 		SAAG I -1
 		Stop
 	}
@@ -226,9 +226,9 @@ States
 
 ACTOR NashGore_Demon : Demon replaces Demon
 {
-//$Sprite SARGA1
-GibHealth 35
-States
+	//$Sprite SARGA1
+	GibHealth 35
+	States
 	{
 	Death:
 		SARG A 0 A_Jump(128,"Death2")
@@ -280,12 +280,12 @@ States
 
 ACTOR NashGore_Spectre : Spectre replaces Spectre
 {
-//$Sprite SARGA1
-GibHealth 35
-BloodType "Gore_FuzzyBlood"
-BloodColor "Black"
-Renderstyle OptFuzzy
-States
+	//$Sprite SARGA1
+	GibHealth 35
+	BloodColor "Black"
+	BloodType "Gore_FuzzyBlood"
+	Renderstyle STYLE_OptFuzzy
+	States
 	{
 	Death:
 		SARG A 0 A_Jump(128,"Death2")
