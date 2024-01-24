@@ -1,6 +1,6 @@
 gameinfo
 {
-	playerclasses = "TNTRem"
+	playerclasses = "TNTRemPlayer"
 
 	AddEventHandlers = "NashGoreHandler", "TNTWaterHandler", "MBlurShaderHandler", "CustomShaderHandler"
 
@@ -82,7 +82,7 @@ map map01 lookup "TUTNTMAPLE"
 	cluster = 1
 	music = D_RUNNIN
 	nointermission 
-	next = EndGame2 //not defined yet - ozy81
+	next = EndGameC
 }
 
 cluster 1
@@ -94,11 +94,11 @@ cluster 1
 		   "from its mortal shell, realizing the war has ended, ", 
 		   "but at the cost of this final battle.",
 		"",
-		"In the annals of the unknown, a true hero emerges – one whose ", 
+		"In the annals of the unknown, a true hero emerges – one whose", 
 		   "valor and sacrifice remain unseen and unsung. As the ", 
 		   "Outer Limits proclaim, - A true hero is the one whose ", 
 		   "exploits no one will ever discover! -"
-	flat = GRAVE02
+	pic = CREDIT0
 	music = D_ALFOP
 }
 
@@ -113,4 +113,275 @@ doomednums
 	31109 = "LightRay2_RegularNL"
 	31110 = "LightRay2_WallSpriteNL"
 	32029 = "HeatEffectGiver"
+}
+
+Intermission "Ending"
+{
+	Image
+	{
+		Background = "CREDIT"
+		Time = 5
+	}
+	Link = Inter_Cast
+}
+
+Intermission Inter_Cast
+{
+	Image
+	{
+		// This is only here to initialize the background and the music
+		Background = "bossback"
+		Time = -1
+		Music = "d_dm2ttl"
+	}
+	Link = TCotD1Cast
+}
+
+Intermission TCotD1Cast
+{
+	Cast
+	{
+		CastClass = "Zombieman"
+		CastName = "$CC_ZOMBIE"
+		AttackSound = "Missile", 1, "grunt/attack"
+	}
+	Cast
+	{
+		CastClass = "ChainsawZombie"
+		CastName = "Chainsaw Trooper"
+		AttackSound = "Melee", 1, "weapons/sawhit"
+	}
+	Cast
+	{
+		CastClass = "ShotgunGuy"
+		CastName = "$CC_SHOTGUN"
+		AttackSound = "Missile", 1, "shotguy/attack"
+	}
+	Cast
+	{
+		CastClass = "ShotgunSoldier"
+		CastName = "Heavy Shotgun Trooper"
+		AttackSound = "Missile", 1, "shotguy/attack"
+	}
+	Cast
+	{
+		CastClass = "ZombieMarine"
+		CastName = "Zombified Marine"
+		AttackSound = "Missile", 1, "RifleShot"
+	}
+	Cast
+	{
+		CastClass = "ZombieRailgunner"
+		CastName = "Railgun Trooper"
+		AttackSound = "Missile", 1, "weapons/rbeam"
+	}
+	Cast
+	{
+		CastClass = "RapidFireTrooper"
+		CastName = "Rapid Fire Trooper"
+		AttackSound = "Missile", 1, "grunt/attack"
+	}
+	Cast
+	{
+		CastClass = "RocketGuy"
+		CastName = "Rocket Trooper"
+		AttackSound = "Missile", 1, "weapons/rocklf"
+	}
+	Cast
+	{
+		CastClass = "PlasmaZombie"
+		CastName = "Plasma Trooper"
+		AttackSound = "Missile", 1, "weapons/plasmaf"
+	}
+	Cast
+	{
+		CastClass = "NashGore_ChaingunGuy"
+		CastName = "Heavy Weapon Dude"
+		AttackSound = "Missile", 1, "chainguy/attack"
+		AttackSound = "Missile", 2, "chainguy/attack"
+		AttackSound = "Missile", 3, "chainguy/attack"
+	}
+	Cast
+	{
+		CastClass = "DoomImp"
+		CastName = "$CC_IMP"
+		AttackSound = "Melee", 3, "imp/attack"
+	}
+	Cast
+	{
+		CastClass = "NamiDarkImp"
+		CastName = "Dark Imp"
+		AttackSound = "Missile", 1, "imp/attack"
+	}
+	Cast
+	{
+		CastClass = "StoneImp"
+		CastName = "StoneImp"
+		AttackSound = "Melee", 2, "MaceHit"
+	}
+	Cast
+	{
+		CastClass = "SnakeImp"
+		CastName = "SnakeImp"
+		AttackSound = "Missile", 1, "imp/attack"
+	}
+	Cast
+	{
+		CastClass = "SoulHarvester"
+		CastName = "Soul Harvester"
+		AttackSound = "Missile", 3, "HarvesterBallScream"
+	}
+	Cast
+	{
+		CastClass = "ImpWarlord"
+		CastName = "Imp Warlord"
+		AttackSound = "Missile", 11, "MaceSwing"
+	}
+	Cast
+	{
+		CastClass = "Demon"
+		CastName = "$CC_DEMON"
+		AttackSound = "Melee", 1, "demon/melee"
+	}
+	Cast
+	{
+		CastClass = "BloodDemonClone"
+		CastName = "Blood Demon"
+		AttackSound = "Melee", 1, "demon/melee"
+	}
+	Cast
+	{
+		CastClass = "LostSoul"
+		CastName = "$CC_LOST"
+		AttackSound = "Missile", 1, "skull/melee"
+	}
+	Cast
+	{
+		CastClass = "Cacodemon"
+		CastName = "$CC_CACO"
+		AttackSound = "Missile", 1, "caco/attack"
+	}
+	Cast
+	{
+		CastClass = "EnhancedCacodemon"
+		CastName = "Enhanced Cacodemon"
+		AttackSound = "Missile", 1, "wizard/attack"
+	}
+	Cast
+	{
+		CastClass = "Cacolantern"
+		CastName = "CacolanternClone"
+		AttackSound = "Missile", 1, "caco/attack"
+	}
+	Cast
+	{
+		CastClass = "HellGuard"
+		CastName = "Hell Guard"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "Satyr"
+		CastName = "Satyr"
+		AttackSound = "Melee", 1, "baron/melee"
+	}
+	Cast
+	{
+		CastClass = "HellWarrior"
+		CastName = "Hell Warrior"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "HellKnight"
+		CastName = "$CC_HELL"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "BaronOfHell"
+		CastName = "$CC_BARON"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "BelphegorClone"
+		CastName = "Belphegor"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "LordofHeresy"
+		CastName = "Lord of Heresy"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "Afrit"
+		CastName = "Afrit"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "Arachnotron"
+		CastName = "$CC_ARACH"
+		AttackSound = "Missile", 1, "chainguy/attack"
+		AttackSound = "Missile", 2, "chainguy/attack"
+		AttackSound = "Missile", 3, "chainguy/attack"
+	}
+	Cast
+	{
+		CastClass = "PainElemental"
+		CastName = "$CC_PAIN"
+		AttackSound = "Missile", 2, "skull/melee"
+	}
+	Cast
+	{
+		CastClass = "Revenant"
+		CastName = "$CC_REVEN"
+		AttackSound = "Missile", 1, "skeleton/attack"
+		AttackSound = "Melee", 1, "skeleton/swing"
+		AttackSound = "Melee", 3, "skeleton/melee"
+	}
+	Cast
+	{
+		CastClass = "Fatso"
+		CastName = "$CC_MANCU"
+		AttackSound = "Missile", 1, "fatso/attack"
+		AttackSound = "Missile", 4, "fatso/attack"
+		AttackSound = "Missile", 7, "fatso/attack"
+	}
+	Cast
+	{
+		CastClass = "Cyberdemon"
+		CastName = "Cyberdemon"
+		AttackSound = "Missile", 1, "weapons/rocklf"
+	}
+	Cast
+	{
+		CastClass = "Arachnophyte"
+		CastName = "Arachnophyte"
+		AttackSound = "Missile", 1, "chainguy/attack"
+	}
+	Cast
+	{
+		CastClass = "CyberMastermind"
+		CastName = "Cyber Mastermind"
+		AttackSound = "Missile", 1, "chainguy/attack"
+		AttackSound = "Missile", 3, "weapons/rocklf"
+		AttackSound = "Missile", 5, "chainguy/attack"
+	}
+	Cast
+	{
+		CastClass = "Archvile"
+		CastName = "$CC_ARCH"
+		AttackSound = "Missile", 1, "vile/start"
+	}
+	Cast
+	{
+		CastClass = "DoomPlayer"
+		CastName = "$CC_HERO"
+		AttackSound = "Missile", 0, "weapons/sshotf"
+	}
+	Link = Doom2Cast	// restart cast call
 }
