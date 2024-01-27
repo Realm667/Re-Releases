@@ -1,0 +1,53 @@
+ACTOR CyberMastermind
+{
+    //$Category TNTLE_Monsters
+    Health 5000
+    Radius 128
+    Height 100
+    Speed 12
+    PainChance 30
+    Mass 1000
+    MONSTER
+    +FLOORCLIP
+    +BOSS
+    +NORADIUSDMG
+    SeeSound "cyber/sight"
+    PainSound "spider/pain"
+    DeathSound "cyber/death"
+    ActiveSound "spider/active"
+    Obituary "$OB_CYST"
+    States
+    {
+    Spawn:
+        CYMM AB 10 A_Look
+        Loop
+    See:
+        CYMM AABB 3 A_Chase
+        CYMM B 0 A_StartSound("spider/walk")
+        CYMM CCDD 3 A_Chase
+        CYMM D 0 A_StartSound("spider/walk")
+        CYMM EEFF 3 A_Chase
+        CYMM F 0 A_StartSound("spider/walk")
+        Loop
+    Missile:
+        CYMM A 20 A_FaceTarget
+        CYMM GHGH 4 A_SPosAttack
+        CYMM H 0 A_FaceTarget
+        CYMM I 0 A_CyberAttack
+        CYMM IJ 4 A_SPosAttack
+        CYMM J 1 A_SpidRefire
+        Goto Missile+1
+    Pain:
+        CYMM K 4
+        CYMM K 4 A_Pain
+        Goto See
+    Death:
+        CYMM L 8
+        CYMM M 8 A_Scream
+        CYMM N 6
+        CYMM O 6 A_Fall
+        CYMM PQRST 6
+        CYMM U -1
+        Stop
+    }
+}

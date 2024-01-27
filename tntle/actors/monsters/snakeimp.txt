@@ -1,0 +1,74 @@
+ACTOR SnakeImp
+{
+	//$Category TNTLE_Monsters
+	Health		100
+	Radius		20
+	Height		60
+	Speed		8
+	MeleeDamage	8
+	MONSTER
+	+FLOORCLIP
+	SeeSound	"imp/sight"
+	ActiveSound	"imp/active"
+	PainSound	"imp/pain"
+	MeleeSound	"imp/melee"
+	DeathSound	"imp/death"
+	AttackSound	"imp/attack"
+	Obituary "$OB_SIMP"
+	HitObituary "$HB_SIMP"
+	States
+	{
+	Spawn:
+		SIMP AB 8 A_Look
+		Loop
+	See:
+		SIMP AABBCCDD 4 A_Chase
+		Loop
+	Missile:
+		SIMP EF 8 A_FaceTarget
+		SIMP G 8 A_CustomMissile("SnakeImpFireball", 40, 0, 0, 1)
+		Goto See
+	Pain:
+		SIMP H 4 A_Pain
+		SIMP H 4
+		Goto See
+	Death:
+		SIMP I 6
+		SIMP J 6 A_Scream
+		SIMP KL 6
+		SIMP M 6 A_Fall
+		SIMP M -1
+		Stop
+	XDeath:
+		SIMP N 6 A_XScream
+		SIMP O 6 A_Fall
+		SIMP PQRST 6
+		SIMP U -1
+		Stop
+	Raise:
+		SIMP LKJI 5
+		Goto See
+	}
+}
+
+ACTOR SnakeImpFireball
+{
+	Health	1000
+	Radius	8
+	Height	16
+	Speed	16
+	Damage	12
+	Mass	200
+	PROJECTILE
+	SeeSound	"imp/attack"
+	DeathSound	"imp/shotx"
+	States
+	{
+	Spawn:
+		SIBA AB 8
+		loop
+	Death:
+		SIBA CDE 5
+		Stop
+	}
+}

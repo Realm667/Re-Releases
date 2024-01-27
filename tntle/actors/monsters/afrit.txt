@@ -1,0 +1,190 @@
+ACTOR Afrit
+{ 
+	//$Category TNTLE_Monsters
+	Health 800 
+	Speed 6
+	Radius 24
+	Height 72
+	PainChance 50
+	Mass 500
+	Meleedamage 10 
+	SeeSound "baron/sight"
+	PainSound "baron/pain"
+	DeathSound "baron/death"
+	ActiveSound "baron/active"
+	MeleeSound "baron/melee"
+	Missiletype "AfritBall"
+	MissileHeight 44
+	REACTIONTIME 8
+	MONSTER
+	+BRIGHT
+	+NORADIUSDMG
+	+FLOORCLIP
+	+NOGRAVITY
+	+FLOATBOB
+	+FLOAT
+	Obituary "$OB_AFRT" 
+	HitObituary "$HB_AFRT" 
+	States 
+	{ 
+	Spawn:
+		FRIT ABCD 4 A_Look 
+		Loop
+	See:
+		FRIT A 0 A_CustomMissile("OrbitComet", 44, 0, 0)
+		FRIT A 0 A_CustomMissile("OrbitComet2", 44, 0, 180)
+		FRIT AABBCCDD 2 A_Chase 
+		Goto See +2
+	Melee:
+		FRIT ST 8 A_FaceTarget
+		FRIT U 6 A_ComboAttack
+		Goto See +2
+	Missile:
+		FRIT E 0 A_Jump(128,4)
+		FRIT EF 6 A_FaceTarget
+		FRIT G 6 A_ComboAttack
+		Goto See +2
+		FRIT EF 6 A_FaceTarget
+		FRIT G 6 A_CustomMissile("Comet", 44, 0, 0)
+		Goto See +2
+	Pain: 
+		FRIT HH 4 A_Pain 
+		Goto See +2
+	Death: 
+		FRIT I 0 A_NoGravity
+		FRIT I 6 A_Scream
+		FRIT J 5 A_NoBlocking
+		FRIT KLMNOPQR 4
+		Stop 
+	} 
+}
+
+ACTOR Comet
+{
+    Radius 6
+    Height 8
+    Speed 10
+    Damage 5
+    ExplosionDamage 40
+    ExplosionRadius 80
+    Scale .55
+	+BRIGHT
+    PROJECTILE
+    SeeSound "CometLaunch"
+    DeathSound "CometExplosion"
+    MissileType CometTail
+    MissileHeight 0
+    States
+    {
+    Spawn:
+        COMT AAAABBBBCCCC 1 A_MissileAttack
+        Loop
+    Death:
+        COMT D 3 A_CustomMissile("CometDeathGlow", 0, 0, 0)
+        COMT E 3 A_Explode
+        COMT E 0 A_CustomMissile("CometDeath", 0, 0, 0)
+        Stop
+    }
+}
+
+ACTOR CometTail
+{
+    RenderStyle STYLE_Add
+    ALPHA 0.4
+    PROJECTILE
+	+BRIGHT
+    +NOCLIP
+    States
+    {
+    Spawn:
+        FRTB ABCDEFGHI 1
+        Stop
+    }
+}
+
+ACTOR CometDeath
+{
+    RenderStyle STYLE_Add
+    ALPHA 0.7
+    PROJECTILE
+	+BRIGHT
+    +NOCLIP
+    States
+    {
+    Spawn:
+        COMT FGHI 3
+        Stop
+    }
+}
+
+ACTOR CometDeathGlow : CometTail
+{
+    Scale 2.0
+    Alpha 0.6
+    States
+    {
+    Spawn:
+        FRTB ABCDEFGHI 3
+        Stop
+    }
+}
+
+ACTOR OrbitCometTail : CometTail
+{
+    Scale .5
+}
+
+ACTOR OrbitComet : Comet
+{
+	Scale .28
+	Speed 5
+	+NOCLIP
+	SeeSound ""
+	MissileType OrbitCometTail
+	MissileHeight 0
+	States
+	{
+	Spawn:
+		COMT AABBCC 1 Bright A_MissileAttack
+		COMT A 0 A_CustomMissile("OrbitComet", 0, 0, 75)
+		COMT A 0 A_MissileAttack
+		Stop
+	}
+}
+
+ACTOR OrbitComet2 : OrbitComet
+{
+	MissileType OrbitCometTail
+	MissileHeight 0
+	States
+	{
+	Spawn:
+		COMT AABBCC 1 Bright A_MissileAttack
+		COMT A 0 A_CustomMissile("OrbitComet2", 0, 0, -75)
+		COMT A 0 A_MissileAttack
+		Stop
+	}
+}
+
+ACTOR AfritBall
+{
+	Radius 6
+	Height 8
+	Speed 15
+	Damage 8
+	+BRIGHT
+	PROJECTILE
+	RenderStyle STYLE_Add
+	ALPHA 0.8
+	SeeSound "imp/attack"
+	DeathSound "imp/shotx"
+	States
+	{
+	Spawn:
+		FRTM AB 5
+		Loop
+	Death:
+		FRTM CDE 6
+		Stop
+	}
+}

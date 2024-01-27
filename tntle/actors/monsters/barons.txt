@@ -1,0 +1,320 @@
+ACTOR BelphegorClone
+{
+	//$Category TNTLE_Monsters
+	Health 1500
+	Speed 8
+	Radius 24
+	Height 64
+	PainChance 50
+	Mass 1000
+	Meleedamage 15
+	SeeSound "baron/sight"
+	PainSound "baron/pain"
+	DeathSound "baron/death"
+	ActiveSound "baron/active"
+	MeleeSound "baron/melee"
+	REACTIONTIME 8
+	MONSTER
+	BloodColor "33 FF 00"
+	Missiletype BelphegorBall
+	Obituary "$OB_BELF"
+	HitObituary "$HB_BELF"
+	States
+	{
+	Spawn:
+		BOS3 AB 10 A_Look
+		Loop
+	See:
+		BOS3 AABBCCDD 3 A_Chase
+		Loop
+	Missile:
+		BOS3 E 8 A_FaceTarget
+		BOS3 F 8 A_FaceTarget
+		BOS3 G 8 A_ComboAttack
+		BOS3 F 8 A_FaceTarget
+		BOS3 G 8 A_ComboAttack
+		BOS3 F 8 A_FaceTarget
+		BOS3 G 8 A_ComboAttack
+		Goto See
+	Melee:
+		BOS3 EF 8 A_FaceTarget
+		BOS3 G 8 A_ComboAttack
+		Goto See
+	Pain:
+		BOS3 H 2
+		BOS3 H 2 A_Pain
+		Goto See
+	Death:
+		BOS3 I 8
+		BOS3 J 8 A_Scream
+		BOS3 K 8
+		BOS3 L 8 A_NoBlocking
+		BOS3 MN 8
+		BOS3 O -1
+		Stop
+	Raise:
+		BOS3 ONMLKJI 8
+		Goto See
+	}
+}
+
+ACTOR HellGuard
+{
+    //$Category TNTLE_Monsters
+    Health 300
+    Radius 24
+    Height 64
+    Speed 8
+    PainChance 50
+    Mass 500
+    MeleeDamage 8
+    MONSTER
+    +FLOORCLIP
+    SeeSound "knight/sight"
+    PainSound "knight/pain"
+    DeathSound "knight/death"
+    ActiveSound "knight/active"
+    Obituary "$OB_HELG"
+    States
+    {
+    Spawn:
+        HLGD AB 10 A_Look
+        Loop
+    See:
+        HLGD AABBCCDD 3 A_Chase
+        Loop
+    Missile:
+        HLGD E 8 A_FaceTarget
+        HLGD F 0 A_Jump(85,4)
+        HLGD F 0 A_Jump(128,2)
+        HLGD F 4 Bright A_CustomMissile("HellGuardBall", 28, -8, -4, 1)
+        Goto Missile+6
+        HLGD F 4 Bright A_CustomMissile("HellGuardBall", 28, -8, 4, 1)
+        Goto Missile+6
+        HLGD F 4 Bright A_CustomMissile("HellGuardBall", 28, -8, 0, 1)
+        Goto Missile+6
+        HLGD E 4 A_FaceTarget
+        HLGD F 0 A_Jump(85,4)
+        HLGD F 0 A_Jump(128,2)
+        HLGD F 4 Bright A_CustomMissile("HellGuardBall", 28, -8, -4, 1)
+        Goto Missile+12
+        HLGD F 4 Bright A_CustomMissile("HellGuardBall", 28, -8, 4, 1)
+        Goto Missile+12
+        HLGD F 4 Bright A_CustomMissile("HellGuardBall", 28, -8, 0, 1)
+        Goto Missile+12
+        HLGD E 4 A_FaceTarget
+        HLGD F 0 A_Jump(85,4)
+        HLGD F 0 A_Jump(128,2)
+        HLGD F 4 Bright A_CustomMissile("HellGuardBall", 28, -8, -4, 1)
+        Goto See
+        HLGD F 4 Bright A_CustomMissile("HellGuardBall", 28, -8, 4, 1)
+        Goto See
+        HLGD F 4 Bright A_CustomMissile("HellGuardBall", 28, -8, 0, 1)
+        Goto See
+    Pain:
+        HLGD G 2
+        HLGD G 2 A_Pain
+        Goto See
+    Death:
+        HLGD H 6
+        HLGD I 6 A_Scream
+        HLGD J 6
+        HLGD K 6 A_Fall
+        HLGD LM 6
+        HLGD N -1
+        Stop
+    Raise:
+        HLGD ONMLKJI 8
+        Goto See
+    }
+}
+
+ACTOR LordofHeresy
+{
+    //$Category TNTLE_Monsters
+    Health 1250
+    Radius 20
+    Height 56
+    Speed 13
+    PainChance 50
+    Mass 1000
+    MONSTER
+    BloodColor "33 FF 00"
+    SeeSound "baron/sight"
+    PainSound "demon/pain"
+    DeathSound "baron/death"
+    ActiveSound "demon/active"
+    Obituary "$OB_LORD"
+    States
+    {
+    Spawn:
+        LOHS AB 10 A_Look
+        Loop
+    See:
+        LOHS AABBCCDD 4 A_Chase
+        Loop
+    Missile:
+        LOHS E 0 A_Jump(85,5)
+        LOHS E 0 A_Jump(128,9)
+        LOHS E 8 A_FaceTarget
+        LOHS F 8 A_FaceTarget
+        LOHS G 8 A_BruisAttack
+        Goto See
+        LOHS E 8 A_FaceTarget
+        LOHS F 8 A_FaceTarget
+        LOHS G 0 A_CustomMissile("BaronBall", 32, 0, 8)
+        LOHS G 0 A_CustomMissile("BaronBall", 32, 0, 0)
+        LOHS G 8 A_CustomMissile("BaronBall", 32, 0, -8)
+        Goto See
+        LOHS E 8 A_FaceTarget
+        LOHS F 8 A_FaceTarget
+        LOHS G 0 A_CustomMissile("BaronBall", 32, 0, -22)
+        LOHS G 8 A_CustomMissile("BaronBall", 32, 0, 0)
+        LOHS E 8 A_FaceTarget
+        LOHS F 8 A_FaceTarget
+        LOHS G 0 A_CustomMissile("BaronBall", 32, 0, 22)
+        LOHS G 8 A_CustomMissile("BaronBall", 32, 0, 0)
+        LOHS E 8 A_FaceTarget
+        LOHS F 8 A_FaceTarget
+        LOHS G 0 A_CustomMissile("BaronBall", 32, 0, -12)
+        LOHS G 8 A_CustomMissile("BaronBall", 32, 0, 12)
+        Goto See
+    Pain:
+        LOHS H 5
+        LOHS H 5 A_Pain
+        Goto See
+    Death:
+        LOHS I 8
+        LOHS J 8 A_Scream
+        LOHS K 8 A_Fall
+        LOHS LMN 8
+        LOHS O -1
+        Stop
+    Raise:
+        LOHS ONMLKJI 5
+        Goto See
+    }
+}
+
+ACTOR HellWarrior
+{
+	//$Category TNTLE_Monsters
+	Health 400
+	Speed 8
+	Radius 24
+	Height 64
+	PainChance 50
+	Mass 1000
+	Meleedamage 15
+	SeeSound "knight/sight"
+	PainSound "knight/pain"
+	DeathSound "knight/death"
+	ActiveSound "knight/active"
+	MeleeSound "baron/melee"
+	REACTIONTIME 8
+	MONSTER
+	BloodColor "FF BB 00"
+	Missiletype HellWarriorBall
+	Obituary "$OB_HELW"
+	HitObituary "$HB_HELW"
+	States
+	{
+	Spawn:
+		HWAR AB 10 A_Look
+		Loop
+	See:
+		HWAR AABBCCDD 3 A_Chase
+		Loop
+	Missile:
+	Melee:
+		HWAR EF 8 A_FaceTarget
+		HWAR G 8 A_ComboAttack
+		Goto See
+	Pain:
+		HWAR H 0 A_Pain
+		HWAR H 0 A_SetInvulnerable
+		HWAR HHHHHHHH 6 A_FaceTarget
+		HWAR H 2 A_UnSetInvulnerable
+		Goto See
+	Death:
+		HWAR I 8
+		HWAR J 8 A_Scream
+		HWAR K 8
+		HWAR L 8 A_NoBlocking
+		HWAR MN 8
+		HWAR O -1
+		Stop
+	Raise:
+		HWAR ONMLKJI 5
+		Goto See
+	}
+}
+
+ACTOR BelphegorBall
+{
+    Radius 6
+    Height 8
+    Speed 20
+    Damage 10
+	+BRIGHT
+    PROJECTILE
+    RenderStyle STYLE_Add
+    ALPHA 0.67
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+        BAL7 AB 5
+        Loop
+    Death:
+        BAL7 CDE 6
+        Stop
+    }
+}
+
+ACTOR HellGuardBall
+{
+    Radius 13
+    Height 8
+    Speed 10
+    Damage 6
+	+BRIGHT
+    PROJECTILE
+    RenderStyle STYLE_Add
+    ALPHA 0.67
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+        HGFB ABCD 2
+        Loop
+    Death:
+        HGFB EFGH 4
+        Stop
+    }
+}
+
+ACTOR HellWarriorBall
+{
+    Radius 6
+    Height 8
+    Speed 15
+    Damage 8
+	+BRIGHT
+    PROJECTILE
+    RenderStyle STYLE_Add
+    ALPHA 0.67
+    SeeSound "imp/attack"
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+        HWFB A 5
+        Loop
+    Death:
+        HWFB BCDE 6
+        Stop
+    }
+}

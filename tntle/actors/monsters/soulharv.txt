@@ -1,0 +1,94 @@
+ACTOR SoulHarvester
+{
+    //$Category TNTLE_Monsters
+    Health 100
+    Radius 20
+    Height 56
+    Speed 8
+    PainChance 200
+    MeleeDamage 3
+    MONSTER
+    +FLOORCLIP
+    SeeSound "imp/sight"
+    PainSound "imp/pain"
+    DeathSound "imp/death"
+    ActiveSound "imp/active"
+    MeleeSound "imp/melee"
+    Obituary "$OB_HARV"
+    HitObituary "$HB_HARV"
+    MissileType SoulHarvesterBall
+    States
+    {
+    Spawn:
+        SLHV AB 10 A_Look
+        Loop
+    See:
+        SLHV AABBCCDD 3 A_Chase
+        Loop
+    Melee:
+    Missile:
+        SLHV EFEFEF 7 A_FaceTarget
+        SLHV G 6 A_MissileAttack
+        Goto See
+    Pain:
+        SLHV H 2
+        SLHV H 2 A_Pain
+        Goto See
+    Death:
+        SLHV I 5
+        SLHV J 5 A_XScream
+        SLHV K 5 A_CustomMissile("SoulHarvesterGhost", 8, 0, 0)
+        SLHV L 5 A_Fall
+        SLHV MNO 5
+        SLHV P -1
+        Stop
+    Raise:
+        SLHV PONMLKJI 5
+        Goto See
+    }
+}
+
+ACTOR SoulHarvesterBall
+{
+    Radius 8
+    Height 6
+    Speed 9
+    Damage 3
+    RenderStyle STYLE_Add
+    Alpha 0.8
+    PROJECTILE
+	+BRIGHT
+    +SEEKERMISSILE
+    SeeSound "HarvesterBallScream"
+    DeathSound "imp/shotx"
+    States
+    {
+    Spawn:
+        SHFB A 0 A_StartSound("HarvesterBallScream")
+        SHFB ABCABC 4 A_SeekerMissile (10,20)
+        Loop
+    Death:
+        SHFB DEFG 4
+        Stop
+    }
+}
+
+ACTOR SoulHarvesterGhost
+{
+    Radius 1
+    Height 1
+    Speed 0
+    RenderStyle STYLE_Translucent
+    Alpha 0.75
+    PROJECTILE
+	+BRIGHT
+    +NOCLIP
+    SeeSound "HarvesterGhostScream"
+    States
+    {
+    Spawn:
+    Death:
+        SHGH ABCDEFG 5
+        Stop
+    }
+}
