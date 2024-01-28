@@ -112,4 +112,37 @@ ACTOR FlameAmmo : Mana2 //this is used by CWeapFlame weapon called Firestorm for
 	}
 }
 
-ACTOR CentaurLeaderBlood : CentaurLeader replaces CentaurLeader { BloodColor "FFA700" }
+ACTOR CentaurLeaderBlood : CentaurLeader replaces CentaurLeader
+{ 
+	BloodColor "FFA700"
+	GibHealth 35
+	States
+	{
+	XDeath:
+		CTXD A 4
+		CTXD B 4 A_NoBlocking
+		CTXD C 0 A_SpawnItemEx("CentaurSword", 0, 0, 45, 1 + random[CentaurDrop](-128,127)*0.03125, 1 + random[CentaurDrop](-128,127)*0.03125, 8 + random[CentaurDrop](0,255)*0.015625, 270)
+		CTXD C 4 A_SpawnItemEx("CentaurShield", 0, 0, 45, 1 + random[CentaurDrop](-128,127)*0.03125, 1 + random[CentaurDrop](-128,127)*0.03125, 8 + random[CentaurDrop](0,255)*0.015625, 90)
+		CTXD C 0 A_SpawnDebris("Gore_Gib9TNTE3",0)
+		CTXD C 0 A_SpawnDebris("Gore_Gib10TNTE3",0)
+		CTXD C 0 A_SpawnDebris("Gore_Gib11TNTE3",0)
+		CTXD C 0 A_SpawnDebris("Gore_Gib11TNTE3",0)
+		CTXD C 0 A_SpawnItem("Gore_GibGeneratorTNTE3",0,0,0,0)
+		CTXD D 3 A_Scream
+		CTXD E 4 A_QueueCorpse
+		CTXD D 0 A_SpawnItem("Gore_GibGeneratorTNTE3",0,0,0,0)
+		CTXD F 3
+		CTXD E 0 A_SpawnItem("Gore_GibGeneratorTNTE3",0,0,0,2)
+		CTXD G 4
+		CTXD F 0 A_SpawnItem("Gore_GibGeneratorTNTE3",0,0,0,4)
+		CTXD H 3
+		CTXD G 0 A_SpawnItem("Gore_GibGeneratorTNTE3",0,0,0,6)
+		CTXD I 4
+		CTXD J 3
+		CTXD K -1
+		Stop
+	Crush:
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedMediumTNTE3",0,0,0,0)
+		Stop
+	}
+}
