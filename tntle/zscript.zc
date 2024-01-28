@@ -86,6 +86,28 @@ class isIntro : Inventory //prevent Motion Blur working over cutscenes if we mov
 	}
 }
 
+class HitlerTNTLE : WolfensteinSS replaces WolfensteinSS //from dehacked to zscript - ozy81
+{
+	Default
+	{
+		PainChance 20;
+		Mass 300;
+	}
+
+	States
+	{
+	Death:
+		"####" "#" 1;
+	XDeath:
+		SSWV N 15;
+		SSWV O 1 A_XScream;
+		SSWV P 5 A_NoBlocking;
+		SSWV QRSTU 5;
+		SSWV V -1;
+		Stop;
+	}
+}
+
 #include "zscript/TNTEL_Int.zc"
 #include "zscript/TNTEL_Heat.zc"
 #include "zscript/TNTEL_MBlur.zc"
