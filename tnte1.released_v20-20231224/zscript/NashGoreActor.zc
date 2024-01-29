@@ -88,7 +88,7 @@ class NashGoreActor : NashGorePlugin
 					// find the last corpse blood that was stepped on
 					if (lastCorpseBlood && lastCorpseBlood.target)
 					{
-						int flags = SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION | SXF_ABSOLUTEANGLE;
+						int flags = SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION | SXF_ABSOLUTEANGLE | SXF_TRANSFERRENDERSTYLE;
 
 						double ang = Owner.Angle;
 
@@ -136,13 +136,13 @@ class NashGoreActor : NashGorePlugin
 				Actor corpseblood;
 
 				[result, corpseblood] =
-				Owner.A_SpawnItemEx("NashGoreCorpseBlood", flags: SXF_USEBLOODCOLOR);
+				Owner.A_SpawnItemEx("NashGoreCorpseBlood", flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE);
 
 				// footprint colour needs pointer to owner
 				if (corpseblood) corpseblood.target = Owner;
 
 				// spawn blood spurts
-				if (nashgore_bloodspurt) Owner.A_SpawnItemEx("NashGoreBloodSpurtSpawner", flags: SXF_USEBLOODCOLOR, 200);
+				if (nashgore_bloodspurt) Owner.A_SpawnItemEx("NashGoreBloodSpurtSpawner", flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE, 200);
 
 				bCorpseBlood = true;
 			}
@@ -161,7 +161,7 @@ class NashGoreActor : NashGorePlugin
 							Owner.A_SpawnItemEx("NashGoreBloodSpurt",
 								frandom(-4, 4), frandom(-4, 4), frandom(10, 20),
 								frandom(-4.0, 4.0), frandom(-4.0, 4.0), frandom(5.0, 10.0),
-								frandom(0, 360), SXF_USEBLOODCOLOR);
+								frandom(0, 360), SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE);
 						}
 					}
 					fallTics = MAX_FALLTICS + 1;
@@ -170,7 +170,7 @@ class NashGoreActor : NashGorePlugin
 
 			if (nashgore_squish)
 			{
-				int spawnFlags = SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION;
+				int spawnFlags = SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION | SXF_TRANSFERRENDERSTYLE;
 
 				double crushHeight = (Owner.Pos.Z + Owner.Height) + Owner.GetDeathHeight();
 

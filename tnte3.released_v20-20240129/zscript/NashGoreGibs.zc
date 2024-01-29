@@ -107,7 +107,7 @@ class NashGoreGibs : Actor
 			mo.A_SpawnItemEx("NashGoreGibs",
 				zofs: spawnHeight,
 				frandom(-5.5, 5.5), frandom(-5.5, 5.5), frandom(0, 12.5),
-				flags: SXF_USEBLOODCOLOR, 100);
+				flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE, 100);
 			if (obj) obj.target = mo;
 
 			// spawn lots of blood
@@ -117,7 +117,7 @@ class NashGoreGibs : Actor
 				mo.A_SpawnItemEx("Blood",
 					frandom(-spawnRadius, spawnRadius), frandom(-spawnRadius, spawnRadius), spawnHeight,
 					frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(0.0, 4.0),
-					frandom(0, 360), SXF_USEBLOODCOLOR);
+					frandom(0, 360), SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE);
 				if (obj) obj.target = mo;
 			}
 
@@ -143,7 +143,7 @@ class NashGoreGibs : Actor
 						if (nashgore_bloodtype == 0)		cls = "NashGoreBloodSpotCeiling";
 						else if (nashgore_bloodtype == 1)	cls = "NashGoreBloodSpotClassicCeiling";
 
-						[result, obj] = mo.A_SpawnItemEx(cls, flags: SXF_USEBLOODCOLOR, 150);
+						[result, obj] = mo.A_SpawnItemEx(cls, flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE, 150);
 						if (obj)
 						{
 							obj.Gravity = 0;
@@ -156,7 +156,7 @@ class NashGoreGibs : Actor
 					}
 
 					// ceiling gib
-					[result, obj] = mo.A_SpawnItemEx("NashGoreStickyGibsCeiling", flags: SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION, 200);
+					[result, obj] = mo.A_SpawnItemEx("NashGoreStickyGibsCeiling", flags: SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION | SXF_TRANSFERRENDERSTYLE, 200);
 					if (obj)
 					{
 						obj.SetOrigin(t.HitLocation, true);
@@ -170,7 +170,7 @@ class NashGoreGibs : Actor
 					// wall gib
 					bool result;
 					Actor obj;
-					[result, obj] = mo.A_SpawnItemEx("NashGoreStickyGibsWall", flags: SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION, 100);
+					[result, obj] = mo.A_SpawnItemEx("NashGoreStickyGibsWall", flags: SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION | SXF_TRANSFERRENDERSTYLE, 100);
 					if (obj)
 					{
 						double posAdjust = -4.f;
@@ -232,14 +232,14 @@ class NashGoreGibs : Actor
 			class<Actor> cls;
 			if (nashgore_bloodtype == 0)		cls = "NashGoreBloodSpot";
 			else if (nashgore_bloodtype == 1)	cls = "NashGoreBloodSpotClassic";
-			A_SpawnItemEx(cls, flags: (NashGoreBloodBase.BLOOD_FLAGS | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 150);
+			A_SpawnItemEx(cls, flags: (NashGoreBloodBase.BLOOD_FLAGS | SXF_TRANSFERRENDERSTYLE | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 150);
 		}
 		"####" EEEEEEEEEE 1
 		{
 			A_SpawnItemEx("NashGoreBloodFloorSplashSpawner",
 				0, 0, 0,
 				frandom(-4.0, 4.0), frandom(-4.0, 4.0), frandom(1.0, 4.0),
-				frandom(0, 360), NashGoreBlood.BLOOD_FLAGS, 175);
+				frandom(0, 360), NashGoreBlood.BLOOD_FLAGS | SXF_TRANSFERRENDERSTYLE, 175);
 		}
 		"####" E -1;
 		Stop;

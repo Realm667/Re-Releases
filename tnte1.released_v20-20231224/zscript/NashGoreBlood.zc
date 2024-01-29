@@ -134,14 +134,14 @@ class NashGoreBlood : NashGoreBloodBase
 	Spawn2:
 		TNT1 A 0
 		{
-			A_SpawnItemEx("NashGoreBloodImpact", flags: BLOOD_FLAGS);
+			A_SpawnItemEx("NashGoreBloodImpact", flags: BLOOD_FLAGS | SXF_TRANSFERRENDERSTYLE);
 
 			for (int i = 0; i < 10; i++)
 			{
 				A_SpawnItemEx("NashGoreBloodParticle1",
 					frandom(-8, 8), frandom(-8, 8), frandom(-8, 8),
 					frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(0.0, 4.0),
-					frandom(0, 360), BLOOD_FLAGS | SXF_TRANSFERPOINTERS, chanceMod);
+					frandom(0, 360), BLOOD_FLAGS | SXF_TRANSFERPOINTERS | SXF_TRANSFERRENDERSTYLE, chanceMod);
 			}
 		}
 		TNT1 AAAAAAAAAA 1
@@ -149,14 +149,14 @@ class NashGoreBlood : NashGoreBloodBase
 			A_SpawnItemEx("NashGoreBloodParticle2",
 				frandom(-8, 8), frandom(-8, 8), frandom(-8, 8),
 				frandom(-2.5, 2.5), frandom(-2.5, 2.5), frandom(1.0, 2.0),
-				frandom(0, 360), BLOOD_FLAGS, chanceMod);
+				frandom(0, 360), BLOOD_FLAGS | SXF_TRANSFERRENDERSTYLE, chanceMod);
 		}
 		TNT1 AAAAAAAAAA 1
 		{
 			A_SpawnItemEx("NashGoreBloodFloorSplashSpawner",
 				0, 0, 0,
 				frandom(-4.0, 4.0), frandom(-4.0, 4.0), frandom(1.0, 4.0),
-				frandom(0, 360), BLOOD_FLAGS, chanceMod);
+				frandom(0, 360), BLOOD_FLAGS | SXF_TRANSFERRENDERSTYLE, chanceMod);
 		}
 		Stop;
 	}
@@ -247,11 +247,11 @@ class NashGoreBloodParticle1 : NashGoreBloodBase
 		{
 			if (random() < 50)
 			{
-				A_SpawnItemEx("NashGoreBloodSpot", flags: (BLOOD_FLAGS | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 190);
+				A_SpawnItemEx("NashGoreBloodSpot", flags: (BLOOD_FLAGS | SXF_TRANSFERRENDERSTYLE | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 190);
 			}
 			else
 			{
-				A_SpawnItemEx("NashGoreBloodSpotSmall", flags: (BLOOD_FLAGS | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 190);
+				A_SpawnItemEx("NashGoreBloodSpotSmall", flags: (BLOOD_FLAGS | SXF_TRANSFERRENDERSTYLE | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 190);
 			}
 		}
 		Stop;
@@ -311,12 +311,12 @@ class NashGoreClassicBlood : NashGoreBloodBase
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			A_SpawnItemEx("NashGoreBloodImpact", flags: BLOOD_FLAGS);
+			A_SpawnItemEx("NashGoreBloodImpact", flags: BLOOD_FLAGS| SXF_TRANSFERRENDERSTYLE);
 
 			// This shit needs to be in the Spawn state for translations to work correctly. >8[
 			A_SpawnItemEx("NashGoreClassicBloodTrailSpawner",
 				xvel: frandom(-6, 6), frandom(-6, 6), frandom(0, 8),
-				frandom(0.0, 360.0), SXF_TRANSFERTRANSLATION, 110);
+				frandom(0.0, 360.0), SXF_TRANSFERTRANSLATION | SXF_TRANSFERRENDERSTYLE, 110);
 		}
 		Stop;
 	}
@@ -366,14 +366,14 @@ class NashGoreClassicBloodTrailSpawner : NashGoreBloodBase
 	Spawn:
 		TNT1 A 3
 		{
-			A_SpawnItemEx("NashGoreClassicBloodTrail", flags: SXF_TRANSFERTRANSLATION);
+			A_SpawnItemEx("NashGoreClassicBloodTrail", flags: SXF_TRANSFERTRANSLATION | SXF_TRANSFERRENDERSTYLE);
 		}
 		Loop;
 	Crash:
 		TNT1 A 0
 		{
 			A_PlaySound("nashgore/bloodsplash");
-			A_SpawnItemEx("NashGoreBloodSpotClassic", flags: (BLOOD_FLAGS | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("NashGoreBloodSpotClassic", flags: (BLOOD_FLAGS | SXF_TRANSFERRENDERSTYLE | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION);
 		}
 		Stop;
 	}
@@ -423,11 +423,11 @@ class NashGoreClassicBloodTrail : NashGoreBloodBase
 		{
 			A_SpawnItemEx("NashGoreBloodFloorSplash",
 				frandom(-32, 32), frandom(-32, 32),
-				flags: SXF_TRANSFERTRANSLATION | SXF_ABSOLUTEPOSITION | SXF_NOCHECKPOSITION, 220);
+				flags: SXF_TRANSFERTRANSLATION | SXF_TRANSFERRENDERSTYLE | SXF_ABSOLUTEPOSITION | SXF_NOCHECKPOSITION, 220);
 
 			A_SpawnItemEx("NashGoreBloodSpotClassic",
 				frandom(-32, 32), frandom(-32, 32),
-				flags: (BLOOD_FLAGS | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 254);
+				flags: (BLOOD_FLAGS | SXF_TRANSFERRENDERSTYLE | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 254);
 		}
 		Stop;
 	}
@@ -485,7 +485,7 @@ class NashGoreBloodSpurtSpawner : Actor
 				frandom(-5, 5), frandom(-5, 5), frandom(15, 25),
 				frandom(-2, 2), frandom(-2, 2), frandom(4, 8),
 				frandom(0, 360),
-				NashGoreBloodBase.BLOOD_FLAGS);
+				NashGoreBloodBase.BLOOD_FLAGS | SXF_TRANSFERRENDERSTYLE);
 
 			spurtDuration--;
 		}
@@ -561,14 +561,14 @@ class NashGoreBloodSpurt : NashGoreBloodBase
 		{
 			A_SpawnItemEx("NashGoreBloodFloorSplash",
 				frandom(-32, 32), frandom(-32, 32),
-				flags: SXF_TRANSFERTRANSLATION | SXF_ABSOLUTEPOSITION | SXF_NOCHECKPOSITION, 100);
+				flags: SXF_TRANSFERTRANSLATION | SXF_TRANSFERRENDERSTYLE | SXF_ABSOLUTEPOSITION | SXF_NOCHECKPOSITION, 100);
 
 			if (nashgore_bloodtype == 0 || nashgore_bloodtype == 1)
 			{
 				class<Actor> cls;
 				if (nashgore_bloodtype == 0)		cls = "NashGoreBloodSpot";
 				else if (nashgore_bloodtype == 1)	cls = "NashGoreBloodSpotClassic";
-				A_SpawnItemEx(cls, flags: (BLOOD_FLAGS | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 230);
+				A_SpawnItemEx(cls, flags: (BLOOD_FLAGS | SXF_TRANSFERRENDERSTYLE | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 230);
 			}
 		}
 		Stop;
@@ -609,7 +609,7 @@ class NashGoreBloodFloorSplashSpawner : Actor
 		TNT1 A -1;
 		Stop;
 	Crash:
-		TNT1 A 0 A_SpawnItemEx("NashGoreBloodFloorSplash", flags: NashGoreBloodBase.BLOOD_FLAGS);
+		TNT1 A 0 A_SpawnItemEx("NashGoreBloodFloorSplash", flags: NashGoreBloodBase.BLOOD_FLAGS| SXF_TRANSFERRENDERSTYLE);
 		Stop;
 	}
 }
@@ -686,7 +686,7 @@ class NashGoreBloodDrop : NashGoreBloodBase
 	Crash:
 		TNT1 A 0
 		{
-			A_SpawnItemEx("NashGoreBloodFloorSplash", flags: BLOOD_FLAGS);
+			A_SpawnItemEx("NashGoreBloodFloorSplash", flags: BLOOD_FLAGS| SXF_TRANSFERRENDERSTYLE);
 			if (random() < 180) A_PlaySound("nashgore/blooddrop");
 		}
 		Stop;
