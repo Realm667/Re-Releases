@@ -1,19 +1,19 @@
-ACTOR TerrorCubeBlueSkull : CustomInventory
+ACTOR TerrorCubeRedSkull : CustomInventory
 {
 	Radius 8
 	Height 8
-	Inventory.PickUpMessage "$PK_CUBEK"
-	+NOGRAVITY
+	Inventory.PickUpMessage "$GOTREDSKUL"
+	//+NOGRAVITY
 	+ACTIVATEPCROSS //why?
 	States
 	{
 	Spawn:
-		BSKU A 10
-		BSKU B 10 BRIGHT
+		RSKU A 10
+		RSKU B 10 BRIGHT
 		Loop
 	Pickup:
-		BSKU A 0 A_GiveInventory("BlueSkull")
-		BSKU A 0 ACS_Execute(41,0,0,0,0)
+		RSKU A 0 A_GiveInventory("REDSkull")
+		RSKU A 0 ACS_Execute(41,0,0,0,0)
 		Stop
 	}
 }
