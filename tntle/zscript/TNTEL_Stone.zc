@@ -1,0 +1,205 @@
+Class StoneImp : Actor
+{
+	Default
+	{
+		//$Category TNTLE Monsters
+		Health 300;
+		Radius 20;
+		Height 56;
+		Speed 6;
+		Mass 400;
+		BloodType "StoneBitsSpawner";
+		DamageFactor "Poison", 0;
+		DamageFactor "PoisonCloud", 0;
+		DamageFactor "Electric", 0;
+		DamageFactor "Lightning", 0;
+		DamageFactor "Fire", 0.5;
+		DamageFactor "Ice", 1.2;
+		RadiusDamageFactor 0.25;
+		SeeSound "imp/sight";
+		PainSound "imp/pain";
+		DeathSound "imp/death";
+		ActiveSound "imp/active";
+		Obituary "$OB_RIMP";
+		MONSTER;
+		+FLOORCLIP
+		+NOBLOODDECALS
+		+NOPAIN
+		+NORADIUSDMG
+	}
+
+	States
+	{
+	Spawn:
+		GIMP AB 10 A_Look();
+		Loop;
+	See:
+		GIMP AABBCCDD 3 A_Chase();
+		Loop;
+	Melee:
+		GIMP EF 8 A_FaceTarget();
+		GIMP G 6 A_CustomMeleeAttack(12, "stoneimp/hit", "", "Melee");
+		Goto See;
+	Pain:
+		GIMP H 2;
+		GIMP H 2 A_Pain();
+		Goto See;
+	Death:
+		GIMP I 0 {bNoBlood = TRUE;} //make sure that we don't see any Nash blood splats but keep the stonebits - ozy81
+		GIMP I 8;
+		GIMP J 8 A_Scream();
+		GIMP K 6;
+		GIMP L 6 A_Fall();
+		GIMP M 6;
+		GIMP N -1;
+		Stop;
+	Raise:
+		GIMP ML 8;
+		GIMP KJI 6;
+		Goto See;
+	}
+}
+
+// Stone bits SFX - by Blue Shadow (the spawning code is based on Nash's nashgore code)
+Class StoneBitsSpawner : BulletPuff
+{
+	Default
+	{
+		-ALLOWPARTICLES
+	}
+
+	States
+	{
+	Spawn:
+		TNT1 A 0;
+		Goto High;
+		TNT1 A 0;
+		Goto Medium;
+		TNT1 A 0;
+	Low:
+		TNT1 AA 0 A_SpawnItemEx("StoneBitsSmall", 0, 0, 8, random(-4, 4), random(-4, 4), random(2, 5), 0, SXF_ABSOLUTEPOSITION | SXF_ABSOLUTEANGLE | SXF_ABSOLUTEMOMENTUM);
+		Goto SpawnPuff;
+	Medium:
+		TNT1 AAA 0 A_SpawnItemEx("StoneBitsMedium", 0, 0, 8, random(-4, 4), random(-4, 4), random(2, 5), 0, SXF_ABSOLUTEPOSITION | SXF_ABSOLUTEANGLE | SXF_ABSOLUTEMOMENTUM);
+		Goto SpawnPuff;
+	High:
+		TNT1 AAAAA 0 A_SpawnItemEx("StoneBitsLarge", 0, 0, 8, random(-4, 4), random(-4, 4), random(2, 5), 0, SXF_ABSOLUTEPOSITION | SXF_ABSOLUTEANGLE | SXF_ABSOLUTEMOMENTUM);
+	SpawnPuff:
+		PUFF A 4 Bright A_StartSound("stoneimp/impact");
+		PUFF ABCD 4;
+		Stop;
+	}
+}
+
+Class StoneBitsBase : Actor
+{
+	Default
+	{
+		Radius 2;
+		Height 2;
+		+NOTELEPORT;
+		+NOBLOCKMAP;
+	}
+
+	States
+	{
+	Fade:
+		"####" "#" 1 A_FadeOut(0.25);
+		Wait;
+	}
+}
+
+Class StoneBitsSmall : StoneBitsBase
+{
+	States
+	{
+	Spawn:
+		TNT1 AA 0 A_Jump(256, "SpawnA", "SpawnB");
+	SpawnA:
+		TNT1 A 0 A_Jump(256, 1, 2, 3, 4);
+		STB1 A 10;
+		Goto Fade;
+		STB1 B 10;
+		Goto Fade;
+		STB1 C 10;
+		Goto Fade;
+		STB1 D 10;
+		Goto Fade;
+	SpawnB:
+		TNT1 A 0 A_Jump(256, 1, 2);
+		STB2 A 10;
+		Goto Fade;
+		STB2 B 10;
+		Goto Fade;
+	}
+}
+
+Class StoneBitsMedium : StoneBitsBase
+{
+	States
+	{
+	Spawn:
+		TNT1 AA 0 A_Jump(256, "SpawnA", "SpawnB", "SpawnC");
+	SpawnA:
+		TNT1 A 0 A_Jump(256, 1, 2, 3, 4);
+		STB1 A 10;
+		Goto Fade;
+		STB1 B 10;
+		Goto Fade;
+		STB1 C 10;
+		Goto Fade;
+		STB1 D 10;
+		Goto Fade;
+	SpawnB:
+		TNT1 A 0 A_Jump(256, 1, 2);
+		STB2 A 10;
+		Goto Fade;
+		STB2 B 10;
+		Goto Fade;
+	SpawnC:
+		TNT1 A 0 A_Jump(256, 1, 2, 3, 4);
+		STB3 A 10;
+		Goto Fade;
+		STB3 B 10;
+		Goto Fade;
+		STB3 C 10;
+		Goto Fade;
+		STB3 D 10;
+		Goto Fade;
+	}
+}
+
+Class StoneBitsLarge : StoneBitsBase
+{
+	States
+	{
+	Spawn:
+		TNT1 AA 0 A_Jump(256, "SpawnB", "SpawnC", "SpawnD");
+	SpawnB:
+		TNT1 A 0 A_Jump(256, 1, 2);
+		STB2 A 10;
+		Goto Fade;
+		STB2 B 10;
+		Goto Fade;
+	SpawnC:
+		TNT1 A 0 A_Jump(256, 1, 2, 3, 4);
+		STB3 A 10;
+		Goto Fade;
+		STB3 B 10;
+		Goto Fade;
+		STB3 C 10;
+		Goto Fade;
+		STB3 D 10;
+		Goto Fade;
+	SpawnD:
+		TNT1 A 0 A_Jump(256, 1, 2, 3, 4);
+		STB4 A 10;
+		Goto Fade;
+		STB4 B 10;
+		Goto Fade;
+		STB4 C 10;
+		Goto Fade;
+		STB4 D 10;
+		Goto Fade;
+	}
+}

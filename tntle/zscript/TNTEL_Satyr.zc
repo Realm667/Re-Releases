@@ -1,0 +1,51 @@
+Class Satyr : Actor
+{
+	Default
+	{
+		//$Category TNTLE Monsters
+		Health 400;
+		Radius 24;
+		Height 64;
+		Scale 0.9;
+		Speed 8;
+		PainChance 50;
+		Mass 1000;
+		SeeSound "satyr/sight";
+		PainSound "knight/pain";
+		DeathSound "satyr/death";
+		ActiveSound "knight/active";
+		HitObituary "$OB_SATY";
+		MONSTER;
+		+FLOORCLIP
+	}
+
+	States
+	{
+	Spawn:
+		STYR AB 10 A_Look();
+		Loop;
+	See:
+		STYR AABBCCDD 3 A_Chase();
+		Loop;
+	Melee:
+		STYR EF 6 A_FaceTarget();
+		STYR G 6 A_CustomMeleeAttack(8*Random(1, 8), "Baron/Melee");
+		Goto See;
+	Pain:
+		STYR H 2;
+		STYR H 2 A_Pain();
+		Goto See;
+	Death:
+		STYR I 8;
+		STYR J 8 A_Scream();
+		STYR K 8;
+		STYR L 8 A_Fall();
+		STYR MN 8;
+		STYR O -1;
+		Stop;
+	Raise:
+		STYR ONMLKJI 8;
+		Goto See;
+	}
+}
+

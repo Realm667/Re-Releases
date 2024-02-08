@@ -1,0 +1,79 @@
+Class SnakeImp : Actor
+{
+	Default
+	{
+		//$Category TNTLE Monsters
+		Health 100;
+		GibHealth 35;
+		Radius 20;
+		Height 60;
+		Speed 8;
+		SeeSound "imp/sight";
+		ActiveSound "imp/active";
+		PainSound "imp/pain";
+		DeathSound "imp/death";
+		Obituary "$OB_SIMP";
+		HitObituary "$HB_SIMP";
+		MONSTER;
+		+FLOORCLIP
+	}
+
+	States
+	{
+	Spawn:
+		SIMP AB 8 A_Look();
+		Loop;
+	See:
+		SIMP AABBCCDD 4 A_Chase();
+		Loop;
+	Melee:
+	Missile:
+		SIMP EF 8 A_FaceTarget();
+		SIMP G 8 A_CustomComboAttack("SnakeImpFireball",40,4,"imp/attack");
+		Goto See;
+	Pain:
+		SIMP H 4 A_Pain();
+		SIMP H 4;
+		Goto See;
+	Death:
+		SIMP I 6;
+		SIMP J 6 A_Scream();
+		SIMP KL 6;
+		SIMP M 6 A_Fall();
+		SIMP M -1;
+		Stop;
+	XDeath:
+		SIMP N 6 A_XScream();
+		SIMP O 6 A_Fall();
+		SIMP PQRST 6;
+		SIMP U -1;
+		Stop;
+	Raise:
+		SIMP LKJI 5;
+		Goto See;
+	}
+}
+
+Class SnakeImpFireball : Actor //this had health 1000, damage 12 and mass 200 on the original wad
+{
+	Default
+	{
+		Radius 8;
+		Height 16;
+		Speed 20;
+		Damage 4;
+		SeeSound "imp/attack";
+		DeathSound "imp/shotx";
+		PROJECTILE;
+	}
+
+	States
+	{
+	Spawn:
+		SIBA AB 8;
+		Loop;
+	Death:
+		SIBA CDE 5;
+		Stop;
+	}
+}
