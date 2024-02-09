@@ -29,18 +29,18 @@ ACTOR HS
 		Loop
 	See:
 		HADE EFGH 4 BRIGHT
-		HADE A 2 BRIGHT A_PlaySound("monster/hadwlk")
+		HADE A 2 BRIGHT A_StartSound("monster/hadwlk")
 		HADE ABBCCDD 2 BRIGHT A_Chase
 		HADE D 0 BRIGHT A_Jump (32,1)
 		Goto See+4
 		HADE H 0 BRIGHT A_UnSetSolid
 		HADE H 0 BRIGHT A_UnSetShootable
-		HADE H 5 BRIGHT A_PlaySound("monster/hadtel")
+		HADE H 5 BRIGHT A_StartSound("monster/hadtel")
 		HADE GFEIJKL 4 BRIGHT
 		TNT1 AAAAAAAA 2 BRIGHT A_Chase
 		TNT1 A 0 BRIGHT A_Jump (96,1)
 		Goto See+24
-		HADE L 3 BRIGHT A_PlaySound("monster/hadtel")
+		HADE L 3 BRIGHT A_StartSound("monster/hadtel")
 		HADE KJIEFG 4 BRIGHT
 		HADE H 0 BRIGHT A_SetShootable
 		HADE H 0 BRIGHT A_SetSolid
@@ -57,7 +57,7 @@ ACTOR HS
 		Stop
 	XDeath:
 		HADE N 0 BRIGHT A_NoBlocking
-		HADE H 5 BRIGHT A_PlaySound("monster/haddth")
+		HADE H 5 BRIGHT A_StartSound("monster/haddth")
 		HADE GFE 4 BRIGHT
 		HADE RSTUVWX 4 BRIGHT
 		Stop

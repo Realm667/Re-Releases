@@ -22,7 +22,7 @@ ACTOR SuicideBomber
 		Loop
 	See:
 		BMBE AAABBBCCCDDD 2 A_Chase
-		BMBE A 0 A_PlaySound("suicide/scream")
+		BMBE A 0 A_StartSound("suicide/scream")
 		Loop
 	Melee:
 		BMBE A 0 A_Die
@@ -33,7 +33,7 @@ ACTOR SuicideBomber
 		Goto See
 	Death:
 		BMBE M 0 BRIGHT A_Explode (50, 128)
-		BMBE M 5 BRIGHT A_PlaySound ("weapons/rocklx")
+		BMBE M 5 BRIGHT A_StartSound ("weapons/rocklx")
 		BMBE N 5 BRIGHT A_XScream
 		BMBE O 5 A_NoBlocking
 		BMBE PQRST 5

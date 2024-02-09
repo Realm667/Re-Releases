@@ -28,12 +28,12 @@ ACTOR Terminator
 		TERM AB 10 A_Look
 		Loop
 	See:
-		TERM A 1 A_PlaySound("Terminator/terstepA")
+		TERM A 1 A_StartSound("Terminator/terstepA")
 		TERM A 3 A_Chase
 		TERM A 4 A_Chase
 		TERM B 4 A_Chase
 		TERM B 4 A_Chase
-		TERM C 1 A_PlaySound("Terminator/terstepA")
+		TERM C 1 A_StartSound("Terminator/terstepA")
 		TERM C 3 A_Chase
 		TERM C 4 A_Chase
 		TERM D 4 A_Chase
@@ -54,10 +54,10 @@ ACTOR Terminator
 		TERM G 0 A_Jump(160, 9)
 		TERM G 2 A_FaceTarget
 		TERM H 1 BRIGHT A_CustomBulletAttack (15, 8, 2, 4, "Terminatorpuff")
-		TERM H 1 BRIGHT A_PlaySound("Terminator/tershotB")
+		TERM H 1 BRIGHT A_StartSound("Terminator/tershotB")
 		TERM G 2 A_FaceTarget
 		TERM I 1 BRIGHT A_CustomBulletAttack (15, 8, 2, 4, "Terminatorpuff")
-		TERM I 1 BRIGHT A_PlaySound("Terminator/tershotB")
+		TERM I 1 BRIGHT A_StartSound("Terminator/tershotB")
 		TERM G 0 A_Jump(16, 2)
 		TERM G 1 A_Spidrefire
 		Goto Missile+7
@@ -83,7 +83,7 @@ ACTOR Terminator
 		TERM W 4
 		TERM X 6 A_Fall
 		TERM Y 6
-		TERM Z 1 A_PlaySound("Terminator/terstepA")
+		TERM Z 1 A_StartSound("Terminator/terstepA")
 		TERM Z 5
 		TERM [ -1
 		Stop
@@ -159,7 +159,7 @@ ACTOR RedGrenade
     Spawn:
     	TGND A 0
     	TGND A 1 BRIGHT Thrustthingz(0, 24, 0, 1)
-    	TGND A 1 BRIGHT A_PlaySound("Terminator/tershotA")
+    	TGND A 1 BRIGHT A_StartSound("Terminator/tershotA")
     	TGND BBBBCCCCAAAA 1 BRIGHT A_CustomMissile("GrenadeTrail",0,0,0,0,0)
     	TGND A 0 A_JumpIfCloser(48, 1)
         Goto Spawn+3
