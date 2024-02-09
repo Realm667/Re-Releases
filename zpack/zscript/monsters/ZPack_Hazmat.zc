@@ -1,0 +1,57 @@
+Class HazmatZombie : Actor
+{
+	Default
+	{
+		//$Category ZPack Monsters
+		Health 20;
+		Mass 90;
+		Speed 8;
+		Radius 20;
+		Height 52;
+		PainChance 200;
+		SeeSound "grunt/sight";
+		PainSound "grunt/pain";
+		DeathSound "grunt/death";
+		ActiveSound "grunt/active";
+		AttackSound "hazmat/tazer";
+		Monster;
+		+FLOORCLIP
+		Obituary "$OB_HAZMA";
+	}
+	
+	States
+	{
+	Spawn:
+		HMZP AB 10 A_LookEx();
+		Loop;
+	See:
+		HMZP AABBCCDD 4 A_Chase();
+		Loop;
+	Melee:
+		HMZP E 4 A_FaceTarget();
+		HMZP F 4 Bright A_CustomMeleeAttack (random (2, 12) *3);
+		HMZP E 4;
+		goto See;
+	Pain:
+		HMZP G 3;
+		HMZP G 3 A_Pain();
+		goto See;
+	Death:
+		HMZP H 5;
+		HMZP I 5 A_Scream();
+		HMZP J 5 A_NoBlocking();
+		HMZP K 5;
+		HMZP L -1;
+		Stop;
+	XDeath:
+		HMZP M 5;
+		HMZP N 5 A_XScream();
+		HMZP O 5 A_NoBlocking();
+		HMZP PQRST 5;
+		HMZP U -1;
+		Stop;
+	Raise:
+		HMZP LKJIH 5;
+		goto See;
+	}
+}

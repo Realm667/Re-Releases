@@ -2,6 +2,12 @@
 /// MONSTER SOUND DEFINITIONS ///
 /////////////////////////////////
 
+//afrit
+Afrit/CometFire FRITCMFR
+Afrit/CometHit	FRITCMHT
+Afrit/Hellfire	FRITFIRE
+
+//diabloist
 monster/diasit dsdiasit
 monster/diapai dsdiapai
 monster/diadth dsdiadth
@@ -12,16 +18,18 @@ weapons/firex4 dsfirex4
 weapons/diasht dsdiasht
 weapons/firex3 dsfirex3
 
-spider2/sight SPISIT
-spider2/death SPIDTH
-spider2/pain SPIPAI
-spider2/active SPIACT
-spider2/land SPILND
+//spiders
+spider2/sight 	SPISIT
+spider2/death 	SPIDTH
+spider2/pain 	SPIPAI
+spider2/active 	SPIACT
+spider2/land 	SPILND
 
 $random spider/step {spider/step1 spider/step2}
 spider/step1 SPIST1
 spider/step2 SPIST2
 
+//soul harvester
 $RANDOM harvester/sight { shsight1 shsight2 }
 shsight1 shsight1
 shsight2 shsight2
@@ -33,20 +41,26 @@ shdeath2 shdeath2
 harvester/scream shfbscrm
 harvester/ghost shghscrm
 
+//blood fiend
 monster/sg2sit dssg2sit
 monster/sg2atk dssg2atk
+weapons/bloodf dsbloodf
+weapons/bloodx dsbloodx
 
+//cybruiser
 monster/brusit dsbrusit
 monster/brudth dsbrudth
 monster/bruwlk dsbruwlk
-monster/brufir dsbrufir
-weapons/hellex dshellex
+monster/brufir dsbrufir //used also by terminator
+weapons/hellex dshellex //used also by terminator
 
-superbaron/scream dssbsit
-superbaron/pain dssbpain
-superbaron/death dssbdth
-superbaron/act dssbact
+//bruiser demon
+superbaron/scream 	dssbsit
+superbaron/pain 	dssbpain
+superbaron/death 	dssbdth
+superbaron/act 		dssbact
 
+//incarnate
 monster/incsit dsincsit
 monster/incdth dsincdth
 monster/incact dsincact
@@ -54,39 +68,37 @@ monster/incatk dsincatk
 monster/inchit dsinchit
 monster/incexp dsincexp
 
+//hadesphere
 monster/hadsit dshadsit
 monster/hadwlk dshadwlk
 monster/hadtel dshadtel
 monster/haddth dshaddth
 monster/hadexp dshadexp
 
+//satyr
 satyr/sight dssatsit
 satyr/death dssatdth
 
+//demolisher
 monster/demsit dsdemsit
 monster/dematk dscannon
 monster/demdth dsdemdth
 
-dragonfam/attack dfattack
-comet/launch cometlnc
-comet/explosion cometexp
-dragonfam/attack dfattack
+//catharsi
+catharsi/sit 		DSSLSIT
+catharsi/death 		DSSLDETH
+catharsi/pain 		DSSLPAIN
+catharsi/shotsit 	DSSLSHOT
+catharsi/shotdth 	DSSLSHDT
+catharsi/thermdth 	DSSLTHMP
+catharsi/thermtick 	DSSLTHTI
 
-weapons/bloodf dsbloodf
-weapons/bloodx dsbloodx
+//loh
+LordOfHeresy/sight 	DSLOHSIT
+LordOfHeresy/act 	DSLOHACT
+LordOfHeresy/death 	DSLOHDTH
 
-catharsi/sit DSSLSIT
-catharsi/death DSSLDETH
-catharsi/pain DSSLPAIN
-catharsi/shotsit DSSLSHOT
-catharsi/shotdth DSSLSHDT
-catharsi/thermdth DSSLTHMP
-catharsi/thermtick DSSLTHTI
-
-LordOfHeresy/sight DSLOHSIT
-LordOfHeresy/act DSLOHACT
-LordOfHeresy/death DSLOHDTH
-
+//shadow
 $random Shadow/active { act1 act2 }
 act1			SHDACT1
 act2			SHDACT2
@@ -96,12 +108,14 @@ pain2			SHDPAIN2
 Shadow/attack		SHDATTAK
 Shadow/death		SHDDEATH
 
-suicide/scream dssuscrm
-suicide/sit dssusit
+//suicide bomber
+suicide/scream 	dssuscrm
+suicide/sit 	dssusit
 
-monster/termsit tsight
-monster/termpin tpain1
-monster/termdth tdeath
+//terminator
+monster/termsit TSIGHT
+monster/termpin TPAIN1
+monster/termdth TDEATH
 
 $random Terminator/termact { termact1 termact2 }
 termact1		dsteract
@@ -109,15 +123,11 @@ termact2		dsteact2
 $random Terminator/terstepA { terstep1 terstep2 }
 terstep1		 dststep1
 terstep2		 dststep2
-Terminator/terstepB dststep3
-Terminator/tershotA dstshot1
-Terminator/tershotB dstshot2
-monster/brufir dsbrufir
-weapons/hellex dshellex
+Terminator/terstepB 	dststep3
+Terminator/tershotA 	dstshot1
+Terminator/tershotB 	dstshot2
 
-dragonfam/attack dsafrinf
-afrit/hellfire dsafrhel
-
+//hazmat zombie
 hazmat/tazer	DSTAZER
 
 ////////////////////
@@ -225,34 +235,24 @@ $AMBIENT 41  AMB41 POINT CONTINUOUS 0.5
 
 //Thunderpeak stuff
 $random dsthundr	{dsthunda dsthund2}
-dsthunda 		dsthunda
-dsthund2 		dsthund2
+dsthunda 		DSTHUNDA
+dsthund2 		DSTHUND2
 
 VENTBUST VENTBUST
 FIELDHIT FIELDHIT
 
-monster/termsit tsight
-monster/termpin tpain1
-monster/termdth tdeath
-
-//Glass Smash
-
-$pitchshiftrange 2
-
-world/glassbreak	DSGLASS1
-
-zippy/clock/tick	TICTOC2
+zippy/clock/tick		TICTOC2
 zippy/clock/brokentick	TICTOC3
-zippy/clock/ring	BELLRNG2
-zippy/clock/crack	CLKCRACK
-zippy/vincentprice	VPRICE
+zippy/clock/ring		BELLRNG2
+zippy/clock/crack		CLKCRACK
+zippy/vincentprice		VPRICE
 
 $musicvolume CHAOS_X 0.25
-
 brain/welcome WELCOME
 
-dsthunda dsthunda
-dsthund2 dsthund2
+//Glass Smash
+$pitchshiftrange 2
+world/glassbreak	DSGLASS1
 
 //Steam
 Steam/Loop	STEMLOOP
@@ -342,13 +342,6 @@ $volume floor/wood 0.4
 ///// WEAPON ENHANCEMENTS /////
 ///////////////////////////////
 
-//Blood
-$random gibbage/blood		{gibbage/blood1 gibbage/blood2 gibbage/blood3 gibbage/blood4}
-gibbage/blood1				blood1
-gibbage/blood2				blood2
-gibbage/blood3				blood3
-gibbage/blood4				blood4
-
 // PUFF RICOCHET
 $random puff/ric       { puff/ric1 puff/ric2 puff/ric3 puff/ric4 puff/ric5 puff/ric6 puff/ric7 }
 puff/ric1          dsrich1
@@ -357,12 +350,12 @@ puff/ric3          dsrich3
 puff/ric4          dsrich4
 puff/ric5          dsrich5
 puff/ric6          dsrich6
-puff/ric7          dsrich7 
+puff/ric7          dsrich7
 
 // WEAPON ENHANCEMENTS
 $random weapons/case1		{weapons/case11 weapons/case12}
 weapons/case11			dscase11
-weapons/case12			dscase12   
+weapons/case12			dscase12
 
 $random weapons/case2		{weapons/case21 weapons/case22}
 weapons/case21			dscase21
@@ -371,10 +364,10 @@ weapons/case22			dscase22
 $random weapons/shell		{weapons/shell1 weapons/shell2 weapons/shell3}
 weapons/shell1			dsshell1
 weapons/shell2			dsshell2
-weapons/shell3			dsshell3  
+weapons/shell3			dsshell3
 
 //RichardDS90/Salahmander2 Additions
-icysndof icysndof
+icysndof ICYSNDOF
 
 //===========================================================================
 //
@@ -382,9 +375,9 @@ icysndof icysndof
 //
 //===========================================================================
 
-nashgore/bloodsplash1 "sounds/blood splash 01.ogg"
-nashgore/bloodsplash2 "sounds/blood splash 02.ogg"
-nashgore/bloodsplash3 "sounds/blood splash 03.ogg"
+nashgore/bloodsplash1 "sounds/nash/blood splash 01.ogg"
+nashgore/bloodsplash2 "sounds/nash/blood splash 02.ogg"
+nashgore/bloodsplash3 "sounds/nash/blood splash 03.ogg"
 
 $random nashgore/bloodsplash
 {
@@ -402,8 +395,8 @@ $volume nashgore/bloodsplash 0.3
 //
 //===========================================================================
 
-nashgore/blooddrop01 "sounds/blood drop 01.ogg"
-nashgore/blooddrop02 "sounds/blood drop 02.ogg"
+nashgore/blooddrop01 "sounds/nash/blood drop 01.ogg"
+nashgore/blooddrop02 "sounds/nash/blood drop 02.ogg"
 
 $random nashgore/blooddrop
 {
@@ -420,8 +413,8 @@ $limit nashgore/blooddrop 2
 //
 //===========================================================================
 
-nashgore/gibsmall01 "sounds/gib small 01.ogg"
-nashgore/gibsmall02 "sounds/gib small 02.ogg"
+nashgore/gibsmall01 "sounds/nash/gib small 01.ogg"
+nashgore/gibsmall02 "sounds/nash/gib small 02.ogg"
 
 $random nashgore/gibsmall
 {
@@ -429,7 +422,7 @@ $random nashgore/gibsmall
 	nashgore/gibsmall02
 }
 
-$volume nashgore/gibsmall 0.44;
+$volume nashgore/gibsmall 0.44
 
 //===========================================================================
 //
@@ -437,9 +430,9 @@ $volume nashgore/gibsmall 0.44;
 //
 //===========================================================================
 
-nashgore/giblarge01 "sounds/gib large 01.ogg"
-nashgore/giblarge02 "sounds/gib large 02.ogg"
-nashgore/giblarge03 "sounds/gib large 03.ogg"
+nashgore/giblarge01 "sounds/nash/gib large 01.ogg"
+nashgore/giblarge02 "sounds/nash/gib large 02.ogg"
+nashgore/giblarge03 "sounds/nash/gib large 03.ogg"
 
 // replace the stock gibbed sound
 $random misc/gibbed
@@ -457,9 +450,9 @@ $limit misc/gibbed 3
 //
 //===========================================================================
 
-nashgore/gibbounce01 "sounds/gib bounce 01.ogg"
-nashgore/gibbounce02 "sounds/gib bounce 02.ogg"
-nashgore/gibbounce03 "sounds/gib bounce 03.ogg"
+nashgore/gibbounce01 "sounds/nash/gib bounce 01.ogg"
+nashgore/gibbounce02 "sounds/nash/gib bounce 02.ogg"
+nashgore/gibbounce03 "sounds/nash/gib bounce 03.ogg"
 
 $random nashgore/gibbounce
 {
@@ -477,7 +470,7 @@ $limit nashgore/gibbounce 4
 //
 //===========================================================================
 
-nashgore/bodydrop "sounds/body drop 01.ogg"
+nashgore/bodydrop "sounds/nash/body drop 01.ogg"
 
 //===========================================================================
 //
@@ -485,5 +478,5 @@ nashgore/bodydrop "sounds/body drop 01.ogg"
 //
 //===========================================================================
 
-nashgore/bullethitflesh "sounds/bullet hit flesh.ogg"
+nashgore/bullethitflesh "sounds/nash/bullet hit flesh.ogg"
 $volume nashgore/bullethitflesh 0.23

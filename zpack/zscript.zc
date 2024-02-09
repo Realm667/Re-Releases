@@ -1,5 +1,8 @@
 version "4.1.3"
 
+// global constants
+const STAT_NashGore_Gore = Thinker.STAT_USER + 1;
+
 #include "zscript/NashGoreCommon.zc"
 #include "zscript/NashGoreStatics.zc"
 #include "zscript/NashGoreHandler.zc"
@@ -13,11 +16,6 @@ version "4.1.3"
 #include "zscript/NashGoreWallBlood.zc"
 #include "zscript/NashGoreActor.zc"
 #include "zscript/NashGoreMenu.zc"
-
-// global constants
-const STAT_NashGore_Gore = Thinker.STAT_USER + 1;
-
-
 
 // Actor that does the bare minumum of ticking
 // Use for static, non-interactive actors
@@ -57,16 +55,18 @@ class SimpleActor : Actor
 	}
 }
 
-#include "zscript/player.zc"		//necessary for ladders inheritances --ozy81
-#include "zscript/ZPackInter.zc"
-#include "zscript/ZPackTorch.zc"
-#include "zscript/ZPackProps.zc"
-#include "zscript/ZPackFX.zc"		//imported from TCOTD2 remaster code done by Nash --ozy81
-#include "zscript/ladder.zc"		//BoA ladder system, includes Climbable Ladder, Ropes and Cables - No PlayerFollowers code --ozy81
-#include "zscript/mblur.zc"
-#include "zscript/heateffect.zc"
-#include "zscript/smoke.zc"
-#include "zscript/splashes.zc"
-#include "zscript/underwater.zc"
+#include "zscript/ZPack_Player.zc"		//necessary for ladders inheritances --ozy81
+#include "zscript/ZPack_Inter.zc"
+#include "zscript/ZPack_Torch.zc"
+#include "zscript/ZPack_Props.zc"
+#include "zscript/ZPack_FX.zc"			//imported from TCOTD2 remaster code done by Nash --ozy81
+#include "zscript/ZPack_Ladder.zc"		//BoA ladder system, includes Climbable Ladder, Ropes and Cables - No PlayerFollowers code --ozy81
+#include "zscript/ZPack_MBlur.zc"
+#include "zscript/ZPack_Heat.zc"
+#include "zscript/ZPack_Smoke.zc"
+#include "zscript/ZPack_Splash.zc"
+#include "zscript/ZPack_Under.zc"
 
-#include "zscript/monsters/hazmat.zc"
+
+#include "zscript/monsters/ZPack_Afrit.zc"
+#include "zscript/monsters/ZPack_Hazmat.zc"
