@@ -88,7 +88,7 @@ class NashGoreHandler : EventHandler
 
 	override void WorldThingSpawned(WorldEvent e)
 	{
-		if (!e.Thing) return;
+		if (!e.Thing || e.Thing is "StoneImp") return; //jfc this was hard to spot - ozy81
 
 		// monster?
 		bool isMonster = e.Thing.bIsMonster;

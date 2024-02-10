@@ -1,0 +1,86 @@
+class ShotgunSoldier : Actor
+{
+	Default
+	{
+		//$Category TNTLE Monsters
+		Health 100;
+		Radius 20;
+		Height 56;
+		Speed 8;
+		PainChance 150;
+		GibHealth 35;
+		Translation 1;
+		SeeSound "shotguy/sight";
+		PainSound "shotguy/pain";
+		DeathSound "shotguy/death";
+		ActiveSound "shotguy/active";
+		AttackSound "shotguy/attack";
+		Obituary "$OB_SHSO";
+		DropItem "Shotgun";
+		DropItem "Shell", 128;
+		MONSTER;
+		+FLOORCLIP
+	}
+	
+    States
+    {
+    Spawn:
+        SOLD AB 10 A_Look();
+        Loop;
+    See:
+        SOLD AABBCCDD 4 A_Chase();
+        Loop;
+    Missile:
+        SOLD E 6 A_FaceTarget();
+        SOLD F 8 BRIGHT A_ShotSoAttackUseAtkSound();
+        SOLD E 6 A_FaceTarget();
+        Goto See;
+    Pain:
+        SOLD G 5;
+        SOLD G 3 A_Pain();
+        Goto See;
+    Death:
+        SOLD H 5;
+        SOLD I 5 A_Scream();
+        SOLD J 5 A_Fall();
+        SOLD KLM 5;
+        SOLD N -1;
+        Stop;
+    XDeath:
+        SOLD O 5;
+        SOLD P 5 A_XScream();
+        SOLD Q 5 A_Fall();
+        SOLD RSTUV 5;
+        SOLD W -1;
+        Stop;
+    Raise:
+        SOLD NMLKJIH 5;
+        Goto See;
+    }
+	
+	void A_ShotSoAttackInternal() //differs from SPosAttackInternal in terms of randomness, int "i" was 3 instead of 7 - ozy81
+	{
+		if (target)
+		{
+			A_FaceTarget();
+			double bangle = angle;
+			double slope = AimLineAttack(bangle, MISSILERANGE);
+		
+			for (int i=0 ; i<7 ; i++)
+			{
+				double ang = bangle + Random2[ShotSoAttack]() * (22.5/256);
+				int damage = Random[ShotSoAttack](1, 5) * 3;
+				LineAttack(ang, MISSILERANGE, slope, damage, "Hitscan", "Bulletpuff");
+			}
+		}
+    }
+	
+	void A_ShotSoAttackUseAtkSound()
+	{
+		if (target)
+		{
+			A_StartSound(AttackSound, CHAN_WEAPON);
+			A_ShotSoAttackInternal();
+		}
+	}
+}
