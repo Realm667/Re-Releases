@@ -8,9 +8,7 @@ Class ZombieMarine : Actor
 		Height 56;
 		Speed 9;
 		PainChance 200;
-		Damage 1;
 		SeeSound "grunt/sight";
-		AttackSound "zombie/rifle";
 		PainSound "grunt/pain";
 		DeathSound "grunt/death";
 		ActiveSound "grunt/active";
@@ -31,8 +29,9 @@ Class ZombieMarine : Actor
         Loop;
     Missile:
         UDM2 E 2 A_FaceTarget();
-        UDM2 F 2 A_BulletAttack();
-        UDM2 E 2 A_Cposrefire();
+        UDM2 E 0 A_StartSound("zombie/rifle",CHAN_WEAPON,CHANF_DEFAULT);
+        UDM2 F 2 A_CustomBulletAttack(8,8,1,1,"BulletPuff");
+        UDM2 E 2 A_CPosRefire();
         Loop;
     Pain:
         UDM2 G 5;

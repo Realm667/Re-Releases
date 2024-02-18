@@ -1,0 +1,71 @@
+Class ChainsawZombie : Actor
+{
+	Default
+	{
+		//$Category TNTLE Monsters
+		Health 30;
+		Radius 20;
+		Height 56;
+		Speed 13;
+		PainChance 200;
+		SeeSound "grunt/sight";
+		PainSound "grunt/pain";
+		DeathSound "grunt/death";
+		ActiveSound "grunt/active";
+		Obituary "$OB_CHZO";
+		DropItem "Chainsaw";
+		MONSTER;
+		+FLOORCLIP
+	}
+	
+    States
+    {
+    Spawn:
+        CHAN A 4 A_Look();
+        CHAN A 4 A_StartSound("weapons/sawidle",CHAN_WEAPON,CHANF_DEFAULT);
+        CHAN A 4 A_Look();
+        CHAN B 4 A_StartSound("weapons/sawidle",CHAN_WEAPON,CHANF_DEFAULT);
+        CHAN B 4 A_Look();
+        CHAN B 4 A_StartSound("weapons/sawidle",CHAN_WEAPON,CHANF_DEFAULT);
+        Loop;
+    See:
+        CHAN A 4 A_Chase();
+        CHAN A 4 A_Chase();
+        CHAN B 0 A_StartSound("weapons/sawidle",CHAN_WEAPON,CHANF_DEFAULT);
+        CHAN B 4 A_Chase();
+        CHAN B 4 A_Chase();
+        CHAN C 0 A_StartSound("weapons/sawidle",CHAN_WEAPON,CHANF_DEFAULT);
+        CHAN C 4 A_Chase();
+        CHAN C 4 A_Chase();
+        CHAN D 0 A_StartSound("weapons/sawidle",CHAN_WEAPON,CHANF_DEFAULT);
+        CHAN D 4 A_Chase();
+        CHAN D 4 A_Chase();
+        CHAN A 0 A_StartSound("weapons/sawidle",CHAN_WEAPON,CHANF_DEFAULT);
+        Loop;
+    Melee:
+        CHAN E 1 A_FaceTarget();
+        CHAN F 3 A_CustomMeleeAttack(1,"weapons/sawhit");
+        Goto See;
+    Pain:
+        CHAN G 5;
+        CHAN G 3 A_Pain();
+        Goto See;
+    Death:
+        CHAN H 5;
+        CHAN I 5 A_Scream();
+        CHAN J 5 A_Fall();
+        CHAN KLM 5;
+        CHAN N -1;
+        Stop;
+    XDeath:
+        CHAN O 5;
+        CHAN P 5 A_XScream();
+        CHAN Q 5 A_Fall();
+        CHAN RSTUV 5;
+        CHAN W -1;
+        Stop;
+    Raise:
+        CHAN NMLKJIH 5;
+        Goto See;
+    }
+}
