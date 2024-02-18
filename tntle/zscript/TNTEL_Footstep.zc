@@ -1,0 +1,126 @@
+/*
+* TCOTD2 Game Code - Adapted for TNTEL by Ozymandias81 2024 (little changes, I don't claim anything)
+* Copyright (C) 2020 - 2023  Nash Muhandes
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//===========================================================================
+//
+// TNTELFootstep
+// Plays a footstep sound when spawned
+//
+//===========================================================================
+
+mixin class TNTELClientsideOnlyMixin //not exactly necessary for TNTEL, but kept for the sake - ozy81
+{
+	Default
+	{
+		FloatBobPhase 0;
+		+SYNCHRONIZED
+		+DONTBLAST
+		-RANDOMIZE
+	}
+}
+
+class TNTELFootstep : Actor
+{
+	mixin TNTELClientsideOnlyMixin;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	TNTRemPlayer pmo;
+	double vol;
+	Sound snd;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		RenderStyle "None";
+		+DONTSPLASH
+		+CORPSE
+		+NOTIMEFREEZE
+		-SOLID
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void BeginPlay(void)
+	{
+		Super.BeginPlay();
+
+		if (pmo)
+		{
+			A_SetSize(pmo.Radius, pmo.Height);
+		}
+	}
+
+	override void Tick(void)
+	{
+		Super.Tick();
+
+		if (pmo)
+		{
+			Vector3 fsp = (pmo.Pos.X, pmo.Pos.Y, Pos.Z);
+			SetOrigin(fsp, false);
+		}
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	static double GetZOffset(TNTRemPlayer self)
+	{
+		// determine how high up to spawn the footstep actor
+		return abs(self.Vel.Z);
+	}
+
+	void A_PlayFootstepSound(void)
+	{
+		int attn = (pmo.CheckLocalView()) ? ATTN_NONE : ATTN_NORM;
+		A_StartSound(snd, volume: vol, attenuation: attn);
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	Spawn:
+		TNT1 A 7;
+		Stop;
+	Crash:
+		TNT1 A 10 A_PlayFootstepSound();
+		Stop;
+	}
+}

@@ -100,6 +100,23 @@ class isIntro : Inventory //prevent Motion Blur working over cutscenes if we mov
 	}
 }
 
+class TNTELGameplayStatics play
+{
+	static bool IsOnFloor(Actor self)
+	{
+		if (self is "TNTRemPlayer")
+			return TNTRemPlayer(self).player.onground;
+		return self.Pos.Z <= self.FloorZ || self.bOnMObj || self.bMBFBouncer;
+	}
+
+	static double GetVelocity(Actor self, bool xyOnly = false)
+	{
+		if (xyOnly)
+			return self.Vel.XY.Length();
+		return self.Vel.Length();
+	}
+}
+
 class HitlerTNTLE : WolfensteinSS replaces WolfensteinSS //from dehacked to zscript - ozy81
 {
 	Default
@@ -123,6 +140,7 @@ class HitlerTNTLE : WolfensteinSS replaces WolfensteinSS //from dehacked to zscr
 }
 
 #include "zscript/TNTEL_Player.zc"
+#include "zscript/TNTEL_Footstep.zc" //modifed straight from TCOTD2 Remaster
 #include "zscript/TNTEL_Int.zc"
 #include "zscript/TNTEL_Heat.zc"
 #include "zscript/TNTEL_MBlur.zc"

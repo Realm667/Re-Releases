@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2024 Ozymandias81, Tormentor667
+ * Copyright (c) 2007-2024 Nash Muhandes, Ozymandias81, Tormentor667
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,9 @@
 
 class TNTRemPlayer : DoomPlayer
 {
+	const FOOTSTEP_COUNTER_MAX = 85.; //straight from TCOTD2 Remaster
+	double footstepCounter;
+
 	Default
 	{
 		Player.WeaponSlot 1, "Fist", "Chainsaw";
@@ -34,5 +37,99 @@ class TNTRemPlayer : DoomPlayer
 		Player.StartItem "NewPistol";
 		Player.StartItem "Fist";
 		Player.StartItem "Clip", 50;
+	}
+	
+	override void Tick(void)
+	{
+		if (!player || !player.mo || player.mo != self)
+		{
+			Super.Tick();
+			return;
+		}
+
+		Super.Tick();
+		UpdateFootsteps();
+	}
+	
+	private sound GetFootstepSound(void)
+	{
+		// default sound
+		Sound ret = "floor/default";
+
+		// use sound from terrain, if it exists
+		let tr = GetFloorTerrain();
+		if (tr && tr.LeftStepSound)
+		{
+			ret = tr.LeftStepSound;
+		}
+
+		return ret;
+	}
+
+	void UpdateFootsteps(void)
+	{
+		// immediately play a footstep sound if standing still
+		if (player.onground && Vel.XY.Length() ~== 0)
+		{
+			footstepCounter = FOOTSTEP_COUNTER_MAX;
+			return;
+		}
+
+		// no need to play footsteps when in deep water
+		if (WaterLevel > 1)
+			return;
+
+		bool shouldPlayFootstepSound = false;
+
+		// get character velocity
+		double aVel = TNTELGameplayStatics.GetVelocity(self, xyOnly: true);
+
+		// don't bother if moving too slow
+		if (aVel < 0.1)
+			return;
+
+		// set the sound volume
+		double vol = min(aVel * 0.1, 1.0);
+		//vol *= 0.7;
+		if (CheckLocalView())
+			vol *= CVar.GetCVar("tntel_footstepvolume", player).GetFloat();
+		vol = clamp(vol, 0.0, 1.0);
+
+		// clamp the velocity value to pleasing values
+		// yay magic numbers!
+		aVel = clamp(aVel, 2.24, 7.35);
+
+		// add to counter if moving, decrease it otherwise
+		if (aVel < 0.01)
+			footstepCounter *= 0.5;
+		else
+			footstepCounter += aVel;
+
+		// play the footstep sound
+		if (footstepCounter > FOOTSTEP_COUNTER_MAX)
+		{
+			shouldPlayFootstepSound = true;
+		}
+
+		if (shouldPlayFootstepSound)
+		{
+			// TO DO: is Z offset portal aware or not?
+			Vector3 sPos =
+			(
+				0.0,
+				0.0,
+				TNTELFootstep.GetZOffset(self)
+			);
+			let fs = TNTELFootstep(self.Spawn("TNTELFootstep", self.Pos + sPos, NO_REPLACE));
+			if (fs)
+			{
+				fs.pmo = self;
+				fs.vol = vol;
+				fs.snd = GetFootstepSound();
+			}
+
+			// reset footstep counter
+			footstepCounter = 0;
+		}
 	}
 }
