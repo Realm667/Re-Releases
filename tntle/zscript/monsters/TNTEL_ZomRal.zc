@@ -1,0 +1,56 @@
+Class ZombieRailgunner : Actor //compared to up-to-date version on realm667, this variant has different frames, different railgun color and VW are not present - ozy81
+{
+	Default
+	{
+		//$Category TNTLE Monsters
+		Health 45;
+		Radius 20;
+		Height 56;
+		Speed 8;
+		Damage 100;
+		PainChance 200;
+		SeeSound "grunt/sight";
+		PainSound "grunt/pain";
+		DeathSound "grunt/death";
+		ActiveSound "grunt/active";
+		Obituary "$OB_ZORA";
+		MONSTER;
+		+FLOORCLIP
+	}
+
+	States
+	{
+	Spawn:
+		RPOS AB 10 A_Look();
+		Loop;
+	See:
+		RPOS AABBCCDD 4 A_Chase();
+		Loop;
+	Missile:
+		RPOS EE 10 A_FaceTarget();
+		RPOS F 5 A_CustomRailgun(30, 8, "Azure", "Blue");
+		RPOS E 4 A_FaceTarget();
+		Goto See;
+	Pain:
+		RPOS G 5;
+		RPOS G 3 A_Pain();
+		Goto See;
+	Death:
+		RPOS H 5;
+		RPOS I 5 A_Scream();
+		RPOS J 5 A_Fall();
+		RPOS K 5;
+		RPOS L -1;
+		Stop;
+	XDeath:
+        RPOS M 5;
+        RPOS N 5 A_XScream();
+        RPOS O 5 A_Fall();
+        RPOS PQRST 5;
+        RPOS U -1;
+        Stop;
+	Raise:
+		RPOS LKJIH 5;
+		Goto See;
+	}
+}

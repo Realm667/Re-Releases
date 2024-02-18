@@ -268,6 +268,62 @@ decalgroup ArachnotronScorch
 	ArachScorch2	1
 }
 
+//***** Zombie Railgunner Scorches *****/
+Decal AzRailScorchLower1
+{
+	Pic CBALSCR1
+	Shade "00 00 00"
+	X-Scale 0.1
+	Y-Scale 0.1
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal AzRailScorchLower2
+{
+	Pic CBALSCR2
+	Shade "00 00 00"
+	X-scale 0.1
+	Y-scale 0.1
+	RandomFlipX
+	RandomFlipY
+}
+
+DecalGroup AzRailScorchLower
+{
+	AzRailScorchLower1 1
+	AzRailScorchLower2 1
+}
+
+Decal AzRailScorch1
+{
+	Pic CBALSCR1
+	Shade "48 56 56"
+	FullBright
+	X-Scale 0.2
+	Y-Scale 0.2
+	Animator GoAway
+	LowerDecal AzRailScorchLower
+}
+
+Decal AzRailScorch2
+{
+	Pic CBALSCR2
+	Shade "48 56 56"
+	FullBright
+	X-Scale 0.2
+	Y-Scale 0.2
+	Animator GoAway
+	LowerDecal AzRailScorchLower
+}
+
+DecalGroup AzRailScorch
+{
+	AzRailScorch1 1
+	AzRailScorch2 1
+}
+
+//***** Other Scorches *****/
 decal NewScorch
 {
 	pic FMSLSCRH
@@ -505,3 +561,4 @@ generator DarkFast						DoomImpScorch
 generator HitlerTNTLE					Bullet
 generator RapidFireTrooper				Bullet
 generator SnakeImpFireball				PlasmaScorchLower
+generator ZombieRailgunner				AzRailScorch
