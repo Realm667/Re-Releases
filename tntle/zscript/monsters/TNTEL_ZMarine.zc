@@ -1,0 +1,59 @@
+Class ZombieMarine : Actor
+{
+	Default
+	{
+		//$Category TNTLE Monsters
+		Health 100;
+		Radius 20;
+		Height 56;
+		Speed 9;
+		PainChance 200;
+		Damage 1;
+		SeeSound "grunt/sight";
+		AttackSound "zombie/rifle";
+		PainSound "grunt/pain";
+		DeathSound "grunt/death";
+		ActiveSound "grunt/active";
+		Obituary "$OB_ZOMA";
+		DropItem "Clip";
+		DropItem "Clip";
+		MONSTER;
+		+FLOORCLIP
+	}
+	
+    States
+    {
+    Spawn:
+        UDM2 AB 10 A_Look();
+        Loop;
+    See:
+        UDM2 AABBCCDD 4 A_Chase();
+        Loop;
+    Missile:
+        UDM2 E 2 A_FaceTarget();
+        UDM2 F 2 A_BulletAttack();
+        UDM2 E 2 A_Cposrefire();
+        Loop;
+    Pain:
+        UDM2 G 5;
+        UDM2 G 3 A_Pain();
+        Goto See;
+    Death:
+        UDM2 H 5;
+        UDM2 I 5 A_Scream();
+        UDM2 J 5 A_Fall();
+        UDM2 KLM 5;
+        UDM2 N -1;
+        Stop;
+    XDeath:
+        UDM2 O 5;
+        UDM2 P 5 A_XScream();
+        UDM2 Q 5 A_Fall();
+        UDM2 RSTU 5;
+        UDM2 V -1;
+        Stop;
+    Raise:
+        UDM2 NMLKJIH 5;
+        Goto See;
+    }
+}
