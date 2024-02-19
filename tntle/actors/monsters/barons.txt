@@ -1,63 +1,3 @@
-ACTOR BelphegorClone
-{
-	//$Category TNTLE Monsters
-	Health 1500
-	Speed 8
-	Radius 24
-	Height 64
-	PainChance 50
-	Mass 1000
-	Meleedamage 15
-	SeeSound "baron/sight"
-	PainSound "baron/pain"
-	DeathSound "baron/death"
-	ActiveSound "baron/active"
-	MeleeSound "baron/melee"
-	REACTIONTIME 8
-	MONSTER
-	BloodColor "33 FF 00"
-	Missiletype BelphegorBall
-	Obituary "$OB_BELF"
-	HitObituary "$HB_BELF"
-	States
-	{
-	Spawn:
-		BOS3 AB 10 A_Look
-		Loop
-	See:
-		BOS3 AABBCCDD 3 A_Chase
-		Loop
-	Missile:
-		BOS3 E 8 A_FaceTarget
-		BOS3 F 8 A_FaceTarget
-		BOS3 G 8 A_ComboAttack
-		BOS3 F 8 A_FaceTarget
-		BOS3 G 8 A_ComboAttack
-		BOS3 F 8 A_FaceTarget
-		BOS3 G 8 A_ComboAttack
-		Goto See
-	Melee:
-		BOS3 EF 8 A_FaceTarget
-		BOS3 G 8 A_ComboAttack
-		Goto See
-	Pain:
-		BOS3 H 2
-		BOS3 H 2 A_Pain
-		Goto See
-	Death:
-		BOS3 I 8
-		BOS3 J 8 A_Scream
-		BOS3 K 8
-		BOS3 L 8 A_NoBlocking
-		BOS3 MN 8
-		BOS3 O -1
-		Stop
-	Raise:
-		BOS3 ONMLKJI 8
-		Goto See
-	}
-}
-
 ACTOR HellGuard
 {
     //$Category TNTLE Monsters
@@ -248,29 +188,6 @@ ACTOR HellWarrior
 		HWAR ONMLKJI 5
 		Goto See
 	}
-}
-
-ACTOR BelphegorBall
-{
-    Radius 6
-    Height 8
-    Speed 20
-    Damage 10
-	+BRIGHT
-    PROJECTILE
-    RenderStyle STYLE_Add
-    ALPHA 0.67
-    SeeSound "imp/attack"
-    DeathSound "imp/shotx"
-    States
-    {
-    Spawn:
-        BAL7 AB 5
-        Loop
-    Death:
-        BAL7 CDE 6
-        Stop
-    }
 }
 
 ACTOR HellGuardBall
