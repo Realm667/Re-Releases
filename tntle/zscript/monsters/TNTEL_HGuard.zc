@@ -1,0 +1,101 @@
+Class HellGuard : Actor
+{
+	Default
+	{
+		//$Category TNTLE Monsters
+		Health 300;
+		Radius 24;
+		Height 64;
+		Speed 8;
+		PainChance 50;
+		Mass 500;
+		MeleeDamage 8;
+		ActiveSound "hellguard/idle";
+		DeathSound "hellguard/death";
+		PainSound "knight/pain";
+		SeeSound "hellguard/sight";
+		Obituary "$OB_HELG";
+		MONSTER;
+		+FLOORCLIP
+	}
+
+    States
+    {
+    Spawn:
+        HLGD AB 10 A_Look();
+        Loop;
+    See:
+        HLGD AABBCCDD 3 A_Chase();
+        Loop;
+    Missile:
+        HLGD E 8 A_FaceTarget();
+        HLGD F 0 A_Jump(85,4);
+        HLGD F 0 A_Jump(128,2);
+        HLGD F 4 A_SpawnProjectile("HellGuardBall", 28, -8, -4, CMF_AIMOFFSET);
+        Goto Missile+6;
+        HLGD F 4 A_SpawnProjectile("HellGuardBall", 28, -8, 4, CMF_AIMOFFSET);
+        Goto Missile+6;
+        HLGD F 4 A_SpawnProjectile("HellGuardBall", 28, -8, 0, CMF_AIMOFFSET);
+        Goto Missile+6;
+        HLGD E 4 A_FaceTarget();
+        HLGD F 0 A_Jump(85,4);
+        HLGD F 0 A_Jump(128,2);
+        HLGD F 4 A_SpawnProjectile("HellGuardBall", 28, -8, -4, CMF_AIMOFFSET);
+        Goto Missile+12;
+        HLGD F 4 A_SpawnProjectile("HellGuardBall", 28, -8, 4, CMF_AIMOFFSET);
+        Goto Missile+12;
+        HLGD F 4 A_SpawnProjectile("HellGuardBall", 28, -8, 0, CMF_AIMOFFSET);
+        Goto Missile+12;
+        HLGD E 4 A_FaceTarget();
+        HLGD F 0 A_Jump(85,4);
+        HLGD F 0 A_Jump(128,2);
+        HLGD F 4 A_SpawnProjectile("HellGuardBall", 28, -8, -4, CMF_AIMOFFSET);
+        Goto See;
+        HLGD F 4 A_SpawnProjectile("HellGuardBall", 28, -8, 4, CMF_AIMOFFSET);
+        Goto See;
+        HLGD F 4 A_SpawnProjectile("HellGuardBall", 28, -8, 0, CMF_AIMOFFSET);
+        Goto See;
+    Pain:
+        HLGD G 2;
+        HLGD G 2 A_Pain();
+        Goto See;
+    Death:
+        HLGD H 6;
+        HLGD I 6 A_Scream();
+        HLGD J 6;
+        HLGD K 6 A_Fall();
+        HLGD LM 6;
+        HLGD N -1;
+        Stop;
+    Raise:
+        HLGD ONMLKJI 8;
+        Goto See;
+    }
+}
+
+Class HellGuardBall : Actor
+{
+	Default
+	{
+		Radius 13;
+		Height 8;
+		Speed 10;
+		Damage 6;
+		RenderStyle "STYLE_Add";
+		Alpha 0.67;
+		SeeSound "hellguard/shot";
+		DeathSound "hellguard/shothit";
+		PROJECTILE;
+		+BRIGHT
+	}
+
+    States
+    {
+    Spawn:
+        HGFB ABCD 2;
+        Loop;
+    Death:
+        HGFB EFGH 4;
+        Stop;
+    }
+}
