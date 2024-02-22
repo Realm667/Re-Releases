@@ -133,3 +133,12 @@ class TNTRemPlayer : DoomPlayer
 		}
 	}
 }
+
+class isIntro : Inventory //prevent Motion Blur working over cutscenes if we move mouse, give it to players at start and remove it at level end, or before a cutscene (remove and give again when done)
+{
+	Default
+	{
+		Inventory.Amount 1;
+		Inventory.MaxAmount 1;
+	}
+}

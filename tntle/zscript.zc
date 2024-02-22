@@ -1,5 +1,7 @@
 version "4.1.3"
 
+#include "zscript/TNTEL_Base.zc"
+
 // global constants
 const STAT_NashGore_Gore = Thinker.STAT_USER + 1;
 
@@ -16,128 +18,6 @@ const STAT_NashGore_Gore = Thinker.STAT_USER + 1;
 #include "zscript/NashGoreWallBlood.zc"
 #include "zscript/NashGoreActor.zc"
 #include "zscript/NashGoreMenu.zc"
-
-// Actor that does the bare minumum of ticking
-// Use for static, non-interactive actors
-//
-// Derived from bits and pieces of p_mobj.cpp
-class SimpleActor : Actor
-{
-	Vector2 floorxy;
-	Vector3 oldpos;
-
-	override void Tick()
-	{
-		if (IsFrozen()) { return; }
-
-		Vector2 curfloorxy = (curSector.GetXOffset(sector.floor), curSector.GetYOffset(sector.floor)); // Hacky scroll check because MF8_INSCROLLSEC not externalized to ZScript?
-		bool dotick = (curfloorxy != floorxy) || curSector.flags & sector.SECF_PUSH || (pos != oldpos);
-
-		if (dotick) // Only run a full Tick once; or if we are on a carrying floor, pushers are enabled in the sector (wind), or if we moved by some external force
-		{
-			oldpos = pos;
-			Super.Tick();
-			floorxy = curfloorxy;
-			return;
-		}
-
-		if (vel != (0, 0, 0)) // Apply velocity as required
-		{
-			SetXYZ(Vec3Offset(vel.X, vel.Y, vel.Z)); // Vec3Offset is portal-aware; use instead of just pos + vel, which is not
-		}
-
-		// Tick through actor states as normal
-		if (tics == -1) { return; }
-		else if (--tics <= 0)
-		{
-			SetState(CurState.NextState);
-		}
-	}
-}
-
-class ParticleBase : SimpleActor
-{
-	int checktimer;
-	int flags;
-
-	FlagDef CHECKPOSITION:flags, 0;
-
-	States
-	{
-		Fade:
-			"####" "#" 1 A_FadeOut(0.1, FTF_REMOVE);
-			Loop;
-	}
-
-	override void PostBeginPlay()
-	{
-		Super.PostBeginPlay();
-
-		// Set the initial check at a random tick so they don't all check at once...
-		checktimer = Random(0, 35);
-	}
-
-	override void Tick()
-	{
-		Super.Tick();
-
-		if (bCheckPosition && checktimer-- <= 0)
-		{
-			// If it's outside the level, remove it
-			if (!level.IsPointInLevel(pos)) { Destroy(); return; }
-
-			checktimer = 35; // Check once every second.
-		}
-	}
-}
-
-class isIntro : Inventory //prevent Motion Blur working over cutscenes if we move mouse, give it to players at start and remove it at level end, or before a cutscene (remove and give again when done)
-{
-	Default
-	{
-		Inventory.Amount 1;
-		Inventory.MaxAmount 1;
-	}
-}
-
-class TNTELGameplayStatics play
-{
-	static bool IsOnFloor(Actor self)
-	{
-		if (self is "TNTRemPlayer")
-			return TNTRemPlayer(self).player.onground;
-		return self.Pos.Z <= self.FloorZ || self.bOnMObj || self.bMBFBouncer;
-	}
-
-	static double GetVelocity(Actor self, bool xyOnly = false)
-	{
-		if (xyOnly)
-			return self.Vel.XY.Length();
-		return self.Vel.Length();
-	}
-}
-
-class HitlerTNTLE : WolfensteinSS replaces WolfensteinSS //from dehacked to zscript - ozy81
-{
-	Default
-	{
-		PainChance 20;
-		Mass 300;
-	}
-
-	States
-	{
-	Death:
-		"####" "#" 1;
-	XDeath:
-		SSWV N 15;
-		SSWV O 1 A_XScream;
-		SSWV P 5 A_NoBlocking;
-		SSWV QRSTU 5;
-		SSWV V -1;
-		Stop;
-	}
-}
 
 #include "zscript/TNTEL_Player.zc"
 #include "zscript/TNTEL_Footstep.zc" //modifed straight from TCOTD2 Remaster, just included only the necessary code here
@@ -160,6 +40,7 @@ class HitlerTNTLE : WolfensteinSS replaces WolfensteinSS //from dehacked to zscr
 #include "zscript/monsters/TNTEL_EnCaco.zc"
 #include "zscript/monsters/TNTEL_HGuard.zc"
 #include "zscript/monsters/TNTEL_HWarrior.zc"
+#include "zscript/monsters/TNTEL_ImpWar.zc"
 #include "zscript/monsters/TNTEL_LoHer.zc"
 #include "zscript/monsters/TNTEL_PlaZom.zc"
 #include "zscript/monsters/TNTEL_RFTroop.zc"
