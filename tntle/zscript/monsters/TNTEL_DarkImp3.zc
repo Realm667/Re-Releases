@@ -1,0 +1,67 @@
+Class STDarkImp : Actor
+{
+	Default
+	{
+		//$Category TNTLE Monsters
+		Health 110;
+		Radius 20;
+		Height 56;
+		Speed 9;
+		PainChance 200;
+		GibHealth 35;
+		SeeSound "imp/sight";
+		PainSound "imp/pain";
+		DeathSound "imp/death";
+		ActiveSound "imp/active";
+		Obituary "$OB_DIMP";
+		HitObituary "$HB_DIMP";
+		MONSTER;
+		+FLOORCLIP
+	}
+
+	States
+	{
+	Spawn:
+		DRKS AB 10 A_Look();
+		Loop;
+	See:
+		DRKS AABBCCDD 3 A_Chase();
+		Loop;
+	Melee:
+	Missile:
+		DRKS EF 8 A_FaceTarget();
+		DRKS G 6 A_CustomComboAttack("DarkFast", 32, 3*random(1,8), "imp/melee");
+		Goto See;
+	Pain:
+		DRKS H 2;
+		DRKS H 2 A_Pain();
+		Goto See;
+	Death:
+		DRKS I 8;
+		DRKS J 8 A_Scream();
+		DRKS K 6;
+		DRKS L 6 A_Fall();
+		DRKS M -1;
+		Stop;
+	XDeath:
+		DRKS N 5;
+		DRKS O 5 A_XScream();
+		DRKS P 5;
+		DRKS Q 5 A_Fall();
+		DRKS RST 5;
+		DRKS U -1;
+		Stop;
+	Raise:
+		DRKS ML 8;
+		DRKS KJI 6;
+		Goto See;
+	}
+}
+
+Class DarkFast : DarkNormal
+{
+	Default
+	{
+		Speed 18;
+	}
+}

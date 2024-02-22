@@ -81,7 +81,7 @@ Class StoneImp : Actor
 		GIMP KJI 6;
 		Goto See;
 	}
-	
+
 	void A_RockDeathChunks()
 	{
 		if (Vel != (0,0,0) && !bShattering)
@@ -114,11 +114,11 @@ Class StoneImp : Actor
 				mo.Vel.Z = (mo.pos.Z - pos.Z) / Height * 4;
 			}
 		}
-		
+
 		A_NoBlocking();
 		SetStateLabel('null');
 	}
-	
+
 	void A_StoneImpDie()
 	{
 		Vel = (0,0,0);
@@ -131,7 +131,7 @@ class RockChunk : IceChunk
 {
 	Default
 	{
-		Gravity 0.75;	
+		Gravity 0.75;
 	}
 
 	States

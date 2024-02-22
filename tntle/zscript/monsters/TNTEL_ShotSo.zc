@@ -21,7 +21,7 @@ class ShotgunSoldier : Actor
 		MONSTER;
 		+FLOORCLIP
 	}
-	
+
     States
     {
     Spawn:
@@ -57,7 +57,7 @@ class ShotgunSoldier : Actor
         SOLD NMLKJIH 5;
         Goto See;
     }
-	
+
 	void A_ShotSoAttackInternal() //differs from SPosAttackInternal in terms of randomness, int "i" was 3 instead of 7 - ozy81
 	{
 		if (target)
@@ -65,7 +65,7 @@ class ShotgunSoldier : Actor
 			A_FaceTarget();
 			double bangle = angle;
 			double slope = AimLineAttack(bangle, MISSILERANGE);
-		
+
 			for (int i=0 ; i<7 ; i++)
 			{
 				double ang = bangle + Random2[ShotSoAttack]() * (22.5/256);
@@ -74,7 +74,7 @@ class ShotgunSoldier : Actor
 			}
 		}
     }
-	
+
 	void A_ShotSoAttackUseAtkSound()
 	{
 		if (target)

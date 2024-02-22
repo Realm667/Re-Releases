@@ -1,0 +1,148 @@
+Class VoidDarkImp : Actor
+{
+	Default
+	{
+		//$Category TNTLE Monsters
+		Health 130;
+		Radius 20;
+		Height 56;
+		Speed 7;
+		PainChance 200;
+		GibHealth 35;
+		SeeSound "imp/sight";
+		PainSound "imp/pain";
+		DeathSound "imp/death";
+		ActiveSound "imp/active";
+		Obituary "$OB_VOID";
+		HitObituary "$HB_VOID";
+		MONSTER;
+		+FLOORCLIP
+	}
+
+	States
+	{
+	Spawn:
+		DRKV AB 10 A_Look();
+		Loop;
+	See:
+		DRKV AABBCCDD 3 A_Chase();
+		Loop;
+	Melee:
+		DRKV EF 8 A_FaceTarget();
+		DRKV G 6 A_CustomComboAttack("DarkNormal", 32, 3*random(1,8), "imp/melee");
+		Goto See;
+	Missile:
+		DRKV E 0 A_Jump(64,"Missile2");
+		DRKV EF 8 A_FaceTarget();
+		DRKV G 6 A_SpawnProjectile("DarkNormal", 32, 0, 0);
+		Goto Missile3;
+	Missile2:
+		DRKV IJ 8 A_FaceTarget();
+		DRKV K 6 A_SpawnProjectile("DarkStrong", 32, 0, 0);
+	Missile3:
+		DRKV E 0 A_Jump(64,"Missile4");
+		DRKV EF 8 A_FaceTarget();
+		DRKV G 6 A_SpawnProjectile("DarkNormal", 32, 0, 0);
+		Goto See;
+	Missile4:
+		DRKV IJ 8 A_FaceTarget();
+		DRKV K 6 A_SpawnProjectile("DarkStrong", 32, 0, 0);
+		Goto See;
+	Pain:
+		DRKV H 2;
+		DRKV H 2 A_Pain();
+		Goto See;
+	Death:
+		DRKV L 8;
+		DRKV M 8 A_Scream();
+		DRKV N 5;
+		DRKV O 5 A_Fall();
+		DRKV P -1;
+		Stop;
+	XDeath:
+		DRKI N 5;
+		DRKI O 5 A_XScream();
+		DRKI P 5;
+		DRKI Q 5 A_Fall();
+		DRKI RST 5;
+		DRKI U -1;
+		Stop;
+	Raise:
+		DRKV PO 8;
+		DRKV NML 6;
+		Goto See;
+	}
+}
+
+Class DarkNormal : Actor
+{
+	Default
+	{
+		Radius 8;
+		Height 6;
+		Speed 9;
+		Damage 3;
+		RenderStyle "STYLE_Add";
+		Alpha 0.67;
+		SeeSound "imp/attack";
+		DeathSound "imp/shotx";
+		Projectile;
+		+BRIGHT
+	}
+
+	States
+	{
+	Spawn:
+		DKB1 AB 4;
+		Loop;
+	Death:
+		DKB1 CDE 4;
+		Stop;
+	}
+}
+
+Class DarkStrong : Actor
+{
+	Default
+	{
+		Radius 8;
+		Height 6;
+		Speed 9;
+		Damage 6;
+		RenderStyle "STYLE_Add";
+		Alpha 0.67;
+		SeeSound "imp/attack";
+		DeathSound "imp/shotx";
+		Projectile;
+		+BRIGHT
+	}
+
+	States
+	{
+	Spawn:
+		DKB2 AB 4 A_SpawnItemEx("DarkTail", 0, 0, 0, 0, 0, 0, 0, 128);
+		Loop;
+	Death:
+		DKB2 CDE 4;
+		Stop;
+	}
+}
+
+Class DarkTail : Actor //new, this was not present on TNTEL
+{
+	Default
+	{
+		RenderStyle "STYLE_Add";
+		Alpha 0.5;
+		Projectile;
+		+BRIGHT
+		+NOCLIP
+	}
+
+	States
+	{
+	Spawn:
+		DKBT ABCDEF 2;
+		Stop;
+	}
+}
