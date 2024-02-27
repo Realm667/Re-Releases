@@ -633,7 +633,7 @@ ACTOR NashGore_PainElemental : PainElemental replaces PainElemental { BloodColor
 
 ACTOR NashGore_Revenant : Revenant replaces Revenant
 {
-States
+	States
 	{
 	Crush:
 		TNT1 A 1 A_SpawnItem("NashGore_CrushedMedium",0,0,0,0)
@@ -651,7 +651,7 @@ ACTOR NashGore_Cyberdemon : Cyberdemon replaces Cyberdemon
 	}
 }
 
-/* - excluded because of HitlerTNTLE, see zscript.zc
+/* - excluded because of HitlerTNTLE, see TNTEL_Base.zc
 ACTOR NashGore_WolfensteinSS : WolfensteinSS replaces WolfensteinSS
 {
 	States
@@ -1061,11 +1061,11 @@ ACTOR NashGore_StealthFatso : StealthFatso replaces StealthFatso
 
 ACTOR NashGore_StealthRevenant : StealthRevenant replaces StealthRevenant
 {
-States
+	States
 	{
 	Crush:
-	TNT1 A 1 A_SpawnItem("NashGore_CrushedMedium",0,0,0,0)
-	Stop
+		TNT1 A 1 A_SpawnItem("NashGore_CrushedMedium",0,0,0,0)
+		Stop
 	}
 }
 

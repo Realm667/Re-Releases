@@ -59,9 +59,17 @@ Class ChainsawZombie : Actor
         CHAN N -1;
         Stop;
     XDeath:
+		CHAN O 0 A_SpawnDebris("NashGore_Gib9",0);
+		CHAN O 0 A_SpawnDebris("NashGore_Gib10",0);
+		CHAN O 0 A_SpawnDebris("NashGore_Gib11",0);
+		CHAN O 0 A_SpawnDebris("NashGore_Gib11",0);
+		CHAN O 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0);
         CHAN O 5;
+		CHAN O 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,2);
         CHAN P 5 A_XScream();
+		CHAN P 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,2);
         CHAN Q 5 A_Fall();
+		CHAN Q 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,2);
         CHAN RSTUV 5;
         CHAN W -1;
         Stop;
