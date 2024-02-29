@@ -1,202 +1,170 @@
-splash Water
-{
-	smallclass		WaterSplashBase2
-	smallclip		12
-	smallsound		world/watersplashsmall
+////////////////////////////////////////
+// Splashes & Terrain Definitions //////
+////////////////////////////////////////
 
-	baseclass		WaterSplashBase2
-	chunkclass		WaterSplash2
-	chunkxvelshift	8
-	chunkyvelshift	8
-	chunkzvelshift	8
+splash UTNT_Water
+{
+	smallclass		UTNT_WaterSplash
+	smallclip		8
+	smallsound		world/drip
+	baseclass		UTNT_WaterSplash
+	chunkclass		UTNT_WaterSplash_Chunk
+	chunkxvelshift	9
+	chunkyvelshift	9
+	chunkzvelshift	7
 	chunkbasezvel	2
-	NoAlert
 	sound			world/watersplash
+	noalert
 }
 
-splash Blood
+terrain UTNT_Water
 {
-	smallclass		BloodSplashBase2
-	smallclip		6
+	splash	UTNT_Water
+	liquid
+}
+
+splash UTNT_Blood
+{
+	smallclass		UTNT_BloodSplash
+	smallclip		8
 	smallsound		world/sludgegloopsmall
-
-	baseclass		BloodSplashBase2
-	chunkclass		BloodSplash2
-	chunkxvelshift	8
-	chunkyvelshift	8
-	chunkzvelshift	8
-	chunkbasezvel	1
-	NoAlert
+	baseclass		UTNT_BloodSplash
+	chunkclass		UTNT_BloodSplash_Chunk
+	chunkxvelshift	9
+	chunkyvelshift	9
+	chunkzvelshift	7
+	chunkbasezvel	2
 	sound			world/sludgegloop
+	noalert
 }
 
-splash Nuke
+terrain UTNT_Blood
 {
-	smallclass		SlimeSplash2
-	smallclip		2
-	smallsound		world/nukesplashsmall
-
-	baseclass		SlimeSplash2
-	chunkclass		SlimeChunk2
-	chunkxvelshift	8
-	chunkyvelshift	8
-	chunkzvelshift	8
-	chunkbasezvel	1
-	NoAlert
-	sound			world/nukesplash
+	splash	UTNT_Blood
+	liquid
 }
 
-splash Lava
+splash UTNT_Lava
 {
-	smallclass		LavaSmoke
-	smallclip		12
-	smallsound		world/lavasizzlesmall
-
-	baseclass		LavaSplash2
-	chunkclass		LavaSmoke
+	smallclass		UTNT_LavaSplash
+	smallclip		0
+	smallsound		world/lavasizzle
+	baseclass		UTNT_LavaSplash
+	chunkclass		UTNT_LavaSplash_Chunk
 	chunkxvelshift	-1
 	chunkyvelshift	-1
 	chunkzvelshift	7
 	chunkbasezvel	1
-	NoAlert
 	sound			world/lavasizzle
+	noalert
 }
 
-splash Slime
+terrain UTNT_Lava
 {
-	smallclass		SludgeSplash2
-	smallclip		2
-	smallsound		world/sludgegloopsmall
+	splash	UTNT_Lava
+	liquid
+}
 
-	baseclass		SludgeSplash2
-	chunkclass		SludgeChunk2
+splash UTNT_Slime
+{
+	smallclass		UTNT_SlimeSplash
+	smallclip		0
+	smallsound		world/sludgegloop
+	baseclass		UTNT_SlimeSplash
+	chunkclass		UTNT_SlimeSplash_Chunk
 	chunkxvelshift	8
 	chunkyvelshift	8
 	chunkzvelshift	8
 	chunkbasezvel	1
-	NoAlert
 	sound			world/sludgegloop
+	noalert
 }
 
-splash Slime2
+terrain UTNT_Slime
 {
-	smallclass		SludgeSplash2
-	smallclip		10
-	smallsound		world/sludgegloopsmall
-
-	baseclass		SludgeSplash2
-	chunkclass		SludgeChunk2
-	chunkxvelshift	8
-	chunkyvelshift	8
-	chunkzvelshift	8
-	chunkbasezvel	1.5
-	NoAlert
-	sound			world/sludgegloop
+	splash	UTNT_Slime
+	liquid
 }
 
-splash Hot
+splash UTNT_Nukage
 {
-	smallclass		LavaSmoke
-	smallclip		12
-	smallsound		world/lavasizzlesmall
+	smallclass		UTNT_NukageSplash
+	smallclip		0
+	smallsound		world/lavasizzle
+	baseclass		UTNT_NukageSplash
+	chunkclass		UTNT_NukageSplash_Chunk
+	chunkxvelshift	9
+	chunkyvelshift	9
+	chunkzvelshift	7
+	chunkbasezvel	2
+	sound			world/lavasizzle
+	noalert
+}
 
-	baseclass		None
-	chunkclass		LavaSmoke
+terrain UTNT_Nukage
+{
+	splash	UTNT_Nukage
+	liquid
+}
+
+splash UTNT_Sizzle
+{
+	smallclass		UTNT_LavaSmoke
+	smallclip		0
+	smallsound		world/lavasizzle
+	baseclass		UTNT_LavaSmoke
+	chunkclass		none
 	chunkxvelshift	-1
 	chunkyvelshift	-1
 	chunkzvelshift	7
 	chunkbasezvel	1
-	NoAlert
-	sound			world/lavasizzlesmall
+	sound			world/lavasizzle
+	noalert
 }
 
-terrain Water
+terrain UTNT_Sizzle
 {
-	splash			Water
-	footclip		10
-	liquid
+	splash	UTNT_Sizzle
 }
 
-terrain Lava
-{
-	splash			Lava
-	footclip		10
-	liquid
-}
-
-terrain Blood
-{
-	splash			Blood
-	footclip		10
-	liquid
-}
-
-terrain Nuke
-{
-	splash			Nuke
-	footclip		10
-	liquid
-}
-
-terrain Slime
-{
-	splash			Slime
-	footclip		10
-	liquid
-}
-
-terrain Slime2
-{
-	splash			Slime2
-	footclip		10
-	liquid
-}
-
-terrain Hot
-{
-	splash			Hot
-	footclip		0
-	liquid
-}
-
-floor BLOOD1 Blood
-floor BLOOD2 Blood
-floor BLOOD3 Blood
-floor QWATERT6 Blood
-floor SLIME01 Slime2
-floor SLIME02 Slime2
-floor SLIME03 Slime2
-floor SLIME04 Slime2
-floor QSLIME1 Slime
-floor QSLIME2 Slime
-floor QWATER2 Slime
-floor QWATER3 Slime
-floor NUKAGE1 Nuke
-floor NUKAGE2 Nuke
-floor NUKAGE3 Nuke
-floor FWATER1 Water
-floor FWATER2 Water
-floor FWATER3 Water
-floor FWATER4 Water
-floor QFWAT Water
-floor QWATER1 Water
-floor LAVA1 Lava
-floor LAVA2 Lava
-floor LAVA3 Lava
-floor LAVA4 Lava
-floor QLAVA Lava
-floor QLAVA2 Lava
-floor RROCK05 Hot
-floor RROCK06 Hot
-floor RROCK07 Hot
-floor RROCK08 Hot
-floor SLIME09 Hot
-floor SLIME10 Hot
-floor SLIME11 Hot
-floor SLIME12 Hot
-floor QWATER3A Hot
-floor SLIME05 Hot
-floor SLIME05B Hot
-floor SLIME06 Hot
-floor SLIME07 Hot
-floor SLIME08 Hot
+floor BLOOD1 UTNT_Blood
+floor BLOOD2 UTNT_Blood
+floor BLOOD3 UTNT_Blood
+floor FWATER1 UTNT_Water
+floor FWATER2 UTNT_Water
+floor FWATER3 UTNT_Water
+floor FWATER4 UTNT_Water
+floor LAVA1 UTNT_Lava
+floor LAVA2 UTNT_Lava
+floor LAVA3 UTNT_Lava
+floor LAVA4 UTNT_Lava
+floor NUKAGE1 UTNT_Nukage
+floor NUKAGE2 UTNT_Nukage
+floor NUKAGE3 UTNT_Nukage
+floor QFWAT UTNT_Water
+floor QLAVA UTNT_Lava
+floor QLAVA2 UTNT_Lava
+floor QSLIME1 UTNT_Slime
+floor QSLIME2 UTNT_Slime
+floor QWATER1 UTNT_Water
+floor QWATER2 UTNT_Slime
+floor QWATER3 UTNT_Slime
+floor QWATER3A UTNT_Lava
+floor QWATERT6 UTNT_Blood
+floor RROCK05 UTNT_Lava
+floor RROCK06 UTNT_Lava
+floor RROCK07 UTNT_Lava
+floor RROCK08 UTNT_Lava
+floor SLIME01 UTNT_Sizzle
+floor SLIME02 UTNT_Sizzle
+floor SLIME03 UTNT_Sizzle
+floor SLIME04 UTNT_Sizzle
+floor SLIME05 UTNT_Lava
+floor SLIME05B UTNT_Lava
+floor SLIME06 UTNT_Lava
+floor SLIME07 UTNT_Lava
+floor SLIME08 UTNT_Lava
+floor SLIME09 UTNT_Lava
+floor SLIME10 UTNT_Lava
+floor SLIME11 UTNT_Lava
+floor SLIME12 UTNT_Lava

@@ -1,0 +1,557 @@
+// Copyright 2020 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+//===========================================================================
+//
+// Actors with minimal ticking. Useful for completely non-interactive stuff
+//
+//===========================================================================
+
+class UTNTDietActor : Actor
+{
+	bool ticked;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Tick()
+	{
+		if (!ticked)
+		{
+			Super.Tick();
+			ticked = true;
+			return;
+		}
+
+		if (!bNoTimeFreeze && isFrozen()) return;
+		if (tics != -1)
+		{
+			if (--tics <= 0)
+			{
+				if (!SetState(curstate.NextState)) return;
+			}
+		}
+	}
+}
+
+class UTNTDietActorWithVel : UTNTDietActor
+{
+	override void Tick(void)
+	{
+		SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
+		Super.Tick();
+	}
+}
+
+//===========================================================================
+//
+// Common code for fire effects
+//
+//===========================================================================
+
+mixin class UTNTFireMixin
+{
+	bool fadedIn;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		RenderStyle "Add";
+		Alpha 0;
+		+ROLLSPRITE
+		+ROLLCENTER
+		+BRIGHT
+		+FORCEXYBILLBOARD
+		+NOINTERACTION
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	SpawnLoop:
+		"####" "#" 0
+		{
+			bSpriteFlip = RandomPick(false, true);
+			A_SetRoll(frandom(0.0, 360.0));
+		}
+		"####" "#" 1
+		{
+			int rollDir = bSpriteFlip ? -1 : 1;
+			double rollSpeed = 2.33 * rollDir;
+			A_SetRoll(Roll + rollSpeed, SPF_INTERPOLATE);
+
+			if (!fadedIn)
+			{
+				if (Alpha < 0.5)
+				{
+					A_FadeIn(0.1);
+				}
+				else
+				{
+					fadedIn = true;
+				}
+			}
+
+			if (fadedIn)
+			{
+				A_SetScale(Scale.X * 0.98);
+				A_FadeOut(0.025);
+			}
+		}
+		Goto SpawnLoop + 1;
+	}
+}
+
+class UTNTTorch : RedTorch replaces RedTorch
+{
+	Default
+	{
+		Radius 10;
+		Height 67;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		TBLX A 0 NoDelay
+		{
+			A_SpawnItemEx("UTNTTallTorchLensFlare", 0, 0, 62.0);
+		}
+		TBLX A 1 A_SpawnItemEx("UTNTTorchFlame", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class UTNTTorchFlame : UTNTDietActorWithVel
+{
+	mixin UTNTFireMixin;
+
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNO A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class UTNTTallTorchLensFlare : UTNTDietActor
+{
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.5;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE A -1 Bright Light("BIGREDTORCH");
+		Stop;
+	}
+}
+
+class UTNTTorchG : GreenTorch replaces GreenTorch
+{
+	Default
+	{
+		Radius 10;
+		Height 67;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		TBLX A 0 NoDelay
+		{
+			A_SpawnItemEx("UTNTTallTorchLensFlareG", 0, 0, 62.0);
+		}
+		TBLX A 1 A_SpawnItemEx("UTNTTorchFlameG", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class UTNTTorchFlameG : UTNTDietActorWithVel
+{
+	mixin UTNTFireMixin;
+
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNG A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class UTNTTallTorchLensFlareG : UTNTDietActor
+{
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.5;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE B -1 Bright Light("BIGGREENTORCH");
+		Stop;
+	}
+}
+
+class UTNTTorchB : BlueTorch replaces BlueTorch
+{
+	Default
+	{
+		Radius 10;
+		Height 67;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		TBLX A 0 NoDelay
+		{
+			A_SpawnItemEx("UTNTTallTorchLensFlareB", 0, 0, 62.0);
+		}
+		TBLX A 1 A_SpawnItemEx("UTNTTorchFlameB", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class UTNTTorchFlameB : UTNTDietActorWithVel
+{
+	mixin UTNTFireMixin;
+
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNB A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class UTNTTallTorchLensFlareB : UTNTDietActor
+{
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.5;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE C -1 Bright Light("BIGBLUETORCH");
+		Stop;
+	}
+}
+
+//Experimental yet
+mixin class UTNTFireMixinShort
+{
+	bool fadedIn;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		RenderStyle "Add";
+		Alpha 0;
+		+ROLLSPRITE
+		+ROLLCENTER
+		+BRIGHT
+		+FORCEXYBILLBOARD
+		+NOINTERACTION
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+	SpawnLoop:
+		"####" "#" 0
+		{
+			bSpriteFlip = RandomPick(false, true);
+			A_SetRoll(frandom(0.0, 360.0));
+		}
+		"####" "#" 1
+		{
+			int rollDir = bSpriteFlip ? -1 : 1;
+			double rollSpeed = 2.33 * rollDir;
+			A_SetRoll(Roll + rollSpeed, SPF_INTERPOLATE);
+
+			if (!fadedIn)
+			{
+				if (Alpha < 0.5)
+				{
+					A_FadeIn(0.1);
+				}
+				else
+				{
+					fadedIn = true;
+				}
+			}
+
+			if (fadedIn)
+			{
+				A_SetScale(Scale.X * 0.58);
+				A_FadeOut(0.025);
+			}
+		}
+		Goto SpawnLoop + 1;
+	}
+}
+
+class UTNTShortRedTorch : ShortRedTorch replaces ShortRedTorch
+{
+	Default
+	{
+		Radius 8;
+		Height 32;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		SMRX A 0 NoDelay
+		{
+			A_SpawnItemEx("UTNTShortTorchLensFlare", 0, 0, 32.0);
+		}
+		SMRX A 1 A_SpawnItemEx("UTNTTorchFlameShort", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class UTNTTorchFlameShort : UTNTDietActorWithVel //necessary for diff mixin
+{
+	mixin UTNTFireMixinShort;
+
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNO A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class UTNTShortTorchLensFlare : UTNTDietActor
+{
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.25;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE A -1 Bright Light("SMALLREDTORCH");
+		Stop;
+	}
+}
+
+class UTNTShortGreenTorch : ShortGreenTorch replaces ShortGreenTorch
+{
+	Default
+	{
+		Radius 8;
+		Height 32;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		SMRX A 0 NoDelay
+		{
+			A_SpawnItemEx("UTNTShortTorchLensFlareG", 0, 0, 32.0);
+		}
+		SMRX A 1 A_SpawnItemEx("UTNTTorchFlameShortG", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class UTNTTorchFlameShortG : UTNTDietActorWithVel //necessary for diff mixin
+{
+	mixin UTNTFireMixinShort;
+
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNG A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class UTNTShortTorchLensFlareG : UTNTDietActor
+{
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.25;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE B -1 Bright Light("SMALLGREENTORCH");
+		Stop;
+	}
+}
+
+class UTNTShortBlueTorch : ShortBlueTorch replaces ShortBlueTorch
+{
+	Default
+	{
+		Radius 8;
+		Height 32;
+		ProjectilePassHeight -16;
+		+SOLID
+	}
+
+	States
+	{
+	Spawn:
+		SMRX A 0 NoDelay
+		{
+			A_SpawnItemEx("UTNTShortTorchLensFlareB", 0, 0, 32.0);
+		}
+		SMRX A 1 A_SpawnItemEx("UTNTTorchFlameShortB", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		Goto Spawn + 1;
+	}
+}
+
+class UTNTTorchFlameShortB : UTNTDietActorWithVel //necessary for diff mixin
+{
+	mixin UTNTFireMixinShort;
+
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		Scale 0.3;
+	}
+
+	States
+	{
+	Spawn:
+		AFNB A 0;
+		Goto SpawnLoop;
+	}
+}
+
+class UTNTShortTorchLensFlareB : UTNTDietActor
+{
+	Default
+	{
+		DistanceCheck "UTNT_lod";
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.25;
+		+NOINTERACTION
+	}
+
+	States
+	{
+	Spawn:
+		FLRE C -1 Bright Light("SMALLBLUETORCH");
+		Stop;
+	}
+}

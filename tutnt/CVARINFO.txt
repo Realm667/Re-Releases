@@ -1,8 +1,12 @@
+//ppshaders related
 server int UTNT_lod = 2048;
-server bool weatherfx = true; //to be removed
-server bool enh_shaderoverlayswitch = true; //Heat & Smoke effect
-user float enh_uweffectsize = 0.015; //Underwater effect parameter
+server bool UTNT_shaderoverlayswitch = true; //Heat & Smoke effect
+user float UTNT_uweffectsize = 0.015; //Underwater effect parameter
+user float UTNT_footstepvolume = 1.0;
 
+server bool weatherfx = true; //to be removed
+
+//motion blur related
 user bool motionblur = true;
 user bool motionblur_autostop = true;
 user float motionblur_recovery = 64;
@@ -11,3 +15,31 @@ user float motionblur_strength = 64;
 user float motionblur_threshold = 30;
 user int motionblur_blendmode = 1;
 user int motionblur_samples = 5;
+
+//hud related
+user bool fullhud_boom = false ;
+user bool fullhud_fullstats = true ;
+user bool fullhud_split = false ;
+user int fullhud_trans = 0 ;
+user int fullhud_stats = 1 ;
+user int fullhud_statspos = 1 ;
+
+user bool fullhud_berserk = true;
+user bool fullhud_interpolate = true ;
+user bool fullhud_mugswitch = true ;
+user bool fullhud_splitarms = false ;
+
+//nashgore related
+server int nashgore_maxgore = 1024;
+server int nashgore_bloodtype = 0;
+server int nashgore_bloodamount = 255;
+server bool nashgore_spriteblood = false;
+server bool nashgore_bloodspurt = true;
+server int nashgore_gibtype = 0;
+server int nashgore_gibamount = 255;
+server bool nashgore_corpseblood = true;
+server bool nashgore_footprints = true;
+server bool nashgore_deathflip = true;
+server bool nashgore_squish = true;
+server bool nashgore_icedeath = true;
+server bool nashgore_splat = true;
