@@ -82,7 +82,7 @@ class TNTRemPlayer : DoomPlayer
 		bool shouldPlayFootstepSound = false;
 
 		// get character velocity
-		double aVel = TNTELGameplayStatics.GetVelocity(self, xyOnly: true);
+		double aVel = TNTLEGameplayStatics.GetVelocity(self, xyOnly: true);
 
 		// don't bother if moving too slow
 		if (aVel < 0.1)
@@ -92,7 +92,7 @@ class TNTRemPlayer : DoomPlayer
 		double vol = min(aVel * 0.1, 1.0);
 		//vol *= 0.7;
 		if (CheckLocalView())
-			vol *= CVar.GetCVar("tntel_footstepvolume", player).GetFloat();
+			vol *= CVar.GetCVar("TNTLE_footstepvolume", player).GetFloat();
 		vol = clamp(vol, 0.0, 1.0);
 
 		// clamp the velocity value to pleasing values
@@ -118,9 +118,9 @@ class TNTRemPlayer : DoomPlayer
 			(
 				0.0,
 				0.0,
-				TNTELFootstep.GetZOffset(self)
+				TNTLEFootstep.GetZOffset(self)
 			);
-			let fs = TNTELFootstep(self.Spawn("TNTELFootstep", self.Pos + sPos, NO_REPLACE));
+			let fs = TNTLEFootstep(self.Spawn("TNTLEFootstep", self.Pos + sPos, NO_REPLACE));
 			if (fs)
 			{
 				fs.pmo = self;

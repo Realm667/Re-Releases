@@ -30,7 +30,7 @@
 //
 //===========================================================================
 
-class TNTELDietActor : Actor
+class TNTLEDietActor : Actor
 {
 	bool ticked;
 
@@ -60,7 +60,7 @@ class TNTELDietActor : Actor
 	}
 }
 
-class TNTELDietActorWithVel : TNTELDietActor
+class TNTLEDietActorWithVel : TNTLEDietActor
 {
 	override void Tick(void)
 	{
@@ -75,7 +75,7 @@ class TNTELDietActorWithVel : TNTELDietActor
 //
 //===========================================================================
 
-mixin class TNTELFireMixin
+mixin class TNTLEFireMixin
 {
 	bool fadedIn;
 
@@ -138,7 +138,7 @@ mixin class TNTELFireMixin
 	}
 }
 
-class TNTELTorch : RedTorch replaces RedTorch
+class TNTLETorch : RedTorch replaces RedTorch
 {
 	Default
 	{
@@ -153,20 +153,20 @@ class TNTELTorch : RedTorch replaces RedTorch
 	Spawn:
 		TBLX A 0 NoDelay
 		{
-			A_SpawnItemEx("TNTELTallTorchLensFlare", 0, 0, 62.0);
+			A_SpawnItemEx("TNTLETallTorchLensFlare", 0, 0, 62.0);
 		}
-		TBLX A 1 A_SpawnItemEx("TNTELTorchFlame", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		TBLX A 1 A_SpawnItemEx("TNTLETorchFlame", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
 		Goto Spawn + 1;
 	}
 }
 
-class TNTELTorchFlame : TNTELDietActorWithVel
+class TNTLETorchFlame : TNTLEDietActorWithVel
 {
-	mixin TNTELFireMixin;
+	mixin TNTLEFireMixin;
 
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		Scale 0.3;
 	}
 
@@ -178,11 +178,11 @@ class TNTELTorchFlame : TNTELDietActorWithVel
 	}
 }
 
-class TNTELTallTorchLensFlare : TNTELDietActor
+class TNTLETallTorchLensFlare : TNTLEDietActor
 {
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		RenderStyle "Add";
 		Alpha 0.8;
 		Scale 0.5;
@@ -197,7 +197,7 @@ class TNTELTallTorchLensFlare : TNTELDietActor
 	}
 }
 
-class TNTELTorchG : GreenTorch replaces GreenTorch
+class TNTLETorchG : GreenTorch replaces GreenTorch
 {
 	Default
 	{
@@ -212,20 +212,20 @@ class TNTELTorchG : GreenTorch replaces GreenTorch
 	Spawn:
 		TBLX A 0 NoDelay
 		{
-			A_SpawnItemEx("TNTELTallTorchLensFlareG", 0, 0, 62.0);
+			A_SpawnItemEx("TNTLETallTorchLensFlareG", 0, 0, 62.0);
 		}
-		TBLX A 1 A_SpawnItemEx("TNTELTorchFlameG", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		TBLX A 1 A_SpawnItemEx("TNTLETorchFlameG", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
 		Goto Spawn + 1;
 	}
 }
 
-class TNTELTorchFlameG : TNTELDietActorWithVel
+class TNTLETorchFlameG : TNTLEDietActorWithVel
 {
-	mixin TNTELFireMixin;
+	mixin TNTLEFireMixin;
 
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		Scale 0.3;
 	}
 
@@ -237,11 +237,11 @@ class TNTELTorchFlameG : TNTELDietActorWithVel
 	}
 }
 
-class TNTELTallTorchLensFlareG : TNTELDietActor
+class TNTLETallTorchLensFlareG : TNTLEDietActor
 {
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		RenderStyle "Add";
 		Alpha 0.8;
 		Scale 0.5;
@@ -256,7 +256,7 @@ class TNTELTallTorchLensFlareG : TNTELDietActor
 	}
 }
 
-class TNTELTorchB : BlueTorch replaces BlueTorch
+class TNTLETorchB : BlueTorch replaces BlueTorch
 {
 	Default
 	{
@@ -271,20 +271,20 @@ class TNTELTorchB : BlueTorch replaces BlueTorch
 	Spawn:
 		TBLX A 0 NoDelay
 		{
-			A_SpawnItemEx("TNTELTallTorchLensFlareB", 0, 0, 62.0);
+			A_SpawnItemEx("TNTLETallTorchLensFlareB", 0, 0, 62.0);
 		}
-		TBLX A 1 A_SpawnItemEx("TNTELTorchFlameB", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		TBLX A 1 A_SpawnItemEx("TNTLETorchFlameB", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
 		Goto Spawn + 1;
 	}
 }
 
-class TNTELTorchFlameB : TNTELDietActorWithVel
+class TNTLETorchFlameB : TNTLEDietActorWithVel
 {
-	mixin TNTELFireMixin;
+	mixin TNTLEFireMixin;
 
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		Scale 0.3;
 	}
 
@@ -296,11 +296,11 @@ class TNTELTorchFlameB : TNTELDietActorWithVel
 	}
 }
 
-class TNTELTallTorchLensFlareB : TNTELDietActor
+class TNTLETallTorchLensFlareB : TNTLEDietActor
 {
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		RenderStyle "Add";
 		Alpha 0.8;
 		Scale 0.5;
@@ -316,7 +316,7 @@ class TNTELTallTorchLensFlareB : TNTELDietActor
 }
 
 //Experimental yet
-mixin class TNTELFireMixinShort
+mixin class TNTLEFireMixinShort
 {
 	bool fadedIn;
 
@@ -379,7 +379,7 @@ mixin class TNTELFireMixinShort
 	}
 }
 
-class TNTELShortRedTorch : ShortRedTorch replaces ShortRedTorch
+class TNTLEShortRedTorch : ShortRedTorch replaces ShortRedTorch
 {
 	Default
 	{
@@ -394,20 +394,20 @@ class TNTELShortRedTorch : ShortRedTorch replaces ShortRedTorch
 	Spawn:
 		SMRX A 0 NoDelay
 		{
-			A_SpawnItemEx("TNTELShortTorchLensFlare", 0, 0, 32.0);
+			A_SpawnItemEx("TNTLEShortTorchLensFlare", 0, 0, 32.0);
 		}
-		SMRX A 1 A_SpawnItemEx("TNTELTorchFlameShort", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		SMRX A 1 A_SpawnItemEx("TNTLETorchFlameShort", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
 		Goto Spawn + 1;
 	}
 }
 
-class TNTELTorchFlameShort : TNTELDietActorWithVel //necessary for diff mixin
+class TNTLETorchFlameShort : TNTLEDietActorWithVel //necessary for diff mixin
 {
-	mixin TNTELFireMixinShort;
+	mixin TNTLEFireMixinShort;
 
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		Scale 0.3;
 	}
 
@@ -419,11 +419,11 @@ class TNTELTorchFlameShort : TNTELDietActorWithVel //necessary for diff mixin
 	}
 }
 
-class TNTELShortTorchLensFlare : TNTELDietActor
+class TNTLEShortTorchLensFlare : TNTLEDietActor
 {
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		RenderStyle "Add";
 		Alpha 0.8;
 		Scale 0.25;
@@ -438,7 +438,7 @@ class TNTELShortTorchLensFlare : TNTELDietActor
 	}
 }
 
-class TNTELShortGreenTorch : ShortGreenTorch replaces ShortGreenTorch
+class TNTLEShortGreenTorch : ShortGreenTorch replaces ShortGreenTorch
 {
 	Default
 	{
@@ -453,20 +453,20 @@ class TNTELShortGreenTorch : ShortGreenTorch replaces ShortGreenTorch
 	Spawn:
 		SMRX A 0 NoDelay
 		{
-			A_SpawnItemEx("TNTELShortTorchLensFlareG", 0, 0, 32.0);
+			A_SpawnItemEx("TNTLEShortTorchLensFlareG", 0, 0, 32.0);
 		}
-		SMRX A 1 A_SpawnItemEx("TNTELTorchFlameShortG", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		SMRX A 1 A_SpawnItemEx("TNTLETorchFlameShortG", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
 		Goto Spawn + 1;
 	}
 }
 
-class TNTELTorchFlameShortG : TNTELDietActorWithVel //necessary for diff mixin
+class TNTLETorchFlameShortG : TNTLEDietActorWithVel //necessary for diff mixin
 {
-	mixin TNTELFireMixinShort;
+	mixin TNTLEFireMixinShort;
 
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		Scale 0.3;
 	}
 
@@ -478,11 +478,11 @@ class TNTELTorchFlameShortG : TNTELDietActorWithVel //necessary for diff mixin
 	}
 }
 
-class TNTELShortTorchLensFlareG : TNTELDietActor
+class TNTLEShortTorchLensFlareG : TNTLEDietActor
 {
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		RenderStyle "Add";
 		Alpha 0.8;
 		Scale 0.25;
@@ -497,7 +497,7 @@ class TNTELShortTorchLensFlareG : TNTELDietActor
 	}
 }
 
-class TNTELShortBlueTorch : ShortBlueTorch replaces ShortBlueTorch
+class TNTLEShortBlueTorch : ShortBlueTorch replaces ShortBlueTorch
 {
 	Default
 	{
@@ -512,20 +512,20 @@ class TNTELShortBlueTorch : ShortBlueTorch replaces ShortBlueTorch
 	Spawn:
 		SMRX A 0 NoDelay
 		{
-			A_SpawnItemEx("TNTELShortTorchLensFlareB", 0, 0, 32.0);
+			A_SpawnItemEx("TNTLEShortTorchLensFlareB", 0, 0, 32.0);
 		}
-		SMRX A 1 A_SpawnItemEx("TNTELTorchFlameShortB", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		SMRX A 1 A_SpawnItemEx("TNTLETorchFlameShortB", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
 		Goto Spawn + 1;
 	}
 }
 
-class TNTELTorchFlameShortB : TNTELDietActorWithVel //necessary for diff mixin
+class TNTLETorchFlameShortB : TNTLEDietActorWithVel //necessary for diff mixin
 {
-	mixin TNTELFireMixinShort;
+	mixin TNTLEFireMixinShort;
 
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		Scale 0.3;
 	}
 
@@ -537,11 +537,11 @@ class TNTELTorchFlameShortB : TNTELDietActorWithVel //necessary for diff mixin
 	}
 }
 
-class TNTELShortTorchLensFlareB : TNTELDietActor
+class TNTLEShortTorchLensFlareB : TNTLEDietActor
 {
 	Default
 	{
-		DistanceCheck "TNTEL_lod";
+		DistanceCheck "TNTLE_lod";
 		RenderStyle "Add";
 		Alpha 0.8;
 		Scale 0.25;

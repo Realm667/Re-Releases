@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Talon1024, N00b
+ * Copyright (c) 2018-2020 AFADoomer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,41 +20,22 @@
  * SOFTWARE.
 **/
 
-class DebugEventHandler : StaticEventHandler
-{
-	void FindUndefinedTerrain()
-	{
-		Array<String> textures;
-		Array<String> info;
+class TNTWaterHandler : StaticEventHandler {
+	override void RenderOverlay(RenderEvent e) {
+		// set the player's timer up correctly (more-than-1-tick precision)
+		PlayerInfo p = players[consoleplayer];
+		Shader.SetUniform1f(p, "watershader", "timer", gametic + e.FracTic);
 
-		for (int s = 0; s < level.sectors.Size(); s++)
-		{
-			Sector sec = level.sectors[s];
-
-			if (!sec.GetTerrain(Sector.floor)) // Terrain type of "Solid" - the engine default
-			{
-				TextureID tex = sec.GetTexture(Sector.floor);
-				String texname = TexMan.GetName(tex);
-
-				if (textures.Find(texname) == textures.Size())
-				{
-					textures.Push(texname);
-					info.Push(String.Format("floor %s TNTEL_ // Used in %s (Sector %i)", texname, level.mapname, sec.Index()));
-				}
-			}
+		if (p.mo.waterlevel >= 3) {
+			Shader.SetEnabled(p, "watershader", true);
+			Shader.SetEnabled(p, "waterzoomshader", true);
+			double effectSize = CVar.GetCVar("TNTLE_uweffectsize", p).GetFloat();
+			Shader.SetUniform1f(p, "watershader", "waterFactor", effectSize);
+			Shader.SetUniform1f(p, "waterzoomshader", "zoomFactor", 1 - (effectSize * 2));
 		}
-
-		for (int i = 0; i < info.Size(); i++)
-		{
-			console.printf(info[i]);
-		}
-	}
-
-	override void NetworkProcess(ConsoleEvent e)
-	{
-		if (e.name ~== "t667terrain")
-		{
-			FindUndefinedTerrain();
+		else {
+			Shader.SetEnabled(p, "watershader", false);
+			Shader.SetEnabled(p, "waterzoomshader", false);
 		}
 	}
 }
