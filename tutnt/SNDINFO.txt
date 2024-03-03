@@ -1,66 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////////
-// VOICE ACTING ///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
-voc001 voc001
-voc002 voc002
-voc003 voc003
-voc004 voc004
-voc005 voc005
-voc006 voc006
-voc007 voc007
-voc008 voc008
-voc009 voc009
-voc010 voc010
-voc011 voc011
-voc012 voc012
-voc013 voc013
-voc014 voc014
-voc015 voc015
-voc016 voc016
-voc017 voc017
-voc018 voc018
-voc019 voc019
-voc020 voc020
-voc021 voc021
-voc022 voc022
-voc023 voc023
-voc024 voc024
-voc025 voc025
-voc026 voc026
-voc027 voc027
-voc028 voc028
-voc029 voc029
-voc030 voc030
-voc031 voc031
-voc032 voc032
-voc033 voc033
-voc034 voc034
-voc035 voc035
-voc036 voc036
-voc037 voc037
-voc038 voc038
-voc039 voc039
-voc040 voc040
-voc041 voc041
-voc042 voc042
-voc043 voc043
-
-//////////////////////////////////////////////////////////////////////////////////
-// POINT MUSIC ///////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-// MARIO KART
-D_MAKA D_MAKA
-
-// HORST WESSEL
-D_HORST D_HORST
-
 /////////////////////////////////////////////////////////////////////////////////////
 // MONSTER SOUNDS ///////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
 // ZOMBIE MARINE
-zombie/rifle			dsrifle
+zombie/rifle		dsrifle
 
 // CATHARI
 catharsi/sit DSSLSIT
@@ -88,7 +31,7 @@ arachnophyte/death		dsaphdth
 $random batfam/idle		{batfam/idle1 batfam/idle2}
 batfam/idle1			batidle1
 batfam/idle2			batidle2
-batfam/pain			batpain
+batfam/pain				batpain
 batfam/death			batdie
 batfam/crash			batcrash
 
@@ -120,7 +63,7 @@ superbaron/act			dssbact
 superbaron/death		dssbdth
 
 // WOLF3D SECRET MONSTERS
-shots/single		DSSHOT
+shots/single	DSSHOT
 dog/sight		DSDOGSIT
 dog/attack		DSDOGATK
 dog/death		DSDOGDTH
@@ -259,12 +202,12 @@ queen/elec sorzap
 queen/elecx soratk
 
 // DEVIL
-$random monster/dvlsit 		{ monster/dvlsi1  monster/dvlsi2 }
-$random monster/dvldth		{ monster/dvldt1  monster/dvldt2 }
-monster/dvlsi1			dsdvlsi1
-monster/dvlsi2			dsdvlsi2
 monster/dvlact			dsdvlact
 monster/dvlpai			dsdvlpai
+$random monster/dvlsit 		{ monster/dvlsi1  monster/dvlsi2 }
+monster/dvlsi1			dsdvlsi1
+monster/dvlsi2			dsdvlsi2
+$random monster/dvldth		{ monster/dvldt1  monster/dvldt2 }
 monster/dvldt1			dsdvldt1
 monster/dvldt2			dsdvldt2
 
@@ -293,226 +236,6 @@ pain1			SHDPAIN1
 pain2			SHDPAIN2
 Shadow/attack		SHDATTAK
 Shadow/death		SHDDEATH
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// MISC INGAME SOUNDS ///////////////////////////////////////////////////////////////////
-////////////////////////
-
-// LIGHT ON - OFF
-LightOn				lighton
-LightOff			lightoff
-
-// DUDUDUD OBJECTIVE
-DUDUD dudud
-
-// PUFF RICOCHET
-$random puff/ric       { puff/ric1 puff/ric2 puff/ric3 puff/ric4 puff/ric5 puff/ric6 puff/ric7 }
-puff/ric1          dsrich1
-puff/ric2          dsrich2
-puff/ric3          dsrich3
-puff/ric4          dsrich4
-puff/ric5          dsrich5
-puff/ric6          dsrich6
-puff/ric7          dsrich7
-
-// MARIO COINS
-misc/sm_coin	DSSMCOIN
-misc/sm_bdor    DSMARBD
-
-//lowhealth
-HBEAT	HBEAT
-
-// ENDMAP SOUNDS
-heartb		heartb	//these needs to be verified in game
-heartb2		heartb2	//these needs to be verified in game
-bombs1  	bombs1
-bombs2  	bombs2
-
-////////////////////
-//TERRAIN SPLASHES//
-////////////////////
-
-// Splashes
-world/drip			gloop
-world/lavasizzle	acid5
-world/sludgegloop	muck5
-world/watersplash	gloop
-
-$random world/sludgegloopsmall { world/sludgegloopsmall1 world/sludgegloopsmall2 }
-world/sludgegloopsmall1	dsplosml
-world/sludgegloopsmall2	dsplosm2
-
-//you can override the limit values so multiple splashes can play simultaneously
-//note that this sounds bad if multiple splashes play all at once (such as when firing a shotgun into liquid), so override these values at your own discretion
-
-$limit world/drip 4
-$limit world/lavasizzle 4
-$limit world/sludgegloop 4
-$limit world/sludgegloopsmall 4
-$limit world/watersplash 4
-
-/////////////
-//NASHGORES//
-/////////////
-
-//===========================================================================
-//
-// Blood Splash
-//
-//===========================================================================
-
-nashgore/bloodsplash1 "sounds/nash/blood splash 01.ogg"
-nashgore/bloodsplash2 "sounds/nash/blood splash 02.ogg"
-nashgore/bloodsplash3 "sounds/nash/blood splash 03.ogg"
-
-$random nashgore/bloodsplash
-{
-	nashgore/bloodsplash1
-	nashgore/bloodsplash2
-	nashgore/bloodsplash3
-}
-
-$limit nashgore/bloodsplash 2
-$volume nashgore/bloodsplash 0.3
-
-//===========================================================================
-//
-// Blood Drop
-//
-//===========================================================================
-
-nashgore/blooddrop01 "sounds/nash/blood drop 01.ogg"
-nashgore/blooddrop02 "sounds/nash/blood drop 02.ogg"
-
-$random nashgore/blooddrop
-{
-	nashgore/blooddrop01
-	nashgore/blooddrop02
-}
-
-$volume nashgore/blooddrop 0.25
-$limit nashgore/blooddrop 2
-
-//===========================================================================
-//
-// Small Gib
-//
-//===========================================================================
-
-nashgore/gibsmall01 "sounds/nash/gib small 01.ogg"
-nashgore/gibsmall02 "sounds/nash/gib small 02.ogg"
-
-$random nashgore/gibsmall
-{
-	nashgore/gibsmall01
-	nashgore/gibsmall02
-}
-
-$volume nashgore/gibsmall 0.44
-
-//===========================================================================
-//
-// Big Gib
-//
-//===========================================================================
-
-nashgore/giblarge01 "sounds/nash/gib large 01.ogg"
-nashgore/giblarge02 "sounds/nash/gib large 02.ogg"
-nashgore/giblarge03 "sounds/nash/gib large 03.ogg"
-
-// replace the stock gibbed sound
-$random misc/gibbed
-{
-	nashgore/giblarge01
-	nashgore/giblarge02
-	nashgore/giblarge03
-}
-
-$limit misc/gibbed 3
-
-//===========================================================================
-//
-// Bouncing Gib
-//
-//===========================================================================
-
-nashgore/gibbounce01 "sounds/nash/gib bounce 01.ogg"
-nashgore/gibbounce02 "sounds/nash/gib bounce 02.ogg"
-nashgore/gibbounce03 "sounds/nash/gib bounce 03.ogg"
-
-$random nashgore/gibbounce
-{
-	nashgore/gibbounce01
-	nashgore/gibbounce02
-	nashgore/gibbounce03
-}
-
-$volume nashgore/gibbounce 0.225
-$limit nashgore/gibbounce 4
-
-//===========================================================================
-//
-// Body Drop
-//
-//===========================================================================
-
-nashgore/bodydrop "sounds/nash/body drop 01.ogg"
-
-//////////////////////////////////////////////////////////////////////////////////////
-// AMBIENT SOUNDS ////////////////////////////////////////////////////////////////////
-/////////////////////
-AMB1   amb1
-AMB2   amb2
-AMB3   amb3
-AMB7   amb7
-AMB4   amb29
-AMB5   amb24
-AMB6   t3amb6
-T3AMB7   t3amb7
-AMB8   t3amb8
-AMB10   t3amb10
-AMB11   t3amb11
-AMB12   amb36
-AMB13   t3amb13
-AMB14   amb7
-AMB15   t3amb15
-AMB16   t3amb16
-AMB17   t3amb17
-AMB18   t3amb18
-AMB21  amb21
-AMB24  amb24
-AMBRAIN   ambrain
-AMBTRAFF   ambtraff
-NAMB01 namb01
-NAMB02 namb02
-Q2AMBXX q2ambxx
-
-$AMBIENT 1 amb1 RANDOM 20.0 35.0 1.0
-$AMBIENT 2 amb2 RANDOM 20.0 35.0 1.0
-$AMBIENT 3 amb3 RANDOM 20.0 35.0 1.0
-$AMBIENT 4 amb4 POINT CONTINUOUS 1.0
-$AMBIENT 5 amb5 POINT CONTINUOUS 1.0
-$AMBIENT 6 amb6 POINT CONTINUOUS 1.0
-$AMBIENT 7 t3amb7 POINT CONTINUOUS 1.0
-$AMBIENT 8 amb8 POINT CONTINUOUS 1.0
-$AMBIENT 10 amb10 POINT RANDOM 25.0 38.0 1.0
-$AMBIENT 11 amb11 POINT CONTINUOUS 1.0
-$AMBIENT 12 amb12 POINT RANDOM 23.0 39.0 1.0
-$AMBIENT 13 amb13 POINT RANDOM 29.0 40.0 1.0
-$AMBIENT 14 amb14 POINT CONTINUOUS 1.0
-$AMBIENT 15 amb15 POINT CONTINUOUS 1.0
-$AMBIENT 16 amb16 POINT RANDOM 3.0 8.0 1.0
-$AMBIENT 17 amb17 POINT RANDOM 3.0 8.0 1.0
-$AMBIENT 18 amb18 POINT CONTINUOUS 1.0
-$AMBIENT 19 ambrain POINT CONTINUOUS 0.5
-$AMBIENT 20 ambtraff POINT CONTINUOUS 1.0
-$AMBIENT 21 amb7 POINT CONTINUOUS 1.0
-$AMBIENT 30 namb01 POINT CONTINUOUS 1.0
-$AMBIENT 31 namb02 POINT CONTINUOUS 1.0
-$AMBIENT 32 amb24 POINT CONTINUOUS 1.0
-$AMBIENT 33 q2ambxx POINT CONTINUOUS 1.0
-$AMBIENT 34 D_HORST POINT CONTINUOUS 1.0
-$AMBIENT 35 D_MAKA POINT CONTINUOUS 1.0
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // SCRIPTED MARINES ///////////////////////////////////////////////////////////////////
@@ -543,73 +266,3 @@ marine/sight7			dsmasit7
 marine/sight8			dsmasit8
 marine/sight9			dsmasit9
 marine/sight0			dsmasit0
-
-//////////////////////////////////////////////////////////////////////////////////////
-// SOUND SEQUENCES ///////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////
-
-// DOOR
-door1_start	doorstr
-door1_mid	doormid
-door1_end	doorend
-
-// PLATFORM
-plat1_start	udoor1a
-plat1_mid	udoor1b
-plat1_end	udoor1c
-
-////////////////////////////////////////////////////////////////////////////////////
-// WEAPON SOUNDS ///////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-
-// MINIGUN
-weapons/minigunfire	DSMINIGN
-
-// FIRE WEAPONS
-weapons/hellfi		      dshellfi
-weapons/hellex	              dshellex
-weapons/scorch                dsscorch
-weapons/boom1                 dsboom1
-weapons/onfire                dsonfire
-weapons/flamer                dsflamer
-weapons/bang1                 dsbang1
-
-// WEAPON ENHANCEMENTS
-$random weapons/case1		{weapons/case11 weapons/case12}
-weapons/case11			dscase11
-weapons/case12			dscase12
-
-$random weapons/case2		{weapons/case21 weapons/case22}
-weapons/case21			dscase21
-weapons/case22			dscase22
-
-$random weapons/shell		{weapons/shell1 weapons/shell2 weapons/shell3}
-weapons/shell1			dsshell1
-weapons/shell2			dsshell2
-weapons/shell3			dsshell3
-
-////////////////////
-// SOUND SEQUENCES //
-////////////////////
-stnmov stnmov
-silent silent
-dswlfcl dswlfcl
-dswlfop dswlfop
-
-//SFX Fire
-SFX/FireStart	FIRESTRT
-SFX/FireLoop1	FIRELOP1
-SFX/FireLoop2	FIRELOP2
-SFX/FireLoop3	FIRELOP3
-SFX/FireDie		FIREDIE
-
-weapons/BFGcharge		"sounds/charging.ogg"
-weapons/BFGFire			"sounds/DMGFire.ogg"
-weapons/PyroShot1		"sounds/VOLFIRE.ogg"
-weapons/PyroShot2		"sounds/H2EIFEND.ogg"
-weapons/chngun			"sounds/RW04UZIF.ogg"
-weapons/minigunfire		"sounds/mgunshot.ogg"
-weapons/shtgun_eject	"sounds/SHOTEJEC.ogg"
-weapons/PlasmaFly		"sounds/PlasmaFly.ogg"
-weapons/mgunspindown	"sounds/SpinDown1.ogg"
-weapons/cgunspindown	"sounds/SpinDown2.ogg"
