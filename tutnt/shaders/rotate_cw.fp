@@ -13,5 +13,5 @@ vec4 Process(vec4 color)
 	float tx = mod((tcos * t.x - tsin * t.y) - 0.5, 1.0);
 	float ty = mod((tsin * t.x + tcos * t.y) - 0.5, 1.0);
 
-  return getTexel(vec2(tx, ty)) * color;
+	return getTexel(vec2(tx, ty)) * color;
 }
