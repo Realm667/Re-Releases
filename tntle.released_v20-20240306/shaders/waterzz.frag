@@ -1,4 +1,5 @@
-void main() {
+void main()
+{
 	vec2 newCoord = TexCoord;
 	// scale the coord around (0.5, 0.5)
 	newCoord -= 0.5;

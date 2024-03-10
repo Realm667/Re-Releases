@@ -1,5 +1,7 @@
-void main() {
-	if (waterFactor > 0) {
+void main()
+{
+	if (waterFactor > 0)
+	{
 		float tau = 6.28318530717958647692;
 
 		vec2 texSize = textureSize(InputTexture, 0);
