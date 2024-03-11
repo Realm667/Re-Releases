@@ -1,0 +1,65 @@
+Class PlasmaZombie : Actor
+{
+	Default
+	{
+		//$Category ZPack Monsters
+		Health 160;
+		Radius 20;
+		Height 56;
+		Speed 8;
+		PainChance 100;
+		GibHealth 35;
+		SeeSound "grunt/sight";
+		AttackSound "grunt/attack";
+		PainSound "grunt/pain";
+		DeathSound "grunt/death";
+		ActiveSound "grunt/active";
+		Obituary "$OB_PLASZ";
+		DropItem "Cell";
+		MONSTER;
+		+FLOORCLIP
+	}
+
+	States
+	{
+	Spawn:
+		ZMAY AB 10 A_Look();
+		Loop;
+	See:
+		ZMAY AABBCCDD 4 A_Chase();
+		Loop;
+	Missile:
+		ZMAY E 10 A_FaceTarget();
+		ZMAY F 5 A_SpawnProjectile("PlasmaBall", 32);
+		ZMAY E 5 A_FaceTarget();
+		ZMAY F 5 A_SpawnProjectile("PlasmaBall", 32);
+		ZMAY E 5 A_FaceTarget();
+		ZMAY F 5 A_SpawnProjectile("PlasmaBall", 32);
+		ZMAY E 5 A_FaceTarget();
+		ZMAY F 5 A_SpawnProjectile("PlasmaBall", 32);
+		ZMAY E 5 A_FaceTarget();
+		ZMAY F 5 A_SpawnProjectile("PlasmaBall", 32);
+		Goto See;
+	Pain:
+		ZMAY G 3;
+		ZMAY G 3 A_Pain();
+		Goto See;
+	Death:
+		ZMAY H 5;
+		ZMAY I 5 A_Scream();
+		ZMAY J 5 A_Fall();
+		ZMAY K 5;
+		ZMAY L -1;
+		Stop;
+	XDeath:
+		ZMAY O 5;
+		ZMAY P 5 A_XScream();
+		ZMAY Q 5 A_Fall();
+		ZMAY RSTU 5;
+		ZMAY V -1;
+		Stop;
+	Raise:
+		ZMAY KJIH 5;
+		Goto See;
+	}
+}

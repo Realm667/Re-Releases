@@ -1,0 +1,59 @@
+Class RocketGuy : Actor
+{
+	Default
+	{
+		//$Category ZPack Monsters
+		Health 50;
+		Radius 20;
+		Height 56;
+		Mass 100;
+		Speed 8;
+		PainChance 200;
+		GibHealth 35;
+		SeeSound "grunt/sight";
+		PainSound "grunt/pain";
+		Deathsound "grunt/death";
+		ActiveSound "grunt/active";
+		DropItem "RocketAmmo";
+		Obituary "$OB_RKGUY";
+		MONSTER;
+		+FLOORCLIP
+	}
+
+	States
+	{
+	Spawn:
+		MPOS AB 10 A_Look();
+		Loop;
+	See:
+		MPOS AABBCCDD 3 A_Chase();
+		Loop;
+	Missile:
+		MPOS EE 10 A_FaceTarget();
+		MPOS F 5;
+		MPOS G 13 A_SpawnProjectile("Rocket");
+		Goto See;
+	Pain:
+		MPOS H 2;
+		MPOS H 2 A_Pain();
+		Goto See;
+	Death:
+		MPOS I 5;
+		MPOS J 5 A_Scream();
+		MPOS K 5;
+		MPOS L 5 A_Fall();
+		MPOS M -1;
+		Stop;
+	XDeath:
+		MPOS N 5;
+		MPOS O 5 A_XScream();
+		MPOS P 5;
+		MPOS Q 5 A_Fall();
+		MPOS RSTU 5;
+		MPOS V -1;
+		Stop;
+	Raise:
+		MPOS MLKJI 5;
+		Goto See;
+	}
+}
