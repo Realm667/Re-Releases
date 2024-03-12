@@ -1,0 +1,48 @@
+Class SuicideBomber : Actor
+{
+	Default
+	{
+		//$Category ZPack Monsters
+		Radius 20;
+		Height 56;
+		Health 80;
+		GibHealth 35;
+		Mass 100;
+		Speed 10;
+		PainChance 20;
+		SeeSound "suicide/sit";
+		AttackSound "shotguy/death";
+		PainSound "shotguy/pain";
+		DeathSound "shotguy/death";
+		Obituary "$OB_SUICB";
+		MONSTER;
+		+FLOORCLIP
+	}
+	
+	States
+	{
+	Spawn:
+		BMBE AB 10 A_Look();
+		Loop;
+	See:
+		BMBE AAABBBCCCDDD 2 A_Chase();
+		BMBE A 0 A_StartSound("suicide/scream");
+		Loop;
+	Melee:
+		BMBE A 0 A_Die();
+		Stop;
+	Pain:
+		BMBE A 3;
+		BMBE A 3 A_Pain();
+		Goto See;
+	Death:
+	XDeath:
+		BMBE M 0 A_Explode (50, 128, XF_NOTMISSILE);
+		BMBE M 5 A_StartSound("weapons/rocklx");
+		BMBE N 5 A_XScream();
+		BMBE O 5 A_NoBlocking();
+		BMBE PQRST 5;
+		BMBE U -1;
+		Stop;
+	}
+}
