@@ -2647,56 +2647,97 @@ object SuicideBomber
     frame BMBEO { light SUI3 }
 }
 
-// CyBruiser Rocket/Attack/Death Lights
-pointlight BROCKET
+//CYBRUISER
+Pointlight BruiserMissile
 {
-    color 1.0 0.7 0.0
-    size 80
+Color 1.0 0.5 0.0
+Size 25
 }
 
-flickerlight BROCKET_X1
+Pointlight BruiserMissile2
 {
-    color 1.0 0.7 0.0
-    size 96
-    secondarySize 72
-    chance 0.3
+Color 1.0 0.5 0.0
+Size 35
 }
 
-flickerlight BROCKET_X2
+Pointlight BruiserMissile3
 {
-    color 0.5 0.3 0.0
-    size 104
-    secondarySize 88
-    chance 0.3
+Color 0.7 0.3 0.0
+Size 25
 }
 
-flickerlight BROCKET_X3
+Pointlight BruiserMissile4
 {
-    color 0.3 0.1 0.0
-    size 112
-    secondarySize 104
-    chance 0.3
+Color 0.4 0.1 0.0
+Size 20
 }
 
-object BruiserMissile
+Pointlight CybruiserDeath1
 {
-	frame FBRSA { light BROCKET }
-
-	frame BAL3C { light BROCKET_X1 }
-	frame BAL3D { light BROCKET_X2 }
-	frame BAL3E { light BROCKET_X3 }
+Color 1.0 0.5 0.0
+Size 35
 }
 
-object Cybruiser
+Pointlight CybruiserDeath2
 {
+Color 1.0 0.5 0.0
+Size 40
+}
 
-	frame BRU2F { light BROCKET }
+Pointlight CybruiserDeath3
+{
+Color 0.9 0.4 0.0
+Size 45
+}
 
-	frame BRU2L { light SUI1 }
-	frame BRU2M { light SUI2 }
-	frame BRU2N { light SUI3 }
-	frame BRU2O { light SUI4 }
+Pointlight CybruiserDeath4
+{
+Color 0.7 0.2 0.0
+Size 35
+}
 
+Pointlight CybruiserDeath5
+{
+Color 0.5 0.1 0.0
+Size 30
+}
+
+Pointlight CybruiserDeath6
+{
+Color 0.3 0.0 0.0
+Size 25
+}
+
+Pointlight CybruiserDeath7
+{
+Color 0.1 0.0 0.0
+Size 20
+}
+
+Pointlight CybruiserDeath8
+{
+Color 0.1 0.0 0.0
+Size 15
+}
+
+Object Cybruiser
+{
+Frame BRU2K { Light CybruiserDeath1 }
+Frame BRU2L { Light CybruiserDeath2 }
+Frame BRU2M { Light CybruiserDeath3 }
+Frame BRU2N { Light CybruiserDeath4 }
+Frame BRU2O { Light CybruiserDeath5 }
+Frame BRU2P { Light CybruiserDeath6 }
+Frame BRU2Q { Light CybruiserDeath7 }
+Frame BRU2R { Light CybruiserDeath8 }
+}
+
+Object BruiserMissile
+{
+Frame FBRSA { Light BruiserMissile }
+Frame BAL3C { Light BruiserMissile2 }
+Frame BAL3D { Light BruiserMissile3 }
+Frame BAL3E { Light BruiserMissile4 }
 }
 
 // Spider Demolisher Attack/BFG Attack/Death Explosion light
