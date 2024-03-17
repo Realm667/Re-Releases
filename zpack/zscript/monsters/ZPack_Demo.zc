@@ -1,0 +1,80 @@
+Class Demolisher : Actor
+{
+	Default
+	{
+		//$Category ZPack Monsters
+		Health 6000;
+		Radius 96;
+		Height 100;
+		Mass 1000;
+		Speed 16;
+		PainChance 20;
+		SeeSound "monster/demsit";
+		AttackSound "monster/dematk";
+		PainSound "spider/pain";
+		DeathSound "monster/demdth";
+		ActiveSound "spider/active";
+		Obituary "$OB_DEMOL";
+		MONSTER;
+		+BOSS
+		+FLOORCLIP
+		+MISSILEEVENMORE
+		+NORADIUSDMG
+		+NOTARGET
+	}
+
+	States
+	{
+	Spawn:
+		DEMO AB 10 A_Look();
+		Loop;
+	See:
+		DEMO A 3 A_Metal();
+		DEMO ABB 3 A_Chase();
+		DEMO C 3 A_Metal();
+		DEMO CDD 3 A_Chase();
+		DEMO E 3 A_Metal();
+		DEMO EFF 3 A_Chase();
+		Loop;
+	Missile:
+		DEMO A 0 A_Jump (128,20);
+		DEMO A 20 A_FaceTarget();
+		DEMO T 1 A_StartSound ("weapons/bfgf");
+		DEMO T 4 A_FaceTarget();
+		DEMO T 4 A_FaceTarget();
+		DEMO T 5 A_FaceTarget();
+		DEMO T 5 A_FaceTarget();
+		DEMO T 5 A_FaceTarget();
+		DEMO T 5 A_FaceTarget();
+		DEMO U 10 A_SpawnProjectile("BFGBall",32,0,0);
+		DEMO T 0 A_Jump (128,10);
+		DEMO T 1 A_StartSound ("weapons/bfgf");
+		DEMO T 4 A_FaceTarget();
+		DEMO T 4 A_FaceTarget();
+		DEMO T 5 A_FaceTarget();
+		DEMO T 5 A_FaceTarget();
+		DEMO T 5 A_FaceTarget();
+		DEMO T 5 A_FaceTarget();
+		DEMO U 10 A_SpawnProjectile("BFGBall",32,0,0);
+		DEMO T 0 A_Jump (192,1);
+		Goto See;
+		DEMO A 20 A_FaceTarget();
+		DEMO G 0 A_SPosAttack();
+		DEMO G 4 A_SPosAttack();
+		DEMO H 0 A_SPosAttack();
+		DEMO H 4 A_SPosAttack();
+		DEMO H 1 A_SpidRefire();
+		Goto Missile+21;
+	Pain:
+		DEMO I 3;
+		DEMO I 3 A_Pain();
+		Goto See;
+	Death:
+		DEMO J 20 A_Scream();
+		DEMO K 10 A_NoBlocking();
+		DEMO LMNOPQR 10;
+		DEMO S 30;
+		DEMO S -1 A_BossDeath();
+		Stop;
+	}
+}
