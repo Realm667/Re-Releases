@@ -9,6 +9,7 @@ Class HS : Actor
 		Height 48;
 		Mass 3000;
 		Speed 10;
+		DamageFactor "IncarnateShot", 0; //because of new Death Incarnate - ozy81
 		MeleeThreshold 196; //here because ZPack variant had deprecated flag LONGMELEERANGE - ozy81
 		RenderStyle "STYLE_Add"; //new addition by Ozy81, so the creature movement is more interesting
 		Alpha 0.35; //new addition by Ozy81, so the creature movement is more interesting
@@ -104,22 +105,3 @@ Class HS : Actor
 // +DONTHARMCLASS disabled if you want the HS to be vunlerable to each others'
 // explosions! Remove the comments and enable the flag if you want the HS to be
 // immune to other HS' self-destruct damage.
-
-Class DIPuff : Actor //On ZPack the actor has its attack as separate projectile called HSBoom, now controlled by HS_SpecialChase function - but this one instead was not used anywhere, so kept for the sake - ozy81
-{
-	Default
-	{
-		Radius 0;
-		Height 1;
-		Speed 0;
-		RenderStyle "STYLE_None";
-		PROJECTILE;
-	}
-
-	States
-	{
-	Spawn:
-		TNT1 A 2 BRIGHT;
-		Stop;
-	}
-}

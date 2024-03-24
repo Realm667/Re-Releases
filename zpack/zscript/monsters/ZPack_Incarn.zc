@@ -1,0 +1,117 @@
+//Monster-Death Incarnate
+Class Incarnate : Actor
+{
+	Default
+	{
+		//$Category ZPack Monsters
+		Health 300;
+		GibHealth 35;
+		Radius 20;
+		Height 56;
+		Mass 500;
+		Speed 12;
+		PainChance 64;
+		DamageFactor "IncarnateShot", 0;
+		MaxTargetRange 896; //instead of using deprecated SHORTMISSILERANGE - ozy81
+		Obituary "$OB_INCAR";
+		HitObituary "$HB_INCAR";
+		SeeSound "monster/incsit";
+		PainSound "skeleton/pain";
+		DeathSound "monster/incdth";
+		ActiveSound "monster/incact";
+		AttackSound "monster/incatk";
+		MONSTER;
+		+DONTHARMCLASS
+		+FLOORCLIP
+		// [MagicWazard] Note to modders: adding a GibHealth value of 50 - 100 will make
+		// it easier to trigger his Hades Sphere-spawning XDeath sequence
+	}
+
+	States
+	{
+	Spawn:
+		INCA AB 10 A_Look();
+		Loop;
+	See:
+		INCA AABBCCDDEEFF 2 A_Chase();
+		Loop;
+	Melee:
+		INCA G 0 A_Jump(128, "Melee2");
+		INCA G 0 A_FaceTarget();
+		INCA G 6 A_SkelWhoosh();
+		INCA H 6 A_FaceTarget();
+		INCA I 6 A_CustomMeleeAttack(7*random(1,8), "monster/inchit");
+		Goto See;
+	Melee2:
+		INCA R 0 A_FaceTarget();
+		INCA R 5 A_SkelWhoosh();
+		INCA S 5 A_FaceTarget();
+		INCA T 5 A_CustomMeleeAttack(7*random(1,8), "monster/inchit");
+		INCA G 0 A_FaceTarget();
+		INCA G 5 A_SkelWhoosh();
+		INCA H 5 A_FaceTarget();
+		INCA I 5 A_CustomMeleeAttack(7*random(1,8), "monster/inchit");
+		Goto See;
+	Missile:
+		INCA J 5 A_FaceTarget();
+		INCA J 5;
+		INCA U 10 A_CustomBulletAttack(30,0,5,3,"DIpuff",1024);
+		INCA K 10;
+		Goto See;
+	Pain:
+		INCA L 5;
+		INCA L 5 A_Pain();
+		Goto See;
+	Death:
+		INCA L 0 A_Jump(64, "Death2"); //rare
+		INCA LM 7;
+		INCA N 7 A_Scream();
+		INCA O 7 A_NoBlocking();
+		INCA P 7;
+		INCA Q -1;
+		Stop;
+	Death2:
+		INCA LM 7;
+		INCA N 7 A_Scream();
+		INCA O 7 A_NoBlocking();
+		INCA P 7;
+		INCA Q random(115,450);
+		INCA Q -1 Thing_Raise(0); //Can revive
+		Stop;
+	XDeath:
+		INCX A 10 A_StartSound("monster/incexp");
+		INCX BC 5;
+		INCX D 5 A_NoBlocking();
+		INCX D 0 A_SpawnItem("HS",0,32);
+		INCX EFGHIJ 5;
+		INCX K -1;
+	Raise:
+		INCA Q 0 A_KillChildren();
+		INCA QPONML 5;
+		Goto See;
+	}
+}
+
+//new visible puff
+Class DIPuff : Actor
+{
+	Default
+	{
+		RenderStyle "STYLE_Add";
+		DamageType "IncarnateShot";
+		+BRIGHT
+		+NOBLOCKMAP;
+		+NOGRAVITY;
+		+RANDOMIZE;
+		+PUFFONACTORS;
+	}
+
+	States
+	{
+	Spawn:
+		INPF ABCDE 3;
+		Stop;
+	}
+}
+
+//No more presence of DIHealer, which used to break COUNTKILL for this creature on ZPack - ozy81
