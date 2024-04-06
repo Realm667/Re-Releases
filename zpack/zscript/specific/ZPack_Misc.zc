@@ -1,0 +1,102 @@
+//miscellanea, from props to special
+Class VaderOrakel : Actor
+{
+	Default
+	{
+		//$Category "ZPack Decorations"
+		Height 64;
+		Radius 24;
+		+SOLID;
+	}
+
+	States
+	{
+	Spawn:
+		ORBY A -1;
+		Stop;
+	}
+}
+
+Class LogBook : Inventory
+{
+	Default
+	{
+		//$Category "ZPack Pickups"
+		Height 8;
+		Radius 4;
+		+INVENTORY.AUTOACTIVATE;
+		+INVENTORY.ALWAYSPICKUP;
+		Inventory.PickUpSound "DSITEMUP";
+		Inventory.PickUpMessage "$PK_LOGBK";
+		Inventory.MaxAmount 0;
+	}
+
+	States
+	{
+	Spawn:
+		LOGB BCDA 8;
+		Loop;
+	}
+}
+
+Class ExplosionVTMAP : Actor
+{
+	Default
+	{
+		Radius 11;
+		Height 8;
+		Speed 20;
+		DeathSound "weapons/rocklx";
+		Obituary "OB_VTMAP";
+		PROJECTILE;
+		+BRIGHT
+		+RANDOMIZE
+	}
+
+	States
+	{
+	Spawn:
+		Goto Death;
+	Death:
+		MISL B 0 A_Scream;
+		MISL B 8 A_Explode(20);
+		MISL C 6;
+		MISL D 4;
+		Stop;
+	}
+}
+
+Class Tagg : Actor
+{
+	Default
+	{
+		RenderStyle "STYLE_Normal";
+		Scale 0.6;
+		FloatBobStrength 0.5;
+		+FLOATBOB
+		+NOGRAVITY
+	}
+
+	States
+	{
+	Spawn:
+		TAGG ABCD 4;
+		Loop;
+	}
+}
+
+Class E2M0LiftLight : Actor
+{
+	Default
+	{
+		Renderstyle "STYLE_Normal";
+		Scale 0.6;
+	}
+
+	States
+	{
+	Spawn:
+		TNT1 A -1;
+		Stop;
+	}
+}

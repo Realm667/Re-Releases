@@ -1,0 +1,73 @@
+//Old Bloodcolors fixes //
+Class NewBaronOfHell : BaronOfHell replaces BaronOfHell
+{
+	Default
+	{
+		BloodColor "darkolivegreen";
+	}
+}
+
+Class NewHellknight : Hellknight replaces Hellknight
+{
+	Default
+	{
+		BloodColor "darkolivegreen";
+	}
+}
+
+Class NewCacodemon : Cacodemon replaces Cacodemon
+{
+	Default
+	{
+		BloodColor "royalblue";
+	}
+}
+
+Class NewLostSoul : LostSoul replaces LostSoul
+{
+	Default
+	{
+		+NOBLOOD
+	}
+}
+
+//Marines Replacements//
+Class EvilMarineSSG : MarineSSG
+{
+	Default
+	{
+		//$Category "ZPack Monsters"
+		SeeSound "grunt/sight";
+		ActiveSound "grunt/active";
+		PainSound "grunt/pain";
+		DeathSound "grunt/death";
+	}
+
+	States
+	{
+	Pain:
+		PLAY G 4;
+		PLAY G 4 A_Pain;
+		Goto See;
+	}
+}
+
+Class EvilMarinePlasma : MarinePlasma
+{
+	Default
+	{
+		//$Category "ZPack Monsters"
+		SeeSound "grunt/sight";
+		ActiveSound "grunt/active";
+		PainSound "grunt/pain";
+		DeathSound "grunt/death";
+	}
+
+	States
+	{
+	Pain:
+		PLAY G 4;
+		PLAY G 4 A_Pain;
+		Goto See;
+	}
+}
