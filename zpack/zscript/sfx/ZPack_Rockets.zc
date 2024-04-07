@@ -1,0 +1,39 @@
+Class VerticalRocket : Actor
+{
+	Default
+	{
+		Radius 11;
+		Height 8;
+		Speed 20;
+		//DeathSound "weapons/rocklx";
+		Obituary "$OB_MPROCKET";
+		PROJECTILE;
+		+BRIGHT
+		//+DEHEXPLOSION
+		+RANDOMIZE
+		+ROCKETTRAIL
+	}
+
+	States
+	{
+	Spawn:
+		ROCK Z 1;
+		Loop;
+	Death:
+		MISL B 0 A_Scream;
+		MISL B 8 A_Explode(20);
+		MISL C 6;
+		MISL D 4;
+		Stop;
+	}
+}
+
+Class VerticalRocketUp : VerticalRocket
+{
+	States
+	{
+	Spawn:
+		ROCK Y 1;
+		Loop;
+	}
+}
