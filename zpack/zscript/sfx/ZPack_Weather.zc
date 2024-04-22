@@ -30,13 +30,17 @@ class ZPackWeatherHandler : EventHandler
 {
 	const PARTICLES_RADIUS = 1000.0;
 	const PARTICLES_HEIGHT = 400.0;
+	const EMBERS_HEIGHT = 8.0;
 
 	FSpawnParticleParams snow;
+	FSpawnParticleParams rain;
+	FSpawnParticleParams ember;
 
 	override void WorldTick(void)
 	{
-		SpawnRainActors();
 		SpawnSnowActors();
+		SpawnRainActors();
+		SpawnEmberActors();
 	}
 
 	//===========================================================================
@@ -45,50 +49,12 @@ class ZPackWeatherHandler : EventHandler
 	//
 	//===========================================================================
 
-	void SpawnRainActors(void)
-	{
-		if (Level.IsFrozen())
-			return;
-
-		if (Level.LevelNum!=8 && Level.LevelNum!=9)
-			return;
-
-		for (int i = 0; i < MAXPLAYERS; i++)
-		{
-			if (playeringame[i] && players[i].mo && players[i].mo.player)
-			{
-				if (gameaction == ga_savegame)
-					continue;
-
-				if (!CVar.GetCVar("ZPAK_weatherfx", players[consoleplayer]).GetBool())
-					continue;
-
-				Actor cam = players[i].camera;
-
-				int density = 6;
-				while (density--)
-				{
-					double spx = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
-					double spy = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
-					Vector3 sPos = cam.Vec3Offset(spx, spy, PARTICLES_HEIGHT);
-
-					let rain = cam.Spawn("Raindrop", sPos, NO_REPLACE);
-					if (rain)
-					{
-						rain.SetZ(min(rain.CeilingZ, sPos.Z));
-						rain.Tracer = cam;
-					}
-				}
-			}
-		}
-	}
-	
 	void SpawnSnowActors(void)
 	{
 		if (Level.IsFrozen())
 			return;
 
-		if (Level.LevelNum!=6)
+		if (Level.LevelNum!=1)
 			return;
 
 		for (int i = 0; i < MAXPLAYERS; i++)
@@ -123,6 +89,85 @@ class ZPackWeatherHandler : EventHandler
 			}
 		}
 	}
+	
+	void SpawnRainActors(void)
+	{
+		if (Level.IsFrozen())
+			return;
+
+		if (Level.LevelNum!=2 && Level.LevelNum!=3)
+			return;
+
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i] && players[i].mo && players[i].mo.player)
+			{
+				if (gameaction == ga_savegame)
+					continue;
+
+				if (!CVar.GetCVar("ZPAK_weatherfx", players[consoleplayer]).GetBool())
+					continue;
+
+				Actor cam = players[i].camera;
+
+				int density = 6;
+				while (density--)
+				{
+					double spx = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
+					double spy = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
+					Vector3 sPos = cam.Vec3Offset(spx, spy, PARTICLES_HEIGHT);
+
+					let rain = cam.Spawn("ZPackRainParticle", sPos, NO_REPLACE);
+					if (rain)
+					{
+						rain.SetZ(min(rain.CeilingZ, sPos.Z));
+						rain.Tracer = cam;
+					}
+				}
+			}
+		}
+	}
+	
+	void SpawnEmberActors(void)
+	{
+		if (Level.IsFrozen())
+			return;
+
+		if (Level.LevelNum!=4 && Level.LevelNum!=5 && Level.LevelNum!=6 && Level.LevelNum!=7)
+			return;
+
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i] && players[i].mo && players[i].mo.player)
+			{
+				if (gameaction == ga_savegame)
+					continue;
+
+				if (!CVar.GetCVar("ZPAK_weatherfx", players[consoleplayer]).GetBool())
+					continue;
+
+				Actor cam = players[i].camera;
+
+				int density = 6;
+				while (density--)
+				{
+					double spx = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
+					double spy = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
+					Vector3 sPos = cam.Vec3Offset(spx, spy, EMBERS_HEIGHT);
+
+					let ember = cam.Spawn("ZPackEmberParticle", sPos, NO_REPLACE);
+					if (ember)
+					{
+						ember.SetZ(min(ember.CeilingZ, sPos.Z));
+						ember.Tracer = cam;
+						ember.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
+						ember.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
+						ember.Vel.Z = frandom[rnd_SpawnPrecip](4.0, 1.5);
+					}
+				}
+			}
+		}
+	}
 }
 
 //===========================================================================
@@ -137,7 +182,6 @@ class ZPackWeatherHandler : EventHandler
 
 class ZPackSnowParticle : Actor
 {
-	bool ffc;
 
 	//===========================================================================
 	//
@@ -232,7 +276,7 @@ class ZPackSnowParticle : Actor
 	}
 }
 
-Class Raindrop : ParticleBase
+Class ZPackRainParticle : ParticleBase
 {
 	Default
 	{
@@ -257,5 +301,98 @@ Class Raindrop : ParticleBase
 	Death:
 		RAIN BCDE 2;
 		Stop;
+	}
+}
+
+class ZPackEmberParticle : ParticleBase
+{
+	const MAX_ALPHA = 0.8;
+	int fadeState;
+	int life;
+	bool ticked;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	Default
+	{
+		Height 2;
+		Radius 1;
+		RenderStyle "STYLE_Add";
+		Alpha 1;
+		Scale 0.025;
+		+NOINTERACTION
+		+NOGRAVITY
+		+DONTSPLASH
+		+FORCEXYBILLBOARD
+		+NOSAVEGAME
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void PostBeginPlay(void)
+	{
+		bool isIndoors = ceilingpic != skyflatnum;
+		bool isNotCPlayer = (Tracer && !Tracer.CheckLocalView(consoleplayer));
+		if (isIndoors || isNotCPlayer)
+		{
+			Destroy();
+			return;
+		}
+		WorldOffset = (0, 0, 8.);
+		Super.PostBeginPlay();
+	}
+	
+	override void Tick(void)
+	{
+		if (!ticked)
+		{
+			Super.Tick();
+			ticked = true;
+		}
+
+		if (fadeState == 0)
+		{
+			if (Alpha < MAX_ALPHA)
+				Alpha += 0.007;
+			else
+				fadeState = 1;
+		}
+		else if (fadeState == 1)
+		{
+			if (life < 100)
+				life++;
+			else
+				fadeState = 2;
+		}
+		else if (fadeState == 2)
+		{
+			if (Alpha > 0)
+				Alpha -= 0.1;
+			else
+				Destroy();
+		}
+
+		SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+		Spawn:
+			EMBR A -1;
+			Stop;
 	}
 }
