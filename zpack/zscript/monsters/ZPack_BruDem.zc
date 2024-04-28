@@ -108,7 +108,7 @@ Class BruiserBall : Actor
 	States
 	{
 	Spawn:
-		BRBA AABB 2 A_SpawnItemEx("BruiserBallTrail", 0, 0, 0, 0, 0, 0, 0, 128);
+		BRBA AABB 2 A_SpawnItemEx("BruiserBallTrail", flags: SXF_CLIENTSIDE);
 		Loop;
 	Death:
 		BRBA KLMNOPQRSTUVWX 3;
@@ -179,7 +179,7 @@ Class BruiserBallTrail : Actor
 		Speed 0;
 		RenderStyle "STYLE_Add";
 		Alpha 0.70;
-		Projectile;
+		PROJECTILE;
 		+BRIGHT
 		+NOCLIP
 	}

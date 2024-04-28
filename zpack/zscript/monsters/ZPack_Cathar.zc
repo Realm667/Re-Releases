@@ -130,32 +130,34 @@ Class CatharsiDetonator : Actor
 		THRM B 16;
 		THRM A 4 A_StartSound("catharsi/thermtick");
 		THRM B 16;
-		SDFB B 0
-		{
-			A_SpawnProjectile("CatharsiBall", 4, 2, 0);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 20);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 40);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 60);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 80);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 100);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 120);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 140);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 160);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 180);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 200);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 220);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 240);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 260);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 280);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 300);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 320);
-			A_SpawnProjectile("CatharsiBall", 4, 2, 340);
-			A_Die();
-		}
+		SDFB B 0 A_Catharsis();
 	Death:
 		SDFB B 0 { bFloatBob=false; }
 		SDFB B 6 Bright A_Scream();
 		SDFB CDE 6 Bright;
 		Stop;
+	}
+
+	protected void A_Catharsis(void)
+	{
+		A_SpawnProjectile("CatharsiBall", 4, 2, 0);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 20);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 40);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 60);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 80);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 100);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 120);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 140);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 160);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 180);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 200);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 220);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 240);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 260);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 280);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 300);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 320);
+		A_SpawnProjectile("CatharsiBall", 4, 2, 340);
+		A_Die();
 	}
 }

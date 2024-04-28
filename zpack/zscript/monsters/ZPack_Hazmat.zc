@@ -14,11 +14,11 @@ Class HazmatZombie : Actor
 		DeathSound "grunt/death";
 		ActiveSound "grunt/active";
 		AttackSound "hazmat/tazer";
-		Monster;
+		MONSTER;
 		+FLOORCLIP
 		Obituary "$OB_HAZMA";
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -31,11 +31,11 @@ Class HazmatZombie : Actor
 		HMZP E 4 A_FaceTarget();
 		HMZP F 4 Bright A_CustomMeleeAttack (random (2, 12) *3);
 		HMZP E 4;
-		goto See;
+		Goto See;
 	Pain:
 		HMZP G 3;
 		HMZP G 3 A_Pain();
-		goto See;
+		Goto See;
 	Death:
 		HMZP H 5;
 		HMZP I 5 A_Scream();
@@ -52,6 +52,6 @@ Class HazmatZombie : Actor
 		Stop;
 	Raise:
 		HMZP LKJIH 5;
-		goto See;
+		Goto See;
 	}
 }

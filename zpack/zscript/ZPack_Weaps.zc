@@ -33,11 +33,11 @@ Class PistolCasing : Actor
 		BounceFactor 0.4;
 		Mass 200; // [Blue Shadow] increasing the mass makes it sink faster in a 'swimmable water'
 		SeeSound "weapons/case1";
-		Projectile;
+		PROJECTILE;
 		-NOGRAVITY
 		-NOBLOCKMAP
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -71,14 +71,14 @@ Class PisCaseSpawn : Actor
 	Default
 	{
 		Speed 20;
-		Projectile;
+		PROJECTILE;
 		+NOCLIP
 	}
-	
+
 	States
 	{
 	Spawn:
-		TNT1 AA 1 A_SpawnItemEx("PistolCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(85, 95), 128);
+		TNT1 AA 1 A_SpawnItemEx("PistolCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(85, 95), SXF_CLIENTSIDE);
 		Stop;
 	}
 }
@@ -88,7 +88,7 @@ Class RifleCaseSpawn : PisCaseSpawn
 	States
 	{
 	Spawn:
-		TNT1 AA 1 A_SpawnItemEx("PistolCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(-95, -85), 128);
+		TNT1 AA 1 A_SpawnItemEx("PistolCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(-95, -85), SXF_CLIENTSIDE);
 		Stop;
 	}
 }
@@ -102,7 +102,7 @@ Class ShotgunCasing : PistolCasing
 		Scale 0.7;
 		SeeSound "weapons/shell";
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -152,7 +152,7 @@ Class ShotCaseSpawn : PisCaseSpawn
 	States
 	{
 	Spawn:
-		TNT1 AA 1 A_SpawnItemEx("ShotgunCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(-95, -85), 128);
+		TNT1 AA 1 A_SpawnItemEx("ShotgunCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(-95, -85), SXF_CLIENTSIDE);
 		Stop;
 	}
 }
@@ -163,11 +163,11 @@ Class SShotCaseSpawn : ShotCaseSpawn
 	{
 		Speed 66;
 	}
-	
+
 	States
 	{
 	Spawn:
-		TNT1 AA 1 A_SpawnItemEx("ShotgunCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(-95, -85), 128);
+		TNT1 AA 1 A_SpawnItemEx("ShotgunCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(-95, -85), SXF_CLIENTSIDE);
 		Stop;
 	}
 }
@@ -178,13 +178,13 @@ Class NewPistol : Pistol replaces Pistol
 	{
 		AttackSound "weapons/pistol";
 	}
-	
+
 	States
 	{
 	Fire:
 	Hold:
 		PISG A 2;
-		PISG A 1 A_SpawnItemEx("PisCaseSpawn",20,0,29,0,0,0,0,128);
+		PISG A 1 A_SpawnItemEx("PisCaseSpawn",20,0,29,0,0,0,0,SXF_CLIENTSIDE);
 		PISG B 0 A_GunFlash();
 		PISG B 6 A_FireBullets(5.6, 0, 1, 5, "NewPuff");
 		PISG C 4;
@@ -199,7 +199,7 @@ Class NewShotgun : Shotgun replaces Shotgun
 	{
 		AttackSound "weapons/shotgf";
 	}
-	
+
 	States
 	{
 	Fire:
@@ -209,7 +209,7 @@ Class NewShotgun : Shotgun replaces Shotgun
 		SHTG A 7 A_FireBullets(5.6, 0, 7, 5, "NewPuff");
 		SHTG BC 5;
 		SHTG D 1;
-		SHTG D 3 A_SpawnItemEx("ShotCaseSpawn", 20, -4, 24, 0, 0, 0, 0, 128);
+		SHTG D 3 A_SpawnItemEx("ShotCaseSpawn", 20, -4, 24, 0, 0, 0, 0, SXF_CLIENTSIDE);
 		SHTG CB 5;
 		SHTG A 3;
 		SHTG A 7 A_Refire();
@@ -223,7 +223,7 @@ Class NewSuperShotgun : SuperShotgun replaces SuperShotgun
 	{
 		AttackSound "weapons/sshotf";
 	}
-	
+
 	States
 	{
 	Fire:
@@ -232,8 +232,8 @@ Class NewSuperShotgun : SuperShotgun replaces SuperShotgun
 		SHT2 A 7 A_FireBullets(11.2, 7.1, 20, 5, "NewPuff");
 		SHT2 B 7 A_CheckReload();
 		SHT2 C 7;
-		SHT2 D 0 A_SpawnItemEx("SShotCaseSpawn", 20, -2, 30, 0, 0, 0, 180, 128);
-		SHT2 D 0 A_SpawnItemEx("SShotCaseSpawn", 20, 2, 30, 0, 0, 0, 180, 128);
+		SHT2 D 0 A_SpawnItemEx("SShotCaseSpawn", 20, -2, 30, 0, 0, 0, 180, SXF_CLIENTSIDE);
+		SHT2 D 0 A_SpawnItemEx("SShotCaseSpawn", 20, 2, 30, 0, 0, 0, 180, SXF_CLIENTSIDE);
 		SHT2 D 7 A_StartSound("weapons/sshoto");
 		SHT2 E 7;
 		SHT2 F 7 A_StartSound("weapons/sshotl");
@@ -250,16 +250,16 @@ Class NewChaingun : Chaingun replaces Chaingun
 	{
 		AttackSound "weapons/chngun";
 	}
-	
+
 	States
 	{
 	Fire:
 	Hold:
 		CHGG A 0 A_GunFlash();
-		CHGG A 0 A_SpawnItemEx("PisCaseSpawn", 20, 6, 20, 0, 0, 0, 0, 128);
+		CHGG A 0 A_SpawnItemEx("PisCaseSpawn", 20, 6, 20, 0, 0, 0, 0, SXF_CLIENTSIDE);
 		CHGG A 4 A_FireBullets(5.6, 0, 1, 5, "NewPuff");
 		CHGG A 0 A_JumpIfNoAmmo(3);
-		CHGG B 0 A_SpawnItemEx("PisCaseSpawn", 20, 6, 20, 0, 0, 0, 0, 128);
+		CHGG B 0 A_SpawnItemEx("PisCaseSpawn", 20, 6, 20, 0, 0, 0, 0, SXF_CLIENTSIDE);
 		CHGG B 4 A_FireBullets(5.6, 0, 1, 5, "NewPuff");
 		CHGG B 0 A_Refire();
 		Goto Ready;
@@ -278,14 +278,14 @@ Class NewPuff : BulletPuff //replaces BulletPuff
 	{
 		Alpha 1.0;
 	}
-	
+
 	States
 	{
 	Spawn:
 	Melee:
 		PUFF A 2;
 		PUFF A 0 A_Jump(128,2);
-		PUFF A 2 A_SpawnItemEx("Puff2", 0, 0, 0, 0, 0, 0, 0, 128);
+		PUFF A 2 A_SpawnItemEx("Puff2", flags: SXF_CLIENTSIDE);
 		PUFF BCD 3;
 		Stop;
 	}
@@ -297,11 +297,11 @@ Class Puff2 : Actor
 	{
 		Mass 1;
 		Scale 0.5;
-		Projectile;
+		PROJECTILE;
 		+BRIGHT
 		+NOCLIP
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -318,7 +318,7 @@ Class BlankPuff : Actor
 	{
 		+NOCLIP
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -333,7 +333,7 @@ Class RocketNew : Rocket Replaces Rocket
 	{
 		-ROCKETTRAIL
 	}
-	
+
 	States
 	{
 	Spawn:
@@ -355,7 +355,7 @@ Class RefRocketTrail : Actor
 		Alpha 1.0;
 		+NOGRAVITY
 	}
-	
+
 	States
 	{
 	Spawn:

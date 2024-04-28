@@ -75,7 +75,7 @@ Class Diabloist : Archvile
 		DIAB GHIJKLM 5 A_FaceTarget();
 		DIAB N 5 A_FaceTarget();
 		DIAB O 1 A_StartSound("weapons/firbfi");
-		DIAB O 4 A_SpawnProjectile ("DMissile",32,0,0);
+		DIAB O 4 A_SpawnProjectile("DMissile",32,0,0);
 		DIAB P 5;
 		DIAB P 0 A_Jump(128,"Missile4");
 		Goto See;
@@ -132,19 +132,19 @@ Class DFire : Actor
 		HLFR FGH 2 DiabolistFire(2);
 		HLFR GHGH 2 DiabolistFire(1);
 		Stop;
-}
+	}
 
-void DiabolistFire(int damage)
-{
-	A_Explode(damage, 32);
-	A_Fire();
-}
+	void DiabolistFire(int damage)
+	{
+		A_Explode(damage, 32);
+		A_Fire();
+	}
 
-void DiabolistCrackle(int damage)
-{
-	A_Explode(damage, 32);
-	A_FireCrackle();
-}
+	void DiabolistCrackle(int damage)
+	{
+		A_Explode(damage, 32);
+		A_FireCrackle();
+	}
 }
 
 Class DFlare : Actor
@@ -169,7 +169,7 @@ Class DFlare : Actor
 	States
 	{
 	Spawn:
-		VBAL AB 3 A_SpawnItemEx("MFlareFX", 0, 0, 0, 0, 0, 0, 0, 128);
+		VBAL AB 3 A_SpawnItemEx("MFlareFX", flags: SXF_CLIENTSIDE);
 		Loop;
 	Death:
 		CBAL CDEFG 3;
@@ -213,7 +213,7 @@ Class DTracer : Actor
 	Spawn:
 		TNT1 A 1 A_SeekerMissile(10, 15);
 		TNT1 A 0 A_Countdown();
-		TNT1 A 0 A_SpawnItemEx("DTracerPuff", 0, 0, 0, 0, 0, 0, 0, 128);
+		TNT1 A 0 A_SpawnItemEx("DTracerPuff", flags: SXF_CLIENTSIDE);
 		Loop;
 	Death:
 		FTRA K 4;
@@ -300,7 +300,7 @@ Class XXLBall : Actor //is this used anywhere? original creature doesn't have it
 		+BRIGHT
 		+RANDOMIZE
 	}
-	
+
 	States
 	{
 	Spawn:

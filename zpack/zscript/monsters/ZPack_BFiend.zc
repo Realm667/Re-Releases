@@ -10,6 +10,7 @@ Class Bloodfiend : Demon
 		Radius 30;
 		Height 56;
 		Mass 450;
+		MeleeThreshold 196; //equivalent of deprecated LONGMELEERANGE flag
 		SeeSound "Monster/sg2sit";
 		AttackSound "Monster/sg2atk";
 		PainSound "demon/Pain";
@@ -20,7 +21,6 @@ Class Bloodfiend : Demon
 		MONSTER;
 		+DONTHARMCLASS
 		+FLOORCLIP
-		+LONGMELEERANGE
 	}
 
 	States
@@ -37,12 +37,7 @@ Class Bloodfiend : Demon
 		Goto See;
 	Missile:
 		SAR2 GF 8 A_FaceTarget();
-		SAR2 E 8
-		{
-			A_StartSound("weapons/bloodf");
-			A_SpawnProjectile("Bloodshot",22,0,-1,0,0);
-			A_SpawnProjectile("Bloodshot",22,0, 1,0,0);
-		}
+		SAR2 E 8 A_BloodShots();
 		Goto See;
 	Pain:
 		SAR2 H 2;
@@ -67,9 +62,16 @@ Class Bloodfiend : Demon
 		SAR2 NMLKJI 5;
 		Goto See;
 	}
+
+	protected void A_BloodShots(void)
+	{
+		A_StartSound("weapons/bloodf");
+		A_SpawnProjectile("Bloodshot",22,0,-1,0,0);
+		A_SpawnProjectile("Bloodshot",22,0,1,0,0);
+	}
 }
 
-Class Bloodshot : Actor
+Class BloodShot : Actor
 {
 	Default
 	{
@@ -89,18 +91,22 @@ Class Bloodshot : Actor
 	States
 	{
 	Spawn:
-		FGOR A 2 A_CStaffMissileSlither();
-		FGOR A 0 A_SpawnItemEx("Bloodtrail",0,0,0,0,0,0,128);
-		FGOR B 2 A_CStaffMissileSlither();
-		FGOR B 0 A_SpawnItemEx("Bloodtrail",0,0,0,0,0,0,128);
+		FGOR A 2 A_BloodMissile();
+		FGOR B 2 A_BloodMissile();
 		Loop;
 	Death:
 		FGOR CDE 3;
 		Stop;
 	}
+
+	protected void A_BloodMissile(void) //here because A_CStaffMissileSlither is deprecated mainly - ozy81
+	{
+		A_Weave(3,0,1.0,0.0);
+		A_SpawnItemEx("BloodTrail",flags: SXF_CLIENTSIDE);
+	}
 }
 
-Class Bloodtrail : Actor
+Class BloodTrail : Actor
 {
 	Default
 	{
@@ -121,7 +127,7 @@ Class Bloodtrail : Actor
 	}
 }
 
-Class Lurker : Bloodfiend
+Class Lurker : BloodFiend
 {
 	Default
 	{

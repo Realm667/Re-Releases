@@ -1,3 +1,4 @@
+//levelnums here are used ony for weather reasons, please test them! - ozy81
 gameinfo
 {
 	playerclasses = "ZPackPlayer"
@@ -30,44 +31,44 @@ map TITLEMAP lookup "ZTITL"
 map E1M1 lookup "ZE1M1"
 {
 	cluster = 1
-	next = E1M2
 	music = "STLTHFRG"
-	sky1 = P_BLUE1, 0.0
+	next = E1M2
 	par = 300
+	sky1 = P_BLUE1, 0.0
 }
 
 map E1M2 lookup "ZE1M2"
 {
 	cluster = 1
-	next = E1M3
 	music = D_PHBS3
+	next = E1M3
 	par = 400
 }
 
 map E1M3 lookup "ZE1M3"
 {
 	cluster = 1
-	next = E1M4
-	secretnext = VTMAP
 	music = "D_VTMAP"
+	next = E1M4
 	par = 200
+	secretnext = VTMAP
 }
 
 map E1M4 lookup "ZE1M4"
 {
 	cluster = 1
-	next = E1M5
-	secretnext = E1M0
-	par = 660
 	music = D_SOLOBT
+	next = E1M5
+	par = 660
+	secretnext = E1M0
 }
 
 map E1M0 lookup "ZE1M0"
 {
-	next = E1M5
-	music = D_VAD04
-	par = 90
 	cluster = 6
+	music = D_VAD04
+	next = E1M5
+	par = 90
 }
 
 cluster 6
@@ -88,36 +89,37 @@ cluster 6
 map E1M5 lookup "ZE1M5"
 {
 	cluster = 1
-	next = E1M6
 	music = "D_SITEX"
-	sky1 = SKY_03, 0.0
+	next = E1M6
 	par = 540
+	sky1 = SKY_03, 0.0
 }
 
 map E1M6 lookup "ZE1M6"
 {
 	cluster = 1
 	levelnum = 1
-	next = E1M7
 	music = "D_ICY2X"
-	sky1 = ESKY1, 0.0
+	next = E1M7
 	par = 540
+	sky1 = ESKY1, 0.0
 }
 
 map E1M7 lookup "ZE1M7"
 {
 	cluster = 1
+	levelnum = 0 //idk why but it is needed, otherwise embers are spawned - ozy81
+	music = D_TNICK
 	next = E1M8
 	par = 1200
-	music = D_TNICK
 }
 
 map E1M8 lookup "ZE1M8"
 {
 	cluster = 1
 	levelnum = 2
-	next = E1M9
 	music = D_VAD02
+	next = E1M9
 	par = 600
 }
 
@@ -144,8 +146,8 @@ map E1M9 lookup "ZE1M9"
 {
 	cluster = 1
 	levelnum = 3
-	next = EndGame1
 	music = D_VAD03
+	next = EndGame1
 	par = 240
 }
 
@@ -157,40 +159,40 @@ episode E2M1
 map E2M1 lookup "ZE2M1"
 {
 	cluster = 2
-	next = E2M2
 	music = D_PHOBUS
-	sky1 = SKY2, 0.0
+	next = E2M2
 	par = 540
+	sky1 = SKY2, 0.0
 }
 
 map E2M2 lookup "ZE2M2"
 {
-	cluster = 2
-	next = E2M3
-	music = Shadowru
-	sky1 = ESKY5, 0.0
-	par = 900
-	evenlighting 
 	clipmidtextures 
+	cluster = 2
+	evenlighting 
+	music = Shadowru
+	next = E2M3
+	par = 900
+	sky1 = ESKY5, 0.0
 }
 
 map E2M3 lookup "ZE2M3"
 {
 	cluster = 2
-	next = E2M4
-	secretnext = E2M0
-	par = 1200
 	music = D_T667TW
+	next = E2M4
+	par = 1200
+	secretnext = E2M0
 }
 
 map E2M0 lookup "ZE2M0"
 {
-	next = E2M4
-	music = D_T667CC3 //D_PHBS2
-	sky1 = ESKY3 //ESKY7, 0.0
-	par = 780
-	evenlighting 
 	cluster = 5
+	evenlighting 
+	music = D_T667CC3 //D_PHBS2
+	next = E2M4
+	par = 780
+	sky1 = ESKY3 //ESKY7, 0.0
 }
 
 cluster 5
@@ -211,20 +213,20 @@ cluster 5
 map E2M4 lookup "ZE2M4"
 {
 	cluster = 2
-	next = E2M5
-	sky1 = ESKY7, 0.01
 	music = "D_ICY666"
+	next = E2M5
 	par = 780
+	sky1 = ESKY7, 0.01
 }
 
 map E2M5 lookup "ZE2M5"
 {
 	cluster = 2
-	next = E2M6
 	evenlighting 
-	sky1 = esky3, 0.1
-	music = D_fanboy
+	music = D_FANBOY
+	next = E2M6
 	par = 780
+	sky1 = esky3, 0.1
 }
 
 map E2M6 lookup "ZE2M6"
@@ -240,17 +242,19 @@ map E2M6 lookup "ZE2M6"
 map E2M7 lookup "ZE2M7"
 {
 	cluster = 2
+	levelnum = 4
+	music = D_T667
 	next = E2M8
 	par = 1920
-	music = D_T667
 }
 
 map E2M8 lookup "ZE2M8"
 {
 	cluster = 2
+	levelnum = 5
+	music = D_ICYTNT
 	next = E2M9
 	par = 450
-	music = D_ICYTNT
 }
 
 cluster 2
@@ -275,8 +279,9 @@ cluster 2
 map E2M9 lookup "ZE2M9"
 {
 	cluster = 2
-	next = endpic, E2END
+	levelnum = 6
 	music = "D_TBOSS1"
+	next = endpic, E2END
 	par = 420
 }
 
@@ -294,50 +299,49 @@ map E3M1 lookup "ZE3M1"
 
 map E3M2 lookup "ZE3M2"
 {
-	next = E3M3
-	levelnum = 4
 	Music = D_E2M8
-	Sky1 = Sky2, 0.0
 	Par = 900
+	Sky1 = Sky2, 0.0
+	levelnum = 7
+	next = E3M3
 }
 
 map E3M3 lookup "ZE3M3"
 {
-	Next = E3M4
-	levelnum = 5
 	Music = D_Stereo
+	Next = E3M4
 	Par = 780
 	Sky1 = SkyRed, 1
-	SKy2 = ELFBLU, 1
+	Sky2 = ELFBLU, 1
+	levelnum = 8
 }
 
 map E3M4 lookup "ZE3M4"
 {
-	next = E3M5
-	levelnum = 6
-	music = "D_ICYTUX"
-	Sky1 = EFSKY1, 0.0
 	Par = 1500
+	Sky1 = EFSKY1, 0.0
+	levelnum = 9
+	music = "D_ICYTUX"
+	next = E3M5
 }
 
 map E3M5 lookup "ZE3M5"
 {
 	Par = 1620
-	levelnum = 7
-	levelnum = 77
+	levelnum = 10
+	music = D_HN7TSU
 	next = E3M6
 	secretnext = E3M0
-	music = D_HN7TSU
 }
 
 map E3M0 lookup "ZE3M0"
 {
-	next = E3M6
-	music = D_XASECT
-	sky1 = sky1, 0.0
+	cluster = 10101033
 	enterpic = INTERXA1
 	exitpic = INTERXA2
-	cluster = 10101033
+	music = D_XASECT
+	next = E3M6
+	sky1 = sky1, 0.0
 }
 
 cluster 10101033
@@ -366,24 +370,25 @@ map E3M6 lookup "ZE3M6"
 {
 	cluster = 3
 	next = E3M7
-	sky1 = STARRY, 0
 	par = 1200
+	sky1 = STARRY, 0
 }
 
 map E3M7 lookup "ZE3M7"
 {
 	cluster = 3
+	music = D_VAD01
 	next = E3M8
 	par = 1200
-	music = D_VAD01
 }
 
 map E3M8 lookup "ZE3M8"
 {
 	cluster = 3
+	levelnum = 11
+	music = D_SAW01
 	next = E3M9
 	par = 1560
-	music = D_SAW01
 }
 
 cluster 3
@@ -407,11 +412,11 @@ cluster 3
 
 map E3M9 lookup "ZE3M9"
 {
+	Par = 1500
 	cluster = 3
 	music = D_ICYMNI
 	next = EndGame3
 	sky1 = EFSKY1, 0.0
-	Par = 1500
 }
 
 ////////////////////////////
