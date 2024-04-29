@@ -35,12 +35,16 @@ class ZPackWeatherHandler : EventHandler
 	FSpawnParticleParams snow;
 	FSpawnParticleParams rain;
 	FSpawnParticleParams ember;
+	FSpawnParticleParams lava;
+	FSpawnParticleParams nuke;
 
 	override void WorldTick(void)
 	{
 		SpawnSnowActors();
 		SpawnRainActors();
 		SpawnEmberActors();
+		SpawnLavaActors();
+		SpawnNukeActors();
 	}
 
 	//===========================================================================
@@ -133,7 +137,7 @@ class ZPackWeatherHandler : EventHandler
 		if (Level.IsFrozen())
 			return;
 
-		if (Level.LevelNum!=4 && Level.LevelNum!=5 && Level.LevelNum!=6 && Level.LevelNum!=7 && Level.LevelNum!=8 && Level.LevelNum!=9 && Level.LevelNum!=10 && Level.LevelNum!=11)
+		if (Level.LevelNum!=4 && Level.LevelNum!=5 && Level.LevelNum!=6 && Level.LevelNum!=7 && Level.LevelNum!=8 && Level.LevelNum!=9 && Level.LevelNum!=10 && Level.LevelNum!=11 && Level.LevelNum!=12)
 			return;
 
 		for (int i = 0; i < MAXPLAYERS; i++)
@@ -168,6 +172,82 @@ class ZPackWeatherHandler : EventHandler
 			}
 		}
 	}
+	
+	void SpawnLavaActors(void)
+	{
+		if (Level.IsFrozen())
+			return;
+
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i] && players[i].mo && players[i].mo.player)
+			{
+				if (gameaction == ga_savegame)
+					continue;
+
+				if (!CVar.GetCVar("ZPAK_weatherfx", players[consoleplayer]).GetBool())
+					continue;
+
+				Actor cam = players[i].camera;
+
+				int density = 6;
+				while (density--)
+				{
+					double spx = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
+					double spy = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
+					Vector3 sPos = cam.Vec3Offset(spx, spy, EMBERS_HEIGHT);
+
+					let lava = cam.Spawn("ZPackLavaParticle", sPos, NO_REPLACE);
+					if (lava)
+					{
+						lava.SetZ(min(lava.CeilingZ, sPos.Z));
+						lava.Tracer = cam;
+						lava.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
+						lava.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
+						lava.Vel.Z = frandom[rnd_SpawnPrecip](4.0, 1.5);
+					}
+				}
+			}
+		}
+	}
+	
+	void SpawnNukeActors(void)
+	{
+		if (Level.IsFrozen())
+			return;
+
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i] && players[i].mo && players[i].mo.player)
+			{
+				if (gameaction == ga_savegame)
+					continue;
+
+				if (!CVar.GetCVar("ZPAK_weatherfx", players[consoleplayer]).GetBool())
+					continue;
+
+				Actor cam = players[i].camera;
+
+				int density = 6;
+				while (density--)
+				{
+					double spx = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
+					double spy = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
+					Vector3 sPos = cam.Vec3Offset(spx, spy, EMBERS_HEIGHT);
+
+					let nuke = cam.Spawn("ZPackNukeParticle", sPos, NO_REPLACE);
+					if (nuke)
+					{
+						nuke.SetZ(min(nuke.CeilingZ, sPos.Z));
+						nuke.Tracer = cam;
+						nuke.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
+						nuke.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
+						nuke.Vel.Z = frandom[rnd_SpawnPrecip](4.0, 1.5);
+					}
+				}
+			}
+		}
+	}
 }
 
 //===========================================================================
@@ -194,11 +274,12 @@ class ZPackSnowParticle : Actor
 		RenderStyle "STYLE_Translucent";
 		Alpha 0;
 		Scale 0.6;
-		+NOINTERACTION
 		+DONTSPLASH
 		+FORCEXYBILLBOARD
 		+INVISIBLEINMIRRORS
+		+NOINTERACTION
 		+NOSAVEGAME
+		+NOTONAUTOMAP
 		-SOLID
 	}
 
@@ -276,7 +357,7 @@ class ZPackSnowParticle : Actor
 	}
 }
 
-Class ZPackRainParticle : ParticleBase
+Class ZPackRainParticle : Actor
 {
 	Default
 	{
@@ -304,7 +385,7 @@ Class ZPackRainParticle : ParticleBase
 	}
 }
 
-class ZPackEmberParticle : ParticleBase
+mixin Class ZPackParticle
 {
 	const MAX_ALPHA = 0.8;
 	int fadeState;
@@ -324,10 +405,10 @@ class ZPackEmberParticle : ParticleBase
 		RenderStyle "STYLE_Add";
 		Alpha 1;
 		Scale 0.025;
-		+NOINTERACTION
-		+NOGRAVITY
 		+DONTSPLASH
 		+FORCEXYBILLBOARD
+		+NOGRAVITY
+		+NOINTERACTION
 		+NOSAVEGAME
 	}
 
@@ -336,19 +417,6 @@ class ZPackEmberParticle : ParticleBase
 	//
 	//
 	//===========================================================================
-
-	override void PostBeginPlay(void)
-	{
-		bool isIndoors = ceilingpic != skyflatnum;
-		bool isNotCPlayer = (Tracer && !Tracer.CheckLocalView(consoleplayer));
-		if (isIndoors || isNotCPlayer)
-		{
-			Destroy();
-			return;
-		}
-		WorldOffset = (0, 0, 8.);
-		Super.PostBeginPlay();
-	}
 	
 	override void Tick(void)
 	{
@@ -382,6 +450,30 @@ class ZPackEmberParticle : ParticleBase
 
 		SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
 	}
+}
+
+class ZPackEmberParticle : Actor
+{
+	mixin ZPackParticle;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void PostBeginPlay(void)
+	{
+		bool isIndoors = ceilingpic != skyflatnum;
+		bool isNotCPlayer = (Tracer && !Tracer.CheckLocalView(consoleplayer));
+		if (isIndoors || isNotCPlayer)
+		{
+			Destroy();
+			return;
+		}
+		WorldOffset = (0, 0, 8.);
+		Super.PostBeginPlay();
+	}
 
 	//===========================================================================
 	//
@@ -393,6 +485,78 @@ class ZPackEmberParticle : ParticleBase
 	{
 		Spawn:
 			EMBR A -1;
+			Stop;
+	}
+}
+
+class ZPackLavaParticle : Actor
+{
+	mixin ZPackParticle;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void PostBeginPlay(void)
+	{
+		bool isOnLava = floorpic != TexMan.CheckForTexture("LAVA_A02", TexMan.Type_Any);
+		if (isOnLava)
+		{
+			Destroy();
+			return;
+		}
+		WorldOffset = (0, 0, 8.);
+		Super.PostBeginPlay();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+		Spawn:
+			EMBR A -1;
+			Stop;
+	}
+}
+
+class ZPackNukeParticle : Actor
+{
+	mixin ZPackParticle;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void PostBeginPlay(void)
+	{
+		bool isOnNukage = floorpic != TexMan.CheckForTexture("EWARPMOS", TexMan.Type_Any);
+		if (isOnNukage)
+		{
+			Destroy();
+			return;
+		}
+		WorldOffset = (0, 0, 8.);
+		Super.PostBeginPlay();
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	States
+	{
+		Spawn:
+			EMGR A -1;
 			Stop;
 	}
 }
