@@ -26,7 +26,7 @@
 //
 //===========================================================================
 
-class ZPackWeatherHandler : EventHandler
+class ZPackWeatherHandler : EventHandler //nifty tweaked version elaborated for ZPack by Ozy81
 {
 	const PARTICLES_RADIUS = 1000.0;
 	const PARTICLES_HEIGHT = 400.0;
@@ -40,11 +40,12 @@ class ZPackWeatherHandler : EventHandler
 
 	override void WorldTick(void)
 	{
-		SpawnSnowActors();
-		SpawnRainActors();
-		SpawnEmberActors();
-		SpawnLavaActors();
-		SpawnNukeActors();
+		SpawnSnowActors(); //the original thing created by Nash for TCOTD2, with a different sprite used here in ZPack - assigned levelnums only
+		SpawnRainActors(); //a twisted old rain effect, that stops whenever it hits 3d sectors or floors, but which uses Nash magic - assigned levelnums only
+		//following spawns from floors
+		SpawnEmberActors(); //any map with a lava environment - assigned levelnums only
+		SpawnLavaActors(); //any maps containing LAVA_A02 floors, shortnamed
+		SpawnNukeActors(); //any maps containing EWARPGRN floors, shortnamed
 	}
 
 	//===========================================================================
@@ -162,7 +163,7 @@ class ZPackWeatherHandler : EventHandler
 					let ember = cam.Spawn("ZPackEmberParticle", sPos, NO_REPLACE);
 					if (ember)
 					{
-						ember.SetZ(min(ember.CeilingZ, sPos.Z));
+						ember.SetZ(min(ember.FloorZ, sPos.Z));
 						ember.Tracer = cam;
 						ember.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
 						ember.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
@@ -200,7 +201,7 @@ class ZPackWeatherHandler : EventHandler
 					let lava = cam.Spawn("ZPackLavaParticle", sPos, NO_REPLACE);
 					if (lava)
 					{
-						lava.SetZ(min(lava.CeilingZ, sPos.Z));
+						lava.SetZ(min(lava.FloorZ, sPos.Z));
 						lava.Tracer = cam;
 						lava.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
 						lava.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
@@ -238,7 +239,7 @@ class ZPackWeatherHandler : EventHandler
 					let nuke = cam.Spawn("ZPackNukeParticle", sPos, NO_REPLACE);
 					if (nuke)
 					{
-						nuke.SetZ(min(nuke.CeilingZ, sPos.Z));
+						nuke.SetZ(min(nuke.FloorZ, sPos.Z));
 						nuke.Tracer = cam;
 						nuke.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
 						nuke.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
@@ -537,7 +538,7 @@ class ZPackNukeParticle : Actor
 
 	override void PostBeginPlay(void)
 	{
-		bool isOnNukage = floorpic != TexMan.CheckForTexture("EWARPMOS", TexMan.Type_Any);
+		bool isOnNukage = floorpic != TexMan.CheckForTexture("EWARPGRN", TexMan.Type_Any);
 		if (isOnNukage)
 		{
 			Destroy();
