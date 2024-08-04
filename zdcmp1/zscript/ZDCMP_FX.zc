@@ -35,7 +35,6 @@ class ZDCMP1SwitchableDecoration : SwitchableDecoration
 	override void PostBeginPlay(void)
 	{
 		Super.PostBeginPlay();
-
 		bDormant = (SpawnFlags & MTF_DORMANT);
 	}
 
@@ -162,25 +161,6 @@ class ZDCMP1FireSpawner : ZDCMP1SwitchableDecoration
 		}
 	}
 
-	void SpawnEmber(void)
-	{
-		// To do: I'll do the embers later
-		/*
-		let ember = Spawn("ZDCMP1FireEmber", Pos, NO_REPLACE);
-		if (ember)
-		{
-			double ox, oy, oz;
-			double vx, vy, vz;
-
-			vx = frandom(-1.0, 1.0);
-			vy = frandom(-1.0, 1.0);
-			vz = frandom(1.0, 4.0);
-
-			ember.Vel = (vx, vy, vz);
-		}
-		*/
-	}
-
 	void SpawnLight(void)
 	{
 		// To do: the lights look really weird. Improve this
@@ -236,7 +216,6 @@ class ZDCMP1FireSpawner : ZDCMP1SwitchableDecoration
 				}
 
 				A_StartSound(snd, CHAN_6, CHANF_LOOP, 1.0);
-
 				SpawnLight();
 			}
 		}
@@ -245,7 +224,6 @@ class ZDCMP1FireSpawner : ZDCMP1SwitchableDecoration
 			if (!CheckSightOrRange(1000.0, true))
 			{
 				SpawnFire();
-				//SpawnEmber();
 			}
 		}
 		Goto Active + 1;
@@ -315,6 +293,7 @@ class ZDCMP1FireSpawnerLightMedium : ZDCMP1FireSpawnerLight
 		Loop;
 	}
 }
+
 class ZDCMP1FireSpawnerLightLarge : ZDCMP1FireSpawnerLight
 {
 	States

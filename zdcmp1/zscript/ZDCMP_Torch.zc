@@ -26,6 +26,51 @@
 
 //===========================================================================
 //
+// Actors with minimal ticking. Useful for completely non-interactive stuff
+//
+//===========================================================================
+
+class ZDCMP1DietActor : Actor
+{
+	bool ticked;
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
+	override void Tick()
+	{
+		if (!ticked)
+		{
+			Super.Tick();
+			ticked = true;
+			return;
+		}
+
+		if (!bNoTimeFreeze && isFrozen()) return;
+		if (tics != -1)
+		{
+			if (--tics <= 0)
+			{
+				if (!SetState(curstate.NextState)) return;
+			}
+		}
+	}
+}
+
+class ZDCMP1DietActorWithVel : ZDCMP1DietActor
+{
+	override void Tick(void)
+	{
+		SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));
+		Super.Tick();
+	}
+}
+
+//===========================================================================
+//
 // Common code for fire effects
 //
 //===========================================================================

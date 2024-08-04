@@ -1,0 +1,99 @@
+/*Do you have any idea how long it took to clean this wad up? Don't you dare change this back 
+  to LWM'S way!!!! 
+      Grrr, GIEST! What did you have to go and add an A at the beginning of everything for?
+  Okay, this is worse than I thought... I'll get you for this giest :D.
+  -Lexus Alyus (Resident Cleaner)*/
+
+//Replacements
+Class BaronofHell_Green : BaronofHell replaces BaronofHell
+{
+	Default
+	{
+		BloodColor "20 FF 00";
+	}
+}
+
+Class HellKnight_Green : HellKnight replaces HellKnight
+{
+	Default
+	{
+		BloodColor "20 FF 00";
+	}
+}
+
+Class Cacodemon_Blue : Cacodemon replaces Cacodemon
+{
+	Default
+	{
+		BloodColor "00 30 FF";
+	}
+}
+
+Class LostSoul_NoBlood : LostSoul replaces LostSoul
+{
+	Default
+	{
+		+NOBLOOD
+	}
+}
+
+// Give the Hexen monster a doomednum - moved to mapinfo
+Class Serpent_ : Serpent {}
+
+Class FreeFiRE : Actor
+{
+	Default
+	{
+		+BRIGHT
+		+NOGRAVITY
+		+NOCLIP
+	}
+
+    States
+    {
+    Spawn:
+        FIRE A 3;
+        FIRE B 3;
+        FIRE C 3;
+        FIRE D 3;
+        FIRE E 3;
+        FIRE F 3;
+        FIRE G 3;
+        FIRE H 3;
+        Stop;
+    }
+}
+
+//Converted from old decorate to decorate then zscript - ozy81
+Class ZDoom2064 : FakeInventory
+{
+	Default
+	{
+		Inventory.PickupMessage "$PK_2064";
+		Inventory.PickupSound "64cabsnd";
+	}
+	
+	States
+	{
+	Spawn:
+		2064 A 1;
+		Loop;
+	}
+}
+
+Class GrubberStatue : Actor
+{
+	Default
+	{
+		Height 96;
+		Radius 24;
+		+SOLID
+	}
+	
+	States
+	{
+	Spawn:
+		GRB0 A -1;
+		Stop;
+	}
+}

@@ -2,12 +2,10 @@ AddOptionMenu "OptionsMenu"
 {
 	StaticText "$MN_OPUZDC"
 	StaticText ""
-	Option "$MN_OPDIST","ZDCMP1_lod","ZDCE2Dist"
+	Option "$MN_OPDIST","ZDCMP1_lod","ZDCEDist"
+	Option "$MN_OPWEAT","ZDCMP1_weatherfx","YesNo"
 	Option "$MN_OPHEAT","ZDCMP1_shaderoverlayswitch","YesNo"
 	Option "$MN_OPBLUR","motionblur","YesNo"
-	StaticText ""
-	StaticText "Nash's Gore Mod: Vengeance Edition v1.01 Hotfix"
-	Submenu "$OPTMNU_NASHGORE", "NashGoreMenu"
 }
 
 OptionValue "ZDCDist"
@@ -17,6 +15,13 @@ OptionValue "ZDCDist"
 	2048, "$MN_OPNORM"
 	4096, "$MN_OPFAR1"
 	8192, "$MN_OPFAR2"
+}
+
+AddOptionMenu "OptionsMenu"
+{
+	StaticText ""
+	StaticText "Nash's Gore Mod: Vengeance Edition v1.01 Hotfix"
+	Submenu "$OPTMNU_NASHGORE", "NashGoreMenu"
 }
 
 OptionMenu "NashGoreMenu"
