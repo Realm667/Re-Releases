@@ -1,0 +1,631 @@
+//levelnums here are used ony for weather reasons, please test them! - ozy81
+gameinfo
+{
+	playerclasses = "ZPackPlayer"
+
+	AddEventHandlers = "NashGoreHandler", "ZPackWeatherHandler", "ZPackWaterHandler", "MBlurShaderHandler", "CustomShaderHandler", "DebugEventHandler"
+
+	dimcolor = "323232"
+	dimamount = 0.5
+	fullscreenautoaspect = 3
+
+	infopage = "INFO1"
+	addinfopage = "INFO2"
+	borderflat = "AUTOPAGE"
+	
+	statscreen_single = "ZPackStatusScreen"
+}
+
+clearepisodes
+
+episode E1M1
+{
+	name = "\cCRemains of the UAC"
+}
+
+map TITLEMAP lookup "ZTITL"
+{
+	//nothing
+}
+
+map E1M1 lookup "ZE1M1"
+{
+	Cluster = 1
+	Music = "STLTHFRG"
+	Next = E1M2
+	Par = 300
+	Sky1 = P_BLUE1, 0.0
+}
+
+map E1M2 lookup "ZE1M2"
+{
+	Cluster = 1
+	Music = D_PHBS3
+	Next = E1M3
+	Par = 400
+}
+
+map E1M3 lookup "ZE1M3"
+{
+	Cluster = 1
+	Music = "D_VTMAP"
+	Next = E1M4
+	Par = 200
+	SecretNext = VTMAP
+}
+
+map E1M4 lookup "ZE1M4"
+{
+	Cluster = 1
+	Music = D_SOLOBT
+	Next = E1M5
+	Par = 660
+	SecretNext = E1M0
+}
+
+map E1M0 lookup "ZE1M0"
+{
+	Cluster = 6
+	Music = D_VAD04
+	Next = E1M5
+	Par = 90
+}
+
+Cluster 6
+{
+	pic = CRED_E1S
+	entertext = "After diving through the dark tunnnel and ",
+		"entering the teleporter at its end, ",
+		"you suddenly find yourself in yet ",
+		"another UAC building.",
+		"",
+		"The entry to this installation was surely ",
+		"kept hidden for a reason, ",
+		"so get your gears ready and be prepared...",
+		"",
+		"run or die!"
+}
+
+map E1M5 lookup "ZE1M5"
+{
+	Cluster = 1
+	Music = "D_SITEX"
+	Next = E1M6
+	Par = 540
+	Sky1 = SKY_03, 0.0
+}
+
+map E1M6 lookup "ZE1M6"
+{
+	Cluster = 1
+	LevelNum = 1
+	Music = "D_ICY2X"
+	Next = E1M7
+	Par = 540
+	Sky1 = ESKY1, 0.0
+}
+
+map E1M7 lookup "ZE1M7"
+{
+	Cluster = 1
+	LevelNum = 0 //idk why but it is needed, otherwise embers are spawned - ozy81
+	Music = D_TNICK
+	Next = E1M8
+	Par = 1200
+}
+
+map E1M8 lookup "ZE1M8"
+{
+	Cluster = 1
+	LevelNum = 2
+	Music = D_VAD02
+	Next = E1M9
+	Par = 600
+}
+
+Cluster 1
+{
+	exittext = "As the body of the cybernetic demon smashes",
+		"against the ground, a door opens revealing",
+		"an expansive chamber.  In its center is a",
+		"bastard mixture of UAC's finest technology",
+		"and corrupt demon magics, holding open a",
+		"dimensional doorway to worlds that bridge",
+		"Earth and Hell.  Naturally, you enter it.",
+		"",
+		"What you leave behind is nothing more than",
+		"the smouldering remains of what was once",
+		"the pride of the UAC, now a graveyard for",
+		"rotting demon corpses.  Ahead lies what",
+		"looks like the last twisted bastions of a",
+		"reality that's on its way straight to Hell..."
+	pic = CRED_E1B
+}
+
+map E1M9 lookup "ZE1M9"
+{
+	Cluster = 1
+	LevelNum = 3
+	Music = D_VAD03
+	Next = EndGame1
+	Par = 240
+}
+
+episode E2M1
+{
+	name = "\cCDescent to Darkness"
+}
+
+map E2M1 lookup "ZE2M1"
+{
+	Cluster = 2
+	Music = D_PHOBUS
+	Next = E2M2
+	Par = 540
+	Sky1 = SKY2, 0.0
+}
+
+map E2M2 lookup "ZE2M2"
+{
+	ClipMidTextures 
+	Cluster = 2
+	EvenLighting 
+	Music = SHADOWRU
+	Next = E2M3
+	Par = 900
+	Sky1 = ESKY5, 0.0
+}
+
+map E2M3 lookup "ZE2M3"
+{
+	Cluster = 2
+	Music = D_T667TW
+	Next = E2M4
+	Par = 1200
+	SecretNext = E2M0
+}
+
+map E2M0 lookup "ZE2M0"
+{
+	Cluster = 5
+	EvenLighting 
+	Music = D_T667CC3 //D_PHBS2
+	Next = E2M4
+	Par = 780
+	Sky1 = ESKY3 //ESKY7, 0.0
+}
+
+Cluster 5
+{
+	pic = CRED_E2S
+	entertext = "You make your way down this secret path and",
+		"find yourself at a portal.",
+		"",
+		"Going through this portal you are transported",
+		"to a world that is awfully familiar...",
+		"",
+		"Yet somehow feels different.",
+		"Regardless, it looks very ancient.",
+		"",
+		"You get a sense of foregone destruction."
+}
+
+map E2M4 lookup "ZE2M4"
+{
+	Cluster = 2
+	Music = "D_ICY666"
+	Next = E2M5
+	Par = 780
+	Sky1 = ESKY7, 0.01
+}
+
+map E2M5 lookup "ZE2M5"
+{
+	Cluster = 2
+	EvenLighting 
+	Music = D_FANBOY
+	Next = E2M6
+	Par = 780
+	Sky1 = esky3, 0.1
+}
+
+map E2M6 lookup "ZE2M6"
+{
+	Cluster = 2
+	Next = E2M7
+	Music = "D_TECU"
+	Par = 2280
+	Sky1 = SKY1, 0
+	Sky2 = ESKY2, 0
+}
+
+map E2M7 lookup "ZE2M7"
+{
+	Cluster = 2
+	LevelNum = 4
+	Music = D_T667
+	Next = E2M8
+	Par = 1920
+}
+
+map E2M8 lookup "ZE2M8"
+{
+	Cluster = 2
+	LevelNum = 5
+	Music = D_ICYTNT
+	Next = E2M9
+	Par = 450
+}
+
+Cluster 2
+{
+	exittext = "The bloodlust within subsides as you walk",
+		"over the formerly clean floor that is now",
+		"covered with the remains of Hell's",
+		"grotesque creations.",
+		"",
+		"In front of you lies a portal of flames.",
+		"There's no doubt where this portal leads",
+		"to. A feeling of discomfort stirs inside",
+		"you as you think about your journey past,",
+		"and what yet lies ahead.  Maybe you can",
+		"find solace in the fact that you really",
+		"don't have much of a choice anymore.",
+		"There's only one way to go and Hell is",
+		"waiting with open arms..."
+	pic = CRED_E2B
+}
+
+map E2M9 lookup "ZE2M9"
+{
+	Cluster = 2
+	LevelNum = 6
+	Music = "D_TBOSS1"
+	Next = endpic, E2END
+	Par = 420
+}
+
+episode E3M1
+{
+	name = "\cCArmageddon"
+}
+
+map E3M1 lookup "ZE3M1"
+{
+	Next = E3M2
+	Music = "D_SAW02"
+	Par = 300
+}
+
+map E3M2 lookup "ZE3M2"
+{
+	LevelNum = 7
+	Music = D_E2M8
+	Next = E3M3
+	Par = 900
+	Sky1 = Sky2, 0.0
+}
+
+map E3M3 lookup "ZE3M3"
+{
+	LevelNum = 8
+	Music = D_STEREO
+	Next = E3M4
+	Par = 780
+	Sky1 = SkyRed, 1
+	Sky2 = ELFBLU, 1
+}
+
+map E3M4 lookup "ZE3M4"
+{
+	LevelNum = 9
+	Music = "D_ICYTUX"
+	Next = E3M5
+	Par = 1500
+	Sky1 = EFSKY1, 0.0
+}
+
+map E3M5 lookup "ZE3M5"
+{
+	LevelNum = 10
+	Music = D_HN7TSU
+	Next = E3M6
+	Par = 1620
+	SecretNext = E3M0
+}
+
+map E3M0 lookup "ZE3M0"
+{
+	Cluster = 10101033
+	EnterPic = INTERXA1
+	ExitPic = INTERXA2
+	Music = D_XASECT
+	Next = E3M6
+	Sky1 = sky1, 0.0
+}
+
+Cluster 10101033
+{
+	flat = XASTEX01
+	entertext = "As you step through the gate,",
+		"you suddenly realize something is wrong.",
+		"Very, very wrong.",
+		"Your thoughts and feelings cloud around you,",
+		"strangling you, taking you away from reality.",
+		"What is this place? ",
+		"A voice taunts you, laughing hysterically.",
+		"Laughing... laughing on...",
+		"",
+		"As the world begins to take shape",
+		"around you, a single sentence pierces",
+		"your soul, echoing through your head.",
+		"",
+		"'YOUR MIND IS MINE!'"
+	exittext = "...now normalcy?"
+}
+
+map E3M6 lookup "ZE3M6"
+{
+	Cluster = 3
+	Next = E3M7
+	Par = 1200
+	Sky1 = STARRY, 0
+}
+
+map E3M7 lookup "ZE3M7"
+{
+	Cluster = 3
+	Music = D_VAD01
+	Next = E3M8
+	Par = 1200
+}
+
+map E3M8 lookup "ZE3M8"
+{
+	Cluster = 3
+	LevelNum = 11
+	Music = D_SAW01
+	Next = E3M9
+	Par = 1560
+}
+
+Cluster 3
+{
+	exittext = "The brood mother of Hell's swarms lay still",
+		"before you, mangled and squished.  Climbing",
+		"to the top of the tower, you gaze over the",
+		"vast hellscape, brimming with magma and",
+		"carrying the echoes of damned souls crying",
+		"in agony.  Raising your shotgun into the",
+		"air, you unleash a piercing scream of",
+		"victory.  Every corner of Hell will be made",
+		"to know your wrath.",
+		"",
+		"Long has humanity feared demons.  Now, at",
+		"last, all the dark agents of Hell will hide",
+		"in true fear at the thought of the one thing",
+		"more terrifying than themselves: you."
+	pic = BETWEEN
+}
+
+map E3M9 lookup "ZE3M9"
+{
+	Cluster = 3
+	LevelNum = 12
+	Music = D_ICYMNI
+	Next = EndGame3
+	Par = 1500
+	Sky1 = EFSKY1, 0.0
+}
+
+////////////////////////////
+// DOOMEDNUMS / SPAWNNUMS //
+////////////////////////////
+
+doomednums
+{	
+	3109 = "Satyr"
+	3117 = "SoulHarvester"
+	3120 = "Afrit"
+	3121 = "LordOfHeresy"
+	3126 = "Shadow"
+	3202 = "RocketGuy"
+	3205 = "PlasmaZombie"
+	3333 = "BruiserDemon"
+	6002 = "LogBook"
+	8666 = "VaderOrakel"
+	13579 = "TerrorCubeTeleporterBattery"
+	16555 = "EvilMarineSSG"
+	16556 = "EvilMarinePlasma"
+	17500 = "ClimbableZone"
+	17501 = "ClimbableZone2"
+	17502 = "RopeSpawner"
+	17503 = "RopeSpawnerTarget"
+	17504 = "BridgeSpawner"
+	17505 = "CableSpawner"
+	19999 = "MiniSpider"
+	22099 = "SuicideBomber"
+	22295 = "Tagg"
+	24242 = "E2M0LiftLight"
+	29123 = "Catharsi"
+	29877 = "SteamSpawner"
+	29878 = "HazmatZombie"
+	29999 = "InfernalSpider"
+	30088 = "YKMarker"
+	30089 = "BKMarker"
+	30090 = "RKMarker"
+	30091 = "SwitchMarker"
+	30092 = "ExitMarker"
+	30100 = "BloodFiend"
+	30101 = "Lurker"
+	30110 = "Demolisher"
+	30112 = "Diabloist"
+	30115 = "Incarnate"
+	30116 = "HS"
+	30128 = "Cybruiser"
+	30666 = "Terminator"
+	30667 = "T667TWO_Zombie"
+	30668 = "T667TWO_Zombie2"
+	30669 = "T667TWO_Zombie3"
+	31102 = "LightRay_Regular"
+	31103 = "LightRay_WallSprite"
+	31104 = "GrassSpawner"
+	31105 = "LightRay2_Regular"
+	31106 = "LightRay2_WallSprite"
+	31107 = "LightRay_RegularNL"
+	31108 = "LightRay_WallSpriteNL"
+	31109 = "LightRay2_RegularNL"
+	31110 = "LightRay2_WallSpriteNL"
+	31111 = "LightRay_RegularMove"
+	32029 = "HeatEffectGiver"
+	32030 = "DarkSmokeSpawner"
+	32700 = "ZPackFireSpawner"
+}
+
+SpawnNums
+{
+	171 = "Lurker"
+	180 = "BruiserFireSpawner"
+	181 = "VerticalRocketUp"
+	182 = "VerticalRocket"
+	207 = "XXLBall"
+	209 = "ExplosionVTMap"
+	233 = "Afrit"
+	250 = "Comet"
+	251 = "TerminatorBlaster"
+	//251 = "BruiserMissile" //this should be changed and then applied over maps which uses it - ozy81
+	252 = "DFlare"
+	255 = "LogBook"
+}
+
+/////////////////////////////////
+//////// CAST CALLS /////////////
+/////////////////////////////////
+
+Intermission Inter_Bunny
+{
+	Scroller
+	{
+		ScrollDirection = Left
+		Background = "PFUB1"
+		Background2 = "PFUB2"
+		Music = "$MUSIC_BUNNY"
+		InitialDelay = -230
+		Scrolltime = -640
+		Time = -1130
+	}
+	Link = TheEnd //uses gzdoom.pk3 common Doom1 TheEnd sequence
+}
+
+Intermission Inter_Cast
+{
+	Image
+	{
+		// This is only here to initialize the background and the music
+		Background = "BOSSBACK"
+		Time = -1
+		Music = "D_BOSS"
+	}
+	Link = ZPackCast
+}
+
+Intermission ZPackCast //unused atm
+{
+	Cast
+	{
+		CastClass = "Zombieman"
+		CastName = "$CC_ZOMBIE"
+		AttackSound = "Missile", 1, "grunt/attack"
+	}
+	Cast
+	{
+		CastClass = "ShotgunGuy"
+		CastName = "$CC_SHOTGUN"
+		AttackSound = "Missile", 1, "shotguy/attack"
+	}
+	Cast
+	{
+		CastClass = "ChaingunGuy"
+		CastName = "$CC_HEAVY"
+		AttackSound = "Missile", 1, "chainguy/attack"
+		AttackSound = "Missile", 2, "chainguy/attack"
+		AttackSound = "Missile", 3, "chainguy/attack"
+	}
+	Cast
+	{
+		CastClass = "DoomImp"
+		CastName = "$CC_IMP"
+		AttackSound = "Missile", 2, "imp/attack"
+	}
+	Cast
+	{
+		CastClass = "Demon"
+		CastName = "$CC_DEMON"
+		AttackSound = "Melee", 1, "demon/melee"
+	}
+	Cast
+	{
+		CastClass = "LostSoul"
+		CastName = "$CC_LOST"
+		AttackSound = "Missile", 1, "skull/melee"
+	}
+	Cast
+	{
+		CastClass = "Cacodemon"
+		CastName = "$CC_CACO"
+		AttackSound = "Missile", 1, "caco/attack"
+	}
+	Cast
+	{
+		CastClass = "HellKnight"
+		CastName = "$CC_HELL"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "BaronOfHell"
+		CastName = "$CC_BARON"
+		AttackSound = "Missile", 1, "baron/attack"
+	}
+	Cast
+	{
+		CastClass = "Arachnotron"
+		CastName = "$CC_ARACH"
+		AttackSound = "Missile", 1, "baby/attack"
+	}
+	Cast
+	{
+		CastClass = "PainElemental"
+		CastName = "$CC_PAIN"
+		AttackSound = "Missile", 2, "skull/melee"
+	}
+	Cast
+	{
+		CastClass = "Revenant"
+		CastName = "$CC_REVEN"
+		AttackSound = "Missile", 1, "skeleton/attack"
+		AttackSound = "Melee", 1, "skeleton/swing"
+		AttackSound = "Melee", 3, "skeleton/melee"
+	}
+	Cast
+	{
+		CastClass = "Fatso"
+		CastName = "$CC_MANCU"
+		AttackSound = "Missile", 1, "fatso/attack"
+		AttackSound = "Missile", 4, "fatso/attack"
+		AttackSound = "Missile", 7, "fatso/attack"
+	}
+	Cast
+	{
+		CastClass = "Archvile"
+		CastName = "$CC_ARCH"
+		AttackSound = "Missile", 1, "vile/start"
+	}
+	Cast
+	{
+		CastClass = "DoomPlayer"
+		CastName = "$CC_HERO"
+		AttackSound = "Missile", 0, "weapons/sshotf"
+	}
+	Link = ZPackCast	// restart cast call
+}
