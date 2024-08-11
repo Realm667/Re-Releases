@@ -111,7 +111,7 @@ IF "%STDIN%" EQU "b" (
     GOTO :MainMenu
 )
 IF "%STDIN%" EQU "c" (
-    CALL tntele_build.bat
+    CALL tntle_build.bat
     GOTO :MainMenu
 )
 IF "%STDIN%" EQU "d" (
