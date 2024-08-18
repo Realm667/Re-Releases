@@ -9,21 +9,40 @@ Class NukeLauncher : RocketLauncher replaces RocketLauncher
 	Default
 	{
 		Weapon.AmmoUse1 1;
-		Weapon.AmmoUse2 5; //no more use of NukeAmmo - ozy81
+		Weapon.AmmoUse2 2;
 		Weapon.AmmoGive1 2;
 		Weapon.AmmoGive2 2;
 		Weapon.AmmoType1 "RocketAmmo";
-		Weapon.AmmoType2 "RocketAmmo";
+		Weapon.AmmoType2 "NukeAmmo";
 	}
 
 	States
 	{
 	AltFire:
-	Hold:
 		MISG B 8 A_GunFlash();
 		MISG B 12 A_FireProjectile("NukeShot");
 		MISG B 0 A_ReFire();
 		Goto Ready;
+	}
+}
+
+Class NukeAmmo : Ammo
+{
+	Default
+	{
+		Ammo.BackpackAmount 2;
+		Ammo.BackpackMaxAmount 40;
+		Inventory.Amount 2;
+		Inventory.Icon "NUKEA0";
+		Inventory.MaxAmount 20;
+		Inventory.PickupMessage "$PK_NUKA";
+	}
+
+	States
+	{
+	Spawn:
+		NUKE A -1;
+		Stop;
 	}
 }
 
@@ -64,12 +83,11 @@ Class Freezer : Weapon
 {
 	Default
 	{
-		Weapon.AmmoType "Cell";
+		Weapon.AmmoType "FreezeAmmo";
 		Weapon.AmmoGive 40;
 		Weapon.AmmoUse 1;
-		Inventory.PickupSound "frostgun/Pick";
+		Inventory.PickupSound "freezer/pick";
 		Inventory.PickupMessage "$PK_FREZ";
-		Inventory.Icon "FREZA0";
 	}
 	
 	States
@@ -88,15 +106,11 @@ Class Freezer : Weapon
 		FRST AABBCCDDEEFFGGHHIIJJ 1 A_Raise();
 		Goto Ready;
 	Fire:
-		FRSF AB 1 A_StartSound ("frostgun/Fire",CHAN_WEAPON);
+		FRSF AB 1 A_StartSound ("freezer/fire",CHAN_WEAPON);
 		TNT1 A 0 A_SetBlend("Cyan",0.095,5);
-		TNT1 A 0 A_Quake(random(1,5),random(1,5),0,64);
 		FRSF C 1 A_FireProjectile("FreezerBall");
 		FRSF D 1;
 		TNT1 A 0 A_Refire();
-		//FRSF EFGHIJ 1;
-		//FRSR AAAABBBBCCCCDDDDEEEEFFFFGGGGHHIIJJKKLL 1;
-		//FRST A 5;
 		Goto Ready;
 	Flash:
 		TNT1 A 4 BRIGHT A_Light1();
@@ -106,10 +120,83 @@ Class Freezer : Weapon
 	}
 }
 
+Class FreezeAmmo : Ammo
+{
+	Default
+	{
+		Ammo.BackpackAmount 20;
+		Ammo.BackpackMaxAmount 600;
+		Inventory.Amount 20;
+		Inventory.MaxAmount 300;
+		Inventory.PickupMessage "$FROSTA";
+		Inventory.Icon "FROPC0";
+	}
+	
+	States
+	{
+	Spawn:
+		FROP DDAABBCC 4;
+		Loop;
+	}
+}
+
 Class FreezerBall : PlasmaBall
 {
 	Default
 	{
+		SeeSound "freezer/iceshot";
+		DeathSound "freezer/icehit";
+		Obituary "$OB_FROST";
 		+ICEDAMAGE
+	}
+	
+	States
+	{
+	Spawn:
+		FROM C 0;
+		FROM C 0 A_SpawnItemEx("FrostTrail");
+		FROM C 1 BRIGHT;
+		FROM D 0 A_SpawnItemEx("FrostTrail");
+		FROM D 1 BRIGHT;
+		Loop;
+	Death:
+		FROM E 0;
+		FROM E 0 A_Explode(8, 32);
+		FROM EFGHI 3 BRIGHT;
+		Stop;
+	}
+}
+
+Class FrostTrail : Actor
+{
+	Default
+	{
+		RenderStyle "STYLE_Translucent";
+		Alpha 0.75;
+		Scale 0.7;
+		+DONTSPLASH
+		+NOBLOCKMAP
+		+NOCLIP
+		+NOGRAVITY
+		+NOTELEPORT
+	}
+	
+	States
+	{
+	Spawn:
+		FROM A 0;
+		FROM A 1 A_SetTranslucent(0.70, 1);
+		FROM B 1 A_SetTranslucent(0.65, 1);
+		FROM A 1 A_SetTranslucent(0.60, 1);
+		FROM B 1 A_SetTranslucent(0.55, 1);
+		FROM A 1 A_SetTranslucent(0.50, 1);
+		FROM B 1 A_SetTranslucent(0.45, 1);
+		FROM A 1 A_SetTranslucent(0.40, 1);
+		FROM B 1 A_SetTranslucent(0.35, 1);
+		FROM A 1 A_SetTranslucent(0.20, 1);
+		FROM B 1 A_SetTranslucent(0.15, 1);
+		FROM A 1 A_SetTranslucent(0.10, 1);
+		FROM B 1 A_SetTranslucent(0.05, 1);
+		Stop;
 	}
 }

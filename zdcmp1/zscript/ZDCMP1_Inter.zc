@@ -1,10 +1,21 @@
-//straight from gzdoom.pk3 but with SPITEMX-Y and drawLF/EF values rearranged - ozy81
-class ZDCMPStatusScreen : DoomStatusScreen
+//Dummy Item for hiding the HUD
+Class CutsceneEnabled : Inventory
+{
+	States
+	{
+	Spawn:
+		TNT1 A -1;
+		Stop;
+	}
+}
+
+//straight from gzdoom.pk3 but with SPITEMX-Y and drawLF/EF values rearranged, this approach is not perfect and usually not recommended by GZDoom devs but idk alternatives - ozy81
+class ZPackStatusScreen : DoomStatusScreen
 {
 	override int drawLF ()
 	{
 		bool ispatch = wbs.LName0.isValid();
-		int oldy = TITLEY+8 * CleanYfac;
+		int oldy = TITLEY+32 * CleanYfac;
 		int h;
 		
 		if (!ispatch)
@@ -57,7 +68,7 @@ class ZDCMPStatusScreen : DoomStatusScreen
 	override void drawEL ()
 	{
 		bool ispatch = TexMan.OkForLocalization(enteringPatch, "$WI_ENTERING");
-		int oldy = TITLEY+8 * CleanYfac;
+		int oldy = TITLEY+32 * CleanYfac;
 
 		if (!ispatch)
 		{
@@ -120,8 +131,7 @@ class ZDCMPStatusScreen : DoomStatusScreen
 		Font printFont;
 		Font textFont = generic_ui? NewSmallFont : content.mFont;
 		int statsx = SP_STATSX;
-		int fix = 56;
-		int fixT = 36;
+		int fix = 40;
 
 
 		if (useGfx)
@@ -131,7 +141,7 @@ class ZDCMPStatusScreen : DoomStatusScreen
 			screen.DrawTexture (Items, true, statsx, SP_STATSY+lh, DTA_Clean, true);
 			screen.DrawTexture (P_secret, true, statsx, SP_STATSY+2*lh, DTA_Clean, true);
 			screen.DrawTexture (Timepic, true, SP_TIMEX, SP_TIMEY-2*lh + fix, DTA_Clean, true);
-			if (wbs.partime) screen.DrawTexture (Par, true, 160 + SP_TIMEX, SP_TIMEY-2*lh, DTA_Clean, true);
+			if (wbs.partime) screen.DrawTexture (Par, true, 160 + SP_TIMEX, SP_TIMEY-2*lh + fix, DTA_Clean, true);
 		}
 		else
 		{
@@ -158,13 +168,18 @@ class ZDCMPStatusScreen : DoomStatusScreen
 		drawPercent (printFont, 320 - statsx, SP_STATSY, cnt_kills[0], wbs.maxkills, true, tcolor);
 		drawPercent (printFont, 320 - statsx, SP_STATSY+lh, cnt_items[0], wbs.maxitems, true, tcolor);
 		drawPercent (printFont, 320 - statsx, SP_STATSY+2*lh, cnt_secret[0], wbs.maxsecret, true, tcolor);
-		drawTimeFont (printFont, 276 - SP_TIMEX, SP_TIMEY-2*lh + fixT, cnt_time, tcolor);
+		drawTimeFont (printFont, 160 - SP_TIMEX, SP_TIMEY-2*lh + fix, cnt_time, tcolor);
 			 
 		// The "sucks" related code has been removed, we don't need it - ozy81
 
 		if (wi_showtotaltime)
 		{
-			 drawTimeFont (printFont, 276 - SP_TIMEX, SP_TIMEY-2*lh + lh + fixT, cnt_total_time, tcolor);
+			 drawTimeFont (printFont, 160 - SP_TIMEX, SP_TIMEY-2*lh + lh + fix, cnt_total_time, tcolor);
+		}
+
+		if (wbs.partime)
+		{
+			drawTimeFont (printFont, 320 - SP_TIMEX, SP_TIMEY-2*lh + fix, cnt_par, tcolor);
 		}
 	}
 }
