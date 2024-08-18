@@ -1,0 +1,598 @@
+//ENJAY & T667 Enhancements - from hgarden.wad//
+//***** Faders *****/
+fader FastGoAway
+{
+	DecayStart	0.2
+	DecayTime	0.5
+}
+
+fader GoAway
+{
+	DecayStart	0.5
+	DecayTime	1.0
+}
+
+fader GoAway2
+{
+	DecayStart	1.0
+	DecayTime	3.0
+}
+
+colorchanger ToBlack
+{
+	FadeStart	0.5
+	FadeTime	1.0
+}
+
+//***** Bullet Chips *****/
+decal BulletChip1
+{
+	pic CHIP1
+	translucent 0.85
+	shade "00 00 00"
+	x-scale 0.8
+	y-scale 0.8
+	randomflipx
+	randomflipy
+}
+
+decal BulletChip2
+{
+	pic CHIP2
+	translucent 0.85
+	shade "00 00 00"
+	x-scale 0.8
+	y-scale 0.8
+	randomflipx
+	randomflipy
+}
+
+decal BulletChip3
+{
+	pic CHIP3
+	translucent 0.85
+	shade "00 00 00"
+	x-scale 0.8
+	y-scale 0.8
+	randomflipx
+	randomflipy
+}
+
+decal BulletChip4
+{
+	pic CHIP4
+	translucent 0.85
+	shade "00 00 00"
+	x-scale 0.8
+	y-scale 0.8
+	randomflipx
+	randomflipy
+}
+
+decal BulletChip5
+{
+	pic CHIP5
+	translucent 0.85
+	shade "00 00 00"
+	x-scale 0.8
+	y-scale 0.8
+	randomflipx
+	randomflipy
+}
+
+decalgroup BulletChip
+{
+	BulletChip1	1
+	BulletChip2	1
+	BulletChip3	1
+	BulletChip4	1
+	BulletChip5	1
+}
+
+decal Bullet1
+{
+	pic CHIP1
+	shade "FF C8 00"
+	fullbright
+	x-scale 0.4
+	y-scale 0.4
+	lowerdecal BulletChip
+	animator GoAway
+}
+
+decal Bullet2
+{
+	pic CHIP2
+	shade "FF C8 00"
+	fullbright
+	x-scale 0.4
+	y-scale 0.4
+	lowerdecal BulletChip
+	animator GoAway
+}
+
+decal Bullet3
+{
+	pic CHIP3
+	shade "FF C8 00"
+	fullbright
+	x-scale 0.4
+	y-scale 0.4
+	lowerdecal BulletChip
+	animator GoAway
+}
+
+decal Bullet4
+{
+	pic CHIP4
+	shade "FF C8 00"
+	fullbright
+	x-scale 0.4
+	y-scale 0.4
+	lowerdecal BulletChip
+	animator GoAway
+}
+
+decal Bullet5
+{
+	pic CHIP5
+	shade "FF C8 00"
+	fullbright
+	x-scale 0.4
+	y-scale 0.4
+	lowerdecal BulletChip
+	animator GoAway
+}
+
+decalgroup Bullet
+{
+	Bullet1	1
+	Bullet2	1
+	Bullet3	1
+	Bullet4	1
+	Bullet5	1
+}
+
+//**** Chainsaw marks *****/
+decal ChainsawMarkLower
+{
+	pic SAWMARK
+	translucent 0.75
+	shade "00 00 00"
+	x-scale 0.2
+	y-scale 0.5
+	randomflipx
+	randomflipy
+}
+
+decal ChainsawMark
+{
+	pic SAWMARK
+	fullbright
+	shade "FF C8 00"
+	x-scale 0.1
+	y-scale 0.4
+	randomflipx
+	randomflipy
+	lowerdecal ChainsawMarkLower
+	animator FastGoAway
+}
+
+//***** Plasma Rifle Scorches *****/
+decal PlasmaScorchLower1
+{
+	pic PLASMA1
+	shade "00 00 00"
+	x-scale 0.3
+	y-scale 0.3
+	randomflipx
+	randomflipy
+}
+
+decal PlasmaScorch1
+{
+	pic PLSEB0
+	add 1.0
+	fullbright
+	animator GoAway
+	x-scale 0.5
+	y-scale 0.5
+	lowerdecal PlasmaScorchLower1
+	randomflipx
+	randomflipy
+}
+
+decal PlasmaScorchLower2
+{
+	pic PLASMA2
+	shade "00 00 00"
+	x-scale 0.3
+	y-scale 0.3
+	randomflipx
+	randomflipy
+}
+
+decal PlasmaScorch2
+{
+	pic PLSEC0
+	add 1.0
+	fullbright
+	animator GoAway
+	x-scale 0.5
+	y-scale 0.5
+	lowerdecal PlasmaScorchLower2
+	randomflipx
+	randomflipy
+}
+
+decalgroup PlasmaScorchLower
+{
+	PlasmaScorchLower1	1
+	PlasmaScorchLower2	1
+}
+
+decalgroup PlasmaScorch
+{
+	PlasmaScorch1	1
+	PlasmaScorch2	1
+}
+
+//***** Arachnotron Plasma Scorches *****/
+decal ArachScorch1
+{
+	pic APBXB0
+	add 1.0
+	animator GoAway
+	x-scale 0.5
+	y-scale 0.5
+	lowerdecal PlasmaScorchLower1
+	randomflipx
+	randomflipy
+}
+
+decal ArachScorch2
+{
+	pic APBXC0
+	add 1.0
+	animator GoAway
+	x-scale 0.5
+	y-scale 0.5
+	lowerdecal PlasmaScorchLower2
+	randomflipx
+	randomflipy
+}
+
+decalgroup ArachnotronScorch
+{
+	ArachScorch1	1
+	ArachScorch2	1
+}
+
+//***** Other Scorches *****/
+decal NewScorch
+{
+	pic FMSLSCRH
+	fullbright
+	animator GoAway
+	x-scale 0.2
+	y-scale 0.2
+}
+
+fader FreezerFader
+{
+	DecayStart 10.0
+	DecayTime 10.0
+}
+
+colorchanger FreezerChanger
+{
+	FadeStart 10.0
+	FadeTime 10.0
+	Color "00 00 FF"
+}
+
+combiner FreezerAnimator
+{
+	FreezerFader
+	FreezerChanger
+}
+
+decal FreezerScorchLower1
+{
+	pic PLASMA1
+	shade "BF BF BF"
+	x-scale 0.3
+	y-scale 0.3
+	randomflipx
+	randomflipy
+	animator FreezerAnimator
+}
+
+decal FreezerScorch1
+{
+	pic PLSSA0
+	add 1.0
+	fullbright
+	animator GoAway
+	lowerdecal FreezerScorchLower1
+}
+
+decal FreezerScorchLower2
+{
+	pic PLASMA2
+	shade "BF BF FF"
+	x-scale 0.3
+	y-scale 0.3
+	randomflipx
+	randomflipy
+	animator FreezerAnimator
+}
+
+decal FreezerScorch2
+{
+	pic PLSSB0
+	add 1.0
+	fullbright
+	animator GoAway
+	lowerdecal FreezerScorchLower2
+}
+
+decalgroup FreezerScorch
+{
+	FreezerScorch1	1
+	FreezerScorch2	1
+}
+
+decal SkullScorch1 
+{ 
+   pic PLASMA1 
+   shade "00 00 00" 
+   x-scale 0.6 
+   y-scale 0.6 
+   randomflipx 
+   randomflipy 
+} 
+
+decal SkullScorch2 
+{ 
+   pic PLASMA2 
+   shade "00 00 00" 
+   x-scale 0.6 
+   y-scale 0.6 
+   randomflipx 
+   randomflipy 
+} 
+
+decalgroup SkullScorch 
+{ 
+   SkullScorch1   1 
+   SkullScorch2   1 
+} 
+
+//NashGore
+//===========================================================================
+//
+//
+//
+//===========================================================================
+Fader Bye
+{
+	DecayStart 30.0
+	DecayTime 10.0
+}
+
+Stretcher Stretchy
+{
+	GoalY 1.5
+	StretchStart 0.001
+	StretchTime 15.0
+}
+
+Slider Slidey
+{
+	DistY -20
+	SlideStart 0.001
+	SlideTime 15.0
+}
+
+Combiner Yucky
+{
+	Stretchy
+	Slidey
+	//Bye
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+Fader NoBlood
+{
+	DecayStart 0
+	DecayTime 0
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+Decal BloodDrip
+{
+	Pic "graphics/decals/bdrip.png"
+	Shade "BloodDefault"
+	X-Scale 1.0
+	Y-Scale 0.02
+	RandomFlipX
+	Animator Yucky
+}
+
+Decal BloodSplat1
+{
+	Pic "graphics/decals/bsplat1.png"
+	Shade "BloodDefault"
+	X-Scale 1.0
+	Y-Scale 1.0
+	RandomFlipX
+	RandomFlipY
+	//Animator Bye
+	LowerDecal "BloodDrip"
+}
+
+Decal BloodSplat2
+{
+	Pic "graphics/decals/bsplat2.png"
+	Shade "BloodDefault"
+	X-Scale 1.0
+	Y-Scale 1.0
+	RandomFlipX
+	RandomFlipY
+	//Animator Bye
+	LowerDecal "BloodDrip"
+}
+
+Decal BloodSplat3
+{
+	Pic "graphics/decals/bsplat3.png"
+	Shade "BloodDefault"
+	X-Scale 1.0
+	Y-Scale 1.0
+	RandomFlipX
+	RandomFlipY
+	//Animator Bye
+	LowerDecal "BloodDrip"
+}
+
+Decal BloodSplat4
+{
+	Pic "graphics/decals/bsplat4.png"
+	Shade "BloodDefault"
+	X-Scale 1.0
+	Y-Scale 1.0
+	RandomFlipX
+	RandomFlipY
+	//Animator Bye
+	LowerDecal "BloodDrip"
+}
+
+Decal BloodSplatNoDrip1
+{
+	Pic "graphics/decals/bsplat1.png"
+	Shade "BloodDefault"
+	X-Scale 1.0
+	Y-Scale 1.0
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal BloodSplatNoDrip2
+{
+	Pic "graphics/decals/bsplat2.png"
+	Shade "BloodDefault"
+	X-Scale 1.0
+	Y-Scale 1.0
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal BloodSplatNoDrip3
+{
+	Pic "graphics/decals/bsplat3.png"
+	Shade "BloodDefault"
+	X-Scale 1.0
+	Y-Scale 1.0
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal BloodSplatNoDrip4
+{
+	Pic "graphics/decals/bsplat4.png"
+	Shade "BloodDefault"
+	X-Scale 1.0
+	Y-Scale 1.0
+	RandomFlipX
+	RandomFlipY
+}
+
+Decal NoBlood
+{
+	Pic "TNT1A0"
+	Animator NoBlood
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+DecalGroup BloodSplat
+{
+	BloodSplat1 1
+	BloodSplat2 1
+	BloodSplat3 1
+	BloodSplat4 1
+	BloodSplatNoDrip1 1
+	BloodSplatNoDrip2 1
+	BloodSplatNoDrip3 1
+	BloodSplatNoDrip4 1
+	NoBlood 2
+	NoBlood 2
+	NoBlood 2
+	NoBlood 2
+}
+
+DecalGroup BloodSmear
+{
+	BloodSplat1 1
+	BloodSplat2 1
+	BloodSplat3 1
+	BloodSplat4 1
+	BloodSplatNoDrip1 1
+	BloodSplatNoDrip2 1
+	BloodSplatNoDrip3 1
+	BloodSplatNoDrip4 1
+}
+
+//***** Generators **********************************************************//
+generator ArachnotronPlasma				ArachnotronScorch
+generator BFGBall						BFGLightning
+generator BaronBall						BaronScorch
+generator CacodemonBall					CacoScorch
+generator Chaingun						Bullet
+generator Chainsaw						ChainsawMark
+generator DoomImpBall					DoomImpScorch
+generator FatShot						NewScorch
+generator Pistol						Bullet
+generator PlasmaBall					PlasmaScorch
+generator RevenantTracer				RevenantScorch
+generator Rocket						NewScorch
+generator Shotgun						Bullet
+generator SuperShotgun					Bullet
+
+generator XGore_ChaingunGuy				Bullet		//oldnash
+generator XGore_ShotgunGuy				Bullet		//oldnash
+generator XGore_SpiderMastermind		Bullet		//oldnash
+generator XGore_StealthChaingunGuy 		Bullet		//oldnash
+generator XGore_StealthShotgunGuy		Bullet		//oldnash
+generator XGore_StealthZombieMan		Bullet		//oldnash
+generator XGore_ZombieMan				Bullet		//oldnash
+
+generator FreezerBall					FreezerScorch
+generator NewChaingun					Bullet 		//weaponh
+generator NewPistol						Bullet 		//weaponh
+generator RocketNew						NewScorch 	//weaponh
+generator NewShotgun					Bullet 		//weaponh
+generator NewSuperShotgun				Bullet 		//weaponh
+generator NukeShot						NewScorch
+
+//Additional
+generator DarkNormal					DoomImpScorch 
+generator DarkSeeker					DoomImpScorch 
+generator DarkStrong					DoomImpScorch 
+generator HellGuardBall					SkullScorch 
+generator HellWarriorBall				BaronScorch

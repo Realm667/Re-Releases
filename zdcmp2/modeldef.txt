@@ -1,0 +1,88 @@
+Model HeatEffectGiver
+{
+	Path "models/"
+	Model 0 "radius.md3"
+	Skin 0 "red.png"
+	Scale 4.0 4.0 4.0
+	FrameIndex MDLS A 0 0
+}
+
+Model ClimbableZone
+{
+	USEACTORPITCH
+	USEACTORROLL
+	Path "Models/"
+	Model 0 "climbzone.md3"
+	Skin 0 "orange.png"
+	Offset -23.75 0.0 0.0
+	Scale 1.9 1.9 1.0
+	FrameIndex MDLS A 0 0
+}
+
+Model ClimbableZone2
+{
+	USEACTORPITCH
+	USEACTORROLL
+	Path "Models/"
+	Model 0 "climbzone.md3"
+	Skin 0 "orange.png"
+	Offset -12.0 0.0 0.0
+	Scale 0.95 0.95 1.0
+	FrameIndex MDLS A 0 0
+}
+
+Model RopeSegment
+{
+	Path "Models/"
+	Model 0 "rope.md3"
+	Skin 0 "rope.png"
+	USEACTORPITCH
+	FrameIndex ROPE A 0 0
+	Model 1 "knot.md3"
+	FrameIndex ROPE B 1 0
+}
+
+Model CableSegment
+{
+	Path "Models/"
+	Model 0 "rope.md3"
+	Skin 0 "rope_mtl.png"
+	USEACTORPITCH
+	Scale 1.0 0.4 0.4
+	FrameIndex ROPE A 0 0
+	FrameIndex ROPE B 0 0
+}
+
+Model RopeSpawner
+{
+	Path "Models/"
+	Model 0 "knot.md3"
+	USEACTORPITCH
+	Offset 0.0 0.0 -2.0
+	FrameIndex UNKN A 0 0
+}
+
+Model RopeSpawnerTarget
+{
+	Path "Models/"
+	Model 0 "knot.md3"
+	USEACTORPITCH
+	Offset 0.0 0.0 -2.0
+	FrameIndex UNKN A 0 0
+}
+
+Model CableSpawner
+{
+	Path "Models/"
+	Model 0 "rope.md3"
+	Skin 0 "rope_mtl.png"
+	USEACTORPITCH
+	Scale 1.0 0.4 0.4
+	FrameIndex UNKN A 0 0
+}
+
+#include "models/nashgore/BloodSpot/_models.txt"
+#include "models/nashgore/WallBlood/_models.txt"
+#include "models/nashgore/CorpseBlood/_models.txt"
+#include "models/nashgore/Footprint/_models.txt"
+
