@@ -1,0 +1,93 @@
+Class CacolanternClone : Actor
+{
+	Default
+	{
+		//$Category ZDCMP1 Monsters
+		Health 800;
+		Speed 8;
+		Radius 31;
+		Height 56;
+		PainChance 128;
+		GibHealth 35;
+		Mass 400;
+		ReactionTime 8;
+		BloodColor "D8 45 04";
+		SeeSound "caco/sight";
+		PainSound "caco/pain";
+		DeathSound "caco/death";
+		ActiveSound "caco/active";
+		HitObituary "$HB_LANT";
+		Obituary "$OB_LANT";
+		MONSTER;
+		+FLOAT
+		+FLOORCLIP
+		+NOGRAVITY
+	}
+
+	States
+	{
+	Spawn:
+		HED2 A 10 Bright A_Look();
+		Loop;
+	See:
+		HED2 A 3 Bright A_Chase();
+		Loop;
+	Missile:
+		HED2 BC 5 Bright A_FaceTarget();
+		HED2 D 5 Bright A_BasicAttack(6,"caco/melee","CacolanternBall",32);
+		Goto See;
+	Pain:
+		HED2 E 4 Bright;
+		HED2 E 4 Bright A_Pain();
+		HED2 F 5 Bright;
+		Goto See;
+	Death:
+		HED2 G 8 Bright;
+		HED2 H 8 Bright A_Scream();
+		HED2 I 8 Bright;
+		HED2 J 8;
+		HED2 K 8 A_NoBlocking();
+		HED2 L -1;
+		Stop;
+	XDeath:
+		HED2 G 8 Bright;
+		HED2 H 8 Bright A_Scream();
+		HED2 I 8 Bright;
+		HED2 J 8;
+		HED2 K 8 A_NoBlocking();
+		HED2 L -1;
+		Stop;
+	Raise:
+		HED2 LKJ 8;
+		HED2 IHG 8 Bright;
+		Goto See;
+	}
+}
+
+Class CacolanternBall : Actor
+{
+	Default
+	{
+		Radius 13;
+		Height 8;
+		Speed 20;
+		Damage 9;
+		BloodColor "FF AA 00";
+		RenderStyle "STYLE_Add";
+		Alpha 0.67;
+		SeeSound "imp/attack";
+		DeathSound "imp/shotx";
+		PROJECTILE;
+		+BRIGHT
+	}
+
+    States
+    {
+    Spawn:
+        BAL8 ABCDEFGH 5;
+        Loop;
+    Death:
+        BAL8 IJKL 4;
+        Stop;
+    }
+}

@@ -1,0 +1,287 @@
+/*
+ * Copyright (c) 2019-2024 Espi, Blue Shadow, TheMightyHeracross, Ghastly, Tormentor667, Ozymandias81
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+**/
+
+Class StoneImp : Actor
+{
+	Default
+	{
+		//$Category ZDCMP1 Monsters
+		Health 300;
+		Radius 20;
+		Height 56;
+		Speed 6;
+		Mass 400;
+		BloodType "StoneBitsSpawner";
+		DamageFactor "Poison", 0;
+		DamageFactor "PoisonCloud", 0;
+		DamageFactor "Electric", 0;
+		DamageFactor "Lightning", 0;
+		DamageFactor "Fire", 0.5;
+		DamageFactor "Ice", 1.2;
+		RadiusDamageFactor 0.25;
+		SeeSound "imp/sight";
+		PainSound "imp/pain";
+		DeathSound "imp/death";
+		ActiveSound "imp/active";
+		Obituary "$OB_RIMP";
+		MONSTER;
+		+FLOORCLIP
+		+NOBLOODDECALS
+		+NOICEDEATH
+		+NOPAIN
+		+NORADIUSDMG
+	}
+
+	States
+	{
+	Spawn:
+		GIMP AB 10 A_Look();
+		Loop;
+	See:
+		GIMP AABBCCDD 3 A_Chase();
+		Loop;
+	Melee:
+		GIMP EF 8 A_FaceTarget();
+		GIMP G 6 A_CustomMeleeAttack(12, "stoneimp/hit", "", "Melee");
+		Goto See;
+	Pain:
+		GIMP H 2;
+		GIMP H 2 A_Pain();
+		Goto See;
+	XDeath:
+	Death:
+		GIMP I 8;
+		GIMP J 8 A_Scream();
+		GIMP K 6;
+		GIMP L 6 A_Fall();
+		GIMP M 6;
+		GIMP N -1 A_StoneImpDie(); //unique death by Ozy81
+		Stop;
+	Raise:
+		GIMP ML 8;
+		GIMP KJI 6;
+		Goto See;
+	}
+
+	void A_RockDeathChunks()
+	{
+		if (Vel != (0,0,0) && !bShattering)
+		{
+			tics = 3*TICRATE;
+			return;
+		}
+		Vel = (0,0,0);
+		A_StartSound ("misc/icebreak", CHAN_BODY); //needs fitting sound, might be obtained from incoming stepsounds - ozy81
+
+		// [RH] In Hexen, this creates a random number of shards (range [24,56])
+		// with no relation to the size of the self shattering. I think it should
+		// base the number of shards on the size of the dead thing, so bigger
+		// things break up into more shards than smaller things.
+		// An actor with radius 20 and height 64 creates ~40 chunks.
+		int numChunks = max(4, int(radius * Height)/32);
+		int i = Random[RockDeathChunks](0, numChunks/4 - 1);
+		for (i = max(24, numChunks + i); i >= 0; i--)
+		{
+			double xo = (random[RockDeathChunks]() - 128)*radius / 128;
+			double yo = (random[RockDeathChunks]() - 128)*radius / 128;
+			double zo = (random[RockDeathChunks]() * Height / 255);
+
+			Actor mo = Spawn("RockChunk", Vec3Offset(xo, yo, zo), ALLOW_REPLACE);
+			if (mo)
+			{
+				mo.SetState (mo.SpawnState + random[RockDeathChunks](0, 2));
+				mo.Vel.X = random2[RockDeathChunks]() / 128.;
+				mo.Vel.Y = random2[RockDeathChunks]() / 128.;
+				mo.Vel.Z = (mo.pos.Z - pos.Z) / Height * 4;
+			}
+		}
+
+		A_NoBlocking();
+		SetStateLabel('null');
+	}
+
+	void A_StoneImpDie()
+	{
+		Vel = (0,0,0);
+		Height = Default.Height;
+		A_RockDeathChunks();
+	}
+}
+
+class RockChunk : IceChunk
+{
+	Default
+	{
+		Gravity 0.75;
+	}
+
+	States
+	{
+	Spawn:
+		STB3 ABCD 10 A_IceSetTics();
+		Stop;
+	}
+}
+
+// Stone bits SFX - by Blue Shadow (the spawning code is based on Nash's nashgore code)
+Class StoneBitsSpawner : BulletPuff
+{
+	Default
+	{
+		-ALLOWPARTICLES
+	}
+
+	States
+	{
+	Spawn:
+		TNT1 A 0;
+		Goto High;
+		TNT1 A 0;
+		Goto Medium;
+		TNT1 A 0;
+	Low:
+		TNT1 AA 0 A_SpawnItemEx("StoneBitsSmall", 0, 0, 8, random(-4, 4), random(-4, 4), random(2, 5), 0, SXF_ABSOLUTEPOSITION | SXF_ABSOLUTEANGLE | SXF_ABSOLUTEMOMENTUM);
+		Goto SpawnPuff;
+	Medium:
+		TNT1 AAA 0 A_SpawnItemEx("StoneBitsMedium", 0, 0, 8, random(-4, 4), random(-4, 4), random(2, 5), 0, SXF_ABSOLUTEPOSITION | SXF_ABSOLUTEANGLE | SXF_ABSOLUTEMOMENTUM);
+		Goto SpawnPuff;
+	High:
+		TNT1 AAAAA 0 A_SpawnItemEx("StoneBitsLarge", 0, 0, 8, random(-4, 4), random(-4, 4), random(2, 5), 0, SXF_ABSOLUTEPOSITION | SXF_ABSOLUTEANGLE | SXF_ABSOLUTEMOMENTUM);
+	SpawnPuff:
+		PUFF A 4 Bright A_StartSound("stoneimp/impact");
+		PUFF ABCD 4;
+		Stop;
+	}
+}
+
+Class StoneBitsBase : Actor
+{
+	Default
+	{
+		Radius 2;
+		Height 2;
+		+NOTELEPORT;
+		+NOBLOCKMAP;
+	}
+
+	States
+	{
+	Fade:
+		"####" "#" 1 A_FadeOut(0.25);
+		Wait;
+	}
+}
+
+Class StoneBitsSmall : StoneBitsBase
+{
+	States
+	{
+	Spawn:
+		TNT1 AA 0 A_Jump(256, "SpawnA", "SpawnB");
+	SpawnA:
+		TNT1 A 0 A_Jump(256, 1, 2, 3, 4);
+		STB1 A 10;
+		Goto Fade;
+		STB1 B 10;
+		Goto Fade;
+		STB1 C 10;
+		Goto Fade;
+		STB1 D 10;
+		Goto Fade;
+	SpawnB:
+		TNT1 A 0 A_Jump(256, 1, 2);
+		STB2 A 10;
+		Goto Fade;
+		STB2 B 10;
+		Goto Fade;
+	}
+}
+
+Class StoneBitsMedium : StoneBitsBase
+{
+	States
+	{
+	Spawn:
+		TNT1 AA 0 A_Jump(256, "SpawnA", "SpawnB", "SpawnC");
+	SpawnA:
+		TNT1 A 0 A_Jump(256, 1, 2, 3, 4);
+		STB1 A 10;
+		Goto Fade;
+		STB1 B 10;
+		Goto Fade;
+		STB1 C 10;
+		Goto Fade;
+		STB1 D 10;
+		Goto Fade;
+	SpawnB:
+		TNT1 A 0 A_Jump(256, 1, 2);
+		STB2 A 10;
+		Goto Fade;
+		STB2 B 10;
+		Goto Fade;
+	SpawnC:
+		TNT1 A 0 A_Jump(256, 1, 2, 3, 4);
+		STB3 A 10;
+		Goto Fade;
+		STB3 B 10;
+		Goto Fade;
+		STB3 C 10;
+		Goto Fade;
+		STB3 D 10;
+		Goto Fade;
+	}
+}
+
+Class StoneBitsLarge : StoneBitsBase
+{
+	States
+	{
+	Spawn:
+		TNT1 AA 0 A_Jump(256, "SpawnB", "SpawnC", "SpawnD");
+	SpawnB:
+		TNT1 A 0 A_Jump(256, 1, 2);
+		STB2 A 10;
+		Goto Fade;
+		STB2 B 10;
+		Goto Fade;
+	SpawnC:
+		TNT1 A 0 A_Jump(256, 1, 2, 3, 4);
+		STB3 A 10;
+		Goto Fade;
+		STB3 B 10;
+		Goto Fade;
+		STB3 C 10;
+		Goto Fade;
+		STB3 D 10;
+		Goto Fade;
+	SpawnD:
+		TNT1 A 0 A_Jump(256, 1, 2, 3, 4);
+		STB4 A 10;
+		Goto Fade;
+		STB4 B 10;
+		Goto Fade;
+		STB4 C 10;
+		Goto Fade;
+		STB4 D 10;
+		Goto Fade;
+	}
+}

@@ -1,0 +1,79 @@
+Class BloodDemonClone : Actor //The version present on ZDCMP1 wasn't mech, so I have removed the walking sounds definitions - ozy81
+{
+	Default
+	{
+		//$Category ZDCMP1 Monsters
+		Health 300;
+		Speed 12;
+		Height 56;
+		Radius 30;
+		Mass 400;
+		PainChance 180;
+		GibHealth 35;
+		ReactionTime 8;
+		SeeSound "blooddemon/sight";
+		PainSound "blooddemon/pain";
+		DeathSound "blooddemon/death";
+		ActiveSound "blooddemon/active";
+		HitObituary "$HB_BDEM";
+		MONSTER;
+		+FLOORCLIP
+	}
+
+	States
+	{
+	Spawn:
+		SRG2 AB 10 A_Look();
+		Loop;
+	See:
+		SRG2 AABB 2 A_Chase();
+		SRG2 CCDD 2 A_Chase();
+		Loop;
+	Melee:
+		SRG2 E 0 A_StartSound("blooddemon/melee");
+		SRG2 EF 8 A_FaceTarget();
+		SRG2 G 8 A_CustomMeleeAttack(5*Random(1,8));
+		Goto See;
+	Pain:
+		SRG2 H 2;
+		SRG2 H 2 A_Pain();
+		Goto See;
+	Death:
+		SRG2 I 8 ;
+		SRG2 I 0 A_FaceTarget();
+		SRG2 J 0 A_SpawnItemEx("BloodDemonArm", 10, 0, 32, 0, 8, 0, 0, 128);
+		SRG2 J 8 A_Scream();
+		SRG2 K 4;
+		SRG2 L 4 A_NoBlocking();
+		SRG2 M 4;
+		SRG2 N -1;
+		Stop;
+	Raise:
+		SRG2 NMLKJI 5;
+		Goto See;
+	}
+}
+
+Class BloodDemonArm : Gore_DemonArm
+{
+	States
+	{
+	Spawn:
+		SG2A AA 0 A_JumpIf(waterlevel > 0, "Underwater");
+		SG2A ABCDEFGH 2;
+		Loop;
+	Underwater:
+		SG2A ABCDEFGH 2;
+		SG2A I -1;
+		Stop;
+	Death:
+		SG2A I -1;
+		Stop;
+	Death.Sky: //prevent it to appear on sky - ozy81
+		SG2A A 1;
+		Stop;
+	Crash:
+		SG2A I -1;
+		Stop;
+	}
+}

@@ -1,0 +1,325 @@
+Class Afrit : Actor //straight from TNTLE remaster
+{
+	Default
+	{
+		//$Category ZDCMP1 Monsters
+		Health 800;
+		Speed 6;
+		Radius 24;
+		Height 72;
+		PainChance 50;
+		Mass 500;
+		SeeSound "Baron/Sight";
+		PainSound "Baron/Pain";
+		DeathSound "Baron/Death";
+		ActiveSound "Baron/Active";
+		Obituary "$OB_AFRT";
+		HitObituary "$HB_AFRT";
+		DamageFactor "HellFire", 0.0;
+		MONSTER;
+		+DONTHARMCLASS
+		+FLOAT
+		+NOBLOOD
+		+NOGRAVITY
+	}
+
+	States
+	{
+	Spawn:
+		FRIT A 0 NoDelay
+		{
+			A_SpawnProjectile("OrbitComet", 44, 0, 0, 2, 0);
+			A_SpawnProjectile("OrbitComet2", 44, 0, 180, 2, 0);
+		}
+		//Intentional fall-through to Idle state.
+	Idle:
+		FRIT ABCD 4 Bright A_Look();
+		Loop;
+	See:
+		FRIT AABBCCDD 2 Bright A_Chase();
+		Loop;
+	Melee:
+		TNT1 A 0 A_Jump(64, "Melee2");
+		FRIT ST 6 Bright A_FaceTarget();
+		FRIT U 6 Bright A_CustomComboAttack("AfritBall", 44, 10, "Baron/Melee");
+		Goto See;
+	Melee2:
+		FRIT E 6 Bright A_FaceTarget();
+		FRIT F 6 Bright A_SpawnProjectile("HellFire", 44);
+		FRIT G 6 Bright A_FaceTarget();
+		Goto See;
+	Missile:
+		TNT1 A 0 A_Jump(64, "Missile3");
+		TNT1 A 0 A_Jump(128, "Missile2");
+		FRIT ST 6 Bright A_FaceTarget();
+		FRIT U 6 Bright A_CustomComboAttack("AfritBall", 44, 10, "Baron/Melee");
+		Goto See;
+	Missile2:
+		FRIT EF 6 Bright A_FaceTarget();
+		FRIT G 6 Bright A_SpawnProjectile("Comet", 44);
+		Goto See;
+	Missile3:
+		FRIT E 6 Bright A_FaceTarget();
+		FRIT F 6 Bright A_SpawnProjectile("Hellfire", 44);
+		FRIT G 6 Bright A_FaceTarget();
+		Goto See;
+	Pain:
+		FRIT H 4 Bright;
+		FRIT H 4 Bright A_Pain();
+		Goto See;
+	Death:
+		TNT1 A 0 A_NoGravity();
+		FRIT I 6 Bright A_Scream();
+		FRIT J 5 Bright A_NoBlocking();
+		FRIT KLMNOPQR 4 Bright;
+		Stop;
+	}
+}
+
+Class AfritBall : Actor
+{
+	Default
+	{
+		Radius 6;
+		Height 8;
+		Speed 15;
+		Damage 8;
+		RenderStyle "Add";
+		Alpha 0.8;
+		SeeSound "Imp/Attack";
+		DeathSound "Imp/ShotX";
+		Projectile;
+		+BRIGHT
+	}
+	
+	States
+	{
+	Spawn:
+		FRTM AB 5;
+		Loop;
+	Death:
+		FRTM CDE 6;
+		Stop;
+	}
+}
+
+Class Comet : Actor
+{
+	Default
+	{
+		Radius 6;
+		Height 8;
+		Speed 10;
+		Damage 5;
+		Scale 0.55;
+		SeeSound "Afrit/CometFire";
+		DeathSound "Afrit/CometHit";
+		Projectile;
+		+BRIGHT
+	}
+	
+	States
+	{
+	Spawn:
+		COMT AAAABBBBCCCC 1 A_SpawnItemEx("CometTail", 0, 0, 0, 0, 0, 0, 0, 128);
+		Loop;
+	Death:
+		COMT D 3 A_SpawnItemEx("CometDeathGlow", 0, 0, 0, 0, 0, 0, 0, 128);
+		COMT E 3 A_Explode(80, 80, 0);
+		TNT1 A 0 A_SpawnItemEx("CometDeath", 0, 0, 0, 0, 0, 0, 0, 128);
+		Stop;
+	}
+}
+
+Class CometTail : Actor
+{
+	Default
+	{
+		RenderStyle "Add";
+		Alpha 0.4;
+		Projectile;
+		+BRIGHT
+		+NOCLIP
+	}
+	
+	States
+	{
+	Spawn:
+		FRTB ABCDEFGHI 1;
+		Stop;
+	}
+}
+
+Class CometDeathGlow : CometTail
+{
+	Default
+	{
+		Scale 2.0;
+		Alpha 0.6;
+	}
+	
+	States
+	{
+	Spawn:
+		FRTB ABCDEFGHI 3;
+		Stop;
+	}
+}
+
+Class CometDeath : Actor
+{
+	Default
+	{
+		RenderStyle "Add";
+		Alpha 0.7;
+		Projectile;
+		+BRIGHT
+		+NOCLIP
+	}
+	
+	States
+	{
+	Spawn:
+		COMT FGHI 3;
+		Stop;
+	}
+}
+
+Class OrbitComet : Comet
+{
+	Default
+	{
+		SeeSound "";
+		Scale 0.28;
+		Speed 5;
+		+NOCLIP;
+	}
+	
+	States
+	{
+	Spawn:
+		COMT AABBCC 1 A_SpawnItemEx("OrbitCometTail", 0, 0, 0, 0, 0, 0, 0, 128);
+		TNT1 A 0 A_SpawnProjectile("OrbitComet", 0, 0, 75);
+		TNT1 A 0 A_SpawnItemEx("OrbitCometTail", 0, 0, 0, 0, 0, 0, 0, 128);
+		Stop;
+	}
+}
+
+Class OrbitComet2 : OrbitComet
+{
+	States
+	{
+	Spawn:
+		COMT AABBCC 1 A_SpawnItemEx("OrbitCometTail", 0, 0, 0, 0, 0, 0, 0, 128);
+		TNT1 A 0 A_SpawnProjectile("OrbitComet2", 0, 0, -75);
+		TNT1 A 0 A_SpawnItemEx("OrbitCometTail", 0, 0, 0, 0, 0, 0, 0, 128);
+		Stop;
+	}
+}
+
+Class OrbitCometTail : CometTail
+{
+	Default
+	{
+		Scale 0.5;
+	}
+}
+
+Class HellFire : Actor
+{
+	Default
+	{
+		+NOBLOCKMAP
+		+PAINLESS
+		+BLOODLESSIMPACT
+		+MISSILE
+		+DROPOFF
+	}
+	
+	States
+	{
+	Spawn:
+		TNT1 A 1;
+		Loop;
+	Death:
+		TNT1 A 10 Bright
+		{
+			A_SpawnProjectile("HellFire1", 0, 0, -180);
+			A_SpawnProjectile("HellFire1", 0, 16, -175);
+			A_SpawnProjectile("HellFire1", 0, 32, -170);
+			A_SpawnProjectile("HellFire1", 0, -16, -185);
+			A_SpawnProjectile("HellFire1", 0, -32, -190);
+			A_StartSound("Afrit/Hellfire");
+		}
+		Stop;
+	}
+}
+
+Class HellFire1 : Actor
+{
+	Default
+	{
+		Speed 2;
+		+RIPPER
+		+NOEXPLODEFLOOR
+		+PAINLESS
+		+BLOODLESSIMPACT
+		+MISSILE
+		+DROPOFF
+	}
+	
+	States
+	{
+	Spawn:
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, 0, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, 16, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, -16, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, 0, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, 16, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, -16, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, 0, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, 16, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, -16, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, 0, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, 16, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, -16, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, 0, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, 16, 0);
+		TNT1 A 10 A_SpawnProjectile("HellFire2", 0, -16, 0);
+		Stop;
+	}
+}
+
+Class HellFire2 : Actor
+{
+	Default
+	{
+		Scale 1.5;
+		Speed 1;
+		RenderStyle "Add";
+		Alpha 0.67;
+		Damagetype "HellFire";
+		Obituary "$OB_AFRT";
+		+RIPPER
+		+NOEXPLODEFLOOR
+		+BLOODLESSIMPACT
+		+DROPOFF
+		+RANDOMIZE
+	}
+
+	States
+	{
+	Spawn:
+		TNT1 A 8;
+		FRTF A 3 Bright;
+		FRTF BC 3 Bright A_Explode(3, 64);
+		TNT1 A 0 A_Explode(3, 64);
+		TNT1 A 0 A_Jump(191, "End");
+		TNT1 A 0 A_SpawnProjectile("HellFire2", 0, 24, 0);
+		TNT1 A 0 A_SpawnProjectile("HellFire2", 0, 0, 0);
+		TNT1 A 0 A_SpawnProjectile("HellFire2", 0, -24, 0);
+	End:
+		FRTF DEFGHIJKLMNO 3 Bright;
+		Stop;
+	}
+}

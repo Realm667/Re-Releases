@@ -1,0 +1,87 @@
+Class NamiDarkImp : Actor
+{
+	Default
+	{
+		//$Category ZDCMP1 Monsters
+		Health 120;
+		Radius 20;
+		Height 56;
+		Speed 8;
+		PainChance 200;
+		GibHealth 35;
+		SeeSound "imp/sight";
+		PainSound "imp/pain";
+		DeathSound "imp/death";
+		ActiveSound "imp/active";
+		Obituary "$OB_DIMP";
+		HitObituary "$HB_DIMP";
+		MONSTER;
+		+FLOORCLIP
+	}
+
+	States
+	{
+	Spawn:
+		DRKI AB 10 A_Look();
+		Loop;
+	See:
+		DRKI AABBCCDD 3 A_Chase();
+		Loop;
+	Melee:
+	Missile:
+		DRKI EF 8 A_FaceTarget();
+		DRKI G 6 A_CustomComboAttack("DarkSeeker", 32, 3*random(1,8), "imp/melee");
+		Goto See;
+	Pain:
+		DRKI H 2;
+		DRKI H 2 A_Pain();
+		Goto See;
+	Death:
+		DRKI I 8;
+		DRKI J 8 A_Scream();
+		DRKI K 6;
+		DRKI L 6 A_Fall();
+		DRKI M -1;
+		Stop;
+	XDeath:
+		DRKI N 5;
+		DRKI O 5 A_XScream();
+		DRKI P 5;
+		DRKI Q 5 A_Fall();
+		DRKI RST 5;
+		DRKI U -1;
+		Stop;
+	Raise:
+		DRKI ML 8;
+		DRKI KJI 6;
+		Goto See;
+	}
+}
+
+Class DarkSeeker : Actor
+{
+	Default
+	{
+		Radius 8;
+		Height 6;
+		Speed 9;
+		Damage 3;
+		RenderStyle "STYLE_Add";
+		Alpha 0.67;
+		SeeSound "imp/attack";
+		DeathSound "imp/shotx";
+		PROJECTILE;
+		+BRIGHT
+		+SEEKERMISSILE
+	}
+
+	States
+	{
+	Spawn:
+		DKB1 AB 4 A_SeekerMissile(5,10);
+		Loop;
+	Death:
+		DKB1 CDE 4;
+		Stop;
+	}
+}
