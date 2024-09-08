@@ -1,3582 +1,625 @@
-// ------------------------------------------------------
-// ------------------ DOOM GAME LIGHTS ------------------
-// ------------------------------------------------------
+//Stuff for ZDCMP1//
 
-// ------------------
-// -- Doom Weapons --
-// ------------------
-
-// Bullet puff
-flickerlight BPUFF1
-{
-    color 0.5 0.5 0.0
-    size 12
-    secondarySize 8
-    chance 0.8
-}
-
-flickerlight BPUFF2
-{
-    color 0.5 0.5 0.0
-    size 10
-    secondarySize 6
-    chance 0.8
-}
-
-flickerlight BPUFF3
-{
-    color 0.5 0.5 0.0
-    size 8
-    secondarySize 4
-    chance 0.8
-}
-
-flickerlight BPUFF4
-{
-    color 0.5 0.5 0.0
-    size 6
-    secondarySize 2
-    chance 0.8
-}
-
-// Rocket
-pointlight ROCKET
-{
-    color 1.0 0.7 0.0
-    size 56
-}
-
-flickerlight ROCKET_X1
-{
-    color 1.0 0.7 0.0
-    size 64
-    secondarySize 72
-    chance 0.3
-}
-
-flickerlight ROCKET_X2
-{
-    color 0.5 0.1 0.0
-    size 80
-    secondarySize 88
-    chance 0.3
-}
-
-flickerlight ROCKET_X3
-{
-    color 0.3 0.0 0.0
-    size 96
-    secondarySize 104
-    chance 0.3
-}
-
-object Rocket
-{
-    frame MISLA { light ROCKET    }
-
-    frame MISLB { light ROCKET_X1 }
-    frame MISLC { light ROCKET_X2 }
-    frame MISLD { light ROCKET_X3 }
-}
-
-// Plasma
-pointlight PLASMABALL
-{
-    color 0.0 0.1 1.0
-    size 56
-}
-
-flickerlight PLASMA_X1
-{
-    color 0.2 0.2 1.0
-    size 64
-    secondarySize 72
-    chance 0.4
-}
-
-flickerlight PLASMA_X2
-{
-    color 0.2 0.2 0.8
-    size 80
-    secondarySize 88
-    chance 0.4
-}
-
-flickerlight PLASMA_X3
-{
-    color 0.1 0.1 0.5
-    size 64
-    secondarySize 72
-    chance 0.4
-}
-
-flickerlight PLASMA_X4
-{
-    color 0.0 0.0 0.2
-    size 8
-    secondarySize 16
-    chance 0.4
-}
-
-object PlasmaBall
-{
-    frame PLSSA { light PLASMABALL }
-    frame PLSSB { light PLASMABALL }
-
-    frame PLSEA { light PLASMA_X1 }
-    frame PLSEB { light PLASMA_X2 }
-    frame PLSEC { light PLASMA_X2 }
-    frame PLSED { light PLASMA_X3 }
-    frame PLSEE { light PLASMA_X4 }
-}
-
-// BFG
-pointlight BFGBALL
-{
-    color 0.0 1.0 0.0
-    size 80
-}
-
-flickerlight BFGBALL_X1
-{
-    color 0.2 1.0 0.2
-    size 80
-    secondarySize 88
-    chance 0.3
-}
-
-flickerlight BFGBALL_X2
-{
-    color 0.3 1.0 0.3
-    size 104
-    secondarySize 112
-    chance 0.3
-}
-
-flickerlight BFGBALL_X3
-{
-    color 0.5 1.0 0.5
-    size 120
-    secondarySize 128
-    chance 0.3
-}
-
-flickerlight BFGBALL_X4
-{
-    color 0.2 0.7 0.2
-    size 56
-    secondarySize 64
-    chance 0.3
-}
-
-flickerlight BFGBALL_X5
-{
-    color 0.1 0.3 0.1
-    size 48
-    secondarySize 56
-    chance 0.3
-}
-
-object BFGBall
-{
-    frame BFS1A { light BFGBALL }
-    frame BFS1B { light BFGBALL }
-
-    frame BFE1A { light BFGBALL_X1 }
-    frame BFE1B { light BFGBALL_X2 }
-    frame BFE1C { light BFGBALL_X3 }
-    frame BFE1D { light BFGBALL_X1 }
-    frame BFE1E { light BFGBALL_X4 }
-    frame BFE1F { light BFGBALL_X5 }
-
-    frame BFE2A { light BFGBALL    }
-    frame BFE2B { light BFGBALL_X1 }
-    frame BFE2C { light BFGBALL_X4 }
-    frame BFE2D { light BFGBALL_X5 }
-}
-
-// ----------------------
-// -- Doom Decorations --
-// ----------------------
-
-// Barrel
-
-pulselight BARREL
-{
-    color 0.0 0.5 0.0
-    size 20
-    secondarySize 21
-    interval 0.5
-    offset 0 36 0
-    dontlightself 1
-}
-
-object ExplosiveBarrel
-{
-    //frame BAR1  { light BARREL    }
-
-    frame BEXPC { light ROCKET_X1 }
-    frame BEXPD { light ROCKET_X2 }
-    frame BEXPE { light ROCKET_X3 }
-}
-
-
-// Floor lamp
-pointlight LAMP
-{
-    color 1.0 1.0 0.8
-    size 56
-    offset 0 44 0
-}
-
-object Column
-{
-    frame COLU { light LAMP }
-}
-
-// Short tech lamp
-pulselight SMALLLAMP
-{
-    color 0.8 0.8 1.0
-    size 56
-    secondarySize 58
-    interval 0.4
-    offset 0 44 0
-}
-
-object TechLamp2
-{
-    frame TLP2 { light SMALLLAMP }
-}
-
-// Tall tech lamp
-pulselight BIGLAMP
-{
-    color 0.8 0.8 1.0
-    size 64
-    secondarySize 66
-    interval 0.4
-    offset 0 72 0
-}
-
-object TechLamp
-{
-    frame TLMP { light BIGLAMP }
-}
-
-// Tall red torch
-flickerlight2 BIGREDTORCH
-{
-    color 1.0 0.3 0.0
-    size 64
-    secondarySize 72
-    interval 0.1
-    offset 0 60 0
-}
-
-object RedTorch
-{
-    frame TRED { light BIGREDTORCH }
-}
-
-// Tall green torch
-flickerlight2 BIGGREENTORCH
-{
-    color 0.0 1.0 0.0
-    size 64
-    secondarySize 72
-    interval 0.1
-    offset 0 60 0
-}
-
-object GreenTorch
-{
-    frame TGRN { light BIGGREENTORCH }
-}
-
-// Tall blue torch
-flickerlight2 BIGBLUETORCH
-{
-    color 0.0 0.0 1.0
-    size 64
-    secondarySize 72
-    interval 0.1
-    offset 0 60 0
-}
-
-object BlueTorch
-{
-    frame TBLU { light BIGBLUETORCH }
-}
-
-// Small red torch
-flickerlight2 SMALLREDTORCH
-{
-    color 1.0 0.3 0.0
-    size 48
-    secondarySize 54
-    interval 0.1
-    offset 0 35 0
-}
-
-object ShortRedTorch
-{
-    frame SMRT { light SMALLREDTORCH }
-}
-
-// Small green torch
-flickerlight2 SMALLGREENTORCH
-{
-    color 0.0 1.0 0.0
-    size 48
-    secondarySize 54
-    interval 0.1
-    offset 0 35 0
-}
-
-object ShortGreenTorch
-{
-    frame SMGT { light SMALLGREENTORCH }
-}
-
-// Small blue torch
-flickerlight2 SMALLBLUETORCH
-{
-    color 0.0 0.0 1.0
-    size 48
-    secondarySize 54
-    interval 0.1
-    offset 0 35 0
-}
-
-object ShortBlueTorch
-{
-    frame SMBT { light SMALLBLUETORCH }
-}
-
-// Burning barrel
-flickerlight2 FIREBARREL
-{
-    color 1.0 0.9 0.0
-    size 48
-    secondarySize 54
-    interval 0.1
-    offset 0 32 0
-}
-
-object BurningBarrel
-{
-    frame FCAN { light FIREBARREL }
-}
-
-// Skulls w/candles
-flickerlight2 SKULLCANDLES
-{
-    color 1.0 1.0 0.0
-    size 32
-    secondarySize 34
-    interval 0.1
-    offset 0 24 0
-}
-
-object HeadCandles
-{
-    frame POL3 { light SKULLCANDLES }
-}
-
-// Candle
-pointlight CANDLE
-{
-    color 1.0 1.0 0.0
-    size 16
-    offset 0 16 0
-}
-
-object Candlestick
-{
-    frame CAND { light CANDLE }
-}
-
-// Candelabra
-pointlight CANDELABRA
-{
-    color 1.0 1.0 0.0
-    size 48
-    offset 0 52 0
-}
-
-object Candelabra
-{
-    frame CBRA { light CANDELABRA }
-}
-
-// ----------------
-// -- Doom Items --
-// ----------------
-
-// Soul Sphere
-pulselight SOULSPHERE
-{
-    color 0.0 0.0 1.0
-    size 40
-    secondarySize 42
-    interval 2.0
-    offset 0 16 0
-}
-
-object SoulSphere
-{
-    frame SOUL { light SOULSPHERE }
-}
-
-// Invulnerability Sphere
-pulselight INVULN
-{
-    color 0.0 1.0 0.0
-    size 40
-    secondarySize 42
-    interval 2.0
-    offset 0 16 0
-}
-
-object InvulnerabilitySphere
-{
-    frame PINV { light INVULN }
-}
-
-// Blur Sphere
-pointlight BLURSPHERE1
-{
-    color 1.0 0.0 0.0
-    size 40
-    offset 0 16 0
-}
-
-pointlight BLURSPHERE2
-{
-    color 0.0 0.0 1.0
-    size 32
-    offset 0 16 0
-}
-
-pointlight BLURSPHERE3
-{
-    color 0.0 0.0 1.0
-    size 24
-    offset 0 16 0
-}
-
-pointlight BLURSPHERE4
-{
-    color 0.0 0.0 1.0
-    size 16
-    offset 0 16 0
-}
-
-pointlight BLURSPHERE5
-{
-    color 0.0 0.0 1.0
-    size 8
-    offset 0 16 0
-}
-
-object BlurSphere
-{
-    frame PINS { light BLURSPHERE1 }
-
-    frame PINSA { light BLURSPHERE2 }
-    frame PINSB { light BLURSPHERE3 }
-    frame PINSC { light BLURSPHERE4 }
-    frame PINSD { light BLURSPHERE5 }
-}
-
-// Health Potion
-pulselight HEALTHPOTION
-{
-    color 0.0 0.0 0.6
-    size 16
-    secondarySize 18
-    interval 2.0
-}
-
-object HealthBonus
-{
-    frame BON1 { light HEALTHPOTION }
-}
-
-// Armour Helmet
-pulselight ARMORBONUS
-{
-    color 0.0 0.6 0.0
-    size 16
-    secondarySize 14
-    interval 1.0
-}
-
-object ArmorBonus
-{
-    frame BON2 { light ARMORBONUS }
-}
-
-// Blue Keys
-object BlueCard
-{
-    frame BKEY { light HEALTHPOTION }
-}
-
-object BlueSkull
-{
-    frame BSKU { light HEALTHPOTION }
-}
-
-// Yellow Keys
-pulselight YELLOWKEY
-{
-    color 0.6 0.6 0.0
-    size 16
-    secondarySize 18
-    interval 2.0
-}
-
-object YellowCard
-{
-    frame YKEY { light YELLOWKEY }
-}
-
-object YellowSkull
-{
-    frame YSKU { light YELLOWKEY }
-}
-
-// Red Keys
-pulselight REDKEY
-{
-    color 0.6 0.0 0.0
-    size 16
-    secondarySize 18
-    interval 2.0
-}
-
-object RedCard
-{
-    frame RKEY { light REDKEY }
-}
-
-object RedSkull
-{
-    frame RSKU { light REDKEY }
-}
-
-// Green armour
-pointlight GREENARMOR1
-{
-    color 0.0 0.6 0.0
-    size 48
-}
-
-pointlight GREENARMOR2
-{
-    color 0.0 0.6 0.0
-    size 32
-}
-
-object GreenArmor
-{
-    frame ARM1A { light GREENARMOR1 }
-    frame ARM1B { light GREENARMOR2 }
-}
-
-// Blue armour
-pointlight BLUEARMOR1
-{
-    color 0.0 0.0 0.6
-    size 48
-}
-
-pointlight BLUEARMOR2
-{
-    color 0.0 0.0 0.6
-    size 32
-}
-
-object BlueArmor
-{
-    frame ARM2A { light BLUEARMOR1 }
-    frame ARM2B { light BLUEARMOR2 }
-}
-
-// ------------------
-// -- Doom Enemies --
-// ------------------
-
-// Zombies
-flickerlight2 ZOMBIEATK
-{
-    color 1.0 0.8 0.2
-    size 48
-    secondarySize 56
-    interval 1
-    offset 0 40 0
-}
-
-object ShotgunGuy
-{
-    frame SPOSF { light ZOMBIEATK }
-}
-
-object ChaingunGuy
-{
-    frame CPOSE { light ZOMBIEATK }
-    frame CPOSF { light ZOMBIEATK }
-}
-
-object DoomPlayer
-{
-    frame PLAYF { light ZOMBIEATK }
-}
-
-
-// Doom Imp Fireball
-pointlight IMPBALL
-{
-    color 1.0 0.5 0.0
-    size 64
-}
-
-// Doom imp fireball explosion
-flickerlight IMPBALL_X1
-{
-    color 0.7 0.2 0.0
-    size 80
-    secondarySize 88
-    chance 0.25
-}
-
-flickerlight IMPBALL_X2
-{
-    color 0.4 0.0 0.0
-    size 96
-    secondarySize 104
-    chance 0.25
-}
-
-flickerlight IMPBALL_X3
-{
-    color 0.2 0.0 0.0
-    size 112
-    secondarySize 120
-    chance 0.25
-}
-
-object DoomImpBall
-{
-    frame BAL1A { light IMPBALL    }
-    frame BAL1B { light IMPBALL    }
-
-    frame BAL1C { light IMPBALL_X1 }
-    frame BAL1D { light IMPBALL_X2 }
-    frame BAL1E { light IMPBALL_X3 }
-}
-
-pointlight SPECTRE
-{
-    color 0.5 0.5 0.5
-    size 48
-    offset 0 24 0
-    subtractive 1
-}
-
-// Cacodemon fireball
-flickerlight CACOBALL
-{
-    color 1.0 0.2 0.6
-    size 56
-    secondarySize 64
-    chance 0.5
-}
-
-flickerlight CACOBALL_X1
-{
-    color 0.9 0.1 0.4
-    size 72
-    secondarySize 80
-    chance 0.25
-}
-
-flickerlight CACOBALL_X2
-{
-    color 0.6 0.0 0.1
-    size 88
-    secondarySize 96
-    chance 0.25
-}
-
-flickerlight CACOBALL_X3
-{
-    color 0.3 0.0 0.0
-    size 104
-    secondarySize 112
-    chance 0.25
-}
-
-object CacodemonBall
-{
-    frame BAL2A { light CACOBALL }
-    frame BAL2B { light CACOBALL }
-
-    frame BAL2C { light CACOBALL_X1 }
-    frame BAL2D { light CACOBALL_X2 }
-    frame BAL2E { light CACOBALL_X3 }
-}
-
-// Baron / Hell Knight fireball
-pointlight BARONBALL
-{
-    color 0.0 1.0 0.0
-    size 64
-}
-
-flickerlight BARONBALL_X1
-{
-    color 0.0 0.7 0.0
-    size 80
-    secondarySize 88
-    chance 0.25
-}
-
-flickerlight BARONBALL_X2
-{
-    color 0.0 0.4 0.0
-    size 96
-    secondarySize 104
-    chance 0.25
-}
-
-flickerlight BARONBALL_X3
-{
-    color 0.0 0.2 0.0
-    size 112
-    secondarySize 120
-    chance 0.25
-}
-
-object BaronBall
-{
-    frame BAL7A { light BARONBALL    }
-    frame BAL7B { light BARONBALL    }
-
-    frame BAL7C { light BARONBALL_X1 }
-    frame BAL7D { light BARONBALL_X2 }
-    frame BAL7E { light BARONBALL_X3 }
-}
-
-// Mancubus Fireball
-object FatShot
-{
-    frame MANFA { light IMPBALL   }
-    frame MANFB { light IMPBALL   }
-    frame MISLB { light ROCKET_X1 }
-    frame MISLC { light ROCKET_X2 }
-    frame MISLD { light ROCKET_X3 }
-}
-
-// Arachnotron Fireball
-pointlight ARACHPLAS
-{
-    color 0.6 1.0 0.0
-    size 56
-}
-
-flickerlight ARACHPLAS_X1
-{
-    color 0.4 0.8 0.0
-    size 72
-    secondarySize 80
-    chance 0.3
-}
-
-flickerlight ARACHPLAS_X2
-{
-    color 0.6 0.6 0.0
-    size 88
-    secondarySize 96
-    chance 0.3
-}
-
-flickerlight ARACHPLAS_X3
-{
-    color 0.4 0.4 0.0
-    size 48
-    secondarySize 32
-    chance 0.3
-}
-
-flickerlight ARACHPLAS_X4
-{
-    color 0.2 0.2 0.0
-    size 24
-    secondarySize 16
-    chance 0.3
-}
-
-object ArachnotronPlasma
-{
-    frame APLSA { light ARACHPLAS }
-    frame APLSB { light ARACHPLAS }
-
-    frame APBXA { light ARACHPLAS_X1 }
-    frame APBXB { light ARACHPLAS_X2 }
-    frame APBXC { light ARACHPLAS_X2 }
-    frame APBXD { light ARACHPLAS_X3 }
-    frame APBXE { light ARACHPLAS_X4 }
-}
-
-// Revenant tracer
-pointlight TRACER
-{
-    color 1.0 0.3 0.0
-    size 48
-}
-
-flickerlight TRACER_X1
-{
-    color 1.0 0.2 0.0
-    size 64
-    secondarySize 72
-    chance 0.25
-}
-
-flickerlight TRACER_X2
-{
-    color 0.6 0.0 0.0
-    size 80
-    secondarySize 88
-    chance 0.25
-}
-
-flickerlight TRACER_X3
-{
-    color 0.3 0.0 0.0
-    size 96
-    secondarySize 104
-    chance 0.25
-}
-
-object RevenantTracer
-{
-    frame FATBA { light TRACER    }
-    frame FATBB { light TRACER    }
-
-    frame FBXPA { light TRACER_X1 }
-    frame FBXPB { light TRACER_X2 }
-    frame FBXPC { light TRACER_X3 }
-}
-
-// Arch Vile Fire
-flickerlight ARCHFIRE1
-{
-    color 1.0 1.0 0.0
-    size 24
-    secondarySize 32
-    chance 0.3
-    offset 0 8 0
-}
-
-flickerlight ARCHFIRE2
-{
-    color 1.0 1.0 0.0
-    size 40
-    secondarySize 48
-    chance 0.3
-    offset 0 24 0
-}
-
-flickerlight ARCHFIRE3
-{
-    color 1.0 1.0 0.0
-    size 64
-    secondarySize 72
-    chance 0.3
-    offset 0 32 0
-}
-
-flickerlight ARCHFIRE4
-{
-    color 0.8 0.8 0.0
-    size 64
-    secondarySize 72
-    chance 0.3
-    offset 0 40 0
-}
-
-flickerlight ARCHFIRE5
-{
-    color 0.8 0.8 0.0
-    size 64
-    secondarySize 72
-    chance 0.3
-    offset 0 48 0
-}
-
-flickerlight ARCHFIRE6
-{
-    color 0.6 0.6 0.0
-    size 48
-    secondarySize 56
-    chance 0.3
-    offset 0 64 0
-}
-
-flickerlight ARCHFIRE7
-{
-    color 0.4 0.4 0.0
-    size 32
-    secondarySize 40
-    chance 0.3
-    offset 0 72 0
-}
-
-flickerlight ARCHFIRE8
-{
-    color 0.2 0.2 0.0
-    size 16
-    secondarySize 24
-    chance 0.3
-    offset 0 80 0
-}
-
-object ArchvileFire
-{
-    frame FIREA { light ARCHFIRE1 }
-    frame FIREB { light ARCHFIRE2 }
-    frame FIREC { light ARCHFIRE3 }
-    frame FIRED { light ARCHFIRE4 }
-    frame FIREE { light ARCHFIRE5 }
-    frame FIREF { light ARCHFIRE6 }
-    frame FIREG { light ARCHFIRE7 }
-    frame FIREH { light ARCHFIRE8 }
-}
-
-// Arch-vile
-flickerlight ARCHATK1
-{
-    color 1.0 1.0 0.0
-    size 32
-    secondarySize 48
-    chance 0.3
-    offset 0 80 0
-}
-
-flickerlight ARCHATK2
-{
-    color 1.0 1.0 0.0
-    size 56
-    secondarySize 64
-    chance 0.3
-    offset 0 80 0
-}
-
-flickerlight ARCHATK3
-{
-    color 1.0 1.0 0.0
-    size 56
-    secondarySize 64
-    chance 0.3
-    offset 0 64 0
-}
-
-flickerlight ARCHATK4
-{
-    color 1.0 1.0 0.0
-    size 64
-    secondarySize 72
-    chance 0.3
-    offset 0 48 0
-}
-
-flickerlight ARCHATK5
-{
-    color 1.0 1.0 0.0
-    size 80
-    secondarySize 88
-    chance 0.3
-    offset 0 40 0
-}
-
-flickerlight ARCHATK6
-{
-    color 0.7 0.7 0.0
-    size 96
-    secondarySize 104
-    chance 0.3
-    offset 0 40 0
-}
-
-flickerlight ARCHATK7
-{
-    color 0.3 0.3 0.0
-    size 104
-    secondarySize 112
-    chance 0.3
-    offset 0 40 0
-}
-
-pulselight ARCHRES
-{
-    color 0.6 0.0 0.0
-    size 64
-    secondarySize 70
-    interval 0.5
-    offset 0 36 0
-}
-
-object Archvile
-{
-    frame VILEH { light ARCHATK1 }
-    frame VILEI { light ARCHATK2 }
-    frame VILEJ { light ARCHATK3 }
-    frame VILEK { light ARCHATK4 }
-    frame VILEL { light ARCHATK4 }
-    frame VILEM { light ARCHATK4 }
-    frame VILEN { light ARCHATK5 }
-    frame VILEO { light ARCHATK6 }
-    frame VILEP { light ARCHATK7 }
-
-    frame VILE[ { light ARCHRES }
-    frame VILE\ { light ARCHRES }
-    frame VILE] { light ARCHRES }
-}
-
-// ------------------
-// -- Doom Effects --
-// ------------------
-
-// Doom Teleport fog
-flickerlight DTFOG1
-{
-    color 0.4 1.0 0.4
-    size 56
-    secondarySize 64
-    chance 0.4
-}
-
-flickerlight DTFOG2
-{
-    color 0.4 1.0 0.4
-    size 40
-    secondarySize 48
-    chance 0.4
-}
-
-flickerlight DTFOG3
-{
-    color 0.4 1.0 0.4
-    size 24
-    secondarySize 32
-    chance 0.4
-}
-
-flickerlight DTFOG4
-{
-    color 0.4 1.0 0.4
-    size 10
-    secondarySize 16
-    chance 0.4
-}
-
-object TeleportFog
-{
-    frame TFOGA { light DTFOG1 }
-    frame TFOGB { light DTFOG2 }
-    frame TFOGC { light DTFOG2 }
-    frame TFOGD { light DTFOG2 }
-    frame TFOGE { light DTFOG3 }
-    frame TFOGF { light DTFOG4 }
-    frame TFOGI { light DTFOG4 }
-    frame TFOGJ { light DTFOG3 }
-}
-
-//=======================================================================================================\\
-//Here begins the UTNT GLDefs... stuff :P
-//=======================================================================================================\\
-
-Flickerlight2 ZombieShot
-{
- Color 1.0 1.0 0.0
- Offset 0 38 0
- Size 60
- SecondarySize 75
- Interval 2.0
-}
-
-FlickerLight2 ZombiePlasma
-{
- Color 0.3 0.3 0.8
- Offset 0 38 0
- Size 70
- SecondarySize 85
- Interval 2.0
-}
-
-FlickerLight2 ZombieRailShot
-{
- Color 1.0 0.0 0.0
- Offset 0 38 0
- Size 65
- SecondarySize 80
- Interval 2.0
-}
-
-FlickerLight2 ZombieBFG
-{
- Color 0.3 0.8 0.3
- Offset 0 38 0
- Size 85
- SecondarySize 100
- Interval 2.0
-}
-
-FlickerLight2 SpreadZombie
-{
- Color 0.3 0.3 0.8
- Offset 0 38 0
- Size 40
- SecondarySize 55
- Interval 2.0
-}
-
-FlickerLight2 SpreadFireBall
-{
- Color 0.3 0.3 0.8
- Offset 0 4 0
- Size 55
- SecondarySize 70
- Interval 2.0
-}
-
-PointLight SpreadFireBallX_1
-{
- Color 0.3 0.3 0.8
- Offset 0 4 0
- Size 50
-}
-
-PointLight SpreadFireBallX_2
-{
- Color 0.3 0.3 0.8
- Offset 0 4 0
- Size 37
-}
-
-PointLight SpreadFireBallX_3
-{
- Color 0.3 0.3 0.8
- Offset 0 4 0
- Size 19
-}
-
-PointLight DarkSeekerX_1
-{
- Offset 0 4 0
- Color 0.3 0.3 0.8
- Size 50
-}
-
-PointLight DarkSeekerX_2
-{
- Offset 0 4 0
- Color 0.3 0.3 0.8
- Size 30
-}
-
-PointLight DarkSeekerX_3
-{
- Offset 0 4 0
- Color 0.3 0.3 0.8
- Size 10
-}
-
-PointLight DarkStrong
-{
- Offset 0 4 0
- Color 1.0 0.0 1.0
- Size 60
-}
-
-PointLight DarkStrongX_1
-{
- Offset 0 4 0
- Color 1.0 0.0 1.0
- Size 50
-}
-
-PointLight DarkStrongX_2
-{
- Offset 0 4 0
- Color 1.0 0.0 1.0
- Size 30
-}
-
-PointLight DarkStrongX_3
-{
- Offset 0 4 0
- Color 1.0 0.0 1.0
- Size 10
-}
-
-FlickerLight2 YellowSkull
-{
- Offset 0 4 0
- Color 1.0 1.0 0
- Size 65
- SecondarySize 85
- Interval 2.0
-}
-
-PointLight YellowSkullX_1
-{
- Offset 0 4 0
- Color 1.0 1.0 0.0
- Size 55
-}
-
-PointLight YellowSkullX_2
-{
- Offset 0 4 0
- Color 1.0 1.0 0.0
- Size 35
-}
-
-PointLight YellowSkullX_3
-{
- Offset 0 4 0
- Color 1.0 1.0 0.0
- Size 15
-}
-
-PointLight GreenPoison
-{
- Offset 0 4 0
- Color 0.0 0.8 0.0
- Size 60
-}
-
-PointLight GreenPoisonX_1
-{
- Offset 0 4 0
- Color 0.0 0.8 0.0
- Size 50
-}
-
-PointLight GreenPoisonX_2
-{
- Offset 0 4 0
- Color 0.0 0.8 0.0
- Size 30
-}
-
-PointLight GreenPoisonX_3
-{
- Offset 0 4 0
- Color 0.0 0.8 0.0
- Size 10
-}
-
-PointLight SnakeImp
-{
- Offset 0 1 0
- Color 0.0 0.8 0.0
- Size 50
-}
-
-PointLight SnakeImpX_1
-{
- Offset 0 1 0
- Color 0.0 0.8 0.0
- Size 45
-}
-
-PointLight SnakeImpX_2
-{
- Offset 0 1 0
- Color 0.0 0.8 0.0
- Size 35
-}
-
-PointLight SnakeImpX_3
-{
- Offset 0 1 0
- Color 0.0 0.8 0.0
- Size 15
-}
-
-FlickerLight2 RedSkull
-{
- Offset 0 4 0
- Color 1.0 0.0 0
- Size 60
- SecondarySize 80
- Interval 2.0
-}
-
-PointLight RedSkullX_1
-{
- Offset 0 4 0
- Color 1.0 0.0 0
- Size 50
-}
-
-PointLight RedSkullX_2
-{
- Offset 0 4 0
- Color 1.0 0.0 0
- Size 30
-}
-
-PointLight RedSkullX_3
-{
- Offset 0 2 0
- Color 1.0 0.0 0
- Size 10
-}
-
-FlickerLight2 MiniFire
-{
- Offset 0 1 0
- Color 1.0 0.5 0.0
- Size 45
- SecondarySize 55
- Interval 2.0
-}
-
-PointLight MiniFireX_1
-{
- Offset 0 1 0
- Color 1.0 0.5 0.0
- Size 40
-}
-
-PointLight MiniFireX_2
-{
- Offset 0 1 0
- Color 1.0 0.5 0.0
- Size 30
-}
-
-PointLight MiniFireX_3
-{
- Offset 0 2 0
- Color 1.0 0.5 0.0
- Size 15
-}
-
-FlickerLight2 CacoLantern
-{
- Offset 0 2 0
- Color 1.0 1.0 0.0
- Size 60
- SecondarySize 80
- Interval 2.0
-}
-
-PointLight CacoLanternX_1
-{
- Offset 0 4 0
- Color 1.0 1.0 0.0
- Size 55
-}
-
-PointLight CacoLanternX_2
-{
- Offset 0 2 0
- Color 1.0 1.0 0.0
- Size 45
-}
-
-PointLight CacoLanternX_3
-{
- Offset 0 2 0
- Color 1.0 1.0 0.0
- Size 35
-}
-
-PointLight CacoLanternX_4
-{
- Offset 0 2 0
- Color 1.0 1.0 0.0
- Size 15
-}
-
-PointLight Belphegor
-{
- Offset 0 0 0
- Color 0.0 0.6 0.0
- Size 60
-}
-
-PointLight BelphegorX_1
-{
- Offset 0 0 0
- Color 0.0 0.6 0.0
- Size 50
-}
-
-PointLight BelphegorX_2
-{
- Offset 0 0 0
- Color 0.0 0.6 0.0
- Size 35
-}
-
-PointLight BelphegorX_3
-{
- Offset 0 0 0
- Color 0.0 0.6 0.0
- Size 10
-}
-
-PointLight HellGuard
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 55
-}
-
-PointLight HellGuardX_1
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 50
-}
-
-PointLight HellGuardX_2
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 40
-}
-
-PointLight HellGuardX_3
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 27
-}
-
-PointLight HellGuardX_4
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 12
-}
-
-FlickerLight2 SoulHarvesterBall
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 60
- SecondarySize 75
- Interval 2.0
-}
-
-PointLight SoulHarvesterBallX_1
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 58
-}
-
-PointLight SoulHarvesterBallX_2
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 54
-}
-
-PointLight SoulHarvesterBallX_3
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 46
-}
-
-PointLight SoulHarvesterBallX_4
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 38
-}
-
-PointLight SoulHarvesterBallX_5
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 30
-}
-
-PointLight SoulHarvesterBallX_6
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 22
-}
-
-PointLight SoulHarvesterBallX_7
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 16
-}
-
-PointLight SoulHarvesterBallX_8
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 12
-}
-
-PointLight SoulHarvesterBallX_9
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 6
-}
-
-PointLight SoulHarvesterBallX_10
-{
- Offset 0 0 0
- Color 1.0 1.0 0.0
- Size 2
-}
-
-PointLight SoulHarvesterX_1
-{
- Offset 0 34 0
- Color 1.0 1.0 0.0
- Size 10
-}
-
-PointLight SoulHarvesterX_2
-{
- Offset 0 35 0
- Color 1.0 1.0 0.0
- Size 15
-}
-
-PointLight SoulHarvesterX_3
-{
- Offset 0 35 0
- Color 1.0 1.0 0.0
- Size 20
-}
-
-PointLight SoulHarvesterX_4
-{
- Offset 0 35 0
- Color 1.0 1.0 0.0
- Size 35
-}
-
-PointLight SoulHarvesterX_5
-{
- Offset 0 35 0
- Color 1.0 1.0 0.0
- Size 45
-}
-
-PointLight SoulHarvesterX_6
-{
- Offset 0 35 0
- Color 1.0 1.0 0.0
- Size 50
-}
-
-PointLight SoulHarvesterX_7
-{
- Offset 0 35 0
- Color 1.0 1.0 0.0
- Size 52
-}
-
-PointLight SoulHarvesterX_8
-{
- Offset 0 35 0
- Color 1.0 1.0 0.0
- Size 53
-}
-
-PointLight SoulHarvesterX_9
-{
- Offset 0 35 0
- Color 1.0 1.0 0.0
- Size 25
-}
-
-PointLight CatharsiBall
-{
- Offset 0 1 0
- Color 1.0 0.2 0.0
- Size 40
-}
-
-PointLight CatharsiBallX_1
-{
- Offset 0 1 0
- Color 1.0 0.2 0.0
- Size 38
-}
-
-PointLight CatharsiBallX_2
-{
- Offset 0 1 0
- Color 1.0 0.2 0.0
- Size 29
-}
-
-PointLight CatharsiBallX_3
-{
- Offset 0 1 0
- Color 1.0 0.2 0.0
- Size 15
-}
-
-PointLight CatharsiBallX_4
-{
- Offset 0 1 0
- Color 1.0 0.2 0.0
- Size 3
-}
-
-PointLight Catharsi
-{
- Offset 0 42 0
- Color 1.0 0.4 0.0
- Size 54
-}
-
-PointLight SuicideX_1
-{
- Offset 0 32 0
- Color 1.0 0.0 0.0
- Size 64
-}
-
-PointLight SuicideX_2
-{
- Offset 0 32 0
- Color 1.0 0.0 0.0
- Size 56
-}
-
-PointLight SuicideX_3
-{
- Offset 0 32 0
- Color 1.0 0.0 0.0
- Size 24
-}
-
-PointLight HellWarriorBallX_1
-{
- Offset 0 1 0
- Color 1.0 1.0 0.0
- Size 50
-}
-
-PointLight HellWarriorBallX_2
-{
- Offset 0 1 0
- Color 1.0 1.0 0.0
- Size 35
-}
-
-PointLight HellWarriorBallX_3
-{
- Offset 0 1 0
- Color 1.0 1.0 0.0
- Size 15
-}
-
-
-PointLight HellWarriorBall2X_1
-{
- Offset 0 4 0
- Color 0.0 0.8 0.0
- Size 62
-}
-
-PointLight HellWarriorBall2X_2
-{
- Offset 0 4 0
- Color 0.0 0.8 0.0
- Size 56
-}
-
-PointLight HellWarriorBall2X_3
-{
- Offset 0 4 0
- Color 0.0 0.8 0.0
- Size 48
-}
-
-PointLight HellWarriorBall2X_4
-{
- Offset 0 4 0
- Color 0.0 0.8 0.0
- Size 36
-}
-
-PointLight HellWarriorBall2X_5
-{
- Offset 0 4 0
- Color 0.0 0.8 0.0
- Size 24
-}
-
-PointLight HellWarriorBall2X_6
-{
- Offset 0 4 0
- Color 0.0 0.8 0.0
- Size 10
-}
-
-FlickerLight2 Afrit
-{
- Color 1.0 0.0 0.0
- Offset 0 18 0
- Size 60
- SecondarySize 80
- Interval 2.0
-}
-
-PointLight AfritX_1
-{
- Color 1.0 0.0 0.0
- Offset 0 18 0
- Size 70
-}
-
-PointLight AfritX_2
-{
- Color 1.0 0.0 0.0
- Offset 0 18 0
- Size 65
-}
-
-PointLight AfritX_3
-{
- Color 1.0 0.0 0.0
- Offset 0 18 0
- Size 58
-}
-
-PointLight AfritX_4
-{
- Color 1.0 0.0 0.0
- Offset 0 18 0
- Size 50
-}
-
-PointLight AfritX_5
-{
- Color 1.0 0.0 0.0
- Offset 0 18 0
- Size 42
-}
-
-PointLight AfritX_6
-{
- Color 1.0 0.0 0.0
- Offset 0 18 0
- Size 34
-}
-
-PointLight AfritX_7
-{
- Color 1.0 0.0 0.0
- Offset 0 18 0
- Size 26
-}
-
-PointLight AfritX_8
-{
- Color 1.0 0.0 0.0
- Offset 0 18 0
- Size 18
-}
-
-PointLight AfritX_9
-{
- Color 1.0 0.0 0.0
- Offset 0 18 0
- Size 10
-}
-
-PointLight AfritX_10
-{
- Color 1.0 0.0 0.0
- Offset 0 18 0
- Size 2
-}
-
-FlickerLight2 Comet
-{
- Color 1.0 0.5 0.0
- Offset 0 2 0
- Size 60
- SecondarySize 80
- Interval 2.0
-}
-
-PointLight CometX_1
-{
- Color 1.0 0.5 0.0
- Offset 0 2 0
- Size 50
-}
-
-PointLight CometX_2
-{
- Color 1.0 0.5 0.0
- Offset 0 2 0
- Size 25
-}
-
-FlickerLight2 CometSmall
-{
- Color 1.0 0.5 0.0
- Offset 0 2 0
- Size 30
- SecondarySize 80
- Interval 2.0
-}
-
-PointLight CometSmallX_1
-{
- Color 1.0 0.5 0.0
- Offset 0 2 0
- Size 25
-}
-
-PointLight CometSmallX_2
-{
- Color 1.0 0.5 0.0
- Offset 0 2 0
- Size 12
-}
-
-PointLight AfritBall
-{
- Color 1.0 0.5 0.0
- Offset 0 1 0
- Size 60
-}
-
-PointLight AfritBallX_1
-{
- Color 1.0 0.5 0.0
- Offset 0 1 0
- Size 50
-}
-
-PointLight AfritBallX_2
-{
- Color 1.0 0.5 0.0
- Offset 0 1 0
- Size 30
-}
-
-PointLight AfritBallX_3
-{
- Color 1.0 0.5 0.0
- Offset 0 1 0
- Size 15
-}
-
-FlickerLight2 HellFire
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 5
- SecondarySize 15
- Interval 2.0
-}
-
-FlickerLight2 HellFire_2
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 15
- SecondarySize 25
- Interval 2.0
-}
-
-FlickerLight2 HellFire_3
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 35
- SecondarySize 50
- Interval 2.0
-}
-
-FlickerLight2 HellFire_4
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 34
- SecondarySize 49
- Interval 2.0
-}
-
-FlickerLight2 HellFire_5
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 32
- SecondarySize 47
- Interval 2.0
-}
-
-FlickerLight2 HellFire_6
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 30
- SecondarySize 43
- Interval 2.0
-}
-
-FlickerLight2 HellFire_7
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 25
- SecondarySize 39
- Interval 2.0
-}
-
-FlickerLight2 HellFire_8
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 20
- SecondarySize 33
- Interval 2.0
-}
-
-FlickerLight2 HellFire_9
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 15
- SecondarySize 27
- Interval 2.0
-}
-
-FlickerLight2 HellFire_10
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 5
- SecondarySize 21
- Interval 2.0
-}
-
-FlickerLight2 HellFire_11
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 4
- SecondarySize 15
- Interval 2.0
-}
-
-FlickerLight2 HellFire_12
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 3
- SecondarySize 9
- Interval 2.0
-}
-
-FlickerLight2 HellFire_13
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 2
- SecondarySize 7
- Interval 2.0
-}
-
-FlickerLight2 HellFire_14
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 1
- SecondarySize 5
- Interval 2.0
-}
-
-FlickerLight2 HellFire_15
-{
- Color 1.0 0.5 0.0
- Offset 0 0 0
- Size 0
- SecondarySize 2
- Interval 2.0
-}
-
-
-PointLight TorturedSoulBallX_1
-{
- Color 0.0 0.8 0.0
- Offset 0 0 0
- Size 45
-}
-
-PointLight TorturedSoulBallX_2
-{
- Color 0.0 0.8 0.0
- Offset 0 0 0
- Size 30
-}
-
-PointLight TorturedSoulBallX_3
-{
- Color 0.0 0.8 0.0
- Offset 0 0 0
- Size 10
-}
-
-
-
-PointLight TerrorX_1
-{
- Color 1.0 1.0 1.0
- Subtractive 1
- Size 40
- Offset 0 20 0
-}
-
-PointLight TerrorX_2
-{
- Color 1.0 1.0 1.0
- Subtractive 1
- Size 25
- Offset 0 20 0
-}
-
-PointLight TerrorX_3
-{
- Color 1.0 1.0 1.0
- Subtractive 1
- Size 5
- Offset 0 20 0
-}
-
-PointLight ArachnotronRail
-{
- Color 1.0 0.0 0.0
- Size 60
- Offset 0 10 0
-}
-
-PulseLight ShadowBall
-{
- Color 1.0 0.0 0.0
- Offset 0 1 0
- Size 40
- SecondarySize 46
- Interval 2.0
-}
-
-PointLight ShadowBallX_1
-{
- Color 1.0 0.0 0.0
- Offset 0 0 0
- Size 50
-}
-
-PointLight ShadowBallX_2
-{
- Color 1.0 0.0 0.0
- Offset 0 0 0
- Size 46
-}
-
-PointLight ShadowBallX_3
-{
- Color 1.0 0.0 0.0
- Offset 0 0 0
- Size 40
-}
-
-PointLight ShadowBallX_4
-{
- Color 1.0 0.0 0.0
- Offset 0 0 0
- Size 30
-}
-
-PointLight ShadowBallX_5
-{
- Color 1.0 0.0 0.0
- Offset 0 0 0
- Size 17
-}
-
-PointLight HellsFuryBall
-{
- Color 1.0 0.0 0.0
- Offset 0 1 0
- Size 60
-}
-
-PointLight HellsFuryBallX_1
-{
- Color 1.0 0.0 0.0
- Offset 0 1 0
- Size 50
-}
-
-PointLight HellsFuryBallX_2
-{
- Color 1.0 0.0 0.0
- Offset 0 1 0
- Size 35
-}
-
-PointLight HellsFuryBallX_3
-{
- Color 1.0 0.0 0.0
- Offset 0 1 0
- Size 15
-}
-
-PointLight PlasmaElementalX_1
-{
- Color 0.0 0.8 0.0
- Offset 0 4 0
- Size 20
-}
-
-PointLight PlasmaElementalX_2
-{
- Color 0.0 0.8 0.0
- Offset 0 4 0
- Size 40
-}
-
-PointLight PlasmaElementalX_3
-{
- Color 0.0 0.8 0.0
- Offset 0 4 0
- Size 45
-}
-
-PointLight PlasmaElementalX_4
-{
- Color 0.0 0.8 0.0
- Offset 0 4 0
- Size 38
-}
-
-PointLight PlasmaElementalX_5
-{
- Color 0.0 0.8 0.0
- Offset 0 4 0
- Size 21
-}
-
-PointLight ElementalPlasma
-{
- Color 0.2 0.8 0.2
- Offset 0 1 0
- Size 65
-}
-
-PointLight ElementalPlasmaX_1
-{
- Color 0.2 0.8 0.2
- Offset 0 1 0
- Size 70
-}
-
-PointLight ElementalPlasmaX_2
-{
- Color 0.2 0.8 0.2
- Offset 0 1 0
- Size 72
-}
-
-PointLight ElementalPlasmaX_3
-{
- Color 0.2 0.8 0.2
- Offset 0 1 0
- Size 68
-}
-
-PointLight ElementalPlasmaX_4
-{
- Color 0.2 0.8 0.2
- Offset 0 1 0
- Size 51
-}
-
-PointLight ElementalPlasmaX_5
-{
- Color 0.2 0.8 0.2
- Offset 0 1 0
- Size 27
-}
-
-PointLight MaelStromPlasma
-{
- Color 0.2 0.2 0.9
- Offset 0 1 0
- Size 80
-}
-
-PointLight MaelStrom_1
-{
- Color 1.0 1.0 0.0
- Offset 0 4 0
- Size 60
-}
-
-PointLight MaelStrom_2
-{
- Color 0.0 0.0 0.8
- Offset 0 4 0
- Size 60
-}
-
-PointLight MaelStromX_1
-{
- Color 1.0 0.5 0.0
- Offset 0 4 0
- Size 60
-}
-
-PointLight MaelStromX_2
-{
- Color 1.0 0.5 0.0
- Offset 0 4 0
- Size 58
-}
-
-PointLight MaelStromX_3
-{
- Color 1.0 0.5 0.0
- Offset 0 4 0
- Size 52
-}
-
-PointLight MaelStromX_4
-{
- Color 1.0 0.5 0.0
- Offset 0 4 0
- Size 36
-}
-
-PointLight MaelStromX_5
-{
- Color 1.0 0.5 0.0
- Offset 0 4 0
- Size 12
-}
-
-PointLight CacoLichBall
-{
- Color 0.0 0.8 0.0
- Offset 0 1 0
- Size 52
-}
-
-PointLight CacoLichBallX_1
-{
- Color 0.0 0.8 0.0
- Offset 0 1 0
- Size 48
-}
-
-PointLight CacoLichBallX_2
-{
- Color 0.0 0.8 0.0
- Offset 0 1 0
- Size 42
-}
-
-PointLight CacoLichBallX_3
-{
- Color 0.0 0.8 0.0
- Offset 0 1 0
- Size 32
-}
-
-PointLight CacoLichBallX_4
-{
- Color 0.0 0.8 0.0
- Offset 0 1 0
- Size 22
-}
-
-PointLight CacoLichBallX_5
-{
- Color 0.0 0.8 0.0
- Offset 0 1 0
- Size 12
-}
-
-PointLight DeathIncarnate
-{
- Color 1.0 0.0 0.0
- Offset 0 54 0
- Size 32
-}
-
-PointLight HadesSphere_1
-{
- Color 1.0 0.0 0.0
- Offset 0 4 0
- Size 10
-}
-
-PointLight HadesSphere_2
-{
- Color 1.0 0.0 0.0
- Offset 0 4 0
- Size 20
-}
-
-PointLight HadesSphere_3
-{
- Color 1.0 0.0 0.0
- Offset 0 4 0
- Size 30
-}
-
-PointLight HadesSphere_4
-{
- Color 1.0 0.0 0.0
- Offset 0 4 0
- Size 40
-}
-
-FlickerLight2 HadesSphere
-{
- Color 1.0 0.0 0.0
- Offset 0 8 0
- Size 50
- SecondarySize 70
- Interval 2.0
-}
-
-PointLight HadesBoom_1
-{
- Color 1.0 0.0 0.0
- Offset 0 14 0
- Size 80
-}
-
-PointLight HadesBoom_2
-{
- Color 0.9 0.0 0.0
- Offset 0 14 0
- Size 92
-}
-
-PointLight HadesBoom_3
-{
- Color 0.78 0.0 0.0
- Offset 0 14 0
- Size 96
-}
-
-PointLight HadesBoom_4
-{
- Color 0.56 0.0 0.0
- Offset 0 14 0
- Size 100
-}
-
-PointLight HadesBoom_5
-{
- Color 0.32 0.0 0.0
- Offset 0 14 0
- Size 110
-}
-
-FlickerLight2 MarineRailShot
-{
- Color 0.2 0.2 0.8
- Offset 0 38 0
- Size 65
- SecondarySize 80
- Interval 2.0
-}
-
-PointLight HectebusFireBall
-{
- Color 0.0 0.8 0.0
- Offset 0 1 0
- Size 60
-}
-
-PointLight HectebusFireBallX_1
-{
- Color 0.0 0.8 0.0
- Offset 0 1 0
- Size 50
-}
-
-PointLight HectebusFireBallX_2
-{
- Color 0.0 0.8 0.0
- Offset 0 1 0
- Size 35
-}
-
-PointLight HectebusFireBallX_3
-{
- Color 0.0 0.8 0.0
- Offset 0 1 0
- Size 10
-}
-
-PulseLight GoldCoin
-{
- Color 1.0 1.0 0.0
- Offset 0 1 0
- Size 30
- SecondarySize 40
- Interval 1.0
-}
-
-PointLight Warlord
-{
- Offset 0 0 0
- Color 0.0 0.0 0.8
- Size 60
-}
-
-PointLight WarlordX_1
-{
- Offset 0 0 0
- Color 0.0 0.0 0.8
- Size 50
-}
-
-PointLight WarlordX_2
-{
- Offset 0 0 0
- Color 0.0 0.0 0.8
- Size 35
-}
-
-PointLight WarlordX_3
-{
- Offset 0 0 0
- Color 0.0 0.0 0.8
- Size 10
-}
-
-PointLight Bruiser_1
-{
- Offset 0 24 0
- Color 1.0 0.7 0.0
- Size 20
-}
-
-PointLight Bruiser_2
-{
- Offset 0 24 0
- Color 1.0 0.7 0.0
- Size 30
-}
-
-PointLight Bruiser_3
-{
- Offset 0 24 0
- Color 1.0 0.7 0.0
- Size 40
-}
-
-PointLight Bruiser_4
-{
- Offset 0 24 0
- Color 1.0 0.7 0.0
- Size 50
-}
-
-PointLight Bruiser_5
-{
- Offset 0 24 0
- Color 1.0 0.7 0.0
- Size 60
-}
-
-PointLight Bruiser_6
-{
- Offset 0 24 0
- Color 1.0 0.7 0.0
- Size 70
-}
-
-PointLight Bruiser_7
-{
- Offset 0 24 0
- Color 1.0 0.7 0.0
- Size 80
-}
-
-PointLight Bruiser_8
-{
- Offset 0 24 0
- Color 1.0 0.7 0.0
- Size 90
-}
-
-PointLight Bruiser_9
-{
- Offset 0 24 0
- Color 1.0 0.7 0.0
- Size 100
-}
-
-PointLight Bruiser_10
-{
- Offset 0 24 0
- Color 0.9 0.65 0.0
- Size 108
-}
-
-PointLight Bruiser_11
-{
- Offset 0 24 0
- Color 0.8 0.65 0.0
- Size 114
-}
-
-PointLight Bruiser_12
-{
- Offset 0 24 0
- Color 0.7 0.55 0.0
- Size 116
-}
-
-PointLight Bruiser_13
-{
- Offset 0 24 0
- Color 0.5 0.40 0.0
- Size 117
-}
-
-PointLight Bruiser_14
-{
- Offset 0 24 0
- Color 0.3 0.3 0.0
- Size 118
-}
-
-PointLight Bruiser_15
-{
- Offset 0 24 0
- Color 0.1 0.1 0.0
- Size 119
-}
-
-PointLight BruiserBall
-{
- Offset 0 1 0
- Color 1.0 0.7 0.0
- Size 60
-}
-
-PointLight BruiserBallX_1
-{
- Offset 0 1 0
- Color 1.0 0.7 0.0
- Size 65
-}
-
-PointLight BruiserBallX_2
-{
- Offset 0 1 0
- Color 1.0 0.7 0.0
- Size 70
-}
-
-PointLight BruiserBallX_3
-{
- Offset 0 1 0
- Color 1.0 0.7 0.0
- Size 75
-}
-
-PointLight BruiserBallX_4
-{
- Offset 0 1 0
- Color 1.0 0.7 0.0
- Size 80
-}
-
-PointLight BruiserBallX_5
-{
- Offset 0 1 0
- Color 1.0 0.7 0.0
- Size 83
-}
-
-PointLight BruiserBallX_6
-{
- Offset 0 1 0
- Color 1.0 0.7 0.0
- Size 86
-}
-
-PointLight BruiserBallX_7
-{
- Offset 0 1 0
- Color 1.0 0.7 0.0
- Size 88
-}
-
-PointLight BruiserBallX_8
-{
- Offset 0 1 0
- Color 1.0 0.7 0.0
- Size 90
-}
-
-PointLight BruiserBallX_9
-{
- Offset 0 1 0
- Color 1.0 0.7 0.0
- Size 92
-}
-
-PointLight BruiserBallX_10
-{
- Offset 0 1 0
- Color 0.9 0.65 0.0
- Size 93
-}
-
-PointLight BruiserBallX_11
-{
- Offset 0 1 0
- Color 0.8 0.65 0.0
- Size 94
-}
-
-PointLight BruiserBallX_12
-{
- Offset 0 1 0
- Color 0.7 0.55 0.0
- Size 95
-}
-
-PointLight BruiserBallX_13
-{
- Offset 0 1 0
- Color 0.5 0.40 0.0
- Size 96
-}
-
-PointLight BruiserBallX_14
-{
- Offset 0 1 0
- Color 0.3 0.3 0.0
- Size 97
-}
-
-PointLight BruiserBallX_15
-{
- Offset 0 1 0
- Color 0.1 0.1 0.0
- Size 98
-}
-
-PointLight BruiserBall2X_1
-{
- Offset 0 1 0
- Color 1.0 0.8 0.0
- Size 72
-}
-
-PointLight BruiserBall2X_2
-{
- Offset 0 1 0
- Color 0.95 0.76 0.0
- Size 74
-}
-
-
-PointLight BruiserBall2X_3
-{
- Offset 0 1 0
- Color 0.85 0.70 0.0
- Size 75
-}
-
-
-PointLight BruiserBall2X_4
-{
- Offset 0 1 0
- Color 0.76 0.58 0.0
- Size 76
-}
-
-PointLight BruiserBall2X_5
-{
- Offset 0 1 0
- Color 0.56 0.4 0.0
- Size 772
-}
-
-PointLight BruiserBall2X_5
-{
- Offset 0 1 0
- Color 0.26 0.2 0.0
- Size 78
-}
-
-PointLight BruiserFire_1
-{
- Offset 0 0 0
- Color 1.0 0.5 0.0
- Size 20
-}
-
-PointLight BruiserFire_2
-{
- Offset 0 0 0
- Color 1.0 0.5 0.0
- Size 30
-}
-
-PointLight BruiserFire_3
-{
- Offset 0 0 0
- Color 1.0 0.5 0.0
- Size 40
-}
-
-PointLight BruiserFire_4
-{
- Offset 0 0 0
- Color 1.0 0.5 0.0
- Size 47
-}
-
-PointLight BruiserFire_5
-{
- Offset 0 0 0
- Color 1.0 0.5 0.0
- Size 54
-}
-
-PointLight BruiserFire_6
-{
- Offset 0 0 0
- Color 1.0 0.5 0.0
- Size 61
-}
-
-PointLight BruiserFire_7
-{
- Offset 0 0 0
- Color 1.0 0.5 0.0
- Size 66
-}
-
-PointLight BruiserFire_8
-{
- Offset 0 0 0
- Color 1.0 0.5 0.0
- Size 73
-}
-
-PointLight BruiserFire_9
-{
- Offset 0 0 0
- Color 1.0 0.5 0.0
- Size 76
-}
-
-PointLight BruiserFire_10
-{
- Offset 0 0 0
- Color 1.0 0.5 0.0
- Size 79
-}
-
-PointLight BruiserFire_11
-{
- Offset 0 0 0
- Color 1.0 0.5 0.0
- Size 80
-}
-
-PointLight BruiserFire_12
-{
- Offset 0 0 0
- Color 0.95 0.47 0.0
- Size 81
-}
-
-PointLight BruiserFire_13
-{
- Offset 0 0 0
- Color 0.9 0.43 0.0
- Size 82
-}
-
-PointLight BruiserFire_14
-{
- Offset 0 0 0
- Color 0.83 0.38 0.0
- Size 83
-}
-
-PointLight BruiserFire_15
-{
- Offset 0 0 0
- Color 0.75 0.34 0.0
- Size 84
-}
-
-PointLight BruiserFire_16
-{
- Offset 0 0 0
- Color 0.63 0.27 0.0
- Size 85
-}
-
-PointLight BruiserFire_17
-{
- Offset 0 0 0
- Color 0.55 0.21 0.0
- Size 86
-}
-
-PointLight BruiserFire_18
-{
- Offset 0 0 0
- Color 1.0 0.13 0.0
- Size 87
-}
-
-PointLight BruiserFire_19
-{
- Offset 0 0 0
- Color 0.15 0.04 0.0
- Size 88
-}
-
-FlickerLight2 BruiserDemon
-{
- Offset 0 32 0
- Color 1.0 0.6 0.0
- Size 70
- SecondarySize 95
- Interval 2.0
-}
-
-FlickerLight2 FlameThrowerFire
-{
- Offset 0 2 0
- Color 0.15 0.04 0.0
- Size 40
- SecondarySize 60
- Interval 2.0
-}
-
-FlickerLight2 Flame
-{
- Offset 0 0 0
- Color 0.15 0.04 0.0
- Size 20
- SecondarySize 30
- Interval 2.0
-}
-
-PointLight PyroShot
-{
- Offset 0 4 0
- Color 1.0 0.7 0.0
- Size 70
-}
-
-PointLight PyroShot_1
-{
- Offset 0 4 0
- Color 1.0 0.7 0.0
- Size 80
-}
-
-PointLight PyroShot_2
-{
- Offset 0 4 0
- Color 1.0 0.7 0.0
- Size 90
-}
-
-PointLight PyroShot_3
-{
- Offset 0 4 0
- Color 1.0 0.7 0.0
- Size 105
-}
-
-PointLight PyroShot_4
-{
- Offset 0 4 0
- Color 1.0 0.7 0.0
- Size 125
-}
-
-PointLight PyroShot_5
-{
- Offset 0 4 0
- Color 1.0 0.7 0.0
- Size 135
-}
-
-PointLight PyroShot_6
-{
- Offset 0 4 0
- Color 1.0 0.7 0.0
- Size 145
-}
-
-PointLight PyroShot_7
-{
- Offset 0 4 0
- Color 1.0 0.7 0.0
- Size 155
-}
-
-PointLight PyroShot_8
-{
- Offset 0 4 0
- Color 1.0 0.7 0.0
- Size 165
-}
-
-PointLight PyroShot_9
-{
- Offset 0 4 0
- Color 1.0 0.7 0.0
- Size 170
-}
-
-PointLight PyroShot_10
-{
- Offset 0 4 0
- Color 1.0 0.7 0.0
- Size 175
-}
-
-PointLight PyroShot_11
-{
- Offset 0 4 0
- Color 0.95 0.7 0.0
- Size 178
-}
-
-PointLight PyroShot_12
-{
- Offset 0 4 0
- Color 0.87 0.7 0.0
- Size 180
-}
-
-PointLight PyroShot_13
-{
- Offset 0 4 0
- Color 0.75 0.7 0.0
- Size 181
-}
-
-PointLight PyroShot_14
-{
- Offset 0 4 0
- Color 0.63 0.65 0.0
- Size 200
-}
-
-PointLight PyroShot_15
-{
- Offset 0 4 0
- Color 0.51 0.5 0.0
- Size 225
-}
-
-PointLight PyroShot_16
-{
- Offset 0 4 0
- Color 0.39 0.4 0.0
- Size 245
-}
-
-PointLight PyroShot_17
-{
- Offset 0 4 0
- Color 0.27 0.3 0.0
- Size 252
-}
-
-PointLight PyroShot_18
-{
- Offset 0 4 0
- Color 0.15 0.2 0.0
- Size 254
-}
-
-PointLight PyroShot_19
-{
- Offset 0 4 0
- Color 0.05 0.1 0.0
- Size 255
-}
-
-PointLight BFG
-{
- Offset 0 10 0
- Color 0.1 0.8 0.1
- Size 105
-}
-
-FlickerLight2 BFGX_1
-{
- Offset 0 10 0
- Color 0.1 0.8 0.1
- Size 110
- SecondarySize 140
- Interval 2.0
-}
-
-FlickerLight2 BFGX_2
-{
- Offset 0 10 0
- Color 0.1 0.8 0.1
- Size 112
- SecondarySize 144
- Interval 2.0
-}
-
-FlickerLight2 BFGX_3
-{
- Offset 0 10 0
- Color 0.1 0.8 0.1
- Size 104
- SecondarySize 134
- Interval 2.0
-}
-
-FlickerLight2 BFGX_4
-{
- Offset 0 10 0
- Color 0.1 0.7 0.1
- Size 90
- SecondarySize 120
- Interval 2.0
-}
-
-FlickerLight2 BFGX_5
-{
- Offset 0 10 0
- Color 0.1 0.6 0.1
- Size 60
- SecondarySize 90
- Interval 2.0
-}
-
-FlickerLight2 BFGX_6
-{
- Offset 0 10 0
- Color 0.1 0.4 0.1
- Size 30
- SecondarySize 60
- Interval 2.0
-}
-
-FlickerLight2 Plasma
-{
- Offset 0 1 0
- Color 0.1 0.1 0.8
- Size 50
- SecondarySize 70
- Interval 2.0
-}
-
-FlickerLight2 PlasmaX_1
-{
- Offset 0 1 0
- Color 0.1 0.1 0.8
- Size 45
- SecondarySize 65
- Interval 2.0
-}
-
-FlickerLight2 PlasmaX_2
-{
- Offset 0 1 0
- Color 0.1 0.1 0.8
- Size 35
- SecondarySize 55
- Interval 2.0
-}
-
-FlickerLight2 PlasmaX_3
-{
- Offset 0 1 0
- Color 0.1 0.1 0.8
- Size 25
- SecondarySize 45
- Interval 2.0
-}
-
-FlickerLight2 PlasmaX_4
-{
- Offset 0 1 0
- Color 0.1 0.1 0.8
- Size 15
- SecondarySize 35
- Interval 2.0
-}
-
-FlickerLight2 PlasmaX_5
-{
- Offset 0 1 0
- Color 0.1 0.1 0.8
- Size 5
- SecondarySize 25
- Interval 2.0
-}
-
-FlickerLight2 ArachnotronPlasma
-{
- Offset 0 1 0
- Color 0.5 0.8 0.1
- Size 50
- SecondarySize 70
- Interval 2.0
-}
-
-FlickerLight2 ArachnotronPlasmaX_1
-{
- Offset 0 1 0
- Color 0.5 0.8 0.1
- Size 45
- SecondarySize 65
- Interval 2.0
-}
-
-FlickerLight2 ArachnotronPlasmaX_2
-{
- Offset 0 1 0
- Color 0.3 0.8 0.1
- Size 35
- SecondarySize 55
- Interval 2.0
-}
-
-FlickerLight2 ArachnotronPlasmaX_3
-{
- Offset 0 1 0
- Color 0.5 0.8 0.1
- Size 25
- SecondarySize 45
- Interval 2.0
-}
-
-FlickerLight2 ArachnotronPlasmaX_4
-{
- Offset 0 1 0
- Color 0.5 0.8 0.1
- Size 15
- SecondarySize 35
- Interval 2.0
-}
-
-FlickerLight2 ArachnotronPlasmaX_5
-{
- Offset 0 1 0
- Color 0.5 0.8 0.1
- Size 5
- SecondarySize 25
- Interval 2.0
-}
-
-FlickerLight2 Fire1X
-{
- Offset 0 2 0
- Color 1.0 0.2 0.0
- Size 55
- SecondarySize 65
- Interval 2.0
-}
-
-FlickerLight2 Fire2X
-{
- Offset 0 4 0
- Color 1.0 0.2 0.0
- Size 65
- SecondarySize 90
- Interval 2.0
-}
-
-FlickerLight2 Fire4X
-{
- Offset 0 6 0
- Color 1.0 0.2 0.0
- Size 90
- SecondarySize 115
- Interval 2.0
-}
-
-FlickerLight2 PortalHeart
-{
- Offset 0 8 0
- Color 1.0 0.0 0.0
- Size 40
- SecondarySize 50
- Interval 2.0
-}
-
-PulseLight LifeSeed
-{
- Offset 0 2 0
- Color 1.0 0.0 0.0
- Size 25
- SecondarySize 35
- Interval 1.2
-}
-
-FlickerLight2 NetherworldQueen_Shock_1
-{
- Offset 0 16 0
- Color 1.0 0.8 0.0
- Size 80
- SecondarySize 115
- Interval 2.0
-}
-
-FlickerLight2 NetherworldQueen_Shock_2
-{
- Offset 0 16 0
- Color 1.0 0.8 0.0
- Size 115
- SecondarySize 150
- Interval 2.0
-}
-
-FlickerLight2 NetherworldQueenElectroShot
-{
- Offset 0 0 0
- Color 1.0 0.8 0.0
- Size 40
- SecondarySize 60
- Interval 2.0
-}
-
-Pointlight NetherworldQueenElectroShotX_1
-{
- Color 0.9 0.7 0.0
- Size 50
-}
-
-Pointlight NetherworldQueenElectroShotX_2
-{
- Color 0.8 0.6 0.0
- Size 60
-}
-
-Pointlight NetherworldQueenElectroShotX_3
-{
- Color 0.7 0.5 0.0
- Size 70
-}
-
-Pointlight NetherworldQueenElectroShotX_4
-{
- Color 0.5 0.4 0.0
- Size 78
-}
-
-Pointlight NetherworldQueenElectroShotX_5
-{
- Color 0.3 0.2 0.0
- Size 84
-}
-
-Pointlight NetherworldQueenElectroShotX_6
-{
- Color 0.1 0.1 0.0
- Size 85
-}
-
-Pointlight NetherworldQueenFlameBreath_1 //Ruh-oh, I felt some madness here again :O
-{
- Color 1.0 0.4 0.0
- Size 65
-}
-
-Pointlight NetherworldQueenFlameBreath_2
-{
- Color 1.0 0.4 0.0
- Size 70
-}
-
-Pointlight NetherworldQueenFlameBreath_3
-{
- Color 1.0 0.4 0.0
- Size 75
-}
-
-Pointlight NetherworldQueenFlameBreath_4
-{
- Color 1.0 0.4 0.0
- Size 80
-}
-
-Pointlight NetherworldQueenFlameBreath_5
-{
- Color 1.0 0.4 0.0
- Size 85
-}
-
-Pointlight NetherworldQueenFlameBreath_6
-{
- Color 1.0 0.4 0.0
- Size 90
-}
-
-Pointlight NetherworldQueenFlameBreath_7
-{
- Color 1.0 0.4 0.0
- Size 95
-}
-
-Pointlight NetherworldQueenFlameBreath_8
-{
- Color 1.0 0.4 0.0
- Size 100
-}
-
-Pointlight NetherworldQueenFlameBreath_9
-{
- Color 0.9 0.4 0.0
- Size 102
-}
-
-Pointlight NetherworldQueenFlameBreath_10
-{
- Color 0.8 0.4 0.0
- Size 103
-}
-
-Pointlight NetherworldQueenFlameBreath_11
+//Afrit//////////////////////////////////////////////
+FlickerLight2 Afrit1
 {
- Color 0.7 0.3 0.0
- Size 104
+Color 0.7 0.4 0.0
+Size 96
+SecondarySize 128
+Interval 0.9
+Offset 0 24 0
 }
 
-Pointlight NetherworldQueenFlameBreath_12
+PointLight Afrit2
 {
- Color 0.7 0.3 0.0
- Size 105
+Color 1.0 0.8 0.0
+Offset 0 32 0
+Size 96
 }
 
-Pointlight NetherworldQueenFlameBreath_13
+PointLight Afrit3
 {
- Color 0.6 0.3 0.0
- Size 106
+Color 1.0 0.8 0.0
+Offset 0 32 0
+Size 72
 }
 
-Pointlight NetherworldQueenFlameBreath_14
+PointLight Afrit4
 {
- Color 0.6 0.2 0.0
- Size 107
+Color 0.8 0.7 0.0
+Offset 0 36 0
+Size 64
 }
 
-Pointlight NetherworldQueenFlameBreath_15
+PointLight Afrit5
 {
- Color 0.6 0.2 0.0
- Size 108
+Color 0.7 0.7 0.0
+Offset 0 40 0
+Size 56
 }
 
-Pointlight NetherworldQueenFlameBreath_16
+PointLight Afrit6
 {
- Color 0.5 0.2 0.0
- Size 109
+Color 0.7 0.7 0.0
+Offset 0 42 0
+Size 48
 }
 
-Pointlight NetherworldQueenFlameBreath_17
+PointLight Afrit7
 {
- Color 0.5 0.1 0.0
- Size 110
+Color 0.7 0.7 0.0
+Offset 0 44 0
+Size 40
 }
 
-Pointlight NetherworldQueenFlameBreath_18
+PointLight Afrit8
 {
- Color 0.4 0.1 0.0
- Size 111
+Color 0.6 0.6 0.0
+Offset 0 48 0
+Size 36
 }
 
-Pointlight NetherworldQueenFlameBreath_19
+PointLight Afrit9
 {
- Color 0.3 0.1 0.0
- Size 112
+Color 0.5 0.5 0.0
+Offset 0 52 0
+Size 32
 }
 
-Pointlight NetherworldQueenFlameBreath_20
+PointLight Afrit10
 {
- Color 0.2 0.0 0.0
- Size 113
+Color 0.4 0.4 0.0
+Offset 0 58 0
+Size 24
 }
 
-Pointlight NetherworldQueenFlameBreath_21
+PointLight Afrit11
 {
- Color 0.1 0.0 0.0
- Size 114
+Color 0.3 0.3 0.0
+Offset 0 64 0
+Size 16
 }
 
 Object Afrit
 {
- Frame FRITA { Light Afrit }
- Frame FRITB { Light Afrit }
- Frame FRITC { Light Afrit }
- Frame FRITD { Light Afrit }
- Frame FRITE { Light Afrit }
- Frame FRITF { Light Afrit }
- Frame FRITG { Light Afrit }
- Frame FRITH { Light Afrit }
- Frame FRITI { Light AfritX_1 }
- Frame FRITJ { Light AfritX_2 }
- Frame FRITK { Light AfritX_3 }
- Frame FRITL { Light AfritX_4 }
- Frame FRITM { Light AfritX_5 }
- Frame FRITN { Light AfritX_6 }
- Frame FRITO { Light AfritX_7 }
- Frame FRITP { Light AfritX_8 }
- Frame FRITQ { Light AfritX_9 }
- Frame FRITR { Light AfritX_10 }
- Frame FRITS { Light Afrit }
- Frame FRITT { Light Afrit }
- Frame FRITU { Light Afrit }
+Frame FRITA { Light Afrit1 }
+Frame FRITB { Light Afrit1 }
+Frame FRITC { Light Afrit1 }
+Frame FRITD { Light Afrit1 }
+Frame FRITE { Light Afrit1 }
+Frame FRITF { Light Afrit1 }
+Frame FRITG { Light Afrit1 }
+Frame FRITH { Light Afrit1 }
+Frame FRITI { Light Afrit2 }
+Frame FRITJ { Light Afrit3 }
+Frame FRITK { Light Afrit4 }
+Frame FRITL { Light Afrit5 }
+Frame FRITM { Light Afrit6 }
+Frame FRITN { Light Afrit7 }
+Frame FRITO { Light Afrit8 }
+Frame FRITP { Light Afrit9 }
+Frame FRITQ { Light Afrit10 }
+Frame FRITR { Light Afrit11 }
+Frame FRITS { Light Afrit1 }
+Frame FRITT { Light Afrit1 }
+Frame FRITU { Light Afrit1 }
 }
 
-Object Comet
+Pointlight AfritBall1
 {
- Frame COMTA { Light Comet }
- Frame COMTB { Light Comet }
- Frame COMTC { Light Comet }
- Frame COMTD { Light CometX_1 }
- Frame COMTE { Light CometX_2 }
+Color 0.8 0.3 0.05
+Size 48
+}
+
+Pointlight AfritBall2
+{
+Color 1.0 0.5 0.1
+Size 64
+}
+
+Pointlight AfritBall3
+{
+Color 0.6 0.2 0.0
+Size 56
+}
+
+Pointlight AfritBall4
+{
+Color 0.4 0.05 0.0
+Size 32
 }
 
 Object AfritBall
 {
- Frame FRTMA { Light AfritBall }
- Frame FRTMB { Light AfritBall }
- Frame FRTMC { Light AfritBallX_1 }
- Frame FRTMD { Light AfritBallX_2 }
- Frame FRTME { Light AfritBallX_3 }
+Frame FRTMA { Light AfritBall1 }
+Frame FRTMB { Light AfritBall1 }
+Frame FRTMC { Light AfritBall2 }
+Frame FRTMD { Light AfritBall3 }
+Frame FRTME { Light AfritBall4 }
 }
 
-//Phew, Vader should definitely stop making those damn fluid eased \ interpolated sprite sets which I have to write the GLDefs for! X]
+Pointlight Comet1
+{
+Color 0.6 0.4 0.0
+Size 64
+}
+
+Pointlight Comet2
+{
+Color 0.8 0.6 0.0
+Size 72
+}
+
+Pointlight Comet3
+{
+Color 1.0 0.8 0.4
+Size 80
+}
+
+Pointlight Comet4
+{
+Color 0.8 0.7 0.0
+Size 72
+}
+
+Pointlight Comet5
+{
+Color 0.6 0.4 0.0
+Size 64
+}
+
+Pointlight Comet6
+{
+Color 0.4 0.2 0.0
+Size 56
+}
+
+Pointlight Comet7
+{
+Color 0.4 0.0 0.0
+Size 40
+}
+
+Object Comet
+{
+Frame COMTA { Light Comet1 }
+Frame COMTB { Light Comet1 }
+Frame COMTC { Light Comet1 }
+Frame COMTD { Light Comet2 }
+Frame COMTE { Light Comet3 }
+Frame COMTF { Light Comet4 }
+}
+
+Object CometDeath
+{
+Frame COMTG { Light Comet5 }
+Frame COMTH { Light Comet6 }
+Frame COMTI { Light Comet7 }
+}
+
+Pointlight HellFire
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 5
+}
+
+Pointlight HellFire_2
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 15
+}
+
+Pointlight HellFire_3
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 35
+}
+
+Pointlight HellFire_4
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 34
+}
+
+Pointlight HellFire_5
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 32
+}
+
+Pointlight HellFire_6
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 30
+}
+
+Pointlight HellFire_7
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 25
+}
+
+Pointlight HellFire_8
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 20
+}
+
+Pointlight HellFire_9
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 15
+}
+
+Pointlight HellFire_10
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 5
+}
+
+Pointlight HellFire_11
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 4
+}
+
+Pointlight HellFire_12
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 3
+}
+
+Pointlight HellFire_13
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 2
+}
+
+Pointlight HellFire_14
+{
+Color 1.0 0.5 0.0
+Offset 0 0 0
+Size 1
+}
+
+Object HellFire2
+{
+Frame FRTFA { Light HellFire }
+Frame FRTFB { Light HellFire_2 }
+Frame FRTFC { Light HellFire_3 }
+Frame FRTFD { Light HellFire_4 }
+Frame FRTFE { Light HellFire_5 }
+Frame FRTFF { Light HellFire_6 }
+Frame FRTFG { Light HellFire_7 }
+Frame FRTFH { Light HellFire_8 }
+Frame FRTFI { Light HellFire_9 }
+Frame FRTFJ { Light HellFire_10 }
+Frame FRTFK { Light HellFire_11 }
+Frame FRTFL { Light HellFire_12 }
+Frame FRTFM { Light HellFire_13 }
+Frame FRTFN { Light HellFire_14 }
+}
+
+Object OrbitComet
+{
+Frame COMT { Light AfritBall1 }
+}
+
+Object OrbitComet2
+{
+Frame COMT { Light AfritBall1 }
+}
+
+//Cacolantern//////////////////////////////////////////////
+Pulselight CacolanternBall1
+{
+Color 0.7 0.7 0.0
+Size 48
+SecondarySize 64
+Interval 0.5
+}
+
+Pointlight CacolanternBall2
+{
+Color 0.8 0.8 0.0
+Size 56
+}
+
+Pointlight CacolanternBall3
+{
+Color 1.0 1.0 0.0
+Size 64
+}
+
+Pointlight CacolanternBall4
+{
+Color 0.7 0.7 0.0
+Size 56
+}
+
+Pointlight CacolanternBall5
+{
+Color 0.3 0.3 0.0
+Size 40
+}
+
+Object CacolanternBall
+{
+Frame BAL8A { Light CacolanternBall1 }
+Frame BAL8B { Light CacolanternBall1 }
+Frame BAL8C { Light CacolanternBall1 }
+Frame BAL8D { Light CacolanternBall1 }
+Frame BAL8E { Light CacolanternBall1 }
+Frame BAL8F { Light CacolanternBall1 }
+Frame BAL8G { Light CacolanternBall1 }
+Frame BAL8H { Light CacolanternBall1 }
+Frame BAL8I { Light CacolanternBall2 }
+Frame BAL8J { Light CacolanternBall3 }
+Frame BAL8K { Light CacolanternBall4 }
+Frame BAL8L { Light CacolanternBall5 }
+}
+
+//Hell Guard//////////////////////////////////////////////
+Pointlight HellGuardFire
+{
+Color 0.8 0.8 0.3
+Size 32
+Offset 0 32 0
+}
+
+Object HellGuard
+{
+Frame HLGDF { Light HellGuardFire }
+}
+
+Pointlight HellGuardBall1
+{
+Color 0.4 0.4 0.0
+Size 32
+}
+
+Pointlight HellGuardBall2
+{
+Color 0.5 0.5 0.0
+Size 40
+}
+
+Pointlight HellGuardBall3
+{
+Color 0.6 0.6 0.0
+Size 48
+}
+
+Pointlight HellGuardBall4
+{
+Color 0.3 0.3 0.0
+Size 32
+}
+
+Pointlight HellGuardBall5
+{
+Color 0.2 0.2 0.0
+Size 16
+}
+
+Object HellGuardBall
+{
+Frame HGFBA { Light HellGuardBall1 }
+Frame HGFBB { Light HellGuardBall1 }
+Frame HGFBC { Light HellGuardBall1 }
+Frame HGFBD { Light HellGuardBall1 }
+Frame HGFBE { Light HellGuardBall2 }
+Frame HGFBF { Light HellGuardBall3 }
+Frame HGFBG { Light HellGuardBall4 }
+Frame HGFBH { Light HellGuardBall5 }
+}
+
+//Hell Warrior//////////////////////////////////////////////
+Pointlight HWBall
+{
+Color 0.8 0.5 0.05
+Size 48
+}
+
+Pointlight HWBall2
+{
+Color 1.0 0.7 0.1
+Size 64
+}
+
+Pointlight HWBall3
+{
+Color 0.6 0.4 0.0
+Size 56
+}
+
+Pointlight HWBall4
+{
+Color 0.4 0.2 0.0
+Size 32
+}
+
+Object HellWarriorBall
+{
+Frame HWFBA { Light HWBall }
+Frame HWFBB { Light HWBall }
+Frame HWFBC { Light HWBall2 }
+Frame HWFBD { Light HWBall3 }
+Frame HWFBE { Light HWBall4 }
+}
+
+Pointlight HWGBall
+{
+Color 0.5 1.0 0.5
+Size 32
+}
+
+Pointlight HWGBall2
+{
+Color 0.5 1.0 0.5
+Size 28
+}
+
+Pointlight HWGBall3
+{
+Color 0.5 1.0 0.5
+Size 24
+}
+
+Pointlight HWGBall4
+{
+Color 0.5 1.0 0.5
+Size 20
+}
+
+Pointlight HWGBall5
+{
+Color 0.5 1.0 0.5
+Size 16
+}
+
+Pointlight HWGBall6
+{
+Color 0.5 1.0 0.5
+Size 12
+}
+
+Object HellWarriorBall2
+{
+Frame GRBAA { Light HWGBall }
+Frame GRBAB { Light HWGBall }
+Frame GRBAC { Light HWGBall }
+Frame GRBAD { Light HWGBall }
+Frame GRBAE { Light HWGBall }
+Frame GRBAF { Light HWGBall }
+Frame GRBAG { Light HWGBall }
+Frame GRBAH { Light HWGBall }
+Frame GRBAI { Light HWGBall2 }
+Frame GRBAJ { Light HWGBall3 }
+Frame GRBAK { Light HWGBall4 }
+Frame GRBAL { Light HWGBall5 }
+Frame GRBAM { Light HWGBall6 }
+}
+
+Pointlight HWarriorFire
+{
+Color 0.5 1.0 0.5
+Size 48
+}
+
+Object HellWarrior
+{
+Frame HWARI { Light HWarriorFire }
+}
+
+//Additional Props//////////////////////////////////////////////
+FlickerLight2 WALLTORCH
+{
+Color 1.00 0.5 0.0
+Size 24
+SecondarySize 28
+Interval 0.1
+Offset 0 60 0
+dontlightself 1
+}
+
 FlickerLight2 RedTorchA
 {
- Size 60
- SecondarySize 75
- Interval 2.0
- Color 1.0 0.2 0.0
- Offset 0 52 0
+Size 60
+SecondarySize 75
+Interval 2.0
+Color 1.0 0.2 0.0
+Offset 0 52 0
 }
 
 FlickerLight2 RedTorchB
 {
- Size 55
- SecondarySize 70
- Interval 2.0
- Color 1.0 0.2 0.0
- Offset 0 30 0
+Size 55
+SecondarySize 70
+Interval 2.0
+Color 1.0 0.2 0.0
+Offset 0 30 0
 }
 
 FlickerLight2 GreenTorchA
 {
- Size 60
- SecondarySize 75
- Interval 2.0
- Color 0.0 0.6 0.0
- Offset 0 52 0
+Size 60
+SecondarySize 75
+Interval 2.0
+Color 0.0 0.6 0.0
+Offset 0 52 0
 }
 
 FlickerLight2 GreenTorchB
 {
- Size 55
- SecondarySize 70
- Interval 2.0
- Color 0.0 0.6 0.0
- Offset 0 30 0
+Size 55
+SecondarySize 70
+Interval 2.0
+Color 0.0 0.6 0.0
+Offset 0 30 0
 }
 
 FlickerLight2 BlueTorchA
 {
- Size 60
- SecondarySize 75
- Interval 2.0
- Color 0.0 0.0 0.7
- Offset 0 52 0
+Size 60
+SecondarySize 75
+Interval 2.0
+Color 0.0 0.0 0.7
+Offset 0 52 0
 }
 
 FlickerLight2 BlueTorchB
 {
- Size 55
- SecondarySize 70
- Interval 2.0
- Color 0.0 0.0 0.7
- Offset 0 30 0
+Size 55
+SecondarySize 70
+Interval 2.0
+Color 0.0 0.0 0.7
+Offset 0 30 0
 }
 
 FlickerLight2 BurningBarrelA
 {
- Size 70
- SecondarySize 85
- Interval 2.0
- Color 1.0 0.3 0.0
- Offset 0 52 0
+Size 70
+SecondarySize 85
+Interval 2.0
+Color 1.0 0.3 0.0
+Offset 0 52 0
 }
 
-/////////////////////////////////////////////////////
-// FIRE SPAWNER LIGHTS //////////////////////////////
-/////////////////////////////////////////////////////
-
+//Effects//////////////////////////////////////////////
 Flickerlight FireSpawnerSmall
 {
-	Color 1.0 0.6 0.0
-	Size 32
-	SecondarySize 48
-	Chance 0.6
+Color 1.0 0.6 0.0
+Size 32
+SecondarySize 48
+Chance 0.6
 }
 
 Flickerlight FireSpawnerMedium
 {
-	Color 1.0 0.6 0.0
-	Size 56
-	SecondarySize 72
-	Chance 0.6
+Color 1.0 0.6 0.0
+Size 56
+SecondarySize 72
+Chance 0.6
 }
 
 Flickerlight FireSpawnerLarge
 {
-	Color 1.0 0.6 0.0
-	Size 80
-	SecondarySize 128
-	Chance 0.6
+Color 1.0 0.6 0.0
+Size 80
+SecondarySize 128
+Chance 0.6
 }
