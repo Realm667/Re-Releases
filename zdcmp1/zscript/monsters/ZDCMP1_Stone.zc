@@ -36,7 +36,7 @@ Class StoneImp : Actor
 		DamageFactor "Electric", 0;
 		DamageFactor "Lightning", 0;
 		DamageFactor "Fire", 0.5;
-		DamageFactor "Ice", 1.2;
+		DamageFactor "Ice", 0.5;
 		RadiusDamageFactor 0.25;
 		SeeSound "imp/sight";
 		PainSound "imp/pain";
@@ -45,6 +45,7 @@ Class StoneImp : Actor
 		Obituary "$OB_RIMP";
 		MONSTER;
 		+FLOORCLIP
+		+NOBLOOD
 		+NOBLOODDECALS
 		+NOICEDEATH
 		+NOPAIN
@@ -69,11 +70,11 @@ Class StoneImp : Actor
 		Goto See;
 	XDeath:
 	Death:
-		GIMP I 8;
-		GIMP J 8 A_Scream();
-		GIMP K 6;
-		GIMP L 6 A_Fall();
-		GIMP M 6;
+		GIMP I 6;
+		GIMP J 4 A_Scream();
+		GIMP K 3;
+		GIMP L 2 A_Fall();
+		GIMP M 2;
 		GIMP N -1 A_StoneImpDie(); //unique death by Ozy81
 		Stop;
 	Raise:
@@ -90,16 +91,16 @@ Class StoneImp : Actor
 			return;
 		}
 		Vel = (0,0,0);
-		A_StartSound ("misc/icebreak", CHAN_BODY); //needs fitting sound, might be obtained from incoming stepsounds - ozy81
+		A_StartSound ("misc/icebreak", CHAN_BODY, CHANF_DEFAULT, FRandom(0.2,0.3), ATTN_NORM); //needs fitting sound, might be obtained from incoming stepsounds - ozy81
 
 		// [RH] In Hexen, this creates a random number of shards (range [24,56])
 		// with no relation to the size of the self shattering. I think it should
 		// base the number of shards on the size of the dead thing, so bigger
 		// things break up into more shards than smaller things.
 		// An actor with radius 20 and height 64 creates ~40 chunks.
-		int numChunks = max(4, int(radius * Height)/32);
-		int i = Random[RockDeathChunks](0, numChunks/4 - 1);
-		for (i = max(24, numChunks + i); i >= 0; i--)
+		int numChunks = max(8, int(radius * Height)/32);
+		int i = Random[RockDeathChunks](0, numChunks/8 - 1);
+		for (i = max(48, numChunks + i); i >= 0; i--)
 		{
 			double xo = (random[RockDeathChunks]() - 128)*radius / 128;
 			double yo = (random[RockDeathChunks]() - 128)*radius / 128;
