@@ -372,6 +372,19 @@ Class ZPackRainParticle : Actor
 		+NOBLOCKMAP
 		+SPAWNCEILING
 	}
+	
+	override void PostBeginPlay(void)
+	{
+		bool isIndoors = ceilingpic != skyflatnum;
+		bool isNotCPlayer = (Tracer && !Tracer.CheckLocalView(consoleplayer));
+		if (isIndoors || isNotCPlayer)
+		{
+			Destroy();
+			return;
+		}
+		WorldOffset = (0, 0, 24.);
+		Super.PostBeginPlay();
+	}
 
 	States
 	{
