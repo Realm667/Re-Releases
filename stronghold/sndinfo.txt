@@ -159,6 +159,20 @@ puff/ric5 			dsrich5
 puff/ric6 			dsrich6
 puff/ric7 			dsrich7
 
+//Casing Sounds
+$random weapons/case1		{weapons/case11 weapons/case12}
+weapons/case11			dscase11
+weapons/case12			dscase12   
+
+$random weapons/case2		{weapons/case21 weapons/case22}
+weapons/case21			dscase21
+weapons/case22			dscase22
+
+$random weapons/shell		{weapons/shell1 weapons/shell2 weapons/shell3}
+weapons/shell1			dsshell1
+weapons/shell2			dsshell2
+weapons/shell3			dsshell3 
+
 //SFX Fire
 SFX/FireStart	FIRESTRT
 SFX/FireLoop1	FIRELOP1
@@ -251,7 +265,7 @@ T_WINNER  T_WINNER
 T_CRATTK  T_CRATTK  //99%
 T_CRHEVY  T_CRHEVY  //75%
 T_CRUNST  T_CRUNST  //50%
-T_CRCRIT  T_CRCRIT  //25% - doesn't exist
+T_CRCRIT  T_CRCRIT  //25%
 T_CRDEST  T_CRDEST  //00%
 
 //Limit
@@ -341,6 +355,7 @@ weapons/hellex dshellex
 
 //Azazel
 diablo2/goatman/attack		011att
+diablo2/goatman/death		011deth
 diablo2/goatman/sight		011sit
 $random diablo2/goatman/idle	{ diablo2/goatman/idle1 diablo2/goatman/idle2 diablo2/goatman/idle3 }
 $random diablo2/goatman/pain	{ diablo2/goatman/pain1 diablo2/goatman/pain2 }
@@ -352,7 +367,9 @@ diablo2/goatman/pain1		011pain1
 diablo2/goatman/pain2		011pain2
 
 Goat/Attack				goata2
-Goat/Death				goatbd2
+Goat/death				goatbd2
+Goat/Pain				goath2
+Goat/Madattack			goats2
 
 missile1charge	h20017
 missile2charge	h20016
@@ -515,8 +532,10 @@ weapons/hellex dshellex
 $random Terminator/termact { termact1 termact2 }
 termact1		dsteract
 termact2		dsteact2
-Terminator/terstepA		 DSTSTEP1
-Terminator/terstepB		 DSTSTEP2
+$random Terminator/terstepA { terstep1 terstep2 }
+terstep1		 dststep1
+terstep2		 dststep2
+Terminator/terstepB dststep3
 Terminator/tershotA dstshot1
 Terminator/tershotB dstshot2
 
@@ -592,10 +611,7 @@ lizard/attack		ripper
 lizard/laser		gblasr01
 lizard/teleport		teleport
 
-$random lizard/active	{ lizard/roam1 lizard/roam2 }
-lizard/roam1		LIZROAM1
-lizard/roam2		LIZROAM2
-
+$random lizard/active	{ lizard/roam1 lizard/roam2 lizard/roam3 }
 $limit lizard/attack	0
 $limit lizard/laser	0
 
@@ -718,11 +734,11 @@ $AMBIENT 46 amb46 POINT RANDOM 10.0 20.0 0.7
 
 //////////////////////////////////// MONSTER SOUNDS ///////////////////////////////////
 wizard/sight wiz2sit
-wizard/pain wiz2pai
+wizard/pain wizp2ai
 wizard/death wiz2dth
 $RANDOM wizard/active { wizard/sight wizard/active1 }
 wizard/sight wiz2sit
-wizard/active1 wiz2act
+wizard/active1 wiza2ct
 
 wizard/attack wiz2atk
 fireblast/explode DSFREXP
@@ -819,26 +835,30 @@ zombieblood/dth3 AZOMDIE2
 zombieblood/dth4 AZOMDIE1
 
 zombieblood/act dszbact
-
 //InfernoDemon
-Apocalypse/Death COMETEXP
+Inferno/Alert	INFRALRT
+Inferno/Walk	INFRWALK
+Inferno/Die		INFRDEAD
+Inferno/Active	INFRACTV
 Apocalypse/Meteor COMETLNC
-Glyph/Start FLAMSTRT
-Infdem/active BE-GROWL
-Infdem/death DYING
-Infdem/pain BE-PAIN1
-Infdem/see BE-SPOT1
+Apocalypse/Death COMETEXP
 Meteor/Call DFATTACK
-harvester/ghost shghscrm
+weapons/firmfi dsfirmfi
+weapons/firex3 dsfirex3
+weapons/firbfi dsfirbfi
+weapons/hellex dshellex
+weapons/justfi dsjustfi
 monster/bomb FIREBALL
 monster/firebeamdeath IMPFIRE2
 monster/firebeamstart DARKFLAM
 pyro/explosion DSPIPEX1
-weapons/firbfi dsfirbfi
-weapons/firex3 dsfirex3
-weapons/firmfi dsfirmfi
-weapons/hellex dshellex
-weapons/justfi dsjustfi
+Glyph/Start FLAMESTR
+harvester/ghost shghscrm
+
+Infdem/see BE-SPOT1
+Infdem/active BE-GROWL
+Infdem/pain BE-PAIN1
+Infdem/death DYING
 
 //Moloch
 moloch/grenade dsmolgrn
@@ -895,6 +915,18 @@ DSSTPLAC	DSSTPLAC
 
 
 //MARINE SOUNDS
+
+$random marine/active 		{ human/idle1  human/idle2  human/idle3  human/idle4  human/idle5  human/idle6 human/idle7 human/idle8 human/idle9 }
+human/idle1  			DSIDLE01
+human/idle2  			DSIDLE02
+human/idle3  			DSIDLE03
+human/idle4  			DSIDLE04
+human/idle5  			DSIDLE05
+human/idle6  			DSIDLE06
+human/idle7  			DSIDLE07
+human/idle8  			DSIDLE08
+human/idle9  			DSIDLE09
+
 marine/pain			dsmapain
 marine/punch DSPUNCH
 
@@ -1183,6 +1215,9 @@ $limit          "Floor/Rock"                    1
 $limit          "Floor/Snow"                    1
 $limit          "Floor/Hard"                    1
 $limit          "Floor/Tile"                    1
+$limit          "Floor/EchoeyTile"              1
 $limit          "Floor/Wood"                    1
 $limit          "Floor/Slimy"                   1
 $limit          "Floor/Electric"                1
+
+$Limit 		"WallItem/Explode" 		1
