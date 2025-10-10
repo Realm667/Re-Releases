@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2024 BlueShadow, Ozymandias81, Tormentor667, Xaser
+ * Copyright (c) 2007-2025 BlueShadow, Ozymandias81, Tormentor667, Xaser, RichardDS90
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -150,17 +150,12 @@ Class ShotCaseSpawn : PisCaseSpawn
 	}
 }
 
-Class SShotCaseSpawn : ShotCaseSpawn
+Class SSGShotCaseSpawn : ShotCaseSpawn
 {
-	Default
-	{
-		Speed 66;
-	}
-
 	States
 	{
 	Spawn:
-		TNT1 AA 1 A_SpawnItemEx("ShotgunCasing", 0, 0, 0, 4, 0, Random(2, 4), Random(-95, -85), SXF_CLIENTSIDE);
+		TNT1 AA 1 A_SpawnItemEx("ShotgunCasing", 0, -8, -1, 0, -4, Random(2, 4), Random(0, 20), SXF_CLIENTSIDE);
 		Stop;
 	}
 }
