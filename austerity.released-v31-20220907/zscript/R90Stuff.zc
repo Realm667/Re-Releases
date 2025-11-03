@@ -25,3 +25,71 @@ Default
 {
 }
 }
+
+Class AustMAP01BlueKeyAnchor : Actor
+{
+Default
+{
++MOVEWITHSECTOR
+Radius 8;
+Height 8;
+}
+States
+{
+Spawn:
+TNT1 A 1 A_SpawnItemEx("AustMAP01BlueKeyLight",8,0, -16);
+Loop;
+}
+}
+
+Class AustMAP01BlueKeyLight : Actor
+{
+Default
+{
++NOGRAVITY
+Radius 8;
+Height 8;
+}
+States
+{
+Spawn:
+TNT1 A 2;
+Stop;
+}
+}
+
+Class AustMAP01BlueMiniAnchor : SwitchableDecoration
+{
+Default
+{
++MOVEWITHSECTOR
+Radius 8;
+Height 8;
+}
+States
+{
+Spawn:
+Inactive:
+TNT1 A -1;
+Stop;
+Active:
+TNT1 A 1 A_SpawnItemEx("AustMAP01BlueMiniLight",8,0, -32);
+Loop;
+}
+}
+
+Class AustMAP01BlueMiniLight : Actor
+{
+Default
+{
++NOGRAVITY
+Radius 8;
+Height 8;
+}
+States
+{
+Spawn:
+TNT1 A 2;
+Stop;
+}
+}
