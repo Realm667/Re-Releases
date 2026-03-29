@@ -285,7 +285,7 @@ flickerlight BFGBALL_X5
 	attenuate 1
 }
 
-object BFGBall
+object BFGBallNew
 {
     frame BFS1A { light BFGBALL }
     frame BFS1B { light BFGBALL }
@@ -1028,7 +1028,7 @@ object LostSoul
 }
 
 // Mancubus Fireball
-object FatShot
+object FatShotNew
 {
     frame MANFA { light IMPBALL   }
     frame MANFB { light IMPBALL   }
@@ -1129,7 +1129,7 @@ flickerlight TRACER_X3
 	attenuate 1
 }
 
-object RevenantTracer
+object RevenantTracerNew
 {
     frame FATBA { light TRACER    }
     frame FATBB { light TRACER    }
@@ -1371,7 +1371,7 @@ flickerlight DTFOG4
 	attenuate 1
 }
 
-object TeleportFog
+object TeleportFogNew
 {
     frame TFOGA { light DTFOG1 }
     frame TFOGB { light DTFOG2 }
@@ -1424,3 +1424,114 @@ object AustMAP02RedLight
 {
     frame TNT1A { light AustLightB2 }
 }
+
+flickerlight SPIDMAST_X1
+{
+    color 1.0 0.7 0.5
+    size 128
+    secondarySize 144
+    chance 0.3
+	attenuate 1
+}
+
+flickerlight SPIDMAST_X2
+{
+    color 0.5 0.3 0.2
+    size 144
+    secondarySize 160
+    chance 0.3
+	attenuate 1
+}
+
+flickerlight SPIDMAST_X3
+{
+    color 0.3 0.1 0.1
+    size 160
+    secondarySize 172
+    chance 0.3
+	attenuate 1
+}
+
+object NashGore_SpiderMasterMind
+{
+    frame SPIDM { light SPIDMAST_X1}
+	frame SPIDN { light SPIDMAST_X1}
+	frame SPIDO { light SPIDMAST_X1}
+	frame SPIDP { light SPIDMAST_X2}
+	frame SPIDQ { light SPIDMAST_X2}
+	frame SPIDR { light SPIDMAST_X3}
+}
+
+flickerlight CYBDEATH_X1
+{
+    color 1.0 0.35 0.25
+    size 112
+    secondarySize 128
+    chance 0.5
+	attenuate 1
+}
+
+flickerlight CYBDEATH_X2
+{
+    color 0.5 0.15 0.1
+    size 128
+    secondarySize 144
+    chance 0.5
+	attenuate 1
+}
+
+flickerlight CYBDEATH_X3
+{
+    color 0.3 0.1 0.1
+    size 144
+    secondarySize 160
+    chance 0.5
+	attenuate 1
+}
+
+object NashGore_Cyberdemon
+{
+    frame CYBRJ { light CYBDEATH_X1}
+	frame CYBRK { light CYBDEATH_X1}
+	frame CYBRL { light CYBDEATH_X1}
+	frame CYBRM { light CYBDEATH_X2}
+	frame CYBRN { light CYBDEATH_X2}
+	frame CYBRO { light CYBDEATH_X3}
+}
+
+
+flickerlight ArachDed2_X1
+{
+    color 1.0 0.7 0.5
+    size 64
+    secondarySize 72
+    chance 0.3
+	attenuate 1
+}
+
+flickerlight ArachDed2_X2
+{
+    color 0.5 0.3 0.2
+    size 72
+    secondarySize 80
+    chance 0.3
+	attenuate 1
+}
+
+flickerlight ArachDed2_X3
+{
+    color 0.3 0.1 0.1
+    size 80
+    secondarySize 96
+    chance 0.3
+	attenuate 1
+}
+
+object NashGore_Arachnotron
+{
+frame BSPIT { light ArachDed2_X1}
+	frame BSPIU { light ArachDed2_X1}
+	frame BSPIV { light ArachDed2_X2}
+	frame BSPIW { light ArachDed2_X2}
+	frame BSPIX { light ArachDed2_X3}
+	}
