@@ -130,17 +130,6 @@ ACTOR BlankPuff
 	}
 }
 
-ACTOR RocketNew : Rocket Replaces Rocket
-{
--RocketTrail
-States
-{
-Spawn:
-    MISL A 1 Bright A_SpawnItemEx("RefRockettrail", -16, frandom(-0.1,0.1), frandom(3.0,4.0), 0, frandom(-0.4,0.4), frandom(0.0,0.5))
-    Loop
-}
-}
-
 actor RefRockettrail
 {
 	Radius 1
@@ -151,6 +140,7 @@ actor RefRockettrail
 	RenderStyle Translucent
 	Alpha 1.0
 	+NOGRAVITY
+	+ForceXYBillboard
 	States
 	{
 	Spawn:

@@ -105,7 +105,12 @@ Class Hecteball : Actor //Hectebus Fireball
 		HECF AB 4 Bright;
 		Loop;
 	Death:
+		HECF C 0 A_BillboardChange();
 		HECF CDE 4 Bright;
 		Stop;
+	}
+	void A_BillboardChange()
+	{
+			bFORCEXYBILLBOARD = true;
 	}
 }

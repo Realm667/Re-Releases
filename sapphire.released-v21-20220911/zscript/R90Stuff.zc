@@ -1,0 +1,142 @@
+Class GibRezzer1 : Inventory
+{
+Default
+{
+}
+}
+
+Class DedRezzer1 : Inventory
+{
+Default
+{
+}
+}
+
+Class DedRezzer2 : Inventory
+{
+Default
+{
+}
+}
+
+Class DedRezzer3 : Inventory
+{
+Default
+{
+}
+}
+
+
+class ArachnotronPlasmaNew : ArachnotronPlasma Replaces ArachnotronPlasma
+{
+	Default
+	{
+	+ForceXYBillboard
+}
+}
+
+class BaronBallNew : BaronBall Replaces BaronBall
+{
+	States
+	{
+	Death:
+	BAL7 C 0 A_BillboardChange();
+	BAL7 CDE 6 BRIGHT;
+	Stop;
+	}
+	void A_BillboardChange()
+	{
+			bFORCEXYBILLBOARD = true;
+	}
+	}
+	
+class CacodemonBallNew : CacodemonBall Replaces CacodemonBall
+{
+	Default
+	{
+	+ForceXYBillboard
+}
+States
+		{
+	Spawn:
+	BAL2 A 0 ;
+	BAL2 A 0 A_StartSound("CACBALFL", CHAN_6,CHANF_TRANSIENT|CHANF_LOOPING, 1);
+	BAL2 AB 4 BRIGHT;
+	Goto Spawn+2;
+	Death:
+	BAL2 C 0 A_StopSound(CHAN_6);
+	BAL2 CDE 6 BRIGHT;
+	Stop;
+}
+}
+
+class DoomImpBallNew : DoomImpBall Replaces DoomImpBall
+{
+ Default
+ {
+ +ForceXYBillboard
+}
+States
+ {
+ Spawn:
+   BAL1 A 0 ;
+   BAL1 A 0 A_StartSound("IMPBALFL", CHAN_6,CHANF_TRANSIENT|CHANF_LOOPING, 1);
+   BAL1 AB 4 BRIGHT;
+   Loop;
+ Death:
+ BAL1 C 0 A_StopSound(CHAN_6);
+   BAL1 CDE 6 BRIGHT;
+   Stop;
+}
+}
+
+class FatShotNew : FatShot Replaces FatShot
+{
+	States
+	{
+	Spawn:
+	MANF A 0 ;
+	MANF A 0 A_StartSound("FATBALFL", CHAN_6,CHANF_TRANSIENT|CHANF_LOOPING, 1);
+	MANF AB 4 BRIGHT;
+	Loop;
+	Death:
+	MISL C 0 
+	{
+	A_BillboardChange();
+	A_StopSound(CHAN_6);
+	}
+		MISL B 8 BRIGHT;
+		MISL C 6 BRIGHT;
+		MISL D 4 BRIGHT;
+		Stop;
+	}
+	void A_BillboardChange()
+	{
+			bFORCEXYBILLBOARD = true;
+	}
+	}
+	
+	class RevenantTracerNew : RevenantTracer Replaces RevenantTracer
+{
+	States
+	{
+	Death:
+	FBXP A 0 A_BillboardChange();
+		FBXP A 8 BRIGHT;
+		FBXP B 6 BRIGHT;
+		FBXP C 4 BRIGHT;
+		Stop;
+	}
+	void A_BillboardChange()
+	{
+			bFORCEXYBILLBOARD = true;
+	}
+	}
+	
+	class TeleportFogNew : TeleportFog Replaces TeleportFog
+{
+ Default
+{
+ +ForceXYBillboard
+}
+}
