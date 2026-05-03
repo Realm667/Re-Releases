@@ -235,7 +235,7 @@ ACTOR Nail
 		Stop
 	XDeath:
 		TNT1 A 0 A_PlaySound("weapons/nailgunblood")
-//		TNT1 A 0 A_SpawnItemEx("Blood")
+//		TNT1 A 0 A_SpawnItemEx("NashGoreBlood")
 	SpawnSubNail:
 		TNT1 A 1 A_SpawnItemEx("SubNail",0,0,0,user_xvel,user_yvel,user_zvel,angle,SXF_ABSOLUTEANGLE | SXF_ABSOLUTEMOMENTUM | SXF_NOCHECKPOSITION | SXF_TRANSFERPOINTERS)
 		Stop
@@ -243,26 +243,21 @@ ACTOR Nail
 }
 ACTOR SubNail : Nail
 {
-	Decal "NailBloodSplat"
+	//Decal "NailBloodSplat"
 	States
 	{
 	Fly:
-		NBLD A 1
-		NBLD A 0 A_ChangeFlag("THRUACTORS",0)
-		NBLD AAAAAA 1 A_SpawnItemEx("MiniBlood", frandom(-0.1,0.1), 0, frandom(-0.1,0.1))
-		NBLD A -1
+		TNT1 A 1
+		TNT1 A 0 A_ChangeFlag("THRUACTORS",0)
+		TNT1 AAAAAA 1 //A_SpawnItemEx("NashGoreBlood", frandom(-0.1,0.1), 0, frandom(-0.1,0.1))
+		TNT1 A -1
 		Stop
 	XDeath:
 		TNT1 A 0 A_PlaySound("weapons/nailgunblood")
-//		TNT1 A 0 A_SpawnItemEx("Blood")
+//		TNT1 A 0 A_SpawnItemEx("NashGoreBlood")
 		TNT1 A 1 A_Jump(128, "SpawnSubNail")
 		Stop
 	}
-}
-ACTOR MiniBlood : Blood
-{
-	Scale 0.5
-	Gravity 0.5
 }
 
 // --------------------------------------------------------------------------
