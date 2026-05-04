@@ -36,3 +36,125 @@ Class LostSoul_NoBlood : LostSoul replaces LostSoul
 		+NOBLOOD
 	}
 }
+
+//Eastereggs
+class CacoLove : Actor
+{
+	Default
+	{
+		//$Category "ZDCMP2 Easteregg";
+		//$Title "Caco Love";
+		Radius 32;
+		Height 64;
+		+SOLID
+	}
+	States
+	{
+	Spawn:
+		VHCA A -1;
+		Stop;
+	}
+}
+
+class DoomDoll : Actor
+{
+	Default
+	{
+		//$Category "ZDCMP2 Easteregg";
+		//$Title "Doom Doll";
+		Radius 16;
+		Height 9;
+	}
+	States
+	{
+	Spawn:
+		DDOL A -1;
+		Stop;
+	}
+}
+
+class DeadPlayerClone : Actor
+{
+	Default
+	{
+		//$Category "ZDCMP2 Easteregg";
+		//$Title "Dead Player Clone";
+		Radius 16;
+		Height 9;
+	}
+	States
+	{
+	Spawn:
+		PLAY N -1;
+		Stop;
+	}
+}
+
+class VaderEye : Actor
+{
+	Default
+	{
+		//$Category "ZDCMP2 Easteregg";
+		//$Title "Vader Eye";
+		Radius 12;
+		Height 16;
+	}
+	States
+	{
+	Spawn:
+		VDRE A -1;
+		Stop;
+	}
+}
+
+class MalinkuSoul : VaderEye
+{
+	Default
+	{
+		//$Title "Malinku Soul";
+		+FLOATBOB
+		+NOGRAVITY
+	}
+	States
+	{
+	Spawn:
+		MALI A -1;
+		Stop;
+	}
+}
+
+class IndyHat : Actor
+{
+	Default
+	{
+		//$Category "ZDCMP2 Easteregg";
+		//$Title "Indy Hat";
+		Radius 4;
+		Height 4;
+	}
+	States
+	{
+	Spawn:
+		IHAT A -1;
+		Stop;
+	}
+}
+
+class TwiCane : Actor
+{
+	Default
+	{
+		//$Category "ZDCMP2 Easteregg";
+		//$Title "Indy Hat";
+		Radius 8;
+		Height 23;
+		Scale 0.5;
+		-SOLID
+	}
+	States
+	{
+	Spawn:
+		CANE A -1;
+		Stop;
+	}
+}
