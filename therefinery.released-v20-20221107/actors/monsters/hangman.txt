@@ -51,34 +51,7 @@ actor Hangman 32123
 	}
 }
 
-actor HangerBall
-{
-	Radius 4
-	Height 6
-	Speed 10
-	FastSpeed 15
-	Damage 4
-	SeeSound "hanger/attack"
-	DeathSound "slimeball/splat"
-	Scale 0.5
-	Translation "112:127=162:167"
-	Projectile
-	+RANDOMIZE
-	-NOGRAVITY
-	+LOWGRAVITY
-	+SPAWNSOUNDSOURCE
-	states
-	{
-	Spawn:
-		BAL7 AAA 1 A_SpawnItemEx (HangerTrail, random (-2,2), random (-2,2), random (-2,2), 0, 0, 0, 0, 160)
-		BAL7 BBB 1 A_SpawnItemEx (HangerTrail, random (-2,2), random (-2,2), random (-2,2), 0, 0, 0, 0, 160)
-		loop
-	Death:
-		BAL7 C 0 A_ChangeFlag ("NOGRAVITY", 0)
-		BAL7 CDE 4
-		stop
-	}
-}
+//Note For HangerBall, it's in R90Stuff.zc, needed for the smart billboarding.
 
 ACTOR HangerTrail
 {
@@ -88,6 +61,7 @@ ACTOR HangerTrail
 	Renderstyle Add
 	Alpha 0.75
 	PROJECTILE
+	+ForceXYBillboard
 	States
 	{
 	Spawn:
@@ -107,6 +81,7 @@ actor HangerBoom
 	renderstyle Add
 	Projectile
 	+NOCLIP
+	+ForceXYBillboard
 	States
 	{
 	Spawn:

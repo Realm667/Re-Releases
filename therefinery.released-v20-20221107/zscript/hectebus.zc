@@ -81,29 +81,35 @@ Class HectebusClone : Actor
 
 Class Hecteball : Actor //Hectebus Fireball
 {
-  Default
-  {
-    Radius 10;
-    Height 8;
-    Speed 20;
-    Damage 16;
-    RenderStyle "Add";
-    Alpha 0.97;
-    SeeSound "Imp/Attack";
-    DeathSound "Imp/ShotX";
-    Decal "Scorch";
-    Projectile;
-  }
+	Default
+	{
+		Radius 10;
+		Height 8;
+		Speed 20;
+		FastSpeed 30;
+		Damage 16;
+		RenderStyle "Add";
+		Alpha 0.97;
+		SeeSound "Imp/Attack";
+		DeathSound "Imp/ShotX";
+		Decal "Scorch";
+		Projectile;
+	}
 
-  States
-  {
-  Spawn:
-    HECF AB 4 Bright;
-    Loop;
-  Death:
-    HECF CDE 4 Bright;
-    Stop;
-  }
+	States
+	{
+	Spawn:
+		HECF AB 4 Bright;
+		Loop;
+	Death:
+		HECF C 0 A_BillboardChange();
+		HECF CDE 4 Bright;
+		Stop;
+	}
+	void A_BillboardChange()
+	{
+			bFORCEXYBILLBOARD = true;
+	}
 }
 
 

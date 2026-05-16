@@ -1,0 +1,111 @@
+Class GibRezzer1 : Inventory
+{
+Default
+{
+}
+}
+
+Class DedRezzer1 : Inventory
+{
+Default
+{
+}
+}
+
+Class DedRezzer2 : Inventory
+{
+Default
+{
+}
+}
+
+Class DedRezzer3 : Inventory
+{
+Default
+{
+}
+}
+
+class ArachnotronPlasmaNew : ArachnotronPlasma Replaces ArachnotronPlasma
+{
+	Default
+	{
+	+ForceXYBillboard
+}
+}
+
+class BaronBallNew : BaronBall Replaces BaronBall
+{
+	States
+	{
+	Death:
+	BAL7 C 0 A_BillboardChange();
+	BAL7 CDE 6 BRIGHT;
+	Stop;
+	}
+	void A_BillboardChange()
+	{
+			bFORCEXYBILLBOARD = true;
+	}
+	}
+	
+class CacodemonBallNew : CacodemonBall Replaces CacodemonBall
+{
+	Default
+	{
+	+ForceXYBillboard
+}
+}
+
+class DoomImpBallNew : DoomImpBall Replaces DoomImpBall
+{
+ Default
+ {
+ +ForceXYBillboard
+}
+}
+	
+	class TeleportFogNew : TeleportFog Replaces TeleportFog
+{
+ Default
+{
+ +ForceXYBillboard
+}
+}
+
+Class HangerBall : Actor
+{
+Default
+{
+	Radius 4;
+	Height 6;
+	Speed 10;
+	FastSpeed 15;
+	Damage 4;
+	SeeSound "hanger/attack";
+	DeathSound "slimeball/splat";
+	Scale 0.5;
+	Translation "112:127=162:167";
+	Projectile;
+	+RANDOMIZE
+	-NOGRAVITY
+	+LOWGRAVITY
+	+SPAWNSOUNDSOURCE
+	}
+	states
+	{
+	Spawn:
+		BAL7 AAA 1 A_SpawnItemEx ("HangerTrail", random (-2,2), random (-2,2), random (-2,2), 0, 0, 0, 0, 160);
+		BAL7 BBB 1 A_SpawnItemEx ("HangerTrail", random (-2,2), random (-2,2), random (-2,2), 0, 0, 0, 0, 160);
+		loop;
+	Death:
+		BAL7 C 0 A_ChangeFlag ("NOGRAVITY", 0);
+		BAL7 C 0 A_BillboardChange();
+		BAL7 CDE 4;
+		stop;
+	}
+	void A_BillboardChange()
+	{
+			bFORCEXYBILLBOARD = true;
+	}
+}
