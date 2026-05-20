@@ -1,0 +1,74 @@
+Class GibRezzer1 : Inventory
+{
+Default
+{
+}
+}
+
+Class DedRezzer1 : Inventory
+{
+Default
+{
+}
+}
+
+Class DedRezzer2 : Inventory
+{
+Default
+{
+}
+}
+
+Class DedRezzer3 : Inventory
+{
+Default
+{
+}
+}
+
+class ArachnotronPlasmaNew : ArachnotronPlasma Replaces ArachnotronPlasma
+{
+	Default
+	{
+	+ForceXYBillboard
+}
+}
+
+class BaronBallNew : BaronBall Replaces BaronBall
+{
+	States
+	{
+	Death:
+	BAL7 C 0 A_BillboardChange();
+	BAL7 CDE 6 BRIGHT;
+	Stop;
+	}
+	void A_BillboardChange()
+	{
+			bFORCEXYBILLBOARD = true;
+	}
+	}
+	
+class CacodemonBallNew : CacodemonBall Replaces CacodemonBall
+{
+	Default
+	{
+	+ForceXYBillboard
+}
+}
+
+class DoomImpBallNew : DoomImpBall Replaces DoomImpBall
+{
+ Default
+ {
+ +ForceXYBillboard
+}
+}
+	
+class TeleportFogNew : TeleportFog Replaces TeleportFog
+{
+ Default
+{
+ +ForceXYBillboard
+}
+}

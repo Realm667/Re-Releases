@@ -28,6 +28,11 @@ ACTOR NewPistol : Pistol replaces Pistol
 		PISG C 4
 		PISG B 5 A_Refire
 		Goto Ready
+		Flash:
+		PISF A 6 Bright A_Light1
+		Goto LightDone
+		PISF A 6 Bright A_Light1
+		Goto LightDone
 	}
 }
 
@@ -85,7 +90,7 @@ ACTOR NewChaingun : Chaingun replaces Chaingun
 	Fire:
 	Hold:
 		CHGG A 0 A_GunFlash
-		CHGG A 0 A_FireProjectile("PisCaseSpawn",40,0,-4,-8,FPF_NOAUTOAIM ,0)
+		CHGG A 0 A_FireProjectile("PisCaseSpawn",40,0,4,-8,FPF_NOAUTOAIM ,0)
 		CHGG A 4 A_FireBullets(5.6, 0, 1, 5, "NewPuff")
 		CHGG A 0 A_JumpIfNoAmmo(3)
 		CHGG B 0 A_FireProjectile("PisCaseSpawn",40,0,-4,-8,FPF_NOAUTOAIM ,0)
@@ -93,11 +98,11 @@ ACTOR NewChaingun : Chaingun replaces Chaingun
 		CHGG B 0 A_Refire
 		Goto Ready
 	Flash:
-		CHGF A 5 BRIGHT A_Light1
+		CHGF A 4 BRIGHT A_Light1
 		CHGF A 0 BRIGHT A_JumpIfNoAmmo(2)
-		CHGF B 5 BRIGHT A_Light2
+		CHGF B 4 BRIGHT A_Light2
 		TNT1 B 0 BRIGHT A_Light0
-	Stop
+		Stop
 	}
 }
 
@@ -145,17 +150,6 @@ ACTOR BlankPuff
 	}
 }
 
-ACTOR RocketNew : Rocket Replaces Rocket
-{
--RocketTrail
-States
-{
-Spawn:
-    MISL A 1 Bright A_SpawnItemEx("RefRockettrail", -16, frandom(-0.1,0.1), frandom(3.0,4.0), 0, frandom(-0.4,0.4), frandom(0.0,0.5))
-    Loop
-}
-}
-
 actor RefRockettrail
 {
 	Radius 1
@@ -166,6 +160,7 @@ actor RefRockettrail
 	RenderStyle Translucent
 	Alpha 1.0
 	+NOGRAVITY
+	+ForceXYBillboard
 	States
 	{
 	Spawn:
