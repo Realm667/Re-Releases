@@ -30,13 +30,17 @@ class TCOTDWeatherHandler : EventHandler
 {
 	const SNOW_SPAWN_RADIUS = 1000.0;
 	const SNOW_SPAWN_HEIGHT = 400.0;
+	const SNOW_ACTOR_DENSITY = 3;
+	const SNOW_ACTOR_INTERVAL = 2;
 
 	FSpawnParticleParams snow;
 
 	override void WorldTick(void)
 	{
 		//SpawnSnowParticles();
-		SpawnSnowActors();
+
+		if (Level.maptime % SNOW_ACTOR_INTERVAL == 0)
+			SpawnSnowActors();
 	}
 
 	//===========================================================================
@@ -121,12 +125,15 @@ class TCOTDWeatherHandler : EventHandler
 				if (gameaction == ga_savegame)
 					continue;
 
-				if (!CVar.GetCVar("tcotd2_weatherfx", players[consoleplayer]).GetBool())
+				let weatherCVar = CVar.GetCVar("tcotd2_weatherfx", players[i]);
+				if (!weatherCVar || !weatherCVar.GetBool())
 					continue;
 
 				Actor cam = players[i].camera;
+				if (!cam || cam.WaterLevel >= 3)
+					continue;
 
-				int density = 6;
+				int density = SNOW_ACTOR_DENSITY;
 				while (density--)
 				{
 					double spx = frandom[rnd_SpawnPrecip](-SNOW_SPAWN_RADIUS, SNOW_SPAWN_RADIUS);

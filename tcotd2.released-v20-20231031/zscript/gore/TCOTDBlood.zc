@@ -28,6 +28,11 @@
 
 class TCOTDBlood : Blood replaces Blood
 {
+	const BLOOD_SPLASH_COUNT = 8;
+	const BLOOD_WALL_TRACE_COUNT = 16;
+	const BLOOD_TRAIL_FX_INTERVAL = 4;
+	const BLOOD_TRAIL_LIFETIME = 35 * 7;
+
 	int rTics;
 
 	Default
@@ -74,7 +79,7 @@ class TCOTDBlood : Blood replaces Blood
 				flags: SXF_USEBLOODCOLOR | SXF_TRANSFERTRANSLATION,
 				failchance: 128);
 
-			for (int i = 0; i < 12; i++)
+			for (int i = 0; i < BLOOD_SPLASH_COUNT; i++)
 			{
 				A_SpawnItemEx("TCOTDBloodSplash",
 					zofs: 10,
@@ -88,7 +93,7 @@ class TCOTDBlood : Blood replaces Blood
 			if (Target)
 			{
 				CopyBloodColor(Target);
-				for (int i = 0; i < 32; i++)
+				for (int i = 0; i < BLOOD_WALL_TRACE_COUNT; i++)
 				{
 					if (random[rnd_SprayWallBlood]() < 128)
 						TraceBleedAngle(random[rnd_SprayWallBlood](5, 15), frandom[rnd_SprayWallBlood](0.0, 360.0), frandom[rnd_SprayWallBlood](-70.0, 0.0));
@@ -124,12 +129,12 @@ class TCOTDBloodTrail : Actor
 		if (!bNoTimeFreeze && isFrozen())
 			return;
 
-		if (GetAge() % 3 == 0)
+		if (GetAge() % TCOTDBlood.BLOOD_TRAIL_FX_INTERVAL == 0)
 			A_SpawnItemEx("TCOTDBloodTrailFX", flags: SXF_TRANSFERTRANSLATION | SXF_NOCHECKPOSITION);
 
 		Vel.XY *= 0.987;
 
-		if (GetAge() > (Thinker.TICRATE * 10))
+		if (GetAge() > TCOTDBlood.BLOOD_TRAIL_LIFETIME)
 			Destroy();
 	}
 
@@ -334,7 +339,7 @@ class TCOTDBloodSpot : Actor
 	States
 	{
 	Spawn:
-		0000 A 1050 NoDelay { if (random[rnd_BSplatSound]() < 101) A_StartSound("gore/bloodsplat"); }
+		0000 A 700 NoDelay { if (random[rnd_BSplatSound]() < 101) A_StartSound("gore/bloodsplat"); }
 	FadeOut:
 		0000 A 1 A_FadeOut(0.05);
 		Loop;

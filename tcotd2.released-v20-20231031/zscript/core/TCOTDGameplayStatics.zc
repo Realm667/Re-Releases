@@ -24,6 +24,24 @@
 
 class TCOTDGameplayStatics play
 {
+	static double GetClampedCVarFloat(String name, PlayerInfo plr, double minValue, double maxValue, double fallback = 0.0)
+	{
+		let cvar = CVar.GetCVar(name, plr);
+		if (!cvar)
+			return fallback;
+
+		return clamp(cvar.GetFloat(), minValue, maxValue);
+	}
+
+	static int GetClampedCVarInt(String name, PlayerInfo plr, int minValue, int maxValue, int fallback = 0)
+	{
+		let cvar = CVar.GetCVar(name, plr);
+		if (!cvar)
+			return fallback;
+
+		return clamp(cvar.GetInt(), minValue, maxValue);
+	}
+
 	static bool IsOnFloor(Actor self)
 	{
 		if (self is "TCOTDPlayer")

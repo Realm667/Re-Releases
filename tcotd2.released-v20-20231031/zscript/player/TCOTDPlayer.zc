@@ -859,7 +859,7 @@ class TCOTDPlayer : PlayerPawn
 		double vol = min(aVel * 0.1, 1.0);
 		//vol *= 0.7;
 		if (CheckLocalView())
-			vol *= CVar.GetCVar("tcotd2_footstepvolume", player).GetFloat();
+			vol *= TCOTDGameplayStatics.GetClampedCVarFloat("tcotd2_footstepvolume", player, 0.0, 1.5, 1.0);
 		vol = clamp(vol, 0.0, 1.0);
 
 		// clamp the velocity value to pleasing values

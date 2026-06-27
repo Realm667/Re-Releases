@@ -56,6 +56,9 @@ class TCOTDHUD : DoomStatusBar
 	{
 		Super.Tick();
 
+		if (!CPlayer || !CPlayer.mo)
+			return;
+
 		let oil = CPlayer.mo.FindInventory("TCOTDLanternOil");
 		if (oil)
 		{
@@ -66,7 +69,7 @@ class TCOTDHUD : DoomStatusBar
 	override void Draw(int state, double TicFrac)
 	{
 		// No HUD in the title level, during cutscenes or if the journal is open.
-		if (gamestate == GS_TITLELEVEL || !CPlayer || TCOTDGameplayStatics.IsInCutscene(TCOTDPlayer(CPlayer.mo)) || TCOTDJournalMenu.IsOpen())
+		if (gamestate == GS_TITLELEVEL || !CPlayer || !CPlayer.mo || TCOTDGameplayStatics.IsInCutscene(TCOTDPlayer(CPlayer.mo)) || TCOTDJournalMenu.IsOpen())
 			return;
 
 		BaseStatusBar.Draw(state, TicFrac);
@@ -87,6 +90,7 @@ class TCOTDHUD : DoomStatusBar
 
 	void DrawFullscreenHUD(void)
 	{
+		let pmo = CPlayer.mo;
 		int flags = DI_SCREEN_LEFT_BOTTOM;
 
 		// [Blue Shadow] First (bottom) and second (top) elements' Y position. These refer to health and
@@ -108,12 +112,12 @@ class TCOTDHUD : DoomStatusBar
 		}
 
 		// Health
-		String hpicon = !CPlayer.mo.FindInventory("TCOTDPoisonAilment") ? "HUDHealth" : "HUDPoison";
+		String hpicon = !pmo.FindInventory("TCOTDPoisonAilment") ? "HUDHealth" : "HUDPoison";
 		DrawImage("graphics/hud/" .. hpicon .. ".png", (12, healthYpos), flags);
 		DrawString(mHUDBigNum, FormatNumber(CPlayer.health, 3), (24, healthYpos - 11), flags);
 
 		// Armor
-		let armor = CPlayer.mo.FindInventory("BasicArmor");
+		let armor = pmo.FindInventory("BasicArmor");
 		if (armor)
 		{
 			if (armor.Amount > 0)
@@ -127,11 +131,11 @@ class TCOTDHUD : DoomStatusBar
 		int ypos = bottomYpos - LEFT_ELEMENT_YOFFSET * 2;
 
 		// Air
-		if (CPlayer.health > 0 && CPlayer.mo.waterlevel > 2 && Level.airsupply > 0 && CPlayer.mo.AirCapacity > 0 &&
-			(CPlayer.air_finished + 1 - Level.maptime) < int(Level.airsupply * CPlayer.mo.AirCapacity))
+		if (CPlayer.health > 0 && pmo.waterlevel > 2 && Level.airsupply > 0 && pmo.AirCapacity > 0 &&
+			(CPlayer.air_finished + 1 - Level.maptime) < int(Level.airsupply * pmo.AirCapacity))
 		{
 			int curpnts = Max(CPlayer.air_finished - Level.maptime, 0);
-			int maxpnts = int(Level.airsupply * CPlayer.mo.AirCapacity);
+			int maxpnts = int(Level.airsupply * pmo.AirCapacity);
 			int ratio = curpnts * 100 / maxpnts;
 			DrawImage("graphics/hud/HUDAir.png", (12, ypos), flags);
 			DrawString(mHUDBigNum, FormatNumber(ratio, 3), (24, ypos - 11), flags);
@@ -139,7 +143,7 @@ class TCOTDHUD : DoomStatusBar
 		}
 
 		// Pendant
-		let pendant = TCOTDPendant(CPlayer.mo.FindInventory("TCOTDPendant"));
+		let pendant = TCOTDPendant(pmo.FindInventory("TCOTDPendant"));
 		if (pendant)
 		{
 			DrawImage("PENDB0", (16, ypos), flags);
@@ -164,27 +168,27 @@ class TCOTDHUD : DoomStatusBar
 		}
 
 		// Arms
-		if (CPlayer.mo.FindInventory("TCOTDWeaponRevolver"))		DrawString(mHUDSmallNum, "2", (-57, -24), flags);
-		if (CPlayer.mo.FindInventory("TCOTDWeaponSawedOff"))		DrawString(mHUDSmallNum, "3", (-53, -24), flags);
-		if (CPlayer.mo.FindInventory("TCOTDWeaponThompson"))		DrawString(mHUDSmallNum, "4", (-49, -24), flags);
-		if (CPlayer.mo.FindInventory("TCOTDWeaponNapalmLauncher"))	DrawString(mHUDSmallNum, "5", (-45, -24), flags);
+		if (pmo.FindInventory("TCOTDWeaponRevolver"))		DrawString(mHUDSmallNum, "2", (-57, -24), flags);
+		if (pmo.FindInventory("TCOTDWeaponSawedOff"))		DrawString(mHUDSmallNum, "3", (-53, -24), flags);
+		if (pmo.FindInventory("TCOTDWeaponThompson"))		DrawString(mHUDSmallNum, "4", (-49, -24), flags);
+		if (pmo.FindInventory("TCOTDWeaponNapalmLauncher"))	DrawString(mHUDSmallNum, "5", (-45, -24), flags);
 
 		// Keys
-		if (CPlayer.mo.FindInventory("TCOTDKeySkullKey"))	DrawImage("M_KEY1", (-28, -46), flags);
-		if (CPlayer.mo.FindInventory("TCOTDKeyEyeKey"))		DrawImage("M_KEY2", (-17, -46), flags);
-		if (CPlayer.mo.FindInventory("TCOTDKeyFireKey"))	DrawImage("M_KEY3", (-6, -46), flags);
-		if (CPlayer.mo.FindInventory("TCOTDKeyKnifeKey"))	DrawImage("M_KEY4", (-28, -36), flags);
-		if (CPlayer.mo.FindInventory("TCOTDKeySpiderKey"))	DrawImage("M_KEY5", (-17, -36), flags);
-		if (CPlayer.mo.FindInventory("TCOTDKeyMoonKey"))	DrawImage("M_KEY6", (-6, -36), flags);
+		if (pmo.FindInventory("TCOTDKeySkullKey"))	DrawImage("M_KEY1", (-28, -46), flags);
+		if (pmo.FindInventory("TCOTDKeyEyeKey"))		DrawImage("M_KEY2", (-17, -46), flags);
+		if (pmo.FindInventory("TCOTDKeyFireKey"))	DrawImage("M_KEY3", (-6, -46), flags);
+		if (pmo.FindInventory("TCOTDKeyKnifeKey"))	DrawImage("M_KEY4", (-28, -36), flags);
+		if (pmo.FindInventory("TCOTDKeySpiderKey"))	DrawImage("M_KEY5", (-17, -36), flags);
+		if (pmo.FindInventory("TCOTDKeyMoonKey"))	DrawImage("M_KEY6", (-6, -36), flags);
 
 		// Inventory
 		CPlayer.InventoryTics = 0;
-		if (!Level.NoInventoryBar && CPlayer.mo.InvSel != NULL)
+		if (!Level.NoInventoryBar && pmo.InvSel != NULL)
 		{
-			DrawInventoryIcon(CPlayer.mo.InvSel, (-18, -15), flags | DI_ITEM_CENTER, boxsize: (30, 30));
-			if (CPlayer.mo.InvSel.MaxAmount > 1)
+			DrawInventoryIcon(pmo.InvSel, (-18, -15), flags | DI_ITEM_CENTER, boxsize: (30, 30));
+			if (pmo.InvSel.MaxAmount > 1)
 			{
-				DrawString(mHUDSmallNum, FormatNumber(CPlayer.mo.InvSel.Amount, 3), (-42, -8), flags);
+				DrawString(mHUDSmallNum, FormatNumber(pmo.InvSel.Amount, 3), (-42, -8), flags);
 			}
 		}
 
