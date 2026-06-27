@@ -67,7 +67,7 @@ class NashGoreGibs : Actor
 
 	override void PostBeginPlay(void)
 	{
-		if (random() < (255 - nashgore_gibamount)) { Destroy(); return; }
+		if (random() < (255 - NashGoreStatics.ClampInt(nashgore_gibamount, 0, 255))) { Destroy(); return; }
 		Super.PostBeginPlay();
 	}
 

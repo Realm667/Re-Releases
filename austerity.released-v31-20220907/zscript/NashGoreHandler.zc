@@ -46,6 +46,7 @@ class NashGoreHandler : EventHandler
 	override void PlayerEntered(PlayerEvent e)
 	{
 		PlayerPawn plr = players[e.PlayerNumber].mo;
+		if (!plr) return;
 		if (!plr.CountInv("NashGoreActor"))
 		{
 			plr.A_GiveInventory("NashGoreActor", 1);
@@ -55,6 +56,7 @@ class NashGoreHandler : EventHandler
 	override void PlayerRespawned(PlayerEvent e)
 	{
 		PlayerPawn plr = players[e.PlayerNumber].mo;
+		if (!plr) return;
 		DoThingRevive(plr);
 	}
 
@@ -67,17 +69,12 @@ class NashGoreHandler : EventHandler
 	override void WorldLoaded(WorldEvent e)
 	{
 		BuildBloodTypes();
+		UpdateMaxGoreLimit();
 	}
 
 	override void WorldTick(void)
 	{
-		// update gore queue
-		maxgore_new = nashgore_maxgore;
-		if (maxgore_old != maxgore_new)
-		{
-			maxgore = maxgore_new;
-			maxgore_old = maxgore_new;
-		}
+		UpdateMaxGoreLimit();
 	}
 
 	//===========================================================================
@@ -142,39 +139,30 @@ class NashGoreHandler : EventHandler
 
 	override void CheckReplacement(ReplaceEvent e)
 	{
-		// blood stuff
-		for (int i = 0; i < bloodTypes.Size(); i++)
+		if (IsBloodReplacement(e.Replacee))
 		{
-			// find all known blood types from the BLUDTYPE lump
-			class<Actor> miscBloodCls;
-			miscBloodCls = String.Format("%s", bloodTypes[i]);
+			class<Actor> bloodCls;
 
-			if (e.Replacee == "Blood" || e.Replacee == "BloodSplatter" || e.Replacee == "AxeBlood"
-				|| (miscBloodCls != NULL && e.Replacee == miscBloodCls))
+			switch(NashGoreStatics.ClampInt(nashgore_bloodtype, 0, 2))
 			{
-				class<Actor> bloodCls;
-
-				switch(nashgore_bloodtype)
-				{
-					default:
-					case 0:
-						bloodCls = "NashGoreBlood";
-						break;
-					case 1:
-						bloodCls = "NashGoreClassicBlood";
-						break;
-					case 2:
-						bloodCls = "Blood";
-						break;
-				}
-
-				e.Replacement = bloodCls;
+				default:
+				case 0:
+					bloodCls = "NashGoreBlood";
+					break;
+				case 1:
+					bloodCls = "NashGoreClassicBlood";
+					break;
+				case 2:
+					bloodCls = "Blood";
+					break;
 			}
+
+			e.Replacement = bloodCls;
 		}
 
 		// other stuff
 		if (e.Replacee == "RealGibs") e.Replacement = "NashGoreRealGibs";
-		if (nashgore_icedeath == true && e.replacee == "IceChunk") e.Replacement = "NashGoreIceChunk";
+		if (nashgore_icedeath && e.replacee == "IceChunk") e.Replacement = "NashGoreIceChunk";
 	}
 
 	//===========================================================================
@@ -208,41 +196,69 @@ class NashGoreHandler : EventHandler
 		while (-1 != (lump = Wads.FindLump('BLUDTYPE', lump + 1)))
 		{
 			String data = Wads.ReadLump(lump);
-
-			// split lines
 			Array<String> lines;
 			lines.Clear();
 			data.Split(lines, "\n", TOK_KEEPEMPTY);
 
-			// strip comments
 			for (int i = 0; i < lines.Size(); i++)
 			{
-				if (lines[i].IndexOf("//") == 0)
+				String bloodType = lines[i];
+
+				int commentStart = bloodType.IndexOf("//");
+				if (commentStart >= 0)
+				{
+					bloodType.Truncate(commentStart);
+				}
+
+				int carriageReturn = bloodType.IndexOf("\r");
+				if (carriageReturn >= 0)
+				{
+					bloodType.Truncate(carriageReturn);
+				}
+
+				if (bloodType.Length() <= 0)
 				{
 					continue;
 				}
-				else
+
+				class<Actor> bloodCls;
+				bloodCls = String.Format("%s", bloodType);
+				if (bloodCls)
 				{
-					bloodTypes.Push(lines[i]);
+					bloodTypes.Push(bloodType);
 				}
 			}
+		}
+	}
 
-			// [lolhack] remove the last line because it's usually blank
-			//bloodTypes.Delete(bloodTypes.Size() - 1, 1);
+	bool IsBloodReplacement(class<Actor> replacee)
+	{
+		if (replacee == "Blood" || replacee == "BloodSplatter" || replacee == "AxeBlood")
+		{
+			return true;
 		}
 
-		//Console.Printf("size: %d", bloodTypes.Size());
 		for (int i = 0; i < bloodTypes.Size(); i++)
 		{
-			// delete that weird character that gets added at the end
-			bloodTypes[i].Truncate(bloodTypes[i].Length() - 1);
-
-			/*
-			if (bloodTypes[i])
+			class<Actor> miscBloodCls;
+			miscBloodCls = String.Format("%s", bloodTypes[i]);
+			if (miscBloodCls && replacee == miscBloodCls)
 			{
-				Console.Printf("%s\n", bloodTypes[i]);
+				return true;
 			}
-			*/
+		}
+
+		return false;
+	}
+
+	void UpdateMaxGoreLimit(void)
+	{
+		maxgore_new = NashGoreStatics.ClampInt(nashgore_maxgore, 0, 5000);
+		if (maxgore_old != maxgore_new)
+		{
+			maxgore = maxgore_new;
+			maxgore_old = maxgore_new;
+			NashGoreStatics.QueueGore();
 		}
 	}
 

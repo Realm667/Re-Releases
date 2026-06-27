@@ -38,6 +38,26 @@ class NashGoreStatics play
 	//
 	//===========================================================================
 
+	static int ClampInt(int value, int minValue, int maxValue)
+	{
+		if (value < minValue)
+		{
+			return minValue;
+		}
+		if (value > maxValue)
+		{
+			return maxValue;
+		}
+
+		return value;
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	static double GetVelocity (Actor self)
 	{
 		return self.Vel.Length();
@@ -115,13 +135,30 @@ class NashGoreStatics play
 	//
 	//===========================================================================
 
+	static bool IsManagedGore(Actor mo)
+	{
+		return (mo && (mo is "NashGoreBloodPlane" || mo is "NashGoreGibs" ||
+			mo is "NashGoreIceChunk" || mo is "NashGoreSquishyGibs"));
+	}
+
+	//===========================================================================
+	//
+	//
+	//
+	//===========================================================================
+
 	static void QueueGore(void)
 	{
 		let eh = NashGoreHandler(NashGoreHandler.Find("NashGoreHandler"));
 		if (eh)
 		{
 			// get max gore count
-			int countmax = eh.maxgore;
+			int countmax = NashGoreStatics.ClampInt(eh.maxgore, 0, 5000);
+			if (countmax <= 0)
+			{
+				NashGoreStatics.ClearGore();
+				return;
+			}
 
 			// count current amount of gore objects
 			ThinkerIterator it = ThinkerIterator.Create("Actor", STAT_NashGore_Gore);
@@ -129,7 +166,10 @@ class NashGoreStatics play
 			int count;
 			while (mo = Actor(it.Next()))
 			{
-				count++;
+				if (NashGoreStatics.IsManagedGore(mo))
+				{
+					count++;
+				}
 			}
 
 			// clean up excessive gore
@@ -137,13 +177,21 @@ class NashGoreStatics play
 			{
 				// destroy the first one it can find
 				it.Reinit();
-				if (mo = Actor(it.Next()))
+				bool removed;
+				while (mo = Actor(it.Next()))
 				{
-					bool valid = (mo is "NashGoreBloodPlane" || mo is "NashGoreGibs" ||
-									mo is "NashGoreIceChunk" || mo is "NashGoreSquishyGibs");
+					if (NashGoreStatics.IsManagedGore(mo))
+					{
+						mo.Destroy();
+						count--;
+						removed = true;
+						break;
+					}
+				}
 
-					if (valid) mo.Destroy();
-					count--;
+				if (!removed)
+				{
+					break;
 				}
 			}
 		}
