@@ -32,6 +32,8 @@
 
 class NashGoreIceChunk : IceChunk
 {
+	bool bNashGoreQueued;
+
 	Default
 	{
 		Radius 5;
@@ -59,7 +61,7 @@ class NashGoreIceChunk : IceChunk
 	override void BeginPlay(void)
 	{
 		ChangeStatNum(STAT_NashGore_Gore);
-		NashGoreStatics.QueueGore();
+		NashGoreStatics.QueueGore(self);
 		NashGoreStatics.RandomXFlip(self);
 
 		rollDir = RandomPick(-1, 1);

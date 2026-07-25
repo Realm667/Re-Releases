@@ -36,6 +36,10 @@ class NashGoreHandler : EventHandler
 	int maxgore_old, maxgore_new;
 
 	Array<String> bloodTypes;
+	Array<Actor> goreQueue;
+	int goreQueueHead;
+	int goreCount;
+	int goreQueueAdds;
 
 	//===========================================================================
 	//
@@ -69,7 +73,9 @@ class NashGoreHandler : EventHandler
 	override void WorldLoaded(WorldEvent e)
 	{
 		BuildBloodTypes();
+		RebuildGoreQueue();
 		UpdateMaxGoreLimit();
+		TrimGoreQueue();
 	}
 
 	override void WorldTick(void)
@@ -129,6 +135,15 @@ class NashGoreHandler : EventHandler
 	{
 		if (!e.Thing) return;
 		DoThingRevive(e.Thing);
+	}
+
+	override void WorldThingDestroyed(WorldEvent e)
+	{
+		if (NashGoreStatics.IsQueuedGore(e.Thing))
+		{
+			NashGoreStatics.SetGoreQueued(e.Thing, false);
+			goreCount = Max(0, goreCount - 1);
+		}
 	}
 
 	//===========================================================================
@@ -258,7 +273,93 @@ class NashGoreHandler : EventHandler
 		{
 			maxgore = maxgore_new;
 			maxgore_old = maxgore_new;
-			NashGoreStatics.QueueGore();
+			TrimGoreQueue();
+		}
+	}
+
+	void AddGore(Actor mo)
+	{
+		if (!NashGoreStatics.IsManagedGore(mo) || NashGoreStatics.IsQueuedGore(mo)) return;
+
+		NashGoreStatics.SetGoreQueued(mo, true);
+		goreQueue.Push(mo);
+		goreCount++;
+
+		if (++goreQueueAdds >= 128)
+		{
+			CompactGoreQueue();
+		}
+
+		TrimGoreQueue();
+	}
+
+	void RebuildGoreQueue(void)
+	{
+		goreQueue.Clear();
+		goreQueueHead = 0;
+		goreCount = 0;
+		goreQueueAdds = 0;
+
+		ThinkerIterator it = ThinkerIterator.Create("Actor", STAT_NashGore_Gore);
+		Actor mo;
+		while (mo = Actor(it.Next()))
+		{
+			if (NashGoreStatics.IsManagedGore(mo))
+			{
+				NashGoreStatics.SetGoreQueued(mo, true);
+				goreQueue.Push(mo);
+				goreCount++;
+			}
+		}
+	}
+
+	void CompactGoreQueue(void)
+	{
+		int write;
+		for (int read = goreQueueHead; read < goreQueue.Size(); read++)
+		{
+			let mo = goreQueue[read];
+			if (mo && !mo.bDestroyed)
+			{
+				goreQueue[write++] = mo;
+			}
+		}
+
+		if (write < goreQueue.Size())
+		{
+			goreQueue.Delete(write, goreQueue.Size() - write);
+		}
+
+		goreQueueHead = 0;
+		goreCount = write;
+		goreQueueAdds = 0;
+	}
+
+	void TrimGoreQueue(void)
+	{
+		int countmax = NashGoreStatics.ClampInt(maxgore, 0, 5000);
+
+		while (goreCount > countmax && goreQueueHead < goreQueue.Size())
+		{
+			let mo = goreQueue[goreQueueHead++];
+			if (mo && NashGoreStatics.IsQueuedGore(mo))
+			{
+				NashGoreStatics.SetGoreQueued(mo, false);
+				goreCount = Max(0, goreCount - 1);
+				if (!mo.bDestroyed) mo.Destroy();
+			}
+		}
+
+		if (goreQueueHead >= goreQueue.Size())
+		{
+			goreQueue.Clear();
+			goreQueueHead = 0;
+			goreCount = 0;
+			goreQueueAdds = 0;
+		}
+		else if (goreQueueHead >= 128 && goreQueueHead * 2 >= goreQueue.Size())
+		{
+			CompactGoreQueue();
 		}
 	}
 

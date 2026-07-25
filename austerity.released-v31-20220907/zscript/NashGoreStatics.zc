@@ -141,60 +141,56 @@ class NashGoreStatics play
 			mo is "NashGoreIceChunk" || mo is "NashGoreSquishyGibs"));
 	}
 
+	static bool IsQueuedGore(Actor mo)
+	{
+		let bloodPlane = NashGoreBloodPlane(mo);
+		if (bloodPlane) return bloodPlane.bNashGoreQueued;
+		let gibs = NashGoreGibs(mo);
+		if (gibs) return gibs.bNashGoreQueued;
+		let iceChunk = NashGoreIceChunk(mo);
+		if (iceChunk) return iceChunk.bNashGoreQueued;
+		let squishyGibs = NashGoreSquishyGibs(mo);
+		if (squishyGibs) return squishyGibs.bNashGoreQueued;
+		return false;
+	}
+
+	static void SetGoreQueued(Actor mo, bool queued)
+	{
+		let bloodPlane = NashGoreBloodPlane(mo);
+		if (bloodPlane)
+		{
+			bloodPlane.bNashGoreQueued = queued;
+			return;
+		}
+
+		let gibs = NashGoreGibs(mo);
+		if (gibs)
+		{
+			gibs.bNashGoreQueued = queued;
+			return;
+		}
+
+		let iceChunk = NashGoreIceChunk(mo);
+		if (iceChunk)
+		{
+			iceChunk.bNashGoreQueued = queued;
+			return;
+		}
+
+		let squishyGibs = NashGoreSquishyGibs(mo);
+		if (squishyGibs) squishyGibs.bNashGoreQueued = queued;
+	}
+
 	//===========================================================================
 	//
 	//
 	//
 	//===========================================================================
 
-	static void QueueGore(void)
+	static void QueueGore(Actor mo)
 	{
 		let eh = NashGoreHandler(NashGoreHandler.Find("NashGoreHandler"));
-		if (eh)
-		{
-			// get max gore count
-			int countmax = NashGoreStatics.ClampInt(eh.maxgore, 0, 5000);
-			if (countmax <= 0)
-			{
-				NashGoreStatics.ClearGore();
-				return;
-			}
-
-			// count current amount of gore objects
-			ThinkerIterator it = ThinkerIterator.Create("Actor", STAT_NashGore_Gore);
-			Actor mo;
-			int count;
-			while (mo = Actor(it.Next()))
-			{
-				if (NashGoreStatics.IsManagedGore(mo))
-				{
-					count++;
-				}
-			}
-
-			// clean up excessive gore
-			while (count > countmax)
-			{
-				// destroy the first one it can find
-				it.Reinit();
-				bool removed;
-				while (mo = Actor(it.Next()))
-				{
-					if (NashGoreStatics.IsManagedGore(mo))
-					{
-						mo.Destroy();
-						count--;
-						removed = true;
-						break;
-					}
-				}
-
-				if (!removed)
-				{
-					break;
-				}
-			}
-		}
+		if (eh) eh.AddGore(mo);
 	}
 
 	//===========================================================================
