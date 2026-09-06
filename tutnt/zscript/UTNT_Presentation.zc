@@ -1,0 +1,278 @@
+/*
+ * Copyright (c) 2018-2020 AFADoomer
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+**/
+
+// UTNT presentation effects. Simulation state is saved; interpolation is local.
+class UTNTPlayerEffects : Behavior
+{
+    double Heat;
+    int ExternalHeatUntil;
+    double ExternalHeat;
+    bool Cutscene;
+
+    override void Tick()
+    {
+        if (!Owner.player) return;
+        let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        double targetHeat = 0;
+        if (handler && level.time % 5 == 0)
+        {
+            for (int i = 0; i < handler.HeatSources.Size(); i++)
+            {
+                let source = handler.HeatSources[i];
+                if (!source || source.bDormant) continue;
+                double radius = source.Default.Radius * source.Scale.X;
+                if (radius <= 0 || Owner.Pos.Z > source.CeilingZ || (Owner.Pos.Z + Owner.Height) < source.FloorZ) continue;
+                targetHeat = max(targetHeat, clamp(1.0 - source.Distance2D(Owner) / radius, 0.0, 1.0));
+            }
+            if (level.time < ExternalHeatUntil) targetHeat = max(targetHeat, ExternalHeat);
+            Heat = max(targetHeat, Heat - 0.15);
+        }
+    }
+}
+
+class UTNTWorldHandler : EventHandler
+{
+    Array<EffectGiver> HeatSources;
+    int BossKind, BossHP, BossMaxHP, BossFirstTID, BossLastTID, BossEndTime;
+    bool AtmosphereApplied;
+    String VoiceKey;
+    int VoiceStartTime, VoiceEndTime;
+
+    static void BeginVoice(String key, int seconds)
+    {
+        let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if (!handler) return;
+        handler.VoiceKey=key;
+        handler.VoiceStartTime=level.time;
+        handler.VoiceEndTime=level.time+max(1,seconds)*35;
+    }
+
+    override void WorldTick()
+    {
+        // A shared opt-in because distant visibility must agree in cooperative play.
+        bool enabled = CVar.GetCVar('UTNT_atmosphere').GetBool()
+            && (level.MapName ~== "TNT03A1" || level.MapName ~== "TNT03A2" || level.MapName ~== "TNTLE");
+        if (enabled == AtmosphereApplied) return;
+        level.ChangeSkyMist(TexMan.CheckForTexture('SKYMISTA'), enabled, 1.0);
+        level.SetThickFog(enabled ? 8192 : -1, enabled ? 1.1 : 30);
+        AtmosphereApplied = enabled;
+    }
+
+    override void WorldLoaded(WorldEvent e)
+    {
+        HeatSources.Clear();
+        let iter = ThinkerIterator.Create('EffectGiver');
+        EffectGiver source;
+        while (source = EffectGiver(iter.Next())) HeatSources.Push(source);
+        for (int i = 0; i < MAXPLAYERS; i++)
+            if (playeringame[i] && players[i].mo) players[i].mo.AddBehavior('UTNTPlayerEffects');
+    }
+
+    override void WorldThingSpawned(WorldEvent e)
+    {
+        if (e.Thing is 'EffectGiver') HeatSources.Push(EffectGiver(e.Thing));
+        if (e.Thing is 'Marine') e.Thing.AddBehavior('UTNTPlayerEffects');
+    }
+
+    override void WorldThingDestroyed(WorldEvent e)
+    {
+        if (!(e.Thing is 'EffectGiver')) return;
+        for (int i = HeatSources.Size() - 1; i >= 0; i--)
+            if (!HeatSources[i] || HeatSources[i] == e.Thing) HeatSources.Delete(i);
+    }
+
+    // ACS adapters preserve map script names, numbers, TIDs and completion actions.
+    static void SetCutscene(Actor player, bool active)
+    {
+        if (!player || !player.player) return;
+        let effects = UTNTPlayerEffects(player.AddBehavior('UTNTPlayerEffects'));
+        effects.Cutscene = active;
+    }
+
+    static void CutsceneForTID(int tid, bool active)
+    {
+        for (int i=0; i<MAXPLAYERS; i++)
+            if (playeringame[i] && players[i].mo && (tid == -1 || players[i].mo.TID == tid))
+                SetCutscene(players[i].mo, active);
+    }
+
+    static void BeginBoss(int firstTID, int lastTID, int kind, int maxHP)
+    {
+        let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if (!handler || kind < 1 || kind > 5 || maxHP <= 0 || firstTID <= 0 || lastTID < firstTID || lastTID-firstTID > 128) return;
+        handler.BossKind = kind;
+        handler.BossFirstTID = firstTID;
+        handler.BossLastTID = lastTID;
+        handler.BossMaxHP = maxHP;
+        handler.BossHP = maxHP;
+        handler.BossEndTime = 0;
+    }
+
+    static void UpdateBoss(int hp)
+    {
+        let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if (!handler) return;
+        handler.BossHP = max(0, hp);
+        if (hp <= 0 && !handler.BossEndTime) handler.BossEndTime = level.time + 70;
+    }
+}
+
+class UTNTPresentation : StaticEventHandler
+{
+    ui double DisplayHP;
+    ui int LastBossKind;
+    ui Actor LastCamera;
+    ui double LastAngle, LastPitch, BlurX, BlurY, LastFrameTime;
+    ui Vector3 LastPosition;
+    ui bool HaveView;
+    int WorldGeneration;
+    ui int LastWorldGeneration;
+
+    override void WorldLoaded(WorldEvent e)
+    {
+        WorldGeneration++;
+    }
+
+    override void UiTick()
+    {
+        let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if (handler && handler.BossMaxHP > 0)
+        {
+            double hp = clamp(double(handler.BossHP) / handler.BossMaxHP, 0.0, 1.0);
+            if (LastBossKind != handler.BossKind) DisplayHP = hp;
+            else DisplayHP += (hp - DisplayHP) * 0.35;
+            LastBossKind = handler.BossKind;
+        }
+        else { DisplayHP = 0; LastBossKind = 0; }
+    }
+
+    ui void DrawVoice(PlayerInfo player)
+    {
+        let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if (!handler || handler.VoiceKey.Length()==0 || level.time >= handler.VoiceEndTime+18) return;
+        double scale=max(0.5,min(Screen.GetWidth()/640.0,Screen.GetHeight()/480.0))
+            * clamp(CVar.GetCVar('UTNT_subtitlescale',player).GetFloat(),0.75,1.5);
+        Font font=Font.GetFont('SmallFont');
+        Array<String> words, lines;
+        String text=StringTable.Localize("$"..handler.VoiceKey);
+        text.Split(words," ");
+        String line="";
+        for (int i=0; i<words.Size(); i++)
+        {
+            if (line.Length()>0 && font.StringWidth(line.." "..words[i])*scale > Screen.GetWidth()*0.85)
+            { lines.Push(line); line=words[i]; }
+            else line=line..(line.Length()>0 ? " " : "")..words[i];
+        }
+        if (line.Length()>0) lines.Push(line);
+        double alpha=clamp(min((level.time-handler.VoiceStartTime+1)/18.0,(handler.VoiceEndTime+18-level.time)/18.0),0,1);
+        double y=Screen.GetHeight()*0.80-lines.Size()*10*scale;
+        for (int i=0; i<lines.Size(); i++)
+        {
+            double x=(Screen.GetWidth()-font.StringWidth(lines[i])*scale)/2;
+            Screen.DrawText(font,Font.CR_UNTRANSLATED,x,y+i*10*scale,lines[i],DTA_ScaleX,scale,DTA_ScaleY,scale,DTA_Alpha,alpha);
+        }
+    }
+
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (LastWorldGeneration != WorldGeneration)
+        {
+            HaveView=false; LastCamera=null; BlurX=0; BlurY=0; LastBossKind=0;
+            LastWorldGeneration=WorldGeneration;
+        }
+        let player = players[consoleplayer];
+        if (!player) return;
+        let camera = e.Camera;
+        bool reduced = CVar.GetCVar('UTNT_reducedfx', player).GetBool();
+        let effects = camera ? UTNTPlayerEffects(camera.FindBehavior('UTNTPlayerEffects')) : null;
+        bool cutscene = effects && effects.Cutscene;
+        if (player.cheats & CF_TOTALLYFROZEN) cutscene = true;
+
+        bool heatOn = camera && !reduced && CVar.GetCVar('UTNT_shaderoverlayswitch', player).GetBool()
+                      && CVar.GetCVar('UTNT_heatstrength', player).GetFloat() > 0 && effects && effects.Heat > 0.001;
+        Shader.SetEnabled(player, 'heatshader', heatOn);
+        if (heatOn) Shader.SetUniform1f(player, 'heatshader', 'amount', effects.Heat * 69 * clamp(CVar.GetCVar('UTNT_heatstrength', player).GetFloat(), 0, 1));
+        double waterSize = clamp(CVar.GetCVar('UTNT_uweffectsize', player).GetFloat(), 0, 0.08);
+        bool underwater = camera && !reduced && camera.WaterLevel >= 3 && waterSize > 0;
+        Shader.SetEnabled(player, 'watershader', underwater);
+        if (underwater) Shader.SetUniform1f(player, 'watershader', 'waterFactor', waterSize);
+
+        bool blurOn = camera && player.mo && player.health > 0 && !cutscene && !reduced
+                      && !LevelLocals.WorldPaused() && CVar.GetCVar('motionblur', player).GetBool();
+        double frameTime = (level.time + e.FracTic) / 35.0;
+        double dt = frameTime - LastFrameTime;
+        bool reset = !HaveView || camera != LastCamera || (e.ViewPos - LastPosition).Length() > 128 || dt <= 0 || dt > 0.25;
+        if (!blurOn || reset) { BlurX = 0; BlurY = 0; }
+        else
+        {
+            double yaw = Actor.DeltaAngle(LastAngle, e.ViewAngle);
+            double pitch = e.ViewPitch - LastPitch;
+            // Normalize angular velocity to one game tic; decay is time based.
+            double x = yaw / (dt * 35.0), y = pitch / (dt * 35.0);
+            double decay = (1-clamp(CVar.GetCVar('motionblur_recovery', player).GetFloat(), 1, 100)/100) ** (dt*35);
+            BlurX = BlurX*decay + clamp(x/180, -0.04, 0.04)*(1-decay);
+            BlurY = BlurY*decay + clamp(y/120, -0.04, 0.04)*(1-decay);
+            if (CVar.GetCVar('motionblur_autostop', player).GetBool())
+            {
+                double threshold = clamp(CVar.GetCVar('motionblur_threshold', player).GetFloat(), 0, 100)*30*180/32768;
+                double stopDecay = (1-clamp(CVar.GetCVar('motionblur_recovery2', player).GetFloat(), 0, 100)/100) ** (dt*35);
+                if (abs(x)<threshold) BlurX*=stopDecay;
+                if (abs(y)<threshold) BlurY*=stopDecay;
+            }
+        }
+        LastFrameTime = frameTime;
+        LastCamera = camera;
+        LastAngle = e.ViewAngle; LastPitch = e.ViewPitch; LastPosition = e.ViewPos; HaveView = camera != null;
+        double strength = clamp(CVar.GetCVar('motionblur_strength', player).GetFloat(), 0, 100) / 64.0;
+        int copies = clamp(CVar.GetCVar('motionblur_samples', player).GetInt(), 1, 12) + 1;
+        Shader.SetEnabled(player, 'motionblur', blurOn && !reset && abs(BlurX) + abs(BlurY) > 0.00001);
+        Shader.SetUniform2f(player, 'motionblur', 'steps', (BlurX, BlurY) * strength / copies);
+        Shader.SetUniform1i(player, 'motionblur', 'samples', copies);
+        Shader.SetUniform1f(player, 'motionblur', 'increment', 1.0 / copies);
+        Shader.SetUniform1i(player, 'motionblur', 'blendmode', clamp(CVar.GetCVar('motionblur_blendmode', player).GetInt(), 0, 1));
+        DrawVoice(player);
+
+        let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if (!handler || !handler.BossKind || handler.BossMaxHP <= 0 || !camera || cutscene || !CVar.GetCVar('UTNT_bosshud', player).GetBool()) return;
+        if (handler.BossEndTime && level.time >= handler.BossEndTime) return;
+        double scale = max(0.5, min(Screen.GetWidth() / 640.0, Screen.GetHeight() / 480.0));
+        int width = int(260 * scale), height = max(4, int(7 * scale));
+        int x = (Screen.GetWidth() - width) / 2, y = int(40 * scale);
+        double alpha = handler.BossEndTime ? clamp((handler.BossEndTime - level.time) / 35.0, 0, 1) : 1;
+        String label = StringTable.Localize(String.Format("$UTNT_BOSS_%d", handler.BossKind));
+        int percent = int(ceil(clamp(double(handler.BossHP) / handler.BossMaxHP, 0, 1) * 100));
+        bool shielded = false;
+        if (handler.BossKind == 5)
+        {
+            let bossIter = ActorIterator.Create(handler.BossFirstTID);
+            let boss = bossIter.Next();
+            shielded = boss && boss.bInvulnerable;
+        }
+        if (shielded) label = label .. " - " .. StringTable.Localize('$UTNT_SHIELDED');
+        if (CVar.GetCVar('UTNT_bosspercent', player).GetBool()) label = label .. String.Format("  %d%%", percent);
+        Font font = Font.GetFont('SmallFont');
+        Screen.DrawText(font, Font.CR_GOLD, (Screen.GetWidth() - font.StringWidth(label) * scale)/2, y - 12*scale, label, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Alpha, alpha);
+        Screen.Dim(0x180c08, alpha * 0.85, x-2, y-2, width+4, height+4);
+        Color fill = shielded ? 0x658bb5 : percent > 50 ? 0xb79b54 : percent > 25 ? 0xbf7538 : 0xb13b32;
+        Screen.Dim(fill, alpha, x, y, int(width * clamp(DisplayHP, 0, 1)), height);
+    }
+}

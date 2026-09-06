@@ -1,0 +1,133 @@
+version "5.0.0"
+
+class UTNTRegressionBoss : Actor
+{
+    Default { Health 1000; +NOBLOCKMAP +NOGRAVITY +NOINTERACTION }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+
+class UTNTRegression : EventHandler
+{
+    Actor TestBoss;
+    HeatEffectGiver TestHeat;
+    int TestTID;
+    bool Checked;
+
+    void Check(bool ok, String message)
+    {
+        Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message);
+    }
+
+    override void WorldTick()
+    {
+        if (!(level.MapName ~== "UTNTTEST")) return;
+        let p=players[0].mo;
+        if (!p) return;
+        if (level.time==10)
+        {
+            Check(p.FindBehavior('UTNTPlayerEffects')!=null,"player behavior attached");
+            Check(p.Health==p.Default.Health,"class initial health");
+            UTNTWorldHandler.BeginBoss(0,0,0,0);
+            let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Check(handler!=null && handler.BossMaxHP==0,"invalid boss adapter rejected");
+            TestTID=level.FindUniqueTID(30000);
+            TestBoss=Actor.Spawn('UTNTRegressionBoss',p.Pos);
+            TestBoss.ChangeTID(TestTID);
+            p.ACS_NamedExecuteAlways("BOSSHP",0,TestTID,TestTID,1);
+            p.ACS_NamedExecuteAlways("PlayerVoice",0,13);
+            TestHeat=HeatEffectGiver(Actor.Spawn('HeatEffectGiver',p.Pos));
+            TestHeat.Scale=(4,4);
+            Actor.Spawn('UTNTTorch',p.Vec3Offset(96,0,0));
+            Actor.Spawn('UTNTShortBlueTorch',p.Vec3Offset(96,32,0));
+            Actor.Spawn('DarkSmokeSpawner',p.Vec3Offset(96,-32,0));
+            Actor.Spawn('EmberSpawner_64_High',p.Vec3Offset(128,32,0));
+            Actor.Spawn('TeleportSparkle_R',p.Vec3Offset(128,-32,0));
+            Actor.Spawn('NewPuff',p.Vec3Offset(64,0,32));
+            let rocket=Actor.Spawn('UTNTRocket',p.Vec3Offset(96,64,64));
+            rocket.Vel=(2,0,0);
+        }
+        if (level.time==30)
+        {
+            let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Check(handler.BossMaxHP==1000 && handler.BossHP==1000,"ACS starts boss tracker");
+            Check(handler.VoiceKey.Length()>0,"ACS sends localized subtitle");
+            Check(handler.HeatSources.Find(TestHeat)<handler.HeatSources.Size(),"heat source registered");
+            let effects=UTNTPlayerEffects(p.FindBehavior('UTNTPlayerEffects'));
+            Check(effects.Heat>0,"heat reaches player");
+            let iter=ThinkerIterator.Create('UTNTFlameVisual',Thinker.MAX_STATNUM+1,true);
+            if (CVar.GetCVar('UTNT_fxquality',players[consoleplayer]).GetInt()>0)
+                Check(iter.Next()!=null,"client flame is alive");
+            else Check(iter.Next()==null,"disabled effects emit no client flames");
+            TestBoss.Health=300;
+            TestHeat.Deactivate(p);
+        }
+        if (level.time==70 && !Checked)
+        {
+            let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Check(handler.BossHP==300,"boss HP updates independently of HUD");
+            UTNTWorldHandler.SetCutscene(p,true);
+            Check(UTNTPlayerEffects(p.FindBehavior('UTNTPlayerEffects')).Cutscene,"cutscene behavior set");
+            UTNTWorldHandler.SetCutscene(p,false);
+            TestHeat.Destroy();
+            Checked=true;
+            Console.Printf("UTNT_REGRESSION_COMPLETE %s",level.MapName);
+        }
+        if (level.time==80)
+        {
+            let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Check(handler.HeatSources.Find(TestHeat)==handler.HeatSources.Size(),"destroyed heat source removed");
+        }
+        if (level.time==120 || level.time==210)
+        {
+            for (int i=0; i<MAXPLAYERS; i++)
+                if (playeringame[i]) Check(players[i].inconsistent==0,"peer simulation remains synchronized");
+            Console.Printf(level.time==210 ? "UTNT_NETWORK_FINAL" : "UTNT_NETWORK_COMPLETE");
+        }
+        if (playeringame[1])
+        {
+            if (level.time==230) p.DamageMobj(null,null,10000,'None',DMG_FORCED);
+            if (level.time==238)
+            {
+                Check(p.Health<=0 && p.TID==0,"death releases old player TID");
+                players[0].playerstate=PST_REBORN;
+            }
+            if (level.time==245)
+            {
+                Check(p.Health>0 && p.TID==1000,"respawn restores pawn and TID");
+                Check(abs(p.Pos.Y+200)<4 && p.Pos.X>=195,"respawn reaches shared checkpoint");
+            }
+            if (level.time==285)
+            {
+                Check(players[0].inconsistent==0 && players[1].inconsistent==0,"death and respawn stay synchronized");
+                Console.Printf("UTNT_RESPAWN_COMPLETE");
+            }
+        }
+    }
+}
+
+class UTNTShaderRegression : StaticEventHandler
+{
+    override void WorldLoaded(WorldEvent e)
+    {
+        if (!e.IsSaveGame || !(level.MapName ~== "UTNTTEST")) return;
+        let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        let tests=UTNTRegression(EventHandler.Find('UTNTRegression'));
+        bool ok=tests.Checked && handler.BossHP==300 && handler.BossMaxHP==1000;
+        Console.Printf("UTNT_ASSERT %s: saved boss and test state restored",ok ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: saved player behavior restored",players[0].mo.FindBehavior('UTNTPlayerEffects') ? "PASS" : "FAIL");
+        Console.Printf("UTNT_SAVELOAD_COMPLETE");
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (!(level.MapName ~== "UTNTTEST")) return;
+        let player=players[consoleplayer];
+        // Force all GLSL programs through the real GPU compiler, including inactive effects.
+        Shader.SetEnabled(player,'watershader',true);
+        Shader.SetUniform1f(player,'watershader','waterFactor',0.015);
+        Shader.SetEnabled(player,'motionblur',true);
+        Shader.SetUniform2f(player,'motionblur','steps',(0.0005,0));
+        Shader.SetUniform1i(player,'motionblur','samples',6);
+        Shader.SetUniform1f(player,'motionblur','increment',1.0/6);
+        Shader.SetUniform1i(player,'motionblur','blendmode',1);
+    }
+}

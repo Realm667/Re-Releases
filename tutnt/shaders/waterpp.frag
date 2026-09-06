@@ -1,20 +1,7 @@
 void main()
 {
-	if (waterFactor > 0)
-	{
-		float tau = 6.28318530717958647692;
-
-		vec2 texSize = textureSize(InputTexture, 0);
-
-		// offset the pixel location by this amount, a sine wave to create a wobble effect
-		vec2 waterOffset = vec2(waterFactor * sin(tau * TexCoord.y + timer * 0.05), waterFactor * sin(tau * TexCoord.x + timer * 0.05));
-		vec2 coord = TexCoord + waterOffset;
-
-		// return black if the resulting coord isn't on screen
-		vec4 color = (coord.x > 0 && coord.x < 1 && coord.y > 0 && coord.y < 1) ?
-			texture(InputTexture, coord) : vec4(0, 0, 0, 0);
-
-		FragColor = color;
-	}
-	else FragColor = texture(InputTexture, TexCoord);
+    vec2 zoomed = (TexCoord - 0.5) * (1.0 - waterFactor * 2.0) + 0.5;
+    float phase = InputTimeGame * 1.75;
+    vec2 offset = waterFactor * sin(6.28318530718 * zoomed.yx + phase);
+    FragColor = texture(InputTexture, clamp(zoomed + offset, vec2(0.0), vec2(1.0)));
 }

@@ -133,9 +133,9 @@ class DarkSmokeSpawner : EffectSpawner
 			TNT1 A 0;
 		Active:
 			TNT1 A 0 A_Jump(256, 1 ,2, 3);
-			TNT1 A 2 A_SpawnItemEx("DarkSmoke" .. min(3, args[0] + 1));
-			TNT1 A 4 A_SpawnItemEx("DarkSmoke" .. min(3, args[0] + 1));
-			TNT1 A 6 A_SpawnItemEx("DarkSmoke" .. min(3, args[0] + 1));
+			TNT1 A 2 { UTNTVisuals.AmbientSmoke(self, args[0]); }
+			TNT1 A 4 { UTNTVisuals.AmbientSmoke(self, args[0]); }
+			TNT1 A 6 { UTNTVisuals.AmbientSmoke(self, args[0]); }
 			Loop;
 	}
 }

@@ -1,0 +1,49 @@
+#library "UTNTREG"
+#include "zcommon.acs"
+#import "tutnt.acs"
+
+function void verify(int condition, str message)
+{
+    if (condition) Log(s:"UTNT_ASSERT PASS: ",s:message);
+    else Log(s:"UTNT_ASSERT FAIL: ",s:message);
+}
+
+script "UTNT_PortalRegression" OPEN
+{
+    if (GetLevelInfo(LEVELINFO_LEVELNUM)!=90) terminate;
+    Delay(90);
+    SpawnForced("HeatEffectGiver",300.0,300.0,0.0,30501,0);
+    SpawnForced("HeatEffectGiver",300.0,200.0,0.0,30502,0);
+    verify(ThingCountName("HeatEffectGiver",30501)==1 && ThingCountName("HeatEffectGiver",30502)==1,"portal fixtures exist");
+    PortalTIDs[0]=30501; PortalTIDs[1]=30502;
+    PortalOn[0]=-1; PortalOn[1]=-1;
+    PlayerSeesPortal[0][0]=1;
+    PlayerSeesPortal[1][0]=1;
+    UpdatePortal(0); UpdatePortal(1);
+    verify(!GetActorProperty(30501,APROP_Dormant) && !GetActorProperty(30502,APROP_Dormant),"independent portals activate");
+    PlayerSeesPortal[1][0]=0;
+    UpdatePortal(1);
+    verify(!GetActorProperty(30501,APROP_Dormant) && GetActorProperty(30502,APROP_Dormant),"leaving portal B preserves portal A");
+    if (PlayerInGame(1))
+    {
+        PlayerSeesPortal[0][1]=1;
+        ClearPortalPlayer(0);
+        verify(!GetActorProperty(30501,APROP_Dormant),"second player keeps portal active");
+        ClearPortalPlayer(1);
+        verify(GetActorProperty(30501,APROP_Dormant),"last player closes portal");
+        checkpoint(3);
+        verify(position==3,"shared checkpoint updated");
+        SpawnForced("MapSpot",200.0,-200.0,0.0,1300,0);
+        SpawnForced("MapSpot",300.0,-200.0,0.0,1301,0);
+    }
+    else
+    {
+        ClearPortalPlayer(0);
+        verify(GetActorProperty(30501,APROP_Dormant),"player cleanup closes portal");
+    }
+    ClearPortalPlayer(-1); ClearPortalPlayer(64);
+
+    Thing_Remove(30501); Thing_Remove(30502);
+    PortalTIDs[0]=0; PortalTIDs[1]=0;
+    Log(s:"UTNT_PORTAL_COMPLETE");
+}

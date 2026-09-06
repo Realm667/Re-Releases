@@ -93,6 +93,8 @@ mixin class UTNTFireMixin
 		+ROLLCENTER
 		+BRIGHT
 		+FORCEXYBILLBOARD
+        +INTERPOLATESCALE
+        +INTERPOLATEALPHA
 		+NOINTERACTION
 	}
 
@@ -155,7 +157,7 @@ class UTNTTorch : RedTorch replaces RedTorch
 		{
 			A_SpawnItemEx("UTNTTallTorchLensFlare", 0, 0, 62.0);
 		}
-		TBLX A 1 A_SpawnItemEx("UTNTTorchFlame", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		TBLX A 1 { UTNTVisuals.Torch(self, 0, false); }
 		Goto Spawn + 1;
 	}
 }
@@ -214,7 +216,7 @@ class UTNTTorchG : GreenTorch replaces GreenTorch
 		{
 			A_SpawnItemEx("UTNTTallTorchLensFlareG", 0, 0, 62.0);
 		}
-		TBLX A 1 A_SpawnItemEx("UTNTTorchFlameG", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		TBLX A 1 { UTNTVisuals.Torch(self, 1, false); }
 		Goto Spawn + 1;
 	}
 }
@@ -273,7 +275,7 @@ class UTNTTorchB : BlueTorch replaces BlueTorch
 		{
 			A_SpawnItemEx("UTNTTallTorchLensFlareB", 0, 0, 62.0);
 		}
-		TBLX A 1 A_SpawnItemEx("UTNTTorchFlameB", 0, 0, frandom(60.0, 62.0), 0, 0, frandom(1.0, 2.5));
+		TBLX A 1 { UTNTVisuals.Torch(self, 2, false); }
 		Goto Spawn + 1;
 	}
 }
@@ -334,6 +336,8 @@ mixin class UTNTFireMixinShort
 		+ROLLCENTER
 		+BRIGHT
 		+FORCEXYBILLBOARD
+        +INTERPOLATESCALE
+        +INTERPOLATEALPHA
 		+NOINTERACTION
 	}
 
@@ -396,7 +400,7 @@ class UTNTShortRedTorch : ShortRedTorch replaces ShortRedTorch
 		{
 			A_SpawnItemEx("UTNTShortTorchLensFlare", 0, 0, 32.0);
 		}
-		SMRX A 1 A_SpawnItemEx("UTNTTorchFlameShort", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		SMRX A 1 { UTNTVisuals.Torch(self, 0, true); }
 		Goto Spawn + 1;
 	}
 }
@@ -455,7 +459,7 @@ class UTNTShortGreenTorch : ShortGreenTorch replaces ShortGreenTorch
 		{
 			A_SpawnItemEx("UTNTShortTorchLensFlareG", 0, 0, 32.0);
 		}
-		SMRX A 1 A_SpawnItemEx("UTNTTorchFlameShortG", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		SMRX A 1 { UTNTVisuals.Torch(self, 1, true); }
 		Goto Spawn + 1;
 	}
 }
@@ -514,7 +518,7 @@ class UTNTShortBlueTorch : ShortBlueTorch replaces ShortBlueTorch
 		{
 			A_SpawnItemEx("UTNTShortTorchLensFlareB", 0, 0, 32.0);
 		}
-		SMRX A 1 A_SpawnItemEx("UTNTTorchFlameShortB", 0, 0, frandom(30.0, 32.0), 0, 0, frandom(1.0, 2.5));
+		SMRX A 1 { UTNTVisuals.Torch(self, 2, true); }
 		Goto Spawn + 1;
 	}
 }

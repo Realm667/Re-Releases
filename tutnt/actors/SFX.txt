@@ -1997,7 +1997,7 @@ actor EmberShot
 	}
 }
 
-actor EmberSpawner_512_Low : SwitchableDecoration 20900
+actor EmberSpawner_512_Low : UTNTEmberBase 20900
 {
 	+CLIENTSIDEONLY
 	+NOCLIP
@@ -2010,7 +2010,7 @@ actor EmberSpawner_512_Low : SwitchableDecoration 20900
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 8
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,512)
+		TNT1 A 1 A_UTNTEmber(0,0,512)
 		Loop
 	Inactive:
 		TNT1 A -1
@@ -2026,7 +2026,7 @@ actor EmberSpawner_512_Med : EmberSpawner_512_Low 20901
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 4
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,512)
+		TNT1 A 1 A_UTNTEmber(0,0,512)
 		loop
 	}
 }
@@ -2039,7 +2039,7 @@ actor EmberSpawner_512_High : EmberSpawner_512_Low 20902
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 2
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,512)
+		TNT1 A 1 A_UTNTEmber(0,0,512)
 		loop
 	}
 }
@@ -2052,7 +2052,7 @@ actor EmberSpawner_256_Low : EmberSpawner_512_Low 20903
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 8
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,256)
+		TNT1 A 1 A_UTNTEmber(0,0,256)
 		loop
 	}
 }
@@ -2065,7 +2065,7 @@ actor EmberSpawner_256_Med : EmberSpawner_512_Low 20904
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 6
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,256)
+		TNT1 A 1 A_UTNTEmber(0,0,256)
 		loop
 	}
 }
@@ -2078,7 +2078,7 @@ actor EmberSpawner_256_High : EmberSpawner_512_Low 20905
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 4
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,256)
+		TNT1 A 1 A_UTNTEmber(0,0,256)
 		loop
 	}
 }
@@ -2091,7 +2091,7 @@ actor EmberSpawner_128_Low : EmberSpawner_512_Low 20906
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 8
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,128)
+		TNT1 A 1 A_UTNTEmber(0,0,128)
 		loop
 	}
 }
@@ -2104,7 +2104,7 @@ actor EmberSpawner_128_Med : EmberSpawner_512_Low 20907
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 6
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,128)
+		TNT1 A 1 A_UTNTEmber(0,0,128)
 		loop
 	}
 }
@@ -2117,7 +2117,7 @@ actor EmberSpawner_128_High : EmberSpawner_512_Low 20908
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 4
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,128)
+		TNT1 A 1 A_UTNTEmber(0,0,128)
 		loop
 	}
 }
@@ -2130,7 +2130,7 @@ actor EmberSpawner_64_Low : EmberSpawner_512_Low 20909
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 8
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,64)
+		TNT1 A 1 A_UTNTEmber(0,0,64)
 		loop
 	}
 }
@@ -2143,7 +2143,7 @@ actor EmberSpawner_64_Med : EmberSpawner_512_Low 20910
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 6
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,64)
+		TNT1 A 1 A_UTNTEmber(0,0,64)
 		loop
 	}
 }
@@ -2156,7 +2156,7 @@ actor EmberSpawner_64_High :  EmberSpawner_512_Low 20911
 	Active:
 		TNT1 A 0 A_Jump(256,1,2,3)
 		TNT1 AAA 4
-		TNT1 A 1 ACS_ExecuteAlways(444,0,0,0,64)
+		TNT1 A 1 A_UTNTEmber(0,0,64)
 		loop
 	}
 }
@@ -2260,7 +2260,7 @@ actor SparkleShot_Y : SparkleShot_W{translation "80:96=160:167"}
 actor SparkleShot_O : SparkleShot_W{translation "80:96=209:223"}
 actor SparkleShot_B : SparkleShot_W{translation "80:96=192:207"}
 
-actor TeleportSparkle_W : SwitchableDecoration 20912
+actor TeleportSparkle_W : UTNTEmberBase 20912
 {
 	+CLIENTSIDEONLY
 	+NOCLIP
@@ -2272,7 +2272,7 @@ actor TeleportSparkle_W : SwitchableDecoration 20912
 	Spawn:
 	Active:
 		TNT1 A 1
-		TNT1 A 1 ACS_ExecuteAlways(444,0,1,0,64)
+		TNT1 A 1 A_UTNTEmber(1,0,64)
 		loop
 	Inactive:
 		TNT1 A -1
@@ -2287,7 +2287,7 @@ actor TeleportSparkle_R : TeleportSparkle_W 20913
 	Spawn:
 	Active:
 		TNT1 A 1
-		TNT1 A 1 ACS_ExecuteAlways(444,0,1,1,64)
+		TNT1 A 1 A_UTNTEmber(1,1,64)
 		loop
 	}
 }
@@ -2299,7 +2299,7 @@ actor TeleportSparkle_G : TeleportSparkle_W 20914
 	Spawn:
 	Active:
 		TNT1 A 1
-		TNT1 A 1 ACS_ExecuteAlways(444,0,1,2,64)
+		TNT1 A 1 A_UTNTEmber(1,2,64)
 		loop
 	}
 }
@@ -2311,7 +2311,7 @@ actor TeleportSparkle_Y : TeleportSparkle_W 20915
 	Spawn:
 	Active:
 		TNT1 A 1
-		TNT1 A 1 ACS_ExecuteAlways(444,0,1,3,64)
+		TNT1 A 1 A_UTNTEmber(1,3,64)
 		loop
 	}
 }
@@ -2323,7 +2323,7 @@ actor TeleportSparkle_O : TeleportSparkle_W 20916
 	Spawn:
 	Active:
 		TNT1 A 1
-		TNT1 A 1 ACS_ExecuteAlways(444,0,1,4,64)
+		TNT1 A 1 A_UTNTEmber(1,4,64)
 		loop
 	}
 }
@@ -2335,7 +2335,7 @@ actor TeleportSparkle_B : TeleportSparkle_W 20917
 	Spawn:
 	Active:
 		TNT1 A 1
-		TNT1 A 1 ACS_ExecuteAlways(444,0,1,5,64)
+		TNT1 A 1 A_UTNTEmber(1,5,64)
 		loop
 	}
 }

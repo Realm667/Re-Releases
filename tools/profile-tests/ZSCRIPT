@@ -1,0 +1,30 @@
+version "5.0.0"
+class UTNTProfile : EventHandler
+{
+    override void WorldTick()
+    {
+        if (!(level.MapName ~== "UTNTPERF")) return;
+        let p=players[0].mo;
+        if (!p) return;
+        if (level.time==1)
+        {
+            p.ACS_NamedTerminate("IntroText",0);
+            for (int x=0; x<8; x++)
+                for (int y=0; y<5; y++) Actor.Spawn('UTNTTorch',(x*45,-160+y*80,0));
+        }
+        if (level.time==300)
+        {
+            int actors=0,flames=0,visuals=0;
+            let iter=ThinkerIterator.Create('Actor');
+            Actor a;
+            while (a=Actor(iter.Next()))
+            {
+                actors++;
+                if (a.GetClassName()=='UTNTTorchFlame') flames++;
+            }
+            let cs=ThinkerIterator.Create('VisualThinker',Thinker.MAX_STATNUM+1,true);
+            while(cs.Next()) visuals++;
+            Console.Printf("UTNT_PROFILE actors=%d flameActors=%d clientVisuals=%d",actors,flames,visuals);
+        }
+    }
+}

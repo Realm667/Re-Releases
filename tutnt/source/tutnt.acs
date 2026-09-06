@@ -1,4 +1,4 @@
-#library "tutnt.acs"
+#library "TUTNT"
 #include "zcommon.acs"
 
 #define MAX_VOLUME 127
@@ -14,8 +14,31 @@
 #define HP_Y    46.0
 
 int position; //this variable logs your progress through the map. 0 means you're at the start still,and restart at the player starts.
-int PortalOn;
-int PlayerSeesPortal[8];
+#define UTNT_MAX_PLAYERS 64
+#define UTNT_MAX_PORTALS 64
+int PortalTIDs[UTNT_MAX_PORTALS];
+int PortalOn[UTNT_MAX_PORTALS];
+int PlayerSeesPortal[UTNT_MAX_PORTALS][UTNT_MAX_PLAYERS];
+int BossStarted[5];
+
+function void UpdatePortal(int slot)
+{
+    int seen=0;
+    for (int p=0;p<UTNT_MAX_PLAYERS;p++)
+        if (PlayerInGame(p) && PlayerSeesPortal[slot][p]) seen=1;
+    if (seen != PortalOn[slot])
+    {
+        if (seen) Thing_Activate(PortalTIDs[slot]);
+        else Thing_Deactivate(PortalTIDs[slot]);
+        PortalOn[slot]=seen;
+    }
+}
+function void ClearPortalPlayer(int p)
+{
+    if(p<0 || p>=UTNT_MAX_PLAYERS) return;
+    for(int slot=0;slot<UTNT_MAX_PORTALS;slot++)
+        if(PortalTIDs[slot]) { PlayerSeesPortal[slot][p]=0; UpdatePortal(slot); }
+}
 
 global int 2:CompletedMap;
 
@@ -28,73 +51,61 @@ script "IntroText" OPEN
 	int mapnum=GetLevelInfo(LEVELINFO_LEVELNUM);
 	if(mapnum==99||mapnum==4||GameType()==GAME_TITLE_MAP)
 		terminate;
-	if(!mapnum==7&&!mapnum==8&&!mapnum==10)
+	if(mapnum!=7 && mapnum!=8 && mapnum!=10)
 		sector_setcolor(28,255,69,0);
 	SetHudSize(640,480,0);
 	Setfont("dbigfont");
-	Hudmessage(s:"Torment And Torture"; HUDMSG_FADEINOUT,0,CR_WHITE,320.4,190.0,3.0,1.0,1.0);
+	Hudmessage(l:"UTNT_COMMON_054"; HUDMSG_FADEINOUT,0,CR_WHITE,320.4,190.0,3.0,1.0,1.0);
 	Setfont("smallfont");
 	if(mapnum==1)
 	{
-		mapname="Episode 1: The Opening Abyss";
-		objectives="\cC     -Fight your way to the Tech Center
-		\n\cC     -Pass the Dungeon passage and leave the first defense belt";
+		mapname="UTNT_INTRO_001";
+		objectives="UTNT_INTRO_010";
 	}
 	else if(mapnum==2)
 	{
-		mapname="Episode 2: The Armory of Pain";
-		objectives="\cC     -Find the Facility A Control Room
-		\n\cC     -Enter the abandoned Facility B
-		\n\cC     -Find the cursed peak passage as an exit to leave the armory";
+		mapname="UTNT_INTRO_002";
+		objectives="UTNT_INTRO_011";
 	}
 	else if(mapnum==3)
 	{
-		mapname="Episode 3, Part 1: The Cursed Peak";
-		objectives="\cC     -Fight your way to the storage area
-		\n\cC     -Find the mining facility
-		\n\cC     -Leave the installation in the south facing the fortress";
+		mapname="UTNT_INTRO_003";
+		objectives="UTNT_INTRO_012";
 	}
 	else if(mapnum==5)
 	{
-		mapname="Episode 3, Part 2: The Evil Heart";
-		objectives="\cC     -Kill the portal guards
-		\n\cC     -Destroy the Dark Portal";
+		mapname="UTNT_INTRO_004";
+		objectives="UTNT_INTRO_013";
 	}
 	else if(mapnum==6)
 	{
 		delay(1860);
-		mapname="Episode 4, Part 1: Into the Darkness";
-		objectives="\cC     -Find the Plasma Rifle near the clocktower
-		\n\cC     -Kill the Spider Masterminds to lower the pillars
-		\n\cC     -Enter the Dark Portal";
+		mapname="UTNT_INTRO_005";
+		objectives="UTNT_INTRO_014";
 	}
 	else if(mapnum==7)
 	{
-		mapname="Episode 4, Part 2: Beyond the Dark Portal";
-		objectives="\cC     -Find a way to the edge of chaos
-		\n\cC     -Find the BFG9000";
+		mapname="UTNT_INTRO_006";
+		objectives="UTNT_INTRO_015";
 	}
 	else if(mapnum==8)
 	{
-		mapname="Episode 4, Part 3: The Beginning and The End (Director's Cut)";
-		objectives="\cC     -Fight your way to the eternal cave
-		\n\cC     -Destroy 'The Source' and its Guardians";
-	}
-	else if(mapnum==10)
-	{
-		mapname="Episode 4, Part 3: The Beginning and The End";
-		objectives="\cC     -Fight your way to peak
-		\n\cC     -Destroy 'The Source' and its Guardians";
+		mapname="UTNT_INTRO_007";
+		objectives="UTNT_INTRO_016";
 	}
 	else if(mapnum==9)
 	{
-		mapname="Lost Episode: Fury of Fire";
-		objectives="\cC     -Battle your way out of the caves to the top
-		\n\cC     -Find the Portal Core's Heart";
+		mapname="UTNT_INTRO_008";
+		objectives="UTNT_INTRO_017";
 	}
-	Hudmessage(s:mapname; HUDMSG_FADEINOUT,0,CR_RED,320.4,205.0,3.0,1.0,1.0);
+	else if(mapnum==10)
+	{
+		mapname="UTNT_INTRO_009";
+		objectives="UTNT_INTRO_018";
+	}
+	Hudmessage(l:mapname; HUDMSG_FADEINOUT,0,CR_RED,320.4,205.0,3.0,1.0,1.0);
 	delay(175);
-	hudmessagebold(s:"\cGObjectives:\n",s:objectives;
+	hudmessagebold(l:"UTNT_COMMON_055",l:objectives;
 		HUDMSG_FADEINOUT | HUDMSG_LOG,4,CR_UNTRANSLATED,320.0,200.0,5.0,1.0,1.0);
 }
 
@@ -110,44 +121,45 @@ str voiceclip[35]=
 };
 str voicetext[35]=
 {
-	"\cR''Right, let's find some meat!''",
-	"\cR''What the...!''",
-	"\cR''...mmmmh, it smells like death and danger in here...\n\cR  That could just be my aftershave!''",
-	"\cR''Uh oh!''",
-	"\cR''Hmhmhm... that was almost too easy!''",
-	"\cR''Next time, I'll remember to keep my mouth shut!''",
-	"\cR''The weather on Tei Tenga was much better...\n\cR  I should have stayed there!''",
-	"\cR''<almost an arch-vile>...yourself!''",
-	"\cR''Those who are about to die salute you!''",
-	"\cR''Is that the best you've got?!''",
-	"\cR''Uh oh!''",
-	"\cR''Face the Maker!''",
-	"\cR''I somehow liked the armory better, the comfortable warm\n\cR\feeling of processed steel and exploding demon torsos.''",
-	"\cR''There are older and fouler things than Imps\n\cR\in the deep places of the world.''",
-	"\cR''Oh yeah, that gives me a warm n'fuzzy feeling.''",
-	"\cR''Time to light the barbecue!''",
-	"\cR''Hmm... get out, get out, wherever you are...''",
-	"\cR''I hate spiders!''",
-	"\cR''There's no way back now... it's time to show\n\cRwhat I'm made of!''",
-	"I can feel it...\nthe evil power\nthat lies beyond this dark portal\n...the source of evil,\n\nspawning hundreds of demons\nhunting down humankind\nthis time on our homeworld,\nearth itself\n\nI can almost feel\nthe cold hand of death touching me",
-	"and\n...reaching out for my soul...\nI know that this final mission \nwill claim my life.\n\nIt is my destiny,\n\nmy fate to die in this war...\nthe only chance...\nto save those I love... \nbut what if there is much more \nbeyond what I can feel? ...",
-	"\cR''Oh yeah, we're into it now boys!''",
-	"\cR''Got'em, time to leave this god-forsaken place now!''",
-	"\cR''Whoa... deja-vu!''",
-	"\cR''Well, I don't suppose he's gonna use it.''",
-	"\cR''Oh my god... this is hell!''",
-	"\cR''Is that all you've got?... bring on some more!''",
-	"\cR''I gues this is where it really begins... and this is\n\cRwhere it ends.. now!''",
-	"\cR''You won't stop me!''",
-	"\cR''Oops!''",
-	"\cR''Now I'm really in trouble... oh well then, Sieg Heil!''",
-	"\cR''It's a solid wall. It propably won't do anything if I push it!''",
-	"\cR''Yeah baby, lock and load!''",
-	"\cR''I swear I've seen this place before.''",
-	"\cR''I've got a bad feeling about this... whatever did\n\cR\this was very powerful...''"
+	"UTNT_VOICE_019",
+	"UTNT_VOICE_020",
+	"UTNT_VOICE_021",
+	"UTNT_VOICE_022",
+	"UTNT_VOICE_023",
+	"UTNT_VOICE_024",
+	"UTNT_VOICE_025",
+	"UTNT_VOICE_026",
+	"UTNT_VOICE_027",
+	"UTNT_VOICE_028",
+	"UTNT_VOICE_029",
+	"UTNT_VOICE_030",
+	"UTNT_VOICE_031",
+	"UTNT_VOICE_032",
+	"UTNT_VOICE_033",
+	"UTNT_VOICE_034",
+	"UTNT_VOICE_035",
+	"UTNT_VOICE_036",
+	"UTNT_VOICE_037",
+	"UTNT_VOICE_038",
+	"UTNT_VOICE_039",
+	"UTNT_VOICE_040",
+	"UTNT_VOICE_041",
+	"UTNT_VOICE_042",
+	"UTNT_VOICE_043",
+	"UTNT_VOICE_044",
+	"UTNT_VOICE_045",
+	"UTNT_VOICE_046",
+	"UTNT_VOICE_047",
+	"UTNT_VOICE_048",
+	"UTNT_VOICE_049",
+	"UTNT_VOICE_050",
+	"UTNT_VOICE_051",
+	"UTNT_VOICE_052",
+	"UTNT_VOICE_053"
 };
 script "PlayerVoice"(int clip)
 {
+    if(clip<1 || clip>35) terminate;
 	int holdtime=2.0;
 	SetHudSize(640,480,0);
 	SetFont("SmallFont");
@@ -160,24 +172,12 @@ script "PlayerVoice"(int clip)
 		holdtime=4.0;
 	else if(clip==13)
 		holdtime=7.0;
-	if(clip==20)
-	{
-		SetHudSize(400,300,0);
-		HudmessageBold(s:voicetext[clip-1]; HUDMSG_TYPEON,2,CR_ORANGE,200.0,170.0,2.0,0.08,1.0);
-	}
-	else if(clip==21)
-	{
-		SetHudSize(400,300,0);
-		HudmessageBold(s:voicetext[clip-1]; HUDMSG_TYPEON,3,CR_ORANGE,195.0,165.0,2.0,0.08,1.0);
-	}
-	else
-		HudmessageBold(s:voicetext[clip-1];	HUDMSG_FADEINOUT,19,CR_UNTRANSLATED,320.0,470.0,holdtime,0.5,0.5);
-	if(clip==2)
-	{
-		delay(210);
-		Hudmessage(s:"\cR''...damn, that's an evil machine!''";
-			HUDMSG_FADEINOUT,19,CR_UNTRANSLATED,320.0,470.0,2.0,0.5,0.5);
-	}
+    ScriptCall("UTNTWorldHandler","BeginVoice",voicetext[clip-1],holdtime>>16);
+    if(clip==2)
+    {
+        delay(210);
+        ScriptCall("UTNTWorldHandler","BeginVoice","UTNT_COMMON_056",2);
+    }
 }
 
 //INTERMAP SCRIPT
@@ -206,7 +206,7 @@ script "30Health" ENTER
 	while (true)
 	{
 		int health = GetActorProperty(0, APROP_HEALTH);
-		if (health > 0 && health <= 30)
+		if (health > 0 && health <= 30 && GetUserCVar(PlayerNumber(), "UTNT_lowhealthfx") && !GetUserCVar(PlayerNumber(), "UTNT_reducedfx"))
 		{
 			HudMessage(s:"A"; HUDMSG_FADEINOUT, 0, CR_WHITE, half_width, half_height, 0.0, 0.5, 0.5);
 
@@ -299,7 +299,8 @@ script 800 RESPAWN
 {
 	//important stuff
 	Thing_ChangeTID(0,1000+PlayerNumber()); //This re-assigns the TID,more to ensure you have it than anything else.
-	Teleport((position*100)+1000+PlayerNumber()); //The player is teleported to their checkpoint as soon as they respawn
+	int destination=(position*100)+1000+PlayerNumber();
+    if (position>0 && ThingCount(T_NONE,destination)>0) Teleport(destination); //The player is teleported to their checkpoint as soon as they respawn
 }
 
 function void checkpoint(int pos)
@@ -309,7 +310,7 @@ function void checkpoint(int pos)
 		position=pos;
    		SetHudSize(640,480,0);
    		SetFont("SmallFont");
-		HudmessageBold(s:"\cCCoop \cGCheckpoint \cCReached"; HUDMSG_FADEINOUT,19,CR_UNTRANSLATED,320.0,470.0,1.0,1.0,1.0);
+		HudmessageBold(l:"UTNT_COMMON_057"; HUDMSG_FADEINOUT,19,CR_UNTRANSLATED,320.0,470.0,1.0,1.0,1.0);
 	}
 }
 
@@ -331,7 +332,7 @@ script 233(void) //CHECKPOINT AREA 3
 //PORTAL SCRIPTS - to be replaced possibly --ozy81
 
 
-//If the NUM_PORTALS constant is set properly, and all your portal tids are in consecutive order,
+// Each portal gets an independent slot; TIDs need not be consecutive.
 //this script will act as a smart switcher (works for multiplayer).  If no player can see the portal
 //it is switched off for better performance.  Use the special 226 (ACS_Executealways) to trigger the
 //script when a player passes over the line.  Passing over the front side of the line will turn it on,
@@ -340,29 +341,17 @@ script 233(void) //CHECKPOINT AREA 3
 
 script 176 (int tid)
 {
-	int x;
-	switch (LineSide ())
-	{
-	case LINE_FRONT:
-		PlayerSeesPortal[PlayerNumber ()] = TRUE;
-		if (!PortalOn)
-		{
-			Thing_Activate (tid);
-			PortalOn  = TRUE;
-		}
-		break;
-	case LINE_BACK:
-		PlayerSeesPortal[PlayerNumber ()] = FALSE;
-		for (int p=0; p<8; p++)
-			if (PlayerInGame (p) && PlayerSeesPortal[PlayerNumber ()])
-				x++;
-		if (!x)
-		{
-			Thing_Deactivate (tid);
-			PortalOn = FALSE;
-		}
-		break;
-	}
+    int p=PlayerNumber();
+    if(p<0 || p>=UTNT_MAX_PLAYERS || tid<=0) terminate;
+    int slot=-1;
+    for(int i=0;i<UTNT_MAX_PORTALS;i++)
+        if(PortalTIDs[i]==tid) { slot=i; break; }
+    if(slot<0)
+        for(i=0;i<UTNT_MAX_PORTALS;i++)
+            if(!PortalTIDs[i]) { slot=i; PortalTIDs[i]=tid; PortalOn[i]=-1; break; }
+    if(slot<0) terminate;
+    PlayerSeesPortal[slot][p]=(LineSide()==LINE_FRONT);
+    UpdatePortal(slot);
 }
 
 script 777 (int length,int radius)
@@ -419,12 +408,13 @@ script "weatherfx"(void)
 
 script 778 DEATH
 {
-	PlayerSeesPortal[PlayerNumber ()] = FALSE;
+	ClearPortalPlayer(PlayerNumber());
+    Thing_ChangeTID(0,0); // A corpse must not shadow the new pawn's 1000+p TID.
 }
 
 script 779 (int p_num) DISCONNECT
 {
-	PlayerSeesPortal[p_num] = FALSE;
+	ClearPortalPlayer(p_num);
 }
 
 //Embers
@@ -434,8 +424,9 @@ str p_spawner[2][6] =
 	{"SparkleShot_W","SparkleShot_R","SparkleShot_G","SparkleShot_Y","SparkleShot_O","SparkleShot_B"},
 };
 
-script 444 (int type,int color,int size) //to be removed, spams script calls
+script 444 (int type,int color,int size) // Legacy external-call adapter; emitters use ZScript.
 {
+	if(type<0 || type>1 || color<0 || color>5 || size<0 || size>32767) terminate;
 	size = size / 2 << 16;
 	Spawn(p_spawner[type][color],GetActorX (0) + random (-size,size),
 		GetActorY (0) + random (-size,size),GetActorZ (0),0,0);
@@ -444,48 +435,20 @@ script 444 (int type,int color,int size) //to be removed, spams script calls
 //Healthbars - warning! related to maps -  to be replaced possibly --ozy81
 script "BOSSHP"(int firstid,int lastid,int boss)
 {
-	SetHudSize(640,480,1);
-	SetFont(bossfont[boss-1]);
-	HudMessageBold(s:"a"; HUDMSG_PLAIN,3,CR_UNTRANSLATED,FRAME_X,FRAME_Y,0.0);
-	SetFont("NORMAL");
-	HudMessageBold(s:"Boss"; HUDMSG_PLAIN,2,CR_GRAY,BOSS_X,BOSS_Y,0.0);
-	delay(1);
-	int color = CR_GREEN,alive=1,currenthp;
-	for(int i=firstid; i<=lastid; i++)
-		currenthp += GetActorProperty(i,APROP_HEALTH);
-	int maxhp = currenthp;
-	while(alive)
-	{
-		currenthp = 0;
-		for(i=firstid; i<=lastid; i++)
-		{
-			if (GetActorProperty(i,APROP_HEALTH) > 0)
-				currenthp += GetActorProperty(i,APROP_HEALTH);
-		}
-		int percent = currenthp*100/maxhp;
-		if (percent <= 75 && percent > 50)
-			color = CR_YELLOW;
-		else if (percent <= 50 && percent > 25)
-			color = CR_ORANGE;
-		else if (percent <= 25 && percent > 0)
-			color = CR_RED;
-		else if (percent <= 0 && currenthp != 0)
-			percent = 1;
-		else if (currenthp == 0)
-		{
-			alive=0;
-			percent = 0;
-		}
-		SetFont("BIGFONT");
-		HudMessageBold(d:percent,s:"%"; HUDMSG_PLAIN,1,color,HP_X,HP_Y,0.286);
-		delay(10);
-	}
-	SetFont("NORMAL");
-	HudMessageBold(s:"Boss"; HUDMSG_FADEOUT,2,CR_GRAY,BOSS_X,BOSS_Y,0.286,1.0);
-	SetFont("BIGFONT");
-	HudMessageBold(d:percent,s:"%"; HUDMSG_FADEOUT,1,color,-HP_X,HP_Y,0.286,1.0);
-	SetFont(bossfont[boss-1]);
-	HudMessageBold(s:"a"; HUDMSG_FADEOUT,3,CR_UNTRANSLATED,FRAME_X,FRAME_Y,0.286,1.0);
+    if(boss<1 || boss>5 || firstid<=0 || lastid<firstid || lastid-firstid>128) terminate;
+    if(BossStarted[boss-1]) terminate;
+    int currenthp=0, hp;
+    for(int i=firstid;i<=lastid;i++) { hp=GetActorProperty(i,APROP_HEALTH); if(hp>0) currenthp+=hp; }
+    if(currenthp<=0) terminate;
+    BossStarted[boss-1]=1;
+    ScriptCall("UTNTWorldHandler","BeginBoss",firstid,lastid,boss,currenthp);
+    while(currenthp>0)
+    {
+        delay(10);
+        currenthp=0;
+        for(i=firstid;i<=lastid;i++) { hp=GetActorProperty(i,APROP_HEALTH); if(hp>0) currenthp+=hp; }
+        ScriptCall("UTNTWorldHandler","UpdateBoss",currenthp);
+    }
 	if(boss==1)
 	{
 		SetMusic("*");
@@ -504,7 +467,7 @@ script "BOSSHP"(int firstid,int lastid,int boss)
 	if(boss==3)
 	{
 		SetFont("NORMAL");
-		printbold(s: "\cCObjective Accomplished:\n\cGYou've killed the Portal Guards");
+		printbold(l:"UTNT_COMMON_058");
 		ambientsound("dudud",255);
 		delay(105);
 		setmusic("*");
@@ -544,3 +507,5 @@ script "BOSSHP"(int firstid,int lastid,int boss)
 		Teleport_NewMap(99,0);
 	}
 }
+script "UTNTCheckpoint"(int pos)
+{ if(pos>=1 && pos<=3) checkpoint(pos); }

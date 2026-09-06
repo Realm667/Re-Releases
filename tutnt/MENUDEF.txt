@@ -27,12 +27,41 @@ ListMenu "SkillMenu"
 
 AddOptionMenu "OptionsMenu"
 {
-	StaticText "$MN_OPUTNT"
+	Submenu "$UTNT_OPTIONS_TITLE", "UTNTOptions"
+}
+
+OptionMenu "UTNTOptions"
+{
+	Title "$UTNT_OPTIONS_TITLE"
+	Option "$UTNT_OPT_REDUCED", "UTNT_reducedfx", "YesNo"
+	Tooltip "$UTNT_TIP_REDUCED"
+	Option "$UTNT_OPT_QUALITY", "UTNT_fxquality", "UTNTQuality"
+	Tooltip "$UTNT_TIP_QUALITY"
+	Option "$MN_OPDIST", "UTNT_lod", "UTNTDist"
+	Slider "$UTNT_OPT_HEAT", "UTNT_heatstrength", 0, 1, 0.1, 1
+	Slider "$UTNT_OPT_WATER", "UTNT_uweffectsize", 0, 0.04, 0.005, 3
+	Option "$MN_OPBLUR", "motionblur", "YesNo"
+	Slider "$UTNT_OPT_BLUR", "motionblur_strength", 0, 100, 5, 0
+	Slider "$UTNT_OPT_SAMPLES", "motionblur_samples", 1, 12, 1, 0
+	Option "$UTNT_OPT_INJURY", "UTNT_lowhealthfx", "YesNo"
+	Option "$UTNT_OPT_BOSS", "UTNT_bosshud", "YesNo"
+	Option "$UTNT_OPT_PERCENT", "UTNT_bosspercent", "YesNo"
+	Slider "$UTNT_OPT_SUBTITLES", "UTNT_subtitlescale", 0.75, 1.5, 0.05, 2
+	Slider "$UTNT_OPT_STEPS", "snd_footstepvolume", 0, 1, 0.1, 1
 	StaticText ""
-	Option "$MN_OPDIST","UTNT_lod","UTNTDist"
-	Option "$MN_OPHEAT","enh_shaderoverlayswitch","YesNo"
-	Option "$MN_OPBLUR","motionblur","YesNo"
-	Option "Weather Effects","weatherfx","OnOff" //to remove
+	StaticText "$UTNT_OPT_SHARED"
+	Option "$UTNT_OPT_HEAT_SHARED", "UTNT_shaderoverlayswitch", "YesNo"
+	Option "$UTNT_OPT_WEATHER", "weatherfx", "OnOff"
+	Option "$UTNT_OPT_ATMOSPHERE", "UTNT_atmosphere", "OnOff"
+	Tooltip "$UTNT_TIP_ATMOSPHERE"
+}
+
+OptionValue "UTNTQuality"
+{
+	0, "$MN_OPNONE"
+	1, "$UTNT_QUALITY_LOW"
+	2, "$UTNT_QUALITY_MEDIUM"
+	3, "$UTNT_QUALITY_HIGH"
 }
 
 OptionValue "UTNTDist"
@@ -42,11 +71,4 @@ OptionValue "UTNTDist"
 	2048, "$MN_OPNORM"
 	4096, "$MN_OPFAR1"
 	8192, "$MN_OPFAR2"
-}
-
-OptionValue PreferBackend //override normal options to avoid unforeseen consequences
-{
-	0, "$OPTVAL_OPENGL"
-	1, "$OPTVAL_VULKAN"
-	//2, "$OPTVAL_SOFTPOLY" // Remove the SoftPoly option, since it will not work well
 }

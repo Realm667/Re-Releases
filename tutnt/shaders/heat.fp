@@ -3,12 +3,12 @@
 
 const float stepsize = 0.000015; // The amplitude of the distortion waves
 const float stepscale = 2.5; // The scale of the effect (this controls the number of repetitions of the pattern that are crammed into screen space, so higher numbers means more repetitions, so smaller effect scale)
-const float timescale = 0.15; // The speed of the effect (modifies timer, so 0.5 means every two timer ticks, 2.0 means every half timer tick, etc.)
+const float timescale = 0.15; // The speed of the effect (modifies (InputTimeGame * 35.0), so 0.5 means every two (InputTimeGame * 35.0) ticks, 2.0 means every half (InputTimeGame * 35.0) tick, etc.)
 const float bluramt = 25; // The max amount of blur to give the scene
 
 float random()
 {
-	vec2 co = vec2(mod(timer, 1000.0) / 1000.0, 1.0);
+	vec2 co = vec2(mod((InputTimeGame * 35.0), 1000.0) / 1000.0, 1.0);
 	return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453); // This is a commonly used pseudo-random number algortihm for GLSL
 }
 
@@ -17,12 +17,12 @@ void main()
 	// Max amount is 128
 	float amt = clamp(amount, 0.0, 128.0);
 
-	// Calculate timer-based modifier value that accounts for stepsize
+	// Calculate (InputTimeGame * 35.0)-based modifier value that accounts for stepsize
 	float step = stepsize * 8750000.0; // No idea why I'm using this modifier value, but it works.  Trial and error...
-	float t = step + mod(radians(timer * timescale), radians(90.0)) * step;
+	float t = step + mod(radians((InputTimeGame * 35.0) * timescale), radians(90.0)) * step;
 
 	// Re-center the coordinates so that the edges of the screen actually distort equally
-	float coordx = mod(timer * timescale, 750.0) / 1000.0 - abs(TexCoord.x - 0.5);
+	float coordx = mod((InputTimeGame * 35.0) * timescale, 750.0) / 1000.0 - abs(TexCoord.x - 0.5);
 
 	vec2 offset = vec2(0.0);
 	offset.x = stepsize * amt * sin(stepscale * TexCoord.y) * sin(t * mod(coordx, 1.0));
