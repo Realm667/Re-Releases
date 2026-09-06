@@ -16,7 +16,7 @@ def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
     config.write_text('[GlobalSettings]\nvid_fullscreen=false\nwin_w=978\nwin_h=587\nvid_vsync=false\nvid_maxfps=120\n')
     args=[str(engine),'-iwad',str(iwad),'-file',str(mod or root/'tutnt')]
     if addon: args.append(str(pathlib.Path(addon).resolve()))
-    args+=['-config',str(config),'-savedir',str(logs/'saves'),'-noautoload','-nosound','-stdout','-noidle']
+    args+=['-config',str(config),'-savedir',str(logs/'saves'),'-noautoload','-nosound','-stdout','-noidle','-rngseed','667']
     if mapname:
         args+=['+vid_fullscreen','false','+vid_preferbackend',str(renderer),'+playerclass',playerclass]
         for name,value in settings: args+=['+'+name,str(value)]
@@ -36,7 +36,7 @@ def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
     except subprocess.TimeoutExpired as e:
         output=((e.stdout or b'')+(e.stderr or b'')).decode(errors='replace'); code=-1
     log=logs/(label+'.log'); log.write_text(output,encoding='utf-8')
-    errors=[s for s in ('UTNT_ASSERT FAIL','VM execution aborted','errors while parsing','Script error,','Execution could not continue','ACS: Unknown') if s in output]
+    errors=[s for s in ('UTNT_ASSERT FAIL','VM execution aborted','errors while parsing','Script error,','Execution could not continue','ACS: Unknown','P_StartScript: Unknown script') if s in output]
     if mapname and 'UTNT_TEST_END' not in output: errors.append('missing completion marker')
     if regression and 'UTNT_REGRESSION_COMPLETE' not in output: errors.append('missing regression assertions')
     result={'label':label,'ok':code in (0,1337) and not errors,'exit':code,'seconds':round(time.monotonic()-start,2),'log':str(log),'errors':errors,'assertions':output.count('UTNT_ASSERT PASS')}

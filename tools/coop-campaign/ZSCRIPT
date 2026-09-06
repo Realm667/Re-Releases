@@ -1,0 +1,45 @@
+version "5.0.0"
+class UTNTCoopCampaign : EventHandler
+{
+    void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",text); }
+    override void WorldTick()
+    {
+        if (level.MapName ~== "TNT04A")
+        {
+            if (level.time==50)
+                for(int i=0;i<4;i++) Check(playeringame[i] && (players[i].cheats&CF_TOTALLYFROZEN),"four players enter original opening cutscene");
+            if(level.time==100) players[1].mo.DamageMobj(null,null,10000,'None',DMG_FORCED);
+            if(level.time==110) players[1].playerstate=PST_REBORN;
+            if(level.time==150) Check(players[1].mo.Health>0 && players[1].mo.TID==1001,"player respawns during original cutscene");
+            if(level.time==1900)
+                for(int i=0;i<4;i++)
+                {
+                    Check(players[i].mo.Health>0 && !(players[i].cheats&CF_TOTALLYFROZEN),"opening cutscene releases every live player after respawn");
+                    Check(players[i].inconsistent==0,"cutscene death and respawn remain synchronized");
+                }
+            if(level.time==1930) players[0].mo.A_CallSpecial(74,7);
+        }
+        else if(level.MapName ~== "TNT04B" && level.time==50)
+        {
+            for(int i=0;i<4;i++)
+                Check(playeringame[i] && players[i].mo && players[i].mo.Health>0 && players[i].inconsistent==0,"four players complete campaign map transition");
+            Console.Printf("UTNT_COOP_CAMPAIGN_COMPLETE");
+        }
+    }
+}
+
+// Test-only equivalent of each peer pressing ready on the stock statistics screen.
+class UTNTAutoCoopStats : CoopStatusScreen
+{
+    int TestTics;
+    override void OnTick()
+    {
+        Super.OnTick();
+        if(++TestTics==35) UTNTTestReady.SendReady();
+    }
+}
+
+class UTNTTestReady : ScreenJobRunner
+{
+    static void SendReady() { ReadyPlayer(); }
+}

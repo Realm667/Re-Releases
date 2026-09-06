@@ -132,20 +132,16 @@ class NashGoreStatics play
 				count++;
 			}
 
-			// clean up excessive gore
-			while (count > countmax)
-			{
-				// destroy the first one it can find
-				it.Reinit();
-				if (mo = Actor(it.Next()))
-				{
-					bool valid = (mo is "NashGoreBloodPlane" || mo is "NashGoreGibs" ||
-									mo is "NashGoreIceChunk" || mo is "NashGoreSquishyGibs");
-
-					if (valid) mo.Destroy();
-					count--;
-				}
-			}
+            // Clamp invalid console values and scan each candidate once. Unsupported
+            // objects in this stat must neither block cleanup nor count as removed.
+            countmax=max(0,countmax);
+            it.Reinit();
+            while (count>countmax && (mo=Actor(it.Next())))
+            {
+                bool valid=mo is "NashGoreBloodPlane" || mo is "NashGoreGibs"
+                    || mo is "NashGoreIceChunk" || mo is "NashGoreSquishyGibs";
+                if (valid) { mo.Destroy(); count--; }
+            }
 		}
 	}
 

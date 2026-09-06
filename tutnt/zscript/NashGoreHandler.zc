@@ -72,7 +72,7 @@ class NashGoreHandler : EventHandler
 	override void WorldTick(void)
 	{
 		// update gore queue
-		maxgore_new = nashgore_maxgore;
+		maxgore_new = max(0, nashgore_maxgore);
 		if (maxgore_old != maxgore_new)
 		{
 			maxgore = maxgore_new;

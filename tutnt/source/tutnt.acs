@@ -119,6 +119,8 @@ str voiceclip[35]=
 	"VOC026","VOC027","VOC028","VOC029","VOC030",
 	"VOC031","VOC032","VOC033","VOC034","VOC035"
 };
+// Audio durations in tics, measured from the shipped Ogg granule positions.
+int voiceDuration[35]={99,346,329,45,140,111,189,123,130,67,20,59,339,187,130,72,173,67,165,728,738,129,140,86,101,86,150,215,59,32,167,177,96,89,206};
 str voicetext[35]=
 {
 	"UTNT_VOICE_019",
@@ -163,7 +165,7 @@ script "PlayerVoice"(int clip)
 	int holdtime=2.0;
 	SetHudSize(640,480,0);
 	SetFont("SmallFont");
-	AmbientSound(voiceclip[clip-1],127);
+
 	if(clip==2||clip==4||clip==11||clip==20||clip==21)
 		holdtime=1.0;
 	else if(clip==6||clip==7||clip==8||clip==26||clip==34)
@@ -172,7 +174,7 @@ script "PlayerVoice"(int clip)
 		holdtime=4.0;
 	else if(clip==13)
 		holdtime=7.0;
-    ScriptCall("UTNTWorldHandler","BeginVoice",voicetext[clip-1],holdtime>>16);
+    ScriptCall("UTNTWorldHandler","BeginVoice",voicetext[clip-1],holdtime>>16,voiceclip[clip-1],voiceDuration[clip-1]);
     if(clip==2)
     {
         delay(210);
@@ -192,6 +194,14 @@ script "Maplaunch" ENTER
 	FadeRange(0,0,0,1.0,0,0,0,0.0,1.5);
 }
 
+function int HeartbeatVolume(int volume)
+{
+    int setting=GetUserCVar(PlayerNumber(), "UTNT_heartbeatvolume");
+    if(setting<0) setting=0;
+    if(setting>1.0) setting=1.0;
+    return FixedMul(volume,setting);
+}
+
 //lowhealth scripts - from BoA
 script "30Health" ENTER
 {
@@ -206,8 +216,9 @@ script "30Health" ENTER
 	while (true)
 	{
 		int health = GetActorProperty(0, APROP_HEALTH);
-		if (health > 0 && health <= 30 && GetUserCVar(PlayerNumber(), "UTNT_lowhealthfx") && !GetUserCVar(PlayerNumber(), "UTNT_reducedfx"))
+		if (health > 0 && health <= 30)
 		{
+			if (GetUserCVar(PlayerNumber(), "UTNT_lowhealthfx") && !GetUserCVar(PlayerNumber(), "UTNT_reducedfx"))
 			HudMessage(s:"A"; HUDMSG_FADEINOUT, 0, CR_WHITE, half_width, half_height, 0.0, 0.5, 0.5);
 
 			// Volume and delay of heartbeat (faster and louder with less health).
@@ -228,9 +239,9 @@ script "30Health" ENTER
 				delay2 = 24;
 			}
 
-			LocalAmbientSound("hbeat", volume);
+			LocalAmbientSound("hbeat", HeartbeatVolume(volume));
 			Delay(delay1);
-			LocalAmbientSound("hbeat", volume);
+			LocalAmbientSound("hbeat", HeartbeatVolume(volume));
 			Delay(delay2);
 		}
 
@@ -299,8 +310,15 @@ script 800 RESPAWN
 {
 	//important stuff
 	Thing_ChangeTID(0,1000+PlayerNumber()); //This re-assigns the TID,more to ensure you have it than anything else.
-	int destination=(position*100)+1000+PlayerNumber();
-    if (position>0 && ThingCount(T_NONE,destination)>0) Teleport(destination); //The player is teleported to their checkpoint as soon as they respawn
+    if (position>0)
+    {
+        // Retry briefly if peers respawn together; never telefrag a teammate.
+        for (int attempt=0; attempt<35; attempt++)
+        {
+            if (ScriptCall("UTNTWorldHandler","RespawnAtCheckpoint",PlayerNumber(),position)) break;
+            Delay(1);
+        }
+    }
 }
 
 function void checkpoint(int pos)

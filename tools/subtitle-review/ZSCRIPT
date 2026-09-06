@@ -1,0 +1,32 @@
+version "5.0.0"
+class UTNTSubtitleReview : EventHandler
+{
+    override void WorldTick()
+    {
+        if(level.time==10)
+        {
+            UTNTWorldHandler.BeginVoice("UTNT_COMMON_056",10);
+            UTNTWorldHandler.BeginVoice("UTNT_COMMON_057",10);
+        }
+        if(level.time==50)
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Console.Printf("UTNT_ASSERT %s: queued subtitle has not replaced the current line",h.VoiceKey=="UTNT_COMMON_056" && h.VoiceQueueKeys.Size()==1 ? "PASS" : "FAIL");
+        }
+        if(level.time==400)
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Console.Printf("UTNT_ASSERT %s: saved subtitle queue advances to the next line",h.VoiceKey=="UTNT_COMMON_057" && h.VoiceQueueKeys.Size()==0 ? "PASS" : "FAIL");
+            Console.Printf("UTNT_SUBTITLE_COMPLETE");
+        }
+    }
+}
+class UTNTSubtitlePersistence : StaticEventHandler
+{
+    override void WorldLoaded(WorldEvent e)
+    {
+        if(!e.IsSaveGame) return;
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        Console.Printf("UTNT_ASSERT %s: active subtitle and pending queue survive save/load",h.VoiceKey=="UTNT_COMMON_056" && h.VoiceQueueKeys.Size()==1 ? "PASS" : "FAIL");
+    }
+}

@@ -94,7 +94,7 @@ class UTNTRegression : EventHandler
             if (level.time==245)
             {
                 Check(p.Health>0 && p.TID==1000,"respawn restores pawn and TID");
-                Check(abs(p.Pos.Y+200)<4 && p.Pos.X>=195,"respawn reaches shared checkpoint");
+                Check(abs(p.Pos.Y+200)<=128 && p.Pos.X>=136,"respawn reaches shared checkpoint");
             }
             if (level.time==285)
             {
@@ -129,5 +129,105 @@ class UTNTShaderRegression : StaticEventHandler
         Shader.SetUniform1i(player,'motionblur','samples',6);
         Shader.SetUniform1f(player,'motionblur','increment',1.0/6);
         Shader.SetUniform1i(player,'motionblur','blendmode',1);
+    }
+}
+
+class UTNTCheckpointBlocker : Actor
+{
+    Default { Radius 24; Height 64; +SOLID +NOGRAVITY }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+class UTNTSecondPassRegression : EventHandler
+{
+    bool FourPlayers;
+    void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",text); }
+    override void WorldTick()
+    {
+        if (!(level.MapName ~== "UTNTTEST")) return;
+        if (level.time==5) FourPlayers=playeringame[3];
+        if (level.time==100)
+        {
+            int ambient=UTNTVisuals.ReserveCount(10000);
+            int combat=UTNTVisuals.ReserveCount(10000,true);
+            int quality=CVar.GetCVar('UTNT_fxquality',players[consoleplayer]).GetInt();
+            bool reduced=CVar.GetCVar('UTNT_reducedfx',players[consoleplayer]).GetBool();
+            Check(quality==0 ? ambient==0 && combat==0 : combat>0,"combat budget survives ambient exhaustion");
+            if (reduced) Check(ambient<=32 && combat<=24,"reduced profile caps both effect budgets");
+            Check(UTNTVisuals.ReserveCount(10,true)==0,"combat budget enforces its upper bound");
+            Check(UTNTVisuals.ReserveCount(-1,true)==0,"invalid emission request rejected");
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            String active=h.VoiceKey;
+            UTNTWorldHandler.BeginVoice("UTNT_COMMON_056",2);
+            UTNTWorldHandler.BeginVoice("UTNT_COMMON_056",2);
+            Check(h.VoiceKey==active && h.VoiceQueueKeys.Size()==1,"voice overlap queues once without replacing active audio");
+        }
+        if(level.time==105)
+        {
+            let sentinel=Actor.Spawn('UTNTCheckpointBlocker',(450,450,0));
+            sentinel.ChangeStatNum(STAT_NashGore_Gore);
+            let gib=Actor.Spawn('NashGoreGibs',(450,400,0));
+            let gore=NashGoreHandler(EventHandler.Find('NashGoreHandler'));
+            int previous=gore.maxgore;gore.maxgore=-1;
+            NashGoreStatics.QueueGore();
+            Check(sentinel && !sentinel.bDestroyed,"gore cleanup preserves unsupported stat members");
+            Check(!gib || gib.bDestroyed,"negative gore limit terminates and removes eligible gore");
+            gore.maxgore=previous;sentinel.Destroy();
+        }
+        if (!FourPlayers) return;
+        if(level.time==215)
+        {
+            let p=players[0].mo;
+            Vector3 before=p.Pos;
+            bool moved=UTNTWorldHandler.SafeCheckpointMove(p,(200,-200,0));
+            Console.Printf("UTNT_CHECKPOINT_PROBE moved=%d before=(%f,%f,%f) after=(%f,%f,%f)",moved,before.X,before.Y,before.Z,p.Pos.X,p.Pos.Y,p.Pos.Z);
+            Check(!moved,"ground-level solid blocker rejects checkpoint move");
+            Check(p.Pos==before,"rejected checkpoint move preserves original position");
+        }
+        if(level.time==218)
+        {
+            let local=players[consoleplayer];
+            int profile=CVar.GetCVar('UTNT_fxquality',local).GetInt();
+            Check(CVar.GetCVar('UTNT_shaderoverlayswitch',local).GetBool()==bool(profile%2),"heat setting remains local");
+            Check(CVar.GetCVar('UTNT_ambientsmoke',local).GetBool()!=bool(profile%2),"smoke setting is independent of heat");
+            Check(abs(CVar.GetCVar('UTNT_heartbeatvolume',local).GetFloat()-profile/3.0)<0.01,"heartbeat volume remains local");
+            Check(CVar.GetCVar('UTNT_lowhealthfx',local).GetBool()==bool(profile%2),"injury overlay remains independently configurable");
+        }
+        if (level.time==220)
+            for (int i=0;i<4;i++)
+            {
+                let p=players[i].mo;
+                p.GiveInventory('BlueCard',1);
+                p.GiveInventory('UTNTRocketLauncher',1);
+                p.GiveInventory('RocketAmmo',8);
+            }
+        if (level.time==230)
+            for (int i=1;i<4;i++) players[i].mo.DamageMobj(null,null,10000,'None',DMG_FORCED);
+        if (level.time==238)
+            for (int i=1;i<4;i++)
+            {
+                Check(players[i].mo.Health<=0 && players[i].mo.TID==0,"peer death releases corpse TID");
+                players[i].playerstate=PST_REBORN;
+            }
+        if (level.time==260)
+            for (int i=0;i<4;i++)
+            {
+                let p=players[i].mo;
+                Check(p.Health>0 && p.TID==1000+i,"four players respawn with distinct TIDs");
+                Check(p.Pos.X>=136 && p.Pos.Y<=-72,"occupied checkpoint uses a safe nearby position");
+                let blocker=ActorIterator.Create(30990).Next();
+                if(blocker) Console.Printf("UTNT_CHECKPOINT_POSITION player=%d pawn=(%f,%f,%f) h=%f r=%f blocker=(%f,%f,%f) h=%f solid=%d",i,p.Pos.X,p.Pos.Y,p.Pos.Z,p.Height,p.Radius,blocker.Pos.X,blocker.Pos.Y,blocker.Pos.Z,blocker.Height,blocker.bSolid);
+                Check(!blocker || p.Distance2D(blocker)>=p.Radius+blocker.Radius,"checkpoint fallback avoids non-shootable solid blocker");
+                Check(p.TestMobjLocation(),"checkpoint fallback fits map geometry and height");
+                Check(p.FindInventory('BlueCard')!=null && p.FindInventory('UTNTRocketLauncher')!=null,"coop respawn preserves keys and acquired weapons");
+                Check(p.FindInventory('RocketAmmo')!=null && p.FindInventory('RocketAmmo').Amount>=8,"coop respawn preserves acquired ammo");
+                Check(p.FindBehavior('UTNTPlayerEffects')!=null,"coop respawn recreates player effects");
+                for(int j=0;j<i;j++) Check(p.Distance2D(players[j].mo)>=p.Radius+players[j].mo.Radius,"simultaneous respawns do not overlap");
+            }
+        if (level.time==430)
+        {
+            int remaining=0; for(int i=0;i<MAXPLAYERS;i++) if(playeringame[i]) remaining++; Check(remaining==3,"one of four peers disconnects cleanly");
+            for (int i=0;i<MAXPLAYERS;i++) if(playeringame[i]) Check(players[i].inconsistent==0,"remaining peers synchronized after disconnect");
+            Console.Printf("UTNT_FOURPLAYER_COMPLETE");
+        }
     }
 }

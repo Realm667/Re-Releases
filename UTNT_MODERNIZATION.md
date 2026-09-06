@@ -1,5 +1,7 @@
 # UTNT remaster implementation — 2026-09-06
 
+Historical first-pass report. The current follow-up, map corrections, four-player coverage and updated acceptance tools are documented in [UTNT_SECOND_PASS.md](UTNT_SECOND_PASS.md). Use the second-pass structural check for the current sources; the original map-preservation check describes the first-pass baseline.
+
 Runtime target: UZDoom 5.0.1. Tested with the local Windows build dated 2026-09-05, NVIDIA RTX 4080, OpenGL and Vulkan. ZScript language level is 5.0.0. Older GZDoom builds are no longer a supported target for these sources.
 
 ## Changes

@@ -1,0 +1,94 @@
+version "5.0.0"
+class UTNTReviewCamera : Actor
+{
+    Default { Radius 1; Height 1; +NOINTERACTION +NOGRAVITY }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+class UTNTAtmosphereReview : EventHandler
+{
+    Array<Color> OriginalFades;
+    bool SawAtmosphere;
+    Array<int> ManagedSectors;
+    int ExternalSector;
+    override void WorldTick()
+    {
+        let p=players[0].mo;if(!p) return;p.bInvulnerable=true;
+        if(level.time==20)
+        {
+            ExternalSector=-1;
+            Actor best=null;double bestZ=-100000;
+            let it=ThinkerIterator.Create('Actor');Actor a;
+            TextureID sky=TexMan.CheckForTexture('F_SKY1');
+            while(a=Actor(it.Next()))
+            {
+                if(!a.bIsMonster || !a.bCountKill || a.bDormant) continue;
+                if(a.CurSector.GetTexture(Sector.ceiling)!=sky || a.FloorZ<=bestZ || a.FloorZ>10000) continue;
+                if(a.CeilingZ-a.FloorZ<128 || a.bMissile || a is 'Inventory') continue;
+                best=a;bestZ=a.FloorZ;
+            }
+            if(best)
+            {
+                for(int step=0;step<8;step++)
+                {
+                    Vector3 point=best.Vec3Angle(-96,best.Angle+step*45,0);
+                    if(UTNTWorldHandler.SafeCheckpointMove(p,point))
+                    { p.Angle=best.Angle+step*45; p.Pitch=0;
+                        double widest=-1;
+                        for(int direction=0;direction<16;direction++)
+                        {
+                            double score=0;
+                            for(int ray=-1;ray<=1;ray++)
+                            {
+                                FLineTraceData trace;
+                                bool hit=p.LineTrace(direction*22.5+ray*15,2048,0,TRF_THRUACTORS,32,0,0,trace);
+                                score+=hit ? trace.Distance : 2048;
+                            }
+                            if(score>widest) {widest=score;p.Angle=direction*22.5;}
+                        }
+                        break; }
+                }
+                Console.Printf("UTNT_REVIEW_CAMERA %.1f %.1f %.1f angle %.1f",p.Pos.X,p.Pos.Y,p.Pos.Z,p.Angle);
+            }
+            p.ACS_NamedTerminate("IntroText",0);
+        }
+        if(level.time==30)
+            for(int i=0;i<level.Sectors.Size();i++) OriginalFades.Push(level.Sectors[i].ColorMap.FadeColor);
+        if(level.time==160)
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            for(int i=0;i<h.AtmosphereSectors.Size();i++) ManagedSectors.Push(h.AtmosphereSectors[i]);
+            SawAtmosphere=h.AtmosphereApplied && h.AtmosphereSectors.Size()>0;
+            Console.Printf("UTNT_ASSERT %s: map atmosphere changes outdoor fades",SawAtmosphere ? "PASS" : "FAIL");
+        }
+        if(level.time==190 && ManagedSectors.Size()>0)
+        {
+            ExternalSector=ManagedSectors[0];
+            level.Sectors[ExternalSector].SetFade(0x123456);
+        }
+        if(level.time==240)
+        {
+            bool restored=OriginalFades.Size()==level.Sectors.Size();
+            // The original peak day/night scripts deliberately animate other fades.
+            // Verify only the sectors this feature owns, leaving that animation intact.
+            for(int n=0;n<ManagedSectors.Size();n++)
+            {
+                int i=ManagedSectors[n];
+                if(i!=ExternalSector && OriginalFades[i]!=level.Sectors[i].ColorMap.FadeColor) restored=false;
+            }
+            Console.Printf("UTNT_ASSERT %s: disabling atmosphere after save/load restores authored fades",restored && SawAtmosphere ? "PASS" : "FAIL");
+            Console.Printf("UTNT_ASSERT %s: disabling atmosphere preserves a newer map-script fade",ExternalSector>=0 && level.Sectors[ExternalSector].ColorMap.FadeColor==0x123456 ? "PASS" : "FAIL");
+            Console.Printf("UTNT_VISUAL_REVIEW_COMPLETE");
+        }
+    }
+}
+class UTNTVisualSaveReview : StaticEventHandler
+{
+    override void WorldLoaded(WorldEvent e)
+    {
+        if(e.IsSaveGame)
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Console.Printf("UTNT_ASSERT %s: active atmosphere survives save/load",h && h.AtmosphereApplied && h.AtmosphereSectors.Size()>0 ? "PASS" : "FAIL");
+        }
+    }
+}

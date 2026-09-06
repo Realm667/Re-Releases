@@ -1,0 +1,114 @@
+version "5.0.0"
+
+// Executes original map scripts and boss completion actions in the real maps.
+class UTNTCampaignRegression : EventHandler
+{
+    int BossScript, BossKind, DoorTag;
+    double DoorBefore;
+    bool Started, Killed;
+    void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",text); }
+    double Ceiling(int tag)
+    {
+        let iter=level.CreateSectorTagIterator(tag); int i=iter.Next();
+        double total=0; if(i<0) return -999999; do { total+=level.Sectors[i].GetPlaneTexZ(BossKind==3 ? Sector.floor : Sector.ceiling); i=iter.Next(); } while(i>=0); return total;
+    }
+    override void WorldLoaded(WorldEvent e)
+    {
+        if (e.IsSaveGame) { Check(Started && !Killed,"boss encounter survives save and load before completion"); return; }
+        if (level.MapName ~== "INTERMAP")
+        { Console.Printf("UTNT_CAMPAIGN_ENDING_REACHED"); return; }
+        if (level.MapName ~== "TNT01") { BossScript=106; BossKind=1; DoorTag=17; }
+        else if (level.MapName ~== "TNT02") { BossScript=106; BossKind=2; DoorTag=57; }
+        else if (level.MapName ~== "TNT03B") { BossScript=166; BossKind=3; DoorTag=6; }
+        else if (level.MapName ~== "TNT04C" || level.MapName ~== "TNT04CN") { BossScript=140; BossKind=5; }
+        else if (level.MapName ~== "TNTLE") { BossScript=106; BossKind=4; }
+    }
+    override void WorldTick()
+    {
+        if (level.MapName ~== "INTERMAP" && level.time==5) Console.Printf("UTNT_CAMPAIGN_ENDING_REACHED");
+        let p=players[0].mo;
+        if(level.time==200 || level.time==250 || level.time==400) Console.Printf("UTNT_CAMPAIGN_STATE script=%d kind=%d tic=%d",BossScript,BossKind,level.time);
+        if (!p || !BossScript) return;
+        p.bInvulnerable=true;
+        if (level.time==35)
+        {
+            if (DoorTag) DoorBefore=Ceiling(DoorTag);
+            Check(p.A_CallSpecial(226,BossScript),"original map boss trigger starts with player activator");
+        }
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if (level.time==140)
+        {
+            Check(h.BossKind==BossKind && h.BossHP>0,"original encounter registers live bosses");
+            if(DoorTag) DoorBefore=Ceiling(DoorTag); Started=true;
+        }
+        if (level.time==240)
+        {
+            for(int tid=h.BossFirstTID;tid<=h.BossLastTID;tid++)
+            {
+                let iter=ActorIterator.Create(tid); Actor boss;
+                while(boss=iter.Next()) { boss.bInvulnerable=false; boss.DamageMobj(p,p,1000000,'None',DMG_FORCED); boss.Health=0; }
+            }
+            Console.Printf("UTNT_CAMPAIGN_KILL first=%d last=%d hp=%d",h.BossFirstTID,h.BossLastTID,h.BossHP); Killed=true;
+        }
+        if(level.time==400) { Console.Printf("UTNT_BOSS_AFTER hp=%d max=%d ended=%d",h.BossHP,h.BossMaxHP,h.BossEndTime); let bi=ActorIterator.Create(h.BossFirstTID); Actor ba; while(ba=bi.Next()) Console.Printf("UTNT_BOSS_ACTOR %s hp=%d",ba.GetClassName(),ba.Health); }
+        if (level.time==420 && BossKind<=3)
+        {
+            Check(h.BossHP==0 && h.BossEndTime>0,"boss death completes the saved encounter");
+            Check(BossKind==3 ? Ceiling(DoorTag)<DoorBefore : Ceiling(DoorTag)>DoorBefore,"original boss completion opens campaign barrier");
+            Console.Printf("UTNT_CAMPAIGN_GATE_COMPLETE");
+        }
+    }
+}
+class UTNTCampaignPersistence : StaticEventHandler
+{
+    override void WorldLoaded(WorldEvent e)
+    {
+        if (e.IsSaveGame) Console.Printf("UTNT_CAMPAIGN_SAVE_RESTORED");
+    }
+}
+
+
+
+class UTNTMapGateRegression : EventHandler
+{
+    bool HazardStopped, GateStarted;
+    double Before;
+    double GateCeiling()
+    {
+        let it=level.CreateSectorTagIterator(28); int i=it.Next();
+        return i<0 ? -999999 : level.Sectors[i].GetPlaneTexZ(Sector.ceiling);
+    }
+    override void WorldTick()
+    {
+        bool peak=level.MapName ~== "TNT03A1" || level.MapName ~== "TNT03A2";
+        bool portal=level.MapName ~== "TNT04B";
+        if(!peak && !portal) return;
+        let p=players[0].mo;if(!p) return;p.bInvulnerable=true;
+        if(level.time==35)
+        { Before=GateCeiling(); GateStarted=p.A_CallSpecial(80,14); }
+        if(level.time==70 && peak) p.A_CallSpecial(80,15);
+        if(level.time==140 && peak)
+        {
+            HazardStopped=p.A_CallSpecial(80,14);
+            p.A_CallSpecial(82,14);
+            Console.Printf("UTNT_ASSERT %s: switch terminates the local repeating rocket hazard",HazardStopped ? "PASS" : "FAIL");
+        }
+        if(level.time==300)
+        {
+            bool ok=peak ? HazardStopped : GateStarted && GateCeiling()>Before;
+            Console.Printf("UTNT_ASSERT %s: map progression switch and state survive save/load",ok ? "PASS" : "FAIL");
+            Console.Printf("UTNT_CAMPAIGN_GATE_COMPLETE");
+        }
+    }
+}
+
+// Test-only equivalent of pressing continue on the stock statistics screen.
+class UTNTAutoSingleStats : DoomStatusScreen
+{
+    int TestTics;
+    override void OnTick()
+    {
+        Super.OnTick();
+        if(++TestTics%35==0) nextStage();
+    }
+}

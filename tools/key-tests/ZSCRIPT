@@ -1,0 +1,36 @@
+version "5.0.0"
+// Checks the locks actually referenced by each map, without activating unrelated doors.
+class UTNTKeyContracts : EventHandler
+{
+    Array<int> Locks;
+    override void WorldTick()
+    {
+        let p=players[0].mo;if(!p) return;p.bInvulnerable=true;
+        if(level.time==35)
+        {
+            for(int i=0;i<level.Lines.Size();i++)
+            {
+                let line=level.Lines[i];
+                int lock=line.locknumber;
+                if(line.special==13) lock=line.args[3];
+                if(line.special==83 || line.special==85) lock=line.args[4];
+                if(lock>0 && Locks.Find(lock)==Locks.Size()) Locks.Push(lock);
+            }
+            bool denied=Locks.Size()>0;
+            for(int i=0;i<Locks.Size();i++) if(p.CheckKeys(Locks[i],false,true)) denied=false;
+            Console.Printf("UTNT_ASSERT %s: actual map locks reject a player without keys",denied ? "PASS" : "FAIL");
+            p.GiveInventory('RedCard',1);p.GiveInventory('BlueCard',1);p.GiveInventory('YellowCard',1);
+            p.GiveInventory('RedSkull',1);p.GiveInventory('BlueSkull',1);p.GiveInventory('YellowSkull',1);
+            bool accepted=true;
+            for(int i=0;i<Locks.Size();i++) if(!p.CheckKeys(Locks[i],false,true)) accepted=false;
+            Console.Printf("UTNT_ASSERT %s: actual map locks accept the campaign keys",accepted ? "PASS" : "FAIL");
+        }
+        if(level.time==140)
+        {
+            bool accepted=Locks.Size()>0;
+            for(int i=0;i<Locks.Size();i++) if(!p.CheckKeys(Locks[i],false,true)) accepted=false;
+            Console.Printf("UTNT_ASSERT %s: acquired campaign keys and lock contracts survive save/load",accepted ? "PASS" : "FAIL");
+            Console.Printf("UTNT_KEYS_COMPLETE locks=%d",Locks.Size());
+        }
+    }
+}

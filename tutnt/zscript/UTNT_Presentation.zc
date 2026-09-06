@@ -54,26 +54,136 @@ class UTNTWorldHandler : EventHandler
     Array<EffectGiver> HeatSources;
     int BossKind, BossHP, BossMaxHP, BossFirstTID, BossLastTID, BossEndTime;
     bool AtmosphereApplied;
+    Array<int> AtmosphereSectors;
+    Array<Color> AtmosphereOriginalFades;
     String VoiceKey;
     int VoiceStartTime, VoiceEndTime;
+    Array<String> VoiceQueueKeys, VoiceQueueSounds;
+    Array<int> VoiceQueueDurations;
 
-    static void BeginVoice(String key, int seconds)
+    static void BeginVoice(String key, int seconds, String soundName = "", int durationTics = 0)
     {
         let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
-        if (!handler) return;
-        handler.VoiceKey=key;
-        handler.VoiceStartTime=level.time;
-        handler.VoiceEndTime=level.time+max(1,seconds)*35;
+        if (!handler || key.Length()==0) return;
+        // Prevent duplicate triggers from queuing the same line repeatedly in coop.
+        if (handler.VoiceKey==key && level.time<handler.VoiceEndTime) return;
+        for (int i=0; i<handler.VoiceQueueKeys.Size(); i++)
+            if (handler.VoiceQueueKeys[i]==key) return;
+        handler.VoiceQueueKeys.Push(key);
+        handler.VoiceQueueSounds.Push(soundName);
+        handler.VoiceQueueDurations.Push(max(max(1,seconds)*35,durationTics));
+    }
+
+    void TickVoice()
+    {
+        if (level.time<VoiceEndTime+18 || !VoiceQueueKeys.Size()) return;
+        VoiceKey=VoiceQueueKeys[0];
+        String soundName=VoiceQueueSounds[0];
+        VoiceStartTime=level.time;
+        int duration=VoiceQueueDurations[0];
+        if (soundName.Length()>0)
+        {
+            S_StartSound(Sound(soundName),CHAN_VOICE,0,1.0,ATTN_NONE); // Original ACS volume: 127 / 127.
+        }
+        VoiceEndTime=level.time+duration;
+        VoiceQueueKeys.Delete(0); VoiceQueueSounds.Delete(0); VoiceQueueDurations.Delete(0);
+    }
+
+    static bool SafeCheckpointMove(Actor pawn, Vector3 point)
+    {
+        if (!pawn) return false;
+        // TeleportMove ignores non-shootable solids. CheckPosition also permits
+        // existing player overlaps for unsticking, so reject occupied volumes first.
+        let actors=BlockThingsIterator.CreateFromPos(point.X,point.Y,point.Z,pawn.Height,pawn.Radius,false);
+        while (actors.Next())
+        {
+            let other=actors.thing;
+            if (other==pawn || !other.bSolid) continue;
+            double radius=pawn.Radius+other.Radius;
+            Vector3 relative=actors.position;
+            if (abs(other.Pos.X-relative.X)<radius && abs(other.Pos.Y-relative.Y)<radius
+                && relative.Z<other.Pos.Z+other.Height && relative.Z+pawn.Height>other.Pos.Z)
+                return false;
+        }
+        Vector3 previous=pawn.Pos;
+        bool pickup=pawn.bPickup;
+        pawn.bPickup=false;
+        pawn.SetOrigin(point,false);
+        FCheckPosition check;
+        bool fits=pawn.CheckPosition(point.XY,false,check)
+            && point.Z>=check.floorz && point.Z+pawn.Height<=check.ceilingz;
+        pawn.SetOrigin(previous,false);
+        pawn.bPickup=pickup;
+        return fits && pawn.TeleportMove(point,false);
+    }
+
+    static bool RespawnAtCheckpoint(int playerNumber, int checkpoint)
+    {
+        if (playerNumber<0 || playerNumber>=MAXPLAYERS || checkpoint<1 || checkpoint>3) return false;
+        let pawn=players[playerNumber].mo;
+        if (!pawn || pawn.Health<=0) return false;
+        // Prefer the player's map-authored destination, then other authored slots.
+        for (int slot=0; slot<8; slot++)
+        {
+            int destination=1000+checkpoint*100+(playerNumber+slot)%8;
+            let it=ActorIterator.Create(destination);
+            Actor spot;
+            while (spot=it.Next())
+            {
+                if (SafeCheckpointMove(pawn,spot.Pos))
+                { pawn.Angle=spot.Angle; pawn.Vel=(0,0,0); return true; }
+                // Collision-checked ring; walls, actors and low ceilings remain solid.
+                double spacing=max(64,pawn.Radius*2+8);
+                for (int ring=1; ring<=2; ring++)
+                    for (int step=0; step<8; step++)
+                    {
+                        double angle=(step+playerNumber)*45;
+                        Vector3 point=spot.Pos+(cos(angle)*spacing*ring,sin(angle)*spacing*ring,0);
+                        if (SafeCheckpointMove(pawn,point))
+                        { pawn.Angle=spot.Angle; pawn.Vel=(0,0,0); return true; }
+                    }
+            }
+        }
+        return false; // Keep the valid engine spawn if no checkpoint position is safe.
     }
 
     override void WorldTick()
     {
+        TickVoice();
         // A shared opt-in because distant visibility must agree in cooperative play.
         bool enabled = CVar.GetCVar('UTNT_atmosphere').GetBool()
             && (level.MapName ~== "TNT03A1" || level.MapName ~== "TNT03A2" || level.MapName ~== "TNTLE");
         if (enabled == AtmosphereApplied) return;
-        level.ChangeSkyMist(TexMan.CheckForTexture('SKYMISTA'), enabled, 1.0);
-        level.SetThickFog(enabled ? 8192 : -1, enabled ? 1.1 : 30);
+        // Per-map profiles retain existing sector colors and nearby combat contrast.
+        double distance=level.MapName ~== "TNT03A1" ? 10240 : level.MapName ~== "TNT03A2" ? 8192 : 12288;
+        double density=level.MapName ~== "TNTLE" ? 1.05 : 1.12;
+        double mistScale=level.MapName ~== "TNT03A2" ? 0.8 : level.MapName ~== "TNTLE" ? 1.25 : 1.0;
+        level.ChangeSkyMist(TexMan.CheckForTexture('SKYMISTA'),enabled,mistScale);
+        level.SetThickFog(enabled ? distance : -1,enabled ? density : 30);
+        if (enabled)
+        {
+            TextureID sky=TexMan.CheckForTexture('F_SKY1');
+            Color tint=level.MapName ~== "TNTLE" ? 0x21160f : level.MapName ~== "TNT03A2" ? 0x131923 : 0x101823;
+            for (int i=0;i<level.Sectors.Size();i++)
+            {
+                let sector=level.Sectors[i];
+                if (sector.GetTexture(Sector.ceiling)!=sky || sector.ColorMap.FadeColor!=0) continue;
+                AtmosphereSectors.Push(i); AtmosphereOriginalFades.Push(sector.ColorMap.FadeColor);
+                sector.SetFade(tint);
+            }
+        }
+        else
+        {
+            Color tint=level.MapName ~== "TNTLE" ? 0x21160f : level.MapName ~== "TNT03A2" ? 0x131923 : 0x101823;
+            for(int i=0;i<AtmosphereSectors.Size();i++)
+            {
+                let sector=level.Sectors[AtmosphereSectors[i]];
+                // A map script may take ownership while this option is enabled.
+                // Preserve that newer authored state instead of restoring stale color.
+                if(sector.ColorMap.FadeColor==tint) sector.SetFade(AtmosphereOriginalFades[i]);
+            }
+            AtmosphereSectors.Clear(); AtmosphereOriginalFades.Clear();
+        }
         AtmosphereApplied = enabled;
     }
 
@@ -146,6 +256,10 @@ class UTNTPresentation : StaticEventHandler
     ui bool HaveView;
     int WorldGeneration;
     ui int LastWorldGeneration;
+    ui String CachedVoiceText;
+    ui BrokenLines CachedVoiceLines;
+    ui int CachedVoiceWidth, CachedVoiceWidest;
+    ui Array<int> CachedVoiceLineWidths;
 
     override void WorldLoaded(WorldEvent e)
     {
@@ -168,27 +282,39 @@ class UTNTPresentation : StaticEventHandler
     ui void DrawVoice(PlayerInfo player)
     {
         let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
-        if (!handler || handler.VoiceKey.Length()==0 || level.time >= handler.VoiceEndTime+18) return;
+        if (!handler || handler.VoiceKey.Length()==0 || level.time>=handler.VoiceEndTime+18
+            || !CVar.GetCVar('UTNT_subtitles',player).GetBool()) return;
         double scale=max(0.5,min(Screen.GetWidth()/640.0,Screen.GetHeight()/480.0))
-            * clamp(CVar.GetCVar('UTNT_subtitlescale',player).GetFloat(),0.75,1.5);
+            *clamp(CVar.GetCVar('UTNT_subtitlescale',player).GetFloat(),0.75,1.5);
         Font font=Font.GetFont('SmallFont');
-        Array<String> words, lines;
         String text=StringTable.Localize("$"..handler.VoiceKey);
-        text.Split(words," ");
-        String line="";
-        for (int i=0; i<words.Size(); i++)
+        if (CVar.GetCVar('UTNT_subtitlespeaker',player).GetBool())
+            text=StringTable.Localize('$UTNT_VOICE_SPEAKER')..": "..text;
+        int wrapWidth=max(40,int(Screen.GetWidth()*0.85/scale));
+        if (!CachedVoiceLines || text!=CachedVoiceText || wrapWidth!=CachedVoiceWidth)
         {
-            if (line.Length()>0 && font.StringWidth(line.." "..words[i])*scale > Screen.GetWidth()*0.85)
-            { lines.Push(line); line=words[i]; }
-            else line=line..(line.Length()>0 ? " " : "")..words[i];
+            CachedVoiceText=text; CachedVoiceWidth=wrapWidth;
+            CachedVoiceLines=font.BreakLines(text,wrapWidth);
+            CachedVoiceLineWidths.Clear(); CachedVoiceWidest=0;
+            for(int i=0;i<CachedVoiceLines.Count();i++)
+            {
+                int width=font.StringWidth(CachedVoiceLines.StringAt(i));
+                CachedVoiceLineWidths.Push(width);
+                CachedVoiceWidest=max(CachedVoiceWidest,width);
+            }
         }
-        if (line.Length()>0) lines.Push(line);
         double alpha=clamp(min((level.time-handler.VoiceStartTime+1)/18.0,(handler.VoiceEndTime+18-level.time)/18.0),0,1);
-        double y=Screen.GetHeight()*0.80-lines.Size()*10*scale;
-        for (int i=0; i<lines.Size(); i++)
+        int count=CachedVoiceLines.Count();
+        double lineHeight=(font.GetHeight()+2)*scale;
+        double y=Screen.GetHeight()*0.80-count*lineHeight;
+        int widest=CachedVoiceWidest;
+        if (CVar.GetCVar('UTNT_subtitlebackground',player).GetBool())
+            Screen.Dim(0x080808,alpha*0.7,int((Screen.GetWidth()-widest*scale)/2-6*scale),int(y-4*scale),int((widest+12)*scale),int(count*lineHeight+8*scale));
+        for (int i=0; i<count; i++)
         {
-            double x=(Screen.GetWidth()-font.StringWidth(lines[i])*scale)/2;
-            Screen.DrawText(font,Font.CR_UNTRANSLATED,x,y+i*10*scale,lines[i],DTA_ScaleX,scale,DTA_ScaleY,scale,DTA_Alpha,alpha);
+            String line=CachedVoiceLines.StringAt(i);
+            Screen.DrawText(font,Font.CR_UNTRANSLATED,(Screen.GetWidth()-CachedVoiceLineWidths[i]*scale)/2,y+i*lineHeight,line,
+                DTA_ScaleX,scale,DTA_ScaleY,scale,DTA_Alpha,alpha);
         }
     }
 
