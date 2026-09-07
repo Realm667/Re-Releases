@@ -1,0 +1,62 @@
+version "5.0.0"
+class UTNTCompletionTest : EventHandler
+{
+    int SavedCode,SavedStart,SavedEnd,SavedMask,SeenCode,Notifications;
+    override void WorldTick()
+    {
+        if(players[0].mo) players[0].mo.bInvulnerable=true;
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(h && h.CompletionCode!=SeenCode)
+        {
+            if(h.CompletionCode) Notifications++;
+            SeenCode=h.CompletionCode;
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(e.Name=="objremembercompletion")
+        {
+            SavedCode=h.CompletionCode;SavedStart=h.CompletionStartTime;SavedEnd=h.CompletionEndTime;
+            SavedMask=h.ObjectiveFlags[e.Args[0]];
+        }
+        if(e.Name=="objreturnhub") Teleport_NewMap(3,1);
+        if(e.Name=="objkillboss")
+            for(int tid=666;tid<=669;tid++)
+            {
+                let it=ActorIterator.Create(tid);Actor a;
+                while(a=it.Next()) { a.Health=0;a.Die(null,null); }
+            }
+    }
+}
+class UTNTCompletionUITest : StaticEventHandler
+{
+    ui void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",text); }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        let t=UTNTCompletionTest(EventHandler.Find('UTNTCompletionTest'));
+        if(e.Name=="objprogress") Check(h.ObjectiveFlags[e.Args[0]]==e.Args[1],"expected saved objective mask");
+        if(e.Name=="objnotification")
+        {
+            Check(h.CompletionCode==(e.Args[0]<<8|e.Args[2]<<4|e.Args[1]),"notification records goal and progress snapshot");
+            Check(h.CompletionEndTime-h.CompletionStartTime==119,"completion timing is 0.2 + 3 + 0.2 seconds");
+        }
+        if(e.Name=="objcompletionrestored")
+            Check(h.CompletionCode==t.SavedCode && h.CompletionStartTime==t.SavedStart
+                && h.CompletionEndTime==t.SavedEnd && h.ObjectiveFlags[e.Args[0]]==t.SavedMask,"save/load preserves progress and notification timeline");
+        if(e.Name=="objqueueempty")
+        {
+            Check(h.CompletionCode==0,"notification queue drains without duplicates");
+            Check(t.Notifications==e.Args[0],"each completed goal appears exactly once");
+        }
+        if(e.Name=="objmap") Check(level.MapName~==StringTable.Localize(String.Format("$UTNT_TEST_MAP_%d",e.Args[0])),"authored transition destination preserved");
+        if(e.Name=="objcompletionresources")
+        {
+            Check(TexMan.CheckForTexture('UTOCOR').isValid(),"completion frame artwork available");
+            Check(StringTable.Localize("$UTNT_OBJ_DONE_HEADING").IndexOf("UTNT_")<0,"completion text localized");
+            Check(StringTable.Localize("$UTNT_OBJ_PILLARS").IndexOf("UTNT_")<0,"gameplay consequence localized");
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+    }
+}

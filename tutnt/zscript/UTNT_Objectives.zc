@@ -146,6 +146,100 @@ class UTNTObjectivePlaque ui
         }
     }
 
+    static int Progress(int episode)
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        return h && episode>=1 && episode<=9 ? h.ObjectiveFlags[episode] : 0;
+    }
+
+    static int CompletedCount(int mask)
+    {
+        return (mask&1)+((mask>>1)&1)+((mask>>2)&1);
+    }
+
+    // Engraved brass seal shared by the toast and the completed objective row.
+    static void Seal(double cx,double cy,double scale,double alpha,double glint=0)
+    {
+        for(int row=-10;row<=10;row++)
+        {
+            double half=sqrt(100.0-row*row);
+            Rect(cx,cy,scale,-half,row,half*2,1,0x181005,alpha);
+        }
+        for(int i=0;i<32;i++)
+        {
+            double a=i*360.0/32,b=(i+1)*360.0/32;
+            for(int r=8;r<=10;r++)
+                Screen.DrawLine(cx+cos(a)*r*scale,cy+sin(a)*r*scale,
+                    cx+cos(b)*r*scale,cy+sin(b)*r*scale,r==9?0xb8812d:0x694715,int(alpha*255));
+            if(i%4==0) Rect(cx,cy,scale,cos(a)*11-1,sin(a)*11-1,2,2,0xc18b38,alpha);
+        }
+        for(int j=0;j<2;j++)
+        {
+            Screen.DrawLine(cx-5*scale,cy+j*scale,cx-1*scale,cy+(4+j)*scale,0xe1b04d,int(alpha*255));
+            Screen.DrawLine(cx-1*scale,cy+(4+j)*scale,cx+6*scale,cy+(-5+j)*scale,0xe1b04d,int(alpha*255));
+        }
+        if(glint>0)
+        {
+            Rect(cx,cy,scale,7,6,7,1,0xffdf87,alpha*glint);
+            Rect(cx,cy,scale,10,3,1,7,0xffdf87,alpha*glint);
+        }
+    }
+
+    static void Tile(String name,int left,int top,int right,int bottom,double alpha,bool flipX=false,bool flipY=false)
+    {
+        Screen.DrawTexture(TexMan.CheckForTexture(name),true,left,top,
+            DTA_DestWidth,right-left,DTA_DestHeight,bottom-top,DTA_LeftOffset,0,DTA_TopOffset,0,
+            DTA_FlipX,flipX,DTA_FlipY,flipY,DTA_Alpha,alpha);
+    }
+
+    static void CompletionFrame(double x,double y,double scale,double width,double height,double alpha)
+    {
+        int l=int(round(x)),r=int(round(x+width*scale));
+        int t=int(round(y)),b=int(round(y+height*scale));
+        int il=int(round(x+8*scale)),ir=int(round(x+(width-8)*scale));
+        int it=int(round(y+8*scale)),ib=int(round(y+(height-8)*scale));
+        Rect(x,y,scale,1,3,width,height,0x000000,alpha*0.14);
+        // Nine disjoint rectangles avoid seams and double alpha at the borders.
+        Tile("UTOCBG",il,it,ir,ib,alpha);
+        Tile("UTOEDGE",il,t,ir,it,alpha,false,true);
+        Tile("UTOEDGE",il,ib,ir,b,alpha);
+        Tile("UTOSIDE",l,it,il,ib,alpha);
+        Tile("UTOSIDE",ir,it,r,ib,alpha,true);
+        Tile("UTOCOR",l,t,il,it,alpha,false,true);
+        Tile("UTOCOR",ir,t,r,it,alpha,true,true);
+        Tile("UTOCOR",l,ib,il,b,alpha);
+        Tile("UTOCOR",ir,ib,r,b,alpha,true);
+        Rect(x,y,scale,18,6,width-36,1,0xbc4c11,alpha*0.85);
+    }
+
+    static void DrawCompletion(int code,int startTime,int endTime,double frac,bool reduced)
+    {
+        int episode=code>>8,row=code&15,mask=(code>>4)&7;
+        if(episode<1 || episode>9 || row<1 || row>Count(episode)) return;
+        double now=level.time+frac;
+        double alpha=clamp(min((now-startTime)/7.0,(endTime-now)/7.0),0,1);
+        if(alpha<=0) return;
+        double scale=min(Screen.GetWidth()/960.0,Screen.GetHeight()/540.0);
+        double x=round(16*scale),y=round(18*scale),width=300,height=80;
+        Font small=Font.GetFont('SmallFont'),big=Font.GetFont('DBIGFONT');
+        String consequence=episode==5 && row==2 ? StringTable.Localize("$UTNT_OBJ_PILLARS") : "";
+        if(consequence.Length()>0) height+=17;
+        CompletionFrame(x,y,scale,width,height,alpha);
+        Badge(row,x+20*scale,y+19*scale,scale*0.85,alpha);
+        double age=now-startTime-7;
+        double glint=reduced ? 0 : clamp(1-abs(age-5)/5,0,1);
+        Seal(x+20*scale,y+55*scale,scale*0.85,alpha,glint);
+        String heading=StringTable.Localize(CompletedCount(mask)==Count(episode) ? "$UTNT_OBJ_ALL_DONE" : "$UTNT_OBJ_DONE_HEADING");
+        double hs=min(1.0,211.0/max(1,small.StringWidth(heading)))*scale;
+        Lettering(small,heading,x+72*scale,y+22*scale,hs,0xffc99942,alpha);
+        String title=Text(episode,row,true);
+        double ts=min(15.0/big.GetHeight(),211.0/max(1,big.StringWidth(title)))*scale;
+        Lettering(big,title,x+72*scale,y+40*scale,ts,0xffe2d2af,alpha);
+        if(consequence.Length()>0)
+            Lettering(small,consequence,x+72*scale,y+65*scale,
+                min(1.0,211.0/max(1,small.StringWidth(consequence)))*scale,0xffc6b996,alpha);
+    }
+
     static void Draw(int episode,double alpha=1)
     {
         if (episode<1 || episode>9 || alpha<=0) return;
@@ -153,17 +247,17 @@ class UTNTObjectivePlaque ui
         Font small=Font.GetFont('SmallFont'), big=Font.GetFont('DBIGFONT');
         String heading=StringTable.Localize('$UTNT_OBJ_HEADING');
         String episodeName=StringTable.Localize(String.Format("$UTNT_INTRO_%03d",episode));
-        int count=Count(episode);
+        int count=Count(episode),mask=Progress(episode);
         Array<BrokenLines> descriptions;
         Array<double> rowHeights;
         double textSize=1.6;
         double lineHeight=(small.GetHeight()+3)*textSize;
-        double height=140;
+        double height=170;
         for (int i=0;i<count;i++)
         {
             let lines=small.BreakLines(Text(episode,i+1,false),int(390/textSize));
             descriptions.Push(lines);
-            double rowHeight=max(76,30+lines.Count()*lineHeight+17);
+            double rowHeight=max(94,30+lines.Count()*lineHeight+35);
             rowHeights.Push(rowHeight);
             height+=rowHeight;
         }
@@ -190,16 +284,27 @@ class UTNTObjectivePlaque ui
         double rowY=124;
         for (int i=0;i<count;i++)
         {
+            bool done=(mask & (1<<i))!=0;
             Badge(i+1,x+38*scale,y+rowY*scale,scale,alpha);
             String label=Text(episode,i+1,true);
             double labelSize=min(21.0/big.GetHeight(),390.0/max(1,big.StringWidth(label)))*scale;
-            Lettering(big,label,x+94*scale,y+rowY*scale,labelSize,0xffe2d2af,alpha);
+            Lettering(big,label,x+94*scale,y+rowY*scale,labelSize,done ? 0xffbaaf96 : 0xffe2d2af,alpha);
             for (int line=0;line<descriptions[i].Count();line++)
                 Lettering(small,descriptions[i].StringAt(line),x+94*scale,
-                    y+(rowY+30+line*lineHeight)*scale,textSize*scale,0xffdfd0ae,alpha);
+                    y+(rowY+30+line*lineHeight)*scale,textSize*scale,done ? 0xffb5a98f : 0xffdfd0ae,alpha);
+            if(done)
+            {
+                Seal(x+38*scale,y+(rowY+44)*scale,scale,alpha);
+                Lettering(small,StringTable.Localize("$UTNT_OBJ_DONE"),x+94*scale,
+                    y+(rowY+30+descriptions[i].Count()*lineHeight+2)*scale,1.15*scale,0xffc99942,alpha);
+            }
             rowY+=rowHeights[i];
             if (i<count-1)
                 Rect(x,y,scale,38,rowY-13,444,0.7,0x64573c,alpha*0.65);
         }
+        Rect(x,y,scale,38,height-42,444,1,0x64573c,alpha*0.8);
+        String footer=String.Format("%d / %d  %s",CompletedCount(mask),count,StringTable.Localize("$UTNT_OBJ_PROGRESS"));
+        double fs=min(1.3,444.0/max(1,small.StringWidth(footer)))*scale;
+        Lettering(small,footer,x+(520*scale-small.StringWidth(footer)*fs)/2,y+(height-30)*scale,fs,0xffc9b175,alpha);
     }
 }
