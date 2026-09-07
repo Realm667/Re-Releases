@@ -44,19 +44,49 @@ class UTNTFireTest : EventHandler
     }
     override void ConsoleProcess(ConsoleEvent e)
     {
+        if (e.Name=="fireview")
+        {
+            double x=e.Args[0]==1 ? -220 : e.Args[0]==2 ? 207 : e.Args[0]==3 ? -155 : -90;
+            let p=players[0].mo;
+            Console.Printf("UTNT_ASSERT %s settled camera %d (%.1f, %.1f)",abs(p.Pos.X-x)<0.1 && abs(p.Angle-90)<0.1 ? "PASS" : "FAIL",e.Args[0],p.Pos.X,p.Angle);
+            return;
+        }
         if (e.Name!="firecheck") return;
-        int count=0,invalid=0,legacy=0;
-        let it=ThinkerIterator.Create('UTNTFireVisual',Thinker.MAX_STATNUM+1,true);
-        UTNTFireVisual f;
-        while(f=UTNTFireVisual(it.Next()))
+        int count=0,invalid=0,legacy=0,fragments=0,details=0;
+        let it=ThinkerIterator.Create('UTNTFireEmitter',Thinker.STAT_USER+5,true);
+        UTNTFireEmitter f;
+        while(f=UTNTFireEmitter(it.Next()))
         {
             count++;
-            if (!f.Source || !f.Texture.IsValid() || f.Scale.X<=0 || f.Scale.Y<=0 || f.Alpha!=1) invalid++;
+            if (!f.Source) invalid++;
+            // Even low quality must keep several independent sheets per source.
+            int owned=0;
+            let pi=ThinkerIterator.Create('UTNTFireFragment',Thinker.MAX_STATNUM+1,true);
+            UTNTFireFragment part;
+            while(part=UTNTFireFragment(pi.Next())) if(part.Source==f.Source) owned++;
+            if (owned<3) invalid++;
         }
+        let pi=ThinkerIterator.Create('UTNTFireFragment',Thinker.MAX_STATNUM+1,true);
+        UTNTFireFragment part;
+        while(part=UTNTFireFragment(pi.Next()))
+        {
+            fragments++;
+            if (!part.Source || !part.Texture.IsValid() || part.Age>=part.Life || part.Life>28 ||
+                part.Scale.X<=0 || part.Scale.Y<=0 || part.Alpha<=0 || part.Alpha>1 || part.Vel.Z<=0) invalid++;
+        }
+        let di=ThinkerIterator.Create('UTNTFireDetail',Thinker.MAX_STATNUM+1,true);
+        UTNTFireDetail detail;
+        while(detail=UTNTFireDetail(di.Next()))
+        {
+            details++;
+            if (!detail.Source || !detail.Texture.IsValid() || detail.Age>=detail.Life || detail.Life>65) invalid++;
+        }
+        if (count==0 && (fragments!=0 || details!=0)) invalid++;
+        Console.Printf("UTNT_FIRE_POPULATION emitters=%d fragments=%d details=%d",count,fragments,details);
         let ai=ThinkerIterator.Create('Actor'); Actor a;
         while(a=Actor(ai.Next())) if (a is 'RedFire_BG' || a is 'UTNTTorchFlame' || a is 'UTNTTorchFlameG' || a is 'UTNTTorchFlameB' || a is 'UTNTTorchFlameShort' || a is 'UTNTTorchFlameShortG' || a is 'UTNTTorchFlameShortB') legacy++;
-        Console.Printf("UTNT_ASSERT %s flame count %d expected %d",count==e.Args[0] ? "PASS" : "FAIL",count,e.Args[0]);
-        Console.Printf("UTNT_ASSERT %s valid owned textures",invalid==0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s emitter count %d expected %d",count==e.Args[0] ? "PASS" : "FAIL",count,e.Args[0]);
+        Console.Printf("UTNT_ASSERT %s finite owned particles and multipart fire",invalid==0 ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s no legacy flame actors (%d)",legacy==0 ? "PASS" : "FAIL",legacy);
     }
 }

@@ -1,4 +1,4 @@
-"""UTNT fire lifecycle, renderer and visual-color regression.
+"""UTNT organic fire lifecycle, particle population, renderer and visual-color regression.
 Run with configured UTNT_ENGINE/UTNT_IWAD. Writes only logs and isolated saves.
 The fixture exercises default map replacements, explicit aliases and barrels.
 """
@@ -7,12 +7,15 @@ from pathlib import Path
 from check_engine import ROOT,run_case
 
 def commands(label):
-    s=['wait 200','vid_setsize 1920 1080','wait 20','event firecheck 8']
+    s=['unbindall','wait 200','vid_setsize 1920 1080','wait 20','event firecheck 8']
     def shot(name): s.append(f'screenshot logs/{label}-{name}.png')
     shot('overview')
     for camera,name in [(1,'orange'),(3,'green'),(4,'blue'),(2,'barrels')]:
-        s.extend([f'netevent firecamera {camera}','wait 20']); shot(name)
-        if camera==1: s.append('wait 13'); shot('motion')
+        s.extend([f'netevent firecamera {camera}','wait 50',f'event fireview {camera}']); shot(name)
+        if camera==1:
+            s.append('wait 13'); shot('motion')
+            for frame in range(8):
+                s.append('wait 4'); shot(f'flow-{frame:02d}')
     s.extend(['netevent firecamera 0','wait 20',f'save {label}','wait 5',
               'UTNT_fxquality 0','wait 50','event firecheck 0'])
     shot('disabled')
@@ -30,7 +33,7 @@ def commands(label):
     shot('aliases')
     s.extend(['netevent firestress','wait 100','event firecheck 54','profilecsthinkers -t 10'])
     shot('stress')
-    s.extend(['UTNT_fxquality 0','wait 50','event firecheck 0','UTNT_fxquality 1','wait 70','event firecheck 54',
+    s.extend(['UTNT_fxquality 2','wait 70','event firecheck 54','UTNT_fxquality 0','wait 50','event firecheck 0','UTNT_fxquality 1','wait 70','event firecheck 54',
               'echo UTNT_REGRESSION_COMPLETE','echo UTNT_TEST_END','wait 5','quit'])
     return '; '.join(s)+'\n'
 
@@ -65,7 +68,7 @@ def main():
         r=run_case(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],mod=a.mod,
             mapname='UTNTFIRE',addon=ROOT/'tools/fire-tests',renderer=renderer,
             label=label,commands=commands(label),timeout=120,regression=True,
-            settings=[('screenblocks',12),('vid_maxfps',120),('gl_texture_filter',0),('gl_lights',True),
+            settings=[('use_mouse',False),('use_joystick',False),('i_pauseinbackground',False),('screenblocks',12),('vid_maxfps',120),('gl_texture_filter',0),('gl_lights',True),
                       ('gl_bloom',True),('UTNT_fxquality',3),('UTNT_reducedfx',False),('UTNT_lod',2000),
                       ('crosshair',0),('r_drawplayersprites',False),('con_notifytime',0)])
         if r['ok']:

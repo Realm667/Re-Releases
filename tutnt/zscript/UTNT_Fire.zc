@@ -1,80 +1,192 @@
-// One local, anchored flame per decoration. No cosmetic pointer is stored on
-// a gameplay actor; the short registration interval also repairs save/load.
-class UTNTFireVisual : VisualThinker
+// Local emitters assemble fire from independently moving, finite-lived sheets.
+// No whole-flame sprite or gameplay projectile participates in the effect.
+class UTNTFireEmitter : Thinker
 {
     Actor Source;
-    int Kind, ColorIndex, Age;
-    double Phase, Width, Height, Anchor;
+    int Kind, ColorIndex, Age, NextSheet, NextBase;
+    double Phase, Anchor;
 
     void Initialize(Actor owner, int color, int kind)
     {
         Source=owner; Kind=kind; ColorIndex=color;
         Phase=FRandom[utntcosmetic](0,360);
         Age=Random[utntcosmetic](0,100);
-        Width=kind==2 ? 50 : kind==1 ? 20 : 32;
-        Height=kind==2 ? 48 : kind==1 ? 26 : 44;
         Anchor=kind==2 ? 19 : kind==1 ? 31 : 61;
         if (owner is 'UTNTLegacyRedFireBase' || owner is 'UTNTLegacyGreenFireBase' || owner is 'UTNTLegacyBlueFireBase') Anchor=57;
         if (owner is 'UTNTLegacyShortRedFireBase' || owner is 'UTNTLegacyShortGreenFireBase' || owner is 'UTNTLegacyShortBlueFireBase') Anchor=28;
-        if (color==2) Width*=0.85;
-        Texture=TexMan.CheckForTexture(color==1 ? 'UFFGA0' : color==2 ? 'UFFBA0' : 'UFFRA0');
+    }
+
+    override void Tick()
+    {
+        if (!Source) { Destroy(); return; }
+        if (Source.IsFrozen()) return;
+        if (!UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        Age++;
+        let player=players[consoleplayer];
+        int quality=clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),1,3);
+        if (CVar.GetCVar('UTNT_reducedfx',player).GetBool()) quality=1;
+        if (Source.Distance3D(player.camera)>640) quality=1;
+        int interval=quality==1 ? 3 : quality==2 ? 2 : 1;
+        if (Age>=NextSheet)
+        {
+            int count=Kind==2 && quality>1 ? 2 : 1;
+            NextSheet=Age+1;
+            for (int i=0;i<count;i++)
+            {
+                if (!UTNTVisuals.Reserve()) break;
+                let p=UTNTFireFragment(level.SpawnClientSideVisualThinker('UTNTFireFragment'));
+                if (p) p.Initialize(self,quality,false);
+                NextSheet=Age+interval+(quality==1 ? Random[utntcosmetic](0,1) : 0);
+            }
+        }
+        if (Age>=NextBase && UTNTVisuals.Reserve())
+        {
+            let p=UTNTFireFragment(level.SpawnClientSideVisualThinker('UTNTFireFragment'));
+            if (p) p.Initialize(self,quality,true);
+            NextBase=Age+(quality==1 ? Random[utntcosmetic](4,6) : 2);
+        }
+        // Larger embers and smoke have separate lifetimes and remain optional.
+        if (quality<2) return;
+        int emberInterval=Kind==2 ? 5 : Kind==1 ? 16 : 10;
+        if (ColorIndex!=0) emberInterval*=2;
+        if (Age%emberInterval==0 && UTNTVisuals.Reserve())
+        {
+            let p=UTNTFireDetail(level.SpawnClientSideVisualThinker('UTNTFireDetail'));
+            if (p) p.Initialize(self,false);
+        }
+        int smokeInterval=Kind==2 ? 7 : 12;
+        if (quality==2) smokeInterval*=2;
+        if (ColorIndex==1) smokeInterval*=3;
+        if (ColorIndex!=2 && Age%smokeInterval==0 && UTNTVisuals.Reserve())
+        {
+            let p=UTNTFireDetail(level.SpawnClientSideVisualThinker('UTNTFireDetail'));
+            if (p) p.Initialize(self,true);
+        }
+    }
+}
+
+class UTNTFireFragment : VisualThinker
+{
+    Actor Source;
+    int Age, Life, Variant;
+    double Width, Height, Phase, Strength, DriftX, DriftY;
+
+    void Initialize(UTNTFireEmitter fire, int quality, bool base)
+    {
+        Source=fire.Source;
+        Variant=base ? 0 : Random[utntcosmetic](1,3);
+        string prefix=fire.ColorIndex==1 ? 'UFOG' : fire.ColorIndex==2 ? 'UFOB' : 'UFOR';
+        string frame=Variant==0 ? 'A0' : Variant==1 ? 'B0' : Variant==2 ? 'C0' : 'D0';
+        Texture=TexMan.CheckForTexture(prefix..frame);
         Flags=SPF_FULLBRIGHT | SPF_ALLOWSHADERS;
         SetRenderStyle(STYLE_Translucent);
-        Alpha=1;
         bXFlip=Random[utntcosmetic](0,1);
-        Animate(); Prev=Pos;
+        double small=fire.Kind==1 ? 0.62 : 1;
+        double radius=fire.Kind==2 ? 8.5 : 2.2*small;
+        double angle=FRandom[utntcosmetic](0,360);
+        double spread=sqrt(FRandom[utntcosmetic](0,1))*radius;
+        Pos=Source.Vec3Offset(cos(angle)*spread,sin(angle)*spread,fire.Anchor-3*small);
+        Life=Random[utntcosmetic](18,26);
+        Width=FRandom[utntcosmetic](18,28)*small*(quality==1 ? 1.25 : 1);
+        Height=FRandom[utntcosmetic](22,32)*small;
+        if (base) { Height=17*small; Width=(fire.Kind==2 ? 33 : 25)*small; Life=10; }
+        if (fire.ColorIndex==2) Width*=0.80;
+        Phase=fire.Phase+FRandom[utntcosmetic](-35,35);
+        double flow=sin(fire.Age*5+Phase);
+        DriftX=flow*(fire.ColorIndex==1 ? 0.36 : 0.28);
+        DriftY=cos(fire.Age*4+Phase)*0.10;
+        Vel=(DriftX+FRandom[utntcosmetic](-0.13,0.13),DriftY+FRandom[utntcosmetic](-0.13,0.13),(base ? 0.12 : FRandom[utntcosmetic](0.65,1.10))*small);
+        Strength=base ? 0.92 : quality==1 ? 0.82 : quality==2 ? 0.65 : 0.50;
+        Roll=FRandom[utntcosmetic](-12,12);
+        Animate(); Prev=Pos; PrevRoll=Roll;
         UpdateSector(); UpdateSpriteInfo();
     }
 
     void Animate()
     {
-        double t=Age+(Phase/3.0);
+        double t=double(Age)/Life;
         let size=TexMan.GetScaledSize(Texture);
-        Scale=(Width*(1+0.055*sin(t*4.1))/size.X,
-               Height*(1+0.065*sin(t*3.0)+0.025*sin(t*11.0))/size.Y);
-        Pos=Source.Vec3Offset(0,0,Anchor);
+        // Young sheets fill the fuel bed; older sheets stretch, narrow and die.
+        Scale=(Width*(1+0.20*sin(t*180)-0.45*t*t)/size.X,
+               Height*(0.85+0.40*t)/size.Y);
+        Alpha=Strength*min(1.0,(Age+1)/3.0)*min(1.0,(Life-Age)/8.0);
     }
 
     override void Tick()
     {
         if (!Source) { Destroy(); return; }
         if (IsFrozen() || Source.IsFrozen()) return;
-        if (!UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        if (++Age>=Life || !UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
         Super.Tick();
-        Age++;
+        Vel.X+=0.012*sin(Age*15+Phase);
+        Vel.Y+=0.009*cos(Age*13+Phase);
+        Vel.Z+=0.012;
+        Roll+=0.16*sin(Age*9+Phase);
         Animate();
-        // Detail emission is optional; the primary silhouette never depends
-        // on a particle budget or ambient tic-skipping once registered.
-        let player=players[consoleplayer];
-        int quality=clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),0,3);
-        if (CVar.GetCVar('UTNT_reducedfx',player).GetBool()) quality=1;
-        if (quality<2 || Source.Distance3D(player.camera)>640) return;
-        int interval=Kind==2 ? 12 : Kind==1 ? 35 : 20;
-        if (ColorIndex!=0) interval*=2;
-        if (Age%interval==0 && UTNTVisuals.Reserve())
+    }
+}
+
+class UTNTFireDetail : VisualThinker
+{
+    Actor Source;
+    bool Smoke;
+    int Age, Life;
+    double Width, Height, Strength, Phase;
+
+    void Initialize(UTNTFireEmitter fire, bool smoke)
+    {
+        Source=fire.Source; Smoke=smoke; Phase=fire.Phase;
+        double small=fire.Kind==1 ? 0.65 : 1;
+        double radius=fire.Kind==2 ? 8 : 3*small;
+        Pos=Source.Vec3Offset(FRandom[utntcosmetic](-radius,radius),FRandom[utntcosmetic](-radius,radius),fire.Anchor+(smoke ? 28 : 13)*small);
+        Flags=SPF_ALLOWSHADERS;
+        bXFlip=Random[utntcosmetic](0,1);
+        if (smoke)
         {
-            FSpawnParticleParams p;
-            p.color1=ColorIndex==1 ? 0x93f54e : ColorIndex==2 ? 0x53bfff : 0xffa33d;
-            p.style=STYLE_Add; p.flags=SPF_FULLBRIGHT;
-            p.pos=Source.Vec3Offset(FRandom[utntcosmetic](-3,3),FRandom[utntcosmetic](-3,3),Anchor+Height*0.55);
-            p.vel=(FRandom[utntcosmetic](-0.15,0.15),FRandom[utntcosmetic](-0.15,0.15),FRandom[utntcosmetic](0.45,0.85));
-            p.accel=(0.003,-0.002,0.006);
-            p.lifetime=Kind==1 ? 18 : 30;
-            p.size=Kind==1 ? 0.55 : 0.85; p.startalpha=0.85;
-            p.fadestep=0.85/p.lifetime;
-            level.SpawnParticle(p);
+            Texture=TexMan.CheckForTexture('UFSMA0');
+            SetRenderStyle(STYLE_Translucent);
+            Width=(fire.Kind==2 ? 27 : 20)*small;
+            Height=Width*FRandom[utntcosmetic](1.0,1.35);
+            Life=Random[utntcosmetic](48,65);
+            Strength=fire.ColorIndex==1 ? 0.16 : fire.Kind==2 ? 0.42 : 0.36;
+            // Fullbright tint makes wisps readable even against unlit masonry.
+            Flags|=SPF_FULLBRIGHT; scolor=0xffa3988b;
+            Vel=(0.10*sin(Phase)+0.06,0.08*cos(Phase),0.40*small);
+            Roll=FRandom[utntcosmetic](-30,30);
         }
-        if (ColorIndex==0 && quality==3 && Age%(Kind==2 ? 15 : 28)==0 && UTNTVisuals.Reserve())
+        else
         {
-            FSpawnParticleParams p;
-            p.texture=TexMan.CheckForTexture('X143J0');
-            p.color1=0x77706a; p.style=STYLE_Translucent;
-            p.pos=Source.Vec3Offset(0,0,Anchor+Height*0.85);
-            p.vel=(0.035,0.025,0.32); p.lifetime=45;
-            p.size=Kind==2 ? 5 : 3; p.sizestep=0.06;
-            p.startalpha=0.10; p.fadestep=0.10/45;
-            level.SpawnParticle(p);
+            Texture=TexMan.CheckForTexture('UFEBA0');
+            SetRenderStyle(STYLE_Add); Flags|=SPF_FULLBRIGHT;
+            Width=FRandom[utntcosmetic](2.8,4.5)*small;
+            Height=Width*FRandom[utntcosmetic](1.0,1.35);
+            Life=Random[utntcosmetic](28,46); Strength=0.95;
+            scolor=fire.ColorIndex==1 ? 0xff71ef35 : fire.ColorIndex==2 ? 0xff459eff : 0xffffba61;
+            Vel=(FRandom[utntcosmetic](-0.23,0.23),FRandom[utntcosmetic](-0.23,0.23),FRandom[utntcosmetic](0.8,1.35)*small);
+            Roll=FRandom[utntcosmetic](-35,35);
         }
+        Animate(); Prev=Pos; PrevRoll=Roll;
+        UpdateSector(); UpdateSpriteInfo();
+    }
+
+    void Animate()
+    {
+        double t=double(Age)/Life;
+        double growth=Smoke ? 1+1.25*t : 1-0.45*t;
+        let size=TexMan.GetScaledSize(Texture);
+        Scale=(Width*growth/size.X,Height*growth/size.Y);
+        Alpha=Strength*min(1.0,(Age+1)/(Smoke ? 12.0 : 2.0))*min(1.0,(Life-Age)/(Smoke ? 24.0 : 14.0));
+    }
+
+    override void Tick()
+    {
+        if (!Source) { Destroy(); return; }
+        if (IsFrozen() || Source.IsFrozen()) return;
+        if (++Age>=Life || !UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        Super.Tick();
+        Vel.X+=0.006*sin(Age*9+Phase);
+        Roll+=Smoke ? 0.14 : 0.35;
+        Animate();
     }
 }
 
@@ -85,11 +197,10 @@ class UTNTFireSystem play
         if (!source) return;
         int phase=(int(source.Pos.X)*3+int(source.Pos.Y)*5+int(source.Pos.Z))&15;
         if ((level.time+phase)%16!=0 || !UTNTVisuals.Visible(source,combat:true)) return;
-        let iter=ThinkerIterator.Create('UTNTFireVisual',Thinker.MAX_STATNUM+1,true);
-        UTNTFireVisual fire;
-        while (fire=UTNTFireVisual(iter.Next())) if (fire.Source==source) return;
-        if (!UTNTVisuals.Reserve()) return;
-        fire=UTNTFireVisual(level.SpawnClientSideVisualThinker('UTNTFireVisual'));
+        let iter=ThinkerIterator.Create('UTNTFireEmitter',Thinker.STAT_USER+5,true);
+        UTNTFireEmitter fire;
+        while (fire=UTNTFireEmitter(iter.Next())) if (fire.Source==source) return;
+        fire=UTNTFireEmitter(level.CreateClientSideThinker('UTNTFireEmitter',Thinker.STAT_USER+5));
         if (fire) fire.Initialize(source,clamp(color,0,2),clamp(kind,0,2));
     }
 }

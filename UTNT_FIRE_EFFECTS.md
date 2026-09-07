@@ -1,79 +1,91 @@
-# UTNT torch and burning-barrel effects
+# Organic torch and burning-barrel fire
 
-The approved pixel-fire design is implemented for all six map-facing torch
-replacements, the six ZScript torch aliases and `UTNT_Barrel`. Each source has
-one anchored client VisualThinker with separate animation timing. Tall torches,
-short torches and barrels have distinct dimensions and attachment heights;
-barrels have a broader flame base. Native decoration parents, body sprites,
-collision properties and map/editor IDs are retained.
+The approved September 2026 redesign replaces the single pixel-grid flame with
+many short-lived, independently moving flame sheets. A non-rendering local
+emitter maintains a compact fuel bed, rising tongues, departing wisps, visible
+gold embers and larger warm-gray smoke. The orange, green and blue tall/short
+map replacements, all six explicit ZScript aliases, and burning barrels use
+the same system. Existing decoration bodies, native parents, gameplay and
+map-facing identities are preserved.
 
-The flame uses alpha blending to retain dark red edges and open spaces between
-the tongues. A material shader animates pixel-sized bends, moving breaks at the
-tips and the orange/green/blue palettes. Blue flames are narrower and calmer.
-Sparse rising embers and a faint orange-fire smoke wisp are optional detail.
-Body-attached lights fluctuate within a small range; the previous large flare
-is no longer spawned. Historical flare classes remain available with reduced
-intensity for compatibility callers.
+## Appearance and motion
+
+Four distinct texture fragments form the fire. Base fragments live 10 tics;
+other sheets live 18–26 tics, rise, accelerate slightly, stretch, narrow and
+fade independently. A shared changing drift is varied per sheet, so the
+outline is continually rebuilt. The shader supplies small internal flow and
+color; it no longer imposes an artificial coarse pixel grid or animates one
+complete flame. Soft birth edges connect the fire to the fuel bed.
+
+Barrels emit across a disk over their opening and use a broader base. Blue
+flames are narrower with slower internal shader motion and no smoke. Green
+flames wind more strongly and emit occasional faint smoke. Orange smoke
+starts at 20 world units wide on tall torches and 27 on barrels, expands to
+2.25 times that width, and fades over 48–65 tics. Ember images are 2.8–4.5
+world units wide, with varying elongation, drift and 28–46-tic lifetimes.
+Short torches scale these elements down together.
 
 ## Runtime and quality
 
-- UZDoom 5.0.1, hardware renderer (OpenGL and Vulkan).
-- Quality 0/distance culling removes the local flame; 1 retains the animated
-  silhouette; 2 adds sparse embers; 3 adds faint smoke for orange fire.
-  Reduced effects use the quality-1 detail profile. Existing environmental
-  lights remain enabled as before when cosmetic emission is disabled.
-- Extra particles share the existing ambient budget, separate from combat.
-- Registration is spread over 16 tics; no client reference is stored on a
-  gameplay actor. Save/load and quality/range changes rebuild visuals locally.
-- Shader registration uses preloaded sprite names and `SPF_ALLOWSHADERS`.
-  Software rendering and hardware shaders disabled are outside this art target;
-  the PNG fallback is orange.
-
-## Verification
-
-`tools/test_fire.py` loads `tools/fire-tests` in isolated engine configs and
-saves. It checks all default replacements, direct ZScript aliases, removal of
-an owning source, quality 0/1/2/3, reduced effects, distance removal/recovery,
-save/load, and a 54-source scene including repeated disable/re-enable. It also
-checks actual screenshot pixels for all three flame colors and motion. The
-test map is an add-on, not part of the distributed game package.
-
-Validation results and exact tested-package hashes are recorded alongside this
-report's delivery in `tools/validation/fire-2026-09-07/`. Individual CPU profiler
-samples are not an FPS benchmark. Full campaign completion and new network
-testing are not claimed by this focused visual change.
-
-To reproduce with the configured local environment:
-
-```bat
-call tools\utnt-env.cmd
-"%UTNT_PYTHON%" tools\test_fire.py --mod tutnt.pk3
-```
+- UZDoom 5.0.1 hardware rendering, OpenGL and Vulkan, with material shaders.
+- Quality 0 and the existing distance limit remove all local fire visuals.
+  Quality 1/reduced effects retain multiple flame fragments and a renewed
+  base. Quality 2 adds embers and smoke; quality 3 increases the density.
+  Beyond 640 world units the emitter uses the low-detail profile.
+- Every birth shares the existing ambient emission budget; combat has its
+  separate pool. Low quality reduces barrel births and jitters emission
+  intervals. Denied births retry, avoiding permanently synchronized gaps.
+- Emitters and particles are client-side thinkers and use `utntcosmetic`
+  randomness. No gameplay projectile or saved gameplay pointer is introduced.
+  Owner removal, distance/quality changes and save/load rebuild or retire the
+  visuals locally. Frozen owners suspend the effect. Body lights retain the
+  existing modest fluctuations.
 
 ## Art provenance
 
-The source flame was generated with the built-in Imagegen tool for this task,
-then given a PNG `grAb` sprite-origin chunk. RGBA image pixels were not resampled
-or edited. `tutnt/sprites/sfx/utnt-fire/UFFRA0.png`, `UFFGA0.png`, and `UFFBA0.png`
-contain the same base art with separate material bindings. All color conversion
-and motion happen in `tutnt/shaders/fire.fp`. The generated art is 971 Ã— 1619;
-shader sampling uses a 48 Ã— 80 grid to match the game's pixel density.
+`tutnt/graphics/utnt-fire/fragment-atlas.png` is a 1254 × 1254 RGB atlas created
+with the built-in Imagegen tool using the approved mockup as a style reference.
+The generated pixels are copied unchanged. `TEXTURES.fire` defines the four
+native sprite crops and their origins; the material converts the black
+background into translucent edges and supplies the three colors. The old
+`UFFRA0`, `UFFGA0` and `UFFBA0` whole-flame images are removed.
 
-Final generation prompt (built-in tool, no API/CLI fallback):
+Smoke reuses the project's `X037A0` alpha texture and embers reuse `EMBRA0`,
+with separate material bindings so their original users are unaffected.
 
-> Asset: one isolated animated-game VFX base sprite texture, transparent PNG, no scene, no text, no props. Authentic Doom-style LOW RESOLUTION PIXEL ART flame for a gothic torch.
-> A single upright orange fire silhouette, 2 to 3 asymmetric curling tapered flame tongues separated by deep transparent gaps in the upper half. Main tongue leans gently right, a shorter tongue left. All tongues connect into one compact broad hot flame base. Orange and gold inner strands, dark red angular outside clusters, small pale yellow hot core in bottom quarter with just a FEW cream pixels, no large white areas. Sharp jagged chunky pixels, artwork looks drawn on a 48 by 80 pixel grid then enlarged with nearest neighbor. Use discrete coherent pixel clusters with limited palette rather than tiny stippled pixels. No black outlines.
-> Centered on a transparent portrait canvas with generous transparent padding on all sides (about 15 percent on left/right and 10 percent top/bottom). The flame is roughly twice as high as wide. Flat base softly scalloped; tongues organically curled like a classic Doom fire sprite, not a symmetric flame icon or wavy ribbons. Visible hollows and separation, nuanced red-orange outer lobes. Transparent background must be real alpha, absolutely no checkerboard, black rectangle, floor, brazier, stick, barrel, smoke, glow halo, detached sparks, letters, borders or shadows. Only the connected flame itself. Colors remain saturated with cream confined to about 3 percent of flame area. This texture will be used as an actual in-game sprite with separately animated distortion, embers and light.
+Final atlas generation prompt:
 
-Implementation references: the project's checked-out UZDoom
-`wadsrc/static/zscript/visualthinker.zs`, `src/rendering/hwrenderer/scene/hw_sprites.cpp`
-and `src/r_data/gldefs.cpp`, plus the official
-[GLDEFS shader documentation](https://zdoom.org/w/index.php?title=GLDEFS).
+> Generate actual game VFX fire-fragment texture atlas, four pieces in a STRICT equal 2x2 grid on a PURE BLACK square background. Reproduce the luminous smooth golden-yellow, amber and orange flame material in the reference. Four small individual torn FLAME SHEETS to be layered as moving particles. Do NOT draw complete flames or physical objects. Each tile contains one short ragged luminous sheet of fluid hot gas with gold-yellow inner body, creamy inner fold, translucent amber edges that fade into black. Photographic fire texture with soft low-frequency fluid swirls and broad smooth inner gradients. Absolutely NO lattice, cracks, veins, wire mesh, lava, pixel grid, granular dots or fine lace patterns. Top left: small squat rounded flame sheet with ragged upward tips; top right: short upright curved flame tongue wider at bottom; bottom left: irregular oblique wisp; bottom right: thin short forked tip. Fragments must have different profiles, but none taller than 1.7 times its width. Fine frayed borders, dense smooth interior. All tiles have at least 15 percent pure black margin. All tile bottom extents aligned to 85 percent tile height, centered horizontally. Background completely RGB 0,0,0 for a game shader to extract transparency. No labels, no smoke, no sparks, no props, no scenery, no glow halo on background.
 
-## Final delivery — 2026-09-07
+## Verification and delivery
 
-The full built package passed 39 lifecycle assertions per renderer (78 total), plus actual rendered-color and motion checks in both OpenGL and Vulkan. All 14 ACS modules compiled byte-identically without changes. The isolated fire package also passed the same checks before the concurrently edited weather source became buildable.
+`tools/test_fire.py` loads the dedicated add-on map and checks all torch
+replacements and aliases, barrels, finite owned particle populations, at
+least three independent fragments per active source, removal/recovery,
+quality levels and reduced effects, range culling, save/load and 54-source
+stress. Screenshots check actual colors and changing fire pixels. Camera
+positions are asserted before color captures; isolated input settings keep
+desktop interaction from moving the test camera. Eight successive engine
+frames provide a visual record of the moving sheets.
 
-Tested package: 8834 entries, 85564732 bytes, SHA-256 `ddd2e7831f4bd2018974dc72a3a3211dd1b0d9b9f96f7c336914501afbe2365b`. The exact fire production sources and the SFX fire block were compared byte-for-byte against this tested package.
+Both the full local package and an isolated master-based package containing
+only this fire change passed the renderer/lifecycle checks. The final isolated
+suite passed 46 assertions per renderer plus rendered-color/motion checks.
+An additional 54-source high/medium/low-quality run passed nine assertions per
+renderer. All 14 ACS modules compiled with unchanged bytecode.
 
-Existing running UZDoom processes were left in place. Restart with the rebuilt `tutnt.pk3` to load the new resources. Save/load was checked with saves made from this version.
+Exact source and package hashes, build results, engine logs and unedited
+screenshots are in `tools/validation/organic-fire-2026-09-07/manifest.json` and
+the adjacent files. Profiler samples measure client thinker CPU time, not
+whole-frame GPU performance. Full campaign completion and new multiplayer
+testing are not claimed by this focused cosmetic change. The earlier
+`tools/validation/fire-2026-09-07/` directory records the superseded design.
+
+Reproduce with the configured `UTNT_ENGINE` and `UTNT_IWAD`:
+
+```bat
+python tools/test_fire.py --mod tutnt.pk3 --renderer both
+```
+
+Restart the game with the rebuilt `tutnt.pk3` to load the replacement art and
+classes. Existing running user sessions were not stopped.
