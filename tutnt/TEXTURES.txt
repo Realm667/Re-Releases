@@ -6646,3 +6646,37 @@ Graphic "UTNTHBS", 32, 32
     YScale 4
     Patch "PSTRA0", 2, 6
 }
+
+// Reduced-view surround uses a power-of-two flat for the engine's border tiler.
+// Mirrored 16-pixel STBAR crops meet seamlessly and preserve palette indices.
+// Keep GRNROCK unchanged because maps can also use it as a world texture.
+Graphic "UTNHFTIL", 16, 16 { Patch "STBAR", -228, -5 }
+Flat "UTNHFILL", 64, 64
+{
+    Patch "UTNHFTIL", 0, 0
+    Patch "UTNHFTIL", 16, 0 { FlipX }
+    Patch "UTNHFTIL", 32, 0
+    Patch "UTNHFTIL", 48, 0 { FlipX }
+    Patch "UTNHFTIL", 0, 16 { FlipY }
+    Patch "UTNHFTIL", 16, 16 { FlipX FlipY }
+    Patch "UTNHFTIL", 32, 16 { FlipY }
+    Patch "UTNHFTIL", 48, 16 { FlipX FlipY }
+    Patch "UTNHFTIL", 0, 32
+    Patch "UTNHFTIL", 16, 32 { FlipX }
+    Patch "UTNHFTIL", 32, 32
+    Patch "UTNHFTIL", 48, 32 { FlipX }
+    Patch "UTNHFTIL", 0, 48 { FlipY }
+    Patch "UTNHFTIL", 16, 48 { FlipX FlipY }
+    Patch "UTNHFTIL", 32, 48 { FlipY }
+    Patch "UTNHFTIL", 48, 48 { FlipX FlipY }
+}
+
+// Four-pixel bevels surround the reduced viewport on all sides.
+Graphic "UTNHBT", 4, 4 { Patch "STBAR", -8, 0 }
+Graphic "UTNHBL", 4, 4 { Patch "UTNHBT", 0, 0 { Rotate 270 } }
+Graphic "UTNHBR", 4, 4 { Patch "UTNHBT", 0, 0 { Rotate 90 } }
+Graphic "UTNHBTL", 4, 4 { Patch "STBAR", 0, 0 }
+Graphic "UTNHBTR", 4, 4 { Patch "STBAR", -316, 0 }
+Graphic "UTNHBB", 4, 4 { Patch "UTNHBT", 0, 0 { FlipY } }
+Graphic "UTNHBBL", 4, 4 { Patch "UTNHBTL", 0, 0 { FlipY } }
+Graphic "UTNHBBR", 4, 4 { Patch "UTNHBTR", 0, 0 { FlipY } }

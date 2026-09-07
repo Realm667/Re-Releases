@@ -84,3 +84,19 @@ python tools/test_statusbar_coop.py --mod tutnt-ammo-validated.pk3
 ```
 
 ![Zweispaltige Munition in der normalen Statusleiste](tools/validation/statusbar-two-columns-2026-09-07/statusbar-ammo-package-1-normal.png)
+
+## Rahmen bei verkleinertem Spielfenster
+
+Am 08.09.2026 wurden der bisherige grüne Doom-II-Hintergrund und der Fensterrahmen an die UTNT-Statusleiste angepasst. `BorderFlat` und `Border` im MAPINFO-GameInfo-Block verwenden eigene `UTNH*`-Ressourcen. `TEXTURES.txt` setzt die dunkle Steinfüllung und acht vier Pixel breite Kanten-/Eckstücke direkt aus `STBAR` zusammen. Palettenindizes und bestehende Welttexturen bleiben erhalten; insbesondere wird `GRNROCK` nicht global ersetzt.
+
+Die Hintergrundfläche ist eine nahtlos gespiegelte 64 × 64-Kachel. Die Zweierpotenz verhindert die leeren Streifen, die der UZDoom-Border-Tiler beim ersten Entwurf mit einer 60 × 48-Fläche zeigte. Die Leiste und das zweispaltige Munitionslayout bleiben unverändert. Die Engine übernimmt die Anpassung des Rahmens an das verkleinerte Spielfenster und die Übergänge bei `screenblocks` 10/11.
+
+Das isolierte `tutnt-border-validated.pk3` (Basis `dd1ee886f1a5` plus diese beiden Laufzeitdateien) wurde unter UZDoom 5.0.1 auf OpenGL und Vulkan geprüft. Pro Renderer wurden sieben Aufnahmen erzeugt und ihre Abmessungen automatisch kontrolliert: `screenblocks` 3, 7, 9, 10, 11 bei 1920 × 1080 sowie Größe 8 bei 1024 × 768 und 2560 × 1080. Beide Läufe erreichen den Abschlussmarker ohne Enginefehler; Steinfüllung, obere/linke/rechte Kante, Ecken und der Übergang zur Statusleiste wurden visuell kontrolliert. Dies ist eine Darstellungsprüfung, kein erneuter vollständiger Gameplay-Regressionslauf.
+
+```text
+python tools/test_statusbar_border.py --mod tutnt-border-validated.pk3 --label statusbar-border-package
+```
+
+Testergebnisse, Pakethash und unveränderte Spielaufnahmen: `tools/validation/statusbar-border-2026-09-08`.
+
+![Passender Steinrahmen bei verkleinertem Spielfenster](tools/validation/statusbar-border-2026-09-08/statusbar-border-package-1-1920x1080-s7.png)
