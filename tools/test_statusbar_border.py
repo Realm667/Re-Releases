@@ -6,6 +6,7 @@ import sys, json, argparse, os, struct
 
 root=Path(__file__).resolve().parent.parent
 from check_engine import run_case
+from check_border_image import longest_black_band
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--mod',type=Path)
@@ -29,6 +30,11 @@ for renderer in ['0','1'] if args.renderer=='both' else [args.renderer]:
             shot=root/'logs'/f'{label}-{w}x{h}-s{size}.png'
             actual=struct.unpack('>II',shot.read_bytes()[16:24]) if shot.exists() else None
             if actual!=(w,h): result['errors'].append(f'Missing or incorrectly sized capture: {shot.name}')
+    band_shot=root/'logs'/f'{label}-1920x1080-s3.png'
+    if band_shot.exists():
+        result['longest_black_band_px']=longest_black_band(band_shot)
+        if result['longest_black_band_px']>=4:
+            result['errors'].append('Black horizontal band in reduced-view surround')
     result['ok']=result['ok'] and not result['errors']
     results.append(result)
 (root/'logs'/f'{args.label}-results.json').write_text(json.dumps(results,indent=2)+'\n')

@@ -100,3 +100,9 @@ python tools/test_statusbar_border.py --mod tutnt-border-validated.pk3 --label s
 Testergebnisse, Pakethash und unveränderte Spielaufnahmen: `tools/validation/statusbar-border-2026-09-08`.
 
 ![Passender Steinrahmen bei verkleinertem Spielfenster](tools/validation/statusbar-border-2026-09-08/statusbar-border-package-1-1920x1080-s7.png)
+
+## Schwarze Streifen: veraltetes Standard-PK3
+
+Am 08.09.2026 enthielt das regulär gestartete `tutnt.pk3` noch die alte 60 × 48-Füllung, während Quellordner und separates Prüf-PK3 bereits den korrigierten 64 × 64-Rahmen enthielten. Das reguläre PK3 wurde während der Prüfung durch einen parallelen Projektbuild aktualisiert. Eine byteidentische Kopie dieses aktualisierten Pakets wurde anschließend vollständig mit `test_statusbar_border.py` auf OpenGL und Vulkan geprüft. Zum Laden der aktualisierten Grafik muss UZDoom neu gestartet werden.
+
+Die Rahmenprüfung kontrolliert jetzt zusätzlich die tatsächlichen Bildpixel bei 1920 × 1080 und `screenblocks 3`: Ein linker Streifen außerhalb von Spielfenster und Statusleiste darf keine mindestens vier Pixel hohe, nahezu vollständig schwarze horizontale Lücke enthalten. `check_border_image.py` benötigt Pillow. Der Detektor wurde gegen die echte fehlerhafte Aufnahme (44 Pixel hohe Lücke) und die korrigierte Aufnahme (0 Pixel) geprüft. Das aktualisierte Standard-PK3 besteht auf beiden Renderern mit jeweils 0 Pixel schwarzen Bändern. Pakethash, Ergebnisse und die unveränderte Spielaufnahme liegen unter `tools/validation/statusbar-border-no-bands-2026-09-08`.
