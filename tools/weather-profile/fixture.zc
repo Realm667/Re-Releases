@@ -176,6 +176,18 @@ class UTNTWeatherTests : EventHandler
     }
     override void ConsoleProcess(ConsoleEvent e)
     {
+        if(e.Name=="weathershelter")
+        {
+            let ci=ThinkerIterator.Create('UTNTWeatherController',Thinker.STAT_USER+4,true);
+            let c=UTNTWeatherController(ci.Next());
+            let it=ThinkerIterator.Create('UTNTWeatherVisual',Thinker.MAX_STATNUM+1,true);
+            UTNTWeatherVisual v; int inside=0;
+            while(v=UTNTWeatherVisual(it.Next()))
+                if(c && !v.SkyLayer && v.Kind<=2 && (v.Pos.XY-c.Camera.Pos.XY).Length()<128
+                    && level.PointInSector(v.Pos.XY)==c.Camera.CurSector && v.Pos.Z<c.Camera.CeilingZ) inside++;
+            Console.Printf("UTNT_ASSERT %s: indoor arrival remains sheltered with outdoor preload",c && inside==0 ? "PASS" : "FAIL");
+            return;
+        }
         if(e.Name!="weathercheck") return;
         let ci=ThinkerIterator.Create('UTNTWeatherController',Thinker.STAT_USER+4,true);
         let c=UTNTWeatherController(ci.Next());
@@ -188,7 +200,7 @@ class UTNTWeatherTests : EventHandler
             count++; if(v.Kind==1) rain++; if(v.Kind==2) snow++; if(v.Kind>=3) detail++;
             if(!v.SkyLayer && v.Kind<=2 && abs(v.Pos.X)<128 && abs(v.Pos.Y)<128 && v.Pos.Z<128) inside++;
             if(!v.SkyLayer && v.Kind<=2 && v.Pos.X>256 && v.Pos.X<768 && abs(v.Pos.Y)<256 && v.Pos.Z>128 && v.Pos.Z<192) solid++;
-            if(v.Kind==1 && v.Texture!=TexMan.CheckForTexture('graphics/utnt-weather/rain.png')) grouped++;
+            if(v.Kind==1 && v.Texture!=TexMan.CheckForTexture('UTNTRainGrey')) grouped++;
             if(v.Kind==2)
             {
                 bool single=false;
@@ -212,7 +224,7 @@ class UTNTWeatherTests : EventHandler
         Console.Printf("UTNT_ASSERT %s: accounting live %d actual %d detail %d/%d",count==c.Live && detail==c.DetailLive ? "PASS" : "FAIL",c.Live,count,c.DetailLive,detail);
         Console.Printf("UTNT_ASSERT %s: valid visuals",invalid==0 ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s: bounded live effects",count<=c.Limit ? "PASS" : "FAIL");
-        Console.Printf("UTNT_ASSERT %s: absolute allocation and trace limits",c.PeakLive<=2820 && c.PeakTraces<=3200 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: absolute allocation and trace limits",c.PeakLive<=4420 && c.PeakTraces<=5000 ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s: single-particle textures at every distance",grouped==0 ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s: independent snow velocities",snow<4 || maxSnowVX-minSnowVX>0.001 ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s: effect budgets settle",detail<=c.DetailLimit && count-detail<=c.ParticleLimit ? "PASS" : "FAIL");

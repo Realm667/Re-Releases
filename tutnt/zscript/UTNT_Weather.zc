@@ -14,6 +14,7 @@ class UTNTWeatherCell : Object
     Vector2 Center;
     int Kind;
     double Height;
+    int Live, Target;
 }
 
 class UTNTWeatherSystem play
@@ -79,7 +80,9 @@ class UTNTWeatherController : Thinker
     int SpawnedRain, SpawnedSnow, Impacts, RejectedRoof, RejectedWall;
     bool Enabled;
     uint Seed;
-    double Range, WindX, WindY, Gust, Exposure;
+    double Range, SpawnRange, WindX, WindY, Gust, Exposure;
+    Vector2 Ahead, LastScan;
+    int Warmup;
 
     void Initialize()
     {
@@ -136,22 +139,35 @@ class UTNTWeatherController : Thinker
         Camera=player ? player.camera : null;
         Quality=player ? clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),0,3) : 0;
         if (Quality && CVar.GetCVar('UTNT_reducedfx',player).GetBool()) Quality=1;
-        ParticleLimit=Quality==3 ? 2600 : Quality==2 ? 1300 : 500;
+        ParticleLimit=Quality==3 ? 4200 : Quality==2 ? 2100 : 800;
         DetailLimit=Quality==3 ? 220 : Quality==2 ? 110 : 40;
         Limit=ParticleLimit+DetailLimit;
-        TraceBudget=Quality==3 ? 3200 : Quality==2 ? 1700 : 760;
-        Range=player ? min(900,max(0,CVar.GetCVar('UTNT_lod',player).GetInt())) : 0;
+        TraceBudget=Quality==3 ? 5000 : Quality==2 ? 2700 : 1100;
+        Range=player ? min(2048,max(0,CVar.GetCVar('UTNT_lod',player).GetInt())) : 0;
         Enabled=Camera && Quality>0 && Range>0 && CVar.GetCVar('weatherfx').GetBool();
         if (!Enabled || level.isFrozen() || Camera.IsFrozen()) return;
+        SpawnRange=Range+min(640,Range*0.35);
+        Vector2 lead=Camera.Vel.XY*24;
+        if(lead.Length()>768) lead=lead.Unit()*768;
+        Ahead=Camera.Pos.XY+lead;
         double t=level.time;
         Gust=0.60+0.23*sin(t*0.19)+0.17*sin(t*0.071);
         WindX=0.55+Gust*1.2; WindY=0.25+0.35*sin(t*0.047);
-        if (level.time%16==0 || Nearby.Size()==0)
+        if (level.time%4==0 || Nearby.Size()==0 || (Camera.Pos.XY-LastScan).Length()>64)
         {
+            LastScan=Camera.Pos.XY;
             Nearby.Clear();
             for(int i=0;i<Cells.Size();i++)
-                if ((Cells[i].Center-Camera.Pos.XY).Length()<Range+128
-                    && abs(Cells[i].Height-Camera.Pos.Z)<4096) Nearby.Push(i);
+            {
+                let cell=Cells[i]; cell.Target=0;
+                double here=(cell.Center-Camera.Pos.XY).Length();
+                if(here>SpawnRange+128 || abs(cell.Height-Camera.Pos.Z)>=4096) continue;
+                double distance=min(here,(cell.Center-Ahead).Length()+192);
+                double weight=clamp((1664-distance)/1280,0,1);
+                double density=cell.Kind==2 ? 14+82*weight*weight : 3+11*weight*weight;
+                cell.Target=max(1,int(density*(Quality==3 ? 1.0 : Quality==2 ? 0.5 : 0.20)));
+                Nearby.Push(i);
+            }
         }
         if (Nearby.Size()==0) return;
         double nearest=1e20;
@@ -161,7 +177,8 @@ class UTNTWeatherController : Thinker
             if(d<nearest) { nearest=d; ActiveKind=Cells[n].Kind; }
         }
         if (level.time%35==0) UpdateAudio();
-        int attempts=Quality==3 ? 80 : Quality==2 ? 40 : 20;
+        int attempts=Quality==3 ? 160 : Quality==2 ? 80 : 40;
+        if(Warmup++<20) attempts*=2;
         for(int i=0;i<attempts && Live-DetailLive<ParticleLimit;i++) Emit();
         int skyLimit=Quality==3 ? 512 : Quality==2 ? 256 : 80;
         if(SkyCamera && SkyLive<skyLimit && Live-DetailLive<ParticleLimit)
@@ -190,7 +207,7 @@ class UTNTWeatherController : Thinker
         v.Height=ActiveKind==2 ? v.Width : Sample(2,4);
         v.BaseAlpha=ActiveKind==2 ? Sample(0.45,0.7) : Sample(0.35,0.55);
         v.FallSpeed=ActiveKind==2 ? Sample(0.2,0.4) : Sample(3,5);
-        v.Texture=TexMan.CheckForTexture(ActiveKind==2 ? "graphics/utnt-weather/snow0.png" : "graphics/utnt-weather/rain.png");
+        v.Texture=TexMan.CheckForTexture(ActiveKind==2 ? "graphics/utnt-weather/snow0.png" : "UTNTRainGrey");
         v.Flags=SPF_ROLL; v.LightLevel=160; v.Start(); Live++; SkyLive++;
     }
 
@@ -219,16 +236,18 @@ class UTNTWeatherController : Thinker
     void Emit()
     {
         int index=Nearby[Pick(0,Nearby.Size()-1)];
-        for(int choice=0;choice<3;choice++)
+        // Fill under-populated cells first, including the preloaded outer field.
+        // A filled near cell cannot starve the next area during a sprint.
+        for(int choice=0;choice<7;choice++)
         {
             int candidate=Nearby[Pick(0,Nearby.Size()-1)];
-            if((Cells[candidate].Center-Camera.Pos.XY).Length()<(Cells[index].Center-Camera.Pos.XY).Length()) index=candidate;
+            if(double(Cells[candidate].Live)/max(1,Cells[candidate].Target)<double(Cells[index].Live)/max(1,Cells[index].Target)) index=candidate;
         }
         UTNTWeatherCell cell=Cells[index];
+        if(cell.Live>=cell.Target) return;
         Vector2 xy=cell.Center+(Sample(-64,64),Sample(-64,64));
         double distance=(xy-Camera.Pos.XY).Length();
-        if(distance>Range || distance<28) return;
-        if(distance>640 && Sample(0,1)>0.22) return;
+        if(distance>SpawnRange || distance<28) return;
         let sec=level.PointInSector(xy); if(!sec) return;
         double floorZ=sec.floorplane.ZatPoint(xy), ceilingZ=sec.ceilingplane.ZatPoint(xy);
         if(ceilingZ-floorZ<24) return;
@@ -243,18 +262,18 @@ class UTNTWeatherController : Thinker
         // Screen-independent world positions; distance taper hides radius edges.
         let v=UTNTWeatherVisual(level.SpawnClientSideVisualThinker('UTNTWeatherVisual'));
         if(!v) return;
-        v.Owner=self; v.Kind=cell.Kind; v.Pos=pos; v.Prev=pos;
+        v.Owner=self; v.Kind=cell.Kind; v.CellIndex=index; v.Pos=pos; v.Prev=pos;
         v.Phase=Sample(0,360);
         v.Lifetime=cell.Kind==1 ? 100 : Pick(180,280);
         v.BaseAlpha=cell.Kind==1 ? Sample(0.5,0.72) : Sample(0.50,0.76);
         v.Width=cell.Kind==1 ? Sample(0.85,1.4) : (Pick(0,15)==0 ? Sample(1.8,2.4) : Sample(1.0,2.1));
         v.Height=cell.Kind==1 ? Sample(10,17) : v.Width;
         v.FallSpeed=cell.Kind==1 ? Sample(19,27) : Sample(0.48,1.1);
-        v.Texture=TexMan.CheckForTexture(cell.Kind==1 ? "graphics/utnt-weather/rain.png" :
+        v.Texture=TexMan.CheckForTexture(cell.Kind==1 ? "UTNTRainGrey" :
             String.Format("graphics/utnt-weather/snow%d.png",Pick(0,2)));
         v.Flags=SPF_ROLL;
         v.LightLevel=224;
-        v.Start(); Live++;
+        v.Start(); Live++; cell.Live++;
         if(cell.Kind==1) SpawnedRain++; else SpawnedSnow++;
     }
 }
@@ -264,7 +283,7 @@ class UTNTWeatherVisual : VisualThinker
     UTNTWeatherController Owner;
     LineTracer Probe;
     UTNTSnowTrail Trail;
-    int Kind, Age, Lifetime, SegmentLeft;
+    int Kind, Age, Lifetime, SegmentLeft, CellIndex;
     double Phase, BaseAlpha, Width, Height, FallSpeed, HitAfter;
     double RainLength, RainSpeed, SnowSize;
     bool WillHit, FloorHit, WaterHit, Retired, SkyLayer;
@@ -296,7 +315,11 @@ class UTNTWeatherVisual : VisualThinker
     void Retire()
     {
         if(Trail) Trail.Retire();
-        if(!Retired && Owner) { Owner.Live--; if(Kind>=3) Owner.DetailLive--; if(SkyLayer) Owner.SkyLive--; }
+        if(!Retired && Owner)
+        {
+            Owner.Live--; if(Kind>=3) Owner.DetailLive--; if(SkyLayer) Owner.SkyLive--;
+            if(!SkyLayer && Kind<=2 && CellIndex>=0 && CellIndex<Owner.Cells.Size()) Owner.Cells[CellIndex].Live--;
+        }
         Retired=true; Destroy();
     }
 
@@ -306,7 +329,9 @@ class UTNTWeatherVisual : VisualThinker
         if(level.isFrozen() || IsFrozen()) return;
         if(Owner.Live>Owner.Limit || (Kind<3 && Owner.Live-Owner.DetailLive>Owner.ParticleLimit) || (Kind>=3 && Owner.DetailLive>Owner.DetailLimit) || ++Age>=Lifetime) { Retire(); return; }
         double distance=(Pos-(SkyLayer && Owner.SkyCamera ? Owner.SkyCamera.Pos : Owner.Camera.Pos)).Length();
-        if(distance>Owner.Range+160) { Retire(); return; }
+        if(distance>(SkyLayer ? Owner.Range+160 : Owner.SpawnRange+160)) { Retire(); return; }
+        if(!SkyLayer && Kind<=2 && Age>18 && level.time%4==0 && Owner.Cells[CellIndex].Live>Owner.Cells[CellIndex].Target+2)
+        { Lifetime=min(Lifetime,Age+18); }
         if(Kind==6)
         {
             Super.Tick();
@@ -380,7 +405,7 @@ class UTNTWeatherVisual : VisualThinker
         Super.Tick(); SegmentLeft--; HitAfter--;
         double fadeIn=min(1.0,double(Age)/(Kind==1 ? 3 : Kind>=3 ? 18 : 12));
         double fadeOut=min(1.0,double(Lifetime-Age)/(Kind>=3 ? 24 : 18));
-        Alpha=BaseAlpha*fadeIn*fadeOut*clamp((Owner.Range+96-distance)/256,0,1)
+        Alpha=BaseAlpha*fadeIn*fadeOut*clamp((Owner.Range+64-distance)/512,0,1)
             *clamp((distance-20)/48,0,1);
         if(Kind==1)
         {
@@ -415,7 +440,7 @@ class UTNTWeatherVisual : VisualThinker
             if(ring)
             {
                 ring.Owner=Owner; ring.Kind=6; ring.Pos=Pos+(0,0,1.3); ring.Prev=ring.Pos;
-                ring.Texture=TexMan.CheckForTexture('graphics/utnt-weather/ripple.png');
+                ring.Texture=TexMan.CheckForTexture('UTNTRippleGrey');
                 ring.Width=5; ring.Height=1.2; ring.BaseAlpha=0.25; ring.Lifetime=12; ring.LightLevel=-1;
                 ring.Start(); Owner.Live++; Owner.DetailLive++; Owner.PeakLive=max(Owner.PeakLive,Owner.Live);
             }
@@ -427,7 +452,7 @@ class UTNTWeatherVisual : VisualThinker
             if(!v) return;
             double angle=Owner.Sample(0,360), speed=Owner.Sample(0.22,0.65);
             v.Owner=Owner; v.Kind=7; v.Pos=Pos+(0,0,0.35); v.Prev=v.Pos;
-            v.Texture=TexMan.CheckForTexture('graphics/utnt-weather/snow0.png');
+            v.Texture=TexMan.CheckForTexture('UTNTRainDropGrey');
             v.Width=Owner.Sample(0.65,1.0); v.Height=v.Width;
             v.BaseAlpha=Owner.Sample(0.70,0.9); v.Lifetime=Owner.Pick(14,20); v.LightLevel=240;
             v.Vel=(cos(angle)*speed,sin(angle)*speed,Owner.Sample(0.70,1.1));

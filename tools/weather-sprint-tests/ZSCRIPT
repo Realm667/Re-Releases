@@ -1,0 +1,49 @@
+version "5.0.0"
+class UTNTWeatherSprintTests : EventHandler
+{
+    int Samples, EmptyNear, EmptyFar, MinNear, MinFar;
+    ui bool Swatches;
+    override void WorldTick()
+    {
+        let p=players[consoleplayer].mo; if(!p) return;
+        p.bInvulnerable=true; p.bNoGravity=true; p.bNoClip=true;
+        int t=level.time; double x=-2400,dir=1;
+        if(t>=180 && t<330) x=-2400+(t-180)*32;
+        if(t>=330) { x=2400-min(t-330,150)*32; dir=-1; }
+        p.SetOrigin((x,0,32),false); p.Vel=t>=180 && t<480 ? (32*dir,0,0) : (0,0,0); p.Angle=dir>0 ? 0 : 180; p.Pitch=0;
+        if(t>=200 && t<475 && t%8==0)
+        {
+            let it=ThinkerIterator.Create('UTNTWeatherVisual',Thinker.MAX_STATNUM+1,true); UTNTWeatherVisual v;
+            int near=0,far=0;
+            while(v=UTNTWeatherVisual(it.Next()))
+            {
+                if(v.SkyLayer || v.Kind>2 || v.Age<12 || abs(v.Pos.Y)>384) continue;
+                double ahead=(v.Pos.X-p.Pos.X)*dir;
+                if(ahead>64 && ahead<640 && v.Alpha>0.02) near++;
+                if(ahead>1000 && ahead<1600) far++;
+            }
+            if(!Samples) { MinNear=near; MinFar=far; }
+            MinNear=min(MinNear,near); MinFar=min(MinFar,far); Samples++;
+            if(!near) EmptyNear++; if(!far) EmptyFar++;
+        }
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name=="swatches") Swatches=true;
+        if(e.Name!="sprintcheck") return;
+        let ci=ThinkerIterator.Create('UTNTWeatherController',Thinker.STAT_USER+4,true); let c=UTNTWeatherController(ci.Next());
+        Console.Printf("UTNT_ASSERT %s: mature weather ahead throughout 32-unit sprint and reversal",Samples>=30 && EmptyNear==0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: mature outer field beyond old spawn radius",Samples>=30 && EmptyFar==0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: sprint respects particle and trace limits",c && c.Live<=c.Limit && c.BudgetRetired==0 ? "PASS" : "FAIL");
+        Console.Printf("WEATHER_SPRINT samples=%d nearMin=%d farMin=%d emptyNear=%d emptyFar=%d",Samples,MinNear,MinFar,EmptyNear,EmptyFar);
+        Console.Printf("UTNT_REGRESSION_COMPLETE");
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        if(!Swatches) return;
+        Screen.Clear(0,0,Screen.GetWidth(),Screen.GetHeight(),0);
+        Screen.DrawTexture(TexMan.CheckForTexture('UTNTRainGrey'),false,100,100,DTA_VirtualWidth,960,DTA_VirtualHeight,540);
+        Screen.DrawTexture(TexMan.CheckForTexture('UTNTRainDropGrey'),false,200,100,DTA_VirtualWidth,960,DTA_VirtualHeight,540);
+        Screen.DrawTexture(TexMan.CheckForTexture('UTNTRippleGrey'),false,300,100,DTA_VirtualWidth,960,DTA_VirtualHeight,540);
+    }
+}

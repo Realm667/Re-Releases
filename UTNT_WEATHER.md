@@ -8,7 +8,7 @@ Regen fällt schnell in schmalen, weich auslaufenden Strichen. Am tatsächlichen
 
 Schnee reagiert jeden Spieltic auf ein sanft veränderliches Windfeld. Individuelle Phasen und eine geglättete Reaktion erzeugen unterschiedliche Flugbahnen. Die bestehende Interpolation der VisualThinker verbindet die Simulationsschritte. Kleine Flocken bilden die Grunddichte; größere Flocken bleiben selten. Gleichförmig rotierende Gruppen gibt es nicht mehr.
 
-Windformeln, Nahbereichsgewichtung und maximale Reichweite von 900 Karteneinheiten entsprechen der freigegebenen Vorschau. Die nachfolgend beauftragte Feinabstimmung verändert Größen, Regenlänge, Deckkraft und Regenfalltempo wie unten beschrieben. Der Spielbetrieb ergänzt separate Budgets und vollständige Kollisionsprüfungen für Spritztröpfchen. Die Vorschau nutzte noch bis zu 5.000 Traces pro Tic; die neue hohe Qualitätsstufe ist auf 3.200 begrenzt.
+Die Windformeln entsprechen der freigegebenen Vorschau. Die später beauftragte Sprintkorrektur erweitert die Sichtweite auf bis zu 2.048 Einheiten und verteilt Teilchen nach der Belegung einzelner Wetterzellen. Die nachfolgend beauftragte Feinabstimmung verändert Größen, Regenlänge, Deckkraft und Regenfalltempo wie unten beschrieben. Der Spielbetrieb ergänzt separate Budgets und vollständige Kollisionsprüfungen für Spritztröpfchen. Die Vorschau nutzte noch bis zu 5.000 Traces pro Tic; die erste Produktionsfassung war auf 3.200 begrenzt. Die erweiterte Abdeckung darf auf hoher Qualität bis zu 5.000 Traces nutzen.
 
 ## Technik und Einstellungen
 
@@ -18,9 +18,9 @@ Windformeln, Nahbereichsgewichtung und maximale Reichweite von 900 Karteneinheit
 
 | Qualität | Niederschlag maximal | Spritzer/Ringe zusätzlich | Traces pro Tic maximal |
 | --- | ---: | ---: | ---: |
-| Niedrig / reduzierte Effekte | 500 | 40 | 760 |
-| Mittel | 1.300 | 110 | 1.700 |
-| Hoch | 2.600 | 220 | 3.200 |
+| Niedrig / reduzierte Effekte | 800 | 40 | 1.100 |
+| Mittel | 2.100 | 110 | 2.700 |
+| Hoch | 4.200 | 220 | 5.000 |
 
 Emission stoppt an der jeweiligen Obergrenze. Schnee und Spritztröpfchen prüfen ihre Bewegung jeden Tic; Regen prüft bis zu acht Tics als gerades Segment voraus. Falls die Trace-Grenze dennoch erreicht wird, wird das betreffende Teilchen entfernt. Es bleibt nicht sichtbar in der Luft stehen. In den dokumentierten bestandenen Fällen wurde dieser Notpfad nicht benötigt. Umschalten und Freeze gelten auch für den Controller und die neuen Tröpfchen.
 
@@ -85,3 +85,26 @@ Abnahme der Feinabstimmung: 10 bestandene Laufzeitfälle mit 552 Assertions auf 
 | TNT03A1 | 1.313 ms | 3.149 ms | 5.072 ms |
 
 Diese kurzen Messfenster gelten für dieselbe Maschine und Auflösung wie oben. Gleichzeitig fortgeschrittene andere Projekteffekte verhindern einen isolierten Vergleich mit der früheren Gesamtbildzeit.
+
+## Sprintabdeckung, grauer Regen und Player-Start – 08.09.2026
+
+Die Standard-Sichtweite wächst von 900 auf 2.048 Karteneinheiten; `UTNT_lod` begrenzt sie weiterhin. Außerhalb liegt ein zusätzlicher Spawnpuffer von bis zu 640 Einheiten. Die Zellauswahl wird alle vier Tics beziehungsweise nach mehr als 64 Einheiten Kamerabewegung aktualisiert. Die Bewegungsgeschwindigkeit bestimmt einen vorausliegenden Bereich für bis zu 24 Tics (maximal 768 Einheiten).
+
+Jede 128×128-Zelle zählt ihre eigenen Teilchen. Die Emission bevorzugt relativ unterbesetzte Zellen und füllt auch das äußere Feld. Dadurch können volle Nahbereichszellen die Versorgung der nächsten Fläche nicht mehr verdrängen. Eine an Entfernung und Qualitätsstufe angepasste Zieldichte schützt den Nahbereich; überzählige Teilchen laufen weich innerhalb von 18 Tics aus. Ein 512 Einheiten breiter Rand blendet die Entfernung aus. Die ersten 20 aktiven Tics nutzen ein begrenztes zusätzliches Füllbudget. Auch die vorausgeladenen Positionen durchlaufen die vorhandenen Dach-/Geometrieprüfungen.
+
+`TEXTURES.weather` definiert drei neutralgraue Varianten für Regenstrich, Spritztröpfchen und Wasserring: RGB 128/128/128 (`#808080`). Die Komposition ersetzt nur RGB, bewahrt die einzelnen Formen samt Alpha und lässt die Schneequellen unverändert. Die zuvor beauftragten 70 % relativer Deckkraft und langsameren/längeren Regentropfen gelten weiterhin.
+
+In TNT03A1 wurde ausschließlich der zusätzliche normale Player-1-Start Thing 1141 bei (832, −5376) entfernt. Der normale Start bei (−1440, 2112), seine Koop-Partner sowie die alternative Einstiegsgruppe mit `arg0=1` bei (3360, −4992) bleiben erhalten. Alle anderen TEXTMAP-Bytes und alle übrigen WAD-Lumps wurden bei dieser Änderung erhalten; insbesondere wurden parallele Änderungen an Ausgangslinien und Kartenskripten nicht zurückgesetzt.
+
+Neue Nachweise: `tools/validation/weather-coverage-2026-09-08/`. Reproduzierbar mit `tools/test_weather_sprint.py --mod tutnt.pk3`, `tools/test_weather_mapstart.py --mod tutnt.pk3` und den bestehenden Wettertests. Der Sprinttest fährt mit 32 Einheiten pro Tic insgesamt 9.600 Einheiten hin und zurück und verlangt an jedem Messpunkt bereits gereifte Teilchen vor der Kamera und im Bereich 1.000–1.600 Einheiten voraus. Kein allgemeines Versprechen für beliebig hohe Mod-Geschwindigkeiten oder Teleports über die Pufferweite hinweg.
+
+Abnahme dieser Fassung: 11 bestandene Laufzeitfälle mit 339 Assertions, neutralgraue gerenderte Farbmuster auf beiden Renderern und Startpunktprüfungen im Test- und regulären Paket. In jedem der vier Sprintläufe waren alle 35 Messpunkte ohne Versorgungslücke (Regen mindestens 12 gereifte Teilchen nah / 5 außen; Schnee mindestens 171 nah / 56 außen).
+
+Kurze Vulkan-Messfenster auf derselben Maschine (Millisekunden pro Frame):
+
+| Karte | Median Wetter aus | Median Wetter an | p95 Wetter an |
+| --- | ---: | ---: | ---: |
+| TNT02 | 2.038 | 2.035 | 3.066 |
+| TNT03A1 | 1.343 | 3.267 | 5.750 |
+
+Die nahezu gleichen Regen-Mediane liegen innerhalb der Schwankung dieser kurzen Messung; daraus folgt kein Leistungsgewinn. Die früheren Abnahmen bleiben historisch dokumentiert.
