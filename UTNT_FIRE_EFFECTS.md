@@ -138,3 +138,22 @@ This revision passed 46 assertions plus rendered-color/motion checks in each
 hardware backend, including smoke rotation and 54-source quality changes.
 All 14 ACS modules compiled unchanged. Evidence and candidate hashes are in
 `tools/validation/fire-density-2026-09-08/`.
+
+## Varied smoke and larger colored central glow
+
+Four new smoke density shapes alternate without consecutive duplicates, with
+independent aspect ratio and opacity, mirroring, rotation and sideways drift.
+A gentle shader warp and filtered density sampling soften the wisps. Smoke
+emission budgets and lifetimes stay unchanged; green smoke remains faint,
+and blue fire retains its smokeless profile.
+
+A single persistent client-side additive halo supplies a broad soft glow and
+brighter center for orange, green and blue torches, tall and short, including
+legacy aliases and burning barrels. Width, height and brightness fluctuate
+gently; the source kind controls size. Approved flame fragments are unchanged.
+
+The complete package passes engine loading and 60 runtime assertions in each
+of OpenGL and Vulkan, including halo ownership, quality changes, distance,
+save/load, source removal, aliases and 54-source stress. Rendered checks cover
+all colors and animation. Evidence, source hashes, artwork provenance and the
+built-in Imagegen prompt are in `tools/validation/fire-smoke-glow-2026-09-08/`.

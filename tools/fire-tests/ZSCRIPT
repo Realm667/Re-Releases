@@ -52,13 +52,13 @@ class UTNTFireTest : EventHandler
             return;
         }
         if (e.Name!="firecheck") return;
-        int count=0,invalid=0,legacy=0,fragments=0,details=0;
+        int count=0,invalid=0,legacy=0,fragments=0,details=0,glows=0;
         let it=ThinkerIterator.Create('UTNTFireEmitter',Thinker.STAT_USER+5,true);
         UTNTFireEmitter f;
         while(f=UTNTFireEmitter(it.Next()))
         {
             count++;
-            if (!f.Source) invalid++;
+            if (!f.Source || !f.Glow || f.Glow.Source!=f.Source || f.Glow.ColorIndex!=f.ColorIndex) invalid++;
             // Even low quality must keep several independent sheets per source.
             int owned=0;
             let pi=ThinkerIterator.Create('UTNTFireFragment',Thinker.MAX_STATNUM+1,true);
@@ -81,9 +81,18 @@ class UTNTFireTest : EventHandler
         {
             details++;
             if (!detail.Source || !detail.Texture.IsValid() || detail.Age>=detail.Life || detail.Life>65 ||
-                (detail.Smoke && (!(detail.Flags & SPF_ROLL) || (detail.Age>0 && abs(detail.Roll-detail.PrevRoll)<0.01)))) invalid++;
+                (detail.Smoke && (detail.SmokeVariant<1 || detail.SmokeVariant>4 || !(detail.Flags & SPF_ROLL) || (detail.Age>0 && abs(detail.Roll-detail.PrevRoll)<0.01)))) invalid++;
         }
-        if (count==0 && (fragments!=0 || details!=0)) invalid++;
+        let gi=ThinkerIterator.Create('UTNTFireGlow',Thinker.MAX_STATNUM+1,true);
+        UTNTFireGlow glow;
+        while(glow=UTNTFireGlow(gi.Next()))
+        {
+            glows++;
+            if (!glow.Source || !glow.Texture.IsValid() || glow.Alpha<=0 || glow.Alpha>1 ||
+                glow.Scale.X<=0 || glow.Scale.Y<=0 || !(glow.Flags & SPF_ALLOWSHADERS)) invalid++;
+        }
+        Console.Printf("UTNT_ASSERT %s one owned glow per emitter (%d/%d)",glows==count ? "PASS" : "FAIL",glows,count);
+        if (count==0 && (fragments!=0 || details!=0 || glows!=0)) invalid++;
         Console.Printf("UTNT_FIRE_POPULATION emitters=%d fragments=%d details=%d",count,fragments,details);
         let ai=ThinkerIterator.Create('Actor'); Actor a;
         while(a=Actor(ai.Next())) if (a is 'RedFire_BG' || a is 'UTNTTorchFlame' || a is 'UTNTTorchFlameG' || a is 'UTNTTorchFlameB' || a is 'UTNTTorchFlameShort' || a is 'UTNTTorchFlameShortG' || a is 'UTNTTorchFlameShortB') legacy++;

@@ -3,7 +3,8 @@
 class UTNTFireEmitter : Thinker
 {
     Actor Source;
-    int Kind, ColorIndex, Age, NextSheet, NextBase, LastVariant;
+    int Kind, ColorIndex, Age, NextSheet, NextBase, LastVariant, LastSmokeVariant;
+    UTNTFireGlow Glow;
     double Phase, Anchor;
 
     void Initialize(Actor owner, int color, int kind)
@@ -14,6 +15,13 @@ class UTNTFireEmitter : Thinker
         Anchor=kind==2 ? 19 : kind==1 ? 31 : 61;
         if (owner is 'UTNTLegacyRedFireBase' || owner is 'UTNTLegacyGreenFireBase' || owner is 'UTNTLegacyBlueFireBase') Anchor=57;
         if (owner is 'UTNTLegacyShortRedFireBase' || owner is 'UTNTLegacyShortGreenFireBase' || owner is 'UTNTLegacyShortBlueFireBase') Anchor=28;
+    }
+
+    int NextSmokeVariant()
+    {
+        LastSmokeVariant=LastSmokeVariant==0 ? Random[utntcosmetic](1,4)
+            : 1+(LastSmokeVariant-1+Random[utntcosmetic](1,3))%4;
+        return LastSmokeVariant;
     }
 
     int NextVariant()
@@ -30,6 +38,11 @@ class UTNTFireEmitter : Thinker
         if (Source.IsFrozen()) return;
         if (!UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
         Age++;
+        if (!Glow)
+        {
+            Glow=UTNTFireGlow(level.SpawnClientSideVisualThinker('UTNTFireGlow'));
+            if (Glow) Glow.Initialize(self);
+        }
         let player=players[consoleplayer];
         int quality=clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),1,3);
         if (CVar.GetCVar('UTNT_reducedfx',player).GetBool()) quality=1;
@@ -149,11 +162,52 @@ class UTNTFireFragment : VisualThinker
     }
 }
 
+// One persistent client-side halo per fire; independent of fragment births.
+class UTNTFireGlow : VisualThinker
+{
+    Actor Source;
+    int Age, ColorIndex;
+    double Anchor, Width, Height, Phase;
+
+    void Initialize(UTNTFireEmitter fire)
+    {
+        Source=fire.Source; ColorIndex=fire.ColorIndex; Phase=fire.Phase;
+        double small=fire.Kind==1 ? 0.62 : 1;
+        Anchor=fire.Anchor+9*small;
+        Width=(fire.Kind==2 ? 70 : 56)*small;
+        Height=(fire.Kind==2 ? 54 : 52)*small;
+        Texture=TexMan.CheckForTexture(ColorIndex==1 ? 'UFHGA0' : ColorIndex==2 ? 'UFHBA0' : 'UFHRA0');
+        Flags=SPF_FULLBRIGHT | SPF_ALLOWSHADERS | SPF_STRETCHPIXELS;
+        SetRenderStyle(STYLE_Add);
+        Pos=Source.Vec3Offset(0,0,Anchor);
+        Animate(); Prev=Pos;
+        UpdateSector(); UpdateSpriteInfo();
+    }
+
+    void Animate()
+    {
+        double pulse=1+0.045*sin(Age*11+Phase)+0.025*sin(Age*23+Phase*1.7);
+        let size=TexMan.GetScaledSize(Texture);
+        Scale=(Width*pulse/size.X,Height*(2-pulse)/size.Y);
+        Alpha=0.84+0.055*sin(Age*13+Phase)+0.035*sin(Age*29+Phase*0.7);
+    }
+
+    override void Tick()
+    {
+        if (!Source) { Destroy(); return; }
+        if (IsFrozen() || Source.IsFrozen()) return;
+        if (!UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        Super.Tick(); Age++;
+        Pos=Source.Vec3Offset(0,0,Anchor+0.5*sin(Age*7+Phase));
+        UpdateSector(); Animate();
+    }
+}
+
 class UTNTFireDetail : VisualThinker
 {
     Actor Source;
     bool Smoke;
-    int Age, Life;
+    int Age, Life, SmokeVariant;
     double Width, Height, Strength, Phase, SmokeSpin;
 
     void Initialize(UTNTFireEmitter fire, bool smoke)
@@ -170,13 +224,15 @@ class UTNTFireDetail : VisualThinker
         bXFlip=Random[utntcosmetic](0,1);
         if (smoke)
         {
-            Texture=TexMan.CheckForTexture('UFSMA0');
+            SmokeVariant=fire.NextSmokeVariant();
+            string frame=SmokeVariant==1 ? 'A0' : SmokeVariant==2 ? 'B0' : SmokeVariant==3 ? 'C0' : 'D0';
+            Texture=TexMan.CheckForTexture('UFSM'..frame);
             Flags|=SPF_ROLL | SPF_STRETCHPIXELS;
             SetRenderStyle(STYLE_Translucent);
-            Width=(fire.Kind==2 ? 27 : 20)*small*FRandom[utntcosmetic](0.80,1.25);
-            Height=Width*FRandom[utntcosmetic](0.85,1.40);
+            Width=(fire.Kind==2 ? 27 : 20)*small*FRandom[utntcosmetic](0.85,1.45);
+            Height=Width*FRandom[utntcosmetic](0.70,1.55);
             Life=Random[utntcosmetic](48,65);
-            Strength=fire.ColorIndex==1 ? 0.16 : fire.Kind==2 ? 0.42 : 0.36;
+            Strength=(fire.ColorIndex==1 ? 0.20 : fire.Kind==2 ? 0.57 : 0.48)*FRandom[utntcosmetic](0.70,1.15);
             // Fullbright tint makes wisps readable even against unlit masonry.
             Flags|=SPF_FULLBRIGHT; scolor=0xffa3988b;
             // Neighboring wisps follow one gentle breeze with individual spread.
