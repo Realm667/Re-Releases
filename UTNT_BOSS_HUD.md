@@ -2,7 +2,7 @@
 
 Die Bossanzeige verbindet die originalen UTNT-Metallboxen mit Bossnamen, einer großen Prozentzahl und einem eingelassenen Lebensbalken. Die fünf vom Nutzer bereitgestellten PNGs werden unverändert und vollständig gezeichnet; es gibt keine nachgezeichneten Gesichter. ZScript ergänzt ausschließlich Text, Balken und Schildsymbol.
 
-![Bossplakette in UZDoom](tools/validation/boss-hud-2026-09-07/boss-final-1-1080p.png)
+![Bossplakette in UZDoom](tools/validation/boss-hud-2026-09-07/boss-inset-1-1080p.png)
 
 ## Zuordnung und Darstellung
 
@@ -49,9 +49,17 @@ Das Test-Add-on unter `tools/boss-hud-tests` wird nicht mit dem Spiel ausgeliefe
 
 Diese Abnahme prüft die Bossanzeige und die ursprünglichen Begegnungsstarts. Sie ist keine erneute vollständige Kampagnen- oder Mehrspielerabnahme; die zugrunde liegenden Spiel-/Netzwerkpfade wurden hier nicht verändert.
 
-## Pakete und vorhandene lokale Änderungen
+## Pakete und vorhandene lokale Änderungen vor der Balkenkorrektur
 
 - Lokales `tutnt.pk3`: 8779 Einträge, 84907607 Bytes, SHA-256 `059c4cd5eb864d073f67f588370dde49b46b823d8aa45d8c34068be8230bdc78`. Es bildet den aktuellen Quellbaum einschließlich der vom Nutzer in `af649be7f` committeten PNG-Grafikkonvertierungen ab.
 - Zusätzlich geprüftes isoliertes Paket aus `01557144c` plus ausschließlich dieser HUD-Umsetzung: 8779 Einträge, 82331622 Bytes, SHA-256 `3ae4f76b6bac342e9a50a9e54cad7199a7218500d5d5da77b73721bba63e33c9`. Dieses Paket verwendet für die übrigen Schriftgrafiken den bisherigen Git-Stand. Damit ist die HUD-Umsetzung zusätzlich unabhängig von den übrigen Grafikkonvertierungen geprüft.
 
 Während der Arbeit hat der Nutzer die Grafikkonvertierungen einschließlich der bereits implementierten Bossanzeige mit `af649be7f` committet und auf den bisherigen Branch gepusht. Dieser Stand wurde anschließend wie beauftragt per Fast-Forward in `master` integriert. Die abschließende Testkorrektur und diese Nachweise werden direkt auf `master` committet; zukünftige Umsetzungen erfolgen ebenfalls direkt dort. AGENTS.md, Referenzquellen, lokale Konfigurationen, Engine, IWAD und Build-Pakete bleiben ausgeschlossen.
+
+## Balkenkorrektur nach Screenshot — 07.09.2026
+
+Der Balken sitzt jetzt vollständig innerhalb der Originalvertiefung. Sein äußerer Rahmen belegt native Pixel x=29..133 und y=24..28; Füllung, Schadensnachlauf und Teilstriche verwenden gemeinsam x=30, y=25 und Breite 103. Dadurch verschwinden der bisherige Versatz nach rechts und die Überstände am rechten sowie unteren Rand. Die Originalgrafiken und alle anderen HUD-Elemente bleiben unverändert.
+
+Frischer PK3-Build und vorhandene HUD-Testfolge unter UZDoom 5.0.1/Vulkan bestanden: 30 Assertions. Ausrichtung bei 960 × 540, 1920 × 1080 und 1024 × 768 kontrolliert; 14 ACS-Module weiterhin byteidentisch. Nachweise: `boss-inset-*` im obigen Nachweisverzeichnis.
+
+Aktuelles lokales Paket: 84917073 Bytes, SHA-256 `f061d1c8177bae05040ea7baff05dd3657d836736a67cada19583913a6f03d9c`. Es enthält auch die während der Arbeit vorgefundene lokale Änderung an `PLAYPAL.pal`; diese gehört nicht zur Balkenkorrektur und wird von ihr nicht committet.

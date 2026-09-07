@@ -63,13 +63,15 @@ class UTNTBossPlaque ui
                 DTA_ScaleX,numberScale,DTA_ScaleY,numberScale,DTA_Color,fill,DTA_Alpha,alpha);
         }
         if(shielded) Shield(x,y,scale,alpha);
-        // An inset, shaded gauge; dark trailing damage is visible briefly after a hit.
-        Rect(x,y,scale,33,25,104,5,0x070806,alpha);
-        Rect(x,y,scale,34,29,102,1,0x64583b,alpha);
-        Rect(x,y,scale,34,26,102,3,0x181b12,alpha);
-        Rect(x,y,scale,34,26,102*damageHP,3,0x72533b,alpha);
-        Rect(x,y,scale,34,26,102*shownHP,3,fill,alpha);
-        Rect(x,y,scale,34,28,102*shownHP,1,0x080a06,alpha*0.35);
-        for(int i=1;i<4;i++) Rect(x,y,scale,34+102*i/4.0,26,0.45,3,0x070806,alpha*0.6);
+        // Fit the entire gauge inside the original recess: x=29..133, y=24..28.
+        // Share the inset coordinates across the fill, damage trail, shading and ticks.
+        double barX=30, barY=25, barWidth=103;
+        Rect(x,y,scale,barX-1,barY-1,barWidth+2,5,0x070806,alpha);
+        Rect(x,y,scale,barX,barY+3,barWidth,1,0x64583b,alpha);
+        Rect(x,y,scale,barX,barY,barWidth,3,0x181b12,alpha);
+        Rect(x,y,scale,barX,barY,barWidth*damageHP,3,0x72533b,alpha);
+        Rect(x,y,scale,barX,barY,barWidth*shownHP,3,fill,alpha);
+        Rect(x,y,scale,barX,barY+2,barWidth*shownHP,1,0x080a06,alpha*0.35);
+        for(int i=1;i<4;i++) Rect(x,y,scale,barX+barWidth*i/4.0,barY,0.45,3,0x070806,alpha*0.6);
     }
 }
