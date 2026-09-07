@@ -1,0 +1,660 @@
+// UTNT adaptation of the TNTLE fullscreen status bar by NightFright,
+// including code by DTDsphere and m8f. Target: UZDoom 5.0.1.
+// ACS globals 51..56 are refreshed once per map by UTNT_HUDStats.
+// TIME requires a fixed left anchor in 5.0.1 (its tick does not realign strings).
+// SBARINFO has no reusable inner blocks; normal/fullscreen intentionally match.
+base Doom;
+height 0;
+interpolatehealth false;
+interpolatearmor false;
+
+StatusBar normal, fullscreenoffsets
+{
+    InInventory not "UTNTHUDHidden"
+    {
+        GameMode singleplayer
+        {
+            DrawImage "UTNTHSP", -160+center, -32;
+        }
+        GameMode cooperative
+        {
+            DrawImage translatable "UTNTHMP", -160+center, -32;
+        }
+        GameMode deathmatch, teamgame
+        {
+            DrawImage translatable "UTNTHDM", -160+center, -32;
+        }
+        DrawString SMALLFONT, untranslated, "%", -69+center, -21;
+        DrawString SMALLFONT, untranslated, "%", 64+center, -21;
+        UsesSecondaryAmmo not
+            DrawNumber 3, HUDFONT_DOOM, untranslated, ammo1, -117+center, -29;
+        else
+        {
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammo1, -121+center, -28;
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammo2, -121+center, -20;
+        }
+        IfCVarInt UTNT_reducedfx, 1, equal
+        {
+            DrawNumber 3, HUDFONT_DOOM, untranslated, health, -72+center, -29;
+            DrawNumber 3, HUDFONT_DOOM, untranslated, armor, 61+center, -29;
+        }
+        else
+        IfCVarInt fullhud_interpolate, 1, equal
+        {
+            DrawNumber 3, HUDFONT_DOOM, untranslated, health, interpolate(8), -72+center, -29;
+            DrawNumber 3, HUDFONT_DOOM, untranslated, armor, interpolate(8), 61+center, -29;
+        }
+        else
+        {
+            DrawNumber 3, HUDFONT_DOOM, untranslated, health, -72+center, -29;
+            DrawNumber 3, HUDFONT_DOOM, untranslated, armor, 61+center, -29;
+        }
+        // Keep the selected usable item visible even when the face is disabled.
+        DrawSelectedInventory alternateonempty, centerbottom, MAPSTATS_FONT, 0+center, -2, 13+center, -8, untranslated
+        {
+            IfCVarInt fullhud_mugswitch, 1, equal
+                DrawMugShot "STF", 5, -17+center, -32;
+        }
+        IfCVarInt fullhud_berserk, 1, equal
+            InInventory "PowerStrength"
+                DrawImage "UTNTHBS", 11+center, -7;
+        DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 103+center, -27;
+        DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 103+center, -19;
+        DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 103+center, -11;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Clip), 129+center, -27;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Clip), 153+center, -27;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Shell), 129+center, -21;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Shell), 153+center, -21;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(RocketAmmo), 129+center, -15;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(RocketAmmo), 153+center, -15;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Cell), 129+center, -9;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Cell), 153+center, -9;
+        GameMode singleplayer, cooperative
+        {
+            DrawSwitchableImage weaponslot 2, "UTNHG2", "UTNHY2", -44+center, -27;
+            DrawSwitchableImage weaponslot 3, "UTNHG3", "UTNHY3", -36+center, -27;
+            DrawSwitchableImage weaponslot 4, "UTNHG4", "UTNHY4", -28+center, -27;
+            DrawSwitchableImage weaponslot 5, "UTNHG5", "UTNHY5", -44+center, -20;
+            DrawSwitchableImage weaponslot 6, "UTNHG6", "UTNHY6", -36+center, -20;
+            DrawSwitchableImage weaponslot 7, "UTNHG7", "UTNHY7", -28+center, -20;
+            DrawSwitchableImage weaponslot 8, "UTNHG8", "UTNHY8", -36+center, -13;
+        }
+        GameMode deathmatch, teamgame
+        {
+            DrawNumber 3, HUDFONT_DOOM, untranslated, frags, -22+center, -27;
+        }
+        // Fifth ammunition type shared by the Flamer and Pyro Cannon.
+        DrawString SMALLFONT, gold, "$UTNT_HUD_GAS", 92+center, -42;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Gas), 129+center, -40;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Gas), 153+center, -40;
+
+        // Map-wide statistics; no visual interpolation of completion values.
+        GameMode singleplayer, cooperative
+        {
+            IfCVarInt fullhud_stats, 1
+            {
+                Alpha 0.7
+                {
+                    IfCVarInt fullhud_statspos, 0, equal
+                    {
+                        IfCVarInt fullhud_fullstats, 1, equal
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2", 5, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, 70, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, 70, 11;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, 70, 17;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1", 5, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, 41, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, 41, 11;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, 41, 17;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, 24, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, 24, 0, alignment(left);
+                            }
+                        }
+                        else
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2A", 5, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, 70, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, 70, 11;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1A", 5, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, 41, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, 41, 11;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, 18, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, 18, 0, alignment(left);
+                            }
+                        }
+                    }
+                    else
+                    IfCVarInt fullhud_statspos, 1, equal
+                    {
+                        IfCVarInt fullhud_fullstats, 1, equal
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2", -70, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, -5, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, -5, 11;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, -5, 17;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1", -47, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, -11, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, -11, 11;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, -11, 17;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, 24, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, 24, 0, alignment(left);
+                            }
+                        }
+                        else
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2A", -70, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, -5, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, -5, 11;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1A", -47, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, -11, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, -11, 11;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, 18, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, 18, 0, alignment(left);
+                            }
+                        }
+                    }
+                    else
+                    IfCVarInt fullhud_statspos, 2, equal
+                    {
+                        IfCVarInt fullhud_fullstats, 1, equal
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2", 5, -70;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, 70, -70;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, 70, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, 70, -58;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1", 5, -70;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, 41, -70;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, 41, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, 41, -58;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, -51, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, -51, 0, alignment(left);
+                            }
+                        }
+                        else
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2A", 5, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, 70, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, 70, -58;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1A", 5, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, 41, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, 41, -58;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, -51, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, -51, 0, alignment(left);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        IfCVarInt fullhud_fullstats, 1, equal
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2", -70, -70;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, -5, -70;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, -5, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, -5, -58;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1", -47, -70;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, -11, -70;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, -11, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, -11, -58;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, -51, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, -51, 0, alignment(left);
+                            }
+                        }
+                        else
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2A", -70, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, -5, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, -5, -58;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1A", -47, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, -11, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, -11, -58;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, -51, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, -51, 0, alignment(left);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+StatusBar fullscreen, fullscreenoffsets
+{
+    InInventory not "UTNTHUDHidden"
+    {
+        IfCVarInt fullhud_trans, 1, equal
+        {
+            Alpha 0.5
+            {
+                GameMode singleplayer
+                {
+                    DrawImage "UTNTHSP", -160+center, -32;
+                }
+                GameMode cooperative
+                {
+                    DrawImage translatable "UTNTHMP", -160+center, -32;
+                }
+                GameMode deathmatch, teamgame
+                {
+                    DrawImage translatable "UTNTHDM", -160+center, -32;
+                }
+            }
+        }
+        else
+        {
+            GameMode singleplayer
+            {
+                DrawImage "UTNTHSP", -160+center, -32;
+            }
+            GameMode cooperative
+            {
+                DrawImage translatable "UTNTHMP", -160+center, -32;
+            }
+            GameMode deathmatch, teamgame
+            {
+                DrawImage translatable "UTNTHDM", -160+center, -32;
+            }
+        }
+        DrawString SMALLFONT, untranslated, "%", -69+center, -21;
+        DrawString SMALLFONT, untranslated, "%", 64+center, -21;
+        UsesSecondaryAmmo not
+            DrawNumber 3, HUDFONT_DOOM, untranslated, ammo1, -117+center, -29;
+        else
+        {
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammo1, -121+center, -28;
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammo2, -121+center, -20;
+        }
+        IfCVarInt UTNT_reducedfx, 1, equal
+        {
+            DrawNumber 3, HUDFONT_DOOM, untranslated, health, -72+center, -29;
+            DrawNumber 3, HUDFONT_DOOM, untranslated, armor, 61+center, -29;
+        }
+        else
+        IfCVarInt fullhud_interpolate, 1, equal
+        {
+            DrawNumber 3, HUDFONT_DOOM, untranslated, health, interpolate(8), -72+center, -29;
+            DrawNumber 3, HUDFONT_DOOM, untranslated, armor, interpolate(8), 61+center, -29;
+        }
+        else
+        {
+            DrawNumber 3, HUDFONT_DOOM, untranslated, health, -72+center, -29;
+            DrawNumber 3, HUDFONT_DOOM, untranslated, armor, 61+center, -29;
+        }
+        // Keep the selected usable item visible even when the face is disabled.
+        DrawSelectedInventory alternateonempty, centerbottom, MAPSTATS_FONT, 0+center, -2, 13+center, -8, untranslated
+        {
+            IfCVarInt fullhud_mugswitch, 1, equal
+                DrawMugShot "STF", 5, -17+center, -32;
+        }
+        IfCVarInt fullhud_berserk, 1, equal
+            InInventory "PowerStrength"
+                DrawImage "UTNTHBS", 11+center, -7;
+        DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 103+center, -27;
+        DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 103+center, -19;
+        DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 103+center, -11;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Clip), 129+center, -27;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Clip), 153+center, -27;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Shell), 129+center, -21;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Shell), 153+center, -21;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(RocketAmmo), 129+center, -15;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(RocketAmmo), 153+center, -15;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Cell), 129+center, -9;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Cell), 153+center, -9;
+        GameMode singleplayer, cooperative
+        {
+            DrawSwitchableImage weaponslot 2, "UTNHG2", "UTNHY2", -44+center, -27;
+            DrawSwitchableImage weaponslot 3, "UTNHG3", "UTNHY3", -36+center, -27;
+            DrawSwitchableImage weaponslot 4, "UTNHG4", "UTNHY4", -28+center, -27;
+            DrawSwitchableImage weaponslot 5, "UTNHG5", "UTNHY5", -44+center, -20;
+            DrawSwitchableImage weaponslot 6, "UTNHG6", "UTNHY6", -36+center, -20;
+            DrawSwitchableImage weaponslot 7, "UTNHG7", "UTNHY7", -28+center, -20;
+            DrawSwitchableImage weaponslot 8, "UTNHG8", "UTNHY8", -36+center, -13;
+        }
+        GameMode deathmatch, teamgame
+        {
+            DrawNumber 3, HUDFONT_DOOM, untranslated, frags, -22+center, -27;
+        }
+        // Fifth ammunition type shared by the Flamer and Pyro Cannon.
+        DrawString SMALLFONT, gold, "$UTNT_HUD_GAS", 92+center, -42;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Gas), 129+center, -40;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Gas), 153+center, -40;
+
+        // Map-wide statistics; no visual interpolation of completion values.
+        GameMode singleplayer, cooperative
+        {
+            IfCVarInt fullhud_stats, 1
+            {
+                Alpha 0.7
+                {
+                    IfCVarInt fullhud_statspos, 0, equal
+                    {
+                        IfCVarInt fullhud_fullstats, 1, equal
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2", 5, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, 70, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, 70, 11;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, 70, 17;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1", 5, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, 41, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, 41, 11;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, 41, 17;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, 24, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, 24, 0, alignment(left);
+                            }
+                        }
+                        else
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2A", 5, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, 70, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, 70, 11;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1A", 5, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, 41, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, 41, 11;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, 18, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, 18, 0, alignment(left);
+                            }
+                        }
+                    }
+                    else
+                    IfCVarInt fullhud_statspos, 1, equal
+                    {
+                        IfCVarInt fullhud_fullstats, 1, equal
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2", -70, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, -5, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, -5, 11;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, -5, 17;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1", -47, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, -11, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, -11, 11;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, -11, 17;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, 24, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, 24, 0, alignment(left);
+                            }
+                        }
+                        else
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2A", -70, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, -5, 5;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, -5, 11;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1A", -47, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, -11, 5;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, -11, 11;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, 18, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, 18, 0, alignment(left);
+                            }
+                        }
+                    }
+                    else
+                    IfCVarInt fullhud_statspos, 2, equal
+                    {
+                        IfCVarInt fullhud_fullstats, 1, equal
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2", 5, -70;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, 70, -70;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, 70, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, 70, -58;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1", 5, -70;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, 41, -70;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, 41, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, 41, -58;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, -51, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, -51, 0, alignment(left);
+                            }
+                        }
+                        else
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2A", 5, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, 70, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, 70, -58;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1A", 5, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, 41, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, 41, -58;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, -51, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, 5, -51, 0, alignment(left);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        IfCVarInt fullhud_fullstats, 1, equal
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2", -70, -70;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, -5, -70;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 55, -5, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, -5, -58;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1", -47, -70;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, -11, -70;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 52, -11, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, -11, -58;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, -51, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, -51, 0, alignment(left);
+                            }
+                        }
+                        else
+                        {
+                            IfCVarInt fullhud_stats, 3
+                            {
+                                DrawImage "STATS2A", -70, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 54, -5, -64;
+                                DrawNumber 5, MAPSTATS_FONT, untranslated, globalvar 56, -5, -58;
+                            }
+                            else
+                            {
+                                DrawImage "STATS1A", -47, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 51, -11, -64;
+                                DrawNumber 3, MAPSTATS_FONT, untranslated, globalvar 53, -11, -58;
+                            }
+                            IfCVarInt fullhud_stats, 2, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, -51, 0, alignment(left);
+                            }
+                            else
+                            IfCVarInt fullhud_stats, 4, equal
+                            {
+                                DrawString MAPSTATS_FONT, untranslated, time, -37, -51, 0, alignment(left);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+StatusBar inventory, fullscreenoffsets
+{
+    InInventory not "UTNTHUDHidden"
+    {
+        DrawInventoryBar Doom, noartibox, 7, INDEXFONT_DOOM, -106+center, -112;
+    }
+}
+
+StatusBar inventoryfullscreen, fullscreenoffsets
+{
+    InInventory not "UTNTHUDHidden"
+    {
+        DrawInventoryBar Doom, noartibox, 7, INDEXFONT_DOOM, -106+center, -112;
+    }
+}

@@ -1,0 +1,94 @@
+version "5.0.0"
+
+class UTNTHUDTestMonster : Actor
+{
+    Default { Health 20; +SHOOTABLE +COUNTKILL +DORMANT +NOBLOCKMAP }
+    States { Spawn: TNT1 A -1; Stop; Death: TNT1 A 0; Stop; }
+}
+class UTNTHUDTestItem : CustomInventory
+{
+    Default { Inventory.Icon "UTHUDITEM"; Inventory.MaxAmount 25; +INVENTORY.INVBAR }
+    States { Spawn: TNT1 A -1; Stop; Use: TNT1 A 0; Fail; }
+}
+class UTNTHUDDualWeapon : Weapon
+{
+    Default { Weapon.AmmoType1 "Clip"; Weapon.AmmoType2 "Gas"; }
+    States
+    {
+        Ready: PISG A 1 A_WeaponReady; Loop;
+        Select: PISG A 1 A_Raise; Loop;
+        Deselect: PISG A 1 A_Lower; Loop;
+        Fire: PISG A 1; Goto Ready;
+    }
+}
+class UTNTStatusBarTest : EventHandler
+{
+    Actor TestCamera;
+    void Check(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let p=players[e.Player].mo;
+        if(!p) return;
+        if(e.Name=="hudcutscene") UTNTWorldHandler.SetCutscene(p,e.Args[0]!=0);
+        else if(e.Name=="hudfreeze")
+        {
+            if(e.Args[0]) p.player.cheats|=CF_TOTALLYFROZEN;
+            else p.player.cheats&=~CF_TOTALLYFROZEN;
+        }
+        else if(e.Name=="hudcamera")
+        {
+            if(!TestCamera) TestCamera=Actor.Spawn('MapSpot',p.Pos+(0,0,40));
+            if(e.Args[0]) p.player.camera=TestCamera;
+            else p.player.camera=p;
+        }
+        else if(e.Name=="hudcheck")
+        {
+            Check((p.FindInventory('UTNTHUDHidden')!=null)==bool(e.Args[0]),"status bar visibility marker follows saved cutscene/freeze/camera state");
+            p.ACS_NamedExecuteAlways("UTNT_HUDCheckStats",0);
+        }
+        else if(e.Name=="huditems")
+        {
+            p.GiveInventory('UTNTHUDTestItem',3);
+            p.InvSel=p.FindInventory('UTNTHUDTestItem');
+            p.player.inventorytics=3500;
+        }
+        else if(e.Name=="huddualcheck")
+            Check(p.player.ReadyWeapon is 'UTNTHUDDualWeapon',"dual-ammo fixture is the active weapon");
+        else if(e.Name=="hudclearitems")
+        {
+            p.TakeInventory('UTNTHUDTestItem',999);
+            p.player.inventorytics=0;
+        }
+        else if(e.Name=="hudready")
+        {
+            p.GiveInventory('UTNTPyroCannon',1); p.GiveInventory('Gas',120);
+            p.GiveInventory('BlueCard',1); p.GiveInventory('BlueSkull',1);
+            p.GiveInventory('RedCard',1); p.GiveInventory('YellowSkull',1);
+            p.GiveInventory('PowerStrength',1);
+            p.ACS_NamedExecuteAlways("UTNT_HUDCheckStats",0);
+        }
+    }
+    override void WorldTick()
+    {
+        for(int i=0;i<MAXPLAYERS;i++) if(playeringame[i] && players[i].mo) players[i].mo.bInvulnerable=true;
+    }
+}
+class UTNTStatusBarUITest : StaticEventHandler
+{
+    ui void Check(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name=="hudoptions")
+            Check(CVar.GetCVar('fullhud_stats',players[consoleplayer]).GetInt()==e.Args[0],"HUD statistics preference stays local to this player");
+        if(e.Name!="hudresources") return;
+        String names[]={"UTNTHSP","UTNTHMP","UTNTHDM","UTNTHBS","STKEYS6","STKEYS7","STKEYS8","STATS1","STATS1A","STATS2","STATS2A"};
+        for(int i=0;i<names.Size();i++) Check(TexMan.CheckForTexture(Name(names[i])).isValid(),String.Format("%s resolves",names[i]));
+        for(int i=2;i<=8;i++)
+        {
+            Check(TexMan.CheckForTexture(Name(String.Format("UTNHG%d",i))).isValid(),String.Format("unowned weapon %d",i));
+            Check(TexMan.CheckForTexture(Name(String.Format("UTNHY%d",i))).isValid(),String.Format("owned weapon %d",i));
+        }
+        Check(Font.GetFont('MAPSTATS_FONT')!=null,"statistics font resolves");
+        Console.Printf("UTNT_REGRESSION_COMPLETE");
+    }
+}

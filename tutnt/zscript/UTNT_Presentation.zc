@@ -28,9 +28,21 @@ class UTNTPlayerEffects : Behavior
     double ExternalHeat;
     bool Cutscene;
 
+    void SyncStatusBar()
+    {
+        if (!Owner || !Owner.player) return;
+        bool hidden = Cutscene || (Owner.player.cheats & CF_TOTALLYFROZEN)
+            || (Owner.player.camera && !Owner.player.camera.player)
+            || level.MapName ~== "INTERMAP" || level.MapName ~== "ENDMAP01";
+        let marker = Owner.FindInventory('UTNTHUDHidden');
+        if (hidden && !marker) Owner.GiveInventory('UTNTHUDHidden', 1);
+        else if (!hidden && marker) marker.Destroy();
+    }
+
     override void Tick()
     {
         if (!Owner.player) return;
+        SyncStatusBar();
         let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
         double targetHeat = 0;
         if (handler && level.time % 5 == 0)
@@ -216,6 +228,7 @@ class UTNTWorldHandler : EventHandler
         if (!player || !player.player) return;
         let effects = UTNTPlayerEffects(player.AddBehavior('UTNTPlayerEffects'));
         effects.Cutscene = active;
+        effects.SyncStatusBar();
     }
 
     static void CutsceneForTID(int tid, bool active)

@@ -527,3 +527,43 @@ script "BOSSHP"(int firstid,int lastid,int boss)
 }
 script "UTNTCheckpoint"(int pos)
 { if(pos>=1 && pos<=3) checkpoint(pos); }
+
+// TNTLE map statistics: one OPEN loop per map, not one ENTER loop per player.
+// Reserved for SBARINFO; map-wide totals deliberately agree for all coop players.
+global int 51:UTNT_KillPercent;
+global int 52:UTNT_ItemPercent;
+global int 53:UTNT_SecretPercent;
+global int 54:UTNT_KillsLeft;
+global int 55:UTNT_ItemsLeft;
+global int 56:UTNT_SecretsLeft;
+
+function int UTNT_StatPercent(int found, int total)
+{
+    if (total <= 0 || found >= total) return 100;
+    if (found <= 0) return 0;
+    return found * 100 / total;
+}
+function int UTNT_StatRemaining(int found, int total)
+{
+    if (found >= total) return 0;
+    return total - found;
+}
+script "UTNT_HUDStats" OPEN
+{
+    while (TRUE)
+    {
+        int monsters = GetLevelInfo(LEVELINFO_TOTAL_MONSTERS);
+        int kills = GetLevelInfo(LEVELINFO_KILLED_MONSTERS);
+        int items = GetLevelInfo(LEVELINFO_TOTAL_ITEMS);
+        int found = GetLevelInfo(LEVELINFO_FOUND_ITEMS);
+        int secrets = GetLevelInfo(LEVELINFO_TOTAL_SECRETS);
+        int discovered = GetLevelInfo(LEVELINFO_FOUND_SECRETS);
+        UTNT_KillPercent = UTNT_StatPercent(kills, monsters);
+        UTNT_ItemPercent = UTNT_StatPercent(found, items);
+        UTNT_SecretPercent = UTNT_StatPercent(discovered, secrets);
+        UTNT_KillsLeft = UTNT_StatRemaining(kills, monsters);
+        UTNT_ItemsLeft = UTNT_StatRemaining(found, items);
+        UTNT_SecretsLeft = UTNT_StatRemaining(discovered, secrets);
+        Delay(8); // Four updates per second, independent of player count and HUD mode.
+    }
+}

@@ -33,6 +33,7 @@ AddOptionMenu "OptionsMenu"
 OptionMenu "UTNTOptions"
 {
 	Title "$UTNT_OPTIONS_TITLE"
+	Submenu "$UTNT_HUD_TITLE", "UTNTHUDOptions"
 	Option "$UTNT_OPT_REDUCED", "UTNT_reducedfx", "UTNTYesNo"
 	Tooltip "$UTNT_TIP_REDUCED"
 	Option "$UTNT_OPT_QUALITY", "UTNT_fxquality", "UTNTQuality"
@@ -87,4 +88,31 @@ OptionValue "UTNTOnOff"
 {
     0, "$UTNT_OFF"
     1, "$UTNT_ON"
+}
+
+OptionMenu "UTNTHUDOptions"
+{
+    Title "$UTNT_HUD_TITLE"
+    Option "$UTNT_HUD_STATS", "fullhud_stats", "UTNTHUDStats"
+    Option "$UTNT_HUD_POSITION", "fullhud_statspos", "UTNTHUDPosition"
+    Option "$UTNT_HUD_ITEMS", "fullhud_fullstats", "UTNTYesNo"
+    Option "$UTNT_HUD_FACE", "fullhud_mugswitch", "UTNTYesNo"
+    Option "$UTNT_HUD_BERSERK", "fullhud_berserk", "UTNTYesNo"
+    Option "$UTNT_HUD_INTERPOLATE", "fullhud_interpolate", "UTNTYesNo"
+    Option "$UTNT_HUD_TRANS", "fullhud_trans", "UTNTYesNo"
+}
+OptionValue "UTNTHUDStats"
+{
+    0, "$UTNT_OFF"
+    1, "$UTNT_HUD_PERCENT"
+    2, "$UTNT_HUD_PERCENT_TIME"
+    3, "$UTNT_HUD_REMAINING"
+    4, "$UTNT_HUD_REMAINING_TIME"
+}
+OptionValue "UTNTHUDPosition"
+{
+    0, "$UTNT_HUD_TOPLEFT"
+    1, "$UTNT_HUD_TOPRIGHT"
+    2, "$UTNT_HUD_BOTTOMLEFT"
+    3, "$UTNT_HUD_BOTTOMRIGHT"
 }
