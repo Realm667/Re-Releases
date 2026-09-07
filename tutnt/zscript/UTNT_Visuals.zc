@@ -1,20 +1,5 @@
 // Cosmetic effects use their own random stream and never write gameplay state.
-class UTNTFlameVisual : VisualThinker
-{
-    int Age;
-    bool ShortFlame;
-    void Initialize() { UpdateSector(); UpdateSpriteInfo(); }
-    override void Tick()
-    {
-        if (IsFrozen()) return;
-        Super.Tick();
-        Age++;
-        Roll += bXFlip ? -2.33 : 2.33;
-        Alpha = Age < 6 ? Age * 0.1 : max(0.0, 0.5 - (Age - 5) * 0.025);
-        if (Age >= 6) Scale *= ShortFlame ? 0.58 : 0.98;
-        if (Age >= 25) Destroy();
-    }
-}
+#include "zscript/UTNT_Fire.zc"
 
 // Lives in the client thinker list: local limits never enter a saved gameplay handler.
 class UTNTVisualBudget : Thinker
@@ -82,22 +67,7 @@ class UTNTVisuals play
 
     static void Torch(Actor source, int colorIndex, bool shortFlame)
     {
-        if (!Visible(source, int(source.Pos.X) & 7) || !Reserve()) return;
-        let flame = UTNTFlameVisual(level.SpawnClientSideVisualThinker('UTNTFlameVisual'));
-        if (!flame) return;
-        flame.Texture = TexMan.CheckForTexture(colorIndex == 1 ? 'AFNGA0' : colorIndex == 2 ? 'AFNBA0' : 'AFNOA0');
-        flame.Pos = source.Vec3Offset(0,0,FRandom[utntcosmetic](shortFlame ? 30 : 60, shortFlame ? 32 : 62));
-        flame.Prev = flame.Pos;
-        flame.Vel = (0,0,FRandom[utntcosmetic](1,2.5));
-        flame.Scale = (0.3,0.3);
-        flame.Alpha = 0;
-        flame.Roll = FRandom[utntcosmetic](0,360);
-        flame.PrevRoll = flame.Roll;
-        flame.Flags = SPF_FULLBRIGHT | SPF_ROLL;
-        flame.SetRenderStyle(STYLE_Add);
-        flame.ShortFlame = shortFlame;
-        flame.bXFlip = Random[utntcosmetic](0,1);
-        flame.Initialize();
+        UTNTFireSystem.Ensure(source,colorIndex,shortFlame ? 1 : 0);
     }
 
     static void Smoke(Actor source, double x = 0, double y = 0, double z = 0, double size = 8)

@@ -1,0 +1,62 @@
+version "5.0.0"
+class UTNTFireTest : EventHandler
+{
+    Array<Actor> Sources;
+    override void WorldTick()
+    {
+        if (!(level.MapName~=="UTNTFIRE") || level.time!=2) return;
+        let p=players[0].mo;
+        p.ACS_NamedTerminate("IntroText",0);
+        p.SetOrigin((0,-420,0),false); p.Angle=90; p.Pitch=0;
+        p.bInvulnerable=true;
+        let a=Actor.Spawn('RedTorch',(-220,0,0),ALLOW_REPLACE); Sources.Push(a);
+        a=Actor.Spawn('GreenTorch',(-155,0,0),ALLOW_REPLACE); Sources.Push(a);
+        a=Actor.Spawn('BlueTorch',(-90,0,0),ALLOW_REPLACE); Sources.Push(a);
+        a=Actor.Spawn('ShortRedTorch',(-20,0,0),ALLOW_REPLACE); Sources.Push(a);
+        a=Actor.Spawn('ShortGreenTorch',(35,0,0),ALLOW_REPLACE); Sources.Push(a);
+        a=Actor.Spawn('ShortBlueTorch',(90,0,0),ALLOW_REPLACE); Sources.Push(a);
+        a=Actor.Spawn('BurningBarrel',(180,0,0),ALLOW_REPLACE); Sources.Push(a);
+        a=Actor.Spawn('BurningBarrel',(235,0,0),ALLOW_REPLACE); Sources.Push(a);
+        for (int i=0;i<Sources.Size();i++) Console.Printf("UTNT_FIRE_SOURCE %d %s",i,Sources[i].GetClassName());
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if (e.Name=="firecamera")
+        {
+            let p=players[0].mo;
+            p.SetOrigin(e.Args[0]==1 ? (-220,-140,20) : e.Args[0]==2 ? (207,-120,0) : e.Args[0]==3 ? (-155,-140,20) : e.Args[0]==4 ? (-90,-140,20) : (0,-420,0),false);
+            p.Angle=90; p.Pitch=0;
+        }
+        if (e.Name=="fireremove") { Sources[7].Destroy(); Sources[7]=null; }
+        if (e.Name=="firestress")
+        {
+            for (int i=0;i<40;i++) Actor.Spawn('BurningBarrel',(-300+(i%8)*80,40+(i/8)*26,0),ALLOW_REPLACE);
+        }
+        if (e.Name=="firealiases")
+        {
+            Actor.Spawn('UTNTTorch',(-220,85,0));
+            Actor.Spawn('UTNTTorchG',(-155,85,0));
+            Actor.Spawn('UTNTTorchB',(-90,85,0));
+            Actor.Spawn('UTNTShortRedTorch',(-20,85,0));
+            Actor.Spawn('UTNTShortGreenTorch',(35,85,0));
+            Actor.Spawn('UTNTShortBlueTorch',(90,85,0));
+        }
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if (e.Name!="firecheck") return;
+        int count=0,invalid=0,legacy=0;
+        let it=ThinkerIterator.Create('UTNTFireVisual',Thinker.MAX_STATNUM+1,true);
+        UTNTFireVisual f;
+        while(f=UTNTFireVisual(it.Next()))
+        {
+            count++;
+            if (!f.Source || !f.Texture.IsValid() || f.Scale.X<=0 || f.Scale.Y<=0 || f.Alpha!=1) invalid++;
+        }
+        let ai=ThinkerIterator.Create('Actor'); Actor a;
+        while(a=Actor(ai.Next())) if (a is 'RedFire_BG' || a is 'UTNTTorchFlame' || a is 'UTNTTorchFlameG' || a is 'UTNTTorchFlameB' || a is 'UTNTTorchFlameShort' || a is 'UTNTTorchFlameShortG' || a is 'UTNTTorchFlameShortB') legacy++;
+        Console.Printf("UTNT_ASSERT %s flame count %d expected %d",count==e.Args[0] ? "PASS" : "FAIL",count,e.Args[0]);
+        Console.Printf("UTNT_ASSERT %s valid owned textures",invalid==0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s no legacy flame actors (%d)",legacy==0 ? "PASS" : "FAIL",legacy);
+    }
+}

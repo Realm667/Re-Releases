@@ -2523,86 +2523,85 @@ Actor BlueFire_BG : RedFire_BG
 
 //=====================================================================================
 
-Actor UTNT_RedTorch : RedTorch Replaces RedTorch
+Actor UTNT_RedTorch : UTNTLegacyRedFireBase Replaces RedTorch
 {
 	+ALLOWCLIENTSPAWN
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("RandomRedFlare",0,0,59)
-		TRCH A 1 LIGHT("RedTorchA") A_SpawnItemEx("RedFire_BG",Random(-2,2),Random(-2,2),Random(58,60))
+		TNT1 A 0 NODELAY
+		TRCH A 1 LIGHT("UTNTFireOrangeTallBody") A_UTNTAmbientFire(0,0)
 		Wait
 	}
 }
 
-Actor UTNT_BlueTorch : BlueTorch Replaces BlueTorch
+Actor UTNT_BlueTorch : UTNTLegacyBlueFireBase Replaces BlueTorch
 {
 	+ALLOWCLIENTSPAWN
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("RandomBlueFlare",0,0,59)
-		TRCH A 1 LIGHT("BlueTorchA") A_SpawnItemEx("BlueFire_BG",Random(-2,2),Random(-2,2),Random(58,60))
+		TNT1 A 0 NODELAY
+		TRCH A 1 LIGHT("UTNTFireBlueTallBody") A_UTNTAmbientFire(2,0)
 		Wait
 	}
 }
 
-Actor UTNT_GreenTorch : GreenTorch Replaces GreenTorch
+Actor UTNT_GreenTorch : UTNTLegacyGreenFireBase Replaces GreenTorch
 {
 	+ALLOWCLIENTSPAWN
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("RandomGreenFlare",0,0,59)
-		TRCH A 1 LIGHT("GreenTorchA") A_SpawnItemEx("GreenFire_BG",Random(-2,2),Random(-2,2),Random(58,60))
+		TNT1 A 0 NODELAY
+		TRCH A 1 LIGHT("UTNTFireGreenTallBody") A_UTNTAmbientFire(1,0)
 		Wait
 	}
 }
 
-Actor UTNT_ShortRedTorch : ShortRedTorch Replaces ShortRedTorch
+Actor UTNT_ShortRedTorch : UTNTLegacyShortRedFireBase Replaces ShortRedTorch
 {
 	+ALLOWCLIENTSPAWN
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("RandomRedFlare",0,0,33)
-		STCB A 1 LIGHT("RedTorchB") A_SpawnItemEx("RedFire_BG",Random(-2,2),Random(-2,2),Random(32,34))
+		TNT1 A 0 NODELAY
+		STCB A 1 LIGHT("UTNTFireOrangeShortBody") A_UTNTAmbientFire(0,1)
 		Wait
 	}
 }
 
-Actor UTNT_ShortBlueTorch : ShortBlueTorch Replaces ShortBlueTorch
+Actor UTNT_ShortBlueTorch : UTNTLegacyShortBlueFireBase Replaces ShortBlueTorch
 {
 	+ALLOWCLIENTSPAWN
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("RandomBlueFlare",0,0,33)
-		STCB A 1 LIGHT("BlueTorchB") A_SpawnItemEx("BlueFire_BG",Random(-2,2),Random(-2,2),Random(32,34))
+		TNT1 A 0 NODELAY
+		STCB A 1 LIGHT("UTNTFireBlueShortBody") A_UTNTAmbientFire(2,1)
 		Wait
 	}
 }
 
-Actor UTNT_ShortGreenTorch : ShortGreenTorch Replaces ShortGreenTorch
+Actor UTNT_ShortGreenTorch : UTNTLegacyShortGreenFireBase Replaces ShortGreenTorch
 {
 	+ALLOWCLIENTSPAWN
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("RandomGreenFlare",0,0,33)
-		STCB A 1 LIGHT("GreenTorchB") A_SpawnItemEx("GreenFire_BG",Random(-2,2),Random(-2,2),Random(32,34))
+		TNT1 A 0 NODELAY
+		STCB A 1 LIGHT("UTNTFireGreenShortBody") A_UTNTAmbientFire(1,1)
 		Wait
 	}
 }
 
-Actor UTNT_Barrel : BurningBarrel Replaces BurningBarrel
+Actor UTNT_Barrel : UTNTBurningBarrelBase Replaces BurningBarrel
 {
 	+ALLOWCLIENTSPAWN
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("RandomYellowFlare",0,0,29)
-		FCAN A 1 LIGHT("BurningBarrelA") A_SpawnItemEx("RedFire_DG",Random(-2,2),Random(-2,2),Random(32,34))
+		FCAN A 1 LIGHT("UTNTFireBarrel") A_UTNTBarrelFire
 		Wait
 	}
 }

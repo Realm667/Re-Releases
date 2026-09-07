@@ -153,11 +153,8 @@ class UTNTTorch : RedTorch replaces RedTorch
 	States
 	{
 	Spawn:
-		TBLX A 0 NoDelay
-		{
-			A_SpawnItemEx("UTNTTallTorchLensFlare", 0, 0, 62.0);
-		}
-		TBLX A 1 { UTNTVisuals.Torch(self, 0, false); }
+		TBLX A 0 NoDelay;
+		TBLX A 1 Light("UTNTFireOrangeTallBody") { UTNTVisuals.Torch(self, 0, false); }
 		Goto Spawn + 1;
 	}
 }
@@ -186,15 +183,15 @@ class UTNTTallTorchLensFlare : UTNTDietActor
 	{
 		DistanceCheck "UTNT_lod";
 		RenderStyle "Add";
-		Alpha 0.8;
-		Scale 0.5;
+		Alpha 0.12;
+		Scale 0.13;
 		+NOINTERACTION
 	}
 
 	States
 	{
 	Spawn:
-		FLRE A -1 Bright Light("BIGREDTORCH");
+		FLRE A -1 Bright Light("UTNTFireOrangeTall");
 		Stop;
 	}
 }
@@ -212,11 +209,8 @@ class UTNTTorchG : GreenTorch replaces GreenTorch
 	States
 	{
 	Spawn:
-		TBLX A 0 NoDelay
-		{
-			A_SpawnItemEx("UTNTTallTorchLensFlareG", 0, 0, 62.0);
-		}
-		TBLX A 1 { UTNTVisuals.Torch(self, 1, false); }
+		TBLX A 0 NoDelay;
+		TBLX A 1 Light("UTNTFireGreenTallBody") { UTNTVisuals.Torch(self, 1, false); }
 		Goto Spawn + 1;
 	}
 }
@@ -245,15 +239,15 @@ class UTNTTallTorchLensFlareG : UTNTDietActor
 	{
 		DistanceCheck "UTNT_lod";
 		RenderStyle "Add";
-		Alpha 0.8;
-		Scale 0.5;
+		Alpha 0.12;
+		Scale 0.13;
 		+NOINTERACTION
 	}
 
 	States
 	{
 	Spawn:
-		FLRE B -1 Bright Light("BIGGREENTORCH");
+		FLRE B -1 Bright Light("UTNTFireGreenTall");
 		Stop;
 	}
 }
@@ -271,11 +265,8 @@ class UTNTTorchB : BlueTorch replaces BlueTorch
 	States
 	{
 	Spawn:
-		TBLX A 0 NoDelay
-		{
-			A_SpawnItemEx("UTNTTallTorchLensFlareB", 0, 0, 62.0);
-		}
-		TBLX A 1 { UTNTVisuals.Torch(self, 2, false); }
+		TBLX A 0 NoDelay;
+		TBLX A 1 Light("UTNTFireBlueTallBody") { UTNTVisuals.Torch(self, 2, false); }
 		Goto Spawn + 1;
 	}
 }
@@ -304,15 +295,15 @@ class UTNTTallTorchLensFlareB : UTNTDietActor
 	{
 		DistanceCheck "UTNT_lod";
 		RenderStyle "Add";
-		Alpha 0.8;
-		Scale 0.5;
+		Alpha 0.12;
+		Scale 0.13;
 		+NOINTERACTION
 	}
 
 	States
 	{
 	Spawn:
-		FLRE C -1 Bright Light("BIGBLUETORCH");
+		FLRE C -1 Bright Light("UTNTFireBlueTall");
 		Stop;
 	}
 }
@@ -396,11 +387,8 @@ class UTNTShortRedTorch : ShortRedTorch replaces ShortRedTorch
 	States
 	{
 	Spawn:
-		SMRX A 0 NoDelay
-		{
-			A_SpawnItemEx("UTNTShortTorchLensFlare", 0, 0, 32.0);
-		}
-		SMRX A 1 { UTNTVisuals.Torch(self, 0, true); }
+		SMRX A 0 NoDelay;
+		SMRX A 1 Light("UTNTFireOrangeShortBody") { UTNTVisuals.Torch(self, 0, true); }
 		Goto Spawn + 1;
 	}
 }
@@ -429,15 +417,15 @@ class UTNTShortTorchLensFlare : UTNTDietActor
 	{
 		DistanceCheck "UTNT_lod";
 		RenderStyle "Add";
-		Alpha 0.8;
-		Scale 0.25;
+		Alpha 0.12;
+		Scale 0.085;
 		+NOINTERACTION
 	}
 
 	States
 	{
 	Spawn:
-		FLRE A -1 Bright Light("SMALLREDTORCH");
+		FLRE A -1 Bright Light("UTNTFireOrangeShort");
 		Stop;
 	}
 }
@@ -455,11 +443,8 @@ class UTNTShortGreenTorch : ShortGreenTorch replaces ShortGreenTorch
 	States
 	{
 	Spawn:
-		SMRX A 0 NoDelay
-		{
-			A_SpawnItemEx("UTNTShortTorchLensFlareG", 0, 0, 32.0);
-		}
-		SMRX A 1 { UTNTVisuals.Torch(self, 1, true); }
+		SMRX A 0 NoDelay;
+		SMRX A 1 Light("UTNTFireGreenShortBody") { UTNTVisuals.Torch(self, 1, true); }
 		Goto Spawn + 1;
 	}
 }
@@ -488,15 +473,15 @@ class UTNTShortTorchLensFlareG : UTNTDietActor
 	{
 		DistanceCheck "UTNT_lod";
 		RenderStyle "Add";
-		Alpha 0.8;
-		Scale 0.25;
+		Alpha 0.12;
+		Scale 0.085;
 		+NOINTERACTION
 	}
 
 	States
 	{
 	Spawn:
-		FLRE B -1 Bright Light("SMALLGREENTORCH");
+		FLRE B -1 Bright Light("UTNTFireGreenShort");
 		Stop;
 	}
 }
@@ -514,11 +499,8 @@ class UTNTShortBlueTorch : ShortBlueTorch replaces ShortBlueTorch
 	States
 	{
 	Spawn:
-		SMRX A 0 NoDelay
-		{
-			A_SpawnItemEx("UTNTShortTorchLensFlareB", 0, 0, 32.0);
-		}
-		SMRX A 1 { UTNTVisuals.Torch(self, 2, true); }
+		SMRX A 0 NoDelay;
+		SMRX A 1 Light("UTNTFireBlueShortBody") { UTNTVisuals.Torch(self, 2, true); }
 		Goto Spawn + 1;
 	}
 }
@@ -547,15 +529,15 @@ class UTNTShortTorchLensFlareB : UTNTDietActor
 	{
 		DistanceCheck "UTNT_lod";
 		RenderStyle "Add";
-		Alpha 0.8;
-		Scale 0.25;
+		Alpha 0.12;
+		Scale 0.085;
 		+NOINTERACTION
 	}
 
 	States
 	{
 	Spawn:
-		FLRE C -1 Bright Light("SMALLBLUETORCH");
+		FLRE C -1 Bright Light("UTNTFireBlueShort");
 		Stop;
 	}
 }

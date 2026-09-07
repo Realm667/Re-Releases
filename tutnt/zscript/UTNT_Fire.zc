@@ -1,0 +1,113 @@
+// One local, anchored flame per decoration. No cosmetic pointer is stored on
+// a gameplay actor; the short registration interval also repairs save/load.
+class UTNTFireVisual : VisualThinker
+{
+    Actor Source;
+    int Kind, ColorIndex, Age;
+    double Phase, Width, Height, Anchor;
+
+    void Initialize(Actor owner, int color, int kind)
+    {
+        Source=owner; Kind=kind; ColorIndex=color;
+        Phase=FRandom[utntcosmetic](0,360);
+        Age=Random[utntcosmetic](0,100);
+        Width=kind==2 ? 50 : kind==1 ? 20 : 32;
+        Height=kind==2 ? 48 : kind==1 ? 26 : 44;
+        Anchor=kind==2 ? 19 : kind==1 ? 31 : 61;
+        if (owner is 'UTNTLegacyRedFireBase' || owner is 'UTNTLegacyGreenFireBase' || owner is 'UTNTLegacyBlueFireBase') Anchor=57;
+        if (owner is 'UTNTLegacyShortRedFireBase' || owner is 'UTNTLegacyShortGreenFireBase' || owner is 'UTNTLegacyShortBlueFireBase') Anchor=28;
+        if (color==2) Width*=0.85;
+        Texture=TexMan.CheckForTexture(color==1 ? 'UFFGA0' : color==2 ? 'UFFBA0' : 'UFFRA0');
+        Flags=SPF_FULLBRIGHT | SPF_ALLOWSHADERS;
+        SetRenderStyle(STYLE_Translucent);
+        Alpha=1;
+        bXFlip=Random[utntcosmetic](0,1);
+        Animate(); Prev=Pos;
+        UpdateSector(); UpdateSpriteInfo();
+    }
+
+    void Animate()
+    {
+        double t=Age+(Phase/3.0);
+        let size=TexMan.GetScaledSize(Texture);
+        Scale=(Width*(1+0.055*sin(t*4.1))/size.X,
+               Height*(1+0.065*sin(t*3.0)+0.025*sin(t*11.0))/size.Y);
+        Pos=Source.Vec3Offset(0,0,Anchor);
+    }
+
+    override void Tick()
+    {
+        if (!Source) { Destroy(); return; }
+        if (IsFrozen() || Source.IsFrozen()) return;
+        if (!UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        Super.Tick();
+        Age++;
+        Animate();
+        // Detail emission is optional; the primary silhouette never depends
+        // on a particle budget or ambient tic-skipping once registered.
+        let player=players[consoleplayer];
+        int quality=clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),0,3);
+        if (CVar.GetCVar('UTNT_reducedfx',player).GetBool()) quality=1;
+        if (quality<2 || Source.Distance3D(player.camera)>640) return;
+        int interval=Kind==2 ? 12 : Kind==1 ? 35 : 20;
+        if (ColorIndex!=0) interval*=2;
+        if (Age%interval==0 && UTNTVisuals.Reserve())
+        {
+            FSpawnParticleParams p;
+            p.color1=ColorIndex==1 ? 0x93f54e : ColorIndex==2 ? 0x53bfff : 0xffa33d;
+            p.style=STYLE_Add; p.flags=SPF_FULLBRIGHT;
+            p.pos=Source.Vec3Offset(FRandom[utntcosmetic](-3,3),FRandom[utntcosmetic](-3,3),Anchor+Height*0.55);
+            p.vel=(FRandom[utntcosmetic](-0.15,0.15),FRandom[utntcosmetic](-0.15,0.15),FRandom[utntcosmetic](0.45,0.85));
+            p.accel=(0.003,-0.002,0.006);
+            p.lifetime=Kind==1 ? 18 : 30;
+            p.size=Kind==1 ? 0.55 : 0.85; p.startalpha=0.85;
+            p.fadestep=0.85/p.lifetime;
+            level.SpawnParticle(p);
+        }
+        if (ColorIndex==0 && quality==3 && Age%(Kind==2 ? 15 : 28)==0 && UTNTVisuals.Reserve())
+        {
+            FSpawnParticleParams p;
+            p.texture=TexMan.CheckForTexture('X143J0');
+            p.color1=0x77706a; p.style=STYLE_Translucent;
+            p.pos=Source.Vec3Offset(0,0,Anchor+Height*0.85);
+            p.vel=(0.035,0.025,0.32); p.lifetime=45;
+            p.size=Kind==2 ? 5 : 3; p.sizestep=0.06;
+            p.startalpha=0.10; p.fadestep=0.10/45;
+            level.SpawnParticle(p);
+        }
+    }
+}
+
+class UTNTFireSystem play
+{
+    static void Ensure(Actor source, int color, int kind)
+    {
+        if (!source) return;
+        int phase=(int(source.Pos.X)*3+int(source.Pos.Y)*5+int(source.Pos.Z))&15;
+        if ((level.time+phase)%16!=0 || !UTNTVisuals.Visible(source,combat:true)) return;
+        let iter=ThinkerIterator.Create('UTNTFireVisual',Thinker.MAX_STATNUM+1,true);
+        UTNTFireVisual fire;
+        while (fire=UTNTFireVisual(iter.Next())) if (fire.Source==source) return;
+        if (!UTNTVisuals.Reserve()) return;
+        fire=UTNTFireVisual(level.SpawnClientSideVisualThinker('UTNTFireVisual'));
+        if (fire) fire.Initialize(source,clamp(color,0,2),clamp(kind,0,2));
+    }
+}
+
+class UTNTBurningBarrelBase : BurningBarrel
+{
+    action void A_UTNTBarrelFire() { UTNTFireSystem.Ensure(self,0,2); }
+}
+
+// DECORATE's historical replacement classes are still the map-facing types.
+// Keep their native parents' gameplay defaults and their original body sprites.
+mixin class UTNTFireAction
+{
+    action void A_UTNTAmbientFire(int color, int kind) { UTNTFireSystem.Ensure(self,color,kind); }
+}
+class UTNTLegacyRedFireBase : RedTorch { mixin UTNTFireAction; }
+class UTNTLegacyGreenFireBase : GreenTorch { mixin UTNTFireAction; }
+class UTNTLegacyBlueFireBase : BlueTorch { mixin UTNTFireAction; }
+class UTNTLegacyShortRedFireBase : ShortRedTorch { mixin UTNTFireAction; }
+class UTNTLegacyShortGreenFireBase : ShortGreenTorch { mixin UTNTFireAction; }
+class UTNTLegacyShortBlueFireBase : ShortBlueTorch { mixin UTNTFireAction; }
