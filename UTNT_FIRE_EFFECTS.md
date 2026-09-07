@@ -109,3 +109,32 @@ regression also checks that flame roll is enabled and actually advances.
 The refinement passed 46 assertions and rendered-color/motion checks in each
 hardware backend. All 14 ACS modules compiled unchanged. Exact build hashes,
 logs and screenshots are in `tools/validation/fire-variation-2026-09-07/`.
+
+## Sparser, irregular flame emission
+
+The follow-up matching the preferred reference screenshots 2 and 4 reduces
+high-quality flame births by about 61% for torches and 63% for barrels.
+Torches emit one rising sheet every 2-4 tics at high quality, 3-5 at medium,
+and 4-5 at low. Barrels emit one per 1-2 / 2-3 / 4-5 tics respectively,
+instead of simultaneous pairs. Base sheets renew every 3-5 tics (4-6 low).
+These are nominal rates before the existing shared budget and distance LOD.
+
+Consecutive rising sheets use different texture variants. Turbulence phases
+span the whole circle independently, lateral and upward speeds vary more,
+and rising lifetimes vary over 16-26 tics. Independent width/height variation
+is retained, but height is capped at 1.65 times width before age stretching
+to avoid extreme narrow ribbons. Mirroring and smooth signed rotation remain.
+Spark settings are unchanged by this refinement.
+
+Smoke also gains independently varied width, proportions, rising speed and
+initial orientation. A gentle per-source breeze, with a 25-degree scatter,
+moves clouds sideways at 0.16-0.28 units/tic while they rise at 0.26-0.48;
+both speeds scale down on short torches. Individual turbulence and signed
+0.18-0.50-degree/tic rotation keep the plume loose. The native roll flag is
+enabled for smoke as well, and the runtime test checks its visible rotation.
+Smoke lifetimes, alpha, emission rates and color exclusions remain unchanged.
+
+This revision passed 46 assertions plus rendered-color/motion checks in each
+hardware backend, including smoke rotation and 54-source quality changes.
+All 14 ACS modules compiled unchanged. Evidence and candidate hashes are in
+`tools/validation/fire-density-2026-09-08/`.

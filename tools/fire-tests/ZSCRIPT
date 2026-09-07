@@ -80,7 +80,8 @@ class UTNTFireTest : EventHandler
         while(detail=UTNTFireDetail(di.Next()))
         {
             details++;
-            if (!detail.Source || !detail.Texture.IsValid() || detail.Age>=detail.Life || detail.Life>65) invalid++;
+            if (!detail.Source || !detail.Texture.IsValid() || detail.Age>=detail.Life || detail.Life>65 ||
+                (detail.Smoke && (!(detail.Flags & SPF_ROLL) || (detail.Age>0 && abs(detail.Roll-detail.PrevRoll)<0.01)))) invalid++;
         }
         if (count==0 && (fragments!=0 || details!=0)) invalid++;
         Console.Printf("UTNT_FIRE_POPULATION emitters=%d fragments=%d details=%d",count,fragments,details);
