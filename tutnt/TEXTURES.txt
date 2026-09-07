@@ -6573,16 +6573,25 @@ Sprite "X080P0", 64, 64
 // End of texture definitions
 
 // Remaster status bar, composed from UTNT artwork.
+// Clip the original top so the lower STARMS frame can move down seven pixels.
+// This adds space for weapon slot 8 without stretching the border or its palette.
+Graphic "UTNHATOP", 40, 17
+{
+    Patch "STARMS", 0, 0
+}
+
 Graphic "UTNTHSP", 320, 32
 {
     Patch "STBAR", 0, 0
-    Patch "STARMS", 104, 0
+    Patch "STARMS", 104, 7
+    Patch "UTNHATOP", 104, 0
 }
 
 Graphic "UTNTHMP", 320, 32
 {
     Patch "STBAR", 0, 0
-    Patch "STARMS", 104, 0
+    Patch "STARMS", 104, 7
+    Patch "UTNHATOP", 104, 0
     Patch "STFBANY", 143, 1
 }
 
