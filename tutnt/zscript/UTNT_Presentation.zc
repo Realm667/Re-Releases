@@ -68,10 +68,28 @@ class UTNTWorldHandler : EventHandler
     bool AtmosphereApplied;
     Array<int> AtmosphereSectors;
     Array<Color> AtmosphereOriginalFades;
+    // Saved with the level: loading a save resumes, rather than replays, the plaque.
+    int ObjectiveEpisode, ObjectiveStartTime, ObjectiveEndTime;
     String VoiceKey;
     int VoiceStartTime, VoiceEndTime;
     Array<String> VoiceQueueKeys, VoiceQueueSounds;
     Array<int> VoiceQueueDurations;
+
+    static void BeginObjectives(int mapNumber)
+    {
+        let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if (!handler) return;
+        int episode=mapNumber>=5 ? mapNumber-1 : mapNumber;
+        if (mapNumber==4 || episode<1 || episode>9) return;
+        // This adapter is invoked once by the existing OPEN script on every peer.
+        // Never restart the same map's briefing on a duplicate call or respawn.
+        if (handler.ObjectiveEpisode) return;
+        handler.ObjectiveEpisode=episode;
+        handler.ObjectiveStartTime=level.time;
+        bool three=episode==2 || episode==3 || episode==5;
+        handler.ObjectiveEndTime=level.time+14+(three ? 350 : 280)+18;
+        S_StartSound(Sound("switches/normbutn"),CHAN_AUTO,0,0.22,ATTN_NONE);
+    }
 
     static void BeginVoice(String key, int seconds, String soundName = "", int durationTics = 0)
     {
@@ -400,6 +418,13 @@ class UTNTPresentation : StaticEventHandler
         Shader.SetUniform1i(player, 'motionblur', 'samples', copies);
         Shader.SetUniform1f(player, 'motionblur', 'increment', 1.0 / copies);
         Shader.SetUniform1i(player, 'motionblur', 'blendmode', clamp(CVar.GetCVar('motionblur_blendmode', player).GetInt(), 0, 1));
+        // Like the original briefing, objectives also appear over map intro cameras.
+        // Draw before subtitles so dialogue remains readable above this overlay.
+        let objectives=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if (camera && objectives && objectives.ObjectiveEpisode
+            && level.time<objectives.ObjectiveEndTime)
+            UTNTObjectivePlaque.Draw(objectives.ObjectiveEpisode,
+                objectives.ObjectiveStartTime,objectives.ObjectiveEndTime,e.FracTic,reduced);
         DrawVoice(player);
 
         let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));

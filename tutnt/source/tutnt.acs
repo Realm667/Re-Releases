@@ -105,8 +105,8 @@ script "IntroText" OPEN
 	}
 	Hudmessage(l:mapname; HUDMSG_FADEINOUT,0,CR_RED,320.4,205.0,3.0,1.0,1.0);
 	delay(175);
-	hudmessagebold(l:"UTNT_COMMON_055",l:objectives;
-		HUDMSG_FADEINOUT | HUDMSG_LOG,4,CR_UNTRANSLATED,320.0,200.0,5.0,1.0,1.0);
+	Log(l:"UTNT_COMMON_055",l:objectives);
+	ScriptCall("UTNTWorldHandler", "BeginObjectives", mapnum);
 }
 
 str voiceclip[35]=

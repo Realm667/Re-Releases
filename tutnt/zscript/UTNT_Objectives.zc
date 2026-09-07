@@ -1,0 +1,121 @@
+// UTNT mission plaque. Artwork is text-free; every visible word is localized.
+// Coordinates below describe a 520-unit panel; only the middle artwork stretches.
+class UTNTObjectivePlaque ui
+{
+    static int Count(int episode)
+    {
+        return episode==2 || episode==3 || episode==5 ? 3 : 2;
+    }
+
+    static String Text(int episode, int row, bool title)
+    {
+        return StringTable.Localize(String.Format("$UTNT_OBJ_%d_%d_%s",
+            episode,row,title ? "TITLE" : "TEXT"));
+    }
+
+    static void Rect(double x,double y,double scale,double left,double top,
+        double width,double height,Color color,double alpha)
+    {
+        int x1=int(x+left*scale), y1=int(y+top*scale);
+        Screen.Dim(color,alpha,x1,y1,max(1,int(x+(left+width)*scale)-x1),
+            max(1,int(y+(top+height)*scale)-y1));
+    }
+
+    static void Art(String name,double x,double y,double width,double height,double alpha)
+    {
+        Screen.DrawTexture(TexMan.CheckForTexture(name),true,x,y,
+            DTA_DestWidthF,width,DTA_DestHeightF,height,
+            DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha);
+    }
+
+    static void Lettering(Font font,String text,double x,double y,double size,
+        Color color,double alpha)
+    {
+        // A one-pixel dark relief separates lettering from the mottled metal.
+        Screen.DrawText(font,Font.CR_WHITE,x+size,y+size,text,
+            DTA_ScaleX,size,DTA_ScaleY,size,DTA_Color,0xff090705,DTA_Alpha,alpha*0.85);
+        Screen.DrawText(font,Font.CR_WHITE,x,y,text,
+            DTA_ScaleX,size,DTA_ScaleY,size,DTA_Color,color,DTA_Alpha,alpha);
+    }
+
+    static void Badge(int number,double x,double y,double scale,double alpha)
+    {
+        Rect(x,y,scale,0,0,44,44,0x080705,alpha);
+        Rect(x,y,scale,1,1,42,42,0x59452a,alpha);
+        Rect(x,y,scale,3,3,38,38,0x17130d,alpha);
+        Rect(x,y,scale,4,4,36,1,0x8d7041,alpha);
+        Rect(x,y,scale,4,5,1,34,0x6e5735,alpha);
+        Rect(x,y,scale,5,39,35,1,0x090806,alpha);
+        for (int row=0;row<2;row++)
+            for (int col=0;col<2;col++)
+            {
+                Rect(x,y,scale,2+col*37,2+row*37,3,3,0x0b0906,alpha);
+                Rect(x,y,scale,2+col*37,2+row*37,2,1,0xa88a54,alpha);
+            }
+        Font font=Font.GetFont('DBIGFONT');
+        String digits=String.Format("%02d",number);
+        double size=min(24.0/font.GetHeight(),32.0/font.StringWidth(digits))*scale;
+        Lettering(font,digits,x+(44*scale-font.StringWidth(digits)*size)/2,
+            y+(44*scale-font.GetHeight()*size)/2,size,0xffd8c292,alpha);
+    }
+
+    static void Draw(int episode,int startTime,int endTime,double fracTic,bool reduced)
+    {
+        if (episode<1 || episode>9 || level.time>=endTime) return;
+        double now=level.time+fracTic;
+        double alpha=clamp(min((now-startTime+1)/14.0,(endTime-now)/18.0),0,1);
+        if (alpha<=0) return;
+        Font small=Font.GetFont('SmallFont'), big=Font.GetFont('DBIGFONT');
+        String heading=StringTable.Localize('$UTNT_OBJ_HEADING');
+        String episodeName=StringTable.Localize(String.Format("$UTNT_INTRO_%03d",episode));
+        int count=Count(episode);
+        Array<BrokenLines> descriptions;
+        Array<double> rowHeights;
+        double textSize=1.6;
+        double lineHeight=(small.GetHeight()+3)*textSize;
+        double height=140;
+        for (int i=0;i<count;i++)
+        {
+            let lines=small.BreakLines(Text(episode,i+1,false),int(390/textSize));
+            descriptions.Push(lines);
+            double rowHeight=max(76,30+lines.Count()*lineHeight+17);
+            rowHeights.Push(rowHeight);
+            height+=rowHeight;
+        }
+        double scale=min(Screen.GetWidth()/1280.0,Screen.GetHeight()/720.0)*1.3;
+        scale=min(scale,min(Screen.GetWidth()*0.90/520,Screen.GetHeight()*0.76/height));
+        double x=floor((Screen.GetWidth()-520*scale)/2);
+        double y=floor(Screen.GetHeight()*0.48-height*scale/2);
+        // Fixed cap proportions keep the emblem, rivets and bevels undistorted.
+        Art("UTOTOP",x,y,520*scale,60*scale,alpha);
+        Art("UTOMID",x,y+60*scale,520*scale,(height-76)*scale,alpha);
+        Art("UTOBOT",x,y+(height-16)*scale,520*scale,16*scale,alpha);
+
+        double eyebrow=min(1.6,450.0/max(1,small.StringWidth(episodeName)))*scale;
+        Lettering(small,episodeName,x+(520*scale-small.StringWidth(episodeName)*eyebrow)/2,
+            y+43*scale,eyebrow,0xffcebc98,alpha);
+        double titleSize=min(40.0/big.GetHeight(),360.0/max(1,big.StringWidth(heading)))*scale;
+        Lettering(big,heading,x+(520*scale-big.StringWidth(heading)*titleSize)/2,
+            y+64*scale,titleSize,0xffef7628,alpha);
+        Rect(x,y,scale,38,103,444,1,0x98713f,alpha);
+        Rect(x,y,scale,38,104,444,1,0x24180e,alpha);
+        // One quiet brightening on arrival; reduced-effects mode keeps it still.
+        if (!reduced && now-startTime<24)
+            Rect(x,y,scale,34,12,452,1,0xffaa42,alpha*(1-(now-startTime)/24)*0.30);
+
+        double rowY=124;
+        for (int i=0;i<count;i++)
+        {
+            Badge(i+1,x+38*scale,y+rowY*scale,scale,alpha);
+            String label=Text(episode,i+1,true);
+            double labelSize=min(21.0/big.GetHeight(),390.0/max(1,big.StringWidth(label)))*scale;
+            Lettering(big,label,x+94*scale,y+rowY*scale,labelSize,0xffe2d2af,alpha);
+            for (int line=0;line<descriptions[i].Count();line++)
+                Lettering(small,descriptions[i].StringAt(line),x+94*scale,
+                    y+(rowY+30+line*lineHeight)*scale,textSize*scale,0xffdfd0ae,alpha);
+            rowY+=rowHeights[i];
+            if (i<count-1)
+                Rect(x,y,scale,38,rowY-13,444,0.7,0x64573c,alpha*0.65);
+        }
+    }
+}

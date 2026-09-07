@@ -1,0 +1,76 @@
+version "5.0.0"
+// Test-only commands. This directory is outside the packaged tutnt tree.
+class UTNTObjectiveTest : EventHandler
+{
+    int SavedStart, SavedEnd, SavedEpisode;
+    override void WorldTick()
+    {
+        if (players[0].mo) players[0].mo.bInvulnerable=true;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if (!h) return;
+        if (e.Name=="objshow")
+        {
+            h.ObjectiveEpisode=0;
+            UTNTWorldHandler.BeginObjectives(e.Args[0]);
+        }
+        if (e.Name=="objremember")
+        {
+            SavedStart=h.ObjectiveStartTime; SavedEnd=h.ObjectiveEndTime;
+            SavedEpisode=h.ObjectiveEpisode;
+        }
+        if (e.Name=="objduplicate")
+            UTNTWorldHandler.BeginObjectives(e.Args[0]);
+    }
+}
+class UTNTObjectiveUITest : StaticEventHandler
+{
+    ui void Check(bool ok,String text)
+    { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",text); }
+
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        let test=UTNTObjectiveTest(EventHandler.Find('UTNTObjectiveTest'));
+        if (e.Name=="objcheck")
+        {
+            Check(h.ObjectiveEpisode==e.Args[0],"expected objective episode");
+            if (e.Args[0]>0)
+            {
+                bool three=e.Args[0]==2 || e.Args[0]==3 || e.Args[0]==5;
+                Check(h.ObjectiveEndTime-h.ObjectiveStartTime==(three ? 382 : 312),"briefing duration and fade budget");
+                Check(level.time>=h.ObjectiveStartTime && level.time<h.ObjectiveEndTime,"briefing is visible");
+            }
+        }
+        if (e.Name=="objrestored")
+            Check(h.ObjectiveStartTime==test.SavedStart && h.ObjectiveEndTime==test.SavedEnd
+                && h.ObjectiveEpisode==test.SavedEpisode,"save load and duplicate calls preserve original timer");
+        if (e.Name=="objexpired")
+            Check(h.ObjectiveEpisode>0 && level.time>=h.ObjectiveEndTime,"briefing fades away and stays expired");
+        if (e.Name=="objresources")
+        {
+            Check(TexMan.CheckForTexture('UTOTOP').isValid(),"top cap available");
+            Check(TexMan.CheckForTexture('UTOMID').isValid(),"middle cap available");
+            Check(TexMan.CheckForTexture('UTOBOT').isValid(),"bottom cap available");
+            Font small=Font.GetFont('SmallFont');
+            for (int episode=1;episode<=9;episode++)
+            {
+                String title=StringTable.Localize(String.Format("$UTNT_INTRO_%03d",episode));
+                Check(title.Length()>0 && title.IndexOf("UTNT_")<0,"episode name localized");
+                for (int row=1;row<=UTNTObjectivePlaque.Count(episode);row++)
+                {
+                    String label=UTNTObjectivePlaque.Text(episode,row,true);
+                    String desc=UTNTObjectivePlaque.Text(episode,row,false);
+                    Check(label.Length()>0 && label.IndexOf("UTNT_")<0,"objective label localized");
+                    Check(desc.Length()>0 && desc.IndexOf("UTNT_")<0,"objective description localized");
+                    let lines=small.BreakLines(desc,243);
+                    for (int i=0;i<lines.Count();i++)
+                        Check(small.StringWidth(lines.StringAt(i))<=243,"description fits available width");
+                }
+            }
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+    }
+}
