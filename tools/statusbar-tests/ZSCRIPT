@@ -78,6 +78,11 @@ class UTNTStatusBarUITest : StaticEventHandler
     ui void Check(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
     override void ConsoleProcess(ConsoleEvent e)
     {
+        if(e.Name=="hudtransparency")
+        {
+            Check(CVar.GetCVar('fullhud_trans').GetInt()==0,"legacy TNTLE transparency setting is present");
+            Check(CVar.GetCVar('UTNT_hudtranslucent',players[consoleplayer]).GetInt()==1,"UTNT defaults to translucency despite the legacy setting");
+        }
         if(e.Name=="hudoptions")
             Check(CVar.GetCVar('fullhud_stats',players[consoleplayer]).GetInt()==e.Args[0],"HUD statistics preference stays local to this player");
         if(e.Name!="hudresources") return;

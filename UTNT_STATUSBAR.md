@@ -14,7 +14,7 @@ Unter **Options â†’ UTNT Remaster â†’ Statusleiste und Statistik** stehen folgen
 | `fullhud_mugswitch` | Gesicht anzeigen, wenn kein benutzbarer Inventargegenstand ausgewÃ¤hlt ist | true |
 | `fullhud_berserk` | Kleine Berserker-Anzeige | true |
 | `fullhud_interpolate` | Lebens- und RÃ¼stungsziffern glÃ¤tten | true |
-| `fullhud_trans` | Halbtransparenter Hintergrund im Vollbild-HUD | 1 |
+| `UTNT_hudtranslucent` | Halbtransparenter Hintergrund bei Screen Size 11 | true |
 
 Die normale Leiste ist deckend; der Vollbild-Hintergrund lÃ¤sst sich umschalten. Aktuelle Werte, SchlÃ¼ssel und Gesicht bleiben deckend; MunitionskapazitÃ¤ten erscheinen mit 52 % Deckkraft als sekundÃ¤re Information. Die Automap verwendet die normale Leiste. Die vom Spiel vorgesehenen BildschirmgrÃ¶ÃŸenregler bleiben nutzbar. Inventar und Gesicht teilen sich das mittlere Feld; die Gesichtsoption unterdrÃ¼ckt keine benutzbaren GegenstÃ¤nde. Deutsche und englische MenÃ¼texte sind enthalten.
 
@@ -106,3 +106,21 @@ Testergebnisse, Pakethash und unverÃ¤nderte Spielaufnahmen: `tools/validation/st
 Am 08.09.2026 enthielt das regulÃ¤r gestartete `tutnt.pk3` noch die alte 60 Ã— 48-FÃ¼llung, wÃ¤hrend Quellordner und separates PrÃ¼f-PK3 bereits den korrigierten 64 Ã— 64-Rahmen enthielten. Das regulÃ¤re PK3 wurde wÃ¤hrend der PrÃ¼fung durch einen parallelen Projektbuild aktualisiert. Eine byteidentische Kopie dieses aktualisierten Pakets wurde anschlieÃŸend vollstÃ¤ndig mit `test_statusbar_border.py` auf OpenGL und Vulkan geprÃ¼ft. Zum Laden der aktualisierten Grafik muss UZDoom neu gestartet werden.
 
 Die RahmenprÃ¼fung kontrolliert jetzt zusÃ¤tzlich die tatsÃ¤chlichen Bildpixel bei 1920 Ã— 1080 und `screenblocks 3`: Ein linker Streifen auÃŸerhalb von Spielfenster und Statusleiste darf keine mindestens vier Pixel hohe, nahezu vollstÃ¤ndig schwarze horizontale LÃ¼cke enthalten. `check_border_image.py` benÃ¶tigt Pillow. Der Detektor wurde gegen die echte fehlerhafte Aufnahme (44 Pixel hohe LÃ¼cke) und die korrigierte Aufnahme (0 Pixel) geprÃ¼ft. Das aktualisierte Standard-PK3 besteht auf beiden Renderern mit jeweils 0 Pixel schwarzen BÃ¤ndern. Pakethash, Ergebnisse und die unverÃ¤nderte Spielaufnahme liegen unter `tools/validation/statusbar-border-no-bands-2026-09-08`.
+
+## Screen Size 11 und 12
+
+Am 08.09.2026 wurde die Transparenzoption auf `UTNT_hudtranslucent` umgestellt. Der alte Name `fullhud_trans` kollidierte mit gespeicherten TNTLE-Einstellungen: In TNTLE steuert dieser Wert die Inventardarstellung, während der Einzelspieler-Hintergrund unabhängig davon immer 50 % Deckkraft besitzt. Ein gespeichertes `fullhud_trans=0` machte die bisherige UTNT-Umsetzung daher unbeabsichtigt deckend. Die neue lokale Bool-Option startet mit `true`; die deckende Darstellung bleibt im UTNT-Menü wählbar.
+
+Screen Size 12 besitzt auf ausdrücklichen Wunsch ein eigenes freistehendes HUD. Der `StatusBar none`-Block zeigt links Gesundheits- und Rüstungswerte mit Icons, rechts aktuelle Waffenmunition einschließlich Zweitmunition sowie die fünf Munitionsvorräte im vorhandenen 3+2-Raster und die Schlüssel. Die großen Werte erscheinen hell; die Kapazitäten bleiben als sekundäre Information abgedunkelt. Das Rüstungssymbol bleibt bei null Rüstung gedimmt sichtbar. Statusleistenhintergrund, Gesicht und Waffenplatzrahmen entfallen. Ausgewählte Inventargegenstände, Inventarauswahl, Berserker-Anzeige, Statistikoptionen und Deathmatch-Frags bleiben verfügbar. Da UZDoom im `none`-Block keine automatische Inventarleiste zeichnet, wird deren Sichtbarkeit hier ausdrücklich abgefragt.
+
+Die ursprüngliche TNTLE-Datei definiert kein HUD für Größe 12. Die freistehende Variante ist deshalb eine gezielte UTNT-Erweiterung. Alle drei Größen respektieren weiterhin den Cutscene-/Kamera-Marker `UTNTHUDHidden`.
+
+Prüfung mit UZDoom 5.0.1: `test_statusbar.py` enthält jetzt eine Regression für eine vorhandene alte Einstellung `fullhud_trans=0` und den neuen transparenten Standard. Zusätzlich werden Größe 12 mit Inventarauswahl, aktiver Zweitmunition, während einer Cutscene sowie bei 1920 × 1080, 1024 × 768 und 2560 × 1080 aufgenommen. Lange Testsequenzen laufen über aufeinanderfolgende kurze Exec-Dateien, damit das Engine-Zeilenlimit weder Befehle abschneidet noch Wartezeiten umgeht.
+
+```text
+python tools/test_statusbar.py --renderer both --mod tutnt.pk3 --label hud-modes-release
+```
+
+Die endgültige Testfolge besteht mit **64 Assertions je Renderer (OpenGL und Vulkan)**. Zusätzlich wurden alle drei Größen auf TNT01 in 1080p kontrolliert. Die unveränderten Engine-Aufnahmen, Protokolle und Paket-/Quellhashes stehen unter `tools/validation/statusbar-modes-2026-09-08`. Das reguläre `tutnt.pk3` enthält bytegenau das geprüfte Paket. Zum Laden der neuen SBARINFO und CVar-Definition ist ein Neustart von UZDoom erforderlich.
+
+![Freistehendes HUD bei Screen Size 12](tools/validation/statusbar-modes-2026-09-08/hud-modes-map-s12.png)

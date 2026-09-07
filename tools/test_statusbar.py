@@ -16,7 +16,7 @@ def compile_fixture():
     return addon
 
 def commands(label):
-    c=['wait 400','event hudresources','netevent hudready','wait 15','netevent hudcheck 0']
+    c=['wait 400','set fullhud_trans 0','event hudtransparency','event hudresources','netevent hudready','wait 15','netevent hudcheck 0']
     def snap(name): c.extend(['wait 12',f'screenshot logs/{label}-{name}.png'])
     # All six keys exercise empty/card/skull/combined switchable-image states.
     keys=['BlueCard','YellowCard','RedCard','BlueSkull','YellowSkull','RedSkull']
@@ -35,29 +35,49 @@ def commands(label):
     snap('ammo-low')
     c.extend(['give ammo'])
     snap('fullscreen')
+    c.extend(['screenblocks 12']);snap('floating')
     c.extend(['screenblocks 10']);snap('normal')
     c.extend(['togglemap']);snap('automap')
-    c.extend(['togglemap','screenblocks 11','fullhud_trans 0']);snap('opaque')
+    c.extend(['togglemap','screenblocks 11','UTNT_hudtranslucent 0']);snap('opaque')
     for pos in range(4):
         c.extend([f'fullhud_statspos {pos}',f'fullhud_stats {2 if pos%2==0 else 4}',f'fullhud_fullstats {int(pos<2)}'])
         snap(f'stats-{pos}')
     c.extend(['fullhud_statspos 1','fullhud_stats 0']);snap('stats-off')
-    c.extend(['fullhud_stats 2','fullhud_fullstats 1','fullhud_trans 1','netevent hudcutscene 1','wait 12','netevent hudcheck 1'])
+    c.extend(['fullhud_stats 2','fullhud_fullstats 1','UTNT_hudtranslucent 1','netevent hudcutscene 1','wait 12','netevent hudcheck 1'])
     snap('cutscene')
+    c.extend(['screenblocks 12']);snap('floating-hidden')
+    c.extend(['screenblocks 11'])
     c.extend([f'save {label}','wait 5','netevent hudcutscene 0','wait 12',f'load {label}','wait 20','netevent hudcheck 1'])
     snap('load-cutscene')
     c.extend(['netevent hudcutscene 0','wait 12','netevent hudcheck 0','netevent hudfreeze 1','wait 12','netevent hudcheck 1'])
     snap('frozen')
     c.extend(['netevent hudfreeze 0','netevent hudcamera 1','wait 12','netevent hudcheck 1']);snap('camera')
     c.extend(['netevent hudcamera 0','wait 12','netevent hudcheck 0','fullhud_mugswitch 0','netevent huditems']);snap('inventory-no-face')
+    c.extend(['screenblocks 12']);snap('floating-inventory')
+    c.extend(['screenblocks 11'])
     c.extend(['netevent hudcutscene 1','wait 12','netevent hudcheck 1']);snap('inventory-hidden')
     c.extend(['netevent hudcutscene 0','netevent hudclearitems','fullhud_mugswitch 1','give Clip 50','give UTNTHUDDualWeapon','use UTNTHUDDualWeapon','wait 40','netevent huddualcheck']);snap('dual-ammo')
-    c.extend(['vid_setsize 1920 1080']);snap('1080p')
+    c.extend(['screenblocks 12']);snap('floating-dual-ammo')
+    c.extend(['screenblocks 11','vid_setsize 1920 1080']);snap('1080p')
+    c.extend(['screenblocks 12']);snap('floating-1080p')
+    c.extend(['screenblocks 11'])
     c.extend(['vid_setsize 1024 768']);snap('4by3')
+    c.extend(['screenblocks 12']);snap('floating-4by3')
+    c.extend(['screenblocks 11'])
     c.extend(['vid_setsize 2560 1080']);snap('ultrawide')
+    c.extend(['screenblocks 12']);snap('floating-ultrawide')
+    c.extend(['screenblocks 11'])
     c.extend(['language deu','openmenu UTNTHUDOptions']);snap('menu-de')
     c.extend(['closemenu','map TNT03A1','wait 60','netevent hudcheck 0','wait 12','echo UTNT_TEST_END','wait 5','quit'])
-    return '; '.join(c)+'\n'
+    # Keep each exec line below the engine limit without bypassing queued waits.
+    (ROOT/'logs').mkdir(exist_ok=True)
+    chunks=[c[i:i+30] for i in range(0,len(c),30)]
+    for i in range(len(chunks)-1):
+        chunks[i].append(f'exec logs/{label}-step{i+1}.cfg')
+    for i in range(1,len(chunks)):
+        (ROOT/'logs'/f'{label}-step{i}.cfg').write_text('; '.join(chunks[i])+'\n')
+    return '; '.join(chunks[0])+'\n'
+
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
@@ -75,7 +95,7 @@ def main():
         for error in ['Unknown command','Unknown font','is not a type of inventory item']:
             if error in log: result['errors'].append(error)
         if 'UTNT_HUD_STATS_COMPLETE' not in log:result['errors'].append('missing live statistics tests')
-        for name,size in [('1080p',(1920,1080)),('4by3',(1024,768)),('ultrawide',(2560,1080))]:
+        for name,size in [('1080p',(1920,1080)),('4by3',(1024,768)),('ultrawide',(2560,1080)),('floating-1080p',(1920,1080)),('floating-4by3',(1024,768)),('floating-ultrawide',(2560,1080))]:
             shot=ROOT/'logs'/f'{label}-{name}.png'
             actual=struct.unpack('>II',shot.read_bytes()[16:24]) if shot.exists() else None
             if actual!=size:result['errors'].append(f'{name}: expected {size}, got {actual}')
