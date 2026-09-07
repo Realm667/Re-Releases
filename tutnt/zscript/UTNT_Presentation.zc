@@ -248,7 +248,8 @@ class UTNTWorldHandler : EventHandler
 
 class UTNTPresentation : StaticEventHandler
 {
-    ui double DisplayHP;
+    ui double DisplayHP, DamageHP, PreviousBossHP;
+    ui int DamageHold, BossWorldGeneration;
     ui int LastBossKind;
     ui Actor LastCamera;
     ui double LastAngle, LastPitch, BlurX, BlurY, LastFrameTime;
@@ -272,11 +273,22 @@ class UTNTPresentation : StaticEventHandler
         if (handler && handler.BossMaxHP > 0)
         {
             double hp = clamp(double(handler.BossHP) / handler.BossMaxHP, 0.0, 1.0);
-            if (LastBossKind != handler.BossKind) DisplayHP = hp;
-            else DisplayHP += (hp - DisplayHP) * 0.35;
-            LastBossKind = handler.BossKind;
+            bool reduced=CVar.GetCVar('UTNT_reducedfx',players[consoleplayer]).GetBool();
+            if (LastBossKind != handler.BossKind || BossWorldGeneration != WorldGeneration || reduced)
+            { DisplayHP=DamageHP=hp; DamageHold=0; }
+            else
+            {
+                if (hp<PreviousBossHP) { DamageHP=max(DamageHP,DisplayHP); DamageHold=8; }
+                DisplayHP+=(hp-DisplayHP)*0.5;
+                if (DamageHold>0) DamageHold--;
+                else DamageHP+=(hp-DamageHP)*0.15;
+                DamageHP=max(DamageHP,DisplayHP);
+            }
+            PreviousBossHP=hp;
+            BossWorldGeneration=WorldGeneration;
+            LastBossKind=handler.BossKind;
         }
-        else { DisplayHP = 0; LastBossKind = 0; }
+        else { DisplayHP=DamageHP=PreviousBossHP=0; DamageHold=0; LastBossKind=0; }
     }
 
     ui void DrawVoice(PlayerInfo player)
@@ -380,12 +392,7 @@ class UTNTPresentation : StaticEventHandler
         let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
         if (!handler || !handler.BossKind || handler.BossMaxHP <= 0 || !camera || cutscene || !CVar.GetCVar('UTNT_bosshud', player).GetBool()) return;
         if (handler.BossEndTime && level.time >= handler.BossEndTime) return;
-        double scale = max(0.5, min(Screen.GetWidth() / 640.0, Screen.GetHeight() / 480.0));
-        int width = int(260 * scale), height = max(4, int(7 * scale));
-        int x = (Screen.GetWidth() - width) / 2, y = int(40 * scale);
-        double alpha = handler.BossEndTime ? clamp((handler.BossEndTime - level.time) / 35.0, 0, 1) : 1;
-        String label = StringTable.Localize(String.Format("$UTNT_BOSS_%d", handler.BossKind));
-        int percent = int(ceil(clamp(double(handler.BossHP) / handler.BossMaxHP, 0, 1) * 100));
+        double alpha=handler.BossEndTime ? clamp((handler.BossEndTime-level.time)/35.0,0,1) : 1;
         bool shielded = false;
         if (handler.BossKind == 5)
         {
@@ -393,12 +400,7 @@ class UTNTPresentation : StaticEventHandler
             let boss = bossIter.Next();
             shielded = boss && boss.bInvulnerable;
         }
-        if (shielded) label = label .. " - " .. StringTable.Localize('$UTNT_SHIELDED');
-        if (CVar.GetCVar('UTNT_bosspercent', player).GetBool()) label = label .. String.Format("  %d%%", percent);
-        Font font = Font.GetFont('SmallFont');
-        Screen.DrawText(font, Font.CR_GOLD, (Screen.GetWidth() - font.StringWidth(label) * scale)/2, y - 12*scale, label, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Alpha, alpha);
-        Screen.Dim(0x180c08, alpha * 0.85, x-2, y-2, width+4, height+4);
-        Color fill = shielded ? 0x658bb5 : percent > 50 ? 0xb79b54 : percent > 25 ? 0xbf7538 : 0xb13b32;
-        Screen.Dim(fill, alpha, x, y, int(width * clamp(DisplayHP, 0, 1)), height);
+        UTNTBossPlaque.Draw(handler.BossKind,double(handler.BossHP)/handler.BossMaxHP,
+            DisplayHP,DamageHP,shielded,CVar.GetCVar('UTNT_bosspercent',player).GetBool(),alpha);
     }
 }

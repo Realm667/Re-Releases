@@ -1,0 +1,56 @@
+version "5.0.0"
+// Test-only fixture: drives the existing saved boss adapter, never ships in the PK3.
+class UTNTPlaqueTestActor : Actor
+{
+    Default { Health 1000; +NOINTERACTION +NOGRAVITY +NOBLOCKMAP }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+class UTNTBossHUDTest : EventHandler
+{
+    Actor Boss;
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let p=players[0].mo;
+        if(e.Name=="plaque")
+        {
+            if(!Boss) { Boss=Actor.Spawn('UTNTPlaqueTestActor',p.Pos); Boss.ChangeTID(level.FindUniqueTID(30000)); }
+            UTNTWorldHandler.BeginBoss(Boss.TID,Boss.TID,e.Args[0],1000);
+            UTNTWorldHandler.UpdateBoss(e.Args[1]); Boss.bInvulnerable=e.Args[2]!=0;
+        }
+        else if(e.Name=="plaquehp") UTNTWorldHandler.UpdateBoss(e.Args[0]);
+        else if(e.Name=="plaquecutscene") UTNTWorldHandler.SetCutscene(p,e.Args[0]!=0);
+    }
+    override void WorldTick() { if(players[0].mo) players[0].mo.bInvulnerable=true; }
+}
+class UTNTBossHUDUITest : StaticEventHandler
+{
+    ui void Check(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name=="plaquecheck")
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            let hud=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
+            Check(h && h.BossKind==e.Args[0] && h.BossHP==e.Args[1] && h.BossMaxHP==1000,"saved boss adapter state");
+            if(e.Args[2]==1) Check(hud.DamageHP>hud.DisplayHP && hud.DisplayHP>double(h.BossHP)/h.BossMaxHP,"damage trail follows interpolated health");
+            else if(e.Args[2]==2) Check(abs(hud.DisplayHP-double(h.BossHP)/h.BossMaxHP)<0.000001 && hud.DamageHP==hud.DisplayHP,"reduced effects snap both gauges");
+            else Check(abs(hud.DisplayHP-double(h.BossHP)/h.BossMaxHP)<0.001,"gauge reaches current health");
+        }
+        if(e.Name=="plaquedead")
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Check(h.BossHP==0 && h.BossEndTime>0 && level.time>=h.BossEndTime,"death fade expires after 70 tics");
+        }
+        if(e.Name=="plaqueresources")
+        {
+            for(int i=1;i<=5;i++) Check(UTNTBossPlaque.Portrait(i).isValid(),String.Format("original portrait %d resolves",i));
+            Check(!UTNTBossPlaque.Portrait(0).isValid() && !UTNTBossPlaque.Portrait(6).isValid(),"invalid portrait rejected");
+            Check(UTNTBossPlaque.HealthColor(1)==Color(255,112,195,69),"full health is green");
+            Check(UTNTBossPlaque.HealthColor(0.6)==Color(255,227,199,74),"60 percent is yellow");
+            Check(UTNTBossPlaque.HealthColor(0.3)==Color(255,229,141,45),"30 percent is orange");
+            Check(UTNTBossPlaque.HealthColor(0.1)==Color(255,227,68,55),"10 percent is red");
+            Check(UTNTBossPlaque.HealthColor(-1)==UTNTBossPlaque.HealthColor(0) && UTNTBossPlaque.HealthColor(2)==UTNTBossPlaque.HealthColor(1),"health color clamps out of range");
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+    }
+}

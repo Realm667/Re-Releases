@@ -1,0 +1,75 @@
+// Original UTNT boss artwork is drawn intact. All additions are local HUD layers.
+class UTNTBossPlaque ui
+{
+    static TextureID Portrait(int kind)
+    {
+        if (kind<1 || kind>5) return TexMan.CheckForTexture('-');
+        return TexMan.CheckForTexture(String.Format("M_HPB%d",kind),TexMan.Type_MiscPatch);
+    }
+
+    static Color HealthColor(double fraction)
+    {
+        double hp=clamp(fraction,0,1), t;
+        Color low,high;
+        if(hp>=0.6) { low=0xe3c74a; high=0x70c345; t=(hp-0.6)/0.4; }
+        else if(hp>=0.3) { low=0xe58d2d; high=0xe3c74a; t=(hp-0.3)/0.3; }
+        else { low=0xe34437; high=0xe58d2d; t=clamp((hp-0.1)/0.2,0,1); }
+        return Color(255,int(low.r+(high.r-low.r)*t),int(low.g+(high.g-low.g)*t),int(low.b+(high.b-low.b)*t));
+    }
+
+    static void Rect(double x,double y,double scale,double left,double top,double width,double height,Color color,double alpha)
+    {
+        if(width<=0 || height<=0) return;
+        int x1=int(x+left*scale), y1=int(y+top*scale);
+        Screen.Dim(color,alpha,x1,y1,max(1,int(x+(left+width)*scale)-x1),max(1,int(y+(top+height)*scale)-y1));
+    }
+
+    static void Shield(double x,double y,double scale,double alpha)
+    {
+        // A small pixel shield fits inside the original frame; it never replaces HP color.
+        Rect(x,y,scale,125,11,6,1,0x76c5ff,alpha);
+        Rect(x,y,scale,124,12,8,5,0x408ee5,alpha);
+        Rect(x,y,scale,125,17,6,2,0x408ee5,alpha);
+        Rect(x,y,scale,126,19,4,1,0x408ee5,alpha);
+        Rect(x,y,scale,127,20,2,1,0x408ee5,alpha);
+        Rect(x,y,scale,125,13,6,4,0x102b61,alpha);
+        Rect(x,y,scale,126,17,4,1,0x102b61,alpha);
+        Rect(x,y,scale,127,18,2,1,0x102b61,alpha);
+    }
+
+    static void Draw(int kind,double hp,double shownHP,double damageHP,bool shielded,bool percentage,double alpha)
+    {
+        if(kind<1 || kind>5 || alpha<=0) return;
+        TextureID frame=Portrait(kind);
+        double scale=max(1.0,min(Screen.GetWidth()/640.0,Screen.GetHeight()/480.0)*1.35);
+        double x=floor((Screen.GetWidth()-142*scale)/2), y=floor(Screen.GetHeight()*0.045);
+        hp=clamp(hp,0,1); shownHP=clamp(shownHP,0,1); damageHP=clamp(damageHP,shownHP,1);
+        Color fill=HealthColor(hp);
+        // Override embedded Doom patch offsets, preserving every source pixel and portrait.
+        Screen.DrawTexture(frame,true,x,y,DTA_DestWidthF,142*scale,DTA_DestHeightF,32*scale,
+            DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha);
+        String name=StringTable.Localize(String.Format("$UTNT_BOSS_%d",kind));
+        Font small=Font.GetFont('SmallFont');
+        double nameScale=scale*min(0.72,100.0/max(1,small.StringWidth(name)));
+        Screen.DrawText(small,Font.CR_WHITE,x+85*scale-small.StringWidth(name)*nameScale/2,y+3*scale,name,
+            DTA_ScaleX,nameScale,DTA_ScaleY,nameScale,DTA_Color,0xffded4be,DTA_Alpha,alpha);
+        if(percentage)
+        {
+            String value=String.Format("%d%%",int(ceil(hp*100)));
+            Font digits=Font.GetFont('DBIGFONT');
+            double numberScale=scale*min(0.70,min(14.0/max(1,digits.GetHeight()),78.0/max(1,digits.StringWidth(value))));
+            double center=shielded ? 79 : 85;
+            Screen.DrawText(digits,Font.CR_WHITE,x+center*scale-digits.StringWidth(value)*numberScale/2,y+10*scale,value,
+                DTA_ScaleX,numberScale,DTA_ScaleY,numberScale,DTA_Color,fill,DTA_Alpha,alpha);
+        }
+        if(shielded) Shield(x,y,scale,alpha);
+        // An inset, shaded gauge; dark trailing damage is visible briefly after a hit.
+        Rect(x,y,scale,33,25,104,5,0x070806,alpha);
+        Rect(x,y,scale,34,29,102,1,0x64583b,alpha);
+        Rect(x,y,scale,34,26,102,3,0x181b12,alpha);
+        Rect(x,y,scale,34,26,102*damageHP,3,0x72533b,alpha);
+        Rect(x,y,scale,34,26,102*shownHP,3,fill,alpha);
+        Rect(x,y,scale,34,28,102*shownHP,1,0x080a06,alpha*0.35);
+        for(int i=1;i<4;i++) Rect(x,y,scale,34+102*i/4.0,26,0.45,3,0x070806,alpha*0.6);
+    }
+}
