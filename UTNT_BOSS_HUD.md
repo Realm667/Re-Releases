@@ -1,20 +1,20 @@
 # UTNT: Bossplakette mit Originalporträts
 
-Die Bossanzeige verbindet die originalen UTNT-Metallboxen mit Bossnamen, einer großen Prozentzahl und einem eingelassenen Lebensbalken. Die fünf vom Nutzer bereitgestellten PNGs werden unverändert und vollständig gezeichnet; es gibt keine nachgezeichneten Gesichter. ZScript ergänzt ausschließlich Text, Balken und Schildsymbol.
+Die Bossanzeige verbindet die originalen UTNT-Metallboxen mit Bossnamen, einer großen Prozentzahl und einem eingelassenen Lebensbalken. Die fünf Originalrahmen werden vollständig gezeichnet; es gibt keine nachgezeichneten Gesichter. Seit der beauftragten PLAYPAL-Umstellung liegen sie wieder als originale Doom-LMPs vor und folgen der globalen Palette (siehe [Palettenbericht](UTNT_PALETTE.md)). ZScript ergänzt ausschließlich Text, Balken und Schildsymbol.
 
-![Bossplakette in UZDoom](tools/validation/boss-hud-2026-09-07/boss-inset-1-1080p.png)
+![Bossplakette in UZDoom](tools/validation/palette-restore-2026-09-07/palette-boss-1-1080p.png)
 
 ## Zuordnung und Darstellung
 
 | Originalgrafik | Boss | Ursprüngliche Begegnung |
 | --- | --- | --- |
-| M_HPB1.png | Hectebus | TNT01 |
-| M_HPB2.png | Bruiser Demons | TNT02 |
-| M_HPB3.png | Portal Guards | TNT03B |
-| M_HPB4.png | The Queen | TNTLE |
-| M_HPB5.png | The Source | TNT04C / TNT04CN |
+| M_HPB1.lmp | Hectebus | TNT01 |
+| M_HPB2.lmp | Bruiser Demons | TNT02 |
+| M_HPB3.lmp | Portal Guards | TNT03B |
+| M_HPB4.lmp | The Queen | TNTLE |
+| M_HPB5.lmp | The Source | TNT04C / TNT04CN |
 
-Die SHA-256-Werte in `original-portraits.json` bestätigen die unveränderten gelieferten PNG-Dateien. Die fünf gleichnamigen LMP-Dateien werden ersetzt, damit jede Ressource genau einmal vorliegt.
+Die historischen SHA-256-Werte in `original-portraits.json` beschreiben den gelieferten PNG-Stand vor der später beauftragten Palettenumstellung. Der aktuelle LMP-Dateimanifest liegt im Palettennachweisverzeichnis. Die PNG-Kopien der fünf Rahmen wurden entfernt.
 
 - Rahmen: native 142 × 32 Pixel, horizontal zentriert, Oberkante bei 4,5 % der Bildhöhe. Skalierung über die kleinere Bildschirmachse, mindestens native Größe. Eingebettete Patch-Offsets werden beim Zeichnen explizit überschrieben.
 - Name: vorhandene lokalisierte Bossnamen, warme helle SmallFont; lange Namen passen sich in der Breite an.

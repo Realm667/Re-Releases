@@ -1,0 +1,32 @@
+version "5.0.0"
+// Render resource pixels without world lighting, for comparison across PLAYPALs.
+class UTNTPaletteRegression : StaticEventHandler
+{
+    ui bool Reported;
+    ui void Tile(String resource,int index,int type)
+    {
+        TextureID tex=TexMan.CheckForTexture(resource,type);
+        if(!Reported) Console.Printf("UTNT_ASSERT %s: palette resource %s",tex.isValid() ? "PASS" : "FAIL",resource);
+        if(!tex.isValid()) return;
+        let [width,height]=TexMan.GetSize(tex);
+        double factor=min(208.0/width,94.0/height);
+        double x=8+(index%4)*236, y=8+(index/4)*128;
+        Screen.DrawText(Font.GetFont('SmallFont'),Font.CR_WHITE,x,y,resource);
+        Screen.DrawTexture(tex,true,x+(224-width*factor)/2,y+20,DTA_DestWidthF,width*factor,DTA_DestHeightF,height*factor,DTA_LeftOffset,0,DTA_TopOffset,0);
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        Screen.Dim(0x16202a,1,0,0,Screen.GetWidth(),Screen.GetHeight());
+        for(int i=1;i<=5;i++) Tile(String.Format("M_HPB%d",i),i-1,TexMan.Type_MiscPatch);
+        Tile("BERGE1",5,TexMan.Type_MiscPatch);
+        Tile("BERGE2",6,TexMan.Type_MiscPatch);
+        Tile("SBERG1",7,TexMan.Type_MiscPatch);
+        Tile("SBERG2",8,TexMan.Type_MiscPatch);
+        Tile("16X16",9,TexMan.Type_Flat);
+        Tile("QWWALL",10,TexMan.Type_Any);
+        Tile("APYTA1",11,TexMan.Type_Sprite);
+        Tile("sprites/projs/X003A0.png",12,TexMan.Type_Any);
+        if(!Reported) Console.Printf("UTNT_REGRESSION_COMPLETE");
+        Reported=true;
+    }
+}
