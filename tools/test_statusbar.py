@@ -18,6 +18,22 @@ def compile_fixture():
 def commands(label):
     c=['wait 400','event hudresources','netevent hudready','wait 15','netevent hudcheck 0']
     def snap(name): c.extend(['wait 12',f'screenshot logs/{label}-{name}.png'])
+    # All six keys exercise empty/card/skull/combined switchable-image states.
+    keys=['BlueCard','YellowCard','RedCard','BlueSkull','YellowSkull','RedSkull']
+    c.extend(['give Backpack','give ammo'])
+    for key in keys: c.append(f'take {key} 999')
+    snap('keys-none')
+    for key in keys[:3]: c.append(f'give {key}')
+    snap('keys-cards')
+    for key in keys[:3]: c.append(f'take {key} 999')
+    for key in keys[3:]: c.append(f'give {key}')
+    snap('keys-skulls')
+    for key in keys[:3]: c.append(f'give {key}')
+    snap('keys-both')
+    for ammo,amount in [('Clip',390),('Shell',98),('RocketAmmo',99),('Cell',588),('Gas',473)]:
+        c.append(f'take {ammo} {amount}')
+    snap('ammo-low')
+    c.extend(['give ammo'])
     snap('fullscreen')
     c.extend(['screenblocks 10']);snap('normal')
     c.extend(['togglemap']);snap('automap')

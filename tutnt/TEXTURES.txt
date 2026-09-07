@@ -6580,9 +6580,44 @@ Graphic "UTNHATOP", 40, 17
     Patch "STARMS", 0, 0
 }
 
+// Reuse the original stone and miniature ammo icons without RGB conversion.
+// These clipped textures retain the STBAR palette indices, including PLAYPAL effects.
+Graphic "UTNHATIL", 30, 24
+{
+    Patch "STBAR", -228, -4
+}
+
+Graphic "UTNHABG", 96, 24
+{
+    Patch "UTNHATIL", 0, 0
+    Patch "UTNHATIL", 30, 0
+    Patch "UTNHATIL", 60, 0
+    Patch "UTNHATIL", 90, 0
+    Patch "UTNHADIV", 12, 0
+    Patch "UTNHADIV", 55, 0
+}
+
+Graphic "UTNHACL", 9, 6
+{
+    Patch "STBAR", -290, -5
+}
+Graphic "UTNHASH", 9, 6
+{
+    Patch "STBAR", -290, -11
+}
+Graphic "UTNHARK", 9, 6
+{
+    Patch "STBAR", -290, -17
+}
+Graphic "UTNHACE", 9, 6
+{
+    Patch "STBAR", -290, -23
+}
+
 Graphic "UTNTHSP", 320, 32
 {
     Patch "STBAR", 0, 0
+    Patch "UTNHABG", 222, 4
     Patch "STARMS", 104, 7
     Patch "UTNHATOP", 104, 0
 }
@@ -6590,6 +6625,7 @@ Graphic "UTNTHSP", 320, 32
 Graphic "UTNTHMP", 320, 32
 {
     Patch "STBAR", 0, 0
+    Patch "UTNHABG", 222, 4
     Patch "STARMS", 104, 7
     Patch "UTNHATOP", 104, 0
     Patch "STFBANY", 143, 1
@@ -6598,6 +6634,7 @@ Graphic "UTNTHMP", 320, 32
 Graphic "UTNTHDM", 320, 32
 {
     Patch "STBAR", 0, 0
+    Patch "UTNHABG", 222, 4
     Patch "STFBANY", 143, 1
 }
 

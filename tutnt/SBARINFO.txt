@@ -56,17 +56,35 @@ StatusBar normal, fullscreenoffsets
         IfCVarInt fullhud_berserk, 1, equal
             InInventory "PowerStrength"
                 DrawImage "UTNTHBS", 11+center, -7;
-        DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 103+center, -27;
-        DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 103+center, -19;
-        DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 103+center, -11;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Clip), 129+center, -27;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Clip), 153+center, -27;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Shell), 129+center, -21;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Shell), 153+center, -21;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(RocketAmmo), 129+center, -15;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(RocketAmmo), 153+center, -15;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Cell), 129+center, -9;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Cell), 153+center, -9;
+        // Two ammo columns inside the existing 32-pixel bar: 3 rows + 2 rows.
+        // Key slots stay separate; card/skull combinations keep their native icons.
+        DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 65+center, -27;
+        DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 65+center, -19;
+        DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 65+center, -11;
+        DrawImage "UTNHACL", 78+center, -27;
+        DrawImage "UTNHASH", 78+center, -19;
+        DrawImage "UTNHARK", 78+center, -11;
+        DrawImage "UTNHACE", 120+center, -27;
+        DrawImage "UTNHGAS", 120+center, -20;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Clip), 100+center, -27;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Shell), 100+center, -19;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(RocketAmmo), 100+center, -11;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Cell), 142+center, -27;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Gas), 142+center, -19;
+        DrawImage "UTNHASLH", 101+center, -26;
+        DrawImage "UTNHASLH", 101+center, -18;
+        DrawImage "UTNHASLH", 101+center, -10;
+        DrawImage "UTNHASLH", 143+center, -26;
+        DrawImage "UTNHASLH", 143+center, -18;
+        // Capacity is secondary; only the backdrop follows fullhud_trans.
+        Alpha 0.52
+        {
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Clip), 116+center, -27;
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Shell), 116+center, -19;
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(RocketAmmo), 116+center, -11;
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Cell), 158+center, -27;
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Gas), 158+center, -19;
+        }
         GameMode singleplayer, cooperative
         {
             DrawSwitchableImage weaponslot 2, "UTNHG2", "UTNHY2", -44+center, -27;
@@ -81,11 +99,6 @@ StatusBar normal, fullscreenoffsets
         {
             DrawNumber 3, HUDFONT_DOOM, untranslated, frags, -22+center, -27;
         }
-        // Fifth ammunition type shared by the Flamer and Pyro Cannon.
-        DrawString SMALLFONT, gold, "$UTNT_HUD_GAS", 92+center, -42;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Gas), 129+center, -40;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Gas), 153+center, -40;
-
         // Map-wide statistics; no visual interpolation of completion values.
         GameMode singleplayer, cooperative
         {
@@ -382,17 +395,35 @@ StatusBar fullscreen, fullscreenoffsets
         IfCVarInt fullhud_berserk, 1, equal
             InInventory "PowerStrength"
                 DrawImage "UTNTHBS", 11+center, -7;
-        DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 103+center, -27;
-        DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 103+center, -19;
-        DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 103+center, -11;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Clip), 129+center, -27;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Clip), 153+center, -27;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Shell), 129+center, -21;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Shell), 153+center, -21;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(RocketAmmo), 129+center, -15;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(RocketAmmo), 153+center, -15;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Cell), 129+center, -9;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Cell), 153+center, -9;
+        // Two ammo columns inside the existing 32-pixel bar: 3 rows + 2 rows.
+        // Key slots stay separate; card/skull combinations keep their native icons.
+        DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", 65+center, -27;
+        DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", 65+center, -19;
+        DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", 65+center, -11;
+        DrawImage "UTNHACL", 78+center, -27;
+        DrawImage "UTNHASH", 78+center, -19;
+        DrawImage "UTNHARK", 78+center, -11;
+        DrawImage "UTNHACE", 120+center, -27;
+        DrawImage "UTNHGAS", 120+center, -20;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Clip), 100+center, -27;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Shell), 100+center, -19;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(RocketAmmo), 100+center, -11;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Cell), 142+center, -27;
+        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Gas), 142+center, -19;
+        DrawImage "UTNHASLH", 101+center, -26;
+        DrawImage "UTNHASLH", 101+center, -18;
+        DrawImage "UTNHASLH", 101+center, -10;
+        DrawImage "UTNHASLH", 143+center, -26;
+        DrawImage "UTNHASLH", 143+center, -18;
+        // Capacity is secondary; only the backdrop follows fullhud_trans.
+        Alpha 0.52
+        {
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Clip), 116+center, -27;
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Shell), 116+center, -19;
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(RocketAmmo), 116+center, -11;
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Cell), 158+center, -27;
+            DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Gas), 158+center, -19;
+        }
         GameMode singleplayer, cooperative
         {
             DrawSwitchableImage weaponslot 2, "UTNHG2", "UTNHY2", -44+center, -27;
@@ -407,11 +438,6 @@ StatusBar fullscreen, fullscreenoffsets
         {
             DrawNumber 3, HUDFONT_DOOM, untranslated, frags, -22+center, -27;
         }
-        // Fifth ammunition type shared by the Flamer and Pyro Cannon.
-        DrawString SMALLFONT, gold, "$UTNT_HUD_GAS", 92+center, -42;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammo(Gas), 129+center, -40;
-        DrawNumber 3, MAPSTATS_FONT, untranslated, ammocapacity(Gas), 153+center, -40;
-
         // Map-wide statistics; no visual interpolation of completion values.
         GameMode singleplayer, cooperative
         {

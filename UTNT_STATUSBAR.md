@@ -16,7 +16,7 @@ Unter **Options → UTNT Remaster → Statusleiste und Statistik** stehen folgen
 | `fullhud_interpolate` | Lebens- und Rüstungsziffern glätten | true |
 | `fullhud_trans` | Halbtransparenter Hintergrund im Vollbild-HUD | 1 |
 
-Die normale Leiste ist deckend; der Vollbild-Hintergrund lässt sich umschalten. Zahlen, Schlüssel und Gesicht bleiben deckend. Die Automap verwendet die normale Leiste. Die vom Spiel vorgesehenen Bildschirmgrößenregler bleiben nutzbar. Inventar und Gesicht teilen sich das mittlere Feld; die Gesichtsoption unterdrückt keine benutzbaren Gegenstände. Deutsche und englische Menütexte sind enthalten.
+Die normale Leiste ist deckend; der Vollbild-Hintergrund lässt sich umschalten. Aktuelle Werte, Schlüssel und Gesicht bleiben deckend; Munitionskapazitäten erscheinen mit 52 % Deckkraft als sekundäre Information. Die Automap verwendet die normale Leiste. Die vom Spiel vorgesehenen Bildschirmgrößenregler bleiben nutzbar. Inventar und Gesicht teilen sich das mittlere Feld; die Gesichtsoption unterdrückt keine benutzbaren Gegenstände. Deutsche und englische Menütexte sind enthalten.
 
 Gasmunition einschließlich Kapazität ist zusätzlich zu den vier Doom-Munitionsarten sichtbar. Waffenplatz 8 für die Pyro Cannon ergänzt die Waffenübersicht. Eine aktive Waffe mit zwei Munitionsarten erhält zwei getrennte Zähler. Kooperative und Deathmatch-Leisten verwenden die übersetzbare Spielerfarbe; Deathmatch zeigt Frags statt Waffenbesitz.
 
@@ -65,3 +65,22 @@ Das separat abgelegte `tutnt-hud-validated.pk3` enthält den Stand `c89371780` p
 ## Nachkorrektur: Prozentzeichen und Waffenrahmen
 
 Am 07.09.2026 wurden die Health-/Armor-Prozentzeichen entfernt und der Waffenrahmen für die dritte Zahlenzeile verlängert. `python tools/test_statusbar.py --renderer 1 --label statusbar-frame-fix` besteht unter UZDoom 5.0.1 mit 53 Assertions. Normale und transparente Vollbildansicht wurden anhand der Engine-Aufnahmen kontrolliert; der bestehende Test prüft außerdem 1080p, 4:3 und Ultrawide. Das lokale PK3 wurde neu gepackt und von der Engine fehlerfrei geladen; seine beiden geänderten HUD-Dateien stimmen bytegenau mit den Projektquellen überein.
+
+## Zweispaltiger Munitionsbereich
+
+Der freigegebene Entwurf ist am 07.09.2026 umgesetzt: Die komplette Leiste bleibt 320 × 32 Pixel groß. Links stehen Patronen, Schrot und Raketen, rechts Zellen und Gas. Alle fünf Munitionsarten verwenden Mini-Icons statt Text; Vorrat und Maximalkapazität sind durch einen kleinen Schrägstrich getrennt. Die Kapazitäten erscheinen mit 52 % Deckkraft. Die drei Schlüsselfarben besitzen ein separates Fach mit acht Pixel Zeilenabstand; Karten, Schädel und deren Kombinationen verwenden weiterhin die ursprüngliche Umschaltlogik. Die frühere zusätzliche Gaszeile oberhalb der Leiste entfällt.
+
+`TEXTURES.txt` schneidet die vier vorhandenen Mini-Icons direkt aus `STBAR` aus und setzt den Hintergrund aus dem vorhandenen Steinmotiv zusammen. Die übrige Leiste einschließlich Waffenrahmen bleibt erhalten. Das neue Gasflaschen-Icon `UTNHGAS` ist 8 × 7 Pixel groß. Gas-Icon, Trennkante und Schrägstrich liegen als palettierte Doom-Patches vor; `python tools/build_statusbar_assets.py` erzeugt sie reproduzierbar ohne Bildbibliotheken. Die Palettenindizes bleiben für PLAYPAL-Effekte erhalten. Alle drei Hintergründe (Einzelspieler, Koop, Deathmatch) enthalten dieselbe Aufteilung; Normal-, Vollbild- und Automap-Darstellung bleiben höhengleich.
+
+Die erweiterte HUD-Prüfung besteht unter UZDoom 5.0.1 mit **62 Assertions pro Renderer (OpenGL/Vulkan)**. Zusätzlich wurden keine Schlüssel, ausschließlich Karten, ausschließlich Schädel, beide Schlüsseltypen und niedrige Munitionsstände aufgenommen. Normale und transparente Vollbildansicht, 1080p, 4:3 und Ultrawide wurden kontrolliert. Das separat gepackte `tutnt-ammo-validated.pk3` besteht die vollständige Vulkan-Testfolge mit **62 Assertions** sowie den HUD-Koop-Test mit **57 Assertions je Peer**. Alle 14 ACS-Module wurden im isolierten Paket geprüft und bleiben byteidentisch.
+
+Das geprüfte Paket basiert auf `eab055766758` plus den fünf Laufzeitdateien dieser Änderung und enthält keine parallel noch uncommitteten Projektänderungen. Paket- und Dateihashes, Testergebnisse sowie unveränderte Engine-Aufnahmen liegen unter `tools/validation/statusbar-two-columns-2026-09-07`.
+
+```text
+python tools/build_statusbar_assets.py
+python tools/test_statusbar.py --renderer both --label statusbar-two-columns
+python tools/test_statusbar.py --renderer 1 --mod tutnt-ammo-validated.pk3 --label statusbar-ammo-package
+python tools/test_statusbar_coop.py --mod tutnt-ammo-validated.pk3
+```
+
+![Zweispaltige Munition in der normalen Statusleiste](tools/validation/statusbar-two-columns-2026-09-07/statusbar-ammo-package-1-normal.png)

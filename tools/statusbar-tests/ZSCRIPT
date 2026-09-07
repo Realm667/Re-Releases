@@ -81,7 +81,7 @@ class UTNTStatusBarUITest : StaticEventHandler
         if(e.Name=="hudoptions")
             Check(CVar.GetCVar('fullhud_stats',players[consoleplayer]).GetInt()==e.Args[0],"HUD statistics preference stays local to this player");
         if(e.Name!="hudresources") return;
-        String names[]={"UTNTHSP","UTNTHMP","UTNTHDM","UTNTHBS","STKEYS6","STKEYS7","STKEYS8","STATS1","STATS1A","STATS2","STATS2A"};
+        String names[]={"UTNTHSP","UTNTHMP","UTNTHDM","UTNTHBS","UTNHABG","UTNHATIL","UTNHADIV","UTNHACL","UTNHASH","UTNHARK","UTNHACE","UTNHGAS","UTNHASLH","STKEYS6","STKEYS7","STKEYS8","STATS1","STATS1A","STATS2","STATS2A"};
         for(int i=0;i<names.Size();i++) Check(TexMan.CheckForTexture(Name(names[i])).isValid(),String.Format("%s resolves",names[i]));
         for(int i=2;i<=8;i++)
         {
