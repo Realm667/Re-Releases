@@ -70,25 +70,6 @@ class UTNTWorldHandler : EventHandler
     Array<Color> AtmosphereOriginalFades;
     // Saved with the level: loading a save resumes, rather than replays, the plaque.
     int ObjectiveEpisode, ObjectiveStartTime, ObjectiveEndTime;
-    int ObjectiveFlags[10];
-    int CompletionCode, CompletionStartTime, CompletionEndTime;
-
-    static void SetObjectiveProgress(int episode,int mask)
-    {
-        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
-        if(h && episode>=1 && episode<=9) h.ObjectiveFlags[episode]=mask&7;
-    }
-
-    void TickObjectiveCompletion()
-    {
-        if(CompletionCode && level.time<CompletionEndTime) return;
-        CompletionCode=ACS_NamedExecuteWithResult("UTNT_ObjectiveNext",CompletionCode);
-        if(!CompletionCode) return;
-        CompletionStartTime=level.time;
-        CompletionEndTime=level.time+119; // 7 fade-in + 105 hold + 7 fade-out.
-        S_StartSound(Sound("switches/normbutn"),CHAN_AUTO,0,0.28,ATTN_NONE);
-    }
-
     String VoiceKey;
     int VoiceStartTime, VoiceEndTime;
     Array<String> VoiceQueueKeys, VoiceQueueSounds;
@@ -198,7 +179,6 @@ class UTNTWorldHandler : EventHandler
     override void WorldTick()
     {
         TickVoice();
-        TickObjectiveCompletion();
         // A shared opt-in because distant visibility must agree in cooperative play.
         bool enabled = CVar.GetCVar('UTNT_atmosphere').GetBool()
             && (level.MapName ~== "TNT03A1" || level.MapName ~== "TNT03A2" || level.MapName ~== "TNTLE");
@@ -238,9 +218,6 @@ class UTNTWorldHandler : EventHandler
 
     override void WorldLoaded(WorldEvent e)
     {
-        // A reopened hub has its old level handler but the campaign queue has advanced.
-        // Save loads retain the exact active notification timeline instead.
-        if(!e.IsSaveGame) CompletionCode=CompletionStartTime=CompletionEndTime=0;
         HeatSources.Clear();
         let iter = ThinkerIterator.Create('EffectGiver');
         EffectGiver source;
@@ -467,12 +444,8 @@ class UTNTPresentation : StaticEventHandler
             +(ObjectivesFadeTics-PreviousObjectivesFadeTics)*e.FracTic)/7.0;
         bool readObjectives=objectivesAlpha>0 && !menuactive && ConsoleState==0
             && !paused && player.health>0;
-        if (camera && readObjectives && UTNTObjectivePlaque.CurrentEpisode()>0)
+        if (camera && readObjectives)
             UTNTObjectivePlaque.Draw(UTNTObjectivePlaque.CurrentEpisode(),objectivesAlpha);
-        else if (camera && !menuactive && objectives && objectives.CompletionCode
-            && level.time<objectives.CompletionEndTime)
-            UTNTObjectivePlaque.DrawCompletion(objectives.CompletionCode,objectives.CompletionStartTime,
-                objectives.CompletionEndTime,e.FracTic,reduced);
         else if (camera && !menuactive && objectives && objectives.ObjectiveEpisode
             && level.time<min(objectives.ObjectiveEndTime,objectives.ObjectiveStartTime+140))
             UTNTObjectivePlaque.DrawCompact(objectives.ObjectiveEpisode,

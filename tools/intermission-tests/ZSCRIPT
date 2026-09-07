@@ -1,0 +1,54 @@
+version "5.0.0"
+class UTNTIntermissionTestExit : EventHandler
+{
+    override void WorldLoaded(WorldEvent e)
+    {
+        if (level.MapName == "TNT02") Console.Printf("UTNT_ASSERT PASS: next map reached after continuing");
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if (e.Name != "interexit") return;
+        Console.Printf("UTNT_INTERMISSION_EXIT: %s", level.MapName);
+        level.ExitLevel(0, false);
+    }
+}
+
+class UTNTIntermissionProbe : UTNTIntermission
+{
+    bool checked;
+    bool stress;
+    void Check(bool ok, String text) { Console.Printf("UTNT_ASSERT %s: %s", ok ? "PASS" : "FAIL", text); }
+    override void Start(WBStartStruct info)
+    {
+        Super.Start(info);
+        stress = CVar.FindCVar('utnt_imstress').GetBool();
+        wbs.maxkills = Plrs[me].skills = stress ? 12345 : 0;
+        wbs.maxitems = Plrs[me].sitems = stress ? 1234 : 0;
+        wbs.maxsecret = Plrs[me].ssecret = stress ? 7 : 0;
+        Plrs[me].stime = (stress ? 360062 : 0) * GameTicRate;
+        wbs.totaltime = (stress ? 443256 : 0) * GameTicRate;
+        wbs.partime = (stress ? 90 : 0) * GameTicRate;
+        acceleratestage = 1;
+    }
+    override void updateStats()
+    {
+        // Request continuation through the same inherited entry point as input.
+        if (checked && bcnt >= 200) nextStage();
+        Super.updateStats();
+        if (sp_state == 10 && !checked)
+        {
+            checked = true;
+            Check(cnt_kills[0] == Plrs[me].skills && cnt_items[0] == Plrs[me].sitems && cnt_secret[0] == Plrs[me].ssecret, "native skip preserves all final counts");
+            Check(cnt_time == (stress ? 360062 : 0) && cnt_total_time == (stress ? 443256 : 0), "native skip preserves long and zero times");
+            Check(TimeText(360062) == "100:01:02" && TimeText(0) == "0:00", "hours and zero time format correctly");
+            Check(CountText(-1, 0) == "" && TimeText(-1) == "", "unstarted counters stay hidden");
+            Check(CountText(0, 0) == "100%", "empty categories show full completion without division by zero");
+            Check(scalemode != -1, "all drawing uses the same virtual canvas");
+        }
+    }
+    override void initShowNextLoc()
+    {
+        Super.initShowNextLoc();
+        Check(CurState == ShowNextLoc, "continue reaches the inherited next-map state");
+    }
+}

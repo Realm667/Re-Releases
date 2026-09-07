@@ -1,0 +1,118 @@
+// UTNT's large intermission artwork needs its own layout. Keep Doom's
+// counters, sounds, skipping and level transitions; replace only the drawing.
+class UTNTIntermission : DoomStatusScreen
+{
+    override void Start(WBStartStruct info)
+    {
+        Super.Start(info);
+        SetSize(480, 300);
+        // UZDoom 5.0.1 SetSize shadows this field with its argument.
+        scalemode = FSMode_ScaleToFit43;
+    }
+
+    void DrawLabel(TextureID patch, Font textFont, int color, int x, int y, String key, bool useGfx)
+    {
+        if (useGfx)
+        {
+            // WITIME/WIPAR carry legacy offsets (-40, 20). Layout coordinates
+            // refer to the visible top-left, not those displaced patch origins.
+            Screen.DrawTexture(patch, true, x, y, DTA_TopLeft, true,
+                DTA_FullscreenScale, scalemode, DTA_VirtualWidth, cwidth, DTA_VirtualHeight, cheight);
+        }
+        else DrawText(textFont, color, x, y, key);
+    }
+
+    String CountText(int value, int total)
+    {
+        if (value < 0) return "";
+        if (wi_percents) return String.Format("%d%%", total == 0 ? 100 : int(double(value) * 100 / total));
+        return String.Format("%d/%d", value, total);
+    }
+
+    String TimeText(int seconds)
+    {
+        if (seconds < 0) return "";
+        if (seconds >= 3600) return String.Format("%d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60);
+        return String.Format("%d:%02d", seconds / 60, seconds % 60);
+    }
+
+    void DrawValue(Font fnt, int color, int right, int y, String value)
+    {
+        DrawText(fnt, color, right - fnt.StringWidth(value), y, value);
+    }
+
+    override void drawStats()
+    {
+        Font textFont = generic_ui ? NewSmallFont : content.mFont;
+        bool useGfx = TexMan.OkForLocalization(Kills, "$TXT_IMKILLS")
+            && TexMan.OkForLocalization(Items, "$TXT_IMITEMS")
+            && TexMan.OkForLocalization(P_secret, "$TXT_IMSECRETS")
+            && TexMan.OkForLocalization(Timepic, "$TXT_IMTIME")
+            && (!wbs.partime || TexMan.OkForLocalization(Par, "$TXT_IMPAR"));
+        // The legacy WINUM font has blank punctuation and unequal digit widths.
+        // Use the complete text font with proportional, right-aligned strings.
+        Font numberFont = textFont;
+        int color = useGfx ? Font.CR_UNTRANSLATED : content.mColor;
+        int lineHeight = max(textFont.GetHeight(), numberFont.GetHeight());
+        int labelWidth = textFont.StringWidth("$UTNT_IM_TOTAL");
+        TextureID patches[5];
+        patches[0] = Kills; patches[1] = Items; patches[2] = P_secret;
+        patches[3] = Timepic; patches[4] = Par;
+        String keys[5];
+        keys[0] = "$TXT_IMKILLS"; keys[1] = "$TXT_IMITEMS"; keys[2] = "$TXT_IMSECRETS";
+        keys[3] = "$TXT_IMTIME"; keys[4] = "$TXT_IMPAR";
+        for (int i = 0; i < 5; i++)
+        {
+            if (i == 4 && !wbs.partime) continue;
+            if (useGfx)
+            {
+                let size = TexMan.GetScaledSize(patches[i]);
+                labelWidth = max(labelWidth, int(size.X));
+                lineHeight = max(lineHeight, int(size.Y));
+            }
+            else labelWidth = max(labelWidth, textFont.StringWidth(keys[i]));
+        }
+
+        // Reserve a separate label/value column, including raw counts and long
+        // play times. Expand the virtual canvas instead of colliding columns.
+        int valueWidth = max(
+            numberFont.StringWidth(CountText(Plrs[me].skills, wbs.maxkills)),
+            numberFont.StringWidth(CountText(Plrs[me].sitems, wbs.maxitems)),
+            numberFont.StringWidth(CountText(Plrs[me].ssecret, wbs.maxsecret)),
+            numberFont.StringWidth(TimeText(Thinker.Tics2Seconds(Plrs[me].stime))),
+            numberFont.StringWidth(TimeText(Thinker.Tics2Seconds(wbs.totaltime))),
+            numberFont.StringWidth(TimeText(wbs.partime / GameTicRate)));
+        int pitch = lineHeight + 8;
+        int rows = 4 + int(wi_showtotaltime) + int(wbs.partime != 0);
+        int width = max(480, (labelWidth + valueWidth + 24) * 100 / 54,
+            (96 + rows * pitch + 24) * 8 / 5);
+        SetSize(width, width * 5 / 8);
+        int titleBottom = drawLF();
+        int left = cwidth * 23 / 100;
+        int right = cwidth - left;
+        int y = max(64, titleBottom + 12);
+        for (int row = 0; row < 3; row++)
+        {
+            DrawLabel(patches[row], textFont, color, left, y, keys[row], useGfx);
+            int value = row == 0 ? cnt_kills[0] : row == 1 ? cnt_items[0] : cnt_secret[0];
+            int total = row == 0 ? wbs.maxkills : row == 1 ? wbs.maxitems : wbs.maxsecret;
+            DrawValue(numberFont, color, right, y, CountText(value, total));
+            y += pitch;
+        }
+        y += 8;
+        DrawLabel(Timepic, textFont, color, left, y, "$TXT_IMTIME", useGfx);
+        DrawValue(numberFont, color, right, y, TimeText(cnt_time));
+        y += pitch;
+        if (wi_showtotaltime)
+        {
+            DrawText(textFont, color, left, y, "$UTNT_IM_TOTAL");
+            DrawValue(numberFont, color, right, y, TimeText(cnt_total_time));
+            y += pitch;
+        }
+        if (wbs.partime)
+        {
+            DrawLabel(Par, textFont, color, left, y, "$TXT_IMPAR", useGfx);
+            DrawValue(numberFont, color, right, y, TimeText(cnt_par));
+        }
+    }
+}

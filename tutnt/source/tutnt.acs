@@ -42,64 +42,6 @@ function void ClearPortalPlayer(int p)
 
 global int 2:CompletedMap;
 
-// Campaign progress and pending notifications survive map/hub travel and saves.
-// Slots 60/61 are reserved here; scalar globals 1-3 and 51-56 remain untouched.
-global int 60:UTNT_ObjectiveFlags[];
-global int 61:UTNT_ObjectivePending[];
-
-function int UTNT_ObjectiveEpisode(void)
-{
-    int n=GetLevelInfo(LEVELINFO_LEVELNUM);
-    if(n==4) return 3;
-    if(n>=5 && n<=10) return n-1;
-    if(n>=1 && n<=3) return n;
-    return 0;
-}
-
-function void UTNT_SyncObjectives(void)
-{
-    for(int ep=1;ep<=9;ep++)
-        ScriptCall("UTNTWorldHandler","SetObjectiveProgress",ep,UTNT_ObjectiveFlags[ep]);
-}
-
-script "UTNT_ObjectiveState" OPEN { UTNT_SyncObjectives(); }
-script "UTNT_ObjectiveEntry" ENTER { UTNT_SyncObjectives(); }
-
-script "UTNT_CompleteObjective" (int episode,int row)
-{
-    int count=2;
-    if(episode==2 || episode==3 || episode==5) count=3;
-    if(episode!=UTNT_ObjectiveEpisode() || episode<1 || episode>9 || row<1 || row>count)
-        terminate;
-    int bit=1<<(row-1);
-    if(UTNT_ObjectiveFlags[episode]&bit) terminate;
-    UTNT_ObjectiveFlags[episode]|=bit;
-    int size=UTNT_ObjectivePending[0];
-    if(size<32)
-    {
-        // Snapshot mask prevents a queued early goal from claiming ALL completed.
-        UTNT_ObjectivePending[size+1]=(episode<<8)|(UTNT_ObjectiveFlags[episode]<<4)|row;
-        UTNT_ObjectivePending[0]=size+1;
-    }
-    ScriptCall("UTNTWorldHandler","SetObjectiveProgress",episode,UTNT_ObjectiveFlags[episode]);
-    SetResultValue(1);
-}
-
-script "UTNT_ObjectiveNext" (int acknowledged)
-{
-    SetResultValue(0); // ACS otherwise defaults to a successful result of one.
-    int size=UTNT_ObjectivePending[0];
-    if(acknowledged && size && UTNT_ObjectivePending[1]==acknowledged)
-    {
-        for(int i=1;i<size;i++) UTNT_ObjectivePending[i]=UTNT_ObjectivePending[i+1];
-        UTNT_ObjectivePending[size]=0;
-        UTNT_ObjectivePending[0]=--size;
-    }
-    if(size) SetResultValue(UTNT_ObjectivePending[1]);
-}
-
-
-
 str mapname,objectives;
 str bossfont[5]={"M_HPB1","M_HPB2","M_HPB3","M_HPB4","M_HPB5"};
 
@@ -543,7 +485,8 @@ script "BOSSHP"(int firstid,int lastid,int boss)
 	if(boss==3)
 	{
 		SetFont("NORMAL");
-		ACS_NamedExecuteWithResult("UTNT_CompleteObjective",4,1);
+		printbold(l:"UTNT_COMMON_058");
+		ambientsound("dudud",255);
 		delay(105);
 		setmusic("*");
 		door_open(7,20);
@@ -559,7 +502,6 @@ script "BOSSHP"(int firstid,int lastid,int boss)
 	}
 	if(boss==5)
 	{
-		ACS_NamedExecuteWithResult("UTNT_CompleteObjective",UTNT_ObjectiveEpisode(),2);
 		SetMusic("");
 		thing_deactivate(52);
 		//Lines Normal
