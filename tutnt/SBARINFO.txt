@@ -677,34 +677,42 @@ StatusBar none, fullscreenoffsets
             Alpha 0.52
                 DrawImage "ARM1A0", 87, -14, center, 16, 16;
         }
+        // BlueAlt is UTNT's existing neutral gray ramp (#222222..#C7C7C7).
         IfCVarInt UTNT_reducedfx, 1, equal
         {
-            DrawNumber 3, HUDFONT_DOOM, white, health, 70, -23;
-            DrawNumber 3, HUDFONT_DOOM, white, armor, 142, -23;
+            DrawNumber 3, HUDFONT_DOOM, BlueAlt, health, 70, -23;
+            DrawNumber 3, HUDFONT_DOOM, BlueAlt, armor, 142, -23;
         }
         else
         IfCVarInt fullhud_interpolate, 1, equal
         {
-            DrawNumber 3, HUDFONT_DOOM, white, health, interpolate(8), 70, -23;
-            DrawNumber 3, HUDFONT_DOOM, white, armor, interpolate(8), 142, -23;
+            DrawNumber 3, HUDFONT_DOOM, BlueAlt, health, interpolate(8), 70, -23;
+            DrawNumber 3, HUDFONT_DOOM, BlueAlt, armor, interpolate(8), 142, -23;
         }
         else
         {
-            DrawNumber 3, HUDFONT_DOOM, white, health, 70, -23;
-            DrawNumber 3, HUDFONT_DOOM, white, armor, 142, -23;
+            DrawNumber 3, HUDFONT_DOOM, BlueAlt, health, 70, -23;
+            DrawNumber 3, HUDFONT_DOOM, BlueAlt, armor, 142, -23;
         }
         IfCVarInt fullhud_berserk, 1, equal
             InInventory "PowerStrength"
                 DrawImage "UTNTHBS", 8, -34;
-        UsesAmmo
+        // Current ammo sits beside the reserve grid on the bottom baseline.
+        UsesSecondaryAmmo not
         {
-            DrawImage ammoicon1, -59, -40, center, 12, 12;
-            DrawNumber 3, HUDFONT_DOOM, white, ammo1, -8, -48;
+            UsesAmmo
+            {
+                DrawImage ammoicon1, -168, -14, center, 12, 12;
+                DrawNumber 3, HUDFONT_DOOM, BlueAlt, ammo1, -115, -23;
+            }
         }
-        UsesSecondaryAmmo
+        else
         {
-            DrawImage ammoicon2, -126, -40, center, 12, 12;
-            DrawNumber 3, HUDFONT_DOOM, white, ammo2, -75, -48;
+            // Two compact rows stay inside the same height, including at 4:3.
+            DrawImage ammoicon1, -143, -23, center, 10, 10;
+            DrawNumber 3, MAPSTATS_FONT, BlueAlt, ammo1, -115, -26;
+            DrawImage ammoicon2, -143, -11, center, 10, 10;
+            DrawNumber 3, MAPSTATS_FONT, BlueAlt, ammo2, -115, -14;
         }
         DrawSelectedInventory centerbottom, MAPSTATS_FONT, 0+center, -6, 13+center, -12, untranslated;
         // Native inventory overlays are not called for the "none" block.
@@ -713,7 +721,7 @@ StatusBar none, fullscreenoffsets
         else
             DrawInventoryBar Doom, noartibox, 7, INDEXFONT_DOOM, -106+center, -80;
         GameMode deathmatch, teamgame
-            DrawNumber 3, HUDFONT_DOOM, white, frags, 0+center, -48;
+            DrawNumber 3, HUDFONT_DOOM, BlueAlt, frags, 0+center, -48;
         DrawSwitchableImage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", -101, -27;
         DrawSwitchableImage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", -101, -19;
         DrawSwitchableImage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", -101, -11;
