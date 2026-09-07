@@ -58,6 +58,19 @@ class UTNTObjectivePlaque ui
         else ClipArt(name,x,y,width,height,8,0,1656,40,51,alpha);
     }
 
+    static void DrawArtwork(double x,double y,double scale,double height,double alpha)
+    {
+        // Round shared edges once, then derive each destination size from them.
+        // Fractional quad edges and integer clipping otherwise disagree by a
+        // pixel. No overlap: the seven-tic fades must blend each pixel once.
+        int left=int(round(x)), right=int(round(x+520*scale));
+        int top=int(round(y)), upperJoin=int(round(y+60*scale));
+        int lowerJoin=int(round(y+(height-16)*scale)), bottom=int(round(y+height*scale));
+        Art("UTOTOP",left,top,right-left,upperJoin-top,alpha);
+        Art("UTOMID",left,upperJoin,right-left,lowerJoin-upperJoin,alpha);
+        Art("UTOBOT",left,lowerJoin,right-left,bottom-lowerJoin,alpha);
+    }
+
     static void Lettering(Font font,String text,double x,double y,double size,
         Color color,double alpha)
     {
@@ -163,9 +176,7 @@ class UTNTObjectivePlaque ui
         Rect(x,y,scale,0,4,520,height-6,0x000000,alpha*0.10);
         Rect(x,y,scale,1,5,518,height-8,0x000000,alpha*0.16);
         // Fixed cap proportions keep the emblem, rivets and bevels undistorted.
-        Art("UTOTOP",x,y,520*scale,60*scale,alpha);
-        Art("UTOMID",x,y+60*scale,520*scale,(height-76)*scale,alpha);
-        Art("UTOBOT",x,y+(height-16)*scale,520*scale,16*scale,alpha);
+        DrawArtwork(x,y,scale,height,alpha);
 
         double eyebrow=min(1.6,450.0/max(1,small.StringWidth(episodeName)))*scale;
         Lettering(small,episodeName,x+(520*scale-small.StringWidth(episodeName)*eyebrow)/2,

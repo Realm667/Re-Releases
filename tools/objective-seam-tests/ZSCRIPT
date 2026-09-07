@@ -1,0 +1,17 @@
+version "5.0.0"
+// Test-only contrast backgrounds reveal gaps and double blending at cap joins.
+class UTNTObjectiveSeamTest : StaticEventHandler
+{
+    ui int Preset, Background, Half;
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name=="objseam") { Preset=e.Args[0]; Background=e.Args[1]; Half=e.Args[2]; }
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        Screen.Dim(Background ? 0xffffff : 0x000000,1,0,0,Screen.GetWidth(),Screen.GetHeight());
+        double scales[]={0.84,1.05,1.37,1.61};
+        double heights[]={292,310.4,368,403.2};
+        UTNTObjectivePlaque.DrawArtwork(51.37,23.21,scales[Preset],heights[Preset],Half ? 0.5 : 1.0);
+    }
+}

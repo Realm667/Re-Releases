@@ -26,7 +26,9 @@ descriptions cover all 21 goals in English and German.
   calls and respawns do not restart the saved timeline. Old save timers are
   clamped to the new four-second duration when rendering.
 - Descriptions wrap using font metrics and row heights grow with the text.
-  Caps retain their proportions across 4:3 and widescreen viewports.
+  Caps retain their proportions across 4:3 and widescreen viewports. Their
+  shared edges are rounded once to whole screen pixels, preventing gaps and
+  overlapping alpha at fractional scales.
   Objective completion and campaign progression are unchanged.
 
 ## Artwork transparency
@@ -53,6 +55,8 @@ python tools/test_objective_controls.py
 python tools/test_objectives.py --lang deu --width 1024 --height 768
 python tools/test_objectives.py --lang enu --width 1920 --height 1080 --renderer 0
 python tools/test_objective_mapstarts.py
+python tools/test_objective_seams.py --renderer 1
+python tools/test_objective_seams.py --renderer 0
 ```
 
 Tests use isolated configs/saves and test addons outside the packaged game.
@@ -70,3 +74,5 @@ large plaque. These focused checks are not a full campaign playthrough or a
 multiplayer certification. Existing player configs and saves are not modified.
 
 Fade and message-removal evidence: `tools/validation/objectives-fade-2026-09-08/`.
+
+Pixel-join regression (Pillow/numpy screenshot reads): `tools/validation/objectives-seams-2026-09-08/`.
