@@ -1,0 +1,6 @@
+// Local hold/release commands; no network event or gameplay button is consumed.
+alias +utnt_objectives "event utnt_objectives 1"
+alias -utnt_objectives "event utnt_objectives 0"
+addkeysection "$UTNT_OPTIONS_TITLE" UTNTObjectives
+addmenukey "$UTNT_OBJ_KEY" +utnt_objectives
+defaultbind o +utnt_objectives

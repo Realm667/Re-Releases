@@ -21,11 +21,41 @@ class UTNTObjectivePlaque ui
             max(1,int(y+(top+height)*scale)-y1));
     }
 
-    static void Art(String name,double x,double y,double width,double height,double alpha)
+    // Drawing clips provide true transparency without rebuilding the bitmap
+    // for each sliced cap. The original art is decoded/uploaded once per cap.
+    static void ClipArt(String name,double x,double y,double width,double height,
+        double sx,double sy,double sw,double sh,double sourceHeight,double alpha)
     {
         Screen.DrawTexture(TexMan.CheckForTexture(name),true,x,y,
             DTA_DestWidthF,width,DTA_DestHeightF,height,
-            DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha);
+            DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha,
+            DTA_ClipLeft,int(x+sx*width/1672),DTA_ClipRight,int(x+(sx+sw)*width/1672),
+            DTA_ClipTop,int(y+sy*height/sourceHeight),DTA_ClipBottom,int(y+(sy+sh)*height/sourceHeight));
+    }
+
+    static void Art(String name,double x,double y,double width,double height,double alpha)
+    {
+        if (name=="UTOTOP")
+        {
+            ClipArt(name,x,y,width,height,8,18,1656,175,193,alpha);
+            ClipArt(name,x,y,width,height,757,4,157,1,193,alpha);
+            ClipArt(name,x,y,width,height,756,5,159,4,193,alpha);
+            ClipArt(name,x,y,width,height,757,9,158,1,193,alpha);
+            ClipArt(name,x,y,width,height,763,10,151,1,193,alpha);
+            ClipArt(name,x,y,width,height,762,11,146,1,193,alpha);
+            ClipArt(name,x,y,width,height,762,12,147,1,193,alpha);
+            ClipArt(name,x,y,width,height,755,13,162,1,193,alpha);
+            ClipArt(name,x,y,width,height,754,14,163,2,193,alpha);
+            ClipArt(name,x,y,width,height,30,15,29,1,193,alpha);
+            ClipArt(name,x,y,width,height,1613,15,31,1,193,alpha);
+            ClipArt(name,x,y,width,height,30,16,30,1,193,alpha);
+            ClipArt(name,x,y,width,height,754,16,161,2,193,alpha);
+            ClipArt(name,x,y,width,height,1616,16,28,1,193,alpha);
+            ClipArt(name,x,y,width,height,15,17,44,1,193,alpha);
+            ClipArt(name,x,y,width,height,1608,17,52,1,193,alpha);
+        }
+        else if (name=="UTOMID") ClipArt(name,x,y,width,height,8,0,1656,697,697,alpha);
+        else ClipArt(name,x,y,width,height,8,0,1656,40,51,alpha);
     }
 
     static void Lettering(Font font,String text,double x,double y,double size,
@@ -59,12 +89,54 @@ class UTNTObjectivePlaque ui
             y+(44*scale-font.GetHeight()*size)/2,size,0xffd8c292,alpha);
     }
 
-    static void Draw(int episode,int startTime,int endTime,double fracTic,bool reduced)
+    // Available for manual reading even before the map's automatic briefing.
+    static int CurrentEpisode()
     {
+        if (level.MapName ~== "TNT01") return 1;
+        if (level.MapName ~== "TNT02") return 2;
+        if (level.MapName ~== "TNT03A1" || level.MapName ~== "TNT03A2") return 3;
+        if (level.MapName ~== "TNT03B") return 4;
+        if (level.MapName ~== "TNT04A") return 5;
+        if (level.MapName ~== "TNT04B") return 6;
+        if (level.MapName ~== "TNT04CN") return 7;
+        if (level.MapName ~== "TNT04C") return 8;
+        if (level.MapName ~== "TNTLE") return 9;
+        return 0;
+    }
+
+    static void DrawCompact(int episode,int startTime,int endTime,double fracTic)
+    {
+        // Clamp old savegame timers too: the automatic overview lasts four seconds.
+        endTime=min(endTime,startTime+140);
         if (episode<1 || episode>9 || level.time>=endTime) return;
         double now=level.time+fracTic;
-        double alpha=clamp(min((now-startTime+1)/14.0,(endTime-now)/18.0),0,1);
-        if (alpha<=0) return;
+        double alpha=clamp(min((now-startTime+1)/10.0,(endTime-now)/14.0),0,1);
+        Font font=Font.GetFont('SmallFont');
+        double scale=min(Screen.GetWidth()/960.0,Screen.GetHeight()/540.0);
+        double width=280, padding=9, rowHeight=font.GetHeight()+7;
+        double height=padding*2+Count(episode)*rowHeight-7;
+        double x=round(16*scale), y=round(18*scale);
+        Rect(x,y,scale,0,0,width,height,0x090806,alpha*0.74);
+        Rect(x,y,scale,0,0,width,1,0x80613a,alpha);
+        Rect(x,y,scale,0,height-1,width,1,0x443721,alpha);
+        Rect(x,y,scale,0,1,1,height-2,0x80613a,alpha);
+        Rect(x,y,scale,width-1,1,1,height-2,0x443721,alpha);
+        Rect(x,y,scale,2,2,2,height-4,0xd86b25,alpha*0.8);
+        for (int row=0;row<Count(episode);row++)
+        {
+            String label=Text(episode,row+1,true);
+            double size=min(1.0,240.0/max(1,font.StringWidth(label)))*scale;
+            Lettering(font,String.Format("%02d",row+1),x+padding*scale,
+                y+(padding+row*rowHeight)*scale,scale,0xffc49351,alpha);
+            Lettering(font,label,x+30*scale,y+(padding+row*rowHeight)*scale,
+                size,0xffe2d2af,alpha);
+        }
+    }
+
+    static void Draw(int episode)
+    {
+        if (episode<1 || episode>9) return;
+        double alpha=1; // Explicit hold-to-read: no closing animation delays visibility.
         Font small=Font.GetFont('SmallFont'), big=Font.GetFont('DBIGFONT');
         String heading=StringTable.Localize('$UTNT_OBJ_HEADING');
         String episodeName=StringTable.Localize(String.Format("$UTNT_INTRO_%03d",episode));
@@ -82,10 +154,14 @@ class UTNTObjectivePlaque ui
             rowHeights.Push(rowHeight);
             height+=rowHeight;
         }
-        double scale=min(Screen.GetWidth()/1280.0,Screen.GetHeight()/720.0)*1.3;
-        scale=min(scale,min(Screen.GetWidth()*0.90/520,Screen.GetHeight()*0.76/height));
+        double scale=min(Screen.GetWidth()/1280.0,Screen.GetHeight()/720.0)*1.05;
+        scale=min(scale,min(Screen.GetWidth()*0.72/520,Screen.GetHeight()*0.64/height));
         double x=floor((Screen.GetWidth()-520*scale)/2);
         double y=floor(Screen.GetHeight()*0.48-height*scale/2);
+        // Two translucent silhouette expansions make a real soft outside shadow.
+        // They sit behind the opaque metal, never replace dark interior pixels.
+        Rect(x,y,scale,0,4,520,height-6,0x000000,0.10);
+        Rect(x,y,scale,1,5,518,height-8,0x000000,0.16);
         // Fixed cap proportions keep the emblem, rivets and bevels undistorted.
         Art("UTOTOP",x,y,520*scale,60*scale,alpha);
         Art("UTOMID",x,y+60*scale,520*scale,(height-76)*scale,alpha);
@@ -99,9 +175,6 @@ class UTNTObjectivePlaque ui
             y+64*scale,titleSize,0xffef7628,alpha);
         Rect(x,y,scale,38,103,444,1,0x98713f,alpha);
         Rect(x,y,scale,38,104,444,1,0x24180e,alpha);
-        // One quiet brightening on arrival; reduced-effects mode keeps it still.
-        if (!reduced && now-startTime<24)
-            Rect(x,y,scale,34,12,452,1,0xffaa42,alpha*(1-(now-startTime)/24)*0.30);
 
         double rowY=124;
         for (int i=0;i<count;i++)

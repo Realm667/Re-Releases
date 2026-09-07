@@ -1,0 +1,73 @@
+version "5.0.0"
+class UTNTObjectiveCompactTest : EventHandler
+{
+    int SavedStart, SavedEnd, AmmoBefore, ClockBefore;
+    override void WorldTick()
+    {
+        if (players[0].mo) players[0].mo.bInvulnerable=true;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(e.Name=="objremember") { SavedStart=h.ObjectiveStartTime;SavedEnd=h.ObjectiveEndTime; }
+        if(e.Name=="objammo")
+        {
+            ClockBefore=level.time;
+            if(players[0].ReadyWeapon && players[0].ReadyWeapon.Ammo1)
+                AmmoBefore=players[0].ReadyWeapon.Ammo1.Amount;
+        }
+        if(e.Name=="objshow") { h.ObjectiveEpisode=0;UTNTWorldHandler.BeginObjectives(e.Args[0]); }
+        if(e.Name=="objoldtimer") h.ObjectiveEndTime=h.ObjectiveStartTime+1000;
+    }
+}
+class UTNTObjectiveCompactUITest : StaticEventHandler
+{
+    ui void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",text); }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        let presentation=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        let test=UTNTObjectiveCompactTest(EventHandler.Find('UTNTObjectiveCompactTest'));
+        if(e.Name=="objearly")
+        {
+            Check(h.ObjectiveEpisode==0,"manual access precedes the automatic briefing");
+            Check(UTNTObjectivePlaque.CurrentEpisode()==9,"manual map lookup is available immediately on TNTLE");
+        }
+        if(e.Name=="objheld") Check(presentation.ObjectivesHeld==(e.Args[0]!=0),"hold/release state");
+        if(e.Name=="objshort")
+        {
+            Check(h.ObjectiveEndTime-h.ObjectiveStartTime==140,"four-second automatic summary");
+            Check(!presentation.ObjectivesHeld,"automatic briefing never opens the full plaque");
+            Check(level.time<h.ObjectiveEndTime,"automatic summary is currently active");
+        }
+        if(e.Name=="objexpired")
+            Check(level.time>=min(h.ObjectiveEndTime,h.ObjectiveStartTime+140),"summary including old save timers expires after four seconds");
+        if(e.Name=="objrestored")
+        {
+            Check(h.ObjectiveStartTime==test.SavedStart && h.ObjectiveEndTime==test.SavedEnd,"saved summary timeline preserved");
+            Check(!presentation.ObjectivesHeld,"loading does not latch the manual plaque");
+        }
+        if(e.Name=="objfired")
+        {
+            Check(players[0].ReadyWeapon.Ammo1.Amount<test.AmmoBefore,"player can fire while objectives are displayed");
+            Check(level.time>test.ClockBefore,"objective display never pauses simulation");
+        }
+        if(e.Name=="objresources")
+        {
+            Check(TexMan.CheckForTexture('UTOTOP').isValid(),"source cap for native clipping is available");
+            Check(UTNTObjectivePlaque.CurrentEpisode()>0,"manual briefing is available on the current map");
+            if (StringTable.Localize("$UTNT_OBJ_HEADING")=="MISSIONSZIELE")
+                Check(UTNTObjectivePlaque.Text(9,1,true)=="HÖHLENAUFSTIEG","German umlauts retain their UTF-8 encoding");
+            int key1,key2;
+            [key1,key2]=Bindings.GetKeysForCommand("+utnt_objectives");
+            Check(key1!=0 || key2!=0,"hold-to-read command is bound");
+            for(int ep=1;ep<=9;ep++)
+                for(int row=1;row<=UTNTObjectivePlaque.Count(ep);row++)
+                {
+                    Check(UTNTObjectivePlaque.Text(ep,row,true).IndexOf("UTNT_")<0,"compact title localized");
+                    Check(UTNTObjectivePlaque.Text(ep,row,false).IndexOf("UTNT_")<0,"manual description localized");
+                }
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+    }
+}

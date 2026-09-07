@@ -1,61 +1,66 @@
-# UTNT objective plaque
+# UTNT objectives
 
-Map briefings now use the approved dark iron/brass plaque with an ember accent,
-demonic relief, numbered rows and ivory text. DBIGFONT and SmallFont keep the
-existing UTNT typography. Artwork contains no baked-in text. Separate localized
-headings and descriptions cover all 21 objectives in English and German; the
-console history uses the same revised descriptions.
+The approved iron/brass artwork, ember accent, demonic relief and existing
+DBIGFONT/SmallFont typography remain in use. Separate localized headings and
+descriptions cover all 21 goals in English and German.
 
 ## Behavior
 
-- Existing episode title and ACS timings remain authoritative. TNT04A retains
-  its 1,860-tic cinematic delay; TNT03A2 remains a continuation without a second
-  briefing. Title and intermission maps remain excluded by the original script.
-- The plaque fades in over 14 tics, holds for 8 seconds (two goals) or 10 seconds
-  (three goals), and fades out over 18 tics. One quiet existing switch sound
-  accompanies arrival. Reduced effects disable the brief highlight animation.
-- Descriptions wrap using actual font metrics; row height grows with the text.
-  Top and bottom artwork caps keep their proportions. The panel respects 4:3,
-  widescreen and ultrawide viewports. Subtitles draw above the plaque.
-- Timing belongs to the saved level handler. Duplicate adapter calls and
-  respawning do not restart the briefing; saving/loading preserves its timeline.
-- Objective completion triggers and campaign progression are unchanged.
+- At the original ACS briefing point, a compact upper-left panel shows only
+  numbered goal headings for four seconds, including its brief fades. It leaves
+  the center of the view clear. The existing quiet switch sound accompanies it.
+- Hold **O** to read the full plaque; release to close it immediately. The default
+  applies only if O is unbound. Change it under UTNT Options, **Show objectives
+  (hold)** / **Missionsziele anzeigen (halten)**, or the UTNT control section.
+- Manual reading works before and after the automatic summary, including the
+  TNT03A2 continuation. The full plaque is smaller than the initial version.
+  Opening a menu/console, pausing, dying or loading/changing levels clears the
+  held state so it cannot leave a stuck plaque.
+- Neither view blocks firing/movement, pauses the world nor changes actors.
+  No combat detection is used. Subtitles draw above objectives.
+- The original automatic dispatch is unchanged: TNT04A retains its 1,860-tic
+  cinematic delay; TNT03A2 has no second automatic briefing. Duplicate adapter
+  calls and respawns do not restart the saved timeline. Old save timers are
+  clamped to the new four-second duration when rendering.
+- Descriptions wrap using font metrics and row heights grow with the text.
+  Caps retain their proportions across 4:3 and widescreen viewports.
+  Objective completion and campaign progression are unchanged.
 
-## Files and verification
+## Artwork transparency
 
-`tutnt/zscript/UTNT_Objectives.zc` renders the plaque;
-`UTNT_Presentation.zc` owns its saved timer and draws it;
-`source/tutnt.acs` invokes the adapter at the original briefing point.
-`TEXTURES.objectives` defines three caps from `graphics/hud/UTOBJART.png`.
+The original approved RGB bitmap is preserved byte for byte. Native drawing
+clips remove its baked black outside margin, following the protruding emblem
+and top corners. Two separate low-opacity shadow layers are drawn behind the
+opaque metal. The world is visible outside the contour; interior dark pixels
+are retained. Only the existing three texture caps are used, avoiding hundreds
+of intermediate texture decodes on first opening.
 
-Set UTNT_ENGINE and UTNT_IWAD to run:
+`tutnt/zscript/UTNT_Objectives.zc` renders both views.
+`UTNT_Presentation.zc` owns the saved timer and local hold state.
+`KEYCONF.objectives` defines the press/release aliases and default binding.
+`TEXTURES.objectives` supplies the three caps from `graphics/hud/UTOBJART.png`.
+The original artwork prompt is in `tools/objectives-artwork-prompt.txt`.
+
+## Verification
+
+Set `UTNT_ENGINE` and `UTNT_IWAD`, then run:
 
 ```
+python tools/test_objective_controls.py
 python tools/test_objectives.py --lang deu --width 1024 --height 768
 python tools/test_objectives.py --lang enu --width 1920 --height 1080 --renderer 0
 python tools/test_objective_mapstarts.py
 ```
 
-Tests use isolated configs and saves, disable background pausing in those test
-configs, and load a test-only addon outside the packaged game. They check actual
-localized fonts, all nine briefing variants, timer persistence, duplicate calls,
-expiration, reduced effects, and real ACS map-start dispatch. `--mod` accepts a
-built PK3 for the same checks. Runtime evidence is stored under
-`tools/validation/objectives-2026-09-07/`.
+Tests use isolated configs/saves and test addons outside the packaged game.
+The controls suite exercises actual press/release aliases on TNTLE, firing
+during both views, manual access before/after the summary, save/load, old timers
+and menu cancellation. The layout suite checks all nine variants, both text
+types, wrapping, duplicate calls and persistence; it previews all full plaques
+through a test-only drawing hook. The map-start suite checks real ACS dispatch.
+Each suite accepts `--mod` for a built PK3.
 
-The text-free panel was created with the built-in Imagegen tool from the approved
-mockup. Its final prompt is preserved in `tools/objectives-artwork-prompt.txt`.
-No API/CLI image generation was used. Existing UTNT fonts supply all text.
-
-The automated checks do not constitute a full campaign playthrough or a new
-multiplayer certification. No existing save files or player configs were changed.
-
-## Acceptance, 2026-09-07
-
-All 14 ACS modules compile; only the shared TUTNT bytecode changes. Three
-UI/lifecycle cases passed with 331 assertions across English/German and
-OpenGL/Vulkan. The other nine campaign map starts passed with 26 assertions,
-including the intentionally skipped continuation and delayed TNT04A briefing.
-The final live PK3 was engine-validated and passed the German Full HD suite.
-
-Final tested live PK3 SHA-256: `15f9edbe50651137f3f0d0e3f0f8f2322ed58ff166fbae46ba53d2a223f1e660`.
+Evidence for this revision is in `tools/validation/objectives-compact-2026-09-07/`.
+The earlier `objectives-2026-09-07` evidence records the superseded automatic
+large plaque. These focused checks are not a full campaign playthrough or a
+multiplayer certification. Existing player configs and saves are not modified.

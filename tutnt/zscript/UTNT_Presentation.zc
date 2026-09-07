@@ -86,8 +86,7 @@ class UTNTWorldHandler : EventHandler
         if (handler.ObjectiveEpisode) return;
         handler.ObjectiveEpisode=episode;
         handler.ObjectiveStartTime=level.time;
-        bool three=episode==2 || episode==3 || episode==5;
-        handler.ObjectiveEndTime=level.time+14+(three ? 350 : 280)+18;
+        handler.ObjectiveEndTime=level.time+140; // Four-second corner overview.
         S_StartSound(Sound("switches/normbutn"),CHAN_AUTO,0,0.22,ATTN_NONE);
     }
 
@@ -279,6 +278,8 @@ class UTNTWorldHandler : EventHandler
 
 class UTNTPresentation : StaticEventHandler
 {
+    ui bool ObjectivesHeld;
+    ui int ObjectivesWorldGeneration;
     ui double DisplayHP, DamageHP, PreviousBossHP;
     ui int DamageHold, BossWorldGeneration;
     ui int LastBossKind;
@@ -298,8 +299,18 @@ class UTNTPresentation : StaticEventHandler
         WorldGeneration++;
     }
 
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if (e.Name=="utnt_objectives")
+            ObjectivesHeld=e.Args[0]!=0 && gamestate==GS_LEVEL && !menuactive;
+    }
+
     override void UiTick()
     {
+        if (ObjectivesWorldGeneration!=WorldGeneration || gamestate!=GS_LEVEL
+            || menuactive || ConsoleState!=0 || paused || players[consoleplayer].health<=0)
+            ObjectivesHeld=false;
+        ObjectivesWorldGeneration=WorldGeneration;
         let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
         if (handler && handler.BossMaxHP > 0)
         {
@@ -418,13 +429,17 @@ class UTNTPresentation : StaticEventHandler
         Shader.SetUniform1i(player, 'motionblur', 'samples', copies);
         Shader.SetUniform1f(player, 'motionblur', 'increment', 1.0 / copies);
         Shader.SetUniform1i(player, 'motionblur', 'blendmode', clamp(CVar.GetCVar('motionblur_blendmode', player).GetInt(), 0, 1));
-        // Like the original briefing, objectives also appear over map intro cameras.
-        // Draw before subtitles so dialogue remains readable above this overlay.
+        // Corner overview is automatic; the full plaque is strictly local and opt-in.
+        // Neither path consumes movement/fire inputs, pauses time or changes actors.
         let objectives=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
-        if (camera && objectives && objectives.ObjectiveEpisode
-            && level.time<objectives.ObjectiveEndTime)
-            UTNTObjectivePlaque.Draw(objectives.ObjectiveEpisode,
-                objectives.ObjectiveStartTime,objectives.ObjectiveEndTime,e.FracTic,reduced);
+        bool readObjectives=ObjectivesHeld && !menuactive && ConsoleState==0
+            && !paused && player.health>0;
+        if (camera && readObjectives)
+            UTNTObjectivePlaque.Draw(UTNTObjectivePlaque.CurrentEpisode());
+        else if (camera && !menuactive && objectives && objectives.ObjectiveEpisode
+            && level.time<min(objectives.ObjectiveEndTime,objectives.ObjectiveStartTime+140))
+            UTNTObjectivePlaque.DrawCompact(objectives.ObjectiveEpisode,
+                objectives.ObjectiveStartTime,objectives.ObjectiveEndTime,e.FracTic);
         DrawVoice(player);
 
         let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));

@@ -27,6 +27,11 @@ class UTNTObjectiveTest : EventHandler
 }
 class UTNTObjectiveUITest : StaticEventHandler
 {
+    ui int PreviewEpisode;
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (PreviewEpisode>0) UTNTObjectivePlaque.Draw(PreviewEpisode);
+    }
     ui void Check(bool ok,String text)
     { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",text); }
 
@@ -34,13 +39,13 @@ class UTNTObjectiveUITest : StaticEventHandler
     {
         let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
         let test=UTNTObjectiveTest(EventHandler.Find('UTNTObjectiveTest'));
+        if (e.Name=="objpreview") PreviewEpisode=e.Args[0];
         if (e.Name=="objcheck")
         {
             Check(h.ObjectiveEpisode==e.Args[0],"expected objective episode");
             if (e.Args[0]>0)
             {
-                bool three=e.Args[0]==2 || e.Args[0]==3 || e.Args[0]==5;
-                Check(h.ObjectiveEndTime-h.ObjectiveStartTime==(three ? 382 : 312),"briefing duration and fade budget");
+                Check(h.ObjectiveEndTime-h.ObjectiveStartTime==140,"four-second summary duration");
                 Check(level.time>=h.ObjectiveStartTime && level.time<h.ObjectiveEndTime,"briefing is visible");
             }
         }
