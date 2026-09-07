@@ -10,7 +10,7 @@ def commands(label):
     def snap(name): result.append(f'screenshot logs/{label}-{name}.png')
     result += ['netevent plaque 1 1000 0','wait 30','event plaquecheck 1 1000 0']
     snap('hectebus-100')
-    result += ['netevent plaquehp 600','wait 2','event plaquecheck 1 600 1']
+    result += ['netevent plaquehp 600','wait 12','event plaquecheck 1 600 1']
     snap('damage-trail')
     result += ['wait 35','event plaquecheck 1 600 0']
     snap('hectebus-60')

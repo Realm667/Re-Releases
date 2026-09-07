@@ -24,6 +24,15 @@ class UTNTBossHUDTest : EventHandler
 }
 class UTNTBossHUDUITest : StaticEventHandler
 {
+    ui bool SawDamageTrail;
+    // Observe a rendered UI lifecycle, rather than assuming console waits and UI tics align.
+    override void PostUiTick()
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        let hud=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
+        if(h && hud && h.BossKind==1 && h.BossHP==600 && h.BossMaxHP==1000
+            && hud.DamageHP>hud.DisplayHP && hud.DisplayHP>0.6) SawDamageTrail=true;
+    }
     ui void Check(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
     override void ConsoleProcess(ConsoleEvent e)
     {
@@ -32,7 +41,7 @@ class UTNTBossHUDUITest : StaticEventHandler
             let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
             let hud=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
             Check(h && h.BossKind==e.Args[0] && h.BossHP==e.Args[1] && h.BossMaxHP==1000,"saved boss adapter state");
-            if(e.Args[2]==1) Check(hud.DamageHP>hud.DisplayHP && hud.DisplayHP>double(h.BossHP)/h.BossMaxHP,"damage trail follows interpolated health");
+            if(e.Args[2]==1) Check(SawDamageTrail,"damage trail follows interpolated health");
             else if(e.Args[2]==2) Check(abs(hud.DisplayHP-double(h.BossHP)/h.BossMaxHP)<0.000001 && hud.DamageHP==hud.DisplayHP,"reduced effects snap both gauges");
             else Check(abs(hud.DisplayHP-double(h.BossHP)/h.BossMaxHP)<0.001,"gauge reaches current health");
         }
@@ -43,6 +52,7 @@ class UTNTBossHUDUITest : StaticEventHandler
         }
         if(e.Name=="plaqueresources")
         {
+            SawDamageTrail=false;
             for(int i=1;i<=5;i++) Check(UTNTBossPlaque.Portrait(i).isValid(),String.Format("original portrait %d resolves",i));
             Check(!UTNTBossPlaque.Portrait(0).isValid() && !UTNTBossPlaque.Portrait(6).isValid(),"invalid portrait rejected");
             Check(UTNTBossPlaque.HealthColor(1)==Color(255,112,195,69),"full health is green");
