@@ -5,7 +5,8 @@ class UTNTFireEmitter : Thinker
     Actor Source;
     int Kind, ColorIndex, Age, NextSheet, NextBase, LastVariant, LastSmokeVariant;
     UTNTFireGlow Glow;
-    double Phase, Anchor;
+    double Phase, Anchor, EffectScale;
+    bool FloorFire;
 
     void Initialize(Actor owner, int color, int kind)
     {
@@ -35,6 +36,7 @@ class UTNTFireEmitter : Thinker
     override void Tick()
     {
         if (!Source) { Destroy(); return; }
+        if (FloorFire && !UTNTFireSpawnerBase(Source).UTNTFireActive) { Destroy(); return; }
         if (Source.IsFrozen()) return;
         if (!UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
         Age++;
@@ -105,7 +107,7 @@ class UTNTFireFragment : VisualThinker
         Flags=SPF_FULLBRIGHT | SPF_ALLOWSHADERS | SPF_ROLL | SPF_STRETCHPIXELS;
         SetRenderStyle(STYLE_Translucent);
         bXFlip=Random[utntcosmetic](0,1);
-        double small=fire.Kind==1 ? 0.62 : 1;
+        double small=fire.FloorFire ? fire.EffectScale : fire.Kind==1 ? 0.62 : 1;
         double radius=fire.Kind==2 ? 8.5 : 2.2*small;
         double angle=FRandom[utntcosmetic](0,360);
         double spread=sqrt(FRandom[utntcosmetic](0,1))*radius;
@@ -128,6 +130,11 @@ class UTNTFireFragment : VisualThinker
         DriftX=flow*(fire.ColorIndex==1 ? 0.36 : 0.28);
         DriftY=cos(fire.Age*4+fire.Phase)*0.10;
         Vel=(DriftX+FRandom[utntcosmetic](-0.24,0.24),DriftY+FRandom[utntcosmetic](-0.24,0.24),(base ? 0.12 : FRandom[utntcosmetic](0.45,1.15))*small);
+        if(fire.FloorFire)
+        {
+            // Floor fires keep the broad footprint of the original spawner.
+            Width*=1.65; Height*=0.80; Vel.Z*=0.80;
+        }
         Strength=base ? 0.92 : quality==1 ? 0.82 : quality==2 ? 0.65 : 0.50;
         Roll=FRandom[utntcosmetic](base ? -8 : -22,base ? 8 : 22);
         RotationSpeed=FRandom[utntcosmetic](base ? 0.20 : 0.40,base ? 0.55 : 1.05);
@@ -172,8 +179,8 @@ class UTNTFireGlow : VisualThinker
     void Initialize(UTNTFireEmitter fire)
     {
         Source=fire.Source; ColorIndex=fire.ColorIndex; Phase=fire.Phase;
-        int sourceKind=fire.Anchor<24 ? 2 : fire.Anchor<40 ? 1 : 0;
-        double small=sourceKind==1 ? 0.62 : 1;
+        int sourceKind=fire.FloorFire ? 0 : fire.Anchor<24 ? 2 : fire.Anchor<40 ? 1 : 0;
+        double small=fire.FloorFire ? fire.EffectScale : sourceKind==1 ? 0.62 : 1;
         Anchor=fire.Anchor+9*small;
         Width=(sourceKind==2 ? 70 : 56)*small;
         Height=(sourceKind==2 ? 54 : 52)*small;
@@ -196,6 +203,7 @@ class UTNTFireGlow : VisualThinker
     override void Tick()
     {
         if (!Source) { Destroy(); return; }
+        if (Source is 'UTNTFireSpawnerBase' && !UTNTFireSpawnerBase(Source).UTNTFireActive) { Destroy(); return; }
         if (IsFrozen() || Source.IsFrozen()) return;
         if (!UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
         Super.Tick(); Age++;
@@ -214,7 +222,7 @@ class UTNTFireDetail : VisualThinker
     void Initialize(UTNTFireEmitter fire, bool smoke)
     {
         Source=fire.Source; self.Smoke=smoke; Phase=fire.Phase;
-        double small=fire.Kind==1 ? 0.65 : 1;
+        double small=fire.FloorFire ? fire.EffectScale : fire.Kind==1 ? 0.65 : 1;
         double radius=fire.Kind==2 ? 8 : (smoke ? 3 : 5)*small;
         double startZ=(smoke ? 28 : 13)*small;
         // Spread embers within the flame volume, including height. Smoke keeps
@@ -285,6 +293,22 @@ class UTNTFireDetail : VisualThinker
 
 class UTNTFireSystem play
 {
+    static void EnsureSpawner(UTNTFireSpawnerBase source, int tier)
+    {
+        if (!source || !source.UTNTFireActive || !UTNTVisuals.Visible(source,combat:true)) return;
+        int phase=(int(source.Pos.X)*3+int(source.Pos.Y)*5+int(source.Pos.Z))&15;
+        if ((level.time+phase)%16!=0) return;
+        let iter=ThinkerIterator.Create('UTNTFireEmitter',Thinker.STAT_USER+5,true);
+        UTNTFireEmitter fire;
+        while(fire=UTNTFireEmitter(iter.Next())) if(fire.Source==source) return;
+        fire=UTNTFireEmitter(level.CreateClientSideThinker('UTNTFireEmitter',Thinker.STAT_USER+5));
+        if(!fire) return;
+        fire.Initialize(source,0,0);
+        fire.FloorFire=true; fire.Anchor=0;
+        // Original Flame1/4/7 scales are 0.35/0.70/1.40: preserve 1:2:4.
+        fire.EffectScale=1.2*(tier==0 ? 1 : tier==1 ? 2 : 4);
+    }
+
     static void Ensure(Actor source, int color, int kind)
     {
         if (!source) return;
@@ -315,3 +339,21 @@ class UTNTLegacyBlueFireBase : BlueTorch { mixin UTNTFireAction; }
 class UTNTLegacyShortRedFireBase : ShortRedTorch { mixin UTNTFireAction; }
 class UTNTLegacyShortGreenFireBase : ShortGreenTorch { mixin UTNTFireAction; }
 class UTNTLegacyShortBlueFireBase : ShortBlueTorch { mixin UTNTFireAction; }
+
+// Keep DECORATE's map ID, arguments, switch states, sound and light actors.
+class UTNTFireSpawnerBase : SwitchableDecoration
+{
+    bool UTNTFireActive;
+    action void A_UTNTSpawnerFire(int tier)
+    {
+        let source=UTNTFireSpawnerBase(self);
+        if(!source) return;
+        source.UTNTFireActive=true;
+        UTNTFireSystem.EnsureSpawner(source,clamp(tier,0,2));
+    }
+    action void A_UTNTSpawnerStop()
+    {
+        let source=UTNTFireSpawnerBase(self);
+        if(source) source.UTNTFireActive=false;
+    }
+}

@@ -1,0 +1,68 @@
+version "5.0.0"
+class UTNTSpawnerTest : EventHandler
+{
+    Array<Actor> Sources;
+    override void WorldTick()
+    {
+        if(level.time!=2) return;
+        let p=players[0].mo;
+        p.ACS_NamedTerminate("IntroText",0);
+        p.SetOrigin((0,-460,16),false);p.Angle=90;p.Pitch=0;p.bInvulnerable=true;
+        for(int i=0;i<3;i++)
+        {
+            let a=Actor.Spawn('FireSpawner',(-260+i*230,0,0));
+            a.Args[0]=i;a.Args[1]=1;Sources.Push(a);
+        }
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name!="spawnercheck") return;
+        int emitters=0,fragments=0,glows=0,details=0,invalid=0,legacy=0,live=0;
+        let it=ThinkerIterator.Create('UTNTFireEmitter',Thinker.STAT_USER+5,true);
+        UTNTFireEmitter fire;
+        while(fire=UTNTFireEmitter(it.Next()))
+        {
+            emitters++;
+            if(!fire.FloorFire || !fire.Source || fire.Anchor!=0) { invalid++; continue; }
+            int tier=clamp(fire.Source.Args[0],0,2);
+            double expected=1.2*(tier==0 ? 1 : tier==1 ? 2 : 4);
+            if(abs(fire.EffectScale-expected)>0.001 || !UTNTFireSpawnerBase(fire.Source).UTNTFireActive) invalid++;
+        }
+        for(int i=0;i<Sources.Size();i++) if(Sources[i])
+        {
+            let a=Sources[i];live++;
+            if(a.Args[0]!=i || a.Height!=40 || a.Radius!=30 ||
+               !a.bNoInteraction || !a.bNoGravity || !a.bNoBlockmap) invalid++;
+        }
+        let fi=ThinkerIterator.Create('UTNTFireFragment',Thinker.MAX_STATNUM+1,true);
+        UTNTFireFragment part;
+        while(part=UTNTFireFragment(fi.Next()))
+        {
+            fragments++;
+            if(!part.Source || part.Age>=part.Life || part.Scale.X<=0 || part.Scale.Y<=0) invalid++;
+        }
+        let gi=ThinkerIterator.Create('UTNTFireGlow',Thinker.MAX_STATNUM+1,true);
+        UTNTFireGlow glow;
+        while(glow=UTNTFireGlow(gi.Next())) { glows++; if(!glow.Source) invalid++; }
+        let di=ThinkerIterator.Create('UTNTFireDetail',Thinker.MAX_STATNUM+1,true);
+        UTNTFireDetail detail;
+        while(detail=UTNTFireDetail(di.Next())) { details++; if(!detail.Source || detail.Age>=detail.Life) invalid++; }
+        let ai=ThinkerIterator.Create('Actor');Actor a;
+        while(a=Actor(ai.Next())) if(a is 'Flame1A') legacy++;
+        if(emitters==0 && (glows || fragments || details)) invalid++;
+        Console.Printf("UTNT_ASSERT %s active spawners %d expected %d",emitters==e.Args[0] ? "PASS" : "FAIL",emitters,e.Args[0]);
+        Console.Printf("UTNT_ASSERT %s native spawner size flags and scaled visual lifecycle",invalid==0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s one glow per spawner %d/%d",glows==emitters ? "PASS" : "FAIL",glows,emitters);
+        Console.Printf("UTNT_ASSERT %s no old flame or ember actors (%d)",legacy==0 ? "PASS" : "FAIL",legacy);
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="spawneroff") for(int i=0;i<Sources.Size();i++) Sources[i].Deactivate(players[0].mo);
+        if(e.Name=="spawneron") for(int i=0;i<Sources.Size();i++) Sources[i].Activate(players[0].mo);
+        if(e.Name=="spawnersound")
+        {
+            Sources[0].Deactivate(players[0].mo);Sources[0].Args[1]=0;Sources[0].Activate(players[0].mo);
+        }
+        if(e.Name=="spawnerremove") { Sources[1].Destroy();Sources[1]=null; }
+    }
+}

@@ -162,3 +162,17 @@ Sparks use dedicated source-matched ember materials: gold for orange fire,
 green for green fire and blue for blue fire. Isolated rendered palette probes
 and live source-to-material checks cover both backends; see
 `tools/validation/fire-ember-colors-2026-09-08/`.
+
+## FireSpawner floor-fire profile
+
+FireSpawner uses the shared flame, smoke, ember and glow visuals, retaining
+its small/medium/large 1:2:4 size relationship and a broad floor footprint.
+Its original editor ID, arguments, collision flags, switch states, sound
+actions, light helpers and relative state jumps remain intact. Only cosmetic
+births are redirected; inactive sources stop the emitter and halo while finite
+particles dissipate. The torch/barrel profile is unchanged by this adaptation.
+
+Full build and both renderers passed 216 combined runtime assertions, including
+switching, quality, culling, save/load and actual ember colors. See
+`tools/validation/firespawner-2026-09-08/` for before/after screenshots, exact
+hashes, contract verification, results and the audio/multiplayer test limits.
