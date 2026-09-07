@@ -8,7 +8,7 @@ from check_engine import ROOT,run_case
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--case',choices=['all','geometry','lifecycle','smoke','review','hub','audio','coop'],default='all')
+    p.add_argument('--case',choices=['all','motion','quality','geometry','lifecycle','smoke','review','hub','audio','coop'],default='all')
     p.add_argument('--renderer',choices=['0','1','both'],default='both')
     p.add_argument('--mod',type=pathlib.Path)
     a=p.parse_args(); addon=ROOT/'tools/weather-tests'; results=[]
@@ -16,14 +16,14 @@ def main():
     compile_check=run_case(engine,iwad,mod=a.mod,addon=addon,label='weather-final-compile')
     if not compile_check['ok']: raise SystemExit(1)
     renderers=['0','1'] if a.renderer=='both' else [a.renderer]
-    cases=['geometry','lifecycle','smoke','review','hub','audio','coop'] if a.case=='all' else [a.case]
+    cases=['motion','quality','geometry','lifecycle','smoke','review','hub','audio','coop'] if a.case=='all' else [a.case]
     for case in cases:
         if case in ['audio','coop']: continue
-        maps=['UTNTWX'] if case=='geometry' else ['TNT02','TNT03A1'] if case in ['lifecycle','review'] else ['TNT03A2'] if case=='smoke' else ['TNT03A1']
+        maps=['UTNTWX'] if case in ['geometry','motion','quality'] else ['TNT02','TNT03A1'] if case in ['lifecycle','review'] else ['TNT03A2'] if case=='smoke' else ['TNT03A1']
         for renderer in renderers:
             for name in maps:
                 label=f'weather-final-{case}-{name}-{renderer}'
-                commands=(addon/(case+'.cfg')).read_text() if case in ['geometry','lifecycle','hub'] else ''
+                commands=(addon/(case+'.cfg')).read_text() if case in ['geometry','motion','quality','lifecycle','hub'] else ''
                 if case=='smoke': commands='wait 300; event weathercheck 1; echo UTNT_TEST_END; wait 5; quit\n'
                 if case=='review':
                     size='1440 1080' if name=='TNT03A1' else '1440 810'

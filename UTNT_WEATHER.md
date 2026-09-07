@@ -1,58 +1,68 @@
-# UTNT – Regen und Schnee
+# UTNT – Einzelpartikel für Regen und Schnee
 
-Das freigegebene Wetterkonzept ist in ZScript umgesetzt. Regen verwendet kurze, feine, windgerichtete Striche und sparsame Bodenspritzer. Schnee verwendet kleine unregelmäßige Flocken, gemeinsamen Böenwind, individuelle Taumelbewegung, entfernte Flockengruppen und bodennahen Pulverschnee. Die bestehenden Kartentexturen, Geometrie, Spawner-Positionen und TIDs bleiben erhalten.
+Die zweite Wetterfassung setzt die freigegebenen animierten Mockups um. Jeder Regentropfen und jede Schneeflocke ist ein eigenes bewegtes Teilchen – auch in der Ferne und in der Standard-Skybox. Die früheren Gruppenbilder und die breiten Pulverschnee-Sprites sind entfernt. Die Aufnahmen zur Freigabe liegen neben den neuen Nachweisen unter `tools/validation/weather-v2-2026-09-08/`.
 
-## Aufbau
+## Darstellung
 
-- `tutnt/zscript/UTNT_Weather.zc`: ein lokaler Controller, private Zufallsfolge, begrenzte `VisualThinker`, getrennte Welt- und Skybox-Schicht. Keine Niederschlags-Projektile und keine Netzereignisse für Wetterteilchen. Spawner 19021/19022 sind jetzt inaktive Flächenmarker mit den ursprünglichen Klassennamen.
-- Marker werden zu 128-Einheiten-Zellen zusammengefasst; nahes Wetter hat Vorrang. Die tatsächlichen Teilchenpositionen bleiben in der Welt verankert. Die entfernte Schicht liegt innerhalb der vorhandenen Standard-Skybox und wird von Architektur/Sky-Öffnungen verdeckt.
-- Vor einem Spawn wird der freie Raum einschließlich fester 3D-Böden und Flüssigkeiten geprüft. Aufwärts-Traces prüfen den Himmel. Bewegungssegmente werden vorab gegen Wände, Böden, Decken und Wasser geprüft; bei ausgeschöpftem Prüfbudget hält ein Teilchen an, statt ungeprüft weiterzufliegen. Regen prüft höchstens acht, Schnee höchstens sechzehn Tics im Voraus. Breite Nebel-/Pulverschnee-Sprites werden nur auf freien Außenflächen erzeugt.
-- Regen reagiert mit kleinen Spritzern auf Böden und mit kurzen elliptischen Ringen auf Wasser. Diese Effekte sind sparsame Sprite-Annäherungen; es gibt keine neu berechneten Pfützen, Spiegelungen oder Schneeakkumulation.
-- Der Nahbereich von TNT03A1/TNT03A2 erhält explizite Nebeldichte 32. Die vorhandenen ACS-Tag-Nacht-Farben bleiben maßgeblich. Ausgeschaltetes Wetter stellt die vorherige Dichte wieder her, sofern kein anderes System inzwischen eine andere Dichte gesetzt hat.
-- Vier prozedural erzeugte Audioressourcen bilden überlappende Regen-/Windbetten, gedämpften Regen und einzelne Tropfen. Der lokale Mix berücksichtigt die Nähe zu Wetterflächen und Überdachungen. Musik und vorhandene Ambiente-Actors werden nicht verändert.
+Regen fällt schnell in schmalen, weich auslaufenden Strichen. Am tatsächlichen Bodentreffer entstehen auf mittlerer/hoher Qualität drei bis fünf einzelne Spritztröpfchen mit jeweils eigener Richtung, Geschwindigkeit und Lebensdauer. Auf niedriger Qualität sind es zwei. Die Tröpfchen steigen kurz auf, werden durch Schwerkraft abgebremst und fallen zurück. Wände, Decken, feste 3D-Böden und Wasser begrenzen auch diese Bewegung.
 
-## Einstellungen und Budgets
+Schnee reagiert jeden Spieltic auf ein sanft veränderliches Windfeld. Individuelle Phasen und eine geglättete Reaktion erzeugen unterschiedliche Flugbahnen. Die bestehende Interpolation der VisualThinker verbindet die Simulationsschritte. Kleine Flocken bilden die Grunddichte; größere Flocken bleiben selten. Gleichförmig rotierende Gruppen gibt es nicht mehr.
 
-`weatherfx` bleibt die gemeinsame Wetteroption. `UTNT_fxquality`, `UTNT_reducedfx` und `UTNT_lod` steuern die lokale Teilchendarstellung. Die Nebeldichte hängt für alle Koop-Spieler am gemeinsamen Wetterschalter. Lokale Qualitätsunterschiede ändern keinen Spielzustand und beanspruchen nicht das Budget der Kampfeffekte.
+Die Partikelgrößen, Fallgeschwindigkeiten, Windformeln, Nahbereichsgewichtung und maximale Reichweite von 900 Karteneinheiten entsprechen der freigegebenen Vorschau. Der Spielbetrieb ergänzt separate Budgets und vollständige Kollisionsprüfungen für Spritztröpfchen. Die Vorschau nutzte noch bis zu 5.000 Traces pro Tic; die neue hohe Qualitätsstufe ist auf 3.200 begrenzt.
 
-| Qualität | Aktive Wetterobjekte, maximal | Geometrie-Traces pro Tic, maximal |
-| --- | ---: | ---: |
-| Niedrig / reduzierte Effekte | 320 | 64 |
-| Mittel | 1024 | 144 |
-| Hoch | 2048 | 240 |
+## Technik und Einstellungen
 
-Ferne Flockengruppen enthalten mehrere kleine Flocken in einer Grafik. Die Tabelle zählt VisualThinker, nicht jede einzelne gezeichnete Flocke. Beim Ausschalten werden vorhandene Teilchen entfernt. Der Controller wird nach Save/Load neu aufgebaut; Windphase und vorhandener Karten-/Nebelzustand bleiben an den Levelzustand gebunden.
+`tutnt/zscript/UTNT_Weather.zc` enthält den lokalen Controller und die VisualThinker. Bestehende Marker 19021/19022 begrenzen die Wetterflächen; Positionen, TIDs und Kartengeometrie bleiben erhalten. Eine private Zufallsfolge hält die rein visuellen Teilchen aus der Spielzustands-Zufallsfolge heraus. Die vorhandene Standard-Skybox erhält eine eigene Schicht aus Einzelpartikeln, die durch die Sky-Öffnungen verdeckt wird.
+
+`weatherfx` bleibt der gemeinsame Wetterschalter. `UTNT_fxquality`, `UTNT_reducedfx` und `UTNT_lod` steuern die lokale Darstellung. Niedrigere Qualität reduziert Dichte und Detailbudget, ersetzt aber niemals mehrere Teilchen durch eine Gruppengrafik. Die Wetterbudgets sind vom Kampfeffektbudget getrennt.
+
+| Qualität | Niederschlag maximal | Spritzer/Ringe zusätzlich | Traces pro Tic maximal |
+| --- | ---: | ---: | ---: |
+| Niedrig / reduzierte Effekte | 500 | 40 | 760 |
+| Mittel | 1.300 | 110 | 1.700 |
+| Hoch | 2.600 | 220 | 3.200 |
+
+Emission stoppt an der jeweiligen Obergrenze. Schnee und Spritztröpfchen prüfen ihre Bewegung jeden Tic; Regen prüft bis zu acht Tics als gerades Segment voraus. Falls die Trace-Grenze dennoch erreicht wird, wird das betreffende Teilchen entfernt. Es bleibt nicht sichtbar in der Luft stehen. In den dokumentierten bestandenen Fällen wurde dieser Notpfad nicht benötigt. Umschalten und Freeze gelten auch für den Controller und die neuen Tröpfchen.
+
+Die zuvor eingeführte Nebeldichte 32 in TNT03A1/TNT03A2, die ACS-Tag-Nacht-Farben und der lokale Wetteraudiomix bleiben erhalten. Wetter aus stellt die vorherige Nebeldichte wieder her, solange kein anderes System sie übernommen hat. Wasser behält zusätzlich den bisherigen kurzen elliptischen Sprite-Ring; eine neue oberflächenorientierte Ringdarstellung war nicht Bestandteil der freigegebenen Filme. Neue Pfützen, Spiegelungen oder Schneeakkumulation werden nicht berechnet.
 
 ## Prüfung
 
-Nachweise liegen unter `tools/validation/weather-2026-09-07/`, die konsolidierte Fallliste und genaue Assertionszahl in `results.json`.
+Die aktuelle Fallliste, Assertionszahlen, Bildaufnahmen und Leistungsmessungen liegen unter `tools/validation/weather-v2-2026-09-08/`. Die Nachweise von Version 1 bleiben als historischer Stand im älteren Ordner erhalten.
 
-- UZDoom 5.0.1: Kompilierung sowie OpenGL-/Vulkan-Aufnahmen der Originalkarten TNT02 und TNT03A1; TNT03A2 ebenfalls gestartet.
-- Save/Load, Wetter aus/an, Qualitätsstufen einschließlich vollständig ausgeschalteter lokaler Effekte, reduzierte Effekte und Nebelzustand.
+- UZDoom 5.0.1, OpenGL und Vulkan: Regen TNT02, Schnee TNT03A1 und Außenbereich TNT03A2.
+- Save/Load, Wetter aus/an, Qualitätsstufen, reduzierte Effekte und Nebelzustand.
 - Hub-Wechsel TNT03A1 → TNT03A2 → TNT03A1 auf beiden Renderern.
-- Isolierte Geometriekarte: Dach, Unter-/Oberseite eines festen 3D-Bodens, Spawn innerhalb eines festen 3D-Volumens, Schräge, Wand, Wasser, geschützter Innenraum und Freeze ohne weitere Teilchenerzeugung.
-- Zwei echte lokale Koop-Prozesse mit Qualität 0 und 3: unabhängige Darstellung, übereinstimmender gemeinsamer Spielzustand.
-- Audio mit aktivem Soundsystem decodiert. Subjektive Audiomischung wurde nicht durch einen Hörtest abgenommen.
+- Geometriekarte mit Dach, Wänden, festem 3D-Boden, Schräge, Wasser, Innenraum und Freeze.
+- Gezielte Spritztröpfchen gegen Wand, Decke, 3D-Boden und Wasser; ein freies Tröpfchen muss zunächst steigen und anschließend fallen.
+- Einzelpartikel-Texturen in allen Entfernungen, unterschiedliche Schneegeschwindigkeiten, getrennte Budgets und kein Erreichen des Notpfads bei der Trace-Grenze.
+- Zwei lokale Koop-Prozesse mit unterschiedlichen Qualitätsstufen und übereinstimmendem gemeinsamem Spielzustand.
 
-Ein anfänglicher Vulkan-Aufnahmestart blieb ohne VM-Fehlermeldung stehen. Die anschließenden vollständigen Bildprüfungen bestanden auf beiden Renderern; die Testkonfiguration setzt Hintergrundaktivität ausdrücklich.
+Der TNT03A2-Startpunkt liegt tief im Innenbereich. Der Außeneffekt-Test wurde auf einen tatsächlichen offenen Wetterbereich gelegt; er verlangt dort sichtbaren Schnee. Das ist eine Änderung der Testposition, keine Verschiebung von Spielstart oder Wettermarkern.
 
-Vier kurze Einzelmessungen bei 960×540, Vulkan, ohne FPS-Limit, Ryzen 9 7950X / RTX 4080: Median mit Wetter aus/an in TNT02 1,810/2,252 ms, in TNT03A1 1,360/2,093 ms. Dies misst den zusätzlichen Aufwand gegenüber ausgeschaltetem Wetter im aktuellen Spielstand, keinen Vergleich mit dem alten Wettersystem und keine allgemeine FPS-Garantie. Rohdaten: `profile-results.json` und zugehörige Logs.
-
-Keine vollständige Kampagnenabnahme, keine Zusicherung zur Migration alter Savegames oder zu beliebigen fremden Portal-/Skybox-Konstruktionen. Die Tests beziehen sich auf die beschriebenen Karten und Geometriefälle. Bewegte Geometrie wird abschnittsweise erneut geprüft; das System ist keine vollständige Flüssigkeitssimulation.
+Die kurzen Leistungsmessungen vergleichen Wetter aus/an auf derselben Maschine bei 960×540 unter Vulkan ohne FPS-Limit. Sie sind keine allgemeine FPS-Garantie. Keine vollständige Kampagnenabnahme und keine Zusicherung zur Migration alter Savegames oder zu beliebigen fremden Portal-/Skybox-Konstruktionen. Der Audiomix wurde in dieser Fassung nicht verändert.
 
 ## Wiederholung
 
-Mit konfigurierten `UTNT_ENGINE` und `UTNT_IWAD`:
+Mit gesetzten `UTNT_ENGINE` und `UTNT_IWAD`:
 
 ```text
 python tools/test_weather.py --mod tutnt.pk3
+python tools/test_weather.py --case motion
 python tools/profile_weather.py
 ```
 
-Die Testkarte kann über `tools/make_weather_fixture.py` reproduziert werden. `tools/generate_weather_assets.py` erzeugt alle Wettergrafiken und Soundbetten deterministisch (Pillow/NumPy); die Laufzeit benötigt diese Bibliotheken nicht. Das normale `tutnt_build.bat` erzeugt das PK3 einschließlich der neuen Ressourcen. Test-Add-ons werden nicht mit ausgeliefert.
+`tools/generate_weather_assets.py` erzeugt nur noch Einzelpartikelgrafiken, den vorhandenen Wasserring und die Soundbetten deterministisch. Test-Add-ons werden nicht in das Spielpaket aufgenommen. `tutnt_build.bat` baut das normale PK3.
 
-## Finales Build
+## Abschlussmessung vom 08.09.2026
 
-Das fertige lokale `tutnt.pk3` wurde erneut mit TNT02 und TNT03A1 unter Vulkan geprüft. Alle 14 ACS-Kompilate blieben beim Build bytegleich. Paket: 8.838 Dateien, 85.569.860 Bytes; SHA-256 `e38df499033f6333a062d0a44b9988a57cc527504d9396cec1084905d2e6b2ff`.
+21 konsolidierte Laufzeitfälle mit 691 bestandenen Assertions; zusätzlich zwei Prüfungen des gebauten PK3 mit jeweils neun Assertions. Die Texturprüfung findet genau eine sichtbare zusammenhängende Form pro Niederschlagsgrafik. Alle 14 ACS-Module waren beim Bau bytegleich aktuell. Frühere, korrigierte Testversuche sind in den Hinweisen der Ergebnisdatei erläutert.
 
-Zusätzlich wurde ein aus dem Git-HEAD erzeugter Stand mit ausschließlich den Wetteränderungen kompiliert und auf TNT03A1 gestartet (fünf Assertions bestanden). Der Commit enthält nur die Wetterimplementierung und ihre Prüfmittel. Das lokale PK3 enthält außerdem den bereits vorhandenen Arbeitsstand anderer Aufgaben; dessen Dateien werden nicht in den Wettercommit aufgenommen. Die isolierten Prüfprotokolle liegen neben den übrigen Nachweisen.
+Gemessen auf Ryzen 9 7950X / GeForce RTX 4080, Vulkan, 960×540, je ein etwa fünfsekündiges Messfenster:
+
+| Karte | Median Wetter aus | Median Wetter an | Mehrkosten Median | p95 Wetter an |
+| --- | ---: | ---: | ---: | ---: |
+| TNT02 – Regen | 2,188 ms | 2,414 ms | 0,226 ms | 3,685 ms |
+| TNT03A1 – Schnee | 1,271 ms | 2,861 ms | 1,590 ms | 4,633 ms |
+
+Die freigegebene Bewegung benötigt besonders beim Schnee mehr Rechenzeit als die frühere Gruppendarstellung. Die Qualitätsstufen begrenzen deshalb Teilchenzahl und Kollisionsprüfungen separat. Build-Daten und Paketprüfungen stehen in `weather-v2-build.json`, `weather-v2-live-build.json` und `weather-v2-package-results.json` im Nachweisordner. Das Gesamtpaket enthält zusätzlich den zum Bauzeitpunkt vorhandenen Stand anderer Projektarbeiten; diese gehören nicht zum Wettercommit.
