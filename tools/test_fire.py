@@ -55,6 +55,15 @@ def inspect_pixels(label):
     n=sum(max(rgb)>20 for rgb in ImageChops.difference(a,b).getdata())
     results['animated_pixels']=n
     assert n>200,n
+    probe=Image.open(ROOT/'logs'/f'{label}-ember-palette.png').convert('RGB')
+    # Isolated probes at distance 80 with the engine widescreen FOV adjustment.
+    for color,cx in [('orange',744),('green',960),('blue',1176)]:
+        pixels=probe.crop((cx-70,470,cx+70,610)).getdata()
+        if color=='green': n=sum(g>110 and g>r*1.8 and g>b*1.8 for r,g,b in pixels)
+        elif color=='blue': n=sum(b>110 and b>r*1.8 and b>g*1.4 for r,g,b in pixels)
+        else: n=sum(r>110 and r>g*1.05 and g>b*1.3 for r,g,b in pixels)
+        results[color+'_ember_pixels']=n
+        assert n>150,('ember palette',color,n)
     return results
 
 def main():
@@ -72,6 +81,12 @@ def main():
                       ('gl_bloom',True),('UTNT_fxquality',3),('UTNT_reducedfx',False),('UTNT_lod',2000),
                       ('crosshair',0),('r_drawplayersprites',False),('con_notifytime',0)])
         if r['ok']:
+            r['ember_probe']=run_case(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],mod=a.mod,
+                mapname='UTNTFIRE',addon=ROOT/'tools/fire-tests',renderer=renderer,
+                label=label+'-probe',timeout=30,
+                commands=f'unbindall; wait 100; vid_setsize 1920 1080; wait 30; netevent fireemberprobe; wait 60; screenshot logs/{label}-ember-palette.png; wait 20; echo UTNT_TEST_END; quit\n',
+                settings=[('use_mouse',False),('use_joystick',False),('i_pauseinbackground',False),('UTNT_fxquality',0),('gl_bloom',True)])
+            if not r['ember_probe']['ok']: r['ok']=False; r['errors'].append('ember probe did not complete')
             try:r['pixels']=inspect_pixels(label)
             except Exception as e:r['ok']=False;r['errors'].append(str(e))
         results.append(r)

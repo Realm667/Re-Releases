@@ -157,3 +157,8 @@ of OpenGL and Vulkan, including halo ownership, quality changes, distance,
 save/load, source removal, aliases and 54-source stress. Rendered checks cover
 all colors and animation. Evidence, source hashes, artwork provenance and the
 built-in Imagegen prompt are in `tools/validation/fire-smoke-glow-2026-09-08/`.
+
+Sparks use dedicated source-matched ember materials: gold for orange fire,
+green for green fire and blue for blue fire. Isolated rendered palette probes
+and live source-to-material checks cover both backends; see
+`tools/validation/fire-ember-colors-2026-09-08/`.

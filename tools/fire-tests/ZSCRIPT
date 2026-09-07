@@ -21,6 +21,15 @@ class UTNTFireTest : EventHandler
     }
     override void NetworkProcess(ConsoleEvent e)
     {
+        if (e.Name=="fireemberprobe")
+        {
+            for (int i=0;i<3;i++)
+            {
+                let p=UTNTEmberProbe(level.SpawnClientSideVisualThinker('UTNTEmberProbe'));
+                if(p) p.Initialize(players[0].mo,i);
+            }
+            return;
+        }
         if (e.Name=="firecamera")
         {
             let p=players[0].mo;
@@ -80,6 +89,20 @@ class UTNTFireTest : EventHandler
         while(detail=UTNTFireDetail(di.Next()))
         {
             details++;
+            if(detail.Smoke!=(detail.SmokeVariant>0)) invalid++;
+            if (!detail.Smoke)
+            {
+                let owners=ThinkerIterator.Create('UTNTFireEmitter',Thinker.STAT_USER+5,true);
+                UTNTFireEmitter owner;
+                while(owner=UTNTFireEmitter(owners.Next())) if(owner.Source==detail.Source)
+                {
+                    string expected=owner.ColorIndex==1 ? 'UFEGA0' : owner.ColorIndex==2 ? 'UFECA0' : 'UFEBA0';
+                    if(!(TexMan.GetName(detail.Texture)~==expected))
+                    {
+                        invalid++; Console.Printf("UTNT_EMBER_MISMATCH actual=%s expected=%s",TexMan.GetName(detail.Texture),expected);
+                    }
+                }
+            }
             if (!detail.Source || !detail.Texture.IsValid() || detail.Age>=detail.Life || detail.Life>65 ||
                 (detail.Smoke && (detail.SmokeVariant<1 || detail.SmokeVariant>4 || !(detail.Flags & SPF_ROLL) || (detail.Age>0 && abs(detail.Roll-detail.PrevRoll)<0.01)))) invalid++;
         }
@@ -99,5 +122,19 @@ class UTNTFireTest : EventHandler
         Console.Printf("UTNT_ASSERT %s emitter count %d expected %d",count==e.Args[0] ? "PASS" : "FAIL",count,e.Args[0]);
         Console.Printf("UTNT_ASSERT %s finite owned particles and multipart fire",invalid==0 ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s no legacy flame actors (%d)",legacy==0 ? "PASS" : "FAIL",legacy);
+    }
+}
+
+// Test-only material probes; spawned immediately before quitting the fixture.
+class UTNTEmberProbe : VisualThinker
+{
+    void Initialize(Actor camera,int color)
+    {
+        Texture=TexMan.CheckForTexture(color==1 ? 'UFEGA0' : color==2 ? 'UFECA0' : 'UFEBA0');
+        Flags=SPF_FULLBRIGHT | SPF_ALLOWSHADERS | SPF_STRETCHPIXELS;
+        SetRenderStyle(STYLE_Add); Alpha=1;
+        Scale=(0.25,0.25);
+        Pos=camera.Vec3Offset(-24+color*24,80,41);
+        Prev=Pos; UpdateSector(); UpdateSpriteInfo();
     }
 }

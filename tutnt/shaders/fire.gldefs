@@ -80,7 +80,11 @@ FlickerLight2 UTNTFireBlueTallBody { Color 0.07 0.30 0.80 Size 53 SecondarySize 
 FlickerLight2 UTNTFireBlueShortBody { Color 0.06 0.28 0.75 Size 34 SecondarySize 37 Interval 0.20 Offset 0 28 0 Attenuate 1 }
 
 HardwareShader Sprite UFSMA0 { Shader "shaders/fire-smoke.fp" }
-HardwareShader Sprite UFEBA0 { Shader "shaders/fire-ember.fp" }
+HardwareShader Sprite UFEBA0
+{
+    Shader "shaders/fire-ember.fp"
+    Define EMBER_COLOR = 0
+}
 
 HardwareShader Sprite UFSMB0
 {
@@ -113,4 +117,16 @@ HardwareShader Sprite UFHBA0
 {
     Shader "shaders/fire-glow.fp"
     Define GLOW_COLOR = 2
+}
+
+HardwareShader Sprite UFEGA0
+{
+    Shader "shaders/fire-ember.fp"
+    Define EMBER_COLOR = 1
+}
+
+HardwareShader Sprite UFECA0
+{
+    Shader "shaders/fire-ember.fp"
+    Define EMBER_COLOR = 2
 }

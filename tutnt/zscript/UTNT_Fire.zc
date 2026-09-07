@@ -172,10 +172,11 @@ class UTNTFireGlow : VisualThinker
     void Initialize(UTNTFireEmitter fire)
     {
         Source=fire.Source; ColorIndex=fire.ColorIndex; Phase=fire.Phase;
-        double small=fire.Kind==1 ? 0.62 : 1;
+        int sourceKind=fire.Anchor<24 ? 2 : fire.Anchor<40 ? 1 : 0;
+        double small=sourceKind==1 ? 0.62 : 1;
         Anchor=fire.Anchor+9*small;
-        Width=(fire.Kind==2 ? 70 : 56)*small;
-        Height=(fire.Kind==2 ? 54 : 52)*small;
+        Width=(sourceKind==2 ? 70 : 56)*small;
+        Height=(sourceKind==2 ? 54 : 52)*small;
         Texture=TexMan.CheckForTexture(ColorIndex==1 ? 'UFHGA0' : ColorIndex==2 ? 'UFHBA0' : 'UFHRA0');
         Flags=SPF_FULLBRIGHT | SPF_ALLOWSHADERS | SPF_STRETCHPIXELS;
         SetRenderStyle(STYLE_Add);
@@ -212,7 +213,7 @@ class UTNTFireDetail : VisualThinker
 
     void Initialize(UTNTFireEmitter fire, bool smoke)
     {
-        Source=fire.Source; Smoke=smoke; Phase=fire.Phase;
+        Source=fire.Source; self.Smoke=smoke; Phase=fire.Phase;
         double small=fire.Kind==1 ? 0.65 : 1;
         double radius=fire.Kind==2 ? 8 : (smoke ? 3 : 5)*small;
         double startZ=(smoke ? 28 : 13)*small;
@@ -246,12 +247,13 @@ class UTNTFireDetail : VisualThinker
         }
         else
         {
-            Texture=TexMan.CheckForTexture('UFEBA0');
+            Texture=TexMan.CheckForTexture(fire.ColorIndex==1 ? 'UFEGA0' : fire.ColorIndex==2 ? 'UFECA0' : 'UFEBA0');
             SetRenderStyle(STYLE_Add); Flags|=SPF_FULLBRIGHT;
             Width=FRandom[utntcosmetic](2.8,4.5)*small;
             Height=Width*FRandom[utntcosmetic](1.0,1.35);
             Life=Random[utntcosmetic](28,46); Strength=0.95;
-            scolor=fire.ColorIndex==1 ? 0xff71ef35 : fire.ColorIndex==2 ? 0xff459eff : 0xffffba61;
+            // Color is supplied by the matching material, including fullbright rendering.
+            scolor=0xffffffff;
             Vel=(FRandom[utntcosmetic](-0.23,0.23),FRandom[utntcosmetic](-0.23,0.23),FRandom[utntcosmetic](0.8,1.35)*small);
             Roll=FRandom[utntcosmetic](-35,35);
         }
