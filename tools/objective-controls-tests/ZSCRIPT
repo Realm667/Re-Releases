@@ -34,6 +34,11 @@ class UTNTObjectiveCompactUITest : StaticEventHandler
             Check(UTNTObjectivePlaque.CurrentEpisode()==9,"manual map lookup is available immediately on TNTLE");
         }
         if(e.Name=="objheld") Check(presentation.ObjectivesHeld==(e.Args[0]!=0),"hold/release state");
+        if(e.Name=="objfade")
+        {
+            if(e.Args[0]==1) Check(presentation.ObjectivesFadeTics>0 && presentation.ObjectivesFadeTics<7,"fade has intermediate opacity");
+            else Check(presentation.ObjectivesFadeTics==(e.Args[0]==2 ? 7 : 0),"fade reaches its endpoint after seven tics");
+        }
         if(e.Name=="objshort")
         {
             Check(h.ObjectiveEndTime-h.ObjectiveStartTime==140,"four-second automatic summary");
@@ -45,7 +50,7 @@ class UTNTObjectiveCompactUITest : StaticEventHandler
         if(e.Name=="objrestored")
         {
             Check(h.ObjectiveStartTime==test.SavedStart && h.ObjectiveEndTime==test.SavedEnd,"saved summary timeline preserved");
-            Check(!presentation.ObjectivesHeld,"loading does not latch the manual plaque");
+            Check(!presentation.ObjectivesHeld && presentation.ObjectivesFadeTics==0,"loading clears the manual plaque and fade");
         }
         if(e.Name=="objfired")
         {

@@ -133,10 +133,10 @@ class UTNTObjectivePlaque ui
         }
     }
 
-    static void Draw(int episode)
+    static void Draw(int episode,double alpha=1)
     {
-        if (episode<1 || episode>9) return;
-        double alpha=1; // Explicit hold-to-read: no closing animation delays visibility.
+        if (episode<1 || episode>9 || alpha<=0) return;
+        alpha=clamp(alpha,0,1);
         Font small=Font.GetFont('SmallFont'), big=Font.GetFont('DBIGFONT');
         String heading=StringTable.Localize('$UTNT_OBJ_HEADING');
         String episodeName=StringTable.Localize(String.Format("$UTNT_INTRO_%03d",episode));
@@ -160,8 +160,8 @@ class UTNTObjectivePlaque ui
         double y=floor(Screen.GetHeight()*0.48-height*scale/2);
         // Two translucent silhouette expansions make a real soft outside shadow.
         // They sit behind the opaque metal, never replace dark interior pixels.
-        Rect(x,y,scale,0,4,520,height-6,0x000000,0.10);
-        Rect(x,y,scale,1,5,518,height-8,0x000000,0.16);
+        Rect(x,y,scale,0,4,520,height-6,0x000000,alpha*0.10);
+        Rect(x,y,scale,1,5,518,height-8,0x000000,alpha*0.16);
         // Fixed cap proportions keep the emblem, rivets and bevels undistorted.
         Art("UTOTOP",x,y,520*scale,60*scale,alpha);
         Art("UTOMID",x,y+60*scale,520*scale,(height-76)*scale,alpha);

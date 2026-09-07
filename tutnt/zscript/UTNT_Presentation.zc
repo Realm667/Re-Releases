@@ -279,6 +279,7 @@ class UTNTWorldHandler : EventHandler
 class UTNTPresentation : StaticEventHandler
 {
     ui bool ObjectivesHeld;
+    ui int ObjectivesFadeTics, PreviousObjectivesFadeTics;
     ui int ObjectivesWorldGeneration;
     ui double DisplayHP, DamageHP, PreviousBossHP;
     ui int DamageHold, BossWorldGeneration;
@@ -309,7 +310,14 @@ class UTNTPresentation : StaticEventHandler
     {
         if (ObjectivesWorldGeneration!=WorldGeneration || gamestate!=GS_LEVEL
             || menuactive || ConsoleState!=0 || paused || players[consoleplayer].health<=0)
+        {
             ObjectivesHeld=false;
+            ObjectivesFadeTics=PreviousObjectivesFadeTics=0;
+        }
+        // Seven UI tics at 35 Hz: 0.2 seconds in either direction. Reversing
+        // the key mid-fade continues from the current opacity without a jump.
+        PreviousObjectivesFadeTics=ObjectivesFadeTics;
+        ObjectivesFadeTics=clamp(ObjectivesFadeTics+(ObjectivesHeld ? 1 : -1),0,7);
         ObjectivesWorldGeneration=WorldGeneration;
         let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
         if (handler && handler.BossMaxHP > 0)
@@ -432,10 +440,12 @@ class UTNTPresentation : StaticEventHandler
         // Corner overview is automatic; the full plaque is strictly local and opt-in.
         // Neither path consumes movement/fire inputs, pauses time or changes actors.
         let objectives=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
-        bool readObjectives=ObjectivesHeld && !menuactive && ConsoleState==0
+        double objectivesAlpha=(PreviousObjectivesFadeTics
+            +(ObjectivesFadeTics-PreviousObjectivesFadeTics)*e.FracTic)/7.0;
+        bool readObjectives=objectivesAlpha>0 && !menuactive && ConsoleState==0
             && !paused && player.health>0;
         if (camera && readObjectives)
-            UTNTObjectivePlaque.Draw(UTNTObjectivePlaque.CurrentEpisode());
+            UTNTObjectivePlaque.Draw(UTNTObjectivePlaque.CurrentEpisode(),objectivesAlpha);
         else if (camera && !menuactive && objectives && objectives.ObjectiveEpisode
             && level.time<min(objectives.ObjectiveEndTime,objectives.ObjectiveStartTime+140))
             UTNTObjectivePlaque.DrawCompact(objectives.ObjectiveEpisode,

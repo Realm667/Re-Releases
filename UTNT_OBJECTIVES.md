@@ -9,7 +9,10 @@ descriptions cover all 21 goals in English and German.
 - At the original ACS briefing point, a compact upper-left panel shows only
   numbered goal headings for four seconds, including its brief fades. It leaves
   the center of the view clear. The existing quiet switch sound accompanies it.
-- Hold **O** to read the full plaque; release to close it immediately. The default
+  Objectives no longer produce additional ACS console/notification messages.
+- Hold **O** to read the full plaque. Press and release fade it in/out over
+  0.2 seconds (seven tics), including text and shadow. Reversing mid-fade
+  continues smoothly from the current opacity. The default
   applies only if O is unbound. Change it under UTNT Options, **Show objectives
   (hold)** / **Missionsziele anzeigen (halten)**, or the UTNT control section.
 - Manual reading works before and after the automatic summary, including the
@@ -55,7 +58,8 @@ python tools/test_objective_mapstarts.py
 Tests use isolated configs/saves and test addons outside the packaged game.
 The controls suite exercises actual press/release aliases on TNTLE, firing
 during both views, manual access before/after the summary, save/load, old timers
-and menu cancellation. The layout suite checks all nine variants, both text
+menu cancellation, fade endpoints/reversal and absence of duplicate ACS
+messages. The layout suite checks all nine variants, both text
 types, wrapping, duplicate calls and persistence; it previews all full plaques
 through a test-only drawing hook. The map-start suite checks real ACS dispatch.
 Each suite accepts `--mod` for a built PK3.
@@ -64,3 +68,5 @@ Evidence for this revision is in `tools/validation/objectives-compact-2026-09-07
 The earlier `objectives-2026-09-07` evidence records the superseded automatic
 large plaque. These focused checks are not a full campaign playthrough or a
 multiplayer certification. Existing player configs and saves are not modified.
+
+Fade and message-removal evidence: `tools/validation/objectives-fade-2026-09-08/`.

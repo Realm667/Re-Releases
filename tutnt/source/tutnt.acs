@@ -105,7 +105,7 @@ script "IntroText" OPEN
 	}
 	Hudmessage(l:mapname; HUDMSG_FADEINOUT,0,CR_RED,320.4,205.0,3.0,1.0,1.0);
 	delay(175);
-	Log(l:"UTNT_COMMON_055",l:objectives);
+	// Objectives are displayed only by the graphical HUD, without console messages.
 	ScriptCall("UTNTWorldHandler", "BeginObjectives", mapnum);
 }
 
