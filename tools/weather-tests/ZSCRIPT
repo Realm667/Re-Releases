@@ -199,6 +199,16 @@ class UTNTWeatherTests : EventHandler
             if(!v.Texture.IsValid() || !v.Owner || v.Alpha<0 || v.Alpha>1 || v.Scale.X<=0 || v.Scale.Y<=0) invalid++;
             if(count<=5) Console.Printf("WEATHER_PARTICLE %.1f %.1f %.1f alpha %.3f scale %.3f %.3f age %d",v.Pos.X,v.Pos.Y,v.Pos.Z,v.Alpha,v.Scale.X,v.Scale.Y,v.Age);
         }
+        let trails=ThinkerIterator.Create('UTNTSnowTrail',Thinker.MAX_STATNUM+1,true);
+        UTNTSnowTrail trail; int trailCount=0,orphanTrails=0;
+        while(trail=UTNTSnowTrail(trails.Next()))
+        {
+            trailCount++;
+            if(!trail.Source || trail.Source.Retired || trail.Source.Trail!=trail || !trail.Owner) orphanTrails++;
+        }
+        int trailLimit=c.Quality==3 ? 520 : c.Quality==2 ? 260 : 0;
+        Console.Printf("UTNT_ASSERT %s: snow trails retire with weather and quality",orphanTrails==0 && trailCount==c.TrailLive && trailCount<=trailLimit && (count>0 || trailCount==0) ? "PASS" : "FAIL");
+        Console.Printf("WEATHER_TRAILS live=%d recorded=%d",trailCount,c.TrailLive);
         Console.Printf("UTNT_ASSERT %s: accounting live %d actual %d detail %d/%d",count==c.Live && detail==c.DetailLive ? "PASS" : "FAIL",c.Live,count,c.DetailLive,detail);
         Console.Printf("UTNT_ASSERT %s: valid visuals",invalid==0 ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s: bounded live effects",count<=c.Limit ? "PASS" : "FAIL");

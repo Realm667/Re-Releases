@@ -8,7 +8,7 @@ Regen fällt schnell in schmalen, weich auslaufenden Strichen. Am tatsächlichen
 
 Schnee reagiert jeden Spieltic auf ein sanft veränderliches Windfeld. Individuelle Phasen und eine geglättete Reaktion erzeugen unterschiedliche Flugbahnen. Die bestehende Interpolation der VisualThinker verbindet die Simulationsschritte. Kleine Flocken bilden die Grunddichte; größere Flocken bleiben selten. Gleichförmig rotierende Gruppen gibt es nicht mehr.
 
-Die Partikelgrößen, Fallgeschwindigkeiten, Windformeln, Nahbereichsgewichtung und maximale Reichweite von 900 Karteneinheiten entsprechen der freigegebenen Vorschau. Der Spielbetrieb ergänzt separate Budgets und vollständige Kollisionsprüfungen für Spritztröpfchen. Die Vorschau nutzte noch bis zu 5.000 Traces pro Tic; die neue hohe Qualitätsstufe ist auf 3.200 begrenzt.
+Windformeln, Nahbereichsgewichtung und maximale Reichweite von 900 Karteneinheiten entsprechen der freigegebenen Vorschau. Die nachfolgend beauftragte Feinabstimmung verändert Größen, Regenlänge, Deckkraft und Regenfalltempo wie unten beschrieben. Der Spielbetrieb ergänzt separate Budgets und vollständige Kollisionsprüfungen für Spritztröpfchen. Die Vorschau nutzte noch bis zu 5.000 Traces pro Tic; die neue hohe Qualitätsstufe ist auf 3.200 begrenzt.
 
 ## Technik und Einstellungen
 
@@ -66,3 +66,22 @@ Gemessen auf Ryzen 9 7950X / GeForce RTX 4080, Vulkan, 960×540, je ein etwa fü
 | TNT03A1 – Schnee | 1,271 ms | 2,861 ms | 1,590 ms | 4,633 ms |
 
 Die freigegebene Bewegung benötigt besonders beim Schnee mehr Rechenzeit als die frühere Gruppendarstellung. Die Qualitätsstufen begrenzen deshalb Teilchenzahl und Kollisionsprüfungen separat. Build-Daten und Paketprüfungen stehen in `weather-v2-build.json`, `weather-v2-live-build.json` und `weather-v2-package-results.json` im Nachweisordner. Das Gesamtpaket enthält zusätzlich den zum Bauzeitpunkt vorhandenen Stand anderer Projektarbeiten; diese gehören nicht zum Wettercommit.
+
+## Feinabstimmung nach Nutzerprüfung – 08.09.2026
+
+- Regenstriche sind pro Tropfen zufällig 30–50 % länger. Derselbe Faktor gilt auch für die entfernungsabhängige Begrenzung, damit die Verlängerung im Nahbereich sichtbar bleibt.
+- Ein gemeinsamer Faktor 0,70 reduziert die bisherige Deckkraft von Regen, einzelnen Bodenspritzern und Wasserringen um 30 %. Vorhandene weiche Ein-/Ausblendungen bleiben wirksam. Die vorherigen effektiven Alpha-Werte waren bereits variabel, daher wird nicht pauschal Alpha 0,70 erzwungen.
+- Jeder Regentropfen bewegt sich um zufällig 10–15 % langsamer. Das gilt für seine vertikale und horizontale Geschwindigkeit und auch für den Regen in der Skybox.
+- Jede Schneeflocke ist um zufällig 10–20 % größer, einschließlich ihrer Größenbegrenzung nahe der Kamera und der Skybox-Schicht.
+- Der dezente Schnee-Nachlauf folgt dem bereits auf Kollision geprüften letzten Bewegungssegment. Ein einzelnes, eng überlappendes Abbild derselben Flocke hat 14 % ihrer Deckkraft und höchstens 30 % ihres Durchmessers Versatz. Es benötigt weder Gruppentexturen noch zusätzliche Kollisionsabfragen. Maximal 520 Nachläufe auf hoher beziehungsweise 260 auf mittlerer Qualität, nur innerhalb von 450 Einheiten; niedrige Qualität/reduzierte Effekte lassen den Nachlauf aus. Elternteil und Nachlauf werden gemeinsam entfernt.
+
+Neue Nachweise: `tools/validation/weather-tuning-2026-09-08/`. Die vorherige Abschlussmessung beschreibt weiterhin den Stand vor dieser Feinabstimmung. Die neuen Prüfungen verwenden ein festes PK3, damit gleichzeitig bearbeitete Kartenskripte während Save/Load nicht wechseln können.
+
+Abnahme der Feinabstimmung: 10 bestandene Laufzeitfälle mit 552 Assertions auf OpenGL/Vulkan (inklusive Save/Load, Freeze, Geometrie und Qualitätswechsel), Bildprüfung beider Effekte sowie vier kurze Leistungsmessungen. Wettercode und Texturen im erneuerten regulären PK3 sind bytegleich zum getesteten Snapshot.
+
+| Karte | Median Wetter aus | Median Wetter an | p95 Wetter an |
+| --- | ---: | ---: | ---: |
+| TNT02 | 2.026 ms | 2.554 ms | 3.885 ms |
+| TNT03A1 | 1.313 ms | 3.149 ms | 5.072 ms |
+
+Diese kurzen Messfenster gelten für dieselbe Maschine und Auflösung wie oben. Gleichzeitig fortgeschrittene andere Projekteffekte verhindern einen isolierten Vergleich mit der früheren Gesamtbildzeit.

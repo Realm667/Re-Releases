@@ -1,0 +1,107 @@
+{
+  "cases": 10,
+  "assertions": 552,
+  "results": [
+    {
+      "label": "weather-final-lifecycle-TNT02-0",
+      "ok": true,
+      "exit": 0,
+      "seconds": 36.56,
+      "log": "F:\\DoomDev\\Projects\\realm667.git\\logs\\weather-final-lifecycle-TNT02-0.log",
+      "errors": [],
+      "assertions": 80
+    },
+    {
+      "label": "weather-final-lifecycle-TNT03A1-0",
+      "ok": true,
+      "exit": 0,
+      "seconds": 28.49,
+      "log": "F:\\DoomDev\\Projects\\realm667.git\\logs\\weather-final-lifecycle-TNT03A1-0.log",
+      "errors": [],
+      "assertions": 83
+    },
+    {
+      "label": "weather-final-lifecycle-TNT02-1",
+      "ok": true,
+      "exit": 0,
+      "seconds": 29.45,
+      "log": "F:\\DoomDev\\Projects\\realm667.git\\logs\\weather-final-lifecycle-TNT02-1.log",
+      "errors": [],
+      "assertions": 80
+    },
+    {
+      "label": "weather-final-lifecycle-TNT03A1-1",
+      "ok": true,
+      "exit": 0,
+      "seconds": 29.0,
+      "log": "F:\\DoomDev\\Projects\\realm667.git\\logs\\weather-final-lifecycle-TNT03A1-1.log",
+      "errors": [],
+      "assertions": 83
+    },
+    {
+      "label": "weather-final-geometry-UTNTWX-0",
+      "ok": true,
+      "exit": 0,
+      "seconds": 12.84,
+      "log": "F:\\DoomDev\\Projects\\realm667.git\\logs\\weather-final-geometry-UTNTWX-0.log",
+      "errors": [],
+      "assertions": 55,
+      "freeze_stable": true
+    },
+    {
+      "label": "weather-final-geometry-UTNTWX-1",
+      "ok": true,
+      "exit": 0,
+      "seconds": 13.25,
+      "log": "F:\\DoomDev\\Projects\\realm667.git\\logs\\weather-final-geometry-UTNTWX-1.log",
+      "errors": [],
+      "assertions": 55,
+      "freeze_stable": true
+    },
+    {
+      "label": "weather-final-review-TNT02-1",
+      "ok": true,
+      "exit": 0,
+      "seconds": 15.98,
+      "log": "F:\\DoomDev\\Projects\\realm667.git\\logs\\weather-final-review-TNT02-1.log",
+      "errors": [],
+      "assertions": 10
+    },
+    {
+      "label": "weather-final-review-TNT03A1-1",
+      "ok": true,
+      "exit": 0,
+      "seconds": 13.25,
+      "log": "F:\\DoomDev\\Projects\\realm667.git\\logs\\weather-final-review-TNT03A1-1.log",
+      "errors": [],
+      "assertions": 10
+    },
+    {
+      "label": "weather-final-quality-UTNTWX-0",
+      "ok": true,
+      "exit": 0,
+      "seconds": 14.36,
+      "log": "F:\\DoomDev\\Projects\\realm667.git\\logs\\weather-final-quality-UTNTWX-0.log",
+      "errors": [],
+      "assertions": 48
+    },
+    {
+      "label": "weather-final-quality-UTNTWX-1",
+      "ok": true,
+      "exit": 0,
+      "seconds": 14.76,
+      "log": "F:\\DoomDev\\Projects\\realm667.git\\logs\\weather-final-quality-UTNTWX-1.log",
+      "errors": [],
+      "assertions": 48
+    }
+  ],
+  "weather_source_sha256": "f803f23cbbcd52317c8876f4f38ee627e241dc6afb66e0a8dc1de51e702fb29c",
+  "installed_pk3_sha256": "8ae3b0afd7048b7d46015de9adbd795130649a430638a6ef4b9ea028e657a910",
+  "notes": [
+    "The first source-directory attempt overlapped independent ACS edits and failed with an unknown objective script. Final cases use an immutable PK3.",
+    "An initial snow-trail initialization defect was found by lifecycle checks and fixed before these final runs. All trail ownership/accounting assertions now pass.",
+    "The regular package was rebuilt and engine-checked separately. Its weather source and textures match the tested snapshot byte for byte; unrelated project contents can differ.",
+    "Profiling explicitly disables background frame limiting and the 35 Hz cap. An initial snow sample was limited to about 35 FPS and the series was repeated with explicit settings.",
+    "The snow blur reuses a single-flake texture as a tightly overlapping, faint afterimage. Low/reduced FX omit this extra detail."
+  ]
+}

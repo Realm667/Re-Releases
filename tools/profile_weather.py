@@ -1,7 +1,10 @@
 from pathlib import Path
-import sys,os,re,json,statistics
+import sys,os,re,json,statistics,argparse
 ROOT=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(ROOT/'tools'))
 from check_engine import run_case
+parser=argparse.ArgumentParser(description='Compare weather frame times, optionally from a fixed PK3.')
+parser.add_argument('--mod',type=Path)
+args=parser.parse_args()
 addon=ROOT/'tools/weather-profile';addon.mkdir(exist_ok=True)
 (addon/'ZSCRIPT').write_text('''version "5.0.0"
 class UTNTWeatherFrames : StaticEventHandler
@@ -31,8 +34,8 @@ results=[]
 for name in ['TNT02','TNT03A1']:
  for enabled in [False,True]:
   label=f'weather-profile-{name}-{int(enabled)}'
-  r=run_case(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],mapname=name,addon=addon,label=label,duration=335,timeout=30,
-   settings=[('weatherfx',enabled),('UTNT_fxquality',3),('vid_maxfps',0),('vid_vsync',False),('i_pauseinbackground',False),('vid_activeinbackground',True)])
+  r=run_case(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],mod=args.mod,mapname=name,addon=addon,label=label,duration=335,timeout=30,
+   settings=[('weatherfx',enabled),('UTNT_fxquality',3),('vid_maxfps',0),('vid_vsync',False),('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_lowerinbackground',False),('cl_capfps',False)])
   text=Path(r['log']).read_text();match=re.search(r'UTNT_WEATHER_FRAMES ([\d.,]+)',text)
   values=sorted(map(float,match[1].split(','))) if match else []
   r.update(map=name,weather=enabled,samples=len(values))

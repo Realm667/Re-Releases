@@ -73,7 +73,7 @@ class UTNTWeatherController : Thinker
     Array<int> Nearby;
     LineTracer Probe;
     Actor Camera, SkyCamera;
-    int SkyLive, ActiveKind;
+    int SkyLive, ActiveKind, TrailLive;
     int Live, DetailLive, Quality, Limit, ParticleLimit, DetailLimit, TraceBudget;
     int Traces, PeakTraces, PeakLive, BudgetRetired;
     int SpawnedRain, SpawnedSnow, Impacts, RejectedRoof, RejectedWall;
@@ -263,12 +263,28 @@ class UTNTWeatherVisual : VisualThinker
 {
     UTNTWeatherController Owner;
     LineTracer Probe;
+    UTNTSnowTrail Trail;
     int Kind, Age, Lifetime, SegmentLeft;
     double Phase, BaseAlpha, Width, Height, FallSpeed, HitAfter;
+    double RainLength, RainSpeed, SnowSize;
     bool WillHit, FloorHit, WaterHit, Retired, SkyLayer;
 
     void Start()
     {
+        // Apply the requested relative changes once, including the sky field.
+        RainLength=1; RainSpeed=1; SnowSize=1;
+        if(Kind==1)
+        {
+            RainLength=Owner.Sample(1.30,1.50);
+            RainSpeed=Owner.Sample(0.85,0.90);
+            Height*=RainLength; FallSpeed*=RainSpeed;
+        }
+        if(Kind==1 || Kind==6 || Kind==7) BaseAlpha*=0.70;
+        if(Kind==2)
+        {
+            SnowSize=Owner.Sample(1.10,1.20);
+            Width*=SnowSize; Height=Width;
+        }
         SetRenderStyle(STYLE_Translucent);
         let size=TexMan.GetScaledSize(Texture);
         Scale=(Width/size.X,Height/size.Y);
@@ -279,6 +295,7 @@ class UTNTWeatherVisual : VisualThinker
 
     void Retire()
     {
+        if(Trail) Trail.Retire();
         if(!Retired && Owner) { Owner.Live--; if(Kind>=3) Owner.DetailLive--; if(SkyLayer) Owner.SkyLive--; }
         Retired=true; Destroy();
     }
@@ -318,7 +335,7 @@ class UTNTWeatherVisual : VisualThinker
             // Snow updates wind and traces every tic. Rain forecasts a short straight
             // segment. Emergency retirement never leaves a particle hanging.
             if(!Owner.ReserveTrace()) { Owner.BudgetRetired++; Retire(); return; }
-            if(Kind==1) Vel=(Owner.WindX*1.5,Owner.WindY*1.5,-FallSpeed);
+            if(Kind==1) Vel=(Owner.WindX*1.5*RainSpeed,Owner.WindY*1.5*RainSpeed,-FallSpeed);
             else if(Kind==2)
             {
                 double t=level.time;
@@ -368,15 +385,25 @@ class UTNTWeatherVisual : VisualThinker
         if(Kind==1)
         {
             let size=TexMan.GetScaledSize(Texture);
-            Scale.Y=min(Height,distance*0.028)/size.Y;
+            Scale.Y=min(Height,distance*0.028*RainLength)/size.Y;
             double side=Vel.X*-sin(Owner.Camera.Angle)+Vel.Y*cos(Owner.Camera.Angle);
             Roll=atan2(side,FallSpeed);
         }
         else if(Kind==2)
         {
-            double width=min(Width,distance*0.008);
+            double width=min(Width,distance*0.008*SnowSize);
             let size=TexMan.GetScaledSize(Texture); Scale=(width/size.X,width/size.Y);
             Roll=Phase+12*sin(Age*1.2+Phase);
+            // One faint overlapping afterimage along an already traced segment.
+            // No extra collision probes or multi-flake textures are needed.
+            int trailLimit=Owner.Quality==3 ? 520 : Owner.Quality==2 ? 260 : 0;
+            bool trailVisible=distance<450 && Alpha>0.02 && trailLimit>0;
+            if(Trail && (!trailVisible || Owner.TrailLive>trailLimit)) Trail.Retire();
+            if(!Trail && trailVisible && Owner.TrailLive<trailLimit)
+            {
+                Trail=UTNTSnowTrail(level.SpawnClientSideVisualThinker('UTNTSnowTrail'));
+                if(Trail) { Trail.Source=self; Trail.Owner=Owner; Trail.Pos=Pos; Trail.Prev=Pos; Trail.Start(); Owner.TrailLive++; }
+            }
         }
     }
 
@@ -407,5 +434,46 @@ class UTNTWeatherVisual : VisualThinker
             v.Start(); Owner.Live++; Owner.DetailLive++; Owner.PeakLive=max(Owner.PeakLive,Owner.Live);
         }
         Owner.Impacts++;
+    }
+}
+
+// A short overlapping blur of the same flake, never a chain of separate flakes.
+class UTNTSnowTrail : VisualThinker
+{
+    UTNTWeatherVisual Source;
+    UTNTWeatherController Owner;
+    bool Retired;
+    void Start()
+    {
+        Texture=Source.Texture; Scale=Source.Scale*0.92;
+        Alpha=Source.Alpha*0.14; LightLevel=Source.LightLevel; Flags=Source.Flags;
+        Roll=Source.Roll; SetRenderStyle(STYLE_Translucent);
+        UpdateSector(); UpdateSpriteInfo();
+    }
+
+    void Retire()
+    {
+        if(Retired) return;
+        Retired=true;
+        if(Source && Source.Trail==self) Source.Trail=null;
+        if(Owner) Owner.TrailLive--;
+        Destroy();
+    }
+    override void Tick()
+    {
+        if(!Source || Source.Retired || !Owner || !Owner.Enabled) { Retire(); return; }
+        if(level.isFrozen() || IsFrozen()) return;
+        Super.Tick();
+        Texture=Source.Texture;
+        let size=TexMan.GetScaledSize(Texture);
+        Vector3 step=Source.Pos-Source.Prev;
+        double length=step.Length();
+        double offset=min(length*0.65,Source.Scale.X*size.X*0.30);
+        Pos=Source.Pos-(length>0.0001 ? step/length*offset : (0,0,0));
+        Scale=Source.Scale*0.92; Roll=Source.Roll;
+        Alpha=Source.Alpha*0.14;
+        LightLevel=Source.LightLevel; Flags=Source.Flags;
+        SetRenderStyle(STYLE_Translucent);
+        UpdateSector(); UpdateSpriteInfo();
     }
 }
