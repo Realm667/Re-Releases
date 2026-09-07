@@ -89,3 +89,23 @@ python tools/test_fire.py --mod tutnt.pk3 --renderer both
 
 Restart the game with the rebuilt `tutnt.pk3` to load the replacement art and
 classes. Existing running user sessions were not stopped.
+
+## Fragment variation refinement
+
+Flame width and height now vary independently over 15-34 and 18-40 world
+units before torch/quality scaling; base sheets also vary independently.
+Each sheet has its own gentle stretch timing, initial tilt and persistent
+clockwise or counterclockwise rotation. `SPF_ROLL` makes the previously
+ignored roll visible; `SPF_STRETCHPIXELS` preserves the sprite proportions.
+The existing random horizontal mirroring is retained. Vertical flipping is
+not used, keeping the hot base below the tapered tip.
+
+Torch ember births now vary by +/-5 units in both horizontal axes and -4 to +6
+units vertically, scaled down for short torches. Barrels keep their +/-8-unit
+horizontal spread and gain the same vertical variation. Smoke dimensions,
+particle counts, emission budgets and lifetimes are unchanged. Runtime
+regression also checks that flame roll is enabled and actually advances.
+
+The refinement passed 46 assertions and rendered-color/motion checks in each
+hardware backend. All 14 ACS modules compiled unchanged. Exact build hashes,
+logs and screenshots are in `tools/validation/fire-variation-2026-09-07/`.

@@ -70,6 +70,7 @@ class UTNTFireFragment : VisualThinker
     Actor Source;
     int Age, Life, Variant;
     double Width, Height, Phase, Strength, DriftX, DriftY;
+    double RotationSpeed, SizePhase, SizeRate;
 
     void Initialize(UTNTFireEmitter fire, int quality, bool base)
     {
@@ -78,7 +79,9 @@ class UTNTFireFragment : VisualThinker
         string prefix=fire.ColorIndex==1 ? 'UFOG' : fire.ColorIndex==2 ? 'UFOB' : 'UFOR';
         string frame=Variant==0 ? 'A0' : Variant==1 ? 'B0' : Variant==2 ? 'C0' : 'D0';
         Texture=TexMan.CheckForTexture(prefix..frame);
-        Flags=SPF_FULLBRIGHT | SPF_ALLOWSHADERS;
+        // VisualThinker roll is ignored by the renderer unless SPF_ROLL is set.
+        // Keep native sprite proportions when enabling rotation.
+        Flags=SPF_FULLBRIGHT | SPF_ALLOWSHADERS | SPF_ROLL | SPF_STRETCHPIXELS;
         SetRenderStyle(STYLE_Translucent);
         bXFlip=Random[utntcosmetic](0,1);
         double small=fire.Kind==1 ? 0.62 : 1;
@@ -87,9 +90,14 @@ class UTNTFireFragment : VisualThinker
         double spread=sqrt(FRandom[utntcosmetic](0,1))*radius;
         Pos=Source.Vec3Offset(cos(angle)*spread,sin(angle)*spread,fire.Anchor-3*small);
         Life=Random[utntcosmetic](18,26);
-        Width=FRandom[utntcosmetic](18,28)*small*(quality==1 ? 1.25 : 1);
-        Height=FRandom[utntcosmetic](22,32)*small;
-        if (base) { Height=17*small; Width=(fire.Kind==2 ? 33 : 25)*small; Life=10; }
+        Width=FRandom[utntcosmetic](15,34)*small*(quality==1 ? 1.25 : 1);
+        Height=FRandom[utntcosmetic](18,40)*small;
+        if (base)
+        {
+            Height=FRandom[utntcosmetic](13,21)*small;
+            Width=(fire.Kind==2 ? 33 : 25)*FRandom[utntcosmetic](0.80,1.20)*small;
+            Life=10;
+        }
         if (fire.ColorIndex==2) Width*=0.80;
         Phase=fire.Phase+FRandom[utntcosmetic](-35,35);
         double flow=sin(fire.Age*5+Phase);
@@ -97,7 +105,11 @@ class UTNTFireFragment : VisualThinker
         DriftY=cos(fire.Age*4+Phase)*0.10;
         Vel=(DriftX+FRandom[utntcosmetic](-0.13,0.13),DriftY+FRandom[utntcosmetic](-0.13,0.13),(base ? 0.12 : FRandom[utntcosmetic](0.65,1.10))*small);
         Strength=base ? 0.92 : quality==1 ? 0.82 : quality==2 ? 0.65 : 0.50;
-        Roll=FRandom[utntcosmetic](-12,12);
+        Roll=FRandom[utntcosmetic](base ? -8 : -22,base ? 8 : 22);
+        RotationSpeed=FRandom[utntcosmetic](base ? 0.20 : 0.40,base ? 0.55 : 1.05);
+        if (Random[utntcosmetic](0,1)) RotationSpeed=-RotationSpeed;
+        SizePhase=FRandom[utntcosmetic](0,360);
+        SizeRate=FRandom[utntcosmetic](7,15);
         Animate(); Prev=Pos; PrevRoll=Roll;
         UpdateSector(); UpdateSpriteInfo();
     }
@@ -107,8 +119,8 @@ class UTNTFireFragment : VisualThinker
         double t=double(Age)/Life;
         let size=TexMan.GetScaledSize(Texture);
         // Young sheets fill the fuel bed; older sheets stretch, narrow and die.
-        Scale=(Width*(1+0.20*sin(t*180)-0.45*t*t)/size.X,
-               Height*(0.85+0.40*t)/size.Y);
+        Scale=(Width*(1+0.20*sin(t*180)-0.45*t*t)*(1+0.07*sin(Age*SizeRate+SizePhase))/size.X,
+               Height*(0.85+0.40*t)*(1+0.09*sin(Age*SizeRate*0.73+SizePhase+90))/size.Y);
         Alpha=Strength*min(1.0,(Age+1)/3.0)*min(1.0,(Life-Age)/8.0);
     }
 
@@ -121,7 +133,7 @@ class UTNTFireFragment : VisualThinker
         Vel.X+=0.012*sin(Age*15+Phase);
         Vel.Y+=0.009*cos(Age*13+Phase);
         Vel.Z+=0.012;
-        Roll+=0.16*sin(Age*9+Phase);
+        Roll+=RotationSpeed+0.10*sin(Age*9+SizePhase);
         Animate();
     }
 }
@@ -137,8 +149,12 @@ class UTNTFireDetail : VisualThinker
     {
         Source=fire.Source; Smoke=smoke; Phase=fire.Phase;
         double small=fire.Kind==1 ? 0.65 : 1;
-        double radius=fire.Kind==2 ? 8 : 3*small;
-        Pos=Source.Vec3Offset(FRandom[utntcosmetic](-radius,radius),FRandom[utntcosmetic](-radius,radius),fire.Anchor+(smoke ? 28 : 13)*small);
+        double radius=fire.Kind==2 ? 8 : (smoke ? 3 : 5)*small;
+        double startZ=(smoke ? 28 : 13)*small;
+        // Spread embers within the flame volume, including height. Smoke keeps
+        // its existing transition from the upper part of the fire.
+        if (!smoke) startZ+=FRandom[utntcosmetic](-4,6)*small;
+        Pos=Source.Vec3Offset(FRandom[utntcosmetic](-radius,radius),FRandom[utntcosmetic](-radius,radius),fire.Anchor+startZ);
         Flags=SPF_ALLOWSHADERS;
         bXFlip=Random[utntcosmetic](0,1);
         if (smoke)

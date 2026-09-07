@@ -72,7 +72,8 @@ class UTNTFireTest : EventHandler
         {
             fragments++;
             if (!part.Source || !part.Texture.IsValid() || part.Age>=part.Life || part.Life>28 ||
-                part.Scale.X<=0 || part.Scale.Y<=0 || part.Alpha<=0 || part.Alpha>1 || part.Vel.Z<=0) invalid++;
+                part.Scale.X<=0 || part.Scale.Y<=0 || part.Alpha<=0 || part.Alpha>1 || part.Vel.Z<=0 ||
+                !(part.Flags & SPF_ROLL) || (part.Age>0 && abs(part.Roll-part.PrevRoll)<0.01)) invalid++;
         }
         let di=ThinkerIterator.Create('UTNTFireDetail',Thinker.MAX_STATNUM+1,true);
         UTNTFireDetail detail;
