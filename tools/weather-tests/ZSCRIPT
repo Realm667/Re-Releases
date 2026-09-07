@@ -1,0 +1,125 @@
+version "5.0.0"
+class UTNTWeatherTests : EventHandler
+{
+    override void WorldTick()
+    {
+        let p=players[0].mo; if(!p) return;
+        p.bInvulnerable=true;
+        if(level.time==10)
+        {
+            p.ACS_NamedTerminate("IntroText",0);
+            if(level.MapName~=="TNT02" || level.MapName~=="TNT03A1")
+            {
+                Vector3 pos=level.MapName~=="TNT02" ? (-1680,-160,0) : (-1440,2112,0);
+                pos.Z=level.PointInSector(pos.XY).floorplane.ZatPoint(pos.XY)+1;
+                if(level.MapName~=="TNT02")
+                {
+                    let ti=ThinkerIterator.Create('Actor'); Actor tree;
+                    while(tree=Actor(ti.Next()))
+                    {
+                        if(abs(tree.Pos.X+768)<1 && abs(tree.Pos.Y+32)<1 && tree.bSolid)
+                            pos=tree.Pos+(0,-192,12);
+                    }
+                    p.bNoGravity=true;
+                }
+                p.SetOrigin(pos,false); p.Vel=(0,0,0); p.Angle=level.MapName~=="TNT02" ? 90 : 270; p.Pitch=0;
+                p.GiveInventory('UTNTMinigun',1); p.GiveInventory('Clip',200);
+                p.player.PendingWeapon=Weapon(p.FindInventory('UTNTMinigun'));
+            }
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="weatherfog" && (level.MapName~=="TNT03A1" || level.MapName~=="TNT03A2"))
+        {
+            let h=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+            bool valid=h && h.FogEnabled==(e.Args[0]!=0);
+            if(h && e.Args[0])
+            {
+                valid=valid && h.FogSectors.Size()>0;
+                for(int i=0;i<h.FogSectors.Size();i++)
+                    if(level.Sectors[h.FogSectors[i]].ColorMap.FogDensity!=32) valid=false;
+            }
+            if(h && !e.Args[0]) valid=valid && h.FogSectors.Size()==0;
+            Console.Printf("UTNT_ASSERT %s: weather fog state enabled=%d",valid ? "PASS" : "FAIL",e.Args[0]);
+        }
+        if(e.Name=="weatheraudio")
+        {
+            S_StartSound("UTNTWeather/Rain",CHAN_AUTO,0,0.001,ATTN_NONE);
+            S_StartSound("UTNTWeather/Wind",CHAN_AUTO,0,0.001,ATTN_NONE);
+            Console.Printf("UTNT_ASSERT %s: weather audio decodes",abs(S_GetLength("UTNTWeather/Rain")-2)<0.01 && abs(S_GetLength("UTNTWeather/Wind")-2)<0.01 ? "PASS" : "FAIL");
+            Console.Printf("WEATHER_AUDIO rain=%.3f wind=%.3f",S_GetLength("UTNTWeather/Rain"),S_GetLength("UTNTWeather/Wind"));
+        }
+        if(e.Name=="weatherworld")
+        {
+            int playersPresent=0; for(int i=0;i<MAXPLAYERS;i++) if(playeringame[i]) playersPresent++;
+            Console.Printf("UTNT_ASSERT %s: two cooperative players present",playersPresent==2 ? "PASS" : "FAIL");
+            Console.Printf("WEATHER_SHARED tic=%d actors=%d p0=%d p1=%d",level.time,level.total_monsters,players[0].mo.Health,players[1].mo.Health);
+        }
+        if(e.Name=="weathergeometry" && level.MapName~=="UTNTWX")
+        {
+            let c=UTNTWeatherSystem.Find();
+            Console.Printf("UTNT_ASSERT %s: spawn rejects solid 3D volume",c && !c.OpenPoint((512,0,160),level.PointInSector((512,0))) ? "PASS" : "FAIL");
+            let t=new('LineTracer');
+            t.Trace((0,0,48),level.PointInSector((0,0)),(0,0,1),1000,TRACE_HitSky,wallMask:Line.ML_BLOCKING,ignoreAllActors:true);
+            Console.Printf("UTNT_ASSERT %s: roof blocks upward weather",t.Results.HitType==TRACE_HitCeiling && abs(t.Results.HitPos.Z-128)<0.1 ? "PASS" : "FAIL");
+            t.Trace((512,0,48),level.PointInSector((512,0)),(0,0,1),1000,TRACE_HitSky,wallMask:Line.ML_BLOCKING,ignoreAllActors:true);
+            Console.Printf("UTNT_ASSERT %s: solid 3D floor shelters below",t.Results.HitType==TRACE_HitCeiling && abs(t.Results.HitPos.Z-128)<0.1 ? "PASS" : "FAIL");
+            t.Trace((512,0,256),level.PointInSector((512,0)),(0,0,-1),1000,0,wallMask:Line.ML_BLOCKING,ignoreAllActors:true);
+            Console.Printf("UTNT_ASSERT %s: precipitation hits top of 3D floor",t.Results.HitType==TRACE_HitFloor && abs(t.Results.HitPos.Z-192)<0.1 ? "PASS" : "FAIL");
+            t.Trace((-100,512,256),level.PointInSector((-100,512)),(0,0,-1),1000,0,wallMask:Line.ML_BLOCKING,ignoreAllActors:true);
+            Console.Printf("UTNT_ASSERT %s: sloping floor has correct impact height",t.Results.HitType==TRACE_HitFloor && abs(t.Results.HitPos.Z+12.5)<0.1 ? "PASS" : "FAIL");
+            t.Trace((-512,0,200),level.PointInSector((-512,0)),(-1,0,0),1000,0,wallMask:Line.ML_BLOCKING,ignoreAllActors:true);
+            Console.Printf("UTNT_ASSERT %s: outer wall blocks wind",t.Results.HitType==TRACE_HitWall && abs(t.Results.HitPos.X+768)<0.1 ? "PASS" : "FAIL");
+            t.Trace((0,-512,200),level.PointInSector((0,-512)),(0,0,-1),1000,0,wallMask:Line.ML_BLOCKING,ignoreAllActors:true);
+            let terrain=t.Results.HitSector.GetFloorTerrain(Sector.floor);
+            Console.Printf("UTNT_ASSERT %s: water is recognized for ripples",terrain && terrain.TerrainName=='UTNT_Water' ? "PASS" : "FAIL");
+            Console.Printf("WEATHER_AUDIO rain=%.3f wind=%.3f",S_GetLength("UTNTWeather/Rain"),S_GetLength("UTNTWeather/Wind"));
+        }
+        if(e.Name=="weathertree")
+        {
+            let ti=ThinkerIterator.Create('BigTree'); Actor tree; int i=0;
+            while(tree=Actor(ti.Next()))
+            {
+                if(i++!=e.Args[0]) continue;
+                let p=players[e.Player].mo; double angle=e.Args[1];
+                p.bNoGravity=true; p.SetOrigin(tree.Pos+(-cos(angle)*192,-sin(angle)*192,8),false);
+                p.Vel=(0,0,0); p.Angle=angle; p.Pitch=0; break;
+            }
+        }
+        if(e.Name=="weathercamera")
+        {
+            let p=players[e.Player].mo;
+            p.SetOrigin((e.Args[0],e.Args[1],e.Args[2]),false); p.Vel=(0,0,0);
+        }
+        if(e.Name=="weatherangle") { players[e.Player].mo.Angle=e.Args[0]; players[e.Player].mo.Pitch=e.Args[1]; }
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name!="weathercheck") return;
+        let ci=ThinkerIterator.Create('UTNTWeatherController',Thinker.STAT_USER+4,true);
+        let c=UTNTWeatherController(ci.Next());
+        if(!c) { Console.Printf("UTNT_ASSERT FAIL controller missing"); return; }
+        let it=ThinkerIterator.Create('UTNTWeatherVisual',Thinker.MAX_STATNUM+1,true);
+        UTNTWeatherVisual v; int count=0,invalid=0,rain=0,snow=0,detail=0,inside=0,solid=0;
+        while(v=UTNTWeatherVisual(it.Next()))
+        {
+            count++; if(v.Kind==1) rain++; if(v.Kind==2) snow++; if(v.Kind>=3) detail++;
+            if(!v.SkyLayer && v.Kind<=2 && abs(v.Pos.X)<128 && abs(v.Pos.Y)<128 && v.Pos.Z<128) inside++;
+            if(!v.SkyLayer && v.Kind<=2 && v.Pos.X>256 && v.Pos.X<768 && abs(v.Pos.Y)<256 && v.Pos.Z>128 && v.Pos.Z<192) solid++;
+            if(!v.Texture.IsValid() || !v.Owner || v.Alpha<0 || v.Alpha>1 || v.Scale.X<=0 || v.Scale.Y<=0) invalid++;
+            if(count<=5) Console.Printf("WEATHER_PARTICLE %.1f %.1f %.1f alpha %.3f scale %.3f %.3f age %d",v.Pos.X,v.Pos.Y,v.Pos.Z,v.Alpha,v.Scale.X,v.Scale.Y,v.Age);
+        }
+        Console.Printf("UTNT_ASSERT %s: accounting live %d actual %d detail %d/%d",count==c.Live && detail==c.DetailLive ? "PASS" : "FAIL",c.Live,count,c.DetailLive,detail);
+        Console.Printf("UTNT_ASSERT %s: valid visuals",invalid==0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: bounded live effects",count<=c.Limit ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: absolute allocation and trace limits",c.PeakLive<=2048 && c.PeakTraces<=240 ? "PASS" : "FAIL");
+        if(level.MapName~=="UTNTWX") Console.Printf("UTNT_ASSERT %s: sheltered room stays clear",inside==0 ? "PASS" : "FAIL");
+        if(level.MapName~=="UTNTWX") Console.Printf("UTNT_ASSERT %s: no particles inside solid 3D volume",solid==0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: expected weather active=%d",(e.Args[0]==0 ? count==0 : count>0) ? "PASS" : "FAIL",e.Args[0]);
+        Console.Printf("UTNT_WEATHER cells=%d nearby=%d rain=%d snow=%d detail=%d peak=%d traces=%d roofReject=%d wallStops=%d impacts=%d exposure=%.3f camera=(%.1f,%.1f,%.1f) angle=%.1f",
+            c.Cells.Size(),c.Nearby.Size(),rain,snow,detail,c.PeakLive,c.PeakTraces,c.RejectedRoof,c.RejectedWall,c.Impacts,c.Exposure,c.Camera.Pos.X,c.Camera.Pos.Y,c.Camera.Pos.Z,c.Camera.Angle);
+        Console.Printf("UTNT_REGRESSION_COMPLETE");
+        Console.Printf("WEATHER_SKY live=%d camera=%s mainceil=%.0f",c.SkyLive,c.SkyCamera ? c.SkyCamera.GetClassName() : 'none',c.Camera.CeilingZ);
+    }
+}

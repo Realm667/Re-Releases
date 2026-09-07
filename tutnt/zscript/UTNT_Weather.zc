@@ -1,0 +1,411 @@
+// Weather markers retain the original editor numbers/TIDs. Only visual state
+// lives on the client; no cosmetic random call enters gameplay simulation.
+class UTNTWeatherAnchor : Actor
+{
+    virtual int WeatherKind() { return 1; }
+    Default { Radius 1; Height 1; +NOINTERACTION +NOGRAVITY +SPAWNCEILING }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+class UTNTRainAnchor : UTNTWeatherAnchor {}
+class UTNTSnowAnchor : UTNTWeatherAnchor { override int WeatherKind() { return 2; } }
+
+class UTNTWeatherCell : Object
+{
+    Vector2 Center;
+    int Kind;
+    double Height;
+}
+
+class UTNTWeatherSystem play
+{
+    static UTNTWeatherController Find()
+    {
+        let it=ThinkerIterator.Create('UTNTWeatherController',Thinker.STAT_USER+4,true);
+        return UTNTWeatherController(it.Next());
+    }
+    static void Ensure()
+    {
+        if (consoleplayer<0 || !players[consoleplayer].camera) return;
+        if (Find()) return;
+        let c=UTNTWeatherController(level.CreateClientSideThinker('UTNTWeatherController',Thinker.STAT_USER+4));
+        if (c) c.Initialize();
+    }
+}
+
+// Persist only map atmosphere ownership. Existing day/night fade colors remain
+// controlled by ACS; the explicit density restores contrast in the near field.
+class UTNTWeatherHandler : EventHandler
+{
+    Array<int> FogSectors, OriginalDensity;
+    bool FogEnabled;
+    override void WorldTick()
+    {
+        UTNTWeatherSystem.Ensure();
+        bool enabled=CVar.GetCVar('weatherfx').GetBool()
+            && (level.MapName~=="TNT03A1" || level.MapName~=="TNT03A2");
+        if (level.time<3 || enabled==FogEnabled) return;
+        if (enabled)
+        {
+            for(int i=0;i<level.Sectors.Size();i++)
+            {
+                let s=level.Sectors[i]; Color f=s.ColorMap.FadeColor;
+                if (f==0 || f.r!=f.g || f.g!=f.b || s.ColorMap.FogDensity!=0) continue;
+                FogSectors.Push(i); OriginalDensity.Push(s.ColorMap.FogDensity);
+                s.SetFogDensity(32);
+            }
+        }
+        else
+        {
+            for(int i=0;i<FogSectors.Size();i++)
+            {
+                let s=level.Sectors[FogSectors[i]];
+                if (s.ColorMap.FogDensity==32) s.SetFogDensity(OriginalDensity[i]);
+            }
+            FogSectors.Clear(); OriginalDensity.Clear();
+        }
+        FogEnabled=enabled;
+    }
+}
+
+class UTNTWeatherController : Thinker
+{
+    Array<UTNTWeatherCell> Cells;
+    Array<int> Nearby;
+    LineTracer Probe;
+    Actor Camera, SkyCamera;
+    int SkyLive, ActiveKind;
+    int Live, DetailLive, Quality, Limit, Traces, PeakTraces, PeakLive;
+    int SpawnedRain, SpawnedSnow, Impacts, RejectedRoof, RejectedWall;
+    bool Enabled;
+    uint Seed;
+    double Range, WindX, WindY, Gust, Exposure;
+
+    void Initialize()
+    {
+        Seed=0x66701+uint(consoleplayer+1)*7919;
+        Probe=new('LineTracer');
+        let skies=ThinkerIterator.Create('SkyViewpoint'); Actor sky;
+        while(sky=Actor(skies.Next())) if(sky.tid==0) { SkyCamera=sky; break; }
+        let it=ThinkerIterator.Create('UTNTWeatherAnchor'); UTNTWeatherAnchor a;
+        while (a=UTNTWeatherAnchor(it.Next()))
+        {
+            Vector2 center=(floor(a.Pos.X/128)*128+64,floor(a.Pos.Y/128)*128+64);
+            int kind=a.WeatherKind(); bool exists=false;
+            for(int i=0;i<Cells.Size();i++)
+                if (Cells[i].Center==center && Cells[i].Kind==kind && abs(Cells[i].Height-a.Pos.Z)<128)
+                { exists=true; break; }
+            if (exists) continue;
+            let cell=new('UTNTWeatherCell'); cell.Center=center; cell.Kind=kind; cell.Height=a.Pos.Z;
+            Cells.Push(cell);
+        }
+    }
+
+    // Client thinker callbacks do not advance the saved gameplay RNG. Keep a
+    // private generator so consecutive frames never repeat emission columns.
+    uint NextRandom()
+    {
+        Seed^=Seed<<13; Seed^=Seed>>17; Seed^=Seed<<5; return Seed&0x7fffffff;
+    }
+    int Pick(int low, int high) { return low+int(NextRandom()%uint(high-low+1)); }
+    double Sample(double low, double high) { return low+(high-low)*(NextRandom()/2147483648.0); }
+
+    bool ReserveTrace()
+    {
+        int cap=Quality==3 ? 240 : Quality==2 ? 144 : 64;
+        if(Traces>=cap) return false;
+        Traces++; PeakTraces=max(PeakTraces,Traces); return true;
+    }
+
+    bool OpenPoint(Vector3 pos, Sector sec)
+    {
+        if(!sec || pos.Z<=sec.floorplane.ZatPoint(pos.XY) || pos.Z>=sec.ceilingplane.ZatPoint(pos.XY)) return false;
+        for(int i=0;i<sec.Get3DFloorCount();i++)
+        {
+            let f=sec.Get3DFloor(i);
+            if(!(f.flags&F3DFloor.FF_EXISTS) || !(f.flags&(F3DFloor.FF_SOLID|F3DFloor.FF_SWIMMABLE))) continue;
+            if(pos.Z>=f.bottom.ZatPoint(pos.XY) && pos.Z<=f.top.ZatPoint(pos.XY)) return false;
+        }
+        let water=sec.GetHeightSec();
+        return !water || pos.Z>water.floorplane.ZatPoint(pos.XY);
+    }
+
+    override void Tick()
+    {
+        Traces=0;
+        let player=players[consoleplayer];
+        Camera=player ? player.camera : null;
+        Quality=player ? clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),0,3) : 0;
+        if (Quality && CVar.GetCVar('UTNT_reducedfx',player).GetBool()) Quality=1;
+        Limit=Quality==3 ? 2048 : Quality==2 ? 1024 : 320;
+        Range=player ? min(1792,max(0,CVar.GetCVar('UTNT_lod',player).GetInt())) : 0;
+        Enabled=Camera && Quality>0 && Range>0 && CVar.GetCVar('weatherfx').GetBool();
+        if (!Enabled || level.isFrozen() || Camera.IsFrozen()) return;
+        double t=level.time;
+        Gust=0.60+0.23*sin(t*0.19)+0.17*sin(t*0.071);
+        WindX=0.55+Gust*1.2; WindY=0.25+0.35*sin(t*0.047);
+        if (level.time%16==0 || Nearby.Size()==0)
+        {
+            Nearby.Clear();
+            for(int i=0;i<Cells.Size();i++)
+                if ((Cells[i].Center-Camera.Pos.XY).Length()<Range+128
+                    && abs(Cells[i].Height-Camera.Pos.Z)<4096) Nearby.Push(i);
+        }
+        if (Nearby.Size()==0) return;
+        double nearest=1e20;
+        for(int i=0;i<Nearby.Size();i++)
+        {
+            int n=Nearby[i]; double d=(Cells[n].Center-Camera.Pos.XY).Length();
+            if(d<nearest) { nearest=d; ActiveKind=Cells[n].Kind; }
+        }
+        if (level.time%35==0) UpdateAudio();
+        if(Quality>=2 && Exposure>0.5 && level.time%35==0 && DetailLive<6 && Live<Limit)
+        {
+            Vector3 drift=Camera.Pos+(cos(Camera.Angle)*220+Sample(-100,100),sin(Camera.Angle)*220+Sample(-100,100),120);
+            GroundDetail(drift,level.PointInSector(drift.XY),ActiveKind);
+        }
+        int attempts=Quality==3 ? 48 : Quality==2 ? 28 : 12;
+        for(int i=0;i<attempts && Live<Limit;i++) Emit();
+        int skyLimit=Quality==3 ? 512 : Quality==2 ? 256 : 80;
+        if(SkyCamera && SkyLive<skyLimit && Live<Limit)
+            for(int i=0;i<12 && SkyLive<skyLimit && Live<Limit;i++) EmitSky();
+        PeakLive=max(PeakLive,Live);
+    }
+
+    void EmitSky()
+    {
+        // The original low sky ceilings hide distant world flakes. Render a
+        // second genuine 3D field inside the authored skybox, clipped by its
+        // mountains and by the main world's sky openings (never a HUD overlay).
+        Vector3 pos=SkyCamera.Pos+(Sample(-256,256),Sample(-256,256),Sample(-96,256));
+        let sec=level.PointInSector(pos.XY); if(!sec) return;
+        if(!OpenPoint(pos,sec)) return;
+        if(!ReserveTrace()) return;
+        Vector3 delta=pos-SkyCamera.Pos;
+        Probe.Trace(SkyCamera.Pos,SkyCamera.CurSector,delta.Unit(),delta.Length(),0,
+            wallMask:Line.ML_BLOCKING|Line.ML_BLOCKEVERYTHING,ignoreAllActors:true);
+        if(Probe.Results.HitType!=TRACE_HitNone) return;
+        let v=UTNTWeatherVisual(level.SpawnClientSideVisualThinker('UTNTWeatherVisual'));
+        if(!v) return;
+        v.Owner=self; v.SkyLayer=true; v.Kind=ActiveKind; v.Pos=pos; v.Prev=pos;
+        v.Phase=Sample(0,360); v.Lifetime=ActiveKind==2 ? Pick(180,260) : 80;
+        v.Cluster=true;
+        v.Width=ActiveKind==2 ? Sample(3,6) : Sample(3,5);
+        v.Height=ActiveKind==2 ? v.Width : Sample(5,9);
+        v.BaseAlpha=ActiveKind==2 ? Sample(0.45,0.7) : Sample(0.35,0.55);
+        v.FallSpeed=ActiveKind==2 ? Sample(0.2,0.4) : Sample(3,5);
+        v.Texture=TexMan.CheckForTexture(ActiveKind==2 ? "graphics/utnt-weather/snowcluster0.png" : "graphics/utnt-weather/raincluster.png");
+        v.Flags=SPF_ROLL; v.LightLevel=200; v.Start(); Live++; SkyLive++;
+    }
+
+    void UpdateAudio()
+    {
+        if (!ReserveTrace()) return;
+        Vector3 eye=Camera.Pos+(0,0,Camera.Height*0.75);
+        Probe.Trace(eye,Camera.CurSector,(0,0,1),8192,TRACE_HitSky,ignoreAllActors:true);
+        bool outside=Probe.Results.HitType==TRACE_HasHitSky;
+        double nearest=1e20; int kind=1;
+        for(int i=0;i<Nearby.Size();i++)
+        {
+            int n=Nearby[i]; double d=(Cells[n].Center-Camera.Pos.XY).Length();
+            if(d<nearest) { nearest=d; kind=Cells[n].Kind; }
+        }
+        // At a window the audible field remains outside. Deep indoors it fades.
+        double target=outside ? 1.0 : clamp(1.0-nearest/512,0,1)*0.22;
+        Exposure=target;
+        if(target<0.01) return;
+        S_StartSound(kind==2 ? "UTNTWeather/Wind" : outside ? "UTNTWeather/Rain" : "UTNTWeather/Shelter",
+            CHAN_AUTO,0,(kind==2 ? 0.16 : 0.24)*target,ATTN_NONE);
+        if(!outside && kind==1 && Pick(0,3)==0)
+            S_StartSound("UTNTWeather/Drip",CHAN_AUTO,0,0.07*target,ATTN_NONE);
+    }
+
+    void Emit()
+    {
+        int index=Nearby[Pick(0,Nearby.Size()-1)];
+        UTNTWeatherCell cell=Cells[index];
+        Vector2 xy=cell.Center+(Sample(-64,64),Sample(-64,64));
+        double distance=(xy-Camera.Pos.XY).Length();
+        if(distance>Range || distance<28) return;
+        if(distance>640 && Sample(0,1)>0.22) return;
+        let sec=level.PointInSector(xy); if(!sec) return;
+        double floorZ=sec.floorplane.ZatPoint(xy), ceilingZ=sec.ceilingplane.ZatPoint(xy);
+        if(ceilingZ-floorZ<24) return;
+        double bottom=max(floorZ+8,Camera.Pos.Z-96);
+        double top=min(ceilingZ-4,Camera.Pos.Z+384);
+        if(top<=bottom) return;
+        Vector3 pos=(xy.X,xy.Y,Sample(bottom,top));
+        if(!OpenPoint(pos,sec)) { RejectedRoof++; return; }
+        if(!ReserveTrace()) return;
+        Probe.Trace(pos,sec,(0,0,1),8192,TRACE_HitSky,ignoreAllActors:true);
+        if(Probe.Results.HitType!=TRACE_HasHitSky) { RejectedRoof++; return; }
+        // Screen-independent world positions; distance taper hides radius edges.
+        let v=UTNTWeatherVisual(level.SpawnClientSideVisualThinker('UTNTWeatherVisual'));
+        if(!v) return;
+        v.Owner=self; v.Kind=cell.Kind; v.Pos=pos; v.Prev=pos;
+        v.Phase=Sample(0,360);
+        v.Lifetime=cell.Kind==1 ? 100 : Pick(180,280);
+        v.BaseAlpha=cell.Kind==1 ? Sample(0.40,0.62) : Sample(0.55,0.82);
+        v.Width=cell.Kind==1 ? Sample(0.35,0.65) : (Pick(0,15)==0 ? Sample(1.8,2.4) : Sample(0.7,1.7));
+        v.Height=cell.Kind==1 ? Sample(9,18) : v.Width;
+        v.FallSpeed=cell.Kind==1 ? Sample(17,24) : Sample(0.8,1.7);
+        v.Texture=TexMan.CheckForTexture(cell.Kind==1 ? "graphics/utnt-weather/rain.png" :
+            String.Format("graphics/utnt-weather/snow%d.png",Pick(0,2)));
+        if(cell.Kind==2 && distance>240)
+        {
+            v.Cluster=true;
+            v.Width=Sample(7,12); v.Height=v.Width;
+            v.Texture=TexMan.CheckForTexture(String.Format("graphics/utnt-weather/snowcluster%d.png",Pick(0,2)));
+        }
+        if(cell.Kind==1 && distance>200)
+        {
+            v.Cluster=true; v.Width=Sample(10,16); v.Height=Sample(18,26);
+            v.Texture=TexMan.CheckForTexture("graphics/utnt-weather/raincluster.png");
+        }
+        v.Flags=SPF_ROLL;
+        v.LightLevel=cell.Kind==1 ? 200 : 224;
+        v.Start(); Live++;
+        if(cell.Kind==1) SpawnedRain++; else SpawnedSnow++;
+        // Sparse drift/mist, independent of projectile/combat and torch budgets.
+        if(Quality>=2 && Live<Limit && DetailLive<8 && level.time%7==0 && Pick(0,7)==0)
+            GroundDetail(pos,sec,cell.Kind);
+    }
+
+    void GroundDetail(Vector3 pos, Sector sec, int kind)
+    {
+        if(!ReserveTrace()) return;
+        Probe.Trace(pos,sec,(0,0,-1),768,0,ignoreAllActors:true);
+        if(Probe.Results.HitType!=TRACE_HitFloor) return;
+        Vector3 ground=Probe.Results.HitPos+(0,0,12);
+        if((ground-Camera.Pos).Length()<96) return;
+        if(!OpenPoint(ground,level.PointInSector(ground.XY)) || !ReserveTrace()) return;
+        Probe.Trace(ground,level.PointInSector(ground.XY),(0,0,1),8192,TRACE_HitSky,ignoreAllActors:true);
+        if(Probe.Results.HitType!=TRACE_HasHitSky) return;
+        // Keep broad translucent sprites away from nearby walls/low roofs.
+        for(int i=0;i<4;i++)
+        {
+            if(!ReserveTrace()) return;
+            Probe.Trace(ground,level.PointInSector(ground.XY),(cos(i*90),sin(i*90),0),72,0,
+                wallMask:Line.ML_BLOCKING|Line.ML_BLOCKEVERYTHING,ignoreAllActors:true);
+            if(Probe.Results.HitType!=TRACE_HitNone) return;
+        }
+        let v=UTNTWeatherVisual(level.SpawnClientSideVisualThinker('UTNTWeatherVisual'));
+        if(!v) return;
+        v.Owner=self; v.Kind=kind==2 ? 4 : 3; v.Pos=ground; v.Prev=ground;
+        v.Texture=TexMan.CheckForTexture('graphics/utnt-weather/powder.png');
+        v.Width=kind==2 ? 180 : 112; v.Height=kind==2 ? 20 : 26;
+        v.BaseAlpha=kind==2 ? 0.18 : 0.055;
+        v.Lifetime=70; v.Phase=Sample(0,360);
+        v.LightLevel=-1; v.Start(); Live++; DetailLive++;
+    }
+}
+
+class UTNTWeatherVisual : VisualThinker
+{
+    UTNTWeatherController Owner;
+    LineTracer Probe;
+    int Kind, Age, Lifetime, SegmentLeft;
+    double Phase, BaseAlpha, Width, Height, FallSpeed, HitAfter;
+    bool WillHit, FloorHit, WaterHit, Retired, SkyLayer, Cluster;
+
+    void Start()
+    {
+        SetRenderStyle(STYLE_Translucent);
+        let size=TexMan.GetScaledSize(Texture);
+        Scale=(Width/size.X,Height/size.Y);
+        Alpha=0; HitAfter=100000;
+        Probe=new('LineTracer');
+        UpdateSector(); UpdateSpriteInfo();
+    }
+
+    void Retire()
+    {
+        if(!Retired && Owner) { Owner.Live--; if(Kind>=3) Owner.DetailLive--; if(SkyLayer) Owner.SkyLive--; }
+        Retired=true; Destroy();
+    }
+
+    override void Tick()
+    {
+        if(!Owner || !Owner.Enabled || !Texture.IsValid() || (SkyLayer && Owner.ActiveKind!=Kind)) { Retire(); return; }
+        if(IsFrozen()) return;
+        if(Owner.Live>Owner.Limit || ++Age>=Lifetime) { Retire(); return; }
+        double distance=(Pos-(SkyLayer && Owner.SkyCamera ? Owner.SkyCamera.Pos : Owner.Camera.Pos)).Length();
+        if(distance>Owner.Range+160) { Retire(); return; }
+        if(Kind==5 || Kind==6)
+        {
+            Super.Tick();
+            Alpha=BaseAlpha*(1.0-double(Age)/Lifetime);
+            Scale*=1.055;
+            return;
+        }
+        if(SegmentLeft<=0)
+        {
+            // Forecast each straight segment before moving. If the trace budget
+            // is exhausted, hold position instead of crossing unchecked geometry.
+            if(!Owner.ReserveTrace()) { Prev=Pos; return; }
+            if(Kind==1) Vel=(Owner.WindX*1.5,Owner.WindY*1.5,-FallSpeed);
+            else if(Kind==2) Vel=(Owner.WindX+0.28*sin(Age*4+Phase),Owner.WindY+0.24*cos(Age*3+Phase),-FallSpeed);
+            else Vel=(Owner.WindX*0.55,Owner.WindY*0.55,0);
+            if(SkyLayer) { Vel.X*=0.25; Vel.Y*=0.25; }
+            double speed=Vel.Length();
+            Vector3 direction=Vel;
+            int segment=Kind==2 ? 16 : 8;
+            Probe.Trace(Pos,level.PointInSector(Pos.XY),direction/speed,speed*segment,0,
+                wallMask:Line.ML_BLOCKING|Line.ML_BLOCKEVERYTHING,ignoreAllActors:true);
+            WillHit=Probe.Results.HitType!=TRACE_HitNone;
+            HitAfter=WillHit ? max(0,Probe.Results.Distance/speed) : 100000;
+            FloorHit=Probe.Results.HitType==TRACE_HitFloor;
+            WaterHit=false;
+            if(FloorHit && Probe.Results.HitSector)
+            {
+                let terrain=Probe.Results.HitSector.GetFloorTerrain(Sector.floor);
+                WaterHit=terrain && terrain.IsLiquid && terrain.TerrainName=='UTNT_Water';
+            }
+            // Transfer_Heights and 3D-water surfaces can precede the solid floor.
+            if(Probe.Results.CrossedWater || Probe.Results.Crossed3DWater)
+            {
+                Vector3 water=Probe.Results.CrossedWater ? Probe.Results.CrossedWaterPos : Probe.Results.Crossed3DWaterPos;
+                double wd=(water-Pos).Length()/speed;
+                if(wd<HitAfter) { HitAfter=wd; WillHit=true; FloorHit=true; WaterHit=true; }
+            }
+            SegmentLeft=segment;
+        }
+        if(WillHit && HitAfter<=1)
+        {
+            Vector3 stepVelocity=Vel;
+            Pos+=stepVelocity*max(0,HitAfter-0.01);
+            if(Kind==1 && FloorHit && Owner.DetailLive<24 && Owner.Live<Owner.Limit
+                && (Pos-Owner.Camera.Pos).Length()<640 && Owner.Pick(0,2)==0) Impact();
+            if(!FloorHit) Owner.RejectedWall++;
+            Retire(); return;
+        }
+        Super.Tick(); SegmentLeft--; HitAfter--;
+        double fadeIn=min(1.0,double(Age)/(Kind==1 ? 3 : Kind>=3 ? 18 : 12));
+        double fadeOut=min(1.0,double(Lifetime-Age)/(Kind>=3 ? 24 : 18));
+        Alpha=BaseAlpha*fadeIn*fadeOut*clamp((Owner.Range+96-distance)/256,0,1)
+            *clamp((distance-20)/48,0,1);
+        if(Kind==1)
+        {
+            let size=TexMan.GetScaledSize(Texture);
+            Scale.Y=min(Height,distance*(Cluster ? 0.075 : 0.022))/size.Y;
+            double side=Vel.X*-sin(Owner.Camera.Angle)+Vel.Y*cos(Owner.Camera.Angle);
+            Roll=atan2(side,FallSpeed);
+        }
+        else if(Kind==2)
+        {
+            double width=min(Width,distance*(Cluster ? 0.025 : 0.006));
+            let size=TexMan.GetScaledSize(Texture); Scale=(width/size.X,width/size.Y);
+            Roll=Phase+Age*1.7;
+        }
+    }
+
+    void Impact()
+    {
+        let v=UTNTWeatherVisual(level.SpawnClientSideVisualThinker('UTNTWeatherVisual'));
+        if(!v) return;
+        v.Owner=Owner; v.Kind=WaterHit ? 6 : 5; v.Pos=Pos+(0,0,1.3); v.Prev=v.Pos;
+        v.Texture=TexMan.CheckForTexture(WaterHit ? 'graphics/utnt-weather/ripple.png' : 'graphics/utnt-weather/splash.png');
+        v.Width=WaterHit ? 5 : 3; v.Height=WaterHit ? 1.2 : 2;
+        v.BaseAlpha=0.25; v.Lifetime=WaterHit ? 12 : 7; v.LightLevel=-1;
+        v.Start(); Owner.Live++; Owner.DetailLive++; Owner.Impacts++;
+    }
+}
