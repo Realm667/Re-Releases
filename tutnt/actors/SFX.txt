@@ -202,7 +202,7 @@ actor CometSmallDeathGlow : CometTail
 ///////////////////////
 
 //SFX Stuffage
-Actor UpwardSteamer : SwitchableDecoration 19996
+Actor UpwardSteamer : UTNTSteamSpawnerBase 19996
 {
 	Height 2
 	Radius 0
@@ -215,20 +215,12 @@ Actor UpwardSteamer : SwitchableDecoration 19996
 	{
 	Spawn:
 	Active:
-		TNT1 A 0 A_Jump(256,1,2,3,4,5)
-		TNT1 A 1 A_CustomMissile("Steam1",0,0,random(0,360),2,random(85,95))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam2",0,0,random(0,360),2,random(85,95))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam3",0,0,random(0,360),2,random(85,95))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam4",0,0,random(0,360),2,random(85,95))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam5",0,0,random(0,360),2,random(85,95))
+		TNT1 A 1 A_UTNTSteam(0)
 		Loop
 	Inactive:
+		TNT1 A 0 A_UTNTSteamOff
 		TNT1 A -1
-		Loop
+		Stop
 	}
 }
 
@@ -238,16 +230,7 @@ Actor ForwardSteamer : UpwardSteamer 19997
 	{
 	Spawn:
 	Active:
-		TNT1 A 0 A_Jump(256,1,2,3,4,5)
-		TNT1 A 1 A_CustomMissile("Steam1",0,0,random(-5,5),2,random(175,185))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam2",0,0,random(-5,5),2,random(175,185))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam3",0,0,random(-5,5),2,random(175,185))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam4",0,0,random(-5,5),2,random(175,185))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam5",0,0,random(-5,5),2,random(175,185))
+		TNT1 A 1 A_UTNTSteam(1)
 		Loop
 	}
 }
@@ -258,16 +241,7 @@ Actor DownwardSteamer : UpwardSteamer 19998
 	{
 	Spawn:
 	Active:
-		TNT1 A 0 A_Jump(256,1,2,3,4,5)
-		TNT1 A 1 A_CustomMissile("Steam1",-8,0,random(0,360),2,random(-95,-85))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam2",-8,0,random(0,360),2,random(-95,-85))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam3",-8,0,random(0,360),2,random(-95,-85))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam4",-8,0,random(0,360),2,random(-95,-85))
-		Loop
-		TNT1 A 1 A_CustomMissile("Steam5",-8,0,random(0,360),2,random(-95,-85))
+		TNT1 A 1 A_UTNTSteam(2)
 		Loop
 	}
 }

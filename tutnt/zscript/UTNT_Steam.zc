@@ -1,0 +1,156 @@
+// Local pressure steam. Map-facing actors retain their original IDs and switches.
+class UTNTSteamSpawnerBase : SwitchableDecoration
+{
+    bool SteamActive;
+    int SteamDirection;
+
+    action void A_UTNTSteam(int direction)
+    {
+        let source=UTNTSteamSpawnerBase(self);
+        source.SteamActive=true;
+        source.SteamDirection=direction;
+        UTNTSteamSystem.Ensure(source);
+    }
+    action void A_UTNTSteamOff() { UTNTSteamSpawnerBase(self).SteamActive=false; }
+}
+
+class UTNTSteamSystem play
+{
+    static void Ensure(UTNTSteamSpawnerBase source)
+    {
+        if(!source || !source.SteamActive || !UTNTVisuals.Visible(source,combat:true)) return;
+        int phase=(int(source.Pos.X)*3+int(source.Pos.Y)*5+int(source.Pos.Z))&15;
+        if((level.time+phase)%16!=0) return;
+        let it=ThinkerIterator.Create('UTNTSteamEmitter',Thinker.STAT_USER+7,true);
+        UTNTSteamEmitter emitter; int count=0;
+        while(emitter=UTNTSteamEmitter(it.Next()))
+        {
+            if(emitter.Source==source) return;
+            count++;
+        }
+        // At most 64 local emitters; each has <=48 finite-lived sheets.
+        if(count>=64) return;
+        emitter=UTNTSteamEmitter(level.CreateClientSideThinker('UTNTSteamEmitter',Thinker.STAT_USER+7));
+        if(emitter) emitter.Initialize(source);
+    }
+}
+
+class UTNTSteamEmitter : Thinker
+{
+    UTNTSteamSpawnerBase Source;
+    uint Seed;
+    int Age, NextBirth, LastVariant, IdleAge;
+    double Phase;
+
+    // A private local generator does not consume any gameplay random stream.
+    double Noise(double low, double high)
+    {
+        Seed=Seed*1664525+1013904223;
+        return low+(high-low)*double((Seed>>8)&0xffffff)/16777216.0;
+    }
+    void Initialize(UTNTSteamSpawnerBase source)
+    {
+        self.Source=source;
+        Seed=uint(int(source.Pos.X)*73856093)^uint(int(source.Pos.Y)*19349663)
+            ^uint(int(source.Pos.Z)*83492791)^uint(level.time+667);
+        Phase=Noise(0,360);
+        LastVariant=int(Noise(0,4));
+    }
+    override void Tick()
+    {
+        if(!Source) { Destroy(); return; }
+        if(Source.IsFrozen() || level.isFrozen()) return;
+        if(!UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        // Keep the controller until the last 8-tic shutdown wisps have faded.
+        // Rapid off/on switches then reuse it instead of multiplying streams.
+        if(!Source.SteamActive) { if(++IdleAge>=12) Destroy(); return; }
+        IdleAge=0;
+        Age++;
+        if(Age<NextBirth) return;
+        NextBirth=Age+1;
+        let player=players[consoleplayer];
+        int quality=clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),1,3);
+        if(CVar.GetCVar('UTNT_reducedfx',player).GetBool()
+            || Source.Distance3D(player.camera)>640) quality=1;
+        if(!UTNTVisuals.Reserve()) return;
+        let wisp=UTNTSteamWisp(level.SpawnClientSideVisualThinker('UTNTSteamWisp'));
+        if(wisp) wisp.Initialize(self,quality);
+        NextBirth=Age+(quality==1 ? 3 : quality==2 ? 2 : 1);
+    }
+}
+
+class UTNTSteamWisp : VisualThinker
+{
+    UTNTSteamSpawnerBase Source;
+    LineTracer Probe;
+    int Age, Life, Direction, Variant;
+    double Width, Strength, Phase, Spin, Spread, Pressure;
+    Vector3 Axis, Side;
+
+    void Initialize(UTNTSteamEmitter emitter, int quality)
+    {
+        Source=emitter.Source; Direction=Source.SteamDirection;
+        // A_CustomMissile used abs(cos(pitch)): forward follows actor yaw,
+        // despite the historical pitch argument being 175..185 degrees.
+        Axis=Direction==1 ? (cos(Source.Angle),sin(Source.Angle),0)
+            : Direction==2 ? (0,0,-1) : (0,0,1);
+        Side=(cos(Source.Angle+90),sin(Source.Angle+90),0);
+        Pos=Source.Vec3Offset(0,0,Direction==2 ? -8 : 0);
+        Pos+=Side*emitter.Noise(-0.55,0.55);
+        Variant=(emitter.LastVariant+1+int(emitter.Noise(0,3)))%4;
+        emitter.LastVariant=Variant;
+        Texture=TexMan.CheckForTexture(String.Format("USTM%c0",65+Variant));
+        Flags=SPF_ALLOWSHADERS|SPF_ROLL|SPF_STRETCHPIXELS;
+        SetRenderStyle(STYLE_Translucent);
+        bAddLightLevel=true; LightLevel=28;
+        Life=int(emitter.Noise(38,48));
+        Width=emitter.Noise(10,13);
+        Spread=emitter.Noise(43,58);
+        Strength=(quality==1 ? 0.96 : quality==2 ? 0.84 : 0.66)*emitter.Noise(0.85,1.04);
+        if(quality==1) Width*=1.22;
+        Phase=emitter.Noise(0,360);
+        Roll=emitter.Noise(-180,180); Spin=emitter.Noise(-1.1,1.1);
+        bXFlip=emitter.Noise(0,1)>0.5;
+        Pressure=1+0.09*sin(emitter.Age*9+emitter.Phase)+0.035*sin(emitter.Age*23);
+        Vel=Axis*(4.6*Pressure)+Side*emitter.Noise(-0.09,0.09);
+        Probe=new('LineTracer');
+        UpdateSector(); UpdateSpriteInfo(); Animate(); Prev=Pos; PrevRoll=Roll;
+    }
+    void Animate()
+    {
+        double t=double(Age)/Life;
+        double diameter=Width+Spread*t;
+        let size=TexMan.GetScaledSize(Texture);
+        Scale=(diameter*(1+0.06*sin(Age*9+Phase))/size.X,
+            diameter*(0.91+0.09*sin(Age*7+Phase+90))/size.Y);
+        Alpha=Strength*min(1.0,(Age+1)/3.0)*(1-t)*min(1.0,(Life-Age)/12.0);
+        // Avoid an opaque sprite crossing the first-person camera.
+        let player=players[consoleplayer];
+        if(player && player.camera) Alpha*=clamp((Pos-player.camera.Pos).Length()/24.0,0,1);
+    }
+    override void Tick()
+    {
+        if(!Source) { Destroy(); return; }
+        if(IsFrozen() || Source.IsFrozen() || level.isFrozen()) return;
+        if(++Age>=Life || !UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        if(!Source.SteamActive) Life=min(Life,Age+8);
+        double t=double(Age)/Life;
+        // Pressure decays; coherent flow breaks into rolling, buoyant wisps.
+        Vel*=0.966;
+        Vel+=Side*(0.025*sin(Age*15+Phase)*t);
+        Vel.Z+=Direction==0 ? 0.008 : Direction==2 ? 0.020 : 0.028;
+        if(Direction!=1)
+        {
+            Vel.X+=0.012*sin(Age*11+Phase)*t;
+            Vel.Y+=0.012*cos(Age*13+Phase)*t;
+        }
+        // Trace every short movement, including solid 3D floors and closed doors.
+        // No actors participate: steam cannot hurt, push or target anything.
+        Vector3 motion=Vel;
+        double speed=motion.Length();
+        Probe.Trace(Pos,level.PointInSector(Pos.XY),motion/speed,speed+1,0,
+            wallMask:Line.ML_BLOCKING|Line.ML_BLOCKEVERYTHING,ignoreAllActors:true);
+        if(Probe.Results.HitType!=TRACE_HitNone) { Destroy(); return; }
+        Super.Tick(); Roll+=Spin; Animate();
+    }
+}

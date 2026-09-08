@@ -1,0 +1,82 @@
+version "5.0.0"
+class UTNTSteamTest : EventHandler
+{
+    Array<Actor> Sources;
+    int Mode;
+    static ui void Check(bool ok, string message) { Console.Printf("UTNT_ASSERT %s %s",ok ? "PASS" : "FAIL",message); }
+    override void WorldTick()
+    {
+        if(level.time!=2) return;
+        let p=players[0].mo;
+        p.ACS_NamedTerminate("IntroText",0);
+        p.SetOrigin((0,-320,40),false);p.Angle=90;p.Pitch=0;p.bInvulnerable=true;
+        Sources.Push(Actor.Spawn('UpwardSteamer',(-180,0,45)));
+        Sources.Push(Actor.Spawn('ForwardSteamer',(-45,0,100)));
+        Sources.Push(Actor.Spawn('DownwardSteamer',(175,0,180)));
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=='steamoff') for(int i=0;i<Sources.Size();i++) if(Sources[i]) Sources[i].Deactivate(players[0].mo);
+        if(e.Name=='steamon') for(int i=0;i<Sources.Size();i++) if(Sources[i]) Sources[i].Activate(players[0].mo);
+        if(e.Name=='steamremove') { Sources[1].Destroy(); Sources[1]=null; }
+        if(e.Name=='steamwall')
+        {
+            Sources[0].SetOrigin((-100,0,242),false);
+            Sources[1].SetOrigin((498,0,100),false);Sources[1].Angle=0;
+            Sources[2].SetOrigin((100,0,22),false);Mode=1;
+        }
+        if(e.Name=='steammany')
+        {
+            for(int i=0;i<45;i++) Sources.Push(Actor.Spawn('ForwardSteamer',(-400+(i%9)*85,80+(i/9)*70,64)));
+            Mode=2;
+        }
+        if(e.Name=='steamview')
+        {
+            players[0].mo.SetOrigin((e.Args[0],e.Args[1],e.Args[2]),false);
+            players[0].mo.Angle=90;players[0].mo.Pitch=0;
+        }
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name=='steam3dcheck')
+        {
+            let wi=ThinkerIterator.Create('UTNTSteamWisp',Thinker.MAX_STATNUM+1,true);
+            UTNTSteamWisp w;int bad=0,above=0,below=0;
+            while(w=UTNTSteamWisp(wi.Next()))
+            {
+                if(w.Direction==0) { below++;if(w.Pos.Z>=128) bad++; }
+                if(w.Direction==2) { above++;if(w.Pos.Z<=144) bad++; }
+            }
+            Check(bad==0 && above>0 && below>0,"solid 3D floor stops steam on both faces");
+            return;
+        }
+        if(e.Name!='steamcheck') return;
+        int count=0,parts=0,bad=0,old=0;int d0=0,d1=0,d2=0;
+        let it=ThinkerIterator.Create('UTNTSteamEmitter',Thinker.STAT_USER+7,true);
+        UTNTSteamEmitter emitter;
+        while(emitter=UTNTSteamEmitter(it.Next()))
+        {
+            count++;
+            if(!emitter.Source || !emitter.Source.SteamActive) bad++;
+        }
+        let wi=ThinkerIterator.Create('UTNTSteamWisp',Thinker.MAX_STATNUM+1,true);
+        UTNTSteamWisp p;
+        while(p=UTNTSteamWisp(wi.Next()))
+        {
+            parts++;
+            if(!p.Source || p.Age>=p.Life || p.Life>48 || !p.Texture.IsValid()
+                || p.Scale.X<=0 || p.Alpha<0 || p.Alpha>1 || p.GetRenderStyle()!=STYLE_Translucent
+                || (p.Flags&SPF_FULLBRIGHT)!=0) { bad++; continue; }
+            if(Mode==1 && (p.Pos.X>=512 || p.Pos.Z<=0 || p.Pos.Z>=256)) bad++;
+            if(p.Direction==0) { d0++; if(p.Vel.Z<=0 || p.Pos.Z<p.Source.Pos.Z) bad++; }
+            if(p.Direction==1) { d1++; if(p.Vel.X<=0 || p.Pos.X<p.Source.Pos.X) bad++; }
+            if(p.Direction==2) { d2++; if(p.Vel.Z>=0 || p.Pos.Z>p.Source.Pos.Z-8) bad++; }
+        }
+        let ai=ThinkerIterator.Create('Steam1'); while(ai.Next()) old++;
+        Check(count==e.Args[0],String.Format("emitters %d expected %d",count,e.Args[0]));
+        Check(bad==0,String.Format("direction, finite lifetime, material and collision (%d invalid)",bad));
+        Check(old==0,"no legacy Steam1..5 gameplay particles");
+        Check(parts<=64*48 && (count==0 ? parts==0 : parts>0),String.Format("bounded live wisps %d",parts));
+        if(count==3 && Mode!=2) Check(d0>0 && d1>0 && d2>0,"all three directions visible");
+    }
+}
