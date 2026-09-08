@@ -102,7 +102,8 @@ class UTNTSteamWisp : VisualThinker
         Texture=TexMan.CheckForTexture(String.Format("USTM%c0",65+Variant));
         Flags=SPF_ALLOWSHADERS|SPF_ROLL|SPF_STRETCHPIXELS;
         SetRenderStyle(STYLE_Translucent);
-        bAddLightLevel=true; LightLevel=28;
+        // Inherit the current render sector light without a brightness bonus.
+        bAddLightLevel=false; LightLevel=-1;
         Life=int(emitter.Noise(38,48));
         Width=emitter.Noise(10,13);
         Spread=emitter.Noise(43,58);

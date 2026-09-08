@@ -6,7 +6,7 @@ The existing UpwardSteamer (19996), ForwardSteamer (19997) and DownwardSteamer
 (19998) emit a narrow pressure jet which slows, expands into irregular rolling
 wisps and dissolves. Four independently rotated density shapes, internal material
 motion and modest emission-pressure variation break up repetition. Steam uses
-neutral translucent shading, sector/dynamic lighting and +28 sprite light, with
+neutral translucent shading and native sector/dynamic lighting, with
 no additive glow, attached light or fullscreen effect. The density artwork is
 reused unchanged from the existing fire smoke atlas; USTM materials are separate
 from UFSM, so the fire's appearance is unaffected.
@@ -82,3 +82,16 @@ the original implementation's earlier OpenGL checks remain historical.
 All attempt logs and the baseline result are retained.
 The tested PK3 was assembled from the existing package, changing only this shader
 and generated build metadata. Evidence: tools/validation/steam-softening-2026-09-08.
+
+## Native sector brightness — 2026-09-09
+
+Removed the +28 sprite-light bonus. Steam now explicitly inherits the current
+render sector lighting (AddLightLevel=false, LightLevel=-1); no fixed brightness
+or fullbright flag is used. This follows lighting changes for existing wisps as
+well as new ones. Native movement updates the render sector. The gray material
+and softened density contours remain unchanged. In a nearly unlit sector the
+steam can become nearly invisible, like other normally lit surfaces.
+
+Vulkan and OpenGL: compilation and 16 runtime assertions passed. The same frozen
+wisps were visually checked at sector light 224, then 32, then 224 again.
+Evidence: tools/validation/steam-lighting-2026-09-09.
