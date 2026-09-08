@@ -1,0 +1,161 @@
+// Local, transient presentation only. Gameplay and recipient selection stay in ACS/the engine.
+class UTNTNoticeFeed ui
+{
+    Array<int> IDs, Values;
+    int ActiveID, ActiveValue, Age, Hold;
+    int Shown;
+
+    static String Text(int id,int value=-1)
+    {
+        String text=StringTable.Localize(String.Format("$UTNT_NOTICE_%d",id));
+        int at=text.IndexOf("{n}");
+        if(at>=0) text=text.Left(at)..String.Format("%d",value)..text.Mid(at+3);
+        return text;
+    }
+
+    static String Plain(String text)
+    {
+        String result;
+        for(int i=0;i<int(text.Length());i++)
+        {
+            if(text.CharAt(i)=="\x1c")
+            {
+                i++;
+                if(text.CharAt(i)=="[")
+                    while(i<int(text.Length()) && text.CharAt(i)!="]") i++;
+            }
+            else result=result..text.Mid(i,1);
+        }
+        return result;
+    }
+
+    static int Group(int id)
+    {
+        if(id==225 || id==226) return 225;
+        if(id>=231 && id<=237) return 231;
+        if(id>=352 && id<=357) return 352;
+        if(id==308 || id==309) return 308;
+        if(id==312 || id==313) return 312;
+        if(id==315 || id==316) return 315;
+        return id;
+    }
+
+    void Start(int id,int value)
+    {
+        ActiveID=id; ActiveValue=value; Age=0;
+        Hold=clamp(75+Plain(Text(id,value)).Length(),105,175);
+        Shown++;
+    }
+
+    void Add(int id,int value=-1)
+    {
+        if(id<=0) return;
+        String text=Text(id,value);
+        if(text.IndexOf("UTNT_NOTICE_")>=0) return;
+        if(ActiveID && Text(ActiveID,ActiveValue)==text) return;
+        if(ActiveID && Group(ActiveID)==Group(id)) { Start(id,value); return; }
+        for(int i=0;i<IDs.Size();i++)
+        {
+            if(Text(IDs[i],Values[i])==text) return;
+            if(Group(IDs[i])==Group(id)) { IDs[i]=id; Values[i]=value; return; }
+        }
+        if(!ActiveID) Start(id,value);
+        else { IDs.Push(id); Values.Push(value); }
+    }
+
+    void Tick()
+    {
+        if(!ActiveID) return;
+        if(++Age<7+Hold+11) return;
+        ActiveID=0;
+        if(IDs.Size())
+        {
+            Start(IDs[0],Values[0]); IDs.Delete(0); Values.Delete(0);
+        }
+    }
+
+    double Opacity(double frac=0)
+    {
+        return ActiveID ? clamp(min((Age+frac)/7.0,(7+Hold+11-Age-frac)/11.0),0,1) : 0;
+    }
+
+    static BrokenLines, double Layout(String text,double maxWidth)
+    {
+        Font font=Font.GetFont('SmallFont');
+        double size=1;
+        let lines=font.BreakLines(text,int(maxWidth));
+        while(lines.Count()>2 && size>0.4)
+        {
+            size-=0.025; lines=font.BreakLines(text,int(maxWidth/size));
+        }
+        return lines,size;
+    }
+
+    void Draw(double frac)
+    {
+        double alpha=Opacity(frac);
+        if(alpha<=0) return;
+        Font font=Font.GetFont('SmallFont');
+        double scale=min(Screen.GetWidth()/960.0,Screen.GetHeight()/540.0);
+        let [lines,size]=Layout(Text(ActiveID,ActiveValue),284);
+        double widest=0;
+        for(int i=0;i<lines.Count();i++) widest=max(widest,font.StringWidth(lines.StringAt(i))*size);
+        double width=max(120,widest+36),lineHeight=(font.GetHeight()+3)*size;
+        double height=max(23,lines.Count()*lineHeight+12);
+        int l=int(round((Screen.GetWidth()-width*scale)/2));
+        int r=int(round((Screen.GetWidth()+width*scale)/2));
+        int t=int(round(Screen.GetHeight()*0.40-height*scale/2));
+        int b=int(round(Screen.GetHeight()*0.40+height*scale/2));
+        int edge=max(1,int(round(scale)));
+        // A single translucent center and disjoint thin edges keep the frame quiet and gap-free.
+        Screen.DrawTexture(TexMan.CheckForTexture('UTOCBG'),true,l+edge,t+edge,
+            DTA_DestWidth,r-l-2*edge,DTA_DestHeight,b-t-2*edge,
+            DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha*0.78);
+        Screen.Dim(0x675139,alpha*0.70,l,t,r-l,edge);
+        Screen.Dim(0x4a3926,alpha*0.70,l,b-edge,r-l,edge);
+        Screen.Dim(0x997044,alpha*0.75,l,t+edge,edge,b-t-2*edge);
+        Screen.Dim(0x352b20,alpha*0.65,r-edge,t+edge,edge,b-t-2*edge);
+        double cx=l+13*scale,cy=(t+b)/2.0;
+        for(int row=-4;row<=4;row++)
+            UTNTObjectivePlaque.Rect(cx,cy,scale,-(4-abs(row)),row,2*(4-abs(row))+1,1,
+                row<0?0xa17745:0x74522d,alpha*0.9);
+        double y=(t+b-lines.Count()*lineHeight*scale)/2.0;
+        for(int i=0;i<lines.Count();i++)
+        {
+            String line=lines.StringAt(i);
+            Screen.DrawText(font,Font.CR_WHITE,l+26*scale+size*scale,y+i*lineHeight*scale+size*scale,Plain(line),
+                DTA_ScaleX,size*scale,DTA_ScaleY,size*scale,DTA_Color,0xff070605,DTA_Alpha,alpha*0.8);
+            // Native color escapes remain intact, including key-card/skull colors.
+            Screen.DrawText(font,Font.FindFontColor('UTNTNoticeBody'),l+26*scale,y+i*lineHeight*scale,line,
+                DTA_ScaleX,size*scale,DTA_ScaleY,size*scale,DTA_Alpha,alpha);
+        }
+    }
+}
+
+// Only handles denied, recognized Doom locks; every positive check follows the native path.
+class UTNTNoticeLocks
+{
+    static bool Known(int lock)
+    {
+        return lock>=1 && lock<=6 || lock>=129 && lock<=134
+            || lock==100 || lock==101 || lock==228 || lock==229;
+    }
+
+    static int Lock(Line line)
+    {
+        if(line.locknumber>0) return line.locknumber;
+        if(line.special==13 || line.special==14) return line.args[3];
+        if(line.special==83 || line.special==85 || line.special==202) return line.args[4];
+        return 0;
+    }
+
+    static bool Remote(Line line)
+    {
+        if(line.locknumber>0)
+            return line.special!=7 && line.special!=8 && (line.special<11 || line.special>14);
+        if(line.special==83) return true;
+        if(line.special==85) return false;
+        if(line.special==202) return !(line.args[2]&128) && line.args[0]!=0;
+        return line.args[0]!=0;
+    }
+}

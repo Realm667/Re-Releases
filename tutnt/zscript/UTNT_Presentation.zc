@@ -89,6 +89,30 @@ class UTNTWorldHandler : EventHandler
         S_StartSound(Sound("switches/normbutn"),CHAN_AUTO,0,0.28,ATTN_NONE);
     }
 
+
+    // Print's activator-only scope and PrintBold's broadcast scope remain distinct.
+    static void BeginNotice(int id,int target,int value=-1)
+    {
+        for(int p=0;p<MAXPLAYERS;p++)
+            if(playeringame[p] && (target==-2 || target==p))
+                EventHandler.SendInterfaceEvent(p,"utnt_notice",id,value);
+    }
+
+    override void WorldLinePreActivated(WorldEvent e)
+    {
+        if(!e.ShouldActivate || !e.Thing || !e.Thing.player) return;
+        int lock=UTNTNoticeLocks.Lock(e.ActivatedLine);
+        if(!UTNTNoticeLocks.Known(lock)) return;
+        bool remote=UTNTNoticeLocks.Remote(e.ActivatedLine);
+        if(e.Thing.CheckKeys(lock,remote,true)) return;
+        // Execute the engine's actual failure path once, including its key-try sound.
+        // The interface event replaces only that freshly attached CNTR message.
+        e.Thing.CheckKeys(lock,remote,false);
+        if(e.Thing.CheckLocalView())
+            EventHandler.SendInterfaceEvent(e.Thing.PlayerNumber(),"utnt_key_notice",1000+lock*2+int(remote));
+        e.ShouldActivate=false;
+    }
+
     String VoiceKey;
     int VoiceStartTime, VoiceEndTime;
     Array<String> VoiceQueueKeys, VoiceQueueSounds;
@@ -301,6 +325,31 @@ class UTNTWorldHandler : EventHandler
 
 class UTNTPresentation : StaticEventHandler
 {
+    ui UTNTNoticeFeed NoticeFeed;
+    ui int NoticeWorldGeneration;
+
+    ui void EnsureNotices()
+    {
+        if(!NoticeFeed || NoticeWorldGeneration!=WorldGeneration)
+        {
+            NoticeFeed=new("UTNTNoticeFeed");
+            NoticeWorldGeneration=WorldGeneration;
+        }
+    }
+
+    override void InterfaceProcess(ConsoleEvent e)
+    {
+        if(e.Name!="utnt_notice" && e.Name!="utnt_key_notice") return;
+        EnsureNotices();
+        if(e.Name=="utnt_key_notice" && StatusBar)
+        {
+            // UZDoom C_MidPrint uses MAKE_ID('C','N','T','R').
+            let old=StatusBar.DetachMessageID(0x52544e43);
+            if(old) old.Destroy();
+        }
+        NoticeFeed.Add(e.Args[0],e.Name=="utnt_notice" ? e.Args[1] : -1);
+    }
+
     ui bool ObjectivesHeld;
     ui int ObjectivesFadeTics, PreviousObjectivesFadeTics;
     ui int ObjectivesWorldGeneration;
@@ -331,6 +380,10 @@ class UTNTPresentation : StaticEventHandler
 
     override void UiTick()
     {
+        EnsureNotices();
+        if(gamestate==GS_LEVEL && !menuactive && ConsoleState==0 && !paused
+            && ObjectivesFadeTics==0 && !ObjectivesHeld)
+            NoticeFeed.Tick();
         if (ObjectivesWorldGeneration!=WorldGeneration || gamestate!=GS_LEVEL
             || menuactive || ConsoleState!=0 || paused || players[consoleplayer].health<=0)
         {
@@ -477,6 +530,8 @@ class UTNTPresentation : StaticEventHandler
             && level.time<min(objectives.ObjectiveEndTime,objectives.ObjectiveStartTime+140))
             UTNTObjectivePlaque.DrawCompact(objectives.ObjectiveEpisode,
                 objectives.ObjectiveStartTime,objectives.ObjectiveEndTime,e.FracTic);
+        if(camera && !readObjectives && !menuactive && ConsoleState==0 && NoticeFeed)
+            NoticeFeed.Draw(e.FracTic);
         DrawVoice(player);
 
         let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));

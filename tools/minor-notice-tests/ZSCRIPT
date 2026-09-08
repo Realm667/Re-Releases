@@ -1,0 +1,89 @@
+version "5.0.0"
+class UTNTNoticeTest : EventHandler
+{
+    int Denied,Accepted;
+    Line Probe;
+    override void WorldTick() { if(players[0].mo) players[0].mo.bInvulnerable=true; }
+    override void WorldLinePreActivated(WorldEvent e) { if(!e.ShouldActivate) Denied++; }
+    override void WorldLineActivated(WorldEvent e) { Accepted++; }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="ntsend") UTNTWorldHandler.BeginNotice(e.Args[0],e.Args[1],e.Args[2]);
+        if(e.Name=="ntuse" && Probe) Probe.Activate(players[0].mo,0,SPAC_Use);
+        if(e.Name=="ntlock")
+        {
+            let p=players[0].mo;
+            if(!Probe)
+                for(int i=0;i<level.Lines.Size();i++)
+                    if(level.Lines[i].special==13 && level.Lines[i].frontsector && level.Lines[i].backsector)
+                    { Probe=level.Lines[i]; break; }
+            if(!Probe) { Console.Printf("UTNT_ASSERT FAIL: real locked door available");return; }
+            class<Inventory> keys[]={ 'RedCard','BlueCard','YellowCard','RedSkull','BlueSkull','YellowSkull' };
+            for(int i=0;i<6;i++) p.TakeInventory(keys[i],999);
+            if(e.Args[2]>0) p.GiveInventory(keys[(e.Args[2]-1)%6],1);
+            Denied=Accepted=0;
+            Probe.locknumber=0;
+            Probe.special=e.Args[1];
+            Probe.args[0]=Probe.special==83 || Probe.special==85 ? 10 : 0;
+            Probe.args[1]=Probe.special==83 || Probe.special==85 ? 0 : 16;
+            Probe.args[2]=0;Probe.args[3]=0;Probe.args[4]=0;
+            if(Probe.special==13 || Probe.special==14) Probe.args[3]=e.Args[0];
+            else if(Probe.special==83 || Probe.special==85 || Probe.special==202) Probe.args[4]=e.Args[0];
+            else Probe.locknumber=e.Args[0];
+            Probe.flags|=Line.ML_REPEAT_SPECIAL;
+            Probe.activation=SPAC_Use;
+
+        }
+    }
+}
+class UTNTNoticeUITest : StaticEventHandler
+{
+    ui void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",text); }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        let h=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
+        h.EnsureNotices(); let feed=h.NoticeFeed;
+        if(e.Name=="ntreset") h.NoticeFeed=new("UTNTNoticeFeed");
+        if(e.Name=="ntpreview") { h.NoticeFeed=new("UTNTNoticeFeed");h.NoticeFeed.Add(e.Args[0],e.Args[1]); }
+        if(e.Name=="ntactive")
+        {
+            Check(feed.ActiveID==e.Args[0],"expected notice reaches the correct local view");
+            if(e.Args[0])
+            {
+                Check(feed.Hold>=105 && feed.Hold<=175,"reading time stays between three and five seconds");
+                Check(feed.IDs.Size()==e.Args[1],"expected queue size with duplicates coalesced");
+            }
+        }
+        if(e.Name=="ntvalue") Check(feed.ActiveValue==e.Args[0],"dynamic count retains its numeric value");
+        if(e.Name=="ntfade") Check(e.Args[0] ? feed.Opacity()>0 && feed.Opacity()<1 : feed.Opacity()==1,"fade interpolates without a pop");
+        if(e.Name=="ntdenied")
+        {
+            let t=UTNTNoticeTest(EventHandler.Find('UTNTNoticeTest'));
+            Check(t.Denied>0 && t.Accepted==0,"native failed key check keeps the line locked");
+            let old=StatusBar.DetachMessageID(0x52544e43);
+            Check(!old,"native center message was removed after replacement");
+            if(old) old.Destroy();
+        }
+        if(e.Name=="ntaccepted")
+        {
+            let t=UTNTNoticeTest(EventHandler.Find('UTNTNoticeTest'));
+            Check(t.Denied==0 && t.Accepted>0,"correct key uses the native line activation path");
+        }
+        if(e.Name=="ntresources")
+        {
+            int ids[]={1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1200,1201,1202,1203,1258,1259,1260,1261,1262,1263,1264,1265,1266,1267,1268,1269,1456,1457,1458,1459,196,197,198,199,200,202,203,204,205,208,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,228,229,230,231,232,233,234,235,236,237,238,240,241,245,247,252,254,255,259,260,264,273,281,282,283,285,286,287,289,290,291,293,294,295,296,297,298,301,302,303,306,307,308,309,311,312,313,315,316,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,334,335,336,337,344,345,346,349,350,351,358,57};
+            for(int i=0;i<ids.Size();i++)
+            {
+                String text=UTNTNoticeFeed.Text(ids[i],24);
+                Check(text.IndexOf("UTNT_NOTICE_")<0,"notice is localized");
+                Check(text.IndexOf("{n}")<0,"numeric placeholder is resolved");
+                let [lines,size]=UTNTNoticeFeed.Layout(text,284);
+                Check(lines.Count()<=2 && size>=0.65,"notice fits at most two readable lines");
+            }
+            Check(UTNTNoticeFeed.Text(1002).IndexOf("\c[Red]")==0,"red key color comes from LANGUAGE");
+            Check(UTNTNoticeFeed.Text(1010).IndexOf("\c[LightBlue]")==0,"blue skull color comes from LANGUAGE");
+            Check(UTNTNoticeFeed.Text(1012).IndexOf("\c[Yellow]")==0,"yellow skull color comes from LANGUAGE");
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+    }
+}
