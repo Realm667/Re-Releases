@@ -1,0 +1,107 @@
+version "5.0.0"
+#include "response.zc"
+#include "legacy.zc"
+
+class FrostRoutePoint : Object { Vector3 Pos; }
+class FrostPersistenceTests : EventHandler
+{
+    Array<FrostRoutePoint> Route;
+    Vector3 Home;
+    bool Moving, AwaitShelter, ShelterCaptured;
+    int MotionTics, Lost, Jumps, WalkingSteps, LegacyBlocked;
+    double MinimumFrost;
+    void AddPoint(Vector3 pos) { let p=new('FrostRoutePoint'); p.Pos=pos; Route.Push(p); }
+
+    bool OpenSnow(Vector3 pos)
+    {
+        let c=UTNTWeatherSystem.Find();
+        let sec=level.PointInSector(pos.XY);
+        if(!sec || !level.IsPointInLevel(pos) || !c.OpenPoint(pos,sec)) return false;
+        if(UTNTVisorState.WeatherAt(pos,c)!=2) return false;
+        let trace=new('LineTracer');
+        trace.Trace(pos,sec,(0,0,1),8192,TRACE_HitSky,ignoreAllActors:true);
+        return trace.Results.HitType==TRACE_HasHitSky;
+    }
+    override void WorldTick()
+    {
+        if(AwaitShelter)
+        {
+            let h=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+            let v=h.Visors[0];
+            if(v.RawExposure==0)
+            {
+                let fixture=UTNTVisorTests(EventHandler.Find('UTNTVisorTests'));
+                fixture.SavedWet=v.Wet; fixture.SavedFrost=v.Frost; fixture.SavedSpawns=v.Spawned;
+                AwaitShelter=false; ShelterCaptured=true;
+                Check(v.Wet>0.1 || v.Frost>0.1,"entering actual cover retains residual weather");
+            }
+        }
+        if(!Moving || Route.Size()<2) return;
+        let p=players[0].mo;
+        let h=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+        let fixture=UTNTVisorTests(EventHandler.Find('UTNTVisorTests'));
+        let v=h.Visors[0]; h.WeatherTics=190*35;
+        if(MotionTics>5)
+        {
+            MinimumFrost=min(MinimumFrost,v.Frost);
+            if(v.Kind!=2 || v.RawExposure!=1 || v.Frost<0.95)
+            {
+                if(Lost<8) Console.Printf("FROST_LOSS tic=%d kind=%d raw=%.2f exposure=%.2f frost=%.4f pos=%.1f %.1f %.1f eye=%.1f",MotionTics,v.Kind,v.RawExposure,v.Exposure,v.Frost,p.Pos.X,p.Pos.Y,p.Pos.Z,players[0].viewz);
+                Lost++;
+            }
+        }
+        Vector3 next=Route[(MotionTics/12)%Route.Size()].Pos;
+        // Include small actual steps beside walls and large outdoor relocations.
+        Vector3 nearby=p.Pos+(cos(MotionTics*15)*8,sin(MotionTics*15)*8,0);
+        if(MotionTics%12!=0 && OpenSnow(nearby+(0,0,41))) next=nearby;
+        double distance=(next-p.Pos).Length();
+        if(distance>256) Jumps++; else if(distance>0.1) WalkingSteps++;
+        fixture.OutsidePos=next; p.SetOrigin(next,false);
+        players[0].viewz=next.Z+41; p.Angle=MotionTics*17; p.Pitch=sin(MotionTics*5)*50;
+        MotionTics++;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="captureshelter") { AwaitShelter=true; ShelterCaptured=false; }
+        if(e.Name=="checkshelter") Check(ShelterCaptured,"shelter snapshot was captured after exposure stopped");
+        if(e.Name=="frostmotion")
+        {
+            let fixture=UTNTVisorTests(EventHandler.Find('UTNTVisorTests'));
+            let c=UTNTWeatherSystem.Find();
+            let h=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+            let v=h.Visors[0];
+            if(e.Args[0]==1)
+            {
+                Home=fixture.OutsidePos; Route.Clear(); AddPoint(Home);
+                let legacy=new('LegacySnowExposure');
+                int tested=0, mismatches=0;
+                for(int y=-12;y<=12;y++) for(int x=-12;x<=12;x++)
+                {
+                    Vector2 xy=Home.XY+(x*64,y*64); let sec=level.PointInSector(xy);
+                    if(!sec) continue;
+                    Vector3 eye=(xy.X,xy.Y,sec.floorplane.ZatPoint(xy)+53);
+                    if(!OpenSnow(eye)) continue;
+                    tested++;
+                    if(v.ProbeWeather(eye,2,c,0)!=1 || v.ProbeWeather(eye,2,c,1)!=1) mismatches++;
+                    if(legacy.ProbeWeather(eye,2,c,1)==0)
+                    {
+                        LegacyBlocked++;
+                        if(Route.Size()<5 && (eye.XY-Home.XY).Length()>320) AddPoint(eye-(0,0,41));
+                    }
+                }
+                Check(tested>20 && mismatches==0,"open sky snow exposure is independent of wind and adjacent walls");
+                Check(LegacyBlocked>0 && Route.Size()>1,"regression route contains formerly blocked outdoor positions");
+                Console.Printf("FROST_ROUTE tested=%d legacyBlocked=%d stops=%d",tested,LegacyBlocked,Route.Size());
+                Moving=true; MinimumFrost=v.Frost;
+            }
+            else { Moving=false; fixture.OutsidePos=Home; }
+        }
+        if(e.Name=="frostmotioncheck")
+        {
+            Check(MotionTics>=100 && Jumps>1 && WalkingSteps>20,"outdoor route covers movement and large position changes");
+            Check(Lost==0 && MinimumFrost>=0.95,"frost remains accumulated throughout outdoor movement");
+            Console.Printf("FROST_MOTION ticks=%d jumps=%d steps=%d lost=%d minimum=%.4f",MotionTics,Jumps,WalkingSteps,Lost,MinimumFrost);
+        }
+    }
+    void Check(bool pass,String label) { Console.Printf("UTNT_ASSERT %s: %s",pass ? "PASS" : "FAIL",label); }
+}

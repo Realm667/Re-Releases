@@ -1,0 +1,43 @@
+{
+  "results": [
+    {
+      "label": "response-snow-1",
+      "ok": true,
+      "exit": 0,
+      "seconds": 41.0,
+      "log": "response-snow-1.log",
+      "errors": [],
+      "assertions": 33
+    },
+    {
+      "label": "response-snow-0",
+      "ok": true,
+      "exit": 0,
+      "seconds": 74.09,
+      "log": "response-snow-0.log",
+      "errors": [],
+      "assertions": 32
+    },
+    {
+      "label": "response-rain-1",
+      "ok": true,
+      "exit": 0,
+      "seconds": 38.19,
+      "log": "response-rain-1.log",
+      "errors": [],
+      "assertions": 31
+    }
+  ],
+  "assertions": 96,
+  "runtime": {
+    "tutnt/shaders/weather-visor.fp": "873829c43a9010136392d8eb1f26032629b7102c6405a27585a4cb4ad68a0bee",
+    "tutnt/zscript/UTNT_WeatherVisor.zc": "b1e217a8f39d0e07146c6723a058e976c28516d095b702016e02ebe762837d8f"
+  },
+  "notes": [
+    "Sharp frost artwork restored at half tint opacity; separate normal filter preserves strong refraction.",
+    "95 open-sky snow positions checked; old wind-oriented query falsely blocked 67.",
+    "Outdoor movement includes 140 steps and five discontinuous relocations; frost stays at 1.0 with zero lost exposure samples.",
+    "Snow Vulkan run preceded only the fixture shelter snapshot timing correction; final fixture observes actual loss of exposure before capturing residuals.",
+    "Development checks found and fixed a temporary exposure reset after teleport; final runtime results here all pass."
+  ]
+}

@@ -50,6 +50,14 @@ class UTNTVisorState : Object play
         let sec=level.PointInSector(eye.XY);
         if(!kind || !level.IsPointInLevel(eye) || !weather.OpenPoint(eye,sec)) return 0;
         let trace=new('LineTracer');
+        // Frost depends on open sky above the eye, not the changing wind angle.
+        // A wall beside an outdoor player must not make accumulated ice thaw.
+        if(kind==2)
+        {
+            trace.Trace(eye,sec,(0,0,1),8192,TRACE_HitSky,ignoreAllActors:true);
+            ProbeCount=1;
+            return trace.Results.HitType==TRACE_HasHitSky ? 1.0 : 0.0;
+        }
         // Trace back along incoming precipitation. Solid roofs and 3D floors
         // block the view independently of the nearby audible weather field.
         double gust=0.60+0.23*sin(level.time*0.19)+0.17*sin(level.time*0.071);
@@ -85,8 +93,16 @@ class UTNTVisorState : Object play
         if(!camera || camera!=player.mo || player.health<=0 || camera.WaterLevel>=3)
         { Clear(); LastCamera=camera; return; }
         Vector3 eye=(camera.Pos.X,camera.Pos.Y,player.viewz);
-        if(camera!=LastCamera || (eye-LastPosition).Length()>256)
+        if(camera!=LastCamera)
         { Clear(); LastCamera=camera; }
+        else if((eye-LastPosition).Length()>256)
+        {
+            // Re-probe a discontinuous move immediately, keeping ice until the
+            // destination is evaluated. Rain drops retain their teleport reset.
+            double accumulatedFrost=Frost, previousExposure=Exposure;
+            Clear(); Frost=PreviousFrost=accumulatedFrost;
+            if(accumulatedFrost>0) Exposure=previousExposure;
+        }
         LastPosition=eye;
         if(level.isFrozen() || camera.IsFrozen() || LevelLocals.WorldPaused()) return;
         Tics++;
