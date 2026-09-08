@@ -1,0 +1,32 @@
+// Test-only: fixed cameras and runtime contracts, excluded from release package.
+class UTNTStormTests : EventHandler
+{
+ bool Initialized;
+ int View;
+ void Check()
+ {
+  let it=ThinkerIterator.Create('SkyViewpoint');
+  Console.Printf("UTNT_ASSERT %s: old sky viewpoint retired",it.Next()==null?"PASS":"FAIL");
+  Console.Printf("UTNT_ASSERT %s: storm sky assigned",level.SkyTexture1==TexMan.CheckForTexture("USTSKY")?"PASS":"FAIL");
+  Console.Printf("UTNT_ASSERT %s: gameplay sector count preserved",level.Sectors.Size()==3742?"PASS":"FAIL");
+ }
+ override void WorldTick()
+ {
+  if(!(level.MapName~=="TNT01"))return;
+  let p=players[0].mo;if(!p || level.time<10)return;
+  if(!Initialized){Initialized=true;Check();}
+  p.bInvulnerable=true;p.bNoGravity=true;
+  Vector3 pos=(-512,1120,0);double angle=45,pitch=-35;
+  if(View>=1 && View<=4){pos=(-3100,0,256);angle=(View-1)*90;pitch=-20;}
+  if(View==5){pos=(-2600,1800,128);angle=180;pitch=-20;}
+  if(View==6){pos=(6400,-3500,288);angle=90;pitch=-20;}
+  if(View==7){pos=(-3100,0,256);angle=45;pitch=-89;}
+  if(View==8){pos=(-3100,0,400);angle=45;pitch=-20;}
+  p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=angle;p.Pitch=pitch;
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name=="stormview")View=e.Args[0];
+  if(e.Name=="stormcheck")Check();
+ }
+}
