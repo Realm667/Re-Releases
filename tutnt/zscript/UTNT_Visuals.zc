@@ -141,6 +141,7 @@ class UTNTPuffBase : Actor
 
 class UTNTRocketFXBase : Rocket
 {
+    action void A_UTNTFlightFX() { UTNTIndustrialFX.Rocket(self); }
     action void A_UTNTTrail(double x, double y, double z) { UTNTVisuals.Smoke(self,x,y,z); }
     action void A_UTNTRocketFlame() { UTNTVisuals.RocketFlame(self); }
 }

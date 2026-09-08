@@ -1,0 +1,36 @@
+version "5.0.0"
+class UTNTDamageTarget : Actor
+{
+    Default { Health 5000; Radius 16; Height 56; +SHOOTABLE +NOBLOOD +NOGRAVITY +SOLID }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+class UTNTDamageCheck : EventHandler
+{
+    Actor Target;
+    override void WorldTick()
+    {
+        let p=players[0].mo; if(!p) return;
+        if(level.time==10)
+        {
+            p.SetOrigin((0,-160,0),false);p.Angle=90;p.Pitch=0;p.bINVULNERABLE=true;
+            Target=Actor.Spawn('UTNTDamageTarget',(0,32,0));
+        }
+        if(level.time==20) p.LineAttack(90,1024,0,5,'Hitscan','NewPuff');
+        if(level.time==25) Console.Printf("UTNT_DAMAGE bullet %d",Target.Health);
+        if(level.time==30) for(int i=0;i<20;i++) p.LineAttack(90,1024,0,5,'Hitscan','NewPuff');
+        if(level.time==35) Console.Printf("UTNT_DAMAGE shotgun %d",Target.Health);
+        if(level.time==45)
+        {
+            let r=Actor.Spawn('UTNTRocket',(0,-60,32));r.target=p;r.Angle=90;r.Vel=(0,20,0);
+        }
+        if(level.time==70) Console.Printf("UTNT_DAMAGE rocket %d",Target.Health);
+        if(level.time==80) for(int i=0;i<7;i++) p.LineAttack(90,1024,0,5,'Hitscan','NewPuff');
+        if(level.time==90) Console.Printf("UTNT_DAMAGE followup %d",Target.Health);
+        if(level.time==100) Actor.Spawn('TeleportEffects',p.Pos);
+        if(level.time==140)
+        {
+            Console.Printf("UTNT_DAMAGE player %d %.1f %.1f %.1f",p.Health,p.Pos.X,p.Pos.Y,p.Pos.Z);
+            Console.Printf("UTNT_GAMEPLAY_COMPLETE");
+        }
+    }
+}

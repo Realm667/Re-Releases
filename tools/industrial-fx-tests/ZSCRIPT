@@ -1,0 +1,80 @@
+version "5.0.0"
+class UTNTIndustrialTest : EventHandler
+{
+    Actor Spark, Missile;
+    override void WorldTick()
+    {
+        let p=players[0].mo;
+        if(p && level.time==5) { p.Angle=90; p.Pitch=0; p.bINVULNERABLE=true; }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="fxclear")
+        {
+            if(Spark) { Spark.Destroy(); Spark=null; }
+            if(Missile) { Missile.Destroy(); Missile=null; }
+            let it=ThinkerIterator.Create('UTNTIndustrialParticle',Thinker.MAX_STATNUM+1,true);
+            Thinker t; while(t=it.Next()) t.Destroy();
+            return;
+        }
+        if(e.Name=="fxoff") { if(Spark) Spark.Deactivate(null); return; }
+        if(e.Name=="fxon") { if(Spark) Spark.Activate(null); return; }
+        if(e.Name=="fxjump") { if(Missile) Missile.SetOrigin(Missile.Pos+(256,0,0),false); return; }
+        if(e.Name!="fx") return;
+        int mode=e.Args[0]; let p=players[0].mo;
+        p.SetOrigin((0,mode<2 ? -32 : -160,0),false); p.Angle=90; p.Pitch=0;
+        if(mode==0)
+        {
+            let puff=Actor.Spawn('NewPuff',(0,124,48)); puff.Angle=270;
+        }
+        if(mode==1)
+        {
+            if(Spark) Spark.Destroy();
+            Spark=Actor.Spawn('WhiteSpark_Side',(-16,120,70)); Spark.Angle=270;
+        }
+        if(mode==2) Actor.Spawn('TeleportEffects',(0,48,0));
+        if(mode==3) Actor.Spawn('NewExplosionMedium',(0,48,0));
+        if(mode==4)
+        {
+            Missile=Actor.Spawn('UTNTRocket',(210,32,45)); Missile.Angle=180;
+            Missile.Vel=(-20,0,0); Missile.target=p;
+        }
+        if(mode==5)
+        {
+            for(int i=0;i<20;i++) { let a=Actor.Spawn('NewPuff',(-40+i*4,124,48)); a.Angle=270; }
+            for(int i=0;i<8;i++) Actor.Spawn('NewExplosionMedium',(-210+i*60,24,0));
+            for(int i=0;i<8;i++) Actor.Spawn('TeleportEffects',(-210+i*60,64,0));
+            for(int i=0;i<12;i++) { let a=Actor.Spawn('UTNTRocket',(-220+i*40,0,70)); a.Vel=(0,10,0); a.target=p; }
+        }
+        if(mode==6)
+        {
+            Name names[]={ 'WhiteSpark_Down','WhiteSpark_Side','WhiteSpark_Up','RedSpark_Down','RedSpark_Side','RedSpark_Up','OrangeSpark_Down','OrangeSpark_Side','OrangeSpark_Up','YellowSpark_Down','YellowSpark_Side','YellowSpark_Up','GreenSpark_Down','GreenSpark_Side','GreenSpark_Up','BlueSpark_Down','BlueSpark_Side','BlueSpark_Up','PurpleSpark_Down','PurpleSpark_Side','PurpleSpark_Up' };
+            for(int i=0;i<21;i++) { let a=Actor.Spawn(names[i],(-210+(i%7)*70,20+(i/7)*35,50)); a.Angle=270; }
+        }
+        if(mode==7)
+        {
+            Name names[]={'NewExplosionMedium','NewExplosionMediumConcentrated','NewExplosionMediumBig','NewExplosionBig','NewExplosionSmall','NewExplosionSmallSimple','NewExplosionSmallLittleBigger','MonExplosionMedium','MonExplosionMediumSimple','MonExplosionMediumConcentrated','MonExplosionMediumBig','MonExplosionBig','MonExplosionSmallTooSimple'};
+            for(int i=0;i<13;i++) Actor.Spawn(names[i],(-240+i*40,40,i%2 ? 48 : 0));
+        }
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name!="fxcheck") return;
+        int count=0,invalid=0; int kinds[7];
+        let it=ThinkerIterator.Create('UTNTIndustrialParticle',Thinker.MAX_STATNUM+1,true);
+        UTNTIndustrialParticle v;
+        while(v=UTNTIndustrialParticle(it.Next()))
+        {
+            count++; kinds[v.Kind]++;
+            if(!v.Texture.IsValid() || v.Life<=0 || v.Age>=v.Life || v.Scale.X<=0 || v.Scale.Y<=0 || v.Alpha<0 || v.Alpha>1) invalid++;
+        }
+        let bi=ThinkerIterator.Create('UTNTIndustrialBudget',Thinker.STAT_USER+8,true);
+        let b=UTNTIndustrialBudget(bi.Next());
+        Console.Printf("UTNT_ASSERT %s finite particles/textures/scales",invalid==0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s live counter agrees with engine enumeration",!b ? count==0 ? "PASS" : "FAIL" : b.Live==count ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s bounded live visuals",count<=768 ? "PASS" : "FAIL");
+        if(e.Args[0]==0) Console.Printf("UTNT_ASSERT %s all transient particles expired",count==0 ? "PASS" : "FAIL");
+        if(e.Args[0]==1) Console.Printf("UTNT_ASSERT %s expected visible particles",count>0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_IFX_COUNTS %d %d %d %d %d %d %d total=%d",kinds[0],kinds[1],kinds[2],kinds[3],kinds[4],kinds[5],kinds[6],count);
+    }
+}
