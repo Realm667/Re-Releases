@@ -1,0 +1,47 @@
+version "5.0.0"
+class UTNTLostSoulTest : EventHandler
+{
+    Actor Soul, Other;
+    override void WorldTick()
+    {
+        if (level.time!=2) return;
+        let p=players[0].mo;
+        p.ACS_NamedTerminate("IntroText",0);
+        p.SetOrigin((0,-180,0),false); p.Angle=90; p.Pitch=0;
+        p.bInvulnerable=true; p.player.cheats|=CF_NOTARGET;
+        Soul=Actor.Spawn('LostSoul',(0,0,30),ALLOW_REPLACE);
+        Other=Actor.Spawn('Terror',(100,0,30));
+        Soul.Angle=Other.Angle=270;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="soulmove")
+        {
+            Soul.bDormant=false; Soul.SetOrigin((0,0,30),false);
+            Soul.target=players[0].mo;
+            if(e.Args[0]==1) Soul.SetStateLabel("See"); else Soul.SetStateLabel("Missile");
+        }
+        if(e.Name=="soulkill" && Soul) Soul.DamageMobj(null,null,10000,'None');
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name!="soulcheck") return;
+        int count=0,invalid=0,foreign=0,young=0;
+        let it=ThinkerIterator.Create('UTNTFireDetail',Thinker.MAX_STATNUM+1,true);
+        UTNTFireDetail p;
+        while(p=UTNTFireDetail(it.Next()))
+        {
+            if(p.Source==Other) foreign++;
+            if(p.Source!=Soul) continue;
+            count++; if(p.Age<16) young++;
+            if(p.Smoke || !(TexMan.GetName(p.Texture)~=="UFEBA0")
+                || p.Life<28 || p.Life>46 || p.Age>=p.Life || p.Alpha<=0) invalid++;
+        }
+        bool expect=e.Args[0]!=0;
+        Console.Printf("UTNT_ASSERT %s soul sparks count=%d young=%d invalid=%d terror=%d",
+            (expect ? count>0 && young>0 : count==0) && invalid==0 && foreign==0 ? "PASS" : "FAIL",
+            count,young,invalid,foreign);
+        if(Soul) Console.Printf("SOUL_STATE pos=(%.1f,%.1f,%.1f) velocity=(%.1f,%.1f,%.1f) hp=%d skullfly=%d",
+            Soul.Pos.X,Soul.Pos.Y,Soul.Pos.Z,Soul.Vel.X,Soul.Vel.Y,Soul.Vel.Z,Soul.Health,Soul.bSkullFly);
+    }
+}
