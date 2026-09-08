@@ -1,0 +1,132 @@
+version "5.0.0"
+class UTNTVisorTests : EventHandler
+{
+    Vector3 OutsidePos, InsidePos;
+    double OutsideAngle, InsideAngle;
+    int Mode;
+    double SavedWet, SavedFrost;
+    int SavedSpawns, SavedTics, SavedLevelTime;
+    Vector2 SavedDrop;
+    bool FoundInside;
+    override void WorldTick()
+    {
+        let p=players[0].mo; if(!p) return;
+        p.bInvulnerable=true; p.bNoGravity=true;
+        if(!p.FindInventory('UTNTHUDHidden')) p.GiveInventory('UTNTHUDHidden',1);
+        if(level.time==10)
+        {
+            p.ACS_NamedTerminate("IntroText",0);
+            OutsidePos=(-1440,2112,12); OutsideAngle=270;
+            if(level.MapName~=="TNT02")
+            {
+                OutsidePos=(2624,0,12); OutsideAngle=270;
+            }
+            OutsidePos.Z=level.PointInSector(OutsidePos.XY).floorplane.ZatPoint(OutsidePos.XY)+12;
+            Console.Printf("VISOR outside %.1f %.1f %.1f",OutsidePos.X,OutsidePos.Y,OutsidePos.Z);
+        }
+        if(level.time==90)
+        {
+            FindShelter();
+            let it=ThinkerIterator.Create('SkyViewpoint'); Actor a;
+            while(a=Actor(it.Next())) Console.Printf("VISOR_SKY tid=%d pos=%.1f %.1f %.1f",a.tid,a.Pos.X,a.Pos.Y,a.Pos.Z);
+        }
+        if(level.time>=10)
+        {
+            Vector3 targetPos=Mode==2 && FoundInside ? InsidePos : OutsidePos;
+            Vector3 delta=targetPos-p.Pos;
+            // Walk into cover in bounded steps: test residual decay, not the
+            // separate immediate-reset behavior for teleports.
+            p.SetOrigin(Mode==2 && delta.Length()>64 ? p.Pos+delta.Unit()*64 : targetPos,false);
+            p.Vel=(0,0,0); p.Angle=Mode==2 && FoundInside ? InsideAngle : OutsideAngle;
+            p.Pitch=Mode!=2 && level.MapName~=="TNT02" ? 9 : 0;
+        }
+    }
+    void FindShelter()
+    {
+        let c=UTNTWeatherSystem.Find(); if(!c) return;
+        double best=1e20;
+        Vector3 eye=OutsidePos+(0,0,41);
+        for(int y=-12;y<=12;y++) for(int x=-12;x<=12;x++)
+        {
+            Vector2 xy=OutsidePos.XY+(x*64,y*64);
+            double distance=(xy-OutsidePos.XY).Length();
+            if(distance<192 || distance>850) continue;
+            let sec=level.PointInSector(xy); if(!sec) continue;
+            Vector3 pos=(xy.X,xy.Y,eye.Z);
+            if(abs(pos.Z-eye.Z)>192 || !c.OpenPoint(pos,sec)) continue;
+            c.Probe.Trace(pos,sec,(0,0,1),8192,TRACE_HitSky,ignoreAllActors:true);
+            if(c.Probe.Results.HitType==TRACE_HasHitSky || c.Probe.Results.Distance<16) continue;
+            Vector3 delta=eye-pos;
+            c.Probe.Trace(pos,sec,delta.Unit(),delta.Length()-8,0,ignoreAllActors:true);
+            if(c.Probe.Results.HitType!=TRACE_HitNone) continue;
+            double score=distance+abs(pos.Z-eye.Z)*2;
+            if(score>=best) continue;
+            best=score; InsidePos=pos-(0,0,41); InsideAngle=atan2(delta.Y,delta.X); FoundInside=true;
+        }
+        if(level.MapName~=="TNT03A1")
+        {
+            InsidePos=(-1256,1536,108); InsideAngle=90;
+            let sec=level.PointInSector(InsidePos.XY);
+            c.Probe.Trace(InsidePos+(0,0,41),sec,(0,0,1),8192,TRACE_HitSky,ignoreAllActors:true);
+            FoundInside=c.Probe.Results.HitType==TRACE_HitCeiling;
+            Console.Printf("VISOR snow roof type=%d distance=%.1f",c.Probe.Results.HitType,c.Probe.Results.Distance);
+        }
+        if(level.MapName~=="TNT02")
+        {
+            InsidePos=(2880,64,-55.1); InsideAngle=194;
+            let sec=level.PointInSector(InsidePos.XY);
+            c.Probe.Trace(InsidePos+(0,0,41),sec,(0,0,1),8192,TRACE_HitSky,ignoreAllActors:true);
+            FoundInside=c.Probe.Results.HitType==TRACE_HitCeiling;
+            Console.Printf("VISOR rain roof type=%d distance=%.1f",c.Probe.Results.HitType,c.Probe.Results.Distance);
+        }
+        Console.Printf("VISOR shelter=%d position %.1f %.1f %.1f angle %.1f",FoundInside,InsidePos.X,InsidePos.Y,InsidePos.Z,InsideAngle);
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="visorphase")
+        {
+            Mode=e.Args[0];
+            let h=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+            h.WeatherTics=(Mode==0 ? 4 : 190)*35;
+        }
+        let h=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+        let v=h.Visors[e.Player];
+        if(e.Name=="vsnapshot")
+        { SavedWet=v.Wet; SavedFrost=v.Frost; SavedSpawns=v.Spawned; SavedTics=v.Tics; SavedLevelTime=level.time; if(v.Drops.Size()>0) SavedDrop=v.Drops[0].Pos; }
+        if(e.Name=="vcheck")
+        {
+            int n=e.Args[0];
+            if(n==0) Check(v.RawExposure>0 && v.Wet>0.65 && v.Frost==0,"rain directly wets the visor");
+            if(n==1) Check(v.RawExposure>0 && v.Frost>0.65 && v.Wet==0,"snow accumulates frost");
+            if(n==2) Check(v.RawExposure==0 && v.Spawned==SavedSpawns && v.Wet<=SavedWet && v.Frost<=SavedFrost,"shelter stops new deposits and decays residuals");
+            if(n==3) Check(v.Wet==0 && v.Frost==0 && v.Drops.Size()==0,"shelter clears water frost and drops");
+            if(n==4) Check(v.Tics==SavedTics && v.Wet==SavedWet && v.Frost==SavedFrost,"freeze holds visor state");
+            if(n==5) Check(abs((v.Tics-SavedTics)-(level.time-SavedLevelTime))<=1 && abs(v.Frost-SavedFrost)<0.05 && abs(v.Wet-SavedWet)<0.05,"save load restores visor accumulation and clock");
+            if(n==6) Check(v.Drops.Size()>0 && v.Drops[0].Pos!=SavedDrop,"individual water drops move");
+            if(n==7)
+            {
+                let c=UTNTWeatherSystem.Find(); int skyCount=0; bool miniature=true;
+                let it=ThinkerIterator.Create('UTNTWeatherVisual',Thinker.MAX_STATNUM+1,true);
+                UTNTWeatherVisual particle;
+                while(particle=UTNTWeatherVisual(it.Next()))
+                {
+                    if(!particle.SkyLayer) continue;
+                    skyCount++;
+                    miniature=miniature && particle.SkyOrigin!=null && particle.Width<0.5 && particle.FallSpeed<3.5; //
+                        // Dimensions must remain scaled for every particle.
+                }
+                Check(miniature,"sky particles keep miniature dimensions"); Check(c.SkyCameras.Size()>0 && c.SkyLive>20 && skyCount==c.SkyLive,"skybox field populated and accounted");
+            }
+            if(n==8) Check(SavedWet>0.1 || SavedFrost>0.1,"entering cover retains visible residual weather");
+            Check(v.Drops.Size()<=32 && v.ProbeCount<=3 && v.DrySpawned==0,"bounded drops rays and zero sheltered spawns");
+            Check(v.Wet>=0 && v.Wet<=1 && v.Frost>=0 && v.Frost<=1,"visor strengths bounded");
+        }
+        if(e.Name=="visorstats" || e.Name=="vcheck")
+        {
+            let c=UTNTWeatherSystem.Find();
+            Console.Printf("VISOR phase=%d intensity=%.3f kind=%d raw=%.3f wet=%.4f frost=%.4f count=%d spawned=%d clock=%d sky=%d mist=%d peakmist=%d",
+                Mode,c.Intensity,v.Kind,v.RawExposure,v.Wet,v.Frost,v.Drops.Size(),v.Spawned,v.Tics,c.SkyLive,c.VeilLive,c.PeakVeils);
+        }
+    }
+    void Check(bool pass,String label) { Console.Printf("UTNT_ASSERT %s: %s",pass ? "PASS" : "FAIL",label); }
+}

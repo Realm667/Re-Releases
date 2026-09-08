@@ -1,0 +1,24 @@
+class UTNTVisorGeometryTests : EventHandler
+{
+    void Check(bool ok, String message) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="weatherworld") { let h=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler')); for(int i=0;i<MAXPLAYERS;i++) if(playeringame[i] && h.Visors[i]) { let state=h.Visors[i]; Console.Printf("VISOR_SHARED %d %d %.8f %.8f %d",i,state.Tics,state.Wet,state.Frost,state.Spawned); } } if(e.Name!="visorgeometry") return;
+        let c=UTNTWeatherSystem.Find(); let v=new('UTNTVisorState');
+        Check(v.ProbeWeather((-512,512,41),1,c,0)>0,"open fixture sky exposes visor");
+        Check(v.ProbeWeather((0,0,41),1,c,0)==0,"solid roof blocks visor precipitation");
+        Check(v.ProbeWeather((512,0,41),1,c,0)==0,"solid 3D floor blocks visor precipitation");
+        Check(v.ProbeWeather((0,-512,-32),1,c,0)==0,"submerged viewpoint receives no visor precipitation");
+        let p=players[e.Player];
+        int health=p.health; Actor camera=p.camera;
+        v.Wet=1; v.Frost=1; p.health=0; v.TickPlayer(e.Player,c,1);
+        Check(v.Wet==0 && v.Frost==0 && v.Drops.Size()==0,"dead player clears visor");
+        p.health=health;
+        v.Wet=1; v.Frost=1; p.camera=null; v.TickPlayer(e.Player,c,1);
+        Check(v.Wet==0 && v.Frost==0,"missing camera clears visor");
+        p.camera=camera;
+        v.LastCamera=camera; v.LastPosition=camera.Pos+(1024,0,0); v.Wet=1; v.Frost=1;
+        v.TickPlayer(e.Player,c,0);
+        Check(v.Wet<0.04 && v.Frost<0.003,"teleport resets old accumulation");
+    }
+}

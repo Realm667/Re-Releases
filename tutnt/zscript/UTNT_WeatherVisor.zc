@@ -1,0 +1,213 @@
+// Saved, deterministic cosmetic state. No gameplay RNG or local preferences
+// enter simulation; only the local camera's shader is drawn.
+class UTNTVisorDrop : Object
+{
+    Vector2 Pos, PreviousPos;
+    double Radius, Stretch, Alpha, PreviousAlpha, Trail, Speed, Phase;
+    int Age, Life, Hold;
+}
+
+class UTNTVisorState : Object play
+{
+    Array<UTNTVisorDrop> Drops;
+    Actor LastCamera;
+    Vector3 LastPosition;
+    double Wet, PreviousWet, Frost, PreviousFrost, Exposure, RawExposure;
+    double Accumulator, Drift, PeakWet, PeakFrost;
+    uint Seed;
+    int Kind, Tics, ProbeCount, Spawned, DrySpawned, Checks, LastProbe;
+
+    double RandomUnit()
+    {
+        Seed^=Seed<<13; Seed^=Seed>>17; Seed^=Seed<<5;
+        return (Seed&0x7fffffff)/2147483648.0;
+    }
+    static double Approach(double current,double target,double speed)
+    {
+        return current<target ? min(target,current+speed/35.0) : max(target,current-speed/35.0);
+    }
+    void Clear()
+    {
+        Wet=PreviousWet=Frost=PreviousFrost=Exposure=RawExposure=Accumulator=0;
+        Kind=0; Drops.Clear(); LastProbe=-100;
+    }
+    // Authored precipitation regions, not the audio field at nearby windows.
+    static int WeatherAt(Vector3 pos, UTNTWeatherController weather)
+    {
+        if(!weather) return 0;
+        double nearest=192; int kind=0;
+        for(int i=0;i<weather.Cells.Size();i++)
+        {
+            let cell=weather.Cells[i];
+            double d=(cell.Center-pos.XY).Length();
+            if(d<nearest && abs(cell.Height-pos.Z)<4096) { nearest=d; kind=cell.Kind; }
+        }
+        return kind;
+    }
+    double ProbeWeather(Vector3 eye, int kind, UTNTWeatherController weather, double intensity)
+    {
+        ProbeCount=0;
+        let sec=level.PointInSector(eye.XY);
+        if(!kind || !level.IsPointInLevel(eye) || !weather.OpenPoint(eye,sec)) return 0;
+        let trace=new('LineTracer');
+        // Trace back along incoming precipitation. Solid roofs and 3D floors
+        // block the view independently of the nearby audible weather field.
+        double gust=0.60+0.23*sin(level.time*0.19)+0.17*sin(level.time*0.071);
+        Vector3 incoming=kind==1 ?
+            (-(0.55+gust*1.2)*(1+intensity*5.5)*1.3125,
+             -(0.25+0.35*sin(level.time*0.047))*(1+intensity*3)*1.3125,23*(1+intensity*0.18)) :
+            (-(0.3+intensity*(1.8+gust*1.9)+intensity*intensity*(1.2+gust)),
+             -(0.15+intensity*0.5),0.8*(1+intensity*2.4));
+        incoming=incoming.Unit();
+        trace.Trace(eye,sec,incoming,8192,TRACE_HitSky,ignoreAllActors:true);
+        ProbeCount++;
+        if(trace.Results.HitType!=TRACE_HasHitSky) return 0;
+        // Close rays give a partial response at an exposed doorway, without
+        // considering an adjacent open point sufficient to wet a sheltered eye.
+        double open=1;
+        Vector2 side=(-incoming.Y,incoming.X);
+        if(side.Length()<0.01) side=(1,0); else side=side.Unit();
+        for(int n=-1;n<=1;n+=2)
+        {
+            Vector3 near=eye+(side.X*n*4,side.Y*n*4,0);
+            let nearSec=level.PointInSector(near.XY);
+            if(!level.IsPointInLevel(near) || !weather.OpenPoint(near,nearSec)) continue;
+            trace.Trace(near,nearSec,incoming,8192,TRACE_HitSky,ignoreAllActors:true);
+            ProbeCount++;
+            if(trace.Results.HitType==TRACE_HasHitSky) open++;
+        }
+        return open/3.0;
+    }
+    void TickPlayer(int index, UTNTWeatherController weather, double intensity)
+    {
+        let player=players[index]; let camera=player.camera;
+        if(!Seed) Seed=0x667519+uint(index+1)*7919;
+        if(!camera || camera!=player.mo || player.health<=0 || camera.WaterLevel>=3)
+        { Clear(); LastCamera=camera; return; }
+        Vector3 eye=(camera.Pos.X,camera.Pos.Y,player.viewz);
+        if(camera!=LastCamera || (eye-LastPosition).Length()>256)
+        { Clear(); LastCamera=camera; }
+        LastPosition=eye;
+        if(level.isFrozen() || camera.IsFrozen() || LevelLocals.WorldPaused()) return;
+        Tics++;
+        PreviousWet=Wet; PreviousFrost=Frost;
+        bool enabled=CVar.GetCVar('weatherfx').GetBool();
+        // Sampling every four tics remains independent of renderer frame rate.
+        if(Tics-LastProbe>=4 || !enabled)
+        {
+            LastProbe=Tics; Kind=enabled ? WeatherAt(eye,weather) : 0;
+            RawExposure=enabled ? ProbeWeather(eye,Kind,weather,intensity) : 0;
+            Checks++;
+        }
+        Exposure=Approach(Exposure,RawExposure,RawExposure>Exposure ? 3.0 : 6.0);
+        double rainTarget=Kind==1 && RawExposure>0 ? (0.24+0.76*intensity)*Exposure : 0;
+        double snowTarget=Kind==2 && RawExposure>0 ? (0.18+0.82*intensity)*Exposure : 0;
+        Wet=Approach(Wet,rainTarget,rainTarget>Wet ? 1.1 : 0.28);
+        Frost=Approach(Frost,snowTarget,snowTarget>Frost ? 0.02+0.065*intensity : 0.18);
+        PeakWet=max(PeakWet,Wet); PeakFrost=max(PeakFrost,Frost);
+        Drift=sin(camera.Angle)*0.004*intensity;
+        for(int i=0;i<Drops.Size();i++)
+        {
+            let d=Drops[i]; d.PreviousPos=d.Pos; d.PreviousAlpha=d.Alpha; d.Age++;
+            if(d.Age>d.Hold)
+            {
+                double speed=d.Speed*(0.55+0.45*min(1.0,(d.Age-d.Hold)/35.0));
+                d.Pos.Y-=speed/35.0;
+                d.Pos.X+=(Drift+sin(d.Age*2+d.Phase)*0.0015)/35.0;
+                d.Trail=min(0.13,d.Trail+speed/35.0);
+            }
+            d.Alpha=min(1.0,d.Age/7.0)*clamp((d.Life-d.Age)/35.0,0,1);
+            if(d.Pos.Y<-0.04 || d.Age>=d.Life || Wet<=0) { Drops.Delete(i); i--; }
+        }
+        // New deposits stop on the first sheltered sample; residual water only drains.
+        if(rainTarget>0 && RawExposure>0)
+        {
+            double look=clamp(1-camera.Pitch/90.0,0.4,1.7);
+            double sprint=1+clamp(camera.Vel.XY.Length()/32.0,0,1)*0.35;
+            Accumulator+=(1.8+12*intensity)*Exposure*look*sprint/35.0;
+            if(Accumulator>=1)
+            {
+                Accumulator-=1;
+                if(Drops.Size()<28) SpawnDrop();
+            }
+        }
+        else Accumulator=0;
+        if(Tics%8==0)
+        {
+            for(int i=0;i<Drops.Size();i++) for(int j=i+1;j<Drops.Size();j++)
+            {
+                let a=Drops[i]; let b=Drops[j];
+                Vector2 delta=a.Pos-b.Pos; delta.X*=1.77778;
+                if(delta.Length()>(a.Radius+b.Radius)*0.55) continue;
+                a.Radius=min(0.035,sqrt(a.Radius*a.Radius+b.Radius*b.Radius));
+                a.Hold=min(a.Hold,a.Age); a.Speed=max(a.Speed,b.Speed)*1.08;
+                a.Life=max(a.Life,a.Age+70); Drops.Delete(j); j--;
+            }
+        }
+    }
+    void SpawnDrop()
+    {
+        let d=new('UTNTVisorDrop');
+        d.Pos=(0.035+RandomUnit()*0.93,0.09+RandomUnit()*0.86);
+        Vector2 central=d.Pos-(0.5,0.5); central.X*=1.4;
+        if(central.Length()<0.18) return;
+        d.PreviousPos=d.Pos; d.Radius=0.006+RandomUnit()*0.017;
+        d.Stretch=1+RandomUnit()*0.5; d.Speed=0.025+d.Radius*2.4;
+        d.Hold=18+int(RandomUnit()*95); d.Life=140+int(RandomUnit()*150);
+        d.Phase=RandomUnit()*360; Drops.Push(d); Spawned++;
+        if(RawExposure<=0) DrySpawned++;
+    }
+}
+
+class UTNTVisorRenderer ui
+{
+    static void Disable(PlayerInfo player)
+    {
+        Shader.SetUniform1f(player,"utnt_visor","wetAmount",0);
+        Shader.SetUniform1f(player,"utnt_visor","frostAmount",0);
+        Shader.SetUniform1i(player,"utnt_visor","dropCount",0);
+        Shader.SetEnabled(player,"utnt_visor",false);
+        Shader.SetEnabled(player,"utnt_visor_detail",false);
+    }
+    static void Draw(RenderEvent e, UTNTVisorState state)
+    {
+        let player=players[consoleplayer]; if(!player) return;
+        int quality=clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),0,3);
+        double strength=clamp(CVar.GetCVar('UTNT_visorstrength',player).GetFloat(),0,1);
+        bool allowed=state && e.Camera && e.Camera==player.mo && player.health>0
+            && e.Camera.WaterLevel<3 && !(player.cheats&CF_CHASECAM)
+            && !CVar.GetCVar('UTNT_reducedfx',player).GetBool() && quality>0 && strength>0
+            && CVar.GetCVar('UTNT_visoreffects',player).GetBool() && (!automapactive || viewactive);
+        if(!allowed) { Disable(player); return; }
+        double f=level.isFrozen() || LevelLocals.WorldPaused() ? 1 : clamp(e.FracTic,0,1);
+        double wet=(state.PreviousWet+(state.Wet-state.PreviousWet)*f)*strength;
+        double frost=(state.PreviousFrost+(state.Frost-state.PreviousFrost)*f)*strength;
+        if(wet<0.0001 && frost<0.0001) { Disable(player); return; }
+        int count=min(state.Drops.Size(),quality==3 ? 28 : quality==2 ? 20 : 10);
+        for(int pass=0;pass<2;pass++)
+        {
+            String shaderName=pass==0 ? "utnt_visor" : "utnt_visor_detail";
+            int slots=clamp(count-pass*14,0,14);
+            if(pass>0 && (slots==0 || wet<0.0001)) { Shader.SetEnabled(player,shaderName,false); continue; }
+            Shader.SetEnabled(player,shaderName,true);
+            Shader.SetUniform1f(player,shaderName,"wetAmount",wet);
+            Shader.SetUniform1f(player,shaderName,"frostAmount",pass==0 ? frost : 0);
+            Shader.SetUniform1i(player,shaderName,"detailLevel",quality);
+            Shader.SetUniform1i(player,shaderName,"dropCount",slots);
+            for(int i=0;i<slots;i++)
+            {
+                let d=state.Drops[i+pass*14]; Vector2 pos=d.PreviousPos+(d.Pos-d.PreviousPos)*f;
+                double alpha=d.PreviousAlpha+(d.Alpha-d.PreviousAlpha)*f;
+                // Exact 24-bit integer payloads fit float mantissas. Each pass
+                // stays within the engine's 128-byte custom parameter budget.
+                double xy=floor(clamp(pos.X,0,1)*4095+0.5)
+                    +4096*floor(clamp((pos.Y+0.05)/1.1,0,1)*4095+0.5);
+                double shape=floor(clamp(d.Radius/0.04,0,1)*63+0.5)
+                    +64*floor(clamp(alpha,0,1)*63+0.5)
+                    +4096*floor(clamp((d.Stretch-1)*2,0,1)*31+0.5)
+                    +131072*floor(clamp(d.Trail/0.13,0,1)*127+0.5);
+                Shader.SetUniform2f(player,shaderName,String.Format("drop%d",i),(xy,shape));
+            }
+        }
+    }
+}
