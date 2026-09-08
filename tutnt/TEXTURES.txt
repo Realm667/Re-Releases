@@ -6614,9 +6614,25 @@ Graphic "UTNHACE", 9, 6
     Patch "STBAR", -290, -23
 }
 
+// Three-pixel stepped corner radius, clipped directly from the indexed STBAR.
+// Disjoint strips leave the outer corners transparent without filtering artwork.
+Graphic "UTNHRMID", 320, 28 { Patch "STBAR", 0, -2 }
+Graphic "UTNHRT0", 316, 1 { Patch "STBAR", -2, 0 }
+Graphic "UTNHRT1", 318, 1 { Patch "STBAR", -1, -1 }
+Graphic "UTNHRB0", 316, 1 { Patch "STBAR", -2, -31 }
+Graphic "UTNHRB1", 318, 1 { Patch "STBAR", -1, -30 }
+Graphic "UTNHRBAR", 320, 32
+{
+    Patch "UTNHRMID", 0, 2
+    Patch "UTNHRT0", 2, 0
+    Patch "UTNHRT1", 1, 1
+    Patch "UTNHRB0", 2, 31
+    Patch "UTNHRB1", 1, 30
+}
+
 Graphic "UTNTHSP", 320, 32
 {
-    Patch "STBAR", 0, 0
+    Patch "UTNHRBAR", 0, 0
     Patch "UTNHABG", 222, 4
     Patch "STARMS", 104, 7
     Patch "UTNHATOP", 104, 0
@@ -6624,7 +6640,7 @@ Graphic "UTNTHSP", 320, 32
 
 Graphic "UTNTHMP", 320, 32
 {
-    Patch "STBAR", 0, 0
+    Patch "UTNHRBAR", 0, 0
     Patch "UTNHABG", 222, 4
     Patch "STARMS", 104, 7
     Patch "UTNHATOP", 104, 0
@@ -6633,7 +6649,7 @@ Graphic "UTNTHMP", 320, 32
 
 Graphic "UTNTHDM", 320, 32
 {
-    Patch "STBAR", 0, 0
+    Patch "UTNHRBAR", 0, 0
     Patch "UTNHABG", 222, 4
     Patch "STFBANY", 143, 1
 }
