@@ -125,7 +125,9 @@ class UTNTWeatherController : Thinker
     LineTracer Probe;
     Actor Camera, SkyCamera;
     Array<Actor> SkyCameras;
-    int SkyCursor;
+    Array<int> SkyCounts, SkyTargets;
+    Array<double> SkySpace;
+    int SkyCursor, SkyReserve;
     int SkyLive, ActiveKind, TrailLive;
     int Live, DetailLive, Quality, Limit, ParticleLimit, DetailLimit, TraceBudget;
     int Traces, PeakTraces, PeakLive, BudgetRetired;
@@ -150,7 +152,20 @@ class UTNTWeatherController : Thinker
         let skies=ThinkerIterator.Create('SkyViewpoint'); Actor sky;
         while(sky=Actor(skies.Next()))
         {
-            SkyCameras.Push(sky);
+            SkyCameras.Push(sky); SkyCounts.Push(0); SkyTargets.Push(0);
+            // Sample the reachable sky volume once; larger rooms need more
+            // particles at the same miniature scale. Mountains remain blockers.
+            double space=0;
+            for(int n=0;n<32;n++)
+            {
+                double z=-0.35+1.35*(n+0.5)/32, az=n*137.50776;
+                double xy=sqrt(1-z*z);
+                Probe.Trace(sky.Pos,sky.CurSector,(cos(az)*xy,sin(az)*xy,z),192,0,
+                    wallMask:Line.ML_BLOCKING|Line.ML_BLOCKEVERYTHING,ignoreAllActors:true);
+                double reach=Probe.Results.HitType==TRACE_HitNone ? 192 : max(0,Probe.Results.Distance-3);
+                space+=(reach/128.0)**3;
+            }
+            SkySpace.Push(clamp(space/32,0.5,2.0));
             if(!SkyCamera || sky.tid==0) SkyCamera=sky;
         }
         let it=ThinkerIterator.Create('UTNTWeatherAnchor'); UTNTWeatherAnchor a;
@@ -242,20 +257,33 @@ class UTNTWeatherController : Thinker
             }
         }
         if (Nearby.Size()==0) return;
-        double nearest=1e20;
+        double nearest=1e20; int nearestCell=Nearby[0];
         for(int i=0;i<Nearby.Size();i++)
         {
             int n=Nearby[i]; double d=(Cells[n].Center-Camera.Pos.XY).Length();
-            if(d<nearest) { nearest=d; ActiveKind=Cells[n].Kind; }
+            if(d<nearest) { nearest=d; nearestCell=n; ActiveKind=Cells[n].Kind; }
         }
         if (level.time%35==0) UpdateAudio();
         int attempts=Quality==3 ? 840 : Quality==2 ? 300 : 100;
         if(Warmup++<20) attempts*=2;
-        int skyLimit=int((Quality==3 ? 512 : Quality==2 ? 180 : 50)*(1+Intensity*1.4+StormBoost*2.4));
+        SkyReserve=0;
+        for(int i=0;i<SkyCameras.Size();i++)
+        {
+            SkyTargets[i]=max(24,int(Cells[nearestCell].Target*16*SkySpace[i]));
+            SkyReserve+=SkyTargets[i];
+        }
+        double allocation=min(1.0,ParticleLimit*0.40/max(1,SkyReserve));
+        SkyReserve=0;
+        for(int i=0;i<SkyTargets.Size();i++)
+        { SkyTargets[i]=int(SkyTargets[i]*allocation); SkyReserve+=SkyTargets[i]; }
+        int skyLimit=SkyReserve;
         // Reserve emission time before the dense world field consumes its budget.
         if(SkyCameras.Size()>0 && SkyLive<skyLimit && Live-DetailLive<ParticleLimit)
-            for(int i=0;i<(Warmup<20 ? 160 : 48) && SkyLive<skyLimit && Live-DetailLive<ParticleLimit;i++) EmitSky();
-        for(int i=0;i<attempts && Live-DetailLive<ParticleLimit;i++) Emit();
+            for(int i=0;i<min(Quality==3 ? 800 : Quality==2 ? 280 : 80,
+                max(16,(skyLimit-SkyLive)/4+SkyLive/(ActiveKind==1 ? 8 : 100)))
+                && SkyLive<skyLimit && Live-DetailLive<ParticleLimit;i++) EmitSky();
+        for(int i=0;i<attempts && Live-DetailLive<ParticleLimit
+            && Live-DetailLive-SkyLive<ParticleLimit-SkyReserve;i++) Emit();
         if(Intensity>0.3 && (StormBoost>0.2 || level.time%3==0) && DetailLive<DetailLimit)
             for(int n=0;n<(ActiveKind==2 && StormBoost>0.2 ? 3 : 1) && DetailLive<DetailLimit;n++) EmitVeil();
         PeakLive=max(PeakLive,Live);
@@ -315,7 +343,9 @@ class UTNTWeatherController : Thinker
         // The original low sky ceilings hide distant world flakes. Render a
         // second genuine 3D field inside the authored skybox, clipped by its
         // mountains and by the main world's sky openings (never a HUD overlay).
-        Actor sky=SkyCameras[SkyCursor++%SkyCameras.Size()]; if(!sky) return;
+        int skyIndex=SkyCursor; SkyCursor=(SkyCursor+1)%SkyCameras.Size();
+        Actor sky=SkyCameras[skyIndex];
+        if(!sky || SkyCounts[skyIndex]>=SkyTargets[skyIndex]) return;
         double azimuth=Sample(0,360), vertical=Sample(-0.35,1.0);
         double horizontal=sqrt(1-vertical*vertical);
         Vector3 direction=(cos(azimuth)*horizontal,sin(azimuth)*horizontal,vertical);
@@ -329,7 +359,7 @@ class UTNTWeatherController : Thinker
         if(!OpenPoint(pos,sec)) return;
         let v=UTNTWeatherVisual(level.SpawnClientSideVisualThinker('UTNTWeatherVisual'));
         if(!v) return;
-        v.Owner=self; v.SkyLayer=true; v.SkyOrigin=sky; v.Kind=ActiveKind; v.Pos=pos; v.Prev=pos;
+        v.Owner=self; v.SkyLayer=true; v.SkyOrigin=sky; v.SkyIndex=skyIndex; v.Kind=ActiveKind; v.Pos=pos; v.Prev=pos;
         v.Phase=Sample(0,360); v.Lifetime=ActiveKind==2 ? Pick(180,260) : 80;
         // Match the world field at 1:8, including fall and horizontal wind.
         v.Width=ActiveKind==2 ? Sample(0.125,0.30) : Sample(0.10625,0.175);
@@ -338,7 +368,7 @@ class UTNTWeatherController : Thinker
         v.FallSpeed=ActiveKind==2 ? Sample(0.06,0.1375) : Sample(2.375,3.375);
         v.Texture=TexMan.CheckForTexture(ActiveKind==2 ? "UTNTSnowGrey0" : "UTNTRainGrey");
         v.Flags=SPF_ROLL; v.LightLevel=160; v.Start();
-        v.Age=Pick(12,35); Live++; SkyLive++;
+        v.Age=Pick(12,35); Live++; SkyLive++; SkyCounts[skyIndex]++;
     }
 
     void UpdateAudio()
@@ -415,7 +445,7 @@ class UTNTWeatherVisual : VisualThinker
     UTNTWeatherController Owner;
     LineTracer Probe;
     UTNTSnowTrail Trail;
-    int Kind, Age, Lifetime, SegmentLeft, CellIndex;
+    int Kind, Age, Lifetime, SegmentLeft, CellIndex, SkyIndex;
     double Phase, BaseAlpha, Width, Height, FallSpeed, HitAfter;
     double RainLength, RainSpeed, SnowSize;
     bool WillHit, FloorHit, WaterHit, Retired, SkyLayer, SnowVeil;
@@ -450,7 +480,7 @@ class UTNTWeatherVisual : VisualThinker
         if(Trail) Trail.Retire();
         if(!Retired && Owner)
         {
-            Owner.Live--; if(Kind==8) Owner.VeilLive--; if(Kind>=3) Owner.DetailLive--; if(SkyLayer) Owner.SkyLive--;
+            Owner.Live--; if(Kind==8) Owner.VeilLive--; if(Kind>=3) Owner.DetailLive--; if(SkyLayer) { Owner.SkyLive--; if(SkyIndex<Owner.SkyCounts.Size()) Owner.SkyCounts[SkyIndex]--; }
             if(!SkyLayer && Kind<=2 && CellIndex>=0 && CellIndex<Owner.Cells.Size()) Owner.Cells[CellIndex].Live--;
         }
         Retired=true; Destroy();
@@ -462,6 +492,8 @@ class UTNTWeatherVisual : VisualThinker
         if(level.isFrozen() || IsFrozen()) return;
         if(Owner.Live>Owner.Limit || (Kind<3 && Owner.Live-Owner.DetailLive>Owner.ParticleLimit) || (Kind>=3 && Owner.DetailLive>Owner.DetailLimit) || ++Age>=Lifetime) { Retire(); return; }
         if(SkyLayer && !SkyOrigin) { Retire(); return; }
+        if(SkyLayer && Age>18 && SkyIndex<Owner.SkyTargets.Size()
+            && Owner.SkyCounts[SkyIndex]>Owner.SkyTargets[SkyIndex]+2) Lifetime=min(Lifetime,Age+18);
         double distance=(Pos-(SkyLayer ? SkyOrigin.Pos : Owner.Camera.Pos)).Length();
         if(distance>(SkyLayer ? 256 : Owner.SpawnRange+160)) { Retire(); return; }
         if(!SkyLayer && Kind<=2 && Age>18 && level.time%4==0 && Owner.Cells[CellIndex].Live>Owner.Cells[CellIndex].Target+2)

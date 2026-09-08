@@ -3,7 +3,7 @@
 class UTNTVisorDrop : Object
 {
     Vector2 Pos, PreviousPos;
-    double Radius, Stretch, Alpha, PreviousAlpha, Trail, Speed, Phase;
+    double Radius, Stretch, PreviousStretch, Alpha, PreviousAlpha, Trail, PreviousTrail, Speed, Phase;
     int Age, Life, Hold;
 }
 
@@ -101,20 +101,22 @@ class UTNTVisorState : Object play
         }
         Exposure=Approach(Exposure,RawExposure,RawExposure>Exposure ? 3.0 : 6.0);
         double rainTarget=Kind==1 && RawExposure>0 ? (0.24+0.76*intensity)*Exposure : 0;
-        double snowTarget=Kind==2 && RawExposure>0 ? (0.18+0.82*intensity)*Exposure : 0;
+        double snowTarget=Kind==2 && RawExposure>0 ? (0.25+0.75*intensity)*Exposure : 0;
         Wet=Approach(Wet,rainTarget,rainTarget>Wet ? 1.1 : 0.28);
-        Frost=Approach(Frost,snowTarget,snowTarget>Frost ? 0.02+0.065*intensity : 0.18);
+        Frost=Approach(Frost,snowTarget,snowTarget>Frost ? 0.10+0.04*intensity : 0.18);
         PeakWet=max(PeakWet,Wet); PeakFrost=max(PeakFrost,Frost);
         Drift=sin(camera.Angle)*0.004*intensity;
         for(int i=0;i<Drops.Size();i++)
         {
-            let d=Drops[i]; d.PreviousPos=d.Pos; d.PreviousAlpha=d.Alpha; d.Age++;
+            let d=Drops[i]; d.PreviousPos=d.Pos; d.PreviousAlpha=d.Alpha; d.PreviousStretch=d.Stretch; d.PreviousTrail=d.Trail; d.Age++;
             if(d.Age>d.Hold)
             {
                 double speed=d.Speed*(0.55+0.45*min(1.0,(d.Age-d.Hold)/35.0));
                 d.Pos.Y-=speed/35.0;
                 d.Pos.X+=(Drift+sin(d.Age*2+d.Phase)*0.0015)/35.0;
-                d.Trail=min(0.13,d.Trail+speed/35.0);
+                d.Trail=min(0.28,d.Trail+speed/35.0);
+                double elongated=clamp(1.2+speed*12+d.Trail*3,1.2,2.8);
+                d.Stretch+=(elongated-d.Stretch)*0.12;
             }
             d.Alpha=min(1.0,d.Age/7.0)*clamp((d.Life-d.Age)/35.0,0,1);
             if(d.Pos.Y<-0.04 || d.Age>=d.Life || Wet<=0) { Drops.Delete(i); i--; }
@@ -152,7 +154,7 @@ class UTNTVisorState : Object play
         Vector2 central=d.Pos-(0.5,0.5); central.X*=1.4;
         if(central.Length()<0.18) return;
         d.PreviousPos=d.Pos; d.Radius=0.006+RandomUnit()*0.017;
-        d.Stretch=1+RandomUnit()*0.5; d.Speed=0.025+d.Radius*2.4;
+        d.Stretch=1+RandomUnit()*0.5; d.PreviousStretch=d.Stretch; d.Speed=0.025+d.Radius*2.4;
         d.Hold=18+int(RandomUnit()*95); d.Life=140+int(RandomUnit()*150);
         d.Phase=RandomUnit()*360; Drops.Push(d); Spawned++;
         if(RawExposure<=0) DrySpawned++;
@@ -198,14 +200,16 @@ class UTNTVisorRenderer ui
             {
                 let d=state.Drops[i+pass*14]; Vector2 pos=d.PreviousPos+(d.Pos-d.PreviousPos)*f;
                 double alpha=d.PreviousAlpha+(d.Alpha-d.PreviousAlpha)*f;
+                double stretch=max(1,d.PreviousStretch)+(d.Stretch-max(1,d.PreviousStretch))*f;
+                double trail=d.PreviousTrail+(d.Trail-d.PreviousTrail)*f;
                 // Exact 24-bit integer payloads fit float mantissas. Each pass
                 // stays within the engine's 128-byte custom parameter budget.
                 double xy=floor(clamp(pos.X,0,1)*4095+0.5)
                     +4096*floor(clamp((pos.Y+0.05)/1.1,0,1)*4095+0.5);
                 double shape=floor(clamp(d.Radius/0.04,0,1)*63+0.5)
                     +64*floor(clamp(alpha,0,1)*63+0.5)
-                    +4096*floor(clamp((d.Stretch-1)*2,0,1)*31+0.5)
-                    +131072*floor(clamp(d.Trail/0.13,0,1)*127+0.5);
+                    +4096*floor(clamp((stretch-1)/2,0,1)*31+0.5)
+                    +131072*floor(clamp(trail/0.28,0,1)*127+0.5);
                 Shader.SetUniform2f(player,shaderName,String.Format("drop%d",i),(xy,shape));
             }
         }
