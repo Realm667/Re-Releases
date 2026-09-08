@@ -52,7 +52,13 @@ class UTNTPlayerEffects : Behavior
                 let source = handler.HeatSources[i];
                 if (!source || source.bDormant) continue;
                 double radius = source.Default.Radius * source.Scale.X;
-                if (radius <= 0 || Owner.Pos.Z > source.CeilingZ || (Owner.Pos.Z + Owner.Height) < source.FloorZ) continue;
+                if (radius <= 0) continue;
+                // Heat fills the base sector, as the original EffectGiver did.
+                // Cached collision bounds can stop at a 3D floor or a nearby
+                // ledge, and NOINTERACTION sources do not refresh them on tick.
+                double floor = source.GetZAt(0, 0, 0, GZF_NO3DFLOOR);
+                double ceiling = source.GetZAt(0, 0, 0, GZF_CEILING | GZF_NO3DFLOOR);
+                if (Owner.Pos.Z > ceiling || (Owner.Pos.Z + Owner.Height) < floor) continue;
                 targetHeat = max(targetHeat, clamp(1.0 - source.Distance2D(Owner) / radius, 0.0, 1.0));
             }
             if (level.time < ExternalHeatUntil) targetHeat = max(targetHeat, ExternalHeat);
@@ -473,8 +479,10 @@ class UTNTPresentation : StaticEventHandler
 
         bool heatOn = camera && !reduced && CVar.GetCVar('UTNT_shaderoverlayswitch', player).GetBool()
                       && CVar.GetCVar('UTNT_heatstrength', player).GetFloat() > 0 && effects && effects.Heat > 0.001;
-        Shader.SetEnabled(player, 'heatshader', heatOn);
-        if (heatOn) Shader.SetUniform1f(player, 'heatshader', 'amount', effects.Heat * 69 * clamp(CVar.GetCVar('UTNT_heatstrength', player).GetFloat(), 0, 1));
+        Shader.SetEnabled(player, "heatshader", heatOn);
+        // GLSL identifiers are case-sensitive strings: the ZScript name
+        // literal 'amount' resolves to the engine name "Amount".
+        if (heatOn) Shader.SetUniform1f(player, "heatshader", "amount", effects.Heat * 69 * clamp(CVar.GetCVar('UTNT_heatstrength', player).GetFloat(), 0, 1));
         double waterSize = clamp(CVar.GetCVar('UTNT_uweffectsize', player).GetFloat(), 0, 0.08);
         bool underwater = camera && !reduced && camera.WaterLevel >= 3 && waterSize > 0;
         Shader.SetEnabled(player, 'watershader', underwater);
