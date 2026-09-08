@@ -1,0 +1,293 @@
+// Shared local-only rendering for the five approved industrial VFX concepts.
+// Map actors remain the gameplay/audio triggers; their children are cosmetic.
+class UTNTIndustrialBudget : Thinker
+{
+    int Tic, Traces, Live, Bursts;
+}
+
+class UTNTIndustrialFX play
+{
+    static UTNTIndustrialBudget Budget()
+    {
+        let it=ThinkerIterator.Create('UTNTIndustrialBudget',Thinker.STAT_USER+8,true);
+        let b=UTNTIndustrialBudget(it.Next());
+        if(!b) b=UTNTIndustrialBudget(level.CreateClientSideThinker('UTNTIndustrialBudget',Thinker.STAT_USER+8));
+        if(b && b.Tic!=level.time) { b.Tic=level.time; b.Traces=0; }
+        return b;
+    }
+    static int Quality()
+    {
+        let p=players[consoleplayer];
+        if(!p) return 0;
+        int q=clamp(CVar.GetCVar('UTNT_fxquality',p).GetInt(),0,3);
+        return CVar.GetCVar('UTNT_reducedfx',p).GetBool() ? min(q,1) : q;
+    }
+    static bool At(Vector3 pos)
+    {
+        let p=players[consoleplayer];
+        return Quality()>0 && p && p.camera && (p.camera.Pos-pos).Length()<max(0,CVar.GetCVar('UTNT_lod',p).GetInt());
+    }
+    static bool TraceSlot()
+    {
+        let b=Budget();
+        if(!b || b.Traces>=24) return false;
+        b.Traces++; return true;
+    }
+    static Color SparkColor(int c)
+    {
+        return c==1 ? 0xff6030 : c==2 ? 0xffa040 : c==3 ? 0xffd568 : c==4 ? 0x80e858 : c==5 ? 0x70a8ff : c==6 ? 0xca80ff : 0xffe4a0;
+    }
+    // kind: 0 metal spark, 1 smoke/dust, 2 flame, 3 returning teleport chip,
+    // 4 brief contact core, 5 ordinary glowing chip, 6 rocket nozzle core.
+    static UTNTIndustrialParticle Make(Vector3 pos, int kind, double width, double height, int life, Color tint, Vector3 velocity=(0,0,0), bool combat=true)
+    {
+        if(!At(pos)) return null;
+        let b=Budget();
+        if(!b || b.Live>=768 || !UTNTVisuals.ReserveCount(1,combat)) return null;
+        let v=UTNTIndustrialParticle(level.SpawnClientSideVisualThinker('UTNTIndustrialParticle'));
+        if(!v) return null;
+        b.Live++; v.Budget=b; v.Kind=kind; v.Pos=pos; v.Prev=pos; v.Origin=pos;
+        v.Width=width; v.Height=height; v.Life=life; v.Strength=1; v.Vel=velocity; v.FadeIn=6;
+        v.scolor=tint; v.Flags=SPF_FULLBRIGHT|SPF_ROLL|SPF_STRETCHPIXELS|SPF_ALLOWSHADERS;
+        v.Roll=FRandom[utntindustrial](-180,180); v.Spin=FRandom[utntindustrial](-2,2);
+        v.SetRenderStyle(STYLE_Add);
+        if(kind==1)
+        {
+            v.Texture=TexMan.CheckForTexture(String.Format("UISM%c0",65+Random[utntindustrial](0,3)));
+            v.SetRenderStyle(STYLE_Translucent); v.Strength=0.45;
+        }
+        else if(kind==2)
+        {
+            v.Texture=TexMan.CheckForTexture(String.Format("UFOR%c0",65+Random[utntindustrial](0,3)));
+            v.Strength=0.85;
+        }
+        else if(kind==0 || kind==4 || kind==6)
+            v.Texture=TexMan.CheckForTexture('UIFXA0');
+        else v.Texture=TexMan.CheckForTexture(String.Format("UTP%cA0",65+Random[utntindustrial](0,3)));
+        v.Initialize();
+        return v;
+    }
+    static void Impact(Actor source)
+    {
+        if(!UTNTVisuals.Visible(source,combat:true)) return;
+        Vector3 normal=(cos(source.Angle),sin(source.Angle),0);
+        if(source.Pos.Z<=source.floorz+6) normal=(0,0,1);
+        else if(source.Pos.Z>=source.ceilingz-6) normal=(0,0,-1);
+        else if(TraceSlot())
+        {
+            let tr=new('LineTracer');
+            tr.Trace(source.Pos,source.CurSector,-normal,20,0,ignoreAllActors:true);
+            if(tr.Results.HitType==TRACE_HitWall && tr.Results.HitLine)
+            {
+                Vector2 delta=tr.Results.HitLine.Delta;
+                Vector3 n=(-delta.Y,delta.X,0); n=n.Unit();
+                if((n dot normal)<0) n=-n;
+                normal=n;
+            }
+        }
+        Vector3 start=source.Pos+normal;
+        Make(start,4,2.5,2.5,3,0xffecc0);
+        int count=Quality()==1 ? 3 : Random[utntindustrial](4,7);
+        for(int i=0;i<count;i++)
+        {
+            Vector3 velocity=normal*FRandom[utntindustrial](2.5,5)+(FRandom[utntindustrial](-2.4,2.4),FRandom[utntindustrial](-2.4,2.4),FRandom[utntindustrial](-0.6,2.0));
+            let v=Make(start,0,FRandom[utntindustrial](0.65,1.1),FRandom[utntindustrial](2.6,5.5),Random[utntindustrial](8,14),0xffce70,velocity);
+            if(v) v.Gravity=0.16;
+        }
+        for(int i=0;i<(Quality()==1 ? 1 : 2);i++)
+        {
+            let v=Make(start,1,FRandom[utntindustrial](4,7),FRandom[utntindustrial](4,7),Random[utntindustrial](14,23),0xffa89880,normal*0.15+(0,0,0.08));
+            if(v) { v.Strength=0.4; v.Growth=0.8; v.FadeIn=2; }
+        }
+    }
+    static void Electrical(UTNTIndustrialSparkBase source, int colorIndex, int direction)
+    {
+        if(!UTNTVisuals.Visible(source,combat:true)) return;
+        let b=Budget();
+        if(!b || b.Bursts>=64) return;
+        let burst=UTNTIndustrialBurst(level.CreateClientSideThinker('UTNTIndustrialBurst',Thinker.STAT_USER+9));
+        if(!burst) return;
+        b.Bursts++; burst.Budget=b; burst.Source=source; burst.ColorIndex=colorIndex; burst.Direction=direction;
+        burst.Emit();
+    }
+    static void Teleport(Actor source)
+    {
+        if(!UTNTVisuals.Visible(source,combat:true)) return;
+        Vector3 center=source.Pos+(0,0,26);
+        Make(center,4,17,22,4,0xffc9db79);
+        int count=Quality()==1 ? 10 : 24;
+        for(int i=0;i<count;i++)
+        {
+            double a=FRandom[utntindustrial](0,360);
+            double speed=FRandom[utntindustrial](3.2,5.2);
+            let v=Make(center,3,FRandom[utntindustrial](3.5,6.5),FRandom[utntindustrial](3.5,6.5),Random[utntindustrial](23,30),0xffbbd36c,(cos(a)*speed,sin(a)*speed,FRandom[utntindustrial](-1.4,3.2)));
+            if(v && i%5==0) { v.Texture=TexMan.CheckForTexture('UTPEA0'); v.Width=2.5; v.Height=10; v.Initialize(); }
+        }
+    }
+    static void Explosion(Actor source, double scale=1, bool concentrated=false, bool simple=false)
+    {
+        if(!UTNTVisuals.Visible(source,combat:true)) return;
+        bool ground=source.Pos.Z<=source.floorz+8;
+        Vector3 origin=source.Pos+(0,0,ground ? 5*scale : 0);
+        Make(origin,4,20*scale,20*scale,3,0xffffd098);
+        int flames=Quality()==1 || simple ? 2 : 4;
+        for(int i=0;i<flames;i++)
+        {
+            Vector3 vel=(FRandom[utntindustrial](-1.1,1.1),FRandom[utntindustrial](-1.1,1.1),FRandom[utntindustrial](ground ? 0.6 : -0.5,1.7));
+            let v=Make(origin+vel*(concentrated ? 10 : 22)*scale,2,FRandom[utntindustrial](24,34)*scale,FRandom[utntindustrial](26,38)*scale,Random[utntindustrial](9,15),0xffffffff,vel*scale*(concentrated ? 0.5 : 1));
+            if(v) v.Delay=2;
+        }
+        int chips=Quality()==1 || simple ? 5 : Random[utntindustrial](8,14);
+        for(int i=0;i<chips;i++)
+        {
+            double a=FRandom[utntindustrial](0,360), speed=FRandom[utntindustrial](1,3)*scale*(concentrated ? 0.65 : 1);
+            let v=Make(origin,i%4==0 ? 0 : 5,FRandom[utntindustrial](1,2.4)*scale,FRandom[utntindustrial](2,4)*scale,Random[utntindustrial](15,29),0xffff8c30,(cos(a)*speed,sin(a)*speed,FRandom[utntindustrial](ground ? 1 : -1.2,3)*scale));
+            if(v) v.Gravity=0.13;
+        }
+        for(int i=0;i<(Quality()==1 || simple ? 2 : 4);i++)
+        {
+            let v=Make(origin+(FRandom[utntindustrial](-5,5)*scale,FRandom[utntindustrial](-5,5)*scale,6*scale),1,FRandom[utntindustrial](18,26)*scale,FRandom[utntindustrial](20,28)*scale,Random[utntindustrial](30,50),0xffb3aaa0,(FRandom[utntindustrial](-0.15,0.15),FRandom[utntindustrial](-0.15,0.15),FRandom[utntindustrial](0.3,0.55)*scale));
+            if(v) { v.Delay=8; v.Growth=1.25; v.Strength=0.48; }
+        }
+    }
+    static void Rocket(Actor source)
+    {
+        if(!source || !source.bMISSILE || source.IsFrozen()) return;
+        let it=ThinkerIterator.Create('UTNTIndustrialTrail',Thinker.STAT_USER+10,true);
+        UTNTIndustrialTrail trail;
+        while(trail=UTNTIndustrialTrail(it.Next())) if(trail.Source==source) return;
+        if(!UTNTVisuals.Visible(source,combat:true)) return;
+        trail=UTNTIndustrialTrail(level.CreateClientSideThinker('UTNTIndustrialTrail',Thinker.STAT_USER+10));
+        if(trail) { trail.Source=source; trail.Last=source.Pos; }
+    }
+}
+
+class UTNTIndustrialParticle : VisualThinker
+{
+    UTNTIndustrialBudget Budget;
+    int Kind, Age, Life, Delay;
+    double Width, Height, Strength, Growth, Gravity, Spin, FadeIn;
+    Vector3 Origin;
+    void Initialize() { UpdateSector(); Animate(); PrevRoll=Roll; UpdateSpriteInfo(); }
+    override void OnDestroy() { if(Budget) Budget.Live=max(0,Budget.Live-1); Super.OnDestroy(); }
+    void Animate()
+    {
+        double t=double(Age)/max(1,Life), growth=1+Growth*t;
+        if(Kind==2) growth=0.65+0.7*t;
+        let size=TexMan.GetScaledSize(Texture);
+        Scale=(Width*growth/max(1,size.X),Height*growth/max(1,size.Y));
+        Alpha=Delay>0 ? 0 : Strength*min(1.0,(Life-Age)/(Kind==1 ? 15.0 : Kind==3 ? 9.0 : min(5,Life)));
+        if(Kind==1) Alpha*=min(1.0,(Age+1)/max(1,FadeIn));
+        if(Kind==0 || Kind==6)
+        {
+            let camera=players[consoleplayer].camera;
+            if(camera) Roll=-atan2(Vel.X*cos(camera.Angle+90)+Vel.Y*sin(camera.Angle+90),Vel.Z);
+        }
+    }
+    override void Tick()
+    {
+        if(IsFrozen()) return;
+        if(!UTNTIndustrialFX.At(Pos)) { Destroy(); return; }
+        if(Delay>0) { Delay--; Animate(); return; }
+        if(++Age>=Life) { Destroy(); return; }
+        if(Kind==3)
+        {
+            if(Age<10) Vel*=0.94;
+            else Vel=(Origin-Pos)*0.15;
+        }
+        if(Kind==0 || Kind==5)
+        {
+            Vel.Z-=Gravity;
+            // Bound geometry work globally; expire rather than tunnel when saturated.
+            if(Vel.Length()>0.01)
+            {
+                if(!UTNTIndustrialFX.TraceSlot()) { Destroy(); return; }
+                let tr=new('LineTracer');
+                tr.Trace(Pos,level.PointInSector(Pos.XY),Vel.Unit(),Vel.Length(),0,ignoreAllActors:true);
+                if(tr.Results.HitType!=TRACE_HitNone) { Destroy(); return; }
+            }
+        }
+        if(Kind==2) Vel*=0.92;
+        Super.Tick(); Roll+=Spin; Animate();
+    }
+}
+
+class UTNTIndustrialBurst : Thinker
+{
+    UTNTIndustrialBudget Budget;
+    UTNTIndustrialSparkBase Source;
+    int Age, ColorIndex, Direction;
+    override void OnDestroy() { if(Budget) Budget.Bursts=max(0,Budget.Bursts-1); Super.OnDestroy(); }
+    void Emit()
+    {
+        if(!Source || !Source.IndustrialActive) return;
+        int count=UTNTIndustrialFX.Quality()==1 ? 3 : Random[utntindustrial](5,7);
+        if(!Age) UTNTIndustrialFX.Make(Source.Pos,4,3,3,3,UTNTIndustrialFX.SparkColor(ColorIndex),combat:false);
+        for(int i=0;i<count;i++)
+        {
+            double a=Source.Angle+(Direction==1 ? FRandom[utntindustrial](-22,22) : FRandom[utntindustrial](0,360));
+            double speed=FRandom[utntindustrial](2,5);
+            double z=Direction==0 ? FRandom[utntindustrial](-2,-0.5) : Direction==2 ? FRandom[utntindustrial](2,4) : FRandom[utntindustrial](-0.3,1);
+            let v=UTNTIndustrialFX.Make(Source.Pos,0,FRandom[utntindustrial](0.6,1.0),FRandom[utntindustrial](2,5),Random[utntindustrial](10,21),UTNTIndustrialFX.SparkColor(ColorIndex),(cos(a)*speed,sin(a)*speed,z),false);
+            if(v) v.Gravity=0.16;
+        }
+    }
+    override void Tick()
+    {
+        if(!Source || !Source.IndustrialActive) { Destroy(); return; }
+        if(Source.IsFrozen()) return;
+        if(!UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        Age++;
+        if(Age==2 || Age==5) Emit();
+        if(Age>=6) Destroy();
+    }
+}
+
+class UTNTIndustrialTrail : Thinker
+{
+    Actor Source;
+    Vector3 Last;
+    double Carry;
+    override void Tick()
+    {
+        if(!Source || !Source.bMISSILE || Source.InStateSequence(Source.CurState,Source.FindState('Death'))) { Destroy(); return; }
+        if(Source.IsFrozen()) return;
+        Vector3 delta=Source.Pos-Last;
+        double distance=delta.Length();
+        if(distance>96 || !UTNTVisuals.Visible(Source,combat:true)) { Last=Source.Pos; Carry=0; return; }
+        if(distance>0.01)
+        {
+            Vector3 direction=delta/distance;
+            double step=UTNTIndustrialFX.Quality()==1 ? 20 : UTNTIndustrialFX.Quality()==2 ? 14 : 10;
+            double next=step-Carry;
+            int count=0;
+            while(next<=distance && count<4)
+            {
+                Vector3 pos=Last+direction*next-direction*5;
+                let v=UTNTIndustrialFX.Make(pos,1,FRandom[utntindustrial](14,18),FRandom[utntindustrial](14,18),Random[utntindustrial](20,31),0xffd0c8bd,(FRandom[utntindustrial](-0.06,0.06),FRandom[utntindustrial](-0.06,0.06),0.12));
+                if(v) { v.Strength=0.5; v.Growth=1.4; v.FadeIn=2; }
+                next+=step; count++;
+            }
+            Carry=(Carry+distance)%step;
+            UTNTIndustrialFX.Make(Source.Pos-direction*10,6,3.5,7,2,0xffffb44c,Source.Vel);
+        }
+        Last=Source.Pos;
+    }
+}
+
+class UTNTIndustrialSparkBase : SwitchableDecoration
+{
+    bool IndustrialActive;
+    action void A_UTNTDischarge(int colorIndex,int direction)
+    { invoker.IndustrialActive=true; UTNTIndustrialFX.Electrical(invoker,colorIndex,direction); }
+    action void A_UTNTDischargeStop() { invoker.IndustrialActive=false; }
+}
+class UTNTIndustrialTeleportBase : Actor
+{
+    action void A_UTNTTeleportImpulse() { UTNTIndustrialFX.Teleport(self); }
+}
+class UTNTIndustrialExplosionBase : Actor
+{
+    action void A_UTNTExplosion(double scale=1,bool concentrated=false,bool simple=false)
+    { UTNTIndustrialFX.Explosion(self,scale,concentrated,simple); }
+}

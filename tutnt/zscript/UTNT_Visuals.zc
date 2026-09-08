@@ -134,6 +134,7 @@ class UTNTVisuals play
 
 class UTNTPuffBase : Actor
 {
+    action void A_UTNTImpact() { UTNTIndustrialFX.Impact(self); }
     action void A_UTNTSparks() { UTNTVisuals.Sparks(self); }
     action void A_UTNTSmoke() { UTNTVisuals.Smoke(self, size: 3); }
 }
@@ -178,3 +179,5 @@ class UTNTEmberBase : SwitchableDecoration
         level.SpawnParticle(p);
     }
 }
+
+#include "zscript/UTNT_IndustrialFX.zc"
