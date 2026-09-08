@@ -1,0 +1,71 @@
+// Usability menus override only their named descriptors.
+ListMenu "PlayerclassMenu"
+{
+    Class "UTNTClassMenu"
+    NetgameMessage "$NEWGAME"
+    Position 48,63
+    Font "SmallFont", "UTNTNoticeBody"
+}
+
+OptionMenu "UTNTOptions"
+{
+    Title "$UTNT_OPTIONS_TITLE"
+    Submenu "$UTNT_GROUP_DISPLAY", "UTNTDisplayOptions"
+    Submenu "$UTNT_GROUP_ATMOSPHERE", "UTNTAtmosphereOptions"
+    Submenu "$UTNT_GROUP_COMBAT", "UTNTCombatOptions"
+    Submenu "$UTNT_GROUP_VOICE", "UTNTVoiceOptions"
+    StaticText ""
+    StaticText "$UTNT_PRESET_TITLE"
+    UTNTPreset "$UTNT_PRESET_CLASSIC", "none", 0
+    UTNTPreset "$UTNT_PRESET_ATMOSPHERIC", "none", 1
+    UTNTPreset "$UTNT_PRESET_REDUCED", "none", 2
+    StaticText "$UTNT_PRESET_HELP"
+}
+
+OptionMenu "UTNTDisplayOptions"
+{
+    Title "$UTNT_GROUP_DISPLAY"
+    Option "$UTNT_OPT_QUALITY", "UTNT_fxquality", "UTNTQuality"
+    Tooltip "$UTNT_TIP_QUALITY"
+    Option "$MN_OPDIST", "UTNT_lod", "UTNTDist"
+    Option "$MN_OPBLUR", "motionblur", "UTNTYesNo"
+    Slider "$UTNT_OPT_BLUR", "motionblur_strength", 0, 100, 5, 0
+    Slider "$UTNT_OPT_SAMPLES", "motionblur_samples", 1, 12, 1, 0
+    Option "$UTNT_OPT_REDUCED", "UTNT_reducedfx", "UTNTYesNo"
+    Tooltip "$UTNT_TIP_REDUCED"
+}
+
+OptionMenu "UTNTAtmosphereOptions"
+{
+    Title "$UTNT_GROUP_ATMOSPHERE"
+    Option "$UTNT_OPT_SMOKE", "UTNT_ambientsmoke", "UTNTYesNo"
+    Option "$UTNT_OPT_HEAT_ENABLED", "UTNT_shaderoverlayswitch", "UTNTYesNo"
+    Slider "$UTNT_OPT_HEAT", "UTNT_heatstrength", 0, 1, 0.1, 1
+    Slider "$UTNT_OPT_WATER", "UTNT_uweffectsize", 0, 0.04, 0.005, 3
+    Option "$UTNT_OPT_WEATHER", "weatherfx", "UTNTOnOff"
+    Option "$UTNT_OPT_ATMOSPHERE", "UTNT_atmosphere", "UTNTOnOff"
+    Tooltip "$UTNT_TIP_ATMOSPHERE"
+    StaticText "$UTNT_OPT_SHARED"
+}
+
+OptionMenu "UTNTCombatOptions"
+{
+    Title "$UTNT_GROUP_COMBAT"
+    Option "$UTNT_OPT_INJURY", "UTNT_lowhealthfx", "UTNTYesNo"
+    Slider "$UTNT_OPT_HEARTBEAT", "UTNT_heartbeatvolume", 0, 1, 0.1, 1
+    Option "$UTNT_OPT_BOSS", "UTNT_bosshud", "UTNTYesNo"
+    Option "$UTNT_OPT_PERCENT", "UTNT_bosspercent", "UTNTYesNo"
+    Slider "$UTNT_OPT_STEPS", "snd_footstepvolume", 0, 1, 0.1, 1
+}
+
+OptionMenu "UTNTVoiceOptions"
+{
+    Title "$UTNT_GROUP_VOICE"
+    Control "$UTNT_OBJ_KEY", "+utnt_objectives"
+    Option "$UTNT_OPT_SUBTITLE_ENABLED", "UTNT_subtitles", "UTNTYesNo"
+    Option "$UTNT_OPT_SUBTITLE_BG", "UTNT_subtitlebackground", "UTNTYesNo"
+    Option "$UTNT_OPT_SUBTITLE_SPEAKER", "UTNT_subtitlespeaker", "UTNTYesNo"
+    Slider "$UTNT_OPT_SUBTITLES", "UTNT_subtitlescale", 0.75, 1.5, 0.05, 2
+    Submenu "$UTNT_HUD_TITLE", "UTNTHUDOptions"
+    Option "$UTNT_PICKUP_OPTION", "UTNT_pickupfeedback", "UTNTYesNo"
+}

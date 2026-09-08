@@ -1,0 +1,99 @@
+version "5.0.0"
+class UTNTUsabilityTest : EventHandler
+{
+    Line Probe;
+    override void WorldTick() { if(players[0].mo) players[0].mo.bInvulnerable=true; }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let p=players[0].mo;
+        if(e.Name=="usreset")
+        {
+            p.health=50;p.player.health=50;
+            for(int i=0;i<5;i++) p.TakeInventory(UTNTPickupSnapshot.AmmoClass(i),99999);
+            p.TakeInventory('BasicArmor',99999);p.TakeInventory('BlueCard',1);p.TakeInventory('BlueSkull',1);
+        }
+        if(e.Name=="uspick")
+        {
+            class<Inventory> kinds[]={'Stimpack','Clip','BlueCard','BlueSkull','GreenArmor','InvulnerabilitySphere','UTNTSuperShotgun'};
+            let item=Inventory(Actor.Spawn(kinds[e.Args[0]],p.Pos,NO_REPLACE));
+            item.Touch(p);
+        }
+        if(e.Name=="uscap") { p.health=p.GetMaxHealth()-1;p.player.health=p.health; }
+        if(e.Name=="uslock")
+        {
+            if(!Probe) for(int i=0;i<level.Lines.Size();i++)
+                if(level.Lines[i].special==13 && level.Lines[i].backsector && level.Lines[i].frontsector)
+                { Probe=level.Lines[i];break; }
+            p.TakeInventory('BlueCard',1);p.TakeInventory('BlueSkull',1);
+            Probe.special=13;Probe.args[0]=0;Probe.args[1]=16;Probe.args[2]=0;Probe.args[3]=e.Args[0];
+            Probe.flags|=Line.ML_REPEAT_SPECIAL;Probe.activation=SPAC_Use;
+            Probe.Activate(p,0,SPAC_Use);
+        }
+        if(e.Name=="ususe") { p.GiveInventory('BlueCard',1);Probe.Activate(p,0,SPAC_Use); }
+        if(e.Name=="usdungeon") ACS_ExecuteAlways(244,0);
+        if(e.Name=="ussignal") UTNTWorldHandler.BeginNotice(e.Args[0],0);
+        if(e.Name=="usshowgate")
+        {
+            // Look across the first opening, perpendicular to the row of bars.
+            p.SetOrigin((2808,-928,80),false);p.A_SetAngle(0);p.A_SetPitch(0);
+            Door_Open(38,20);
+        }
+        if(e.Name=="usfull") { p.health=p.GetMaxHealth();p.player.health=p.health; }
+        if(e.Name=="usarmor") { p.GiveInventory('GreenArmor',1);p.FindInventory('BasicArmor').Amount=99; }
+        if(e.Name=="usammocap") { p.GiveInventory('Clip',9999);p.FindInventory('Clip').Amount--; }
+        if(e.Name=="usasserthealth") Console.Printf("UTNT_ASSERT %s: health pickup honors class cap",p.health==p.GetMaxHealth()?"PASS":"FAIL");
+
+    }
+}
+class UTNTUsabilityUITest : StaticEventHandler
+{
+    override void OnRegister() { IsUiProcessor=true; }
+    override bool InputProcess(InputEvent e) { return true; }
+    ui void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",text); }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        let feed=UTNTPickupFeed(StaticEventHandler.Find('UTNTPickupFeed'));
+        let world=UTNTAccessWorld(EventHandler.Find('UTNTAccessWorld'));
+        if(e.Name=="usgain") Check(feed.Gains[e.Args[0]]==e.Args[1],"actual received amount aggregates");
+        if(e.Name=="usclear")
+        { for(int i=0;i<7;i++) feed.Gains[i]=feed.EndTimes[i]=0;feed.Items.Clear();feed.ItemAge=0; }
+        if(e.Name=="usitem") Check(feed.Items.Size()==e.Args[0],"important pickups have a compact notification");
+        if(e.Name=="usmarkers")
+        {
+            int count=0;for(int i=0;i<world.Locks.Size();i++) if(world.Locks[i]) count++;
+            Check(count==e.Args[0],"discovered lock marker count");
+        }
+        if(e.Name=="uspulses")
+        {
+            int count=0;let it=ThinkerIterator.Create('UTNTAccessPulse');while(it.Next()) count++;
+            Check(e.Args[0]?count>0:count==0,"remote access glow lifetime");
+        }
+        if(e.Name=="usclass") Menu.SetMenu('PlayerclassMenu');
+        if(e.Name=="usclasscheck") Check(Menu.GetCurrentMenu() is 'UTNTClassMenu',"class cards replace native selection rendering");
+        if(e.Name=="uscombined") {
+            TextureID expected=TexMan.CheckForTexture("STKEYS6");
+            Check(world.Locks.Size()>0 && world.Locks[0].picnum==expected,"either-key lock uses composite icon");
+        }
+        if(e.Name=="usclassmouse") {
+            let m=UTNTClassMenu(Menu.GetCurrentMenu());double s=m.CardScale();
+            m.MouseEvent(Menu.MOUSE_Release,int((Screen.GetWidth()-740*s)/2+370*s),int((Screen.GetHeight()-330*s)/2+100*s));
+            Check(!(Menu.GetCurrentMenu() is 'UTNTClassMenu'),"mouse class selection advances to episode menu");
+        }
+        if(e.Name=="usclassnext") Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Right,false);
+        if(e.Name=="usclasschoose") Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Enter,false);
+        if(e.Name=="usmenuclose") Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Back,false);
+        if(e.Name=="usoptions") Menu.SetMenu('UTNTOptions');
+        if(e.Name=="uspreset")
+        {
+            let menu=OptionMenu(Menu.GetCurrentMenu());
+            for(int i=0;i<menu.mDesc.mItems.Size();i++)
+            {
+                let item=OptionMenuItemUTNTPreset(menu.mDesc.mItems[i]);
+                if(item && item.mParam==e.Args[0]) { item.Activate();break; }
+            }
+            Check(CVar.FindCVar('UTNT_reducedfx').GetBool()==(e.Args[0]==2),"preset applies reduced effects");
+            Check(CVar.FindCVar('UTNT_fxquality').GetInt()==(e.Args[0]==0?2:e.Args[0]==1?3:1),"preset applies quality");
+        }
+        if(e.Name=="usdone") Console.Printf("UTNT_REGRESSION_COMPLETE");
+    }
+}

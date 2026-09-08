@@ -121,6 +121,7 @@ class UTNTWorldHandler : EventHandler
     // Print's activator-only scope and PrintBold's broadcast scope remain distinct.
     static void BeginNotice(int id,int target,int value=-1)
     {
+        UTNTAccessWorld.SignalNotice(id);
         for(int p=0;p<MAXPLAYERS;p++)
             if(playeringame[p] && (target==-2 || target==p))
                 EventHandler.SendInterfaceEvent(p,"utnt_notice",id,value);

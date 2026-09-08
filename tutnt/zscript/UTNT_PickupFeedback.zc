@@ -1,0 +1,125 @@
+// Captures only real touches. Script grants, loading and starting equipment do not notify.
+class UTNTPickupSnapshot play
+{
+    class<Inventory> ItemClass;
+    int Before[7], Tic;
+    bool AlreadyOwned;
+    static class<Inventory> AmmoClass(int i)
+    {
+        class<Inventory> types[]={'Clip','Shell','RocketAmmo','Cell','Gas'};
+        return types[clamp(i,0,4)];
+    }
+    static int Value(Actor who,int slot)
+    {
+        if(slot==0) return who.health;
+        class<Inventory> cls='BasicArmor'; if(slot>1) cls=AmmoClass(slot-2);
+        let inv=who.FindInventory(cls);
+        return inv?inv.Amount:0;
+    }
+    void Capture(Actor who,Inventory item)
+    {
+        ItemClass=item.GetClass();Tic=level.time;
+        AlreadyOwned=!!who.FindInventory(ItemClass);
+        for(int i=0;i<7;i++) Before[i]=Value(who,i);
+    }
+    void Received(Actor who,class<Inventory> itemcls)
+    {
+        if(ItemClass!=itemcls || Tic!=level.time) return;
+        ItemClass=null;
+        if(!who.CheckLocalView() || level.time<2 || !CVar.GetCVar('UTNT_pickupfeedback',who.player).GetBool()) return;
+        for(int i=0;i<7;i++)
+        {
+            int amount=Value(who,i)-Before[i];
+            if(amount>0) EventHandler.SendInterfaceEvent(who.PlayerNumber(),"utnt_gain",i,amount);
+        }
+        let def=GetDefaultByType(itemcls);
+        if((def is 'Weapon' || def is 'Key') && !AlreadyOwned || def is 'PowerupGiver')
+            EventHandler.SendInterfaceEvent(who.PlayerNumber(),"utnt_acquired_"..def.GetClassName());
+    }
+}
+
+class UTNTPickupFeed : StaticEventHandler
+{
+    ui int Gains[7],EndTimes[7],Clock;
+    ui Array<String> Items;
+    ui int ItemAge;
+    ui Actor Camera;
+    override void OnRegister() { SetOrder(150); }
+    override void InterfaceProcess(ConsoleEvent e)
+    {
+        if(e.Name=="utnt_gain" && e.Args[0]>=0 && e.Args[0]<7)
+        {
+            int i=e.Args[0];
+            if(EndTimes[i]<=Clock) Gains[i]=0;
+            Gains[i]+=e.Args[1];EndTimes[i]=Clock+53;
+        }
+        if(e.Name.Left(14)=="utnt_acquired_")
+        {
+            String name=e.Name.Mid(14);
+            for(int i=0;i<Items.Size();i++) if(Items[i]==name) return;
+            if(Items.Size()<6) Items.Push(name);
+        }
+    }
+    override void UiTick()
+    {
+        Actor camera=players[consoleplayer].camera;
+        if(Camera!=camera || gamestate!=GS_LEVEL)
+        {
+            Camera=camera;Items.Clear();ItemAge=0;
+            for(int i=0;i<7;i++) Gains[i]=EndTimes[i]=0;
+        }
+        if(menuactive || ConsoleState!=0 || paused) return;
+        Clock++;
+        let h=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
+        if(automapactive || h && (h.ObjectivesHeld || h.ObjectivesFadeTics>0)) return;
+        if(Items.Size() && ++ItemAge>=105) { Items.Delete(0);ItemAge=0; }
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        if(gamestate!=GS_LEVEL || !viewactive || automapactive || !e.Camera || !e.Camera.player
+            || e.Camera.health<=0 || e.Camera.FindInventory('UTNTHUDHidden')
+            || !CVar.FindCVar('UTNT_pickupfeedback').GetBool()) return;
+        let h=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
+        if(h && (h.ObjectivesHeld || h.ObjectivesFadeTics>0)) return;
+        Vector2 hud=(2,2);if(StatusBar) hud=StatusBar.GetHUDScale();
+        double cx=Screen.GetWidth()/2.0,bottom=Screen.GetHeight(),s=max(1,hud.Y*0.7);
+        for(int i=0;i<7;i++) if(EndTimes[i]>Clock)
+        {
+            double x,y;
+            if(i<2) { x=cx+(i==0?-91:42)*hud.X;y=bottom-42*hud.Y; }
+            else { x=cx+(i<5?100:142)*hud.X;y=bottom-(46+(i<5?i-2:i-5)*10)*hud.Y; }
+            String label=String.Format("+%d",Gains[i]);
+            if(i>=2)
+            {
+                String names[]={"UTNT_GAIN_BUL","UTNT_GAIN_SHELL","UTNT_GAIN_RKT","UTNT_GAIN_CELL","UTNT_GAIN_GAS"};
+                label=UTNTExplorationUI.Local(names[i-2]).." "..label;
+            }
+            UTNTExplorationUI.Text(label,x-Font.GetFont('SmallFont').StringWidth(label)*s/2,y,s,0xd7bd83,
+                clamp((EndTimes[i]-Clock-e.FracTic)/12.0,0,1));
+        }
+        if(!Items.Size()) return;
+        class<Inventory> type=Items[0];
+        if(!type) return;
+        let def=GetDefaultByType(type);
+        double scale=UTNTUILayout.Scale(),width=UTNTUILayout.Width(276);
+        String text=StringTable.Localize(def.PickupMsg);
+        // Short names use engine inventory tags when available.
+        String tag=def.GetTag();if(tag.Length()>0) text=StringTable.Localize(tag);
+        let lines=Font.GetFont('SmallFont').BreakLines(text,int(width-56));
+        double height=max(36,lines.Count()*11+12);
+        double x=14*scale,y=bottom-40*hud.Y-(height+8)*scale;
+        double alpha=clamp(min((ItemAge+e.FracTic)/7.0,(105-ItemAge-e.FracTic)/11.0),0,1);
+        UTNTExplorationUI.Frame(x,y,width,height,scale,alpha);
+        TextureID icon=def.Icon;if(!icon.IsValid() && def.SpawnState) icon=def.SpawnState.GetSpriteTexture(0);
+        if(icon.IsValid())
+        {
+            Vector2 size=TexMan.GetScaledSize(icon);
+            double zoom=min(32/max(1,size.X),26/max(1,size.Y))*scale;
+            Screen.DrawTexture(icon,true,x+25*scale-size.X*zoom/2,y+height*scale/2-size.Y*zoom/2,
+                DTA_DestWidth,int(round(size.X*zoom)),DTA_DestHeight,int(round(size.Y*zoom)),DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha);
+        }
+        for(int j=0;j<lines.Count();j++)
+            UTNTExplorationUI.Text(lines.StringAt(j),x+49*scale,y+(height-(lines.Count()-1)*11-6)*scale/2+j*11*scale,
+                scale,0xd6d0c3,alpha);
+    }
+}

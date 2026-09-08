@@ -1,0 +1,155 @@
+// Saved markers record successful interaction attempts, never unexplored geometry.
+class UTNTKnownLock : MapMarker
+{
+    Line DoorLine;
+    Sector DoorSector;
+    double InitialGap;
+    int LockID;
+    override void Tick()
+    {
+        Super.Tick();
+        if(!DoorLine || DoorLine.special==0 && DoorLine.locknumber==0) { Destroy();return; }
+        if(DoorSector && InitialGap<8 && DoorSector.CenterCeiling()-DoorSector.CenterFloor()>InitialGap+12)
+            Destroy();
+    }
+}
+
+class UTNTAccessPulse : PointLight
+{
+    int Age;
+    Default { +DYNAMICLIGHT.DONTLIGHTACTORS; +DYNAMICLIGHT.NOSHADOWMAP; }
+    override void PostBeginPlay()
+    {
+        Args[0]=190;Args[1]=135;Args[2]=66;Args[3]=56;
+        Super.PostBeginPlay();
+        A_StartSound("switches/normbutn",CHAN_BODY,0,0.5,ATTN_NORM);
+    }
+    override void Tick()
+    {
+        if(++Age>=105) { Destroy();return; }
+        // A steady lamp-like glow with soft edges in time, no flashing.
+        Alpha=clamp(min(Age/10.0,(105-Age)/35.0),0,0.8);
+        Super.Tick();
+    }
+}
+
+class UTNTAccessWorld : EventHandler
+{
+    Array<UTNTKnownLock> Locks;
+    Array<int> SignalIDs,SignalTimes;
+    override void OnRegister() { SetOrder(100); }
+    static class<Inventory> KeyType(int lock)
+    {
+        if(lock==1 || lock==129 || lock==132) return 'RedCard';
+        if(lock==2 || lock==130 || lock==133) return 'BlueCard';
+        if(lock==3 || lock==131 || lock==134) return 'YellowCard';
+        if(lock==4) return 'RedSkull';
+        if(lock==5) return 'BlueSkull';
+        if(lock==6) return 'YellowSkull';
+        return null;
+    }
+    override void WorldLinePreActivated(WorldEvent e)
+    {
+        if(!e.Thing || !e.Thing.player || !(e.ActivationType & (SPAC_USE|SPAC_USETHROUGH|SPAC_PUSH))) return;
+        Line line=e.ActivatedLine;int key=UTNTNoticeLocks.Lock(line);
+        class<Inventory> type=KeyType(key);
+        if(!type || e.Thing.CheckKeys(key,UTNTNoticeLocks.Remote(line),true)) return;
+        for(int i=Locks.Size()-1;i>=0;i--)
+        {
+            if(!Locks[i]) { Locks.Delete(i);continue; }
+            if(Locks[i].DoorLine==line || Locks[i].LockID==key && Locks[i].InitialGap<8
+                && line.backsector && Locks[i].DoorSector==line.backsector) return;
+        }
+        Vector2 pos=line.v1.p+line.delta/2;
+        let mark=UTNTKnownLock(Actor.Spawn('UTNTKnownLock',(pos.X,pos.Y,e.Thing.Pos.Z),NO_REPLACE));
+        if(!mark) return;
+        mark.DoorLine=line;mark.LockID=key;
+        mark.DoorSector=line.backsector;
+        if(mark.DoorSector) mark.InitialGap=mark.DoorSector.CenterCeiling()-mark.DoorSector.CenterFloor();
+        mark.picnum=GetDefaultByType(type).SpawnState.GetSpriteTexture(0);
+        // These locks accept either kind: the status-bar composite shows both.
+        if(key>=129 && key<=134)
+        {
+            String icons[]={"STKEYS8","STKEYS6","STKEYS7"};
+            mark.picnum=TexMan.CheckForTexture(icons[(key-129)%3],TexMan.Type_Any);
+        }
+        mark.Scale=(0.65,0.65);mark.args[0]=mark.args[1]=mark.args[2]=0;
+        Locks.Push(mark);
+    }
+    override void WorldLineActivated(WorldEvent e)
+    {
+        for(int i=Locks.Size()-1;i>=0;i--)
+        {
+            if(!Locks[i]) { Locks.Delete(i);continue; }
+            if(Locks[i].DoorLine==e.ActivatedLine || Locks[i].InitialGap<8 && Locks[i].DoorSector
+                && Locks[i].DoorSector==e.ActivatedLine.backsector) { Locks[i].Destroy();Locks.Delete(i); }
+        }
+    }
+    static void SignalNotice(int id)
+    {
+        let h=UTNTAccessWorld(EventHandler.Find('UTNTAccessWorld'));
+        if(h) h.Signal(id);
+    }
+    static int TagFor(String map,int id)
+    {
+        if(map~=="TNT02")
+        {
+            if(id==211) return 38;if(id==216) return 24;if(id==224) return 29;
+            if(id==229) return 68;if(id==238) return 3;if(id==245) return 37;
+        }
+        if(map~=="TNT03A1")
+        { if(id==247) return 6;if(id==252) return 10;if(id==260) return 48; }
+        if(map~=="TNT03B" && id==283) return 8;
+        if(map~=="TNT04B") { if(id==294) return 28;if(id==302) return 38; }
+        if(map~=="TNT04C")
+        { if(id==308) return 9;if(id==312) return 18;if(id==315) return 19; }
+        if(map~=="TNTLE" && id==358) return 9;
+        return 0;
+    }
+    void Signal(int id)
+    {
+        int tag=TagFor(level.MapName,id);
+        bool dungeon=level.MapName~=="TNT01" && id==198;
+        if(!tag && !dungeon) return;
+        for(int i=0;i<SignalIDs.Size();i++) if(SignalIDs[i]==id)
+        { if(level.time-SignalTimes[i]<140) return;SignalTimes[i]=level.time;Emit(tag);return; }
+        SignalIDs.Push(id);SignalTimes.Push(level.time);Emit(tag);
+    }
+    void Emit(int tag)
+    {
+        if(!tag)
+        {
+            // TNT01 polyobject 2 start spot (thing 17): the dungeon sliding gate.
+            let lamp=Actor.Spawn('UTNTAccessPulse',(1224,1544,Actor.ONFLOORZ),NO_REPLACE);
+            if(lamp) lamp.SetOrigin(lamp.Pos+(0,0,40),false);
+            return;
+        }
+        let it=level.CreateSectorTagIterator(tag);
+        int n,count=0;Vector3 placed[4];
+        while((n=it.Next())>=0 && count<4)
+        {
+            Sector sec=level.Sectors[n];
+            Line edge;double longest=0;
+            for(int j=0;j<sec.Lines.Size();j++)
+            {
+                Line candidate=sec.Lines[j];
+                if(!candidate.frontsector || !candidate.backsector) continue;
+                Sector outside=candidate.frontsector==sec?candidate.backsector:candidate.frontsector;
+                if(outside==sec || outside.CenterCeiling()-outside.CenterFloor()<48) continue;
+                double length=candidate.delta.Length();
+                if(length>longest) { edge=candidate;longest=length; }
+            }
+            if(!edge) continue;
+            Sector outside=edge.frontsector==sec?edge.backsector:edge.frontsector;
+            Vector2 pos=edge.v1.p+edge.delta/2;
+            Vector2 normal=(edge.delta.Y,-edge.delta.X);normal/=max(1,normal.Length());
+            pos+=normal*(edge.frontsector==sec?-8:8);
+            double z=outside.floorplane.ZatPoint(pos)+40;
+            Vector3 location=(pos.X,pos.Y,z);bool nearby=false;
+            for(int k=0;k<count;k++) if((placed[k]-location).Length()<128) { nearby=true;break; }
+            if(nearby) continue; // Adjacent bars share one light and one sound.
+            Actor.Spawn('UTNTAccessPulse',location,NO_REPLACE);placed[count]=location;
+            count++;
+        }
+    }
+}

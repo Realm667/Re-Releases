@@ -24,6 +24,21 @@ class Marine : DoomPlayer
 {
 	double utntFallbackStep;
 
+    UTNTPickupSnapshot PickupSnapshot;
+    override bool CanTouchItem(Inventory item)
+    {
+        if(!Super.CanTouchItem(item)) return false;
+        if(!PickupSnapshot) PickupSnapshot=new("UTNTPickupSnapshot");
+        PickupSnapshot.Capture(self,item);
+        return true;
+    }
+    override void HasReceived(Inventory item,class<Inventory> itemcls)
+    {
+        Super.HasReceived(item,itemcls);
+        if(PickupSnapshot) PickupSnapshot.Received(self,itemcls);
+    }
+
+
     override bool OnGiveSecret(bool printmsg,bool playsound)
     {
         // P_GiveSecret owns both counters. Its level counter increments after this hook.
