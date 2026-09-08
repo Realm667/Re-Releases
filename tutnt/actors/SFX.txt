@@ -563,7 +563,7 @@ Actor SmokeA
 // Spark Decorations
 //------------------------------------------------------------------------------------------------------------
 
-actor WhiteSpark_Down : SwitchableDecoration 20070
+actor WhiteSpark_Down : UTNTIndustrialSparkBase 20070
 {
 	//$Category SpecialFX
 	height 8
@@ -574,631 +574,358 @@ actor WhiteSpark_Down : SwitchableDecoration 20070
 	+CLIENTSIDEONLY
 	+NOCLIP
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_W")
-		TNT1 AA 0 A_CustomMissile("Spark_W1",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W2",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W3",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W4",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W5",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W6",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W7",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W8",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W9",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W10",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W11",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W12",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W13",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W14",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W15",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_W16",0.0,0,random(0,360),2,random(270,315))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(0,0)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor WhiteSpark_Side : WhiteSpark_Down 20071
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_W")
-		TNT1 AA 0 A_CustomMissile("Spark_W1",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W2",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W3",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W4",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W5",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W6",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W7",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W8",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W9",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W10",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W11",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W12",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W13",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W14",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W15",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_W16",0.0,0,random(-23,23),2,random(157,203))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(0,1)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor WhiteSpark_Up : WhiteSpark_Down 20072
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_W")
-		TNT1 AA 0 A_CustomMissile("Spark_W1",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W2",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W3",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W4",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W5",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W6",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W7",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W8",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W9",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W10",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W11",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W12",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W13",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W14",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W15",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_W16",0.0,0,random(0,360),2,random(67,113))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(0,2)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor RedSpark_Down : WhiteSpark_Down 20073
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_R")
-		TNT1 AA 0 A_CustomMissile("Spark_R1",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R2",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R3",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R4",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R5",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R6",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R7",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R8",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R9",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R10",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R11",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R12",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R13",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R14",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R15",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_R16",0.0,0,random(0,360),2,random(270,315))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(1,0)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor RedSpark_Side : WhiteSpark_Down 20074
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_R")
-		TNT1 AA 0 A_CustomMissile("Spark_R1",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R2",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R3",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R4",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R5",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R6",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R7",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R8",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R9",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R10",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R11",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R12",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R13",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R14",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R15",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_R16",0.0,0,random(-23,23),2,random(157,203))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(1,1)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor RedSpark_Up : WhiteSpark_Down 20075
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_R")
-		TNT1 AA 0 A_CustomMissile("Spark_R1",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R2",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R3",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R4",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R5",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R6",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R7",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R8",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R9",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R10",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R11",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R12",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R13",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R14",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R15",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_R16",0.0,0,random(0,360),2,random(67,113))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(1,2)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor OrangeSpark_Down : WhiteSpark_Down 20076
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_O")
-		TNT1 AA 0 A_CustomMissile("Spark_O1",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O2",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O3",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O4",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O5",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O6",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O7",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O8",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O9",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O10",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O11",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O12",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O13",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O14",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O15",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_O16",0.0,0,random(0,360),2,random(270,315))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(2,0)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor OrangeSpark_Side : WhiteSpark_Down 20077
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_O")
-		TNT1 AA 0 A_CustomMissile("Spark_O1",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O2",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O3",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O4",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O5",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O6",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O7",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O8",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O9",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O10",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O11",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O12",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O13",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O14",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O15",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_O16",0.0,0,random(-23,23),2,random(157,203))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(2,1)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor OrangeSpark_Up : WhiteSpark_Down 20078
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_O")
-		TNT1 AA 0 A_CustomMissile("Spark_O1",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O2",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O3",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O4",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O5",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O6",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O7",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O8",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O9",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O10",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O11",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O12",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O13",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O14",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O15",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_O16",0.0,0,random(0,360),2,random(67,113))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(2,2)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor YellowSpark_Down : WhiteSpark_Down 20079
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_Y")
-		TNT1 AA 0 A_CustomMissile("Spark_Y1",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y2",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y3",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y4",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y5",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y6",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y7",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y8",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y9",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y10",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y11",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y12",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y13",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y14",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y15",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_Y16",0.0,0,random(0,360),2,random(270,315))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(3,0)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor YellowSpark_Side : WhiteSpark_Down 20080
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_Y")
-		TNT1 AA 0 A_CustomMissile("Spark_Y1",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y2",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y3",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y4",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y5",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y6",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y7",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y8",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y9",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y10",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y11",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y12",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y13",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y14",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y15",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_Y16",0.0,0,random(-23,23),2,random(157,203))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(3,1)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor YellowSpark_Up : WhiteSpark_Down 20081
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_Y")
-		TNT1 AA 0 A_CustomMissile("Spark_Y1",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y2",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y3",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y4",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y5",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y6",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y7",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y8",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y9",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y10",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y11",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y12",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y13",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y14",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y15",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_Y16",0.0,0,random(0,360),2,random(67,113))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(3,2)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor GreenSpark_Down : WhiteSpark_Down 20082
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_G")
-		TNT1 AA 0 A_CustomMissile("Spark_G1",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G2",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G3",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G4",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G5",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G6",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G7",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G8",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G9",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G10",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G11",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G12",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G13",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G14",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G15",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_G16",0.0,0,random(0,360),2,random(270,315))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(4,0)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor GreenSpark_Side : WhiteSpark_Down 20083
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_G")
-		TNT1 AA 0 A_CustomMissile("Spark_G1",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G2",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G3",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G4",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G5",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G6",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G7",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G8",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G9",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G10",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G11",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G12",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G13",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G14",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G15",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_G16",0.0,0,random(-23,23),2,random(157,203))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(4,1)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor GreenSpark_Up : WhiteSpark_Down 20084
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_G")
-		TNT1 AA 0 A_CustomMissile("Spark_G1",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G2",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G3",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G4",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G5",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G6",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G7",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G8",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G9",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G10",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G11",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G12",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G13",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G14",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G15",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_G16",0.0,0,random(0,360),2,random(67,113))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(4,2)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor BlueSpark_Down : WhiteSpark_Down 20085
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_B")
-		TNT1 AA 0 A_CustomMissile("Spark_B1",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B2",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B3",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B4",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B5",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B6",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B7",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B8",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B9",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B10",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B11",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B12",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B13",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B14",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B15",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_B16",0.0,0,random(0,360),2,random(270,315))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(5,0)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor BlueSpark_Side : WhiteSpark_Down 20086
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_B")
-		TNT1 AA 0 A_CustomMissile("Spark_B1",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B2",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B3",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B4",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B5",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B6",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B7",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B8",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B9",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B10",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B11",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B12",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B13",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B14",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B15",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_B16",0.0,0,random(-23,23),2,random(157,203))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(5,1)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor BlueSpark_Up : WhiteSpark_Down 20087
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_B")
-		TNT1 AA 0 A_CustomMissile("Spark_B1",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B2",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B3",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B4",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B5",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B6",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B7",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B8",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B9",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B10",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B11",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B12",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B13",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B14",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B15",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_B16",0.0,0,random(0,360),2,random(67,113))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(5,2)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor PurpleSpark_Down : WhiteSpark_Down 20088
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_P")
-		TNT1 AA 0 A_CustomMissile("Spark_P1",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P2",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P3",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P4",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P5",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P6",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P7",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P8",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P9",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P10",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P11",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P12",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P13",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P14",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P15",0.0,0,random(0,360),2,random(270,315))
-		TNT1 AA 0 A_CustomMissile("Spark_P16",0.0,0,random(0,360),2,random(270,315))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(6,0)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor PurpleSpark_Side : WhiteSpark_Down 20089
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_P")
-		TNT1 AA 0 A_CustomMissile("Spark_P1",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P2",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P3",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P4",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P5",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P6",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P7",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P8",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P9",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P10",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P11",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P12",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P13",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P14",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P15",0.0,0,random(-23,23),2,random(157,203))
-		TNT1 AA 0 A_CustomMissile("Spark_P16",0.0,0,random(-23,23),2,random(157,203))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(6,1)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 actor PurpleSpark_Up : WhiteSpark_Down 20090
 {
 	states
-	{
-	Spawn:
-	Active:
-		TNT1 A 0 A_PlaySound("world/spark")
-		TNT1 A 1 A_SpawnItemEx("SparkFlare_P")
-		TNT1 AA 0 A_CustomMissile("Spark_P1",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P2",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P3",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P4",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P5",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P6",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P7",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P8",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P9",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P10",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P11",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P12",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P13",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P14",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P15",0.0,0,random(0,360),2,random(67,113))
-		TNT1 AA 0 A_CustomMissile("Spark_P16",0.0,0,random(0,360),2,random(67,113))
-	Inactive:
-		TNT1 A -1
-		stop
-	}
+    {
+    Spawn:
+    Active:
+        TNT1 A 0 A_PlaySound("world/spark")
+        TNT1 A 1 A_UTNTDischarge(6,2)
+        TNT1 A -1
+        Stop
+    Inactive:
+        TNT1 A 0 A_UTNTDischargeStop
+        TNT1 A -1
+        Stop
+    }
 }
 
 //------------------------------------------------------------------------------------------------------------
