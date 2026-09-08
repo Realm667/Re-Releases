@@ -10,9 +10,9 @@ from PIL import Image, ImageFilter
 
 ROOT=Path(__file__).resolve().parent.parent
 FAMILIES={
- 'water':(['QWATER1','QWATER2','QWATER3','QWATER3A','QFWAT'],3.5,0),
- 'slime':(['QSLIME1','QSLIME2','IKSLIME1','IKSLIME2','SLIME05B'],5.5,1),
- 'blood':(['QWATERT6'],2.8,2),
+ 'water':(['QWATER1','QWATER2','QWATER3','QWATER3A','QFWAT'],10.0,0),
+ 'slime':(['QSLIME1','QSLIME2','IKSLIME1','IKSLIME2','SLIME05B'],14.0,1),
+ 'blood':(['QWATERT6'],9.0,2),
 }
 
 def build(root=ROOT):

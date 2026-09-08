@@ -18,9 +18,13 @@ The two IKSLIME names were referenced by ANIMDEFS but had no source assets or cu
 
 Physical liquids use 1024 x 1024 scalar height artwork plus derived tangent normals. Top, middle and deep currents have independent directions/speeds. World-space placement, mirrored sampling, two rotated/scaled samples and broad irregular warping/blending reduce obvious 64-unit repetitions and keep neighboring sectors continuous despite different texture transforms.
 
-Normals come from the same composite height field as the visible surface, with additional fine detail from the authored normal texture. UZDoom's Normal/Specular material path supplies the actual dynamic-light response. Nominal height amplitudes are 3.5 map units for water, 5.5 for slime and 2.8 for blood. A bounded two-step parallax approximation shifts the samples with viewing angle; submerged layers have additional depth offsets.
+Normals come from the same composite height field as the visible surface, with additional fine detail from the authored normal texture. UZDoom's Normal/Specular material path supplies the actual dynamic-light response. Height slabs are 10 map units for water, 14 for slime and 9 for blood. A seven-step height traversal with interpolated crossing replaces the old two-step offset; submerged layers have separate depth offsets and normal-driven refraction.
 
-Normal mapping changes lighting; parallax changes apparent sample position. Neither moves vertices, silhouettes, collisions or the actual sector floor. Relief is shallow and most visible from an oblique view under dynamic lights. Physical liquids are not fullbright. Cosmic points use selective emission and spatial layers rather than rock-like bump normals.
+The earlier translation-only treatment was too subtle from player height. Surface currents now travel at approximately 46 / 17 / 32 map units per second (water / slime / blood), with independent crossing currents below. Travelling waves deform the height field, and sparse slime domes inflate and subside. Underlying layers contribute substantially to the visible color. Unresolved waves fade with screen footprint to prevent distant shimmer.
+
+A broad, stylized environment highlight and height-based occlusion make the moving relief visible even without dynamic lights. This is an approximation, not a reflection of actual scene geometry. It remains attenuated by sector lighting; liquids do not glow in darkness. Actual dynamic lights additionally use the same evolving normal field.
+
+Normal mapping changes lighting; parallax changes apparent sample position. Neither moves vertices, silhouettes, collisions or the actual sector floor. Relief is visible from an oblique view in ordinary sector lighting and under dynamic lights. Physical liquids are not fullbright. Cosmic points use selective emission and spatial layers rather than rock-like bump normals.
 
 The height PNG channels store original / 2-pixel / 12-pixel prefilters. The shader explicitly samples level zero and blends these by screen footprint: this works with OpenGL nearest filtering, which does not always allocate higher hardware mip levels. A camera-relative horizon closure is reconstructed onto its flat plane before world-space sampling.
 
@@ -36,7 +40,8 @@ Requires Python, NumPy and Pillow:
 python tools/build_liquid_assets.py
 python tools/test_liquids.py --out logs/liquid-motion --engine PATH_TO_UZDOOM --iwad PATH_TO_DOOM2 --renderer both
 python tools/test_liquids.py --out logs/liquid-relief --engine PATH_TO_UZDOOM --iwad PATH_TO_DOOM2 --renderer both --relief
+python tools/test_liquids.py --out logs/liquid-player --engine PATH_TO_UZDOOM --iwad PATH_TO_DOOM2 --renderer both --physical --eye-level
 python tools/build_utnt.py --engine PATH_TO_UZDOOM --iwad PATH_TO_DOOM2 --acc PATH_TO_ACC
 ```
 
-Edit `tools/liquid-surface.glsl` or `tools/liquid-cosmic.glsl`, then regenerate. Generated fragment shaders should not be edited independently. The test fixture stays outside the game package. It exercises every name, split-sector transforms, floors/walls, animation, distant detail, save/load and both renderers. Frozen normal-on/off tests verify an unchanged ambient image and changed highlights under two dynamic-light positions. Tested with UZDoom 5.0.1.
+Edit `tools/liquid-surface.glsl` or `tools/liquid-cosmic.glsl`, then regenerate. Generated fragment shaders should not be edited independently. The test fixture stays outside the game package. It exercises every name, split-sector transforms, floors/walls, animation, distant detail, save/load and both renderers. Frozen normal-on/off tests isolate engine dynamic-light response while retaining the same stylized environment contribution. Player-height tests run without a fixture lamp, require visible motion across at least 15% of the evaluated image, and export short animated WebP captures for visual review. Pixel changes alone are not a guarantee of convincing liquid motion. Tested with UZDoom 5.0.1.

@@ -8,7 +8,7 @@ import argparse, json, re, struct, sys, shutil, zipfile
 
 NAMES=['QWATER1','QWATER2','QWATER3','QWATER3A','QFWAT','QSLIME1','QSLIME2','IKSLIME1','IKSLIME2','SLIME05B','QWATERT6','QTELEPT','QTELEPOR','STARSKY1','STARSKY2']
 
-def fixture(out):
+def fixture(out,eye_level=False):
     addon=out/'fixture';(addon/'maps').mkdir(parents=True,exist_ok=True)
     vertices=[(-768,-256),(0,-256),(768,-256),(-768,1536),(0,1536),(768,1536)]
     edges=[(0,3,0,None),(3,4,0,None),(4,1,0,1),(1,0,0,None),(4,5,1,None),(5,2,1,None),(2,1,1,None)]
@@ -72,6 +72,7 @@ class UTNTLiquidTest : EventHandler
     }
 }
 '''.replace('CHOICE',choice)
+    if eye_level:code=code.replace('Cam.SetOrigin((0,-100,180),false); Cam.Pitch=56;', 'Cam.SetOrigin((0,-100,56),false); Cam.Pitch=25;')
     (addon/'ZSCRIPT').write_text(code)
     return addon
 
@@ -82,12 +83,20 @@ def main():
     p.add_argument('--engine',required=True);p.add_argument('--iwad',required=True)
     p.add_argument('--mod',type=Path);p.add_argument('--renderer',choices=['0','1','both'],default='both')
     p.add_argument('--relief',action='store_true');p.add_argument('--preview',action='store_true')
+    p.add_argument('--physical',action='store_true',help='Only water, slime and blood')
+    p.add_argument('--eye-level',action='store_true',help='Normal player height, no fixture lamp in motion tests')
+    p.add_argument('--override-materials',action='store_true',help='Overlay project materials onto --mod for candidate tests')
     a=p.parse_args();a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=True)
     sys.path.insert(0,str(a.project/'tools'));from check_engine import run_case
-    addon=fixture(a.out);results=[]
+    addon=fixture(a.out,a.eye_level);results=[]
+    if a.override_materials:
+        for directory in ['materials/liquids','shaders/liquids']:
+            shutil.copytree(a.project/'tutnt'/directory,addon/directory,dirs_exist_ok=True)
     backends=['0','1'] if a.renderer=='both' else [a.renderer]
     modes=['bump','flat'] if a.relief else ['motion']
-    if not a.relief:(addon/'GLDEFS').unlink(missing_ok=True)
+    if not a.relief:
+        if a.override_materials:shutil.copyfile(a.project/'tutnt/GLDEFS.liquids',addon/'GLDEFS')
+        else:(addon/'GLDEFS').unlink(missing_ok=True)
     for mode in modes:
         if a.relief:
             for family in ['water','slime','blood']:
@@ -106,8 +115,10 @@ def main():
                     commands += [f'netevent liquidselect {i}','wait 35']
                     for light in [0,1,2]:commands += [f'netevent liquidlight {light}','wait 45',f'screenshot logs/{label}-{NAMES[i]}-{light}.png']
             else:
-                for i in ([0,5,10,11,12,13,14] if a.preview else range(len(NAMES))):
-                    commands += [f'netevent liquidselect {i}','netevent liquidlight 1','wait 40',f'screenshot logs/{label}-{NAMES[i]}-a.png','wait 30',f'screenshot logs/{label}-{NAMES[i]}-b.png']
+                for i in ([0,5,10] if a.physical else [0,5,10,11,12,13,14] if a.preview else range(len(NAMES))):
+                    commands += [f'netevent liquidselect {i}',f'netevent liquidlight {0 if a.eye_level else 1}','wait 40',f'screenshot logs/{label}-{NAMES[i]}-a.png','wait 30',f'screenshot logs/{label}-{NAMES[i]}-b.png']
+                    if a.eye_level:
+                        for frame in range(12):commands += ['wait 5',f'screenshot logs/{label}-{NAMES[i]}-clip-{frame:02}.png']
                 for i in [0,5,10]:commands += [f'netevent liquidselect {i}','netevent liquidview 2','wait 35',f'screenshot logs/{label}-{NAMES[i]}-far.png']
                 commands += [f'save {label}','wait 8',f'load {label}','wait 40',f'screenshot logs/{label}-restored.png']
             commands += ['echo UTNT_TEST_END','wait 4','quit']
@@ -121,27 +132,33 @@ def main():
     (a.out/'results.json').write_text(json.dumps(results,indent=2)+'\n')
     if not all(r['ok'] for r in results):raise SystemExit(1)
     if a.relief:verify_relief(a.out,backends)
-    else:verify_motion(a.out,backends)
+    else:verify_motion(a.out,backends,a.eye_level)
 
-def verify_motion(out,backends):
+def verify_motion(out,backends,eye_level=False):
     from PIL import Image
     import numpy as np
     result={}
     for backend in backends:
         for path in sorted((out/'logs').glob(f'liquids-motion-{backend}-*-a.png')):
             other=path.with_name(path.name.replace('-a.png','-b.png'))
-            a=np.asarray(Image.open(path).convert('RGB'),dtype=float)[30:680,40:1240]
-            b=np.asarray(Image.open(other).convert('RGB'),dtype=float)[30:680,40:1240]
+            a=np.asarray(Image.open(path).convert('RGB'),dtype=float)[180:680,40:1240]
+            b=np.asarray(Image.open(other).convert('RGB'),dtype=float)[180:680,40:1240]
             change=np.max(abs(a-b),axis=2)
             count=int((change>1).sum())
             assert count>20,(path.name,'animation invisible',count)
             assert a.max()>20,(path.name,'material is black')
             result[path.stem]={'animated_pixels':count,'mean_delta':float(abs(a-b).mean())}
+            if eye_level:
+                fraction=float((change>3).mean())
+                result[path.stem]['visible_motion_fraction']=fraction
+                assert fraction>0.15,(path.name,'player-view motion too weak',fraction)
+                frames=[Image.open(p).convert('RGB') for p in sorted((out/'logs').glob(path.name.replace('-a.png','-clip-*.png')))]
+                if frames:frames[0].save(out/(path.stem+'.webp'),save_all=True,append_images=frames[1:],duration=143,loop=0,quality=88)
         # Regression: nearest filtering on OpenGL previously lost the distant
         # half of water because higher hardware mip levels did not exist.
         water=np.asarray(Image.open(out/f'logs/liquids-motion-{backend}-QWATER1-a.png').convert('RGB'),dtype=float)
         contrast=float(water[30:300,80:1200,2].std())
-        assert contrast>3,(backend,'distant water detail missing',contrast)
+        if not eye_level:assert contrast>3,(backend,'distant water detail missing',contrast)
         result[f'water-distant-{backend}']={'blue_std':contrast}
     (out/'motion-metrics.json').write_text(json.dumps(result,indent=2)+'\n')
     print('Motion and distant-detail pixel checks passed.')
