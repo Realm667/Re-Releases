@@ -1,51 +1,52 @@
-# Industrial particle effects
+# Industrial effects — revised after in-game review
 
-Implements the five approved concepts: directed metal impact sparks and dust;
-three-pulse electrical discharges; a green teleport impulse with outward and
-returning fragments; flash/fire/ember/smoke explosion phases; and a short hot
-rocket core with a continuous, widening smoke wake.
+## Current behavior (2026-09-09)
 
-## Runtime
+- Impact and electrical sparks align their long axis with their projected
+  velocity. Random spin is disabled for streaks. The projection accounts for
+  view yaw/pitch, map pixel stretch and perspective at the edges of the screen.
+  Roll angles cross +/-180 on the shortest arc, avoiding an interpolated full
+  revolution. Streaks use view-aligned billboards and centered sprite rotation.
+- All 21 electrical spawners again create their original SparkFlare_W/R/O/Y/G/B/P
+  at the source. Activation, original sound and the three spark pulses remain.
+- TeleportEffects again renders its original X010 animation, TportSphere and
+  TeleParticle emission, together with the new returning fragments. New sprite
+  dimensions are 2.5 times the previous industrial version; launch velocities
+  are doubled to spread the addition around the original core.
+- UTNTRocket again runs the original flame and smoke trail states. Its visual
+  explosion uses UTNTRocketExplosion, an exact copy of the original
+  NewExplosionMedium body under a dedicated name. Its damage calls, missile
+  properties and death timing remain unchanged. Other explosion families keep
+  their existing implementation.
 
-`zscript/UTNT_IndustrialFX.zc` owns cosmetic client-side VisualThinkers. Existing
-map actor names, editor numbers, electrical activation/deactivation and gameplay
-actions remain in place. The adapters cover NewPuff, all 21 directional/color
-spark spawners, TeleportEffects, 13 New/MonExplosion variants, and UTNTRocket.
-Explosion scales are 0.5 / 0.7 / 1 / 1.4 / 2, with concentrated/simple variants.
+The existing teleport, fire, smoke and original flare assets are reused.
+The industrial smoke material and unused trail classes remain available for
+other effects and previously serialized objects. No bitmap assets were added.
+Local industrial particles retain the existing quality, distance and emission
+budgets (768 live particles, 64 pulse controllers, 24 geometry traces per tic).
+Restored classic flare/teleport/explosion actors use their original lifetimes.
 
-Existing approved teleport fragment, fire and smoke atlases are reused. The new
-TEXTURES.industrial aliases and industrial-smoke.fp material give combat smoke
-a separate density profile. No new generated bitmap assets are introduced.
+## Verification
 
-The existing fxquality, reducedfx and distance controls apply. The local limits
-are 768 live visual particles, 64 electrical pulse controllers, 24 geometry
-traces per tic, plus the shared ambient/combat emission budgets. Sparks expire
-on geometry contact or when the trace budget is exhausted. Rockets sample
-distance instead of drawing a helix; jumps over 96 units reset the wake.
+The revision fixture checks native particle state, angle wrap, every flare color,
+the simultaneous classic/new teleport layers, original rocket flame animation,
+absence of the new rocket trail controller, original explosion sprites on an
+actual rocket collision, and particle expiry. OpenGL and Vulkan logs and native
+screenshots are in tools/validation/industrial-revision-2026-09-09.
 
-## Validation
+The alignment screenshots place independent green world-space motion markers
+behind eight gold streaks. Pixel analysis measures the two axes rather than
+repeating the angle implementation. A second image includes movement toward and
+away from the viewer to exercise perspective. The checker requires less than
+6 degrees deviation at 960x540. See the recorded measurements for actual errors.
 
-UZDoom 5.0.1: 92 runtime assertions each on OpenGL and Vulkan, including all
-families, activation, expiry, texture/scale validity, counter consistency,
-quality off/low/high, reduced effects and simultaneous bursts. See
-`tools/validation/industrial-fx-2026-09-08/results.json`, logs and screenshots.
+Run tools/test_industrial_revision.py with --engine and --iwad, optionally
+--mod <PK3> and --renderer 0 or 1. This uses tools/industrial-revision-tests.
+Run its check_alignment.py with an alignment screenshot path for the image check.
+The historical initial-implementation tests and evidence dated 2026-09-08
+describe the earlier design; their rocket expectations predate this restoration.
 
-A before/after fixture produced identical target health after hitscan batches,
-an actual UTNTRocket collision/explosion and follow-up hitscan damage. Player
-health/position after the teleport visual also agreed. This is a deterministic
-gameplay comparison, not a full weapon-animation or multiplayer playthrough.
-The rocket Death block and all weapon attack/damage calls were also compared
-and are unchanged. Sound calls were preserved by source review; automated
-engine tests run without sound. Save/load and network sessions were not tested.
-There is no measured FPS claim.
-
-## Reproduce
-
-Use the existing tools/check_engine.py with --mod pointing at the built PK3,
---addon tools/industrial-fx-tests, --map UTNTIFX, --renderer 0 or 1,
---exec tools/industrial-fx-tests/visuals.cfg, --timeout 100,
---set UTNT_fxquality=3 and --set vid_maxfps=120. Set --engine and --iwad.
-For the damage comparison, run tools/industrial-fx-damage-tests with the same
-seed (the runner defaults to 667). Call the check_engine.run_case Python API
-with mapname="UTNTIFX" and duration=160 against
-before/after packages, then compare the UTNT_DAMAGE lines in the logs.
+Engine angle interpolation reference:
+https://github.com/UZDoom/UZDoom/blob/trunk/src/playsim/p_effect.cpp
+Renderer reference:
+https://github.com/UZDoom/UZDoom/blob/trunk/src/rendering/hwrenderer/scene/hw_sprites.cpp

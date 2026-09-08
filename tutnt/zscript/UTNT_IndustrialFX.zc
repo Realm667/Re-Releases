@@ -49,7 +49,12 @@ class UTNTIndustrialFX play
         b.Live++; v.Budget=b; v.Kind=kind; v.Pos=pos; v.Prev=pos; v.Origin=pos;
         v.Width=width; v.Height=height; v.Life=life; v.Strength=1; v.Vel=velocity; v.FadeIn=6;
         v.scolor=tint; v.Flags=SPF_FULLBRIGHT|SPF_ROLL|SPF_STRETCHPIXELS|SPF_ALLOWSHADERS;
-        v.Roll=FRandom[utntindustrial](-180,180); v.Spin=FRandom[utntindustrial](-2,2);
+        if(kind==0 || kind==6)
+        {
+            v.Roll=0; v.Spin=0;
+            v.Flags|=SPF_NOFACECAMERA|SPF_ROLLCENTER;
+        }
+        else { v.Roll=FRandom[utntindustrial](-180,180); v.Spin=FRandom[utntindustrial](-2,2); }
         v.SetRenderStyle(STYLE_Add);
         if(kind==1)
         {
@@ -114,14 +119,14 @@ class UTNTIndustrialFX play
     {
         if(!UTNTVisuals.Visible(source,combat:true)) return;
         Vector3 center=source.Pos+(0,0,26);
-        Make(center,4,17,22,4,0xffc9db79);
+        Make(center,4,42.5,55,4,0xffc9db79);
         int count=Quality()==1 ? 10 : 24;
         for(int i=0;i<count;i++)
         {
             double a=FRandom[utntindustrial](0,360);
-            double speed=FRandom[utntindustrial](3.2,5.2);
-            let v=Make(center,3,FRandom[utntindustrial](3.5,6.5),FRandom[utntindustrial](3.5,6.5),Random[utntindustrial](23,30),0xffbbd36c,(cos(a)*speed,sin(a)*speed,FRandom[utntindustrial](-1.4,3.2)));
-            if(v && i%5==0) { v.Texture=TexMan.CheckForTexture('UTPEA0'); v.Width=2.5; v.Height=10; v.Initialize(); }
+            double speed=FRandom[utntindustrial](6.4,10.4);
+            let v=Make(center,3,FRandom[utntindustrial](8.75,16.25),FRandom[utntindustrial](8.75,16.25),Random[utntindustrial](23,30),0xffbbd36c,(cos(a)*speed,sin(a)*speed,FRandom[utntindustrial](-2.8,6.4)));
+            if(v && i%5==0) { v.Texture=TexMan.CheckForTexture('UTPEA0'); v.Width=6.25; v.Height=25; v.Initialize(); }
         }
     }
     static void Explosion(Actor source, double scale=1, bool concentrated=false, bool simple=false)
@@ -181,7 +186,35 @@ class UTNTIndustrialParticle : VisualThinker
         if(Kind==0 || Kind==6)
         {
             let camera=players[consoleplayer].camera;
-            if(camera) Roll=-atan2(Vel.X*cos(camera.Angle+90)+Vel.Y*sin(camera.Angle+90),Vel.Z);
+            if(camera)
+            {
+                double yaw=camera.Angle;
+                double pitch=(CVar.GetCVar('gl_billboard_particles').GetBool() || CVar.GetCVar('gl_billboard_mode').GetInt()==1) ? camera.Pitch : 0;
+                double right=Vel.X*sin(yaw)-Vel.Y*cos(yaw);
+                double up=Vel.Z*level.pixelstretch*cos(pitch)+(Vel.X*cos(yaw)+Vel.Y*sin(yaw))*sin(pitch);
+                // Project the moving point, including perspective away from screen center.
+                double eyeZ=camera.player ? camera.player.viewz : camera.Pos.Z;
+                Vector3 relative=Pos-(camera.Pos.X,camera.Pos.Y,eyeZ);
+                double along=relative.X*cos(yaw)+relative.Y*sin(yaw);
+                double depth=along*cos(pitch)-relative.Z*level.pixelstretch*sin(pitch);
+                if(depth>1)
+                {
+                    double depthSpeed=(Vel.X*cos(yaw)+Vel.Y*sin(yaw))*cos(pitch)-Vel.Z*level.pixelstretch*sin(pitch);
+                    double screenRight=relative.X*sin(yaw)-relative.Y*cos(yaw);
+                    double screenUp=relative.Z*level.pixelstretch*cos(pitch)+along*sin(pitch);
+                    right=right*depth-screenRight*depthSpeed;
+                    up=up*depth-screenUp*depthSpeed;
+                }
+                if(abs(right)+abs(up)>0.0001)
+                {
+                    double target=-atan2(right,up);
+                    // VisualThinker interpolates raw floats, not wrapped angles.
+                    // Keep the next heading on the shortest arc across +/-180.
+                    while(target-Roll>180) target-=360;
+                    while(target-Roll< -180) target+=360;
+                    Roll=target;
+                }
+            }
         }
     }
     override void Tick()
@@ -222,7 +255,6 @@ class UTNTIndustrialBurst : Thinker
     {
         if(!Source || !Source.IndustrialActive) return;
         int count=UTNTIndustrialFX.Quality()==1 ? 3 : Random[utntindustrial](5,7);
-        if(!Age) UTNTIndustrialFX.Make(Source.Pos,4,3,3,3,UTNTIndustrialFX.SparkColor(ColorIndex),combat:false);
         for(int i=0;i<count;i++)
         {
             double a=Source.Angle+(Direction==1 ? FRandom[utntindustrial](-22,22) : FRandom[utntindustrial](0,360));

@@ -1,0 +1,93 @@
+version "5.0.0"
+class UTNTRevisionTest : EventHandler
+{
+    UTNTIndustrialParticle Probe;
+    int Mode;
+    static clearscope void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s %s",ok ? "PASS" : "FAIL",text); }
+    static clearscope int Actors(Name type)
+    {
+        let it=ThinkerIterator.Create(type); int count=0;
+        while(it.Next()) count++; return count;
+    }
+    override void WorldTick()
+    {
+        let p=players[0].mo;
+        if(p && level.time==5) { p.Angle=90; p.Pitch=0; p.bINVULNERABLE=true; }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="revision") return;
+        Mode=e.Args[0];let p=players[0].mo;p.SetOrigin((0,-160,0),false);p.Angle=90;p.Pitch=0;
+        if(Mode==0 || Mode==7)
+        {
+            // The motion markers and elongated spark must share one line.
+            Vector3 velocities[]={(0.9,0,0.9),(-0.9,0,0.9),(0.9,0,-0.9),(-0.9,0,-0.9),(1.2,0,0),(-1.2,0,0),(0,0,1.2),(0,0,-1.2)};
+            if(Mode==7) for(int i=0;i<8;i++) velocities[i].Y=i%2 ? 0.9 : -0.9;
+            for(int i=0;i<8;i++)
+            {
+                Vector3 pos=(-126+(i%4)*84,48,40+(i/4)*65);
+                UTNTIndustrialFX.Make(pos,0,2,22,30,0xffffa040,velocities[i]);
+                for(int j=-7;j<=7;j++) if(abs(j)>2)
+                    UTNTIndustrialFX.Make(pos+velocities[i]*j*2,4,1,1,30,0xff40ff40);
+            }
+            Probe=UTNTIndustrialFX.Make((0,48,64),0,1,8,30,0xffffffff,(0,0,1));
+            Check(Probe && abs(Probe.Roll)<0.001,"upward spark has upright long axis");
+            Check(Probe && Probe.Spin==0,"spark has no random spin");
+            Probe.Vel=(1,0,0);Probe.Animate();Check(abs(Probe.Roll+90)<0.001,"rightward spark is horizontal");
+            Probe.Vel=(-0.02,0,-1);Probe.Animate();double previous=Probe.Roll;
+            Probe.Vel=(0.02,0,-1);Probe.Animate();Check(abs(Probe.Roll-previous)<3,"crossing angle boundary never spins a full turn");
+            p.Pitch=30;Probe.Roll=0;Probe.Pos=(0,48,20);Probe.Vel=(0,1,0);Probe.Animate();Check(abs(Probe.Roll)<0.001,"pitched view projects forward movement onto vertical axis");p.Pitch=0;
+            Probe.Destroy();Probe=null;
+        }
+        if(Mode==1)
+        {
+            let a=Actor.Spawn('WhiteSpark_Side',(0,110,64));a.Angle=270;
+        }
+        if(Mode==2) Actor.Spawn('TeleportEffects',(0,48,0));
+        if(Mode==3) { let a=Actor.Spawn('UTNTRocket',(180,48,56));a.Angle=180;a.Vel=(-20,0,0);a.target=p; }
+        if(Mode==4) { let a=Actor.Spawn('UTNTRocket',(0,64,40));a.Angle=90;a.Vel=(0,20,0);a.target=p; }
+        if(Mode==5) { let a=Actor.Spawn('NewPuff',(0,124,48));a.Angle=270; }
+        if(Mode==6)
+        {
+            Name types[]={'WhiteSpark_Up','RedSpark_Up','OrangeSpark_Up','YellowSpark_Up','GreenSpark_Up','BlueSpark_Up','PurpleSpark_Up'};
+            for(int i=0;i<7;i++)Actor.Spawn(types[i],(-180+i*60,80,40));
+        }
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name!="revisioncheck")return;
+        int count=0,bad=0,sparks=0,large=0,trails=0;
+        let it=ThinkerIterator.Create('UTNTIndustrialParticle',Thinker.MAX_STATNUM+1,true);
+        UTNTIndustrialParticle v;
+        while(v=UTNTIndustrialParticle(it.Next()))
+        {
+            count++;
+            if(!v.Texture.IsValid() || v.Scale.X<=0 || v.Scale.Y<=0 || v.Alpha<0 || v.Alpha>1)bad++;
+            if(v.Kind==0) { sparks++; if(v.Spin!=0 || abs(v.Roll-v.PrevRoll)>180.01)bad++; }
+            if(v.Kind==3 && (v.Width>=8.75 || v.Height==25))large++;
+        }
+        Check(bad==0,"valid particles and no full-turn spark interpolation");
+        Check(count<=768,"bounded local visual count");
+        if(e.Args[0]==0) { Check(count==0,"transient local particles expired"); return; }
+        if(Mode==0 || Mode==1 || Mode==5 || Mode==6 || Mode==7)Check(sparks>0,"aligned sparks visible");
+        if(Mode==1)Check(Actors('SparkFlare_W')>0,"original bright generator flare present");
+        if(Mode==2)
+        {
+            Check(Actors('TeleportEffects')>0 && Actors('TportSphere')>0 && Actors('TeleParticle')>0,"original teleport core sphere and particles present");
+            Check(large>0,"enlarged new teleport fragments present together");
+        }
+        if(Mode==3)
+        {
+            let flames=ThinkerIterator.Create('UTNTRocketFlameVisual',Thinker.MAX_STATNUM+1,true);
+            Check(flames.Next()!=null,"original rocket flame animation restored");
+            let trail=ThinkerIterator.Create('UTNTIndustrialTrail',Thinker.MAX_STATNUM+1,true);
+            Check(trail.Next()==null,"new rocket smoke controller is no longer used");
+        }
+        if(Mode==4)Check(Actors('ExplosionMediumSprite')>0,"rocket collision uses original explosion sprites");
+        if(Mode==6)
+        {
+            Name types[]={'SparkFlare_W','SparkFlare_R','SparkFlare_O','SparkFlare_Y','SparkFlare_G','SparkFlare_B','SparkFlare_P'};
+            for(int i=0;i<7;i++)Check(Actors(types[i])>0,String.Format("original flare color %d restored",i));
+        }
+    }
+}
