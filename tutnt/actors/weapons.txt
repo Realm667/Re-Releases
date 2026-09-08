@@ -166,6 +166,8 @@ ACTOR UTNTChainsaw : Chainsaw replaces Chainsaw
 	}
 }
 
+// All weapon pitch impulses use 25% strength and render interpolation.
+// Multi-tic impulses are spread over their original duration; recovery stays balanced.
 ACTOR UTNTPistol : Pistol replaces Pistol
 {
 	AttackSound "weapons/pistol"
@@ -187,8 +189,8 @@ ACTOR UTNTPistol : Pistol replaces Pistol
 		TNT1 A 0 A_SetBlend("Orange",0.02,5)
 		PKPI B 0 A_SpawnItemEx("PisCaseSpawn",20,0,29)
 		PKPI B 0 A_FireBullets(4,4,1,5,"NewPuff")
-		PKPI B 2 A_SetPitch(pitch-0.6)
-		PKPI CCE 1 A_SetPitch(pitch+0.2)
+		PKPI BB 1 A_SetPitch(pitch-0.075, SPF_INTERPOLATE)
+		PKPI CCE 1 A_SetPitch(pitch+0.05, SPF_INTERPOLATE)
 		PKPI E 1
 		PKPI DB 2
 		PKPI A 5 A_ReFire
@@ -254,9 +256,9 @@ ACTOR UTNTShotgun : Shotgun replaces Shotgun
 		TNT1 A 0 A_SetBlend("Orange",0.025,5)
 		TNT1 AA 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
 		SHTG A 0 A_FireBullets(5.6,0,7,5,"NewPuff")
-		SHTG A 2 A_SetPitch(pitch-2)
-		SHTG AAA 1 A_SetPitch(pitch+0.4)
-		PKSG BB 1 A_SetPitch(pitch+0.4)
+		SHTG AA 1 A_SetPitch(pitch-0.25, SPF_INTERPOLATE)
+		SHTG AAA 1 A_SetPitch(pitch+0.1, SPF_INTERPOLATE)
+		PKSG BB 1 A_SetPitch(pitch+0.1, SPF_INTERPOLATE)
 		PKSG C 1
 		PKSG D 2
 		PKSG E 3
@@ -295,8 +297,8 @@ ACTOR UTNTSuperShotgun : SuperShotgun replaces SuperShotgun
 		SHT2 A 0 A_SetBlend("Orange",0.03,5)
 		SHT2 A 0 A_FireBullets(12,6,20,5,"NewPuff")
 		SHT2 AAAA 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
-		SHT2 A 2 A_SetPitch(pitch-3)
-		SHT2 AAAAA 1 A_SetPitch(pitch+0.6)
+		SHT2 AA 1 A_SetPitch(pitch-0.375, SPF_INTERPOLATE)
+		SHT2 AAAAA 1 A_SetPitch(pitch+0.15, SPF_INTERPOLATE)
 		SHT2 A 2 A_Checkreload
 		PKS2 B 2
 		PKS2 C 3
@@ -362,9 +364,9 @@ ACTOR UTNTChaingun : Chaingun replaces Chaingun
 		CHGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
 		PKCG A 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
 		CHGG A 0 A_FireBullets(4,4,1,5,"NewPuff")
-		PKCG A 1 A_SetPitch(pitch-0.7)
+		PKCG A 1 A_SetPitch(pitch-0.175, SPF_INTERPOLATE)
 		PKCG B 1
-		PKCG C 1 A_SetPitch(pitch+0.7)
+		PKCG C 1 A_SetPitch(pitch+0.175, SPF_INTERPOLATE)
 		PKCG D 1
 		CHGG A 0 A_CheckReload
 		CHGG A 0 A_GunFlash
@@ -372,9 +374,9 @@ ACTOR UTNTChaingun : Chaingun replaces Chaingun
 		CHGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
 		PKCG A 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
 		CHGG A 0 A_FireBullets(4,4,1,5,"NewPuff")
-		PKCG A 1 A_SetPitch(pitch-0.7)
+		PKCG A 1 A_SetPitch(pitch-0.175, SPF_INTERPOLATE)
 		PKCG B 1
-		PKCG C 1 A_SetPitch(pitch+0.7)
+		PKCG C 1 A_SetPitch(pitch+0.175, SPF_INTERPOLATE)
 		PKCG D 1
 		PKCG B 0 A_ReFire
 		PKCG A 1 A_PlaySound("weapons/cgunspindown",5,0.6)
@@ -423,16 +425,16 @@ ACTOR UTNTMinigun : Weapon 20039
 		MNGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
 		TNT1 A 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
 		MNGG A 0 A_FireBullets(5,1,1,5,"NewPuff")
-		MNGG A 1 A_setPitch(pitch+0.7)
-		MNGG C 1 A_setPitch(pitch-0.7)
+		MNGG A 1 A_SetPitch(pitch+0.175, SPF_INTERPOLATE)
+		MNGG C 1 A_SetPitch(pitch-0.175, SPF_INTERPOLATE)
 		MNGG A 0 A_CheckReload
 		MNGG A 0 A_GunFlash
 		TNT1 A 0 A_SetBlend("Orange",0.015,3)
 		MNGG A 0 A_SpawnItemEx("PisCaseSpawn",20,6,20)
 		TNT1 A 0 A_FireCustomMissile("DBTSmokeSpawner",0,0,0,4)
 		MNGG A 0 A_FireBullets(5,1,1,5,"NewPuff")
-		MNGG A 1 A_setPitch(pitch+0.7)
-		MNGG C 1 A_setPitch(pitch-0.7)
+		MNGG A 1 A_SetPitch(pitch+0.175, SPF_INTERPOLATE)
+		MNGG C 1 A_SetPitch(pitch-0.175, SPF_INTERPOLATE)
 		MNGG A 0 A_ReFire
 		MNGG A 1 A_PlaySound("weapons/mgunspindown",6,0.5)
 		MNGG BCDABCD 1
@@ -455,9 +457,9 @@ ACTOR UTNTRocketLauncher : RocketLauncher replaces RocketLauncher
 		PKRL B 2
 		PKRL D 0 A_SetBlend("Orange",0.1,7)
 		PKRL D 0 A_FireMissile
-		PKRL D 3 A_SetPitch(pitch-4.8)
+		PKRL DDD 1 A_SetPitch(pitch-(1.2 / 3.0), SPF_INTERPOLATE)
 		PKRL C 1
-		PKRL CCBBEEFG 1 A_SetPitch(pitch+0.6)
+		PKRL CCBBEEFG 1 A_SetPitch(pitch+0.15, SPF_INTERPOLATE)
 		MISG A 0 A_ReFire
 		Goto Ready
 	Flash:
@@ -630,9 +632,9 @@ ACTOR UTNTPlasmaRifle : PlasmaRifle replaces PlasmaRifle
    	{
 	Fire:
 		TNT1 A 0 A_SetBlend("Blue",0.03,2)
-		TNT1 A 0 A_SetPitch(pitch-0.7)
+		TNT1 A 0 A_SetPitch(pitch-0.175, SPF_INTERPOLATE)
 		PLSF C 1 Bright A_FirePlasma
-		PLSF DF 1 Bright A_SetPitch(pitch+0.35)
+		PLSF DF 1 Bright A_SetPitch(pitch+0.0875, SPF_INTERPOLATE)
 		TNT1 A 0 A_ReFire
 		PLSF EFE 1 Bright
 		PKPL BDEF 1
@@ -740,32 +742,32 @@ Actor UTNTBFG9000 : BFG9000 replaces BFG9000
 	Fire:
 		BFGG A 0 A_PlaySound("weapons/BFGcharge",5)
 		BFGG A 0 A_BFGSound
-		BFGG A 2 A_SetPitch(pitch-0.2)
-		BFGG A 2 A_SetPitch(pitch+0.2)
-		BFGG A 2 A_SetPitch(pitch-0.3)
-		BFGG A 2 A_SetPitch(pitch+0.3)
-		BFGG A 2 A_SetPitch(pitch-0.4)
-		BFGG A 2 A_SetPitch(pitch+0.4)
-		BFGG A 2 A_SetPitch(pitch-0.5)
-		BFGG A 2 A_SetPitch(pitch+0.5)
-		BFGG A 2 A_SetPitch(pitch-0.6)
-		BFGG A 2 A_SetPitch(pitch+0.6)
+		BFGG AA 1 A_SetPitch(pitch-0.025, SPF_INTERPOLATE)
+		BFGG AA 1 A_SetPitch(pitch+0.025, SPF_INTERPOLATE)
+		BFGG AA 1 A_SetPitch(pitch-0.0375, SPF_INTERPOLATE)
+		BFGG AA 1 A_SetPitch(pitch+0.0375, SPF_INTERPOLATE)
+		BFGG AA 1 A_SetPitch(pitch-0.05, SPF_INTERPOLATE)
+		BFGG AA 1 A_SetPitch(pitch+0.05, SPF_INTERPOLATE)
+		BFGG AA 1 A_SetPitch(pitch-0.0625, SPF_INTERPOLATE)
+		BFGG AA 1 A_SetPitch(pitch+0.0625, SPF_INTERPOLATE)
+		BFGG AA 1 A_SetPitch(pitch-0.075, SPF_INTERPOLATE)
+		BFGG AA 1 A_SetPitch(pitch+0.075, SPF_INTERPOLATE)
 		BFGN A 0 A_GunFlash
-		BFGG A 1 A_SetPitch(pitch-0.7)
-		BFGG A 1 A_SetPitch(pitch+0.7)
-		BFGN A 1 A_SetPitch(pitch-0.8)
-		BFGN A 1 A_SetPitch(pitch+0.8)
-		BFGN A 1 A_SetPitch(pitch-0.8)
-		BFGN A 1 A_SetPitch(pitch+0.8)
-		BFGN A 1 A_SetPitch(pitch-0.8)
-		BFGN A 1 A_SetPitch(pitch+0.8)
-		BFGN A 1 A_SetPitch(pitch-0.9)
-		BFGN A 1 A_SetPitch(pitch+0.9)
+		BFGG A 1 A_SetPitch(pitch-0.175, SPF_INTERPOLATE)
+		BFGG A 1 A_SetPitch(pitch+0.175, SPF_INTERPOLATE)
+		BFGN A 1 A_SetPitch(pitch-0.2, SPF_INTERPOLATE)
+		BFGN A 1 A_SetPitch(pitch+0.2, SPF_INTERPOLATE)
+		BFGN A 1 A_SetPitch(pitch-0.2, SPF_INTERPOLATE)
+		BFGN A 1 A_SetPitch(pitch+0.2, SPF_INTERPOLATE)
+		BFGN A 1 A_SetPitch(pitch-0.2, SPF_INTERPOLATE)
+		BFGN A 1 A_SetPitch(pitch+0.2, SPF_INTERPOLATE)
+		BFGN A 1 A_SetPitch(pitch-0.225, SPF_INTERPOLATE)
+		BFGN A 1 A_SetPitch(pitch+0.225, SPF_INTERPOLATE)
 		BFGN A 0 A_SetBlend("Green",0.5,10)
 		BFGN A 0 A_PlaySound("weapons/BFGFire",6,1)
 		BFGN A 0 A_FireBFG
-		BFGN A 3 A_SetPitch(pitch-7)
-		BFGN AAAAAAA 1 A_SetPitch(pitch+1)
+		BFGN AAA 1 A_SetPitch(pitch-(1.75 / 3.0), SPF_INTERPOLATE)
+		BFGN AAAAAAA 1 A_SetPitch(pitch+0.25, SPF_INTERPOLATE)
 		BFGN A 2 A_ReFire
 		BFGG A 18
 		goto Ready
@@ -1263,8 +1265,8 @@ ACTOR UTNTPyroCannon : Weapon 20107
 		TNT1 a 0 A_PlaySound("weapons/PyroShot1",6)
 		TNT1 a 0 A_PlaySound("weapons/PyroShot2",5)
 		PYRG C 0 A_FireCustomMissile("PyroShot")
-		PYRG C 5 Bright A_SetPitch(pitch-7.5)
-		PYRG CCCCCDDDDDEEEEE 1 Bright A_SetPitch(pitch+0.5)
+		PYRG CCCCC 1 Bright A_SetPitch(pitch-0.375, SPF_INTERPOLATE)
+		PYRG CCCCCDDDDDEEEEE 1 Bright A_SetPitch(pitch+0.125, SPF_INTERPOLATE)
 		PYRG FG 5 Bright
 		PYRG A 5 A_Refire
 		Goto Ready
