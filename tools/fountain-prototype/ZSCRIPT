@@ -1,0 +1,146 @@
+version "5.0.0"
+
+// Experimental presentation only: original missile physics and emitter schedule.
+class UTNTFlowPrototypeDrop : Actor
+{
+    int Age, BreakAt, Variant, Phase;
+    double Width, Seed;
+    Default
+    {
+        Speed 5; Height 2; Radius 1; Mass 5; Gravity 0.125; Scale 0.25;
+        +MISSILE +DONTSPLASH +ROLLSPRITE +ROLLCENTER
+        RenderStyle "Translucent";
+    }
+    States
+    {
+    Spawn: UFJT A -1; Loop;
+    Death: TNT1 A 0 { A_FlowImpact(); } Stop;
+    }
+    override void PostBeginPlay()
+    {
+        Super.PostBeginPlay();
+        Width=FRandom[utntcosmetic](10.0,14.0)*(Scale.X/0.25);
+        BreakAt=Random[utntcosmetic](9,16);
+        Variant=Random[utntcosmetic](0,2); Seed=FRandom[utntcosmetic](0,360);
+        Scale=(Width/64,14.0/64); Alpha=0.50;
+    }
+    override void Tick()
+    {
+        Super.Tick();
+        if (!bMissile) return;
+        Age++;
+        Phase=Vel.Z>0 && Age<BreakAt ? 0 : Vel.Z>0 && Age<BreakAt+12 ? 1 : 2;
+        frame=Phase*3+Variant;
+        if (!UTNTVisuals.Visible(self,combat:true)) { Alpha=0; return; }
+        double speed=Vel.Length();
+        double width=Phase==0 ? Width : Phase==1 ? Width*0.60 : Width*0.15;
+        double length=Phase==0 ? 11+speed*1.1 : Phase==1 ? 5+speed*1.0 : 1.6+speed*0.65;
+        width*=1+0.12*sin(Seed+Age*19);
+        let cam=players[consoleplayer].camera;
+        double side=Vel.X*sin(cam.Angle)-Vel.Y*cos(cam.Angle);
+        double projected=sqrt(side*side+Vel.Z*Vel.Z)/max(0.001,speed);
+        Roll=atan2(side,Vel.Z);
+        Scale=(width/64,length*max(0.30,projected)/64);
+        Alpha=Phase==0 ? 0.80 : Phase==1 ? 0.68 : 0.75;
+        if (Age%2==0 && speed>0.65 && Pos.Z>FloorZ+1 && UTNTVisuals.Reserve())
+        {
+            let wake=UTNTFlowWake(level.SpawnClientSideVisualThinker('UTNTFlowWake'));
+            if (wake) wake.Initialize(Pos,Vel,width,FloorZ+0.8);
+        }
+    }
+    action void A_FlowImpact()
+    {
+        if (!UTNTVisuals.Visible(self,combat:true) || !UTNTVisuals.Reserve()) return;
+        let p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
+        if(p) p.Initialize(Pos+(0,0,0.8),2,FRandom[utntcosmetic](5,9),FRandom[utntcosmetic](7,11),12);
+        let ground=GetFloorTerrain();
+        if(ground && ground.TerrainName=='UTNT_Water' && Pos.Z<=FloorZ+4 && UTNTVisuals.Reserve())
+        {
+            let ring=UTNTWaterRing(Actor.Spawn('UTNTWaterRing',Pos+(0,0,0.8)));
+            if(ring) { ring.VisualSize=FRandom[utntcosmetic](0.30,0.55); ring.Angle=FRandom[utntcosmetic](0,360); }
+        }
+    }
+}
+class UTNTFlowPrototypeDropB : UTNTFlowPrototypeDrop { Default { Scale 0.23; } }
+class UTNTFlowPrototypeDropC : UTNTFlowPrototypeDrop { Default { Scale 0.20; } }
+
+class UTNTFlowWake : VisualThinker
+{
+    int Age;
+    Vector3 Direction;
+    double Width, Length;
+    void Initialize(Vector3 origin,Vector3 velocity,double width,double floor)
+    {
+        Direction=velocity.Unit(); self.Width=width*0.75;
+        Length=clamp(velocity.Length()*1.4,0.7,7);
+        if(Direction.Z>0.01) Length=min(Length,max(0.2,(origin.Z-floor)/Direction.Z));
+        Texture=TexMan.CheckForTexture('UFJTJ0');
+        Flags=SPF_ALLOWSHADERS|SPF_STRETCHPIXELS|SPF_ROLL;
+        SetRenderStyle(STYLE_Translucent);
+        Pos=origin-Direction*(Length*0.30); Prev=Pos; Alpha=0.18;
+        Orient(); PrevRoll=Roll; UpdateSector(); UpdateSpriteInfo();
+    }
+    void Orient()
+    {
+        let cam=players[consoleplayer].camera;
+        if(!cam) return;
+        double side=Direction.X*sin(cam.Angle)-Direction.Y*cos(cam.Angle);
+        double projected=sqrt(side*side+Direction.Z*Direction.Z);
+        Roll=atan2(side,Direction.Z); Scale=(Width/64,Length*max(0.20,projected)/64);
+    }
+    override void Tick()
+    {
+        if(IsFrozen()) return;
+        if(++Age>=4) { Destroy(); return; }
+        Super.Tick(); Alpha=0.18*((1-Age/4.0)**1.5); Orient();
+    }
+}
+
+class UTNTFlowPrototypeDemo : EventHandler
+{
+    Actor Source;
+    int Stages;
+    bool Prototype;
+    void Select(bool prototype)
+    {
+        if(Source) Source.Destroy();
+        let a=ThinkerIterator.Create('Actor'); Actor thing;
+        while(thing=Actor(a.Next())) if(thing is 'UTNTFlowPrototypeDrop' || thing is 'UTNTFountainDropBase') thing.Destroy();
+        Source=Actor.Spawn(prototype ? 'UTNT_FountainPrototype' : 'Liquid_Fountain_B1C',(0,0,0));
+        Prototype=prototype;
+    }
+    override void WorldTick()
+    {
+        if(level.time==2)
+        {
+            let p=players[0].mo; p.ACS_NamedTerminate("IntroText",0);
+            p.SetOrigin((0,-150,0),false);p.Angle=90;p.Pitch=0;p.bInvulnerable=true;
+            Select(true);
+        }
+        let it=ThinkerIterator.Create('UTNTFlowPrototypeDrop'); UTNTFlowPrototypeDrop d;
+        while(d=UTNTFlowPrototypeDrop(it.Next())) if(d.bMissile) Stages|=1<<d.Phase;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="flow_old") Select(false);
+        if(e.Name=="flow_new") Select(true);
+        if(e.Name=="flow_off" && Source) Source.Deactivate(players[0].mo);
+        if(e.Name=="flow_on" && Source) Source.Activate(players[0].mo);
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name!="flow_check") return;
+        int drops=0,wakes=0,bad=0;
+        let it=ThinkerIterator.Create('UTNTFlowPrototypeDrop');UTNTFlowPrototypeDrop d;
+        while(d=UTNTFlowPrototypeDrop(it.Next()))
+        {
+            drops++;
+            if(d.Speed!=5 || d.Gravity!=0.125 || d.Radius!=1 || d.Height!=2 || d.Scale.X<=0 || d.Scale.Y<=0) bad++;
+        }
+        let wi=ThinkerIterator.Create('UTNTFlowWake',Thinker.MAX_STATNUM+1,true);UTNTFlowWake w;
+        while(w=UTNTFlowWake(wi.Next())) { wakes++; if(w.Age>=4 || w.Scale.X<=0 || w.Scale.Y<=0 || w.Length>7) bad++; }
+        Console.Printf("UTNT_ASSERT %s prototype retains missile physics and finite visuals",bad==0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s all three breakup phases observed",Stages==7 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s fountain activation and cleanup drops=%d wakes=%d",(e.Args[0] ? drops>0 && wakes>0 : drops==0 && wakes==0) ? "PASS" : "FAIL",drops,wakes);
+    }
+}
