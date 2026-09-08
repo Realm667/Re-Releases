@@ -6,9 +6,9 @@ Die flache Kulisse aus transparenten Bergwänden wurde durch eine gestaffelte Ba
 
 - Der normale SkyViewpoint von TNT03B steht jetzt bei (18000, 18000, 0) in einer isolierten Kulisse. Drei flache, überlappende Felszüge bestehen aus geneigten Sektoren; die detaillierten Fernberge, Taldunst und entfernten Rauchsilhouetten sind im Panorama ausgearbeitet. Diese Kombination wurde nach tatsächlichen Engineaufnahmen gewählt, weil hohe reine Sektorberge zu grob wirkten.
 - Ein eigenes 360°-Panorama wird auf sechs nahtlos zusammenhängende Würfelflächen abgebildet. Explizite Interpolation hält die Darstellung auch bei ungefilterten Spieltexturen ruhig. Die hintere Panoramaüberblendung verhindert einen harten Abschluss; die Belichtung nimmt dem hohen Himmel die Dominanz über der Architektur.
-- Zwei langsam umlaufende Wolkenlagen bilden einen spiralförmigen Ring um ein ruhiges Sturmauge im Zenit. Die Lagen drehen sich in etwa 14 beziehungsweise 20 Minuten einmal herum. Nur der hohe Himmel oberhalb von 40 Grad wird animiert; ein weich überblendetes Auge verhindert eine sichtbare Polverzerrung. Fernberge und Rauchsilhouetten bleiben fest. Es werden keine physischen Volumenwolken, bewegten Rauch-Actors oder spielerabhängige Skybox-Parallaxe eingesetzt.
+- Zwei langsam umlaufende Wolkenlagen bilden einen spiralförmigen Ring um ein ruhiges Sturmauge im Zenit. Die Lagen drehen sich in etwa 7 beziehungsweise 10 Minuten einmal herum. Nur der hohe Himmel oberhalb von 40 Grad wird animiert; ein weich überblendetes Auge verhindert eine sichtbare Polverzerrung. Fernberge und Rauchsilhouetten bleiben fest. Es werden keine physischen Volumenwolken, bewegten Rauch-Actors oder spielerabhängige Skybox-Parallaxe eingesetzt.
 - Die zweite Skybox (TID 4) bleibt einschließlich Actorposition erhalten. MAPINFO weist den neuen Himmel nur TNT03B zu. Es gibt keine globalen Texturersetzungen.
-- Ergänzt: 448 Vertices, 1.216 Linedefs, 2.368 Sidedefs und 769 Sektoren. Vorhandene Indizes bleiben stabil. ZDBSP hat die Nodes mit `-q -X -g -r` neu aufgebaut.
+- Die verfeinerte Kulisse umfasst 3.456 Vertices, 9.984 Linedefs, 19.776 Sidedefs und 6.529 Sektoren. 192 Winkelabschnitte und 18 radiale Stützringe bilden drei Bergzüge mit schmalen Gipfeln, Rinnen und gegliederten Hängen. Vorhandene Indizes bleiben stabil. ZDBSP hat die Nodes mit `-q -X -g -r` neu aufgebaut.
 
 ## Prüfung
 
@@ -49,3 +49,11 @@ The annular image comparison measured about 2.1 degrees of TNT03B cloud rotation
 over five seconds. Rebuild checks covered all 26 generated sky resources.
 Evidence: `tools/validation/sky-motion-2026-09-08`. Repeat with
 `python tools/test_sky_motion.py --engine <uzdoom.exe> --iwad <doom2.wad>`.
+
+## Feinere Bergkette und doppelte Rotation – 2026-09-08
+
+Beide Wolkenlagen drehen sich gegenüber dem vorherigen Stand exakt doppelt so schnell (0,0024 und 0,00170 Umläufe pro Sekunde). Der Anteil des weicheren Schleiers sinkt von 20 auf 14 Prozent, damit die Bewegung der Hauptwolken klarer erkennbar bleibt. Der Bildvergleich misst etwa 4,3 Grad in fünf Sekunden. Fernberge und niedriger Horizont bleiben fest.
+
+Die isolierte Kulisse wurde von 769 auf 6.529 Sektoren verfeinert. Der Generator ersetzt ausschließlich die alte Kulisse; Spielgeometrie, alle Things und ACS bleiben erhalten. Der Kameraboden bleibt bei −640, der SkyViewpoint dadurch auf Welt-Z 0. Gemeinsame Hangkanten weichen höchstens 0,000000006 Map-Einheiten voneinander ab.
+
+OpenGL und Vulkan bestanden jeweils sechs Prüfungen einschließlich Speichern/Laden und der zweiten Skybox. Bilder und Messwerte: `tools/validation/caldera-detail-2026-09-08`. Die älteren Paketangaben und Tests weiter oben dokumentieren die erste Umsetzung. Für den aktuellen Stand: `python tools/test_sky_motion.py --map TNT03B`; Strukturvergleich mit `python tools/test_caldera_detail.py <vorherige-map.wad> <aktuelle-map.wad>`.

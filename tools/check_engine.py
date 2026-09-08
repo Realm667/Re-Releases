@@ -23,7 +23,7 @@ def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
         args+=['+map',mapname]
         cfg=logs/(label+'.cfg')
         cfg.write_text(commands or f'wait {duration}; echo UTNT_TEST_END; screenshot logs/{label}.png; wait 5; quit\n')
-        args+=['+exec',str(cfg)]
+        args+=['+exec',cfg.as_posix()]
     else: args+=['-norun','-errorlog','utnt-compile']
     options={}
     if os.name=='nt':

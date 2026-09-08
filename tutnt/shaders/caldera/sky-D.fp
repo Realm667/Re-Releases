@@ -32,13 +32,13 @@ void SetupMaterial(inout Material mat)
   // Restrict sampling to cloud-only rows; mountains below 40 degrees stay fixed.
   float radius=acos(clamp(r.y,0.0,1.0));
   float cloudY=0.06+0.28*smoothstep(0.10,0.90,radius);
-  float spin=timer*0.0012; // One circuit in about fourteen minutes.
+  float spin=timer*0.0024; // One circuit in about seven minutes.
   float spiral=radius*0.18;
   vec3 wall=SkyWrap(vec2(uv.x+spin+spiral,cloudY));
-  vec3 veil=SkyWrap(vec2(uv.x+timer*0.00085+spiral*1.3+0.12,cloudY*0.88+0.025));
+  vec3 veil=SkyWrap(vec2(uv.x+timer*0.00170+spiral*1.3+0.12,cloudY*0.88+0.025));
   float eyeRadius=radius+0.012*sin(uv.x*31.41592654+spin*6.283185307);
   float eye=smoothstep(0.07,0.27,eyeRadius);
-  vec3 vortex=mix(vec3(0.035,0.009,0.007),mix(wall,veil,0.20),eye);
+  vec3 vortex=mix(vec3(0.035,0.009,0.007),mix(wall,veil,0.14),eye);
   color=mix(color,vortex,high);
  }
  // Preserve dim valleys while keeping the canopy subordinate to the architecture.
