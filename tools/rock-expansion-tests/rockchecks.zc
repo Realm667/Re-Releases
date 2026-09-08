@@ -1,0 +1,60 @@
+// Preview-only checks of engine-resolved offsets, sizes and height anchors.
+class RockExpansionChecks : EventHandler
+{
+ int Bad;
+ void CheckTier(int index,int tier,double expectedX)
+ {
+  let s=level.Sides[index]; let l=s.linedef; let f=s.sector;
+  let b=l.frontsector==f?l.backsector:l.frontsector;
+  double ref;
+  if(tier==Side.mid) ref=(l.flags&Line.ML_DONTPEGBOTTOM)?f.GetPlaneTexZ(Sector.floor)+1024:f.GetPlaneTexZ(Sector.ceiling);
+  else if(tier==Side.top) ref=(l.flags&Line.ML_DONTPEGTOP)?f.GetPlaneTexZ(Sector.ceiling):b.GetPlaneTexZ(Sector.ceiling)+1024;
+  else
+  {
+   ref=b.GetPlaneTexZ(Sector.floor);
+   if(l.flags&Line.ML_DONTPEGBOTTOM)
+   {
+    bool sky=TexMan.GetName(f.GetTexture(Sector.ceiling))=="F_SKY1" && TexMan.GetName(b.GetTexture(Sector.ceiling))=="F_SKY1";
+    ref=(sky?b.GetPlaneTexZ(Sector.ceiling):f.GetPlaneTexZ(Sector.ceiling))+1024;
+   }
+  }
+  bool ok=TexMan.GetName(s.GetTexture(tier))=="QROCK3X8"
+   && abs(s.GetTextureXOffset(tier)-expectedX)<0.001
+   && abs(ref+s.GetTextureYOffset(tier)-512)<0.001
+   && abs(s.GetTextureXScale(tier)-1)<0.001
+   && abs(s.GetTextureYScale(tier)-1)<0.001;
+  if(!ok){Bad++;Console.Printf("Rock tier mismatch side=%d tier=%d X=%f Yref=%f",index,tier,s.GetTextureXOffset(tier),ref+s.GetTextureYOffset(tier));}
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name!="rockcheck")return;
+  Bad=0;
+  let texture=TexMan.CheckForTexture("QROCK3X8");
+  Vector2 size=TexMan.GetScaledSize(texture);
+  Console.Printf("UTNT_ASSERT %s: expanded texture displays at 1024x1024",abs(size.X-1024)<0.001 && abs(size.Y-1024)<0.001?"PASS":"FAIL");
+  CheckTier(887,Side.mid,0.000000000);
+  CheckTier(17082,Side.mid,342.040933223);
+  CheckTier(16402,Side.mid,408.010623233);
+  CheckTier(17083,Side.mid,595.285821804);
+  CheckTier(16403,Side.mid,782.561020376);
+  CheckTier(17045,Side.top,847.059082362);
+  CheckTier(17045,Side.bottom,847.059082362);
+  CheckTier(16406,Side.top,911.557144349);
+  CheckTier(16406,Side.bottom,911.557144349);
+  CheckTier(17052,Side.mid,9.933612675);
+  CheckTier(16408,Side.mid,50.725768784);
+  CheckTier(16409,Side.top,166.103409598);
+  CheckTier(16409,Side.bottom,166.103409598);
+  CheckTier(16404,Side.top,711.043773308);
+  CheckTier(16404,Side.bottom,711.043773308);
+  CheckTier(17064,Side.mid,813.493761107);
+  CheckTier(16412,Side.top,915.943748906);
+  CheckTier(16412,Side.bottom,915.943748906);
+  CheckTier(16411,Side.mid,35.052099466);
+  CheckTier(16401,Side.mid,166.991479486);
+  CheckTier(16400,Side.mid,246.991479486);
+  CheckTier(888,Side.mid,349.441467285);
+  CheckTier(889,Side.mid,492.549817845);
+  Console.Printf("UTNT_ASSERT %s: 23 engine-resolved tier mappings match shared UV reference",Bad==0?"PASS":"FAIL");
+ }
+}

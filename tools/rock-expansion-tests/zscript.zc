@@ -1,0 +1,29 @@
+version "4.14"
+// Preview-only fixture. Not included in the distributable material addon.
+class RockPreviewCamera : EventHandler
+{
+    int View;
+    override void WorldTick()
+    {
+        if (!(level.MapName ~== "TNT04B")) return;
+        let p = players[0].mo;
+        if (!p || level.time < 10) return;
+        p.bInvulnerable = true; p.bNoGravity = true; p.bNoClip = true;
+        Vector3 pos = (464,-448,0); double angle = 180, pitch = 0;
+        if (View == 1) { pos=(160,-2700,-180); angle=90; pitch=-8; }
+        if (View == 2) { pos=(1000,-2600,-160); angle=110; pitch=-8; }
+        if (View == 3) { pos=(-700,-2700,-180); angle=50; pitch=-8; }
+        if (View == 4) { pos=(400,-1850,-100); angle=270; pitch=-8; }
+        if (View == 5) { pos=(0,-2400,-200); angle=0; pitch=-8; }
+        if (View == 6) { pos=(1400,-2700,-200); angle=55; pitch=-8; }
+        if (View == 7) { pos=(1900,-2400,-200); angle=90; pitch=-8; }
+        if (View == 8) { pos=(1800,-1600,-200); angle=150; pitch=-8; }
+        p.SetOrigin(pos,false); p.Vel=(0,0,0); p.Angle=angle; p.Pitch=pitch;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name == "rockview") View=e.Args[0];
+    }
+}
+
+#include "rockchecks.zc"
