@@ -132,6 +132,8 @@ class UTNTObjectivePlaque ui
             let lines=font.BreakLines(Text(episode,row+1,true),int(width-40));
             rows.Push(lines); height+=lines.Count()*(font.GetHeight()+3)+7;
         }
+        // Inter-line and inter-objective spacing belongs only between rows.
+        height-=3+7;
         double x=UTNTUILayout.Margin(), y=UTNTUILayout.Top();
         Rect(x,y,scale,0,0,width,height,0x090806,alpha*0.74);
         Rect(x,y,scale,0,0,width,1,0x80613a,alpha);
