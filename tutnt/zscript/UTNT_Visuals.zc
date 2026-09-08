@@ -165,7 +165,7 @@ class UTNTEmberBase : SwitchableDecoration
         p.style = STYLE_Add; p.flags = SPF_FULLBRIGHT;
         p.pos = Vec3Offset(FRandom[utntcosmetic](-size/2.0,size/2.0),FRandom[utntcosmetic](-size/2.0,size/2.0),0);
         p.vel = (0,0,FRandom[utntcosmetic](0.5,2));
-        p.lifetime=50; p.size=2; p.startalpha=1; p.fadestep=0.02;
+        p.lifetime=50; p.size=(type == 1 ? 5 : 2); p.startalpha=1; p.fadestep=0.02;
         level.SpawnParticle(p);
     }
 }
