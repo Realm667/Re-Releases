@@ -1,0 +1,44 @@
+// Test-only camera and map assertions; never packaged in the game.
+class UTNTCalderaTests : EventHandler
+{
+ bool Initialized;
+ int View;
+ void Check()
+ {
+  let it=ThinkerIterator.Create('SkyViewpoint'); Actor a;
+  int outer=0,miniature=0;
+  while(a=Actor(it.Next()))
+  {
+   if(a.TID==0 && abs(a.Pos.X-18000)<0.01 && abs(a.Pos.Y-18000)<0.01 && abs(a.Pos.Z)<0.01)outer++;
+   if(a.TID==4 && abs(a.Pos.X-2240)<0.01 && abs(a.Pos.Y-7616)<0.01 && abs(a.Pos.Z-96)<0.01)miniature++;
+  }
+  Console.Printf("UTNT_ASSERT %s: caldera camera survives load",outer==1?"PASS":"FAIL");
+  Console.Printf("UTNT_ASSERT %s: miniature sky camera preserved",miniature==1?"PASS":"FAIL");
+  Console.Printf("UTNT_ASSERT %s: map sky assigned",level.SkyTexture1==TexMan.CheckForTexture("UCHSKY")?"PASS":"FAIL");
+ }
+ override void WorldTick()
+ {
+  if(!(level.MapName~=="TNT03B"))return;
+  let p=players[0].mo;if(!p || level.time<10)return;
+  if(!Initialized){Initialized=true;Check();}
+  p.bInvulnerable=true;p.bNoGravity=true;
+  Vector3 pos=(-1664,6860,0);double angle=272,pitch=-12;
+  if(View==1)angle=0;
+  if(View==2)angle=90;
+  if(View==3)angle=180;
+  if(View==4)pitch=-89;
+  if(View==5){pos=(1500,4800,128);angle=180;pitch=-12;}
+  if(View==6){pos=(1816,7412,56);angle=0;pitch=-8;}
+  if(View==7){pos=(-2300,7000,128);angle=285;pitch=-12;}
+  if(View==8){pos=(18000,18000,0);angle=90;pitch=-15;}
+  if(View==9){pos=(18000,18000,0);angle=45;pitch=-25;}
+  if(View==10){pos=(18000,18000,0);angle=135;pitch=-25;}
+  if(View==11){pos=(18000,18000,0);angle=0;pitch=-89;}
+  p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=angle;p.Pitch=pitch;
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name=="calderaview")View=e.Args[0];
+  if(e.Name=="calderacheck")Check();
+ }
+}
