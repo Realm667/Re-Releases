@@ -1,0 +1,38 @@
+version "5.0.0"
+class PortalCoverage : EventHandler {
+ Actor Cam; int Expected, ExpectedAuto;
+ Array<double> XS,YS,XO,YO;
+ void Verify(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
+ override void NetworkProcess(ConsoleEvent e) {
+  if(e.Name!="portalcoverage") return;
+  if(e.Args[0]>=0) { Expected=e.Args[0];ExpectedAuto=e.Args[1]; }
+  let h=UTNTPortalMaterials(EventHandler.Find('UTNTPortalMaterials'));
+  Verify(h && h.FittedSurfaces==Expected,"all expected portal sidedefs fitted");
+  int count=0,old=0;
+  for(int i=0;i<level.sides.Size();i++) {
+   let side=level.sides[i];let tex=side.GetTexture(Side.mid);
+   if(tex==TexMan.CheckForTexture('UPORTAL')) count++;
+   if(tex==TexMan.CheckForTexture('QTELEPT') || tex==TexMan.CheckForTexture('QTELEPOR')) old++;
+  }
+  Verify(count==Expected && old==0,"no legacy portal middle surfaces remain");
+  let it=ThinkerIterator.Create('UTNTPortalAutoSource',Thinker.MAX_STATNUM+1,true);
+  UTNTPortalAutoSource a;UTNTPortalAutoSource best;int autos=0;
+  while(a=UTNTPortalAutoSource(it.Next())) { autos++;if(!best || a.PortalHeight>best.PortalHeight) best=a; }
+  Console.Printf("PORTAL_COVERAGE surfaces=%d groups=%d autos=%d",count,h.FittedOpenings,autos);
+  Verify(ExpectedAuto ? autos>0 : autos==0,"automatic decorations only where needed");
+  if(e.Args[0]>=0) {
+   XS.Clear();YS.Clear();XO.Clear();YO.Clear();
+   for(int i=0;i<level.sides.Size();i++) { let s=level.sides[i];XS.Push(s.GetTextureXScale(Side.mid));YS.Push(s.GetTextureYScale(Side.mid));XO.Push(s.GetTextureXOffset(Side.mid));YO.Push(s.GetTextureYOffset(Side.mid)); }
+  } else {
+   bool same=XS.Size()==level.sides.Size();
+   for(int i=0;i<XS.Size();i++) { let s=level.sides[i];if(s.GetTexture(Side.mid)!=TexMan.CheckForTexture('UPORTAL')) continue;same=same && abs(XS[i]-s.GetTextureXScale(Side.mid))<0.001 && abs(YS[i]-s.GetTextureYScale(Side.mid))<0.001 && abs(XO[i]-s.GetTextureXOffset(Side.mid))<0.001 && abs(YO[i]-s.GetTextureYOffset(Side.mid))<0.001; }
+   Verify(same,"save load preserves continuous portal alignment");
+  }
+  if(best) {
+   if(!Cam) Cam=Actor.Spawn('MapSpot');
+   Vector3 axis=(cos(best.Angle),sin(best.Angle),0);
+   Vector3 pos=best.Pos+axis*420;pos.Z+=best.PortalHeight*0.35;
+   Cam.SetOrigin(pos,false);Cam.Angle=best.Angle+180;Cam.Pitch=-8;players[0].camera=Cam;
+  }
+ }
+}

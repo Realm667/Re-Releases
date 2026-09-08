@@ -1,0 +1,290 @@
+// A single portal can be an arch made from several adjacent sidedefs.
+class UTNTPortalSlice : Object
+{
+    int SideIndex;
+    bool Fitted;
+    Vector2 A, B, Direction;
+    double Bottom, Top;
+}
+
+class UTNTPortalMaterials : EventHandler
+{
+    int FittedSurfaces, FittedOpenings, AutomaticSources;
+    Array<UTNTPortalSlice> Openings;
+    override void WorldTick()
+    {
+        // Geometry is saved; native client actors are not. Reconcile at most
+        // once a second, including saves restored without WorldLoaded.
+        if(level.time%35) return;
+        for(int i=0;i<Openings.Size();i++)
+        {
+            let p=Openings[i];
+            AddSource(p.A,p.Direction,(p.B-p.A).Length(),p.Bottom,p.Top);
+        }
+    }
+    static double Projection(Vector2 a, Vector2 b) { return a.X*b.X+a.Y*b.Y; }
+    static bool Joins(UTNTPortalSlice a, UTNTPortalSlice b)
+    {
+        // Opposite faces and nearby parallel walls are separate openings.
+        if(Projection(a.Direction,b.Direction)<0.99999) return false;
+        if(abs((b.A.X-a.A.X)*a.Direction.Y-(b.A.Y-a.A.Y)*a.Direction.X)>0.1) return false;
+        if(min(a.Top,b.Top)<=max(a.Bottom,b.Bottom)) return false;
+        return (a.A-b.B).Length()<0.1 || (a.B-b.A).Length()<0.1;
+    }
+    bool HasDecoration(Vector2 start, Vector2 direction, double width, double bottom, double top)
+    {
+        let it=ThinkerIterator.Create('UTNTPortalDecorationBase');
+        UTNTPortalDecorationBase source;
+        while(source=UTNTPortalDecorationBase(it.Next()))
+        {
+            if(source is 'UTNTPortalAutoSource') continue;
+            Vector2 delta=source.Pos.XY-start;
+            double along=Projection(delta,direction);
+            double away=abs(delta.X*direction.Y-delta.Y*direction.X);
+            if(away<=32 && along>=-16 && along<=width+16 && source.Pos.Z>=bottom-8 && source.Pos.Z<=top+8) return true;
+        }
+        return false;
+    }
+    void AddSource(Vector2 start, Vector2 direction, double width, double bottom, double top)
+    {
+        if(HasDecoration(start,direction,width,bottom,top)) return;
+        Vector2 axis=(direction.Y,-direction.X);
+        Vector2 center=start+direction*width*0.5+axis*8;
+        let existing=ThinkerIterator.Create('UTNTPortalAutoSource',Thinker.MAX_STATNUM+1,true);
+        UTNTPortalAutoSource old;
+        while(old=UTNTPortalAutoSource(existing.Next()))
+            if((old.Pos.XY-center).Length()<1 && abs(old.Pos.Z-bottom)<1) return;
+        let source=UTNTPortalAutoSource(Actor.SpawnClientSide('UTNTPortalAutoSource',(center.X,center.Y,bottom)));
+        if(!source) return;
+        source.Angle=atan2(axis.Y,axis.X);
+        source.PortalWidth=int(width);
+        source.PortalHeight=top-bottom;
+        AutomaticSources++;
+    }
+    override void WorldLoaded(WorldEvent e)
+    {
+        FittedSurfaces=FittedOpenings=AutomaticSources=0;
+        Openings.Clear();
+        TextureID oldA=TexMan.CheckForTexture('QTELEPT');
+        TextureID oldB=TexMan.CheckForTexture('QTELEPOR');
+        TextureID portal=TexMan.CheckForTexture('UPORTAL');
+        Array<UTNTPortalSlice> parts;
+        for(int i=0;i<level.sides.Size();i++)
+        {
+            let side=level.sides[i];
+            TextureID tex=side.GetTexture(Side.mid);
+            // UPORTAL also participates after loading a save or returning to a hub.
+            if(tex!=oldA && tex!=oldB && tex!=portal) continue;
+            Vector2 a=side.V1().p, b=side.V2().p, center=(a+b)*0.5;
+            double width=(b-a).Length();
+            if(width<0.1) continue;
+            double top=side.sector.ceilingplane.ZatPoint(center);
+            double bottom=side.sector.floorplane.ZatPoint(center);
+            let line=side.linedef;
+            let other=line.frontsector==side.sector ? line.backsector : line.frontsector;
+            if(other)
+            {
+                top=min(top,other.ceilingplane.ZatPoint(center));
+                bottom=max(bottom,other.floorplane.ZatPoint(center));
+            }
+            if(top-bottom<48) continue;
+            let part=new('UTNTPortalSlice');
+            part.SideIndex=i;part.A=a;part.B=b;part.Direction=(b-a)/width;
+            part.Top=top;part.Bottom=bottom;parts.Push(part);
+        }
+        for(int i=0;i<parts.Size();i++)
+        {
+            if(parts[i].Fitted) continue;
+            Array<int> group;
+            group.Push(i);parts[i].Fitted=true;
+            for(int j=0;j<group.Size();j++)
+                for(int k=0;k<parts.Size();k++)
+                    if(!parts[k].Fitted && Joins(parts[group[j]],parts[k]))
+                    { group.Push(k);parts[k].Fitted=true; }
+            Vector2 origin=parts[i].A, direction=parts[i].Direction;
+            double left=0,right=0,bottom=parts[i].Bottom,top=parts[i].Top;
+            for(int j=0;j<group.Size();j++)
+            {
+                let part=parts[group[j]];
+                left=min(left,Projection(part.A-origin,direction));
+                right=max(right,Projection(part.B-origin,direction));
+                bottom=min(bottom,part.Bottom);top=max(top,part.Top);
+            }
+            double width=right-left,height=top-bottom;
+            if(width<48) continue;
+            Vector2 start=origin+direction*left;
+            for(int j=0;j<group.Size();j++)
+            {
+                let part=parts[group[j]];
+                let side=level.sides[part.SideIndex];
+                double anchor=(side.linedef.flags & Line.ML_DONTPEGBOTTOM) ? part.Bottom+height : part.Top;
+                side.SetTexture(Side.mid,portal);
+                side.SetTextureXScale(Side.mid,256.0/width);
+                side.SetTextureYScale(Side.mid,256.0/height);
+                side.SetTextureXOffset(Side.mid,Projection(part.A-start,direction)*256.0/width);
+                side.SetTextureYOffset(Side.mid,(top-anchor)*256.0/height);
+                FittedSurfaces++;
+            }
+            FittedOpenings++;
+            let pending=new('UTNTPortalSlice');
+            pending.A=start;pending.B=start+direction*width;pending.Direction=direction;
+            pending.Bottom=bottom;pending.Top=top;Openings.Push(pending);
+        }
+    }
+}
+
+class UTNTPortalDecorationBase : SwitchableDecoration
+{
+    int PortalWidth; double PortalHeight;
+    bool PortalActive;
+    action void A_UTNTPortal(int width)
+    {
+        let source=UTNTPortalDecorationBase(self);
+        source.PortalWidth=width; source.PortalActive=true;
+        UTNTPortalSystem.Ensure(source);
+    }
+    action void A_UTNTPortalOff() { UTNTPortalDecorationBase(self).PortalActive=false; }
+}
+
+class UTNTPortalSystem play
+{
+    static void Ensure(UTNTPortalDecorationBase source)
+    {
+        if(!source || source.bDormant || !UTNTVisuals.Visible(source,combat:true)) return;
+        // At most 32 emitters per local client; no gameplay random stream.
+        let it=ThinkerIterator.Create('UTNTPortalEmitter',Thinker.STAT_USER+8,true);
+        UTNTPortalEmitter emitter; int count=0;
+        while(emitter=UTNTPortalEmitter(it.Next()))
+        { if(emitter.Source==source) return; count++; }
+        if(count>=32) return;
+        emitter=UTNTPortalEmitter(level.CreateClientSideThinker('UTNTPortalEmitter',Thinker.STAT_USER+8));
+        if(emitter) emitter.Initialize(source);
+    }
+}
+
+// Map-independent local decoration for portal surfaces without a placed actor.
+// Both faces can exist, but only the face towards the local camera emits.
+class UTNTPortalAutoSource : UTNTPortalDecorationBase
+{
+    Default { +CLIENTSIDE +NOINTERACTION +NOGRAVITY +NOBLOCKMAP +NOCLIP +INVISIBLE }
+    States { Spawn: TNT1 A -1; Stop; }
+    override void Tick()
+    {
+        Super.Tick();
+        let player=players[consoleplayer];
+        PortalActive=false;
+        if(!player || !player.camera) return;
+        Vector2 delta=player.camera.Pos.XY-Pos.XY;
+        PortalActive=delta.X*cos(Angle)+delta.Y*sin(Angle)>-4;
+        if(PortalActive) UTNTPortalSystem.Ensure(self);
+    }
+}
+
+class UTNTPortalAnchor : Actor
+{
+    Default { +CLIENTSIDE +NOINTERACTION +NOGRAVITY +NOBLOCKMAP +NOCLIP +INVISIBLE }
+}
+
+class UTNTPortalEmitter : Thinker
+{
+    UTNTPortalDecorationBase Source;
+    Actor LightAnchor;
+    Vector3 Center, Axis, SideAxis;
+    double Width, Height;
+    uint Seed;
+    int Age;
+    double Noise(double low,double high)
+    {
+        Seed=Seed*1664525+1013904223;
+        return low+(high-low)*double((Seed>>8)&0xffffff)/16777216.0;
+    }
+    void Initialize(UTNTPortalDecorationBase source)
+    {
+        self.Source=source; Width=source.PortalWidth;
+        double floor=source.GetZAt(0,0,0,GZF_NO3DFLOOR);
+        double ceiling=source.GetZAt(0,0,0,GZF_CEILING|GZF_NO3DFLOOR);
+        Height=source.PortalHeight>0 ? source.PortalHeight : max(32,ceiling-floor);
+        Axis=(cos(source.Angle),sin(source.Angle),0);
+        SideAxis=(-Axis.Y,Axis.X,0);
+        Center=(source.Pos.X,source.Pos.Y,source.PortalHeight>0 ? source.Pos.Z+Height*0.5 : (floor+ceiling)*0.5);
+        Seed=uint(int(source.Pos.X)*73856093)^uint(int(source.Pos.Y)*19349663)^uint(level.time+667);
+        LightAnchor=Actor.SpawnClientSide('UTNTPortalAnchor',Center+Axis*10);
+    }
+    override void OnDestroy()
+    {
+        if(LightAnchor) { LightAnchor.A_StopSound(CHAN_BODY); LightAnchor.Destroy(); }
+        Super.OnDestroy();
+    }
+    override void Tick()
+    {
+        if(!Source || !Source.PortalActive || Source.bDormant) { Destroy(); return; }
+        if(Source.IsFrozen() || level.isFrozen()) return;
+        if(!UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        Age++;
+        let player=players[consoleplayer];
+        int quality=clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),1,3);
+        if(CVar.GetCVar('UTNT_reducedfx',player).GetBool() || Source.Distance3D(player.camera)>640) quality=1;
+        double pulse=max(0, sin(level.time*360.0/245.0));
+        pulse=pulse*pulse; double fourth=pulse*pulse; pulse=fourth*fourth*pulse;
+        if(LightAnchor && Age%4==1)
+        {
+            int radius=int((quality==1 ? 80 : 108)+pulse*(quality==1 ? 8 : 28));
+            LightAnchor.A_AttachLight('portal',DynamicLight.PointLight,0xff1004,radius,0,DynamicLight.LF_ATTENUATE,
+                quality==1 ? (0,0,0) : SideAxis*Width*0.42);
+            if(quality>1)
+                LightAnchor.A_AttachLight('portal2',DynamicLight.PointLight,0xff1004,radius,0,DynamicLight.LF_ATTENUATE,-SideAxis*Width*0.42);
+            else LightAnchor.A_RemoveLight('portal2');
+            if(!LightAnchor.IsActorPlayingSound(CHAN_BODY))
+                LightAnchor.A_StartSound("utnt/portal/hum",CHAN_BODY,CHANF_LOOP,0.32,1.8);
+        }
+        int interval=quality==1 ? 7 : quality==2 ? 4 : 2;
+        if(Age%interval || !UTNTVisuals.Reserve()) return;
+        let mote=UTNTPortalMote(level.SpawnClientSideVisualThinker('UTNTPortalMote'));
+        if(mote) mote.Initialize(self,Age%5==0 && quality>1);
+    }
+}
+
+class UTNTPortalMote : VisualThinker
+{
+    UTNTPortalDecorationBase Source;
+    Vector3 Target, Start, Bend;
+    int Age, Life;
+    double Diameter, Strength, Spin;
+    bool Wisp;
+    void Initialize(UTNTPortalEmitter emitter,bool wisp)
+    {
+        Source=emitter.Source; Wisp=wisp;
+        Life=int(emitter.Noise(32,58));
+        Target=emitter.Center+emitter.SideAxis*emitter.Noise(-emitter.Width*0.37,emitter.Width*0.37);
+        Target.Z+=emitter.Noise(-emitter.Height*0.39,emitter.Height*0.39);
+        Start=Target+emitter.Axis*emitter.Noise(36,116);
+        Start+=emitter.SideAxis*emitter.Noise(-14,14); Start.Z+=emitter.Noise(-12,12);
+        Bend=emitter.SideAxis*emitter.Noise(-22,22)+(0,0,emitter.Noise(-18,18));
+        Diameter=wisp ? emitter.Noise(9,17) : emitter.Noise(2,4.5);
+        Strength=wisp ? 0.22 : emitter.Noise(0.75,1.0);
+        Texture=TexMan.CheckForTexture(wisp ? 'UPRWA0' : 'UPRMA0');
+        Flags=SPF_FULLBRIGHT|SPF_ROLL; SetRenderStyle(STYLE_Add);
+        Roll=emitter.Noise(0,360); Spin=emitter.Noise(-3,3);
+        Pos=Start; Prev=Pos; PrevRoll=Roll;
+        UpdateSector(); UpdateSpriteInfo(); Animate();
+    }
+    void Animate()
+    {
+        double t=double(Age)/Life;
+        let size=TexMan.GetScaledSize(Texture);
+        double d=Diameter*(1-0.6*t);
+        Scale=(d/size.X,d/size.Y);
+        Alpha=Strength*min(1.0,(Age+1)/6.0)*min(1.0,(Life-Age)/5.0);
+    }
+    override void Tick()
+    {
+        if(!Source || !Source.PortalActive || Source.bDormant) { Destroy(); return; }
+        if(IsFrozen() || Source.IsFrozen() || level.isFrozen()) return;
+        if(++Age>=Life || !UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        Prev=Pos; PrevRoll=Roll;
+        double t=double(Age)/Life;
+        double travel=t*t;
+        Pos=Start+(Target-Start)*travel+Bend*sin(t*180);
+        Roll+=Spin; UpdateSector(); Animate();
+    }
+}

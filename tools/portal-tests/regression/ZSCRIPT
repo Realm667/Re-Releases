@@ -1,0 +1,40 @@
+version "5.0.0"
+class PortalRegression : EventHandler {
+ int Pending, CheckTime;
+ void Verify(bool condition,String message) { Console.Printf("UTNT_ASSERT %s: %s",condition ? "PASS" : "FAIL",message); }
+ UTNTPortalDecorationBase Source(int tid) {
+  let it=ActorIterator.Create(tid); return UTNTPortalDecorationBase(it.Next());
+ }
+ override void NetworkProcess(ConsoleEvent e) {
+  if(e.Name!="portest") return;
+  Pending=e.Args[0]; CheckTime=level.time+15;
+  if(Pending==1) Source(31800).Deactivate(null);
+  if(Pending==2) Source(31800).Activate(null);
+  if(Pending==7) { Source(31800).Deactivate(null); Source(31801).Deactivate(null); }
+ }
+ override void WorldTick() {
+  if(!CheckTime || level.time<CheckTime) return; CheckTime=0;
+  int n=0,m=0; bool small=false,large=false;
+  let it=ThinkerIterator.Create('UTNTPortalEmitter',Thinker.STAT_USER+8,true);
+  UTNTPortalEmitter em;
+  while(em=UTNTPortalEmitter(it.Next())) {
+   n++; small=small || em.Width==128; large=large || em.Width==192;
+   Verify(em.Source!=null && em.LightAnchor!=null,"emitter owns source and local light");
+  }
+  let vi=ThinkerIterator.Create('UTNTPortalMote',Thinker.MAX_STATNUM+1,true);
+  UTNTPortalMote v;
+  while(v=UTNTPortalMote(vi.Next())) { m++; Verify(v.Age<v.Life && v.Life<=58,"finite particle lifetime"); }
+  Console.Printf("PORTAL_COUNTS phase=%d emitters=%d motes=%d",Pending,n,m);
+  if(Pending==0 || Pending==2 || Pending==4 || Pending==5 || Pending==6) {
+   Verify(n==2 && small && large,"both widths have independent emitters");
+   Verify(m>0 && m<=58,"bounded visible particle population");
+  }
+  if(Pending==1) Verify(n==1 && large && !small,"deactivating 128 preserves 192");
+  if(Pending==3 || Pending==7) Verify(n==0 && m==0,"disabled effects leave no emitters or particles");
+  Verify(level.sectors[0].GetTexture(Sector.floor)==TexMan.CheckForTexture('QTELEPT'),"portal floor texture preserved");
+  Verify(level.sides[2].GetTexture(Side.mid)==TexMan.CheckForTexture('UPORTAL'),"128 wall material fitted");
+  Verify(level.sides[4].GetTexture(Side.mid)==TexMan.CheckForTexture('UPORTAL'),"192 wall material fitted");
+  Verify(abs(level.sides[2].GetTextureXScale(Side.mid)-2.0)<0.001,"128 width maps exactly once");
+  Verify(abs(level.sides[4].GetTextureXScale(Side.mid)-256.0/192.0)<0.001,"192 width maps exactly once");
+ }
+}

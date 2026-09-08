@@ -1,0 +1,20 @@
+version "5.0.0"
+class PortalAutoCoop : EventHandler {
+ transient Actor Cam;
+ override void WorldTick() {
+  if(!Cam && level.time>=70) {
+   let it=ThinkerIterator.Create('UTNTPortalAutoSource',Thinker.MAX_STATNUM+1,true);
+   let source=UTNTPortalAutoSource(it.Next());
+   if(source) { Vector3 axis=(cos(source.Angle),sin(source.Angle),0);Vector3 p=source.Pos+axis*420;p.Z+=130;
+    Cam=Actor.SpawnClientSide('UTNTPortalAnchor',p);Cam.Angle=source.Angle+180; }
+  }
+  if(Cam) players[consoleplayer].camera=Cam;
+ }
+ override void ConsoleProcess(ConsoleEvent e) {
+  if(e.Name!="autoCount") return;
+  let it=ThinkerIterator.Create('UTNTPortalEmitter',Thinker.STAT_USER+8,true);UTNTPortalEmitter em;int count=0;
+  while(em=UTNTPortalEmitter(it.Next())) if(em.Source is 'UTNTPortalAutoSource') count++;
+  bool ok=e.Args[0] ? count>0 && count<=6 : count==0;
+  Console.Printf("UTNT_ASSERT %s: peer %d automatic emitters %d expected enabled %d",ok ? "PASS" : "FAIL",consoleplayer,count,e.Args[0]);
+ }
+}

@@ -1,0 +1,37 @@
+version "5.0.0"
+class PortalProbe : EventHandler {
+ Actor Cam;
+ override void WorldTick() {
+  if(level.time%70!=0) return;
+  let ai=ThinkerIterator.Create('UTNTPortalDecorationBase');
+  let src=UTNTPortalDecorationBase(ai.Next());
+  if(src) Console.Printf("SRC dormant=%d active=%d visible=%d",src.bDormant,src.PortalActive,UTNTVisuals.Visible(src,combat:true));
+  let it=ThinkerIterator.Create('UTNTPortalEmitter',Thinker.STAT_USER+8,true);
+  UTNTPortalEmitter em; int n=0;
+  while(em=UTNTPortalEmitter(it.Next())) { n++; Console.Printf("EMITTER age=%d active=%d lamp=%d",em.Age,em.Source.PortalActive,em.LightAnchor!=null); }
+  let vi=ThinkerIterator.Create('UTNTPortalMote',Thinker.MAX_STATNUM+1,true);
+  UTNTPortalMote v; int m=0;
+  while(v=UTNTPortalMote(vi.Next())) {m++;}
+  Console.Printf("PORTAL_COUNTS %d %d",n,m);
+ }
+ override void NetworkProcess(ConsoleEvent e) {
+  if(e.Name!="portalprobe") return;
+  let it=ThinkerIterator.Create('UTNTPortalDecorationBase');
+  let source=UTNTPortalDecorationBase(it.Next());
+  if(!source) { Console.Printf("UTNT_ASSERT FAIL: missing portal"); return; }
+  if(e.Args[0]==1) { source.Deactivate(null); return; }
+  source.Activate(null);
+  let handler=UTNTPortalMaterials(EventHandler.Find('UTNTPortalMaterials'));
+  Console.Printf("PORTAL_FITTED %d",handler ? handler.FittedSurfaces : -1);
+  if(!Cam) Cam=Actor.Spawn('MapSpot');
+  double floor=source.GetZAt(0,0,0,GZF_NO3DFLOOR);
+  double ceiling=source.GetZAt(0,0,0,GZF_NO3DFLOOR|GZF_CEILING);
+  Vector3 axis=(cos(source.Angle),sin(source.Angle),0);
+  Vector3 side=(-axis.Y,axis.X,0);
+  Vector3 pos=source.Pos+axis*240+side*(e.Args[0]==2 ? 100 : -45);
+  pos.Z=floor+25;
+  Cam.SetOrigin(pos,false); Cam.Angle=source.Angle+180; Cam.Pitch=-22;
+  players[0].camera=Cam;
+  Console.Printf("PORTAL_PROBE width=%d height=%f dormant=%d",source.PortalWidth,ceiling-floor,source.bDormant);
+ }
+}
