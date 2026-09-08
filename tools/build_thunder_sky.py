@@ -17,6 +17,15 @@ def build(root):
  mountains=np.asarray(Image.open(art/'mountains.png').convert('RGB'),dtype=float)/255
  alpha=1-smooth(.15,.35,mountains[:,:,2]-np.maximum(mountains[:,:,0],mountains[:,:,1]))
  mountains[:,:,2]=np.minimum(mountains[:,:,2],np.maximum(mountains[:,:,0],mountains[:,:,1])+.08)
+ # Technical silhouette lookup, not a repainted art layer. Each column stores
+ # the first opaque mountain texel. Fog begins below that actual local crest.
+ ridge=(np.argmax(alpha>.5,axis=0)+.5)/alpha.shape[0]
+ ridge=np.where(np.any(alpha>.5,axis=0),ridge,1.)
+ ridge8=np.uint8(np.rint(ridge*255));ridge=ridge8.astype(float)/255
+ Image.fromarray(np.repeat(ridge8[None,:,None],3,axis=2)).save(art/'ridge-height.png')
+ depth=(np.arange(alpha.shape[0])[:,None]+.5)/alpha.shape[0]-ridge[None,:]
+ # Keep an unfogged band at the crest; preserve valley fog farther below it.
+ mountains*= (.20+.80*smooth(.035,.15,depth))[:,:,None]
  mountains=np.dstack((mountains*alpha[:,:,None],alpha))
  n=768;u,v=np.meshgrid(np.linspace(0,1,n),np.linspace(0,1,n));s=1-2*u;t=1-2*v;o=np.ones_like(s)
  rays=[(s,t,-o),(-o,t,-s),(-s,t,o),(o,t,s),(s,o,-t),(s,-o,-t)]
@@ -47,7 +56,7 @@ def build(root):
    # Padding encodes the state without extra bitmaps; the first patch fills
    # the right edge for the software fallback, the second retains the face.
    if state:textures.append(f'Texture UGT{state}{f}, {768+state}, 768 {{ Patch UGT0{f}, {state}, 0 Patch UGT0{f}, 0, 0 }}')
-   gl.append(f'material texture UGT{state}{f} {{ shader "shaders/thunder/sky-{f}.fp" texture cloudmap "graphics/thunder/clouds.png" texture mountainmap "graphics/thunder/mountains.png" }}')
+   gl.append(f'material texture UGT{state}{f} {{ shader "shaders/thunder/sky-{f}.fp" texture cloudmap "graphics/thunder/clouds.png" texture mountainmap "graphics/thunder/mountains.png" texture ridgemap "graphics/thunder/ridge-height.png" }}')
  gl.append('HardwareShader PostProcess scene { Name "UTNTThunderExposure" Shader "shaders/thunder-exposure.fp" 330 Uniform float amount }')
  (out/'GLDEFS.thunder').write_text('\n'.join(gl)+'\n',encoding='utf-8',newline='\n')
  (out/'TEXTURES.thunder').write_text('\n'.join(textures)+'\n',encoding='utf-8',newline='\n')

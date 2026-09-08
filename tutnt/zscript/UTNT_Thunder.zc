@@ -6,6 +6,8 @@ class UTNTThunderHandler : EventHandler
     bool Initialized;
     int Clock, NextFlash, Sequence, PulseAge, Direction, AppliedState;
     double Flash, ThunderVolume;
+    bool DebugManual;
+    int SoundVariant;
     int WeatherSeed, Profile, PeakStep, ThunderDelay, ThunderDue;
     int ThunderCount, LastThunderClock, FlashClock, NearCooldown;
 
@@ -52,7 +54,7 @@ class UTNTThunderHandler : EventHandler
         Profile=forcedProfile>=0 ? clamp(forcedProfile,0,2) : (roll<62 ? 0 : roll<92 || NearCooldown>0 ? 1 : 2);
         if(NearCooldown>0)NearCooldown--;
         if(Profile==2)NearCooldown=3;
-        Direction=WeatherRandom(3); Sequence++; PulseAge=0; FlashClock=Clock;
+        Direction=WeatherRandom(3); Sequence++; SoundVariant=(Sequence+1)%2; PulseAge=0; FlashClock=Clock;
         if(Profile==0)
         {
             PeakStep=2+WeatherRandom(2);
@@ -77,9 +79,11 @@ class UTNTThunderHandler : EventHandler
     {
         // One ambient sound, avoiding stacked TID-666 emitters whose distance
         // used to obscure the chosen thunder strength at different locations.
-        S_StartSound(Sequence%2 ? "amb1" : "amb3",CHAN_AUTO,0,ThunderVolume,ATTN_NONE,
+        S_StartSound(SoundVariant==0 ? "amb1" : "amb3",CHAN_AUTO,0,ThunderVolume,ATTN_NONE,
             Profile==0 ? .80 : Profile==1 ? .92 : 1.0);
         ThunderCount++; LastThunderClock=Clock; ThunderDue=-1;
+        if(DebugManual)Console.Printf("TNT02 thunder: sound=%s volume=%.2f elapsed=%.2fs",
+            SoundVariant==0 ? "amb1" : "amb3",ThunderVolume,(Clock-FlashClock)/35.0);
     }
     void Apply(int step)
     {
@@ -105,7 +109,7 @@ class UTNTThunderHandler : EventHandler
         UTNTThunderView.Ensure();
         if(level.isFrozen())return;
         Clock++;
-        if(Clock>=NextFlash && PulseAge<0)StartPulse();
+        if(!DebugManual && Clock>=NextFlash && PulseAge<0)StartPulse();
         if(PulseAge>=0)
         {
             int pulse=Pulse(PulseAge);
@@ -117,6 +121,41 @@ class UTNTThunderHandler : EventHandler
         }
         // Independent of the short light pulse: distant thunder may arrive 6 s later.
         if(ThunderDue>=0 && Clock>=ThunderDue)PlayThunder();
+    }
+    void DebugStatus()
+    {
+        Console.Printf("TNT02 thunder: mode=%s profile=%d direction=%d sound=%s peak=%.1f%% volume=%.2f delay=%.2fs pending=%.2fs",
+            DebugManual ? "manual" : "auto",Profile,Direction,SoundVariant==0 ? "amb1" : "amb3",
+            100.0*PeakStep*PeakStep/64.0,ThunderVolume,ThunderDelay/35.0,
+            ThunderDue<0 ? 0.0 : max(0,ThunderDue-Clock)/35.0);
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="utnt_thunder_test" && e.Name!="utnt_thunder_control")return;
+        if(!(level.MapName~=="TNT02")) { Console.Printf("Thunder debug is available in TNT02.");return; }
+        if(!Initialized)Initialize();
+        if(e.Name=="utnt_thunder_control")
+        {
+            if(e.Args[0]==2){DebugStatus();return;}
+            if(e.Args[0]!=0 && e.Args[0]!=1)return;
+            DebugManual=e.Args[0]==0;
+            PulseAge=-1; ThunderDue=-1; Apply(0); NextFlash=Clock+315;
+            Console.Printf("TNT02 thunder: %s",DebugManual ? "manual, pending flash/thunder cancelled" : "automatic weather resumed");
+            return;
+        }
+        if(e.Args[0]<0 || e.Args[0]>2 || e.Args[1]<0 || e.Args[1]>2 || e.Args[2]<0 || e.Args[2]>1)
+        {
+            Console.Printf("Usage: netevent utnt_thunder_test <profile 0..2> <direction 0..2> <sound 0..1>");return;
+        }
+        // Fixed test values make A/B comparisons repeatable. An explicit test
+        // replaces any pending event and pauses random weather until resumed.
+        DebugManual=true; PulseAge=-1; ThunderDue=-1; Apply(0);
+        StartPulse(e.Args[0]); Direction=e.Args[1]; SoundVariant=e.Args[2];
+        PeakStep=Profile==0 ? 3 : Profile==1 ? 5 : 8;
+        ThunderDelay=Profile==0 ? 175 : Profile==1 ? 42 : 0;
+        ThunderVolume=Profile==0 ? .16 : Profile==1 ? .50 : 1.0;
+        FlashClock=Clock+1; ThunderDue=FlashClock+ThunderDelay;
+        DebugStatus();
     }
     override void WorldLoaded(WorldEvent e) { PPShader.SetEnabled("UTNTThunderExposure",false); }
     override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTThunderExposure",false); }

@@ -57,7 +57,12 @@ void SetupMaterial(inout Material mat)
  color+=flashStrength*cone*(vec3(1.70,1.70,1.68)*transmission+cloud*.65);
  // A near discharge scatters beyond its core; distant steps barely lift it.
  color+=flashStrength*flashStrength*vec3(.14)*transmission;
- vec4 mountains=WrapLayer(mountainmap,vec2(longitude,1.06-latitude/3.141592654*2.2),true);
+ float mountainV=1.06-latitude/3.141592654*2.2;
+ vec4 mountains=WrapLayer(mountainmap,vec2(longitude,mountainV),true);
+ float ridge=WrapLayer(ridgemap,vec2(longitude,.5),false).r;
+ // No bright fog at the silhouette: follow the actual crest in each column.
+ float valleyFog=smoothstep(.035,.15,mountainV-ridge);
+ mountains.rgb*=mix(.20,1.0,valleyFog);
  float mountainGray=dot(mountains.rgb,vec3(.2126,.7152,.0722));
  vec3 mountain=mix(mountains.rgb,vec3(mountainGray),.78)*vec3(1.0,1.0,.98)*(.30+flashStrength*.60);
  color=color*(1.0-mountains.a)+mountain;

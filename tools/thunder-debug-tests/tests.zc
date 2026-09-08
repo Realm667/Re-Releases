@@ -1,0 +1,30 @@
+class UTNTThunderDebugTests : EventHandler
+{
+ int BeforeCount, View;
+ void Assert(bool ok,String message){Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",message);}
+ override void WorldTick()
+ {
+  let p=players[0].mo;if(!p || level.time<10)return;
+  p.bInvulnerable=true;p.bNoGravity=true;
+  Vector3 pos=View==1 ? (28000,-28000,0) : (4384,0,32);
+  p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=View==1 ? 45 : 180;p.Pitch=View==1 ? -12 : -25;
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  let h=UTNTThunderHandler(EventHandler.Find('UTNTThunderHandler'));
+  if(e.Name=="debugview")View=e.Args[0];
+  if(e.Name=="debugbegin")BeforeCount=h.ThunderCount;
+  if(e.Name=="debugcheck")
+  {
+   Assert(h.DebugManual,"explicit test pauses random weather");
+   Assert(h.Profile==e.Args[0] && h.Direction==e.Args[1] && h.SoundVariant==e.Args[2],"selected profile, direction and sound retained");
+   Assert(h.ThunderCount==BeforeCount+1 && h.ThunderDue<0,"exactly one selected thunder dispatched");
+   Assert(h.LastThunderClock-h.FlashClock==h.ThunderDelay,"debug delay measured from first flash tick");
+   Assert(h.Flash==0 && h.PulseAge<0,"debug flash returns to dark baseline");
+  }
+  if(e.Name=="debugmanual")Assert(h.DebugManual && h.ThunderDue<0 && h.Flash==0,"off cancels pending event and restores darkness");
+  if(e.Name=="debugauto")Assert(!h.DebugManual && h.NextFlash>h.Clock && h.Flash==0,"automatic weather resumes cleanly");
+  if(e.Name=="debugpending")Assert(h.DebugManual && h.ThunderDue>h.Clock && h.ThunderCount==BeforeCount,"distant thunder remains pending");
+  if(e.Name=="debugstill")Assert(h.ThunderCount==BeforeCount,"cancelled thunder never fires later");
+ }
+}

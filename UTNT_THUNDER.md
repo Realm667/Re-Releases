@@ -29,3 +29,25 @@ Der Donner läuft über einen eigenen gespeicherten Termin, unabhängig vom kurz
 Die Prüfungen unter OpenGL und Vulkan umfassen Dunkelzustand, bewegte Wolken, drei deutlich abgestufte Blitzspitzen und Abschirmung unter Dächern. Der Vulkan-Test prüft zusätzlich die Ereignisverteilung, gemessene Donnertermine, genau einmalige Wiedergabe-Anforderung und Speichern/Laden während eines ausstehenden Ferndonners. Audio wird in den automatisierten Tests deaktiviert; geprüft werden die tatsächlichen Steuerwerte und Aufruftermine, kein Hörvergleich. Nachweise: `tools/validation/thunder-distance-2026-09-09`. Reproduktion: `tools/test_thunder_distance.py` mit `--engine`, `--iwad`, optional `--profiles` und `--renderer 0` oder `1`.
 
 Das Spiel neu starten und TNT02 frisch laden, damit die geänderten Grundhelligkeiten übernommen werden. Speichern/Laden innerhalb des neuen Mapstands ist geprüft; ein vollständiger Kampagnen- oder Mehrspieler-Durchlauf gehört nicht zu dieser Abnahme.
+
+
+## Berggrat und Gewitter-Debugging
+
+Die Bergkontur bleibt frei vom hellen Nebelsaum: `ridge-height.png` speichert die tatsächliche Silhouettenhöhe pro Texturspalte. Im obersten Band unter jedem lokalen Grat wird der bereits in der Textur enthaltene Nebel stark abgedunkelt. Erst darunter geht die Darstellung weich in den unveränderten Talnebel über. Die Alphakontur bleibt erhalten. Dieselbe Korrektur gilt für Materialshader und statischen Fallback; der technische Höhenstreifen entsteht reproduzierbar im Assetbuilder.
+
+In TNT02 lassen sich diese Befehle direkt in die Spielkonsole eingeben. Nach Eingabe die Konsole schließen, damit der Spielablauf fortgesetzt wird:
+
+| Befehl | Wirkung |
+| --- | --- |
+| `utnt_thunder_far` | Fester Fernblitz: 14 % Spitze, Donnerpegel 16 %, 5 Sekunden Verzögerung |
+| `utnt_thunder_mid` | Fester mittlerer Blitz: 39 % Spitze, Donnerpegel 50 %, 1,2 Sekunden Verzögerung |
+| `utnt_thunder_near` | Fester Nahblitz: volle Spitze und voller Donnerpegel, gleichzeitig |
+| `utnt_thunder_status` | Modus, Profil, Richtung, Klang, Stärke, Pegel und ausstehende Donnerzeit anzeigen |
+| `utnt_thunder_off` | Zufallsgewitter pausieren, Licht zurücksetzen und noch ausstehenden Donner verwerfen |
+| `utnt_thunder_auto` | Tests beenden und automatisches Gewitter fortsetzen; nächstes Ereignis nach 9 Sekunden |
+
+Ein gezielter Test pausiert das Zufallsgewitter, damit es sich nicht dazwischenmischt. Ein neuer Test ersetzt ein noch ausstehendes Ereignis. Ein bereits hörbarer Donner klingt weiter aus. Der manuelle Modus und ausstehende Testereignisse bleiben beim Speichern/Laden erhalten; zum normalen Spielen anschließend `utnt_thunder_auto` verwenden. Im Mehrspielerbetrieb wirken die synchronisierten Testbefehle auf die gemeinsame Wettersteuerung.
+
+Für die freie Kombination gibt es `netevent utnt_thunder_test <Profil> <Richtung> <Klang>`. Profil und Richtung liegen jeweils bei 0 bis 2; Klang 0 ist `amb1`, Klang 1 ist `amb3`. Beispiel: `netevent utnt_thunder_test 2 2 1` testet einen Nahblitz in Richtung 2 mit dem zweiten Donnerklang. Die drei Richtungen sind dieselben festen Himmelsrichtungen wie beim normalen Gewitter. Die Kurzbefehle wählen Richtung 1 und Klang 0. Ungültige Werte werden ohne Änderung zurückgewiesen. Beim tatsächlichen Donnerstart wird zusätzlich der gemessene zeitliche Abstand zum Blitz ausgegeben.
+
+Prüfung: `tools/test_thunder_debug.py`, Fixture `tools/thunder-debug-tests`, Nachweise `tools/validation/thunder-ridge-debug-2026-09-09`. Die Vulkan-Prüfung verwendet die echten Konsolen-Aliase und prüft alle drei Profile, den zweiten Klang, Richtungswahl, exakte Verzögerungen, Speichern/Laden eines ausstehenden Ereignisses, Abbruch und Rückkehr zum automatischen Wetter. OpenGL prüft zusätzlich die Darstellung und grundlegenden Steuerbefehle. Automatische Tests deaktivieren die Audioausgabe und prüfen die Klangwahl und Auslösezeitpunkte; sie ersetzen keine Hörprobe.
