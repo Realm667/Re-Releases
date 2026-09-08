@@ -1,14 +1,16 @@
 # Ambient smoke and water artwork
 
-The water atlas was generated with the built-in Imagegen tool on 2026-09-08.
+The revised water atlas was generated with the built-in Imagegen tool on 2026-09-09.
 The original 1254 x 1254 PNG is stored unchanged at
-`tutnt/graphics/utnt-water/water-atlas.png`. TEXTURES.ambientwater defines four
+`tutnt/graphics/utnt-water/water-atlas-v2.png`. TEXTURES.ambientwater defines four
 627 x 627 regions: ligament, droplet, splash crown and overhead ripple.
 The material derives opacity from luminance; water uses translucent blending.
 Ambient smoke reuses the four approved density silhouettes in
 `tutnt/graphics/utnt-fire/smoke-atlas.png` through separate materials. The fire
 material and all torch/FireSpawner behavior are unchanged. Ambient smoke's
-maximum material RGB is (0.60, 0.60, 0.60), approximately #999999.
+material shades now range from charcoal (0.11, 0.11, 0.12) to (0.24, 0.24, 0.25),
+centered around #333333. Increased opacity and denser texture coverage retain
+the existing emission count, motion and four silhouettes.
 
 ## Runtime behavior
 
@@ -37,3 +39,21 @@ under tools/validation/ambient-water-2026-09-08.
 
 The mockups are art direction references, not engine screenshots. Actual
 rendered results use the existing map scale and scene lighting.
+
+## Revision 2026-09-09
+
+Water now uses a hand-painted, visibly coarser slate-blue atlas. Its original
+color is retained by the shader, replacing the earlier silver luminance ramp.
+Compact drops and shorter coherent segments prevent long white string shapes.
+The crown is anchored at its base so most of it appears above the water plane.
+
+The terrain splash's first action now uses NODELAY: the single-frame Spawn
+state previously skipped its action. Large body impacts spawn a broad crown,
+an outward skirt, higher droplets and wider rings. A separate smallclass keeps
+light impacts and footsteps small. Landings are tested with an actual falling
+player and assertions for terrain activation, large crowns and rebound drops.
+
+Campaign coverage: Smoker, DarkSmokeSpawner and Liquid_Fountain_* are defined
+but not placed in the campaign maps. Water terrain impacts apply on existing
+UTNT_Water surfaces. Ambient emitters and fountains are tested in the fixture
+or with summon; this change does not add map placements.

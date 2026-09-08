@@ -3,8 +3,27 @@ class UTNTAmbientWaterTest : EventHandler
 {
     Array<Actor> Sources;
     bool SmokeMode;
+    bool LandingArmed, LandingSeen;
+    int LandingLargeCrowns, LandingMaxDroplets;
+    override void WorldThingSpawned(WorldEvent e)
+    {
+        if(LandingArmed && e.Thing is 'UTNT_WaterSplash' && !(e.Thing is 'UTNT_WaterSplash_Chunk') && !(e.Thing is 'UTNT_WaterSplash_Small')) LandingSeen=true;
+    }
     override void WorldTick()
     {
+        if (LandingArmed)
+        {
+            int crowns=0,drops=0;
+            let it=ThinkerIterator.Create('UTNTWaterVisual',Thinker.MAX_STATNUM+1,true);
+            UTNTWaterVisual w;
+            while(w=UTNTWaterVisual(it.Next()))
+            {
+                if(w.Kind==2 && w.Height>=48) crowns++;
+                if(w.Kind==1 && w.Height>=12) drops++;
+            }
+            LandingLargeCrowns=max(LandingLargeCrowns,crowns);
+            LandingMaxDroplets=max(LandingMaxDroplets,drops);
+        }
         if (level.time!=2) return;
         let p=players[0].mo;
         p.ACS_NamedTerminate("IntroText",0);
@@ -31,12 +50,34 @@ class UTNTAmbientWaterTest : EventHandler
             players[0].mo.SetOrigin((0,-640,40),false);
         }
         if(e.Name=="awremove") { for(int i=0;i<Sources.Size();i++) if(Sources[i]) Sources[i].Destroy(); Sources.Clear(); }
+        if(e.Name=="awland")
+        {
+            LandingArmed=true; LandingSeen=false; LandingLargeCrowns=0; LandingMaxDroplets=0;
+            let p=players[0].mo;p.SetOrigin((0,-190,96),false);p.Vel=(0,0,-10);p.Angle=90;p.Pitch=0;
+        }
+        if(e.Name=="awsmall") Actor.Spawn('UTNT_WaterSplash_Small',(0,-190,0));
         if(e.Name=="awsplash") Actor.Spawn('UTNT_WaterSplash',(0,-190,0));
         if(e.Name=="awclose") { players[0].mo.SetOrigin((220,-150,0),false);players[0].mo.Angle=90;players[0].mo.Pitch=0; }
         if(e.Name=="awwide") { players[0].mo.SetOrigin((0,-460,0),false);players[0].mo.Angle=90;players[0].mo.Pitch=0; }
     }
     override void ConsoleProcess(ConsoleEvent e)
     {
+        if(e.Name=="awlandingcheck")
+        {
+            Console.Printf("UTNT_ASSERT %s real body landing invokes terrain splash",LandingSeen ? "PASS" : "FAIL");
+            Console.Printf("UTNT_ASSERT %s body landing creates main crown and outward skirt (%d)",LandingLargeCrowns>=4 ? "PASS" : "FAIL",LandingLargeCrowns);
+            Console.Printf("UTNT_ASSERT %s body landing creates visible rebound drops (%d)",LandingMaxDroplets>=8 ? "PASS" : "FAIL",LandingMaxDroplets);
+            return;
+        }
+        if(e.Name=="awsmallcheck")
+        {
+            int small=0,large=0;
+            let it=ThinkerIterator.Create('UTNTWaterVisual',Thinker.MAX_STATNUM+1,true);
+            UTNTWaterVisual w;
+            while(w=UTNTWaterVisual(it.Next())) if(w.Kind==2) { if(w.Height>=48) large++; else small++; }
+            Console.Printf("UTNT_ASSERT %s light water impacts stay small",small>0 && large==0 ? "PASS" : "FAIL");
+            return;
+        }
         if (e.Name!="awcheck") return;
         let cam=players[consoleplayer].camera;
         Console.Printf("AWDIAG camera=%s pos=%s quality=%d lod=%d smoke=%d sources=%d",cam ? cam.GetClassName() : 'none',cam ? String.Format("%f %f %f",cam.Pos.X,cam.Pos.Y,cam.Pos.Z) : "none",CVar.GetCVar('UTNT_fxquality',players[consoleplayer]).GetInt(),CVar.GetCVar('UTNT_lod',players[consoleplayer]).GetInt(),CVar.GetCVar('UTNT_ambientsmoke',players[consoleplayer]).GetInt(),Sources.Size());
@@ -47,7 +88,7 @@ class UTNTAmbientWaterTest : EventHandler
         while(s=UTNTAmbientSmokePuff(si.Next()))
         {
             puffs++;
-            if(s.Scale.X<=0 || s.Scale.Y<=0 || s.Age>=s.Life || abs(s.Spin)<0.1 || s.Alpha>0.62) invalid++;
+            if(s.Scale.X<=0 || s.Scale.Y<=0 || s.Age>=s.Life || abs(s.Spin)<0.1 || s.Alpha>0.96) invalid++;
             for(int j=0;j<4;j++) if(s.Texture==TexMan.CheckForTexture(String.Format("UASM%c0",65+j))) variants|=1<<j;
         }
         let wi=ThinkerIterator.Create('UTNTWaterVisual',Thinker.MAX_STATNUM+1,true); UTNTWaterVisual w;

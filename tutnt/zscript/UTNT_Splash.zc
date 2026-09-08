@@ -33,7 +33,18 @@ class UTNT_WaterSplash : Actor
     States
     {
     Spawn:
-        TNT1 A 1 { UTNTWaterSystem.Impact(self,1.35,true); }
+        TNT1 A 1 NODELAY { UTNTWaterSystem.Impact(self,1,true,true); }
+        Stop;
+    }
+}
+
+// Footsteps/light impacts keep the small variant; body landings use baseclass.
+class UTNT_WaterSplash_Small : UTNT_WaterSplash
+{
+    States
+    {
+    Spawn:
+        TNT1 A 1 NODELAY { UTNTWaterSystem.Impact(self,1,true,false); }
         Stop;
     }
 }

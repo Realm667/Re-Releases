@@ -54,7 +54,7 @@ class UTNTAmbientSmokePuff : VisualThinker
         Width=envelope*FRandom[utntcosmetic](0.64,0.88);
         Height=envelope*FRandom[utntcosmetic](0.65,1.0);
         Life=profile<0 ? Random[utntcosmetic](48,70) : Random[utntcosmetic](120,185);
-        Strength=profile<=0 ? FRandom[utntcosmetic](0.25,0.40) : FRandom[utntcosmetic](0.42,0.62);
+        Strength=profile<0 ? FRandom[utntcosmetic](0.65,0.78) : FRandom[utntcosmetic](0.82,0.96);
         Phase=FRandom[utntcosmetic](0,360);
         double wind=breeze+18*sin(level.time*0.35+breeze);
         double speed=profile<0 ? 0.28 : profile==0 ? 0.55 : profile==1 ? 1.0 : 1.8;
@@ -70,7 +70,7 @@ class UTNTAmbientSmokePuff : VisualThinker
         double t=double(Age)/Life;
         double growth=0.35+0.65*sin(t*90);
         Scale=(Width*growth/627,Height*growth*(1+0.06*sin(Phase+Age*2))/627);
-        Alpha=Strength*min(1.0,(Age+1)/12.0)*((1-t)**1.4);
+        Alpha=Strength*min(1.0,(Age+1)/8.0)*min(1.0,(1-t)/0.52);
     }
     override void Tick()
     {
@@ -97,12 +97,12 @@ class UTNTFountainDropBase : Actor
     {
         Super.Tick();
         if (!bMissile) return;
-        if (!VisualAge) CoherentTics=clamp(18-int(Vel.XY.Length()*4),6,18);
+        if (!VisualAge) CoherentTics=clamp(10-int(Vel.XY.Length()*2),4,10);
         VisualAge++;
         sprite=GetSpriteIndex('UWAT'); frame=VisualAge<CoherentTics ? 0 : 1;
-        double stretch=VisualAge<CoherentTics ? 16 : clamp(Vel.Length()*2.0,4.5,11);
+        double stretch=VisualAge<CoherentTics ? 13 : clamp(Vel.Length()*1.3,5,8);
         Scale=(VisualWidth/627,stretch/627);
-        Alpha=0.78;
+        Alpha=0.62;
         let camera=players[consoleplayer].camera;
         if (camera)
         {
@@ -126,33 +126,52 @@ class UTNTWaterSystem play
     {
         let p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
         if (!p) return;
-        p.Initialize(source.Pos-source.Vel*0.35,0,FRandom[utntcosmetic](8,13),FRandom[utntcosmetic](12,18),7);
+        p.Initialize(source.Pos-source.Vel*0.35,0,FRandom[utntcosmetic](7,11),FRandom[utntcosmetic](10,14),5);
         p.Vel=source.Vel*0.6; p.Accel=(0,0,-0.125);
         p.Roll=source.Roll; p.PrevRoll=p.Roll;
     }
-    static void Impact(Actor source, double strength=1, bool liquid=true)
+    // Body splashes have their own envelope; fountain drops stay small.
+    static void Impact(Actor source, double strength=1, bool liquid=true, bool bodyImpact=false)
     {
         if (!UTNTVisuals.Visible(source,combat:true)) return;
-        int granted=UTNTVisuals.ReserveCount(liquid ? 5 : 3,true);
+        int granted=UTNTVisuals.ReserveCount(bodyImpact ? 13 : liquid ? 5 : 3,true);
         if (!granted) return;
-        Vector3 origin=source.Pos; origin.Z+=0.7;
+        Vector3 origin=source.Pos; origin.Z+=0.9;
         let p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
-        if (p) p.Initialize(origin,2,FRandom[utntcosmetic](10,17)*strength,FRandom[utntcosmetic](8,13)*strength,12);
+        if (p) p.Initialize(origin,2,FRandom[utntcosmetic](bodyImpact ? 90 : 12,bodyImpact ? 110 : 18)*strength,
+            FRandom[utntcosmetic](bodyImpact ? 68 : 12,bodyImpact ? 82 : 18)*strength,bodyImpact ? 24 : 12);
         if (liquid && granted>1)
         {
             let ring=UTNTWaterRing(Actor.Spawn('UTNTWaterRing',origin));
-            if (ring) { ring.VisualSize=strength; ring.Angle=FRandom[utntcosmetic](0,360); }
+            if (ring) { ring.VisualSize=strength*(bodyImpact ? 3.4 : 1); ring.Angle=FRandom[utntcosmetic](0,360); }
         }
-        for (int i=liquid ? 2 : 1;i<granted;i++)
+        int used=liquid ? 2 : 1;
+        // An outward skirt makes landings readable from the player's own view.
+        if (bodyImpact)
+        {
+            double phase=FRandom[utntcosmetic](0,360);
+            for (int j=0;j<3 && used<granted;j++,used++)
+            {
+                double a=phase+j*120;
+                p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
+                if (!p) continue;
+                p.Initialize(origin+(cos(a)*30,sin(a)*30,3),2,FRandom[utntcosmetic](38,50),FRandom[utntcosmetic](48,60),22);
+                p.Vel=(cos(a)*0.65,sin(a)*0.65,0.2);
+            }
+        }
+        for (int i=used;i<granted;i++)
         {
             p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
             if (!p) continue;
-            p.Initialize(origin,1,FRandom[utntcosmetic](2,3.5)*strength,FRandom[utntcosmetic](3,5)*strength,Random[utntcosmetic](10,17));
-            double a=FRandom[utntcosmetic](0,360),v=FRandom[utntcosmetic](0.25,0.7)*strength;
-            p.Vel=(cos(a)*v,sin(a)*v,FRandom[utntcosmetic](0.65,1.3)*strength);
-            p.Accel=(0,0,-0.12); p.Floor=origin.Z;
+            double a=FRandom[utntcosmetic](0,360),v=FRandom[utntcosmetic](bodyImpact ? 0.8 : 0.25,bodyImpact ? 1.6 : 0.7)*strength;
+            Vector3 birth=origin+(cos(a)*(bodyImpact ? 24 : 0),sin(a)*(bodyImpact ? 24 : 0),0);
+            p.Initialize(birth,1,FRandom[utntcosmetic](bodyImpact ? 10 : 4,bodyImpact ? 16 : 7)*strength,
+                FRandom[utntcosmetic](bodyImpact ? 12 : 6,bodyImpact ? 18 : 9)*strength,Random[utntcosmetic](bodyImpact ? 24 : 10,bodyImpact ? 32 : 17));
+            p.Vel=(cos(a)*v,sin(a)*v,FRandom[utntcosmetic](bodyImpact ? 3.2 : 0.65,bodyImpact ? 4.8 : 1.3)*strength);
+            p.Accel=(0,0,bodyImpact ? -0.18 : -0.12); p.Floor=origin.Z;
         }
     }
+
 }
 
 class UTNTWaterVisual : VisualThinker
@@ -178,7 +197,7 @@ class UTNTWaterVisual : VisualThinker
         Vel+=Accel;
         double t=double(Age)/Life;
         Alpha=0.7*(1-t*t);
-        if (Kind==2) Scale=(Width*(1+0.7*t)/627,Height*(1-0.45*t)/627);
+        if (Kind==2) Scale=(Width*(1+0.45*t)/627,Height*(1-0.35*t)/627);
         else if (players[consoleplayer].camera)
         {
             double a=players[consoleplayer].camera.Angle;
