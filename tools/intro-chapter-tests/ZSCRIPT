@@ -1,0 +1,79 @@
+version "5.0"
+class UTNTIntroSkipTests : EventHandler
+{
+    void Check(bool ok, String what)
+    { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",what); }
+    override void WorldTick()
+    {
+        if(!(level.MapName ~== "TNT04A")) return;
+        for(int p=0;p<MAXPLAYERS;p++)
+            if(playeringame[p] && players[p].mo) players[p].mo.bInvulnerable=true;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let chapterHandler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(e.Name=="introcoop")
+        {
+            Check(playeringame[0] && playeringame[1],"two real peers joined TNT04A");
+            Check(chapterHandler.Chapter.Pages[0]==0 && chapterHandler.Chapter.Pages[1]==1,"cooperative intro pages remain independent");
+            Check(chapterHandler.Chapter.Phase==0,"guest cannot finish shared intro");
+            Check(players[0].inconsistent==0 && players[1].inconsistent==0,"intro peers remain synchronized");
+        }
+        if(e.Name=="introstate")
+        {
+            Check(chapterHandler.Chapter && chapterHandler.Chapter.Intro,"shared reader owns TNT04A intro");
+            Check(chapterHandler.Chapter.Pages[e.Player]==1,"reader page survives save and load");
+            Check(!chapterHandler.Chapter.Revealed[e.Player],"reader reveal state survives save and load");
+        }
+        if(e.Name=="intronarration")
+            Check(chapterHandler.VoiceKey==String.Format("UTNT_VOICE_%03d",e.Args[0]),"original narration follows authored timeline");
+        if(e.Name=="introstage")
+        {
+            bool done=e.Args[0]!=0;
+            Check(chapterHandler.Chapter && chapterHandler.Chapter.Intro,"intro uses shared chapter state");
+            Check(chapterHandler.Chapter.Phase==(done?3:0),"reader closes at cinematic completion");
+            Check((ACS_NamedExecuteWithResult("UTNT_TNT04A_IntroDone")!=0)==done,"intro completion state");
+            for(int i=0;i<MAXPLAYERS;i++) if(playeringame[i] && players[i].mo)
+            {
+                let p=players[i].mo;let effects=UTNTPlayerEffects(p.FindBehavior('UTNTPlayerEffects'));
+                Check(((players[i].cheats&CF_TOTALLYFROZEN)==0)==done,"player freeze state");
+                Check(((players[i].cheats&CF_NOTARGET)==0)==done,"player targeting state");
+                Check(effects && effects.Cutscene==!done,"cutscene flag follows intro");
+                Check((p.FindInventory('UTNTHUDHidden')==null)==done,"HUD visibility follows intro");
+            }
+            int count=0;let it=ThinkerIterator.Create('Actor');Actor a;
+            while(a=Actor(it.Next())) if(a.TID==5) count++;
+            Check(done?count==0:count>0,"intro barrier actors");
+            let lines=level.CreateLineIdIterator(99);int idx;int found=0;bool blocked=false;
+            while((idx=lines.Next())>=0) { found++;blocked|=(level.Lines[idx].flags&(Line.ML_BLOCKING|Line.ML_BLOCKEVERYTHING))!=0; }
+            Check(found>0 && blocked==!done,"intro blocking lines");
+        }
+        if(e.Name=="introvoice")
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Check(h && h.VoiceKey=="UTNT_VOICE_040","post-intro narration replaces intro voice");
+            Check(h && h.VoiceQueueKeys.Size()==0,"no pending intro narration");
+        }
+        if(e.Name=="introobjectives")
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Check(h && h.ObjectiveEpisode==5,"briefing follows skipped or completed intro");
+        }
+    }
+}
+
+class UTNTIntroChapterView : StaticEventHandler
+{
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name!="introview") return;
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        let view=new("UTNTChapterUI");view.Prepare(h.Chapter);
+        Console.Printf("UTNT_ASSERT %s: intro text wraps inside screen",view.BodyY+view.BodyHeight<Screen.GetHeight() && view.BodyX>=0 ? "PASS":"FAIL");
+        String transcript=UTNTChapterUI.Story(5,true);
+        Console.Printf("UTNT_ASSERT %s: both localized original narration parts are included",transcript.Length()>200 ? "PASS":"FAIL");
+        int builds=view.LayoutBuilds;view.Prepare(h.Chapter);
+        Console.Printf("UTNT_ASSERT %s: stable intro layout uses shared cache",view.LayoutBuilds==builds ? "PASS":"FAIL");
+        Console.Printf("UTNT_ASSERT %s: original illustrations exist",TexMan.CheckForTexture("TNTE4_1").isValid() && TexMan.CheckForTexture("TNTE4_2").isValid() ? "PASS":"FAIL");
+    }
+}

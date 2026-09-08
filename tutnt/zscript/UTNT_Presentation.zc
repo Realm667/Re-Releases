@@ -80,6 +80,22 @@ class UTNTWorldHandler : EventHandler
         h.Chapter=new("UTNTChapterState"); h.Chapter.Init(completed,secret);
     }
 
+    static void BeginTNT04AChapter()
+    {
+        if(!(level.MapName ~== "TNT04A")) return;
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(!h || h.Chapter) return;
+        h.Chapter=new("UTNTChapterState"); h.Chapter.Init(5,0);
+        h.Chapter.Intro=true;
+        for(int p=0;p<MAXPLAYERS;p++) h.Chapter.PageTimes[p]=level.time+15;
+    }
+
+    static void EndTNT04AChapter()
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(level.MapName ~== "TNT04A" && h && h.Chapter && h.Chapter.Intro) h.Chapter.Phase=3;
+    }
+
     static void ChapterUse(int playerNumber)
     {
         if(playerNumber>=0 && playerNumber<MAXPLAYERS && playeringame[playerNumber])
@@ -377,7 +393,7 @@ class UTNTPresentation : StaticEventHandler
     override bool InputProcess(InputEvent e)
     {
         let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
-        if(!(level.MapName ~== "INTERMAP") || !h || !h.Chapter || h.Chapter.Phase
+        if(!h || !h.Chapter || h.Chapter.Phase
             || menuactive || paused || ConsoleState!=0) return false;
         bool back=e.KeyScan==InputEvent.Key_LeftArrow;
         bool advance=e.KeyScan==InputEvent.Key_Enter || e.KeyScan==InputEvent.Key_Space || e.KeyScan==InputEvent.Key_RightArrow;
@@ -405,7 +421,7 @@ class UTNTPresentation : StaticEventHandler
         if(e.Name=="utnt_chapter_use")
         {
             let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
-            if(h && h.Chapter) { EnsureChapter();ChapterUI.Advance(h.Chapter); }
+            if(h && h.Chapter) { EnsureChapter();ChapterUI.Advance(h.Chapter,false,h.Chapter.Intro); }
             return;
         }
         if(e.Name=="utnt_secret")
@@ -607,7 +623,7 @@ class UTNTPresentation : StaticEventHandler
         Shader.SetUniform1f(player, 'motionblur', 'increment', 1.0 / copies);
         Shader.SetUniform1i(player, 'motionblur', 'blendmode', clamp(CVar.GetCVar('motionblur_blendmode', player).GetInt(), 0, 1));
         let chapterHandler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
-        if(level.MapName ~== "INTERMAP" && chapterHandler && chapterHandler.Chapter)
+        if(chapterHandler && chapterHandler.Chapter && chapterHandler.Chapter.Phase!=3)
         {
             EnsureChapter(); ChapterUI.Draw(chapterHandler.Chapter,e.FracTic); return;
         }
