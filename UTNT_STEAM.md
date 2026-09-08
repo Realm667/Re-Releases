@@ -21,7 +21,7 @@ therefore follows actor yaw, preserving the actual old forward direction.
 ## Lifecycle and limits
 
 One local controller per visible active source, capped at 64 controllers. Sheets
-live 38–47 tics, with one birth every 1/2/3 tics at high/medium/low quality. Sources
+live 38â€“47 tics, with one birth every 1/2/3 tics at high/medium/low quality. Sources
 beyond 640 units and Reduced FX use low quality. Births consume the existing
 ambient budget, never the combat budget. UTNT_fxquality=0 and UTNT_lod disable or
 cull the visual. Controllers remain for 12 tics after shutdown, allowing the final
@@ -65,3 +65,20 @@ Reproduce with UTNT_ENGINE and UTNT_IWAD set:
 python tools/test_steam.py --mod tutnt.pk3
 python tools/test_steam_coop.py --mod tutnt.pk3
 ```
+
+## Darker, softer steam refinement — 2026-09-08/09
+
+At the user's request, the material now ranges from neutral gray 0.46 to
+0.60 (#999999) before scene lighting and transparency. A wider normalized
+3x3 Gaussian sampling kernel and gentler alpha edges soften the fine contours.
+The actor motion, density schedule and other effects are unchanged.
+The updated shader compiled and was visually checked at the TNT03A1 source
+in Vulkan, with a matching-camera baseline capture. OpenGL campaign-start
+attempts timed out before reaching the map (50/95 seconds); the dedicated
+Steam fixture also timed out (45 seconds). The UNCHANGED original package
+then reproduced the same pre-map timeout in that fixture (45 seconds).
+OpenGL visual acceptance is therefore not claimed for this refinement;
+the original implementation's earlier OpenGL checks remain historical.
+All attempt logs and the baseline result are retained.
+The tested PK3 was assembled from the existing package, changing only this shader
+and generated build metadata. Evidence: tools/validation/steam-softening-2026-09-08.
