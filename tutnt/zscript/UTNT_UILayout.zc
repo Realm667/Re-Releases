@@ -1,0 +1,25 @@
+// Shared, pixel-aligned metrics for the remaster's overlays.
+class UTNTUILayout ui
+{
+    static double Scale()
+    {
+        double userScale=clamp(CVar.FindCVar('UTNT_uiscale').GetFloat(),0.75,1.5);
+        return max(1.0,max(1.0,min(Screen.GetWidth()/960.0,Screen.GetHeight()/540.0))*userScale);
+    }
+    static double Margin() { return max(8,round(12*Scale())); }
+    static double Top()
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(!h || !h.BossKind || h.BossMaxHP<=0 || h.BossEndTime && level.time>=h.BossEndTime
+            || !CVar.FindCVar('UTNT_bosshud').GetBool()) return Margin();
+        double bossScale=max(1.0,min(Screen.GetWidth()/640.0,Screen.GetHeight()/480.0)*1.35);
+        return max(Margin(),floor(Screen.GetHeight()*0.045)+32*bossScale+Gap());
+    }
+    static double Gap() { return max(6,round(8*Scale())); }
+    static double Width(double preferred) { return min(preferred,(Screen.GetWidth()-2*Margin())/Scale()); }
+    static double Bottom() { return Screen.GetHeight()-max(40*Scale(),Screen.GetHeight()*0.16)-Gap(); }
+    static double VoiceScale()
+    {
+        return max(1.0,Scale()*clamp(CVar.FindCVar('UTNT_subtitlescale').GetFloat(),0.75,1.5));
+    }
+}

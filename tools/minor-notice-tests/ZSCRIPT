@@ -50,7 +50,7 @@ class UTNTNoticeUITest : StaticEventHandler
             Check(feed.ActiveID==e.Args[0],"expected notice reaches the correct local view");
             if(e.Args[0])
             {
-                Check(feed.Hold>=105 && feed.Hold<=175,"reading time stays between three and five seconds");
+                Check(feed.Hold>=105 && feed.Hold<=350,"reading time stays between three and ten seconds");
                 Check(feed.IDs.Size()==e.Args[1],"expected queue size with duplicates coalesced");
             }
         }
@@ -78,7 +78,7 @@ class UTNTNoticeUITest : StaticEventHandler
                 Check(text.IndexOf("UTNT_NOTICE_")<0,"notice is localized");
                 Check(text.IndexOf("{n}")<0,"numeric placeholder is resolved");
                 let [lines,size]=UTNTNoticeFeed.Layout(text,284);
-                Check(lines.Count()<=2 && size>=0.65,"notice fits at most two readable lines");
+                Check(lines.Count()>=1 && size==1.0,"notice wraps at native readable size");
             }
             Check(UTNTNoticeFeed.Text(1002).IndexOf("\c[Red]")==0,"red key color comes from LANGUAGE");
             Check(UTNTNoticeFeed.Text(1010).IndexOf("\c[LightBlue]")==0,"blue skull color comes from LANGUAGE");

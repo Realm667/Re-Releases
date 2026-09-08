@@ -1,0 +1,239 @@
+// Saved simulation owns chapter progress and travel; UI only requests input.
+class UTNTChapterState : Object
+{
+    int Episode, Destination, StartTime, Phase;
+    int Pages[MAXPLAYERS], PageTimes[MAXPLAYERS], LastInput[MAXPLAYERS];
+    bool Revealed[MAXPLAYERS], VoicePlayed;
+
+    static int DestinationFor(int episode,int secret)
+    {
+        if(episode==1) return 2;
+        if(episode==2) return 3;
+        if(episode==3 || episode==4) return 5;
+        if(episode==5) return 6;
+        if(episode==6) return 7;
+        if(episode==7) return secret==1 ? 9 : 8;
+        if(episode==8 || episode==9) return 88;
+        return 0; // Lost Episode finishes its original panorama without map travel.
+    }
+
+    static int Leader()
+    {
+        if(Net_Arbitrator>=0 && Net_Arbitrator<MAXPLAYERS && playeringame[Net_Arbitrator]) return Net_Arbitrator;
+        for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p]) return p;
+        return -1;
+    }
+
+    void Init(int episode,int secret)
+    {
+        self.Episode=clamp(episode,1,10); Destination=DestinationFor(self.Episode,secret);
+        StartTime=level.time; Phase=0;
+        for(int p=0;p<MAXPLAYERS;p++) PageTimes[p]=StartTime+110;
+    }
+
+    static int VoiceDelay(int episode)
+    {
+        if(episode==3 || episode==4) return 200;
+        if(episode==5) return 170;
+        if(episode==8 || episode==9) return 250;
+        return 145;
+    }
+
+    static int ImageNumber(int episode)
+    {
+        if(episode<=2) return episode+1;
+        if(episode<=4) return 4;
+        if(episode<=7) return episode;
+        return episode<=9 ? 10 : 9;
+    }
+
+    static int ImageChange(int episode)
+    {
+        int seconds=14;
+        if(episode==2) seconds=12;
+        if(episode==3 || episode==4) seconds=19;
+        if(episode==5) seconds=22;
+        if(episode==8 || episode==9) seconds=25;
+        if(episode==10) seconds=16;
+        return (episode==8 || episode==9 ? 145 : VoiceDelay(episode))+seconds*35;
+    }
+
+    void Tick()
+    {
+        if(Phase || VoicePlayed || level.time<StartTime+VoiceDelay(Episode)) return;
+        int number=Episode<=3 ? 35+Episode : Episode<=9 ? 34+Episode : 43;
+        if(Episode==9) number=42;
+        S_StartSound(Sound(String.Format("VOC%03d",number)),CHAN_VOICE,0,1,ATTN_NONE);
+        VoicePlayed=true;
+    }
+
+    void Input(int p,int op,int pageCount)
+    {
+        if(Phase || !(level.MapName ~== "INTERMAP") || p<0 || p>=MAXPLAYERS
+            || !playeringame[p] || level.time<StartTime+110 || level.time<LastInput[p]+7) return;
+        LastInput[p]=level.time;
+        pageCount=clamp(pageCount,1,128);
+        if(op==0) Revealed[p]=true;
+        else if(op==1 || op==2)
+        {
+            Pages[p]=clamp(Pages[p]+(op==1?1:-1),0,pageCount-1);
+            PageTimes[p]=level.time; Revealed[p]=op==2;
+        }
+        else if(op==3 && p==Leader() && level.time>=StartTime+210)
+        {
+            Phase=Episode>=8 ? 2 : 1;
+            ACS_Execute(Phase==2 ? 250 : 255,0);
+        }
+    }
+}
+
+class UTNTChapterUI ui
+{
+    String CachedText, CachedHeading;
+    int CachedTitleWidth;
+    BrokenLines Lines, Heading;
+    int CachedWidth, CachedRows, LayoutBuilds, LastInputTime;
+    double BodyX, BodyY, BodyWidth, BodyHeight, PictureX, PictureWidth, Unit;
+    int Rows, PageCount;
+
+    static String Local(String key) { return StringTable.Localize("$"..key); }
+
+    static String Story(int episode)
+    {
+        int first=60,last=74;
+        if(episode==2) { first=75;last=87; }
+        else if(episode==3 || episode==4) { first=88;last=105; }
+        else if(episode==5) { first=106;last=128; }
+        else if(episode==6) { first=129;last=141; }
+        else if(episode==7) { first=142;last=152; }
+        else if(episode==8 || episode==9) { first=153;last=174; }
+        else if(episode==10) { first=175;last=195; }
+        String raw;
+        for(int n=first;n<=last;n++)
+        {
+            raw=raw..Local(String.Format("UTNT_INTERMAP_%03d",n));
+            // Paragraph breaks formerly supplied explicitly by embedded ACS.
+            if(n==78 || n==84 || n==87 || n==96 || n==103 || n==112 || n==116
+                || n==126 || n==132 || n==136 || n==145 || n==148 || n==158
+                || n==162 || n==170 || n==183 || n==192) raw=raw.."\n";
+            if(n==192) raw=raw.."\n";
+        }
+        // Remove the old fixed-width line breaks while preserving paragraphs.
+        String text;
+        for(int i=0;i<int(raw.Length());i++)
+        {
+            if(raw.CharAt(i)=="\n")
+            {
+                int count=1;
+                while(i+1<int(raw.Length()) && raw.CharAt(i+1)=="\n") { i++;count++; }
+                text=text..(count>1 ? "\n\n" : " ");
+            }
+            else text=text..raw.Mid(i,1);
+        }
+        return text;
+    }
+
+    void Prepare(UTNTChapterState chapter)
+    {
+        Unit=UTNTUILayout.Scale();
+        double margin=UTNTUILayout.Margin();
+        double available=min(820*Unit,Screen.GetWidth()-2*margin);
+        double left=(Screen.GetWidth()-available)/2;
+        // Even 4:3 keeps both original illustrations beside a readable text panel.
+        BodyWidth=available*0.62; PictureWidth=available-BodyWidth-UTNTUILayout.Gap();
+        BodyX=left; PictureX=left+BodyWidth+UTNTUILayout.Gap();
+        String title=Local(String.Format("UTNT_CHAPTER_%d",chapter.Episode));
+        Font font=Font.GetFont('SmallFont');
+        int titleWidth=int((available-24*Unit)/(Unit*1.4));
+        bool languageChanged=title!=CachedHeading;
+        if(!Heading || languageChanged || titleWidth!=CachedTitleWidth)
+        {
+            Heading=font.BreakLines(title,titleWidth);
+            CachedHeading=title;CachedTitleWidth=titleWidth;
+        }
+        BodyY=margin+(Heading.Count()*(font.GetHeight()+3)*1.4+28)*Unit;
+        BodyHeight=max(70*Unit,Screen.GetHeight()-margin-BodyY-48*Unit);
+        int width=max(32,int((BodyWidth/Unit-28)/1.3));
+        Rows=max(1,int((BodyHeight/Unit-24)/((font.GetHeight()+4)*1.3)));
+        String text=!Lines || languageChanged ? Story(chapter.Episode) : CachedText;
+        if(!Lines || text!=CachedText || width!=CachedWidth || Rows!=CachedRows)
+        {
+            Lines=font.BreakLines(text,width);
+            CachedText=text;CachedWidth=width;CachedRows=Rows;LayoutBuilds++;
+        }
+        PageCount=max(1,(Lines.Count()+Rows-1)/Rows);
+    }
+
+    int VisibleCharacters(UTNTChapterState chapter,int p)
+    {
+        return chapter.Revealed[p] ? 100000 : max(0,(level.time-chapter.PageTimes[p])/2);
+    }
+
+    int PageCharacters(int page)
+    {
+        int length=0;
+        for(int i=page*Rows;i<min(Lines.Count(),(page+1)*Rows);i++) length+=Lines.StringAt(i).Length();
+        return length;
+    }
+
+    void Advance(UTNTChapterState chapter,bool back=false)
+    {
+        if(menuactive || paused || ConsoleState!=0 || chapter.Phase
+            || level.time<LastInputTime+7) return;
+        Prepare(chapter); LastInputTime=level.time;
+        int p=consoleplayer,page=clamp(chapter.Pages[p],0,PageCount-1);
+        int op=back ? 2 : VisibleCharacters(chapter,p)<PageCharacters(page) ? 0
+            : page+1<PageCount ? 1 : 3;
+        EventHandler.SendNetworkEvent("utnt_chapter",op,PageCount);
+    }
+
+    static void Picture(String name,double x,double y,double w,double h,double alpha)
+    {
+        TextureID tex=TexMan.CheckForTexture(name);
+        Vector2 size=TexMan.GetScaledSize(tex);
+        double fit=min(w/max(1,size.X),h/max(1,size.Y));
+        Screen.DrawTexture(tex,true,x+(w-size.X*fit)/2,y+(h-size.Y*fit)/2,
+            DTA_DestWidthF,size.X*fit,DTA_DestHeightF,size.Y*fit,
+            DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha);
+    }
+
+    void Draw(UTNTChapterState chapter,double frac)
+    {
+        if(chapter.Phase==2) return; // Authored finale ACS owns its original panoramas.
+        Prepare(chapter);
+        double alpha=clamp((level.time-chapter.StartTime+frac)/35,0,1);
+        Screen.Dim(0x080403,1,0,0,Screen.GetWidth(),Screen.GetHeight());
+        Picture("INTERPIC",0,0,Screen.GetWidth(),Screen.GetHeight(),alpha);
+        Picture("INTERP2",0,0,Screen.GetWidth(),Screen.GetHeight(),alpha*0.75);
+        Font font=Font.GetFont('SmallFont');
+        for(int row=0;row<Heading.Count();row++)
+        {
+            String line=Heading.StringAt(row);
+            UTNTExplorationUI.Text(line,(Screen.GetWidth()-font.StringWidth(line)*Unit*1.4)/2,
+                UTNTUILayout.Margin()+(row*(font.GetHeight()+3)*1.4+8)*Unit,Unit*1.4,0xddc394,alpha);
+        }
+        UTNTExplorationUI.Frame(BodyX,BodyY,BodyWidth/Unit,BodyHeight/Unit,Unit,alpha*0.96);
+        int page=clamp(chapter.Pages[consoleplayer],0,PageCount-1);
+        int characters=VisibleCharacters(chapter,consoleplayer);
+        for(int i=page*Rows;i<min(Lines.Count(),(page+1)*Rows);i++)
+        {
+            String line=Lines.StringAt(i);
+            Screen.DrawText(font,Font.FindFontColor('UTNTNoticeBody'),BodyX+14*Unit,
+                BodyY+(12+(i-page*Rows)*(font.GetHeight()+4)*1.3)*Unit,line,
+                DTA_ScaleX,Unit*1.3,DTA_ScaleY,Unit*1.3,DTA_TextLen,max(0,characters),DTA_Alpha,alpha);
+            characters-=line.Length();
+        }
+        int picture=UTNTChapterState.ImageNumber(chapter.Episode);
+        double blend=clamp((level.time-chapter.StartTime-UTNTChapterState.ImageChange(chapter.Episode)+frac)/70,0,1);
+        Picture(String.Format("I_%02dA",picture),PictureX,BodyY,PictureWidth,BodyHeight,alpha*(1-blend));
+        Picture(String.Format("I_%02dB",picture),PictureX,BodyY,PictureWidth,BodyHeight,alpha*blend);
+        String hint=Local(characters<0 ? "UTNT_CHAPTER_REVEAL" : page+1<PageCount ? "UTNT_CHAPTER_NEXT"
+            : consoleplayer==UTNTChapterState.Leader() ? "UTNT_CHAPTER_CONTINUE" : "UTNT_CHAPTER_WAIT");
+        String status=String.Format("%d / %d",page+1,PageCount).."   "..hint;
+        let hints=font.BreakLines(status,int((Screen.GetWidth()-2*UTNTUILayout.Margin())/Unit));
+        for(int i=0;i<hints.Count();i++)
+            UTNTExplorationUI.Text(hints.StringAt(i),(Screen.GetWidth()-font.StringWidth(hints.StringAt(i))*Unit)/2,
+                BodyY+BodyHeight+(12+i*(font.GetHeight()+3))*Unit,Unit,0xcbb995,alpha);
+        if(chapter.Phase==1) Screen.Dim(0,clamp((level.time-chapter.LastInput[UTNTChapterState.Leader()]+frac)/35,0,1),0,0,Screen.GetWidth(),Screen.GetHeight());
+    }
+}

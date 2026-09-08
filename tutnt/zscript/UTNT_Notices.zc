@@ -1,7 +1,14 @@
 // Local, transient presentation only. Gameplay and recipient selection stay in ACS/the engine.
 class UTNTNoticeFeed ui
 {
-    Array<int> IDs, Values;
+    Array<int> IDs, Values, Expires;
+    int ActiveExpires;
+    double LastTop, LastBottom;
+    String CachedText;
+    int CachedWidth, LayoutBuilds;
+    BrokenLines CachedLines;
+    Array<String> CachedShadows;
+    double CachedWidest;
     int ActiveID, ActiveValue, Age, Hold;
     int Shown;
 
@@ -42,11 +49,44 @@ class UTNTNoticeFeed ui
         return id;
     }
 
-    void Start(int id,int value)
+    static int Priority(int id)
     {
-        ActiveID=id; ActiveValue=value; Age=0;
-        Hold=clamp(75+Plain(Text(id,value)).Length(),105,175);
+        if(id>=1000 && id<9000) return 3; // Immediate interaction failure.
+        if(id==9001 || id==57) return 2; // Discoveries and checkpoints persist.
+        return 1;
+    }
+
+    static int Deadline(int id)
+    {
+        if(Priority(id)==2) return 0;
+        return level.time+(Priority(id)==3 ? 105 : 700);
+    }
+
+    void Start(int id,int value,int expiry=0)
+    {
+        ActiveID=id; ActiveValue=value; ActiveExpires=expiry; Age=0;
+        Hold=clamp(75+Plain(Text(id,value)).Length(),105,350);
         Shown++;
+    }
+
+    void RemoveQueued(int i) { IDs.Delete(i); Values.Delete(i); Expires.Delete(i); }
+
+    void Prune()
+    {
+        for(int i=IDs.Size()-1;i>=0;i--)
+            if(Expires[i] && level.time>=Expires[i]) RemoveQueued(i);
+    }
+
+    void Queue(int id,int value,int expiry)
+    {
+        // Only disposable hints are bounded. Important discoveries coalesce by ID.
+        if(IDs.Size()>=32 && Priority(id)==1)
+        {
+            for(int i=0;i<IDs.Size();i++)
+                if(Priority(IDs[i])==1) { RemoveQueued(i); break; }
+            if(IDs.Size()>=32) return;
+        }
+        IDs.Push(id); Values.Push(value); Expires.Push(expiry);
     }
 
     void Add(int id,int value=-1)
@@ -54,25 +94,40 @@ class UTNTNoticeFeed ui
         if(id<=0) return;
         String text=Text(id,value);
         if(text.IndexOf("UTNT_NOTICE_")>=0) return;
+        Prune();
         if(ActiveID && Text(ActiveID,ActiveValue)==text) return;
-        if(ActiveID && Group(ActiveID)==Group(id)) { Start(id,value); return; }
+        if(ActiveID && Group(ActiveID)==Group(id)) { Start(id,value,Deadline(id)); return; }
         for(int i=0;i<IDs.Size();i++)
         {
             if(Text(IDs[i],Values[i])==text) return;
-            if(Group(IDs[i])==Group(id)) { IDs[i]=id; Values[i]=value; return; }
+            if(Group(IDs[i])==Group(id)) { IDs[i]=id; Values[i]=value; Expires[i]=Deadline(id); return; }
         }
-        if(!ActiveID) Start(id,value);
-        else { IDs.Push(id); Values.Push(value); }
+        if(!ActiveID) Start(id,value,Deadline(id));
+        else if(Priority(id)>Priority(ActiveID))
+        {
+            if(!ActiveExpires || level.time<ActiveExpires) Queue(ActiveID,ActiveValue,ActiveExpires);
+            Start(id,value,Deadline(id));
+        }
+        else Queue(id,value,Deadline(id));
+    }
+
+    void ExpireHidden()
+    {
+        Prune();
+        if(ActiveExpires && level.time>=ActiveExpires) ActiveID=0;
     }
 
     void Tick()
     {
-        if(!ActiveID) return;
-        if(++Age<7+Hold+11) return;
+        Prune();
+        if(ActiveID && ++Age<7+Hold+11) return;
         ActiveID=0;
         if(IDs.Size())
         {
-            Start(IDs[0],Values[0]); IDs.Delete(0); Values.Delete(0);
+            int best=0;
+            for(int i=1;i<IDs.Size();i++)
+                if(Priority(IDs[i])>Priority(IDs[best])) best=i;
+            Start(IDs[best],Values[best],Expires[best]); RemoveQueued(best);
         }
     }
 
@@ -84,31 +139,43 @@ class UTNTNoticeFeed ui
     static BrokenLines, double Layout(String text,double maxWidth)
     {
         Font font=Font.GetFont('SmallFont');
-        double size=1;
-        let lines=font.BreakLines(text,int(maxWidth));
-        while(lines.Count()>2 && size>0.4)
-        {
-            size-=0.025; lines=font.BreakLines(text,int(maxWidth/size));
-        }
-        return lines,size;
+        return font.BreakLines(text,max(32,int(maxWidth))),1.0;
     }
 
-    void Draw(double frac)
+    void Prepare(String text,int width)
+    {
+        if(CachedLines && text==CachedText && width==CachedWidth) return;
+        CachedText=text; CachedWidth=width; CachedWidest=0; CachedShadows.Clear();
+        CachedLines=Font.GetFont('SmallFont').BreakLines(text,max(32,width));
+        for(int i=0;i<CachedLines.Count();i++)
+        {
+            String line=CachedLines.StringAt(i);
+            CachedWidest=max(CachedWidest,Font.GetFont('SmallFont').StringWidth(line));
+            CachedShadows.Push(Plain(line));
+        }
+        LayoutBuilds++;
+    }
+
+    void Draw(double frac,double bottomLimit=-1,double topLimit=-1)
     {
         double alpha=Opacity(frac);
         if(alpha<=0) return;
-        if(ActiveID==9001) { UTNTExplorationUI.DrawSecret(ActiveValue,alpha); return; }
+        if(ActiveID==9001) { UTNTExplorationUI.DrawSecret(ActiveValue,alpha,bottomLimit,topLimit); return; }
         Font font=Font.GetFont('SmallFont');
-        double scale=min(Screen.GetWidth()/960.0,Screen.GetHeight()/540.0);
-        let [lines,size]=Layout(Text(ActiveID,ActiveValue),284);
-        double widest=0;
-        for(int i=0;i<lines.Count();i++) widest=max(widest,font.StringWidth(lines.StringAt(i))*size);
+        double scale=UTNTUILayout.Scale();
+        Prepare(Text(ActiveID,ActiveValue),int(UTNTUILayout.Width(360)-36));
+        let lines=CachedLines; double size=1;
+        double widest=CachedWidest;
         double width=max(120,widest+36),lineHeight=(font.GetHeight()+3)*size;
         double height=max(23,lines.Count()*lineHeight+12);
         int l=int(round((Screen.GetWidth()-width*scale)/2));
         int r=int(round((Screen.GetWidth()+width*scale)/2));
-        int t=int(round(Screen.GetHeight()*0.40-height*scale/2));
-        int b=int(round(Screen.GetHeight()*0.40+height*scale/2));
+        double bottom=bottomLimit<0 ? UTNTUILayout.Bottom() : bottomLimit;
+        double minimum=topLimit<0 ? UTNTUILayout.Top() : max(UTNTUILayout.Top(),topLimit);
+        double top=clamp(Screen.GetHeight()*0.40-height*scale/2,minimum,max(minimum,bottom-height*scale));
+        LastTop=top;LastBottom=top+height*scale;
+        int t=int(round(top));
+        int b=int(round(top+height*scale));
         int edge=max(1,int(round(scale)));
         // A single translucent center and disjoint thin edges keep the frame quiet and gap-free.
         Screen.DrawTexture(TexMan.CheckForTexture('UTOCBG'),true,l+edge,t+edge,
@@ -129,7 +196,7 @@ class UTNTNoticeFeed ui
         for(int i=0;i<lines.Count();i++)
         {
             String line=lines.StringAt(i);
-            Screen.DrawText(font,Font.CR_WHITE,l+26*scale+size*scale,y+i*lineHeight*scale+size*scale,Plain(line),
+            Screen.DrawText(font,Font.CR_WHITE,l+26*scale+size*scale,y+i*lineHeight*scale+size*scale,CachedShadows[i],
                 DTA_ScaleX,size*scale,DTA_ScaleY,size*scale,DTA_Color,0xff070605,DTA_Alpha,alpha*0.8);
             // Native color escapes remain intact, including key-card/skull colors.
             Screen.DrawText(font,Font.FindFontColor('UTNTNoticeBody'),l+26*scale,y+i*lineHeight*scale,line,

@@ -100,20 +100,22 @@ class UTNTExplorationUI ui
         }
     }
 
-    static void DrawSecret(int found,double alpha)
+    static void DrawSecret(int found,double alpha,double bottomLimit=-1,double topLimit=-1)
     {
-        double s=min(Screen.GetWidth()/960.0,Screen.GetHeight()/540.0);
+        double s=UTNTUILayout.Scale(),width=UTNTUILayout.Width(300);
         Font font=Font.GetFont('SmallFont');
-        String title=Local("UTNT_SECRET_FOUND");
-        String count=String.Format(Local("UTNT_SECRET_COUNT"),found,level.total_secrets);
-        double headline=1.4,body=0.9;
-        double width=max(200,max(font.StringWidth(title)*headline,font.StringWidth(count)*body)+70);
-        double x=(Screen.GetWidth()-width*s)/2,y=Screen.GetHeight()*0.40-20*s;
-        Frame(x,y,width,40,s,alpha);
-        SecretSeal(x+28*s,y+20*s,s,alpha);
-        double center=x+(width+52)*s/2;
-        Text(title,center-font.StringWidth(title)*headline*s/2,y+10*s,headline*s,0xc9954b,alpha);
-        Text(count,center-font.StringWidth(count)*body*s/2,y+25*s,body*s,0xcac4b8,alpha);
+        let title=font.BreakLines(Local("UTNT_SECRET_FOUND"),int(width-70));
+        let count=font.BreakLines(String.Format(Local("UTNT_SECRET_COUNT"),found,level.total_secrets),int(width-70));
+        double lh=font.GetHeight()+3,height=max(40,20+(title.Count()+count.Count())*lh);
+        double bottom=bottomLimit<0 ? UTNTUILayout.Bottom() : bottomLimit;
+        double x=(Screen.GetWidth()-width*s)/2;
+        double minimum=topLimit<0 ? UTNTUILayout.Top() : max(UTNTUILayout.Top(),topLimit);
+        double y=clamp(Screen.GetHeight()*0.40-height*s/2,minimum,max(minimum,bottom-height*s));
+        Frame(x,y,width,height,s,alpha);
+        SecretSeal(x+28*s,y+height*s/2,s,alpha);
+        double cy=10;
+        for(int i=0;i<title.Count();i++) {Text(title.StringAt(i),x+57*s,y+cy*s,s,0xc9954b,alpha);cy+=lh;}
+        for(int i=0;i<count.Count();i++) {Text(count.StringAt(i),x+57*s,y+cy*s,s,0xcac4b8,alpha);cy+=lh;}
     }
 
     static void PlayerArrow(double x,double y,double s)

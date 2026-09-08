@@ -303,7 +303,8 @@ script "30Health" ENTER
 			Delay(delay2);
 		}
 
-		Delay(1);
+		// Idle polling is seven times per second; active heartbeat timing is unchanged.
+		Delay(health>0 && health<=30 ? 1 : 5);
 	}
 }
 

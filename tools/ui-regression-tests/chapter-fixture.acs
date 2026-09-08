@@ -1,0 +1,10 @@
+#library "UTNTUIT"
+#include "zcommon.acs"
+global int 2:CompletedMap;
+global int 3:SecretMap;
+script "UITestCampaign" (int completed,int secret)
+{
+    CompletedMap=completed;SecretMap=secret;
+    ACS_ExecuteAlways(999,0);
+    SetResultValue(1);
+}

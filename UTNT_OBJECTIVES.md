@@ -20,7 +20,7 @@ descriptions cover all 21 goals in English and German.
   Opening a menu/console, pausing, dying or loading/changing levels clears the
   held state so it cannot leave a stuck plaque.
 - Neither view blocks firing/movement, pauses the world nor changes actors.
-  No combat detection is used. Subtitles draw above objectives.
+  No combat detection is used. Layout reserves space for the boss plaque and subtitles.
 - The original automatic dispatch is unchanged: TNT04A retains its 1,860-tic
   cinematic delay; TNT03A2 has no second automatic briefing. Duplicate adapter
   calls and respawns do not restart the saved timeline. Old save timers are
@@ -29,6 +29,7 @@ descriptions cover all 21 goals in English and German.
   Caps retain their proportions across 4:3 and widescreen viewports. Their
   shared edges are rounded once to whole screen pixels, preventing gaps and
   overlapping alpha at fractional scales.
+  At small resolutions or with long subtitles a compact text layout preserves native pixel legibility.
   Campaign progression and authored exit destinations are preserved.
 
 ## Artwork transparency
@@ -137,3 +138,5 @@ Test-only MAPINFO skips the manual statistics screen for the two exit cases;
 production transition presentation is unchanged. These are focused trigger
 regressions, not a complete gameplay walkthrough or multiplayer certification.
 Evidence: `tools/validation/objectives-completion-2026-09-08/`.
+
+Shared layout, wrapped completion headings and current combined regressions: [UI refinement](UTNT_UI_REFINEMENT.md).

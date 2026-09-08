@@ -57,3 +57,5 @@ For the controlled profile, load `tools/profile-tests`, start UTNTPERF, wait for
 The current wiki export and UZDoom source snapshot remain under `_references`; their manifests document version, date and verification. No 2022 wiki snapshot is reintroduced.
 
 Recorded evidence and source hashes: `tools/validation/2026-09-06/`. Test logs describe their exact coverage; earlier failed development trials are not presented as successful results.
+
+The package builder now compiles an immutable temporary source snapshot and records a build ID. Live ACS bytecode is no longer rewritten by package builds; see [UI and build refinement](UTNT_UI_REFINEMENT.md).

@@ -43,9 +43,10 @@ class UTNTPlayerEffects : Behavior
     {
         if (!Owner.player) return;
         SyncStatusBar();
+        if (level.time % 5 != 0) return;
         let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
         double targetHeat = 0;
-        if (handler && level.time % 5 == 0)
+        if (handler)
         {
             for (int i = 0; i < handler.HeatSources.Size(); i++)
             {
@@ -69,6 +70,27 @@ class UTNTPlayerEffects : Behavior
 
 class UTNTWorldHandler : EventHandler
 {
+    UTNTChapterState Chapter;
+
+    static void BeginChapter(int completed,int secret)
+    {
+        if(!(level.MapName ~== "INTERMAP")) return;
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(!h || h.Chapter) return;
+        h.Chapter=new("UTNTChapterState"); h.Chapter.Init(completed,secret);
+    }
+
+    static void ChapterUse(int playerNumber)
+    {
+        if(playerNumber>=0 && playerNumber<MAXPLAYERS && playeringame[playerNumber])
+            EventHandler.SendInterfaceEvent(playerNumber,"utnt_chapter_use");
+    }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="utnt_chapter" && Chapter) Chapter.Input(e.Player,e.Args[0],e.Args[1]);
+    }
+
     Array<EffectGiver> HeatSources;
     int BossKind, BossHP, BossMaxHP, BossFirstTID, BossLastTID, BossEndTime;
     bool AtmosphereApplied;
@@ -227,6 +249,7 @@ class UTNTWorldHandler : EventHandler
 
     override void WorldTick()
     {
+        if(Chapter) Chapter.Tick();
         TickVoice();
         TickObjectiveCompletion();
         // A shared opt-in because distant visibility must agree in cooperative play.
@@ -331,6 +354,25 @@ class UTNTWorldHandler : EventHandler
 
 class UTNTPresentation : StaticEventHandler
 {
+    ui UTNTChapterUI ChapterUI;
+
+    ui void EnsureChapter()
+    {
+        if(!ChapterUI) ChapterUI=new("UTNTChapterUI");
+    }
+
+    override bool InputProcess(InputEvent e)
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(!(level.MapName ~== "INTERMAP") || !h || !h.Chapter || h.Chapter.Phase
+            || menuactive || paused || ConsoleState!=0) return false;
+        bool back=e.KeyScan==InputEvent.Key_LeftArrow;
+        bool advance=e.KeyScan==InputEvent.Key_Enter || e.KeyScan==InputEvent.Key_Space || e.KeyScan==InputEvent.Key_RightArrow;
+        if(!back && !advance) return false;
+        if(e.Type==InputEvent.Type_KeyDown) { EnsureChapter();ChapterUI.Advance(h.Chapter,back); }
+        return true;
+    }
+
     ui UTNTNoticeFeed NoticeFeed;
     ui UTNTExplorationUI ExplorationUI;
     ui int NoticeWorldGeneration;
@@ -347,6 +389,12 @@ class UTNTPresentation : StaticEventHandler
 
     override void InterfaceProcess(ConsoleEvent e)
     {
+        if(e.Name=="utnt_chapter_use")
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            if(h && h.Chapter) { EnsureChapter();ChapterUI.Advance(h.Chapter); }
+            return;
+        }
         if(e.Name=="utnt_secret")
         {
             EnsureNotices();
@@ -402,6 +450,7 @@ class UTNTPresentation : StaticEventHandler
         if(gamestate==GS_LEVEL && !menuactive && ConsoleState==0 && !paused
             && ObjectivesFadeTics==0 && !ObjectivesHeld && !(automapactive && !viewactive))
             NoticeFeed.Tick();
+        else if(gamestate==GS_LEVEL && !paused) NoticeFeed.ExpireHidden();
         if (ObjectivesWorldGeneration!=WorldGeneration || gamestate!=GS_LEVEL
             || menuactive || ConsoleState!=0 || paused || players[consoleplayer].health<=0)
         {
@@ -435,18 +484,19 @@ class UTNTPresentation : StaticEventHandler
         else { DisplayHP=DamageHP=PreviousBossHP=0; DamageHold=0; LastBossKind=0; }
     }
 
-    ui void DrawVoice(PlayerInfo player)
+    ui double VoiceTop;
+    ui void DrawVoice(PlayerInfo player,bool measureOnly=false)
     {
         let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        VoiceTop=UTNTUILayout.Bottom();
         if (!handler || handler.VoiceKey.Length()==0 || level.time>=handler.VoiceEndTime+18
             || !CVar.GetCVar('UTNT_subtitles',player).GetBool()) return;
-        double scale=max(0.5,min(Screen.GetWidth()/640.0,Screen.GetHeight()/480.0))
-            *clamp(CVar.GetCVar('UTNT_subtitlescale',player).GetFloat(),0.75,1.5);
+        double scale=UTNTUILayout.VoiceScale();
         Font font=Font.GetFont('SmallFont');
         String text=StringTable.Localize("$"..handler.VoiceKey);
         if (CVar.GetCVar('UTNT_subtitlespeaker',player).GetBool())
             text=StringTable.Localize('$UTNT_VOICE_SPEAKER')..": "..text;
-        int wrapWidth=max(40,int(Screen.GetWidth()*0.85/scale));
+        int wrapWidth=max(40,int((Screen.GetWidth()-2*UTNTUILayout.Margin())/scale)-12);
         if (!CachedVoiceLines || text!=CachedVoiceText || wrapWidth!=CachedVoiceWidth)
         {
             CachedVoiceText=text; CachedVoiceWidth=wrapWidth;
@@ -462,7 +512,9 @@ class UTNTPresentation : StaticEventHandler
         double alpha=clamp(min((level.time-handler.VoiceStartTime+1)/18.0,(handler.VoiceEndTime+18-level.time)/18.0),0,1);
         int count=CachedVoiceLines.Count();
         double lineHeight=(font.GetHeight()+2)*scale;
-        double y=Screen.GetHeight()*0.80-count*lineHeight;
+        double y=UTNTUILayout.Bottom()-count*lineHeight;
+        VoiceTop=y-UTNTUILayout.Gap();
+        if(measureOnly) return;
         int widest=CachedVoiceWidest;
         if (CVar.GetCVar('UTNT_subtitlebackground',player).GetBool())
             Screen.Dim(0x080808,alpha*0.7,int((Screen.GetWidth()-widest*scale)/2-6*scale),int(y-4*scale),int((widest+12)*scale),int(count*lineHeight+8*scale));
@@ -485,6 +537,7 @@ class UTNTPresentation : StaticEventHandler
         if(ExplorationUI) ExplorationUI.AfterHUD();
         if (LastWorldGeneration != WorldGeneration)
         {
+            ChapterUI=null;
             HaveView=false; LastCamera=null; BlurX=0; BlurY=0; LastBossKind=0;
             LastWorldGeneration=WorldGeneration;
         }
@@ -540,7 +593,13 @@ class UTNTPresentation : StaticEventHandler
         Shader.SetUniform1i(player, 'motionblur', 'samples', copies);
         Shader.SetUniform1f(player, 'motionblur', 'increment', 1.0 / copies);
         Shader.SetUniform1i(player, 'motionblur', 'blendmode', clamp(CVar.GetCVar('motionblur_blendmode', player).GetInt(), 0, 1));
+        let chapterHandler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(level.MapName ~== "INTERMAP" && chapterHandler && chapterHandler.Chapter)
+        {
+            EnsureChapter(); ChapterUI.Draw(chapterHandler.Chapter,e.FracTic); return;
+        }
         if(automapactive && !viewactive) { UTNTExplorationUI.DrawMap(); return; }
+        DrawVoice(player,true);
         // Corner overview is automatic; the full plaque is strictly local and opt-in.
         // Neither path consumes movement/fire inputs, pauses time or changes actors.
         let objectives=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
@@ -548,18 +607,19 @@ class UTNTPresentation : StaticEventHandler
             +(ObjectivesFadeTics-PreviousObjectivesFadeTics)*e.FracTic)/7.0;
         bool readObjectives=objectivesAlpha>0 && !menuactive && ConsoleState==0
             && !paused && player.health>0;
+        double noticeTop=UTNTUILayout.Top();
         if (camera && readObjectives && UTNTObjectivePlaque.CurrentEpisode()>0)
-            UTNTObjectivePlaque.Draw(UTNTObjectivePlaque.CurrentEpisode(),objectivesAlpha);
+            UTNTObjectivePlaque.Draw(UTNTObjectivePlaque.CurrentEpisode(),objectivesAlpha,VoiceTop-UTNTUILayout.Gap());
         else if (camera && !menuactive && objectives && objectives.CompletionCode
             && level.time<objectives.CompletionEndTime)
-            UTNTObjectivePlaque.DrawCompletion(objectives.CompletionCode,objectives.CompletionStartTime,
+            noticeTop=UTNTObjectivePlaque.DrawCompletion(objectives.CompletionCode,objectives.CompletionStartTime,
                 objectives.CompletionEndTime,e.FracTic,reduced);
         else if (camera && !menuactive && objectives && objectives.ObjectiveEpisode
             && level.time<min(objectives.ObjectiveEndTime,objectives.ObjectiveStartTime+140))
-            UTNTObjectivePlaque.DrawCompact(objectives.ObjectiveEpisode,
+            noticeTop=UTNTObjectivePlaque.DrawCompact(objectives.ObjectiveEpisode,
                 objectives.ObjectiveStartTime,objectives.ObjectiveEndTime,e.FracTic);
         if(camera && !readObjectives && !menuactive && ConsoleState==0 && NoticeFeed)
-            NoticeFeed.Draw(e.FracTic);
+            NoticeFeed.Draw(e.FracTic,VoiceTop-UTNTUILayout.Gap(),noticeTop+UTNTUILayout.Gap());
         DrawVoice(player);
 
         let handler = UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));

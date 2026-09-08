@@ -4,9 +4,9 @@ Kleinere Spielhinweise und fehlende Tür-/Schalterschlüssel verwenden dieselbe 
 
 ## Verhalten
 
-- Einblenden in 7 Tics (0,2 s), abhängig von der Textlänge 3–5 s lesen, Ausblenden in 11 Tics (ca. 0,3 s).
-- Gleiche aktive oder wartende Hinweise erscheinen nur einmal. Zähler derselben Aufgabe aktualisieren ihren vorhandenen Eintrag. Verschiedene Nachrichten werden nacheinander gezeigt.
-- Während der großen Objective-Anzeige mit O, im Menü und in der Konsole wartet die Leiste. Nach Loslassen von O erscheint der verbleibende Hinweis wieder.
+- Einblenden in 7 Tics (0,2 s), abhängig von der Textlänge 3–10 s lesen, Ausblenden in 11 Tics (ca. 0,3 s).
+- Gleiche aktive oder wartende Hinweise erscheinen nur einmal. Zähler derselben Aufgabe aktualisieren ihren vorhandenen Eintrag. Verschiedene Nachrichten werden nach Priorität gezeigt: fehlende Schlüssel sofort, danach Geheimnisse/Checkpoints, dann gewöhnliche Hinweise. Unterbrochene, noch gültige Meldungen werden wieder aufgenommen.
+- Während der großen Objective-Anzeige mit O, im Menü und in der Konsole wartet die Leiste. Nach Loslassen von O erscheinen noch gültige Hinweise wieder. Wartende Schlüsselfehler verfallen nach 3 s, gewöhnliche Hinweise nach 20 s; Geheimnisse und Checkpoints verfallen in der Warteschlange nicht.
 - Die Leiste ist lokaler, flüchtiger UI-Zustand. Kartenwechsel und Laden eines Spielstands entfernen alte Hinweise. Gespeicherter Objective-Fortschritt bleibt davon unabhängig.
 - Keine zusätzlichen Hinweistöne. Der originale Fehlversuchston verschlossener Türen bleibt erhalten.
 
@@ -31,3 +31,5 @@ Grundlagen: [UZDoom Schlüsselprüfung](https://github.com/UZDoom/UZDoom/blob/tr
 `tools/test_minor_notice_contracts.py` vergleicht gegen den unveränderlichen Ausgangscommit: sämtliche Map-Lumps außer SCRIPTS/BEHAVIOR sowie alle ACS-Anweisungen außerhalb der Meldungsadapter müssen identisch sein. Das Manifest dokumentiert jede geänderte Stelle. Alle 14 ACS-Module werden mit ACC kompiliert und das Paket von UZDoom geladen.
 
 Laufzeitnachweise für Englisch/Deutsch und Vulkan/OpenGL liegen unter `tools/validation/minor-notices-2026-09-08`. Diese gezielten Prüfungen ersetzen keinen vollständigen Kampagnen- oder Mehrspieler-Durchlauf.
+
+Gemeinsame UI-Skalierung, reservierte HUD-Bereiche, Cache-Prüfungen und aktuelle Nachweise: [UI refinement](UTNT_UI_REFINEMENT.md).

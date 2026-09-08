@@ -1,0 +1,167 @@
+version "5.0.0"
+class UTNTUIRegression : EventHandler
+{
+    HeatEffectGiver ProbeHeat;
+    int HeatStart;
+    bool HeatVerified;
+    void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",text); }
+    override void WorldTick()
+    {
+        for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p] && players[p].mo) players[p].mo.bInvulnerable=true;
+        if(!HeatStart || HeatVerified) return;
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        let effects=UTNTPlayerEffects(players[0].mo.FindBehavior('UTNTPlayerEffects'));
+        int age=level.time-HeatStart;
+        if(age==10)
+        {
+            Check(effects && effects.Heat>0,"five-tic heat update reaches player");
+            Check(h.HeatSources.Find(ProbeHeat)<h.HeatSources.Size(),"heat source is registered");
+            ProbeHeat.Deactivate(players[0].mo);
+        }
+        if(age==45)
+        {
+            Check(effects && effects.Heat==0,"disabled heat source fades out on original cadence");
+            ProbeHeat.Destroy();
+        }
+        if(age==55)
+        {
+            Check(h.HeatSources.Find(ProbeHeat)==h.HeatSources.Size(),"destroyed heat source leaves registry");
+            HeatVerified=true;Console.Printf("UTNT_UI_HEAT_COMPLETE");
+        }
+    }
+    override void WorldLoaded(WorldEvent e)
+    {
+        if(e.IsSaveGame && HeatStart)
+            Check(ProbeHeat && ProbeHeat.bDormant,"saved heat probe retains disabled state");
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(e.Name=="uitheat")
+        {
+            ProbeHeat=HeatEffectGiver(Actor.Spawn('HeatEffectGiver',players[0].mo.Pos));
+            ProbeHeat.Scale=(4,4);HeatStart=level.time;
+        }
+        if(e.Name=="uitcampaign")
+        {
+            h.Chapter=null;
+            ACS_NamedExecuteWithResult("UITestCampaign",e.Args[0],e.Args[1]);
+        }
+        if(e.Name=="uitactual")
+        {
+            Check(h.Chapter && h.Chapter.Episode==e.Args[0],"real map ACS initialized selected chapter");
+            Check(h.Chapter.Destination==e.Args[1],"ACS route and saved chapter destination agree");
+        }
+        if(e.Name=="uitphase") Check(h.Chapter && h.Chapter.Phase==e.Args[0],"expected chapter phase after network request");
+        if(e.Name=="uitmap") Check(level.LevelNum==e.Args[0],"actual campaign travel reached intended map");
+        if(e.Name=="uitcooppages")
+        {
+            Check(playeringame[0] && playeringame[1],"two live peers share chapter");
+            Check(h.Chapter.Pages[0]==0 && h.Chapter.Pages[1]==1,"each cooperative reader owns an independent page");
+            Check(h.Chapter.Phase==0,"non-host finish request did not change maps");
+            Check(players[0].inconsistent==0 && players[1].inconsistent==0,"network chapter state remains synchronized");
+        }
+        if(e.Name=="uitmix")
+        {
+            UTNTWorldHandler.BeginBoss(9999,9999,1,1000);UTNTWorldHandler.UpdateBoss(610);
+            UTNTWorldHandler.BeginVoice("UTNT_COMMON_056",20);
+            UTNTWorldHandler.BeginNotice(328,-2);
+            h.ObjectiveEpisode=2;h.ObjectiveStartTime=level.time;h.ObjectiveEndTime=level.time+140;
+        }
+        if(e.Name=="uitchapter")
+        {
+            Check(level.MapName ~== "INTERMAP","chapter fixture uses real INTERMAP");
+            Check(h.Chapter && h.Chapter.Episode>0,"OPEN initialized a valid saved chapter");
+            h.Chapter=new("UTNTChapterState");h.Chapter.Init(e.Args[0],e.Args[1]);
+            h.Chapter.StartTime=level.time-210;
+            h.Chapter.PageTimes[e.Player]=level.time;
+            Check(h.Chapter.Episode==e.Args[0],"chapter episode is retained");
+        }
+        if(e.Name=="uitdestinations")
+        {
+            int expected[]={0,2,3,5,5,6,7,8,88,88,0};
+            for(int ep=1;ep<=10;ep++) Check(UTNTChapterState.DestinationFor(ep,0)==expected[ep],"original campaign destination");
+            Check(UTNTChapterState.DestinationFor(7,1)==9,"secret destination remains TNT04C");
+            for(int ep=1;ep<=10;ep++)
+            {
+                let fixtureState=new("UTNTChapterState");fixtureState.Init(ep,0);
+                Check(fixtureState.Episode==ep,"all chapter initializers retain episode");
+                fixtureState.Input(-1,3,1);Check(fixtureState.Phase==0,"invalid player cannot travel");
+                fixtureState.Input(MAXPLAYERS,3,1);Check(fixtureState.Phase==0,"out of range player cannot travel");
+            }
+        }
+        if(e.Name=="uitchapterstate")
+        {
+            Check(h.Chapter.Pages[e.Player]==e.Args[0],"saved chapter page matches");
+            Check(h.Chapter.Revealed[e.Player]==bool(e.Args[1]),"saved reveal fixtureState matches");
+            Check(h.Chapter.Phase==e.Args[2],"chapter phase matches");
+        }
+        if(e.Name=="uitdeath") players[e.Player].mo.bInvulnerable=false;
+        if(e.Name=="uitcomplete") Console.Printf("UTNT_REGRESSION_COMPLETE");
+    }
+}
+class UTNTUIRegressionView : StaticEventHandler
+{
+    ui void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",text); }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        let h=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
+        let fixtureState=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(e.Name=="uitnotices")
+        {
+            let f=new("UTNTNoticeFeed");f.Add(198);f.Add(57);
+            Check(f.ActiveID==57 && f.IDs.Size()==1,"checkpoint preempts ordinary hint");
+            f.Add(1002);Check(f.ActiveID==1002 && f.IDs.Size()==2,"key failure appears immediately");
+            f.Age=999;f.Tick();Check(f.ActiveID==57,"protected checkpoint resumes after lock message");
+            f.Add(9001,1);f.Add(9001,2);
+            Check(f.IDs.Size()==2 && f.Values[1]==2,"queued discoveries coalesce to latest count");
+            f.Queue(200,-1,level.time-1);f.Prune();Check(f.IDs.Size()==2,"expired hint discarded");
+            f.Age=999;f.Tick();Check(f.ActiveID==9001,"discovery precedes ordinary hint");
+            f.Prepare(UTNTNoticeFeed.Text(328),250);int builds=f.LayoutBuilds;
+            for(int i=0;i<1000;i++) f.Prepare(UTNTNoticeFeed.Text(328),250);
+            Check(f.LayoutBuilds==builds,"1000 unchanged renders reuse one notice layout");
+            f.Prepare(UTNTNoticeFeed.Text(328),150);Check(f.LayoutBuilds==builds+1,"resize invalidates notice layout");
+            f.Prepare(UTNTNoticeFeed.Text(198),150);Check(f.LayoutBuilds==builds+2,"new text invalidates notice layout");
+            let hidden=new("UTNTNoticeFeed");hidden.Add(1002);hidden.ActiveExpires=level.time-1;hidden.ExpireHidden();
+            Check(hidden.ActiveID==0,"hidden obsolete lock notice is discarded");
+            hidden.Add(57);hidden.ExpireHidden();Check(hidden.ActiveID==57,"hidden checkpoint remains available");
+            Console.Printf("UTNT_UI_PROFILE: 1000 stable notice prepares: 0 wraps; text/width changes: %d wraps",f.LayoutBuilds-builds);
+        }
+        if(e.Name=="uitlayout")
+        {
+            Check(UTNTUILayout.Scale()>=1,"UI text never scales below native pixels");
+            Check(UTNTUILayout.Width(500)*UTNTUILayout.Scale()+2*UTNTUILayout.Margin()<=Screen.GetWidth()+1,"panel respects horizontal safe margins");
+            Check(h.VoiceTop>=UTNTUILayout.Margin(),"subtitle stays below top margin");
+            if(h.NoticeFeed.ActiveID && h.NoticeFeed.ActiveID!=9001)
+            {
+                Check(h.NoticeFeed.LastTop>=UTNTUILayout.Top(),"notice is below the boss reservation");
+                Check(h.NoticeFeed.LastBottom<=h.VoiceTop,"notice does not overlap subtitles");
+            }
+        }
+        if(e.Name=="uitsecret") {h.EnsureNotices();h.NoticeFeed=new("UTNTNoticeFeed");h.NoticeFeed.Add(9001,2);}
+        if(e.Name=="uitchapterview")
+        {
+            h.EnsureChapter();h.ChapterUI.Prepare(fixtureState.Chapter);let v=h.ChapterUI;
+            Check(v.CachedHeading.IndexOf("UTNT_CHAPTER_")<0,"chapter heading localized");
+            Check(v.CachedText.IndexOf("UTNT_INTERMAP_")<0,"all original story fragments resolve");
+            Check(v.PageCount>=1 && v.Rows>=1,"chapter has valid pagination");
+            int picture=UTNTChapterState.ImageNumber(fixtureState.Chapter.Episode);
+            Check(TexMan.CheckForTexture(String.Format("I_%02dA",picture)).isValid(),"original first illustration resolves");
+            Check(TexMan.CheckForTexture(String.Format("I_%02dB",picture)).isValid(),"original second illustration resolves");
+            Check(v.BodyX>=0 && v.BodyY>=0 && v.BodyY+v.BodyHeight<Screen.GetHeight(),"chapter panel inside viewport");
+            Check(v.PictureX+v.PictureWidth<=Screen.GetWidth(),"illustrations inside viewport");
+            for(int i=0;i<v.Lines.Count();i++) Check(Font.GetFont('SmallFont').StringWidth(v.Lines.StringAt(i))<=v.CachedWidth,"story line fits text column");
+            int builds=v.LayoutBuilds;
+            for(int i=0;i<100;i++) v.Prepare(fixtureState.Chapter);
+            Check(v.LayoutBuilds==builds,"100 unchanged chapter prepares reuse line wrapping");
+            Console.Printf("UTNT_CHAPTER_PAGES %d",v.PageCount);
+        }
+        if(e.Name=="uitadvance") {h.EnsureChapter();h.ChapterUI.Advance(fixtureState.Chapter,bool(e.Args[0]));}
+        if(e.Name=="uitbuild")
+        {
+            String info=StringTable.Localize("$UTNT_BUILD_INFO");
+            Console.Printf("UTNT_BUILD_LABEL %s",info);
+            Check(info.IndexOf("Build ")==0 && info.IndexOf(" / ")>0,"packaged build ID and revision are visible");
+        }
+    }
+}

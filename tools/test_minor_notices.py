@@ -16,7 +16,7 @@ if a.mode=='notices':
     'event ntreset','puke 136','wait 9','event ntactive 226 0','event ntvalue 24','puke 136','wait 9','event ntactive 226 0','event ntvalue 23',f'screenshot logs/{label}-coins.png',
     '+utnt_objectives','wait 15',f'screenshot logs/{label}-objectives.png','-utnt_objectives','wait 10','event ntactive 226 0',
     f'save {label}','wait 3',f'load {label}','wait 35','event ntactive 0',
-    'event ntpreview 328','wait 9','event ntactive 328 0',f'screenshot logs/{label}-long.png','wait 190','event ntactive 0']
+    'event ntpreview 328','wait 9','event ntactive 328 0',f'screenshot logs/{label}-long.png','wait 380','event ntactive 0']
 else:
  for lock in range(1,7):
   cmd+=['event ntreset',f'netevent ntlock {lock} 13 0','wait 3','netevent ntuse','wait 2','wait 8',
