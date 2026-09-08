@@ -1,0 +1,56 @@
+class UTNTThunderTests : EventHandler
+{
+ int View; bool Ready; bool Hold;
+ void Assert(bool ok,String label) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",label); }
+ void Check()
+ {
+  let h=UTNTThunderHandler(EventHandler.Find('UTNTThunderHandler'));
+  Assert(h && h.Initialized && h.Outside.Size()==551,"all 551 exterior sectors controlled");
+  bool colors=true;
+  if(h)for(int i=0;i<h.Outside.Size();i++)
+  {
+   let s=level.Sectors[h.Outside[i]];
+   if(s.ColorMap.LightColor.b<=s.ColorMap.LightColor.r || s.ColorMap.Desaturation<30)colors=false;
+  }
+  Assert(colors,"cool desaturated exterior palette");
+  let it=ThinkerIterator.Create('SkyViewpoint'); Actor a;int outer=0,mini=0;
+  while(a=Actor(it.Next()))
+  {
+   if(a.TID==0 && abs(a.Pos.X-28000)<.01 && abs(a.Pos.Y+28000)<.01 && abs(a.Pos.Z)<.01)outer++;
+   if(a.TID==1 && abs(a.Pos.X+3136)<.01 && abs(a.Pos.Y+1984)<.01)mini++;
+   if(a.TID==14 && abs(a.Pos.X-7840)<.01 && abs(a.Pos.Y+3264)<.01)mini++;
+  }
+  Assert(outer==1 && mini==2,"default and two secondary sky cameras");
+  Assert(h && level.SkyTexture1==TexMan.CheckForTexture(String.Format("UGT%d",h.AppliedState)),"sky and light pulse synchronized");
+ }
+ override void WorldTick()
+ {
+  let p=players[0].mo;if(!p || level.time<10)return;
+  let h=UTNTThunderHandler(EventHandler.Find('UTNTThunderHandler'));
+  if(!Ready){Ready=true;h.NextFlash=999999;}
+  p.bInvulnerable=true;p.bNoGravity=true;
+  Vector3 pos=(4384,0,32);double angle=180,pitch=-25;
+  if(View==1){angle=0;}
+  if(View==2){pos=(-1744,-16,16);angle=270;pitch=0;}
+  if(View==3){pos=(2880,64,-55.1);angle=194;pitch=-12;}
+  if(View==4){pos=(28000,-28000,0);angle=0;pitch=-89;}
+  if(View==5){pos=(28000,-28000,0);angle=45;pitch=-25;}
+  if(View==6){pos=(1453,1638,-102);angle=220;pitch=-20;}
+  p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=angle;p.Pitch=pitch;
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  let h=UTNTThunderHandler(EventHandler.Find('UTNTThunderHandler'));
+  if(e.Name=="thunderview")View=e.Args[0];
+  if(e.Name=="thunderflash"){h.PulseAge=-1;h.NextFlash=h.Clock+999999;h.Direction=e.Args[1];h.Apply(e.Args[0]);Console.Printf("THUNDER state=%d flash=%f light=%d",h.AppliedState,h.Flash,level.Sectors[32].GetLightLevel());}
+  if(e.Name=="thunderrun"){h.StartPulse();}
+  if(e.Name=="thunderrest")Assert(h.Flash==0 && h.PulseAge<0 && level.Sectors[32].GetLightLevel()==160,"automatic pulse ends at baseline");
+  if(e.Name=="thundercheck")Check();
+  if(e.Name=="thunderroof")
+  {
+   let it=ThinkerIterator.Create('UTNTThunderView',Thinker.STAT_USER+7,true);let v=UTNTThunderView(it.Next());
+   Assert(v && v.OpenSky==(e.Args[0]!=0),"roof trace matches camera location");
+   Assert(v && (e.Args[0]!=0 ? v.Exposure>.99 : v.Exposure<.01),"local exposure reaches covered or exposed target");
+  }
+ }
+}
