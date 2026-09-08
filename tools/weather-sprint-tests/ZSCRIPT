@@ -27,6 +27,14 @@ class UTNTWeatherSprintTests : EventHandler
             if(!near) EmptyNear++; if(!far) EmptyFar++;
         }
     }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="weatherstorm")
+        {
+            let h=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+            h.WeatherTics=190*35;
+        }
+    }
     override void ConsoleProcess(ConsoleEvent e)
     {
         if(e.Name=="swatches") Swatches=true;

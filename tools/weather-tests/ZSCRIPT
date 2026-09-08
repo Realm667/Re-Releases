@@ -118,7 +118,7 @@ class UTNTWeatherTests : EventHandler
             {
                 valid=valid && h.FogSectors.Size()>0;
                 for(int i=0;i<h.FogSectors.Size();i++)
-                    if(level.Sectors[h.FogSectors[i]].ColorMap.FogDensity!=32) valid=false;
+                    if(level.Sectors[h.FogSectors[i]].ColorMap.FogDensity!=(i<h.AppliedDensity.Size() ? h.AppliedDensity[i] : 32)) valid=false;
             }
             if(h && !e.Args[0]) valid=valid && h.FogSectors.Size()==0;
             Console.Printf("UTNT_ASSERT %s: weather fog state enabled=%d",valid ? "PASS" : "FAIL",e.Args[0]);
@@ -204,7 +204,7 @@ class UTNTWeatherTests : EventHandler
             if(v.Kind==2)
             {
                 bool single=false;
-                for(int n=0;n<3;n++) single=single || v.Texture==TexMan.CheckForTexture(String.Format("graphics/utnt-weather/snow%d.png",n));
+                for(int n=0;n<3;n++) single=single || v.Texture==TexMan.CheckForTexture(String.Format("UTNTSnowGrey%d",n));
                 if(!single) grouped++;
                 if(v.Age>15) { minSnowVX=min(minSnowVX,v.Vel.X); maxSnowVX=max(maxSnowVX,v.Vel.X); }
             }
@@ -218,13 +218,13 @@ class UTNTWeatherTests : EventHandler
             trailCount++;
             if(!trail.Source || trail.Source.Retired || trail.Source.Trail!=trail || !trail.Owner) orphanTrails++;
         }
-        int trailLimit=c.Quality==3 ? 520 : c.Quality==2 ? 260 : 0;
+        int trailLimit=c.TrailLimit;
         Console.Printf("UTNT_ASSERT %s: snow trails retire with weather and quality",orphanTrails==0 && trailCount==c.TrailLive && trailCount<=trailLimit && (count>0 || trailCount==0) ? "PASS" : "FAIL");
         Console.Printf("WEATHER_TRAILS live=%d recorded=%d",trailCount,c.TrailLive);
         Console.Printf("UTNT_ASSERT %s: accounting live %d actual %d detail %d/%d",count==c.Live && detail==c.DetailLive ? "PASS" : "FAIL",c.Live,count,c.DetailLive,detail);
         Console.Printf("UTNT_ASSERT %s: valid visuals",invalid==0 ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s: bounded live effects",count<=c.Limit ? "PASS" : "FAIL");
-        Console.Printf("UTNT_ASSERT %s: absolute allocation and trace limits",c.PeakLive<=4420 && c.PeakTraces<=5000 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: absolute allocation and trace limits",c.PeakLive<=21400 && c.PeakTraces<=18000 ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s: single-particle textures at every distance",grouped==0 ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s: independent snow velocities",snow<4 || maxSnowVX-minSnowVX>0.001 ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s: effect budgets settle",detail<=c.DetailLimit && count-detail<=c.ParticleLimit ? "PASS" : "FAIL");

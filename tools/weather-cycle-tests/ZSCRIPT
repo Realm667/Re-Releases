@@ -1,0 +1,114 @@
+version "5.0.0"
+class UTNTWeatherCycleTests : EventHandler
+{
+    int SavedClock, SavedCycle, SavedLevelTime;
+    ui bool Swatches;
+    UTNTWeatherVisual EdgeFlake;
+    void Check(bool pass,String label) { Console.Printf("UTNT_ASSERT %s: %s",pass ? "PASS" : "FAIL",label); }
+    override void WorldTick()
+    {
+        if(level.time==30 && multiplayer)
+        {
+            let h=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+            h.WeatherTics=190*35;
+        }
+        if(level.time==240 && multiplayer)
+        {
+            let h=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+            Console.Printf("CLIMATE_SHARED %d %d %.8f",h.WeatherTics,h.CycleNumber,UTNTWeatherHandler.Strength(h.WeatherTics));
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let h=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+        let c=UTNTWeatherSystem.Find();
+        if(e.Name=="cycleedges")
+        {
+            EdgeFlake=UTNTWeatherVisual(level.SpawnClientSideVisualThinker('UTNTWeatherVisual'));
+            EdgeFlake.Owner=c; EdgeFlake.Kind=2; EdgeFlake.CellIndex=0;
+            EdgeFlake.Pos=(255.9,0,160); EdgeFlake.Prev=EdgeFlake.Pos;
+            EdgeFlake.Texture=TexMan.CheckForTexture('UTNTSnowGrey0');
+            EdgeFlake.Width=1; EdgeFlake.Height=1; EdgeFlake.BaseAlpha=0.6;
+            EdgeFlake.Lifetime=30; EdgeFlake.FallSpeed=1; EdgeFlake.Start();
+            EdgeFlake.Vel=(12,0,0); EdgeFlake.SegmentLeft=2;
+            c.Live++; c.Cells[0].Live++;
+        }
+        if(e.Name=="cycleedgecheck") Check(!EdgeFlake,"fast snow endpoint cannot enter solid 3D-floor side");
+        if(e.Name=="cyclecamera" && level.MapName~=="TNT02")
+        {
+            let p=players[e.Player].mo;
+            let ti=ThinkerIterator.Create('BigTree'); Actor tree; int n=0;
+            while(tree=Actor(ti.Next())) if(n++==3)
+            {
+                Vector3 pos=tree.Pos+(0,256,12);
+                pos.Z=level.PointInSector(pos.XY).floorplane.ZatPoint(pos.XY)+12;
+                p.SetOrigin(pos,false); p.Vel=(0,0,0); p.bNoGravity=true; p.Angle=270; p.Pitch=9;
+                break;
+            }
+        }
+        if(e.Name=="cyclephase") { h.WeatherTics=e.Args[0]*35; h.CycleNumber=e.Args[1]; }
+        if(e.Name=="cyclemark") { SavedClock=h.WeatherTics; SavedCycle=h.CycleNumber; SavedLevelTime=level.time; }
+        if(e.Name=="cyclefrozen") Check(h.WeatherTics==SavedClock && h.CycleNumber==SavedCycle,"weather clock stops during freeze");
+        if(e.Name=="cyclerestore")
+        {
+            int elapsed=level.time-SavedLevelTime;
+            Console.Printf("CLIMATE_RESTORE current=%d/%d saved=%d/%d elapsed=%d",h.WeatherTics,h.CycleNumber,SavedClock,SavedCycle,elapsed);
+            Check(h.CycleNumber==SavedCycle && elapsed>=0 && abs((h.WeatherTics-SavedClock)-elapsed)<=1,"save load restores shared weather clock");
+        }
+        if(e.Name=="cycleadvances") Check(h.WeatherTics>SavedClock+20,"weather clock advances with effects disabled");
+        if(e.Name=="cyclemath")
+        {
+            bool exact=UTNTWeatherHandler.Strength(0)==0 && UTNTWeatherHandler.Strength(45*35)==0
+                && UTNTWeatherHandler.Strength(105*35)==0.5 && UTNTWeatherHandler.Strength(165*35)==1
+                && UTNTWeatherHandler.Strength(225*35)==1 && UTNTWeatherHandler.Strength(290*35)==0
+                && UTNTWeatherHandler.Strength(300*35)==0;
+            Check(exact,"five minute cycle reaches light moderate storm and calm landmarks");
+            bool smooth=true; double last=0;
+            for(int t=0;t<=10500;t++)
+            {
+                double strength=UTNTWeatherHandler.Strength(t);
+                smooth=smooth && strength>=0 && strength<=1 && abs(strength-last)<0.001;
+                last=strength;
+            }
+            Check(smooth,"every cycle tic and loop boundary is continuous and bounded");
+        }
+        if(e.Name=="cyclecheck")
+        {
+            double expected=UTNTWeatherHandler.Strength(h.WeatherTics);
+            Check(c && abs(c.Intensity-expected)<0.002,"client follows saved climate clock");
+            Check(c && c.Intensity>=e.Args[0]/100.0 && c.Intensity<=e.Args[1]/100.0,"expected phase intensity");
+            int veils=0,invalid=0,wrongSnow=0;
+            let it=ThinkerIterator.Create('UTNTWeatherVisual',Thinker.MAX_STATNUM+1,true); UTNTWeatherVisual v;
+            while(v=UTNTWeatherVisual(it.Next()))
+            {
+                if(v.Kind==8)
+                {
+                    veils++;
+                    if(!c.OpenPoint(v.Pos,level.PointInSector(v.Pos.XY))) invalid++;
+                }
+                if(v.Kind==2)
+                {
+                    bool gray=false;
+                    for(int n=0;n<3;n++) gray=gray || v.Texture==TexMan.CheckForTexture(String.Format("UTNTSnowGrey%d",n));
+                    if(!gray) wrongSnow++;
+                }
+            }
+            Check(veils==c.VeilLive && veils<=c.VeilLimit,"veil allocation and quality limits");
+            if(c.Quality==3 && c.Intensity>0.99 && (level.MapName~=="TNT02" || level.MapName~=="TNT03A1"))
+                Check(c.PeakVeils>0,"storm reserves room for drifting veils beside precipitation and splashes");
+            Check(invalid==0,"drifting veils stay in open space");
+            Check(wrongSnow==0,"all snow and sky flakes use neutral gray textures");
+            if(c.Quality<2) Check(veils==0 && c.TrailLive==0,"reduced weather omits veils and trails");
+            Console.Printf("CLIMATE phase=%d cycle=%d intensity=%.5f boost=%.5f quality=%d live=%d veils=%d trails=%d traces=%d budgetRetired=%d",
+                h.WeatherTics,h.CycleNumber,c.Intensity,c.StormBoost,c.Quality,c.Live,c.VeilLive,c.TrailLive,c.PeakTraces,c.BudgetRetired);
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+    }
+    override void ConsoleProcess(ConsoleEvent e) { if(e.Name=="snowcolors") Swatches=true; }
+    override void RenderOverlay(RenderEvent e)
+    {
+        if(!Swatches) return;
+        Screen.Clear(0,0,Screen.GetWidth(),Screen.GetHeight(),0);
+        for(int n=0;n<3;n++) Screen.DrawTexture(TexMan.CheckForTexture(String.Format("UTNTSnowGrey%d",n)),false,100+n*100,100,DTA_VirtualWidth,960,DTA_VirtualHeight,540);
+    }
+}

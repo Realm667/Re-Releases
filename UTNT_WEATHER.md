@@ -1,4 +1,59 @@
-# UTNT – Einzelpartikel für Regen und Schnee
+# UTNT – dynamische Wetterzyklen
+
+Aktueller Stand: freigegebener kräftiger Regenschauer und Schneesturm mit anschließender Beruhigung. Schnee verwendet neutralgraue Grundfarbe `#CCCCCC`, Regen weiterhin `#808080`. Alpha, Beleuchtung und Nebel beeinflussen die tatsächlich sichtbaren Pixel. Jede Flocke und jeder Tropfen bleibt ein einzelnes Teilchen, auch im Skybox-Feld. Der Schnee-Nachlauf übernimmt dieselbe graue Textur; Verwehungen verwenden einen neutralen Shaderfarbwert von 0,8.
+
+## Zeitlicher Verlauf
+
+| Spielzeit im Zyklus | Zustand |
+|---|---|
+| 0–45 s | Leichtes Wetter |
+| 45–105 s | Sanfter Aufbau zur moderaten Stärke |
+| 105–165 s | Aufbau zum Schauer beziehungsweise Schneesturm |
+| 165–225 s | Intensive Phase mit Böen |
+| 225–290 s | Sanfte Beruhigung |
+| 290–300 s | Leichtes Wetter vor dem nächsten Zyklus |
+
+Smoothstep-Übergänge vermeiden harte Stufen. Oberhalb der moderaten Intensität verstärkt eine zweite weiche Kurve die freigegebene Spitzenphase. Der Wind verändert sich fortlaufend; ein deterministischer Phasenversatz variiert die Böen zwischen den Zyklen.
+
+`UTNTWeatherHandler` speichert Wettertics und Zyklusnummer pro Karte. Die Uhr stoppt bei Freeze und läuft unabhängig von lokaler Qualität und ausgeschaltetem Wetter weiter. Save/Load stellt sie gemeinsam mit dem Kartenstand wieder her; Koop-Teilnehmer verwenden dieselbe Uhr. Bei einem alten Spielstand ohne Wetteruhr beginnt der neue Zyklus leicht.
+
+## Darstellung und Budgets
+
+Regen erreicht maximal die sechsfache Zielbelegung gegenüber leichtem Wetter. Im Schauer werden seine Striche zusätzlich bis zum Faktor 2,4 gestreckt; Seitenwind und Falltempo nehmen zu. Splashes entstehen an tatsächlichen Bodenaufprällen. Ein reservierter Anteil des Detailbudgets verhindert, dass Spritzer die feinen bodennahen Schleier verdrängen.
+
+Schnee erreicht maximal die 4,8-fache Zielbelegung, kräftigere seitliche Böen, schnelleres Fallen und bis zum Faktor 2,4 gestreckte Flocken. Der transparente Nachlauf wird länger. Wenige bodennahe und schwebende Verwehungen ergänzen die Einzelpartikel. Die ursprünglichen Atlasformen werden als weiche Volumenschleier genutzt; Niederschlagsgruppenbilder werden nicht verwendet. In den bereits verwalteten grauen Nebelsektoren von TNT03A1/TNT03A2 steigt die Dichte von 32 bis höchstens 54 und sinkt beim Abklingen wieder. Wetter aus stellt nur selbst verwaltete Werte zurück.
+
+| Qualität | Niederschlag maximal | Details zusätzlich | Traces/Tic maximal | Nachläufe maximal | Schleier maximal (Teil des Detailbudgets) |
+|---|---:|---:|---:|---:|---:|
+| Niedrig / reduziert | 2.000 | 80 | 2.200 | 0 | 0 |
+| Mittel | 7.000 | 420 | 6.500 | 300 | 32 |
+| Hoch | 20.000 | 1.400 | 18.000 | 800 | 96 |
+
+Das sind Obergrenzen; die tatsächliche Menge hängt von Karte, Entfernung und Wetterstärke ab. Mittlere/niedrige Qualität verwendet 35/10 Prozent der hohen Zellzielbelegung. Die zusätzliche Sturm-Dichte des Schnees nimmt in großer Entfernung weich ab; die vorhandene Basisbelegung und der vorausgeladene Bereich mit bis zu 2.048 Einheiten Sichtweite und bis zu 640 Einheiten Spawnpuffer bleiben erhalten. Im Nahbereich gilt die volle freigegebene Stärke. Separate transparente Nachläufe sind auf Weltflocken innerhalb von 450 Einheiten begrenzt; weiter entfernte Flocken und das Skybox-Feld behalten ihre gestreckte Bewegungsform.
+
+Schnee prüft ein gerades Bewegungssegment über zwei Tics statt über einen; die Windglättung ist entsprechend angepasst. Die Renderinterpolation bleibt erhalten. Regen prüft bis zu acht Tics im Voraus. Spritztröpfchen und Verwehungen prüfen ihre Bewegung jeden Tic. Schleier begrenzen ihre Ausdehnung bereits beim Spawn anhand umliegender Wände, Boden und Decke. Ein Notpfad entfernt ein Teilchen bei ausgeschöpftem Tracebudget statt es einzufrieren.
+
+Die vorhandenen Regen-/Wind-Soundbetten folgen der Wetterintensität. Überdachung und Abstand dämpfen sie weiterhin; im Schauer kommt eine stärkere Windkomponente hinzu. Es gibt keine dynamische Schneeakkumulation oder neue Spiegelungen.
+
+## Prüfung und Wiederholung
+
+Aktuelle Nachweise: `tools/validation/weather-cycle-2026-09-08/`. Mit `UTNT_ENGINE` und `UTNT_IWAD`:
+
+```text
+python tools/test_weather_cycle.py --mod tutnt.pk3 --case cycle --map TNT02 --renderer 0
+python tools/test_weather_cycle.py --mod tutnt.pk3 --case cycle --map TNT03A1 --renderer 1
+python tools/test_weather_cycle.py --mod tutnt.pk3 --case geometry --map UTNTWX
+python tools/test_weather_cycle.py --mod tutnt.pk3 --case colors --map TNT03A1
+python tools/profile_weather_cycle.py --mod tutnt.pk3
+```
+
+`--root` erlaubt einen separaten Ort für Testdateien, Logs und Savegames. Die neuen Prüfungen ergänzen die bestehenden Wetter- und Sprinttests. Farbfelder bestätigen RGB-Gleichheit und den erwarteten Alpha-Mischwert: bei Quellalpha 235 ergibt Grundwert 204 auf Schwarz maximal 188. Vollständige Produktionsmessungen stehen in den Ergebnisdateien; kurze lokale Messfenster sind kein allgemeines FPS-Versprechen.
+
+## Historische Stände vor den Wetterzyklen
+
+Die folgenden früheren Abnahmen dokumentieren den jeweiligen damaligen Stand. Ihre Parameter und Budgets wurden durch die Angaben oben ersetzt.
+
+### Einzelpartikel – frühere Fassung
 
 Die zweite Wetterfassung setzt die freigegebenen animierten Mockups um. Jeder Regentropfen und jede Schneeflocke ist ein eigenes bewegtes Teilchen – auch in der Ferne und in der Standard-Skybox. Die früheren Gruppenbilder und die breiten Pulverschnee-Sprites sind entfernt. Die Aufnahmen zur Freigabe liegen neben den neuen Nachweisen unter `tools/validation/weather-v2-2026-09-08/`.
 
@@ -108,3 +163,16 @@ Kurze Vulkan-Messfenster auf derselben Maschine (Millisekunden pro Frame):
 | TNT03A1 | 1.343 | 3.267 | 5.750 |
 
 Die nahezu gleichen Regen-Mediane liegen innerhalb der Schwankung dieser kurzen Messung; daraus folgt kein Leistungsgewinn. Die früheren Abnahmen bleiben historisch dokumentiert.
+
+## Abschluss der Wetterzyklen – 08.09.2026
+
+12 konsolidierte Laufzeitfälle mit 438 bestandenen Assertions, zusätzlich 2 Läufe des regulären PK3 mit 32 Assertions. Die höchste Schneestufe bleibt deutlich aufwendiger als leichter Schneefall. Separate Nachläufe nur für lesbare nahe Weltflocken und geringere zusätzliche Dichte fern liegender Flocken reduzieren die Last, während die Basisbelegung des äußeren Felds bestehen bleibt.
+
+Vulkan, 960×540, Ryzen9 7950X/RTX4080, kurze feste Perspektiven; Millisekunden pro Frame:
+
+| Karte | Median aus | Median leicht | Median Sturm | p95 Sturm |
+|---|---:|---:|---:|---:|
+| TNT02 | 2.336 | 3.148 | 6.066 | 11.119 |
+| TNT03A1 | 1.481 | 3.976 | 16.806 | 19.85 |
+
+Diese Messungen sind keine allgemeine FPS-Garantie. Sie stammen aus dem isolierten Wetterpaket; das reguläre Paket enthält zusätzlich parallele Projektänderungen. Eine ergänzende Endpunktprüfung in jedem Niederschlags-Tic verhindert auch schnelle seitliche Eintritte in feste 3D-Böden. Die neue Farbfassung ersetzt ausschließlich RGB; die bisherige Einzelpartikelform und Transparenz bleiben erhalten.
