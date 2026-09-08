@@ -175,6 +175,18 @@ class UTNTWorldHandler : EventHandler
         handler.VoiceQueueDurations.Push(max(max(1,seconds)*35,durationTics));
     }
 
+    // Skipping the shared TNT04A intro replaces its narration with line 22.
+    // TickVoice starts that line on the same CHAN_VOICE on the next world tic.
+    static void SkipTNT04AIntroVoice()
+    {
+        if(!(level.MapName ~== "TNT04A")) return;
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(!h) return;
+        h.VoiceQueueKeys.Clear(); h.VoiceQueueSounds.Clear(); h.VoiceQueueDurations.Clear();
+        h.VoiceKey=""; h.VoiceStartTime=0; h.VoiceEndTime=level.time-18;
+    }
+
+
     void TickVoice()
     {
         if (level.time<VoiceEndTime+18 || !VoiceQueueKeys.Size()) return;

@@ -1,0 +1,45 @@
+version "5.0"
+class UTNTIntroSkipTests : EventHandler
+{
+    void Check(bool ok, String what)
+    { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",what); }
+    override void WorldTick()
+    {
+        if(!(level.MapName ~== "TNT04A")) return;
+        for(int p=0;p<MAXPLAYERS;p++)
+            if(playeringame[p] && players[p].mo) players[p].mo.bInvulnerable=true;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="introstage")
+        {
+            bool done=e.Args[0]!=0;
+            Check((ACS_NamedExecuteWithResult("UTNT_TNT04A_IntroDone")!=0)==done,"intro completion state");
+            for(int i=0;i<MAXPLAYERS;i++) if(playeringame[i] && players[i].mo)
+            {
+                let p=players[i].mo;let effects=UTNTPlayerEffects(p.FindBehavior('UTNTPlayerEffects'));
+                Check(((players[i].cheats&CF_TOTALLYFROZEN)==0)==done,"player freeze state");
+                Check(((players[i].cheats&CF_NOTARGET)==0)==done,"player targeting state");
+                Check(effects && effects.Cutscene==!done,"cutscene flag follows intro");
+                Check((p.FindInventory('UTNTHUDHidden')==null)==done,"HUD visibility follows intro");
+            }
+            int count=0;let it=ThinkerIterator.Create('Actor');Actor a;
+            while(a=Actor(it.Next())) if(a.TID==5) count++;
+            Check(done?count==0:count>0,"intro barrier actors");
+            let lines=level.CreateLineIdIterator(99);int idx;int found=0;bool blocked=false;
+            while((idx=lines.Next())>=0) { found++;blocked|=(level.Lines[idx].flags&(Line.ML_BLOCKING|Line.ML_BLOCKEVERYTHING))!=0; }
+            Check(found>0 && blocked==!done,"intro blocking lines");
+        }
+        if(e.Name=="introvoice")
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Check(h && h.VoiceKey=="UTNT_VOICE_040","post-intro narration replaces intro voice");
+            Check(h && h.VoiceQueueKeys.Size()==0,"no pending intro narration");
+        }
+        if(e.Name=="introobjectives")
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Check(h && h.ObjectiveEpisode==5,"briefing follows skipped or completed intro");
+        }
+    }
+}

@@ -72,3 +72,25 @@ Fremde lokale Aenderungen werden nicht mit diesem Commit veroeffentlicht.
 TNT04A frisch starten, damit die neue Kartengeometrie geladen wird.
 Geprüft wurde Speichern/Laden innerhalb des neuen Stands, keine Migration
 alter Spielstände oder vollständige Kampagnen-/Netzwerkabnahme.
+
+## TNT04A-Intro ueberspringen - 2026-09-09
+
+Ein neuer Druck auf die belegte Benutzen-Taste beendet das Intro. Der Hinweis
+steht unten im Bild. Eine beim Karteneintritt gehaltene Taste wird ignoriert;
+der Skip wird nach einer kurzen Eingangsfrist von 15 Tics angenommen.
+Im Koop beendet ein Mitspieler das gemeinsame Intro fuer alle.
+
+Normaler Abschluss und Skip verwenden denselben einmaligen Abschluss:
+Intro-Bilder und Sperren werden entfernt, Spieler und HUD freigegeben,
+Schlacht, Musik, anschliessende Sprachausgabe und Missionshinweise gestartet.
+Beim Skip wird ausstehende Intro-Erzaehlung verworfen und durch die originale
+Nach-Intro-Zeile ersetzt. Der gemeinsame Kartenhinweis wartet jetzt auf den
+tatsaechlichen Abschluss statt immer 1860 Tics zu warten.
+
+Alle Geometrie- und Node-Lumps sind bytegleich. Frueher Skip, gehaltene Taste,
+Laden eines laufenden Intros, Save/Load nach Skip, normaler Ablauf und
+Gast-Skip mit zwei echten Koop-Peers bestehen 186 Assertions in UZDoom 5.0.1.
+Nachweise: `tools/validation/intro-skip-2026-09-09`. Wiederholung mit
+`tools/test_tnt04a_intro.py` und `tools/test_tnt04a_intro_coop.py`; Engine
+und IWAD ueber `UTNT_ENGINE` / `UTNT_IWAD` oder die jeweiligen CLI-Argumente.
+Fuer die neue Skriptfassung TNT04A frisch starten.

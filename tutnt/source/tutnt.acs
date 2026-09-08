@@ -137,7 +137,8 @@ script "IntroText" OPEN
 	}
 	else if(mapnum==6)
 	{
-		delay(1860);
+		// Resume the map briefing when TNT04A finishes or skips its cinematic.
+		while(!ACS_NamedExecuteWithResult("UTNT_TNT04A_IntroDone")) Delay(1);
 		mapname="UTNT_INTRO_005";
 		objectives="UTNT_INTRO_014";
 	}
