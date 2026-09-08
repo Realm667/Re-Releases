@@ -1,7 +1,7 @@
 # TNT04B: Originalbefund und Konzept zur Abnahme
 
-Stand: 2026-09-09. Konzept noch nicht abgenommen. Noch kein Mockup und keine
-Integration der neuen TNT04B-Skybox. Reihenfolge auf ausdruecklichen Nutzerwunsch:
+Stand: 2026-09-09. Konzept und Mockup wurden abgenommen; die Umsetzung ist
+in UTNT_ASH_SKY.md dokumentiert. Die vereinbarte Reihenfolge war:
 Original ansehen -> Konzeptabnahme -> Mockup -> Mockupabnahme -> Integration.
 
 ## Original
@@ -62,4 +62,4 @@ Die Ereignisse sind zwischen Bahnen und Bloecken versetzt; im langfristigen
 Mittel etwa eine Gruppe je drei Minuten. Sichtbarkeit haengt von Blickrichtung
 und Gelaende ab. Dekoration ohne Schaden, Sound oder Gameplay-Zufallsverbrauch.
 
-Diese Vormerkung aktiviert noch keine neuen Effekte in TNT04B.
+Der vorgemerkte Stil ist jetzt auch in TNT04B eingebunden, aus derselben Quelle wie TNT04A.

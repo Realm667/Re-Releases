@@ -1,0 +1,55 @@
+version "4.14"
+class UTNTAshSkyTests : EventHandler
+{
+ int View;
+ bool Initialized,SawFlash,SawDark;
+ void Check()
+ {
+  let it=ThinkerIterator.Create('SkyViewpoint');Actor a;int count=0,main=0,secondary=0;
+  while(a=Actor(it.Next()))
+  {
+   count++;
+   if(a.TID==0 && abs(a.Pos.X-18000)<.01 && abs(a.Pos.Y-18000)<.01 && abs(a.Pos.Z)<.01)main++;
+   if((a.TID==3 && a.Pos.X==-1280 && a.Pos.Y==256)
+   || (a.TID==4 && a.Pos.X==360 && a.Pos.Y==-4160)
+   || (a.TID==5 && a.Pos.X==7012 && a.Pos.Y==-464)
+   || (a.TID==6 && a.Pos.X==288 && a.Pos.Y==-4160)
+   || (a.TID==7 && a.Pos.X==6940 && a.Pos.Y==-464))secondary++;
+  }
+  Console.Printf("UTNT_ASSERT %s: default ash camera at isolated origin",main==1?"PASS":"FAIL");
+  Console.Printf("UTNT_ASSERT %s: all five secondary cameras preserved",secondary==5 && count==6?"PASS":"FAIL");
+  let old=ThinkerIterator.Create('Spawner_SkyboxComet');
+  Console.Printf("UTNT_ASSERT %s: old decorative comet spawners disabled",old.Next()==null?"PASS":"FAIL");
+  let h=UTNTAshSkyHandler(EventHandler.Find('UTNTAshSkyHandler'));
+  Console.Printf("UTNT_ASSERT %s: sky follows map lightning state",h && level.SkyTexture1==TexMan.CheckForTexture(String.Format("UAS%d",h.AppliedStep))?"PASS":"FAIL");
+  Console.Printf("UTNT_ASSERT %s: original and added sector counts",level.Sectors.Size()==10624?"PASS":"FAIL");
+ }
+ override void WorldTick()
+ {
+  if(!(level.MapName~=="TNT04B"))return;
+  let p=players[0].mo;if(!p || level.time<10)return;
+  let h=UTNTAshSkyHandler(EventHandler.Find('UTNTAshSkyHandler'));
+  if(h){if(h.AppliedStep>0)SawFlash=true;else SawDark=true;}
+  if(!Initialized){Initialized=true;Check();}
+  p.bInvulnerable=true;p.bNoGravity=true;p.bNoClip=true;players[0].camera=p;
+  Vector3 pos=(464,-448,56);double angle=180,pitch=-15;
+  if(View==1){pos=(1664,-432,64);angle=0;pitch=-18;}
+  if(View==2){pos=(1664,-432,64);angle=90;pitch=-18;}
+  if(View>=3 && View<=8){pos=(18000,18000,0);angle=(View-3)*90;pitch=-18;}
+  if(View==7){angle=45;pitch=-30;}
+  if(View==8){angle=0;pitch=-89;}
+  if(View==9){pos=(-1280,256,64);angle=0;pitch=-10;}
+  p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=angle;p.Pitch=pitch;
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name=="ashview")View=e.Args[0];
+  if(e.Name=="ashcheck")Check();
+  if(e.Name=="ashother")Console.Printf("UTNT_ASSERT %s: TNT04A keeps its own war sky",level.MapName~=="TNT04A" && level.SkyTexture1==TexMan.CheckForTexture("UWRSKY")?"PASS":"FAIL");
+  if(e.Name=="ashweather")
+  {
+   Console.Printf("UTNT_ASSERT %s: natural original lightning reached new sky",SawFlash?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: normal dark phase restored",SawDark?"PASS":"FAIL");
+  }
+ }
+}

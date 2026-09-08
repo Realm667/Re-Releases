@@ -18,5 +18,9 @@ def build(root):
   textures.append(f'Texture UWR{f}, 768, 768 {{ Patch "textures/UCH{f}.png", 0, 0 }}')
  (out/'GLDEFS.caldera-war').write_text('\n'.join(gl)+'\n',newline='\n')
  (out/'TEXTURES.caldera-war').write_text('\n'.join(textures)+'\n',newline='\n')
+ # Keep the approved TNT04B sky on the same shared comet implementation.
+ if (out/'graphics/ash/panorama.png').exists():
+  from build_ash_sky import build as build_ash
+  build_ash(root)
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);build(p.parse_args().root)

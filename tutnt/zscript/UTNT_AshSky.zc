@@ -1,0 +1,16 @@
+// Follow the original TNT04B ACS thunder using its entrance-sector light.
+// No new weather clock, gameplay RNG, sounds, damage or world-light writes.
+class UTNTAshSkyHandler : EventHandler
+{
+ int AppliedStep;
+ bool Initialized;
+ override void WorldTick()
+ {
+  if(!(level.MapName~=="TNT04B"))return;
+  int step=clamp(int((level.Sectors[0].GetLightLevel()-128)*8.0/127.0+.5),0,8);
+  if(Initialized && step==AppliedStep)return;
+  Initialized=true;AppliedStep=step;
+  TextureID sky=TexMan.CheckForTexture(String.Format("UAS%d",step));
+  level.ChangeSky(sky,sky);
+ }
+}
