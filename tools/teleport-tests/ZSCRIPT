@@ -1,0 +1,59 @@
+version "5.0.0"
+class UTNTTeleportTest : EventHandler
+{
+    Array<Actor> Sources;
+    override void WorldTick()
+    {
+        let p=players[0].mo;
+        if (!p || level.time!=5) return;
+        if (level.MapName ~== "UTNTPART")
+        {
+            Sources.Push(Actor.Spawn('TeleportSparkle_W',(-225,0,0)));
+            Sources.Push(Actor.Spawn('TeleportSparkle_R',(-135,0,0)));
+            Sources.Push(Actor.Spawn('TeleportSparkle_G',(-45,0,0)));
+            Sources.Push(Actor.Spawn('TeleportSparkle_Y',(45,0,0)));
+            Sources.Push(Actor.Spawn('TeleportSparkle_O',(135,0,0)));
+            Sources.Push(Actor.Spawn('TeleportSparkle_B',(225,0,0)));
+            p.Angle=90; p.Pitch=0;
+        }
+        else
+        {
+            let it=ThinkerIterator.Create('TeleportSparkle_R');
+            Actor a;
+            while(a=Actor(it.Next()))
+            {
+                Console.Printf("TELEPORT_POSITION %.1f %.1f %.1f",a.Pos.X,a.Pos.Y,a.Pos.Z);
+                Sources.Push(a);
+            }
+            if (Sources.Size())
+            {
+                let a=Sources[0];
+                p.SetOrigin(a.Pos+(0,-144,0),false); p.Angle=90; p.Pitch=7;
+                Console.Printf("TELEPORT_CAMERA %.1f %.1f %.1f",p.Pos.X,p.Pos.Y,p.Pos.Z);
+            }
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="partfocus")
+        {
+            let p=players[0].mo;
+            let a=Sources[clamp(e.Args[0],0,Sources.Size()-1)];
+            p.SetOrigin(a.Pos+(0,-144,0),false); p.Angle=90; p.Pitch=7;
+        }
+        if(e.Name=="partoff") for(int i=0;i<Sources.Size();i++) Sources[i].Deactivate(null);
+        if(e.Name=="parton") for(int i=0;i<Sources.Size();i++) Sources[i].Activate(null);
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name!="partcheck") return;
+        for(int i=0;i<6;i++)
+        {
+            let tex=TexMan.CheckForTexture(String.Format("UTP%cA0",65+i));
+            Console.Printf("UTNT_ASSERT %s fragment texture %d",tex.IsValid() ? "PASS" : "FAIL",i);
+        }
+        Console.Printf("UTNT_ASSERT %s active spawners",Sources.Size()>0 ? "PASS" : "FAIL");
+        if(CVar.GetCVar('UTNT_fxquality',players[consoleplayer]).GetInt()==0)
+            Console.Printf("UTNT_ASSERT %s effect quality disabled",CVar.GetCVar('UTNT_fxquality',players[consoleplayer]).GetInt()==0 ? "PASS" : "FAIL");
+    }
+}

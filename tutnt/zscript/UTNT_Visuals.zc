@@ -160,12 +160,31 @@ class UTNTEmberBase : SwitchableDecoration
     {
         if (!UTNTVisuals.Visible(self) || !UTNTVisuals.Reserve()) return;
         FSpawnParticleParams p;
-        p.texture = TexMan.CheckForTexture(type == 0 ? 'EMBRA0' : 'PTCLA0');
+        p.texture = TexMan.CheckForTexture('EMBRA0');
         p.color1 = colorIndex == 1 ? 0xff6030 : colorIndex == 2 ? 0x60ff30 : colorIndex == 3 ? 0xffff50 : colorIndex == 4 ? 0xffbb60 : colorIndex == 5 ? 0x5080ff : 0xffffff;
         p.style = STYLE_Add; p.flags = SPF_FULLBRIGHT;
         p.pos = Vec3Offset(FRandom[utntcosmetic](-size/2.0,size/2.0),FRandom[utntcosmetic](-size/2.0,size/2.0),0);
         p.vel = (0,0,FRandom[utntcosmetic](0.5,2));
-        p.lifetime=50; p.size=(type == 1 ? 5 : 2); p.startalpha=1; p.fadestep=0.02;
+        p.lifetime=50; p.size=2; p.startalpha=1; p.fadestep=0.02;
+        if (type == 1)
+        {
+            // Four chipped fragments; one quarter of emissions use a short rising streak.
+            // One atlas sprite per particle keeps the existing ambient emission budget.
+            bool streak = Random[utntcosmetic](0,3) == 0;
+            int frame = streak ? Random[utntcosmetic](4,5) : Random[utntcosmetic](0,3);
+            p.texture = TexMan.CheckForTexture(String.Format("UTP%cA0",65+frame));
+            p.color1 = colorIndex == 1 ? 0xff3018 : colorIndex == 2 ? 0x70dc48 : colorIndex == 3 ? 0xffd858 : colorIndex == 4 ? 0xff9040 : colorIndex == 5 ? 0x608cff : 0xdce4ec;
+            p.flags |= SPF_ROLL | SPF_FADE_IN_HOLD_OUT;
+            p.startroll = streak ? FRandom[utntcosmetic](-9,9) : FRandom[utntcosmetic](0,360);
+            p.rollvel = streak ? 0 : FRandom[utntcosmetic](-1.2,1.2);
+            p.size = streak ? FRandom[utntcosmetic](8,11) : Random[utntcosmetic](0,3) == 0 ? FRandom[utntcosmetic](6.5,8) : FRandom[utntcosmetic](4,6);
+            p.vel = (FRandom[utntcosmetic](-0.16,0.16),FRandom[utntcosmetic](-0.16,0.16),FRandom[utntcosmetic](streak ? 1.1 : 0.5,2.0));
+            p.accel = (FRandom[utntcosmetic](-0.003,0.003),FRandom[utntcosmetic](-0.003,0.003),streak ? 0.008 : 0);
+            p.lifetime = Random[utntcosmetic](44,58);
+            p.startalpha = FRandom[utntcosmetic](0.8,1.0);
+            // Hold the luminous core, then extinguish over the final 13-16 tics.
+            p.fadestep = 0; p.fadeoutstep = 1.0/16;
+        }
         level.SpawnParticle(p);
     }
 }
