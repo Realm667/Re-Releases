@@ -119,7 +119,10 @@ class UTNTNoticeFeed ui
         for(int row=-4;row<=4;row++)
             UTNTObjectivePlaque.Rect(cx,cy,scale,-(4-abs(row)),row,2*(4-abs(row))+1,1,
                 row<0?0xa17745:0x74522d,alpha*0.9);
-        double y=(t+b-lines.Count()*lineHeight*scale)/2.0;
+        // UTNT SmallFont has six visible capital rows; its font cell includes
+        // extra shadow/descender space. Count line spacing only between rows.
+        double textHeight=(lines.Count()-1)*lineHeight+6*size;
+        double y=(t+b-textHeight*scale)/2.0;
         for(int i=0;i<lines.Count();i++)
         {
             String line=lines.StringAt(i);
