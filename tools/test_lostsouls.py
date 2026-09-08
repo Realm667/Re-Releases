@@ -10,8 +10,11 @@ a=p.parse_args()
 results=[]
 for backend in (['0','1'] if a.renderer=='both' else [a.renderer]):
     label='lostsoul-'+backend
-    commands='; '.join(['unbindall','wait 100','event soulcheck 1',
-        f'screenshot logs/{label}-idle.png',f'save {label}','wait 5',
+    commands='; '.join(['unbindall','wait 100','netevent soulgeometry','wait 2','netevent soulview','wait 10','event soulcheck 1',
+        f'screenshot logs/{label}-idle.png','netevent soulangle 180','wait 28',
+        f'screenshot logs/{label}-side.png','netevent soulangle 90','wait 28',
+        f'screenshot logs/{label}-rear.png','netevent soulangle 270','wait 28',
+        f'save {label}','wait 5',
         'netevent soulmove 1','wait 12','event soulcheck 1',
         'netevent soulmove 2','wait 14','event soulcheck 1',
         f'screenshot logs/{label}-charge.png','wait 8',
@@ -28,7 +31,7 @@ for backend in (['0','1'] if a.renderer=='both' else [a.renderer]):
         commands=commands,regression=True,timeout=60,
         settings=[('use_mouse',False),('i_pauseinbackground',False),('screenblocks',12),
           ('UTNT_fxquality',3),('UTNT_reducedfx',False),('UTNT_lod',2000),
-          ('con_notifytime',0),('gl_bloom',True),('crosshair',0),('r_drawplayersprites',False)])
+          ('gl_texture_filter',0),('con_notifytime',0),('gl_bloom',True),('crosshair',0),('r_drawplayersprites',False)])
     results.append(r)
 (w/'logs/lostsoul-results.json').write_text(json.dumps(results,indent=2))
 if not all(r['ok'] for r in results):

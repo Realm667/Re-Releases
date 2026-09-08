@@ -15,6 +15,36 @@ class UTNTLostSoulTest : EventHandler
     }
     override void NetworkProcess(ConsoleEvent e)
     {
+        if(e.Name=="soulangle") Soul.Angle=e.Args[0];
+        if(e.Name=="soulview")
+        {
+            players[0].mo.SetOrigin((0,-110,12),false);
+            players[0].mo.Pitch=0;
+        }
+        if(e.Name=="soulgeometry")
+        {
+            double facing=Soul.Angle;
+            for(int i=0;i<4;i++)
+            {
+                Soul.Angle=i*90;
+                bool valid=true;
+                for(int n=0;n<16;n++)
+                {
+                    let chip=UTNTLostSoulEmber(level.SpawnClientSideVisualThinker('UTNTLostSoulEmber'));
+                    chip.Initialize(Soul);
+                    Vector3 offset=chip.Pos-Soul.Pos;
+                    double rear=-offset.X*cos(Soul.Angle)-offset.Y*sin(Soul.Angle);
+                    double side=-offset.X*sin(Soul.Angle)+offset.Y*cos(Soul.Angle);
+                    if(rear<Soul.Radius*0.54 || rear>Soul.Radius*0.86
+                        || abs(side)>Soul.Radius*0.51 || offset.Z<Soul.Height*0.47
+                        || offset.Z>Soul.Height*0.69 || chip.Vel.Z<0.15 || chip.Vel.Z>0.39
+                        || !chip.Texture.IsValid() || chip.Alpha!=1) valid=false;
+                    chip.Destroy();
+                }
+                Console.Printf("UTNT_ASSERT %s rear flame origin facing=%d",valid ? "PASS" : "FAIL",i*90);
+            }
+            Soul.Angle=facing;
+        }
         if(e.Name=="soulmove")
         {
             Soul.bDormant=false; Soul.SetOrigin((0,0,30),false);
@@ -27,15 +57,15 @@ class UTNTLostSoulTest : EventHandler
     {
         if(e.Name!="soulcheck") return;
         int count=0,invalid=0,foreign=0,young=0;
-        let it=ThinkerIterator.Create('UTNTFireDetail',Thinker.MAX_STATNUM+1,true);
-        UTNTFireDetail p;
-        while(p=UTNTFireDetail(it.Next()))
+        let it=ThinkerIterator.Create('UTNTLostSoulEmber',Thinker.MAX_STATNUM+1,true);
+        UTNTLostSoulEmber p;
+        while(p=UTNTLostSoulEmber(it.Next()))
         {
             if(p.Source==Other) foreign++;
             if(p.Source!=Soul) continue;
             count++; if(p.Age<16) young++;
-            if(p.Smoke || !(TexMan.GetName(p.Texture)~=="UFEBA0")
-                || p.Life<28 || p.Life>46 || p.Age>=p.Life || p.Alpha<=0) invalid++;
+            if(!(TexMan.GetName(p.Texture).Left(4)~=="ULSE") || (p.Flags & SPF_ALLOWSHADERS)
+                || p.Life<16 || p.Life>24 || p.Age>=p.Life || p.Alpha<=0) invalid++;
         }
         bool expect=e.Args[0]!=0;
         Console.Printf("UTNT_ASSERT %s soul sparks count=%d young=%d invalid=%d terror=%d",

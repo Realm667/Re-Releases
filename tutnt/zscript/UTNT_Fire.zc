@@ -261,7 +261,7 @@ class UTNTFireDetail : VisualThinker
         UpdateSector(); UpdateSpriteInfo();
     }
 
-    // Shared spark material, motion and lifetime for torches, floor fires and souls.
+    // Shared spark material, motion and lifetime for torches and floor fires.
     void ConfigureEmber(int colorIndex, double small)
     {
         Texture=TexMan.CheckForTexture(colorIndex==1 ? 'UFEGA0' : colorIndex==2 ? 'UFECA0' : 'UFEBA0');
@@ -273,22 +273,6 @@ class UTNTFireDetail : VisualThinker
         scolor=0xffffffff;
         Vel=(FRandom[utntcosmetic](-0.23,0.23),FRandom[utntcosmetic](-0.23,0.23),FRandom[utntcosmetic](0.8,1.35)*small);
         Roll=FRandom[utntcosmetic](-35,35);
-    }
-
-    void InitializeLostSoul(Actor owner)
-    {
-        Source=owner;
-        Phase=FRandom[utntcosmetic](0,360);
-        Flags=SPF_ALLOWSHADERS;
-        bXFlip=Random[utntcosmetic](0,1);
-        // The flame crown sits above the skull's collision cylinder.
-        Pos=owner.Vec3Offset(FRandom[utntcosmetic](-7,7),
-            FRandom[utntcosmetic](-7,7),owner.Height+FRandom[utntcosmetic](0,10));
-        ConfigureEmber(0,0.85);
-        // Shed sparks into the world, retaining only a little flight momentum.
-        Vel+=owner.Vel*0.12;
-        Animate(); Prev=Pos; PrevRoll=Roll;
-        UpdateSector(); UpdateSpriteInfo();
     }
 
     void Animate()
@@ -380,6 +364,50 @@ class UTNTFireSpawnerBase : SwitchableDecoration
     }
 }
 
+// Palette-native flame chips: separate from the soft, shader-lit torch embers.
+class UTNTLostSoulEmber : VisualThinker
+{
+    Actor Source;
+    int Age, Life;
+    Vector2 InitialScale;
+
+    void Initialize(Actor owner)
+    {
+        Source=owner;
+        Texture=TexMan.CheckForTexture(String.Format("ULSE%c0",65+Random[utntcosmetic](0,2)));
+        Flags=SPF_FULLBRIGHT;
+        SetRenderStyle(STYLE_Translucent);
+        scolor=0xffffffff;
+        bXFlip=Random[utntcosmetic](0,1);
+        double rear=owner.Radius*FRandom[utntcosmetic](0.55,0.85);
+        double side=owner.Radius*FRandom[utntcosmetic](-0.50,0.50);
+        double facing=owner.Angle;
+        // Births sit inside the rear flame, below the top of the original sprite.
+        Pos=owner.Vec3Offset(-cos(facing)*rear-sin(facing)*side,
+            -sin(facing)*rear+cos(facing)*side,owner.Height*FRandom[utntcosmetic](0.48,0.68));
+        double drift=FRandom[utntcosmetic](0.20,0.45);
+        Vel=(-cos(facing)*drift+FRandom[utntcosmetic](-0.12,0.12),
+            -sin(facing)*drift+FRandom[utntcosmetic](-0.12,0.12),FRandom[utntcosmetic](0.16,0.38));
+        Vel+=owner.Vel*0.10;
+        Life=Random[utntcosmetic](16,24);
+        double size=FRandom[utntcosmetic](0.55,0.85);
+        InitialScale=(size,size); Scale=InitialScale; Alpha=1;
+        Prev=Pos;
+        UpdateSector(); UpdateSpriteInfo();
+    }
+
+    override void Tick()
+    {
+        if(!Source) { Destroy(); return; }
+        if(IsFrozen() || Source.IsFrozen()) return;
+        if(++Age>=Life || !UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        Super.Tick();
+        // Brief, opaque pixel flecks dissolve without becoming a tall dotted plume.
+        Scale=InitialScale*(1-0.25*double(Age)/Life);
+        Alpha=min(1.0,(Life-Age)/6.0);
+    }
+}
+
 // DECORATE keeps every original AI state and timing; this base only emits visuals.
 class UTNTLostSoulFXBase : LostSoul
 {
@@ -387,9 +415,9 @@ class UTNTLostSoulFXBase : LostSoul
     {
         Super.Tick();
         // Terror inherits UTNTLostSoul but has its own non-flaming sprite set.
-        if (Health<=0 || sprite!=GetSpriteIndex("SKUL") || level.time%4!=0
+        if (Health<=0 || sprite!=GetSpriteIndex("SKUL") || level.time%2!=0
             || !UTNTVisuals.Visible(self) || !UTNTVisuals.Reserve()) return;
-        let spark=UTNTFireDetail(level.SpawnClientSideVisualThinker('UTNTFireDetail'));
-        if (spark) spark.InitializeLostSoul(self);
+        let spark=UTNTLostSoulEmber(level.SpawnClientSideVisualThinker('UTNTLostSoulEmber'));
+        if (spark) spark.Initialize(self);
     }
 }
