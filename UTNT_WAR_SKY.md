@@ -94,3 +94,32 @@ Nachweise: `tools/validation/intro-skip-2026-09-09`. Wiederholung mit
 `tools/test_tnt04a_intro.py` und `tools/test_tnt04a_intro_coop.py`; Engine
 und IWAD ueber `UTNT_ENGINE` / `UTNT_IWAD` oder die jeweiligen CLI-Argumente.
 Fuer die neue Skriptfassung TNT04A frisch starten.
+
+## Kometenvariation - 2026-09-09
+
+Die Hauptbahnen behalten ihre Geschwindigkeit, Frequenz und Feuerfarben.
+Pro Vorbeiflug variiert der Massstab dezent zwischen 0.72 und 1.34, waehrend
+des sichtbaren Flugs bleibt er konstant. Ein deterministisch versetzter
+Vorbeiflug je 32 Fluege pro Bahn zerfaellt sanft in eine kleine Dreiergruppe:
+Hauptkomet plus zwei kleinere, langsam auseinanderdriftende Fragmente.
+Langfristig ergibt sich etwa eine solche Gruppe alle drei Minuten ueber den
+gesamten Himmel; nicht jede davon liegt im sichtbaren Bildausschnitt.
+
+Die Fragmente erhalten denselben Flammenstil in kleinerem Massstab; sie
+blenden weich ein und erzeugen keinen hellen Explosionsblitz. Panorama,
+Terrain, Wolkenbewegung, Karten, Intro und Gameplay bleiben unveraendert.
+Die Skybox-Geometrie und die sechs gemeinsam genutzten Caldera-Basisshader
+wurden gegen den Ausgangszustand per SHA-256 geprueft.
+
+Der Stil ist auch fuer TNT04B vorgemerkt. Dessen Originalbefund und noch
+abzunehmender Entwurf stehen in TNT04B_SKY_CONCEPT.md. TNT04B wird erst nach
+Konzept- und anschliessender Mockupabnahme integriert.
+
+Pruefung: tools/test_war_comet_variation.py rendert normale Groessen,
+fruehe/spaete Fragmentierung mit festem Testzeitpunkt und echte laufende
+Bewegung in UZDoom 5.0.1. Die festen Zeiten werden ausschliesslich in einem
+Test-Addon eingesetzt; das Spiel nutzt weiter den normalen Shader-Timer.
+OpenGL-/Vulkan-Aufnahmen und Laufzeitlogs liegen unter
+tools/validation/comet-variation-2026-09-09. Die Aufnahmen erfordern eine
+visuelle Beurteilung, die automatischen Assertions pruefen Kamera und
+Skybox-Zuordnung. Keine vollstaendige Kampagnenabnahme fuer diese Dekoration.
