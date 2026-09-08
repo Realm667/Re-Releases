@@ -84,16 +84,16 @@ void main()
         float edge=min(border.x,border.y);
         if(edge<extent)
         {
-            // Dense 5x5 Gaussian taps avoid the separated-image artifacts of
+            // Dense 7x7 Gaussian taps avoid the separated-image artifacts of
             // a sparse wide kernel. Accumulate smooth normals in the same pass.
-            vec2 stepUV=vec2(0.0025)/vec2(aspect,1.0);
-            float weights[5]=float[](1.0,4.0,6.0,4.0,1.0);
+            vec2 stepUV=vec2(0.0035)/vec2(aspect,1.0);
+            float weights[7]=float[](1.0,6.0,15.0,20.0,15.0,6.0,1.0);
             float ice=0.0;
             vec2 gradient=vec2(0.0);
-            for(int y=-2;y<=2;y++) for(int x=-2;x<=2;x++)
+            for(int y=-3;y<=3;y++) for(int x=-3;x<=3;x++)
             {
                 float value=SampleIce(frostUV+vec2(x,y)*stepUV);
-                float weight=weights[x+2]*weights[y+2]/256.0;
+                float weight=weights[x+3]*weights[y+3]/4096.0;
                 ice+=value*weight;
                 gradient+=vec2(x,y)*value*weight*2.0;
             }
@@ -101,15 +101,15 @@ void main()
             float coverage=smoothstep(0.018,0.65,ice)*field*sqrt(frostAmount);
             if(coverage>0.001)
             {
-                vec2 coord=clamp(uv+gradient*coverage*0.024/vec2(aspect,1),vec2(0.006),vec2(0.994));
+                vec2 coord=clamp(uv+gradient*coverage*0.10/vec2(aspect,1),vec2(0.006),vec2(0.994));
                 vec3 blurred=texture(InputTexture,coord).rgb;
                 if(detailLevel>=2)
                 {
-                    vec2 blur=vec2(0.004*coverage)/vec2(aspect,1);
+                    vec2 blur=vec2(0.006*coverage)/vec2(aspect,1);
                     blurred=blurred*0.4+(texture(InputTexture,coord+blur).rgb+texture(InputTexture,coord-blur).rgb)*0.3;
                 }
                 // Apply accumulation once: the former nested mix squared weak frost.
-                col=mix(col,blurred,coverage*0.75);
+                col=mix(col,blurred,1.0-exp(-coverage*3.0));
                 col=mix(col,vec3(0.8),clamp(coverage*(0.30+ice*0.55),0.0,0.86));
             }
         }
