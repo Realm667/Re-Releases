@@ -1,9 +1,10 @@
-// Preserve the painted slate palette instead of remapping every edge to silver.
+// Preserve the source alpha, soft gray-blue edges and dark translucent interior.
 vec4 ProcessTexel()
 {
     vec2 uv=vTexCoord.st;
-    vec3 s=getTexel(uv).rgb;
-    float d=max(s.r,max(s.g,s.b));
+    vec4 s=getTexel(uv);
+    float d=dot(s.rgb,vec3(0.2126,0.7152,0.0722));
     float edge=smoothstep(0.0,0.025,min(min(uv.x,uv.y),min(1.0-uv.x,1.0-uv.y)));
-    return vec4(min(s*1.10,vec3(0.55,0.63,0.69)),smoothstep(0.035,0.18,d)*edge);
+    vec3 tint=mix(vec3(0.22,0.28,0.34),vec3(0.55,0.62,0.68),clamp(d*2.2,0.0,1.0));
+    return vec4(min(tint*1.15,vec3(0.55,0.62,0.68)),sqrt(s.a)*smoothstep(0.002,0.09,d)*edge);
 }

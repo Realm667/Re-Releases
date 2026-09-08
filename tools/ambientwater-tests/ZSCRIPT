@@ -4,7 +4,8 @@ class UTNTAmbientWaterTest : EventHandler
     Array<Actor> Sources;
     bool SmokeMode;
     bool LandingArmed, LandingSeen;
-    int LandingLargeCrowns, LandingMaxDroplets;
+    int LandingLargeCrowns, LandingMaxDroplets, LandingFrames, LandingTrails;
+    bool LandingOversized;
     override void WorldThingSpawned(WorldEvent e)
     {
         if(LandingArmed && e.Thing is 'UTNT_WaterSplash' && !(e.Thing is 'UTNT_WaterSplash_Chunk') && !(e.Thing is 'UTNT_WaterSplash_Small')) LandingSeen=true;
@@ -18,11 +19,24 @@ class UTNTAmbientWaterTest : EventHandler
             UTNTWaterVisual w;
             while(w=UTNTWaterVisual(it.Next()))
             {
-                if(w.Kind==2 && w.Height>=48) crowns++;
-                if(w.Kind==1 && w.Height>=12) drops++;
+                if(w.Kind==2 && w.Height>=32)
+                {
+                    crowns++; LandingFrames|=1<<w.AnimationFrame;
+                    if(w.Width>42 || w.Height>40 || w.Scale.X*418>50) LandingOversized=true;
+                }
+                if(w.Kind==1)
+                {
+                    drops++;
+                    if(w.Width>5.5 || w.Height>8) LandingOversized=true;
+                }
             }
             LandingLargeCrowns=max(LandingLargeCrowns,crowns);
             LandingMaxDroplets=max(LandingMaxDroplets,drops);
+            int trails=0;
+            let ti=ThinkerIterator.Create('UTNTWaterTrail',Thinker.MAX_STATNUM+1,true);
+            UTNTWaterTrail trace;
+            while(trace=UTNTWaterTrail(ti.Next())) trails++;
+            LandingTrails=max(LandingTrails,trails);
         }
         if (level.time!=2) return;
         let p=players[0].mo;
@@ -52,8 +66,8 @@ class UTNTAmbientWaterTest : EventHandler
         if(e.Name=="awremove") { for(int i=0;i<Sources.Size();i++) if(Sources[i]) Sources[i].Destroy(); Sources.Clear(); }
         if(e.Name=="awland")
         {
-            LandingArmed=true; LandingSeen=false; LandingLargeCrowns=0; LandingMaxDroplets=0;
-            let p=players[0].mo;p.SetOrigin((0,-190,96),false);p.Vel=(0,0,-10);p.Angle=90;p.Pitch=0;
+            LandingArmed=true; LandingSeen=false; LandingLargeCrowns=0; LandingMaxDroplets=0; LandingFrames=0; LandingTrails=0; LandingOversized=false;
+            let p=players[0].mo;p.SetOrigin((0,-190,96),false);p.Vel=(0,0,-10);p.Angle=90;p.Pitch=30;
         }
         if(e.Name=="awsmall") Actor.Spawn('UTNT_WaterSplash_Small',(0,-190,0));
         if(e.Name=="awsplash") Actor.Spawn('UTNT_WaterSplash',(0,-190,0));
@@ -62,11 +76,22 @@ class UTNTAmbientWaterTest : EventHandler
     }
     override void ConsoleProcess(ConsoleEvent e)
     {
+        if(e.Name=="awbodycheck")
+        {
+            int crowns=0;
+            let it=ThinkerIterator.Create('UTNTWaterVisual',Thinker.MAX_STATNUM+1,true);
+            UTNTWaterVisual w;
+            while(w=UTNTWaterVisual(it.Next())) if(w.Kind==2 && w.Height>=32) crowns++;
+            Console.Printf("UTNT_ASSERT %s body splash survives nine active fountains",crowns>0 ? "PASS" : "FAIL");
+            return;
+        }
         if(e.Name=="awlandingcheck")
         {
             Console.Printf("UTNT_ASSERT %s real body landing invokes terrain splash",LandingSeen ? "PASS" : "FAIL");
-            Console.Printf("UTNT_ASSERT %s body landing creates main crown and outward skirt (%d)",LandingLargeCrowns>=4 ? "PASS" : "FAIL",LandingLargeCrowns);
+            Console.Printf("UTNT_ASSERT %s body landing has one compact crown (%d)",LandingLargeCrowns==1 && !LandingOversized ? "PASS" : "FAIL",LandingLargeCrowns);
             Console.Printf("UTNT_ASSERT %s body landing creates visible rebound drops (%d)",LandingMaxDroplets>=8 ? "PASS" : "FAIL",LandingMaxDroplets);
+            Console.Printf("UTNT_ASSERT %s landing crown advances through six frames (%d)",LandingFrames==63 ? "PASS" : "FAIL",LandingFrames);
+            Console.Printf("UTNT_ASSERT %s splash rebound particles emit motion trails (%d)",LandingTrails>0 ? "PASS" : "FAIL",LandingTrails);
             return;
         }
         if(e.Name=="awsmallcheck")
@@ -74,7 +99,7 @@ class UTNTAmbientWaterTest : EventHandler
             int small=0,large=0;
             let it=ThinkerIterator.Create('UTNTWaterVisual',Thinker.MAX_STATNUM+1,true);
             UTNTWaterVisual w;
-            while(w=UTNTWaterVisual(it.Next())) if(w.Kind==2) { if(w.Height>=48) large++; else small++; }
+            while(w=UTNTWaterVisual(it.Next())) if(w.Kind==2) { if(w.Height>=32) large++; else small++; }
             Console.Printf("UTNT_ASSERT %s light water impacts stay small",small>0 && large==0 ? "PASS" : "FAIL");
             return;
         }
@@ -82,7 +107,7 @@ class UTNTAmbientWaterTest : EventHandler
         let cam=players[consoleplayer].camera;
         Console.Printf("AWDIAG camera=%s pos=%s quality=%d lod=%d smoke=%d sources=%d",cam ? cam.GetClassName() : 'none',cam ? String.Format("%f %f %f",cam.Pos.X,cam.Pos.Y,cam.Pos.Z) : "none",CVar.GetCVar('UTNT_fxquality',players[consoleplayer]).GetInt(),CVar.GetCVar('UTNT_lod',players[consoleplayer]).GetInt(),CVar.GetCVar('UTNT_ambientsmoke',players[consoleplayer]).GetInt(),Sources.Size());
         if(Sources.Size() && Sources[0]) Console.Printf("AWDIAG source %s frozen=%d distance=%f",Sources[0].GetClassName(),Sources[0].IsFrozen(),cam ? Sources[0].Distance3D(cam) : -1);
-        int puffs=0,water=0,drops=0,invalid=0,variants=0;
+        int puffs=0,water=0,drops=0,invalid=0,variants=0,trails=0;
         let si=ThinkerIterator.Create('UTNTAmbientSmokePuff',Thinker.MAX_STATNUM+1,true);
         UTNTAmbientSmokePuff s;
         while(s=UTNTAmbientSmokePuff(si.Next()))
@@ -93,6 +118,13 @@ class UTNTAmbientWaterTest : EventHandler
         }
         let wi=ThinkerIterator.Create('UTNTWaterVisual',Thinker.MAX_STATNUM+1,true); UTNTWaterVisual w;
         while(w=UTNTWaterVisual(wi.Next())) { water++; if(w.Scale.X<=0 || w.Scale.Y<=0 || w.Age>=w.Life) invalid++; }
+        let ti=ThinkerIterator.Create('UTNTWaterTrail',Thinker.MAX_STATNUM+1,true); UTNTWaterTrail trace;
+        while(trace=UTNTWaterTrail(ti.Next()))
+        {
+            trails++;
+            if(trace.Scale.X<=0 || trace.Scale.Y<=0 || trace.Age>=trace.Life || trace.Length>18 || trace.Alpha>0.601 || trace.Pos.Z<trace.Floor) invalid++;
+            if(trace.Direction.Z>0.01 && trace.Pos.Z-trace.Direction.Z*trace.Length<trace.Floor-0.21) invalid++;
+        }
         let ai=ThinkerIterator.Create('UTNTFountainDropBase');UTNTFountainDropBase a;
         while(a=UTNTFountainDropBase(ai.Next()))
         {
@@ -104,6 +136,7 @@ class UTNTAmbientWaterTest : EventHandler
         Console.Printf("UTNT_ASSERT %s active visual population smoke=%d water=%d drops=%d", (SmokeMode ? (puffs>0)==expected : (drops>0)==expected) ? "PASS" : "FAIL",puffs,water,drops);
         Console.Printf("UTNT_ASSERT %s smoke uses all four silhouettes (%d)", !SmokeMode || !expected || variants==15 ? "PASS" : "FAIL",variants);
         Console.Printf("UTNT_ASSERT %s transient water visuals accompany active fountains", SmokeMode || !expected || water>0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s fountain motion trails present and cleaned up (%d)", (SmokeMode || !expected ? trails==0 : trails>0) ? "PASS" : "FAIL",trails);
         for(int row=0;row<3;row++) for(int col=0;col<3;col++)
         {
             class<Actor> type=String.Format("Drop_B%d%c",row+1,65+col);

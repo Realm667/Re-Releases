@@ -82,36 +82,32 @@ class UTNTAmbientSmokePuff : VisualThinker
     }
 }
 
-// Existing fountain missiles retain their speed, gravity, collision and spawn cadence.
+// Existing fountain missiles keep their speed, gravity, collision and cadence.
 class UTNTFountainDropBase : Actor
 {
-    int VisualAge, CoherentTics;
+    int VisualAge;
     double VisualWidth;
     Default { +ROLLSPRITE +ROLLCENTER +DONTSPLASH }
     override void PostBeginPlay()
     {
         Super.PostBeginPlay();
-        VisualWidth=FRandom[utntcosmetic](8.4,13.8)*(Scale.X/0.25);
+        VisualWidth=FRandom[utntcosmetic](7,11)*(Scale.X/0.25);
+        // Also replace the initial inherited scale before the first rendered tic.
+        sprite=GetSpriteIndex('UWAT'); frame=1; Scale=(VisualWidth/418,10.0/418);
     }
     override void Tick()
     {
         Super.Tick();
         if (!bMissile) return;
-        if (!VisualAge) CoherentTics=clamp(10-int(Vel.XY.Length()*2),4,10);
         VisualAge++;
-        sprite=GetSpriteIndex('UWAT'); frame=VisualAge<CoherentTics ? 0 : 1;
-        double stretch=VisualAge<CoherentTics ? 13 : clamp(Vel.Length()*1.3,5,8);
-        Scale=(VisualWidth/627,stretch/627);
-        Alpha=0.62;
+        sprite=GetSpriteIndex('UWAT'); frame=1;
+        Scale=(VisualWidth/418,clamp(5+Vel.Length()*2,6,16)/418);
+        Alpha=0.70;
         let camera=players[consoleplayer].camera;
-        if (camera)
-        {
-            double a=camera.Angle;
-            double side=Vel.X*sin(a)-Vel.Y*cos(a);
-            Roll=atan2(side,Vel.Z);
-        }
-        if (VisualAge<CoherentTics && UTNTVisuals.Visible(self) && UTNTVisuals.Reserve())
-            UTNTWaterSystem.Trail(self);
+        if (camera) Roll=180+atan2(Vel.X*sin(camera.Angle)-Vel.Y*cos(camera.Angle),Vel.Z);
+        // Trails cover ascent AND descent; slow particles at the apex leave shorter traces.
+        if (VisualAge%2==0 && UTNTVisuals.Visible(self))
+            UTNTWaterSystem.MotionTrail(Pos,Vel,VisualWidth,false,FloorZ+0.8);
     }
     action void A_UTNTWaterImpact()
     {
@@ -122,71 +118,98 @@ class UTNTFountainDropBase : Actor
 
 class UTNTWaterSystem play
 {
-    static void Trail(Actor source)
+    static void MotionTrail(Vector3 origin,Vector3 velocity,double width,bool combat=false,double floor=-32768)
     {
-        let p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
-        if (!p) return;
-        p.Initialize(source.Pos-source.Vel*0.35,0,FRandom[utntcosmetic](7,11),FRandom[utntcosmetic](10,14),5);
-        p.Vel=source.Vel*0.6; p.Accel=(0,0,-0.125);
-        p.Roll=source.Roll; p.PrevRoll=p.Roll;
+        if (origin.Z<floor || velocity.Length()<0.35 || !UTNTVisuals.ReserveCount(1,combat)) return;
+        let p=UTNTWaterTrail(level.SpawnClientSideVisualThinker('UTNTWaterTrail'));
+        if (p) p.Initialize(origin,velocity,width,floor);
     }
-    // Body splashes have their own envelope; fountain drops stay small.
-    static void Impact(Actor source, double strength=1, bool liquid=true, bool bodyImpact=false)
+    static void Impact(Actor source,double strength=1,bool liquid=true,bool bodyImpact=false)
     {
         if (!UTNTVisuals.Visible(source,combat:true)) return;
-        int granted=UTNTVisuals.ReserveCount(bodyImpact ? 13 : liquid ? 5 : 3,true);
+        // Decorative fountains must not exhaust the pool for player water impacts.
+        bool combat=!(source is 'UTNTFountainDropBase');
+        int granted=UTNTVisuals.ReserveCount(bodyImpact ? 10 : liquid ? 5 : 3,combat);
         if (!granted) return;
         Vector3 origin=source.Pos; origin.Z+=0.9;
         let p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
-        if (p) p.Initialize(origin,2,FRandom[utntcosmetic](bodyImpact ? 90 : 12,bodyImpact ? 110 : 18)*strength,
-            FRandom[utntcosmetic](bodyImpact ? 68 : 12,bodyImpact ? 82 : 18)*strength,bodyImpact ? 24 : 12);
+        if (p) p.Initialize(origin,2,FRandom[utntcosmetic](bodyImpact ? 34 : 9,bodyImpact ? 42 : 13)*strength,
+            FRandom[utntcosmetic](bodyImpact ? 32 : 12,bodyImpact ? 40 : 16)*strength,bodyImpact ? 22 : 16);
         if (liquid && granted>1)
         {
             let ring=UTNTWaterRing(Actor.Spawn('UTNTWaterRing',origin));
-            if (ring) { ring.VisualSize=strength*(bodyImpact ? 3.4 : 1); ring.Angle=FRandom[utntcosmetic](0,360); }
+            if (ring) { ring.VisualSize=strength*(bodyImpact ? 1.65 : 0.6); ring.Angle=FRandom[utntcosmetic](0,360); }
         }
-        int used=liquid ? 2 : 1;
-        // An outward skirt makes landings readable from the player's own view.
-        if (bodyImpact)
-        {
-            double phase=FRandom[utntcosmetic](0,360);
-            for (int j=0;j<3 && used<granted;j++,used++)
-            {
-                double a=phase+j*120;
-                p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
-                if (!p) continue;
-                p.Initialize(origin+(cos(a)*30,sin(a)*30,3),2,FRandom[utntcosmetic](38,50),FRandom[utntcosmetic](48,60),22);
-                p.Vel=(cos(a)*0.65,sin(a)*0.65,0.2);
-            }
-        }
-        for (int i=used;i<granted;i++)
+        // One compact crown. Rebound drops supply the motion, without a large outward skirt.
+        for (int i=liquid ? 2 : 1;i<granted;i++)
         {
             p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
             if (!p) continue;
-            double a=FRandom[utntcosmetic](0,360),v=FRandom[utntcosmetic](bodyImpact ? 0.8 : 0.25,bodyImpact ? 1.6 : 0.7)*strength;
-            Vector3 birth=origin+(cos(a)*(bodyImpact ? 24 : 0),sin(a)*(bodyImpact ? 24 : 0),0);
-            p.Initialize(birth,1,FRandom[utntcosmetic](bodyImpact ? 10 : 4,bodyImpact ? 16 : 7)*strength,
-                FRandom[utntcosmetic](bodyImpact ? 12 : 6,bodyImpact ? 18 : 9)*strength,Random[utntcosmetic](bodyImpact ? 24 : 10,bodyImpact ? 32 : 17));
-            p.Vel=(cos(a)*v,sin(a)*v,FRandom[utntcosmetic](bodyImpact ? 3.2 : 0.65,bodyImpact ? 4.8 : 1.3)*strength);
-            p.Accel=(0,0,bodyImpact ? -0.18 : -0.12); p.Floor=origin.Z;
+            double a=FRandom[utntcosmetic](0,360);
+            double v=FRandom[utntcosmetic](bodyImpact ? 0.65 : 0.25,bodyImpact ? 1.35 : 0.7)*strength;
+            Vector3 birth=origin+(cos(a)*(bodyImpact ? 12 : 0),sin(a)*(bodyImpact ? 12 : 0),0);
+            p.Initialize(birth,1,FRandom[utntcosmetic](bodyImpact ? 3.5 : 3,bodyImpact ? 5.5 : 5)*strength,
+                FRandom[utntcosmetic](bodyImpact ? 5 : 4,bodyImpact ? 8 : 6)*strength,Random[utntcosmetic](bodyImpact ? 22 : 12,bodyImpact ? 30 : 19));
+            p.Vel=(cos(a)*v,sin(a)*v,FRandom[utntcosmetic](bodyImpact ? 2.2 : 0.65,bodyImpact ? 3.3 : 1.3)*strength);
+            p.Accel=(0,0,bodyImpact ? -0.22 : -0.12); p.Floor=origin.Z; p.CombatTrail=combat;
         }
     }
+}
 
+// A short stationary trace records the actual local trajectory. Successive traces
+// overlap and fade; they never follow a missile through its apex or impact.
+class UTNTWaterTrail : VisualThinker
+{
+    Vector3 Direction;
+    int Age, Life;
+    double Width, Length, Floor;
+    void Initialize(Vector3 origin,Vector3 velocity,double width,double floor)
+    {
+        self.Width=width*FRandom[utntcosmetic](1.0,1.3);
+        Length=clamp(velocity.Length()*3.4,1.2,18);
+        Direction=velocity.Unit(); self.Floor=floor;
+        if (Direction.Z>0.01) Length=min(Length,max(0.2,(origin.Z-floor)/Direction.Z));
+        Life=6;
+        Texture=TexMan.CheckForTexture('UWATA0');
+        Flags=SPF_ALLOWSHADERS|SPF_STRETCHPIXELS|SPF_ROLL;
+        SetRenderStyle(STYLE_Translucent);
+        Pos=origin; Prev=Pos; Alpha=0.60;
+        // The atlas anchor sits at the head; positive roll +180 points it forward.
+        Orient(); PrevRoll=Roll; UpdateSector(); UpdateSpriteInfo();
+    }
+    void Orient()
+    {
+        let camera=players[consoleplayer].camera;
+        if (!camera) return;
+        double side=Direction.X*sin(camera.Angle)-Direction.Y*cos(camera.Angle);
+        double projected=sqrt(side*side+Direction.Z*Direction.Z);
+        Roll=180+atan2(side,Direction.Z);
+        Scale=(Width/418,Length*max(0.12,projected)/290);
+    }
+    override void Tick()
+    {
+        if (IsFrozen()) return;
+        if (++Age>=Life || Pos.Z<Floor) { Destroy(); return; }
+        Super.Tick();
+        Alpha=0.60*((1-double(Age)/Life)**1.5);
+        Orient();
+    }
 }
 
 class UTNTWaterVisual : VisualThinker
 {
     Vector3 Accel;
-    int Age, Life, Kind;
+    int Age, Life, Kind, AnimationFrame;
+    bool CombatTrail;
     double Width, Height, Floor;
     void Initialize(Vector3 origin,int kind,double width,double height,int life)
     {
-        self.Kind=kind; self.Width=width; self.Height=height; self.Life=life; Floor=-32768;
-        Texture=TexMan.CheckForTexture(String.Format("UWAT%c0",65+kind));
+        CombatTrail=true; self.Kind=kind; self.Width=width; self.Height=height; self.Life=life; Floor=-32768;
+        Texture=TexMan.CheckForTexture(kind==2 ? 'UWSCA0' : 'UWATB0');
         Flags=SPF_ALLOWSHADERS|SPF_STRETCHPIXELS|SPF_ROLL;
         SetRenderStyle(STYLE_Translucent); bXFlip=Random[utntcosmetic](0,1);
-        Pos=origin; Prev=Pos; Alpha=0.7;
-        Scale=(width/627,height/627);
+        Pos=origin; Prev=Pos; Alpha=0.65;
+        Scale=(width/418,height/418);
         UpdateSector(); UpdateSpriteInfo();
     }
     override void Tick()
@@ -196,12 +219,20 @@ class UTNTWaterVisual : VisualThinker
         Super.Tick();
         Vel+=Accel;
         double t=double(Age)/Life;
-        Alpha=0.7*(1-t*t);
-        if (Kind==2) Scale=(Width*(1+0.45*t)/627,Height*(1-0.35*t)/627);
+        Alpha=0.65*(1-t*t);
+        if (Kind==2)
+        {
+            // Six registered shapes: rise, peak, break-up and flattening at the waterline.
+            AnimationFrame=min(5,int(t*6));
+            Texture=TexMan.CheckForTexture(String.Format("UWSC%c0",65+AnimationFrame));
+            Scale=(Width*(1+0.18*t)/418,Height/418);
+            UpdateSpriteInfo();
+        }
         else if (players[consoleplayer].camera)
         {
             double a=players[consoleplayer].camera.Angle;
-            Roll=atan2(Vel.X*sin(a)-Vel.Y*cos(a),Vel.Z);
+            Roll=180+atan2(Vel.X*sin(a)-Vel.Y*cos(a),Vel.Z);
+            if (Age%2==0 && Pos.Z>=Floor) UTNTWaterSystem.MotionTrail(Pos,Vel,Width,CombatTrail,Floor);
         }
     }
 }
@@ -220,7 +251,7 @@ class UTNTWaterRing : Actor
     {
         Super.Tick();
         if (++Age>=28) { Destroy(); return; }
-        double s=(8+Age*0.9)*max(0.1,VisualSize)/627;
-        Scale=(s,s); Alpha=0.32*((1-Age/28.0)**1.5);
+        double s=(8+Age*0.9)*max(0.1,VisualSize)/418;
+        Scale=(s,s); Alpha=0.30*((1-Age/28.0)**1.5);
     }
 }

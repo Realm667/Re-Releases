@@ -1,59 +1,63 @@
 # Ambient smoke and water artwork
 
-The revised water atlas was generated with the built-in Imagegen tool on 2026-09-09.
-The original 1254 x 1254 PNG is stored unchanged at
-`tutnt/graphics/utnt-water/water-atlas-v2.png`. TEXTURES.ambientwater defines four
-627 x 627 regions: ligament, droplet, splash crown and overhead ripple.
-The material derives opacity from luminance; water uses translucent blending.
-Ambient smoke reuses the four approved density silhouettes in
-`tutnt/graphics/utnt-fire/smoke-atlas.png` through separate materials. The fire
-material and all torch/FireSpawner behavior are unchanged. Ambient smoke's
-material shades now range from charcoal (0.11, 0.11, 0.12) to (0.24, 0.24, 0.25),
-centered around #333333. Increased opacity and denser texture coverage retain
-the existing emission count, motion and four silhouettes.
+## Current revision: animated splashes and motion trails (2026-09-09)
 
-## Runtime behavior
+`tutnt/graphics/utnt-water/water-atlas-v3.png` is the unmodified 1254 x 1254
+RGBA output of the built-in Imagegen tool. The prompt is in `prompt-v3.json`.
+TEXTURES.ambientwater selects nine 418 x 418 cells: six sequential crown shapes,
+one droplet, one tapered motion trace and an overhead ring. Crown offsets align
+each row to the waterline. The previous two atlases remain as historical assets.
 
-Smoker and all three DarkSmokeSpawner sizes use independently rotated,
-aspect-varied puffs in a shared slowly changing breeze. Consecutive births
-choose different silhouettes. Lifetimes, opacity and lateral turbulence vary;
-shader edge erosion breaks up wisps. Local quality, LOD, smoke toggle and the
-existing particle budget remain effective. Emission stops with source states;
-remaining puffs dissipate, and source removal cleans them up.
+Water is translucent and responds to map lighting. The material uses the source
+alpha and a restrained slate-gray palette. Fine highlights remain readable in
+dark rooms without additive blending or fullbright sprites.
 
-All nine fountain classes keep their IDs, speed (5/4/3), gravity (.125), launch
-angles, one-missile-per-tic cadence and activation states. Existing missiles
-carry the new jet/droplet graphics; transient local sheets extend the coherent
-portion for narrow trajectories. No additional gameplay projectile is spawned.
-Impacts add a short splash and rebound drops; ripple actors are client-side,
-non-interactive, live 28 tics and only appear on water. Generic water terrain
-splashes use the same artwork. Blood, slime, nukage and lava terrain behavior
-and sounds are retained.
+Body impacts now have one crown, 34â€“42 units wide before modest expansion,
+instead of a 90â€“110 unit crown plus three large outward crowns. It advances
+through six frames over 22 tics. Eight small rebound drops leave short trails;
+a subtle flat ring expands and fades over 28 tics. Footsteps and fountain impacts
+retain a separate smaller envelope. The NODELAY terrain-trigger fix is retained.
 
-## Validation
+Both fountain and splash droplets use the same UTNTWaterTrail implementation.
+Every other particle tic can record a local stationary trace of the current
+trajectory, with a maximum length of 18 units and a six-tic fade. Trail length
+depends on speed, so the apex is naturally shorter. Camera-relative orientation
+and projected length prevent sideways stretching when viewed along the motion.
+The material feathers the tail and sides. Traces are clipped against the source
+waterline on ascent, and no trace is born below it. The short lifetime prevents
+old traces following particles through a turn or impact. No new gameplay
+projectile is introduced; traces are client-side VisualThinkers and use the
+existing separate cosmetic budgets for ambient and impact effects. Fountain
+rebounds use the ambient pool as well, so busy fountains cannot starve player
+water-impact feedback. This separation is covered by a nine-fountain stress check.
 
-`tools/test_ambientwater.py --mod tutnt.pk3` runs the nine fountain combinations,
-all smoke sizes, source activation, removal, smoke/quality switches and save/load
-on OpenGL and Vulkan in an isolated map. Screenshots and results are recorded
-under tools/validation/ambient-water-2026-09-08.
+All nine fountain actor IDs, launch angles, speeds (5/4/3), gravity (.125),
+collision dimensions, emission schedules and activation states are retained.
+Only their presentation changes, including their initial sprite scale.
 
-The mockups are art direction references, not engine screenshots. Actual
-rendered results use the existing map scale and scene lighting.
+## Ambient smoke
 
-## Revision 2026-09-09
+Smoker and all three DarkSmokeSpawner sizes retain four independently rotated,
+aspect-varied silhouettes and their shared slowly changing breeze. The shader
+uses a weighted nine-sample density filter and a broad density/edge falloff to
+soften the formerly hard charcoal contour. Colors remain centered around
+#333333 (material range approximately #1c1c1fâ€“#3d3d40). Existing puff counts,
+lifetimes, quality/LOD controls, smoke toggle and source cleanup are preserved.
+Torch and FireSpawner smoke materials are not changed.
 
-Water now uses a hand-painted, visibly coarser slate-blue atlas. Its original
-color is retained by the shader, replacing the earlier silver luminance ramp.
-Compact drops and shorter coherent segments prevent long white string shapes.
-The crown is anchored at its base so most of it appears above the water plane.
+## Validation and scope
 
-The terrain splash's first action now uses NODELAY: the single-frame Spawn
-state previously skipped its action. Large body impacts spawn a broad crown,
-an outward skirt, higher droplets and wider rings. A separate smallclass keeps
-light impacts and footsteps small. Landings are tested with an actual falling
-player and assertions for terrain activation, large crowns and rebound drops.
+`tools/test_ambientwater.py --mod tutnt.pk3 --renderer 0` (OpenGL) and renderer 1
+(Vulkan) exercise all nine fountains, three smoke sizes and Smoker, activation,
+removal, smoke/quality controls and save/load. A real falling player verifies
+terrain activation, the compact crown, all six animation phases, rebound drops
+and their motion traces. Trail scale, lifetime, maximum length and waterline
+bounds are checked, along with cleanup after sources stop. Screenshots and
+results for this revision are in `tools/validation/ambient-water-trails-2026-09-09`.
 
-Campaign coverage: Smoker, DarkSmokeSpawner and Liquid_Fountain_* are defined
-but not placed in the campaign maps. Water terrain impacts apply on existing
-UTNT_Water surfaces. Ambient emitters and fountains are tested in the fixture
-or with summon; this change does not add map placements.
+The approved mockups are art direction, not engine screenshots. The installed
+effects retain each map's lighting and the existing emitter trajectories.
+Smoker, DarkSmokeSpawner and Liquid_Fountain_* have no campaign placements in
+the audited maps. They can be summoned for inspection; no map placements are
+added. Water terrain splashes work on existing UTNT_Water surfaces. Blood,
+slime, nukage and lava effects are unaffected.
