@@ -1,0 +1,86 @@
+version "5.0.0"
+class PortalSuctionTest : EventHandler
+{
+    transient Actor Cam;
+    int Step;
+    int CheckSerial,ExpectedPull;
+    ui int SeenSerial;
+    override void RenderOverlay(RenderEvent e)
+    {
+        if(SeenSerial==CheckSerial) return;
+        SeenSerial=CheckSerial;
+        let h=UTNTPortalMaterials(EventHandler.Find('UTNTPortalMaterials'));
+        double amount=h.SuctionAmount;
+        let it=ThinkerIterator.Create('UTNTPortalEmitter',Thinker.STAT_USER+8,true);
+        UTNTPortalEmitter em;
+        while(em=UTNTPortalEmitter(it.Next()))
+        {
+            double strength=UTNTPortalSuction.Proximity(e.ViewPos,em.Center,em.Axis,em.SideAxis,em.Width,em.Height);
+            if(strength==0)continue;
+            Vector3 target=em.Center; target.Z=clamp(e.ViewPos.Z,em.Center.Z-em.Height*.3,em.Center.Z+em.Height*.3);
+            Vector3 delta=target-e.ViewPos;
+            let trace=new('LineTracer');trace.Trace(e.ViewPos,e.Camera.CurSector,delta/delta.Length(),delta.Length()-2,0,wallMask:0,ignoreAllActors:true);
+            Console.Printf("SUCTION_TRACE eye=(%.1f %.1f %.1f) center=(%.1f %.1f %.1f) active=%d strength=%.3f hit=%d",e.ViewPos.X,e.ViewPos.Y,e.ViewPos.Z,em.Center.X,em.Center.Y,em.Center.Z,em.Source.PortalActive,strength,trace.Results.HitType);
+        }
+        bool ok=ExpectedPull==0 ? amount==0 : amount>0.01;
+        Console.Printf("UTNT_ASSERT %s: proximity shader expected=%d amount=%.4f",ok ? "PASS" : "FAIL",ExpectedPull,amount);
+    }
+    void Verify(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
+    override void WorldTick()
+    {
+        if(Cam) players[consoleplayer].camera=Cam;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="suctiontest") return;
+        Step=e.Args[0];
+        if(Step==9) { CheckSerial++; ExpectedPull=e.Args[1]; return; }
+        if(Step==11) { level.ExecuteSpecial(226,players[consoleplayer].mo,null,false,176,0,180); return; }
+        let ai=ThinkerIterator.Create('UTNTPortalDecorationBase');
+        UTNTPortalDecorationBase s;
+        if(Step==0 || Step==1 || Step==2)
+        {
+            int sources=0;
+            while(s=UTNTPortalDecorationBase(ai.Next()))
+            {
+                if(s is 'UTNTPortalAutoSource') continue;
+                sources++;
+                if(Step==0) Verify(s.bDormant && !s.PortalActive,"mapped dormant source initially inactive");
+                if(Step==1) { s.Activate(null); Verify(!s.bDormant,"activation clears dormant flag"); }
+                if(Step==2) s.Deactivate(null);
+            }
+            Verify(sources>0,"mapped portal decoration present");
+            return;
+        }
+        if(Step==3 || Step==4)
+        {
+            let it=ThinkerIterator.Create('UTNTPortalEmitter',Thinker.STAT_USER+8,true);
+            UTNTPortalEmitter em; int emitters=0,motes=0;
+            while(em=UTNTPortalEmitter(it.Next())) emitters++;
+            let vi=ThinkerIterator.Create('UTNTPortalMote',Thinker.MAX_STATNUM+1,true);
+            UTNTPortalMote m;
+            while(m=UTNTPortalMote(vi.Next()))
+            {
+                motes++;
+                Verify(m.Texture.Exists() && m.Alpha>0 && m.Scale.X>0,"particle has renderable texture size and alpha");
+                Verify(m.Life<=58,"bounded particle lifetime");
+            }
+            Console.Printf("SUCTION_COUNTS emitters=%d motes=%d",emitters,motes);
+            if(Step==3) Verify(emitters>0 && motes>0,"activated dormant decorations emit visible particles");
+            if(Step==4) Verify(emitters==0 && motes==0,"deactivated decorations clean up");
+            return;
+        }
+        // Local test camera held in place, including after player camera resets.
+        s=UTNTPortalDecorationBase(ai.Next());
+        if(!s)return;
+        if(!Cam) Cam=Actor.SpawnClientSide('UTNTPortalAnchor');
+        double distance=e.Args[1];
+        Vector3 axis=(cos(s.Angle),sin(s.Angle),0);
+        Vector3 side=(-axis.Y,axis.X,0);
+        Vector3 pos=s.Pos+axis*distance;
+        pos.Z=s.GetZAt(0,0,0,GZF_NO3DFLOOR)+80;
+        if(Step==7) pos+=side*600;
+        if(Step==8) pos=s.Pos-axis*64+(0,0,80);
+        Cam.SetOrigin(pos,false); Cam.Angle=s.Angle+(Step==6 ? 0 : 180); Cam.Pitch=0;
+    }
+}

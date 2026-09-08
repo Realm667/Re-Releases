@@ -72,3 +72,36 @@ Wiederholbar mit `tools/test_portal.py --mod tutnt-portals-v2.pk3 --campaign`
 bei gesetztem `UTNT_ENGINE` und `UTNT_IWAD`. Keine vollständige Kampagnen- oder
 WAN-Abnahme, keine allgemeine FPS-Garantie. Das freigegebene KI-Mockup ist das
 Gestaltungsziel; die Belegbilder stammen aus dem tatsächlichen Spiel.
+
+## Aktivierungsreparatur und Sog im Nahbereich
+
+Die gesetzten PortalDecoration_128/192 können mit Dormant starten. Der native
+SwitchableDecoration-Aktivierungsaufruf wechselt lediglich den Zustand; das
+Dormant-Flag blieb bisher gesetzt und sperrte die neue Partikelroutine trotz
+Aktivierung durch ACS 176. Die gemeinsame Portal-Basisklasse synchronisiert nun
+Zustand, PortalActive und Dormant ausdrücklich. Deaktivierte Starts bleiben aus.
+Die ursprünglichen Editor-Nummern und Kartentrigger bleiben erhalten.
+
+Ein größerer, durch einen Sprite-Shader gezeichneter heißer Glutkern macht die
+Partikel auch bei normalen Spielabständen erkennbar. Glut und einzelne Nebelfäden
+beschleunigen aus 64–144 Einheiten Entfernung in einen engeren Bereich der
+Portalöffnung. Emissionsbudget und Lebensdauer bleiben begrenzt wie zuvor.
+
+Der lokale Szenen-Shader UTNTPortalSuction setzt weich innerhalb von etwa 128
+Mapeinheiten vor der Öffnung ein: 128 = aus, 96 = leichter Sog, 64 = halbe und
+24 = starke Intensität. Gebrochene Glutfäden und eine kurze gerichtete Verzerrung
+laufen auf einen Punkt in der sichtbaren Portalöffnung zu. HUD-Texte werden erst
+danach gezeichnet. Es gibt keine Änderung an Bewegung oder Spielphysik.
+
+Die Sichtprüfung ignoriert unsichtbare zweiseitige Triggergrenzen, berücksichtigt
+aber geschlossene Wandgeometrie. Wegsehen, Rückseite, große seitliche Abstände,
+deaktivierte Quellen, FX-Qualität 0, LOD 0, Reduced FX und ausgeschaltete
+Shader-Overlays deaktivieren den Szenen-Shader. Die Werte stammen aus der lokalen
+Renderkamera; mehrere Portale stapeln die Stärke nicht aufeinander.
+
+Prüfung: tools/test_portal_suction.py --mod tutnt.pk3 --campaign.
+Die neuen Testkarten starten beide Spawner ausdrücklich dormant und prüfen
+Aktivierung, Partikel, 128/96/64/24-Einheiten-Abstände, Sichtschutz, Abschalten
+und Save/Load. Die Kampagnenprüfung führt den originalen ACS-176-Aufruf mit
+einem Spieler als Activator in TNT03B, TNT04A und TNT04B aus.
+Belege: tools/validation/portal-suction-2026-09-09/.

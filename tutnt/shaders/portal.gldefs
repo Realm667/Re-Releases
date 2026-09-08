@@ -5,3 +5,14 @@ Material Texture "UPORTAL"
     Texture hellCurtain "materials/portal/hell-curtain.png"
     Speed 1.0
 }
+
+// Scene pass: directional pull before the HUD is composited.
+HardwareShader PostProcess scene
+{
+    Name "UTNTPortalSuction"
+    Shader "shaders/portal-suction.fp" 330
+    Uniform float amount
+    Uniform float phase
+    Uniform vec2 focus
+}
+Material Texture "UPRMA0" { Shader "shaders/portal-ember.fp" }

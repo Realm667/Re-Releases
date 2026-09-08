@@ -9,6 +9,9 @@ class UTNTPortalSlice : Object
 
 class UTNTPortalMaterials : EventHandler
 {
+    ui double SuctionAmount;
+    override void RenderOverlay(RenderEvent e) { SuctionAmount=UTNTPortalSuction.Render(e); }
+    override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTPortalSuction",false); }
     int FittedSurfaces, FittedOpenings, AutomaticSources;
     Array<UTNTPortalSlice> Openings;
     override void WorldTick()
@@ -137,6 +140,23 @@ class UTNTPortalDecorationBase : SwitchableDecoration
 {
     int PortalWidth; double PortalHeight;
     bool PortalActive;
+    override void PostBeginPlay()
+    {
+        Super.PostBeginPlay();
+        if(bDormant || SpawnFlags & MTF_DORMANT) Deactivate(null);
+    }
+    // SwitchableDecoration only changes states. Our emitter also checks
+    // bDormant, so a map-placed dormant source must clear it on activation.
+    override void Activate(Actor activator)
+    {
+        bDormant=false;
+        Super.Activate(activator);
+    }
+    override void Deactivate(Actor activator)
+    {
+        PortalActive=false; bDormant=true;
+        Super.Deactivate(activator);
+    }
     action void A_UTNTPortal(int width)
     {
         let source=UTNTPortalDecorationBase(self);
@@ -255,15 +275,15 @@ class UTNTPortalMote : VisualThinker
     {
         Source=emitter.Source; Wisp=wisp;
         Life=int(emitter.Noise(32,58));
-        Target=emitter.Center+emitter.SideAxis*emitter.Noise(-emitter.Width*0.37,emitter.Width*0.37);
-        Target.Z+=emitter.Noise(-emitter.Height*0.39,emitter.Height*0.39);
-        Start=Target+emitter.Axis*emitter.Noise(36,116);
-        Start+=emitter.SideAxis*emitter.Noise(-14,14); Start.Z+=emitter.Noise(-12,12);
+        Target=emitter.Center+emitter.SideAxis*emitter.Noise(-emitter.Width*0.26,emitter.Width*0.26);
+        Target.Z+=emitter.Noise(-emitter.Height*0.32,emitter.Height*0.32);
+        Start=Target+emitter.Axis*emitter.Noise(64,144);
+        Start+=emitter.SideAxis*emitter.Noise(-32,32); Start.Z+=emitter.Noise(-22,22);
         Bend=emitter.SideAxis*emitter.Noise(-22,22)+(0,0,emitter.Noise(-18,18));
-        Diameter=wisp ? emitter.Noise(9,17) : emitter.Noise(2,4.5);
-        Strength=wisp ? 0.22 : emitter.Noise(0.75,1.0);
+        Diameter=wisp ? emitter.Noise(16,26) : emitter.Noise(6,10);
+        Strength=wisp ? 0.48 : emitter.Noise(0.85,1.0);
         Texture=TexMan.CheckForTexture(wisp ? 'UPRWA0' : 'UPRMA0');
-        Flags=SPF_FULLBRIGHT|SPF_ROLL; SetRenderStyle(STYLE_Add);
+        Flags=SPF_FULLBRIGHT|SPF_ROLL|SPF_ALLOWSHADERS; SetRenderStyle(STYLE_Add);
         Roll=emitter.Noise(0,360); Spin=emitter.Noise(-3,3);
         Pos=Start; Prev=Pos; PrevRoll=Roll;
         UpdateSector(); UpdateSpriteInfo(); Animate();
@@ -286,5 +306,73 @@ class UTNTPortalMote : VisualThinker
         double travel=t*t;
         Pos=Start+(Target-Start)*travel+Bend*sin(t*180);
         Roll+=Spin; UpdateSector(); Animate();
+    }
+}
+
+// Render-time values belong to this client's camera, never to saved world state.
+class UTNTPortalSuction ui
+{
+    static double Proximity(Vector3 eye, Vector3 center, Vector3 axis, Vector3 sideAxis, double width, double height)
+    {
+        Vector3 delta=eye-center;
+        double front=delta.X*axis.X+delta.Y*axis.Y;
+        if(front<=0) return 0;
+        double along=delta.X*sideAxis.X+delta.Y*sideAxis.Y;
+        double outside=max(0,abs(along)-width*0.5);
+        double above=max(0,abs(delta.Z)-height*0.5);
+        double distance=sqrt(front*front+outside*outside+above*above);
+        double strength=clamp(1-distance/128.0,0,1);
+        return strength*strength*(3-2*strength);
+    }
+    static double Render(RenderEvent e)
+    {
+        PPShader.SetEnabled("UTNTPortalSuction",false);
+        if(consoleplayer<0 || !e.Camera) return 0;
+        let p=players[consoleplayer];
+        if(!CVar.GetCVar('UTNT_shaderoverlayswitch',p).GetBool()
+            || CVar.GetCVar('UTNT_reducedfx',p).GetBool()
+            || CVar.GetCVar('UTNT_fxquality',p).GetInt()==0
+            || CVar.GetCVar('UTNT_lod',p).GetInt()==0) return 0;
+        Vector3 forward=(cos(e.ViewAngle)*cos(e.ViewPitch),sin(e.ViewAngle)*cos(e.ViewPitch),-sin(e.ViewPitch));
+        Vector3 right=(sin(e.ViewAngle),-cos(e.ViewAngle),0);
+        Vector3 up=(cos(e.ViewAngle)*sin(e.ViewPitch),sin(e.ViewAngle)*sin(e.ViewPitch),cos(e.ViewPitch));
+        double aspect=double(Screen.GetWidth())/max(1,Screen.GetHeight());
+        // Doom's FOV is specified at 4:3; wider screens extend horizontally.
+        double horizontal=tan(clamp(p.FOV,30,150)*0.5)*max(1,aspect/(4.0/3.0));
+        double best=0; Vector2 focus=(0.5,0.5);
+        let it=ThinkerIterator.Create('UTNTPortalEmitter',Thinker.STAT_USER+8,true);
+        UTNTPortalEmitter em;
+        while(em=UTNTPortalEmitter(it.Next()))
+        {
+            if(!em.Source || !em.Source.PortalActive || em.Source.bDormant) continue;
+            double strength=Proximity(e.ViewPos,em.Center,em.Axis,em.SideAxis,em.Width,em.Height);
+            if(strength<=best) continue;
+            Vector3 target=em.Center;
+            target.Z=clamp(e.ViewPos.Z,em.Center.Z-em.Height*.30,em.Center.Z+em.Height*.30);
+            Vector3 delta=target-e.ViewPos;
+            double depth=delta.X*forward.X+delta.Y*forward.Y+delta.Z*forward.Z;
+            if(depth<=1) continue;
+            double x=(delta.X*right.X+delta.Y*right.Y)/(depth*horizontal);
+            double y=(delta.X*up.X+delta.Y*up.Y+delta.Z*up.Z)/(depth*horizontal/aspect);
+            // Smoothly leave the view; no effect when looking away.
+            strength*=clamp((1.15-abs(x))/.3,0,1)*clamp((1.15-abs(y))/.3,0,1);
+            if(strength<=best) continue;
+            let trace=new('LineTracer');
+            double distance=delta.Length();
+            // Zero flag mask ignores invisible two-sided trigger boundaries;
+            // solid walls, closed sectors and 3D floors still occlude the trace.
+            trace.Trace(e.ViewPos,e.Camera.CurSector,delta/distance,max(0,distance-2),0,wallMask:0,ignoreAllActors:true);
+            if(trace.Results.HitType!=TRACE_HitNone) continue;
+            // Account for camera roll without moving the focal point off the portal.
+            double rx=x*cos(e.ViewRoll)+y*sin(e.ViewRoll);
+            double ry=y*cos(e.ViewRoll)-x*sin(e.ViewRoll);
+            focus=(0.5+rx*.5,0.5+ry*.5); best=strength;
+        }
+        if(best<=0.001) return 0;
+        PPShader.SetUniform1f("UTNTPortalSuction","amount",best);
+        PPShader.SetUniform1f("UTNTPortalSuction","phase",(level.time+e.FracTic)/35.0);
+        PPShader.SetUniform2f("UTNTPortalSuction","focus",focus);
+        PPShader.SetEnabled("UTNTPortalSuction",true);
+        return best;
     }
 }
