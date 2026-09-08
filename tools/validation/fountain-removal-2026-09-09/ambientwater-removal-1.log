@@ -1,0 +1,151 @@
+UZDoom version 5.0.1
+Build: Win32 dated 2026-09-05T12:05:31-04:00
+OS: Windows 11 (or higher) (NT 10.0) Build 26200 
+M_LoadDefaults: Load system defaults.
+D_DoomInit: Static RNGseed 667 set.
+W_Init: Init WADfiles.
+adding F:/DoomDev/Projects/wolfendoom.dev/#standalone/uzdoom.pk3, 734 lumps
+adding F:/DoomDev/Projects/wolfendoom.dev/#standalone/game_support.pk3, 3310 lumps
+adding F:/DoomDev/DOOM2.WAD, 2919 lumps
+adding F:/DoomDev/Projects/wolfendoom.dev/#standalone/lights.pk3, 7 lumps
+adding F:/DoomDev/Projects/wolfendoom.dev/#standalone/brightmaps.pk3, 500 lumps
+adding F:/DoomDev/Projects/wolfendoom.dev/#standalone/game_widescreen_gfx.pk3, 214 lumps
+adding C:/Users/Daniel Gimmer/Documents/ChatGPT/Realm667 ReReleases/ambient-water/fountain-removal/tutnt-no-fountains.pk3, 9038 lumps
+adding F:/DoomDev/Projects/realm667.git/tools/ambientwater-tests, 3 lumps
+S_Init: Setting up sound.
+Key already bound to "bumplight"
+I_Init: Setting up machine state.
+CPU speed: 4491 MHz
+CPU Vendor ID: AuthenticAMD
+  Name: AMD Ryzen 9 7950X 16-Core Processor 
+  Family 25 (25), Model 97, Stepping 2
+  Features: SSE2 SSE3 SSSE3 SSE4.1 SSE4.2 AVX AVX2 AVX512 F16C FMA3 BMI1 BMI2 HyperThreading
+Selecting Vulkan backend...
+ST_Init: Init startup screen.
+Checking cmd-line parameters...
+S_InitData: Load sound definitions.
+G_ParseMapInfo: Load map definitions.
+Texman.Init: Init texture manager.
+ParseTeamInfo: Load team definitions.
+LoadActors: Load actor definitions.
+script parsing took 455.75 ms
+R_Init: Init Doom refresh subsystem.
+DecalLibrary: Load decals.
+M_Init: Init menus.
+P_Init: Init Playloop state.
+ParseSBarInfo: Loading custom status bar definition.
+D_CheckNetGame: Checking network game status.
+I_InitInput
+I_StartupMouse
+I_StartupKeyboard
+I_StartupXInput
+I_StartupRawPS2
+I_StartupDirectInputJoystick
+Vulkan device: NVIDIA GeForce RTX 4080
+Vulkan device type: discrete gpu
+Vulkan version: 1.4.351 (api) 616.224.0 (driver)
+Max. texture size: 32768
+Max. uniform buffer range: 65536
+Min. uniform buffer offset alignment: 64
+Resolution: 960 x 540
+V_Init: allocate screen.
+Init complete.
+
+----------------------------------------
+
+UTNTFIRE - Ambient smoke and water regression
+
+AWDIAG camera=Marine pos=0.000000 -460.000000 -0.000000 quality=3 lod=2400 smoke=1 sources=4
+AWDIAG source DarkSmokeSpawner frozen=0 distance=523.545605
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (108)
+UTNT_ASSERT PASS smoke uses all four silhouettes (15)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+Captured ambientwater-removal-1-water.png
+Captured ambientwater-removal-1-close.png
+UTNT_ASSERT PASS body splash survives active ambient smoke
+Captured ambientwater-removal-1-splash.png
+AWDIAG camera=Marine pos=0.000000 -460.000000 0.000000 quality=3 lod=2400 smoke=1 sources=4
+AWDIAG source DarkSmokeSpawner frozen=0 distance=523.545605
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (0)
+UTNT_ASSERT PASS smoke uses all four silhouettes (0)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+AWDIAG camera=Marine pos=0.000000 -460.000000 0.000000 quality=3 lod=2400 smoke=1 sources=4
+AWDIAG source DarkSmokeSpawner frozen=0 distance=523.545605
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (100)
+UTNT_ASSERT PASS smoke uses all four silhouettes (15)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+AWDIAG camera=Marine pos=0.000000 -640.000000 -0.000000 quality=3 lod=2400 smoke=1 sources=4
+AWDIAG source DarkSmokeSpawner frozen=0 distance=687.095335
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (105)
+UTNT_ASSERT PASS smoke uses all four silhouettes (15)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+Captured ambientwater-removal-1-smoke.png
+Spiel gespeichert.
+AWDIAG camera=Marine pos=0.000000 -640.000000 -0.000000 quality=3 lod=2400 smoke=0 sources=4
+AWDIAG source DarkSmokeSpawner frozen=0 distance=687.095335
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (0)
+UTNT_ASSERT PASS smoke uses all four silhouettes (0)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+AWDIAG camera=Marine pos=0.000000 -640.000000 -0.000000 quality=3 lod=2400 smoke=1 sources=4
+AWDIAG source DarkSmokeSpawner frozen=0 distance=687.095335
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (106)
+UTNT_ASSERT PASS smoke uses all four silhouettes (15)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+AWDIAG camera=Marine pos=0.000000 -640.000000 -0.000000 quality=0 lod=2400 smoke=1 sources=4
+AWDIAG source DarkSmokeSpawner frozen=0 distance=687.095335
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (0)
+UTNT_ASSERT PASS smoke uses all four silhouettes (0)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+AWDIAG camera=Marine pos=0.000000 -640.000000 -0.000000 quality=1 lod=2400 smoke=1 sources=4
+AWDIAG source DarkSmokeSpawner frozen=0 distance=687.095335
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (40)
+UTNT_ASSERT PASS smoke uses all four silhouettes (15)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+AWDIAG camera=Marine pos=0.000000 -640.000000 -0.000000 quality=3 lod=2400 smoke=1 sources=4
+AWDIAG source DarkSmokeSpawner frozen=0 distance=687.095335
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (0)
+UTNT_ASSERT PASS smoke uses all four silhouettes (0)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+AWDIAG camera=Marine pos=0.000000 -640.000000 -0.000000 quality=3 lod=2400 smoke=1 sources=4
+AWDIAG source DarkSmokeSpawner frozen=0 distance=687.095335
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (113)
+UTNT_ASSERT PASS smoke uses all four silhouettes (15)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+AWDIAG camera=Marine pos=0.000000 -640.000000 -0.000000 quality=3 lod=2400 smoke=1 sources=0
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (0)
+UTNT_ASSERT PASS smoke uses all four silhouettes (0)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+
+----------------------------------------
+
+UTNTFIRE - Ambient smoke and water regression
+
+AWDIAG camera=Marine pos=0.000000 -640.000000 -0.000000 quality=3 lod=2400 smoke=1 sources=4
+AWDIAG source DarkSmokeSpawner frozen=0 distance=687.095335
+UTNT_ASSERT PASS finite positive scales, smoke rotation and trail bounds
+UTNT_ASSERT PASS active smoke population (112)
+UTNT_ASSERT PASS smoke uses all four silhouettes (15)
+UTNT_ASSERT PASS transient water visuals and trails cleaned up
+Captured ambientwater-removal-1-landing-14.png
+Captured ambientwater-removal-1-landing-18.png
+Captured ambientwater-removal-1-landing-22.png
+UTNT_ASSERT PASS real body landing invokes terrain splash
+UTNT_ASSERT PASS body landing has one compact crown (1)
+UTNT_ASSERT PASS body landing creates visible rebound drops (8)
+UTNT_ASSERT PASS landing crown advances through six frames (63)
+UTNT_ASSERT PASS splash rebound particles emit motion trails (24)
+UTNT_ASSERT PASS light water impacts stay small
+UTNT_REGRESSION_COMPLETE
+UTNT_TEST_END
+f 2

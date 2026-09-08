@@ -15,10 +15,10 @@ dark rooms without additive blending or fullbright sprites.
 Body impacts now have one crown, 34â€“42 units wide before modest expansion,
 instead of a 90â€“110 unit crown plus three large outward crowns. It advances
 through six frames over 22 tics. Eight small rebound drops leave short trails;
-a subtle flat ring expands and fades over 28 tics. Footsteps and fountain impacts
+a subtle flat ring expands and fades over 28 tics. Footsteps and light impacts
 retain a separate smaller envelope. The NODELAY terrain-trigger fix is retained.
 
-Both fountain and splash droplets use the same UTNTWaterTrail implementation.
+Splash droplets use UTNTWaterTrail for motion traces.
 Every other particle tic can record a local stationary trace of the current
 trajectory, with a maximum length of 18 units and a six-tic fade. Trail length
 depends on speed, so the apex is naturally shorter. Camera-relative orientation
@@ -27,13 +27,20 @@ The material feathers the tail and sides. Traces are clipped against the source
 waterline on ascent, and no trace is born below it. The short lifetime prevents
 old traces following particles through a turn or impact. No new gameplay
 projectile is introduced; traces are client-side VisualThinkers and use the
-existing separate cosmetic budgets for ambient and impact effects. Fountain
-rebounds use the ambient pool as well, so busy fountains cannot starve player
-water-impact feedback. This separation is covered by a nine-fountain stress check.
+existing cosmetic impact budget.
 
-All nine fountain actor IDs, launch angles, speeds (5/4/3), gravity (.125),
-collision dimensions, emission schedules and activation states are retained.
-Only their presentation changes, including their initial sprite scale.
+## Removed unused fountain family (2026-09-09)
+
+All nine Liquid_Fountain_B1A through B3C actors (editor IDs 20024-20032),
+their nine Drop_B* missiles and UTNTFountainDropBase have been removed after
+auditing all 13 campaign maps and their script sources/compiled lumps, in both
+the source tree and active package. There were no placements or external callers.
+The standalone tools/fountain-prototype add-on and runner were also removed.
+The obsolete DROPA0 sprite and unused UWATC0 texture alias are removed.
+UWATA0, UWATB0, UWATD0, UWSC*, their atlas and water shaders remain shared by
+terrain splashes, rebound droplets, trails and rings. The engine's independent
+WhiteParticleFountain (five in TNT04C) and GreenParticleFountain (ten in TNTLE)
+are unaffected. Old validation captures describe the historical implementation.
 
 ## Ambient smoke
 
@@ -48,16 +55,18 @@ Torch and FireSpawner smoke materials are not changed.
 ## Validation and scope
 
 `tools/test_ambientwater.py --mod tutnt.pk3 --renderer 0` (OpenGL) and renderer 1
-(Vulkan) exercise all nine fountains, three smoke sizes and Smoker, activation,
+(Vulkan) exercise three smoke sizes and Smoker, activation,
 removal, smoke/quality controls and save/load. A real falling player verifies
 terrain activation, the compact crown, all six animation phases, rebound drops
 and their motion traces. Trail scale, lifetime, maximum length and waterline
-bounds are checked, along with cleanup after sources stop. Screenshots and
-results for this revision are in `tools/validation/ambient-water-trails-2026-09-09`.
+bounds are checked, along with cleanup after sources stop. The removal passes
+55 assertions per renderer (110 total); logs and the map audit summary are in
+`tools/validation/fountain-removal-2026-09-09`. Earlier artwork captures remain
+in `tools/validation/ambient-water-trails-2026-09-09`.
 
 The approved mockups are art direction, not engine screenshots. The installed
-effects retain each map's lighting and the existing emitter trajectories.
-Smoker, DarkSmokeSpawner and Liquid_Fountain_* have no campaign placements in
+effects retain each map's lighting and the existing smoke motion.
+Smoker and DarkSmokeSpawner have no campaign placements in
 the audited maps. They can be summoned for inspection; no map placements are
 added. Water terrain splashes work on existing UTNT_Water surfaces. Blood,
 slime, nukage and lava effects are unaffected.

@@ -82,40 +82,6 @@ class UTNTAmbientSmokePuff : VisualThinker
     }
 }
 
-// Existing fountain missiles keep their speed, gravity, collision and cadence.
-class UTNTFountainDropBase : Actor
-{
-    int VisualAge;
-    double VisualWidth;
-    Default { +ROLLSPRITE +ROLLCENTER +DONTSPLASH }
-    override void PostBeginPlay()
-    {
-        Super.PostBeginPlay();
-        VisualWidth=FRandom[utntcosmetic](7,11)*(Scale.X/0.25);
-        // Also replace the initial inherited scale before the first rendered tic.
-        sprite=GetSpriteIndex('UWAT'); frame=1; Scale=(VisualWidth/418,10.0/418);
-    }
-    override void Tick()
-    {
-        Super.Tick();
-        if (!bMissile) return;
-        VisualAge++;
-        sprite=GetSpriteIndex('UWAT'); frame=1;
-        Scale=(VisualWidth/418,clamp(5+Vel.Length()*2,6,16)/418);
-        Alpha=0.70;
-        let camera=players[consoleplayer].camera;
-        if (camera) Roll=180+atan2(Vel.X*sin(camera.Angle)-Vel.Y*cos(camera.Angle),Vel.Z);
-        // Trails cover ascent AND descent; slow particles at the apex leave shorter traces.
-        if (VisualAge%2==0 && UTNTVisuals.Visible(self))
-            UTNTWaterSystem.MotionTrail(Pos,Vel,VisualWidth,false,FloorZ+0.8);
-    }
-    action void A_UTNTWaterImpact()
-    {
-        let ground=GetFloorTerrain();
-        UTNTWaterSystem.Impact(self,1,ground && ground.TerrainName=='UTNT_Water' && Pos.Z<=FloorZ+4);
-    }
-}
-
 class UTNTWaterSystem play
 {
     static void MotionTrail(Vector3 origin,Vector3 velocity,double width,bool combat=false,double floor=-32768)
@@ -127,8 +93,8 @@ class UTNTWaterSystem play
     static void Impact(Actor source,double strength=1,bool liquid=true,bool bodyImpact=false)
     {
         if (!UTNTVisuals.Visible(source,combat:true)) return;
-        // Decorative fountains must not exhaust the pool for player water impacts.
-        bool combat=!(source is 'UTNTFountainDropBase');
+        // Terrain impacts retain their reserved feedback budget.
+        bool combat=true;
         int granted=UTNTVisuals.ReserveCount(bodyImpact ? 10 : liquid ? 5 : 3,combat);
         if (!granted) return;
         Vector3 origin=source.Pos; origin.Z+=0.9;
