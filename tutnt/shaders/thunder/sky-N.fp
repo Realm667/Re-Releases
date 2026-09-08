@@ -36,6 +36,7 @@ void SetupMaterial(inout Material mat)
  vec2 sourceSize=vec2(textureSize(tex,0));
  float state=clamp(floor((sourceSize.x/sourceSize.y-1.0)*768.0+.5),0.0,24.0);
  float flashStrength=state<.5 ? 0.0 : (mod(state-1.0,8.0)+1.0)/8.0;
+ flashStrength*=flashStrength;
  float flashDirection=state<.5 ? 0.0 : floor((state-1.0)/8.0);
  float s=1.0-2.0*vTexCoord.x,t=1.0-2.0*vTexCoord.y;
  vec3 ray=normalize(vec3(s,t,-1.0));
@@ -49,11 +50,16 @@ void SetupMaterial(inout Material mat)
  float cone=exp((dot(ray,flashDir)-1.0)*17.0);
  float fine=dot(cloud,vec3(.2126,.7152,.0722));
  float transmission=smoothstep(.045,.27,fine);
- vec3 color=cloud*.88;
+ // Neutralize the blue artwork before lighting, retaining fine cloud detail.
+ cloud=mix(cloud,vec3(fine),.78)*vec3(1.0,1.0,.98);
+ vec3 color=cloud*.34;
  // Cloud-dependent scattering keeps thick dark masses in front of the flash.
- color+=flashStrength*cone*(vec3(.42,.49,.68)*transmission*.95+cloud*.45);
+ color+=flashStrength*cone*(vec3(1.70,1.70,1.68)*transmission+cloud*.65);
+ // A near discharge scatters beyond its core; distant steps barely lift it.
+ color+=flashStrength*flashStrength*vec3(.14)*transmission;
  vec4 mountains=WrapLayer(mountainmap,vec2(longitude,1.06-latitude/3.141592654*2.2),true);
- vec3 mountain=mountains.rgb*(.74+flashStrength*.12);
+ float mountainGray=dot(mountains.rgb,vec3(.2126,.7152,.0722));
+ vec3 mountain=mix(mountains.rgb,vec3(mountainGray),.78)*vec3(1.0,1.0,.98)*(.30+flashStrength*.60);
  color=color*(1.0-mountains.a)+mountain;
  mat.Base=vec4(clamp(color,0.0,1.0),1.0);
  mat.Normal=normalize(vWorldNormal.xyz);

@@ -5,11 +5,21 @@ class UTNTThunderHandler : EventHandler
     Array<int> Outside, BaseLight;
     bool Initialized;
     int Clock, NextFlash, Sequence, PulseAge, Direction, AppliedState;
-    double Flash;
+    double Flash, ThunderVolume;
+    int WeatherSeed, Profile, PeakStep, ThunderDelay, ThunderDue;
+    int ThunderCount, LastThunderClock, FlashClock, NearCooldown;
+
+    // Small private serialized generator; products remain within signed int32.
+    int WeatherRandom(int limit)
+    {
+        WeatherSeed=(WeatherSeed*25173+13849)%65521;
+        return WeatherSeed%limit;
+    }
 
     void Initialize()
     {
         Initialized=true; NextFlash=315; PulseAge=-1; AppliedState=-1;
+        WeatherSeed=667; ThunderDue=-1; LastThunderClock=-1;
         TextureID sky=TexMan.CheckForTexture("F_SKY1");
         let box=level.PointInSector((28000,-28000));
         for(int i=0;i<level.Sectors.Size();i++)
@@ -36,15 +46,46 @@ class UTNTThunderHandler : EventHandler
         if(age==12 || age==13)return 1;
         return 0;
     }
-    void StartPulse()
+    void StartPulse(int forcedProfile=-1)
     {
-        Direction=Sequence%3; Sequence++; PulseAge=0;
-        NextFlash=Clock+280+(Sequence*137)%420;
+        int roll=WeatherRandom(100);
+        Profile=forcedProfile>=0 ? clamp(forcedProfile,0,2) : (roll<62 ? 0 : roll<92 || NearCooldown>0 ? 1 : 2);
+        if(NearCooldown>0)NearCooldown--;
+        if(Profile==2)NearCooldown=3;
+        Direction=WeatherRandom(3); Sequence++; PulseAge=0; FlashClock=Clock;
+        if(Profile==0)
+        {
+            PeakStep=2+WeatherRandom(2);
+            ThunderDelay=105+WeatherRandom(106); // 3..6 s, distant storm.
+            ThunderVolume=.12+WeatherRandom(9)*.01;
+        }
+        else if(Profile==1)
+        {
+            PeakStep=4+WeatherRandom(3);
+            ThunderDelay=21+WeatherRandom(43); // 0.6..1.8 s.
+            ThunderVolume=.40+WeatherRandom(21)*.01;
+        }
+        else
+        {
+            PeakStep=8; ThunderDelay=0;
+            ThunderVolume=.95+WeatherRandom(6)*.01;
+        }
+        ThunderDue=Clock+ThunderDelay;
+        NextFlash=Clock+315+WeatherRandom(386); // 9..20 s.
+    }
+    void PlayThunder()
+    {
+        // One ambient sound, avoiding stacked TID-666 emitters whose distance
+        // used to obscure the chosen thunder strength at different locations.
+        S_StartSound(Sequence%2 ? "amb1" : "amb3",CHAN_AUTO,0,ThunderVolume,ATTN_NONE,
+            Profile==0 ? .80 : Profile==1 ? .92 : 1.0);
+        ThunderCount++; LastThunderClock=Clock; ThunderDue=-1;
     }
     void Apply(int step)
     {
+        step=clamp(step,0,8);
         int state=step==0 ? 0 : 1+Direction*8+step-1;
-        Flash=step/8.0;
+        Flash=(step/8.0)*(step/8.0);
         if(state==AppliedState)return;
         AppliedState=state;
         TextureID sky=TexMan.CheckForTexture(String.Format("UGT%d",state));
@@ -52,9 +93,9 @@ class UTNTThunderHandler : EventHandler
         for(int i=0;i<Outside.Size();i++)
         {
             let s=level.Sectors[Outside[i]];
-            s.SetLightLevel(BaseLight[i]+int(max(0,230-BaseLight[i])*Flash*.85));
-            // Cool ambient palette, subtly less desaturated at the flash peak.
-            s.SetColor(Color(int(185+Flash*30),int(201+Flash*24),int(220+Flash*25)),int(41-Flash*10));
+            s.SetLightLevel(BaseLight[i]+int(max(0,255-BaseLight[i])*Flash));
+            // Almost neutral charcoal ambience; the rare close peak reaches white.
+            s.SetColor(Color(int(208+Flash*47),int(209+Flash*46),int(212+Flash*43)),int(31-Flash*20));
         }
     }
     override void WorldTick()
@@ -67,15 +108,15 @@ class UTNTThunderHandler : EventHandler
         if(Clock>=NextFlash && PulseAge<0)StartPulse();
         if(PulseAge>=0)
         {
-            Apply(Pulse(PulseAge));
-            if(PulseAge==18)
-            {
-                let sound=ActorIterator.Create(666);Actor a;
-                while(a=sound.Next())a.A_StartSound(Sequence%2 ? "amb1" : "amb3",CHAN_AUTO,0,.28);
-            }
+            int pulse=Pulse(PulseAge);
+            // Immediate near peak, then the same brief echo/decay envelope.
+            if(Profile==2 && PulseAge<2)pulse=8;
+            Apply(int(pulse*PeakStep/8.0+.5));
             PulseAge++;
             if(PulseAge>24)PulseAge=-1;
         }
+        // Independent of the short light pulse: distant thunder may arrive 6 s later.
+        if(ThunderDue>=0 && Clock>=ThunderDue)PlayThunder();
     }
     override void WorldLoaded(WorldEvent e) { PPShader.SetEnabled("UTNTThunderExposure",false); }
     override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTThunderExposure",false); }

@@ -17,7 +17,7 @@ def patch(source,output,acc,zdbsp):
  for i,m in enumerate(groups['sector']):
   f=fields(m)
   if f.get('textureceiling')!='"F_SKY1"':continue
-  f.update(lightcolor=0xb9c9dc,desaturation=.16,lightlevel=max(160,int(f.get('lightlevel','160'))))
+  f.update(lightcolor=0xd0d1d4,desaturation=.12,lightlevel=int(f.get('lightlevel','160')))
   edits.append((m.start(),m.end(),block('sector',f)));outside.append(i)
  m=groups['thing'][0];f=fields(m);assert f['type']=='9080' and 'id' not in f
  f.update(x=28000,y=-28000,height=128);edits.append((m.start(),m.end(),block('thing',f)))

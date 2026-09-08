@@ -1,6 +1,8 @@
 class UTNTThunderTests : EventHandler
 {
  int View; bool Ready; bool Hold;
+ int MonitorStart, MonitorCount, MonitorDelay, MonitorProfile;
+ bool Monitoring, TimingOK; double MaxFlash;
  void Assert(bool ok,String label) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",label); }
  void Check()
  {
@@ -10,9 +12,9 @@ class UTNTThunderTests : EventHandler
   if(h)for(int i=0;i<h.Outside.Size();i++)
   {
    let s=level.Sectors[h.Outside[i]];
-   if(s.ColorMap.LightColor.b<=s.ColorMap.LightColor.r || s.ColorMap.Desaturation<30)colors=false;
+   if(abs(s.ColorMap.LightColor.b-s.ColorMap.LightColor.r)>6 || s.ColorMap.Desaturation<10)colors=false;
   }
-  Assert(colors,"cool desaturated exterior palette");
+  Assert(colors,"neutral desaturated exterior palette");
   let it=ThinkerIterator.Create('SkyViewpoint'); Actor a;int outer=0,mini=0;
   while(a=Actor(it.Next()))
   {
@@ -36,15 +38,53 @@ class UTNTThunderTests : EventHandler
   if(View==4){pos=(28000,-28000,0);angle=0;pitch=-89;}
   if(View==5){pos=(28000,-28000,0);angle=45;pitch=-25;}
   if(View==6){pos=(1453,1638,-102);angle=220;pitch=-20;}
+  if(Monitoring)
+  {
+   MaxFlash=max(MaxFlash,h.Flash);
+   int elapsed=h.Clock-MonitorStart;
+   if(elapsed<MonitorDelay && h.ThunderCount!=MonitorCount)TimingOK=false;
+   if(elapsed>max(MonitorDelay+3,32))
+   {
+    Assert(TimingOK && h.ThunderCount==MonitorCount+1,"one thunder sound at the scheduled distance delay");
+    Assert(h.LastThunderClock-MonitorStart==max(1,MonitorDelay),"measured thunder delay matches distance");
+    Assert(MonitorProfile==2 ? MaxFlash>.99 : MonitorProfile==1 ? MaxFlash>=.25 && MaxFlash<=.563 : MaxFlash<=.141 && MaxFlash>=.062,
+     "measured flash peak matches distance");
+    Assert(h.Flash==0 && h.PulseAge<0,"light pulse completes before delayed thunder finishes");
+    Console.Printf("THUNDER_PROFILE %d delay=%d volume=%f peak=%f",MonitorProfile,MonitorDelay,h.ThunderVolume,MaxFlash);
+    Monitoring=false;
+   }
+  }
   p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=angle;p.Pitch=pitch;
  }
  override void NetworkProcess(ConsoleEvent e)
  {
   let h=UTNTThunderHandler(EventHandler.Find('UTNTThunderHandler'));
   if(e.Name=="thunderview")View=e.Args[0];
-  if(e.Name=="thunderflash"){h.PulseAge=-1;h.NextFlash=h.Clock+999999;h.Direction=e.Args[1];h.Apply(e.Args[0]);Console.Printf("THUNDER state=%d flash=%f light=%d",h.AppliedState,h.Flash,level.Sectors[32].GetLightLevel());}
+  if(e.Name=="thunderflash"){h.PulseAge=-1;h.ThunderDue=-1;h.NextFlash=h.Clock+999999;h.Direction=e.Args[1];h.Apply(e.Args[0]);Console.Printf("THUNDER state=%d flash=%f light=%d",h.AppliedState,h.Flash,level.Sectors[32].GetLightLevel());}
+  if(e.Name=="thunderprofile")
+  {
+   h.StartPulse(e.Args[0]); h.NextFlash=h.Clock+999999;
+   MonitorStart=h.Clock;MonitorCount=h.ThunderCount;MonitorDelay=h.ThunderDelay;MonitorProfile=h.Profile;
+   MaxFlash=0;TimingOK=true;Monitoring=true;
+  }
+  if(e.Name=="thunderprofiledone")Assert(!Monitoring,"distance profile test completed");
+  if(e.Name=="thunderdistribution")
+  {
+   int far=0,mid=0,near=0,lastNear=-10;bool spaced=true,valid=true;
+   for(int i=0;i<1000;i++)
+   {
+    h.StartPulse();
+    if(h.Profile==0){far++;valid=valid && h.PeakStep<=3 && h.ThunderDelay>=105 && h.ThunderVolume<=.201;}
+    if(h.Profile==1){mid++;valid=valid && h.PeakStep>=4 && h.PeakStep<=6 && h.ThunderDelay>=21 && h.ThunderDelay<=63 && h.ThunderVolume>=.4 && h.ThunderVolume<=.601;}
+    if(h.Profile==2){near++;spaced=spaced && i-lastNear>=4;lastNear=i;valid=valid && h.PeakStep==8 && h.ThunderDelay==0 && h.ThunderVolume>=.95;}
+   }
+   Assert(valid,"all distance profiles couple peak, volume and delay");
+   Assert(far>500 && mid>200 && near>20 && near<120 && spaced,"distant storms dominate and close flashes remain rare and spaced");
+   Console.Printf("THUNDER_DISTRIBUTION far=%d mid=%d near=%d",far,mid,near);
+   h.PulseAge=-1;h.ThunderDue=-1;h.NextFlash=h.Clock+999999;h.Apply(0);
+  }
   if(e.Name=="thunderrun"){h.StartPulse();}
-  if(e.Name=="thunderrest")Assert(h.Flash==0 && h.PulseAge<0 && level.Sectors[32].GetLightLevel()==160,"automatic pulse ends at baseline");
+  if(e.Name=="thunderrest")Assert(h.Flash==0 && h.PulseAge<0 && level.Sectors[32].GetLightLevel()==128,"automatic pulse ends at baseline");
   if(e.Name=="thundercheck")Check();
   if(e.Name=="thunderroof")
   {

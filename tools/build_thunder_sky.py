@@ -31,7 +31,11 @@ def build(root):
   top=wrapped(clouds,tx,ty)*.82+wrapped(clouds,tx+.09,ty*.96+.02)*.18
   overhead=smooth(.574,.906,ry)[...,None];cloud=cloud*(1-overhead)+top*overhead
   mountain=wrapped(mountains,longitude,1.06-lat/math.pi*2.2)
-  rgb=cloud*.88*(1-mountain[:,:,3:4])+mountain[:,:,:3]*.74
+  gray=np.sum(cloud*np.array([.2126,.7152,.0722]),axis=2,keepdims=True)
+  cloud=(cloud*.22+gray*.78)*np.array([1.,1.,.98])
+  m=mountain[:,:,:3];gray=np.sum(m*np.array([.2126,.7152,.0722]),axis=2,keepdims=True)
+  m=(m*.22+gray*.78)*np.array([1.,1.,.98])
+  rgb=cloud*.34*(1-mountain[:,:,3:4])+m*.30
   p=out/f'textures/UGT0{f}.png';p.parent.mkdir(parents=True,exist_ok=True)
   Image.fromarray(np.uint8(np.clip(rgb*255,0,255))).save(p)
  for face,form in zip(FACES,FORMS):

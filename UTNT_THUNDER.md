@@ -1,21 +1,31 @@
-# TNT02: kaltes Gebirgsgewitter
+# TNT02: dunkles Gewitter mit unterschiedlichen Entfernungen
 
-Die freigegebene Gewittervorschau ist als eigener Himmel für TNT02 umgesetzt. Zwei langsam gegeneinander ziehende Wolkenlagen liegen vor einer gestaffelten, im blaugrauen Regendunst versinkenden Bergkulisse. Berge bleiben unbewegt. Die Würfelflächen teilen sich dieselbe Richtungsprojektion; im Zenit blendet die Darstellung in eine planare Projektion über.
+Die animierte Wolkendecke und die feine, unbewegte Gebirgskette behalten die Komposition des bestätigten Mockups. Die Korrektur vom 09.09.2026 stellt die dunkle Atmosphäre wieder her: Wolken und Berge sind deutlich abgedunkelt und zu 78 Prozent in Richtung neutraler Grautöne gemischt. Die blaue Färbung ist weitgehend entfernt. Der statische Fallback wird mit derselben Farbkorrektur gebaut.
 
-## Licht und Gewitter
+## Grundlicht und Blitze
 
-551 Sektoren mit offenem Himmel erhalten den Lichtfarbton `#B9C9DC` und 16 Prozent Entsättigung. Die Grundhelligkeit beträgt mindestens 160; höhere vorhandene Helligkeitsstufen bleiben erhalten. Geometrie, Spezialfunktionen und geschlossene Innenraumsektoren bleiben unverändert. Beim Blitz steigt nur das Außenlicht kurz an, während geschützte Innenräume ihren bisherigen Zustand behalten. Lava und andere lokale Lichtquellen bleiben eigenständig.
+Die 551 Außenareale erhalten `#D0D1D4` mit 12 Prozent Entsättigung. Ihre ursprünglichen Map-Helligkeitswerte sind wiederhergestellt; die frühere Mindesthelligkeit 160 entfällt. Der Himmel ist in der geprüften Referenzansicht etwa 63 Prozent dunkler als die erste Umsetzung. Geschlossene Innenraumsektoren, Gameplay-Geometrie, weitere SkyViewpoints und übrige ACS-Scripts bleiben unverändert.
 
-Ein serialisierter ZScript-EventHandler steuert drei wechselnde Blitzrichtungen sowie einen kurzen Hauptimpuls mit schwächerem Nachblitz und Abklingen. Die Pause variiert deterministisch zwischen etwa 8 und 20 Sekunden; kein Gameplay-Zufallsgenerator wird verbraucht. Donner folgt verzögert. Derselbe Puls steuert die lokalen Aufhellungen im Wolkenmaterial und das Sektorlicht. Dunkle, dichte Wolken behalten ihre Kontur.
+Die Entfernung ist eine inszenierte Eigenschaft jedes Gewitterereignisses. Sie steuert die Blitzspitze, Donnerlautstärke, Tonhöhe und Wartezeit gemeinsam:
 
-Ein dezenter Postprocess-Effekt hebt die Belichtung ausschließlich in der lokalen Spielansicht unter freiem Himmel an. Eine Aufwärtsspur berücksichtigt feste 3D-Böden und Dächer; beim Wechsel in Deckung klingt der Effekt in wenigen Tics aus. HUD, tiefe Innenräume und andere Maps erhalten diesen Effekt nicht. Die vorhandenen Einstellungen für reduzierte Effekte und Shader-Overlays werden berücksichtigt.
+| Gewitter | Blitzspitze relativ zum Nahblitz | Donnerpegel | Verzögerung |
+| --- | --- | --- | --- |
+| Fern | 6–14 % | 12–20 %, tiefer | 3–6 Sekunden |
+| Mittel | 25–56 % | 40–60 % | 0,6–1,8 Sekunden |
+| Sehr nah | 100 %, kurz fast weiß | 95–100 % | Gleichzeitig mit dem Blitz |
 
-Der alte ACS-Gewitterablauf in Script 2 ist durch einen leeren Einstieg ersetzt, damit weder der alte Texturwechsel noch die bisherigen Licht-Fades gegen die neue Steuerung arbeiten. Sämtliche anderen ACS-Scripts bleiben erhalten. Der normale SkyViewpoint steht in einer neuen, isolierten Einsektor-Kulisse bei `(28000, -28000, 0)`; die beiden weiteren SkyViewpoints bleiben an ihren bisherigen Positionen.
+Die Prozentwerte der Blitzspitzen sind Steuerwerte, keine garantierten Bildschirmhelligkeiten. Der Nahblitz erreicht für etwa 86 ms seine Spitze, fällt schnell ab und besitzt einen schwächeren Nachimpuls. Er darf Wolken und Umgebung kurz kräftig überstrahlen. Ein stärkerer, neutraler Belichtungseffekt wird nur unter freiem Himmel angewendet; Dächer und feste 3D-Böden schirmen ihn ab, das HUD bleibt unbeeinflusst. Die vorhandenen Einstellungen für reduzierte Effekte und Shader-Overlays gelten weiterhin.
+
+Ein privater serialisierter Zufallsgenerator wählt wechselnde Richtungen, Abstände von 9–20 Sekunden und leicht variierende Stärken. Fernere Ereignisse dominieren. Zwischen zwei Nahblitzen liegen mindestens drei andere Ereignisse. Im reproduzierbaren Test mit 1000 Ereignissen entstanden 595 ferne, 337 mittlere und 68 nahe Gewitter.
+
+Der Donner läuft über einen eigenen gespeicherten Termin, unabhängig vom kurzen Lichtimpuls. Dadurch funktioniert auch ein später Donner nach dem Abklingen des Blitzes und nach Speichern/Laden. Pro Ereignis wird genau ein atmosphärischer Donnerklang abgespielt; die früheren vielen TID-666-Schallquellen würden den beabsichtigten Pegel je nach Standort verfälschen. Der tatsächliche Lautstärkeeindruck hängt zusätzlich von den Audioeinstellungen ab. Der Gameplay-Zufallsgenerator bleibt unberührt.
 
 ## Ressourcen und Prüfung
 
-Die 25 Himmelszustände teilen sechs Materialprogramme und sechs statische Würfelflächen. Das Seitenverhältnis der zusammengesetzten Quelltextur kodiert Blitzstärke und -richtung; es bleibt bei gleichmäßiger Texturskalierung erhalten. Dadurch entstehen keine langen Kompilierpausen für jede einzelne Blitzvariante. Die zusätzlichen Randpixel werden nur für den statischen Fallback verwendet; im Shader wird direkt aus den Panoramen abgetastet. Software-Darstellung besitzt den statischen Himmel und das Sektorlicht, ohne die animierte Materialwirkung.
+25 Skyzustände teilen sechs Materialprogramme und sechs statische Würfelflächen. Die Textur-Seitenverhältnisse kodieren acht Blitzstufen an drei Himmelsrichtungen; alle Zustände benutzen dieselbe Animation. Software-Darstellung hat den dunklen statischen Himmel, Sektorblitze und Donner, aber keine animierte Materialwirkung.
 
-OpenGL und Vulkan wurden jeweils mit 15 Assertions einschließlich Speichern/Laden geprüft. Messwerte und echte Spielaufnahmen: `tools/validation/thunder-2026-09-09`. Bearbeitbare Quelle und Herkunft der Imagegen-Texturen: `tools/artwork/thunder`. Assetbau: `python tools/build_thunder_sky.py` (NumPy/Pillow). Der Map-Patcher benötigt ACC und ZDBSP; der Strukturtest prüft die erhaltene Spielgeometrie und die unveränderten übrigen Scripts.
+`tools/build_thunder_sky.py` erzeugt Shader und Fallbacks, `tools/patch_thunder_map.py` arbeitet auf der ursprünglichen TNT02-Baseline. Die aktuelle Korrektur ändert an der bestehenden Map ausschließlich die 551 Lichtdefinitionen. Nodes und ACS-Bytecode bleiben bytegleich. Texturen/Prompts stehen in `tools/artwork/thunder`.
 
-Für die geänderte Mapgeometrie TNT02 frisch starten. Die Tests decken Speichern/Laden innerhalb dieses neuen Mapstands ab, keinen vollständigen Kampagnen- oder Mehrspieler-Durchlauf.
+Die Prüfungen unter OpenGL und Vulkan umfassen Dunkelzustand, bewegte Wolken, drei deutlich abgestufte Blitzspitzen und Abschirmung unter Dächern. Der Vulkan-Test prüft zusätzlich die Ereignisverteilung, gemessene Donnertermine, genau einmalige Wiedergabe-Anforderung und Speichern/Laden während eines ausstehenden Ferndonners. Audio wird in den automatisierten Tests deaktiviert; geprüft werden die tatsächlichen Steuerwerte und Aufruftermine, kein Hörvergleich. Nachweise: `tools/validation/thunder-distance-2026-09-09`. Reproduktion: `tools/test_thunder_distance.py` mit `--engine`, `--iwad`, optional `--profiles` und `--renderer 0` oder `1`.
+
+Das Spiel neu starten und TNT02 frisch laden, damit die geänderten Grundhelligkeiten übernommen werden. Speichern/Laden innerhalb des neuen Mapstands ist geprüft; ein vollständiger Kampagnen- oder Mehrspieler-Durchlauf gehört nicht zu dieser Abnahme.

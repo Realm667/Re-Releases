@@ -11,8 +11,8 @@ def verify(before,after):
   outside=x.get('textureceiling')=='"F_SKY1"'
   if not outside:assert x==y,('interior',i);continue
   changed.append(i)
-  assert int(y['lightcolor'])==0xb9c9dc and float(y['desaturation'])==.16
-  assert int(y['lightlevel'])==max(160,int(x.get('lightlevel','160')))
+  assert int(y['lightcolor'])==0xd0d1d4 and float(y['desaturation'])==.12
+  assert int(y['lightlevel'])==int(x.get('lightlevel','160'))
   assert {k:v for k,v in x.items() if k not in ['lightcolor','desaturation','lightlevel']}=={k:v for k,v in y.items() if k not in ['lightcolor','desaturation','lightlevel']}
  assert len(changed)==551
  for i,(x,y) in enumerate(zip(a['thing'],b['thing'])):
