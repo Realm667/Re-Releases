@@ -312,7 +312,7 @@ Actor Steam5 : Steam1
 	Scale 0.3
 }
 
-Actor Drop_B1A
+Actor Drop_B1A : UTNTFountainDropBase
 {
 	Speed 5
 	Height 2
@@ -320,16 +320,16 @@ Actor Drop_B1A
 	Mass 5
 	+Missile
 	Gravity .125
-	RenderStyle Add
+	RenderStyle Translucent
 	Scale 0.25
 	States
 	{
 	Spawn:
-		DROP A -1
+		UWAT A -1
 		Loop
 	Death:
-		DROP A 1 A_FadeOut
-		Loop
+		TNT1 A 0 A_UTNTWaterImpact
+		Stop
 	}
 }
 
@@ -532,7 +532,7 @@ Actor Liquid_Fountain_B3C : Liquid_Fountain_B1A 20032
 	}
 }
 
-Actor Smoker : SwitchableDecoration 20033
+Actor Smoker : UTNTAmbientSmokeSource 20033
 {
 	Height 2
 	Radius 1
@@ -544,7 +544,7 @@ Actor Smoker : SwitchableDecoration 20033
 	{
 	Spawn:
 	Active:
-		TNT1 A 1 A_SpawnItemEx("SmokeA")
+		TNT1 A 1 A_UTNTAmbientSmoke
 		Loop
 	Inactive:
 		TNT1 A 1

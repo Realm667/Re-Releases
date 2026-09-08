@@ -105,18 +105,7 @@ class UTNTVisuals play
 
     static void AmbientSmoke(Actor source, int size)
     {
-        if (!Visible(source) || !CVar.GetCVar('UTNT_ambientsmoke',players[consoleplayer]).GetBool() || !Reserve()) return;
-        size=clamp(size,0,2);
-        FSpawnParticleParams p;
-        p.texture=TexMan.CheckForTexture(Random[utntcosmetic](0,1) ? 'DKSMA0' : 'DKS2A0');
-        p.color1=0xffffff; p.style=STYLE_Translucent; p.flags=SPF_ROLL;
-        p.pos=source.Pos;
-        double velocity=size==0 ? 1 : size==1 ? FRandom[utntcosmetic](1,2) : FRandom[utntcosmetic](2,4);
-        double angle=FRandom[utntcosmetic](0,22.5);
-        p.vel=(cos(angle)*velocity,sin(angle)*velocity,FRandom[utntcosmetic](size==0 ? 3 : size==1 ? 5 : 9,size==0 ? 6 : size==1 ? 9 : 15)/4);
-        p.lifetime=210; p.size=size==0 ? 115.2 : size==1 ? 230.4 : 384;
-        p.startalpha=0.7; p.fadestep=0.7/210;
-        level.SpawnParticle(p);
+        UTNTAmbientSmokeSystem.Emit(source,clamp(size,0,2));
     }
 
     static void RocketFlame(Actor source)

@@ -1,0 +1,207 @@
+// Decorative particles use only the cosmetic stream and the existing local budget.
+class UTNTAmbientSmokeSource : SwitchableDecoration
+{
+    action void A_UTNTAmbientSmoke() { UTNTAmbientSmokeSystem.Emit(self, -1); }
+}
+
+class UTNTAmbientSmokeMemory : Thinker
+{
+    Actor Source;
+    int LastVariant, LastTic;
+    double Phase;
+    override void Tick()
+    {
+        if (!Source || level.time-LastTic>35) Destroy();
+    }
+}
+
+class UTNTAmbientSmokeSystem play
+{
+    static void Emit(Actor source, int profile)
+    {
+        if (!UTNTVisuals.Visible(source) || !CVar.GetCVar('UTNT_ambientsmoke',players[consoleplayer]).GetBool()) return;
+        if (profile<0 && level.time%4!=0) return;
+        if (!UTNTVisuals.Reserve()) return;
+        let it=ThinkerIterator.Create('UTNTAmbientSmokeMemory',Thinker.STAT_USER+8,true);
+        UTNTAmbientSmokeMemory m;
+        while (m=UTNTAmbientSmokeMemory(it.Next())) if (m.Source==source) break;
+        if (!m)
+        {
+            m=UTNTAmbientSmokeMemory(level.CreateClientSideThinker('UTNTAmbientSmokeMemory',Thinker.STAT_USER+8));
+            m.Source=source; m.Phase=FRandom[utntcosmetic](0,360);
+            m.LastVariant=Random[utntcosmetic](0,3);
+        }
+        m.LastTic=level.time;
+        m.LastVariant=(m.LastVariant+Random[utntcosmetic](1,3))%4;
+        let p=UTNTAmbientSmokePuff(level.SpawnClientSideVisualThinker('UTNTAmbientSmokePuff'));
+        if (p) p.Initialize(source,profile,m.LastVariant,m.Phase);
+    }
+}
+
+class UTNTAmbientSmokePuff : VisualThinker
+{
+    Actor Source;
+    int Age, Life, Profile;
+    double Width, Height, Strength, Spin, Phase, FlowX, FlowY;
+    void Initialize(Actor source, int profile, int variant, double breeze)
+    {
+        self.Source=source; self.Profile=profile;
+        Texture=TexMan.CheckForTexture(String.Format("UASM%c0",65+variant));
+        Flags=SPF_ALLOWSHADERS|SPF_ROLL|SPF_STRETCHPIXELS;
+        SetRenderStyle(STYLE_Translucent);
+        bXFlip=Random[utntcosmetic](0,1);
+        double envelope=profile<0 ? 64 : profile==0 ? 115.2 : profile==1 ? 230.4 : 384;
+        Width=envelope*FRandom[utntcosmetic](0.64,0.88);
+        Height=envelope*FRandom[utntcosmetic](0.65,1.0);
+        Life=profile<0 ? Random[utntcosmetic](48,70) : Random[utntcosmetic](120,185);
+        Strength=profile<=0 ? FRandom[utntcosmetic](0.25,0.40) : FRandom[utntcosmetic](0.42,0.62);
+        Phase=FRandom[utntcosmetic](0,360);
+        double wind=breeze+18*sin(level.time*0.35+breeze);
+        double speed=profile<0 ? 0.28 : profile==0 ? 0.55 : profile==1 ? 1.0 : 1.8;
+        FlowX=cos(wind)*speed; FlowY=sin(wind)*speed;
+        Pos=source.Vec3Offset(FRandom[utntcosmetic](-2,2),FRandom[utntcosmetic](-2,2),Height*0.10);
+        Vel=(FlowX,FlowY,FRandom[utntcosmetic](0.75,1.35)*(profile<0 ? 1.0 : profile==0 ? 1 : profile==1 ? 1.5 : 2.5));
+        Roll=FRandom[utntcosmetic](-180,180);
+        Spin=FRandom[utntcosmetic](0.12,0.48)*(Random[utntcosmetic](0,1) ? 1 : -1);
+        Animate(); Prev=Pos; PrevRoll=Roll; UpdateSector(); UpdateSpriteInfo();
+    }
+    void Animate()
+    {
+        double t=double(Age)/Life;
+        double growth=0.35+0.65*sin(t*90);
+        Scale=(Width*growth/627,Height*growth*(1+0.06*sin(Phase+Age*2))/627);
+        Alpha=Strength*min(1.0,(Age+1)/12.0)*((1-t)**1.4);
+    }
+    override void Tick()
+    {
+        if (IsFrozen()) return;
+        if (!Source || ++Age>=Life || !UTNTVisuals.Visible(Source,combat:true) || !CVar.GetCVar('UTNT_ambientsmoke',players[consoleplayer]).GetBool()) { Destroy(); return; }
+        Super.Tick();
+        Vel.X=FlowX+0.16*sin(Phase+Age*3.1); Vel.Y=FlowY+0.16*cos(Phase+Age*2.7);
+        Roll+=Spin; Animate();
+    }
+}
+
+// Existing fountain missiles retain their speed, gravity, collision and spawn cadence.
+class UTNTFountainDropBase : Actor
+{
+    int VisualAge, CoherentTics;
+    double VisualWidth;
+    Default { +ROLLSPRITE +ROLLCENTER +DONTSPLASH }
+    override void PostBeginPlay()
+    {
+        Super.PostBeginPlay();
+        VisualWidth=FRandom[utntcosmetic](8.4,13.8)*(Scale.X/0.25);
+    }
+    override void Tick()
+    {
+        Super.Tick();
+        if (!bMissile) return;
+        if (!VisualAge) CoherentTics=clamp(18-int(Vel.XY.Length()*4),6,18);
+        VisualAge++;
+        sprite=GetSpriteIndex('UWAT'); frame=VisualAge<CoherentTics ? 0 : 1;
+        double stretch=VisualAge<CoherentTics ? 16 : clamp(Vel.Length()*2.0,4.5,11);
+        Scale=(VisualWidth/627,stretch/627);
+        Alpha=0.78;
+        let camera=players[consoleplayer].camera;
+        if (camera)
+        {
+            double a=camera.Angle;
+            double side=Vel.X*sin(a)-Vel.Y*cos(a);
+            Roll=atan2(side,Vel.Z);
+        }
+        if (VisualAge<CoherentTics && UTNTVisuals.Visible(self) && UTNTVisuals.Reserve())
+            UTNTWaterSystem.Trail(self);
+    }
+    action void A_UTNTWaterImpact()
+    {
+        let ground=GetFloorTerrain();
+        UTNTWaterSystem.Impact(self,1,ground && ground.TerrainName=='UTNT_Water' && Pos.Z<=FloorZ+4);
+    }
+}
+
+class UTNTWaterSystem play
+{
+    static void Trail(Actor source)
+    {
+        let p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
+        if (!p) return;
+        p.Initialize(source.Pos-source.Vel*0.35,0,FRandom[utntcosmetic](8,13),FRandom[utntcosmetic](12,18),7);
+        p.Vel=source.Vel*0.6; p.Accel=(0,0,-0.125);
+        p.Roll=source.Roll; p.PrevRoll=p.Roll;
+    }
+    static void Impact(Actor source, double strength=1, bool liquid=true)
+    {
+        if (!UTNTVisuals.Visible(source,combat:true)) return;
+        int granted=UTNTVisuals.ReserveCount(liquid ? 5 : 3,true);
+        if (!granted) return;
+        Vector3 origin=source.Pos; origin.Z+=0.7;
+        let p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
+        if (p) p.Initialize(origin,2,FRandom[utntcosmetic](10,17)*strength,FRandom[utntcosmetic](8,13)*strength,12);
+        if (liquid && granted>1)
+        {
+            let ring=UTNTWaterRing(Actor.Spawn('UTNTWaterRing',origin));
+            if (ring) { ring.VisualSize=strength; ring.Angle=FRandom[utntcosmetic](0,360); }
+        }
+        for (int i=liquid ? 2 : 1;i<granted;i++)
+        {
+            p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
+            if (!p) continue;
+            p.Initialize(origin,1,FRandom[utntcosmetic](2,3.5)*strength,FRandom[utntcosmetic](3,5)*strength,Random[utntcosmetic](10,17));
+            double a=FRandom[utntcosmetic](0,360),v=FRandom[utntcosmetic](0.25,0.7)*strength;
+            p.Vel=(cos(a)*v,sin(a)*v,FRandom[utntcosmetic](0.65,1.3)*strength);
+            p.Accel=(0,0,-0.12); p.Floor=origin.Z;
+        }
+    }
+}
+
+class UTNTWaterVisual : VisualThinker
+{
+    Vector3 Accel;
+    int Age, Life, Kind;
+    double Width, Height, Floor;
+    void Initialize(Vector3 origin,int kind,double width,double height,int life)
+    {
+        self.Kind=kind; self.Width=width; self.Height=height; self.Life=life; Floor=-32768;
+        Texture=TexMan.CheckForTexture(String.Format("UWAT%c0",65+kind));
+        Flags=SPF_ALLOWSHADERS|SPF_STRETCHPIXELS|SPF_ROLL;
+        SetRenderStyle(STYLE_Translucent); bXFlip=Random[utntcosmetic](0,1);
+        Pos=origin; Prev=Pos; Alpha=0.7;
+        Scale=(width/627,height/627);
+        UpdateSector(); UpdateSpriteInfo();
+    }
+    override void Tick()
+    {
+        if (IsFrozen()) return;
+        if (++Age>=Life || Pos.Z<Floor) { Destroy(); return; }
+        Super.Tick();
+        Vel+=Accel;
+        double t=double(Age)/Life;
+        Alpha=0.7*(1-t*t);
+        if (Kind==2) Scale=(Width*(1+0.7*t)/627,Height*(1-0.45*t)/627);
+        else if (players[consoleplayer].camera)
+        {
+            double a=players[consoleplayer].camera.Angle;
+            Roll=atan2(Vel.X*sin(a)-Vel.Y*cos(a),Vel.Z);
+        }
+    }
+}
+
+class UTNTWaterRing : Actor
+{
+    int Age;
+    double VisualSize;
+    Default
+    {
+        +CLIENTSIDEONLY +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +DONTSPLASH +FLATSPRITE
+        RenderStyle "Translucent"; Alpha 0.3; Scale 0.01;
+    }
+    States { Spawn: UWAT D -1; Stop; }
+    override void Tick()
+    {
+        Super.Tick();
+        if (++Age>=28) { Destroy(); return; }
+        double s=(8+Age*0.9)*max(0.1,VisualSize)/627;
+        Scale=(s,s); Alpha=0.32*((1-Age/28.0)**1.5);
+    }
+}

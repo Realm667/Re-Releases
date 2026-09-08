@@ -1,0 +1,73 @@
+version "5.0.0"
+class UTNTAmbientWaterTest : EventHandler
+{
+    Array<Actor> Sources;
+    bool SmokeMode;
+    override void WorldTick()
+    {
+        if (level.time!=2) return;
+        let p=players[0].mo;
+        p.ACS_NamedTerminate("IntroText",0);
+        p.SetOrigin((0,-460,16),false);p.Angle=90;p.Pitch=0;p.bInvulnerable=true;
+        for (int row=0;row<3;row++) for (int col=0;col<3;col++)
+        {
+            let a=Actor.Spawn(String.Format("Liquid_Fountain_B%d%c",row+1,65+col),(-220+col*220,row*190,0));
+            Sources.Push(a);
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="awoff") for(int i=0;i<Sources.Size();i++) if(Sources[i]) Sources[i].Deactivate(players[0].mo);
+        if(e.Name=="awon") for(int i=0;i<Sources.Size();i++) if(Sources[i]) Sources[i].Activate(players[0].mo);
+        if(e.Name=="awsmoke")
+        {
+            for(int i=0;i<Sources.Size();i++) if(Sources[i]) Sources[i].Destroy();
+            Sources.Clear(); SmokeMode=true;
+            for(int i=0;i<3;i++)
+            {
+                let a=Actor.Spawn('DarkSmokeSpawner',(-250+i*250,0,0));a.Args[0]=i;Sources.Push(a);
+            }
+            Sources.Push(Actor.Spawn('Smoker',(0,300,0)));
+            players[0].mo.SetOrigin((0,-640,40),false);
+        }
+        if(e.Name=="awremove") { for(int i=0;i<Sources.Size();i++) if(Sources[i]) Sources[i].Destroy(); Sources.Clear(); }
+        if(e.Name=="awsplash") Actor.Spawn('UTNT_WaterSplash',(0,-190,0));
+        if(e.Name=="awclose") { players[0].mo.SetOrigin((220,-150,0),false);players[0].mo.Angle=90;players[0].mo.Pitch=0; }
+        if(e.Name=="awwide") { players[0].mo.SetOrigin((0,-460,0),false);players[0].mo.Angle=90;players[0].mo.Pitch=0; }
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if (e.Name!="awcheck") return;
+        let cam=players[consoleplayer].camera;
+        Console.Printf("AWDIAG camera=%s pos=%s quality=%d lod=%d smoke=%d sources=%d",cam ? cam.GetClassName() : 'none',cam ? String.Format("%f %f %f",cam.Pos.X,cam.Pos.Y,cam.Pos.Z) : "none",CVar.GetCVar('UTNT_fxquality',players[consoleplayer]).GetInt(),CVar.GetCVar('UTNT_lod',players[consoleplayer]).GetInt(),CVar.GetCVar('UTNT_ambientsmoke',players[consoleplayer]).GetInt(),Sources.Size());
+        if(Sources.Size() && Sources[0]) Console.Printf("AWDIAG source %s frozen=%d distance=%f",Sources[0].GetClassName(),Sources[0].IsFrozen(),cam ? Sources[0].Distance3D(cam) : -1);
+        int puffs=0,water=0,drops=0,invalid=0,variants=0;
+        let si=ThinkerIterator.Create('UTNTAmbientSmokePuff',Thinker.MAX_STATNUM+1,true);
+        UTNTAmbientSmokePuff s;
+        while(s=UTNTAmbientSmokePuff(si.Next()))
+        {
+            puffs++;
+            if(s.Scale.X<=0 || s.Scale.Y<=0 || s.Age>=s.Life || abs(s.Spin)<0.1 || s.Alpha>0.62) invalid++;
+            for(int j=0;j<4;j++) if(s.Texture==TexMan.CheckForTexture(String.Format("UASM%c0",65+j))) variants|=1<<j;
+        }
+        let wi=ThinkerIterator.Create('UTNTWaterVisual',Thinker.MAX_STATNUM+1,true); UTNTWaterVisual w;
+        while(w=UTNTWaterVisual(wi.Next())) { water++; if(w.Scale.X<=0 || w.Scale.Y<=0 || w.Age>=w.Life) invalid++; }
+        let ai=ThinkerIterator.Create('UTNTFountainDropBase');UTNTFountainDropBase a;
+        while(a=UTNTFountainDropBase(ai.Next()))
+        {
+            drops++;
+            if(a.Gravity!=0.125 || a.Radius!=1 || a.Height!=2 || a.Speed<3 || a.Speed>5 || a.Scale.X<=0) invalid++;
+        }
+        Console.Printf("UTNT_ASSERT %s finite positive scales, smoke rotation, missile gravity and bounds",invalid==0 ? "PASS" : "FAIL");
+        bool expected=e.Args[0]!=0;
+        Console.Printf("UTNT_ASSERT %s active visual population smoke=%d water=%d drops=%d", (SmokeMode ? (puffs>0)==expected : (drops>0)==expected) ? "PASS" : "FAIL",puffs,water,drops);
+        Console.Printf("UTNT_ASSERT %s smoke uses all four silhouettes (%d)", !SmokeMode || !expected || variants==15 ? "PASS" : "FAIL",variants);
+        Console.Printf("UTNT_ASSERT %s transient water visuals accompany active fountains", SmokeMode || !expected || water>0 ? "PASS" : "FAIL");
+        for(int row=0;row<3;row++) for(int col=0;col<3;col++)
+        {
+            class<Actor> type=String.Format("Drop_B%d%c",row+1,65+col);
+            let d=GetDefaultByType(type);
+            Console.Printf("UTNT_ASSERT %s preserved fountain speed/gravity %d %d", d.Speed==5-row && d.Gravity==0.125 ? "PASS" : "FAIL",row,col);
+        }
+    }
+}
