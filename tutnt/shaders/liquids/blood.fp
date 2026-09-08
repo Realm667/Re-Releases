@@ -1,7 +1,7 @@
 // Generated from tools/liquid-surface.glsl
 #define LIQUID_KIND 2
 #define LIQUID_DEPTH 9.000
-// Coherent high-resolution height, normals and independent depth currents.
+// Coarse native-texture surfaces over coherent height and independent currents.
 // All coordinates below are renderer-world coordinates (X, Doom Z, Doom Y).
 float LiqHash(vec2 p)
 {
@@ -31,8 +31,8 @@ float LiqHeightSample(vec2 uv)
     vec2 b=(floor(p)+0.5)/size;
     vec3 fields=mix(mix(textureLod(liquidHeight,b,0.0).rgb,textureLod(liquidHeight,b+vec2(1,0)/size,0.0).rgb,f.x),
                mix(textureLod(liquidHeight,b+vec2(0,1)/size,0.0).rgb,textureLod(liquidHeight,b+1.0/size,0.0).rgb,f.x),f.y);
-    float h=mix(fields.r,fields.g,smoothstep(0.0,2.3,liqLod));
-    return mix(h,fields.b,smoothstep(2.0,5.0,liqLod));
+    float h=mix(fields.r,fields.g,smoothstep(0.0,1.5,liqLod));
+    return mix(h,fields.b,smoothstep(1.0,3.5,liqLod));
 }
 void LiqCoordinates(vec2 p,out vec2 a,out vec2 b,out float blend)
 {
@@ -64,7 +64,7 @@ float LiqField(vec2 p)
     float waves=sin(dot(p,vec2(0.049,0.031))-timer*1.9+phase)*0.12;
     waves+=sin(dot(p,vec2(-0.036,0.068))-timer*2.4+phase*0.7)*0.05;
 #endif
-    waves*=1.0-smoothstep(4.0,7.0,liqLod);
+    waves*=1.0-smoothstep(1.0,4.0,liqLod);
     return clamp(art*0.78+0.11+waves,0.03,0.97);
 }
 
@@ -113,13 +113,30 @@ vec2 LiqWorldPosition(vec3 n,vec3 tangent,vec3 bitangent)
     }
     return vec2(dot(pixelpos.xyz,tangent),dot(pixelpos.xyz,bitangent));
 }
-vec3 LiqSourceHue()
+vec3 LiqSourceMean()
 {
     // The original palette is sampled at runtime, including user PLAYPAL changes.
     vec3 c=getTexel(vec2(0.13,0.17)).rgb+getTexel(vec2(0.31,0.73)).rgb+
         getTexel(vec2(0.53,0.29)).rgb+getTexel(vec2(0.79,0.61)).rgb+
         getTexel(vec2(0.91,0.43)).rgb+getTexel(vec2(0.43,0.91)).rgb;
-    return c/max(0.0001,max(c.r,max(c.g,c.b)));
+    return c/6.0;
+}
+vec3 LiqNativeColor(vec2 p)
+{
+    // Native 64px artwork supplies recognizable flecks/veins and PLAYPAL colors.
+    // Whole texel centers preserve crisp detail even with bilinear filtering.
+    vec2 bend=(vec2(LiqNoise(p/91.0),LiqNoise(p/117.0+27.3))-0.5)*19.0;
+    vec2 a=(floor(p+bend)+0.5)/64.0;
+    vec2 b=(floor(LiqTurn*p*1.137-bend*0.6+vec2(23,41))+0.5)/64.0;
+    return mix(getTexel(a).rgb,getTexel(b).rgb,0.22);
+}
+vec3 LiqRetroBands(vec3 color,float weight)
+{
+    // Nonlinear shade steps retain dark blue/olive/crimson instead of crushing
+    // them to black with uniform RGB posterization. Fade subpixel bands away.
+    float peak=max(color.r,max(color.g,color.b));
+    float shade=floor(sqrt(clamp(peak,0.0,1.0))*18.0+0.5)/18.0;
+    return mix(color,color*(shade*shade/max(peak,0.0001)),weight);
 }
 void SetupMaterial(inout Material mat)
 {
@@ -128,7 +145,7 @@ void SetupMaterial(inout Material mat)
     vec3 bitangent=abs(n.y)>0.85?vec3(0,0,1):normalize(cross(n,tangent));
     vec2 world=LiqWorldPosition(n,tangent,bitangent);
     float footprint=max(length(dFdx(world)),length(dFdy(world)));
-    liqLod=clamp(log2(max(1.0,footprint*1024.0/384.0)),0.0,9.0);
+    liqLod=clamp(log2(max(1.0,footprint*128.0/384.0)),0.0,6.0);
     vec3 ray=normalize(pixelpos.xyz-uCameraPos.xyz);
     vec2 slope=vec2(dot(ray,tangent),dot(ray,bitangent))/max(abs(dot(ray,n)),0.32);
     float reliefFade=1.0-smoothstep(4.0,12.0,footprint);
@@ -141,12 +158,15 @@ void SetupMaterial(inout Material mat)
 #endif
     vec2 top=world-timer*velocity;
     vec2 hit=LiqSurfaceHit(top,slope,reliefFade);
+    // Keep height intersection continuous; discretize only its visible skin.
+    float pixelWeight=1.0-smoothstep(0.8,2.8,footprint);
+    hit=mix(hit,floor(hit)+0.5,pixelWeight);
     float h=LiqField(hit);
-    float stepSize=max(0.6,min(3.0,footprint));
+    float stepSize=max(1.5,min(3.0,footprint));
     vec2 gradient=vec2(LiqField(hit+vec2(stepSize,0))-LiqField(hit-vec2(stepSize,0)),
                        LiqField(hit+vec2(0,stepSize))-LiqField(hit-vec2(0,stepSize)))*LIQUID_DEPTH/(2.0*stepSize);
     // The matching normal asset supplies fine relief below the finite-difference scale.
-    gradient+=LiqMapGradient(hit)*0.22*reliefFade;
+    gradient+=LiqMapGradient(hit)*0.08*reliefFade;
     vec3 g=tangent*gradient.x+bitangent*gradient.y;g-=n*dot(g,n);
     vec3 bumpedNormal=normalize(n-g);
     // Refraction and independent cross-currents visibly separate the layers.
@@ -155,27 +175,37 @@ void SetupMaterial(inout Material mat)
     float m=LiqField(middle*1.29+vec2(139.3,317.1));
     float d=LiqField(deep*1.83+vec2(739.7,183.2));
     float open=1.0-smoothstep(0.28,0.78,h);
-    vec3 hue=LiqSourceHue();
+    vec3 nativeMean=LiqSourceMean();
+    vec3 hue=nativeMean/max(0.0001,max(nativeMean.r,max(nativeMean.g,nativeMean.b)));
     float macro=LiqNoise(world/773.0+vec2(18.2,47.6));
     vec3 color;
 #if LIQUID_KIND == 0
     color=hue*(0.045+pow(h,1.35)*0.44);
     color=mix(color,hue*(0.05+m*0.36+d*0.18),0.20+open*0.48);
     color*=0.82+macro*0.33;
-    mat.Specular=mix(hue,vec3(1.0),0.55)*0.46;
-    mat.Glossiness=52.0;mat.SpecularLevel=0.42;
+    mat.Specular=hue*0.24;
+    mat.Glossiness=24.0;mat.SpecularLevel=0.20;
 #elif LIQUID_KIND == 1
     float skin=smoothstep(0.34,0.64,h)*smoothstep(0.17,0.62,macro);
     color=hue*(0.05+h*0.20+open*(m*0.19+d*0.07));
     color=mix(color,hue*(0.055+h*0.28),skin*0.72);
-    mat.Specular=mix(hue,vec3(1.0),0.15)*mix(0.38,0.10,skin);
-    mat.Glossiness=mix(38.0,12.0,skin);mat.SpecularLevel=0.32;
+    mat.Specular=hue*mix(0.20,0.08,skin);
+    mat.Glossiness=mix(22.0,10.0,skin);mat.SpecularLevel=0.18;
 #else
     color=hue*(0.025+pow(h,1.6)*0.66+open*(m*0.27+d*0.10));
     color*=0.77+macro*0.40;
-    mat.Specular=mix(hue,vec3(1.0),0.25)*0.27;
-    mat.Glossiness=58.0;mat.SpecularLevel=0.33;
+    mat.Specular=hue*0.19;
+    mat.Glossiness=26.0;mat.SpecularLevel=0.18;
 #endif
+    vec3 nativeTop=LiqNativeColor(hit);
+    vec3 nativeMid=LiqNativeColor(middle*0.83+vec2(51,17));
+    vec3 nativeDeep=LiqNativeColor(deep*0.67+vec2(19,73));
+    vec3 nativeColor=mix(nativeTop,nativeMid,open*0.40);
+    nativeColor=mix(nativeColor,nativeDeep,open*0.16);
+    // Original pixels carry the surface; broad fluid structure provides depth.
+    // In the distance, fade native detail before its 1-unit texels alias.
+    nativeColor=mix(nativeColor,nativeMean,smoothstep(1.0,4.0,footprint));
+    color=mix(color,nativeColor*1.25,0.64);
     // A broad environment reflection and height shading keep the moving relief
     // readable in ordinary sector lighting too. These are albedo contributions,
     // attenuated by the sector; they do not make the liquids emissive.
@@ -187,12 +217,13 @@ void SetupMaterial(inout Material mat)
     float occlusion=mix(0.61,1.0,smoothstep(0.10,0.64,h));
     color*=occlusion*(0.55+diffuse*0.65);
 #if LIQUID_KIND == 0
-    color+=mix(hue,vec3(0.64,0.72,0.79),0.48)*(reflection*0.25+fresnel*0.11);
+    color+=hue*(reflection*0.15+fresnel*0.045);
 #elif LIQUID_KIND == 1
-    color+=mix(hue,vec3(0.61,0.65,0.38),0.25)*(reflection*0.16+fresnel*0.05)*(1.0-skin*0.65);
+    color+=hue*(reflection*0.10+fresnel*0.025)*(1.0-skin*0.65);
 #else
-    color+=mix(hue,vec3(0.71,0.51,0.49),0.24)*(reflection*0.20+fresnel*0.07);
+    color+=hue*(reflection*0.12+fresnel*0.035);
 #endif
+    color=LiqRetroBands(color,1.0-smoothstep(2.0,6.0,footprint));
     mat.Base=vec4(clamp(color,0.0,0.96),getTexel(vTexCoord.st).a);
     mat.Normal=bumpedNormal;
     mat.Bright=vec4(0.0,0.0,0.0,1.0);
