@@ -89,6 +89,9 @@ void SetupMaterial(inout Material mat)
 }}
 ''')
  put('GLDEFS.caldera','\n'.join(gl)+'\n')
+ # Keep TNT04A's identical base sky in step with every caldera rebuild.
+ from build_war_sky import build
+ build(OUT.parent)
 
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);a=p.parse_args()
