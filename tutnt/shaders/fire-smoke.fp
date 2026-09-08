@@ -11,5 +11,7 @@ vec4 ProcessTexel()
     float density=dot(sampleColor,vec3(0.333333));
     float border=smoothstep(0.0,0.055,min(min(uv.x,uv.y),min(1.0-uv.x,1.0-uv.y)));
     float alpha=smoothstep(0.008,0.40,density)*border;
-    return vec4(mix(vec3(0.24,0.22,0.20),vec3(0.66,0.62,0.56),density),alpha);
+    // Visible smoke color peaks at #999999; density/opacity remain unchanged.
+    vec3 smokeColor=mix(vec3(0.20,0.18,0.16),vec3(0.60),clamp(density,0.0,1.0));
+    return vec4(smokeColor,alpha);
 }
