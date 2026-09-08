@@ -6,7 +6,7 @@ Die flache Kulisse aus transparenten Bergwänden wurde durch eine gestaffelte Ba
 
 - Der normale SkyViewpoint von TNT03B steht jetzt bei (18000, 18000, 0) in einer isolierten Kulisse. Drei flache, überlappende Felszüge bestehen aus geneigten Sektoren; die detaillierten Fernberge, Taldunst und entfernten Rauchsilhouetten sind im Panorama ausgearbeitet. Diese Kombination wurde nach tatsächlichen Engineaufnahmen gewählt, weil hohe reine Sektorberge zu grob wirkten.
 - Ein eigenes 360°-Panorama wird auf sechs nahtlos zusammenhängende Würfelflächen abgebildet. Explizite Interpolation hält die Darstellung auch bei ungefilterten Spieltexturen ruhig. Die hintere Panoramaüberblendung verhindert einen harten Abschluss; die Belichtung nimmt dem hohen Himmel die Dominanz über der Architektur.
-- Zwei langsam gegeneinander verschobene Abtastungen bewegen ausschließlich die hohen Wolken. Ein schwaches Aufglimmen belebt die Wolkendecke. Fernberge und Rauchsilhouetten bleiben fest. Es werden keine physischen Volumenwolken, bewegten Rauch-Actors oder spielerabhängige Skybox-Parallaxe eingesetzt.
+- Zwei langsam umlaufende Wolkenlagen bilden einen spiralförmigen Ring um ein ruhiges Sturmauge im Zenit. Die Lagen drehen sich in etwa 14 beziehungsweise 20 Minuten einmal herum. Nur der hohe Himmel oberhalb von 40 Grad wird animiert; ein weich überblendetes Auge verhindert eine sichtbare Polverzerrung. Fernberge und Rauchsilhouetten bleiben fest. Es werden keine physischen Volumenwolken, bewegten Rauch-Actors oder spielerabhängige Skybox-Parallaxe eingesetzt.
 - Die zweite Skybox (TID 4) bleibt einschließlich Actorposition erhalten. MAPINFO weist den neuen Himmel nur TNT03B zu. Es gibt keine globalen Texturersetzungen.
 - Ergänzt: 448 Vertices, 1.216 Linedefs, 2.368 Sidedefs und 769 Sektoren. Vorhandene Indizes bleiben stabil. ZDBSP hat die Nodes mit `-q -X -g -r` neu aufgebaut.
 
@@ -38,3 +38,14 @@ python tools/test_caldera_runtime.py --mod tutnt.pk3
 ```
 
 Assetbau: `python tools/build_caldera_sky.py` (Pillow und NumPy). Die bearbeitbare Map bleibt `tutnt/maps/tnt03b.wad`; der Assetbau verändert ihre Geometrie nicht. Original-Mockup, Herkunft und vollständige verwendete Generierungsprompts stehen unter `tools/artwork/caldera`.
+
+## Cloud motion update - 2026-09-08
+
+TNT01 now animates both cloud projections at exactly four times the original rates.
+TNT03B has a slowly rotating polar cloud wall with a calm, softly blended eye.
+The low panorama and mountains remain stationary; no map file is part of this update.
+Both maps passed OpenGL and Vulkan runtime checks, including save/load.
+The annular image comparison measured about 2.1 degrees of TNT03B cloud rotation
+over five seconds. Rebuild checks covered all 26 generated sky resources.
+Evidence: `tools/validation/sky-motion-2026-09-08`. Repeat with
+`python tools/test_sky_motion.py --engine <uzdoom.exe> --iwad <doom2.wad>`.

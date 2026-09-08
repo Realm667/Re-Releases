@@ -47,9 +47,9 @@ void SetupMaterial(inout Material mat)
  float latitude=asin(ray.y);
  float longitude=atan(-ray.z,-ray.x)/6.283185307+0.625;
  float skyY=clamp(0.92-latitude/3.141592654*1.84,0.0,1.0);
- // The two layers complete a turn in roughly 30 and 72 minutes.
- vec3 cloud=CloudWrap(vec2(longitude+timer*0.00055,skyY));
- vec3 veil=CloudWrap(vec2(longitude+0.071-timer*0.00023,skyY*0.94+0.025));
+ // Four times the original speed: one turn in roughly 7.6 and 18.1 minutes.
+ vec3 cloud=CloudWrap(vec2(longitude+timer*0.00220,skyY));
+ vec3 veil=CloudWrap(vec2(longitude+0.071-timer*0.00092,skyY*0.94+0.025));
  vec3 color=mix(cloud,veil,0.18);
  // Planar overhead projection removes the equirectangular pole singularity.
  // Blend in direction space, so the upper face and its neighbours agree.
@@ -57,8 +57,8 @@ void SetupMaterial(inout Material mat)
  if(overhead>0.0)
  {
   vec2 top=vec2(0.5,0.40)+ray.xz/max(ray.y,0.4)*0.28;
-  vec3 a=CloudWrap(top+vec2(timer*0.00055,0.0));
-  vec3 b=CloudWrap(top*vec2(0.94,0.94)+vec2(0.071-timer*0.00023,0.025));
+  vec3 a=CloudWrap(top+vec2(timer*0.00220,0.0));
+  vec3 b=CloudWrap(top*vec2(0.94,0.94)+vec2(0.071-timer*0.00092,0.025));
   color=mix(color,mix(a,b,0.18),overhead);
  }
  vec4 mountains=MountainWrap(vec2(longitude,0.82-latitude/3.141592654*1.4));

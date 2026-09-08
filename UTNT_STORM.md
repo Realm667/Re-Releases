@@ -18,8 +18,8 @@ directions at different speeds; the mountain panorama remains stationary.
 
 ## Rendering
 
-Cloud layers rotate at 0.00055 and -0.00023 panorama turns per second (about
-30 and 72 minutes per revolution). The second layer contributes 18 percent.
+Cloud layers rotate at 0.00220 and -0.00092 panorama turns per second (about
+7.6 and 18.1 minutes per revolution). The second layer contributes 18 percent.
 The movement is slow but visible over several seconds. There is no map-wide
 flashing light effect.
 
@@ -57,3 +57,14 @@ Validation evidence is stored under `tools/validation/storm-2026-09-08`.
 Art provenance and the approved mockup are under `tools/artwork/storm`.
 Start TNT01 fresh to use the new sky assignment and retired sky actor; saves
 created with the old map retain their serialized sky camera.
+
+## Cloud motion update - 2026-09-08
+
+TNT01 now animates both cloud projections at exactly four times the original rates.
+TNT03B has a slowly rotating polar cloud wall with a calm, softly blended eye.
+The low panorama and mountains remain stationary; no map file is part of this update.
+Both maps passed OpenGL and Vulkan runtime checks, including save/load.
+The annular image comparison measured about 2.1 degrees of TNT03B cloud rotation
+over five seconds. Rebuild checks covered all 26 generated sky resources.
+Evidence: `tools/validation/sky-motion-2026-09-08`. Repeat with
+`python tools/test_sky_motion.py --engine <uzdoom.exe> --iwad <doom2.wad>`.
