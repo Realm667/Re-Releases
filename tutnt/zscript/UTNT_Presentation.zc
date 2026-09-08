@@ -332,10 +332,12 @@ class UTNTWorldHandler : EventHandler
 class UTNTPresentation : StaticEventHandler
 {
     ui UTNTNoticeFeed NoticeFeed;
+    ui UTNTExplorationUI ExplorationUI;
     ui int NoticeWorldGeneration;
 
     ui void EnsureNotices()
     {
+        if(!ExplorationUI) ExplorationUI=new("UTNTExplorationUI");
         if(!NoticeFeed || NoticeWorldGeneration!=WorldGeneration)
         {
             NoticeFeed=new("UTNTNoticeFeed");
@@ -345,6 +347,16 @@ class UTNTPresentation : StaticEventHandler
 
     override void InterfaceProcess(ConsoleEvent e)
     {
+        if(e.Name=="utnt_secret")
+        {
+            EnsureNotices();
+            if(CVar.FindCVar('cl_showsecretmessage').GetBool())
+            {
+                if(e.Args[1]&1) NoticeFeed.Add(9001,e.Args[0]);
+                if(e.Args[1]&2) S_StartSound(Sound("misc/secret"),CHAN_AUTO,CHANF_UI,1,ATTN_NONE);
+            }
+            return;
+        }
         if(e.Name!="utnt_notice" && e.Name!="utnt_key_notice") return;
         EnsureNotices();
         if(e.Name=="utnt_key_notice" && StatusBar)
@@ -388,7 +400,7 @@ class UTNTPresentation : StaticEventHandler
     {
         EnsureNotices();
         if(gamestate==GS_LEVEL && !menuactive && ConsoleState==0 && !paused
-            && ObjectivesFadeTics==0 && !ObjectivesHeld)
+            && ObjectivesFadeTics==0 && !ObjectivesHeld && !(automapactive && !viewactive))
             NoticeFeed.Tick();
         if (ObjectivesWorldGeneration!=WorldGeneration || gamestate!=GS_LEVEL
             || menuactive || ConsoleState!=0 || paused || players[consoleplayer].health<=0)
@@ -462,8 +474,15 @@ class UTNTPresentation : StaticEventHandler
         }
     }
 
+    override void RenderUnderlay(RenderEvent e)
+    {
+        EnsureNotices();
+        ExplorationUI.BeforeHUD();
+    }
+
     override void RenderOverlay(RenderEvent e)
     {
+        if(ExplorationUI) ExplorationUI.AfterHUD();
         if (LastWorldGeneration != WorldGeneration)
         {
             HaveView=false; LastCamera=null; BlurX=0; BlurY=0; LastBossKind=0;
@@ -521,6 +540,7 @@ class UTNTPresentation : StaticEventHandler
         Shader.SetUniform1i(player, 'motionblur', 'samples', copies);
         Shader.SetUniform1f(player, 'motionblur', 'increment', 1.0 / copies);
         Shader.SetUniform1i(player, 'motionblur', 'blendmode', clamp(CVar.GetCVar('motionblur_blendmode', player).GetInt(), 0, 1));
+        if(automapactive && !viewactive) { UTNTExplorationUI.DrawMap(); return; }
         // Corner overview is automatic; the full plaque is strictly local and opt-in.
         // Neither path consumes movement/fire inputs, pauses time or changes actors.
         let objectives=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));

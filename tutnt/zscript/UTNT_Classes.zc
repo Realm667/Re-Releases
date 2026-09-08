@@ -24,6 +24,15 @@ class Marine : DoomPlayer
 {
 	double utntFallbackStep;
 
+    override bool OnGiveSecret(bool printmsg,bool playsound)
+    {
+        // P_GiveSecret owns both counters. Its level counter increments after this hook.
+        if(CheckLocalView())
+            EventHandler.SendInterfaceEvent(consoleplayer,"utnt_secret",level.found_secrets+1,
+                int(printmsg)|(int(playsound)<<1));
+        return false; // The interface replaces the native center message and plays its sound once.
+    }
+
 	Default
 	{	
 		Player.WeaponSlot 1,"UTNTFist","UTNTChainsaw";

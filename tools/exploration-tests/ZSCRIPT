@@ -1,0 +1,64 @@
+version "5.0.0"
+class UTNTExplorationTest : EventHandler
+{
+    override void WorldTick() { if(players[0].mo) players[0].mo.bInvulnerable=true; }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let p=players[0].mo;
+        if(e.Name=="exreset") { level.found_secrets=0;level.total_secrets=8;p.player.secretcount=0; }
+        if(e.Name=="exgive") level.GiveSecret(p,!!(e.Args[0]&1),!!(e.Args[0]&2));
+        if(e.Name=="exsector") p.CurSector.Flags|=Sector.SECF_SECRET;
+        if(e.Name=="exreveal")
+            for(int i=0;i<level.Lines.Size();i++)
+                if(!(level.Lines[i].flags&Line.ML_DONTDRAW)) level.Lines[i].flags|=Line.ML_MAPPED;
+    }
+}
+class UTNTExplorationUITest : StaticEventHandler
+{
+    ui String HUDSetting(int i)
+    {
+        String names[]={"am_showlevelname","am_showmonsters","am_showsecrets",
+            "am_showitems","am_showtime","am_showtotaltime"};
+        return names[i];
+    }
+
+    ui Array<bool> Saved;
+    override void OnRegister() { IsUiProcessor=true; }
+    override bool InputProcess(InputEvent e) { return true; }
+    ui void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",text); }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        let h=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
+        h.EnsureNotices();
+        if(e.Name=="exclear") h.NoticeFeed=new("UTNTNoticeFeed");
+        if(e.Name=="excount")
+        {
+            Check(level.found_secrets==e.Args[0],"native level secret count");
+            Check(players[0].secretcount==e.Args[0],"native personal secret count");
+            Check(h.NoticeFeed.ActiveID==e.Args[1],"expected secret notice visibility");
+            if(e.Args[1]) Check(h.NoticeFeed.ActiveValue==e.Args[0],"displayed secret count");
+            let old=StatusBar.DetachMessageID(0x52544e43);
+            Check(!old,"no duplicate native secret message");
+            if(old) old.Destroy();
+        }
+        if(e.Name=="exsectorcheck") Check(!players[0].mo.CurSector.isSecret(),"engine consumes a secret sector once");
+        if(e.Name=="exremember")
+        {
+            Saved.Clear();
+            for(int i=0;i<6;i++) Saved.Push(CVar.FindCVar(HUDSetting(i)).GetBool());
+        }
+        if(e.Name=="exprefs")
+        {
+            for(int i=0;i<6;i++) Check(Saved[i]==CVar.FindCVar(HUDSetting(i)).GetBool(),"automap preference preserved");
+            Check(!h.ExplorationUI.MapHUDSuppressed,"HUD clip restored after rendering");
+        }
+        if(e.Name=="exmap") Check(automapactive && viewactive==bool(e.Args[0]),"requested full-map/overlay mode active");
+        if(e.Name=="exresources")
+        {
+            Check(TexMan.CheckForTexture('AUTOPAGE').IsValid(),"automap iron background resolves");
+            String keys[]={"UTNT_SECRET_FOUND","UTNT_SECRET_COUNT","UTNT_MAP_YOU","UTNT_MAP_BLUE","UTNT_MAP_RED","UTNT_MAP_YELLOW"};
+            for(int i=0;i<6;i++) Check(UTNTExplorationUI.Local(keys[i])!=keys[i],"exploration text localized");
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+    }
+}

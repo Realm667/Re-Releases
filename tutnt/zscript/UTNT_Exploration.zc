@@ -1,0 +1,174 @@
+// Presentation shared by secret discoveries and the full-screen automap.
+class UTNTExplorationUI ui
+{
+    int ClipX,ClipY,ClipW,ClipH;
+    bool MapHUDSuppressed;
+
+    // Keep the native status bar at the bottom. Above it the automap has its
+    // own title and statistics; clipping avoids modifying protected engine CVars.
+    void BeforeHUD()
+    {
+        AfterHUD();
+        if(!automapactive || viewactive) return;
+        let [x,y,w,h]=Screen.GetClipRect();
+        ClipX=x;ClipY=y;ClipW=w;ClipH=h;
+        Vector2 hudScale=(1,1);
+        if(StatusBar) hudScale=StatusBar.GetHUDScale();
+        int bottom=min(Screen.GetHeight(),int(ceil(32*hudScale.Y)));
+        Screen.SetClipRect(0,Screen.GetHeight()-bottom,Screen.GetWidth(),bottom);
+        MapHUDSuppressed=true;
+    }
+
+    void AfterHUD()
+    {
+        if(!MapHUDSuppressed) return;
+        Screen.SetClipRect(ClipX,ClipY,ClipW,ClipH);
+        MapHUDSuppressed=false;
+    }
+
+    static void MapStats(double s)
+    {
+        int mode=CVar.FindCVar('fullhud_stats').GetInt();
+        if(!mode) return;
+        bool items=CVar.FindCVar('fullhud_fullstats').GetBool();
+        int pos=CVar.FindCVar('fullhud_statspos').GetInt();
+        Array<String> rows;
+        String labels[]={"KILLS","ITEMS","SCRTS"};
+        int found[]={level.killed_monsters,level.found_items,level.found_secrets};
+        int total[]={level.total_monsters,level.total_items,level.total_secrets};
+        for(int i=0;i<3;i++)
+        {
+            if(i==1 && !items) continue;
+            int value=mode>=3?max(0,total[i]-found[i]):(total[i]>0?clamp(found[i]*100/total[i],0,100):100);
+            rows.Push(String.Format(mode>=3?"%s  %d":"%s  %d%%",labels[i],value));
+        }
+        if(mode==2 || mode==4)
+        {
+            int sec=level.time/35;
+            rows.Push(String.Format("%02d:%02d:%02d",sec/3600,(sec/60)%60,sec%60));
+        }
+        Font font=Font.GetFont('SmallFont');
+        double width=0,ts=1.3*s;
+        for(int j=0;j<rows.Size();j++) width=max(width,font.StringWidth(rows[j])*ts);
+        double x=pos%2?Screen.GetWidth()-width-18*s:26*s;
+        double y=pos<2?16*s:Screen.GetHeight()-190*s;
+        for(int k=0;k<rows.Size();k++) Text(rows[k],x,y+k*10*ts,ts,0xc2bdb1);
+    }
+
+    static String Local(String key) { return StringTable.Localize("$"..key); }
+
+    static void Text(String text,double x,double y,double scale,int shade,double alpha=1)
+    {
+        Font font=Font.GetFont('SmallFont');
+        Screen.DrawText(font,Font.CR_WHITE,x+scale,y+scale,UTNTNoticeFeed.Plain(text),
+            DTA_ScaleX,scale,DTA_ScaleY,scale,DTA_Color,0xff050403,DTA_Alpha,alpha*0.8);
+        Screen.DrawText(font,Font.CR_WHITE,x,y,text,
+            DTA_ScaleX,scale,DTA_ScaleY,scale,DTA_Color,0xff000000|shade,DTA_Alpha,alpha);
+    }
+
+    static void Frame(double x,double y,double width,double height,double s,double alpha)
+    {
+        int l=int(round(x)),r=int(round(x+width*s)),t=int(round(y)),b=int(round(y+height*s));
+        int edge=max(1,int(round(s)));
+        UTNTObjectivePlaque.Tile("UTOCBG",l+edge,t+edge,r-edge,b-edge,alpha*0.90);
+        Screen.Dim(0x9e7546,alpha,l,t,r-l,edge);
+        Screen.Dim(0x594127,alpha,l,b-edge,r-l,edge);
+        Screen.Dim(0x77532f,alpha,l,t+edge,edge,b-t-2*edge);
+        Screen.Dim(0x44321e,alpha,r-edge,t+edge,edge,b-t-2*edge);
+        for(int i=0;i<4;i++)
+        {
+            double cx=i%2?width-4:4,cy=i/2?height-4:4;
+            UTNTObjectivePlaque.Rect(x,y,s,cx-1,cy-1,3,3,0x251b10,alpha);
+            UTNTObjectivePlaque.Rect(x,y,s,cx-1,cy-1,2,1,0xa88047,alpha);
+        }
+    }
+
+    static void SecretSeal(double cx,double cy,double s,double alpha)
+    {
+        // One shade per pixel: the round seal also stays clean during its fade.
+        for(int y=-12;y<=12;y++) for(int x=-12;x<=12;x++)
+        {
+            double r=sqrt(x*x+y*y);
+            if(r>12) continue;
+            int shade=0x2c2013;
+            if(r>=10.5) shade=y<x?0x8a6438:0x54391d;
+            else if(r>=9) shade=y<x?0x382817:0x9b713b;
+            else if(abs(x)*1.3+abs(y)<8)
+                shade=x<0?0xae7a3e:0x6c4724;
+            else if(abs(x)*1.3+abs(y)<9.5) shade=0x181007;
+            UTNTObjectivePlaque.Rect(cx,cy,s,x,y,1,1,shade,alpha);
+        }
+    }
+
+    static void DrawSecret(int found,double alpha)
+    {
+        double s=min(Screen.GetWidth()/960.0,Screen.GetHeight()/540.0);
+        Font font=Font.GetFont('SmallFont');
+        String title=Local("UTNT_SECRET_FOUND");
+        String count=String.Format(Local("UTNT_SECRET_COUNT"),found,level.total_secrets);
+        double headline=1.4,body=0.9;
+        double width=max(200,max(font.StringWidth(title)*headline,font.StringWidth(count)*body)+70);
+        double x=(Screen.GetWidth()-width*s)/2,y=Screen.GetHeight()*0.40-20*s;
+        Frame(x,y,width,40,s,alpha);
+        SecretSeal(x+28*s,y+20*s,s,alpha);
+        double center=x+(width+52)*s/2;
+        Text(title,center-font.StringWidth(title)*headline*s/2,y+10*s,headline*s,0xc9954b,alpha);
+        Text(count,center-font.StringWidth(count)*body*s/2,y+25*s,body*s,0xcac4b8,alpha);
+    }
+
+    static void PlayerArrow(double x,double y,double s)
+    {
+        for(int row=0;row<8;row++)
+        {
+            int half=row/2;
+            for(int col=-half;col<=half;col++)
+                if(row<5 || abs(col)>row-6)
+                    UTNTObjectivePlaque.Rect(x,y,s,col,row-4,1,1,0xe6dfcc,1);
+        }
+    }
+
+    static void DrawMap()
+    {
+        if(!automapactive || viewactive || gamestate!=GS_LEVEL) return;
+        double s=min(Screen.GetWidth()/960.0,Screen.GetHeight()/540.0);
+        Font font=Font.GetFont('SmallFont');
+        MapStats(s);
+        double top=16;
+        // Respect the existing user-selectable statistics corner.
+        if(CVar.FindCVar('fullhud_stats').GetInt()>0 && CVar.FindCVar('fullhud_statspos').GetInt()==0)
+        {
+            int mode=CVar.FindCVar('fullhud_stats').GetInt();
+            int rows=2+int(CVar.FindCVar('fullhud_fullstats').GetBool())+int(mode==2 || mode==4);
+            top+=rows*13+8;
+        }
+        String title=StringTable.Localize(level.LevelName);
+        double titleScale=min(1.4,350.0/max(1,font.StringWidth(title)));
+        Text(level.MapName,26*s,top*s,s,0xaa7e49);
+        Text(title,26*s,(top+12)*s,titleScale*s,0xd0cabd);
+        UTNTObjectivePlaque.Rect(0,0,s,26,top+26,min(350,font.StringWidth(title)*titleScale+20),1,0x916a3c,1);
+
+        String labels[]={Local("UTNT_MAP_YOU"),Local("UTNT_MAP_BLUE"),Local("UTNT_MAP_RED"),Local("UTNT_MAP_YELLOW")};
+        int colors[]={0xe6dfcc,0x00759f,0xc53023,0xd2a72e};
+        double width=16;
+        for(int i=0;i<4;i++) width+=font.StringWidth(labels[i])+27;
+        double ls=min(s,(Screen.GetWidth()-40*s)/width);
+        // SBARINFO uses a 320-unit HUD; reserve its visible bottom 32 units
+        // even when the engine reports height=0 for fullscreen-offset bars.
+        Vector2 hudScale=(2*s,2*s);
+        if(StatusBar) hudScale=StatusBar.GetHUDScale();
+        double reserve=max(72*s,32*hudScale.Y);
+        if(StatusBar) reserve=max(reserve,Screen.GetHeight()-StatusBar.GetTopOfStatusBar());
+        double x=22*s,y=Screen.GetHeight()-reserve-38*ls;
+        // Bottom statistics require another short band above the legend.
+        if(CVar.FindCVar('fullhud_stats').GetInt()>0 && CVar.FindCVar('fullhud_statspos').GetInt()>=2) y-=42*s;
+        Frame(x,y,width,22,ls,1);
+        double cursor=11;
+        for(int j=0;j<4;j++)
+        {
+            if(j==0) PlayerArrow(x+(cursor+3)*ls,y+11*ls,ls);
+            else UTNTObjectivePlaque.Rect(x,y,ls,cursor-1,10,11,2,colors[j],1);
+            Text(labels[j],x+(cursor+17)*ls,y+8*ls,ls,0xc8c1b4);
+            cursor+=font.StringWidth(labels[j])+27;
+        }
+    }
+}

@@ -7,6 +7,8 @@ class UTNTNoticeFeed ui
 
     static String Text(int id,int value=-1)
     {
+        if(id==9001) return UTNTExplorationUI.Local("UTNT_SECRET_FOUND").." "
+            ..String.Format(UTNTExplorationUI.Local("UTNT_SECRET_COUNT"),value,level.total_secrets);
         String text=StringTable.Localize(String.Format("$UTNT_NOTICE_%d",id));
         int at=text.IndexOf("{n}");
         if(at>=0) text=text.Left(at)..String.Format("%d",value)..text.Mid(at+3);
@@ -95,6 +97,7 @@ class UTNTNoticeFeed ui
     {
         double alpha=Opacity(frac);
         if(alpha<=0) return;
+        if(ActiveID==9001) { UTNTExplorationUI.DrawSecret(ActiveValue,alpha); return; }
         Font font=Font.GetFont('SmallFont');
         double scale=min(Screen.GetWidth()/960.0,Screen.GetHeight()/540.0);
         let [lines,size]=Layout(Text(ActiveID,ActiveValue),284);
