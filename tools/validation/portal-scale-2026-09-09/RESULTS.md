@@ -25,6 +25,8 @@ SHA256: f240e15e671f5fe6e779c05421ad8b5e672fe405eda28666905d81c0215c716d
 The package contains the current shared working tree, including other tasks'
 local changes. The portal ZScript matches the tested source byte-for-byte.
 
-The normal tutnt.pk3 was locked by another program during publication; the fully
-built scale package remains available separately. This record describes that
-tested package rather than claiming that the locked normal package was replaced.
+The normal tutnt.pk3 was initially locked by another program. Once released,
+it was rebuilt from the current working tree with the engine compile check.
+Its portal ZScript is byte-identical to the tested scale package and source.
+Normal package build: d4c8252c37b2.
+Normal package SHA256: e355fc4f6e131efb5dd113d04e75f554741c540e039a5f56a0458c0dfaa0e042
