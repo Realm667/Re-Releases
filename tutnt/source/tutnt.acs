@@ -28,8 +28,13 @@ function void UpdatePortal(int slot)
         if (PlayerInGame(p) && PlayerSeesPortal[slot][p]) seen=1;
     if (seen != PortalOn[slot])
     {
-        if (seen) Thing_Activate(PortalTIDs[slot]);
-        else Thing_Deactivate(PortalTIDs[slot]);
+        // Portal surfaces use local distance/visibility checks, including noclip
+        // and restored saves. These old area hints must not latch them off.
+        if (!ScriptCall("UTNTPortalSystem","UseLocalVisibility",PortalTIDs[slot]))
+        {
+            if (seen) Thing_Activate(PortalTIDs[slot]);
+            else Thing_Deactivate(PortalTIDs[slot]);
+        }
         PortalOn[slot]=seen;
     }
 }

@@ -44,7 +44,14 @@ class UTNTPortalMaterials : EventHandler
             Vector2 delta=source.Pos.XY-start;
             double along=Projection(delta,direction);
             double away=abs(delta.X*direction.Y-delta.Y*direction.X);
-            if(away<=32 && along>=-16 && along<=width+16 && source.Pos.Z>=bottom-8 && source.Pos.Z<=top+8) return true;
+            if(away<=32 && along>=-16 && along<=width+16 && source.Pos.Z>=bottom-8 && source.Pos.Z<=top+8)
+            {
+                // The wall is already a visible portal. Legacy dormant starts
+                // were an area-culling optimization, not a gameplay lock.
+                source.SurfaceManaged=true;
+                if(source.PortalWidth==0) source.PortalWidth=int(width);
+                return true;
+            }
         }
         return false;
     }
@@ -140,21 +147,38 @@ class UTNTPortalDecorationBase : SwitchableDecoration
 {
     int PortalWidth; double PortalHeight;
     bool PortalActive;
+    bool SurfaceManaged, ExplicitOff, LifecycleReady;
+    clearscope bool EffectsEnabled()
+    {
+        return !ExplicitOff && (SurfaceManaged || (PortalActive && !bDormant));
+    }
+    override void Tick()
+    {
+        Super.Tick();
+        LifecycleReady=true;
+        if(SurfaceManaged) UTNTPortalSystem.Ensure(self);
+    }
     override void PostBeginPlay()
     {
         Super.PostBeginPlay();
-        if(bDormant || SpawnFlags & MTF_DORMANT) Deactivate(null);
+        if(bDormant || SpawnFlags & MTF_DORMANT)
+        {
+            // Initial dormancy is not an explicit runtime shutdown.
+            PortalActive=false;
+            Super.Deactivate(null);
+        }
     }
     // SwitchableDecoration only changes states. Our emitter also checks
     // bDormant, so a map-placed dormant source must clear it on activation.
     override void Activate(Actor activator)
     {
-        bDormant=false;
+        ExplicitOff=false; bDormant=false;
         Super.Activate(activator);
     }
     override void Deactivate(Actor activator)
     {
-        PortalActive=false; bDormant=true;
+        // The engine also invokes Deactivate for a dormant map spawn.
+        ExplicitOff=LifecycleReady; PortalActive=false; bDormant=true;
         Super.Deactivate(activator);
     }
     action void A_UTNTPortal(int width)
@@ -168,9 +192,29 @@ class UTNTPortalDecorationBase : SwitchableDecoration
 
 class UTNTPortalSystem play
 {
+    // ACS 176 predates local LOD and only tracks which side of a room trigger
+    // players crossed. Acknowledge that hint without overriding manual switches.
+    static int UseLocalVisibility(int tid)
+    {
+        let it=ActorIterator.Create(tid); Actor actor; int count=0;
+        while(actor=it.Next())
+        {
+            let source=UTNTPortalDecorationBase(actor);
+            if(!source) continue;
+            source.SurfaceManaged=true; count++;
+        }
+        return count;
+    }
+    static bool LocalVisible(UTNTPortalDecorationBase source)
+    {
+        if(!UTNTVisuals.Visible(source,combat:true)) return false;
+        if(!source.SurfaceManaged) return true;
+        Vector2 delta=players[consoleplayer].camera.Pos.XY-source.Pos.XY;
+        return delta.X*cos(source.Angle)+delta.Y*sin(source.Angle)>-4;
+    }
     static void Ensure(UTNTPortalDecorationBase source)
     {
-        if(!source || source.bDormant || !UTNTVisuals.Visible(source,combat:true)) return;
+        if(!source || source.PortalWidth<=0 || !source.EffectsEnabled() || !LocalVisible(source)) return;
         // At most 32 emitters per local client; no gameplay random stream.
         let it=ThinkerIterator.Create('UTNTPortalEmitter',Thinker.STAT_USER+8,true);
         UTNTPortalEmitter emitter; int count=0;
@@ -237,9 +281,9 @@ class UTNTPortalEmitter : Thinker
     }
     override void Tick()
     {
-        if(!Source || !Source.PortalActive || Source.bDormant) { Destroy(); return; }
+        if(!Source || !Source.EffectsEnabled()) { Destroy(); return; }
         if(Source.IsFrozen() || level.isFrozen()) return;
-        if(!UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        if(!UTNTPortalSystem.LocalVisible(Source)) { Destroy(); return; }
         Age++;
         let player=players[consoleplayer];
         int quality=clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),1,3);
@@ -298,9 +342,9 @@ class UTNTPortalMote : VisualThinker
     }
     override void Tick()
     {
-        if(!Source || !Source.PortalActive || Source.bDormant) { Destroy(); return; }
+        if(!Source || !Source.EffectsEnabled()) { Destroy(); return; }
         if(IsFrozen() || Source.IsFrozen() || level.isFrozen()) return;
-        if(++Age>=Life || !UTNTVisuals.Visible(Source,combat:true)) { Destroy(); return; }
+        if(++Age>=Life || !UTNTPortalSystem.LocalVisible(Source)) { Destroy(); return; }
         Prev=Pos; PrevRoll=Roll;
         double t=double(Age)/Life;
         double travel=t*t;
@@ -344,7 +388,7 @@ class UTNTPortalSuction ui
         UTNTPortalEmitter em;
         while(em=UTNTPortalEmitter(it.Next()))
         {
-            if(!em.Source || !em.Source.PortalActive || em.Source.bDormant) continue;
+            if(!em.Source || !em.Source.EffectsEnabled()) continue;
             double strength=Proximity(e.ViewPos,em.Center,em.Axis,em.SideAxis,em.Width,em.Height);
             if(strength<=best) continue;
             Vector3 target=em.Center;

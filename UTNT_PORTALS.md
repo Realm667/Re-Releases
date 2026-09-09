@@ -79,7 +79,7 @@ Die gesetzten PortalDecoration_128/192 können mit Dormant starten. Der native
 SwitchableDecoration-Aktivierungsaufruf wechselt lediglich den Zustand; das
 Dormant-Flag blieb bisher gesetzt und sperrte die neue Partikelroutine trotz
 Aktivierung durch ACS 176. Die gemeinsame Portal-Basisklasse synchronisiert nun
-Zustand, PortalActive und Dormant ausdrücklich. Deaktivierte Starts bleiben aus.
+Zustand, PortalActive und Dormant bei ausdrücklichen Schaltaufrufen.
 Die ursprünglichen Editor-Nummern und Kartentrigger bleiben erhalten.
 
 Ein größerer, durch einen Sprite-Shader gezeichneter heißer Glutkern macht die
@@ -105,3 +105,32 @@ Aktivierung, Partikel, 128/96/64/24-Einheiten-Abstände, Sichtschutz, Abschalten
 und Save/Load. Die Kampagnenprüfung führt den originalen ACS-176-Aufruf mit
 einem Spieler als Activator in TNT03B, TNT04A und TNT04B aus.
 Belege: tools/validation/portal-suction-2026-09-09/.
+
+## Direkte Annäherung ohne Kartentrigger
+
+Die erste Aktivierungsprüfung führte ACS 176 ausdrücklich aus und übersah den
+Zugang per Map-Wechsel und Noclip/Fly. In TNT03B blieb ein direkt angeflogener
+Spawner dadurch dormant; weder Partikel noch Nahbereichs-Shader liefen.
+
+An eine erkannte Portal-Wand gebundene Dekorationen verwenden jetzt lokale
+Entfernung und Blickseite statt des ursprünglichen Startzustands als Freigabe.
+Die regelmäßige Zuordnung zu den gespeicherten Öffnungen gilt auch nach
+Save/Load. ACS 176 bestätigt für diese Portal-Klassen nur noch die lokale
+Sichtbarkeitsverwaltung. Seine alten Raumgrenzen können die Effekte nicht
+dauerhaft ausschalten. Nicht-Portal-Actors behalten die bisherigen ACS-Aufrufe.
+
+Eine ausdrückliche Activate/Deactivate-Anweisung bleibt wirksam. Ein separates
+gespeichertes ExplicitOff-Flag unterscheidet sie vom automatischen Dormant-Aufruf
+der Engine beim Spawn. Auch ein späterer ACS-Sichtbarkeitshinweis überschreibt
+diese manuelle Abschaltung nicht. Qualitäts-, LOD- und Shader-Einstellungen
+sowie Budgets bleiben erhalten; es werden keine zusätzlichen Gameplay-Actors
+oder Zufallszahlen verwendet.
+
+tools/test_portal_approach.py testet eine direkte Ankunft in TNT03B mit der
+normalen Spielerkamera, ohne Aktivierung aufzurufen. Zusätzlich prüft es beide
+ACS-Sichtbarkeitshinweise, manuelles Aus/Ein, Qualität 0 und gespeicherte aktive
+sowie abgeschaltete Zustände. Belege: tools/validation/portal-approach-2026-09-09/.
+
+Die gemeinsame ACS-Bibliothek wurde angepasst. UZDoom verweigert ältere
+Spielstände mit der vorherigen Bibliotheksgröße; für diesen Build die Karte
+frisch starten. Save/Load innerhalb der neuen Fassung ist geprüft.

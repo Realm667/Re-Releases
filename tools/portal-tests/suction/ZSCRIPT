@@ -45,7 +45,7 @@ class PortalSuctionTest : EventHandler
             {
                 if(s is 'UTNTPortalAutoSource') continue;
                 sources++;
-                if(Step==0) Verify(s.bDormant && !s.PortalActive,"mapped dormant source initially inactive");
+                if(Step==0) Verify(s.bDormant && !s.PortalActive,"map spawn retains dormant compatibility state");
                 if(Step==1) { s.Activate(null); Verify(!s.bDormant,"activation clears dormant flag"); }
                 if(Step==2) s.Deactivate(null);
             }

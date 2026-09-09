@@ -1,0 +1,50 @@
+version "5.0.0"
+class PortalApproachTest : EventHandler
+{
+    UTNTPortalDecorationBase Source;
+    int Serial, Expected, CheckAt;
+    bool Placed;
+    ui int SeenSerial;
+    override void WorldTick()
+    {
+        if(!Source)
+        {
+            let it=ThinkerIterator.Create('UTNTPortalDecorationBase');
+            Source=UTNTPortalDecorationBase(it.Next());
+        }
+        if(Source && level.time>=70 && !Placed)
+        {
+            // Jump to the real portal with the player's ordinary first-person
+            // camera; do not activate any actor or execute the visibility ACS.
+            Vector3 pos=Source.Pos+(cos(Source.Angle),sin(Source.Angle),0)*64;
+            pos.Z=Source.GetZAt(0,0,0,GZF_NO3DFLOOR)+20;
+            let mo=players[consoleplayer].mo;
+            mo.SetOrigin(pos,false);mo.Angle=Source.Angle+180;mo.Pitch=0;
+            mo.Vel=(0,0,0);Placed=true;
+        }
+        if(CheckAt && level.time>=CheckAt) { CheckAt=0;Serial++; }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="portalapproach") return;
+        if(e.Args[0]==2) Source.Deactivate(null);
+        if(e.Args[0]==3) Source.Activate(null);
+        if(e.Args[0]==4) level.ExecuteSpecial(226,players[consoleplayer].mo,null,true,176,0,180);
+        if(e.Args[0]==5) level.ExecuteSpecial(226,players[consoleplayer].mo,null,false,176,0,180);
+        Expected=e.Args[1]; CheckAt=level.time+35;
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        if(SeenSerial==Serial) return;SeenSerial=Serial;
+        let it=ThinkerIterator.Create('UTNTPortalEmitter',Thinker.STAT_USER+8,true);
+        UTNTPortalEmitter em;int emitters=0,motes=0;
+        while(em=UTNTPortalEmitter(it.Next())) if(em.Source==Source)emitters++;
+        let vi=ThinkerIterator.Create('UTNTPortalMote',Thinker.MAX_STATNUM+1,true);
+        UTNTPortalMote mote;
+        while(mote=UTNTPortalMote(vi.Next()))if(mote.Source==Source)motes++;
+        let h=UTNTPortalMaterials(EventHandler.Find('UTNTPortalMaterials'));
+        Console.Printf("PORTAL_STATE managed=%d off=%d width=%d frozen=%d",Source.SurfaceManaged,Source.ExplicitOff,Source.PortalWidth,Source.IsFrozen());
+        bool ok=Expected ? emitters==1 && motes>0 && h.SuctionAmount>0.01 : emitters==0 && motes==0 && h.SuctionAmount==0;
+        Console.Printf("UTNT_ASSERT %s: direct approach expected=%d dormant=%d active=%d emitters=%d motes=%d suction=%.4f",ok?"PASS":"FAIL",Expected,Source.bDormant,Source.PortalActive,emitters,motes,h.SuctionAmount);
+    }
+}
