@@ -1,0 +1,49 @@
+version "5.0.0"
+class RuneTrailTest : EventHandler
+{
+    void Verify(bool ok,String message){Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message);}
+    override void WorldTick()
+    {
+        if(level.time!=80)return;
+        let p=players[0].mo;
+        if(level.MapName=="TNT01")
+        {
+            let it=ThinkerIterator.Create('TeleportSparkle_R');let s=Actor(it.Next());
+            if(!s)return;s.Activate(null);p.SetOrigin(s.Pos+(0,-144,0),false);p.Angle=90;p.Pitch=7;
+        }
+        else
+        {
+            let it=ThinkerIterator.Create('UTNTPortalDecorationBase');let s=UTNTPortalDecorationBase(it.Next());
+            if(!s)return;
+            Vector3 axis=(cos(s.Angle),sin(s.Angle),0),side=(-axis.Y,axis.X,0);
+            Vector3 pos=s.Pos+axis*270+side*70;pos.Z=s.GetZAt(0,0,0,GZF_NO3DFLOOR)+40;
+            p.SetOrigin(pos,false);p.Angle=atan2(-axis.Y*270-side.Y*70,-axis.X*270-side.X*70);p.Pitch=-8;
+        }
+        p.Vel=(0,0,0);
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="runetrail")return;
+        int count=0,streaks=0,visible=0,young=0;
+        let it=ThinkerIterator.Create('UTNTRuneMote',Thinker.MAX_STATNUM+1,true);UTNTRuneMote m;
+        while(m=UTNTRuneMote(it.Next()))
+        {
+            count++;Verify(m.Trail.Size()==3,"every rune owns three bounded trail segments");
+            int age,life;double strength=1;
+            if(m is 'UTNTPortalMote'){let a=UTNTPortalMote(m);age=a.Age;life=a.Life;strength=a.Strength;}
+            else {let a=UTNTRitualMote(m);age=a.Age;life=a.Life;}
+            Verify(life>=64 && life<=116,"slower bounded flight");
+            if(age<12){young++;Verify(m.Alpha/strength<=.51,"gentle first-half fade-in");}
+            for(int i=0;i<m.Trail.Size();i++)
+            {
+                let s=m.Trail[i];Verify(s && TexMan.GetName(s.Texture)=="UTRTA0","soft ribbon material assigned");
+                if(s && s.Alpha>0){visible++;Verify(s.Alpha<=m.Alpha*.201 && s.Scale.X>0 && s.Scale.Y>0,"subtle visible trail");}
+            }
+        }
+        let ti=ThinkerIterator.Create('UTNTRuneStreak',Thinker.MAX_STATNUM+1,true);
+        while(ti.Next())streaks++;
+        Verify(streaks==count*3,"no orphan trail thinkers");
+        Verify(e.Args[0] ? count>0 && visible>0 : count==0 && streaks==0,"expected enabled or cleaned-up effect");
+        Console.Printf("TRAIL_COUNTS runes=%d ribbons=%d visible=%d fading=%d",count,streaks,visible,young);
+    }
+}

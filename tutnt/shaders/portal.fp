@@ -38,7 +38,7 @@ float PortalGlyph(vec2 uv,float index)
 {
     if(any(lessThan(uv,vec2(0)))||any(greaterThan(uv,vec2(1))))return 0.0;
     vec4 c=texture(runeAtlas,vec2(uv.x,(mod(index,4.0)+uv.y)/4.0));
-    return clamp((c.r-max(c.g,c.b))*3.0,0.0,1.0)*c.a;
+    return c.r*c.a; // Original coverage, independent of the colored PNG.
 }
 float SealArc(vec2 p,float depth,float time)
 {

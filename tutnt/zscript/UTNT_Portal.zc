@@ -303,14 +303,14 @@ class UTNTPortalEmitter : Thinker
             if(!LightAnchor.IsActorPlayingSound(CHAN_BODY))
                 LightAnchor.A_StartSound("utnt/portal/hum",CHAN_BODY,CHANF_LOOP,0.32,1.8);
         }
-        int interval=quality==1 ? 7 : quality==2 ? 4 : 2;
+        int interval=quality==1 ? 14 : quality==2 ? 8 : 4;
         if(Age%interval || !UTNTVisuals.Reserve()) return;
         let mote=UTNTPortalMote(level.SpawnClientSideVisualThinker('UTNTPortalMote'));
         if(mote) mote.Initialize(self,Age%5==0 && quality>1);
     }
 }
 
-class UTNTPortalMote : VisualThinker
+class UTNTPortalMote : UTNTRuneMote
 {
     UTNTPortalDecorationBase Source;
     Vector3 Target, Start, Bend;
@@ -320,7 +320,7 @@ class UTNTPortalMote : VisualThinker
     void Initialize(UTNTPortalEmitter emitter,bool wisp)
     {
         Source=emitter.Source; Wisp=wisp;
-        Life=int(emitter.Noise(32,58));
+        Life=int(emitter.Noise(64,116));
         Target=emitter.Center+emitter.SideAxis*emitter.Noise(-emitter.Width*0.26,emitter.Width*0.26);
         Target.Z+=emitter.Noise(-emitter.Height*0.32,emitter.Height*0.32);
         // A broad intake volume in front of the opening, converging on the
@@ -335,9 +335,9 @@ class UTNTPortalMote : VisualThinker
         Strength=emitter.Noise(0.85,1.0);
         Texture=TexMan.CheckForTexture(String.Format("UTR%cA0",65+int(emitter.Noise(0,4))));
         Flags=SPF_FULLBRIGHT|SPF_ROLL|SPF_ALLOWSHADERS; SetRenderStyle(STYLE_Add);
-        Roll=emitter.Noise(0,360); Spin=emitter.Noise(-3,3);
+        Roll=emitter.Noise(0,360); Spin=emitter.Noise(-1.5,1.5);
         Pos=Start; Prev=Pos; PrevRoll=Roll;
-        UpdateSector(); UpdateSpriteInfo(); Animate();
+        UpdateSector(); UpdateSpriteInfo(); Animate(); InitializeTrail();
     }
     void Animate()
     {
@@ -345,7 +345,7 @@ class UTNTPortalMote : VisualThinker
         let size=TexMan.GetScaledSize(Texture);
         double d=Diameter*(1-0.6*t);
         Scale=(d/size.X,d/size.Y);
-        Alpha=Strength*min(1.0,(Age+1)/6.0)*min(1.0,(Life-Age)/5.0);
+        Alpha=Strength*SoftFade(Age,Life,24,12);
     }
     override void Tick()
     {
@@ -356,7 +356,7 @@ class UTNTPortalMote : VisualThinker
         double t=double(Age)/Life;
         double travel=t*t;
         Pos=Start+(Target-Start)*travel+Bend*sin(t*180);
-        Roll+=Spin; UpdateSector(); Animate();
+        Roll+=Spin; UpdateSector(); Animate(); UpdateTrail();
     }
 }
 
@@ -490,7 +490,7 @@ class UTNTRitualPads play
     }
 }
 
-class UTNTRitualMote : VisualThinker
+class UTNTRitualMote : UTNTRuneMote
 {
     Actor Source;
     int Age,Life;
@@ -498,32 +498,34 @@ class UTNTRitualMote : VisualThinker
     Vector3 Origin;
     static void Emit(Actor source,int size)
     {
-        if(Random[utntritual](0,3)==0)return;
+        // Keep the pad glow steady even when thinning the slower rune emissions.
+        UTNTRitualGlow.Touch(source);
+        if(Random[utntritual](0,7)>=3)return;
         let mote=UTNTRitualMote(level.SpawnClientSideVisualThinker('UTNTRitualMote'));
         if(!mote)return;
         mote.Source=source;mote.Origin=source.Pos;
-        mote.Life=Random[utntritual](44,58);
+        mote.Life=Random[utntritual](88,116);
         mote.Angle=FRandom[utntritual](0,360);mote.Radius=FRandom[utntritual](size*.15,size*.45);
         mote.Size=FRandom[utntritual](7,12);
         mote.Texture=TexMan.CheckForTexture(String.Format("UTR%cA0",65+Random[utntritual](0,3)));
         mote.Flags=SPF_FULLBRIGHT|SPF_ROLL|SPF_ALLOWSHADERS;mote.SetRenderStyle(STYLE_Add);
         mote.Pos=source.Pos;mote.Prev=mote.Pos;mote.Roll=FRandom[utntritual](-30,30);
-        mote.PrevRoll=mote.Roll;mote.UpdateSector();mote.UpdateSpriteInfo();mote.Animate();
-        UTNTRitualGlow.Touch(source);
+        mote.PrevRoll=mote.Roll;mote.Animate();mote.Prev=mote.Pos;
+        mote.UpdateSector();mote.UpdateSpriteInfo();mote.InitializeTrail();
     }
     void Animate()
     {
         double t=double(Age)/Life;
         Pos=Origin+(cos(Angle+t*160)*Radius,sin(Angle+t*160)*Radius,4+t*72);
         let sz=TexMan.GetScaledSize(Texture);Scale=(Size/sz.X,Size/sz.Y);
-        Alpha=min(1.0,(Age+1)/7.0)*min(1.0,(Life-Age)/10.0);
+        Alpha=SoftFade(Age,Life,24,18);
     }
     override void Tick()
     {
         if(!Source||!UTNTVisuals.Visible(Source,combat:true)){Destroy();return;}
         if(IsFrozen()||Source.IsFrozen()||level.isFrozen())return;
         if(++Age>=Life){Destroy();return;}
-        Prev=Pos;PrevRoll=Roll;Roll+=.4;Animate();UpdateSector();
+        Prev=Pos;PrevRoll=Roll;Roll+=.2;Animate();UpdateSector();UpdateTrail();
     }
 }
 
@@ -547,4 +549,75 @@ class UTNTRitualGlow : Thinker
         if(!Source||!UTNTVisuals.Visible(Source,combat:true)||level.time-LastEmission>16){Destroy();return;}
     }
     override void OnDestroy(){if(Anchor)Anchor.Destroy();Super.OnDestroy();}
+}
+
+// Fixed-size per-rune history keeps curved trails bounded at every quality level.
+class UTNTRuneMote : VisualThinker
+{
+    Vector3 TrailHistory[10];
+    Array<UTNTRuneStreak> Trail;
+    static double SoftFade(int age,int life,double fadeIn,double fadeOut)
+    {
+        double a=clamp((age+1)/fadeIn,0,1),b=clamp((life-age)/fadeOut,0,1);
+        return a*a*(3-2*a)*b*b*(3-2*b);
+    }
+    void InitializeTrail()
+    {
+        for(int i=0;i<10;i++)TrailHistory[i]=Pos;
+        for(int i=0;i<3;i++)
+        {
+            let streak=UTNTRuneStreak(level.SpawnClientSideVisualThinker('UTNTRuneStreak'));
+            if(!streak)continue;
+            streak.Texture=TexMan.CheckForTexture('UTRTA0');
+            streak.Flags=SPF_FULLBRIGHT|SPF_ROLL|SPF_ALLOWSHADERS;
+            streak.SetRenderStyle(STYLE_Add);streak.Alpha=0;
+            streak.Pos=Pos;streak.Prev=Pos;streak.UpdateSector();streak.UpdateSpriteInfo();
+            Trail.Push(streak);
+        }
+    }
+    void UpdateTrail()
+    {
+        for(int i=9;i>0;i--)TrailHistory[i]=TrailHistory[i-1];
+        TrailHistory[0]=Pos;
+        let sz=TexMan.GetScaledSize(Texture);
+        double width=clamp(Scale.X*sz.X*.32,1.5,5.0);
+        for(int i=0;i<Trail.Size();i++)if(Trail[i])
+            Trail[i].Follow(TrailHistory[i*3],TrailHistory[i*3+3],width,Alpha*(i==0 ? .20 : i==1 ? .11 : .05));
+    }
+    override void OnDestroy()
+    {
+        for(int i=0;i<Trail.Size();i++)if(Trail[i])Trail[i].Destroy();
+        Super.OnDestroy();
+    }
+}
+
+class UTNTRuneStreak : VisualThinker
+{
+    // The owner updates each segment once per tic; no independent lifetime or RNG.
+    override void Tick() {}
+    void Follow(Vector3 head,Vector3 tail,double width,double opacity)
+    {
+        Prev=Pos;PrevRoll=Roll;Pos=(head+tail)*.5;UpdateSector();
+        Alpha=0;let camera=players[consoleplayer].camera;if(!camera)return;
+        double yaw=camera.Angle;
+        double pitch=(CVar.GetCVar('gl_billboard_particles').GetBool() || CVar.GetCVar('gl_billboard_mode').GetInt()==1) ? camera.Pitch : 0;
+        double eyeZ=camera.player ? camera.player.viewz : camera.Pos.Z;
+        Vector3 h=head-(camera.Pos.X,camera.Pos.Y,eyeZ),t=tail-(camera.Pos.X,camera.Pos.Y,eyeZ);
+        double ha=h.X*cos(yaw)+h.Y*sin(yaw),ta=t.X*cos(yaw)+t.Y*sin(yaw);
+        double hd=ha*cos(pitch)-h.Z*level.pixelstretch*sin(pitch);
+        double td=ta*cos(pitch)-t.Z*level.pixelstretch*sin(pitch);
+        if(hd<=1 || td<=1)return;
+        double depth=(hd+td)*.5;
+        double right=((h.X*sin(yaw)-h.Y*cos(yaw))/hd-(t.X*sin(yaw)-t.Y*cos(yaw))/td)*depth;
+        double up=((h.Z*level.pixelstretch*cos(pitch)+ha*sin(pitch))/hd-(t.Z*level.pixelstretch*cos(pitch)+ta*sin(pitch))/td)*depth;
+        double length=sqrt(right*right+up*up);
+        if(length<.05)return;
+        double target=-atan2(right,up);
+        while(target-Roll>180)target-=360;
+        while(target-Roll< -180)target+=360;
+        Roll=target;
+        let sz=TexMan.GetScaledSize(Texture);
+        Scale=(width/sz.X,(length+width*.35)/(sz.Y*level.pixelstretch));
+        Alpha=opacity*min(1.0,length/width);
+    }
 }

@@ -16,7 +16,7 @@ sys.path.insert(0,str(a.root/'tools'));from check_engine import run_case
 results=[]
 base='god; notarget; noclip; fly; wait 100; netevent ritualtest 0; wait 100; netevent ritualtest 3; '
 full=('netevent ritualtest 1; wait 15; save ritual-active; wait 15; load ritual-active; wait 100; '
-      'netevent ritualtest 2; netevent ritualtest 5; wait 80; netevent ritualtest 4; '
+      'netevent ritualtest 2; netevent ritualtest 5; wait 130; netevent ritualtest 4; '
       'netevent ritualtest 6; wait 100; netevent ritualtest 3; '
       'UTNT_fxquality 0; wait 100; netevent ritualtest 4; ')
 cases=[('TNT01',r,True) for r in (['0','1'] if a.renderer=='both' else [a.renderer])]

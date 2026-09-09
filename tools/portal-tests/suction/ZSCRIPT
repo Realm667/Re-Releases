@@ -63,7 +63,7 @@ class PortalSuctionTest : EventHandler
             {
                 motes++;
                 Verify(m.Texture.Exists() && m.Alpha>0 && m.Scale.X>0,"particle has renderable texture size and alpha");
-                Verify(m.Life<=58,"bounded particle lifetime");
+                Verify(m.Life<=116,"bounded particle lifetime");
             }
             Console.Printf("SUCTION_COUNTS emitters=%d motes=%d",emitters,motes);
             if(Step==3) Verify(emitters>0 && motes>0,"activated dormant decorations emit visible particles");

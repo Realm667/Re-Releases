@@ -31,9 +31,12 @@ Sprite UTPFA0, 320, 320
 }
 
 // Shared original TNT03B glyphs. Preserve their native silhouettes.
-Texture UTRUNES, 32, 128 { Patch "QRUNT63", 0, 0 }
+Texture UTRUNES, 32, 128 { Patch "graphics/utnt-runes/QRUNT63-mask.png", 0, 0 }
 Texture UTPSEAL, 512, 512 { Patch "SOURA0", 0, 0 }
 Sprite UTRAA0, 32, 32 { Offset 16, 16 Patch "QRUNT63", 0, 0 }
 Sprite UTRBA0, 32, 32 { Offset 16, 16 Patch "QRUNT63", 0, -32 }
 Sprite UTRCA0, 32, 32 { Offset 16, 16 Patch "QRUNT63", 0, -64 }
 Sprite UTRDA0, 32, 32 { Offset 16, 16 Patch "QRUNT63", 0, -96 }
+
+// Procedural movement ribbon; the shader supplies its soft mask.
+Sprite UTRTA0, 32, 128 { Offset 16, 64 Patch "QRUNT63", 0, 0 }

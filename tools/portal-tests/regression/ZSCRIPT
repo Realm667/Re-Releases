@@ -23,7 +23,7 @@ class PortalRegression : EventHandler {
   }
   let vi=ThinkerIterator.Create('UTNTPortalMote',Thinker.MAX_STATNUM+1,true);
   UTNTPortalMote v;
-  while(v=UTNTPortalMote(vi.Next())) { m++; Verify(v.Age<v.Life && v.Life<=58,"finite particle lifetime"); }
+  while(v=UTNTPortalMote(vi.Next())) { m++; Verify(v.Age<v.Life && v.Life<=116,"finite particle lifetime"); }
   Console.Printf("PORTAL_COUNTS phase=%d emitters=%d motes=%d",Pending,n,m);
   if(Pending==0 || Pending==2 || Pending==4 || Pending==5 || Pending==6) {
    Verify(n==2 && small && large,"both widths have independent emitters");
