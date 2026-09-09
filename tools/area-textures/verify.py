@@ -41,7 +41,7 @@ def main():
             before={tuple(v[1:3]):list(map(float,v[3:])) for v in records(a.reference_geometry/f'geometry-{name}.log') if v[0]=='SURFMID'}
             after={tuple(v[1:3]):list(map(float,v[3:])) for v in records(Path(r['log'])) if v[0]=='SURFMID'}
             for row in rows:
-                if row[0]!='W' or row[8]!='1':continue
+                if row[0] not in ['W','P'] or row[8]!='1':continue
                 key=tuple(row[1:3])
                 if key in before and before[key][0] and (key not in after or any(abs(x-y)>.002 for x,y in zip(before[key],after[key]))):r['finite_failures'].append(key)
         r['ok']=r['ok'] and r['bindings_ok'] and r['regression_ok'] and not r['shader_errors'] and not r['finite_failures']

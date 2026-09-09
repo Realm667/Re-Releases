@@ -1,10 +1,26 @@
+# Korrektur vom 09.09.2026
+
+13 Materialien wurden durch Outpainting eines einzelnen maßstäblichen Originalausschnitts auf transparenter Fläche neu generiert: QFLAT07, BRICK9, GRAVE01, ROCKF6, CITYF11, FLAT10, CITYF20, QFLAT04, ROCKF5, CITYF01, RROCK19, OSNOW und QTWALL11. Eine gekachelte Vorlage wurde verworfen, weil sie starke Wiederholungen weitergab. Die neuen Prompts verlangen eigenständige Strukturen, ursprüngliche Detailgrößen und zusammenpassende Außenkanten. OSNOW besitzt überprüfte periodische Außenkanten; QTWALL11 variiert die Anordnung der Technikmodule.
+
+Die Wiederholungsprüfung misst Bildkorrelationen nach Verschiebungen um 64, 128 und 256 Map-Einheiten und entfernt vorher Zeilen-/Spaltenmittelwerte, um reguläre Mauerwerkslagen nicht mit kopierten Oberflächen gleichzusetzen. Alle 13 Neugenerierungen haben schwächere Korrelationsspitzen als die verworfene Generation. Das ist ein ergänzender Vergleich, kein allgemeiner Beweis visueller Qualität. Die Materialien wurden zusätzlich bei identischem physischem Maßstab und an den Kachelgrenzen betrachtet.
+
+Elf Materialien übernehmen das ursprüngliche Pixelraster: ADEL_B14, ADEL_B15, ADEL_F48, ADEL_B01, ADEL_V99, ROCKF2, QWIZ, QBRICK6, QCHURCH, ADEL_M02 und QBRICK3. Die Originalpixel werden nicht verschoben oder skaliert. Oberflächendetails aus der vorherigen Generierung variieren nur innerhalb des ursprünglichen Farbsatzes und enger Helligkeitsgrenzen. Jeder strikte lokale Helligkeitsverlauf zu den acht Nachbarpixeln bleibt erhalten; die Exportprüfung verlangt null Richtungsänderungen. Damit bleiben die wiederkehrenden Fugen und Bauteilkonturen absichtlich erhalten.
+
+Diese elf Materialien behalten außerdem die vom Mapper gesetzten UV-Offsets, Rotationen und Skalierungen. Die neuen P-Tabelleneinträge ersetzen nur das Material und kompensieren nötigenfalls die Höhenreferenz des Renderers. Dafür verwenden diese Texturen native Pixel-Offsets ohne WorldPanning. Boden- und Decken-Panning wird unverändert übernommen. Es findet für diese Gruppe kein erneutes Auto-Alignment statt.
+
+ADEL_G04, CITYF19 und GRASS2 sind deaktiviert. Neue Map-Starts behalten ihre Originaltexturen und Original-Offsets. Die früheren Aliasnamen bleiben als Originalbilder definiert, damit bereits gespeicherte Spielstände keine fehlenden Texturen erhalten; ihre gespeicherten Offsets werden weiterhin nicht migriert.
+
+Alle 41 aktiven Erweiterungen sind jetzt indizierte PNGs mit der vollständigen Basispalette aus der aktuellen Projekt-PLAYPAL. Die Palette selbst wird nicht überschrieben. Die Export- und Leseprüfung kontrolliert die PLTE-Bytes und jede tatsächlich verwendete Pixelfarbe. Gemeint sind die gespeicherten Albedo-Pixel; Beleuchtung, Flüssigkeitseffekte und Texturfilter der Engine berechnen weiterhin Zwischenfarben.
+
+Der Exporter `tools/area-textures/export_palette.cjs` benötigt Node und `sharp`. Aufruf: `node export_palette.cjs <Original-Arbeitsverzeichnis> <Revisions-Arbeitsverzeichnis>`. Das erste Verzeichnis enthält `materials.json` und `originals/*.png`; das zweite `groups.json`, `PLAYPAL.pal`, die ImageGen-Ausgaben in `raw/` und die vorherigen Erweiterungen in `before/`. Es schreibt `assets/`, `materials.json` und `export-checks.json`. Prompts und Prüfergebnisse liegen in `tools/artwork/area-textures/revision-2026-09-09`.
+
 # Erweiterte FlÃ¤chentexturen
 
 44 ausgewÃ¤hlte Materialfamilien erhalten grÃ¶ÃŸere TexturflÃ¤chen und fortlaufende Wandkoordinaten. 40 PNGs wurden mit dem eingebauten ImageGen-Werkzeug aus den Projekttexturen generativ erweitert. QROCK1/3/4/5 verwenden die bereits freigegebenen Erweiterungen. Die Originalmaterialien bleiben verfÃ¼gbar.
 
 ## Verhalten
 
-`UTNT_AreaTextures` ersetzt beim neuen Map-Start die ausgewÃ¤hlten Wand-, Boden- und Deckenzuweisungen anhand Ã¼berprÃ¼fter Tabellen in `tutnt/areaalign`. Die WAD-Dateien, Skyboxen, Geometrie, Dinge, Specials und ACS-Programme werden nicht umgeschrieben. Die aktuelle Auswahl umfasst 98.491 ursprÃ¼ngliche Zuweisungen in elf Maps; TITLEMAP und INTERMAP enthalten keine dieser Texturen. Vier zusÃ¤tzliche sichtbare 3D-Wandzuordnungen und drei dynamische Sektor-Zuordnungen werden ebenfalls berÃ¼cksichtigt.
+`UTNT_AreaTextures` ersetzt beim neuen Map-Start die ausgewÃ¤hlten Wand-, Boden- und Deckenzuweisungen anhand Ã¼berprÃ¼fter Tabellen in `tutnt/areaalign`. Die WAD-Dateien, Skyboxen, Geometrie, Dinge, Specials und ACS-Programme werden nicht umgeschrieben. Die aktuelle Auswahl umfasst 94.190 ursprÃ¼ngliche Zuweisungen in elf Maps; TITLEMAP und INTERMAP enthalten keine dieser Texturen. Vier zusÃ¤tzliche sichtbare 3D-Wandzuordnungen und drei dynamische Sektor-Zuordnungen werden ebenfalls berÃ¼cksichtigt.
 
 ZusammenhÃ¤ngende Wandketten teilen fortlaufende U-Koordinaten und eine gemeinsame HÃ¶henreferenz Ã¼ber Upper/Middle/Lower hinweg. Geschlossene Ringe, deren Umfang nicht zum WiederholungsmaÃŸ passt, behalten eine ausdrÃ¼cklich dokumentierte Ãœbergangsstelle an ihrer stÃ¤rksten Ecke. Verzweigungen beginnen eigene Ketten. Das ist keine Zusage einer mathematisch nahtlosen Abwicklung beliebiger geschlossener Geometrie.
 

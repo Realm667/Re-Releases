@@ -52,6 +52,21 @@ class UTNT_AreaTextures : EventHandler
         if(!Near(s.GetTextureXOffset(part),r[11].ToDouble()) || !Near(s.GetTextureYOffset(part),r[12].ToDouble())) return false;
         if(!Near(s.GetTextureXScale(part),r[19].ToDouble()) || !Near(s.GetTextureYScale(part),r[10].ToDouble())) return false;
         let tex=TexMan.CheckForTexture(r[5],TexMan.Type_Any);if(!tex.isValid())return false;
+        if(r[0]=="P")
+        {
+            // These pixel-locked materials keep the mapper's original phase.
+            Vector2 oldSize=TexMan.GetScaledSize(s.GetTexture(part));
+            double sy=s.GetTextureYScale(part),oldOffset=s.GetTextureYOffset(part);
+            s.SetTexture(part,tex);
+            bool heightPeg=(part==Side.top && !(l.flags & Line.ML_DONTPEGTOP)) ||
+                (part!=Side.top && (l.flags & Line.ML_DONTPEGBOTTOM));
+            if(!r[8].ToInt() && heightPeg && abs(sy)>0.000001)
+            {
+                Vector2 newSize=TexMan.GetScaledSize(tex);
+                s.SetTextureYOffset(part,oldOffset-(ceil(newSize.Y/sy)-ceil(oldSize.Y/sy))*sy);
+            }
+            return true;
+        }
         s.SetTexture(part,tex);s.SetTextureXScale(part,r[9].ToDouble());
         s.SetTextureXOffset(part,r[6].ToDouble());
         // Finite two-sided panels use a cropped band with their original height.
@@ -97,7 +112,7 @@ class UTNT_AreaTextures : EventHandler
                 Expected=r[5].ToInt();continue;
             }
             bool ok=false;
-            if(r[0]=="F")ok=ApplyFloor(r);else if(r[0]=="W")ok=ApplyWall(r);else if(r[0]=="R")ok=ApplyRover(r);else if(r[0]=="D")ok=AddWatch(r);
+            if(r[0]=="F")ok=ApplyFloor(r);else if(r[0]=="W" || r[0]=="P")ok=ApplyWall(r);else if(r[0]=="R")ok=ApplyRover(r);else if(r[0]=="D")ok=AddWatch(r);
             else if(r[0]=="L")
             {
                 int li=r[1].ToInt(),face=r[2].ToInt();

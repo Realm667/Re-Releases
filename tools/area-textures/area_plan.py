@@ -12,7 +12,7 @@ SLOTS={'top':'texturetop','mid':'texturemiddle','bottom':'texturebottom'}
 PART={'top':0,'mid':1,'bottom':2}
 
 def build():
-    materials=json.loads((W/'materials.json').read_text())
+    materials=[m for m in json.loads((W/'materials.json').read_text()) if m.get('enabled') is not False]
     lookup={m['name']:m for m in materials}
     lookup.update({m['alias']:m for m in materials})
     maps=json.loads((W/'map-data.json').read_text())
@@ -30,7 +30,7 @@ def build():
                 if old not in lookup:continue
                 m=lookup[old];ow,oh=m['original_size']
                 x=float(s.get('xpanning'+plane,0));y=float(s.get('ypanning'+plane,0))
-                rows.append(['F',i,part,old,m['alias'],x%ow,y%oh,x,y])
+                rows.append(['F',i,part,old,m['alias'],x if m.get('preserve_phase') else x%ow,y if m.get('preserve_phase') else y%oh,x,y])
                 counts[m['name']+'.'+plane]+=1
         for li,l in enumerate(g['linedef']):
             for face,key in enumerate(['sidefront','sideback']):
@@ -59,6 +59,10 @@ def build():
                     if hi<=lo:lo,hi=fh,ch
                     ox=float(s.get('offsetx',0))+float(s.get('offsetx_'+tier,0))
                     oy=float(s.get('offsety',0))+float(s.get('offsety_'+tier,0))
+                    if m.get('preserve_phase'):
+                        rows.append(['P',li,face,PART[tier],old,alias,ox,0,int(finite),sx,sy,ox,oy,*a,*b,fs,bs if bs is not None else -1,sx])
+                        counts[m['name']+'.wall']+=1
+                        continue
                     per[(m['name'],sx,sy)].append(dict(tier=tier,lo=lo,hi=hi,old=old,alias=alias,finite=finite,ox=ox,oy=oy))
                     counts[m['name']+'.wall']+=1
                 for key,tiers in per.items():
@@ -84,7 +88,7 @@ def build():
                         chainrows.append(len(rows)-1)
                     u+=e['length']
                 chains.append(dict(material=material,length=length,rows=chainrows,closed_cut=seam is not None))
-        roverrows,roverinfo=plan_rovers(g,runtime,rovs,mids,lookup)
+        roverrows,roverinfo=plan_rovers(g,runtime,rovs,mids,{n:m for n,m in lookup.items() if not m.get('preserve_phase')})
         rows+=roverrows
         watchers=[]
         mapfile=W/'baseline/tutnt/maps'/(name.lower()+'.wad')

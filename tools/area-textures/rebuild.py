@@ -28,6 +28,9 @@ def main():
     shutil.copy2(root/'tools/artwork/area-textures/materials.json',work/'materials.json')
     shutil.copy2(root/'tools/artwork/area-textures/legacy.json',work/'legacy.json')
     with snapshot(root) as (source,hashes,metadata):
+        # Measure original native geometry and clipping before area mappings.
+        mapinfo=source/'tutnt/MAPINFO.txt'
+        mapinfo.write_text(mapinfo.read_text().replace('gameinfo { AddEventHandlers = "UTNT_AreaTextures" }',''))
         compile_sources(source,a.acc)
         with zipfile.ZipFile(work/'baseline.pk3','w',zipfile.ZIP_DEFLATED) as z:
             for item in input_files(source):z.write(item,item.relative_to(source/'tutnt'))
