@@ -1,3 +1,17 @@
+# Aktueller Stand vom 10.09.2026
+
+QGRASS, ADEL_V99 und ADEL_M02 verwenden wieder ihre Originalbilder. Ihre Ersetzungs- und Ausrichtungszeilen wurden entfernt. TNT02 war ausdrücklich eine irrtümliche Listenzeile und wurde nicht als Map zurückgesetzt; die materialbezogenen Rücksetzungen gelten auch dort. Zusammen mit ADEL_G04, CITYF19 und GRASS2 bleiben jetzt sechs Materialien im Original. Es sind 38 Erweiterungen mit 88,635 ursprünglichen Wand-/Boden-/Deckenzuweisungen aktiv.
+
+ADEL_B14, ADEL_B15, ADEL_F48, ADEL_B01, QBRICK3, QBRICK6, QWIZ und QCHURCH haben neu generierte Steinoberflächen. Im Gegensatz zur vorherigen Revision werden ihre feinen Originaldetails nicht mehr durch unveränderte Nachbargradienten festgehalten. Ein einzelner Ausschnitt aus dem Steininneren dient als Outpainting-Referenz. Der Export setzt dieses neue Material innerhalb von Masken im nativen Originalraster ein; geschützte Fugenpixel bleiben bytegleich im dekodierten RGB-Bild. Die Masken orientieren sich an den ursprünglichen Mauerwerkslagen und Fugen. Bei den Q-Materialien bleibt zusätzlich die geglättete Formschattierung erhalten. Außenkonturen und Bauteilgrößen bleiben dadurch am Original ausgerichtet, während die Innenflächen neue Poren, Brüche und Abnutzung erhalten. Die bestehenden P-Zuweisungen und UV-Offsets bleiben unverändert.
+
+COMPBLUE hat ein neues, unregelmäßigeres Leiterbahnnetz. Alle zwölf geänderten Bilder sind indizierte PNGs mit der Projekt-PLAYPAL. Die drei Rücksetzungen sind pixelgleich zu den Originalbildern; historische Aliasse bleiben für gespeicherte Spielstände definiert. Für die ursprünglichen Map-Offsets ist ein neuer Map-Start erforderlich.
+
+Die Bildprüfung kontrolliert Palette, geschützte Fugenpixel, die drei Original-Rücksetzungen und COMPBLUEs periodische Außenkanten. Die Korrelation innerhalb der Steinflächen bei Verschiebung um die alte Kachelgröße sank bei allen acht Steinen; regelmäßige Fugen und Formschattierung bleiben absichtlich erhalten. Die Messung ergänzt die visuelle Prüfung, ersetzt sie aber nicht. Prüfdaten und Prompts: `tools/artwork/area-textures/variation-2026-09-10`.
+
+Der Export ist mit `node tools/area-textures/export_interiors.cjs <Original-Arbeitsverzeichnis> <Varianten-Arbeitsverzeichnis>` reproduzierbar; benötigt werden Node, sharp, originals/*.png, materials.json, materials-before.json, groups.json, PLAYPAL.pal und die neun ImageGen-Rohbilder unter raw/. Masken werden beim Export erzeugt. Map-WADs und Skybox-Ressourcen gehören nicht zu dieser Änderung.
+
+Die folgenden Abschnitte dokumentieren die früheren Ausbaustufen; dieser Abschnitt beschreibt die aktuellen Überschreibungen.
+
 # Korrektur vom 09.09.2026
 
 13 Materialien wurden durch Outpainting eines einzelnen maßstäblichen Originalausschnitts auf transparenter Fläche neu generiert: QFLAT07, BRICK9, GRAVE01, ROCKF6, CITYF11, FLAT10, CITYF20, QFLAT04, ROCKF5, CITYF01, RROCK19, OSNOW und QTWALL11. Eine gekachelte Vorlage wurde verworfen, weil sie starke Wiederholungen weitergab. Die neuen Prompts verlangen eigenständige Strukturen, ursprüngliche Detailgrößen und zusammenpassende Außenkanten. OSNOW besitzt überprüfte periodische Außenkanten; QTWALL11 variiert die Anordnung der Technikmodule.
