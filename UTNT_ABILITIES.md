@@ -68,13 +68,14 @@ No generated or third-party artwork is added.
 | Weak Spot | `#014682` | One pulse per second |
 | Cloak | `#999999` | One pulse per second, subtle Gaussian edge blur |
 | Overdrive | `#FF8B05` | One pulse per second |
-| Bollwerk | `#93553E` (HUD) | Steady armored rim, existing metal artwork and bronze bevels/rivets |
+| Bollwerk | `#93553E` (HUD) | Steady armored rim using the original SBAR surface and grey bevels |
 
 Signal colors have a single ZScript source shared by the HUD and shader. The
 world border is composited before bloom and HUD rendering, leaving labels and
 crosshairs sharp. Colored edges occupy the outer 18% along each axis; the center
-is untouched. Bollwerk uses an angular viewing opening and segmented plates,
-sampling the same existing artwork as the objective plaques. No bitmap was added.
+is untouched. Bollwerk uses an angular viewing opening with the original indexed STBAR
+surface and stepped grey bevels. Both follow the same PLAYPAL as the status bar;
+no bronze trim, rivets or new bitmap are added. The HUD signal stays #93553E.
 
 Pulse phase follows the saved ability timer at one cycle per game second. A short
 activation/end fade avoids abrupt flashes. The existing reduced-effects preset
