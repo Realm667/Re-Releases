@@ -1,0 +1,62 @@
+version "4.14"
+class UTNTCreditsTests : EventHandler
+{
+ ui int LastLayoutPage;
+ ui bool LayoutSeen;
+ override void RenderOverlay(RenderEvent e)
+ {
+  let h=UTNTCreditsHandler(EventHandler.Find('UTNTCreditsHandler'));
+  if(!h || !h.Initialized || h.Phase || !h.CardsUI || (LayoutSeen && LastLayoutPage==h.Page))return;
+  let page=h.Pages[h.Page];let view=h.CardsUI;if(view.Cached!=page)return;
+  LayoutSeen=true;LastLayoutPage=h.Page;bool fit=true;
+  if(view.Body!=Font.GetFont('SmallFont'))fit=false;
+  if(page.Layout=="standard" || page.Layout=="dense")
+  {
+   bool dense=page.Layout=="dense";
+   for(int i=0;i<page.Names.Size();i++)
+   {
+    Array<String> names;page.Names[i].Split(names,"~",TOK_KEEPEMPTY);
+    int row=dense?i%3:i;double top=(dense?223:225)+row*(dense?134:125);
+    double bottom=top+49+(names.Size()-1)*37+view.Wrapped[i].Count()*view.LineStep;
+    bool next=dense?(row<2 && i+1<page.Names.Size()):i+1<page.Names.Size();
+    double limit=next?top+(dense?134:125):675;
+    if(bottom>limit)fit=false;
+   }
+  }
+  Console.Printf("UTNT_ASSERT %s: credit page %d layout fits",fit?"PASS":"FAIL",h.Page);
+ }
+ void Check(bool condition,String what){Console.Printf("UTNT_ASSERT %s: %s",condition?"PASS":"FAIL",what);}
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name!="creditstest")return;
+  let h=UTNTCreditsHandler(EventHandler.Find('UTNTCreditsHandler'));Check(h!=null && h.Initialized,"credits initialized");if(!h)return;
+  int op=e.Args[0];
+  if(op==0)
+  {
+   int names=0,remaster=0;bool nash=false,sites=false;
+   for(int i=0;i<h.Pages.Size();i++)
+   {names+=h.Pages[i].Names.Size();if(h.Pages[i].Heading=="Remaster")remaster++;for(int j=0;j<h.Pages[i].Names.Size();j++){if(h.Pages[i].Names[j]=="NASH" && h.Pages[i].Heading=="Code & scripting")nash=true;if(h.Pages[i].Names[j]=="NEWDOOM.COM")sites=true;}}
+   Check(h.Pages.Size()==25,"all 25 original credit cards loaded");Check(names==65,"all 65 attribution entries loaded");Check(remaster==0,"empty Remaster block skipped");Check(nash && sites,"supplementary original credits retained");
+   Check(level.SkyTexture1==TexMan.CheckForTexture("USTSKY"),"approved storm sky retained");
+   Check(players[0].camera && players[0].camera.TID==h.Pages[h.Page].Camera,"credit camera attached");
+  }
+  else if(op==1)
+  {h.Phase=0;h.Page=clamp(e.Args[1],0,h.Pages.Size()-1);h.PageStart=level.time-210;h.SetCamera();}
+  else if(op==2)
+  {int was=h.Page;h.LastInput=0;h.PageStart=level.time-70;h.Advance(UTNTChapterState.Leader(),0);Check(h.Page==was+1,"next page");h.Advance(UTNTChapterState.Leader(),0);Check(h.Page==was+1,"input debounce");}
+  else if(op==3)
+  {Check(h.Page==e.Args[1],"page restored by save/load");Check(h.Phase==0,"credit phase restored");Check(h.Pages[h.Page].Names.Size()>0,"credit strings restored");}
+  else if(op==4)
+  {h.LastInput=0;h.PageStart=level.time-70;h.Advance(UTNTChapterState.Leader(),2);h.StartFinale();Check(h.Phase==1 && h.FinaleStarts==1,"skip starts finale exactly once");}
+  else if(op==5)
+  {Check(h.Phase==2,"authored finale reaches new THE END");Check(h.FinaleStarts==1,"finale trigger remains single");}
+  else if(op==6)
+  {Check(h.Page==e.Args[1],"co-op synchronized page");Check(h.Phase==e.Args[2],"co-op synchronized phase");}
+  else if(op==7)
+  {h.Page=h.Pages.Size()-1;h.PageStart=level.time-h.Pages[h.Page].Duration+3;h.SetCamera();}
+  else if(op==8)
+  {Check(h.Phase==1 && h.FinaleStarts==1,"natural ending starts finale once");}
+  else if(op==9)
+  {int total=0;for(int i=0;i<h.Pages.Size();i++)if(h.Pages[i].Heading=="Remaster")total++;Check(total==2,"Remaster entries paginate automatically");Check(h.Pages[h.Pages.Size()-3].Layout=="thanks","Remaster follows personal thanks");Check(h.Pages[h.Pages.Size()-1].Names[0]=="FOURTH CONTRIBUTOR","Remaster last entry retained");}
+ }
+}

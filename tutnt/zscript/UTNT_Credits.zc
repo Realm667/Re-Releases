@@ -1,0 +1,224 @@
+// Authored credit cards. State, input and finale triggers are synchronized and saved.
+class UTNTCreditPage : Object
+{
+ String Layout, Heading;
+ int Camera, Duration;
+ Array<String> Names, Contributions;
+}
+
+class UTNTCreditsHandler : EventHandler
+{
+ Array<UTNTCreditPage> Pages;
+ Actor Cameras[6];
+ double Angles[6], FOVs[6];
+ int Page, PageStart, Phase, LastInput, HintUntil, FinaleStarts;
+ bool Initialized;
+ ui bool KeyHeld;
+ ui UTNTCreditsUI CardsUI;
+
+ void LoadCards(String path)
+ {
+  int lump=Wads.CheckNumForFullName(path);if(lump<0)return;
+  String data=Wads.ReadLump(lump);data.Substitute("\r","");Array<String> lines;data.Split(lines,"\n",TOK_SKIPEMPTY);
+  UTNTCreditPage current;
+  for(int i=0;i<lines.Size();i++)
+  {
+   Array<String> r;lines[i].Split(r,"|",TOK_KEEPEMPTY);
+   if(r[0]=="P" && r.Size()==5)
+   {
+    current=new("UTNTCreditPage");current.Layout=r[1];current.Camera=clamp(r[2].ToInt(),1,5);
+    current.Duration=clamp(r[3].ToInt(),8,60)*35;current.Heading=r[4];Pages.Push(current);
+   }
+   else if(r[0]=="N" && r.Size()==3 && current && r[1]!="")
+   {
+    int limit=current.Layout=="dense"?6:current.Layout=="creator"||current.Layout=="thanks"?1:3;
+    if(current.Names.Size()>=limit)
+    {
+     let next=new("UTNTCreditPage");next.Layout=current.Layout;next.Camera=current.Camera;
+     next.Duration=current.Duration;next.Heading=current.Heading;Pages.Push(next);current=next;
+    }
+    current.Names.Push(r[1]);current.Contributions.Push(r[2]);
+   }
+  }
+ }
+ void Init()
+ {
+  Initialized=true;
+  LoadCards("credits/original.txt");LoadCards("credits/remaster.txt");
+  for(int i=Pages.Size()-1;i>=0;i--)if(Pages[i].Layout!="opening" && Pages[i].Names.Size()==0)Pages.Delete(i);
+  for(int id=1;id<=5;id++)
+  {
+   let it=Level.CreateActorIterator(id);Cameras[id]=it.Next();
+   if(Cameras[id]){Angles[id]=Cameras[id].Angle;FOVs[id]=Cameras[id].CameraFOV;}
+  }
+  PageStart=level.time;Page=0;
+  if(Pages.Size()==0)StartFinale();else SetCamera();
+ }
+ void SetCamera()
+ {
+  if(Phase || Page>=Pages.Size())return;
+  Actor camera=Cameras[Pages[Page].Camera];if(!camera)return;
+  for(int p=0;p<MAXPLAYERS;p++)if(playeringame[p] && players[p].mo)
+  {
+   players[p].camera=camera;players[p].cheats|=CF_TOTALLYFROZEN;
+  }
+  camera.ClearInterpolation();
+ }
+ void ResetCameras()
+ {
+  for(int id=1;id<=5;id++)if(Cameras[id]){Cameras[id].Angle=Angles[id];Cameras[id].CameraFOV=FOVs[id];}
+ }
+ void StartFinale()
+ {
+  if(Phase)return;
+  Phase=1;PageStart=level.time;FinaleStarts++;ResetCameras();ACS_Execute(55,0);
+ }
+ static void EndTitle()
+ {
+  let h=UTNTCreditsHandler(EventHandler.Find('UTNTCreditsHandler'));
+  if(h && level.MapName~=="ENDMAP01"){h.Phase=2;h.PageStart=level.time;}
+ }
+ void Advance(int p,int op)
+ {
+  if(!Initialized || Phase || p!=UTNTChapterState.Leader() || level.time<LastInput+10 || level.time<PageStart+28)return;
+  LastInput=level.time;HintUntil=level.time+105;
+  if(op==2){StartFinale();return;}
+  if(op==1)Page=max(0,Page-1);else Page++;
+  if(Page>=Pages.Size())StartFinale();else{PageStart=level.time;SetCamera();}
+ }
+ override void WorldTick()
+ {
+  if(!(level.MapName~=="ENDMAP01"))return;
+  if(!Initialized){Init();return;}
+  if(Phase)
+  {
+   let it=Level.CreateActorIterator(98);Actor finalCamera=it.Next();
+   for(int p=0;p<MAXPLAYERS;p++)if(playeringame[p] && players[p].mo)
+   {players[p].cheats|=CF_TOTALLYFROZEN;if(finalCamera)players[p].camera=finalCamera;}
+   return;
+  }
+  if(Page>=Pages.Size())return;
+  if(level.time-PageStart>=Pages[Page].Duration)
+  {
+   Page++;if(Page>=Pages.Size()){StartFinale();return;}PageStart=level.time;SetCamera();
+  }
+  // A restrained optical push and pan, matching the approved preview.
+  int id=Pages[Page].Camera;double progress=clamp(double(level.time-PageStart)/Pages[Page].Duration,0,1);
+  if(Cameras[id]){Cameras[id].Angle=Angles[id]+(progress-.5)*.32;Cameras[id].CameraFOV=88.03-progress*1.09;}
+  // Also attaches late joiners and respawned players to the active view.
+  for(int p=0;p<MAXPLAYERS;p++)if(playeringame[p] && players[p].mo && Cameras[id])
+  {players[p].camera=Cameras[id];players[p].cheats|=CF_TOTALLYFROZEN;}
+ }
+ override void NetworkProcess(ConsoleEvent e){if(e.Name=="utnt_credit" && level.MapName~=="ENDMAP01")Advance(e.Player,e.Args[0]);}
+ override bool InputProcess(InputEvent e)
+ {
+  if(!(level.MapName~=="ENDMAP01") || !Initialized || Phase || menuactive || paused || ConsoleState!=0){KeyHeld=false;return false;}
+  int op=e.KeyScan==InputEvent.Key_End?2:e.KeyScan==InputEvent.Key_LeftArrow?1:0;
+  bool handled=op!=0 || e.KeyScan==InputEvent.Key_Enter || e.KeyScan==InputEvent.Key_Space || e.KeyScan==InputEvent.Key_RightArrow || e.KeyScan==InputEvent.Key_Pad_A;
+  if(!handled)return false;
+  if(e.Type==InputEvent.Type_KeyUp)KeyHeld=false;
+  else if(e.Type==InputEvent.Type_KeyDown && !KeyHeld){KeyHeld=true;EventHandler.SendNetworkEvent("utnt_credit",op);}
+  return true;
+ }
+ override void RenderOverlay(RenderEvent e)
+ {
+  if(!(level.MapName~=="ENDMAP01") || !Initialized)return;
+  if(!CardsUI)CardsUI=new("UTNTCreditsUI");CardsUI.Draw(self,e.FracTic);
+ }
+}
+
+class UTNTCreditsUI ui
+{
+ double Scale, Width, Left, ContributionSize, LineStep;
+ Font Body, Big;
+ UTNTCreditPage Cached;
+ double CachedWidth;
+ Array<BrokenLines> Wrapped;
+ void Prepare(UTNTCreditPage page)
+ {
+  Scale=Screen.GetHeight()/720.0;Width=min(1280.0,Screen.GetWidth()/Scale);Left=(Screen.GetWidth()-Width*Scale)/2;
+  if(!Body)Body=Font.GetFont('SmallFont');if(!Big)Big=Font.GetFont('UCRBIG');
+  if(page==Cached && Width==CachedWidth)return;
+  Cached=page;CachedWidth=Width;Wrapped.Clear();if(!page)return;
+  ContributionSize=page.Layout=="dense"?18:20;LineStep=page.Layout=="dense"?25:29;
+  double w=page.Layout=="dense"?(Width<1100?350:495):(Width<1100?620:570);
+  for(int i=0;i<page.Contributions.Size();i++)Wrapped.Push(Body.BreakLines(page.Contributions[i],int(w*Body.GetHeight()/ContributionSize)));
+ }
+ void Dim(int color,double a,double x,double y,double w,double h)
+ {Screen.Dim(color,a,int(Left+x*Scale),int(y*Scale),int(ceil(w*Scale)),int(ceil(h*Scale)));}
+ void Text(String value,double x,double y,double size=20,int color=0xc8c5bf,double alpha=1,bool center=false)
+ {
+  double s=size/Body.GetHeight();double limit=center?Width*.84:Width-x-78;
+  s=min(s,limit/max(1,Body.StringWidth(value)));if(center)x-=Body.StringWidth(value)*s/2;
+  Screen.DrawText(Body,Font.CR_WHITE,Left+x*Scale,y*Scale,value,DTA_ScaleX,s*Scale,DTA_ScaleY,s*Scale,DTA_Color,0xff000000|color,DTA_Alpha,alpha);
+ }
+ void DrawName(String value,double x,double y,double height,double maxWidth,double alpha,bool center=false)
+ {
+  double s=height/20;double w=Big.StringWidth(value)*s;
+  if(w>maxWidth){s*=maxWidth/w;w=maxWidth;}if(center)x-=w/2;
+  Screen.DrawText(Big,Font.CR_UNTRANSLATED,Left+x*Scale,y*Scale,value,DTA_ScaleX,s*Scale,DTA_ScaleY,s*Scale,DTA_Alpha,alpha);
+ }
+ void Category(String value,double x,double y,double alpha)
+ {Text(value.MakeUpper(),x,y,19,0xc68962,alpha);Dim(0xc68962,alpha,x,y+35,48,2);}
+ void Block(UTNTCreditPage p,int index,double x,double y,double w,double alpha)
+ {
+  Array<String> names;p.Names[index].Split(names,"~",TOK_KEEPEMPTY);
+  for(int row=0;row<names.Size();row++)DrawName(names[row],x,y+row*37,37,w,alpha);
+  double top=y+49+(names.Size()-1)*37;
+  for(int row=0;row<Wrapped[index].Count();row++)Text(Wrapped[index].StringAt(row),x,top+row*LineStep,ContributionSize,0xc8c5bf,alpha);
+ }
+ void Gradient(String texture)
+ {
+  Screen.DrawTexture(TexMan.CheckForTexture(texture),true,Left,0,DTA_DestWidthF,Width*Scale,DTA_DestHeightF,720*Scale,DTA_LeftOffset,0,DTA_TopOffset,0);
+ }
+ void Draw(UTNTCreditsHandler state,double frac)
+ {
+  UTNTCreditPage page=state.Phase==0 && state.Page<state.Pages.Size()?state.Pages[state.Page]:null;
+  Prepare(page);double seconds=(level.time-state.PageStart+frac)/35;
+  if(state.Phase==1)
+  {Screen.Dim(0,clamp(1-seconds/2,0,1),0,0,Screen.GetWidth(),Screen.GetHeight());return;}
+  if(state.Phase==2)
+  {
+   Screen.Dim(0,1,0,0,Screen.GetWidth(),Screen.GetHeight());double a=clamp(seconds/2,0,1);
+   DrawName("THE END",Width/2,279,74,Width*.6,a,true);Dim(0xc68962,a,Width/2-30,400,60,2);
+   Text("Thank you for playing.",Width/2,445,25,0xbdb5a9,a,true);
+   Text("THE ULTIMATE TORMENT & TORTURE",Width/2,535,17,0x8d867c,a,true);return;
+  }
+  if(!page)return;
+  bool classic=Width<1100;double x=classic?78:96,w=classic?620:570;
+  String layout=page.Layout;double duration=page.Duration/35.0;
+  double alpha=clamp(min((seconds-(layout=="opening"?4:.8)),(duration-seconds)/1.15),0,1);
+  if(layout=="opening" || layout=="dense" || layout=="thanks")Dim(0,layout=="dense"?.55:.36,0,0,Width,720);
+  else Gradient("UCRSHADE");
+  Gradient("UCRVEIL");
+  if(Left>0){Screen.Dim(0,1,0,0,int(Left),Screen.GetHeight());Screen.Dim(0,1,int(Left+Width*Scale),0,Screen.GetWidth(),Screen.GetHeight());}
+  Dim(0,1,0,0,Width,classic?22:36);Dim(0,1,0,classic?698:684,Width,classic?22:36);
+  if(layout=="opening")
+  {Text("THE ULTIMATE",Width/2,265,22,0xc68962,alpha,true);DrawName("TORMENT & TORTURE",Width/2,310,58,Width*.79,alpha,true);Text("C R E D I T S",Width/2,401,21,0xd3ccc0,alpha,true);}
+  else if(layout=="creator")
+  {
+   Category(page.Heading,x,174,alpha);Array<String> parts;page.Names[0].Split(parts,"~",TOK_KEEPEMPTY);
+   for(int i=0;i<parts.Size();i++)DrawName(parts[i],x,260+i*66,53,w,alpha);
+   for(int row=0;row<Wrapped[0].Count();row++)Text(Wrapped[0].StringAt(row),x,479+row*LineStep,ContributionSize,0xc8c5bf,alpha);
+  }
+  else if(layout=="thanks")
+  {
+   Text("SPECIAL THANKS",Width/2,160,19,0xc68962,alpha,true);DrawName(page.Names[0],Width/2,240,58,Width*.7,alpha,true);
+   Text("For bringing the original episodes together",Width/2,339,25,0xd4cdc1,alpha,true);
+   Text("and for countless hours of help and support.",Width/2,379,25,0xd4cdc1,alpha,true);
+   DrawName("DANKE CHRIS!",Width/2,471,32,Width*.6,alpha,true);
+  }
+  else
+  {
+   bool dense=layout=="dense";Category(page.Heading,x,dense?125:135,alpha);
+   for(int i=0;i<page.Names.Size();i++)
+   {
+    double xx=x+(dense && i>=3?(classic?415:570):0),yy=(dense?223:225)+(dense?i%3:i)*(dense?134:125);
+    Block(page,i,xx,yy,dense?(classic?350:495):w,alpha);
+   }
+  }
+  if(state.HintUntil>level.time)
+   Text(consoleplayer==UTNTChapterState.Leader()?"ENTER / SPACE  Next     LEFT  Previous     END  Skip credits":"The host controls the credits",Width/2,695,14,0xbdb5a9,1,true);
+  double cut=max(0,max(1-seconds/.65,1-(duration-seconds)/.65));Screen.Dim(0,cut,0,0,Screen.GetWidth(),Screen.GetHeight());
+ }
+}
