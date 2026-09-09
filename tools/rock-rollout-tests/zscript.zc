@@ -1,0 +1,27 @@
+version "4.14"
+class RockRolloutCamera : EventHandler
+{
+ int View;
+ override void NetworkProcess(ConsoleEvent e){if(e.Name=="rockview")View=e.Args[0];}
+ override void WorldTick()
+ {
+  let p=players[0].mo;if(!p||level.time<10)return;
+  p.bInvulnerable=true;p.bNoGravity=true;p.bNoClip=true;players[0].camera=p;
+  Vector3 pos=p.Pos;double angle=p.Angle,pitch=p.Pitch;
+  if(level.MapName~=="TNT01"&&View==0){pos=(6614.866001,1285.942267,-41.000000);angle=176.185925;pitch=0;}
+  if(level.MapName~=="TNT01"&&View==1){pos=(5920.000000,1856.000000,115.000000);angle=90.000000;pitch=0;}
+  if(level.MapName~=="TNT02"&&View==0){pos=(4892.865811,1888.672169,-361.000000);angle=49.497152;pitch=0;}
+  if(level.MapName~=="TNT03A1"&&View==0){pos=(-3736.000000,-2656.000000,-2765.000000);angle=90.000000;pitch=0;}
+  if(level.MapName~=="TNT03A2"&&View==0){pos=(4592.000000,-3328.000000,-427.000000);angle=90.000000;pitch=0;}
+  if(level.MapName~=="TNT04A"&&View==0){pos=(2876.006500,7061.990249,-9.000000);angle=123.690068;pitch=0;}
+  if(level.MapName~=="TNT04B"&&View==0){pos=(-3578.549330,-137.949163,-225.000000);angle=101.371475;pitch=0;}
+  if(level.MapName~=="TNT04B"&&View==1){pos=(5292.800000,-2953.600000,59.000000);angle=233.130102;pitch=0;}
+  if(level.MapName~=="TNT04C"&&View==0){pos=(-1008.329817,12043.711410,-5649.000000);angle=41.185925;pitch=0;}
+  if(level.MapName~=="TNT04CN"&&View==0){pos=(-2032.712960,252.178240,4119.000000);angle=345.963757;pitch=0;}
+  if(level.MapName~=="TNT04CN"&&View==1){pos=(-2391.154250,1615.894370,1795.000000);angle=304.114473;pitch=0;}
+  if(level.MapName~=="TNTLE"&&View==0){pos=(2967.522846,-1593.431462,-1304.500000);angle=71.565051;pitch=0;}
+  if(level.MapName~=="TNTLE"&&View==1){pos=(688.000000,-2224.000000,-57.500000);angle=270.000000;pitch=0;}
+  p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=angle;p.Pitch=pitch;
+ }
+}
+#include "checks.zc"
