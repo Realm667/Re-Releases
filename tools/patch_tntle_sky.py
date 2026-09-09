@@ -32,7 +32,7 @@ def patch(source,dest,acc,zdbsp):
   for k,face in enumerate(['E','S','W','N']):
    block('sidedef',{'sector':si,'texturemiddle':prefix+face,'light':255,'lightabsolute':True,'nofakecontrast':True})
    block('linedef',{'v1':vi+k,'v2':vi+(k+1)%4,'sidefront':side+k,'blocking':True,'dontdraw':True})
-  block('sector',{'heightfloor':-512,'heightceiling':512,'texturefloor':prefix+'D','textureceiling':prefix+'U','lightlevel':255,'lightfloor':255,'lightfloorabsolute':True,'lightceiling':255,'lightceilingabsolute':True,'xpanningfloor':512,'ypanningfloor':512,'xpanningceiling':512,'ypanningceiling':512})
+  block('sector',{'special':90,'heightfloor':-512,'heightceiling':512,'texturefloor':prefix+'D','textureceiling':prefix+'U','lightlevel':255,'lightfloor':255,'lightfloorabsolute':True,'lightceiling':255,'lightceilingabsolute':True,'xpanningfloor':512,'ypanningfloor':512,'xpanningceiling':512,'ypanningceiling':512})
  txt+=''.join(extra)
  scripts=lumps[b'SCRIPTS'].decode('cp1252')
  pat=r'script\s+14\s+OPEN\s*//Light show for skybox number 2\s*\{[^}]*\}'
