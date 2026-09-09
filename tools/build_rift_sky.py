@@ -44,7 +44,7 @@ def build(root):
   moving=smooth(.12,.28,np.sqrt((pu-.5)**2+(pv-.425)**2))
   nc=sample(nebula,pu+.0015*moving*np.sin(pv*7),pv+.0015*moving*np.sin(pu*8));color=color*(1-weight)+nc*weight
   clearance=smooth(.15,.23,np.sqrt((pu-.5)**2+(pv-.425)**2))
-  rock=composite(np.dstack((x,y,z)),rocks,sample,smooth,clearance)
+  rock=composite(np.dstack((x,y,z)),rocks,sample,smooth,clearance,eye=EYE)
   color=color*(1-rock[:,:,3:4])+rock[:,:,:3]
   dest=out/f'textures/URF{face}.png';dest.parent.mkdir(parents=True,exist_ok=True);Image.fromarray(np.uint8(np.clip(color*255,0,255))).save(dest)
   dest=out/f'shaders/rift/sky-{face}.fp';dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text(comets+'\n'+material.replace('@RAY@',form).replace('@ROCKS@',shader_calls()),newline='\n')

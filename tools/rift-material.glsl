@@ -29,16 +29,20 @@ vec3 RiftSurround(vec3 ray)
  color=mix(color,RiftWrap(vec2(.5+ray.x*.25,.25+ray.z*.25)),cap);
  return color*.85*smoothstep(-.30,.35,ray.y);
 }
-vec4 RiftRockLayer(vec4 behind,vec3 ray,vec3 forward,vec3 right,vec3 up,
-                   vec2 span,vec4 bounds,float light,float motion,float phase)
+vec4 RiftRockLayer(vec4 behind,vec3 ray,vec3 cameraOffset,vec3 forward,vec3 right,vec3 up,
+                   vec2 span,vec4 bounds,float light,float motion,float phase,float distance,float period)
 {
  float depth=dot(ray,forward);
- if(depth<=.01)return behind;
- vec2 p=vec2(dot(ray,right),-dot(ray,up))/(depth*span);
- // Rigid drift and slight rocking, with independent phases. Periods 121–273 s.
+ float plane=distance-dot(cameraOffset,forward);
+ if(depth<=.01 || plane<=0.0)return behind;
+ // Intersect a fixed world-space card, giving nearby debris stronger parallax.
+ vec3 hit=cameraOffset+ray*(plane/depth);
+ vec2 p=vec2(dot(hit,right),-dot(hit,up))/(distance*span);
+ // A true closed ellipse: quadrature at one frequency, opposite signed periods.
+ float theta=timer*(6.283185307/period)+phase;
+ p+=motion*vec2(-cos(theta),.65*sin(theta));
  float angle=.014*sin(timer*.023+phase),c=cos(angle),s=sin(angle);
  vec2 uv=vec2(c*p.x-s*p.y,s*p.x+c*p.y)+.5;
- uv+=motion*vec2(sin(timer*.035+phase),sin(timer*.052+phase*1.7));
  float edge=min(min(uv.x,1.0-uv.x),min(uv.y,1.0-uv.y));
  if(edge<=0.0)return behind;
  vec4 rock=RiftSample(rockmap,mix(bounds.xy,bounds.zw,uv),true)*smoothstep(0.0,.025,edge);
@@ -73,6 +77,8 @@ void SetupMaterial(inout Material mat)
  }
  // Seven independent fields: original debris, three mountains, three clusters.
  vec4 rocks=vec4(0.0);
+ // Same portal-normalized eye as the cloud ceiling, in the sky ray's axes.
+ vec3 rockEye=vec3(-eye.x,eye.y,-eye.z)-vec3(-128.0,3241.0,320.0);
 @ROCKS@
  // Keep the opening's central beam endpoint unobstructed, through both portals.
  rocks*=smoothstep(.15,.23,length(uv-vec2(.5,.425)));
