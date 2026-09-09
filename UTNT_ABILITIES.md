@@ -59,6 +59,16 @@ listed below. They sit above the outer
 status-bar sections and disappear with the HUD, full-screen automap and cutscenes.
 No generated or third-party artwork is added.
 
+## Ability audio
+
+Successful activation plays a clear power-up cue (`DSGETPOW`); natural expiry
+plays a distinct mechanical spin-down (`spindown2`). These reuse UTNT sounds,
+at 90% effect volume, without distance attenuation. They are local to the player
+using the ability, on an automatic UI channel, and still respect master/SFX volume.
+Rejected activation, death and cleanup do not emit either cue. The existing
+quieter cooldown-ready notification remains separate. Saving/loading or travelling
+does not restart the activation sound; UI cues themselves are not stored in saves.
+
 ## Ability borders and class selection
 
 | Ability | Active HUD / border color | Border effect |
@@ -107,6 +117,8 @@ python tools/test_abilities.py --class Scout --mode respawn
 python tools/test_abilities.py --class Scout --mode boss --map TNT01
 python tools/test_abilities.py --class Scout --mode hud --renderer 0
 python tools/test_abilities.py --class Commando --mode hud --renderer 1
+python tools/test_ability_audio.py --class Marine
+python tools/test_ability_audio_coop.py
 python tools/test_abilities_coop.py
 python tools/test_ability_edges.py --class Marine --cards
 python tools/test_ability_edges.py --class Scout --renderer 0 --sizes

@@ -1,0 +1,68 @@
+class AbilityAudioTest : EventHandler
+{
+    ui int Starts,Ends,Ready;
+    ui bool CheckedRemote,CheckedBoth;
+    override void WorldTick()
+    {
+        if(!multiplayer || !playeringame[0] || !playeringame[1]) return;
+        let a=UTNTAbilities.Get(players[0].mo);let b=UTNTAbilities.Get(players[1].mo);
+        if(!a || !b) return;
+        if(level.time==60) a.Activate(1);
+        if(level.time==90) a.Remaining=1;
+        if(level.time==120) b.Activate(2);
+        if(level.time==150) b.Remaining=1;
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        if(!multiplayer) return;
+        if(!CheckedRemote && level.time>=100)
+        {
+            CheckedRemote=true;
+            int expected=consoleplayer==0?1:0;
+            Console.Printf("UTNT_ASSERT %s: first player's cues reach only that local peer",Starts==expected && Ends==expected && Ready==0?"PASS":"FAIL");
+        }
+        if(!CheckedBoth && level.time>=170)
+        {
+            CheckedBoth=true;
+            Console.Printf("UTNT_ASSERT %s: each peer receives exactly its own start/end pair",Starts==1 && Ends==1 && Ready==0?"PASS":"FAIL");
+            Console.Printf("ABILITY_AUDIO_COOP_COMPLETE");
+        }
+    }
+    override void InterfaceProcess(ConsoleEvent e)
+    {
+        if(e.Name!="utnt_ability_sound") return;
+        if(e.Args[0]==1) Starts++;
+        if(e.Args[0]==2) Ends++;
+        if(e.Args[0]==0) Ready++;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let p=players[e.Player].mo;let a=UTNTAbilities.Get(p);
+        if(!a) return;
+        if(e.Name=="soundbegin")
+        {
+            a.Finish();a.Cooldown[0]=a.Cooldown[1]=a.LockRemaining=0;
+            a.Activate(e.Args[0]);
+            a.Activate(e.Args[0]);a.Activate(3-e.Args[0]); // Rejected input stays silent.
+        }
+        if(e.Name=="soundexpire") a.Remaining=1;
+        if(e.Name=="soundfinish") a.Finish();
+        if(e.Name=="soundready") a.Cooldown[0]=2;
+        if(e.Name=="sounddie") p.DamageMobj(null,null,1000000,'None',DMG_FORCED);
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name=="soundreset") Starts=Ends=Ready=0;
+        if(e.Name=="soundcheck")
+        {
+            Console.Printf("UTNT_ASSERT %s: local start=%d end=%d ready=%d (expected %d/%d/%d)",
+                Starts==e.Args[0] && Ends==e.Args[1] && Ready==e.Args[2]?"PASS":"FAIL",Starts,Ends,Ready,e.Args[0],e.Args[1],e.Args[2]);
+        }
+        if(e.Name=="soundassets")
+        {
+            double start=S_GetLength("utnt/ability/start"),end=S_GetLength("utnt/ability/end");
+            Console.Printf("UTNT_ASSERT %s: both cues decode on active sound backend (%.3f / %.3f seconds)",
+                start>0.1 && start<4 && end>0.1 && end<4?"PASS":"FAIL",start,end);
+        }
+    }
+}

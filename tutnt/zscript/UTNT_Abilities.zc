@@ -78,9 +78,13 @@ class UTNTAbilities : Inventory
         CloakOwner=null;
     }
 
-    void Finish()
+    void Finish(bool expired=false)
     {
         if(!ActiveSlot) return;
+        // Only natural expiry announces shutdown. Death, disconnect and cleanup
+        // stay silent; the active-slot guard prevents duplicate end notifications.
+        if(expired && Owner && Owner.player && Owner.Health>0)
+            EventHandler.SendInterfaceEvent(Owner.PlayerNumber(),"utnt_ability_sound",2);
         Cooldown[ActiveSlot-1]=COOLDOWN_TICS;
         LockRemaining=SWITCHLOCK;
         ActiveSlot=Remaining=Elapsed=0;
@@ -108,7 +112,7 @@ class UTNTAbilities : Inventory
         Elapsed++;
         if(ClassKind==0 && ActiveSlot==2 && Elapsed%TICRATE==0)
             Owner.GiveBody(5,Owner.GetMaxHealth());
-        if(--Remaining<=0) Finish();
+        if(--Remaining<=0) Finish(true);
     }
 
     override double GetSpeedFactor()
@@ -371,8 +375,11 @@ class UTNTAbilityHandler : EventHandler
     }
     override void InterfaceProcess(ConsoleEvent e)
     {
-        if(e.Name=="utnt_ability_sound")
-            S_StartSound(Sound(e.Args[0]?"switches/normbutn":"misc/chat"),CHAN_AUTO,0,0.35,ATTN_NONE);
+        if(e.Name!="utnt_ability_sound" || e.Args[0]<0 || e.Args[0]>2) return;
+        String cue=e.Args[0]==1?"utnt/ability/start":e.Args[0]==2?"utnt/ability/end":"misc/chat";
+        // Local, non-positional feedback: gunfire cannot cut off this channel.
+        // UI sounds are not serialized, so loading never replays an old cue.
+        S_StartSound(Sound(cue),CHAN_AUTO,CHANF_UI,e.Args[0]==0?0.35:0.9,ATTN_NONE);
     }
     override void WorldUnloaded(WorldEvent e)
     {
