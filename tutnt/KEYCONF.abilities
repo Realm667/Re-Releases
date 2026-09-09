@@ -1,0 +1,8 @@
+// Network events are synchronized and cannot spoof another player's activation.
+alias utnt_offense "netevent utnt_ability 1"
+alias utnt_defense "netevent utnt_ability 2"
+addkeysection "$UTNT_OPTIONS_TITLE" UTNTAbilities
+addmenukey "$UTNT_AB_OFFENSE" utnt_offense
+addmenukey "$UTNT_AB_DEFENSE" utnt_defense
+defaultbind q utnt_offense
+defaultbind g utnt_defense

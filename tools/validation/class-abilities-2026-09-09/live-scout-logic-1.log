@@ -1,0 +1,106 @@
+UZDoom version 5.0.1
+Build: Win32 dated 2026-09-05T12:05:31-04:00
+OS: Windows 11 (or higher) (NT 10.0) Build 26200 
+M_LoadDefaults: Load system defaults.
+D_DoomInit: Static RNGseed 667 set.
+W_Init: Init WADfiles.
+adding <engine>/uzdoom.pk3, 734 lumps
+adding <engine>/game_support.pk3, 3310 lumps
+adding <iwad>, 2919 lumps
+adding <engine>/lights.pk3, 7 lumps
+adding <engine>/brightmaps.pk3, 500 lumps
+adding <engine>/game_widescreen_gfx.pk3, 214 lumps
+adding <repo>/tutnt, 9095 lumps
+adding <validation>/delivered-tests/tests, 5 lumps
+S_Init: Setting up sound.
+Key already bound to "bumplight"
+I_Init: Setting up machine state.
+CPU speed: 4491 MHz
+CPU Vendor ID: AuthenticAMD
+  Name: AMD Ryzen 9 7950X 16-Core Processor 
+  Family 25 (25), Model 97, Stepping 2
+  Features: SSE2 SSE3 SSSE3 SSE4.1 SSE4.2 AVX AVX2 AVX512 F16C FMA3 BMI1 BMI2 HyperThreading
+Selecting Vulkan backend...
+ST_Init: Init startup screen.
+Checking cmd-line parameters...
+S_InitData: Load sound definitions.
+G_ParseMapInfo: Load map definitions.
+Texman.Init: Init texture manager.
+ParseTeamInfo: Load team definitions.
+LoadActors: Load actor definitions.
+script parsing took 445.24 ms
+R_Init: Init Doom refresh subsystem.
+DecalLibrary: Load decals.
+M_Init: Init menus.
+P_Init: Init Playloop state.
+ParseSBarInfo: Loading custom status bar definition.
+D_CheckNetGame: Checking network game status.
+I_InitInput
+I_StartupMouse
+I_StartupKeyboard
+I_StartupXInput
+I_StartupRawPS2
+I_StartupDirectInputJoystick
+Vulkan device: NVIDIA GeForce RTX 4080
+Vulkan device type: discrete gpu
+Vulkan version: 1.4.351 (api) 616.224.0 (driver)
+Max. texture size: 32768
+Max. uniform buffer range: 65536
+Min. uniform buffer offset alignment: 64
+Resolution: 960 x 540
+V_Init: allocate screen.
+Init complete.
+
+----------------------------------------
+
+ABTEST - Class ability proving ground
+
+UTNT_ASSERT PASS: ability inventory automatically installed
+UTNT_ASSERT PASS: offensive activation accepted
+UTNT_ASSERT PASS: duration is exactly 15 seconds
+UTNT_ASSERT PASS: simultaneous/repeated activation rejected
+UTNT_ASSERT PASS: invalid slot rejected
+UTNT_ASSERT PASS: critical uses XDeath when present
+UTNT_ASSERT PASS: critical increments kill count exactly once
+UTNT_ASSERT PASS: critical without XDeath uses normal Death
+UTNT_ASSERT PASS: special boss-style shield blocks critical finisher
+UTNT_ASSERT PASS: zero damage factor blocks critical finisher
+UTNT_ASSERT PASS: invulnerability preserved
+UTNT_ASSERT PASS: boss critical deals 10 percent of maximum health
+UTNT_ASSERT PASS: shotgun pellets cannot reroll or repeat boss critical
+UTNT_ASSERT PASS: one boss critical per second per Scout across different bosses
+UTNT_ASSERT PASS: projectile direct hit and explosion share one critical roll
+UTNT_ASSERT PASS: interleaved projectiles cannot reroll an earlier explosion
+UTNT_ASSERT PASS: real twenty-pellet hitscan with UTNT puff rolls once
+UTNT_ASSERT PASS: existing invisibility and notarget preserved
+UTNT_ASSERT PASS: Cloak actually hides player and prevents acquisition
+UTNT_ASSERT PASS: Cloak restores player flags on expiry
+UTNT_ASSERT PASS: 20 percent random stream: 1971 of 10000
+UTNT_ASSERT PASS: cooldown starts at exactly 300 seconds after effect
+UTNT_ASSERT PASS: three-second switch lock starts after effect
+UTNT_ASSERT PASS: shared lock rejects both keys
+UTNT_ASSERT PASS: other slot can activate during defense cooldown
+UTNT_ASSERT PASS: movement returns to normal
+UTNT_ASSERT PASS: cutscene freeze rejects activation
+UTNT_ASSERT PASS: death ends effect and keeps cooldown
+UTNT_REGRESSION_COMPLETE
+Game saved.
+
+----------------------------------------
+
+ABTEST - Class ability proving ground
+
+UTNT_ASSERT PASS: save/load retains active ability countdown
+UTNT_ASSERT PASS: save/load retains independent cooldown
+UTNT_ASSERT PASS: save/load retains Cloak flags
+UTNT_ASSERT PASS: cooldown blocks ability
+UTNT_ASSERT PASS: ability becomes usable exactly at cooldown zero
+UTNT_ASSERT PASS: real simulation expires at 525 ticks
+UTNT_ASSERT PASS: activation immediately removes existing enemy target
+UTNT_ASSERT PASS: enemy cannot reacquire cloaked Scout
+UTNT_ASSERT PASS: enemy wanders instead of standing still
+UTNT_ASSERT PASS: searching enemy does not hit the Scout
+UTNT_ASSERT PASS: shooting does not break Cloak
+UTNT_TEST_END
+f 2
+

@@ -1,0 +1,378 @@
+// Class abilities: all gameplay runs in the synchronized simulation.
+// Inventory fields survive saves and map travel; the handler retains cooldowns on respawn.
+class UTNTAbilities : Inventory
+{
+    const DURATION = 15*TICRATE;
+    const COOLDOWN_TICS = 300*TICRATE;
+    const SWITCHLOCK = 3*TICRATE;
+    int ActiveSlot, Remaining, Cooldown[2], LockRemaining, Elapsed;
+    int ClassKind, BossCriticalCooldown; // 0 Marine, 1 Scout, 2 Commando
+    Actor CloakOwner;
+    bool HadInvisible, HadNoTarget;
+
+    Default
+    {
+        Inventory.MaxAmount 1;
+        Inventory.InterHubAmount 1;
+        +INVENTORY.UNDROPPABLE
+        +INVENTORY.UNTOSSABLE
+        +INVENTORY.PERSISTENTPOWER
+    }
+
+    clearscope static UTNTAbilities Get(Actor who)
+    {
+        return who ? UTNTAbilities(who.FindInventory('UTNTAbilities',true)) : null;
+    }
+
+    static bool Cloaked(Actor who)
+    {
+        let a=Get(who);
+        return a && who.Health>0 && a.ClassKind==1 && a.ActiveSlot==2;
+    }
+
+    bool Unavailable()
+    {
+        if(!Owner || !Owner.player || Owner.Health<=0) return true;
+        let fx=UTNTPlayerEffects(Owner.FindBehavior('UTNTPlayerEffects'));
+        return Owner.FindInventory('UTNTHUDHidden') || (fx && fx.Cutscene)
+            || (Owner.player.cheats & (CF_TOTALLYFROZEN|CF_FROZEN))
+            || (Owner.player.camera && Owner.player.camera!=Owner)
+            || level.MapName ~== "INTERMAP" || level.MapName ~== "ENDMAP01";
+    }
+
+    bool Activate(int slot)
+    {
+        if(slot<1 || slot>2 || Unavailable() || ActiveSlot || LockRemaining || Cooldown[slot-1]) return false;
+        ClassKind=Owner is 'Scout'?1:Owner is 'Commando'?2:0;
+        ActiveSlot=slot; Remaining=DURATION; Elapsed=0;
+        if(ClassKind==1 && slot==2)
+        {
+            ApplyCloak();
+            let h=UTNTAbilityHandler(EventHandler.Find('UTNTAbilityHandler'));
+            if(h) h.BreakTargets(Owner);
+        }
+        EventHandler.SendInterfaceEvent(Owner.PlayerNumber(),"utnt_ability_sound",1);
+        return true;
+    }
+
+    void ApplyCloak()
+    {
+        if(CloakOwner!=Owner)
+        {
+            RestoreCloak();
+            CloakOwner=Owner;
+            HadInvisible=Owner.bInvisible;
+            HadNoTarget=(Owner.player.cheats & CF_NOTARGET)!=0;
+        }
+        Owner.bInvisible=true;
+        Owner.player.cheats|=CF_NOTARGET;
+    }
+
+    void RestoreCloak()
+    {
+        if(CloakOwner)
+        {
+            if(!HadInvisible) CloakOwner.bInvisible=false;
+            if(CloakOwner.player && !HadNoTarget) CloakOwner.player.cheats&=~CF_NOTARGET;
+        }
+        CloakOwner=null;
+    }
+
+    void Finish()
+    {
+        if(!ActiveSlot) return;
+        Cooldown[ActiveSlot-1]=COOLDOWN_TICS;
+        LockRemaining=SWITCHLOCK;
+        ActiveSlot=Remaining=Elapsed=0;
+        RestoreCloak();
+    }
+
+    override void OwnerDied() { Finish(); }
+
+    override void Tick()
+    {
+        Super.Tick();
+        if(!Owner || !Owner.player) return;
+        ClassKind=Owner is 'Scout'?1:Owner is 'Commando'?2:0;
+        for(int i=0;i<2;i++) if(Cooldown[i]>0)
+        {
+            Cooldown[i]--;
+            if(!Cooldown[i] && Owner.Health>0)
+                EventHandler.SendInterfaceEvent(Owner.PlayerNumber(),"utnt_ability_sound",0);
+        }
+        if(LockRemaining>0) LockRemaining--;
+        if(BossCriticalCooldown>0) BossCriticalCooldown--;
+        if(!ActiveSlot) return;
+        if(Owner.Health<=0) { Finish(); return; }
+        if(ClassKind==1 && ActiveSlot==2) ApplyCloak();
+        Elapsed++;
+        if(ClassKind==0 && ActiveSlot==2 && Elapsed%TICRATE==0)
+            Owner.GiveBody(5,Owner.GetMaxHealth());
+        if(--Remaining<=0) Finish();
+    }
+
+    override double GetSpeedFactor()
+    {
+        if(ClassKind!=2) return 1;
+        return ActiveSlot==1?0.8:ActiveSlot==2?0.5:1;
+    }
+
+    override void AlterWeaponSprite(VisStyle vis,in out int changed)
+    {
+        if(ClassKind==1 && ActiveSlot==2)
+        {
+            vis.RenderStyle=STYLE_Translucent;
+            vis.Alpha=min(vis.Alpha,0.25);
+            changed=-1;
+        }
+    }
+
+    virtual bool RollCritical() { return Random[UTNTWeakSpot](0,99)<20; }
+
+    override void ModifyDamage(int damage,Name damageType,out int newdamage,bool passive,
+        Actor inflictor,Actor source,int flags,double angle)
+    {
+        if(!Owner || Owner.Health<=0 || !ActiveSlot || damage<=0) return;
+        if(passive)
+        {
+            // Map hazards and forced/scripted deaths are not an ability interaction.
+            if(!source || source==Owner || (!source.bIsMonster && !source.player)) return;
+            if(ClassKind==0 && ActiveSlot==1) newdamage=damage+max(1,damage/2);
+            if(ClassKind==2 && ActiveSlot==2) newdamage=damage/4;
+            // An already queued targeted melee swing misses a cloaked Scout.
+            if(ClassKind==1 && ActiveSlot==2 && source.bIsMonster && inflictor==source) newdamage=0;
+            return;
+        }
+        // In an active inventory modifier the engine passes the VICTIM as source.
+        let victim=source;
+        if(ActiveSlot!=1 || !victim || victim==Owner || !Owner.player.ReadyWeapon
+            || inflictor is 'UTNTCriticalFinisher' || damageType=='Telefrag') return;
+        if(ClassKind==0) { newdamage=damage*2; return; }
+        if(ClassKind!=1 || !victim.bIsMonster || victim.player || victim.bFriendly
+            || victim.Health<=0 || victim.bInvulnerable || victim.bDormant || victim.bNoDamage) return;
+        let record=UTNTCriticalRecord(victim.FindBehavior('UTNTCriticalRecord'));
+        if(!record) record=UTNTCriticalRecord(victim.AddBehavior('UTNTCriticalRecord'));
+        int p=Owner.PlayerNumber();
+        if(p<0 || p>=MAXPLAYERS || !record.NewAttack(p,inflictor)) return;
+        bool boss=record.IsBoss();
+        if(boss && BossCriticalCooldown>0) return;
+        if(!RollCritical()) return;
+        record.PendingPlayer=p; record.PendingTic=level.time; record.PendingBoss=boss;
+        if(boss) newdamage=max(1,record.MaximumHealth/10);
+        // Normal monsters are finished ONLY after the engine confirms actual damage.
+        // This preserves shields, zero damage factors and invulnerable phases.
+    }
+}
+
+class UTNTCriticalFinisher : Actor
+{
+    Default { +NOINTERACTION }
+}
+
+class UTNTCriticalRecord : Behavior
+{
+    int MaximumHealth;
+    int LastTic[MAXPLAYERS];
+    int PendingPlayer,PendingTic;
+    bool PendingBoss;
+
+    override void Initialize()
+    {
+        MaximumHealth=max(Owner.Health,Owner.GetSpawnHealth());
+        PendingPlayer=-1;
+        for(int i=0;i<MAXPLAYERS;i++) LastTic[i]=-1;
+    }
+
+    bool IsBoss()
+    {
+        MaximumHealth=max(MaximumHealth,Owner.Health);
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        // ACS spawns some encounter members several tics BEFORE starting BossHP.
+        // Recognize the map-authored ranges during that window as well.
+        bool authored=(level.MapName ~== "TNT01" || level.MapName ~== "TNT03B") && Owner.TID>=666 && Owner.TID<=669
+            || level.MapName ~== "TNT02" && Owner.TID>=220 && Owner.TID<=223
+            || level.MapName ~== "TNTLE" && Owner.TID>=666 && Owner.TID<=667
+            || (level.MapName ~== "TNT04C" || level.MapName ~== "TNT04CN") && Owner.TID==666;
+        return Owner.bBoss || authored || (h && h.BossKind && Owner.TID>=h.BossFirstTID && Owner.TID<=h.BossLastTID);
+    }
+
+    bool NewAttack(int p,Actor inflictor)
+    {
+        // All pellets against this victim in this tic share one roll. A projectile's
+        // direct hit, explosion and subsequent spray share its projectile identity.
+        if(inflictor && !inflictor.bIsPuff && !inflictor.player)
+        {
+            let shot=UTNTProjectileRoll(inflictor.FindBehavior('UTNTProjectileRoll'));
+            if(!shot) shot=UTNTProjectileRoll(inflictor.AddBehavior('UTNTProjectileRoll'));
+            if(!shot.FirstHit(Owner)) return false;
+        }
+        else if(LastTic[p]==level.time) return false;
+        LastTic[p]=level.time;
+        return true;
+    }
+
+    void Confirm(WorldEvent e)
+    {
+        if(PendingPlayer<0 || PendingTic!=level.time || !e.DamageSource
+            || e.DamageSource.PlayerNumber()!=PendingPlayer || e.Damage<=0) return;
+        int p=PendingPlayer;
+        PendingPlayer=-1; // Reentrant finisher damage must never trigger another critical.
+        if(PendingBoss)
+        {
+            let a=UTNTAbilities.Get(e.DamageSource);
+            if(a) a.BossCriticalCooldown=TICRATE;
+            return;
+        }
+        bool extreme=Owner.FindState('Death.Extreme')!=null;
+        if(Owner.Health<=0)
+        {
+            // WorldThingDamaged runs before Die: choose the state without replaying Die,
+            // kill counts, drops, scripts or boss actions.
+            Owner.DamageType=extreme?'Extreme':'None';
+            return;
+        }
+        let finisher=Actor.Spawn('UTNTCriticalFinisher',Owner.Pos,NO_REPLACE);
+        finisher.bExtremeDeath=extreme;
+        finisher.bNoExtremeDeath=!extreme;
+        Owner.DamageMobj(finisher,e.DamageSource,
+            Owner.Health+abs(Owner.GetGibHealth())+1,extreme?'Extreme':'None',DMG_FORCED|DMG_THRUSTLESS);
+        finisher.Destroy();
+    }
+}
+
+class UTNTProjectileRoll : Behavior
+{
+    Array<Actor> Victims;
+    bool FirstHit(Actor victim)
+    {
+        for(int i=0;i<Victims.Size();i++) if(Victims[i]==victim) return false;
+        Victims.Push(victim);
+        return true;
+    }
+}
+
+class UTNTCloakSearch : Behavior
+{
+    Actor LostScout;
+    int NextStep;
+    void Lose(Actor scout)
+    {
+        if(!Owner || Owner.Health<=0 || Owner.bDormant || Owner.target!=scout) return;
+        LostScout=scout;
+        Owner.target=null; Owner.lastenemy=null; Owner.threshold=0;
+        // Interrupt a queued attack before it can fire at the old target position.
+        if(Owner.SpawnState) Owner.SetState(Owner.SpawnState);
+        NextStep=level.time;
+    }
+    override void Tick()
+    {
+        if(!LostScout || Owner.Health<=0 || Owner.bDormant) return;
+        if(!UTNTAbilities.Cloaked(LostScout)) { LostScout=null; Owner.A_Look(); return; }
+        if(Owner.target && UTNTAbilities.Cloaked(Owner.target)) Lose(Owner.target);
+        if(Owner.target) { LostScout=null; return; } // Other coop players remain valid targets.
+        if(level.time<NextStep) return;
+        NextStep=level.time+4;
+        Owner.A_Look();
+        if(!Owner.target) Owner.A_Wander();
+    }
+}
+
+class UTNTAbilityHandler : EventHandler
+{
+    int SavedOffense[MAXPLAYERS],SavedDefense[MAXPLAYERS],SavedLock[MAXPLAYERS];
+    Array<Actor> Monsters;
+
+    override void WorldLoaded(WorldEvent e)
+    {
+        Monsters.Clear();
+        let it=ThinkerIterator.Create('Actor'); Actor m;
+        while(m=Actor(it.Next())) if(m.bIsMonster && m.Health>0) Monsters.Push(m);
+    }
+    override void WorldThingSpawned(WorldEvent e)
+    {
+        if(e.Thing.bIsMonster) Monsters.Push(e.Thing);
+    }
+    override void WorldTick()
+    {
+        bool hasCloak=false;
+        for(int p=0;p<MAXPLAYERS;p++)
+        {
+            if(!playeringame[p] || !(players[p].mo is 'Marine')) continue;
+            let mo=players[p].mo;
+            let a=UTNTAbilities.Get(mo);
+            if(!a && mo.Health>0)
+            {
+                mo.GiveInventory('UTNTAbilities',1); a=UTNTAbilities.Get(mo);
+                a.Cooldown[0]=SavedOffense[p]; a.Cooldown[1]=SavedDefense[p]; a.LockRemaining=SavedLock[p];
+            }
+            if(a)
+            {
+                SavedOffense[p]=a.Cooldown[0]; SavedDefense[p]=a.Cooldown[1]; SavedLock[p]=a.LockRemaining;
+                hasCloak=hasCloak || UTNTAbilities.Cloaked(mo);
+            }
+            else
+            {
+                SavedOffense[p]=max(0,SavedOffense[p]-1); SavedDefense[p]=max(0,SavedDefense[p]-1);
+                SavedLock[p]=max(0,SavedLock[p]-1);
+            }
+        }
+        if(!hasCloak && level.time%TICRATE!=0) return;
+        for(int i=Monsters.Size()-1;i>=0;i--)
+        {
+            let m=Monsters[i];
+            if(!m || m.Health<=0) { Monsters.Delete(i); continue; }
+            if(UTNTAbilities.Cloaked(m.target)) LoseTarget(m,m.target);
+        }
+    }
+    void LoseTarget(Actor monster,Actor scout)
+    {
+        let search=UTNTCloakSearch(monster.FindBehavior('UTNTCloakSearch'));
+        if(!search) search=UTNTCloakSearch(monster.AddBehavior('UTNTCloakSearch'));
+        search.Lose(scout);
+    }
+    void BreakTargets(Actor scout)
+    {
+        // Include actors spawned this tic whose PostBeginPlay event is still pending.
+        let it=ThinkerIterator.Create('Actor');Actor m;
+        while(m=Actor(it.Next())) if(m.bIsMonster && m.target==scout) LoseTarget(m,scout);
+    }
+    override void PlayerDied(PlayerEvent e)
+    {
+        let a=UTNTAbilities.Get(players[e.PlayerNumber].mo);
+        if(!a) return;
+        a.Finish();
+        SavedOffense[e.PlayerNumber]=a.Cooldown[0]; SavedDefense[e.PlayerNumber]=a.Cooldown[1];
+        SavedLock[e.PlayerNumber]=a.LockRemaining;
+    }
+    override void PlayerDisconnected(PlayerEvent e)
+    {
+        let a=UTNTAbilities.Get(players[e.PlayerNumber].mo);
+        if(a) a.Finish();
+        SavedOffense[e.PlayerNumber]=SavedDefense[e.PlayerNumber]=SavedLock[e.PlayerNumber]=0;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="utnt_ability" || e.Player<0 || e.Player>=MAXPLAYERS || !playeringame[e.Player]) return;
+        let a=UTNTAbilities.Get(players[e.Player].mo);
+        if(a) a.Activate(e.Args[0]);
+    }
+    override void WorldThingDamaged(WorldEvent e)
+    {
+        if(!e.Thing) return;
+        let r=UTNTCriticalRecord(e.Thing.FindBehavior('UTNTCriticalRecord'));
+        if(r) r.Confirm(e);
+        if(e.Thing.bIsMonster && UTNTAbilities.Cloaked(e.Thing.target)) LoseTarget(e.Thing,e.Thing.target);
+    }
+    override bool WorldHitscanPreFired(WorldEvent e)
+    {
+        if(e.Thing && e.Thing.bIsMonster && UTNTAbilities.Cloaked(e.Thing.target))
+        { LoseTarget(e.Thing,e.Thing.target); return true; }
+        return false;
+    }
+    override void InterfaceProcess(ConsoleEvent e)
+    {
+        if(e.Name=="utnt_ability_sound")
+            S_StartSound(Sound(e.Args[0]?"switches/normbutn":"misc/chat"),CHAN_AUTO,0,0.35,ATTN_NONE);
+    }
+    override void RenderOverlay(RenderEvent e) { UTNTAbilityHUD.Draw(e); }
+}

@@ -22,6 +22,29 @@
 
 class Marine : DoomPlayer
 {
+    int OverdrivePhase;
+    override void TickPSprites()
+    {
+        Super.TickPSprites();
+        let a=UTNTAbilities.Get(self);
+        if(!a || a.ClassKind!=2 || a.ActiveSlot!=1 || Health<=0)
+        { OverdrivePhase=0; return; }
+        let w=player.ReadyWeapon;
+        let psp=player.FindPSprite(PSprite.WEAPON);
+        if(!w || !psp || !(InStateSequence(psp.CurState,w.FindState('Fire'))
+            || InStateSequence(psp.CurState,w.FindState('AltFire'))
+            || InStateSequence(psp.CurState,w.FindState('Hold'))
+            || InStateSequence(psp.CurState,w.FindState('AltHold')))) return;
+        if(++OverdrivePhase<2) return;
+        OverdrivePhase=0;
+        // Half an extra weapon tick per game tick: 150%, including one-tic states.
+        // No second PlayerThink, inventory tick, regeneration or movement update.
+        psp.processPending=true;
+        psp.Tick();
+        let flash=player.FindPSprite(PSprite.FLASH);
+        if(flash) { flash.processPending=true; flash.Tick(); }
+    }
+
 	double utntFallbackStep;
 
     UTNTPickupSnapshot PickupSnapshot;
@@ -175,3 +198,6 @@ class isIntro : Inventory //prevent Motion Blur working over cutscenes if we mov
 		Inventory.MaxAmount 1;
 	}
 }
+
+#include "zscript/UTNT_Abilities.zc"
+#include "zscript/UTNT_AbilityHUD.zc"

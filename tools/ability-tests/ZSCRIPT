@@ -1,0 +1,236 @@
+version "5.0.0"
+class AbilityTestTarget : Actor
+{
+    bool ExtremeTaken;
+    Default { Health 1000; Radius 16; Height 56; +SHOOTABLE +ISMONSTER +NOBLOOD }
+    States
+    {
+        Spawn: POSS A -1; Stop;
+        Death: POSS H -1; Stop;
+    }
+}
+class AbilityTestGibTarget : AbilityTestTarget
+{
+    Default { +COUNTKILL }
+    States { XDeath: POSS M 0 { ExtremeTaken=true; } POSS N -1; Stop; }
+}
+class AbilityTestBoss : AbilityTestTarget { Default { +BOSS } }
+class AbilityTestShield : AbilityTestTarget
+{
+    override int TakeSpecialDamage(Actor inflictor,Actor source,int damage,Name dtype,int flags,double angle) {return 0;}
+}
+class AbilityTestImmune : AbilityTestTarget { Default { DamageFactor "None",0; } }
+class AbilityTestCritical : UTNTAbilities
+{
+    int Rolls;
+    override bool RollCritical() { Rolls++; return true; }
+}
+class AbilityTestMissile : Actor { Default { +MISSILE +NOGRAVITY } }
+class AbilityTestHandler : EventHandler
+{
+    Actor Enemy,SearchEnemy;
+    Vector3 SearchOrigin;
+    int SavedRemaining,SavedCooldown,RegenHealth,RegenAt,TimeStart;
+    int AmmoBefore,BaselineUsed,RateTic;
+    class<Ammo> RateAmmo;
+    bool Timing;
+    void Check(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",message); }
+    void Reset(UTNTAbilities a)
+    {
+        a.Finish(); a.Cooldown[0]=a.Cooldown[1]=a.LockRemaining=a.BossCriticalCooldown=0;
+        a.Owner.player.cheats&=~(CF_GODMODE|CF_BUDDHA|CF_TOTALLYFROZEN|CF_FROZEN);
+        a.Owner.bInvulnerable=false;
+        let armor=a.Owner.FindInventory('BasicArmor'); if(armor) armor.Destroy();
+        a.Owner.Health=a.Owner.player.Health=a.Owner.GetMaxHealth();
+    }
+    AbilityTestTarget Target(class<AbilityTestTarget> type='AbilityTestTarget')
+    { return AbilityTestTarget(Actor.Spawn(type,(500,0,0),NO_REPLACE)); }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let p=players[e.Player].mo;
+        let a=UTNTAbilities.Get(p);
+        if(e.Name=="abcheck")
+        {
+            Check(a!=null,"ability inventory automatically installed"); if(!a) return;
+            Reset(a);
+            Check(a.Activate(1),"offensive activation accepted");
+            Check(a.Remaining==525,"duration is exactly 15 seconds");
+            Check(!a.Activate(2) && !a.Activate(1),"simultaneous/repeated activation rejected");
+            Check(!a.Activate(0) && !a.Activate(3),"invalid slot rejected");
+            let victim=Target(); Enemy=Target();
+            if(p is 'Commando')
+            {
+                Check(abs(a.GetSpeedFactor()-0.8)<0.0001,"Overdrive movement is 80 percent of class speed");
+                victim.DamageMobj(p,p,20,'None'); Check(victim.Health==980,"Overdrive does not change damage per shot");
+                Reset(a);a.Activate(2);
+                Check(abs(a.GetSpeedFactor()-0.5)<0.0001,"Bollwerk movement is 50 percent of class speed");
+                p.DamageMobj(Enemy,Enemy,100,'None'); Check(p.Health==125,"Bollwerk reduces enemy damage by 75 percent");
+                p.DamageMobj(null,null,20,'None'); Check(p.Health==105,"Bollwerk does not protect against environment");
+            }
+            else if(p is 'Scout')
+            {
+                a.Finish(); a.Destroy(); p.GiveInventory('AbilityTestCritical',1);a=UTNTAbilities.Get(p);Reset(a);a.Activate(1);
+                let force=AbilityTestCritical(a);
+                let gib=Target('AbilityTestGibTarget'); int kills=level.killed_monsters;
+                gib.DamageMobj(p,p,1,'None');
+                Check(gib.Health<=0 && gib.ExtremeTaken,"critical uses XDeath when present");
+                Check(level.killed_monsters==kills+1,"critical increments kill count exactly once");
+                victim.DamageMobj(p,p,1,'None');
+                Check(victim.Health<=0 && !victim.ExtremeTaken && victim.CurState==victim.FindState('Death'),"critical without XDeath uses normal Death");
+                let shield=Target('AbilityTestShield'); shield.DamageMobj(p,p,1,'None');
+                Check(shield.Health==1000,"special boss-style shield blocks critical finisher");
+                let immune=Target('AbilityTestImmune'); immune.DamageMobj(p,p,1,'None');
+                Check(immune.Health==1000,"zero damage factor blocks critical finisher");
+                let invul=Target(); invul.bInvulnerable=true;invul.DamageMobj(p,p,1,'None');
+                Check(invul.Health==1000,"invulnerability preserved");
+                let boss=Target('AbilityTestBoss');boss.DamageMobj(p,p,1,'None');
+                Check(boss.Health==900,"boss critical deals 10 percent of maximum health");
+                int rolls=force.Rolls;
+                for(int i=0;i<20;i++) boss.DamageMobj(p,p,1,'None');
+                Check(force.Rolls==rolls && boss.Health==880,"shotgun pellets cannot reroll or repeat boss critical");
+                let boss2=Target('AbilityTestBoss');boss2.DamageMobj(p,p,1,'None');
+                Check(boss2.Health==999,"one boss critical per second per Scout across different bosses");
+                let missile=Actor.Spawn('AbilityTestMissile',(600,0,64),NO_REPLACE);
+                let immune2=Target('AbilityTestImmune');int before=force.Rolls;
+                immune2.DamageMobj(missile,p,1,'None');immune2.DamageMobj(missile,p,1,'None');
+                Check(force.Rolls==before+1,"projectile direct hit and explosion share one critical roll");
+                let missile2=Actor.Spawn('AbilityTestMissile',(600,0,64),NO_REPLACE);
+                immune2.DamageMobj(missile2,p,1,'None');immune2.DamageMobj(missile,p,1,'None');
+                Check(force.Rolls==before+2,"interleaved projectiles cannot reroll an earlier explosion");
+                missile2.Destroy();
+                missile.Destroy();
+                let pelletTarget=Target('AbilityTestImmune');
+                p.SetOrigin((-600,-600,0),false);p.Angle=0;p.Pitch=0;
+                pelletTarget.SetOrigin((-500,-600,0),false);
+                int pelletRolls=force.Rolls;
+                p.LineAttack(p.Angle,1024,p.Pitch,1,'None','NewPuff');
+                for(int pellet=1;pellet<20;pellet++) p.LineAttack(p.Angle,1024,p.Pitch,1,'None','NewPuff');
+                Check(force.Rolls==pelletRolls+1,"real twenty-pellet hitscan with UTNT puff rolls once");
+                pelletTarget.Destroy();
+                Reset(a); p.bInvisible=true;p.player.cheats|=CF_NOTARGET;a.Activate(2);a.Finish();
+                Check(p.bInvisible && (p.player.cheats&CF_NOTARGET),"existing invisibility and notarget preserved");
+                p.bInvisible=false;p.player.cheats&=~CF_NOTARGET;
+                Reset(a);a.Activate(2);Check(p.bInvisible && (p.player.cheats&CF_NOTARGET),"Cloak actually hides player and prevents acquisition");
+                a.Finish();Check(!p.bInvisible && !(p.player.cheats&CF_NOTARGET),"Cloak restores player flags on expiry");
+                a.Destroy();p.GiveInventory('UTNTAbilities',1);a=UTNTAbilities.Get(p);
+                int crits=0;for(int i=0;i<10000;i++) if(a.RollCritical()) crits++;
+                Check(crits>1800 && crits<2200,String.Format("20 percent random stream: %d of 10000",crits));
+                Reset(a);a.Activate(2);
+            }
+            else
+            {
+                victim.DamageMobj(p,p,20,'None');Check(victim.Health==960,"Rage doubles outgoing weapon damage");
+                p.DamageMobj(Enemy,Enemy,20,'None');Check(p.Health==70,"Rage increases enemy damage by 50 percent");
+                p.DamageMobj(p,p,20,'None');Check(p.Health==50,"Rage does not amplify self damage");
+                Reset(a);p.Health=p.player.Health=25;a.Activate(2);
+                for(int i=0;i<34;i++) a.Tick();Check(p.Health==25,"Regeneration does not heal before first second");
+                a.Tick();Check(p.Health==30,"Regeneration heals exactly five points per second");
+                for(int i=35;i<525;i++) a.Tick();Check(p.Health==100,"15 regeneration pulses heal at most 75 points");
+                Reset(a);p.Health=p.player.Health=125;a.Activate(2);
+                for(int i=0;i<35;i++) a.Tick();Check(p.Health==125,"Regeneration preserves existing bonus health");
+            }
+            a.Finish();Check(a.Cooldown[1]==10500 || a.Cooldown[0]==10500,"cooldown starts at exactly 300 seconds after effect");
+            Check(a.LockRemaining==105,"three-second switch lock starts after effect");
+            Check(!a.Activate(1) && !a.Activate(2),"shared lock rejects both keys");
+            a.LockRemaining=0;a.Cooldown[0]=0;
+            Check(a.Activate(1),"other slot can activate during defense cooldown");
+            a.Finish();Check(abs(a.GetSpeedFactor()-1)<0.0001,"movement returns to normal");
+            Reset(a);p.player.cheats|=CF_TOTALLYFROZEN;Check(!a.Activate(1),"cutscene freeze rejects activation");
+            p.player.cheats&=~CF_TOTALLYFROZEN;
+            Reset(a);a.Activate(1);a.OwnerDied();Check(!a.ActiveSlot && a.Cooldown[0]==10500,"death ends effect and keeps cooldown");
+            Reset(a);a.Activate(2);
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+        if(e.Name=="abreset") {Reset(a);}
+        if(e.Name=="abtiming") {Reset(a);a.Activate(e.Args[0]?e.Args[0]:1);TimeStart=level.time;Timing=true;}
+        if(e.Name=="absave") { SavedRemaining=a.Remaining; SavedCooldown=a.Cooldown[0]; }
+        if(e.Name=="abloadcheck")
+        {
+            Check(a.ActiveSlot>0 && abs(a.Remaining-SavedRemaining)<50,"save/load retains active ability countdown");
+            Check(a.Cooldown[0]==SavedCooldown,"save/load retains independent cooldown");
+            if(p is 'Scout') Check(p.bInvisible && (p.player.cheats&CF_NOTARGET),"save/load retains Cloak flags");
+        }
+        if(e.Name=="abcooldown")
+        {
+            Reset(a);a.Cooldown[0]=10;
+            Check(!a.Activate(1),"cooldown blocks ability");
+            for(int i=0;i<10;i++) a.Tick();
+            Check(a.Cooldown[0]==0 && a.Activate(1),"ability becomes usable exactly at cooldown zero");
+        }
+        if(e.Name=="absearch")
+        {
+            Reset(a);SearchEnemy=Actor.Spawn('DoomImp',(0,128,0),NO_REPLACE);
+            SearchEnemy.target=p;SearchEnemy.SetState(SearchEnemy.SeeState);SearchOrigin=SearchEnemy.Pos;
+            a.Activate(2);
+            Check(SearchEnemy.target==null,"activation immediately removes existing enemy target");
+        }
+        if(e.Name=="absearchcheck")
+        {
+            Check(SearchEnemy.target!=p,"enemy cannot reacquire cloaked Scout");
+            Check((SearchEnemy.Pos-SearchOrigin).Length()>5,"enemy wanders instead of standing still");
+            Check(p.Health==75,"searching enemy does not hit the Scout");
+            Check(a.ActiveSlot==2,"shooting does not break Cloak");
+        }
+        if(e.Name=="abview")
+        {
+            Reset(a);if(e.Args[0]) a.Activate(e.Args[0]);
+            if(e.Args[1]) {a.Finish();a.LockRemaining=0;a.Cooldown[0]=8000;a.Cooldown[1]=4500;}
+            p.SetOrigin((-200,-64,0),false);p.Angle=0;p.Pitch=0;
+        }
+        if(e.Name=="abtravel") {Reset(a);a.Cooldown[0]=9000;a.Cooldown[1]=8000;}
+        if(e.Name=="abtravelcheck") {Check(a.Cooldown[0]>8800 && a.Cooldown[1]>7800,"map travel preserves both cooldowns");}
+        if(e.Name=="abcloaktravel") {Reset(a);a.Activate(2);}
+        if(e.Name=="abcloaktravelcheck") {Check(a.ActiveSlot==2 && p.bInvisible && (p.player.cheats&CF_NOTARGET),"map travel retains active Cloak");a.Finish();Check(!p.bInvisible && !(p.player.cheats&CF_NOTARGET),"Cloak restores flags after map travel");}
+        if(e.Name=="abrespawn") {Reset(a);a.Activate(1);p.DamageMobj(null,null,1000000,'None',DMG_FORCED);}
+        if(e.Name=="abrespawncheck") {Check(p.Health>0 && !a.ActiveSlot && a.Cooldown[0]>10000,"respawn preserves cooldown and removes active ability");}
+        if(e.Name=="abboss")
+        {
+            if(a) {a.Finish();a.Destroy();}
+            p.GiveInventory('AbilityTestCritical',1);a=UTNTAbilities.Get(p);
+            a.ClassKind=1;a.ActiveSlot=1;a.Remaining=525;
+            String cls=level.MapName ~== "TNT01"?"HectebusNew":level.MapName ~== "TNT02"?"BruiserDemon":
+                level.MapName ~== "TNT03B"?"TNTSpider":level.MapName ~== "TNTLE"?"Queen":"TheSource";
+            let boss=Actor.Spawn(cls,p.Pos+(0,0,200),NO_REPLACE);
+            boss.ChangeTID(level.MapName ~== "TNT02"?220:666);
+            let r=UTNTCriticalRecord(boss.AddBehavior('UTNTCriticalRecord'));
+            Check(r.IsBoss(),"authored boss identified before BossHP registration");
+            int hp=boss.Health;
+            boss.DamageMobj(p,p,1,'None');
+            Check(boss.Health==hp-hp/10,"actual campaign boss critical is capped at 10 percent");
+            a.BossCriticalCooldown=0;boss.bInvulnerable=true;
+            int shieldHP=boss.Health;boss.DamageMobj(p,p,1,'None');
+            Check(boss.Health==shieldHP,"actual campaign boss shield remains invulnerable");
+            boss.Destroy();
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+        if(e.Name=="abratebegin")
+        {
+            Reset(a);if(e.Args[0]) a.Activate(1);
+            p.bInvulnerable=true;
+            RateAmmo=p.player.ReadyWeapon.AmmoType1;
+            if(RateAmmo) {p.GiveInventory(RateAmmo,1);let ammo=p.FindInventory(RateAmmo);ammo.Amount=10000;AmmoBefore=ammo.Amount;}
+            RateTic=level.time;
+        }
+        if(e.Name=="abrateend")
+        {
+            int used=RateAmmo?AmmoBefore-p.FindInventory(RateAmmo).Amount:0;
+            if(!e.Args[0]) BaselineUsed=used;
+            else if(RateAmmo)
+            {
+                int unit=max(1,p.player.ReadyWeapon.AmmoUse1);
+                Console.Printf("ABILITY_RATE %s baseline=%d overdrive=%d ratio=%.3f",p.player.ReadyWeapon.GetClassName(),BaselineUsed,used,double(used)/max(1,BaselineUsed));
+                Check(BaselineUsed>0 && abs(used-BaselineUsed*1.5)<=unit*2,"Overdrive weapon cadence within two-shot sampling tolerance");
+            }
+            else Check(p.player.ReadyWeapon!=null,"melee weapon runs under Overdrive");
+        }
+    }
+    override void WorldTick()
+    {
+        if(Timing && level.time-TimeStart==525)
+        {
+            let a=UTNTAbilities.Get(players[0].mo);
+            Check(a.ActiveSlot==0 && a.Cooldown[0]>=10499,"real simulation expires at 525 ticks");Timing=false;
+        }
+    }
+}

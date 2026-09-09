@@ -1,0 +1,53 @@
+version "5.0.0"
+class AbilityCoopTest : EventHandler
+{
+    Actor Enemy;
+    bool Finished;
+    void Check(bool ok,String label) {Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",label);}
+    override void WorldTick()
+    {
+        if(!multiplayer || !playeringame[0] || !playeringame[1]) return;
+        let scout=players[0].mo;let heavy=players[1].mo;
+        let a=UTNTAbilities.Get(scout);let b=UTNTAbilities.Get(heavy);
+        if(!a || !b) return;
+        if(level.time==40)
+        {
+            Enemy=Actor.Spawn('DoomImp',(250,-64,0),NO_REPLACE);
+            Enemy.target=scout;Enemy.SetState(Enemy.SeeState);
+        }
+        if(level.time==110)
+        {
+            Check(a.ClassKind==1 && b.ClassKind==2,"coop players retain independent classes");
+            Check(a.ActiveSlot==2 && b.ActiveSlot==2,"both clients activate their own defense through network commands");
+            Check(UTNTAbilities.Cloaked(scout) && !UTNTAbilities.Cloaked(heavy),"Cloak applies only to Scout");
+            Check(Enemy.target!=scout,"monster does not track cloaked coop player");
+            Enemy.target=heavy;
+            int hp=heavy.Health;heavy.DamageMobj(Enemy,Enemy,20,'None');
+            Check(heavy.Health==hp-5,"Bollwerk protection is synchronized for other player");
+        }
+        if(level.time==180)
+        {
+            Check(a.ActiveSlot==2 && b.ActiveSlot==2,"offense network commands cannot overlap defense");
+            a.Finish();b.Finish();
+            Check(a.Cooldown[1]==10500 && b.Cooldown[1]==10500,"independent defense cooldowns start together");
+            Enemy.Destroy();
+        }
+        if(level.time==310)
+        {
+            Check(!a.ActiveSlot && !b.ActiveSlot && !a.LockRemaining && !b.LockRemaining,"shared locks expire on both clients");
+        }
+        if(level.time==370)
+        {
+            Check(a.ActiveSlot==1 && b.ActiveSlot==1,"offense works while each defense remains on cooldown");
+            scout.DamageMobj(null,null,1000000,'None',DMG_FORCED);
+        }
+        if(level.time==470)
+        {
+            Check(players[0].mo.Health>0,"Scout respawns in cooperative session");
+            let respawn=UTNTAbilities.Get(players[0].mo);
+            Check(respawn && !respawn.ActiveSlot && respawn.Cooldown[0]>10300 && respawn.Cooldown[1]>10100,"respawn retains both cooldowns");
+            Check(b.ActiveSlot==1,"teammate ability unaffected by Scout death");
+            Console.Printf("ABILITY_COOP_COMPLETE");Finished=true;
+        }
+    }
+}

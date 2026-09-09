@@ -1,0 +1,99 @@
+// Native pixel glyphs and the same bronze/metal plaque used by UTNT's other UI.
+class UTNTAbilityHUD ui
+{
+    static void Icon(int kind,int slot,double x,double y,double s,int color)
+    {
+        for(int row=0;row<17;row++) for(int col=0;col<17;col++)
+        {
+            int dx=col-8,dy=row-8;
+            bool ink=false;
+            if(kind==2 && slot==1) // Three advancing chevrons: Overdrive.
+                ink=abs(dy)<6 && (col==4+abs(dy)/2 || col==8+abs(dy)/2 || col==12+abs(dy)/2);
+            else if(kind==2) // Riveted shield: Bollwerk.
+                ink=(row==2 && col>=3 && col<=13) || (row>=3 && row<=9 && (col==3 || col==13))
+                    || (row>=10 && row<=15 && abs(dx)==(15-row)) || (col==8 && row>=5 && row<=11);
+            else if(kind==0 && slot==2) // Medical cross: Regeneration.
+                ink=(abs(dx)<=2 && abs(dy)<=6) || (abs(dy)<=2 && abs(dx)<=6);
+            else if(kind==0) // Split lightning bolt: Rage.
+                ink=(row>=1 && row<=8 && col>=8-row/2 && col<=11-row/2)
+                    || (row>=8 && row<=15 && col>=12-row/2 && col<=15-row/2);
+            else if(slot==1) // Reticle with marked weak point.
+                ink=(abs(dx)==6 && abs(dy)<=3) || (abs(dy)==6 && abs(dx)<=3)
+                    || (abs(dx)<=1 && abs(dy)<=1) || (dx==0 && abs(dy)>=4) || (dy==0 && abs(dx)>=4);
+            else // Slashed eye: Cloak.
+                ink=(abs(dx)<=7 && abs(dy)==(7-abs(dx))/2) || (dx==dy && abs(dx)<7);
+            if(ink)
+            {
+                UTNTObjectivePlaque.Rect(x,y,s,col+1,row+1,1,1,0x080604,1);
+                UTNTObjectivePlaque.Rect(x,y,s,col,row,1,1,color,1);
+            }
+        }
+    }
+
+    static String Title(int kind,int slot)
+    {
+        String keys[]={"RAGE","REGEN","WEAK","CLOAK","OVERDRIVE","BULWARK"};
+        return UTNTExplorationUI.Local("UTNT_AB_"..keys[kind*2+slot-1]);
+    }
+
+    static void Card(UTNTAbilities a,int slot,double x,double y,double s)
+    {
+        bool active=a.ActiveSlot==slot;
+        int remaining=a.Cooldown[slot-1];
+        bool locked=a.ActiveSlot!=0 && !active || a.LockRemaining>0;
+        bool ready=!active && !remaining && !locked;
+        int color=active?(slot==1?0xe49b55:0x91baa0):ready?0xc9954b:0x82786a;
+        double width=156;
+        UTNTExplorationUI.Frame(x,y,width,39,s,1);
+        UTNTObjectivePlaque.Rect(x,y,s,6,6,25,26,0x17120d,0.86);
+        Icon(a.ClassKind,slot,x+10*s,y+10*s,s,color);
+        String title=Title(a.ClassKind,slot);
+        Font font=Font.GetFont('SmallFont');
+        double ts=min(s,112*s/max(1,font.StringWidth(title)));
+        UTNTExplorationUI.Text(title,x+37*s,y+6*s,ts,color);
+        String status;
+        double progress=1;
+        if(active)
+        {
+            status=String.Format("%s %02d",UTNTExplorationUI.Local("UTNT_AB_ACTIVE"),(a.Remaining+34)/35);
+            progress=double(a.Remaining)/UTNTAbilities.DURATION;
+        }
+        else if(remaining)
+        {
+            int seconds=(remaining+34)/35;
+            status=String.Format("%d:%02d",seconds/60,seconds%60);
+            progress=1-double(remaining)/UTNTAbilities.COOLDOWN_TICS;
+        }
+        else if(locked) { status=UTNTExplorationUI.Local("UTNT_AB_LOCKED"); progress=0; }
+        else status=UTNTExplorationUI.Local("UTNT_AB_READY");
+        UTNTExplorationUI.Text(status,x+37*s,y+18*s,s,active?color:0xbab3a7);
+        let [k1,k2]=Bindings.GetKeysForCommand(slot==1?"utnt_offense":"utnt_defense");
+        String key=k1?KeyBindings.NameKeys(k1,0,false):"--";
+        double ks=min(s,36*s/max(1,font.StringWidth(key)));
+        UTNTExplorationUI.Text(key,x+148*s-font.StringWidth(key)*ks,y+18*s,ks,0x998c76);
+        UTNTObjectivePlaque.Rect(x,y,s,37,31,111,3,0x0b0907,1);
+        UTNTObjectivePlaque.Rect(x,y,s,38,32,109*clamp(progress,0,1),1,color,1);
+    }
+
+    static void Draw(RenderEvent e)
+    {
+        if(gamestate!=GS_LEVEL || !viewactive || automapactive || menuactive || ConsoleState!=0
+            || CVar.FindCVar('screenblocks').GetInt()>=12) return;
+        let mo=e.Camera;
+        if(!mo || !mo.player || mo.Health<=0 || mo.FindInventory('UTNTHUDHidden')) return;
+        let fx=UTNTPlayerEffects(mo.FindBehavior('UTNTPlayerEffects'));
+        if(fx && fx.Cutscene || mo.player.cheats & CF_TOTALLYFROZEN) return;
+        let world=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(world && world.Chapter && world.Chapter.Phase!=3) return;
+        let a=UTNTAbilities.Get(mo); if(!a) return;
+        double s=min(UTNTUILayout.Scale(),(Screen.GetWidth()-16.0)/320);
+        Vector2 hs=(s,s);
+        if(StatusBar) hs=StatusBar.GetHUDScale();
+        double reserve=max(32*hs.Y,40*s);
+        if(StatusBar) reserve=max(reserve,Screen.GetHeight()-StatusBar.GetTopOfStatusBar());
+        double y=Screen.GetHeight()-reserve-45*s;
+        double margin=max(UTNTUILayout.Margin(),(Screen.GetWidth()-320*hs.X)/2);
+        Card(a,1,margin,y,s);
+        Card(a,2,Screen.GetWidth()-margin-156*s,y,s);
+    }
+}
