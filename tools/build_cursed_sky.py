@@ -52,7 +52,7 @@ def build(root,software_only=False):
    land=mountain[:,:,:3]*(.97*(1-night)+.43*night)*tint
    land+=mountain[:,:,3:4]*dusk*direction[...,None]*np.array([.015,.006,.008])
    color=color*(1-mountain[:,:,3:4])+land
-   haze=(.12*(1-smooth(0.,.45,lat)))[...,None]
+   haze=(.32*(1-smooth(0.,.65,lat)))[...,None]
    fade=np.floor((255-int(progress*165))*tint+.5)/255
    color=color*(1-haze)+fade*haze
    p=out/f'textures/UCP{state}{f}.png';p.parent.mkdir(parents=True,exist_ok=True)

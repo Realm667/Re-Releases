@@ -120,3 +120,14 @@ UZDoom 5.0.1, OpenGL and Vulkan on NVIDIA RTX 4080:
 
 Package, software fallback and detailed results are recorded under
 `tools/validation/cursed-peak-2026-09-09/`.
+
+## Stronger horizon haze (2026-09-09)
+
+The low sky haze now blends up to 32% of the actual sector-fade colour
+(previously 12%). Its smooth vertical falloff reaches 0.65 radians elevation
+(previously 0.45), softening the lower mountain slopes and the transition from
+the outdoor map sectors. Upper cloud detail, the light cold-blue palette,
+sector fog density and the shared ACS day/night clock remain as before.
+Static fallback textures use the same haze profile. The motion check now uses
+completed night, keeping the fade constant while checking moving clouds against
+stationary mountains. Engine captures: `tools/validation/cursed-peak-haze-2026-09-09/`.

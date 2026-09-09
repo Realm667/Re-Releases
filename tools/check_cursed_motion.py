@@ -1,7 +1,7 @@
 """Check actual fixed-camera captures: moving clouds and stationary mountains.
 
 Run test_cursed_sky.py --case views first, at its prescribed 1440x810 size.
-The two samples are five seconds apart with weather off and daylight near zero.
+The two samples are five seconds apart with weather off and the completed night transition, so the fade colour remains constant.
 """
 import argparse,json
 from pathlib import Path

@@ -65,8 +65,9 @@ void SetupMaterial(inout Material mat)
  vec3 mountain=mountains.rgb*mix(.97,.43,night)*tint;
  mountain+=mountains.a*dusk*direction*vec3(.015,.006,.008);
  color=color*(1.0-mountains.a)+mountain;
- // Match the actual ACS sector fade at the low horizon, across both maps.
- color=mix(color,fadeColor,.12*(1.0-smoothstep(0.0,.45,latitude)));
+ // Carry the outdoor sector fade farther up the distant mountain slopes.
+ // The stronger low haze tapers out before the upper cloud ceiling.
+ color=mix(color,fadeColor,.32*(1.0-smoothstep(0.0,.65,latitude)));
  // Low drifting veil erodes distant contrast during existing snowstorms.
  float veil=WrapLayer(cloudmap,vec2(longitude+phase*8.0,clamp(.60-latitude*.6,0.0,1.0)),false).r;
  float low=1.0-smoothstep(.18,.58,latitude);

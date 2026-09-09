@@ -18,7 +18,7 @@ def main():
  if a.case=='views':
   for name,t in [('day',0),('dusk',10800),('night',18000)]:
    cmd += [f'netevent peaktime {t}','wait 10',f'netevent peakcheck {t} {min(18000,t+100)}',f'screenshot logs/{label}-{name}.png']
-  cmd+=['netevent peaktime 0','weatherfx false','netevent peakview 6','wait 10','netevent peakweatheroff',f'screenshot logs/{label}-motion-a.png','wait 175',f'screenshot logs/{label}-motion-b.png']
+  cmd+=['netevent peaktime 18000','weatherfx false','netevent peakview 6','wait 10','netevent peakweatheroff',f'screenshot logs/{label}-motion-a.png','wait 175',f'screenshot logs/{label}-motion-b.png']
   for v in range(1,6):cmd += [f'netevent peakview {v}','wait 8',f'screenshot logs/{label}-view{v}.png']
   cmd+=['weatherfx true','netevent peakview 0','netevent peaktime 10800','netevent peakstorm 1','wait 25',f'screenshot logs/{label}-storm.png','changemap TNT03A2','wait 100','netevent peaktime 10800','wait 10',f'screenshot logs/{label}-a2-dusk.png','netevent peakcheck 10800 11000']
  elif a.case=='hub':
