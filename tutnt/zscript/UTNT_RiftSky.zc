@@ -1,10 +1,11 @@
-// TNT04CN alone: replace the old stretched STARSKY1 camera with the approved void.
+// Map-local sky variants for the two endings; gameplay portals stay intact.
 // Actor destruction uses SkyViewpoint.OnDestroy to clear its portal references.
 class UTNTRiftSkyHandler : EventHandler
 {
  bool Initialized;
  void Apply()
  {
+  if(level.MapName~=="TNT04C"){if(level.time>=2)ApplyAlternate();return;}
   if(!(level.MapName~=="TNT04CN"))return;
   let it=ThinkerIterator.Create('SkyViewpoint');Actor a;
   while(a=Actor(it.Next()))
@@ -15,6 +16,20 @@ class UTNTRiftSkyHandler : EventHandler
   TextureID sky=TexMan.CheckForTexture("URFSKY");
   level.ChangeSky(sky,sky);Initialized=true;
  }
- override void WorldLoaded(WorldEvent e) { Apply(); }
- override void WorldTick() { if(!Initialized && level.MapName~=="TNT04CN")Apply(); }
+ void ApplyAlternate()
+ {
+  // All three original decorative sky rooms, including tagged sky pickers.
+  // OnDestroy clears their sky portal references; stacked gameplay portals remain.
+  let it=ThinkerIterator.Create('SkyViewpoint');Actor a;
+  while(a=Actor(it.Next()))
+   if(a.GetClassName()=='SkyViewpoint' && a.Pos.X==6512 &&
+      (a.Pos.Y==-432 || a.Pos.Y==-176 || a.Pos.Y==80))a.Destroy();
+  TextureID old=TexMan.CheckForTexture("STARSKY1"),sky=TexMan.CheckForTexture("F_SKY1");
+  for(int i=0;i<level.Sectors.Size();i++)
+   if(level.Sectors[i].GetTexture(Sector.ceiling)==old)level.Sectors[i].SetTexture(Sector.ceiling,sky);
+  TextureID cube=TexMan.CheckForTexture("UACSKY");level.ChangeSky(cube,cube);
+  Initialized=true;
+ }
+ override void WorldLoaded(WorldEvent e) { Initialized=false;Apply(); }
+ override void WorldTick() { if(!Initialized && (level.MapName~=="TNT04CN" || level.MapName~=="TNT04C"))Apply(); }
 }

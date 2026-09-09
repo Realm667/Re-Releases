@@ -49,7 +49,7 @@ def build(root):
   dest=out/f'textures/URF{face}.png';dest.parent.mkdir(parents=True,exist_ok=True);Image.fromarray(np.uint8(np.clip(color*255,0,255))).save(dest)
   dest=out/f'shaders/rift/sky-{face}.fp';dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text(comets+'\n'+material.replace('@RAY@',form).replace('@ROCKS@',shader_calls()),newline='\n')
   gl.append(f'material texture URF{face} {{ shader "shaders/rift/sky-{face}.fp" texture nebulamap "graphics/rift/zenith.png" texture rockmap "graphics/rift/rocks-key.png" texture surroundmap "graphics/rift/dark-clouds.png" }}')
- (out/'GLDEFS.rift').write_text('\n'.join(gl)+'\n',newline='\n')
+ (out/'GLDEFS.rift').write_text('\n'.join(gl)+'\n\n#include "GLDEFS.alternate"\n',newline='\n')
 
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);build(p.parse_args().root)

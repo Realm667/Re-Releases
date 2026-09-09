@@ -1,0 +1,41 @@
+version "4.14"
+class AlternateSkyTests : EventHandler
+{
+ int View; Actor Camera; bool Pending;
+ override void WorldLoaded(WorldEvent e){View=0;Camera=null;Pending=false;}
+ void Check()
+ {
+  if(level.MapName~=="TNT04C")
+  {
+   int old=0,stars=0;let it=ThinkerIterator.Create('SkyViewpoint');Actor a;
+   while(a=Actor(it.Next()))if(a.Pos.X==6512)old++;
+   for(int i=0;i<level.Sectors.Size();i++)if(TexMan.GetName(level.Sectors[i].GetTexture(Sector.ceiling))=='STARSKY1')stars++;
+   Console.Printf("UTNT_ASSERT %s: alternate sky selected",level.SkyTexture1==TexMan.CheckForTexture("UACSKY")?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: all old sky cameras removed",old==0?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: star ceilings use new sky",stars==0?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: sector topology preserved",level.Sectors.Size()==2413?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: Source preserved",level.CreateActorIterator(666).Next()!=null?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: default sky camera cleared",level.sectorPortals[0].mSkybox==null?"PASS":"FAIL");
+  }
+  else
+  {
+   Console.Printf("UTNT_ASSERT %s: alternate sky isolated",level.SkyTexture1!=TexMan.CheckForTexture("UACSKY")?"PASS":"FAIL");
+   if(level.MapName~=="TNT04CN")Console.Printf("UTNT_ASSERT %s: CN sky preserved",level.SkyTexture1==TexMan.CheckForTexture("URFSKY")?"PASS":"FAIL");
+  }
+ }
+ override void NetworkProcess(ConsoleEvent e){if(e.Name=="altview")View=e.Args[0];if(e.Name=="altcheck")Pending=true;}
+ override void WorldTick()
+ {
+  if(Pending && level.time>=3){Check();Pending=false;}
+  if(!(level.MapName~=="TNT04C"))return;
+  let p=players[0].mo;if(!p)return;p.bNotarget=true;p.bInvulnerable=true;
+  if(View==0)return;
+  Camera=p;p.bNoGravity=true;p.bNoClip=true;
+  Vector3 pos=(-800,11800,-3000);double angle=50,pitch=10;
+  if(View==2){pos=(-800,11800,-3000);angle=50;pitch=-25;}
+  if(View==3){pos=(-800,11800,-3000);angle=50;pitch=-35;}
+  if(View==4){pos=(2200,13600,-5000);angle=180;pitch=-62;}
+  if(View>=5){pos=(-1008,12043,-4500);angle=(View-5)*90;pitch=-18;}
+  Camera.SetOrigin(pos,false);Camera.Angle=angle;Camera.Pitch=pitch;Camera.Vel=(0,0,0);players[0].camera=Camera;
+ }
+}
