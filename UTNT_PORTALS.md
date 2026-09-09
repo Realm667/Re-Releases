@@ -87,9 +87,9 @@ Partikel auch bei normalen Spielabständen erkennbar. Glut und einzelne Nebelfä
 beschleunigen aus 64–144 Einheiten Entfernung in einen engeren Bereich der
 Portalöffnung. Emissionsbudget und Lebensdauer bleiben begrenzt wie zuvor.
 
-Der lokale Szenen-Shader UTNTPortalSuction setzt weich innerhalb von etwa 128
-Mapeinheiten vor der Öffnung ein: 128 = aus, 96 = leichter Sog, 64 = halbe und
-24 = starke Intensität. Gebrochene Glutfäden und eine kurze gerichtete Verzerrung
+Der lokale Szenen-Shader UTNTPortalSuction setzt weich innerhalb von etwa 384
+Mapeinheiten vor der Öffnung ein: 384 = aus, 320 = leichter Sog, 192 = halbe und
+64 = starke Intensität. Die Stärke steigt beim Annähern stetig an. Gebrochene Glutfäden und eine kurze gerichtete Verzerrung
 laufen auf einen Punkt in der sichtbaren Portalöffnung zu. HUD-Texte werden erst
 danach gezeichnet. Es gibt keine Änderung an Bewegung oder Spielphysik.
 
@@ -101,7 +101,8 @@ Renderkamera; mehrere Portale stapeln die Stärke nicht aufeinander.
 
 Prüfung: tools/test_portal_suction.py --mod tutnt.pk3 --campaign.
 Die neuen Testkarten starten beide Spawner ausdrücklich dormant und prüfen
-Aktivierung, Partikel, 128/96/64/24-Einheiten-Abstände, Sichtschutz, Abschalten
+Aktivierung, Partikel, Abstände von 512 bis 24 Einheiten, den stetigen
+384-Einheiten-Verlauf, Sichtschutz, Abschalten
 und Save/Load. Die Kampagnenprüfung führt den originalen ACS-176-Aufruf mit
 einem Spieler als Activator in TNT03B, TNT04A und TNT04B aus.
 Belege: tools/validation/portal-suction-2026-09-09/.

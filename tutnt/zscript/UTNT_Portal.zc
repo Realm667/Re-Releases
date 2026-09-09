@@ -372,7 +372,8 @@ class UTNTPortalSuction ui
         double outside=max(0,abs(along)-width*0.5);
         double above=max(0,abs(delta.Z)-height*0.5);
         double distance=sqrt(front*front+outside*outside+above*above);
-        double strength=clamp(1-distance/128.0,0,1);
+        // Smoothly ramp from 384 map units to full strength at the portal plane.
+        double strength=clamp(1-distance/384.0,0,1);
         return strength*strength*(3-2*strength);
     }
     static double Render(RenderEvent e)

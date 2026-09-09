@@ -27,7 +27,9 @@ Die bestehende Portalzuordnung umfasst 117 mittlere Wandsegmente in ENDMAP01,
 TNT03B, TNT04A, TNT04B, TNT04C und TNT04CN, einschließlich schmaler Bogensegmente.
 128er und 192er-Dekorationen benutzen dieselben Originalrunen. Die vergrößerte
 Einzugsfläche, explizite Aktivierung/Deaktivierung, direkte Annäherung mit Noclip/Fly
-und der bei 128 Mapeinheiten beginnende Sichtfeldeffekt bleiben erhalten.
+bleiben erhalten. Die Sichtverzerrung beginnt jetzt bei etwa 384 Mapeinheiten
+Abstand zur Portalfläche und nimmt mit einer weichen, stetigen Kurve bis zum
+Portal zu. Blickrichtung und Verdeckung begrenzen den Effekt weiterhin.
 
 18 rote `TeleportSparkle_R` in TNT01, TNT02, TNT03A2, TNT04A, TNT04B, TNT04C,
 TNT04CN und TNTLE emittieren aufsteigende, gekrümmt umlaufende Runen. Ihre Qualität,

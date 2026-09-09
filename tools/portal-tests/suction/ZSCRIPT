@@ -5,8 +5,26 @@ class PortalSuctionTest : EventHandler
     int Step;
     int CheckSerial,ExpectedPull;
     ui int SeenSerial;
+    ui bool CheckedFalloff;
+    // Check the engine's actual proximity function across the whole approach.
+    ui void VerifyFalloff()
+    {
+        double previous=0;
+        bool ok=UTNTPortalSuction.Proximity((512,0,0),(0,0,0),(1,0,0),(0,1,0),128,192)==0;
+        ok=ok && UTNTPortalSuction.Proximity((384,0,0),(0,0,0),(1,0,0),(0,1,0),128,192)==0;
+        for(int distance=368;distance>=16;distance-=16)
+        {
+            double amount=UTNTPortalSuction.Proximity((distance,0,0),(0,0,0),(1,0,0),(0,1,0),128,192);
+            ok=ok && amount>previous && amount<1;
+            previous=amount;
+        }
+        double midpoint=UTNTPortalSuction.Proximity((192,0,0),(0,0,0),(1,0,0),(0,1,0),128,192);
+        ok=ok && abs(midpoint-0.5)<0.00001;
+        Console.Printf("UTNT_ASSERT %s: 384-unit falloff increases continuously; midpoint=%.4f",ok ? "PASS" : "FAIL",midpoint);
+    }
     override void RenderOverlay(RenderEvent e)
     {
+        if(!CheckedFalloff) { CheckedFalloff=true; VerifyFalloff(); }
         if(SeenSerial==CheckSerial) return;
         SeenSerial=CheckSerial;
         let h=UTNTPortalMaterials(EventHandler.Find('UTNTPortalMaterials'));
