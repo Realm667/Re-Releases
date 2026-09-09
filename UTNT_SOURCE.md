@@ -147,17 +147,46 @@ QROCK3 stone and the established QRUNT63 rune atlas. They light sequentially
 during attack preparation and shield opening. Shield opening also sends a
 descending light wave over the hall walls. No map geometry is changed.
 
-Presentation uses a bounded pool of 44 local visual layers, eight client-side
+Presentation uses a bounded pool of 68 local visual layers, eight client-side
 stone actors and nine light anchors. Quality zero disables dynamic lights and
 embers; reduced FX attenuates flashes and lightning, limits embers and removes
 the added oscillation. Neither setting changes the shared clock or ending.
 All client presentation reconstructs from the surviving actor after load.
 The seven-second electrical score seeks to the restored age, with two major
 arcs, smaller severance cracks, and a fading cavern tail. The camera remains
-under player control; there is no explosion, screen flash overlay or forced
-camera shake in the new ending.
+under player control; the additional light bursts below add no blast damage,
+full-screen flash overlay or forced camera shake.
 
 Build materials with tools/build_source_materials.py and audio with
 tools/build_source_audio.py. Run tools/test_source_finale.py for both renderers,
 plus the existing living-encounter, coop and structural checks. Evidence and
 actual engine captures are in tools/validation/source-finale-2026-09-09/.
+
+## Orange-red discharge and refraction - 2026-09-10
+
+The nine existing light anchors now flicker between orange and red during the
+electrical release, with staggered phases across the chamber. Their intensity
+ramps in and dies away before the quiet ending; they add no new light actors.
+Reduced effects use a steady, low amber envelope instead of rapid colour changes.
+
+Three eight-ray light bursts leave the seal at defeat tics 105, 134 and 158.
+The luminous streaks travel outward, slow, and fade within 23-29 tics. They reuse
+the native heart material and a fixed 24-layer extension to the client pool.
+Quality one halves the rays; reduced effects show two dim rays per burst;
+quality zero removes the extra particles and dynamic lights entirely.
+
+Each discharge also drives an 18-tic expanding refraction wave projected onto
+the seal's actual screen position. The scene pass leaves HUD rendering
+untouched. The wave fades near screen edges and at distance, is occluded by solid
+geometry, and disappears when looking away. Reduced effects, quality zero and
+the shader-overlay switch disable it. No camera angles or gameplay RNG change.
+The saved defeat clock determines the pulse phase, including after loading;
+the presentation handler clears the shader on load, unload and every idle frame.
+
+Rebuild source materials with tools/build_source_materials.py. Regression:
+tools/test_source_impact.py covers the three pulses, save/restore, shader toggle,
+reduced effects, quality zero, looking away and cleanup in TNT04C. Existing
+finale tests retain the real nine-second ending and empty-centre assertions.
+Evidence: tools/validation/source-impact-2026-09-10/. Images are direct engine
+captures. The shared tutnt.pk3 is built from the complete live integration tree
+with tools/build_utnt.py, preserving other local improvements.

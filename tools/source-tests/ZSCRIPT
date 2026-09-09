@@ -1,11 +1,19 @@
 version "5.0"
 class UTNTSourceTests : EventHandler
 {
- int View;
+ int View, FXStamp, FXExpected;
+ ui int LastFXStamp;
  UTNTSourceBase RenderSource;
  Actor Fallback;
  override void RenderOverlay(RenderEvent e)
  {
+  if(FXStamp==0)LastFXStamp=0;
+  if(FXStamp>0 && FXStamp!=LastFXStamp)
+  {
+   LastFXStamp=FXStamp;
+   double amount=UTNTSourceImpactView.Render(e);
+   Console.Printf("UTNT_ASSERT %s: Source impact shader expected=%d amount=%.4f",(amount>0.001)==(FXExpected!=0)?"PASS":"FAIL",FXExpected,amount);
+  }
   if(RenderSource && RenderSource.Health>0 && !RenderSource.ShieldOpen && level.time>=450 && level.time<490)
    Console.Printf("SOURCE_RENDER_ALPHA %.4f",level.lines[RenderSource.ShieldLines[0]].alpha);
  }
@@ -20,6 +28,7 @@ class UTNTSourceTests : EventHandler
   players[0].camera=p;
   Vector3 pos=(128,-1100,3500);double a=90,pitch=-15;
   if(View==3)pitch=-22;
+  if(View==5)a=270;
   if(View==4){pos=(128,-1100,3500);pitch=-35;}
   if(View==1){pos=(128,-1650,3370);pitch=-14;}
   if(View==2){pos=(1150,-380,3500);a=180;pitch=-15;}
@@ -37,6 +46,21 @@ class UTNTSourceTests : EventHandler
   {
    Assert(Fallback && Fallback.Health<=0,"Source fallback test actor is defeated");
    Assert(Fallback && Fallback.sprite==Actor.GetSpriteIndex("SOUR") && Fallback.Alpha>0 && Fallback.Alpha<1,"other maps retain the original visible Source death fade");
+  }
+  if(e.Name=="sourcefxcheck")
+  {
+   FXStamp=level.time;FXExpected=e.Args[0];
+   let it=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
+   let em=UTNTSourceEmitter(it.Next());
+   if(em && e.Args[1]>=0)
+   {
+    int visible=0;bool travelling=true;
+    for(int i=44;i<em.Layers.Size();i++)if(em.Layers[i].Alpha>0.001)
+    {visible++;travelling=travelling && (em.Layers[i].Pos-em.Center).Length()>45;}
+    Assert((visible>0)==(e.Args[1]>0),"light-burst particles obey pulse and quality settings");
+    if(visible)Assert(travelling,"light-burst particles travel out from the seal");
+    Console.Printf("SOURCE_IMPACT age=%d particles=%d quality=%d reduced=%d",em.DeadAge,visible,em.Quality,em.Reduced);
+   }
   }
   if(e.Name=="sourceview")View=e.Args[0];
   if(e.Name=="sourcebegin")ACS_ExecuteAlways(140,0);
@@ -56,7 +80,7 @@ class UTNTSourceTests : EventHandler
    {
     count++;Assert(abs(em.DeadAge-s.DefeatAge)<=1,"client finale follows saved world clock");
     Assert(em.Ceiling.Size()==8 && em.WallLights.Size()==8,"bounded overhead slabs and room lights");
-    Assert(em.Layers.Size()==44,"bounded finale layer pool after restore");
+    Assert(em.Layers.Size()==68,"bounded finale layer pool after restore");
     if(s.DefeatAge<158)Assert(em.Layers[0].Scale.X>1.2,"sigil remains full size before severance");
     if(s.DefeatAge>=245)
     {bool clear=true;for(int i=0;i<em.Layers.Size();i++)clear=clear && em.Layers[i].Alpha==0;Assert(clear,"empty centre after the seven-second finale");}
@@ -86,12 +110,12 @@ class UTNTSourceTests : EventHandler
    UTNTSourceEmitter em;
    while(em=UTNTSourceEmitter(it.Next()))
    {
-    count++;Assert(em.Layers.Size()==44,"44 bounded presentation layers including finale");
+    count++;Assert(em.Layers.Size()==68,"68 bounded presentation layers including finale");
     bool ceilingOK=em.Ceiling.Size()==8;
     for(int k=0;k<em.Ceiling.Size();k++)
      ceilingOK=ceilingOK && abs(em.Ceiling[k].Angle-k*45)<0.1 && em.Ceiling[k].bFlatSprite;
     Assert(ceilingOK,"eight ceiling sectors have distinct world orientations");
-    bool roles=em.Layers.Size()==44;
+    bool roles=em.Layers.Size()==68;
     for(int i=0;i<em.Layers.Size();i++)roles=roles && em.Layers[i].Kind==i;
     Assert(roles,"distinct shield, target and attack layers");
    }

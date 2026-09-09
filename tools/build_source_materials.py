@@ -36,6 +36,8 @@ def build(root=ROOT):
  textures += [f'Texture USSHIELD, 512, 512 {{ {canvas} }}']
  (out/'shield.fp').write_text(rune+(root/'tools/source-shield.glsl').read_text())
  defs += ['Material Texture "USSHIELD" { Shader "shaders/sourcefx/shield.fp" Texture runeAtlas "USRUNES" }']
+ (out/'impact.fp').write_text((root/'tools/source-impact.glsl').read_text())
+ defs += ['HardwareShader PostProcess scene { Name "UTNTSourceImpact" Shader "shaders/sourcefx/impact.fp" 330 Uniform vec2 focus Uniform float amount Uniform float progress Uniform float radius }']
  (t/'TEXTURES.source').write_text('\n'.join(textures)+'\n')
  (t/'GLDEFS.source').write_text('\n'.join(defs)+'\n')
 

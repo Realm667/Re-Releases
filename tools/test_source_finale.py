@@ -12,10 +12,11 @@ def main():
  results=[]
  common=dict(engine=a.engine,iwad=a.iwad,mod=a.mod,addon=ROOT/'tools/source-tests',mapname='TNT04CN',renderer=a.renderer,timeout=200,
   settings=[('win_w',1298),('win_h',767),('screenblocks',12),('con_notifytime',0),('r_drawplayersprites','false'),('crosshair',0),('vid_maxfps',60),('i_pauseinbackground','false'),('vid_activeinbackground','true')])
+ # Network events can be delivered several tics after a restored frame.
  cmd=['wait 450','netevent sourceview 4','wait 15','screenshot logs/ceiling.png','netevent sourcekill',
   'wait 20','netevent sourcedeathcheck 18 23','screenshot logs/hold.png',
   'wait 55','netevent sourcedeathcheck 72 78','screenshot logs/fracture.png',
-  'save source-finale','wait 10','load source-finale','wait 20','netevent sourcedeathcheck 90 100','screenshot logs/restored-fracture.png',
+  'save source-finale','wait 10','load source-finale','wait 20','netevent sourcedeathcheck 90 105','screenshot logs/restored-fracture.png',
   'wait 17','netevent sourcedeathcheck 107 117','screenshot logs/lightning.png',
   'wait 49','netevent sourcedeathcheck 156 166','screenshot logs/sever.png',
   'UTNT_reducedfx true','UTNT_fxquality 0','wait 54','netevent sourcedeathcheck 210 220','screenshot logs/reduced-afterglow.png',

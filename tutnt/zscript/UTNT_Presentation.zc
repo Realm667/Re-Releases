@@ -465,6 +465,7 @@ class UTNTPresentation : StaticEventHandler
     override void WorldLoaded(WorldEvent e)
     {
         WorldGeneration++;
+        PPShader.SetEnabled("UTNTSourceImpact",false);
     }
 
     override void ConsoleProcess(ConsoleEvent e)
@@ -560,8 +561,14 @@ class UTNTPresentation : StaticEventHandler
         }
     }
 
+    override void WorldUnloaded(WorldEvent e)
+    {
+        PPShader.SetEnabled("UTNTSourceImpact",false);
+    }
+
     override void RenderUnderlay(RenderEvent e)
     {
+        UTNTSourceImpactView.Render(e);
         EnsureNotices();
         ExplorationUI.BeforeHUD();
     }

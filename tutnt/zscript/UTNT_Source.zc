@@ -178,7 +178,7 @@ class UTNTSourceEmitter : Thinker
  void Initialize(UTNTSourceBase boss)
  {
   Source=boss;Center=boss.Center();GuardianSerial=boss.GuardianSerial;GuardianAge=100;
-  for(int i=0;i<44;i++)
+  for(int i=0;i<68;i++)
   {
    let v=UTNTSourceLayer(level.SpawnClientSideVisualThinker('UTNTSourceLayer'));
    if(v){v.Initialize(self,i);Layers.Push(v);}
@@ -225,11 +225,12 @@ class UTNTSourceEmitter : Thinker
    double angle=i*45+22.5;
    double age=level.time-Source.OpenStart;
    double wave=!DeadAge && Opened && age<70?1-abs(age-24-i*3)/18.0:0;
-   double strength=max(flash,max(0,wave)*0.65);
+   double strength=max(max(flash,Flicker(i)),max(0,wave)*0.65);
    Vector3 pos=Center+(cos(angle)*1120,sin(angle)*1120,DeadAge?400:850-age*13);
    WallLights[i].SetOrigin(pos,false);
    if(Quality>0 && strength>0.01)
-    WallLights[i].A_AttachLight('sourcewall',DynamicLight.PointLight,0xffbf68,320+strength*600,0,DynamicLight.LF_ATTENUATE);
+    WallLights[i].A_AttachLight('sourcewall',DynamicLight.PointLight,DeadAge?ImpactColor(i):0xffbf68,
+     (320+strength*600)*(DeadAge?sqrt(strength):1),0,DynamicLight.LF_ATTENUATE);
    else WallLights[i].A_RemoveLight('sourcewall');
   }
   if(LightAnchor)
@@ -237,10 +238,25 @@ class UTNTSourceEmitter : Thinker
    LightAnchor.SetOrigin(Center,false);
    if(Quality>0 && !DeadAge)
     LightAnchor.A_AttachLight('source',DynamicLight.PointLight,Opened?0xffb348:0xff7018,Opened?400:520,0,DynamicLight.LF_ATTENUATE);
-   else if(Quality>0 && flash>0.01)
-    LightAnchor.A_AttachLight('source',DynamicLight.PointLight,0xffd794,300+flash*1000,0,DynamicLight.LF_ATTENUATE);
+   else if(Quality>0 && max(flash,Flicker(8))>0.01)
+    LightAnchor.A_AttachLight('source',DynamicLight.PointLight,ImpactColor(8),
+     1100*sqrt(max(flash,Flicker(8))),0,DynamicLight.LF_ATTENUATE);
    else LightAnchor.A_RemoveLight('source');
   }
+ }
+ // A bounded, clock-derived electrical flicker: no gameplay RNG or new lights.
+ double Flicker(int index)
+ {
+  if(DeadAge<60 || DeadAge>=225 || Quality==0)return 0;
+  double envelope=clamp((DeadAge-60)/35.0,0,1)*clamp((225-DeadAge)/50.0,0,1);
+  if(Reduced)return envelope*0.055;
+  double beat=max(0,sin(DeadAge*31+index*79)*sin(DeadAge*13+index*43));
+  return envelope*(0.09+0.51*beat*beat);
+ }
+ int ImpactColor(int index)
+ {
+  // Reduced effects hold a quiet amber tone instead of switching colours.
+  return Reduced?0xff7020:((DeadAge/7+index)%2?0xff3410:0xff8a18);
  }
  // Two separated architectural flashes, then the local severance accent.
  double Flash()
@@ -466,12 +482,75 @@ class UTNTSourceLayer : VisualThinker
     Alpha=d>=183+seed*2?max(0,1-age/48.0)*0.7:0;
     if(e.Quality==0 || (e.Reduced && seed%3))Alpha=0;
    }
+   if(Kind>=44 && Kind<=67)
+   {
+    int seed=Kind-44,burst=seed/8,ray=seed%8;
+    double age=d-(burst==0?105:burst==1?134:158);
+    double life=burst==2?29:23;
+    double angle=ray*137.5+burst*37;
+    double travel=max(0,age)*(23+ray*2)/(1+max(0,age)*0.025);
+    // World-space rays reconstruct exactly after a save; the view only orients
+    // the small luminous streak. The final break throws a slightly wider fan.
+    Vector3 direction=(cos(angle)*0.78,sin(angle)*0.78,sin(ray*79+burst*41)*0.65);
+    Pos=e.Center+direction*(45+travel)+(0,0,-max(0,age)*max(0,age)*0.09);
+    Texture=TexMan.CheckForTexture("USHEA0");diameter=max(4,42-age*0.9);
+    double across=direction.X*right.X+direction.Y*right.Y;
+    Roll=atan2(direction.Z,across);
+    Alpha=age>=0 && age<life?(1-age/life)**1.3*0.95:0;
+    if(e.Quality==0 || (e.Quality==1 && ray%2) || (e.Reduced && ray%4))Alpha=0;
+    if(e.Reduced)Alpha*=0.3;
+   }
    if(d>=245)Alpha=0;
   }
   Scale=(diameter/512.0,diameter/512.0);
   if(Kind==9)Scale.Y=12.0/512.0;
+  if(Kind>=44)Scale.Y*=0.25;
   // SetBolt already computed the projected geometry of the world endpoints.
   if(e.DeadAge && Kind>=18 && Kind<=31)Scale=BoltScale;
   UpdateSector();UpdateSpriteInfo();
+ }
+}
+
+// Client camera projection only; the authoritative saved clock owns every pulse.
+class UTNTSourceImpactView ui
+{
+ static double Render(RenderEvent e)
+ {
+  PPShader.SetEnabled("UTNTSourceImpact",false);
+  if(!(level.MapName~=="TNT04CN") || consoleplayer<0 || !e.Camera)return 0;
+  let p=players[consoleplayer];
+  if(!CVar.GetCVar('UTNT_shaderoverlayswitch',p).GetBool()
+   || CVar.GetCVar('UTNT_reducedfx',p).GetBool()
+   || CVar.GetCVar('UTNT_fxquality',p).GetInt()==0
+   || CVar.GetCVar('vid_rendermode').GetInt()!=4)return 0;
+  let s=UTNTSourceBase(level.CreateActorIterator(666).Next());
+  if(!s || s.Health>0)return 0;
+  double age=s.DefeatAge+e.FracTic;
+  double start=age>=158?158:age>=134?134:105;
+  double progress=(age-start)/18.0;
+  if(progress<0 || progress>=1)return 0;
+  Vector3 delta=s.Center()-e.ViewPos;
+  Vector3 forward=(cos(e.ViewAngle)*cos(e.ViewPitch),sin(e.ViewAngle)*cos(e.ViewPitch),-sin(e.ViewPitch));
+  Vector3 right=(sin(e.ViewAngle),-cos(e.ViewAngle),0);
+  Vector3 up=(cos(e.ViewAngle)*sin(e.ViewPitch),sin(e.ViewAngle)*sin(e.ViewPitch),cos(e.ViewPitch));
+  double depth=delta dot forward;
+  if(depth<=1)return 0;
+  double aspect=double(Screen.GetWidth())/max(1,Screen.GetHeight());
+  double horizontal=tan(clamp(p.FOV,30,150)*0.5)*max(1,aspect/(4.0/3.0));
+  double x=(delta dot right)/(depth*horizontal), y=(delta dot up)/(depth*horizontal/aspect);
+  double amount=clamp((1.2-abs(x))/.35,0,1)*clamp((1.2-abs(y))/.35,0,1)
+   *clamp((3200-delta.Length())/1200,0,1);
+  if(amount<=0.001)return 0;
+  let trace=new('LineTracer');
+  double distance=delta.Length();
+  trace.Trace(e.ViewPos,e.Camera.CurSector,delta/distance,max(0,distance-2),0,wallMask:0,ignoreAllActors:true);
+  if(trace.Results.HitType!=TRACE_HitNone)return 0;
+  double rx=x*cos(e.ViewRoll)+y*sin(e.ViewRoll), ry=y*cos(e.ViewRoll)-x*sin(e.ViewRoll);
+  PPShader.SetUniform2f("UTNTSourceImpact","focus",(0.5+rx*.5,0.5+ry*.5));
+  PPShader.SetUniform1f("UTNTSourceImpact","amount",amount);
+  PPShader.SetUniform1f("UTNTSourceImpact","progress",progress);
+  PPShader.SetUniform1f("UTNTSourceImpact","radius",clamp(650*aspect/(2*depth*horizontal),.08,.75));
+  PPShader.SetEnabled("UTNTSourceImpact",true);
+  return amount;
  }
 }
