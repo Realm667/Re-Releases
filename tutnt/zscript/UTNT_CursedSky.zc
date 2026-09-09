@@ -5,6 +5,7 @@ class UTNTCursedSkyHandler : EventHandler
     int DayTics, CloudTics, RawCloudTics, AppliedSky, FogValue;
     bool Initialized, ClockReady;
     double Intensity;
+    double SnowWindX, SnowWindY;
     Color SkyFade;
     // Includes tagged roofed sectors; visibility of F_SKY1 is irrelevant here.
     Array<int> Outside, DayLight, NightLight, FadeManaged;
@@ -59,6 +60,12 @@ class UTNTCursedSkyHandler : EventHandler
         if(!Initialized)Initialize();
         let weather=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
         Intensity=weather && CVar.GetCVar('weatherfx').GetBool() ? UTNTWeatherHandler.Strength(weather.WeatherTics) : 0;
+        let particles=UTNTWeatherSystem.Find();
+        if(particles && particles.Enabled && !level.isFrozen())
+        {
+            SnowWindX+=particles.WindX*.00015;
+            SnowWindY+=particles.WindY*.00015;
+        }
         double p=DayTics/18000.0;
         int state=p<.35 ? 0 : p<.82 ? 1 : 2;
         if(state!=AppliedSky)
@@ -76,16 +83,16 @@ class UTNTCursedSkyHandler : EventHandler
             if(FadeManaged[i])
             {
                 s.SetFade(SkyFade);
-                // Coloured fog needs an explicit clear-weather baseline. Keep
-                // it when weatherfx is off; the native implicit density differs
-                // from the legacy grayscale fade's density calculation.
-                if(s.ColorMap.FogDensity==0)s.SetFogDensity(32);
             }
             s.SetColor(Color(int(255-night*8),int(255-night*4),255),0);
+            // Apply the baseline after both colour-map updates, including
+            // first entry into A2 while weatherfx is disabled.
+            if(FadeManaged[i] && s.ColorMap.FogDensity==0)s.SetFogDensity(32);
         }
     }
     override void RenderOverlay(RenderEvent e)
     {
+        UTNTCursedSunView.Render(e);
         if(!Active())return;
         let c=TexMan.GetCanvas("UCPDATA");if(!c)return;
         // RGB8 packing gives sub-tic daylight precision and a shared phase.
@@ -94,6 +101,77 @@ class UTNTCursedSkyHandler : EventHandler
         int cloud=int(((CloudTics+frac)%175000)/175000.0*65535+.5);
         c.Clear(0,0,4,4,Color(day/256,day%256,int(Intensity*255+.5)));
         c.Clear(4,0,8,4,Color(cloud/256,cloud%256,FogValue));
-        c.Clear(8,0,16,4,SkyFade);
+        c.Clear(8,0,12,4,SkyFade);
+        // Full-height columns, independent of canvas vertical orientation.
+        let it=ThinkerIterator.Create('UTNTWeatherController',Thinker.STAT_USER+4,true);
+        let particles=UTNTWeatherController(it.Next());
+        int wx=int(clamp(SnowWindX/64.0+.5,0,1)*65535+.5);
+        int wy=int(clamp(SnowWindY/64.0+.5,0,1)*65535+.5);
+        c.Clear(12,0,14,4,Color(wx/256,wx%256,particles && particles.Enabled ? 255 : 0));
+        c.Clear(14,0,16,4,Color(wy/256,wy%256,particles ? particles.Quality : 0));
+    }
+    override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTCursedSun",false); }
+    override void WorldLoaded(WorldEvent e) { PPShader.SetEnabled("UTNTCursedSun",false); }
+}
+
+// View-dependent only; never changes the saved world clock or sector lighting.
+class UTNTCursedSunView ui
+{
+    clearscope static double Ease(double x) { x=clamp(x,0,1);return x*x*(3-2*x); }
+    static double Height(double progress)
+    { return .70-.18*Ease((progress-.40)/.46); }
+    static double Sunset(double progress)
+    { return Ease((progress-.36)/.17)*(1-Ease((progress-.79)/.19)); }
+    static double Render(RenderEvent e)
+    {
+        PPShader.SetEnabled("UTNTCursedSun",false);
+        if(!UTNTCursedSkyHandler.Active() || !e.Camera || consoleplayer<0)return 0;
+        let p=players[consoleplayer];
+        let h=UTNTCursedSkyHandler(EventHandler.Find('UTNTCursedSkyHandler'));
+        if(!h || !h.ClockReady || e.Camera.WaterLevel>=3
+            || CVar.GetCVar('vid_rendermode').GetInt()!=4
+            || !CVar.GetCVar('UTNT_shaderoverlayswitch',p).GetBool()
+            || CVar.GetCVar('UTNT_reducedfx',p).GetBool()
+            || CVar.GetCVar('UTNT_fxquality',p).GetInt()==0)return 0;
+        double progress=h.DayTics/18000.0,amount=Sunset(progress);
+        if(amount<.001)return 0;
+        // RenderBox cancels the map's pixel stretch. Match that true-cube ray
+        // before projecting onto the camera or tracing through map geometry.
+        double elevation=atan(tan(Height(progress)*57.295779513)/level.PixelStretch);
+        Vector3 sun=(0,-cos(elevation),sin(elevation));
+        Vector3 forward=(cos(e.ViewAngle)*cos(e.ViewPitch),sin(e.ViewAngle)*cos(e.ViewPitch),-sin(e.ViewPitch));
+        double depth=sun dot forward;
+        // Deliberate direct gaze: the glare fades outside an 18-degree cone.
+        amount*=Ease((depth-cos(18))/(1-cos(18)));
+        if(amount<.001)return 0;
+        let trace=new('UTNTCursedSunTrace');
+        trace.Trace(e.ViewPos,level.PointInSector(e.ViewPos.XY),sun,65536,TRACE_HitSky,wallMask:0,ignore:e.Camera);
+        if(trace.Results.HitType!=TRACE_HasHitSky)return 0;
+        Vector3 right=(sin(e.ViewAngle),-cos(e.ViewAngle),0);
+        Vector3 up=(cos(e.ViewAngle)*sin(e.ViewPitch),sin(e.ViewAngle)*sin(e.ViewPitch),cos(e.ViewPitch));
+        double aspect=double(Screen.GetWidth())/max(1,Screen.GetHeight());
+        double horizontal=tan(clamp(p.FOV,30,150)*.5)*max(1,aspect/(4.0/3.0));
+        double x=(sun dot right)/(depth*horizontal),y=(sun dot up)/(depth*horizontal/aspect);
+        double rx=x*cos(e.ViewRoll)+y*sin(e.ViewRoll),ry=y*cos(e.ViewRoll)-x*sin(e.ViewRoll);
+        PPShader.SetUniform2f("UTNTCursedSun","focus",(.5+rx*.5,.5+ry*.5));
+        PPShader.SetUniform1f("UTNTCursedSun","amount",amount);
+        PPShader.SetUniform1f("UTNTCursedSun","progress",progress);
+        PPShader.SetUniform1f("UTNTCursedSun","phase",(h.CloudTics+(level.isFrozen()?0:e.FracTic))/175000.0);
+        PPShader.SetUniform1f("UTNTCursedSun","storm",h.Intensity);
+        PPShader.SetEnabled("UTNTCursedSun",true);
+        return amount;
+    }
+}
+
+class UTNTCursedSunTrace : LineTracer
+{
+    override ETraceStatus TraceCallback()
+    {
+        if(Results.HitType==TRACE_HitActor)
+        {
+            let a=Results.HitActor;
+            if(!a.bSolid || a.bInvisible || a.Alpha<.1)return TRACE_Skip;
+        }
+        return TRACE_Stop;
     }
 }

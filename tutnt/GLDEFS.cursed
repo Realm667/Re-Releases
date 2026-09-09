@@ -19,3 +19,15 @@ material texture UCP2S { shader "shaders/cursed-peak/sky-S.fp" texture cloudmap 
 material texture UCP2W { shader "shaders/cursed-peak/sky-W.fp" texture cloudmap "graphics/cursed-peak/clouds.png" texture mountainmap "graphics/cursed-peak/mountains-key.png" texture statemap "UCPDATA" }
 material texture UCP2U { shader "shaders/cursed-peak/sky-U.fp" texture cloudmap "graphics/cursed-peak/clouds.png" texture mountainmap "graphics/cursed-peak/mountains-key.png" texture statemap "UCPDATA" }
 material texture UCP2D { shader "shaders/cursed-peak/sky-D.fp" texture cloudmap "graphics/cursed-peak/clouds.png" texture mountainmap "graphics/cursed-peak/mountains-key.png" texture statemap "UCPDATA" }
+HardwareShader PostProcess scene
+{
+ Name "UTNTCursedSun"
+ Shader "shaders/cursed-peak/sun-flare.fp" 330
+ Texture cloudmap "graphics/cursed-peak/clouds.png"
+ Texture mountainmap "graphics/cursed-peak/mountains-key.png"
+ Uniform vec2 focus
+ Uniform float amount
+ Uniform float progress
+ Uniform float phase
+ Uniform float storm
+}

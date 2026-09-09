@@ -2,10 +2,11 @@
 
 Implemented from the user-approved winter mountain concept and comparison
 mockup. Both maps show one fixed snow-streaked mountain panorama, with two slowly
-moving cloud layers. Pearl-grey daylight fades through a subdued dusty-rose
-twilight into charcoal blue night. A light blue-grey tint conveys cold without
+moving cloud layers. Pearl-grey daylight fades through a localized amber sunset in the south
+into charcoal blue night. A light blue-grey tint conveys cold without
 the mountain source image's stronger blue cast. Existing snowfall controls a low veil over
-the distant mountains. No new sun/moon disc, lightning or stars are introduced.
+the distant mountains. A diffuse southern sun sinks behind the mountain ridge; no moon, lightning
+or stars are introduced.
 
 ## Authored daylight tags, including roofs
 
@@ -52,7 +53,9 @@ the clock; freeze holds both daylight and cloud movement. The sky clock does
 not advance while another map is active. A new game starts at daylight.
 
 The material reads packed 16-bit daylight and phase, an 8-bit weather value and
-the exact sector-fade RGB from the 16x4 `UCPDATA` canvas. Both map scripts supply
+the exact sector-fade RGB from the 16x4 `UCPDATA` canvas. The canvas columns
+are daylight/weather (0–3), cloud phase/fade scalar (4–7), fade RGB (8–11),
+integrated wind X/snow enabled (12–13), and wind Y/quality (14–15). Both map scripts supply
 the fade level `255 - 165 * g_lightval / time`; the colour is derived once and
 shared by sectors and material. It does not use the renderer's independent timer.
 Cloud layers rotate once per 1000 and 625 seconds, while mountains stay fixed.
@@ -131,3 +134,63 @@ sector fog density and the shared ACS day/night clock remain as before.
 Static fallback textures use the same haze profile. The motion check now uses
 completed night, keeping the fade constant while checking moving clouds against
 stationary mountains. Engine captures: `tools/validation/cursed-peak-haze-2026-09-09/`.
+
+
+## Southern sunset, distant snow and glare (2026-09-09)
+
+The hardware sky now includes two fine falling snow layers in front of the
+mountain panorama. They are part of the sky material, so the engine's sky mask
+clips them against buildings and other foreground geometry. Weather visibility
+and quality follow the existing particle controller; low quality uses one layer.
+The saved sky clock drives falling motion, with integrated controller wind
+projected onto the horizontal sky tangent. Freeze holds both. Ray derivatives
+avoid antialiasing spikes across the longitude seam. No SkyViewpoint is restored.
+
+The southern world axis (Doom yaw 270 degrees) owns all sunset illumination.
+The old omnidirectional rose term is gone. A small diffused sun, amber halo and
+apricot cloud light build during the middle of the transition. The sun sinks
+behind the keyed mountain silhouette; residual cloud light then fades into
+the existing cold night. Storms and the animated cloud texture attenuate the
+sun. The static software fallback includes the corresponding day/dusk/night
+composition; animated distant snow and glare require hardware rendering.
+
+`UTNTCursedSun` is a scene postprocess shader. It produces a soft warm veil,
+short horizontal streak and faint lens ghosts only within an 18-degree gaze
+cone. A world trace rejects roofs, walls, solid visible actors and other blocked
+sky sightlines, ignoring the observing camera. The postprocess samples the
+same cloud and mountain masks as the sky over five points on the solar disc.
+Thus a mountain can hide the sun even though the map trace hits sky. Projection
+compensates for UZDoom RenderBox's inverse pixel-stretch transform and camera
+roll/FOV. Glare is disabled underwater, outside these maps, in software,
+with reduced effects, zero effect quality or shader overlays switched off.
+Map load/unload resets the postprocess. The HUD is not a snowfall surface.
+
+Clear-weather fog density is now applied after both sector colour updates.
+This also preserves density 32 when entering A2 with weatherfx disabled.
+The existing tagged lighting, shared day/night clock and sector fade remain
+authoritative, including roofed sectors.
+
+Debug in either map's console:
+
+```
+pukename UTNT_CursedSkySetTime 0
+pukename UTNT_CursedSkySetTime 10800
+pukename UTNT_CursedSkySetTime 14400
+pukename UTNT_CursedSkySetTime 18000
+```
+
+These select day, visible southern sun, afterglow behind the ridge, and night.
+Look south and slightly upward for the sun. Time continues from the selected
+value; `freeze` toggles a held scene for inspection. `UTNT_shaderoverlayswitch
+false` disables glare without removing the sun; set it to `true` to restore.
+
+Validation and actual UZDoom captures:
+`tools/validation/cursed-peak-sunset-2026-09-09/`. New test entry points are
+`tools/test_sunset.py` and `tools/check_sunset_images.py`; the established
+`tools/test_cursed_sky.py` and `tools/check_cursed_motion.py` cover the shared
+clock, tagged lighting and stationary mountains.
+
+Projection reference: UZDoom's `FSkyVertexBuffer::RenderBox` in
+https://github.com/UZDoom/UZDoom/blob/trunk/src/common/rendering/hwrenderer/data/hw_skydome.cpp
+and the native LineTracer interface in
+https://github.com/UZDoom/UZDoom/blob/trunk/wadsrc/static/zscript/doombase.zs.

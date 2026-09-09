@@ -1,0 +1,87 @@
+class UTNTCursedSunTests : UTNTCursedTests
+{
+    int Serial, Expected, PositionMode, SnowMask;
+    double Heading;
+    bool OverrideSnow;
+    bool FoundSun;
+    ui int Reported;
+    Actor Blocker;
+    override void WorldTick()
+    {
+        Super.WorldTick();
+        let p=players[0].mo;if(!p)return;
+        if(!p.FindInventory('UTNTHUDHidden'))p.GiveInventory('UTNTHUDHidden',1);
+        let h=UTNTCursedSkyHandler(EventHandler.Find('UTNTCursedSkyHandler'));
+        double angle=(.70-.18*UTNTWeatherHandler.Ease((h.DayTics/18000.0-.40)/.46))*57.295779513;
+        p.Angle=Heading;p.Pitch=-atan(tan(angle)/level.PixelStretch);
+        if(level.MapName~=="TNT03A2" && !FoundSun && level.time>10)
+        {
+            let anchors=ThinkerIterator.Create('UTNTSnowAnchor');Actor a;
+            let trace=new('UTNTCursedSunTrace');
+            while(a=Actor(anchors.Next()))
+            {
+                Vector3 pos=a.Pos;pos.Z=a.CurSector.floorplane.ZatPoint(pos.XY)+1;
+                if(a.CurSector.ceilingplane.ZatPoint(pos.XY)-pos.Z<80)continue;
+                Vector3 ray=(0,-cos(p.Pitch),-sin(p.Pitch));
+                trace.Trace(pos+(0,0,players[0].ViewHeight),a.CurSector,ray,65536,TRACE_HitSky,wallMask:0,ignore:p);
+                if(trace.Results.HitType!=TRACE_HasHitSky)continue;
+                A2Pos=pos;FoundSun=true;Console.Printf("SUN A2 open %.1f %.1f %.1f",pos.X,pos.Y,pos.Z);break;
+            }
+        }
+        if(level.MapName~=="TNT03A2" && FoundSun)p.SetOrigin(A2Pos,false);
+        if(PositionMode==1)p.SetOrigin((-1256,1536,108),false);
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        Super.NetworkProcess(e);
+        if(e.Name=="sunview") { Heading=e.Args[0];PositionMode=e.Args[1]; }
+        if(e.Name=="sunexpect") { Expected=e.Args[0];Serial++; }
+        if(e.Name=="sunmask") { OverrideSnow=true;SnowMask=e.Args[0]; }
+        if(e.Name=="sunstate")
+        {
+            let h=UTNTCursedSkyHandler(EventHandler.Find('UTNTCursedSkyHandler'));
+            Console.Printf("SUN clock=%d frozen=%d",h.CloudTics,level.isFrozen());
+            int invalid=0;
+            for(int i=0;i<h.Outside.Size();i++)
+                if(h.FadeManaged[i] && (level.Sectors[h.Outside[i]].Colormap.FogDensity<32 || level.Sectors[h.Outside[i]].Colormap.FogDensity>54))
+                    invalid++;
+            if(invalid)Console.Printf("SUN invalid fog sectors=%d",invalid);
+        }
+        if(e.Name=="sunstorm")
+        {
+            let h=UTNTCursedSkyHandler(EventHandler.Find('UTNTCursedSkyHandler'));h.Intensity=e.Args[0];
+        }
+        if(e.Name=="sunblock")
+        {
+            if(Blocker){Blocker.Destroy();Blocker=null;}
+            if(e.Args[0]>0)
+            {
+                let p=players[0].mo;
+                Vector3 eye=p.Pos+(0,0,players[0].ViewHeight);
+                Vector3 ray=(0,-cos(p.Pitch),-sin(p.Pitch));
+                Blocker=Actor.Spawn('UTNTTestSunBlocker',eye+ray*48-(0,0,32));
+            }
+        }
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        double amount=UTNTCursedSunView.Render(e);
+        if(Serial!=Reported)
+        {
+            Reported=Serial;
+            Console.Printf("UTNT_ASSERT %s: sun view %d map=%s amount=%.4f expected=%d",
+                (Expected==1?amount>.2:amount==0)?"PASS":"FAIL",Serial,level.MapName,amount,Expected);
+        }
+        if(OverrideSnow)
+        {
+            let c=TexMan.GetCanvas('UCPDATA');
+            c.Clear(12,0,14,4,Color(128,0,SnowMask>0?255:0));
+            c.Clear(14,0,16,4,Color(128,0,2));
+        }
+    }
+}
+class UTNTTestSunBlocker : Actor
+{
+    Default { Radius 28;Height 64; +SOLID +NOGRAVITY }
+    States { Spawn: COLU A -1;Stop; }
+}

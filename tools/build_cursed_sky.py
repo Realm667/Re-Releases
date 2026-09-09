@@ -40,17 +40,22 @@ def build(root,software_only=False):
   gray=np.sum(cloud*np.array([.2126,.7152,.0722]),axis=2,keepdims=True)
   cloud=cloud*.25+gray*.75
   mountain=wrapped(mountains,lon,.74-lat/math.pi*2.7)
-  direction=((np.cos((lon-.57)*2*math.pi)+1)*.5)**6
-  horizon=np.exp(-((lat-.43)/.24)**2)
+  direction=np.maximum(0,rz/np.maximum(np.sqrt(rx*rx+rz*rz),.001))**10
   silver=np.exp(-((lat-.60)/.33)**2)*direction
   for state,progress in enumerate([0,.60,1]):
-   night=smooth(.40,1.,progress);dusk=smooth(.25,.58,progress)*(1-smooth(.64,.94,progress))
+   night=smooth(.40,1.,progress);dusk=smooth(.36,.53,progress)*(1-smooth(.79,.98,progress))
+   sun_height=.70-.18*smooth(.40,.86,progress)
+   horizon=np.exp(-((lat-sun_height)/.18)**2)
    tint=(1-night)*np.array([.94,.975,1.])+night*np.array([.92,.96,1.])
    color=cloud*(.84*(1-night)+.34*night)*tint
-   color+=dusk*((.25+.75*direction)*horizon)[...,None]*np.array([.18,.055,.075])*(.4+gray)
+   color+=dusk*(direction*horizon)[...,None]*np.array([.34,.145,.055])*(.4+gray)
+   separation=np.arccos(np.clip(ry*np.sin(sun_height)+rz*np.cos(sun_height),-1,1))
+   disc=1-smooth(.013,.023,separation);halo=np.exp(-(separation/.07)**2)
+   transmission=smooth(.22,.76,gray)
+   color+=dusk*transmission*(disc*1.2+halo*.22)[...,None]*np.array([1.,.68,.32])
    color+=silver[...,None]*((1-night)*np.array([.04,.04,.038])+night*np.array([.03,.035,.043]))*gray
    land=mountain[:,:,:3]*(.97*(1-night)+.43*night)*tint
-   land+=mountain[:,:,3:4]*dusk*direction[...,None]*np.array([.015,.006,.008])
+   land+=mountain[:,:,3:4]*dusk*direction[...,None]*np.array([.035,.018,.007])
    color=color*(1-mountain[:,:,3:4])+land
    haze=(.32*(1-smooth(0.,.65,lat)))[...,None]
    fade=np.floor((255-int(progress*165))*tint+.5)/255
@@ -64,7 +69,22 @@ def build(root,software_only=False):
   gl.append(f'skybox UCP{state} {{ '+' '.join(f'UCP{state}{f}' for f in FACES)+' }')
   for f in FACES:
    gl.append(f'material texture UCP{state}{f} {{ shader "shaders/cursed-peak/sky-{f}.fp" texture cloudmap "graphics/cursed-peak/clouds.png" texture mountainmap "graphics/cursed-peak/mountains-key.png" texture statemap "UCPDATA" }}')
- if not software_only:(out/'GLDEFS.cursed').write_text('\n'.join(gl)+'\n',encoding='utf-8',newline='\n')
+ if not software_only:
+  gl.append('''HardwareShader PostProcess scene
+{
+ Name "UTNTCursedSun"
+ Shader "shaders/cursed-peak/sun-flare.fp" 330
+ Texture cloudmap "graphics/cursed-peak/clouds.png"
+ Texture mountainmap "graphics/cursed-peak/mountains-key.png"
+ Uniform vec2 focus
+ Uniform float amount
+ Uniform float progress
+ Uniform float phase
+ Uniform float storm
+}''')
+  (out/'GLDEFS.cursed').write_text('\n'.join(gl)+'\n',encoding='utf-8',newline='\n')
+  flare=Path(__file__).with_name('cursed-flare.glsl').read_text()
+  (out/'shaders/cursed-peak/sun-flare.fp').write_text(flare.replace('@LAYERS@',common.split('void SetupMaterial')[0]),encoding='utf-8',newline='\n')
 
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);p.add_argument('--software-only',action='store_true')
