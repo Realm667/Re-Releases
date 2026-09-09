@@ -16,13 +16,15 @@ class UTNTCreditsTests : EventHandler
    for(int i=0;i<page.Names.Size();i++)
    {
     Array<String> names;page.Names[i].Split(names,"~",TOK_KEEPEMPTY);
-    int row=dense?i%3:i;double top=(dense?223:225)+row*(dense?134:125);
-    double bottom=top+49+(names.Size()-1)*37+view.Wrapped[i].Count()*view.LineStep;
-    bool next=dense?(row<2 && i+1<page.Names.Size()):i+1<page.Names.Size();
-    double limit=next?top+(dense?134:125):675;
-    if(bottom>limit)fit=false;
+    int row=dense?i%3:i;double x=44+(dense && i>=3?296:0),w=dense?286:328;
+    double textBottom=16+names.Size()*18.5+7.5+view.Wrapped[i].Count()*13;
+    if(textBottom>view.Heights[i]-6 || view.Tops[row]+view.Heights[i]>673 || x+w>view.Width)fit=false;
+    if(row<2 && i+1<page.Names.Size() && view.Tops[row]+view.Heights[i]>view.Tops[row+1]-8)fit=false;
    }
+   if(view.ContributionSize>(dense?9:10))fit=false;
   }
+  Console.Printf("UTNT_ASSERT %s: reliquiar entry staggers cards",view.CardOpacity(.25,0)>view.CardOpacity(.25,1)?"PASS":"FAIL");
+  Console.Printf("UTNT_ASSERT %s: reliquiar slide settles at approved position",view.CardOffset(0)==-18 && view.CardOffset(1)==0?"PASS":"FAIL");
   Console.Printf("UTNT_ASSERT %s: credit page %d layout fits",fit?"PASS":"FAIL",h.Page);
  }
  void Check(bool condition,String what){Console.Printf("UTNT_ASSERT %s: %s",condition?"PASS":"FAIL",what);}
@@ -41,7 +43,7 @@ class UTNTCreditsTests : EventHandler
    Check(players[0].camera && players[0].camera.TID==h.Pages[h.Page].Camera,"credit camera attached");
   }
   else if(op==1)
-  {h.Phase=0;h.Page=clamp(e.Args[1],0,h.Pages.Size()-1);h.PageStart=level.time-210;h.SetCamera();}
+  {h.Phase=0;h.Page=clamp(e.Args[1],0,h.Pages.Size()-1);h.PageStart=level.time-min(210,h.Pages[h.Page].Duration-35);h.SetCamera();}
   else if(op==2)
   {int was=h.Page;h.LastInput=0;h.PageStart=level.time-70;h.Advance(UTNTChapterState.Leader(),0);Check(h.Page==was+1,"next page");h.Advance(UTNTChapterState.Leader(),0);Check(h.Page==was+1,"input debounce");}
   else if(op==3)
@@ -57,6 +59,15 @@ class UTNTCreditsTests : EventHandler
   else if(op==8)
   {Check(h.Phase==1 && h.FinaleStarts==1,"natural ending starts finale once");}
   else if(op==9)
-  {int total=0;for(int i=0;i<h.Pages.Size();i++)if(h.Pages[i].Heading=="Remaster")total++;Check(total==2,"Remaster entries paginate automatically");Check(h.Pages[h.Pages.Size()-3].Layout=="thanks","Remaster follows personal thanks");Check(h.Pages[h.Pages.Size()-1].Names[0]=="FOURTH CONTRIBUTOR","Remaster last entry retained");}
+  {int total=0;for(int i=0;i<h.Pages.Size();i++)if(h.Pages[i].Remaster && h.Pages[i].Layout!="chapter")total++;Check(total==2,"Remaster entries paginate automatically");Check(h.Pages[25].Layout=="chapter" && h.Pages[25].Remaster,"one Remaster chapter before entries");Check(h.Pages[h.Pages.Size()-4].Layout=="thanks","Remaster follows personal thanks");Check(h.Pages[h.Pages.Size()-1].Names[0]=="FOURTH CONTRIBUTOR","Remaster last entry retained");}
+  else if(op==10)
+  {h.Phase=0;h.Page=e.Args[1];h.PageStart=level.time-e.Args[2];h.SetCamera();}
+  else if(op==12)
+  {Check(h.Page==26 && h.Pages[h.Page].Remaster && h.Pages[h.Page].Layout=="standard","chapter naturally advances to Remaster credits");}
+  else if(op==13)
+  {Check(h.Page==25 && h.Pages[h.Page].Remaster && h.Pages[h.Page].Layout=="chapter","Remaster chapter restored by save/load");}
+  else if(op==14)
+  {Check(h.Page==7 && level.time-h.PageStart>=5 && level.time-h.PageStart<20,"animation time restored by save/load");}
+
  }
 }

@@ -2,6 +2,7 @@
 class UTNTCreditPage : Object
 {
  String Layout, Heading;
+ bool Remaster;
  int Camera, Duration;
  Array<String> Names, Contributions;
 }
@@ -16,7 +17,7 @@ class UTNTCreditsHandler : EventHandler
  ui bool KeyHeld;
  ui UTNTCreditsUI CardsUI;
 
- void LoadCards(String path)
+ void LoadCards(String path,bool remaster=false)
  {
   int lump=Wads.CheckNumForFullName(path);if(lump<0)return;
   String data=Wads.ReadLump(lump);data.Substitute("\r","");Array<String> lines;data.Split(lines,"\n",TOK_SKIPEMPTY);
@@ -26,7 +27,7 @@ class UTNTCreditsHandler : EventHandler
    Array<String> r;lines[i].Split(r,"|",TOK_KEEPEMPTY);
    if(r[0]=="P" && r.Size()==5)
    {
-    current=new("UTNTCreditPage");current.Layout=r[1];current.Camera=clamp(r[2].ToInt(),1,5);
+    current=new("UTNTCreditPage");current.Layout=r[1];current.Remaster=remaster;current.Camera=clamp(r[2].ToInt(),1,5);
     current.Duration=clamp(r[3].ToInt(),8,60)*35;current.Heading=r[4];Pages.Push(current);
    }
    else if(r[0]=="N" && r.Size()==3 && current && r[1]!="")
@@ -35,7 +36,7 @@ class UTNTCreditsHandler : EventHandler
     if(current.Names.Size()>=limit)
     {
      let next=new("UTNTCreditPage");next.Layout=current.Layout;next.Camera=current.Camera;
-     next.Duration=current.Duration;next.Heading=current.Heading;Pages.Push(next);current=next;
+     next.Remaster=current.Remaster;next.Duration=current.Duration;next.Heading=current.Heading;Pages.Push(next);current=next;
     }
     current.Names.Push(r[1]);current.Contributions.Push(r[2]);
    }
@@ -44,8 +45,15 @@ class UTNTCreditsHandler : EventHandler
  void Init()
  {
   Initialized=true;
-  LoadCards("credits/original.txt");LoadCards("credits/remaster.txt");
-  for(int i=Pages.Size()-1;i>=0;i--)if(Pages[i].Layout!="opening" && Pages[i].Names.Size()==0)Pages.Delete(i);
+  LoadCards("credits/original.txt");LoadCards("credits/remaster.txt",true);
+  for(int i=Pages.Size()-1;i>=0;i--)if((Pages[i].Remaster || Pages[i].Layout!="opening") && Pages[i].Names.Size()==0)Pages.Delete(i);
+  // The chapter itself is conditional on real entries, so an empty template is invisible.
+  for(int i=0;i<Pages.Size();i++)if(Pages[i].Remaster)
+  {
+   let title=new("UTNTCreditPage");title.Layout="chapter";title.Heading="Remaster";
+   title.Remaster=true;title.Camera=Pages[i].Camera;title.Duration=4*35;
+   Pages.Push(title);for(int j=Pages.Size()-1;j>i;j--)Pages[j]=Pages[j-1];Pages[i]=title;break;
+  }
   for(int id=1;id<=5;id++)
   {
    let it=Level.CreateActorIterator(id);Cameras[id]=it.Next();
@@ -127,6 +135,7 @@ class UTNTCreditsHandler : EventHandler
  }
 }
 
+// Native counterpart of the approved Quake-Reliquiar mockup (variant 01).
 class UTNTCreditsUI ui
 {
  double Scale, Width, Left, ContributionSize, LineStep;
@@ -134,91 +143,140 @@ class UTNTCreditsUI ui
  UTNTCreditPage Cached;
  double CachedWidth;
  Array<BrokenLines> Wrapped;
+ Array<double> Heights, Tops;
+
  void Prepare(UTNTCreditPage page)
  {
-  Scale=Screen.GetHeight()/720.0;Width=min(1280.0,Screen.GetWidth()/Scale);Left=(Screen.GetWidth()-Width*Scale)/2;
+  Scale=Screen.GetHeight()/720.0;
+  Width=min(1280.0,Screen.GetWidth()/Scale);Left=(Screen.GetWidth()-Width*Scale)/2;
   if(!Body)Body=Font.GetFont('SmallFont');if(!Big)Big=Font.GetFont('UCRBIG');
   if(page==Cached && Width==CachedWidth)return;
-  Cached=page;CachedWidth=Width;Wrapped.Clear();if(!page)return;
-  ContributionSize=page.Layout=="dense"?18:20;LineStep=page.Layout=="dense"?25:29;
-  double w=page.Layout=="dense"?(Width<1100?350:495):(Width<1100?620:570);
-  for(int i=0;i<page.Contributions.Size();i++)Wrapped.Push(Body.BreakLines(page.Contributions[i],int(w*Body.GetHeight()/ContributionSize)));
+  Cached=page;CachedWidth=Width;Wrapped.Clear();Heights.Clear();Tops.Clear();if(!page)return;
+  bool dense=page.Layout=="dense";
+  ContributionSize=dense?9:10;LineStep=13;
+  double w=dense?252:page.Layout=="thanks"?496:294;
+  if(page.Layout=="thanks")ContributionSize=12.5;
+  for(int i=0;i<page.Contributions.Size();i++)
+  {
+   Wrapped.Push(Body.BreakLines(page.Contributions[i],int(w*Body.GetHeight()/ContributionSize)));
+   Array<String> names;page.Names[i].Split(names,"~",TOK_KEEPEMPTY);
+   Heights.Push(max(74,ceil(16+names.Size()*18.5+7.5+Wrapped[i].Count()*LineStep+6)));
+  }
+  // Keep the approved 434 / 516 / 598 baseline; grow only for authored long text.
+  double top=434;
+  for(int row=0;row<3;row++)
+  {
+   Tops.Push(top);double h=row<Heights.Size()?Heights[row]:74;
+   if(dense && row+3<Heights.Size())h=max(h,Heights[row+3]);
+   top+=h+8;
+  }
+  double lift=max(0,top-8-672);
+  for(int row=0;row<Tops.Size();row++)Tops[row]-=lift;
  }
  void Dim(int color,double a,double x,double y,double w,double h)
  {Screen.Dim(color,a,int(Left+x*Scale),int(y*Scale),int(ceil(w*Scale)),int(ceil(h*Scale)));}
- void Text(String value,double x,double y,double size=20,int color=0xc8c5bf,double alpha=1,bool center=false)
+ void Text(String value,double x,double y,double size=10,int color=0xe2d3bd,double alpha=1,bool center=false,double maxWidth=2000)
  {
-  double s=size/Body.GetHeight();double limit=center?Width*.84:Width-x-78;
-  s=min(s,limit/max(1,Body.StringWidth(value)));if(center)x-=Body.StringWidth(value)*s/2;
+  double s=size/Body.GetHeight();s=min(s,maxWidth/max(1,Body.StringWidth(value)));
+  if(center)x-=Body.StringWidth(value)*s/2;
   Screen.DrawText(Body,Font.CR_WHITE,Left+x*Scale,y*Scale,value,DTA_ScaleX,s*Scale,DTA_ScaleY,s*Scale,DTA_Color,0xff000000|color,DTA_Alpha,alpha);
  }
  void DrawName(String value,double x,double y,double height,double maxWidth,double alpha,bool center=false)
  {
-  double s=height/20;double w=Big.StringWidth(value)*s;
+  double s=height/20,w=Big.StringWidth(value)*s;
   if(w>maxWidth){s*=maxWidth/w;w=maxWidth;}if(center)x-=w/2;
   Screen.DrawText(Big,Font.CR_UNTRANSLATED,Left+x*Scale,y*Scale,value,DTA_ScaleX,s*Scale,DTA_ScaleY,s*Scale,DTA_Alpha,alpha);
  }
- void Category(String value,double x,double y,double alpha)
- {Text(value.MakeUpper(),x,y,19,0xc68962,alpha);Dim(0xc68962,alpha,x,y+35,48,2);}
- void Block(UTNTCreditPage p,int index,double x,double y,double w,double alpha)
+ void Frame(double x,double y,double w,double h,String shape,bool remaster,double alpha,double energy=0)
  {
-  Array<String> names;p.Names[index].Split(names,"~",TOK_KEEPEMPTY);
-  for(int row=0;row<names.Size();row++)DrawName(names[row],x,y+row*37,37,w,alpha);
-  double top=y+49+(names.Size()-1)*37;
-  for(int row=0;row<Wrapped[index].Count();row++)Text(Wrapped[index].StringAt(row),x,top+row*LineStep,ContributionSize,0xc8c5bf,alpha);
+  String texture=(remaster?"UCRRS":"UCRRB")..shape;
+  Screen.DrawTexture(TexMan.CheckForTexture(texture),true,Left+x*Scale,y*Scale,
+   DTA_DestWidthF,w*Scale,DTA_DestHeightF,h*Scale,DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha);
+  if(energy>0)Dim(remaster?0xd0eef0:0xf5ca86,alpha*energy*.6,x+12,y+1,max(1,(w-24)*energy),1);
  }
- void Gradient(String texture)
+ void Badge(UTNTCreditPage p,double y,double alpha)
  {
-  Screen.DrawTexture(TexMan.CheckForTexture(texture),true,Left,0,DTA_DestWidthF,Width*Scale,DTA_DestHeightF,720*Scale,DTA_LeftOffset,0,DTA_TopOffset,0);
+  String chapter=p.Remaster?"REMASTER":"ORIGINAL VERSION";
+  String category=p.Remaster && p.Heading~=="Remaster"?"CREDITS":p.Heading.MakeUpper();double width=p.Layout=="dense"?582:p.Layout=="thanks"?530:328;
+  int accent=p.Remaster?0xc4d9d9:0xd0a675;
+  double chapterWidth=Body.StringWidth(chapter)*11/Body.GetHeight();
+  bool twoLines=chapterWidth+19+Body.StringWidth(category)*9/Body.GetHeight()>width-8;
+  if(twoLines)y-=12;
+  Dim(0x070807,.68*alpha,37,y-8,width+14,twoLines?41:29);
+  Dim(accent,alpha,37,y-8,2,twoLines?41:29);
+  Text(chapter,48,y,11,accent,alpha);
+  Text(twoLines?category:"/ "..category,twoLines?48:44+chapterWidth+19,twoLines?y+15:y+1,9,0xb9ac9b,alpha,false,twoLines?width-8:width-chapterWidth-19);
+ }
+ // Same stagger, quadratic slide and opacity envelope as the approved animation.
+ double CardOpacity(double entry,int index){return clamp(entry*1.8-index*.18,0,1);}
+ double CardOffset(double opacity){return -18*(1-opacity)*(1-opacity);}
+ void Block(UTNTCreditPage p,int index,double entry)
+ {
+  bool dense=p.Layout=="dense";double w=dense?286:328;
+  double opacity=CardOpacity(entry,index),alpha=entry*opacity;
+  double x=44+(dense && index>=3?296:0)+CardOffset(opacity),y=Tops[dense?index%3:index];
+  Frame(x,y,w,Heights[index],dense?"D":"S",p.Remaster,alpha,opacity<1?opacity:0);
+  Array<String> names;p.Names[index].Split(names,"~",TOK_KEEPEMPTY);
+  for(int row=0;row<names.Size();row++)DrawName(names[row],x+17,y+16+row*18.5,18.5,w-34,alpha);
+  double top=y+16+names.Size()*18.5+7.5;
+  for(int row=0;row<Wrapped[index].Count();row++)Text(Wrapped[index].StringAt(row),x+17,top+row*LineStep,ContributionSize,0xe2d3bd,alpha,false,w-34);
+ }
+ void Chapter(UTNTCreditPage p,double alpha)
+ {
+  double x=Width/2-265,y=85;
+  Frame(x,y,530,140,"C",p.Remaster,alpha,alpha<1?alpha:0);
+  Text("THE ULTIMATE TORMENT & TORTURE",Width/2,y+26,10,0xbba88b,alpha,true,470);
+  DrawName(p.Remaster?"REMASTER":"ORIGINAL VERSION",Width/2,y+54,29,470,alpha,true);
+  Text(p.Remaster?"A NEW CHAPTER":"THE ORIGINAL CREATORS",Width/2,y+104,9.5,p.Remaster?0xc4d9d9:0xcba574,alpha,true,470);
+ }
+ void Creator(UTNTCreditPage p,double entry)
+ {
+  double opacity=CardOpacity(entry,0),alpha=entry*opacity,x=44+CardOffset(opacity),y=434;
+  Frame(x,y,328,164,"P",p.Remaster,alpha,opacity<1?opacity:0);
+  Array<String> names;p.Names[0].Split(names,"~",TOK_KEEPEMPTY);
+  for(int i=0;i<names.Size();i++)DrawName(names[i],x+17,y+16+i*33,26.5,294,alpha);
+  for(int row=0;row<Wrapped[0].Count();row++)Text(Wrapped[0].StringAt(row),x+17,y+123+row*13,10,0xe2d3bd,alpha,false,294);
+ }
+ void Thanks(UTNTCreditPage p,double entry)
+ {
+  double opacity=CardOpacity(entry,0),alpha=entry*opacity,x=44+CardOffset(opacity),y=500;
+  Frame(x,y,530,140,"C",p.Remaster,alpha,opacity<1?opacity:0);
+  DrawName(p.Names[0],x+17,y+16,29,496,alpha);
+  for(int row=0;row<Wrapped[0].Count();row++)Text(Wrapped[0].StringAt(row),x+17,y+60+row*18,12.5,0xe2d3bd,alpha,false,496);
+  DrawName("DANKE CHRIS!",x+17,y+108,16,496,alpha);
  }
  void Draw(UTNTCreditsHandler state,double frac)
  {
   UTNTCreditPage page=state.Phase==0 && state.Page<state.Pages.Size()?state.Pages[state.Page]:null;
   Prepare(page);double seconds=(level.time-state.PageStart+frac)/35;
-  if(state.Phase==1)
-  {Screen.Dim(0,clamp(1-seconds/2,0,1),0,0,Screen.GetWidth(),Screen.GetHeight());return;}
+  if(state.Phase==1)return; // Existing moving-camera finale remains unobstructed.
   if(state.Phase==2)
   {
    Screen.Dim(0,1,0,0,Screen.GetWidth(),Screen.GetHeight());double a=clamp(seconds/2,0,1);
-   DrawName("THE END",Width/2,279,74,Width*.6,a,true);Dim(0xc68962,a,Width/2-30,400,60,2);
-   Text("Thank you for playing.",Width/2,445,25,0xbdb5a9,a,true);
-   Text("THE ULTIMATE TORMENT & TORTURE",Width/2,535,17,0x8d867c,a,true);return;
+   DrawName("THE END",Width/2,302,37,Width*.6,a,true);Dim(0xc68962,a,Width/2-15,363,30,1);
+   Text("Thank you for playing.",Width/2,390,12.5,0xbdb5a9,a,true);
+   Text("THE ULTIMATE TORMENT & TORTURE",Width/2,443,8.5,0x8d867c,a,true);return;
   }
   if(!page)return;
-  bool classic=Width<1100;double x=classic?78:96,w=classic?620:570;
-  String layout=page.Layout;double duration=page.Duration/35.0;
-  double alpha=clamp(min((seconds-(layout=="opening"?4:.8)),(duration-seconds)/1.15),0,1);
-  if(layout=="opening" || layout=="dense" || layout=="thanks")Dim(0,layout=="dense"?.55:.36,0,0,Width,720);
-  else Gradient("UCRSHADE");
-  Gradient("UCRVEIL");
-  if(Left>0){Screen.Dim(0,1,0,0,int(Left),Screen.GetHeight());Screen.Dim(0,1,int(Left+Width*Scale),0,Screen.GetWidth(),Screen.GetHeight());}
-  Dim(0,1,0,0,Width,classic?22:36);Dim(0,1,0,classic?698:684,Width,classic?22:36);
-  if(layout=="opening")
-  {Text("THE ULTIMATE",Width/2,265,22,0xc68962,alpha,true);DrawName("TORMENT & TORTURE",Width/2,310,58,Width*.79,alpha,true);Text("C R E D I T S",Width/2,401,21,0xd3ccc0,alpha,true);}
-  else if(layout=="creator")
-  {
-   Category(page.Heading,x,174,alpha);Array<String> parts;page.Names[0].Split(parts,"~",TOK_KEEPEMPTY);
-   for(int i=0;i<parts.Size();i++)DrawName(parts[i],x,260+i*66,53,w,alpha);
-   for(int row=0;row<Wrapped[0].Count();row++)Text(Wrapped[0].StringAt(row),x,479+row*LineStep,ContributionSize,0xc8c5bf,alpha);
-  }
-  else if(layout=="thanks")
-  {
-   Text("SPECIAL THANKS",Width/2,160,19,0xc68962,alpha,true);DrawName(page.Names[0],Width/2,240,58,Width*.7,alpha,true);
-   Text("For bringing the original episodes together",Width/2,339,25,0xd4cdc1,alpha,true);
-   Text("and for countless hours of help and support.",Width/2,379,25,0xd4cdc1,alpha,true);
-   DrawName("DANKE CHRIS!",Width/2,471,32,Width*.6,alpha,true);
-  }
+  // Eight-pixel bars only. The world keeps its authored brightness, including ultrawide edges.
+  Screen.Dim(0x070707,1,0,0,Screen.GetWidth(),int(ceil(8*Scale)));
+  Screen.Dim(0x070707,1,0,int(712*Scale),Screen.GetWidth(),Screen.GetHeight());
+  double duration=page.Duration/35.0;
+  bool chapter=page.Layout=="opening" || page.Layout=="chapter";
+  double delay=page.Layout=="opening"?2.5:chapter?.6:0;
+  double entry=clamp(min((seconds-delay)/(chapter?.55:.65),(duration-seconds)/(chapter?.45:.5)),0,1);
+  if(chapter)Chapter(page,entry);
   else
   {
-   bool dense=layout=="dense";Category(page.Heading,x,dense?125:135,alpha);
-   for(int i=0;i<page.Names.Size();i++)
-   {
-    double xx=x+(dense && i>=3?(classic?415:570):0),yy=(dense?223:225)+(dense?i%3:i)*(dense?134:125);
-    Block(page,i,xx,yy,dense?(classic?350:495):w,alpha);
-   }
+   Badge(page,page.Layout=="thanks"?467:page.Layout=="creator"?401:Tops[0]-33,entry);
+   if(page.Layout=="creator")Creator(page,entry);
+   else if(page.Layout=="thanks")Thanks(page,entry);
+   else for(int i=0;i<page.Names.Size();i++)Block(page,i,entry);
   }
   if(state.HintUntil>level.time)
-   Text(consoleplayer==UTNTChapterState.Leader()?"ENTER / SPACE  Next     LEFT  Previous     END  Skip credits":"The host controls the credits",Width/2,695,14,0xbdb5a9,1,true);
-  double cut=max(0,max(1-seconds/.65,1-(duration-seconds)/.65));Screen.Dim(0,cut,0,0,Screen.GetWidth(),Screen.GetHeight());
+  {
+   Dim(0x070807,.85,Width/2-250,687,500,19);
+   Text(consoleplayer==UTNTChapterState.Leader()?"ENTER / SPACE  Next     LEFT  Previous     END  Skip credits":"The host controls the credits",Width/2,692,8,0xbdb5a9,1,true,484);
+  }
  }
 }
