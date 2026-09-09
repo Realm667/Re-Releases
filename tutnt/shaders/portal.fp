@@ -34,6 +34,24 @@ vec3 PortalArt(vec2 uv)
         *smoothstep(0.0,0.02,edge);
 }
 float PortalHeight(vec2 uv) { return PortalArt(uv).r; }
+float PortalGlyph(vec2 uv,float index)
+{
+    if(any(lessThan(uv,vec2(0)))||any(greaterThan(uv,vec2(1))))return 0.0;
+    vec4 c=texture(runeAtlas,vec2(uv.x,(mod(index,4.0)+uv.y)/4.0));
+    return clamp((c.r-max(c.g,c.b))*3.0,0.0,1.0)*c.a;
+}
+float SealArc(vec2 p,float depth,float time)
+{
+    p.x+=.10*sin(p.y*2.+time*.13+depth);
+    float r=length(p),a=atan(p.y,p.x)/6.2831853+.5+time*.014*(depth==0.?1.:-1.);
+    float target=.43+depth*.20;
+    float aa=max(fwidth(r),.002);
+    float rings=(1.-smoothstep(.002,.002+aa,abs(r-target)))
+        +(1.-smoothstep(.002,.002+aa,abs(r-target-.105)));
+    float glyph=PortalGlyph(vec2(fract(a*20.),(r-target-.01)/.083),floor(a*20.));
+    float cut=smoothstep(.05,.15,fract(a*3.+depth*.2))*(1.-smoothstep(.55,.72,fract(a*3.+depth*.2)));
+    return (rings*.7+glyph)*cut;
+}
 void SetupMaterial(inout Material mat)
 {
     vec2 uv=vTexCoord.st;
@@ -55,9 +73,12 @@ void SetupMaterial(inout Material mat)
         vec3 art=pow(PortalArt(q),vec3(1.35));
         float opacity=smoothstep(0.015,0.21,art.r);
         float fire=smoothstep(0.055,0.30,art.g);
-        // Deep folds stay blood-red; only isolated veins reach orange.
-        vec3 lit=art*(0.57-depth*0.30)*(0.83+0.30*pulse);
-        lit+=vec3(0.14,0.006,0.001)*fire*pulse;
+        // Warm amber reference: dark bronze folds, gold/orange veins, small
+        // yellow cores. Keep the void black instead of filling it with fire.
+        float energy=max(art.r,max(art.g,art.b));
+        vec3 tint=mix(vec3(.68,.19,.008),vec3(1.,.59,.075),smoothstep(.08,.5,energy));
+        vec3 lit=tint*energy*(.68-depth*.30)*(.88+.20*pulse);
+        lit+=vec3(.17,.085,.008)*fire*pulse;
         color=mix(color,lit,opacity)+lit*(1.0-opacity)*0.35;
         if(i==0) surfaceUV=q;
     }
@@ -76,7 +97,15 @@ void SetupMaterial(inout Material mat)
     float edgeGlow=exp(-max(edge,0.0)*42.0)*0.12;
     float branches=pow(max(0.0,1.0-abs(noise.r*2.0-1.0)),24.0)
         *exp(-max(edge,0.0)*20.0)*(0.25+0.35*pulse);
-    color+=vec3(0.72,0.019,0.003)*(seam*(0.70+0.45*pulse)+edgeGlow+branches);
+    color+=vec3(0.88,0.40,0.030)*(seam*(0.70+0.45*pulse)+edgeGlow+branches);
+    // Partial rune rings float at two depths; their dark gaps retain entry visibility.
+    for(int i=0;i<2;i++)
+    {
+        float depth=float(i);
+        vec2 ringP=p+slope*(.045+.055*depth);
+        float ink=SealArc(ringP,depth,t);
+        color+=vec3(.85,.37,.028)*ink*(.64-.18*depth);
+    }
     mat.Base=vec4(clamp(color,0.0,1.0),1.0);
     mat.Bright=vec4(vec3(0.86),1.0);
 }

@@ -151,6 +151,11 @@ class UTNTEmberBase : SwitchableDecoration
     action void A_UTNTEmber(int type, int colorIndex, int size)
     {
         if (!UTNTVisuals.Visible(self) || !UTNTVisuals.Reserve()) return;
+        if(type==1 && colorIndex==1)
+        {
+            UTNTRitualMote.Emit(self,size);
+            return;
+        }
         FSpawnParticleParams p;
         p.texture = TexMan.CheckForTexture('EMBRA0');
         p.color1 = colorIndex == 1 ? 0xff6030 : colorIndex == 2 ? 0x60ff30 : colorIndex == 3 ? 0xffff50 : colorIndex == 4 ? 0xffbb60 : colorIndex == 5 ? 0x5080ff : 0xffffff;

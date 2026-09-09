@@ -1,0 +1,87 @@
+version "5.0.0"
+class UTNTRitualTest : EventHandler
+{
+    int PadIndex;
+    Actor Source;
+    void Verify(bool ok,String message)
+    { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="ritualtest")return;
+        let h=UTNTPortalMaterials(EventHandler.Find('UTNTPortalMaterials'));
+        int mode=e.Args[0];
+        if(mode==0)
+        {
+            Verify(h.RitualPads.Size()>0,"campaign ritual pads discovered");
+            if(!h.RitualPads.Size())return;
+            PadIndex=h.RitualPads[0].Index;
+            for(int i=0;i<h.RitualPads.Size();i++)
+            {
+                let mapping=h.RitualPads[i];let sec=level.sectors[mapping.Index];
+                Verify(TexMan.GetName(sec.GetTexture(Sector.floor))=="UTPSEAL","pad material installed");
+                Verify(sec.GetXScale(Sector.floor)>0 && sec.GetYScale(Sector.floor)>0,"pad fitted to sector");
+            }
+            let it=ThinkerIterator.Create('TeleportSparkle_R');Source=Actor(it.Next());
+            Verify(Source!=null,"red teleporter source present");
+            if(Source)
+            {
+                Source.Activate(null);
+                let p=players[0].mo;p.SetOrigin(Source.Pos+(0,-144,0),false);p.Angle=90;p.Pitch=7;
+            }
+        }
+        if(mode==1)
+        {
+            let sec=level.sectors[PadIndex];
+            sec.SetTexture(Sector.floor,TexMan.CheckForTexture('FLOOR0_1',TexMan.Type_Flat));
+            UTNTRitualPads.Refresh(h);
+            sec.SetXScale(Sector.floor,1.25);sec.SetYScale(Sector.floor,.75);
+            sec.SetXOffset(Sector.floor,13);sec.SetYOffset(Sector.floor,29);sec.SetAngle(Sector.floor,17);
+            for(int family=0;family<2;family++)for(int frame=1;frame<=7;frame++)
+            {
+                String name=String.Format(family ? "QSLIPP%d" : "QSLIP%d",frame);
+                sec.SetTexture(Sector.floor,TexMan.CheckForTexture(name,TexMan.Type_Flat));
+                UTNTRitualPads.Refresh(h);
+                Verify(TexMan.GetName(sec.GetTexture(Sector.floor))=="UTPSEAL",String.Format("%s activates seal",name));
+                sec.SetTexture(Sector.floor,TexMan.CheckForTexture('FLOOR0_1',TexMan.Type_Flat));
+                UTNTRitualPads.Refresh(h);
+                Verify(TexMan.GetName(sec.GetTexture(Sector.floor))=="FLOOR0_1","script replacement retained");
+                CheckUV(sec);
+            }
+            sec.SetTexture(Sector.floor,TexMan.CheckForTexture('QSLIP1',TexMan.Type_Flat));
+            UTNTRitualPads.Refresh(h);
+        }
+        if(mode==2)
+        {
+            let sec=level.sectors[PadIndex];
+            Verify(TexMan.GetName(sec.GetTexture(Sector.floor))=="UTPSEAL","seal survives save/load");
+            sec.SetTexture(Sector.floor,TexMan.CheckForTexture('FLOOR0_1',TexMan.Type_Flat));
+            UTNTRitualPads.Refresh(h);CheckUV(sec);
+            // A script's explicit UV adjustment takes priority over old mapping.
+            sec.SetTexture(Sector.floor,TexMan.CheckForTexture('QSLIP7',TexMan.Type_Flat));
+            UTNTRitualPads.Refresh(h);sec.SetXOffset(Sector.floor,77);
+            sec.SetTexture(Sector.floor,TexMan.CheckForTexture('FLOOR0_1',TexMan.Type_Flat));
+            UTNTRitualPads.Refresh(h);
+            Verify(sec.GetXOffset(Sector.floor)==77,"explicit script UV edit retained");
+        }
+        if(mode==3 || mode==4)
+        {
+            int count=0;let it=ThinkerIterator.Create('UTNTRitualMote',Thinker.MAX_STATNUM+1,true);
+            UTNTRitualMote m;
+            while(m=UTNTRitualMote(it.Next()))
+            {
+                count++;
+                String name=TexMan.GetName(m.Texture);
+                Verify(name=="UTRAA0"||name=="UTRBA0"||name=="UTRCA0"||name=="UTRDA0","original rune sprite used");
+            }
+            Verify(mode==3 ? count>0 : count==0,mode==3 ? "runes emitted" : "runes disabled and cleaned up");
+        }
+        if(mode==5 && Source)Source.Deactivate(null);
+        if(mode==6 && Source)Source.Activate(null);
+    }
+    void CheckUV(Sector sec)
+    {
+        Verify(abs(sec.GetXScale(Sector.floor)-1.25)<.0001 && abs(sec.GetYScale(Sector.floor)-.75)<.0001
+            && abs(sec.GetXOffset(Sector.floor)-13)<.0001 && abs(sec.GetYOffset(Sector.floor)-29)<.0001
+            && abs(sec.GetAngle(Sector.floor)-17)<.0001,"original floor UV restored");
+    }
+}

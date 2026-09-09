@@ -14,11 +14,13 @@ class UTNTPortalMaterials : EventHandler
     override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTPortalSuction",false); }
     int FittedSurfaces, FittedOpenings, AutomaticSources;
     Array<UTNTPortalSlice> Openings;
+    Array<UTNTRitualPadState> RitualPads;
     override void WorldTick()
     {
         // Geometry is saved; native client actors are not. Reconcile at most
         // once a second, including saves restored without WorldLoaded.
         if(level.time%35) return;
+        UTNTRitualPads.Refresh(self);
         for(int i=0;i<Openings.Size();i++)
         {
             let p=Openings[i];
@@ -293,10 +295,10 @@ class UTNTPortalEmitter : Thinker
         if(LightAnchor && Age%4==1)
         {
             int radius=int((quality==1 ? 80 : 108)+pulse*(quality==1 ? 8 : 28));
-            LightAnchor.A_AttachLight('portal',DynamicLight.PointLight,0xff1004,radius,0,DynamicLight.LF_ATTENUATE,
+            LightAnchor.A_AttachLight('portal',DynamicLight.PointLight,0xff8c14,radius,0,DynamicLight.LF_ATTENUATE,
                 quality==1 ? (0,0,0) : SideAxis*Width*0.42);
             if(quality>1)
-                LightAnchor.A_AttachLight('portal2',DynamicLight.PointLight,0xff1004,radius,0,DynamicLight.LF_ATTENUATE,-SideAxis*Width*0.42);
+                LightAnchor.A_AttachLight('portal2',DynamicLight.PointLight,0xff8c14,radius,0,DynamicLight.LF_ATTENUATE,-SideAxis*Width*0.42);
             else LightAnchor.A_RemoveLight('portal2');
             if(!LightAnchor.IsActorPlayingSound(CHAN_BODY))
                 LightAnchor.A_StartSound("utnt/portal/hum",CHAN_BODY,CHANF_LOOP,0.32,1.8);
@@ -329,9 +331,9 @@ class UTNTPortalMote : VisualThinker
         Start.Z+=emitter.Noise(-emitter.Height*0.48,emitter.Height*0.48);
         Bend=emitter.SideAxis*emitter.Noise(-emitter.Width*0.2,emitter.Width*0.2)
             +(0,0,emitter.Noise(-emitter.Height*0.12,emitter.Height*0.12));
-        Diameter=wisp ? emitter.Noise(16,26) : emitter.Noise(6,10);
-        Strength=wisp ? 0.48 : emitter.Noise(0.85,1.0);
-        Texture=TexMan.CheckForTexture(wisp ? 'UPRWA0' : 'UPRMA0');
+        Diameter=wisp ? emitter.Noise(17,23) : emitter.Noise(10,16);
+        Strength=emitter.Noise(0.85,1.0);
+        Texture=TexMan.CheckForTexture(String.Format("UTR%cA0",65+int(emitter.Noise(0,4))));
         Flags=SPF_FULLBRIGHT|SPF_ROLL|SPF_ALLOWSHADERS; SetRenderStyle(STYLE_Add);
         Roll=emitter.Noise(0,360); Spin=emitter.Noise(-3,3);
         Pos=Start; Prev=Pos; PrevRoll=Roll;
@@ -358,7 +360,7 @@ class UTNTPortalMote : VisualThinker
     }
 }
 
-// Render-time values belong to this client's camera, never to saved world state.
+// Render-time values belong to this client's camera, never to saved world mapping.
 class UTNTPortalSuction ui
 {
     static double Proximity(Vector3 eye, Vector3 center, Vector3 axis, Vector3 sideAxis, double width, double height)
@@ -424,4 +426,125 @@ class UTNTPortalSuction ui
         PPShader.SetEnabled("UTNTPortalSuction",true);
         return best;
     }
+}
+
+// Pad geometry is deterministic world mapping. Cosmetic thinkers stay client-local.
+class UTNTRitualPadState : Object
+{
+    int Index;
+    double XScale,YScale,XOffset,YOffset,Angle;
+    Vector2 FitScale,FitOffset;
+    play void Restore(Sector sec)
+    {
+        // Respect UV edits explicitly made by a script while the seal was active.
+        if(abs(sec.GetXScale(Sector.floor)-FitScale.X)<.0001)sec.SetXScale(Sector.floor,XScale);
+        if(abs(sec.GetYScale(Sector.floor)-FitScale.Y)<.0001)sec.SetYScale(Sector.floor,YScale);
+        if(abs(sec.GetXOffset(Sector.floor)-FitOffset.X)<.0001)sec.SetXOffset(Sector.floor,XOffset);
+        if(abs(sec.GetYOffset(Sector.floor)-FitOffset.Y)<.0001)sec.SetYOffset(Sector.floor,YOffset);
+        if(abs(sec.GetAngle(Sector.floor))<.0001)sec.SetAngle(Sector.floor,Angle);
+    }
+}
+
+class UTNTRitualPads play
+{
+    static void Refresh(UTNTPortalMaterials handler)
+    {
+        TextureID seal=TexMan.CheckForTexture('UTPSEAL');
+        // Saved alongside the sector: texture switches and save/load keep the
+        // original floor mapping, instead of leaving an enlarged ordinary flat.
+        for(int i=handler.RitualPads.Size()-1;i>=0;i--)
+        {
+            let old=handler.RitualPads[i];
+            let sec=level.sectors[old.Index];
+            if(sec.GetTexture(Sector.floor)==seal)continue;
+            old.Restore(sec);handler.RitualPads.Delete(i);
+        }
+        for(int i=0;i<level.sectors.Size();i++)
+        {
+            let sec=level.sectors[i];
+            String name=TexMan.GetName(sec.GetTexture(Sector.floor));
+            bool pad=false;
+            for(int j=1;j<=7;j++)
+                if(name==String.Format("QSLIP%d",j)||name==String.Format("QSLIPP%d",j))pad=true;
+            if(!pad)continue;
+            Vector2 lo=(1e9,1e9),hi=(-1e9,-1e9);
+            for(int j=0;j<sec.lines.Size();j++)
+            {
+                let l=sec.lines[j];
+                lo.X=min(lo.X,min(l.v1.p.X,l.v2.p.X));lo.Y=min(lo.Y,min(l.v1.p.Y,l.v2.p.Y));
+                hi.X=max(hi.X,max(l.v1.p.X,l.v2.p.X));hi.Y=max(hi.Y,max(l.v1.p.Y,l.v2.p.Y));
+            }
+            Vector2 size=hi-lo;
+            if(size.X<32||size.Y<32||size.X>512||size.Y>512)continue;
+            let mapping=new('UTNTRitualPadState');mapping.Index=i;
+            mapping.XScale=sec.GetXScale(Sector.floor);mapping.YScale=sec.GetYScale(Sector.floor);
+            mapping.XOffset=sec.GetXOffset(Sector.floor);mapping.YOffset=sec.GetYOffset(Sector.floor);
+            mapping.Angle=sec.GetAngle(Sector.floor);
+            mapping.FitScale=(512.0/size.X,512.0/size.Y);mapping.FitOffset=(-lo.X,hi.Y);
+            handler.RitualPads.Push(mapping);
+            sec.SetTexture(Sector.floor,seal);
+            sec.SetAngle(Sector.floor,0);
+            sec.SetXScale(Sector.floor,512.0/size.X);sec.SetYScale(Sector.floor,512.0/size.Y);
+            sec.SetXOffset(Sector.floor,-lo.X);sec.SetYOffset(Sector.floor,hi.Y);
+        }
+    }
+}
+
+class UTNTRitualMote : VisualThinker
+{
+    Actor Source;
+    int Age,Life;
+    double Angle,Radius,Size;
+    Vector3 Origin;
+    static void Emit(Actor source,int size)
+    {
+        if(Random[utntritual](0,3)==0)return;
+        let mote=UTNTRitualMote(level.SpawnClientSideVisualThinker('UTNTRitualMote'));
+        if(!mote)return;
+        mote.Source=source;mote.Origin=source.Pos;
+        mote.Life=Random[utntritual](44,58);
+        mote.Angle=FRandom[utntritual](0,360);mote.Radius=FRandom[utntritual](size*.15,size*.45);
+        mote.Size=FRandom[utntritual](7,12);
+        mote.Texture=TexMan.CheckForTexture(String.Format("UTR%cA0",65+Random[utntritual](0,3)));
+        mote.Flags=SPF_FULLBRIGHT|SPF_ROLL|SPF_ALLOWSHADERS;mote.SetRenderStyle(STYLE_Add);
+        mote.Pos=source.Pos;mote.Prev=mote.Pos;mote.Roll=FRandom[utntritual](-30,30);
+        mote.PrevRoll=mote.Roll;mote.UpdateSector();mote.UpdateSpriteInfo();mote.Animate();
+        UTNTRitualGlow.Touch(source);
+    }
+    void Animate()
+    {
+        double t=double(Age)/Life;
+        Pos=Origin+(cos(Angle+t*160)*Radius,sin(Angle+t*160)*Radius,4+t*72);
+        let sz=TexMan.GetScaledSize(Texture);Scale=(Size/sz.X,Size/sz.Y);
+        Alpha=min(1.0,(Age+1)/7.0)*min(1.0,(Life-Age)/10.0);
+    }
+    override void Tick()
+    {
+        if(!Source||!UTNTVisuals.Visible(Source,combat:true)){Destroy();return;}
+        if(IsFrozen()||Source.IsFrozen()||level.isFrozen())return;
+        if(++Age>=Life){Destroy();return;}
+        Prev=Pos;PrevRoll=Roll;Roll+=.4;Animate();UpdateSector();
+    }
+}
+
+class UTNTRitualGlow : Thinker
+{
+    Actor Source,Anchor;
+    int LastEmission;
+    static void Touch(Actor source)
+    {
+        let it=ThinkerIterator.Create('UTNTRitualGlow',Thinker.STAT_USER+8,true);
+        UTNTRitualGlow g;
+        while(g=UTNTRitualGlow(it.Next()))if(g.Source==source){g.LastEmission=level.time;return;}
+        g=UTNTRitualGlow(level.CreateClientSideThinker('UTNTRitualGlow',Thinker.STAT_USER+8));
+        if(!g)return;
+        g.Source=source;g.LastEmission=level.time;
+        g.Anchor=Actor.SpawnClientSide('UTNTPortalAnchor',source.Pos+(0,0,20));
+        if(g.Anchor)g.Anchor.A_AttachLight('ritual',DynamicLight.PointLight,0xff8c14,72,0,DynamicLight.LF_ATTENUATE);
+    }
+    override void Tick()
+    {
+        if(!Source||!UTNTVisuals.Visible(Source,combat:true)||level.time-LastEmission>16){Destroy();return;}
+    }
+    override void OnDestroy(){if(Anchor)Anchor.Destroy();Super.OnDestroy();}
 }

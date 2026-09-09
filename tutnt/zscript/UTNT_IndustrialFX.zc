@@ -119,13 +119,13 @@ class UTNTIndustrialFX play
     {
         if(!UTNTVisuals.Visible(source,combat:true)) return;
         Vector3 center=source.Pos+(0,0,26);
-        Make(center,4,42.5,55,4,0xffc9db79);
+        Make(center,4,42.5,55,4,0xffffba52);
         int count=Quality()==1 ? 10 : 24;
         for(int i=0;i<count;i++)
         {
             double a=FRandom[utntindustrial](0,360);
             double speed=FRandom[utntindustrial](6.4,10.4);
-            let v=Make(center,3,FRandom[utntindustrial](8.75,16.25),FRandom[utntindustrial](8.75,16.25),Random[utntindustrial](23,30),0xffbbd36c,(cos(a)*speed,sin(a)*speed,FRandom[utntindustrial](-2.8,6.4)));
+            let v=Make(center,3,FRandom[utntindustrial](8.75,16.25),FRandom[utntindustrial](8.75,16.25),Random[utntindustrial](23,30),0xffff8c20,(cos(a)*speed,sin(a)*speed,FRandom[utntindustrial](-2.8,6.4)));
             if(v && i%5==0) { v.Texture=TexMan.CheckForTexture('UTPEA0'); v.Width=6.25; v.Height=25; v.Initialize(); }
         }
     }

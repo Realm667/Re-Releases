@@ -19,6 +19,6 @@ void main()
     // A short directional smear reinforces acceleration into the opening.
     color=mix(color,texture(InputTexture,uv+shift*1.9).rgb,amount*envelope*.22);
     float filament=lane*pow(max(0.0,wave),7.0)*envelope*amount;
-    color+=vec3(.13,.019,.003)*filament;
+    color+=vec3(.13,.064,.006)*filament;
     FragColor=vec4(color,1.0);
 }
