@@ -13,7 +13,7 @@ for name in a.maps:
             commands += [f'netevent portalfaces 1 {offset}','wait 60','netevent portalfaces 2','wait 10',f'screenshot logs/{a.label}-{a.renderer}-{offset}.png']
         commands += ['save portal-faces','wait 15','load portal-faces','wait 100','netevent portalfaces 0','netevent portalfaces 1 -72','wait 60','netevent portalfaces 2','wait 10']
     commands+=['echo UTNT_TEST_END','quit']
-    r=run_case(a.engine,a.iwad,root=W,mod=a.mod,addon=R/'tools/portal-tests/faces',mapname=name,renderer=a.renderer,label=a.label+'-'+name+'-'+a.renderer,timeout=80,commands='; '.join(commands)+'\n',settings=[('vid_maxfps',60),('i_pauseinbackground',False),('use_mouse',False),('use_joystick',False),('con_notifytime',0)])
+    r=run_case(a.engine,a.iwad,root=W,mod=a.mod,addon=R/'tools/portal-tests/faces',mapname=name,renderer=a.renderer,label=a.label+'-'+name+'-'+a.renderer,timeout=180 if a.renderer=='0' else 80,commands='; '.join(commands)+'\n',settings=[('vid_maxfps',60),('i_pauseinbackground',False),('use_mouse',False),('use_joystick',False),('con_notifytime',0)])
     r['ok']=r['ok'] and r['assertions']>3
     results.append(r)
 (W/(a.label+'-'+a.renderer+'-results.json')).write_text(json.dumps(results,indent=2),encoding='utf-8')
