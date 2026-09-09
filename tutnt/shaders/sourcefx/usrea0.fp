@@ -82,6 +82,44 @@ vec4 ProcessTexel()
  float count=turn*13.0;
  float radius=0.82+0.08*sin(floor(count)*7.0);
  ink=Rune(vec2((fract(count)-0.5)*2.8+0.5,(r-radius)/0.065),floor(count));
+#elif SOURCE_KIND == 12
+ // A thin branching bolt. Its silhouette changes; its brightness stays steady.
+ float stepTime=floor(timer*12.0);
+ float x=(p.x+1.0)*0.5;
+ float node=x*14.0, cell=floor(node), f=fract(node);
+ float jag=mix(Hash(vec2(cell,stepTime)),Hash(vec2(cell+1.0,stepTime)),f)-0.5;
+ float path=jag*1.2*sin(x*3.14159265);
+ float dist=abs(p.y-path);
+ float bolt=exp(-dist*dist*380.0)+0.35*exp(-dist*dist*40.0);
+ float branch=path+(x-0.42)*1.7;
+ bolt+=0.55*exp(-pow(abs(p.y-branch),2.0)*2400.0)*smoothstep(0.40,0.45,x)*(1.0-smoothstep(0.67,0.75,x));
+ return vec4(vec3(1.0,0.72,0.30)*bolt*(1.0-smoothstep(0.95,1.0,abs(p.x))),1.0);
+#elif SOURCE_KIND == 13 || SOURCE_KIND == 16 || SOURCE_KIND == 17
+ // One eighth of a horizontal ring, using the shaft's native QROCK3 stone.
+ float ang=abs(a);
+ float shape=smoothstep(0.63,0.65,r)*(1.0-smoothstep(0.94,0.96,r));
+ shape*=1.0-smoothstep(0.30,0.34,ang);
+ vec3 stone=texture(stoneAtlas,fract(vTexCoord.st*3.0)).rgb*0.48;
+ float glyph=Rune(vec2(a/0.38+0.5,(r-0.69)/0.20),2.0);
+ float rim=Ring(r,0.67,0.004)+Ring(r,0.93,0.004);
+ float strength=0.18;
+#if SOURCE_KIND == 16
+ strength=1.0;
+#elif SOURCE_KIND == 17
+ strength=0.0;
+#endif
+ return vec4(stone+vec3(1.0,0.32,0.02)*(glyph+rim*0.45)*strength,shape);
+#elif SOURCE_KIND == 14
+ float edge=abs(a);
+ float mask=1.0-smoothstep(0.43,0.49,edge);
+ float glyphTurn=turn*24.0;
+ float glyph=Rune(vec2((fract(glyphTurn)-0.5)*1.30+0.5,(r-0.805)/0.115),floor(glyphTurn));
+ ink=(Ring(r,0.795,0.003)+Ring(r,0.930,0.004)+glyph*1.1)*mask;
+ heat=0.35;
+#elif SOURCE_KIND == 15
+ vec4 c=getTexel(vTexCoord.st);
+ float mask=max(c.r,max(c.g,c.b))*c.a*(1.0-smoothstep(0.91,0.98,r));
+ return vec4(vec3(0.014,0.008,0.003),clamp(mask*3.0,0.0,1.0));
 #elif SOURCE_KIND == 11
  // Broad, quiet amber light from the seal's centre, with no hard outer disc.
  // This is separate from the compact heart so attacks retain their telegraph.

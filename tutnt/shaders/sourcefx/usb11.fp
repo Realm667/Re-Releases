@@ -25,7 +25,10 @@ vec4 ProcessTexel()
  vec3 surface=eye+ray*t;
  vec2 d=surface.xz-center;
  height=surface.y;
- float phase=atan(d.y,d.x)/6.2831853+height/1100.0-timer*0.06;
+ float phase=atan(d.y,d.x)/6.2831853+height/1100.0;
+#if BEAM_STATE < 2
+ phase-=timer*0.06;
+#endif
  float edge=abs(fract(phase)-0.5);
  // atan's branch cut is not a wide beam; cap its discontinuous derivative.
  float aa=clamp(fwidth(phase),0.0004,0.006);
@@ -46,6 +49,17 @@ vec4 ProcessTexel()
  intensity*=mix(0.65,0.40,nearBoss);
 #elif BEAM_STATE == 2
  intensity=0.0;
+#elif BEAM_STATE >= 3
+ // A held, faint filament followed by an outward travelling severance.
+#if BEAM_KIND == 0
+ intensity*=BEAM_STATE==3?0.16:0.28;
+#else
+ intensity*=0.035;
+#endif
+#if BEAM_STATE >= 5
+ float gap=float(BEAM_STATE-5)*100.0;
+ intensity*=smoothstep(gap,gap+100.0,abs(height-3968.0));
+#endif
 #endif
  return vec4(color*intensity,1.0);
 }

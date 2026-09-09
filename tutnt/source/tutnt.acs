@@ -569,6 +569,24 @@ script "BOSSHP"(int firstid,int lastid,int boss)
 	}
 	if(boss==5)
 	{
+        // TNT04CN: the saved Source clock owns the seven-second finale and
+        // two seconds of stillness. Other maps keep their original ending.
+        if(ScriptCall("UTNTSourceSystem","BeginDefeat"))
+        {
+            SetMusic("");
+            Thing_Deactivate(52);
+            SetLineBlocking(99,BLOCK_NOTHING);
+            SetLineSpecial(99,0,0,0,0,0,0);
+            ACS_Terminate(122,0);
+            ACS_Terminate(134,0);
+            Thing_Destroy(667);
+            while(!ScriptCall("UTNTSourceSystem","DefeatSettled")) Delay(1);
+            ACS_NamedExecuteWithResult("UTNT_CompleteObjective",UTNT_ObjectiveEpisode(),2);
+            while(!ScriptCall("UTNTSourceSystem","DefeatFinished")) Delay(1);
+            Teleport_NewMap(99,0);
+            terminate;
+        }
+
 		ACS_NamedExecuteWithResult("UTNT_CompleteObjective",UTNT_ObjectiveEpisode(),2);
 		SetMusic("");
 		thing_deactivate(52);

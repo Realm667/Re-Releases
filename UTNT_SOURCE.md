@@ -34,18 +34,19 @@ The first implementation's functional checks did not establish a visual match.
 - The three existing attack scripts notify the presentation at their original
   start: rising rock signs, three sequentially charging comet nodes, and a
   contracting fiery heart. Below half health, the seal cracks and some runes dim.
-- Death collapses the local seal and extinguishes the beam. Original boss exit,
-  music, health, collision, random calls, spawn sites and attack delays remain.
+- Death breaks the seal through a saved seven-second lightning sequence and
+  two seconds of stillness before the original destination transition. Living
+  health, collision, random calls, spawn sites and attack delays remain.
 
-The only ACS changes are three visual attack notifications in `source/tutnt.acs`
-and a shield-impact notification in TNT04CN script 120. The map's TEXTMAP and
+ACS adds three attack notifications, the TNT04CN-specific finale ending in
+`source/tutnt.acs`, and a shield-impact notification in TNT04CN script 120. The map's TEXTMAP and
 nodes are byte-identical. TNT04C retains its original visuals and map bytes.
 
 ## Implementation and limits
 
 `UTNT_Source.zc` adds presentation bases to the existing Source and Guardian
-classes. Saved boss fields describe attack and shield state. Twelve bounded
-VisualThinkers and one light anchor live only on each local client and rebuild
+classes. Saved boss fields describe attack, shield and defeat state. Forty-four
+bounded VisualThinkers, eight stone actors and nine light anchors live locally and rebuild
 after loading. Essential target/shield/attack indications remain with FX quality
 zero. Reduced effects disable ornamental roll and pulse motion where specified;
 dynamic lighting follows local effect quality. No gameplay random stream is used.
@@ -112,7 +113,7 @@ Actual engine evidence is in `tools/validation/source-focus-2026-09-09/`.
 ## Approved arena follow-up - 2026-09-09
 
 The user approved the following arena extension for the next editing session.
-This is a remembered implementation plan, not an implemented feature:
+Implemented with the Source defeat finale below:
 
 - Place a monumental, broken rune seal beneath the boss chamber ceiling,
   high above the Source, using the established teleporter/portal rune language.
@@ -121,5 +122,42 @@ This is a remembered implementation plan, not an implemented feature:
   making the whole arena visibly respond to the boss.
 - Preserve a clear view of the central sigil and readable combat cues.
 
-A more dramatic lightning-based boss defeat is being discussed separately;
-its choreography has not yet been approved or implemented.
+The user subsequently approved the five-phase lightning defeat; see below.
+
+## Source defeat finale - 2026-09-09
+
+The approved arena follow-up and five-phase defeat are implemented together.
+The original Source actor retains a saved DefeatAge clock instead of fading
+away. Living attacks, health and collision stay unchanged. At death the boss
+becomes nonblocking and stops its pending attack scripts. The new ending is
+scoped to TNT04CN; the legacy BOSSHP branch remains available for other maps.
+
+- 0-1 s: helix holds still and a faint central filament remains.
+- 1-3 s: six full-size rune arcs separate, linked by branching lightning.
+- 3-4.5 s: eight overhead slabs answer; two separated flashes illuminate the
+  architecture while the demon becomes a dark silhouette.
+- 4.5-5.5 s: connections break in sequence, glyphs extinguish, and a widening
+  gap retracts the two beam halves away from the seal.
+- 5.5-7 s: the afterimage and rising sparks fade; overhead stone settles.
+- 7-9 s: the empty centre remains visible, the objective notice appears,
+  and only then does the original map-99 transition proceed.
+
+Eight horizontal stone segments fit inside the existing shaft, with its own
+QROCK3 stone and the established QRUNT63 rune atlas. They light sequentially
+during attack preparation and shield opening. Shield opening also sends a
+descending light wave over the hall walls. No map geometry is changed.
+
+Presentation uses a bounded pool of 44 local visual layers, eight client-side
+stone actors and nine light anchors. Quality zero disables dynamic lights and
+embers; reduced FX attenuates flashes and lightning, limits embers and removes
+the added oscillation. Neither setting changes the shared clock or ending.
+All client presentation reconstructs from the surviving actor after load.
+The seven-second electrical score seeks to the restored age, with two major
+arcs, smaller severance cracks, and a fading cavern tail. The camera remains
+under player control; there is no explosion, screen flash overlay or forced
+camera shake in the new ending.
+
+Build materials with tools/build_source_materials.py and audio with
+tools/build_source_audio.py. Run tools/test_source_finale.py for both renderers,
+plus the existing living-encounter, coop and structural checks. Evidence and
+actual engine captures are in tools/validation/source-finale-2026-09-09/.

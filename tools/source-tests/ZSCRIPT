@@ -3,9 +3,10 @@ class UTNTSourceTests : EventHandler
 {
  int View;
  UTNTSourceBase RenderSource;
+ Actor Fallback;
  override void RenderOverlay(RenderEvent e)
  {
-  if(RenderSource && !RenderSource.ShieldOpen && level.time>=450 && level.time<490)
+  if(RenderSource && RenderSource.Health>0 && !RenderSource.ShieldOpen && level.time>=450 && level.time<490)
    Console.Printf("SOURCE_RENDER_ALPHA %.4f",level.lines[RenderSource.ShieldLines[0]].alpha);
  }
  void Assert(bool cond,String name){Console.Printf("UTNT_ASSERT %s: %s",cond?"PASS":"FAIL",name);}
@@ -19,6 +20,7 @@ class UTNTSourceTests : EventHandler
   players[0].camera=p;
   Vector3 pos=(128,-1100,3500);double a=90,pitch=-15;
   if(View==3)pitch=-22;
+  if(View==4){pos=(128,-1100,3500);pitch=-35;}
   if(View==1){pos=(128,-1650,3370);pitch=-14;}
   if(View==2){pos=(1150,-380,3500);a=180;pitch=-15;}
   p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=a;p.Pitch=pitch;
@@ -26,7 +28,43 @@ class UTNTSourceTests : EventHandler
  override void NetworkProcess(ConsoleEvent e)
  {
   let s=UTNTSourceSystem.Find();
+  if(e.Name=="sourcefallback" && !(level.MapName~=="TNT04CN"))
+  {
+   Fallback=Actor.Spawn("TheSource",players[0].mo.Pos+(100,0,100));
+   if(Fallback)Fallback.DamageMobj(players[0].mo,players[0].mo,100000,'None',DMG_FORCED);
+  }
+  if(e.Name=="sourcefallbackcheck")
+  {
+   Assert(Fallback && Fallback.Health<=0,"Source fallback test actor is defeated");
+   Assert(Fallback && Fallback.sprite==Actor.GetSpriteIndex("SOUR") && Fallback.Alpha>0 && Fallback.Alpha<1,"other maps retain the original visible Source death fade");
+  }
   if(e.Name=="sourceview")View=e.Args[0];
+  if(e.Name=="sourcebegin")ACS_ExecuteAlways(140,0);
+  if(e.Name=="sourceexitcheck")
+  {
+   Assert(!(level.MapName~=="TNT04CN"),"real BOSSHP ending advances after finale and stillness");
+   Assert(!s,"Source clock is absent in the destination map");
+  }
+  if(e.Name=="sourcedeathcheck")
+  {
+   Assert(s!=null,"dead original actor retains the saved finale clock");if(!s)return;
+   Assert(s.Health<=0 && s.DefeatAge>=e.Args[0] && s.DefeatAge<=e.Args[1],"authoritative finale age in expected interval");
+   Assert(!s.bShootable && !s.bSolid,"defeated sigil cannot obstruct or receive damage");
+   let it=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
+   int count=0;UTNTSourceEmitter em;
+   while(em=UTNTSourceEmitter(it.Next()))
+   {
+    count++;Assert(abs(em.DeadAge-s.DefeatAge)<=1,"client finale follows saved world clock");
+    Assert(em.Ceiling.Size()==8 && em.WallLights.Size()==8,"bounded overhead slabs and room lights");
+    Assert(em.Layers.Size()==44,"bounded finale layer pool after restore");
+    if(s.DefeatAge<158)Assert(em.Layers[0].Scale.X>1.2,"sigil remains full size before severance");
+    if(s.DefeatAge>=245)
+    {bool clear=true;for(int i=0;i<em.Layers.Size();i++)clear=clear && em.Layers[i].Alpha==0;Assert(clear,"empty centre after the seven-second finale");}
+   }
+   Assert(count==1,"one finale emitter after restore");
+   Assert(s.LastBeamState==(s.DefeatAge<35?3:s.DefeatAge<158?4:s.DefeatAge<193?5+(s.DefeatAge-158)*24/35:2),"beam severance follows finale phase");
+   Console.Printf("SOURCE_DEATH age=%d beam=%d map=%s",s.DefeatAge,s.LastBeamState,level.MapName);
+  }
   if(e.Name=="sourcecheck")
   {
    if(!(level.MapName~=="TNT04CN"))
@@ -48,13 +86,18 @@ class UTNTSourceTests : EventHandler
    UTNTSourceEmitter em;
    while(em=UTNTSourceEmitter(it.Next()))
    {
-    count++;Assert(em.Layers.Size()==12,"twelve bounded presentation layers including centre glow");
-    bool roles=em.Layers.Size()==12;
+    count++;Assert(em.Layers.Size()==44,"44 bounded presentation layers including finale");
+    bool ceilingOK=em.Ceiling.Size()==8;
+    for(int k=0;k<em.Ceiling.Size();k++)
+     ceilingOK=ceilingOK && abs(em.Ceiling[k].Angle-k*45)<0.1 && em.Ceiling[k].bFlatSprite;
+    Assert(ceilingOK,"eight ceiling sectors have distinct world orientations");
+    bool roles=em.Layers.Size()==44;
     for(int i=0;i<em.Layers.Size();i++)roles=roles && em.Layers[i].Kind==i;
     Assert(roles,"distinct shield, target and attack layers");
    }
    Assert(count==1,"single local emitter after save/load");
    Vector3 center=s.Center();
+   Console.Printf("SOURCE_CEILING %.1f",s.GetZAt(0,0,0,GZF_CEILING|GZF_NO3DFLOOR));
    Console.Printf("SOURCE_POS %.1f %.1f %.1f CENTERZ %.1f SIDES %d SHIELD %d",s.Pos.X,s.Pos.Y,s.Pos.Z,center.Z,s.BeamSides.Size(),s.ShieldLines.Size());
   }
   if(!s)return;

@@ -13,7 +13,7 @@ def main():
   for i in range(2):
    label=f'source-coop-{i}';config=W/(label+'.ini');cfg=W/(label+'.cfg')
    config.write_text('[GlobalSettings]\nvid_fullscreen=false\nwin_w=658\nwin_h=407\nvid_maxfps=60\ni_pauseinbackground=false\nvid_activeinbackground=true\n')
-   command='wait 350; netevent sourcecheck 15000 0; wait 35; netevent sourceguardian; wait 30; netevent sourcecheck 15000 1; wait 315; netevent sourcecheck 15000 0; netevent sourceattack 2; wait 50; netevent sourceattackcheck 2; wait 10; echo UTNT_SOURCE_COOP_COMPLETE' if i==0 else 'wait 820; echo UTNT_SOURCE_COOP_COMPLETE'
+   command='wait 350; netevent sourcecheck 15000 0; wait 35; netevent sourceguardian; wait 30; netevent sourcecheck 15000 1; wait 315; netevent sourcecheck 15000 0; netevent sourceattack 2; wait 50; netevent sourceattackcheck 2; wait 10; netevent sourcekill; wait 111; netevent sourcedeathcheck 108 114; wait 149; netevent sourcedeathcheck 257 263; echo UTNT_SOURCE_COOP_COMPLETE' if i==0 else 'wait 1140; echo UTNT_SOURCE_COOP_COMPLETE'
    cfg.write_text(command+'\n')
    args=[str(a.engine),'-iwad',str(a.iwad),'-file',str(a.mod.resolve()),str(ROOT/'tools/source-tests'),'-config',str(config),'-noautoload','-nosound','-stdout','-noidle',
      '+vid_fullscreen','false','+vid_preferbackend','1','+UTNT_fxquality',str(i*3),'+UTNT_reducedfx','true' if i==0 else 'false','+map','TNT04CN','+exec',cfg.as_posix()]
