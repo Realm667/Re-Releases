@@ -1,0 +1,49 @@
+version "5.0.0"
+class HUDStackLongKey : RedSkull
+{
+    Default { Tag "A VERY LONG KEY PICKUP NAME THAT WRAPS ACROSS MULTIPLE LINES ABOVE THE ABILITY CARDS"; }
+}
+class HUDStackWorld : EventHandler
+{
+    override void WorldTick() { if(players[0].mo) players[0].mo.bInvulnerable=true; }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="stackpick") return;
+        let p=players[0].mo;
+        let a=UTNTAbilities.Get(p);
+        a.Finish();a.Cooldown[0]=a.Cooldown[1]=a.LockRemaining=0;
+        if(e.Args[0]==2) a.Activate(1);
+        else a.Cooldown[0]=50*35;
+        p.TakeInventory('RedSkull',999);
+        p.TakeInventory('HUDStackLongKey',999);
+        class<Inventory> cls=e.Args[0]==1?'HUDStackLongKey':'RedSkull';
+        let item=Inventory(Actor.Spawn(cls,p.Pos,NO_REPLACE));
+        item.Touch(p);
+    }
+}
+class HUDStackUI : StaticEventHandler
+{
+    ui void Check(bool ok,String label) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",label); }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        let feed=UTNTPickupFeed(StaticEventHandler.Find('UTNTPickupFeed'));
+        if(e.Name=="stackclear") { feed.Items.Clear();feed.ItemAge=0; }
+        if(e.Name!="stackcheck") return;
+        Check(feed.Items.Size()==1,"real touch queues one pickup");
+        if(!feed.Items.Size()) return;
+        class<Inventory> cls=feed.Items[0];let def=GetDefaultByType(cls);
+        double scale=UTNTUILayout.Scale();
+        let lines=Font.GetFont('SmallFont').BreakLines(StringTable.Localize(def.GetTag()),int(UTNTUILayout.Width(276)-56));
+        double height=max(36,lines.Count()*11+12);
+        double pickupTop=UTNTUILayout.PickupTop(height),pickupBottom=pickupTop+height*scale;
+        double abilityTop=UTNTUILayout.AbilityTop(),abilityScale=UTNTUILayout.AbilityScale();
+        Check(pickupTop>=0,"wrapped pickup fits on screen");
+        Check(abilityTop-pickupBottom>=8*scale-0.5,"pickup clears ability cards by eight scaled pixels");
+        Check(abilityTop+39*abilityScale<=StatusBar.GetTopOfStatusBar(),"ability cards clear the status bar");
+        double margin=UTNTUILayout.AbilityMargin();
+        Check(Screen.GetWidth()-2*margin-312*abilityScale>=8*abilityScale-0.5,"ability cards also clear each other horizontally");
+        Check(e.Args[0]!=1 || lines.Count()>1,"long pickup exercises wrapping");
+        Check(TexMan.CheckForTexture('UABFRAME').IsValid(),"SBAR frame composition loads");
+        Console.Printf("STACK_METRICS %d %d pickup=%.2f..%.2f ability=%.2f..%.2f lines=%d scale=%.2f",Screen.GetWidth(),Screen.GetHeight(),pickupTop,pickupBottom,abilityTop,abilityTop+39*abilityScale,lines.Count(),scale);
+    }
+}

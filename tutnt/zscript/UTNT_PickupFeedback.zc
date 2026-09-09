@@ -107,7 +107,7 @@ class UTNTPickupFeed : StaticEventHandler
         String tag=def.GetTag();if(tag.Length()>0) text=StringTable.Localize(tag);
         let lines=Font.GetFont('SmallFont').BreakLines(text,int(width-56));
         double height=max(36,lines.Count()*11+12);
-        double x=14*scale,y=bottom-40*hud.Y-(height+8)*scale;
+        double x=14*scale,y=UTNTUILayout.PickupTop(height);
         double alpha=clamp(min((ItemAge+e.FracTic)/7.0,(105-ItemAge-e.FracTic)/11.0),0,1);
         UTNTExplorationUI.Frame(x,y,width,height,scale,alpha);
         TextureID icon=def.Icon;if(!icon.IsValid() && def.SpawnState) icon=def.SpawnState.GetSpriteTexture(0);
