@@ -74,13 +74,32 @@ class UTNTPickupFeed : StaticEventHandler
         if(automapactive || h && (h.ObjectivesHeld || h.ObjectivesFadeTics>0)) return;
         if(Items.Size() && ++ItemAge>=105) { Items.Delete(0);ItemAge=0; }
     }
+    ui bool Visible(Actor camera)
+    {
+        if(gamestate!=GS_LEVEL || !viewactive || automapactive || !camera || !camera.player
+            || camera.health<=0 || camera.FindInventory('UTNTHUDHidden')
+            || !CVar.FindCVar('UTNT_pickupfeedback').GetBool()) return false;
+        let h=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
+        return !(h && (h.ObjectivesHeld || h.ObjectivesFadeTics>0));
+    }
+    ui BrokenLines CardLines()
+    {
+        if(!Items.Size()) return null;
+        class<Inventory> type=Items[0]; if(!type) return null;
+        let def=GetDefaultByType(type);
+        String text=StringTable.Localize(def.PickupMsg);
+        String tag=def.GetTag();if(tag.Length()>0) text=StringTable.Localize(tag);
+        return Font.GetFont('SmallFont').BreakLines(text,int(UTNTUILayout.Width(276)-56));
+    }
+    ui double ReservedBottom()
+    {
+        if(!Visible(players[consoleplayer].camera)) return 0;
+        let lines=CardLines(); if(!lines) return 0;
+        return UTNTUILayout.PickupTop()+max(36,lines.Count()*11+12)*UTNTUILayout.Scale();
+    }
     override void RenderOverlay(RenderEvent e)
     {
-        if(gamestate!=GS_LEVEL || !viewactive || automapactive || !e.Camera || !e.Camera.player
-            || e.Camera.health<=0 || e.Camera.FindInventory('UTNTHUDHidden')
-            || !CVar.FindCVar('UTNT_pickupfeedback').GetBool()) return;
-        let h=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
-        if(h && (h.ObjectivesHeld || h.ObjectivesFadeTics>0)) return;
+        if(!Visible(e.Camera)) return;
         Vector2 hud=(2,2);if(StatusBar) hud=StatusBar.GetHUDScale();
         double cx=Screen.GetWidth()/2.0,bottom=Screen.GetHeight(),s=max(1,hud.Y*0.7);
         for(int i=0;i<7;i++) if(EndTimes[i]>Clock)
@@ -102,12 +121,9 @@ class UTNTPickupFeed : StaticEventHandler
         if(!type) return;
         let def=GetDefaultByType(type);
         double scale=UTNTUILayout.Scale(),width=UTNTUILayout.Width(276);
-        String text=StringTable.Localize(def.PickupMsg);
-        // Short names use engine inventory tags when available.
-        String tag=def.GetTag();if(tag.Length()>0) text=StringTable.Localize(tag);
-        let lines=Font.GetFont('SmallFont').BreakLines(text,int(width-56));
+        let lines=CardLines();
         double height=max(36,lines.Count()*11+12);
-        double x=14*scale,y=UTNTUILayout.PickupTop(height);
+        double x=UTNTUILayout.PickupLeft(),y=UTNTUILayout.PickupTop();
         double alpha=clamp(min((ItemAge+e.FracTic)/7.0,(105-ItemAge-e.FracTic)/11.0),0,1);
         UTNTExplorationUI.Frame(x,y,width,height,scale,alpha);
         TextureID icon=def.Icon;if(!icon.IsValid() && def.SpawnState) icon=def.SpawnState.GetSpriteTexture(0);

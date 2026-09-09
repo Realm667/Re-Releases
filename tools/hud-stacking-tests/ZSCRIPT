@@ -1,7 +1,7 @@
 version "5.0.0"
 class HUDStackLongKey : RedSkull
 {
-    Default { Tag "A VERY LONG KEY PICKUP NAME THAT WRAPS ACROSS MULTIPLE LINES ABOVE THE ABILITY CARDS"; }
+    Default { Tag "A VERY LONG KEY PICKUP NAME THAT WRAPS ACROSS MULTIPLE LINES AT THE TOP OF THE SCREEN"; }
 }
 class HUDStackWorld : EventHandler
 {
@@ -35,9 +35,14 @@ class HUDStackUI : StaticEventHandler
         double scale=UTNTUILayout.Scale();
         let lines=Font.GetFont('SmallFont').BreakLines(StringTable.Localize(def.GetTag()),int(UTNTUILayout.Width(276)-56));
         double height=max(36,lines.Count()*11+12);
-        double pickupTop=UTNTUILayout.PickupTop(height),pickupBottom=pickupTop+height*scale;
+        double pickupTop=UTNTUILayout.PickupTop(),pickupBottom=pickupTop+height*scale;
         double abilityTop=UTNTUILayout.AbilityTop(),abilityScale=UTNTUILayout.AbilityScale();
-        Check(pickupTop>=0,"wrapped pickup fits on screen");
+        Check(pickupTop==UTNTUILayout.Top(),"pickup uses the upper safe screen edge");
+        Check(abs(UTNTUILayout.PickupLeft()+UTNTUILayout.Width(276)*scale/2-Screen.GetWidth()/2.0)<0.5,"pickup is horizontally centered");
+        double cornerWidth=UTNTUILayout.Width(300)*scale;
+        bool overlaps=UTNTUILayout.Margin()+cornerWidth>UTNTUILayout.PickupLeft()-UTNTUILayout.Gap();
+        Check(overlaps ? UTNTUILayout.CornerTop(cornerWidth)>=pickupBottom+UTNTUILayout.Gap()-0.5
+            : UTNTUILayout.CornerTop(cornerWidth)==UTNTUILayout.Top(),"corner objectives clear the centered pickup only when necessary");
         Check(abilityTop-pickupBottom>=8*scale-0.5,"pickup clears ability cards by eight scaled pixels");
         Check(abilityTop+39*abilityScale<=StatusBar.GetTopOfStatusBar(),"ability cards clear the status bar");
         double margin=UTNTUILayout.AbilityMargin();

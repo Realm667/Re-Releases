@@ -1,10 +1,12 @@
 # Pickup stacking and SBAR ability cards
 
-Key/weapon/powerup cards previously reserved only the status bar and could overlap
-the persistent ability cards. `UTNTUILayout` now supplies the shared ability scale,
-top and margin. Pickup cards end eight scaled pixels above that row and grow upward
-with their actual wrapped text height. Horizontal margins are capped so that the
-two abilities also remain separated when UI scale exceeds status-bar scale.
+Key/weapon/powerup cards are centered at the upper screen margin. The shared
+top safe area keeps them below a visible boss bar. When a centered pickup overlaps
+the horizontal footprint of a corner objective overview or completion card, that
+corner card moves below the pickup with the standard gap. Wide screens keep the
+two elements alongside each other. Pickup height follows the actual wrapped text.
+Ability cards stay above the status bar; their horizontal margins still prevent
+overlap when UI scale exceeds status-bar scale.
 
 Both ability cards use `UABFRAME`, a native TEXTURES composition of the existing
 STBAR stone and bevel patches. The original palette indices are retained, so their
@@ -13,7 +15,7 @@ RGB background images or changes to PLAYPAL. Stepped corners, light labels and
 recessed progress tracks replace the former bronze plaque treatment. Ability state,
 timers, bindings and active class colors remain functional.
 
-## Validation (2026-09-09)
+## Initial SBAR validation (2026-09-09)
 
 UZDoom 5.0.1/Vulkan: 105 runtime assertions across 640x480, 960x540, 1024x768,
 1920x1080 and 2560x1080; UI scale 0.75–1.5; HUD scale 1–3; screenblocks 9–11;
@@ -44,3 +46,15 @@ Repeat with `python tools/test_hud_stacking.py --engine PATH --iwad PATH`.
 `--mod PATH` accepts a source directory or PK3. Add `--quick --palette-probe` for
 the diagnostic palette, or `--renderer 0` to request OpenGL. Test actors and palettes
 are outside `tutnt` and are not shipped in the game package.
+
+## Top-center revision (2026-09-09)
+
+The updated current-project matrix passes 135 assertions in the same five sizes,
+checking the upper safe edge, horizontal centering, wrapped text and collision
+clearance for corner objectives as well as the unchanged ability-card spacing.
+An additional simulated boss overlay passes 27 assertions and visually confirms
+the pickup below the boss bar. Evidence is in
+`tools/validation/pickups-top-center-2026-09-09`.
+
+The engine-validated current package is `tutnt-top-center.pk3`; the existing
+`tutnt.pk3` was open and could not be replaced during delivery.

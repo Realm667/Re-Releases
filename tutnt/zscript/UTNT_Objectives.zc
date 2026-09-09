@@ -134,7 +134,7 @@ class UTNTObjectivePlaque ui
         }
         // Inter-line and inter-objective spacing belongs only between rows.
         height-=3+7;
-        double x=UTNTUILayout.Margin(), y=UTNTUILayout.Top();
+        double x=UTNTUILayout.Margin(), y=UTNTUILayout.CornerTop(width*scale);
         Rect(x,y,scale,0,0,width,height,0x090806,alpha*0.74);
         Rect(x,y,scale,0,0,width,1,0x80613a,alpha);
         Rect(x,y,scale,0,height-1,width,1,0x443721,alpha);
@@ -223,7 +223,7 @@ class UTNTObjectivePlaque ui
         double alpha=clamp(min((now-startTime)/7.0,(endTime-now)/7.0),0,1);
         if(alpha<=0) return 0;
         double scale=UTNTUILayout.Scale(),width=UTNTUILayout.Width(300);
-        double x=UTNTUILayout.Margin(),y=UTNTUILayout.Top();
+        double x=UTNTUILayout.Margin(),y=UTNTUILayout.CornerTop(width*scale);
         Font font=Font.GetFont('SmallFont');
         String heading=StringTable.Localize(CompletedCount(mask)==Count(episode) ? "$UTNT_OBJ_ALL_DONE" : "$UTNT_OBJ_DONE_HEADING");
         String consequence=episode==5 && row==2 ? StringTable.Localize("$UTNT_OBJ_PILLARS") : "";

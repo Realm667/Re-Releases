@@ -1,4 +1,4 @@
-"""Check real key pickups above SBAR ability cards at varied HUD/UI scales."""
+"""Check top-centered key pickups and SBAR ability cards at varied HUD/UI scales."""
 from pathlib import Path
 import argparse,json,shutil,sys,zipfile
 
@@ -46,7 +46,7 @@ for width,height,scale,hud,blocks,language,cls in cases[:1] if a.quick else case
         settings=[('screenblocks',blocks),('UTNT_uiscale',scale),('hud_scale',hud),('language',language),
                   ('vid_activeinbackground',True),('i_pauseinbackground',False),('use_mouse',False),
                   ('con_notifytime',0),('motionblur',False)])
-    result['ok'] &= result['assertions']==21
+    result['ok'] &= result['assertions']==27
     result['case']=[width,height,scale,hud,blocks,language,cls,a.renderer]
     results.append(result)
     if not result['ok']: print(Path(result['log']).read_text()[-5000:])

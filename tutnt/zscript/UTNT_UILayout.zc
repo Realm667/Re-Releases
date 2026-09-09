@@ -18,7 +18,7 @@ class UTNTUILayout ui
     static double Gap() { return max(6,round(8*Scale())); }
     static double Width(double preferred) { return min(preferred,(Screen.GetWidth()-2*Margin())/Scale()); }
     static double Bottom() { return Screen.GetHeight()-max(40*Scale(),Screen.GetHeight()*0.16)-Gap(); }
-    // The persistent cards and transient pickups share one bottom-up stack.
+    // Persistent ability cards remain above the status bar.
     static double AbilityScale() { return min(Scale(),(Screen.GetWidth()-16.0)/320); }
     static double AbilityTop()
     {
@@ -34,7 +34,15 @@ class UTNTUILayout ui
         // Large UI cards must also fit when the status bar uses a smaller scale.
         return min(max(Margin(),(Screen.GetWidth()-320*hs.X)/2),(Screen.GetWidth()-320*AbilityScale())/2);
     }
-    static double PickupTop(double height) { return AbilityTop()-Gap()-height*Scale(); }
+    static double PickupLeft() { return (Screen.GetWidth()-Width(276)*Scale())/2; }
+    static double PickupTop() { return Top(); }
+    static double CornerTop(double width)
+    {
+        double top=Top(),left=PickupLeft(),right=left+Width(276)*Scale();
+        if(Margin()+width<=left-Gap() || Margin()>=right+Gap()) return top;
+        let feed=UTNTPickupFeed(StaticEventHandler.Find('UTNTPickupFeed'));
+        return feed ? max(top,feed.ReservedBottom()+Gap()) : top;
+    }
     static double VoiceScale()
     {
         return max(1.0,Scale()*clamp(CVar.FindCVar('UTNT_subtitlescale').GetFloat(),0.75,1.5));
