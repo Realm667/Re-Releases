@@ -1,5 +1,7 @@
 # TNT01: organischere Außenbereiche
 
+Diese erste Fassung ist als Entwicklungsnachweis erhalten. Die aktuelle großflächige Geländeüberarbeitung ist in [UTNT_TNT01_LANDSCAPE.md](UTNT_TNT01_LANDSCAPE.md) beschrieben.
+
 Die Fels- und Graslandschaft in TNT01 erhält zusätzliche echte Kartengeometrie:
 22 ausgewählte Felskanten werden in unregelmäßige Teilflächen gegliedert,
 zehn niedrige Felsformationen und 17 flache Graswellen ergänzen die Außenflächen.
