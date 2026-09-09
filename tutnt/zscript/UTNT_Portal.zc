@@ -43,6 +43,8 @@ class UTNTPortalMaterials : EventHandler
         while(source=UTNTPortalDecorationBase(it.Next()))
         {
             if(source is 'UTNTPortalAutoSource') continue;
+            // A nearby decoration covers only its own face, never the reverse.
+            if(cos(source.Angle)*direction.Y-sin(source.Angle)*direction.X<0.999) continue;
             Vector2 delta=source.Pos.XY-start;
             double along=Projection(delta,direction);
             double away=abs(delta.X*direction.Y-delta.Y*direction.X);
@@ -65,7 +67,8 @@ class UTNTPortalMaterials : EventHandler
         let existing=ThinkerIterator.Create('UTNTPortalAutoSource',Thinker.MAX_STATNUM+1,true);
         UTNTPortalAutoSource old;
         while(old=UTNTPortalAutoSource(existing.Next()))
-            if((old.Pos.XY-center).Length()<1 && abs(old.Pos.Z-bottom)<1) return;
+            if((old.Pos.XY-center).Length()<1 && abs(old.Pos.Z-bottom)<1
+                && cos(old.Angle)*axis.X+sin(old.Angle)*axis.Y>0.999) return;
         let source=UTNTPortalAutoSource(Actor.SpawnClientSide('UTNTPortalAutoSource',(center.X,center.Y,bottom)));
         if(!source) return;
         source.Angle=atan2(axis.Y,axis.X);
@@ -80,6 +83,25 @@ class UTNTPortalMaterials : EventHandler
         TextureID oldA=TexMan.CheckForTexture('QTELEPT');
         TextureID oldB=TexMan.CheckForTexture('QTELEPOR');
         TextureID portal=TexMan.CheckForTexture('UPORTAL');
+        // Traversable portal sheets can have a blank reverse sidedef. Give
+        // that face the same material before fitting each orientation. Keep
+        // authored non-portal reverse textures and all collision flags intact.
+        for(int i=0;i<level.lines.Size();i++)
+        {
+            let line=level.lines[i];
+            if(!line.sidedef[0] || !line.sidedef[1]) continue;
+            for(int face=0;face<2;face++)
+            {
+                let side=line.sidedef[face]; let other=line.sidedef[1-face];
+                TextureID tex=side.GetTexture(Side.mid);
+                if(tex!=oldA && tex!=oldB && tex!=portal) continue;
+                if(other.GetTexture(Side.mid).isValid()) continue;
+                Vector2 center=(line.v1.p+line.v2.p)*0.5;
+                double bottom=max(side.sector.floorplane.ZatPoint(center),other.sector.floorplane.ZatPoint(center));
+                double top=min(side.sector.ceilingplane.ZatPoint(center),other.sector.ceilingplane.ZatPoint(center));
+                if(top-bottom>=48) other.SetTexture(Side.mid,tex);
+            }
+        }
         Array<UTNTPortalSlice> parts;
         for(int i=0;i<level.sides.Size();i++)
         {

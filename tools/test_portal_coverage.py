@@ -11,7 +11,7 @@ p.add_argument('--iwad',type=Path,default=os.environ.get('UTNT_IWAD','F:/DoomDev
 p.add_argument('--renderer',choices=['0','1','both'],default='1')
 a=p.parse_args();a.out.mkdir(parents=True,exist_ok=True)
 fixtures=ROOT/'tools/portal-tests';results=[]
-maps={'ENDMAP01':(30,1),'TNT03B':(5,0),'TNT04A':(5,0),'TNT04B':(15,1),'TNT04C':(32,1),'TNT04CN':(30,1),'TNT03A1':(0,0),'TNT03A2':(0,0),'TNTLE':(0,0)}
+maps={'ENDMAP01':(30,1),'TNT03B':(5,1),'TNT04A':(5,1),'TNT04B':(15,1),'TNT04C':(34,1),'TNT04CN':(30,1),'TNT03A1':(0,0),'TNT03A2':(0,0),'TNTLE':(0,0)}
 settings=[('vid_maxfps',60),('i_pauseinbackground',False),('use_mouse',False),('use_joystick',False),('gl_bloom',False),('gl_texture_filter',0)]
 for renderer in ['0','1'] if a.renderer=='both' else [a.renderer]:
  for name,(count,autos) in maps.items():

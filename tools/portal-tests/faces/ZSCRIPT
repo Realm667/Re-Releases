@@ -1,0 +1,82 @@
+version "5.0.0"
+class PortalFacesTest : EventHandler
+{
+    transient Actor Cam;
+    int Serial;
+    ui int Seen;
+    void Verify(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
+    override void WorldTick() { if(Cam)players[consoleplayer].camera=Cam; }
+    override void RenderOverlay(RenderEvent e)
+    {
+        if(Serial==Seen)return;Seen=Serial;
+        let h=UTNTPortalMaterials(EventHandler.Find('UTNTPortalMaterials'));
+        Console.Printf("UTNT_ASSERT %s: passage suction from y=%.1f amount=%.4f",h.SuctionAmount>.01 ? "PASS" : "FAIL",e.ViewPos.Y,h.SuctionAmount);
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="portalfaces")return;
+        let h=UTNTPortalMaterials(EventHandler.Find('UTNTPortalMaterials'));
+        if(e.Args[0]==0)
+        {
+            Verify(h.Openings.Size()>0,"portal openings exist");
+            for(int i=0;i<h.Openings.Size();i++)
+            {
+                let opening=h.Openings[i];
+                Vector2 axis=(opening.Direction.Y,-opening.Direction.X);
+                Vector2 center=(opening.A+opening.B)*.5;
+                int matches=0;
+                for(int client=0;client<2;client++)
+                {
+                let it=client ? ThinkerIterator.Create('UTNTPortalAutoSource',Thinker.MAX_STATNUM+1,true) : ThinkerIterator.Create('UTNTPortalDecorationBase');
+                UTNTPortalDecorationBase s;
+                while(s=UTNTPortalDecorationBase(it.Next()))
+                {
+                    if(!client && s is 'UTNTPortalAutoSource')continue;
+                    Vector2 delta=s.Pos.XY-center;
+                    if(s is 'UTNTPortalAutoSource' && (s.Pos.XY-(center+axis*8)).Length()>1)continue;
+                    if(abs(delta.X*axis.X+delta.Y*axis.Y)>32 || abs(delta.X*opening.Direction.X+delta.Y*opening.Direction.Y)>32)continue;
+                    if(s.Pos.Z<opening.Bottom-8 || s.Pos.Z>opening.Top+8)continue;
+                    if(cos(s.Angle)*axis.X+sin(s.Angle)*axis.Y>.999)matches++;
+                }
+                }
+                Verify(matches==1,String.Format("opening %d has exactly one correctly oriented source (found %d)",i,matches));
+            }
+            if(level.MapName=="TNT04C")
+            {
+                Verify(h.FittedSurfaces==34,"both formerly blank passage faces fitted");
+                for(int i=0;i<2;i++)
+                {
+                    let line=level.lines[i==0 ? 1147 : 1150];
+                    Verify(!(line.flags & Line.ML_BLOCKING),"passage remains traversable");
+                    Verify(line.sidedef[0].GetTexture(Side.mid)==TexMan.CheckForTexture('UPORTAL')
+                        && line.sidedef[1].GetTexture(Side.mid)==TexMan.CheckForTexture('UPORTAL'),"passage material on both sides");
+                }
+            }
+            return;
+        }
+        if(e.Args[0]==1)
+        {
+            if(!Cam)Cam=Actor.SpawnClientSide('UTNTPortalAnchor');
+            int offset=e.Args[1];
+            Cam.SetOrigin((896,712+offset,64),false);
+            Cam.Angle=offset<0 ? 90 : 270;Cam.Pitch=0;
+            players[consoleplayer].camera=Cam;
+            return;
+        }
+        Serial++;
+        int count=0;
+        let vi=ThinkerIterator.Create('UTNTPortalMote',Thinker.MAX_STATNUM+1,true);
+        UTNTPortalMote m;
+        while(m=UTNTPortalMote(vi.Next()))
+        {
+            if((m.Source.Pos.XY-(896,712)).Length()>40)continue;
+            double facing=(Cam.Pos.X-m.Source.Pos.X)*cos(m.Source.Angle)+(Cam.Pos.Y-m.Source.Pos.Y)*sin(m.Source.Angle);
+            if(facing<=0)continue;
+            count++;
+            Vector3 travel=m.Start-m.Target;
+            Verify(travel.X*cos(m.Source.Angle)+travel.Y*sin(m.Source.Angle)>0,"rune draws inward from current approach side");
+            Verify(m.Trail.Size()==3,"rune retains its faint trail");
+        }
+        Verify(count>0,"approached passage face emits runes");
+    }
+}

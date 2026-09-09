@@ -23,7 +23,7 @@ Rahmenrunen und fliegenden Zeichen stärker orange als die Portalfläche.
 
 ## Reichweite und Skripte
 
-Die bestehende Portalzuordnung umfasst 117 mittlere Wandsegmente in ENDMAP01,
+Die bestehende Portalzuordnung umfasst 119 mittlere Wandsegmente (einschließlich zweier ergänzter Rückseiten) in ENDMAP01,
 TNT03B, TNT04A, TNT04B, TNT04C und TNT04CN, einschließlich schmaler Bogensegmente.
 128er und 192er-Dekorationen benutzen dieselben Originalrunen. Die vergrößerte
 Einzugsfläche, explizite Aktivierung/Deaktivierung, direkte Annäherung mit Noclip/Fly

@@ -147,5 +147,24 @@ Portale nutzen dieselbe Skalierung mit begrenzter Tiefe. Breitere Kurven ziehen
 die Partikel zum bisherigen, engeren Zielbereich in der Portalfläche.
 
 Partikelrate, Lebensdauer, Größen und Effektbudgets bleiben unverändert.
-Der Nahbereichs-Bildschirmshader setzt weiterhin innerhalb von 128 Einheiten
+Der Nahbereichs-Bildschirmshader setzt innerhalb von 384 Einheiten
 ein. Die Portaltextur und die Architektur werden nicht vergrößert.
+
+## Zweiseitige Durchgänge
+
+Die Portalverwaltung ergänzt bei einer offenen zweiseitigen Portalfläche die
+fehlende Rücktextur, sofern dort keine andere Textur liegt. Beide Seiten werden
+anschließend unabhängig eingepasst und erhalten nach außen gerichtete Runen,
+Licht und den gemeinsamen Sichtverzerrungseffekt. Kollisionsflags, Specials und
+Transparenz bleiben erhalten. Die Kartenprüfung findet zwei solche fehlenden
+Flächen im schmalen Durchgang von TNT04C; dort werden nun 34 Seiten eingepasst.
+
+Bei vorhandenen Dekorationen und automatischen Quellen zählt auch die Richtung:
+Gegenüberliegende Quellen dürfen sich nicht mehr gegenseitig ersetzen, auch wenn
+sie bei einem schmalen Durchgang exakt dieselbe Position erreichen. Das gilt für
+alle Karten und beide Dekorationsgrößen. Bestehende beidseitige Bögen bleiben
+getrennte Flächen; jeder Blickwinkel verwendet die ihm zugewandte Quelle.
+
+`tools/test_portal_faces.py` prüft die Quellen jeder Öffnung in allen sechs
+Portalkarten. In TNT04C prüft es zusätzlich beide Texturseiten, freie Passage,
+Runenflugrichtung, Schweife, Sichtverzerrung beim Seitenwechsel und Save/Load.
