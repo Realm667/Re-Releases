@@ -134,3 +134,17 @@ sowie abgeschaltete Zustände. Belege: tools/validation/portal-approach-2026-09-
 Die gemeinsame ACS-Bibliothek wurde angepasst. UZDoom verweigert ältere
 Spielstände mit der vorherigen Bibliotheksgröße; für diesen Build die Karte
 frisch starten. Save/Load innerhalb der neuen Fassung ist geprüft.
+
+## Vergrößerter Partikel-Sogbereich
+
+Der Ansaugbereich entspricht der größeren räumlichen Ausdehnung aus der grünen
+Nutzermarkierung: Startpunkte verteilen sich unabhängig vom Ziel über die
+1,6-fache Portalbreite und 96 Prozent der Öffnungshöhe. Vor einem 192er-Portal
+beginnen sie 128 bis 320 Mapeinheiten vor der Fläche (vorher 64 bis 144).
+Bei 128er-Portalen beträgt die Tiefe 96 bis 240 Einheiten. Automatisch erkannte
+Portale nutzen dieselbe Skalierung mit begrenzter Tiefe. Breitere Kurven ziehen
+die Partikel zum bisherigen, engeren Zielbereich in der Portalfläche.
+
+Partikelrate, Lebensdauer, Größen und Effektbudgets bleiben unverändert.
+Der Nahbereichs-Bildschirmshader setzt weiterhin innerhalb von 128 Einheiten
+ein. Die Portaltextur und die Architektur werden nicht vergrößert.

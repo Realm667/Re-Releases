@@ -321,9 +321,14 @@ class UTNTPortalMote : VisualThinker
         Life=int(emitter.Noise(32,58));
         Target=emitter.Center+emitter.SideAxis*emitter.Noise(-emitter.Width*0.26,emitter.Width*0.26);
         Target.Z+=emitter.Noise(-emitter.Height*0.32,emitter.Height*0.32);
-        Start=Target+emitter.Axis*emitter.Noise(64,144);
-        Start+=emitter.SideAxis*emitter.Noise(-32,32); Start.Z+=emitter.Noise(-22,22);
-        Bend=emitter.SideAxis*emitter.Noise(-22,22)+(0,0,emitter.Noise(-18,18));
+        // A broad intake volume in front of the opening, converging on the
+        // smaller destination above. Scale from the portal, not each target.
+        double reach=clamp(emitter.Width/192.0,0.75,1.5);
+        Start=emitter.Center+emitter.Axis*emitter.Noise(128,320)*reach;
+        Start+=emitter.SideAxis*emitter.Noise(-emitter.Width*0.8,emitter.Width*0.8);
+        Start.Z+=emitter.Noise(-emitter.Height*0.48,emitter.Height*0.48);
+        Bend=emitter.SideAxis*emitter.Noise(-emitter.Width*0.2,emitter.Width*0.2)
+            +(0,0,emitter.Noise(-emitter.Height*0.12,emitter.Height*0.12));
         Diameter=wisp ? emitter.Noise(16,26) : emitter.Noise(6,10);
         Strength=wisp ? 0.48 : emitter.Noise(0.85,1.0);
         Texture=TexMan.CheckForTexture(wisp ? 'UPRWA0' : 'UPRMA0');
