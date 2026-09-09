@@ -1,0 +1,25 @@
+version "4.14"
+class UTNTEndmapSkyTests : EventHandler
+{
+ bool Checked;
+ void Check()
+ {
+  Console.Printf("UTNT_ASSERT %s: TNT01 storm material assigned",level.SkyTexture1==TexMan.CheckForTexture("USTSKY")?"PASS":"FAIL");
+  Console.Printf("UTNT_ASSERT %s: default legacy sky camera retired",level.sectorPortals[0].mSkybox==null?"PASS":"FAIL");
+  Console.Printf("UTNT_ASSERT %s: original sector count",level.Sectors.Size()==514?"PASS":"FAIL");
+  let it=ThinkerIterator.Create('SkyViewpoint'); Actor a; int named=0,anonymous=0;
+  while(a=Actor(it.Next()))
+  {
+   if(a.GetClassName()!='SkyViewpoint')continue;
+   if(a.TID==6)named++;
+   if(a.TID==0)anonymous++;
+  }
+  Console.Printf("UTNT_ASSERT %s: named finale viewpoint preserved",named==1?"PASS":"FAIL");
+  Console.Printf("UTNT_ASSERT %s: anonymous sky viewpoints retired",anonymous==0?"PASS":"FAIL");
+ }
+ override void WorldTick()
+ {
+  if(level.MapName~=="ENDMAP01" && level.time>=10 && !Checked){Checked=true;Check();}
+ }
+ override void NetworkProcess(ConsoleEvent e){if(e.Name=="endmapskycheck")Check();}
+}
