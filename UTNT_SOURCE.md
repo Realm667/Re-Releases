@@ -108,3 +108,18 @@ Reduced FX removes the subtle pulse, while the static glow remains visible.
 The aura collapses with the other layers on death and reconstructs on save/load.
 No map geometry, collision, damage, timing or additional dynamic lights change.
 Actual engine evidence is in `tools/validation/source-focus-2026-09-09/`.
+
+## Approved arena follow-up - 2026-09-09
+
+The user approved the following arena extension for the next editing session.
+This is a remembered implementation plan, not an implemented feature:
+
+- Place a monumental, broken rune seal beneath the boss chamber ceiling,
+  high above the Source, using the established teleporter/portal rune language.
+- Let floating segments illuminate sequentially during attack preparation.
+- On shield break, send a light pulse from the ceiling across the hall walls,
+  making the whole arena visibly respond to the boss.
+- Preserve a clear view of the central sigil and readable combat cues.
+
+A more dramatic lightning-based boss defeat is being discussed separately;
+its choreography has not yet been approved or implemented.
