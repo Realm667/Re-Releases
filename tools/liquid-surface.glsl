@@ -1,5 +1,6 @@
 // Coarse native-texture surfaces over coherent height and independent currents.
 // All coordinates below are renderer-world coordinates (X, Doom Z, Doom Y).
+#define LIQUID_TIME (timer * 0.01)
 float LiqHash(vec2 p)
 {
     vec3 q=fract(vec3(p.xyx)*0.1031);q+=dot(q,q.yzx+33.33);
@@ -34,7 +35,7 @@ float LiqHeightSample(vec2 uv)
 void LiqCoordinates(vec2 p,out vec2 a,out vec2 b,out float blend)
 {
     vec2 bend=vec2(LiqNoise(p/517.0+11.7),LiqNoise(p/463.0+37.4))-0.5;
-    vec2 small=vec2(sin(p.y/61.0+timer*0.93),sin(p.x/79.0-timer*0.71));
+    vec2 small=vec2(sin(p.y/61.0+LIQUID_TIME*0.93),sin(p.x/79.0-LIQUID_TIME*0.71));
     a=(p+bend*193.0+small*22.0)/384.0;
     b=(LiqTurn*p*0.713-bend*151.0)/384.0+vec2(3.713,8.291);
     blend=0.18+0.42*smoothstep(0.18,0.82,LiqNoise(p/1103.0+43.7));
@@ -46,20 +47,20 @@ float LiqField(vec2 p)
     // Travelling waves change the surface shape, rather than only translating art.
     float phase=LiqNoise(p/137.0)*5.0;
 #if LIQUID_KIND == 0
-    float waves=sin(dot(p,vec2(0.061,0.037))-timer*2.8+phase)*0.13;
-    waves+=sin(dot(p,vec2(-0.043,0.081))-timer*3.7+phase*0.6)*0.065;
+    float waves=sin(dot(p,vec2(0.061,0.037))-LIQUID_TIME*2.8+phase)*0.13;
+    waves+=sin(dot(p,vec2(-0.043,0.081))-LIQUID_TIME*3.7+phase*0.6)*0.065;
 #elif LIQUID_KIND == 1
-    float waves=sin(dot(p,vec2(0.042,0.027))-timer*1.15+phase)*0.095;
+    float waves=sin(dot(p,vec2(0.042,0.027))-LIQUID_TIME*1.15+phase)*0.095;
     // Sparse domes inflate and collapse into the moving sludge.
     vec2 cell=floor(p/71.0),local=fract(p/71.0);
     float seed=LiqHash(cell+17.3);
     vec2 center=0.25+0.5*vec2(LiqHash(cell+7.7),LiqHash(cell+39.1));
-    float life=max(0.0,sin(timer*1.7+seed*31.0));
+    float life=max(0.0,sin(LIQUID_TIME*1.7+seed*31.0));
     float dome=1.0-smoothstep(0.0,0.19,max(0.0,length(local-center)));
     waves+=dome*dome*life*0.32*step(0.62,seed);
 #else
-    float waves=sin(dot(p,vec2(0.049,0.031))-timer*1.9+phase)*0.12;
-    waves+=sin(dot(p,vec2(-0.036,0.068))-timer*2.4+phase*0.7)*0.05;
+    float waves=sin(dot(p,vec2(0.049,0.031))-LIQUID_TIME*1.9+phase)*0.12;
+    waves+=sin(dot(p,vec2(-0.036,0.068))-LIQUID_TIME*2.4+phase*0.7)*0.05;
 #endif
     waves*=1.0-smoothstep(1.0,4.0,liqLod);
     return clamp(art*0.78+0.11+waves,0.03,0.97);
@@ -141,6 +142,15 @@ void SetupMaterial(inout Material mat)
     vec3 tangent=abs(n.y)>0.85?vec3(1,0,0):normalize(vec3(n.z,0,-n.x));
     vec3 bitangent=abs(n.y)>0.85?vec3(0,0,1):normalize(cross(n,tangent));
     vec2 world=LiqWorldPosition(n,tangent,bitangent);
+    // Plane UVs are (world X, -world Y)/64. Recover map panning in
+    // world units, undoing texture rotation/scale so flow is not amplified.
+    // Apply after horizon reconstruction; never scale this by LIQUID_TIME.
+    if(abs(n.y)>0.85)
+    {
+        mat2 planeUV=mat2(TextureMatrix);
+        if(abs(determinant(planeUV))>0.000001)
+            world+=(inverse(planeUV)*TextureMatrix[3].xy)*vec2(64.0,-64.0);
+    }
     float footprint=max(length(dFdx(world)),length(dFdy(world)));
     liqLod=clamp(log2(max(1.0,footprint*128.0/384.0)),0.0,6.0);
     vec3 ray=normalize(pixelpos.xyz-uCameraPos.xyz);
@@ -153,7 +163,7 @@ void SetupMaterial(inout Material mat)
 #else
     vec2 velocity=vec2(29.0,-13.0);
 #endif
-    vec2 top=world-timer*velocity;
+    vec2 top=world-LIQUID_TIME*velocity;
     vec2 hit=LiqSurfaceHit(top,slope,reliefFade);
     // Keep height intersection continuous; discretize only its visible skin.
     float pixelWeight=1.0-smoothstep(0.8,2.8,footprint);
@@ -167,8 +177,8 @@ void SetupMaterial(inout Material mat)
     vec3 g=tangent*gradient.x+bitangent*gradient.y;g-=n*dot(g,n);
     vec3 bumpedNormal=normalize(n-g);
     // Refraction and independent cross-currents visibly separate the layers.
-    vec2 middle=world+slope*LIQUID_DEPTH*1.2+gradient*9.0-timer*(velocity*1.75+vec2(-11.0,17.0));
-    vec2 deep=world+slope*LIQUID_DEPTH*2.8+gradient*16.0-timer*(velocity*0.63+vec2(16.0,9.0));
+    vec2 middle=world+slope*LIQUID_DEPTH*1.2+gradient*9.0-LIQUID_TIME*(velocity*1.75+vec2(-11.0,17.0));
+    vec2 deep=world+slope*LIQUID_DEPTH*2.8+gradient*16.0-LIQUID_TIME*(velocity*0.63+vec2(16.0,9.0));
     float m=LiqField(middle*1.29+vec2(139.3,317.1));
     float d=LiqField(deep*1.83+vec2(739.7,183.2));
     float open=1.0-smoothstep(0.28,0.78,h);
