@@ -1,0 +1,22 @@
+// Serialized map-local cosmetic clock, shared by both TNTLE skybox materials.
+// A canvas supplies interpolated time without renderer-timer resets on load.
+class UTNTTNTLESkyHandler : EventHandler
+{
+ int SkyTics;
+ clearscope static bool Active() { return level.MapName~=="TNTLE"; }
+ override void WorldTick()
+ {
+  if(Active() && !level.isFrozen())SkyTics=(SkyTics+1)%70000;
+ }
+ override void RenderOverlay(RenderEvent e)
+ {
+  if(!Active())return;
+  let c=TexMan.GetCanvas("ULEDATA");if(!c)return;
+  double f=level.isFrozen()?0:e.FracTic;
+  int packed=int(((SkyTics+f)%70000)/70000.*16777215.+.5);
+  int quality=clamp(CVar.GetCVar('UTNT_fxquality',players[consoleplayer]).GetInt(),1,3);
+  if(CVar.GetCVar('UTNT_reducedfx',players[consoleplayer]).GetBool())quality=1;
+  c.Clear(0,0,4,4,Color((packed>>16)&255,(packed>>8)&255,packed&255));
+  c.Clear(4,0,8,4,Color(quality,0,0));
+ }
+}

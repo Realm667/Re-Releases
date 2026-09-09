@@ -1,0 +1,62 @@
+version "5.0.0"
+class UTNTTNTLESkyTests : EventHandler
+{
+ int View, SavedTics, HeldTics;
+ bool Holding;
+ void Check(bool ok,String name) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",name); }
+ override void WorldTick()
+ {
+  let p=players[0].mo;if(!p)return;
+  p.bInvulnerable=true;p.bNoGravity=true;p.bNoClip=true;
+  Vector3 pos=(-128,-3488,0);double angle=225,pitch=-8;
+  if(View==1)pitch=-65;
+  if(View==2 || View==3){pos=(8192,160,0);angle=270;pitch=View==3?-65:-10;}
+  if(View>=4 && View<=9){pos=(-24576,24576,-41);angle=(View-4)*90;pitch=View==8?-89:View==9?89:0;}
+  if(View>=10 && View<=15){pos=(-20480,24576,-41);angle=(View-10)*90;pitch=View==14?-89:View==15?89:-15;}
+  if(View==16){pos=(12448,-5600,64);angle=90;pitch=-25;}
+  if(View==17){pos=(-24576,24576,-41);angle=225;pitch=0;}
+  p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=angle;p.Pitch=pitch;
+  if(Holding){let h=UTNTTNTLESkyHandler(EventHandler.Find('UTNTTNTLESkyHandler'));h.SkyTics=HeldTics;}
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  let h=UTNTTNTLESkyHandler(EventHandler.Find('UTNTTNTLESkyHandler'));
+  if(e.Name=="leview")View=e.Args[0];
+  if(e.Name=="letime")h.SkyTics=e.Args[0];
+  if(e.Name=="lehold"){Holding=e.Args[0]>=0;HeldTics=e.Args[0];}
+  if(e.Name=="lesnapshot")SavedTics=h.SkyTics;
+  if(e.Name=="leloaded")Check(abs(h.SkyTics-SavedTics)<80,"save/load restores map-local animation time");
+  if(e.Name=="lefrozen")Check(h.SkyTics==SavedTics,"freeze holds both skybox animations");
+  if(e.Name=="lecheck")
+  {
+   Check(h!=null && h.SkyTics>=0 && h.SkyTics<70000,"serialized sky clock available");
+   Check(level.Sectors.Size()==2986,"only two isolated sectors appended");
+   int count=0;bool main=false,night=false,secret=false;let it=ThinkerIterator.Create('SkyViewpoint');Actor a;
+   while(a=Actor(it.Next()))
+   {
+    count++;
+    if(a.TID==0)main=a.Pos==(-24576,24576,0);
+    if(a.TID==13)night=a.Pos==(-20480,24576,0);
+    if(a.TID==31)secret=a.Pos==(11712,-5824,64);
+   }
+   Check(count==3,"all three original sky viewpoints retained");
+   Check(main,"default cavern viewpoint at private room center");
+   Check(night,"TID13 night viewpoint at private room center");
+   Check(secret,"secret-area sky viewpoint unchanged");
+   Check(level.Sectors[2984].GetTexture(Sector.ceiling)==TexMan.CheckForTexture("ULCU"),"closed cavern vault material");
+   Check(level.Sectors[2985].GetTexture(Sector.ceiling)==TexMan.CheckForTexture("ULNU"),"night canopy material");
+  }
+ }
+}
+class UTNTTNTLESkyLoadTest : StaticEventHandler
+{
+ override void WorldLoaded(WorldEvent e)
+ {
+  if(!e.IsSaveGame || !(level.MapName~=="TNTLE"))return;
+  let h=UTNTTNTLESkyHandler(EventHandler.Find('UTNTTNTLESkyHandler'));
+  let t=UTNTTNTLESkyTests(EventHandler.Find('UTNTTNTLESkyTests'));
+  bool valid=h && t && abs(h.SkyTics-t.SavedTics)<8;
+  Console.Printf("UTNT_ASSERT %s: save/load restores map-local animation time",valid?"PASS":"FAIL");
+  Console.Printf("TNTLE_LOAD_CHECKED");
+ }
+}
