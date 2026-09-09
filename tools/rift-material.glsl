@@ -29,6 +29,23 @@ vec3 RiftSurround(vec3 ray)
  color=mix(color,RiftWrap(vec2(.5+ray.x*.25,.25+ray.z*.25)),cap);
  return color*.85*smoothstep(-.30,.35,ray.y);
 }
+vec4 RiftRockLayer(vec4 behind,vec3 ray,vec3 forward,vec3 right,vec3 up,
+                   vec2 span,vec4 bounds,float light,float motion,float phase)
+{
+ float depth=dot(ray,forward);
+ if(depth<=.01)return behind;
+ vec2 p=vec2(dot(ray,right),-dot(ray,up))/(depth*span);
+ // Rigid drift and slight rocking, with independent phases. Periods 121–273 s.
+ float angle=.014*sin(timer*.023+phase),c=cos(angle),s=sin(angle);
+ vec2 uv=vec2(c*p.x-s*p.y,s*p.x+c*p.y)+.5;
+ uv+=motion*vec2(sin(timer*.035+phase),sin(timer*.052+phase*1.7));
+ float edge=min(min(uv.x,1.0-uv.x),min(uv.y,1.0-uv.y));
+ if(edge<=0.0)return behind;
+ vec4 rock=RiftSample(rockmap,mix(bounds.xy,bounds.zw,uv),true)*smoothstep(0.0,.025,edge);
+ float luma=dot(rock.rgb,vec3(.2126,.7152,.0722));
+ rock.rgb=mix(vec3(luma)*vec3(1.05,.94,.82),rock.rgb,.25)*light*smoothstep(-.25,.30,ray.y);
+ return behind*(1.0-rock.a)+rock;
+}
 void SetupMaterial(inout Material mat)
 {
  float s=1.0-2.0*vTexCoord.x,t=1.0-2.0*vTexCoord.y;
@@ -54,16 +71,11 @@ void SetupMaterial(inout Material mat)
   vec3 clouds=RiftSample(nebulamap,uv+drift,false).rgb;
   color=mix(color,clouds,weight);
  }
- // Preserve the original floating rock silhouettes independently of the ceiling.
- vec3 forward=vec3(-.69165480,.20791169,.69165480);
- vec3 right=vec3(.70710678,0.0,.70710678),up=vec3(.14701577,.97814760,-.14701577);
- float depth=dot(ray,forward);
- vec2 rockUV=vec2(.5+dot(ray,right)/(max(depth,.001)*2.666666667),.5-dot(ray,up)/(max(depth,.001)*1.5));
- float rockEdge=min(min(rockUV.x,1.0-rockUV.x),min(rockUV.y,1.0-rockUV.y));
- float rockWeight=smoothstep(0.0,.025,rockEdge)*step(.01,depth);
- vec4 rocks=RiftSample(rockmap,rockUV,true)*rockWeight;
- float rockLuma=dot(rocks.rgb,vec3(.2126,.7152,.0722));
- rocks.rgb=mix(vec3(rockLuma)*vec3(1.05,.94,.82),rocks.rgb,.25)*.65*smoothstep(-.25,.30,ray.y);
+ // Seven independent fields: original debris, three mountains, three clusters.
+ vec4 rocks=vec4(0.0);
+@ROCKS@
+ // Keep the opening's central beam endpoint unobstructed, through both portals.
+ rocks*=smoothstep(.15,.23,length(uv-vec2(.5,.425)));
  color=WarComets(color,ray);
  color=color*(1.0-rocks.a)+rocks.rgb;
  mat.Base=vec4(color,1.0);mat.Normal=normalize(vWorldNormal.xyz);

@@ -9,6 +9,7 @@ import argparse,math
 import numpy as np
 from PIL import Image
 from build_storm_sky import FACES,FORMS,smooth
+from rift_rocks import composite,shader_calls
 ROOT=Path(__file__).resolve().parent.parent
 BEAM=(128.0,-320.0,20000.0)
 EYE=(128.0,-320.0,3241.0)
@@ -42,15 +43,11 @@ def build(root):
   edge=np.minimum.reduce([pu,1-pu,pv,1-pv]);weight=(smooth(0,.13,edge)*smooth(.015,.10,y))[...,None]
   moving=smooth(.12,.28,np.sqrt((pu-.5)**2+(pv-.425)**2))
   nc=sample(nebula,pu+.0015*moving*np.sin(pv*7),pv+.0015*moving*np.sin(pu*8));color=color*(1-weight)+nc*weight
-  depth=-.69165480*x+.20791169*y+.69165480*z
-  ru=.5+(.70710678*x+.70710678*z)/(np.maximum(depth,.001)*2.666666667)
-  rv=.5-(.14701577*x+.97814760*y-.14701577*z)/(np.maximum(depth,.001)*1.5)
-  rw=(smooth(0,.025,np.minimum.reduce([ru,1-ru,rv,1-rv]))*(depth>=.01))[...,None]
-  rock=sample(rocks,ru,rv)*rw;luma=np.sum(rock[:,:,:3]*[.2126,.7152,.0722],axis=2)
-  rock[:,:,:3]=(luma[:,:,None]*[1.05,.94,.82]*.75+rock[:,:,:3]*.25)*.65*smooth(-.25,.30,y)[...,None]
+  clearance=smooth(.15,.23,np.sqrt((pu-.5)**2+(pv-.425)**2))
+  rock=composite(np.dstack((x,y,z)),rocks,sample,smooth,clearance)
   color=color*(1-rock[:,:,3:4])+rock[:,:,:3]
   dest=out/f'textures/URF{face}.png';dest.parent.mkdir(parents=True,exist_ok=True);Image.fromarray(np.uint8(np.clip(color*255,0,255))).save(dest)
-  dest=out/f'shaders/rift/sky-{face}.fp';dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text(comets+'\n'+material.replace('@RAY@',form),newline='\n')
+  dest=out/f'shaders/rift/sky-{face}.fp';dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text(comets+'\n'+material.replace('@RAY@',form).replace('@ROCKS@',shader_calls()),newline='\n')
   gl.append(f'material texture URF{face} {{ shader "shaders/rift/sky-{face}.fp" texture nebulamap "graphics/rift/zenith.png" texture rockmap "graphics/rift/rocks-key.png" texture surroundmap "graphics/rift/dark-clouds.png" }}')
  (out/'GLDEFS.rift').write_text('\n'.join(gl)+'\n',newline='\n')
 

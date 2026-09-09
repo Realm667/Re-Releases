@@ -19,7 +19,15 @@ The existing TNT04CN-only handler selects URFSKY and removes the obsolete decora
 - `graphics/rift/rocks-key.png`: retained independent rock silhouettes, with subdued grey-brown shading.
 - `tools/war-comets.glsl`: unchanged shared comet implementation, composited behind rocks.
 
-The hole stays fixed; only surrounding cloud detail drifts slowly. All six materials reconstruct a continuous world ray and share the same projection. Six 1024-square static fallback faces use a representative camera directly below the opening; static rendering cannot reproduce camera-dependent parallax. Hardware OpenGL/Vulkan materials provide the aligned view.
+The hole stays fixed while the surrounding clouds and floating rock fields drift slowly. All six materials reconstruct a continuous world ray and share the same projection. Six 1024-square static fallback faces use a representative camera directly below the opening; static rendering cannot reproduce camera-dependent parallax. Hardware OpenGL/Vulkan materials provide the aligned view.
+
+## Moving mountains and debris
+
+`tools/rift_rocks.py` defines seven independent fields: the original debris, three additional mountain masses, and three smaller rock clusters. Intact UV regions of the existing `rocks-key.png` are reused without modifying its artwork. The shared layout generates the GPU material calls and the static fallback at time zero.
+
+Groups are distributed around world yaw 20, 80, 120, 175, 215, 265 and 315 degrees, with varied elevation, scale and occasional mirroring. Each moves rigidly with small independent horizontal/vertical offsets and less than one degree of rocking. Different phases and 121-273-second periods suggest distant suspended masses. The original field also moves gently. A soft exclusion around the hole's center leaves the geometric beam endpoint readable. Rocks remain in front of the comets; the approved clouds, opening, map geometry and shared comet source are unchanged.
+
+Motion requires hardware materials; static fallback faces display the same layout at time zero. Evidence for this addition is under `tools/validation/rift-floating-2026-09-09/`.
 
 ## Rebuild and validation
 
