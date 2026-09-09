@@ -1,0 +1,283 @@
+// TNT04CN presentation. Gameplay states, attack timings and shield collision
+// stay authoritative; all render objects and dynamic lights are client-side.
+class UTNTSourceBase : Actor
+{
+ bool SourceReady, ShieldOpen;
+ int AttackKind, AttackStart, OpenStart, HitStart, GuardianSerial, DeathStart;
+ Vector3 GuardianPosition, HitPosition;
+ Array<int> ShieldLines, BeamSides, BeamKinds;
+ int LastBeamState;
+ clearscope Vector3 Center() { return Pos+(0,0,64); }
+ void SetupSource()
+ {
+  let it=level.CreateLineIdIterator(99);int n;
+  while((n=it.Next())>=0)ShieldLines.Push(n);
+  for(int i=0;i<level.sides.Size();i++)
+  {
+   let s=level.sides[i];let t=s.GetTexture(Side.mid);int kind=-1;
+   if(t==TexMan.CheckForTexture("T4_BM1"))kind=0;
+   if(t==TexMan.CheckForTexture("T4_BM2"))kind=1;
+   if(t==TexMan.CheckForTexture("T4_BM2B"))kind=2;
+   // Saved maps already carry these material names.
+   for(int j=0;j<3;j++)for(int k=0;k<3;k++)
+    if(t==TexMan.CheckForTexture(String.Format("USB%d%d",j,k)))kind=j;
+   if(kind>=0){BeamSides.Push(i);BeamKinds.Push(kind);}
+  }
+  for(int i=0;i<ShieldLines.Size();i++)
+  {
+   let l=level.lines[ShieldLines[i]];
+   if(l.sidedef[0])l.sidedef[0].SetTexture(Side.mid,TexMan.CheckForTexture("USSHIELD"));
+   if(l.sidedef[1])l.sidedef[1].SetTexture(Side.mid,TexMan.CheckForTexture("USSHIELD"));
+  }
+  LastBeamState=-1;SourceReady=true;HitStart=-100;OpenStart=-100;
+ }
+ override void Tick()
+ {
+  Super.Tick();
+  if(!(level.MapName~=="TNT04CN"))return;
+  if(!SourceReady)SetupSource();
+  if(IsFrozen() || level.isFrozen())return;
+  bool opened=ShieldLines.Size()>0 && !(level.lines[ShieldLines[0]].flags & Line.ML_BLOCKEVERYTHING);
+  if(opened && !ShieldOpen)OpenStart=level.time;
+  ShieldOpen=opened;
+  if(Health<=0 && !DeathStart)DeathStart=level.time;
+  int state=Health<=0?2:ShieldOpen?1:0;
+  if(state!=LastBeamState)
+  {
+   for(int i=0;i<BeamSides.Size();i++)
+    level.sides[BeamSides[i]].SetTexture(Side.mid,TexMan.CheckForTexture(String.Format("USB%d%d",BeamKinds[i],state)));
+   // Legacy ACS still writes line alpha during its shutdown fade. Removing
+   // only the middle material makes the open silhouette unambiguous from tic 1.
+   TextureID shield=TexMan.CheckForTexture(state==0?"USSHIELD":"-");
+   for(int i=0;i<ShieldLines.Size();i++)
+   {
+    let l=level.lines[ShieldLines[i]];
+    if(l.sidedef[0])l.sidedef[0].SetTexture(Side.mid,shield);
+    if(l.sidedef[1])l.sidedef[1].SetTexture(Side.mid,shield);
+   }
+   LastBeamState=state;
+  }
+  // Suppress the old flat sprite, not its actor, hitbox or death states.
+  sprite=GetSpriteIndex("TNT1");
+  for(int i=0;i<ShieldLines.Size();i++)
+   level.lines[ShieldLines[i]].alpha=ShieldOpen || Health<=0 ? 0 : 0.70;
+  UTNTSourceSystem.Ensure(self);
+ }
+}
+
+class UTNTSourceGuardianBase : Actor
+{
+ bool SourceAnnounced, SourceDeathAnnounced;
+ override void Tick()
+ {
+  Super.Tick();
+  if(!(level.MapName~=="TNT04CN"))return;
+  if((!SourceAnnounced && !bDormant) || (Health<=0 && !SourceDeathAnnounced))
+  {
+   let boss=UTNTSourceSystem.Find();
+   if(boss){boss.GuardianPosition=Pos+(0,0,Height*0.5);boss.GuardianSerial++;}
+   SourceAnnounced=true;
+   if(Health<=0)SourceDeathAnnounced=true;
+  }
+ }
+}
+
+class UTNTSourceSystem play
+{
+ static UTNTSourceBase Find()
+ {
+  if(!(level.MapName~=="TNT04CN"))return null;
+  return UTNTSourceBase(level.CreateActorIterator(666).Next());
+ }
+ static int Attack(int kind)
+ {
+  let s=Find();if(!s)return 0;s.AttackKind=kind;s.AttackStart=level.time;return 1;
+ }
+ static int ShieldHit(int playernum=-1)
+ {
+  let s=Find();if(!s)return 0;s.HitStart=level.time;
+  s.HitPosition=s.Center()+(0,-480,-140);
+  if(playernum>=0 && playernum<MAXPLAYERS && players[playernum].mo)
+  {
+   let p=players[playernum].mo;
+   Vector3 start=p.Pos+(0,0,players[playernum].ViewHeight);
+   Vector3 dir=(cos(p.Pitch)*cos(p.Angle),cos(p.Pitch)*sin(p.Angle),-sin(p.Pitch));
+   Vector2 offset=start.XY-(128,-320);
+   double a=dir.X*dir.X+dir.Y*dir.Y,b=offset.X*dir.X+offset.Y*dir.Y;
+   double disc=b*b-a*(offset.LengthSquared()-535*535);
+   if(a>0.001 && disc>=0)
+   {
+    double t=(-b-sqrt(disc))/a;
+    if(t<0)t=(-b+sqrt(disc))/a;
+    if(t>=0)s.HitPosition=start+dir*t;
+   }
+  }
+  return 1;
+ }
+ static void Ensure(UTNTSourceBase source)
+ {
+  let it=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
+  UTNTSourceEmitter old;
+  while(old=UTNTSourceEmitter(it.Next()))if(old.Source==source)return;
+  if(source.Health<=0)return;
+  let emitter=UTNTSourceEmitter(level.CreateClientSideThinker('UTNTSourceEmitter',Thinker.STAT_USER+12));
+  if(emitter)emitter.Initialize(source);
+ }
+}
+
+class UTNTSourceEmitter : Thinker
+{
+ UTNTSourceBase Source;
+ Actor LightAnchor;
+ Array<UTNTSourceLayer> Layers;
+ Vector3 Center, GuardianPosition;
+ int GuardianSerial, GuardianAge, DeadAge, Quality;
+ bool Opened, Reduced;
+ void Initialize(UTNTSourceBase boss)
+ {
+  Source=boss;Center=boss.Center();GuardianSerial=boss.GuardianSerial;GuardianAge=100;
+  for(int i=0;i<11;i++)
+  {
+   let v=UTNTSourceLayer(level.SpawnClientSideVisualThinker('UTNTSourceLayer'));
+   if(v){v.Initialize(self,i);Layers.Push(v);}
+  }
+  LightAnchor=Actor.SpawnClientSide('UTNTPortalAnchor',Center);
+ }
+ override void OnDestroy()
+ {
+  for(int i=0;i<Layers.Size();i++)if(Layers[i])Layers[i].Destroy();
+  if(LightAnchor)LightAnchor.Destroy();Super.OnDestroy();
+ }
+ override void Tick()
+ {
+  if(level.isFrozen() || (Source && Source.IsFrozen()))return;
+  let p=players[consoleplayer];
+  Quality=p?clamp(CVar.GetCVar('UTNT_fxquality',p).GetInt(),0,3):0;
+  Reduced=!p || CVar.GetCVar('UTNT_reducedfx',p).GetBool();
+  if(Reduced)Quality=min(Quality,1);
+  if(Source)
+  {
+   Center=Source.Center();Opened=Source.ShieldOpen;
+   if(GuardianSerial!=Source.GuardianSerial)
+   {GuardianSerial=Source.GuardianSerial;GuardianPosition=Source.GuardianPosition;GuardianAge=0;}
+  }
+  GuardianAge++;
+  if(!Source || Source.Health<=0)
+  {if(++DeadAge>85){Destroy();return;}}
+  if(LightAnchor)
+  {
+   LightAnchor.SetOrigin(Center,false);
+   if(Quality>0 && !DeadAge)
+    LightAnchor.A_AttachLight('source',DynamicLight.PointLight,Opened?0xffb348:0xff7018,Opened?260:190,0,DynamicLight.LF_ATTENUATE);
+   else LightAnchor.A_RemoveLight('source');
+  }
+ }
+}
+
+class UTNTSourceLayer : VisualThinker
+{
+ UTNTSourceEmitter Owner;
+ int Kind;
+ void Initialize(UTNTSourceEmitter e,int kind)
+ {
+  Owner=e;self.Kind=kind;Flags=SPF_FULLBRIGHT|SPF_ROLL|SPF_ROLLCENTER|SPF_ALLOWSHADERS;
+  SetRenderStyle(STYLE_Add);Texture=TexMan.CheckForTexture("USC0A0");
+  Pos=e.Center;Prev=Pos;UpdateSector();UpdateSpriteInfo();
+ }
+ override void Tick()
+ {
+  if(!Owner){Destroy();return;}
+  if(IsFrozen() || level.isFrozen())return;
+  let e=Owner;let s=e.Source;Prev=Pos;PrevRoll=Roll;
+  Pos=e.Center;Alpha=0;Roll=0;double diameter=650;
+  int elapsed=s?level.time-s.AttackStart:10000;
+  bool damaged=s && s.Health<7500;
+  double open=e.Opened?1:0;
+  // Six arcs separate on the open-state material; the skull stays upright.
+  if(Kind==0)
+  {
+   Texture=TexMan.CheckForTexture(damaged?"USC1A0":"USC0A0");Alpha=0.90;diameter=650;
+  }
+  if(Kind==1)
+  {
+   Texture=TexMan.CheckForTexture(e.Opened?"USROA0":damaged?"USREA0":"USRCA0");
+   diameter=740+open*60;Alpha=0.95;
+   Roll=e.Reduced?0:sin(level.time*0.17)*3;
+   if(e.Opened && s && level.time-s.OpenStart>230)
+    diameter-=min(60,(level.time-s.OpenStart-230)*0.9);
+  }
+  if(Kind==2)
+  {
+   Texture=TexMan.CheckForTexture("USHEA0");
+   diameter=175+(e.Reduced?0:18*sin(level.time*(e.Opened?12:5)));
+   Alpha=e.Opened?0.95:0.12;
+   if(s && s.AttackKind==3 && elapsed<140)
+   {diameter=90+100*min(1.0,double(elapsed)/70);Alpha=0.95;}
+  }
+  if(Kind>=3 && Kind<=5)
+  {
+   int orb=Kind-3;double a=145-orb*55;
+   let cam=players[consoleplayer].camera;
+   double facing=cam?atan2(cam.Pos.Y-e.Center.Y,cam.Pos.X-e.Center.X):270;
+   Vector3 right=(-sin(facing),cos(facing),0);
+   Pos=e.Center+right*cos(a)*355+(0,0,sin(a)*355);
+   Texture=TexMan.CheckForTexture("USORA0");diameter=110;
+   if(s && s.AttackKind==2 && elapsed<390)
+   {
+    double charge=clamp((elapsed-orb*18)/32.0,0.0,1.0);
+    Alpha=0.18+0.72*charge;
+    if(elapsed>70)Alpha*=0.65+0.35*sin((elapsed-orb*8)*8);
+   }
+   Roll=e.Reduced?0:level.time*(orb%2?0.4:-0.4);
+  }
+  if(Kind==6)
+  {
+   Texture=TexMan.CheckForTexture("USRIPA0");diameter=70;
+   Pos=e.GuardianPosition+(e.Center-e.GuardianPosition)*clamp(e.GuardianAge/28.0,0.0,1.0);
+   if(e.GuardianAge<35)Alpha=1-e.GuardianAge/35.0;
+  }
+  if(Kind==7)
+  {
+   Texture=TexMan.CheckForTexture("USRIPA0");
+   diameter=s?max(1,(level.time-s.HitStart)*10):1;
+   Pos=s?s.HitPosition:e.Center;
+   Alpha=s && !e.Opened?max(0,1-(level.time-s.HitStart)/22.0):0;
+  }
+  if(Kind==8)
+  {
+   Texture=TexMan.CheckForTexture("USSTA0");
+   if(s && s.AttackKind==1 && elapsed<305)
+   {
+    Pos=e.Center+(0,0,470+min(200,elapsed*2));diameter=320;
+    Alpha=0.7;Roll=e.Reduced?0:level.time*0.6;
+   }
+  }
+  if(Kind==9)
+  {
+   Texture=TexMan.CheckForTexture("USLNA0");
+   Vector3 delta=e.Center-e.GuardianPosition;
+   Pos=(e.Center+e.GuardianPosition)*0.5;
+   let cam=players[consoleplayer].camera;
+   double facing=cam?atan2(cam.Pos.Y-Pos.Y,cam.Pos.X-Pos.X):270;
+   double across=-sin(facing)*delta.X+cos(facing)*delta.Y;
+   Roll=atan2(delta.Z,across);
+   diameter=sqrt(across*across+delta.Z*delta.Z);
+   if(e.GuardianAge<35)Alpha=(1-e.GuardianAge/35.0)*0.8;
+  }
+  if(Kind==10)
+  {
+   Texture=TexMan.CheckForTexture("USDFA0");diameter=850;
+   if(e.Opened)Alpha=0.65;
+   Roll=e.Reduced?0:sin(level.time*0.6)*8;
+  }
+  if(e.DeadAge)
+  {
+   double collapse=max(0,1-(e.DeadAge-10)/50.0);
+   diameter*=collapse;Alpha*=collapse;
+   if(Kind==2){diameter=20+e.DeadAge*7;Alpha=max(0,1-e.DeadAge/55.0)*0.8;}
+  }
+  Scale=(diameter/512.0,diameter/512.0);
+  if(Kind==9)Scale.Y=12.0/512.0;
+  UpdateSector();UpdateSpriteInfo();
+ }
+}

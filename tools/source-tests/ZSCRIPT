@@ -1,0 +1,64 @@
+version "5.0"
+class UTNTSourceTests : EventHandler
+{
+ int View;
+ void Assert(bool cond,String name){Console.Printf("UTNT_ASSERT %s: %s",cond?"PASS":"FAIL",name);}
+ override void WorldTick()
+ {
+  if(!(level.MapName~=="TNT04CN"))return;
+  for(int i=0;i<MAXPLAYERS;i++)if(players[i].mo){players[i].mo.bInvulnerable=true;players[i].mo.bNotarget=true;}
+  let p=players[0].mo;if(!p || level.time<5)return;
+  p.bInvulnerable=true;p.bNotarget=true;p.bNoGravity=true;p.bNoClip=true;
+  players[0].camera=p;
+  Vector3 pos=(128,-1100,3500);double a=90,pitch=-15;
+  if(View==1){pos=(128,-1650,3370);pitch=-14;}
+  if(View==2){pos=(1150,-380,3500);a=180;pitch=-15;}
+  p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=a;p.Pitch=pitch;
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  let s=UTNTSourceSystem.Find();
+  if(e.Name=="sourceview")View=e.Args[0];
+  if(e.Name=="sourcecheck")
+  {
+   if(!(level.MapName~=="TNT04CN"))
+   {
+    Assert(!s,"other map has no Source controller");
+    let it=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
+    Assert(!it.Next(),"other map has no Source visual emitter");return;
+   }
+   Assert(s!=null,"original TID 666 Source exists");if(!s)return;
+   Assert(s.Health==e.Args[0],"boss hit points preserved");
+   Assert(s.ShieldOpen==(e.Args[1]!=0),"visual matches actual shield collision");
+   Assert(s.Radius==128 && s.Height==128,"original hitbox preserved");
+   Assert(s.ShieldLines.Size()>0 && s.BeamSides.Size()>0,"original geometry bound");
+   let shield=level.lines[s.ShieldLines[0]].sidedef[0];
+   Assert(shield.GetTexture(Side.mid)==TexMan.CheckForTexture(s.ShieldOpen?"-":"USSHIELD"),"shield material agrees with collision even during ACS fade");
+   Assert(level.sectors.Size()==1560,"sector count unchanged");
+   int count=0;let it=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
+   UTNTSourceEmitter em;
+   while(em=UTNTSourceEmitter(it.Next()))
+   {
+    count++;Assert(em.Layers.Size()==11,"eleven bounded presentation layers");
+    bool roles=em.Layers.Size()==11;
+    for(int i=0;i<em.Layers.Size();i++)roles=roles && em.Layers[i].Kind==i;
+    Assert(roles,"distinct shield, target and attack layers");
+   }
+   Assert(count==1,"single local emitter after save/load");
+   Vector3 center=s.Center();
+   Console.Printf("SOURCE_POS %.1f %.1f %.1f CENTERZ %.1f SIDES %d SHIELD %d",s.Pos.X,s.Pos.Y,s.Pos.Z,center.Z,s.BeamSides.Size(),s.ShieldLines.Size());
+  }
+  if(!s)return;
+  if(e.Name=="sourceattackcheck")Assert(s.AttackKind==e.Args[0] && level.time-s.AttackStart<110,"real ACS attack drives its announcement");
+  if(e.Name=="sourcekill")s.DamageMobj(players[0].mo,players[0].mo,100000,'None',DMG_FORCED);
+  if(e.Name=="sourcehp")s.Health=e.Args[0];
+  if(e.Name=="sourceattack")ACS_ExecuteAlways(129+e.Args[0],0);
+  if(e.Name=="sourcehit")ACS_ExecuteAlways(120,0);
+  if(e.Name=="sourceguardian")
+  {
+   let g=level.CreateActorIterator(667).Next();
+   if(g)g.DamageMobj(players[0].mo,players[0].mo,100000,'None',DMG_FORCED);
+  }
+  if(e.Name=="sourceshield")ACS_ExecuteAlways(122,0);
+ }
+}

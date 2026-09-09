@@ -321,6 +321,7 @@ script "30Health" ENTER
 script 130 (void)
 //Quake & Stones
 {
+	ScriptCall("UTNTSourceSystem","Attack",1);
 	Radius_Quake(2,20*20,0,20,120);
 	delay(105);
     for(int i=30;i<=300;i+=60)
@@ -335,6 +336,7 @@ script 130 (void)
 script 131 (void)
 //Missile Attack
 {
+	ScriptCall("UTNTSourceSystem","Attack",2);
 	delay(70);
 	for(int i=0;i<2;i++)
 	{
@@ -351,6 +353,7 @@ script 131 (void)
 script 132 (void)
 //Fire Attack
 {
+	ScriptCall("UTNTSourceSystem","Attack",3);
 	delay(70);
 	for(int i=0;i<10;i++)
 	{
