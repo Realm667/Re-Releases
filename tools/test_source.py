@@ -4,7 +4,7 @@ Tests the existing guardian death special, real attack scripts, shield collision
 save restoration, three viewpoints, local FX switches and TNT04C map isolation.
 """
 from pathlib import Path
-import argparse,os,json
+import argparse,os,json,re
 from check_engine import run_case,ROOT
 
 def main():
@@ -20,6 +20,8 @@ def main():
  cmd=['wait 450','netevent sourcecheck 15000 0']
  def shot(name):cmd.append(f'screenshot "{(W/(label+"-"+name+".png")).as_posix()}"')
  shot('closed')
+ cmd+=['netevent sourceview 3','wait 15'];shot('reference')
+ cmd+=['netevent sourceview 0','wait 15']
  cmd+=['netevent sourcehit','wait 8'];shot('hit')
  cmd+=['netevent sourceguardian','wait 16','netevent sourcecheck 15000 1'];shot('guardian-open')
  cmd += [f'save {label}','wait 8',f'load {label}','wait 100','netevent sourcecheck 15000 1'];shot('restored-open')
@@ -35,10 +37,14 @@ def main():
  cmd+=['UTNT_fxquality 3','UTNT_reducedfx false','netevent sourceview 0','wait 15','netevent sourcekill','wait 20'];shot('collapse')
  cmd+=['wait 100','map TNT04C','wait 100','netevent sourcecheck','echo UTNT_TEST_END','wait 5','quit']
  result=run_case(a.engine,a.iwad,root=W,mod=a.mod,addon=ROOT/'tools/source-tests',mapname='TNT04CN',
-  renderer=a.renderer,label=label,timeout=100,commands='; '.join(cmd),
+  renderer=a.renderer,label=label,timeout=180,commands='; '.join(cmd),
   settings=[('win_w',1298),('win_h',767),('screenblocks',12),('con_notifytime',0),('r_drawplayersprites','false'),
    ('crosshair',0),('vid_maxfps',60),('i_pauseinbackground','false'),('vid_activeinbackground','true')])
  log=Path(result['log']).read_text(encoding='utf-8')
+ alphas=[float(v) for v in re.findall(r'SOURCE_RENDER_ALPHA ([0-9.]+)',log)]
+ result['closed_render_frames']=len(alphas)
+ if not alphas or any(abs(v-0.7)>0.001 for v in alphas):
+  result['ok']=False;result['errors'].append('closed shield opacity changed at render time')
  if result['assertions']<65 or 'Unknown command' in log or 'requires these files' in log:
   result['ok']=False;result['errors'].append('incomplete assertions, unknown command or save dependency')
  (W/'runtime.json').write_text(json.dumps(result,indent=2)+'\n')

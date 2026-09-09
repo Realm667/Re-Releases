@@ -37,6 +37,11 @@ class UTNTSourceBase : Actor
   if(!(level.MapName~=="TNT04CN"))return;
   if(!SourceReady)SetupSource();
   if(IsFrozen() || level.isFrozen())return;
+  // These two map-local scripts only animate the old shield alpha. They run
+  // after Actor.Tick and would overwrite the new membrane on alternate frames.
+  // Re-terminate because original hit/reclosure scripts may start them again.
+  ACS_Terminate(701,0);
+  ACS_Terminate(121,0);
   bool opened=ShieldLines.Size()>0 && !(level.lines[ShieldLines[0]].flags & Line.ML_BLOCKEVERYTHING);
   if(opened && !ShieldOpen)OpenStart=level.time;
   ShieldOpen=opened;
@@ -44,6 +49,9 @@ class UTNTSourceBase : Actor
   int state=Health<=0?2:ShieldOpen?1:0;
   if(state!=LastBeamState)
   {
+   // The retired pulse script also used to select additive blending. Keep
+   // that explicit: a translucent black carrier would darken the whole boss.
+   TranslucentLine(99,state==0?178:0,1);
    for(int i=0;i<BeamSides.Size();i++)
     level.sides[BeamSides[i]].SetTexture(Side.mid,TexMan.CheckForTexture(String.Format("USB%d%d",BeamKinds[i],state)));
    // Legacy ACS still writes line alpha during its shutdown fade. Removing
@@ -168,7 +176,7 @@ class UTNTSourceEmitter : Thinker
   {
    LightAnchor.SetOrigin(Center,false);
    if(Quality>0 && !DeadAge)
-    LightAnchor.A_AttachLight('source',DynamicLight.PointLight,Opened?0xffb348:0xff7018,Opened?260:190,0,DynamicLight.LF_ATTENUATE);
+    LightAnchor.A_AttachLight('source',DynamicLight.PointLight,Opened?0xffb348:0xff7018,Opened?400:520,0,DynamicLight.LF_ATTENUATE);
    else LightAnchor.A_RemoveLight('source');
   }
  }

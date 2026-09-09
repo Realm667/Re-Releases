@@ -2,15 +2,23 @@ version "5.0"
 class UTNTSourceTests : EventHandler
 {
  int View;
+ UTNTSourceBase RenderSource;
+ override void RenderOverlay(RenderEvent e)
+ {
+  if(RenderSource && !RenderSource.ShieldOpen && level.time>=450 && level.time<490)
+   Console.Printf("SOURCE_RENDER_ALPHA %.4f",level.lines[RenderSource.ShieldLines[0]].alpha);
+ }
  void Assert(bool cond,String name){Console.Printf("UTNT_ASSERT %s: %s",cond?"PASS":"FAIL",name);}
  override void WorldTick()
  {
   if(!(level.MapName~=="TNT04CN"))return;
+  RenderSource=UTNTSourceSystem.Find();
   for(int i=0;i<MAXPLAYERS;i++)if(players[i].mo){players[i].mo.bInvulnerable=true;players[i].mo.bNotarget=true;}
   let p=players[0].mo;if(!p || level.time<5)return;
   p.bInvulnerable=true;p.bNotarget=true;p.bNoGravity=true;p.bNoClip=true;
   players[0].camera=p;
   Vector3 pos=(128,-1100,3500);double a=90,pitch=-15;
+  if(View==3)pitch=-22;
   if(View==1){pos=(128,-1650,3370);pitch=-14;}
   if(View==2){pos=(1150,-380,3500);a=180;pitch=-15;}
   p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=a;p.Pitch=pitch;
@@ -34,6 +42,7 @@ class UTNTSourceTests : EventHandler
    Assert(s.ShieldLines.Size()>0 && s.BeamSides.Size()>0,"original geometry bound");
    let shield=level.lines[s.ShieldLines[0]].sidedef[0];
    Assert(shield.GetTexture(Side.mid)==TexMan.CheckForTexture(s.ShieldOpen?"-":"USSHIELD"),"shield material agrees with collision even during ACS fade");
+   Assert(s.ShieldOpen || abs(level.lines[s.ShieldLines[0]].alpha-0.70)<0.001,"legacy ACS cannot hide the closed membrane");
    Assert(level.sectors.Size()==1560,"sector count unchanged");
    int count=0;let it=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
    UTNTSourceEmitter em;

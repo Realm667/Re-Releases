@@ -3,29 +3,42 @@
 #define BEAM_STATE 2
 vec4 ProcessTexel()
 {
- vec4 c=getTexel(vTexCoord.st);
  float intensity;
+ float height=pixelpos.y;
 #if BEAM_KIND == 0
  // Compress the existing core without changing its crossed wall geometry.
  float x=abs(fract(vTexCoord.x)-0.5);
- intensity=exp(-x*x*720.0)+0.045*exp(-x*x*65.0);
+ intensity=1.25*exp(-x*x*900.0)+0.24*exp(-x*x*110.0)+0.045*exp(-x*x*18.0);
 #else
- // A continuous world-space helix avoids the old front/back texture seams.
- // Renderer axes are X,Z,Y; undo the stacked-room XY displacement.
- vec2 xy=pixelpos.xz;
- if(xy.x>6000.0)xy-=vec2(10496.0,128.0);
- vec2 d=xy-vec2(128.0,-320.0);
- float phase=atan(d.y,d.x)/6.2831853+pixelpos.y/1100.0-timer*0.06;
+ // Round the helix inside the unchanged polygonal carrier with a ray/cylinder
+ // intersection. Renderer axes are X,Z,Y. Each stacked room has its own centre.
+ vec3 hit=pixelpos.xyz,eye=uCameraPos.xyz;
+ vec2 center=hit.x>6000.0?vec2(10624.0,-192.0):vec2(130.0,-382.0);
+ vec3 ray=normalize(hit-eye);
+ vec2 q=eye.xz-center;
+ float a=dot(ray.xz,ray.xz),b=dot(q,ray.xz);
+ float disc=b*b-a*(dot(q,q)-430.0*430.0);
+ if(disc<=0.0 || a<0.00001)return vec4(0.0);
+ float side=dot(hit.xz-center,ray.xz)<0.0?-1.0:1.0;
+ float t=(-b+side*sqrt(disc))/a;
+ if(t<0.0)return vec4(0.0);
+ vec3 surface=eye+ray*t;
+ vec2 d=surface.xz-center;
+ height=surface.y;
+ float phase=atan(d.y,d.x)/6.2831853+height/1100.0-timer*0.06;
  float edge=abs(fract(phase)-0.5);
- intensity=1.8*exp(-edge*edge*18000.0)+0.30*exp(-edge*edge*1500.0);
+ // atan's branch cut is not a wide beam; cap its discontinuous derivative.
+ float aa=clamp(fwidth(phase),0.0004,0.006);
+ intensity=1.25*exp(-edge*edge/(0.000035+aa*aa));
+ intensity+=0.35*exp(-edge*edge*1200.0)+0.075*exp(-edge*edge*150.0);
 #endif
- vec3 color=mix(vec3(1.0,0.30,0.025),vec3(1.0,0.82,0.35),pow(clamp(intensity,0.0,1.0),3.0));
+ vec3 color=mix(vec3(1.0,0.23,0.012),vec3(1.0,0.85,0.39),pow(clamp(intensity,0.0,1.0),3.0));
 #if BEAM_STATE == 1
  // The target silhouette is unobscured while the actual shield is open.
- float nearBoss=1.0-smoothstep(420.0,900.0,abs(pixelpos.y-3904.0));
+ float nearBoss=1.0-smoothstep(420.0,900.0,abs(height-3968.0));
  intensity*=mix(0.65,0.12,nearBoss);
 #elif BEAM_STATE == 2
  intensity=0.0;
 #endif
- return vec4(color*intensity,c.a);
+ return vec4(color*intensity,1.0);
 }

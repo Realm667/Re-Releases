@@ -4,17 +4,24 @@ The final boss now uses the approved three-state presentation: an intact runic
 shield, six separated rune arcs around the exposed heart, and a damaged seal
 with staged comet charging. The original horned demon sigil stays at the centre.
 
-The five lit signs in the original RUNE1/3/5/7/9 switch patches supply the rune
-alphabet. TEXTURES assembles them with their unlit partners; material chroma
-separates each red sign from its grey stone backing and lights it in Source gold.
-SOURA0 and all original rune patch files are unchanged. No new raster artwork is
-required for these effects. Approved AI mockups and their prompts are retained
-under `tools/artwork/source/`; they are concepts, not runtime screenshots.
+The rune alphabet now comes from QRUNT63, the same four glyphs used by the
+campaign's teleporters and portals. The material samples their native red ink
+at texel centres and explicitly interpolates it. It no longer selects the
+incorrect RUNE1/3/5/7/9 switch sequence, which included unlit stone switches.
+SOURA0 and the original rune assets are unchanged by this correction. No new
+raster artwork is required. Approved AI paintovers are retained under
+`tools/artwork/source/`; they are design targets, not runtime screenshots.
+The first implementation's functional checks did not establish a visual match.
 
 ## Battle feedback
 
 - The narrow central beam and continuous world-space spiral use the existing
-  wall geometry, including its translated upper room. The map topology is intact.
+  wall geometry as carriers. Ray/cylinder intersections draw the helix and shield
+  on round surfaces inside those carriers. Both stacked-room centres are taken
+  from the actual map geometry. The map topology and collision are intact.
+- The shield uses an emissive SetupMaterial pass, so dark sector lighting no
+  longer hides the membrane and glyphs. The beam has a local soft halo; the seal
+  retains finer lines and its light reaches the surrounding arena.
 - Actual line 99 collision determines the shield state. The shield middle
   material is removed while open, even while the original ACS fade changes alpha.
   The seal opens in six arcs; its compact heart pulses and the beam becomes
@@ -44,15 +51,16 @@ zero. Reduced effects disable ornamental roll and pulse motion where specified;
 dynamic lighting follows local effect quality. No gameplay random stream is used.
 
 The materials target UZDoom 5.0.1 OpenGL/Vulkan. A software renderer cannot show
-the procedural ring masks, glyph isolation or state materials. The existing
-polygonal beam wall silhouette is retained; it is not a new high-poly cylinder.
-The continuous spiral follows that silhouette rather than altering collision or
-stacked portal geometry. Old-save compatibility and WAN multiplayer are not
+the procedural ring masks, glyph isolation or state materials. The round surfaces are visual projections inside the original polygonal carriers;
+the shield's blocking lines and the original boss position/hitbox are unchanged.
+The appearance approaches the paintover, but a pixel-identical reproduction of
+AI artwork is not claimed. Camera pitch, exposure, bloom and viewport affect the
+comparison. Old-save compatibility and WAN multiplayer are not
 claimed by the local tests.
 
 ## Reproduce
 
-1. Run `python tools/build_source_materials.py` after editing the three
+1. Run `python tools/build_source_materials.py` after editing the four
    `tools/source-*.glsl` sources. Commit their generated material files too.
 2. Build through `tools/build_utnt.py` with the configured ACC and engine.
 3. Run `tools/test_source_structure.py --baseline-ref 5c8091aff` to compare the
@@ -67,3 +75,21 @@ The test fixture is separate from the game package. Validation records are under
 engine captures. The checks cover guardian-driven opening, real ACS attacks,
 save/load during the open window, three viewpoints, reduced/zero FX, collapse,
 and map isolation. They do not constitute a complete manual campaign playthrough.
+
+## Visual correction — 2026-09-09
+
+The user correctly identified the difference between the approved paintover and
+the first runtime result. Corrected the native rune selection, rounded the helix
+and shield, enabled shield emission, and adjusted beam halo and sigil lighting.
+Procedural sprite/shield carriers are opaque independently of SOURA0's artwork.
+The functional contract remains unchanged. Evidence for this correction is in
+`tools/validation/source-visual-correction-2026-09-09/`. Those PNGs are direct
+engine captures, without image generation or retouching. The reference view uses
+the same arena position with a higher camera pitch to include the full seal;
+the original front/side/wide views remain in the test sequence.
+
+The legacy shield pulse (map script 701) and impact fade (121) wrote line alpha
+after the Source actor's Tick, intermittently hiding the new membrane. They are
+now stopped by the presentation controller, which explicitly selects additive
+blending. The open-window script 122 remains untouched. RenderOverlay logging in
+the test fixture verifies the final drawn alpha, not only pre-ACS actor state.
