@@ -23,7 +23,7 @@ def build(root):
   from build_ash_sky import build as build_ash
   build_ash(root)
  # Keep TNT04CN on the same shared comet implementation as TNT04A/B.
- if (out/'graphics/rift/nebula.png').exists():
+ if (out/'graphics/rift/zenith.png').exists():
   from build_rift_sky import build as build_rift
   build_rift(root)
 if __name__=='__main__':

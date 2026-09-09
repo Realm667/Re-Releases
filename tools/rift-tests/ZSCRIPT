@@ -26,15 +26,16 @@ class UTNTRiftSkyTests : EventHandler
   if(!(level.MapName~=="TNT04CN"))return;
   let p=players[0].mo;if(!p)return;p.bNotarget=true;if(level.time<10)return;
   p.bInvulnerable=true;p.bNoGravity=true;p.bNoClip=true;players[0].camera=p;
-  Vector3 pos=(1440,-2080,3200);double a=315,pitch=-12;
+  Vector3 pos=(1440,-2080,4400);double a=126.70,pitch=-62;
   if(View==0){pos=(-2560,-4288,300);a=90;pitch=-18;}
-  if(View==2){pos=(-2560,-4288,300);a=0;pitch=-18;}
-  if(View==3){pos=(1216,1536,2544);a=45;pitch=-12;}
-  if(View==4){pos=(128,-1100,3500);a=90;pitch=-15;}
+  if(View==2){pos=(-2560,-4288,300);a=55.89;pitch=-66;}
+  if(View==3){pos=(1216,1536,2544);a=239.62;pitch=-68;}
+  if(View==4){pos=(128,-1100,3500);a=90;pitch=-76.8;}
   if(View>=5 && View<=8){pos=(1440,-2080,7000);a=(View-5)*90;pitch=-10;}
   if(View==9){pos=(1440,-2080,7000);a=315;pitch=-89;}
   if(View==10){pos=(4500,-3500,4000);a=315;pitch=80;}
-  if(View==11){pos=(1440,-2080,7000);a=45;pitch=-45;}
+  if(View==11){pos=(1440,-2080,7000);a=315;pitch=-12;}
+  if(View==12){pos=(11936,-1952,6000);a=126.70;pitch=-58;}
   p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=a;p.Pitch=pitch;
  }
  override void NetworkProcess(ConsoleEvent e)
