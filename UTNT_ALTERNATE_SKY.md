@@ -23,7 +23,9 @@ blue-key bilinear sampling. Distances range from 36000 to 100000 world units;
 elliptical periods are 220–280 seconds with opposing directions, small amplitudes
 and less than a quarter degree of rocking. Nearer platforms show stronger parallax.
 The material protects the opening from foreground cards. Rock and platform light
-uses a warm QLAVA palette, removing the red/purple tint in the older rock source.
+uses near-neutral charcoal/metal (RGB weights 1.02,1.0,0.97), matching the real map
+geometry and removing the former uniform gold/brown cast. Source PNGs remain
+TrueColor RGB; no PLAYPAL quantization is applied. Clouds retain their QLAVA palette.
 
 One comet track reuses `WarCometLight` unchanged from TNT04A/B/CN. Each 65-second
 cycle has a brief slow flight followed by an empty interval. Size varies between

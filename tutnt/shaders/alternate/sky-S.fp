@@ -95,7 +95,7 @@ vec4 RiftRockLayer(vec4 behind,sampler2D layer,vec3 ray,vec3 cameraOffset,vec3 f
  if(edge<=0.0)return behind;
  vec4 rock=RiftSample(layer,mix(bounds.xy,bounds.zw,uv),true)*smoothstep(0.0,.025,edge);
  float luma=dot(rock.rgb,vec3(.2126,.7152,.0722));
- rock.rgb=vec3(luma)*vec3(1.35,.90,.44)*light*smoothstep(-.25,.30,ray.y);
+ rock.rgb=vec3(luma)*vec3(1.02,1.0,.97)*light*smoothstep(-.25,.30,ray.y);
  return behind*(1.0-rock.a)+rock;
 }
 // TNT04C: single sparse comet, using the unchanged shared flame profile.
