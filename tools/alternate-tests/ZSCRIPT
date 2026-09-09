@@ -7,15 +7,35 @@ class AlternateSkyTests : EventHandler
  {
   if(level.MapName~=="TNT04C")
   {
-   int old=0,stars=0;let it=ThinkerIterator.Create('SkyViewpoint');Actor a;
-   while(a=Actor(it.Next()))if(a.Pos.X==6512)old++;
-   for(int i=0;i<level.Sectors.Size();i++)if(TexMan.GetName(level.Sectors[i].GetTexture(Sector.ceiling))=='STARSKY1')stars++;
+   int old=0,heights=0,stars=0,room=0,arena=0,middle=0,lower=0;let it=ThinkerIterator.Create('SkyViewpoint');Actor a;
+   while(a=Actor(it.Next()))if(a.Pos.X==6512)
+   {
+    old++;
+    if((a.TID==0 && a.Pos.Y==-432 && a.Pos.Z==580) ||
+       (a.TID==4 && a.Pos.Y==-176 && a.Pos.Z==500) ||
+       (a.TID==3 && a.Pos.Y==80 && a.Pos.Z==470))heights++;
+   }
+   Console.Printf("UTNT_ASSERT %s: authored viewpoint heights preserved",heights==3?"PASS":"FAIL");
+   for(int i=0;i<level.Sectors.Size();i++)
+   {
+    let sec=level.Sectors[i];
+    if(TexMan.GetName(sec.GetTexture(Sector.ceiling))=='STARSKY1')stars++;
+    if(sec.CenterSpot.X>5120 && sec.special==90)room++;
+    let camera=level.sectorPortals[sec.Portals[Sector.ceiling]].mSkybox;
+    if(camera && camera.TID==4)middle++;
+    if(camera && camera.TID==3)lower++;
+    if(sec.CenterSpot.Y>11000 && TexMan.GetName(sec.GetTexture(Sector.ceiling))=='F_SKY1' && camera==null)arena++;
+   }
+   Console.Printf("UTNT_HEIGHT_BINDINGS room=%d arena=%d middle=%d lower=%d",room,arena,middle,lower);
+   Console.Printf("UTNT_ASSERT %s: shared viewpoint sector uses skybox special",room==1?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: arena uses its own beam coordinates",arena==19?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: original height bindings retained",middle==218 && lower==445?"PASS":"FAIL");
    Console.Printf("UTNT_ASSERT %s: alternate sky selected",level.SkyTexture1==TexMan.CheckForTexture("UACSKY")?"PASS":"FAIL");
-   Console.Printf("UTNT_ASSERT %s: all old sky cameras removed",old==0?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: all three sky cameras retained",old==3?"PASS":"FAIL");
    Console.Printf("UTNT_ASSERT %s: star ceilings use new sky",stars==0?"PASS":"FAIL");
    Console.Printf("UTNT_ASSERT %s: sector topology preserved",level.Sectors.Size()==2413?"PASS":"FAIL");
    Console.Printf("UTNT_ASSERT %s: Source preserved",level.CreateActorIterator(666).Next()!=null?"PASS":"FAIL");
-   Console.Printf("UTNT_ASSERT %s: default sky camera cleared",level.sectorPortals[0].mSkybox==null?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: default sky camera preserved",level.sectorPortals[0].mSkybox!=null?"PASS":"FAIL");
   }
   else
   {
@@ -31,11 +51,14 @@ class AlternateSkyTests : EventHandler
   let p=players[0].mo;if(!p)return;p.bNotarget=true;p.bInvulnerable=true;
   if(View==0)return;
   Camera=p;p.bNoGravity=true;p.bNoClip=true;
-  Vector3 pos=(-800,11800,-3000);double angle=50,pitch=10;
-  if(View==2){pos=(-800,11800,-3000);angle=50;pitch=-25;}
-  if(View==3){pos=(-800,11800,-3000);angle=50;pitch=-35;}
-  if(View==4){pos=(2200,13600,-5000);angle=180;pitch=-62;}
-  if(View>=5){pos=(-1008,12043,-4500);angle=(View-5)*90;pitch=-18;}
+  // Matching horizontal and upward views in the three authored height
+  // sections, then the full-size final arena. Avoid cameras inside ceilings.
+  Vector3 pos=(0,-500,64);double angle=90,pitch=-12;
+  int part=(View-1)%4;
+  if(part==1)pos=(2256,3904,-1920);
+  if(part==2)pos=(440,8752,-4104);
+  if(part==3){pos=(3000,13570,-2500);angle=180;}
+  if(View>=5)pitch=-70;
   Camera.SetOrigin(pos,false);Camera.Angle=angle;Camera.Pitch=pitch;Camera.Vel=(0,0,0);players[0].camera=Camera;
  }
 }

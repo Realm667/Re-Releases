@@ -1,5 +1,5 @@
 // Map-local sky variants for the two endings; gameplay portals stay intact.
-// Actor destruction uses SkyViewpoint.OnDestroy to clear its portal references.
+// CN uses portal cleanup; C preserves its authored height-dependent SkyPickers.
 class UTNTRiftSkyHandler : EventHandler
 {
  bool Initialized;
@@ -18,17 +18,38 @@ class UTNTRiftSkyHandler : EventHandler
  }
  void ApplyAlternate()
  {
-  // All three original decorative sky rooms, including tagged sky pickers.
-  // OnDestroy clears their sky portal references; stacked gameplay portals remain.
+  // Preserve the authored 0/4/3 views and all SkyPicker bindings.
+  TextureID old=TexMan.CheckForTexture("STARSKY1"),sky=TexMan.CheckForTexture("F_SKY1");
+  for(int i=0;i<level.Sectors.Size();i++)
+   if(level.Sectors[i].GetTexture(Sector.ceiling)==old)
+   {
+    level.Sectors[i].SetTexture(Sector.ceiling,sky);
+   }
+  // Apply the skybox special only to the shared viewpoint sector. Applying
+  // it to the decorative mountain sectors produces black ceiling cutouts.
   let it=ThinkerIterator.Create('SkyViewpoint');Actor a;
   while(a=Actor(it.Next()))
    if(a.GetClassName()=='SkyViewpoint' && a.Pos.X==6512 &&
-      (a.Pos.Y==-432 || a.Pos.Y==-176 || a.Pos.Y==80))a.Destroy();
-  TextureID old=TexMan.CheckForTexture("STARSKY1"),sky=TexMan.CheckForTexture("F_SKY1");
-  for(int i=0;i<level.Sectors.Size();i++)
-   if(level.Sectors[i].GetTexture(Sector.ceiling)==old)level.Sectors[i].SetTexture(Sector.ceiling,sky);
+      (a.Pos.Y==-432 || a.Pos.Y==-176 || a.Pos.Y==80))a.CurSector.special=90;
+  // Map-local ceiling-only SkyPickers select the plain cube in this room
+  // and the final arena. ClearPortal would restore the default sky camera.
   TextureID cube=TexMan.CheckForTexture("UACSKY");level.ChangeSky(cube,cube);
   Initialized=true;
+ }
+ // The renderer substitutes the SkyViewpoint position inside the small room.
+ // Keep the real view separately for the distant cards' subtle player parallax.
+ // Four-pixel blocks avoid filtered samples crossing coordinate boundaries.
+ override void RenderOverlay(RenderEvent e)
+ {
+  if(!(level.MapName~=="TNT04C"))return;
+  let c=TexMan.GetCanvas("UACVIEW");if(!c)return;
+  for(int i=0;i<3;i++)
+  {
+   double v=i==0?e.ViewPos.X:(i==1?e.ViewPos.Z:e.ViewPos.Y);
+   int packed=int(clamp((v+32768.)/65536.,0.,1.)*16777215.+.5);
+   c.Clear(i*4,0,i*4+4,4,Color((packed>>16)&255,(packed>>8)&255,packed&255));
+  }
+  c.Clear(12,0,16,4,Color(255,255,255));
  }
  override void WorldLoaded(WorldEvent e) { Initialized=false;Apply(); }
  override void WorldTick() { if(!Initialized && (level.MapName~=="TNT04CN" || level.MapName~=="TNT04C"))Apply(); }

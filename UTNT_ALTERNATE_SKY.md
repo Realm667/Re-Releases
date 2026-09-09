@@ -7,20 +7,43 @@ The existing level beam is never drawn into a sky raster or shader.
 
 ## Runtime
 
-`UTNTRiftSkyHandler` selects `UACSKY` only for TNT04C. After the original SkyPicker
-actors initialize, it removes the three decorative SkyViewpoints at X=6512,
-Y=-432/-176/80 using the engine's portal cleanup. It changes the 68 original
-STARSKY1 ceilings to F_SKY1 at runtime. Gameplay geometry, lava, scripts, Source
-and stacked sector portals remain intact. TNT04CN retains URFSKY.
+`UTNTRiftSkyHandler` selects `UACSKY` only for TNT04C. The three original
+SkyViewpoints at (6512,-432,580), (6512,-176,500), (6512,80,470) and all 770
+original SkyPickers remain intact. They preserve the background mountain/beam
+and its different framing in the three height sections. After the pickers
+initialize, the handler changes the 68 STARSKY1 ceilings to F_SKY1 and applies
+sector special 90 only to the shared viewpoint sector (182). Applying it to
+the decorative mountain sectors creates black ceiling cutouts. The retained
+SkyViewpoint portal also excludes its sky-room pass from SSAO in the engine.
+Existing lighting thinkers, gameplay geometry, lava, scripts and Source remain.
+TNT04CN retains its existing URFSKY handling.
 
-The map's tag-88 cylinder spans X=450..1474 and Y=13122..14018; its midpoint is
-(962,13570), with ceiling Z=-992. The 8000-unit cloud plane is anchored to that
-endpoint. The generated opening is centered at UV (0.5,0.425). Its interior is
-empty; nearby cloud detail drifts gently. No TNT04CN portal translation applies.
+87 additional ceiling-only SkyPickers select the plain cubemap: 68 in the
+miniature sky room and 19 in the final arena. This prevents recursive background
+views and a duplicate miniature beam behind the final arena's real beam.
+`Sector.ClearPortal` is deliberately not used: it selects default portal 0,
+which would restore the default SkyViewpoint rather than the plain sky.
+`tools/patch_alternate_sky.py` adds these things idempotently; it preserves all
+original map blocks and non-TEXTMAP lumps, including scripts and BSP data.
+
+The shader uses the actual rendering viewpoint to choose the matching beam
+anchor. Inside the miniature room the endpoint is (6464,704,2848), with a
+4200-unit cloud plane. In the final arena, the tag-88 cylinder spans X=450..1474
+and Y=13122..14018: its endpoint is (962,13570,-992), with an 8000-unit cloud
+plane. Both use UV (0.5,0.425) for the compact opening. Its interior is empty;
+nearby cloud detail drifts gently. No TNT04CN portal translation applies.
+
+The UACVIEW RGB canvas supplies the main rendering camera separately for card
+parallax inside the sky room, where uCameraPos contains the SkyViewpoint's
+coordinates. Three 24-bit signed coordinates have sub-unit precision; the
+fourth block marks valid data. Like the existing sky-data canvases, this is
+updated in RenderOverlay and can trail the main view by one rendered frame.
+The beam opening uses the current portal viewpoint directly and has no such
+latency. Direct arena rendering uses uCameraPos for both clouds and cards.
 
 Five world-space cards reuse the CN ray/plane intersection and premultiplied
 blue-key bilinear sampling. Distances range from 36000 to 100000 world units;
-elliptical periods are 220–280 seconds with opposing directions, small amplitudes
+elliptical periods are 220â€“280 seconds with opposing directions, small amplitudes
 and less than a quarter degree of rocking. Nearer platforms show stronger parallax.
 The material protects the opening from foreground cards. Rock and platform light
 uses near-neutral charcoal/metal (RGB weights 1.02,1.0,0.97), matching the real map
@@ -44,4 +67,10 @@ and shared material functions are reused. Prompts and approved references are in
 tools/artwork/alternate. Build-derived cube projection and chroma-key compositing
 do not alter those source PNGs.
 
-Validation evidence: tools/validation/alternate-sky-2026-09-09.
+Height-fix validation covers all three original viewpoints, the 218 middle and
+445 lower ceiling bindings, the single skybox-special sector, 19 plain arena ceilings,
+all four horizontal/upward views, save/load and C -> CN -> C map isolation.
+The structural check compares the prior map: original geometry/things and all
+non-TEXTMAP lumps remain unchanged; only 87 ceiling pickers are appended.
+
+Initial artwork validation: tools/validation/alternate-sky-2026-09-09.

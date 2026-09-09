@@ -81,7 +81,7 @@ def build(root=ROOT):
   color=color*(1-rock[:,:,3:4])+rock[:,:,:3]
   dest=out/f'textures/UAC{face}.png';dest.parent.mkdir(parents=True,exist_ok=True);Image.fromarray(np.uint8(np.clip(color*255,0,255))).save(dest)
   dest=out/f'shaders/alternate/sky-{face}.fp';dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text(comets+'\n'+shared+material.replace('@RAY@',form).replace('@ROCKS@',calls()),encoding='utf-8',newline='\n')
-  gl.append(f'material texture UAC{face} {{ shader "shaders/alternate/sky-{face}.fp" texture nebulamap "graphics/alternate/zenith.png" texture rockmap "graphics/rift/rocks-key.png" texture platformmap "graphics/alternate/platforms-key.png" texture surroundmap "graphics/alternate/clouds.png" }}')
+  gl.append(f'material texture UAC{face} {{ shader "shaders/alternate/sky-{face}.fp" texture nebulamap "graphics/alternate/zenith.png" texture rockmap "graphics/rift/rocks-key.png" texture platformmap "graphics/alternate/platforms-key.png" texture surroundmap "graphics/alternate/clouds.png" texture viewmap "UACVIEW" }}')
  (out/'GLDEFS.alternate').write_text('\n'.join(gl)+'\n',encoding='utf-8',newline='\n')
 
 if __name__=='__main__':build()

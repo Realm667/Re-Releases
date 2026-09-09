@@ -107,16 +107,25 @@ vec3 AlternateComet(vec3 color,vec3 ray)
  float size=mix(.72,1.10,mod(cycle*17.0,29.0)/28.0);
  return color+life*WarCometLight(lon,lat,mod(cycle*2.39996+.28,6.283185307)-phase*.30,1.0-phase*1.15,size,cycle);
 }
+float AlternateViewCoord(float u)
+{
+ vec3 b=floor(textureLod(viewmap,vec2(u,.5),0.0).rgb*255.0+.5);
+ return dot(b,vec3(65536.0,256.0,1.0))/16777215.0*65536.0-32768.0;
+}
 void SetupMaterial(inout Material mat)
 {
  float s=1.0-2.0*vTexCoord.x,t=1.0-2.0*vTexCoord.y;
  vec3 ray=normalize(vec3(1.0,t,s)),color=RiftSurround(ray);
- // Renderer coordinates (world X, world Z, world Y). This map's unshifted
- // original beam cylinder (linedef tag 88) ends at (962,13570,-992).
+ // Renderer coordinates are world X/Z/Y. The first three height sections
+ // view a miniature beam at (6464,704,2848); the final arena uses tag 88's
+ // full-size beam at (962,13570,-992). Never mix these coordinate systems.
  vec3 eye=uCameraPos.xyz;
- float distanceToCeiling=(-992.0-eye.y)/max(ray.y,.001);
+ bool room=eye.x>5120.0 && eye.x<7808.0 && eye.z>-1664.0 && eye.z<1536.0;
+ vec3 beam=room?vec3(6464.0,2848.0,704.0):vec3(962.0,-992.0,13570.0);
+ float span=room?4200.0:8000.0;
+ float distanceToCeiling=(beam.y-eye.y)/max(ray.y,.001);
  vec2 point=eye.xz-ray.xz*distanceToCeiling;
- vec2 uv=vec2(.5,.425)+(point-vec2(962.0,13570.0))/8000.0;
+ vec2 uv=vec2(.5,.425)+(point-beam.xz)/span;
  float edge=min(min(uv.x,1.0-uv.x),min(uv.y,1.0-uv.y));
  float weight=smoothstep(0.0,.13,edge)*smoothstep(.015,.10,ray.y)*step(0.0,distanceToCeiling);
  if(weight>0.0)
@@ -126,7 +135,14 @@ void SetupMaterial(inout Material mat)
   color=mix(color,RiftSample(nebulamap,uv+drift,false).rgb,weight);
  }
  vec4 rocks=vec4(0.0);
- vec3 rockEye=vec3(-eye.x,eye.y,-eye.z)-vec3(-962.0,-5350.0,-13570.0);
+ vec3 cardEye=eye;
+ if(room)
+ {
+  cardEye=vec3(962.0,-5350.0,13570.0);
+  if(textureLod(viewmap,vec2(.875,.5),0.0).r>.5)
+   cardEye=vec3(AlternateViewCoord(.125),AlternateViewCoord(.375),AlternateViewCoord(.625));
+ }
+ vec3 rockEye=vec3(-cardEye.x,cardEye.y,-cardEye.z)-vec3(-962.0,-5350.0,-13570.0);
  rocks=RiftRockLayer(rocks,rockmap,ray,rockEye,vec3(-0.844817763,0.484809620,-0.226368237),vec3(-0.258819045,0.000000000,0.965925826),vec3(0.468290133,0.874619707,0.125477963),vec2(0.250000000,0.320000000),vec4(0.925000000,0.430000000,0.770000000,0.746000000),0.85,0.006,4.1,100000.0,-270.0);
  rocks=RiftRockLayer(rocks,rockmap,ray,rockEye,vec3(0.532895080,0.559192903,-0.635079626),vec3(-0.766044443,0.000000000,-0.642787610),vec3(-0.359442270,0.829037573,0.428366616),vec2(0.400000000,0.500000000),vec4(0.770000000,0.430000000,0.925000000,0.746000000),1.0,0.007,1.3,70000.0,240.0);
  rocks=RiftRockLayer(rocks,platformmap,ray,rockEye,vec3(0.827960033,0.515038075,-0.221851222),vec3(-0.258819045,0.000000000,-0.965925826),vec3(-0.497488578,0.857167301,0.133301663),vec2(0.200000000,0.200000000),vec4(0.500000000,0.000000000,1.000000000,1.000000000),0.7,0.005,4.8,65000.0,280.0);
