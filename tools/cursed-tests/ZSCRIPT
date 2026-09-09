@@ -1,0 +1,117 @@
+version "5.0.0"
+class UTNTCursedTests : EventHandler
+{
+    int View, SavedDay, SavedCloud;
+    bool Fixed, Snapshot;
+    Vector3 A2Pos;
+    void Check(bool pass,String label) { Console.Printf("UTNT_ASSERT %s: %s",pass?"PASS":"FAIL",label); }
+    void RoofCheck(int tag,int day,int night)
+    {
+        let h=UTNTCursedSkyHandler(EventHandler.Find('UTNTCursedSkyHandler'));
+        let it=level.CreateSectorTagIterator(tag);int i,count=0;bool valid=true;
+        int expected=int(day+(night-day)*h.DayTics/18000.0+.5);
+        while((i=it.Next())>=0)
+        {
+            let s=level.Sectors[i];
+            if(s.GetTexture(Sector.ceiling)==TexMan.CheckForTexture("F_SKY1"))continue;
+            count++;if(abs(s.GetLightLevel()-expected)>1)valid=false;
+        }
+        Check(count>0 && valid,String.Format("tag %d roofed sectors follow daylight (%d sectors)",tag,count));
+    }
+    override void WorldTick()
+    {
+        if(!UTNTCursedSkyHandler.Active())return;
+        let p=players[0].mo;if(!p || level.time<5)return;
+        p.bInvulnerable=true;p.bNoGravity=true;
+        if(!Fixed)
+        {
+            Fixed=true;p.ACS_NamedTerminate("IntroText",0);
+            if(level.MapName~=="TNT03A2")
+            {
+                let it=ThinkerIterator.Create('UTNTSnowAnchor');Actor a;let trace=new('LineTracer');
+                while(a=Actor(it.Next()))
+                {
+                    Vector3 pos=a.Pos;pos.Z=a.CurSector.floorplane.ZatPoint(pos.XY)+1;
+                    if(a.CurSector.ceilingplane.ZatPoint(pos.XY)-pos.Z<96)continue;
+                    trace.Trace(pos+(0,0,48),a.CurSector,(0,0,1),8192,TRACE_HitSky,ignoreAllActors:true);
+                    if(trace.Results.HitType!=TRACE_HasHitSky)continue;
+                    A2Pos=pos;Console.Printf("CURSED A2 camera %.1f %.1f %.1f",pos.X,pos.Y,pos.Z);break;
+                }
+            }
+        }
+        Vector3 pos=level.MapName~=="TNT03A1" ? (-1440,2112,1) : A2Pos;
+        if(level.MapName~=="TNT03A1")pos.Z=level.PointInSector(pos.XY).floorplane.ZatPoint(pos.XY)+1;
+        double angle=level.MapName~=="TNT03A1"?270:0,pitch=0;
+        if(View>0 && View<=4){angle=(View-1)*90;pitch=-28;}
+        if(View==5){angle=45;pitch=-89;}
+        if(View==6){angle=270;pitch=-35;}
+        p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=angle;p.Pitch=pitch;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let h=UTNTCursedSkyHandler(EventHandler.Find('UTNTCursedSkyHandler'));
+        if(e.Name=="peakview")View=e.Args[0];
+        if(e.Name=="peakpeer")
+        {
+            let w=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+            Check(h.ClockReady && h.DayTics>=10000 && h.DayTics<11000,"co-op shared clock advances across hub");
+            int phaseDelta=(h.RawCloudTics%10500-w.WeatherTics+10500)%10500;
+            Check(phaseDelta<=1 || phaseDelta>=10499,"one clock updater per map, including co-op RETURN");
+            Console.Printf("CURSED_PEER %d %s %d %d %d %d",e.Args[0],level.MapName,h.DayTics,h.CloudTics,w.WeatherTics,h.Outside.Size());
+            if(e.Args[0]==2)Console.Printf("CURSED_COOP_COMPLETE");
+        }
+        if(e.Name=="peaktime")ACS_NamedExecuteWithResult("UTNT_CursedSkySetTime",e.Args[0]);
+        if(e.Name=="peakweatheroff")
+        {
+            bool valid=h.Intensity==0;
+            for(int i=0;i<h.Outside.Size();i++)
+                if(h.FadeManaged[i] && level.Sectors[h.Outside[i]].Colormap.FogDensity!=32)valid=false;
+            Check(valid,"weather off retains clear-weather fade density");
+        }
+        if(e.Name=="peakstorm")
+        {
+            let w=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+            w.WeatherTics=e.Args[0]>0 ? 6300 : 0;
+        }
+        if(e.Name=="peaksnapshot")
+        {
+            SavedDay=h.DayTics;SavedCloud=h.CloudTics;Snapshot=true;
+            Console.Printf("CURSED_SNAPSHOT day=%d cloud=%d",SavedDay,SavedCloud);
+        }
+        if(e.Name=="peakcheck")
+        {
+            Check(h && h.ClockReady && h.Initialized,"shared sky clock initialized");
+            Check(h.DayTics>=e.Args[0] && h.DayTics<=e.Args[1],"day clock in expected range");
+            Check(level.SkyTexture1==TexMan.CheckForTexture(String.Format("UCP%d",h.AppliedSky)),"shared sky assigned");
+            let it=ThinkerIterator.Create('SkyViewpoint');Check(it.Next()==null,"legacy sky camera retired");
+            Check(h.Outside.Size()>0,"authored daylight sectors found");
+            Check(h.FogValue==255-165*h.DayTics/18000,"sky receives authoritative ACS fade");
+            bool fadeOK=true;
+            for(int i=0;i<h.Outside.Size();i++)
+                if(h.FadeManaged[i] && level.Sectors[h.Outside[i]].Colormap.FadeColor!=h.SkyFade)fadeOK=false;
+            Check(fadeOK,"sector fade and sky haze share the exact same colour");
+            Check(h.SkyFade.B==h.FogValue && h.SkyFade.R<h.SkyFade.G && h.SkyFade.G<h.SkyFade.B,"fade retains a restrained cold-blue tint");
+            bool densityOK=true;
+            for(int i=0;i<h.Outside.Size();i++)
+                if(h.FadeManaged[i])
+                {
+                    int density=level.Sectors[h.Outside[i]].Colormap.FogDensity;
+                    if(density<32 || density>54)densityOK=false;
+                }
+            Check(densityOK,"weather still controls density of the tinted fade");
+            RoofCheck(1,150,110);
+            if(level.MapName~=="TNT03A1")RoofCheck(14,120,100);
+            Console.Printf("CURSED_STATE map=%s day=%d cloud=%d sky=%d sectors=%d storm=%.4f",level.MapName,h.DayTics,h.CloudTics,h.AppliedSky,h.Outside.Size(),h.Intensity);
+        }
+        if(e.Name=="peakrestore")
+        {
+            Check(Snapshot && h.DayTics>=SavedDay && h.DayTics<SavedDay+120,"save restores daylight");
+            Check(Snapshot && h.CloudTics>=SavedCloud && h.CloudTics<SavedCloud+120,"save restores cloud phase");
+        }
+        if(e.Name=="peakfreeze")
+        {
+            Check(h.DayTics==SavedDay,"freeze holds daylight");
+            Check(h.CloudTics==SavedCloud,"freeze holds cloud phase");
+        }
+    }
+}

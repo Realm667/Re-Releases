@@ -1,0 +1,99 @@
+// Shared ACS global slots 1 (existing daylight) and 12 (cloud phase) are the
+// authoritative hub state. This serialized handler only presents that state.
+class UTNTCursedSkyHandler : EventHandler
+{
+    int DayTics, CloudTics, RawCloudTics, AppliedSky, FogValue;
+    bool Initialized, ClockReady;
+    double Intensity;
+    Color SkyFade;
+    // Includes tagged roofed sectors; visibility of F_SKY1 is irrelevant here.
+    Array<int> Outside, DayLight, NightLight, FadeManaged;
+    clearscope static bool Active() { return level.MapName~=="TNT03A1" || level.MapName~=="TNT03A2"; }
+    static int ClockRunning() { return level.isFrozen()?0:1; }
+    static bool OwnsFade(int sectorIndex)
+    {
+        let h=UTNTCursedSkyHandler(EventHandler.Find('UTNTCursedSkyHandler'));
+        if(!h || !h.Initialized)return false;
+        for(int i=0;i<h.Outside.Size();i++)
+            if(h.Outside[i]==sectorIndex)return h.FadeManaged[i]!=0;
+        return false;
+    }
+    static void SetClock(int daylight,int clouds,int fade)
+    {
+        let h=UTNTCursedSkyHandler(EventHandler.Find('UTNTCursedSkyHandler'));
+        if(!h || !Active())return;
+        // Restore the existing snowfall cycle when entering/re-entering a hub
+        // map, so a storm does not disappear because its map clock restarted.
+        if(!h.ClockReady || (clouds!=h.RawCloudTics && clouds!=(h.RawCloudTics+1)%1050000))
+        {
+            let weather=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+            if(weather){weather.WeatherTics=clouds%10500;weather.CycleNumber=clouds/10500;}
+        }
+        h.RawCloudTics=clouds;
+        h.FogValue=clamp(fade,0,255);
+        double night=UTNTWeatherHandler.Ease((daylight/18000.0-.4)/.6);
+        h.SkyFade=Color(int(h.FogValue*(.94-night*.02)+.5),int(h.FogValue*(.975-night*.015)+.5),h.FogValue);
+        h.DayTics=clamp(daylight,0,18000);h.CloudTics=clouds%175000;h.ClockReady=true;
+    }
+    void Initialize()
+    {
+        Initialized=true;AppliedSky=-1;
+        AddTag(1,150,110);AddTag(2,150,110);AddTag(3,130,100);AddTag(19,150,110);
+        AddTag(14,120,100);
+    }
+    void AddTag(int tag,int day,int night)
+    {
+        let it=level.CreateSectorTagIterator(tag);int i;
+        while((i=it.Next())>=0)
+        {
+            bool found=false;
+            for(int j=0;j<Outside.Size();j++)if(Outside[j]==i)found=true;
+            if(found)continue;
+            Outside.Push(i);DayLight.Push(day);NightLight.Push(night);
+            FadeManaged.Push(tag!=14);
+        }
+    }
+    override void WorldTick()
+    {
+        if(!Active() || !ClockReady)return;
+        if(!Initialized)Initialize();
+        let weather=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+        Intensity=weather && CVar.GetCVar('weatherfx').GetBool() ? UTNTWeatherHandler.Strength(weather.WeatherTics) : 0;
+        double p=DayTics/18000.0;
+        int state=p<.35 ? 0 : p<.82 ? 1 : 2;
+        if(state!=AppliedSky)
+        {
+            AppliedSky=state;let sky=TexMan.CheckForTexture(String.Format("UCP%d",state));
+            level.ChangeSky(sky,sky);
+        }
+        double night=UTNTWeatherHandler.Ease((p-.4)/.6);
+        for(int i=0;i<Outside.Size();i++)
+        {
+            let s=level.Sectors[Outside[i]];
+            s.SetLightLevel(int(DayLight[i]+p*(NightLight[i]-DayLight[i])+.5));
+            // One restrained cold palette for the ACS fade and sky haze.
+            // Existing weather code still owns fog density.
+            if(FadeManaged[i])
+            {
+                s.SetFade(SkyFade);
+                // Coloured fog needs an explicit clear-weather baseline. Keep
+                // it when weatherfx is off; the native implicit density differs
+                // from the legacy grayscale fade's density calculation.
+                if(s.ColorMap.FogDensity==0)s.SetFogDensity(32);
+            }
+            s.SetColor(Color(int(255-night*8),int(255-night*4),255),0);
+        }
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        if(!Active())return;
+        let c=TexMan.GetCanvas("UCPDATA");if(!c)return;
+        // RGB8 packing gives sub-tic daylight precision and a shared phase.
+        double frac=level.isFrozen()?0:e.FracTic;
+        int day=int(clamp((DayTics+frac)/18000.0,0,1)*65535+.5);
+        int cloud=int(((CloudTics+frac)%175000)/175000.0*65535+.5);
+        c.Clear(0,0,4,4,Color(day/256,day%256,int(Intensity*255+.5)));
+        c.Clear(4,0,8,4,Color(cloud/256,cloud%256,FogValue));
+        c.Clear(8,0,16,4,SkyFade);
+    }
+}

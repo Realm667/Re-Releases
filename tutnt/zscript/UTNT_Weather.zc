@@ -86,8 +86,12 @@ class UTNTWeatherHandler : EventHandler
             for(int i=0;i<level.Sectors.Size();i++)
             {
                 let sec=level.Sectors[i]; Color f=sec.ColorMap.FadeColor;
-                if(f==0 || f.r!=f.g || f.g!=f.b || sec.ColorMap.FogDensity!=0) continue;
-                FogSectors.Push(i); OriginalDensity.Push(sec.ColorMap.FogDensity);
+                // Cursed Peak's authored daylight tags now use a restrained blue
+                // fade. They keep the same weather density ownership as before.
+                bool skyFade=UTNTCursedSkyHandler.OwnsFade(i);
+                int density=sec.ColorMap.FogDensity;
+                if(f==0 || (!skyFade && (f.r!=f.g || f.g!=f.b)) || (density!=0 && !(skyFade && density==32))) continue;
+                FogSectors.Push(i); OriginalDensity.Push(skyFade ? 32 : density);
                 AppliedDensity.Push(32); sec.SetFogDensity(32);
             }
         }
