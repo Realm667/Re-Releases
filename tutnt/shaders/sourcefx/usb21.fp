@@ -33,10 +33,17 @@ vec4 ProcessTexel()
  intensity+=0.35*exp(-edge*edge*1200.0)+0.075*exp(-edge*edge*150.0);
 #endif
  vec3 color=mix(vec3(1.0,0.23,0.012),vec3(1.0,0.85,0.39),pow(clamp(intensity,0.0,1.0),3.0));
+ // Keep the seal legible even with the shield closed. Fade over its full
+ // height and return smoothly to the original beam above and below it.
+ float nearBoss=1.0-smoothstep(280.0,470.0,abs(height-3968.0));
+#if BEAM_KIND == 0
+ intensity*=mix(1.0,0.10,nearBoss);
+#else
+ intensity*=mix(1.0,0.35,nearBoss);
+#endif
 #if BEAM_STATE == 1
- // The target silhouette is unobscured while the actual shield is open.
- float nearBoss=1.0-smoothstep(420.0,900.0,abs(height-3968.0));
- intensity*=mix(0.65,0.12,nearBoss);
+ // Opening the real shield makes the target still clearer.
+ intensity*=mix(0.65,0.40,nearBoss);
 #elif BEAM_STATE == 2
  intensity=0.0;
 #endif

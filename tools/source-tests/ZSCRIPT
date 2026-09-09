@@ -48,8 +48,8 @@ class UTNTSourceTests : EventHandler
    UTNTSourceEmitter em;
    while(em=UTNTSourceEmitter(it.Next()))
    {
-    count++;Assert(em.Layers.Size()==11,"eleven bounded presentation layers");
-    bool roles=em.Layers.Size()==11;
+    count++;Assert(em.Layers.Size()==12,"twelve bounded presentation layers including centre glow");
+    bool roles=em.Layers.Size()==12;
     for(int i=0;i<em.Layers.Size();i++)roles=roles && em.Layers[i].Kind==i;
     Assert(roles,"distinct shield, target and attack layers");
    }

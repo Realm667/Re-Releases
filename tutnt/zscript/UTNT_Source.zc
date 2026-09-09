@@ -144,7 +144,7 @@ class UTNTSourceEmitter : Thinker
  void Initialize(UTNTSourceBase boss)
  {
   Source=boss;Center=boss.Center();GuardianSerial=boss.GuardianSerial;GuardianAge=100;
-  for(int i=0;i<11;i++)
+  for(int i=0;i<12;i++)
   {
    let v=UTNTSourceLayer(level.SpawnClientSideVisualThinker('UTNTSourceLayer'));
    if(v){v.Initialize(self,i);Layers.Push(v);}
@@ -218,7 +218,7 @@ class UTNTSourceLayer : VisualThinker
   {
    Texture=TexMan.CheckForTexture("USHEA0");
    diameter=175+(e.Reduced?0:18*sin(level.time*(e.Opened?12:5)));
-   Alpha=e.Opened?0.95:0.12;
+   Alpha=e.Opened?0.95:0.38;
    if(s && s.AttackKind==3 && elapsed<140)
    {diameter=90+100*min(1.0,double(elapsed)/70);Alpha=0.95;}
   }
@@ -277,6 +277,12 @@ class UTNTSourceLayer : VisualThinker
    Texture=TexMan.CheckForTexture("USDFA0");diameter=850;
    if(e.Opened)Alpha=0.65;
    Roll=e.Reduced?0:sin(level.time*0.6)*8;
+  }
+  if(Kind==11)
+  {
+   Texture=TexMan.CheckForTexture("USGLA0");diameter=1100;
+   Alpha=e.Opened?0.72:0.60;
+   if(!e.Reduced)Alpha+=0.025*sin(level.time*1.8);
   }
   if(e.DeadAge)
   {

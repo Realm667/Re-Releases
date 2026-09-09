@@ -44,7 +44,7 @@ nodes are byte-identical. TNT04C retains its original visuals and map bytes.
 ## Implementation and limits
 
 `UTNT_Source.zc` adds presentation bases to the existing Source and Guardian
-classes. Saved boss fields describe attack and shield state. Eleven bounded
+classes. Saved boss fields describe attack and shield state. Twelve bounded
 VisualThinkers and one light anchor live only on each local client and rebuild
 after loading. Essential target/shield/attack indications remain with FX quality
 zero. Reduced effects disable ornamental roll and pulse motion where specified;
@@ -93,3 +93,18 @@ after the Source actor's Tick, intermittently hiding the new membrane. They are
 now stopped by the presentation controller, which explicitly selects additive
 blending. The open-window script 122 remains untouched. RenderOverlay logging in
 the test fixture verifies the final drawn alpha, not only pre-ACS actor state.
+
+## Seal focus and central glow — 2026-09-09
+
+The beam now fades smoothly around the seal even while the shield is closed.
+At its centre the core retains 10% intensity and the helix retains 35%; the
+original strength returns outside a 470-unit vertical distance. The transition
+starts at 280 units. The open shield further reduces both to expose the target.
+
+A twelfth local visual layer carries a soft, 1100-unit amber aura centred on the
+sigil, extending beyond the 740–800-unit ring. Its edge fades away smoothly.
+The compact heart is brighter when closed; its existing attack cues remain.
+Reduced FX removes the subtle pulse, while the static glow remains visible.
+The aura collapses with the other layers on death and reconstructs on save/load.
+No map geometry, collision, damage, timing or additional dynamic lights change.
+Actual engine evidence is in `tools/validation/source-focus-2026-09-09/`.

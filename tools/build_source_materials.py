@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 
 SPRITES={'USC0A0':0,'USC1A0':1,'USRCA0':2,'USROA0':3,'USREA0':4,
-         'USHEA0':5,'USORA0':6,'USRIPA0':7,'USSTA0':8,'USLNA0':9,'USDFA0':10}
+         'USHEA0':5,'USORA0':6,'USRIPA0':7,'USSTA0':8,'USLNA0':9,'USDFA0':10,'USGLA0':11}
 
 def build(root=ROOT):
  root=Path(root);t=root/'tutnt';out=t/'shaders/sourcefx';out.mkdir(parents=True,exist_ok=True)

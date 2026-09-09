@@ -64,6 +64,12 @@ vec4 ProcessTexel()
  float count=turn*13.0;
  float radius=0.82+0.08*sin(floor(count)*7.0);
  ink=Rune(vec2((fract(count)-0.5)*2.8+0.5,(r-radius)/0.065),floor(count));
+#elif SOURCE_KIND == 11
+ // Broad, quiet amber light from the seal's centre, with no hard outer disc.
+ // This is separate from the compact heart so attacks retain their telegraph.
+ ink=0.32*exp(-r*r*3.0)+0.15*exp(-r*r*28.0);
+ ink*=1.0-smoothstep(0.80,1.0,r);
+ gold=vec3(1.0,0.40,0.035);
 #endif
  ink*=1.0-smoothstep(0.975,1.0,r);
  vec3 col=mix(gold,vec3(1.0,0.91,0.55),clamp(heat,0.0,1.0));
