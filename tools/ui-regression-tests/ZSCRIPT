@@ -61,6 +61,7 @@ class UTNTUIRegression : EventHandler
             Check(h.Chapter.Phase==0,"non-host finish request did not change maps");
             Check(players[0].inconsistent==0 && players[1].inconsistent==0,"network chapter state remains synchronized");
         }
+        if(e.Name=="uitvoice") UTNTWorldHandler.BeginVoice("UTNT_VOICE_031",20);
         if(e.Name=="uitmix")
         {
             UTNTWorldHandler.BeginBoss(9999,9999,1,1000);UTNTWorldHandler.UpdateBoss(610);
@@ -132,6 +133,14 @@ class UTNTUIRegressionView : StaticEventHandler
             Check(UTNTUILayout.Scale()>=1,"UI text never scales below native pixels");
             Check(UTNTUILayout.Width(500)*UTNTUILayout.Scale()+2*UTNTUILayout.Margin()<=Screen.GetWidth()+1,"panel respects horizontal safe margins");
             Check(h.VoiceTop>=UTNTUILayout.Margin(),"subtitle stays below top margin");
+            if(h.CachedVoiceLines && h.CachedVoiceLines.Count()>0)
+            {
+                double scale=UTNTUILayout.VoiceScale();
+                double boxBottom=h.VoiceTop+UTNTUILayout.Gap()
+                    +h.CachedVoiceLines.Count()*(Font.GetFont('SmallFont').GetHeight()+2)*scale+4*scale;
+                Check(boxBottom<=UTNTUILayout.AbilityTop()-UTNTUILayout.Gap()+0.01,
+                    "subtitle background clears the ability cards including padding");
+            }
             if(h.NoticeFeed.ActiveID && h.NoticeFeed.ActiveID!=9001)
             {
                 Check(h.NoticeFeed.LastTop>=UTNTUILayout.Top(),"notice is below the boss reservation");

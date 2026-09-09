@@ -517,7 +517,8 @@ class UTNTPresentation : StaticEventHandler
     ui void DrawVoice(PlayerInfo player,bool measureOnly=false)
     {
         let handler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
-        VoiceTop=UTNTUILayout.Bottom();
+        // Reserve the ability row before measuring any subtitle or notice.
+        VoiceTop=min(UTNTUILayout.Bottom(),UTNTUILayout.AbilityTop()-UTNTUILayout.Gap());
         if (!handler || handler.VoiceKey.Length()==0 || level.time>=handler.VoiceEndTime+18
             || !CVar.GetCVar('UTNT_subtitles',player).GetBool()) return;
         double scale=UTNTUILayout.VoiceScale();
@@ -544,7 +545,8 @@ class UTNTPresentation : StaticEventHandler
         double alpha=clamp(min((level.time-handler.VoiceStartTime+1)/18.0,(handler.VoiceEndTime+18-level.time)/18.0),0,1);
         int count=CachedVoiceLines.Count();
         double lineHeight=(font.GetHeight()+2)*scale;
-        double y=UTNTUILayout.Bottom()-count*lineHeight;
+        // The background extends four scaled pixels below the text block.
+        double y=VoiceTop-count*lineHeight-4*scale;
         VoiceTop=y-UTNTUILayout.Gap();
         if(measureOnly) return;
         int widest=CachedVoiceWidest;
