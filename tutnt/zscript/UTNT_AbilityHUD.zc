@@ -30,6 +30,12 @@ class UTNTAbilityHUD ui
         }
     }
 
+    static int SignalColor(int kind,int slot)
+    {
+        int colors[]={0xb90606,0x91baa0,0x014682,0x999999,0xff8b05,0x93553e};
+        return colors[clamp(kind*2+slot-1,0,5)];
+    }
+
     static String Title(int kind,int slot)
     {
         String keys[]={"RAGE","REGEN","WEAK","CLOAK","OVERDRIVE","BULWARK"};
@@ -42,7 +48,7 @@ class UTNTAbilityHUD ui
         int remaining=a.Cooldown[slot-1];
         bool locked=a.ActiveSlot!=0 && !active || a.LockRemaining>0;
         bool ready=!active && !remaining && !locked;
-        int color=active?(slot==1?0xe49b55:0x91baa0):ready?0xc9954b:0x82786a;
+        int color=active?SignalColor(a.ClassKind,slot):ready?0xc9954b:0x82786a;
         double width=156;
         UTNTExplorationUI.Frame(x,y,width,39,s,1);
         UTNTObjectivePlaque.Rect(x,y,s,6,6,25,26,0x17120d,0.86);
@@ -97,3 +103,5 @@ class UTNTAbilityHUD ui
         Card(a,2,Screen.GetWidth()-margin-156*s,y,s);
     }
 }
+
+#include "zscript/UTNT_AbilityEdges.zc"

@@ -12,7 +12,7 @@ class UTNTClassMenu : ListMenu
             if(menuAction=='EpisodeMenu') Entries.Push(i);
         }
     }
-    double CardScale() { return min(Screen.GetWidth()/780.0,Screen.GetHeight()/460.0); }
+    double CardScale() { return min(Screen.GetWidth()/780.0,Screen.GetHeight()/590.0); }
     override bool MenuEvent(int key,bool controller)
     {
         if(key==MKEY_Left) key=MKEY_Up;
@@ -21,15 +21,15 @@ class UTNTClassMenu : ListMenu
     }
     override bool MouseEvent(int type,int mx,int my)
     {
-        double s=CardScale(),left=(Screen.GetWidth()-740*s)/2,top=(Screen.GetHeight()-330*s)/2;
+        double s=CardScale(),left=(Screen.GetWidth()-740*s)/2,top=(Screen.GetHeight()-490*s)/2;
         for(int i=0;i<min(3,Entries.Size());i++)
-            if(mx>=left+i*250*s && mx<=left+(i*250+240)*s && my>=top && my<=top+300*s)
+            if(mx>=left+i*250*s && mx<=left+(i*250+240)*s && my>=top && my<=top+455*s)
             {
                 mDesc.mSelectedItem=Entries[i];
                 if(type==MOUSE_Release) Super.MenuEvent(MKEY_Enter,false);
                 return true;
             }
-        if(Entries.Size()>3 && my>=top+311*s && my<=top+337*s)
+        if(Entries.Size()>3 && my>=top+466*s && my<=top+492*s)
         {
             mDesc.mSelectedItem=Entries[3];
             if(type==MOUSE_Release) Super.MenuEvent(MKEY_Enter,false);
@@ -49,9 +49,23 @@ class UTNTClassMenu : ListMenu
         Screen.DrawTexture(pic,true,x-size.X*scale/2,y-size.Y*scale/2,
             DTA_DestWidth,int(round(size.X*scale)),DTA_DestHeight,int(round(size.Y*scale)),DTA_LeftOffset,0,DTA_TopOffset,0);
     }
+    static void Ability(int kind,int slot,double x,double y,double s)
+    {
+        int color=slot==1?0xe49b55:0x91baa0;
+        UTNTAbilityHUD.Icon(kind,slot,x+14*s,y,s,color);
+        let [k1,k2]=Bindings.GetKeysForCommand(slot==1?"utnt_offense":"utnt_defense");
+        String key=k1?KeyBindings.NameKeys(k1,0,false):"--";
+        String title=UTNTAbilityHUD.Title(kind,slot).." ["..key.."]";
+        double ts=min(s,184*s/max(1,Font.GetFont('SmallFont').StringWidth(title)));
+        UTNTExplorationUI.Text(title,x+38*s,y+4*s,ts,color);
+        String keys[]={"RAGE","REGEN","WEAK","CLOAK","OVERDRIVE","BULWARK"};
+        let lines=Font.GetFont('SmallFont').BreakLines(UTNTExplorationUI.Local("UTNT_AB_CARD_"..keys[kind*2+slot-1]),210);
+        for(int row=0;row<lines.Count();row++)
+            UTNTExplorationUI.Text(lines.StringAt(row),x+14*s,y+(25+12*row)*s,s,0xbab3a7);
+    }
     override void Drawer()
     {
-        double s=CardScale(),left=(Screen.GetWidth()-740*s)/2,top=(Screen.GetHeight()-330*s)/2;
+        double s=CardScale(),left=(Screen.GetWidth()-740*s)/2,top=(Screen.GetHeight()-490*s)/2;
         Center(UTNTExplorationUI.Local("UTNT_CLASS_TITLE"),Screen.GetWidth()/2.0,top-38*s,2*s,0xc9954b);
         String roles[]={"UTNT_CLASS_MARINE","UTNT_CLASS_SCOUT","UTNT_CLASS_COMMANDO"};
         String gear[]={"UTNT_CLASS_SHOTGUN","UTNT_CLASS_PISTOL","UTNT_CLASS_MINIGUN"};
@@ -63,20 +77,26 @@ class UTNTClassMenu : ListMenu
             let pawn=GetDefaultByType((class<PlayerPawn>)(PlayerClasses[index].Type));
             bool selected=mDesc.mSelectedItem==Entries[i];
             double x=left+i*250*s,cx=x+120*s;
-            UTNTExplorationUI.Frame(x,top,240,300,s,selected?1:0.72);
+            UTNTExplorationUI.Frame(x,top,240,455,s,selected?1:0.72);
             if(selected) Screen.Dim(0xc9954b,1,int(x),int(top),int(240*s),max(1,int(2*s)));
             Center(PlayerPawn.GetPrintableDisplayName(PlayerClasses[index].Type),cx,top+19*s,1.7*s,selected?0xe5c487:0xb7ab94);
-            Sprite(pawn.SpawnState,cx,top+97*s,80*s,100*s);
-            Center(String.Format(UTNTExplorationUI.Local("UTNT_CLASS_HEALTH"),pawn.MaxHealth),cx,top+166*s,1.15*s,0xd6d0c3);
-            Center(String.Format(UTNTExplorationUI.Local("UTNT_CLASS_SPEED"),int(pawn.ForwardMove1*100)),cx,top+184*s,1.15*s,0xd6d0c3);
-            Sprite(GetDefaultByType(weapons[i]).SpawnState,x+48*s,top+224*s,46*s,26*s);
-            UTNTExplorationUI.Text(UTNTExplorationUI.Local(gear[i]),x+85*s,top+221*s,s,0xc9954b);
+            Sprite(pawn.SpawnState,cx,top+87*s,72*s,80*s);
+            Center(String.Format(UTNTExplorationUI.Local("UTNT_CLASS_HEALTH"),pawn.MaxHealth),cx,top+143*s,1.15*s,0xd6d0c3);
+            Center(String.Format(UTNTExplorationUI.Local("UTNT_CLASS_SPEED"),int(pawn.ForwardMove1*100)),cx,top+161*s,1.15*s,0xd6d0c3);
+            Sprite(GetDefaultByType(weapons[i]).SpawnState,x+48*s,top+198*s,46*s,26*s);
+            UTNTExplorationUI.Text(UTNTExplorationUI.Local(gear[i]),x+85*s,top+195*s,s,0xc9954b);
             let lines=Font.GetFont('SmallFont').BreakLines(UTNTExplorationUI.Local(roles[i]),210);
-            for(int row=0;row<lines.Count();row++) Center(lines.StringAt(row),cx,top+(254+12*row)*s,s,0xbab3a7);
+            for(int row=0;row<lines.Count();row++) Center(lines.StringAt(row),cx,top+(224+12*row)*s,s,0xbab3a7);
+            int kind=pawn is 'Scout'?1:pawn is 'Commando'?2:0;
+            Ability(kind,1,x,top+258*s,s);
+            Ability(kind,2,x,top+330*s,s);
+            Screen.Dim(0x77532f,0.7,int(x+14*s),int(top+404*s),int(212*s),max(1,int(s)));
+            String timing[]={"UTNT_AB_CARD_TIMING","UTNT_AB_CARD_EXCLUSIVE","UTNT_AB_CARD_LOCK"};
+            for(int row=0;row<3;row++) Center(UTNTExplorationUI.Local(timing[row]),cx,top+(414+12*row)*s,s,0x998c76);
         }
-        Center(UTNTExplorationUI.Local("UTNT_CLASS_RANDOM"),Screen.GetWidth()/2.0,top+317*s,s,
+        Center(UTNTExplorationUI.Local("UTNT_CLASS_RANDOM"),Screen.GetWidth()/2.0,top+474*s,s,
             Entries.Size()>3 && mDesc.mSelectedItem==Entries[3]?0xe5c487:0xb7ab94);
-        Center(UTNTExplorationUI.Local("UTNT_CLASS_HELP"),Screen.GetWidth()/2.0,top+351*s,s,0x998c76);
+        Center(UTNTExplorationUI.Local("UTNT_CLASS_HELP"),Screen.GetWidth()/2.0,top+508*s,s,0x998c76);
     }
 }
 

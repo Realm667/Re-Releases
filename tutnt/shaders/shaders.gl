@@ -28,3 +28,15 @@ HardwareShader PostProcess scene
 
 
 //Rotating effects not defined yet
+// Timed class abilities: world edges only, before HUD composition.
+HardwareShader PostProcess beforebloom
+{
+    Name "utnt_ability_edges"
+    Shader "shaders/ability-edges.fp" 330
+    Texture armorTexture "graphics/hud/UTOBJART.png"
+    Uniform vec3 signalColor
+    Uniform int abilityMode
+    Uniform float pulse
+    Uniform float strength
+    Uniform float distortion
+}

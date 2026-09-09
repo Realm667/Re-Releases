@@ -54,10 +54,41 @@ inventory, healing or the world twice. Ammo usage per attack remains unchanged.
 
 The two HUD plaques reuse UTNT's `UTOCBG` metal surface, bronze borders, rivets,
 SmallFont and shared scaling. Six native pixel glyphs identify the effects.
-They show ready, active countdown, cooldown and mutual lock states. Offense uses
-warm amber while active; defense uses muted green. They sit above the outer
+They show ready, active countdown, cooldown and mutual lock states. Active symbols, labels and progress bars use the exact ability signal color
+listed below. They sit above the outer
 status-bar sections and disappear with the HUD, full-screen automap and cutscenes.
 No generated or third-party artwork is added.
+
+## Ability borders and class selection
+
+| Ability | Active HUD / border color | Border effect |
+| --- | --- | --- |
+| Rage | `#B90606` | One pulse per second, radial speed blur at the edges |
+| Regeneration | `#91BAA0` | One pulse per second |
+| Weak Spot | `#014682` | One pulse per second |
+| Cloak | `#999999` | One pulse per second, subtle Gaussian edge blur |
+| Overdrive | `#FF8B05` | One pulse per second |
+| Bollwerk | `#93553E` (HUD) | Steady armored rim, existing metal artwork and bronze bevels/rivets |
+
+Signal colors have a single ZScript source shared by the HUD and shader. The
+world border is composited before bloom and HUD rendering, leaving labels and
+crosshairs sharp. Colored edges occupy the outer 18% along each axis; the center
+is untouched. Bollwerk uses an angular viewing opening and segmented plates,
+sampling the same existing artwork as the objective plaques. No bitmap was added.
+
+Pulse phase follows the saved ability timer at one cycle per game second. A short
+activation/end fade avoids abrupt flashes. The existing reduced-effects preset
+disables both blurs and replaces pulsing with a steady tint. Screenblocks 12 hides
+the HUD plaques but retains the ability's world effect. Menus, console, automap,
+cutscenes, external cameras, death and expired abilities disable the shader;
+world unload explicitly clears it. Loading/travel reconstruct the effect from
+the ability state. Presentation consumes no gameplay RNG or network messages.
+
+The three class-selection cards describe offense and defense, benefits and
+penalties, current key bindings, 15-second duration, five-minute cooldown, mutual
+exclusion and the three-second switching lock. They use English/German text,
+the existing fonts, sprites and bronze frames. Their expanded mouse areas match
+the new card dimensions; native episode/difficulty selection is retained.
 
 ## Validation
 
@@ -76,6 +107,10 @@ python tools/test_abilities.py --class Scout --mode boss --map TNT01
 python tools/test_abilities.py --class Scout --mode hud --renderer 0
 python tools/test_abilities.py --class Commando --mode hud --renderer 1
 python tools/test_abilities_coop.py
+python tools/test_ability_edges.py --class Marine --cards
+python tools/test_ability_edges.py --class Scout --renderer 0 --sizes
+python tools/test_ability_edges.py --class Commando --sizes
+python tools/check_ability_edge_images.py logs/ability-edges/logs
 ```
 
 `--mod` can select a built PK3 or source folder. Results are written beneath

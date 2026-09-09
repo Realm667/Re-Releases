@@ -1,0 +1,45 @@
+// Client-only presentation. The saved ability timer is the sole effect clock.
+class UTNTAbilityEdges ui
+{
+    static int Mode(RenderEvent e)
+    {
+        if(consoleplayer<0 || gamestate!=GS_LEVEL || !viewactive || automapactive
+            || menuactive || ConsoleState!=0) return 0;
+        let p=players[consoleplayer];
+        let mo=e.Camera;
+        if(!p || !mo || mo!=p.mo || mo.Health<=0 || mo.FindInventory('UTNTHUDHidden')) return 0;
+        let fx=UTNTPlayerEffects(mo.FindBehavior('UTNTPlayerEffects'));
+        if((fx && fx.Cutscene) || (p.cheats & CF_TOTALLYFROZEN)) return 0;
+        let world=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(world && world.Chapter && world.Chapter.Phase!=3) return 0;
+        let a=UTNTAbilities.Get(mo);
+        return a && a.ActiveSlot && a.Remaining>0 ? a.ClassKind*2+a.ActiveSlot : 0;
+    }
+
+    static double Pulse(double seconds,bool reduced)
+    {
+        // ZScript angles are degrees: exactly one full pulse per second.
+        return reduced ? 0.48 : 0.5-0.5*cos(seconds*360);
+    }
+
+    static void Draw(RenderEvent e)
+    {
+        if(consoleplayer<0) return;
+        let p=players[consoleplayer]; if(!p) return;
+        int mode=Mode(e);
+        PPShader.SetEnabled("utnt_ability_edges",mode!=0);
+        if(!mode) return;
+        let a=UTNTAbilities.Get(e.Camera);
+        bool reduced=CVar.GetCVar('UTNT_reducedfx',p).GetBool();
+        double frac=LevelLocals.WorldPaused()?0:e.FracTic;
+        double seconds=(a.Elapsed+frac)/TICRATE;
+        double fade=min(clamp((a.Elapsed+frac)/7.0,0,1),clamp((a.Remaining-frac)/9.0,0,1));
+        PPShader.SetUniform1i("utnt_ability_edges","abilityMode",mode);
+        int color=UTNTAbilityHUD.SignalColor(a.ClassKind,a.ActiveSlot);
+        Vector3 tint=((color>>16)&255,(color>>8)&255,color&255);
+        PPShader.SetUniform3f("utnt_ability_edges","signalColor",tint/255.0);
+        PPShader.SetUniform1f("utnt_ability_edges","pulse",Pulse(seconds,reduced));
+        PPShader.SetUniform1f("utnt_ability_edges","strength",fade);
+        PPShader.SetUniform1f("utnt_ability_edges","distortion",reduced?0:1);
+    }
+}

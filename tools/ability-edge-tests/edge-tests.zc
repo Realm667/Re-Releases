@@ -1,0 +1,90 @@
+class AbilityEdgeTest : EventHandler
+{
+    int Request,Expected,ReadyAt,Phase;
+    bool Hold;
+    ui int Seen;
+    Actor OtherCamera;
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="edge" && e.Name!="edgeexpect") return;
+        let p=players[e.Player].mo;
+        let a=UTNTAbilities.Get(p);
+        if(e.Name=="edgeexpect") { Expected=e.Args[0];Request++;ReadyAt=level.time+3;return; }
+        players[e.Player].camera=p;
+        if(OtherCamera) { OtherCamera.Destroy(); OtherCamera=null; }
+        let fx=UTNTPlayerEffects(p.FindBehavior('UTNTPlayerEffects'));if(fx) fx.Cutscene=false;
+        p.player.cheats&=~CF_TOTALLYFROZEN;
+        p.TakeInventory('UTNTHUDHidden',0x7fffffff);
+        a.Finish();a.Cooldown[0]=a.Cooldown[1]=a.LockRemaining=0;
+        p.Health=p.player.Health=p.GetMaxHealth();
+        p.SetOrigin((-200,-64,0),false);p.Angle=23;p.Pitch=0;p.Vel=(0,0,0);
+        if(e.Args[0]) a.Activate(e.Args[0]);
+        Expected=e.Args[0]?a.ClassKind*2+e.Args[0]:0;
+        Hold=e.Args[1]>=0;Phase=e.Args[1];
+        if(e.Args[2]==1) { if(fx) fx.Cutscene=true; Expected=0; }
+        if(e.Args[2]==2)
+        {
+            OtherCamera=Actor.Spawn('Actor',p.Pos+(0,0,41),NO_REPLACE);
+            OtherCamera.Angle=p.Angle;players[e.Player].camera=OtherCamera;Expected=0;
+        }
+        if(e.Args[2]==4) { p.player.cheats|=CF_TOTALLYFROZEN;Expected=0; }
+        if(e.Args[2]==5) { Hold=false;a.Remaining=2;Expected=0; }
+        Request++;ReadyAt=level.time+4;
+    }
+    override void WorldTick()
+    {
+        let a=UTNTAbilities.Get(players[0].mo);
+        if(Hold && a && a.ActiveSlot) { a.Elapsed=Phase;a.Remaining=525-Phase; }
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        if(!Request || Seen==Request || level.time<ReadyAt) return;
+        Seen=Request;
+        int mode=UTNTAbilityEdges.Mode(e);
+        Console.Printf("UTNT_ASSERT %s: edge view mode %d expected %d",mode==Expected?"PASS":"FAIL",mode,Expected);
+        bool pulse=abs(UTNTAbilityEdges.Pulse(0,false))<0.00001
+            && abs(UTNTAbilityEdges.Pulse(0.5,false)-1)<0.00001
+            && abs(UTNTAbilityEdges.Pulse(1,false))<0.00001
+            && UTNTAbilityEdges.Pulse(0,true)==UTNTAbilityEdges.Pulse(0.5,true);
+        Console.Printf("UTNT_ASSERT %s: one-second pulse and steady reduced effects",pulse?"PASS":"FAIL");
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name=="edgecards") Menu.SetMenu('PlayerclassMenu');
+        if(e.Name=="edgecardcheck")
+        {
+            let m=UTNTClassMenu(Menu.GetCurrentMenu());
+            Console.Printf("UTNT_ASSERT %s: class selection uses ability cards",m?"PASS":"FAIL");
+            String keys[]={"RAGE","REGEN","WEAK","CLOAK","OVERDRIVE","BULWARK"};
+            for(int i=0;i<6;i++)
+            {
+                let lines=Font.GetFont('SmallFont').BreakLines(UTNTExplorationUI.Local("UTNT_AB_CARD_"..keys[i]),210);
+                Console.Printf("UTNT_ASSERT %s: %s description fits its card",lines.Count()<=3 && lines.Count()>0?"PASS":"FAIL",keys[i]);
+            }
+            if(m)
+            {
+                double s=m.CardScale(),top=(Screen.GetHeight()-490*s)/2;
+                Console.Printf("UTNT_ASSERT %s: card header and footer fit on screen",top-38*s>=0 && top+518*s<=Screen.GetHeight()?"PASS":"FAIL");
+            }
+        }
+        if(e.Name=="edgecardmouse")
+        {
+            let m=UTNTClassMenu(Menu.GetCurrentMenu()); if(!m) return;
+            double s=m.CardScale(),left=(Screen.GetWidth()-740*s)/2,top=(Screen.GetHeight()-490*s)/2;
+            int column=clamp(e.Args[0],0,2);
+            m.MouseEvent(Menu.MOUSE_Release,int(left+(column*250+120)*s),int(top+430*s));
+            Console.Printf("UTNT_ASSERT %s: clicking ability section selects class",!(Menu.GetCurrentMenu() is 'UTNTClassMenu')?"PASS":"FAIL");
+        }
+        if(e.Name=="edgecardkey")
+        {
+            Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Right,false);
+            Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Enter,false);
+            Console.Printf("UTNT_ASSERT %s: keyboard class selection continues",!(Menu.GetCurrentMenu() is 'UTNTClassMenu')?"PASS":"FAIL");
+        }
+        if(e.Name=="edgeclose")
+        {
+            for(int i=0;i<4 && Menu.GetCurrentMenu();i++) Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Back,false);
+        }
+    }
+}

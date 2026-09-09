@@ -374,5 +374,9 @@ class UTNTAbilityHandler : EventHandler
         if(e.Name=="utnt_ability_sound")
             S_StartSound(Sound(e.Args[0]?"switches/normbutn":"misc/chat"),CHAN_AUTO,0,0.35,ATTN_NONE);
     }
-    override void RenderOverlay(RenderEvent e) { UTNTAbilityHUD.Draw(e); }
+    override void WorldUnloaded(WorldEvent e)
+    {
+        PPShader.SetEnabled("utnt_ability_edges",false);
+    }
+    override void RenderOverlay(RenderEvent e) { UTNTAbilityEdges.Draw(e); UTNTAbilityHUD.Draw(e); }
 }
