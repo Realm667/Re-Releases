@@ -1,0 +1,25 @@
+version "4.14"
+class SurfaceGeometry : EventHandler {
+ override void NetworkProcess(ConsoleEvent e) {
+  if(e.Name!="geometry")return;
+  for(int i=0;i<level.Sectors.Size();i++) {
+   let s=level.Sectors[i];let f=s.floorplane;let c=s.ceilingplane;
+   Console.Printf("SURFSEC|%d|%s|%s|%.9f|%.9f|%.9f|%.9f|%.9f|%.9f|%.9f|%.9f|%d",i,TexMan.GetName(s.GetTexture(Sector.floor)),TexMan.GetName(s.GetTexture(Sector.ceiling)),f.Normal.X,f.Normal.Y,f.Normal.Z,f.D,c.Normal.X,c.Normal.Y,c.Normal.Z,c.D,s.lightlevel);
+   for(int j=0;j<s.Get3DFloorCount();j++) {
+    let d=s.Get3DFloor(j);let t=d.top;let b=d.bottom;
+    Console.Printf("SURF3D|%d|%d|%d|%d|%d|%s|%s|%.9f|%.9f|%.9f|%.9f|%.9f|%.9f|%.9f|%.9f",i,j,d.model.Index(),d.flags,d.alpha,TexMan.GetName(d.GetTexture(Sector.ceiling)),TexMan.GetName(d.GetTexture(Sector.floor)),t.Normal.X,t.Normal.Y,t.Normal.Z,t.D,b.Normal.X,b.Normal.Y,b.Normal.Z,b.D);
+   }
+  }
+  for(int i=0;i<level.Lines.Size();i++) {
+   let l=level.Lines[i];
+   for(int face=0;face<2;face++) {
+    let s=l.sidedef[face];if(!s)continue;
+    if(s.GetTexture(Side.mid).isValid() && l.backsector) {
+     let [ok,top,bottom]=l.GetMidTexturePosition(face);
+     Console.Printf("SURFMID|%d|%d|%d|%.9f|%.9f",i,face,ok,top,bottom);
+    }
+   }
+  }
+  Console.Printf("SURFGEOM_COMPLETE");
+ }
+}

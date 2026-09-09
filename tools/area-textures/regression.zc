@@ -1,0 +1,61 @@
+class AreaRegression : EventHandler
+{
+    double SavedX,SavedY;
+    int SavedCount, Cursor, DynamicFields;
+    Array<double> InitialX,InitialY;
+    Array<bool> StaticX,StaticY;
+    double SumX,SumY;
+    int Code(TextureID tex)
+    {
+        String name=TexMan.GetName(tex);
+        if(name.Left(2)=="XA" || name.Left(2)=="XB")return name.Mid(2,2).ToInt()+1;
+        if(name.Left(5)=="QROCK" && (name.Mid(6,2)=="X8" || name.Mid(6,1)=="B"))return 100+name.Mid(5,1).ToInt();
+        return 0;
+    }
+    void Snapshot(int stage)
+    {
+            int count=0;Cursor=0;SumX=0;SumY=0;
+            if(stage==2){InitialX.Clear();InitialY.Clear();}
+            if(stage==0){StaticX.Clear();StaticY.Clear();DynamicFields=0;}
+            for(int i=0;i<level.Sectors.Size();i++)for(int p=0;p<2;p++)
+            {
+                let s=level.Sectors[i];int c=Code(s.GetTexture(p));if(!c)continue;
+                count++;Accumulate(s.GetXOffset(p)*(c+1),s.GetYOffset(p)*(c+1),stage);
+            }
+            for(int i=0;i<level.Lines.Size();i++)for(int f=0;f<2;f++)
+            {
+                let s=level.Lines[i].sidedef[f];if(!s)continue;
+                for(int p=0;p<3;p++) {int c=Code(s.GetTexture(p));if(!c)continue;count++;Accumulate(s.GetTextureXOffset(p)*(c+1),s.GetTextureYOffset(p)*(c+1),stage);}
+            }
+            if(stage==2)return;
+            double x=SumX,y=SumY;
+            if(stage==0){SavedCount=count;SavedX=x;SavedY=y;Console.Printf("AREA_DYNAMIC_PANNING|%d",DynamicFields);Console.Printf("AREA_SAVE_SNAPSHOT|%d|%.6f|%.6f",count,x,y);}
+            else Console.Printf("UTNT_ASSERT %s area-save count=%d dx=%.6f dy=%.6f",count==SavedCount && abs(x-SavedX)<.001 && abs(y-SavedY)<.001 ? "PASS" : "FAIL",count,x-SavedX,y-SavedY);
+        
+    }
+    void Accumulate(double x,double y,int stage)
+    {
+        if(stage==2){InitialX.Push(x);InitialY.Push(y);}
+        else
+        {
+            if(stage==0){StaticX.Push(abs(x-InitialX[Cursor])<.0001);StaticY.Push(abs(y-InitialY[Cursor])<.0001);if(!StaticX[Cursor] || !StaticY[Cursor])DynamicFields++;}
+            if(StaticX[Cursor])SumX+=x;if(StaticY[Cursor])SumY+=y;
+        }
+        Cursor++;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="areasnapshot")Snapshot(e.Args[0]);
+        if(e.Name=="areabaseline")Snapshot(2);
+        if(e.Name=="areadynamic")
+        {
+            // GENERATED_DYNAMIC_TEST
+        }
+        if(e.Name=="areaterrain")for(int i=0;i<level.Sectors.Size();i++)for(int p=0;p<2;p++)
+        {
+            let s=level.Sectors[i];String tex=TexMan.GetName(s.GetTexture(p));
+            if(tex=="SLIME05B" || tex=="XA24TEX")Console.Printf("AREATERRAIN|%d|%d|%d",i,p,s.GetTerrain(p));
+        }
+    }
+}
+

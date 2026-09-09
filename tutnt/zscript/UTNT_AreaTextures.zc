@@ -1,0 +1,177 @@
+// Generated tables affect material mapping only; source map geometry is untouched.
+class UTNT_AreaTextures : EventHandler
+{
+    int Applied, Rejected, Expected;
+    bool Initialized;
+    int SharedConstraints;
+    Array<int> WatchSector,WatchPart,WatchWidth,WatchHeight;
+    Array<String> WatchOriginal,WatchAlias;
+
+    override void WorldLoaded(WorldEvent e)
+    {
+        if (e.IsSaveGame) return; // Sector and side mappings are serialized by the engine.
+        ApplyBindings();
+    }
+
+    bool Near(double a, double b) { return abs(a-b)<0.001; }
+
+    bool ApplyFloor(Array<String> r)
+    {
+        if(r.Size()!=9) return false;
+        int index=r[1].ToInt(), part=r[2].ToInt();
+        if(index<0 || index>=level.Sectors.Size() || part<0 || part>1) return false;
+        let s=level.Sectors[index];
+        if(!(TexMan.GetName(s.GetTexture(part)) ~== r[3])) return false;
+        if(!Near(s.GetXOffset(part),r[7].ToDouble()) || !Near(s.GetYOffset(part),r[8].ToDouble())) return false;
+        let tex=TexMan.CheckForTexture(r[4],TexMan.Type_Any);
+        if(!tex.isValid()) return false;
+        s.SetTexture(part,tex);
+        s.SetXOffset(part,r[5].ToDouble());s.SetYOffset(part,r[6].ToDouble());
+        return true;
+    }
+
+    bool ApplyWall(Array<String> r)
+    {
+        if(r.Size()!=20) return false;
+        int index=r[1].ToInt(), face=r[2].ToInt(), part=r[3].ToInt();
+        if(index<0 || index>=level.Lines.Size() || face<0 || face>1 || part<0 || part>2) return false;
+        let l=level.Lines[index];let s=l.sidedef[face];if(!s)return false;
+        let a=s.V1();let b=s.V2();
+        if(!Near(a.p.X,r[13].ToDouble()) || !Near(a.p.Y,r[14].ToDouble()) || !Near(b.p.X,r[15].ToDouble()) || !Near(b.p.Y,r[16].ToDouble()))
+        {
+            // Polyobjects move from their editor holding sector to the anchor.
+            if(!(s.Flags & Side.WALLF_POLYOBJ)) return false;
+            Vector2 delta=b.p-a.p;
+            double dx=r[15].ToDouble()-r[13].ToDouble(), dy=r[16].ToDouble()-r[14].ToDouble();
+            if(!Near(delta.Length(),sqrt(dx*dx+dy*dy))) return false;
+        }
+        if(s.sector.Index()!=r[17].ToInt()) return false;
+        let other=l.sidedef[1-face];
+        if((other ? other.sector.Index() : -1)!=r[18].ToInt()) return false;
+        if(!(TexMan.GetName(s.GetTexture(part)) ~== r[4])) return false;
+        if(!Near(s.GetTextureXOffset(part),r[11].ToDouble()) || !Near(s.GetTextureYOffset(part),r[12].ToDouble())) return false;
+        if(!Near(s.GetTextureXScale(part),r[19].ToDouble()) || !Near(s.GetTextureYScale(part),r[10].ToDouble())) return false;
+        let tex=TexMan.CheckForTexture(r[5],TexMan.Type_Any);if(!tex.isValid())return false;
+        s.SetTexture(part,tex);s.SetTextureXScale(part,r[9].ToDouble());
+        s.SetTextureXOffset(part,r[6].ToDouble());
+        // Finite two-sided panels use a cropped band with their original height.
+        if(r[8].ToInt()) return true;
+        double sy=s.GetTextureYScale(part);if(abs(sy)<0.000001)return true;
+        Vector2 p=(a.p+b.p)*0.5;
+        let f=s.sector;let back=other ? other.sector : null;
+        // The renderer pegs walls to texture Z, including sloped sectors.
+        double fc=f.GetPlaneTexZ(Sector.ceiling), ff=f.GetPlaneTexZ(Sector.floor);
+        double bc=back ? back.GetPlaneTexZ(Sector.ceiling) : fc;
+        double bf=back ? back.GetPlaneTexZ(Sector.floor) : ff;
+        Vector2 size=TexMan.GetScaledSize(tex);
+        double h=ceil(size.Y/sy), reference=fc;
+        if(part==Side.top) reference=(l.flags & Line.ML_DONTPEGTOP) ? fc : bc+h;
+        else if(part==Side.bottom)
+        {
+            reference=bf;
+            if(l.flags & Line.ML_DONTPEGBOTTOM)
+            {
+                bool sky=back && TexMan.GetName(f.GetTexture(Sector.ceiling))=='F_SKY1' && TexMan.GetName(back.GetTexture(Sector.ceiling))=='F_SKY1';
+                reference=(sky ? bc : fc)+h;
+            }
+        }
+        else if(l.flags & Line.ML_DONTPEGBOTTOM) reference=(back ? max(ff,bf) : ff)+h;
+        else if(back) reference=min(fc,bc);
+        s.SetTextureYOffset(part,r[7].ToDouble()-reference);
+        return true;
+    }
+
+    void ApplyBindings()
+    {
+        if(Initialized)return;Initialized=true;
+        int lump=Wads.CheckNumForFullName(String.Format("areaalign/%s.txt",level.MapName));
+        if(lump<0)return;
+        String data=Wads.ReadLump(lump);Array<String> lines;data.Split(lines,"\n",TOK_SKIPEMPTY);
+        for(int i=0;i<lines.Size();i++)
+        {
+            Array<String> r;lines[i].Split(r,"|",TOK_KEEPEMPTY);
+            if(r[0]=="H")
+            {
+                if(r.Size()!=6 || level.Lines.Size()!=r[2].ToInt() || level.Sectors.Size()!=r[4].ToInt())
+                { Console.Printf("AREAALIGN_STALE|%s",level.MapName);return; }
+                Expected=r[5].ToInt();continue;
+            }
+            bool ok=false;
+            if(r[0]=="F")ok=ApplyFloor(r);else if(r[0]=="W")ok=ApplyWall(r);else if(r[0]=="R")ok=ApplyRover(r);else if(r[0]=="D")ok=AddWatch(r);
+            else if(r[0]=="L")
+            {
+                int li=r[1].ToInt(),face=r[2].ToInt();
+                if(li>=0 && li<level.Lines.Size() && face>=0 && face<2)
+                {
+                    let side=level.Lines[li].sidedef[face];
+                    ok=side && (TexMan.GetName(side.GetTexture(Side.mid))!=r[4] || ApplyWall(r));
+                }
+            }
+            if(ok)Applied++;else {Rejected++;if(Rejected<=12)Console.Printf("AREAALIGN_REJECT|%s|%s",level.MapName,lines[i]);}
+        }
+        Console.Printf("AREAALIGN|%s|%d|%d|%d",level.MapName,Applied,Rejected,Expected);
+        Console.Printf("AREAALIGN_SHARED_CONSTRAINTS|%s|%d",level.MapName,SharedConstraints);
+    }
+
+    bool AddWatch(Array<String> r)
+    {
+        if(r.Size()!=7 || r[1].ToInt()<0 || r[1].ToInt()>=level.Sectors.Size())return false;
+        WatchSector.Push(r[1].ToInt());WatchPart.Push(r[2].ToInt());WatchOriginal.Push(r[3]);WatchAlias.Push(r[4]);WatchWidth.Push(r[5].ToInt());WatchHeight.Push(r[6].ToInt());return true;
+    }
+
+    override void WorldTick()
+    {
+        // Only sectors addressed by an actual selected-texture ACS assignment.
+        for(int i=0;i<WatchSector.Size();i++)
+        {
+            let s=level.Sectors[WatchSector[i]];int part=WatchPart[i];
+            if(TexMan.GetName(s.GetTexture(part))!=WatchOriginal[i])continue;
+            s.SetTexture(part,TexMan.CheckForTexture(WatchAlias[i],TexMan.Type_Any));
+            double x=s.GetXOffset(part),y=s.GetYOffset(part);
+            s.SetXOffset(part,x-floor(x/WatchWidth[i])*WatchWidth[i]);
+            s.SetYOffset(part,y-floor(y/WatchHeight[i])*WatchHeight[i]);
+        }
+    }
+
+    bool ApplyRover(Array<String> r)
+    {
+        if(r.Size()!=21)return false;
+        int li=r[1].ToInt(),face=r[2].ToInt(),ml=r[3].ToInt(),part=r[4].ToInt(),model=r[11].ToInt();
+        if(li<0 || li>=level.Lines.Size() || ml<0 || ml>=level.Lines.Size() || face<0 || face>1 || model<0 || model>=level.Sectors.Size())return false;
+        let s=level.Lines[li].sidedef[face];let master=level.Lines[ml].sidedef[0];if(!s || !master)return false;
+        let a=s.V1();let b=s.V2();
+        if(!Near(a.p.X,r[17].ToDouble()) || !Near(a.p.Y,r[18].ToDouble()) || !Near(b.p.X,r[19].ToDouble()) || !Near(b.p.Y,r[20].ToDouble()))return false;
+        let source=part==Side.mid ? master : s;
+        if(TexMan.GetName(source.GetTexture(part))!=r[5])return false;
+        double mx=part==Side.mid ? master.GetTextureXOffset(Side.mid) : 0;
+        double my=part==Side.mid ? master.GetTextureYOffset(Side.mid) : 0;
+        double xbase=0,ybase=0;
+        int am=r[12].ToInt(),asm=r[13].ToInt();
+        if(am>=0 && asm>=0)
+        {
+            let anchor=level.Lines[am].sidedef[0];
+            xbase=r[14].ToDouble()+anchor.GetTextureXOffset(Side.mid)-r[16].ToDouble();
+            ybase=r[15].ToDouble()+anchor.GetTextureYOffset(Side.mid)+level.Sectors[asm].GetPlaneTexZ(Sector.ceiling);
+        }
+        double period=r[7].ToDouble(),x=r[6].ToDouble()+xbase;
+        x=x-floor(x/period)*period-mx;
+        double y=ybase-level.Sectors[model].GetPlaneTexZ(Sector.ceiling)-my;
+        if(r[8].ToInt())
+        {
+            // Preserve the ordinary panel's phase and physical clipping.
+            Vector2 size=TexMan.GetScaledSize(s.GetTexture(Side.mid));
+            double width=size.X/abs(s.GetTextureXScale(Side.mid));
+            double diff=x-s.GetTextureXOffset(Side.mid);
+            if(width>0 && Near(diff-round(diff/width)*width,0))s.SetTextureXOffset(Side.mid,x);
+            else {SharedConstraints++;if(SharedConstraints<=12)Console.Printf("AREAALIGN_SHARED|%s|%d|%d|x",level.MapName,li,face);}
+            if(!Near(y,s.GetTextureYOffset(Side.mid))){SharedConstraints++;if(SharedConstraints<=12)Console.Printf("AREAALIGN_SHARED|%s|%d|%d|y",level.MapName,li,face);}
+        }
+        else {s.SetTextureXOffset(Side.mid,x);s.SetTextureYOffset(Side.mid,y);}
+        return true;
+    }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="areaalign")Console.Printf("AREAALIGN_STATUS|%s|%d|%d|%d",level.MapName,Applied,Rejected,Expected);
+    }
+}
