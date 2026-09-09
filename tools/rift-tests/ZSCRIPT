@@ -1,0 +1,45 @@
+version "4.14"
+class UTNTRiftSkyTests : EventHandler
+{
+ int View;
+ void Check()
+ {
+  if(level.MapName~=="TNT04CN")
+  {
+   let it=ThinkerIterator.Create('SkyViewpoint');Actor a;int old=0,secondary=0;
+   while(a=Actor(it.Next()))
+   {
+    if(a.Pos.X==-7296 && a.Pos.Y==-5056)old++;
+    if(a.Pos.X==-4672 && a.Pos.Y==2240)secondary++;
+   }
+   Console.Printf("UTNT_ASSERT %s: obsolete star camera removed",old==0?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: secondary viewpoint preserved",secondary==1?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: original default sky portal cleared",level.sectorPortals[0].mSkybox==null?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: cosmic sky selected",level.SkyTexture1==TexMan.CheckForTexture("URFSKY")?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: original sector count preserved",level.Sectors.Size()==1560?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s: original Source actor preserved",level.CreateActorIterator(666).Next()!=null?"PASS":"FAIL");
+  }
+  else Console.Printf("UTNT_ASSERT %s: other map retains its sky",level.SkyTexture1!=TexMan.CheckForTexture("URFSKY")?"PASS":"FAIL");
+ }
+ override void WorldTick()
+ {
+  if(!(level.MapName~=="TNT04CN"))return;
+  let p=players[0].mo;if(!p)return;p.bNotarget=true;if(level.time<10)return;
+  p.bInvulnerable=true;p.bNoGravity=true;p.bNoClip=true;players[0].camera=p;
+  Vector3 pos=(1440,-2080,3200);double a=315,pitch=-12;
+  if(View==0){pos=(-2560,-4288,300);a=90;pitch=-18;}
+  if(View==2){pos=(-2560,-4288,300);a=0;pitch=-18;}
+  if(View==3){pos=(1216,1536,2544);a=45;pitch=-12;}
+  if(View==4){pos=(128,-1100,3500);a=90;pitch=-15;}
+  if(View>=5 && View<=8){pos=(1440,-2080,7000);a=(View-5)*90;pitch=-10;}
+  if(View==9){pos=(1440,-2080,7000);a=315;pitch=-89;}
+  if(View==10){pos=(4500,-3500,4000);a=315;pitch=80;}
+  if(View==11){pos=(1440,-2080,7000);a=45;pitch=-45;}
+  p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=a;p.Pitch=pitch;
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name=="riftview")View=e.Args[0];
+  if(e.Name=="riftcheck")Check();
+ }
+}

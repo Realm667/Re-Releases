@@ -22,5 +22,9 @@ def build(root):
  if (out/'graphics/ash/panorama.png').exists():
   from build_ash_sky import build as build_ash
   build_ash(root)
+ # Keep TNT04CN on the same shared comet implementation as TNT04A/B.
+ if (out/'graphics/rift/nebula.png').exists():
+  from build_rift_sky import build as build_rift
+  build_rift(root)
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);build(p.parse_args().root)

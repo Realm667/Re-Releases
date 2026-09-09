@@ -1,0 +1,20 @@
+// TNT04CN alone: replace the old stretched STARSKY1 camera with the approved void.
+// Actor destruction uses SkyViewpoint.OnDestroy to clear its portal references.
+class UTNTRiftSkyHandler : EventHandler
+{
+ bool Initialized;
+ void Apply()
+ {
+  if(!(level.MapName~=="TNT04CN"))return;
+  let it=ThinkerIterator.Create('SkyViewpoint');Actor a;
+  while(a=Actor(it.Next()))
+  {
+   if(a.GetClassName()=='SkyViewpoint' && a.TID==0 && a.Pos.X==-7296 && a.Pos.Y==-5056)
+    a.Destroy();
+  }
+  TextureID sky=TexMan.CheckForTexture("URFSKY");
+  level.ChangeSky(sky,sky);Initialized=true;
+ }
+ override void WorldLoaded(WorldEvent e) { Apply(); }
+ override void WorldTick() { if(!Initialized && level.MapName~=="TNT04CN")Apply(); }
+}
