@@ -1,0 +1,96 @@
+// A shallow rendered liquid meniscus. Original sectors retain all collision,
+// tags, actions, damage, terrain and textures; animation uses no scripted randomness.
+class UTNTLavaLip : Actor
+{
+    Sector High, Low;
+    Side FallSide;
+    Vector2 EdgeA, EdgeB, Center;
+    double InitialSlope, LipRadius;
+    String FloorName, FallName;
+
+    Default
+    {
+        +NOGRAVITY +NOINTERACTION +NOBLOCKMAP
+        +DONTSPLASH +DONTTHRUST +NOTONAUTOMAP
+        Radius 1; Height 1; RenderStyle "Translucent";
+    }
+    States { Spawn: LALP A -1; Stop; }
+
+    void Configure(Sector high, Sector low, Side side, Vector2 a, Vector2 b,
+                   String floorName, String fallName, double radius)
+    {
+        self.High=high; self.Low=low; FallSide=side; EdgeA=a; EdgeB=b; Center=(a+b)*0.5;
+        self.FloorName=floorName; self.FallName=fallName; LipRadius=radius;
+        InitialSlope=High.floorplane.ZatPoint(b)-High.floorplane.ZatPoint(a);
+        UpdateLip();
+    }
+
+    void UpdateLip()
+    {
+        if(!High || !Low || !FallSide) { bInvisible=true; return; }
+        double a=High.floorplane.ZatPoint(EdgeA), b=High.floorplane.ZatPoint(EdgeB);
+        double drop=min(a-Low.floorplane.ZatPoint(EdgeA),b-Low.floorplane.ZatPoint(EdgeB));
+        String floorNow=TexMan.GetName(High.GetTexture(Sector.floor));
+        String fallNow=TexMan.GetName(FallSide.GetTexture(Side.bottom));
+        int floorIndex=(floorNow~=="QLAVA")?0:(floorNow~=="QLAVA2")?1:(floorNow~=="QLAVASB")?2:-1;
+        int fallIndex=(fallNow~=="LAVA")?0:(fallNow~=="LAVAHR")?1:-1;
+        bInvisible=floorIndex<0 || fallIndex<0 || drop<LipRadius*12 || abs((b-a)-InitialSlope)>0.01;
+        if(!bInvisible && (!(floorNow~==FloorName) || !(fallNow~==FallName)))
+        {
+            String skin=String.Format("LL%d%d",floorIndex,fallIndex);
+            A_ChangeModel("",skin:skin);
+            FloorName=floorNow;FallName=fallNow;
+        }
+        if(!bInvisible) SetOrigin((Center.X,Center.Y,(a+b)*0.5),false);
+    }
+    override void Tick() { UpdateLip(); }
+}
+
+#include "zscript/lava-lips-generated.zc"
+
+class UTNTLavaLips : EventHandler
+{
+    bool Initialized;
+    int Applied, Rejected;
+    override void WorldTick()
+    {
+        if(!Initialized && level.time>=2) { Initialized=true; Install(); }
+    }
+    void Install()
+    {
+        int lump=Wads.CheckNumForFullName(String.Format("lavalips/%s.txt",level.MapName));
+        if(lump<0)return;
+        String data=Wads.ReadLump(lump); Array<String> rows;
+        data.Split(rows,"\n",TOK_SKIPEMPTY);
+        for(int i=0;i<rows.Size();i++)
+        {
+            Array<String> r; rows[i].Split(r,"|",TOK_KEEPEMPTY);
+            if(r.Size()!=17) { Rejected++; continue; }
+            int index=r[1].ToInt(), face=r[2].ToInt();
+            if(index<0 || index>=level.Lines.Size() || face<0 || face>1) { Rejected++; continue; }
+            let line=level.Lines[index]; let side=line.sidedef[face];let opposite=line.sidedef[1-face];
+            if(!side || !opposite) { Rejected++; continue; }
+            Vector2 a=(r[5].ToDouble(),r[6].ToDouble()), b=(r[7].ToDouble(),r[8].ToDouble());
+            let v1=face==0 ? line.v1 : line.v2; let v2=face==0 ? line.v2 : line.v1;
+            let high=opposite.sector;let low=side.sector;
+            if((v1.p-a).Length()>0.01 || (v2.p-b).Length()>0.01
+                || high.Index()!=r[3].ToInt() || low.Index()!=r[4].ToInt()
+                || abs((high.floorplane.ZatPoint(b)-high.floorplane.ZatPoint(a))-(r[13].ToDouble()-r[12].ToDouble()))>0.01)
+            { Rejected++; continue; }
+            Class<Actor> kind=r[0];
+            if(!kind) { Rejected++; continue; }
+            let lip=UTNTLavaLip(Actor.Spawn(kind,(r[9].ToDouble(),r[10].ToDouble(),r[11].ToDouble())));
+            if(!lip) { Rejected++; continue; }
+            lip.Angle=0;
+            lip.Configure(high,low,side,a,b,r[14],r[15],r[16].ToDouble());
+            Applied++;
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="lavalips")return;
+        int visible=0,total=0; let it=ThinkerIterator.Create("UTNTLavaLip");
+        UTNTLavaLip lip; while(lip=UTNTLavaLip(it.Next())) { total++; if(!lip.bInvisible)visible++; }
+        Console.Printf("LAVALIPS|%s|applied=%d|rejected=%d|actors=%d|visible=%d",level.MapName,Applied,Rejected,total,visible);
+    }
+}

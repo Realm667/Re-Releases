@@ -218,6 +218,8 @@ def main():
     p.add_argument('--skip-engine-check',action='store_true')
     a=p.parse_args(); root=a.root.resolve(); compiler=a.acc.resolve()
     if not compiler.is_file(): p.error('ACC not found; set --acc or UTNT_ACC')
+    from build_lava_lips import generate as generate_lava_lips
+    generate_lava_lips(root,check=a.check_only)
     output=(a.output or root/'tutnt.pk3').resolve()
     with BuildLock(output), snapshot(root) as (source, hashes, metadata):
         result={'acs':compile_sources(source,compiler,a.check_only)}
