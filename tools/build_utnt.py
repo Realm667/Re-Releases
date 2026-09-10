@@ -167,7 +167,9 @@ def publish_snapshot(source, original, output, hashes, metadata, engine=None, iw
     metadata['build_id'] = hashlib.sha256(json.dumps(metadata,sort_keys=True,separators=(',',':')).encode()).hexdigest()[:12]
     payload['UTNTBLD'] = (json.dumps(metadata,sort_keys=True,indent=2)+'\n').encode()
     label = f"Build {metadata['build_id']} / {metadata['commit'][:12]}" + (' +local' if metadata['local_changes'] else '')
-    payload['LANGUAGE.zzbuild'] = ('[enu default]\nUTNT_BUILD_INFO = "'+label+'";\n[deu]\nUTNT_BUILD_INFO = "'+label+'";\n').encode()
+    payload['LANGUAGE.zzbuild'] = ''.join(
+        '['+lang+']\nUTNT_BUILD_INFO = \"'+label+'\";\n'
+        for lang in ('enu default','deu de','esp es','fra fr')).encode()
     output.parent.mkdir(parents=True, exist_ok=True)
     fd, temp = tempfile.mkstemp(prefix=output.name+'.',suffix='.tmp.pk3',dir=output.parent)
     os.close(fd)
@@ -184,7 +186,9 @@ def publish_snapshot(source, original, output, hashes, metadata, engine=None, iw
         validation = None
         if engine:
             from check_engine import run_case
-            validation = run_case(engine,iwad,root=original,mod=pathlib.Path(temp),
+            validation_root = original/'tutnt/.codex/validation/build-engine'
+            validation_root.mkdir(parents=True,exist_ok=True)
+            validation = run_case(engine,iwad,root=validation_root,mod=pathlib.Path(temp),
                                   label='build-'+metadata['build_id']+'-engine',quiet=True)
             if not validation['ok']:
                 raise RuntimeError('Engine rejected snapshot; previous PK3 preserved. See '+validation['log'])
@@ -230,7 +234,12 @@ def main():
     generate_lava_lips(root,check=a.check_only)
     output=(a.output or root/'tutnt.pk3').resolve()
     with BuildLock(output), snapshot(root) as (source, hashes, metadata):
-        result={'acs':compile_sources(source,compiler,a.check_only)}
+        from check_localization import validate as validate_localization
+        # Validate the immutable source snapshot, using the reviewed source manifest.
+        (source/'tools').mkdir(exist_ok=True)
+        shutil.copyfile(root/'tools/localization-review.json', source/'tools/localization-review.json')
+        localization = validate_localization(source)
+        result={'localization':localization, 'acs':compile_sources(source,compiler,a.check_only)}
         if not a.check_only:
             if not a.skip_engine_check and (not a.engine.is_file() or not a.iwad.is_file()):
                 p.error('Set UTNT_ENGINE / UTNT_IWAD or explicitly use --skip-engine-check')

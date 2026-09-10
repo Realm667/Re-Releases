@@ -151,7 +151,7 @@ class UTNTChapterUI ui
         BodyWidth=available*0.62; PictureWidth=available-BodyWidth-UTNTUILayout.Gap();
         BodyX=left; PictureX=left+BodyWidth+UTNTUILayout.Gap();
         String title=Local(chapter.Intro ? "UTNT_CHAPTER_INTRO" : String.Format("UTNT_CHAPTER_%d",chapter.Episode));
-        Font font=Font.GetFont('SmallFont');
+        Font font=AlternativeSmallFont;
         int titleWidth=int((available-24*Unit)/(Unit*1.4));
         bool languageChanged=title!=CachedHeading;
         if(!Heading || languageChanged || titleWidth!=CachedTitleWidth)
@@ -213,7 +213,7 @@ class UTNTChapterUI ui
         Screen.Dim(0x080403,1,0,0,Screen.GetWidth(),Screen.GetHeight());
         Picture(chapter.Intro ? "TNTE4_1" : "INTERPIC",0,0,Screen.GetWidth(),Screen.GetHeight(),alpha*(chapter.Intro ? 0.3 : 1));
         if(!chapter.Intro) Picture("INTERP2",0,0,Screen.GetWidth(),Screen.GetHeight(),alpha*0.75);
-        Font font=Font.GetFont('SmallFont');
+        Font font=AlternativeSmallFont;
         for(int row=0;row<Heading.Count();row++)
         {
             String line=Heading.StringAt(row);

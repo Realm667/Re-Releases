@@ -142,6 +142,8 @@ class UTNTCreditsUI ui
  Font Body, Big;
  UTNTCreditPage Cached;
  double CachedWidth;
+ String CachedLanguage;
+ static String Local(String text) { return StringTable.Localize(text); }
  Array<BrokenLines> Wrapped;
  Array<double> Heights, Tops;
 
@@ -149,8 +151,10 @@ class UTNTCreditsUI ui
  {
   Scale=Screen.GetHeight()/720.0;
   Width=min(1280.0,Screen.GetWidth()/Scale);Left=(Screen.GetWidth()-Width*Scale)/2;
-  if(!Body)Body=Font.GetFont('SmallFont');if(!Big)Big=Font.GetFont('UCRBIG');
-  if(page==Cached && Width==CachedWidth)return;
+  Body=AlternativeSmallFont;if(!Big)Big=Font.GetFont('UCRBIG');
+  String locale=CVar.FindCVar('language').GetString();
+  if(page==Cached && Width==CachedWidth && locale==CachedLanguage)return;
+  CachedLanguage=locale;
   Cached=page;CachedWidth=Width;Wrapped.Clear();Heights.Clear();Tops.Clear();if(!page)return;
   bool dense=page.Layout=="dense";
   ContributionSize=dense?9:10;LineStep=13;
@@ -158,7 +162,7 @@ class UTNTCreditsUI ui
   if(page.Layout=="thanks")ContributionSize=12.5;
   for(int i=0;i<page.Contributions.Size();i++)
   {
-   Wrapped.Push(Body.BreakLines(page.Contributions[i],int(w*Body.GetHeight()/ContributionSize)));
+   Wrapped.Push(Body.BreakLines(Local(page.Contributions[i]),int(w*Body.GetHeight()/ContributionSize)));
    Array<String> names;page.Names[i].Split(names,"~",TOK_KEEPEMPTY);
    Heights.Push(max(74,ceil(16+names.Size()*18.5+7.5+Wrapped[i].Count()*LineStep+6)));
   }
@@ -183,9 +187,10 @@ class UTNTCreditsUI ui
  }
  void DrawName(String value,double x,double y,double height,double maxWidth,double alpha,bool center=false)
  {
-  double s=height/20,w=Big.StringWidth(value)*s;
+  Font titleFont=Big.CanPrint(value,false)?Big:AlternativeBigFont;
+  double s=height/(titleFont==Big?20:titleFont.GetHeight()),w=titleFont.StringWidth(value)*s;
   if(w>maxWidth){s*=maxWidth/w;w=maxWidth;}if(center)x-=w/2;
-  Screen.DrawText(Big,Font.CR_UNTRANSLATED,Left+x*Scale,y*Scale,value,DTA_ScaleX,s*Scale,DTA_ScaleY,s*Scale,DTA_Alpha,alpha);
+  Screen.DrawText(titleFont,Font.CR_UNTRANSLATED,Left+x*Scale,y*Scale,value,DTA_ScaleX,s*Scale,DTA_ScaleY,s*Scale,DTA_Alpha,alpha);
  }
  void Frame(double x,double y,double w,double h,String shape,bool remaster,double alpha,double energy=0)
  {
@@ -196,8 +201,8 @@ class UTNTCreditsUI ui
  }
  void Badge(UTNTCreditPage p,double y,double alpha)
  {
-  String chapter=p.Remaster?"REMASTER":"ORIGINAL VERSION";
-  String category=p.Remaster && p.Heading~=="Remaster"?"CREDITS":p.Heading.MakeUpper();double width=p.Layout=="dense"?582:p.Layout=="thanks"?530:328;
+  String chapter=p.Remaster?Local("$UTNT_CREDITS_REMASTER"):Local("$UTNT_CREDITS_ORIGINAL");
+  String category=p.Remaster && Local(p.Heading)~=="Remaster"?Local("$UTNT_CREDITS_TEXT_001").MakeUpper():Local(p.Heading).MakeUpper();double width=p.Layout=="dense"?582:p.Layout=="thanks"?530:328;
   int accent=p.Remaster?0xc4d9d9:0xd0a675;
   double chapterWidth=Body.StringWidth(chapter)*11/Body.GetHeight();
   bool twoLines=chapterWidth+19+Body.StringWidth(category)*9/Body.GetHeight()>width-8;
@@ -226,8 +231,8 @@ class UTNTCreditsUI ui
   double x=Width/2-265,y=85;
   Frame(x,y,530,140,"C",p.Remaster,alpha,alpha<1?alpha:0);
   Text("THE ULTIMATE TORMENT & TORTURE",Width/2,y+26,10,0xbba88b,alpha,true,470);
-  DrawName(p.Remaster?"REMASTER":"ORIGINAL VERSION",Width/2,y+54,29,470,alpha,true);
-  Text(p.Remaster?"A NEW CHAPTER":"THE ORIGINAL CREATORS",Width/2,y+104,9.5,p.Remaster?0xc4d9d9:0xcba574,alpha,true,470);
+  DrawName(p.Remaster?Local("$UTNT_CREDITS_REMASTER"):Local("$UTNT_CREDITS_ORIGINAL"),Width/2,y+54,29,470,alpha,true);
+  Text(p.Remaster?Local("$UTNT_CREDITS_NEW_CHAPTER"):Local("$UTNT_CREDITS_CREATORS"),Width/2,y+104,9.5,p.Remaster?0xc4d9d9:0xcba574,alpha,true,470);
  }
  void Creator(UTNTCreditPage p,double entry)
  {
@@ -243,7 +248,7 @@ class UTNTCreditsUI ui
   Frame(x,y,530,140,"C",p.Remaster,alpha,opacity<1?opacity:0);
   DrawName(p.Names[0],x+17,y+16,29,496,alpha);
   for(int row=0;row<Wrapped[0].Count();row++)Text(Wrapped[0].StringAt(row),x+17,y+60+row*18,12.5,0xe2d3bd,alpha,false,496);
-  DrawName("DANKE CHRIS!",x+17,y+108,16,496,alpha);
+  DrawName(Local("$UTNT_CREDITS_THANKS_CHRIS"),x+17,y+108,16,496,alpha);
  }
  void Draw(UTNTCreditsHandler state,double frac)
  {
@@ -253,8 +258,8 @@ class UTNTCreditsUI ui
   if(state.Phase==2)
   {
    Screen.Dim(0,1,0,0,Screen.GetWidth(),Screen.GetHeight());double a=clamp(seconds/2,0,1);
-   DrawName("THE END",Width/2,302,37,Width*.6,a,true);Dim(0xc68962,a,Width/2-15,363,30,1);
-   Text("Thank you for playing.",Width/2,390,12.5,0xbdb5a9,a,true);
+   DrawName(Local("$UTNT_CREDITS_END"),Width/2,302,37,Width*.6,a,true);Dim(0xc68962,a,Width/2-15,363,30,1);
+   Text(Local("$UTNT_CREDITS_THANKS_PLAYER"),Width/2,390,12.5,0xbdb5a9,a,true);
    Text("THE ULTIMATE TORMENT & TORTURE",Width/2,443,8.5,0x8d867c,a,true);return;
   }
   if(!page)return;
@@ -276,7 +281,7 @@ class UTNTCreditsUI ui
   if(state.HintUntil>level.time)
   {
    Dim(0x070807,.85,Width/2-250,687,500,19);
-   Text(consoleplayer==UTNTChapterState.Leader()?"ENTER / SPACE  Next     LEFT  Previous     END  Skip credits":"The host controls the credits",Width/2,692,8,0xbdb5a9,1,true,484);
+   Text(consoleplayer==UTNTChapterState.Leader()?Local("$UTNT_CREDITS_KEYS"):Local("$UTNT_CREDITS_HOST"),Width/2,692,8,0xbdb5a9,1,true,484);
   }
  }
 }

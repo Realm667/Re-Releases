@@ -9,7 +9,7 @@ class UTNTCreditsTests : EventHandler
   if(!h || !h.Initialized || h.Phase || !h.CardsUI || (LayoutSeen && LastLayoutPage==h.Page))return;
   let page=h.Pages[h.Page];let view=h.CardsUI;if(view.Cached!=page)return;
   LayoutSeen=true;LastLayoutPage=h.Page;bool fit=true;
-  if(view.Body!=Font.GetFont('SmallFont'))fit=false;
+  if(view.Body!=AlternativeSmallFont)fit=false;
   if(page.Layout=="standard" || page.Layout=="dense")
   {
    bool dense=page.Layout=="dense";
@@ -37,7 +37,7 @@ class UTNTCreditsTests : EventHandler
   {
    int names=0,remaster=0;bool nash=false,sites=false;
    for(int i=0;i<h.Pages.Size();i++)
-   {names+=h.Pages[i].Names.Size();if(h.Pages[i].Heading=="Remaster")remaster++;for(int j=0;j<h.Pages[i].Names.Size();j++){if(h.Pages[i].Names[j]=="NASH" && h.Pages[i].Heading=="Code & scripting")nash=true;if(h.Pages[i].Names[j]=="NEWDOOM.COM")sites=true;}}
+   {names+=h.Pages[i].Names.Size();if(h.Pages[i].Remaster)remaster++;for(int j=0;j<h.Pages[i].Names.Size();j++){if(h.Pages[i].Names[j]=="NASH" && h.Pages[i].Heading=="$UTNT_CREDITS_TEXT_029")nash=true;if(h.Pages[i].Names[j]=="NEWDOOM.COM")sites=true;}}
    Check(h.Pages.Size()==25,"all 25 original credit cards loaded");Check(names==65,"all 65 attribution entries loaded");Check(remaster==0,"empty Remaster block skipped");Check(nash && sites,"supplementary original credits retained");
    Check(level.SkyTexture1==TexMan.CheckForTexture("USTSKY"),"approved storm sky retained");
    Check(players[0].camera && players[0].camera.TID==h.Pages[h.Page].Camera,"credit camera attached");

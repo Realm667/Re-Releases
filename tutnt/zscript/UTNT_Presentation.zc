@@ -523,7 +523,7 @@ class UTNTPresentation : StaticEventHandler
         if (!handler || handler.VoiceKey.Length()==0 || level.time>=handler.VoiceEndTime+18
             || !CVar.GetCVar('UTNT_subtitles',player).GetBool()) return;
         double scale=UTNTUILayout.VoiceScale();
-        Font font=Font.GetFont('SmallFont');
+        Font font=AlternativeSmallFont;
         String text=StringTable.Localize("$"..handler.VoiceKey);
         // Legacy \cR is dark green; spoken player subtitles consistently use red.
         text.Replace("\cR","\c[Red]");

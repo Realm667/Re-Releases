@@ -89,7 +89,7 @@ class UTNTPickupFeed : StaticEventHandler
         let def=GetDefaultByType(type);
         String text=StringTable.Localize(def.PickupMsg);
         String tag=def.GetTag();if(tag.Length()>0) text=StringTable.Localize(tag);
-        return Font.GetFont('SmallFont').BreakLines(text,int(UTNTUILayout.Width(276)-56));
+        return AlternativeSmallFont.BreakLines(text,int(UTNTUILayout.Width(276)-56));
     }
     ui double ReservedBottom()
     {
@@ -113,7 +113,7 @@ class UTNTPickupFeed : StaticEventHandler
                 String names[]={"UTNT_GAIN_BUL","UTNT_GAIN_SHELL","UTNT_GAIN_RKT","UTNT_GAIN_CELL","UTNT_GAIN_GAS"};
                 label=UTNTExplorationUI.Local(names[i-2]).." "..label;
             }
-            UTNTExplorationUI.Text(label,x-Font.GetFont('SmallFont').StringWidth(label)*s/2,y,s,0xd7bd83,
+            UTNTExplorationUI.Text(label,x-AlternativeSmallFont.StringWidth(label)*s/2,y,s,0xd7bd83,
                 clamp((EndTimes[i]-Clock-e.FracTic)/12.0,0,1));
         }
         if(!Items.Size()) return;

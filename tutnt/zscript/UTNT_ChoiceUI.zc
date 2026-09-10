@@ -38,7 +38,7 @@ class UTNTClassMenu : ListMenu
         return false;
     }
     static void Center(String text,double x,double y,double s,int shade)
-    { UTNTExplorationUI.Text(text,x-Font.GetFont('SmallFont').StringWidth(text)*s/2,y,s,shade); }
+    { UTNTExplorationUI.Text(text,x-AlternativeSmallFont.StringWidth(text)*s/2,y,s,shade); }
     static void Sprite(State st,double x,double y,double boxw,double boxh)
     {
         if(!st) return;
@@ -56,10 +56,10 @@ class UTNTClassMenu : ListMenu
         let [k1,k2]=Bindings.GetKeysForCommand(slot==1?"utnt_offense":"utnt_defense");
         String key=k1?KeyBindings.NameKeys(k1,0,false):"--";
         String title=UTNTAbilityHUD.Title(kind,slot).." ["..key.."]";
-        double ts=min(s,184*s/max(1,Font.GetFont('SmallFont').StringWidth(title)));
+        double ts=min(s,184*s/max(1,AlternativeSmallFont.StringWidth(title)));
         UTNTExplorationUI.Text(title,x+38*s,y+4*s,ts,color);
         String keys[]={"RAGE","REGEN","WEAK","CLOAK","OVERDRIVE","BULWARK"};
-        let lines=Font.GetFont('SmallFont').BreakLines(UTNTExplorationUI.Local("UTNT_AB_CARD_"..keys[kind*2+slot-1]),210);
+        let lines=AlternativeSmallFont.BreakLines(UTNTExplorationUI.Local("UTNT_AB_CARD_"..keys[kind*2+slot-1]),210);
         for(int row=0;row<lines.Count();row++)
             UTNTExplorationUI.Text(lines.StringAt(row),x+14*s,y+(25+12*row)*s,s,0xbab3a7);
     }
@@ -85,7 +85,7 @@ class UTNTClassMenu : ListMenu
             Center(String.Format(UTNTExplorationUI.Local("UTNT_CLASS_SPEED"),int(pawn.ForwardMove1*100)),cx,top+161*s,1.15*s,0xd6d0c3);
             Sprite(GetDefaultByType(weapons[i]).SpawnState,x+48*s,top+198*s,46*s,26*s);
             UTNTExplorationUI.Text(UTNTExplorationUI.Local(gear[i]),x+85*s,top+195*s,s,0xc9954b);
-            let lines=Font.GetFont('SmallFont').BreakLines(UTNTExplorationUI.Local(roles[i]),210);
+            let lines=AlternativeSmallFont.BreakLines(UTNTExplorationUI.Local(roles[i]),210);
             for(int row=0;row<lines.Count();row++) Center(lines.StringAt(row),cx,top+(224+12*row)*s,s,0xbab3a7);
             int kind=pawn is 'Scout'?1:pawn is 'Commando'?2:0;
             Ability(kind,1,x,top+258*s,s);

@@ -1,0 +1,18 @@
+name: Localization completeness
+on:
+  push:
+    paths: ['tutnt/**', 'tools/check_localization.py', 'tools/test_localization.py', 'tools/localization-review.json', '.github/workflows/localization.yml']
+  pull_request:
+    paths: ['tutnt/**', 'tools/check_localization.py', 'tools/test_localization.py', 'tools/localization-review.json', '.github/workflows/localization.yml']
+jobs:
+  localization:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_localization.py
+      - run: python -m unittest discover -s tools -p test_localization.py

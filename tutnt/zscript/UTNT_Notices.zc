@@ -138,7 +138,7 @@ class UTNTNoticeFeed ui
 
     static BrokenLines, double Layout(String text,double maxWidth)
     {
-        Font font=Font.GetFont('SmallFont');
+        Font font=AlternativeSmallFont;
         return font.BreakLines(text,max(32,int(maxWidth))),1.0;
     }
 
@@ -146,11 +146,11 @@ class UTNTNoticeFeed ui
     {
         if(CachedLines && text==CachedText && width==CachedWidth) return;
         CachedText=text; CachedWidth=width; CachedWidest=0; CachedShadows.Clear();
-        CachedLines=Font.GetFont('SmallFont').BreakLines(text,max(32,width));
+        CachedLines=AlternativeSmallFont.BreakLines(text,max(32,width));
         for(int i=0;i<CachedLines.Count();i++)
         {
             String line=CachedLines.StringAt(i);
-            CachedWidest=max(CachedWidest,Font.GetFont('SmallFont').StringWidth(line));
+            CachedWidest=max(CachedWidest,AlternativeSmallFont.StringWidth(line));
             CachedShadows.Push(Plain(line));
         }
         LayoutBuilds++;
@@ -161,7 +161,7 @@ class UTNTNoticeFeed ui
         double alpha=Opacity(frac);
         if(alpha<=0) return;
         if(ActiveID==9001) { UTNTExplorationUI.DrawSecret(ActiveValue,alpha,bottomLimit,topLimit); return; }
-        Font font=Font.GetFont('SmallFont');
+        Font font=AlternativeSmallFont;
         double scale=UTNTUILayout.Scale();
         Prepare(Text(ActiveID,ActiveValue),int(UTNTUILayout.Width(360)-36));
         let lines=CachedLines; double size=1;
