@@ -16,6 +16,12 @@ Unter **UTNT-Optionen → Kampfrückmeldung**:
 | Leuchtstärke | `UTNT_glowstrength` | 0,65 / 0–1 |
 | Leuchtgröße | `UTNT_glowsize` | 1 / 0,5–1,75 |
 
+Überarbeitung vom 10.09.2026: Der Grunddurchmesser beträgt jetzt das Doppelte
+der ersten Fassung. Bei unveränderten Reglerwerten verdoppelt sich außerdem
+die additive Intensität; bei maximaler Leuchtstärke reicht der Alpha-Wert
+jetzt bis 1,0 statt 0,5. Quelltransparenz und Entfernung schwächen das Glühen
+weiterhin ab. Die Beispiele verwenden Stärke 1 und Größe 1.
+
 Die Werte gelten lokal pro Spieler. Effektqualität 0, Entfernung 0, Stärke 0
 oder der Ausschalter entfernen die Leuchthöfe. Die bestehenden Einstellungen
 für Effektqualität, reduzierte Effekte und Entfernung werden berücksichtigt.
@@ -65,6 +71,8 @@ vorhandenen Kampfpartikel. Bei Überlast entfallen zusätzliche Leuchthöfe;
 die Originaleffekte bleiben bestehen. Dies ist eine gezielte Annäherung an
 Bloom mit weichen Welt-Sprites, kein separater Emissions-Renderpass der Engine.
 Der 64×64-Sprite enthält dieselbe analytische Form als Fallback ohne Shader.
+Die größere Ausdehnung erhöht die überzeichnete Pixelfläche je Leuchthof;
+die Anzahl der VisualThinker und ihre Qualitätsgrenzen bleiben gleich.
 
 ## Prüfung
 
@@ -81,7 +89,7 @@ Logs und Screenshots liegen unter `.codex/logs/`, Ergebnisberichte unter
 Lokalisierungsprüfungen decken Englisch, Deutsch, Spanisch und Französisch
 einschließlich der verwendeten Originalschriften ab.
 
-Abschlussprüfung vom 10.09.2026: UZDoom 5.0.1 besteht mit dem gemeinsamen
+Prüfung der ersten Fassung vom 10.09.2026: UZDoom 5.0.1 besteht mit dem gemeinsamen
 PK3-Build `744279928cd4` jeweils 443 native Assertions unter OpenGL und Vulkan.
 Alle 13 zum Glühen gehörenden Laufzeitdateien stimmen bytegenau mit dem
 Quellstand überein. Die vier Optionsmenüs wurden visuell geprüft; 14
@@ -89,3 +97,9 @@ Lokalisierungstests, Paket-/Schriftprüfung und die Ablageprüfung bestehen.
 Dies ist eine gezielte Effektprüfung, kein vollständiger Kampagnen- oder
 Mehrspieler-Durchlauf. Der Engine-Prüfer legt seine zusätzliche Fehlerlogdatei
 jetzt ebenfalls im jeweiligen Logverzeichnis ab.
+
+Die verstärkte Fassung besteht im isolierten Testpaket unter UZDoom 5.0.1
+jeweils 444 native Assertions mit OpenGL und Vulkan, einschließlich einer
+Prüfung auf volle additive Helligkeit am Maximum. Neue Ingame-Vergleiche
+zeigen Stärke 1 und Größe 1 bei eingefrorener Kamera und Animationsphase;
+erneute Aufnahmen desselben Schaltzustands sind pixelgenau identisch.

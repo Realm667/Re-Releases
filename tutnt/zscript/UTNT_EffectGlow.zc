@@ -193,8 +193,10 @@ class UTNTEffectHalo : VisualThinker
         Pos=Source.Pos+(0,0,z);
         if (Source is 'Rocket' && flight && Source.Vel.Length()>0.01)
             Pos-=Source.Vel.Unit()*9;
-        Scale=(diameter*radius/64,diameter*radius/64);
-        Alpha=clamp(opacity*strength*0.5*fade,0,0.5);
+        // Twice the original footprint; full strength can now reach full
+        // additive emission while source opacity and distance still fade it.
+        Scale=(diameter*radius/32,diameter*radius/32);
+        Alpha=clamp(opacity*strength*fade,0,1);
         UpdateSector(); UpdateSpriteInfo();
     }
 

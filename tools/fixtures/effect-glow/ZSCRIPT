@@ -94,16 +94,19 @@ class UTNTGlowTest : EventHandler
         if(e.Name!="glowcheck") return;
         let m=UTNTEffectGlow.Get();
         int live=0,visible=0;
+        double peak=0;
         for(int i=0;i<m.Halos.Size();i++) if(m.Halos[i])
         {
             live++;
             if(m.Halos[i].Alpha>0) visible++;
-            Check(m.Halos[i].Texture.IsValid() && m.Halos[i].Alpha>=0 && m.Halos[i].Alpha<=0.5,"finite bounded halo");
+            peak=max(peak,m.Halos[i].Alpha);
+            Check(m.Halos[i].Texture.IsValid() && m.Halos[i].Alpha>=0 && m.Halos[i].Alpha<=1,"finite bounded halo");
         }
         Check(live<=UTNTEffectGlow.Limit(),"quality budget respected");
         Check(m.Sources.Size()<=1024,"registration bound respected");
         if(e.Args[0]==0) Check(live==0,"no halos when disabled, distant or expired");
         else Check(visible>=e.Args[0],"expected combat halos visible");
+        if(e.Args[2]==1) Check(peak>0.9,"maximum strength reaches full additive brightness");
         if(e.Args[1]==1)
         {
             for(int i=0;i<Probes.Size();i++)

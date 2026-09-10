@@ -32,7 +32,7 @@ def main():
         'screenshot logs/effect-glow-off-'+a.renderer+'.png',
         'UTNT_effectglow true', 'wait 3', 'event glowcheck 6 1',
         'UTNT_glowstrength 0', 'wait 3', 'event glowcheck 0',
-        'UTNT_glowstrength 1', 'UTNT_glowsize 1.75', 'wait 3', 'event glowcheck 6 1',
+        'UTNT_glowstrength 1', 'UTNT_glowsize 1.75', 'wait 3', 'event glowcheck 6 1 1',
         'UTNT_fxquality 0', 'wait 3', 'event glowcheck 0',
         'UTNT_fxquality 3', 'UTNT_glowstrength 0.65', 'UTNT_glowsize 1',
         'load effect-glow-'+a.renderer, 'wait 8', 'netevent glowloadtest', 'event glowcheck 6 1',
