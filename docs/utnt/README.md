@@ -37,6 +37,7 @@ Run `tutnt_build.bat` from the repository root. Local configuration is in the ig
 - [UTNT_LIQUIDS.md](UTNT_LIQUIDS.md)
 - [UTNT_NOTICES.md](UTNT_NOTICES.md)
 - [UTNT_OBJECTIVES.md](UTNT_OBJECTIVES.md)
+- [UTNT_ORGANIC_MATERIALS.md](UTNT_ORGANIC_MATERIALS.md)
 - [UTNT_PALETTE.md](UTNT_PALETTE.md)
 - [UTNT_PORTALS.md](UTNT_PORTALS.md)
 - [UTNT_RECOIL.md](UTNT_RECOIL.md)

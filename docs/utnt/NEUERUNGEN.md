@@ -45,6 +45,8 @@ Stand: **11.09.2026**. Fortlaufende, thematisch zusammengefasste Liste der Remas
 
 ## Landschaften, Himmel und Materialien
 
+- **Relief auf großflächigen Naturmaterialien:** 16 Fels-, Kies-, Erd- und Grasfamilien erhalten passende Normalmaps und Parallax Occlusion Mapping auf Wänden, Böden und Decken. Die Tiefe reicht von 1,8 Einheiten bei Gras bis zu den freigegebenen 13,2 bei QROCK3; Originalfarben, Maßstab und vorhandene Regenreaktion bleiben erhalten (11.09.2026). [Details](UTNT_ORGANIC_MATERIALS.md)
+
 - **TNT01:** blutroter animierter Sturmhimmel mit festen Bergzügen und rotem Dunst; zusammenhängend modelliertes Außengelände mit gewellten Grasflächen, Böschungen und gekrümmten Felskanten. [Himmel](UTNT_STORM.md), [Gelände](UTNT_TNT01_LANDSCAPE.md)
 - **TNT02:** dunkle Gewitterwolken und entfernte Berge, abgestimmtes Außenlicht sowie nahe, mittlere und ferne Blitze mit entsprechend verzögertem Donner. [Details](UTNT_THUNDER.md)
 - **TNT03A1/TNT03A2 – Cursed Peak:** gemeinsame Winterbergkulisse, bewegte Wolken und Tageslichtübergänge über einen südlichen Sonnenuntergang zur Nacht; Nebelschleier reagieren auf Schneefall. [Details](UTNT_CURSED_SKY.md)
