@@ -1,6 +1,6 @@
 # Gezieltes Kampfglühen
 
-Stand: 10.09.2026. Farbige, weiche Leuchthöfe ergänzen Projektile und
+Stand: 11.09.2026. Farbige, weiche Leuchthöfe ergänzen Projektile und
 Explosionskerne. Die Originalsprites und ihre Animationen bleiben erhalten.
 Der Materialshader `shaders/effect-glow.fp` arbeitet nur auf den zusätzlichen
 Leuchthöfen; es gibt keinen Helligkeitsfilter über das Bildschirmbild.
@@ -21,6 +21,12 @@ der ersten Fassung. Bei unveränderten Reglerwerten verdoppelt sich außerdem
 die additive Intensität; bei maximaler Leuchtstärke reicht der Alpha-Wert
 jetzt bis 1,0 statt 0,5. Quelltransparenz und Entfernung schwächen das Glühen
 weiterhin ab. Die Beispiele verwenden Stärke 1 und Größe 1.
+
+Farbkorrektur vom 11.09.2026: Der Materialshader übernimmt die zugeordnete
+Projektil-/Explosionsfarbe über `getTexel`, statt weißes RGB zurückzugeben.
+Damit bleiben etwa Plasma-Leuchthöfe blau, Baron-Leuchthöfe grün und
+Feuer-/Raketen-Leuchthöfe orange, auch bei maximaler Stärke. Die größere
+Ausdehnung und erhöhte Maximalhelligkeit bleiben erhalten.
 
 Die Werte gelten lokal pro Spieler. Effektqualität 0, Entfernung 0, Stärke 0
 oder der Ausschalter entfernen die Leuchthöfe. Die bestehenden Einstellungen
@@ -103,3 +109,9 @@ jeweils 444 native Assertions mit OpenGL und Vulkan, einschließlich einer
 Prüfung auf volle additive Helligkeit am Maximum. Neue Ingame-Vergleiche
 zeigen Stärke 1 und Größe 1 bei eingefrorener Kamera und Animationsphase;
 erneute Aufnahmen desselben Schaltzustands sind pixelgenau identisch.
+
+Die Farbkorrektur besteht ebenfalls jeweils 444 native Assertions unter
+OpenGL und Vulkan. Zusätzlich isoliert der Test den Leuchtanteil durch
+Subtraktion einer identischen Aufnahme ohne Glühen und prüft die erwarteten
+blauen, grünen und orangen Farbkanäle. Der alte weiße Shader fällt durch
+diese Farbprüfung; beide Renderer bestehen mit der korrigierten Fassung.

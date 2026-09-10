@@ -7,6 +7,29 @@ import argparse, json, os, shutil
 from check_engine import ROOT, run_case
 
 
+def check_glow_colors(on_path, off_path, repeat_path):
+    """Measure the glow alone, not the already-colored original projectiles."""
+    from PIL import Image, ImageChops
+    on, off, repeat = [Image.open(p).convert('RGB') for p in (on_path, off_path, repeat_path)]
+    assert on.size == off.size == repeat.size
+    assert ImageChops.difference(off, repeat).getbbox() is None, 'Frozen scene changed'
+    delta = ImageChops.subtract(on, off)
+    w, h = delta.size
+    measurements = {}
+    for i, name in enumerate(('blue', 'green', 'orange')):
+        data = delta.crop((i*w//3, h//10, (i+1)*w//3, h*4//5)).tobytes()
+        pixels = zip(data[0::3], data[1::3], data[2::3])
+        sums = [0, 0, 0]
+        for rgb in pixels:
+            if max(rgb) >= 6:
+                for c in range(3): sums[c] += rgb[c]
+        r, g, b = sums
+        ok = (b > 1.3*r and b > 1.1*g) if i == 0 else ((g > 1.15*r and g > 1.3*b) if i == 1 else (r > 1.15*g and r > 1.4*b))
+        measurements[name] = {'rgb_sum': sums, 'ok': ok}
+    assert all(v['ok'] for v in measurements.values()), measurements
+    return measurements
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--engine', type=Path, default=os.environ.get('UTNT_ENGINE', 'F:/DoomDev/uzdoom.exe'))
@@ -44,6 +67,13 @@ def main():
         'netevent glowflood', 'wait 3', 'event glowcheck 1',
         'UTNT_reducedfx true', 'wait 3', 'event glowcheck 1',
         'netevent glowclear', 'wait 80', 'event glowcheck 0',
+        'UTNT_reducedfx false', 'UTNT_glowstrength 1', 'UTNT_glowsize 1',
+        'UTNT_shaderoverlayswitch false', 'motionblur false', 'fov 65',
+        'netevent glowcolors', 'wait 8', 'freeze', 'wait 12',
+        'screenshot logs/effect-glow-color-on-'+a.renderer+'.png',
+        'UTNT_effectglow false', 'wait 8', 'screenshot logs/effect-glow-color-off-'+a.renderer+'.png',
+        'wait 8', 'screenshot logs/effect-glow-color-repeat-'+a.renderer+'.png',
+        'freeze', 'netevent glowclear', 'wait 40',
         'language de', 'event glowmenu', 'wait 12', 'screenshot logs/effect-glow-menu-de-'+a.renderer+'.png',
         'language fr', 'wait 12', 'screenshot logs/effect-glow-menu-fr-'+a.renderer+'.png',
         'language es', 'wait 12', 'screenshot logs/effect-glow-menu-es-'+a.renderer+'.png',
@@ -58,6 +88,13 @@ def main():
         ('UTNT_lod',2048),('UTNT_fxquality',3),('UTNT_reducedfx','false'),
         ('r_drawplayersprites','false'),('screenblocks',11),('con_notifytime',0)])
     result['ok'] &= result['assertions'] >= 150
+    if result['ok']:
+        try:
+            result['colors'] = check_glow_colors(*[ROOT/f'tutnt/.codex/logs/effect-glow-color-{state}-{a.renderer}.png' for state in ('on', 'off', 'repeat')])
+        except (AssertionError, OSError) as error:
+            result['ok'] = False
+            result['errors'].append('rendered glow colors: '+str(error))
+            print(result['errors'][-1])
     report = ROOT/'tutnt/.codex/validation/effect-glow'
     report.mkdir(parents=True, exist_ok=True)
     (report/f'runtime-{a.renderer}.json').write_text(json.dumps(result, indent=2)+'\n')

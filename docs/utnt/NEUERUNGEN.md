@@ -1,6 +1,6 @@
 # UTNT Remaster – Übersicht der Neuerungen
 
-Stand: **10.09.2026**. Fortlaufende, thematisch zusammengefasste Liste der Remaster-Neuerungen gegenüber dem Stand vor der Modernisierung im September 2026. Basis der ersten Bestandsaufnahme: Implementierungen seit `844405183` bis einschließlich `163239689`, aktuelle Feature-Dokumentation und gesondert ausgewiesene lokale Arbeiten. „Umgesetzt“ bezeichnet den versionierten Quellstand, keine Aussage über einen veröffentlichten Download oder den Inhalt eines älteren PK3-Pakets.
+Stand: **11.09.2026**. Fortlaufende, thematisch zusammengefasste Liste der Remaster-Neuerungen gegenüber dem Stand vor der Modernisierung im September 2026. Basis der ersten Bestandsaufnahme: Implementierungen seit `844405183` bis einschließlich `163239689`, aktuelle Feature-Dokumentation und gesondert ausgewiesene lokale Arbeiten. „Umgesetzt“ bezeichnet den versionierten Quellstand, keine Aussage über einen veröffentlichten Download oder den Inhalt eines älteren PK3-Pakets.
 
 ## Spielkomfort, Oberfläche und Sprache
 
@@ -27,7 +27,7 @@ Stand: **10.09.2026**. Fortlaufende, thematisch zusammengefasste Liste der Remas
 
 ## Effekte, Flüssigkeiten und Umwelt
 
-- **Gezieltes Projektil- und Explosionsglühen:** farblich passende, weiche Leuchthöfe an Kampfobjekten und Explosionskernen; gemeinsam ein-/ausschaltbar sowie in Stärke und Größe regelbar. Grunddurchmesser und additive Intensität gegenüber der ersten Fassung verdoppelt (10.09.2026). Berücksichtigt Effektqualität und Entfernung, erhält Originalsprites und spart Umgebung und HUD aus. [Details](UTNT_EFFECT_GLOW.md)
+- **Gezieltes Projektil- und Explosionsglühen:** farblich passende, weiche Leuchthöfe an Kampfobjekten und Explosionskernen; gemeinsam ein-/ausschaltbar sowie in Stärke und Größe regelbar. Grunddurchmesser und additive Intensität gegenüber der ersten Fassung verdoppelt (10.09.2026); Farbübergabe im Shader korrigiert, sodass das Glühen die jeweilige Effektfarbe statt Weiß verwendet (11.09.2026). Berücksichtigt Effektqualität und Entfernung, erhält Originalsprites und spart Umgebung und HUD aus. [Details](UTNT_EFFECT_GLOW.md)
 - **Organisches Feuer:** unabhängig bewegte Flammen, Glut, Rauch und farblich passende Lichtkerne für Fackeln, brennende Fässer und Bodenfeuer; orange, grüne und blaue Varianten. [Details](UTNT_FIRE_EFFECTS.md)
 - **Überarbeitete Kampf- und Teleporteffekte:** gerichtete Metallfunken und Staub, kurze elektrische Entladungen sowie ausströmende und zurückkehrende Teleportfragmente. Die klassische Raketenflamme, Rauchspur und Raketenexplosion wurden in der aktuellen Fassung wiederhergestellt. Überdimensionierte BFGBall-Explosionsringe auf die abgestuften Startskalierungen 2.0, 2.5 und 3.0 korrigiert (10.09.2026). [Details](UTNT_INDUSTRIAL_FX.md)
 - **Lost-Soul-Glutspuren:** kontinuierliche, hinter dem Schädel verankerte Funken mit nativen Flammenpixeln. [Effektimplementierung](../../tutnt/zscript/UTNT_Fire.zc)

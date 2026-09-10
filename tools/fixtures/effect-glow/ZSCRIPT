@@ -32,6 +32,17 @@ class UTNTGlowTest : EventHandler
             }
         }
         if(e.Name=="glowclear") Clear();
+        if(e.Name=="glowcolors")
+        {
+            Clear();
+            let p=players[0].mo; p.SetOrigin((0,-140,0),false); p.Angle=90; p.Pitch=0;
+            Name types[]={'UTNTPlasmaBall','UTNTBaronBall','UTNTDoomImpBall'};
+            for(int i=0;i<3;i++)
+            {
+                let a=Actor.Spawn(types[i],(-65+i*65,0,50)); a.Vel=(0,0,0); a.target=p;
+                Probes.Push(a);
+            }
+        }
         if(e.Name=="glowburst")
         {
             Clear();
