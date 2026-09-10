@@ -17,7 +17,7 @@ def main():
   'wait 20','netevent sourcedeathcheck 18 23','screenshot logs/hold.png',
   'wait 55','netevent sourcedeathcheck 72 78','screenshot logs/fracture.png',
   'save source-finale','wait 10','load source-finale','wait 20','netevent sourcedeathcheck 90 105','screenshot logs/restored-fracture.png',
-  'wait 17','netevent sourcedeathcheck 107 117','screenshot logs/lightning.png',
+  'wait 17','netevent sourcedeathcheck 107 120','screenshot logs/lightning.png',
   'wait 49','netevent sourcedeathcheck 156 166','screenshot logs/sever.png',
   'UTNT_reducedfx true','UTNT_fxquality 0','wait 54','netevent sourcedeathcheck 210 220','screenshot logs/reduced-afterglow.png',
   'wait 45','netevent sourcedeathcheck 255 265','screenshot logs/empty.png',

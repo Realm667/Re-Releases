@@ -102,6 +102,21 @@ vec4 ProcessTexel()
  vec4 c=getTexel(vTexCoord.st);
  float mask=max(c.r,max(c.g,c.b))*c.a*(1.0-smoothstep(0.91,0.98,r));
  return vec4(vec3(0.014,0.008,0.003),clamp(mask*3.0,0.0,1.0));
+#elif SOURCE_KIND == 18
+ // An opaque black heart with a narrow hot rim; translucency preserves the void.
+ float disc=1.0-smoothstep(0.66,0.69,r);
+ float rim=exp(-pow((r-0.69)*65.0,2.0));
+ float haze=exp(-pow((r-0.71)*12.0,2.0))*.22;
+ return vec4(vec3(1.0,.34,.018)*(rim+haze),max(disc,rim+haze));
+#elif SOURCE_KIND == 19
+ float spiral=pow(max(0.0,sin(a*3.0+r*24.0)),5.0);
+ ink=(Ring(r,.62,.025)*.75+spiral*exp(-pow((r-.65)*6.0,2.0)));
+ heat=spiral*.7;
+#elif SOURCE_KIND >= 20 && SOURCE_KIND <= 23
+ ink=Rune(vTexCoord.st,float(SOURCE_KIND-20))*1.3;heat=.35;
+#elif SOURCE_KIND == 24
+ float star=exp(-abs(p.x)*150.0)*exp(-abs(p.y)*4.0)+exp(-abs(p.y)*150.0)*exp(-abs(p.x)*4.0);
+ return vec4(vec3(1.0,.93,.73)*(exp(-r*r*65.0)+star*.8+exp(-r*r*6.0)*.10),1.0);
 #elif SOURCE_KIND == 11
  // Broad, quiet amber light from the seal's centre, with no hard outer disc.
  // This is separate from the compact heart so attacks retain their telegraph.

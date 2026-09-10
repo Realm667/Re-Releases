@@ -77,7 +77,7 @@ engine captures. The checks cover guardian-driven opening, real ACS attacks,
 save/load during the open window, three viewpoints, reduced/zero FX, collapse,
 and map isolation. They do not constitute a complete manual campaign playthrough.
 
-## Visual correction — 2026-09-09
+## Visual correction â€” 2026-09-09
 
 The user correctly identified the difference between the approved paintover and
 the first runtime result. Corrected the native rune selection, rounded the helix
@@ -95,7 +95,7 @@ now stopped by the presentation controller, which explicitly selects additive
 blending. The open-window script 122 remains untouched. RenderOverlay logging in
 the test fixture verifies the final drawn alpha, not only pre-ACS actor state.
 
-## Seal focus and central glow — 2026-09-09
+## Seal focus and central glow â€” 2026-09-09
 
 The beam now fades smoothly around the seal even while the shield is closed.
 At its centre the core retains 10% intensity and the helix retains 35%; the
@@ -103,7 +103,7 @@ original strength returns outside a 470-unit vertical distance. The transition
 starts at 280 units. The open shield further reduces both to expose the target.
 
 A twelfth local visual layer carries a soft, 1100-unit amber aura centred on the
-sigil, extending beyond the 740–800-unit ring. Its edge fades away smoothly.
+sigil, extending beyond the 740â€“800-unit ring. Its edge fades away smoothly.
 The compact heart is brighter when closed; its existing attack cues remain.
 Reduced FX removes the subtle pulse, while the static glow remains visible.
 The aura collapses with the other layers on death and reconstructs on save/load.
@@ -132,13 +132,14 @@ away. Living attacks, health and collision stay unchanged. At death the boss
 becomes nonblocking and stops its pending attack scripts. The new ending is
 scoped to TNT04CN; the legacy BOSSHP branch remains available for other maps.
 
-- 0-1 s: helix holds still and a faint central filament remains.
-- 1-3 s: six full-size rune arcs separate, linked by branching lightning.
-- 3-4.5 s: eight overhead slabs answer; two separated flashes illuminate the
-  architecture while the demon becomes a dark silhouette.
-- 4.5-5.5 s: connections break in sequence, glyphs extinguish, and a widening
-  gap retracts the two beam halves away from the seal.
-- 5.5-7 s: the afterimage and rising sparks fade; overhead stone settles.
+- 0-1 s: the helix holds still and a faint central filament remains.
+- 1-2 s: the seal fractures and a black core forms inside its luminous rim.
+- 2-4.5 s: detached native runes and light trails spiral inward faster and
+  faster. The beam contracts toward the seal and the scene bends toward it.
+- At tic 158 (4.514 s): the core collapses into a white-gold point, accompanied
+  by one light break and an expanding, thin refraction ring.
+- 4.5-7 s: the ring fades and the remaining embers return to the empty centre;
+  overhead stone settles and the energetic sound decays into cavern echoes.
 - 7-9 s: the empty centre remains visible, the objective notice appears,
   and only then does the original map-99 transition proceed.
 
@@ -147,14 +148,14 @@ QROCK3 stone and the established QRUNT63 rune atlas. They light sequentially
 during attack preparation and shield opening. Shield opening also sends a
 descending light wave over the hall walls. No map geometry is changed.
 
-Presentation uses a bounded pool of 68 local visual layers, eight client-side
+Presentation uses a bounded pool of 72 local visual layers, eight client-side
 stone actors and nine light anchors. Quality zero disables dynamic lights and
 embers; reduced FX attenuates flashes and lightning, limits embers and removes
 the added oscillation. Neither setting changes the shared clock or ending.
 All client presentation reconstructs from the surviving actor after load.
-The seven-second electrical score seeks to the restored age, with two major
-arcs, smaller severance cracks, and a fading cavern tail. The camera remains
-under player control; the additional light bursts below add no blast damage,
+The seven-second Near/Far implosion mix seeks to the restored age; its
+collapse is aligned with defeat tic 158, after 100 ms of silence. The camera remains
+under player control; the collapse light adds no blast damage,
 full-screen flash overlay or forced camera shake.
 
 Build materials with tools/build_source_materials.py and audio with
@@ -169,24 +170,46 @@ electrical release, with staggered phases across the chamber. Their intensity
 ramps in and dies away before the quiet ending; they add no new light actors.
 Reduced effects use a steady, low amber envelope instead of rapid colour changes.
 
-Three eight-ray light bursts leave the seal at defeat tics 105, 134 and 158.
-The luminous streaks travel outward, slow, and fade within 23-29 tics. They reuse
-the native heart material and a fixed 24-layer extension to the client pool.
-Quality one halves the rays; reduced effects show two dim rays per burst;
-quality zero removes the extra particles and dynamic lights entirely.
+The initial three outward bursts were replaced by the visible implosion on
+2026-09-10. Twenty-four bounded layers now carry twelve detached native runes
+and twelve light trails. Their accelerating angular motion and shrinking orbits
+lead into a black core, with an oblique amber accretion ring. Four additional
+layers render the core, accretion ring, collapse point and outgoing light ring.
+The old seal shrinks behind the core, so the endpoint reads as energy being
+consumed. No moving physical objects or damage are added.
 
-Each discharge also drives an 18-tic expanding refraction wave projected onto
-the seal's actual screen position. The scene pass leaves HUD rendering
-untouched. The wave fades near screen edges and at distance, is occluded by solid
-geometry, and disappears when looking away. Reduced effects, quality zero and
-the shader-overlay switch disable it. No camera angles or gameplay RNG change.
-The saved defeat clock determines the pulse phase, including after loading;
-the presentation handler clears the shader on load, unload and every idle frame.
+Before collapse, the camera-local scene pass bends light radially inward with
+a restrained twist. At collapse it releases one expanding refraction front.
+It follows the actual projected seal, fades near the screen edge and at distance,
+and respects occlusion. The HUD is untouched. Reduced effects, quality zero and
+the shader-overlay switch disable refraction; reduced effects also attenuate
+lightning, flashes and orbiting particles. The saved defeat clock reconstructs
+all phases after loading; idle frames, load and unload clear the scene shader.
 
-Rebuild source materials with tools/build_source_materials.py. Regression:
-tools/test_source_impact.py covers the three pulses, save/restore, shader toggle,
-reduced effects, quality zero, looking away and cleanup in TNT04C. Existing
-finale tests retain the real nine-second ending and empty-centre assertions.
-Evidence: tools/validation/source-impact-2026-09-10/. Images are direct engine
-captures. The shared tutnt.pk3 is built from the complete live integration tree
-with tools/build_utnt.py, preserving other local improvements.
+## Visible implosion and Near/Far sound - 2026-09-10
+
+The sound combines Klerrp's **Implosion Near** (Freesound 121942) and
+**Implosion Far** (121941), both released under CC0. Near supplies the sharper
+energy component and Far the low-frequency body. Reversed portions build the
+suction before a 100 ms gap; both forward impacts begin at 158/35 seconds.
+The final mix is mono PCM, 44.1 kHz, seven seconds, with headroom and a fading
+cavern tail. It uses the existing sound channel and saved playback
+seek, with no extra sound actors or repeated one-shot triggers.
+
+The authenticated original downloads were not used. Reproducible source WAVs
+were decoded from Freesound's publicly available high-quality MP3 previews;
+`tools/audio/utnt-source/sources.json` records the URLs, hashes, conversion gains
+and CC0 provenance. `tools/build_source_audio.py` needs NumPy and builds fully
+offline from those checked-in WAVs. Distribution credits accompany finale.wav
+in `sounds/utnt-source/README.txt`.
+
+Build materials with `tools/build_source_materials.py`. Runtime regression:
+`tools/test_source_implosion.py` verifies inward motion, black-core visibility,
+save/restore, the single collapse and empty centre on OpenGL and Vulkan.
+`tools/test_source_impact.py` checks scene-shader toggles, reduced effects,
+quality zero, looking away and map cleanup. `tools/test_source_finale.py` retains
+the actual nine-second ending and saved finale; `tools/test_source_coop.py`
+checks opposing client settings against the same authoritative encounter.
+Local evidence: `tutnt/.codex/logs/source-implosion/`. Screenshots there are
+unaltered engine captures. The shared tutnt.pk3 is built from the complete live
+integration tree with `tools/build_utnt.py`, preserving other local work.

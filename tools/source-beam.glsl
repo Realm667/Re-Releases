@@ -1,10 +1,11 @@
 vec4 ProcessTexel()
 {
  float intensity;
+ float pull=clamp(float(BEAM_STATE-5)/23.0,0.0,1.0);
  float height=pixelpos.y;
 #if BEAM_KIND == 0
  // Compress the existing core without changing its crossed wall geometry.
- float x=abs(fract(vTexCoord.x)-0.5);
+ float x=abs(fract(vTexCoord.x)-0.5)*(1.0+pull*6.0);
  intensity=1.25*exp(-x*x*900.0)+0.24*exp(-x*x*110.0)+0.045*exp(-x*x*18.0);
 #else
  // Round the helix inside the unchanged polygonal carrier with a ray/cylinder
@@ -14,7 +15,8 @@ vec4 ProcessTexel()
  vec3 ray=normalize(hit-eye);
  vec2 q=eye.xz-center;
  float a=dot(ray.xz,ray.xz),b=dot(q,ray.xz);
- float disc=b*b-a*(dot(q,q)-430.0*430.0);
+ float radius=430.0*(1.0-pull*pull*.97);
+ float disc=b*b-a*(dot(q,q)-radius*radius);
  if(disc<=0.0 || a<0.00001)return vec4(0.0);
  float side=dot(hit.xz-center,ray.xz)<0.0?-1.0:1.0;
  float t=(-b+side*sqrt(disc))/a;
@@ -22,7 +24,7 @@ vec4 ProcessTexel()
  vec3 surface=eye+ray*t;
  vec2 d=surface.xz-center;
  height=surface.y;
- float phase=atan(d.y,d.x)/6.2831853+height/1100.0;
+ float phase=atan(d.y,d.x)/6.2831853+height/(1100.0-600.0*pull)+pull*1.5;
 #if BEAM_STATE < 2
  phase-=timer*0.06;
 #endif
@@ -47,15 +49,15 @@ vec4 ProcessTexel()
 #elif BEAM_STATE == 2
  intensity=0.0;
 #elif BEAM_STATE >= 3
- // A held, faint filament followed by an outward travelling severance.
+ // Both beam ends and the helix contract towards the seal before the collapse.
 #if BEAM_KIND == 0
  intensity*=BEAM_STATE==3?0.16:0.28;
 #else
  intensity*=0.035;
 #endif
 #if BEAM_STATE >= 5
- float gap=float(BEAM_STATE-5)*100.0;
- intensity*=smoothstep(gap,gap+100.0,abs(height-3968.0));
+ float extent=2600.0*(1.0-pull*pull);
+ intensity*=1.0-smoothstep(extent,extent+80.0,abs(height-3968.0));
 #endif
 #endif
  return vec4(color*intensity,1.0);

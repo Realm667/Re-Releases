@@ -10,13 +10,13 @@ def main():
  W=a.work.resolve();W.mkdir(parents=True,exist_ok=True)
  cmd=['wait 450','netevent sourceview 4','wait 10','netevent sourcekill','wait 95','save source-impact','wait 16',
   'netevent sourcedeathcheck 108 114','netevent sourcefxcheck 1 1','wait 5','screenshot logs/impact-on.png',
-  'UTNT_shaderoverlayswitch false','wait 2','netevent sourcefxcheck 0 1','wait 5','screenshot logs/impact-shader-off.png',
+  'UTNT_shaderoverlayswitch false','wait 2','netevent sourcefxcheck 0 1','wait 12','screenshot logs/impact-shader-off.png',
   'load source-impact','wait 17','UTNT_shaderoverlayswitch true','wait 3','netevent sourcefxcheck 1 1','wait 5',
   'load source-impact','wait 17','UTNT_reducedfx true','wait 3','netevent sourcefxcheck 0 1','wait 5','screenshot logs/impact-reduced.png',
   'load source-impact','wait 17','UTNT_reducedfx false','UTNT_fxquality 0','wait 3','netevent sourcefxcheck 0 0','wait 5',
   'load source-impact','wait 17','UTNT_fxquality 3','netevent sourceview 5','wait 3','netevent sourcefxcheck 0 1','wait 5',
   'load source-impact','wait 17','netevent sourceview 4','wait 28','netevent sourcefxcheck 1 1','wait 5','screenshot logs/second-impact.png',
-  'wait 17','netevent sourcefxcheck 1 1','wait 5','screenshot logs/final-impact.png',
+  'wait 17','netevent sourcefxcheck 1 0','wait 5','screenshot logs/final-impact.png',
   'wait 93','netevent sourcedeathcheck 257 263','netevent sourcefxcheck 0 0','wait 3','screenshot logs/impact-empty.png',
   'map TNT04C','wait 100','netevent sourcefxcheck 0 -1','wait 3','echo UTNT_TEST_END','wait 3','quit']
  result=run_case(a.engine,a.iwad,root=W,mod=a.mod,addon=ROOT/'tools/source-tests',mapname='TNT04CN',renderer=a.renderer,timeout=200,label='source-impact',commands='; '.join(cmd),

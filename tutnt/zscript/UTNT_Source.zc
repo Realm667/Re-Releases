@@ -66,7 +66,7 @@ class UTNTSourceBase : Actor
    ACS_Terminate(134,0);ACS_Terminate(122,0);
   }
   int beamState=ShieldOpen?1:0;
-  if(DefeatAge>0)beamState=DefeatAge<35?3:DefeatAge<158?4:DefeatAge<193?5+(DefeatAge-158)*24/35:2;
+  if(DefeatAge>0)beamState=DefeatAge<35?3:DefeatAge<70?4:DefeatAge<158?5+(DefeatAge-70)*24/88:2;
   if(beamState!=LastBeamState)
   {
    // The retired pulse script also used to select additive blending. Keep
@@ -178,7 +178,7 @@ class UTNTSourceEmitter : Thinker
  void Initialize(UTNTSourceBase boss)
  {
   Source=boss;Center=boss.Center();GuardianSerial=boss.GuardianSerial;GuardianAge=100;
-  for(int i=0;i<68;i++)
+  for(int i=0;i<72;i++)
   {
    let v=UTNTSourceLayer(level.SpawnClientSideVisualThinker('UTNTSourceLayer'));
    if(v){v.Initialize(self,i);Layers.Push(v);}
@@ -247,8 +247,8 @@ class UTNTSourceEmitter : Thinker
  // A bounded, clock-derived electrical flicker: no gameplay RNG or new lights.
  double Flicker(int index)
  {
-  if(DeadAge<60 || DeadAge>=225 || Quality==0)return 0;
-  double envelope=clamp((DeadAge-60)/35.0,0,1)*clamp((225-DeadAge)/50.0,0,1);
+  if(DeadAge<60 || DeadAge>=180 || Quality==0)return 0;
+  double envelope=clamp((DeadAge-60)/35.0,0,1)*clamp((180-DeadAge)/35.0,0,1);
   if(Reduced)return envelope*0.055;
   double beat=max(0,sin(DeadAge*31+index*79)*sin(DeadAge*13+index*43));
   return envelope*(0.09+0.51*beat*beat);
@@ -258,12 +258,11 @@ class UTNTSourceEmitter : Thinker
   // Reduced effects hold a quiet amber tone instead of switching colours.
   return Reduced?0xff7020:((DeadAge/7+index)%2?0xff3410:0xff8a18);
  }
- // Two separated architectural flashes, then the local severance accent.
+ // One collapse, synchronized to the combined Near/Far impact at tic 158.
  double Flash()
  {
-  double f=max(max(0,1-abs(DeadAge-111)/9.0),max(0,1-abs(DeadAge-140)/11.0));
-  if(DeadAge>=158)f=max(f,max(0,1-(DeadAge-158)/12.0)*0.65);
-  return f*(Reduced?0.12:1.0);
+  double f=DeadAge>=158?max(0,1-(DeadAge-158)/11.0):0;
+  return f*(Reduced?0.10:1.0);
  }
  Vector3 CeilingPoint(int index)
  {
@@ -438,74 +437,103 @@ class UTNTSourceLayer : VisualThinker
   if(e.DeadAge)
   {
    int d=e.DeadAge;
-   double release=clamp((d-35)/123.0,0.0,1.0);
-   double tail=max(0,1-(d-193)/52.0);
-   if(Kind==0)
-   {
-    diameter=650;Roll=0;
-    if(d>=105 && d<170){Texture=TexMan.CheckForTexture("USDSA0");SetRenderStyle(STYLE_Translucent);Alpha=0.95;}
-    else {SetRenderStyle(STYLE_Add);Alpha=d<158?0.9:max(0,1-(d-170)/65.0)*0.22;}
-   }
-   if(Kind==1)Alpha=d<35?0.95:0;
-   if(Kind==2){diameter=110;Alpha=d<158?0.25+release*0.2:0;}
-   if(Kind>=3 && Kind<=10)Alpha=0;
-   if(Kind==11){diameter=1200;Alpha=d<193?0.2+e.Flash()*1.3:tail*0.13;}
+   double pull=clamp((d-70)/88.0,0.0,1.0);
+   double fall=pull*pull;
    let cam=players[consoleplayer].camera;
    double facing=cam?atan2(cam.Pos.Y-e.Center.Y,cam.Pos.X-e.Center.X):270;
    Vector3 right=(-sin(facing),cos(facing),0);
+   Vector3 eye=cam?cam.Pos-e.Center:(0,-1,0);
+   Vector3 front=eye/max(1,eye.Length());
+   if(Kind==0)
+   {
+    diameter=650*(1-fall);Roll=fall*95;
+    Texture=TexMan.CheckForTexture("USC1A0");Alpha=d<158?0.9:0;
+   }
+   if(Kind==1)Alpha=d<35?0.95:0;
+   if(Kind==2){diameter=110;Alpha=d<45?0.35:0;}
+   if(Kind>=3 && Kind<=10)Alpha=0;
+   if(Kind==11)
+   {
+    diameter=d<158?1200*(1-fall*.88):1200;
+    Alpha=d<158?0.20*(1-fall):e.Flash()*.75;
+   }
    if(Kind>=12 && Kind<=17)
    {
-    int arc=Kind-12;double angle=arc*60;
-    Texture=TexMan.CheckForTexture("USARA0");diameter=800;Roll=angle;
-    Pos=e.Center+right*(cos(angle)*(release*65))+(0,0,sin(angle)*release*65);
-    if(!e.Reduced)Roll+=sin(d*3+arc*60)*release*3;
-    Alpha=d>=35 && d<158+arc*5?0.98:0;
+    int arc=Kind-12;double angle=arc*60+fall*130;
+    Texture=TexMan.CheckForTexture("USARA0");diameter=800*(1-fall);Roll=angle;
+    Pos=e.Center+right*(cos(angle)*65*(1-fall))+(0,0,sin(angle)*65*(1-fall));
+    Alpha=d>=35 && d<158?max(0,1-pull*1.35):0;
    }
    if(Kind>=18 && Kind<=23)
    {
-    int arc=Kind-18;double angle=arc*60+12;
-    Vector3 end=e.Center+right*(cos(angle)*(330+release*65))+(0,0,sin(angle)*(330+release*65));
+    int arc=Kind-18;double angle=arc*60+12+fall*150;
+    Vector3 end=e.Center+right*(cos(angle)*420*(1-fall))+(0,0,sin(angle)*420*(1-fall));
     SetBolt(e.Center,end);
-    Alpha=d>=35+arc*4 && d<158+arc*5?(e.Reduced?0.22:0.85):0;
+    Alpha=d>=35+arc*4 && d<158?(e.Reduced?0.14:0.8)*(1-fall*.8):0;
    }
    if(Kind>=24 && Kind<=31)
    {
     int segment=Kind-24;
-    SetBolt(e.Center,e.CeilingPoint(segment));
-    Alpha=d>=105+segment*3 && d<158+segment*4?(e.Reduced?0.12:0.9):0;
+    Vector3 end=e.CeilingPoint(segment);
+    // Long connections retract towards the singularity rather than fading out.
+    SetBolt(e.Center,e.Center+(end-e.Center)*(1-fall));
+    Alpha=d>=65+segment*3 && d<158?(e.Reduced?0.08:0.75):0;
    }
    if(Kind>=32 && Kind<=43)
    {
-    int seed=Kind-32;double age=max(0,d-183-seed*2);
+    int seed=Kind-32;double t=clamp((d-183-seed*2)/(53.0-seed*2),0,1);
+    double angle=seed*137.5+t*150;
     Texture=TexMan.CheckForTexture("USHEA0");diameter=4+(seed%3)*2;
-    Pos=e.Center+(cos(seed*137.5)*(90+seed*14),sin(seed*137.5)*(90+seed*14),age*3+seed*8);
-    Alpha=d>=183+seed*2?max(0,1-age/48.0)*0.7:0;
+    Pos=e.Center+right*cos(angle)*200*(1-t)*(1-t)+(0,0,sin(angle)*200*(1-t)*(1-t));
+    Alpha=d>=183+seed*2 && d<236?(1-t)*0.4:0;
     if(e.Quality==0 || (e.Reduced && seed%3))Alpha=0;
    }
    if(Kind>=44 && Kind<=67)
    {
-    int seed=Kind-44,burst=seed/8,ray=seed%8;
-    double age=d-(burst==0?105:burst==1?134:158);
-    double life=burst==2?29:23;
-    double angle=ray*137.5+burst*37;
-    double travel=max(0,age)*(23+ray*2)/(1+max(0,age)*0.025);
-    // World-space rays reconstruct exactly after a save; the view only orients
-    // the small luminous streak. The final break throws a slightly wider fan.
-    Vector3 direction=(cos(angle)*0.78,sin(angle)*0.78,sin(ray*79+burst*41)*0.65);
-    Pos=e.Center+direction*(45+travel)+(0,0,-max(0,age)*max(0,age)*0.09);
-    Texture=TexMan.CheckForTexture("USHEA0");diameter=max(4,42-age*0.9);
-    double across=direction.X*right.X+direction.Y*right.Y;
-    Roll=atan2(direction.Z,across);
-    Alpha=age>=0 && age<life?(1-age/life)**1.3*0.95:0;
-    if(e.Quality==0 || (e.Quality==1 && ray%2) || (e.Reduced && ray%4))Alpha=0;
-    if(e.Reduced)Alpha*=0.3;
+    int seed=Kind-44;double begin=60+(seed%6)*4;
+    double t=clamp((d-begin)/(158-begin),0,1);
+    double angle=seed*137.5+t*t*290;
+    double orbit=(410+(seed%3)*65)*(1-t*t);
+    Pos=e.Center+right*cos(angle)*orbit+(0,0,sin(angle)*orbit)+front*24;
+    if(seed<12)
+    {Texture=TexMan.CheckForTexture(String.Format("USG%dA0",seed%4));diameter=65*(1-t*.65);Roll=angle+90;}
+    else
+    {Texture=TexMan.CheckForTexture("USLNA0");diameter=70+140*t;Roll=angle+85;}
+    Alpha=d>=begin && d<158?min(1,t*6)*(1-t*.4):0;
+    if(e.Quality==0 || (e.Quality==1 && seed%2) || (e.Reduced && seed%4))Alpha=0;
+    if(e.Reduced)Alpha*=0.4;
+   }
+   double grow=clamp((d-35)/85.0,0,1);
+   double collapse=clamp((d-120)/38.0,0,1);
+   double coreSize=(90+650*grow)*(1-collapse*collapse);
+   if(Kind==68)
+   {
+    Texture=TexMan.CheckForTexture("USVDA0");SetRenderStyle(STYLE_Translucent);
+    Pos=e.Center+front*32;diameter=max(2,coreSize);
+    Alpha=d>=35 && d<158?min(1,(d-35)/12.0):0;
+   }
+   if(Kind==69)
+   {
+    Texture=TexMan.CheckForTexture("USVRA0");diameter=coreSize*1.65;
+    Pos=e.Center+front*34;Roll=d*(e.Reduced?0.4:2.3);
+    Alpha=d>=40 && d<158?(e.Reduced?0.3:0.8):0;
+   }
+   if(Kind==70)
+   {
+    Texture=TexMan.CheckForTexture("USFSA0");diameter=270;
+    Pos=e.Center+front*36;Alpha=e.Flash();
+   }
+   if(Kind==71)
+   {
+    Texture=TexMan.CheckForTexture("USRIPA0");diameter=70+max(0,d-158)*35;
+    Pos=e.Center+front*36;Alpha=d>=158 && d<193?(1-(d-158)/35.0)*(e.Reduced?0.12:0.75):0;
    }
    if(d>=245)Alpha=0;
   }
   Scale=(diameter/512.0,diameter/512.0);
   if(Kind==9)Scale.Y=12.0/512.0;
-  if(Kind>=44)Scale.Y*=0.25;
-  // SetBolt already computed the projected geometry of the world endpoints.
+  if(Kind>=56 && Kind<=67)Scale.Y*=0.07;
+  if(Kind==69)Scale.Y*=0.48;
   if(e.DeadAge && Kind>=18 && Kind<=31)Scale=BoltScale;
   UpdateSector();UpdateSpriteInfo();
  }
@@ -526,8 +554,7 @@ class UTNTSourceImpactView ui
   let s=UTNTSourceBase(level.CreateActorIterator(666).Next());
   if(!s || s.Health>0)return 0;
   double age=s.DefeatAge+e.FracTic;
-  double start=age>=158?158:age>=134?134:105;
-  double progress=(age-start)/18.0;
+  double progress=(age-35)/175.0;
   if(progress<0 || progress>=1)return 0;
   Vector3 delta=s.Center()-e.ViewPos;
   Vector3 forward=(cos(e.ViewAngle)*cos(e.ViewPitch),sin(e.ViewAngle)*cos(e.ViewPitch),-sin(e.ViewPitch));
