@@ -1,5 +1,7 @@
 # Weitere Originalkorrekturen vom 10.09.2026
 
+Alle erweiterten Bilddateien liegen einheitlich unter tutnt/patches/area-expanded/. Dazu gehören auch QROCK1X8.png, QROCK3X8.png, QROCK4X8.png und QROCK5X8.png. Die Texturaliase, Bilddaten, Skalierung und Map-Zuweisungen bleiben beim Verzeichniswechsel unverändert; die Regenmaterialien verwenden ebenfalls die neuen Bildpfade.
+
 GROUND2 und GROUND3 haben neue, feinere Bodenstrukturen mit an den Originalen abgeglichenen Farbtönen. ADEL_B01 zeigt wieder die Mischung aus braunen und fast schwarzen Ziegeln: Originalkörnung und Originalfugen bleiben erhalten, Steinvarianten werden unregelmäßig verteilt und durch generierte Details ergänzt. Das Ziegelraster bleibt exakt 32 × 16 Pixel. ROCKF2 erhält ein neues Netz kleiner polygonaler Steine; der bisherige 64-Pixel-Verbund wird nicht mehr wiederholt. Die Einzelkonturen ändern sich bewusst, die typische Steingröße bleibt am Original orientiert.
 
 Die vier Erweiterungen sind 512 × 512 Pixel bei 512 × 512 Map-Einheiten. GROUND2/3 und ROCKF2 verwenden periodische Überlappungsschnitte entlang möglichst ähnlicher Pixel statt weich überblendeter Randstreifen. ADEL_B01 erhält seine originalen Fugenpixel auch an den Außenkanten. Die vorhandenen Wandketten-Zuordnungen bleiben erhalten; ADEL_B01 und ROCKF2 behalten die vom Mapper gesetzten UV-Offsets.

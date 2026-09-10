@@ -5,7 +5,7 @@ tool from losslessly decoded original patches, shown at native scale in an
 8x8 tiled reference field. The author reviewed the variants without requiring
 another user approval, as expressly requested for this rollout.
 
-Final assets: tutnt/patches/QROCK1X8.png, QROCK4X8.png, QROCK5X8.png. They are
+Final assets: tutnt/patches/area-expanded/QROCK1X8.png, QROCK4X8.png, QROCK5X8.png. They are
 unchanged 1254x1254 imagegen outputs; TEXTURES scale 1.224609375 and WorldPanning
 make their physical repeat 1024x1024. The approved QROCK3X8 remains unchanged.
 
