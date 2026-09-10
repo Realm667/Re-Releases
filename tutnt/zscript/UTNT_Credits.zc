@@ -1,4 +1,12 @@
-// Authored credit cards. State, input and finale triggers are synchronized and saved.
+// Deterministic camera rig: its actor tick preserves normal render interpolation.
+class UTNTCreditsCamera : Actor
+{
+ UTNTCreditsHandler Director;
+ Default { +NOBLOCKMAP +NOGRAVITY +NOINTERACTION +NOTONAUTOMAP RenderStyle "None"; CameraHeight 0; }
+ States { Spawn: TNT1 A -1; Stop; }
+ override void Tick() { Super.Tick(); if(Director)Director.PositionCamera(self); }
+}
+
 class UTNTCreditPage : Object
 {
  String Layout, Heading;
@@ -11,12 +19,27 @@ class UTNTCreditsHandler : EventHandler
 {
  Array<UTNTCreditPage> Pages;
  Actor Cameras[6];
- double Angles[6], FOVs[6];
+ UTNTCreditsCamera ViewCamera;
+ Vector3 Origins[6];
+ double Angles[6], Pitches[6];
+ Vector3 FlightSamples[321];
+ int FlightCount;
+ Array<double> FlightLengths, FlightYaws, FlightPitches;
  int Page, PageStart, Phase, LastInput, HintUntil, FinaleStarts;
- bool Initialized;
+ int CutStart, PendingPage;
+ bool Initialized, Cutting;
  ui bool KeyHeld;
  ui UTNTCreditsUI CardsUI;
 
+ static double Ease(double t) { t=clamp(t,0,1);return t*t*(3-2*t); }
+ static Vector3 Curve(Vector3 a,Vector3 b,Vector3 c,Vector3 d,double t)
+ {
+  // Shared Hermite tangents preserve direction across each waypoint.
+  Vector3 m=(c-a)*.35,n=(d-b)*.35;
+  return b*(2*t*t*t-3*t*t+1)+m*(t*t*t-2*t*t+t)+c*(-2*t*t*t+3*t*t)+n*(t*t*t-t*t);
+ }
+ static double CurveValue(double a,double b,double c,double d,double t)
+ {return b*(2*t*t*t-3*t*t+1)+(c-a)*.35*(t*t*t-2*t*t+t)+c*(-2*t*t*t+3*t*t)+(d-b)*.35*(t*t*t-t*t);}
  void LoadCards(String path,bool remaster=false)
  {
   int lump=Wads.CheckNumForFullName(path);if(lump<0)return;
@@ -28,11 +51,12 @@ class UTNTCreditsHandler : EventHandler
    if(r[0]=="P" && r.Size()==5)
    {
     current=new("UTNTCreditPage");current.Layout=r[1];current.Remaster=remaster;current.Camera=clamp(r[2].ToInt(),1,5);
-    current.Duration=clamp(r[3].ToInt(),8,60)*35;current.Heading=r[4];Pages.Push(current);
+    // Decimal seconds preserve exact half durations, including 6.5 / 7.5 / 8.5.
+    current.Duration=int(clamp(r[3].ToDouble(),4,60)*35);current.Heading=r[4];Pages.Push(current);
    }
    else if(r[0]=="N" && r.Size()==3 && current && r[1]!="")
    {
-    int limit=current.Layout=="dense"?6:current.Layout=="creator"||current.Layout=="thanks"?1:3;
+    int limit=current.Layout=="group"?8:current.Layout=="dense"?6:current.Layout=="creator"||current.Layout=="thanks"?1:3;
     if(current.Names.Size()>=limit)
     {
      let next=new("UTNTCreditPage");next.Layout=current.Layout;next.Camera=current.Camera;
@@ -42,12 +66,34 @@ class UTNTCreditsHandler : EventHandler
    }
   }
  }
+ void BuildFlight()
+ {
+  Vector3 nodes[11];int count;Array<double> yaw,pitch;
+  // Retain the authored route; omit its 32-unit duplicate start / stop intervals.
+  double tilt[]={0,-2,3,6,8,7,4,0,-3,-6,-10};
+  for(int id=100;id<=110;id++)
+  {
+   let it=Level.CreateActorIterator(id);Actor node=it.Next();if(!node)continue;
+   nodes[count++]=node.Pos;double a=node.Angle;
+   if(yaw.Size())a=yaw[yaw.Size()-1]+Actor.deltaangle(yaw[yaw.Size()-1],a);
+   yaw.Push(a);pitch.Push(tilt[id-100]);
+  }
+  for(int seg=0;seg+1<count;seg++)for(int step=0;step<=32;step++)
+  {
+   if(seg>0 && step==0)continue;
+   int prev=max(0,seg-1),next=min(count-1,seg+2);double t=step/32.0;
+   Vector3 point=Curve(nodes[prev],nodes[seg],nodes[seg+1],nodes[next],t);
+   double distance=FlightCount?(point-FlightSamples[FlightCount-1]).Length():0;
+   FlightLengths.Push(distance+(FlightLengths.Size()?FlightLengths[FlightLengths.Size()-1]:0));
+   FlightSamples[FlightCount++]=point;
+   FlightYaws.Push(CurveValue(yaw[prev],yaw[seg],yaw[seg+1],yaw[next],t));
+   FlightPitches.Push(CurveValue(pitch[prev],pitch[seg],pitch[seg+1],pitch[next],t));
+  }
+ }
  void Init()
  {
-  Initialized=true;
-  LoadCards("credits/original.txt");LoadCards("credits/remaster.txt",true);
+  Initialized=true;LoadCards("credits/original.txt");LoadCards("credits/remaster.txt",true);
   for(int i=Pages.Size()-1;i>=0;i--)if((Pages[i].Remaster || Pages[i].Layout!="opening") && Pages[i].Names.Size()==0)Pages.Delete(i);
-  // The chapter itself is conditional on real entries, so an empty template is invisible.
   for(int i=0;i<Pages.Size();i++)if(Pages[i].Remaster)
   {
    let title=new("UTNTCreditPage");title.Layout="chapter";title.Heading="Remaster";
@@ -57,65 +103,84 @@ class UTNTCreditsHandler : EventHandler
   for(int id=1;id<=5;id++)
   {
    let it=Level.CreateActorIterator(id);Cameras[id]=it.Next();
-   if(Cameras[id]){Angles[id]=Cameras[id].Angle;FOVs[id]=Cameras[id].CameraFOV;}
+   if(Cameras[id]){Origins[id]=Cameras[id].Pos;Angles[id]=Cameras[id].Angle;Pitches[id]=Cameras[id].Pitch;}
   }
-  PageStart=level.time;Page=0;
-  if(Pages.Size()==0)StartFinale();else SetCamera();
+  BuildFlight();
+  ViewCamera=UTNTCreditsCamera(Actor.Spawn("UTNTCreditsCamera",Origins[1]));
+  if(ViewCamera)ViewCamera.Director=self;
+  PageStart=level.time;Page=0;PendingPage=-1;
+  if(Pages.Size()==0)BeginFinale();else SetCamera();
+ }
+ void AttachCamera()
+ {
+  for(int p=0;p<MAXPLAYERS;p++)if(playeringame[p] && players[p].mo)
+  {players[p].cheats|=CF_TOTALLYFROZEN;if(ViewCamera)players[p].camera=ViewCamera;}
  }
  void SetCamera()
  {
-  if(Phase || Page>=Pages.Size())return;
-  Actor camera=Cameras[Pages[Page].Camera];if(!camera)return;
-  for(int p=0;p<MAXPLAYERS;p++)if(playeringame[p] && players[p].mo)
-  {
-   players[p].camera=camera;players[p].cheats|=CF_TOTALLYFROZEN;
-  }
-  camera.ClearInterpolation();
+  if(ViewCamera){PositionCamera(ViewCamera);ViewCamera.ClearInterpolation();}
+  AttachCamera();
  }
- void ResetCameras()
+ void PositionCamera(Actor camera)
  {
-  for(int id=1;id<=5;id++)if(Cameras[id]){Cameras[id].Angle=Angles[id];Cameras[id].CameraFOV=FOVs[id];}
+  if(Phase==0 && Page<Pages.Size())
+  {
+   int id=Pages[Page].Camera;
+   double t=Ease(double(level.time-PageStart)/Pages[Page].Duration),s=t-.5;
+   double direction=id%2?1:-1;
+   Vector3 side=(-sin(Angles[id]),cos(Angles[id]),0),forward=(cos(Angles[id]),sin(Angles[id]),0);
+   camera.SetOrigin(Origins[id]+side*(s*24*direction)+forward*(s*12)+(0,0,s*8),true);
+   camera.Angle=Angles[id]+s*3*direction;camera.Pitch=Pitches[id]+s*(id%2?2:-2);
+   camera.Roll=.35*sin(t*180)*direction;camera.CameraFOV=89-3*t;
+  }
+  else if(Phase==1 && FlightCount>1)
+  {
+   double u=clamp((level.time-PageStart-35)/875.0,0,1),progress=Ease(u);
+   double target=FlightLengths[FlightLengths.Size()-1]*progress;
+   int i=1;while(i+1<FlightLengths.Size() && FlightLengths[i]<target)i++;
+   double t=clamp((target-FlightLengths[i-1])/max(.001,FlightLengths[i]-FlightLengths[i-1]),0,1);
+   camera.SetOrigin(FlightSamples[i-1]*(1-t)+FlightSamples[i]*t,true);
+   camera.Angle=FlightYaws[i-1]*(1-t)+FlightYaws[i]*t;
+   camera.Pitch=FlightPitches[i-1]*(1-t)+FlightPitches[i]*t;
+   camera.Roll=-2.5*sin(u*180)*sin(u*270);camera.CameraFOV=88-4*progress;
+  }
  }
- void StartFinale()
+ void QueueCut(int next)
+ {
+  if(Cutting || Phase)return;
+  PendingPage=next;CutStart=level.time;Cutting=true;
+ }
+ void BeginFinale()
  {
   if(Phase)return;
-  Phase=1;PageStart=level.time;FinaleStarts++;ResetCameras();ACS_Execute(55,0);
+  Phase=1;PageStart=level.time;FinaleStarts++;SetCamera();ACS_Execute(55,0);
  }
+ void StartFinale() { if(!Phase)QueueCut(Pages.Size()); }
  static void EndTitle()
  {
   let h=UTNTCreditsHandler(EventHandler.Find('UTNTCreditsHandler'));
-  if(h && level.MapName~=="ENDMAP01"){h.Phase=2;h.PageStart=level.time;}
+  if(h && level.MapName~=="ENDMAP01" && h.Phase==1){h.Phase=2;h.PageStart=level.time;}
  }
  void Advance(int p,int op)
  {
-  if(!Initialized || Phase || p!=UTNTChapterState.Leader() || level.time<LastInput+10 || level.time<PageStart+28)return;
+  if(!Initialized || Phase || Cutting || p!=UTNTChapterState.Leader() || level.time<LastInput+10 || level.time<PageStart+35)return;
   LastInput=level.time;HintUntil=level.time+105;
-  if(op==2){StartFinale();return;}
-  if(op==1)Page=max(0,Page-1);else Page++;
-  if(Page>=Pages.Size())StartFinale();else{PageStart=level.time;SetCamera();}
+  QueueCut(op==2?Pages.Size():op==1?max(0,Page-1):Page+1);
  }
  override void WorldTick()
  {
   if(!(level.MapName~=="ENDMAP01"))return;
   if(!Initialized){Init();return;}
-  if(Phase)
+  if(Phase){AttachCamera();return;}
+  if(Cutting && level.time-CutStart>=23)
   {
-   let it=Level.CreateActorIterator(98);Actor finalCamera=it.Next();
-   for(int p=0;p<MAXPLAYERS;p++)if(playeringame[p] && players[p].mo)
-   {players[p].cheats|=CF_TOTALLYFROZEN;if(finalCamera)players[p].camera=finalCamera;}
-   return;
+   Cutting=false;
+   if(PendingPage>=Pages.Size())BeginFinale();
+   else {Page=PendingPage;PageStart=level.time;SetCamera();}
+   PendingPage=-1;
   }
-  if(Page>=Pages.Size())return;
-  if(level.time-PageStart>=Pages[Page].Duration)
-  {
-   Page++;if(Page>=Pages.Size()){StartFinale();return;}PageStart=level.time;SetCamera();
-  }
-  // A restrained optical push and pan, matching the approved preview.
-  int id=Pages[Page].Camera;double progress=clamp(double(level.time-PageStart)/Pages[Page].Duration,0,1);
-  if(Cameras[id]){Cameras[id].Angle=Angles[id]+(progress-.5)*.32;Cameras[id].CameraFOV=88.03-progress*1.09;}
-  // Also attaches late joiners and respawned players to the active view.
-  for(int p=0;p<MAXPLAYERS;p++)if(playeringame[p] && players[p].mo && Cameras[id])
-  {players[p].camera=Cameras[id];players[p].cheats|=CF_TOTALLYFROZEN;}
+  else if(!Cutting && Page<Pages.Size() && level.time-PageStart>=Pages[Page].Duration-23)QueueCut(Page+1);
+  AttachCamera();
  }
  override void NetworkProcess(ConsoleEvent e){if(e.Name=="utnt_credit" && level.MapName~=="ENDMAP01")Advance(e.Player,e.Args[0]);}
  override bool InputProcess(InputEvent e)
@@ -135,10 +200,11 @@ class UTNTCreditsHandler : EventHandler
  }
 }
 
+
 // Native counterpart of the approved Quake-Reliquiar mockup (variant 01).
 class UTNTCreditsUI ui
 {
- double Scale, Width, Left, ContributionSize, LineStep;
+ double Scale, Width, Left, ContributionSize, LineStep, SpecialHeight, SpecialTop;
  Font Body, Big;
  UTNTCreditPage Cached;
  double CachedWidth;
@@ -164,8 +230,19 @@ class UTNTCreditsUI ui
   {
    Wrapped.Push(Body.BreakLines(Local(page.Contributions[i]),int(w*8/ContributionSize)));
    Array<String> names;page.Names[i].Split(names,"~",TOK_KEEPEMPTY);
-   Heights.Push(max(74,ceil(16+names.Size()*18.5+7.5+Wrapped[i].Count()*LineStep+6)));
+   Heights.Push(max(74,ceil(16+names.Size()*18.5+7.5+Wrapped[i].Count()*LineStep+16)));
   }
+  SpecialHeight=0;SpecialTop=434;
+  if(page.Layout=="creator")
+  {
+   Array<String> names;page.Names[0].Split(names,"~",TOK_KEEPEMPTY);
+   SpecialHeight=max(164,16+names.Size()*33+8+Wrapped[0].Count()*13+16);
+   SpecialTop=min(434,672-SpecialHeight);
+  }
+  else if(page.Layout=="thanks")
+  {SpecialHeight=max(140,60+Wrapped[0].Count()*18+18+16+16);SpecialTop=min(500,672-SpecialHeight);}
+  else if(page.Layout=="group")
+  {SpecialHeight=32+ceil(page.Names.Size()/2.0)*29;SpecialTop=672-SpecialHeight;}
   // Keep the approved 434 / 516 / 598 baseline; grow only for authored long text.
   double top=434;
   for(int row=0;row<3;row++)
@@ -202,15 +279,15 @@ class UTNTCreditsUI ui
  void Badge(UTNTCreditPage p,double y,double alpha)
  {
   String chapter=p.Remaster?Local("$UTNT_CREDITS_REMASTER"):Local("$UTNT_CREDITS_ORIGINAL");
-  String category=p.Remaster && Local(p.Heading)~=="Remaster"?Local("$UTNT_CREDITS_TEXT_001").MakeUpper():Local(p.Heading).MakeUpper();double width=p.Layout=="dense"?582:p.Layout=="thanks"?530:328;
+  String category=p.Remaster && (p.Heading=="Remaster" || p.Heading=="$UTNT_CREDITS_TEXT_071" || p.Heading=="$UTNT_CREDITS_REMASTER")?Local("$UTNT_CREDITS_TEXT_001").MakeUpper():Local(p.Heading).MakeUpper();
+  double width=p.Layout=="dense"?582:p.Layout=="thanks" || p.Layout=="group"?530:328;
   int accent=p.Remaster?0xc4d9d9:0xd0a675;
-  double chapterWidth=Body.StringWidth(chapter)*11/8;
-  bool twoLines=chapterWidth+19+Body.StringWidth(category)*9/8>width-8;
-  if(twoLines)y-=12;
-  Dim(0x070807,.68*alpha,37,y-8,width+14,twoLines?41:29);
-  Dim(accent,alpha,37,y-8,2,twoLines?41:29);
-  Text(chapter,48,y,11,accent,alpha);
-  Text(twoLines?category:"/ "..category,twoLines?48:44+chapterWidth+19,twoLines?y+15:y+1,9,0xb9ac9b,alpha,false,twoLines?width-8:width-chapterWidth-19);
+  double cw=Body.StringWidth(chapter)*11/8,tw=Body.StringWidth(" / "..category)*9/8;
+  if(cw+tw>width)
+  {Text(chapter,44+width/2,y-12,11,accent,alpha,true,width);Text(category,44+width/2,y+3,9,0xb9ac9b,alpha,true,width);}
+  else
+  {double x=44+(width-cw-tw)/2;Text(chapter,x,y,11,accent,alpha);Text(" / "..category,x+cw,y+1,9,0xb9ac9b,alpha);}
+
  }
  // Same stagger, quadratic slide and opacity envelope as the approved animation.
  double CardOpacity(double entry,int index){return clamp(entry*1.8-index*.18,0,1);}
@@ -236,28 +313,44 @@ class UTNTCreditsUI ui
  }
  void Creator(UTNTCreditPage p,double entry)
  {
-  double opacity=CardOpacity(entry,0),alpha=entry*opacity,x=44+CardOffset(opacity),y=434;
-  Frame(x,y,328,164,"P",p.Remaster,alpha,opacity<1?opacity:0);
+  double opacity=CardOpacity(entry,0),alpha=entry*opacity,x=44+CardOffset(opacity),y=SpecialTop;
+  Frame(x,y,328,SpecialHeight,"P",p.Remaster,alpha,opacity<1?opacity:0);
   Array<String> names;p.Names[0].Split(names,"~",TOK_KEEPEMPTY);
   for(int i=0;i<names.Size();i++)DrawName(names[i],x+17,y+16+i*33,26.5,294,alpha);
-  for(int row=0;row<Wrapped[0].Count();row++)Text(Wrapped[0].StringAt(row),x+17,y+123+row*13,10,0xe2d3bd,alpha,false,294);
+  for(int row=0;row<Wrapped[0].Count();row++)Text(Wrapped[0].StringAt(row),x+17,y+16+names.Size()*33+8+row*13,10,0xe2d3bd,alpha,false,294);
  }
  void Thanks(UTNTCreditPage p,double entry)
  {
-  double opacity=CardOpacity(entry,0),alpha=entry*opacity,x=44+CardOffset(opacity),y=500;
-  Frame(x,y,530,140,"C",p.Remaster,alpha,opacity<1?opacity:0);
+  double opacity=CardOpacity(entry,0),alpha=entry*opacity,x=44+CardOffset(opacity),y=SpecialTop;
+  Frame(x,y,530,SpecialHeight,"C",p.Remaster,alpha,opacity<1?opacity:0);
   DrawName(p.Names[0],x+17,y+16,29,496,alpha);
   for(int row=0;row<Wrapped[0].Count();row++)Text(Wrapped[0].StringAt(row),x+17,y+60+row*18,12.5,0xe2d3bd,alpha,false,496);
-  DrawName(Local("$UTNT_CREDITS_THANKS_CHRIS"),x+17,y+108,16,496,alpha);
+  DrawName(Local("$UTNT_CREDITS_THANKS_CHRIS"),x+17,y+60+Wrapped[0].Count()*18+18,16,496,alpha);
  }
+ void Group(UTNTCreditPage p,double entry)
+ {
+  double opacity=CardOpacity(entry,0),alpha=entry*opacity,x=44+CardOffset(opacity),y=SpecialTop;
+  Frame(x,y,530,SpecialHeight,"C",p.Remaster,alpha,opacity<1?opacity:0);
+  int rows=int(ceil(p.Names.Size()/2.0));
+  for(int i=0;i<p.Names.Size();i++)DrawName(p.Names[i],x+17+(i/rows)*257,y+16+(i%rows)*29,18.5,239,alpha);
+ }
+ double FadeAmount(UTNTCreditsHandler state,double frac)
+ {
+  double age=level.time-state.PageStart+frac,fade=0;
+  if(state.Phase==0)fade=state.Cutting?clamp((level.time-state.CutStart+frac)/23,0,1):clamp(1-age/28,0,1);
+  else if(state.Phase==1)fade=max(clamp(1-age/35,0,1),clamp((age-868)/42,0,1));
+  return fade*fade*(3-2*fade);
+ }
+ void FadeWorld(UTNTCreditsHandler state,double frac)
+ {Screen.Dim(0,FadeAmount(state,frac),0,0,Screen.GetWidth(),Screen.GetHeight());}
  void Draw(UTNTCreditsHandler state,double frac)
  {
   UTNTCreditPage page=state.Phase==0 && state.Page<state.Pages.Size()?state.Pages[state.Page]:null;
   Prepare(page);double seconds=(level.time-state.PageStart+frac)/35;
-  if(state.Phase==1)return; // Existing moving-camera finale remains unobstructed.
+  if(state.Phase==1){FadeWorld(state,frac);return;}
   if(state.Phase==2)
   {
-   Screen.Dim(0,1,0,0,Screen.GetWidth(),Screen.GetHeight());double a=clamp(seconds/2,0,1);
+   Screen.Dim(0,1,0,0,Screen.GetWidth(),Screen.GetHeight());double a=clamp((seconds-.35)/2,0,1);
    DrawName(Local("$UTNT_CREDITS_END"),Width/2,302,37,Width*.6,a,true);Dim(0xc68962,a,Width/2-15,363,30,1);
    Text(Local("$UTNT_CREDITS_THANKS_PLAYER"),Width/2,390,12.5,0xbdb5a9,a,true);
    Text("THE ULTIMATE TORMENT & TORTURE",Width/2,443,8.5,0x8d867c,a,true);return;
@@ -268,14 +361,16 @@ class UTNTCreditsUI ui
   Screen.Dim(0x070707,1,0,int(712*Scale),Screen.GetWidth(),Screen.GetHeight());
   double duration=page.Duration/35.0;
   bool chapter=page.Layout=="opening" || page.Layout=="chapter";
-  double delay=page.Layout=="opening"?2.5:chapter?.6:0;
+  double delay=page.Layout=="opening"?1.5:.8;
   double entry=clamp(min((seconds-delay)/(chapter?.55:.65),(duration-seconds)/(chapter?.45:.5)),0,1);
+  if(state.Cutting)entry=min(entry,clamp(1-(level.time-state.CutStart+frac)/23,0,1));
   if(chapter)Chapter(page,entry);
   else
   {
-   Badge(page,page.Layout=="thanks"?467:page.Layout=="creator"?401:Tops[0]-33,entry);
+   Badge(page,SpecialHeight>0?SpecialTop-33:Tops[0]-33,entry);
    if(page.Layout=="creator")Creator(page,entry);
    else if(page.Layout=="thanks")Thanks(page,entry);
+   else if(page.Layout=="group")Group(page,entry);
    else for(int i=0;i<page.Names.Size();i++)Block(page,i,entry);
   }
   if(state.HintUntil>level.time)
@@ -283,5 +378,6 @@ class UTNTCreditsUI ui
    Dim(0x070807,.85,Width/2-250,687,500,19);
    Text(consoleplayer==UTNTChapterState.Leader()?Local("$UTNT_CREDITS_KEYS"):Local("$UTNT_CREDITS_HOST"),Width/2,692,8,0xbdb5a9,1,true,484);
   }
+  FadeWorld(state,frac);
  }
 }

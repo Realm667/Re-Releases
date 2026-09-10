@@ -1,6 +1,6 @@
 # ENDMAP: Quake-Reliquiar
 
-Umsetzung der am 10.09.2026 freigegebenen Variante 01 und ihrer Animation.
+Umsetzung der am 10.09.2026 freigegebenen Variante 01, einschließlich der anschließenden Layout- und Kamerakorrekturen.
 Kompakte Bronzetafeln erscheinen links unten vor der laufenden ENDMAP-Kampfszene.
 Die bereits adaptierte TNT01-Skybox bleibt erhalten. Es gibt keine großflächige
 Abdunklung des Kampfes; lediglich die Rahmenflächen sind dunkel. Die Kinobalken
@@ -10,7 +10,10 @@ sind auf acht virtuelle Pixel reduziert, auch die Ultrawide-Ränder bleiben offe
 
 - Namen: 18,5 statt 37 virtuelle Pixel; Beiträge: 10 statt 20, auf dichten
   Tafeln 9 statt 18. Die Namen verwenden UCRBIG, alle Begleittexte Quake-SMALLFONT.
-- Standardrahmen: 328 × 74; dichte Tafeln: zwei Spalten mit je 286 × 74.
+- Standardrahmen: 328 Pixel breit, dichte Tafeln: zwei Spalten mit je 286 Pixeln.
+  Die Höhe beträgt mindestens 74 Pixel und wächst mit dem tatsächlichen Textumbruch.
+  Nach dem letzten Textbereich bleiben 16 Pixel Innenabstand, auch bei mehrzeiligen
+  Namen und Beiträgen; die Übersetzungen werden vor der Bemessung geladen.
   Ausgangsposition: x=44, y=434 / 516 / 598 im virtuellen 1280 × 720-Bildraum.
   Lange Texte oder explizite Namensumbrüche vergrößern die Rahmenhöhe. Die Reihen
   bleiben getrennt und werden bei Bedarf gemeinsam nach oben versetzt.
@@ -23,12 +26,43 @@ sind auf acht virtuelle Pixel reduziert, auch die Ultrawide-Ränder bleiben offe
   entsprechen den Formeln des freigegebenen Mockups.
 - Kapiteltafeln liegen oben mittig (530 × 140), mit 29 Pixel hohem Titel.
   Einblendung 0,55 Sekunden, Ausblendung 0,45 Sekunden. Zu Beginn bleiben zunächst
-  2,5 Sekunden ohne Credits; vor dem Remaster-Titel liegt eine kurze Pause.
+  1,5 Sekunden ohne Credits; vor dem Remaster-Titel liegt eine kurze Pause.
 
-Die Freigabevorschau war beschleunigt. Die Original-Credits behalten ihre 25 Tafeln,
-65 Nennungen und 318 Sekunden Laufzeit vor der bestehenden Schlussfahrt.
-Schlussfahrt und „THE END“ bleiben erhalten; auch das Schlussbild verwendet jetzt
-die halbierten Textgrößen. Die Musiksequenz D_ENDG / D_NOVER bleibt unverändert.
+Die Original-Credits umfassen 24 Tafeln mit unverändert 65 Nennungen und knapp
+159 Sekunden Laufzeit (vorher 318). Die acht Beta-Tester stehen zusammen in einem
+530 Pixel breiten Rahmen mit zwei Spalten; diese Tafel bleibt zwölf Sekunden.
+Alle anderen ursprünglichen Standzeiten sind halbiert. Dezimale Sekunden sind zulässig.
+Die vorbereitete Remaster-Standardtafel verwendet 6,5 Sekunden.
+
+## Kameraführung und Übergänge
+
+Die kleine Kapitel-/Rubrikzeile steht ohne Hintergrund und Seitenbalken zentriert
+über ihrer Boxengruppe. Lange Überschriften werden in zwei zentrierte Zeilen geteilt.
+
+Eine eigene, gespeicherte Kamera führt pro Einstellung eine weiche seitliche Fahrt
+von 24 Einheiten, eine Annäherung von zwölf und einen Höhenwechsel von acht Einheiten
+über den gesamten Verlauf aus. Dezente Schwenks, Neigungen und ein FOV-Verlauf von
+89 auf 86 ergänzen die Bewegung. Smoothstep beschleunigt und bremst die Fahrt.
+Die ursprünglichen Kameras bleiben als unveränderte Ausgangspunkte erhalten.
+
+Jeder Wechsel blendet in 23 Tics (rund 0,66 Sekunden) nach Schwarz. Erst dort wechselt
+der Blickpunkt. Danach öffnet sich das Bild in 28 Tics (0,8 Sekunden). Das gilt auch
+für manuelles Weiter/Zurück und Überspringen; weitere Eingaben während der Blende
+werden ignoriert. Die freigegebene Boxenanimation beginnt nach der Eingangsblende.
+
+Der abschließende FPV-Flug verwendet die vorhandenen Wegpunkte 100–110, eine
+Hermite-Kurve mit gemeinsamen Tangenten, 321 Stützproben und einen nach Bogenlänge bestimmten Fortschritt.
+So entfällt das Anhalten an jedem Wegpunkt. Der Flug dauert 25 Sekunden nach einer
+Sekunde Einblendung, mit weichem Anfahren und Auslaufen, durchgehender Blickrichtung,
+sanften Pitch-Änderungen und maximal 2,5 Grad Kurvenneigung. Die Blickrichtung erhält
+die ursprünglichen Motivwechsel; extreme abrupte Neigungen sind geglättet.
+Die letzten 1,2 Sekunden blenden nach Schwarz, anschließend erscheint „THE END“
+nach kurzer Ruhe mit einer zweisekündigen Einblendung.
+
+ACS 55 behält Musik und Umwelt-Cues: D_NOVER beginnt nach der einsekündigen
+Eingangsblende. Die alte MovingCamera wird nicht mehr aktiviert; Position und
+Blickrichtung bestimmt ausschließlich das gespeicherte Kamera-Rig. Kampfskripte,
+Kartengeometrie, Wegpunkte und die TNT01-Skybox bleiben unverändert.
 
 ## Original Version und Remaster
 
@@ -42,7 +76,7 @@ Der Remaster-Abschnitt samt Kapitelauftakt bleibt unsichtbar, solange keine
 Nennungen eingetragen sind. Einträge unter der vorbereiteten P-Zeile ergänzen:
 
 ```text
-P|standard|1|13|Remaster
+P|standard|1|6.5|Remaster
 N|NAME|Beitrag zum Remaster
 N|WEITERER NAME|Weiterer Beitrag
 ```
@@ -51,7 +85,7 @@ Sobald mindestens eine echte Nennung vorhanden ist, entsteht automatisch genau
 ein viersekündiger Remaster-Auftakt. Drei Namen passen auf eine Standardtafel,
 sechs auf eine dichte Tafel; zusätzliche Einträge erzeugen automatisch Folgeseiten.
 Eigene Kategorien sind mit weiteren `P|Layout|Kamera|Sekunden|Rubrik`-Zeilen möglich.
-Kamera 1 bis 5, Dauer 8 bis 60 Sekunden pro Credit-Tafel. `~` im Namen bleibt ein
+Kamera 1 bis 5, Dauer 4 bis 60 Sekunden pro Credit-Tafel. `~` im Namen bleibt ein
 expliziter Zeilenumbruch. Die Datei als UTF-8 speichern; für fehlende Glyphen der
 Originalschrift ggf. ae/oe/ue verwenden. Neue Texte vor Freigabe im Spiel ansehen.
 
@@ -68,7 +102,7 @@ Eingaben. Kapitelzuordnung, Fortschritt und Animationszeit werden gespeichert.
 Neue Koop-Spieler und respawnte Spieler bekommen weiterhin die aktive Kamera.
 
 `UTNTCreditsHandler` verwaltet Daten und Ablauf; `UTNTCreditsUI` zeichnet die
-Rahmen und Texte. Diese Änderung verändert keine ENDMAP-Geometrie oder ACS-Skripte.
+Rahmen und Texte. Die ENDMAP-Geometrie bleibt unverändert; ACS 55 übergibt Kameraführung und Blenden an das Rig.
 `tools/build_credit_assets.py` erzeugt die nativen Rahmen in doppelter Auflösung
 und die private Titelschrift reproduzierbar (Pillow). Die alten Verlaufstexturen
 bleiben als unbenutzte Bestandsressourcen erhalten.
@@ -79,14 +113,14 @@ bleiben als unbenutzte Bestandsressourcen erhalten.
 python tools/test_credits.py --engine PATH/uzdoom.exe --iwad PATH/DOOM2.WAD --out PATH/results --mode visual --renderer 1
 ```
 
-`--classic` wählt das schmale Bildformat, `--renderer 0` OpenGL. Weitere Modi:
+`--language en|de|es|fr` wählt die Textfassung. `--classic` wählt das schmale Bildformat, `--renderer 0` OpenGL. Weitere Modi:
 `regression` für Speichern/Laden und Finale, `animation` für einen Spielstand
 mitten in der Einblendung, `remaster` für Kapitel, automatische Folgeseiten und
-Kapitel-Spielstand, `finale` für das natürliche Ende. `--mod` kann ein bestimmtes
+Kapitel-Spielstand, `finale` für das natürliche Ende, `cinematic` für Blenden-/Flug-Spielstände und kontinuierliche Kamerabewegung. `--mod` kann ein bestimmtes
 PK3 wählen. Der Remaster-Test verändert nur eine separate Testdatei im Ausgabeordner.
 Zwei echte Koop-Clients prüft `tools/test_credits_coop.py` mit denselben Pfadoptionen.
 
 Ergebnisse und repräsentative Spielansichten stehen unter
-`tools/validation/credits-reliquiar-2026-09-10`. Automatisierte Tests laufen ohne
+`tutnt/.codex/validation/credits-polish`. Automatisierte Tests laufen ohne
 Ton; sie behaupten kein subjektives Abhören und keinen vollständigen Kampagnenlauf.
 Bei einem Versionswechsel ENDMAP neu betreten, um die neue Kapitelstruktur zu laden.

@@ -1,6 +1,24 @@
 version "4.14"
 class UTNTCreditsTests : EventHandler
 {
+ Vector3 PreviousPosition;
+ double PreviousAngle,PreviousPitch,PeakStep;
+ int PreviousPhase,PreviousPage,ObservedTicks;
+ bool HadPrevious,Watching;
+ override void WorldTick()
+ {
+  let h=UTNTCreditsHandler(EventHandler.Find('UTNTCreditsHandler'));
+  if(!Watching || !h || !h.ViewCamera)return;
+  let camera=h.ViewCamera;
+  if(HadPrevious && PreviousPhase==h.Phase && PreviousPage==h.Page)
+  {
+   double step=(camera.Pos-PreviousPosition).Length();PeakStep=max(PeakStep,step);ObservedTicks++;
+   if(step>20 || abs(Actor.deltaangle(PreviousAngle,camera.Angle))>4 || abs(Actor.deltaangle(PreviousPitch,camera.Pitch))>4)
+    Check(false,"camera has no per-tick jumps");
+  }
+  PreviousPosition=camera.Pos;PreviousAngle=camera.Angle;PreviousPitch=camera.Pitch;
+  PreviousPhase=h.Phase;PreviousPage=h.Page;HadPrevious=true;
+ }
  ui int LastLayoutPage;
  ui bool LayoutSeen;
  override void RenderOverlay(RenderEvent e)
@@ -18,11 +36,13 @@ class UTNTCreditsTests : EventHandler
     Array<String> names;page.Names[i].Split(names,"~",TOK_KEEPEMPTY);
     int row=dense?i%3:i;double x=44+(dense && i>=3?296:0),w=dense?286:328;
     double textBottom=16+names.Size()*18.5+7.5+view.Wrapped[i].Count()*13;
-    if(textBottom>view.Heights[i]-6 || view.Tops[row]+view.Heights[i]>673 || x+w>view.Width)fit=false;
+    if(textBottom>view.Heights[i]-16 || view.Tops[row]+view.Heights[i]>673 || x+w>view.Width)fit=false;
     if(row<2 && i+1<page.Names.Size() && view.Tops[row]+view.Heights[i]>view.Tops[row+1]-8)fit=false;
    }
    if(view.ContributionSize>(dense?9:10))fit=false;
   }
+  if(view.SpecialHeight>0 && (view.SpecialTop+view.SpecialHeight>672 || view.SpecialTop<100))fit=false;
+  if(page.Layout=="group" && page.Names.Size()>8)fit=false;
   Console.Printf("UTNT_ASSERT %s: reliquiar entry staggers cards",view.CardOpacity(.25,0)>view.CardOpacity(.25,1)?"PASS":"FAIL");
   Console.Printf("UTNT_ASSERT %s: reliquiar slide settles at approved position",view.CardOffset(0)==-18 && view.CardOffset(1)==0?"PASS":"FAIL");
   Console.Printf("UTNT_ASSERT %s: credit page %d layout fits",fit?"PASS":"FAIL",h.Page);
@@ -38,18 +58,22 @@ class UTNTCreditsTests : EventHandler
    int names=0,remaster=0;bool nash=false,sites=false;
    for(int i=0;i<h.Pages.Size();i++)
    {names+=h.Pages[i].Names.Size();if(h.Pages[i].Remaster)remaster++;for(int j=0;j<h.Pages[i].Names.Size();j++){if(h.Pages[i].Names[j]=="NASH" && h.Pages[i].Heading=="$UTNT_CREDITS_TEXT_029")nash=true;if(h.Pages[i].Names[j]=="NEWDOOM.COM")sites=true;}}
-   Check(h.Pages.Size()==25,"all 25 original credit cards loaded");Check(names==65,"all 65 attribution entries loaded");Check(remaster==0,"empty Remaster block skipped");Check(nash && sites,"supplementary original credits retained");
+   Check(h.Pages.Size()==24,"all 24 original credit cards loaded");Check(names==65,"all 65 attribution entries loaded");Check(remaster==0,"empty Remaster block skipped");Check(nash && sites,"supplementary original credits retained");
+   Check(h.Pages[20].Layout=="group" && h.Pages[20].Names.Size()==8,"all beta testers share one frame");
+   int duration=0;for(int i=0;i<h.Pages.Size();i++)duration+=h.Pages[i].Duration;
+   Check(duration>155*35 && duration<=159*35,"original credits run at half duration");
+   Check(h.FlightCount==321,"full authored flight route sampled");
    Check(level.SkyTexture1==TexMan.CheckForTexture("USTSKY"),"approved storm sky retained");
-   Check(players[0].camera && players[0].camera.TID==h.Pages[h.Page].Camera,"credit camera attached");
+   Check(players[0].camera && players[0].camera==h.ViewCamera,"credit camera attached");
   }
   else if(op==1)
-  {h.Phase=0;h.Page=clamp(e.Args[1],0,h.Pages.Size()-1);h.PageStart=level.time-min(210,h.Pages[h.Page].Duration-35);h.SetCamera();}
+  {h.Phase=0;h.Cutting=false;h.Page=clamp(e.Args[1],0,h.Pages.Size()-1);h.PageStart=level.time-min(70,h.Pages[h.Page].Duration-70);h.SetCamera();}
   else if(op==2)
-  {int was=h.Page;h.LastInput=0;h.PageStart=level.time-70;h.Advance(UTNTChapterState.Leader(),0);Check(h.Page==was+1,"next page");h.Advance(UTNTChapterState.Leader(),0);Check(h.Page==was+1,"input debounce");}
+  {int was=h.Page;h.LastInput=0;h.PageStart=level.time-70;h.Advance(UTNTChapterState.Leader(),0);Check(h.Page==was && h.Cutting && h.PendingPage==was+1,"next page waits for black fade");h.Advance(UTNTChapterState.Leader(),0);Check(h.PendingPage==was+1,"input debounce during cut");}
   else if(op==3)
   {Check(h.Page==e.Args[1],"page restored by save/load");Check(h.Phase==0,"credit phase restored");Check(h.Pages[h.Page].Names.Size()>0,"credit strings restored");}
   else if(op==4)
-  {h.LastInput=0;h.PageStart=level.time-70;h.Advance(UTNTChapterState.Leader(),2);h.StartFinale();Check(h.Phase==1 && h.FinaleStarts==1,"skip starts finale exactly once");}
+  {h.LastInput=0;h.PageStart=level.time-70;h.Advance(UTNTChapterState.Leader(),2);h.StartFinale();Check(h.Phase==0 && h.Cutting && h.PendingPage==h.Pages.Size(),"skip waits for black fade");}
   else if(op==5)
   {Check(h.Phase==2,"authored finale reaches new THE END");Check(h.FinaleStarts==1,"finale trigger remains single");}
   else if(op==6)
@@ -59,15 +83,23 @@ class UTNTCreditsTests : EventHandler
   else if(op==8)
   {Check(h.Phase==1 && h.FinaleStarts==1,"natural ending starts finale once");}
   else if(op==9)
-  {int total=0;for(int i=0;i<h.Pages.Size();i++)if(h.Pages[i].Remaster && h.Pages[i].Layout!="chapter")total++;Check(total==2,"Remaster entries paginate automatically");Check(h.Pages[25].Layout=="chapter" && h.Pages[25].Remaster,"one Remaster chapter before entries");Check(h.Pages[h.Pages.Size()-4].Layout=="thanks","Remaster follows personal thanks");Check(h.Pages[h.Pages.Size()-1].Names[0]=="FOURTH CONTRIBUTOR","Remaster last entry retained");}
+  {int total=0;for(int i=0;i<h.Pages.Size();i++)if(h.Pages[i].Remaster && h.Pages[i].Layout!="chapter")total++;Check(total==2,"Remaster entries paginate automatically");Check(h.Pages[24].Layout=="chapter" && h.Pages[24].Remaster,"one Remaster chapter before entries");Check(h.Pages[h.Pages.Size()-4].Layout=="thanks","Remaster follows personal thanks");Check(h.Pages[h.Pages.Size()-1].Names[0]=="FOURTH CONTRIBUTOR","Remaster last entry retained");}
   else if(op==10)
-  {h.Phase=0;h.Page=e.Args[1];h.PageStart=level.time-e.Args[2];h.SetCamera();}
+  {h.Phase=0;h.Cutting=false;h.Page=e.Args[1];h.PageStart=level.time-e.Args[2];h.SetCamera();}
   else if(op==12)
-  {Check(h.Page==26 && h.Pages[h.Page].Remaster && h.Pages[h.Page].Layout=="standard","chapter naturally advances to Remaster credits");}
+  {Check(h.Page==25 && h.Pages[h.Page].Remaster && h.Pages[h.Page].Layout=="standard","chapter naturally advances to Remaster credits");}
   else if(op==13)
-  {Check(h.Page==25 && h.Pages[h.Page].Remaster && h.Pages[h.Page].Layout=="chapter","Remaster chapter restored by save/load");}
+  {Check(h.Page==24 && h.Pages[h.Page].Remaster && h.Pages[h.Page].Layout=="chapter","Remaster chapter restored by save/load");}
+  else if(op==15)
+  {Watching=true;HadPrevious=false;ObservedTicks=0;PeakStep=0;}
+  else if(op==16)
+  {Check(ObservedTicks>100 && PeakStep>1 && PeakStep<20,"continuous FPV flight observed without jumps");Check(h.Phase==2,"flight fades into THE END");}
+  else if(op==17)
+  {Check(h.Cutting && h.Phase==0,"outgoing black fade is pending");Check(h.PendingPage==e.Args[1],"pending destination restored");}
+  else if(op==18)
+  {Check(h.Phase==1 && h.FlightCount==321,"flight state restored");Check(players[0].camera==h.ViewCamera,"saved flight rig attached");HadPrevious=false;}
   else if(op==14)
-  {Check(h.Page==7 && level.time-h.PageStart>=5 && level.time-h.PageStart<20,"animation time restored by save/load");}
+  {Check(h.Page==7 && level.time-h.PageStart>=32 && level.time-h.PageStart<50,"animation time restored by save/load");}
 
  }
 }
