@@ -174,7 +174,8 @@ def generate(root=ROOT, *, check=False, iwad=None):
     environment=read(mod/'shaders/environment/surface.glsl').decode()
     assert environment.count('ENV_ORIGINAL_BODY')==1
     emit('tutnt/shaders/organic/material.fp','#include "shaders/organic/relief.glsl"\nvoid SetupMaterial(inout Material mat){SetupOrganicMaterial(mat);}\n')
-    emit('tutnt/shaders/organic/environment.fp', '#include "shaders/organic/relief.glsl"\n'
+    # Include content must invalidate engines that key cached shaders by the wrapper.
+    emit('tutnt/shaders/organic/environment.fp', '// Included sources: '+digest((core+environment).encode())+'\n#include "shaders/organic/relief.glsl"\n'
          '#define ENV_ORIGINAL_BODY SetupOrganicMaterial(mat);\n'
          '#define SetupMaterial OrganicEnvironment\n'
          '#include "shaders/environment/surface.glsl"\n'

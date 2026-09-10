@@ -37,11 +37,13 @@ Stand: **11.09.2026**. Fortlaufende, thematisch zusammengefasste Liste der Remas
 - **Einheitliche Portale und Teleporter:** bernsteinfarbene Energiefalten, schwarze Tiefe, Originalrunen und bewegte Siegelringe; Annäherungsverzerrung, Partikeleinzug und beidseitige Darstellung der Portalpassagen. [Portale](UTNT_PORTALS.md), [Runen und Teleporter](UTNT_RITUALS.md)
 - **Dynamisches Wetter:** fünfminütige Regen- und Schneezyklen von leichtem Niederschlag bis Schauer/Schneesturm, Böen, Bodenspritzer, Verwehungen und angepasste Geräuschkulissen; Niederschlag berücksichtigt Überdachungen und Skyboxen. [Details](UTNT_WEATHER.md)
 - **Regen und Frost auf der Sicht:** bewegte, zusammenlaufende und abfließende Tropfen mit Lichtbrechung sowie scharfe Eiskristalle am Bildrand; Aufbau im Freien und Abklingen im Schutz. [Details](UTNT_WEATHER_VISOR.md)
-- **Regennasse Oberflächen:** geeignete Wände und Böden in TNT02 werden abhängig von tatsächlichem Regenkontakt allmählich dunkler und trocknen wieder. [Details](ENVIRONMENT_EFFECTS.md)
-- **Unterwasseratmosphäre:** dezente, tiefenabhängige Färbung für Wasser, Schleim und Blut; Lichtmuster auf geeigneten flachen Wasserböden und Wänden. [Details](ENVIRONMENT_EFFECTS.md)
+- **Regennasse Oberflächen:** korrigierte Zustandsabfrage, blickwinkelabhängiger Himmelsglanz und Glanzlichtreaktion auf beregneten Böden und Wänden in TNT02; keine echten Spiegelbilder der Map (11.09.2026). [Details](ENVIRONMENT_EFFECTS.md)
+- **Unterwasseratmosphäre:** leichte allgemeine und mit geschätzter Sichtweite zunehmende Unschärfe; sichtbare Caustics auf flachen Wasserböden, Wasserflächen und angrenzenden Wänden. Das Sichtweitenraster ist eine Annäherung ohne direkten Tiefenpuffer (11.09.2026). [Details](ENVIRONMENT_EFFECTS.md)
 - **Fußspuren:** abwechselnde Sohlenabdrücke im Schnee und vorübergehende nasse Spuren nach Regen oder Wasserkontakt, einschließlich Unterstützung bewegter Böden. [Details](ENVIRONMENT_EFFECTS.md)
-- **Reagierende Umgebung und zusätzliche Beleuchtung:** begrenzte Staubreaktionen bei bewegten Mechanismen; ausgewählte warme/kühle Lichtakzente, Lichtschächte und dezente Lavakantenbeleuchtung. [Details](ENVIRONMENT_EFFECTS.md)
+- **Reagierende Umgebung:** weicher Staub verteilt sich über die bewegte Sektorfläche; transparente Ränder und Unterstützung steigender Böden. Die zusätzliche Lichtinszenierung samt Lichtschächten und Menüoption wurde auf Nutzerwunsch entfernt (11.09.2026). [Details](ENVIRONMENT_EFFECTS.md)
 - **Korrigiertes Hitzeflimmern:** vorhandene Hitzequellen steuern wieder die richtige Shader-Variable; Höhen- und Sektorprüfungen wurden korrigiert. [Details](UTNT_HEAT_FIX.md)
+
+- **Separater Lava-Hitzeprototyp:** kleine Actor-Bereiche mit korrigierter Kamera-/Sichtfeldprojektion und lokaler Verdeckungsprüfung; schwächeres unregelmäßiges Flimmern. Weiterhin ausschließlich Test-Addon, keine produktive lokale Brechung mit pixelgenauer Tiefe (11.09.2026). [Details](ENVIRONMENT_EFFECTS.md)
 
 ## Landschaften, Himmel und Materialien
 

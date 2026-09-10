@@ -1,15 +1,15 @@
-#include "zscript/UTNT_EnvironmentLightShaft.zc"
+#include "zscript/UTNT_EnvironmentOptics.zc"
 // Presentation only. No sector geometry, collision, action or gameplay RNG writes.
 class UTNTEnvironment : EventHandler
 {
  bool Ready;
+ ui UTNTEnvironmentOptics Optics;
  String SnowNames;
- int ProbeCursor, NearCursor, Prints, MechanismBursts, Lights, SurfaceChecks;
+ int ProbeCursor, NearCursor, Prints, MechanismBursts, SurfaceChecks;
  Array<UTNTEnvironmentSurface> Surfaces;
  Array<int> NearSurfaces;
  Array<UTNTMechanismWatch> Mechanisms;
  Array<UTNTFootState> Feet;
- Array<UTNTSceneLamp> Lamps;
  Array<UTNTFootMark> Marks;
  LineTracer Probe;
  clearscope static bool Option(Name key)
@@ -28,9 +28,14 @@ class UTNTEnvironment : EventHandler
   {
    let water=sec.Get3DFloor(i);
    if((water.flags & F3DFloor.FF_SWIMMABLE) && z<water.top.ZatPoint(camera.Pos.XY) && z>water.bottom.ZatPoint(camera.Pos.XY))
-    return TexMan.GetName(water.GetTexture(1));
+    return TextureSource(TexMan.GetName(water.GetTexture(1)));
   }
-  return TexMan.GetName(sec.heightsec?sec.heightsec.GetTexture(Sector.floor):sec.GetTexture(Sector.floor));
+  return TextureSource(TexMan.GetName(sec.heightsec?sec.heightsec.GetTexture(Sector.floor):sec.GetTexture(Sector.floor)));
+ }
+ clearscope static String TextureSource(String name)
+ {
+  let h=UTNTEnvironment(EventHandler.Find('UTNTEnvironment'));
+  return h && name.Left(2)=="EV"?UTNTEnvironmentSurface.SourceName(name,h):name;
  }
  override void WorldLoaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); }
  override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); }
@@ -52,7 +57,7 @@ class UTNTEnvironment : EventHandler
  {
   Ready=true;Probe=new('LineTracer');
   int snowLump=Wads.CheckNumForFullName("environment/snowtextures.txt");if(snowLump>=0)SnowNames=Wads.ReadLump(snowLump);
-  ReadSurfaces();ReadLights();
+  ReadSurfaces();
   // Candidate tables derive from door/lift actions and actual sector tags.
   int lump=Wads.CheckNumForFullName(String.Format("environment/%s-mechanisms.txt",level.MapName));
   if(lump>=0)
@@ -105,19 +110,6 @@ class UTNTEnvironment : EventHandler
    if(NearSurfaces.Size() && tries<16){if(NearCursor>=NearSurfaces.Size())NearCursor=0;Surfaces[NearSurfaces[NearCursor++]].Update(self,w);}
   }
  }
- void ReadLights()
- {
-  int lump=Wads.CheckNumForFullName(String.Format("environment/%s-lights.txt",level.MapName));if(lump<0)return;
-  Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
-  for(int i=0;i<rows.Size();i++)
-  {
-   Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=8)continue;
-   Vector3 p=(r[0].ToDouble(),r[1].ToDouble(),r[2].ToDouble());
-   if(!level.IsPointInLevel(p))continue;
-   let l=UTNTSceneLamp(Actor.Spawn('UTNTSceneLamp',p));if(!l)continue;
-   l.Tint=Color(r[3].ToInt(),r[4].ToInt(),r[5].ToInt());l.Reach=r[6].ToDouble();l.Style=r[7].ToInt();Lamps.Push(l);Lights++;
-  }
- }
  void StepMark(Actor mo,Vector3 position,bool snow,double opacity,bool left)
  {
   if(!Option('UTNT_footprints') || !Quality())return;
@@ -148,26 +140,35 @@ class UTNTEnvironment : EventHandler
  {
   if(!Option('UTNT_mechanismfx') || Reduced() || !Quality() || consoleplayer<0)return;
   let p=players[consoleplayer].camera;if(!p)return;
-  Vector2 contact=source.Point;
-  double closest=1e30;
+  Vector2 low=(1e30,1e30),high=(-1e30,-1e30);
   for(int j=0;j<source.Sec.Lines.Size();j++)
   {
-   let line=source.Sec.Lines[j];Vector2 middle=(line.V1.P+line.V2.P)*.5;
-   double distance=(middle-p.Pos.XY).Length();
-   if(distance<closest){closest=distance;contact=middle+(source.Point-middle).Unit()*3;}
+   Vector2 a=source.Sec.Lines[j].V1.P,b=source.Sec.Lines[j].V2.P;
+   low=(min(low.X,min(a.X,b.X)),min(low.Y,min(a.Y,b.Y)));high=(max(high.X,max(a.X,b.X)),max(high.Y,max(a.Y,b.Y)));
   }
-  Vector3 origin=(contact.X,contact.Y,source.Sec.floorplane.ZatPoint(contact)+3);
-  if((p.Pos-origin).Length()>1200)return;
-  // One event for a tagged assembly, even when it uses multiple sectors.
-  for(int i=0;i<Mechanisms.Size();i++)if(Mechanisms[i]!=source && Mechanisms[i].Group==source.Group && level.time-Mechanisms[i].LastBurst<14)return;
+  Vector3 center=(source.Point.X,source.Point.Y,source.Sec.floorplane.ZatPoint(source.Point));
+  if((p.Pos-center).Length()>1200 || high.X<=low.X || high.Y<=low.Y)return;
   source.LastBurst=level.time;MechanismBursts++;
-  int count=Quality()==3?6:3;
-  for(int i=0;i<count;i++)
+  // Stratified whole-sector coverage. Reject holes and neighboring sectors.
+  int budget=Quality()==3?64:Quality()==2?36:16;
+  double spacing=max(32,sqrt((high.X-low.X)*(high.Y-low.Y)/budget));
+  int nx=clamp(int(floor((high.X-low.X)/spacing)),1,budget),ny=clamp(int(floor((high.Y-low.Y)/spacing)),1,budget/nx);
+  int emitted=0;
+  for(int y=0;y<ny;y++)for(int x=0;x<nx;x++)
   {
-   double a=i*137.5+source.Group*19;
+   if(emitted>=budget)continue;
+   double phase=x*127.1+y*311.7+source.Group*13.7+level.time*.71;
+   Vector2 point=low+((x+.5+.27*sin(phase))*(high.X-low.X)/nx,(y+.5+.27*cos(phase*1.37))*(high.Y-low.Y)/ny);
+   if(level.PointInSector(point)!=source.Sec)continue;
+   double floor=source.Sec.floorplane.ZatPoint(point),ceiling=source.Sec.ceilingplane.ZatPoint(point);
+   double z=source.CeilingMoving?ceiling-4:floor+4;
+   if(ceiling-floor<8)continue;
    let d=UTNTEnvironmentDust(level.SpawnClientSideVisualThinker('UTNTEnvironmentDust'));if(!d)continue;
-   d.Pos=origin+(cos(a)*12,sin(a)*12,0);d.Prev=d.Pos;d.Vel=(cos(a)*.25,sin(a)*.25,atEnd?.3:.55);
-   d.Texture=TexMan.CheckForTexture('UASMA0');d.Scale=(.06,.05);d.Alpha=source.Stone?.17:.065;d.BaseAlpha=d.Alpha;d.SetRenderStyle(STYLE_Translucent);d.LightLevel=-1;
+   d.Support=source.Sec;d.Pos=(point.X,point.Y,z);d.Prev=d.Pos;
+   d.Vel=(cos(phase)*.22,sin(phase)*.22,source.CeilingMoving?-.32:atEnd?.25:.4);
+   d.Texture=TexMan.CheckForTexture("graphics/environment/mechanism-dust.png");
+   d.Scale=(.45,.38);d.Alpha=source.Stone?.30:.14;d.BaseAlpha=d.Alpha;
+   d.SetRenderStyle(STYLE_Translucent);d.LightLevel=-1;emitted++;
   }
  }
  override void RenderOverlay(RenderEvent e)
@@ -175,6 +176,7 @@ class UTNTEnvironment : EventHandler
   PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false);
   if(e.Camera && e.Camera.WaterLevel>=3 && Option('UTNT_underwateratmosphere') && !Reduced())
   {
+   if(!Optics)Optics=new("UTNTEnvironmentOptics");Optics.Update(e,"UTNTUnderwaterAtmosphere");
    String medium=Medium(e.Camera);
    Vector3 tint=medium.IndexOf("SLIME")>=0?(.40,.62,.28):medium.IndexOf("QWATERT6")>=0?(.62,.23,.19):(.35,.62,.72);
    PPShader.SetUniform3f("UTNTUnderwaterAtmosphere","waterTint",tint);
@@ -208,7 +210,7 @@ class UTNTEnvironment : EventHandler
  {
   if(e.Name!="environmentstats")return;
   int exposed=0;double wet=0;for(int i=0;i<Surfaces.Size();i++)for(int j=0;j<Surfaces[i].Wet.Size();j++){if(Surfaces[i].Exposed[j]>0)exposed++;wet+=Surfaces[i].Wet[j];}
-  Console.Printf("ENVIRONMENT|surfaces=%d|checks=%d|exposed=%d|wet=%.3f|prints=%d|mechanisms=%d|bursts=%d|lights=%d",Surfaces.Size(),SurfaceChecks,exposed,wet,Prints,Mechanisms.Size(),MechanismBursts,Lights);
+  Console.Printf("ENVIRONMENT|surfaces=%d|checks=%d|exposed=%d|wet=%.3f|prints=%d|mechanisms=%d|bursts=%d",Surfaces.Size(),SurfaceChecks,exposed,wet,Prints,Mechanisms.Size(),MechanismBursts);
  }
 }
 
@@ -266,17 +268,19 @@ class UTNTFootMark : Actor
 }
 class UTNTEnvironmentDust : VisualThinker
 {
- int Age;double BaseAlpha;
+ int Age;double BaseAlpha;Sector Support;
  override void Tick()
- { if(level.isFrozen())return;Super.Tick();if(++Age>45){Destroy();return;}Alpha=BaseAlpha*(1-Age/45.0);Scale*=1.012; }
+ { if(level.isFrozen())return;Super.Tick();if(++Age>45){Destroy();return;}if(Support){double f=Support.floorplane.ZatPoint(Pos.XY),c=Support.ceilingplane.ZatPoint(Pos.XY);if(c-f<6){Destroy();return;}Pos.Z=clamp(Pos.Z,f+3,c-3);}
+ Alpha=BaseAlpha*(1-Age/45.0);Scale*=1.012; }
 }
 class UTNTMechanismWatch : Object play
 {
- Sector Sec;Vector2 Point;double Floor,Ceiling,Travel;bool Moving,Stone;int Group,Still,LastBurst;
+ Sector Sec;Vector2 Point;double Floor,Ceiling,Travel;bool Moving,Stone,CeilingMoving;int Group,Still,LastBurst;
  void Update(UTNTEnvironment h)
  {
   double f=Sec.floorplane.ZatPoint(Point),c=Sec.ceilingplane.ZatPoint(Point);
   double delta=abs(f-Floor)+abs(c-Ceiling);bool now=delta>.01;
+  if(now)CeilingMoving=abs(c-Ceiling)>abs(f-Floor);
   if(now)
   {
    if(!Moving && level.time>20){h.Burst(self,false);Travel=0;}
@@ -289,27 +293,6 @@ class UTNTMechanismWatch : Object play
   Floor=f;Ceiling=c;
  }
 }
-class UTNTSceneLamp : Actor
-{
- Color Tint;double Reach;int Style;UTNTSceneShaft ShaftA,ShaftB;
- Default { +CLIENTSIDEONLY +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +DONTSPLASH }
- States { Spawn: TNT1 A -1; Stop; }
- override void Tick()
- {
-  bool on=UTNTEnvironment.Option('UTNT_scenelights') && UTNTEnvironment.Quality()>0;
-  if(Style==1 && on && !ShaftA)
-  {
-   double floor=CurSector.floorplane.ZatPoint(Pos.XY),ceiling=min(Pos.Z,floor+512);
-   Vector3 middle=(Pos.X,Pos.Y,(floor+ceiling)*.5);
-   ShaftA=UTNTSceneShaft(Actor.Spawn('UTNTSceneShaft',middle));ShaftB=UTNTSceneShaft(Actor.Spawn('UTNTSceneShaft',middle));
-   if(ShaftA){ShaftA.Owner=self;ShaftA.Scale=(.6,(ceiling-floor-8)/64);ShaftA.Angle=45;}
-   if(ShaftB){ShaftB.Owner=self;ShaftB.Scale=(.6,(ceiling-floor-8)/64);ShaftB.Angle=135;}
-  }
-  double pulse=Style==2 && !UTNTEnvironment.Reduced()?.96+.04*sin(level.time*.7):1;
-  A_AttachLight('environment',DynamicLight.PointLight,Tint,on?Reach*pulse:0,0,DynamicLight.LF_ATTENUATE);
- }
-}
-
 class UTNTEnvironmentSurface : Object play
 {
  int Kind,Index,Part,Base,NX,NY,WaterSector,Cursor,PreviousTerrain;bool Detached;String Original,Alias;
@@ -331,7 +314,7 @@ class UTNTEnvironmentSurface : Object play
   }
   return true;
  }
- static String SourceName(String textureName,UTNTEnvironment h)
+ clearscope static String SourceName(String textureName,UTNTEnvironment h)
  { for(int i=0;i<h.Surfaces.Size();i++)if(h.Surfaces[i].Alias~==textureName)return h.Surfaces[i].Original;return textureName; }
  void Maintain()
  {
@@ -355,7 +338,7 @@ class UTNTEnvironmentSurface : Object play
    if(h.Probe.Results.HitType==TRACE_HasHitSky)
    {
     double facing=Kind==0?1:max(0,incoming.X*Axis.Y-incoming.Y*Axis.X);
-    target=(.24+.76*weather.Intensity)*facing;
+    target=(.65+.35*weather.Intensity)*facing;
    }
   }
   Exposed[j]=target;Checked[j]=true;

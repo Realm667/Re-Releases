@@ -105,7 +105,21 @@ def map_digest(path):
        'rain':[{k:t[k] for k in ('x','y','type')} for t in rain]}
  return hashlib.sha256(json.dumps(data,sort_keys=True).encode()).hexdigest()
 
+def dust_texture():
+ from PIL.PngImagePlugin import PngInfo
+ im=Image.new('RGBA',(96,96));pixels=[]
+ for y in range(96):
+  for x in range(96):
+   dx=(x-47.5)/47.5;dy=(y-47.5)/47.5
+   edge=max(0,1-dx*dx-dy*dy)**3
+   cloud=.65+.15*math.sin(x*.17+math.sin(y*.21))+.12*math.cos(y*.24+x*.13)
+   pixels.append((175,165,147,round(255*edge*cloud)))
+ im.putdata(pixels);info=PngInfo();info.add(b'grAb',struct.pack('>ii',48,96))
+ path=MOD/'graphics/environment/mechanism-dust.png';path.parent.mkdir(parents=True,exist_ok=True)
+ im.save(path,pnginfo=info)
+
 def main():
+ dust_texture()
  materials,textures,terrain,files=material_library();out=MOD/'environment';out.mkdir(exist_ok=True)
  shaders=MOD/'shaders/environment';shaders.mkdir(exist_ok=True)
  meta=MOD/'materials/environment';meta.mkdir(exist_ok=True)
@@ -160,7 +174,7 @@ def main():
  for path in sorted((MOD/'maps').glob('*.wad')):
   b=parse(path)
   if not b['sector']:continue
-  name=path.stem.upper();edges=geometry(b);rows=[];base=0;mechanisms=[];lightrows=[]
+  name=path.stem.upper();edges=geometry(b);rows=[];base=0;mechanisms=[]
   aliases={}
   alignment=MOD/'areaalign'/f'{name}.txt'
   if alignment.exists():
@@ -175,7 +189,7 @@ def main():
   anchors=[(float(t['x']),float(t['y'])) for t in things(path) if t.get('type')=='19021'] if name=='TNT02' else []
   def nearby(box):
    return any(max(box[0]-x,0,x-box[2])**2+max(box[1]-y,0,y-box[3])**2<240**2 for x,y in anchors)
-  watersectors={}
+  watersectors={};watercontrols={}
   tags=collections.defaultdict(list)
   for i,s in enumerate(b['sector']):tags[int(s.get('id',0))].append(i)
   for li,l in enumerate(b['linedef']):
@@ -187,6 +201,7 @@ def main():
     if 'WAT' in raw and raw!='QWATERT6':
      z=float(ctrl.get('heightfloor' if special==209 else 'heightceiling',0))
      for si in tags[tag]:watersectors[si]=z
+     watercontrols[(control,0 if special==209 else 1)]=(raw,z,list(tags[tag]))
    # Families: normal doors, floors, stairs, pillars, lifts and ceilings.
    if special in set(range(10,14))|set(range(20,41))|set(range(60,70))|set(range(200,208)):
     targets=tags[tag] if tag else ([int(b['sidedef'][back]['sector'])] if back>=0 else [])
@@ -228,26 +243,21 @@ def main():
       if other is None:continue
       z0=floor;z1=float(other.get('heightfloor',0))
      else:
-      if other is not None:continue
-      z0=floor;z1=ceiling
+      z0=max(floor,float(other.get("heightfloor",floor))) if other else floor;z1=min(ceiling,float(other.get("heightceiling",ceiling))) if other else ceiling
      if z1-z0<4 or not (wet or water>-99999):continue
-     z1=min(z1,z0+512) if water<=-99999 else min(z1,water)
+     z1=min(z1,z0+512) if water<=-99999 else min(z1,water+24)
      if z1<=z0:continue
      nx=max(1,min(12,math.ceil(length/64)));ny=max(1,min(8,math.ceil((z1-z0)/64)))
      base=add(rows,1,side,part,aliases.get((1,side,part),raw),raw,(*a,z0),((c[0]-a[0])/length,(c[1]-a[1])/length,0),length,z1-z0,water,base,nx,ny)
+  for (control,part),(raw,z,targets) in watercontrols.items():
+   eligible=[si for si in targets if si in edges and int(b['sector'][si].get('lightlevel',160))>=128 and z-float(b['sector'][si].get('heightfloor',0))<=384]
+   if not eligible:continue
+   boxes=[bounds(edges[si]) for si in eligible]
+   box=(min(v[0] for v in boxes),min(v[1] for v in boxes),max(v[2] for v in boxes),max(v[3] for v in boxes))
+   base=add(rows,0,control,part,raw,raw,(box[0],box[1],z),(1,0,0),box[2]-box[0],box[3]-box[1],z,base,1,1)
   (out/f'{name}-surfaces.txt').write_text('\n'.join(rows)+'\n')
   (out/f'{name}-mechanisms.txt').write_text('\n'.join('|'.join(map(str,r)) for r in dict.fromkeys(mechanisms))+'\n')
-  # Small authored selection by sector; entries are verified against the map on generation.
-  curated={'TNT02':[(160,(125,154,180),104,0),(240,(168,119,67),112,1)],'TNT03A1':[(388,(120,147,170),144,1),(543,(120,147,170),144,1)],'TNT03A2':[(293,(168,140,102),112,1),(464,(168,140,102),112,1)],'TNT03B':[(639,(163,110,62),144,1),(654,(163,110,62),144,1)],'TNTLE':[(447,(187,76,20),112,2)]}
-  for si,tint,reach,style in curated.get(name,[]):
-   if si not in edges:continue
-   p=center(edges[si]);s=b['sector'][si];f=height(s,p);c=float(s.get('heightceiling',f+128))
-   if c-f<48:continue
-   z=c-12 if style==1 else min(f+96,c-20);lightrows.append((*p,z,*tint,reach,style))
-  if name=='TNTLE':
-   lightrows.append((4688,-1568,-96,187,76,20,112,2))
-  (out/f'{name}-lights.txt').write_text('\n'.join('|'.join(map(str,r)) for r in lightrows)+'\n')
-  summary[name]={'surfaces':len(rows),'state_pixels':base,'mechanisms':len(set(mechanisms)),'lights':lightrows,'geometry_sha256':map_digest(path)}
+  summary[name]={'surfaces':len(rows),'state_pixels':base,'mechanisms':len(set(mechanisms)),'geometry_sha256':map_digest(path)}
  (MOD/'TEXTURES.environment-generated').write_text('\n'.join(texdefs))
  (MOD/'TERRAIN.environment').write_text('// Alias terrain mappings are applied after all TERRAIN definitions.\n')
  (out/'terrain-aliases.txt').write_text('\n'.join(terraindefs)+'\n')

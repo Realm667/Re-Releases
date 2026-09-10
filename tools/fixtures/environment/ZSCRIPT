@@ -13,11 +13,11 @@ class UTNTEnvironmentRegression : EventHandler
   {
    let h=UTNTEnvironment.Get();
    Check(h && h.Ready,"environment initialized");
-   Check(h.Surfaces.Size()==3,"test wet surfaces bound");
+   Check(h.Surfaces.Size()==6,"wet and caustic surfaces bound");
    Check(h.Surfaces[0].Exposed[0]>0,"open floor receives rain");
    Check(h.Surfaces[1].Exposed[0]==0,"roofed floor stays dry");
    Check(h.Surfaces[2].Exposed[0]==0,"solid 3D floor blocks rain below");
-   Check(h.Lights==1,"curated lamp created");
+
    Check(level.Sectors[0].GetTerrain(Sector.floor)==OriginalTerrain,"material binding preserves terrain behavior");
    Check(h.Mechanisms.Size()==1,"mechanism watcher created");
   }

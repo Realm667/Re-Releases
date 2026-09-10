@@ -1,0 +1,64 @@
+// Custom PP has no native scene-depth texture. This bounded 8x4 ray grid
+// estimates static geometry distance; it is deliberately not called per-pixel depth.
+class UTNTEnvironmentOptics : Object ui
+{
+ int SampleTic; double Samples[32]; Vector3 SamplePos; double SampleYaw,SamplePitch,SampleFov,SampleRatio,SampleRoll;
+ void Update(RenderEvent e,String shader,Vector3 source=(0,0,0),Vector3 radius=(0,0,0))
+ {
+  double ratio=Screen.GetWidth()/double(max(1,Screen.GetHeight()));
+  double fov=e.Camera.player?e.Camera.player.FOV:e.Camera.CameraFOV;
+  double ty=tan(clamp(fov,5,170)*.5)/(ratio>=1.3?1.333333:ratio),tx=ty*ratio;
+  Vector3 forward=(cos(e.ViewAngle)*cos(e.ViewPitch),sin(e.ViewAngle)*cos(e.ViewPitch),-sin(e.ViewPitch));
+  Vector3 right=(sin(e.ViewAngle),-cos(e.ViewAngle),0);
+  Vector3 up=(cos(e.ViewAngle)*sin(e.ViewPitch),sin(e.ViewAngle)*sin(e.ViewPitch),cos(e.ViewPitch));
+  Vector3 rolledRight=right*cos(e.ViewRoll)+up*sin(e.ViewRoll);
+  up=up*cos(e.ViewRoll)-right*sin(e.ViewRoll);right=rolledRight;
+  int vx,vy,vw,vh;[vx,vy,vw,vh]=Screen.GetViewWindow();
+  Vector4 rect=(vx/double(Screen.GetWidth()),1-(vy+vh)/double(Screen.GetHeight()),vw/double(Screen.GetWidth()),vh/double(Screen.GetHeight()));
+  // Encode the complete viewport transform into the three ray vectors.
+  PPShader.SetUniform3f(shader,"rayForward",forward-right*tx*(1+2*rect.X/rect.Z)-up*ty*(1+2*rect.Y/rect.W));
+  PPShader.SetUniform3f(shader,"rayRight",right*(2*tx/rect.Z));
+  PPShader.SetUniform3f(shader,"rayUp",up*(2*ty/rect.W));
+  Vector4 sampleRect=rect;
+  if(radius.X>0)
+  {
+   Vector2 low=(1,1),high=(0,0);bool behind=false;
+   for(int i=0;i<8;i++)
+   {
+    Vector3 q=source-e.ViewPos+(radius.X*((i&1)?1:-1),radius.Y*((i&2)?1:-1),radius.Z*((i&4)?1:-1));
+    double d=q.X*forward.X+q.Y*forward.Y+q.Z*forward.Z;
+    if(d<=1){behind=true;continue;}
+    double h=q.X*right.X+q.Y*right.Y+q.Z*right.Z,v=q.X*up.X+q.Y*up.Y+q.Z*up.Z;
+    Vector2 point=(rect.X+rect.Z*(.5+h/(2*d*tx)),rect.Y+rect.W*(.5+v/(2*d*ty)));
+    low=(min(low.X,point.X),min(low.Y,point.Y));high=(max(high.X,point.X),max(high.Y,point.Y));
+   }
+   if(!behind)
+   {
+    low=(clamp(low.X,0,.999),clamp(low.Y,0,.999));high=(clamp(high.X,low.X+.001,1),clamp(high.Y,low.Y+.001,1));
+    sampleRect=(low.X,low.Y,high.X-low.X,high.Y-low.Y);
+   }
+  }
+  PPShader.SetUniform4f(shader,"viewRect",sampleRect);
+  // Refresh once per game tic and on camera motion, never mutate the game world.
+  if(SampleFov!=fov || SampleRatio!=ratio || SampleRoll!=e.ViewRoll || SampleTic!=level.time || (e.ViewPos-SamplePos).Length()>1 || abs(e.ViewAngle-SampleYaw)>.5 || abs(e.ViewPitch-SamplePitch)>.5)
+  {
+   let trace=new('LineTracer');
+   for(int y=0;y<4;y++)for(int x=0;x<8;x++)
+   {
+    Vector2 uv=(sampleRect.X+sampleRect.Z*(x+.5)/8,sampleRect.Y+sampleRect.W*(y+.5)/4);
+    Vector3 ray=(forward+right*((uv.X-rect.X)/rect.Z*2-1)*tx+up*((uv.Y-rect.Y)/rect.W*2-1)*ty).Unit();
+    trace.Trace(e.ViewPos,level.PointInSector(e.ViewPos.XY),ray,2048,0,wallMask:0,ignoreAllActors:true,ignore:e.Camera);
+    Samples[y*8+x]=trace.Results.HitType==TRACE_HitNone?2048:(trace.Results.HitPos-e.ViewPos).Length();
+   }
+   SampleTic=level.time;SamplePos=e.ViewPos;SampleYaw=e.ViewAngle;SamplePitch=e.ViewPitch;SampleFov=fov;SampleRatio=ratio;SampleRoll=e.ViewRoll;
+  }
+  double packed[8];
+  for(int i=0;i<8;i++)
+  {
+   packed[i]=0;
+   for(int j=0;j<4;j++)packed[i]+=floor(sqrt(clamp(Samples[i*4+j],0,2048)/2048.0)*63)*(1 << (j*6));
+  }
+  PPShader.SetUniform4f(shader,"depthA",(packed[0],packed[1],packed[2],packed[3]));
+  PPShader.SetUniform4f(shader,"depthB",(packed[4],packed[5],packed[6],packed[7]));
+ }
+}
