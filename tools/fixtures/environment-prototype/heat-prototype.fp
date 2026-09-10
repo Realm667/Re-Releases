@@ -13,7 +13,12 @@ float envDepth(vec2 uv) {
  ivec2 i=ivec2(floor(p));vec2 f=fract(p);
  return mix(mix(envDepthCell(i),envDepthCell(i+ivec2(1,0)),f.x),mix(envDepthCell(i+ivec2(0,1)),envDepthCell(i+ivec2(1,1)),f.x),f.y);
 }
-float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+// Integer lattice hashing stays identical on both sides of a noise cell edge.
+float hash(vec2 p) {
+ uvec2 q=uvec2(ivec2(floor(p)));uint h=q.x*1664525u+q.y*1013904223u;
+ h^=h>>16u;h*=2246822519u;h^=h>>13u;
+ return float(h&16777215u)/16777216.0;
+}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.0),f.x),f.y);}
 void main() {
  vec3 radius=abs(sourceRadius);

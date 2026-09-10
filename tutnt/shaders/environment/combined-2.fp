@@ -241,7 +241,12 @@ void EnvironmentOriginal(inout Material mat)
 
 
 // Per-face material extension. Metadata uses map X,Y,Z coordinates.
-float envHash(vec2 p) { return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+// Integer lattice hashing stays identical on both sides of a noise cell edge.
+float envHash(vec2 p) {
+ uvec2 q=uvec2(ivec2(floor(p)));uint h=q.x*1664525u+q.y*1013904223u;
+ h^=h>>16u;h*=2246822519u;h^=h>>13u;
+ return float(h&16777215u)/16777216.0;
+}
 float envNoise(vec2 p) {
  vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f);
  return mix(mix(envHash(i),envHash(i+vec2(1,0)),f.x),mix(envHash(i+vec2(0,1)),envHash(i+1.0),f.x),f.y);

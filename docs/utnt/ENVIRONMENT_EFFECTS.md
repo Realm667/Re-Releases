@@ -13,7 +13,8 @@ The local lava heat experiment remains a separate, opt-in test addon.
   Damp stone darkens, with irregular, angle-dependent blue-grey sky sheen and
   increased material specular response. Two-sided middle textures can participate.
   The state canvas's inverted GPU Y coordinate is now handled correctly.
-  The combined relief shader fingerprints its includes to invalidate stale GPU programs.
+  The combined relief shader fingerprints its includes for cache invalidation.
+  Integer lattice hashing avoids visible seams between procedural wet patches.
   The sky sheen is an approximation, **not a reflected image of map objects**.
 - **Underwater:** water level 3 enables mild general blur plus stronger blur with
   increasing estimated viewing distance. Water, slime and blood retain different
