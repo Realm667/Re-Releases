@@ -39,6 +39,9 @@ void SetupOrganicMaterial(inout Material mat)
     if(fade<=0.0)
     {
         mat.Normal=normalize(mix(n,mat.Normal,1.0-smoothstep(1024.0,1536.0,distanceToEye)));
+#ifdef ORGANIC_ICE
+        mat.Specular=vec3(.30);mat.SpecularLevel=.65;mat.Glossiness=20.0;
+#endif
         return;
     }
     // Bound grazing-angle displacement and gradually fade in the distance.
@@ -84,4 +87,14 @@ void SetupOrganicMaterial(inout Material mat)
     shade*=mix(1.0,0.58,occlusion);
     shade*=mix(0.72,1.0,smoothstep(0.15,0.75,1.0-layer));
     mat.Base.rgb*=mix(1.0,shade,fade*ORGANIC_SHADE);
+#ifdef ORGANIC_ICE
+    // Broad ice faces catch light; recessed frost remains more diffuse.
+    float clearIce=smoothstep(.28,.76,1.0-layer);
+    mat.Specular=vec3(mix(.18,.42,clearIce));
+    mat.SpecularLevel=.65;mat.Glossiness=mix(12.0,28.0,clearIce);
+    float fresnel=pow(1.0-clamp(dot(mat.Normal,view),0.0,1.0),4.0);
+    float skyFacing=smoothstep(-.1,.65,reflect(-view,mat.Normal).y);
+    // A subdued environment approximation, shaded with the sector, never emissive.
+    mat.Base.rgb+=vec3(.10,.13,.16)*fresnel*skyFacing*fade;
+#endif
 }

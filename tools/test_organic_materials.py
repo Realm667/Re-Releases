@@ -13,15 +13,18 @@ def main():
     p.add_argument('--maps',nargs='*')
     p.add_argument('--capture',action='store_true')
     p.add_argument('--baseline',action='store_true')
+    p.add_argument('--views',type=Path,default=ROOT/'tools/organic-materials/views.json')
+    p.add_argument('--tag',default='organic',help='Separate fixture, capture and report names')
     p.add_argument('--live-shaders',action='store_true',help='Check current shader source over a previously built package')
     a=p.parse_args()
-    central=ROOT/'tutnt/.codex';work=central/'work/organic-materials';logs=central/'logs/organic-materials'
+    if not re.fullmatch(r'[a-z0-9-]+',a.tag):p.error('--tag must use lowercase letters, numbers and hyphens')
+    central=ROOT/'tutnt/.codex';work=central/'work'/f'{a.tag}-materials';logs=central/'logs'/f'{a.tag}-materials'
     work.mkdir(parents=True,exist_ok=True);logs.mkdir(parents=True,exist_ok=True)
     fixture=work/(('fixture-original' if a.baseline else 'fixture-relief')+('-live' if a.live_shaders else ''));fixture.mkdir(exist_ok=True)
     if a.live_shaders:
         for rel in ('shaders/organic/material.fp','shaders/organic/environment.fp','shaders/organic/relief.glsl','shaders/environment/surface.glsl'):
             dest=fixture/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/'tutnt'/rel,dest)
-    views=json.loads((ROOT/'tools/organic-materials/views.json').read_text())
+    views=json.loads(a.views.read_text())
     manifest=json.loads((ROOT/'tools/organic-materials/generated.json').read_text())
     (fixture/'MAPINFO').write_text('GameInfo { AddEventHandlers = "OrganicMaterialChecks" }\n')
     src='''version "4.14"
@@ -37,8 +40,10 @@ class OrganicMaterialChecks : EventHandler {
         x,y,z=v['position']
         if 'sector' in v:z=f'level.Sectors[{v["sector"]}].floorplane.ZatPoint(({x},{y}))+48'
         src+=f'if(level.MapName~=="{v["map"]}" && View=={i}){{p.SetOrigin(({x},{y},{z}),false);p.Vel=(0,0,0);p.Angle={v["angle"]};p.Pitch={v["pitch"]};'
-        if 'sector' in v:
-            src+=f'if(Report)Console.Printf("ORGANIC_SURFACE|{i}|%s",TexMan.GetName(level.Sectors[{v["sector"]}].GetTexture(Sector.floor)));'
+        if 'side' in v:
+            src+=f'if(Report)Console.Printf("ORGANIC_SURFACE|{i}|%s",TexMan.GetName(level.Sides[{v["side"]}].GetTexture(Side.mid)));'
+        elif 'sector' in v:
+            src+=f'if(Report)Console.Printf("ORGANIC_SURFACE|{i}|%s",TexMan.GetName(p.CurSector.GetTexture(Sector.floor)));'
         src+='Report=false;}'
     (fixture/'ZSCRIPT').write_text(src+'}}\n')
     if a.baseline:
@@ -59,11 +64,11 @@ class OrganicMaterialChecks : EventHandler {
     maps=a.maps or sorted(p.stem.upper() for p in (ROOT/'tutnt/maps').glob('*.wad'))
     results=[]
     for mp in maps:
-        label=f'organic-{"base" if a.baseline else "relief"}-r{a.renderer}-{mp}' + ('' if a.capture else '-smoke') + ('-live' if a.live_shaders else '')
+        label=f'{a.tag}-{"base" if a.baseline else "relief"}-r{a.renderer}-{mp}' + ('' if a.capture else '-smoke') + ('-live' if a.live_shaders else '')
         cfg='wait '+('350;' if a.capture else '70;')
         selected=[(i,v) for i,v in enumerate(views) if v['map']==mp] if a.capture else []
         for i,v in selected:
-            image=logs/f'{label}-{v["family"]}.png'
+            image=logs/f'{label}-{v.get("label",v["family"])}.png'
             cfg+=f'netevent organicview {i};wait 8;screenshot "{image.as_posix()}";wait 3;'
         if mp=='TNT02' and not a.baseline:
             cfg+='save organic-material-regression;wait 5;load organic-material-regression;wait 15;'
@@ -88,7 +93,7 @@ class OrganicMaterialChecks : EventHandler {
         results.append(result);print(json.dumps(result),flush=True)
         if not result['ok']:
             print(output[-5000:]);break
-    dest=central/'validation/organic-materials';dest.mkdir(parents=True,exist_ok=True)
+    dest=central/'validation'/f'{a.tag}-materials';dest.mkdir(parents=True,exist_ok=True)
     name=f'{"capture" if a.capture else "maps"}-{"baseline" if a.baseline else "relief"}-r{a.renderer}'+('-live' if a.live_shaders else '')+'.json'
     (dest/name).write_text(json.dumps(results,indent=2))
     raise SystemExit(0 if all(r['ok'] for r in results) else 1)
