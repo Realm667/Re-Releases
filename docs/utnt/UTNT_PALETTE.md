@@ -2,7 +2,26 @@
 
 Die ausdrücklich gewählte Variante 1 ist umgesetzt: 4.713 Grafiken mit der Doom-Palette liegen wieder als echte Doom-Patches beziehungsweise Flats vor. Sie beziehen ihre Farben aus der beim Laden wirksamen `PLAYPAL`. Ein erneuter Export der Grafiken nach einem Palettenwechsel ist damit nicht erforderlich.
 
-## Umfang
+## PNG-Blautoene an PLAYPAL angeglichen (11.09.2026)
+
+514 weiterhin eigenstaendige PNGs sind an die **aktuell lokal verwendete** UTNT-PLAYPAL angeglichen: 48 RGBA-, 10 RGB- und 456 PNGs mit eingebetteter Palette. Betroffen sind insbesondere Dark-Imp-Angriffe, blaue Actor-Details, Eis-/Energieprojektile, Plasma-Waffenblitze, blaue Flammen und Funken sowie die passenden Aufnahmesymbole. 199.696 sichtbare blaue Pixel wurden korrigiert.
+
+Klassische Doom-Blaustufen uebernehmen die RGB-Werte der entsprechenden PLAYPAL-Indizes 192–207 und 240–246. Bei eingebetteten Paletten bleibt die Indexzuordnung erhalten; dadurch werden die im Doom-Original RGB-gleichen Indizes 207 und 240 unterschieden, soweit die Palette sie noch identifiziert. Ohne erhaltenen Index verwendet RGB (0, 0, 83) den Hauptverlauf bei Index 207. Freie Verlaeufe ausgewaehlter blauer Effekt- und Actor-Serien verwenden interpolierte Palettenwerte statt einer groben Reduktion auf 16 Farben. Neutrale Rauchgrafiken, absichtlich violette Farbanteile, Normalmaps und Chromakey-Himmel werden nicht pauschal umgefaerbt.
+
+Abmessungen, Farbmodus, Alphakanaele, transparente Pixel, Sprite-Offsets, Farbprofile und alle nichtblauen Pixel bleiben unveraendert. Bei indizierten PNGs aendert sich ausschliesslich die eingebettete PLTE; ihre Bildindizes bleiben byteidentisch. Bei RGB/RGBA aendert sich ausschliesslich der IDAT-Bildinhalt. Die bereits vorgefundenen fehlerhaften grAb-Pruefsummen einzelner Originale bleiben unveraendert; der Pruefer normalisiert sie nur fuer das Einlesen im Arbeitsspeicher.
+
+Die PNGs speichern den abgeglichenen Farbstand weiterhin selbst. Sie reagieren **nicht automatisch** auf spaetere PLAYPAL-Aenderungen. Die lokale PLAYPAL-Datei wurde fuer diese Aufgabe weder veraendert noch mitcommittet. Die verwendeten Blauwerte und alle Original-/Ergebnishashes sind in [png-blue.json](../../tools/fixtures/png-blue.json) festgehalten.
+
+Pruefung: [check_png_blue.py](../../tools/check_png_blue.py) vergleicht alle 514 Dateien mit ihren Original-Git-Blobs, prueft die unveraenderten Daten und optional den exakten Paketinhalt. Das gemeinsame Integrationspaket wurde mit dem regulaeren Buildwerkzeug einschliesslich Lokalisierungs-, Schrift-, ACS- und Engine-Pruefung gebaut. Vulkan und OpenGL laden alle korrigierten Ressourcen; je 530 Assertions bestanden. Ein Vorher-/Nachher-Bildvergleich von acht repraesentativen Ressourcen wurde in beiden Renderern kontrolliert. Der erste OpenGL-Lauf auf TNT01 erreichte alle Ressourcen-Assertions, aber nicht den Abschlussmarker innerhalb von 45 Sekunden; der gezielte Wiederholungslauf auf MAP01 beendete sich regulaer. Dies ist keine vollstaendige Kampagnenpruefung.
+
+```text
+python -B tools/check_png_blue.py --pk3 tutnt.pk3
+python -B tools/check_png_blue.py --pk3 tutnt.pk3 --require-current-palette
+```
+
+Die zweite Variante verlangt zusaetzlich exakt den lokalen PLAYPAL-Blaustand dieses Abgleichs. Der historische `check_palette_assets.py`-Gesamttest ist davon unabhaengig: Sein alter Manifest verweist noch auf `DROPA0.lmp`, das bereits in `14944cc00` entfernt wurde. Dieser vorbestehende Manifestfehler wurde nicht mit der Farbkorrektur vermischt. Lokale Nachweise: `tutnt/.codex/work/truecolor-blue/`, `tutnt/.codex/logs/truecolor-blue-*`; Originale unter `tutnt/.codex/backups/truecolor-blue/`.
+
+## Umfang der Doom-Format-Umstellung vom 07.09.2026
 
 | Bereich | Grafiken |
 | --- | ---: |
