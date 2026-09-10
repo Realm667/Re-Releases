@@ -1,0 +1,5 @@
+# Original-oriented texture refinement
+Built-in ImageGen outpainting from the original GROUND2, GROUND3, ADEL_B01 and ROCKF2. ROCKF2 received a second outpaint to retain its small flagstone size. OBROWN1 is restored.
+The exporter uses project PLAYPAL and 512 native pixels / 512 map units. GROUND2/3/ROCKF2 use minimum-error overlap cuts to join periodic boundaries without a blended border. ADEL_B01 preserves original joint pixels, 32x16 brick pitch and authored UVs. Its brick interiors are shuffled original material with 30% generated detail and original per-brick tone distributions. ROCKF2 preserves authored UVs and typical stone scale, while its irregular contours intentionally change.
+Reproduce: copy this directory to tutnt/.codex/work/<task>/, create assets/ and review/, then run node tools/area-textures/export_refinements.cjs <work-directory> <repository-root> with sharp available. The exporter writes materials.json and export-checks.json into that work directory.
+Raw images are source artwork. Local render proofs live under tutnt/.codex/validation/texture-refinement-v4.

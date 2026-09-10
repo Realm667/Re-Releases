@@ -52,7 +52,7 @@ Stand: **10.09.2026**. Fortlaufende, thematisch zusammengefasste Liste der Remas
 - **TNT04CN:** dunkle Wolkendecke mit auf den Source-Strahl ausgerichteter Öffnung, schwebenden Felsen, elliptischen Bahnen, Tiefenparallaxe und entfernten Kometen. [Details](UTNT_RIFT_SKY.md)
 - **TNT04C:** eigener reduzierter Himmel mit warmen Lavareflexen, kompakter Strahlöffnung und schwebender Kulisse; die unterschiedlichen Originalblickpunkte der Höhenabschnitte bleiben wirksam. [Details](UTNT_ALTERNATE_SKY.md)
 - **TNTLE:** Basalthöhle mit animierten Lavafällen und warmer Tiefe sowie ein zweiter Nachthimmel mit Bergen, Wolken und aufsteigender Glut; korrigierte Filternähte. [Himmel](UTNT_TNTLE_SKY.md), [Korrekturen](UTNT_TNTLE_SKY_FIXES.md)
-- **Größere, weniger repetitive Materialien:** erweiterte Felsflächen und fortlaufende Ausrichtung; aktuell 38 aktive Flächenmaterial-Erweiterungen mit variierten Innenstrukturen bei erhaltenem Detailmaßstab. Bewusst zurückgesetzte Materialien verwenden wieder ihre Originale. [Felsflächen](UTNT_ROCK_ROLLOUT.md), [aktueller Materialstand](UTNT_AREA_TEXTURES.md)
+- **Größere, weniger repetitive Materialien:** erweiterte Felsflächen und fortlaufende Ausrichtung; aktuell 37 aktive Flächenmaterial-Erweiterungen. GROUND2/3 und ADEL_B01 wurden näher an die Originale geführt, ROCKF2 erhält ein unregelmäßigeres Steinmuster; OBROWN1 und sechs weitere Materialien verwenden wieder ihre Originale (10.09.2026). [Felsflächen](UTNT_ROCK_ROLLOUT.md), [aktueller Materialstand](UTNT_AREA_TEXTURES.md)
 - **Konsistente Originalpalette:** 4.713 Doom-Grafiken folgen wieder der globalen PLAYPAL; eigene HUD-Elemente und erweiterte Materialien sind auf die UTNT-Farben abgestimmt. [Details](UTNT_PALETTE.md)
 
 ## Bossinszenierung, Stabilität und Technik

@@ -1,3 +1,17 @@
+# Weitere Originalkorrekturen vom 10.09.2026
+
+GROUND2 und GROUND3 haben neue, feinere Bodenstrukturen mit an den Originalen abgeglichenen Farbtönen. ADEL_B01 zeigt wieder die Mischung aus braunen und fast schwarzen Ziegeln: Originalkörnung und Originalfugen bleiben erhalten, Steinvarianten werden unregelmäßig verteilt und durch generierte Details ergänzt. Das Ziegelraster bleibt exakt 32 × 16 Pixel. ROCKF2 erhält ein neues Netz kleiner polygonaler Steine; der bisherige 64-Pixel-Verbund wird nicht mehr wiederholt. Die Einzelkonturen ändern sich bewusst, die typische Steingröße bleibt am Original orientiert.
+
+Die vier Erweiterungen sind 512 × 512 Pixel bei 512 × 512 Map-Einheiten. GROUND2/3 und ROCKF2 verwenden periodische Überlappungsschnitte entlang möglichst ähnlicher Pixel statt weich überblendeter Randstreifen. ADEL_B01 erhält seine originalen Fugenpixel auch an den Außenkanten. Die vorhandenen Wandketten-Zuordnungen bleiben erhalten; ADEL_B01 und ROCKF2 behalten die vom Mapper gesetzten UV-Offsets.
+
+OBROWN1 ist deaktiviert und pixelgleich wiederhergestellt. Neue Map-Starts verwenden Originalmaterial und Original-Offsets. Historische Aliasse bleiben als Originalbilder für gespeicherte Spielstände definiert; alte gespeicherte Offsets werden nicht migriert. Damit sind 37 Erweiterungen aktiv und sieben Materialien zurückgesetzt; 88,334 ursprüngliche Flächenzuweisungen bleiben erfasst.
+
+Alle fünf Exporte verwenden die aktuelle PLAYPAL. Die Bildprüfung vergleicht Palette, OBROWN1-Pixel, geschützte ADEL_B01-Fugen und Randdifferenzen; 2×2-Kachelansichten ergänzen die Zahlenprüfung. ROCKF2s Korrelation bei 64 Pixel Verschiebung sinkt von etwa 0,96 auf nahe null. Die regulären ADEL_B01-Fugen bleiben erwartungsgemäß periodisch. Prompts, Originalreferenzen, Rohbilder und reproduzierbarer Export: tools/artwork/area-textures/refinement-2026-09-10 und tools/area-textures/export_refinements.cjs.
+
+Die Paketprüfung bestand in allen 13 Maps: vollständige Annahme der Materialtabellen, Speichern/Laden, dynamische Texturwechsel und Shaderprüfung mit Vulkan/OpenGL. Die gezielte Paketprüfung bestätigt alle sieben geänderten Spielressourcen. Eine neue separate Messung begrenzter Wandblenden war nicht Teil dieses Durchlaufs.
+
+Die folgenden Abschnitte dokumentieren vorherige Revisionen.
+
 # Aktueller Stand vom 10.09.2026
 
 QGRASS, ADEL_V99 und ADEL_M02 verwenden wieder ihre Originalbilder. Ihre Ersetzungs- und Ausrichtungszeilen wurden entfernt. TNT02 war ausdrücklich eine irrtümliche Listenzeile und wurde nicht als Map zurückgesetzt; die materialbezogenen Rücksetzungen gelten auch dort. Zusammen mit ADEL_G04, CITYF19 und GRASS2 bleiben jetzt sechs Materialien im Original. Es sind 38 Erweiterungen mit 88,635 ursprünglichen Wand-/Boden-/Deckenzuweisungen aktiv.
