@@ -5,6 +5,7 @@ void main()
  float aspect=float(textureSize(InputTexture,0).x)/float(textureSize(InputTexture,0).y);
  vec2 metric=vec2(aspect,1.0),delta=(uv-focus)*metric;
  float r=length(delta)/max(radius,.001);
+ if(r>=1.8){FragColor=texture(InputTexture,uv);return;}
  vec2 direction=delta/max(length(delta),.001);
  float age=35.0+progress*175.0;
  float pull=clamp((age-70.0)/88.0,0.0,1.0);

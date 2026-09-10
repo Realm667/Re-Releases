@@ -59,6 +59,23 @@ class UTNTSourceTests : EventHandler
    Assert(Fallback && Fallback.Health<=0,"Source fallback test actor is defeated");
    Assert(Fallback && Fallback.sprite==Actor.GetSpriteIndex("SOUR") && Fallback.Alpha>0 && Fallback.Alpha<1,"other maps retain the original visible Source death fade");
   }
+  if(e.Name=="sourcematerialcheck")
+  {
+   int w,h;TextureID tex=TexMan.CheckForTexture("graphics/source-beam/state28.png");[w,h]=TexMan.GetSize(tex);
+   Assert(w==1 && h==1,"beam state carrier is a single texel");
+   tex=TexMan.CheckForTexture("USB028");Vector2 size=TexMan.GetScaledSize(tex);Assert(abs(size.X-768)<.01 && abs(size.Y-64)<.01,"beam core retains original logical dimensions");
+   tex=TexMan.CheckForTexture("USB128");size=TexMan.GetScaledSize(tex);
+   Assert(abs(size.X-1500)<.01 && abs(size.Y-512)<.01,"helix retains original logical dimensions");
+   tex=TexMan.CheckForTexture("graphics/source-beam/opaque.png");[w,h]=TexMan.GetSize(tex);
+   tex=TexMan.CheckForTexture("USVDA0");size=TexMan.GetScaledSize(tex);
+   Assert(w==2 && h==2 && size.X==512 && size.Y==512,"singularity carrier is tiny with full logical sprite size");
+   let boss=UTNTSourceSystem.Find();
+   if(boss && boss.DefeatAge>=158)
+   {
+    bool gone=true;for(int i=0;i<boss.BeamSides.Size();i++)gone=gone && level.sides[boss.BeamSides[i]].GetTexture(Side.mid)==TexMan.CheckForTexture("-");
+    Assert(gone,"spent beam geometry has no zero-output material to render");
+   }
+  }
   if(e.Name=="sourceimplosioncheck")
   {
    let iter=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);

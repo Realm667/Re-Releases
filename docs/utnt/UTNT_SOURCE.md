@@ -213,3 +213,46 @@ checks opposing client settings against the same authoritative encounter.
 Local evidence: `tutnt/.codex/logs/source-implosion/`. Screenshots there are
 unaltered engine captures. The shared tutnt.pk3 is built from the complete live
 integration tree with `tools/build_utnt.py`, preserving other local work.
+
+## Vulkan performance correction - 2026-09-11
+
+A reported fall to roughly 5 FPS during the implosion prompted a material and
+frame-time audit. The previous presentation registered 87 beam shaders and 25
+sprite shaders. Advancing the defeat clock selected new materials, and first
+use of those materials coincided with visible frame-time spikes.
+
+Beam phases now share two shader programs; all 25 sprite roles share one more.
+A one-texel state image supplies the phase or sprite role instead of compiling
+that value into a separate program. Beam carriers are 1x1 pixels, with their
+original logical wall dimensions. Procedural sprite carriers are 2x2 pixels,
+with the same 512x512 logical size and centred offsets. SOURA0, QRUNT63 and
+QROCK3 remain the original artwork. The builder removes only its obsolete
+per-role/per-phase shader outputs. The 72-layer pool and all trajectories,
+colours, audio and saved timing remain unchanged.
+
+The spent beam loses its middle texture at the collapse, eliminating invisible
+wall-material rendering. Dormant layers skip geometry and texture work. Empty
+regions of large ceiling/arc quads exit before atlas sampling. Refraction skips
+pixels outside its influence and is enabled only while displacement is nonzero.
+The nine broad defeat lights retain their placement, colour and radius, but do
+not request shadow maps; living encounter lighting keeps its prior flags.
+
+`tools/profile_source.py` measures untrimmed render-to-render intervals at the
+same fixed camera, without a frame cap. Compare the same immutable full PK3
+sequentially, using `--baseline-ref 430c0823d` for the original Source materials
+and omitting it for the optimized version. The script records raw samples and
+phase statistics, including first-use stalls. These measurements are local
+hardware results, not a minimum-FPS guarantee for every Vulkan device.
+
+`tools/test_source_implosion.py` additionally verifies physical carrier sizes,
+unchanged logical dimensions and removal of the spent beam. The living battle,
+OpenGL/Vulkan finale, saved reconstruction, FX switches and real ending remain
+covered by the existing tests. Local evidence is under
+`tutnt/.codex/logs/source-performance/` and `.codex/validation/source-performance/`.
+
+Measured on Ryzen 9 7950X / RTX 4080, Vulkan with shadow maps enabled, in a
+sequential A-B-B-A comparison of the same complete package: average finale frame
+time decreased from 5.26 ms to 4.48 ms (about 15%). Worst frames per run decreased
+from 36.67/46.17 ms to 11.63/22.09 ms. The user's reported 5-FPS drop was not
+reproduced on this test setup; the result demonstrates reduced work and shorter
+stalls here rather than guaranteeing an identical gain on other hardware.

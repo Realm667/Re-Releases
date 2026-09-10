@@ -73,7 +73,7 @@ class UTNTSourceBase : Actor
    // that explicit: a translucent black carrier would darken the whole boss.
    TranslucentLine(99,beamState==0?178:0,1);
    for(int i=0;i<BeamSides.Size();i++)
-    level.sides[BeamSides[i]].SetTexture(Side.mid,TexMan.CheckForTexture(String.Format("USB%d%d",BeamKinds[i],beamState)));
+    level.sides[BeamSides[i]].SetTexture(Side.mid,TexMan.CheckForTexture(beamState==2?"-":String.Format("USB%d%d",BeamKinds[i],beamState)));
    // Legacy ACS still writes line alpha during its shutdown fade. Removing
    // only the middle material makes the open silhouette unambiguous from tic 1.
    TextureID shield=TexMan.CheckForTexture(beamState==0?"USSHIELD":"-");
@@ -219,6 +219,7 @@ class UTNTSourceEmitter : Thinker
    SoundStarted=true;
    if(DeadAge<245)LightAnchor.A_StartSound("utnt/source/finale",CHAN_BODY,0,0.95,ATTN_NONE,1.0,(DeadAge-1)/35.0);
   }
+  // These broad, rapidly changing defeat glows do not need per-light shadow maps.
   double flash=Flash();
   for(int i=0;i<WallLights.Size();i++)if(WallLights[i])
   {
@@ -230,7 +231,7 @@ class UTNTSourceEmitter : Thinker
    WallLights[i].SetOrigin(pos,false);
    if(Quality>0 && strength>0.01)
     WallLights[i].A_AttachLight('sourcewall',DynamicLight.PointLight,DeadAge?ImpactColor(i):0xffbf68,
-     (320+strength*600)*(DeadAge?sqrt(strength):1),0,DynamicLight.LF_ATTENUATE);
+     (320+strength*600)*(DeadAge?sqrt(strength):1),0,DynamicLight.LF_ATTENUATE|(DeadAge?DynamicLight.LF_NOSHADOWMAP:0));
    else WallLights[i].A_RemoveLight('sourcewall');
   }
   if(LightAnchor)
@@ -240,7 +241,7 @@ class UTNTSourceEmitter : Thinker
     LightAnchor.A_AttachLight('source',DynamicLight.PointLight,Opened?0xffb348:0xff7018,Opened?400:520,0,DynamicLight.LF_ATTENUATE);
    else if(Quality>0 && max(flash,Flicker(8))>0.01)
     LightAnchor.A_AttachLight('source',DynamicLight.PointLight,ImpactColor(8),
-     1100*sqrt(max(flash,Flicker(8))),0,DynamicLight.LF_ATTENUATE);
+     1100*sqrt(max(flash,Flicker(8))),0,DynamicLight.LF_ATTENUATE|DynamicLight.LF_NOSHADOWMAP);
    else LightAnchor.A_RemoveLight('source');
   }
  }
@@ -346,7 +347,10 @@ class UTNTSourceLayer : VisualThinker
  {
   if(!Owner){Destroy();return;}
   if(IsFrozen() || level.isFrozen())return;
-  let e=Owner;let s=e.Source;Prev=Pos;PrevRoll=Roll;
+  let e=Owner;
+  if((!e.DeadAge && Kind>=12) || e.DeadAge>=245)
+  {Alpha=0;Prev=Pos;PrevRoll=Roll;return;}
+  let s=e.Source;Prev=Pos;PrevRoll=Roll;
   Pos=e.Center;Alpha=0;Roll=0;double diameter=650;
   int elapsed=s?level.time-s.AttackStart:10000;
   bool damaged=s && s.Health<7500;
@@ -554,6 +558,7 @@ class UTNTSourceImpactView ui
   let s=UTNTSourceBase(level.CreateActorIterator(666).Next());
   if(!s || s.Health>0)return 0;
   double age=s.DefeatAge+e.FracTic;
+  if(age<70 || age>=193)return 0;
   double progress=(age-35)/175.0;
   if(progress<0 || progress>=1)return 0;
   Vector3 delta=s.Center()-e.ViewPos;

@@ -1,0 +1,24 @@
+// Render-to-render timings; no frame cap and no per-frame console I/O.
+class UTNTSourceFrameProfile : StaticEventHandler
+{
+ ui Array<double> Times;
+ ui Array<int> Ages;
+ ui double Previous;
+ ui bool Done;
+ override void RenderOverlay(RenderEvent e)
+ {
+  if(!(level.MapName~=="TNT04CN"))return;
+  let s=UTNTSourceBase(level.CreateActorIterator(666).Next());
+  if(!s)return;
+  double now=MSTimeF();
+  if(level.time>=400 && s.DefeatAge<245 && Previous>0)
+  {Times.Push(now-Previous);Ages.Push(s.DefeatAge);}
+  Previous=now;
+  if(s.DefeatAge>=245 && !Done)
+  {
+   Done=true;String samples="";
+   for(int i=0;i<Times.Size();i++)samples=samples..String.Format("%d:%.3f,",Ages[i],Times[i]);
+   Console.Printf("SOURCE_FRAME_MS %s",samples);
+  }
+ }
+}
