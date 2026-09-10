@@ -18,6 +18,13 @@ SkyViewpoint portal also excludes its sky-room pass from SSAO in the engine.
 Existing lighting thinkers, gameplay geometry, lava, scripts and Source remain.
 TNT04CN retains its existing URFSKY handling.
 
+The 47 TorchTree, BigTree and Stalagtite decorations in the miniature sky room
+follow their sector's transferred floor light each tic. Changing STARSKY1 to
+F_SKY1 otherwise makes the engine use ceiling light (255) for these sprites,
+producing a fullbright appearance despite their normal actor states. The local
+actor light override restores the original ground lighting and survives save/load;
+other actors and maps keep their existing lighting.
+
 87 additional ceiling-only SkyPickers select the plain cubemap: 68 in the
 miniature sky room and 19 in the final arena. This prevents recursive background
 views and a duplicate miniature beam behind the final arena's real beam.
@@ -45,9 +52,11 @@ Five world-space cards reuse the CN ray/plane intersection and premultiplied
 blue-key bilinear sampling. Distances range from 36000 to 100000 world units;
 elliptical periods are 220â€“280 seconds with opposing directions, small amplitudes
 and less than a quarter degree of rocking. Nearer platforms show stronger parallax.
-The material protects the opening from foreground cards. Rock and platform light
-uses near-neutral charcoal/metal (RGB weights 1.02,1.0,0.97), matching the real map
-geometry and removing the former uniform gold/brown cast. Source PNGs remain
+The material protects the opening from foreground cards. Rock and platform colors
+retain 70% of their source chroma, with red CN rock rims shifted toward QLAVA amber
+at preserved luminance. This retains charcoal, bronze and amber material detail
+without the former grayscale conversion or a uniform gold/brown cast. The CPU
+fallback compositor applies the same correction. Source PNGs remain
 TrueColor RGB; no PLAYPAL quantization is applied. Clouds retain their QLAVA palette.
 
 One comet track reuses `WarCometLight` unchanged from TNT04A/B/CN. Each 65-second
@@ -74,3 +83,7 @@ The structural check compares the prior map: original geometry/things and all
 non-TEXTMAP lumps remain unchanged; only 87 ceiling pickers are appended.
 
 Initial artwork validation: tools/validation/alternate-sky-2026-09-09.
+
+Color/light fix validation (2026-09-10): 35 runtime assertions in Vulkan and
+OpenGL cover all 47 floor-lit decorations, save/load, height bindings and map
+isolation. Matching before/after views verify material color and ground lighting.

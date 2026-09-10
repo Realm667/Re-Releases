@@ -43,9 +43,12 @@ def composite(ray,images):
   x=c*px-s*py+.5;y=s*px+c*py+.5
   edge=np.minimum.reduce([x,1-x,y,1-y]);weight=smooth(0,.025,edge)*(depth>.01)
   col=sample(images[layer],uv[0]+(uv[2]-uv[0])*x,uv[1]+(uv[3]-uv[1])*y)*weight[...,None]
-  # Near-neutral charcoal/metal matches map geometry; avoid a global gold tint.
-  luma=np.sum(col[:,:,:3]*[.2126,.7152,.0722],axis=-1)
-  col[:,:,:3]=luma[...,None]*[1.02,1.0,.97]*light*smooth(-.25,.30,ray[:,:,1])[...,None]
+  # Keep material chroma; turn the CN atlas's red rims toward QLAVA amber.
+  # Preserve luminance so the correction does not brighten the distant cards.
+  rgb=col[:,:,:3];luma=np.sum(rgb*[.2126,.7152,.0722],axis=-1)
+  rgb[:,:,1]=np.maximum(rgb[:,:,1],rgb[:,:,0]*.60)
+  rgb*= (luma/np.maximum(np.sum(rgb*[.2126,.7152,.0722],axis=-1),.00001))[...,None]
+  col[:,:,:3]=(luma[...,None]*.30+rgb*.70)*light*smooth(-.25,.30,ray[:,:,1])[...,None]
   result=result*(1-col[:,:,3:4])+col
  return result
 
@@ -61,7 +64,10 @@ def build(root=ROOT):
   return sample(clouds,u,v)*(1-e)+sample(clouds,1-u,v)*e
  shared=Path(__file__).with_name('rift-material.glsl').read_text(encoding='utf-8').split('void SetupMaterial')[0]
  shared=shared.replace('vec4 behind,vec3 ray','vec4 behind,sampler2D layer,vec3 ray').replace('RiftSample(rockmap,','RiftSample(layer,').replace('float angle=.014','float angle=.004')
- shared=shared.replace('rock.rgb=mix(vec3(luma)*vec3(1.05,.94,.82),rock.rgb,.25)*light','rock.rgb=vec3(luma)*vec3(1.02,1.0,.97)*light')
+ shared=shared.replace('rock.rgb=mix(vec3(luma)*vec3(1.05,.94,.82),rock.rgb,.25)*light','''// Retain subdued material color; remap red CN rims to amber at equal luminance.
+ rock.g=max(rock.g,rock.r*.60);
+ rock.rgb*=luma/max(dot(rock.rgb,vec3(.2126,.7152,.0722)),.00001);
+ rock.rgb=mix(vec3(luma),rock.rgb,.70)*light''')
  material=Path(__file__).with_name('alternate-material.glsl').read_text(encoding='utf-8')
  comets=Path(__file__).with_name('war-comets.glsl').read_text(encoding='utf-8')
  n=1024;u,v=np.meshgrid(np.linspace(0,1,n,dtype=np.float32),np.linspace(0,1,n,dtype=np.float32));s=1-2*u;t=1-2*v;o=np.ones_like(s)

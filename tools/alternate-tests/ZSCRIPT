@@ -26,6 +26,17 @@ class AlternateSkyTests : EventHandler
     if(camera && camera.TID==3)lower++;
     if(sec.CenterSpot.Y>11000 && TexMan.GetName(sec.GetTexture(Sector.ceiling))=='F_SKY1' && camera==null)arena++;
    }
+   int decorations=0,lit=0;
+   it=ThinkerIterator.Create('Actor');
+   while(a=Actor(it.Next()))
+    if(a.Pos.X>5120 && a.Pos.X<7808 && a.Pos.Y>-1664 && a.Pos.Y<1536 &&
+       (a is 'TorchTree' || a is 'BigTree' || a is 'Stalagtite'))
+    {
+     decorations++;
+     if(!a.bBRIGHT && !a.CurState.bFullbright &&
+        a.LightLevel==a.CurSector.GetPlaneLight(Sector.floor))lit++;
+    }
+   Console.Printf("UTNT_ASSERT %s: all 47 sky decorations follow original floor lighting",decorations==47 && lit==47?"PASS":"FAIL");
    Console.Printf("UTNT_HEIGHT_BINDINGS room=%d arena=%d middle=%d lower=%d",room,arena,middle,lower);
    Console.Printf("UTNT_ASSERT %s: shared viewpoint sector uses skybox special",room==1?"PASS":"FAIL");
    Console.Printf("UTNT_ASSERT %s: arena uses its own beam coordinates",arena==19?"PASS":"FAIL");

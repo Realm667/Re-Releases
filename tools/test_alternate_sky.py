@@ -13,7 +13,7 @@ cmd=['wait 350','netevent altcheck']
 for v in range(1,9):cmd += [f'netevent altview {v}','wait 35',f'screenshot "{(W/f"view{v}.png").as_posix()}"']
 cmd+=['netevent altview 1','wait 175',f'screenshot "{(W/"motion.png").as_posix()}"','save altsky','wait 35','load altsky','wait 70','netevent altcheck','map TNT04CN','wait 100','netevent altcheck','map TNT04C','wait 70','netevent altcheck','wait 35','echo UTNT_TEST_END','wait 5','quit']
 r=run_case(a.engine,a.iwad,root=W,mod=a.mod,addon=ROOT/'tools/alternate-tests',mapname='TNT04C',renderer=a.renderer,label='alternate-'+a.renderer,timeout=150,commands='; '.join(cmd),settings=[('gl_ssao',4),('vid_maxfps',60),('use_mouse','false'),('use_joystick','false'),('i_pauseinbackground','false'),('vid_activeinbackground','true'),('win_w',1298),('win_h',767),('screenblocks',12),('r_drawplayersprites','false'),('con_notifytime',0),('crosshair',0)])
-if r['assertions']<32 or "Can't find SkyViewpoint" in Path(r['log']).read_text(encoding='utf-8'):r['ok']=False
+if r['assertions']<35 or "Can't find SkyViewpoint" in Path(r['log']).read_text(encoding='utf-8'):r['ok']=False
 (W/'result.json').write_text(json.dumps(r,indent=2),encoding='utf-8')
 if not r['ok']:print(Path(r['log']).read_text(encoding='utf-8')[-5000:])
 raise SystemExit(0 if r['ok'] else 1)

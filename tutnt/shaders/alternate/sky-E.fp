@@ -95,7 +95,10 @@ vec4 RiftRockLayer(vec4 behind,sampler2D layer,vec3 ray,vec3 cameraOffset,vec3 f
  if(edge<=0.0)return behind;
  vec4 rock=RiftSample(layer,mix(bounds.xy,bounds.zw,uv),true)*smoothstep(0.0,.025,edge);
  float luma=dot(rock.rgb,vec3(.2126,.7152,.0722));
- rock.rgb=vec3(luma)*vec3(1.02,1.0,.97)*light*smoothstep(-.25,.30,ray.y);
+ // Retain subdued material color; remap red CN rims to amber at equal luminance.
+ rock.g=max(rock.g,rock.r*.60);
+ rock.rgb*=luma/max(dot(rock.rgb,vec3(.2126,.7152,.0722)),.00001);
+ rock.rgb=mix(vec3(luma),rock.rgb,.70)*light*smoothstep(-.25,.30,ray.y);
  return behind*(1.0-rock.a)+rock;
 }
 // TNT04C: single sparse comet, using the unchanged shared flame profile.

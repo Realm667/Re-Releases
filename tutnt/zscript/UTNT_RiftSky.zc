@@ -3,6 +3,7 @@
 class UTNTRiftSkyHandler : EventHandler
 {
  bool Initialized;
+ Array<Actor> AlternateDecorations;
  void Apply()
  {
   if(level.MapName~=="TNT04C"){if(level.time>=2)ApplyAlternate();return;}
@@ -31,10 +32,28 @@ class UTNTRiftSkyHandler : EventHandler
   while(a=Actor(it.Next()))
    if(a.GetClassName()=='SkyViewpoint' && a.Pos.X==6512 &&
       (a.Pos.Y==-432 || a.Pos.Y==-176 || a.Pos.Y==80))a.CurSector.special=90;
+  AlternateDecorations.Clear();
+  it=ThinkerIterator.Create('Actor');
+  while(a=Actor(it.Next()))
+   if(a.Pos.X>5120 && a.Pos.X<7808 && a.Pos.Y>-1664 && a.Pos.Y<1536 &&
+      (a is 'TorchTree' || a is 'BigTree' || a is 'Stalagtite'))
+    AlternateDecorations.Push(a);
+  UpdateAlternateLighting();
   // Map-local ceiling-only SkyPickers select the plain cube in this room
   // and the final arena. ClearPortal would restore the default sky camera.
   TextureID cube=TexMan.CheckForTexture("UACSKY");level.ChangeSky(cube,cube);
   Initialized=true;
+ }
+ void UpdateAlternateLighting()
+ {
+  // F_SKY1 makes sprites inherit ceiling light (255). Before the ceiling
+  // conversion these decorations used the transferred floor light instead.
+  // Follow that light each tic, including lighting thinkers and saved games.
+  for(int i=0;i<AlternateDecorations.Size();i++)
+  {
+   let a=AlternateDecorations[i];
+   if(a && a.CurSector)a.LightLevel=a.CurSector.GetPlaneLight(Sector.floor);
+  }
  }
  // The renderer substitutes the SkyViewpoint position inside the small room.
  // Keep the real view separately for the distant cards' subtle player parallax.
@@ -52,5 +71,9 @@ class UTNTRiftSkyHandler : EventHandler
   c.Clear(12,0,16,4,Color(255,255,255));
  }
  override void WorldLoaded(WorldEvent e) { Initialized=false;Apply(); }
- override void WorldTick() { if(!Initialized && (level.MapName~=="TNT04CN" || level.MapName~=="TNT04C"))Apply(); }
+ override void WorldTick()
+ {
+  if(!Initialized && (level.MapName~=="TNT04CN" || level.MapName~=="TNT04C"))Apply();
+  if(Initialized && level.MapName~=="TNT04C")UpdateAlternateLighting();
+ }
 }
