@@ -69,9 +69,13 @@ The 2026-09-10 expansion also localizes the previously literal main-menu,
 episode-selection and skill names, automap statistics and authored credit headings,
 contributions and navigation. Credit data stores LANGUAGE keys; each client resolves
 them when drawing, so cooperative peers may use different languages. Credits layout
-caches are refreshed on language changes. The remaster UI uses the engine's
-`AlternativeSmallFont` for matching wrapping, measurement and drawing; this retains
-the mod font where complete and uses the extended native font for accented text.
+caches are refreshed on language changes. The remaster UI uses the mod's own complete Unicode bitmap fonts. `SmallFont`
+retains the original Quake glyphs; `BigFont`/`BigUpper` retain the original menu
+artwork and `UCRBIG` its brighter credit palette. Missing accents, umlauts, sharp S,
+ligatures and punctuation are explicitly drawn in the same style. No alternate
+font is selected for these four languages. SmallFont has an eleven-pixel line
+height to leave space above its original seven-pixel caps for diacritics; credit
+cards retain their original cap scaling and explicit line spacing.
 Three old malformed subtitle escape prefixes
 and the missing obituary victim marker are corrected. Two English obituaries use
 equivalent pronoun-free wording so translated sentences do not depend on the
@@ -79,10 +83,36 @@ English possessive/object-pronoun substitution.
 
 ## Validation of the 2026-09-10 catalog
 
-All four languages contain 878 entries. The source and packaged-catalog gates
-pass, as do 14 localization unit tests. UZDoom 5.0.1 completed 7,760 runtime
+The initial translation expansion contained 878 entries per language. Its source
+and packaged-catalog gates passed, as did 14 localization unit tests. UZDoom 5.0.1 completed 7,760 runtime
 assertions across the four languages, including actual StringTable lookup, font
 glyph coverage, class-card and chapter layout, and localized credit pages.
 German, Spanish and French menu/card screenshots and dense French credits were
 visually checked. This is targeted UI validation, not a full campaign playthrough.
 Local evidence is under `tutnt/.codex/validation/localization-2026-09-10/`.
+
+## Maintaining native glyph coverage
+
+Every new character must exist in all four font definitions, including uppercase
+variants used in headings. `check_localization.py` and `build_utnt.py` now also run
+`check_font_coverage.py`; missing, blank or modified glyphs fail the gate. This
+checks actual packaged PNGs as well as source files, including punctuation that
+an engine CanPrint check alone can silently substitute.
+
+The original menu font and small-font palette are retained in
+`tools/font-sources/`. Original small glyphs remain in `tutnt/graphics/fonts/`.
+Edit `tools/build_localized_fonts.py` to author additional native glyphs, run it,
+review the output in game, and commit the generated `tutnt/fonts/` images and
+`tools/font-glyphs.json` together. The generator uses no operating-system font or
+external font family. `python tools/build_localized_fonts.py --check` proves the
+checked-in output matches its sources; CI runs it and the glyph regression tests.
+Do not introduce AlternativeSmallFont/AlternativeBigFont in player UI to conceal
+missing artwork. Runtime tests compare every glyph's actual width, height and
+offset and verify that the engine itself chooses the complete mod fonts in en,
+de, es and fr. Local runtime evidence: `.codex/validation/font-glyphs-2026-09-10/`
+under `tutnt/`.
+
+The native-font update passed 10,552 engine assertions across all four languages,
+39 credit/save/load/finale assertions, eight glyph regression tests and the
+existing localization and build-snapshot test suites. Screenshots of the final
+accents, quotes, class cards and dense credits were visually checked.

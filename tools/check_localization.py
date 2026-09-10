@@ -144,7 +144,11 @@ def main():
     parser.add_argument('--pk3',type=Path)
     parser.add_argument('--accept-reviewed',action='store_true')
     args=parser.parse_args()
-    try: print(json.dumps(validate(args.root,pk3=args.pk3,accept_reviewed=args.accept_reviewed),indent=2))
+    try:
+        result=validate(args.root,pk3=args.pk3,accept_reviewed=args.accept_reviewed)
+        from check_font_coverage import validate as validate_fonts
+        result["fonts"]=validate_fonts(args.root,args.pk3)
+        print(json.dumps(result,indent=2))
     except (ValueError,UnicodeError) as error: parser.exit(1,f'Localization check failed:\n{error}\n')
 
 if __name__=='__main__': main()

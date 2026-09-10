@@ -9,7 +9,7 @@ class UTNTCreditsTests : EventHandler
   if(!h || !h.Initialized || h.Phase || !h.CardsUI || (LayoutSeen && LastLayoutPage==h.Page))return;
   let page=h.Pages[h.Page];let view=h.CardsUI;if(view.Cached!=page)return;
   LayoutSeen=true;LastLayoutPage=h.Page;bool fit=true;
-  if(view.Body!=AlternativeSmallFont)fit=false;
+  if(view.Body!=Font.GetFont('SmallFont'))fit=false;
   if(page.Layout=="standard" || page.Layout=="dense")
   {
    bool dense=page.Layout=="dense";

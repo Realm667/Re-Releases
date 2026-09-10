@@ -19,9 +19,16 @@ def fixture(root, directory):
       'ui void Expect(String key,String expected,String plain) {',
       ' String actual=StringTable.Localize("$"..key);',
       ' Check(actual==expected,"lookup "..key);',
-      ' Check(AlternativeSmallFont.CanPrint(plain,false),"glyphs "..key);',
+      ' Check(Font.GetFont(\'SmallFont\').CanPrint(plain,false),"glyphs "..key);',
       '}',
+      'ui bool FontSheet;',
+      'override void RenderOverlay(RenderEvent e) { if(!FontSheet)return;double s=Screen.GetWidth()/1000.0;Screen.Dim(0x161513,1,0,0,Screen.GetWidth(),Screen.GetHeight());',
+      ' for(int n=0;n<3;n++) { let f=Font.GetFont(n==0?\'SmallFont\':n==1?\'BigFont\':\'UCRBIG\');double z=(n==0?3:1.25)*s;',
+      ' Screen.DrawText(f,Font.CR_WHITE,36*s,(60+200*n)*s,"Ä Ö Ü  ß  É È Ê Ë  À Â  Ç Ñ  Œ",DTA_ScaleX,z,DTA_ScaleY,z);',
+      ' Screen.DrawText(f,Font.CR_WHITE,36*s,(105+200*n)*s,"¡ESPAÑOL!  FRANÇAIS  FÜR DICH",DTA_ScaleX,z,DTA_ScaleY,z);',
+      ' Screen.DrawText(f,Font.CR_WHITE,36*s,(150+200*n)*s,"«Cœur»  „Grüße“  ¿Qué?",DTA_ScaleX,z,DTA_ScaleY,z); } }',
       'override void ConsoleProcess(ConsoleEvent e) {',
+      ' if(e.Name=="locfontsheet") { FontSheet=true;return; }',
       ' if(e.Name=="loccredits") {',
       ' let h=UTNTCreditsHandler(EventHandler.Find(\'UTNTCreditsHandler\'));Check(h && h.Initialized,"credits initialized");if(!h)return;',
       ' for(int n=0;n<h.Pages.Size();n++) { let page=h.Pages[n];let view=new("UTNTCreditsUI");view.Prepare(page);',
@@ -35,6 +42,20 @@ def fixture(root, directory):
       ' if(e.Name=="locclose") { if(Menu.GetCurrentMenu()) Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Back,false); return; }',
       ' if(e.Name!="loccheck") return;']
     methods=[]
+    font_manifest=json.loads((root/'tools/font-glyphs.json').read_text())
+    for name,description in font_manifest['fonts'].items():
+        records=list(description['glyphs'].items())
+        for chunk in range(0,len(records),40):
+            method=f'Font_{name}_{chunk//40}'
+            blocks.append(f' {method}();')
+            methods.append('ui void '+method+'() {')
+            methods.append(f" let font=Font.GetFont('{name}');")
+            for code,metric in records[chunk:chunk+40]:
+                n=int(code,16)
+                methods.append(f' Check(font.GetCharWidth({n})=={metric["width"]} && font.GetGlyphHeight({n})=={metric["height"]} && font.GetDisplayTopOffset({n})=={metric["top"]},"native glyph {name}/{code}");')
+            methods.append('}')
+    blocks.append(" Check(AlternativeSmallFont==Font.GetFont('SmallFont'),\"engine uses native SmallFont\");")
+    blocks.append(" Check(AlternativeBigFont==Font.GetFont('BigFont'),\"engine uses native BigFont\");")
     for index,lang in enumerate(LANGUAGES):
         rows=list(catalog[lang].items())
         for chunk in range(0,len(rows),50):
@@ -47,7 +68,7 @@ def fixture(root, directory):
                 methods.append(f' Expect("{key}","{value}","{plain}");')
             methods.append('}')
     blocks += [
-      ' let font=AlternativeSmallFont;',
+      ' let font=Font.GetFont(\'SmallFont\');',
       ' String cards[]={"RAGE","REGEN","WEAK","CLOAK","OVERDRIVE","BULWARK"};',
       ' for(int n=0;n<6;n++) { let lines=font.BreakLines(StringTable.Localize("$UTNT_AB_CARD_"..cards[n]),210); Check(lines.Count()<=4,"ability fits "..cards[n]); }',
       ' String foot[]={"TIMING","EXCLUSIVE","LOCK"};',
@@ -69,7 +90,7 @@ def main():
     p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE',str(ROOT/'engine/uzdoom.exe')))
     p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD',r'F:\DoomDev\DOOM2.WAD'))
     p.add_argument('--overlay',action='store_true',help='Preview the supplied root catalogs over the base package')
-    p.add_argument('--output',type=Path,default=ROOT/'tutnt/.codex/validation/localization-2026-09-10')
+    p.add_argument('--output',type=Path,default=ROOT/'tutnt/.codex/validation/font-glyphs-2026-09-10')
     p.add_argument('--languages',nargs='+',default=list(LANGUAGES),choices=LANGUAGES)
     a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True);results=[]
     with tempfile.TemporaryDirectory(prefix='utnt-localization-') as temp:
@@ -79,6 +100,7 @@ def main():
             shutil.copyfile(a.root/'tutnt/MENUDEF.txt',addon/'MENUDEF.txt')
             shutil.copytree(a.root/'tutnt/zscript',addon/'zscript',dirs_exist_ok=True)
             shutil.copytree(a.root/'tutnt/credits',addon/'credits',dirs_exist_ok=True)
+            shutil.copytree(a.root/'tutnt/fonts',addon/'fonts',dirs_exist_ok=True)
         compiled=run_case(a.engine,a.iwad,root=a.output,mod=a.mod,addon=addon,label='localization-compile',timeout=15)
         if not compiled['ok']:
             print(Path(compiled['log']).read_text(encoding='utf-8')[-6000:]);raise SystemExit(1)
@@ -88,7 +110,7 @@ def main():
                 'event locmenu 0','wait 8',f'screenshot logs/{label}-classes.png','wait 3','event locclose',
                 'event locmenu 1','wait 8',f'screenshot logs/{label}-options.png','wait 3','event locclose',
                 'event locmenu 2','wait 8',f'screenshot logs/{label}-main.png','wait 3','event locclose',
-                'echo UTNT_TEST_END','wait 3','quit']
+                'event locfontsheet','wait 5',f'screenshot logs/{label}-fonts.png','echo UTNT_TEST_END','wait 3','quit']
             result=run_case(a.engine,a.iwad,root=a.output,mod=a.mod,addon=addon,mapname='TNT01',
                 label=label,commands='; '.join(commands),timeout=50,regression=True,
                 settings=[('language',lang),('con_notifytime',0),('vid_activeinbackground',True),

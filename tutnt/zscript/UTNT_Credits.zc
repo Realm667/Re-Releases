@@ -151,7 +151,7 @@ class UTNTCreditsUI ui
  {
   Scale=Screen.GetHeight()/720.0;
   Width=min(1280.0,Screen.GetWidth()/Scale);Left=(Screen.GetWidth()-Width*Scale)/2;
-  Body=AlternativeSmallFont;if(!Big)Big=Font.GetFont('UCRBIG');
+  Body=Font.GetFont('SmallFont');if(!Big)Big=Font.GetFont('UCRBIG');
   String locale=CVar.FindCVar('language').GetString();
   if(page==Cached && Width==CachedWidth && locale==CachedLanguage)return;
   CachedLanguage=locale;
@@ -162,7 +162,7 @@ class UTNTCreditsUI ui
   if(page.Layout=="thanks")ContributionSize=12.5;
   for(int i=0;i<page.Contributions.Size();i++)
   {
-   Wrapped.Push(Body.BreakLines(Local(page.Contributions[i]),int(w*Body.GetHeight()/ContributionSize)));
+   Wrapped.Push(Body.BreakLines(Local(page.Contributions[i]),int(w*8/ContributionSize)));
    Array<String> names;page.Names[i].Split(names,"~",TOK_KEEPEMPTY);
    Heights.Push(max(74,ceil(16+names.Size()*18.5+7.5+Wrapped[i].Count()*LineStep+6)));
   }
@@ -181,14 +181,14 @@ class UTNTCreditsUI ui
  {Screen.Dim(color,a,int(Left+x*Scale),int(y*Scale),int(ceil(w*Scale)),int(ceil(h*Scale)));}
  void Text(String value,double x,double y,double size=10,int color=0xe2d3bd,double alpha=1,bool center=false,double maxWidth=2000)
  {
-  double s=size/Body.GetHeight();s=min(s,maxWidth/max(1,Body.StringWidth(value)));
+  double s=size/8;s=min(s,maxWidth/max(1,Body.StringWidth(value)));
   if(center)x-=Body.StringWidth(value)*s/2;
   Screen.DrawText(Body,Font.CR_WHITE,Left+x*Scale,y*Scale,value,DTA_ScaleX,s*Scale,DTA_ScaleY,s*Scale,DTA_Color,0xff000000|color,DTA_Alpha,alpha);
  }
  void DrawName(String value,double x,double y,double height,double maxWidth,double alpha,bool center=false)
  {
-  Font titleFont=Big.CanPrint(value,false)?Big:AlternativeBigFont;
-  double s=height/(titleFont==Big?20:titleFont.GetHeight()),w=titleFont.StringWidth(value)*s;
+  Font titleFont=Big;
+  double s=height/20,w=titleFont.StringWidth(value)*s;
   if(w>maxWidth){s*=maxWidth/w;w=maxWidth;}if(center)x-=w/2;
   Screen.DrawText(titleFont,Font.CR_UNTRANSLATED,Left+x*Scale,y*Scale,value,DTA_ScaleX,s*Scale,DTA_ScaleY,s*Scale,DTA_Alpha,alpha);
  }
@@ -204,8 +204,8 @@ class UTNTCreditsUI ui
   String chapter=p.Remaster?Local("$UTNT_CREDITS_REMASTER"):Local("$UTNT_CREDITS_ORIGINAL");
   String category=p.Remaster && Local(p.Heading)~=="Remaster"?Local("$UTNT_CREDITS_TEXT_001").MakeUpper():Local(p.Heading).MakeUpper();double width=p.Layout=="dense"?582:p.Layout=="thanks"?530:328;
   int accent=p.Remaster?0xc4d9d9:0xd0a675;
-  double chapterWidth=Body.StringWidth(chapter)*11/Body.GetHeight();
-  bool twoLines=chapterWidth+19+Body.StringWidth(category)*9/Body.GetHeight()>width-8;
+  double chapterWidth=Body.StringWidth(chapter)*11/8;
+  bool twoLines=chapterWidth+19+Body.StringWidth(category)*9/8>width-8;
   if(twoLines)y-=12;
   Dim(0x070807,.68*alpha,37,y-8,width+14,twoLines?41:29);
   Dim(accent,alpha,37,y-8,2,twoLines?41:29);

@@ -124,7 +124,7 @@ class UTNTObjectivePlaque ui
         if (episode<1 || episode>9 || level.time>=endTime) return 0;
         double now=level.time+fracTic;
         double alpha=clamp(min((now-startTime+1)/10.0,(endTime-now)/14.0),0,1);
-        Font font=AlternativeSmallFont;
+        Font font=Font.GetFont('SmallFont');
         double scale=UTNTUILayout.Scale(),width=UTNTUILayout.Width(300),padding=9;
         Array<BrokenLines> rows; double height=padding*2;
         for(int row=0;row<Count(episode);row++)
@@ -224,7 +224,7 @@ class UTNTObjectivePlaque ui
         if(alpha<=0) return 0;
         double scale=UTNTUILayout.Scale(),width=UTNTUILayout.Width(300);
         double x=UTNTUILayout.Margin(),y=UTNTUILayout.CornerTop(width*scale);
-        Font font=AlternativeSmallFont;
+        Font font=Font.GetFont('SmallFont');
         String heading=StringTable.Localize(CompletedCount(mask)==Count(episode) ? "$UTNT_OBJ_ALL_DONE" : "$UTNT_OBJ_DONE_HEADING");
         String consequence=episode==5 && row==2 ? StringTable.Localize("$UTNT_OBJ_PILLARS") : "";
         let headings=font.BreakLines(heading,int(width-92));
@@ -251,7 +251,7 @@ class UTNTObjectivePlaque ui
     // At small viewports or alongside subtitles, trade ornament space for readable type.
     static void DrawReadable(int episode,double alpha,double bottom)
     {
-        Font font=AlternativeSmallFont;
+        Font font=Font.GetFont('SmallFont');
         double s=UTNTUILayout.Scale();
         double width=UTNTUILayout.Width(500),lineHeight=font.GetHeight()+3;
         Array<String> rows;Array<int> shades;
@@ -285,7 +285,7 @@ class UTNTObjectivePlaque ui
     {
         if (episode<1 || episode>9 || alpha<=0) return;
         alpha=clamp(alpha,0,1);
-        Font small=AlternativeSmallFont, big=Font.GetFont('DBIGFONT');
+        Font small=Font.GetFont('SmallFont'), big=Font.GetFont('DBIGFONT');
         String heading=StringTable.Localize('$UTNT_OBJ_HEADING');
         String episodeName=StringTable.Localize(String.Format("$UTNT_INTRO_%03d",episode));
         int count=Count(episode),mask=Progress(episode);

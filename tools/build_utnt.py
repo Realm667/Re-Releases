@@ -241,6 +241,9 @@ def main():
         (source/'tools').mkdir(exist_ok=True)
         shutil.copyfile(root/'tools/localization-review.json', source/'tools/localization-review.json')
         localization = validate_localization(source)
+        from check_font_coverage import validate as validate_fonts
+        shutil.copyfile(root/'tools/font-glyphs.json', source/'tools/font-glyphs.json')
+        localization['fonts'] = validate_fonts(source)
         result={'localization':localization, 'acs':compile_sources(source,compiler,a.check_only)}
         if not a.check_only:
             if not a.skip_engine_check and (not a.engine.is_file() or not a.iwad.is_file()):

@@ -12,3 +12,9 @@ tools/validation/palette-restore-2026-09-07/** -text -whitespace
 
 # Doom image data contains raw palette indices, never text.
 /tutnt/**/*.lmp binary
+
+# Generated native-font data must remain reproducible on Windows and Linux.
+/tutnt/fonts/**/font.inf text eol=lf
+/tools/font-glyphs.json text eol=lf
+/tools/font-sources/*.fon2 binary
+/tools/font-sources/*.pal binary

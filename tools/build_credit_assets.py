@@ -13,10 +13,9 @@ for name,size,stops in [('UCRSHADE',(256,1),[(0,.82),(.43,.82*.84),(.76,.18),(1,
  image=Image.new('RGBA',size)
  for i in range(256):image.putpixel((i,0) if size[0]>1 else (0,i),(0,0,0,round(lerp(stops,i/255)*255)))
  image.save(assets/(name+'.png'))
-# Native FON2 fonts: preserve DBIGFONT's artwork; only brighten its private palette.
-big=bytearray((T/'DBIGFONT.fon2').read_bytes());p=12+(2 if big[11]&1 else 0);p+=2*(1 if big[8] else big[7]-big[6]+1)
-for i in range(p,p+(big[10]+1)*3):big[i]=min(255,round(big[i]*1.8))
-(T/'UCRBIG.fon2').write_bytes(big)
+# Rebuild the extended original and bright credit fonts together.
+from build_localized_fonts import build as build_fonts
+build_fonts()
 
 
 def build_reliquiar_frames():

@@ -47,7 +47,7 @@ class UTNTExplorationUI ui
             int sec=level.time/35;
             rows.Push(String.Format("%02d:%02d:%02d",sec/3600,(sec/60)%60,sec%60));
         }
-        Font font=AlternativeSmallFont;
+        Font font=Font.GetFont('SmallFont');
         double width=0,ts=1.3*s;
         for(int j=0;j<rows.Size();j++) width=max(width,font.StringWidth(rows[j])*ts);
         double x=pos%2?Screen.GetWidth()-width-18*s:26*s;
@@ -59,7 +59,7 @@ class UTNTExplorationUI ui
 
     static void Text(String text,double x,double y,double scale,int shade,double alpha=1)
     {
-        Font font=AlternativeSmallFont;
+        Font font=Font.GetFont('SmallFont');
         Screen.DrawText(font,Font.CR_WHITE,x+scale,y+scale,UTNTNoticeFeed.Plain(text),
             DTA_ScaleX,scale,DTA_ScaleY,scale,DTA_Color,0xff050403,DTA_Alpha,alpha*0.8);
         Screen.DrawText(font,Font.CR_WHITE,x,y,text,
@@ -103,7 +103,7 @@ class UTNTExplorationUI ui
     static void DrawSecret(int found,double alpha,double bottomLimit=-1,double topLimit=-1)
     {
         double s=UTNTUILayout.Scale(),width=UTNTUILayout.Width(300);
-        Font font=AlternativeSmallFont;
+        Font font=Font.GetFont('SmallFont');
         let title=font.BreakLines(Local("UTNT_SECRET_FOUND"),int(width-70));
         let count=font.BreakLines(String.Format(Local("UTNT_SECRET_COUNT"),found,level.total_secrets),int(width-70));
         double lh=font.GetHeight()+3,height=max(40,20+(title.Count()+count.Count())*lh);
@@ -133,7 +133,7 @@ class UTNTExplorationUI ui
     {
         if(!automapactive || viewactive || gamestate!=GS_LEVEL) return;
         double s=min(Screen.GetWidth()/960.0,Screen.GetHeight()/540.0);
-        Font font=AlternativeSmallFont;
+        Font font=Font.GetFont('SmallFont');
         MapStats(s);
         double top=16;
         // Respect the existing user-selectable statistics corner.

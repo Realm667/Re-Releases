@@ -49,7 +49,7 @@ class UTNTBossPlaque ui
         Screen.DrawTexture(frame,true,x,y,DTA_DestWidthF,142*scale,DTA_DestHeightF,32*scale,
             DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha);
         String name=StringTable.Localize(String.Format("$UTNT_BOSS_%d",kind));
-        Font small=AlternativeSmallFont;
+        Font small=Font.GetFont('SmallFont');
         double nameScale=scale*min(0.72,100.0/max(1,small.StringWidth(name)));
         Screen.DrawText(small,Font.CR_WHITE,x+85*scale-small.StringWidth(name)*nameScale/2,y+3*scale,name,
             DTA_ScaleX,nameScale,DTA_ScaleY,nameScale,DTA_Color,0xffded4be,DTA_Alpha,alpha);
