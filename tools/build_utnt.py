@@ -69,11 +69,19 @@ def compile_sources(root, compiler, check_only=False):
 
 def input_files(root):
     """Runtime assets plus ACS sources; editor/backup/reference data never ships."""
-    return sorted((p for p in (root/'tutnt').rglob('*') if p.is_file()
-        and not any(x.startswith('.') or x in ('tools', '#PSD') for x in p.relative_to(root/'tutnt').parts)
-        and p.suffix.lower() not in ('.dbs','.psd','.bat','.otf','.ttf','.rar','.zip')
-        and '.backup' not in p.name and '.autosave' not in p.name),
-        key=lambda p:p.relative_to(root/'tutnt').as_posix())
+    source = root/'tutnt'
+    files = []
+    for folder, dirs, names in os.walk(source):
+        # Prune before traversal: local references may contain entire repositories.
+        dirs[:] = [name for name in dirs if not name.startswith('.')
+                   and name not in ('tools', '#PSD')]
+        for name in names:
+            p = pathlib.Path(folder)/name
+            if (p.is_file() and not name.startswith('.')
+                and p.suffix.lower() not in ('.dbs','.psd','.bat','.otf','.ttf','.rar','.zip')
+                and '.backup' not in name and '.autosave' not in name):
+                files.append(p)
+    return sorted(files, key=lambda p:p.relative_to(source).as_posix())
 
 
 class BuildLock:

@@ -18,6 +18,22 @@ class SnapshotTests(unittest.TestCase):
    self.assertNotIn('source/tutnt.acs',z.namelist());self.assertNotIn('tools/no.txt',z.namelist())
    self.assertIn(result['build_id'].encode(),z.read('LANGUAGE.zzbuild'))
    for name,digest in info['files'].items():self.assertEqual(b.hashlib.sha256(z.read(name)).hexdigest(),digest)
+ def test_local_work_never_enters_snapshot_or_package(self):
+  before=b.source_hashes(self.root)
+  private=self.root/'tutnt/.codex/references/nested'
+  private.mkdir(parents=True)
+  (private/'private.txt').write_text('local data')
+  original=b.os.scandir
+  def guarded(path):
+   self.assertNotIn('.codex',pathlib.Path(path).parts)
+   return original(path)
+  with patch('os.scandir',side_effect=guarded):
+   self.assertEqual(before,b.source_hashes(self.root))
+   with b.snapshot(self.root) as (source,hashes,metadata):
+    self.assertFalse((source/'tutnt/.codex').exists())
+   b.package(self.root,self.output)
+  with zipfile.ZipFile(self.output) as archive:
+   self.assertFalse(any('.codex' in name for name in archive.namelist()))
  def test_mutation_preserves_old_package(self):
   self.output.write_bytes(b'old package')
   with b.snapshot(self.root) as (source,hashes,metadata):

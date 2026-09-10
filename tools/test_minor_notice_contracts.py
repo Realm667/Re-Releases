@@ -32,7 +32,7 @@ def strip_notices(s, new):
         s = s[:m.start()] + s[m.end():]
     return s
 
-manifest = json.loads((R/'tools/validation/minor-notices-2026-09-08/manifest.json').read_text(encoding='utf-8'))
+manifest = json.loads((R/'tools/fixtures/minor-notices/manifest.json').read_text(encoding='utf-8'))
 report = []
 for path in sorted((R/'tutnt/maps').glob('*.wad')):
     old = lumps(before(path.relative_to(R).as_posix()))

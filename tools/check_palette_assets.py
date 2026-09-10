@@ -7,7 +7,7 @@ ROOT=pathlib.Path(__file__).resolve().parent.parent
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--root',type=pathlib.Path,default=ROOT)
-    p.add_argument('--manifest',type=pathlib.Path,default=ROOT/'tools/validation/palette-restore-2026-09-07/assets.json')
+    p.add_argument('--manifest',type=pathlib.Path,default=ROOT/'tools/fixtures/palette-restore/assets.json')
     p.add_argument('--pk3',type=pathlib.Path)
     args=p.parse_args();assets=json.loads(args.manifest.read_text(encoding='utf-8'))
     archive=zipfile.ZipFile(args.pk3) if args.pk3 else None
