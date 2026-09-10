@@ -23,6 +23,8 @@ class UTNTCreditsHandler : EventHandler
  Vector3 Origins[6];
  double Angles[6], Pitches[6];
  Vector3 FlightSamples[321];
+ Vector3 SparkFocus;
+ bool HasSparkFocus;
  int FlightCount;
  Array<double> FlightLengths, FlightYaws, FlightPitches;
  int Page, PageStart, Phase, LastInput, HintUntil, FinaleStarts;
@@ -69,12 +71,22 @@ class UTNTCreditsHandler : EventHandler
  void BuildFlight()
  {
   Vector3 nodes[11];int count;Array<double> yaw,pitch;
+  let sparks=Level.CreateActorIterator(7,"OrangeSpark_Up");Actor spark=sparks.Next();
+  if(spark){SparkFocus=spark.Pos;HasSparkFocus=true;}
   // Retain the authored route; omit its 32-unit duplicate start / stop intervals.
   double tilt[]={0,-2,3,6,8,7,4,0,-3,-6,-10};
   for(int id=100;id<=110;id++)
   {
    let it=Level.CreateActorIterator(id);Actor node=it.Next();if(!node)continue;
-   nodes[count++]=node.Pos;double a=node.Angle;
+   // End above the near crater slope, close enough to read the floor discharge.
+   Vector3 position=node.Pos;
+   if(HasSparkFocus && id>=108)
+   {
+    if(id==110)position=SparkFocus+(0,-180,220);
+    else position.z=max(position.z,SparkFocus.z+(id==108?300:250));
+   }
+   nodes[count++]=position;
+   double a=node.Angle;
    if(yaw.Size())a=yaw[yaw.Size()-1]+Actor.deltaangle(yaw[yaw.Size()-1],a);
    yaw.Push(a);pitch.Push(tilt[id-100]);
   }
@@ -135,14 +147,25 @@ class UTNTCreditsHandler : EventHandler
   }
   else if(Phase==1 && FlightCount>1)
   {
-   double u=clamp((level.time-PageStart-35)/875.0,0,1),progress=Ease(u);
+   // Arrive at 21 seconds: one quiet second before ACS 102, then hold its flashes.
+   double u=clamp((level.time-PageStart-35)/700.0,0,1),progress=Ease(u);
    double target=FlightLengths[FlightLengths.Size()-1]*progress;
    int i=1;while(i+1<FlightLengths.Size() && FlightLengths[i]<target)i++;
    double t=clamp((target-FlightLengths[i-1])/max(.001,FlightLengths[i]-FlightLengths[i-1]),0,1);
    camera.SetOrigin(FlightSamples[i-1]*(1-t)+FlightSamples[i]*t,true);
    camera.Angle=FlightYaws[i-1]*(1-t)+FlightYaws[i]*t;
    camera.Pitch=FlightPitches[i-1]*(1-t)+FlightPitches[i]*t;
-   camera.Roll=-2.5*sin(u*180)*sin(u*270);camera.CameraFOV=88-4*progress;
+   double focus=HasSparkFocus?Ease((u-.55)/.35):0;
+   if(focus>0)
+   {
+    Vector3 toSpark=SparkFocus-camera.Pos;
+    double lookYaw=atan2(toSpark.y,toSpark.x);
+    double lookPitch=-atan2(toSpark.z,sqrt(toSpark.x*toSpark.x+toSpark.y*toSpark.y));
+    camera.Angle+=Actor.deltaangle(camera.Angle,lookYaw)*focus;
+    camera.Pitch+=(lookPitch-camera.Pitch)*focus;
+   }
+   camera.Roll=-2.5*sin(u*180)*sin(u*270)*(1-focus);
+   camera.CameraFOV=88-4*progress-20*focus;
   }
  }
  void QueueCut(int next)

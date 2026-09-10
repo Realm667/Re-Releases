@@ -98,6 +98,21 @@ class UTNTCreditsTests : EventHandler
   {Check(h.Cutting && h.Phase==0,"outgoing black fade is pending");Check(h.PendingPage==e.Args[1],"pending destination restored");}
   else if(op==18)
   {Check(h.Phase==1 && h.FlightCount==321,"flight state restored");Check(players[0].camera==h.ViewCamera,"saved flight rig attached");HadPrevious=false;}
+  else if(op==19)
+  {
+   let it=Level.CreateActorIterator(7,"OrangeSpark_Up");Actor spark=it.Next();
+   Check(h.Phase==1 && level.time-h.PageStart>=735 && level.time-h.PageStart<868,"spark shot settles before its flashes and outgoing fade");
+   Check(spark && h.HasSparkFocus && (spark.Pos-h.SparkFocus).Length()<.01,"authored floor spark focus survives save/load");
+   if(spark)
+   {
+    let camera=h.ViewCamera;Vector3 delta=spark.Pos-camera.Pos;
+    double yaw=atan2(delta.y,delta.x),pitch=-atan2(delta.z,delta.XY.Length());
+    Check(abs(Actor.deltaangle(camera.Angle,yaw))<.1 && abs(camera.Pitch-pitch)<.1,"floor spark is centered in the final camera");
+    Check(camera.CheckSight(spark),"crater rim does not occlude spark");
+    Check(delta.Length()>250 && delta.Length()<320 && camera.Pos.z-spark.Pos.z>180,"close shot clears the near crater slope");
+    Check(camera.CameraFOV>=63 && camera.CameraFOV<=65 && abs(camera.Roll)<.01,"spark shot has tighter lens and settled horizon");
+   }
+  }
   else if(op==14)
   {Check(h.Page==7 && level.time-h.PageStart>=32 && level.time-h.PageStart<50,"animation time restored by save/load");}
 

@@ -52,12 +52,19 @@ werden ignoriert. Die freigegebene Boxenanimation beginnt nach der Eingangsblend
 
 Der abschließende FPV-Flug verwendet die vorhandenen Wegpunkte 100–110, eine
 Hermite-Kurve mit gemeinsamen Tangenten, 321 Stützproben und einen nach Bogenlänge bestimmten Fortschritt.
-So entfällt das Anhalten an jedem Wegpunkt. Der Flug dauert 25 Sekunden nach einer
-Sekunde Einblendung, mit weichem Anfahren und Auslaufen, durchgehender Blickrichtung,
-sanften Pitch-Änderungen und maximal 2,5 Grad Kurvenneigung. Die Blickrichtung erhält
-die ursprünglichen Motivwechsel; extreme abrupte Neigungen sind geglättet.
-Die letzten 1,2 Sekunden blenden nach Schwarz, anschließend erscheint „THE END“
-nach kurzer Ruhe mit einer zweisekündigen Einblendung.
+Nach einer Sekunde Einblendung dauert die Fahrt 20 Sekunden; anschließend bleibt
+fünf Sekunden die Schlusskomposition stehen. Im letzten Teil schwenkt der Blick
+weich auf den tatsächlichen OrangeSpark_Up mit TID 7 am Kraterboden. Die beiden
+letzten Anflugpunkte werden über die nahe Kraterkante angehoben; der Endpunkt liegt
+180 Einheiten südlich und 220 über dem Funken. Die Kartendaten bleiben unverändert.
+
+Der Blick verengt sich von FOV 88 auf 64, die Kurvenneigung klingt auf null aus.
+Der Funke liegt mittig und die Kamera kommt eine Sekunde vor dem ersten durch
+ACS 102 ausgelösten Aufflackern zur Ruhe. Dessen viersekündiges Zeitfenster bleibt
+im Bild; während der letzten 1,2 Sekunden blendet es wie bisher nach Schwarz.
+Anschließend erscheint „THE END“ nach kurzer Ruhe mit einer zweisekündigen Einblendung.
+Fokuspunkt, Kurvenproben und Fortschritt werden mitgespeichert. Fehlt der Funkenaktor,
+bleiben die ursprünglichen Wegpunkte und Blickrichtungen als Rückfall erhalten.
 
 ACS 55 behält Musik und Umwelt-Cues: D_NOVER beginnt nach der einsekündigen
 Eingangsblende. Die alte MovingCamera wird nicht mehr aktiviert; Position und
@@ -116,11 +123,14 @@ python tools/test_credits.py --engine PATH/uzdoom.exe --iwad PATH/DOOM2.WAD --ou
 `--language en|de|es|fr` wählt die Textfassung. `--classic` wählt das schmale Bildformat, `--renderer 0` OpenGL. Weitere Modi:
 `regression` für Speichern/Laden und Finale, `animation` für einen Spielstand
 mitten in der Einblendung, `remaster` für Kapitel, automatische Folgeseiten und
-Kapitel-Spielstand, `finale` für das natürliche Ende, `cinematic` für Blenden-/Flug-Spielstände und kontinuierliche Kamerabewegung. `--mod` kann ein bestimmtes
+Kapitel-Spielstand, `finale` für das natürliche Ende, `cinematic` für Blenden-/Flug-Spielstände und kontinuierliche Kamerabewegung,
+`spark` für die natürliche Effektsequenz, freie Sicht, zentrierten Schlussblick und
+Speichern/Laden während der ruhenden Schlusskomposition. `--mod` kann ein bestimmtes
 PK3 wählen. Der Remaster-Test verändert nur eine separate Testdatei im Ausgabeordner.
 Zwei echte Koop-Clients prüft `tools/test_credits_coop.py` mit denselben Pfadoptionen.
 
 Ergebnisse und repräsentative Spielansichten stehen unter
-`tutnt/.codex/validation/credits-polish`. Automatisierte Tests laufen ohne
+`tutnt/.codex/validation/credits-polish`; die Kraterkorrektur unter
+`tutnt/.codex/validation/credits-spark`. Automatisierte Tests laufen ohne
 Ton; sie behaupten kein subjektives Abhören und keinen vollständigen Kampagnenlauf.
 Bei einem Versionswechsel ENDMAP neu betreten, um die neue Kapitelstruktur zu laden.

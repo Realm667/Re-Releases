@@ -3,7 +3,7 @@ from pathlib import Path
 import sys,json,argparse,subprocess,re
 REPO=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(REPO/'tools'))
 from check_engine import run_case
-p=argparse.ArgumentParser();p.add_argument('--mode',default='visual',choices=['visual','regression','finale','remaster','animation','cinematic']);p.add_argument('--mod',type=Path,default=REPO/'tutnt.pk3');p.add_argument('--fixture',type=Path,default=REPO/'tools/credits-tests');p.add_argument('--language',default='en');p.add_argument('--renderer',default='1');p.add_argument('--classic',action='store_true');p.add_argument('--out',type=Path,required=True);p.add_argument('--engine',type=Path,required=True);p.add_argument('--iwad',type=Path,required=True);a=p.parse_args();ROOT=a.out.resolve();ROOT.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser();p.add_argument('--mode',default='visual',choices=['visual','regression','finale','remaster','animation','cinematic','spark']);p.add_argument('--mod',type=Path,default=REPO/'tutnt.pk3');p.add_argument('--fixture',type=Path,default=REPO/'tools/credits-tests');p.add_argument('--language',default='en');p.add_argument('--renderer',default='1');p.add_argument('--classic',action='store_true');p.add_argument('--out',type=Path,required=True);p.add_argument('--engine',type=Path,required=True);p.add_argument('--iwad',type=Path,required=True);a=p.parse_args();ROOT=a.out.resolve();ROOT.mkdir(parents=True,exist_ok=True)
 ENGINE=a.engine;IWAD=a.iwad
 label='credits-'+a.mode+'-'+a.renderer+('-4x3' if a.classic else '')+'-'+a.language
 cmd=['unbindall','wait 420']
@@ -17,6 +17,10 @@ elif a.mode=='remaster':
  cmd+=['netevent creditstest 9','netevent creditstest 1 24','wait 15',f'screenshot logs/{label}-chapter.png','save creditremaster','wait 65','netevent creditstest 12','load creditremaster','wait 3','netevent creditstest 13','wait 65','netevent creditstest 12','netevent creditstest 1 25','wait 15',f'screenshot logs/{label}-remaster.png','netevent creditstest 1 26','wait 15',f'screenshot logs/{label}-remaster-next.png','netevent creditstest 7','wait 35','netevent creditstest 8']
 elif a.mode=='animation':
  cmd+=['netevent creditstest 10 7 0','wait 36',f'screenshot logs/{label}-entry.png','save creditentry','wait 10','load creditentry','wait 2','netevent creditstest 14','wait 25',f'screenshot logs/{label}-settled.png']
+elif a.mode=='spark':
+ cmd+=['netevent creditstest 15','netevent utnt_credit 2','wait 785','netevent creditstest 19',f'screenshot logs/{label}-focus.png','save creditspark','wait 12','load creditspark','wait 2','netevent creditstest 19']
+ for i in range(10):cmd+=['wait 5',f'screenshot logs/{label}-spark-{i:02}.png']
+ cmd+=['wait 180','netevent creditstest 16',f'screenshot logs/{label}-end.png']
 elif a.mode=='cinematic':
  cmd+=['netevent creditstest 1 7','wait 5','netevent utnt_credit 0','wait 8','netevent creditstest 17 8','save creditcut','wait 30','load creditcut','wait 2','netevent creditstest 17 8','wait 35','netevent creditstest 3 8','wait 25','netevent creditstest 15','netevent utnt_credit 2','wait 120','save creditflight','wait 30','load creditflight','wait 2','netevent creditstest 18','wait 280',f'screenshot logs/{label}-flight-a.png','wait 220',f'screenshot logs/{label}-flight-b.png','wait 340','netevent creditstest 16',f'screenshot logs/{label}-end.png']
 # Network events execute on the next game tick; do not let load/quit overtake them.
