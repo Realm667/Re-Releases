@@ -32,6 +32,7 @@ class UTNTCreditsHandler : EventHandler
  bool Initialized, Cutting;
  ui bool KeyHeld;
  ui UTNTCreditsUI CardsUI;
+ ui UTNTCreditsLook Look;
 
  static double Ease(double t) { t=clamp(t,0,1);return t*t*(3-2*t); }
  static Vector3 Curve(Vector3 a,Vector3 b,Vector3 c,Vector3 d,double t)
@@ -215,6 +216,13 @@ class UTNTCreditsHandler : EventHandler
   if(e.Type==InputEvent.Type_KeyUp)KeyHeld=false;
   else if(e.Type==InputEvent.Type_KeyDown && !KeyHeld){KeyHeld=true;EventHandler.SendNetworkEvent("utnt_credit",op);}
   return true;
+ }
+ override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTEndingLook",false); }
+ override void RenderUnderlay(RenderEvent e)
+ {
+  if(!(level.MapName~=="ENDMAP01") || !Initialized || Phase==2)
+  {PPShader.SetEnabled("UTNTEndingLook",false);Look=null;return;}
+  if(!Look)Look=new("UTNTCreditsLook");Look.Update(self,e);
  }
  override void RenderOverlay(RenderEvent e)
  {
@@ -404,3 +412,5 @@ class UTNTCreditsUI ui
   FadeWorld(state,frac);
  }
 }
+
+#include "zscript/UTNT_CreditsLook.zc"

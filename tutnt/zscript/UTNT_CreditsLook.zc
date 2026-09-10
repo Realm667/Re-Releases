@@ -1,0 +1,67 @@
+// Ash & Ember: bounded geometry-depth reconstruction for custom scene shaders.
+// UZDoom does not expose its depth buffer here. 16x9 rays sample static geometry
+// once per game tic; sprite depth is approximated by its surrounding geometry.
+class UTNTCreditsLook : Object ui
+{
+ double Depth[144];
+ int SampleTic,LastPage,LastPhase,TraceCount;
+ bool Ready,Enabled;
+ double FocusDistance,MinDepth,MaxDepth,SampleRatio,SampleFov;
+ void Update(UTNTCreditsHandler h,RenderEvent e)
+ {
+  if(!e.Camera || e.Camera!=h.ViewCamera){Enabled=false;PPShader.SetEnabled("UTNTEndingLook",false);return;}
+  String shader="UTNTEndingLook";
+  int vx,vy,vw,vh;[vx,vy,vw,vh]=Screen.GetViewWindow();
+  double ratio=vw/double(max(1,vh)),fov=e.Camera.CameraFOV;
+  double ty=tan(clamp(fov,5,170)*.5)/min(ratio,4.0/3.0),tx=ty*ratio;
+  Vector3 forward=(cos(e.ViewAngle)*cos(e.ViewPitch),sin(e.ViewAngle)*cos(e.ViewPitch),-sin(e.ViewPitch));
+  Vector3 right=(sin(e.ViewAngle),-cos(e.ViewAngle),0);
+  Vector3 up=(cos(e.ViewAngle)*sin(e.ViewPitch),sin(e.ViewAngle)*sin(e.ViewPitch),cos(e.ViewPitch));
+  Vector3 rollRight=right*cos(e.ViewRoll)+up*sin(e.ViewRoll);
+  up=up*cos(e.ViewRoll)-right*sin(e.ViewRoll);right=rollRight;
+  bool cut=!Ready || LastPage!=h.Page || LastPhase!=h.Phase || level.time<SampleTic || SampleRatio!=ratio || SampleFov!=fov;
+  Vector3 target=h.HasSparkFocus?h.SparkFocus:e.ViewPos+forward*1024;
+  if(h.Phase==0)
+  {
+   target=(64,-1088,48);
+  }
+  Vector3 delta=target-e.ViewPos;
+  // Plane distance keeps equally distant points sharp across a wide field of view.
+  FocusDistance=clamp(delta.X*forward.X+delta.Y*forward.Y+delta.Z*forward.Z,64,8192);
+  if(cut || SampleTic!=level.time)
+  {
+   let trace=new('LineTracer');MinDepth=8192;MaxDepth=0;
+   for(int y=0;y<9;y++)for(int x=0;x<16;x++)
+   {
+    Vector3 ray=(forward+right*((x+.5)/16*2-1)*tx+up*((y+.5)/9*2-1)*ty).Unit();
+    trace.Trace(e.ViewPos,level.PointInSector(e.ViewPos.XY),ray,8192,TRACE_HitSky,wallMask:0,ignoreAllActors:true,ignore:e.Camera);
+    double d=8192;
+    if(trace.Results.HitType!=TRACE_HitNone && trace.Results.HitType!=TRACE_HasHitSky)
+    {
+     Vector3 hit=trace.Results.HitPos-e.ViewPos;
+     d=clamp(hit.X*forward.X+hit.Y*forward.Y+hit.Z*forward.Z,8,8192);
+    }
+    int i=y*16+x;Depth[i]=cut?d:Depth[i]+(d-Depth[i])*.65;
+    MinDepth=min(MinDepth,Depth[i]);MaxDepth=max(MaxDepth,Depth[i]);TraceCount++;
+   }
+   SampleTic=level.time;Ready=true;LastPage=h.Page;LastPhase=h.Phase;SampleRatio=ratio;SampleFov=fov;
+  }
+  // Four 6-bit logarithmic distances fit exactly in each float mantissa.
+  double packed[36];
+  for(int i=0;i<36;i++)
+  {
+   packed[i]=0;
+   for(int j=0;j<4;j++)packed[i]+=floor(log(max(8,Depth[i*4+j])/8)/log(2.0)/10*63+.5)*(1<<(j*6));
+  }
+  for(int i=0;i<9;i++)PPShader.SetUniform4f(shader,String.Format("depth%d",i),(packed[i*4],packed[i*4+1],packed[i*4+2],packed[i*4+3]));
+  PPShader.SetUniform4f(shader,"viewport",(vx/double(Screen.GetWidth()),1-(vy+vh)/double(Screen.GetHeight()),vw/double(Screen.GetWidth()),vh/double(Screen.GetHeight())));
+  PPShader.SetUniform1f(shader,"focusDistance",FocusDistance);
+  // During the high descent keep a wider focal range; tighten gently at the crater.
+  double arrival=h.Phase==1?clamp((level.time-h.PageStart-385)/280.0,0,1):1;
+  arrival=arrival*arrival*(3-2*arrival);
+  PPShader.SetUniform1f(shader,"aperture",h.Phase==0?12:6+8*arrival);
+  PPShader.SetUniform1f(shader,"strength",1);
+  PPShader.SetUniform1f(shader,"grainTime",floor((level.time+e.FracTic)/3));
+  Enabled=true;PPShader.SetEnabled(shader,true);
+ }
+}

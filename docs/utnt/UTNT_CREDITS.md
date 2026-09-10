@@ -71,6 +71,34 @@ Eingangsblende. Die alte MovingCamera wird nicht mehr aktiviert; Position und
 Blickrichtung bestimmt ausschließlich das gespeicherte Kamera-Rig. Kampfskripte,
 Kartengeometrie, Wegpunkte und die TNT01-Skybox bleiben unverändert.
 
+## Ash & Ember (Mockup 03, 11.09.2026)
+
+Der freigegebene Look kombiniert entsättigte Asche-/Steintöne mit warm erhaltenen
+Feuer- und Glutfarben. Eine leichte Schattenaufhellung, sanft komprimierte Lichter,
+ein kleiner warmer Lichthof, bis zu 14 Prozent Randabdunklung und feines Korn
+halten die Szene lesbar. Die Grundsättigung beträgt 52 Prozent; warme Bereiche
+behalten bis zu 98 Prozent ihrer Sättigung.
+
+Die Tiefenunschärfe richtet sich während der Credits auf die Kampfmitte und beim
+Schlussflug auf den tatsächlichen Funken am Kraterboden. Die maximale Unschärfe
+beträgt zwölf Pixel bei 720 Bildzeilen; im Flug wächst sie sanft von sechs auf
+14 Pixel. Ein breiter Schärfebereich lässt den Kampf erkennbar. Der Shader benutzt
+24 räumliche Abtastungen ohne zeitliche Bildhistorie.
+
+Der Custom-Postprocess dieser Engine stellt keinen nativen Tiefenpuffer bereit.
+`UTNTCreditsLook` rekonstruiert deshalb die Geometrietiefe mit einem 16×9-Raster
+(maximal 144 Strahlen pro Spieltic bei unveränderter Projektion). Dies ist eine
+Näherung: Sprites und transparente Partikel erhalten die Tiefe ihrer Umgebung,
+keine individuelle pixelgenaue Tiefenmaske. Kameraschnitte, geänderte Projektion
+und das Laden eines Spielstands initialisieren die Messung neu.
+
+`credits/ash-ember.gldefs` registriert genau einen Scene-Pass; seine Definition
+liegt bewusst außerhalb der automatisch geladenen GLDEFS-Root-Lumps. Der Pass
+läuft vor den zweidimensionalen Tafeln, SMALLFONT-Texten und Schwarzblenden.
+Diese bleiben scharf und unverfärbt. Bei „THE END“, Verlassen der ENDMAP oder
+einer anderen aktiven Kamera wird der Effekt deaktiviert. Es gibt keine neuen
+Menütexte oder Spiel-CVars; `creditlookbaseline` existiert nur im Test-Fixture.
+
 ## Original Version und Remaster
 
 Alle vorhandenen Nennungen aus `tutnt/credits/original.txt` gehören zu
@@ -126,11 +154,15 @@ mitten in der Einblendung, `remaster` für Kapitel, automatische Folgeseiten und
 Kapitel-Spielstand, `finale` für das natürliche Ende, `cinematic` für Blenden-/Flug-Spielstände und kontinuierliche Kamerabewegung,
 `spark` für die natürliche Effektsequenz, freie Sicht, zentrierten Schlussblick und
 Speichern/Laden während der ruhenden Schlusskomposition. `--mod` kann ein bestimmtes
-PK3 wählen. Der Remaster-Test verändert nur eine separate Testdatei im Ausgabeordner.
+PK3 wählen. `look` prüft alle fünf Kameraperspektiven, die einmalige
+Shader-Registrierung, räumliche Tiefenwerte, gespeicherten Funkenfokus sowie das
+Sequenzende. Ein pausierter A/B-Pixelvergleich bestätigt die unveränderten
+Schriftbereiche und den sichtbaren Effekt auf die Welt. Der Remaster-Test verändert nur eine separate Testdatei im Ausgabeordner.
 Zwei echte Koop-Clients prüft `tools/test_credits_coop.py` mit denselben Pfadoptionen.
 
 Ergebnisse und repräsentative Spielansichten stehen unter
 `tutnt/.codex/validation/credits-polish`; die Kraterkorrektur unter
-`tutnt/.codex/validation/credits-spark`. Automatisierte Tests laufen ohne
+`tutnt/.codex/validation/credits-spark`, die Postprocess-Prüfungen unter
+`tutnt/.codex/validation/credits-ash-ember`. Automatisierte Tests laufen ohne
 Ton; sie behaupten kein subjektives Abhören und keinen vollständigen Kampagnenlauf.
 Bei einem Versionswechsel ENDMAP neu betreten, um die neue Kapitelstruktur zu laden.
