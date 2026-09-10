@@ -23,6 +23,7 @@ Run `tutnt_build.bat` from the repository root. Local configuration is in the ig
 - [UTNT_CALDERA.md](UTNT_CALDERA.md)
 - [UTNT_CREDITS.md](UTNT_CREDITS.md)
 - [UTNT_CURSED_SKY.md](UTNT_CURSED_SKY.md)
+- [UTNT_EFFECT_GLOW.md](UTNT_EFFECT_GLOW.md)
 - [UTNT_ENDMAP_SKY.md](UTNT_ENDMAP_SKY.md)
 - [UTNT_EXPLORATION_UI.md](UTNT_EXPLORATION_UI.md)
 - [UTNT_FIRE_EFFECTS.md](UTNT_FIRE_EFFECTS.md)

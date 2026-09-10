@@ -1,0 +1,208 @@
+// Selective material-shaded halos. Never changes an actor or the scene buffer.
+// The handler holds no per-client state: registrations and visuals live only
+// in the client thinker list, rebuilt from surviving actors after a load.
+class UTNTEffectGlowHandler : StaticEventHandler
+{
+    override void WorldThingSpawned(WorldEvent e)
+    {
+        if (UTNTEffectGlow.Profile(e.Thing)) UTNTEffectGlow.Get().Register(e.Thing);
+    }
+    override void WorldLoaded(WorldEvent e)
+    {
+        let manager=UTNTEffectGlow.Get();
+        let it=ThinkerIterator.Create('Actor');
+        Actor a;
+        while (a=Actor(it.Next())) if (UTNTEffectGlow.Profile(a)) manager.Register(a);
+    }
+}
+
+class UTNTEffectGlow : Thinker
+{
+    Array<Actor> Sources;
+    Array<UTNTEffectHalo> Halos;
+
+    static UTNTEffectGlow Get()
+    {
+        let it=ThinkerIterator.Create('UTNTEffectGlow',Thinker.STAT_USER+25,true);
+        let m=UTNTEffectGlow(it.Next());
+        if (!m) m=UTNTEffectGlow(level.CreateClientSideThinker('UTNTEffectGlow',Thinker.STAT_USER+25));
+        return m;
+    }
+
+    // Derived families precede their base families so translated attacks keep
+    // their authored color. Deliberately excludes trails, debris and scenery.
+    // 1 amber, 2 blue, 3 green, 4 red, 5 violet, 6 yellow; 7 explosion root.
+    static int Profile(Actor a)
+    {
+        if (!a || a.bISMONSTER || a is 'Inventory') return 0;
+        if (a is 'UTNTIndustrialExplosionBase' || a is 'UTNTRocketExplosion') return 7;
+        if (a is 'PBExploMiniBack') return 0;
+        if (a is 'PBExploBack' || a is 'PBExploBackHalf') return 8;
+        if (a is 'BaronBallExplo') return 3;
+        if (a is 'UTNTCacoBallExplo' || a is 'RedSkullBallExp') return 4;
+        if (a is 'DarkSeekerExplo') return 5;
+        if (a is 'RedSkullBall' || a is 'HellsFuryBall' || a is 'ShadowBall') return 4;
+        if (a is 'YellowSkullSeeker' || a is 'UTNTCacolanternBall' || a is 'HellGuardBall') return 6;
+        if (a is 'HellWarriorBall2' || a is 'GreenPoisonBall' || a is 'TorturedSoulBall'
+            || a is 'Hecteball' || a is 'SnakeImpFireball') return 3;
+        if (a is 'DarkNormal') return 2;
+        if (a is 'HellWarriorBall' || a is 'AfritBall' || a is 'BruiserBall'
+            || a is 'UTNTBelphegorBall') return 1;
+        if (a is 'PlasmaBall' || a is 'QueenElectro') return 2;
+        if (a is 'BFGBall' || a is 'BaronBall' || a is 'ArachnotronPlasma'
+            || a is 'SoulHarvesterBall') return 3;
+        if (a is 'CacodemonBall') return 5;
+        if (a is 'CatharsiBall') return 4;
+        if (a is 'DoomImpBall' || a is 'Rocket' || a is 'RevenantTracer'
+            || a is 'FatShot' || a is 'FTFire' || a is 'DropFire'
+            || a is 'FlameBreathource' || a is 'MiniFirePuffNoDamage'
+            || a is 'MinotaurFX1' || a is 'MinotaurFX2' || a is 'BruiserFire'
+            || a is 'HellFire2' || a is 'Comet') return 1;
+        return 0;
+    }
+
+    static Color Tint(int profile)
+    {
+        return profile==2 ? 0xff689cff : profile==3 ? 0xff8bdd55
+            : profile==4 ? 0xffff5030 : profile==5 ? 0xffce63ec
+            : profile==6 ? 0xffffcf65 : 0xffff963d;
+    }
+
+    void Register(Actor a)
+    {
+        int profile=Profile(a);
+        for (int i=0;i<Sources.Size();i++)
+        {
+            if (Sources[i]==a) return;
+            // The PB blast contains several overlapping large cores. One
+            // representative prevents their additive halos washing out the image.
+            if (profile==8 && Sources[i] && Profile(Sources[i])==8
+                && (Sources[i].Pos-a.Pos).Length()<64) return;
+        }
+        // A hard bound also covers pathological scripted projectile floods.
+        if (Sources.Size()>=1024) return;
+        Sources.Push(a); Halos.Push(null);
+    }
+
+    static int Limit()
+    {
+        let p=players[consoleplayer];
+        if (!p || !CVar.GetCVar('UTNT_effectglow',p).GetBool()
+            || CVar.GetCVar('UTNT_glowstrength',p).GetFloat()<=0) return 0;
+        int q=clamp(CVar.GetCVar('UTNT_fxquality',p).GetInt(),0,3);
+        if (CVar.GetCVar('UTNT_reducedfx',p).GetBool()) q=min(q,1);
+        return q==3 ? 160 : q==2 ? 96 : q==1 ? 48 : 0;
+    }
+
+    override void Tick()
+    {
+        int limit=Limit(), live=0;
+        let camera=players[consoleplayer].camera;
+        double range=max(0,CVar.GetCVar('UTNT_lod',players[consoleplayer]).GetInt());
+        for (int i=Sources.Size()-1;i>=0;i--)
+        {
+            let a=Sources[i];
+            if (!a)
+            {
+                if (Halos[i]) Halos[i].Destroy();
+                Sources.Delete(i); Halos.Delete(i); continue;
+            }
+            bool visible=limit>live && camera && range>0 && (camera.Pos-a.Pos).Length()<range;
+            if (!visible)
+            {
+                if (Halos[i]) { Halos[i].Destroy(); Halos[i]=null; }
+                continue;
+            }
+            if (!Halos[i])
+            {
+                let v=UTNTEffectHalo(level.SpawnClientSideVisualThinker('UTNTEffectHalo'));
+                if (!v) continue;
+                v.Source=a; v.Profile=Profile(a);
+                v.Texture=TexMan.CheckForTexture('UGLWA0');
+                v.Flags=SPF_FULLBRIGHT|SPF_STRETCHPIXELS|SPF_ALLOWSHADERS;
+                v.scolor=Tint(v.Profile); v.SetRenderStyle(STYLE_Add);
+                v.Pos=a.Pos; v.Prev=v.Pos; v.UpdateGlow(); v.Prev=v.Pos;
+                Halos[i]=v;
+            }
+            live++;
+        }
+    }
+}
+
+class UTNTEffectHalo : VisualThinker
+{
+    Actor Source;
+    int Profile;
+
+    void UpdateGlow()
+    {
+        Alpha=0;
+        if (!Source || !Source.CurState || !UTNTEffectGlow.Limit()) return;
+        let p=players[consoleplayer];
+        let camera=p.camera;
+        if (!camera || Source.bINVISIBLE || Source.GetRenderStyle()==STYLE_None) return;
+        double diameter=0, opacity=clamp(Source.Alpha,0,1), z=0;
+        bool flight=Source.bMISSILE;
+        // Transferred translations can change a shared explosion's color.
+        scolor=Source is 'BaronBallExplo' && Source.Translation==GetDefaultByType('HellsFuryBall').Translation
+            ? UTNTEffectGlow.Tint(4) : UTNTEffectGlow.Tint(Profile);
+        if (Profile==7)
+        {
+            // One halo per explosion controller, not one per fragment/flame.
+            double size=1;
+            String kind=Source.GetClassName();
+            if (kind.IndexOf("Big")>=0) size=1.7;
+            else if (kind.IndexOf("Small")>=0) size=0.65;
+            double life=clamp(Source.tics/10.0,0,1);
+            diameter=(65+35*(1-life))*size;
+            opacity=life*0.85;
+            z=Source.Pos.Z<=Source.floorz+8 ? 14*size : 0;
+        }
+        else
+        {
+            bool bfgImpact=Source is 'BFGBall' && !flight;
+            if (!flight && Source is 'DarkSeeker') return;
+            if (!bfgImpact && opacity<0.05) return;
+            if (!bfgImpact && !Source.CurState.bFullbright && !Source.bBRIGHT) return;
+            if (Source.sprite==Actor.GetSpriteIndex('TNT1')) return;
+            TextureID tex=Source.CurState.GetSpriteTexture(0,spritenum:Source.sprite,framenum:Source.frame);
+            if (!tex.IsValid()) return;
+            Vector2 size=TexMan.GetScaledSize(tex), offset=TexMan.GetScaledOffset(tex);
+            diameter=clamp(max(size.X*Source.Scale.X,size.Y*Source.Scale.Y)*1.8,12,140);
+            z=(offset.Y-size.Y*0.5)*Source.Scale.Y;
+            if (Source is 'Rocket')
+            {
+                // The rocket's death controller owns the explosion halo.
+                if (!flight) return;
+                diameter=26; z=0;
+            }
+            if (bfgImpact)
+            {
+                diameter=110+Source.frame*12;
+                opacity=0.7*(1-clamp(Source.frame/7.0,0,1));
+                z=0;
+            }
+            if (Source is 'FTFire' || Source is 'DropFire') opacity*=0.45;
+        }
+        double strength=clamp(CVar.GetCVar('UTNT_glowstrength',p).GetFloat(),0,1);
+        double radius=clamp(CVar.GetCVar('UTNT_glowsize',p).GetFloat(),0.5,1.75);
+        double range=max(1,CVar.GetCVar('UTNT_lod',p).GetInt());
+        double distance=(camera.Pos-Source.Pos).Length();
+        double fade=clamp((range-distance)/(range*0.2),0,1)*clamp((distance-8)/48,0,1);
+        if (CVar.GetCVar('UTNT_reducedfx',p).GetBool()) strength*=0.6;
+        Pos=Source.Pos+(0,0,z);
+        if (Source is 'Rocket' && flight && Source.Vel.Length()>0.01)
+            Pos-=Source.Vel.Unit()*9;
+        Scale=(diameter*radius/64,diameter*radius/64);
+        Alpha=clamp(opacity*strength*0.5*fade,0,0.5);
+        UpdateSector(); UpdateSpriteInfo();
+    }
+
+    override void Tick()
+    {
+        if (!Source) { Destroy(); return; }
+        if (Source.IsFrozen()) { UpdateGlow(); return; }
+        Super.Tick();
+        UpdateGlow();
+    }
+}

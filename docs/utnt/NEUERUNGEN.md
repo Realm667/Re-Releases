@@ -27,6 +27,7 @@ Stand: **10.09.2026**. Fortlaufende, thematisch zusammengefasste Liste der Remas
 
 ## Effekte, Flüssigkeiten und Umwelt
 
+- **Gezieltes Projektil- und Explosionsglühen:** farblich passende, weiche Leuchthöfe an Kampfobjekten und Explosionskernen; gemeinsam ein-/ausschaltbar sowie in Stärke und Größe regelbar. Berücksichtigt Effektqualität und Entfernung, erhält Originalsprites und spart Umgebung und HUD aus. [Details](UTNT_EFFECT_GLOW.md)
 - **Organisches Feuer:** unabhängig bewegte Flammen, Glut, Rauch und farblich passende Lichtkerne für Fackeln, brennende Fässer und Bodenfeuer; orange, grüne und blaue Varianten. [Details](UTNT_FIRE_EFFECTS.md)
 - **Überarbeitete Kampf- und Teleporteffekte:** gerichtete Metallfunken und Staub, kurze elektrische Entladungen sowie ausströmende und zurückkehrende Teleportfragmente. Die klassische Raketenflamme, Rauchspur und Raketenexplosion wurden in der aktuellen Fassung wiederhergestellt. [Details](UTNT_INDUSTRIAL_FX.md)
 - **Lost-Soul-Glutspuren:** kontinuierliche, hinter dem Schädel verankerte Funken mit nativen Flammenpixeln. [Effektimplementierung](../../tutnt/zscript/UTNT_Fire.zc)

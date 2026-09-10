@@ -1,0 +1,124 @@
+version "5.0.0"
+class UTNTGlowTest : EventHandler
+{
+    Array<Actor> Probes;
+    int OriginalHealth;
+    void Check(bool ok,String what)
+    { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",what); }
+    UTNTEffectHalo Halo(Actor a)
+    {
+        let m=UTNTEffectGlow.Get();
+        for(int i=0;i<m.Sources.Size();i++) if(m.Sources[i]==a) return m.Halos[i];
+        return null;
+    }
+    void Clear()
+    {
+        for(int i=0;i<Probes.Size();i++) if(Probes[i]) Probes[i].Destroy();
+        Probes.Clear();
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="glowcheck") RunCheck(e);
+        if(e.Name=="glowspawn")
+        {
+            Clear();
+            let p=players[0].mo; p.SetOrigin((0,-160,0),false); p.Angle=90; p.Pitch=0;
+            OriginalHealth=p.Health;
+            Name types[]={'UTNTPlasmaBall','UTNTBaronBall','UTNTDoomImpBall','UTNTBFGBall','DarkSeeker','UTNTRocket'};
+            for(int i=0;i<6;i++)
+            {
+                let a=Actor.Spawn(types[i],(-140+i*56,64,60)); a.Vel=(0,0,0); a.target=p;
+                Probes.Push(a);
+            }
+        }
+        if(e.Name=="glowclear") Clear();
+        if(e.Name=="glowburst")
+        {
+            Clear();
+            Probes.Push(Actor.Spawn('UTNTRocketExplosion',(-72,64,30)));
+            Probes.Push(Actor.Spawn('NewExplosionMedium',(72,64,30)));
+        }
+        if(e.Name=="glowloadtest")
+        {
+            Check(Probes.Size()==6,"saved probe actors restored");
+            for(int i=0;i<Probes.Size();i++) Check(Probes[i] && Halo(Probes[i])!=null,"saved actor has one restored local halo");
+        }
+        if(e.Name=="glowflood")
+        {
+            Clear();
+            for(int i=0;i<180;i++)
+            {
+                let a=Actor.Spawn('UTNTPlasmaBall',(-120+(i%20)*12,70+(i/20)*6,60));
+                a.Vel=(0,0,0); Probes.Push(a);
+            }
+        }
+        if(e.Name=="glowrange")
+        {
+            for(int i=0;i<Probes.Size();i++) if(Probes[i])
+                Probes[i].SetOrigin(Probes[i].Pos+(0,e.Args[0],0),false);
+        }
+        if(e.Name=="glowclassify")
+        {
+            Name included[]={'UTNTPlasmaBall','UTNTBFGBall','UTNTRocket','UTNTDoomImpBall',
+                'UTNTCacodemonBall','UTNTCacolanternBall','UTNTBaronBall','UTNTBelphegorBall',
+                'UTNTArachnotronPlasma','RevenantTracer','UTNTFatShot','QueenElectro','CatharsiBall',
+                'DarkNormal','DarkSeeker','GreenPoisonBall','RedSkullBall','YellowSkullSeeker',
+                'SnakeImpFireball','HellGuardBall','SoulHarvesterBall','HellWarriorBall','HellWarriorBall2',
+                'AfritBall','TorturedSoulBall','ShadowBall','HellsFuryBall','ElementalPlasma','Hecteball',
+                'BruiserBall','BruiserBall2','BruiserFire','FTFire','DropFire','FlameBreathource',
+                'MiniFirePuff','UTNTMinotaurFX1','UTNTMinotaurFX2','Comet','UTNTRocketExplosion',
+                'NewExplosionMedium','NewExplosionBig','MonExplosionSmallTooSimple','HellFire2',
+                'BaronBallExplo','UTNTCacoBallExplo','RedSkullBallExp','DarkSeekerExplo','PBExploBack','PBExploBackHalf'};
+            for(int i=0;i<included.Size();i++)
+            {
+                let a=Actor.Spawn(included[i],(0,64,80));
+                Check(a && UTNTEffectGlow.Profile(a)>0,String.Format("combat family %s covered",included[i]));
+                if(a) a.Destroy();
+            }
+            Name excluded[]={'PistolCasing','PBTrail','RocketFireTrail','CometSmall_Enhanced',
+                'UTNT_RedTorch','UTNTZombieMan','Soulsphere','PBExploMiniBack','BFGBlastExplo1'};
+            for(int i=0;i<excluded.Size();i++)
+            {
+                let a=Actor.Spawn(excluded[i],(0,64,80));
+                Check(a && UTNTEffectGlow.Profile(a)==0,String.Format("no duplicate/scenery glow on %s",excluded[i]));
+                if(a) a.Destroy();
+            }
+        }
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name=="glowmenu") Menu.SetMenu('UTNTCombatOptions');
+    }
+    void RunCheck(ConsoleEvent e)
+    {
+        if(e.Name!="glowcheck") return;
+        let m=UTNTEffectGlow.Get();
+        int live=0,visible=0;
+        for(int i=0;i<m.Halos.Size();i++) if(m.Halos[i])
+        {
+            live++;
+            if(m.Halos[i].Alpha>0) visible++;
+            Check(m.Halos[i].Texture.IsValid() && m.Halos[i].Alpha>=0 && m.Halos[i].Alpha<=0.5,"finite bounded halo");
+        }
+        Check(live<=UTNTEffectGlow.Limit(),"quality budget respected");
+        Check(m.Sources.Size()<=1024,"registration bound respected");
+        if(e.Args[0]==0) Check(live==0,"no halos when disabled, distant or expired");
+        else Check(visible>=e.Args[0],"expected combat halos visible");
+        if(e.Args[1]==1)
+        {
+            for(int i=0;i<Probes.Size();i++)
+            {
+                Check(Probes[i]!=null,"projectile remains alive");
+                if(Probes[i] && Halo(Probes[i]))
+                {
+                    Vector3 oldPos=Probes[i].Pos,oldVel=Probes[i].Vel;
+                    int oldHealth=Probes[i].Health;
+                    Halo(Probes[i]).UpdateGlow();
+                    Check(Probes[i].Pos==oldPos && Probes[i].Vel==oldVel && Probes[i].Health==oldHealth,"glow leaves actor motion and health unchanged");
+                    Check((Halo(Probes[i]).Pos-Probes[i].Pos).Length()<80,"halo follows source");
+                }
+            }
+            Check(players[0].mo.Health==OriginalHealth,"player health unchanged");
+        }
+    }
+}

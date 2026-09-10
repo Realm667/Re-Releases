@@ -108,6 +108,9 @@ class OptionMenuItemUTNTPreset : OptionMenuItemSubmenu
         bool quiet=preset==2;
         CVar.FindCVar('UTNT_reducedfx').SetInt(quiet);
         CVar.FindCVar('UTNT_fxquality').SetInt(quiet?1:(preset==0?2:3));
+        CVar.FindCVar('UTNT_effectglow').SetInt(!quiet);
+        CVar.FindCVar('UTNT_glowstrength').SetFloat(preset==1?0.65:0.35);
+        CVar.FindCVar('UTNT_glowsize').SetFloat(1.0);
         CVar.FindCVar('UTNT_lod').SetInt(quiet?1024:2048);
         CVar.FindCVar('UTNT_ambientsmoke').SetInt(preset==1);
         CVar.FindCVar('UTNT_heatstrength').SetFloat(preset==1?0.6:(quiet?0:0.25));

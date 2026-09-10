@@ -24,14 +24,16 @@ def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
         cfg=logs/(label+'.cfg')
         cfg.write_text(commands or f'wait {duration}; echo UTNT_TEST_END; screenshot logs/{label}.png; wait 5; quit\n')
         args+=['+exec',cfg.as_posix()]
-    else: args+=['-norun','-errorlog','utnt-compile']
+    else: args+=['-norun','-errorlog',label]
     options={}
     if os.name=='nt':
         si=subprocess.STARTUPINFO(); si.dwFlags|=subprocess.STARTF_USESHOWWINDOW; si.wShowWindow=0
         options={'startupinfo':si,'creationflags':subprocess.CREATE_NO_WINDOW}
     start=time.monotonic()
     try:
-        r=subprocess.run(args,cwd=root,capture_output=True,timeout=timeout,**options)
+        # -errorlog always creates log-<name>.txt in the engine working
+        # directory. Compile-only checks must keep that sidecar with the logs.
+        r=subprocess.run(args,cwd=root if mapname else logs,capture_output=True,timeout=timeout,**options)
         output=(r.stdout+r.stderr).decode(errors='replace'); code=r.returncode
     except subprocess.TimeoutExpired as e:
         output=((e.stdout or b'')+(e.stderr or b'')).decode(errors='replace'); code=-1
