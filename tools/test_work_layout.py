@@ -35,6 +35,14 @@ class LayoutTests(unittest.TestCase):
         self.write('logs/result.log')
         self.assertTrue(any('compatibility path' in item for item in violations(self.root)))
 
+    def test_documentation_is_kept_out_of_repository_root(self):
+        self.write('docs/utnt/UTNT_WEATHER.md')
+        self.write('tutnt/.codex/notes/TNT04B_SKY_CONCEPT.md')
+        self.assertEqual(violations(self.root), [])
+        self.write('UTNT_WEATHER.md')
+        self.write('TNT04B_SKY_CONCEPT.md')
+        self.assertEqual(len(violations(self.root)), 2)
+
     def test_only_new_workspace_entries_are_reported(self):
         workspace = Path(self.tmp.name)/'chat'
         workspace.mkdir()

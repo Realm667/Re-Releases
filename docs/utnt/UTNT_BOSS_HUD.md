@@ -2,7 +2,7 @@
 
 Die Bossanzeige verbindet die originalen UTNT-Metallboxen mit Bossnamen, einer großen Prozentzahl und einem eingelassenen Lebensbalken. Die fünf Originalrahmen werden vollständig gezeichnet; es gibt keine nachgezeichneten Gesichter. Seit der beauftragten PLAYPAL-Umstellung liegen sie wieder als originale Doom-LMPs vor und folgen der globalen Palette (siehe [Palettenbericht](UTNT_PALETTE.md)). ZScript ergänzt ausschließlich Text, Balken und Schildsymbol.
 
-![Bossplakette in UZDoom](tools/validation/palette-restore-2026-09-07/palette-boss-1-1080p.png)
+![Bossplakette in UZDoom](https://raw.githubusercontent.com/Realm667/Re-Releases/e571d62969b2473133bfc00f9ba09bb622d23b17/tools/validation/palette-restore-2026-09-07/palette-boss-1-1080p.png)
 
 ## Zuordnung und Darstellung
 

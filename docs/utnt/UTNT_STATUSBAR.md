@@ -60,7 +60,7 @@ AusgewÃ¤hlte unverÃ¤nderte Engine-Aufnahmen, Ergebnisdateien und Paket-/Ressourc
 
 Das separat abgelegte `tutnt-hud-validated.pk3` enthÃ¤lt den Stand `c89371780` plus ausschlieÃŸlich diese HUD-Ã„nderungen: 8811 EintrÃ¤ge, 82073464 Bytes, SHA-256 `73e7ba9af87f1161db455251b008b1258bec9c71a4b5181c08f23dbec6dd9463`. Das parallel weiterbearbeitete `tutnt.pk3` wird dadurch nicht Ã¼berschrieben.
 
-![Neue Statusleiste zusammen mit der Bossanzeige](tools/validation/statusbar-2026-09-07/statusbar-boss-1080p.png)
+![Neue Statusleiste zusammen mit der Bossanzeige](https://raw.githubusercontent.com/Realm667/Re-Releases/e571d62969b2473133bfc00f9ba09bb622d23b17/tools/validation/statusbar-2026-09-07/statusbar-boss-1080p.png)
 
 ## Nachkorrektur: Prozentzeichen und Waffenrahmen
 
@@ -83,7 +83,7 @@ python tools/test_statusbar.py --renderer 1 --mod tutnt-ammo-validated.pk3 --lab
 python tools/test_statusbar_coop.py --mod tutnt-ammo-validated.pk3
 ```
 
-![Zweispaltige Munition in der normalen Statusleiste](tools/validation/statusbar-two-columns-2026-09-07/statusbar-ammo-package-1-normal.png)
+![Zweispaltige Munition in der normalen Statusleiste](https://raw.githubusercontent.com/Realm667/Re-Releases/e571d62969b2473133bfc00f9ba09bb622d23b17/tools/validation/statusbar-two-columns-2026-09-07/statusbar-ammo-package-1-normal.png)
 
 ## Rahmen bei verkleinertem Spielfenster
 
@@ -99,7 +99,7 @@ python tools/test_statusbar_border.py --mod tutnt-border-validated.pk3 --label s
 
 Testergebnisse, Pakethash und unverÃ¤nderte Spielaufnahmen: `tools/validation/statusbar-border-2026-09-08`.
 
-![Passender Steinrahmen bei verkleinertem Spielfenster](tools/validation/statusbar-border-2026-09-08/statusbar-border-package-1-1920x1080-s7.png)
+![Passender Steinrahmen bei verkleinertem Spielfenster](https://raw.githubusercontent.com/Realm667/Re-Releases/e571d62969b2473133bfc00f9ba09bb622d23b17/tools/validation/statusbar-border-2026-09-08/statusbar-border-package-1-1920x1080-s7.png)
 
 ## Schwarze Streifen: veraltetes Standard-PK3
 
@@ -123,7 +123,7 @@ python tools/test_statusbar.py --renderer both --mod tutnt.pk3 --label hud-modes
 
 Die endgültige Testfolge besteht mit **64 Assertions je Renderer (OpenGL und Vulkan)**. Zusätzlich wurden alle drei Größen auf TNT01 in 1080p kontrolliert. Die unveränderten Engine-Aufnahmen, Protokolle und Paket-/Quellhashes stehen unter `tools/validation/statusbar-modes-2026-09-08`. Das reguläre `tutnt.pk3` enthält bytegenau das geprüfte Paket. Zum Laden der neuen SBARINFO und CVar-Definition ist ein Neustart von UZDoom erforderlich.
 
-![Freistehendes HUD bei Screen Size 12](tools/validation/statusbar-modes-2026-09-08/hud-modes-map-s12.png)
+![Freistehendes HUD bei Screen Size 12](https://raw.githubusercontent.com/Realm667/Re-Releases/e571d62969b2473133bfc00f9ba09bb622d23b17/tools/validation/statusbar-modes-2026-09-08/hud-modes-map-s12.png)
 
 ## Screen Size 12: graue Zahlen und untere Ausrichtung
 
@@ -131,4 +131,4 @@ Am 08.09.2026 wurden die großen Zahlen für Gesundheit, Rüstung und aktuelle Muni
 
 Das reguläre `tutnt.pk3` enthält die geprüfte SBARINFO. Die vorhandene HUD-Testfolge besteht unter UZDoom 5.0.1 mit **64 Assertions auf OpenGL und 64 auf Vulkan**. Ein paralleler Projektbuild übernahm die fertige SBARINFO anschließend bereits ins reguläre PK3; auch dieses aktualisierte Paket besteht den Vulkan-HUD-Test mit 64 Assertions. Die Darstellung wurde auf TNT01 sowie mit aktiver Zweitmunition bei 4:3 und Ultrawide kontrolliert. Protokolle, Quell-/Pakethashes und unveränderte Engine-Aufnahmen: `tools/validation/statusbar-bottom-2026-09-08`.
 
-![Graues HUD am unteren Bildschirmrand](tools/validation/statusbar-bottom-2026-09-08/hud-bottom-map-s12.png)
+![Graues HUD am unteren Bildschirmrand](https://raw.githubusercontent.com/Realm667/Re-Releases/e571d62969b2473133bfc00f9ba09bb622d23b17/tools/validation/statusbar-bottom-2026-09-08/hud-bottom-map-s12.png)

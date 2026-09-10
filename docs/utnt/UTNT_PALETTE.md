@@ -32,9 +32,9 @@ Die bestehende lokale Änderung an `PLAYPAL.pal` sowie parallel bearbeitete Stat
 - Boss-HUD-Test mit LMP-Rahmen bestanden: 30 Assertions, einschließlich Save/Load, Schadensnachlauf und Todesfrist. Aufnahme bei 1.920 × 1.080 sowie die weiteren Testauflösungen geprüft.
 - Das während der parallelen HUD-Arbeit aktualisierte reguläre `tutnt.pk3` wurde separat als konsistenter Snapshot geprüft: UZDoom-Kompilierung bestanden, alle 4.713 Zielgrafiken mit den korrekten Bytes enthalten.
 
-![Doom-Ressourcen mit Projektpalette und unabhängiges Kontroll-PNG](tools/validation/palette-restore-2026-09-07/palette-candidate-project-1.png)
+![Doom-Ressourcen mit Projektpalette und unabhängiges Kontroll-PNG](https://raw.githubusercontent.com/Realm667/Re-Releases/e571d62969b2473133bfc00f9ba09bb622d23b17/tools/validation/palette-restore-2026-09-07/palette-candidate-project-1.png)
 
-[Vergleich mit absichtlich invertierter PLAYPAL](tools/validation/palette-restore-2026-09-07/palette-candidate-swapped-1.png)
+[Vergleich mit absichtlich invertierter PLAYPAL](https://github.com/Realm667/Re-Releases/blob/e571d62969b2473133bfc00f9ba09bb622d23b17/tools/validation/palette-restore-2026-09-07/palette-candidate-swapped-1.png)
 
 ## Reproduzieren
 

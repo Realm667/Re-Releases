@@ -13,4 +13,4 @@ premultiplied bilinear sampling, wrap blending, world projection, colour grading
 and lighting are reproducible in `tools/cursed-material.glsl` and
 `tools/build_cursed_sky.py`. There is no repainted gameplay geometry in the mod.
 
-See `UTNT_CURSED_SKY.md` for state ownership, sector tags and engine validation.
+See `docs/utnt/UTNT_CURSED_SKY.md` for state ownership, sector tags and engine validation.

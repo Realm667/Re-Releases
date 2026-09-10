@@ -112,7 +112,7 @@ Die Skybox-Geometrie und die sechs gemeinsam genutzten Caldera-Basisshader
 wurden gegen den Ausgangszustand per SHA-256 geprueft.
 
 Der Stil ist auch fuer TNT04B vorgemerkt. Dessen Originalbefund und noch
-abzunehmender Entwurf stehen in TNT04B_SKY_CONCEPT.md. TNT04B wird erst nach
+abzunehmender Entwurf stehen in tutnt/.codex/notes/TNT04B_SKY_CONCEPT.md. TNT04B wird erst nach
 Konzept- und anschliessender Mockupabnahme integriert.
 
 Pruefung: tools/test_war_comet_variation.py rendert normale Groessen,

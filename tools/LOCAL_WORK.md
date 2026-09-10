@@ -34,3 +34,7 @@ Official mod packages and their build locks may remain at repository root.
 Durable source files, tools, fixtures and documentation remain versioned.
 Legacy junctions must point into the central directory; do not replace them with
 ordinary output directories. Local agent instructions remain excluded from Git.
+
+## Documentation
+
+Keep permanent documentation under `docs/utnt/` and temporary notes, concepts and historical reports under `tutnt/.codex/notes/`. See [the documentation index](../docs/utnt/README.md). Root-level `UTNT_*.md` and `TNT*_CONCEPT.md` are rejected by the layout check.
