@@ -1,0 +1,12 @@
+class UTNTSceneShaft : Actor
+{
+ UTNTSceneLamp Owner;
+ Default { +CLIENTSIDEONLY +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +DONTSPLASH +WALLSPRITE RenderStyle "Translucent";Alpha .55; }
+ States { Spawn: ENSH A -1 Bright;Stop; }
+ override void Tick()
+ {
+  if(!Owner){Destroy();return;}
+  bInvisible=!UTNTEnvironment.Option('UTNT_scenelights') || UTNTEnvironment.Reduced() || UTNTEnvironment.Quality()<2;
+  if(consoleplayer>=0 && players[consoleplayer].camera && (Pos-players[consoleplayer].camera.Pos).Length()>1400)bInvisible=true;
+ }
+}

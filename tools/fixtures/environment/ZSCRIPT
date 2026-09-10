@@ -1,0 +1,47 @@
+version "5.0.0"
+class UTNTEnvironmentRegression : EventHandler
+{
+ int WalkUntil,OriginalTerrain;bool Fly;Vector3 CameraAt;
+ void Check(bool ok,String message){Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",message);}
+ override void WorldTick()
+ {
+  let mo=players[0].mo;if(!mo)return;
+  if(level.time==2){mo.bInvulnerable=true;mo.Angle=0;OriginalTerrain=level.Sectors[0].GetTerrain(Sector.floor);}
+  if(Fly){mo.bNoGravity=true;mo.Vel=(0,0,0);mo.SetOrigin(CameraAt,false);players[0].camera=mo;}
+  if(level.time<WalkUntil)mo.Vel=(2,0,mo.Vel.Z);
+  if(level.time==105 && level.MapName~=="ENVTEST")
+  {
+   let h=UTNTEnvironment.Get();
+   Check(h && h.Ready,"environment initialized");
+   Check(h.Surfaces.Size()==3,"test wet surfaces bound");
+   Check(h.Surfaces[0].Exposed[0]>0,"open floor receives rain");
+   Check(h.Surfaces[1].Exposed[0]==0,"roofed floor stays dry");
+   Check(h.Surfaces[2].Exposed[0]==0,"solid 3D floor blocks rain below");
+   Check(h.Lights==1,"curated lamp created");
+   Check(level.Sectors[0].GetTerrain(Sector.floor)==OriginalTerrain,"material binding preserves terrain behavior");
+   Check(h.Mechanisms.Size()==1,"mechanism watcher created");
+  }
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  let mo=players[0].mo;let h=UTNTEnvironment.Get();
+  if(e.Name=="envpos"){CameraAt=(e.Args[0],e.Args[1],e.Args[2]);players[0].camera=mo;mo.SetOrigin((e.Args[0],e.Args[1],e.Args[2]),false);mo.Vel=(0,0,0);mo.Pitch=45;mo.Angle=0;}
+  if(e.Name=="envfly"){Fly=true;CameraAt=mo.Pos;mo.bNoGravity=true;mo.bNoClip=true;mo.Vel=(0,0,0);}
+  if(e.Name=="envview"){mo.Angle=e.Args[0];mo.Pitch=e.Args[1];}
+  if(e.Name=="envwalk"){WalkUntil=level.time+e.Args[0];}
+  if(e.Name=="envwet"){h.Feet[0].WetSole=1;}
+  if(e.Name=="envmove"){Floor_RaiseByValue(50,16,32);}
+  if(e.Name=="envchecks")
+  {
+   Console.Printf("ENV_FOOT|t=%d|x=%.1f|y=%.1f|ground=%d|floor=%.1f|distance=%.1f|marks=%d",level.time,mo.Pos.X,mo.Pos.Y,players[0].onground,mo.FloorZ,h.Feet[0].Distance,h.Prints);Check(h.Prints>0,"footstep produces a visible mark");
+   Check(h.MechanismBursts>0,"moving platform produces reaction");
+   Check(h.Marks.Size()<=160,"footprint budget bounded");
+   Console.Printf("UTNT_REGRESSION_COMPLETE");
+  }
+  if(e.Name=="environmentstats"){let cam=players[0].camera;Console.Printf("ENV_CAMERA|mo=%.1f,%.1f,%.1f|camera=%.1f,%.1f,%.1f",mo.Pos.X,mo.Pos.Y,mo.Pos.Z,cam.Pos.X,cam.Pos.Y,cam.Pos.Z);}
+  if(e.Name=="envloadcheck"){Check(h.Ready && h.Surfaces[0].Wet[0]>0,"wet state survives save/load");Check(h.Prints==0,"save/load restores footprint state");}
+  if(e.Name=="envwatercheck"){Console.Printf("ENV_WATER|z=%.2f|depth=%.2f|level=%d|sector=%d|heightsec=%d",mo.Pos.Z,mo.WaterDepth,mo.WaterLevel,mo.CurSector.Index(),mo.CurSector.heightsec?mo.CurSector.heightsec.Index():-1);Check(mo.WaterLevel>=3,"camera actually submerged");}
+ }
+}
+
+#include "heat-prototype.zc"

@@ -1,0 +1,365 @@
+#include "zscript/UTNT_EnvironmentLightShaft.zc"
+// Presentation only. No sector geometry, collision, action or gameplay RNG writes.
+class UTNTEnvironment : EventHandler
+{
+ bool Ready;
+ String SnowNames;
+ int ProbeCursor, NearCursor, Prints, MechanismBursts, Lights, SurfaceChecks;
+ Array<UTNTEnvironmentSurface> Surfaces;
+ Array<int> NearSurfaces;
+ Array<UTNTMechanismWatch> Mechanisms;
+ Array<UTNTFootState> Feet;
+ Array<UTNTSceneLamp> Lamps;
+ Array<UTNTFootMark> Marks;
+ LineTracer Probe;
+ clearscope static bool Option(Name key)
+ { return consoleplayer>=0 && CVar.GetCVar(key,players[consoleplayer]).GetBool(); }
+ clearscope static int Quality()
+ { return consoleplayer<0?0:clamp(CVar.GetCVar('UTNT_fxquality',players[consoleplayer]).GetInt(),0,3); }
+ clearscope static bool Reduced() { return Option('UTNT_reducedfx'); }
+ static UTNTEnvironment Get() { return UTNTEnvironment(EventHandler.Find('UTNTEnvironment')); }
+ clearscope static bool Snow(String textureName) { let h=UTNTEnvironment(EventHandler.Find('UTNTEnvironment'));return textureName.IndexOf("SNOW")>=0 || (h && h.SnowNames.IndexOf(String.Format("|%s|",textureName))>=0); }
+ clearscope static bool Water(String textureName)
+ { return (textureName.IndexOf("WAT")>=0 && textureName.IndexOf("QWATERT6")<0) || textureName=="FWATER1"; }
+ clearscope static String Medium(Actor camera)
+ {
+  let sec=camera.CurSector;double z=camera.Pos.Z+camera.Height*.5;
+  for(int i=0;i<sec.Get3DFloorCount();i++)
+  {
+   let water=sec.Get3DFloor(i);
+   if((water.flags & F3DFloor.FF_SWIMMABLE) && z<water.top.ZatPoint(camera.Pos.XY) && z>water.bottom.ZatPoint(camera.Pos.XY))
+    return TexMan.GetName(water.GetTexture(1));
+  }
+  return TexMan.GetName(sec.heightsec?sec.heightsec.GetTexture(Sector.floor):sec.GetTexture(Sector.floor));
+ }
+ override void WorldLoaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); }
+ override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); }
+ override void WorldTick()
+ {
+  if(!Ready && level.time>=5) Initialize();
+  if(!Ready || level.isFrozen() || LevelLocals.WorldPaused())return;
+  for(int i=Marks.Size()-1;i>=0;i--)if(!Marks[i])Marks.Delete(i);
+  for(int i=0;i<MAXPLAYERS;i++)
+  {
+   if(i>=Feet.Size())Feet.Push(new('UTNTFootState'));
+   Feet[i].Update(i,self);
+  }
+  if(level.time%4==0)for(int i=0;i<Mechanisms.Size();i++)Mechanisms[i].Update(self);
+  // Surface maintenance shares the bounded probe queue.
+  UpdateSurfaces();
+ }
+ void Initialize()
+ {
+  Ready=true;Probe=new('LineTracer');
+  int snowLump=Wads.CheckNumForFullName("environment/snowtextures.txt");if(snowLump>=0)SnowNames=Wads.ReadLump(snowLump);
+  ReadSurfaces();ReadLights();
+  // Candidate tables derive from door/lift actions and actual sector tags.
+  int lump=Wads.CheckNumForFullName(String.Format("environment/%s-mechanisms.txt",level.MapName));
+  if(lump>=0)
+  {
+   Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
+   for(int i=0;i<rows.Size();i++)
+   {
+    Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=5)continue;
+    int si=r[0].ToInt();if(si<0 || si>=level.Sectors.Size())continue;
+    let m=new('UTNTMechanismWatch');m.Sec=level.Sectors[si];m.Point=(r[1].ToDouble(),r[2].ToDouble());
+    m.Stone=r[3].ToInt()!=0;m.Group=r[4].ToInt();
+    m.Floor=m.Sec.floorplane.ZatPoint(m.Point);m.Ceiling=m.Sec.ceilingplane.ZatPoint(m.Point);Mechanisms.Push(m);
+   }
+  }
+ }
+ void ReadSurfaces()
+ {
+  int lump=Wads.CheckNumForFullName(String.Format("environment/%s-surfaces.txt",level.MapName));if(lump<0)return;
+  Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
+  for(int i=0;i<rows.Size();i++)
+  {
+   Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=17)continue;
+   let s=new('UTNTEnvironmentSurface');
+   s.Kind=r[0].ToInt();s.Index=r[1].ToInt();s.Part=r[2].ToInt();s.Original=r[3];s.Alias=r[4];s.Base=r[5].ToInt();
+   s.Origin=(r[6].ToDouble(),r[7].ToDouble(),r[8].ToDouble());s.Axis=(r[9].ToDouble(),r[10].ToDouble(),r[11].ToDouble());
+   s.Width=r[12].ToDouble();s.Height=r[13].ToDouble();s.NX=r[14].ToInt();s.NY=r[15].ToInt();s.WaterSector=r[16].ToInt();
+   if(!s.Bind()){Console.Printf("ENVIRONMENT_BIND_SKIPPED|%s|%d|%d|%s",level.MapName,s.Kind,s.Index,s.Original);continue;}
+   for(int j=0;j<s.NX*s.NY;j++){s.Wet.Push(0);s.Exposed.Push(0);s.Checked.Push(false);s.LastCheck.Push(level.time);}
+   Surfaces.Push(s);
+  }
+ }
+ void UpdateSurfaces()
+ {
+  if(!Surfaces.Size())return;
+  if(level.time%35==5 && consoleplayer>=0 && players[consoleplayer].camera)
+  {
+   NearSurfaces.Clear();Vector2 eye=players[consoleplayer].camera.Pos.XY;
+   for(int i=0;i<Surfaces.Size();i++)
+   {
+    let s=Surfaces[i];Vector2 center=s.Kind==0?s.Origin.XY+(s.Width*.5,s.Height*.5):s.Origin.XY+s.Axis.XY*s.Width*.5;
+    if((center-eye).Length()<1536+max(s.Width,s.Height)*.5)NearSurfaces.Push(i);
+   }
+  }
+  let w=UTNTWeatherSystem.Find();
+  // A fixed small probe budget; unrelated to particle count or current FPS.
+  for(int tries=0;tries<24;tries++)
+  {
+   if(ProbeCursor>=Surfaces.Size())ProbeCursor=0;
+   let s=Surfaces[ProbeCursor++];s.Maintain();s.Update(self,w);
+   if(NearSurfaces.Size() && tries<16){if(NearCursor>=NearSurfaces.Size())NearCursor=0;Surfaces[NearSurfaces[NearCursor++]].Update(self,w);}
+  }
+ }
+ void ReadLights()
+ {
+  int lump=Wads.CheckNumForFullName(String.Format("environment/%s-lights.txt",level.MapName));if(lump<0)return;
+  Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
+  for(int i=0;i<rows.Size();i++)
+  {
+   Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=8)continue;
+   Vector3 p=(r[0].ToDouble(),r[1].ToDouble(),r[2].ToDouble());
+   if(!level.IsPointInLevel(p))continue;
+   let l=UTNTSceneLamp(Actor.Spawn('UTNTSceneLamp',p));if(!l)continue;
+   l.Tint=Color(r[3].ToInt(),r[4].ToInt(),r[5].ToInt());l.Reach=r[6].ToDouble();l.Style=r[7].ToInt();Lamps.Push(l);Lights++;
+  }
+ }
+ void StepMark(Actor mo,Vector3 position,bool snow,double opacity,bool left)
+ {
+  if(!Option('UTNT_footprints') || !Quality())return;
+  int limit=Quality()==3?160:Quality()==2?80:32;if(Marks.Size()>=limit){if(Marks[0])Marks[0].Destroy();Marks.Delete(0);}
+  let sec=level.PointInSector(position.XY);
+  Probe.Trace(position+(0,0,16),sec,(0,0,-1),40,0,wallMask:0,ignoreAllActors:true);
+  if(Probe.Results.HitType!=TRACE_HitFloor)return;
+  Vector3 hit=Probe.Results.HitPos;
+  if(abs(hit.Z-mo.FloorZ)>2)return;
+  // Four corners must have support at the expected plane, also at ledges/3D floors.
+
+  let floorSec=Probe.Results.HitSector;let rover=Probe.Results.ffloor;
+  for(int a=0;a<4;a++)
+  {
+   double angle=mo.Angle+45+a*90;Vector3 q=hit+(cos(angle)*7,sin(angle)*7,16);
+   Probe.Trace(q,level.PointInSector(q.XY),(0,0,-1),32,0,wallMask:0,ignoreAllActors:true);
+   if(Probe.Results.HitType!=TRACE_HitFloor || abs(Probe.Results.HitPos.Z-hit.Z)>5)return;
+  }
+  let mark=UTNTFootMark(Actor.Spawn('UTNTFootMark',hit+(0,0,.08)));if(!mark)return;
+  mark.Angle=mo.Angle-90;mark.Scale=(.25,.25);mark.Snow=snow;mark.InitialAlpha=opacity;
+  mark.Rover=rover;mark.Support=floorSec;mark.HeightOffset=floorSec?hit.Z-floorSec.floorplane.ZatPoint(hit.XY):0;
+  mark.PlaneHeight=hit.Z;
+  if(snow)mark.SetStateLabel('Snow');
+  if(floorSec && abs(mark.HeightOffset)<1)NashGoreStatics.AlignToPlane(mark);
+  Marks.Push(mark);Prints++;
+ }
+ void Burst(UTNTMechanismWatch source,bool atEnd)
+ {
+  if(!Option('UTNT_mechanismfx') || Reduced() || !Quality() || consoleplayer<0)return;
+  let p=players[consoleplayer].camera;if(!p)return;
+  Vector2 contact=source.Point;
+  double closest=1e30;
+  for(int j=0;j<source.Sec.Lines.Size();j++)
+  {
+   let line=source.Sec.Lines[j];Vector2 middle=(line.V1.P+line.V2.P)*.5;
+   double distance=(middle-p.Pos.XY).Length();
+   if(distance<closest){closest=distance;contact=middle+(source.Point-middle).Unit()*3;}
+  }
+  Vector3 origin=(contact.X,contact.Y,source.Sec.floorplane.ZatPoint(contact)+3);
+  if((p.Pos-origin).Length()>1200)return;
+  // One event for a tagged assembly, even when it uses multiple sectors.
+  for(int i=0;i<Mechanisms.Size();i++)if(Mechanisms[i]!=source && Mechanisms[i].Group==source.Group && level.time-Mechanisms[i].LastBurst<14)return;
+  source.LastBurst=level.time;MechanismBursts++;
+  int count=Quality()==3?6:3;
+  for(int i=0;i<count;i++)
+  {
+   double a=i*137.5+source.Group*19;
+   let d=UTNTEnvironmentDust(level.SpawnClientSideVisualThinker('UTNTEnvironmentDust'));if(!d)continue;
+   d.Pos=origin+(cos(a)*12,sin(a)*12,0);d.Prev=d.Pos;d.Vel=(cos(a)*.25,sin(a)*.25,atEnd?.3:.55);
+   d.Texture=TexMan.CheckForTexture('UASMA0');d.Scale=(.06,.05);d.Alpha=source.Stone?.17:.065;d.BaseAlpha=d.Alpha;d.SetRenderStyle(STYLE_Translucent);d.LightLevel=-1;
+  }
+ }
+ override void RenderOverlay(RenderEvent e)
+ {
+  PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false);
+  if(e.Camera && e.Camera.WaterLevel>=3 && Option('UTNT_underwateratmosphere') && !Reduced())
+  {
+   String medium=Medium(e.Camera);
+   Vector3 tint=medium.IndexOf("SLIME")>=0?(.40,.62,.28):medium.IndexOf("QWATERT6")>=0?(.62,.23,.19):(.35,.62,.72);
+   PPShader.SetUniform3f("UTNTUnderwaterAtmosphere","waterTint",tint);
+   PPShader.SetUniform1f("UTNTUnderwaterAtmosphere","waterDensity",clamp(e.Camera.WaterDepth/1000.0+.06,.06,.22));
+   PPShader.SetEnabled("UTNTUnderwaterAtmosphere",true);
+  }
+  let c=TexMan.GetCanvas('UENVSTATE');if(!c)return;
+  c.Clear(0,0,256,256,Color(0,0,0));
+  bool wet=Option('UTNT_wetsurfaces') && Quality()>0;
+  for(int i=0;i<Surfaces.Size();i++)
+  {
+   let s=Surfaces[i];
+   for(int j=0;j<s.Wet.Size();j++)
+   {
+    int index=s.Base+j;int value=wet?int(clamp(s.Wet[j],0,1)*255):0;
+    if(s.WaterSector>=0)value=Option('UTNT_underwateratmosphere') && !Reduced()?255:0;
+    // Merge adjacent cells with equal state into one canvas command.
+    int end=j;
+    while(end+1<s.Wet.Size() && (s.Base+end+1)/256==index/256)
+    {
+     int next=wet?int(clamp(s.Wet[end+1],0,1)*255):0;
+     if(s.WaterSector>=0)next=value;
+     if(next!=value)break;end++;
+    }
+    if(value)c.Clear(index%256,index/256,(s.Base+end)%256+1,index/256+1,Color(value,value,value));
+    j=end;
+   }
+  }
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name!="environmentstats")return;
+  int exposed=0;double wet=0;for(int i=0;i<Surfaces.Size();i++)for(int j=0;j<Surfaces[i].Wet.Size();j++){if(Surfaces[i].Exposed[j]>0)exposed++;wet+=Surfaces[i].Wet[j];}
+  Console.Printf("ENVIRONMENT|surfaces=%d|checks=%d|exposed=%d|wet=%.3f|prints=%d|mechanisms=%d|bursts=%d|lights=%d",Surfaces.Size(),SurfaceChecks,exposed,wet,Prints,Mechanisms.Size(),MechanismBursts,Lights);
+ }
+}
+
+class UTNTFootState : Object play
+{
+ Actor Last;Vector3 Previous;double Distance,WetSole;bool Left;
+ void Update(int index,UTNTEnvironment h)
+ {
+  let playerInfo=players[index];let mo=playeringame[index]?playerInfo.mo:null;
+  if(!mo || mo.Health<=0){Last=null;WetSole=Distance=0;return;}
+  if(Last!=mo || (mo.Pos-Previous).Length()>128){Last=mo;Previous=mo.Pos;Distance=0;WetSole=0;return;}
+  Vector3 movement=mo.Pos-Previous;double travel=movement.XY.Length();Previous=mo.Pos;
+  WetSole=max(0,WetSole-1.0/700);
+  String liquid=UTNTEnvironment.Medium(mo);
+  if(mo.WaterLevel>=1 && UTNTEnvironment.Water(liquid))WetSole=1;
+  if(!playerInfo.onground || mo.WaterLevel>1 || travel<.1)return;
+  String textureName=TexMan.GetName(mo.CurSector.GetTexture(Sector.floor));
+  if(textureName.Left(2)=="EV")textureName=UTNTEnvironmentSurface.SourceName(textureName,h);
+  bool snow=UTNTEnvironment.Snow(textureName);
+  let weather=UTNTWeatherSystem.Find();
+  if(weather && level.MapName~=="TNT02" && level.time%8==0)
+  {
+   int kind=UTNTVisorState.WeatherAt(mo.Pos+(0,0,4),weather);
+   if(kind==1)
+   {
+    let test=new('UTNTVisorState');if(test.ProbeWeather(mo.Pos+(0,0,4),kind,weather,weather.Intensity)>0)WetSole=max(WetSole,.5);
+   }
+  }
+  Distance+=travel;double stride=36;if(Distance<stride)return;Distance%=stride;Left=!Left;
+  if(!snow && (WetSole<.06 || mo.WaterLevel>0 || UTNTEnvironment.Water(textureName)))return;
+  double a=mo.Angle+90;Vector3 at=mo.Pos+(cos(a)*(Left?4:-4),sin(a)*(Left?4:-4),0);
+  h.StepMark(mo,at,snow,snow?.65:WetSole*.70,Left);if(!snow)WetSole*=.80;
+ }
+}
+class UTNTFootMark : Actor
+{
+ F3DFloor Rover;Sector Support;double HeightOffset,PlaneHeight,InitialAlpha;int Age;bool Snow;
+ Default { +CLIENTSIDEONLY +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +DONTSPLASH +FLATSPRITE RenderStyle "Translucent"; }
+ States { Spawn: ENFT A -1; Stop; Snow: ENFT B -1; Stop; }
+ override void Tick()
+ {
+  if(level.isFrozen())return;
+  if(!UTNTEnvironment.Option('UTNT_footprints')){Destroy();return;}
+  Age++;
+  int life=Snow?1050:245;
+  let weather=UTNTWeatherSystem.Find();if(Snow && weather && weather.ActiveKind==2 && weather.Intensity>.6 && Age%2==0)Age++;
+  if(Age>=life){Destroy();return;}
+  if(Support)
+  {
+   double z=Rover?Rover.top.ZatPoint(Pos.XY):Support.floorplane.ZatPoint(Pos.XY)+HeightOffset;
+   SetOrigin((Pos.X,Pos.Y,z+.08),false);
+  }
+  Alpha=InitialAlpha*clamp((life-Age)/double(life*.4),0,1);
+ }
+}
+class UTNTEnvironmentDust : VisualThinker
+{
+ int Age;double BaseAlpha;
+ override void Tick()
+ { if(level.isFrozen())return;Super.Tick();if(++Age>45){Destroy();return;}Alpha=BaseAlpha*(1-Age/45.0);Scale*=1.012; }
+}
+class UTNTMechanismWatch : Object play
+{
+ Sector Sec;Vector2 Point;double Floor,Ceiling,Travel;bool Moving,Stone;int Group,Still,LastBurst;
+ void Update(UTNTEnvironment h)
+ {
+  double f=Sec.floorplane.ZatPoint(Point),c=Sec.ceilingplane.ZatPoint(Point);
+  double delta=abs(f-Floor)+abs(c-Ceiling);bool now=delta>.01;
+  if(now)
+  {
+   if(!Moving && level.time>20){h.Burst(self,false);Travel=0;}
+   Travel+=delta;Still=0;
+  }
+  else if(Moving)Still++;
+  // Only a completed mover with meaningful travel gets an end response.
+  if(Moving && !now && Still>=2 && Travel>=16 && !Sec.floordata && !Sec.ceilingdata){h.Burst(self,true);Travel=0;}
+  if(!now && Still>=2)Moving=false;else if(now)Moving=true;
+  Floor=f;Ceiling=c;
+ }
+}
+class UTNTSceneLamp : Actor
+{
+ Color Tint;double Reach;int Style;UTNTSceneShaft ShaftA,ShaftB;
+ Default { +CLIENTSIDEONLY +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +DONTSPLASH }
+ States { Spawn: TNT1 A -1; Stop; }
+ override void Tick()
+ {
+  bool on=UTNTEnvironment.Option('UTNT_scenelights') && UTNTEnvironment.Quality()>0;
+  if(Style==1 && on && !ShaftA)
+  {
+   double floor=CurSector.floorplane.ZatPoint(Pos.XY),ceiling=min(Pos.Z,floor+512);
+   Vector3 middle=(Pos.X,Pos.Y,(floor+ceiling)*.5);
+   ShaftA=UTNTSceneShaft(Actor.Spawn('UTNTSceneShaft',middle));ShaftB=UTNTSceneShaft(Actor.Spawn('UTNTSceneShaft',middle));
+   if(ShaftA){ShaftA.Owner=self;ShaftA.Scale=(.6,(ceiling-floor-8)/64);ShaftA.Angle=45;}
+   if(ShaftB){ShaftB.Owner=self;ShaftB.Scale=(.6,(ceiling-floor-8)/64);ShaftB.Angle=135;}
+  }
+  double pulse=Style==2 && !UTNTEnvironment.Reduced()?.96+.04*sin(level.time*.7):1;
+  A_AttachLight('environment',DynamicLight.PointLight,Tint,on?Reach*pulse:0,0,DynamicLight.LF_ATTENUATE);
+ }
+}
+
+class UTNTEnvironmentSurface : Object play
+{
+ int Kind,Index,Part,Base,NX,NY,WaterSector,Cursor,PreviousTerrain;bool Detached;String Original,Alias;
+ Vector3 Origin,Axis;double Width,Height;Array<double> Wet,Exposed;Array<bool> Checked;Array<int> LastCheck;
+ bool Bind()
+ {
+  let tex=TexMan.CheckForTexture(Alias);if(!tex.isValid())return false;
+  if(Kind==0)
+  {
+   if(Index<0 || Index>=level.Sectors.Size())return false;
+   let s=level.Sectors[Index];String current=TexMan.GetName(s.GetTexture(Part));if(!(current~==Original) && !(current~==Alias))return false;
+   PreviousTerrain=s.terrainnum[Part];s.terrainnum[Part]=s.GetTerrain(Part);s.SetTexture(Part,tex);
+  }
+  else
+  {
+   if(Index<0 || Index>=level.Sides.Size())return false;
+   let s=level.Sides[Index];String current=TexMan.GetName(s.GetTexture(Part));if(!(current~==Original) && !(current~==Alias))return false;
+   s.SetTexture(Part,tex);
+  }
+  return true;
+ }
+ static String SourceName(String textureName,UTNTEnvironment h)
+ { for(int i=0;i<h.Surfaces.Size();i++)if(h.Surfaces[i].Alias~==textureName)return h.Surfaces[i].Original;return textureName; }
+ void Maintain()
+ {
+  if(Kind!=0 || Detached)return;
+  let s=level.Sectors[Index];if(!(TexMan.GetName(s.GetTexture(Part))~==Alias)){s.terrainnum[Part]=PreviousTerrain;Detached=true;}
+ }
+ void Update(UTNTEnvironment h,UTNTWeatherController weather)
+ {
+  if(WaterSector>=0 || Detached)return;
+  if(Cursor>=Wet.Size())Cursor=0;int j=Cursor++;
+  double x=(j%NX+.5)/NX,y=(j/NX+.5)/NY;
+  Vector3 p=Kind==0?Origin+(x*Width,y*Height,0):Origin+Axis*(x*Width)+(0,0,y*Height);
+  let sec=level.PointInSector(p.XY);
+  if(Kind==0){if(sec!=level.Sectors[Index]){Checked[j]=true;return;}p.Z=sec.floorplane.ZatPoint(p.XY)+1;}
+  else {Vector3 normal=(Axis.Y,-Axis.X,0);p+=normal*1.5;sec=level.PointInSector(p.XY);}
+  double target=0;
+  if(weather && CVar.GetCVar('weatherfx').GetBool() && UTNTVisorState.WeatherAt(p,weather)==1 && weather.OpenPoint(p,sec))
+  {
+   Vector3 incoming=(-weather.WindX*1.3125,-weather.WindY*1.3125,23*(1+weather.Intensity*.18));incoming=incoming.Unit();
+   h.Probe.Trace(p,sec,incoming,8192,TRACE_HitSky,wallMask:0,ignoreAllActors:true);h.SurfaceChecks++;
+   if(h.Probe.Results.HitType==TRACE_HasHitSky)
+   {
+    double facing=Kind==0?1:max(0,incoming.X*Axis.Y-incoming.Y*Axis.X);
+    target=(.24+.76*weather.Intensity)*facing;
+   }
+  }
+  Exposed[j]=target;Checked[j]=true;
+  double elapsed=clamp((level.time-LastCheck[j])/35.0,0,20);LastCheck[j]=level.time;
+  Wet[j]=target>Wet[j]?min(target,Wet[j]+elapsed*.09):max(target,Wet[j]-elapsed*.014);
+ }
+}

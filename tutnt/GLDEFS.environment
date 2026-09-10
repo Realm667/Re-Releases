@@ -1,0 +1,11 @@
+HardwareShader Sprite ENFTA0 { Shader "shaders/environment/footprint.fp" }
+HardwareShader Sprite ENFTB0 { Shader "shaders/environment/footprint.fp" Define SNOWPRINT }
+HardwareShader Sprite ENSHA0 { Shader "shaders/environment/lightshaft.fp" }
+HardwareShader PostProcess scene
+{
+ Name "UTNTUnderwaterAtmosphere"
+ Shader "shaders/environment/underwater.fp" 330
+ Uniform vec3 waterTint
+ Uniform float waterDensity
+}
+#include "environment/materials.gldefs"

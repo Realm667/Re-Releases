@@ -1,0 +1,38 @@
+class UTNTLocalHeatLab : EventHandler
+{
+ bool Visible;int Foreground,Mode;
+ clearscope Vector3 Source() {return Mode==1?(1000,128,128):Mode==2?(384,384,180):(768,128,40);}
+ override void WorldTick()
+ {
+  if(!CVar.FindCVar('UTNT_localheatprototype').GetBool())return;
+  let mo=players[consoleplayer].camera;if(!mo)return;
+  Vector3 eye=(mo.Pos.X,mo.Pos.Y,players[consoleplayer].viewz),source=Source();
+  Vector3 ray=source-eye;let t=new('LineTracer');
+  t.Trace(eye,mo.CurSector,ray.Unit(),ray.Length(),0,wallMask:0,ignoreAllActors:true,ignore:mo);
+  Visible=t.Results.HitType==TRACE_HitNone;Foreground=0;
+  // A coarse source test can reject a fully hidden source, but cannot mask
+  // individual foreground pixels across the entire refractive plume.
+  for(int i=-1;i<=1;i+=2)
+  {
+   Vector3 target=source+(0,i*160,60);ray=target-eye;
+   t.Trace(eye,mo.CurSector,ray.Unit(),ray.Length(),0,wallMask:0,ignoreAllActors:true,ignore:mo);
+   if(t.Results.HitType!=TRACE_HitNone)Foreground++;
+  }
+ }
+ override void RenderOverlay(RenderEvent e)
+ {
+  bool on=CVar.FindCVar('UTNT_localheatprototype').GetBool() && Visible;
+  PPShader.SetEnabled("UTNTLocalHeatLab",on);if(!on || !e.Camera)return;
+  Vector3 delta=Source()-(e.Camera.Pos.X,e.Camera.Pos.Y,players[consoleplayer].viewz);
+  double forward=delta.X*cos(e.Camera.Angle)+delta.Y*sin(e.Camera.Angle);
+  double side=-delta.X*sin(e.Camera.Angle)+delta.Y*cos(e.Camera.Angle);
+  double depth=forward*cos(e.Camera.Pitch)-delta.Z*sin(e.Camera.Pitch);
+  double vertical=delta.Z*cos(e.Camera.Pitch)+forward*sin(e.Camera.Pitch);
+  if(depth<1){PPShader.SetEnabled("UTNTLocalHeatLab",false);return;}
+  PPShader.SetUniform2f("UTNTLocalHeatLab","focus",(.5+side/depth*.5,.5-vertical/depth*.8889));
+  PPShader.SetUniform2f("UTNTLocalHeatLab","extent",(min(.45,180/depth),min(.45,120/depth)));
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {if(e.Name=="heatlabmode")Mode=e.Args[0];if(e.Name=="heatlabstats")Console.Printf("HEATLAB|mode=%d|visible=%d|partial_obstruction_rays=%d|scene_depth_available=0",Mode,Visible,Foreground);}
+ override void WorldUnloaded(WorldEvent e){PPShader.SetEnabled("UTNTLocalHeatLab",false);}
+}

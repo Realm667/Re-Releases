@@ -232,6 +232,8 @@ def main():
     if not compiler.is_file(): p.error('ACC not found; set --acc or UTNT_ACC')
     from build_lava_lips import generate as generate_lava_lips
     generate_lava_lips(root,check=a.check_only)
+    from build_environment_fx import check as check_environment_fx
+    check_environment_fx(root)
     output=(a.output or root/'tutnt.pk3').resolve()
     with BuildLock(output), snapshot(root) as (source, hashes, metadata):
         from check_localization import validate as validate_localization
