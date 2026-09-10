@@ -1,0 +1,81 @@
+# UTNT Remaster – Übersicht der Neuerungen
+
+Stand: **10.09.2026**. Fortlaufende, thematisch zusammengefasste Liste der Remaster-Neuerungen gegenüber dem Stand vor der Modernisierung im September 2026. Basis der ersten Bestandsaufnahme: Implementierungen seit `844405183` bis einschließlich `163239689`, aktuelle Feature-Dokumentation und gesondert ausgewiesene lokale Arbeiten. „Umgesetzt“ bezeichnet den versionierten Quellstand, keine Aussage über einen veröffentlichten Download oder den Inhalt eines älteren PK3-Pakets.
+
+## Spielkomfort, Oberfläche und Sprache
+
+- **Überarbeitete Statusleiste und Vollbild-HUD:** TNTLE-Statistiksystem mit Kills, Gegenständen, Geheimnissen und Zeit; wählbare Position und Restwerte, Gasmunition und Waffenplatz 8, geglättete Lebens-/Rüstungswerte, transparente oder frei angeordnete HUD-Elemente sowie passende abgerundete Bildschirmränder. [Details](UTNT_STATUSBAR.md)
+- **Lesbare Bossanzeigen:** Originalporträts und Metallrahmen mit Bossnamen, eingelassenem Lebensbalken, optionalen Prozentwerten und eigener Schildanzeige für The Source. [Details](UTNT_BOSS_HUD.md)
+- **Missionsziele mit Fortschritt:** 21 Ziele mit kurzer Übersicht, ausführlicher Anzeige beim Halten von O, Abschlussmeldungen und gespeichertem Fortschritt. [Details](UTNT_OBJECTIVES.md)
+- **Einheitliche Hinweise und Fundmeldungen:** kompakte Leiste für Schlüsselanforderungen, Checkpoints und Spielhinweise; Prioritäten, Warteschlange und Zusammenfassung wiederholter Meldungen. Geheimnisfunde erhalten eine eigene Plakette mit Zähler. [Hinweise](UTNT_NOTICES.md), [Geheimnisse](UTNT_EXPLORATION_UI.md)
+- **Präzises Aufnahmefeedback:** tatsächliche Zugewinne an Gesundheit, Rüstung und Munition erscheinen an den HUD-Werten; Waffen, Schlüssel und Power-ups als kompakte Karten am oberen Rand. [Aufnahmen](UTNT_USABILITY.md), [aktuelle Platzierung](UTNT_HUD_STACKING.md)
+- **Gemeinsame UI-Skalierung:** lesbarer Textumbruch und reservierte Bildschirmbereiche für Bossleiste, Ziele, Aufnahmen, Fähigkeiten und Untertitel; angepasst an kleine, breite und ultrabreite Ansichten. [Layout](UTNT_UI_REFINEMENT.md), [Überlagerungen](UTNT_HUD_STACKING.md)
+- **Überarbeitete Automap und Orientierung:** Eisen-/Bronzefarben, Kartentitel, Statistik und Schlüsselfarblegende; erfolglos benutzte Schlösser werden markiert. Ausgewählte neu geöffnete Wege erhalten kurze Licht- und Tonsignale. [Automap](UTNT_EXPLORATION_UI.md), [Zugangshinweise](UTNT_USABILITY.md)
+- **Klassenauswahl und Optionen:** Klassenkarten mit Originalsprites, Startwaffe und Eigenschaften; gegliederte UTNT-Optionen, Erläuterungen und drei anpassbare Darstellungsprofile. Bronze-/Brauntöne verbinden Menüs und Spieloberfläche; der Menücursor erhält passende Grafik. [Details](UTNT_USABILITY.md), [Cursorquelle](../../tools/artwork/menu-cursor/README.md)
+- **Kapitel zum selbstbestimmten Lesen:** blätterbare, gespeicherte Texte mit Bildüberblendungen und Originalton; im Koop liest jeder unabhängig. TNT04A nutzt denselben Leser und lässt sich durch einen frischen Benutzen-Tastendruck überspringen. [Kapitel](UTNT_UI_REFINEMENT.md), [TNT04A-Intro](UTNT_INTRO_CHAPTER.md)
+- **Lesbare Abschlussstatistik:** getrennte, automatisch bemessene Zeilen für Kills, Gegenstände, Geheimnisse und Zeiten; korrigierte Prozentzeichen, Doppelpunkte und lange Werte im Einzelspieler. [Details](UTNT_INTERMISSION.md)
+- **Neu inszenierter Abspann:** kompakte animierte Bronzetafeln vor der laufenden ENDMAP-Szene, eigener Remaster-Abschnitt und der TNT01-Sturmhimmel als Hintergrund. [Credits](UTNT_CREDITS.md), [Himmel](UTNT_ENDMAP_SKY.md)
+- **Vier vollständige Textfassungen:** Englisch, Deutsch, Spanisch und Französisch für Spieltexte, Menüs, Ziele, Kapitel und Untertitel. Originale Sprachaufnahmen bleiben erhalten; die eigenen Mod-Schriften wurden um fehlende Glyphen ergänzt. Prüfungen sichern Übersetzungsstand, Platzhalter und Schriftabdeckung ab. [Details und Pflege](LOCALIZATION.md)
+- **Verbesserte Untertitel und Komfortoptionen:** umbrochene, skalierbare Untertitel mit optionalen Sprecherlabels und Hintergrund; geordnete Sprachausgabe. Verletzungsoverlay, Herzschlaglautstärke, Rauch, Hitze- und Bewegungseffekte sind getrennt einstellbar. [Oberfläche](UTNT_UI_REFINEMENT.md), [Quellimplementierung](../../tutnt/zscript/UTNT_Presentation.zc)
+
+## Fähigkeiten und Spielgefühl
+
+- **Sechs aktivierbare Klassenfähigkeiten:** Commando erhält Overdrive (höhere Feuerrate) und Bollwerk (Schadensreduktion); Marine Rage (doppelter Waffenschaden bei erhöhter Verwundbarkeit) und Regeneration; Scout Weak Spot (kritische Treffer) und Cloak (Unsichtbarkeit mit unterdrückter Gegnerverfolgung). Jede Fähigkeit wirkt 15 Sekunden, danach beginnt ihr eigener 300-Sekunden-Cooldown. Standardbelegung: Q offensiv, G defensiv. [Details und Grenzen](UTNT_ABILITIES.md)
+- **Fähigkeiten mit erkennbarem Zustand:** HUD-Karten im Stil der Statusleiste zeigen Taste, Laufzeit und Bereitschaft; individuelle Bildschirmeffekte sowie Aktivierungs- und Ablaufklänge begleiten die Fähigkeiten. [Fähigkeiten](UTNT_ABILITIES.md), [HUD](UTNT_HUD_STACKING.md)
+- **Ruhigerer Waffenrückstoß:** kamerabezogene Rückstöße auf ein Viertel reduziert und zeitlich geglättet, einschließlich BFG-Ladezittern. [Details](UTNT_RECOIL.md)
+- **Modernisierte Schrittgeräusche:** entfernungsbasierte Schritte über das Engine-Terrainsystem, Oberflächenzuordnung und regelbare Lautstärke. [Spielerimplementierung](../../tutnt/zscript/UTNT_Classes.zc)
+
+## Effekte, Flüssigkeiten und Umwelt
+
+- **Organisches Feuer:** unabhängig bewegte Flammen, Glut, Rauch und farblich passende Lichtkerne für Fackeln, brennende Fässer und Bodenfeuer; orange, grüne und blaue Varianten. [Details](UTNT_FIRE_EFFECTS.md)
+- **Überarbeitete Kampf- und Teleporteffekte:** gerichtete Metallfunken und Staub, kurze elektrische Entladungen sowie ausströmende und zurückkehrende Teleportfragmente. Die klassische Raketenflamme, Rauchspur und Raketenexplosion wurden in der aktuellen Fassung wiederhergestellt. [Details](UTNT_INDUSTRIAL_FX.md)
+- **Lost-Soul-Glutspuren:** kontinuierliche, hinter dem Schädel verankerte Funken mit nativen Flammenpixeln. [Effektimplementierung](../../tutnt/zscript/UTNT_Fire.zc)
+- **Rauch, Druckdampf und Wasserfontänen:** weichere, abwechslungsreiche Rauchformen, lokal turbulenter Dampf mit Sektorbeleuchtung sowie animierte Wasserspritzer und Landeeffekte. [Dampf](UTNT_STEAM.md), [Rauch](../../tutnt/zscript/UTNT_Smoke.zc), [Wasser](../../tutnt/zscript/UTNT_Splash.zc)
+- **Mehrschichtige Flüssigkeiten:** Wasser, Schleim und Blut mit Strömung, Relief und zurückhaltenden Glanzlichtern; Void- und Sternflächen mit räumlich gestaffelten Punkten. Vorhandene Kartenscroller bestimmen die Flussbewegung. [Details](UTNT_LIQUIDS.md)
+- **Lebendigere Lava und weichere Überläufe:** glühende Tiefenschichten, Kruste und treibende abgekühlte Schollen; abgerundete sichtbare Übergänge von Lavaflächen zu Lavafällen in TNT02 und TNTLE, mit abgestimmten Farben und Materialien. [Lava](UTNT_LAVA.md), [Überlaufkanten](UTNT_LAVA_LIPS.md)
+- **Einheitliche Portale und Teleporter:** bernsteinfarbene Energiefalten, schwarze Tiefe, Originalrunen und bewegte Siegelringe; Annäherungsverzerrung, Partikeleinzug und beidseitige Darstellung der Portalpassagen. [Portale](UTNT_PORTALS.md), [Runen und Teleporter](UTNT_RITUALS.md)
+- **Dynamisches Wetter:** fünfminütige Regen- und Schneezyklen von leichtem Niederschlag bis Schauer/Schneesturm, Böen, Bodenspritzer, Verwehungen und angepasste Geräuschkulissen; Niederschlag berücksichtigt Überdachungen und Skyboxen. [Details](UTNT_WEATHER.md)
+- **Regen und Frost auf der Sicht:** bewegte, zusammenlaufende und abfließende Tropfen mit Lichtbrechung sowie scharfe Eiskristalle am Bildrand; Aufbau im Freien und Abklingen im Schutz. [Details](UTNT_WEATHER_VISOR.md)
+- **Regennasse Oberflächen:** geeignete Wände und Böden in TNT02 werden abhängig von tatsächlichem Regenkontakt allmählich dunkler und trocknen wieder. [Details](ENVIRONMENT_EFFECTS.md)
+- **Unterwasseratmosphäre:** dezente, tiefenabhängige Färbung für Wasser, Schleim und Blut; Lichtmuster auf geeigneten flachen Wasserböden und Wänden. [Details](ENVIRONMENT_EFFECTS.md)
+- **Fußspuren:** abwechselnde Sohlenabdrücke im Schnee und vorübergehende nasse Spuren nach Regen oder Wasserkontakt, einschließlich Unterstützung bewegter Böden. [Details](ENVIRONMENT_EFFECTS.md)
+- **Reagierende Umgebung und zusätzliche Beleuchtung:** begrenzte Staubreaktionen bei bewegten Mechanismen; ausgewählte warme/kühle Lichtakzente, Lichtschächte und dezente Lavakantenbeleuchtung. [Details](ENVIRONMENT_EFFECTS.md)
+- **Korrigiertes Hitzeflimmern:** vorhandene Hitzequellen steuern wieder die richtige Shader-Variable; Höhen- und Sektorprüfungen wurden korrigiert. [Details](UTNT_HEAT_FIX.md)
+
+## Landschaften, Himmel und Materialien
+
+- **TNT01:** blutroter animierter Sturmhimmel mit festen Bergzügen und rotem Dunst; zusammenhängend modelliertes Außengelände mit gewellten Grasflächen, Böschungen und gekrümmten Felskanten. [Himmel](UTNT_STORM.md), [Gelände](UTNT_TNT01_LANDSCAPE.md)
+- **TNT02:** dunkle Gewitterwolken und entfernte Berge, abgestimmtes Außenlicht sowie nahe, mittlere und ferne Blitze mit entsprechend verzögertem Donner. [Details](UTNT_THUNDER.md)
+- **TNT03A1/TNT03A2 – Cursed Peak:** gemeinsame Winterbergkulisse, bewegte Wolken und Tageslichtübergänge über einen südlichen Sonnenuntergang zur Nacht; Nebelschleier reagieren auf Schneefall. [Details](UTNT_CURSED_SKY.md)
+- **TNT03B/TNT04A:** räumlich gestaffelte vulkanische Caldera mit Gluttälern, Aschewolken und rotierendem Sturmauge; TNT04A ergänzt entfernte brennende Kometen. [Caldera](UTNT_CALDERA.md), [Kriegshimmel](UTNT_WAR_SKY.md)
+- **TNT04B:** Aschehimmel mit dunklen Basaltzacken, gestaffelten Bergen, Gluttälern und Kometen. [Details](UTNT_ASH_SKY.md)
+- **TNT04CN:** dunkle Wolkendecke mit auf den Source-Strahl ausgerichteter Öffnung, schwebenden Felsen, elliptischen Bahnen, Tiefenparallaxe und entfernten Kometen. [Details](UTNT_RIFT_SKY.md)
+- **TNT04C:** eigener reduzierter Himmel mit warmen Lavareflexen, kompakter Strahlöffnung und schwebender Kulisse; die unterschiedlichen Originalblickpunkte der Höhenabschnitte bleiben wirksam. [Details](UTNT_ALTERNATE_SKY.md)
+- **TNTLE:** Basalthöhle mit animierten Lavafällen und warmer Tiefe sowie ein zweiter Nachthimmel mit Bergen, Wolken und aufsteigender Glut; korrigierte Filternähte. [Himmel](UTNT_TNTLE_SKY.md), [Korrekturen](UTNT_TNTLE_SKY_FIXES.md)
+- **Größere, weniger repetitive Materialien:** erweiterte Felsflächen und fortlaufende Ausrichtung; aktuell 38 aktive Flächenmaterial-Erweiterungen mit variierten Innenstrukturen bei erhaltenem Detailmaßstab. Bewusst zurückgesetzte Materialien verwenden wieder ihre Originale. [Felsflächen](UTNT_ROCK_ROLLOUT.md), [aktueller Materialstand](UTNT_AREA_TEXTURES.md)
+- **Konsistente Originalpalette:** 4.713 Doom-Grafiken folgen wieder der globalen PLAYPAL; eigene HUD-Elemente und erweiterte Materialien sind auf die UTNT-Farben abgestimmt. [Details](UTNT_PALETTE.md)
+
+## Bossinszenierung, Stabilität und Technik
+
+- **The Source in TNT04CN:** klarer Runenschild, sechs sich öffnende Siegelbögen, sichtbarer Kern, Schildtreffer und Guardian-Energieverbindungen; Vorzeichen für Angriffe, beschädigtes Siegel und inszenierter Tod mit Blitzen, Licht und Brechung bis zur zerbrochenen Deckenversiegelung. [Details](UTNT_SOURCE.md)
+- **UZDoom-Modernisierung:** Zielstand UZDoom 5.0.1, gespeicherte Zustände für Darstellungssysteme und lokal berechnete kosmetische Effekte; Bewegungsunschärfe und Postprocessing wurden überarbeitet. [Darstellungsimplementierung](../../tutnt/zscript/UTNT_Presentation.zc), [Buildwerkzeug](../../tools/build_utnt.py)
+- **Begrenzter Effektaufwand:** Qualitätsstufen, reduzierte Effekte, Entfernungsausblendung sowie getrennte Budgets und Zufallsquellen für dekorative und kampfbezogene Effekte; begrenzte Gore-Bereinigung. [Effektimplementierung](../../tutnt/zscript/UTNT_Visuals.zc), [Gore-Verwaltung](../../tutnt/zscript/NashGoreHandler.zc)
+- **Robustere Kampagne und Koop:** korrigierte Skriptaufrufe und Kartenfehler, gemeinsam genutzte Checkpoints, kollisionsgeprüfte Ersatzpositionen beim Wiedereinstieg und zuverlässigere Behandlung gleichzeitiger Respawns, Portale und Zwischensequenzen. Lokale Vier-Spieler-Prüfungen sind dokumentiert. [Kampagnenprüfungen](../../tools/test_campaign.py), [Koop-Prüfungen](../../tools/test_four_player.py)
+- **Reproduzierbarer Paketbau und Prüfungen:** unveränderliche Quellkopie pro Build, neu kompilierte ACS-Module, Build-ID und Engine-Prüfung vor Austausch des Pakets; Regressionen für Kampagne, Speichern/Laden, Koop, UI, Effekte, Übersetzungen und Schriften. [Build und Einstieg](README.md), [UI-/Buildverbesserungen](UTNT_UI_REFINEMENT.md)
+
+## Im lokalen Arbeitsstand, noch nicht vollständig versioniert
+
+Diese Einträge beschreiben vorhandene parallele Arbeiten bei der Bestandsaufnahme. Nach ihrer Übernahme in master den Status aktualisieren und in die passende Kategorie einordnen.
+
+- **Hochauflösende Kapitel- und Titelgrafiken:** 34 Ersatzgrafiken in doppelten Bildabmessungen für Titel, Kapitel, Rahmen und Abspann; Originalkomposition und logische Anzeigegrößen bleiben erhalten. Grafiken und dokumentierte Ressourcenprüfung liegen lokal vor und sind bereits vorgemerkt, aber noch nicht committet. [Artwork-Dokumentation](../../tools/artwork/interms-hires/README.md)
+- **Weitere Effekt-, Lava- und Kartenkorrekturen:** lokale Änderungen betreffen Lost-Soul-/Feuereffekte, PLAYPAL, TNT03B, TNT04CN und zusätzliche Lavaüberlaufdaten für TNT04CN. Ihr Abschluss- und Prüfstatus ist hier noch offen; daraus wird keine fertiggestellte Neuerung abgeleitet.
+
+## Diese Liste fortführen
+
+- Bei jeder neuen UTNT-Funktion, Änderung oder Verbesserung diese Datei **im selben Arbeitsgang und vor dem zugehörigen Commit** prüfen und aktualisieren. Das gilt auch für Fehlerkorrekturen, Rücknahmen und geänderte Bedienung.
+- Bestehende Punkte auf das aktuelle Verhalten bringen; zusammengehörige Verfeinerungen zusammenfassen. Nur eigenständige Neuerungen ergänzen. Pro Punkt genügen ein bis zwei kurze Sätze mit Nutzen und gegebenenfalls einem Detailverweis.
+- Umgesetztes, lokale Integration und bloße Pläne klar unterscheiden. Noch nicht implementierte Konzepte nicht als Features aufführen. Bei Abschluss lokaler Arbeiten den offenen Eintrag auflösen.
+- Datum und betroffene Detailverweise aktualisieren. Die Commitgrenzen oben dokumentieren nur die erste Bestandsaufnahme; Git liefert die spätere Änderungshistorie.
+- Bei rein internen Änderungen ohne zusätzliche relevante Neuerung die Übersicht prüfen, aber keinen künstlichen Listeneintrag erzeugen.
+
+Die fachlichen Details und bisherigen Prüfumfänge stehen in den verlinkten Dokumenten. Historische Berichte sind über den [Dokumentationseinstieg](README.md) erreichbar. Diese Bestandsaufnahme prüft Quellen und Dokumentation; sie ist kein erneuter vollständiger Kampagnen- oder Laufzeittest.

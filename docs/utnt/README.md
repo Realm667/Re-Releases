@@ -2,6 +2,11 @@
 
 Current feature and maintenance documentation is collected here. Commands and inline source paths are relative to the repository root unless explicitly stated otherwise.
 
+## Remaster overview
+
+- [UTNT Remaster – Übersicht der Neuerungen](NEUERUNGEN.md): compact, continuously maintained German overview of implemented features, improvements and ongoing local integration.
+- For every UTNT feature, behavior change, improvement, fix or reversal, review and update this overview in the same task before committing. Consolidate related refinements, distinguish unfinished work, and keep the date and detail links current. Internal changes without a relevant new outcome need no artificial entry.
+
 ## Build and checks
 
 Run `tutnt_build.bat` from the repository root. Local configuration is in the ignored `tools/utnt-env.cmd` (`UTNT_PYTHON`, `UTNT_ACC`, `UTNT_ENGINE`, `UTNT_IWAD`). Keep the shared `tutnt.pk3` at the root; temporary packages belong under `tutnt/.codex/builds/`. Run `python -B tools/check_work_layout.py` before finishing a task.
