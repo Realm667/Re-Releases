@@ -118,6 +118,12 @@ class UTNTCreditsHandler : EventHandler
    let it=Level.CreateActorIterator(id);Cameras[id]=it.Next();
    if(Cameras[id]){Origins[id]=Cameras[id].Pos;Angles[id]=Cameras[id].Angle;Pitches[id]=Cameras[id].Pitch;}
   }
+  // Hexen flats have no stored panning: center the 192-unit fracture over TID 7.
+  // The central floor and adjacent slopes share one phase, serialized by the engine.
+  let fracture=TexMan.CheckForTexture("UECRACK",TexMan.Type_Flat);
+  if(fracture.isValid())for(int i=0;i<level.Sectors.Size();i++)
+   if(level.Sectors[i].GetTexture(Sector.floor)==fracture)
+   {level.Sectors[i].SetXOffset(Sector.floor,4576);level.Sectors[i].SetYOffset(Sector.floor,-352);}
   BuildFlight();
   ViewCamera=UTNTCreditsCamera(Actor.Spawn("UTNTCreditsCamera",Origins[1]));
   if(ViewCamera)ViewCamera.Director=self;

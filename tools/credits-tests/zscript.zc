@@ -190,6 +190,12 @@ class UTNTCreditsTests : EventHandler
    Check(h.Phase==1 && level.time-h.PageStart>=735 && level.time-h.PageStart<868,"spark shot settles before its flashes and outgoing fade");
    if(h.SparkPulses>0)Check(h.LastSparkTic>=h.PageStart+735,"amber accents follow actual late crater discharges");
    Check(spark && h.HasSparkFocus && (spark.Pos-h.SparkFocus).Length()<.01,"authored floor spark focus survives save/load");
+   Check(TexMan.GetName(level.Sectors[501].GetTexture(Sector.floor))=="UECRACK" &&
+    level.Sectors[501].GetTexture(Sector.floor)==level.Sectors[513].GetTexture(Sector.floor),"crater floor replaces the lava silhouette with one fracture material");
+   Check(abs(level.Sectors[501].GetXOffset(Sector.floor)-4576)<.001 &&
+    abs(level.Sectors[513].GetXOffset(Sector.floor)-4576)<.001,"fracture UV phase remains continuous after save/load");
+   Check(abs(level.Sectors[501].floorplane.ZatPoint((-4480,-448))-level.Sectors[513].floorplane.ZatPoint((-4480,-448)))<.001,
+    "former lava sector has no geometric step or pinwheel edge");
    if(spark)
    {
     let camera=h.ViewCamera;Vector3 delta=spark.Pos-camera.Pos;
@@ -199,6 +205,15 @@ class UTNTCreditsTests : EventHandler
     Check(delta.Length()>250 && delta.Length()<320 && camera.Pos.z-spark.Pos.z>180,"close shot clears the near crater slope");
     Check(camera.CameraFOV>=63 && camera.CameraFOV<=65 && abs(camera.Roll)<.01,"spark shot has tighter lens and settled horizon");
    }
+  }
+  else if(op==20)
+  {
+   h.Phase=1;h.PageStart=level.time-735;h.ViewCamera.Director=null;
+   Vector3 offset=e.Args[1]==0?(0,-130,70):e.Args[1]==1?(-85,-115,90):(0,-180,220);
+   let c=h.ViewCamera;c.SetOrigin(h.SparkFocus+offset,true);
+   c.Angle=atan2(-offset.y,-offset.x);c.Pitch=-atan2(-offset.z,offset.XY.Length());
+   c.Roll=0;c.CameraFOV=64;c.ClearInterpolation();h.AttachCamera();
+   Check(h.HasSparkFocus && c.CheckSight(Level.CreateActorIterator(7,"OrangeSpark_Up").Next()),"material inspection sees the authored crater focus");
   }
   else if(op==14)
   {Check(h.Page==7 && level.time-h.PageStart>=32 && level.time-h.PageStart<50,"animation time restored by save/load");}

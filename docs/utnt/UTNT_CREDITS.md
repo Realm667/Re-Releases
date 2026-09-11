@@ -75,6 +75,29 @@ Eingangsblende. Die alte MovingCamera wird nicht mehr aktiviert; Position und
 Blickrichtung bestimmt ausschließlich das gespeicherte Kamera-Rig. Kampfskripte,
 Kartengeometrie, Wegpunkte und die TNT01-Skybox bleiben unverändert.
 
+## Felsriss im Krater (11.09.2026)
+
+Das freigegebene „Ember Fracture“-Motiv ersetzt die breite gelbe/orange Lavaform.
+Die mittlere Bodenfläche und der frühere Risssektor liegen gemeinsam auf Höhe 392,
+mit identischer Felsbeleuchtung und nahtlos ausgerichteter Textur UECRACK.
+Die unsichtbaren internen Sektorgrenzen bleiben erhalten, ebenso Wegpunkte,
+Blitzlinien und ACS-Ablauf. Funke und Licht behalten ihre absolute Position.
+
+Die Textur bedeckt nach der Größenkorrektur 192 × 192 Mapeinheiten (150 Prozent).
+Auch die angrenzenden Felsflächen tragen das Motiv, damit die Spalten nicht
+an der ursprünglichen Bodenfläche abgeschnitten werden. Schmale bernsteinfarbene Adern leuchten
+über eine exakt registrierte Brightmap; nur etwa 1,7 Prozent der Bildfläche gehören
+zum hellen Kern. Eine Normalmap folgt denselben Höhendaten. Der gemeinsame
+Parallax-Occlusion-Shader vertieft die Brüche um bis zu 3,8 Einheiten und hebt
+Steinkanten um höchstens 0,6 Einheiten an. Zum Rand geht das Material in den
+ursprünglichen ROCKF7-Boden über. Das Relief beeinflusst die sichtbare Oberfläche,
+nicht die Kollision. Die vorhandenen Blitzfunken, Halo- und Blendeffekte bleiben aktiv.
+
+Quellbild, Generator und Parameter: [Artwork](../../tools/artwork/ending-fracture/README.md).
+`tools/build_ending_fracture.py --check` prüft die registrierten Daten und Hashes.
+Der native Schlusssequenztest prüft den durchgehenden Boden und gespeicherte
+Texturausrichtung zusätzlich zu Kamerafokus, Sichtlinie und tatsächlichen Blitzen.
+
 ## Ash & Ember (Mockup 03, 11.09.2026)
 
 Der freigegebene Look kombiniert entsättigte Asche-/Steintöne mit warm erhaltenen
