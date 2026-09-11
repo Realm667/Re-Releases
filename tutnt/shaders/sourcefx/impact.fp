@@ -5,9 +5,19 @@ void main()
  float aspect=float(textureSize(InputTexture,0).x)/float(textureSize(InputTexture,0).y);
  vec2 metric=vec2(aspect,1.0),delta=(uv-focus)*metric;
  float r=length(delta)/max(radius,.001);
+ float age=35.0+progress*175.0;
+ // One smooth amber exposure swell before gravity starts; one scene sample.
+ // The broad veil reaches the view edges, with the brightest glare on the seal.
+ if(age<70.0)
+ {
+  float swell=smoothstep(1.0,14.0,age)*(1.0-smoothstep(35.0,70.0,age))*amount;
+  float halo=exp(-r*r*.65),heart=exp(-r*r*3.0);
+  vec3 veil=(vec3(1.0,.38,.055)*(.20+.46*halo)+vec3(1.0,.78,.32)*heart*.12)*swell;
+  vec3 scene=texture(InputTexture,uv).rgb;
+  FragColor=vec4(1.0-(1.0-scene)*(1.0-veil),1.0);return;
+ }
  if(r>=1.8){FragColor=texture(InputTexture,uv);return;}
  vec2 direction=delta/max(length(delta),.001);
- float age=35.0+progress*175.0;
  float pull=clamp((age-70.0)/88.0,0.0,1.0);
  float edge=min(min(uv.x,1.0-uv.x),min(uv.y,1.0-uv.y));
  float fade=smoothstep(0.0,.04,edge)*(1.0-smoothstep(1.1,1.8,r));

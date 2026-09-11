@@ -104,6 +104,7 @@ class UTNTSourceTests : EventHandler
     Console.Printf("SOURCE_IMPLOSION age=%d inward=%d core=%.3f flash=%.3f",em.DeadAge,InwardSteps,em.Layers[68].Alpha,em.Layers[70].Alpha);
    }
   }
+  if(e.Name=="sourcefxreset")FXStamp=0; // Do not save pending render assertions.
   if(e.Name=="sourcefxcheck")
   {
    FXStamp=level.time;FXExpected=e.Args[0];

@@ -256,3 +256,20 @@ time decreased from 5.26 ms to 4.48 ms (about 15%). Worst frames per run decreas
 from 36.67/46.17 ms to 11.63/22.09 ms. The user's reported 5-FPS drop was not
 reproduced on this test setup; the result demonstrates reduced work and shorter
 stalls here rather than guaranteeing an identical gain on other hardware.
+
+## Amber opening glare - 2026-09-11
+
+The defeat sequence opens with one continuous orange/amber exposure swell:
+13 tics of rise, a brief hold, then a smooth fade through tic 70 as the dark
+singularity becomes dominant. The existing centre halo widens and brightens;
+no actors, particles, lights or material programs are added. Reduced effects
+retain only a quiet world halo and suppress the screen glare.
+
+The existing Source postprocess supplies a broad amber veil and a warmer bright
+centre, strongest when looking directly at the visible seal. Distance, camera
+angle, occlusion, shader-overlay and FX-quality gates remain in force. HUD and
+camera orientation are unchanged. The opening path samples the scene once;
+from tic 70 onward the optimized gravitational refraction is unchanged. Timing
+comes from the saved defeat clock, so loading does not restart the swell.
+`tools/test_source_glare.py` covers the opening, saved reconstruction, looking
+away and effect switches; actual captures are reviewed on OpenGL and Vulkan.
