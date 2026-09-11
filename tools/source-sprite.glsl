@@ -79,11 +79,12 @@ vec4 ProcessTexel()
  return vec4(vec3(1.0,0.72,0.30)*bolt*(1.0-smoothstep(0.95,1.0,abs(p.x))),1.0);
  } else if(kind == 13 || kind == 16 || kind == 17) {
  // Reject the empty majority of each large ceiling quad before atlas reads.
- if(r<.60 || r>.98 || abs(a)>.35)return vec4(0.0);
+ if(r<.60 || r>.98 || abs(a)>.35)discard;
  // One eighth of a horizontal ring, using the shaft's native QROCK3 stone.
  float ang=abs(a);
  float shape=smoothstep(0.63,0.65,r)*(1.0-smoothstep(0.94,0.96,r));
  shape*=1.0-smoothstep(0.30,0.34,ang);
+ if(shape<=.001)discard; // Empty carrier pixels must never write depth.
  vec3 stone=texture(stoneAtlas,fract(vTexCoord.st*3.0)).rgb*0.48;
  float glyph=Rune(vec2(a/0.38+0.5,(r-0.69)/0.20),2.0);
  float rim=Ring(r,0.67,0.004)+Ring(r,0.93,0.004);

@@ -267,7 +267,7 @@ class UTNTSourceEmitter : Thinker
  }
  Vector3 CeilingPoint(int index)
  {
-  double angle=index*45;
+  double angle=index*45+22.5;
   double sink=DeadAge>193?40*clamp((DeadAge-193)/52.0,0.0,1.0):0;
   return Center+(cos(angle)*370,sin(angle)*370,760-sink);
  }
@@ -295,8 +295,9 @@ class UTNTSourceCeilingPiece : Actor
   Super.Tick();
   if(!Owner){Destroy();return;}
   if(IsFrozen() || level.isFrozen())return;
+  Alpha=.999; // Keep shader-cut stone in the translucent pass, including old saves.
   let e=Owner;int d=e.DeadAge;
-  double angle=Index*45;
+  double angle=Index*45+22.5;
   double sink=d>193?40*clamp((d-193)/52.0,0.0,1.0):0;
   double lift=d>=35 && d<193?sin((d-35)/158.0*180)*18:0;
   SetOrigin(e.Center+(cos(angle)*24,sin(angle)*24,760+lift-sink+sin(Index*79)*14),false);
@@ -461,7 +462,7 @@ class UTNTSourceLayer : VisualThinker
     diameter=d<158?1200*(1-fall*.88):1200;
     Alpha=d<158?0.20*(1-fall):e.Flash()*.75;
     // Reuse the existing halo: a continuous amber swell, then a clear dark core.
-    double rise=clamp((d-1)/13.0,0,1),fade=clamp((d-35)/35.0,0,1);
+    double rise=clamp((d-1)/13.0,0,1),fade=clamp((d-49)/91.0,0,1);
     double glow=rise*rise*(3-2*rise)*(1-fade*fade*(3-2*fade));
     diameter+=glow*500;Alpha+=glow*(e.Reduced?0.15:0.75);
    }

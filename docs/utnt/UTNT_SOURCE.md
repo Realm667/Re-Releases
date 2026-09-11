@@ -45,7 +45,7 @@ nodes are byte-identical. TNT04C retains its original visuals and map bytes.
 ## Implementation and limits
 
 `UTNT_Source.zc` adds presentation bases to the existing Source and Guardian
-classes. Saved boss fields describe attack, shield and defeat state. Forty-four
+classes. Saved boss fields describe attack, shield and defeat state. Seventy-two
 bounded VisualThinkers, eight stone actors and nine light anchors live locally and rebuild
 after loading. Essential target/shield/attack indications remain with FX quality
 zero. Reduced effects disable ornamental roll and pulse motion where specified;
@@ -260,8 +260,8 @@ stalls here rather than guaranteeing an identical gain on other hardware.
 ## Amber opening glare - 2026-09-11
 
 The defeat sequence opens with one continuous orange/amber exposure swell:
-13 tics of rise, a brief hold, then a smooth fade through tic 70 as the dark
-singularity becomes dominant. The existing centre halo widens and brightens;
+13 tics of rise, a hold through tic 49, then a smooth fade through tic 140
+(four seconds total). The centre clears as the dark singularity becomes dominant. The existing centre halo widens and brightens;
 no actors, particles, lights or material programs are added. Reduced effects
 retain only a quiet world halo and suppress the screen glare.
 
@@ -269,7 +269,38 @@ The existing Source postprocess supplies a broad amber veil and a warmer bright
 centre, strongest when looking directly at the visible seal. Distance, camera
 angle, occlusion, shader-overlay and FX-quality gates remain in force. HUD and
 camera orientation are unchanged. The opening path samples the scene once;
-from tic 70 onward the optimized gravitational refraction is unchanged. Timing
+from tic 70 the glow overlays the existing gravitational refraction, clearing
+the central void while the surrounding amber illumination fades. Timing
 comes from the saved defeat clock, so loading does not restart the swell.
 `tools/test_source_glare.py` covers the opening, saved reconstruction, looking
 away and effect switches; actual captures are reviewed on OpenGL and Vulkan.
+
+## Textured energy and ring clearance - 2026-09-11
+
+The beam and helix share the same two material programs and original wall
+carriers. Upward-flowing noise, uneven edges and thinner hot filaments replace
+the clean laser-like lines. Sparse native QRUNT63 runes and sparks travel up
+both streams directly in the material; there are no new particle actors, light
+anchors, spawn loops or gameplay random calls. Glyph sampling is confined to
+small cells, and empty beam/helix regions return before noise or atlas work.
+The existing near-boss attenuation, shield states and collapse remain intact.
+
+The ceiling pieces explicitly discard pixels outside their stone silhouettes,
+so empty rectangular carrier regions cannot write depth. Alpha stays just below
+one, including after loading, avoiding the renderer's opaque flat-sprite path.
+All eight segments turn half a sector (22.5 degrees), aligning their gaps with
+the main arena viewing axes; lightning attachment points follow the new angles.
+Actual stone still occludes objects behind it. No map geometry is changed.
+
+The long opening glow holds until 1.4 seconds and fades over the following 2.6
+seconds. Refraction and amber exposure overlap, but the growing black core is
+kept clear. Reduced effects retain their quiet halo without the screen blend.
+`tools/test_source_energy.py` captures the ring, restored ring, upper shaft,
+energy motion, side view and extended glare, and checks the fixed effect pool.
+
+A single sequential Vulkan pair in the same immutable full test package, looking
+up the shaft, measured 17.86 -> 18.18 ms mean frame time with the beam alive and
+17.92 -> 20.23 ms over the defeat interval. Neither run contained frames above
+50 ms. This is a limited local sample: the richer presentation has measurable
+render cost despite retaining the fixed actor and material budgets; it is not
+a guarantee against stalls on every device or graphics configuration.

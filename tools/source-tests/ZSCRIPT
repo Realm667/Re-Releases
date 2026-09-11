@@ -40,6 +40,8 @@ class UTNTSourceTests : EventHandler
   players[0].camera=p;
   Vector3 pos=(128,-1100,3500);double a=90,pitch=-15;
   if(View==3)pitch=-22;
+  if(View==6){pos=(128,-1000,3370);pitch=-52;}
+  if(View==7){pos=(10624,-700,5000);a=90;pitch=-60;}
   if(View==5)a=270;
   if(View==4){pos=(128,-1100,3500);pitch=-35;}
   if(View==1){pos=(128,-1650,3370);pitch=-14;}
@@ -58,6 +60,18 @@ class UTNTSourceTests : EventHandler
   {
    Assert(Fallback && Fallback.Health<=0,"Source fallback test actor is defeated");
    Assert(Fallback && Fallback.sprite==Actor.GetSpriteIndex("SOUR") && Fallback.Alpha>0 && Fallback.Alpha<1,"other maps retain the original visible Source death fade");
+  }
+  if(e.Name=="sourceenergycheck")
+  {
+   let it=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
+   let em=UTNTSourceEmitter(it.Next());
+   Assert(em && em.Layers.Size()==72 && em.WallLights.Size()==8,"beam ornament adds no visual thinkers or light anchors");
+   if(em)
+   {
+    bool masks=em.Ceiling.Size()==8;
+    for(int i=0;i<em.Ceiling.Size();i++)masks=masks && em.Ceiling[i].Alpha<1 && em.Ceiling[i].Alpha>.99;
+    Assert(masks,"ceiling shader silhouettes retain translucent rendering after load");
+   }
   }
   if(e.Name=="sourcematerialcheck")
   {
@@ -171,7 +185,7 @@ class UTNTSourceTests : EventHandler
     count++;Assert(em.Layers.Size()==72,"72 bounded presentation layers including finale");
     bool ceilingOK=em.Ceiling.Size()==8;
     for(int k=0;k<em.Ceiling.Size();k++)
-     ceilingOK=ceilingOK && abs(em.Ceiling[k].Angle-k*45)<0.1 && em.Ceiling[k].bFlatSprite;
+     ceilingOK=ceilingOK && abs(em.Ceiling[k].Angle-(k*45+22.5))<0.1 && em.Ceiling[k].bFlatSprite;
     Assert(ceilingOK,"eight ceiling sectors have distinct world orientations");
     bool roles=em.Layers.Size()==72;
     for(int i=0;i<em.Layers.Size();i++)roles=roles && em.Layers[i].Kind==i;

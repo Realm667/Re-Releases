@@ -27,7 +27,7 @@ def build(root=ROOT):
   defs += [f'Material Sprite "{name}" {{ Shader "shaders/sourcefx/sprite.fp" Texture runeAtlas "USRUNES" Texture stoneAtlas "QROCK3" Texture sourceKind "graphics/source-beam/state{kind:02}.png" }}']
   legacy=out/f'{name.lower()}.fp'
   if legacy.exists():legacy.unlink()
- beam=(root/'tools/source-beam.glsl').read_text()
+ beam=rune+(root/'tools/source-beam.glsl').read_text()
  # State data is one opaque texel. Logical wall dimensions remain unchanged;
  # no 1500x512 carrier is uploaded every time the saved defeat phase advances.
  data=t/'graphics/source-beam';data.mkdir(parents=True,exist_ok=True)
@@ -46,7 +46,7 @@ def build(root=ROOT):
   for state in range(29):
    name=f'USB{kind}{state}'
    textures += [f'Texture {name}, 1, 1 {{ XScale {1/w:.12f} YScale {1/h:.12f} Patch "graphics/source-beam/state{state:02}.png", 0, 0 }}']
-   defs += [f'Material Texture "{name}" {{ Shader "{shader}" }}']
+   defs += [f'Material Texture "{name}" {{ Shader "{shader}" Texture runeAtlas "USRUNES" }}']
    # Only these generated legacy shader files belong to this generator.
    legacy=out/f'{name.lower()}.fp'
    if legacy.exists():legacy.unlink()
