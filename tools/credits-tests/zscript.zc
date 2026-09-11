@@ -3,7 +3,8 @@ class UTNTCreditsTests : EventHandler
 {
  Vector3 PreviousPosition;
  double PreviousAngle,PreviousPitch,PeakStep;
- int PreviousPhase,PreviousPage,ObservedTicks;
+ int PreviousPhase,PreviousPage,ObservedTicks,PreviousFlightAge,EntryTicks;
+ double EntryMin,EntryMax;
  bool HadPrevious,Watching;
  override void WorldTick()
  {
@@ -13,11 +14,22 @@ class UTNTCreditsTests : EventHandler
   if(HadPrevious && PreviousPhase==h.Phase && PreviousPage==h.Page)
   {
    double step=(camera.Pos-PreviousPosition).Length();PeakStep=max(PeakStep,step);ObservedTicks++;
+   // WorldTick observes actor positions from the preceding simulation tic.
+   int age=level.time-h.PageStart-1;
+   if(h.Phase==1 && age>=1 && age<=60 && age==PreviousFlightAge+1)
+   {
+    EntryMin=EntryTicks?min(EntryMin,step):step;EntryMax=max(EntryMax,step);EntryTicks++;
+    if(age==60)
+    {
+     Check(EntryTicks>=55 && EntryMin>.5 && EntryMax/EntryMin<1.03,"flight moves at cruise speed throughout fade-in without acceleration");
+     Console.Printf("FLIGHT_ENTRY ticks=%d min=%.4f max=%.4f",EntryTicks,EntryMin,EntryMax);
+    }
+   }
    if(step>20 || abs(Actor.deltaangle(PreviousAngle,camera.Angle))>4 || abs(Actor.deltaangle(PreviousPitch,camera.Pitch))>4)
     Check(false,"camera has no per-tick jumps");
   }
   PreviousPosition=camera.Pos;PreviousAngle=camera.Angle;PreviousPitch=camera.Pitch;
-  PreviousPhase=h.Phase;PreviousPage=h.Page;HadPrevious=true;
+  PreviousPhase=h.Phase;PreviousPage=h.Page;PreviousFlightAge=level.time-h.PageStart-1;HadPrevious=true;
  }
  ui int LastLayoutPage;
  ui bool LayoutSeen,LookSeen;
@@ -165,9 +177,9 @@ class UTNTCreditsTests : EventHandler
   else if(op==13)
   {Check(h.Page==24 && h.Pages[h.Page].Remaster && h.Pages[h.Page].Layout=="chapter","Remaster chapter restored by save/load");}
   else if(op==15)
-  {Watching=true;HadPrevious=false;ObservedTicks=0;PeakStep=0;}
+  {Watching=true;HadPrevious=false;ObservedTicks=0;PeakStep=0;EntryTicks=0;EntryMin=0;EntryMax=0;}
   else if(op==16)
-  {Check(ObservedTicks>100 && PeakStep>1 && PeakStep<20,"continuous FPV flight observed without jumps");Check(h.Phase==2,"flight fades into THE END");Check(h.SparkPulses>=2,"natural post-credit sequence produces repeated amber accents");}
+  {Check(EntryTicks>=55 && EntryMin>.5 && EntryMax/EntryMin<1.03,"cruise entry observations survive the full flight and save/load");Check(ObservedTicks>100 && PeakStep>1 && PeakStep<20,"continuous FPV flight observed without jumps");Check(h.Phase==2,"flight fades into THE END");Check(h.SparkPulses>=2,"natural post-credit sequence produces repeated amber accents");}
   else if(op==17)
   {Check(h.Cutting && h.Phase==0,"outgoing black fade is pending");Check(h.PendingPage==e.Args[1],"pending destination restored");}
   else if(op==18)

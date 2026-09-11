@@ -148,8 +148,13 @@ class UTNTCreditsHandler : EventHandler
   }
   else if(Phase==1 && FlightCount>1)
   {
-   // Arrive at 21 seconds: one quiet second before ACS 102, then hold its flashes.
-   double u=clamp((level.time-PageStart-35)/700.0,0,1),progress=Ease(u);
+   // Cruise immediately beneath the fade; smoothly brake over the last 30% of time.
+   // Integral of (1 - smoothstep) keeps speed continuous and arrival at 21 seconds.
+   double flight=clamp((level.time-PageStart)/735.0,0,1);
+   double brake=clamp((flight-.7)/.3,0,1);
+   double progress=(min(flight,.7)+.3*(brake-brake*brake*brake+.5*brake*brake*brake*brake))/.85;
+   // Retain the authored focus, bank and lightning cue timing.
+   double u=clamp((level.time-PageStart-35)/700.0,0,1);
    double target=FlightLengths[FlightLengths.Size()-1]*progress;
    int i=1;while(i+1<FlightLengths.Size() && FlightLengths[i]<target)i++;
    double t=clamp((target-FlightLengths[i-1])/max(.001,FlightLengths[i]-FlightLengths[i-1]),0,1);

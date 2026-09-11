@@ -52,7 +52,9 @@ werden ignoriert. Die freigegebene Boxenanimation beginnt nach der Eingangsblend
 
 Der abschließende FPV-Flug verwendet die vorhandenen Wegpunkte 100–110, eine
 Hermite-Kurve mit gemeinsamen Tangenten, 321 Stützproben und einen nach Bogenlänge bestimmten Fortschritt.
-Nach einer Sekunde Einblendung dauert die Fahrt 20 Sekunden; anschließend bleibt
+Die Kamera fährt ab dem ersten Tic mit konstanter Reisegeschwindigkeit, bereits
+während der einsekündigen Einblendung. Erst in den letzten 30 Prozent der insgesamt
+21 Sekunden Fahrtzeit bremst sie weich bis zum Stillstand ab; anschließend bleibt
 fünf Sekunden die Schlusskomposition stehen. Im letzten Teil schwenkt der Blick
 weich auf den tatsächlichen OrangeSpark_Up mit TID 7 am Kraterboden. Die beiden
 letzten Anflugpunkte werden über die nahe Kraterkante angehoben; der Endpunkt liegt
@@ -63,6 +65,8 @@ Der Funke liegt mittig und die Kamera kommt eine Sekunde vor dem ersten durch
 ACS 102 ausgelösten Aufflackern zur Ruhe. Dessen viersekündiges Zeitfenster bleibt
 im Bild; während der letzten 1,2 Sekunden blendet es wie bisher nach Schwarz.
 Anschließend erscheint „THE END“ nach kurzer Ruhe mit einer zweisekündigen Einblendung.
+Der native Kameratest prüft die gleichmäßigen Positionsschritte während der ersten
+60 Tics sowie die fortgesetzte Fahrt nach Speichern/Laden.
 Fokuspunkt, Kurvenproben und Fortschritt werden mitgespeichert. Fehlt der Funkenaktor,
 bleiben die ursprünglichen Wegpunkte und Blickrichtungen als Rückfall erhalten.
 
