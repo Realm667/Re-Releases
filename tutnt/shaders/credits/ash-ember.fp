@@ -1,37 +1,42 @@
-// Approved mockup 03. Linear plane-depth DOF, ash grade, warm halation, fine grain.
-float cellDepth(ivec2 cell) {
+// Ash & Ember: temporally stabilized blur mask with broad world-distance ramps.
+float cellBlur(ivec2 cell) {
  int i=clamp(cell.y,0,8)*16+clamp(cell.x,0,15);
- vec4 depthWords[9]=vec4[9](depth0,depth1,depth2,depth3,depth4,depth5,depth6,depth7,depth8);
- float v=depthWords[i/16][(i/4)%4];
- float q=mod(floor(v/exp2(float((i%4)*6))),64.0);
- return 8.0*exp2(q*(10.0/63.0));
+ vec4 words[12]=vec4[12](blur0,blur1,blur2,blur3,blur4,blur5,blur6,blur7,blur8,blur9,blur10,blur11);
+ float v=words[i/12][(i/3)%4];
+ return mod(floor(v/exp2(float((i%3)*8))),256.0)/255.0;
 }
-float planeDepth(vec2 uv) {
+float sceneBlur(vec2 uv) {
  vec2 p=clamp((uv-viewport.xy)/viewport.zw,0.0,1.0)*vec2(16,9)-.5;
  ivec2 a=ivec2(floor(p));vec2 f=fract(p);
- return mix(mix(cellDepth(a),cellDepth(a+ivec2(1,0)),f.x),mix(cellDepth(a+ivec2(0,1)),cellDepth(a+ivec2(1,1)),f.x),f.y);
+ return mix(mix(cellBlur(a),cellBlur(a+ivec2(1,0)),f.x),mix(cellBlur(a+ivec2(0,1)),cellBlur(a+ivec2(1,1)),f.x),f.y);
 }
-float coc(float z) {return smoothstep(.26,1.15,abs(z-focusDistance)/max(z,8.0));}
-vec3 readScene(vec2 uv) {return texture(InputTexture,clamp(uv,viewport.xy,viewport.xy+viewport.zw)).rgb;}
+vec3 readScene(vec2 uv) {
+ // Explicit bilinear reconstruction also works with the game's nearest texture filter.
+ vec2 size=vec2(textureSize(InputTexture,0));
+ vec2 p=clamp(uv*size,viewport.xy*size+.5,(viewport.xy+viewport.zw)*size-.5)-.5;
+ ivec2 a=ivec2(floor(p)),last=ivec2(size)-1;vec2 f=fract(p);
+ return mix(mix(texelFetch(InputTexture,a,0).rgb,texelFetch(InputTexture,min(a+ivec2(1,0),last),0).rgb,f.x),
+            mix(texelFetch(InputTexture,min(a+ivec2(0,1),last),0).rgb,texelFetch(InputTexture,min(a+ivec2(1,1),last),0).rgb,f.x),f.y);
+}
 void main() {
  vec3 original=texture(InputTexture,TexCoord).rgb;
  vec2 local=(TexCoord-viewport.xy)/viewport.zw;
  if(any(lessThan(local,vec2(0))) || any(greaterThan(local,vec2(1)))) {FragColor=vec4(original,1);return;}
  vec2 size=vec2(textureSize(InputTexture,0)),pixel=1.0/size;
- float circle=coc(planeDepth(TexCoord)),radius=aperture*circle*size.y*viewport.w/720.0;
- vec3 color=original;float weight=1.0;
+ float circle=sceneBlur(TexCoord),radius=aperture*circle*size.y*viewport.w/720.0;
+ vec3 color=original*.5;float weight=.5;
  if(radius>.35) {
   // Fixed disk samples; no temporal feedback, camera-history ghosting or focus pumping.
-  for(int i=0;i<24;i++) {
-   float a=float(i)*2.39996323,r=sqrt((float(i)+.5)/24.0);
+  for(int i=0;i<32;i++) {
+   float a=float(i)*2.39996323,r=sqrt((float(i)+.5)/32.0);
    vec2 uv=TexCoord+vec2(cos(a),sin(a))*r*radius*pixel;
    vec3 sampleColor=readScene(uv);
-   // In-focus bright cores should not bleed out across their depth silhouettes.
-   float w=mix(.12,1.0,smoothstep(.05,.5,coc(planeDepth(uv))))/(1.0+dot(sampleColor-original,sampleColor-original)*3.0);
+   // Color-independent weights avoid sharp bright cores punching through the blur.
+   float w=(1.0-.65*r*r)*mix(.35,1.0,smoothstep(.0,.4,sceneBlur(uv)));
    color+=sampleColor*w;weight+=w;
   }
  }
- color/=weight;
+ color=mix(original,color/weight,smoothstep(.35,1.35,radius));
  vec3 glow=vec3(0);
  for(int i=0;i<8;i++) {
   float a=float(i)*.78539816;

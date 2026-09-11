@@ -83,14 +83,30 @@ Die Tiefenunschärfe richtet sich während der Credits auf die Kampfmitte und be
 Schlussflug auf den tatsächlichen Funken am Kraterboden. Die maximale Unschärfe
 beträgt zwölf Pixel bei 720 Bildzeilen; im Flug wächst sie sanft von sechs auf
 14 Pixel. Ein breiter Schärfebereich lässt den Kampf erkennbar. Der Shader benutzt
-24 räumliche Abtastungen ohne zeitliche Bildhistorie.
+32 räumliche Abtastungen mit bilinearer Pixelrekonstruktion und farbunabhängigen
+Gewichten. Dadurch bleiben helle Originalpixel nicht als scharfe Spitzen in der
+Unschärfe stehen. Der Einstieg des Filters unterhalb von 1,35 Pixeln ist weich.
+Es wird keine zeitliche Bildhistorie verwendet.
 
 Der Custom-Postprocess dieser Engine stellt keinen nativen Tiefenpuffer bereit.
 `UTNTCreditsLook` rekonstruiert deshalb die Geometrietiefe mit einem 16×9-Raster
 (maximal 144 Strahlen pro Spieltic bei unveränderter Projektion). Dies ist eine
 Näherung: Sprites und transparente Partikel erhalten die Tiefe ihrer Umgebung,
 keine individuelle pixelgenaue Tiefenmaske. Kameraschnitte, geänderte Projektion
-und das Laden eines Spielstands initialisieren die Messung neu.
+und das Laden eines Spielstands initialisieren die Messung neu. Kleine laufende
+FOV-Änderungen setzen die Glättung nicht zurück; ein Sprung über fünf Grad schon.
+
+Die Korrektur vom 11.09.2026 interpoliert die Unschärfestärke statt der Tiefenwerte.
+Nahe und ferne unscharfe Flächen erzeugen dadurch an ihrer Grenze keine künstliche
+Schärfeebene. Pro Spieltic folgt die Maske mit Faktor 0,22 und höchstens 0,06
+Stärkenänderung; zwischen den Tics wird interpoliert. Drei 8-Bit-Stärken pro Float
+halten die Übertragung kompakt, ohne die früheren groben logarithmischen Tiefensprünge.
+
+Der Verlauf wird in Weltkoordinaten definiert: Nach einem scharfen Kern von
+mindestens 48 Einheiten beziehungsweise 15 Prozent der Fokusdistanz wächst die
+Unschärfe vor dem Fokus über mindestens 320 Einheiten bzw. 110 Prozent der
+Fokusdistanz, dahinter über mindestens 768 Einheiten bzw. 250 Prozent. Damit
+ist der Übergang besonders im Nahbereich deutlich länger und weniger abrupt.
 
 `credits/ash-ember.gldefs` registriert genau einen Scene-Pass; seine Definition
 liegt bewusst außerhalb der automatisch geladenen GLDEFS-Root-Lumps. Der Pass
@@ -156,13 +172,16 @@ Kapitel-Spielstand, `finale` für das natürliche Ende, `cinematic` für Blenden
 Speichern/Laden während der ruhenden Schlusskomposition. `--mod` kann ein bestimmtes
 PK3 wählen. `look` prüft alle fünf Kameraperspektiven, die einmalige
 Shader-Registrierung, räumliche Tiefenwerte, gespeicherten Funkenfokus sowie das
-Sequenzende. Ein pausierter A/B-Pixelvergleich bestätigt die unveränderten
+Sequenzende. Native Bewegungsprüfungen kontrollieren den fortlaufenden Verlauf
+über 30 Kameratics ohne Zoom-Reset und begrenzen abrupte Maskenänderungen; feste
+Entfernungsproben sichern den verbreiterten räumlichen Verlauf. Ein pausierter A/B-Pixelvergleich bestätigt die unveränderten
 Schriftbereiche und den sichtbaren Effekt auf die Welt. Der Remaster-Test verändert nur eine separate Testdatei im Ausgabeordner.
 Zwei echte Koop-Clients prüft `tools/test_credits_coop.py` mit denselben Pfadoptionen.
 
 Ergebnisse und repräsentative Spielansichten stehen unter
 `tutnt/.codex/validation/credits-polish`; die Kraterkorrektur unter
 `tutnt/.codex/validation/credits-spark`, die Postprocess-Prüfungen unter
-`tutnt/.codex/validation/credits-ash-ember`. Automatisierte Tests laufen ohne
+`tutnt/.codex/validation/credits-ash-ember`, die Stabilitätskorrektur unter
+`tutnt/.codex/validation/credits-dof-stability`. Automatisierte Tests laufen ohne
 Ton; sie behaupten kein subjektives Abhören und keinen vollständigen Kampagnenlauf.
 Bei einem Versionswechsel ENDMAP neu betreten, um die neue Kapitelstruktur zu laden.

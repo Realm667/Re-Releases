@@ -3,10 +3,18 @@
 // once per game tic; sprite depth is approximated by its surrounding geometry.
 class UTNTCreditsLook : Object ui
 {
- double Depth[144];
- int SampleTic,LastPage,LastPhase,TraceCount;
- bool Ready,Enabled;
- double FocusDistance,MinDepth,MaxDepth,SampleRatio,SampleFov;
+ double Depth[144],Blur[144],PreviousBlur[144];
+ int SampleTic,LastPage,LastPhase,TraceCount,ResetCount;
+ bool Ready,Enabled,LastSampleCut;
+ double FocusDistance,MinDepth,MaxDepth,SampleRatio,SampleFov,MaxBlurStep;
+ // World-distance ramps: near blur grows across at least 320 units, far across 768.
+ double BlurAtDepth(double z)
+ {
+  double offset=z-FocusDistance,onset=max(48,FocusDistance*.15);
+  double span=offset<0?max(320,FocusDistance*1.1):max(768,FocusDistance*2.5);
+  double t=clamp((abs(offset)-onset)/span,0,1);
+  return t*t*(3-2*t);
+ }
  void Update(UTNTCreditsHandler h,RenderEvent e)
  {
   if(!e.Camera || e.Camera!=h.ViewCamera){Enabled=false;PPShader.SetEnabled("UTNTEndingLook",false);return;}
@@ -19,7 +27,7 @@ class UTNTCreditsLook : Object ui
   Vector3 up=(cos(e.ViewAngle)*sin(e.ViewPitch),sin(e.ViewAngle)*sin(e.ViewPitch),cos(e.ViewPitch));
   Vector3 rollRight=right*cos(e.ViewRoll)+up*sin(e.ViewRoll);
   up=up*cos(e.ViewRoll)-right*sin(e.ViewRoll);right=rollRight;
-  bool cut=!Ready || LastPage!=h.Page || LastPhase!=h.Phase || level.time<SampleTic || SampleRatio!=ratio || SampleFov!=fov;
+  bool cut=!Ready || LastPage!=h.Page || LastPhase!=h.Phase || level.time<SampleTic || SampleRatio!=ratio || abs(SampleFov-fov)>5;
   Vector3 target=h.HasSparkFocus?h.SparkFocus:e.ViewPos+forward*1024;
   if(h.Phase==0)
   {
@@ -30,7 +38,7 @@ class UTNTCreditsLook : Object ui
   FocusDistance=clamp(delta.X*forward.X+delta.Y*forward.Y+delta.Z*forward.Z,64,8192);
   if(cut || SampleTic!=level.time)
   {
-   let trace=new('LineTracer');MinDepth=8192;MaxDepth=0;
+   let trace=new('LineTracer');MinDepth=8192;MaxDepth=0;MaxBlurStep=0;LastSampleCut=cut;if(cut)ResetCount++;
    for(int y=0;y<9;y++)for(int x=0;x<16;x++)
    {
     Vector3 ray=(forward+right*((x+.5)/16*2-1)*tx+up*((y+.5)/9*2-1)*ty).Unit();
@@ -41,21 +49,29 @@ class UTNTCreditsLook : Object ui
      Vector3 hit=trace.Results.HitPos-e.ViewPos;
      d=clamp(hit.X*forward.X+hit.Y*forward.Y+hit.Z*forward.Z,8,8192);
     }
-    int i=y*16+x;Depth[i]=cut?d:Depth[i]+(d-Depth[i])*.65;
+    int i=y*16+x;Depth[i]=d;
+    // Interpolate blur, never near/far depth: that would invent a sharp plane at edges.
+    double desired=BlurAtDepth(d);
+    PreviousBlur[i]=cut?desired:Blur[i];
+    Blur[i]=cut?desired:Blur[i]+clamp((desired-Blur[i])*.22,-.06,.06);
+    MaxBlurStep=max(MaxBlurStep,abs(Blur[i]-PreviousBlur[i]));
     MinDepth=min(MinDepth,Depth[i]);MaxDepth=max(MaxDepth,Depth[i]);TraceCount++;
    }
    SampleTic=level.time;Ready=true;LastPage=h.Page;LastPhase=h.Phase;SampleRatio=ratio;SampleFov=fov;
   }
-  // Four 6-bit logarithmic distances fit exactly in each float mantissa.
-  double packed[36];
-  for(int i=0;i<36;i++)
+  // Three 8-bit blur values fit exactly in one float; interpolate between game tics.
+  double words[48];
+  for(int i=0;i<48;i++)
   {
-   packed[i]=0;
-   for(int j=0;j<4;j++)packed[i]+=floor(log(max(8,Depth[i*4+j])/8)/log(2.0)/10*63+.5)*(1<<(j*6));
+   words[i]=0;
+   for(int j=0;j<3;j++)
+   {
+    int n=i*3+j;double b=PreviousBlur[n]+(Blur[n]-PreviousBlur[n])*clamp(e.FracTic,0,1);
+    words[i]+=floor(b*255+.5)*(1<<(j*8));
+   }
   }
-  for(int i=0;i<9;i++)PPShader.SetUniform4f(shader,String.Format("depth%d",i),(packed[i*4],packed[i*4+1],packed[i*4+2],packed[i*4+3]));
+  for(int i=0;i<12;i++)PPShader.SetUniform4f(shader,String.Format("blur%d",i),(words[i*4],words[i*4+1],words[i*4+2],words[i*4+3]));
   PPShader.SetUniform4f(shader,"viewport",(vx/double(Screen.GetWidth()),1-(vy+vh)/double(Screen.GetHeight()),vw/double(Screen.GetWidth()),vh/double(Screen.GetHeight())));
-  PPShader.SetUniform1f(shader,"focusDistance",FocusDistance);
   // During the high descent keep a wider focal range; tighten gently at the crater.
   double arrival=h.Phase==1?clamp((level.time-h.PageStart-385)/280.0,0,1):1;
   arrival=arrival*arrival*(3-2*arrival);

@@ -21,11 +21,36 @@ class UTNTCreditsTests : EventHandler
  }
  ui int LastLayoutPage;
  ui bool LayoutSeen,LookSeen;
- ui int LookPage,LookPhase;
+ ui int LookPage,LookPhase,BlurTic,BlurPage,BlurPhase,BlurObservations;
+ ui UTNTCreditsLook ObservedLook;
+ ui bool TestedBlurRamp;
+ ui void ObserveBlur(UTNTCreditsHandler h)
+ {
+  if(!h || !h.Look || !h.Look.Ready)return;
+  let look=h.Look;
+  if(!TestedBlurRamp)
+  {
+   let probe=new('UTNTCreditsLook');probe.FocusDistance=1024;
+   CheckLook(probe.BlurAtDepth(1024)==0,"focus plane remains sharp");
+   CheckLook(probe.BlurAtDepth(512)>.1 && probe.BlurAtDepth(256)<.8,"near transition spans hundreds of world units");
+   CheckLook(probe.BlurAtDepth(2048)>.1 && probe.BlurAtDepth(3072)<.95,"far transition spans thousands of world units");
+   TestedBlurRamp=true;
+  }
+  if(ObservedLook==look && BlurPage==h.Page && BlurPhase==h.Phase && look.SampleTic==BlurTic+1)
+  {
+   if(look.LastSampleCut)CheckLook(false,"continuous camera zoom must not reset blur history");
+   if(look.MaxBlurStep>.060001)CheckLook(false,"blur change stays bounded across geometry edges");
+   BlurObservations++;
+   if(BlurObservations==30)CheckLook(true,"continuous depth mask survives 30 moving camera tics without reset or abrupt changes");
+  }
+  else if(ObservedLook!=look || BlurPage!=h.Page || BlurPhase!=h.Phase || look.SampleTic<BlurTic)BlurObservations=0;
+  ObservedLook=look;BlurTic=look.SampleTic;BlurPage=h.Page;BlurPhase=h.Phase;
+ }
  ui void CheckLook(bool value,String label){Console.Printf("UTNT_ASSERT %s: %s",value?"PASS":"FAIL",label);}
  override void RenderOverlay(RenderEvent e)
  {
   let h=UTNTCreditsHandler(EventHandler.Find('UTNTCreditsHandler'));
+  ObserveBlur(h);
   if(h && h.Initialized)
   {
    if(!LookSeen || LookPage!=h.Page || LookPhase!=h.Phase)
