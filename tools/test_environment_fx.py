@@ -91,11 +91,11 @@ class UTNTEnvironmentRegression : EventHandler
 {
  int WalkUntil,OriginalTerrain,BirthTics,MaxBirths,PreviousPuffs;bool Fly,RecordMotion;Vector3 CameraAt;UTNTEnvironmentDust TrackedDust;double PreviousAlpha;int AlphaSamples,AlphaRises;
  bool RecordArea;int AreaStart,SmallBefore,LargeBefore,SmallAtEnd,LargeAtEnd;
- int Coverage[8],TimeBins[8];Vector2 LastSmall;bool HaveLast;int Jumps,FarJumps;
+ int Coverage[8],TimeBins[8];Vector2 LastSmall;bool HaveLast;int Jumps,FarJumps,ContactBad;
  Array<UTNTEnvironmentDust> SeenDust;
  bool RecordGuides;int GuideBirths,GuideBad,GuideSamples,ShakeUntil,ShakeLabel;
  UTNTEnvironmentDust GuideDust;double GuideStartZ,GuideStartCeiling;
- UTNTEnvironmentDust CarryDust[2];double CarryZ[2],CarryPlane[2];int CarrySamples[2],CarryBad;
+ UTNTEnvironmentDust CarryDust[2];double CarryZ[2],CarryPlane[2],CarryAlpha[2];int CarrySamples[2],CarryBad;
  ui int ShakeTic,ShakeFrames;ui Vector3 ViewLow,ViewHigh;
  override void RenderOverlay(RenderEvent e)
  {
@@ -143,6 +143,8 @@ class UTNTEnvironmentRegression : EventHandler
     if(d.Age>1 || SeenDust.Find(d)<SeenDust.Size())continue;
     SeenDust.Push(d);int which=d.Support==level.Sectors[7]?0:d.Support==level.Sectors[18]?1:-1;
     if(which<0)continue;
+    double edgeDistance=which==0?abs(d.Pos.X-1024):min(min(abs(d.Pos.X-1152),abs(d.Pos.X-1664)),min(abs(d.Pos.Y-1024),abs(d.Pos.Y-1536)));
+    if(edgeDistance>6)ContactBad++;
     Vector2 center=which==0?(896,384):(1408,1280);
     int quadrant=(d.Pos.X>center.X?1:0)+(d.Pos.Y>center.Y?2:0);
     Coverage[which*4+quadrant]++;
@@ -159,17 +161,17 @@ class UTNTEnvironmentRegression : EventHandler
     {
      let it=ThinkerIterator.Create('UTNTEnvironmentDust',Thinker.MAX_STATNUM+1,true);UTNTEnvironmentDust d;
      while((d=UTNTEnvironmentDust(it.Next()))!=null)if(d.Support==level.Sectors[k==0?7:18] && d.Age<3)
-     {CarryDust[k]=d;CarryZ[k]=d.Pos.Z;CarryPlane[k]=k==0?d.Support.floorplane.ZatPoint(d.Pos.XY):d.Support.ceilingplane.ZatPoint(d.Pos.XY);break;}
+     {CarryDust[k]=d;CarryZ[k]=d.Pos.Z;CarryPlane[k]=k==0?d.Support.floorplane.ZatPoint(d.Pos.XY):d.Support.ceilingplane.ZatPoint(d.Pos.XY);CarryAlpha[k]=d.Alpha;break;}
     }
     let d=CarryDust[k];if(!d)continue;
     double plane=k==0?d.Support.floorplane.ZatPoint(d.Pos.XY):d.Support.ceilingplane.ZatPoint(d.Pos.XY);
     double delta=plane-CarryPlane[k];
     if(abs(delta)>.01)
     {
-     double fraction=(d.Pos.Z-CarryZ[k]-d.Vel.Z)/delta;
-     CarrySamples[k]++;if(fraction<.15 || fraction>.30)CarryBad++;
+     double clearance=k==0?d.Pos.Z-plane:plane-d.Pos.Z;
+     CarrySamples[k]++;if(clearance<10 || (d.Age>7 && abs(d.Alpha-CarryAlpha[k])>.025))CarryBad++;
     }
-    CarryZ[k]=d.Pos.Z;CarryPlane[k]=plane;
+    CarryZ[k]=d.Pos.Z;CarryPlane[k]=plane;CarryAlpha[k]=d.Alpha;
    }
   }
   if(RecordGuides)
@@ -198,6 +200,7 @@ class UTNTEnvironmentRegression : EventHandler
 
    Check(level.Sectors[0].GetTerrain(Sector.floor)==OriginalTerrain,"material binding preserves terrain behavior");
    Check(h.Mechanisms.Size()==3,"mechanism watcher created");
+   Check(h.Mechanisms[0].ContactLength()==256,"coplanar open joins do not count as rubbing walls");
   }
  }
  override void NetworkProcess(ConsoleEvent e)
@@ -226,17 +229,18 @@ class UTNTEnvironmentRegression : EventHandler
   }
   if(e.Name=="envareacheck")
   {
-   Check(CarrySamples[0]>8 && CarrySamples[1]>8 && CarryBad==0,"floor and ceiling dust inherit only a small fraction of plane movement");
+   Check(CarrySamples[0]>8 && CarrySamples[1]>8 && CarryBad==0,"floor and ceiling clouds remain visible with continuous alpha");
    Console.Printf("CARRY|floor=%d|ceiling=%d|bad=%d",CarrySamples[0],CarrySamples[1],CarryBad);
    int small=h.Mechanisms[0].EmissionCursor-SmallBefore,large=h.Mechanisms[2].EmissionCursor-LargeBefore;
    double ratio=large/double(max(1,small));
    Check(h.Mechanisms[0].Area==65536 && h.Mechanisms[2].Area==262144,"actual moving polygon areas measured");
-   Check(small>50 && ratio>2.8 && ratio<5.4,"fourfold surface emits proportionally more dust");
+   Check(small>12 && ratio>5 && ratio<12,"dust frequency scales with rubbing edge length");
+   Check(ContactBad==0,"all births stay at physical contact edges, never in plane interiors");
    bool covered=true,continuous=true;
-   for(int i=0;i<8;i++){if(Coverage[i]<4)covered=false;if(TimeBins[i]<4)continuous=false;}
-   Check(covered,"random births cover every quadrant of both surfaces");
+   for(int i=0;i<8;i++){if((i==1 || i==3 || i>=4) && Coverage[i]<2)covered=false;if(TimeBins[i]<2)continuous=false;}
+   Check(covered,"random births cover both wall halves and all ceiling edges");
    Check(continuous,"both movers emit in every quarter of movement duration");
-   Check(Jumps>30 && FarJumps>Jumps*.25,"successive births jump across surface instead of forming a chain");
+   Check(Jumps>12 && FarJumps>1,"successive births scatter along contacts instead of forming a chain");
    Check(h.Mechanisms[0].EmissionCursor==SmallAtEnd && h.Mechanisms[2].EmissionCursor==LargeAtEnd,"births cease when movement stops");
    Console.Printf("AREA|small=%d|large=%d|ratio=%.3f|jumps=%d|far=%d",small,large,ratio,Jumps,FarJumps);RecordArea=false;
   }
@@ -266,7 +270,7 @@ class UTNTEnvironmentRegression : EventHandler
   if(e.Name=="envguides"){RecordGuides=true;Door_Raise(51,16,105);}
   if(e.Name=="envguidescheck")
   {
-   Check(GuideBirths>=8 && GuideBad==0,"door births confined to both side guides");
+   Check(GuideBirths>=3 && GuideBad==0,"door births confined to both side guides");
    Check(GuideSamples>0,"stationary door dust observed over multiple movement tics");RecordGuides=false;
    Console.Printf("GUIDES|births=%d|outside=%d|samples=%d",GuideBirths,GuideBad,GuideSamples);
   }
@@ -306,7 +310,7 @@ def main():
   print(Path(r['log']).read_text()[-5000:]);sys.exit(0 if r['ok'] else 1)
  settings=[('vid_activeinbackground',True),('vid_lowerinbackground',False),('vid_maxfps',35),('cl_capfps',True),('motionblur',False),('UTNT_visoreffects',False),('use_mouse',False),('use_joystick',False),('i_pauseinbackground',False),('r_drawplayersprites',False)]
  if a.case in ('guides','fog'):
-  cmds='wait 140; netevent envfly; netevent envpos 1280 384 0; netevent envview 90 0; wait 20; netevent envguides; wait 48; screenshot logs/door.png; wait 32; netevent envguidescheck; wait 5; netevent envpos 256 384 32; netevent envview 0 0; wait 30; netevent envshakecapture 0; wait 35; netevent envshakemove; wait 35; netevent envshakecapture 512; wait 35; netevent envpos 384 384 32; wait 15; netevent envshakecapture 384; wait 35; netevent envpos 736 384 32; wait 15; netevent envshakecapture 32; wait 35; echo UTNT_TEST_END; quit' if a.case=='guides' else 'wait 175; netevent envfly; netevent envpos 3480 -5330 -239; netevent envview 90 24; wait 35; screenshot logs/fog.png; echo UTNT_TEST_END; quit'
+  cmds='wait 140; netevent envfly; netevent envpos 1280 384 0; netevent envview 90 0; wait 20; netevent envguides; wait 48; screenshot logs/door.png; wait 32; netevent envguidescheck; wait 5; netevent envpos 256 384 32; netevent envview 0 0; wait 30; netevent envshakecapture 0; wait 35; netevent envshakemove; wait 35; noclip; wait 5; netevent environmentstats; netevent envshakecapture 999; wait 35; noclip; wait 5; netevent environmentstats; netevent envshakecapture 512; wait 35; netevent envpos 384 384 32; wait 15; netevent envshakecapture 384; wait 35; netevent envpos 736 384 32; wait 15; netevent envshakecapture 32; wait 35; echo UTNT_TEST_END; quit' if a.case=='guides' else 'wait 175; netevent envfly; netevent envpos 3480 -5330 -239; netevent envview 90 24; wait 35; screenshot logs/fog.png; echo UTNT_TEST_END; quit'
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='ENVTEST' if a.case=='guides' else 'TNT02',renderer=a.renderer,label='environment-'+a.case+'-'+a.renderer,timeout=90,commands=cmds,settings=settings+[('con_notifytime',0),('UTNT_fxquality',3),('UTNT_reducedfx',False)])
  elif a.case=='lake':
   cmds='wait 175; netevent envfly; netevent envpos 700 -320 -128; netevent envview 0 8; wait 35; netevent localheatstats; netevent envlakecheck; wait 5; screenshot logs/lake-on.png; wait 12; screenshot logs/lake-motion.png; freeze; wait 3; screenshot logs/lake-frozen-on.png; UTNT_shaderoverlayswitch false; wait 3; screenshot logs/lake-frozen-off.png; freeze; wait 20; netevent envheatoffcheck; wait 5; echo UTNT_TEST_END; quit'
@@ -328,9 +332,9 @@ def main():
  if a.case=='guides' and r['ok']:
   output=Path(r['log']).read_text(encoding='utf-8')
   samples={int(label):float(x) for label,x in re.findall(r'SHAKEVIEW\|label=(\d+)\|frames=\d+\|x=([\d.]+)',output)}
-  visible=all(k in samples for k in (0,512,384,32)) and samples[0]<.01 and .10<samples[512]<samples[384]<samples[32]
+  visible=all(k in samples for k in (0,999,512,384,32)) and samples[0]<.01 and samples[999]<.01 and .10<samples[512]<samples[384]<samples[32]
   r['camera_motion_x']=samples
-  if not visible:r['ok']=False;r['errors'].append('camera shake must be visible at 512 and increase toward mover')
+  if not visible:r['ok']=False;r['errors'].append('camera shake must stop under noclip, be visible at 512 and increase toward mover')
  (WORK/(a.case+'-'+a.renderer+'.json')).write_text(json.dumps(r,indent=2))
  if not r['ok']:print(Path(r['log']).read_text()[-5000:]);sys.exit(1)
 if __name__=='__main__':main()
