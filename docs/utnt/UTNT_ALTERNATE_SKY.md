@@ -52,6 +52,9 @@ Five world-space cards reuse the CN ray/plane intersection and premultiplied
 blue-key bilinear sampling. Distances range from 36000 to 100000 world units;
 elliptical periods are 220â€“280 seconds with opposing directions, small amplitudes
 and less than a quarter degree of rocking. Nearer platforms show stronger parallax.
+The larger antenna platform is shifted 20 degrees to the right (yaw 65 to 45)
+and reduced to 70% width/height (0.266 each), keeping it clear of the miniature
+mountain in the entrance view. Its elevation, distance and motion stay unchanged.
 The material protects the opening from foreground cards. Rock and platform colors
 retain 70% of their source chroma, with red CN rock rims shifted toward QLAVA amber
 at preserved luminance. This retains charcoal, bronze and amber material detail
