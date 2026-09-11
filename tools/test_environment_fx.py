@@ -1,7 +1,7 @@
 """Deterministic engine fixtures for environmental effects. Outputs stay local."""
 from pathlib import Path
 import shutil
-import argparse,json,sys,struct,os
+import argparse,json,sys,struct,os,re
 from PIL import Image,ImageChops,ImageStat
 from check_engine import run_case
 ROOT=Path(__file__).resolve().parent.parent
@@ -93,6 +93,24 @@ class UTNTEnvironmentRegression : EventHandler
  bool RecordArea;int AreaStart,SmallBefore,LargeBefore,SmallAtEnd,LargeAtEnd;
  int Coverage[8],TimeBins[8];Vector2 LastSmall;bool HaveLast;int Jumps,FarJumps;
  Array<UTNTEnvironmentDust> SeenDust;
+ bool RecordGuides;int GuideBirths,GuideBad,GuideSamples,ShakeUntil,ShakeLabel;
+ UTNTEnvironmentDust GuideDust;double GuideStartZ,GuideStartCeiling;
+ UTNTEnvironmentDust CarryDust[2];double CarryZ[2],CarryPlane[2];int CarrySamples[2],CarryBad;
+ ui int ShakeTic,ShakeFrames;ui Vector3 ViewLow,ViewHigh;
+ override void RenderOverlay(RenderEvent e)
+ {
+  if(ShakeUntil<=0)return;
+  if(ShakeTic!=ShakeUntil){ShakeTic=ShakeUntil;ShakeFrames=0;ViewLow=(1e30,1e30,1e30);ViewHigh=(-1e30,-1e30,-1e30);}
+  if(level.time<ShakeUntil)
+  {
+   ViewLow=(min(ViewLow.X,e.ViewPos.X),min(ViewLow.Y,e.ViewPos.Y),min(ViewLow.Z,e.ViewPos.Z));
+   ViewHigh=(max(ViewHigh.X,e.ViewPos.X),max(ViewHigh.Y,e.ViewPos.Y),max(ViewHigh.Z,e.ViewPos.Z));ShakeFrames++;
+  }
+  else if(ShakeFrames>0)
+  {
+   Console.Printf("SHAKEVIEW|label=%d|frames=%d|x=%.5f|y=%.5f|z=%.5f",ShakeLabel,ShakeFrames,ViewHigh.X-ViewLow.X,ViewHigh.Y-ViewLow.Y,ViewHigh.Z-ViewLow.Z);ShakeFrames=0;
+  }
+ }
  void Check(bool ok,String message){Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",message);}
  override void WorldTick()
  {
@@ -133,6 +151,42 @@ class UTNTEnvironmentRegression : EventHandler
    }
    if(level.time-AreaStart==260){SmallAtEnd=env.Mechanisms[0].EmissionCursor;LargeAtEnd=env.Mechanisms[2].EmissionCursor;}
   }
+  if(RecordArea)
+  {
+   for(int k=0;k<2;k++)
+   {
+    if(!CarryDust[k])
+    {
+     let it=ThinkerIterator.Create('UTNTEnvironmentDust',Thinker.MAX_STATNUM+1,true);UTNTEnvironmentDust d;
+     while((d=UTNTEnvironmentDust(it.Next()))!=null)if(d.Support==level.Sectors[k==0?7:18] && d.Age<3)
+     {CarryDust[k]=d;CarryZ[k]=d.Pos.Z;CarryPlane[k]=k==0?d.Support.floorplane.ZatPoint(d.Pos.XY):d.Support.ceilingplane.ZatPoint(d.Pos.XY);break;}
+    }
+    let d=CarryDust[k];if(!d)continue;
+    double plane=k==0?d.Support.floorplane.ZatPoint(d.Pos.XY):d.Support.ceilingplane.ZatPoint(d.Pos.XY);
+    double delta=plane-CarryPlane[k];
+    if(abs(delta)>.01)
+    {
+     double fraction=(d.Pos.Z-CarryZ[k]-d.Vel.Z)/delta;
+     CarrySamples[k]++;if(fraction<.15 || fraction>.30)CarryBad++;
+    }
+    CarryZ[k]=d.Pos.Z;CarryPlane[k]=plane;
+   }
+  }
+  if(RecordGuides)
+  {
+   let it=ThinkerIterator.Create('UTNTEnvironmentDust',Thinker.MAX_STATNUM+1,true);UTNTEnvironmentDust d;
+   while((d=UTNTEnvironmentDust(it.Next()))!=null)
+   {
+    if(d.Support!=level.Sectors[15] || d.Age!=1)continue;
+    GuideBirths++;if(min(abs(d.Pos.X-1152),abs(d.Pos.X-1408))>7)GuideBad++;
+    if(!GuideDust){GuideDust=d;GuideStartZ=d.Pos.Z;GuideStartCeiling=level.Sectors[15].ceilingplane.ZatPoint(d.Pos.XY);}
+   }
+   if(GuideDust && GuideDust.Age==15)
+   {
+    double plane=level.Sectors[15].ceilingplane.ZatPoint(GuideDust.Pos.XY);
+    Check(plane-GuideStartCeiling>16 && abs(GuideDust.Pos.Z-GuideStartZ)<12,"door dust stays in guide while door rises");GuideSamples++;
+   }
+  }
   if(level.time==105 && level.MapName~=="ENVTEST")
   {
    let h=UTNTEnvironment.Get();
@@ -172,6 +226,8 @@ class UTNTEnvironmentRegression : EventHandler
   }
   if(e.Name=="envareacheck")
   {
+   Check(CarrySamples[0]>8 && CarrySamples[1]>8 && CarryBad==0,"floor and ceiling dust inherit only a small fraction of plane movement");
+   Console.Printf("CARRY|floor=%d|ceiling=%d|bad=%d",CarrySamples[0],CarrySamples[1],CarryBad);
    int small=h.Mechanisms[0].EmissionCursor-SmallBefore,large=h.Mechanisms[2].EmissionCursor-LargeBefore;
    double ratio=large/double(max(1,small));
    Check(h.Mechanisms[0].Area==65536 && h.Mechanisms[2].Area==262144,"actual moving polygon areas measured");
@@ -207,6 +263,16 @@ class UTNTEnvironmentRegression : EventHandler
    let heat=UTNTLocalHeat(EventHandler.Find('UTNTLocalHeat'));int count=0;for(int i=0;i<6;i++)if(heat.Anchors[i])count++;
    Check(count==0,"disabled heat releases all local anchors");
   }
+  if(e.Name=="envguides"){RecordGuides=true;Door_Raise(51,16,105);}
+  if(e.Name=="envguidescheck")
+  {
+   Check(GuideBirths>=8 && GuideBad==0,"door births confined to both side guides");
+   Check(GuideSamples>0,"stationary door dust observed over multiple movement tics");RecordGuides=false;
+   Console.Printf("GUIDES|births=%d|outside=%d|samples=%d",GuideBirths,GuideBad,GuideSamples);
+  }
+  if(e.Name=="envshakemove"){Floor_RaiseByValue(50,2,128);}
+  if(e.Name=="envfog"){for(int i=0;i<level.Sectors.Size();i++){level.Sectors[i].SetLightLevel(32);level.Sectors[i].SetFade(Color(24,10,0));level.Sectors[i].SetFogDensity(e.Args[0]);}}
+  if(e.Name=="envshakecapture"){ShakeLabel=e.Args[0];ShakeUntil=level.time+28;}
   if(e.Name=="envdoor"){Door_Raise(51,16,105);}
   if(e.Name=="envceiling"){Ceiling_LowerByValue(52,8,96);}
   if(e.Name=="envceilingup"){Ceiling_RaiseByValue(52,8,96);}
@@ -228,7 +294,7 @@ class UTNTEnvironmentRegression : EventHandler
 }
 '''
 def main():
- p=argparse.ArgumentParser();p.add_argument('--case',default='fixture',choices=['fixture','campaign','compile','prototype','motion','area','lake']);p.add_argument('--renderer',default='1');p.add_argument('--map',default='TNT02');p.add_argument('--at',nargs=3,type=int);p.add_argument('--angle',type=int,default=0);p.add_argument('--pitch',type=int,default=10);p.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/environment-dev.pk3');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--case',default='fixture',choices=['fixture','campaign','compile','prototype','motion','area','lake','guides','fog']);p.add_argument('--renderer',default='1');p.add_argument('--map',default='TNT02');p.add_argument('--at',nargs=3,type=int);p.add_argument('--angle',type=int,default=0);p.add_argument('--pitch',type=int,default=10);p.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/environment-dev.pk3');a=p.parse_args()
  WORK.mkdir(parents=True,exist_ok=True)
  addon=fixture()
  if a.case!='compile':
@@ -239,7 +305,10 @@ def main():
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,label='fixture-compile')
   print(Path(r['log']).read_text()[-5000:]);sys.exit(0 if r['ok'] else 1)
  settings=[('vid_activeinbackground',True),('vid_lowerinbackground',False),('vid_maxfps',35),('cl_capfps',True),('motionblur',False),('UTNT_visoreffects',False),('use_mouse',False),('use_joystick',False),('i_pauseinbackground',False),('r_drawplayersprites',False)]
- if a.case=='lake':
+ if a.case in ('guides','fog'):
+  cmds='wait 140; netevent envfly; netevent envpos 1280 384 0; netevent envview 90 0; wait 20; netevent envguides; wait 48; screenshot logs/door.png; wait 32; netevent envguidescheck; wait 5; netevent envpos 256 384 32; netevent envview 0 0; wait 30; netevent envshakecapture 0; wait 35; netevent envshakemove; wait 35; netevent envshakecapture 512; wait 35; netevent envpos 384 384 32; wait 15; netevent envshakecapture 384; wait 35; netevent envpos 736 384 32; wait 15; netevent envshakecapture 32; wait 35; echo UTNT_TEST_END; quit' if a.case=='guides' else 'wait 175; netevent envfly; netevent envpos 3480 -5330 -239; netevent envview 90 24; wait 35; screenshot logs/fog.png; echo UTNT_TEST_END; quit'
+  r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='ENVTEST' if a.case=='guides' else 'TNT02',renderer=a.renderer,label='environment-'+a.case+'-'+a.renderer,timeout=90,commands=cmds,settings=settings+[('con_notifytime',0),('UTNT_fxquality',3),('UTNT_reducedfx',False)])
+ elif a.case=='lake':
   cmds='wait 175; netevent envfly; netevent envpos 700 -320 -128; netevent envview 0 8; wait 35; netevent localheatstats; netevent envlakecheck; wait 5; screenshot logs/lake-on.png; wait 12; screenshot logs/lake-motion.png; freeze; wait 3; screenshot logs/lake-frozen-on.png; UTNT_shaderoverlayswitch false; wait 3; screenshot logs/lake-frozen-off.png; freeze; wait 20; netevent envheatoffcheck; wait 5; echo UTNT_TEST_END; quit'
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='TNT02',renderer=a.renderer,label='environment-lake-'+a.renderer,timeout=90,commands=cmds,settings=settings+[('con_notifytime',0),('UTNT_fxquality',3),('UTNT_reducedfx',False)])
  elif a.case=='area':
@@ -256,6 +325,12 @@ def main():
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='ENVTEST',renderer=a.renderer,label='environment-fixture-'+a.renderer,timeout=100,commands=cmds,settings=settings,regression=True)
  else:
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname=a.map,renderer=a.renderer,label='environment-'+a.map+'-'+a.renderer,timeout=90,commands='wait 220; netevent envfly; wait 5; '+('netevent envpos '+' '.join(map(str,a.at))+'; wait 5; ' if a.at else '')+f'netevent envview {a.angle} {a.pitch}; wait 70; netevent environmentstats; wait 5; screenshot logs/env-'+a.map+'.png; echo UTNT_TEST_END; quit',settings=settings)
+ if a.case=='guides' and r['ok']:
+  output=Path(r['log']).read_text(encoding='utf-8')
+  samples={int(label):float(x) for label,x in re.findall(r'SHAKEVIEW\|label=(\d+)\|frames=\d+\|x=([\d.]+)',output)}
+  visible=all(k in samples for k in (0,512,384,32)) and samples[0]<.01 and .10<samples[512]<samples[384]<samples[32]
+  r['camera_motion_x']=samples
+  if not visible:r['ok']=False;r['errors'].append('camera shake must be visible at 512 and increase toward mover')
  (WORK/(a.case+'-'+a.renderer+'.json')).write_text(json.dumps(r,indent=2))
  if not r['ok']:print(Path(r['log']).read_text()[-5000:]);sys.exit(1)
 if __name__=='__main__':main()

@@ -194,19 +194,28 @@ void LipSurface(inout Material mat)
 
 }
 
-// UZDoom appends its standard material lighting after the custom shader in
-// both OpenGL and Vulkan. Rename that implementation and wrap its result,
-// retaining engine dynamic lights and adding the fog color AFTER lighting.
-// The usual engine fog still runs afterwards, towards the same target.
-// uFogColor belongs to this draw's surface, including Line_Horizon portals;
-// when the renderer disables fog it supplies black instead.
+// Compensate only molten emission before the engine applies its colored fog.
+#ifndef UTNT_LAVA_FOG_LIGHT
+#define UTNT_LAVA_FOG_LIGHT
+
+float LavaFogGain()
+{
+    if(uFogEnabled>=0 || uFogEnabled==-3)return 0.0;
+    float dist=uFogEnabled==-1?max(16.0,pixelpos.w):max(16.0,distance(pixelpos.xyz,uCameraPos.xyz));
+    if(uThickFogDistance>0.0 && dist>uThickFogDistance)dist+=uThickFogMultiplier*(dist-uThickFogDistance);
+    float visibility=clamp(exp2(uFogDensity*dist),0.0,1.0);
+    // Molten emission travels farther than reflected light, but dense fog still wins.
+    return min(32.0,(pow(visibility,.28)-visibility)/max(visibility,.00001));
+}
 vec3 LavaEngineMaterialLight(Material material, vec3 color);
 vec3 ProcessMaterialLight(Material material, vec3 color)
 {
-    return LavaEngineMaterialLight(material,color)
-        +uFogColor.rgb*(1.0-LavaFarVisibility);
+    vec3 lit=LavaEngineMaterialLight(material,color);
+    vec3 emission=material.Base.rgb*clamp(material.Bright.rgb,0.0,1.0);
+    return lit+emission*LavaFogGain()+uFogColor.rgb*(1.0-LavaFarVisibility);
 }
 #define ProcessMaterialLight LavaEngineMaterialLight
+#endif
 
 vec4 LipFallTexel(vec2 uv)
 {
@@ -272,6 +281,29 @@ void LipFall(inout Material mat)
     mat.Normal=normal;
     mat.Bright=vec4(vec3(clamp(0.25+filled*0.75+undertow*0.20-veil*0.15,0.0,1.0)),1.0);
 }
+
+#ifndef UTNT_LAVA_FOG_LIGHT
+#define UTNT_LAVA_FOG_LIGHT
+float LavaFarVisibility=1.0;
+
+float LavaFogGain()
+{
+    if(uFogEnabled>=0 || uFogEnabled==-3)return 0.0;
+    float dist=uFogEnabled==-1?max(16.0,pixelpos.w):max(16.0,distance(pixelpos.xyz,uCameraPos.xyz));
+    if(uThickFogDistance>0.0 && dist>uThickFogDistance)dist+=uThickFogMultiplier*(dist-uThickFogDistance);
+    float visibility=clamp(exp2(uFogDensity*dist),0.0,1.0);
+    // Molten emission travels farther than reflected light, but dense fog still wins.
+    return min(32.0,(pow(visibility,.28)-visibility)/max(visibility,.00001));
+}
+vec3 LavaEngineMaterialLight(Material material, vec3 color);
+vec3 ProcessMaterialLight(Material material, vec3 color)
+{
+    vec3 lit=LavaEngineMaterialLight(material,color);
+    vec3 emission=material.Base.rgb*clamp(material.Bright.rgb,0.0,1.0);
+    return lit+emission*LavaFogGain()+uFogColor.rgb*(1.0-LavaFarVisibility);
+}
+#define ProcessMaterialLight LavaEngineMaterialLight
+#endif
 
 void SetupMaterial(inout Material mat)
 {

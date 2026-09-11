@@ -160,13 +160,14 @@ class UTNTEnvironment : EventHandler
     point=low+(source.RandomUnit()*(high.X-low.X),source.RandomUnit()*(high.Y-low.Y));
     if(level.PointInSector(point)==source.Sec){found=true;break;}
    }
+   if(source.IsDoor){[found,point]=source.GuidePoint();}
    if(!found)continue;
    double phase=source.RandomUnit()*3600;
    double floor=source.Sec.floorplane.ZatPoint(point),ceiling=source.Sec.ceilingplane.ZatPoint(point);
-   double z=source.CeilingMoving?ceiling-4:floor+4;
+   double z=source.IsDoor?floor+4+source.RandomUnit()*max(0,ceiling-floor-8):source.CeilingMoving?ceiling-4:floor+4;
    if(ceiling-floor<8)continue;
    let d=UTNTEnvironmentDust(level.SpawnClientSideVisualThinker('UTNTEnvironmentDust'));if(!d)continue;
-   d.Support=source.Sec;d.FromCeiling=source.CeilingMoving;d.PlaneZ=source.CeilingMoving?ceiling:floor;d.Pos=(point.X,point.Y,z);d.Prev=d.Pos;
+   d.Support=source.Sec;d.Carry=source.IsDoor?0:.22;d.FromCeiling=source.CeilingMoving;d.PlaneZ=source.CeilingMoving?ceiling:floor;d.Pos=(point.X,point.Y,z);d.Prev=d.Pos;
    double size=.34+.22*abs(sin(phase*2.17));
    d.Phase=phase;d.Life=70+int(40*abs(sin(phase*1.93)));
    d.Vel=(cos(phase)*.34,sin(phase)*.34,(source.CeilingMoving?-1:1)*(.18+.28*abs(cos(phase*3.1))));
@@ -276,7 +277,7 @@ class UTNTFootMark : Actor
 }
 class UTNTEnvironmentDust : VisualThinker
 {
- int Age,Life;double BaseAlpha,Phase,PlaneZ,Closing;Sector Support;bool FromCeiling;
+ int Age,Life;double BaseAlpha,Phase,PlaneZ,Closing,Carry;Sector Support;bool FromCeiling;
  override void Tick()
  {
   if(level.isFrozen())return;
@@ -284,7 +285,10 @@ class UTNTEnvironmentDust : VisualThinker
   if(Support)
   {
    double plane=FromCeiling?Support.ceilingplane.ZatPoint(Pos.XY):Support.floorplane.ZatPoint(Pos.XY);
-   double shift=plane-PlaneZ;Pos.Z+=shift;Prev.Z+=shift;PlaneZ=plane;
+   double shift=(plane-PlaneZ)*Carry;Pos.Z+=shift;Prev.Z+=shift;PlaneZ=plane;
+   // A moving solid cannot leave a visible particle inside its volume.
+   double f=Support.floorplane.ZatPoint(Pos.XY),c=Support.ceilingplane.ZatPoint(Pos.XY);
+   if(Pos.Z<f+1 || Pos.Z>c-1)Closing=min(1,Closing+.15);
   }
   Super.Tick();if(++Age>=Life){Destroy();return;}
   if(Support)
@@ -307,7 +311,7 @@ class UTNTMechanismQuake : Actor
 }
 class UTNTMechanismWatch : Object play
 {
- Sector Sec;Vector2 Point;double Floor,Ceiling,Travel;bool Moving,Stone,CeilingMoving;
+ Sector Sec;Vector2 Point;double Floor,Ceiling,Travel;bool Moving,Stone,CeilingMoving,IsDoor;
  int Group,Still,LastBurst,EmissionCursor,LastQuake,Starts,Stops;
  Vector2 Low,High;double Area;bool Measured;uint DustRandom;
  double RandomUnit()
@@ -330,6 +334,28 @@ class UTNTMechanismWatch : Object play
   }
   Area=abs(Area)*.5;
  }
+ // Sample only closed boundary edges (jambs), never the open doorway faces.
+ bool,Vector2 GuidePoint()
+ {
+  double perimeter=0;
+  for(int i=0;i<Sec.Lines.Size();i++)
+  {
+   let l=Sec.Lines[i];let other=l.FrontSector==Sec?l.BackSector:l.FrontSector;
+   if(!other || other.ceilingplane.ZatPoint(Point)<=other.floorplane.ZatPoint(Point)+1)perimeter+=(l.V2.P-l.V1.P).Length();
+  }
+  double pick=RandomUnit()*perimeter;
+  for(int i=0;i<Sec.Lines.Size();i++)
+  {
+   let l=Sec.Lines[i];let other=l.FrontSector==Sec?l.BackSector:l.FrontSector;
+   if(other && other.ceilingplane.ZatPoint(Point)>other.floorplane.ZatPoint(Point)+1)continue;
+   Vector2 edge=l.V2.P-l.V1.P;double length=edge.Length();if(length<.1)continue;
+   pick-=length;if(pick>0)continue;
+   Vector2 normal=(edge.Y/length,-edge.X/length);if(l.BackSector==Sec)normal=-normal;
+   Vector2 point=l.V1.P+edge*(.05+.90*RandomUnit())+normal*(2+RandomUnit()*3);
+   return level.PointInSector(point)==Sec,point;
+  }
+  return false,(0,0);
+ }
  void Shake(bool impulse)
  {
   if(!UTNTEnvironment.Option('UTNT_mechanismfx') || UTNTEnvironment.Reduced() || !UTNTEnvironment.Quality() || consoleplayer<0)return;
@@ -343,17 +369,17 @@ class UTNTMechanismWatch : Object play
   }
   Vector2 q=(clamp(camera.Pos.X,low.X,high.X),clamp(camera.Pos.Y,low.Y,high.Y));
   Vector3 pos=(q.X,q.Y,clamp(camera.Pos.Z,Sec.floorplane.ZatPoint(q),max(Sec.floorplane.ZatPoint(q),Sec.ceilingplane.ZatPoint(q))));
-  double distance=(pos-camera.Pos).Length();if(distance>=512)return;
-  double strength=(impulse?.42:.10)*(1-distance/512)*(1-distance/512);
+  double distance=(pos-camera.Pos).Length();if(distance>=768)return;
+  double strength=impulse?1.15:.42;
   let anchor=Actor.Spawn('UTNTMechanismQuake',pos);if(!anchor)return;
-  anchor.A_QuakeEx(strength*.55,strength*.45,strength,impulse?12:7,0,512,"none",QF_3D|QF_SHAKEONLY|QF_MAX|(impulse?QF_SCALEDOWN:0),falloff:128,thrustMultiplier:0);
+  anchor.A_QuakeEx(strength*.55,strength*.45,strength,impulse?12:7,0,768,"none",QF_3D|QF_SHAKEONLY|QF_MAX|(impulse?QF_SCALEDOWN:0),falloff:128,rollIntensity:impulse?.12:.045,thrustMultiplier:0);
   LastQuake=level.time;
  }
  void Update(UTNTEnvironment h)
  {
   double f=Sec.floorplane.ZatPoint(Point),c=Sec.ceilingplane.ZatPoint(Point);
   double delta=abs(f-Floor)+abs(c-Ceiling);bool now=delta>.01;
-  if(now)CeilingMoving=abs(c-Ceiling)>abs(f-Floor);
+  if(now){CeilingMoving=abs(c-Ceiling)>abs(f-Floor);IsDoor=Sec.ceilingdata is "Door";}
   if(now)
   {
    if(!Moving){Travel=0;if(level.time>20){Shake(true);Starts++;}}

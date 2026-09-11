@@ -5,6 +5,24 @@ class UTNTEnvironmentRegression : EventHandler
  bool RecordArea;int AreaStart,SmallBefore,LargeBefore,SmallAtEnd,LargeAtEnd;
  int Coverage[8],TimeBins[8];Vector2 LastSmall;bool HaveLast;int Jumps,FarJumps;
  Array<UTNTEnvironmentDust> SeenDust;
+ bool RecordGuides;int GuideBirths,GuideBad,GuideSamples,ShakeUntil,ShakeLabel;
+ UTNTEnvironmentDust GuideDust;double GuideStartZ,GuideStartCeiling;
+ UTNTEnvironmentDust CarryDust[2];double CarryZ[2],CarryPlane[2];int CarrySamples[2],CarryBad;
+ ui int ShakeTic,ShakeFrames;ui Vector3 ViewLow,ViewHigh;
+ override void RenderOverlay(RenderEvent e)
+ {
+  if(ShakeUntil<=0)return;
+  if(ShakeTic!=ShakeUntil){ShakeTic=ShakeUntil;ShakeFrames=0;ViewLow=(1e30,1e30,1e30);ViewHigh=(-1e30,-1e30,-1e30);}
+  if(level.time<ShakeUntil)
+  {
+   ViewLow=(min(ViewLow.X,e.ViewPos.X),min(ViewLow.Y,e.ViewPos.Y),min(ViewLow.Z,e.ViewPos.Z));
+   ViewHigh=(max(ViewHigh.X,e.ViewPos.X),max(ViewHigh.Y,e.ViewPos.Y),max(ViewHigh.Z,e.ViewPos.Z));ShakeFrames++;
+  }
+  else if(ShakeFrames>0)
+  {
+   Console.Printf("SHAKEVIEW|label=%d|frames=%d|x=%.5f|y=%.5f|z=%.5f",ShakeLabel,ShakeFrames,ViewHigh.X-ViewLow.X,ViewHigh.Y-ViewLow.Y,ViewHigh.Z-ViewLow.Z);ShakeFrames=0;
+  }
+ }
  void Check(bool ok,String message){Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",message);}
  override void WorldTick()
  {
@@ -45,6 +63,42 @@ class UTNTEnvironmentRegression : EventHandler
    }
    if(level.time-AreaStart==260){SmallAtEnd=env.Mechanisms[0].EmissionCursor;LargeAtEnd=env.Mechanisms[2].EmissionCursor;}
   }
+  if(RecordArea)
+  {
+   for(int k=0;k<2;k++)
+   {
+    if(!CarryDust[k])
+    {
+     let it=ThinkerIterator.Create('UTNTEnvironmentDust',Thinker.MAX_STATNUM+1,true);UTNTEnvironmentDust d;
+     while((d=UTNTEnvironmentDust(it.Next()))!=null)if(d.Support==level.Sectors[k==0?7:18] && d.Age<3)
+     {CarryDust[k]=d;CarryZ[k]=d.Pos.Z;CarryPlane[k]=k==0?d.Support.floorplane.ZatPoint(d.Pos.XY):d.Support.ceilingplane.ZatPoint(d.Pos.XY);break;}
+    }
+    let d=CarryDust[k];if(!d)continue;
+    double plane=k==0?d.Support.floorplane.ZatPoint(d.Pos.XY):d.Support.ceilingplane.ZatPoint(d.Pos.XY);
+    double delta=plane-CarryPlane[k];
+    if(abs(delta)>.01)
+    {
+     double fraction=(d.Pos.Z-CarryZ[k]-d.Vel.Z)/delta;
+     CarrySamples[k]++;if(fraction<.15 || fraction>.30)CarryBad++;
+    }
+    CarryZ[k]=d.Pos.Z;CarryPlane[k]=plane;
+   }
+  }
+  if(RecordGuides)
+  {
+   let it=ThinkerIterator.Create('UTNTEnvironmentDust',Thinker.MAX_STATNUM+1,true);UTNTEnvironmentDust d;
+   while((d=UTNTEnvironmentDust(it.Next()))!=null)
+   {
+    if(d.Support!=level.Sectors[15] || d.Age!=1)continue;
+    GuideBirths++;if(min(abs(d.Pos.X-1152),abs(d.Pos.X-1408))>7)GuideBad++;
+    if(!GuideDust){GuideDust=d;GuideStartZ=d.Pos.Z;GuideStartCeiling=level.Sectors[15].ceilingplane.ZatPoint(d.Pos.XY);}
+   }
+   if(GuideDust && GuideDust.Age==15)
+   {
+    double plane=level.Sectors[15].ceilingplane.ZatPoint(GuideDust.Pos.XY);
+    Check(plane-GuideStartCeiling>16 && abs(GuideDust.Pos.Z-GuideStartZ)<12,"door dust stays in guide while door rises");GuideSamples++;
+   }
+  }
   if(level.time==105 && level.MapName~=="ENVTEST")
   {
    let h=UTNTEnvironment.Get();
@@ -84,6 +138,8 @@ class UTNTEnvironmentRegression : EventHandler
   }
   if(e.Name=="envareacheck")
   {
+   Check(CarrySamples[0]>8 && CarrySamples[1]>8 && CarryBad==0,"floor and ceiling dust inherit only a small fraction of plane movement");
+   Console.Printf("CARRY|floor=%d|ceiling=%d|bad=%d",CarrySamples[0],CarrySamples[1],CarryBad);
    int small=h.Mechanisms[0].EmissionCursor-SmallBefore,large=h.Mechanisms[2].EmissionCursor-LargeBefore;
    double ratio=large/double(max(1,small));
    Check(h.Mechanisms[0].Area==65536 && h.Mechanisms[2].Area==262144,"actual moving polygon areas measured");
@@ -119,6 +175,16 @@ class UTNTEnvironmentRegression : EventHandler
    let heat=UTNTLocalHeat(EventHandler.Find('UTNTLocalHeat'));int count=0;for(int i=0;i<6;i++)if(heat.Anchors[i])count++;
    Check(count==0,"disabled heat releases all local anchors");
   }
+  if(e.Name=="envguides"){RecordGuides=true;Door_Raise(51,16,105);}
+  if(e.Name=="envguidescheck")
+  {
+   Check(GuideBirths>=8 && GuideBad==0,"door births confined to both side guides");
+   Check(GuideSamples>0,"stationary door dust observed over multiple movement tics");RecordGuides=false;
+   Console.Printf("GUIDES|births=%d|outside=%d|samples=%d",GuideBirths,GuideBad,GuideSamples);
+  }
+  if(e.Name=="envshakemove"){Floor_RaiseByValue(50,2,128);}
+  if(e.Name=="envfog"){for(int i=0;i<level.Sectors.Size();i++){level.Sectors[i].SetLightLevel(32);level.Sectors[i].SetFade(Color(24,10,0));level.Sectors[i].SetFogDensity(e.Args[0]);}}
+  if(e.Name=="envshakecapture"){ShakeLabel=e.Args[0];ShakeUntil=level.time+28;}
   if(e.Name=="envdoor"){Door_Raise(51,16,105);}
   if(e.Name=="envceiling"){Ceiling_LowerByValue(52,8,96);}
   if(e.Name=="envceilingup"){Ceiling_RaiseByValue(52,8,96);}
