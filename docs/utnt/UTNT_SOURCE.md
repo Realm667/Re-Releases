@@ -35,7 +35,7 @@ The first implementation's functional checks did not establish a visual match.
   start: rising rock signs, three sequentially charging comet nodes, and a
   contracting fiery heart. Below half health, the seal cracks and some runes dim.
 - Death breaks the seal through a saved seven-second lightning sequence and
-  two seconds of stillness before the original destination transition. Living
+  a 2.5-second luminance fade before the original destination transition. Living
   health, collision, random calls, spawn sites and attack delays remain.
 
 ACS adds three attack notifications, the TNT04CN-specific finale ending in
@@ -140,8 +140,9 @@ scoped to TNT04CN; the legacy BOSSHP branch remains available for other maps.
   by one light break and an expanding, thin refraction ring.
 - 4.5-7 s: the ring fades and the remaining embers return to the empty centre;
   overhead stone settles and the energetic sound decays into cavern echoes.
-- 7-9 s: the empty centre remains visible, the objective notice appears,
-  and only then does the original map-99 transition proceed.
+- 7-9.5 s: the objective notice appears while the empty room fades to black.
+  Shadows disappear first and highlights linger; the original map-99 transition
+  waits until tic 333, four tics after full black at tic 329.
 
 Eight horizontal stone segments fit inside the existing shaft, with its own
 QROCK3 stone and the established QRUNT63 rune atlas. They light sequentially
@@ -149,7 +150,8 @@ during attack preparation and shield opening. Shield opening also sends a
 descending light wave over the hall walls. No map geometry is changed.
 
 Presentation uses a bounded pool of 72 local visual layers, eight client-side
-stone actors and nine light anchors. Quality zero disables dynamic lights and
+stone actors and nine light anchors, plus one temporary subtractive light during
+the black-hole phase. Quality zero disables dynamic lights and
 embers; reduced FX attenuates flashes and lightning, limits embers and removes
 the added oscillation. Neither setting changes the shared clock or ending.
 All client presentation reconstructs from the surviving actor after load.
@@ -304,3 +306,44 @@ up the shaft, measured 17.86 -> 18.18 ms mean frame time with the beam alive and
 50 ms. This is a limited local sample: the richer presentation has measurable
 render cost despite retaining the fixed actor and material budgets; it is not
 a guarantee against stalls on every device or graphics configuration.
+
+## Continuous plasma and the dark ending - 2026-09-11
+
+The energy noise now uses an integer hash. This keeps shared noise-cell corners
+identical and removes the hard rectangular steps seen on the textured helix and
+core. The world-space cylinder, rough filaments, rising glyphs and actor budgets
+remain unchanged. The correction is in both generated shared beam materials.
+
+A single client-side `UTNTSourceGravityLight` follows the singularity from tic 35
+to 157. Its subtractive, attenuated light affects geometry within 1400 map units,
+without sprite lighting or a shadow map. A smooth saved-clock envelope rises
+until tic 85, holds through tic 120, and fades back to normal illumination by
+158. Reduced effects lower its peak alpha from 0.85 to 0.30; quality zero removes
+it. Loading a save reconstructs the current envelope rather than restarting it.
+
+The existing scene postprocess handles a separate quiet ending from tic 245.
+Pixel luminance determines when each part of the image disappears: dark rock
+fades first, while bright fire and energy remain longer. The 84-tic fade ends
+at tic 329; the authoritative BOSSHP exit waits four more tics, for a total
+transition of about 2.51 seconds. It applies across the room even when looking
+away and remains enabled with reduced/disabled combat effects. It needs the
+hardware renderer, as do the other Source materials; HUD rendering is separate.
+No second postprocess pass, gameplay shake or new particle pool is added.
+Map unload disables the shader and destroys the temporary light.
+
+Validation: `test_source_darkness.py` checks the light count/flags and envelope,
+quality toggles, save restoration, rendered black and cleanup on TNT04C.
+`test_source_finale.py` checks the real ACS ending: TNT04CN still exists at tic
+325 and subsequently transitions through the original exit. Vulkan and OpenGL
+pass 38 darkness assertions and 97 finale assertions each. Near and upper-shaft
+captures verify the continuous textured spiral. Fixed-clock comparisons isolate
+the subtractive light and show shadows disappearing before bright portal/fire
+pixels during the ending. Local evidence is under `.codex/logs/source-seams/`.
+
+A sequential Vulkan comparison on the same full test PK3, using prior Source
+resources from `6f532cf49`, observed mean finale frame intervals of 28.542 ms
+before and 28.571 ms after, with no interval over 50 ms. This hidden-window
+sample ran near 35 Hz in both cases and is only a stall check, not a reliable
+measurement of small GPU costs or a guarantee for other systems. The only added
+world light has a fixed radius and no shadow map; the final fade reuses the
+existing postprocess and samples the scene once.

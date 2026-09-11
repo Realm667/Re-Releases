@@ -29,7 +29,7 @@ def main():
  cmd=['wait 450','netevent sourceview 4','netevent sourcebegin','wait 20','netevent sourcekill',
   'wait 111','netevent sourcedeathcheck 108 114','screenshot logs/real-lightning.png',
   'wait 149','netevent sourcedeathcheck 257 263','screenshot logs/real-empty.png',
-  'wait 43','netevent sourcedeathcheck 300 306','wait 160','netevent sourceexitcheck','echo UTNT_TEST_END','wait 3','quit']
+  'wait 43','netevent sourcedeathcheck 300 306','wait 22','netevent sourceendcheck 322 328','screenshot logs/real-ending.png','wait 138','netevent sourceexitcheck','echo UTNT_TEST_END','wait 3','quit']
  out=W/'ending';out.mkdir(exist_ok=True)
  results.append(run_case(root=out,label='finale-ending',commands='; '.join(cmd),**common))
  (W/'runtime.json').write_text(json.dumps(results,indent=2)+'\n')

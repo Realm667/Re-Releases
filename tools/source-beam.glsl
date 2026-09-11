@@ -1,5 +1,11 @@
 // Material-bound flecks rise with the energy; no particle actors or spawn loops.
-float EnergyHash(float n){return fract(sin(n*127.1)*43758.5453);}
+// Integer hashing keeps shared noise-cell corners bit-identical on every face.
+float EnergyHash(float n)
+{
+ uint h=uint(int(n));h=(h^(h>>16u))*0x7feb352du;
+ h=(h^(h>>15u))*0x846ca68bu;h=h^(h>>16u);
+ return float(h&0x00ffffffu)/16777216.0;
+}
 float EnergyNoise(vec2 p)
 {
  vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);

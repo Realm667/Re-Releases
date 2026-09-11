@@ -41,6 +41,7 @@ class UTNTSourceTests : EventHandler
   Vector3 pos=(128,-1100,3500);double a=90,pitch=-15;
   if(View==3)pitch=-22;
   if(View==6){pos=(128,-1000,3370);pitch=-52;}
+  if(View==8){pos=(128,-1100,3300);a=105;pitch=-5;}
   if(View==7){pos=(10624,-700,5000);a=90;pitch=-60;}
   if(View==5)a=270;
   if(View==4){pos=(128,-1100,3500);pitch=-35;}
@@ -60,6 +61,30 @@ class UTNTSourceTests : EventHandler
   {
    Assert(Fallback && Fallback.Health<=0,"Source fallback test actor is defeated");
    Assert(Fallback && Fallback.sprite==Actor.GetSpriteIndex("SOUR") && Fallback.Alpha>0 && Fallback.Alpha<1,"other maps retain the original visible Source death fade");
+  }
+  if(e.Name=="sourcedarkcheck")
+  {
+   let it=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
+   let em=UTNTSourceEmitter(it.Next());
+   let lights=ThinkerIterator.Create('UTNTSourceGravityLight',Thinker.STAT_DLIGHT,true);
+   int count=0;while(lights.Next())count++;
+   Assert(count==e.Args[0],"one gravity light only during enabled singularity phase");
+   if(em && em.GravityLight)
+   {
+    let light=em.GravityLight;
+    Assert(em.Reduced==(e.Args[1]!=0),"gravity light respects the current reduced-effects setting");
+    Assert(light.bSubtractive && light.bNoShadowMap && light.bDontLightActors,"subtractive geometry light has no shadow map or sprite lighting");
+    double target=UTNTSourceGravityLight.Strength(em.DeadAge)*(em.Reduced?.30:.85);
+    Assert(abs(light.Alpha-target)<.001,"gravity light fades from the saved clock after load and settings changes");
+    Assert((light.Pos-em.Center).Length()<.01 && light.Args[3]==700,"gravity light follows singularity with bounded 1400-unit radius");
+    Console.Printf("SOURCE_DARK age=%d alpha=%.4f",em.DeadAge,light.Alpha);
+   }
+  }
+  if(e.Name=="sourceendcheck")
+  {
+   Assert(s && s.DefeatAge>=e.Args[0] && s.DefeatAge<=e.Args[1],"map remains until the full ending fade has played");
+   if(s)Console.Printf("SOURCE_END age=%d",s.DefeatAge);
+   if(s)Assert(UTNTSourceSystem.DefeatFinished()==(s.DefeatAge>=333),"authoritative exit waits until tic 333");
   }
   if(e.Name=="sourceenergycheck")
   {
@@ -138,7 +163,7 @@ class UTNTSourceTests : EventHandler
   if(e.Name=="sourcebegin")ACS_ExecuteAlways(140,0);
   if(e.Name=="sourceexitcheck")
   {
-   Assert(!(level.MapName~=="TNT04CN"),"real BOSSHP ending advances after finale and stillness");
+   Assert(!(level.MapName~=="TNT04CN"),"real BOSSHP ending advances after finale and full fade");
    Assert(!s,"Source clock is absent in the destination map");
   }
   if(e.Name=="sourcedeathcheck")

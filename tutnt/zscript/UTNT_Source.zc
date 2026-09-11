@@ -123,7 +123,7 @@ class UTNTSourceSystem play
  }
  static int DefeatFinished()
  {
-  let s=Find();return !s || s.DefeatAge>=315;
+  let s=Find();return !s || s.DefeatAge>=333;
  }
  static int DefeatSettled()
  {
@@ -164,10 +164,30 @@ class UTNTSourceSystem play
  }
 }
 
+// One shadowless geometry light, present only while the singularity exists.
+class UTNTSourceGravityLight : PointLight
+{
+ Default
+ {
+  Alpha 0;
+  +CLIENTSIDE
+  +DYNAMICLIGHT.SUBTRACTIVE
+  +DYNAMICLIGHT.ATTENUATE
+  +DYNAMICLIGHT.NOSHADOWMAP
+  +DYNAMICLIGHT.DONTLIGHTACTORS
+ }
+ static double Strength(int age)
+ {
+  double rise=clamp((age-35)/50.0,0,1),fall=clamp((158-age)/38.0,0,1);
+  return rise*rise*(3-2*rise)*fall*fall*(3-2*fall);
+ }
+}
+
 class UTNTSourceEmitter : Thinker
 {
  UTNTSourceBase Source;
  Actor LightAnchor;
+ UTNTSourceGravityLight GravityLight;
  Array<Actor> WallLights;
  Array<UTNTSourceCeilingPiece> Ceiling;
  bool SoundStarted;
@@ -196,6 +216,7 @@ class UTNTSourceEmitter : Thinker
   for(int i=0;i<Layers.Size();i++)if(Layers[i])Layers[i].Destroy();
   for(int i=0;i<Ceiling.Size();i++)if(Ceiling[i])Ceiling[i].Destroy();
   for(int i=0;i<WallLights.Size();i++)if(WallLights[i])WallLights[i].Destroy();
+  if(GravityLight)GravityLight.Destroy();
   if(LightAnchor)LightAnchor.Destroy();Super.OnDestroy();
  }
  override void Tick()
@@ -214,6 +235,24 @@ class UTNTSourceEmitter : Thinker
   GuardianAge++;
   if(!Source){Destroy();return;}
   DeadAge=Source.DefeatAge;
+  if(Quality>0 && DeadAge>=35 && DeadAge<158)
+  {
+   if(!GravityLight)
+   {
+    GravityLight=UTNTSourceGravityLight(Actor.SpawnClientSide('UTNTSourceGravityLight',Center));
+    if(GravityLight)
+    {
+     GravityLight.Args[0]=255;GravityLight.Args[1]=255;GravityLight.Args[2]=255;
+     GravityLight.Args[3]=700;
+    }
+   }
+   if(GravityLight)
+   {
+    GravityLight.SetOrigin(Center,false);
+    GravityLight.Alpha=UTNTSourceGravityLight.Strength(DeadAge)*(Reduced?.30:.85);
+   }
+  }
+  else if(GravityLight){GravityLight.Destroy();GravityLight=null;}
   if(DeadAge && !SoundStarted && LightAnchor)
   {
    SoundStarted=true;
@@ -551,18 +590,29 @@ class UTNTSourceLayer : VisualThinker
 // Client camera projection only; the authoritative saved clock owns every pulse.
 class UTNTSourceImpactView ui
 {
+ static double Ending(double age){return clamp((age-245)/84.0,0,1);}
  static double Render(RenderEvent e)
  {
   PPShader.SetEnabled("UTNTSourceImpact",false);
   if(!(level.MapName~=="TNT04CN") || consoleplayer<0 || !e.Camera)return 0;
-  let p=players[consoleplayer];
-  if(!CVar.GetCVar('UTNT_shaderoverlayswitch',p).GetBool()
-   || CVar.GetCVar('UTNT_reducedfx',p).GetBool()
-   || CVar.GetCVar('UTNT_fxquality',p).GetInt()==0
-   || CVar.GetCVar('vid_rendermode').GetInt()!=4)return 0;
+  PPShader.SetUniform1f("UTNTSourceImpact","ending",0);
+  if(CVar.GetCVar('vid_rendermode').GetInt()!=4)return 0;
   let s=UTNTSourceBase(level.CreateActorIterator(666).Next());
   if(!s || s.Health>0)return 0;
   double age=s.DefeatAge+e.FracTic;
+  // The quiet map transition covers the whole room, including views away from the boss.
+  // Finish at tic 329 and hold black for four tics before the authoritative exit.
+  double ending=Ending(age);
+  if(ending>0)
+  {
+   PPShader.SetUniform1f("UTNTSourceImpact","ending",ending);
+   PPShader.SetEnabled("UTNTSourceImpact",true);
+   return 0;
+  }
+  let p=players[consoleplayer];
+  if(!CVar.GetCVar('UTNT_shaderoverlayswitch',p).GetBool()
+   || CVar.GetCVar('UTNT_reducedfx',p).GetBool()
+   || CVar.GetCVar('UTNT_fxquality',p).GetInt()==0)return 0;
   if(age<1 || age>=193)return 0;
   double progress=(age-35)/175.0;
   Vector3 delta=s.Center()-e.ViewPos;

@@ -13,6 +13,15 @@ vec3 AmberExposure(vec3 scene,float r,float age)
 void main()
 {
  vec2 uv=TexCoord;
+ if(ending>0.0)
+ {
+  vec3 scene=texture(InputTexture,uv).rgb;
+  float luminance=clamp(dot(scene,vec3(.2126,.7152,.0722)),0.0,1.0);
+  // Shadows disappear first; flames and bright energy persist into the last half.
+  float finish=.72+.28*sqrt(luminance);
+  float keep=1.0-smoothstep(0.0,finish,ending);
+  FragColor=vec4(scene*keep,1.0);return;
+ }
  float aspect=float(textureSize(InputTexture,0).x)/float(textureSize(InputTexture,0).y);
  vec2 metric=vec2(aspect,1.0),delta=(uv-focus)*metric;
  float r=length(delta)/max(radius,.001);
