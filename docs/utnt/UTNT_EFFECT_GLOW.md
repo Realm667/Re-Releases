@@ -63,8 +63,8 @@ Entfernungsgrenze werden weich ausgeblendet. Normale Weltgeometrie verdeckt
 die als Weltobjekte gerenderten Leuchthöfe.
 
 Beim Verschwinden einer Quelle oder beim Wechsel in einen nicht mehr
-leuchtenden Zustand klingt ihr zuletzt sichtbarer Leuchthof über sechs
-Spielticks (etwa 0,17 Sekunden) mit einer weichen Kurve aus. Position,
+leuchtenden Zustand klingt ihr zuletzt sichtbarer Leuchthof über neun
+Spielticks (Ziel 0,25 Sekunden, bei 35 Hz etwa 0,257 Sekunden) mit einer weichen Kurve aus. Position,
 Größe und Farbe bleiben dabei erhalten. Erneutes Leuchten desselben Actors
 übernimmt wieder direkt die aktuelle Darstellung. Einfrieren pausiert auch
 den Fadeout; Ausschalter, Stärke 0, Entfernung und Qualitätsbudget greifen
