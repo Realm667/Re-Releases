@@ -142,30 +142,26 @@ class UTNTEnvironment : EventHandler
  {
   if(!Option('UTNT_mechanismfx') || Reduced() || !Quality() || consoleplayer<0)return;
   let p=players[consoleplayer].camera;if(!p)return;
-  Vector2 low=(1e30,1e30),high=(-1e30,-1e30);
-  for(int j=0;j<source.Sec.Lines.Size();j++)
-  {
-   Vector2 a=source.Sec.Lines[j].V1.P,b=source.Sec.Lines[j].V2.P;
-   low=(min(low.X,min(a.X,b.X)),min(low.Y,min(a.Y,b.Y)));high=(max(high.X,max(a.X,b.X)),max(high.Y,max(a.Y,b.Y)));
-  }
-  Vector3 center=(source.Point.X,source.Point.Y,source.Sec.floorplane.ZatPoint(source.Point));
-  if((p.Pos-center).Length()>1200 || high.X<=low.X || high.Y<=low.Y)return;
-  source.LastBurst=level.time;MechanismBursts++;
-  // Stratified whole-sector coverage. Reject holes and neighboring sectors.
-  int budget=Quality()==3?64:Quality()==2?36:16;
-  double spacing=max(32,sqrt((high.X-low.X)*(high.Y-low.Y)/budget));
-  int nx=clamp(int(floor((high.X-low.X)/spacing)),1,budget),ny=clamp(int(floor((high.Y-low.Y)/spacing)),1,budget/nx);
+  source.Measure();
+  Vector2 low=source.Low,high=source.High;
+  Vector2 nearest=(clamp(p.Pos.X,low.X,high.X),clamp(p.Pos.Y,low.Y,high.Y));
+  double plane=source.CeilingMoving?source.Sec.ceilingplane.ZatPoint(nearest):source.Sec.floorplane.ZatPoint(nearest);
+  if((p.Pos-(nearest.X,nearest.Y,plane)).Length()>1200 || source.Area<=0)return;
+  // Expected births per tic scale with actual polygon area, not its bounding box.
+  // Stochastic rounding gives tiny movers occasional puffs and large movers several.
+  double rate=min(4,source.Area/65536.0*.36)*(Quality()==3?1:Quality()==2?.60:.30);
+  int count=int(rate);if(source.RandomUnit()<rate-count)count++;
   int emitted=0;
-  // One puff per update; visit every grid cell in a coprime permutation.
-  int cells=nx*ny,stride=cells-1;
-  for(int attempt=0;attempt<min(4,cells);attempt++)
+  for(int puff=0;puff<count;puff++)
   {
-   if(emitted>=1)break;
-   int cell=(source.EmissionCursor++*max(1,stride))%cells;
-   int x=cell%nx,y=cell/nx;
-   double phase=x*127.1+y*311.7+source.Group*13.7+level.time*.71;
-   Vector2 point=low+((x+.5+.27*sin(phase))*(high.X-low.X)/nx,(y+.5+.27*cos(phase*1.37))*(high.Y-low.Y)/ny);
-   if(level.PointInSector(point)!=source.Sec)continue;
+   Vector2 point;bool found=false;
+   for(int attempt=0;attempt<64;attempt++)
+   {
+    point=low+(source.RandomUnit()*(high.X-low.X),source.RandomUnit()*(high.Y-low.Y));
+    if(level.PointInSector(point)==source.Sec){found=true;break;}
+   }
+   if(!found)continue;
+   double phase=source.RandomUnit()*3600;
    double floor=source.Sec.floorplane.ZatPoint(point),ceiling=source.Sec.ceilingplane.ZatPoint(point);
    double z=source.CeilingMoving?ceiling-4:floor+4;
    if(ceiling-floor<8)continue;
@@ -181,7 +177,8 @@ class UTNTEnvironment : EventHandler
    d.Roll=d.PrevRoll=(source.CeilingMoving?180:0)+sin(phase*1.3)*16;
    d.bXFlip=sin(phase*2.7)<0;
    d.Alpha=0;d.BaseAlpha=(source.Stone?.42:.20)*(.8+.4*abs(cos(phase*1.7)));
-   d.SetRenderStyle(STYLE_Translucent);d.LightLevel=clamp(source.Sec.LightLevel,128,224);emitted++;DustPuffs++;
+   d.SetRenderStyle(STYLE_Translucent);d.LightLevel=clamp(source.Sec.LightLevel,128,224);emitted++;DustPuffs++;source.EmissionCursor++;
+   source.LastBurst=level.time;MechanismBursts++;
   }
  }
  override void RenderOverlay(RenderEvent e)
@@ -311,7 +308,28 @@ class UTNTMechanismQuake : Actor
 class UTNTMechanismWatch : Object play
 {
  Sector Sec;Vector2 Point;double Floor,Ceiling,Travel;bool Moving,Stone,CeilingMoving;
- int Group,Still,LastBurst,EmissionCursor,NextEmission,LastQuake,Starts,Stops;
+ int Group,Still,LastBurst,EmissionCursor,LastQuake,Starts,Stops;
+ Vector2 Low,High;double Area;bool Measured;uint DustRandom;
+ double RandomUnit()
+ {
+  // Private cosmetic stream: never consume gameplay random numbers.
+  DustRandom=DustRandom*1664525+1013904223;
+  return (DustRandom>>8)/16777216.0;
+ }
+ void Measure()
+ {
+  if(Measured)return;Measured=true;Low=(1e30,1e30);High=(-1e30,-1e30);
+  DustRandom=Sec.Index()+1;
+  for(int i=0;i<Sec.Lines.Size();i++)
+  {
+   let line=Sec.Lines[i];Vector2 a=line.V1.P,b=line.V2.P;
+   Low=(min(Low.X,min(a.X,b.X)),min(Low.Y,min(a.Y,b.Y)));
+   High=(max(High.X,max(a.X,b.X)),max(High.Y,max(a.Y,b.Y)));
+   if(line.FrontSector==Sec)Area+=a.X*b.Y-b.X*a.Y;
+   if(line.BackSector==Sec)Area-=a.X*b.Y-b.X*a.Y;
+  }
+  Area=abs(Area)*.5;
+ }
  void Shake(bool impulse)
  {
   if(!UTNTEnvironment.Option('UTNT_mechanismfx') || UTNTEnvironment.Reduced() || !UTNTEnvironment.Quality() || consoleplayer<0)return;
@@ -338,12 +356,9 @@ class UTNTMechanismWatch : Object play
   if(now)CeilingMoving=abs(c-Ceiling)>abs(f-Floor);
   if(now)
   {
-   if(!Moving){Travel=0;NextEmission=level.time+abs(Group)%3;if(level.time>20){Shake(true);Starts++;}}
+   if(!Moving){Travel=0;if(level.time>20){Shake(true);Starts++;}}
    Travel+=delta;Still=0;
-   if(level.time>=NextEmission && level.time>20)
-   {
-    h.EmitDust(self);NextEmission=level.time+2+(EmissionCursor*7+Group)%4;
-   }
+   if(level.time>20)h.EmitDust(self);
    if(level.time-LastQuake>=7 && level.time>20)Shake(false);
    Moving=true;
   }

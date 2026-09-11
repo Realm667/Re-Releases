@@ -53,7 +53,9 @@ void main() {
   ivec2 cell=ivec2(floor(grid));
   float depth=min(min(envDepthCell(cell),envDepthCell(cell+ivec2(1,0))),min(envDepthCell(cell+ivec2(0,1)),envDepthCell(cell+ivec2(1,1))));
   float thickness=max(0.0,min(farHit,depth-4.0)-nearHit);
-  strength=smoothstep(0.0,35.0,thickness);
+  // Fade toward the ellipsoid silhouette instead of a hard saturated halo.
+  float impact=max(0.0,c+1.0-b*b/a);
+  strength=smoothstep(0.0,65.0,thickness)*(1.0-smoothstep(.25,1.0,impact));
  }
  vec2 p=TexCoord*vec2(textureSize(InputTexture,0))/55.0;
  float t=InputTimeGame*.7;

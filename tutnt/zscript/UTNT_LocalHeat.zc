@@ -2,11 +2,18 @@
 class UTNTLocalHeatSource : Object play
 {
  int Kind,Index,Part;String Texture;Vector3 Offset,Radius;Sector Sec;
- clearscope Vector3 Position(){return Offset+(0,0,Sec.floorplane.ZatPoint(Offset.XY));}
+ clearscope Vector3 Position(){return Offset+(0,0,(Kind==2?level.Sectors[Part].ceilingplane.ZatPoint(Offset.XY):Sec.floorplane.ZatPoint(Offset.XY)));}
  clearscope bool Valid()
  {
-  String current=Kind==0?TexMan.GetName(Sec.GetTexture(Sector.floor)):TexMan.GetName(level.Sides[Index].GetTexture(Part));
-  return current~==Texture;
+  String current=Kind==2?TexMan.GetName(level.Sectors[Part].GetTexture(Sector.ceiling)):Kind==0?TexMan.GetName(Sec.GetTexture(Sector.floor)):TexMan.GetName(level.Sides[Index].GetTexture(Part));
+  if(!(current~==Texture))return false;
+  if(Kind!=2)return true;
+  for(int i=0;i<Sec.Get3DFloorCount();i++)
+  {
+   let rover=Sec.Get3DFloor(i);
+   if(rover.model==level.Sectors[Part] && rover.alpha>0 && (rover.flags & F3DFloor.FF_EXISTS) && (rover.flags & F3DFloor.FF_RENDERPLANES))return true;
+  }
+  return false;
  }
 }
 class UTNTLocalHeatAnchor : Actor
@@ -18,20 +25,20 @@ class UTNTLocalHeatAnchor : Actor
 class UTNTLocalHeat : EventHandler
 {
  bool Ready;Array<UTNTLocalHeatSource> Sources;UTNTLocalHeatAnchor Anchors[6];
- ui UTNTEnvironmentOptics Optics[6];int Selected[6];
+ ui UTNTEnvironmentOptics Optics[6];int Selected[6];LineTracer Sight;
  clearscope static bool Enabled()
  {
   return UTNTEnvironment.Option('UTNT_shaderoverlayswitch') && !UTNTEnvironment.Reduced() && UTNTEnvironment.Quality()>0 && consoleplayer>=0 && CVar.GetCVar('UTNT_heatstrength',players[consoleplayer]).GetFloat()>0;
  }
  void Initialize()
  {
-  Ready=true;int lump=Wads.CheckNumForFullName(String.Format("environment/%s-heat.txt",level.MapName));if(lump<0)return;
+  Ready=true;Sight=new('LineTracer');int lump=Wads.CheckNumForFullName(String.Format("environment/%s-heat.txt",level.MapName));if(lump<0)return;
   Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
   for(int i=0;i<rows.Size();i++)
   {
    Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=10)continue;
    let s=new('UTNTLocalHeatSource');s.Kind=r[0].ToInt();s.Index=r[1].ToInt();s.Part=r[2].ToInt();s.Texture=r[3];
-   if(s.Kind==0){if(s.Index<0 || s.Index>=level.Sectors.Size())continue;s.Sec=level.Sectors[s.Index];}
+   if(s.Kind==0 || s.Kind==2){if(s.Index<0 || s.Index>=level.Sectors.Size())continue;s.Sec=level.Sectors[s.Index];if(s.Kind==2 && (s.Part<0 || s.Part>=level.Sectors.Size()))continue;}
    else {if(s.Index<0 || s.Index>=level.Sides.Size())continue;s.Sec=level.Sides[s.Index].Sector;}
    s.Offset=(r[4].ToDouble(),r[5].ToDouble(),r[6].ToDouble());s.Radius=(r[7].ToDouble(),r[8].ToDouble(),r[9].ToDouble());
    if(s.Radius.X<=0 || s.Radius.Y<=0 || s.Radius.Z<=0)continue;Sources.Push(s);
@@ -46,13 +53,20 @@ class UTNTLocalHeat : EventHandler
   double scores[6];for(int i=0;i<6;i++){Selected[i]=-1;scores[i]=1e30;}
   if(limit)
   {
+   int wall=-1;double wallScore=1e30;
    Vector3 forward=(cos(camera.Angle)*cos(camera.Pitch),sin(camera.Angle)*cos(camera.Pitch),-sin(camera.Pitch));
    Vector3 eye=camera.Pos+(0,0,camera.player?camera.player.ViewHeight:camera.Height*.5);
    for(int j=0;j<Sources.Size();j++)
    {
     let s=Sources[j];Vector3 delta=s.Position()-eye;double distance=delta.Length();
-    if(distance>1280 || (delta dot forward) < distance*.30-max(s.Radius.X,max(s.Radius.Y,s.Radius.Z)) || !s.Valid())continue;
-    double score=distance;
+    if(distance>2048 || (delta dot forward) < distance*.30-max(s.Radius.X,max(s.Radius.Y,s.Radius.Z)) || !s.Valid())continue;
+    double score=distance/max(48,sqrt(max(s.Radius.X*s.Radius.Y,max(s.Radius.X*s.Radius.Z,s.Radius.Y*s.Radius.Z))));
+    // Keep one visible lavafall from losing all slots to broad floor plumes.
+    if(s.Kind==1 && distance>1 && distance<1280 && score<wallScore)
+    {
+     Sight.Trace(eye,level.PointInSector(eye.XY),delta.Unit(),distance,0,wallMask:0,ignoreAllActors:true,ignore:camera);
+     if(Sight.Results.HitType==TRACE_HitNone || (Sight.Results.HitPos-eye).Length()>distance-8){wall=j;wallScore=score;}
+    }
     // Hysteresis keeps nearly equal candidates from trading slots every tic.
     for(int k=0;k<6;k++)if(Anchors[k] && Anchors[k].Source==j)score*=.8;
     for(int k=0;k<limit;k++)if(score<scores[k])
@@ -61,6 +75,8 @@ class UTNTLocalHeat : EventHandler
      scores[k]=score;Selected[k]=j;break;
     }
    }
+   bool hasWall=false;for(int i=0;i<limit;i++)if(Selected[i]>=0 && Sources[Selected[i]].Kind==1)hasWall=true;
+   if(limit>1 && wall>=0 && !hasWall)Selected[limit-1]=wall;
   }
   for(int i=0;i<6;i++)
   {
@@ -108,7 +124,12 @@ class UTNTLocalHeat : EventHandler
  override void NetworkProcess(ConsoleEvent e)
  {
   if(e.Name!="localheatstats")return;int active=0;for(int i=0;i<6;i++)if(Anchors[i])active++;
-  Console.Printf("LOCALHEAT|sources=%d|anchors=%d|enabled=%d",Sources.Size(),active,Enabled());
+  int floors=0,walls=0,tops=0;
+  for(int i=0;i<6;i++)if(Anchors[i])
+  {
+   int kind=Sources[Anchors[i].Source].Kind;if(kind==0)floors++;else if(kind==1)walls++;else tops++;
+  }
+  Console.Printf("LOCALHEAT|sources=%d|anchors=%d|enabled=%d|floors=%d|walls=%d|3dfloors=%d",Sources.Size(),active,Enabled(),floors,walls,tops);
  }
  override void WorldUnloaded(WorldEvent e){for(int i=0;i<6;i++)PPShader.SetEnabled(String.Format("UTNTLocalHeat%d",i),false);}
 }
