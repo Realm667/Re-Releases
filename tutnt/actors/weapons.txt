@@ -660,7 +660,7 @@ ACTOR UTNTPlasmaRifle : PlasmaRifle replaces PlasmaRifle
    	States
    	{
 	Fire:
-		TNT1 A 0 A_SetBlend("Blue",0.03,2)
+		TNT1 A 0 A_SetBlend("3B7CD3",0.03,2)
 		TNT1 A 0 A_SetPitch(pitch-0.175, SPF_INTERPOLATE)
 		PLSF C 1 Bright A_FirePlasma
 		PLSF DF 1 Bright A_SetPitch(pitch+0.0875, SPF_INTERPOLATE)
@@ -683,10 +683,12 @@ ACTOR UTNTPlasmaRifle : PlasmaRifle replaces PlasmaRifle
    	}
 }
 
+// Plasma hue: #3B7CD3 (59,124,211). The same luminance tint is used
+// by the ball, trail, impact smoke and sparks; GLDEFS/halo use the same RGB.
 ACTOR UTNTPlasmaBall : PlasmaBall replaces Plasmaball
 {
 	scale 0.45
-	Translation "0:255=%[0,0,0]:[0.6,0.6,2.0]"
+	Translation "0:255=%[0,0,0]:[0.231373,0.486275,0.827451]"
 	states
 	{
 	Spawn:
@@ -708,7 +710,7 @@ ACTOR UTNTPlasmaBall : PlasmaBall replaces Plasmaball
 
 Actor PBTrail
 {
-	Translation "0:255=%[0,0,0]:[0.6,0.6,2.0]"
+	Translation "0:255=%[0,0,0]:[0.231373,0.486275,0.827451]"
 	+NOINTERACTION
 	Scale 0.25
 	RenderStyle Add
@@ -726,7 +728,7 @@ Actor PlasmaSmoke
 {
 	+NOINTERACTION
 	RenderSTyle Add
-	Translation "0:255=%[0,0,0]:[0.6,0.6,2.0]"
+	Translation "0:255=%[0,0,0]:[0.231373,0.486275,0.827451]"
 	Scale 0.32
 	Alpha 0.9
 	states
@@ -749,7 +751,7 @@ Actor PlasmaSmoke
 ACTOR BlasterPuffParticle
 {
 	Scale 0.1
-	Translation "0:255=%[0,0,0]:[0.6,0.6,2.0]"
+	Translation "0:255=%[0,0,0]:[0.231373,0.486275,0.827451]"
 	RenderStyle Add
 	+NOINTERACTION
 	States

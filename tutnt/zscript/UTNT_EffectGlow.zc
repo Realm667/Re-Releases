@@ -68,6 +68,13 @@ class UTNTEffectGlow : Thinker
             : profile==6 ? 0xffffcf65 : 0xffff963d;
     }
 
+    // Plasma has an explicit art direction independent of the shared blue
+    // family (DarkNormal and QueenElectro retain their accepted colors).
+    static Color SourceTint(Actor source, int profile)
+    {
+        return source is 'PlasmaBall' ? 0xff3b7cd3 : Tint(profile);
+    }
+
     void Register(Actor a)
     {
         int profile=Profile(a);
@@ -123,7 +130,7 @@ class UTNTEffectGlow : Thinker
                 v.Alpha=0;
                 v.Texture=TexMan.CheckForTexture('UGLWA0');
                 v.Flags=SPF_FULLBRIGHT|SPF_STRETCHPIXELS|SPF_ALLOWSHADERS;
-                v.scolor=Tint(v.Profile); v.SetRenderStyle(STYLE_Add);
+                v.scolor=SourceTint(a,v.Profile); v.SetRenderStyle(STYLE_Add);
                 v.Pos=a.Pos; v.Prev=v.Pos; v.UpdateGlow(); v.Prev=v.Pos;
                 Halos[i]=v;
             }
@@ -171,7 +178,7 @@ class UTNTEffectHalo : VisualThinker
         bool flight=Source.bMISSILE;
         // Transferred translations can change a shared explosion's color.
         scolor=Source is 'BaronBallExplo' && Source.Translation==GetDefaultByType('HellsFuryBall').Translation
-            ? UTNTEffectGlow.Tint(4) : UTNTEffectGlow.Tint(Profile);
+            ? UTNTEffectGlow.Tint(4) : UTNTEffectGlow.SourceTint(Source,Profile);
         if (Profile==7)
         {
             // One halo per explosion controller, not one per fragment/flame.

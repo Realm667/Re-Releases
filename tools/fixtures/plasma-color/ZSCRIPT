@@ -1,0 +1,63 @@
+version "5.0.0"
+class UTNTPlasmaColorTest : EventHandler
+{
+    Array<Actor> Probes;
+    int Mode;
+    void Check(bool ok,String what)
+    { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",what); }
+    override void WorldTick()
+    {
+        let p=players[0].mo;if(!p)return;
+        p.bInvulnerable=true;p.bNotarget=true;
+        if(level.time==5){p.SetOrigin((0,-240,0),false);p.Angle=90;p.Pitch=0;}
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="plasmastage")
+        {
+            for(int i=0;i<Probes.Size();i++)if(Probes[i])Probes[i].Destroy();
+            Probes.Clear();Mode=e.Args[0];
+            let p=players[0].mo;p.SetOrigin((0,-240,0),false);p.Angle=90;p.Pitch=0;
+            if(Mode==0)
+            {
+                Name types[]={'UTNTPlasmaBall','DarkNormal','QueenElectro'};
+                for(int i=0;i<3;i++)
+                {
+                    let a=Actor.Spawn(types[i],(-90+i*90,0,48));
+                    if(a){a.Vel=(0,0,0);a.target=p;Probes.Push(a);}
+                }
+            }
+            if(Mode==1)
+            {
+                for(int i=0;i<5;i++)
+                {
+                    let a=Actor.Spawn('UTNTPlasmaBall',(-110+i*55,20+(i%2)*80,46));
+                    if(a){a.Vel=(0,0,0);a.target=p;Probes.Push(a);}
+                }
+            }
+            if(Mode==2)
+            {
+                for(int i=0;i<Probes.Size();i++)if(Probes[i])Probes[i].Destroy();
+                Probes.Clear();
+            }
+        }
+        if(e.Name=="plasmaimpact")
+            for(int i=0;i<Probes.Size();i++)if(Probes[i])Probes[i].ExplodeMissile(null,null);
+        if(e.Name=="plasmacheck")
+        {
+            Check(GetDefaultByType('UTNTPlasmaBall').Translation==GetDefaultByType('PBTrail').Translation,"ball and trail share the same translation");
+            Check(GetDefaultByType('UTNTPlasmaBall').Translation==GetDefaultByType('PlasmaSmoke').Translation,"impact smoke shares the plasma translation");
+            Check(GetDefaultByType('UTNTPlasmaBall').Translation==GetDefaultByType('BlasterPuffParticle').Translation,"impact sparks share the plasma translation");
+            let m=UTNTEffectGlow.Get();int checked=0;
+            for(int i=0;i<m.Sources.Size();i++)
+            {
+                let a=m.Sources[i];let h=m.Halos[i];
+                if(!a || !h || h.Alpha<=0)continue;
+                if(a is 'PlasmaBall') {Check(h.scolor==0xff3b7cd3,"visible plasma halo uses #3B7CD3");checked++;}
+                else if(a is 'DarkNormal' || a is 'QueenElectro') {Check(h.scolor==0xff689cff,"other blue projectiles retain their tint");checked++;}
+            }
+            Check(checked>=3,"all staged colors inspected");
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+    }
+}
