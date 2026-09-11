@@ -67,6 +67,6 @@ The editable local archive is `tutnt/.codex/notes/README.md`. These fixed Git-hi
 - [UTNT_MODERNIZATION.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_MODERNIZATION.md) — Historical first modernization report.
 - [UTNT_SECOND_PASS.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_SECOND_PASS.md) — Dated second-pass implementation and acceptance report.
 - [UTNT_PACKAGE_AUDIT.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_PACKAGE_AUDIT.md) — Historical package-loss investigation; permanent rules are in AGENTS.md.
-- [UTNT_TNT01_ORGANIC.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_TNT01_ORGANIC.md) — Superseded first terrain revision; current: UTNT_TNT01_LANDSCAPE.md.
+- [UTNT_TNT01_ORGANIC.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_TNT01_ORGANIC.md) — Both terrain revisions withdrawn on 2026-09-11; restoration: UTNT_TNT01_LANDSCAPE.md.
 
 Screenshots formerly tracked in `tools/validation/` link to their preserved Git revisions. Local originals remain under `tutnt/.codex/validation/`. Runtime source files and build commands retain their existing locations.
