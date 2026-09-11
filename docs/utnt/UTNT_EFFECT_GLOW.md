@@ -62,6 +62,14 @@ abklingenden Kern. Sehr nahe Effekte und die letzte Strecke vor der
 Entfernungsgrenze werden weich ausgeblendet. Normale Weltgeometrie verdeckt
 die als Weltobjekte gerenderten Leuchthöfe.
 
+Beim Verschwinden einer Quelle oder beim Wechsel in einen nicht mehr
+leuchtenden Zustand klingt ihr zuletzt sichtbarer Leuchthof über sechs
+Spielticks (etwa 0,17 Sekunden) mit einer weichen Kurve aus. Position,
+Größe und Farbe bleiben dabei erhalten. Erneutes Leuchten desselben Actors
+übernimmt wieder direkt die aktuelle Darstellung. Einfrieren pausiert auch
+den Fadeout; Ausschalter, Stärke 0, Entfernung und Qualitätsbudget greifen
+weiterhin unmittelbar. Ausblendende Leuchthöfe zählen zum gleichen Budget.
+
 ## Technik und Grenzen
 
 `UTNTEffectGlowHandler` ist ein zustandsloser `StaticEventHandler`, damit auch
@@ -115,3 +123,10 @@ OpenGL und Vulkan. Zusätzlich isoliert der Test den Leuchtanteil durch
 Subtraktion einer identischen Aufnahme ohne Glühen und prüft die erwarteten
 blauen, grünen und orangen Farbkanäle. Der alte weiße Shader fällt durch
 diese Farbprüfung; beide Renderer bestehen mit der korrigierten Fassung.
+
+Der kurze Fadeout besteht unter beiden Renderern jeweils 551 native
+Assertions plus die Farbprüfung. Die zusätzlichen Tests erfassen mehrere
+abnehmende Helligkeitsstufen nach Actor-Zerstörung und nach einem unsichtbaren
+Zustand, unveränderte Position/Größe/Farbe, Wiederaufleuchten, Bereinigung,
+Einfrieren sowie das sofortige Abschalten verwaister Leuchthöfe. Auch beim
+gleichzeitigen Ausklingen vieler Geschosse bleibt das Qualitätsbudget gültig.

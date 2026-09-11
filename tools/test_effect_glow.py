@@ -12,9 +12,12 @@ def check_glow_colors(on_path, off_path, repeat_path):
     from PIL import Image, ImageChops
     on, off, repeat = [Image.open(p).convert('RGB') for p in (on_path, off_path, repeat_path)]
     assert on.size == off.size == repeat.size
-    assert ImageChops.difference(off, repeat).getbbox() is None, 'Frozen scene changed'
     delta = ImageChops.subtract(on, off)
     w, h = delta.size
+    # The status-bar face keeps animating during freeze; compare the same
+    # effect region that is measured below, excluding the unrelated HUD.
+    region = (0, h//10, w, h*4//5)
+    assert ImageChops.difference(off, repeat).crop(region).getbbox() is None, 'Frozen effect region changed'
     measurements = {}
     for i, name in enumerate(('blue', 'green', 'orange')):
         data = delta.crop((i*w//3, h//10, (i+1)*w//3, h*4//5)).tobytes()
@@ -66,7 +69,7 @@ def main():
         'wait 60', 'event glowcheck 0',
         'netevent glowflood', 'wait 3', 'event glowcheck 1',
         'UTNT_reducedfx true', 'wait 3', 'event glowcheck 1',
-        'netevent glowclear', 'wait 80', 'event glowcheck 0',
+        'netevent glowclear', 'wait 2', 'event glowcheck 1', 'wait 80', 'event glowcheck 0',
         'UTNT_reducedfx false', 'UTNT_glowstrength 1', 'UTNT_glowsize 1',
         'UTNT_shaderoverlayswitch false', 'motionblur false', 'fov 65',
         'netevent glowcolors', 'wait 8', 'freeze', 'wait 12',
@@ -74,6 +77,15 @@ def main():
         'UTNT_effectglow false', 'wait 8', 'screenshot logs/effect-glow-color-off-'+a.renderer+'.png',
         'wait 8', 'screenshot logs/effect-glow-color-repeat-'+a.renderer+'.png',
         'freeze', 'netevent glowclear', 'wait 40',
+        'UTNT_effectglow true', 'netevent glowcolors', 'wait 8',
+        'freeze', 'wait 8', 'netevent glowfade 3', 'wait 10', 'netevent glowfadepaused',
+        'freeze', 'wait 16', 'netevent glowfadegone',
+        'netevent glowcolors', 'wait 8',
+        'netevent glowfade 1', 'wait 16',
+        'netevent glowcolors', 'wait 8', 'netevent glowfade 0', 'wait 16', 'event glowcheck 3',
+        'netevent glowfade 2', 'wait 2', 'UTNT_effectglow false', 'wait 3',
+        'netevent glowfadeoff', 'event glowcheck 0',
+        'netevent glowclear', 'wait 20',
         'language de', 'event glowmenu', 'wait 12', 'screenshot logs/effect-glow-menu-de-'+a.renderer+'.png',
         'language fr', 'wait 12', 'screenshot logs/effect-glow-menu-fr-'+a.renderer+'.png',
         'language es', 'wait 12', 'screenshot logs/effect-glow-menu-es-'+a.renderer+'.png',

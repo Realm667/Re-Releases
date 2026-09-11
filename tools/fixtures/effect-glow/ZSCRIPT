@@ -3,6 +3,14 @@ class UTNTGlowTest : EventHandler
 {
     Array<Actor> Probes;
     int OriginalHealth;
+    UTNTEffectHalo FadeProbe;
+    Actor FadeSource;
+    double FadePrevious, FadeInitial;
+    Vector3 FadePos;
+    Vector2 FadeScale;
+    Color FadeColor;
+    int FadeAge, FadeSamples;
+    bool FadeDestroyed;
     void Check(bool ok,String what)
     { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",what); }
     UTNTEffectHalo Halo(Actor a)
@@ -18,6 +26,21 @@ class UTNTGlowTest : EventHandler
     }
     override void NetworkProcess(ConsoleEvent e)
     {
+        if(e.Name=="glowfade")
+        {
+            FadeSource=Probes[0]; FadeProbe=Halo(FadeSource);
+            Check(FadeProbe && FadeProbe.Alpha>0,"fade starts from a visible halo");
+            if(!FadeProbe) return;
+            FadeInitial=FadePrevious=FadeProbe.Alpha;
+            FadePos=FadeProbe.Pos; FadeScale=FadeProbe.Scale; FadeColor=FadeProbe.scolor;
+            FadeAge=1; FadeSamples=0; FadeDestroyed=e.Args[0]!=0;
+            if(FadeDestroyed) FadeSource.Destroy();
+            else FadeSource.bINVISIBLE=true;
+            if(e.Args[0]>=2) FadeAge=0; // Separate cancellation/freeze checks.
+        }
+        if(e.Name=="glowfadeoff") Check(FadeProbe==null,"disabling glow removes an orphaned fade immediately");
+        if(e.Name=="glowfadepaused") Check(FadeProbe && FadeProbe.Fading && FadeProbe.Alpha==FadeInitial,"freeze holds orphaned afterglow at its last intensity");
+        if(e.Name=="glowfadegone") Check(FadeProbe==null,"afterglow resumes and expires after unfreezing");
         if(e.Name=="glowcheck") RunCheck(e);
         if(e.Name=="glowspawn")
         {
@@ -99,6 +122,25 @@ class UTNTGlowTest : EventHandler
     override void ConsoleProcess(ConsoleEvent e)
     {
         if(e.Name=="glowmenu") Menu.SetMenu('UTNTCombatOptions');
+    }
+    override void WorldTick()
+    {
+        if(!FadeAge) return;
+        if(FadeProbe)
+        {
+            Check(FadeProbe.Alpha<=FadePrevious+0.00001,"afterglow decreases monotonically");
+            Check(FadeProbe.Pos==FadePos && FadeProbe.Scale==FadeScale && FadeProbe.scolor==FadeColor,"afterglow retains position size and color");
+            if(FadeProbe.Alpha>0 && FadeProbe.Alpha<FadeInitial) FadeSamples++;
+            FadePrevious=FadeProbe.Alpha;
+        }
+        if(FadeAge==3) Check(FadeProbe && FadeProbe.Alpha>0 && FadeProbe.Alpha<FadeInitial,"source loss fades instead of disappearing immediately");
+        if(++FadeAge>=12)
+        {
+            Check(FadeSamples>=3,"afterglow spans multiple intermediate intensities");
+            Check(FadeDestroyed ? FadeProbe==null : FadeProbe && FadeProbe.Alpha==0,"afterglow reaches zero and releases orphaned visuals");
+            if(FadeSource) FadeSource.bINVISIBLE=false;
+            FadeAge=0;
+        }
     }
     void RunCheck(ConsoleEvent e)
     {

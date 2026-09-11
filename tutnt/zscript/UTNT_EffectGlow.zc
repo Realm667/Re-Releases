@@ -102,12 +102,14 @@ class UTNTEffectGlow : Thinker
         for (int i=Sources.Size()-1;i>=0;i--)
         {
             let a=Sources[i];
-            if (!a)
+            // Keep orphaned halos registered until their short afterglow ends,
+            // so disabling effects and the quality budget also cover fadeouts.
+            if (!a && !Halos[i])
             {
-                if (Halos[i]) Halos[i].Destroy();
                 Sources.Delete(i); Halos.Delete(i); continue;
             }
-            bool visible=limit>live && camera && range>0 && (camera.Pos-a.Pos).Length()<range;
+            Vector3 position=a ? a.Pos : Halos[i].Pos;
+            bool visible=limit>live && camera && range>0 && (camera.Pos-position).Length()<range;
             if (!visible)
             {
                 if (Halos[i]) { Halos[i].Destroy(); Halos[i]=null; }
@@ -118,6 +120,7 @@ class UTNTEffectGlow : Thinker
                 let v=UTNTEffectHalo(level.SpawnClientSideVisualThinker('UTNTEffectHalo'));
                 if (!v) continue;
                 v.Source=a; v.Profile=Profile(a);
+                v.Alpha=0;
                 v.Texture=TexMan.CheckForTexture('UGLWA0');
                 v.Flags=SPF_FULLBRIGHT|SPF_STRETCHPIXELS|SPF_ALLOWSHADERS;
                 v.scolor=Tint(v.Profile); v.SetRenderStyle(STYLE_Add);
@@ -133,8 +136,31 @@ class UTNTEffectHalo : VisualThinker
 {
     Actor Source;
     int Profile;
+    bool Fading;
+    int FadeTics;
+    double FadeAlpha;
+    const FadeDuration=6; // 6/35 seconds, shared by disappearance and dark states.
 
     void UpdateGlow()
+    {
+        if (!UTNTEffectGlow.Limit()) { Alpha=0; Fading=false; return; }
+        double previousAlpha=Alpha;
+        Vector3 previousPos=Pos;
+        Vector2 previousScale=Scale;
+        Color previousColor=scolor;
+        UpdateSourceGlow();
+        if (Alpha>0) { Fading=false; FadeTics=0; return; }
+        if (previousAlpha>0 || Fading)
+        {
+            Pos=previousPos; Prev=Pos; Scale=previousScale; scolor=previousColor;
+            Alpha=previousAlpha;
+            if (!Fading) { Fading=true; FadeTics=0; FadeAlpha=Alpha; }
+            UpdateSector(); UpdateSpriteInfo();
+        }
+        else if (!Source) Destroy();
+    }
+
+    void UpdateSourceGlow()
     {
         Alpha=0;
         if (!Source || !Source.CurState || !UTNTEffectGlow.Limit()) return;
@@ -202,9 +228,15 @@ class UTNTEffectHalo : VisualThinker
 
     override void Tick()
     {
-        if (!Source) { Destroy(); return; }
-        if (Source.IsFrozen()) { UpdateGlow(); return; }
+        if (IsFrozen() || (Source && Source.IsFrozen())) { UpdateGlow(); return; }
         Super.Tick();
         UpdateGlow();
+        if (Fading)
+        {
+            FadeTics=min(FadeTics+1,FadeDuration);
+            double t=double(FadeTics)/FadeDuration;
+            Alpha=FadeAlpha*(1-t*t*(3-2*t));
+            if (FadeTics>=FadeDuration && !Source) Destroy();
+        }
     }
 }
