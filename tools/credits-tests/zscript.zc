@@ -24,6 +24,7 @@ class UTNTCreditsTests : EventHandler
  ui int LookPage,LookPhase,BlurTic,BlurPage,BlurPhase,BlurObservations;
  ui UTNTCreditsLook ObservedLook;
  ui bool TestedBlurRamp;
+ ui int SeenSparkPulses,FlightCheckedTic;
  ui void ObserveBlur(UTNTCreditsHandler h)
  {
   if(!h || !h.Look || !h.Look.Ready)return;
@@ -51,6 +52,25 @@ class UTNTCreditsTests : EventHandler
  {
   let h=UTNTCreditsHandler(EventHandler.Find('UTNTCreditsHandler'));
   ObserveBlur(h);
+  if(h && h.Phase==1 && h.SparkPulses>0 && level.time-h.LastSparkTic==7 && FlightCheckedTic!=level.time)
+  {
+   FlightCheckedTic=level.time;
+   let sparks=ThinkerIterator.Create('UTNTCreditsEmber',Thinker.MAX_STATNUM+1,true);UTNTCreditsEmber v;int count=0;double travel=0;
+   while(v=UTNTCreditsEmber(sparks.Next()))if((v.Origin-(h.SparkFocus+(0,0,12))).Length()<1){count++;travel=max(travel,(v.Pos-v.Origin).Length());}
+   CheckLook(count>0 && travel>18,"additional sparks survive and visibly leave the flash core");
+   Console.Printf("EMBER_FLIGHT count=%d travel=%.2f",count,travel);
+  }
+  if(h && h.Phase==1 && h.SparkPulses!=SeenSparkPulses)
+  {
+   SeenSparkPulses=h.SparkPulses;
+   if(level.time-h.LastSparkTic<=1)
+   {
+    let it=ThinkerIterator.Create('UTNTCreditsSpark',Thinker.STAT_USER+26,true);let fx=UTNTCreditsSpark(it.Next());
+    CheckLook(fx && fx.Halo && fx.Anchor,"authored flash has a live halo and local light");
+    CheckLook(fx && fx.LastBurstCount>0 && fx.LastBurstCount<=8,"authored flash emits a bounded additional spark burst");
+    CheckLook(it.Next()==null,"repeated flashes share one halo controller");
+   }
+  }
   if(h && h.Initialized)
   {
    if(!LookSeen || LookPage!=h.Page || LookPhase!=h.Phase)
@@ -66,13 +86,18 @@ class UTNTCreditsTests : EventHandler
       CheckLook(h.Look.TraceCount%144==0,"depth reconstruction uses bounded 16 by 9 batches");
      }
     }
-    else CheckLook(h.Look==null,"THE END releases the cinematic look");
+    else
+    {
+     CheckLook(h.Look==null,"THE END releases the cinematic look");
+     let glow=ThinkerIterator.Create('UTNTCreditsSpark',Thinker.STAT_USER+26,true);
+     CheckLook(glow.Next()==null,"THE END releases the crater halo and light");
+    }
    }
   }
   else if(LookSeen && !(level.MapName~=="ENDMAP01"))
   {CheckLook(!h || !h.Look,"leaving ENDMAP releases depth sampling");LookSeen=false;}
   // Test-only switch: compare the exact same paused frame with the scene pass bypassed.
-  PPShader.SetUniform1f("UTNTEndingLook","strength",CVar.FindCVar("creditlookbaseline").GetBool()?0:1);
+  if(h && h.Look)PPShader.SetUniform4f("UTNTEndingLook","lookParams",(h.Look.Aperture,h.Look.GrainTime,CVar.FindCVar("creditlookbaseline").GetBool()?0:1,0));
   if(!h || !h.Initialized || h.Phase || !h.CardsUI || (LayoutSeen && LastLayoutPage==h.Page))return;
   let page=h.Pages[h.Page];let view=h.CardsUI;if(view.Cached!=page)return;
   LayoutSeen=true;LastLayoutPage=h.Page;bool fit=true;
@@ -142,7 +167,7 @@ class UTNTCreditsTests : EventHandler
   else if(op==15)
   {Watching=true;HadPrevious=false;ObservedTicks=0;PeakStep=0;}
   else if(op==16)
-  {Check(ObservedTicks>100 && PeakStep>1 && PeakStep<20,"continuous FPV flight observed without jumps");Check(h.Phase==2,"flight fades into THE END");}
+  {Check(ObservedTicks>100 && PeakStep>1 && PeakStep<20,"continuous FPV flight observed without jumps");Check(h.Phase==2,"flight fades into THE END");Check(h.SparkPulses>=2,"natural post-credit sequence produces repeated amber accents");}
   else if(op==17)
   {Check(h.Cutting && h.Phase==0,"outgoing black fade is pending");Check(h.PendingPage==e.Args[1],"pending destination restored");}
   else if(op==18)
@@ -151,6 +176,7 @@ class UTNTCreditsTests : EventHandler
   {
    let it=Level.CreateActorIterator(7,"OrangeSpark_Up");Actor spark=it.Next();
    Check(h.Phase==1 && level.time-h.PageStart>=735 && level.time-h.PageStart<868,"spark shot settles before its flashes and outgoing fade");
+   if(h.SparkPulses>0)Check(h.LastSparkTic>=h.PageStart+735,"amber accents follow actual late crater discharges");
    Check(spark && h.HasSparkFocus && (spark.Pos-h.SparkFocus).Length()<.01,"authored floor spark focus survives save/load");
    if(spark)
    {

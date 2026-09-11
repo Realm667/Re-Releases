@@ -1,0 +1,87 @@
+// One local light/halo controller, refreshed by each authored crater discharge.
+class UTNTCreditsSpark : Thinker
+{
+ Actor Anchor;
+ UTNTIndustrialParticle Halo;
+ int LastPulse,LastBurstCount;
+ static void Pulse(Vector3 pos)
+ {
+  if(!UTNTIndustrialFX.At(pos))return;
+  let it=ThinkerIterator.Create('UTNTCreditsSpark',Thinker.STAT_USER+26,true);
+  let fx=UTNTCreditsSpark(it.Next());
+  if(!fx)fx=UTNTCreditsSpark(level.CreateClientSideThinker('UTNTCreditsSpark',Thinker.STAT_USER+26));
+  if(!fx)return;
+  fx.LastPulse=level.time;fx.LastBurstCount=0;
+  if(!fx.Anchor)fx.Anchor=Actor.SpawnClientSide('UTNTPortalAnchor',pos+(0,0,12));
+  if(!fx.Halo)
+  {
+   fx.Halo=UTNTIndustrialFX.Make(pos+(0,0,9),4,115,115,24,0xffffa13b,combat:false);
+   if(fx.Halo){fx.Halo.Texture=TexMan.CheckForTexture('UGLWA0');fx.Halo.Initialize();}
+  }
+  fx.UpdatePulse();
+  int count=UTNTIndustrialFX.Quality()==1?4:8;
+  for(int i=0;i<count;i++)
+  {
+   double angle=i*360.0/count+FRandom[utntcreditspark](-16,16),speed=FRandom[utntcreditspark](4,7);
+   if(!UTNTVisuals.ReserveCount(1,false))break;
+   let live=ThinkerIterator.Create('UTNTCreditsEmber',Thinker.MAX_STATNUM+1,true);int total=0;
+   while(live.Next())total++;
+   if(total>=16)break;
+   let p=UTNTCreditsEmber(level.SpawnClientSideVisualThinker('UTNTCreditsEmber'));
+   if(p)
+   {
+    p.Pos=pos+(0,0,12);p.Prev=p.Pos;p.Origin=p.Pos;
+    p.Vel=(cos(angle)*speed,sin(angle)*speed,FRandom[utntcreditspark](6,10));
+    p.Life=Random[utntcreditspark](18,26);p.scolor=i%3==0?0xffffd078:0xffff982e;
+    p.Initialize();fx.LastBurstCount++;
+   }
+  }
+ }
+ void UpdatePulse()
+ {
+  double t=clamp((level.time-LastPulse)/18.0,0,1),strength=(1-t)*(1-t);
+  if(Anchor)Anchor.A_AttachLight('creditspark',DynamicLight.PointLight,0xff9d32,135*sqrt(strength),0,
+   DynamicLight.LF_ATTENUATE|DynamicLight.LF_NOSHADOWMAP);
+  if(Halo){Halo.Age=0;Halo.Strength=.42*strength;Halo.Width=Halo.Height=115+30*t;Halo.Animate();}
+ }
+ override void Tick()
+ {
+  let h=UTNTCreditsHandler(EventHandler.Find('UTNTCreditsHandler'));
+  if(!h || h.Phase!=1 || level.time-LastPulse>=18){Destroy();return;}
+  UpdatePulse();
+ }
+ override void OnDestroy(){if(Anchor)Anchor.Destroy();if(Halo)Halo.Destroy();Super.OnDestroy();}
+}
+
+// At most 16 short-lived embers: their collision work cannot be starved by combat sparks.
+class UTNTCreditsEmber : VisualThinker
+{
+ int Age,Life;
+ Vector3 Origin;
+ void Initialize()
+ {
+  Texture=TexMan.CheckForTexture('UIFXA0');
+  Flags=SPF_FULLBRIGHT|SPF_STRETCHPIXELS|SPF_ALLOWSHADERS|SPF_ROLL|SPF_ROLLCENTER|SPF_NOFACECAMERA;
+  SetRenderStyle(STYLE_Add);Scale=(.04,.22);Alpha=1;
+  UpdateSector();UpdateSpriteInfo();
+ }
+ override void Tick()
+ {
+  if(IsFrozen())return;
+  let h=UTNTCreditsHandler(EventHandler.Find('UTNTCreditsHandler'));
+  if(++Age>=Life || !h || h.Phase!=1 || !UTNTIndustrialFX.At(Pos)){Destroy();return;}
+  Vel.Z-=.14;
+  let tr=new('LineTracer');tr.Trace(Pos,level.PointInSector(Pos.XY),Vel.Unit(),Vel.Length(),0,ignoreAllActors:true);
+  if(tr.Results.HitType!=TRACE_HitNone){Destroy();return;}
+  Super.Tick();Alpha=clamp((Life-Age)/8.0,0,1);
+  let camera=players[consoleplayer].camera;
+  if(camera)
+  {
+   double right=Vel.X*sin(camera.Angle)-Vel.Y*cos(camera.Angle);
+   double up=Vel.Z*level.pixelstretch*cos(camera.Pitch)+(Vel.X*cos(camera.Angle)+Vel.Y*sin(camera.Angle))*sin(camera.Pitch);
+   double next=atan2(up,right)-90;
+   while(next-Roll>180)next-=360;while(next-Roll< -180)next+=360;
+   Roll=next;
+  }
+ }
+}

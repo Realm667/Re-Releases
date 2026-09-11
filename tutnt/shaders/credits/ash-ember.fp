@@ -23,7 +23,7 @@ void main() {
  vec2 local=(TexCoord-viewport.xy)/viewport.zw;
  if(any(lessThan(local,vec2(0))) || any(greaterThan(local,vec2(1)))) {FragColor=vec4(original,1);return;}
  vec2 size=vec2(textureSize(InputTexture,0)),pixel=1.0/size;
- float circle=sceneBlur(TexCoord),radius=aperture*circle*size.y*viewport.w/720.0;
+ float circle=sceneBlur(TexCoord),radius=lookParams.x*circle*size.y*viewport.w/720.0;
  vec3 color=original*.5;float weight=.5;
  if(radius>.35) {
   // Fixed disk samples; no temporal feedback, camera-history ghosting or focus pumping.
@@ -53,9 +53,13 @@ void main() {
  // A soft shoulder retains hue and detail in the bright flame, rather than clipping.
  color=color*1.18/(1.0+color*.18);
  color+=glow*.018;
+ // A restrained amber veiling glare follows only the authored post-credit pulse.
+ vec2 flare=(local-sparkAccent.xy)*vec2(sparkAccent.w,1.0);
+ float veil=.014+.055*exp(-dot(flare,flare)*5.0)+.035*exp(-abs(flare.y)*110.0-abs(flare.x)*7.0);
+ color+=vec3(1.0,.39,.08)*sparkAccent.z*veil;
  float vignette=1.0-.14*smoothstep(.15,.70,dot(local-.5,local-.5));
  color*=vignette;
- float grain=fract(sin(dot(gl_FragCoord.xy+grainTime,vec2(12.9898,78.233)))*43758.5453)-.5;
+ float grain=fract(sin(dot(gl_FragCoord.xy+lookParams.y,vec2(12.9898,78.233)))*43758.5453)-.5;
  color+=grain*.003*clamp(luma*4.0,0.0,1.0);
- FragColor=vec4(mix(original,clamp(color,0.0,1.0),strength),1.0);
+ FragColor=vec4(mix(original,clamp(color,0.0,1.0),lookParams.z),1.0);
 }

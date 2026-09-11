@@ -115,6 +115,34 @@ Diese bleiben scharf und unverfärbt. Bei „THE END“, Verlassen der ENDMAP od
 einer anderen aktiven Kamera wird der Effekt deaktiviert. Es gibt keine neuen
 Menütexte oder Spiel-CVars; `creditlookbaseline` existiert nur im Test-Fixture.
 
+## Akzent beim Post-Credit-Blitz (11.09.2026)
+
+Jeder tatsächlich erzeugte `SparkFlare_O` am gespeicherten Kraterfokus löst den
+Akzent aus; es gibt keinen zweiten, vom Blitz getrennten Timer. Die Abfrage gilt
+nur für ENDMAP01, Phase 1 und acht Einheiten um den Fokus. Gleichzeitige doppelte
+Meldungen werden zusammengefasst. Zeitpunkt und Impulszähler werden gespeichert.
+
+Ein zurückhaltender orange-/bernsteinfarbener Blendimpuls läuft über 16 Tics weich
+aus. Sein Zentrum wird aus der Position des Kraterblitzes projiziert; die bestehende
+Schwarzblende liegt darüber. Hinzu kommen ein additiver Halo und ein kurzlebiges
+bernsteinfarbenes Umgebungslicht mit maximal 135 Einheiten Radius. Genau ein
+lokaler Controller wird bei weiteren Blitzen aufgefrischt und nach 18 Tics Ruhe
+bzw. beim Sequenzende entfernt. Es entstehen keine zusätzlichen Schattenkarten.
+
+Pro Impuls schießen acht zusätzliche Funken mit leichter Streuung nach außen und
+oben, bei niedriger/reduzierter Effektqualität vier. Sie folgen Schwerkraft,
+Geometriekollision, Entfernung und dem vorhandenen Emissionsbudget und leben 18–26
+Tics. Höchstens 16 Funken gleichzeitig besitzen ein eigenes begrenztes Kollisionsbudget,
+damit laufende Kampfeffekte ihren Flug nicht vorzeitig abbrechen. Halo und Licht sind lokale kosmetische Effekte; Originalblitz, Ton,
+Kamera, Kartengeometrie und Ablauf bleiben erhalten. Reduzierte Effekte halbieren
+zusätzlich den Blendimpuls. Spieltexte oder neue Optionen werden nicht eingeführt.
+
+Die Shader-Parameter liegen in 15 ausgerichteten vec4-Blöcken (240 Byte), damit
+Padding einzelner Skalarwerte die Vulkan-Push-Constant-Grenze nicht überschreitet.
+Native Prüfungen kontrollieren echte Blitzimpulse, lebenden Halo und Lichtanker,
+begrenzte Funkenzahl, genau einen Controller und dessen Abbau vor „THE END“.
+Prüfungen und Bilder: `tutnt/.codex/validation/credits-spark-accent`.
+
 ## Original Version und Remaster
 
 Alle vorhandenen Nennungen aus `tutnt/credits/original.txt` gehören zu

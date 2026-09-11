@@ -3,6 +3,7 @@
 // once per game tic; sprite depth is approximated by its surrounding geometry.
 class UTNTCreditsLook : Object ui
 {
+ double Aperture,GrainTime;
  double Depth[144],Blur[144],PreviousBlur[144];
  int SampleTic,LastPage,LastPhase,TraceCount,ResetCount;
  bool Ready,Enabled,LastSampleCut;
@@ -75,9 +76,21 @@ class UTNTCreditsLook : Object ui
   // During the high descent keep a wider focal range; tighten gently at the crater.
   double arrival=h.Phase==1?clamp((level.time-h.PageStart-385)/280.0,0,1):1;
   arrival=arrival*arrival*(3-2*arrival);
-  PPShader.SetUniform1f(shader,"aperture",h.Phase==0?12:6+8*arrival);
-  PPShader.SetUniform1f(shader,"strength",1);
-  PPShader.SetUniform1f(shader,"grainTime",floor((level.time+e.FracTic)/3));
+  Aperture=h.Phase==0?12:6+8*arrival;GrainTime=floor((level.time+e.FracTic)/3);
+  PPShader.SetUniform4f(shader,"lookParams",(Aperture,GrainTime,1,0));
+  double pulse=0;Vector2 sparkUV=(.5,.5);
+  if(h.Phase==1 && h.SparkPulses>0 && h.HasSparkFocus)
+  {
+   Vector3 d=h.SparkFocus-e.ViewPos;double z=d.X*forward.X+d.Y*forward.Y+d.Z*forward.Z;
+   if(z>8)
+   {
+    sparkUV=(.5+(d.X*right.X+d.Y*right.Y+d.Z*right.Z)/(2*z*tx),.5+(d.X*up.X+d.Y*up.Y+d.Z*up.Z)/(2*z*ty));
+    double t=clamp((level.time-h.LastSparkTic+e.FracTic)/16.0,0,1);pulse=(1-t)*(1-t);
+    if(sparkUV.X<0 || sparkUV.X>1 || sparkUV.Y<0 || sparkUV.Y>1)pulse=0;
+    if(CVar.GetCVar('UTNT_reducedfx',players[consoleplayer]).GetBool())pulse*=.5;
+   }
+  }
+  PPShader.SetUniform4f(shader,"sparkAccent",(sparkUV.X,sparkUV.Y,pulse,ratio));
   Enabled=true;PPShader.SetEnabled(shader,true);
  }
 }

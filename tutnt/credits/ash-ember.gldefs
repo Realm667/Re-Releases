@@ -3,10 +3,10 @@ HardwareShader PostProcess scene
 {
  Name "UTNTEndingLook"
  Shader "shaders/credits/ash-ember.fp" 330
+ Uniform vec4 sparkAccent
+ // 15 aligned vec4s = 240 bytes; avoid scalar padding exceeding Vulkan push constants.
+ Uniform vec4 lookParams
  Uniform vec4 viewport
- Uniform float aperture
- Uniform float strength
- Uniform float grainTime
  Uniform vec4 blur0
  Uniform vec4 blur1
  Uniform vec4 blur2

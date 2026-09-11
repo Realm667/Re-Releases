@@ -28,7 +28,7 @@ class UTNTCreditsHandler : EventHandler
  int FlightCount;
  Array<double> FlightLengths, FlightYaws, FlightPitches;
  int Page, PageStart, Phase, LastInput, HintUntil, FinaleStarts;
- int CutStart, PendingPage;
+ int CutStart, PendingPage,LastSparkTic,SparkPulses;
  bool Initialized, Cutting;
  ui bool KeyHeld;
  ui UTNTCreditsUI CardsUI;
@@ -190,6 +190,15 @@ class UTNTCreditsHandler : EventHandler
   if(!Initialized || Phase || Cutting || p!=UTNTChapterState.Leader() || level.time<LastInput+10 || level.time<PageStart+35)return;
   LastInput=level.time;HintUntil=level.time+105;
   QueueCut(op==2?Pages.Size():op==1?max(0,Page-1):Page+1);
+ }
+ override void WorldThingSpawned(WorldEvent e)
+ {
+  // The authored flare is the actual discharge cue, including repeated activations.
+  if(!(level.MapName~=="ENDMAP01") || !Initialized || Phase!=1 || !HasSparkFocus
+     || !e.Thing || !(e.Thing is 'SparkFlare_O') || (e.Thing.Pos-SparkFocus).Length()>8)return;
+  if(SparkPulses>0 && LastSparkTic==level.time)return;
+  LastSparkTic=level.time;SparkPulses++;
+  UTNTCreditsSpark.Pulse(SparkFocus);
  }
  override void WorldTick()
  {
@@ -414,3 +423,5 @@ class UTNTCreditsUI ui
 }
 
 #include "zscript/UTNT_CreditsLook.zc"
+
+#include "zscript/UTNT_CreditsSpark.zc"
