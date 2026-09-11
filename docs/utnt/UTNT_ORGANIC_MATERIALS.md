@@ -25,7 +25,7 @@ The original diffuse images, texture scale, map geometry, collision and alignmen
 
 ## Additional ground and masonry
 
-Added 11.09.2026. The material registry now contains 33 families. New depths:
+Added 11.09.2026. This extension brought the registry to 33 families. New depths:
 
 | Family | Depth in map units |
 |---|---:|
@@ -51,7 +51,7 @@ Parallax additionally fades at grazing view angles (normal/view dot product 0.08
 - Generated definitions: tutnt/GLDEFS.organic, included after environment materials.
 - Provenance and output hashes: tools/organic-materials/generated.json.
 
-The generator resolves current TEXTURES definitions, crop dimensions, patch sources and logical texture dimensions. Original flat/texture namespaces take precedence over similarly named artwork patches. It reuses identical data and supplies 93 base/expanded/band variants plus the environmental aliases discovered in current surface tables. Environmental shaders are composed from the current surface.glsl template, so wetness and underwater optics remain present. It does not edit other environmental outputs.
+The generator resolves current TEXTURES definitions, crop dimensions, patch sources and logical texture dimensions. Original flat/texture namespaces take precedence over similarly named artwork patches. It reuses identical data and supplies 159 base/expanded/band variants plus the environmental aliases discovered in current surface tables. Environmental shaders are composed from the current surface.glsl template, so wetness and underwater optics remain present. It does not edit other environmental outputs.
 
 build_utnt.py regenerates stale organic outputs before taking its immutable package snapshot. This also refreshes bindings after environmental aliases change. Only outputs previously recorded as owned organic data can be removed when obsolete. The manifest records both source and generated-file hashes.
 
@@ -93,3 +93,54 @@ Winter capture set (separate reports and images):
 Add --baseline for the flat comparison and --renderer 0 for OpenGL. The views cover snow, snow-covered rock, transition patches, a visible ice wall.
 
 The masonry-views.json set includes native map locations and seven QROCK3 viewpoints. probe-views.json temporarily assigns each new material to the same test wall at two angles, using the test fixture only; these are controlled material probes, not their actual placement in the released map. Pass either with --views and use a distinct --tag.
+
+## Metal and rust (11.09.2026)
+
+66 additional original textures bring the registry to 99 entries: QMET01–34,
+ORUST01–06, METALF01–24 and ADEL_W53–54. All belong to one explicit compatibility
+group with a 3-map-unit maximum trace depth, also on floors and ceilings. The
+build rejects differing depths/profiles within the group or metal depths above 6.
+The sampled height range is shallower than the trace bound (about 0.15–2.55 units
+below the original plane).
+
+Metal uses one fixed, pointwise color-to-height transfer across the complete set.
+There is no independent per-image contrast stretch and no artificial raised border
+around each texture. Identical artwork therefore produces identical height and
+surface response even when the surrounding panel decoration differs. Repeating
+patches retain the same height and normals; texture definitions, original scale,
+diffuse colors and UV offsets remain authoritative. Normals derive from height
+changes at the actual logical pixel spacing. Matching normal neighborhoods also
+produce matching normals.
+
+A shared surface map supplies low specular strength and broad gloss. Warm corrosion
+is more matte than neutral exposed metal. This color heuristic is an approximation,
+not a hand-authored physical metal/roughness scan. There are no new map reflections
+or emissive highlights. Current wetness behavior is composed from the environment
+shader. Metal adds only a subdued facet-shading contribution (0.28).
+
+Compatibility preserves shared source details; it cannot repair unrelated diffuse
+edges, deliberate trim changes or misaligned/scaled UVs in a map. At a material
+boundary, parallax also cannot sample the neighboring texture. The conservative
+3-unit trace and existing grazing/distance fade limit these effects.
+
+`tools/test_metal_materials.py --data-only` checks group completeness, depth bounds,
+shared artwork transfer, repeated patches, normals, surface data and environment
+aliases. With `--engine /path/to/uzdoom.exe --mod tutnt.pk3`, it creates a separate
+native UDMF test room and displays related variants side by side, with frontal,
+oblique and floor viewpoints, verifies actual engine assignments and saves/loads.
+Add `--baseline` for flat materials or `--renderer 0` for OpenGL (default Vulkan).
+Fixtures stay in `.codex/work/metal-materials/`, captures in `.codex/logs/metal-materials/`
+and reports in `.codex/validation/metal-materials/`. No production map is changed.
+
+Validation on 11.09.2026: all 16 native room arrangements at three viewpoints
+passed on Vulkan and OpenGL (48 captures each), with save/load and 240 material
+assignment checks per backend. The flat Vulkan baseline uses the same camera and
+point light. Vulkan was checked against the shared package; OpenGL used the same
+verified material resources as a live overlay. Four visually reviewed native map
+views cover ORUST05 in TNT02 and QMET13 in TNT01; `metal-views.json` records them.
+A first ORUST06 camera landed outside the playable volume and is excluded from
+that fixture and from the visual evidence. ORUST06 is covered in the test room.
+The four retained TNT01/TNT02 views also passed against the shared package on
+OpenGL, including the composed environment shader and TNT02 save/load.
+Shared package build `119ec7251ffe` passed the engine check; its 384 generated
+material resources and both shader source files matched the working tree.

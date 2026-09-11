@@ -16,6 +16,14 @@ vec4 RockData(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy)
     return mix(mix(texelFetch(dataMap,q,lod),texelFetch(dataMap,ivec2(r.x,q.y),lod),f.x),
                mix(texelFetch(dataMap,ivec2(q.x,r.y),lod),texelFetch(dataMap,r,lod),f.x),f.y);
 }
+#ifdef ORGANIC_METAL
+void SetupMetalResponse(inout Material mat,vec2 uv,vec2 gx,vec2 gy)
+{
+    vec2 surface=RockData(organicSurface,uv,gx,gy).rg;
+    mat.Specular=vec3(surface.r);
+    mat.SpecularLevel=.55;mat.Glossiness=surface.g*32.0;
+}
+#endif
 float ReadRockDepth(vec2 uv,vec2 gx,vec2 gy)
 {
     return 1.0-RockData(organicHeight,uv,gx,gy).r;
@@ -27,6 +35,9 @@ void SetupOrganicMaterial(inout Material mat)
     vec3 dpdx=dFdx(pixelpos.xyz),dpdy=dFdy(pixelpos.xyz);
     float determinantUV=gx.x*gy.y-gx.y*gy.x;
     SetMaterialProps(mat,uv);
+#ifdef ORGANIC_METAL
+    SetupMetalResponse(mat,uv,gx,gy);
+#endif
     if(abs(determinantUV)<1e-12)return;
     vec3 tu=(dpdx*gy.y-dpdy*gx.y)/determinantUV;
     vec3 tv=(dpdy*gx.x-dpdx*gy.x)/determinantUV;
@@ -68,6 +79,9 @@ void SetupOrganicMaterial(inout Material mat)
     nn.y=-nn.y;
     mat.Normal=normalize(t*nn.x+b*nn.y+n*nn.z);
     mat.Specular=vec3(0.0);mat.SpecularLevel=0.0;
+#ifdef ORGANIC_METAL
+    SetupMetalResponse(mat,hit,gx,gy);
+#endif
     vec3 sky=normalize(vec3(0.48,0.76,-0.44));
     float sz=max(dot(sky,n),0.12);
     vec2 lightRay=vec2(dot(sky,t),dot(sky,b))*RockDepth*fade/(worldSize*sz);
