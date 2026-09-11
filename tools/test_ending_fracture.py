@@ -23,5 +23,17 @@ commands+=['creditlookbaseline false','wait 10','screenshot logs/'+label+'-grade
 a.out.mkdir(parents=True,exist_ok=True)
 r=run_case(a.engine,a.iwad,root=a.out,mod=a.mod,addon=fixture,mapname='ENDMAP01',renderer=a.renderer,label=label,timeout=65,settings=[('win_w',1298),('win_h',767),('screenblocks',12),('con_notifytime',0),('vid_maxfps',60),('i_pauseinbackground',False),('vid_activeinbackground',True),('use_mouse',False),('use_joystick',False),('gl_texture_filter',0)],commands='; '.join(commands)+'\n')
 if r['assertions']<5:r['ok']=False;r['errors'].append('missing view assertions')
+# Runtime assertions cannot detect a shader that compiles but renders black.
+from PIL import Image
+import numpy as np
+r['visible_ember_pixels']=[]
+for view in range(3):
+    try:
+        im=np.asarray(Image.open(a.out/'logs'/(label+'-'+str(view)+'.png')).convert('RGB'),dtype=np.float32)
+        h,w=im.shape[:2];crop=im[int(h*.2):int(h*.85),int(w*.25):int(w*.8)]
+        warm=(crop[:,:,0]>70)&(crop[:,:,0]>crop[:,:,1]*1.45)&(crop[:,:,0]>crop[:,:,2]*2)
+        count=int(warm.sum());r['visible_ember_pixels'].append(count)
+        if count<150:r['ok']=False;r['errors'].append('missing visible fracture emission in view '+str(view))
+    except OSError as error:r['ok']=False;r['errors'].append(str(error))
 (a.out/(label+'.json')).write_text(json.dumps(r,indent=2),encoding='utf-8')
 if not r['ok']:print(Path(r['log']).read_text(encoding='utf-8')[-6000:]);raise SystemExit(1)

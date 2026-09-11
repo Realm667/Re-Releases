@@ -1,13 +1,28 @@
 // Stable screen-space footprints keep the fine glowing fissures from sparkling.
 vec2 FractureDx,FractureDy;
-vec4 RockData(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy);
+// OpenGL may allocate only mip 0 for unfiltered color/brightmap textures.
+// Sample valid base-level texels and integrate four points across the pixel footprint.
+vec4 FractureBilinear(sampler2D dataMap,vec2 uv)
+{
+    ivec2 size=textureSize(dataMap,0);
+    vec2 p=uv*vec2(size)-.5;ivec2 a=ivec2(floor(p));vec2 f=fract(p);
+    ivec2 q=((a%size)+size)%size,r=(q+ivec2(1))%size;
+    return mix(mix(texelFetch(dataMap,q,0),texelFetch(dataMap,ivec2(r.x,q.y),0),f.x),
+               mix(texelFetch(dataMap,ivec2(q.x,r.y),0),texelFetch(dataMap,r,0),f.x),f.y);
+}
+vec4 FractureColor(sampler2D dataMap,vec2 uv)
+{
+    vec2 a=(FractureDx+FractureDy)*.30,b=(FractureDx-FractureDy)*.30;
+    return .25*(FractureBilinear(dataMap,uv+a)+FractureBilinear(dataMap,uv-a)+
+                FractureBilinear(dataMap,uv+b)+FractureBilinear(dataMap,uv-b));
+}
 void FractureProps(inout Material mat,vec2 uv)
 {
     SetMaterialProps(mat,uv);
-    mat.Base=desaturate(RockData(tex,uv,FractureDx,FractureDy));
+    mat.Base=desaturate(FractureColor(tex,uv));
 #ifndef NO_LAYERS
     if((uTextureMode & TEXF_Brightmap)!=0)
-        mat.Bright=desaturate(RockData(brighttexture,uv,FractureDx,FractureDy));
+        mat.Bright=desaturate(FractureColor(brighttexture,uv));
 #endif
 }
 #define SetMaterialProps FractureProps

@@ -18,3 +18,5 @@ Map sectors 501 and 513 become coplanar at z=392, share lighting/tag/material an
 Native credits spark tests check shared floor material, continuous UV phase, removal of the height step, focus, line of sight, save/load, actual lightning pulses and transition to THE END. Additional visual checks should compare a close oblique view with/without parallax; data generation alone is not proof of in-engine appearance.
 
 For native oblique/overhead captures use tools/test_ending_fracture.py with --out, --work, --engine and --iwad; --baseline disables POM while retaining the material and normalmap for comparison. Final stage enlargement also assigns the material to sectors 480 and 502–512 without changing their heights or lights. Only the unique world-space crater mask reveals the fracture.
+
+OpenGL with unfiltered texture settings can omit color/brightmap mip levels. The material samples valid base-level texels, bilinearly integrates four screen-footprint positions and keeps the shared height/normal data path. Native tests also require visible amber pixels in each fixed camera view, so a shader that silently renders black fails validation.
