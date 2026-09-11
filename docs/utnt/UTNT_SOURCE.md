@@ -315,7 +315,7 @@ core. The world-space cylinder, rough filaments, rising glyphs and actor budgets
 remain unchanged. The correction is in both generated shared beam materials.
 
 A single client-side `UTNTSourceGravityLight` follows the singularity from tic 35
-to 157. Its subtractive, attenuated light affects geometry within 1400 map units,
+to 157. Its subtractive, attenuated light affects geometry within 2800 map units,
 without sprite lighting or a shadow map. A smooth saved-clock envelope rises
 until tic 85, holds through tic 120, and fades back to normal illumination by
 158. Reduced effects lower its peak alpha from 0.85 to 0.30; quality zero removes
@@ -347,3 +347,7 @@ sample ran near 35 Hz in both cases and is only a stall check, not a reliable
 measurement of small GPU costs or a guarantee for other systems. The only added
 world light has a fixed radius and no shadow map; the final fade reuses the
 existing postprocess and samples the scene once.
+
+The gravity-light radius was doubled from 1400 to 2800 map units on 2026-09-11
+to partially darken the shaft above the seal. The centre, fade envelope, peak
+strength and single shadowless light actor remain unchanged.
