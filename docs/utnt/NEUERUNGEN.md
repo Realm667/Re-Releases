@@ -47,7 +47,7 @@ Stand: **11.09.2026**. Fortlaufende, thematisch zusammengefasste Liste der Remas
 
 ## Landschaften, Himmel und Materialien
 
-- **Relief auf großflächigen Naturmaterialien:** 20 Fels-, Kies-, Erd-, Gras-, Schnee- und Eisfamilien erhalten passende Normalmaps und Parallax Occlusion Mapping auf Wänden, Böden und Decken. Schnee besitzt weiche, matte Unebenheiten, Eis flache Bruchstrukturen und zurückhaltenden Glanz; die freigegebene QROCK3-Tiefe bleibt bei 13,2 Einheiten. Originaltexturen, Maßstab und vorhandene Regenreaktion bleiben erhalten (11.09.2026). [Details](UTNT_ORGANIC_MATERIALS.md)
+- **Relief auf Naturmaterialien und Mauerwerk:** 33 Materialfamilien mit Normalmaps und Parallax auf Wänden, Böden und Decken, einschließlich weiterer Naturböden, grobem Steinmauerwerk und Ziegeln. QROCK3 nach Artefakt-Rückmeldung erneut um 40 % auf 7,92 Einheiten reduziert; neue Materialien bleiben bei 3–6 Einheiten, Parallax blendet bei extrem flachen Blickwinkeln aus. Originaltexturen, Maßstab und Regenreaktion bleiben erhalten (11.09.2026). [Details](UTNT_ORGANIC_MATERIALS.md)
 
 - **TNT01:** blutroter animierter Sturmhimmel mit festen Bergzügen und rotem Dunst; zusammenhängend modelliertes Außengelände mit gewellten Grasflächen, Böschungen und gekrümmten Felskanten. [Himmel](UTNT_STORM.md), [Gelände](UTNT_TNT01_LANDSCAPE.md)
 - **TNT02:** dunkle Gewitterwolken und entfernte Berge, abgestimmtes Außenlicht sowie nahe, mittlere und ferne Blitze mit entsprechend verzögertem Donner. [Details](UTNT_THUNDER.md)

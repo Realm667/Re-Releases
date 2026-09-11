@@ -35,7 +35,7 @@ void SetupOrganicMaterial(inout Material mat)
     vec3 view=normalize(uCameraPos.xyz-pixelpos.xyz);
     float vz=max(dot(view,n),0.08);
     float distanceToEye=length(uCameraPos.xyz-pixelpos.xyz);
-    float fade=1.0-smoothstep(512.0,1024.0,distanceToEye);
+    float fade=(1.0-smoothstep(512.0,1024.0,distanceToEye))*smoothstep(0.08,0.30,dot(view,n));
     if(fade<=0.0)
     {
         mat.Normal=normalize(mix(n,mat.Normal,1.0-smoothstep(1024.0,1536.0,distanceToEye)));

@@ -72,6 +72,15 @@ def relief(rgb, profile, depth, logical):
             dist = np.minimum.reduce(values)
         crown = np.sqrt(np.clip(dist/7.5,0,1))
         h = wrap_blur(.72*crown+.28*face,.8)*.92+.04
+    elif profile in ('stonework','brick'):
+        # Recess dark joints while retaining broad, nearly flat block faces.
+        density = .5*(rgb.shape[1]/logical[0]+rgb.shape[0]/logical[1])
+        joint = wrap_blur(face,max(.7,.55*density))
+        plateau = np.clip((joint-.08)/.36,0,1)
+        plateau = plateau*plateau*(3-2*plateau)
+        detail = .20 if profile=='stonework' else .10
+        h = .12+.80*((1-detail)*plateau+detail*face)
+        h = wrap_blur(h,max(.6,.35*density))
     elif profile in ('snow','snowrock','ice'):
         # Filter in map units so expanded images retain the original relief scale.
         density = .5*(rgb.shape[1]/logical[0]+rgb.shape[0]/logical[1])
@@ -135,11 +144,22 @@ def generate(root=ROOT, *, check=False, iwad=None):
     definitions=texture_defs(mod)
     palette=np.frombuffer(read(mod/'PLAYPAL.pal')[:768],np.uint8).reshape(256,3)
     lumps=None
-    def iw_flat(name):
+    def iw_flat(name, texture_name=None):
         nonlocal lumps
         if lumps is None:
             b=read(iwad);_,n,o=struct.unpack_from('<4sII',b)
             lumps={key.rstrip(b'\0').decode():b[a:a+size] for a,size,key in (struct.unpack_from('<II8s',b,o+i*16) for i in range(n))}
+        if texture_name:
+            data=lumps['TEXTURE1'];pn=lumps['PNAMES']
+            names=[pn[4+i*8:12+i*8].rstrip(b'\0').decode() for i in range(struct.unpack_from('<I',pn)[0])]
+            for i in range(struct.unpack_from('<I',data)[0]):
+                off=struct.unpack_from('<I',data,4+i*4)[0]
+                if data[off:off+8].rstrip(b'\0').decode()!=texture_name:continue
+                w,h=struct.unpack_from('<HH',data,off+12);parts=[]
+                for j in range(struct.unpack_from('<H',data,off+20)[0]):
+                    x,y,index=struct.unpack_from('<hhH',data,off+22+j*10)
+                    parts.append((patch_rgb(lumps[names[index]],palette),x,y))
+                return compose(w,h,parts)
         return patch_rgb(lumps[name],palette,True)
     files={}; file_rank={}
     for folder in ('flats','textures','patches'):
@@ -149,24 +169,33 @@ def generate(root=ROOT, *, check=False, iwad=None):
                 rank=({'textures':0,'flats':1,'patches':2}[folder],0 if p.suffix.lower()=='.png' else 1)
                 if key not in file_rank or rank<file_rank[key]:
                     files[key]=p;file_rank[key]=rank
+    def compose(w,h,parts):
+        rgb=np.zeros((h,w,3),np.uint8);filled=np.zeros((h,w),bool)
+        for a,x,y in parts:
+            left,top=max(0,x),max(0,y);right,bottom=min(w,x+a.shape[1]),min(h,y+a.shape[0])
+            if right>left and bottom>top:
+                rgb[top:bottom,left:right]=a[top-y:bottom-y,left-x:right-x];filled[top:bottom,left:right]=True
+        if not filled.all():raise ValueError('Composite material has uncovered pixels')
+        return rgb
     def resolve(name, fallback):
         if name in definitions:
             w,h,scales,patches=definitions[name]
-            if len(patches)!=1 or patches[0][1:]!=('0','0'):
-                raise ValueError('Review composite material '+name)
-            path=mod/patches[0][0]
-            if not path.exists():
-                path=files.get(Path(patches[0][0]).stem.upper())
-            if path is None:raise FileNotFoundError(name)
-            rgb=patch_rgb(read(path),palette,'flats' in path.relative_to(mod).parts)
-            # TEXTURES can expose a cropped band or repeat a smaller legacy patch.
-            rgb=rgb[np.arange(h)%rgb.shape[0]][:,np.arange(w)%rgb.shape[1]]
+            parts=[]
+            for key,x,y in patches:
+                path=mod/key
+                if not path.exists():path=files.get(Path(key).stem.upper())
+                if path is None:raise FileNotFoundError(name)
+                rgb=patch_rgb(read(path),palette,'flats' in path.relative_to(mod).parts)
+                parts.append((rgb,int(x),int(y)))
+            if len(parts)==1 and parts[0][1:]==(0,0):
+                rgb=rgb[np.arange(h)%rgb.shape[0]][:,np.arange(w)%rgb.shape[1]]
+            else:rgb=compose(w,h,parts)
             return rgb,(w/scales[0],h/scales[1])
         if fallback[0].startswith('DOOM2.WAD:') and (name not in file_rank or file_rank[name][0]==2):
-            rgb=iw_flat(fallback[0].split(':')[1])
+            rgb=iw_flat(fallback[0].split(':')[1],name)
         elif name in files:
             path=files[name];rgb=patch_rgb(read(path),palette,'flats' in path.relative_to(mod).parts)
-        elif fallback[0].startswith('DOOM2.WAD:'):rgb=iw_flat(fallback[0].split(':')[1])
+        elif fallback[0].startswith('DOOM2.WAD:'):rgb=iw_flat(fallback[0].split(':')[1],name)
         else:
             path=root/fallback[0].replace('\\','/');rgb=patch_rgb(read(path),palette,'flats' in path.relative_to(mod).parts)
         return rgb,(rgb.shape[1],rgb.shape[0])
@@ -184,6 +213,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
     emit('tutnt/materials/organic/black.png',png_bytes(np.zeros((2,2,3),np.uint8)))
     bindings={};records=[];data_cache={}
     for m in config['materials']:
+        if not 0<float(m['depth'])<=12:raise ValueError('Material depth must be in (0, 12]: '+m['name'])
         n=m['name'];entry=library.get(n,m);alias=entry.get('alias',n)
         band=alias.replace('X8','B') if alias.endswith('X8') else 'XB'+alias[2:]
         variants=list(dict.fromkeys([n]+[v for v in (alias,band) if v in definitions]))
@@ -208,7 +238,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
                 env_bindings[row[4]]=(bindings[row[3]],row[3])
     gldefs=['// Generated by tools/build_organic_materials.py. Include after environment materials.']
     def definition(name,m,env=False):
-        shade={'rock':1.0,'gravel':.7,'soil':.5,'grass':.3,'snow':.55,'snowrock':.65,'ice':.4}[m['profile']]
+        shade={'rock':1.0,'gravel':.7,'soil':.5,'grass':.3,'snow':.55,'snowrock':.65,'ice':.4,'stonework':.55,'brick':.4}[m['profile']]
         body=[f'Material "{name}" {{',f' Shader "shaders/organic/{"environment" if env else "material"}.fp"',
               f' Define ORGANIC_DEPTH = "{m["depth"]:.4f}"',f' Define ORGANIC_SHADE = "{shade:.4f}"',
               f' Normal "{m["stem"]}-normal.png"', ' Specular "materials/organic/black.png"',

@@ -1,12 +1,12 @@
 # Organic surface relief
 
-Implemented 11.09.2026. Large natural surfaces receive material-specific normal maps and parallax occlusion mapping on walls, floors and ceilings. QROCK3 uses the reviewed depth of 13.2 map units, 40% below the original 22-unit prototype.
+Implemented 11.09.2026. Large natural surfaces receive material-specific normal maps and parallax occlusion mapping on walls, floors and ceilings. QROCK3 now uses 7.92 map units, another 40% reduction from 13.2 following in-game artifact feedback (11.09.2026).
 
 ## Material groups
 
 | Family | Depth in map units |
 |---|---:|
-| QROCK3 | 13.2 |
+| QROCK3 | 7.92 |
 | QROCK1, IKWALL44 | 10 |
 | QROCK4, QROCK5 | 9 |
 | ROCKF5 | 8 |
@@ -23,6 +23,25 @@ The selection follows a whole-map survey of wall extent and horizontal sector ar
 
 The original diffuse images, texture scale, map geometry, collision and alignment tables are unchanged. Each selected original plus its expanded and finite-height variants receives matching data maps; legacy grass aliases remain supported without restoring previously rejected color expansions.
 
+## Additional ground and masonry
+
+Added 11.09.2026. The material registry now contains 33 families. New depths:
+
+| Family | Depth in map units |
+|---|---:|
+| ASHWALL2 | 5 |
+| GRAVE11, FLAT10 | 3 |
+| QBRICK3, QBRICK6 | 6 |
+| QWIZ, QCHURCH | 5 |
+| QFLAT04 | 4 |
+| ADEL_B14, ADEL_B01 | 5 |
+| ADEL_F48, CITYF01 | 3 |
+| BRICK9 | 4 |
+
+Stonework and brick profiles recess darker joints while keeping the block faces broad and nearly flat. Their height is inferred from the source image; dark stains are not a geometric ground-truth height scan. Native IWAD texture compositions and repeated local patches are resolved before generating the data maps. No original diffuse art or map geometry is changed. All registry depths must be positive and at most 12 units; the new group stays at 3–6 units.
+
+Parallax additionally fades at grazing view angles (normal/view dot product 0.08–0.30) to limit elongated samples. This reduces surface artifacts but cannot change silhouettes or remove every UV discontinuity.
+
 ## Build and integration
 
 - Source registry: tools/organic-materials/materials.json.
@@ -32,7 +51,7 @@ The original diffuse images, texture scale, map geometry, collision and alignmen
 - Generated definitions: tutnt/GLDEFS.organic, included after environment materials.
 - Provenance and output hashes: tools/organic-materials/generated.json.
 
-The generator resolves current TEXTURES definitions, crop dimensions, patch sources and logical texture dimensions. Original flat/texture namespaces take precedence over similarly named artwork patches. It reuses identical data and supplies 58 base/expanded/band variants plus the environmental aliases discovered in current surface tables. Environmental shaders are composed from the current surface.glsl template, so wetness and underwater optics remain present. It does not edit other environmental outputs.
+The generator resolves current TEXTURES definitions, crop dimensions, patch sources and logical texture dimensions. Original flat/texture namespaces take precedence over similarly named artwork patches. It reuses identical data and supplies 93 base/expanded/band variants plus the environmental aliases discovered in current surface tables. Environmental shaders are composed from the current surface.glsl template, so wetness and underwater optics remain present. It does not edit other environmental outputs.
 
 build_utnt.py regenerates stale organic outputs before taking its immutable package snapshot. This also refreshes bindings after environmental aliases change. Only outputs previously recorded as owned organic data can be removed when obsolete. The manifest records both source and generated-file hashes.
 
@@ -46,7 +65,7 @@ Commands from the repository root:
 
 Snow and ice were added on 11.09.2026. SNOW3 uses broad, rounded height variation with filtering measured in map units, so higher-resolution expansions do not become rougher. OSNOW and OSNOW3 use pale raised snow caps over recessed substrate. ICEY uses continuous shallow ice faces and grooves, variable specular strength and restrained angle-dependent sheen. Ice sheen is an ambient approximation shaded with the sector, not a reflection of map objects or transparency. Snow is matte; the existing dry rock profiles and depths remain unchanged.
 
-No new diffuse images or terrain geometry are introduced. Footprint and weather systems keep their existing surface assignments; footprints remain planar decals and do not deform the height field. The 3.2–6-unit winter depths are intentionally below the approved 13.2-unit QROCK3 relief.
+No new diffuse images or terrain geometry are introduced. Footprint and weather systems keep their existing surface assignments; footprints remain planar decals and do not deform the height field. The 3.2–6-unit winter depths are intentionally below the current 7.92-unit QROCK3 relief.
 
 ## Rendering
 
@@ -72,3 +91,5 @@ Winter capture set (separate reports and images):
     python -B tools/test_organic_materials.py --mod tutnt.pk3 --engine /path/to/uzdoom.exe --tag winter --views tools/organic-materials/winter-views.json --capture --maps TNT03A1 TNT03A2
 
 Add --baseline for the flat comparison and --renderer 0 for OpenGL. The views cover snow, snow-covered rock, transition patches, a visible ice wall.
+
+The masonry-views.json set includes native map locations and seven QROCK3 viewpoints. probe-views.json temporarily assigns each new material to the same test wall at two angles, using the test fixture only; these are controlled material probes, not their actual placement in the released map. Pass either with --views and use a distinct --tag.

@@ -38,8 +38,13 @@ class OrganicMaterialChecks : EventHandler {
 '''
     for i,v in enumerate(views):
         x,y,z=v['position']
+        if v.get('override') and 'side' not in v:raise ValueError('Material probes require an explicit wall side')
         if 'sector' in v:z=f'level.Sectors[{v["sector"]}].floorplane.ZatPoint(({x},{y}))+48'
         src+=f'if(level.MapName~=="{v["map"]}" && View=={i}){{p.SetOrigin(({x},{y},{z}),false);p.Vel=(0,0,0);p.Angle={v["angle"]};p.Pitch={v["pitch"]};'
+        if v.get('override'):
+            texture=v['override']
+            if texture not in manifest['variants']:raise ValueError('Unregistered probe texture: '+texture)
+            src+=f'level.Sides[{v["side"]}].SetTexture(Side.mid,TexMan.CheckForTexture("{texture}",TexMan.Type_Any));'
         if 'side' in v:
             src+=f'if(Report)Console.Printf("ORGANIC_SURFACE|{i}|%s",TexMan.GetName(level.Sides[{v["side"]}].GetTexture(Side.mid)));'
         elif 'sector' in v:
@@ -69,10 +74,11 @@ class OrganicMaterialChecks : EventHandler {
         selected=[(i,v) for i,v in enumerate(views) if v['map']==mp] if a.capture else []
         for i,v in selected:
             image=logs/f'{label}-{v.get("label",v["family"])}.png'
-            cfg+=f'netevent organicview {i};wait 8;screenshot "{image.as_posix()}";wait 3;'
+            cfg+=f'netevent organicview {i};wait 8;screenshot "{image.relative_to(central).as_posix()}";wait 3;'
         if mp=='TNT02' and not a.baseline:
             cfg+='save organic-material-regression;wait 5;load organic-material-regression;wait 15;'
         cfg+='echo UTNT_TEST_END;wait 3;quit\n'
+        if len(cfg.encode())>=4000:raise ValueError('Split the capture set: engine command line exceeds 4000 bytes')
         settings=[('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_lowerinbackground',False),
                   ('use_mouse',False),('use_joystick',False),('r_drawplayersprites',False),('crosshair',0),
                   ('con_notifytime',0),('gl_texture_filter',0),('screenblocks',12)]
