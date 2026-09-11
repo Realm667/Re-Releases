@@ -42,7 +42,7 @@ void SetupMaterial(inout Material mat) {
  float patches=smoothstep(.40,.66,envNoise(p*.040+vec2(17.3,43.7))+envNoise(p*.093)*.14);
  vec3 view=normalize(uCameraPos.xyz-pixelpos.xyz);
  float fresnel=.45+.55*pow(1.0-abs(dot(normalize(vWorldNormal.xyz),view)),2.0);
- float reflection=clamp(amount/.65,0.0,1.0)*patches*fresnel*.32;
+ float reflection=clamp(amount/.65,0.0,1.0)*patches*fresnel*.16;
  if(mirror>0.0)mat.Base.a=1.0-reflection;
  mat.Base.rgb*=1.0-amount*.10;
 }

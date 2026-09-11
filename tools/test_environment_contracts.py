@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 class EnvironmentContracts(unittest.TestCase):
     def test_postprocess_parameters_fit_portable_push_constant_budget(self):
-        for name in ("tutnt/GLDEFS.environment", "tools/fixtures/environment/GLDEFS"):
+        for name in ("tutnt/GLDEFS.environment", "tutnt/environment/local-heat.gldefs", "tools/fixtures/environment/GLDEFS"):
             text = (ROOT / name).read_text(encoding="utf-8")
             for block in re.findall(r"HardwareShader PostProcess scene\s*\{([^}]+)\}", text):
                 # Every scalar/vector is conservatively charged a full 16-byte slot.

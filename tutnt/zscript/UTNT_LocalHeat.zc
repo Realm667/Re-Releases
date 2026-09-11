@@ -1,0 +1,114 @@
+// Map-derived sources; a fixed cosmetic actor pool avoids thousands of thinkers.
+class UTNTLocalHeatSource : Object play
+{
+ int Kind,Index,Part;String Texture;Vector3 Offset,Radius;Sector Sec;
+ clearscope Vector3 Position(){return Offset+(0,0,Sec.floorplane.ZatPoint(Offset.XY));}
+ clearscope bool Valid()
+ {
+  String current=Kind==0?TexMan.GetName(Sec.GetTexture(Sector.floor)):TexMan.GetName(level.Sides[Index].GetTexture(Part));
+  return current~==Texture;
+ }
+}
+class UTNTLocalHeatAnchor : Actor
+{
+ int Source;double Weight;Vector3 Volume;
+ Default { +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +CLIENTSIDEONLY }
+ States { Spawn: TNT1 A -1; Stop; }
+}
+class UTNTLocalHeat : EventHandler
+{
+ bool Ready;Array<UTNTLocalHeatSource> Sources;UTNTLocalHeatAnchor Anchors[6];
+ ui UTNTEnvironmentOptics Optics[6];int Selected[6];
+ clearscope static bool Enabled()
+ {
+  return UTNTEnvironment.Option('UTNT_shaderoverlayswitch') && !UTNTEnvironment.Reduced() && UTNTEnvironment.Quality()>0 && consoleplayer>=0 && CVar.GetCVar('UTNT_heatstrength',players[consoleplayer]).GetFloat()>0;
+ }
+ void Initialize()
+ {
+  Ready=true;int lump=Wads.CheckNumForFullName(String.Format("environment/%s-heat.txt",level.MapName));if(lump<0)return;
+  Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
+  for(int i=0;i<rows.Size();i++)
+  {
+   Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=10)continue;
+   let s=new('UTNTLocalHeatSource');s.Kind=r[0].ToInt();s.Index=r[1].ToInt();s.Part=r[2].ToInt();s.Texture=r[3];
+   if(s.Kind==0){if(s.Index<0 || s.Index>=level.Sectors.Size())continue;s.Sec=level.Sectors[s.Index];}
+   else {if(s.Index<0 || s.Index>=level.Sides.Size())continue;s.Sec=level.Sides[s.Index].Sector;}
+   s.Offset=(r[4].ToDouble(),r[5].ToDouble(),r[6].ToDouble());s.Radius=(r[7].ToDouble(),r[8].ToDouble(),r[9].ToDouble());
+   if(s.Radius.X<=0 || s.Radius.Y<=0 || s.Radius.Z<=0)continue;Sources.Push(s);
+  }
+ }
+ override void WorldTick()
+ {
+  if(!Ready && level.time>=5)Initialize();
+  if(!Ready || LevelLocals.WorldPaused() || level.isFrozen())return;
+  let camera=consoleplayer>=0?players[consoleplayer].camera:null;
+  int limit=Enabled() && camera && camera.WaterLevel<3?(UTNTEnvironment.Quality()==3?6:UTNTEnvironment.Quality()==2?3:1):0;
+  double scores[6];for(int i=0;i<6;i++){Selected[i]=-1;scores[i]=1e30;}
+  if(limit)
+  {
+   Vector3 forward=(cos(camera.Angle)*cos(camera.Pitch),sin(camera.Angle)*cos(camera.Pitch),-sin(camera.Pitch));
+   Vector3 eye=camera.Pos+(0,0,camera.player?camera.player.ViewHeight:camera.Height*.5);
+   for(int j=0;j<Sources.Size();j++)
+   {
+    let s=Sources[j];Vector3 delta=s.Position()-eye;double distance=delta.Length();
+    if(distance>1280 || (delta dot forward) < distance*.30-max(s.Radius.X,max(s.Radius.Y,s.Radius.Z)) || !s.Valid())continue;
+    double score=distance;
+    // Hysteresis keeps nearly equal candidates from trading slots every tic.
+    for(int k=0;k<6;k++)if(Anchors[k] && Anchors[k].Source==j)score*=.8;
+    for(int k=0;k<limit;k++)if(score<scores[k])
+    {
+     for(int m=limit-1;m>k;m--){scores[m]=scores[m-1];Selected[m]=Selected[m-1];}
+     scores[k]=score;Selected[k]=j;break;
+    }
+   }
+  }
+  for(int i=0;i<6;i++)
+  {
+   let anchor=Anchors[i];bool retained=false;
+   if(anchor)for(int k=0;k<limit;k++)if(Selected[k]==anchor.Source)retained=true;
+   if(anchor)
+   {
+    anchor.Weight=clamp(anchor.Weight+(retained?.10:-.15),0,1);
+    let s=Sources[anchor.Source];anchor.SetOrigin(s.Position(),false);anchor.Volume=s.Radius;
+    if(!retained && anchor.Weight<=0){anchor.Destroy();Anchors[i]=null;anchor=null;}
+   }
+   if(!anchor)for(int k=0;k<limit;k++)
+   {
+    int index=Selected[k];if(index<0)continue;bool used=false;
+    for(int m=0;m<6;m++)if(Anchors[m] && Anchors[m].Source==index)used=true;
+    if(used)continue;
+    let s=Sources[index];anchor=UTNTLocalHeatAnchor(Actor.Spawn('UTNTLocalHeatAnchor',s.Position()));
+    if(anchor){anchor.Source=index;anchor.Volume=s.Radius;anchor.Weight=0;Anchors[i]=anchor;}break;
+   }
+  }
+ }
+ override void RenderOverlay(RenderEvent e)
+ {
+  bool on=false;
+  if(Enabled() && e.Camera && e.Camera.WaterLevel<3)
+   for(int i=0;i<6;i++)if(Anchors[i] && Anchors[i].Weight>.001)on=true;
+  // All six passes stay consecutive: first clears mask alpha, last restores it.
+  for(int i=0;i<6;i++)
+  {
+   String shader=String.Format("UTNTLocalHeat%d",i);let anchor=Anchors[i];
+   PPShader.SetEnabled(shader,on);if(!on)continue;
+   if(!anchor || anchor.Weight<=.001)
+   {
+    PPShader.SetUniform4f(shader,"sourceDelta",(0,0,0,0));
+    PPShader.SetUniform4f(shader,"sourceRadius",(1,1,1,i));continue;
+   }
+   if(!Optics[i])Optics[i]=new('UTNTEnvironmentOptics');
+   Optics[i].Update(e,shader,anchor.Pos,anchor.Volume);
+   Vector3 delta=anchor.Pos-e.ViewPos;
+   double strength=anchor.Weight*clamp(CVar.GetCVar('UTNT_heatstrength',players[consoleplayer]).GetFloat(),0,1);
+   PPShader.SetUniform4f(shader,"sourceDelta",(delta.X,delta.Y,delta.Z,strength));
+   PPShader.SetUniform4f(shader,"sourceRadius",(anchor.Volume.X,anchor.Volume.Y,anchor.Volume.Z,i));
+  }
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name!="localheatstats")return;int active=0;for(int i=0;i<6;i++)if(Anchors[i])active++;
+  Console.Printf("LOCALHEAT|sources=%d|anchors=%d|enabled=%d",Sources.Size(),active,Enabled());
+ }
+ override void WorldUnloaded(WorldEvent e){for(int i=0;i<6;i++)PPShader.SetEnabled(String.Format("UTNTLocalHeat%d",i),false);}
+}

@@ -82,11 +82,14 @@ def fixture():
   im=Image.new('RGB',(16,1));im.putdata([((v>>16)&255,(v>>8)&255,v&255) for v in values]);im.save(addon/'materials'/f'meta{k}.png')
   defs.append(f'Material Texture EVTEST{k} {{ Shader "surface.fp" Texture envMeta "materials/meta{k}.png" Texture envState "UENVSTATE" }}')
  (addon/'TEXTURES').write_text('\n'.join(textures));(addon/'GLDEFS').write_text('\n'.join(defs)+'\nHardwareShader PostProcess scene { Name "UTNTLocalHeatLab" Shader "heat-prototype.fp" 330 Uniform vec3 sourceDelta Uniform vec3 sourceRadius  Uniform vec3 rayForward  Uniform vec3 rayRight  Uniform vec3 rayUp  Uniform vec4 viewRect Uniform vec4 depthA Uniform vec4 depthB  }\n')
+ from build_local_heat import detect, parse
+ heat=detect(parse(addon/'maps/envtest.wad'))
+ (env/'ENVTEST-heat.txt').write_text(''.join('|'.join(map(str,row))+'\n' for row in heat))
  return addon
 TEST_SCRIPT=r'''version "5.0.0"
 class UTNTEnvironmentRegression : EventHandler
 {
- int WalkUntil,OriginalTerrain;bool Fly;Vector3 CameraAt;
+ int WalkUntil,OriginalTerrain,BirthTics,MaxBirths,PreviousPuffs;bool Fly,RecordMotion;Vector3 CameraAt;UTNTEnvironmentDust TrackedDust;double PreviousAlpha;int AlphaSamples,AlphaRises;
  void Check(bool ok,String message){Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",message);}
  override void WorldTick()
  {
@@ -94,6 +97,21 @@ class UTNTEnvironmentRegression : EventHandler
   if(level.time==2){mo.bInvulnerable=true;mo.Angle=0;OriginalTerrain=level.Sectors[0].GetTerrain(Sector.floor);}
   if(Fly){mo.bNoGravity=true;mo.Vel=(0,0,0);mo.SetOrigin(CameraAt,false);players[0].camera=mo;}
   if(level.time<WalkUntil)mo.Vel=(2,0,mo.Vel.Z);
+  if(!TrackedDust && RecordMotion)
+  {
+   let it=ThinkerIterator.Create('UTNTEnvironmentDust',Thinker.MAX_STATNUM+1,true);TrackedDust=UTNTEnvironmentDust(it.Next());
+   if(TrackedDust)PreviousAlpha=TrackedDust.Alpha;
+  }
+  if(TrackedDust)
+  {
+   if(TrackedDust.Age>7){AlphaSamples++;if(TrackedDust.Alpha>PreviousAlpha+.00001)AlphaRises++;}
+   PreviousAlpha=TrackedDust.Alpha;
+  }
+  if(RecordMotion)
+  {
+   let env=UTNTEnvironment.Get();int births=env.DustPuffs-PreviousPuffs;
+   if(births>0)BirthTics++;MaxBirths=max(MaxBirths,births);PreviousPuffs=env.DustPuffs;
+  }
   if(level.time==105 && level.MapName~=="ENVTEST")
   {
    let h=UTNTEnvironment.Get();
@@ -116,6 +134,27 @@ class UTNTEnvironmentRegression : EventHandler
   if(e.Name=="envwalk"){WalkUntil=level.time+e.Args[0];}
   if(e.Name=="envwet"){h.Feet[0].WetSole=1;}
   if(e.Name=="envmove"){Floor_RaiseByValue(50,16,32);}
+  if(e.Name=="envstream"){RecordMotion=true;BirthTics=MaxBirths=AlphaSamples=AlphaRises=0;TrackedDust=null;PreviousPuffs=h.DustPuffs;Floor_RaiseByValue(50,8,96);}
+  if(e.Name=="envshort"){Floor_RaiseByValue(50,32,2);}
+  if(e.Name=="envstreamcheck")
+  {
+   Check(AlphaSamples>12 && AlphaRises==0,"existing dust fades continuously through mover stop");
+   Check(BirthTics>=8,"dust births spread across moving tics");Check(MaxBirths<=1,"single mover emits at most one puff per tic");
+   Check(h.Mechanisms[0].Starts>0 && h.Mechanisms[0].Stops>0,"start and stop tracked");
+   Check(h.Mechanisms[0].LastQuake>0,"nearby motion produces cosmetic quake");
+   Console.Printf("STREAM|birth_tics=%d|max_births=%d|puffs=%d",BirthTics,MaxBirths,h.DustPuffs);RecordMotion=false;
+  }
+  if(e.Name=="envheatcheck")
+  {
+   let heat=UTNTLocalHeat(EventHandler.Find('UTNTLocalHeat'));int count=0;
+   for(int i=0;i<6;i++)if(heat.Anchors[i])count++;
+   Check(heat.Sources.Size()>0,"map-derived lava volumes loaded");Check(count>0 && count<=6,"local heat anchor pool bounded and active");
+  }
+  if(e.Name=="envheatoffcheck")
+  {
+   let heat=UTNTLocalHeat(EventHandler.Find('UTNTLocalHeat'));int count=0;for(int i=0;i<6;i++)if(heat.Anchors[i])count++;
+   Check(count==0,"disabled heat releases all local anchors");
+  }
   if(e.Name=="envdoor"){Door_Raise(51,16,105);}
   if(e.Name=="envceiling"){Ceiling_LowerByValue(52,8,96);}
   if(e.Name=="envceilingup"){Ceiling_RaiseByValue(52,8,96);}
@@ -137,7 +176,7 @@ class UTNTEnvironmentRegression : EventHandler
 }
 '''
 def main():
- p=argparse.ArgumentParser();p.add_argument('--case',default='fixture',choices=['fixture','campaign','compile','prototype']);p.add_argument('--renderer',default='1');p.add_argument('--map',default='TNT02');p.add_argument('--at',nargs=3,type=int);p.add_argument('--angle',type=int,default=0);p.add_argument('--pitch',type=int,default=10);p.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/environment-dev.pk3');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--case',default='fixture',choices=['fixture','campaign','compile','prototype','motion']);p.add_argument('--renderer',default='1');p.add_argument('--map',default='TNT02');p.add_argument('--at',nargs=3,type=int);p.add_argument('--angle',type=int,default=0);p.add_argument('--pitch',type=int,default=10);p.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/environment-dev.pk3');a=p.parse_args()
  WORK.mkdir(parents=True,exist_ok=True)
  addon=fixture()
  if a.case!='compile':
@@ -148,7 +187,10 @@ def main():
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,label='fixture-compile')
   print(Path(r['log']).read_text()[-5000:]);sys.exit(0 if r['ok'] else 1)
  settings=[('vid_activeinbackground',True),('vid_lowerinbackground',False),('vid_maxfps',35),('cl_capfps',True),('motionblur',False),('UTNT_visoreffects',False),('use_mouse',False),('use_joystick',False),('i_pauseinbackground',False),('r_drawplayersprites',False)]
- if a.case=='prototype':
+ if a.case=='motion':
+  cmds='wait 140; netevent envfly; netevent envpos 690 128 0; netevent envview 0 0; wait 35; netevent localheatstats; netevent envheatcheck; screenshot logs/heat-live.png; wait 12; screenshot logs/heat-motion.png; UTNT_shaderoverlayswitch false; wait 20; netevent envheatoffcheck; screenshot logs/heat-off.png; UTNT_shaderoverlayswitch true; netevent envpos 650 384 112; netevent envview 0 25; netevent envstream; wait 40; screenshot logs/dust-during.png; wait 85; netevent envstreamcheck; screenshot logs/dust-end.png; netevent envshort; wait 8; screenshot logs/dust-short.png; wait 120; screenshot logs/dust-gone.png; netevent envpos 1280 384 0; netevent envview 90 0; netevent envdoor; wait 40; screenshot logs/door.png; netevent envpos 1408 1088 0; netevent envview 90 -15; netevent envceiling; wait 45; screenshot logs/ceiling.png; wait 75; netevent envmotioncheck; wait 5; echo UTNT_TEST_END; quit'
+  r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='ENVTEST',renderer=a.renderer,label='environment-motion-'+a.renderer,timeout=90,commands=cmds,settings=settings+[('UTNT_fxquality',3),('UTNT_reducedfx',False)])
+ elif a.case=='prototype':
   cmds='wait 350; netevent envfly; netevent envpos 690 128 0; wait 5; netevent envview 0 0; wait 140; UTNT_localheatprototype true; wait 10; netevent heatlabstats; wait 5; screenshot logs/heatlab-on.png; UTNT_localheatprototype false; wait 5; screenshot logs/heatlab-off.png; netevent heatlabmode 1; UTNT_localheatprototype true; wait 10; netevent heatlabstats; wait 5; screenshot logs/heatlab-wall.png; netevent heatlabmode 2; wait 10; netevent heatlabstats; wait 5; screenshot logs/heatlab-hidden.png; echo UTNT_TEST_END; quit'
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='ENVTEST',renderer=a.renderer,label='heatlab-'+a.renderer,timeout=45,commands=cmds,settings=settings)
  elif a.case=='fixture':

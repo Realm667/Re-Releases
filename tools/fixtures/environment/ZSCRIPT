@@ -1,7 +1,7 @@
 version "5.0.0"
 class UTNTEnvironmentRegression : EventHandler
 {
- int WalkUntil,OriginalTerrain;bool Fly;Vector3 CameraAt;
+ int WalkUntil,OriginalTerrain,BirthTics,MaxBirths,PreviousPuffs;bool Fly,RecordMotion;Vector3 CameraAt;UTNTEnvironmentDust TrackedDust;double PreviousAlpha;int AlphaSamples,AlphaRises;
  void Check(bool ok,String message){Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",message);}
  override void WorldTick()
  {
@@ -9,6 +9,21 @@ class UTNTEnvironmentRegression : EventHandler
   if(level.time==2){mo.bInvulnerable=true;mo.Angle=0;OriginalTerrain=level.Sectors[0].GetTerrain(Sector.floor);}
   if(Fly){mo.bNoGravity=true;mo.Vel=(0,0,0);mo.SetOrigin(CameraAt,false);players[0].camera=mo;}
   if(level.time<WalkUntil)mo.Vel=(2,0,mo.Vel.Z);
+  if(!TrackedDust && RecordMotion)
+  {
+   let it=ThinkerIterator.Create('UTNTEnvironmentDust',Thinker.MAX_STATNUM+1,true);TrackedDust=UTNTEnvironmentDust(it.Next());
+   if(TrackedDust)PreviousAlpha=TrackedDust.Alpha;
+  }
+  if(TrackedDust)
+  {
+   if(TrackedDust.Age>7){AlphaSamples++;if(TrackedDust.Alpha>PreviousAlpha+.00001)AlphaRises++;}
+   PreviousAlpha=TrackedDust.Alpha;
+  }
+  if(RecordMotion)
+  {
+   let env=UTNTEnvironment.Get();int births=env.DustPuffs-PreviousPuffs;
+   if(births>0)BirthTics++;MaxBirths=max(MaxBirths,births);PreviousPuffs=env.DustPuffs;
+  }
   if(level.time==105 && level.MapName~=="ENVTEST")
   {
    let h=UTNTEnvironment.Get();
@@ -31,6 +46,27 @@ class UTNTEnvironmentRegression : EventHandler
   if(e.Name=="envwalk"){WalkUntil=level.time+e.Args[0];}
   if(e.Name=="envwet"){h.Feet[0].WetSole=1;}
   if(e.Name=="envmove"){Floor_RaiseByValue(50,16,32);}
+  if(e.Name=="envstream"){RecordMotion=true;BirthTics=MaxBirths=AlphaSamples=AlphaRises=0;TrackedDust=null;PreviousPuffs=h.DustPuffs;Floor_RaiseByValue(50,8,96);}
+  if(e.Name=="envshort"){Floor_RaiseByValue(50,32,2);}
+  if(e.Name=="envstreamcheck")
+  {
+   Check(AlphaSamples>12 && AlphaRises==0,"existing dust fades continuously through mover stop");
+   Check(BirthTics>=8,"dust births spread across moving tics");Check(MaxBirths<=1,"single mover emits at most one puff per tic");
+   Check(h.Mechanisms[0].Starts>0 && h.Mechanisms[0].Stops>0,"start and stop tracked");
+   Check(h.Mechanisms[0].LastQuake>0,"nearby motion produces cosmetic quake");
+   Console.Printf("STREAM|birth_tics=%d|max_births=%d|puffs=%d",BirthTics,MaxBirths,h.DustPuffs);RecordMotion=false;
+  }
+  if(e.Name=="envheatcheck")
+  {
+   let heat=UTNTLocalHeat(EventHandler.Find('UTNTLocalHeat'));int count=0;
+   for(int i=0;i<6;i++)if(heat.Anchors[i])count++;
+   Check(heat.Sources.Size()>0,"map-derived lava volumes loaded");Check(count>0 && count<=6,"local heat anchor pool bounded and active");
+  }
+  if(e.Name=="envheatoffcheck")
+  {
+   let heat=UTNTLocalHeat(EventHandler.Find('UTNTLocalHeat'));int count=0;for(int i=0;i<6;i++)if(heat.Anchors[i])count++;
+   Check(count==0,"disabled heat releases all local anchors");
+  }
   if(e.Name=="envdoor"){Door_Raise(51,16,105);}
   if(e.Name=="envceiling"){Ceiling_LowerByValue(52,8,96);}
   if(e.Name=="envceilingup"){Ceiling_RaiseByValue(52,8,96);}

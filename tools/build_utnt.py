@@ -234,6 +234,8 @@ def main():
     generate_lava_lips(root,check=a.check_only)
     from build_environment_fx import check as check_environment_fx
     check_environment_fx(root)
+    from build_local_heat import generate as generate_local_heat
+    generate_local_heat(root, check=a.check_only)
     from build_organic_materials import generate as generate_organic_materials
     generate_organic_materials(root, check=a.check_only, iwad=a.iwad)
     output=(a.output or root/'tutnt.pk3').resolve()
