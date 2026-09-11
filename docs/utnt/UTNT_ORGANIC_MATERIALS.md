@@ -51,7 +51,7 @@ Parallax additionally fades at grazing view angles (normal/view dot product 0.08
 - Generated definitions: tutnt/GLDEFS.organic, included after environment materials.
 - Provenance and output hashes: tools/organic-materials/generated.json.
 
-The generator resolves current TEXTURES definitions, crop dimensions, patch sources and logical texture dimensions. Original flat/texture namespaces take precedence over similarly named artwork patches. It reuses identical data and supplies 159 base/expanded/band variants plus the environmental aliases discovered in current surface tables. Environmental shaders are composed from the current surface.glsl template, so wetness and underwater optics remain present. It does not edit other environmental outputs.
+The generator resolves current TEXTURES definitions, crop dimensions, patch sources and logical texture dimensions. Original flat/texture namespaces take precedence over similarly named artwork patches. It reuses identical data and supplies 285 base/expanded/band variants plus the environmental aliases discovered in current surface tables. Environmental shaders are composed from the current surface.glsl template, so wetness and underwater optics remain present. It does not edit other environmental outputs.
 
 build_utnt.py regenerates stale organic outputs before taking its immutable package snapshot. This also refreshes bindings after environmental aliases change. Only outputs previously recorded as owned organic data can be removed when obsolete. The manifest records both source and generated-file hashes.
 
@@ -194,3 +194,64 @@ the visible play area, so their screenshots are excluded as visual evidence;
 QROCK3 is covered in the controlled profile probes. The native ICEY viewpoint is
 partially obstructed; its material rendering is covered by the controlled ICEY
 probe. The shared package build `ffc63dd86355` passed engine validation.
+
+
+## Selective five-category rollout (11.09.2026)
+
+The 872-name map audit retained the existing 99 materials and tested 193 further
+candidates (132 initial selections plus 61 conditional candidates). Native frontal,
+oblique and downward views informed the final selection: 110 additions, 83 rejected.
+The registry now contains 209 base materials and 285 base/expanded/band variants.
+Every candidate's final decision is recorded in [rollout.json](../../tools/organic-materials/rollout.json).
+
+| Category | Added materials | Maximum trace span, map units |
+|---|---:|---:|
+| Stone slabs and joints | 23 | 6 |
+| Large rustic blocks | 7 | 8 |
+| Wood, crates and shelves | 21 | 3 |
+| Cables, pipes and technical panels | 41 | 6 |
+| Riveted frames and borders | 18 | 3 |
+
+Following the user's expanded allowance, every new material is checked against
+a signed limit of -6 to +6 map units relative to gray 127. These are trace
+budgets, not a uniform displacement of the surface.
+The actual relief occupies only part of each budget. Gray 127 remains zero;
+recesses and raised details extend from that plane. The previous 99 materials,
+including the reduced QROCK3 depth and ORUST rivet geometry, keep their profiles.
+
+The first noisy local-contrast prototype was discarded following visual feedback.
+The final generator supports authored joints, complete polygonal bodies and rivet
+caps. For suitable technical surfaces it also uses their baked top lighting:
+a bright upper slope and a dark lower slope contribute to one raised body.
+This directional reconstruction is an approximation from painted artwork, not a
+measured height scan; highlights, paint and emissive colors cannot determine
+geometry unambiguously. Fine wood grain, flat decorative patterns and the tested
+demon ornaments were rejected where the result lacked benefit or reliable shape.
+
+Families share a fixed plane, depth and transfer settings; printed crate variants
+share the same geometric body. No per-image mean or contrast normalization moves
+the surface. Altered artwork may need distinct masks, so identical heights are
+only asserted for genuinely shared geometry, not arbitrary neighboring pixels.
+Expanded TEKWALL4 tile/band variants preserve their pre-existing color border
+blend and apply matching blending to the relief data and environmental aliases.
+
+`tools/test_material_rollout.py --data-only` checks neutral planes, periodicity,
+locality, a synthetic top-lit body, crate/girder family geometry, height limits,
+normal-map dimensions and complete accepted/rejected decisions. Native fixture
+runs exercise walls and floors at three camera angles, save/load, and expanded
+edge variants. Use `--live --engine /path/to/uzdoom.exe --renderer 0` for OpenGL
+or `--renderer 1` for Vulkan. Initial conditional trials and their screenshots
+remain local and are not part of the game package.
+
+The final data audit also removes neutral-only results; CITYF17/18 remain flat together. The stable fixture retains these flat companions to exercise adjacent unchanged surfaces.
+
+
+Final validation: 96 OpenGL fixture views, Vulkan coverage of all fixture groups
+and direct package probes, nine native surface checks in TNT01/TNT02/TNT03A1,
+save/load, and the previous neutral/rust regressions passed. The complete shared
+PK3 passed UZDoom compilation, localization/font checks and ACS compilation;
+all 624 generated organic outputs were verified byte-for-byte inside the package.
+A short fixed-resolution CPU-render timing probe recorded 0.217/0.259/0.513 ms
+without relief and 0.335/0.272/0.340 ms with relief on the local machine. These
+single-frame CPU snapshots are not GPU frame times or a campaign FPS guarantee.
+The local final report is under `.codex/validation/material-rollout/final.json`.

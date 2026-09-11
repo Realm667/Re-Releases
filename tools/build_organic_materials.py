@@ -13,7 +13,8 @@ HEIGHT_NEUTRAL = 127/255
 HEIGHT_GAIN = 2.0
 # A shared material plane, never an independent per-image average.
 PROFILE_BASE = dict(rock=.65, gravel=.60, soil=.50, grass=.50, snow=.50,
-                    snowrock=.50, ice=.50, stonework=.88, brick=.88, metal=.15)
+                    snowrock=.50, ice=.50, stonework=.88, brick=.88, metal=.15,
+                    wood=.75, technical=.75, panel=.75, mortar=.75)
 
 
 def encode_height(height, profile):
@@ -108,12 +109,109 @@ def metal_surface(rgb):
     return np.uint8(np.stack((specular,gloss,np.zeros_like(gloss)),axis=2)*255)
 
 
+# Height comes from object masks and geometric layers, not local brightness relief.
+STRUCTURE_PRESETS = {'wood': .45, 'technical': .55, 'panel': .50, 'mortar': .65}
+
+
+def mask_distance(mask, iterations=8):
+    distance=np.where(mask,iterations+1.0,0.0).astype(np.float32)
+    for _ in range(iterations):
+        distance=np.minimum.reduce([distance]+[
+            np.roll(np.roll(distance,y,0),x,1)+math.hypot(x,y)
+            for y,x in [(1,0),(-1,0),(0,1),(0,-1),(1,1),(-1,1),(1,-1),(-1,-1)]])
+    return np.maximum(distance-.5,0)
+
+
+def coherent_mask(mask, minimum):
+    # Reject isolated paint/noise specks; preserve connected joints and channels.
+    height,width=mask.shape;seen=np.zeros_like(mask);result=np.zeros_like(mask)
+    for yy,xx in zip(*np.where(mask)):
+        if seen[yy,xx]:continue
+        stack=[(yy,xx)];seen[yy,xx]=True;component=[]
+        while stack:
+            y,x=stack.pop();component.append((y,x))
+            for dy,dx in [(1,0),(-1,0),(0,1),(0,-1)]:
+                ny,nx=(y+dy)%height,(x+dx)%width
+                if mask[ny,nx] and not seen[ny,nx]:seen[ny,nx]=True;stack.append((ny,nx))
+        if len(component)>=minimum:
+            y,x=zip(*component);result[y,x]=True
+    return result
+
+
+def structure_height(rgb, profile, logical, detail):
+    from PIL import ImageDraw
+    height,width=rgb.shape[:2]
+    yy,xx=np.mgrid[:height,:width]
+    period=detail.get('period',logical)
+    x=(xx+.5)*logical[0]/width%period[0];y=(yy+.5)*logical[1]/height%period[1]
+    delta=np.zeros((height,width),np.float32)
+    def smooth(v):
+        v=np.clip(v,0,1);return v*v*(3-2*v)
+    model=detail.get('model','toplit' if profile in ('technical','panel') else 'joints')
+    if model=='toplit':
+        # On these classified metal/pipe surfaces the baked light comes from above.
+        # A bright upper slope and dark lower slope describe ONE raised body.
+        lum=np.asarray(rgb,np.float32) @ np.array([.2126,.7152,.0722],np.float32)/255
+        radius=max(1,int(round(detail.get('radius',4)*height/logical[1])))
+        signal=np.zeros_like(delta);total=0
+        for i in range(1,radius+1):
+            weight=radius+1-i
+            signal+=weight*(np.roll(lum,i,axis=0)-np.roll(lum,-i,axis=0));total+=weight
+        signal/=total
+        delta=np.sign(signal)*np.maximum(np.abs(signal)-.008,0)*detail.get('gain',3.0)
+        delta=np.clip(delta,-.40,.20)
+    if model in ('joints','channels'):
+        lum=np.asarray(rgb,np.float32) @ np.array([.2126,.7152,.0722],np.float32)
+        mask=lum<=detail.get('cutoff',6)
+        # A constant material, even black, is a plane rather than a cavity.
+        if not mask.all():
+            if model=='channels':
+                # Extend lit object tops into their painted lower shadow. This
+                # preserves the body instead of cutting its shadow out of it.
+                body=~mask
+                for _ in range(detail.get('shadow_pixels',1)):
+                    body |= np.roll(body,1,axis=0)
+                mask=~body
+            mask=coherent_mask(mask,detail.get('minimum_component',8))
+            density=.5*(width/logical[0]+height/logical[1])
+            distance=mask_distance(mask)/density
+            delta=-detail.get('recess',STRUCTURE_PRESETS[profile])*smooth(distance/detail.get('bevel',1.0))
+    # Authored lines use coordinates in a repeated source patch's map-unit space.
+    for points,thickness,amount in detail.get('grooves',[]):
+        dist=np.full_like(delta,1e6)
+        for a,b in zip(points,points[1:]):
+            ax,ay=a;bx,by=b;vx,vy=bx-ax,by-ay
+            for sx in [-period[0],0,period[0]]:
+                for sy in [-period[1],0,period[1]]:
+                    t=np.clip(((x-ax-sx)*vx+(y-ay-sy)*vy)/max(vx*vx+vy*vy,1e-8),0,1)
+                    dist=np.minimum(dist,np.hypot(x-ax-sx-vx*t,y-ay-sy-vy*t))
+        delta=np.minimum(delta,-amount*(1-smooth((dist-thickness*.5)/.8)))
+    for polygon,amount in detail.get('layers',[]):
+        # Rasterize the shape, then give its whole body a bevel. Painted highlights
+        # and shadows inside it therefore retain the same physical surface.
+        im=Image.new('L',(int(period[0]),int(period[1])))
+        ImageDraw.Draw(im).polygon([tuple(p) for p in polygon],fill=255)
+        shape=np.asarray(im)[np.floor(y).astype(int),np.floor(x).astype(int)]>0
+        distance=mask_distance(shape)/(.5*(width/logical[0]+height/logical[1]))
+        field=amount*smooth(distance/1.1)
+        delta=np.where(shape,field,delta)
+    for cx,cy,radius,amount in detail.get('rivets',[]):
+        dx=np.abs(x-cx);dy=np.abs(y-cy)
+        dx=np.minimum(dx,period[0]-dx);dy=np.minimum(dy,period[1]-dy)
+        cap=np.clip(1-(dx*dx+dy*dy)/(radius*radius),0,1)
+        delta+=amount*np.sqrt(cap)
+    for left,top,w,h in detail.get('neutral_regions',[]):
+        delta[(x>=left)&(x<left+w)&(y>=top)&(y<top+h)]=0
+    return PROFILE_BASE[profile]+np.clip(delta,-.72,.23)
+
+
 def validate_compatibility(config):
     materials = {m['name']:m for m in config['materials']}
     if len(materials)!=len(config['materials']):raise ValueError('Duplicate material name')
     for m in materials.values():
         detail=m.get('height_detail')
-        if detail and (m['profile']!='metal' or detail.get('kind')!='raised-rust'):
+        if detail and not ((m['profile']=='metal' and detail.get('kind')=='raised-rust') or
+                           (m['profile'] in STRUCTURE_PRESETS and detail.get('kind')=='surface-structure')):
             raise ValueError('Unsupported height detail: '+m['name'])
     grouped = set()
     for name,group in config.get('compatibility_groups',{}).items():
@@ -134,7 +232,9 @@ def relief(rgb, profile, depth, logical, detail=None):
     soft = wrap_blur(lum,.9)
     lo,hi = np.quantile(soft,[.16,.91])
     face = np.clip((soft-lo)/max(hi-lo,.001),0,1)
-    if profile == 'metal':
+    if profile in STRUCTURE_PRESETS:
+        h = structure_height(rgb,profile,logical,detail or {})
+    elif profile == 'metal':
         h = rust_plate_height(rgb,logical,detail) if detail else metal_height(rgb)
     elif profile in ('rock','gravel'):
         dist = np.where(face<.14,0,32).astype(np.float32)
@@ -235,13 +335,13 @@ def generate(root=ROOT, *, check=False, iwad=None):
                 w,h=struct.unpack_from('<HH',data,off+12);parts=[]
                 for j in range(struct.unpack_from('<H',data,off+20)[0]):
                     x,y,index=struct.unpack_from('<hhH',data,off+22+j*10)
-                    parts.append((patch_rgb(lumps[names[index]],palette),x,y))
+                    parts.append((patch_rgb(lumps[names[index].upper()],palette),x,y))
                 return compose(w,h,parts)
         return patch_rgb(lumps[name],palette,True)
     files={}; file_rank={}
     for folder in ('flats','textures','patches'):
         for p in sorted((mod/folder).rglob('*')):
-            if p.is_file() and p.suffix.lower() in ('.lmp','.png'):
+            if p.is_file() and p.suffix.lower() in ('.lmp','.png',''):
                 key=p.stem.upper()
                 rank=({'textures':0,'flats':1,'patches':2}[folder],0 if p.suffix.lower()=='.png' else 1)
                 if key not in file_rank or rank<file_rank[key]:
@@ -261,8 +361,10 @@ def generate(root=ROOT, *, check=False, iwad=None):
             for key,x,y in patches:
                 path=mod/key
                 if not path.exists():path=files.get(Path(key).stem.upper())
-                if path is None:raise FileNotFoundError(name)
-                rgb=patch_rgb(read(path),palette,'flats' in path.relative_to(mod).parts)
+                if path is None:
+                    if lumps is None:iw_flat('FLOOR0_1')
+                    rgb=patch_rgb(lumps[key.upper()],palette)
+                else:rgb=patch_rgb(read(path),palette,'flats' in path.relative_to(mod).parts)
                 parts.append((rgb,int(x),int(y)))
             if len(parts)==1 and parts[0][1:]==(0,0):
                 rgb=rgb[np.arange(h)%rgb.shape[0]][:,np.arange(w)%rgb.shape[1]]
@@ -298,7 +400,10 @@ def generate(root=ROOT, *, check=False, iwad=None):
             rgb,logical=resolve(v,entry['sources'])
             fingerprint=digest(rgb.tobytes()+json.dumps([logical,m['profile'],m['depth'],m.get('height_detail'),'signed-127-v1']).encode())[:14]
             if fingerprint not in data_cache:
-                h,nrm=relief(rgb,m['profile'],m['depth'],logical,m.get('height_detail'))
+                detail=m.get('height_detail')
+                if detail and v!=n and detail.get('expanded_model'):
+                    detail=dict(detail['expanded_model'],kind='surface-structure')
+                h,nrm=relief(rgb,m['profile'],m['depth'],logical,detail)
                 stem=f"materials/organic/{n.lower()}-{fingerprint}"
                 emit('tutnt/'+stem+'-height.png',png_bytes(h));emit('tutnt/'+stem+'-normal.png',png_bytes(nrm))
                 if m['profile']=='metal':emit('tutnt/'+stem+'-surface.png',png_bytes(metal_surface(rgb)))
@@ -306,7 +411,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
             stem=data_cache[fingerprint]
             h=np.asarray(Image.open(io.BytesIO(outputs['tutnt/'+stem+'-height.png'])))
             limits=height_depth(h)
-            bindings[v]=dict(stem=stem,depth=m['depth'],profile=m['profile'],family=n,logical=list(logical),size=[rgb.shape[1],rgb.shape[0]],neutral=127,base_height=PROFILE_BASE[m['profile']],min_depth=float(limits.min()),max_depth=float(limits.max()),trace_top=PROFILE_BASE[m['profile']]-1,trace_bottom=PROFILE_BASE[m['profile']])
+            bindings[v]=dict(stem=stem,depth=m['depth'],profile=m['profile'],family=n,logical=list(logical),size=[rgb.shape[1],rgb.shape[0]],neutral=127,base_height=PROFILE_BASE[m['profile']],min_depth=float(limits.min()),max_depth=float(limits.max()),trace_top=PROFILE_BASE[m['profile']]-1,trace_bottom=PROFILE_BASE[m['profile']],edge_mode=('band' if v==band else 'tile') if entry.get('edge_blend') and v!=n else None)
         records.append(dict(m,variants=variants))
     tables=[]
     env_bindings={}
@@ -318,7 +423,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
                 env_bindings[row[4]]=(bindings[row[3]],row[3])
     gldefs=['// Generated by tools/build_organic_materials.py. Include after environment materials.']
     def definition(name,m,env=False):
-        shade={'rock':1.0,'gravel':.7,'soil':.5,'grass':.3,'snow':.55,'snowrock':.65,'ice':.4,'stonework':.55,'brick':.4,'metal':.28}[m['profile']]
+        shade={'rock':1.0,'gravel':.7,'soil':.5,'grass':.3,'snow':.55,'snowrock':.65,'ice':.4,'stonework':.55,'brick':.4,'metal':.28,'wood':.40,'technical':.38,'panel':.32,'mortar':.45}[m['profile']]
         body=[f'Material "{name}" {{',f' Shader "shaders/organic/{"environment" if env else "material"}.fp"',
               f' Define ORGANIC_DEPTH = "{m["depth"]:.4f}"',
               # Profile-wide bounds keep compatible textures on a shared GPU program.
@@ -326,6 +431,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
               f' Define ORGANIC_BASE_HEIGHT = "{m["base_height"]:.4f}"',f' Define ORGANIC_SHADE = "{shade:.4f}"',
               f' Normal "{m["stem"]}-normal.png"', ' Specular "materials/organic/black.png"',
               f' Texture organicHeight "{m["stem"]}-height.png"']
+        if m.get('edge_mode'):body += [' Define ORGANIC_'+m['edge_mode'].upper()+'_EDGE']
         if m['profile']=='ice':body += [' Define ORGANIC_ICE']
         if m['profile']=='metal':body += [' Define ORGANIC_METAL',f' Texture organicSurface "{m["stem"]}-surface.png"']
         if env:body += [f' Texture envMeta "materials/environment/{name}.png"',' Texture envState "UENVSTATE"']

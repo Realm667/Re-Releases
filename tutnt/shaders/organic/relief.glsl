@@ -10,7 +10,7 @@
 #endif
 const float RockDepth=ORGANIC_DEPTH;
 // Data maps stay bilinear even when the player selects unfiltered pixel art.
-vec4 RockData(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy)
+vec4 RockRawData(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy)
 {
     vec2 fullSize=vec2(textureSize(dataMap,0));
     vec2 dx=gx*fullSize,dy=gy*fullSize;
@@ -23,6 +23,46 @@ vec4 RockData(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy)
     ivec2 r=(q+ivec2(1))%size;
     return mix(mix(texelFetch(dataMap,q,lod),texelFetch(dataMap,ivec2(r.x,q.y),lod),f.x),
                mix(texelFetch(dataMap,ivec2(q.x,r.y),lod),texelFetch(dataMap,r,lod),f.x),f.y);
+}
+// Preserve the existing area-expansion border mixing for color and data.
+vec2 OrganicEdgeWeight(vec2 uv)
+{
+    vec2 w=vec2(0.0);
+#if defined(ORGANIC_TILE_EDGE) || defined(ORGANIC_BAND_EDGE)
+    vec2 f=fract(uv);
+    w=vec2(1.0)-smoothstep(vec2(0.0),vec2(0.016),min(f,vec2(1.0)-f));
+#ifdef ORGANIC_BAND_EDGE
+    w.y=0.0;
+#endif
+#endif
+    return w;
+}
+vec4 RockData(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy)
+{
+    vec4 c=RockRawData(dataMap,uv,gx,gy);
+#if defined(ORGANIC_TILE_EDGE) || defined(ORGANIC_BAND_EDGE)
+    vec2 w=OrganicEdgeWeight(uv);
+    if(w.x>0.0)c=mix(c,RockRawData(dataMap,uv+vec2(.5,0),gx,gy),w.x);
+    if(w.y>0.0){
+        vec4 d=RockRawData(dataMap,uv+vec2(0,.5),gx,gy);
+        if(w.x>0.0)d=mix(d,RockRawData(dataMap,uv+vec2(.5,.5),gx,gy),w.x);
+        c=mix(c,d,w.y);
+    }
+#endif
+    return c;
+}
+void OrganicColor(inout Material mat,vec2 uv)
+{
+#if defined(ORGANIC_TILE_EDGE) || defined(ORGANIC_BAND_EDGE)
+    vec2 w=OrganicEdgeWeight(uv);vec4 c=getTexel(uv);
+    if(w.x>0.0)c=mix(c,getTexel(uv+vec2(.5,0)),w.x);
+    if(w.y>0.0){
+        vec4 d=getTexel(uv+vec2(0,.5));
+        if(w.x>0.0)d=mix(d,getTexel(uv+vec2(.5,.5)),w.x);
+        c=mix(c,d,w.y);
+    }
+    mat.Base=c;
+#endif
 }
 #ifdef ORGANIC_METAL
 void SetupMetalResponse(inout Material mat,vec2 uv,vec2 gx,vec2 gy)
@@ -48,6 +88,7 @@ void SetupOrganicMaterial(inout Material mat)
     vec3 dpdx=dFdx(pixelpos.xyz),dpdy=dFdy(pixelpos.xyz);
     float determinantUV=gx.x*gy.y-gx.y*gy.x;
     SetMaterialProps(mat,uv);
+    OrganicColor(mat,uv);
 #ifdef ORGANIC_METAL
     SetupMetalResponse(mat,uv,gx,gy);
 #endif
@@ -93,6 +134,7 @@ void SetupOrganicMaterial(inout Material mat)
     hit=uv-ray*layer;
     float artworkHeight=ORGANIC_BASE_HEIGHT-layer;
     SetMaterialProps(mat,hit);
+    OrganicColor(mat,hit);
     // Green-up normal data, transformed using the undisplaced surface basis.
     vec3 nn=RockData(normaltexture,hit,gx,gy).xyz*2.0-1.0;
     nn.y=-nn.y;
