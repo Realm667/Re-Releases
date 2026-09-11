@@ -1,4 +1,4 @@
-// TNT04CN presentation. Gameplay states, attack timings and shield collision
+// Shared TNT04CN / TNT04C presentation. Gameplay states, attack timings and shield collision
 // stay authoritative; all render objects and dynamic lights are client-side.
 class UTNTSourceBase : Actor
 {
@@ -36,7 +36,7 @@ class UTNTSourceBase : Actor
  { invoker.SourceDefeat(); }
  void SourceDefeat()
  {
-  if(!(level.MapName~=="TNT04CN"))
+  if(!UTNTSourceSystem.Active())
   {
    sprite=GetSpriteIndex("SOUR");
    if(!DeathStart){DeathStart=level.time;A_Scream();}
@@ -46,7 +46,7 @@ class UTNTSourceBase : Actor
  override void Tick()
  {
   Super.Tick();
-  if(!(level.MapName~=="TNT04CN"))return;
+  if(!UTNTSourceSystem.Active())return;
   if(!SourceReady)SetupSource();
   if(IsFrozen() || level.isFrozen())return;
   // These two map-local scripts only animate the old shield alpha. They run
@@ -99,7 +99,7 @@ class UTNTSourceGuardianBase : Actor
  override void Tick()
  {
   Super.Tick();
-  if(!(level.MapName~=="TNT04CN"))return;
+  if(!UTNTSourceSystem.Active())return;
   if((!SourceAnnounced && !bDormant) || (Health<=0 && !SourceDeathAnnounced))
   {
    let boss=UTNTSourceSystem.Find();
@@ -112,9 +112,11 @@ class UTNTSourceGuardianBase : Actor
 
 class UTNTSourceSystem play
 {
+ // Both arena variants always share the complete presentation and finale.
+ clearscope static bool Active() { return level.MapName~=="TNT04CN" || level.MapName~=="TNT04C"; }
  static UTNTSourceBase Find()
  {
-  if(!(level.MapName~=="TNT04CN"))return null;
+  if(!UTNTSourceSystem.Active())return null;
   return UTNTSourceBase(level.CreateActorIterator(666).Next());
  }
  static int BeginDefeat()
@@ -142,7 +144,7 @@ class UTNTSourceSystem play
    let p=players[playernum].mo;
    Vector3 start=p.Pos+(0,0,players[playernum].ViewHeight);
    Vector3 dir=(cos(p.Pitch)*cos(p.Angle),cos(p.Pitch)*sin(p.Angle),-sin(p.Pitch));
-   Vector2 offset=start.XY-(128,-320);
+   Vector2 offset=start.XY-(s.Pos.XY+(0,64));
    double a=dir.X*dir.X+dir.Y*dir.Y,b=offset.X*dir.X+offset.Y*dir.Y;
    double disc=b*b-a*(offset.LengthSquared()-535*535);
    if(a>0.001 && disc>=0)
@@ -594,7 +596,7 @@ class UTNTSourceImpactView ui
  static double Render(RenderEvent e)
  {
   PPShader.SetEnabled("UTNTSourceImpact",false);
-  if(!(level.MapName~=="TNT04CN") || consoleplayer<0 || !e.Camera)return 0;
+  if(!UTNTSourceSystem.Active() || consoleplayer<0 || !e.Camera)return 0;
   PPShader.SetUniform1f("UTNTSourceImpact","ending",0);
   if(CVar.GetCVar('vid_rendermode').GetInt()!=4)return 0;
   let s=UTNTSourceBase(level.CreateActorIterator(666).Next());

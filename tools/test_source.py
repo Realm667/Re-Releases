@@ -1,14 +1,14 @@
-"""Source battle regression and mockup views in real TNT04CN, using isolated saves.
+"""Source battle regression and views in either Source arena, using isolated saves.
 
 Tests the existing guardian death special, real attack scripts, shield collision,
-save restoration, three viewpoints, local FX switches and TNT04C map isolation.
+save restoration, three viewpoints, local FX switches and TNT04B map isolation.
 """
 from pathlib import Path
 import argparse,os,json,re
 from check_engine import run_case,ROOT
 
 def main():
- p=argparse.ArgumentParser(description=__doc__)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--map',dest='mapname',choices=['TNT04CN','TNT04C'],default='TNT04CN')
  p.add_argument('--engine',type=Path,default=os.environ.get('UTNT_ENGINE'))
  p.add_argument('--iwad',type=Path,default=os.environ.get('UTNT_IWAD'))
  p.add_argument('--mod',type=Path,default=ROOT/'tutnt')
@@ -35,8 +35,8 @@ def main():
  cmd+=['UTNT_fxquality 0','wait 15','netevent sourcecheck 6000 0'];shot('fx-zero')
  cmd+=['netevent sourceshield','wait 20','netevent sourcecheck 6000 1'];shot('fx-zero-open')
  cmd+=['UTNT_fxquality 3','UTNT_reducedfx false','netevent sourceview 0','wait 15','netevent sourcekill','wait 20'];shot('collapse')
- cmd+=['wait 100','map TNT04C','wait 100','netevent sourcecheck','echo UTNT_TEST_END','wait 5','quit']
- result=run_case(a.engine,a.iwad,root=W,mod=a.mod,addon=ROOT/'tools/source-tests',mapname='TNT04CN',
+ cmd+=['wait 100','map TNT04B','wait 100','netevent sourcecheck','echo UTNT_TEST_END','wait 5','quit']
+ result=run_case(a.engine,a.iwad,root=W,mod=a.mod,addon=ROOT/'tools/source-tests',mapname=a.mapname,
   renderer=a.renderer,label=label,timeout=180,commands='; '.join(cmd),
   settings=[('win_w',1298),('win_h',767),('screenblocks',12),('con_notifytime',0),('r_drawplayersprites','false'),
    ('crosshair',0),('vid_maxfps',60),('i_pauseinbackground','false'),('vid_activeinbackground','true')])

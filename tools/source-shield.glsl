@@ -2,18 +2,19 @@
  // old ACS texture scrolling. The same QRUNT63 atlas as the teleporters.
 vec4 SourceShieldColor()
 {
+ vec2 center=SourceSealCenter(pixelpos.xz);
  vec3 ray=normalize(pixelpos.xyz-uCameraPos.xyz);
- vec2 q=uCameraPos.xz-vec2(128.0,-384.0);
+ vec2 q=uCameraPos.xz-center;
  float a=dot(ray.xz,ray.xz),b=dot(q,ray.xz);
  float disc=b*b-a*(dot(q,q)-455.0*455.0);
  if(disc<=0.0 || a<0.00001)return vec4(0.0);
- float side=dot(pixelpos.xz-vec2(128.0,-384.0),ray.xz)<0.0?-1.0:1.0;
+ float side=dot(pixelpos.xz-center,ray.xz)<0.0?-1.0:1.0;
  float t=(-b+side*sqrt(disc))/a;
  if(t<0.0)return vec4(0.0);
  vec3 surface=uCameraPos.xyz+ray*t;
- vec2 d=surface.xz-vec2(128.0,-384.0);
+ vec2 d=surface.xz-center;
  float turn=(atan(d.y,d.x)+3.14159265)/6.2831853;
- float row=(surface.y-3200.0)/280.0-timer*0.035;
+ float row=(SourceHeight(surface)-3200.0)/280.0-timer*0.035;
  float col=turn*12.0;
  vec2 uv=vec2((fract(col)-0.5)*2.2+0.5,(fract(row)-0.5)*2.4+0.5);
  float ink=0.0;

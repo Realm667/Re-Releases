@@ -4,7 +4,7 @@ import argparse,json
 from check_engine import ROOT,run_case
 
 def main():
- p=argparse.ArgumentParser(description=__doc__)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--map',dest='mapname',choices=['TNT04CN','TNT04C'],default='TNT04CN')
  for n in ('engine','iwad','mod','work'):p.add_argument('--'+n,type=Path,required=True)
  p.add_argument('--renderer',choices=['0','1'],default='1');a=p.parse_args()
  W=a.work.resolve();W.mkdir(parents=True,exist_ok=True)
@@ -22,9 +22,9 @@ def main():
   'save source-ending','wait 5','load source-ending','wait 40','netevent sourceendcheck 290 310','screenshot logs/09-restored-fade.png',
   'UTNT_reducedfx true','UTNT_fxquality 0','UTNT_shaderoverlayswitch false','netevent sourceview 5',
   'wait 10','screenshot logs/10-away-fade.png','netevent sourceview 4','wait 45','screenshot logs/11-black.png',
-  'map TNT04C','wait 100','netevent sourcedarkcheck 0','netevent sourcecheck','screenshot logs/12-next-map.png',
+  'map TNT04B','wait 100','netevent sourcedarkcheck 0','netevent sourcecheck','screenshot logs/12-next-map.png',
   'echo UTNT_TEST_END','wait 3','quit']
- r=run_case(a.engine,a.iwad,root=W,mod=a.mod,addon=ROOT/'tools/source-tests',mapname='TNT04CN',renderer=a.renderer,timeout=200,label='source-darkness',commands='; '.join(cmd),
+ r=run_case(a.engine,a.iwad,root=W,mod=a.mod,addon=ROOT/'tools/source-tests',mapname=a.mapname,renderer=a.renderer,timeout=200,label='source-darkness',commands='; '.join(cmd),
  settings=[('win_w',1298),('win_h',767),('screenblocks',12),('con_notifytime',0),('r_drawplayersprites','false'),('crosshair',0),('vid_maxfps',60),('i_pauseinbackground','false'),('vid_activeinbackground','true'),('UTNT_fxquality',3),('UTNT_reducedfx','false'),('UTNT_shaderoverlayswitch','true')])
  if r['ok']:
   from PIL import Image

@@ -16,6 +16,26 @@ float Rune(vec2 uv,float index)
  return mix(mix(RunePixel(b,index),RunePixel(b+vec2(1,0),index),f.x),
             mix(RunePixel(b+vec2(0,1),index),RunePixel(b+vec2(1,1),index),f.x),f.y);
 }
+// Shared arena coordinates; C is the same room translated by (832,13952,-9384).
+vec2 SourceArenaOffset(vec2 world)
+{
+ return world.y>6000.0?vec2(832.0,13952.0):vec2(0.0);
+}
+vec2 SourceSealCenter(vec2 world)
+{
+ return SourceArenaOffset(world)+vec2(128.0,-384.0);
+}
+vec2 SourceBeamCenter(vec2 world)
+{
+ vec2 offset=SourceArenaOffset(world);
+ // CN additionally has the remote upper-shaft carrier used by its stacked view.
+ return offset+((world-offset).x>6000.0?vec2(10624.0,-192.0):vec2(130.0,-382.0));
+}
+float SourceHeight(vec3 world)
+{
+ // Renderer axes are X,Z,Y; TNT04C's arena floor is 9384 units lower.
+ return world.y+(world.z>6000.0?9384.0:0.0);
+}
 // Material-bound flecks rise with the energy; no particle actors or spawn loops.
 // Integer hashing keeps shared noise-cell corners bit-identical on every face.
 float EnergyHash(float n)
@@ -36,7 +56,7 @@ vec4 ProcessTexel()
  if(state==2)return vec4(0.0);
  float intensity,marks=0.0;
  float pull=clamp(float(state-5)/23.0,0.0,1.0);
- float height=pixelpos.y;
+ float height=SourceHeight(pixelpos.xyz);
 #if BEAM_KIND == 0
  float across=fract(vTexCoord.x)-0.5;
  if(abs(across)>.18)return vec4(0.0);
@@ -64,7 +84,7 @@ vec4 ProcessTexel()
 #else
  // Round helix inside the unchanged polygonal carrier. Renderer axes are X,Z,Y.
  vec3 hit=pixelpos.xyz,eye=uCameraPos.xyz;
- vec2 center=hit.x>6000.0?vec2(10624.0,-192.0):vec2(130.0,-382.0);
+ vec2 center=SourceBeamCenter(hit.xz);
  vec3 ray=normalize(hit-eye);vec2 q=eye.xz-center;
  float a=dot(ray.xz,ray.xz),b=dot(q,ray.xz);
  float radius=430.0*(1.0-pull*pull*.97);
@@ -73,7 +93,7 @@ vec4 ProcessTexel()
  float side=dot(hit.xz-center,ray.xz)<0.0?-1.0:1.0;
  float t=(-b+side*sqrt(disc))/a;
  if(t<0.0)return vec4(0.0);
- vec3 surface=eye+ray*t;vec2 d=surface.xz-center;height=surface.y;
+ vec3 surface=eye+ray*t;vec2 d=surface.xz-center;height=SourceHeight(surface);
  float turn=atan(d.y,d.x)/6.2831853;
  float phase=turn+height/(1100.0-600.0*pull)+pull*1.5;
  if(state<2)phase-=timer*.06;

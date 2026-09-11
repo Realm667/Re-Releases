@@ -1,4 +1,4 @@
-# TNT04CN — The Source
+# TNT04CN / TNT04C — The Source
 
 The final boss now uses the approved three-state presentation: an intact runic
 shield, six separated rune arcs around the exposed heart, and a damaged seal
@@ -12,6 +12,39 @@ SOURA0 and the original rune assets are unchanged by this correction. No new
 raster artwork is required. Approved AI paintovers are retained under
 `tools/artwork/source/`; they are design targets, not runtime screenshots.
 The first implementation's functional checks did not establish a visual match.
+
+## Shared arena contract — 2026-09-11
+
+TNT04CN and TNT04C use the same complete boss implementation and generated
+materials. Future changes to the seal, shield, beam/helix, runes, attack cues,
+guardians, arena lighting, sound and finale must apply to both maps and be
+checked in both through `tools/test_source_maps.py`. Do not fork the effects.
+
+TNT04C translates the arena by `(832, 13952, -9384)` map units. Its seal centre
+is `(960, 13568, -5416)` versus `(128, -384, 3968)` in TNT04CN. Shared shader
+coordinates in `tools/source-space.glsl` account for all three axes, including
+the shield glyph rows, near-seal beam attenuation and implosion convergence.
+CN's additional remote upper-shaft carrier retains its original centre.
+Actor layers, lights and scene projection follow the actual boss position;
+shield impact positions now use its position too.
+
+Both maps share the single subtractive light with 2800-unit range, amber opening
+glare, Near/Far audio, inward-moving energy and final 2.5-second luminance fade.
+No new material programs or additional effect actors are required. TNT04C's
+original guardian special 226, objective episode, encounter triggers and map
+geometry remain intact. Each map retains its separately designed level sky.
+Map-isolation checks now travel to TNT04B because TNT04C is an active boss map.
+
+Transfer validation uses the living encounter, darkness and real-finale runners
+in both maps on OpenGL and Vulkan, with a separate TNT04C glare/projection test.
+The map comparison verifies unchanged TEXTMAP/nodes and original guardian scripts.
+Local reports and unedited engine captures are in `.codex/logs/source-both-maps/`.
+Two runs against the live source directory timed out: one at the TNT04C Vulkan
+shaft view, and one after successful finale restoration when loading TNT04B.
+The first passed an identical fresh-instance retry; the second passed against
+the immutable, engine-checked test PK3, which is also used for the remaining
+combat/glare checks. The cause of those two stalls is not established; this
+transfer does not claim to fix a general Vulkan or engine stability issue.
 
 ## Battle feedback
 
@@ -38,9 +71,10 @@ The first implementation's functional checks did not establish a visual match.
   a 2.5-second luminance fade before the original destination transition. Living
   health, collision, random calls, spawn sites and attack delays remain.
 
-ACS adds three attack notifications, the TNT04CN-specific finale ending in
-`source/tutnt.acs`, and a shield-impact notification in TNT04CN script 120. The map's TEXTMAP and
-nodes are byte-identical. TNT04C retains its original visuals and map bytes.
+ACS adds three attack notifications, the shared finale ending in
+`source/tutnt.acs`, and a shield-impact notification in script 120 of both maps.
+The transfer changes only SCRIPTS and compiled BEHAVIOR in TNT04C; its TEXTMAP,
+nodes and other lumps remain byte-identical to the pre-transfer map.
 
 ## Implementation and limits
 
@@ -61,13 +95,16 @@ claimed by the local tests.
 
 ## Reproduce
 
-1. Run `python tools/build_source_materials.py` after editing the four
+1. Run `python tools/build_source_materials.py` after editing the shared
    `tools/source-*.glsl` sources. Commit their generated material files too.
 2. Build through `tools/build_utnt.py` with the configured ACC and engine.
-3. Run `tools/test_source_structure.py --baseline-ref 5c8091aff` to compare the
-   combat contracts and original assets against the pre-Source implementation.
-4. Run `tools/test_source.py --work <output> --renderer 0` and `--renderer 1`,
-   providing `--engine`, `--iwad` and optionally `--mod <pk3>`.
+3. Run `tools/test_source_structure.py --baseline-ref <pre-change-commit>` to
+   compare combat contracts, original assets and both maps. In a shared dirty
+   checkout, `--baseline-maps <snapshot-directory>` accepts pre-edit WAD copies.
+4. Run `tools/test_source_maps.py --work <central-log-directory>` with
+   `--engine`, `--iwad`, and `--mod <pk3-or-source-directory>`. By default it runs
+   battle, darkness and real finale tests sequentially in both maps on both
+   OpenGL and Vulkan. Individual Source runners accept `--map TNT04CN|TNT04C`.
 5. Run `tools/test_source_coop.py --work <output>` with the same engine/IWAD/mod
    arguments for two local peers with opposing effect settings.
 
@@ -130,7 +167,7 @@ The approved arena follow-up and five-phase defeat are implemented together.
 The original Source actor retains a saved DefeatAge clock instead of fading
 away. Living attacks, health and collision stay unchanged. At death the boss
 becomes nonblocking and stops its pending attack scripts. The new ending is
-scoped to TNT04CN; the legacy BOSSHP branch remains available for other maps.
+shared by TNT04CN and TNT04C; the legacy BOSSHP branch remains available for other maps.
 
 - 0-1 s: the helix holds still and a faint central filament remains.
 - 1-2 s: the seal fractures and a black core forms inside its luminous rim.
@@ -331,7 +368,7 @@ hardware renderer, as do the other Source materials; HUD rendering is separate.
 No second postprocess pass, gameplay shake or new particle pool is added.
 Map unload disables the shader and destroys the temporary light.
 
-Validation: `test_source_darkness.py` checks the light count/flags and envelope,
+Historical validation before the TNT04C transfer: `test_source_darkness.py` checks the light count/flags and envelope,
 quality toggles, save restoration, rendered black and cleanup on TNT04C.
 `test_source_finale.py` checks the real ACS ending: TNT04CN still exists at tic
 325 and subsequently transitions through the original exit. Vulkan and OpenGL

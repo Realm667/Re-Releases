@@ -4,13 +4,13 @@ import argparse,json
 from check_engine import ROOT,run_case
 
 def main():
- p=argparse.ArgumentParser(description=__doc__)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--map',dest='mapname',choices=['TNT04CN','TNT04C'],default='TNT04CN')
  p.add_argument('--engine',type=Path,required=True);p.add_argument('--iwad',type=Path,required=True)
  p.add_argument('--mod',type=Path,required=True);p.add_argument('--work',type=Path,required=True)
  p.add_argument('--renderer',choices=['0','1'],default='1');a=p.parse_args()
  W=a.work.resolve();W.mkdir(parents=True,exist_ok=True)
  results=[]
- common=dict(engine=a.engine,iwad=a.iwad,mod=a.mod,addon=ROOT/'tools/source-tests',mapname='TNT04CN',renderer=a.renderer,timeout=200,
+ common=dict(engine=a.engine,iwad=a.iwad,mod=a.mod,addon=ROOT/'tools/source-tests',mapname=a.mapname,renderer=a.renderer,timeout=200,
   settings=[('win_w',1298),('win_h',767),('screenblocks',12),('con_notifytime',0),('r_drawplayersprites','false'),('crosshair',0),('vid_maxfps',60),('i_pauseinbackground','false'),('vid_activeinbackground','true')])
  # Network events can be delivered several tics after a restored frame.
  cmd=['wait 450','netevent sourceview 4','wait 15','screenshot logs/ceiling.png','netevent sourcekill',
@@ -22,7 +22,7 @@ def main():
   'UTNT_reducedfx true','UTNT_fxquality 0','wait 54','netevent sourcedeathcheck 210 220','screenshot logs/reduced-afterglow.png',
   'wait 45','netevent sourcedeathcheck 255 265','screenshot logs/empty.png',
   'save source-empty','wait 5','load source-empty','wait 20','netevent sourcedeathcheck 270 290','wait 5',
-  'map TNT04C','wait 100','netevent sourcecheck','echo UTNT_TEST_END','wait 3','quit']
+  'map TNT04B','wait 100','netevent sourcecheck','echo UTNT_TEST_END','wait 3','quit']
  out=W/'restore';out.mkdir(exist_ok=True)
  results.append(run_case(root=out,label='finale-restore',commands='; '.join(cmd),**common))
  # Start the actual encounter/BOSSHP ACS; do not bypass the ending with a map command.

@@ -4,7 +4,7 @@ import argparse,json
 from check_engine import ROOT,run_case
 
 def main():
- p=argparse.ArgumentParser(description=__doc__)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--map',dest='mapname',choices=['TNT04CN','TNT04C'],default='TNT04CN')
  for n in ('engine','iwad','mod','work'):p.add_argument('--'+n,type=Path,required=True)
  p.add_argument('--renderer',choices=['0','1'],default='1');a=p.parse_args()
  W=a.work.resolve();W.mkdir(parents=True,exist_ok=True)
@@ -18,8 +18,8 @@ def main():
   'load source-impact','wait 17','netevent sourceview 4','wait 28','netevent sourcefxcheck 1 1','wait 5','screenshot logs/second-impact.png',
   'wait 17','netevent sourcefxcheck 1 0','wait 5','screenshot logs/final-impact.png',
   'wait 93','netevent sourcedeathcheck 257 263','netevent sourcefxcheck 0 0','wait 3','screenshot logs/impact-empty.png',
-  'map TNT04C','wait 100','netevent sourcefxcheck 0 -1','wait 3','echo UTNT_TEST_END','wait 3','quit']
- result=run_case(a.engine,a.iwad,root=W,mod=a.mod,addon=ROOT/'tools/source-tests',mapname='TNT04CN',renderer=a.renderer,timeout=200,label='source-impact',commands='; '.join(cmd),
+  'map TNT04B','wait 100','netevent sourcefxcheck 0 -1','wait 3','echo UTNT_TEST_END','wait 3','quit']
+ result=run_case(a.engine,a.iwad,root=W,mod=a.mod,addon=ROOT/'tools/source-tests',mapname=a.mapname,renderer=a.renderer,timeout=200,label='source-impact',commands='; '.join(cmd),
   settings=[('win_w',1298),('win_h',767),('screenblocks',11),('con_notifytime',0),('r_drawplayersprites','false'),('crosshair',0),('vid_maxfps',60),('i_pauseinbackground','false'),('vid_activeinbackground','true'),('UTNT_fxquality',3),('UTNT_reducedfx','false')])
  # Require every scheduled render check: a lost console event must not pass.
  result['impact_checks']=Path(result['log']).read_text().count('Source impact shader expected=')

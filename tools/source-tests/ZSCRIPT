@@ -15,13 +15,13 @@ class UTNTSourceTests : EventHandler
    double amount=UTNTSourceImpactView.Render(e);
    Console.Printf("UTNT_ASSERT %s: Source impact shader expected=%d amount=%.4f",(amount>0.001)==(FXExpected!=0)?"PASS":"FAIL",FXExpected,amount);
   }
-  if(RenderSource && RenderSource.Health>0 && !RenderSource.ShieldOpen && level.time>=450 && level.time<490)
+  if(RenderSource && RenderSource.Health>0 && !RenderSource.ShieldOpen && (level.lines[RenderSource.ShieldLines[0]].flags & Line.ML_BLOCKEVERYTHING) && level.time>=450 && level.time<490)
    Console.Printf("SOURCE_RENDER_ALPHA %.4f",level.lines[RenderSource.ShieldLines[0]].alpha);
  }
  void Assert(bool cond,String name){Console.Printf("UTNT_ASSERT %s: %s",cond?"PASS":"FAIL",name);}
  override void WorldTick()
  {
-  if(!(level.MapName~=="TNT04CN"))return;
+  if(!UTNTSourceSystem.Active())return;
   RenderSource=UTNTSourceSystem.Find();
   if(RenderSource && RenderSource.DefeatAge>=90 && RenderSource.DefeatAge<150)
   {
@@ -47,12 +47,14 @@ class UTNTSourceTests : EventHandler
   if(View==4){pos=(128,-1100,3500);pitch=-35;}
   if(View==1){pos=(128,-1650,3370);pitch=-14;}
   if(View==2){pos=(1150,-380,3500);a=180;pitch=-15;}
+  if(level.MapName~=="TNT04C")
+  {if(View==7)pos=(128,-700,5000);pos+=(832,13952,-9384);}
   p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=a;p.Pitch=pitch;
  }
  override void NetworkProcess(ConsoleEvent e)
  {
   let s=UTNTSourceSystem.Find();
-  if(e.Name=="sourcefallback" && !(level.MapName~=="TNT04CN"))
+  if(e.Name=="sourcefallback" && !UTNTSourceSystem.Active())
   {
    Fallback=Actor.Spawn("TheSource",players[0].mo.Pos+(100,0,100));
    if(Fallback)Fallback.DamageMobj(players[0].mo,players[0].mo,100000,'None',DMG_FORCED);
@@ -163,7 +165,7 @@ class UTNTSourceTests : EventHandler
   if(e.Name=="sourcebegin")ACS_ExecuteAlways(140,0);
   if(e.Name=="sourceexitcheck")
   {
-   Assert(!(level.MapName~=="TNT04CN"),"real BOSSHP ending advances after finale and full fade");
+   Assert(!UTNTSourceSystem.Active(),"real BOSSHP ending advances after finale and full fade");
    Assert(!s,"Source clock is absent in the destination map");
   }
   if(e.Name=="sourcedeathcheck")
@@ -188,7 +190,7 @@ class UTNTSourceTests : EventHandler
   }
   if(e.Name=="sourcecheck")
   {
-   if(!(level.MapName~=="TNT04CN"))
+   if(!UTNTSourceSystem.Active())
    {
     Assert(!s,"other map has no Source controller");
     let it=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
@@ -198,11 +200,13 @@ class UTNTSourceTests : EventHandler
    Assert(s.Health==e.Args[0],"boss hit points preserved");
    Assert(s.ShieldOpen==(e.Args[1]!=0),"visual matches actual shield collision");
    Assert(s.Radius==128 && s.Height==128,"original hitbox preserved");
+   Vector3 expected=level.MapName~=="TNT04CN"?(128,-384,3968):(960,13568,-5416);
+   Assert((s.Center()-expected).Length()<.01,"seal centre matches the mapped arena including its vertical offset");
    Assert(s.ShieldLines.Size()>0 && s.BeamSides.Size()>0,"original geometry bound");
    let shield=level.lines[s.ShieldLines[0]].sidedef[0];
    Assert(shield.GetTexture(Side.mid)==TexMan.CheckForTexture(s.ShieldOpen?"-":"USSHIELD"),"shield material agrees with collision even during ACS fade");
    Assert(s.ShieldOpen || abs(level.lines[s.ShieldLines[0]].alpha-0.70)<0.001,"legacy ACS cannot hide the closed membrane");
-   Assert(level.sectors.Size()==1560,"sector count unchanged");
+   Assert(level.sectors.Size()==(level.MapName~=="TNT04CN"?1560:2413),"sector count unchanged");
    int count=0;let it=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
    UTNTSourceEmitter em;
    while(em=UTNTSourceEmitter(it.Next()))

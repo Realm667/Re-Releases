@@ -3,7 +3,7 @@ from pathlib import Path
 import argparse,json,subprocess,time
 from check_engine import ROOT
 def main():
- p=argparse.ArgumentParser(description=__doc__)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--map',dest='mapname',choices=['TNT04CN','TNT04C'],default='TNT04CN')
  p.add_argument('--engine',type=Path,required=True);p.add_argument('--iwad',type=Path,required=True)
  p.add_argument('--mod',type=Path,default=ROOT/'tutnt');p.add_argument('--work',type=Path,required=True)
  a=p.parse_args();W=a.work.resolve();W.mkdir(parents=True,exist_ok=True)
@@ -16,7 +16,7 @@ def main():
    command='wait 350; netevent sourcecheck 15000 0; wait 35; netevent sourceguardian; wait 30; netevent sourcecheck 15000 1; wait 315; netevent sourcecheck 15000 0; netevent sourceattack 2; wait 50; netevent sourceattackcheck 2; wait 10; netevent sourcekill; wait 111; netevent sourcedeathcheck 108 114; wait 149; netevent sourcedeathcheck 257 263; echo UTNT_SOURCE_COOP_COMPLETE' if i==0 else 'wait 1140; echo UTNT_SOURCE_COOP_COMPLETE'
    cfg.write_text(command+'\n')
    args=[str(a.engine),'-iwad',str(a.iwad),'-file',str(a.mod.resolve()),str(ROOT/'tools/source-tests'),'-config',str(config),'-noautoload','-nosound','-stdout','-noidle',
-     '+vid_fullscreen','false','+vid_preferbackend','1','+UTNT_fxquality',str(i*3),'+UTNT_reducedfx','true' if i==0 else 'false','+map','TNT04CN','+exec',cfg.as_posix()]
+     '+vid_fullscreen','false','+vid_preferbackend','1','+UTNT_fxquality',str(i*3),'+UTNT_reducedfx','true' if i==0 else 'false','+map',a.mapname,'+exec',cfg.as_posix()]
    args+=['-host','2','-port','15367'] if i==0 else ['-join','127.0.0.1:15367']
    log=W/(label+'.log');handle=log.open('wb')
    child=subprocess.Popen(args,cwd=W,stdout=handle,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
