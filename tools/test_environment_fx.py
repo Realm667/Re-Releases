@@ -144,7 +144,7 @@ class UTNTEnvironmentRegression : EventHandler
     SeenDust.Push(d);int which=d.Support==level.Sectors[7]?0:d.Support==level.Sectors[18]?1:-1;
     if(which<0)continue;
     double edgeDistance=which==0?abs(d.Pos.X-1024):min(min(abs(d.Pos.X-1152),abs(d.Pos.X-1664)),min(abs(d.Pos.Y-1024),abs(d.Pos.Y-1536)));
-    if(edgeDistance>6)ContactBad++;
+    if(edgeDistance<d.WallRadius()-.5 || edgeDistance>d.WallRadius()+6)ContactBad++;
     Vector2 center=which==0?(896,384):(1408,1280);
     int quadrant=(d.Pos.X>center.X?1:0)+(d.Pos.Y>center.Y?2:0);
     Coverage[which*4+quadrant]++;
@@ -169,6 +169,8 @@ class UTNTEnvironmentRegression : EventHandler
     if(abs(delta)>.01)
     {
      double clearance=k==0?d.Pos.Z-plane:plane-d.Pos.Z;
+     double wallGap=k==0?1024-d.Pos.X:min(min(d.Pos.X-1152,1664-d.Pos.X),min(d.Pos.Y-1024,1536-d.Pos.Y));
+     if(wallGap<d.WallRadius()-.5)CarryBad++;
      CarrySamples[k]++;if(clearance<10 || (d.Age>7 && abs(d.Alpha-CarryAlpha[k])>.025))CarryBad++;
     }
     CarryZ[k]=d.Pos.Z;CarryPlane[k]=plane;CarryAlpha[k]=d.Alpha;
@@ -180,7 +182,7 @@ class UTNTEnvironmentRegression : EventHandler
    while((d=UTNTEnvironmentDust(it.Next()))!=null)
    {
     if(d.Support!=level.Sectors[15] || d.Age!=1)continue;
-    GuideBirths++;if(min(abs(d.Pos.X-1152),abs(d.Pos.X-1408))>7)GuideBad++;
+    GuideBirths++;double gap=min(abs(d.Pos.X-1152),abs(d.Pos.X-1408));if(gap<d.WallRadius()-.5 || gap>d.WallRadius()+6)GuideBad++;
     if(!GuideDust){GuideDust=d;GuideStartZ=d.Pos.Z;GuideStartCeiling=level.Sectors[15].ceilingplane.ZatPoint(d.Pos.XY);}
    }
    if(GuideDust && GuideDust.Age==15)
@@ -229,7 +231,7 @@ class UTNTEnvironmentRegression : EventHandler
   }
   if(e.Name=="envareacheck")
   {
-   Check(CarrySamples[0]>8 && CarrySamples[1]>8 && CarryBad==0,"floor and ceiling clouds remain visible with continuous alpha");
+   Check(CarrySamples[0]>8 && CarrySamples[1]>8 && CarryBad==0,"growing clouds keep wall clearance and continuous alpha");
    Console.Printf("CARRY|floor=%d|ceiling=%d|bad=%d",CarrySamples[0],CarrySamples[1],CarryBad);
    int small=h.Mechanisms[0].EmissionCursor-SmallBefore,large=h.Mechanisms[2].EmissionCursor-LargeBefore;
    double ratio=large/double(max(1,small));
@@ -266,6 +268,14 @@ class UTNTEnvironmentRegression : EventHandler
   {
    let heat=UTNTLocalHeat(EventHandler.Find('UTNTLocalHeat'));int count=0;for(int i=0;i<6;i++)if(heat.Anchors[i])count++;
    Check(count==0,"disabled heat releases all local anchors");
+  }
+  if(e.Name=="envwallfitcheck")
+  {
+   let d=UTNTEnvironmentDust(level.SpawnClientSideVisualThinker('UTNTEnvironmentDust'));
+   d.Support=level.Sectors[12];d.Pos=(1402,2,72);d.Prev=d.Pos;d.Scale=(.3,.3);
+   bool fits=d.FitWalls();double r=d.WallRadius();
+   Check(fits && d.Pos.X>=1400+r-.01 && d.Pos.Y>=r-.01 && d.Pos.X<=1464-r+.01 && d.Pos.Y<=64-r+.01,"smoke clears both walls at a narrow room corner");
+   d.Scale=(.5,.5);Check(!d.FitWalls(),"oversized smoke is rejected in a narrow guide");d.Destroy();
   }
   if(e.Name=="envguides"){RecordGuides=true;Door_Raise(51,16,105);}
   if(e.Name=="envguidescheck")
@@ -316,7 +326,7 @@ def main():
   cmds='wait 175; netevent envfly; netevent envpos 700 -320 -128; netevent envview 0 8; wait 35; netevent localheatstats; netevent envlakecheck; wait 5; screenshot logs/lake-on.png; wait 12; screenshot logs/lake-motion.png; freeze; wait 3; screenshot logs/lake-frozen-on.png; UTNT_shaderoverlayswitch false; wait 3; screenshot logs/lake-frozen-off.png; freeze; wait 20; netevent envheatoffcheck; wait 5; echo UTNT_TEST_END; quit'
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='TNT02',renderer=a.renderer,label='environment-lake-'+a.renderer,timeout=90,commands=cmds,settings=settings+[('con_notifytime',0),('UTNT_fxquality',3),('UTNT_reducedfx',False)])
  elif a.case=='area':
-  cmds='wait 140; netevent envfly; netevent envpos 1100 800 64; netevent envview 45 15; netevent envareastart; wait 128; screenshot logs/area-half.png; wait 155; netevent envareacheck; wait 5; echo UTNT_TEST_END; quit'
+  cmds='wait 140; netevent envfly; netevent envpos 1100 800 64; netevent envview 45 15; netevent envareastart; wait 128; screenshot logs/area-half.png; wait 155; netevent envareacheck; netevent envwallfitcheck; wait 5; echo UTNT_TEST_END; quit'
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='ENVTEST',renderer=a.renderer,label='environment-area-'+a.renderer,timeout=90,commands=cmds,settings=settings+[('UTNT_fxquality',3),('UTNT_reducedfx',False)])
  elif a.case=='motion':
   cmds='wait 140; netevent envfly; netevent envpos 690 128 0; netevent envview 0 0; wait 35; netevent localheatstats; netevent envheatcheck; screenshot logs/heat-live.png; wait 12; screenshot logs/heat-motion.png; UTNT_shaderoverlayswitch false; wait 20; netevent envheatoffcheck; screenshot logs/heat-off.png; UTNT_shaderoverlayswitch true; netevent envpos 650 384 112; netevent envview 0 25; netevent envstream; wait 40; screenshot logs/dust-during.png; wait 85; netevent envstreamcheck; screenshot logs/dust-end.png; netevent envshort; wait 8; screenshot logs/dust-short.png; wait 120; screenshot logs/dust-gone.png; netevent envpos 1280 384 0; netevent envview 90 0; netevent envdoor; wait 40; screenshot logs/door.png; netevent envpos 1408 1088 0; netevent envview 90 -15; netevent envceiling; wait 45; screenshot logs/ceiling.png; wait 75; netevent envmotioncheck; wait 5; echo UTNT_TEST_END; quit'

@@ -171,6 +171,7 @@ class UTNTEnvironment : EventHandler
    double clearance=18*d.Scale.Y/.4;
    if(ceiling-floor<clearance*2+8){d.Destroy();continue;}
    d.Pos.Z=clamp(d.Pos.Z,floor+clearance,ceiling-clearance);d.Prev=d.Pos;
+   if(!d.FitWalls()){d.Destroy();continue;}
    d.Flags=SPF_ROLL|SPF_STRETCHPIXELS;
    d.Roll=d.PrevRoll=(source.CeilingMoving?180:0)+sin(phase*1.3)*16;
    d.bXFlip=sin(phase*2.7)<0;
@@ -276,6 +277,45 @@ class UTNTFootMark : Actor
 class UTNTEnvironmentDust : VisualThinker
 {
  int Age,Life;double BaseAlpha,Phase,PlaneZ,Closing,Carry;Sector Support;bool FromCeiling;
+ // Circumscribed radius of the 96px sprite, including roll and a small air gap.
+ double WallRadius() { return 48*Scale.Length()+4; }
+ bool WallBlocks(Line l)
+ {
+  if(l.FrontSector==l.BackSector)return false;
+  let other=l.FrontSector==Support?l.BackSector:l.FrontSector;
+  if(!other)return true;
+  double f=other.floorplane.ZatPoint(Pos.XY),c=other.ceilingplane.ZatPoint(Pos.XY);
+  double ownF=Support.floorplane.ZatPoint(Pos.XY),ownC=Support.ceilingplane.ZatPoint(Pos.XY);
+  return (f>ownF+.01 && f>Pos.Z-WallRadius()) || (c<ownC-.01 && c<Pos.Z+WallRadius());
+ }
+ Vector2 WallDelta(Line l)
+ {
+  Vector2 edge=l.V2.P-l.V1.P;double length2=edge dot edge;
+  double t=length2>0?clamp(((Pos.XY-l.V1.P) dot edge)/length2,0,1):0;
+  return Pos.XY-(l.V1.P+edge*t);
+ }
+ bool FitWalls()
+ {
+  if(!Support)return true;
+  double radius=WallRadius();
+  for(int pass=0;pass<4;pass++)
+  {
+   bool moved=false;
+   for(int i=0;i<Support.Lines.Size();i++)
+   {
+    let l=Support.Lines[i];if(!WallBlocks(l))continue;
+    Vector2 delta=WallDelta(l);double distance=delta.Length();
+    if(distance>=radius-.001)continue;if(distance<.001)return false;
+    Vector2 push=delta*((radius-distance)/distance);
+    Vector2 next=Pos.XY+push;if(level.PointInSector(next)!=Support)return false;
+    Pos.X+=push.X;Pos.Y+=push.Y;Prev.X+=push.X;Prev.Y+=push.Y;moved=true;
+   }
+   if(!moved)return true;
+  }
+  for(int i=0;i<Support.Lines.Size();i++)if(WallBlocks(Support.Lines[i]) && WallDelta(Support.Lines[i]).Length()<radius-.01)return false;
+  return true;
+ }
+
  override void Tick()
  {
   if(level.isFrozen())return;
@@ -284,6 +324,7 @@ class UTNTEnvironmentDust : VisualThinker
    double plane=FromCeiling?Support.ceilingplane.ZatPoint(Pos.XY):Support.floorplane.ZatPoint(Pos.XY);
    double shift=(plane-PlaneZ)*Carry;Pos.Z+=shift;Prev.Z+=shift;PlaneZ=plane;
   }
+  Vector2 oldXY=Pos.XY,oldScale=Scale;
   Super.Tick();if(++Age>=Life){Destroy();return;}
   if(Support)
   {
@@ -305,6 +346,11 @@ class UTNTEnvironmentDust : VisualThinker
   Alpha=BaseAlpha*fadeIn*fadeIn*(3-2*fadeIn)*fadeOut*fadeOut*(1-Closing)*(1-Closing);
   Vel.X=Vel.X*.98+.008*sin(Phase+Age*2.7);Vel.Y=Vel.Y*.98+.008*cos(Phase*.73+Age*3.1);
   PrevRoll=Roll;Roll+=sin(Phase+Age*1.4)*.13;Scale*=1.007;
+  if(!FitWalls())
+  {
+   // A narrow guide limits expansion; fading continues without clipping or a pop.
+   Scale=oldScale;Pos.X=Prev.X=oldXY.X;Pos.Y=Prev.Y=oldXY.Y;Vel.X=Vel.Y=0;
+  }
  }
 }
 
