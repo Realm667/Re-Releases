@@ -100,10 +100,11 @@ The masonry-views.json set includes native map locations and seven QROCK3 viewpo
 ORUST01–06, METALF01–24 and ADEL_W53–54. All belong to one explicit compatibility
 group with a 3-map-unit maximum trace depth, also on floors and ceilings. The
 build rejects differing depths/profiles within the group or metal depths above 6.
-The sampled height range is shallower than the trace bound (about 0.15–2.55 units
-below the original plane).
+The trace span stays at 3 units. After the neutral-height revision below, the
+metal base is anchored at the geometric surface and details protrude from it.
 
-Metal uses one fixed, pointwise color-to-height transfer across the complete set.
+Metal uses a shared, pointwise color-to-height transfer. ORUST01–04 have one
+separate raised-rust transfer, and ORUST03 adds explicitly placed rivet caps.
 There is no independent per-image contrast stretch and no artificial raised border
 around each texture. Identical artwork therefore produces identical height and
 surface response even when the surrounding panel decoration differs. Repeating
@@ -132,7 +133,7 @@ Add `--baseline` for flat materials or `--renderer 0` for OpenGL (default Vulkan
 Fixtures stay in `.codex/work/metal-materials/`, captures in `.codex/logs/metal-materials/`
 and reports in `.codex/validation/metal-materials/`. No production map is changed.
 
-Validation on 11.09.2026: all 16 native room arrangements at three viewpoints
+Validation of the initial metal rollout on 11.09.2026: all 16 native room arrangements at three viewpoints
 passed on Vulkan and OpenGL (48 captures each), with save/load and 240 material
 assignment checks per backend. The flat Vulkan baseline uses the same camera and
 point light. Vulkan was checked against the shared package; OpenGL used the same
@@ -144,3 +145,52 @@ The four retained TNT01/TNT02 views also passed against the shared package on
 OpenGL, including the composed environment shader and TNT02 save/load.
 Shared package build `119ec7251ffe` passed the engine check; its 384 generated
 material resources and both shader source files matched the working tree.
+
+## Neutral surface plane (11.09.2026)
+
+All 99 registered base materials / 159 variants now encode the geometric wall,
+floor or ceiling plane as gray **127**. Darker height samples recess the surface;
+brighter samples protrude. The shader traces both sides of that plane. Constant
+neutral regions resolve to zero displacement, including when the tracing interval
+contains both positive and negative heights. Linear interpolation after binary
+refinement avoids a residual global offset on such regions.
+
+The procedural profile establishes one reference height for the whole family,
+not a separate mean or contrast stretch per image. Existing rock, gravel, soil,
+grass, snow and ice profiles are re-anchored around a shared reference; block-face
+heights anchor brick and stonework while the joints recede. The previous relief
+span budgets remain unchanged. Normals derive from the quantized height actually
+sampled by the shader, so a constant neutral patch also has a flat normal.
+These profile references are approximations; this is not a hand-authored height
+interpretation of every natural stone, stain or architectural feature.
+
+ORUST01–04 share a neutral base plate and raised crust. ORUST02 has approximately
+1.08 units of raised roughness. ORUST03 adds domed rivet heads, including their
+painted dark sides, up to approximately 1.86 units. Their shared base-image pixels
+retain matching heights outside the explicitly authored rivet regions. ORUST01
+and ORUST04 use the same plate/crust treatment to keep the series compatible.
+The diffuse artwork and subdued metal specular response are unchanged.
+
+The encoding is `world height = depth * 2 * (sample - 127/255)`. The generator
+records actual signed extrema and checks them against a common per-profile trace
+interval. Shared tracing bounds keep related variants on the same GPU program.
+Legacy definitions without the new reference fields retain their original
+white-zero decoding, since test overlays can leave old programs in the engine's
+compilation list. All newly generated production bindings declare the gray-zero
+convention explicitly.
+
+`python -B tools/test_neutral_relief.py` checks neutral planes in every profile,
+analytical plane/ray intersections, encoded extrema, flat normals, raised rivets
+and shared ORUST02/03 base pixels. Temporary evidence for this revision lives in
+`.codex/validation/neutral-relief/` and `.codex/work/neutral-relief/`.
+
+Neutral-height validation: 159 generated variants and 48 analytical constant-plane
+cases passed. ORUST02/03 share 3,287 equal base-artwork pixels outside authored
+rivets; flat neutral neighborhoods have flat normals. Native Vulkan and OpenGL
+passed all 48 metal-room views per backend with save/load; 22 controlled Vulkan
+wall views cover every existing profile. Additional native checks loaded TNT01,
+TNT02, TNT03A1 and TNT03A2. Two historical QROCK3 camera positions now land outside
+the visible play area, so their screenshots are excluded as visual evidence;
+QROCK3 is covered in the controlled profile probes. The native ICEY viewpoint is
+partially obstructed; its material rendering is covered by the controlled ICEY
+probe. The shared package build `ffc63dd86355` passed engine validation.

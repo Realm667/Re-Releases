@@ -9,6 +9,38 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
+HEIGHT_NEUTRAL = 127/255
+HEIGHT_GAIN = 2.0
+# A shared material plane, never an independent per-image average.
+PROFILE_BASE = dict(rock=.65, gravel=.60, soil=.50, grass=.50, snow=.50,
+                    snowrock=.50, ice=.50, stonework=.88, brick=.88, metal=.15)
+
+
+def encode_height(height, profile):
+    encoded = HEIGHT_NEUTRAL+(height-PROFILE_BASE[profile])/HEIGHT_GAIN
+    if np.min(encoded)<0 or np.max(encoded)>1:raise ValueError('Signed height would clip')
+    return np.uint8(np.rint(encoded*255))
+
+
+def height_depth(encoded):
+    return HEIGHT_GAIN*(HEIGHT_NEUTRAL-np.asarray(encoded,dtype=np.float32)/255)
+
+
+def rust_plate_height(rgb, logical, detail):
+    lum = np.asarray(rgb,np.float32)/255 @ np.array([.2126,.7152,.0722],np.float32)
+    crust = np.clip((lum-.07)/.20,0,1)
+    raised = .36*crust*crust*(3-2*crust)
+    # Rivet caps include the dark half of each head, not just painted highlights.
+    if detail.get('rivets'):
+        yy,xx=np.mgrid[:rgb.shape[0],:rgb.shape[1]]
+        xx=(xx+.5)*logical[0]/rgb.shape[1];yy=(yy+.5)*logical[1]/rgb.shape[0]
+        for cx,cy in detail['rivets']:
+            dx=np.abs(xx-cx);dy=np.abs(yy-cy)
+            dx=np.minimum(dx,logical[0]-dx);dy=np.minimum(dy,logical[1]-dy)
+            cap=np.clip(1-(dx*dx+dy*dy)/(3.25*3.25),0,1)
+            raised=np.maximum(raised,.62*cap*cap*(3-2*cap))
+    return PROFILE_BASE['metal']+raised
+
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
@@ -79,6 +111,10 @@ def metal_surface(rgb):
 def validate_compatibility(config):
     materials = {m['name']:m for m in config['materials']}
     if len(materials)!=len(config['materials']):raise ValueError('Duplicate material name')
+    for m in materials.values():
+        detail=m.get('height_detail')
+        if detail and (m['profile']!='metal' or detail.get('kind')!='raised-rust'):
+            raise ValueError('Unsupported height detail: '+m['name'])
     grouped = set()
     for name,group in config.get('compatibility_groups',{}).items():
         if group['profile']=='metal' and not 0<group['depth']<=6:
@@ -93,13 +129,13 @@ def validate_compatibility(config):
         raise ValueError('Metal materials require a compatibility group')
 
 
-def relief(rgb, profile, depth, logical):
+def relief(rgb, profile, depth, logical, detail=None):
     lum = np.asarray(rgb,np.float32)/255 @ np.array([.2126,.7152,.0722],np.float32)
     soft = wrap_blur(lum,.9)
     lo,hi = np.quantile(soft,[.16,.91])
     face = np.clip((soft-lo)/max(hi-lo,.001),0,1)
     if profile == 'metal':
-        h = metal_height(rgb)
+        h = rust_plate_height(rgb,logical,detail) if detail else metal_height(rgb)
     elif profile in ('rock','gravel'):
         dist = np.where(face<.14,0,32).astype(np.float32)
         for _ in range(14):
@@ -139,11 +175,14 @@ def relief(rgb, profile, depth, logical):
         h = wrap_blur(.55*face+.45*broad,1.0)*.72+.14
     else:
         raise ValueError('Unknown organic relief profile: '+profile)
+    encoded = encode_height(h,profile)
+    # Normals use the exact quantized field sampled by the shader.
+    h = -height_depth(encoded)
     dx = (np.roll(h,-1,1)-np.roll(h,1,1))*.5*depth*h.shape[1]/logical[0]
     dy = (np.roll(h,-1,0)-np.roll(h,1,0))*.5*depth*h.shape[0]/logical[1]
     normal = np.stack((-dx,dy,np.ones_like(h)),axis=2)
     normal /= np.linalg.norm(normal,axis=2,keepdims=True)
-    return np.uint8(np.clip(h,0,1)*255), np.uint8(np.clip(normal*.5+.5,0,1)*255)
+    return encoded, np.uint8(np.clip(normal*.5+.5,0,1)*255)
 
 def png_bytes(array):
     out=io.BytesIO();Image.fromarray(array).save(out,format='PNG')
@@ -257,15 +296,17 @@ def generate(root=ROOT, *, check=False, iwad=None):
         variants=list(dict.fromkeys([n]+[v for v in (alias,band) if v in definitions]))
         for v in variants:
             rgb,logical=resolve(v,entry['sources'])
-            fingerprint=digest(rgb.tobytes()+json.dumps([logical,m['profile'],m['depth']]).encode())[:14]
+            fingerprint=digest(rgb.tobytes()+json.dumps([logical,m['profile'],m['depth'],m.get('height_detail'),'signed-127-v1']).encode())[:14]
             if fingerprint not in data_cache:
-                h,nrm=relief(rgb,m['profile'],m['depth'],logical)
+                h,nrm=relief(rgb,m['profile'],m['depth'],logical,m.get('height_detail'))
                 stem=f"materials/organic/{n.lower()}-{fingerprint}"
                 emit('tutnt/'+stem+'-height.png',png_bytes(h));emit('tutnt/'+stem+'-normal.png',png_bytes(nrm))
                 if m['profile']=='metal':emit('tutnt/'+stem+'-surface.png',png_bytes(metal_surface(rgb)))
                 data_cache[fingerprint]=stem
             stem=data_cache[fingerprint]
-            bindings[v]=dict(stem=stem,depth=m['depth'],profile=m['profile'],family=n,logical=list(logical),size=[rgb.shape[1],rgb.shape[0]])
+            h=np.asarray(Image.open(io.BytesIO(outputs['tutnt/'+stem+'-height.png'])))
+            limits=height_depth(h)
+            bindings[v]=dict(stem=stem,depth=m['depth'],profile=m['profile'],family=n,logical=list(logical),size=[rgb.shape[1],rgb.shape[0]],neutral=127,base_height=PROFILE_BASE[m['profile']],min_depth=float(limits.min()),max_depth=float(limits.max()),trace_top=PROFILE_BASE[m['profile']]-1,trace_bottom=PROFILE_BASE[m['profile']])
         records.append(dict(m,variants=variants))
     tables=[]
     env_bindings={}
@@ -279,7 +320,10 @@ def generate(root=ROOT, *, check=False, iwad=None):
     def definition(name,m,env=False):
         shade={'rock':1.0,'gravel':.7,'soil':.5,'grass':.3,'snow':.55,'snowrock':.65,'ice':.4,'stonework':.55,'brick':.4,'metal':.28}[m['profile']]
         body=[f'Material "{name}" {{',f' Shader "shaders/organic/{"environment" if env else "material"}.fp"',
-              f' Define ORGANIC_DEPTH = "{m["depth"]:.4f}"',f' Define ORGANIC_SHADE = "{shade:.4f}"',
+              f' Define ORGANIC_DEPTH = "{m["depth"]:.4f}"',
+              # Profile-wide bounds keep compatible textures on a shared GPU program.
+              f' Define ORGANIC_TRACE_TOP = "{m["trace_top"]:.9f}"',f' Define ORGANIC_TRACE_BOTTOM = "{m["trace_bottom"]:.9f}"',
+              f' Define ORGANIC_BASE_HEIGHT = "{m["base_height"]:.4f}"',f' Define ORGANIC_SHADE = "{shade:.4f}"',
               f' Normal "{m["stem"]}-normal.png"', ' Specular "materials/organic/black.png"',
               f' Texture organicHeight "{m["stem"]}-height.png"']
         if m['profile']=='ice':body += [' Define ORGANIC_ICE']
@@ -289,7 +333,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
     for n,m in sorted(bindings.items()):gldefs.append(definition(n,m))
     for n,(m,base) in sorted(env_bindings.items()):gldefs.append(definition(n,m,True))
     emit('tutnt/GLDEFS.organic','\n\n'.join(gldefs)+'\n')
-    manifest=dict(schema=1,inputs=inputs,outputs={k:digest(v) for k,v in outputs.items()},
+    manifest=dict(schema=2,height_encoding=dict(neutral=127,gain=HEIGHT_GAIN,profile_baselines=PROFILE_BASE),inputs=inputs,outputs={k:digest(v) for k,v in outputs.items()},
                   materials=records,variants=bindings,environment_tables=tables,bindings=len(bindings)+len(env_bindings),
                   environment_bindings={n:base for n,(m,base) in env_bindings.items()})
     # Write only changed bytes; the manifest is published after all owned outputs.

@@ -7,7 +7,7 @@ from pathlib import Path
 import argparse, json, struct, sys
 import numpy as np
 from PIL import Image
-from build_organic_materials import ROOT, metal_height, metal_surface, relief, validate_compatibility
+from build_organic_materials import ROOT, metal_height, metal_surface, relief, validate_compatibility, height_depth
 from check_engine import run_case
 
 CENTRAL=ROOT/'tutnt/.codex'
@@ -67,7 +67,9 @@ def data_checks():
         surface=np.asarray(Image.open(str(stem)+'-surface.png'))
         assert height.shape==normal.shape[:2]==surface.shape[:2]
         assert np.isfinite(normal).all() and np.min(normal[:,:,2])>127
-        assert np.max((1-height.astype(float)/255)*3)<=3
+        assert np.max(np.abs(height_depth(height))*3)<=3
+        assert abs(m['min_depth']-float(height_depth(height).min()))<1e-7
+        assert abs(m['max_depth']-float(height_depth(height).max()))<1e-7
         covered+=sum(base==name for base in manifest['environment_bindings'].values())
         data[name]=height
     # Verify reused native strips in the real QMET trim family (not synthetic only).

@@ -1,5 +1,13 @@
 // Tangent-space Parallax Occlusion Mapping. Material-specific depth in world units.
 // Color texture unchanged; height and normal textures are independent data.
+// An overlay can leave old material programs in the engine's compile list.
+// Keep their old height convention until the new definitions replace them.
+#ifndef ORGANIC_BASE_HEIGHT
+#define ORGANIC_BASE_HEIGHT 1.0
+#define ORGANIC_TRACE_TOP 0.0
+#define ORGANIC_TRACE_BOTTOM 1.0
+#define ORGANIC_LEGACY_HEIGHT
+#endif
 const float RockDepth=ORGANIC_DEPTH;
 // Data maps stay bilinear even when the player selects unfiltered pixel art.
 vec4 RockData(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy)
@@ -26,7 +34,12 @@ void SetupMetalResponse(inout Material mat,vec2 uv,vec2 gx,vec2 gy)
 #endif
 float ReadRockDepth(vec2 uv,vec2 gx,vec2 gy)
 {
+#ifdef ORGANIC_LEGACY_HEIGHT
     return 1.0-RockData(organicHeight,uv,gx,gy).r;
+#else
+    // Gray 127 is the geometric wall/floor plane; negative depth protrudes.
+    return 2.0*(127.0/255.0-RockData(organicHeight,uv,gx,gy).r);
+#endif
 }
 void SetupOrganicMaterial(inout Material mat)
 {
@@ -59,20 +72,26 @@ void SetupOrganicMaterial(inout Material mat)
     vec2 slope=vec2(dot(view,t),dot(view,b))/max(vz,0.18);
     vec2 ray=slope*RockDepth*fade/worldSize;
     int steps=int(mix(32.0,16.0,clamp(vz,0.0,1.0)));
-    float stepDepth=1.0/float(steps),layer=0.0;
-    vec2 hit=uv;
+    float top=ORGANIC_TRACE_TOP,bottom=ORGANIC_TRACE_BOTTOM;
+    float stepDepth=(bottom-top)/float(steps),layer=top;
+    vec2 hit=uv-ray*layer;
     for(int i=0;i<32;i++)
     {
         if(i>=steps || layer>=ReadRockDepth(hit,gx,gy))break;
         layer+=stepDepth;hit=uv-ray*layer;
     }
-    float low=max(0.0,layer-stepDepth),high=layer;
+    float low=max(top,layer-stepDepth),high=layer;
     for(int j=0;j<5;j++)
     {
         float mid=(low+high)*0.5;
         if(mid<ReadRockDepth(uv-ray*mid,gx,gy))low=mid;else high=mid;
     }
-    layer=(low+high)*0.5;hit=uv-ray*layer;
+    // Interpolation makes a constant neutral region land exactly on zero.
+    float dl=ReadRockDepth(uv-ray*low,gx,gy),dh=ReadRockDepth(uv-ray*high,gx,gy);
+    float denominator=(high-low)-(dh-dl);
+    layer=abs(denominator)>1e-8 ? mix(low,high,clamp((dl-low)/denominator,0.0,1.0)) : high;
+    hit=uv-ray*layer;
+    float artworkHeight=ORGANIC_BASE_HEIGHT-layer;
     SetMaterialProps(mat,hit);
     // Green-up normal data, transformed using the undisplaced surface basis.
     vec3 nn=RockData(normaltexture,hit,gx,gy).xyz*2.0-1.0;
@@ -90,7 +109,7 @@ void SetupOrganicMaterial(inout Material mat)
     {
         for(int i=1;i<=10;i++)
         {
-            float rise=layer*float(i)/10.0;
+            float rise=(layer-top)*float(i)/10.0;
             float blocker=ReadRockDepth(hit+lightRay*rise,gx,gy);
             occlusion=max(occlusion,smoothstep(0.02,0.12,(layer-rise)-blocker));
         }
@@ -99,11 +118,11 @@ void SetupOrganicMaterial(inout Material mat)
     float bumpLight=0.32+0.68*max(dot(mat.Normal,sky),0.0);
     float shade=clamp(bumpLight/max(flatLight,0.35),0.46,1.8);
     shade*=mix(1.0,0.58,occlusion);
-    shade*=mix(0.72,1.0,smoothstep(0.15,0.75,1.0-layer));
+    shade*=mix(0.72,1.0,smoothstep(0.15,0.75,artworkHeight));
     mat.Base.rgb*=mix(1.0,shade,fade*ORGANIC_SHADE);
 #ifdef ORGANIC_ICE
     // Broad ice faces catch light; recessed frost remains more diffuse.
-    float clearIce=smoothstep(.28,.76,1.0-layer);
+    float clearIce=smoothstep(.28,.76,artworkHeight);
     mat.Specular=vec3(mix(.18,.42,clearIce));
     mat.SpecularLevel=.65;mat.Glossiness=mix(12.0,28.0,clearIce);
     float fresnel=pow(1.0-clamp(dot(mat.Normal,view),0.0,1.0),4.0);
