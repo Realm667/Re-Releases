@@ -402,7 +402,11 @@ break, refraction release and Near/Far impact retain their timing.
 The six consumed seal arcs (layers 12–17) become the smoke: the pool stays at
 72 VisualThinkers, with no new physical actors, lights or shader programs.
 The smoke uses the shared sprite shader and existing two-pixel carrier plus
-state texel 25. Each billboard stays below 430 map units in diameter. Rapid
+state texel 25. The follow-up tuning doubles the complete burst dimensions
+(billow diameters, spread and rise) and the shader optical thickness; soft
+noise detail and fade timing remain intact. Each billboard stays below 860
+map units in diameter. The larger screen coverage increases pixel work, while
+object and shader counts remain unchanged. Rapid
 initial expansion slows into a soft fade; all smoke is gone at tic 228, before
 the quiet ending starts at 245. Low quality uses three billows, reduced effects
 two with lower opacity, and quality zero none. Save/load reconstructs age,
@@ -413,4 +417,6 @@ saves, six/three/two/zero quality budgets and an empty finale on OpenGL/Vulkan
 in TNT04CN and TNT04C. Existing implosion checks retain the inward trajectories,
 beam severance and light break. Local reports and unedited runtime screenshots
 are under `.codex/logs/source-black-burst/`. Fixed pools limit the added work;
-this is not a universal frame-rate guarantee.
+this is not a universal frame-rate guarantee. The doubled-size/density follow-up
+uses the same four map/renderer checks; reports are under
+`.codex/logs/source-black-burst-stronger/`.

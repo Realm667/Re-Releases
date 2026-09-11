@@ -166,7 +166,7 @@ class UTNTSourceTests : EventHandler
     if(e.Args[0]>0)
     {
      Assert(em.Layers[68].Alpha==0 && em.Source.LastBeamState==2,"smoke follows consumed black core and severed beam");
-     Assert(em.Layers[12].Scale.X<1 && em.Layers[12].Alpha<1,"smoke billboards have bounded size and translucency");
+     Assert(em.Layers[12].Scale.X<860.0/512.0 && em.Layers[12].Alpha<1,"smoke billboards have bounded size and translucency");
      if(e.Args[1])Assert(em.Flash()>0,"black burst and light break start together");
     }
     if(em.DeadAge>=245)

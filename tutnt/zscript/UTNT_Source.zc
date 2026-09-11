@@ -519,10 +519,10 @@ class UTNTSourceLayer : VisualThinker
      // Reuse the six spent arcs for the black blast exactly at shader collapse.
      double t=clamp((d-158)/70.0,0,1),burst=1-(1-t)*(1-t)*(1-t);
      double smokeAngle=arc*137.5;
-     double radius=30+(190+arc%3*22)*burst;
+     double radius=2*(30+(190+arc%3*22)*burst);
      Texture=TexMan.CheckForTexture("USSMA0");SetRenderStyle(STYLE_Translucent);
-     diameter=150+arc%3*25+230*burst;
-     Pos=e.Center+right*cos(smokeAngle)*radius+(0,0,sin(smokeAngle)*radius+t*95)+front*(42+arc*3);
+     diameter=2*(150+arc%3*25+230*burst);
+     Pos=e.Center+right*cos(smokeAngle)*radius+(0,0,sin(smokeAngle)*radius+t*190)+front*(84+arc*6);
      Roll=arc*61+(e.Reduced?0:(d-158)*.65*(arc%2?1:-1));
      double fade=clamp((t-.12)/.88,0,1);fade=1-fade*fade*(3-2*fade);
      int count=e.Quality==0?0:e.Reduced?2:e.Quality==1?3:6;

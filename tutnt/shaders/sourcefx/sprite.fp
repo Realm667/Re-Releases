@@ -46,6 +46,8 @@ vec4 ProcessTexel()
   float curl=SmokeNoise(p*7.3-flow*.7);
   float edge=1.0-smoothstep(.48,.96,r+(billow-.5)*.28);
   float density=edge*(.58+.28*billow+.14*curl);
+  // Double optical thickness while preserving soft, detailed cloud edges.
+  density=1.0-(1.0-density)*(1.0-density);
   // True translucent near-black smoke; additive black would be invisible.
   return vec4(vec3(.008,.006,.005)*(.55+.45*curl),density);
  }
