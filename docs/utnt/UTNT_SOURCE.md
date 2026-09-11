@@ -388,3 +388,29 @@ existing postprocess and samples the scene once.
 The gravity-light radius was doubled from 1400 to 2800 map units on 2026-09-11
 to partially darken the shaft above the seal. The centre, fade envelope, peak
 strength and single shadowless light actor remain unchanged.
+
+
+## Black collapse burst — 2026-09-12
+
+At defeat tic 158, the singularity, beam and inward runes finish collapsing.
+The same saved-clock tick now releases a short black burst with six expanding,
+slowly rising smoke billows. Their soft, uneven density uses two interpolated
+noise samples and genuinely translucent near-black colour, so the cloud darkens
+the scene instead of disappearing under additive blending. The existing light
+break, refraction release and Near/Far impact retain their timing.
+
+The six consumed seal arcs (layers 12–17) become the smoke: the pool stays at
+72 VisualThinkers, with no new physical actors, lights or shader programs.
+The smoke uses the shared sprite shader and existing two-pixel carrier plus
+state texel 25. Each billboard stays below 430 map units in diameter. Rapid
+initial expansion slows into a soft fade; all smoke is gone at tic 228, before
+the quiet ending starts at 245. Low quality uses three billows, reduced effects
+two with lower opacity, and quality zero none. Save/load reconstructs age,
+position and fade without retriggering the burst. Both Source maps share it.
+
+`tools/test_source_black_burst.py` checks exact onset, before/after-collapse
+saves, six/three/two/zero quality budgets and an empty finale on OpenGL/Vulkan
+in TNT04CN and TNT04C. Existing implosion checks retain the inward trajectories,
+beam severance and light break. Local reports and unedited runtime screenshots
+are under `.codex/logs/source-black-burst/`. Fixed pools limit the added work;
+this is not a universal frame-rate guarantee.

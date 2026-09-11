@@ -8,7 +8,7 @@ import struct, zlib
 ROOT=Path(__file__).resolve().parent.parent
 
 SPRITES={'USC0A0':0,'USC1A0':1,'USRCA0':2,'USROA0':3,'USREA0':4,
-         'USHEA0':5,'USORA0':6,'USRIPA0':7,'USSTA0':8,'USLNA0':9,'USDFA0':10,'USGLA0':11,'USLTA0':12,'USCSA0':13,'USARA0':14,'USDSA0':15,'USCTA0':16,'USCUA0':17,'USVDA0':18,'USVRA0':19,'USG0A0':20,'USG1A0':21,'USG2A0':22,'USG3A0':23,'USFSA0':24}
+         'USHEA0':5,'USORA0':6,'USRIPA0':7,'USSTA0':8,'USLNA0':9,'USDFA0':10,'USGLA0':11,'USLTA0':12,'USCSA0':13,'USARA0':14,'USDSA0':15,'USCTA0':16,'USCUA0':17,'USVDA0':18,'USVRA0':19,'USG0A0':20,'USG1A0':21,'USG2A0':22,'USG3A0':23,'USFSA0':24,'USSMA0':25}
 
 def build(root=ROOT):
  root=Path(root);t=root/'tutnt';out=t/'shaders/sourcefx';out.mkdir(parents=True,exist_ok=True)

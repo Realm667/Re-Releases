@@ -1,7 +1,7 @@
 version "5.0"
 class UTNTSourceTests : EventHandler
 {
- int View, FXStamp, FXExpected, InwardSteps;
+ int View, FXStamp, FXExpected, InwardSteps, FirstBlackAge;
  double LastOrbit;
  ui int LastFXStamp;
  UTNTSourceBase RenderSource;
@@ -33,6 +33,13 @@ class UTNTSourceTests : EventHandler
     if(LastOrbit>orbit+0.1)InwardSteps++;
     LastOrbit=orbit;
    }
+  }
+  if(RenderSource && RenderSource.DefeatAge>=150 && !FirstBlackAge)
+  {
+   let it=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
+   let em=UTNTSourceEmitter(it.Next());
+   if(em && em.Layers.Size()==72 && em.Layers[12].Texture==TexMan.CheckForTexture("USSMA0") && em.Layers[12].Alpha>0)
+    FirstBlackAge=em.DeadAge;
   }
   for(int i=0;i<MAXPLAYERS;i++)if(players[i].mo){players[i].mo.bInvulnerable=true;players[i].mo.bNotarget=true;}
   let p=players[0].mo;if(!p || level.time<5)return;
@@ -143,6 +150,31 @@ class UTNTSourceTests : EventHandler
      Assert(clear,"the centre is empty after the implosion tail");
     }
     Console.Printf("SOURCE_IMPLOSION age=%d inward=%d core=%.3f flash=%.3f",em.DeadAge,InwardSteps,em.Layers[68].Alpha,em.Layers[70].Alpha);
+   }
+  }
+  if(e.Name=="sourceblackcheck")
+  {
+   let iter=ThinkerIterator.Create('UTNTSourceEmitter',Thinker.STAT_USER+12,true);
+   let em=UTNTSourceEmitter(iter.Next());
+   Assert(em && em.Layers.Size()==72,"black burst reuses the existing 72-layer pool");
+   if(em)
+   {
+    int count=0;
+    for(int i=12;i<18;i++)if(em.Layers[i].Texture==TexMan.CheckForTexture("USSMA0") && em.Layers[i].Alpha>0)count++;
+    Assert(count==e.Args[0],"black smoke obeys onset, fade and local quality budget");
+    if(em.DeadAge>=158)Assert(FirstBlackAge==158,"black burst starts exactly with collapse tic 158");
+    if(e.Args[0]>0)
+    {
+     Assert(em.Layers[68].Alpha==0 && em.Source.LastBeamState==2,"smoke follows consumed black core and severed beam");
+     Assert(em.Layers[12].Scale.X<1 && em.Layers[12].Alpha<1,"smoke billboards have bounded size and translucency");
+     if(e.Args[1])Assert(em.Flash()>0,"black burst and light break start together");
+    }
+    if(em.DeadAge>=245)
+    {
+     bool empty=true;for(int i=0;i<em.Layers.Size();i++)empty=empty && em.Layers[i].Alpha==0;
+     Assert(empty,"smoke is gone before the quiet ending fade");
+    }
+    Console.Printf("SOURCE_BLACK age=%d first=%d count=%d",em.DeadAge,FirstBlackAge,count);
    }
   }
   if(e.Name=="sourcefxreset")FXStamp=0; // Do not save pending render assertions.

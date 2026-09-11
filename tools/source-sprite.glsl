@@ -4,10 +4,34 @@ float Ring(float r,float target,float width)
  return 1.0-smoothstep(width,width+max(fwidth(r),0.002),abs(r-target));
 }
 float Hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+// Stable, smoothly interpolated density for the short black collapse cloud.
+float SmokeHash(vec2 cell)
+{
+ uint h=uint(int(cell.x))*0x8da6b343u ^ uint(int(cell.y))*0xd8163841u;
+ h=(h^(h>>16u))*0x7feb352du;h=(h^(h>>15u))*0x846ca68bu;
+ return float((h^(h>>16u))&0x00ffffffu)/16777216.0;
+}
+float SmokeNoise(vec2 p)
+{
+ vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+ return mix(mix(SmokeHash(i),SmokeHash(i+vec2(1,0)),f.x),
+            mix(SmokeHash(i+vec2(0,1)),SmokeHash(i+vec2(1,1)),f.x),f.y);
+}
 vec4 ProcessTexel()
 {
  int kind=int(texture(sourceKind,vec2(.5)).r*255.0+.5);
  vec2 p=(vTexCoord.st-0.5)*2.0;float r=length(p);
+ if(kind==25)
+ {
+  if(r>.98)return vec4(0.0);
+  vec2 flow=vec2(timer*.23,-timer*.17);
+  float billow=SmokeNoise(p*3.1+flow);
+  float curl=SmokeNoise(p*7.3-flow*.7);
+  float edge=1.0-smoothstep(.48,.96,r+(billow-.5)*.28);
+  float density=edge*(.58+.28*billow+.14*curl);
+  // True translucent near-black smoke; additive black would be invisible.
+  return vec4(vec3(.008,.006,.005)*(.55+.45*curl),density);
+ }
  float a=atan(p.y,p.x), turn=(a+3.14159265)/6.2831853;
  float ink=0.0,heat=0.0;vec3 gold=vec3(1.0,0.37,0.035);
  if(kind == 0 || kind == 1) {
