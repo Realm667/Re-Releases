@@ -17,10 +17,28 @@ class UTNTBossHUDTest : EventHandler
             UTNTWorldHandler.BeginBoss(Boss.TID,Boss.TID,e.Args[0],1000);
             UTNTWorldHandler.UpdateBoss(e.Args[1]); Boss.bInvulnerable=e.Args[2]!=0;
         }
+        else if(e.Name=="plaqueencounter")
+        {
+            Boss=level.CreateActorIterator(666).Next();
+            if(Boss) UTNTWorldHandler.BeginBoss(666,666,5,Boss.Health);
+        }
+        else if(e.Name=="plaqueguardian")
+        {
+            let guardian=level.CreateActorIterator(667).Next();
+            if(guardian) guardian.DamageMobj(p,p,100000,'None',DMG_FORCED);
+        }
         else if(e.Name=="plaquehp") UTNTWorldHandler.UpdateBoss(e.Args[0]);
         else if(e.Name=="plaquecutscene") UTNTWorldHandler.SetCutscene(p,e.Args[0]!=0);
     }
-    override void WorldTick() { if(players[0].mo) players[0].mo.bInvulnerable=true; }
+    override void WorldTick()
+    {
+        let p=players[0].mo;if(!p)return;p.bInvulnerable=true;p.bNotarget=true;
+        if(!UTNTSourceSystem.Active())return;
+        p.bNoGravity=true;p.bNoClip=true;
+        Vector3 pos=(128,-1100,3500);
+        if(level.MapName~=="TNT04C")pos+=(832,13952,-9384);
+        p.SetOrigin(pos,false);p.Vel=(0,0,0);p.Angle=90;p.Pitch=-35;
+    }
 }
 class UTNTBossHUDUITest : StaticEventHandler
 {
@@ -44,6 +62,15 @@ class UTNTBossHUDUITest : StaticEventHandler
             if(e.Args[2]==1) Check(SawDamageTrail,"damage trail follows interpolated health");
             else if(e.Args[2]==2) Check(abs(hud.DisplayHP-double(h.BossHP)/h.BossMaxHP)<0.000001 && hud.DamageHP==hud.DisplayHP,"reduced effects snap both gauges");
             else Check(abs(hud.DisplayHP-double(h.BossHP)/h.BossMaxHP)<0.001,"gauge reaches current health");
+        }
+        if(e.Name=="plaqueshield")
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            let boss=h ? level.CreateActorIterator(h.BossFirstTID).Next() : null;
+            Check(boss && h.BossKind==5,"Source shield icon belongs to the active boss plaque");
+            Check(UTNTBossPlaque.Shielded(boss)==(e.Args[0]!=0),"HUD shield matches protected or vulnerable encounter state");
+            if(UTNTSourceSystem.Active())
+                Check(boss && !boss.bInvulnerable,"real Source shield works without actor invulnerability");
         }
         if(e.Name=="plaquedead")
         {

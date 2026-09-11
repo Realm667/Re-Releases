@@ -24,17 +24,48 @@ class UTNTBossPlaque ui
         Screen.Dim(color,alpha,x1,y1,max(1,int(x+(left+width)*scale)-x1),max(1,int(y+(top+height)*scale)-y1));
     }
 
-    static void Shield(double x,double y,double scale,double alpha)
+    static bool Shielded(Actor boss)
     {
-        // A small pixel shield fits inside the original frame; it never replaces HP color.
-        Rect(x,y,scale,125,11,6,1,0x76c5ff,alpha);
-        Rect(x,y,scale,124,12,8,5,0x408ee5,alpha);
-        Rect(x,y,scale,125,17,6,2,0x408ee5,alpha);
-        Rect(x,y,scale,126,19,4,1,0x408ee5,alpha);
-        Rect(x,y,scale,127,20,2,1,0x408ee5,alpha);
-        Rect(x,y,scale,125,13,6,4,0x102b61,alpha);
-        Rect(x,y,scale,126,17,4,1,0x102b61,alpha);
-        Rect(x,y,scale,127,18,2,1,0x102b61,alpha);
+        if(!boss || boss.Health<=0) return false;
+        let source=UTNTSourceBase(boss);
+        if(source && UTNTSourceSystem.Active())
+        {
+            // The Source is protected by line collision, not actor invulnerability.
+            // Read it directly so HUD, guardian opening and restored saves agree.
+            let lines=level.CreateLineIdIterator(99);
+            int index=lines.Next();
+            return index>=0 && (level.lines[index].flags & Line.ML_BLOCKEVERYTHING)!=0;
+        }
+        return boss.bInvulnerable;
+    }
+
+    static void Shield(double x,double y,double scale,double alpha,bool shielded)
+    {
+        // Intact amber shield / separated bronze halves: readable without colour.
+        if(shielded)
+        {
+            Rect(x,y,scale,125,11,6,1,0xffdb83,alpha);
+            Rect(x,y,scale,124,12,8,5,0xefaa43,alpha);
+            Rect(x,y,scale,125,17,6,2,0xefaa43,alpha);
+            Rect(x,y,scale,126,19,4,1,0xefaa43,alpha);
+            Rect(x,y,scale,127,20,2,1,0xefaa43,alpha);
+            Rect(x,y,scale,125,13,6,4,0x653618,alpha);
+            Rect(x,y,scale,126,17,4,1,0x653618,alpha);
+            Rect(x,y,scale,127,18,2,1,0x653618,alpha);
+        }
+        else
+        {
+            Rect(x,y,scale,124,11,3,1,0xc1aa83,alpha);
+            Rect(x,y,scale,123,12,4,5,0x9b805b,alpha);
+            Rect(x,y,scale,124,17,3,2,0x9b805b,alpha);
+            Rect(x,y,scale,125,19,2,1,0x9b805b,alpha);
+            Rect(x,y,scale,124,13,2,4,0x382b20,alpha);
+            Rect(x,y,scale,129,12,3,1,0xc1aa83,alpha);
+            Rect(x,y,scale,129,13,4,5,0x9b805b,alpha);
+            Rect(x,y,scale,129,18,3,2,0x9b805b,alpha);
+            Rect(x,y,scale,128,20,3,1,0x9b805b,alpha);
+            Rect(x,y,scale,130,14,2,4,0x382b20,alpha);
+        }
     }
 
     static void Draw(int kind,double hp,double shownHP,double damageHP,bool shielded,bool percentage,double alpha)
@@ -58,11 +89,11 @@ class UTNTBossPlaque ui
             String value=String.Format("%d%%",int(ceil(hp*100)));
             Font digits=Font.GetFont('DBIGFONT');
             double numberScale=scale*min(0.70,min(14.0/max(1,digits.GetHeight()),78.0/max(1,digits.StringWidth(value))));
-            double center=shielded ? 79 : 85;
+            double center=kind==5 ? 79 : 85;
             Screen.DrawText(digits,Font.CR_WHITE,x+center*scale-digits.StringWidth(value)*numberScale/2,y+10*scale,value,
                 DTA_ScaleX,numberScale,DTA_ScaleY,numberScale,DTA_Color,fill,DTA_Alpha,alpha);
         }
-        if(shielded) Shield(x,y,scale,alpha);
+        if(kind==5) Shield(x,y,scale,alpha,shielded);
         // Fit the entire gauge inside the original recess: x=29..133, y=24..28.
         // Share the inset coordinates across the fill, damage trail, shading and ticks.
         double barX=30, barY=25, barWidth=103;

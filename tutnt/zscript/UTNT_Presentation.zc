@@ -672,7 +672,7 @@ class UTNTPresentation : StaticEventHandler
         {
             let bossIter = ActorIterator.Create(handler.BossFirstTID);
             let boss = bossIter.Next();
-            shielded = boss && boss.bInvulnerable;
+            shielded = UTNTBossPlaque.Shielded(boss);
         }
         UTNTBossPlaque.Draw(handler.BossKind,double(handler.BossHP)/handler.BossMaxHP,
             DisplayHP,DamageHP,shielded,CVar.GetCVar('UTNT_bosspercent',player).GetBool(),alpha);

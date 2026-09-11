@@ -21,7 +21,7 @@ Die historischen SHA-256-Werte in `original-portraits.json` beschreiben den geli
 - Prozent: vorhandene DBIGFONT; aktueller HP-Wert aufgerundet, von 0 bis 100 begrenzt. Der Zahlenwert folgt dem Schaden sofort, der Balken gleitet nach.
 - Zahl und Balken interpolieren stufenlos zwischen Grün bei 100 %, Gelb bei 60 %, Orange bei 30 % und Rot bei 10 %. Unter 10 % bleibt die Anzeige rot.
 - Ein dunkler Schadensnachlauf bleibt zunächst acht UI-Ticks stehen und läuft dann aus. Reduzierte Effekte lassen beide Balken direkt auf den aktuellen Wert springen.
-- Die unverwundbare Source erhält ein kleines blaues Schild innerhalb der Box; ihre HP-Farbe bleibt erhalten.
+- The Source zeigt immer ein Schildsymbol innerhalb der Box: ein intaktes bernsteinfarbenes Schild bei aktivem Schutz und zwei getrennte Bronzehälften bei Verwundbarkeit. Form und Farbe unterscheiden die Zustände; ihre HP-Farbe bleibt erhalten.
 - Die vorhandenen Optionen `UTNT_bosshud` und `UTNT_bosspercent` gelten weiterhin. Zwischensequenzen und vollständig eingefrorene Spieler blenden die Bossanzeige aus. Nach dem Tod endet sie wie bisher nach 70 Spielticks, die letzten 35 davon mit Ausblendung.
 
 Die Änderung betrifft `UTNT_BossHUD.zc`, dessen Einbindung und die lokale Darstellung in `UTNTPresentation`. Boss-Actors, ACS-Adapter, Gruppen-HP, gespeicherte Weltzustände und Abschlussaktionen bleiben unverändert. Beim Laden/Kartenwechsel wird die lokale Balkenanimation auf den gespeicherten HP-Wert zurückgesetzt.
@@ -63,3 +63,27 @@ Der Balken sitzt jetzt vollständig innerhalb der Originalvertiefung. Sein äuß
 Frischer PK3-Build und vorhandene HUD-Testfolge unter UZDoom 5.0.1/Vulkan bestanden: 30 Assertions. Ausrichtung bei 960 × 540, 1920 × 1080 und 1024 × 768 kontrolliert; 14 ACS-Module weiterhin byteidentisch. Nachweise: `boss-inset-*` im obigen Nachweisverzeichnis.
 
 Aktuelles lokales Paket: 84917073 Bytes, SHA-256 `f061d1c8177bae05040ea7baff05dd3657d836736a67cada19583913a6f03d9c`. Es enthält auch die während der Arbeit vorgefundene lokale Änderung an `PLAYPAL.pal`; diese gehört nicht zur Balkenkorrektur und wird von ihr nicht committet.
+
+
+## Zwei Schildzustände für beide Source-Maps — 11.09.2026
+
+Die alte Anzeige prüfte nur `bInvulnerable` am Actor. Der echte Source-Schild
+blockiert jedoch über Linien-ID 99, während der Boss-Actor verwundbar bleibt.
+`UTNTBossPlaque.Shielded` liest in TNT04CN und TNT04C deshalb direkt die
+Schildkollision. Guardian-Tod, erneutes Schließen und geladene Spielstände
+werden ohne eigenen Timer oder zwischengespeicherten UI-Zustand abgebildet.
+Außerhalb dieser Begegnungen bleibt die bisherige Actor-Prüfung erhalten;
+ein fehlender oder besiegter Actor gilt nicht als geschützt.
+
+Das intakte und das gebrochene Pixelschild sitzen rechts neben der Prozentzahl
+im Originalrahmen. Die Prozentzahl reserviert in beiden Zuständen denselben
+Platz und springt beim Schildwechsel nicht. Das Symbol bleibt auch bei
+ausgeschalteter Prozentanzeige sichtbar und folgt HUD-Ausblendung und Todesfade.
+Keine neuen Texturen, Actors, Shader oder Spielertexte sind erforderlich.
+
+`tools/test_source_shield_hud.py` prüft beide echten Maps unter OpenGL und Vulkan:
+geschlossener Schild, Öffnung durch Guardian-Tod, gespeicherte offene Phase und
+erneutes Schließen. `tools/test_boss_hud.py --work <zentraler-Logordner>` deckt
+weiterhin alle fünf Bossrahmen, Prozentoption, Auflösungen und HUD-Lebenszyklus
+ab. Beide Werkzeuge verwenden das getrennte Test-Add-on. Lokale Nachweise und
+unbearbeitete Engine-Aufnahmen: `.codex/logs/source-shield-hud/`.
