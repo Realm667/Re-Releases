@@ -34,17 +34,30 @@ class EnvironmentContracts(unittest.TestCase):
             self.assertEqual([int(as_float / 64**j) % 64 for j in range(4)], group)
 
     def test_dust_has_transparent_edges_and_bottom_pivot(self):
-        path = ROOT / "tutnt/graphics/environment/mechanism-dust.png"
-        with Image.open(path) as im:
-            self.assertEqual(im.mode, "RGBA")
-            w, h = im.size
-            rim = [im.getpixel((x, y))[3] for x in range(w) for y in (0, h-1)]
-            rim += [im.getpixel((x, y))[3] for y in range(h) for x in (0, w-1)]
-            self.assertFalse(any(rim))
-            self.assertGreater(im.getpixel((w//2, h//2))[3], 100)
-        raw = path.read_bytes()
-        marker = raw.index(b"grAb") + 4
-        self.assertEqual(struct.unpack(">ii", raw[marker:marker+8]), (48, 96))
+        paths = sorted((ROOT / "tutnt/graphics/environment").glob("mechanism-dust*.png"))
+        self.assertEqual(len(paths), 4)
+        self.assertEqual(len({p.read_bytes() for p in paths}), 4)
+        for path in paths:
+            with Image.open(path) as im:
+                self.assertEqual(im.mode, "RGBA")
+                w, h = im.size
+                rim = [im.getpixel((x, y))[3] for x in range(w) for y in (0, h-1)]
+                rim += [im.getpixel((x, y))[3] for y in range(h) for x in (0, w-1)]
+                self.assertFalse(any(rim))
+                self.assertGreater(im.getpixel((w//2, h//2))[3], 100)
+            raw = path.read_bytes()
+            marker = raw.index(b"grAb") + 4
+            self.assertEqual(struct.unpack(">ii", raw[marker:marker+8]), (48, 96))
+
+    def test_water_light_bindings_removed(self):
+        for path in (ROOT / 'tutnt/environment').glob('*-surfaces.txt'):
+            rows = path.read_text().splitlines()
+            if path.name != 'TNT02-surfaces.txt': self.assertEqual(rows, [])
+            for row in rows: self.assertEqual(len(row.split('|')), 16)
+        for name in ('tutnt/shaders/environment/surface.glsl', 'tutnt/zscript/UTNT_Environment.zc', 'tools/fixtures/environment/ZSCRIPT'):
+            text = (ROOT/name).read_text()
+            self.assertNotIn('WaterSector', text)
+            self.assertNotIn('caustic', text.lower())
 
     def test_removed_scenic_lighting_has_no_runtime_references(self):
         for path in (ROOT / "tutnt").glob("LANGUAGE.*"):

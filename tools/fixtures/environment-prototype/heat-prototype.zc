@@ -7,16 +7,16 @@ class UTNTLocalHeatLab : EventHandler
  Actor Anchor;int Mode;ui UTNTEnvironmentOptics Optics;
  override void WorldTick() {
   if(!Anchor)Anchor=Actor.Spawn('UTNTHeatLabAnchor',(896,128,30));
-  Vector3 point=Mode==1?(1018,128,100):Mode==2?(384,384,180):(896,128,30);
+  Vector3 point=Mode==1?(992,128,100):Mode==2?(384,384,180):(896,128,30);
   Anchor.SetOrigin(point,false);
  }
  override void RenderOverlay(RenderEvent e) {
   bool on=CVar.FindCVar('UTNT_localheatprototype').GetBool() && Anchor && e.Camera;
   PPShader.SetEnabled("UTNTLocalHeatLab",on);if(!on)return;
   if(!Optics)Optics=new("UTNTEnvironmentOptics");
-  Optics.Update(e,"UTNTLocalHeatLab",Anchor.Pos,Mode==1?(12,66,72):(72,72,30));
+  Optics.Update(e,"UTNTLocalHeatLab",Anchor.Pos,Mode==1?(32,66,72):(72,72,30));
   PPShader.SetUniform3f("UTNTLocalHeatLab","sourceDelta",Anchor.Pos-e.ViewPos);
-  Vector3 radius=Mode==1?(12,66,72):(72,72,30);
+  Vector3 radius=Mode==1?(32,66,72):(72,72,30);
   if(CVar.FindCVar("UTNT_heatlabmask").GetBool())radius.X=-radius.X;
   PPShader.SetUniform3f("UTNTLocalHeatLab","sourceRadius",radius);
  }

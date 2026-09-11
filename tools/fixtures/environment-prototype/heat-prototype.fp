@@ -37,7 +37,7 @@ void main() {
  vec2 p=TexCoord*vec2(textureSize(InputTexture,0))/55.0;
  float t=InputTimeGame*.7;
  vec2 turbulence=vec2(noise(p+vec2(t,-t*2.1)),noise(p*1.63+vec2(-t*.4,-t*1.8)))-.5;
- vec2 shift=turbulence*1.4*strength/vec2(textureSize(InputTexture,0));
+ vec2 shift=turbulence*7.0*strength/vec2(textureSize(InputTexture,0));
  FragColor=texture(InputTexture,clamp(TexCoord+shift,0.0,1.0));
  if(sourceRadius.x<0.0)FragColor.rgb=mix(FragColor.rgb,vec3(1,.12,.02),strength*.75);
 }

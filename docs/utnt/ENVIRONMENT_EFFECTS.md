@@ -1,84 +1,78 @@
 # Environmental presentation
 
-Updated 2026-09-11 after visual review. Four options remain under UTNT options >
-Environment details, localized in English, German, Spanish and French.
-The local lava heat experiment remains a separate, opt-in test addon.
+Updated 2026-09-11 after the second visual review. Four localized options remain
+under UTNT options > Environment details. The local lava heat experiment is a
+separate test addon.
 
 ## Current behavior
 
-- **Rain-wet surfaces:** 3,178 candidate floor/wall faces in TNT02 retain their
-  original texture scale, area alignment and terrain. Runtime rain-direction
-  traces account for roofs and solid 3D floors. Wetness builds and dries gradually; light rain also develops a visible film.
-  The wet reflection layer smooths coarse material normals without removing relief.
-  Damp stone darkens, with irregular, angle-dependent blue-grey sky sheen and
-  increased material specular response. Two-sided middle textures can participate.
-  The state canvas's inverted GPU Y coordinate is now handled correctly.
-  The combined relief shader fingerprints its includes for cache invalidation.
-  Integer lattice hashing avoids visible seams between procedural wet patches.
-  The sky sheen is an approximation, **not a reflected image of map objects**.
-- **Underwater:** water level 3 enables mild general blur plus stronger blur with
-  increasing estimated viewing distance. Water, slime and blood retain different
-  tints. The existing underwater distortion is separate. Reduced effects disables
-  this additional treatment.
-- **Caustics:** slow, world-anchored cellular light patterns on eligible shallow
-  water beds, lower/middle walls and the visible water plane. Wall reflections fade
-  out within 24 map units above the waterline. The water skin receives a weaker
-  contribution than the bed. Existing liquid shaders are preserved. TNT03A2 has
-  twelve bindings, including its water-control ceiling.
-- **Footprints:** the approved alternating snow and wet sole marks remain.
-  Support checks, moving floors/3D-floor tops, budgets (32/80/160) and lifetimes
-  (wet up to 7 s, snow up to 30 s) are retained.
-- **Mechanisms:** watchers discover ordinary movement actions and literal ACS tags,
-  then react to actual movement and a completed stop after meaningful travel.
-  Dust is distributed across a jittered sector grid, rejecting other sectors and
-  holes. A sector gets up to 16/36/64 puffs by quality. A soft RGBA sprite with a
-  bottom pivot replaces the black-edged smoke patch; particles remain above a
-  rising floor and disappear if the available space closes.
-- **Scenic lighting removed:** the added accent lights, light shafts, lava-edge
-  lamps, generated placement tables, shader, CVar and all four menu translations
-  have been removed. Original map lighting and other existing effects remain.
+- **Rain-wet surfaces:** native planar reflections show actual walls, actors and
+  sky in irregular wet patches on eligible horizontal TNT02 floors. A material
+  alpha mask keeps dry areas opaque and reveals at most 32% of the reflected
+  scene in wet patches, weighted by viewing angle. A minimal native
+  transparency selects the translucent draw pass; the material supplies the mask. Artificial blue-grey sky
+  sheen and the previous specular coat are removed. The existing 3,178 candidate
+  floor/wall faces retain their textures, scale, relief and terrain. Walls and
+  unsupported floor types only darken slightly when wet; they do not mirror.
+  Native reflections are only enabled while wet, restored when disabled, and
+  relinquished if map scripts replace the texture or reflectivity.
+- **Underwater:** water level 3 enables general blur and increasing distance blur.
+  At 256 units the sample radius is about 3.2 output pixels, increasing to 5.85
+  at 1024 units. Water/slime/blood tints remain; existing liquid distortion is
+  independent. Reduced effects disables the additional treatment.
+- **Caustics removed:** no runtime water-light branch, placement bindings, water
+  material aliases or generated water shader remain. Original liquid rendering
+  and underwater atmosphere remain independent.
+- **Footprints:** approved alternating snow and wet sole marks are unchanged,
+  including moving-floor support, budgets and lifetimes.
+- **Mechanisms:** jittered whole-sector distribution retains its 16/36/64 puff
+  budget and rejects holes and adjacent sectors. Four soft RGBA shapes vary in
+  size, aspect ratio, orientation, mirroring, drift, opacity and lifetime.
+  Each puff fades in over four tics and fades out over roughly 2–3 seconds.
+  Variation uses cosmetic seed phases and does not consume gameplay RNG.
+  Ceiling puffs rotate downward; puffs remain outside moving floor/ceiling planes
+  and disappear when the available space closes.
+- **Scenic lighting:** remains removed, as approved. Original map lighting stays.
+- **Heat prototype:** actor-local, irregular refraction now reaches up to 3.5
+  output pixels per component. The wall source extends 64 units in front of the
+  lava wall so conservative geometry-depth samples do not erase its whole volume.
+  Floor and wall modes stay opt-in in the laboratory addon.
 
-No production WAD geometry is rewritten. Scripted texture replacements take
-precedence over environmental aliases. Start a fresh map with the updated
-package; old saves can contain classes removed with the scenic lighting.
+No production map geometry is rewritten. Start a fresh map after updating;
+older saved environmental objects and tables are not a migration target.
 
 ## Rendering limits
 
-Rain exposure uses a bounded grid, usually about 64 map units, capped per face.
-It is not per-pixel tracing. Wetness transitions interpolate within each face;
-partial overhang boundaries are approximate at this resolution.
-Large/newly visited surfaces need time to settle.
-Maintenance uses at most 40 surface visits per game tic.
+Native planar reflections are limited here to horizontal floors without existing
+reflectivity, nonstandard portals, height-transfer water or 3D-floor stacks.
+Vertical walls and slopes cannot use this masking path. Native mirror rendering
+must be supported/enabled by the hardware renderer. This is not screen-space
+reflection or a renderer modification; reflected scene rendering has a cost.
 
-UZDoom 5.0.1 custom postprocessing does not expose the scene-depth texture.
-Underwater uses a camera-aligned **8 x 4 static-geometry ray grid** with interpolated
-distance. This approximates distance blur; it cannot resolve every object or
-silhouette. Strong color edges receive reduced blur weight.
+Rain exposure uses a bounded grid, about 64 map units with a per-face cap. Roof
+and rain-direction traces include solid 3D floors. Boundaries of partial overhangs
+remain approximate, and newly visited large surfaces take time to settle.
+Wet values interpolate smoothly; integer lattice hashing avoids noise seams.
 
-The same helper measures a heat actor's projected bounding region instead of the
-whole screen. Ray directions use interpolated camera position, yaw, pitch, roll,
-actual FOV, aspect and viewport. Heat is clipped conservatively against nearby
-geometry samples. Actors are excluded from the distance rays; thin occluders,
-portals, stereo projection and complex stacked volumes remain prototype limits.
+UZDoom 5.0.1 custom postprocessing does not expose native scene depth. The camera-
+aligned 8 x 4 static-geometry ray grid estimates underwater distance. It excludes
+actors and cannot resolve every silhouette. Heat uses that grid over its projected
+actor bounds and conservatively clips against nearby geometry. Thin occluders,
+portals, stereo views and complex stacked volumes remain prototype limitations.
+Parameters stay within a conservative 128-byte GPU budget.
 
-Shader parameters stay within a conservative 128-byte budget. Thirty-two distances
-are encoded into eight exactly representable 24-bit integers carried by two vec4s;
-each distance uses a conservative 6-bit square-root quantization. This avoids the
-GPU failure encountered with the initial oversized parameter block.
-
-Water discovery uses authored control heights; changing water levels and complex
-stacked volumes are not fully supported. Computed ACS movement tags and polyobjects
-are not guaranteed discovery. Snow marks are visual, not displaced geometry.
+Computed ACS movement tags and polyobjects are not guaranteed automatic mechanism
+discovery. Snow marks remain visual and do not displace map geometry.
 
 ## Manual checks
 
-Use hardware rendering, quality 3 and reduced effects off. Compare each switch
-after several seconds at the same camera position:
+Use hardware rendering, quality 3 and reduced effects off:
 
 ```text
 UTNT_fxquality 3
 UTNT_reducedfx false
 weatherfx true
+gl_plane_reflection true
 UTNT_wetsurfaces true
 UTNT_underwateratmosphere true
 UTNT_footprints true
@@ -86,36 +80,31 @@ UTNT_mechanismfx true
 netevent environmentstats
 ```
 
-For the laboratory, load the current mod plus `tools/fixtures/environment`:
+Load the current package plus the regenerated laboratory addon:
 
 ```powershell
 & "F:/DoomDev/Projects/wolfendoom.dev/#standalone/uzdoom.exe" -iwad "F:/DoomDev/DOOM2.WAD" -file "F:/DoomDev/Projects/realm667.git/tutnt.pk3" "F:/DoomDev/Projects/realm667.git/tools/fixtures/environment" +playerclass Marine +map ENVTEST
 ```
 
-Useful laboratory commands:
-
-| Check | Commands |
+| Check | Console commands |
 |---|---|
-| Open wet floor | `netevent envpos 128 128 0`, then `netevent envview 0 35` |
-| Roof / solid 3D floor | `netevent envpos 384 384 0` / `netevent envpos 640 384 0` |
-| Snow marks | `netevent envpos 32 384 0`, walk forward, look back |
-| Underwater bed and walls | `netevent envpos 384 640 -64`, then `netevent envview 90 25` |
-| Platform dust | `netevent envpos 700 384 0`, then `netevent envmove` |
-| Heat over lava | `netevent envpos 550 128 0`, `netevent envview 0 0`, `UTNT_localheatprototype true` |
-| Heat wall / floor | `netevent heatlabmode 1` / `netevent heatlabmode 0` |
-| Heat coverage mask | `UTNT_heatlabmask true`; return to the actual effect with `false` |
-| Occluded heat source | `netevent heatlabmode 2`, `netevent envpos 128 384 0`, `netevent envview 0 -15` |
+| Partial floor reflections | `netevent envpos 128 128 0`, `netevent envview 225 20`; wait 10 seconds, compare `UTNT_wetsurfaces true` / `false` |
+| Roof / solid 3D-floor shelter | `netevent envpos 384 384 0` / `netevent envpos 640 384 0` |
+| Snow footprints | `netevent envpos 32 384 0`, walk and look back |
+| Water: wall 256 units away | `netevent envpos 512 2304 -192`, `netevent envview 90 0` |
+| Water: wall 512 / 1024 units away | `netevent envpos 512 2048 -192` / `netevent envpos 512 1536 -192`, `netevent envview 90 0` |
+| Water comparison | `UTNT_underwateratmosphere true` / `false`; hall is 1024 x 1536 units |
+| Platform dust | `netevent envpos 700 384 0`, `netevent envmove` |
+| Door dust | `netevent envpos 1280 384 0`, `netevent envview 90 0`, `netevent envdoor`; door opens and closes |
+| Moving ceiling dust | `netevent envpos 1408 1088 0`, `netevent envview 90 -15`, `netevent envceiling`; reverse with `netevent envceilingup` |
+| Floor heat | `netevent envpos 690 128 0`, `netevent envview 0 0`, `netevent heatlabmode 0`, `UTNT_localheatprototype true` |
+| Wall heat | Same position; `netevent heatlabmode 1` |
+| Heat comparison | `UTNT_localheatprototype true` / `false`; watch moving wall edges behind the hot volume |
+| Heat diagnostic coverage | `UTNT_heatlabmask true`; **return to actual shimmer with `UTNT_heatlabmask false`** |
+| Hidden source | `netevent heatlabmode 2`, `netevent envpos 128 384 0`, `netevent envview 0 -15` |
 
-The red mask is diagnostic, not the effect. Heat refraction is irregular and below
-one pixel peak displacement at the current output resolution, with a small
-actor-defined volume. It is deliberately absent from the normal gameplay menu.
-
-For campaign rain use `map TNT02`, then `warp 2944 3568 -496`.
-Look along the island surface, wait about 10 seconds and compare
-`UTNT_wetsurfaces true` / `UTNT_wetsurfaces false`.
-
-For campaign water use `map TNT03A2` followed by `warp 6144 -7968 -280`;
-this pool is shallow, so it tests caustics rather than full submersion.
+For campaign rain: `map TNT02`, then `warp 2944 3568 -496`. Look across the
+island floor, allow roughly 10 seconds for wetness and compare the wetness option.
 
 ## Generation and validation
 
@@ -129,13 +118,12 @@ python -B tools/test_environment_fx.py --renderer 1 --mod tutnt.pk3
 python -B tools/test_environment_fx.py --case prototype --renderer 1 --mod tutnt.pk3
 ```
 
-Runtime fixtures cover exposure, roofs, 3D floors, real submersion, footprint
-emission/budget, mechanism reaction and save/load. Visual comparisons cover wet
-materials, caustics, dust, and heat mask location at changed yaw/pitch/FOV and an
-occluded source. OpenGL and Vulkan are checked; this is not a full campaign or
-multiplayer/performance certification.
-
-Evidence: `tutnt/.codex/validation/environment-review/` and
-`tutnt/.codex/validation/environment-fx/`. Test packages:
-`tutnt/.codex/builds/`. Temporary work:
-`tutnt/.codex/work/environment-fx-review/`.
+The test harness explicitly renders while unfocused, so OpenGL captures actual
+scenes instead of retaining the startup image. Runtime checks cover rain exposure,
+shelter, native mirror state, real submersion, footprints, mechanisms and save/load.
+Contract checks cover shader budgets, packed distances, dust alpha/pivots/variants
+and removal of water-light bindings. Visual evidence and exact console sequences
+are under `tutnt/.codex/validation/environment-reflections/` and
+`tutnt/.codex/work/environment-reflections/`. Test packages stay under
+`tutnt/.codex/builds/`. These checks are not a complete campaign or multiplayer
+performance certification.

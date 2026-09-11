@@ -5,7 +5,7 @@ class UTNTEnvironment : EventHandler
  bool Ready;
  ui UTNTEnvironmentOptics Optics;
  String SnowNames;
- int ProbeCursor, NearCursor, Prints, MechanismBursts, SurfaceChecks;
+ int ProbeCursor, NearCursor, Prints, MechanismBursts, SurfaceChecks, DustPuffs;
  Array<UTNTEnvironmentSurface> Surfaces;
  Array<int> NearSurfaces;
  Array<UTNTMechanismWatch> Mechanisms;
@@ -52,6 +52,7 @@ class UTNTEnvironment : EventHandler
   if(level.time%4==0)for(int i=0;i<Mechanisms.Size();i++)Mechanisms[i].Update(self);
   // Surface maintenance shares the bounded probe queue.
   UpdateSurfaces();
+  if(level.time%7==0)for(int i=0;i<Surfaces.Size();i++)Surfaces[i].UpdateReflection();
  }
  void Initialize()
  {
@@ -79,11 +80,11 @@ class UTNTEnvironment : EventHandler
   Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
   for(int i=0;i<rows.Size();i++)
   {
-   Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=17)continue;
+   Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=16)continue;
    let s=new('UTNTEnvironmentSurface');
    s.Kind=r[0].ToInt();s.Index=r[1].ToInt();s.Part=r[2].ToInt();s.Original=r[3];s.Alias=r[4];s.Base=r[5].ToInt();
    s.Origin=(r[6].ToDouble(),r[7].ToDouble(),r[8].ToDouble());s.Axis=(r[9].ToDouble(),r[10].ToDouble(),r[11].ToDouble());
-   s.Width=r[12].ToDouble();s.Height=r[13].ToDouble();s.NX=r[14].ToInt();s.NY=r[15].ToInt();s.WaterSector=r[16].ToInt();
+   s.Width=r[12].ToDouble();s.Height=r[13].ToDouble();s.NX=r[14].ToInt();s.NY=r[15].ToInt();
    if(!s.Bind()){Console.Printf("ENVIRONMENT_BIND_SKIPPED|%s|%d|%d|%s",level.MapName,s.Kind,s.Index,s.Original);continue;}
    for(int j=0;j<s.NX*s.NY;j++){s.Wet.Push(0);s.Exposed.Push(0);s.Checked.Push(false);s.LastCheck.Push(level.time);}
    Surfaces.Push(s);
@@ -165,10 +166,17 @@ class UTNTEnvironment : EventHandler
    if(ceiling-floor<8)continue;
    let d=UTNTEnvironmentDust(level.SpawnClientSideVisualThinker('UTNTEnvironmentDust'));if(!d)continue;
    d.Support=source.Sec;d.Pos=(point.X,point.Y,z);d.Prev=d.Pos;
-   d.Vel=(cos(phase)*.22,sin(phase)*.22,source.CeilingMoving?-.32:atEnd?.25:.4);
-   d.Texture=TexMan.CheckForTexture("graphics/environment/mechanism-dust.png");
-   d.Scale=(.45,.38);d.Alpha=source.Stone?.30:.14;d.BaseAlpha=d.Alpha;
-   d.SetRenderStyle(STYLE_Translucent);d.LightLevel=-1;emitted++;
+   double size=.34+.22*abs(sin(phase*2.17));
+   d.Phase=phase;d.Life=70+int(40*abs(sin(phase*1.93)));
+   d.Vel=(cos(phase)*.34,sin(phase)*.34,(source.CeilingMoving?-1:1)*(.18+.28*abs(cos(phase*3.1))));
+   int variant=abs(int(phase*31))%4;
+   d.Texture=TexMan.CheckForTexture(variant==0?"graphics/environment/mechanism-dust.png":String.Format("graphics/environment/mechanism-dust-%d.png",variant));
+   d.Scale=(size,size*(.65+.5*abs(sin(phase*.91))));
+   d.Flags=SPF_ROLL|SPF_STRETCHPIXELS;
+   d.Roll=d.PrevRoll=(source.CeilingMoving?180:0)+sin(phase*1.3)*16;
+   d.bXFlip=sin(phase*2.7)<0;
+   d.Alpha=0;d.BaseAlpha=(source.Stone?.42:.20)*(.8+.4*abs(cos(phase*1.7)));
+   d.SetRenderStyle(STYLE_Translucent);d.LightLevel=clamp(source.Sec.LightLevel,128,224);emitted++;DustPuffs++;
   }
  }
  override void RenderOverlay(RenderEvent e)
@@ -192,16 +200,14 @@ class UTNTEnvironment : EventHandler
    for(int j=0;j<s.Wet.Size();j++)
    {
     int index=s.Base+j;int value=wet?int(clamp(s.Wet[j],0,1)*255):0;
-    if(s.WaterSector>=0)value=Option('UTNT_underwateratmosphere') && !Reduced()?255:0;
     // Merge adjacent cells with equal state into one canvas command.
     int end=j;
     while(end+1<s.Wet.Size() && (s.Base+end+1)/256==index/256)
     {
      int next=wet?int(clamp(s.Wet[end+1],0,1)*255):0;
-     if(s.WaterSector>=0)next=value;
      if(next!=value)break;end++;
     }
-    if(value)c.Clear(index%256,index/256,(s.Base+end)%256+1,index/256+1,Color(value,value,value));
+    if(value || s.Reflecting)c.Clear(index%256,index/256,(s.Base+end)%256+1,index/256+1,Color(value,s.Reflecting?64:0,0));
     j=end;
    }
   }
@@ -210,7 +216,7 @@ class UTNTEnvironment : EventHandler
  {
   if(e.Name!="environmentstats")return;
   int exposed=0;double wet=0;for(int i=0;i<Surfaces.Size();i++)for(int j=0;j<Surfaces[i].Wet.Size();j++){if(Surfaces[i].Exposed[j]>0)exposed++;wet+=Surfaces[i].Wet[j];}
-  Console.Printf("ENVIRONMENT|surfaces=%d|checks=%d|exposed=%d|wet=%.3f|prints=%d|mechanisms=%d|bursts=%d",Surfaces.Size(),SurfaceChecks,exposed,wet,Prints,Mechanisms.Size(),MechanismBursts);
+  Console.Printf("ENVIRONMENT|surfaces=%d|checks=%d|exposed=%d|wet=%.3f|prints=%d|mechanisms=%d|bursts=%d|dust=%d",Surfaces.Size(),SurfaceChecks,exposed,wet,Prints,Mechanisms.Size(),MechanismBursts,DustPuffs);
  }
 }
 
@@ -268,11 +274,23 @@ class UTNTFootMark : Actor
 }
 class UTNTEnvironmentDust : VisualThinker
 {
- int Age;double BaseAlpha;Sector Support;
+ int Age,Life;double BaseAlpha,Phase;Sector Support;
  override void Tick()
- { if(level.isFrozen())return;Super.Tick();if(++Age>45){Destroy();return;}if(Support){double f=Support.floorplane.ZatPoint(Pos.XY),c=Support.ceilingplane.ZatPoint(Pos.XY);if(c-f<6){Destroy();return;}Pos.Z=clamp(Pos.Z,f+3,c-3);}
- Alpha=BaseAlpha*(1-Age/45.0);Scale*=1.012; }
+ {
+  if(level.isFrozen())return;
+  Super.Tick();if(++Age>=Life){Destroy();return;}
+  if(Support)
+  {
+   double f=Support.floorplane.ZatPoint(Pos.XY),c=Support.ceilingplane.ZatPoint(Pos.XY);
+   if(c-f<6){Destroy();return;}Pos.Z=clamp(Pos.Z,f+3,c-3);
+  }
+  double fadeIn=clamp(Age/4.0,0,1),fadeOut=clamp((Life-Age)/double(Life-4),0,1);
+  Alpha=BaseAlpha*fadeIn*fadeIn*(3-2*fadeIn)*fadeOut*fadeOut;
+  Vel.X=Vel.X*.98+.008*sin(Phase+Age*2.7);Vel.Y=Vel.Y*.98+.008*cos(Phase*.73+Age*3.1);
+  PrevRoll=Roll;Roll+=sin(Phase+Age*1.4)*.13;Scale*=1.007;
+ }
 }
+
 class UTNTMechanismWatch : Object play
 {
  Sector Sec;Vector2 Point;double Floor,Ceiling,Travel;bool Moving,Stone,CeilingMoving;int Group,Still,LastBurst;
@@ -295,7 +313,7 @@ class UTNTMechanismWatch : Object play
 }
 class UTNTEnvironmentSurface : Object play
 {
- int Kind,Index,Part,Base,NX,NY,WaterSector,Cursor,PreviousTerrain;bool Detached;String Original,Alias;
+ int Kind,Index,Part,Base,NX,NY,Cursor,PreviousTerrain;bool Detached,Reflecting,CanReflect;String Original,Alias;
  Vector3 Origin,Axis;double Width,Height;Array<double> Wet,Exposed;Array<bool> Checked;Array<int> LastCheck;
  bool Bind()
  {
@@ -304,6 +322,7 @@ class UTNTEnvironmentSurface : Object play
   {
    if(Index<0 || Index>=level.Sectors.Size())return false;
    let s=level.Sectors[Index];String current=TexMan.GetName(s.GetTexture(Part));if(!(current~==Original) && !(current~==Alias))return false;
+   CanReflect=Part==Sector.floor && abs(s.floorplane.normal.Z)>.99999 && s.GetAlpha(Part)==1 && s.GetPlaneReflectivity(Part)==0 && s.GetPortalType(Part)==0 && !s.heightsec && s.Get3DFloorCount()==0;
    PreviousTerrain=s.terrainnum[Part];s.terrainnum[Part]=s.GetTerrain(Part);s.SetTexture(Part,tex);
   }
   else
@@ -321,9 +340,26 @@ class UTNTEnvironmentSurface : Object play
   if(Kind!=0 || Detached)return;
   let s=level.Sectors[Index];if(!(TexMan.GetName(s.GetTexture(Part))~==Alias)){s.terrainnum[Part]=PreviousTerrain;Detached=true;}
  }
+ void UpdateReflection()
+ {
+  if(!CanReflect)return;
+  Maintain();let sec=level.Sectors[Index];
+  // Yield to a later map script changing the native reflectivity.
+  double expected=Reflecting?1.0/255:0;
+  if(abs(sec.GetPlaneReflectivity(Part)-expected)>.000001 || abs(sec.GetAlpha(Part)-(1-expected))>.000001)
+  {
+   if(Reflecting && abs(sec.GetPlaneReflectivity(Part)-expected)<.000001)sec.SetPlaneReflectivity(Part,0);
+   if(Reflecting && abs(sec.GetAlpha(Part)-(1-expected))<.000001)sec.SetAlpha(Part,1);
+   CanReflect=false;Reflecting=false;return;
+  }
+  bool active=false;
+  if(!Detached && UTNTEnvironment.Option('UTNT_wetsurfaces') && UTNTEnvironment.Quality()>0 && CVar.GetCVar('gl_plane_reflection').GetBool())
+   for(int i=0;i<Wet.Size();i++)if(Wet[i]>.02){active=true;break;}
+  if(Reflecting!=active){sec.SetPlaneReflectivity(Part,active?1.0/255:0);sec.SetAlpha(Part,active?254.0/255:1);Reflecting=active;}
+ }
  void Update(UTNTEnvironment h,UTNTWeatherController weather)
  {
-  if(WaterSector>=0 || Detached)return;
+  if(Detached)return;
   if(Cursor>=Wet.Size())Cursor=0;int j=Cursor++;
   double x=(j%NX+.5)/NX,y=(j/NX+.5)/NY;
   Vector3 p=Kind==0?Origin+(x*Width,y*Height,0):Origin+Axis*(x*Width)+(0,0,y*Height);

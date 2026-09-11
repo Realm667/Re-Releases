@@ -16,7 +16,7 @@ float envDepth(vec2 uv) {
 void main() {
  vec2 px=1.0/vec2(textureSize(InputTexture,0));
  float distance=envDepth(TexCoord);
- float radius=.45+2.5*smoothstep(48.0,1000.0,distance);
+ float radius=.65+3.8*smoothstep(48.0,384.0,distance)+1.4*smoothstep(384.0,1024.0,distance);
  vec3 center=texture(InputTexture,TexCoord).rgb,color=center*4.0;float weight=4.0;
  for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++) {
   if(x==0 && y==0)continue;

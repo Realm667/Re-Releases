@@ -90,11 +90,6 @@ def map_digest(path):
  # actor edits, bytecode and decorative midtextures on non-wet maps are unrelated.
  raw=parse(path);rain=[t for t in things(path) if t.get('type')=='19021']
  surfaces=bool(rain)
- for line in raw['linedef']:
-  front=int(line.get('sidefront',-1))
-  if front<0:continue
-  sec=raw['sector'][int(raw['sidedef'][front]['sector'])]
-  if int(line.get('special',0)) in (160,209) and any('WAT' in tex(sec,k) for k in ('texturefloor','textureceiling')):surfaces=True
  geometry={
   'vertex':[{k:float(v.get(k,0)) for k in ('x','y')} for v in raw['vertex']],
   'sector':[{k:s[k] for k in s if k in ('heightfloor','heightceiling','texturefloor','textureceiling','lightlevel','id') or 'plane_' in k} for s in raw['sector']],
@@ -107,16 +102,18 @@ def map_digest(path):
 
 def dust_texture():
  from PIL.PngImagePlugin import PngInfo
- im=Image.new('RGBA',(96,96));pixels=[]
- for y in range(96):
-  for x in range(96):
-   dx=(x-47.5)/47.5;dy=(y-47.5)/47.5
-   edge=max(0,1-dx*dx-dy*dy)**3
-   cloud=.65+.15*math.sin(x*.17+math.sin(y*.21))+.12*math.cos(y*.24+x*.13)
-   pixels.append((175,165,147,round(255*edge*cloud)))
- im.putdata(pixels);info=PngInfo();info.add(b'grAb',struct.pack('>ii',48,96))
- path=MOD/'graphics/environment/mechanism-dust.png';path.parent.mkdir(parents=True,exist_ok=True)
- im.save(path,pnginfo=info)
+ for variant in range(4):
+  im=Image.new('RGBA',(96,96));pixels=[]
+  for y in range(96):
+   for x in range(96):
+    dx=(x-47.5)/47.5;dy=(y-47.5)/47.5
+    edge=max(0,1-dx*dx-dy*dy)**3
+    cloud=.62+.18*math.sin(x*(.13+variant*.023)+math.sin(y*.19+variant))+.14*math.cos(y*.21+x*.11+variant*2)
+    pixels.append((175,165,147,round(255*edge*cloud)))
+  im.putdata(pixels);info=PngInfo();info.add(b'grAb',struct.pack('>ii',48,96))
+  suffix='' if variant==0 else '-'+str(variant)
+  path=MOD/f'graphics/environment/mechanism-dust{suffix}.png';path.parent.mkdir(parents=True,exist_ok=True)
+  im.save(path,pnginfo=info)
 
 def main():
  dust_texture()
@@ -137,7 +134,7 @@ def main():
    if len(raw)==4096:w=h=64
    else:w,h=struct.unpack_from('<HH',raw)
   return w,h,f'Patch "{p.relative_to(MOD).as_posix()}", 0, 0'
- def add(rows,kind,index,part,original,raw,origin,axis,w,h,water,base,nx,ny):
+ def add(rows,kind,index,part,original,raw,origin,axis,w,h,base,nx,ny):
   nonlocal serial
   shp=shape(original)
   if not shp:return base
@@ -166,10 +163,9 @@ def main():
   if not re.search(r'\bnormal\s',residual,re.I):residual+=' Normal "materials/environment/normal.png" Specular "materials/environment/specular.png" '
   gldefs.append(f'Material Texture "{alias}" {{ {residual}\n Shader "shaders/environment/{shader_cache[key]}" Texture envMeta "materials/environment/{alias}.png" Texture envState "UENVSTATE" }}')
   # Fixed-point data pixels, not artwork. NEAREST via texelFetch in the shader.
-  values=[base,nx,ny,*[round((v+65536)*16) for v in origin],*[round((v+1)*32767) for v in axis],round(w*16),round(h*16),kind,round((water+65536)*16) if water>-99999 else 0,1 if water>-99999 else 0,1 if any(x in raw for x in ('METAL','PIPE','TEK','ECOP')) else 0,0]
+  values=[base,nx,ny,*[round((v+65536)*16) for v in origin],*[round((v+1)*32767) for v in axis],round(w*16),round(h*16),kind,0,0,1 if any(x in raw for x in ('METAL','PIPE','TEK','ECOP')) else 0,0]
   im=Image.new('RGB',(16,1));im.putdata([((v>>16)&255,(v>>8)&255,v&255) for v in values]);im.save(meta/(alias+'.png'))
-  # water is a world height; runtime needs only a nonnegative flag for caustics.
-  rows.append('|'.join(map(str,[kind,index,part,original,alias,base,*origin,*axis,w,h,nx,ny,0 if water>-99999 else -1])))
+  rows.append('|'.join(map(str,[kind,index,part,original,alias,base,*origin,*axis,w,h,nx,ny])))
   return base+nx*ny
  for path in sorted((MOD/'maps').glob('*.wad')):
   b=parse(path)
@@ -189,19 +185,12 @@ def main():
   anchors=[(float(t['x']),float(t['y'])) for t in things(path) if t.get('type')=='19021'] if name=='TNT02' else []
   def nearby(box):
    return any(max(box[0]-x,0,x-box[2])**2+max(box[1]-y,0,y-box[3])**2<240**2 for x,y in anchors)
-  watersectors={};watercontrols={}
   tags=collections.defaultdict(list)
   for i,s in enumerate(b['sector']):tags[int(s.get('id',0))].append(i)
   for li,l in enumerate(b['linedef']):
    special=int(l.get('special',0));tag=int(l.get('arg0',0));front=int(l.get('sidefront',-1));back=int(l.get('sideback',-1))
    if front<0:continue
    control=int(b['sidedef'][front]['sector']);ctrl=b['sector'][control]
-   if special==209 or special==160 and int(l.get('arg1',0))&2:
-    raw=tex(ctrl,'texturefloor' if special==209 else 'textureceiling')
-    if 'WAT' in raw and raw!='QWATERT6':
-     z=float(ctrl.get('heightfloor' if special==209 else 'heightceiling',0))
-     for si in tags[tag]:watersectors[si]=z
-     watercontrols[(control,0 if special==209 else 1)]=(raw,z,list(tags[tag]))
    # Families: normal doors, floors, stairs, pillars, lifts and ceilings.
    if special in set(range(10,14))|set(range(20,41))|set(range(60,70))|set(range(200,208)):
     targets=tags[tag] if tag else ([int(b['sidedef'][back]['sector'])] if back>=0 else [])
@@ -221,12 +210,10 @@ def main():
    if si not in edges:continue
    box=bounds(edges[si]);raw=tex(s,'texturefloor');original=aliases.get((0,si,0),raw)
    wet=bool(anchors) and nearby(box)
-   water=watersectors.get(si,-100000)
-   if water>-99999 and (int(s.get('lightlevel',160))<128 or water-float(s.get('heightfloor',0))>384):water=-100000
    excluded=any(x in raw for x in ('LAVA','SLIME','WAT','SKY','TELE','LIGHT','TLITE','LITE','GRAS'))
-   if (wet or water>-99999) and not excluded and box[2]>box[0] and box[3]>box[1]:
+   if wet and not excluded and box[2]>box[0] and box[3]>box[1]:
     nx=max(1,min(12,math.ceil((box[2]-box[0])/64)));ny=max(1,min(12,math.ceil((box[3]-box[1])/64)))
-    base=add(rows,0,si,0,original,raw,(box[0],box[1],float(s.get('heightfloor',0))),(1,0,0),box[2]-box[0],box[3]-box[1],water,base,nx,ny)
+    base=add(rows,0,si,0,original,raw,(box[0],box[1],float(s.get('heightfloor',0))),(1,0,0),box[2]-box[0],box[3]-box[1],base,nx,ny)
    for a,c,li,side in edges[si]:
     # Wet bottom/mid/top pieces use actual per-side geometry, not texture-wide toggles.
     length=math.dist(a,c)
@@ -244,20 +231,18 @@ def main():
       z0=floor;z1=float(other.get('heightfloor',0))
      else:
       z0=max(floor,float(other.get("heightfloor",floor))) if other else floor;z1=min(ceiling,float(other.get("heightceiling",ceiling))) if other else ceiling
-     if z1-z0<4 or not (wet or water>-99999):continue
-     z1=min(z1,z0+512) if water<=-99999 else min(z1,water+24)
+     if z1-z0<4 or not wet:continue
+     z1=min(z1,z0+512)
      if z1<=z0:continue
      nx=max(1,min(12,math.ceil(length/64)));ny=max(1,min(8,math.ceil((z1-z0)/64)))
-     base=add(rows,1,side,part,aliases.get((1,side,part),raw),raw,(*a,z0),((c[0]-a[0])/length,(c[1]-a[1])/length,0),length,z1-z0,water,base,nx,ny)
-  for (control,part),(raw,z,targets) in watercontrols.items():
-   eligible=[si for si in targets if si in edges and int(b['sector'][si].get('lightlevel',160))>=128 and z-float(b['sector'][si].get('heightfloor',0))<=384]
-   if not eligible:continue
-   boxes=[bounds(edges[si]) for si in eligible]
-   box=(min(v[0] for v in boxes),min(v[1] for v in boxes),max(v[2] for v in boxes),max(v[3] for v in boxes))
-   base=add(rows,0,control,part,raw,raw,(box[0],box[1],z),(1,0,0),box[2]-box[0],box[3]-box[1],z,base,1,1)
+     base=add(rows,1,side,part,aliases.get((1,side,part),raw),raw,(*a,z0),((c[0]-a[0])/length,(c[1]-a[1])/length,0),length,z1-z0,base,nx,ny)
   (out/f'{name}-surfaces.txt').write_text('\n'.join(rows)+'\n')
   (out/f'{name}-mechanisms.txt').write_text('\n'.join('|'.join(map(str,r)) for r in dict.fromkeys(mechanisms))+'\n')
   summary[name]={'surfaces':len(rows),'state_pixels':base,'mechanisms':len(set(mechanisms)),'geometry_sha256':map_digest(path)}
+ for old in meta.glob('EV*.png'):
+  if old.stem not in {f'EV{i:06d}' for i in range(serial)}:old.unlink()
+ for old in shaders.glob('combined-*.fp'):
+  if old.name not in shader_cache.values():old.unlink()
  (MOD/'TEXTURES.environment-generated').write_text('\n'.join(texdefs))
  (MOD/'TERRAIN.environment').write_text('// Alias terrain mappings are applied after all TERRAIN definitions.\n')
  (out/'terrain-aliases.txt').write_text('\n'.join(terraindefs)+'\n')

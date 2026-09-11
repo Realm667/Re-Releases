@@ -13,13 +13,13 @@ class UTNTEnvironmentRegression : EventHandler
   {
    let h=UTNTEnvironment.Get();
    Check(h && h.Ready,"environment initialized");
-   Check(h.Surfaces.Size()==6,"wet and caustic surfaces bound");
+   Check(h.Surfaces.Size()==3,"rain surfaces bound");
    Check(h.Surfaces[0].Exposed[0]>0,"open floor receives rain");
    Check(h.Surfaces[1].Exposed[0]==0,"roofed floor stays dry");
    Check(h.Surfaces[2].Exposed[0]==0,"solid 3D floor blocks rain below");
 
    Check(level.Sectors[0].GetTerrain(Sector.floor)==OriginalTerrain,"material binding preserves terrain behavior");
-   Check(h.Mechanisms.Size()==1,"mechanism watcher created");
+   Check(h.Mechanisms.Size()==3,"mechanism watcher created");
   }
  }
  override void NetworkProcess(ConsoleEvent e)
@@ -31,6 +31,13 @@ class UTNTEnvironmentRegression : EventHandler
   if(e.Name=="envwalk"){WalkUntil=level.time+e.Args[0];}
   if(e.Name=="envwet"){h.Feet[0].WetSole=1;}
   if(e.Name=="envmove"){Floor_RaiseByValue(50,16,32);}
+  if(e.Name=="envdoor"){Door_Raise(51,16,105);}
+  if(e.Name=="envceiling"){Ceiling_LowerByValue(52,8,96);}
+  if(e.Name=="envceilingup"){Ceiling_RaiseByValue(52,8,96);}
+  if(e.Name=="envmotioncheck"){Check(h.Mechanisms[1].LastBurst>0,"door emits dust");Check(h.Mechanisms[2].LastBurst>0,"ceiling emits dust");Check(h.DustPuffs>0,"visible dust thinkers spawned");}
+  if(e.Name=="envmirroroffcheck"){Check(!h.Surfaces[0].Reflecting && level.Sectors[0].GetPlaneReflectivity(0)==0 && level.Sectors[0].GetAlpha(0)==1,"disabled wetness restores opaque floor");}
+  if(e.Name=="envmirrorcheck"){Console.Printf("NATIVE|r=%.6f|a=%.6f|can=%d|active=%d",level.Sectors[0].GetPlaneReflectivity(0),level.Sectors[0].GetAlpha(0),h.Surfaces[0].CanReflect,h.Surfaces[0].Reflecting);Check(h.Surfaces[0].Reflecting && level.Sectors[0].GetPlaneReflectivity(0)>0,"native rain mirror active");Check(!h.Surfaces[1].Reflecting && !h.Surfaces[2].Reflecting,"sheltered floors have no mirror");}
+
   if(e.Name=="envchecks")
   {
    Console.Printf("ENV_FOOT|t=%d|x=%.1f|y=%.1f|ground=%d|floor=%.1f|distance=%.1f|marks=%d",level.time,mo.Pos.X,mo.Pos.Y,players[0].onground,mo.FloorZ,h.Feet[0].Distance,h.Prints);Check(h.Prints>0,"footstep produces a visible mark");
@@ -38,7 +45,7 @@ class UTNTEnvironmentRegression : EventHandler
    Check(h.Marks.Size()<=160,"footprint budget bounded");
    Console.Printf("UTNT_REGRESSION_COMPLETE");
   }
-  if(e.Name=="environmentstats"){let cam=players[0].camera;Console.Printf("ENV_CAMERA|mo=%.1f,%.1f,%.1f|camera=%.1f,%.1f,%.1f",mo.Pos.X,mo.Pos.Y,mo.Pos.Z,cam.Pos.X,cam.Pos.Y,cam.Pos.Z);}
+  if(e.Name=="environmentstats"){let cam=players[0].camera;Console.Printf("ENV_NATIVE_CAMERA|sector=%d|reflect=%.5f|3dfloors=%d|heightsec=%d",cam.CurSector.Index(),cam.CurSector.GetPlaneReflectivity(0),cam.CurSector.Get3DFloorCount(),cam.CurSector.heightsec!=null);Console.Printf("ENV_CAMERA|mo=%.1f,%.1f,%.1f|camera=%.1f,%.1f,%.1f",mo.Pos.X,mo.Pos.Y,mo.Pos.Z,cam.Pos.X,cam.Pos.Y,cam.Pos.Z);}
   if(e.Name=="envloadcheck"){Check(h.Ready && h.Surfaces[0].Wet[0]>0,"wet state survives save/load");Check(h.Prints==0,"save/load restores footprint state");}
   if(e.Name=="envwatercheck"){Console.Printf("ENV_WATER|z=%.2f|depth=%.2f|level=%d|sector=%d|heightsec=%d",mo.Pos.Z,mo.WaterDepth,mo.WaterLevel,mo.CurSector.Index(),mo.CurSector.heightsec?mo.CurSector.heightsec.Index():-1);Check(mo.WaterLevel>=3,"camera actually submerged");}
  }
