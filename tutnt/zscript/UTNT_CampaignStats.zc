@@ -1,0 +1,137 @@
+// The campaign ledger travels with the game and is serialized with saves.
+// Map handlers retain only visit baselines: reopened hubs never re-add old counts.
+class UTNTMapResult : Object
+{
+    int MapNumber, Tics, Kills, Items, Secrets, MaxKills, MaxItems, MaxSecrets;
+    int Values[MAXPLAYERS * 4]; // kills, items, secrets, deaths
+    bool Present[MAXPLAYERS];
+    String Names[MAXPLAYERS];
+}
+
+class UTNTCampaignStats : Thinker
+{
+    Array<UTNTMapResult> Maps;
+    int Objectives[10];
+    int LastCompleted;
+
+    static UTNTCampaignStats Get(bool create=false)
+    {
+        let it=ThinkerIterator.Create('UTNTCampaignStats',STAT_STATIC);
+        let result=UTNTCampaignStats(it.Next());
+        if(!result && create)
+        {
+            result=new("UTNTCampaignStats");
+            result.ChangeStatNum(STAT_STATIC);
+        }
+        return result;
+    }
+
+    static int MapNumber()
+    {
+        String maps[]={"TNT01","TNT02","TNT03A1","TNT03A2","TNT03B","TNT04A","TNT04B","TNT04CN","TNT04C","TNTLE"};
+        for(int i=0;i<10;i++) if(level.MapName ~== maps[i]) return i+1;
+        return 0;
+    }
+
+    UTNTMapResult Record(int number)
+    {
+        for(int i=0;i<Maps.Size();i++) if(Maps[i].MapNumber==number) return Maps[i];
+        let r=new("UTNTMapResult");r.MapNumber=number;Maps.Push(r);return r;
+    }
+
+    static bool InChapter(int map,int episode)
+    {
+        return (episode==3 || episode==4) ? map==3 || map==4 : map==episode;
+    }
+
+    // A fresh immutable view is attached to the transition, never to a UI object.
+    UTNTMapResult Summary(int episode,bool campaign)
+    {
+        let sum=new("UTNTMapResult");sum.MapNumber=episode;
+        for(int i=0;i<Maps.Size();i++)
+        {
+            let r=Maps[i];
+            if(!campaign && !InChapter(r.MapNumber,episode)) continue;
+            sum.Tics+=r.Tics;sum.Kills+=r.Kills;sum.Items+=r.Items;sum.Secrets+=r.Secrets;
+            sum.MaxKills+=r.MaxKills;sum.MaxItems+=r.MaxItems;sum.MaxSecrets+=r.MaxSecrets;
+            for(int p=0;p<MAXPLAYERS;p++)
+            {
+                if(r.Present[p]) {sum.Present[p]=true;sum.Names[p]=r.Names[p];}
+                for(int m=0;m<4;m++) sum.Values[p*4+m]+=r.Values[p*4+m];
+            }
+        }
+        return sum;
+    }
+
+    int ObjectiveCount(int episode,bool campaign)
+    {
+        int count=0;
+        for(int ep=1;ep<=9;ep++)
+        {
+            int mapped=episode==4 ? 3 : episode>=5 ? episode-1 : episode;
+            if(!campaign && mapped!=ep) continue;
+            for(int bit=0;bit<3;bit++) if(Objectives[ep]&(1<<bit)) count++;
+        }
+        return count;
+    }
+}
+
+class UTNTStatsHandler : EventHandler
+{
+    int Previous[MAXPLAYERS * 3];
+    bool Frozen;
+
+    void Sample(bool clockTick=false)
+    {
+        int number=UTNTCampaignStats.MapNumber();
+        if(!number || Frozen || deathmatch) return;
+        let ledger=UTNTCampaignStats.Get(true);let r=ledger.Record(number);
+        r.Kills=level.killed_monsters;r.Items=level.found_items;r.Secrets=level.found_secrets;
+        r.MaxKills=level.total_monsters;r.MaxItems=level.total_items;r.MaxSecrets=level.total_secrets;
+        bool playing=false;
+        for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p])
+        {
+            r.Present[p]=true;r.Names[p]=players[p].GetUserName();
+            int values[3];values[0]=players[p].killcount;values[1]=players[p].itemcount;values[2]=players[p].secretcount;
+            for(int m=0;m<3;m++)
+            {
+                r.Values[p*4+m]+=max(0,values[m]-Previous[p*3+m]);
+                Previous[p*3+m]=values[m];
+            }
+            let pawn=players[p].mo;
+            if(pawn && pawn.health>0 && !(players[p].cheats & CF_TOTALLYFROZEN)) playing=true;
+        }
+        if(clockTick && playing) r.Tics++;
+    }
+
+    override void WorldLoaded(WorldEvent e)
+    {
+        if(e.IsSaveGame) return;
+        Frozen=false;
+        for(int p=0;p<MAXPLAYERS;p++)
+        {
+            Previous[p*3]=players[p].killcount;
+            Previous[p*3+1]=players[p].itemcount;
+            Previous[p*3+2]=players[p].secretcount;
+        }
+        Sample();
+    }
+    override void WorldTick() { Sample(true); }
+    override void WorldUnloaded(WorldEvent e)
+    {
+        Sample();
+        if(e.NextMap ~== "INTERMAP")
+        {
+            let ledger=UTNTCampaignStats.Get(true);
+            ledger.LastCompleted=UTNTCampaignStats.MapNumber();
+        }
+        Frozen=true;
+    }
+    override void PlayerDied(PlayerEvent e)
+    {
+        int number=UTNTCampaignStats.MapNumber();
+        if(!number || Frozen || deathmatch) return;
+        let ledger=UTNTCampaignStats.Get(true);
+        let r=ledger.Record(number);r.Values[e.PlayerNumber*4+3]++;
+    }
+}

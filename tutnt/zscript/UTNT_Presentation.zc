@@ -77,7 +77,7 @@ class UTNTWorldHandler : EventHandler
         if(!(level.MapName ~== "INTERMAP")) return;
         let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
         if(!h || h.Chapter) return;
-        h.Chapter=new("UTNTChapterState"); h.Chapter.Init(completed,secret);
+        h.Chapter=new("UTNTChapterState"); h.Chapter.Init(completed,secret);h.Chapter.CaptureResults();
     }
 
     static void BeginTNT04AChapter()
@@ -120,7 +120,11 @@ class UTNTWorldHandler : EventHandler
     static void SetObjectiveProgress(int episode,int mask)
     {
         let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
-        if(h && episode>=1 && episode<=9) h.ObjectiveFlags[episode]=mask&7;
+        if(h && episode>=1 && episode<=9)
+        {
+            h.ObjectiveFlags[episode]=mask&7;
+            let ledger=UTNTCampaignStats.Get(true);ledger.Objectives[episode]=mask&7;
+        }
     }
 
     void TickObjectiveCompletion()
@@ -396,9 +400,10 @@ class UTNTPresentation : StaticEventHandler
         if(!h || !h.Chapter || h.Chapter.Phase
             || menuactive || paused || ConsoleState!=0) return false;
         bool back=e.KeyScan==InputEvent.Key_LeftArrow;
+        bool skip=e.KeyScan==InputEvent.Key_Backspace && !h.Chapter.Intro;
         bool advance=e.KeyScan==InputEvent.Key_Enter || e.KeyScan==InputEvent.Key_Space || e.KeyScan==InputEvent.Key_RightArrow;
-        if(!back && !advance) return false;
-        if(e.Type==InputEvent.Type_KeyDown) { EnsureChapter();ChapterUI.Advance(h.Chapter,back); }
+        if(!back && !advance && !skip) return false;
+        if(e.Type==InputEvent.Type_KeyDown) { EnsureChapter();ChapterUI.Advance(h.Chapter,back,skip); }
         return true;
     }
 

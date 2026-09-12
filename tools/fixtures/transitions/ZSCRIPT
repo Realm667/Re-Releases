@@ -1,0 +1,93 @@
+version "5.0.0"
+class UTNTTransitionProbe : EventHandler
+{
+    void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",text); }
+    override void WorldTick()
+    {
+        for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p] && players[p].mo) players[p].mo.bInvulnerable=true;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        let ledger=UTNTCampaignStats.Get(true);
+        if(e.Name=="trreset") Check(ledger.LastCompleted==0 && ledger.Record(1).Values[0]==0,"new game clears campaign totals");
+        if(e.Name=="trseed")
+        {
+            for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p])
+            {
+                players[p].killcount=20+p*5;players[p].itemcount=8+p;players[p].secretcount=2;
+            }
+            level.killed_monsters=35;level.found_items=8;level.found_secrets=2;
+            int number=UTNTCampaignStats.MapNumber();
+            int ep=number==4 ? 3 : number>=5 ? number-1 : number;
+            ACS_NamedExecuteWithResult("UTNT_CompleteObjective",ep,1);
+            ACS_NamedExecuteWithResult("UTNT_CompleteObjective",ep,2);
+        }
+        if(e.Name=="trverifylive")
+        {
+            let r=ledger.Record(UTNTCampaignStats.MapNumber());
+            Console.Printf("TR_VALUES actual=%d expected=%d",r.Values[0],e.Args[0]);
+            Check(r.Values[0]==e.Args[0],"live kills sampled once");
+            Check(r.Tics>0,"active gameplay time recorded");
+            int number=UTNTCampaignStats.MapNumber();
+            int ep=number==4 ? 3 : number>=5 ? number-1 : number;
+            Check(ledger.Objectives[ep]==3,"campaign objectives retained");
+            let it=ThinkerIterator.Create('UTNTCampaignStats',Thinker.STAT_STATIC);
+            Check(it.Next()!=null && it.Next()==null,"one campaign ledger across maps and hubs");
+        }
+        if(e.Name=="trexit") level.ExitLevel(0,false);
+        if(e.Name=="trtravel") players[e.Player].mo.A_CallSpecial(74,e.Args[0],0);
+        if(e.Name=="trdie")
+        {
+            let pawn=players[e.Player].mo;pawn.bInvulnerable=false;
+            pawn.DamageMobj(null,null,100000,'None',DMG_FORCED);
+        }
+        if(e.Name=="trdeaths") Check(ledger.Record(UTNTCampaignStats.MapNumber()).Values[e.Player*4+3]==e.Args[0],"deaths follow the saved timeline");
+        if(e.Name=="tradd") players[e.Player].killcount+=e.Args[0];
+        if(e.Name=="trcheck")
+        {
+            Check(level.MapName ~== "INTERMAP","native exit enters unified transition without engine stats");
+            if(!h.Chapter) {Check(false,"chapter initialized");return;}
+            Check(h.Chapter.ChapterResult!=null && h.Chapter.CampaignResult!=null,"both frozen result views exist");
+            if(!h.Chapter.ChapterResult) return;
+            let result=h.Chapter.ChapterResult;
+            Check(result.Values[0]==e.Args[0],"departed map results survive travel and saves");
+            Check(h.Chapter.CampaignResult.Values[0]==e.Args[1],"campaign totals accumulate once");
+            Check(result.Tics>0,"result stores active time");
+            Check(h.Chapter.ChapterObjectives==2,"authored objective completion survives travel");
+            Check(h.Chapter.Sections[e.Player]==e.Args[2],"reader section survives save and load");
+            for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p])
+            {
+                Check(result.Present[p],"every cooperative player has a comparison row");
+                Check(result.Names[p].Length()>0,"player name captured");
+                Check(result.Values[p*4+2]==((h.Chapter.Episode==3 || h.Chapter.Episode==4) ? 4 : 2),"tied secrets retained per player");
+            }
+        }
+        if(e.Name=="trmap") Check(level.levelnum==e.Args[0],"expected destination reached");
+        if(e.Name=="trphase") Check(h.Chapter && h.Chapter.Phase==e.Args[0],"only authorized ready/skip action can travel");
+        if(e.Name=="trdefs")
+        {
+            int routes[]={2,3,5,5,6,7,8,88,88,0};
+            int pictures[]={2,3,4,4,5,6,7,10,10,9};
+            for(int i=1;i<=10;i++)
+            {
+                let d=UTNTTransitionDefinition.ForEpisode(i);
+                Check(d.Destination==routes[i-1],"authored destination preserved");
+                Check(d.Picture==pictures[i-1],"authored artwork preserved");
+                Check(d.FirstFragment<=d.LastFragment,"story fragment range valid");
+            }
+            Check(UTNTTransitionDefinition.ForEpisode(7,1).Destination==9,"secret exit uses alternate ending");
+        }
+    }
+}
+class UTNTTransitionViewProbe : StaticEventHandler
+{
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name!="trview") return;
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        let view=new("UTNTChapterUI");view.Prepare(h.Chapter);
+        Console.Printf("UTNT_ASSERT %s: transition fits viewport",view.BodyY+view.BodyHeight<Screen.GetHeight() ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: full hour format",UTNTTransitionBoard.TimeText(126002170)=="1000:01:02" ? "PASS" : "FAIL");
+    }
+}

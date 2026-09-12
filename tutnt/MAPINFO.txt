@@ -19,7 +19,7 @@ gameinfo
 	BorderFlat = "UTNHFILL"
 	Border = 4, 4, "UTNHBTR", "UTNHBT", "UTNHBTL", "UTNHBR", "UTNHBL", "UTNHBBR", "UTNHBB", "UTNHBBL"
 	PlayerClasses = "Marine", "Scout", "Commando"
-	EventHandlers = "NashGoreHandler", "UTNTWorldHandler", "UTNTPresentation", "DebugEventHandler", "UTNTWeatherHandler", "UTNTPortalMaterials", "UTNTThunderHandler", "UTNTEffectGlowHandler"
+	EventHandlers = "NashGoreHandler", "UTNTWorldHandler", "UTNTStatsHandler", "UTNTPresentation", "DebugEventHandler", "UTNTWeatherHandler", "UTNTPortalMaterials", "UTNTThunderHandler", "UTNTEffectGlowHandler"
 }
 
 clearskills
@@ -96,66 +96,79 @@ map TNT01 lookup "TUTNTMAP01"
 	sky1 = "USTSKY", 0
 	levelnum=1
 	music=D_TNT01
-	next=TNT02
+	next=INTERMAP
+	nointermission
 }
 map TNT02 lookup "TUTNTMAP02"
 {
 	sky1 = "UGT0", 0
 	levelnum=2
 	music=D_TNT02
-	next=TNT03A1
+	next=INTERMAP
+	nointermission
 }
 map TNT03A1 lookup "TUTNTMAP03A"
 {
 	levelnum=3
 	cluster=3
 	music=D_TNT03A
-	next=TNT03B
+	next=INTERMAP
+	nointermission
 }
 map TNT03A2 lookup "TUTNTMAP03A"
 {
 	levelnum=4
 	cluster=3
 	music=D_TNT03A
-	next=TNT03B
+	next=INTERMAP
+	nointermission
 }
 map TNT03B lookup "TUTNTMAP03B"
 {
 	sky1 = "UCHSKY", 0
 	levelnum=5
 	music=D_DM2INT
-	next=TNT04A
+	next=INTERMAP
+	nointermission
 }
 map TNT04A lookup "TUTNTMAP04A"
 {
 	sky1 = "UWRSKY", 0
 	levelnum=6
 	music=D_TNT04A
-	next=TNT04B
+	next=INTERMAP
+	nointermission
 }
 map TNT04B lookup "TUTNTMAP04B"
 {
 	sky1 = "UAS0", 0
 	levelnum=7
 	music=D_TNT04C
-	next=TNT04CN
+	next=INTERMAP
 	secretnext=TNT04C
+	nointermission
 }
 map TNT04CN lookup "TUTNTMAP04CN"
 {
 	levelnum=8
 	music=D_TNT04B
+	next=INTERMAP
+	nointermission
 }
 map TNT04C lookup "TUTNTMAP04C"
 {
 	levelnum=9
 	music=D_TNT04B
+	next=INTERMAP
+	nointermission
 }
 map TNTLE lookup "TUTNTMAPLE"
 {
 	disableskyboxao
 	levelnum=10
 	music=D_TNTLE
+	next=INTERMAP
+	nointermission
 }
 map ENDMAP01 lookup "TUTNTENDMAP01"
 {

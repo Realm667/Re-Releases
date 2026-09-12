@@ -1,21 +1,41 @@
 // Saved simulation owns chapter progress and travel; UI only requests input.
+// Authored sequence data. Rendering and travel consume the same definition.
+class UTNTTransitionDefinition : Object
+{
+    int Destination, FirstFragment, LastFragment, Picture, Voice, VoiceTic, PictureTic;
+    static UTNTTransitionDefinition ForEpisode(int episode,int secret=0)
+    {
+        int destinations[]={2,3,5,5,6,7,8,88,88,0};
+        int first[]={60,75,88,88,106,129,142,153,153,175};
+        int last[]={74,87,105,105,128,141,152,174,174,195};
+        int pictures[]={2,3,4,4,5,6,7,10,10,9};
+        int voices[]={36,37,38,38,39,40,41,42,42,43};
+        int voiceTics[]={145,145,200,200,170,145,145,250,250,145};
+        int pictureTics[]={635,565,865,865,940,635,635,1020,1020,705};
+        int i=clamp(episode,1,10)-1;
+        let d=new("UTNTTransitionDefinition");
+        d.Destination=i==6 && secret==1 ? 9 : destinations[i];
+        d.FirstFragment=first[i];d.LastFragment=last[i];d.Picture=pictures[i];
+        d.Voice=voices[i];d.VoiceTic=voiceTics[i];d.PictureTic=pictureTics[i];
+        return d;
+    }
+}
+
 class UTNTChapterState : Object
 {
     int Episode, Destination, StartTime, Phase;
+    UTNTTransitionDefinition Definition;
     int Pages[MAXPLAYERS], PageTimes[MAXPLAYERS], LastInput[MAXPLAYERS];
     bool Revealed[MAXPLAYERS], VoicePlayed;
+    int Sections[MAXPLAYERS]; // story, chapter comparison, campaign comparison
+    bool Ready[MAXPLAYERS];
+    UTNTMapResult ChapterResult, CampaignResult;
+    int ChapterObjectives, CampaignObjectives;
     bool Intro; // TNT04A uses the same reader over its authored cinematic timeline.
 
     static int DestinationFor(int episode,int secret)
     {
-        if(episode==1) return 2;
-        if(episode==2) return 3;
-        if(episode==3 || episode==4) return 5;
-        if(episode==5) return 6;
-        if(episode==6) return 7;
-        if(episode==7) return secret==1 ? 9 : 8;
-        if(episode==8 || episode==9) return 88;
-        return 0; // Lost Episode finishes its original panorama without map travel.
+        return UTNTTransitionDefinition.ForEpisode(episode,secret).Destination;
     }
 
     static int Leader()
@@ -27,45 +47,52 @@ class UTNTChapterState : Object
 
     void Init(int episode,int secret)
     {
-        self.Episode=clamp(episode,1,10); Destination=DestinationFor(self.Episode,secret);
+        self.Episode=clamp(episode,1,10); Definition=UTNTTransitionDefinition.ForEpisode(self.Episode,secret);
+        Destination=Definition.Destination;
         StartTime=level.time; Phase=0;
         for(int p=0;p<MAXPLAYERS;p++) PageTimes[p]=StartTime+110;
     }
 
+    play void CaptureResults()
+    {
+        let ledger=UTNTCampaignStats.Get();
+        if(ledger && ledger.LastCompleted>0)
+        {
+            ChapterResult=ledger.Summary(Episode,false);
+            CampaignResult=ledger.Summary(Episode,true);
+            ChapterObjectives=ledger.ObjectiveCount(Episode,false);
+            CampaignObjectives=ledger.ObjectiveCount(Episode,true);
+        }
+    }
+
     static int VoiceDelay(int episode)
     {
-        if(episode==3 || episode==4) return 200;
-        if(episode==5) return 170;
-        if(episode==8 || episode==9) return 250;
-        return 145;
+        return UTNTTransitionDefinition.ForEpisode(episode).VoiceTic;
     }
 
     static int ImageNumber(int episode)
     {
-        if(episode<=2) return episode+1;
-        if(episode<=4) return 4;
-        if(episode<=7) return episode;
-        return episode<=9 ? 10 : 9;
+        return UTNTTransitionDefinition.ForEpisode(episode).Picture;
     }
 
     static int ImageChange(int episode)
     {
-        int seconds=14;
-        if(episode==2) seconds=12;
-        if(episode==3 || episode==4) seconds=19;
-        if(episode==5) seconds=22;
-        if(episode==8 || episode==9) seconds=25;
-        if(episode==10) seconds=16;
-        return (episode==8 || episode==9 ? 145 : VoiceDelay(episode))+seconds*35;
+        return UTNTTransitionDefinition.ForEpisode(episode).PictureTic;
     }
 
     void Tick()
     {
-        if(Intro || Phase || VoicePlayed || level.time<StartTime+VoiceDelay(Episode)) return;
-        int number=Episode<=3 ? 35+Episode : Episode<=9 ? 34+Episode : 43;
-        if(Episode==9) number=42;
+        if(!Definition) Definition=UTNTTransitionDefinition.ForEpisode(Episode);
+        if(Intro || Phase || VoicePlayed || level.time<StartTime+Definition.VoiceTic) return;
+        int number=Definition.Voice;
         S_StartSound(Sound(String.Format("VOC%03d",number)),CHAN_VOICE,0,1,ATTN_NONE);
         VoicePlayed=true;
+    }
+
+    bool EveryoneReady()
+    {
+        for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p] && !Ready[p]) return false;
+        return true;
     }
 
     void Input(int p,int op,int pageCount)
@@ -74,6 +101,21 @@ class UTNTChapterState : Object
             || !playeringame[p] || level.time<StartTime+(Intro ? 15 : 110) || level.time<LastInput[p]+7) return;
         LastInput[p]=level.time;
         pageCount=clamp(pageCount,1,128);
+        if(!Intro && op==4)
+        {
+            Sections[p]=min(2,Sections[p]+1);Ready[p]=false;return;
+        }
+        if(!Intro && op==5)
+        {
+            if(Sections[p]!=2) return;
+            Ready[p]=true;
+            if(p!=Leader() || !EveryoneReady()) return;
+            op=3;
+        }
+        if(!Intro && op==2 && Sections[p]>0)
+        {
+            Sections[p]--;Ready[p]=false;return;
+        }
         if(op==0) Revealed[p]=true;
         else if(op==1 || op==2)
         {
@@ -108,14 +150,8 @@ class UTNTChapterUI ui
 
     static String Story(int episode,bool intro=false)
     {
-        int first=60,last=74;
-        if(episode==2) { first=75;last=87; }
-        else if(episode==3 || episode==4) { first=88;last=105; }
-        else if(episode==5) { first=106;last=128; }
-        else if(episode==6) { first=129;last=141; }
-        else if(episode==7) { first=142;last=152; }
-        else if(episode==8 || episode==9) { first=153;last=174; }
-        else if(episode==10) { first=175;last=195; }
+        let definition=UTNTTransitionDefinition.ForEpisode(episode);
+        int first=definition.FirstFragment,last=definition.LastFragment;
         String raw=intro ? Local("UTNT_VOICE_038").."\n\n"..Local("UTNT_VOICE_039") : "";
         for(int n=first;!intro && n<=last;n++)
         {
@@ -190,8 +226,12 @@ class UTNTChapterUI ui
             || level.time<LastInputTime+7) return;
         Prepare(chapter); LastInputTime=level.time;
         int p=consoleplayer,page=clamp(chapter.Pages[p],0,PageCount-1);
-        int op=skip ? 3 : back ? 2 : VisibleCharacters(chapter,p)<PageCharacters(page) ? 0
-            : page+1<PageCount ? 1 : 3;
+        int op;
+        if(skip) op=3;
+        else if(!chapter.Intro && chapter.Sections[p]>0)
+            op=back ? 2 : chapter.Sections[p]==1 ? 4 : 5;
+        else op=back ? 2 : VisibleCharacters(chapter,p)<PageCharacters(page) ? 0
+            : page+1<PageCount ? 1 : chapter.Intro ? 3 : 4;
         EventHandler.SendNetworkEvent("utnt_chapter",op,PageCount);
     }
 
@@ -220,6 +260,20 @@ class UTNTChapterUI ui
             UTNTExplorationUI.Text(line,(Screen.GetWidth()-font.StringWidth(line)*Unit*1.4)/2,
                 UTNTUILayout.Margin()+(row*(font.GetHeight()+3)*1.4+8)*Unit,Unit*1.4,0xddc394,alpha);
         }
+        if(!chapter.Intro && chapter.Sections[consoleplayer]>0)
+        {
+            UTNTTransitionBoard.Draw(chapter,BodyY,BodyHeight,Unit);
+            String key=chapter.Sections[consoleplayer]==1 ? "UTNT_TR_NEXT" :
+                chapter.Ready[consoleplayer] ? (consoleplayer==UTNTChapterState.Leader() && chapter.EveryoneReady() ? "UTNT_TR_DEPART" : "UTNT_TR_WAIT") : "UTNT_TR_READY";
+            String hint=Local(key);
+            if(consoleplayer==UTNTChapterState.Leader()) hint=hint.."  "..Local("UTNT_TR_SKIP");
+            let lines=font.BreakLines(hint,int((Screen.GetWidth()-2*UTNTUILayout.Margin())/Unit));
+            for(int i=0;i<lines.Count();i++) UTNTExplorationUI.Text(lines.StringAt(i),
+                (Screen.GetWidth()-font.StringWidth(lines.StringAt(i))*Unit)/2,
+                BodyY+BodyHeight+(12+i*(font.GetHeight()+3))*Unit,Unit,0xcbb995,alpha);
+            if(chapter.Phase==1) Screen.Dim(0,clamp((level.time-chapter.LastInput[UTNTChapterState.Leader()]+frac)/35,0,1),0,0,Screen.GetWidth(),Screen.GetHeight());
+            return;
+        }
         UTNTExplorationUI.Frame(BodyX,BodyY,BodyWidth/Unit,BodyHeight/Unit,Unit,alpha*0.96);
         int page=clamp(chapter.Pages[consoleplayer],0,PageCount-1);
         int characters=VisibleCharacters(chapter,consoleplayer);
@@ -231,13 +285,14 @@ class UTNTChapterUI ui
                 DTA_ScaleX,Unit*1.3,DTA_ScaleY,Unit*1.3,DTA_TextLen,max(0,characters),DTA_Alpha,alpha);
             characters-=line.Length();
         }
-        int picture=UTNTChapterState.ImageNumber(chapter.Episode);
-        double blend=clamp((level.time-chapter.StartTime-(chapter.Intro ? 170 : UTNTChapterState.ImageChange(chapter.Episode))+frac)/70,0,1);
+        int picture=chapter.Definition ? chapter.Definition.Picture : UTNTChapterState.ImageNumber(chapter.Episode);
+        double blend=clamp((level.time-chapter.StartTime-(chapter.Intro ? 170 : chapter.Definition ? chapter.Definition.PictureTic : UTNTChapterState.ImageChange(chapter.Episode))+frac)/70,0,1);
         Picture(chapter.Intro ? "TNTE4_1" : String.Format("I_%02dA",picture),PictureX,BodyY,PictureWidth,BodyHeight,alpha*(1-blend));
         Picture(chapter.Intro ? "TNTE4_2" : String.Format("I_%02dB",picture),PictureX,BodyY,PictureWidth,BodyHeight,alpha*blend);
         String hint=Local(characters<0 ? "UTNT_CHAPTER_REVEAL" : page+1<PageCount ? "UTNT_CHAPTER_NEXT"
-            : consoleplayer==UTNTChapterState.Leader() ? "UTNT_CHAPTER_CONTINUE" : "UTNT_CHAPTER_WAIT");
+            : "UTNT_TR_RESULTS");
         if(chapter.Intro) hint=Local(consoleplayer==UTNTChapterState.Leader() ? "UTNT_CHAPTER_INTRO_KEYS" : "UTNT_CHAPTER_INTRO_GUEST");
+        if(!chapter.Intro && consoleplayer==UTNTChapterState.Leader()) hint=hint.."  "..Local("UTNT_TR_SKIP");
         String status=String.Format("%d / %d",page+1,PageCount).."   "..hint;
         let hints=font.BreakLines(status,int((Screen.GetWidth()-2*UTNTUILayout.Margin())/Unit));
         for(int i=0;i<hints.Count();i++)

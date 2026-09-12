@@ -1,0 +1,90 @@
+// One shared scoreboard: every participant stays visible, including ties.
+class UTNTTransitionBoard ui
+{
+    static String Local(String key) { return StringTable.Localize("$"..key); }
+    static String TimeText(int tics)
+    {
+        int seconds=tics/35;
+        return String.Format("%d:%02d:%02d",seconds/3600,seconds/60%60,seconds%60);
+    }
+    static String Fit(String text,int width)
+    {
+        Font f=Font.GetFont('SmallFont');
+        if(f.StringWidth(text)<=width) return text;
+        while(text.Length()>0 && f.StringWidth(text.."...")>width) text=text.Left(text.Length()-1);
+        return text.."...";
+    }
+    static void Text(String text,double x,double y,double scale,Color color=0xddc394,bool centered=false)
+    {
+        if(centered) x-=Font.GetFont('SmallFont').StringWidth(text)*scale/2;
+        UTNTExplorationUI.Text(text,x,y,scale,color,1);
+    }
+
+    static void Draw(UTNTChapterState chapter,double y,double height,double unit)
+    {
+        bool campaign=chapter.Sections[consoleplayer]==2;
+        let r=campaign ? chapter.CampaignResult : chapter.ChapterResult;
+        double margin=UTNTUILayout.Margin(),width=Screen.GetWidth()-2*margin;
+        UTNTExplorationUI.Frame(margin,y,width/unit,height/unit,unit,0.97);
+        double textScale=unit*1.5;
+        Text(Local(campaign ? "UTNT_TR_CAMPAIGN" : "UTNT_TR_CHAPTER"),Screen.GetWidth()/2,y+12*unit,textScale*1.3,0xddc394,true);
+        if(!r)
+        {
+            Text(Local("UTNT_TR_NO_DATA"),Screen.GetWidth()/2,y+60*unit,textScale,0xcbb995,true);
+            return;
+        }
+        int count=0;for(int p=0;p<MAXPLAYERS;p++) if(r.Present[p]) count++;
+        int leaders[4];leaders[3]=2147483647;
+        for(int p=0;p<MAXPLAYERS;p++) if(r.Present[p])
+            for(int m=0;m<4;m++) leaders[m]=m==3 ? min(leaders[m],r.Values[p*4+m]) : max(leaders[m],r.Values[p*4+m]);
+        // Use parallel table panels for large games, rather than hiding players.
+        int panels=1,rows=max(1,count);
+        double bestScale=0;
+        for(int candidate=1;candidate<=max(1,count);candidate++)
+        {
+            int candidateRows=max(1,(count+candidate-1)/candidate);
+            double fit=min(unit*1.5,(width-24*unit)/(candidate*300.0),
+                (height-135*unit)/((candidateRows+1)*18));
+            if(fit>bestScale) {bestScale=fit;panels=candidate;rows=candidateRows;}
+        }
+        double panelWidth=(width-24*unit)/panels;
+        textScale=max(.25,bestScale);
+        double top=y+45*unit;
+        int index=0;
+        String labels[]={"UTNT_TR_PLAYER","UTNT_TR_KILLS","UTNT_TR_ITEMS","UTNT_TR_SECRETS","UTNT_TR_DEATHS"};
+        for(int panel=0;panel<panels;panel++)
+        {
+            double x=margin+12*unit+panel*panelWidth;
+            for(int c=0;c<5;c++)
+            {
+                double cx=c==0 ? x : x+panelWidth*(0.40+(c-1)*0.16);
+                String label=Local(labels[c]);
+                double labelScale=min(textScale,panelWidth*(c==0 ? .29 : .15)/max(1,Font.GetFont('SmallFont').StringWidth(label)));
+                Text(label,cx,top,labelScale,0xa99b85,c>0);
+            }
+        }
+        for(int p=0;p<MAXPLAYERS;p++) if(r.Present[p])
+        {
+            int panel=index/rows,row=index%rows;index++;
+            double x=margin+12*unit+panel*panelWidth,yy=top+(row+1)*18*textScale;
+            if(p==consoleplayer) Screen.Dim(0x80562c,.20,x-3*unit,yy-2*textScale,panelWidth-6*unit,17*textScale);
+            String playerName=r.Names[p];
+            if(playeringame[p] && chapter.Ready[p]) playerName="+ "..playerName;
+            Text(Fit(playerName,int(panelWidth*.29/textScale)),x,yy,textScale,0xe3d8c5);
+            for(int m=0;m<4;m++)
+            {
+                int value=r.Values[p*4+m];
+                bool best=count>1 && value==leaders[m] && (m==3 || value>0);
+                Text(String.Format("%d",value),x+panelWidth*(.40+m*.16),yy,textScale,best ? 0xffd36d : 0xcbb995,true);
+            }
+        }
+        int objectives=campaign ? chapter.CampaignObjectives : chapter.ChapterObjectives;
+        String summary=String.Format(Local("UTNT_TR_SUMMARY"),r.Kills,r.MaxKills,r.Items,r.MaxItems,r.Secrets,r.MaxSecrets);
+        String timing=String.Format(Local("UTNT_TR_TIME"),TimeText(r.Tics),objectives);
+        Font font=Font.GetFont('SmallFont');
+        double footerScale=min(unit*1.25,max(.75,(width-32*unit)/max(font.StringWidth(summary),font.StringWidth(timing),font.StringWidth(Local("UTNT_TR_LEADERS")),1)));
+        Text(summary,Screen.GetWidth()/2,y+height-67*unit,footerScale,0xcbb995,true);
+        Text(timing,Screen.GetWidth()/2,y+height-47*unit,footerScale,0xcbb995,true);
+        Text(Local("UTNT_TR_LEADERS"),Screen.GetWidth()/2,y+height-25*unit,footerScale,0xffd36d,true);
+    }
+}
