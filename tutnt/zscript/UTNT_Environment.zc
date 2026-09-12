@@ -10,6 +10,7 @@ class UTNTEnvironment : EventHandler
  Array<UTNTEnvironmentSurface> Surfaces;
  Array<int> NearSurfaces;
  Array<UTNTMechanismWatch> Mechanisms;
+ Array<UTNTMechanismQuakeGroup> QuakeGroups;
  Array<UTNTFootState> Feet;
  Array<UTNTFootMark> Marks;
  LineTracer Probe;
@@ -44,6 +45,8 @@ class UTNTEnvironment : EventHandler
  {
   if(!Ready && level.time>=5) Initialize();
   if(!Ready || level.isFrozen() || LevelLocals.WorldPaused())return;
+  // Older saves have mechanism watchers but no serialized quake groups.
+  if(Mechanisms.Size()>0 && QuakeGroups.Size()==0)BuildQuakeGroups();
   for(int i=Marks.Size()-1;i>=0;i--)if(!Marks[i])Marks.Delete(i);
   for(int i=0;i<MAXPLAYERS;i++)
   {
@@ -51,6 +54,7 @@ class UTNTEnvironment : EventHandler
    Feet[i].Update(i,self);
   }
   for(int i=0;i<Mechanisms.Size();i++)Mechanisms[i].Update(self);
+  for(int i=0;i<QuakeGroups.Size();i++)QuakeGroups[i].Update();
   // Surface maintenance shares the bounded probe queue.
   UpdateSurfaces();
   if(level.time%7==0)for(int i=0;i<Surfaces.Size();i++)Surfaces[i].UpdateReflection();
@@ -69,9 +73,32 @@ class UTNTEnvironment : EventHandler
    {
     Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=5)continue;
     int si=r[0].ToInt();if(si<0 || si>=level.Sectors.Size())continue;
+    bool duplicate=false;for(int j=0;j<Mechanisms.Size();j++)if(Mechanisms[j].Sec.Index()==si){duplicate=true;break;}if(duplicate)continue;
     let m=new('UTNTMechanismWatch');m.Sec=level.Sectors[si];m.Point=(r[1].ToDouble(),r[2].ToDouble());
     m.Stone=r[3].ToInt()!=0;m.Group=r[4].ToInt();
     m.Floor=m.Sec.floorplane.ZatPoint(m.Point);m.Ceiling=m.Sec.ceilingplane.ZatPoint(m.Point);Mechanisms.Push(m);
+   }
+  }
+  BuildQuakeGroups();
+ }
+ void BuildQuakeGroups()
+ {
+  Array<int> lookup;lookup.Resize(level.Sectors.Size());for(int i=0;i<lookup.Size();i++)lookup[i]=-1;
+  for(int i=0;i<Mechanisms.Size();i++){lookup[Mechanisms[i].Sec.Index()]=i;Mechanisms[i].Measure();}
+  for(int i=0;i<Mechanisms.Size();i++)
+  {
+   let first=Mechanisms[i];if(first.QuakeGroup)continue;
+   let group=new('UTNTMechanismQuakeGroup');QuakeGroups.Push(group);group.Members.Push(first);first.QuakeGroup=group;
+   for(int j=0;j<group.Members.Size();j++)
+   {
+    let m=group.Members[j];group.TotalArea+=m.Area;
+    for(int k=0;k<m.Sec.Lines.Size();k++)
+    {
+     let line=m.Sec.Lines[k];let neighbor=line.FrontSector==m.Sec?line.BackSector:line.FrontSector;
+     if(!neighbor)continue;int index=lookup[neighbor.Index()];if(index<0)continue;
+     let next=Mechanisms[index];if(next.QuakeGroup || m.Group<=0 || next.Group!=m.Group)continue;
+     next.QuakeGroup=group;group.Members.Push(next);
+    }
    }
   }
  }
@@ -361,6 +388,7 @@ class UTNTMechanismQuake : Actor
 }
 class UTNTMechanismWatch : Object play
 {
+ UTNTMechanismQuakeGroup QuakeGroup;
  Sector Sec;Vector2 Point;double Floor,Ceiling,Travel;bool Moving,Stone,CeilingMoving,IsDoor;
  int Group,Still,LastBurst,EmissionCursor,LastQuake,Starts,Stops;
  Vector2 Low,High;double Area;bool Measured;uint DustRandom;
@@ -416,23 +444,20 @@ class UTNTMechanismWatch : Object play
   }
   return false,(0,0);
  }
- void Shake(bool impulse)
+ Vector3 QuakePoint(Actor camera)
+ {
+  Measure();Vector2 q=(clamp(camera.Pos.X,Low.X,High.X),clamp(camera.Pos.Y,Low.Y,High.Y));
+  return (q.X,q.Y,clamp(camera.Pos.Z,Sec.floorplane.ZatPoint(q),max(Sec.floorplane.ZatPoint(q),Sec.ceilingplane.ZatPoint(q))));
+ }
+ void Shake(bool impulse,double area)
  {
   if(!UTNTEnvironment.Option('UTNT_mechanismfx') || UTNTEnvironment.Reduced() || !UTNTEnvironment.Quality() || consoleplayer<0)return;
   let camera=players[consoleplayer].camera;if(!camera || camera.player==null || (camera.player.cheats & CF_TOTALLYFROZEN))return;
-  // Closest point of the sector's bounds, including height, rather than its center.
-  Vector2 low=(1e30,1e30),high=(-1e30,-1e30);
-  for(int i=0;i<Sec.Lines.Size();i++)
-  {
-   Vector2 a=Sec.Lines[i].V1.P,b=Sec.Lines[i].V2.P;
-   low=(min(low.X,min(a.X,b.X)),min(low.Y,min(a.Y,b.Y)));high=(max(high.X,max(a.X,b.X)),max(high.Y,max(a.Y,b.Y)));
-  }
-  Vector2 q=(clamp(camera.Pos.X,low.X,high.X),clamp(camera.Pos.Y,low.Y,high.Y));
-  Vector3 pos=(q.X,q.Y,clamp(camera.Pos.Z,Sec.floorplane.ZatPoint(q),max(Sec.floorplane.ZatPoint(q),Sec.ceilingplane.ZatPoint(q))));
-  double distance=(pos-camera.Pos).Length();if(distance>=768)return;
-  double strength=impulse?.92:.336;
+  double gain=UTNTMechanismQuakeGroup.AreaGain(area);if(gain<=0)return;
+  Vector3 pos=QuakePoint(camera);if((pos-camera.Pos).Length()>=768)return;
+  double strength=(impulse?.92:.336)*gain;
   let anchor=Actor.Spawn('UTNTMechanismQuake',pos);if(!anchor)return;
-  anchor.A_QuakeEx(strength*.55,strength*.45,strength,impulse?12:7,0,768,"none",QF_3D|QF_SHAKEONLY|QF_MAX|(impulse?QF_SCALEDOWN:0),falloff:128,rollIntensity:impulse?.096:.036,thrustMultiplier:0);
+  anchor.A_QuakeEx(strength*.55,strength*.45,strength,impulse?12:7,0,768,"none",QF_3D|QF_SHAKEONLY|QF_MAX|(impulse?QF_SCALEDOWN:0),falloff:128,rollIntensity:(impulse?.096:.036)*gain,thrustMultiplier:0);
   LastQuake=level.time;
  }
  void Update(UTNTEnvironment h)
@@ -442,18 +467,52 @@ class UTNTMechanismWatch : Object play
   if(now){CeilingMoving=abs(c-Ceiling)>abs(f-Floor);IsDoor=Sec.ceilingdata is "Door";}
   if(now)
   {
-   if(!Moving){Travel=0;if(level.time>20){Shake(true);Starts++;}}
+   if(!Moving){Travel=0;if(level.time>20)Starts++;}
    Travel+=delta;Still=0;
    if(level.time>20)h.EmitDust(self);
-   if(level.time-LastQuake>=7 && level.time>20)Shake(false);
    Moving=true;
   }
   else if(Moving && ++Still>=3)
   {
-   if(Travel>.01 && level.time>20){Shake(true);Stops++;}
+   if(Travel>.01 && level.time>20)Stops++;
    Moving=false;Travel=0;
   }
   Floor=f;Ceiling=c;
+ }
+}
+// One quake per connected tagged mover, independent of how its area is subdivided.
+class UTNTMechanismQuakeGroup : Object play
+{
+ Array<UTNTMechanismWatch> Members;
+ double TotalArea,ActiveArea,LastArea;bool Moving;int LastQuake,Emissions;
+ clearscope static double AreaGain(double area)
+ {
+  double width=sqrt(max(0,area));
+  double t=clamp((width-64)/192,0,1);
+  return t*t*(3-2*t)+clamp((width-256)/512,0,.6);
+ }
+ void Emit(bool impulse,double area,bool activeOnly)
+ {
+  if(consoleplayer<0 || AreaGain(area)<=0)return;
+  let camera=players[consoleplayer].camera;if(!camera)return;
+  UTNTMechanismWatch closest;double distance=1e30;
+  for(int i=0;i<Members.Size();i++)
+  {
+   let m=Members[i];if(activeOnly && !m.Moving)continue;
+   double d=(m.QuakePoint(camera)-camera.Pos).Length();if(d<distance){distance=d;closest=m;}
+  }
+  if(closest){closest.Shake(impulse,area);if(closest.LastQuake==level.time)Emissions++;}
+ }
+ void Update()
+ {
+  ActiveArea=0;for(int i=0;i<Members.Size();i++)if(Members[i].Moving)ActiveArea+=Members[i].Area;
+  bool now=ActiveArea>0;
+  if(level.time>20)
+  {
+   if(now && (!Moving || level.time-LastQuake>=7)){Emit(!Moving,ActiveArea,true);LastQuake=level.time;}
+   else if(!now && Moving){Emit(true,LastArea,false);LastQuake=level.time;}
+  }
+  if(now)LastArea=ActiveArea;Moving=now;
  }
 }
 class UTNTEnvironmentSurface : Object play

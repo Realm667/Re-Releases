@@ -8,6 +8,7 @@ class UTNTEnvironmentRegression : EventHandler
  bool RecordGuides;int GuideBirths,GuideBad,GuideSamples,ShakeUntil,ShakeLabel;
  UTNTEnvironmentDust GuideDust;double GuideStartZ,GuideStartCeiling;
  UTNTEnvironmentDust CarryDust[2];double CarryZ[2],CarryPlane[2],CarryAlpha[2];int CarrySamples[2],CarryBad;
+ int SizeStart;
  ui int ShakeTic,ShakeFrames;ui Vector3 ViewLow,ViewHigh;
  override void RenderOverlay(RenderEvent e)
  {
@@ -113,7 +114,7 @@ class UTNTEnvironmentRegression : EventHandler
    Check(h.Surfaces[2].Exposed[0]==0,"solid 3D floor blocks rain below");
 
    Check(level.Sectors[0].GetTerrain(Sector.floor)==OriginalTerrain,"material binding preserves terrain behavior");
-   Check(h.Mechanisms.Size()==3,"mechanism watcher created");
+   Check(h.Mechanisms.Size()==10,"mechanism watcher created");
    Check(h.Mechanisms[0].ContactLength()==256,"coplanar open joins do not count as rubbing walls");
   }
  }
@@ -181,6 +182,24 @@ class UTNTEnvironmentRegression : EventHandler
    let heat=UTNTLocalHeat(EventHandler.Find('UTNTLocalHeat'));int count=0;for(int i=0;i<6;i++)if(heat.Anchors[i])count++;
    Check(count==0,"disabled heat releases all local anchors");
   }
+  if(e.Name=="envoldgroups"){for(int i=0;i<h.Mechanisms.Size();i++)h.Mechanisms[i].QuakeGroup=null;h.QuakeGroups.Clear();}
+  if(e.Name=="envsizesstart")
+  {
+   SizeStart=level.time;
+   Floor_RaiseByValue(53,2,128);Floor_RaiseByValue(54,2,128);Floor_RaiseByValue(55,2,128);Floor_RaiseByValue(50,2,128);
+  }
+  if(e.Name=="envsizescheck")
+  {
+   let group=h.Mechanisms[3].QuakeGroup;
+   Check(group.Members.Size()==4 && group.TotalArea==16384 && group.ActiveArea==16384,"four adjacent tagged sectors form one moving 128x128 area");
+   Check(h.Mechanisms[4].QuakeGroup==group && h.Mechanisms[5].QuakeGroup==group && h.Mechanisms[6].QuakeGroup==group,"all connected cells share quake state");
+   Check(h.Mechanisms[7].QuakeGroup!=group && h.Mechanisms[7].QuakeGroup.TotalArea==4096,"disconnected same-tag sector remains a separate small mover");
+   Check(h.Mechanisms[7].QuakeGroup.Emissions==0 && h.Mechanisms[8].QuakeGroup.Emissions==0,"64x64 and 16x128 produce no quake");
+   Check(group.Emissions>0 && group.Emissions<=(level.time-SizeStart)/7+1,"compound mover emits only one quake per pulse");
+   Check(group.ActiveArea==h.Mechanisms[9].QuakeGroup.ActiveArea,"split and unsplit 128x128 movers have identical active area");
+   Check(UTNTMechanismQuakeGroup.AreaGain(4096)==0 && UTNTMechanismQuakeGroup.AreaGain(16384)>.2 && UTNTMechanismQuakeGroup.AreaGain(16384)<.3 && UTNTMechanismQuakeGroup.AreaGain(65536)==1 && UTNTMechanismQuakeGroup.AreaGain(262144)==1.5 && UTNTMechanismQuakeGroup.AreaGain(1e12)==1.6,"area response grows smoothly and is capped");
+   Console.Printf("QUAKE_AREA|members=%d|area=%.0f|emissions=%d",group.Members.Size(),group.ActiveArea,group.Emissions);
+  }
   if(e.Name=="envwallfitcheck")
   {
    let d=UTNTEnvironmentDust(level.SpawnClientSideVisualThinker('UTNTEnvironmentDust'));
@@ -214,7 +233,7 @@ class UTNTEnvironmentRegression : EventHandler
    Console.Printf("UTNT_REGRESSION_COMPLETE");
   }
   if(e.Name=="environmentstats"){let cam=players[0].camera;Console.Printf("ENV_NATIVE_CAMERA|sector=%d|reflect=%.5f|3dfloors=%d|heightsec=%d",cam.CurSector.Index(),cam.CurSector.GetPlaneReflectivity(0),cam.CurSector.Get3DFloorCount(),cam.CurSector.heightsec!=null);Console.Printf("ENV_CAMERA|mo=%.1f,%.1f,%.1f|camera=%.1f,%.1f,%.1f",mo.Pos.X,mo.Pos.Y,mo.Pos.Z,cam.Pos.X,cam.Pos.Y,cam.Pos.Z);}
-  if(e.Name=="envloadcheck"){Check(h.Ready && h.Surfaces[0].Wet[0]>0,"wet state survives save/load");Check(h.Prints==0,"save/load restores footprint state");}
+  if(e.Name=="envloadcheck"){Check(h.Ready && h.Surfaces[0].Wet[0]>0,"wet state survives save/load");Check(h.Prints==0,"save/load restores footprint state");Check(h.QuakeGroups.Size()==7 && h.Mechanisms[3].QuakeGroup.Members.Size()==4 && h.Mechanisms[3].QuakeGroup.TotalArea==16384 && h.Mechanisms[3].QuakeGroup==h.Mechanisms[6].QuakeGroup,"connected quake groups survive save/load");}
   if(e.Name=="envwatercheck"){Console.Printf("ENV_WATER|z=%.2f|depth=%.2f|level=%d|sector=%d|heightsec=%d",mo.Pos.Z,mo.WaterDepth,mo.WaterLevel,mo.CurSector.Index(),mo.CurSector.heightsec?mo.CurSector.heightsec.Index():-1);Check(mo.WaterLevel>=3,"camera actually submerged");}
  }
 }

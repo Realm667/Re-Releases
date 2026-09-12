@@ -43,6 +43,9 @@ def fixture():
   ([(1152,640),(1152,896),(1408,896),(1408,640)],(0,192,'GRAVE01','CEIL1_1',0)),
   ([(1152,1024),(1152,1536),(1664,1536),(1664,1024)],(0,192,'GRAVE01','CEIL1_1',52))]:
   polygon(points,len(sectors));sectors.append(record)
+ # Four connected 64x64 cells, plus isolated same-tag, thin and equivalent unsplit movers.
+ for x,y,w,h,tag in [(3000,0,64,64,53),(3064,0,64,64,53),(3000,64,64,64,53),(3064,64,64,64,53),(6000,0,64,64,53),(9000,0,16,128,54),(12000,0,128,128,55)]:
+  polygon([(x,y),(x,y+h),(x+w,y+h),(x+w,y)],len(sectors));sectors.append((0,256,'GRAVE01','CEIL1_1',tag))
  t='namespace="ZDoom";\n'
  for x,y in vertices:t+=f'vertex {{ x={x}.0; y={y}.0; }}\n'
  interior={s for l in lines if l['back']>=0 for s in (l['front'],l['back'])}
@@ -70,7 +73,7 @@ def fixture():
  for k,si,x,y in [(0,0,0,0),(1,5,256,256),(2,6,512,256)]:
   rows.append(f'0|{si}|0|GRAVE01|EVTEST{k}|{k}|{x}|{y}|0|1|0|0|256|256|1|1')
  (env/'ENVTEST-surfaces.txt').write_text('\n'.join(rows))
- (env/'ENVTEST-mechanisms.txt').write_text('7|896|384|1|50\n15|1280|576|1|51\n18|1408|1280|1|52\n')
+ (env/'ENVTEST-mechanisms.txt').write_text('7|896|384|1|50\n15|1280|576|1|51\n18|1408|1280|1|52\n19|3032|32|1|53\n20|3096|32|1|53\n21|3032|96|1|53\n22|3096|96|1|53\n23|6032|32|1|53\n24|9008|64|1|54\n25|12064|64|1|55\n')
 
  textures=[];defs=[]
  src=(ROOT/'tutnt/shaders/environment/surface.glsl').read_text().replace('ENV_ORIGINAL_BODY','mat.Base=getTexel(vTexCoord.st);mat.Normal=normalize(vWorldNormal.xyz);')
@@ -96,6 +99,7 @@ class UTNTEnvironmentRegression : EventHandler
  bool RecordGuides;int GuideBirths,GuideBad,GuideSamples,ShakeUntil,ShakeLabel;
  UTNTEnvironmentDust GuideDust;double GuideStartZ,GuideStartCeiling;
  UTNTEnvironmentDust CarryDust[2];double CarryZ[2],CarryPlane[2],CarryAlpha[2];int CarrySamples[2],CarryBad;
+ int SizeStart;
  ui int ShakeTic,ShakeFrames;ui Vector3 ViewLow,ViewHigh;
  override void RenderOverlay(RenderEvent e)
  {
@@ -201,7 +205,7 @@ class UTNTEnvironmentRegression : EventHandler
    Check(h.Surfaces[2].Exposed[0]==0,"solid 3D floor blocks rain below");
 
    Check(level.Sectors[0].GetTerrain(Sector.floor)==OriginalTerrain,"material binding preserves terrain behavior");
-   Check(h.Mechanisms.Size()==3,"mechanism watcher created");
+   Check(h.Mechanisms.Size()==10,"mechanism watcher created");
    Check(h.Mechanisms[0].ContactLength()==256,"coplanar open joins do not count as rubbing walls");
   }
  }
@@ -269,6 +273,24 @@ class UTNTEnvironmentRegression : EventHandler
    let heat=UTNTLocalHeat(EventHandler.Find('UTNTLocalHeat'));int count=0;for(int i=0;i<6;i++)if(heat.Anchors[i])count++;
    Check(count==0,"disabled heat releases all local anchors");
   }
+  if(e.Name=="envoldgroups"){for(int i=0;i<h.Mechanisms.Size();i++)h.Mechanisms[i].QuakeGroup=null;h.QuakeGroups.Clear();}
+  if(e.Name=="envsizesstart")
+  {
+   SizeStart=level.time;
+   Floor_RaiseByValue(53,2,128);Floor_RaiseByValue(54,2,128);Floor_RaiseByValue(55,2,128);Floor_RaiseByValue(50,2,128);
+  }
+  if(e.Name=="envsizescheck")
+  {
+   let group=h.Mechanisms[3].QuakeGroup;
+   Check(group.Members.Size()==4 && group.TotalArea==16384 && group.ActiveArea==16384,"four adjacent tagged sectors form one moving 128x128 area");
+   Check(h.Mechanisms[4].QuakeGroup==group && h.Mechanisms[5].QuakeGroup==group && h.Mechanisms[6].QuakeGroup==group,"all connected cells share quake state");
+   Check(h.Mechanisms[7].QuakeGroup!=group && h.Mechanisms[7].QuakeGroup.TotalArea==4096,"disconnected same-tag sector remains a separate small mover");
+   Check(h.Mechanisms[7].QuakeGroup.Emissions==0 && h.Mechanisms[8].QuakeGroup.Emissions==0,"64x64 and 16x128 produce no quake");
+   Check(group.Emissions>0 && group.Emissions<=(level.time-SizeStart)/7+1,"compound mover emits only one quake per pulse");
+   Check(group.ActiveArea==h.Mechanisms[9].QuakeGroup.ActiveArea,"split and unsplit 128x128 movers have identical active area");
+   Check(UTNTMechanismQuakeGroup.AreaGain(4096)==0 && UTNTMechanismQuakeGroup.AreaGain(16384)>.2 && UTNTMechanismQuakeGroup.AreaGain(16384)<.3 && UTNTMechanismQuakeGroup.AreaGain(65536)==1 && UTNTMechanismQuakeGroup.AreaGain(262144)==1.5 && UTNTMechanismQuakeGroup.AreaGain(1e12)==1.6,"area response grows smoothly and is capped");
+   Console.Printf("QUAKE_AREA|members=%d|area=%.0f|emissions=%d",group.Members.Size(),group.ActiveArea,group.Emissions);
+  }
   if(e.Name=="envwallfitcheck")
   {
    let d=UTNTEnvironmentDust(level.SpawnClientSideVisualThinker('UTNTEnvironmentDust'));
@@ -302,13 +324,13 @@ class UTNTEnvironmentRegression : EventHandler
    Console.Printf("UTNT_REGRESSION_COMPLETE");
   }
   if(e.Name=="environmentstats"){let cam=players[0].camera;Console.Printf("ENV_NATIVE_CAMERA|sector=%d|reflect=%.5f|3dfloors=%d|heightsec=%d",cam.CurSector.Index(),cam.CurSector.GetPlaneReflectivity(0),cam.CurSector.Get3DFloorCount(),cam.CurSector.heightsec!=null);Console.Printf("ENV_CAMERA|mo=%.1f,%.1f,%.1f|camera=%.1f,%.1f,%.1f",mo.Pos.X,mo.Pos.Y,mo.Pos.Z,cam.Pos.X,cam.Pos.Y,cam.Pos.Z);}
-  if(e.Name=="envloadcheck"){Check(h.Ready && h.Surfaces[0].Wet[0]>0,"wet state survives save/load");Check(h.Prints==0,"save/load restores footprint state");}
+  if(e.Name=="envloadcheck"){Check(h.Ready && h.Surfaces[0].Wet[0]>0,"wet state survives save/load");Check(h.Prints==0,"save/load restores footprint state");Check(h.QuakeGroups.Size()==7 && h.Mechanisms[3].QuakeGroup.Members.Size()==4 && h.Mechanisms[3].QuakeGroup.TotalArea==16384 && h.Mechanisms[3].QuakeGroup==h.Mechanisms[6].QuakeGroup,"connected quake groups survive save/load");}
   if(e.Name=="envwatercheck"){Console.Printf("ENV_WATER|z=%.2f|depth=%.2f|level=%d|sector=%d|heightsec=%d",mo.Pos.Z,mo.WaterDepth,mo.WaterLevel,mo.CurSector.Index(),mo.CurSector.heightsec?mo.CurSector.heightsec.Index():-1);Check(mo.WaterLevel>=3,"camera actually submerged");}
  }
 }
 '''
 def main():
- p=argparse.ArgumentParser();p.add_argument('--case',default='fixture',choices=['fixture','campaign','compile','prototype','motion','area','lake','guides','fog']);p.add_argument('--renderer',default='1');p.add_argument('--map',default='TNT02');p.add_argument('--at',nargs=3,type=int);p.add_argument('--angle',type=int,default=0);p.add_argument('--pitch',type=int,default=10);p.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/environment-dev.pk3');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--case',default='fixture',choices=['fixture','campaign','compile','prototype','motion','area','lake','guides','fog','sizes']);p.add_argument('--renderer',default='1');p.add_argument('--map',default='TNT02');p.add_argument('--at',nargs=3,type=int);p.add_argument('--angle',type=int,default=0);p.add_argument('--pitch',type=int,default=10);p.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/environment-dev.pk3');a=p.parse_args()
  WORK.mkdir(parents=True,exist_ok=True)
  addon=fixture()
  if a.case!='compile':
@@ -319,7 +341,10 @@ def main():
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,label='fixture-compile')
   print(Path(r['log']).read_text()[-5000:]);sys.exit(0 if r['ok'] else 1)
  settings=[('vid_activeinbackground',True),('vid_lowerinbackground',False),('vid_maxfps',35),('cl_capfps',True),('motionblur',False),('UTNT_visoreffects',False),('use_mouse',False),('use_joystick',False),('i_pauseinbackground',False),('r_drawplayersprites',False)]
- if a.case in ('guides','fog'):
+ if a.case=='sizes':
+  cmds='wait 140; netevent envfly; netevent envsizesstart; netevent envview 0 0; netevent envpos 5968 32 192; wait 35; netevent envshakecapture 64; wait 35; netevent envpos 8968 64 192; wait 15; netevent envshakecapture 16; wait 35; netevent envpos 2968 64 192; wait 15; netevent envshakecapture 128; wait 35; netevent envpos 11968 64 192; wait 15; netevent envshakecapture 129; wait 35; netevent envpos 736 384 192; wait 15; netevent envshakecapture 256; wait 35; netevent envsizescheck; wait 5; echo UTNT_TEST_END; quit'
+  r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='ENVTEST',renderer=a.renderer,label='environment-sizes-'+a.renderer,timeout=90,commands=cmds,settings=settings+[('UTNT_fxquality',3),('UTNT_reducedfx',False)])
+ elif a.case in ('guides','fog'):
   cmds='wait 140; netevent envfly; netevent envpos 1280 384 0; netevent envview 90 0; wait 20; netevent envguides; wait 48; screenshot logs/door.png; wait 32; netevent envguidescheck; wait 5; netevent envpos 256 384 32; netevent envview 0 0; wait 30; netevent envshakecapture 0; wait 35; netevent envshakemove; wait 35; noclip; wait 5; netevent environmentstats; netevent envshakecapture 999; wait 35; noclip; wait 5; netevent environmentstats; netevent envshakecapture 512; wait 35; netevent envpos 384 384 32; wait 15; netevent envshakecapture 384; wait 35; netevent envpos 736 384 32; wait 15; netevent envshakecapture 32; wait 35; echo UTNT_TEST_END; quit' if a.case=='guides' else 'wait 175; netevent envfly; netevent envpos 3480 -5330 -239; netevent envview 90 24; wait 35; screenshot logs/fog.png; echo UTNT_TEST_END; quit'
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='ENVTEST' if a.case=='guides' else 'TNT02',renderer=a.renderer,label='environment-'+a.case+'-'+a.renderer,timeout=90,commands=cmds,settings=settings+[('con_notifytime',0),('UTNT_fxquality',3),('UTNT_reducedfx',False)])
  elif a.case=='lake':
@@ -335,7 +360,7 @@ def main():
   cmds='wait 350; netevent envfly; netevent envpos 690 128 0; wait 5; netevent envview 0 0; wait 140; UTNT_localheatprototype true; wait 10; netevent heatlabstats; wait 5; screenshot logs/heatlab-on.png; UTNT_localheatprototype false; wait 5; screenshot logs/heatlab-off.png; netevent heatlabmode 1; UTNT_localheatprototype true; wait 10; netevent heatlabstats; wait 5; screenshot logs/heatlab-wall.png; netevent heatlabmode 2; wait 10; netevent heatlabstats; wait 5; screenshot logs/heatlab-hidden.png; echo UTNT_TEST_END; quit'
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='ENVTEST',renderer=a.renderer,label='heatlab-'+a.renderer,timeout=45,commands=cmds,settings=settings)
  elif a.case=='fixture':
-  cmds='wait 140; netevent envview 0 55; wait 5; netevent environmentstats; netevent envmirrorcheck; screenshot logs/env-rain.png; UTNT_wetsurfaces false; wait 5; screenshot logs/env-rain-off.png; UTNT_wetsurfaces true; wait 5; save env-state; wait 5; netevent envpos 32 384 0; wait 10; netevent envwalk 80; wait 90; netevent envview 180 60; wait 5; screenshot logs/env-snow.png; netevent envmove; wait 70; netevent envpos 512 1280 -192; wait 10; netevent envwatercheck; wait 5; screenshot logs/env-water.png; UTNT_underwateratmosphere false; wait 5; screenshot logs/env-water-off.png; UTNT_underwateratmosphere true; netevent envpos 32 128 0; wait 10; netevent envwet; netevent envwalk 80; wait 90; netevent envchecks; wait 5; netevent envview 180 60; wait 5; netevent environmentstats; wait 5; screenshot logs/env-wetprints.png; load env-state; wait 20; netevent envloadcheck; wait 5; netevent environmentstats; wait 5; echo UTNT_TEST_END; quit'
+  cmds='wait 140; netevent envview 0 55; wait 5; netevent environmentstats; netevent envmirrorcheck; screenshot logs/env-rain.png; UTNT_wetsurfaces false; wait 5; screenshot logs/env-rain-off.png; UTNT_wetsurfaces true; wait 5; save env-state; wait 5; netevent envpos 32 384 0; wait 10; netevent envwalk 80; wait 90; netevent envview 180 60; wait 5; screenshot logs/env-snow.png; netevent envmove; wait 70; netevent envpos 512 1280 -192; wait 10; netevent envwatercheck; wait 5; screenshot logs/env-water.png; UTNT_underwateratmosphere false; wait 5; screenshot logs/env-water-off.png; UTNT_underwateratmosphere true; netevent envpos 32 128 0; wait 10; netevent envwet; netevent envwalk 80; wait 90; netevent envchecks; wait 5; netevent envview 180 60; wait 5; netevent environmentstats; wait 5; screenshot logs/env-wetprints.png; load env-state; wait 20; netevent envloadcheck; netevent envoldgroups; wait 5; netevent envloadcheck; wait 5; netevent environmentstats; wait 5; echo UTNT_TEST_END; quit'
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname='ENVTEST',renderer=a.renderer,label='environment-fixture-'+a.renderer,timeout=100,commands=cmds,settings=settings,regression=True)
  else:
   r=run_case(ENGINE,IWAD,root=WORK,mod=a.mod,addon=addon,mapname=a.map,renderer=a.renderer,label='environment-'+a.map+'-'+a.renderer,timeout=90,commands='wait 220; netevent envfly; wait 5; '+('netevent envpos '+' '.join(map(str,a.at))+'; wait 5; ' if a.at else '')+f'netevent envview {a.angle} {a.pitch}; wait 70; netevent environmentstats; wait 5; screenshot logs/env-'+a.map+'.png; echo UTNT_TEST_END; quit',settings=settings)
@@ -345,6 +370,11 @@ def main():
   visible=all(k in samples for k in (0,999,512,384,32)) and samples[0]<.01 and samples[999]<.01 and .10<samples[512]<samples[384]<samples[32]
   r['camera_motion_x']=samples
   if not visible:r['ok']=False;r['errors'].append('camera shake must stop under noclip, be visible at 512 and increase toward mover')
+ if a.case=='sizes' and r['ok']:
+  samples={int(label):float(x) for label,x in re.findall(r'SHAKEVIEW\|label=(\d+)\|frames=\d+\|x=([\d.]+)',Path(r['log']).read_text(encoding='utf-8'))}
+  valid=all(k in samples for k in (64,16,128,129,256)) and samples[64]<.01 and samples[16]<.01 and .05<samples[128]<samples[256]*.5 and .05<samples[129]<samples[256]*.5 and .65<samples[128]/samples[129]<1.5
+  r['camera_motion_x']=samples
+  if not valid:r['ok']=False;r['errors'].append('rendered quake must match moving area and ignore sector subdivision')
  (WORK/(a.case+'-'+a.renderer+'.json')).write_text(json.dumps(r,indent=2))
  if not r['ok']:print(Path(r['log']).read_text()[-5000:]);sys.exit(1)
 if __name__=='__main__':main()
