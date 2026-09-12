@@ -48,4 +48,16 @@ class DefinitionLayoutTests(unittest.TestCase):
   with self.assertRaisesRegex(ValueError,'Missing texture include'):
    package_textures({'TEXTURES.txt':b'#include "textures/definitions/missing"',
     'textures/definitions/unused':b''})
+ def test_material_scan_ignores_matching_directories(self):
+  import build_environment_fx as environment
+  from unittest.mock import patch
+  (self.mod/'GLDEFS.cache').mkdir()
+  (self.mod/'TEXTURES.cache').mkdir()
+  (self.mod/'GLDEFS.txt').write_text('Material Texture BASE { Shader "base" }')
+  (self.mod/'gldefs/GLDEFS.test').write_text('Material Texture MOVED { Shader "moved" }')
+  (self.mod/'textures/definitions/TEXTURES.test').write_text('Texture MOVED, 16, 32 { Patch "PATCH", 0, 0 }')
+  with patch.object(environment,'MOD',self.mod):
+   materials,textures,terrain,files=environment.material_library()
+  self.assertEqual(set(materials),{'BASE','MOVED'})
+  self.assertEqual(textures['MOVED'][:2],(16,32))
 if __name__=='__main__':unittest.main()

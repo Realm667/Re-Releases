@@ -29,7 +29,7 @@ def things(path):
 def material_library():
  materials={};textures={};terrain={};files={}
  for p in sorted([*MOD.glob('GLDEFS*'), *(MOD/'gldefs').glob('GLDEFS*')], key=lambda p:p.name):
-  if p.name=='GLDEFS.environment':continue
+  if not p.is_file() or p.name=='GLDEFS.environment':continue
   for m,body in blocks(p.read_text(),r'\bmaterial\s+(?:flat|texture)\s+"?([\w.-]+)"?'):
    materials[m[1].upper()]=body
  for p in sorted([*MOD.glob('TEXTURES*'), *(MOD/'textures/definitions').glob('TEXTURES*')], key=lambda p:p.name):

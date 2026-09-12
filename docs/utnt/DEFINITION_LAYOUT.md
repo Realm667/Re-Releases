@@ -52,3 +52,7 @@ assembled LANGUAGE.txt. No translation review is needed for a path-only move.
 Current generators, regression tools and documentation use the new paths.
 Historical migration reports and immutable Git snapshots retain their old paths;
 consult the local migration map before running an old temporary script.
+
+Definition scans filter files explicitly: on Windows, GLDEFS* and LANGUAGE*
+also match the new lowercase directories. Generators and localization overlays
+must not try to read or copy those directory entries as files.

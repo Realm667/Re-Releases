@@ -96,7 +96,8 @@ def main():
     with tempfile.TemporaryDirectory(prefix='utnt-localization-') as temp:
         addon=Path(temp);fixture(a.root,addon)
         if a.overlay:
-            for source in (a.root/'tutnt').glob('LANGUAGE*'):shutil.copyfile(source,addon/source.name)
+            for source in (a.root/'tutnt').glob('LANGUAGE*'):
+                if source.is_file():shutil.copyfile(source,addon/source.name)
             shutil.copyfile(a.root/'tutnt/MENUDEF.txt',addon/'MENUDEF.txt')
             shutil.copytree(a.root/'tutnt/zscript',addon/'zscript',dirs_exist_ok=True)
             shutil.copytree(a.root/'tutnt/credits',addon/'credits',dirs_exist_ok=True)
