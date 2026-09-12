@@ -8,7 +8,7 @@ from material_support_geometry import NAMES
 
 # Independently read native artwork coordinates: front surface then recess.
 LANDMARKS=[('CFLOOR2',(18,18),(31,18)),('CFLOOR2',(46,42),(46,32)),
- ('CFLOOR4',(39,8),(32,8)),('OBSUP1',(8,8),(8,16)),
+ ('CFLOOR4',(32,8),(39,8)),('OBSUP1',(8,8),(8,16)),
  ('IKSUP5',(8,3),(8,7)),('QTECH17',(8,8),(8,16)),
  ('QTECH22',(44,45),(12,45)),('QTECH22',(57,35),(54,35)),
  ('OBR01',(30,8),(30,16.5)),('OBRL11',(20,35),(24,35)),
@@ -38,6 +38,17 @@ def check():
  def at(n,p):
   z=fields[n];x,y=p;w,h=g['variants'][n]['size'];return float(z[int(y*z.shape[0]/h),int(x*z.shape[1]/w)])
  for n,front,back in LANDMARKS:assert at(n,front)>at(n,back)+.12,(n,front,back,at(n,front),at(n,back))
+ # User-corrected floor semantics: quiet square faces, rounded corners,
+ # and recessed scratches. No positive tread remains on either material.
+ for n in ('CFLOOR2','CFLOOR4'):assert fields[n].max()<=0,n
+ for p in [(4,8),(4,24),(16,4),(24,4),(28,16)]:
+  assert abs(at('CFLOOR2',p))<.025,('straight tile face',p)
+ assert at('CFLOOR2',(2,2))<-.65
+ assert abs(at('CFLOOR2',(5,5)))<.025
+ for p in [(1,16),(16,1),(31,16),(16,31)]:assert at('CFLOOR2',p)<-.6
+ for p in [(0,16),(16,0),(63.5,16),(16,63.5)]:assert at('CFLOOR4',p)<-.55
+ for p in [(32,32),(32,16),(16,32)]:assert abs(at('CFLOOR4',p))<.025
+ assert -.25<at('CFLOOR4',(39,8))<-.12
  # Matching family geometry is checked in the actual encoded outputs.
  def other(n):
   v=g['variants'][n];return -height_depth(np.array(Image.open(ROOT/'tutnt'/(v['stem']+'-height.png'))))*v['depth']

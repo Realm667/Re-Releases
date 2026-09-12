@@ -545,8 +545,9 @@ QTECH17/22, OBR01/OBRL11, QCITY07/10/11 and IKWALL70. The registry contains
 256 base materials and 332 variants. All 320 prior height/normal pairs are
 byte-identical. The original color assets and global relief shader are unchanged.
 
-CFLOOR2 uses complete worn slab outlines, recessed joints and selected cracks;
-CFLOOR4 is tread plate, with shallow diagonal ribs rather than a false slab grid.
+CFLOOR2 uses square tiles with straight sides, small circular corner rounds,
+recessed joints and shallow wear. CFLOOR4 uses a square 64-texel tile with
+recessed scratches; the initial raised-tread interpretation was corrected.
 The supports use whole rounded fasteners or rectangular openings. OBR01 and
 OBRL11 share horizontal divisions, with additional embossed heads and recessed
 lights on OBRL11. QCITY skins combine shared narrow bands and broader friezes;
@@ -573,3 +574,16 @@ reviewed from shared build 67698f45a633 without a material overlay. All 718
 registered outputs match the actual PK3 byte-for-byte. Engine, ACS, localization,
 font and definition checks pass. The comparison contains 12 entries and 96
 valid image references, with CSS identical to the approved final-pass page.
+
+
+CFLOOR2/4 tile correction (12 September 2026): CFLOOR2 replaces irregular
+rounded slabs with analytic rounded rectangles, keeping broad faces at zero.
+CFLOOR4 replaces raised ribs with shallow negative scratches inside a complete
+square tile. Actual depths are approximately -0.85..0 and -0.65..0 map units;
+surface scratches reach only about -0.18. All other 330 material pairs are
+byte-identical. Regression checks cover straight faces, rounded corners,
+outer joints, quiet centers and the negative scratch direction. The comparison
+preserves both earlier heightmaps and refreshes their wall/floor captures.
+
+The corrected floors ship in shared build 5ebf7d4acdeb, with the regular engine
+check enabled. The separate 332-room RELTEST addon remains compatible.

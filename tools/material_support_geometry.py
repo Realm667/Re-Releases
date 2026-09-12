@@ -1,4 +1,4 @@
-"""Source-traced slabs, tread plate, supports and matching wall trims.
+"""Source-traced tiles, scratches, supports and matching wall trims.
 All coordinates are original texels; height is signed map units, plane zero.
 """
 import numpy as np
@@ -7,34 +7,42 @@ from material_panel_geometry import _profiles
 NAMES=set('CFLOOR2 CFLOOR4 OBSUP1 IKSUP5 QTECH17 QTECH22 OBR01 OBRL11 QCITY07 QCITY10 QCITY11 IKWALL70'.split())
 
 
+def _rounded_tile(f,x0,y0,x1,y1,radius,bevel):
+    # Analytic rounded rectangle: straight parallel sides and circular corners.
+    # A bevel only softens the perimeter; the broad tile face stays at zero.
+    qx=abs(f.x-(x0+x1)/2)-((x1-x0)/2-radius)
+    qy=abs(f.y-(y0+y1)/2)-((y1-y0)/2-radius)
+    sd=np.hypot(np.maximum(qx,0),np.maximum(qy,0))+np.minimum(np.maximum(qx,qy),0)-radius
+    f.put(-sd,0,bevel)
+
+
 def _slabs(f):
-    f.z[:]=-1.1
-    # Four worn slab outlines; both pale and dark faces end at the same plane.
-    outlines=[[(3,5),(8,2),(25,3),(30,8),(29,24),(25,29),(7,29),(2,24)],
-              [(35,3),(43,2),(59,4),(62,10),(60,27),(55,30),(38,29),(33,24)],
-              [(3,35),(10,32),(27,34),(30,40),(29,57),(24,62),(6,61),(2,56)],
-              [(36,35),(42,33),(58,35),(62,41),(61,56),(56,62),(38,61),(33,55)]]
-    for p in outlines:f.poly(p,0,2.4)
-    # Selected coherent cracks, not every dark stain or painted shadow.
+    f.z[:]=-.85
+    for y in (1.5,33.5):
+        for x in (1.5,33.5):_rounded_tile(f,x,y,x+29,y+29,3,1.25)
+    # Surface wear stays much shallower than the tile joints.
     for p in [[(34,20),(41,18),(46,14),(52,12),(56,7)],
               [(47,29),(48,25),(52,22),(54,18)],
               [(4,54),(10,53),(14,52),(18,53),(24,50)],
               [(11,33),(15,36),(14,40)]]:
-        f.clip=(f.z>-.05).astype(float);f.groove(p,.45,-.32);f.clip=1
+        f.clip=(f.z>-.01).astype(float);f.groove(p,.45,-.18);f.clip=1
 
 
-def _tread(f):
-    # Actual short slash-shaped treads. No rectangular plate grid exists here.
+def _scratched_tile(f):
+    # One 64-texel square tile, repeated by the engine. The diagonal marks
+    # are shallow cuts/wear in its face, never raised ribs or an inner grid.
+    f.z[:]=-.65
+    f.rect(.65,.65,63.35,63.35,0,.85)
+    face=(f.z>-.01).astype(float)
     strokes=[[(2,5),(10,0)],[(13,5),(20,0)],[(34,12),(44,4)],
              [(43,16),(51,9)],[(57,12),(66,5)],[(0,27),(9,20)],
              [(7,22),(18,13)],[(17,27),(27,19)],[(34,30),(43,22)],
              [(43,35),(53,27)],[(1,45),(10,38)],[(10,41),(20,33)],
              [(18,46),(28,38)],[(36,50),(45,43)],[(47,50),(57,42)],
              [(3,60),(12,53)],[(13,59),(23,51)],[(25,65),(34,57)]]
-    for p in strokes:
-        # Wrap the few strokes touching an edge without introducing a seam.
-        for ox in (-64,0,64):
-            for oy in (-64,0,64):f.wire([(x+ox,y+oy) for x,y in p],.85,.32,0,.4)
+    f.clip=face
+    for p in strokes:f.groove(p,.55,-.18)
+    f.clip=1
 
 
 def _supports(f,n):
@@ -85,7 +93,7 @@ def support_height(rgb,logical,detail):
     if (w,h)!=expected or n not in NAMES:raise ValueError('Untraced artwork '+n)
     f=Field(w,h,2)
     if n=='CFLOOR2':_slabs(f)
-    elif n=='CFLOOR4':_tread(f)
+    elif n=='CFLOOR4':_scratched_tile(f)
     elif n in ('OBSUP1','IKSUP5','QTECH17'):_supports(f,n)
     elif n=='QTECH22':
         # Same pale inset outline/depth as QTECH20, but source-specific bolts.
