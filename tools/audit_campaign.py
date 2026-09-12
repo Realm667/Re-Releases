@@ -41,7 +41,7 @@ def audit():
         if 'TEXTMAP' in lumps:
             b=udmf(lumps['TEXTMAP'].decode())
             item['counts']={key:len(values) for key,values in b.items()}
-            item['player_starts']=[dict(index=i,**t) for i,t in enumerate(b['thing']) if t.get('type') in (1,2,3,4)]
+            item['player_starts']=[dict(index=i,**t) for i,t in enumerate(b['thing']) if t.get('type') in (1,2,3,4,4001,4002,4003,4004)]
             item['checkpoint_destinations']=[dict(index=i,**t) for i,t in enumerate(b['thing']) if 1100<=t.get('id',0)<=1307]
             item['keys']=[dict(index=i,**t) for i,t in enumerate(b['thing']) if t.get('type') in (5,6,13,38,39,40)]
             item['locks']=[dict(index=i,**l) for i,l in enumerate(b['linedef']) if l.get('special') in (13,83,85)]

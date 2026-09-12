@@ -54,7 +54,7 @@ class UTNTRegression : EventHandler
             Check(handler.HeatSources.Find(TestHeat)<handler.HeatSources.Size(),"heat source registered");
             let effects=UTNTPlayerEffects(p.FindBehavior('UTNTPlayerEffects'));
             Check(effects.Heat>0,"heat reaches player");
-            let iter=ThinkerIterator.Create('UTNTFlameVisual',Thinker.MAX_STATNUM+1,true);
+            let iter=ThinkerIterator.Create('UTNTFireFragment',Thinker.MAX_STATNUM+1,true);
             if (CVar.GetCVar('UTNT_fxquality',players[consoleplayer]).GetInt()>0)
                 Check(iter.Next()!=null,"client flame is alive");
             else Check(iter.Next()==null,"disabled effects emit no client flames");
@@ -139,12 +139,13 @@ class UTNTCheckpointBlocker : Actor
 }
 class UTNTSecondPassRegression : EventHandler
 {
-    bool FourPlayers;
+    int PeerCount;
     void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",text); }
     override void WorldTick()
     {
         if (!(level.MapName ~== "UTNTTEST")) return;
-        if (level.time==5) FourPlayers=playeringame[3];
+        if (level.time==5)
+            for(int i=0;i<MAXPLAYERS;i++) if(playeringame[i]) PeerCount++;
         if (level.time==100)
         {
             int ambient=UTNTVisuals.ReserveCount(10000);
@@ -173,7 +174,7 @@ class UTNTSecondPassRegression : EventHandler
             Check(!gib || gib.bDestroyed,"negative gore limit terminates and removes eligible gore");
             gore.maxgore=previous;sentinel.Destroy();
         }
-        if (!FourPlayers) return;
+        if (PeerCount<4) return;
         if(level.time==215)
         {
             let p=players[0].mo;
@@ -193,7 +194,7 @@ class UTNTSecondPassRegression : EventHandler
             Check(CVar.GetCVar('UTNT_lowhealthfx',local).GetBool()==bool(profile%2),"injury overlay remains independently configurable");
         }
         if (level.time==220)
-            for (int i=0;i<4;i++)
+            for (int i=0;i<PeerCount;i++)
             {
                 let p=players[i].mo;
                 p.GiveInventory('BlueCard',1);
@@ -201,18 +202,18 @@ class UTNTSecondPassRegression : EventHandler
                 p.GiveInventory('RocketAmmo',8);
             }
         if (level.time==230)
-            for (int i=1;i<4;i++) players[i].mo.DamageMobj(null,null,10000,'None',DMG_FORCED);
+            for (int i=1;i<PeerCount;i++) players[i].mo.DamageMobj(null,null,10000,'None',DMG_FORCED);
         if (level.time==238)
-            for (int i=1;i<4;i++)
+            for (int i=1;i<PeerCount;i++)
             {
                 Check(players[i].mo.Health<=0 && players[i].mo.TID==0,"peer death releases corpse TID");
                 players[i].playerstate=PST_REBORN;
             }
         if (level.time==260)
-            for (int i=0;i<4;i++)
+            for (int i=0;i<PeerCount;i++)
             {
                 let p=players[i].mo;
-                Check(p.Health>0 && p.TID==1000+i,"four players respawn with distinct TIDs");
+                Check(p.Health>0 && p.TID==1000+i,"all peers respawn with distinct TIDs");
                 Check(p.Pos.X>=136 && p.Pos.Y<=-72,"occupied checkpoint uses a safe nearby position");
                 let blocker=ActorIterator.Create(30990).Next();
                 if(blocker) Console.Printf("UTNT_CHECKPOINT_POSITION player=%d pawn=(%f,%f,%f) h=%f r=%f blocker=(%f,%f,%f) h=%f solid=%d",i,p.Pos.X,p.Pos.Y,p.Pos.Z,p.Height,p.Radius,blocker.Pos.X,blocker.Pos.Y,blocker.Pos.Z,blocker.Height,blocker.bSolid);
@@ -225,9 +226,9 @@ class UTNTSecondPassRegression : EventHandler
             }
         if (level.time==430)
         {
-            int remaining=0; for(int i=0;i<MAXPLAYERS;i++) if(playeringame[i]) remaining++; Check(remaining==3,"one of four peers disconnects cleanly");
+            int remaining=0; for(int i=0;i<MAXPLAYERS;i++) if(playeringame[i]) remaining++; Check(remaining==PeerCount-1,"one peer disconnects cleanly");
             for (int i=0;i<MAXPLAYERS;i++) if(playeringame[i]) Check(players[i].inconsistent==0,"remaining peers synchronized after disconnect");
-            Console.Printf("UTNT_FOURPLAYER_COMPLETE");
+            Console.Printf(PeerCount==8 ? "UTNT_EIGHTPLAYER_COMPLETE" : "UTNT_FOURPLAYER_COMPLETE");
         }
     }
 }

@@ -1,0 +1,62 @@
+version "5.0.0"
+#include "expected.zc"
+
+// Real authored starts, checked before any test movement. Travel preserves the
+// party and exercises both entry positions in the Cursed Peak hub.
+class UTNTEightPlayerCampaign : StaticEventHandler
+{
+    int Stage, Tics;
+    void Check(bool ok,String message)
+    {
+        Console.Printf("UTNT_ASSERT %s: %s stage=%d map=%s",ok ? "PASS" : "FAIL",message,Stage,level.MapName);
+    }
+    override void WorldLoaded(WorldEvent e) { Tics=0; }
+    override void WorldTick()
+    {
+        if(Stage>=UTNTEightExpected.Count) return;
+        Tics++;
+        for(int p=0;p<8;p++) if(playeringame[p] && players[p].mo) players[p].mo.bInvulnerable=true;
+        if(Tics==5)
+        {
+            Check(level.MapName ~== UTNTEightExpected.Map(Stage),"expected map reached");
+            for(int p=0;p<8;p++)
+            {
+                let pawn=players[p].mo;
+                Check(playeringame[p] && pawn && pawn.Health>0,"live player start");
+                if(!pawn) continue;
+                Vector2 expected=UTNTEightExpected.Position(Stage,p);
+                Check((pawn.Pos.XY-expected).Length()<1,"authored start selected for player slot");
+                Check(pawn.TID==1000+p,"player TID assigned");
+                Console.Printf("UTNT_EIGHT_START %s p=%d x=%f y=%f z=%f fits=%d",level.MapName,p,pawn.Pos.X,pawn.Pos.Y,pawn.Pos.Z,pawn.TestMobjLocation());
+                Check(pawn.TestMobjLocation(),"start fits geometry and actors");
+                for(int j=0;j<p;j++) if(players[j].mo)
+                {
+                    let other=players[j].mo;
+                    bool overlap=abs(pawn.Pos.X-other.Pos.X)<pawn.Radius+other.Radius
+                        && abs(pawn.Pos.Y-other.Pos.Y)<pawn.Radius+other.Radius
+                        && pawn.Pos.Z<other.Pos.Z+other.Height && other.Pos.Z<pawn.Pos.Z+pawn.Height;
+                    Check(!overlap,"player starts do not overlap");
+                }
+            }
+        }
+        if(level.MapName ~== "TNT04A")
+        {
+            if(Tics==20)
+            {
+                for(int p=0;p<8;p++) Check((players[p].cheats&CF_TOTALLYFROZEN)!=0,"intro includes all eight players");
+                let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+                if(h && h.Chapter) h.Chapter.Input(UTNTChapterState.Leader(),3,1);
+            }
+            if(Tics==40)
+                for(int p=0;p<8;p++) Check(!(players[p].cheats&CF_TOTALLYFROZEN),"intro skip releases all eight players");
+        }
+        if(Tics==50)
+        {
+            for(int p=0;p<8;p++) Check(playeringame[p] && players[p].inconsistent==0,"all eight peers remain synchronized");
+            Console.Printf("UTNT_EIGHT_MAP_COMPLETE %d %s",Stage,level.MapName);
+            Stage++;
+            if(Stage==UTNTEightExpected.Count) Console.Printf("UTNT_EIGHT_CAMPAIGN_COMPLETE");
+            else players[0].mo.A_CallSpecial(74,UTNTEightExpected.Level(Stage),UTNTEightExpected.Entry(Stage));
+        }
+    }
+}
