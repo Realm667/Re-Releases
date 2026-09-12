@@ -347,3 +347,26 @@ the final room, checks previous/next and save/load. Vulkan and OpenGL both passe
 the local geometry, runtime logs and screenshots are under `.codex/validation/relief-gallery/`
 and `.codex/logs/relief-gallery-*`. The generator checks connectivity before writing
 the addon. This is a test gallery, not a new campaign level.
+
+
+## ADEL_D11 artwork registration correction (12 September 2026)
+
+The height field previously cut through the outer wooden frame, extended the
+small central metal strap into adjacent wood and placed two rivets at its ends.
+Its contours now follow the native 64x96 artwork: the inner frame seams occupy
+columns 7/8 and 55/56; the strap has its upper bevel at row 57, plate face at
+rows 58–63 and a single central fastener. The painted shadow below the strap
+is not modeled as another raised plate. Normal data is regenerated from the
+corrected height field. The zero plane and existing physical heights are retained.
+
+This corrects local authored contours, not a demonstrated universal floor UV
+offset. No blanket shift is applied to other materials. All other 284 variants
+retain byte-identical height and normal data. The geometry implementation hash
+still invalidates authored asset names and material bindings as designed.
+
+Twelve original-artwork landmarks in `tools/test_material_geometry.py` guard the
+frame, strap, central fastener, surrounding wood and continuous rail edges. Native
+checks compare front, oblique and floor views, with an additional height-edge
+overlay without parallax to distinguish data registration from displacement.
+Local evidence is under `.codex/work/floor-relief-diagnosis/`; the complete review
+page remains `.codex/work/material-reanalysis/vergleich.html`.

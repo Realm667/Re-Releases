@@ -78,8 +78,17 @@ def _wood(f,n):
     if n=='WOOD8':return
     rails=[]
     if n=='ADEL_D11':
-        f.rect(3,15,61,81,-1,.5);f.rect(8,17,56,79,0,.8)
-        rails=[(0,-2,64,16),(0,80,64,98),(15,57,49,64)]
+        # Native artwork: the dark inner frame seams occupy columns 7/8
+        # and 55/56. Do not cut relief into the outer frame at column 3.
+        f.rect(7,16,57,80,-1,.5);f.rect(9,17,55,79,0,.6)
+        for y0,y1 in [(-2,16),(80,98)]:
+            f.rect(-1,y0,65,y1,1.2,.65)  # Continuous across tile boundaries.
+            f.bolts([16,48],[(max(0,y0)+min(h,y1))/2],1.6,2.0,1.2)
+        # Row 57 is the upper bevel, 58..63 the plate, 64 its painted
+        # shadow. The fastener is central, not at the ends of this strap.
+        f.rect(15,57,49,64,1.2,1.0)
+        f.rivet(32,61,1.9,2.0,1.2)
+        return
     elif n in ('ADEL_G02','ADEL_G03'):
         y=8 if n=='ADEL_G02' else 32
         rails=[(0,-2,64,y)]
