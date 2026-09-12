@@ -10,6 +10,11 @@ QPLANET1–4 and EE_ENJ/EE_GZ/EE_TDA. The authoritative list and masks are in
 [tools/crt-materials.json](../../tools/crt-materials.json). Electronics, switches,
 frames and vents outside those rectangles retain their original material.
 
+Q2COMP14 uses the source aperture at `[51,33,78,48)` in its 128x128 patch.
+Its former `[48,36,75,54)` mask overlapped the left and lower bezel. The corrected
+bounds drive glass curvature, reflections and the generated native brightmap
+together. The source-pixel regression rejects any brightmap coverage on that bezel.
+
 ## Appearance
 
 Each display gets an outward-convex glass faceplate, rounded glass corners, fine
@@ -44,12 +49,18 @@ low-contrast scanline phase drift; it does not introduce flashing, tracking
 breaks or alter existing texture animation timing. This does not add temporal
 phosphor history buffers.
 
-Dark authored signals receive an additional luminance-dependent lift, tapering
-out above 0.28 input peak, while true black and powered-off presets remain dark.
-This corrects Q2COMP3 in TNT03A1: even its brightest source glass channel is only
-31/255, so fullbright alone leaves the red data faint. A wider two-radius phosphor
-halo uses one- and two-source-pixel neighborhoods, with weights 0.60 and 0.24.
-All taps clamp to the individual glass rectangle, preventing bezel/tile bleed.
+Phosphor enhancement starts at 25% of the **unamplified base texel's brightest
+RGB channel** (HSV value), with a smooth ramp to full effect at 30%. This preserves
+saturated CRT signal colors. The gate is evaluated before gain, channel separation,
+reflection or room lighting. Both outgoing halo samples and receiving texels must
+qualify, so a bright neighboring signal cannot brighten a sub-threshold background.
+Native fullbright maps and glass reflections retain their independent behavior.
+
+The previous unconditional dark-signal lift has been removed. Q2COMP3's original
+maximum channel is 31/255, below the new threshold, so its original pixels no longer
+receive extra phosphor gain. A two-radius phosphor halo remains for eligible signals,
+using one- and two-source-pixel neighborhoods with weights 0.60 and 0.24. All taps
+clamp to their individual glass rectangle, preventing bezel/tile bleed.
 
 RGB misconvergence separates red and blue in opposite directions while keeping
 the green signal centered. The subpixel shift increases from 0.30 pixels centrally
@@ -155,11 +166,14 @@ The gallery covers all resources, but the captured runtime batches do not claim
 individual visual review of every placement in every map. Performance was bounded
 by capture count and distance; no cross-hardware frame-time benchmark was performed.
 
-The TNT03A1 phosphor refinement was compared at identical camera positions:
-Q2COMP3 signal luminance increased by 78% in the measured display region, while
-the sampled housing remained pixel-identical. This is a scene-specific measured
-result, not a uniform brightness multiplier for every texture.
+The earlier 78% Q2COMP3 lift and its 45/255 minimum-luminance test were superseded
+by the requested 25% source threshold. TNT03A1 still records a fresh capture and
+luminance at the reported position; threshold behavior is checked with controlled
+source levels using `tools/test_crt_threshold.py`.
 
-The TNT03A1 runtime check now captures Q2COMP3 at the reported player position
-and rejects signal luminance below 45/255 in the fixed display region (the
-previous rendering measured about 33/255). Captures must come from the current run.
+Threshold regression: controlled 32/255 and 63/255 base texels remain pixel-identical
+to the no-enhancement reference; 76/255 and 128/255 texels receive the enhancement.
+The sampled housing and dark edge beside a bright band remain unchanged. The
+threshold checks pass under Vulkan and OpenGL (the latter using the rebuilt shared
+package). Both the standard CRT checks and the threshold test exercise the shader
+with nearest texture filtering.

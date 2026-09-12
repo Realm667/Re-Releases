@@ -59,7 +59,7 @@
 - **Expanded textures:** 37 active material expansions and aligned large rock surfaces reduce repetition while preserving original scale and selected original materials. [Details](UTNT_AREA_TEXTURES.md)
 - **Natural skyline edges:** raised, angular rock bulges and overhangs, with softer irregular cornices restricted to snow/ice materials; includes upper-texture sky boundaries, texture-matched joins, height-map relief and sector ceiling glow. [Details](UTNT_SKY_EDGES.md)
 - **Surface relief:** normal maps and parallax across rock, ground, grass, snow, ice, masonry, metal, rust, wood, crates and technical surfaces; source-traced doors, crates, shelves, vents and technical panels, refined snow and masonry, additional slotted floors, slab joints, wood variants, profiled panels, riveted plates and coordinated door families with corrected QDOOR9 contours, further square tile floors with rounded corners or recessed scratches, supports and coordinated wall trims, aligned wall/floor relief and restrained material sheen. [Details](UTNT_ORGANIC_MATERIALS.md)
-- **CRT monitors:** stronger convex glass relief, dedicated fullbright display maps, brighter dark signals, scanlines, broader phosphor glow and RGB color fringes, with enhanced soft view-dependent live room reflections and separate comfort/performance controls; camera-feed textures are excluded. [Details](UTNT_CRT.md)
+- **CRT monitors:** stronger convex glass relief, dedicated fullbright display maps, corrected Q2COMP14 glass alignment, scanlines, threshold-controlled phosphor glow and RGB color fringes, with enhanced soft view-dependent live room reflections and separate comfort/performance controls; camera-feed textures are excluded. [Details](UTNT_CRT.md)
 - **Palette consistency:** restored global PLAYPAL support, corrected blue PNG assets and coordinated plasma projectile, trail, impact, glow and lighting colors. [Details](UTNT_PALETTE.md)
 
 ## Boss encounters, stability and tools
@@ -72,7 +72,9 @@
 
 ## Local work awaiting completion or commit
 
-- **High-resolution artwork:** 34 title, chapter, frame and ending replacements at twice the image dimensions; locally staged with documented resource checks. [Artwork](../../tools/artwork/interms-hires/README.md)
+- **Texture remasters:** artwork at twice the original dimensions, with individual tombstone frames and lettering, UTNT monster and rune glass, repaired fluorescent tubes and in-world computer diagrams; 51 revised assets checked, earlier transparent assets still awaiting alpha correction. [Details](UTNT_HIRES_TEXTURES.md)
+
+- **High-resolution artwork:** 34 title, chapter, frame and ending replacements at twice the image dimensions; locally staged with documented resource checks. The selected steel armory warning sign uses stencil lettering and replaces the embedded screenshot with a no-entry notice. [Artwork](../../tools/artwork/interms-hires/README.md), [Armory sign](UTNT_HIRES_TEXTURES.md#tnt2schl-warning-sign-alternatives)
 - **Pending integration:** further Lost Soul/fire, palette, map, lava-spill, heat and boss-HUD corrections remain uncommitted; their completion status is not established here.
 
 The experimental TNT01 terrain remodels, underwater caustics and extra scenic lighting were withdrawn and are excluded from the current feature set.

@@ -85,6 +85,12 @@ vec3 crtReflection(vec3 n,vec3 curved,vec3 view,float enabled) {
  float fresnel=1.6*(.18+.12*pow(1.-clamp(dot(view,curved),0.,1.),2.));
  return room*edge*fresnel*(1.-smoothstep(160.,256.,score));
 }
+// Threshold uses the unamplified base sample's brightest channel (HSV value).
+// A soft onset starts at 25%; fully saturated CRT colors remain eligible.
+const float CRT_PHOSPHOR_THRESHOLD = 0.25;
+float crtPhosphorGate(vec3 base) {
+ return smoothstep(CRT_PHOSPHOR_THRESHOLD,CRT_PHOSPHOR_THRESHOLD+.05,max(max(base.r,base.g),base.b));
+}
 // All phosphor taps stay within this display; never sample the bezel or next tile.
 vec3 crtDisplayTap(vec2 p,vec2 tile,vec4 box) {
  return getTexel(tile+clamp(p,box.xy+.5,box.zw-.5)/CRT_SIZE).rgb;
@@ -123,9 +129,10 @@ void SetupMaterial(inout Material mat) {
  vec3 original=crtDisplayTap(samplePixel,tile,box);
  float distanceFade=1.-smoothstep(320.,768.,distance(pixelpos.xyz,uCameraPos.xyz));
  float lit=CRT_LIT;
+ float phosphor=lit*crtPhosphorGate(original);
  // Subpixel RGB misconvergence grows toward the glass rim; fade before aliasing.
  float footprint=max(length(dFdx(uv*pixels)),length(dFdy(uv*pixels)));
- float colorFade=(1.-smoothstep(.65,1.5,footprint))*distanceFade*lit;
+ float colorFade=(1.-smoothstep(.65,1.5,footprint))*distanceFade*phosphor;
  float rim=max(abs(glass.x),abs(glass.y));
  vec2 shift=(CRT_SCAN_X==1?vec2(0.,1.):vec2(1.,0.))*(.30+.55*rim*rim)*colorFade;
  vec3 red=crtDisplayLinear(samplePixel+shift,tile,box);
@@ -134,8 +141,10 @@ void SetupMaterial(inout Material mat) {
  vec3 halo=vec3(0.),wideHalo=vec3(0.);
  for(int i=0;i<4;i++){
   vec2 offset=i==0?vec2(1,0):i==1?vec2(-1,0):i==2?vec2(0,1):vec2(0,-1);
-  halo+=crtDisplayTap(samplePixel+offset,tile,box)*.25;
-  wideHalo+=crtDisplayTap(samplePixel+offset*2.,tile,box)*.25;
+  vec3 nearTap=crtDisplayTap(samplePixel+offset,tile,box);
+  vec3 farTap=crtDisplayTap(samplePixel+offset*2.,tile,box);
+  halo+=nearTap*crtPhosphorGate(nearTap)*.25;
+  wideHalo+=farTap*crtPhosphorGate(farTap)*.25;
  }
  // Fade the frequency before it becomes undersampled, including oblique views.
  float line=(CRT_SCAN_X==1?samplePixel.x:samplePixel.y)*2.;
@@ -144,16 +153,15 @@ void SetupMaterial(inout Material mat) {
  float scan=1.-.10*resolved*distanceFade*(.5+.5*cos(6.2831853*(line+phase)));
  float vignette=1.-.12*pow(max(abs(glass.x),abs(glass.y)),4.);
  float luminance=max(max(original.r,original.g),original.b);
- // Lift the very dark authored signals without raising true black or blank screens.
- float darkLift=2.*(1.-smoothstep(.06,.28,luminance));
- float gain=1.+lit*(2.5*(1.-sqrt(clamp(luminance,0.,1.)))+darkLift);
- vec3 screen=(signal*gain+(halo*.60+wideHalo*.24)*lit)*scan*vignette;
+ // Gate both gain and received halo: neighboring highlights cannot lift dark texels.
+ float gain=1.+phosphor*2.5*(1.-sqrt(clamp(luminance,0.,1.)));
+ vec3 screen=(signal*gain+(halo*.60+wideHalo*.24)*phosphor)*scan*vignette;
  // Preserve signal hue when several phosphor contributions reach the ceiling.
  screen/=max(1.,max(max(screen.r,screen.g),screen.b)/.98);
  mat.Normal=normalize(mix(mat.Normal,curved,mask));
  vec3 reflected=crtReflection(n,curved,view,control.b)*distanceFade;
  reflected*=1.-clamp(max(max(screen.r,screen.g),screen.b)*.7,0.,.7);
  mat.Base.rgb=mix(mat.Base.rgb,screen+reflected,mask);
- // Native white glass brightmaps provide fullbright; retain the softer glow fallback.
- mat.Glow=vec4(screen+reflected,mask*(lit>.5?.68:.12));
+ // Native brightmaps stay independent; the phosphor fallback obeys the same cutoff.
+ mat.Glow=vec4(screen+reflected,mask*(lit>.5?.68*phosphor:.12));
 }
