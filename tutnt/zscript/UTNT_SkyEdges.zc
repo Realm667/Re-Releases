@@ -1,7 +1,7 @@
 // Render-only outdoor cornices. No collision or gameplay RNG is changed.
 class UTNTSkyEdge : Actor
 {
-    Sector Front, Top;
+    Sector Front, Top, Back;
     Side Wall;
     Vector2 EdgeA, EdgeB, Center;
     int Part;
@@ -16,10 +16,10 @@ class UTNTSkyEdge : Actor
         Radius 1; Height 1;
     }
     States { Spawn: SKED A -1; Stop; }
-    double TopAt(Vector2 p) { return Part==Side.mid ? Top.ceilingplane.ZatPoint(p) : Top.floorplane.ZatPoint(p); }
-    void Configure(Sector front, Sector top, Side wall, Array<String> r)
+    double TopAt(Vector2 p) { return Part!=Side.bottom ? Top.ceilingplane.ZatPoint(p) : Top.floorplane.ZatPoint(p); }
+    void Configure(Sector front, Sector top, Side wall, Sector back, Array<String> r)
     {
-        self.Front=front;self.Top=top;self.Wall=wall;Part=r[3].ToInt();
+        self.Front=front;self.Top=top;self.Wall=wall;self.Back=back;Part=r[3].ToInt();
         EdgeA=(r[6].ToDouble(),r[7].ToDouble());EdgeB=(r[8].ToDouble(),r[9].ToDouble());
         Center=(r[10].ToDouble(),r[11].ToDouble());InitialHeight=r[12].ToDouble();
         Slope=r[14].ToDouble()-r[13].ToDouble();SkinName=r[16];
@@ -39,6 +39,9 @@ class UTNTSkyEdge : Actor
             || min(a-Front.floorplane.ZatPoint(EdgeA),b-Front.floorplane.ZatPoint(EdgeB))<RadiusLimit*2.3
             || abs(Wall.GetTextureXScale(Part)-XScale)>.001 || abs(Wall.GetTextureYScale(Part)-YScale)>.001
             || abs(Wall.GetTextureXOffset(Part)-XOffset)>.001 || abs(Wall.GetTextureYOffset(Part)-YOffset)>.001;
+        if(Part==Side.top)
+            bInvisible=bInvisible || !Back || (TexMan.GetName(Back.GetTexture(Sector.ceiling))~=="F_SKY1")
+                || min(a-Back.ceilingplane.ZatPoint(EdgeA),b-Back.ceilingplane.ZatPoint(EdgeB))<RadiusLimit*2.3;
         if(Part==Side.bottom)
             bInvisible=bInvisible || !(TexMan.GetName(Top.GetTexture(Sector.ceiling))~=="F_SKY1")
                 || Top.floorplane.ZatPoint(EdgeA)<Top.ceilingplane.ZatPoint(EdgeA)-.01
@@ -71,10 +74,10 @@ class UTNTSkyEdges : EventHandler
             Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);
             if(r.Size()!=27) { Rejected++;continue; }
             int index=r[1].ToInt(),face=r[2].ToInt(),part=r[3].ToInt();
-            if(index<0 || index>=level.Lines.Size() || face<0 || face>1 || (part!=Side.mid && part!=Side.bottom)) { Rejected++;continue; }
+            if(index<0 || index>=level.Lines.Size() || face<0 || face>1 || (part!=Side.top && part!=Side.mid && part!=Side.bottom)) { Rejected++;continue; }
             let line=level.Lines[index];let side=line.sidedef[face];let other=line.sidedef[1-face];
-            if(!side || (part==Side.mid && other) || (part==Side.bottom && !other)) { Rejected++;continue; }
-            let front=side.sector;let top=part==Side.mid?front:other.sector;
+            if(!side || (part==Side.mid && other) || (part!=Side.mid && !other)) { Rejected++;continue; }
+            let front=side.sector;let top=part!=Side.bottom?front:other.sector;
             Vector2 a=(r[6].ToDouble(),r[7].ToDouble()),b=(r[8].ToDouble(),r[9].ToDouble());
             let v1=face==0?line.v1:line.v2;let v2=face==0?line.v2:line.v1;
             if((v1.p-a).Length()>.01 || (v2.p-b).Length()>.01 || front.Index()!=r[4].ToInt() || top.Index()!=r[5].ToInt()) { Rejected++;continue; }
@@ -84,7 +87,7 @@ class UTNTSkyEdges : EventHandler
             int slot=r[26].ToInt();bool known=false;
             for(int j=0;j<GlowSlots.Size();j++)if(GlowSlots[j]==slot)known=true;
             if(!known && slot>=0 && slot<13107) { GlowSlots.Push(slot);GlowSectors.Push(front); }
-            edge.Angle=0;edge.Configure(front,top,side,r);Applied++;
+            edge.Angle=0;edge.Configure(front,top,side,other?other.sector:null,r);Applied++;
         }
     }
     // Models do not receive the renderer's colored ceiling-wall glow. A tiny

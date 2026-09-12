@@ -26,6 +26,27 @@ class GeometryTests(unittest.TestCase):
         self.assertEqual(len(detect(self.fixture(back=128),self.variants)),1)
         self.assertEqual(len(detect(self.fixture(back=256),self.variants)),2)
         self.assertEqual({e['kind'] for e in detect(self.fixture('ICEY'),self.variants)},{'snow'})
+    def test_upper_sky_wall_and_pegging(self):
+        b=self.fixture('ICEY',back=0)
+        b['sector'][1].update(heightceiling='232',textureceiling='"SNOW3"')
+        b['sidedef'][0]['texturetop']='"ICEY"'
+        edge=next(e for e in detect(b,self.variants) if e['line']==0)
+        self.assertEqual(edge['part'],0);self.assertEqual(edge['top_id'],0)
+        self.assertEqual(edge['uv']['ref'],360)
+        _,_,_,_,vertices=mesh(edge)
+        self.assertGreaterEqual(min(v[1] for v in vertices),-24)
+        b['linedef'][0]['dontpegtop']='true'
+        self.assertEqual(detect(b,self.variants)[0]['uv']['ref'],256)
+        b['sector'][1]['textureceiling']='"F_SKY1"'
+        self.assertFalse(any(e['part']==0 for e in detect(b,self.variants)))
+        b['sector'][1].update(textureceiling='"SNOW3"',heightceiling='252')
+        self.assertFalse(any(e['part']==0 for e in detect(b,self.variants)))
+
+    def test_rock_crest_is_taller_than_snow(self):
+        rock=mesh(detect(self.fixture('QROCK3'),self.variants)[0])
+        snow=mesh(detect(self.fixture('ICEY'),self.variants)[0])
+        self.assertGreater(max(v[1] for v in rock[-1]),max(v[1] for v in snow[-1])*1.2)
+
     def test_authored_slope_alignment(self):
         b=self.fixture(back=256)
         b['linedef'][0].update(special='181',arg1='1')
@@ -66,7 +87,7 @@ class GeometryTests(unittest.TestCase):
         b=self.fixture();b['sector'][0]['heightfloor']='240'
         self.assertFalse(detect(b,self.variants))
 
-def runtime(root,engine,iwad,mod,mapname,renderer,packaged=False,label_suffix=""):
+def runtime(root,engine,iwad,mod,mapname,renderer,packaged=False,label_suffix="",line=None):
     from check_engine import run_case
     manifest=json.loads((root/'tools/sky-edges-manifest.json').read_text())['edges']
     selected=[e for e in manifest if e['map']==mapname]
@@ -74,6 +95,7 @@ def runtime(root,engine,iwad,mod,mapname,renderer,packaged=False,label_suffix=""
     # is a known outdoor rock wall; other maps use their longest actual rim.
     selected.sort(key=lambda e:math.dist(e['a'],e['b']),reverse=True)
     e=next((x for x in selected if mapname=='TNT02' and x['line']==4),selected[0])
+    if line is not None:e=next(x for x in selected if x['line']==line)
     ax,ay=e['a'];bx,by=e['b'];length=math.hypot(bx-ax,by-ay)
     nx,ny=(by-ay)/length,-(bx-ax)/length;mx,my=(ax+bx)*.5,(ay+by)*.5
     z=(e['h0']+e['h1'])*.5;yaw=math.degrees(math.atan2(-ny,-nx))
@@ -172,8 +194,8 @@ class UTNTSkyEdgeTest : EventHandler
     if not result['ok']:print(log[-6000:]);raise SystemExit(1)
 
 if __name__=='__main__':
-    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--runtime',action='store_true');ap.add_argument('--packaged',action='store_true');ap.add_argument('--map',default='TNT02');ap.add_argument('--renderer',default='1',choices=['0','1']);ap.add_argument('--engine',type=Path);ap.add_argument('--iwad',type=Path,default=Path('F:/DoomDev/DOOM2.WAD'));ap.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/tutnt-sky-edges.pk3');ap.add_argument('--label-suffix',default='');args=ap.parse_args()
-    if args.runtime:runtime(ROOT,args.engine,args.iwad,args.mod,args.map.upper(),args.renderer,args.packaged,args.label_suffix)
+    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--runtime',action='store_true');ap.add_argument('--packaged',action='store_true');ap.add_argument('--map',default='TNT02');ap.add_argument('--renderer',default='1',choices=['0','1']);ap.add_argument('--engine',type=Path);ap.add_argument('--iwad',type=Path,default=Path('F:/DoomDev/DOOM2.WAD'));ap.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/tutnt-sky-edges.pk3');ap.add_argument('--label-suffix',default='');ap.add_argument('--line',type=int);args=ap.parse_args()
+    if args.runtime:runtime(ROOT,args.engine,args.iwad,args.mod,args.map.upper(),args.renderer,args.packaged,args.label_suffix,args.line)
     else:
         suite=unittest.defaultTestLoader.loadTestsFromTestCase(GeometryTests)
         if not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful():sys.exit(1)
