@@ -536,3 +536,40 @@ metal panel now follows the horizontal source edge at row 72 and its short
 corner bevel, replacing an incorrect diagonal. Height and normal maps were
 regenerated together; all other 319 variants retain identical material data.
 The panel comparison preserves the faulty height as the QDOOR9 before image.
+
+
+## Slabs, supports and wall trim (12 September 2026)
+
+Twelve additional source-traced materials cover CFLOOR2/4, OBSUP1, IKSUP5,
+QTECH17/22, OBR01/OBRL11, QCITY07/10/11 and IKWALL70. The registry contains
+256 base materials and 332 variants. All 320 prior height/normal pairs are
+byte-identical. The original color assets and global relief shader are unchanged.
+
+CFLOOR2 uses complete worn slab outlines, recessed joints and selected cracks;
+CFLOOR4 is tread plate, with shallow diagonal ribs rather than a false slab grid.
+The supports use whole rounded fasteners or rectangular openings. OBR01 and
+OBRL11 share horizontal divisions, with additional embossed heads and recessed
+lights on OBRL11. QCITY skins combine shared narrow bands and broader friezes;
+wall stains remain planar. IKWALL70 shares the exact IKWALL73 rounded profile.
+QTECH22 shares the side-inset outline and quantized depth of QTECH20, with its
+own original fastener positions and recessed red light housings.
+
+Gray 127 remains the physical plane. Eleven additions stay between about -1.1
+and +0.9 map units. QTECH22 uses about -2.5 for family-compatible side pockets;
+its 12-unit encoding range matches QTECH20, not a 12-unit visible displacement.
+Normals derive from the final quantized height with source texel density.
+Construction lives in tools/material_support_geometry.py. Regression coverage
+in tools/test_material_supports.py checks 15 original landmarks, shared family
+sections, color independence, normal derivation and preservation of all prior
+maps. Existing panel, surface and rollout data regressions also pass.
+
+The separate RELTEST gallery has 332 rooms. The complete comparison retains the
+approved layout at .codex/work/material-support-pass/vergleich.html. Original,
+neutral-before, height, normal and contour views accompany three native views
+per material. Local evidence belongs in .codex/validation/material-support-pass/.
+
+Validation: all 36 native Vulkan wall/floor views were captured and visually
+reviewed from shared build 67698f45a633 without a material overlay. All 718
+registered outputs match the actual PK3 byte-for-byte. Engine, ACS, localization,
+font and definition checks pass. The comparison contains 12 entries and 96
+valid image references, with CSS identical to the approved final-pass page.
