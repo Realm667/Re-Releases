@@ -32,7 +32,9 @@ Die Original-Credits umfassen 24 Tafeln mit unverändert 65 Nennungen und knapp
 159 Sekunden Laufzeit (vorher 318). Die acht Beta-Tester stehen zusammen in einem
 530 Pixel breiten Rahmen mit zwei Spalten; diese Tafel bleibt zwölf Sekunden.
 Alle anderen ursprünglichen Standzeiten sind halbiert. Dezimale Sekunden sind zulässig.
-Die vorbereitete Remaster-Standardtafel verwendet 6,5 Sekunden.
+Die ersten drei Remaster-Mitwirkenden teilen eine zwölfsekündige Standardtafel;
+Tormentor667 erhält eine achtsekündige Director-Tafel; die beiden
+persönlichen Widmungen erhalten jeweils zehn Sekunden.
 
 ## Kameraführung und Übergänge
 
@@ -178,26 +180,59 @@ der einzelnen Tafeln stehen Kapitel und Kategorie als kleine Zeile über den Rah
 
 `tutnt/credits/remaster.txt` folgt nach dem persönlichen Dank an Graf Zahl
 („DANKE CHRIS!“, Freigabebild 05) und vor Schlussfahrt / „THE END“ (Bild 06).
-Der Remaster-Abschnitt samt Kapitelauftakt bleibt unsichtbar, solange keine
-Nennungen eingetragen sind. Einträge unter der vorbereiteten P-Zeile ergänzen:
+Seit 12.09.2026 enthält der Abschnitt die freigegebenen Remaster-Credits:
+
+- Salahmander und Ozymandias81: Quality Control, Improvements, Testing, Debugging,
+  Support & Roadmap Assist.
+- DBThanatos: Base for new visual effects and improvements of his Take II mod,
+  direkt nach Ozymandias81.
+- Tormentor667: Remaster Director, Special Effects, Graphical Shaders, Improved
+  Graphics, Main Development.
+- Ein Hinweis auf teilweise mit OpenAI und GPT-6 Astra erstellte Grafiken und
+  Programmcode, auf einer eigenen Tafel „Production tools“ vor den Widmungen.
+- Eine eigene Widmung an die Eltern für ihr Verständnis für die mit Spielen
+  verbrachte Jugend und eine abschließende Widmung an die Tochter Mina.
+
+Nach dem viersekündigen Kapitelauftakt erscheinen Salahmander, Ozymandias81 und
+DBThanatos gemeinsam auf einer zwölfsekündigen Standardtafel. Tormentor667 folgt
+auf einer eigenen achtsekündigen Director-Tafel. Eine sieben Sekunden lange
+530-Pixel-Tafel nennt anschließend OpenAI und GPT-6 Astra und stellt klar, dass
+sich die Unterstützung auf einen Teil der Grafiken und des Programmcodes bezieht.
+Die Eltern und Mina erhalten jeweils eine
+530 Pixel breite Dankestafel für zehn Sekunden. Die Höhe wächst mit dem lokalisierten
+Text, mit mindestens 16 Pixeln unter dem Textbereich. Der persönliche Zusatz
+„DANKE CHRIS!“ bleibt ausschließlich auf der Original-Dankestafel. Beide Widmungen
+verwenden die Remaster-Rahmen, Quake-SMALLFONT und die bestehenden weichen Übergänge.
+Insgesamt sind es 30 Tafeln und 72 Nennungen, davon unverändert 24 Originaltafeln
+mit 65 Nennungen. Die Remaster-Seiten ergänzen 51 Sekunden einschließlich Kapitelauftakt.
+
+Namen beziehungsweise lokalisierbare Anreden und Beiträge stehen in
+`tutnt/credits/remaster.txt`. Englisch, Deutsch, Spanisch und Französisch werden
+clientseitig über LANGUAGE-Schlüssel geladen, auch die Familienanreden. Die
+Bezeichnungen der vier Mitwirkenden bleiben unverändert. Beispiel für weitere Einträge:
 
 ```text
-P|standard|1|6.5|Remaster
-N|NAME|Beitrag zum Remaster
-N|WEITERER NAME|Weiterer Beitrag
+P|standard|1|6.5|$UTNT_CREDITS_TEXT_071
+N|NAME|$EIGENER_LOKALISIERTER_BEITRAG
 ```
 
-Sobald mindestens eine echte Nennung vorhanden ist, entsteht automatisch genau
-ein viersekündiger Remaster-Auftakt. Drei Namen passen auf eine Standardtafel,
-sechs auf eine dichte Tafel; zusätzliche Einträge erzeugen automatisch Folgeseiten.
-Eigene Kategorien sind mit weiteren `P|Layout|Kamera|Sekunden|Rubrik`-Zeilen möglich.
-Kamera 1 bis 5, Dauer 4 bis 60 Sekunden pro Credit-Tafel. `~` im Namen bleibt ein
-expliziter Zeilenumbruch. Die Datei als UTF-8 speichern; für fehlende Glyphen der
-Originalschrift ggf. ae/oe/ue verwenden. Neue Texte vor Freigabe im Spiel ansehen.
+Drei Namen passen auf eine Standardtafel, sechs auf eine dichte Tafel;
+zusätzliche Einträge erzeugen automatisch Folgeseiten. `thanks` ist eine einzelne
+breite Dankestafel. Weitere `P|Layout|Kamera|Sekunden|Rubrik`-Zeilen erlauben eigene
+Kategorien; Kameras 1 bis 5 und Dauern von 4 bis 60 Sekunden werden unterstützt.
+Leere Remaster-Seiten und ihr Kapitelauftakt werden weiterhin ausgelassen.
+`~` im Namen erzeugt einen expliziten Zeilenumbruch. Neue Texte in allen vier
+Sprachen und in UTF-8 pflegen; fehlende Glyphen in der Originalschrift ergänzen.
 
-Danach das PK3 neu bauen und ENDMAP neu betreten. Gespeicherte Spielstände behalten
-ihre bereits geladenen Texte. Der ausgelieferte Remaster-Block enthält keine
-Testnamen. Reine Textänderungen erfordern keine Änderung der ACS-Logik.
+Nach Änderungen das PK3 neu bauen und ENDMAP neu betreten. Spielstände einer
+bereits gestarteten Credits-Sequenz behalten ihre geladenen Texte. Reine
+Textänderungen erfordern keine Änderung der ACS-Logik.
+
+Der Laufzeittest `tools/test_credits.py --mode remaster-content` prüft die echten
+Nennungen und ihre Reihenfolge, sämtliche neuen Layouts einschließlich der
+Original-Dankestafel, Speichern/Laden der letzten Widmung sowie den natürlichen
+Übergang zum Post-Credits-Finale. Screenshots werden in allen vier Sprachen geprüft,
+Deutsch und Französisch zusätzlich im schmaleren 4:3-Format.
 
 ## Bedienung, Spielstände und Koop
 

@@ -128,6 +128,12 @@ class UTNTCreditsTests : EventHandler
    if(view.ContributionSize>(dense?9:10))fit=false;
   }
   if(view.SpecialHeight>0 && (view.SpecialTop+view.SpecialHeight>672 || view.SpecialTop<100))fit=false;
+  if(page.Layout=="thanks")
+  {
+   double bottom=60+view.Wrapped[0].Count()*18+(page.Remaster?0:34);
+   if(bottom>view.SpecialHeight-16 || 44+530>view.Width)fit=false;
+   if(page.Names[0].Left(1)=="$" && view.Local(page.Names[0])==page.Names[0])fit=false;
+  }
   if(page.Layout=="group" && page.Names.Size()>8)fit=false;
   Console.Printf("UTNT_ASSERT %s: reliquiar entry staggers cards",view.CardOpacity(.25,0)>view.CardOpacity(.25,1)?"PASS":"FAIL");
   Console.Printf("UTNT_ASSERT %s: reliquiar slide settles at approved position",view.CardOffset(0)==-18 && view.CardOffset(1)==0?"PASS":"FAIL");
@@ -141,12 +147,12 @@ class UTNTCreditsTests : EventHandler
   int op=e.Args[0];
   if(op==0)
   {
-   int names=0,remaster=0;bool nash=false,sites=false;
+   int names=0,original=0;bool nash=false,sites=false;
    for(int i=0;i<h.Pages.Size();i++)
-   {names+=h.Pages[i].Names.Size();if(h.Pages[i].Remaster)remaster++;for(int j=0;j<h.Pages[i].Names.Size();j++){if(h.Pages[i].Names[j]=="NASH" && h.Pages[i].Heading=="$UTNT_CREDITS_TEXT_029")nash=true;if(h.Pages[i].Names[j]=="NEWDOOM.COM")sites=true;}}
-   Check(h.Pages.Size()==24,"all 24 original credit cards loaded");Check(names==65,"all 65 attribution entries loaded");Check(remaster==0,"empty Remaster block skipped");Check(nash && sites,"supplementary original credits retained");
+   {if(h.Pages[i].Remaster)continue;original++;names+=h.Pages[i].Names.Size();for(int j=0;j<h.Pages[i].Names.Size();j++){if(h.Pages[i].Names[j]=="NASH" && h.Pages[i].Heading=="$UTNT_CREDITS_TEXT_029")nash=true;if(h.Pages[i].Names[j]=="NEWDOOM.COM")sites=true;}}
+   Check(original==24,"all 24 original credit cards loaded");Check(names==65,"all 65 original attribution entries loaded");Check(nash && sites,"supplementary original credits retained");
    Check(h.Pages[20].Layout=="group" && h.Pages[20].Names.Size()==8,"all beta testers share one frame");
-   int duration=0;for(int i=0;i<h.Pages.Size();i++)duration+=h.Pages[i].Duration;
+   int duration=0;for(int i=0;i<h.Pages.Size();i++)if(!h.Pages[i].Remaster)duration+=h.Pages[i].Duration;
    Check(duration>155*35 && duration<=159*35,"original credits run at half duration");
    Check(h.FlightCount==321,"full authored flight route sampled");
    Check(level.SkyTexture1==TexMan.CheckForTexture("USTSKY"),"approved storm sky retained");
@@ -214,6 +220,23 @@ class UTNTCreditsTests : EventHandler
    c.Angle=atan2(-offset.y,-offset.x);c.Pitch=-atan2(-offset.z,offset.XY.Length());
    c.Roll=0;c.CameraFOV=64;c.ClearInterpolation();h.AttachCamera();
    Check(h.HasSparkFocus && c.CheckSight(Level.CreateActorIterator(7,"OrangeSpark_Up").Next()),"material inspection sees the authored crater focus");
+  }
+  else if(op==21)
+  {
+   Check(h.Pages.Size()==30,"original credits plus chapter, team, director, production tools and two dedications loaded");
+   if(h.Pages.Size()!=30)return;
+   Check(h.Pages[24].Remaster && h.Pages[24].Layout=="chapter","Remaster chapter precedes contributors");
+   let team=h.Pages[25];
+   Check(team.Remaster && team.Names.Size()==3 && team.Layout=="standard","three remaster contributors share one compact page");
+   if(team.Names.Size()==3)
+   {
+    Check(team.Names[0]=="Salahmander" && team.Names[1]=="Ozymandias81" && team.Names[2]=="DBThanatos","all remaster names retain authored order");
+    Check(team.Contributions[0]=="$UTNT_CREDITS_REMASTER_SUPPORT" && team.Contributions[1]==team.Contributions[0] && team.Contributions[2]=="$UTNT_CREDITS_REMASTER_TAKE_II","all authored roles are assigned to the correct contributors");
+   }
+   Check(h.Pages[26].Remaster && h.Pages[26].Layout=="creator" && h.Pages[26].Names.Size()==1 && h.Pages[26].Names[0]=="Tormentor667" && h.Pages[26].Contributions[0]=="$UTNT_CREDITS_REMASTER_DIRECTOR","director follows DBThanatos on a dedicated card");
+   Check(h.Pages[27].Remaster && h.Pages[27].Layout=="thanks" && h.Pages[27].Names.Size()==1 && h.Pages[27].Names[0]=="OpenAI & GPT-6 Astra" && h.Pages[27].Contributions[0]=="$UTNT_CREDITS_REMASTER_AI","partial AI assistance is acknowledged before the personal dedications");
+   Check(h.Pages[28].Remaster && h.Pages[28].Layout=="thanks" && h.Pages[28].Names.Size()==1 && h.Pages[28].Names[0]=="$UTNT_CREDITS_REMASTER_PARENTS_NAME","parents have a dedicated localized card");
+   Check(h.Pages[29].Remaster && h.Pages[29].Layout=="thanks" && h.Pages[29].Names.Size()==1 && h.Pages[29].Names[0]=="$UTNT_CREDITS_REMASTER_MINA_NAME","Mina has the closing localized dedication");
   }
   else if(op==14)
   {Check(h.Page==7 && level.time-h.PageStart>=32 && level.time-h.PageStart<50,"animation time restored by save/load");}

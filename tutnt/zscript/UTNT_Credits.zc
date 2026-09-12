@@ -291,7 +291,7 @@ class UTNTCreditsUI ui
    SpecialTop=min(434,672-SpecialHeight);
   }
   else if(page.Layout=="thanks")
-  {SpecialHeight=max(140,60+Wrapped[0].Count()*18+18+16+16);SpecialTop=min(500,672-SpecialHeight);}
+  {SpecialHeight=max(140,60+Wrapped[0].Count()*18+(page.Remaster?0:34)+16);SpecialTop=min(500,672-SpecialHeight);}
   else if(page.Layout=="group")
   {SpecialHeight=32+ceil(page.Names.Size()/2.0)*29;SpecialTop=672-SpecialHeight;}
   // Keep the approved 434 / 516 / 598 baseline; grow only for authored long text.
@@ -315,6 +315,7 @@ class UTNTCreditsUI ui
  }
  void DrawName(String value,double x,double y,double height,double maxWidth,double alpha,bool center=false)
  {
+  value=Local(value);
   Font titleFont=Big;
   double s=height/20,w=titleFont.StringWidth(value)*s;
   if(w>maxWidth){s*=maxWidth/w;w=maxWidth;}if(center)x-=w/2;
@@ -376,7 +377,7 @@ class UTNTCreditsUI ui
   Frame(x,y,530,SpecialHeight,"C",p.Remaster,alpha,opacity<1?opacity:0);
   DrawName(p.Names[0],x+17,y+16,29,496,alpha);
   for(int row=0;row<Wrapped[0].Count();row++)Text(Wrapped[0].StringAt(row),x+17,y+60+row*18,12.5,0xe2d3bd,alpha,false,496);
-  DrawName(Local("$UTNT_CREDITS_THANKS_CHRIS"),x+17,y+60+Wrapped[0].Count()*18+18,16,496,alpha);
+  if(!p.Remaster)DrawName(Local("$UTNT_CREDITS_THANKS_CHRIS"),x+17,y+60+Wrapped[0].Count()*18+18,16,496,alpha);
  }
  void Group(UTNTCreditPage p,double entry)
  {

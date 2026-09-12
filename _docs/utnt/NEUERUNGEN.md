@@ -13,7 +13,7 @@
 - **Menus and class selection:** illustrated class cards, organized Remaster options in both native menus with restored ability/environment controls, three visual presets, bronze-and-parchment colors with gold selection, and a matching menu cursor. [Details](UTNT_USABILITY.md)
 - **Chapter reader:** self-paced pages, image crossfades, original voice recordings, saved reading progress and independent cooperative reading; shared, skippable TNT04A intro. [Chapters](UTNT_UI_REFINEMENT.md), [Intro](UTNT_INTRO_CHAPTER.md)
 - **Intermission statistics:** adaptive rows and corrected number formatting keep kills, items, secrets and long times readable. [Details](UTNT_INTERMISSION.md)
-- **Cinematic credits:** compact animated bronze cards, adjustable Remaster credits, smoother pacing, camera transitions and an uninterrupted final flight. [Details](UTNT_CREDITS.md)
+- **Cinematic credits:** compact animated bronze cards, Remaster contributor credits, an AI-assistance acknowledgement and personal dedications, smoother pacing, camera transitions and an uninterrupted final flight. [Details](UTNT_CREDITS.md)
 - **Ending atmosphere:** “Ash & Ember” color treatment, grain and stable depth of field; storm sky, glowing crater fracture and an amber lightning-and-spark finale. [Credits](UTNT_CREDITS.md), [Sky](UTNT_ENDMAP_SKY.md)
 - **Four languages:** complete English, German, Spanish and French text, with matching glyphs added to the original fonts. [Details](LOCALIZATION.md)
 - **Subtitles and comfort:** scalable subtitles with optional speaker labels/background; separate controls for injury overlays, heartbeat, smoke, heat and motion effects. [Details](UTNT_UI_REFINEMENT.md)

@@ -3,7 +3,7 @@ from pathlib import Path
 import sys,json,argparse,subprocess,re
 REPO=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(REPO/'tools'))
 from check_engine import run_case
-p=argparse.ArgumentParser();p.add_argument('--mode',default='visual',choices=['visual','regression','finale','remaster','animation','cinematic','spark','look']);p.add_argument('--mod',type=Path,default=REPO/'tutnt.pk3');p.add_argument('--fixture',type=Path,default=REPO/'tools/credits-tests');p.add_argument('--language',default='en');p.add_argument('--renderer',default='1');p.add_argument('--classic',action='store_true');p.add_argument('--out',type=Path,required=True);p.add_argument('--engine',type=Path,required=True);p.add_argument('--iwad',type=Path,required=True);a=p.parse_args();ROOT=a.out.resolve();ROOT.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser();p.add_argument('--mode',default='visual',choices=['visual','regression','finale','remaster','animation','cinematic','spark','look','remaster-content']);p.add_argument('--mod',type=Path,default=REPO/'tutnt.pk3');p.add_argument('--fixture',type=Path,default=REPO/'tools/credits-tests');p.add_argument('--language',default='en');p.add_argument('--renderer',default='1');p.add_argument('--classic',action='store_true');p.add_argument('--out',type=Path,required=True);p.add_argument('--engine',type=Path,required=True);p.add_argument('--iwad',type=Path,required=True);a=p.parse_args();ROOT=a.out.resolve();ROOT.mkdir(parents=True,exist_ok=True)
 ENGINE=a.engine;IWAD=a.iwad
 label='credits-'+a.mode+'-'+a.renderer+('-4x3' if a.classic else '')+'-'+a.language
 cmd=['unbindall','wait 420']
@@ -15,6 +15,10 @@ elif a.mode=='regression':
 elif a.mode=='finale':cmd+=['netevent creditstest 7','wait 35','netevent creditstest 8','wait 1000','netevent creditstest 5',f'screenshot logs/{label}-end.png']
 elif a.mode=='remaster':
  cmd+=['netevent creditstest 9','netevent creditstest 1 24','wait 15',f'screenshot logs/{label}-chapter.png','save creditremaster','wait 65','netevent creditstest 12','load creditremaster','wait 3','netevent creditstest 13','wait 65','netevent creditstest 12','netevent creditstest 1 25','wait 15',f'screenshot logs/{label}-remaster.png','netevent creditstest 1 26','wait 15',f'screenshot logs/{label}-remaster-next.png','netevent creditstest 7','wait 35','netevent creditstest 8']
+elif a.mode=='remaster-content':
+ cmd+=['netevent creditstest 0','netevent creditstest 21']
+ for i in [23,24,25,26,27,28,29]:cmd += [f'netevent creditstest 1 {i}','wait 30',f'screenshot logs/{label}-{i:02}.png']
+ cmd+=['save creditdedication','wait 4','netevent creditstest 1 25','wait 3','load creditdedication','wait 5','netevent creditstest 3 29','netevent creditstest 21','netevent creditstest 7','wait 35','netevent creditstest 8']
 elif a.mode=='animation':
  cmd+=['netevent creditstest 10 7 0','wait 36',f'screenshot logs/{label}-entry.png','save creditentry','wait 10','load creditentry','wait 2','netevent creditstest 14','wait 25',f'screenshot logs/{label}-settled.png']
 elif a.mode=='look':
@@ -43,6 +47,9 @@ if r['assertions']<5:r['ok']=False;r['errors'].append('missing credit assertions
 if a.mode=='visual':
  seen={int(n) for n in re.findall(r'UTNT_ASSERT PASS: credit page (\d+) layout fits',Path(r['log']).read_text())}
  if seen!=set(range(24)):r['ok']=False;r['errors'].append('not all 24 layouts verified')
+if a.mode=='remaster-content':
+ seen={int(n) for n in re.findall(r'UTNT_ASSERT PASS: credit page (\d+) layout fits',Path(r['log']).read_text())}
+ if not set([23,24,25,26,27,28,29]).issubset(seen):r['ok']=False;r['errors'].append('not all remaster and original thanks layouts verified')
 if a.mode=='look':
  log=Path(r['log']).read_text(encoding='utf-8')
  if len(re.findall(r'Shader \(\d+\): UTNTEndingLook\s',log))!=1:r['ok']=False;r['errors'].append('ending shader must be registered exactly once')
