@@ -10,7 +10,7 @@
 - **Notifications and pickups:** prioritized, deduplicated hints; secret-discovery counters; actual health, armor and ammo gains; weapon, key and power-up cards. [Notices](UTNT_NOTICES.md), [Pickups](UTNT_USABILITY.md)
 - **Readable layouts:** shared UI scaling, responsive text wrapping and coordinated placement of objectives, pickups, abilities, boss bars and subtitles. [Layout](UTNT_UI_REFINEMENT.md), [HUD](UTNT_HUD_STACKING.md)
 - **Automap and navigation:** coordinated colors, map information, statistics and key legend; discovered lock markers and light/sound cues at selected newly opened passages. [Automap](UTNT_EXPLORATION_UI.md), [Access cues](UTNT_USABILITY.md)
-- **Reforged menu logo:** pixel-art Quake lettering, amber rune bands and a central seal, with native and double-resolution transparent menu artwork. [Details](UTNT_MENU_LOGO.md)
+- **Reforged menu artwork:** pixel-art Quake lettering, amber rune bands and a central seal, with matching animated skull seals; transparent title and selectors at native and double resolution. [Details](UTNT_MENU_LOGO.md)
 - **Menus and class selection:** illustrated class cards, organized Remaster options in both native menus with restored ability/environment controls, three visual presets, bronze-and-parchment colors with gold selection, and a matching menu cursor. [Details](UTNT_USABILITY.md)
 - **Chapter reader:** self-paced pages, image crossfades, original voice recordings, saved reading progress and independent cooperative reading; shared, skippable TNT04A intro. [Chapters](UTNT_UI_REFINEMENT.md), [Intro](UTNT_INTRO_CHAPTER.md)
 - **Intermission statistics:** adaptive rows and corrected number formatting keep kills, items, secrets and long times readable. [Details](UTNT_INTERMISSION.md)

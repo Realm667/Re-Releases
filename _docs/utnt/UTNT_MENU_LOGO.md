@@ -62,3 +62,36 @@ detail, transparency remains correct, and its screen position and logical size
 match the base patch. Evidence: `tutnt/.codex/validation/reforged-hires-logo/`.
 The checked package was promoted to `tutnt.pk3` after checking its source
 fingerprint and comparing the resource inventory with the existing package.
+
+## Sealed-skull menu selector (12 September 2026)
+
+The selected fourth design replaces both original menu selection patches with
+an ash-bone skull inside a bronze seal and short side horns. The second frame
+lights the eyes and seal marks in amber. Both frames share exactly the same
+silhouette and non-emissive shading, so the glow does not move the cursor.
+
+- Native: `tutnt/graphics/fonts/M_SKULL1.png` and `M_SKULL2.png`, 25 x 19.
+- HiRes: `tutnt/hires/graphics/M_SKULL1.png` and `M_SKULL2.png`, 50 x 38.
+- Native PNG offsets are (5, -3), matching the replaced Doom patches. HiRes
+  offsets are (10, -6); UZDoom's HiRes loader preserves the base logical size
+  and derives its scaled offsets from that base.
+- Both sizes use PLAYPAL colors and binary alpha, including the open seal gaps.
+  The HiRes frames are rendered from the large source, not enlarged native pixels.
+- The existing engine-controlled two-frame timing is retained. The separate
+  operating-system mouse pointer `doomcurs.png` is unaffected.
+
+The approved concept, transparent Imagegen source and exact generation prompt
+live in `tools/artwork/menu-skulls/`. Run
+`python -B tools/build_menu_skulls.py` to rebuild, or add `--check` to verify
+pixels, matching silhouettes and PNG offsets. The encoder fixes the geometry
+to the dim frame and transfers only the generated amber illumination.
+
+Validation: the encoder check passed for all four PNGs. UZDoom 5.0.1 ran both
+native and HiRes asset overlays successfully; six screenshots per resolution
+contained exactly two states, with differences confined to the selector.
+The complete snapshot build `ef6b4a9961d8` passed localization/font checks,
+ACS compilation, engine loading and its direct TITLEMAP menu check.
+A newer concurrently built `tutnt.pk3` already contained all four identical
+assets; its direct menu check also passed, so it was retained instead of
+replacing newer integration. Evidence is under
+`tutnt/.codex/validation/reforged-menu-skulls/`.
