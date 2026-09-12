@@ -16,6 +16,7 @@
 - **Cinematic credits:** compact animated bronze cards, Remaster contributor credits, an AI-assistance acknowledgement and personal dedications, smoother pacing, camera transitions and an uninterrupted final flight. [Details](UTNT_CREDITS.md)
 - **Ending atmosphere:** “Ash & Ember” color treatment, grain and stable depth of field; storm sky, glowing crater fracture and an amber lightning-and-spark finale. [Credits](UTNT_CREDITS.md), [Sky](UTNT_ENDMAP_SKY.md)
 - **Four languages:** complete English, German, Spanish and French text, with matching glyphs added to the original fonts. [Details](LOCALIZATION.md)
+- **Clearer voiceovers:** louder dialogue and chapter narration, with protected peaks and unchanged playback timing. [Details](UTNT_VOICE_AUDIO.md)
 - **Subtitles and comfort:** scalable subtitles with optional speaker labels/background; separate controls for injury overlays, heartbeat, smoke, heat and motion effects. [Details](UTNT_UI_REFINEMENT.md)
 
 ## Abilities and gameplay feel

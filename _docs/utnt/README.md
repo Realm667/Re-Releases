@@ -55,6 +55,7 @@ Run `tutnt_build.bat` from the repository root. Local configuration is in the ig
 - [UTNT_TNTLE_SKY_FIXES.md](UTNT_TNTLE_SKY_FIXES.md)
 - [UTNT_UI_REFINEMENT.md](UTNT_UI_REFINEMENT.md)
 - [UTNT_USABILITY.md](UTNT_USABILITY.md)
+- [UTNT_VOICE_AUDIO.md](UTNT_VOICE_AUDIO.md)
 - [UTNT_WAR_SKY.md](UTNT_WAR_SKY.md)
 - [UTNT_WEATHER.md](UTNT_WEATHER.md)
 - [UTNT_WEATHER_VISOR.md](UTNT_WEATHER_VISOR.md)
