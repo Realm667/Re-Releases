@@ -1,0 +1,51 @@
+# Reforged menu logo
+
+The main menu uses the approved Reforged runic logo as `M_DOOM`. It retains
+the Quake-derived wordmark, bronze rune bands, central ampersand seal and amber
+accents. This is menu branding; it does not rename every Remaster option or credit.
+
+## Assets and placement
+
+- Runtime patch: `tutnt/graphics/menu/M_DOOM.png`, 288 x 56 pixels, RGBA PNG.
+- Main-menu placement: `StaticPatch 16,8,"M_DOOM"` in
+  `tutnt/menudef/MENUDEF.base`, centered in the 320 x 200 menu coordinate space.
+  Its bottom edge is 64; the first selectable row starts at 72.
+- The background and letter holes are transparent; dark metal and outlines
+  remain opaque. The patch uses binary alpha and colors from the mod's first
+  PLAYPAL palette. It has no high-resolution override.
+- The main-menu item labels, positions, shortcuts and navigation are preserved.
+- The title is brand artwork, shared by all four interface languages.
+
+## Rebuilding the artwork
+
+`tools/artwork/menu-logo/approved-logo.png` is the approved source design.
+`pixel-source.png` is its Imagegen pixel-art conversion with a magenta key;
+the original request and the background correction are in `prompts.json`.
+The earlier wordmark was typeset from Quake / DpQuake:
+https://www.dafont.com/quake.font . No font binaries are shipped in the mod.
+
+Run `python -B tools/build_menu_logo.py` to remove the key, tightly crop, fit
+the actual menu resolution, quantize to PLAYPAL and encode binary transparency.
+Run with `--check` to verify the output against the source and current palette.
+Changing PLAYPAL requires rebuilding this patch. The artwork sources and encoder
+live outside the packaged game directory.
+
+## Validation
+
+Engine and visual checks are recorded under
+`tutnt/.codex/validation/reforged-menu-logo/`.
+
+
+Verified on 12 September 2026 with UZDoom 5.0.1:
+- The current shared package rebuilt successfully with ACS compilation,
+  localization/font checks and the engine load check (build `df48e91309bd`).
+- English wide-window and German classic-window checks reached their completion
+  markers. Visual review confirmed transparent letter holes, visible rune bands,
+  centered placement and separation from the first menu row.
+- A final TITLEMAP check loaded `tutnt.pk3` directly without the test overlay.
+  The packaged PNG matched the source byte-for-byte and MENUDEF contained its
+  StaticPatch call; the engine reached the completion marker.
+- The logo encoder `--check` and definition-table `--check` both passed.
+- Layout checking reported only five pre-existing TNT01/TNT02 editor/backup
+  files belonging to other work; no logo-task artifact remained outside the
+  prescribed directories.
