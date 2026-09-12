@@ -28,11 +28,11 @@ class UTNTAmbientSmokeSystem play
         if (!m)
         {
             m=UTNTAmbientSmokeMemory(level.CreateClientSideThinker('UTNTAmbientSmokeMemory',Thinker.STAT_USER+8));
-            m.Source=source; m.Phase=FRandom[utntcosmetic](0,360);
-            m.LastVariant=Random[utntcosmetic](0,3);
+            m.Source=source; m.Phase=CFRandom[utntcosmetic](0,360);
+            m.LastVariant=CRandom[utntcosmetic](0,3);
         }
         m.LastTic=level.time;
-        m.LastVariant=(m.LastVariant+Random[utntcosmetic](1,3))%4;
+        m.LastVariant=(m.LastVariant+CRandom[utntcosmetic](1,3))%4;
         let p=UTNTAmbientSmokePuff(level.SpawnClientSideVisualThinker('UTNTAmbientSmokePuff'));
         if (p) p.Initialize(source,profile,m.LastVariant,m.Phase);
     }
@@ -49,20 +49,20 @@ class UTNTAmbientSmokePuff : VisualThinker
         Texture=TexMan.CheckForTexture(String.Format("UASM%c0",65+variant));
         Flags=SPF_ALLOWSHADERS|SPF_ROLL|SPF_STRETCHPIXELS;
         SetRenderStyle(STYLE_Translucent);
-        bXFlip=Random[utntcosmetic](0,1);
+        bXFlip=CRandom[utntcosmetic](0,1);
         double envelope=profile<0 ? 64 : profile==0 ? 115.2 : profile==1 ? 230.4 : 384;
-        Width=envelope*FRandom[utntcosmetic](0.64,0.88);
-        Height=envelope*FRandom[utntcosmetic](0.65,1.0);
-        Life=profile<0 ? Random[utntcosmetic](48,70) : Random[utntcosmetic](120,185);
-        Strength=profile<0 ? FRandom[utntcosmetic](0.65,0.78) : FRandom[utntcosmetic](0.82,0.96);
-        Phase=FRandom[utntcosmetic](0,360);
+        Width=envelope*CFRandom[utntcosmetic](0.64,0.88);
+        Height=envelope*CFRandom[utntcosmetic](0.65,1.0);
+        Life=profile<0 ? CRandom[utntcosmetic](48,70) : CRandom[utntcosmetic](120,185);
+        Strength=profile<0 ? CFRandom[utntcosmetic](0.65,0.78) : CFRandom[utntcosmetic](0.82,0.96);
+        Phase=CFRandom[utntcosmetic](0,360);
         double wind=breeze+18*sin(level.time*0.35+breeze);
         double speed=profile<0 ? 0.28 : profile==0 ? 0.55 : profile==1 ? 1.0 : 1.8;
         FlowX=cos(wind)*speed; FlowY=sin(wind)*speed;
-        Pos=source.Vec3Offset(FRandom[utntcosmetic](-2,2),FRandom[utntcosmetic](-2,2),Height*0.10);
-        Vel=(FlowX,FlowY,FRandom[utntcosmetic](0.75,1.35)*(profile<0 ? 1.0 : profile==0 ? 1 : profile==1 ? 1.5 : 2.5));
-        Roll=FRandom[utntcosmetic](-180,180);
-        Spin=FRandom[utntcosmetic](0.12,0.48)*(Random[utntcosmetic](0,1) ? 1 : -1);
+        Pos=source.Vec3Offset(CFRandom[utntcosmetic](-2,2),CFRandom[utntcosmetic](-2,2),Height*0.10);
+        Vel=(FlowX,FlowY,CFRandom[utntcosmetic](0.75,1.35)*(profile<0 ? 1.0 : profile==0 ? 1 : profile==1 ? 1.5 : 2.5));
+        Roll=CFRandom[utntcosmetic](-180,180);
+        Spin=CFRandom[utntcosmetic](0.12,0.48)*(CRandom[utntcosmetic](0,1) ? 1 : -1);
         Animate(); Prev=Pos; PrevRoll=Roll; UpdateSector(); UpdateSpriteInfo();
     }
     void Animate()
@@ -99,24 +99,24 @@ class UTNTWaterSystem play
         if (!granted) return;
         Vector3 origin=source.Pos; origin.Z+=0.9;
         let p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
-        if (p) p.Initialize(origin,2,FRandom[utntcosmetic](bodyImpact ? 34 : 9,bodyImpact ? 42 : 13)*strength,
-            FRandom[utntcosmetic](bodyImpact ? 32 : 12,bodyImpact ? 40 : 16)*strength,bodyImpact ? 22 : 16);
+        if (p) p.Initialize(origin,2,CFRandom[utntcosmetic](bodyImpact ? 34 : 9,bodyImpact ? 42 : 13)*strength,
+            CFRandom[utntcosmetic](bodyImpact ? 32 : 12,bodyImpact ? 40 : 16)*strength,bodyImpact ? 22 : 16);
         if (liquid && granted>1)
         {
             let ring=UTNTWaterRing(Actor.Spawn('UTNTWaterRing',origin));
-            if (ring) { ring.VisualSize=strength*(bodyImpact ? 1.65 : 0.6); ring.Angle=FRandom[utntcosmetic](0,360); }
+            if (ring) { ring.VisualSize=strength*(bodyImpact ? 1.65 : 0.6); ring.Angle=CFRandom[utntcosmetic](0,360); }
         }
         // One compact crown. Rebound drops supply the motion, without a large outward skirt.
         for (int i=liquid ? 2 : 1;i<granted;i++)
         {
             p=UTNTWaterVisual(level.SpawnClientSideVisualThinker('UTNTWaterVisual'));
             if (!p) continue;
-            double a=FRandom[utntcosmetic](0,360);
-            double v=FRandom[utntcosmetic](bodyImpact ? 0.65 : 0.25,bodyImpact ? 1.35 : 0.7)*strength;
+            double a=CFRandom[utntcosmetic](0,360);
+            double v=CFRandom[utntcosmetic](bodyImpact ? 0.65 : 0.25,bodyImpact ? 1.35 : 0.7)*strength;
             Vector3 birth=origin+(cos(a)*(bodyImpact ? 12 : 0),sin(a)*(bodyImpact ? 12 : 0),0);
-            p.Initialize(birth,1,FRandom[utntcosmetic](bodyImpact ? 3.5 : 3,bodyImpact ? 5.5 : 5)*strength,
-                FRandom[utntcosmetic](bodyImpact ? 5 : 4,bodyImpact ? 8 : 6)*strength,Random[utntcosmetic](bodyImpact ? 22 : 12,bodyImpact ? 30 : 19));
-            p.Vel=(cos(a)*v,sin(a)*v,FRandom[utntcosmetic](bodyImpact ? 2.2 : 0.65,bodyImpact ? 3.3 : 1.3)*strength);
+            p.Initialize(birth,1,CFRandom[utntcosmetic](bodyImpact ? 3.5 : 3,bodyImpact ? 5.5 : 5)*strength,
+                CFRandom[utntcosmetic](bodyImpact ? 5 : 4,bodyImpact ? 8 : 6)*strength,CRandom[utntcosmetic](bodyImpact ? 22 : 12,bodyImpact ? 30 : 19));
+            p.Vel=(cos(a)*v,sin(a)*v,CFRandom[utntcosmetic](bodyImpact ? 2.2 : 0.65,bodyImpact ? 3.3 : 1.3)*strength);
             p.Accel=(0,0,bodyImpact ? -0.22 : -0.12); p.Floor=origin.Z; p.CombatTrail=combat;
         }
     }
@@ -131,7 +131,7 @@ class UTNTWaterTrail : VisualThinker
     double Width, Length, Floor;
     void Initialize(Vector3 origin,Vector3 velocity,double width,double floor)
     {
-        self.Width=width*FRandom[utntcosmetic](1.0,1.3);
+        self.Width=width*CFRandom[utntcosmetic](1.0,1.3);
         Length=clamp(velocity.Length()*3.4,1.2,18);
         Direction=velocity.Unit(); self.Floor=floor;
         if (Direction.Z>0.01) Length=min(Length,max(0.2,(origin.Z-floor)/Direction.Z));
@@ -173,7 +173,7 @@ class UTNTWaterVisual : VisualThinker
         CombatTrail=true; self.Kind=kind; self.Width=width; self.Height=height; self.Life=life; Floor=-32768;
         Texture=TexMan.CheckForTexture(kind==2 ? 'UWSCA0' : 'UWATB0');
         Flags=SPF_ALLOWSHADERS|SPF_STRETCHPIXELS|SPF_ROLL;
-        SetRenderStyle(STYLE_Translucent); bXFlip=Random[utntcosmetic](0,1);
+        SetRenderStyle(STYLE_Translucent); bXFlip=CRandom[utntcosmetic](0,1);
         Pos=origin; Prev=Pos; Alpha=0.65;
         Scale=(width/418,height/418);
         UpdateSector(); UpdateSpriteInfo();
@@ -209,7 +209,7 @@ class UTNTWaterRing : Actor
     double VisualSize;
     Default
     {
-        +CLIENTSIDEONLY +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +DONTSPLASH +FLATSPRITE
+        +CLIENTSIDE +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +DONTSPLASH +FLATSPRITE
         RenderStyle "Translucent"; Alpha 0.3; Scale 0.01;
     }
     States { Spawn: UWAT D -1; Stop; }

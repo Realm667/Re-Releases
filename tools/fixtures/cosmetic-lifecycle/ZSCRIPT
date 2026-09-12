@@ -1,0 +1,25 @@
+version "5.0.0"
+class UTNTLocalLifecycleTest : EventHandler {
+ int LipCount,CRTCount,SkyCount;bool Remembered;
+ int Count(Class<Thinker> cls) {
+  int n=0;let it=ThinkerIterator.Create(cls,Thinker.MAX_STATNUM+1,true);while(it.Next())n++;return n;
+ }
+ void Check(bool ok,String text){Console.Printf("UTNT_ASSERT %s %s",ok?"PASS":"FAIL",text);}
+ override void NetworkProcess(ConsoleEvent e) {
+  if(e.Name=="fxremember") {
+   LipCount=Count('UTNTLavaLip');CRTCount=Count('UTNTCRTProbe');SkyCount=Count('UTNTSkyEdge');Remembered=true;
+   Console.Printf("FX_LIFECYCLE before lips=%d crt=%d sky=%d",LipCount,CRTCount,SkyCount);
+  }
+  if(e.Name=="fxrestore") {
+   Check(Remembered,"saved lifecycle assertion state");
+   Check(LipCount==Count('UTNTLavaLip'),"lava local pool restored without duplicates");
+   Check(CRTCount==Count('UTNTCRTProbe'),"CRT local pool restored without duplicates");
+   Check(SkyCount==Count('UTNTSkyEdge'),"sky local pool restored without duplicates");
+   let heat=UTNTLocalHeat(EventHandler.Find('UTNTLocalHeat'));int anchors=0;
+   if(heat)for(int i=0;i<6;i++)if(heat.Anchors[i])anchors++;
+   Check(anchors==Count('UTNTLocalHeatAnchor'),"heat references match the restored local pool");
+   Check(NashGoreLocalActor.Ensure(players[0].mo).IsClientSide(),"gore local watcher restored");
+   Console.Printf("FX_LIFECYCLE after lips=%d crt=%d sky=%d",Count('UTNTLavaLip'),Count('UTNTCRTProbe'),Count('UTNTSkyEdge'));
+  }
+ }
+}

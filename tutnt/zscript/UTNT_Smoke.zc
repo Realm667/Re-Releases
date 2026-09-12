@@ -23,11 +23,12 @@
 // Dark Smoke
 class DarkSmokeBase : ParticleBase
 {
+    Default { +CLIENTSIDE }
 	Default
 	{
 		Height 2;
 		Radius 1;
-		+CLIENTSIDEONLY
+		+CLIENTSIDE
 		+DONTSPLASH
 		+FORCEXYBILLBOARD
 		+MISSILE
@@ -53,7 +54,7 @@ class DarkSmokeBase : ParticleBase
 	{
 		Super.PostBeginPlay();
 
-		int spr = GetSpriteIndex(String.Format("DKS%c", RandomPick(77, 50))); // M or 2
+		int spr = GetSpriteIndex(String.Format("DKS%c", CRandomPick[utntlegacyfx](77, 50))); // M or 2
 		if (spr != -1) { sprite = spr; }		
 	}
 }
@@ -64,8 +65,8 @@ class DarkSmoke1 : DarkSmokeBase
 	{
 		Super.PostBeginPlay();
 
-		Thrust(1, FRandom(0, 22.5));
-		vel.z = FRandom(3, 6) / 4;
+		Thrust(1, CFRandom[utntlegacyfx](0, 22.5));
+		vel.z = CFRandom[utntlegacyfx](3, 6) / 4;
 	}
 
 }
@@ -81,8 +82,8 @@ class DarkSmoke2 : DarkSmokeBase
 	{
 		Super.PostBeginPlay();
 
-		Thrust(FRandom(1, 2), FRandom(0, 22.5));
-		vel.z = FRandom(5, 9) / 4;
+		Thrust(CFRandom[utntlegacyfx](1, 2), CFRandom[utntlegacyfx](0, 22.5));
+		vel.z = CFRandom[utntlegacyfx](5, 9) / 4;
 	}
 }
 
@@ -97,8 +98,8 @@ class DarkSmoke3 : DarkSmokeBase
 	{
 		Super.PostBeginPlay();
 
-		Thrust(FRandom(2, 4), FRandom(0, 22.5));
-		vel.z = FRandom(9, 15) / 4;
+		Thrust(CFRandom[utntlegacyfx](2, 4), CFRandom[utntlegacyfx](0, 22.5));
+		vel.z = CFRandom[utntlegacyfx](9, 15) / 4;
 	}
 }
 
@@ -116,7 +117,7 @@ class DarkSmokeSpawner : EffectSpawner
 		//$Arg0Enum { 0 = "Small"; 1 = "Medium"; 2 = "Large"; }
 		Height 40;
 		Radius 30;
-		+CLIENTSIDEONLY
+		// Map switch/TID remains authoritative.
 		+DONTSPLASH
 		+NOBLOCKMAP
 		+NOCLIP
@@ -132,7 +133,7 @@ class DarkSmokeSpawner : EffectSpawner
 		Spawn:
 			TNT1 A 0;
 		Active:
-			TNT1 A 0 A_Jump(256, 1 ,2, 3);
+			TNT1 A 0 A_Jump(256,1,2,3);
 			TNT1 A 2 { UTNTVisuals.AmbientSmoke(self, args[0]); }
 			TNT1 A 4 { UTNTVisuals.AmbientSmoke(self, args[0]); }
 			TNT1 A 6 { UTNTVisuals.AmbientSmoke(self, args[0]); }

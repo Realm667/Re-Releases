@@ -2,6 +2,7 @@
 // estimates static geometry distance; it is deliberately not called per-pixel depth.
 class UTNTEnvironmentOptics : Object ui
 {
+ LineTracer Probe;Vector4 LastSampleRect;double Packed[8];
  int SampleTic; double Samples[32]; Vector3 SamplePos; double SampleYaw,SamplePitch,SampleFov,SampleRatio,SampleRoll;
  void Update(RenderEvent e,String shader,Vector3 source=(0,0,0),Vector3 radius=(0,0,0))
  {
@@ -40,25 +41,24 @@ class UTNTEnvironmentOptics : Object ui
   }
   PPShader.SetUniform4f(shader,"viewRect",sampleRect);
   // Refresh once per game tic and on camera motion, never mutate the game world.
-  if(SampleFov!=fov || SampleRatio!=ratio || SampleRoll!=e.ViewRoll || SampleTic!=level.time || (e.ViewPos-SamplePos).Length()>1 || abs(e.ViewAngle-SampleYaw)>.5 || abs(e.ViewPitch-SamplePitch)>.5)
+  if(LastSampleRect!=sampleRect || SampleFov!=fov || SampleRatio!=ratio || SampleRoll!=e.ViewRoll || SampleTic!=level.time || (e.ViewPos-SamplePos).Length()>1 || abs(e.ViewAngle-SampleYaw)>.5 || abs(e.ViewPitch-SamplePitch)>.5)
   {
-   let trace=new('LineTracer');
+   if(!Probe)Probe=new('LineTracer');let trace=Probe;let sector=level.PointInSector(e.ViewPos.XY);
    for(int y=0;y<4;y++)for(int x=0;x<8;x++)
    {
     Vector2 uv=(sampleRect.X+sampleRect.Z*(x+.5)/8,sampleRect.Y+sampleRect.W*(y+.5)/4);
     Vector3 ray=(forward+right*((uv.X-rect.X)/rect.Z*2-1)*tx+up*((uv.Y-rect.Y)/rect.W*2-1)*ty).Unit();
-    trace.Trace(e.ViewPos,level.PointInSector(e.ViewPos.XY),ray,2048,0,wallMask:0,ignoreAllActors:true,ignore:e.Camera);
+    trace.Trace(e.ViewPos,sector,ray,2048,0,wallMask:0,ignoreAllActors:true,ignore:e.Camera);
     Samples[y*8+x]=trace.Results.HitType==TRACE_HitNone?2048:(trace.Results.HitPos-e.ViewPos).Length();
    }
-   SampleTic=level.time;SamplePos=e.ViewPos;SampleYaw=e.ViewAngle;SamplePitch=e.ViewPitch;SampleFov=fov;SampleRatio=ratio;SampleRoll=e.ViewRoll;
-  }
-  double packed[8];
+   LastSampleRect=sampleRect;SampleTic=level.time;SamplePos=e.ViewPos;SampleYaw=e.ViewAngle;SamplePitch=e.ViewPitch;SampleFov=fov;SampleRatio=ratio;SampleRoll=e.ViewRoll;
   for(int i=0;i<8;i++)
   {
-   packed[i]=0;
-   for(int j=0;j<4;j++)packed[i]+=floor(sqrt(clamp(Samples[i*4+j],0,2048)/2048.0)*63)*(1 << (j*6));
+   Packed[i]=0;
+   for(int j=0;j<4;j++)Packed[i]+=floor(sqrt(clamp(Samples[i*4+j],0,2048)/2048.0)*63)*(1 << (j*6));
   }
-  PPShader.SetUniform4f(shader,"depthA",(packed[0],packed[1],packed[2],packed[3]));
-  PPShader.SetUniform4f(shader,"depthB",(packed[4],packed[5],packed[6],packed[7]));
+  }
+  PPShader.SetUniform4f(shader,"depthA",(Packed[0],Packed[1],Packed[2],Packed[3]));
+  PPShader.SetUniform4f(shader,"depthB",(Packed[4],Packed[5],Packed[6],Packed[7]));
  }
 }

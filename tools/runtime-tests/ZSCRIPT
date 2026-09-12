@@ -164,16 +164,18 @@ class UTNTSecondPassRegression : EventHandler
         }
         if(level.time==105)
         {
-            let sentinel=Actor.Spawn('UTNTCheckpointBlocker',(450,450,0));
+            let sentinel=Actor.Spawn('UTNTGoreSentinel',(450,450,0));
             sentinel.ChangeStatNum(STAT_NashGore_Gore);
             let gib=Actor.Spawn('NashGoreGibs',(450,400,0));
-            let gore=NashGoreHandler(EventHandler.Find('NashGoreHandler'));
-            int previous=gore.maxgore;gore.maxgore=-1;
+            Check(gib && gib.IsClientSide(),"gore actor belongs to the actual UZDoom client pool");
+
             NashGoreStatics.QueueGore();
+            UTNTGoreBudget.Get().Enforce(-1);
             Check(sentinel && !sentinel.bDestroyed,"gore cleanup preserves unsupported stat members");
             Check(!gib || gib.bDestroyed,"negative gore limit terminates and removes eligible gore");
-            gore.maxgore=previous;sentinel.Destroy();
+            sentinel.Destroy();
         }
+        if(level.time==115)UTNTCosmeticContracts.Run();
         if (PeerCount<4) return;
         if(level.time==215)
         {
@@ -232,3 +234,8 @@ class UTNTSecondPassRegression : EventHandler
         }
     }
 }
+
+// Local unsupported actor exercises the same list as the cosmetic cleanup.
+class UTNTGoreSentinel : Actor { Default { +CLIENTSIDE +NOINTERACTION } States { Spawn: TNT1 A -1; Stop; } }
+
+#include "cosmetic-contracts.zc"

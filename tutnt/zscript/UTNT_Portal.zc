@@ -240,13 +240,11 @@ class UTNTPortalSystem play
     {
         if(!source || source.PortalWidth<=0 || !source.EffectsEnabled() || !LocalVisible(source)) return;
         // At most 32 emitters per local client; no gameplay random stream.
-        let it=ThinkerIterator.Create('UTNTPortalEmitter',Thinker.STAT_USER+8,true);
-        UTNTPortalEmitter emitter; int count=0;
-        while(emitter=UTNTPortalEmitter(it.Next()))
-        { if(emitter.Source==source) return; count++; }
-        if(count>=32) return;
+        let runtime=UTNTFXRuntime.Get();
+        if(runtime.Lookup(source,3) || runtime.Count(3)>=32)return;
+        UTNTPortalEmitter emitter;
         emitter=UTNTPortalEmitter(level.CreateClientSideThinker('UTNTPortalEmitter',Thinker.STAT_USER+8));
-        if(emitter) emitter.Initialize(source);
+        if(emitter) { emitter.Initialize(source);runtime.Register(source,3,emitter); }
     }
 }
 
@@ -523,16 +521,16 @@ class UTNTRitualMote : UTNTRuneMote
     {
         // Keep the pad glow steady even when thinning the slower rune emissions.
         UTNTRitualGlow.Touch(source);
-        if(Random[utntritual](0,7)>=3)return;
+        if(CRandom[utntritual](0,7)>=3)return;
         let mote=UTNTRitualMote(level.SpawnClientSideVisualThinker('UTNTRitualMote'));
         if(!mote)return;
         mote.Source=source;mote.Origin=source.Pos;
-        mote.Life=Random[utntritual](88,116);
-        mote.Angle=FRandom[utntritual](0,360);mote.Radius=FRandom[utntritual](size*.15,size*.45);
-        mote.Size=FRandom[utntritual](7,12);
-        mote.Texture=TexMan.CheckForTexture(String.Format("UTR%cA0",65+Random[utntritual](0,3)));
+        mote.Life=CRandom[utntritual](88,116);
+        mote.Angle=CFRandom[utntritual](0,360);mote.Radius=CFRandom[utntritual](size*.15,size*.45);
+        mote.Size=CFRandom[utntritual](7,12);
+        mote.Texture=TexMan.CheckForTexture(String.Format("UTR%cA0",65+CRandom[utntritual](0,3)));
         mote.Flags=SPF_FULLBRIGHT|SPF_ROLL|SPF_ALLOWSHADERS;mote.SetRenderStyle(STYLE_Add);
-        mote.Pos=source.Pos;mote.Prev=mote.Pos;mote.Roll=FRandom[utntritual](-30,30);
+        mote.Pos=source.Pos;mote.Prev=mote.Pos;mote.Roll=CFRandom[utntritual](-30,30);
         mote.PrevRoll=mote.Roll;mote.Animate();mote.Prev=mote.Pos;
         mote.UpdateSector();mote.UpdateSpriteInfo();mote.InitializeTrail();
     }

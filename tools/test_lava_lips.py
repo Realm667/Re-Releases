@@ -5,7 +5,7 @@ HERE=ROOT=ENGINE=IWAD=MOD=None
 
 def fixture():
     from build_lava_lips import generate
-    project=HERE/'fixture-project';addon=project/'tutnt';(addon/'maps').mkdir(parents=True,exist_ok=True)
+    project=ROOT/'tutnt/.codex/work/performance-multiplayer/lava-fixture-project';addon=project/'tutnt';(addon/'maps').mkdir(parents=True,exist_ok=True)
     # Clockwise high pool, two joined fall segments; low pool below it.
     vertices=[(-384,-384),(-384,0),(0,0),(384,96),(384,-384),(-384,512),(384,512)]
     lines=[(0,1,0,None),(1,2,0,1),(2,3,0,1),(3,4,0,None),(4,0,0,None),(1,5,1,None),(5,6,1,None),(6,3,1,None)]
@@ -55,12 +55,12 @@ class UTNTLipTest : EventHandler
         if(e.Name=="lipview")View=e.Args[0];
         if(e.Name=="lipmode")
         {
-            let it=ThinkerIterator.Create("UTNTLavaLip");UTNTLavaLip lip;
+            let it=ThinkerIterator.Create("UTNTLavaLip",Thinker.MAX_STATNUM+1,true);UTNTLavaLip lip;
             while(lip=UTNTLavaLip(it.Next()))lip.A_SetRenderStyle(1.0,e.Args[0]==0?STYLE_None:STYLE_Translucent);
         }
         if(e.Name=="lipassert")
         {
-            int count=0;let it=ThinkerIterator.Create("UTNTLavaLip");UTNTLavaLip lip;
+            int count=0;let it=ThinkerIterator.Create("UTNTLavaLip",Thinker.MAX_STATNUM+1,true);UTNTLavaLip lip;
             while(lip=UTNTLavaLip(it.Next()))
             {
                 count++;
@@ -76,12 +76,12 @@ class UTNTLipTest : EventHandler
         if(e.Name=="liptexture")level.Sectors[0].SetTexture(Sector.floor,TexMan.CheckForTexture(e.Args[0]==0?"QLAVA":e.Args[0]==2?"QLAVA2":e.Args[0]==3?"QLAVASB":"QWATER1"));
         if(e.Name=="lipwall")
         {
-            let it=ThinkerIterator.Create("UTNTLavaLip");UTNTLavaLip lip;
+            let it=ThinkerIterator.Create("UTNTLavaLip",Thinker.MAX_STATNUM+1,true);UTNTLavaLip lip;
             while(lip=UTNTLavaLip(it.Next()))lip.FallSide.SetTexture(Side.bottom,TexMan.CheckForTexture(e.Args[0]==0?"LAVA":"LAVAHR"));
         }
         if(e.Name=="lipstate")
         {
-            int count=0;bool ok=true;let it=ThinkerIterator.Create("UTNTLavaLip");UTNTLavaLip lip;
+            int count=0;bool ok=true;let it=ThinkerIterator.Create("UTNTLavaLip",Thinker.MAX_STATNUM+1,true);UTNTLavaLip lip;
             while(lip=UTNTLavaLip(it.Next()))
             {
                 count++;
@@ -100,7 +100,7 @@ def run(renderer='1',mapname='LIPTEST'):
     addon=fixture()
     if mapname!='LIPTEST':
         # Real-map run uses the project's generated registration/model assets.
-        scene=HERE/'scene';scene.mkdir(exist_ok=True)
+        scene=ROOT/'tutnt/.codex/work/performance-multiplayer/lava-scene';scene.mkdir(exist_ok=True)
         for n in ('MAPINFO','ZSCRIPT.test'):shutil.copyfile(addon/n,scene/n)
         (scene/'shaders').mkdir(exist_ok=True)
         if MOD is None:

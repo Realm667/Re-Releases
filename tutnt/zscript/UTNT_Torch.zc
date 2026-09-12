@@ -32,6 +32,7 @@
 
 class UTNTDietActor : Actor
 {
+    Default { +CLIENTSIDE }
 	bool ticked;
 
 	//===========================================================================
@@ -109,8 +110,8 @@ mixin class UTNTFireMixin
 	SpawnLoop:
 		"####" "#" 0
 		{
-			bSpriteFlip = RandomPick(false, true);
-			A_SetRoll(frandom(0.0, 360.0));
+			bSpriteFlip = CRandomPick[utntlegacyfx](false, true);
+			A_SetRoll(CFRandom[utntlegacyfx](0.0, 360.0));
 		}
 		"####" "#" 1
 		{
@@ -343,8 +344,8 @@ mixin class UTNTFireMixinShort
 	SpawnLoop:
 		"####" "#" 0
 		{
-			bSpriteFlip = RandomPick(false, true);
-			A_SetRoll(frandom(0.0, 360.0));
+			bSpriteFlip = CRandomPick[utntlegacyfx](false, true);
+			A_SetRoll(CFRandom[utntlegacyfx](0.0, 360.0));
 		}
 		"####" "#" 1
 		{

@@ -32,6 +32,7 @@
 
 class NashGoreRealGibs : RealGibs
 {
+    Default { +CLIENTSIDE +NOBLOCKMAP +THRUACTORS -SOLID -SHOOTABLE +DONTSPLASH }
 	//===========================================================================
 	//
 	//
@@ -45,7 +46,7 @@ class NashGoreRealGibs : RealGibs
 		{
 			if (nashgore_squish)
 			{
-				A_SpawnItemEx("NashGoreSquishyGibs", flags: SXF_TRANSFERTRANSLATION | SXF_TRANSFERRENDERSTYLE);
+				UTNTCosmeticSpawn.From(self,"NashGoreSquishyGibs", flags: SXF_TRANSFERTRANSLATION | SXF_TRANSFERRENDERSTYLE);
 				A_StartSound("misc/gibbed");
 			}
 
@@ -57,6 +58,7 @@ class NashGoreRealGibs : RealGibs
 
 class NashGoreSquishyGibs : RealGibs
 {
+    Default { +CLIENTSIDE +NOBLOCKMAP +THRUACTORS -SOLID -SHOOTABLE +DONTSPLASH }
 	Default
 	{
 		+FORCEYBILLBOARD
@@ -93,10 +95,10 @@ class NashGoreSquishyGibs : RealGibs
 			A_StartSound("misc/gibbed");
 			for (int i = 0; i < h; i++)
 			{
-				A_SpawnItemEx("NashGoreBloodSpurt",
+				UTNTCosmeticSpawn.From(self,"NashGoreBloodSpurt",
 					0, 0, i,
-					frandom(-2, 2), frandom(-2, 2), frandom(-4, 4),
-					frandom(0, 360), NashGoreBlood.BLOOD_FLAGS, 175);
+					CFRandom[utntgore](-2, 2), CFRandom[utntgore](-2, 2), CFRandom[utntgore](-4, 4),
+					CFRandom[utntgore](0, 360), NashGoreBlood.BLOOD_FLAGS, 175);
 			}
 			Destroy();
 			return;

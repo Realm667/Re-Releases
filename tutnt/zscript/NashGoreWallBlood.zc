@@ -32,6 +32,7 @@
 
 class NashGoreWallBlood : Actor
 {
+    Default { +CLIENTSIDE +NOBLOCKMAP +THRUACTORS -SOLID -SHOOTABLE +DONTSPLASH }
 	Default
 	{
 		FloatBobPhase 0;
@@ -50,8 +51,8 @@ class NashGoreWallBlood : Actor
 		ChangeStatNum(STAT_NashGore_Gore);
 		NashGoreStatics.QueueGore();
 		Super.BeginPlay();
-		Scale.X *= RandomPick(-1, 1);
-		Scale.Y *= RandomPick(-1, 1);
+		Scale.X *= CRandomPick[utntgore](-1, 1);
+		Scale.Y *= CRandomPick[utntgore](-1, 1);
 	}
 
 	override void Tick(void)
@@ -76,7 +77,7 @@ class NashGoreWallBlood : Actor
 	Spawn:
 		TNT1 A 1 NoDelay
 		{
-			return A_Jump(256, "WallBlood1", "WallBlood2", "WallBlood3", "WallBlood4");
+			return UTNTCosmeticSpawn.Choose(self,4,"WallBlood1", "WallBlood2", "WallBlood3", "WallBlood4");
 		}
 		Stop;
 	WallBlood1:

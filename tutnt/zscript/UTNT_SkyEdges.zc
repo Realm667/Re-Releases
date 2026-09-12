@@ -12,7 +12,7 @@ class UTNTSkyEdge : Actor
     Default
     {
         +NOGRAVITY +NOINTERACTION +NOBLOCKMAP
-        +DONTSPLASH +DONTTHRUST +NOTONAUTOMAP
+        +DONTSPLASH +DONTTHRUST +NOTONAUTOMAP +CLIENTSIDE
         Radius 1; Height 1;
     }
     States { Spawn: SKED A -1; Stop; }
@@ -57,11 +57,25 @@ class UTNTSkyEdge : Actor
 class UTNTSkyEdges : EventHandler
 {
     bool Initialized;
+    transient UTNTFXRuntime Runtime;
+    int WorldSerial;
+    ui int UploadTic,UploadedWorld;
+    ui bool Uploaded;
+    override void WorldLoaded(WorldEvent e) { RestoreLocal(); }
+    void RestoreLocal()
+    {
+        for(int pool=0;pool<2;pool++){
+            let it=ThinkerIterator.Create('UTNTSkyEdge',Thinker.MAX_STATNUM+1,pool!=0);
+            Actor edge;while(edge=Actor(it.Next()))edge.Destroy();
+        }
+        Initialized=false;Applied=Rejected=0;GlowSectors.Clear();GlowSlots.Clear();WorldSerial++;
+    }
     int Applied, Rejected;
     Array<Sector> GlowSectors;
     Array<int> GlowSlots;
     override void WorldTick()
     {
+        let clientCache=UTNTFXRuntime.Get();if(Runtime!=clientCache){Runtime=clientCache;RestoreLocal();}
         if(!Initialized && level.time>=4) { Initialized=true;Install(); }
     }
     void Install()
@@ -99,7 +113,10 @@ class UTNTSkyEdges : EventHandler
     }
     override void RenderOverlay(RenderEvent e)
     {
+        // Glow/sector data changes on game tics, not on interpolated render frames.
+        if(Uploaded && UploadTic==level.time && UploadedWorld==WorldSerial)return;
         let c=TexMan.GetCanvas('USKYGLOW');if(!c)return;
+        Uploaded=true;UploadTic=level.time;UploadedWorld=WorldSerial;
         c.Clear(0,0,256,256,Color(0,0,0));
         for(int i=0;i<GlowSectors.Size();i++)
         {
@@ -119,7 +136,7 @@ class UTNTSkyEdges : EventHandler
     override void NetworkProcess(ConsoleEvent e)
     {
         if(e.Name!="skyedges" && e.Name!="skyedges_mode")return;
-        int total=0,visible=0;let it=ThinkerIterator.Create("UTNTSkyEdge");UTNTSkyEdge edge;
+        int total=0,visible=0;let it=ThinkerIterator.Create("UTNTSkyEdge",Thinker.MAX_STATNUM+1,true);UTNTSkyEdge edge;
         while(edge=UTNTSkyEdge(it.Next()))
         {
             if(e.Name=="skyedges_mode") { edge.TestHidden=e.Args[0]==0;edge.UpdateEdge(); }

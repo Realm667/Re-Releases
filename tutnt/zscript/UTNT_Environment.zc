@@ -4,10 +4,15 @@
 class UTNTEnvironment : EventHandler
 {
  bool Ready;
+ transient UTNTFXRuntime Runtime;
+ int SurfaceRevision, WorldSerial;
+ ui int UploadedRevision, UploadTic, UploadCount, UploadedWorld;
+ ui bool CanvasReady, UploadedWet;
  ui UTNTEnvironmentOptics Optics;
  String SnowNames;
  int ProbeCursor, NearCursor, Prints, MechanismBursts, SurfaceChecks, DustPuffs;
  Array<UTNTEnvironmentSurface> Surfaces;
+ Map<String,String> SurfaceNames;
  Array<int> NearSurfaces;
  Array<UTNTMechanismWatch> Mechanisms;
  Array<UTNTMechanismQuakeGroup> QuakeGroups;
@@ -39,10 +44,11 @@ class UTNTEnvironment : EventHandler
   let h=UTNTEnvironment(EventHandler.Find('UTNTEnvironment'));
   return h && name.Left(2)=="EV"?UTNTEnvironmentSurface.SourceName(name,h):name;
  }
- override void WorldLoaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); }
- override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); }
+ override void WorldLoaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); WorldSerial++; }
+ override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); WorldSerial++; }
  override void WorldTick()
  {
+  let clientCache=UTNTFXRuntime.Get();if(Runtime!=clientCache){Runtime=clientCache;WorldSerial++;}
   if(!Ready && level.time>=5) Initialize();
   if(!Ready || level.isFrozen() || LevelLocals.WorldPaused())return;
   // Older saves have mechanism watchers but no serialized quake groups.
@@ -57,11 +63,11 @@ class UTNTEnvironment : EventHandler
   for(int i=0;i<QuakeGroups.Size();i++)QuakeGroups[i].Update();
   // Surface maintenance shares the bounded probe queue.
   UpdateSurfaces();
-  if(level.time%7==0)for(int i=0;i<Surfaces.Size();i++)Surfaces[i].UpdateReflection();
+  if(level.time%7==0)for(int i=0;i<Surfaces.Size();i++){bool before=Surfaces[i].Reflecting;Surfaces[i].UpdateReflection();if(before!=Surfaces[i].Reflecting)SurfaceRevision++;}
  }
  void Initialize()
  {
-  Ready=true;Probe=new('LineTracer');
+  Ready=true;SurfaceRevision++;Probe=new('LineTracer');
   int snowLump=Wads.CheckNumForFullName("environment/snowtextures.txt");if(snowLump>=0)SnowNames=Wads.ReadLump(snowLump);
   ReadSurfaces();
   // Candidate tables derive from door/lift actions and actual sector tags.
@@ -115,7 +121,7 @@ class UTNTEnvironment : EventHandler
    s.Width=r[12].ToDouble();s.Height=r[13].ToDouble();s.NX=r[14].ToInt();s.NY=r[15].ToInt();
    if(!s.Bind()){Console.Printf("ENVIRONMENT_BIND_SKIPPED|%s|%d|%d|%s",level.MapName,s.Kind,s.Index,s.Original);continue;}
    for(int j=0;j<s.NX*s.NY;j++){s.Wet.Push(0);s.Exposed.Push(0);s.Checked.Push(false);s.LastCheck.Push(level.time);}
-   Surfaces.Push(s);
+   Surfaces.Push(s);SurfaceNames.Insert(s.Alias,s.Original);
   }
  }
  void UpdateSurfaces()
@@ -219,9 +225,12 @@ class UTNTEnvironment : EventHandler
    PPShader.SetUniform1f("UTNTUnderwaterAtmosphere","waterDensity",clamp(e.Camera.WaterDepth/1000.0+.06,.06,.22));
    PPShader.SetEnabled("UTNTUnderwaterAtmosphere",true);
   }
-  let c=TexMan.GetCanvas('UENVSTATE');if(!c)return;
-  c.Clear(0,0,256,256,Color(0,0,0));
   bool wet=Option('UTNT_wetsurfaces') && Quality()>0;
+  if(CanvasReady && UploadedWorld==WorldSerial && UploadedWet==wet && UploadedRevision==SurfaceRevision
+     && level.time>=UploadTic && level.time-UploadTic<35)return;
+  let c=TexMan.GetCanvas('UENVSTATE');if(!c)return;
+  CanvasReady=true;UploadedWorld=WorldSerial;UploadedWet=wet;UploadedRevision=SurfaceRevision;UploadTic=level.time;UploadCount++;
+  c.Clear(0,0,256,256,Color(0,0,0));
   for(int i=0;i<Surfaces.Size();i++)
   {
    let s=Surfaces[i];
@@ -283,7 +292,7 @@ class UTNTFootState : Object play
 class UTNTFootMark : Actor
 {
  F3DFloor Rover;Sector Support;double HeightOffset,PlaneHeight,InitialAlpha;int Age;bool Snow;
- Default { +CLIENTSIDEONLY +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +DONTSPLASH +FLATSPRITE RenderStyle "Translucent"; }
+ Default { +CLIENTSIDE +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +DONTSPLASH +FLATSPRITE RenderStyle "Translucent"; }
  States { Spawn: ENFT A -1; Stop; Snow: ENFT B -1; Stop; }
  override void Tick()
  {
@@ -383,7 +392,7 @@ class UTNTEnvironmentDust : VisualThinker
 
 class UTNTMechanismQuake : Actor
 {
- Default { +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +CLIENTSIDEONLY }
+ Default { +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +CLIENTSIDE }
  States { Spawn: TNT1 A 20; Stop; }
 }
 class UTNTMechanismWatch : Object play
@@ -538,7 +547,9 @@ class UTNTEnvironmentSurface : Object play
   return true;
  }
  clearscope static String SourceName(String textureName,UTNTEnvironment h)
- { for(int i=0;i<h.Surfaces.Size();i++)if(h.Surfaces[i].Alias~==textureName)return h.Surfaces[i].Original;return textureName; }
+ { String original=h.SurfaceNames.GetIfExists(textureName);if(original!="")return original;
+   // Old saves predate the map: retain the historical fallback.
+   for(int i=0;i<h.Surfaces.Size();i++)if(h.Surfaces[i].Alias~==textureName)return h.Surfaces[i].Original;return textureName; }
  void Maintain()
  {
   if(Kind!=0 || Detached)return;
@@ -583,6 +594,8 @@ class UTNTEnvironmentSurface : Object play
   }
   Exposed[j]=target;Checked[j]=true;
   double elapsed=clamp((level.time-LastCheck[j])/35.0,0,20);LastCheck[j]=level.time;
+  int previousByte=int(clamp(Wet[j],0,1)*255);
   Wet[j]=target>Wet[j]?min(target,Wet[j]+elapsed*.09):max(target,Wet[j]-elapsed*.014);
+  if(previousByte!=int(clamp(Wet[j],0,1)*255))h.SurfaceRevision++;
  }
 }

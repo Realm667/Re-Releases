@@ -62,7 +62,7 @@ class NashGoreStatics play
 
 	static void RandomXFlip(Actor self)
 	{
-		self.bSpriteFlip = RandomPick(false, true);
+		self.bSpriteFlip = CRandomPick[utntgore](false, true);
 	}
 
 	//===========================================================================
@@ -73,7 +73,7 @@ class NashGoreStatics play
 
 	static double RandomAngle4(void)
 	{
-		return RandomPick(0, 90, 180, 270);
+		return CRandomPick[utntgore](0, 90, 180, 270);
 	}
 
 	//===========================================================================
@@ -115,35 +115,12 @@ class NashGoreStatics play
 	//
 	//===========================================================================
 
-	static void QueueGore(void)
-	{
-		let eh = NashGoreHandler(NashGoreHandler.Find("NashGoreHandler"));
-		if (eh)
-		{
-			// get max gore count
-			int countmax = eh.maxgore;
-
-			// count current amount of gore objects
-			ThinkerIterator it = ThinkerIterator.Create("Actor", STAT_NashGore_Gore);
-			Actor mo;
-			int count;
-			while (mo = Actor(it.Next()))
-			{
-				count++;
-			}
-
-            // Clamp invalid console values and scan each candidate once. Unsupported
-            // objects in this stat must neither block cleanup nor count as removed.
-            countmax=max(0,countmax);
-            it.Reinit();
-            while (count>countmax && (mo=Actor(it.Next())))
-            {
-                bool valid=mo is "NashGoreBloodPlane" || mo is "NashGoreGibs"
-                    || mo is "NashGoreIceChunk" || mo is "NashGoreSquishyGibs";
-                if (valid) { mo.Destroy(); count--; }
-            }
-		}
-	}
+    static void QueueGore() { UTNTGoreBudget.Get().Dirty=true; }
+    static bool ManagedGore(Actor a)
+    {
+        return a && (a is 'UTNTLegacyGore' || a is 'NashGoreBloodPlane' || a is 'NashGoreGibs'
+            || a is 'NashGoreIceChunk' || a is 'NashGoreSquishyGibs' || a is 'NashGoreWallBlood');
+    }
 
 	//===========================================================================
 	//
@@ -153,11 +130,11 @@ class NashGoreStatics play
 
 	static void ClearGore(void)
 	{
-		ThinkerIterator it = ThinkerIterator.Create("Actor", STAT_NashGore_Gore);
+		ThinkerIterator it = ThinkerIterator.Create("Actor", STAT_NashGore_Gore,true);
 		Actor mo;
 		while (mo = Actor(it.Next()))
 		{
-			mo.Destroy();
+			if(ManagedGore(mo))mo.Destroy();
 		}
 	}
 
@@ -256,16 +233,16 @@ class NashGoreStatics play
 			return;
 		}
 
-		int count = random(1, 3);
-		double noise = frandom(11.25, 45.0);
+		int count = CRandom[utntgore](1, 3);
+		double noise = CFRandom[utntgore](11.25, 45.0);
 		String bloodType = "NashGoreWallBloodLarge";
 
 		for (; count; --count)
 		{
 			FLineTraceData bleedtrace;
 
-			double bleedang = angle + random() * noise;
-			double bleedpitch = pitch + random() * noise;
+			double bleedang = angle + CRandom[utntgore]() * noise;
+			double bleedpitch = pitch + CRandom[utntgore]() * noise;
 			double cosp = cos(bleedpitch);
 			Vector3 vdir = (cosp * cos(bleedang), cosp * sin(bleedang), -sin(bleedpitch));
 
@@ -280,7 +257,7 @@ class NashGoreStatics play
 					bool result;
 					Actor wallBlood;
 
-					[result, wallBlood] = mo.A_SpawnItemEx(bloodType, flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE);
+					[result, wallBlood] = UTNTCosmeticSpawn.From(mo,bloodType, flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE);
 					if (wallBlood)
 					{
 						wallBlood.SetOrigin(bleedtrace.HitLocation, false);
@@ -289,7 +266,7 @@ class NashGoreStatics play
 						if (bleedtrace.LineSide == 1) wallBlood.Angle += 180;
 
 						// move it forward a little to prevent Z fighting
-						double fp = frandom(0.05, 0.1);
+						double fp = CFRandom[utntgore](0.05, 0.1);
 						wallBlood.SetOrigin
 						(
 							(
@@ -337,4 +314,27 @@ class NashGoreStatics play
 		}
 	}
 	*/
+}
+
+class UTNTGoreBudget : Thinker
+{
+    bool Dirty;int LastLimit;
+    static UTNTGoreBudget Get()
+    {
+        let it=ThinkerIterator.Create('UTNTGoreBudget',Thinker.STAT_USER+30,true);
+        let b=UTNTGoreBudget(it.Next());
+        return b?b:UTNTGoreBudget(level.CreateClientSideThinker('UTNTGoreBudget',Thinker.STAT_USER+30));
+    }
+    override void Tick()
+    {
+        Enforce(nashgore_maxgore);
+    }
+    void Enforce(int requestedLimit)
+    {
+        int limit=max(0,requestedLimit);
+        if(!Dirty && LastLimit==limit)return;Dirty=false;LastLimit=limit;
+        let it=ThinkerIterator.Create('Actor',STAT_NashGore_Gore,true);Actor a;int count=0;
+        while(a=Actor(it.Next()))if(NashGoreStatics.ManagedGore(a))count++;
+        it.Reinit();while(count>limit && (a=Actor(it.Next()))){if(NashGoreStatics.ManagedGore(a)){a.Destroy();count--;}}
+    }
 }

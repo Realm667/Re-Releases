@@ -1,8 +1,19 @@
+class UTNTLavaPlaneCache : Object play
+{
+    Sector Sec;Vector3 Normal;double D;TextureID Texture;int Revision;
+    void Refresh()
+    {
+        let tex=Sec.GetTexture(Sector.floor);
+        if(Revision==0 || Normal!=Sec.floorplane.Normal || D!=Sec.floorplane.D || Texture!=tex)
+        {Normal=Sec.floorplane.Normal;D=Sec.floorplane.D;Texture=tex;Revision++;}
+    }
+}
 // A shallow rendered liquid meniscus. Original sectors retain all collision,
 // tags, actions, damage, terrain and textures; animation uses no scripted randomness.
 class UTNTLavaLip : Actor
 {
     Sector High, Low;
+    UTNTLavaPlaneCache HighCache,LowCache;int HighRevision,LowRevision;TextureID LastFall;
     Side FallSide;
     Vector2 EdgeA, EdgeB, Center;
     double InitialSlope, LipRadius;
@@ -11,7 +22,7 @@ class UTNTLavaLip : Actor
     Default
     {
         +NOGRAVITY +NOINTERACTION +NOBLOCKMAP
-        +DONTSPLASH +DONTTHRUST +NOTONAUTOMAP
+        +DONTSPLASH +DONTTHRUST +NOTONAUTOMAP +CLIENTSIDE
         Radius 1; Height 1; RenderStyle "Translucent";
     }
     States { Spawn: LALP A -1; Stop; }
@@ -41,9 +52,15 @@ class UTNTLavaLip : Actor
             A_ChangeModel("",skin:skin);
             FloorName=floorNow;FallName=fallNow;
         }
-        if(!bInvisible) SetOrigin((Center.X,Center.Y,(a+b)*0.5),false);
+        if(!bInvisible && Pos.Z!=(a+b)*0.5) SetOrigin((Center.X,Center.Y,(a+b)*0.5),false);
     }
-    override void Tick() { UpdateLip(); }
+    override void Tick()
+    {
+        if(!HighCache || !LowCache){UpdateLip();return;}
+        let fall=FallSide.GetTexture(Side.bottom);
+        if(HighRevision==HighCache.Revision && LowRevision==LowCache.Revision && LastFall==fall)return;
+        HighRevision=HighCache.Revision;LowRevision=LowCache.Revision;LastFall=fall;UpdateLip();
+    }
 }
 
 #include "zscript/lava-lips-generated.zc"
@@ -51,10 +68,32 @@ class UTNTLavaLip : Actor
 class UTNTLavaLips : EventHandler
 {
     bool Initialized;
+    transient UTNTFXRuntime Runtime;
+    Array<UTNTLavaPlaneCache> PlaneCaches;
+    Map<int,UTNTLavaPlaneCache> PlaneLookup;
+    UTNTLavaPlaneCache Plane(Sector sec)
+    {
+        let c=PlaneLookup.GetIfExists(sec.Index());
+        if(!c){c=new('UTNTLavaPlaneCache');c.Sec=sec;c.Refresh();PlaneLookup.Insert(sec.Index(),c);PlaneCaches.Push(c);}
+        return c;
+    }
     int Applied, Rejected;
     override void WorldTick()
     {
+        let clientCache=UTNTFXRuntime.Get();if(Runtime!=clientCache){Runtime=clientCache;RestoreLocal();}
         if(!Initialized && level.time>=2) { Initialized=true; Install(); }
+        for(int i=PlaneCaches.Size()-1;i>=0;i--)if(PlaneCaches[i])PlaneCaches[i].Refresh();else PlaneCaches.Delete(i);
+    }
+    override void WorldLoaded(WorldEvent e) { RestoreLocal(); }
+    void RestoreLocal()
+    {
+        // Old saves can contain pre-client menisci. Remove only this render-only type.
+        for(int pool=0;pool<2;pool++)
+        {
+            let it=ThinkerIterator.Create('UTNTLavaLip',Thinker.MAX_STATNUM+1,pool!=0);
+            UTNTLavaLip lip;while(lip=UTNTLavaLip(it.Next()))lip.Destroy();
+        }
+        Initialized=false;Applied=Rejected=0;PlaneCaches.Clear();PlaneLookup.Clear();
     }
     void Install()
     {
@@ -81,7 +120,7 @@ class UTNTLavaLips : EventHandler
             if(!kind) { Rejected++; continue; }
             let lip=UTNTLavaLip(Actor.Spawn(kind,(r[9].ToDouble(),r[10].ToDouble(),r[11].ToDouble())));
             if(!lip) { Rejected++; continue; }
-            lip.Angle=0;
+            lip.Angle=0;lip.HighCache=Plane(high);lip.LowCache=Plane(low);
             lip.Configure(high,low,side,a,b,r[14],r[15],r[16].ToDouble());
             Applied++;
         }
@@ -89,7 +128,7 @@ class UTNTLavaLips : EventHandler
     override void NetworkProcess(ConsoleEvent e)
     {
         if(e.Name!="lavalips")return;
-        int visible=0,total=0; let it=ThinkerIterator.Create("UTNTLavaLip");
+        int visible=0,total=0; let it=ThinkerIterator.Create("UTNTLavaLip",Thinker.MAX_STATNUM+1,true);
         UTNTLavaLip lip; while(lip=UTNTLavaLip(it.Next())) { total++; if(!lip.bInvisible)visible++; }
         Console.Printf("LAVALIPS|%s|applied=%d|rejected=%d|actors=%d|visible=%d",level.MapName,Applied,Rejected,total,visible);
     }

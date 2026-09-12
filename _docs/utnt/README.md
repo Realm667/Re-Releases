@@ -14,6 +14,7 @@ Run `tutnt_build.bat` from the repository root. Local configuration is in the ig
 ## Features and maintenance
 
 - [Localization: English, German, Spanish and French](LOCALIZATION.md)
+- [Performance and multiplayer simulation](PERFORMANCE_MULTIPLAYER.md)
 
 - [UTNT_ABILITIES.md](UTNT_ABILITIES.md)
 - [UTNT_ALTERNATE_SKY.md](UTNT_ALTERNATE_SKY.md)

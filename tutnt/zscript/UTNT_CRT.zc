@@ -3,13 +3,14 @@
 class UTNTCRTProbe : Actor {
  Vector3 Facing;
  Default {
-  +NOBLOCKMAP +NOGRAVITY +NOINTERACTION
+  +NOBLOCKMAP +NOGRAVITY +NOINTERACTION +CLIENTSIDE
   RenderStyle "None"; Radius 1; Height 1; CameraHeight 0;
  }
  States { Spawn: TNT1 A -1; Stop; }
 }
 class UTNTCRT : EventHandler {
  bool Ready;
+ transient UTNTFXRuntime Runtime;
  String Names;
  Array<UTNTCRTProbe> Probes;
  ui int ActiveProbes;
@@ -38,7 +39,16 @@ class UTNTCRT : EventHandler {
   camera.Pitch=-asin(clamp(normal.Z,-1.,1.));
   Probes.Push(camera);
  }
+ override void WorldLoaded(WorldEvent e) { RestoreLocal(); }
+ void RestoreLocal() {
+  for(int pool=0;pool<2;pool++){
+   let it=ThinkerIterator.Create('UTNTCRTProbe',Thinker.MAX_STATNUM+1,pool!=0);
+   Actor a;while(a=Actor(it.Next()))a.Destroy();
+  }
+  Probes.Clear();Ready=false;
+ }
  override void WorldTick() {
+  let clientCache=UTNTFXRuntime.Get();if(Runtime!=clientCache){Runtime=clientCache;RestoreLocal();}
   if(Ready || level.time<8)return;
   Ready=true;
   int lump=Wads.CheckNumForFullName("materials/crt/screens.txt");

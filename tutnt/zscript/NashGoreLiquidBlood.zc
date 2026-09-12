@@ -32,6 +32,7 @@
 
 class NashGoreLiquidBlood : Actor
 {
+    Default { +CLIENTSIDE +NOBLOCKMAP +THRUACTORS -SOLID -SHOOTABLE +DONTSPLASH }
 	Default
 	{
 		Radius 3;
@@ -53,7 +54,7 @@ class NashGoreLiquidBlood : Actor
 	static void SpawnLiquidBlood(Actor self)
 	{
 		if (!self) return;
-		self.A_SpawnItemEx("NashGoreLiquidBlood", angle: NashGoreStatics.RandomAngle4(), flags: NashGoreBloodBase.BLOOD_FLAGS );
+		UTNTCosmeticSpawn.From(self,"NashGoreLiquidBlood", angle: NashGoreStatics.RandomAngle4(), flags: NashGoreBloodBase.BLOOD_FLAGS );
 	}
 
 	//===========================================================================

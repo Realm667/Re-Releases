@@ -19,11 +19,12 @@ class UTNTLocalHeatSource : Object play
 class UTNTLocalHeatAnchor : Actor
 {
  int Source;double Weight;Vector3 Volume;
- Default { +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +CLIENTSIDEONLY }
+ Default { +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +CLIENTSIDE }
  States { Spawn: TNT1 A -1; Stop; }
 }
 class UTNTLocalHeat : EventHandler
 {
+ UTNTSpatialIndex Spatial;Array<int> Candidates;Vector2 LastQuery;bool HaveQuery;
  bool Ready;Array<UTNTLocalHeatSource> Sources;UTNTLocalHeatAnchor Anchors[6];
  ui UTNTEnvironmentOptics Optics[6];int Selected[6];LineTracer Sight;
  clearscope static bool Enabled()
@@ -56,9 +57,11 @@ class UTNTLocalHeat : EventHandler
    int wall=-1;double wallScore=1e30;
    Vector3 forward=(cos(camera.Angle)*cos(camera.Pitch),sin(camera.Angle)*cos(camera.Pitch),-sin(camera.Pitch));
    Vector3 eye=camera.Pos+(0,0,camera.player?camera.player.ViewHeight:camera.Height*.5);
-   for(int j=0;j<Sources.Size();j++)
+   if(!Spatial){Spatial=new('UTNTSpatialIndex');for(int j=0;j<Sources.Size();j++)Spatial.Add(Sources[j].Offset.XY,j);HaveQuery=false;}
+   if(!HaveQuery || (camera.Pos.XY-LastQuery).Length()>64){Spatial.Query(camera.Pos.XY,2112,Candidates);LastQuery=camera.Pos.XY;HaveQuery=true;}
+   for(int ci=0;ci<Candidates.Size();ci++)
    {
-    let s=Sources[j];Vector3 delta=s.Position()-eye;double distance=delta.Length();
+    int j=Candidates[ci];let s=Sources[j];Vector3 delta=s.Position()-eye;double distance=delta.Length();
     if(distance>2048 || (delta dot forward) < distance*.30-max(s.Radius.X,max(s.Radius.Y,s.Radius.Z)) || !s.Valid())continue;
     double score=distance/max(48,sqrt(max(s.Radius.X*s.Radius.Y,max(s.Radius.X*s.Radius.Z,s.Radius.Y*s.Radius.Z))));
     // Keep one visible lavafall from losing all slots to broad floor plumes.
@@ -103,22 +106,20 @@ class UTNTLocalHeat : EventHandler
   bool on=false;
   if(Enabled() && e.Camera && e.Camera.WaterLevel<3)
    for(int i=0;i<6;i++)if(Anchors[i] && Anchors[i].Weight>.001)on=true;
-  // All six passes stay consecutive: first clears mask alpha, last restores it.
+  int first=-1,last=-1;
+  if(on)for(int i=0;i<6;i++)if(Anchors[i] && Anchors[i].Weight>.001){if(first<0)first=i;last=i;}
+  // Active passes retain their order; role bits reset/finish the mask exactly once.
   for(int i=0;i<6;i++)
   {
    String shader=String.Format("UTNTLocalHeat%d",i);let anchor=Anchors[i];
-   PPShader.SetEnabled(shader,on);if(!on)continue;
-   if(!anchor || anchor.Weight<=.001)
-   {
-    PPShader.SetUniform4f(shader,"sourceDelta",(0,0,0,0));
-    PPShader.SetUniform4f(shader,"sourceRadius",(1,1,1,i));continue;
-   }
+   bool active=on && anchor && anchor.Weight>.001;
+   PPShader.SetEnabled(shader,active);if(!active)continue;
    if(!Optics[i])Optics[i]=new('UTNTEnvironmentOptics');
    Optics[i].Update(e,shader,anchor.Pos,anchor.Volume);
    Vector3 delta=anchor.Pos-e.ViewPos;
    double strength=anchor.Weight*clamp(CVar.GetCVar('UTNT_heatstrength',players[consoleplayer]).GetFloat(),0,1);
    PPShader.SetUniform4f(shader,"sourceDelta",(delta.X,delta.Y,delta.Z,strength));
-   PPShader.SetUniform4f(shader,"sourceRadius",(anchor.Volume.X,anchor.Volume.Y,anchor.Volume.Z,i));
+   PPShader.SetUniform4f(shader,"sourceRadius",(anchor.Volume.X,anchor.Volume.Y,anchor.Volume.Z,(i==first?1:0)+(i==last?2:0)));
   }
  }
  override void NetworkProcess(ConsoleEvent e)

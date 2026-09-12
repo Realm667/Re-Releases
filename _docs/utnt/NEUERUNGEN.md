@@ -65,7 +65,7 @@
 
 - **The Source in both endings:** shared runic shield, opening seal, exposed heart, impact/Guardian feedback and attack cues; flowing beam energy and a synchronized black-hole implosion with smoke, refraction, lighting, sound and final fade. [Details](UTNT_SOURCE.md)
 - **Engine modernization:** UZDoom 5.0.1 support, saved presentation states, local cosmetic simulation and revised motion blur/postprocessing. [Implementation](../../tutnt/zscript/UTNT_Presentation.zc)
-- **Performance controls:** quality levels, reduced effects, distance culling, separate effect budgets/random streams, bounded gore cleanup and reduced Source shader/lighting stalls. [Effects](../../tutnt/zscript/UTNT_Visuals.zc), [Source](UTNT_SOURCE.md)
+- **Performance and multiplayer:** quality controls, local cosmetic actors and random streams, shared effect caches, bounded gore cleanup, spatial weather/heat queries, reduced canvas uploads and shader work, with eight-player and save/load regression coverage. [Details](PERFORMANCE_MULTIPLAYER.md), [Source](UTNT_SOURCE.md)
 - **Campaign and cooperative fixes:** corrected scripts/maps, shared checkpoints, safer simultaneous respawns, portal handling and cutscene recovery; complete eight-player campaign starts, with local spawn, hub-travel and multiplayer regression coverage. [Campaign](../../tools/test_campaign.py), [Coop](UTNT_COOP.md)
 - **Build and validation:** reproducible snapshot builds, ACS compilation and engine checks; regression tools for gameplay, save/load, UI, effects, translations and fonts, organized definition modules with validated entrypoints, plus a walkable gallery of all 332 relief variants. [Build](README.md), [Definition layout](DEFINITION_LAYOUT.md), [Material gallery](UTNT_ORGANIC_MATERIALS.md)
 

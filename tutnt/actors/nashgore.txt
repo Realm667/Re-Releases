@@ -1,5 +1,9 @@
-Actor MCBloodFXMain replaces Blood
+Actor MCBloodFXMain : UTNTBloodBridge replaces Blood {}
+
+Actor UTNTLocalMCBloodFXMain : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	+NOINTERACTION
 	+NOTIMEFREEZE
 	+DONTSPLASH
@@ -7,15 +11,17 @@ Actor MCBloodFXMain replaces Blood
 	{
 	Spawn:
 		TNT1 A 0
-		BLUD B 0 A_SpawnItemEx("NashGore_FlyingBlood",0,0,8,random(-4,4),random(-4,4),random(2,5),0,143,176) // [Nash] it used to use A_SpawnItem, but we're getting rid of that crap
-		TNT1 A 2 A_SpawnItemEx("MCBloodParticle",frandom(0,2),0,random(1,4),frandom(0,1.5),0,frandom(0.1,2.0),random(0,359),33)
-		TNT1 AA 0 A_SpawnItemEx("MCBloodParticle",frandom(0,2),0,random(1,4),frandom(0,1.5),0,frandom(0.1,2.0),random(0,359),33)
+		BLUD B 0 A_UTNTLocalSpawn("NashGore_FlyingBlood",0,0,8,CRandom[utntlegacyfx](-4,4),CRandom[utntlegacyfx](-4,4),CRandom[utntlegacyfx](2,5),0,143,176) // [Nash] it used to use A_SpawnItem, but we're getting rid of that crap
+		TNT1 A 2 A_UTNTLocalSpawn("MCBloodParticle",CFRandom[utntlegacyfx](0,2),0,CRandom[utntlegacyfx](1,4),CFRandom[utntlegacyfx](0,1.5),0,CFRandom[utntlegacyfx](0.1,2.0),CRandom[utntlegacyfx](0,359),33)
+		TNT1 AA 0 A_UTNTLocalSpawn("MCBloodParticle",CFRandom[utntlegacyfx](0,2),0,CRandom[utntlegacyfx](1,4),CFRandom[utntlegacyfx](0,1.5),0,CFRandom[utntlegacyfx](0.1,2.0),CRandom[utntlegacyfx](0,359),33)
 		Stop
 	}
 }
 
 Actor MCBloodParticle : Blood
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	+THRUACTORS
 	+DONTSPLASH
 	+DONTBLAST
@@ -26,7 +32,7 @@ Actor MCBloodParticle : Blood
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12)
+		TNT1 A 0 NODELAY A_Jump(256,CRandomPick[utntlegacyfx](1,2,3,4,5,6,7,8,9,10,11,12))
 	 	X057 A 0 A_Jump(256,"End")
 		XA57 A 0 A_Jump(256,"End")
 		XB57 A 0 A_Jump(256,"End")
@@ -47,11 +53,13 @@ Actor MCBloodParticle : Blood
 	}
 }
 
-Actor MCBloodSplatter : MCBloodParticle replaces BloodSplatter{}
+Actor MCBloodSplatter : UTNTSplatterBridge replaces BloodSplatter {}
 
-actor NashGore_FlyingBlood
+actor NashGore_FlyingBlood : UTNTLegacyGore
 {
-	+CLIENTSIDEONLY
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
+	+CLIENTSIDE
 	scale 0.75
 	health 1
 	radius 8
@@ -64,11 +72,11 @@ actor NashGore_FlyingBlood
 	states
 	{
 	Spawn:
-		FBLD AABBCCDD 2 NODELAY A_SpawnItemEx("NashGore_FlyingBloodTrail",0,0,0,0,0,0,0,SXF_TRANSFERTRANSLATION)
+		FBLD AABBCCDD 2 NODELAY A_UTNTLocalSpawn("NashGore_FlyingBloodTrail",0,0,0,0,0,0,0,SXF_TRANSFERTRANSLATION)
 		loop
 	Crash:
 		TNT1 A 0 A_PlaySound("bloodsplat")
-		TNT1 A 0 A_Jump(256,1,2,3,4)
+		TNT1 A 0 A_Jump(256,CRandomPick[utntlegacyfx](1,2,3,4))
 		BSPT ABCD 0 A_Jump(256,"End")
 		// make the blood spots stay on the ground. 1500 is the default duration.
 		// Fadeout added by Zero Prophet for effect.
@@ -81,33 +89,43 @@ actor NashGore_FlyingBlood
 
 actor NashGore_FlyingBloodTrail : MCBloodParticle
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	Scale 0.28
 }
 
 // Gib generator fixed by LilWhiteMouse - thanks LWM!
-actor NashGore_GibGenerator
+actor NashGore_GibGenerator : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	states
 	{
 	Spawn:
-		TNT1 A 1 NODELAY A_SpawnDebris("NashGore_Gib",1)
+		TNT1 A 1 NODELAY A_UTNTLocalDebris("NashGore_Gib",1)
 		stop
 	}
 }
 
 actor NashGore_GibGeneratorBlue : NashGore_GibGenerator
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	translation "16:47=193:207","168:191=192:207"
 }
 
 actor NashGore_GibGeneratorGreen : NashGore_GibGenerator
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	translation "16:47=112:127","168:191=112:127"
 }
 
 // Gib 1
-actor NashGore_Gib
+actor NashGore_Gib : UTNTLegacyGore
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	health 1
 	radius 8
 	height 8
@@ -118,7 +136,7 @@ actor NashGore_Gib
 	states
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4,5,6,7,8)
+		TNT1 A 0 NODELAY A_Jump(256,CRandomPick[utntlegacyfx](1,2,3,4,5,6,7,8))
 		GIB1 A 0 A_Jump(256,"Fly")
 		GIB2 A 0 A_Jump(256,"Fly")
 		GIB3 A 0 A_Jump(256,"Fly")
@@ -128,7 +146,7 @@ actor NashGore_Gib
 		GIB7 A 0 A_Jump(256,"Fly")
 		GIB8 A 0 A_Jump(256,"Fly")
 	Fly:
-		"####" A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+		"####" A 8 A_UTNTLocalDebris("NashGore_FlyingBlood",1)
 		Wait
 	Crash:
 		"####" A 2100
@@ -140,10 +158,12 @@ actor NashGore_Gib
 // Gib 9 (hand)
 actor NashGore_Gib9 : NashGore_Gib
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	states
 	{
 	Spawn:
-		GIB9 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+		GIB9 A 8 A_UTNTLocalDebris("NashGore_FlyingBlood",1)
 		loop
 	}
 }
@@ -151,10 +171,12 @@ actor NashGore_Gib9 : NashGore_Gib
 // Gib 10 (arm)
 actor NashGore_Gib10 : NashGore_Gib
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	states
 	{
 	Spawn:
-		GIB0 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+		GIB0 A 8 A_UTNTLocalDebris("NashGore_FlyingBlood",1)
 		loop
 	}
 }
@@ -162,10 +184,12 @@ actor NashGore_Gib10 : NashGore_Gib
 // Gib 11 (eyeball)
 actor NashGore_Gib11 : NashGore_Gib
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	states
 	{
 	Spawn:
-		GIBI A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+		GIBI A 8 A_UTNTLocalDebris("NashGore_FlyingBlood",1)
 		loop
 	}
 }
@@ -173,10 +197,12 @@ actor NashGore_Gib11 : NashGore_Gib
 // Demon Gib - arm
 actor NashGore_GibSarg : NashGore_Gib
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	states
 	{
 	Spawn:
-		SARM ABCD 4 A_SpawnDebris("NashGore_FlyingBlood",1)
+		SARM ABCD 4 A_UTNTLocalDebris("NashGore_FlyingBlood",1)
 		Goto Spawn+3
 	Crash:
 		SARM EF 4
@@ -186,16 +212,18 @@ actor NashGore_GibSarg : NashGore_Gib
 	}
 }
 
-ACTOR NashgoreMasterGenerator
+ACTOR NashgoreMasterGenerator : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("NashGore_GibPieceGenerator9")
-		TNT1 A 0 A_SpawnItemEx("NashGore_GibPieceGenerator10")
-		TNT1 AA 0 A_SpawnItemEx("NashGore_GibPieceGenerator11")
-		TNT1 A 10 A_SpawnItemEx("NashGore_GibGenerator")
-		TNT1 AAA 5 A_SpawnItemEx("NashGore_GibGenerator")
+		TNT1 A 0 NODELAY A_UTNTLocalSpawn("NashGore_GibPieceGenerator9")
+		TNT1 A 0 A_UTNTLocalSpawn("NashGore_GibPieceGenerator10")
+		TNT1 AA 0 A_UTNTLocalSpawn("NashGore_GibPieceGenerator11")
+		TNT1 A 10 A_UTNTLocalSpawn("NashGore_GibGenerator")
+		TNT1 AAA 5 A_UTNTLocalSpawn("NashGore_GibGenerator")
 		Stop
 	}
 }
@@ -203,55 +231,65 @@ ACTOR NashgoreMasterGenerator
 //Some client-side spawners by Ghastly_dragon. Since A_SpawnDebris lags, spawn
 //these spawners client-side, so it won't.
 
-Actor NashGore_GibPieceGenerator1
+Actor NashGore_GibPieceGenerator1 : UTNTLegacyCosmetic
 {
-	+CLIENTSIDEONLY
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
+	+CLIENTSIDE
 	+NonShootable
 	Height 56
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnDebris("NashGore_Gib",0)
+		TNT1 A 0 NODELAY A_UTNTLocalDebris("NashGore_Gib",0)
 		Stop
 	}
 }
 
 Actor NashGore_GibPieceGenerator9 : NashGore_GibPieceGenerator1
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnDebris("NashGore_Gib9",0)
+		TNT1 A 0 NODELAY A_UTNTLocalDebris("NashGore_Gib9",0)
 		Stop
 	}
 }
 
 Actor NashGore_GibPieceGenerator10 : NashGore_GibPieceGenerator1
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnDebris("NashGore_Gib10",0)
+		TNT1 A 0 NODELAY A_UTNTLocalDebris("NashGore_Gib10",0)
 		Stop
 	}
 }
 
 Actor NashGore_GibPieceGenerator11 : NashGore_GibPieceGenerator1
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnDebris("NashGore_Gib11",0)
+		TNT1 A 0 NODELAY A_UTNTLocalDebris("NashGore_Gib11",0)
 		Stop
 	}
 }
 
 Actor NashGore_GibPieceGeneratorSarg : NashGore_GibPieceGenerator1
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnDebris("NashGore_GibSarg",0)
+		TNT1 A 0 NODELAY A_UTNTLocalDebris("NashGore_GibSarg",0)
 		Stop
 	}
 }

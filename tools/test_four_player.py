@@ -31,12 +31,12 @@ try:
   outputs=[(logs/(label+'.log')).read_text(errors='replace') for _,_,label in processes]
   if all(marker in out for out in outputs[:-1]):break
   if any(c.poll() is not None for c,_,_ in processes[:-1]):break
-  if any(any(error in out for error in ('Script error,','UTNT_ASSERT FAIL','VM execution aborted','Consistency failure')) for out in outputs):break
+  if any(any(error in out for error in ('Script error,','UTNT_ASSERT FAIL','VM execution aborted','Consistency failure','There is a thinker in the fresh list')) for out in outputs):break
   time.sleep(.2)
  for i,(child,f,label) in enumerate(processes):
   out=(logs/(label+'.log')).read_text(errors='replace')
   required=marker if i<count-1 else 'UTNT_RESPAWN_COMPLETE'
-  ok=required in out and not any(e in out for e in ('UTNT_ASSERT FAIL','VM execution aborted','Consistency failure'))
+  ok=required in out and not any(e in out for e in ('UTNT_ASSERT FAIL','VM execution aborted','Consistency failure','There is a thinker in the fresh list'))
   if child.poll() is None:child.terminate()
   code=child.wait(timeout=5);f.close()
   results.append(dict(label=label,ok=ok,exit=code,assertions=out.count('UTNT_ASSERT PASS'),teardown='graceful quit' if i==count-1 else 'runner cleanup after assertions'))

@@ -10,12 +10,16 @@
 #endif
 const float RockDepth=ORGANIC_DEPTH;
 // Data maps stay bilinear even when the player selects unfiltered pixel art.
-vec4 RockRawData(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy)
+ivec3 RockLayout(sampler2D dataMap,vec2 gx,vec2 gy)
 {
     vec2 fullSize=vec2(textureSize(dataMap,0));
     vec2 dx=gx*fullSize,dy=gy*fullSize;
     int lod=int(max(0.0,floor(0.5*log2(max(max(dot(dx,dx),dot(dy,dy)),1.0)))));
-    ivec2 size=textureSize(dataMap,lod);
+    return ivec3(textureSize(dataMap,lod),lod);
+}
+vec4 RockRawAt(sampler2D dataMap,vec2 uv,ivec3 dataLayout)
+{
+    ivec2 size=dataLayout.xy;int lod=dataLayout.z;
     // GLSL integer % is undefined for negative operands. Floors commonly
     // have negative UVs: wrap in floating point before computing texels.
     vec2 p=fract(uv)*vec2(size)-0.5;
@@ -27,6 +31,8 @@ vec4 RockRawData(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy)
     return mix(mix(texelFetch(dataMap,q,lod),texelFetch(dataMap,ivec2(r.x,q.y),lod),f.x),
                mix(texelFetch(dataMap,ivec2(q.x,r.y),lod),texelFetch(dataMap,r,lod),f.x),f.y);
 }
+vec4 RockRawData(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy)
+{ return RockRawAt(dataMap,uv,RockLayout(dataMap,gx,gy)); }
 // Preserve the existing area-expansion border mixing for color and data.
 vec2 OrganicEdgeWeight(vec2 uv)
 {
@@ -75,13 +81,22 @@ void SetupMetalResponse(inout Material mat,vec2 uv,vec2 gx,vec2 gy)
     mat.SpecularLevel=.55;mat.Glossiness=surface.g*32.0;
 }
 #endif
-float ReadRockDepth(vec2 uv,vec2 gx,vec2 gy)
+float ReadRockDepth(vec2 uv,ivec3 dataLayout)
 {
+    float height=RockRawAt(organicHeight,uv,dataLayout).r;
+#if defined(ORGANIC_TILE_EDGE) || defined(ORGANIC_BAND_EDGE)
+    vec2 w=OrganicEdgeWeight(uv);
+    if(w.x>0.0)height=mix(height,RockRawAt(organicHeight,uv+vec2(.5,0),dataLayout).r,w.x);
+    if(w.y>0.0){
+        float d=RockRawAt(organicHeight,uv+vec2(0,.5),dataLayout).r;
+        if(w.x>0.0)d=mix(d,RockRawAt(organicHeight,uv+vec2(.5,.5),dataLayout).r,w.x);
+        height=mix(height,d,w.y);
+    }
+#endif
 #ifdef ORGANIC_LEGACY_HEIGHT
-    return 1.0-RockData(organicHeight,uv,gx,gy).r;
+    return 1.0-height;
 #else
-    // Gray 127 is the geometric wall/floor plane; negative depth protrudes.
-    return 2.0*(127.0/255.0-RockData(organicHeight,uv,gx,gy).r);
+    return 2.0*(127.0/255.0-height);
 #endif
 }
 void SetupOrganicMaterial(inout Material mat)
@@ -112,6 +127,7 @@ void SetupOrganicMaterial(inout Material mat)
 #endif
         return;
     }
+    ivec3 heightLayout=RockLayout(organicHeight,gx,gy);
     // Bound grazing-angle displacement and gradually fade in the distance.
     vec2 slope=vec2(dot(view,t),dot(view,b))/max(vz,0.18);
     vec2 ray=slope*RockDepth*fade/worldSize;
@@ -121,17 +137,17 @@ void SetupOrganicMaterial(inout Material mat)
     vec2 hit=uv-ray*layer;
     for(int i=0;i<32;i++)
     {
-        if(i>=steps || layer>=ReadRockDepth(hit,gx,gy))break;
+        if(i>=steps || layer>=ReadRockDepth(hit,heightLayout))break;
         layer+=stepDepth;hit=uv-ray*layer;
     }
     float low=max(top,layer-stepDepth),high=layer;
     for(int j=0;j<5;j++)
     {
         float mid=(low+high)*0.5;
-        if(mid<ReadRockDepth(uv-ray*mid,gx,gy))low=mid;else high=mid;
+        if(mid<ReadRockDepth(uv-ray*mid,heightLayout))low=mid;else high=mid;
     }
     // Interpolation makes a constant neutral region land exactly on zero.
-    float dl=ReadRockDepth(uv-ray*low,gx,gy),dh=ReadRockDepth(uv-ray*high,gx,gy);
+    float dl=ReadRockDepth(uv-ray*low,heightLayout),dh=ReadRockDepth(uv-ray*high,heightLayout);
     float denominator=(high-low)-(dh-dl);
     layer=abs(denominator)>1e-8 ? mix(low,high,clamp((dl-low)/denominator,0.0,1.0)) : high;
     hit=uv-ray*layer;
@@ -155,7 +171,7 @@ void SetupOrganicMaterial(inout Material mat)
         for(int i=1;i<=10;i++)
         {
             float rise=(layer-top)*float(i)/10.0;
-            float blocker=ReadRockDepth(hit+lightRay*rise,gx,gy);
+            float blocker=ReadRockDepth(hit+lightRay*rise,heightLayout);
             occlusion=max(occlusion,smoothstep(0.02,0.12,(layer-rise)-blocker));
         }
     }

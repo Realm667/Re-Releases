@@ -56,7 +56,7 @@ class ParticleBase : SimpleActor
 		Super.PostBeginPlay();
 
 		// Set the initial check at a random tick so they don't all check at once...
-		checktimer = Random(0, 35);
+		checktimer = IsClientSide() ? CRandom[utntlegacyfx](0,35) : Random(0,35);
 	}
 
 	override void Tick()

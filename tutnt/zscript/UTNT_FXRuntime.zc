@@ -1,0 +1,189 @@
+// Client-only cache and registry. Never stored on a gameplay actor or inventory.
+class UTNTFXRuntime : Thinker
+{
+    int SettingsTic, Quality, Range;
+    bool Ready, Reduced;
+    Actor Camera;
+    Map<uint,int> Heads;
+    Array<Actor> Sources;
+    Array<int> Links;
+    Array<Thinker> Emitters; // Five slots per source, owned directly by this client thinker.
+    int NextCleanup;
+    UTNTVisualBudget VisualBudget;
+    UTNTIndustrialBudget IndustrialBudget;
+    static UTNTFXRuntime Get()
+    {
+        let it=ThinkerIterator.Create('UTNTFXRuntime',Thinker.STAT_USER+29,true);
+        let c=UTNTFXRuntime(it.Next());
+        if(!c)c=UTNTFXRuntime(level.CreateClientSideThinker('UTNTFXRuntime',Thinker.STAT_USER+29));
+        if(c)c.Refresh();
+        return c;
+    }
+    void Refresh()
+    {
+        if(Ready && SettingsTic==level.time)return;
+        Ready=true;SettingsTic=level.time;
+        if(consoleplayer<0){Camera=null;Quality=Range=0;Reduced=false;return;}
+        let p=players[consoleplayer];
+        Camera=p?p.camera:null;
+        Quality=p?clamp(CVar.GetCVar('UTNT_fxquality',p).GetInt(),0,3):0;
+        Range=p?max(0,CVar.GetCVar('UTNT_lod',p).GetInt()):0;
+        Reduced=p && CVar.GetCVar('UTNT_reducedfx',p).GetBool();
+        if(Reduced)Quality=min(Quality,1);
+    }
+    int Binding(Actor source,bool create=false)
+    {
+        if(!source)return -1;
+        uint key=source.GetNetworkID();int head=Heads.GetIfExists(key)-1;
+        for(int i=head;i>=0;i=Links[i])if(Sources[i]==source)return i;
+        if(!create)return -1;
+        int index=Sources.Size();Sources.Push(source);Links.Push(head);
+        for(int k=0;k<5;k++)Emitters.Push(null);
+        Heads.Insert(key,index+1);return index;
+    }
+    Thinker Lookup(Actor source,int kind)
+    {
+        int i=Binding(source);return i>=0?Emitters[i*5+kind]:null;
+    }
+    void Register(Actor source,int kind,Thinker emitter)
+    {
+        int i=Binding(source,true);if(i>=0)Emitters[i*5+kind]=emitter;
+    }
+    int Count(int kind)
+    {
+        int n=0;
+        for(int i=0;i<Sources.Size();i++)if(Sources[i] && Emitters[i*5+kind])n++;
+        return n;
+    }
+    override void Tick()
+    {
+        if(level.time<NextCleanup)return;NextCleanup=level.time+35;
+        Heads.Clear();int write=0;
+        for(int i=0;i<Sources.Size();i++)
+        {
+            bool live=false;for(int k=0;k<5;k++)if(Emitters[i*5+k])live=true;
+            if(!Sources[i] || !live)continue;
+            Sources[write]=Sources[i];
+            for(int k=0;k<5;k++)Emitters[write*5+k]=Emitters[i*5+k];
+            uint key=Sources[write].GetNetworkID();Links[write]=Heads.GetIfExists(key)-1;
+            Heads.Insert(key,write+1);write++;
+        }
+        Sources.Resize(write);Links.Resize(write);Emitters.Resize(write*5);
+    }
+}
+
+class UTNTCosmeticSpawn play
+{
+    static Class<Actor> BloodKind()
+    {
+        let handler=NashGoreHandler(EventHandler.Find('NashGoreHandler'));
+        // The legacy DECORATE replacement supplies UTNT blood when BLUDTYPE is absent.
+        if(!handler || handler.bloodTypes.Size()==0)return 'UTNTLocalMCBloodFXMain';
+        if(nashgore_bloodtype==2)return 'UTNTLocalClassicBlood';
+        return nashgore_bloodtype==1?'NashGoreClassicBlood':'NashGoreBlood';
+    }
+    static State Choose(Actor source,int count,String a,String b="",String c="",String d="",String e="",String f="",String g="",String h="",String i="",String j="")
+    {
+        int k=CRandom[utntgore](0,count-1);
+        return source.FindStateByString(k==0?a:k==1?b:k==2?c:k==3?d:k==4?e:k==5?f:k==6?g:k==7?h:k==8?i:j);
+    }
+    static bool,Actor From(Actor source,Class<Actor> missile,double xofs=0,double yofs=0,double zofs=0,
+        double xvel=0,double yvel=0,double zvel=0,double angle=0,int flags=0,int failchance=0,int tid=0)
+    {
+        if(!source || !missile)return false,null;
+        if(failchance>0 && CRandom[utntgore]()<failchance)return true,null;
+        // Blood type 2 retains classic pixels in a local subclass, never native gameplay Blood.
+        if(missile=='Blood')missile=BloodKind();
+        bool ok;Actor result;
+        [ok,result]=source.A_SpawnItemEx(missile,xofs,yofs,zofs,xvel,yvel,zvel,angle,flags,0,tid);
+        return ok,result;
+    }
+}
+class UTNTLocalClassicBlood : Blood
+{
+    Default { +CLIENTSIDE +NOBLOCKMAP +DONTSPLASH -SOLID }
+}
+
+// DECORATE adapters keep the legacy states and flags while localizing probability.
+class UTNTLegacyCosmetic : Actor
+{
+    // Native A_SpawnDebris uses gameplay RNG. These legacy gib classes have Health 1.
+    action void A_UTNTLocalDebris(Class<Actor> debris,bool transfer=false)
+    {
+        if(!debris)return;
+        double x=(CRandom[utntlegacyfx]()-128)/16.,y=(CRandom[utntlegacyfx]()-128)/16.;
+        double z=CRandom[utntlegacyfx]()*Height/256.+GetBobOffset();
+        let mo=Actor.Spawn(debris,Vec3Offset(x,y,z));
+        if(!mo)return;
+        if(transfer)mo.Translation=Translation;
+        mo.SetState(mo.FindState('Spawn'));
+        mo.Vel=((CRandom[utntlegacyfx]()-CRandom[utntlegacyfx]())/64.,
+            (CRandom[utntlegacyfx]()-CRandom[utntlegacyfx]())/64.,(CRandom[utntlegacyfx]()&7)+5);
+    }
+    action State A_UTNTLocalJump2(int chance,StateLabel a,StateLabel b)
+    {
+        if(chance<256 && CRandom[utntlegacyfx](0,255)>=chance)return null;
+        return ResolveState(CRandom[utntlegacyfx](0,1)==0?a:b);
+    }
+    action bool,Actor A_UTNTLocalSpawn(Class<Actor> kind,double x=0,double y=0,double z=0,
+        double vx=0,double vy=0,double vz=0,double angle=0,int flags=0,int failchance=0,int tid=0)
+    {
+        bool ok;Actor result;
+        [ok,result]=UTNTCosmeticSpawn.From(self,kind,x,y,z,vx,vy,vz,angle,flags,failchance,tid);
+        return ok,result;
+    }
+}
+
+// Native blood/ice callers finish assigning color, frame and velocity before PostBeginPlay.
+// The short-lived shared bridges preserve replacement compatibility, then hand off visuals.
+class UTNTBloodBridge : Blood
+{
+    Default { +PUFFGETSOWNER +NOBLOCKMAP +DONTSPLASH +NOGRAVITY -SOLID }
+    States { Spawn: TNT1 ABC 1; Stop; }
+    virtual Class<Actor> LocalKind() { return UTNTCosmeticSpawn.BloodKind(); }
+    override void PostBeginPlay()
+    {
+        Super.PostBeginPlay();
+        int index=CurState==FindState('Spawn').NextState?1:CurState==FindState('Spawn').NextState.NextState?2:0;
+        Class<Actor> kind=LocalKind();
+        bool ok;Actor fx;
+        [ok,fx]=A_SpawnItemEx(kind,flags:SXF_TRANSFERTRANSLATION|SXF_TRANSFERRENDERSTYLE|SXF_TRANSFERPOINTERS|SXF_NOCHECKPOSITION);
+        if(fx){fx.Vel=Vel;fx.Angle=Angle;State dest=fx.FindState('Spawn');for(int i=0;i<index;i++)dest=dest.NextState;fx.SetState(dest);}
+        Destroy();
+    }
+}
+class UTNTIceBridge : IceChunk
+{
+    override void PostBeginPlay()
+    {
+        Super.PostBeginPlay();bool ok;Actor fx;
+        [ok,fx]=A_SpawnItemEx('NashGoreIceChunk',flags:SXF_TRANSFERTRANSLATION|SXF_TRANSFERRENDERSTYLE|SXF_TRANSFERPOINTERS|SXF_NOCHECKPOSITION);
+        if(fx){fx.Vel=Vel;fx.Angle=Angle;fx.Scale=Scale;}Destroy();
+    }
+}
+class UTNTGibsBridge : RealGibs
+{
+    override void PostBeginPlay()
+    {
+        Super.PostBeginPlay();bool ok;Actor fx;
+        [ok,fx]=A_SpawnItemEx('NashGoreRealGibs',flags:SXF_TRANSFERTRANSLATION|SXF_TRANSFERRENDERSTYLE|SXF_TRANSFERPOINTERS|SXF_NOCHECKPOSITION);
+        if(fx){fx.Vel=Vel;fx.Angle=Angle;}Destroy();
+    }
+}
+
+class UTNTSplatterBridge : UTNTBloodBridge
+{
+    override Class<Actor> LocalKind()
+    {
+        let h=NashGoreHandler(EventHandler.Find('NashGoreHandler'));
+        if(!h || h.bloodTypes.Size()==0)return 'MCBloodParticle';
+        return UTNTCosmeticSpawn.BloodKind();
+    }
+}
+class UTNTLegacyGore : UTNTLegacyCosmetic
+{
+    override void BeginPlay()
+    {
+        Super.BeginPlay();ChangeStatNum(STAT_NashGore_Gore);NashGoreStatics.QueueGore();
+    }
+}

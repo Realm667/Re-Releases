@@ -32,6 +32,7 @@
 
 class NashGoreGibs : Actor
 {
+    Default { +CLIENTSIDE +NOBLOCKMAP +THRUACTORS -SOLID -SHOOTABLE +DONTSPLASH }
 	Default
 	{
 		Radius 8;
@@ -67,7 +68,7 @@ class NashGoreGibs : Actor
 
 	override void PostBeginPlay(void)
 	{
-		if (random() < (255 - nashgore_gibamount)) { Destroy(); return; }
+		if (CRandom[utntgore]() < (255 - nashgore_gibamount)) { Destroy(); return; }
 		Super.PostBeginPlay();
 	}
 
@@ -104,20 +105,20 @@ class NashGoreGibs : Actor
 
 			// spawn gibs
 			[result, obj] =
-			mo.A_SpawnItemEx("NashGoreGibs",
+			UTNTCosmeticSpawn.From(mo,"NashGoreGibs",
 				zofs: spawnHeight,
-				frandom(-5.5, 5.5), frandom(-5.5, 5.5), frandom(0, 12.5),
+				CFRandom[utntgore](-5.5, 5.5), CFRandom[utntgore](-5.5, 5.5), CFRandom[utntgore](0, 12.5),
 				flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE, 100);
 			if (obj) obj.target = mo;
 
 			// spawn lots of blood
-			if (random() < 70)
+			if (CRandom[utntgore]() < 70)
 			{
 				[result, obj] =
-				mo.A_SpawnItemEx("Blood",
-					frandom(-spawnRadius, spawnRadius), frandom(-spawnRadius, spawnRadius), spawnHeight,
-					frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(0.0, 4.0),
-					frandom(0, 360), SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE);
+				UTNTCosmeticSpawn.From(mo,"Blood",
+					CFRandom[utntgore](-spawnRadius, spawnRadius), CFRandom[utntgore](-spawnRadius, spawnRadius), spawnHeight,
+					CFRandom[utntgore](-2.0, 2.0), CFRandom[utntgore](-2.0, 2.0), CFRandom[utntgore](0.0, 4.0),
+					CFRandom[utntgore](0, 360), SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE);
 				if (obj) obj.target = mo;
 			}
 
@@ -127,9 +128,9 @@ class NashGoreGibs : Actor
 				FLineTraceData t;
 				int flags = TRF_THRUACTORS;
 
-				double ang = frandom(0, 360);
+				double ang = CFRandom[utntgore](0, 360);
 
-				mo.LineTrace(ang, 128, frandom(-90, 0), flags, spawnHeight, data: t);
+				mo.LineTrace(ang, 128, CFRandom[utntgore](-90, 0), flags, spawnHeight, data: t);
 
 				if (t.HitType == t.TRACE_HitCeiling)
 				{
@@ -143,7 +144,7 @@ class NashGoreGibs : Actor
 						if (nashgore_bloodtype == 0)		cls = "NashGoreBloodSpotCeiling";
 						else if (nashgore_bloodtype == 1)	cls = "NashGoreBloodSpotClassicCeiling";
 
-						[result, obj] = mo.A_SpawnItemEx(cls, flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE, 150);
+						[result, obj] = UTNTCosmeticSpawn.From(mo,cls, flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE, 150);
 						if (obj)
 						{
 							obj.Gravity = 0;
@@ -156,7 +157,7 @@ class NashGoreGibs : Actor
 					}
 
 					// ceiling gib
-					[result, obj] = mo.A_SpawnItemEx("NashGoreStickyGibsCeiling", flags: SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION | SXF_TRANSFERRENDERSTYLE, 200);
+					[result, obj] = UTNTCosmeticSpawn.From(mo,"NashGoreStickyGibsCeiling", flags: SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION | SXF_TRANSFERRENDERSTYLE, 200);
 					if (obj)
 					{
 						obj.SetOrigin(t.HitLocation, true);
@@ -170,7 +171,7 @@ class NashGoreGibs : Actor
 					// wall gib
 					bool result;
 					Actor obj;
-					[result, obj] = mo.A_SpawnItemEx("NashGoreStickyGibsWall", flags: SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION | SXF_TRANSFERRENDERSTYLE, 100);
+					[result, obj] = UTNTCosmeticSpawn.From(mo,"NashGoreStickyGibsWall", flags: SXF_USEBLOODCOLOR | SXF_NOCHECKPOSITION | SXF_TRANSFERRENDERSTYLE, 100);
 					if (obj)
 					{
 						double posAdjust = -4.f;
@@ -191,7 +192,7 @@ class NashGoreGibs : Actor
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay A_Jump(256, "Gib1", "Gib2", "Gib3", "Gib4", "Gib5", "Gib6", "Gib7", "Gib8", "Gib9", "Gib0");
+		TNT1 A 0 NoDelay { return UTNTCosmeticSpawn.Choose(self,10,"Gib1", "Gib2", "Gib3", "Gib4", "Gib5", "Gib6", "Gib7", "Gib8", "Gib9", "Gib0"); }
 		Stop;
 	Gib1:
 		GIB1 A 0;
@@ -232,14 +233,14 @@ class NashGoreGibs : Actor
 			class<Actor> cls;
 			if (nashgore_bloodtype == 0)		cls = "NashGoreBloodSpot";
 			else if (nashgore_bloodtype == 1)	cls = "NashGoreBloodSpotClassic";
-			A_SpawnItemEx(cls, flags: (NashGoreBloodBase.BLOOD_FLAGS | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 150);
+			UTNTCosmeticSpawn.From(self,cls, flags: (NashGoreBloodBase.BLOOD_FLAGS | SXF_TRANSFERPOINTERS) & ~SXF_NOCHECKPOSITION, 150);
 		}
 		"####" EEEEEEEEEE 1
 		{
-			A_SpawnItemEx("NashGoreBloodFloorSplashSpawner",
+			UTNTCosmeticSpawn.From(self,"NashGoreBloodFloorSplashSpawner",
 				0, 0, 0,
-				frandom(-4.0, 4.0), frandom(-4.0, 4.0), frandom(1.0, 4.0),
-				frandom(0, 360), NashGoreBlood.BLOOD_FLAGS, 175);
+				CFRandom[utntgore](-4.0, 4.0), CFRandom[utntgore](-4.0, 4.0), CFRandom[utntgore](1.0, 4.0),
+				CFRandom[utntgore](0, 360), NashGoreBlood.BLOOD_FLAGS, 175);
 		}
 		"####" E -1;
 		Stop;
@@ -275,7 +276,7 @@ class NashGoreStickyGibs : NashGoreGibs
 
 	override void BeginPlay(void)
 	{
-		stickTime = (35 * STICKTIME_MAX) - random(0, 35 * (STICKTIME_MAX / 2));
+		stickTime = (35 * STICKTIME_MAX) - CRandom[utntgore](0, 35 * (STICKTIME_MAX / 2));
 		Super.BeginPlay();
 	}
 
@@ -323,7 +324,7 @@ class NashGoreStickyGibsCeiling : NashGoreStickyGibs
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay A_Jump(256, "Gib1", "Gib2");
+		TNT1 A 0 NoDelay { return UTNTCosmeticSpawn.Choose(self,2,"Gib1", "Gib2"); }
 		Stop;
 	Gib1:
 		SGC1 A 0;
@@ -385,7 +386,7 @@ class NashGoreStickyGibsWall : NashGoreStickyGibs
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay A_Jump(256, "Gib1", "Gib2");
+		TNT1 A 0 NoDelay { return UTNTCosmeticSpawn.Choose(self,2,"Gib1", "Gib2"); }
 		Stop;
 	Gib1:
 		SGW1 A 0;

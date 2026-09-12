@@ -32,6 +32,7 @@
 
 class NashGoreBloodPlane : Actor
 {
+    Default { +CLIENTSIDE +NOBLOCKMAP +THRUACTORS -SOLID -SHOOTABLE +DONTSPLASH }
 	Default
 	{
 		Height 2;
@@ -57,8 +58,8 @@ class NashGoreBloodPlane : Actor
 	{
 		ChangeStatNum(STAT_NashGore_Gore);
 		NashGoreStatics.QueueGore();
-		rndzoffset = frandom(0.0001, 0.0100);
-		A_SetScale(frandom(0.9, 1.0));
+		rndzoffset = CFRandom[utntgore](0.0001, 0.0100);
+		A_SetScale(CFRandom[utntgore](0.9, 1.0));
 		Super.BeginPlay();
 
 		if (!level.IsPointInLevel(Pos))
@@ -191,7 +192,7 @@ class NashGoreBloodSpot : NashGoreBloodPlane
 
 	override void PostBeginPlay(void)
 	{
-		if (random() < (255 - nashgore_bloodamount)) { Destroy(); return; }
+		if (CRandom[utntgore]() < (255 - nashgore_bloodamount)) { Destroy(); return; }
 
 		/*
 		if (target && !nashgore_spriteblood)
@@ -226,8 +227,8 @@ class NashGoreBloodSpot : NashGoreBloodPlane
 
 				if (dripInterval <= 0)
 				{
-					dripInterval = random(20, 200);
-					A_SpawnItemEx("NashGoreBloodDrop", flags: NashGoreBloodBase.BLOOD_FLAGS);
+					dripInterval = CRandom[utntgore](20, 200);
+					UTNTCosmeticSpawn.From(self,"NashGoreBloodDrop", flags: NashGoreBloodBase.BLOOD_FLAGS);
 				}
 
 				dripInterval--;
@@ -247,8 +248,8 @@ class NashGoreBloodSpot : NashGoreBloodPlane
 		TNT1 A 1 NoDelay
 		{
 			A_StartSound("nashgore/bloodsplash");
-			if (nashgore_spriteblood) return A_Jump(256, "BloodSpotSprite1", "BloodSpotSprite2", "BloodSpotSprite3", "BloodSpotSprite4");
-			return A_Jump(256, "BloodSpot1", "BloodSpot2", "BloodSpot3", "BloodSpot4");
+			if (nashgore_spriteblood) return UTNTCosmeticSpawn.Choose(self,4,"BloodSpotSprite1", "BloodSpotSprite2", "BloodSpotSprite3", "BloodSpotSprite4");
+			return UTNTCosmeticSpawn.Choose(self,4,"BloodSpot1", "BloodSpot2", "BloodSpot3", "BloodSpot4");
 		}
 		Stop;
 	BloodSpot1:
@@ -316,7 +317,7 @@ class NashGoreCorpseBlood : NashGoreBloodPlane
 	{
 		Radius 32;
 		Height 1;
-		+SPECIAL
+		-SPECIAL
 		-SOLID
 		-NOGRAVITY
 	}
@@ -337,10 +338,14 @@ class NashGoreCorpseBlood : NashGoreBloodPlane
 
 	override void Tick()
 	{
-		Super.Tick();
-		if (!bNoTimeFreeze && (isFrozen() || Level.isFrozen())) return;
-
-		if (!target || bDepletedCorpseBlood)
+        Super.Tick();
+        if (!bNoTimeFreeze && (isFrozen() || Level.isFrozen())) return;
+        // Local blood cannot participate in authoritative pickup/collision traversal.
+        for(int i=0;i<MAXPLAYERS;i++)if(playeringame[i] && players[i].mo){
+            let mo=players[i].mo;Vector2 d=mo.Pos.XY-Pos.XY;
+            if(abs(mo.Pos.Z-Pos.Z)<8 && (d dot d)<(Radius+mo.Radius)*(Radius+mo.Radius))Touch(mo);
+        }
+        if (!target || bDepletedCorpseBlood)
 		{
 			Destroy();
 			return;
@@ -351,11 +356,11 @@ class NashGoreCorpseBlood : NashGoreBloodPlane
 	{
 		if (other && other is "PlayerPawn")
 		{
-			let a = NashGoreActor(other.FindInventory("NashGoreActor", true));
+			let a = NashGoreLocalActor.Ensure(other);
 			if (a)
 			{
 				a.lastCorpseBlood = self;
-				a.footprintDuration = NashGoreActor.MAX_FOOTPRINT_DURATION;
+				a.footprintDuration = NashGoreLocalActor.MAX_FOOTPRINT_DURATION;
 
 				// reduce blood size every time it is stepped on
 				if (NashGoreStatics.GetVelocity(other) > 0.5)

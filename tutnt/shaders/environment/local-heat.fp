@@ -38,8 +38,8 @@ vec3 finishLava(vec3 color,float mask) {
 void main() {
  if(sourceDelta.w<=0.0) {
   FragColor=texture(InputTexture,TexCoord);
-  if(sourceRadius.w<.5)FragColor.a=0.0;
-  if(sourceRadius.w>4.5){FragColor.rgb=finishLava(FragColor.rgb,FragColor.a);FragColor.a=1.0;}
+  if((int(sourceRadius.w)&1)!=0)FragColor.a=0.0;
+  if((int(sourceRadius.w)&2)!=0){FragColor.rgb=finishLava(FragColor.rgb,FragColor.a);FragColor.a=1.0;}
   return;
  }
  vec3 radius=abs(sourceRadius.xyz);
@@ -59,14 +59,20 @@ void main() {
  }
  vec2 p=TexCoord*vec2(textureSize(InputTexture,0))/55.0;
  float t=InputTimeGame*.7;
+ if(strength<=0.0) {
+  FragColor=texture(InputTexture,TexCoord);
+  if((int(sourceRadius.w)&1)!=0)FragColor.a=0.0;
+  if((int(sourceRadius.w)&2)!=0){if(FragColor.a>0.0)FragColor.rgb=finishLava(FragColor.rgb,FragColor.a);FragColor.a=1.0;}
+  return;
+ }
  vec2 turbulence=vec2(noise(p+vec2(t,-t*2.1)),noise(p*1.63+vec2(-t*.4,-t*1.8)))-.5;
  // Carry the strongest mask through consecutive RGBA16F passes.
  // Overlapping plumes must not multiply the approved distortion amplitude.
- float previous=sourceRadius.w<.5?0.0:texture(InputTexture,TexCoord).a;
+ float previous=(int(sourceRadius.w)&1)!=0?0.0:texture(InputTexture,TexCoord).a;
  float combined=max(previous,strength*sourceDelta.w);
  vec2 shift=turbulence*7.0*(combined-previous)/vec2(textureSize(InputTexture,0));
  FragColor=texture(InputTexture,clamp(TexCoord+shift,0.0,1.0));
- if(sourceRadius.w>4.5)FragColor.rgb=finishLava(FragColor.rgb,combined);
- FragColor.a=sourceRadius.w>4.5?1.0:combined;
+ if((int(sourceRadius.w)&2)!=0 && combined>0.0)FragColor.rgb=finishLava(FragColor.rgb,combined);
+ FragColor.a=(int(sourceRadius.w)&2)!=0?1.0:combined;
 
 }

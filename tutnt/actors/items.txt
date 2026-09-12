@@ -12,8 +12,10 @@ actor SourceLifeSeed : Health 16998
 	}
 }
 
-actor SourceLifeShadow
+actor SourceLifeShadow : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	RenderStyle Add
 	+NOINTERACTION
 	Alpha 0.6
@@ -41,9 +43,9 @@ ACTOR UTNTInvulnerabilitySphere : InvulnerabilitySphere replaces Invulnerability
 	}
 }
 
-Actor InvulnerabilityShadow
+Actor InvulnerabilityShadow : UTNTLegacyCosmetic
 {
-	+CLIENTSIDEONLY
+	+CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
 	RenderStyle Add
 	+NOINTERACTION
 	Alpha 0.6
@@ -66,9 +68,9 @@ ACTOR UTNTSoulsphere : Soulsphere replaces Soulsphere
 	}
 }
 
-Actor SoulsphereShadow
+Actor SoulsphereShadow : UTNTLegacyCosmetic
 {
-	+CLIENTSIDEONLY
+	+CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
 	RenderStyle Add
 	+NOINTERACTION
 	Alpha 0.6
@@ -96,8 +98,10 @@ ACTOR UTNTMegasphere : Megasphere replaces Megasphere
 	}
 }
 
-Actor MegasphereShadow
+Actor MegasphereShadow : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	RenderStyle Add
 	+NOINTERACTION
 	Alpha 0.4
@@ -132,9 +136,9 @@ ACTOR UTNTBlurSphere : BlurSphere replaces BlurSphere
 	}
 }
 
-Actor BlurSphereShadow
+Actor BlurSphereShadow : UTNTLegacyCosmetic
 {
-	+CLIENTSIDEONLY
+	+CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
 	RenderStyle Add
 	+NOINTERACTION
 	Alpha 0.6

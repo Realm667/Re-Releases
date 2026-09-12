@@ -21,15 +21,9 @@ class UTNTSteamSystem play
         if(!source || !source.SteamActive || !UTNTVisuals.Visible(source,combat:true)) return;
         int phase=(int(source.Pos.X)*3+int(source.Pos.Y)*5+int(source.Pos.Z))&15;
         if((level.time+phase)%16!=0) return;
-        let it=ThinkerIterator.Create('UTNTSteamEmitter',Thinker.STAT_USER+7,true);
-        UTNTSteamEmitter emitter; int count=0;
-        while(emitter=UTNTSteamEmitter(it.Next()))
-        {
-            if(emitter.Source==source) return;
-            count++;
-        }
-        // At most 64 local emitters; each has <=48 finite-lived sheets.
-        if(count>=64) return;
+        let runtime=UTNTFXRuntime.Get();
+        if(runtime.Lookup(source,1) || runtime.Count(1)>=64)return;
+        UTNTSteamEmitter emitter;
         emitter=UTNTSteamEmitter(level.CreateClientSideThinker('UTNTSteamEmitter',Thinker.STAT_USER+7));
         if(emitter) emitter.Initialize(source);
     }
@@ -51,6 +45,7 @@ class UTNTSteamEmitter : Thinker
     void Initialize(UTNTSteamSpawnerBase source)
     {
         self.Source=source;
+        UTNTFXRuntime.Get().Register(source,1,self);
         Seed=uint(int(source.Pos.X)*73856093)^uint(int(source.Pos.Y)*19349663)
             ^uint(int(source.Pos.Z)*83492791)^uint(level.time+667);
         Phase=Noise(0,360);

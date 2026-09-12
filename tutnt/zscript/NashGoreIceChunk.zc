@@ -32,6 +32,7 @@
 
 class NashGoreIceChunk : IceChunk
 {
+    Default { +CLIENTSIDE +NOBLOCKMAP +THRUACTORS -SOLID -SHOOTABLE +DONTSPLASH }
 	Default
 	{
 		Radius 5;
@@ -62,11 +63,11 @@ class NashGoreIceChunk : IceChunk
 		NashGoreStatics.QueueGore();
 		NashGoreStatics.RandomXFlip(self);
 
-		rollDir = RandomPick(-1, 1);
-		rollSpeed = frandom(1.0, 5.0);
+		rollDir = CRandomPick[utntgore](-1, 1);
+		rollSpeed = CFRandom[utntgore](1.0, 5.0);
 
-		Gravity *= frandom(0.75, 1.0);
-		bouncefactor *= frandom(0.5, 1.0);
+		Gravity *= CFRandom[utntgore](0.75, 1.0);
+		bouncefactor *= CFRandom[utntgore](0.5, 1.0);
 
 		Super.BeginPlay();
 	}
@@ -103,7 +104,7 @@ class NashGoreIceChunk : IceChunk
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay A_Jump(256, "Ice1", "Ice2", "Ice3", "Ice4");
+		TNT1 A 0 NoDelay { return UTNTCosmeticSpawn.Choose(self,4,"Ice1", "Ice2", "Ice3", "Ice4"); }
 		Stop;
 	Ice1:
 		ICEN A 0;

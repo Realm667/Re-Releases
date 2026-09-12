@@ -60,15 +60,12 @@ class UTNTVisuals play
     static int ReserveCount(int count = 1, bool combat = false)
     {
         if (count <= 0) return 0;
-        let player=players[consoleplayer];
-        if (!player) return 0;
-        int quality=clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),0,3);
-        if (!quality) return 0;
-        if (CVar.GetCVar('UTNT_reducedfx',player).GetBool()) quality=1;
-        let iter=ThinkerIterator.Create('UTNTVisualBudget',Thinker.STAT_USER+2,true);
-        let budget=UTNTVisualBudget(iter.Next());
-        if (!budget) budget=UTNTVisualBudget(level.CreateClientSideThinker('UTNTVisualBudget',Thinker.STAT_USER+2));
-        if (!budget) return 0;
+        let runtime=UTNTFXRuntime.Get();
+        if(!runtime || !runtime.Quality)return 0;
+        int quality=runtime.Quality;
+        let budget=runtime.VisualBudget;
+        if(!budget)budget=runtime.VisualBudget=UTNTVisualBudget(level.CreateClientSideThinker('UTNTVisualBudget',Thinker.STAT_USER+2));
+        if(!budget)return 0;
         if (budget.EmissionTic != level.time)
         { budget.EmissionTic=level.time; budget.AmbientEmitted=0; budget.CombatEmitted=0; }
         int limit=combat ? (quality==3 ? 96 : quality==2 ? 48 : 24) : (quality==3 ? 128 : quality==2 ? 64 : 32);
@@ -83,13 +80,11 @@ class UTNTVisuals play
     static bool Visible(Actor source, int phase = 0, bool combat = false)
     {
         if (!source || !level || source.IsFrozen()) return false;
-        let player = players[consoleplayer];
-        if (!player || !player.camera) return false;
-        int quality = clamp(CVar.GetCVar('UTNT_fxquality', player).GetInt(), 0, 3);
-        int range = max(0, CVar.GetCVar('UTNT_lod', player).GetInt());
-        double distance = source.Distance3D(player.camera);
-        if (quality == 0 || range == 0 || distance > range) return false;
-        if (CVar.GetCVar('UTNT_reducedfx', player).GetBool()) quality=1;
+        let runtime=UTNTFXRuntime.Get();
+        if(!runtime || !runtime.Camera || !runtime.Quality || !runtime.Range)return false;
+        int quality=runtime.Quality,range=runtime.Range;
+        double distance=source.Distance3D(runtime.Camera);
+        if(distance>range)return false;
         if (combat) return true; // One-shot impacts must not disappear on a skipped ambient tic.
         int divisor = quality == 1 ? 3 : quality == 2 ? 2 : 1;
         if (distance > range*0.5) divisor*=2;
@@ -110,10 +105,10 @@ class UTNTVisuals play
         p.style = STYLE_Translucent;
         p.flags = SPF_ROLL;
         p.pos = source.Vec3Offset(x,y,z);
-        p.vel = (FRandom[utntcosmetic](-0.15,0.15), FRandom[utntcosmetic](-0.15,0.15), FRandom[utntcosmetic](0.1,0.5));
+        p.vel = (CFRandom[utntcosmetic](-0.15,0.15), CFRandom[utntcosmetic](-0.15,0.15), CFRandom[utntcosmetic](0.1,0.5));
         p.lifetime = 32; p.size = size; p.sizestep = 0.15;
         p.startalpha = 0.45; p.fadestep = 0.45/32;
-        p.startroll = FRandom[utntcosmetic](0,360);
+        p.startroll = CFRandom[utntcosmetic](0,360);
         if (rocket)
         {
             // Preserve the current smoke image, at the original trail envelope.
@@ -136,7 +131,7 @@ class UTNTVisuals play
             p.texture = TexMan.CheckForTexture('FX26K0');
             p.color1 = 0xffffff; p.style = STYLE_Add; p.flags = SPF_FULLBRIGHT;
             p.pos = source.Pos;
-            p.vel = (FRandom[utntcosmetic](-1.5,1.5), FRandom[utntcosmetic](-1.5,1.5), FRandom[utntcosmetic](0.8,3.5));
+            p.vel = (CFRandom[utntcosmetic](-1.5,1.5), CFRandom[utntcosmetic](-1.5,1.5), CFRandom[utntcosmetic](0.8,3.5));
             p.accel = (0,0,-0.09);
             p.lifetime = 22; p.size = 3; p.startalpha = 1; p.fadestep = 1.0/22;
             level.SpawnParticle(p);
@@ -155,7 +150,7 @@ class UTNTVisuals play
         if (!granted) return;
         let flame=UTNTRocketFlameVisual(level.SpawnClientSideVisualThinker('UTNTRocketFlameVisual'));
         if (!flame) return;
-        flame.SecondAnimation=Random[utntcosmetic](0,1);
+        flame.SecondAnimation=CRandom[utntcosmetic](0,1);
         flame.Texture=TexMan.CheckForTexture(flame.SecondAnimation ? 'X007A0' : 'X006A0');
         flame.Pos=source.Vec3Offset(0,0,4); flame.Prev=flame.Pos;
         flame.Scale=(0.13,0.13); flame.Alpha=1; flame.Flags=SPF_FULLBRIGHT;
@@ -165,7 +160,7 @@ class UTNTVisuals play
         if (granted<2) return;
         FSpawnParticleParams p;
         p.texture=TexMan.CheckForTexture('X037A0'); p.color1=0xffffff; p.style=STYLE_Translucent;
-        p.pos=flame.Pos; p.vel=(0,0,FRandom[utntcosmetic](0.1,0.6));
+        p.pos=flame.Pos; p.vel=(0,0,CFRandom[utntcosmetic](0.1,0.6));
         p.lifetime=33; p.startalpha=0.1; p.fadestep=-0.05;
         UTNTLegacySizedVisual.Emit(p,GetDefaultByType('RocketSmokeCenter').Scale,2);
     }
@@ -199,13 +194,13 @@ class UTNTEmberBase : SwitchableDecoration
         p.texture = TexMan.CheckForTexture('EMBRA0');
         p.color1 = colorIndex == 1 ? 0xff6030 : colorIndex == 2 ? 0x60ff30 : colorIndex == 3 ? 0xffff50 : colorIndex == 4 ? 0xffbb60 : colorIndex == 5 ? 0x5080ff : 0xffffff;
         p.style = STYLE_Add; p.flags = SPF_FULLBRIGHT;
-        p.pos = Vec3Offset(FRandom[utntcosmetic](-size/2.0,size/2.0),FRandom[utntcosmetic](-size/2.0,size/2.0),0);
-        p.vel = (0,0,FRandom[utntcosmetic](0.5,2));
+        p.pos = Vec3Offset(CFRandom[utntcosmetic](-size/2.0,size/2.0),CFRandom[utntcosmetic](-size/2.0,size/2.0),0);
+        p.vel = (0,0,CFRandom[utntcosmetic](0.5,2));
         p.lifetime=50; p.startalpha=1; p.fadestep=0.02;
         if (type == 0)
         {
             // EmberShot selected the three legacy scales with equal probability.
-            int variant=Random[utntcosmetic](0,2);
+            int variant=CRandom[utntcosmetic](0,2);
             Vector2 scale=variant==0 ? GetDefaultByType('LavaEmber1').Scale
                 : variant==1 ? GetDefaultByType('LavaEmber2').Scale
                 : GetDefaultByType('LavaEmber3').Scale;
@@ -216,18 +211,18 @@ class UTNTEmberBase : SwitchableDecoration
         {
             // Four chipped fragments; one quarter of emissions use a short rising streak.
             // One atlas sprite per particle keeps the existing ambient emission budget.
-            bool streak = Random[utntcosmetic](0,3) == 0;
-            int frame = streak ? Random[utntcosmetic](4,5) : Random[utntcosmetic](0,3);
+            bool streak = CRandom[utntcosmetic](0,3) == 0;
+            int frame = streak ? CRandom[utntcosmetic](4,5) : CRandom[utntcosmetic](0,3);
             p.texture = TexMan.CheckForTexture(String.Format("UTP%cA0",65+frame));
             p.color1 = colorIndex == 1 ? 0xff3018 : colorIndex == 2 ? 0x70dc48 : colorIndex == 3 ? 0xffd858 : colorIndex == 4 ? 0xff9040 : colorIndex == 5 ? 0x608cff : 0xdce4ec;
             p.flags |= SPF_ROLL | SPF_FADE_IN_HOLD_OUT;
-            p.startroll = streak ? FRandom[utntcosmetic](-9,9) : FRandom[utntcosmetic](0,360);
-            p.rollvel = streak ? 0 : FRandom[utntcosmetic](-1.2,1.2);
-            p.size = streak ? FRandom[utntcosmetic](8,11) : Random[utntcosmetic](0,3) == 0 ? FRandom[utntcosmetic](6.5,8) : FRandom[utntcosmetic](4,6);
-            p.vel = (FRandom[utntcosmetic](-0.16,0.16),FRandom[utntcosmetic](-0.16,0.16),FRandom[utntcosmetic](streak ? 1.1 : 0.5,2.0));
-            p.accel = (FRandom[utntcosmetic](-0.003,0.003),FRandom[utntcosmetic](-0.003,0.003),streak ? 0.008 : 0);
-            p.lifetime = Random[utntcosmetic](44,58);
-            p.startalpha = FRandom[utntcosmetic](0.8,1.0);
+            p.startroll = streak ? CFRandom[utntcosmetic](-9,9) : CFRandom[utntcosmetic](0,360);
+            p.rollvel = streak ? 0 : CFRandom[utntcosmetic](-1.2,1.2);
+            p.size = streak ? CFRandom[utntcosmetic](8,11) : CRandom[utntcosmetic](0,3) == 0 ? CFRandom[utntcosmetic](6.5,8) : CFRandom[utntcosmetic](4,6);
+            p.vel = (CFRandom[utntcosmetic](-0.16,0.16),CFRandom[utntcosmetic](-0.16,0.16),CFRandom[utntcosmetic](streak ? 1.1 : 0.5,2.0));
+            p.accel = (CFRandom[utntcosmetic](-0.003,0.003),CFRandom[utntcosmetic](-0.003,0.003),streak ? 0.008 : 0);
+            p.lifetime = CRandom[utntcosmetic](44,58);
+            p.startalpha = CFRandom[utntcosmetic](0.8,1.0);
             // Hold the luminous core, then extinguish over the final 13-16 tics.
             p.fadestep = 0; p.fadeoutstep = 1.0/16;
         }

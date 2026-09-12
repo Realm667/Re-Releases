@@ -30,8 +30,22 @@
 //
 //===========================================================================
 
-class NashGoreActor : NashGorePlugin
+class NashGoreActor : NashGorePlugin { override void Tick() {} }
+
+class NashGoreLocalActor : Thinker
 {
+    Actor Owner;
+    static NashGoreLocalActor Ensure(Actor owner)
+    {
+        if(!owner)return null;
+        let runtime=UTNTFXRuntime.Get();
+        let w=NashGoreLocalActor(runtime.Lookup(owner,4));
+        if(!w){
+            w=NashGoreLocalActor(level.CreateClientSideThinker('NashGoreLocalActor',Thinker.STAT_USER+28));
+            if(w){w.Owner=owner;w.bCanBleed=!owner.bNoBlood;w.bIsDead=owner.Health<=0;runtime.Register(owner,4,w);}
+        }
+        return w;
+    }
 	bool bSuperTicked;
 	bool bCanBleed;
 	bool bIsDead;
@@ -65,9 +79,12 @@ class NashGoreActor : NashGorePlugin
 			bSuperTicked = true;
 		}
 
-		if (!bNoTimeFreeze && (isFrozen() || Level.isFrozen())) return;
+		if(!Owner){Destroy();return;}
+        if(Owner.IsFrozen() || Level.isFrozen())return;
 
-		if (!Owner) return;
+		// Reconcile after rollback or revival: cosmetic state never drives actor health.
+        if(bIsDead && Owner.Health>0)ResetActor();
+        else if(Owner.Health<=0)bIsDead=true;
 
 		// footprint stuff (only for players)
 		if (Owner is "PlayerPawn")
@@ -93,7 +110,7 @@ class NashGoreActor : NashGorePlugin
 						double ang = Owner.Angle;
 
 						[result, footprint] =
-						lastCorpseBlood.target.A_SpawnItemEx("NashGoreFootprint", angle: ang, flags);
+						UTNTCosmeticSpawn.From(lastCorpseBlood.target,"NashGoreFootprint", angle: ang, flags);
 
 						//Console.Printf("%s", lastCorpseBlood.target.GetClassName());
 
@@ -125,7 +142,8 @@ class NashGoreActor : NashGorePlugin
 			// randomly mirror death sprite
 			if (nashgore_deathflip && !Owner.bIceCorpse && !bMirroredDeathSprite)
 			{
-				NashGoreStatics.RandomXFlip(Owner);
+				// Render-only flag; deterministic across peers and independent of local RNG.
+                Owner.bSpriteFlip=(Owner.GetNetworkID()&1)!=0;
 				bMirroredDeathSprite = true;
 			}
 
@@ -136,13 +154,13 @@ class NashGoreActor : NashGorePlugin
 				Actor corpseblood;
 
 				[result, corpseblood] =
-				Owner.A_SpawnItemEx("NashGoreCorpseBlood", flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE);
+				UTNTCosmeticSpawn.From(Owner,"NashGoreCorpseBlood", flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE);
 
 				// footprint colour needs pointer to owner
 				if (corpseblood) corpseblood.target = Owner;
 
 				// spawn blood spurts
-				if (nashgore_bloodspurt) Owner.A_SpawnItemEx("NashGoreBloodSpurtSpawner", flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE, 200);
+				if (nashgore_bloodspurt) UTNTCosmeticSpawn.From(Owner,"NashGoreBloodSpurtSpawner", flags: SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE, 200);
 
 				bCorpseBlood = true;
 			}
@@ -158,10 +176,10 @@ class NashGoreActor : NashGorePlugin
 					{
 						for (int i = 0; i < 20; i++)
 						{
-							Owner.A_SpawnItemEx("NashGoreBloodSpurt",
-								frandom(-4, 4), frandom(-4, 4), frandom(10, 20),
-								frandom(-4.0, 4.0), frandom(-4.0, 4.0), frandom(5.0, 10.0),
-								frandom(0, 360), SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE);
+							UTNTCosmeticSpawn.From(Owner,"NashGoreBloodSpurt",
+								CFRandom[utntgore](-4, 4), CFRandom[utntgore](-4, 4), CFRandom[utntgore](10, 20),
+								CFRandom[utntgore](-4.0, 4.0), CFRandom[utntgore](-4.0, 4.0), CFRandom[utntgore](5.0, 10.0),
+								CFRandom[utntgore](0, 360), SXF_USEBLOODCOLOR | SXF_TRANSFERRENDERSTYLE);
 						}
 					}
 					fallTics = MAX_FALLTICS + 1;
@@ -181,15 +199,15 @@ class NashGoreActor : NashGorePlugin
 						// spawn crushed gib based on size
 						if (Owner.Radius <= 20)
 						{
-							Owner.A_SpawnItemEx("NashGoreCrushedGibsSmall", flags: spawnFlags);
+							UTNTCosmeticSpawn.From(Owner,"NashGoreCrushedGibsSmall", flags: spawnFlags);
 						}
 						else if (Owner.Radius > 20 && Owner.Radius < 40)
 						{
-							Owner.A_SpawnItemEx("NashGoreCrushedGibsMedium", flags: spawnFlags);
+							UTNTCosmeticSpawn.From(Owner,"NashGoreCrushedGibsMedium", flags: spawnFlags);
 						}
 						else if (Owner.Radius >= 40)
 						{
-							Owner.A_SpawnItemEx("NashGoreCrushedGibsLarge", flags: spawnFlags);
+							UTNTCosmeticSpawn.From(Owner,"NashGoreCrushedGibsLarge", flags: spawnFlags);
 						}
 					}
 
@@ -216,10 +234,10 @@ class NashGoreActor : NashGorePlugin
 				bShattered = true;
 				for (int i = 0; i < 20; i++)
 				{
-					Owner.A_SpawnItemEx("NashGoreGibs",
+					UTNTCosmeticSpawn.From(Owner,"NashGoreGibs",
 						zofs: Owner.Height,
-						frandom(-2, 2), frandom(-2, 2), frandom(-4, 4),
-						flags: spawnFlags, 125);
+						CFRandom[utntgore](-2, 2), CFRandom[utntgore](-2, 2), CFRandom[utntgore](-4, 4),
+						flags: SXF_USEBLOODCOLOR|SXF_TRANSFERRENDERSTYLE, 125);
 				}
 			}
 		}
@@ -240,6 +258,7 @@ class NashGoreActor : NashGorePlugin
 		footprintDuration = 0;
 		lastCorpseBlood = NULL;
 		bMirroredDeathSprite = false;
+        bShattered=bSquished=false;
 		Owner.bSpriteFlip = false;
 	}
 }

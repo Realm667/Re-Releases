@@ -38,7 +38,7 @@ def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
     except subprocess.TimeoutExpired as e:
         output=((e.stdout or b'')+(e.stderr or b'')).decode(errors='replace'); code=-1
     log=logs/(label+'.log'); log.write_text(output,encoding='utf-8')
-    errors=[s for s in ('UTNT_ASSERT FAIL','VM execution aborted','errors while parsing','Script error,','Execution could not continue','ACS: Unknown','P_StartScript: Unknown script') if s in output]
+    errors=[s for s in ('UTNT_ASSERT FAIL','VM execution aborted','errors while parsing','Script error,','Execution could not continue','ACS: Unknown','P_StartScript: Unknown script','mismatched client-side handling','There is a thinker in the fresh list') if s in output]
     if mapname and 'UTNT_TEST_END' not in output: errors.append('missing completion marker')
     if regression and 'UTNT_REGRESSION_COMPLETE' not in output: errors.append('missing regression assertions')
     result={'label':label,'ok':code in (0,1337) and not errors,'exit':code,'seconds':round(time.monotonic()-start,2),'log':str(log),'errors':errors,'assertions':output.count('UTNT_ASSERT PASS')}

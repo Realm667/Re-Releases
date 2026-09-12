@@ -32,6 +32,7 @@
 
 class NashGoreHandler : EventHandler
 {
+    transient UTNTFXRuntime Runtime;
 	int maxgore;
 	int maxgore_old, maxgore_new;
 
@@ -45,11 +46,7 @@ class NashGoreHandler : EventHandler
 
 	override void PlayerEntered(PlayerEvent e)
 	{
-		PlayerPawn plr = players[e.PlayerNumber].mo;
-		if (!plr.CountInv("NashGoreActor"))
-		{
-			plr.A_GiveInventory("NashGoreActor", 1);
-		}
+        NashGoreLocalActor.Ensure(players[e.PlayerNumber].mo);
 	}
 
 	override void PlayerRespawned(PlayerEvent e)
@@ -66,11 +63,24 @@ class NashGoreHandler : EventHandler
 
 	override void WorldLoaded(WorldEvent e)
 	{
-		BuildBloodTypes();
+        RestoreLocal();
+    }
+    void RestoreLocal()
+    {
+        BuildBloodTypes();
+        // Client thinkers are reconstructed after loading a save, never serialized as inventory.
+        let it=ThinkerIterator.Create('Actor');Actor mo;
+        while(mo=Actor(it.Next()))
+        {
+            if(GetDefaultByType(mo.GetClass()).IsClientSide()){mo.Destroy();continue;}
+            if((mo.bIsMonster || mo is 'PlayerPawn') && !(mo is 'StoneImp'))NashGoreLocalActor.Ensure(mo);
+        }
 	}
 
 	override void WorldTick(void)
 	{
+        let clientCache=UTNTFXRuntime.Get();
+        if(Runtime!=clientCache){Runtime=clientCache;RestoreLocal();}
 		// update gore queue
 		maxgore_new = max(0, nashgore_maxgore);
 		if (maxgore_old != maxgore_new)
@@ -90,21 +100,8 @@ class NashGoreHandler : EventHandler
 	{
 		if (!e.Thing || e.Thing is "StoneImp") return; //jfc this was hard to spot - ozy81
 
-		// monster?
-		bool isMonster = e.Thing.bIsMonster;
-
-		// plug in generic monster behaviour
-		if (isMonster && !e.Thing.CountInv("NashGoreActor"))
-		{
-			e.Thing.A_GiveInventory("NashGoreActor", 1);
-
-			let a = NashGoreActor(e.Thing.FindInventory("NashGoreActor", true));
-			if (a)
-			{
-				a.bCanBleed = !e.Thing.bNoBlood;
-			}
-		}
-	}
+        if(e.Thing.bIsMonster)NashGoreLocalActor.Ensure(e.Thing);
+    }
 
 	/*
 	override void WorldThingDamaged(WorldEvent e)
@@ -142,39 +139,16 @@ class NashGoreHandler : EventHandler
 
 	override void CheckReplacement(ReplaceEvent e)
 	{
-		// blood stuff
-		for (int i = 0; i < bloodTypes.Size(); i++)
-		{
-			// find all known blood types from the BLUDTYPE lump
-			class<Actor> miscBloodCls;
-			miscBloodCls = String.Format("%s", bloodTypes[i]);
-
-			if (e.Replacee == "Blood" || e.Replacee == "BloodSplatter" || e.Replacee == "AxeBlood"
-				|| (miscBloodCls != NULL && e.Replacee == miscBloodCls))
-			{
-				class<Actor> bloodCls;
-
-				switch(nashgore_bloodtype)
-				{
-					default:
-					case 0:
-						bloodCls = "NashGoreBlood";
-						break;
-					case 1:
-						bloodCls = "NashGoreClassicBlood";
-						break;
-					case 2:
-						bloodCls = "Blood";
-						break;
-				}
-
-				e.Replacement = bloodCls;
-			}
-		}
+        // Native blood needs a shared bridge even when no optional BLUDTYPE table exists.
+        bool blood=e.Replacee=='Blood' || e.Replacee=='BloodSplatter' || e.Replacee=='AxeBlood';
+        if(!blood)for(int i=0;i<bloodTypes.Size();i++){
+            Class<Actor> cls=bloodTypes[i];if(cls && e.Replacee==cls){blood=true;break;}
+        }
+        if(blood)e.Replacement=e.Replacee=='BloodSplatter'?'UTNTSplatterBridge':'UTNTBloodBridge';
 
 		// other stuff
-		if (e.Replacee == "RealGibs") e.Replacement = "NashGoreRealGibs";
-		if (nashgore_icedeath == true && e.replacee == "IceChunk") e.Replacement = "NashGoreIceChunk";
+		if (e.Replacee == "RealGibs") e.Replacement = "UTNTGibsBridge";
+		if (nashgore_icedeath == true && e.replacee == "IceChunk") e.Replacement = "UTNTIceBridge";
 	}
 
 	//===========================================================================
@@ -259,7 +233,7 @@ class NashGoreHandler : EventHandler
 
 		if (isMonster || isPlayer)
 		{
-			let a = NashGoreActor(mo.FindInventory("NashGoreActor", true));
+			let a = NashGoreLocalActor.Ensure(mo);
 			if (a)
 			{
 				// mark actor as dead
@@ -271,7 +245,7 @@ class NashGoreHandler : EventHandler
 	void DoThingRevive(Actor mo)
 	{
 		//Console.Printf("%s lives again!", mo.GetClassName());
-		let a = NashGoreActor(mo.FindInventory("NashGoreActor", true));
+		let a = NashGoreLocalActor.Ensure(mo);
 		if (a)
 		{
 			a.ResetActor();

@@ -1,5 +1,7 @@
-Actor GenericSmallParticle
+Actor GenericSmallParticle : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	Scale 0.3
 	RenderStyle Add
@@ -13,6 +15,8 @@ Actor GenericSmallParticle
 
 Actor GenericSmallSlowingParticle : GenericSmallParticle
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	States
 	{
 	Spawn:
@@ -233,10 +237,10 @@ ACTOR UTNTDoomImpBall : DoomImpBall replaces DoomImpBall
 	States
 	{
 	Spawn:
-		BAL1 AAABBB 1 bright LIGHT("IMPBALL") A_SpawnItemEx("TT3",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.1,0.7),0,32)
+		BAL1 AAABBB 1 bright LIGHT("IMPBALL") A_SpawnItemEx("TT3",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.1,0.7),0,32)
 		loop
 	Death:
-		TNT1 AAAAAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(0.3,1.1),0,frandom(-0.9,0.9),random(0,359),32)
+		TNT1 AAAAAA 0 A_SpawnItemEx("TT3",0,0,0,CFRandom[utntlegacyfx](0.3,1.1),0,CFRandom[utntlegacyfx](-0.9,0.9),CRandom[utntlegacyfx](0,359),32)
 		BAL1 C 3 bright LIGHT("IMPBALL_X1")
 		BAL1 D 3 bright LIGHT("IMPBALL_X2")
 		BAL1 E 3 bright LIGHT("IMPBALL_X3")
@@ -401,7 +405,7 @@ ACTOR UTNTCacodemonBall : CacodemonBall replaces CacodemonBall
 		BAL2 AAABBB 1 bright LIGHT("CACOBALL") A_SpawnItemEx("UTNTCacoBallParticleSpawner")
 		loop
 	Death:
-		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359),32)
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,CFRandom[utntlegacyfx](0.5,2),0,0,CRandom[utntlegacyfx](0,359),32)
 		TNT1 AAAAAAAA 0 A_SpawnItemEx("UTNTCacoBallParticleSpawner")
 		TNT1 A 1 A_SpawnItemEx("UTNTCacoBallExplo")
 		TNT1 A 0 A_SetTranslucent(0.01,1)
@@ -412,8 +416,10 @@ ACTOR UTNTCacodemonBall : CacodemonBall replaces CacodemonBall
 	}
 }
 
-Actor UTNTCacoBallExplo
+Actor UTNTCacoBallExplo : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Scale 0.1
@@ -423,7 +429,7 @@ Actor UTNTCacoBallExplo
 	{
 	Spawn:
 		TNT1 A 0
-		TNT1 AA 0 A_SpawnItemEx("UTNTCacoExploFlash")
+		TNT1 AA 0 A_UTNTLocalSpawn("UTNTCacoExploFlash")
 		X060 B 2 Light("YellowSmallFlicker2") Bright A_SetScale(0.15)
 		TNT1 A 0 A_FadeOut(0.06)
 		X060 B 2 Light("YellowSmallFlicker1") Bright A_SetScale(0.2)
@@ -452,8 +458,10 @@ Actor UTNTCacoBallExplo
 	}
 }
 
-Actor UTNTCacoExploFlash
+Actor UTNTCacoExploFlash : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Alpha 0.8
@@ -463,7 +471,7 @@ Actor UTNTCacoExploFlash
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4,5,6,7,8)
+		TNT1 A 0 NODELAY A_Jump(256,CRandomPick[utntlegacyfx](1,2,3,4,5,6,7,8))
 		X153 EFGHIJKL 0 A_Jump(256,"End")
 	End:
 		X153 "#" 1 A_FadeOut(0.018)
@@ -471,20 +479,24 @@ Actor UTNTCacoExploFlash
 	}
 }
 
-Actor UTNTCacoBallParticleSpawner
+Actor UTNTCacoBallParticleSpawner : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("UTNTCacoBallTrail")
-		TNT1 A 1 A_SpawnItemEx("UTNTCacoBallTrailMini",0,0,0,frandom(-0.01,-2.0),frandom(4.0,-4.0),frandom(5.0,-2.0),random(0,359))
+		TNT1 A 0 NODELAY A_UTNTLocalSpawn("UTNTCacoBallTrail")
+		TNT1 A 1 A_UTNTLocalSpawn("UTNTCacoBallTrailMini",0,0,0,CFRandom[utntlegacyfx](-0.01,-2.0),CFRandom[utntlegacyfx](4.0,-4.0),CFRandom[utntlegacyfx](5.0,-2.0),CRandom[utntlegacyfx](0,359))
 		Stop
 	}
 }
 
-Actor UTNTCacoBallTrail
+Actor UTNTCacoBallTrail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	Scale 0.45
 	RenderStyle Add
@@ -494,14 +506,16 @@ Actor UTNTCacoBallTrail
 	{
 	Spawn:
 		TNT1 A 0
-		TNT1 A 0 A_Jump(200,2,4,6)
+		TNT1 A 0 A_JumpIf(CRandom[utntlegacyfx](0,255)<(200),CRandomPick[utntlegacyfx](2,4,6))
 		X029 ABCDEFGHIJK 2 Bright A_FadeOut(0.1)
 		Goto Spawn+2
 	}
 }
 
-Actor UTNTCacoBallTrailMini
+Actor UTNTCacoBallTrailMini : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Projectile
 	+NOCLIP
 	-NOGRAVITY
@@ -515,7 +529,7 @@ Actor UTNTCacoBallTrailMini
 	{
 	Spawn:
 		X029 B 3 Bright
-		X029 B 0 A_jump(140,2,3,4)
+		X029 B 0 A_JumpIf(CRandom[utntlegacyfx](0,255)<(140),CRandomPick[utntlegacyfx](2,3,4))
 		X029 BBBBBBBBB 1 Bright
 		X029 B 1 A_FadeOut(0.2)
 		Wait
@@ -575,11 +589,11 @@ ACTOR UTNTBaronBall : BaronBall replaces BaronBall
 	states
 	{
 	Spawn:
-		BAL7 AAABBB 1 Bright LIGHT("BARONBALL") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		BAL7 AAABBB 1 Bright LIGHT("BARONBALL") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		Loop
 	Death:
 		TNT1 A 0 A_SpawnItemEx("BaronBallExplo")
-		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359))
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,CFRandom[utntlegacyfx](0.5,2),0,0,CRandom[utntlegacyfx](0,359))
 		BAL7 C 5 Bright LIGHT("BARONBALL_X1") A_SetTranslucent(0.01,1)
 		BAL7 D 5 Bright LIGHT("BARONBALL_X2")
 		BAL7 E 5 Bright LIGHT("BARONBALL_X3")
@@ -587,8 +601,10 @@ ACTOR UTNTBaronBall : BaronBall replaces BaronBall
 	}
 }
 
-Actor BaronBallExplo
+Actor BaronBallExplo : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Translation "0:255=%[0,0,0]:[0.65,0.81,0.34]"
@@ -665,10 +681,10 @@ ACTOR UTNTArachnotronPlasma : ArachnotronPlasma replaces ArachnotronPlasma
 	states
 	{
 	Spawn:
-		APLS AB 5 Bright LIGHT("ARACHPLAS") A_SpawnItemEx("MonPlasmaTrail",random(4,-4),random(4,-4),random(4,-4))
+		APLS AB 5 Bright LIGHT("ARACHPLAS") A_SpawnItemEx("MonPlasmaTrail",CRandom[utntlegacyfx](4,-4),CRandom[utntlegacyfx](4,-4),CRandom[utntlegacyfx](4,-4))
 		Loop
 	Death:
-		TNT1 AAAAAAA 0 A_SpawnItemEx("MonBlasterPuffParticle",0,0,0,frandom(5,-5),frandom(5,-5),frandom(5,-5),random(0,359))
+		TNT1 AAAAAAA 0 A_SpawnItemEx("MonBlasterPuffParticle",0,0,0,CFRandom[utntlegacyfx](5,-5),CFRandom[utntlegacyfx](5,-5),CFRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](0,359))
 		APBX A 5 bright LIGHT("ARACHPLAS_X1")
 		APBX BC 5 bright LIGHT("ARACHPLAS_X2")
 		APBX D 5 bright LIGHT("ARACHPLAS_X3")
@@ -774,8 +790,8 @@ Actor UTNTRevenantTracer : RevenantTracer replaces RevenantTracer
 		FATB AB 2 Bright LIGHT("TRACER") A_Tracer
 		Loop
 	Death:
-		TNT1 AA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,frandom(0.1,0.6),0,frandom(-1.0,1.0),random(0,359))
-		TNT1 AAAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.0),0,frandom(-1.2,1.0),random(0,359))
+		TNT1 AA 0 A_SpawnItemEx("ExplosionMediumSprite",0,0,0,CFRandom[utntlegacyfx](0.1,0.6),0,CFRandom[utntlegacyfx](-1.0,1.0),CRandom[utntlegacyfx](0,359))
+		TNT1 AAAAAA 0 A_SpawnItemEx("TT1",0,0,0,CFRandom[utntlegacyfx](0.1,1.0),0,CFRandom[utntlegacyfx](-1.2,1.0),CRandom[utntlegacyfx](0,359))
 		FBXP A 8 bright LIGHT("TRACER_X1")
 		FBXP B 6 bright LIGHT("TRACER_X2")
 		FBXP C 4 bright LIGHT("TRACER_X3")
@@ -848,8 +864,10 @@ ACTOR UTNTFatShot : FatShot Replaces FatShot
 	}
 }
 
-Actor FatsoBallTrail
+Actor FatsoBallTrail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Scale 0.7
@@ -859,7 +877,7 @@ Actor FatsoBallTrail
 	{
 	Spawn:
 		X105 A 0
-		X105 A 0 A_Jump(240,3,6,9,12,15,18,21)
+		X105 A 0 A_JumpIf(CRandom[utntlegacyfx](0,255)<(240),CRandomPick[utntlegacyfx](3,6,9,12,15,18,21))
 		X105 ABCDEFGHIJKLMNOPQRSTUVWX 2 Bright A_FadeOut(0.07)
 		Goto Spawn+2
 	}
@@ -989,18 +1007,20 @@ actor UTNTArchvileFire : ArchvileFire replaces ArchvileFire
 	}
 }
 
-Actor ArchvileFireFx
+Actor ArchvileFireFx : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	States
 	{
 	Spawn:
 		TNT1 A 0
-		TNT1 AA 0 A_SpawnItemEx("FlmThrwrSmoke",random(15,-15),random(0,10),random(25,47),0,0,frandom(0.2,1.0))
-		TNT1 AAA 0 A_SpawnItemEx("FTFlameTrail2",random(15,-15),random(0,10),random(20,40),0,0,frandom(0,1),0,0,64)
+		TNT1 AA 0 A_UTNTLocalSpawn("FlmThrwrSmoke",CRandom[utntlegacyfx](15,-15),CRandom[utntlegacyfx](0,10),CRandom[utntlegacyfx](25,47),0,0,CFRandom[utntlegacyfx](0.2,1.0))
+		TNT1 AAA 0 A_UTNTLocalSpawn("FTFlameTrail2",CRandom[utntlegacyfx](15,-15),CRandom[utntlegacyfx](0,10),CRandom[utntlegacyfx](20,40),0,0,CFRandom[utntlegacyfx](0,1),0,0,64)
 		TNT1 A 1
-		TNT1 AA 0 A_SpawnItemEx("FlmThrwrSmoke",random(15,-15),random(0,10),random(25,47),0,0,frandom(0.2,1.0))
-		TNT1 AAA 0 A_SpawnItemEx("FTFlameTrail2",random(15,-15),random(0,10),random(20,40),0,0,frandom(0,1),0,0,64)
+		TNT1 AA 0 A_UTNTLocalSpawn("FlmThrwrSmoke",CRandom[utntlegacyfx](15,-15),CRandom[utntlegacyfx](0,10),CRandom[utntlegacyfx](25,47),0,0,CFRandom[utntlegacyfx](0.2,1.0))
+		TNT1 AAA 0 A_UTNTLocalSpawn("FTFlameTrail2",CRandom[utntlegacyfx](15,-15),CRandom[utntlegacyfx](0,10),CRandom[utntlegacyfx](20,40),0,0,CFRandom[utntlegacyfx](0,1),0,0,64)
 		Stop
 	}
 }
@@ -1868,8 +1888,8 @@ actor QueenElectro
 		TNT1 A 0 A_SeekerMissile(30,30)
 		Loop
 	Death:
-		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("LightningBallTrailParticle1",0,0,0,random(-2,2),random(-2,2),random(-2,2),random(0,359))
-		TNT1 AAAAA 0 A_SpawnItemEx("LightningBallSpark",0,0,0,frandom(2.0,-2.0),frandom(2.0,-2.0),frandom(2.0,-2.0),0,0,64)
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("LightningBallTrailParticle1",0,0,0,CRandom[utntlegacyfx](-2,2),CRandom[utntlegacyfx](-2,2),CRandom[utntlegacyfx](-2,2),CRandom[utntlegacyfx](0,359))
+		TNT1 AAAAA 0 A_SpawnItemEx("LightningBallSpark",0,0,0,CFRandom[utntlegacyfx](2.0,-2.0),CFRandom[utntlegacyfx](2.0,-2.0),CFRandom[utntlegacyfx](2.0,-2.0),0,0,64)
 		FX16 G 4 BRIGHT LIGHT("NetherworldQueenElectroShotX_1")
 		FX16 H 4 BRIGHT LIGHT("NetherworldQueenElectroShotX_2")
 		FX16 I 4 BRIGHT LIGHT("NetherworldQueenElectroShotX_3")
@@ -1880,21 +1900,25 @@ actor QueenElectro
 	}
 }
 
-Actor LightningBallTrailSpawner
+Actor LightningBallTrailSpawner : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	States
 	{
 	Spawn:
-		TNT1 AA 0 NODELAY A_SpawnItemEx("LightningBallTrailParticle1",0,0,0,0,random(-2,2),random(-2,2),0,0,160)
-		TNT1 AA 0 A_SpawnItemEx("LightningBallSpark",0,0,0,frandom(2.0,-2.0),frandom(2.0,-2.0),frandom(2.0,-2.0),0,0,210)
+		TNT1 AA 0 NODELAY A_UTNTLocalSpawn("LightningBallTrailParticle1",0,0,0,0,CRandom[utntlegacyfx](-2,2),CRandom[utntlegacyfx](-2,2),0,0,160)
+		TNT1 AA 0 A_UTNTLocalSpawn("LightningBallSpark",0,0,0,CFRandom[utntlegacyfx](2.0,-2.0),CFRandom[utntlegacyfx](2.0,-2.0),CFRandom[utntlegacyfx](2.0,-2.0),0,0,210)
 		TNT1 A 10
 		Stop
 	}
 }
 
-Actor LightningBallSpark
+Actor LightningBallSpark : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	Scale 0.18
 	RenderStyle Add
@@ -1902,7 +1926,7 @@ Actor LightningBallSpark
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4,5,6,7,8)
+		TNT1 A 0 NODELAY A_Jump(256,CRandomPick[utntlegacyfx](1,2,3,4,5,6,7,8))
 		X079 ABCDEFGH 0 A_Jump(256,"End")
 	End:
 		"####" "#" 1 Bright A_SetScale(ScaleX+0.005)
@@ -1911,8 +1935,10 @@ Actor LightningBallSpark
 	}
 }
 
-ACTOR LightningBallTrailParticle1
+ACTOR LightningBallTrailParticle1 : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Translation "0:255=%[0,0,0]:[1.3,0.9,0.55]"
 	+NOINTERACTION
 	RenderStyle Add
@@ -1998,11 +2024,11 @@ ACTOR CatharsiBall
 	states
 	{
 	Spawn:
-		SDFB A 1 BRIGHT LIGHT("CatharsiBall") A_SpawnItemEx("CatharsiBallParticle",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0,1),0,0,150)
+		SDFB A 1 BRIGHT LIGHT("CatharsiBall") A_SpawnItemEx("CatharsiBallParticle",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0,1),0,0,150)
 		Loop
 	Death:
-		TNT1 AAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(-0.4,0.4),0,frandom(0.1,0.45),random(0,359))
-		TNT1 AAAAAAA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),random(1,-1),random(1,-1),random(0,359))
+		TNT1 AAA 0 A_SpawnItemEx("TT3",0,0,0,CFRandom[utntlegacyfx](-0.4,0.4),0,CFRandom[utntlegacyfx](0.1,0.45),CRandom[utntlegacyfx](0,359))
+		TNT1 AAAAAAA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,CRandom[utntlegacyfx](1,-1),CRandom[utntlegacyfx](1,-1),CRandom[utntlegacyfx](1,-1),CRandom[utntlegacyfx](0,359))
 		SDFB B 6 BRIGHT LIGHT("CatharsiBallX_1")
 		SDFB C 6 BRIGHT LIGHT("CatharsiBallX_2")
 		SDFB D 6 BRIGHT LIGHT("CatharsiBallX_3")
@@ -2013,6 +2039,8 @@ ACTOR CatharsiBall
 
 Actor CatharsiBallParticle : GenericSmallParticle
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Scale 0.5
 	Translation "0:255=%[0,0,0]:[1.5,0.7,0.0]"
 }
@@ -2492,7 +2520,7 @@ actor DarkNormal : UTNTDoomImpBall
 		DKB1 AABB 2 Bright LIGHT("DarkSeeker") A_SpawnItemEx("DarkNormalTrail")
 		Loop
 	Death:
-		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("DarkSeekerParticle",0,0,0,frandom(1,3),0,frandom(3,-3),random(0,359))
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("DarkSeekerParticle",0,0,0,CFRandom[utntlegacyfx](1,3),0,CFRandom[utntlegacyfx](3,-3),CRandom[utntlegacyfx](0,359))
 		DKB1 C 4 Bright LIGHT("DarkSeekerX_1")
 		DKB1 D 4 Bright LIGHT("DarkSeekerX_2")
 		DKB1 E 4 Bright LIGHT("DarkSeekerX_3")
@@ -2500,8 +2528,10 @@ actor DarkNormal : UTNTDoomImpBall
 	}
 }
 
-Actor DarkNormalTrail
+Actor DarkNormalTrail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Scale 0.8
@@ -2516,6 +2546,8 @@ Actor DarkNormalTrail
 
 Actor DarkSeekerParticle : GenericSmallSlowingParticle
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Scale 0.4
 	Translation "0:255=%[0,0,0]:[0.5,0.3,1.3]"
 }
@@ -2529,21 +2561,21 @@ actor DarkStrong : DarkNormal
 		DKB2 AB 4 Bright LIGHT("DarkStrong") A_SpawnItemEx("DarkTail")
 		Loop
 	Spawn:
-		DKB2 A 1 NODELAY Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		DKB2 A 1 NODELAY Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
 		DKB2 A 0 A_SpawnItemEx("DarkTail")
-		DKB2 A 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		DKB2 A 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
 		DKB2 A 0 A_SpawnItemEx("DarkTail")
-		DKB2 B 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		DKB2 B 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
 		DKB2 A 0 A_SpawnItemEx("DarkTail")
-		DKB2 B 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		DKB2 B 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		DKB2 A 0 A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
 		DKB2 A 0 A_SpawnItemEx("DarkTail")
 		Loop
 	Death:
-		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("DarkSeekerParticle",0,0,0,frandom(1,3),0,frandom(3,-3),random(0,359))
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("DarkSeekerParticle",0,0,0,CFRandom[utntlegacyfx](1,3),0,CFRandom[utntlegacyfx](3,-3),CRandom[utntlegacyfx](0,359))
 		TNT1 A 0 A_SpawnItemEx("DarkSeekerExplo")
 		DKB2 C 4 Bright LIGHT("DarkStrongX_1")
 		DKB2 D 4 Bright LIGHT("DarkStrongX_2")
@@ -2554,11 +2586,15 @@ actor DarkStrong : DarkNormal
 
 Actor DarkNormalParticle : DarkSeekerParticle
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Scale 0.55
 }
 
-actor DarkTail
+actor DarkTail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	PROJECTILE
 	RENDERSTYLE ADD
 	+NOCLIP
@@ -2580,14 +2616,14 @@ actor DarkSeeker : DarkNormal
 	Spawn:
 		DKB1 A 0 A_SeekerMissile(5,10)
 		DKB1 A 0 A_SpawnItemEx("DarkSeekerTrail")
-		DKB1 AA 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,frandom(2,-2),frandom(1.5,-1.5))
+		DKB1 AA 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,CFRandom[utntlegacyfx](2,-2),CFRandom[utntlegacyfx](1.5,-1.5))
 		DKB1 A 0 A_SpawnItemEx("DarkSeekerTrail")
-		DKB1 AA 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,frandom(2,-2),frandom(1.5,-1.5))
+		DKB1 AA 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,CFRandom[utntlegacyfx](2,-2),CFRandom[utntlegacyfx](1.5,-1.5))
 		DKB1 B 0 A_SeekerMissile(5,10)
 		DKB1 B 0 A_SpawnItemEx("DarkSeekerTrail")
-		DKB1 BB 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,frandom(2,-2),frandom(1.5,-1.5))
+		DKB1 BB 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,CFRandom[utntlegacyfx](2,-2),CFRandom[utntlegacyfx](1.5,-1.5))
 		DKB1 B 0 A_SpawnItemEx("DarkSeekerTrail")
-		DKB1 BB 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,frandom(2,-2),frandom(1.5,-1.5))
+		DKB1 BB 1 Bright A_SpawnItemEx("DarkNormalParticle",-3,0,0,0,CFRandom[utntlegacyfx](2,-2),CFRandom[utntlegacyfx](1.5,-1.5))
 		Loop
 	Death:
 		TNT1 A 0 A_SpawnItemEx("DarkSeekerExplo")
@@ -2595,8 +2631,10 @@ actor DarkSeeker : DarkNormal
 	}
 }
 
-Actor DarkSeekerExplo
+Actor DarkSeekerExplo : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Translation "0:255=%[0,0,0]:[1.5,0.3,0.9]"
@@ -2608,8 +2646,10 @@ Actor DarkSeekerExplo
 	}
 }
 
-Actor DarkSeekerTrail
+Actor DarkSeekerTrail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Alpha 0.4
@@ -2634,7 +2674,7 @@ actor DarkFast : DarkNormal
 	States
 	{
 	Spawn:
-		DKB1 AAABBB 1 Bright A_SpawnItemEx("DarkNormalParticle",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.2),0,32)
+		DKB1 AAABBB 1 Bright A_SpawnItemEx("DarkNormalParticle",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.5,1.2),0,32)
 		Loop
 	Death:
 		Goto Super::Death+6
@@ -2709,8 +2749,10 @@ ACTOR KDiZDNightmare 26000
 	}
 }
 
-ACTOR NightmareWisp
+ACTOR NightmareWisp : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Radius 4
 	Height 8
 	RenderStyle ADD
@@ -2939,7 +2981,7 @@ actor GreenPoisonBall : UTNTDoomImpBall
 	States
 	{
 	Spawn:
-		WLP1 ABCD 4 LIGHT("GreenPoison") A_SpawnItemEx("GreenPoisonDrop",frandom(3,-3),frandom(3,-3),frandom(3,-3),0,0,frandom(-0.2,-1.3))
+		WLP1 ABCD 4 LIGHT("GreenPoison") A_SpawnItemEx("GreenPoisonDrop",CFRandom[utntlegacyfx](3,-3),CFRandom[utntlegacyfx](3,-3),CFRandom[utntlegacyfx](3,-3),0,0,CFRandom[utntlegacyfx](-0.2,-1.3))
 		Loop
 	Death:
 		TNT1 AAAAAA 0 A_SpawnItemEx("GreenPoisonExtra",0,0,0,random(1,-1),random(1,-1),random(0,2))
@@ -2975,6 +3017,8 @@ Actor GreenPoisonExtra
 
 Actor GreenPoisonDrop : GenericSmallParticle
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Translation "0:255=%[0,0,0]:[0,1,0]"
 	Scale 0.2
 }
@@ -2988,18 +3032,18 @@ actor RedSkullBall : GreenPoisonBall
 	States
 	{
 	Spawn:
-		IFX1 A 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,frandom(1,-1),frandom(1,-1))
-		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,frandom(1,-1),frandom(0,1),random(0,360),0,64)
-		IFX1 A 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,frandom(1,-1),frandom(1,-1))
-		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,frandom(1,-1),frandom(0,1),random(0,360),0,64)
-		IFX1 B 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,frandom(1,-1),frandom(1,-1))
-		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,frandom(1,-1),frandom(0,1),random(0,360),0,64)
-		IFX1 B 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,frandom(1,-1),frandom(1,-1))
-		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,frandom(1,-1),frandom(0,1),random(0,360),0,64)
+		IFX1 A 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](1,-1))
+		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](0,1),CRandom[utntlegacyfx](0,360),0,64)
+		IFX1 A 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](1,-1))
+		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](0,1),CRandom[utntlegacyfx](0,360),0,64)
+		IFX1 B 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](1,-1))
+		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](0,1),CRandom[utntlegacyfx](0,360),0,64)
+		IFX1 B 1 Bright LIGHT("RedSkull") A_SpawnItemEx("RedFlameSmall",0,0,-5,0,CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](1,-1))
+		TNT1 A 0 A_SpawnItemEx("RockTrailSmoke",0,0,0,0,CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](0,1),CRandom[utntlegacyfx](0,360),0,64)
 		Loop
 	Death:
 		TNT1 A 0 A_SpawnItemEx("RedSkullBallExp")
-		TNT1 AAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",frandom(1.5,5),0,4,frandom(2.5,5),0,0,random(0,359))
+		TNT1 AAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",CFRandom[utntlegacyfx](1.5,5),0,4,CFRandom[utntlegacyfx](2.5,5),0,0,CRandom[utntlegacyfx](0,359))
 		IFX1 I 4 LIGHT("RedSkullX_1")
 		IFX1 J 4 LIGHT("RedSkullX_2")
 		IFX1 K 4 LIGHT("RedSkullX_3")
@@ -3008,8 +3052,10 @@ actor RedSkullBall : GreenPoisonBall
 	}
 }
 
-Actor RedSkullBallExp
+Actor RedSkullBallExp : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Projectile
 	+NOCLIP
 	RenderStyle Add
@@ -3022,8 +3068,10 @@ Actor RedSkullBallExp
 	}
 }
 
-Actor RedFlameSmall
+Actor RedFlameSmall : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Alpha 0.9
@@ -3032,7 +3080,7 @@ Actor RedFlameSmall
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(190,4,7,10,14)
+		TNT1 A 0 NODELAY A_JumpIf(CRandom[utntlegacyfx](0,255)<(190),CRandomPick[utntlegacyfx](4,7,10,14))
 		X123 ABCDEFGHIJKLMNOPQRSTUVWX 2 A_FadeOut(0.04)
 		Goto Spawn+1
 	}
@@ -3052,7 +3100,7 @@ actor YellowSkullSeeker : GreenPoisonBall
 		WLP2 ABCD 3 Bright LIGHT("YellowSkull") A_SeekerMissile(5,10)
 		Loop
 	Death:
-		TNT1 AAAAAA 0 A_SpawnItemEx("TT1",0,0,0,frandom(0.1,1.2),0,frandom(-1.2,1.2),random(0,359),32)
+		TNT1 AAAAAA 0 A_SpawnItemEx("TT1",0,0,0,CFRandom[utntlegacyfx](0.1,1.2),0,CFRandom[utntlegacyfx](-1.2,1.2),CRandom[utntlegacyfx](0,359),32)
 		WLP2 E 4 Bright LIGHT("YellowSkullX_1")
 		WLP2 F 4 Bright LIGHT("YellowSkullX_2")
 		WLP2 G 4 Bright LIGHT("YellowSkullX_3")
@@ -3089,6 +3137,8 @@ Actor YellowSkullSeekerA
 
 actor WarlordShield
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	+CLIENTSIDEONLY
 	BounceType Doom
 	Speed 5
@@ -3103,6 +3153,8 @@ actor WarlordShield
 
 actor WarlordMace : WarlordShield
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	Speed 4
 	States
 	{
@@ -3381,7 +3433,7 @@ ACTOR SnakeImpFireball : UTNTDoomImpBall
 	States
 	{
 	Spawn:
-		SIBA AB 4 LIGHT("SnakeImp") A_SpawnItemEx("GreenPoisonDrop",frandom(3,-3),frandom(3,-3),frandom(3,-3),0,0,frandom(-0.2,-1.3))
+		SIBA AB 4 LIGHT("SnakeImp") A_SpawnItemEx("GreenPoisonDrop",CFRandom[utntlegacyfx](3,-3),CFRandom[utntlegacyfx](3,-3),CFRandom[utntlegacyfx](3,-3),0,0,CFRandom[utntlegacyfx](-0.2,-1.3))
 		loop
 	Death:
 		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("GreenPoisonExtra",0,0,0,random(1,-1),random(1,-1),random(0,2))
@@ -3542,9 +3594,9 @@ ACTOR BloodDemonClone : UTNTDemon 3110
 	}
 }
 
-ACTOR BloodDemonArm
+ACTOR BloodDemonArm : UTNTLegacyCosmetic
 {
-	+CLIENTSIDEONLY
+	+CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
 	Radius 8
 	Height 8
 	Speed 8
@@ -3623,34 +3675,34 @@ actor UTNTCacolanternBall : UTNTCacodemonBall
 	States
 	{
 	Spawn:
-		BAL8 AAA 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
-		BAL8 BBB 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
-		BAL8 CCC 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
-		BAL8 DDD 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
-		BAL8 EEE 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
-		BAL8 FFF 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
-		BAL8 GGG 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
-		BAL8 HHH 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		BAL8 AAA 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		BAL8 BBB 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		BAL8 CCC 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		BAL8 DDD 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		BAL8 EEE 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		BAL8 FFF 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		BAL8 GGG 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		BAL8 HHH 1 Bright LIGHT("YellowMediumFlicker2") A_SpawnItemEx("LanternTrail",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.5,1.5))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
 		Loop
 	Death:
-		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",frandom(1.5,5),0,4,frandom(0.5,2),0,0,random(0,359),32)
-		TNT1 AAAAAA 0 A_SpawnItemEx("LanternTrail",0,0,0,frandom(1,-1),frandom(1,-1),frandom(1.5,-1.5))
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",CFRandom[utntlegacyfx](1.5,5),0,4,CFRandom[utntlegacyfx](0.5,2),0,0,CRandom[utntlegacyfx](0,359),32)
+		TNT1 AAAAAA 0 A_SpawnItemEx("LanternTrail",0,0,0,CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](1.5,-1.5))
 		BAL8 I 4 Bright LIGHT("YellowMediumFlicker3")
 		BAL8 J 4 Bright LIGHT("YellowSmallFlicker1")
 		BAL8 K 4 Bright LIGHT("YellowSmallFlicker2")
@@ -3661,6 +3713,8 @@ actor UTNTCacolanternBall : UTNTCacodemonBall
 
 Actor LanternTrail : GenericSmallParticle
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Translation "0:255=%[0,0,0]:[1,0.6,0]"
 	Scale 0.4
 }
@@ -3795,20 +3849,20 @@ actor HellGuardBall
 	{
 	Spawn:
 		HGFB A 2 Bright LIGHT("HellGuard")
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
 		HGFB B 2 Bright LIGHT("HellGuard")
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
 		HGFB C 2 Bright LIGHT("HellGuard")
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
 		HGFB D 2 Bright LIGHT("HellGuard")
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,frandom(0.8,-0.8))
-		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,frandom(0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,1.5,CFRandom[utntlegacyfx](0.8,-0.8))
+		TNT1 A 0 A_SpawnItemEx("HellGuardBallParticle",-3,0,0,0,-1.5,CFRandom[utntlegacyfx](0.8,-0.8))
 		Loop
 	Death:
-		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeSmaller",frandom(1.5,5),0,4,frandom(0.5,2),0,0,random(0,359))
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeSmaller",CFRandom[utntlegacyfx](1.5,5),0,4,CFRandom[utntlegacyfx](0.5,2),0,0,CRandom[utntlegacyfx](0,359))
 		HGFB E 4 Bright LIGHT("HellGuardX_1")
 		HGFB F 4 Bright LIGHT("HellGuardX_2")
 		HGFB G 4 Bright LIGHT("HellGuardX_3")
@@ -3817,8 +3871,10 @@ actor HellGuardBall
 	}
 }
 
-Actor HellGuardBallParticle
+Actor HellGuardBallParticle : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	Scale 0.2
 	RenderStyle Add
@@ -3939,7 +3995,7 @@ actor SoulHarvesterBall
 		SHBA BB 1 Bright LIGHT("SoulHarvesterBall") A_SpawnItemEx("SoulBallTrail")
 		Loop
 	Death:
-		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("SoulBallParticle",0,0,0,frandom(0.4,2),0,frandom(2,-2),random(0,359),32,32)
+		TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("SoulBallParticle",0,0,0,CFRandom[utntlegacyfx](0.4,2),0,CFRandom[utntlegacyfx](2,-2),CRandom[utntlegacyfx](0,359),32,32)
 		TNT1 A 0 A_SetScale(0.5)
 		SHBA CC 2 Bright LIGHT("SoulHarvesterBallX_1") A_FadeOut(0.06)
 		SHBA DD 2 Bright LIGHT("SoulHarvesterBallX_2") A_FadeOut(0.06)
@@ -3955,9 +4011,9 @@ actor SoulHarvesterBall
 	}
 }
 
-actor SoulBallTrail
+actor SoulBallTrail : UTNTLegacyCosmetic
 {
-	+CLIENTSIDEONLY
+	+CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
 	Radius 1
 	Height 1
 	PROJECTILE
@@ -3967,14 +4023,16 @@ actor SoulBallTrail
 	States
 	{
 	Spawn:
-		SBTR H 2 A_SpawnItemEx("SoulBallParticle",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0,1),0,0,160)
+		SBTR H 2 A_UTNTLocalSpawn("SoulBallParticle",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0,1),0,0,160)
 		SBTR ABCDEFG 3 Bright A_FadeOut(0.05)
 		Stop
 	}
 }
 
-Actor SoulBallParticle
+Actor SoulBallParticle : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	Scale 0.4
 	RenderStyle Add
@@ -4001,6 +4059,8 @@ Actor SoulBallParticle
 
 actor SoulHarvesterGhost : SoulBallTrail
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	ALPHA 0.7
 	SeeSound "harvester/ghost"
 	States
@@ -4112,11 +4172,11 @@ actor HellWarriorBall : BaronBall
 	States
 	{
 	Spawn:
-		HWFB AAAABBBB 1 Bright LIGHT("HellWarriorBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		HWFB AAAABBBB 1 Bright LIGHT("HellWarriorBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		Loop
 	Death:
 		TNT1 A 0 A_SpawnItemEx("BaronBallExplo")
-		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359),SXF_TRANSFERTRANSLATION)
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,CFRandom[utntlegacyfx](0.5,2),0,0,CRandom[utntlegacyfx](0,359),SXF_TRANSFERTRANSLATION)
 		TNT1 A 0 A_SetTranslucent(0.01,1)
 		HWFB C 5 Bright LIGHT("HellWarriorBallX_1")
 		HWFB D 5 Bright LIGHT("HellWarriorBallX_2")
@@ -4137,7 +4197,7 @@ actor HellWarriorBall2 : HellWarriorBall
 	States
 	{
 	Spawn:
-		MGS1 AABB 1 Bright LIGHT("HellWarriorBall2") A_SpawnItemEx("HellWarriorBall2Trail",0,0,0,frandom(0.2,2),0,frandom(2,-2),random(0,359),SXF_TRANSFERTRANSLATION)
+		MGS1 AABB 1 Bright LIGHT("HellWarriorBall2") A_SpawnItemEx("HellWarriorBall2Trail",0,0,0,CFRandom[utntlegacyfx](0.2,2),0,CFRandom[utntlegacyfx](2,-2),CRandom[utntlegacyfx](0,359),SXF_TRANSFERTRANSLATION)
 		Loop
 	Death:
 		MGS1 ABABABAB 2 A_SetScale(ScaleX-0.025)
@@ -4146,8 +4206,10 @@ actor HellWarriorBall2 : HellWarriorBall
 	}
 }
 
-Actor HellWarriorBall2Trail
+Actor HellWarriorBall2Trail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Scale 0.3
@@ -4155,7 +4217,7 @@ Actor HellWarriorBall2Trail
 	{
 	Spawn:
 		TNT1 A 1
-		MGS1 A 0 A_Jump(128,1)
+		MGS1 A 0 A_JumpIf(CRandom[utntlegacyfx](0,255)<(128),1)
 		MGS1 AB 2 A_Fadeout(0.05)
 		TNT1 A 0 A_SetScale(ScaleX-0.04)
 		TNT1 A 0 A_ScaleVelocity(0.75)
@@ -4165,6 +4227,8 @@ Actor HellWarriorBall2Trail
 
 ACTOR HellWarriorShield
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	+CLIENTSIDEONLY
 	Radius 8
 	Height 8
@@ -4298,8 +4362,10 @@ actor Comet
 	}
 }
 
-actor CometTail
+actor CometTail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	PROJECTILE
 	RENDERSTYLE ADD
 	+NOCLIP
@@ -4307,7 +4373,7 @@ actor CometTail
 	States
 	{
 	Spawn:
-		TNT1 AAAA 0 A_SpawnItemEx("LanternTrail",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0.5,1.5))
+		TNT1 AAAA 0 A_UTNTLocalSpawn("LanternTrail",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.5,1.5))
 		FRTB ABCDEFGHI 2 Bright
 		Stop
 	}
@@ -4315,6 +4381,8 @@ actor CometTail
 
 actor CometDeathGlow : CometTail
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Scale 2.0
 	Alpha 0.6
 	States
@@ -4327,6 +4395,8 @@ actor CometDeathGlow : CometTail
 
 actor OrbitCometTail : CometTail
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Scale .5
 }
 
@@ -4365,11 +4435,11 @@ actor AfritBall : BaronBall
 	States
 	{
 	Spawn:
-		FRTM AAABBB 1 Bright LIGHT("AfritBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		FRTM AAABBB 1 Bright LIGHT("AfritBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		Loop
 	Death:
-		TNT1 AAAAAAAAAAAA 0 A_SpawnItemEx("AfritBallParticle",0,0,0,frandom(2,-2),frandom(2,-2),frandom(2,-2))
-		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359))
+		TNT1 AAAAAAAAAAAA 0 A_SpawnItemEx("AfritBallParticle",0,0,0,CFRandom[utntlegacyfx](2,-2),CFRandom[utntlegacyfx](2,-2),CFRandom[utntlegacyfx](2,-2))
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,CFRandom[utntlegacyfx](0.5,2),0,0,CRandom[utntlegacyfx](0,359))
 		FRTM C 3 Bright LIGHT("AfritBallX_1")
 		FRTM D 3 Bright LIGHT("AfritBallX_2")
 		FRTM E 3 Bright LIGHT("AfritBallX_3")
@@ -4377,8 +4447,10 @@ actor AfritBall : BaronBall
 	}
 }
 
-Actor AfritBallParticle
+Actor AfritBallParticle : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	Scale 0.15
 	RenderStyle Add
@@ -4444,27 +4516,27 @@ ACTOR HellFire2 : HellFire
 	Spawn:
 		TNT1 A 8
 		FRTF A 3 Bright LIGHT("HellFire") A_Explode(3,32)
-		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
 		FRTF B 3 Bright LIGHT("HellFire_2") A_Explode(3,32)
-		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
 		FRTF C 3 Bright LIGHT("HellFire_3") A_Explode(3,32)
-		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
 		FRTF C 0 A_Jump(191,4)
 		FRTF C 0 A_SpawnItemEx("HellFire2",0,24)
 		FRTF C 0 A_SpawnItemEx("HellFire2")
 		FRTF C 0 A_SpawnItemEx("HellFire2",0,-24)
-		FRTF D 3 Bright LIGHT("HellFire_4") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
-		FRTF E 3 Bright LIGHT("HellFire_5") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
-		FRTF F 3 Bright LIGHT("HellFire_6") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
-		FRTF G 3 Bright LIGHT("HellFire_7") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
-		FRTF H 3 Bright LIGHT("HellFire_8") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
-		FRTF I 3 Bright LIGHT("HellFire_9") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
-		FRTF J 3 Bright LIGHT("HellFire_10") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
-		FRTF K 3 Bright LIGHT("HellFire_11") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
-		FRTF L 3 Bright LIGHT("HellFire_12") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
-		FRTF M 3 Bright LIGHT("HellFire_13") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
-		FRTF N 3 Bright LIGHT("HellFire_14") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
-		FRTF O 3 Bright LIGHT("HellFire_15") A_SpawnItemEx("FTFlameTrail2",random(-15,15),random(-15,15),random(0,10),0,0,frandom(0.5,2),0,32,90)
+		FRTF D 3 Bright LIGHT("HellFire_4") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
+		FRTF E 3 Bright LIGHT("HellFire_5") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
+		FRTF F 3 Bright LIGHT("HellFire_6") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
+		FRTF G 3 Bright LIGHT("HellFire_7") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
+		FRTF H 3 Bright LIGHT("HellFire_8") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
+		FRTF I 3 Bright LIGHT("HellFire_9") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
+		FRTF J 3 Bright LIGHT("HellFire_10") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
+		FRTF K 3 Bright LIGHT("HellFire_11") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
+		FRTF L 3 Bright LIGHT("HellFire_12") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
+		FRTF M 3 Bright LIGHT("HellFire_13") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
+		FRTF N 3 Bright LIGHT("HellFire_14") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
+		FRTF O 3 Bright LIGHT("HellFire_15") A_SpawnItemEx("FTFlameTrail2",CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](-15,15),CRandom[utntlegacyfx](0,10),0,0,CFRandom[utntlegacyfx](0.5,2),0,32,90)
 		Stop
 	}
 }
@@ -4594,7 +4666,7 @@ actor TorturedSoulBall : UTNTDoomImpBall
 		TRBL AAABBB 1 LIGHT("TorturedSoulBall") A_SpawnItemEx("TorturedSoulBallTrail")
 		Loop
 	Death:
-		TNT1 AAAAAAAAAAAAA 0 A_SpawnItemEx("TorturedSoulBallParticle",0,0,0,random(2,-2),random(2,-2),frandom(0,3),0,33)
+		TNT1 AAAAAAAAAAAAA 0 A_SpawnItemEx("TorturedSoulBallParticle",0,0,0,CRandom[utntlegacyfx](2,-2),CRandom[utntlegacyfx](2,-2),CFRandom[utntlegacyfx](0,3),0,33)
 		TRBL CC 2 LIGHT("TorturedSoulBallX_1") A_FadeOut(0.06)
 		TRBL DD 2 LIGHT("TorturedSoulBallX_2") A_FadeOut(0.06)
 		TRBL EE 2 LIGHT("TorturedSoulBallX_3") A_FadeOut(0.06)
@@ -4602,12 +4674,14 @@ actor TorturedSoulBall : UTNTDoomImpBall
 	}
 }
 
-actor TorturedSoulPoison
+actor TorturedSoulPoison : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Radius 24
 	Height 6
 	Speed 5
-	Damage (random(1,4)*1)
+	Damage (CRandom[utntlegacyfx](1,4)*1)
 	+RIPPER
 	PROJECTILE
 	RENDERSTYLE Translucent
@@ -4617,14 +4691,16 @@ actor TorturedSoulPoison
 	{
 	Spawn:
 	Death:
-		TNT1 A 0 NODELAY A_Jump(250,3,6,9,12,15,18,21)
+		TNT1 A 0 NODELAY A_JumpIf(CRandom[utntlegacyfx](0,255)<(250),CRandomPick[utntlegacyfx](3,6,9,12,15,18,21))
 		X108 ABCDEFGHIJKLMNOPQRSTUVWX 2 A_FadeOut(0.0185)
 		Goto Spawn+1
 	}
 }
 
-Actor TorturedSoulBallTrail
+Actor TorturedSoulBallTrail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Translation "0:255=%[0,0,0]:[0.95,1.2,0.55]"
 	+NOINTERACTION
 	RenderStyle Add
@@ -4633,14 +4709,16 @@ Actor TorturedSoulBallTrail
 	States
 	{
 	Spawn:
-		X105 A 0 NODELAY A_Jump(240,3,6,9,12,15,18,21)
+		X105 A 0 NODELAY A_JumpIf(CRandom[utntlegacyfx](0,255)<(240),CRandomPick[utntlegacyfx](3,6,9,12,15,18,21))
 		X105 ABCDEFGHIJKLMNOPQRSTUVWX 2 A_FadeOut(0.04)
 		Goto Spawn+1
 	}
 }
 
-Actor TorturedSoulBallParticle
+Actor TorturedSoulBallParticle : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Scale 0.35
 	Gravity .125
 	RenderStyle Add
@@ -4655,7 +4733,7 @@ Actor TorturedSoulBallParticle
 	{
 	Spawn:
 		SBAL B 6
-		TNT1 A 0 A_Jump(80,1)
+		TNT1 A 0 A_JumpIf(CRandom[utntlegacyfx](0,255)<(80),1)
 		Loop
 		SBAL B 3 A_FadeOut(0.1)
 		Wait
@@ -4812,9 +4890,9 @@ ACTOR Shadow 3126
 	}
 }
 
-ACTOR ShadowTorso
+ACTOR ShadowTorso : UTNTLegacyCosmetic
 {
-	+CLIENTSIDEONLY
+	+CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
 	Radius 12
 	Height 15
 	Speed 1
@@ -4843,7 +4921,7 @@ ACTOR ShadowBall : UTNTDoomImpBall
 		SBAL AAABBBCCC 1 BRIGHT LIGHT("ShadowBall") A_SpawnItemEx("ShadowTrail")
 		Loop
 	Death:
-		TNT1 AAAAAAAA 0 A_SpawnItemEx("ShadowBallSmokeParticle",0,0,0,frandom(1,-1),frandom(1,-1),frandom(1,-1))
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("ShadowBallSmokeParticle",0,0,0,CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](1,-1),CFRandom[utntlegacyfx](1,-1))
 		SBAL C 3 Bright LIGHT("ShadowBall")
 		SBAL D 3 BRIGHT LIGHT("ShadowBallX_1")
 		SBAL E 3 BRIGHT LIGHT("ShadowBallX_2")
@@ -4854,8 +4932,10 @@ ACTOR ShadowBall : UTNTDoomImpBall
 	}
 }
 
-actor ShadowTrail
+actor ShadowTrail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Radius 1
 	Height 1
 	PROJECTILE
@@ -4870,8 +4950,10 @@ actor ShadowTrail
 	}
 }
 
-Actor ShadowBallSmokeParticle
+Actor ShadowBallSmokeParticle : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Scale 0.2
@@ -4894,6 +4976,8 @@ Actor ShadowBallSmokeParticle
 
 ACTOR ShadowGhost
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	+CLIENTSIDEONLY
 	Radius 4
 	Height 8
@@ -4976,11 +5060,11 @@ ACTOR HellsFuryBall : BaronBall
 	States
 	{
 	Spawn:
-		HFBB AAABBB 1 Bright LIGHT("HellsFuryBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		HFBB AAABBB 1 Bright LIGHT("HellsFuryBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		Loop
 	Death:
 		TNT1 A 0 A_SpawnItemEx("BaronBallExplo",0,0,0,0,0,0,0,SXF_TRANSFERTRANSLATION)
-		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359))
+		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,CFRandom[utntlegacyfx](0.5,2),0,0,CRandom[utntlegacyfx](0,359))
 		TNT1 A 0 A_SetTranslucent(0.01,1)
 		HFBB C 5 Bright LIGHT("HellsFuryBallX_1")
 		HFBB D 5 Bright LIGHT("HellsFuryBallX_2")
@@ -4991,6 +5075,8 @@ ACTOR HellsFuryBall : BaronBall
 
 ACTOR HellsFurySkull
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID -SHOOTABLE
+
 	Radius 5
 	Height 5
 	Speed 5
@@ -5056,10 +5142,10 @@ ACTOR ElementalPlasma : ArachnotronPlasma
 	States
 	{
 	Spawn:
-		APLS AABB 2 BRIGHT LIGHT("ElementalPlasma") A_SpawnItemEx("MonPlasmaTrail",random(4,-4),random(4,-4),random(4,-4))
+		APLS AABB 2 BRIGHT LIGHT("ElementalPlasma") A_SpawnItemEx("MonPlasmaTrail",CRandom[utntlegacyfx](4,-4),CRandom[utntlegacyfx](4,-4),CRandom[utntlegacyfx](4,-4))
 		Loop
 	Death:
-		TNT1 AAAAAAA 0 A_SpawnItemEx("MonBlasterPuffParticle",0,0,0,frandom(5,-5),frandom(5,-5),frandom(5,-5),random(0,359))
+		TNT1 AAAAAAA 0 A_SpawnItemEx("MonBlasterPuffParticle",0,0,0,CFRandom[utntlegacyfx](5,-5),CFRandom[utntlegacyfx](5,-5),CFRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](0,359))
 		APBX A 5 BRIGHT LIGHT("ElementalPlasmaX_1")
 		APBX B 5 BRIGHT LIGHT("ElementalPlasmaX_2")
 		APBX C 5 BRIGHT LIGHT("ElementalPlasmaX_3")
@@ -5069,8 +5155,10 @@ ACTOR ElementalPlasma : ArachnotronPlasma
 	}
 }
 
-Actor MonPlasmaTrail
+Actor MonPlasmaTrail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Scale 0.25
 	RenderStyle Add
 	Translation "0:255=%[0,0,0]:[0.5,1.0,0.2]"
@@ -5078,7 +5166,7 @@ Actor MonPlasmaTrail
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(240,4,8,12,16,20,24,28,32,36)
+		TNT1 A 0 NODELAY A_JumpIf(CRandom[utntlegacyfx](0,255)<(240),CRandomPick[utntlegacyfx](4,8,12,16,20,24,28,32,36))
 		X103 ABCDEFGHIJKLMNOPQRSTUVXYZ 2 Bright A_FadeOut(0.09)
 		X104 ABCDEFGHIJKLMNOPQRSTUV 2 Bright A_FadeOut(0.09)
 		Goto Spawn+1
@@ -5087,12 +5175,14 @@ Actor MonPlasmaTrail
 
 ACTOR MonBlasterPuffParticle : MonPlasmaTrail
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Scale 0.1
 	Translation "0:255=%[0,0,0]:[0.9,0.85,0.18]"
 	States
 	{
 	Spawn:
-		X026 DD 1 Bright A_FadeOut(frandom(0.02,0.08))
+		X026 DD 1 Bright A_FadeOut(CFRandom[utntlegacyfx](0.02,0.08))
 		X025 D 0 A_ScaleVelocity(0.9)
 		Loop
 	}
@@ -5226,7 +5316,7 @@ ACTOR HS 30116
 		HADE M 0 A_SetTranslucent(.9,1)
 		HADE M 0 A_PlaySound("monster/hadexp")
 		HADE M 0 A_Explode(112,112,XF_NOTMISSILE)
-		TNT1 AAAAAAAA 0 A_SpawnItemEx("HSBoomParticle",0,0,15,frandom(3,-3),frandom(3,-3),frandom(3,-3))
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("HSBoomParticle",0,0,15,CFRandom[utntlegacyfx](3,-3),CFRandom[utntlegacyfx](3,-3),CFRandom[utntlegacyfx](3,-3))
 		HADE MMM 1 BRIGHT LIGHT("HadesBoom_1") A_FadeOut(0.04)
 		HADE NNN 1 BRIGHT LIGHT("HadesBoom_2") A_FadeOut(0.04)
 		HADE OOOO 1 BRIGHT LIGHT("HadesBoom_3") A_FadeOut(0.04)
@@ -5241,8 +5331,10 @@ ACTOR HS 30116
 	}
 }
 
-Actor HSBoomParticle
+Actor HSBoomParticle : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Scale 0.3
@@ -5457,11 +5549,11 @@ ACTOR UTNTMinotaurFX1 : MinotaurFX1 replaces MinotaurFX1	//the 4 shots
 	States
 	{
 	Spawn:
-		FX12 AAAABBBB 1 BRIGHT LIGHT("YellowMediumPoint2") A_SpawnItemEx("CatharsiBallParticle",random(5,-5),random(5,-5),random(5,-5),0,0,frandom(0,1))
+		FX12 AAAABBBB 1 BRIGHT LIGHT("YellowMediumPoint2") A_SpawnItemEx("CatharsiBallParticle",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0,1))
 		Loop
 	Death:
-		TNT1 AAA 0 A_SpawnItemEx("TT3",0,0,0,frandom(-0.4,0.4),0,frandom(0.1,0.45),random(0,359),32)
-		TNT1 AAAAAAA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),random(1,-1),random(1,-1),random(0,359),32)
+		TNT1 AAA 0 A_SpawnItemEx("TT3",0,0,0,CFRandom[utntlegacyfx](-0.4,0.4),0,CFRandom[utntlegacyfx](0.1,0.45),CRandom[utntlegacyfx](0,359),32)
+		TNT1 AAAAAAA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,CRandom[utntlegacyfx](1,-1),CRandom[utntlegacyfx](1,-1),CRandom[utntlegacyfx](1,-1),CRandom[utntlegacyfx](0,359),32)
 		FX12 C 4 BRIGHT LIGHT("YellowMediumPoint1")
 		FX12 DE 4 BRIGHT LIGHT("YellowMediumPoint2")
 		FX12 F 4 BRIGHT LIGHT("YellowMediumPoint3")
@@ -5477,13 +5569,13 @@ ACTOR UTNTMinotaurFX2 : MinotaurFX2 replaces MinotaurFX2	//floorshot
 	{
 	Spawn:
 		FX13 A 2 A_MntrFloorFire
-		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke",random(5,-5),random(5,-5),random(5,10),0,0,frandom(0.2,1.0),0,0,64)
-		TNT1 AAAA 0 A_SpawnItemEx("FTFlameTrail",random(-7,7),random(-5,5),random(0,5),0,0,frandom(0,1))
-		TNT1 AA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),0,frandom(0.5,3),random(0,359))
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,10),0,0,CFRandom[utntlegacyfx](0.2,1.0),0,0,64)
+		TNT1 AAAA 0 A_SpawnItemEx("FTFlameTrail",CRandom[utntlegacyfx](-7,7),CRandom[utntlegacyfx](-5,5),CRandom[utntlegacyfx](0,5),0,0,CFRandom[utntlegacyfx](0,1))
+		TNT1 AA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,CRandom[utntlegacyfx](1,-1),0,CFRandom[utntlegacyfx](0.5,3),CRandom[utntlegacyfx](0,359))
 		Loop
 	Death:
-		TNT1 AAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,10,frandom(1,4),0,0,random(0,359))
-		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,random(1,-1),0,frandom(0.5,3),random(0,359))
+		TNT1 AAAAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,10,CFRandom[utntlegacyfx](1,4),0,0,CRandom[utntlegacyfx](0,359))
+		TNT1 AAAAAAAAAA 0 A_SpawnItemEx("CatharsiBallParticle",0,0,0,CRandom[utntlegacyfx](1,-1),0,CFRandom[utntlegacyfx](0.5,3),CRandom[utntlegacyfx](0,359))
 		FX13 I 3 Bright LIGHT("YellowMediumFlicker2") A_Explode
 		FX13 J 3 Bright LIGHT("YellowMediumFlicker1")
 		FX13 K 3 Bright LIGHT("YellowMediumFlicker2")
@@ -5498,8 +5590,8 @@ ACTOR UTNTMinotaurFX3 : MinotaurFX3 replaces MinotaurFX3	//floortrail
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("FlmThrwrSmoke",random(5,-5),random(5,-5),random(5,10),0,0,frandom(0.2,1.0),0,32,64)
-		TNT1 AA 0 A_SpawnItemEx("FTFlameTrail",random(-7,7),random(-5,5),random(0,5),0,0,frandom(0,1))
+		TNT1 A 0 NODELAY A_SpawnItemEx("FlmThrwrSmoke",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,10),0,0,CFRandom[utntlegacyfx](0.2,1.0),0,32,64)
+		TNT1 AA 0 A_SpawnItemEx("FTFlameTrail",CRandom[utntlegacyfx](-7,7),CRandom[utntlegacyfx](-5,5),CRandom[utntlegacyfx](0,5),0,0,CFRandom[utntlegacyfx](0,1))
 		FX13 DC 4 Bright LIGHT("YellowSmallFlicker2")
 		FX13 B 5 Bright LIGHT("YellowSmallFlicker1")
 		FX13 CDE 5 Bright LIGHT("YellowSmallFlicker2")
@@ -5667,79 +5759,79 @@ ACTOR Hecteball : FatShot //Hectebus Fireball
 	States
 	{
 	Spawn:
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF A 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,0,64/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,0,-64/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF A 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,12/6,63/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-12/6,-63/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF A 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,23/6,60/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-23/6,-60/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF B 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,34/6,54/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-34/6,-54/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF B 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,43/6,47/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-43/6,-47/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF B 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,51/6,39/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-51/6,-39/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF A 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,57/6,29/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-57/6,-29/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF A 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,62/6,18/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-62/6,-18/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF A 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,64/6,0)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-64/6,0)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF B 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,62/6,-18/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-62/6,18/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF B 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,57/6,-29/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-57/6,29/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF B 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,51/6,-39/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-51/6,39/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF A 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,43/6,-47/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-43/6,47/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF A 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,34/6,-54/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-34/6,54/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF A 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,23/6,-60/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-23/6,60/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF B 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,12/6,-63/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,-12/6,63/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		HECF B 1 bright LIGHT("HectebusFireBall")
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,0,64/6)
 		HECF A 0 A_SpawnItemEx("HecRingTrail",0,0,-64/6)
-		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,random(0,359))
+		HECF A 0 A_SpawnItemEx("HecCenterTrail",0,0,0,0,0,0,CRandom[utntlegacyfx](0,359))
 		Loop
 	Death:
-		TNT1 AAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TorturedSoulBallParticle",0,0,0,frandom(4,-4),frandom(4,-4),frandom(0,4),0,1)
-		TNT1 AAAAAAAA 0 A_SpawnItemEx("HSBoomParticle",0,0,15,frandom(3,-3),frandom(3,-3),frandom(3,-3),0,1)
+		TNT1 AAAAAAAAAAAAAAAA 0 A_SpawnItemEx("TorturedSoulBallParticle",0,0,0,CFRandom[utntlegacyfx](4,-4),CFRandom[utntlegacyfx](4,-4),CFRandom[utntlegacyfx](0,4),0,1)
+		TNT1 AAAAAAAA 0 A_SpawnItemEx("HSBoomParticle",0,0,15,CFRandom[utntlegacyfx](3,-3),CFRandom[utntlegacyfx](3,-3),CFRandom[utntlegacyfx](3,-3),0,1)
 		HECF CCCC 1 Bright LIGHT("HectebusFireBallX_1") A_FadeOut(0.09)
 		HECF DDDD 1 Bright LIGHT("HectebusFireBallX_2") A_FadeOut(0.09)
 		HECF EEEE 1 Bright LIGHT("HectebusFireBallX_3") A_FadeOut(0.09)
@@ -5749,12 +5841,16 @@ ACTOR Hecteball : FatShot //Hectebus Fireball
 
 Actor HecCenterTrail : TorturedSoulBallTrail
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Scale 0.7
 	Translation "0:255=%[0,0,0]:[0.65,0.81,0.34]"
 }
 
-Actor HecRingTrail
+Actor HecRingTrail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	Scale 0.18
 	RenderStyle Add
@@ -5762,15 +5858,17 @@ Actor HecRingTrail
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(240,4,8,12,16,20,24,28,32,36)
+		TNT1 A 0 NODELAY A_JumpIf(CRandom[utntlegacyfx](0,255)<(240),CRandomPick[utntlegacyfx](4,8,12,16,20,24,28,32,36))
 		X103 ABCDEFGHIJKLMNOPQRSTUVXYZ 2 Bright A_FadeOut(0.07)
 		X104 ABCDEFGHIJKLMNOPQRSTUV 2 Bright A_FadeOut(0.07)
 		Goto Spawn+1
 	}
 }
 
-Actor HectParticles
+Actor HectParticles : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Scale 0.5
 	Gravity .125
 	RenderStyle Add
@@ -5784,7 +5882,7 @@ Actor HectParticles
 	{
 	Spawn:
 		SBAL B 6
-		TNT1 A 0 A_Jump(80,1)
+		TNT1 A 0 A_JumpIf(CRandom[utntlegacyfx](0,255)<(80),1)
 		Loop
 		SBAL B 3 A_FadeOut
 		Wait
@@ -5920,13 +6018,13 @@ ACTOR BruiserBall : UTNTBaronBall
 	States
 	{
 	Spawn:
-		BRBA A 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		BRBA A 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
-		BRBA A 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		BRBA A 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
-		BRBA B 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		BRBA B 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
-		BRBA B 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		BRBA B 1 BRIGHT LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		TNT1 A 0 A_SpawnItemEx("FlameBreathourceTrailExtra")
 		Loop
 	Death:
@@ -5949,66 +6047,70 @@ ACTOR BruiserBall : UTNTBaronBall
 	}
 }
 
-Actor BruiserBallExplo
+Actor BruiserBallExplo : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("TT1",0,0,0,0,1.85)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.8,0.5)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.7,1.0)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.4,1.4)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.0,1.7)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,0.6,1.8)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,0,1.85)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.85)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.8,0.5)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.7,1.0)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.4,1.4)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.0,1.7)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-0.6,1.8)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.8,-0.5)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.7,-1.0)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.4,-1.4)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,1.0,-1.7)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,0.6,-1.8)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,0,-1.85)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.8,-0.5)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.7,-1.0)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.4,-1.4)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-1.0,-1.7)
-		TNT1 A 0 A_SpawnItemEx("TT1",0,0,0,0,-0.6,-1.8)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.85)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.8,0.5)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.7,1.0)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.4,1.4)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.0,1.7)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),0.6,1.8)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),0,1.85)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.85)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.8,0.5)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.7,1.0)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.4,1.4)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.0,1.7)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-0.6,1.8)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.8,-0.5)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.7,-1.0)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.4,-1.4)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),1.0,-1.7)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),0.6,-1.8)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),0,-1.85)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.8,-0.5)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.7,-1.0)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.4,-1.4)
-		TNT1 A 0 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-1.0,-1.7)
-		TNT1 A 1 A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(-1,-4),-0.6,-1.8)
+		TNT1 A 0 NODELAY A_UTNTLocalSpawn("TT1",0,0,0,0,1.85)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,1.8,0.5)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,1.7,1.0)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,1.4,1.4)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,1.0,1.7)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,0.6,1.8)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,0,1.85)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,-1.85)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,-1.8,0.5)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,-1.7,1.0)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,-1.4,1.4)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,-1.0,1.7)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,-0.6,1.8)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,1.8,-0.5)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,1.7,-1.0)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,1.4,-1.4)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,1.0,-1.7)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,0.6,-1.8)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,0,-1.85)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,-1.8,-0.5)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,-1.7,-1.0)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,-1.4,-1.4)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,-1.0,-1.7)
+		TNT1 A 0 A_UTNTLocalSpawn("TT1",0,0,0,0,-0.6,-1.8)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),1.85)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),1.8,0.5)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),1.7,1.0)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),1.4,1.4)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),1.0,1.7)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),0.6,1.8)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),0,1.85)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),-1.85)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),-1.8,0.5)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),-1.7,1.0)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),-1.4,1.4)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),-1.0,1.7)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),-0.6,1.8)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),1.8,-0.5)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),1.7,-1.0)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),1.4,-1.4)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),1.0,-1.7)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),0.6,-1.8)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),0,-1.85)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),-1.8,-0.5)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),-1.7,-1.0)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),-1.4,-1.4)
+		TNT1 A 0 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),-1.0,-1.7)
+		TNT1 A 1 A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](-1,-4),-0.6,-1.8)
 		Stop
 	}
 }
 
-Actor MeteoFlameImpactParticle
+Actor MeteoFlameImpactParticle : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	Scale 0.4
@@ -6016,14 +6118,16 @@ Actor MeteoFlameImpactParticle
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(200,2,3,4,5,6)
+		TNT1 A 0 NODELAY A_JumpIf(CRandom[utntlegacyfx](0,255)<(200),CRandomPick[utntlegacyfx](2,3,4,5,6))
 		X026 ABCDEFGHIJKLMNOPQRT 1 Bright A_FadeOut(0.03)
 		Stop
 	}
 }
 
-actor BruiserBallTrail
+actor BruiserBallTrail : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	Radius 1
 	Height 1
 	PROJECTILE
@@ -6048,21 +6152,21 @@ ACTOR BruiserBall2 : BruiserBall
 	States
 	{
 	Spawn:
-		BRB2 A 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		BRB2 A 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
-		BRB2 A 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		BRB2 A 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
-		BRB2 A 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		BRB2 A 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
-		BRB2 B 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		BRB2 B 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
-		BRB2 B 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		BRB2 B 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
-		BRB2 B 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",random(5,-5),random(5,-5),random(5,-5))
+		BRB2 B 1 Bright LIGHT("BruiserBall") A_SpawnItemEx("PBShockwaveSmokeSmaller",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5))
 		TNT1 A 0 A_SpawnItemEx("BruiserBallTrail")
 		Loop
 	Death:
-		TNT1 AAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359))
+		TNT1 AAAAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,CFRandom[utntlegacyfx](0.5,2),0,0,CRandom[utntlegacyfx](0,359))
 		BRB2 C 3 Bright LIGHT("BruiserBall2X_1")
 		BRB2 D 3 Bright LIGHT("BruiserBall2X_2")
 		BRB2 E 3 Bright LIGHT("BruiserBall2X_3")
@@ -6129,15 +6233,17 @@ ACTOR BruiserFire
 	}
 }
 
-Actor BruiserFireExtraFX
+Actor BruiserFireExtraFX : UTNTLegacyCosmetic
 {
+    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
+
 	+NOINTERACTION
 	RenderStyle Add
 	States
 	{
 	Spawn:
-		TNT1 AAAAAAAAA 0 NODELAY A_SpawnItemEx("MeteoFlameImpactParticle",0,0,0,frandom(0,3),0,frandom(0.4,3),random(0,359))
-		TNT1 AAAAA 0 A_SpawnItemEx("PBShockwaveSmokeHalf",0,0,4,frandom(0.5,2),0,0,random(0,359))
+		TNT1 AAAAAAAAA 0 NODELAY A_UTNTLocalSpawn("MeteoFlameImpactParticle",0,0,0,CFRandom[utntlegacyfx](0,3),0,CFRandom[utntlegacyfx](0.4,3),CRandom[utntlegacyfx](0,359))
+		TNT1 AAAAA 0 A_UTNTLocalSpawn("PBShockwaveSmokeHalf",0,0,4,CFRandom[utntlegacyfx](0.5,2),0,0,CRandom[utntlegacyfx](0,359))
 		X011 ABCDEFGHIJKLMNOPQRSTUVWX 2 Bright
 		Stop
 	}

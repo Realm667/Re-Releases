@@ -1,0 +1,21 @@
+// Conservative map-local XY buckets. Exact range/height/geometry checks stay with callers.
+// Parallel value arrays avoid individually allocated bucket objects in local caches.
+class UTNTSpatialIndex : Object play
+{
+    Map<int,int> Heads;
+    Array<int> Items,Links;
+    static int Key(int x,int y) { return (x&65535)|((y&65535)<<16); }
+    void Add(Vector2 point,int index)
+    {
+        int key=Key(int(floor(point.X/1024)),int(floor(point.Y/1024)));
+        int slot=Items.Size();Items.Push(index);Links.Push(Heads.GetIfExists(key)-1);Heads.Insert(key,slot+1);
+    }
+    void Query(Vector2 point,double range,out Array<int> result)
+    {
+        result.Clear();
+        int x0=int(floor((point.X-range)/1024)),x1=int(floor((point.X+range)/1024));
+        int y0=int(floor((point.Y-range)/1024)),y1=int(floor((point.Y+range)/1024));
+        for(int y=y0;y<=y1;y++)for(int x=x0;x<=x1;x++)
+            for(int i=Heads.GetIfExists(Key(x,y))-1;i>=0;i=Links[i])result.Push(Items[i]);
+    }
+}

@@ -22,7 +22,7 @@ class UTNTCreditsSpark : Thinker
   int count=UTNTIndustrialFX.Quality()==1?4:8;
   for(int i=0;i<count;i++)
   {
-   double angle=i*360.0/count+FRandom[utntcreditspark](-16,16),speed=FRandom[utntcreditspark](4,7);
+   double angle=i*360.0/count+CFRandom[utntcreditspark](-16,16),speed=CFRandom[utntcreditspark](4,7);
    if(!UTNTVisuals.ReserveCount(1,false))break;
    let live=ThinkerIterator.Create('UTNTCreditsEmber',Thinker.MAX_STATNUM+1,true);int total=0;
    while(live.Next())total++;
@@ -31,8 +31,8 @@ class UTNTCreditsSpark : Thinker
    if(p)
    {
     p.Pos=pos+(0,0,12);p.Prev=p.Pos;p.Origin=p.Pos;
-    p.Vel=(cos(angle)*speed,sin(angle)*speed,FRandom[utntcreditspark](6,10));
-    p.Life=Random[utntcreditspark](18,26);p.scolor=i%3==0?0xffffd078:0xffff982e;
+    p.Vel=(cos(angle)*speed,sin(angle)*speed,CFRandom[utntcreditspark](6,10));
+    p.Life=CRandom[utntcreditspark](18,26);p.scolor=i%3==0?0xffffd078:0xffff982e;
     p.Initialize();fx.LastBurstCount++;
    }
   }

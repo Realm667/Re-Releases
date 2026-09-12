@@ -125,6 +125,7 @@ class UTNTWeatherHandler : EventHandler
 class UTNTWeatherController : Thinker
 {
     Array<UTNTWeatherCell> Cells;
+    UTNTSpatialIndex Spatial;Array<int> Candidates;
     Array<int> Nearby;
     LineTracer Probe;
     Actor Camera, SkyCamera;
@@ -140,6 +141,7 @@ class UTNTWeatherController : Thinker
     uint Seed;
     double Range, SpawnRange, WindX, WindY, Gust, Exposure;
     Vector2 Ahead, LastScan;
+    double ViewSin, ViewCos;
     int Warmup, VeilLive, PeakVeils, VeilLimit, TrailLimit;
     double Intensity, StormBoost;
     void Cycle()
@@ -230,6 +232,7 @@ class UTNTWeatherController : Thinker
         Range=player ? min(2048,max(0,CVar.GetCVar('UTNT_lod',player).GetInt())) : 0;
         Enabled=Camera && Quality>0 && Range>0 && CVar.GetCVar('weatherfx').GetBool();
         if (!Enabled || level.isFrozen() || Camera.IsFrozen()) return;
+        ViewSin=sin(Camera.Angle);ViewCos=cos(Camera.Angle);
         SpawnRange=Range+min(640,Range*0.35);
         Vector2 lead=Camera.Vel.XY*24;
         if(lead.Length()>768) lead=lead.Unit()*768;
@@ -242,10 +245,13 @@ class UTNTWeatherController : Thinker
         if (level.time%4==0 || Nearby.Size()==0 || (Camera.Pos.XY-LastScan).Length()>64)
         {
             LastScan=Camera.Pos.XY;
+            for(int i=0;i<Nearby.Size();i++)Cells[Nearby[i]].Target=0;
             Nearby.Clear();
-            for(int i=0;i<Cells.Size();i++)
+            if(!Spatial){Spatial=new('UTNTSpatialIndex');for(int i=0;i<Cells.Size();i++)Spatial.Add(Cells[i].Center,i);}
+            Spatial.Query(Camera.Pos.XY,SpawnRange+128,Candidates);
+            for(int ci=0;ci<Candidates.Size();ci++)
             {
-                let cell=Cells[i]; cell.Target=0;
+                int i=Candidates[ci];let cell=Cells[i]; cell.Target=0;
                 double here=(cell.Center-Camera.Pos.XY).Length();
                 if(here>SpawnRange+128 || abs(cell.Height-Camera.Pos.Z)>=4096) continue;
                 double distance=min(here,(cell.Center-Ahead).Length()+192);
@@ -454,6 +460,7 @@ class UTNTWeatherVisual : VisualThinker
     double RainLength, RainSpeed, SnowSize;
     bool WillHit, FloorHit, WaterHit, Retired, SkyLayer, SnowVeil;
     Actor SkyOrigin;
+    Vector2 TextureSize;
 
     void Start()
     {
@@ -472,8 +479,8 @@ class UTNTWeatherVisual : VisualThinker
             Width*=SnowSize; Height=Width;
         }
         SetRenderStyle(STYLE_Translucent);
-        let size=TexMan.GetScaledSize(Texture);
-        Scale=(Width/size.X,Height/size.Y);
+        TextureSize=TexMan.GetScaledSize(Texture);
+        Scale=(Width/TextureSize.X,Height/TextureSize.Y);
         Alpha=0; HitAfter=100000;
         Probe=new('LineTracer');
         UpdateSector(); UpdateSpriteInfo();
@@ -515,8 +522,7 @@ class UTNTWeatherVisual : VisualThinker
             Super.Tick();
             Alpha=BaseAlpha*Owner.Intensity*min(1.0,double(Age)/25)*min(1.0,double(Lifetime-Age)/25)
                 *clamp((distance-60)/150,0,1);
-            let size=TexMan.GetScaledSize(Texture);
-            Scale=(Width*(SnowVeil ? 1.0 : 1+Age*0.003)/size.X,Height/size.Y);
+            Scale=(Width*(SnowVeil ? 1.0 : 1+Age*0.003)/TextureSize.X,Height/TextureSize.Y);
             return;
         }
         if(Kind==6)
@@ -605,16 +611,15 @@ class UTNTWeatherVisual : VisualThinker
             : clamp((Owner.Range+64-distance)/512,0,1)*clamp((distance-20)/48,0,1));
         if(Kind==1)
         {
-            let size=TexMan.GetScaledSize(Texture);
-            Scale.Y=min(Height,distance*0.028*RainLength)*(1+Owner.Intensity*0.6+Owner.StormBoost*0.8)/size.Y;
-            double side=Vel.X*-sin(Owner.Camera.Angle)+Vel.Y*cos(Owner.Camera.Angle);
+            Scale.Y=min(Height,distance*0.028*RainLength)*(1+Owner.Intensity*0.6+Owner.StormBoost*0.8)/TextureSize.Y;
+            double side=Vel.X*-Owner.ViewSin+Vel.Y*Owner.ViewCos;
             Roll=atan2(side,-Vel.Z);
         }
         else if(Kind==2)
         {
             double width=min(Width,distance*0.008*SnowSize);
-            let size=TexMan.GetScaledSize(Texture); Scale=(width/size.X,width/size.Y);
-            double side=Vel.X*-sin(Owner.Camera.Angle)+Vel.Y*cos(Owner.Camera.Angle);
+            Scale=(width/TextureSize.X,width/TextureSize.Y);
+            double side=Vel.X*-Owner.ViewSin+Vel.Y*Owner.ViewCos;
             Scale.Y*=1+Owner.Intensity*0.7+Owner.StormBoost*0.7;
             Roll=Owner.Intensity>0.15 ? atan2(side,-Vel.Z) : Phase+12*sin(Age*1.2+Phase);
             // One faint overlapping afterimage along an already traced segment.
