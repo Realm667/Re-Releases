@@ -41,7 +41,7 @@ def main():
         data=np.clip(signal*20000,-32767,32767).astype('<i2')
         with wave.open(str(audio/(name+'.wav')),'wb') as f:
             f.setnchannels(1); f.setsampwidth(2); f.setframerate(sr); f.writeframes(data.tobytes())
-    (ROOT/'tutnt/sndinfo.weather').write_text('''// Locally mixed, overlapping weather beds; no per-marker sound loops.
+    (ROOT/'tutnt/sndinfo/sndinfo.weather').write_text('''// Locally mixed, overlapping weather beds; no per-marker sound loops.
 UTNTWeather/Rain sounds/utnt-weather/rain.wav
 UTNTWeather/Shelter sounds/utnt-weather/shelter.wav
 UTNTWeather/Wind sounds/utnt-weather/wind.wav

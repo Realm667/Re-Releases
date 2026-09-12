@@ -49,7 +49,7 @@ def digest(data):
 
 def texture_defs(mod):
     result = {}
-    for p in sorted(mod.glob('TEXTURES*')):
+    for p in sorted([*mod.glob('TEXTURES*'), *(mod/'textures/definitions').glob('TEXTURES*')], key=lambda p:p.name):
         if not p.is_file() or p.name.startswith('TEXTURES.environment'): continue
         text = p.read_text(errors='replace')
         for m in re.finditer(r'\b(Texture|Flat|WallTexture)\s+"?([\w.-]+)"?\s*,\s*(\d+)\s*,\s*(\d+)\s*\{([^{}]*)\}', text, re.I):
@@ -321,7 +321,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
     config=json.loads(read(config_path))
     validate_compatibility(config)
     library={m['name']:m for m in json.loads(read(root/'tools/artwork/area-textures/materials.json'))}
-    for p in sorted(mod.glob('TEXTURES*')):
+    for p in sorted([*mod.glob('TEXTURES*'), *(mod/'textures/definitions').glob('TEXTURES*')], key=lambda p:p.name):
         if p.is_file() and not p.name.startswith('TEXTURES.environment'):read(p)
     definitions=texture_defs(mod)
     palette=np.frombuffer(read(mod/'PLAYPAL.pal')[:768],np.uint8).reshape(256,3)
@@ -443,7 +443,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
         return '\n'.join(body+['}'])
     for n,m in sorted(bindings.items()):gldefs.append(definition(n,m))
     for n,(m,base) in sorted(env_bindings.items()):gldefs.append(definition(n,m,True))
-    emit('tutnt/GLDEFS.organic','\n\n'.join(gldefs)+'\n')
+    emit('tutnt/gldefs/GLDEFS.organic','\n\n'.join(gldefs)+'\n')
     manifest=dict(schema=2,height_encoding=dict(neutral=127,gain=HEIGHT_GAIN,profile_baselines=PROFILE_BASE),inputs=inputs,outputs={k:digest(v) for k,v in outputs.items()},
                   materials=records,variants=bindings,environment_tables=tables,bindings=len(bindings)+len(env_bindings),
                   environment_bindings={n:base for n,(m,base) in env_bindings.items()})

@@ -4,7 +4,7 @@
 
 Die großen UTNT-Beschriftungen kollidierten mit der festen Zeitposition des Standardlayouts. `WITIME` und `WIPAR` besitzen außerdem Patch-Offsets von (-40, 20). Das neue Layout zeichnet diese Grafiken anhand ihrer sichtbaren linken oberen Ecke und platziert Kills, Items, Secrets, Zeit, optionale Gesamtzeit und optionale Par-Zeit in getrennten Zeilen. Schrift-/Grafikhöhen und die Breite der vollständigen Werte bestimmen die virtuelle Zeichenfläche. Der Hintergrund und die ursprünglichen Beschriftungsgrafiken bleiben erhalten.
 
-Zahlen verwenden die vollständige UTNT-Textschrift mit proportionaler Breite und rechtsbündiger Ausrichtung. Die alte WINUM-Schrift hat ungleich breite Ziffern und unsichtbare Satzzeichen; die standardmäßigen festen Ziffernzellen waren dafür ungeeignet. Prozentzeichen, Bruchstrich und Zeitdoppelpunkte sind nun sichtbar. Die Gesamtzeitbeschriftung steht in `LANGUAGE.intermission` auf Deutsch und Englisch.
+Zahlen verwenden die vollständige UTNT-Textschrift mit proportionaler Breite und rechtsbündiger Ausrichtung. Die alte WINUM-Schrift hat ungleich breite Ziffern und unsichtbare Satzzeichen; die standardmäßigen festen Ziffernzellen waren dafür ungeeignet. Prozentzeichen, Bruchstrich und Zeitdoppelpunkte sind nun sichtbar. Die Gesamtzeitbeschriftung steht in `language/LANGUAGE.intermission` auf Deutsch und Englisch.
 
 Zähler, Geräusche, Überspringen und Kartenwechsel stammen weiterhin aus der Engine-Basisklasse. `wi_percents` und `wi_showtotaltime` bleiben wirksam; leere Kategorien zeigen 100 % beziehungsweise 0/0. Die ZScript-Klasse setzt den Skalierungsmodus explizit, weil `StatusScreen.SetSize` in UZDoom 5.0.1 den gleichnamigen Parameter statt des Klassenfelds beschreibt.
 

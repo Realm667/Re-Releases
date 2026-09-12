@@ -5,7 +5,7 @@ streaks, fitted to UTNT's dark industrial setting. Generated with the built-in
 ImageGen tool, using the approved mockup as reference; exact prompts are in
 prompts.json. The first discarded atlas had a painted checkerboard. The selected
 second atlas uses a black background for STYLE_Add and is stored unmodified at
-tutnt/graphics/utnt-teleport/fragment-atlas.png. TEXTURES.teleport slices it
+tutnt/graphics/utnt-teleport/fragment-atlas.png. textures/definitions/TEXTURES.teleport slices it
 natively into four fragment and two streak textures. No global palette edits.
 
 The six existing TeleportSparkle colors share the new artwork. Three quarters

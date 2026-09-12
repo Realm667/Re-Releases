@@ -81,7 +81,7 @@ extinguish the incandescent layer. Cold crust still responds to scene lighting.
 Brightness remains orange and bounded; fog and the user's Bloom setting still
 apply. Source colors, including the existing PLAYPAL, determine the palette.
 
-`GLDEFS.lava` binds `shaders/lava-surface.fp` and `shaders/lava-fall.fp`. The three
+`gldefs/GLDEFS.lava` binds `shaders/lava-surface.fp` and `shaders/lava-fall.fp`. The three
 superseded surface Warp declarations are removed from `ANIMDEFS`; other Warp
 definitions remain active. Map scrollers still execute, but these materials use
 world-space motion rather than scrolling UV coordinates. No new actors,

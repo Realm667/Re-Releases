@@ -6,9 +6,9 @@ are retained. Spanish is a shared Spanish translation; French is a shared French
 translation. The engine's language setting selects the text (`en`, `de`, `es`,
 `fr`; legacy `enu` and `deu` remain supported by UZDoom).
 
-English source text lives in `tutnt/LANGUAGE.enu` and the English-only feature
-files `LANGUAGE.*`. Every translated key has exactly one definition in each of
-`LANGUAGE.deu`, `LANGUAGE.esp` and `LANGUAGE.fra`. These files declare both the
+English source text lives in `tutnt/language/LANGUAGE.enu` and the English-only feature
+files `language/LANGUAGE.*`. Every translated key has exactly one definition in each of
+`language/LANGUAGE.deu`, `language/LANGUAGE.esp` and `language/LANGUAGE.fra`. These files declare both the
 modern and legacy codes: `[deu de]`, `[esp es]`, `[fra fr]`. Use the engine's modern
 `de`, `es`, `fr` settings so its own menus and font fallbacks are localized too.
 File extensions do not select the language.
@@ -32,7 +32,8 @@ File extensions do not select the language.
 5. Run `python tools/check_localization.py --accept-reviewed` **only after** that
    review. This records fingerprints of the English and translated values; it
    does not translate text, approve its meaning or fill missing keys.
-6. Run `python tools/check_localization.py` and
+6. Run `python tools/build_definition_tables.py` to refresh the engine-readable
+   root tables, then `python tools/check_localization.py` and
    `python -m unittest discover -s tools -p test_localization.py`, then build with
    `tools/build_utnt.py`. For runtime validation, use
    `python tools/test_localization_runtime.py --mod tutnt.pk3` with `UTNT_ENGINE`

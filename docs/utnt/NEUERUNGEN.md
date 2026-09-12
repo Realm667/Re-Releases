@@ -63,7 +63,7 @@
 - **Engine modernization:** UZDoom 5.0.1 support, saved presentation states, local cosmetic simulation and revised motion blur/postprocessing. [Implementation](../../tutnt/zscript/UTNT_Presentation.zc)
 - **Performance controls:** quality levels, reduced effects, distance culling, separate effect budgets/random streams, bounded gore cleanup and reduced Source shader/lighting stalls. [Effects](../../tutnt/zscript/UTNT_Visuals.zc), [Source](UTNT_SOURCE.md)
 - **Campaign and cooperative fixes:** corrected scripts/maps, shared checkpoints, safer simultaneous respawns, portal handling and cutscene recovery; local four-player regression coverage. [Campaign](../../tools/test_campaign.py), [Coop](../../tools/test_four_player.py)
-- **Build and validation:** reproducible snapshot builds, ACS compilation and engine checks; regression tools for gameplay, save/load, UI, effects, translations and fonts, plus a walkable gallery of all 285 relief variants. [Build](README.md), [Material gallery](UTNT_ORGANIC_MATERIALS.md)
+- **Build and validation:** reproducible snapshot builds, ACS compilation and engine checks; regression tools for gameplay, save/load, UI, effects, translations and fonts, organized definition modules with validated entrypoints, plus a walkable gallery of all 285 relief variants. [Build](README.md), [Definition layout](DEFINITION_LAYOUT.md), [Material gallery](UTNT_ORGANIC_MATERIALS.md)
 
 ## Local work awaiting completion or commit
 

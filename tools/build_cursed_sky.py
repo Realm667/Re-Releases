@@ -82,7 +82,8 @@ def build(root,software_only=False):
  Uniform float phase
  Uniform float storm
 }''')
-  (out/'GLDEFS.cursed').write_text('\n'.join(gl)+'\n',encoding='utf-8',newline='\n')
+  (out/'gldefs/GLDEFS.cursed').parent.mkdir(parents=True,exist_ok=True)
+  (out/'gldefs/GLDEFS.cursed').write_text('\n'.join(gl)+'\n',encoding='utf-8',newline='\n')
   flare=Path(__file__).with_name('cursed-flare.glsl').read_text()
   (out/'shaders/cursed-peak/sun-flare.fp').write_text(flare.replace('@LAYERS@',common.split('void SetupMaterial')[0]),encoding='utf-8',newline='\n')
 

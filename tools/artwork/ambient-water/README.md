@@ -4,7 +4,7 @@
 
 `tutnt/graphics/utnt-water/water-atlas-v3.png` is the unmodified 1254 x 1254
 RGBA output of the built-in Imagegen tool. The prompt is in `prompt-v3.json`.
-TEXTURES.ambientwater selects nine 418 x 418 cells: six sequential crown shapes,
+textures/definitions/TEXTURES.ambientwater selects nine 418 x 418 cells: six sequential crown shapes,
 one droplet, one tapered motion trace and an overhead ring. Crown offsets align
 each row to the waterline. The previous two atlases remain as historical assets.
 

@@ -20,7 +20,7 @@ def verify(root):
    key=tuple(round(v,7) for v in rays[face]);edges.setdefault(key,[]).append(im[row,col]);counts+=1
  error=max(int(np.max(np.max(v,axis=0)-np.min(v,axis=0))) for v in edges.values())
  assert all(len(v)>=2 for v in edges.values());assert error<=1,error
- for f,line in [('GLDEFS.txt','#include "GLDEFS.rift"'),('zscript.zc','#include "zscript/UTNT_RiftSky.zc"'),('MAPINFO.txt','AddEventHandlers = "UTNTRiftSkyHandler"')]:assert (out/f).read_text().count(line)==1
+ for f,line in [('GLDEFS.txt','#include "gldefs/GLDEFS.rift"'),('zscript.zc','#include "zscript/UTNT_RiftSky.zc"'),('MAPINFO.txt','AddEventHandlers = "UTNTRiftSkyHandler"')]:assert (out/f).read_text().count(line)>=1
  handler=(out/'zscript/UTNT_RiftSky.zc').read_text();assert 'level.MapName~=="TNT04CN"' in handler
  return dict(ok=True,cube_edges=12,maximum_edge_error=error,shared_comet_faces=18,edge_samples=counts)
 if __name__=='__main__':

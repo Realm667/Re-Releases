@@ -12,7 +12,7 @@ Kleinere Spielhinweise und fehlende Tür-/Schalterschlüssel verwenden dieselbe 
 
 ## Texte und Integration
 
-`LANGUAGE.notices` enthält englische und deutsche Kurztexte; `TEXTCOLO.notices` definiert Bronze und warmes Grau. 137 aktive Print-/PrintBold-Stellen in zehn Kampagnenkarten sowie der gemeinsame Checkpoint-Hinweis rufen `UTNTWorldHandler.BeginNotice` auf. Der ursprüngliche Empfänger und sämtliche numerischen Zählerausdrücke bleiben erhalten: `PlayerNumber()` entspricht Print, `-2` dem Broadcast von PrintBold. `-1` ist kein Broadcast.
+`language/LANGUAGE.notices` enthält englische und deutsche Kurztexte; `TEXTCOLO.notices` definiert Bronze und warmes Grau. 137 aktive Print-/PrintBold-Stellen in zehn Kampagnenkarten sowie der gemeinsame Checkpoint-Hinweis rufen `UTNTWorldHandler.BeginNotice` auf. Der ursprüngliche Empfänger und sämtliche numerischen Zählerausdrücke bleiben erhalten: `PlayerNumber()` entspricht Print, `-2` dem Broadcast von PrintBold. `-1` ist kein Broadcast.
 
 Schlüsselnamen stehen ebenfalls in LANGUAGE, einschließlich des Farbwechsels zurück zum normalen Text: `\c[Red]`, `\c[LightBlue]`, `\c[Yellow]`, anschließend `\c[UTNTNoticeBody]`. LightBlue bleibt auf UTNTs dunklem Hintergrund besser lesbar als die im Mod bereits überschriebene Blue-Translation. Benannte Farben vermeiden Verwechslungen mit Buchstabencodes: `\cR` bezeichnet laut Wiki Dunkelrot.
 

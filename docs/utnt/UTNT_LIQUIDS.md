@@ -12,7 +12,7 @@ Water, slime, blood, void and star surfaces now use world-space layered material
 | Void | QTELEPT (flat), QTELEPOR (wall) | Three spatial layers of bronze flecks |
 | Stars | STARSKY1, STARSKY2 | Three point-field depths, variable density, white/amber variants, subtle twinkle |
 
-The two IKSLIME names were referenced by ANIMDEFS but had no source assets or current map uses. TEXTURES.liquids supplies native-palette aliases to QSLIME1/2. Terrain definitions, damage, sounds, map geometry and gameplay are unchanged. In particular, visual water variants retain their existing slime/lava terrain assignments.
+The two IKSLIME names were referenced by ANIMDEFS but had no source assets or current map uses. textures/definitions/TEXTURES.liquids supplies native-palette aliases to QSLIME1/2. Terrain definitions, damage, sounds, map geometry and gameplay are unchanged. In particular, visual water variants retain their existing slime/lava terrain assignments.
 
 ## Surface and depth
 
@@ -34,7 +34,7 @@ Normal mapping changes lighting; parallax changes apparent sample position. Neit
 
 The height PNG channels store unfiltered / 0.5-pixel / 1.5-pixel prefilters at 128px. The shader explicitly samples level zero and blends these by screen footprint: this works with OpenGL nearest filtering, which does not always allocate higher hardware mip levels. A camera-relative horizon closure is reconstructed onto its flat plane before world-space sampling.
 
-GLDEFS.liquids replaces ANIMDEFS warp/warp2 for these names to avoid double warping. Original assets remain available as static software-renderer fallback; the new material animation requires hardware rendering. Physical-liquid colors sample the current original textures, including their palette. Cosmic colors are fixed, source-inspired bronze, white and amber.
+gldefs/GLDEFS.liquids replaces ANIMDEFS warp/warp2 for these names to avoid double warping. Original assets remain available as static software-renderer fallback; the new material animation requires hardware rendering. Physical-liquid colors sample the current original textures, including their palette. Cosmic colors are fixed, source-inspired bronze, white and amber.
 
 ## Sources and regeneration
 

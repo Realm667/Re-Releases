@@ -26,7 +26,7 @@ def dimensions(root):
                 w,h=struct.unpack_from('<HH',data)
                 if 1<=w<=8192 and 1<=h<=8192:size=(w,h)
             if size:result[p.stem.upper()]=list(size)
-    for p in sorted(root.glob('TEXTURES*')):
+    for p in sorted([*root.glob('TEXTURES*'), *(root/'textures/definitions').glob('TEXTURES*')], key=lambda p:p.name):
         if not p.is_file():continue
         text=p.read_text(errors='replace')
         for m in re.finditer(r'\b(?:Texture|WallTexture|Flat)\s+"?([^",\s]+)"?\s*,\s*(\d+)\s*,\s*(\d+)\s*\{',text,re.I):

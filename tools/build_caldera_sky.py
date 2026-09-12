@@ -88,7 +88,7 @@ void SetupMaterial(inout Material mat)
  mat.Normal=normalize(vWorldNormal.xyz);
 }}
 ''')
- put('GLDEFS.caldera','\n'.join(gl)+'\n')
+ put('gldefs/GLDEFS.caldera','\n'.join(gl)+'\n')
  # Keep TNT04A's identical base sky in step with every caldera rebuild.
  from build_war_sky import build
  build(OUT.parent)

@@ -8,7 +8,7 @@ Rahmenrunen und fliegenden Zeichen stärker orange als die Portalfläche.
 ## Grafikquellen und Materialien
 
 - Die vier Runen stammen unverändert aus `QRUNT63`, dem originalen TNT03B-Portal.
-  `TEXTURES.teleport` schneidet die vier 32×32-Zeichen direkt aus der vorhandenen
+  `textures/definitions/TEXTURES.teleport` schneidet die vier 32×32-Zeichen direkt aus der vorhandenen
   Grafik. `UTRUNES` ist dieselbe Quelle für die Ringzeichen. Keine neue Symbolschrift.
 - `ritual-rune.fp` gibt die Farben der Truecolor-Partikelgrafik weiter.
   `ritual-frame.fp` erhält die PNG-Farben von `QRUNT62/63` und verwendet eine

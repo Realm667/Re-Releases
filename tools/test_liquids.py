@@ -95,7 +95,7 @@ def main():
     backends=['0','1'] if a.renderer=='both' else [a.renderer]
     modes=['bump','flat'] if a.relief else ['motion']
     if not a.relief:
-        if a.override_materials:shutil.copyfile(a.project/'tutnt/GLDEFS.liquids',addon/'GLDEFS')
+        if a.override_materials:shutil.copyfile(a.project/'tutnt/gldefs/GLDEFS.liquids',addon/'GLDEFS')
         else:(addon/'GLDEFS').unlink(missing_ok=True)
     for mode in modes:
         if a.relief:
@@ -104,7 +104,7 @@ def main():
                 source=re.sub(r'\btimer\b','(3.750000)',source)
                 if mode=='flat':source=source.replace('mat.Normal=bumpedNormal;','mat.Normal=mix(bumpedNormal,normalize(vWorldNormal.xyz),step(-100000.0,pixelpos.y));')
                 (addon/(family+'.fp')).write_text(source)
-            definitions=(a.project/'tutnt/GLDEFS.liquids').read_text()
+            definitions=(a.project/'tutnt/gldefs/GLDEFS.liquids').read_text()
             for family in ['water','slime','blood']:definitions=definitions.replace('shaders/liquids/'+family+'.fp',family+'.fp')
             (addon/'GLDEFS').write_text(definitions)
         for backend in backends:

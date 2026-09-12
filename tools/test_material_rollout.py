@@ -65,7 +65,7 @@ def data_checks():
             details.append(dict(name=name,base=m['name'],span=span,neutral_fraction=float((h==127).mean())))
     assert manifest['variants']['XA09TEX']['edge_mode']=='tile'
     assert manifest['variants']['XB09TEX']['edge_mode']=='band'
-    text=(ROOT/'tutnt/GLDEFS.organic').read_text()
+    text=(ROOT/'tutnt/gldefs/GLDEFS.organic').read_text()
     assert 'Define ORGANIC_TILE_EDGE' in text and 'Define ORGANIC_BAND_EDGE' in text
     return dict(ok=True,profiles=tested,variants=len(details),materials=len({e['base'] for e in details}),data=details)
 
@@ -109,7 +109,7 @@ def main():
     room.fixture(path,False,manifest)
     if a.live:
         for f in list(manifest['outputs'])+['tutnt/shaders/organic/relief.glsl','tutnt/shaders/environment/surface.glsl']:
-            rel=Path(f).relative_to('tutnt');rel=Path('GLDEFS') if rel.as_posix()=='GLDEFS.organic' else rel
+            rel=Path(f).relative_to('tutnt');rel=Path('GLDEFS') if rel.as_posix()=='gldefs/GLDEFS.organic' else rel
             target=path/rel;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/f,target)
     if a.provisional:
         trial=C/'work/material-rollout/provisional'

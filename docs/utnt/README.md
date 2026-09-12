@@ -70,3 +70,7 @@ The editable local archive is `tutnt/.codex/notes/README.md`. These fixed Git-hi
 - [UTNT_TNT01_ORGANIC.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_TNT01_ORGANIC.md) — Both terrain revisions withdrawn on 2026-09-11; restoration: UTNT_TNT01_LANDSCAPE.md.
 
 Screenshots formerly tracked in `tools/validation/` link to their preserved Git revisions. Local originals remain under `tutnt/.codex/validation/`. Runtime source files and build commands retain their existing locations.
+
+## Definition file layout
+
+See [Definition layout](DEFINITION_LAYOUT.md) for the nine root entrypoints, module directories, generated tables and validation commands.

@@ -10,7 +10,7 @@ for path in sorted((root/'maps').glob('*.wad')):
  for (n,x),(_,y) in zip(old,new):
   if n.rstrip(b'\0') not in (b'SCRIPTS',b'BEHAVIOR'):assert x==y,(path.name,n)
  report['maps'].append({'map':path.name,'geometry_and_things_unchanged':True,'lumps':len(new)})
-lang=(root/'LANGUAGE.enu').read_text(encoding='utf-8')
+lang=(root/'language/LANGUAGE.enu').read_text(encoding='utf-8')
 keys=set(re.findall(r'^\s*(\w+)\s*=',lang,re.M))
 sources=[(root/'source/tutnt.acs').read_text()]
 sources += [next(d.decode('cp1252') for n,d in read_wad(p)[1] if n.rstrip(b'\0')==b'SCRIPTS') for p in (root/'maps').glob('*.wad')]

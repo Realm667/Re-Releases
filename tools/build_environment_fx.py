@@ -28,11 +28,11 @@ def things(path):
 
 def material_library():
  materials={};textures={};terrain={};files={}
- for p in MOD.glob('GLDEFS*'):
+ for p in sorted([*MOD.glob('GLDEFS*'), *(MOD/'gldefs').glob('GLDEFS*')], key=lambda p:p.name):
   if p.name=='GLDEFS.environment':continue
   for m,body in blocks(p.read_text(),r'\bmaterial\s+(?:flat|texture)\s+"?([\w.-]+)"?'):
    materials[m[1].upper()]=body
- for p in MOD.glob('TEXTURES*'):
+ for p in sorted([*MOD.glob('TEXTURES*'), *(MOD/'textures/definitions').glob('TEXTURES*')], key=lambda p:p.name):
   if not p.is_file():continue
   if p.name in ('TEXTURES.environment-generated','TEXTURES.environment'):continue
   for m,body in blocks(p.read_text(),r'\b(?:texture|flat|graphic)\s+"?([\w.-]+)"?\s*,\s*(\d+)\s*,\s*(\d+)'):
@@ -243,14 +243,15 @@ def main():
   if old.stem not in {f'EV{i:06d}' for i in range(serial)}:old.unlink()
  for old in shaders.glob('combined-*.fp'):
   if old.name not in shader_cache.values():old.unlink()
- (MOD/'TEXTURES.environment-generated').write_text('\n'.join(texdefs))
+ (MOD/'textures/definitions/TEXTURES.environment-generated').parent.mkdir(parents=True,exist_ok=True)
+ (MOD/'textures/definitions/TEXTURES.environment-generated').write_text('\n'.join(texdefs))
  (MOD/'TERRAIN.environment').write_text('// Alias terrain mappings are applied after all TERRAIN definitions.\n')
  (out/'terrain-aliases.txt').write_text('\n'.join(terraindefs)+'\n')
  (out/'material-bindings.gldefs').write_text('\n'.join(gldefs)+'\n')
  (out/'snowtextures.txt').write_text('|'+ '|'.join(sorted(snow_names))+'|')
  (ROOT/'tools/environment-manifest.json').write_text(json.dumps(summary,indent=2))
  # Keep generated text deterministic across platforms and clean in Git.
- for generated in [MOD/'TEXTURES.environment-generated',MOD/'TERRAIN.environment',*out.glob('*.txt'),*out.glob('*.gldefs'),*shaders.glob('combined-*.fp')]:
+ for generated in [MOD/'textures/definitions/TEXTURES.environment-generated',MOD/'TERRAIN.environment',*out.glob('*.txt'),*out.glob('*.gldefs'),*shaders.glob('combined-*.fp')]:
   text='\n'.join(line.rstrip() for line in generated.read_text().splitlines()).rstrip()
   generated.write_bytes((text+'\n' if text else '').encode('utf-8'))
  print(json.dumps({k:{a:b for a,b in v.items() if a!='geometry_sha256'} for k,v in summary.items()},indent=2))

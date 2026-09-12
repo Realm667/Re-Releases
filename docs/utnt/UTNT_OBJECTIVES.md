@@ -43,8 +43,8 @@ of intermediate texture decodes on first opening.
 
 `tutnt/zscript/UTNT_Objectives.zc` renders the overview, full plaque and completion.
 `UTNT_Presentation.zc` owns saved timers, progress mirrors and local hold state.
-`KEYCONF.objectives` defines the press/release aliases and default binding.
-`TEXTURES.objectives` supplies the full-plaque caps and four completion slices from
+`keyconf/KEYCONF.objectives` defines the press/release aliases and default binding.
+`textures/definitions/TEXTURES.objectives` supplies the full-plaque caps and four completion slices from
 `graphics/hud/UTOBJART.png`; no bitmap was changed for completion rendering.
 The original artwork prompt is in `tools/objectives-artwork-prompt.txt`.
 

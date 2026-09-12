@@ -58,8 +58,10 @@ def build(root):
    if state:textures.append(f'Texture UGT{state}{f}, {768+state}, 768 {{ Patch UGT0{f}, {state}, 0 Patch UGT0{f}, 0, 0 }}')
    gl.append(f'material texture UGT{state}{f} {{ shader "shaders/thunder/sky-{f}.fp" texture cloudmap "graphics/thunder/clouds.png" texture mountainmap "graphics/thunder/mountains.png" texture ridgemap "graphics/thunder/ridge-height.png" }}')
  gl.append('HardwareShader PostProcess scene { Name "UTNTThunderExposure" Shader "shaders/thunder-exposure.fp" 330 Uniform float amount }')
- (out/'GLDEFS.thunder').write_text('\n'.join(gl)+'\n',encoding='utf-8',newline='\n')
- (out/'TEXTURES.thunder').write_text('\n'.join(textures)+'\n',encoding='utf-8',newline='\n')
+ (out/'gldefs/GLDEFS.thunder').parent.mkdir(parents=True,exist_ok=True)
+ (out/'gldefs/GLDEFS.thunder').write_text('\n'.join(gl)+'\n',encoding='utf-8',newline='\n')
+ (out/'textures/definitions/TEXTURES.thunder').parent.mkdir(parents=True,exist_ok=True)
+ (out/'textures/definitions/TEXTURES.thunder').write_text('\n'.join(textures)+'\n',encoding='utf-8',newline='\n')
 
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);build(p.parse_args().root)

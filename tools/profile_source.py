@@ -21,7 +21,7 @@ def main():
  if a.baseline_ref:
   def git(*args):return subprocess.check_output(['git','-c',f'safe.directory={ROOT.as_posix()}','-C',str(ROOT),*args])
   ref=git('rev-parse','--verify',a.baseline_ref+'^{commit}').decode().strip()
-  paths=['tutnt/zscript/UTNT_Source.zc','tutnt/GLDEFS.source','tutnt/TEXTURES.source']
+  paths=['tutnt/zscript/UTNT_Source.zc','tutnt/gldefs/GLDEFS.source','tutnt/textures/definitions/TEXTURES.source']
   paths+=git('ls-tree','-r','--name-only',ref,'tutnt/shaders/sourcefx','tutnt/graphics/source-beam').decode().splitlines()
   for path in paths:
    dest=fixture/path[6:];dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(git('show',ref+':'+path))

@@ -11,7 +11,7 @@ directions at different speeds; the mountain panorama remains stationary.
   (9001). This disables the old off-map sky camera. All other map bytes, geometry,
   nodes, actors, SCRIPTS and BEHAVIOR remain intact. The unused sky sector and its
   original ceiling-scroll script remain in place.
-- `GLDEFS.storm` defines six cube faces and their material shaders. The original
+- `gldefs/GLDEFS.storm` defines six cube faces and their material shaders. The original
   shared `TNT_CL2` and `BERGE2` textures are unchanged.
 - Mountains and haze are painted panoramic layers, not 3D geometry or volumetric
   fog. Clouds use animated texture sampling, not simulated volume clouds.

@@ -161,6 +161,8 @@ def snapshot(root):
 def publish_snapshot(source, original, output, hashes, metadata, engine=None, iwad=None):
     files = [p for p in input_files(source) if 'source' not in p.relative_to(source/'tutnt').parts]
     payload = {p.relative_to(source/'tutnt').as_posix():p.read_bytes() for p in files}
+    from build_definition_tables import package_textures
+    payload = package_textures(payload)
     if any(name in payload for name in ('UTNTBLD','LANGUAGE.zzbuild')):
         raise RuntimeError('UTNTBLD and LANGUAGE.zzbuild are reserved build outputs.')
     metadata = dict(metadata, files={name:hashlib.sha256(data).hexdigest() for name,data in payload.items()})
@@ -230,6 +232,8 @@ def main():
     p.add_argument('--skip-engine-check',action='store_true')
     a=p.parse_args(); root=a.root.resolve(); compiler=a.acc.resolve()
     if not compiler.is_file(): p.error('ACC not found; set --acc or UTNT_ACC')
+    from build_definition_tables import generate as generate_definition_tables
+    generate_definition_tables(root, check=a.check_only)
     from build_lava_lips import generate as generate_lava_lips
     generate_lava_lips(root,check=a.check_only)
     from build_environment_fx import check as check_environment_fx

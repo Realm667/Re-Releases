@@ -51,7 +51,7 @@ def build(root=ROOT):
     Image.new('RGB',(1,1),(255,255,255)).save(materials/'specular.png')
     # Legacy names are declared in ANIMDEFS but have no assets or map uses in UTNT.
     # Provide explicit conservative aliases so bindings also work for external maps.
-    (root/'tutnt/TEXTURES.liquids').write_text('''// Missing legacy slime names, supplied as native-palette aliases.
+    (root/'tutnt/textures/definitions/TEXTURES.liquids').write_text('''// Missing legacy slime names, supplied as native-palette aliases.
 Flat IKSLIME1, 64, 64 { Patch QSLIME1, 0, 0 }
 Flat IKSLIME2, 64, 64 { Patch QSLIME2, 0, 0 }
 ''')
@@ -60,7 +60,7 @@ Flat IKSLIME2, 64, 64 { Patch QSLIME2, 0, 0 }
         filename=name.lower()+'.fp'
         (shaders/filename).write_text(f'// Generated from tools/liquid-cosmic.glsl\n#define COSMIC_KIND {kind}\n'+cosmic)
         defs.append(f'Material {"Flat" if name=="QTELEPT" else "Texture"} "{name}"\n{{\n    Shader "shaders/liquids/{filename}"\n    Speed 1.0\n}}')
-    (root/'tutnt/GLDEFS.liquids').write_text('\n\n'.join(defs)+'\n')
+    (root/'tutnt/gldefs/GLDEFS.liquids').write_text('\n\n'.join(defs)+'\n')
     (root/'tools/artwork/liquids/asset-manifest.json').write_text(json.dumps(records,indent=2)+'\n')
     print(json.dumps(records,indent=2))
 

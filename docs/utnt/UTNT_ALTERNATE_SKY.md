@@ -69,7 +69,7 @@ flights; this variant never calls the splitting-group routine.
 ## Build and assets
 
 Run `python tools/build_alternate_sky.py` with NumPy/Pillow. This creates six 1024px
-fallback cube faces, six materials and GLDEFS.alternate. GLDEFS.rift includes the
+fallback cube faces, six materials and GLDEFS.alternate. gldefs/GLDEFS.rift includes the
 variant; the CN builder preserves that include. Fallback faces are static at the
 reference eye (962,13570,-5350); animation and parallax require hardware materials.
 

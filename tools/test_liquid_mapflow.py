@@ -41,7 +41,7 @@ class UTNTMapFlowTest : EventHandler
     }
 }
 ''')
-    definitions=(a.project/'tutnt/GLDEFS.liquids').read_text()
+    definitions=(a.project/'tutnt/gldefs/GLDEFS.liquids').read_text()
     for family in ['water','slime','blood']:
         source=(a.project/f'tutnt/shaders/liquids/{family}.fp').read_text()
         source=re.sub(r'\btimer\b','(375.000000)',source)

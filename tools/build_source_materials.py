@@ -58,7 +58,9 @@ def build(root=ROOT):
  defs += ['Material Texture "USSHIELD" { Shader "shaders/sourcefx/shield.fp" Texture runeAtlas "USRUNES" }']
  (out/'impact.fp').write_text((root/'tools/source-impact.glsl').read_text())
  defs += ['HardwareShader PostProcess scene { Name "UTNTSourceImpact" Shader "shaders/sourcefx/impact.fp" 330 Uniform vec2 focus Uniform float amount Uniform float progress Uniform float radius Uniform float ending }']
- (t/'TEXTURES.source').write_text('\n'.join(textures)+'\n')
- (t/'GLDEFS.source').write_text('\n'.join(defs)+'\n')
+ (t/'textures/definitions/TEXTURES.source').parent.mkdir(parents=True,exist_ok=True)
+ (t/'textures/definitions/TEXTURES.source').write_text('\n'.join(textures)+'\n')
+ (t/'gldefs/GLDEFS.source').parent.mkdir(parents=True,exist_ok=True)
+ (t/'gldefs/GLDEFS.source').write_text('\n'.join(defs)+'\n')
 
 if __name__=='__main__':build()

@@ -28,8 +28,8 @@ def run(a):
   r['ok']=max(r['sky_ao_max_delta'].values())<=2 and r['lava_motion_mean_delta']>.1
   if a.mod.suffix.lower()=='.pk3':
    with zipfile.ZipFile(a.mod) as z:
-    required=['GLDEFS.lava','shaders/lava-surface.fp','shaders/lava-fall.fp','materials/lava/crust-height.png']
-    r['packaged_lava_assets']=all(n in z.namelist() for n in required) and b'#include "GLDEFS.lava"' in z.read('GLDEFS.txt')
+    required=['gldefs/GLDEFS.lava','shaders/lava-surface.fp','shaders/lava-fall.fp','materials/lava/crust-height.png']
+    r['packaged_lava_assets']=all(n in z.namelist() for n in required) and b'#include "gldefs/GLDEFS.lava"' in z.read('GLDEFS.txt')
     r['ok'] &= r['packaged_lava_assets']
  (a.work/'logs'/(label+'-result.json')).write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r,indent=2));return r['ok']
 

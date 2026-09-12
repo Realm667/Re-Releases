@@ -59,7 +59,9 @@ def catalogs(root, pk3=None):
             files={n:archive.read(n).decode('utf-8-sig') for n in archive.namelist()
                    if '/' not in n and n.upper().startswith('LANGUAGE')}
     else:
-        files={p.name:p.read_text(encoding='utf-8-sig') for p in sorted((Path(root)/'tutnt').glob('LANGUAGE*'))}
+        folder=Path(root)/'tutnt/language'
+        if not folder.is_dir(): folder=Path(root)/'tutnt'
+        files={p.name:p.read_text(encoding='utf-8-sig') for p in sorted(folder.glob('LANGUAGE*'))}
     result={lang:{} for lang in LANGUAGES}
     for name,text in files.items():
         parsed=parse(text,name)

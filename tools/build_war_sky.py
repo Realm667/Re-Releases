@@ -16,8 +16,10 @@ def build(root):
   dest=out/f'shaders/caldera-war/sky-{f}.fp';dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text(text,newline='\n')
   gl.append(f'material texture UWR{f} {{ shader "shaders/caldera-war/sky-{f}.fp" texture cloudmap "graphics/caldera/panorama.png" }}')
   textures.append(f'Texture UWR{f}, 768, 768 {{ Patch "textures/UCH{f}.png", 0, 0 }}')
- (out/'GLDEFS.caldera-war').write_text('\n'.join(gl)+'\n',newline='\n')
- (out/'TEXTURES.caldera-war').write_text('\n'.join(textures)+'\n',newline='\n')
+ (out/'gldefs/GLDEFS.caldera-war').parent.mkdir(parents=True,exist_ok=True)
+ (out/'gldefs/GLDEFS.caldera-war').write_text('\n'.join(gl)+'\n',newline='\n')
+ (out/'textures/definitions/TEXTURES.caldera-war').parent.mkdir(parents=True,exist_ok=True)
+ (out/'textures/definitions/TEXTURES.caldera-war').write_text('\n'.join(textures)+'\n',newline='\n')
  # Keep the approved TNT04B sky on the same shared comet implementation.
  if (out/'graphics/ash/panorama.png').exists():
   from build_ash_sky import build as build_ash

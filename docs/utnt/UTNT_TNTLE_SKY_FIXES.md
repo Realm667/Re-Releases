@@ -17,7 +17,7 @@ bindings change in this correction. Only the two appended sectors gain special 9
 
 The installed package at diagnosis identified itself as build `83f6cc30babc`,
 commit `ee303644993885c77188a49907dc8eec1518882e`, with `local_changes=false`.
-It lacked `GLDEFS.lava`, both lava shaders and the crust-height resource; its
+It lacked `gldefs/GLDEFS.lava`, both lava shaders and the crust-height resource; its
 GLDEFS had no lava include. The approved lava work still existed only as local
 working-tree/untracked resources. A subsequent build from committed sources
 therefore reverted to the original QLAVA appearance.

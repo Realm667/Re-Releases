@@ -61,7 +61,8 @@ def build(root):
   shader=common.replace('@RAY@',form)
   p=out/f'shaders/storm/sky-{face}.fp';p.parent.mkdir(parents=True,exist_ok=True);p.write_text(shader)
   gl.append(f'material texture UST{face} {{ shader "shaders/storm/sky-{face}.fp" texture cloudmap "graphics/storm/clouds.png" texture mountainmap "graphics/storm/mountains-key.png" }}')
- (out/'GLDEFS.storm').write_text('\n'.join(gl)+'\n')
+ (out/'gldefs/GLDEFS.storm').parent.mkdir(parents=True,exist_ok=True)
+ (out/'gldefs/GLDEFS.storm').write_text('\n'.join(gl)+'\n')
 
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT)

@@ -48,7 +48,7 @@ Parallax additionally fades at grazing view angles (normal/view dot product 0.08
 - Common shader: tutnt/shaders/organic/relief.glsl.
 - Generator: tools/build_organic_materials.py (NumPy and Pillow).
 - Generated data: tutnt/materials/organic/.
-- Generated definitions: tutnt/GLDEFS.organic, included after environment materials.
+- Generated definitions: tutnt/gldefs/GLDEFS.organic, included after environment materials.
 - Provenance and output hashes: tools/organic-materials/generated.json.
 
 The generator resolves current TEXTURES definitions, crop dimensions, patch sources and logical texture dimensions. Original flat/texture namespaces take precedence over similarly named artwork patches. It reuses identical data and supplies 285 base/expanded/band variants plus the environmental aliases discovered in current surface tables. Environmental shaders are composed from the current surface.glsl template, so wetness and underwater optics remain present. It does not edit other environmental outputs.

@@ -35,8 +35,8 @@ def main():
     before=original('tutnt/source/tutnt.acs').decode().replace('\r\n','\n')
     def boss_end(s):return s[s.index('\tif(boss==1)'):s.index('script "UTNTCheckpoint"')].strip()
     check(boss_end(before)==boss_end(current),'All five original boss completion blocks unchanged')
-    keys=set(re.findall(r'(?m)^\s*(\w+)\s*=',(ROOT/'tutnt/LANGUAGE.enu').read_text()))
-    de=set(re.findall(r'(?m)^\s*(\w+)\s*=',(ROOT/'tutnt/LANGUAGE.deu').read_text()))
+    keys=set(re.findall(r'(?m)^\s*(\w+)\s*=',(ROOT/'tutnt/language/LANGUAGE.enu').read_text()))
+    de=set(re.findall(r'(?m)^\s*(\w+)\s*=',(ROOT/'tutnt/language/LANGUAGE.deu').read_text()))
     check(de<=keys,'German entries have English fallback keys')
     check(all(f'UTNT_VOICE_{i:03}' in de for i in range(19,54)),'All 35 player voice subtitles translated')
     durations=[]

@@ -57,8 +57,10 @@ def build(root):
   for f in FACES:
    if state:textures.append(f'Texture UAS{state}{f}, {768+state}, 768 {{ Patch UAS0{f}, {state}, 0 Patch UAS0{f}, 0, 0 }}')
    gl.append(f'material texture UAS{state}{f} {{ shader "shaders/ash/sky-{f}.fp" texture panoramamap "graphics/ash/mountains-key.png" texture reversemap "graphics/ash/reverse-key.png" texture cloudmap "graphics/ash/clouds.png" }}')
- (out/'GLDEFS.ash').write_text('\n'.join(gl)+'\n',newline='\n')
- (out/'TEXTURES.ash').write_text('\n'.join(textures)+'\n',newline='\n')
+ (out/'gldefs/GLDEFS.ash').parent.mkdir(parents=True,exist_ok=True)
+ (out/'gldefs/GLDEFS.ash').write_text('\n'.join(gl)+'\n',newline='\n')
+ (out/'textures/definitions/TEXTURES.ash').parent.mkdir(parents=True,exist_ok=True)
+ (out/'textures/definitions/TEXTURES.ash').write_text('\n'.join(textures)+'\n',newline='\n')
 
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);build(p.parse_args().root)

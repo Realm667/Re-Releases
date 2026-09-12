@@ -64,7 +64,8 @@ def build(root):
    save(c,tx/(prefix+face+'.png'))
    maps=('texture panoramamap "graphics/tntle/cavern-panorama.png" texture vaultmap "graphics/tntle/cavern-vault.png" texture flowmask "graphics/tntle/lava-flow-mask.png"' if kind=='cavern' else 'texture cloudmap "graphics/tntle/ember-clouds.png" texture mountainmap "graphics/tntle/mountains-rgba.png"')
    gl.append(f'material texture {prefix+face} {{ shader "shaders/tntle/{kind}.fp" {maps} texture statemap "ULEDATA" }}')
- (out/'GLDEFS.tntle').write_text('\n'.join(gl)+'\n')
+ (out/'gldefs/GLDEFS.tntle').parent.mkdir(parents=True,exist_ok=True)
+ (out/'gldefs/GLDEFS.tntle').write_text('\n'.join(gl)+'\n')
  print(json.dumps({'source_dimensions':{p.name:Image.open(p).size for p in art.glob('*.png')},'lava_mask_pixels':int(np.sum(mask>.5))}))
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);build(p.parse_args().root)

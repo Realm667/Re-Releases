@@ -190,9 +190,9 @@ def generate(root,extra_maps=(),check=False):
             records.append(dict(map=path.stem.upper(),line=e['line'],face=e['face'],high=e['high'],low=e['low'],radius=e['radius'],triangles=triangles,a=e['a'],b=e['b'],height=h))
         if rows:out[f'tutnt/lavalips/{path.stem.lower()}.txt']='\n'.join(rows)+'\n'
     out['tutnt/zscript/lava-lips-generated.zc']='// Generated; rebuild after map edits.\n'+'\n'.join(actors)+'\n'
-    out['tutnt/MODELDEF.lava-lips']='\n'.join(models)+'\n'
-    out['tutnt/GLDEFS.lava-lips']='\n'.join(definitions)+'\n'
-    out['tutnt/TEXTURES.lava-lips']='\n'.join(textures)+'\n'
+    out['tutnt/modeldef/MODELDEF.lava-lips']='\n'.join(models)+'\n'
+    out['tutnt/gldefs/GLDEFS.lava-lips']='\n'.join(definitions)+'\n'
+    out['tutnt/textures/definitions/TEXTURES.lava-lips']='\n'.join(textures)+'\n'
     out['tutnt/shaders/lava-lips.fp']=shader(root)
     # Visible only if models are disabled: transparent fallback, no marker sprite.
     import base64

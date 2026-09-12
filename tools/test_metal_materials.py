@@ -157,7 +157,7 @@ def main():
         import shutil
         for name in list(manifest['outputs'])+['tutnt/shaders/organic/relief.glsl','tutnt/shaders/environment/surface.glsl']:
             relative=Path(name).relative_to('tutnt')
-            if relative.as_posix()=='GLDEFS.organic':relative=Path('GLDEFS')
+            if relative.as_posix()=='gldefs/GLDEFS.organic':relative=Path('GLDEFS')
             target=path/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/name,target)
         if a.baseline:fixture(path,True,manifest)
     logs=CENTRAL/'logs/metal-materials';logs.mkdir(parents=True,exist_ok=True)
