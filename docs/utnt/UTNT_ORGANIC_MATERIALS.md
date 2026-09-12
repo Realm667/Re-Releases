@@ -370,3 +370,34 @@ checks compare front, oblique and floor views, with an additional height-edge
 overlay without parallax to distinguish data registration from displacement.
 Local evidence is under `.codex/work/floor-relief-diagnosis/`; the complete review
 page remains `.codex/work/material-reanalysis/vergleich.html`.
+
+
+## Negative-UV sampling fix (12 September 2026)
+
+A later side-on floor capture reproduced the large remaining displacement. The
+ADEL_D11 contour correction above did not solve this rendering bug. The shared
+manual bilinear sampler used integer remainder on negative texel coordinates;
+GLSL leaves that result undefined. Wrapping its result afterwards cannot repair
+the initial undefined operation. Floor UVs commonly enter this path, producing
+relief from the wrong repeated texels while the diffuse sampler repeats normally.
+
+`RockRawData` now wraps UVs with floating-point `fract` before forming texel
+indices, then adds one texture extent before integer remainder. Both integer
+operands are nonnegative, including samples crossing the tile boundary. This
+applies equally to height, normals and metal surface data; it preserves the mip
+selection, bilinear weights, neutral height, relief depth and original images.
+All material image bytes remain unchanged. The shared material wrappers are
+regenerated to invalidate cached shader programs.
+
+`tools/test_relief_uv.py` compares unshifted sampling with positive, negative and mixed
+whole-tile UV translations inside UZDoom, and captures the reported side-on
+floor view with parallax enabled. This supplements the earlier no-parallax
+contour overlay, which was insufficient to establish a complete rendering fix.
+
+Reference: [GLSL 4.60, arithmetic operators](https://registry.khronos.org/OpenGL/specs/gl/GLSLangSpec.4.60.html#arithmetic-operators).
+
+The old shader failed the translation-invariance check at 181,476 of 243,200
+examined floor pixels on the Vulkan test system. The fixed shader had zero
+failing pixels under both Vulkan and OpenGL. Three camera directions were
+visually checked with parallax active. All 621 generated material images retain
+identical bytes; shared package build `44fb77c7b9e8` passed engine validation.

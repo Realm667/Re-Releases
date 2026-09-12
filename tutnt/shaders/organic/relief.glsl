@@ -16,10 +16,13 @@ vec4 RockRawData(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy)
     vec2 dx=gx*fullSize,dy=gy*fullSize;
     int lod=int(max(0.0,floor(0.5*log2(max(max(dot(dx,dx),dot(dy,dy)),1.0)))));
     ivec2 size=textureSize(dataMap,lod);
-    vec2 p=uv*vec2(size)-0.5;
+    // GLSL integer % is undefined for negative operands. Floors commonly
+    // have negative UVs: wrap in floating point before computing texels.
+    vec2 p=fract(uv)*vec2(size)-0.5;
     ivec2 a=ivec2(floor(p));
     vec2 f=fract(p);
-    ivec2 q=((a%size)+size)%size;
+    // a is now in [-1,size-1], so the remainder only sees positive inputs.
+    ivec2 q=(a+size)%size;
     ivec2 r=(q+ivec2(1))%size;
     return mix(mix(texelFetch(dataMap,q,lod),texelFetch(dataMap,ivec2(r.x,q.y),lod),f.x),
                mix(texelFetch(dataMap,ivec2(q.x,r.y),lod),texelFetch(dataMap,r,lod),f.x),f.y);

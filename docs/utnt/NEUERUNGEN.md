@@ -54,7 +54,7 @@
 - **TNT04C:** restrained lava-lit clouds and floating scenery, corrected colors/lighting and platform placement, preserving the original height-dependent sky views. [Details](UTNT_ALTERNATE_SKY.md)
 - **TNTLE:** basalt cavern with flowing lava falls and a separate ember-night sky; corrected filtering seams. [Details](UTNT_TNTLE_SKY.md)
 - **Expanded textures:** 37 active material expansions and aligned large rock surfaces reduce repetition while preserving original scale and selected original materials. [Details](UTNT_AREA_TEXTURES.md)
-- **Surface relief:** normal maps and parallax across rock, ground, grass, snow, ice, masonry, metal, rust, wood, crates and technical surfaces; refined structural depth, aligned ADEL_D11 relief and restrained material sheen. [Details](UTNT_ORGANIC_MATERIALS.md)
+- **Surface relief:** normal maps and parallax across rock, ground, grass, snow, ice, masonry, metal, rust, wood, crates and technical surfaces; refined structural depth, aligned relief on repeated wall/floor textures and restrained material sheen. [Details](UTNT_ORGANIC_MATERIALS.md)
 - **Palette consistency:** restored global PLAYPAL support, corrected blue PNG assets and coordinated plasma projectile, trail, impact, glow and lighting colors. [Details](UTNT_PALETTE.md)
 
 ## Boss encounters, stability and tools
