@@ -374,7 +374,9 @@ class UTNTLostSoulEmber : VisualThinker
     void Initialize(Actor owner)
     {
         Source=owner;
-        Texture=TexMan.CheckForTexture(String.Format("ULSE%c0",65+Random[utntcosmetic](0,2)));
+        // Each skull sheds its own original flame pixels and palette.
+        string prefix=owner.sprite==owner.GetSpriteIndex("TERR") ? "UTRE" : "ULSE";
+        Texture=TexMan.CheckForTexture(String.Format("%s%c0",prefix,65+Random[utntcosmetic](0,2)));
         Flags=SPF_FULLBRIGHT;
         SetRenderStyle(STYLE_Translucent);
         scolor=0xffffffff;
@@ -414,8 +416,8 @@ class UTNTLostSoulFXBase : LostSoul
     override void Tick()
     {
         Super.Tick();
-        // Terror inherits UTNTLostSoul but has its own non-flaming sprite set.
-        if (Health<=0 || sprite!=GetSpriteIndex("SKUL") || level.time%2!=0
+        // Both skulls share the same short rear-flame emission.
+        if (Health<=0 || (sprite!=GetSpriteIndex("SKUL") && sprite!=GetSpriteIndex("TERR")) || level.time%2!=0
             || !UTNTVisuals.Visible(self) || !UTNTVisuals.Reserve()) return;
         let spark=UTNTLostSoulEmber(level.SpawnClientSideVisualThinker('UTNTLostSoulEmber'));
         if (spark) spark.Initialize(self);

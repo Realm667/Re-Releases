@@ -96,13 +96,7 @@ Load the current package plus the regenerated laboratory addon:
 
 ```powershell
 & "F:/DoomDev/Projects/wolfendoom.dev/#standalone/uzdoom.exe" -iwad "F:/DoomDev/DOOM2.WAD" -file "F:/DoomDev/Projects/realm667.git/tutnt.pk3" "F:/DoomDev/Projects/realm667.git/tools/fixtures/environment" +playerclass Marine +map ENVTEST
-```
-
-| Check | Console commands |
-|---|---|
-| Partial floor reflections | `netevent envpos 128 128 0`, `netevent envview 225 20`; wait 10 seconds, compare `UTNT_wetsurfaces true` / `false` |
-| Roof / solid 3D-floor shelter | `netevent envpos 384 384 0` / `netevent envpos 640 384 0` |
-| Snow footprints | `netevent envpos 32 384 0`, walk and look back |
+```anvpos 32 384 0`, walk and look back |
 | Water: wall 256 units away | `netevent envpos 512 2304 -192`, `netevent envview 90 0` |
 | Water: wall 512 / 1024 units away | `netevent envpos 512 2048 -192` / `netevent envpos 512 1536 -192`, `netevent envview 90 0` |
 | Water comparison | `UTNT_underwateratmosphere true` / `false`; hall is 1024 x 1536 units |

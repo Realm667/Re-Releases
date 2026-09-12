@@ -20,7 +20,7 @@ Breite Innenbereiche erhalten größere, weich auslaufende Hitzevolumen, deren h
 
 ## Verifikation
 
-UZDoom 5.0.1: Der Flächentest bestand unter OpenGL und Vulkan mit 89 bzw. 368 Wolken (Verhältnis 4,135), Geburten in allen Quadranten und Zeitabschnitten sowie ohne neue Geburten nach dem Stoppen. Der Bewegungstest umfasst zusätzlich das stetige Ausblenden über den Stillstand hinweg, kurze Bewegungen, Tür und Decke. Am ersten TNT02-Lavasee wurden fünf aktive 3D-Floor-Quellen und eine Lavafallquelle aus der Uferperspektive auf beiden Renderern geprüft. Ein Aus-/Ein-Vergleich und Screenshots sichern die visuelle Kontrolle ab. Neun automatisierte Geometrie-/Shaderverträge prüfen unter anderem die zuvor fehlende Seeoberfläche und unsichtbare Kontrollflächen.
+UZDoom 5.0.1: Der Flächentest bestand unter OpenGL und Vulkan mit 89 bzw. 368 Wolken (wunsichtbare Kontrollflächen.
 
 ## Prüfen
 

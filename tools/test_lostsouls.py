@@ -1,4 +1,4 @@
-"""Lost Soul spark lifecycle regression. Requires UTNT_ENGINE and UTNT_IWAD."""
+"""Lost Soul and Terror spark lifecycle regression. Requires UTNT_ENGINE and UTNT_IWAD."""
 import sys,json,os,argparse
 from pathlib import Path
 from check_engine import ROOT,run_case
@@ -6,11 +6,14 @@ w=ROOT
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
 p.add_argument('--renderer',choices=['0','1','both'],default='both')
+p.add_argument('--actor',choices=['LostSoul','Terror','both'],default='both')
 a=p.parse_args()
 results=[]
-for backend in (['0','1'] if a.renderer=='both' else [a.renderer]):
-    label='lostsoul-'+backend
-    commands='; '.join(['unbindall','wait 100','netevent soulgeometry','wait 2','netevent soulview','wait 10','event soulcheck 1',
+cases=[(actor,backend) for actor in (['LostSoul','Terror'] if a.actor=='both' else [a.actor])
+    for backend in (['0','1'] if a.renderer=='both' else [a.renderer])]
+for actor,backend in cases:
+    label=actor.lower()+'-'+backend
+    commands='; '.join(['unbindall','wait 5','netevent soulterror' if actor=='Terror' else 'wait 1','wait 100','netevent soulgeometry','wait 2','netevent soulview','wait 10','event soulcheck 1',
         f'screenshot logs/{label}-idle.png','netevent soulangle 180','wait 28',
         f'screenshot logs/{label}-side.png','netevent soulangle 90','wait 28',
         f'screenshot logs/{label}-rear.png','netevent soulangle 270','wait 28',
@@ -28,7 +31,7 @@ for backend in (['0','1'] if a.renderer=='both' else [a.renderer]):
     r=run_case(os.environ['UTNT_ENGINE'],
         os.environ['UTNT_IWAD'],root=w,mod=a.mod,
         addon=ROOT/'tools/lostsoul-tests',mapname='UTNTFIRE',renderer=backend,label=label,
-        commands=commands,regression=True,timeout=60,
+        commands=commands,regression=True,timeout=120,
         settings=[('use_mouse',False),('i_pauseinbackground',False),('screenblocks',12),
           ('UTNT_fxquality',3),('UTNT_reducedfx',False),('UTNT_lod',2000),
           ('gl_texture_filter',0),('con_notifytime',0),('gl_bloom',True),('crosshair',0),('r_drawplayersprites',False)])

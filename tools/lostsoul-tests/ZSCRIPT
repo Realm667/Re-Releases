@@ -15,6 +15,11 @@ class UTNTLostSoulTest : EventHandler
     }
     override void NetworkProcess(ConsoleEvent e)
     {
+        if(e.Name=="soulterror")
+        {
+            let previous=Soul; Soul=Other; Other=previous;
+            Soul.SetOrigin((0,0,30),false); Other.SetOrigin((100,0,30),false);
+        }
         if(e.Name=="soulangle") Soul.Angle=e.Args[0];
         if(e.Name=="soulview")
         {
@@ -61,15 +66,16 @@ class UTNTLostSoulTest : EventHandler
         UTNTLostSoulEmber p;
         while(p=UTNTLostSoulEmber(it.Next()))
         {
-            if(p.Source==Other) foreign++;
-            if(p.Source!=Soul) continue;
-            count++; if(p.Age<16) young++;
-            if(!(TexMan.GetName(p.Texture).Left(4)~=="ULSE") || (p.Flags & SPF_ALLOWSHADERS)
+            if(p.Source!=Soul && p.Source!=Other) continue;
+            string expected=p.Source is "Terror" ? "UTRE" : "ULSE";
+            if(!(TexMan.GetName(p.Texture).Left(4)~==expected) || (p.Flags & SPF_ALLOWSHADERS)
                 || p.Life<16 || p.Life>24 || p.Age>=p.Life || p.Alpha<=0) invalid++;
+            if(p.Source==Other) { foreign++; continue; }
+            count++; if(p.Age<16) young++;
         }
         bool expect=e.Args[0]!=0;
-        Console.Printf("UTNT_ASSERT %s soul sparks count=%d young=%d invalid=%d terror=%d",
-            (expect ? count>0 && young>0 : count==0) && invalid==0 && foreign==0 ? "PASS" : "FAIL",
+        Console.Printf("UTNT_ASSERT %s soul sparks count=%d young=%d invalid=%d companion=%d",
+            (expect ? count>0 && young>0 : count==0) && invalid==0 ? "PASS" : "FAIL",
             count,young,invalid,foreign);
         if(Soul) Console.Printf("SOUL_STATE pos=(%.1f,%.1f,%.1f) velocity=(%.1f,%.1f,%.1f) hp=%d skullfly=%d",
             Soul.Pos.X,Soul.Pos.Y,Soul.Pos.Z,Soul.Vel.X,Soul.Vel.Y,Soul.Vel.Z,Soul.Health,Soul.bSkullFly);

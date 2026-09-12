@@ -34,7 +34,7 @@ class UTNTBossPlaque ui
             // Read it directly so HUD, guardian opening and restored saves agree.
             let lines=level.CreateLineIdIterator(99);
             int index=lines.Next();
-            return index>=0 && (level.lines[index].flags & Line.ML_BLOCKEVERYTHING)!=0;
+            return index>=0 && (level.lines[index].flags & 0x00008000)!=0; // ML_BLOCKEVERYTHING (UZDoom mapdata.zs)
         }
         return boss.bInvulnerable;
     }
