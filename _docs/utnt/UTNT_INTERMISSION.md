@@ -12,7 +12,7 @@ for destinations, original story fragment ranges, image pairs, narration sounds
 and image/voice timings. INTERMAP ACS obtains its travel destination from that
 same table. Its geometry, panorama scripts and 70-tic travel fade are unchanged.
 
-The sequence is story -> chapter comparison -> campaign comparison -> travel or
+The sequence is story -> chapter results -> campaign results -> travel or
 original finale. Use/Enter/Space/Right first reveal text, then advance. Left goes
 back through pages and results. Host Backspace explicitly skips the transition;
 menus, console and pause do not generate reader actions. TNT04A retains its
@@ -33,6 +33,38 @@ All labels and hints are maintained in English, German, Spanish and French.
 Narration uses the original continuous recordings and original start offsets;
 pagination and translation do not restart audio. UZDoom serializes active sound
 channels and their playback positions along with the saved chapter state.
+
+## Result presentation and black transitions
+
+Single-player uses three large bronze plaques for kills, items and secrets, each
+with an absolute count, map maximum and completion bar. Active time, completed
+objectives and deaths form a quieter second row. Empty categories have no
+percentage or progress fill. The heading names the chapter just completed;
+campaign results summarize the journey so far. Single-player navigation advances
+directly and does not ask the player to declare readiness.
+
+Cooperative results use one aligned table for up to eight participants; larger
+rosters adapt into parallel panels to keep everyone visible. The local player has
+a bronze row accent, leading values are gold (including ties), and team totals
+remain separate from personal credit. Category icons use the ability HUD's 17-pixel
+raised glyph style: crossed blades, flask, eye, skull, hourglass and checked scroll.
+Both layouts use the existing mission plaque textures and original localized font.
+The result area measures its own height and attaches navigation beneath it.
+
+Normal chapter exits now fade to black before loading INTERMAP. The saved
+`UTNTStatsHandler` holds the world and every player for 35 tics, takes the final
+statistics sample before the hold, then releases only the freezes it owns and
+performs the original destination/position/flag transfer. Duplicate exits cannot
+restart it. TNT01/TNT02 walk-over exits use a line-activation adapter; ACS exits use
+`BeginChapterTravel`. Cursed Peak's intra-hub travel stays immediate. Existing
+Source victory staging and INTERMAP's authored 70-tic departure remain intact.
+
+`UTNTTransitionFade` draws the outgoing overlay and a 21-tic black arrival fade
+on each client. A one-shot engine crossfade replaces the melt across INTERMAP
+loads in single-player, without writing `wipetype`. Network games receive the
+same black overlays even though the engine disables its native wipes there.
+Loading a save resumes the saved departure; it does not start an unrelated
+arrival effect. This adds a short black load boundary, not asynchronous loading.
 
 ## Statistics and persistence
 
@@ -71,6 +103,8 @@ fallback, but the UTNT campaign no longer displays it before the chapter reader.
 Set UTNT_ENGINE and UTNT_IWAD, build an isolated package, then run:
 
 ```text
+python -B tools/test_transitions.py --mod <package> --case fade --language de
+python -B tools/test_transitions.py --mod <package> --case acs
 python -B tools/test_transitions.py --mod <package> --case flow
 python -B tools/test_transitions.py --mod <package> --case hub
 python -B tools/test_transitions.py --mod <package> --case empty --language fr

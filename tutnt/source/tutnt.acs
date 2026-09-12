@@ -565,7 +565,7 @@ script "BOSSHP"(int firstid,int lastid,int boss)
 		ACS_Terminate(40,0);
 		Radius_Quake(6,140,0,10,41);
 		delay(140);
-		Teleport_NewMap(99,0);
+		ScriptCall("UTNTStatsHandler", "BeginChapterTravel", 0, 0);
 	}
 	if(boss==5)
 	{
@@ -583,7 +583,7 @@ script "BOSSHP"(int firstid,int lastid,int boss)
             while(!ScriptCall("UTNTSourceSystem","DefeatSettled")) Delay(1);
             ACS_NamedExecuteWithResult("UTNT_CompleteObjective",UTNT_ObjectiveEpisode(),2);
             while(!ScriptCall("UTNTSourceSystem","DefeatFinished")) Delay(1);
-            Teleport_NewMap(99,0);
+            ScriptCall("UTNTStatsHandler", "BeginChapterTravel", 0, 0);
             terminate;
         }
 
@@ -608,7 +608,7 @@ script "BOSSHP"(int firstid,int lastid,int boss)
 			Delay(16);
 		}
 		delay(140);
-		Teleport_NewMap(99,0);
+		ScriptCall("UTNTStatsHandler", "BeginChapterTravel", 0, 0);
 	}
 }
 script "UTNTCheckpoint"(int pos)

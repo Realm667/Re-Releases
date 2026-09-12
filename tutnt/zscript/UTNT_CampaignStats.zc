@@ -80,6 +80,40 @@ class UTNTStatsHandler : EventHandler
 {
     int Previous[MAXPLAYERS * 3];
     bool Frozen;
+    bool Departing, TravelIssued, WasWorldFrozen;
+    bool OwnFreeze[MAXPLAYERS];
+    int DepartureTics, TravelPosition, TravelFlags;
+
+    static bool BeginChapterTravel(int position=0,int flags=0)
+    {
+        let h=UTNTStatsHandler(EventHandler.Find('UTNTStatsHandler'));
+        if(!h || !UTNTCampaignStats.MapNumber()) return false;
+        // Teleport_NewMap's third argument is a boolean keep-facing option.
+        if(deathmatch) return Teleport_NewMap(99,position,flags);
+        if(h.Departing) return true;
+        h.Sample();h.Frozen=true;h.Departing=true;
+        h.TravelPosition=position;h.TravelFlags=flags;
+        h.WasWorldFrozen=(level.isFrozen() & 1)!=0;
+        level.setFrozen(true);h.FreezePlayers();
+        return true;
+    }
+    void FreezePlayers()
+    {
+        for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p] && !(players[p].cheats & CF_TOTALLYFROZEN))
+        { OwnFreeze[p]=true;players[p].cheats|=CF_TOTALLYFROZEN; }
+    }
+    void ReleaseFreeze()
+    {
+        level.setFrozen(WasWorldFrozen);
+        for(int p=0;p<MAXPLAYERS;p++) if(OwnFreeze[p])
+        { players[p].cheats&=~CF_TOTALLYFROZEN;OwnFreeze[p]=false; }
+    }
+    override void WorldLinePreActivated(WorldEvent e)
+    {
+        if(e.ShouldActivate && e.Thing && e.Thing.player && e.Thing.health>0 && !deathmatch && e.ActivatedLine.special==74
+            && e.ActivatedLine.args[0]==99 && BeginChapterTravel(e.ActivatedLine.args[1],e.ActivatedLine.args[2]))
+            e.ShouldActivate=false;
+    }
 
     void Sample(bool clockTick=false)
     {
@@ -116,9 +150,22 @@ class UTNTStatsHandler : EventHandler
         }
         Sample();
     }
-    override void WorldTick() { Sample(true); }
+    override void WorldTick()
+    {
+        if(Departing)
+        {
+            FreezePlayers();
+            if(++DepartureTics>=35 && !TravelIssued)
+            {
+                TravelIssued=true;ReleaseFreeze();
+                level.ChangeLevel("INTERMAP",TravelPosition,TravelFlags ? CHANGELEVEL_KEEPFACING : 0);
+            }
+        }
+        else Sample(true);
+    }
     override void WorldUnloaded(WorldEvent e)
     {
+        if(Departing) ReleaseFreeze();
         Sample();
         if(e.NextMap ~== "INTERMAP")
         {
@@ -133,5 +180,41 @@ class UTNTStatsHandler : EventHandler
         if(!number || Frozen || deathmatch) return;
         let ledger=UTNTCampaignStats.Get(true);
         let r=ledger.Record(number);r.Values[e.PlayerNumber*4+3]++;
+    }
+}
+
+// Engine wipes are disabled in netgames. The synchronized departure above and
+// local arrival overlay therefore provide the same black transition on every peer.
+class UTNTTransitionFade : StaticEventHandler
+{
+    bool Pending;
+    int Generation, ArrivalStart;
+    ui int SeenGeneration;
+    override void OnRegister() { SetOrder(10000);ArrivalStart=-10000; }
+    override void WorldUnloaded(WorldEvent e)
+    {
+        Pending=level.MapName ~== "INTERMAP" || e.NextMap ~== "INTERMAP";
+    }
+    override void WorldLoaded(WorldEvent e)
+    {
+        ArrivalStart=-10000;
+        if(Pending && !e.IsSaveGame) { ArrivalStart=level.time;Generation++; }
+        Pending=false;
+    }
+    override void UiTick()
+    {
+        if(SeenGeneration!=Generation)
+        {
+            SeenGeneration=Generation;
+            // One-shot crossfade. Never alter the player's persistent wipe preference.
+            ScreenJobRunner.setTransition(3);
+        }
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        double alpha=clamp(1.0-(level.time-ArrivalStart+e.FracTic)/21.0,0,1);
+        let h=UTNTStatsHandler(EventHandler.Find('UTNTStatsHandler'));
+        if(h && h.Departing) alpha=max(alpha,clamp((h.DepartureTics+e.FracTic)/30.0,0,1));
+        if(alpha>0) Screen.Dim(0,alpha,0,0,Screen.GetWidth(),Screen.GetHeight());
     }
 }

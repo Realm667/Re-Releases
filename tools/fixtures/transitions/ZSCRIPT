@@ -36,6 +36,31 @@ class UTNTTransitionProbe : EventHandler
             Check(it.Next()!=null && it.Next()==null,"one campaign ledger across maps and hubs");
         }
         if(e.Name=="trexit") level.ExitLevel(0,false);
+        if(e.Name=="tracsexit") ACS_ExecuteAlways(250,0,99,0,0);
+        if(e.Name=="trfade")
+        {
+            // TNT01's actual walk-over exit, including WorldLinePreActivated.
+            if(e.Args[0]==1) level.lines[3028].Activate(players[e.Player].mo,0,SPAC_CROSS);
+            else UTNTStatsHandler.BeginChapterTravel();
+            let stats=UTNTStatsHandler(EventHandler.Find('UTNTStatsHandler'));
+            Check(stats.Departing && level.MapName ~== "TNT01","exit starts fade before changing maps");
+            Check((level.isFrozen() & 1)!=0,"world held during departure");
+            for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p])
+                Check((players[p].cheats & CF_TOTALLYFROZEN)!=0,"all peers held during departure");
+        }
+        if(e.Name=="trfading")
+        {
+            let stats=UTNTStatsHandler(EventHandler.Find('UTNTStatsHandler'));
+            Check(stats.Departing && stats.DepartureTics>0 && stats.DepartureTics<35,"saved fade resumes in progress");
+            int elapsed=stats.DepartureTics;UTNTStatsHandler.BeginChapterTravel();
+            Check(stats.DepartureTics==elapsed,"duplicate exit cannot restart fade");
+        }
+        if(e.Name=="trreleased")
+        {
+            Check((level.isFrozen() & 1)==0,"departure world freeze released");
+            for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p])
+                Check((players[p].cheats & CF_TOTALLYFROZEN)==0,"departure player freeze released");
+        }
         if(e.Name=="trtravel") players[e.Player].mo.A_CallSpecial(74,e.Args[0],0);
         if(e.Name=="trdie")
         {
@@ -82,6 +107,18 @@ class UTNTTransitionProbe : EventHandler
 }
 class UTNTTransitionViewProbe : StaticEventHandler
 {
+    void Check(bool ok,String text) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",text); }
+    override void WorldLoaded(WorldEvent e)
+    {
+        if(!e.IsSaveGame) return;
+        let stats=UTNTStatsHandler(EventHandler.Find('UTNTStatsHandler'));
+        if(stats.Departing)
+        {
+            Check(stats.DepartureTics>0 && stats.DepartureTics<35,"load restores departure clock before travel");
+            Check((level.isFrozen() & 1)!=0,"load restores departure world hold");
+        }
+    }
+
     override void ConsoleProcess(ConsoleEvent e)
     {
         if(e.Name!="trview") return;
@@ -89,5 +126,7 @@ class UTNTTransitionViewProbe : StaticEventHandler
         let view=new("UTNTChapterUI");view.Prepare(h.Chapter);
         Console.Printf("UTNT_ASSERT %s: transition fits viewport",view.BodyY+view.BodyHeight<Screen.GetHeight() ? "PASS" : "FAIL");
         Console.Printf("UTNT_ASSERT %s: full hour format",UTNTTransitionBoard.TimeText(126002170)=="1000:01:02" ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: mode-specific result layout",UTNTTransitionBoard.Multiplayer(h.Chapter.ChapterResult)==multiplayer ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: wipe preference unchanged",CVar.GetCVar('wipetype').GetInt()==1 ? "PASS" : "FAIL");
     }
 }

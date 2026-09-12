@@ -1,16 +1,11 @@
-// One shared scoreboard: every participant stays visible, including ties.
+// Bronze result plaques and raised pixel glyphs, matching the mission and ability HUD.
 class UTNTTransitionBoard ui
 {
     static String Local(String key) { return StringTable.Localize("$"..key); }
-    static String TimeText(int tics)
-    {
-        int seconds=tics/35;
-        return String.Format("%d:%02d:%02d",seconds/3600,seconds/60%60,seconds%60);
-    }
+    static String TimeText(int tics) { int s=tics/35;return String.Format("%d:%02d:%02d",s/3600,s/60%60,s%60); }
     static String Fit(String text,int width)
     {
-        Font f=Font.GetFont('SmallFont');
-        if(f.StringWidth(text)<=width) return text;
+        Font f=Font.GetFont('SmallFont');if(f.StringWidth(text)<=width) return text;
         while(text.Length()>0 && f.StringWidth(text.."...")>width) text=text.Left(text.Length()-1);
         return text.."...";
     }
@@ -19,72 +14,151 @@ class UTNTTransitionBoard ui
         if(centered) x-=Font.GetFont('SmallFont').StringWidth(text)*scale/2;
         UTNTExplorationUI.Text(text,x,y,scale,color,1);
     }
-
-    static void Draw(UTNTChapterState chapter,double y,double height,double unit)
+    static void Label(String text,double x,double y,double width,double scale,Color color=0xddc394)
+    { Text(text,x,y,min(scale,width/max(1,Font.GetFont('SmallFont').StringWidth(text))),color,true); }
+    // Crossed blades, flask, eye, skull, hourglass, checked scroll; ability HUD's 17px grid.
+    static void Icon(int kind,double x,double y,double s,Color color=0xc49a59)
     {
-        bool campaign=chapter.Sections[consoleplayer]==2;
-        let r=campaign ? chapter.CampaignResult : chapter.ChapterResult;
-        double margin=UTNTUILayout.Margin(),width=Screen.GetWidth()-2*margin;
-        UTNTExplorationUI.Frame(margin,y,width/unit,height/unit,unit,0.97);
-        double textScale=unit*1.5;
-        Text(Local(campaign ? "UTNT_TR_CAMPAIGN" : "UTNT_TR_CHAPTER"),Screen.GetWidth()/2,y+12*unit,textScale*1.3,0xddc394,true);
-        if(!r)
+        for(int row=0;row<17;row++) for(int col=0;col<17;col++)
         {
-            Text(Local("UTNT_TR_NO_DATA"),Screen.GetWidth()/2,y+60*unit,textScale,0xcbb995,true);
-            return;
-        }
-        int count=0;for(int p=0;p<MAXPLAYERS;p++) if(r.Present[p]) count++;
-        int leaders[4];leaders[3]=2147483647;
-        for(int p=0;p<MAXPLAYERS;p++) if(r.Present[p])
-            for(int m=0;m<4;m++) leaders[m]=m==3 ? min(leaders[m],r.Values[p*4+m]) : max(leaders[m],r.Values[p*4+m]);
-        // Use parallel table panels for large games, rather than hiding players.
-        int panels=1,rows=max(1,count);
-        double bestScale=0;
-        for(int candidate=1;candidate<=max(1,count);candidate++)
-        {
-            int candidateRows=max(1,(count+candidate-1)/candidate);
-            double fit=min(unit*1.5,(width-24*unit)/(candidate*300.0),
-                (height-135*unit)/((candidateRows+1)*18));
-            if(fit>bestScale) {bestScale=fit;panels=candidate;rows=candidateRows;}
-        }
-        double panelWidth=(width-24*unit)/panels;
-        textScale=max(.25,bestScale);
-        double top=y+45*unit;
-        int index=0;
-        String labels[]={"UTNT_TR_PLAYER","UTNT_TR_KILLS","UTNT_TR_ITEMS","UTNT_TR_SECRETS","UTNT_TR_DEATHS"};
-        for(int panel=0;panel<panels;panel++)
-        {
-            double x=margin+12*unit+panel*panelWidth;
-            for(int c=0;c<5;c++)
+            bool ink=false;
+            switch(kind)
             {
-                double cx=c==0 ? x : x+panelWidth*(0.40+(c-1)*0.16);
-                String label=Local(labels[c]);
-                double labelScale=min(textScale,panelWidth*(c==0 ? .29 : .15)/max(1,Font.GetFont('SmallFont').StringWidth(label)));
-                Text(label,cx,top,labelScale,0xa99b85,c>0);
+            case 0:
+                ink=(row>=2 && row<=12 && (abs(col-row)<=1 || abs(col+row-16)<=1))
+                    || (row==11 && (col>=1 && col<=5 || col>=11 && col<=15))
+                    || (row>=13 && row<=15 && (col==16-row || col==row));break;
+            case 1:
+                ink=(row==1 && col>=6 && col<=10) || (row>=2 && row<=6 && (col==6 || col==10))
+                    || (row>=7 && row<=9 && (col==12-row || col==row+4))
+                    || (row>=10 && row<=13 && (col==3 || col==13))
+                    || (row==14 && col>=4 && col<=12) || (row>=10 && row<=12 && col>=6 && col<=10);break;
+            case 2:
+                ink=(abs(row-8)==max(0,5-abs(col-8)) && col>=1 && col<=15)
+                    || (row>=6 && row<=10 && col>=7 && col<=9);break;
+            case 3:
+                ink=(row==3 && col>=5 && col<=11) || (row>=4 && row<=9 && col>=3 && col<=13
+                    && !(row>=6 && row<=8 && (col>=5 && col<=6 || col>=10 && col<=11)))
+                    || (row>=10 && row<=13 && col>=5 && col<=11 && (row<12 || col%2==1));break;
+            case 4:
+                ink=((row==2 || row==14) && col>=3 && col<=13)
+                    || (row>=3 && row<=13 && (col==8-abs(row-8)/2 || col==8+abs(row-8)/2))
+                    || (row>=11 && row<=13 && abs(col-8)<=row-10);break;
+            case 5:
+                ink=((row==2 || row==14) && col>=3 && col<=13) || (col==3 && row>=2 && row<=14)
+                    || (col==13 && row>=2 && row<=5) || (col==13 && row>=11 && row<=14)
+                    || (col>=6 && col<=8 && row==col+2) || (col>=9 && col<=14 && row==18-col);break;
+            }
+            if(ink)
+            {
+                UTNTObjectivePlaque.Rect(x,y,s,col+1,row+1,1,1,0x21150f,1);
+                UTNTObjectivePlaque.Rect(x,y,s,col,row,1,1,color,1);
             }
         }
+    }
+    static double Unit() { return min(UTNTUILayout.Scale(),Screen.GetWidth()/640.0,Screen.GetHeight()/440.0); }
+    static int Participants(UTNTMapResult r)
+    { int count=0;if(r) for(int p=0;p<MAXPLAYERS;p++) if(r.Present[p]) count++;return count; }
+    static bool Multiplayer(UTNTMapResult r) { return multiplayer || Participants(r)>1; }
+    static void Metric(int kind,String label,String value,double x,double y,double width,double u)
+    {
+        Icon(kind,x+width/2-8.5*u,y,u);
+        Label(label,x+width/2,y+24*u,width-16*u,1.1*u,0xb4a083);
+        Label(value,x+width/2,y+43*u,width-16*u,1.7*u,0xe3d8c5);
+    }
+    static void Solo(UTNTMapResult r,int objectives,double x,double y,double width,double u)
+    {
+        int values[3];values[0]=r.Kills;values[1]=r.Items;values[2]=r.Secrets;
+        int totals[3];totals[0]=r.MaxKills;totals[1]=r.MaxItems;totals[2]=r.MaxSecrets;
+        String labels[]={"UTNT_TR_KILLS","UTNT_TR_ITEMS","UTNT_TR_SECRETS"};
+        double gap=10*u,card=(width-2*gap)/3;
+        for(int i=0;i<3;i++)
+        {
+            double left=x+i*(card+gap),center=left+card/2;
+            UTNTExplorationUI.Frame(left,y,card/u,150,u,.94);
+            Icon(i,center-17*u,y+10*u,2*u);
+            Label(Local(labels[i]),center,y+51*u,card-18*u,1.3*u);
+            Label(String.Format("%d",values[i]),center,y+75*u,card-20*u,3*u,0xf0dfb6);
+            String total=totals[i]>0 ? String.Format("/ %d   %d%%",totals[i],int(100.0*values[i]/totals[i])) : "-";
+            Label(total,center,y+115*u,card-20*u,1.05*u,0xb4a083);
+            Screen.Dim(0x1c130e,1,left+12*u,y+137*u,card-24*u,3*u);
+            if(totals[i]>0) Screen.Dim(0xb38c47,1,left+12*u,y+137*u,(card-24*u)*clamp(double(values[i])/totals[i],0,1),3*u);
+        }
+        int deaths=0;for(int p=0;p<MAXPLAYERS;p++) if(r.Present[p]) deaths+=r.Values[p*4+3];
+        Metric(4,Local("UTNT_TR_CLOCK"),TimeText(r.Tics),x,y+170*u,width/3,u);
+        Metric(5,Local("UTNT_TR_OBJECTIVES"),String.Format("%d",objectives),x+width/3,y+170*u,width/3,u);
+        Metric(3,Local("UTNT_TR_DEATHS"),String.Format("%d",deaths),x+width*2/3,y+170*u,width/3,u);
+    }
+    static void Cooperative(UTNTChapterState chapter,UTNTMapResult r,int objectives,double x,double y,double width,double height,double u)
+    {
+        int count=Participants(r),leaders[4];leaders[3]=2147483647;
+        for(int p=0;p<MAXPLAYERS;p++) if(r.Present[p])
+            for(int m=0;m<4;m++) leaders[m]=m==3 ? min(leaders[m],r.Values[p*4+m]) : max(leaders[m],r.Values[p*4+m]);
+        // Parallel panels only when needed; every participant remains visible.
+        int panels=1,rows=max(1,count);double best=0;
+        for(int candidate=1;candidate<=(count>8 ? count : 1);candidate++)
+        {
+            int candidateRows=max(1,(count+candidate-1)/candidate);
+            double fit=min(u,width/(candidate*420.0),(height-115*u)/(60+candidateRows*32));
+            if(fit>best) {best=fit;panels=candidate;rows=candidateRows;}
+        }
+        double s=best,panelWidth=width/panels;
+        String labels[]={"UTNT_TR_KILLS","UTNT_TR_ITEMS","UTNT_TR_SECRETS","UTNT_TR_DEATHS"};
+        for(int panel=0;panel<panels;panel++)
+        {
+            double left=x+panel*panelWidth;
+            Text(Local("UTNT_TR_PLAYER"),left+8*s,y+31*s,1.2*s,0xb4a083);
+            for(int m=0;m<4;m++)
+            {
+                double cx=left+panelWidth*(.42+m*.16);
+                Icon(m,cx-8.5*s,y,s);
+                Label(Local(labels[m]),cx,y+26*s,panelWidth*.15,1.05*s,0xb4a083);
+            }
+        }
+        int index=0;
         for(int p=0;p<MAXPLAYERS;p++) if(r.Present[p])
         {
             int panel=index/rows,row=index%rows;index++;
-            double x=margin+12*unit+panel*panelWidth,yy=top+(row+1)*18*textScale;
-            if(p==consoleplayer) Screen.Dim(0x80562c,.20,x-3*unit,yy-2*textScale,panelWidth-6*unit,17*textScale);
+            double left=x+panel*panelWidth,yy=y+(53+row*32)*s;
+            Screen.Dim(p==consoleplayer ? 0x8e6434 : 0x100b08,p==consoleplayer ? .25 : .6,left,yy-5*s,panelWidth-4*s,29*s);
+            if(p==consoleplayer) Screen.Dim(0xc49a59,1,left,yy-5*s,2*s,29*s);
             String playerName=r.Names[p];
             if(playeringame[p] && chapter.Ready[p]) playerName="+ "..playerName;
-            Text(Fit(playerName,int(panelWidth*.29/textScale)),x,yy,textScale,0xe3d8c5);
+            Text(Fit(playerName,int((panelWidth*.33-12*s)/(1.3*s))),left+8*s,yy,1.3*s,0xe3d8c5);
             for(int m=0;m<4;m++)
             {
-                int value=r.Values[p*4+m];
-                bool best=count>1 && value==leaders[m] && (m==3 || value>0);
-                Text(String.Format("%d",value),x+panelWidth*(.40+m*.16),yy,textScale,best ? 0xffd36d : 0xcbb995,true);
+                int value=r.Values[p*4+m];bool bestValue=count>1 && value==leaders[m] && (m==3 || value>0);
+                Label(String.Format("%d",value),left+panelWidth*(.42+m*.16),yy,panelWidth*.15,1.5*s,bestValue ? 0xffd36d : 0xcbb995);
             }
         }
-        int objectives=campaign ? chapter.CampaignObjectives : chapter.ChapterObjectives;
-        String summary=String.Format(Local("UTNT_TR_SUMMARY"),r.Kills,r.MaxKills,r.Items,r.MaxItems,r.Secrets,r.MaxSecrets);
-        String timing=String.Format(Local("UTNT_TR_TIME"),TimeText(r.Tics),objectives);
-        Font font=Font.GetFont('SmallFont');
-        double footerScale=min(unit*1.25,max(.75,(width-32*unit)/max(font.StringWidth(summary),font.StringWidth(timing),font.StringWidth(Local("UTNT_TR_LEADERS")),1)));
-        Text(summary,Screen.GetWidth()/2,y+height-67*unit,footerScale,0xcbb995,true);
-        Text(timing,Screen.GetWidth()/2,y+height-47*unit,footerScale,0xcbb995,true);
-        Text(Local("UTNT_TR_LEADERS"),Screen.GetWidth()/2,y+height-25*unit,footerScale,0xffd36d,true);
+        double bottom=y+height;
+        Label(String.Format(Local("UTNT_TR_SUMMARY"),r.Kills,r.MaxKills,r.Items,r.MaxItems,r.Secrets,r.MaxSecrets),x+width/2,bottom-94*u,width,1.05*u,0xb4a083);
+        Icon(4,x+width*.26-34*u,bottom-72*u,u);
+        Label(TimeText(r.Tics),x+width*.26+16*u,bottom-68*u,width*.3,1.2*u);
+        Icon(5,x+width*.68-70*u,bottom-72*u,u);
+        Label(Local("UTNT_TR_OBJECTIVES")..": "..String.Format("%d",objectives),x+width*.68+18*u,bottom-68*u,width*.35,1.1*u);
+        Label(Local("UTNT_TR_LEADERS"),x+width/2,bottom-34*u,width,1.0*u,0xffd36d);
+    }
+    // Navigation is attached to the measured panel, not an empty full-screen table.
+    static double Draw(UTNTChapterState chapter,double ignoredY,double ignoredHeight,double ignoredUnit)
+    {
+        bool campaign=chapter.Sections[consoleplayer]==2;
+        let r=campaign ? chapter.CampaignResult : chapter.ChapterResult;bool coop=Multiplayer(r);
+        double u=Unit(),width=min(Screen.GetWidth()-32*u,(coop ? 980 : 760)*u);
+        double height=min(Screen.GetHeight()-80*u,(coop ? 245+max(1,Participants(r))*32 : 336)*u);
+        if(!r) height=160*u;
+        double x=(Screen.GetWidth()-width)/2,y=(Screen.GetHeight()-height-42*u)/2;
+        UTNTExplorationUI.Frame(x,y,width/u,height/u,u,.97);
+        Label(Local(campaign ? "UTNT_TR_CAMPAIGN" : "UTNT_TR_CHAPTER"),Screen.GetWidth()/2,y+16*u,width-32*u,1.65*u,0xf0dfb6);
+        String maps[]={"TUTNTMAP01","TUTNTMAP02","TUTNTMAP03A","TUTNTMAP03A","TUTNTMAP03B","TUTNTMAP04A","TUTNTMAP04B","TUTNTMAP04CN","TUTNTMAP04C","TUTNTMAPLE"};
+        Label(Local(campaign ? "UTNT_TR_JOURNEY" : maps[clamp(chapter.Episode-1,0,9)]),Screen.GetWidth()/2,y+43*u,width-32*u,1.05*u,0xb4a083);
+        if(!r) Label(Local("UTNT_TR_NO_DATA"),Screen.GetWidth()/2,y+92*u,width-32*u,1.2*u);
+        else
+        {
+            int objectives=campaign ? chapter.CampaignObjectives : chapter.ChapterObjectives;
+            if(coop) Cooperative(chapter,r,objectives,x+16*u,y+70*u,width-32*u,height-70*u,u);
+            else Solo(r,objectives,x+16*u,y+75*u,width-32*u,u);
+        }
+        return y+height;
     }
 }

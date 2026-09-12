@@ -13,22 +13,22 @@ def main():
             label=f'transitions-coop-{i}';ini=logs/(label+'.ini');cfg=logs/(label+'.cfg')
             ini.write_text('[GlobalSettings]\nvid_fullscreen=false\nwin_w=978\nwin_h=587\nvid_maxfps=60\ni_pauseinbackground=false\nvid_activeinbackground=true\n')
             if i==0:
-                commands=['wait 120','netevent trseed','wait 10','netevent trexit','wait 250',
+                commands=['wait 120','netevent trseed','wait 10','netevent trfade 1','wait 250',
                   'netevent trcheck 20 20 0','netevent utnt_chapter 4 1','wait 15','event trview',
                   f'screenshot logs/{label}-chapter.png','netevent utnt_chapter 4 1','wait 15',
                   'netevent utnt_chapter 5 1','wait 15','netevent trphase 0','wait 170',
-                  'netevent utnt_chapter 5 1','wait 140','netevent trmap 2']
+                  'netevent utnt_chapter 5 1','wait 140','netevent trmap 2','netevent trreleased']
             else:
                 commands=['wait 410','netevent utnt_chapter 3 1','wait 15','netevent trphase 0',
                   'netevent trcheck 20 20 0','netevent utnt_chapter 4 1','wait 15',
                   f'screenshot logs/{label}-chapter.png','netevent utnt_chapter 4 1','wait 15',
-                  'netevent utnt_chapter 5 1','wait 270','netevent trmap 2']
+                  'netevent utnt_chapter 5 1','wait 270','netevent trmap 2','netevent trreleased']
             cfg.write_text('; '.join(commands+['echo UTNT_COOP_TRANSITION_END']))
             args=[os.environ.get('UTNT_ENGINE','F:/DoomDev/uzdoom.exe'),'-iwad',os.environ.get('UTNT_IWAD','F:/DoomDev/DOOM2.WAD'),
               '-file',str(a.mod.resolve()),str(ROOT/'tools/fixtures/transitions'),'-config',str(ini),'-savedir',str(logs/'saves'),
               '-noautoload','-nosound','-stdout','-noidle','+name',f'Player {i+1}',
               '+vid_fullscreen','false','+vid_preferbackend','1','+language',['en','de','es','fr'][i],
-              '+con_notifytime','0','+map','TNT01','+exec',str(cfg)]
+              '+wipetype','1','+con_notifytime','0','+map','TNT01','+exec',str(cfg)]
             args+=['-host','4','-port','15257'] if i==0 else ['-join','127.0.0.1:15257']
             f=(logs/(label+'.log')).open('wb')
             child=subprocess.Popen(args,cwd=ROOT,stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
