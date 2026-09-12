@@ -318,3 +318,32 @@ occasional skipped view changes at very high frame rates.
 The local review page is `.codex/work/material-reanalysis/vergleich.html`;
 proofs are under `.codex/validation/material-reanalysis/`. Native comparison
 images use the same camera and original artwork with relief enabled/disabled.
+
+
+## Walkable relief test map
+
+`python -B tools/build_relief_gallery.py` creates the separate addon
+`tutnt/.codex/builds/tutnt-relief-gallery.pk3`. Load it **after `tutnt.pk3`**, with
+DOOM2.WAD, and enter `map RELTEST`. It does not replace the shared package or
+change the campaign maps. The generated local launcher
+`.codex/work/relief-gallery/Relief-Test-starten.cmd` starts this combination using
+its own configuration and save directory.
+
+RELTEST contains 285 numbered rooms for all 209 registered base materials and
+their expanded/band variants. Each room has matching sample walls and floor,
+a texture-name sign, an overhead name display and a static light. Families stay
+together in fifteen-room rows; both ends connect to side corridors. All 285
+sample floors can be reached on foot. Environmental aliases that reuse these
+same material variants are not duplicated as additional rooms.
+
+The console supports `netevent reliefnext`, `netevent reliefprev` and
+`netevent reliefgoto N` (one-based room number). A searchable text index is written
+to `.codex/work/relief-gallery/Texturenverzeichnis.txt`. No gameplay keys are
+rebound. The addon includes its own EN/DE/ES/FR map title and help text.
+
+`python -B tools/test_relief_gallery.py` validates all floor bindings in UZDoom,
+walks from the entrance into the first room, jumps across row boundaries and to
+the final room, checks previous/next and save/load. Vulkan and OpenGL both passed;
+the local geometry, runtime logs and screenshots are under `.codex/validation/relief-gallery/`
+and `.codex/logs/relief-gallery-*`. The generator checks connectivity before writing
+the addon. This is a test gallery, not a new campaign level.
