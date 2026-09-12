@@ -37,6 +37,7 @@ def fixture(packaged=False):
    z.writestr('gldefs/GLDEFS.crt',(ROOT/'tutnt/gldefs/GLDEFS.crt').read_bytes())
    z.writestr('shaders/crt/screen.fp',(ROOT/'tutnt/shaders/crt/screen.fp').read_bytes())
    z.writestr('zscript/UTNT_CRT.zc',(ROOT/'tutnt/zscript/UTNT_CRT.zc').read_bytes())
+   for bright in (ROOT/'tutnt/materials/crt/brightmaps').glob('*.png'):z.writestr(bright.relative_to(ROOT/'tutnt').as_posix(),bright.read_bytes())
   z.writestr('ZSCRIPT','version "4.14"\n'+(ROOT/'tools/fixtures/crt/fixture.zc').read_text())
  return target,names
 def map_capture(a,addon):
@@ -82,6 +83,11 @@ def main():
   for mode,setting in [('noreflect','UTNT_crtreflections false'),('off','UTNT_crt false'),('debug','UTNT_crt true;UTNT_crtreflections true;crt_debug true')]:
    rel=f'logs/{label}-{mode}.png';captures.append(rel);cmd+=f'{setting};wait 22;screenshot "{rel}";wait 3;'
   cmd+='crt_debug false;netevent crtback 1;wait 25;screenshot logs/'+label+'-changed-room.png;wait 3;UTNT_reducedfx true;wait 10;netevent crtassert;UTNT_reducedfx false;save crt-test;wait 8;load crt-test;wait 45;netevent crtassert;'
+ if a.batch==0:
+  cmd+='gl_lights false;UTNT_crtreflections false;'
+  for name,light in [('dark',32),('bright',224)]:
+   rel=f'logs/{label}-fullbright-{name}.png';captures.append(rel)
+   cmd+=f'netevent crtlight {light};wait 15;screenshot "{rel}";wait 3;'
  cmd+='echo UTNT_TEST_END;wait 3;quit\n'
  if a.batch==0:captures.append('logs/'+label+'-changed-room.png')
  started=time.time()
@@ -97,8 +103,12 @@ def main():
   images={n:np.asarray(Image.open(C/'logs'/f'{label}-{n}.png'),dtype=float) for n in ['debug','noreflect','off','changed-room']}
   pane=(slice(150,400),slice(460,800));housing=(slice(470,590),slice(500,780))
   metrics={'crt_delta':float(np.abs(images['noreflect']-images['off'])[pane].mean()),'room_change_delta':float(np.abs(images['changed-room']-images['debug'])[pane].mean()),'housing_delta':float(np.abs(images['debug']-images['off'])[housing].max())}
+  dark=np.asarray(Image.open(C/'logs'/f'{label}-fullbright-dark.png'),dtype=float)
+  bright=np.asarray(Image.open(C/'logs'/f'{label}-fullbright-bright.png'),dtype=float)
+  metrics['fullbright_glass_delta']=float(np.abs(dark-bright)[220:310,540:710].max())
+  metrics['lit_housing_delta']=float(np.abs(dark-bright)[housing].mean())
   result['pixels']=metrics
-  result['ok']=metrics['crt_delta']>.5 and metrics['room_change_delta']>.2 and metrics['housing_delta']==0
+  result['ok']=metrics['crt_delta']>.5 and metrics['room_change_delta']>.2 and metrics['housing_delta']==0 and metrics['fullbright_glass_delta']==0 and metrics['lit_housing_delta']>1
  out=C/'validation/crt';out.mkdir(exist_ok=True);(out/(label+'.json')).write_text(json.dumps(result,indent=2))
  print(json.dumps(result,indent=2))
  if not result['ok']:print(log[-6500:]);raise SystemExit(1)

@@ -82,7 +82,7 @@ vec3 crtReflection(vec3 n,vec3 curved,vec3 view,float enabled) {
  float edge=1.-smoothstep(.43,.49,max(abs(uv.x-.5),abs(uv.y-.5)));
  if(edge<=0.)return vec3(0.);
  vec3 room=best==0?crtBlur(crtProbe0,uv):crtBlur(crtProbe1,uv);
- float fresnel=.18+.12*pow(1.-clamp(dot(view,curved),0.,1.),2.);
+ float fresnel=1.6*(.18+.12*pow(1.-clamp(dot(view,curved),0.,1.),2.));
  return room*edge*fresnel*(1.-smoothstep(160.,256.,score));
 }
 void SetupMaterial(inout Material mat) {
@@ -129,6 +129,6 @@ void SetupMaterial(inout Material mat) {
  vec3 reflected=crtReflection(n,curved,view,control.b)*distanceFade;
  reflected*=1.-clamp(max(max(screen.r,screen.g),screen.b)*.7,0.,.7);
  mat.Base.rgb=mix(mat.Base.rgb,screen+reflected,mask);
- // Phosphor is self-lit; powered-off glass preserves its sector lighting.
+ // Native white glass brightmaps provide fullbright; retain the softer glow fallback.
  mat.Glow=vec4(screen+reflected,mask*(lit>.5?.68:.12));
 }

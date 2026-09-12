@@ -16,11 +16,16 @@ Each display gets an outward-convex glass faceplate, rounded glass corners, fine
 scanlines, a quiet edge vignette and color-preserving phosphor emission. Dark
 content gains readability without replacing the original graphics. OCOMP and
 the blank Q2COMP14/Q2CMP091 displays retain their powered-off appearance.
+Every display has its own native brightmap in `materials/crt/brightmaps/`,
+generated from its rounded glass masks. White glass texels receive fullbright;
+black housing texels retain sector lighting. This preserves artwork colors,
+including black pixels on blank screens, and remains available with CRT distortion
+disabled through the engine's standard brightmap support.
 The rotated Q2FCMP08/18 resources use the corresponding rotated scanline axis.
 
 The shader ray-traces a convex height field within each glass rectangle:
 `height = depth * (1 - x²) * (1 - y²)`, with normalized face coordinates and
-zero height at the seated rim. The center rises by 5.5% of the shorter display
+zero height at the seated rim. The center rises by 8.25% of the shorter display
 side. World-space UV derivatives account for texture scale, mirroring and floor
 orientation. A bounded search finds the first view-ray intersection; its analytic
 surface gradient drives both material normals and the live reflection direction.
@@ -53,7 +58,10 @@ medium quality). Each points out from its surface into the room with a 120°
 field of view. The shader projects the reflected view direction into that
 capture, bends it slightly with the glass normal, and explicitly filters it
 even when the original pixel art uses nearest filtering. Reflection strength
-increases at oblique angles and diminishes over bright display content.
+increases at oblique angles and diminishes over bright display content. The
+reflection coefficient is 1.6 times the original value (0.288 frontal to 0.48
+at grazing angles, before capture/content/distance attenuation). The faceplate
+depth is 1.5 times the original 5.5% setting.
 Out-of-capture directions and unmatched/distant planes fade out.
 
 This is a local environment-probe approximation, **not a geometrically exact
@@ -81,7 +89,7 @@ In **Remaster → Surfaces and water**:
 | UTNT_crtmotion | true | Subtle scanline drift |
 
 All labels are available in English, German, Spanish and French. Quality 0
-disables the treatment; quality 1 retains static CRT treatment without captures;
+disables the CRT shader treatment; native brightmaps remain independent of it; quality 1 retains static CRT treatment without captures;
 quality 2 permits one capture and quality 3 permits two. Reduced effects suppress
 reflection captures and motion while retaining the static CRT material.
 Individual toggles remain available. Disabled reflections stop requesting
@@ -91,7 +99,10 @@ further capture renders.
 
 The regular package builder invokes `tools/build_crt_materials.py`; its
 `--check` mode verifies the generated GLDEFS bindings and runtime selection list.
-The original diffuse images are never generated or overwritten.
+The original diffuse images are never generated or overwritten. The generator
+also checks all 48 brightmap images. Gallery batch 0 compares sector light levels
+32 and 224 with reflections/dynamic lights disabled: glass must remain identical,
+while the unmasked housing must respond to the lighting change.
 
 `tools/test_crt_materials.py` builds a separate gallery of all 48 materials.
 Use `--mod tutnt.pk3 --packaged` to test the built package without source
@@ -105,14 +116,17 @@ Local captures and results: `tutnt/.codex/logs/crt-*` and
 
 Validated on 12 September 2026 with UZDoom 5.0.1:
 
-- All 48 generated bindings and four definition tables passed consistency checks.
+- All 48 generated bindings and their dedicated brightmap images, plus four
+  definition tables, passed consistency checks.
 - Vulkan and OpenGL gallery batches 0–1 covered twelve representative resources,
   a rotated source, a horizontal console and repeated UVs with negative offsets.
 - Batch 0 passed initialization/CAM exclusion assertions before and after save/load.
-  The final Vulkan run used the shared package without source overrides: glass
+  A final run used the shared package without source overrides: glass
   changed with CRT enabled and with the reflected room changed; housing difference
   was exactly zero in the comparison region.
 - Original placements in TNT02 (Vulkan) and TNT03A2 (OpenGL) loaded and rendered.
+- Fullbright verification with sector light levels 32 and 224 kept the sampled
+  display pixels exactly identical while the housing changed with the lighting.
 - The convex/flat faceplate comparison changed the angled glass region while
   leaving the sampled housing exactly unchanged. Rotated and horizontal displays
   also passed the OpenGL gallery with the convex faceplate enabled.
