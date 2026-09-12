@@ -2,11 +2,38 @@
 
 ## Player-facing changes
 
-- Actual health, armor and five ammunition gains appear near their HUD values for 1.5 seconds. Consecutive pickups aggregate; capped or rejected quantities do not inflate the displayed amount. New weapons, keys and powerups get a small original-sprite card above the status bar. Starting equipment and script grants do not notify. Native pickup sounds, bonus flashes and message history remain intact. The feature can be disabled under Speech and HUD.
+- Actual health, armor and five ammunition gains appear near their HUD values for 1.5 seconds. Consecutive pickups aggregate; capped or rejected quantities do not inflate the displayed amount. New weapons, keys and powerups get a small original-sprite card above the status bar. Starting equipment and script grants do not notify. Native pickup sounds, bonus flashes and message history remain intact. The feature can be disabled under HUD and notifications.
 - Three class cards show the original player and starting-weapon sprites, actual maximum health and movement multiplier, and short English/German descriptions. Native class, random class, episode and difficulty selection remain authoritative. Arrow/controller navigation and mouse selection are supported.
-- UTNT options are grouped into Display, Atmosphere, Combat feedback, and Speech and HUD. Original feel, Atmospheric and Reduced effects are actions applying local visual presets; every setting remains individually adjustable. Shared weather/atmosphere switches and subtitle preferences are not overwritten by presets. Motion blur is off in all three presets.
+- UTNT Remaster Options appears immediately after Miscellaneous Options in both native options menus. Six purpose-based categories provide a single route to every setting. Original feel, Atmospheric and Reduced effects are actions applying local visual presets; every setting remains individually adjustable. Shared weather/atmosphere switches and subtitle preferences are not overwritten by presets. Motion blur is off in all three presets.
 - Trying a locked door/switch records its required key or skull on the native automap. Either-key locks use the existing combined card/skull icon. Repeated attempts reuse the marker; successful activation removes it, and externally raised closed doors clear their marker. Markers survive save/load and represent shared cooperative discovery. Untried locks are never scanned into markers. Automap rotation/zoom remain native. Key sprites follow PLAYPAL, including the established blue #00759F.
 - Seventeen verified access notifications trigger a warm, three-second light and a quiet positional switch sound at the affected opening. Adjacent bars share one signal; distant openings are bounded to four lights per notice. Repeat notices within four seconds do not repeat the signal. The cues change no door, switch, enemy, objective or progression logic.
+
+## Options structure (12 September 2026)
+
+| Category | Settings |
+| --- | --- |
+| Controls and abilities | Mission-objective key and offensive/defensive ability bindings, with ability tooltips |
+| HUD and notifications | Shared UI scale, status bar/statistics submenu, pickup notices and boss displays |
+| World and effects | Weather/atmosphere, surfaces/water and combat-glow submenus |
+| Sound and subtitles | Footstep/heartbeat volume and all subtitle controls |
+| Comfort and motion | Low-health overlay, heat distortion and motion blur, with their related controls kept together |
+| Performance and presets | Effect quality, distance, reduced effects and the three visual presets |
+
+The obsolete earlier `UTNTOptions` definition is removed. The formerly hidden
+ability bindings and four environment controls are reachable again. Each of the
+40 existing controls appears once in the reachable UTNT menu tree. Host-shared
+weather/atmosphere options have their own heading. Saved values, control ranges
+and preset behavior are unchanged. Labels are provided in all four languages.
+`AddOptionMenu ... after` targets the native miscellaneous-menu actions without
+replacing the engine's protected simple-menu definition.
+
+`tools/test_options_menu.py` checks both entry positions, localized labels and
+glyphs, all 40 controls, the three reachable presets, keyboard entry/back and a
+native option toggle/restore. The source runtime passed 218 assertions per
+language (872 total across English, German, Spanish and French); the 14
+localization unit tests also passed. The built PK3 passed another 218 menu
+assertions and 25 usability assertions, including all three presets. Evidence is under
+`tutnt/.codex/validation/options-menu/`.
 
 ## Options palette (12 September 2026)
 
@@ -29,9 +56,11 @@ Validation: UZDoom 5.0.1 loaded the color overlay on the existing integration
 PK3; the full current source also passed its engine compile check.
 English/German runtime checks completed of the simple options, sound
 sliders and UTNT combat options. Screenshots and logs are under
-`tutnt/.codex/validation/options-colors/`. The full integration rebuild is
-currently blocked by unrelated stale TNT02 environment bindings; the separate
-`tutnt/.codex/builds/utnt-options-colors.pk3` overlay is loaded after `tutnt.pk3`.
+`tutnt/.codex/validation/options-colors/`. The shared `tutnt.pk3` now includes
+the palette and reorganized menus (build `7925bbddb1d8`, engine check passed).
+Environment bindings were refreshed for the user-saved TNT02; the map itself
+remained byte-identical and was included in the package. The earlier standalone
+color overlay is no longer needed.
 
 ## Access bindings
 

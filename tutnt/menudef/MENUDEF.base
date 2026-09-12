@@ -25,47 +25,14 @@ ListMenu "SkillMenu"
 	Font "DBIGFONT","DarkBrown"
 }
 
-AddOptionMenu "OptionsMenu"
+// Extend both native menus at their actual submenu actions.
+AddOptionMenu "OptionsMenuSimple" after "MiscOptionsSimple"
 {
-	Submenu "$UTNT_OPTIONS_TITLE", "UTNTOptions"
+    Submenu "$UTNT_OPTIONS_TITLE", "UTNTOptions"
 }
-
-OptionMenu "UTNTOptions"
+AddOptionMenu "OptionsMenu" after "MiscOptions"
 {
-	Title "$UTNT_OPTIONS_TITLE"
-	Control "$UTNT_OBJ_KEY", "+utnt_objectives"
-	Control "$UTNT_AB_OFFENSE", "utnt_offense"
-    Tooltip "$UTNT_AB_OFFENSE_TIP"
-	Control "$UTNT_AB_DEFENSE", "utnt_defense"
-    Tooltip "$UTNT_AB_DEFENSE_TIP"
-	Submenu "$UTNT_HUD_TITLE", "UTNTHUDOptions"
-	Submenu "$UTNT_ENV_TITLE", "UTNTEnvironmentOptions"
-	Option "$UTNT_OPT_REDUCED", "UTNT_reducedfx", "UTNTYesNo"
-	Tooltip "$UTNT_TIP_REDUCED"
-	Option "$UTNT_OPT_QUALITY", "UTNT_fxquality", "UTNTQuality"
-	Tooltip "$UTNT_TIP_QUALITY"
-	Option "$MN_OPDIST", "UTNT_lod", "UTNTDist"
-	Option "$UTNT_OPT_HEAT_ENABLED", "UTNT_shaderoverlayswitch", "UTNTYesNo"
-	Option "$UTNT_OPT_SMOKE", "UTNT_ambientsmoke", "UTNTYesNo"
-	Slider "$UTNT_OPT_HEAT", "UTNT_heatstrength", 0, 1, 0.1, 1
-	Slider "$UTNT_OPT_WATER", "UTNT_uweffectsize", 0, 0.04, 0.005, 3
-	Option "$MN_OPBLUR", "motionblur", "UTNTYesNo"
-	Slider "$UTNT_OPT_BLUR", "motionblur_strength", 0, 100, 5, 0
-	Slider "$UTNT_OPT_SAMPLES", "motionblur_samples", 1, 12, 1, 0
-	Option "$UTNT_OPT_INJURY", "UTNT_lowhealthfx", "UTNTYesNo"
-	Slider "$UTNT_OPT_HEARTBEAT", "UTNT_heartbeatvolume", 0, 1, 0.1, 1
-	Option "$UTNT_OPT_BOSS", "UTNT_bosshud", "UTNTYesNo"
-	Option "$UTNT_OPT_PERCENT", "UTNT_bosspercent", "UTNTYesNo"
-	Option "$UTNT_OPT_SUBTITLE_ENABLED", "UTNT_subtitles", "UTNTYesNo"
-	Option "$UTNT_OPT_SUBTITLE_BG", "UTNT_subtitlebackground", "UTNTYesNo"
-	Option "$UTNT_OPT_SUBTITLE_SPEAKER", "UTNT_subtitlespeaker", "UTNTYesNo"
-	Slider "$UTNT_OPT_SUBTITLES", "UTNT_subtitlescale", 0.75, 1.5, 0.05, 2
-	Slider "$UTNT_OPT_STEPS", "snd_footstepvolume", 0, 1, 0.1, 1
-	StaticText ""
-	StaticText "$UTNT_OPT_SHARED"
-	Option "$UTNT_OPT_WEATHER", "weatherfx", "UTNTOnOff"
-	Option "$UTNT_OPT_ATMOSPHERE", "UTNT_atmosphere", "UTNTOnOff"
-	Tooltip "$UTNT_TIP_ATMOSPHERE"
+    Submenu "$UTNT_OPTIONS_TITLE", "UTNTOptions"
 }
 
 OptionValue "UTNTQuality"
@@ -100,8 +67,6 @@ OptionMenu "UTNTHUDOptions"
 {
     Title "$UTNT_HUD_TITLE"
     StaticText "$UTNT_BUILD_INFO"
-    Slider "$UTNT_UI_SCALE", "UTNT_uiscale", 0.75, 1.5, 0.05, 2
-    Tooltip "$UTNT_UI_SCALE_TIP"
     Option "$UTNT_HUD_STATS", "fullhud_stats", "UTNTHUDStats"
     Option "$UTNT_HUD_POSITION", "fullhud_statspos", "UTNTHUDPosition"
     Option "$UTNT_HUD_ITEMS", "fullhud_fullstats", "UTNTYesNo"

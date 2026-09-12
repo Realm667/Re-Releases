@@ -1,0 +1,116 @@
+version "5.0"
+class UTNTOptionsTest : StaticEventHandler
+{
+    ui Array<Name> Visited;
+    ui Array<Name> Actions;
+    ui int Presets;
+    ui void Check(bool ok, String label)
+    { Console.Printf("UTNT_ASSERT %s: %s", ok ? "PASS" : "FAIL", label); }
+
+    ui void Placement(Name menuName, Name anchor)
+    {
+        let desc = OptionMenuDescriptor(MenuDescriptor.GetDescriptor(menuName));
+        Check(desc != null, "native menu exists " .. menuName);
+        if (!desc) return;
+        int previous = -2, entry = -1, count = 0;
+        for (int i = 0; i < desc.mItems.Size(); i++)
+        {
+            let [menuAction, param] = desc.mItems[i].GetAction();
+            if (menuAction == anchor) previous = i;
+            if (menuAction == 'UTNTOptions')
+            {
+                entry = i; count++;
+                let item = OptionMenuItem(desc.mItems[i]);
+                Check(StringTable.Localize(item.mLabel) == StringTable.Localize("$UTNT_OPTIONS_TITLE"), "localized entry label");
+            }
+        }
+        Check(count == 1, "one UTNT entry in " .. menuName);
+        Check(entry == previous + 1, "UTNT immediately follows miscellaneous in " .. menuName);
+    }
+
+    ui void Audit(Name menuName)
+    {
+        for (int i = 0; i < Visited.Size(); i++)
+            if (Visited[i] == menuName) { Check(false, "duplicate menu route " .. menuName); return; }
+        Visited.Push(menuName);
+        let desc = OptionMenuDescriptor(MenuDescriptor.GetDescriptor(menuName));
+        Check(desc != null, "reachable menu " .. menuName);
+        if (!desc) return;
+        Check(StringTable.Localize(desc.mTitle).Left(1) != "$", "resolved menu title " .. menuName);
+        for (int i = 0; i < desc.mItems.Size(); i++)
+        {
+            let item = OptionMenuItem(desc.mItems[i]);
+            if (!item) continue;
+            String label = StringTable.Localize(item.mLabel);
+            Check(label.Left(1) != "$", "resolved label " .. item.mLabel);
+            Check(Menu.OptionFont().CanPrint(label, false), "menu glyphs " .. item.mLabel);
+            let [menuAction, param] = item.GetAction();
+            if (item is 'OptionMenuItemUTNTPreset') { Presets++; continue; }
+            if (item is 'OptionMenuItemSubmenu') Audit(menuAction);
+            else if (menuAction != 'None') Actions.Push(menuAction);
+        }
+    }
+
+    ui void Validate()
+    {
+        Placement('OptionsMenuSimple', 'MiscOptionsSimple');
+        Placement('OptionsMenu', 'MiscOptions');
+        Visited.Clear(); Actions.Clear(); Presets = 0;
+        Audit('UTNTOptions');
+        Name expected[] = {
+            '+utnt_objectives', 'utnt_offense', 'utnt_defense',
+            'UTNT_ambientsmoke', 'UTNT_atmosphere', 'weatherfx',
+            'UTNT_bosshud', 'UTNT_bosspercent', 'UTNT_pickupfeedback', 'UTNT_uiscale',
+            'UTNT_effectglow', 'UTNT_glowsize', 'UTNT_glowstrength',
+            'UTNT_footprints', 'UTNT_mechanismfx', 'UTNT_underwateratmosphere', 'UTNT_uweffectsize', 'UTNT_wetsurfaces',
+            'UTNT_fxquality', 'UTNT_lod', 'UTNT_reducedfx',
+            'UTNT_heartbeatvolume', 'snd_footstepvolume',
+            'UTNT_heatstrength', 'UTNT_lowhealthfx', 'UTNT_shaderoverlayswitch',
+            'motionblur', 'motionblur_samples', 'motionblur_strength',
+            'UTNT_subtitlebackground', 'UTNT_subtitles', 'UTNT_subtitlescale', 'UTNT_subtitlespeaker',
+            'UTNT_hudtranslucent', 'fullhud_berserk', 'fullhud_fullstats', 'fullhud_interpolate',
+            'fullhud_mugswitch', 'fullhud_stats', 'fullhud_statspos'
+        };
+        for (int n = 0; n < expected.Size(); n++)
+        {
+            int count = 0;
+            for (int i = 0; i < Actions.Size(); i++) if (Actions[i] == expected[n]) count++;
+            Check(count == 1, "setting accessible exactly once " .. expected[n]);
+        }
+        Check(Presets == 3, "all three visual presets reachable");
+        let root = OptionMenuDescriptor(MenuDescriptor.GetDescriptor('UTNTOptions'));
+        Check(root.mItems.Size() == 6, "six task-oriented categories");
+        for (int i = 0; i < root.mItems.Size(); i++)
+        {
+            Menu.SetMenu('UTNTOptions');
+            root.mSelectedItem = i;
+            let [menuAction, param] = root.mItems[i].GetAction();
+            Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Enter, false);
+            let current = OptionMenu(Menu.GetCurrentMenu());
+            Check(current && current.mDesc.mMenuName == menuAction, "keyboard enters " .. menuAction);
+            current.MenuEvent(Menu.MKEY_Back, false);
+            current = OptionMenu(Menu.GetCurrentMenu());
+            Check(current && current.mDesc.mMenuName == 'UTNTOptions', "back returns to UTNT root");
+        }
+        Menu.SetMenu('UTNTFeedbackOptions');
+        let menu = OptionMenu(Menu.GetCurrentMenu());
+        for (int i = 0; i < menu.mDesc.mItems.Size(); i++)
+        {
+            let [menuAction, param] = menu.mDesc.mItems[i].GetAction();
+            if (menuAction != 'UTNT_pickupfeedback') continue;
+            bool previous = CVar.FindCVar(menuAction).GetBool();
+            menu.mDesc.mSelectedItem = i;
+            menu.MenuEvent(Menu.MKEY_Right, false);
+            Check(CVar.FindCVar(menuAction).GetBool() != previous, "native option changes value");
+            menu.MenuEvent(Menu.MKEY_Right, false);
+            Check(CVar.FindCVar(menuAction).GetBool() == previous, "native option value restored");
+        }
+        Console.Printf("UTNT_REGRESSION_COMPLETE");
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if (e.Name == "utntoptionscheck") Validate();
+        if (e.Name == "utntoptionsclose" && Menu.GetCurrentMenu())
+            Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Back, false);
+    }
+}

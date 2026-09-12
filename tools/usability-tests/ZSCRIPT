@@ -85,6 +85,8 @@ class UTNTUsabilityUITest : StaticEventHandler
         if(e.Name=="usoptions") Menu.SetMenu('UTNTOptions');
         if(e.Name=="uspreset")
         {
+            if(OptionMenu(Menu.GetCurrentMenu()).mDesc.mMenuName!='UTNTDisplayOptions')
+                Menu.SetMenu('UTNTDisplayOptions');
             let menu=OptionMenu(Menu.GetCurrentMenu());
             for(int i=0;i<menu.mDesc.mItems.Size();i++)
             {
