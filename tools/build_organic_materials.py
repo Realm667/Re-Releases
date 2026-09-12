@@ -8,6 +8,7 @@ import argparse, hashlib, io, json, math, os, re, struct
 import numpy as np
 from PIL import Image, ImageFilter
 from material_geometry import authored_height
+from material_traced_geometry import traced_height, NAMES as TRACED_NAMES
 
 ROOT = Path(__file__).resolve().parent.parent
 HEIGHT_NEUTRAL = 127/255
@@ -211,7 +212,8 @@ def validate_compatibility(config):
     if len(materials)!=len(config['materials']):raise ValueError('Duplicate material name')
     for m in materials.values():
         detail=m.get('height_detail')
-        if detail and not ((m['profile']=='metal' and detail.get('kind')=='raised-rust') or
+        if detail and not ((detail.get('kind')=='traced-geometry' and detail.get('name') in TRACED_NAMES) or
+                           (m['profile']=='metal' and detail.get('kind')=='raised-rust') or
                            (m['profile'] in STRUCTURE_PRESETS and detail.get('kind')=='surface-structure') or
                            (m['profile']=='authored' and detail.get('kind')=='authored-geometry')):
             raise ValueError('Unsupported height detail: '+m['name'])
@@ -234,7 +236,9 @@ def relief(rgb, profile, depth, logical, detail=None):
     soft = wrap_blur(lum,.9)
     lo,hi = np.quantile(soft,[.16,.91])
     face = np.clip((soft-lo)/max(hi-lo,.001),0,1)
-    if profile == 'authored':
+    if detail and detail.get('kind')=='traced-geometry':
+        h = PROFILE_BASE[profile]+traced_height(rgb,logical,detail)/depth
+    elif profile == 'authored':
         h = PROFILE_BASE[profile]+authored_height(rgb,logical,detail)/depth
     elif profile in STRUCTURE_PRESETS:
         h = structure_height(rgb,profile,logical,detail or {})
@@ -318,6 +322,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
         outputs[name]=data
     read(root/'tools/build_organic_materials.py')
     geometry_digest=digest(read(root/'tools/material_geometry.py'))
+    traced_digest=digest(read(root/'tools/material_traced_geometry.py')+geometry_digest.encode())
     config=json.loads(read(config_path))
     validate_compatibility(config)
     library={m['name']:m for m in json.loads(read(root/'tools/artwork/area-textures/materials.json'))}
@@ -406,7 +411,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
             detail=m.get('height_detail')
             if detail and v!=n and detail.get('expanded_model'):
                 detail=dict(detail['expanded_model'],kind='surface-structure')
-            fingerprint=digest(rgb.tobytes()+json.dumps([logical,m['profile'],m['depth'],detail,geometry_digest if m['profile']=='authored' else 'signed-127-v1']).encode())[:14]
+            fingerprint=digest(rgb.tobytes()+json.dumps([logical,m['profile'],m['depth'],detail,traced_digest if detail and detail.get('kind')=='traced-geometry' else geometry_digest if m['profile']=='authored' else 'signed-127-v1']).encode())[:14]
             if fingerprint not in data_cache:
                 h,nrm=relief(rgb,m['profile'],m['depth'],logical,detail)
                 stem=f"materials/organic/{n.lower()}-{fingerprint}"
@@ -416,7 +421,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
             stem=data_cache[fingerprint]
             h=np.asarray(Image.open(io.BytesIO(outputs['tutnt/'+stem+'-height.png'])))
             limits=height_depth(h)
-            bindings[v]=dict(stem=stem,depth=m['depth'],profile=m['profile'],family=n,logical=list(logical),size=[rgb.shape[1],rgb.shape[0]],data_size=[h.shape[1],h.shape[0]],neutral=127,base_height=PROFILE_BASE[m['profile']],min_depth=float(limits.min()),max_depth=float(limits.max()),trace_top=PROFILE_BASE[m['profile']]-1,trace_bottom=PROFILE_BASE[m['profile']],edge_mode=('band' if v==band else 'tile') if entry.get('edge_blend') and v!=n else None)
+            bindings[v]=dict(stem=stem,depth=m['depth'],profile=m['profile'],family=n,logical=list(logical),size=[rgb.shape[1],rgb.shape[0]],data_size=[h.shape[1],h.shape[0]],neutral=127,base_height=PROFILE_BASE[m['profile']],min_depth=float(limits.min()),max_depth=float(limits.max()),trace_top=(-.5 if detail and detail.get('kind')=='traced-geometry' else PROFILE_BASE[m['profile']]-1),trace_bottom=(.5 if detail and detail.get('kind')=='traced-geometry' else PROFILE_BASE[m['profile']]),edge_mode=('band' if v==band else 'tile') if entry.get('edge_blend') and v!=n else None)
         records.append(dict(m,variants=variants))
     tables=[]
     env_bindings={}

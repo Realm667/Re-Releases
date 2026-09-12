@@ -36,7 +36,7 @@ def check():
     def at(name,x,y):
         v=manifest['variants'][name];a=fields[name]
         return float(-height_depth(a[int(y*a.shape[0]/v['size'][1]),int(x*a.shape[1]/v['size'][0])])*v['depth'])
-    checks=[('ADEL_G02',(32,30),(18,30)),('ADEL_G03',(32,55),(18,55)),('QWOOD1',(22,8),(22,36)),('QWOOD4',(22,63),(22,36)),('IKTCR05B',(32,32),(20,40)),('IKWALL28',(17,12),(17,9)),('IKWALL64',(8,60),(32,60)),('IKWALL69',(8,60),(64,60)),('PLATF2',(15,36),(10,36)),('QTECH20',(64,60),(5,60)),('QTECH25',(64,60),(5,60)),('QTECH08',(3,16),(10,16)),('QTECH07',(8,7),(16,7)),('IKCRATE1',(32,30),(32,10)),('QCRATE1',(32,30),(15,58)),('PANBOOK',(8,50),(30,50))]
+    checks=[('ADEL_G02',(32,30),(18,30)),('ADEL_G03',(32,55),(18,55)),('QWOOD1',(22,8),(22,36)),('QWOOD4',(22,63),(22,36)),('IKTCR05B',(38,27),(32,32)),('IKWALL28',(17,8),(17,11)),('IKWALL64',(8,60),(32,60)),('IKWALL69',(8,60),(64,60)),('PLATF2',(15,36),(10,36)),('QTECH20',(64,60),(5,60)),('QTECH25',(64,60),(5,60)),('QTECH08',(3,16),(10,16)),('QTECH07',(8,7),(16,7)),('IKCRATE1',(32,30),(32,10)),('QCRATE1',(32,30),(15,58)),('PANBOOK',(8,50),(30,50))]
     for name,front,back in checks:assert at(name,*front)>at(name,*back)+.15,(name,front,back,at(name,*front),at(name,*back))
     # Landmarks read from ADEL_D11's original 64x96 artwork. These catch
     # a shifted frame and the previous two invented end rivets.

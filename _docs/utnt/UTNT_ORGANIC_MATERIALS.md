@@ -401,3 +401,58 @@ examined floor pixels on the Vulkan test system. The fixed shader had zero
 failing pixels under both Vulkan and OpenGL. Three camera directions were
 visually checked with parallax active. All 621 generated material images retain
 identical bytes; shared package build `44fb77c7b9e8` passed engine validation.
+
+
+## Source-traced material refinement (12 September 2026)
+
+The final targeted pass replaces approximate component layouts for ADEL_W39,
+IKTCR05B, IKWALL28, PANBOOK, OTECH6/TECHG, QTECH30/31/32, METALF12 and QMET10.
+QMET33 receives the matching recessed metal strip treatment. CITYF01 and SNOW3
+include their distinct expanded XA22/XB22 and XA16/XB16 artwork: 14 base
+materials, 18 variants in total. All other 267 variants retain identical height
+and normal image bytes, and the original diffuse art remains unchanged.
+
+`tools/material_traced_geometry.py` records component contours in original texel
+coordinates. The door has flat diagonal boards and correctly placed metal
+handles. IKTCR05B has two parallel diagonal braces around a recessed middle
+opening, rather than the former single central brace. Rune strokes are filled
+incisions. Book spines, the leaning book and six shelf positions are modeled
+separately. Vent slats have a lit leading edge and a sloping face into the gap;
+TECHG and the repeated OTECH6 use identical geometry. The three QTECH cabinets
+retain their distinct openings, cable paths and housings, with pale panels below
+the dark structural metal. Fine painted markings do not become holes or bumps.
+
+Brick construction follows mortar courses and sustained vertical joints; bright
+flecks on brick faces are rejected. Expanded artwork is analyzed independently
+because its courses differ from the small source. Snow uses a regularized
+integration of upper-lit slopes, excludes broad illumination and tiny grain,
+and applies a smooth physical amplitude limit. This avoids treating every white
+highlight as a summit. Snow and ambiguous low-resolution microstructure remain
+interpretations of 2D shading, not an exact recovery of an unavailable 3D mesh.
+
+The base surface remains encoded at gray 127. Heights stay well within the
+user's -6/+6 limit, with restrained detail instead of spending the whole depth
+budget. Traced metal retains its compatibility group's depth of 3; symmetric
+trace bounds allow the recessed plate to sit below zero. Normal maps derive
+from the exact quantized height field with the same UV registration. The global
+negative-UV sampler fix remains unchanged.
+
+`tools/test_material_traced_geometry.py` checks 34 landmarks read from the
+original artwork, neutral regions, physical trace bounds, exact normal-map
+registration, repeated vent/metal geometry and a known upper-lit snow wave.
+`tools/test_material_final.py` captures all 18 variants in RELTEST on walls and
+floors from both lateral directions; `--live` explicitly selects source overlays,
+while the default validates the shared package without a material overlay.
+The local review is `.codex/work/material-final-pass/vergleich.html`; captures
+and evidence are under `.codex/logs/material-final-*` and
+`.codex/validation/material-final-pass/`.
+
+
+Validation completed with 34 artwork landmarks, 54 native wall/floor views and
+the existing authored, neutral-height and metal-compatibility checks. Snow wave
+phase correlation is 0.9982. The final shared package build `d36a9baedc2d` passed
+engine validation and contains all 624 generated material outputs byte-for-byte;
+its SHA-256 is `4b30dbb7f6aa3caffcdaad61d86122dab3744b35617c046d005d7a637f293132`.
+The last rune refinement was recaptured from that package. Views of unchanged
+materials remain valid by byte comparison with the earlier checked build.
+The gallery addon remains separate and requires no replacement for this pass.
