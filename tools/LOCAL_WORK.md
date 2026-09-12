@@ -37,4 +37,4 @@ ordinary output directories. Local agent instructions remain excluded from Git.
 
 ## Documentation
 
-Keep permanent documentation under `docs/utnt/` and temporary notes, concepts and historical reports under `tutnt/.codex/notes/`. See [the documentation index](../docs/utnt/README.md). Root-level `UTNT_*.md` and `TNT*_CONCEPT.md` are rejected by the layout check.
+Keep permanent documentation under `_docs/utnt/` and temporary notes, concepts and historical reports under `tutnt/.codex/notes/`. See [the documentation index](../_docs/utnt/README.md). Root-level `UTNT_*.md` and `TNT*_CONCEPT.md` are rejected by the layout check.

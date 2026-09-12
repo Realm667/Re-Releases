@@ -25,7 +25,7 @@ therefore reverted to the original QLAVA appearance.
 The existing approved lava resources, their GLDEFS binding and replacement of
 the three superseded ANIMDEFS warps are now included in this correction's commit.
 The surface shader and crust artwork are restored byte-for-byte from the existing
-working project. No new lava design is introduced. See `docs/utnt/UTNT_LAVA.md`.
+working project. No new lava design is introduced. See `_docs/utnt/UTNT_LAVA.md`.
 
 `tools/test_tntle_materials.py` reproduces gameplay sky views and the longitude
 seam with trilinear filtering, 16x anisotropy and SSAO 0/3. Frozen sky comparisons

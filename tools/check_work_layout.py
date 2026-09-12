@@ -52,7 +52,7 @@ def violations(root, workspace_config=None):
                                         or re.match(r'log-utnt-.*\.txt$', lower)):
                 temporary = True
             if path.parent == root and re.match(r'(?:UTNT_.*|TNT.*_CONCEPT)\.md$', name, re.I):
-                issues.append(f'{relative}: documentation belongs in docs/utnt or tutnt/.codex/notes')
+                issues.append(f'{relative}: documentation belongs in _docs/utnt or tutnt/.codex/notes')
             if temporary:
                 issues.append(f'{relative}: temporary output belongs under tutnt/.codex')
     if workspace_config:

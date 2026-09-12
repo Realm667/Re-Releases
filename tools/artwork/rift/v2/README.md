@@ -9,4 +9,4 @@ The user approved `tnt04cn-dark-zenith-v2.png` and explicitly clarified that the
 
 Both were generated from the approved v2 reference with the built-in Imagegen tool and visually inspected. They contain no beam, rocks, comets, foreground, weapon or HUD. The original outputs are copied without repainting. The existing separate keyed rocks and shared animated comets are composed by the runtime material. NumPy/Pillow only perform deterministic projection to static cube faces.
 
-Palette: dark grey, dark brown, near-black, subdued red reflections; bright light orange confined to the overhead opening. Projection, portal alignment and validation are documented in `docs/utnt/UTNT_RIFT_SKY.md`.
+Palette: dark grey, dark brown, near-black, subdued red reflections; bright light orange confined to the overhead opening. Projection, portal alignment and validation are documented in `_docs/utnt/UTNT_RIFT_SKY.md`.
