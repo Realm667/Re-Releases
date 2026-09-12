@@ -10,6 +10,7 @@ from PIL import Image, ImageFilter
 from material_geometry import authored_height
 from material_traced_geometry import traced_height, NAMES as TRACED_NAMES
 from material_surface_geometry import surface_height, NAMES as SURFACE_NAMES
+from material_panel_geometry import panel_height, NAMES as PANEL_NAMES
 
 ROOT = Path(__file__).resolve().parent.parent
 HEIGHT_NEUTRAL = 127/255
@@ -213,7 +214,7 @@ def validate_compatibility(config):
     if len(materials)!=len(config['materials']):raise ValueError('Duplicate material name')
     for m in materials.values():
         detail=m.get('height_detail')
-        if detail and not ((detail.get('kind')=='traced-geometry' and detail.get('name') in TRACED_NAMES | SURFACE_NAMES) or
+        if detail and not ((detail.get('kind')=='traced-geometry' and detail.get('name') in TRACED_NAMES | SURFACE_NAMES | PANEL_NAMES) or
                            (m['profile']=='metal' and detail.get('kind')=='raised-rust') or
                            (m['profile'] in STRUCTURE_PRESETS and detail.get('kind')=='surface-structure') or
                            (m['profile']=='authored' and detail.get('kind')=='authored-geometry')):
@@ -238,7 +239,7 @@ def relief(rgb, profile, depth, logical, detail=None):
     lo,hi = np.quantile(soft,[.16,.91])
     face = np.clip((soft-lo)/max(hi-lo,.001),0,1)
     if detail and detail.get('kind')=='traced-geometry':
-        h = PROFILE_BASE[profile]+(surface_height if detail['name'] in SURFACE_NAMES else traced_height)(rgb,logical,detail)/depth
+        h = PROFILE_BASE[profile]+(panel_height if detail['name'] in PANEL_NAMES else surface_height if detail['name'] in SURFACE_NAMES else traced_height)(rgb,logical,detail)/depth
     elif profile == 'authored':
         h = PROFILE_BASE[profile]+authored_height(rgb,logical,detail)/depth
     elif profile in STRUCTURE_PRESETS:
@@ -325,6 +326,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
     geometry_digest=digest(read(root/'tools/material_geometry.py'))
     traced_digest=digest(read(root/'tools/material_traced_geometry.py')+geometry_digest.encode())
     surface_digest=digest(read(root/'tools/material_surface_geometry.py')+traced_digest.encode())
+    panel_digest=digest(read(root/'tools/material_panel_geometry.py')+geometry_digest.encode())
     config=json.loads(read(config_path))
     validate_compatibility(config)
     library={m['name']:m for m in json.loads(read(root/'tools/artwork/area-textures/materials.json'))}
@@ -413,7 +415,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
             detail=m.get('height_detail')
             if detail and v!=n and detail.get('expanded_model'):
                 detail=dict(detail['expanded_model'],kind='surface-structure')
-            fingerprint=digest(rgb.tobytes()+json.dumps([logical,m['profile'],m['depth'],detail,surface_digest if detail and detail.get('name') in SURFACE_NAMES else traced_digest if detail and detail.get('kind')=='traced-geometry' else geometry_digest if m['profile']=='authored' else 'signed-127-v1']).encode())[:14]
+            fingerprint=digest(rgb.tobytes()+json.dumps([logical,m['profile'],m['depth'],detail,panel_digest if detail and detail.get('name') in PANEL_NAMES else surface_digest if detail and detail.get('name') in SURFACE_NAMES else traced_digest if detail and detail.get('kind')=='traced-geometry' else geometry_digest if m['profile']=='authored' else 'signed-127-v1']).encode())[:14]
             if fingerprint not in data_cache:
                 h,nrm=relief(rgb,m['profile'],m['depth'],logical,detail)
                 stem=f"materials/organic/{n.lower()}-{fingerprint}"

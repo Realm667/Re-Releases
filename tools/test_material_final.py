@@ -8,7 +8,7 @@ NAMES='ADEL_W39 CITYF01 XA22TEX XB22TEX IKTCR05B IKWALL28 METALF12 PANBOOK OTECH
 
 def capture(renderer='1',live=False,batch=0,names=None,suite='final'):
     names=NAMES if names is None else names
-    assert suite in ('final','next')
+    assert suite in ('final','next','panel')
     rooms={r['name']:r for r in json.loads((C/'work/relief-gallery/rooms.json').read_text(encoding='utf8'))}
     selected=names[batch*6:batch*6+6];assert selected
     label=f'material-{suite}-{"live" if live else "package"}-r{renderer}-b{batch}'
@@ -62,4 +62,4 @@ def capture(renderer='1',live=False,batch=0,names=None,suite='final'):
     print(json.dumps(r),flush=True)
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--renderer',default='1');p.add_argument('--live',action='store_true');p.add_argument('--batch',type=int,default=0);p.add_argument('--names',nargs='+');p.add_argument('--suite',choices=['final','next'],default='final');a=p.parse_args();capture(a.renderer,a.live,a.batch,a.names,a.suite)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--renderer',default='1');p.add_argument('--live',action='store_true');p.add_argument('--batch',type=int,default=0);p.add_argument('--names',nargs='+');p.add_argument('--suite',choices=['final','next','panel'],default='final');a=p.parse_args();capture(a.renderer,a.live,a.batch,a.names,a.suite)

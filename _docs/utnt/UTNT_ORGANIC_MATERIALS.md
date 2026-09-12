@@ -487,3 +487,45 @@ Comparison pages use the user-approved dark layout from the final material pass:
 four image columns, material navigation, expandable source-edge overlays and
 three native views. Previously unbound textures show a clearly labelled neutral
 baseline rather than a fabricated old heightmap.
+
+
+## Profiled panels and door families (12 September 2026)
+
+Twenty-three more base materials receive source-coordinate relief: IKWALL73/74/
+75/76/78, IKFLAT2/4, N_MTRC1, NMTRC1/2, ADEL_F09/36, QDOOR1 through QDOOR9,
+OIDOOR2 and OSNOW2. The registry now contains 244 base materials and 320 variants.
+All 297 previously generated height/normal pairs remain byte-identical.
+
+The IKWALL artwork has rounded vertical profiles rather than a rectangular joint
+grid. Its color/weathering variants share the same broad profile, with distinct
+trim for IKWALL76/78. The smaller IKFLAT pair is aligned to its own source texels.
+NMTRC2 is an exact quarter-turn of NMTRC1; N_MTRC1 shares its upper 64-texel field.
+ADEL_F09 retains its different lower arrangement. ADEL_F36 adds only rivet caps.
+
+QDOOR1/3 share complete recessed ribbed fields independent of painted blood.
+QDOOR2/4 share inset grilles and have separate central ornaments. QDOOR5 has
+quiet plates and raised fasteners. QDOOR6/7 use complete recessed fields without
+inventing tiny worn ornamental detail. QDOOR8 keeps its black outer silhouette
+flat and receives a restrained center seam. The pale QDOOR9 panels sit below
+the dark frame and zigzag division. OIDOOR2 and OSNOW2 share recessed handle
+pockets, sloped lower bevels and a diagonal seam; only the visible snow deposits
+are added on the winter skin. The existing high-resolution skins preserve these
+source contours; they are not modified by this material pass.
+
+The physical plane is still gray 127. Actual relief stays between approximately
+-1.6 and +0.8 map units; six-unit encoding/trace range is not the actual relief.
+Normals derive from the exact quantized height field. No global shader or UV
+changes are introduced. The construction is in tools/material_panel_geometry.py;
+tools/test_material_panels.py checks 28 source landmarks, rotation, shared fields,
+snow substrate preservation, color independence and all prior material hashes.
+
+The separate RELTEST addon includes all 320 variants. The comparison page at
+.codex/work/material-panel-pass/vergleich.html uses the previously approved style
+and includes all 23 materials, source contours and wall/floor captures. Local
+validation evidence is under .codex/validation/material-panel-pass/.
+
+Validation passed for all 23 additions: 28 source landmarks, 69 native Vulkan
+wall/floor views, exact package verification of 694 generated outputs, and
+existing surface/traced/rollout checks. Shared build 83d19e503402 passed engine,
+ACS, localization and font validation. The complete page contains 184 valid
+image references and the exact approved CSS.
