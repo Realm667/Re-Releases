@@ -456,3 +456,34 @@ its SHA-256 is `4b30dbb7f6aa3caffcdaad61d86122dab3744b35617c046d005d7a637f293132
 The last rune refinement was recaptured from that package. Views of unchanged
 materials remain valid by byte comparison with the earlier checked build.
 The gallery addon remains separate and requires no replacement for this pass.
+
+
+## Supplementary source-traced surfaces (12 September 2026)
+
+Twelve previously unbound materials now receive restrained relief: CITYF17/18,
+FLOOR4, SFLOOR1, QFLAT06, ADEL_G01, ADEL_F67/68/71 and OBR09/10/04.
+The new pass supersedes their earlier rejection where applicable. ADEL_G02/03/04
+and the two G04 aliases receive matching wood corrections, for 17 review entries.
+The registry now contains 221 base materials and 297 variants. Other 280 existing
+variants retain identical height and normal bytes.
+
+The slab pair shares the irregular source joint layout. Metal openings are
+recessed complete shapes, while plate faces remain at gray 127. The diagonal
+wood pair uses the exact horizontal reflection present in the source images.
+G02/G03 preserve the 32-texel phase of their original wood art; this is authored
+component positioning, not a shader UV offset. G04 uses its actual 16-texel
+straps and the G01 wood phase. Shared wood uses one physical height encoding.
+QFLAT06 uses the approved bounded upper-lit slope reconstruction at 45% amplitude
+because its tiny worn ornament does not support reliable straight contours.
+Actual depths stay approximately between -1.6 and +2.2 map units.
+
+`tools/material_surface_geometry.py` contains the source construction;
+`tools/test_material_surfaces.py` checks source landmarks, reflections, wood
+phases, normal derivatives and unchanged data. `tools/test_material_final.py`
+accepts named suites for native wall/floor captures. RELTEST is rebuilt as the
+separate gallery addon with all 297 variants.
+
+Comparison pages use the user-approved dark layout from the final material pass:
+four image columns, material navigation, expandable source-edge overlays and
+three native views. Previously unbound textures show a clearly labelled neutral
+baseline rather than a fabricated old heightmap.
