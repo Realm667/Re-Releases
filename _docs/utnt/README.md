@@ -22,6 +22,7 @@ Run `tutnt_build.bat` from the repository root. Local configuration is in the ig
 - [UTNT_BOSS_HUD.md](UTNT_BOSS_HUD.md)
 - [UTNT_CALDERA.md](UTNT_CALDERA.md)
 - [UTNT_CREDITS.md](UTNT_CREDITS.md)
+- [CRT monitor glass and room reflections](UTNT_CRT.md)
 - [UTNT_CURSED_SKY.md](UTNT_CURSED_SKY.md)
 - [UTNT_EFFECT_GLOW.md](UTNT_EFFECT_GLOW.md)
 - [UTNT_ENDMAP_SKY.md](UTNT_ENDMAP_SKY.md)

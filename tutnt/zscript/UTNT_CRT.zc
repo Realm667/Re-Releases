@@ -1,0 +1,134 @@
+// Deterministic invisible map probes. Selection/render state stays client-local.
+// No CAM_T*, map texture, gameplay RNG, light, collision or action modifications.
+class UTNTCRTProbe : Actor {
+ Vector3 Facing;
+ Default {
+  +NOBLOCKMAP +NOGRAVITY +NOINTERACTION
+  RenderStyle "None"; Radius 1; Height 1; CameraHeight 0;
+ }
+ States { Spawn: TNT1 A -1; Stop; }
+}
+class UTNTCRT : EventHandler {
+ bool Ready;
+ String Names;
+ Array<UTNTCRTProbe> Probes;
+ ui int ActiveProbes;
+ ui LineTracer Sight;
+ clearscope static bool Option(Name key) {
+  return consoleplayer>=0 && CVar.GetCVar(key,players[consoleplayer]).GetBool();
+ }
+ bool IsScreen(TextureID id) {
+  String n=TexMan.GetName(id);
+  return n.Left(5)!="CAM_T" && Names.IndexOf("|"..n.."|")>=0;
+ }
+ void AddProbe(Vector3 point,Vector3 normal,Sector sector) {
+  // Merge coplanar nearby displays only within their actual containing sector.
+  Vector3 p=point+normal*4;
+  if(level.PointInSector(p.XY)!=sector)return;
+  double low=sector.floorplane.ZatPoint(p.XY),high=sector.ceilingplane.ZatPoint(p.XY);
+  if(p.Z<low+1 || p.Z>high-1)return;
+  for(int i=0;i<Probes.Size();i++){
+   let other=Probes[i];
+   if(other.CurSector==sector && (other.Facing dot normal)>.99 && abs((other.Pos-p) dot normal)<2 && (other.Pos-p).Length()<128)return;
+  }
+  let camera=UTNTCRTProbe(Actor.Spawn('UTNTCRTProbe',p));
+  if(!camera)return;
+  camera.Facing=normal;
+  camera.Angle=abs(normal.Z)>.9?0:VectorAngle(normal.X,normal.Y);
+  camera.Pitch=-asin(clamp(normal.Z,-1.,1.));
+  Probes.Push(camera);
+ }
+ override void WorldTick() {
+  if(Ready || level.time<8)return;
+  Ready=true;
+  int lump=Wads.CheckNumForFullName("materials/crt/screens.txt");
+  if(lump<0)return;
+  Names=Wads.ReadLump(lump);
+  for(int i=0;i<level.Sides.Size();i++){
+   let side=level.Sides[i];let line=side.linedef;let sector=side.sector;
+   Vector2 delta=line.v2.p-line.v1.p;
+   double length=delta.Length();if(length<1)continue;
+   Vector2 axis=delta/length;
+   Vector3 normal=(axis.Y,-axis.X,0);
+   bool front=line.sidedef[0]==side;if(!front)normal=-normal;
+   let back=front?line.BackSector:line.FrontSector;
+   for(int part=0;part<3;part++){
+    if(!IsScreen(side.GetTexture(part)))continue;
+    int count=max(1,int(ceil(length/192.)));
+    for(int j=0;j<count;j++){
+     Vector2 xy=line.v1.p+delta*((j+.5)/count);
+     double low=sector.floorplane.ZatPoint(xy),high=sector.ceilingplane.ZatPoint(xy);
+     if(back){
+      if(part==Side.top)low=max(low,back.ceilingplane.ZatPoint(xy));
+      else if(part==Side.bottom)high=min(high,back.floorplane.ZatPoint(xy));
+     }else if(part!=Side.mid)continue;
+     if(high-low<8)continue;
+     // A probe near the wall's visible height; no changes to pegging or offsets.
+     int rows=max(1,int(ceil((high-low)/192.)));
+     for(int row=0;row<rows;row++)AddProbe((xy.X,xy.Y,low+(high-low)*(row+.5)/rows),normal,sector);
+    }
+   }
+  }
+  for(int i=0;i<level.Sectors.Size();i++){
+   let sector=level.Sectors[i];
+   for(int part=0;part<2;part++){
+    if(!IsScreen(sector.GetTexture(part)) || !sector.Lines.Size())continue;
+    Vector2 mid=(0,0);
+    for(int j=0;j<sector.Lines.Size();j++)mid+=sector.Lines[j].v1.p+sector.Lines[j].v2.p;
+    mid/=sector.Lines.Size()*2.;
+    if(level.PointInSector(mid)!=sector)continue;
+    double z=part==Sector.floor?sector.floorplane.ZatPoint(mid):sector.ceilingplane.ZatPoint(mid);
+    Vector3 normal=part==Sector.floor?sector.floorplane.Normal:sector.ceilingplane.Normal;
+    AddProbe((mid.X,mid.Y,z),normal.Unit(),sector);
+   }
+  }
+ }
+ ui void Number(Canvas c,int x,int y,double value) {
+  int n=clamp(int((value+65536.)*16.+.5),0,16777215);
+  c.Clear(x,y,x+1,y+1,Color((n>>16)&255,(n>>8)&255,n&255));
+ }
+ override void RenderOverlay(RenderEvent e) {
+  let c=TexMan.GetCanvas('UCRTSTAT');if(!c)return;
+  c.Clear(0,0,32,4,Color(0,0,0));ActiveProbes=0;
+  int quality=consoleplayer>=0?clamp(CVar.GetCVar('UTNT_fxquality',players[consoleplayer]).GetInt(),0,3):0;
+  bool enabled=Option('UTNT_crt') && quality>0;
+  bool reduced=Option('UTNT_reducedfx');
+  bool motion=enabled && quality>=2 && Option('UTNT_crtmotion') && !reduced && !level.isFrozen();
+  bool reflect=enabled && Option('UTNT_crtreflections') && !reduced && quality>=2 && e.Camera;
+  c.Clear(0,3,1,4,Color(enabled?255:0,motion?255:0,reflect?255:0));
+  if(!reflect || !Ready)return;
+  int first=-1;
+  Vector3 eye=e.ViewPos;
+  Vector3 look=(cos(e.ViewAngle)*cos(e.ViewPitch),sin(e.ViewAngle)*cos(e.ViewPitch),-sin(e.ViewPitch));
+  if(!Sight)Sight=new('LineTracer');
+  for(int slot=0;slot<(quality==3?2:1);slot++){
+   int best=-1;double score=576;
+   for(int i=0;i<Probes.Size();i++){
+    let p=Probes[i];if(!p || i==first)continue;
+    Vector3 delta=eye-p.Pos;
+    double d=delta.Length();
+    if(d>=score || (delta dot p.Facing)<-2)continue;
+    // No offscreen captures; leave generous margin for wide player FOVs.
+    if(d<1 || ((p.Pos-eye) dot look)/d<.087)continue;
+    if(Sight.Trace(eye,level.PointInSector(eye.XY),(p.Pos-eye)/d,max(0,d-2),0,wallMask:0,ignoreAllActors:true,ignore:e.Camera))continue;
+    score=d;best=i;
+   }
+   if(best<0)break;
+   if(slot==0)first=best;
+   let p=Probes[best];
+   String texture=String.Format("UCRTP%d",slot);
+   TexMan.SetCameraToTexture(p,texture,120);
+   TexMan.SetCameraTextureAspectRatio(texture,1.0);
+   Number(c,0,slot,p.Pos.X);Number(c,1,slot,p.Pos.Y);Number(c,2,slot,p.Pos.Z);
+   Number(c,3,slot,p.Facing.X*4096);Number(c,4,slot,p.Facing.Y*4096);Number(c,5,slot,p.Facing.Z*4096);
+   c.Clear(6,slot,7,slot+1,Color(0,0,1));
+   // Auxiliary material samplers alone do not request camera updates in UZDoom.
+   // This private one-pixel draw marks the capture used; it is never on the HUD.
+   c.DrawTexture(TexMan.CheckForTexture(texture),false,16+slot,0,DTA_DestWidth,1,DTA_DestHeight,1);
+   ActiveProbes++;
+  }
+ }
+ override void NetworkProcess(ConsoleEvent e) {
+  if(e.Name=="crtstats")Console.Printf("CRT_STATS|probes=%d|ready=%d",Probes.Size(),Ready);
+ }
+}

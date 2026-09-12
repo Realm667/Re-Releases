@@ -1,0 +1,40 @@
+class CRTFixture : EventHandler {
+ int Step;
+ override void NetworkProcess(ConsoleEvent e) {
+  if(e.Name=="crtpose"){
+   let p=players[0].mo;int room=e.Args[0];
+   p.SetOrigin((room*512.,0.,0.),false);p.Angle=90;p.Pitch=-10;p.Vel=(0,0,0);
+   if(e.Args[1]==1){p.SetOrigin((room*512.-42,-20,0),false);p.Angle=73;p.Pitch=-8;}
+   if(e.Args[1]==2){p.SetOrigin((room*512.,-85,0),false);p.Angle=90;p.Pitch=-3;}
+   if(e.Args[1]==3){p.SetOrigin((room*512.,0.,0.),false);p.Angle=90;p.Pitch=60;}
+   Console.Printf("CRT_POSE|%d|%d",room,e.Args[1]);
+  }
+  if(e.Name=="crtmap"){
+   let side=level.Sides[e.Args[0]];let line=side.linedef;let sec=side.sector;
+   Vector2 xy=(line.v1.p+line.v2.p)*.5,axis=(line.v2.p-line.v1.p).Unit();
+   Vector2 normal=(axis.Y,-axis.X);bool front=line.sidedef[0]==side;if(!front)normal=-normal;
+   let back=front?line.BackSector:line.FrontSector;
+   double low=sec.floorplane.ZatPoint(xy),high=sec.ceilingplane.ZatPoint(xy);
+   if(back){if(e.Args[1]==Side.top)low=max(low,back.ceilingplane.ZatPoint(xy));else if(e.Args[1]==Side.bottom)high=min(high,back.floorplane.ZatPoint(xy));}
+   let p=players[0].mo;p.bNOGRAVITY=true;players[0].cheats|=CF_NOCLIP;
+   Vector2 point=xy+normal*80;
+   p.SetOrigin((point.X,point.Y,(low+high)*.5-41),false);p.Angle=VectorAngle(-normal.X,-normal.Y);p.Pitch=0;p.Vel=(0,0,0);
+   Console.Printf("CRT_MAP_POSE|%s|%d|%s",level.MapName,e.Args[0],TexMan.GetName(side.GetTexture(e.Args[1])));
+  }
+  if(e.Name=="crtback")level.Sides[3].SetTexture(Side.mid,TexMan.CheckForTexture(e.Args[0]==0?"REDWALL":"LITE5"));
+  if(e.Name=="crtassert"){
+   let h=UTNTCRT(EventHandler.Find('UTNTCRT'));
+   Console.Printf("UTNT_ASSERT %s CRT initialized",h && h.Ready && h.Probes.Size()>0?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s camera excluded",h && h.Names.IndexOf("CAM_T")<0?"PASS":"FAIL");
+   Console.Printf("CRT_PROBES|%d",h?h.Probes.Size():0);
+  }
+ }
+ override void RenderOverlay(RenderEvent e) {
+  // Test-only: display capture buffers and metadata for visual readback.
+  if(consoleplayer>=0 && CVar.GetCVar('crt_debug',players[consoleplayer]).GetBool()){
+   Screen.DrawTexture(TexMan.CheckForTexture("UCRTP0"),false,0,0,DTA_DestWidth,160,DTA_DestHeight,160);
+   Screen.DrawTexture(TexMan.CheckForTexture("UCRTSTAT"),false,0,170,DTA_DestWidth,320,DTA_DestHeight,40);
+   Screen.DrawTexture(TexMan.CheckForTexture("UCRTP1"),false,164,0,DTA_DestWidth,160,DTA_DestHeight,160);
+  }
+ }
+}
