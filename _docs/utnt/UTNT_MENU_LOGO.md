@@ -77,8 +77,10 @@ silhouette and non-emissive shading, so the glow does not move the cursor.
   and derives its scaled offsets from that base.
 - Both sizes use PLAYPAL colors and binary alpha, including the open seal gaps.
   The HiRes frames are rendered from the large source, not enlarged native pixels.
-- The existing engine-controlled two-frame timing is retained. The separate
-  operating-system mouse pointer `doomcurs.png` is unaffected.
+- A menu delegate blends the two fixed frames on a two-second cosine cycle.
+  The dim skull stays fully opaque; only the amber illumination fades.
+  UI time and fractional tics keep the fade moving smoothly during paused gameplay.
+  The separate operating-system mouse pointer `doomcurs.png` is unaffected.
 
 The approved concept, transparent Imagegen source and exact generation prompt
 live in `tools/artwork/menu-skulls/`. Run
@@ -95,3 +97,18 @@ A newer concurrently built `tutnt.pk3` already contained all four identical
 assets; its direct menu check also passed, so it was retained instead of
 replacing newer integration. Evidence is under
 `tutnt/.codex/validation/reforged-menu-skulls/`.
+
+The fade is implemented in `tutnt/zscript/UTNT_MenuSeal.zc` and registered
+through `mapinfo/MAPINFO.usability`. It inherits Doom menu sounds and only
+handles the M_SKULL selector. Native row/font offsets, menu scaling, navigation
+and alternate selectors retain their standard behavior. Both draws disable
+texture animation so the engine cannot substitute the blinking endpoints.
+
+Fade validation (12 September 2026): definition-table check and full build
+`2950a53fd055` passed, including engine loading. Native and HiRes menu
+captures contain 36 and 35 distinct selector states across 36 samples,
+respectively; all TITLEMAP image changes stay inside the original selector
+area. A paused TNT01 check also passed with 36 distinct states. The final
+full package passed its direct menu test and was promoted to `tutnt.pk3`
+after a source-fingerprint and resource comparison with no removed entries.
+Evidence and animated preview: `tutnt/.codex/validation/menu-seal-fade/`.

@@ -1,0 +1,35 @@
+// Smooth illumination for the shared M_SKULL selector; navigation stays native.
+class UTNTMenuSeal : DoomMenuDelegate
+{
+    override bool DrawSelector(ListMenuDescriptor desc)
+    {
+        TextureID dim = TexMan.CheckForTexture("M_SKULL1");
+        TextureID lit = TexMan.CheckForTexture("M_SKULL2");
+        if (!desc || desc.mSelector != dim || !dim.IsValid() || !lit.IsValid()
+            || desc.mSelectedItem < 0 || desc.mSelectedItem >= desc.mItems.Size())
+            return false;
+
+        let item = desc.mItems[desc.mSelectedItem];
+        double x = item.GetX() + desc.mSelectOfsX;
+        double y = item.GetY() + desc.mSelectOfsY;
+
+        // Menu time continues while gameplay is paused; the fractional tic
+        // keeps the two-second cosine cycle smooth between UI ticks.
+        double phase = ((Menu.MenuTime() % 70) + System.GetTimeFrac()) / 70.0;
+        double glow = 0.5 - 0.5 * cos(phase * 360.0);
+        DrawSeal(desc, dim, x, y, 1.0);
+        DrawSeal(desc, lit, x, y, glow);
+        return true;
+    }
+
+    void DrawSeal(ListMenuDescriptor desc, TextureID pic, double x, double y, double alpha)
+    {
+        // Disable texture animation: explicitly blend the fixed endpoint images.
+        if (desc.DisplayWidth() == ListMenuDescriptor.CleanScale)
+            Screen.DrawTexture(pic, false, x, y, DTA_Clean, true, DTA_Alpha, alpha);
+        else
+            Screen.DrawTexture(pic, false, x, y,
+                DTA_VirtualWidth, desc.DisplayWidth(), DTA_VirtualHeight, desc.DisplayHeight(),
+                DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_Alpha, alpha);
+    }
+}
