@@ -3,6 +3,7 @@ class UTNTAbilityEdges ui
 {
     static int Mode(RenderEvent e)
     {
+        if(UTNTTransitionFade.HidesGameplayHUD()) return 0;
         if(consoleplayer<0 || gamestate!=GS_LEVEL || !viewactive || automapactive
             || menuactive || ConsoleState!=0) return 0;
         let p=players[consoleplayer];

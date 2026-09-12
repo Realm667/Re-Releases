@@ -399,6 +399,12 @@ class UTNTPresentation : StaticEventHandler
         let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
         if(!h || !h.Chapter || h.Chapter.Phase
             || menuactive || paused || ConsoleState!=0) return false;
+        if(!h.Chapter.Intro && h.Chapter.Sections[consoleplayer]>0
+            && (e.KeyScan==InputEvent.Key_UpArrow || e.KeyScan==InputEvent.Key_DownArrow))
+        {
+            if(e.Type==InputEvent.Type_KeyDown) EventHandler.SendNetworkEvent("utnt_chapter",e.KeyScan==InputEvent.Key_DownArrow ? 6 : 7,1);
+            return true;
+        }
         bool back=e.KeyScan==InputEvent.Key_LeftArrow;
         bool skip=e.KeyScan==InputEvent.Key_Backspace && !h.Chapter.Intro;
         bool advance=e.KeyScan==InputEvent.Key_Enter || e.KeyScan==InputEvent.Key_Space || e.KeyScan==InputEvent.Key_RightArrow;

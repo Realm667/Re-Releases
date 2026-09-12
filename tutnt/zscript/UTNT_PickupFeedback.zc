@@ -26,6 +26,7 @@ class UTNTPickupSnapshot play
     {
         if(ItemClass!=itemcls || Tic!=level.time) return;
         ItemClass=null;
+        UTNTStatsHandler.Pickup(who.PlayerNumber(),Value(who,0)-Before[0],Value(who,1)-Before[1]);
         if(!who.CheckLocalView() || level.time<2 || !CVar.GetCVar('UTNT_pickupfeedback',who.player).GetBool()) return;
         for(int i=0;i<7;i++)
         {

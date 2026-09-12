@@ -1,0 +1,99 @@
+class UTNTMetricCritical : UTNTAbilities { override bool RollCritical() { return true; } }
+class UTNTMetricDummy : Actor
+{
+    Default { Health 100; Radius 8; Height 16; +SHOOTABLE +ISMONSTER +NOGRAVITY }
+    States { Spawn: TNT1 A -1; Stop; Death: TNT1 A -1; Stop; }
+}
+class UTNTMetricProbe : EventHandler
+{
+    void Check(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
+    void Run(int p)
+    {
+        let pawn=players[p].mo;let r=UTNTStatsHandler.Current(p);Check(r!=null,"metrics ledger available");if(!r) return;
+        let ability=UTNTAbilities.Get(pawn);ability.Finish();
+        int dealt=r.Combat[p*5],boss=r.Combat[p*5+1];
+        let dummy=Actor.Spawn('UTNTMetricDummy',pawn.Pos+(0,0,96),NO_REPLACE);
+        dummy.DamageMobj(pawn,pawn,35,'None');dummy.DamageMobj(pawn,pawn,999,'None');
+        Check(r.Combat[p*5]-dealt==100,"overkill is capped to actual monster health");
+        dummy.DamageMobj(pawn,pawn,999,'None');Check(r.Combat[p*5]-dealt==100,"corpses do not add damage");dummy.Destroy();
+        dummy=Actor.Spawn('UTNTMetricDummy',pawn.Pos+(0,0,96),NO_REPLACE);dummy.bBoss=true;
+        dummy.DamageMobj(pawn,pawn,25,'None');dummy.DamageMobj(pawn,pawn,999,'None');dummy.Destroy();
+        Check(r.Combat[p*5+1]-boss==100,"boss health counted separately");
+        dummy=Actor.Spawn('UTNTMetricDummy',pawn.Pos+(0,0,96),NO_REPLACE);dummy.bInvulnerable=true;
+        dummy.DamageMobj(pawn,pawn,50,'None');dummy.bInvulnerable=false;dummy.bFriendly=true;dummy.DamageMobj(pawn,pawn,50,'None');
+        Check(r.Combat[p*5]-dealt==200,"invulnerability and friendly monsters excluded");dummy.Destroy();
+        dummy=Actor.Spawn('UTNTMetricDummy',pawn.Pos+(0,0,96),NO_REPLACE);
+        let enemy=Actor.Spawn('UTNTMetricDummy',pawn.Pos+(0,0,128),NO_REPLACE);
+        dummy.DamageMobj(enemy,enemy,5,'None');enemy.Destroy();
+        Check(r.Combat[p*5]-dealt==200,"monster infighting never credited to a player");
+        let rocket=Actor.Spawn('Rocket',pawn.Pos+(0,0,96),NO_REPLACE);rocket.target=pawn;
+        dummy.DamageMobj(rocket,pawn,10+p,'None');rocket.Destroy();dummy.Destroy();
+        Check(r.Combat[p*5]-dealt==210+p,"projectile damage attributed to its player source");
+        pawn.health=players[p].health=100;pawn.bInvulnerable=false;
+        pawn.TakeInventory('BasicArmor',99999);pawn.GiveInventory('GreenArmor',1);pawn.FindInventory('BasicArmor').Amount=100;
+        int taken=r.Combat[p*5+2];pawn.DamageMobj(null,null,30,'None');pawn.bInvulnerable=true;
+        Check(r.Combat[p*5+2]-taken==100-pawn.health && pawn.health==80,"received damage counts health loss after armor");
+        int healing=r.Combat[p*5+3],armor=r.Combat[p*5+4];
+        pawn.health=players[p].health=pawn.GetMaxHealth()-10;
+        let kit=Inventory(Actor.Spawn('Medikit',pawn.Pos,NO_REPLACE));kit.Touch(pawn);
+        Check(r.Combat[p*5+3]-healing==10,"health pickup counts capped actual gain");
+        pawn.FindInventory('BasicArmor').Amount=99;
+        let bonus=Inventory(Actor.Spawn('ArmorBonus',pawn.Pos,NO_REPLACE));bonus.Touch(pawn);
+        Check(r.Combat[p*5+4]-armor==1,"armor pickup counts actual gain");
+        pawn.health=players[p].health=50;pawn.GiveBody(50);pawn.GiveInventory('BlueArmor',1);
+        Check(r.Combat[p*5+3]-healing==10 && r.Combat[p*5+4]-armor==1,"script grants and regeneration are not pickups");
+        for(int i=0;i<2;i++) ability.Cooldown[i]=0;ability.LockRemaining=0;
+        Check(ability.Activate(1),"offensive ability successfully activated");
+        Check(!ability.Activate(1),"repeated activation rejected");ability.Finish();
+        ability.LockRemaining=0;ability.Cooldown[1]=0;Check(ability.Activate(2),"defensive ability successfully activated");ability.Finish();
+        Check(r.AbilityUses[p*6+ability.ClassKind*2]==1 && r.AbilityUses[p*6+ability.ClassKind*2+1]==1,"only successful activations counted per ability");
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="metcritical")
+        {
+            let pawn=players[e.Player].mo;let r=UTNTStatsHandler.Current(e.Player);
+            Check(pawn is 'Scout',"critical counter test uses Scout");
+            let old=UTNTAbilities.Get(pawn);if(old) {old.Finish();old.Destroy();}
+            pawn.GiveInventory('UTNTMetricCritical',1);let ability=UTNTAbilities.Get(pawn);
+            Check(ability.Activate(1),"forced critical test ability activated");
+            let dummy=Actor.Spawn('UTNTMetricDummy',pawn.Pos+(0,0,96),NO_REPLACE);
+            int before=r.Combat[e.Player*5];dummy.DamageMobj(pawn,pawn,5,'None');
+            Check(dummy.Health<=0 && r.Combat[e.Player*5]-before==100,"recursive critical finisher adds remaining health exactly once");
+            dummy.Destroy();ability.Finish();
+        }
+        if(e.Name=="metrun") for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p]) Run(p);
+        if(e.Name=="metweapon")
+        {
+            let r=UTNTStatsHandler.Current(e.Player);int total=0;
+            for(int i=0;i<12;i++) total+=r.WeaponTics[e.Player*12+i];
+            Check(total>35,"equipped weapon time accumulated during active play");
+        }
+        if(e.Name=="metresults")
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));Check(h.Chapter!=null,"metric results reached chapter");if(!h.Chapter) return;
+            let r=h.Chapter.ChapterResult;Check(r!=null,"metric snapshot exists");if(!r) return;
+            for(int p=0;p<MAXPLAYERS;p++) if(playeringame[p])
+            {
+                Check(r.Combat[p*5]==210+p && r.Combat[p*5+1]==100,"damage snapshot survives travel");
+                Check(r.Combat[p*5+2]==20 && r.Combat[p*5+3]==10 && r.Combat[p*5+4]==1,"resources and incoming damage survive travel");
+                int kind=players[p].mo is 'Scout' ? 1 : players[p].mo is 'Commando' ? 2 : 0;
+                Check(r.AbilityUses[p*6+kind*2]==1 && r.AbilityUses[p*6+kind*2+1]==1,"ability counters survive travel");
+                Check(h.Chapter.CampaignResult.Combat[p*5]==(210+p)*max(1,e.Args[0]),"campaign includes metric snapshot once");
+            }
+        }
+        if(e.Name=="metpage")
+        {
+            let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+            Check(h.Chapter && h.Chapter.DetailPages[e.Player]==e.Args[0],"detail selection saved and synchronized");
+        }
+    }
+}
+class UTNTMetricViewProbe : StaticEventHandler
+{
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name=="metfade")
+            Console.Printf("UTNT_ASSERT %s: gameplay overlays hidden throughout transition",UTNTTransitionFade.HidesGameplayHUD() ? "PASS" : "FAIL");
+    }
+}

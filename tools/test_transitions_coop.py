@@ -6,6 +6,7 @@ from check_engine import ROOT
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
+    parser.add_argument('--metrics',action='store_true')
     a=parser.parse_args();logs=ROOT/'tutnt/.codex/logs';children=[];results=[]
     si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
     try:
@@ -23,6 +24,20 @@ def main():
                   'netevent trcheck 20 20 0','netevent utnt_chapter 4 1','wait 15',
                   f'screenshot logs/{label}-chapter.png','netevent utnt_chapter 4 1','wait 15',
                   'netevent utnt_chapter 5 1','wait 270','netevent trmap 2','netevent trreleased']
+            if a.metrics:
+                # Host applies deterministic gameplay events to all four player pawns.
+                if i==0:
+                    commands=['wait 130','netevent metrun','wait 40','netevent metweapon','netevent trfade 1',
+                      'wait 8','event metfade','wait 245','netevent metresults','netevent utnt_chapter 4 1','wait 15',
+                      'netevent utnt_chapter 6 1','wait 15',f'screenshot logs/{label}-combat.png',
+                      'netevent utnt_chapter 6 1','wait 15',f'screenshot logs/{label}-weapons.png',
+                      'netevent utnt_chapter 6 1','wait 15','netevent utnt_chapter 6 1','wait 15',
+                      f'screenshot logs/{label}-abilities.png','netevent utnt_chapter 4 1','wait 15',
+                      'netevent utnt_chapter 5 1','wait 60','netevent utnt_chapter 5 1','wait 140','netevent trmap 2']
+                else:
+                    commands=['wait 460','netevent metresults','netevent utnt_chapter 4 1','wait 15',
+                      'netevent utnt_chapter 6 1','wait 15',f'screenshot logs/{label}-combat.png',
+                      'netevent utnt_chapter 4 1','wait 15','netevent utnt_chapter 5 1','wait 310','netevent trmap 2']
             cfg.write_text('; '.join(commands+['echo UTNT_COOP_TRANSITION_END']))
             args=[os.environ.get('UTNT_ENGINE','F:/DoomDev/uzdoom.exe'),'-iwad',os.environ.get('UTNT_IWAD','F:/DoomDev/DOOM2.WAD'),
               '-file',str(a.mod.resolve()),str(ROOT/'tools/fixtures/transitions'),'-config',str(ini),'-savedir',str(logs/'saves'),

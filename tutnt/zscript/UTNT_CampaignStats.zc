@@ -4,6 +4,10 @@ class UTNTMapResult : Object
 {
     int MapNumber, Tics, Kills, Items, Secrets, MaxKills, MaxItems, MaxSecrets;
     int Values[MAXPLAYERS * 4]; // kills, items, secrets, deaths
+    // Separate fields preserve the four-column layout of existing savegames.
+    int Combat[MAXPLAYERS * 5]; // effective damage, boss damage, damage taken, health, armor
+    int WeaponTics[MAXPLAYERS * 12];
+    int AbilityUses[MAXPLAYERS * 6];
     bool Present[MAXPLAYERS];
     String Names[MAXPLAYERS];
 }
@@ -58,6 +62,9 @@ class UTNTCampaignStats : Thinker
             {
                 if(r.Present[p]) {sum.Present[p]=true;sum.Names[p]=r.Names[p];}
                 for(int m=0;m<4;m++) sum.Values[p*4+m]+=r.Values[p*4+m];
+                for(int m=0;m<5;m++) sum.Combat[p*5+m]+=r.Combat[p*5+m];
+                for(int m=0;m<12;m++) sum.WeaponTics[p*12+m]+=r.WeaponTics[p*12+m];
+                for(int m=0;m<6;m++) sum.AbilityUses[p*6+m]+=r.AbilityUses[p*6+m];
             }
         }
         return sum;
@@ -83,6 +90,47 @@ class UTNTStatsHandler : EventHandler
     bool Departing, TravelIssued, WasWorldFrozen;
     bool OwnFreeze[MAXPLAYERS];
     int DepartureTics, TravelPosition, TravelFlags;
+    // Record the original hit before Scout criticals can inflict reentrant damage.
+    override void OnRegister() { SetOrder(-100); }
+
+    static UTNTMapResult Current(int p)
+    {
+        let h=UTNTStatsHandler(EventHandler.Find('UTNTStatsHandler'));
+        int number=UTNTCampaignStats.MapNumber();
+        if(!h || h.Frozen || !number || deathmatch || p<0 || p>=MAXPLAYERS || !playeringame[p]) return null;
+        let ledger=UTNTCampaignStats.Get(true);let r=ledger.Record(number);
+        r.Present[p]=true;r.Names[p]=players[p].GetUserName();return r;
+    }
+    static void Pickup(int p,int health,int armor)
+    {
+        let r=Current(p);if(!r) return;
+        r.Combat[p*5+3]+=max(0,health);r.Combat[p*5+4]+=max(0,armor);
+    }
+    static void Ability(int p,int kind,int slot)
+    {
+        let r=Current(p);if(r && kind>=0 && kind<3 && slot>=1 && slot<=2) r.AbilityUses[p*6+kind*2+slot-1]++;
+    }
+    clearscope static int WeaponIndex(Weapon w)
+    {
+        class<Weapon> types[]={'UTNTFist','UTNTChainsaw','UTNTPistol','UTNTShotgun','UTNTSuperShotgun','UTNTChaingun',
+            'UTNTMinigun','UTNTRocketLauncher','UTNTPlasmaRifle','UTNTFlamer','UTNTBFG9000','UTNTPyroCannon'};
+        for(int i=0;w && i<12;i++) if(w.GetClass()==types[i]) return i;
+        return -1;
+    }
+    override void WorldThingDamaged(WorldEvent e)
+    {
+        if(!e.Thing || e.Damage<=0 || e.Thing.bCorpse) return;
+        // The event reports post-armor damage after health subtraction, before Die.
+        // Cap fatal hits to remaining health; shields and zero-damage hits contribute nothing.
+        int amount=min(e.Damage,max(0,e.Thing.Health+e.Damage));
+        if(amount<=0) return;
+        int victim=e.Thing.player ? e.Thing.PlayerNumber() : -1;
+        let received=Current(victim);if(received) received.Combat[victim*5+2]+=amount;
+        if(!e.DamageSource || !e.DamageSource.player || !e.Thing.bIsMonster || e.Thing.player || e.Thing.bFriendly) return;
+        int p=e.DamageSource.PlayerNumber();let dealt=Current(p);if(!dealt) return;
+        dealt.Combat[p*5]+=amount;
+        if(UTNTCriticalRecord.BossActor(e.Thing)) dealt.Combat[p*5+1]+=amount;
+    }
 
     static bool BeginChapterTravel(int position=0,int flags=0)
     {
@@ -133,7 +181,16 @@ class UTNTStatsHandler : EventHandler
                 Previous[p*3+m]=values[m];
             }
             let pawn=players[p].mo;
-            if(pawn && pawn.health>0 && !(players[p].cheats & CF_TOTALLYFROZEN)) playing=true;
+            if(pawn && pawn.health>0 && !(players[p].cheats & CF_TOTALLYFROZEN))
+            {
+                playing=true;
+                let ability=UTNTAbilities.Get(pawn);
+                if(clockTick && ability && !ability.Unavailable())
+                {
+                    int weapon=WeaponIndex(players[p].ReadyWeapon);
+                    if(weapon>=0) r.WeaponTics[p*12+weapon]++;
+                }
+            }
         }
         if(clockTick && playing) r.Tics++;
     }
@@ -210,11 +267,30 @@ class UTNTTransitionFade : StaticEventHandler
             ScreenJobRunner.setTransition(3);
         }
     }
-    override void RenderOverlay(RenderEvent e)
+    ui static bool HidesGameplayHUD()
+    {
+        if(level.MapName ~== "INTERMAP" || level.MapName ~== "ENDMAP01") return true;
+        let h=UTNTStatsHandler(EventHandler.Find('UTNTStatsHandler'));
+        let fade=UTNTTransitionFade(StaticEventHandler.Find('UTNTTransitionFade'));
+        return h && h.Departing || fade && level.time<fade.ArrivalStart+21;
+    }
+    ui void Draw(RenderEvent e)
     {
         double alpha=clamp(1.0-(level.time-ArrivalStart+e.FracTic)/21.0,0,1);
         let h=UTNTStatsHandler(EventHandler.Find('UTNTStatsHandler'));
         if(h && h.Departing) alpha=max(alpha,clamp((h.DepartureTics+e.FracTic)/30.0,0,1));
         if(alpha>0) Screen.Dim(0,alpha,0,0,Screen.GetWidth(),Screen.GetHeight());
+    }
+}
+
+// Static handlers render before map-local handlers regardless of their order.
+// Draw the final black layer in a late map-local handler, above ability cards.
+class UTNTTransitionFadeOverlay : EventHandler
+{
+    override void OnRegister() { SetOrder(10000); }
+    override void RenderOverlay(RenderEvent e)
+    {
+        let fade=UTNTTransitionFade(StaticEventHandler.Find('UTNTTransitionFade'));
+        if(fade) fade.Draw(e);
     }
 }

@@ -45,6 +45,7 @@ class UTNTAbilities : Inventory
         if(slot<1 || slot>2 || Unavailable() || ActiveSlot || LockRemaining || Cooldown[slot-1]) return false;
         ClassKind=Owner is 'Scout'?1:Owner is 'Commando'?2:0;
         ActiveSlot=slot; Remaining=DURATION; Elapsed=0;
+        UTNTStatsHandler.Ability(Owner.PlayerNumber(),ClassKind,slot);
         if(ClassKind==1 && slot==2)
         {
             ApplyCloak();
@@ -190,6 +191,10 @@ class UTNTCriticalRecord : Behavior
     bool IsBoss()
     {
         MaximumHealth=max(MaximumHealth,Owner.Health);
+        return BossActor(Owner);
+    }
+    static bool BossActor(Actor Owner)
+    {
         let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
         // ACS spawns some encounter members several tics BEFORE starting BossHP.
         // Recognize the map-authored ranges during that window as well.

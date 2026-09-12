@@ -6,14 +6,27 @@ from check_engine import ROOT,run_case
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
-    p.add_argument('--case',choices=['flow','hub','empty','fade','acs'],default='flow')
+    p.add_argument('--case',choices=['flow','hub','empty','fade','acs','metrics'],default='flow')
     p.add_argument('--language',default='en')
     p.add_argument('--renderer',default='1')
     p.add_argument('--width',type=int,default=960)
     p.add_argument('--height',type=int,default=540)
     p.add_argument('--scale',type=float,default=1)
     a=p.parse_args();label='transitions-'+a.case+'-'+a.language
-    if a.case=='fade':
+    if a.case=='metrics':
+        commands=['wait 130','netevent metrun','wait 40','netevent metweapon','save met-before','wait 6',
+          'netevent trfade 1','wait 8','event metfade',f'screenshot logs/{label}-fade.png',
+          'wait 240','netevent metresults','netevent utnt_chapter 4 1','wait 10',
+          'netevent utnt_chapter 6 1','wait 10',f'screenshot logs/{label}-combat.png',
+          'save met-board','wait 6','netevent utnt_chapter 6 1','wait 10',f'screenshot logs/{label}-weapons1.png',
+          'netevent utnt_chapter 6 1','wait 10',f'screenshot logs/{label}-weapons2.png',
+          'netevent utnt_chapter 6 1','wait 10',f'screenshot logs/{label}-abilities.png',
+          'load met-board','wait 20','netevent metpage 1','wait 8','netevent metresults','wait 8',
+          'load met-before','wait 45','netevent trfade 1','wait 240','netevent metresults','wait 8',
+          'netevent utnt_chapter 3 1','wait 140','netevent metrun','wait 40',
+          'netevent trexit','wait 240','netevent metresults 2','wait 8']
+        mapname='TNT01'
+    elif a.case=='fade':
         commands=['wait 120','netevent trseed','wait 10','netevent trfade 1','wait 8',
           f'screenshot logs/{label}-out.png','netevent trfading','save tr-fade','wait 70',
           'load tr-fade','wait 3','netevent trfading','wait 240','netevent trcheck 20 20 0',
@@ -57,7 +70,7 @@ def main():
         os.environ.get('UTNT_IWAD','F:/DoomDev/DOOM2.WAD'),mod=a.mod,
         addon=ROOT/'tools/fixtures/transitions',mapname=mapname,label=label,renderer=a.renderer,
         timeout=100,commands='; '.join(commands),settings=[('language',a.language),('wipetype',1),
-        ('win_w',a.width+18),('win_h',a.height+47),('UTNT_uiscale',a.scale),('con_notifytime',0),('i_pauseinbackground',False),('vid_activeinbackground',True)])
+        ('win_w',a.width+18),('win_h',a.height+47),('UTNT_uiscale',a.scale),('con_notifytime',0),('UTNT_pickupfeedback',False),('i_pauseinbackground',False),('vid_activeinbackground',True)])
     if a.case=='fade':
         log=Path(result['log']).read_text(encoding='utf-8',errors='replace')
         result['ok'] = result['ok'] and 'UTNT_ASSERT PASS: load restores departure clock before travel' in log

@@ -86,6 +86,7 @@ class UTNTAbilityHUD ui
 
     static void Draw(RenderEvent e)
     {
+        if(UTNTTransitionFade.HidesGameplayHUD()) return;
         if(gamestate!=GS_LEVEL || !viewactive || automapactive || menuactive || ConsoleState!=0
             || CVar.FindCVar('screenblocks').GetInt()>=12) return;
         let mo=e.Camera;

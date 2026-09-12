@@ -28,6 +28,7 @@ class UTNTChapterState : Object
     int Pages[MAXPLAYERS], PageTimes[MAXPLAYERS], LastInput[MAXPLAYERS];
     bool Revealed[MAXPLAYERS], VoicePlayed;
     int Sections[MAXPLAYERS]; // story, chapter comparison, campaign comparison
+    int DetailPages[MAXPLAYERS]; // overview, combat, weapons 1/2, abilities
     bool Ready[MAXPLAYERS];
     UTNTMapResult ChapterResult, CampaignResult;
     int ChapterObjectives, CampaignObjectives;
@@ -101,6 +102,10 @@ class UTNTChapterState : Object
             || !playeringame[p] || level.time<StartTime+(Intro ? 15 : 110) || level.time<LastInput[p]+7) return;
         LastInput[p]=level.time;
         pageCount=clamp(pageCount,1,128);
+        if(!Intro && (op==6 || op==7) && Sections[p]>0)
+        {
+            DetailPages[p]=(DetailPages[p]+(op==6 ? 1 : 4))%5;return;
+        }
         if(!Intro && op==4)
         {
             Sections[p]=min(2,Sections[p]+1);Ready[p]=false;return;
@@ -270,6 +275,7 @@ class UTNTChapterUI ui
             String hint=Local(key);
             if(chapter.Sections[consoleplayer]==2 && !multiplayer) hint=Local("UTNT_TR_SOLO_NEXT");
             if(consoleplayer==UTNTChapterState.Leader()) hint=hint.."  "..Local("UTNT_TR_SKIP");
+            hint=hint.."\n"..Local("UTNT_TR_BROWSE");
             let lines=font.BreakLines(hint,int((Screen.GetWidth()-24*hintUnit)/hintUnit));
             for(int i=0;i<lines.Count();i++) UTNTExplorationUI.Text(lines.StringAt(i),
                 (Screen.GetWidth()-font.StringWidth(lines.StringAt(i))*hintUnit)/2,

@@ -59,12 +59,48 @@ restart it. TNT01/TNT02 walk-over exits use a line-activation adapter; ACS exits
 `BeginChapterTravel`. Cursed Peak's intra-hub travel stays immediate. Existing
 Source victory staging and INTERMAP's authored 70-tic departure remain intact.
 
-`UTNTTransitionFade` draws the outgoing overlay and a 21-tic black arrival fade
+`UTNTTransitionFade` controls the outgoing overlay and a 21-tic black arrival fade
 on each client. A one-shot engine crossfade replaces the melt across INTERMAP
 loads in single-player, without writing `wipetype`. Network games receive the
 same black overlays even though the engine disables its native wipes there.
 Loading a save resumes the saved departure; it does not start an unrelated
 arrival effect. This adds a short black load boundary, not asynchronous loading.
+The final black layer is drawn by `UTNTTransitionFadeOverlay`, a late map-local
+handler: engine static handlers always draw before map-local handlers, regardless
+of their order. Ability cards and edge shaders also explicitly suppress themselves
+throughout departure, INTERMAP, credits and the arrival fade. Releasing a player's
+freeze immediately before travel can no longer reveal their cards over black.
+
+## Extended result pages
+
+Up/Down cycles between the overview, combat/resources, two weapon pages and
+abilities within either chapter or campaign results. Each player's selection is
+independent and saved. Enter/Right and Left retain chapter/campaign/story controls;
+viewing details does not toggle readiness or delay a ready team's departure.
+Single-player details use six plaques. Cooperative details keep every recorded
+player visible in aligned columns, adapting into panels for large rosters.
+
+- **Damage dealt:** effective health damage against hostile monsters, attributed
+  to the engine damage source (including projectile/explosion damage). Fatal hits
+  are capped at remaining health; corpses, friendly monsters and invulnerable
+  phases add nothing. Scout finishing damage is counted once, in event order.
+- **Boss damage:** the subset hitting bosses, using the same authored encounter
+  ranges, active boss HUD registration and boss flag as the critical-hit system.
+- **Damage taken:** actual health damage after armor and other reductions,
+  including environmental damage and self-damage. Armor absorbed is not added.
+- **Weapon use:** active gameplay tics with each of UTNT's twelve weapons selected,
+  displayed as time. This measures loadout preference, not shots, accuracy or
+  damage credit. Dead players, paused play, cutscenes and transitions do not count.
+- **Ability use:** successful activations of each of the six class abilities.
+  Rejected attempts, cooldowns and continued active tics do not add activations.
+- **Health and armor collected:** actual positive gains from physical pickups,
+  respecting capacity limits. Starting equipment, script grants and regeneration
+  are excluded. Capture runs for every peer even with pickup notifications disabled.
+
+On the combat page gold marks highest outgoing/boss damage and lowest received
+damage, including ties. Higher resource consumption, weapon time and ability
+usage are deliberately not ranked as better performance. Existing saves retain
+their old counters; new fields start at zero and cannot reconstruct past combat.
 
 ## Statistics and persistence
 
@@ -103,6 +139,8 @@ fallback, but the UTNT campaign no longer displays it before the chapter reader.
 Set UTNT_ENGINE and UTNT_IWAD, build an isolated package, then run:
 
 ```text
+python -B tools/test_transitions.py --mod <package> --case metrics --language de
+python -B tools/test_transitions_coop.py --mod <package> --metrics
 python -B tools/test_transitions.py --mod <package> --case fade --language de
 python -B tools/test_transitions.py --mod <package> --case acs
 python -B tools/test_transitions.py --mod <package> --case flow
