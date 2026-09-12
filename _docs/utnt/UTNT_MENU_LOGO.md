@@ -7,12 +7,15 @@ accents. This is menu branding; it does not rename every Remaster option or cred
 ## Assets and placement
 
 - Runtime patch: `tutnt/graphics/menu/M_DOOM.png`, 288 x 56 pixels, RGBA PNG.
+- HiRes replacement: `tutnt/hires/graphics/M_DOOM.png`, 576 x 112 pixels.
+  UZDoom keeps the base patch's logical 288 x 56 size and menu placement.
+  This is rendered directly from the artwork source with twice the pixel dimensions.
 - Main-menu placement: `StaticPatch 16,8,"M_DOOM"` in
   `tutnt/menudef/MENUDEF.base`, centered in the 320 x 200 menu coordinate space.
   Its bottom edge is 64; the first selectable row starts at 72.
 - The background and letter holes are transparent; dark metal and outlines
   remain opaque. The patch uses binary alpha and colors from the mod's first
-  PLAYPAL palette. It has no high-resolution override.
+  PLAYPAL palette.
 - The main-menu item labels, positions, shortcuts and navigation are preserved.
 - The title is brand artwork, shared by all four interface languages.
 
@@ -25,9 +28,9 @@ The earlier wordmark was typeset from Quake / DpQuake:
 https://www.dafont.com/quake.font . No font binaries are shipped in the mod.
 
 Run `python -B tools/build_menu_logo.py` to remove the key, tightly crop, fit
-the actual menu resolution, quantize to PLAYPAL and encode binary transparency.
+both native and double resolution, quantize to PLAYPAL and encode binary transparency.
 Run with `--check` to verify the output against the source and current palette.
-Changing PLAYPAL requires rebuilding this patch. The artwork sources and encoder
+Changing PLAYPAL requires rebuilding both patches. The artwork sources and encoder
 live outside the packaged game directory.
 
 ## Validation
@@ -49,3 +52,13 @@ Verified on 12 September 2026 with UZDoom 5.0.1:
 - Layout checking reported only five pre-existing TNT01/TNT02 editor/backup
   files belonging to other work; no logo-task artifact remained outside the
   prescribed directories.
+
+## Double-resolution check (12 September 2026)
+
+The 576 x 112 HiRes replacement passed the encoder check and the complete
+package build with engine validation (build `9b1af87fe731`). TITLEMAP visual
+review confirmed that the HiRes patch is selected, its text and runes gain
+detail, transparency remains correct, and its screen position and logical size
+match the base patch. Evidence: `tutnt/.codex/validation/reforged-hires-logo/`.
+The checked package was promoted to `tutnt.pk3` after checking its source
+fingerprint and comparing the resource inventory with the existing package.
