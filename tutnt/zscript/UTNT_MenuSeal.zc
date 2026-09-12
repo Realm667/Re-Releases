@@ -11,7 +11,8 @@ class UTNTMenuSeal : DoomMenuDelegate
 
         let item = desc.mItems[desc.mSelectedItem];
         double x = item.GetX() + desc.mSelectOfsX;
-        double y = item.GetY() + desc.mSelectOfsY;
+        // Center the visible seal on the menu lettering in logical menu pixels.
+        double y = item.GetY() + desc.mSelectOfsY + 4;
 
         // Menu time continues while gameplay is paused; the fractional tic
         // keeps the two-second cosine cycle smooth between UI ticks.

@@ -100,9 +100,10 @@ replacing newer integration. Evidence is under
 
 The fade is implemented in `tutnt/zscript/UTNT_MenuSeal.zc` and registered
 through `mapinfo/MAPINFO.usability`. It inherits Doom menu sounds and only
-handles the M_SKULL selector. Native row/font offsets, menu scaling, navigation
-and alternate selectors retain their standard behavior. Both draws disable
-texture animation so the engine cannot substitute the blinking endpoints.
+handles the M_SKULL selector. The seal is shifted down by four logical menu
+pixels to center it on the lettering, equally for native and HiRes images.
+Menu scaling, navigation and alternate selectors retain their standard behavior.
+Both draws disable texture animation so the engine cannot substitute the blinking endpoints.
 
 Fade validation (12 September 2026): definition-table check and full build
 `2950a53fd055` passed, including engine loading. Native and HiRes menu
@@ -112,3 +113,10 @@ area. A paused TNT01 check also passed with 36 distinct states. The final
 full package passed its direct menu test and was promoted to `tutnt.pk3`
 after a source-fingerprint and resource comparison with no removed entries.
 Evidence and animated preview: `tutnt/.codex/validation/menu-seal-fade/`.
+
+Alignment validation (12 September 2026): the four-pixel downward adjustment
+passed visual checks in native and HiRes menus. Evidence:
+`tutnt/.codex/validation/menu-seal-alignment/`.
+Full build `ac705d020353` passed engine validation. The shared
+`tutnt.pk3` was verified identical to that checked build, including the
+corrected selector code.
