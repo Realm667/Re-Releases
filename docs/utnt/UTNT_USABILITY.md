@@ -8,6 +8,31 @@
 - Trying a locked door/switch records its required key or skull on the native automap. Either-key locks use the existing combined card/skull icon. Repeated attempts reuse the marker; successful activation removes it, and externally raised closed doors clear their marker. Markers survive save/load and represent shared cooperative discovery. Untried locks are never scanned into markers. Automap rotation/zoom remain native. Key sprites follow PLAYPAL, including the established blue #00759F.
 - Seventeen verified access notifications trigger a warm, three-second light and a quiet positional switch sound at the affected opening. Adjacent bars share one signal; distant openings are bounded to four lights per notice. Repeat notices within four seconds do not repeat the signal. The cues change no door, switch, enemy, objective or progression logic.
 
+## Options palette (12 September 2026)
+
+Native options and UTNT submenus share the existing notice/class-card palette:
+bronze labels and actions (`#c49b68`), parchment values (`UTNTNoticeBody`,
+`#d6d0c3`), and bronze titles/section headers (`UTNTNoticeAccent`, `#bd915c`).
+Selected rows and slider handles use pale gold (`#ffe1a3`); active input capture
+uses warm ivory (`#fff0ca`). Slider tracks use the existing bronze accent.
+The ramps retain dark shading while keeping their bright ends readable.
+
+`MAPINFO.txt` assigns the native `MenuFontColor_*` and `MenuSlider*` roles;
+`textcolo.txt` defines four menu-specific ramps without changing the existing
+HUD/notice translations. Explicit console ramps color the native slider graphics.
+The existing LightBlue override retains its "Light Blue" alias, preventing shifted
+built-in color indices (which previously made slider numbers purple).
+UZDoom 5.0.1 retains its native `NewSmallFont`, menu
+layout, navigation and disabled-item shading. No player text or settings change.
+
+Validation: UZDoom 5.0.1 loaded the color overlay on the existing integration
+PK3; the full current source also passed its engine compile check.
+English/German runtime checks completed of the simple options, sound
+sliders and UTNT combat options. Screenshots and logs are under
+`tutnt/.codex/validation/options-colors/`. The full integration rebuild is
+currently blocked by unrelated stale TNT02 environment bindings; the separate
+`tutnt/.codex/builds/utnt-options-colors.pk3` overlay is loaded after `tutnt.pk3`.
+
 ## Access bindings
 
 The complete notice-to-sector audit is in `tools/validation/usability-2026-09-09/access-bindings.json`.
