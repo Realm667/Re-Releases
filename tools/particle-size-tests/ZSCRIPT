@@ -1,0 +1,86 @@
+version "5.0.0"
+class UTNTSizeReference : Actor
+{
+    Default { +NOINTERACTION +NOBLOCKMAP +NOGRAVITY RenderStyle "Add"; Alpha 1; }
+    States { Spawn: EMBR A -1 Bright; Stop; }
+}
+class UTNTParticleSizeTest : EventHandler
+{
+    Array<Actor> Sources;
+    Actor TestRocket;
+    int SeenScales;
+    static clearscope void Check(bool ok,String message)
+    { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
+    override void WorldTick()
+    {
+        if(level.time==5) {
+            let p=players[0].mo; p.SetOrigin((0,-160,0),false);
+            p.Angle=90; p.Pitch=0; p.bInvulnerable=true;
+        }
+        let it=ThinkerIterator.Create('UTNTLegacySizedVisual',Thinker.MAX_STATNUM+1,true);
+        UTNTLegacySizedVisual v;
+        while(v=UTNTLegacySizedVisual(it.Next())) if(v.Kind==0) {
+            if(abs(v.Scale.X-0.06)<0.0001) SeenScales|=1;
+            if(abs(v.Scale.X-0.08)<0.0001) SeenScales|=2;
+            if(abs(v.Scale.X-0.10)<0.0001) SeenScales|=4;
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="particlesize") return;
+        if(e.Args[0]==0) {
+            Name types[]={'EmberSpawner_512_Low','EmberSpawner_512_Med','EmberSpawner_512_High',
+                'EmberSpawner_256_Low','EmberSpawner_256_Med','EmberSpawner_256_High',
+                'EmberSpawner_128_Low','EmberSpawner_128_Med','EmberSpawner_128_High',
+                'EmberSpawner_64_Low','EmberSpawner_64_Med','EmberSpawner_64_High'};
+            for(int i=0;i<12;i++) Sources.Push(Actor.Spawn(types[i],(-60+i*10,80,8)));
+            TestRocket=Actor.Spawn('UTNTRocket',(0,40,96));TestRocket.Vel=(0,0,0);TestRocket.bNoInteraction=true;TestRocket.bNoClip=true;TestRocket.bNoGravity=true;
+        }
+        if(e.Args[0]==1) {
+            for(uint i=0;i<Sources.Size();i++) if(Sources[i]) Sources[i].Destroy();
+            Sources.Clear(); if(TestRocket) TestRocket.Destroy();TestRocket=null;
+        }
+        if(e.Args[0]==2 || e.Args[0]==3) {
+            for(uint i=0;i<Sources.Size();i++) if(Sources[i]) {
+                if(e.Args[0]==2) Sources[i].Deactivate(players[0].mo);
+                else Sources[i].Activate(players[0].mo);
+            }
+        }
+        if(e.Args[0]==4) {
+            // Static actor/visual pairs use equal depth and alpha; only their row differs.
+            for(int i=0;i<3;i++) {
+                double scale=0.06+0.02*i;
+                let a=Actor.Spawn('UTNTSizeReference',(-32+i*32,0,72));a.Scale=(scale,scale);
+                FSpawnParticleParams p;p.texture=TexMan.CheckForTexture('EMBRA0');
+                p.pos=(-32+i*32,0,32);p.lifetime=300;p.startalpha=1;
+                p.color1=0xffffff;p.flags=SPF_FULLBRIGHT;p.style=STYLE_Add;
+                UTNTLegacySizedVisual.Emit(p,(scale,scale),0);
+            }
+        }
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name!="particlesizecheck") return;
+        int ember,trail,center,bad;
+        let it=ThinkerIterator.Create('UTNTLegacySizedVisual',Thinker.MAX_STATNUM+1,true);
+        UTNTLegacySizedVisual v;
+        while(v=UTNTLegacySizedVisual(it.Next())) {
+            let dim=TexMan.GetScaledSize(v.Texture);dim=(dim.X*v.Scale.X,dim.Y*v.Scale.Y);
+            if(!v.Texture.IsValid() || v.Alpha<=0 || v.Alpha>1 || v.Age>=v.Life) bad++;
+            if(v.Kind==0) {
+                ember++;
+                if(abs(dim.X-dim.Y)>0.001 || (abs(dim.X-3.84)>0.001 && abs(dim.X-5.12)>0.001 && abs(dim.X-6.40)>0.001)) bad++;
+            }
+            if(v.Kind==1) { trail++; if(abs(dim.X-23.66)>0.001 || abs(dim.Y-20.93)>0.001) bad++; }
+            if(v.Kind==2) { center++; if(abs(dim.X-17.0)>0.001 || abs(dim.Y-15.2)>0.001) bad++; }
+        }
+        Console.Printf("SIZE_COUNTS ember=%d trail=%d center=%d",ember,trail,center);
+        Check(bad==0,"legacy dimensions, valid alpha and finite lifetimes");
+        if(e.Args[0]==0) Check(ember+trail+center==0,"disabled or expired effects leave no visuals");
+        if(e.Args[0]==1) {
+            Check(ember>0 && trail>0 && center>0,"real ember and rocket states emit all three layers");
+            Check(SeenScales==7,"all three original ember sizes emitted");
+        }
+        if(e.Args[0]==2) Check(ember==0 && trail>0 && center>0,"deactivated ember spawners stop while rocket continues");
+    }
+}

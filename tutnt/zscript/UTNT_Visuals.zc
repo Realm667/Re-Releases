@@ -24,6 +24,36 @@ class UTNTRocketFlameVisual : VisualThinker
     }
 }
 
+// Sprite scale and FSpawnParticleParams.size use different renderer units.
+// Keep legacy dimensions in sprite space instead of approximating that conversion.
+class UTNTLegacySizedVisual : VisualThinker
+{
+    int Age, Life, Kind;
+    double FadeStep;
+
+    static void Emit(FSpawnParticleParams p, Vector2 spriteScale, int kind)
+    {
+        let v=UTNTLegacySizedVisual(level.SpawnClientSideVisualThinker('UTNTLegacySizedVisual'));
+        if (!v) return;
+        v.Kind=kind; v.Texture=p.texture; v.Scale=spriteScale;
+        v.Pos=p.pos; v.Prev=v.Pos; v.Vel=p.vel;
+        v.Alpha=p.startalpha; v.FadeStep=p.fadestep; v.Life=p.lifetime;
+        v.Flags=p.flags|SPF_STRETCHPIXELS;
+        v.scolor=p.color1|0xff000000; v.SetRenderStyle(p.style);
+        v.Roll=p.startroll; v.PrevRoll=v.Roll;
+        v.UpdateSector(); v.UpdateSpriteInfo();
+    }
+
+    override void Tick()
+    {
+        if (IsFrozen()) return;
+        if (++Age>=Life) { Destroy(); return; }
+        Alpha=min(1.0,Alpha-FadeStep);
+        if (Alpha<=0) { Destroy(); return; }
+        Super.Tick();
+    }
+}
+
 class UTNTVisuals play
 {
     // Independent pools: decorative emissions can never consume combat feedback.
@@ -71,11 +101,11 @@ class UTNTVisuals play
         UTNTFireSystem.Ensure(source,colorIndex,shortFlame ? 1 : 0);
     }
 
-    static void Smoke(Actor source, double x = 0, double y = 0, double z = 0, double size = 8)
+    static void Smoke(Actor source, double x = 0, double y = 0, double z = 0, double size = 8, bool rocket = false)
     {
         if (!Visible(source, combat: true) || !ReserveCount(1,true)) return;
         FSpawnParticleParams p;
-        p.texture = TexMan.CheckForTexture('X143J0');
+        p.texture = TexMan.CheckForTexture('X143J0K0');
         p.color1 = 0xffffff;
         p.style = STYLE_Translucent;
         p.flags = SPF_ROLL;
@@ -84,7 +114,16 @@ class UTNTVisuals play
         p.lifetime = 32; p.size = size; p.sizestep = 0.15;
         p.startalpha = 0.45; p.fadestep = 0.45/32;
         p.startroll = FRandom[utntcosmetic](0,360);
-        level.SpawnParticle(p);
+        if (rocket)
+        {
+            // Preserve the current smoke image, at the original trail envelope.
+            let original=TexMan.GetScaledSize(TexMan.CheckForTexture('X038A0'));
+            let textureSize=TexMan.GetScaledSize(p.texture);
+            let scale=GetDefaultByType('RockTrailSmoke').Scale;
+            UTNTLegacySizedVisual.Emit(p,(original.X*scale.X/textureSize.X,
+                original.Y*scale.Y/textureSize.Y),1);
+        }
+        else level.SpawnParticle(p);
     }
 
     static void Sparks(Actor source, int count = 10)
@@ -127,8 +166,8 @@ class UTNTVisuals play
         FSpawnParticleParams p;
         p.texture=TexMan.CheckForTexture('X037A0'); p.color1=0xffffff; p.style=STYLE_Translucent;
         p.pos=flame.Pos; p.vel=(0,0,FRandom[utntcosmetic](0.1,0.6));
-        p.lifetime=33; p.size=17; p.startalpha=0.1; p.fadestep=-0.05; p.fadeoutstep=0.03;
-        level.SpawnParticle(p);
+        p.lifetime=33; p.startalpha=0.1; p.fadestep=-0.05;
+        UTNTLegacySizedVisual.Emit(p,GetDefaultByType('RocketSmokeCenter').Scale,2);
     }
 }
 
@@ -142,7 +181,7 @@ class UTNTPuffBase : Actor
 class UTNTRocketFXBase : Rocket
 {
     action void A_UTNTFlightFX() { UTNTIndustrialFX.Rocket(self); }
-    action void A_UTNTTrail(double x, double y, double z) { UTNTVisuals.Smoke(self,x,y,z); }
+    action void A_UTNTTrail(double x, double y, double z) { UTNTVisuals.Smoke(self,x,y,z,rocket:true); }
     action void A_UTNTRocketFlame() { UTNTVisuals.RocketFlame(self); }
 }
 
@@ -162,7 +201,17 @@ class UTNTEmberBase : SwitchableDecoration
         p.style = STYLE_Add; p.flags = SPF_FULLBRIGHT;
         p.pos = Vec3Offset(FRandom[utntcosmetic](-size/2.0,size/2.0),FRandom[utntcosmetic](-size/2.0,size/2.0),0);
         p.vel = (0,0,FRandom[utntcosmetic](0.5,2));
-        p.lifetime=50; p.size=2; p.startalpha=1; p.fadestep=0.02;
+        p.lifetime=50; p.startalpha=1; p.fadestep=0.02;
+        if (type == 0)
+        {
+            // EmberShot selected the three legacy scales with equal probability.
+            int variant=Random[utntcosmetic](0,2);
+            Vector2 scale=variant==0 ? GetDefaultByType('LavaEmber1').Scale
+                : variant==1 ? GetDefaultByType('LavaEmber2').Scale
+                : GetDefaultByType('LavaEmber3').Scale;
+            UTNTLegacySizedVisual.Emit(p,scale,0);
+            return;
+        }
         if (type == 1)
         {
             // Four chipped fragments; one quarter of emissions use a short rising streak.

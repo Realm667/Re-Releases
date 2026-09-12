@@ -29,11 +29,11 @@
 
 - **Selective glow:** adjustable, color-matched projectile and explosion halos with smooth fadeout. [Details](UTNT_EFFECT_GLOW.md)
 - **Organic fire:** animated flame fragments, embers, smoke and matching light for orange, green and blue torches, burning barrels and floor fires. [Details](UTNT_FIRE_EFFECTS.md)
-- **Combat and teleport effects:** directed sparks, impact dust, electrical pulses and returning teleport fragments; corrected BFG ring sizes and restored classic rocket effects. [Details](UTNT_INDUSTRIAL_FX.md)
+- **Combat and teleport effects:** directed sparks, impact dust, electrical pulses and returning teleport fragments; corrected BFG ring sizes and restored classic rocket effects with full-size smoke. [Details](UTNT_INDUSTRIAL_FX.md), [Particle sizes](UTNT_PARTICLE_SIZES.md)
 - **Lost Souls:** continuous ember trails anchored behind the skull. [Implementation](../../tutnt/zscript/UTNT_Fire.zc)
 - **Smoke, steam and water:** softer ambient smoke, turbulent pressure steam, improved fountains and animated impact/landing splashes. [Steam](UTNT_STEAM.md), [Water](../../tutnt/zscript/UTNT_Splash.zc)
 - **Layered liquids:** flowing water, slime and blood with surface relief; depth-layered void and star fields, retaining authored map scrolling. [Details](UTNT_LIQUIDS.md)
-- **Lava:** glowing depth, crust and drifting cooled rafts; rounded spill edges in TNT02/TNTLE and improved emissive visibility through fog. [Lava](UTNT_LAVA.md), [Edges](UTNT_LAVA_LIPS.md), [Fog](ENVIRONMENT_FOG_GUIDES.md)
+- **Lava:** glowing depth, crust and drifting cooled rafts; rounded spill edges in TNT02/TNTLE, restored original-size lava embers and improved emissive visibility through fog. [Lava](UTNT_LAVA.md), [Embers](UTNT_PARTICLE_SIZES.md), [Edges](UTNT_LAVA_LIPS.md), [Fog](ENVIRONMENT_FOG_GUIDES.md)
 - **Portals and teleporters:** unified amber energy, original runes, rotating seals, depth effects, proximity distortion and particle suction from both sides. [Details](UTNT_RITUALS.md)
 - **Dynamic weather:** escalating rain/snow cycles, gusts, splashes, snow veils and responsive ambience, with shelter and skybox coverage. [Details](UTNT_WEATHER.md)
 - **Weather on the visor:** refracting rain droplets and trails, accumulating frost and gradual clearing under shelter. [Details](UTNT_WEATHER_VISOR.md)
