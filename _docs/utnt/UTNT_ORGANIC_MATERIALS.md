@@ -529,3 +529,10 @@ wall/floor views, exact package verification of 694 generated outputs, and
 existing surface/traced/rollout checks. Shared build 83d19e503402 passed engine,
 ACS, localization and font validation. The complete page contains 184 valid
 image references and the exact approved CSS.
+
+
+QDOOR9 contour correction (12 September 2026): the inner return of the pale
+metal panel now follows the horizontal source edge at row 72 and its short
+corner bevel, replacing an incorrect diagonal. Height and normal maps were
+regenerated together; all other 319 variants retain identical material data.
+The panel comparison preserves the faulty height as the QDOOR9 before image.

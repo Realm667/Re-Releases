@@ -44,6 +44,10 @@ def check():
  def at(n,p):
   z=fields[n];x,y=p;w,h=g['variants'][n]['size'];return float(z[int(y*z.shape[0]/h),int(x*z.shape[1]/w)])
  for n,front,back in LANDMARKS:assert at(n,front)>at(n,back)+.12,(n,front,back,at(n,front),at(n,back))
+ # Original row 73 is the straight dark frame lip, not a diagonal inset.
+ for x in (44,52,60):
+  assert abs(at('QDOOR9',(x,73)))<.025
+  assert at('QDOOR9',(x,70))<-.8
  for a,b in [('IKWALL73','IKWALL74'),('IKWALL73','IKWALL75'),('IKWALL76','IKWALL78'),('IKFLAT2','IKFLAT4'),('QDOOR1','QDOOR3')]:
   assert np.array_equal(fields[a],fields[b]),(a,b)
  assert np.array_equal(fields['NMTRC2'],np.rot90(fields['NMTRC1']))

@@ -132,8 +132,10 @@ def _angled_door(f):
 
 def _zigzag(f):
     # Pale inset metal lies BELOW the dark outer frame/zigzag division.
+    # The inner return is horizontal at source row 72, with a short bevel
+    # at its right tip; a single diagonal would cut through the metal face.
     f.poly([(7,7),(92,7),(75,39),(39,39),(15,82),(45,84),(25,120),(7,120)],-1.05,1.3)
-    f.poly([(110,7),(121,7),(121,120),(46,120),(67,77),(39,70),
+    f.poly([(110,7),(121,7),(121,120),(46,120),(67,77),(66,74),(63,72),(39,72),
             (49,54),(82,54)],-1.05,1.3)
     f.groove([(103,-2),(76,46),(43,46),(27,76),(59,76),(33,130)],1.0,-1.55)
 
