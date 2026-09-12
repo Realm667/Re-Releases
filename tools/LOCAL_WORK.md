@@ -38,3 +38,21 @@ ordinary output directories. Local agent instructions remain excluded from Git.
 ## Documentation
 
 Keep permanent documentation under `_docs/utnt/` and temporary notes, concepts and historical reports under `tutnt/.codex/notes/`. See [the documentation index](../_docs/utnt/README.md). Root-level `UTNT_*.md` and `TNT*_CONCEPT.md` are rejected by the layout check.
+
+## Preserve the established layout
+
+Every new or resumed task must keep documentation under `_docs/` and definition
+modules in the directories listed in [_docs/utnt/DEFINITION_LAYOUT.md](../_docs/utnt/DEFINITION_LAYOUT.md).
+Do not recreate `docs/`, old root fragments or new workspace output folders.
+Generated root tables must be refreshed from their authoritative modules.
+
+Before committing or finishing, run `python -B tools/check_work_layout.py`.
+For definition changes, also run `python -B tools/build_definition_tables.py --check`.
+The layout checker rejects the retired root docs directory and misplaced modules
+for all nine definition formats, in addition to temporary files and broken
+compatibility paths. Fix your own findings; preserve and identify foreign work.
+Historical scripts must resolve old paths before they read or write current files.
+
+GitHub Actions runs the layout and generated-table checks on every push and pull
+request (`.github/workflows/work-layout.yml`), including changes made through
+GitHub Desktop. A failed check reports the violation; it does not delete files.

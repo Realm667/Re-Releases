@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
+from build_definition_tables import DIRECTORIES
 
 ROOT = Path(__file__).resolve().parent.parent
 ALIASES = {'logs': 'logs', '_references': 'references',
@@ -19,6 +20,8 @@ def violations(root, workspace_config=None):
     root = Path(root).resolve()
     central = root/'tutnt/.codex'
     issues = []
+    if (root/'docs').exists() or (root/'docs').is_symlink():
+        issues.append('docs: retired directory; keep documentation under _docs')
     for old, new in ALIASES.items():
         path = root/old
         if path.exists() and path.resolve() != (central/new).resolve():
@@ -53,6 +56,9 @@ def violations(root, workspace_config=None):
                 temporary = True
             if path.parent == root and re.match(r'(?:UTNT_.*|TNT.*_CONCEPT)\.md$', name, re.I):
                 issues.append(f'{relative}: documentation belongs in _docs/utnt or tutnt/.codex/notes')
+            group = name.split('.', 1)[0].upper()
+            if path.parent == root/'tutnt' and group in DIRECTORIES and name != group+'.txt':
+                issues.append(f'{relative}: definition module belongs under tutnt/{DIRECTORIES[group]}')
             if temporary:
                 issues.append(f'{relative}: temporary output belongs under tutnt/.codex')
     if workspace_config:

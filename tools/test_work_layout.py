@@ -43,6 +43,28 @@ class LayoutTests(unittest.TestCase):
         self.write('TNT04B_SKY_CONCEPT.md')
         self.assertEqual(len(violations(self.root)), 2)
 
+    def test_retired_docs_directory_is_reported_even_when_empty(self):
+        old = self.root/'docs'
+        old.mkdir()
+        self.assertTrue(any('retired directory' in item for item in violations(self.root)))
+        self.assertTrue(old.is_dir())
+
+    def test_definition_modules_stay_under_their_directories(self):
+        from build_definition_tables import DIRECTORIES
+        for group, folder in DIRECTORIES.items():
+            self.write('tutnt/'+group+'.txt')
+            self.write('tutnt/'+folder+'/'+group+'.feature')
+        self.assertEqual(violations(self.root), [])
+        misplaced = [self.write('tutnt/'+group+'.feature') for group in DIRECTORIES]
+        issues = violations(self.root)
+        self.assertEqual(len(issues), len(DIRECTORIES))
+        self.assertTrue(all('definition module belongs' in item for item in issues))
+        self.assertTrue(all(path.is_file() for path in misplaced))
+
+    def test_other_mod_documentation_is_not_relocated(self):
+        self.write('othermod/docs/README.md')
+        self.assertEqual(violations(self.root), [])
+
     def test_only_new_workspace_entries_are_reported(self):
         workspace = Path(self.tmp.name)/'chat'
         workspace.mkdir()

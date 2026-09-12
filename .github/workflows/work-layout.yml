@@ -1,0 +1,15 @@
+name: Project layout
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  layout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -B tools/check_work_layout.py
+      - run: python -B tools/build_definition_tables.py --check
+      - run: python -B -m unittest discover -s tools -p test_work_layout.py
