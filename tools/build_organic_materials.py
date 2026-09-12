@@ -7,6 +7,7 @@ from pathlib import Path
 import argparse, hashlib, io, json, math, os, re, struct
 import numpy as np
 from PIL import Image, ImageFilter
+from material_geometry import authored_height
 
 ROOT = Path(__file__).resolve().parent.parent
 HEIGHT_NEUTRAL = 127/255
@@ -14,7 +15,7 @@ HEIGHT_GAIN = 2.0
 # A shared material plane, never an independent per-image average.
 PROFILE_BASE = dict(rock=.65, gravel=.60, soil=.50, grass=.50, snow=.50,
                     snowrock=.50, ice=.50, stonework=.88, brick=.88, metal=.15,
-                    wood=.75, technical=.75, panel=.75, mortar=.75)
+                    wood=.75, technical=.75, panel=.75, mortar=.75, authored=.5)
 
 
 def encode_height(height, profile):
@@ -211,7 +212,8 @@ def validate_compatibility(config):
     for m in materials.values():
         detail=m.get('height_detail')
         if detail and not ((m['profile']=='metal' and detail.get('kind')=='raised-rust') or
-                           (m['profile'] in STRUCTURE_PRESETS and detail.get('kind')=='surface-structure')):
+                           (m['profile'] in STRUCTURE_PRESETS and detail.get('kind')=='surface-structure') or
+                           (m['profile']=='authored' and detail.get('kind')=='authored-geometry')):
             raise ValueError('Unsupported height detail: '+m['name'])
     grouped = set()
     for name,group in config.get('compatibility_groups',{}).items():
@@ -232,7 +234,9 @@ def relief(rgb, profile, depth, logical, detail=None):
     soft = wrap_blur(lum,.9)
     lo,hi = np.quantile(soft,[.16,.91])
     face = np.clip((soft-lo)/max(hi-lo,.001),0,1)
-    if profile in STRUCTURE_PRESETS:
+    if profile == 'authored':
+        h = PROFILE_BASE[profile]+authored_height(rgb,logical,detail)/depth
+    elif profile in STRUCTURE_PRESETS:
         h = structure_height(rgb,profile,logical,detail or {})
     elif profile == 'metal':
         h = rust_plate_height(rgb,logical,detail) if detail else metal_height(rgb)
@@ -313,6 +317,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
         if isinstance(data,str):data=data.encode()
         outputs[name]=data
     read(root/'tools/build_organic_materials.py')
+    geometry_digest=digest(read(root/'tools/material_geometry.py'))
     config=json.loads(read(config_path))
     validate_compatibility(config)
     library={m['name']:m for m in json.loads(read(root/'tools/artwork/area-textures/materials.json'))}
@@ -398,11 +403,11 @@ def generate(root=ROOT, *, check=False, iwad=None):
         variants=list(dict.fromkeys([n]+[v for v in (alias,band) if v in definitions]))
         for v in variants:
             rgb,logical=resolve(v,entry['sources'])
-            fingerprint=digest(rgb.tobytes()+json.dumps([logical,m['profile'],m['depth'],m.get('height_detail'),'signed-127-v1']).encode())[:14]
+            detail=m.get('height_detail')
+            if detail and v!=n and detail.get('expanded_model'):
+                detail=dict(detail['expanded_model'],kind='surface-structure')
+            fingerprint=digest(rgb.tobytes()+json.dumps([logical,m['profile'],m['depth'],detail,geometry_digest if m['profile']=='authored' else 'signed-127-v1']).encode())[:14]
             if fingerprint not in data_cache:
-                detail=m.get('height_detail')
-                if detail and v!=n and detail.get('expanded_model'):
-                    detail=dict(detail['expanded_model'],kind='surface-structure')
                 h,nrm=relief(rgb,m['profile'],m['depth'],logical,detail)
                 stem=f"materials/organic/{n.lower()}-{fingerprint}"
                 emit('tutnt/'+stem+'-height.png',png_bytes(h));emit('tutnt/'+stem+'-normal.png',png_bytes(nrm))
@@ -411,7 +416,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
             stem=data_cache[fingerprint]
             h=np.asarray(Image.open(io.BytesIO(outputs['tutnt/'+stem+'-height.png'])))
             limits=height_depth(h)
-            bindings[v]=dict(stem=stem,depth=m['depth'],profile=m['profile'],family=n,logical=list(logical),size=[rgb.shape[1],rgb.shape[0]],neutral=127,base_height=PROFILE_BASE[m['profile']],min_depth=float(limits.min()),max_depth=float(limits.max()),trace_top=PROFILE_BASE[m['profile']]-1,trace_bottom=PROFILE_BASE[m['profile']],edge_mode=('band' if v==band else 'tile') if entry.get('edge_blend') and v!=n else None)
+            bindings[v]=dict(stem=stem,depth=m['depth'],profile=m['profile'],family=n,logical=list(logical),size=[rgb.shape[1],rgb.shape[0]],data_size=[h.shape[1],h.shape[0]],neutral=127,base_height=PROFILE_BASE[m['profile']],min_depth=float(limits.min()),max_depth=float(limits.max()),trace_top=PROFILE_BASE[m['profile']]-1,trace_bottom=PROFILE_BASE[m['profile']],edge_mode=('band' if v==band else 'tile') if entry.get('edge_blend') and v!=n else None)
         records.append(dict(m,variants=variants))
     tables=[]
     env_bindings={}
@@ -423,7 +428,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
                 env_bindings[row[4]]=(bindings[row[3]],row[3])
     gldefs=['// Generated by tools/build_organic_materials.py. Include after environment materials.']
     def definition(name,m,env=False):
-        shade={'rock':1.0,'gravel':.7,'soil':.5,'grass':.3,'snow':.55,'snowrock':.65,'ice':.4,'stonework':.55,'brick':.4,'metal':.28,'wood':.40,'technical':.38,'panel':.32,'mortar':.45}[m['profile']]
+        shade={'rock':1.0,'gravel':.7,'soil':.5,'grass':.3,'snow':.55,'snowrock':.65,'ice':.4,'stonework':.55,'brick':.4,'metal':.28,'wood':.40,'technical':.38,'panel':.32,'mortar':.45,'authored':.35}[m['profile']]
         body=[f'Material "{name}" {{',f' Shader "shaders/organic/{"environment" if env else "material"}.fp"',
               f' Define ORGANIC_DEPTH = "{m["depth"]:.4f}"',
               # Profile-wide bounds keep compatible textures on a shared GPU program.

@@ -196,7 +196,7 @@ partially obstructed; its material rendering is covered by the controlled ICEY
 probe. The shared package build `ffc63dd86355` passed engine validation.
 
 
-## Selective five-category rollout (11.09.2026)
+## Initial five-category rollout (11.09.2026; geometry revised below)
 
 The 872-name map audit retained the existing 99 materials and tested 193 further
 candidates (132 initial selections plus 61 conditional candidates). Native frontal,
@@ -255,3 +255,66 @@ A short fixed-resolution CPU-render timing probe recorded 0.217/0.259/0.513 ms
 without relief and 0.335/0.272/0.340 ms with relief on the local machine. These
 single-frame CPU snapshots are not GPU frame times or a campaign FPS guarantee.
 The local final report is under `.codex/validation/material-rollout/final.json`.
+
+
+## Geometry reanalysis (12.09.2026)
+
+The 99 textures identified in the visual review now use new height and normal
+maps from [material_geometry.py](../../tools/material_geometry.py). QTECH21 is
+also updated to keep its adjoining frame family on the same neutral plane.
+This replaces the rejected directional-light reconstruction for these 100 base
+materials, covering 114 original, expanded and band variants. The total registry
+remains 209 base materials / 285 variants / 2,746 bindings.
+
+The new `authored` profile uses gray 127 at zero and a symmetric ray interval
+of -6 to +6 map units. The 12-unit interval is the total search budget, not the
+surface displacement. Actual details currently range from approximately -4.05
+to +2.17 units. Flat panel faces remain flat; printed logos, color variants,
+painted highlights and lower shadows do not become independent height features.
+Small data maps are evaluated at twice the original texel resolution, with
+normals derived from the same quantized heights and the logical map scale.
+Original color artwork is unchanged.
+
+| Materials | Construction and corrected ordering |
+|---|---|
+| ADEL_D11/G02/G03/GXX/S69/W39, QWOOD1/4, WOOD8 | Plank cuts, door braces and complete metal hardware above the wood |
+| ADEL_F59/M02/M03/M06/R90/V98/V99 | Flat metal plate faces, recessed seams; the red strip is a shallow inset |
+| IKCRATE1/2/3, IKCRATE6, IKTCR05B, QCRATE1/2 | Separate crate layouts: trapezoid handle recesses, vent slots, narrow stacked fronts and a diagonal wooden brace; printed panels remain planar |
+| IKWALL10/15/18/21/23/25/26/28/30/31/50/54/55/64/69/86/88 | Framed inserts, lower polygonal openings, complete pipe sections and recessed runic strokes; dark rectangular/octagonal inserts sit behind the frame |
+| QTECH09/20/21/25/26/27/30/31/32/33/34/35 | Light side panels below dark girders; separate cable, circuit-board and vent inserts |
+| QTECH07/08/28/28B, OTECH2 | Domed rivets on flat plates and elongated recessed slots |
+| FTUB2/3, QTECH01/02/05, QTWALL08, TECHF1/2, TECHG, OTECH6 | Cylindrical pipe/cable runs, mounting bands and recessed ventilation gaps; FTUB3 is the exact 90-degree rotation of FTUB2 |
+| QCOMP1–8, QTWALL07/10/11/12, TEKWALL4 | Rectangular cabinets, planar boards, recessed sockets and connected pipe runs |
+| PLATF2 | Recessed apertures and cables underneath the neutral grate |
+| PANBOOK | Recessed shelving cavities, books in front of their backing and behind the wooden frame |
+| ADEL_B15/Q60, CITYF14/15/16/20, QCITY01/02/03/04/16, QFLAT03, QWWALL | Shared slab/brick layouts, irregular courses and rounded block shoulders; mortar lies below the face |
+| QFLAT09, SFLOOR2/3/5/6 | Shallow stamped treads on flat metal, rather than stone-like luminance relief |
+
+Color families resolve to a common construction before normal differentiation.
+CITYF14/15/16 share the same slab geometry. QTECH20/33 and QTECH25/26/34 share
+their respective frame geometry. The source fingerprint includes the geometry
+implementation and the effective variant model, so edits invalidate cached data.
+
+The separately expanded artwork contains additional forms. Its broad component
+boundaries are segmented into complete, flat-core bodies with rounded shoulders;
+continuous dark mortar/clearance networks are recessed. This is a conservative
+boundary approximation, not a measured reconstruction of every fine expanded
+cable or irregular stone. Original-sized textures use the explicit constructions.
+The existing TEKWALL4 tile/band border blend and environmental aliases remain.
+
+`tools/test_material_geometry.py` checks all 114 variants, neutral neighborhoods,
+physical bounds, exact family/rotation relationships, color independence for the
+100 original constructions and 16 semantic front/back probes. The old neutral
+plane/rust and 66-material metal regression checks also pass. All 96 OpenGL
+fixture views and all 96 Vulkan views (including the corrected retry) passed
+texture assignment, shader loading and save/load. There are 93 matching OpenGL
+baseline captures and 12 direct Vulkan package views. Shared package build
+`376b466a1ebf` passed engine, ACS, localization and font checks; all 624 organic
+outputs match the source manifest byte-for-byte. The other 171 relief variants
+retain byte-identical height and normal data.
+The fixture caps frame rate and separates camera events from captures to avoid
+occasional skipped view changes at very high frame rates.
+
+The local review page is `.codex/work/material-reanalysis/vergleich.html`;
+proofs are under `.codex/validation/material-reanalysis/`. Native comparison
+images use the same camera and original artwork with relief enabled/disabled.

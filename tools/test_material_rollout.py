@@ -40,10 +40,12 @@ def data_checks():
         v=manifest['variants'][name]
         return np.asarray(Image.open(ROOT/'tutnt'/(v['stem']+'-height.png')))
     assert np.array_equal(height('QCRATE1'),height('QCRATE2'))
-    # Whole girder caps stay raised through their painted lower shadows.
-    caps=[height(name)[5:12,8:120] for name in ['QTECH20','QTECH21','QTECH25','QTECH26','QTECH33']]
+    # Shared top rails stay on the wall plane across their painted shadows.
+    caps=[height(name)[8:24,16:120] for name in ['QTECH20','QTECH21','QTECH25','QTECH26','QTECH33']]
     assert all(np.array_equal(caps[0],cap) for cap in caps[1:])
-    assert np.all(caps[0]>127)
+    assert np.all(caps[0]==127)
+    from test_material_geometry import check as geometry_check
+    geometry_check()
     decisions=json.loads((ROOT/'tools/organic-materials/rollout.json').read_text())['decisions']
     assert all(d['status'] in ('accepted','rejected') for d in decisions)
     assert {d['name'] for d in decisions if d['status']=='accepted'}=={m['name'] for m in config['materials'] if m.get('rollout_category')}
@@ -56,7 +58,7 @@ def data_checks():
             assert h.shape==n.shape[:2] and np.all(n[:,:,2]>127)
             d=height_depth(h)*v['depth'];span=float(d.max()-d.min())
             assert span>0, 'Ineffective relief binding: '+name
-            assert span<=m['depth']+.001 and m['depth']<=8
+            assert span<=m['depth']+.001 and m['depth']<=(12 if m['profile']=='authored' else 8)
             assert float(d.min())>=-6.001 and float(d.max())<=6.001
             assert abs(v['trace_top']*v['depth'])<=6 and abs(v['trace_bottom']*v['depth'])<=6
             assert v['neutral']==127 and np.count_nonzero(h==127)>0
@@ -128,10 +130,10 @@ def main():
         for i in selected:
             for pose in a.poses:
                 view=i*3+pose;name=room.CASES[i][0]
-                cfg+=f'netevent metalview {view};wait 4;netevent metalview {view};wait 12;screenshot "logs/material-rollout/{mode}-r{a.renderer}-{name}-{pose}.png";wait 2;'
+                cfg+=f'netevent metalview {view};wait 8;netevent metalview {view};wait 24;screenshot "logs/material-rollout/{mode}-r{a.renderer}-{name}-{pose}.png";wait 2;'
                 expected.update({(view,s):n for s,n in enumerate(room.CASES[i][1],1)});expected[(view,0)]=room.CASES[i][2]
         cfg+='save rollout-check;wait 3;load rollout-check;wait 6;echo UTNT_TEST_END;wait 3;quit\n';assert len(cfg.encode())<4000
-        settings=[('vid_scalemode',5),('vid_scale_customwidth',960),('vid_scale_customheight',540),('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_lowerinbackground',False),('use_mouse',False),('use_joystick',False),('r_drawplayersprites',False),('crosshair',0),('con_notifytime',0),('gl_texture_filter',0),('screenblocks',12)]
+        settings=[('cl_capfps',True),('vid_scalemode',5),('vid_scale_customwidth',960),('vid_scale_customheight',540),('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_lowerinbackground',False),('use_mouse',False),('use_joystick',False),('r_drawplayersprites',False),('crosshair',0),('con_notifytime',0),('gl_texture_filter',0),('screenblocks',12)]
         r=run_case(a.engine,a.iwad,root=C,mod=a.mod,addon=path,mapname='METTEST',renderer=a.renderer,label=label,timeout=55,commands=cfg,settings=settings,quiet=True)
         output=Path(r['log']).read_text(encoding='utf-8');found={(int(v),int(s)):n for v,s,n in re.findall(r'METAL_SURFACE\|(\d+)\|(\d+)\|(\S+)',output)}
         if found!=expected:r['ok']=False;r['errors'].append('Material assignment mismatch')
