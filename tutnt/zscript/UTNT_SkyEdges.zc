@@ -1,0 +1,127 @@
+// Render-only outdoor cornices. No collision or gameplay RNG is changed.
+class UTNTSkyEdge : Actor
+{
+    Sector Front, Top;
+    Side Wall;
+    Vector2 EdgeA, EdgeB, Center;
+    int Part;
+    double Slope, RadiusLimit, InitialHeight;
+    double XScale, YScale, XOffset, YOffset;
+    String SkinName, EnvironmentSkin, CurrentSkin, PrimaryMaterial, EnvironmentMaterial;
+    bool TestHidden;
+    Default
+    {
+        +NOGRAVITY +NOINTERACTION +NOBLOCKMAP
+        +DONTSPLASH +DONTTHRUST +NOTONAUTOMAP
+        Radius 1; Height 1;
+    }
+    States { Spawn: SKED A -1; Stop; }
+    double TopAt(Vector2 p) { return Part==Side.mid ? Top.ceilingplane.ZatPoint(p) : Top.floorplane.ZatPoint(p); }
+    void Configure(Sector front, Sector top, Side wall, Array<String> r)
+    {
+        self.Front=front;self.Top=top;self.Wall=wall;Part=r[3].ToInt();
+        EdgeA=(r[6].ToDouble(),r[7].ToDouble());EdgeB=(r[8].ToDouble(),r[9].ToDouble());
+        Center=(r[10].ToDouble(),r[11].ToDouble());InitialHeight=r[12].ToDouble();
+        Slope=r[14].ToDouble()-r[13].ToDouble();SkinName=r[16];
+        XScale=r[17].ToDouble();YScale=r[18].ToDouble();XOffset=r[19].ToDouble();YOffset=r[20].ToDouble();RadiusLimit=r[21].ToDouble();EnvironmentSkin=r[23];CurrentSkin=SkinName;PrimaryMaterial=r[24];EnvironmentMaterial=r[25];
+        UpdateEdge();
+    }
+    void UpdateEdge()
+    {
+        if(!Front || !Top || !Wall) { bInvisible=true;return; }
+        double a=TopAt(EdgeA),b=TopAt(EdgeB);
+        String now=TexMan.GetName(Wall.GetTexture(Part));
+        bool validSkin=(now~==SkinName) || (EnvironmentSkin!="-" && (now~==EnvironmentSkin));
+        if(validSkin && !(now~==CurrentSkin)) { A_ChangeModel("",skin:(now~==SkinName)?PrimaryMaterial:EnvironmentMaterial);CurrentSkin=now; }
+        bInvisible=TestHidden || !(TexMan.GetName(Front.GetTexture(Sector.ceiling))~=="F_SKY1")
+            || !validSkin
+            || abs((b-a)-Slope)>.01
+            || min(a-Front.floorplane.ZatPoint(EdgeA),b-Front.floorplane.ZatPoint(EdgeB))<RadiusLimit*2.3
+            || abs(Wall.GetTextureXScale(Part)-XScale)>.001 || abs(Wall.GetTextureYScale(Part)-YScale)>.001
+            || abs(Wall.GetTextureXOffset(Part)-XOffset)>.001 || abs(Wall.GetTextureYOffset(Part)-YOffset)>.001;
+        if(Part==Side.bottom)
+            bInvisible=bInvisible || !(TexMan.GetName(Top.GetTexture(Sector.ceiling))~=="F_SKY1")
+                || Top.floorplane.ZatPoint(EdgeA)<Top.ceilingplane.ZatPoint(EdgeA)-.01
+                || Top.floorplane.ZatPoint(EdgeB)<Top.ceilingplane.ZatPoint(EdgeB)-.01;
+        // Baked UVs assume the original texture anchor. Hide a changed top
+        // instead of presenting a detached seam on moving map machinery.
+        bInvisible=bInvisible || abs((a+b)*.5-InitialHeight)>.01;
+    }
+    override void Tick() { if((level.time & 7)==0)UpdateEdge(); }
+}
+#include "zscript/sky-edges-generated.zc"
+
+class UTNTSkyEdges : EventHandler
+{
+    bool Initialized;
+    int Applied, Rejected;
+    Array<Sector> GlowSectors;
+    Array<int> GlowSlots;
+    override void WorldTick()
+    {
+        if(!Initialized && level.time>=4) { Initialized=true;Install(); }
+    }
+    void Install()
+    {
+        int lump=Wads.CheckNumForFullName(String.Format("skyedges/%s.txt",level.MapName));
+        if(lump<0)return;
+        String data=Wads.ReadLump(lump);Array<String> rows;data.Split(rows,"\n",TOK_SKIPEMPTY);
+        for(int i=0;i<rows.Size();i++)
+        {
+            Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);
+            if(r.Size()!=27) { Rejected++;continue; }
+            int index=r[1].ToInt(),face=r[2].ToInt(),part=r[3].ToInt();
+            if(index<0 || index>=level.Lines.Size() || face<0 || face>1 || (part!=Side.mid && part!=Side.bottom)) { Rejected++;continue; }
+            let line=level.Lines[index];let side=line.sidedef[face];let other=line.sidedef[1-face];
+            if(!side || (part==Side.mid && other) || (part==Side.bottom && !other)) { Rejected++;continue; }
+            let front=side.sector;let top=part==Side.mid?front:other.sector;
+            Vector2 a=(r[6].ToDouble(),r[7].ToDouble()),b=(r[8].ToDouble(),r[9].ToDouble());
+            let v1=face==0?line.v1:line.v2;let v2=face==0?line.v2:line.v1;
+            if((v1.p-a).Length()>.01 || (v2.p-b).Length()>.01 || front.Index()!=r[4].ToInt() || top.Index()!=r[5].ToInt()) { Rejected++;continue; }
+            Class<Actor> kind=r[0];if(!kind) { Rejected++;continue; }
+            let edge=UTNTSkyEdge(Actor.Spawn(kind,(r[10].ToDouble(),r[11].ToDouble(),r[12].ToDouble())));
+            if(!edge) { Rejected++;continue; }
+            int slot=r[26].ToInt();bool known=false;
+            for(int j=0;j<GlowSlots.Size();j++)if(GlowSlots[j]==slot)known=true;
+            if(!known && slot>=0 && slot<13107) { GlowSlots.Push(slot);GlowSectors.Push(front); }
+            edge.Angle=0;edge.Configure(front,top,side,r);Applied++;
+        }
+    }
+    // Models do not receive the renderer's colored ceiling-wall glow. A tiny
+    // per-sector canvas supplies its live color, range and ceiling plane.
+    ui Color PackGlow(double value)
+    {
+        int n=int(clamp(round(value),0,16777215));
+        return Color((n>>16)&255,(n>>8)&255,n&255);
+    }
+    override void RenderOverlay(RenderEvent e)
+    {
+        let c=TexMan.GetCanvas('USKYGLOW');if(!c)return;
+        c.Clear(0,0,256,256,Color(0,0,0));
+        for(int i=0;i<GlowSectors.Size();i++)
+        {
+            let s=GlowSectors[i];Color color=s.GetGlowColor(Sector.ceiling);
+            double height=s.GetGlowHeight(Sector.ceiling);
+            if(color==Color(0,0,0) || color==-1 || height<=0)continue;
+            double z=s.ceilingplane.ZatPoint((0,0));
+            double a=s.ceilingplane.ZatPoint((1,0))-z,b=s.ceilingplane.ZatPoint((0,1))-z;
+            for(int j=0;j<5;j++)
+            {
+                int index=GlowSlots[i]*5+j;
+                Color pixel=j==0?color:j==1?PackGlow(height*256):j==2?PackGlow(a*1048576+8388608):j==3?PackGlow(b*1048576+8388608):PackGlow(z*256+8388608);
+                c.Clear(index%256,index/256,index%256+1,index/256+1,pixel);
+            }
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="skyedges" && e.Name!="skyedges_mode")return;
+        int total=0,visible=0;let it=ThinkerIterator.Create("UTNTSkyEdge");UTNTSkyEdge edge;
+        while(edge=UTNTSkyEdge(it.Next()))
+        {
+            if(e.Name=="skyedges_mode") { edge.TestHidden=e.Args[0]==0;edge.UpdateEdge(); }
+            total++;if(!edge.bInvisible)visible++;
+        }
+        Console.Printf("SKYEDGES|%s|applied=%d|rejected=%d|actors=%d|visible=%d",level.MapName,Applied,Rejected,total,visible);
+    }
+}

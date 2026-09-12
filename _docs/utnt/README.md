@@ -46,6 +46,7 @@ Run `tutnt_build.bat` from the repository root. Local configuration is in the ig
 - [UTNT_RITUALS.md](UTNT_RITUALS.md)
 - [UTNT_ROCK_EXPANSION.md](UTNT_ROCK_EXPANSION.md)
 - [UTNT_ROCK_ROLLOUT.md](UTNT_ROCK_ROLLOUT.md)
+- [Natural rock and snow skyline edges](UTNT_SKY_EDGES.md)
 - [UTNT_SOURCE.md](UTNT_SOURCE.md)
 - [UTNT_STATUSBAR.md](UTNT_STATUSBAR.md)
 - [UTNT_STEAM.md](UTNT_STEAM.md)

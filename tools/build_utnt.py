@@ -244,6 +244,8 @@ def main():
     generate_organic_materials(root, check=a.check_only, iwad=a.iwad)
     from build_crt_materials import generate as generate_crt_materials
     generate_crt_materials(root, check=a.check_only)
+    from build_sky_edges import generate as generate_sky_edges
+    generate_sky_edges(root, check=a.check_only)
     output=(a.output or root/'tutnt.pk3').resolve()
     with BuildLock(output), snapshot(root) as (source, hashes, metadata):
         from check_localization import validate as validate_localization
