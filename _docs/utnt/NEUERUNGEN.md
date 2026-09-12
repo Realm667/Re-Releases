@@ -57,7 +57,7 @@
 - **TNTLE:** basalt cavern with flowing lava falls and a separate ember-night sky; corrected filtering seams. [Details](UTNT_TNTLE_SKY.md)
 - **Expanded textures:** 37 active material expansions and aligned large rock surfaces reduce repetition while preserving original scale and selected original materials. [Details](UTNT_AREA_TEXTURES.md)
 - **Surface relief:** normal maps and parallax across rock, ground, grass, snow, ice, masonry, metal, rust, wood, crates and technical surfaces; source-traced doors, crates, shelves, vents and technical panels, refined snow and masonry, additional slotted floors, slab joints, wood variants, profiled panels, riveted plates and coordinated door families with corrected QDOOR9 contours, aligned wall/floor relief and restrained material sheen. [Details](UTNT_ORGANIC_MATERIALS.md)
-- **CRT monitors:** stronger convex glass relief, dedicated fullbright display maps, scanlines and phosphor glow, with enhanced soft view-dependent live room reflections and separate comfort/performance controls; camera-feed textures are excluded. [Details](UTNT_CRT.md)
+- **CRT monitors:** stronger convex glass relief, dedicated fullbright display maps, brighter dark signals, scanlines, broader phosphor glow and RGB color fringes, with enhanced soft view-dependent live room reflections and separate comfort/performance controls; camera-feed textures are excluded. [Details](UTNT_CRT.md)
 - **Palette consistency:** restored global PLAYPAL support, corrected blue PNG assets and coordinated plasma projectile, trail, impact, glow and lighting colors. [Details](UTNT_PALETTE.md)
 
 ## Boss encounters, stability and tools

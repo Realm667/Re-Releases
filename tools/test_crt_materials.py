@@ -45,7 +45,7 @@ def map_capture(a,addon):
  _,lumps=read_wad(ROOT/'tutnt/maps'/(a.mapname.lower()+'.wad'))
  g=parse(next(d for n,d in lumps if n.rstrip(b'\0')==b'TEXTMAP'))
  selected=[]
- for name in ['Q2COMP4','OCOMP','Q2COMP8']:
+ for name in ['Q2COMP3','Q2COMP4','OCOMP','Q2COMP8']:
   for i,side in enumerate(g['sidedef']):
    found=False
    for part,key in [(0,'texturetop'),(1,'texturemiddle'),(2,'texturebottom')]:
@@ -58,10 +58,21 @@ def map_capture(a,addon):
  for side,part,name in selected:
   rel=f'logs/{label}-{name}.png';captures.append(rel)
   cmd+=f'netevent crtmap {side} {part};wait 3;netevent crtmap {side} {part};wait 25;screenshot "{rel}";wait 3;'
+ if a.mapname=='TNT03A1':
+  rel=f'logs/{label}-reported.png';captures.append(rel)
+  cmd+=f'netevent crtissue;wait 3;netevent crtissue;wait 25;screenshot "{rel}";wait 3;'
  cmd+='netevent crtassert;echo UTNT_TEST_END;wait 3;quit\n'
  settings=[('cl_capfps',True),('vid_scalemode',5),('vid_scale_customwidth',1280),('vid_scale_customheight',720),('vid_activeinbackground',True),('i_pauseinbackground',False),('use_mouse',False),('r_drawplayersprites',False),('con_notifytime',0),('gl_texture_filter',0)]
+ started=time.time()
  r=run_case(ENGINE,Path('F:/DoomDev/DOOM2.WAD'),root=C,mod=a.mod,addon=addon,mapname=a.mapname,renderer=a.renderer,label=label,timeout=80,commands=cmd,settings=settings,quiet=True)
- r['captures']=captures;r['ok']=r['ok'] and r['assertions']==2 and all((C/p).is_file() for p in captures)
+ r['captures']=captures;r['ok']=r['ok'] and r['assertions']==2 and all((C/p).is_file() and (C/p).stat().st_mtime>=started for p in captures)
+ if r['ok'] and a.mapname=='TNT03A1':
+  import numpy as np
+  from PIL import Image
+  display=np.asarray(Image.open(C/'logs'/f'{label}-reported.png').convert('RGB'),dtype=float)[180:250,760:890]
+  # Guard the reported dark-display regression at the fixed screenshot position.
+  r['q2comp3_signal_luminance']=float((display@np.array([.2126,.7152,.0722])).mean())
+  r['ok']=r['q2comp3_signal_luminance']>45
  out=C/'validation/crt';out.mkdir(exist_ok=True);(out/(label+'.json')).write_text(json.dumps(r,indent=2));print(json.dumps(r,indent=2))
  if not r['ok']:print(Path(r['log']).read_text()[-5000:]);raise SystemExit(1)
 

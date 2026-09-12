@@ -44,6 +44,21 @@ low-contrast scanline phase drift; it does not introduce flashing, tracking
 breaks or alter existing texture animation timing. This does not add temporal
 phosphor history buffers.
 
+Dark authored signals receive an additional luminance-dependent lift, tapering
+out above 0.28 input peak, while true black and powered-off presets remain dark.
+This corrects Q2COMP3 in TNT03A1: even its brightest source glass channel is only
+31/255, so fullbright alone leaves the red data faint. A wider two-radius phosphor
+halo uses one- and two-source-pixel neighborhoods, with weights 0.60 and 0.24.
+All taps clamp to the individual glass rectangle, preventing bezel/tile bleed.
+
+RGB misconvergence separates red and blue in opposite directions while keeping
+the green signal centered. The subpixel shift increases from 0.30 pixels centrally
+to 0.85 at the rim; explicit filtered sampling also works with nearest texture
+filtering. It follows rotated display orientation and fades with distance and
+undersampling. Highlights are normalized together to retain hue rather than
+independently clipping the channels. These effects preserve the approved glass
+bulge and room-reflection coefficients.
+
 ## Actual room reflections
 
 The reflections use live 128 × 128 camera views of the map, including visible
@@ -110,6 +125,8 @@ overrides. Batches select six materials at a time; batch 0 also checks settings 
 save/load. Pixel comparisons verify a changed glass image, unchanged housing,
 and a reflected response when only the room wall behind the viewer changes.
 The `--map TNT02` / `--map TNT03A2` paths capture original map placements.
+`--map TNT03A1` also includes Q2COMP3 and a reproducible view at the reported
+player position (-3901, -313, 44).
 
 Local captures and results: `tutnt/.codex/logs/crt-*` and
 `tutnt/.codex/validation/crt/`. They are not packaged or committed.
@@ -137,3 +154,12 @@ Validated on 12 September 2026 with UZDoom 5.0.1:
 The gallery covers all resources, but the captured runtime batches do not claim
 individual visual review of every placement in every map. Performance was bounded
 by capture count and distance; no cross-hardware frame-time benchmark was performed.
+
+The TNT03A1 phosphor refinement was compared at identical camera positions:
+Q2COMP3 signal luminance increased by 78% in the measured display region, while
+the sampled housing remained pixel-identical. This is a scene-specific measured
+result, not a uniform brightness multiplier for every texture.
+
+The TNT03A1 runtime check now captures Q2COMP3 at the reported player position
+and rejects signal luminance below 45/255 in the fixed display region (the
+previous rendering measured about 33/255). Captures must come from the current run.

@@ -21,6 +21,10 @@ class CRTFixture : EventHandler {
    p.SetOrigin((point.X,point.Y,(low+high)*.5-41),false);p.Angle=VectorAngle(-normal.X,-normal.Y);p.Pitch=0;p.Vel=(0,0,0);
    Console.Printf("CRT_MAP_POSE|%s|%d|%s",level.MapName,e.Args[0],TexMan.GetName(side.GetTexture(e.Args[1])));
   }
+  if(e.Name=="crtissue"){
+   let p=players[0].mo;p.bNOGRAVITY=true;players[0].cheats|=CF_NOCLIP;
+   p.SetOrigin((-3901,-313,44),false);p.Angle=315;p.Pitch=0;p.Vel=(0,0,0);
+  }
   if(e.Name=="crtlight")level.Sectors[0].SetLightLevel(e.Args[0]);
   if(e.Name=="crtback")level.Sides[3].SetTexture(Side.mid,TexMan.CheckForTexture(e.Args[0]==0?"REDWALL":"LITE5"));
   if(e.Name=="crtassert"){
