@@ -148,6 +148,7 @@ class UTNTChapterState : Object
 
 class UTNTChapterUI ui
 {
+    const BodyTextScale = 1.6;
     String CachedText, CachedHeading;
     int CachedTitleWidth;
     BrokenLines Lines, Heading;
@@ -208,8 +209,8 @@ class UTNTChapterUI ui
         }
         BodyY=margin+(Heading.Count()*(font.GetHeight()+3)*1.4+28)*Unit;
         BodyHeight=max(70*Unit,Screen.GetHeight()-margin-BodyY-48*Unit);
-        int width=max(32,int((BodyWidth/Unit-28)/1.3));
-        Rows=max(1,int((BodyHeight/Unit-24)/((font.GetHeight()+4)*1.3)));
+        int width=max(32,int((BodyWidth/Unit-28)/BodyTextScale));
+        Rows=max(1,int((BodyHeight/Unit-24)/((font.GetHeight()+4)*BodyTextScale)));
         String text=!Lines || languageChanged ? Story(chapter.Episode,chapter.Intro) : CachedText;
         if(!Lines || text!=CachedText || width!=CachedWidth || Rows!=CachedRows)
         {
@@ -324,8 +325,8 @@ class UTNTChapterUI ui
         {
             String line=Lines.StringAt(i);
             Screen.DrawText(font,Font.FindFontColor('UTNTNoticeBody'),BodyX+14*Unit,
-                BodyY+(12+(i-page*Rows)*(font.GetHeight()+4)*1.3)*Unit,line,
-                DTA_ScaleX,Unit*1.3,DTA_ScaleY,Unit*1.3,DTA_TextLen,max(0,characters),DTA_Alpha,alpha);
+                BodyY+(12+(i-page*Rows)*(font.GetHeight()+4)*BodyTextScale)*Unit,line,
+                DTA_ScaleX,Unit*BodyTextScale,DTA_ScaleY,Unit*BodyTextScale,DTA_TextLen,max(0,characters),DTA_Alpha,alpha);
             characters-=line.Length();
         }
         int picture=chapter.Definition ? chapter.Definition.Picture : UTNTChapterState.ImageNumber(chapter.Episode);

@@ -39,6 +39,9 @@ channels and their playback positions along with the saved chapter state.
 The story view divides its usable width into two thirds text on the left and
 one third illustration on the right, with the gutter outside that ratio. This
 arrangement also applies on 4:3 screens; the existing text pagination remains.
+Body text uses a shared 1.6 scale (previously 1.3, about 23% larger) for both
+rendering and pagination. Longer passages wrap onto additional pages; headings,
+navigation labels and the 2:1 column split retain their existing sizes.
 The supplied opaque 460x778 portraits in `tutnt/hires/graphics/interms/` are
 resolved directly, independent of the optional hires texture setting. They fit
 inside the image column without stretching or cropping. The same bronze plaque
