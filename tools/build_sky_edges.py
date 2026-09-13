@@ -284,10 +284,7 @@ def generate(root=ROOT,check=False):
         key=(skin,slot,style,blend)
         if key not in skin_bindings:skin_bindings[key]=f"SG{len(skin_bindings):06d}"
         return skin_bindings[key]
-    # Keep shipped campaign material/sector IDs stable when adding bonus maps.
-    campaign=('endmap01','intermap','titlemap','tnt01','tnt02','tnt03a1','tnt03a2','tnt03b','tnt04a','tnt04b','tnt04c','tnt04cn','tntle')
-    map_paths=sorted((root/'tutnt/maps').glob('*.wad'),key=lambda p:(campaign.index(p.stem.lower()) if p.stem.lower() in campaign else len(campaign),p.name.lower()))
-    for path in map_paths:
+    for path in sorted((root/'tutnt/maps').glob('*.wad')):
         b=parse(path);resolve_slopes(b,path);bindings=mapping(root,path.stem)
         edges=detect(b,variants,bindings)+detect_terrain(b,variants,bindings,floor_mapping(root,path.stem));rows=[]
         envpath=root/'tutnt/environment'/f'{path.stem}-surfaces.txt'
