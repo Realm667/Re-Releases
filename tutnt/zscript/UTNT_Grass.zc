@@ -1,0 +1,154 @@
+// Local cosmetic grass. Cell hashes never consume the gameplay random stream.
+class UTNTGrassTuft : Actor
+{
+    Sector Support;
+    int CellKey, Variant, Born;
+    double SizeFactor;
+    bool TestHidden;
+    Default
+    {
+        +NOGRAVITY +NOINTERACTION +NOBLOCKMAP +DONTSPLASH
+        +DONTTHRUST +NOTONAUTOMAP +CLIENTSIDE +FORCEYBILLBOARD
+        Radius 1; Height 1;
+        RenderStyle "Translucent";
+        Scale .22;
+    }
+    States { Spawn: GRSU A -1; Stop; BrightGrass: GRSV A -1; Stop; }
+    override void Tick() {} // Controller batches visibility and floor tracking.
+    void Refresh(Actor camera, double range)
+    {
+        if(!Support || !camera) { bInvisible=true;return; }
+        double z=Support.floorplane.ZatPoint(Pos.XY);
+        Sprite=GetSpriteIndex((TexMan.GetName(Support.GetTexture(Sector.floor))~=="SM_GRAS")?'GRSV':'GRSU');
+        bool valid=UTNTGrassController.Surface(Support) && Support.ceilingplane.ZatPoint(Pos.XY)-z>=32;
+        if(abs(Pos.Z-(z-.65))>.001)SetOrigin((Pos.X,Pos.Y,z-.65),false);
+        double distance=(Pos-camera.Pos).Length();
+        double fade=clamp((range-distance)/144.,0.,1.)*clamp((level.time-Born)/12.,0.,1.);
+        Alpha=fade;
+        bInvisible=TestHidden || !valid || fade<=0;
+    }
+}
+
+class UTNTGrassController : Thinker
+{
+    Array<UTNTGrassTuft> Tufts;
+    Map<int,int> Occupied;
+    int Scan, CenterX, CenterY, NextSweep;
+    uint MapSeed;
+    bool Ready;
+    double Range;
+    const CellSize=48;
+    const HalfGrid=20;
+    const GridWidth=41;
+    const CellBudget=96;
+    const ActorLimit=1200;
+
+    static bool Surface(Sector sec)
+    {
+        if(!sec || sec.GetHeightSec() || sec.Get3DFloorCount()>0 || sec.GetPortalType(Sector.floor)!=0)return false;
+        String name=TexMan.GetName(sec.GetTexture(Sector.floor));
+        return name~=="SM_GRAS" || name~=="QGRASS" || name~=="GRASS2" || name~=="XA08TEX" || name~=="XB08TEX"
+            || name~=="XA31TEX" || name~=="XB31TEX";
+    }
+    static uint Mix(uint x)
+    {
+        x^=x>>16;x*=0x7feb352d;x^=x>>15;x*=0x846ca68b;x^=x>>16;return x&0x7fffffff;
+    }
+    static int Key(int x,int y) { return (x&65535)|((y&65535)<<16); }
+    static bool Inside(Sector sec, Vector2 p)
+    {
+        // BSP lookup alone can return a sector for a point in the void.
+        // Even/odd crossings also handle holes and disconnected sector islands.
+        bool inside=false;
+        for(int i=0;i<sec.Lines.Size();i++)
+        {
+            let line=sec.Lines[i];if(line.FrontSector==line.BackSector)continue;
+            Vector2 a=line.V1.P,b=line.V2.P,d=b-a;double length2=d dot d;
+            if(length2<.001)continue;
+            double t=clamp(((p-a) dot d)/length2,0.,1.);
+            if((p-(a+d*t)).Length()<22)return false;
+            if((a.Y>p.Y)!=(b.Y>p.Y) && p.X<(b.X-a.X)*(p.Y-a.Y)/(b.Y-a.Y)+a.X)inside=!inside;
+        }
+        return inside;
+    }
+    void Clean(Actor camera)
+    {
+        Occupied.Clear();int keep=0;
+        for(int i=0;i<Tufts.Size();i++)
+        {
+            let tuft=Tufts[i];if(!tuft)continue;
+            if((tuft.Pos.XY-camera.Pos.XY).Length()>Range+128 || !Surface(tuft.Support)) { tuft.Destroy();continue; }
+            Tufts[keep]=tuft;Occupied.Insert(tuft.CellKey,keep+1);keep++;
+        }
+        Tufts.Resize(keep);
+    }
+    void Place(int x,int y,Actor camera)
+    {
+        int key=Key(x,y);if(Occupied.GetIfExists(key)>0 || Tufts.Size()>=ActorLimit)return;
+        uint hash=Mix(uint(key)^MapSeed);
+        if(hash%100>=82)return;
+        Vector2 point=(x*CellSize+10+(Mix(hash+1)%2800)/100.,y*CellSize+10+(Mix(hash+2)%2800)/100.);
+        if((point-camera.Pos.XY).Length()>Range)return;
+        let sec=level.PointInSector(point);if(!Surface(sec) || !Inside(sec,point))return;
+        double z=sec.floorplane.ZatPoint(point);
+        if(sec.ceilingplane.ZatPoint(point)-z<32 || abs(sec.floorplane.normal.Z)<.90)return;
+        if(abs(z-camera.Pos.Z)>384)return;
+        let tuft=UTNTGrassTuft(Actor.Spawn('UTNTGrassTuft',(point.X,point.Y,z-.65)));
+        if(!tuft)return;
+        tuft.Support=sec;tuft.CellKey=key;tuft.Variant=int(Mix(hash+3)%8);tuft.Frame=tuft.Variant;
+        tuft.SizeFactor=.18+(Mix(hash+4)%800)/10000.;
+        tuft.Scale=(tuft.SizeFactor*(.90+(Mix(hash+5)%210)/1000.),tuft.SizeFactor);
+        tuft.bXFlip=(Mix(hash+6)&1)!=0;tuft.Born=level.time;tuft.Alpha=0;
+        Tufts.Push(tuft);Occupied.Insert(key,Tufts.Size());tuft.Refresh(camera,Range);
+    }
+    override void Tick()
+    {
+        let runtime=UTNTFXRuntime.Get();let camera=runtime.Camera;
+        if(!camera)return;
+        Range=runtime.Quality<=0?0:min(runtime.Range,runtime.Quality==1?448:runtime.Quality==2?704:896);
+        if(Range<=0)
+        {
+            for(int i=0;i<Tufts.Size();i++)if(Tufts[i])Tufts[i].Destroy();
+            Tufts.Clear();Occupied.Clear();Ready=false;return;
+        }
+        if(!Ready)
+        {
+            MapSeed=667;String mapname=level.MapName;
+            for(int i=0;i<int(mapname.Length());i++)MapSeed=Mix(MapSeed+uint(mapname.ByteAt(i)));
+            Ready=true;Scan=GridWidth*GridWidth;NextSweep=0;
+        }
+        for(int i=0;i<Tufts.Size();i++)if(Tufts[i])Tufts[i].Refresh(camera,Range);
+        int cx=int(floor(camera.Pos.X/CellSize)),cy=int(floor(camera.Pos.Y/CellSize));
+        if(abs(cx-CenterX)>4 || abs(cy-CenterY)>4) { Scan=GridWidth*GridWidth;NextSweep=0; }
+        if(Scan>=GridWidth*GridWidth)
+        {
+            if(level.time<NextSweep)return;
+            Clean(camera);CenterX=cx;CenterY=cy;Scan=0;NextSweep=level.time+35;
+        }
+        for(int n=0;n<CellBudget && Scan<GridWidth*GridWidth;n++,Scan++)
+            Place(CenterX-HalfGrid+Scan%GridWidth,CenterY-HalfGrid+Scan/GridWidth,camera);
+    }
+}
+
+class UTNTGrassHandler : EventHandler
+{
+    transient UTNTGrassController Controller;
+    override void WorldLoaded(WorldEvent e)
+    {
+        // Client objects are recreated on save load and hub entry. Remove any old
+        // instance from either pool before installing the deterministic layout.
+        for(int pool=0;pool<2;pool++)
+        {
+            let it=ThinkerIterator.Create('UTNTGrassTuft',Thinker.MAX_STATNUM+1,pool!=0);
+            Thinker item;while(item=it.Next())item.Destroy();
+            it=ThinkerIterator.Create('UTNTGrassController',Thinker.MAX_STATNUM+1,pool!=0);
+            while(item=it.Next())item.Destroy();
+        }
+        Controller=null;
+    }
+    override void WorldTick()
+    {
+        if(!Controller && level.time>=5 && consoleplayer>=0)
+            Controller=UTNTGrassController(level.CreateClientSideThinker('UTNTGrassController',Thinker.STAT_USER+28));
+    }
+}

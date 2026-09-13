@@ -1,0 +1,83 @@
+version "5.0.0"
+class UTNTGrassTest : EventHandler
+{
+    Actor Cam;
+    int SavedCount, SavedHash;
+    bool PositionSet;
+    override void WorldTick()
+    {
+        if(level.time<8)return;
+        if(!Cam)Cam=Actor.Spawn('MapSpot',(8800,-500,42));
+        if(!PositionSet)
+        {
+            bool found=false;
+            for(int i=0;i<level.Sectors.Size() && !found;i++)
+            {
+                let sec=level.Sectors[i];if(!UTNTGrassController.Surface(sec))continue;
+                for(int j=0;j<sec.Lines.Size() && !found;j++)
+                {
+                    let line=sec.Lines[j];if(line.FrontSector==line.BackSector)continue;
+                    Vector2 d=line.V2.P-line.V1.P;if(d.Length()<128)continue;
+                    Vector2 normal=(d.Y,-d.X)/d.Length();if(line.BackSector==sec)normal=-normal;
+                    Vector2 point=(line.V1.P+line.V2.P)*.5+normal*128;
+                    if(level.PointInSector(point)!=sec || !UTNTGrassController.Inside(sec,point))continue;
+                    Cam.SetOrigin((point.X,point.Y,sec.floorplane.ZatPoint(point)+42),false);
+                    Cam.Angle=VectorAngle(normal.X,normal.Y);Cam.Pitch=10;found=true;
+                }
+            }
+            Console.Printf("GRASS_CAMERA %f %f %f angle %f",Cam.Pos.X,Cam.Pos.Y,Cam.Pos.Z,Cam.Angle);PositionSet=true;
+        }
+        players[0].camera=Cam;
+    }
+    void Check(bool restore)
+    {
+        let it=ThinkerIterator.Create('UTNTGrassTuft',Thinker.MAX_STATNUM+1,true);
+        UTNTGrassTuft tuft;int count=0,variants=0,hash=0,visible=0;bool safe=true,material=true,floor=true;Map<int,int> keys;
+        while(tuft=UTNTGrassTuft(it.Next()))
+        {
+            count++;variants|=1<<tuft.Variant;hash^=tuft.CellKey+int(tuft.Pos.X*100)+int(tuft.Pos.Y*100)+tuft.Variant*31;
+            if(!tuft.bInvisible)visible++;
+            safe=safe && tuft.Variant>=0 && tuft.Variant<8 && tuft.SizeFactor>=.18 && tuft.SizeFactor<.26 && !tuft.bSolid && !tuft.bShootable && tuft.bNoInteraction && tuft.bNoBlockmap && keys.GetIfExists(tuft.CellKey)==0;
+            keys.Insert(tuft.CellKey,1);
+            material=material && UTNTGrassController.Surface(tuft.Support) && UTNTGrassController.Inside(tuft.Support,tuft.Pos.XY);
+            floor=floor && abs(tuft.Pos.Z-tuft.Support.floorplane.ZatPoint(tuft.Pos.XY)+.65)<.01;
+        }
+        Console.Printf("UTNT_ASSERT %s bounded nonempty grass count %d visible %d",count>8 && count<=1200 && visible>8?"PASS":"FAIL",count,visible);
+        Console.Printf("UTNT_ASSERT %s all eight variants %d",variants==255?"PASS":"FAIL",variants);
+        Console.Printf("UTNT_ASSERT %s nonblocking unique cosmetic actors",safe?"PASS":"FAIL");
+        Console.Printf("UTNT_ASSERT %s grass-only safe placement",material?"PASS":"FAIL");
+        Console.Printf("UTNT_ASSERT %s floor attachment",floor?"PASS":"FAIL");
+        if(restore)Console.Printf("UTNT_ASSERT %s stable layout after save or quality toggle %d/%d %d/%d",count==SavedCount && hash==SavedHash?"PASS":"FAIL",count,SavedCount,hash,SavedHash);
+        else { SavedCount=count;SavedHash=hash; }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="grasscheck")Check(e.Args[0]!=0);
+        if(e.Name=="grasshide")
+        {
+            let it=ThinkerIterator.Create('UTNTGrassTuft',Thinker.MAX_STATNUM+1,true);UTNTGrassTuft tuft;
+            while(tuft=UTNTGrassTuft(it.Next()))tuft.TestHidden=e.Args[0]!=0;
+        }
+        if(e.Name=="grassinvalid")
+        {
+            let it=ThinkerIterator.Create('UTNTGrassTuft',Thinker.MAX_STATNUM+1,true);let tuft=UTNTGrassTuft(it.Next());
+            if(!tuft) { Console.Printf("UTNT_ASSERT FAIL no grass for surface tests");return; }
+            let sec=tuft.Support;let old=sec.GetTexture(Sector.floor);
+            sec.SetTexture(Sector.floor,TexMan.CheckForTexture("STARTAN3"));tuft.Refresh(Cam,896);bool hidden=tuft.bInvisible;
+            sec.SetTexture(Sector.floor,old);tuft.Refresh(Cam,896);
+            Console.Printf("UTNT_ASSERT %s changed floor material hides grass",hidden?"PASS":"FAIL");
+            double before=tuft.Pos.Z,d=sec.floorplane.D;
+            sec.MoveFloor(1,sec.floorplane.GetChangedHeight(1),-1,1,false,true);tuft.Refresh(Cam,896);
+            bool moved=abs(tuft.Pos.Z-before-1)<.01;
+            sec.MoveFloor(1,d,-1,-1,false,true);tuft.Refresh(Cam,896);
+            Console.Printf("UTNT_ASSERT %s moving floor follows and restores",moved && abs(tuft.Pos.Z-before)<.01?"PASS":"FAIL");
+        }
+        if(e.Name=="grassoff")
+        {
+            let it=ThinkerIterator.Create('UTNTGrassTuft',Thinker.MAX_STATNUM+1,true);
+            Console.Printf("UTNT_ASSERT %s quality zero clears grass",it.Next()==null?"PASS":"FAIL");
+        }
+        if(e.Name=="grasscamera") { Cam.SetOrigin((e.Args[0],e.Args[1],e.Args[2]),false);Cam.Angle=0;Cam.Pitch=16; }
+        if(e.Name=="grassturn") { Cam.Angle=e.Args[0];Cam.Pitch=e.Args[1]; }
+    }
+}

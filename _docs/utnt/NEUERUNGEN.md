@@ -37,6 +37,8 @@
 
 ## Effects and environment
 
+- **Sparse grass:** eight randomly varied, nonblocking tufts on grass floors, with ground-matched pixel colors, soft roots, distance fading and stable save/load placement. [Details](UTNT_GRASS.md)
+
 - **Candelabra lighting:** restored dynamic light for the custom candelabra in TNT03B and TNT04A. [Implementation](../../tutnt/GLDEFS.txt)
 - **Selective glow:** adjustable, color-matched projectile and explosion halos with smooth fadeout. [Details](UTNT_EFFECT_GLOW.md)
 - **Organic fire:** animated flame fragments, embers, smoke and matching light for orange, green and blue torches, burning barrels and floor fires. [Details](UTNT_FIRE_EFFECTS.md)
