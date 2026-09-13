@@ -4,6 +4,7 @@
 
 ## Interface, accessibility and presentation
 
+- **Ending panorama:** a fractured planet and starfield form one continuous image across both scrolling halves. [Details](UTNT_END_PANORAMA.md)
 - **Borderless title artwork:** five refreshed title and Source illustrations follow the approved original-faithful style, preserving their scenes with detailed materials and no decorative side frames. [Details](UTNT_TITLE_ARTWORK.md)
 - **Status bar and HUD:** customizable statistics, remaining counts, time, complete ammo/weapon displays, smooth health/armor values, translucent and floating layouts, and matching screen borders. [Details](UTNT_STATUSBAR.md)
 - **Boss displays:** original portraits, names, health bars and percentages, plus clear shielded/vulnerable indicators for The Source. [Details](UTNT_BOSS_HUD.md)
