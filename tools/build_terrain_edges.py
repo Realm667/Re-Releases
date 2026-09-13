@@ -73,9 +73,18 @@ def detect_terrain(b,variants,wall_bindings=None,floor_bindings=None):
             if ledge and floor_profile in NATURAL and not scrolling_floor(back):
                 fu=floor_uv(back,back_id,variants,floor_bindings)
                 if abs(fu['sx']*fu['sy'])<1e-6:continue
-                radius=min(8,drop*.16);family=variants[fu['skin']]['family'];surface_kind=kind(variants[fu['skin']])
+                family=variants[fu['skin']]['family'];surface_kind=kind(variants[fu['skin']])
+                radius=min(14,drop*.32) if surface_kind=='rock' else min(10,drop*.40) if surface_kind=='soil' else min(14,max(6,drop*.7)) if surface_kind=='grass' else min(8,drop*.16)
                 # Require room for the cap on the actual upper floor polygon.
-                if not all(inside(plus(plus(a,sub(z,a),u),n,-radius*.85),geo[back_id]) for u in (.2,.5,.8)):continue
+                if not all(inside(plus(plus(a,sub(z,a),u),n,-radius*.85),geo[back_id]) for u in (.2,.5,.8)):
+                    radius=min(8,drop*.16)
+                    if not all(inside(plus(plus(a,sub(z,a),u),n,-radius*.85),geo[back_id]) for u in (.2,.5,.8)):continue
+                if surface_kind=='grass':
+                    # The feathered skirt also needs room on the lower floor.
+                    # Include the largest reach modulation and its rounded toe.
+                    while radius>.125 and not all(inside(plus(plus(a,sub(z,a),u),n,radius*2),geo[front_id]) for u in (.2,.5,.8)):
+                        radius*=.5
+                    if radius<=.125:continue
                 for layer in (0,1):
                     e=base|dict(mode=1,layer=layer,top_id=back_id,top=back,top_part='floor',surface_id=back_id,surface=back,surface_kind=surface_kind,fu=fu,wu=wu,radius=radius,kind=surface_kind if layer else kind(variants[wu['skin']]),family=family if layer else variants[wu['skin']]['family'],uv=fu if layer else wu)
                     e.update(h0=plane(back,a,'floor'),h1=plane(back,z,'floor'));edges.append(e)
@@ -85,8 +94,10 @@ def detect_terrain(b,variants,wall_bindings=None,floor_bindings=None):
             if length>=96 and wall_height>=64 and low_profile in NATURAL and not scrolling_floor(front) and ridge(mid[0]*.013+mid[1]*.021)>.35:
                 fu=floor_uv(front,front_id,variants,floor_bindings)
                 if abs(fu['sx']*fu['sy'])<1e-6:continue
-                radius=7 if kind(variants[fu['skin']])=='snow' else 5
-                if not all(inside(plus(plus(a,sub(z,a),u),n,radius+3),geo[front_id]) for u in (.2,.5,.8)):continue
+                radius=18 if kind(variants[fu['skin']])=='snow' else 14
+                if not all(inside(plus(plus(a,sub(z,a),u),n,radius+3),geo[front_id]) for u in (.2,.5,.8)):
+                    radius=7 if kind(variants[fu['skin']])=='snow' else 5
+                    if not all(inside(plus(plus(a,sub(z,a),u),n,radius+3),geo[front_id]) for u in (.2,.5,.8)):continue
                 e=base|dict(mode=2,layer=1,top_id=front_id,top=front,top_part='floor',surface_id=front_id,surface=front,surface_kind=kind(variants[fu['skin']]),fu=fu,wu=wu,radius=radius,kind=kind(variants[fu['skin']]),family=variants[fu['skin']]['family'],uv=fu)
                 e.update(h0=plane(front,a,'floor'),h1=plane(front,z,'floor'));edges.append(e)
     groups=collections.defaultdict(list)
@@ -118,20 +129,40 @@ def terrain_mesh(e,sampler=None):
         if sampler:variation+=.12*sampler.sample(e['fu']['skin'],floor_coord(e['fu'],p))
         r=max(.04,r*variation)
         if e['mode']==2:
-            pocket=max(.015,min(1,(ridge(p[0]*.017+p[1]*.023)-.18)*1.5))
-            r*=pocket;rise=min(2.25,r*.32)
-            controls=[(0,rise),(.18, rise*.92),(.48,rise*.55),(.78,rise*.17),(1,0)]
-            rows=[(d*r,.045+z) for d,z in controls]
+            # A broad, low bank, tangent to the floor at the outer edge.
+            pocket=.65+.35*ridge(p[0]*.017+p[1]*.023)
+            r*=pocket;rise=min(1.45,r*.13)
+            rows=[(-.12*r,.045+rise)]+[(r*t,.045+rise*(1-t)**2*(1+2*t)) for t in (0,.15,.35,.55,.75,1)]
+        elif e['surface_kind']=='snow':
+            # Continuous semicircle: cap and shoulder share the same tangent.
+            angles=[i*math.pi/16 for i in range(17)]
+            arc=[(r*math.sin(t),.045+r*(math.cos(t)-1)) for t in angles]
+            rows=[(-.85*r,.045),(-.4*r,.045)]+arc[:11] if e['layer']==1 else arc[10:]
+        elif e['surface_kind']=='grass' and e['layer']==1:
+            # Carry the upper floor texture smoothly onto the lower floor.
+            # Translucent feathering reveals the actual adjacent map material.
+            drop=plane(e['top'],p,'floor')-plane(e['front'],p,'floor')
+            rows=[]
+            for t in (0,.12,.28,.45,.62,.78,.9,1):
+                d=(-.85+2.25*t)*r
+                blend=t*t*(3-2*t)
+                rows.append((d,.045-drop*blend))
+        elif e['surface_kind']=='grass':
+            drop=plane(e['top'],p,'floor')-plane(e['front'],p,'floor')
+            rows=[(0,-drop*t) for t in (0,.25,.5,.75,1)]
         else:
-            # Both layers share the same material junction. Walkable cap rises <=1 unit.
             seam=(.83*r,-.78*r)
             if e['layer']==1:
-                fringe=(.18*ridge(p[0]*.39+p[1]*.29) if e['kind']=='grass' else 0)
-                rows=[(-.85*r,.045),(-.40*r,.10),(0,min(.65,r*.07)),(.50*r,-.12*r),(.90*r,-(.36+fringe)*r),seam]
+                lift=min(1.0,r*.20) if e['surface_kind']=='soil' else min(.65,r*.07)
+                rows=[(-.85*r,.045),(-.40*r,.10),(0,lift),(.50*r,-.12*r),(.90*r,-.36*r),seam]
             else:
                 rows=[seam,(.86*r,-1.03*r),(.45*r,-1.43*r),(.10*r,-1.85*r),(0,-2.12*r)]
         for k,(d,z) in enumerate(rows):
             w=plus(p,m,d+.025);wz=plane(e['top'],w,'floor')+z
+            if e['mode']==1 and e['surface_kind']=='grass' and e['layer']==1:
+                # Match the cross-section's nonuniform sample positions.
+                t=(0,.12,.28,.45,.62,.78,.9,1)[k];blend=t*t*(3-2*t)
+                wz=(1-blend)*plane(e['top'],w,'floor')+blend*plane(e['front'],w,'floor')+.045
             if e['layer']==1:co=floor_coord(e['fu'],w)
             else:
                 c=e['wu'];co=((u*e['length']*c['sx']+c['ox'])/c['width'],((c['ref']-wz)*c['sy']+c['oy'])/c['height'])
@@ -151,7 +182,7 @@ def terrain_mesh(e,sampler=None):
         size=math.sqrt(sum(x*x for x in n)) or 1;flat.append(tuple(x/size for x in n))
         for index in (a,b,c):normals[index]=[normals[index][k]+n[k] for k in range(3)]
     normals=[tuple(x/(math.sqrt(sum(y*y for y in n)) or 1) for x in n) for n in normals]
-    faceted=e['kind'] in ('rock','gravel') and e['layer']==0
+    faceted=e['kind'] in ('rock','gravel') and e['layer']==0 and e['surface_kind']!='snow'
     out=['# Generated outdoor terrain edge; cosmetic only.','s 1']
     out+=['v %.6f %.6f %.6f'%v for v in verts];out+=['vt %.8f %.8f'%v for v in uv]
     out+=['vn %.6f %.6f %.6f'%v for v in (flat if faceted else normals)]

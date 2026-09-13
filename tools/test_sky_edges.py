@@ -3,7 +3,7 @@ All transient products are stored under tutnt/.codex.
 """
 from pathlib import Path
 import argparse, collections, json, math, sys, unittest
-from build_sky_edges import detect, mesh, generate, mapping, resolve_slopes, plane, ROOT
+from build_sky_edges import detect, mesh, generate, mapping, resolve_slopes, plane, profile, ROOT
 from build_lava_lips import parse
 
 class GeometryTests(unittest.TestCase):
@@ -74,7 +74,7 @@ class GeometryTests(unittest.TestCase):
         for texture in ['QROCK3','ICEY']:
             a,b=detect(self.fixture(texture),self.variants)
             ma,ca,ha,_,va=mesh(a);mb,cb,hb,_,vb=mesh(b)
-            count=28 if texture=='ICEY' else 10
+            count=len(profile(1,texture=='ICEY'))
             def world(v,c,h):return(v[0]+c[0],-v[2]+c[1],v[1]+h)
             for v,w in zip(va[-count:],vb[:count]):
                 self.assertLess(math.dist(world(v,ca,ha),world(w,cb,hb)),1e-5)

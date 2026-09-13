@@ -38,10 +38,11 @@ class TerrainTests(unittest.TestCase):
         self.assertFalse(any(e['mode']==2 and e['front_id']==0 for e in detect_terrain(b,self.variants)))
 
     def test_layers_share_exact_seam(self):
-        for surface in ['QGRASS','SNOW3','QROCK3','GROUND2','GRAVE01']:
+        for surface in ['SNOW3','QROCK3','GROUND2','GRAVE01']:
             body,cap=self.edge(self.fixture(surface));mb=terrain_mesh(body);mc=terrain_mesh(cap)
-            for a,b in zip(mb[-1][::5],mc[-1][5::6]):self.assertLess(math.dist((a[0]+mb[1][0],a[1]+mb[2],-a[2]+mb[1][1]),(b[0]+mc[1][0],b[1]+mc[2],-b[2]+mc[1][1])),1e-7)
-            self.assertEqual(len(mb[-1])//5,len(mc[-1])//6)
+            nb,nc=(7,13) if surface=='SNOW3' else (5,6)
+            for a,b in zip(mb[-1][::nb],mc[-1][nc-1::nc]):self.assertLess(math.dist((a[0]+mb[1][0],a[1]+mb[2],-a[2]+mb[1][1]),(b[0]+mc[1][0],b[1]+mc[2],-b[2]+mc[1][1])),1e-7)
+            self.assertEqual(len(mb[-1])//nb,len(mc[-1])//nc)
     def test_walkable_cap_and_foot_heights_are_bounded(self):
         for e in detect_terrain(self.fixture('SNOW3'),self.variants):
             if e['layer']!=1:continue
@@ -52,9 +53,33 @@ class TerrainTests(unittest.TestCase):
     def test_slope_continuity_and_finite_normals(self):
         b=self.fixture();b['sector'][1].update(floorplane_a='-.05',floorplane_b='-.02',floorplane_c='1',floorplane_d='-64')
         body,cap=self.edge(b);obj,center,h,_,verts=terrain_mesh(cap)
-        for x,z,y in verts[::6]:self.assertAlmostEqual(z+h-plane(cap['top'],(x+center[0],-y+center[1]),'floor'),.045,places=6)
+        for x,z,y in verts[::8]:self.assertAlmostEqual(z+h-plane(cap['top'],(x+center[0],-y+center[1]),'floor'),.045,places=6)
         for line in obj.splitlines():
             if line.startswith('vn '):self.assertAlmostEqual(math.sqrt(sum(float(x)**2 for x in line.split()[1:])),1,places=5)
+    def test_grass_transition_fits_narrow_receiving_floor(self):
+        b=self.fixture()
+        for v in b['vertex']:
+            if float(v['y'])<0:v['y']='-8'
+        body,cap=self.edge(b)
+        self.assertLessEqual(cap['radius'],4)
+        self.assertEqual(body['radius'],cap['radius'])
+
+    def test_grass_blend_reaches_both_floor_planes(self):
+        _,cap=self.edge(self.fixture());obj,center,h,_,verts=terrain_mesh(cap)
+        for row,surface in ((verts[::8],cap['top']),(verts[7::8],cap['front'])):
+            for x,z,y in row:
+                self.assertAlmostEqual(z+h-plane(surface,(x+center[0],-y+center[1]),'floor'),.045,places=6)
+    def test_rock_and_soil_project_further_than_gravel(self):
+        for material in ('QROCK3','GROUND2'):
+            b=self.fixture(material);b['sector'][1]['heightfloor']='32'
+            _,e=self.edge(b)
+            self.assertGreater(e['radius'],32*.16)
+    def test_snow_arc_has_continuous_seam_normals(self):
+        body,cap=self.edge(self.fixture('SNOW3'));mb=terrain_mesh(body);mc=terrain_mesh(cap)
+        def ns(obj):return [tuple(map(float,l.split()[1:])) for l in obj.splitlines() if l.startswith('vn ')]
+        for a,b in zip(ns(mb[0])[::7],ns(mc[0])[12::13]):
+            self.assertGreater(sum(x*y for x,y in zip(a,b)),.96)
+
     def test_floor_rotation_scaling_and_area_binding(self):
         sec=self.fixture()['sector'][1];sec.update(xpanningfloor='3',ypanningfloor='7',xscalefloor='2',yscalefloor='.5',rotationfloor='90')
         c=floor_uv(sec,1,self.variants,{})
@@ -70,7 +95,7 @@ class TerrainTests(unittest.TestCase):
     def test_body_heightmap_deformation_preserves_material_seam(self):
         class Sampler:
             def sample(self,skin,uv):return math.sin(uv[0]*3+uv[1]*2)
-        body,cap=self.edge(self.fixture());plain=terrain_mesh(body);deformed=terrain_mesh(body,Sampler());upper=terrain_mesh(cap,Sampler())
+        body,cap=self.edge(self.fixture('QROCK3'));plain=terrain_mesh(body);deformed=terrain_mesh(body,Sampler());upper=terrain_mesh(cap,Sampler())
         self.assertNotEqual(plain[-1],deformed[-1])
         for a,b in zip(deformed[-1][::5],upper[-1][5::6]):self.assertLess(math.dist((a[0]+deformed[1][0],a[1]+deformed[2],-a[2]+deformed[1][1]),(b[0]+upper[1][0],b[1]+upper[2],-b[2]+upper[1][1])),1e-7)
 

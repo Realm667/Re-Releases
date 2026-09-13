@@ -50,11 +50,14 @@ profiles: rock, grass, soil, gravel, snow, snowrock and ice. Both the upper floo
 and the exposed wall must be natural materials. Snow appears only when the
 corresponding floor or wall actually uses a snow/ice material.
 
-Ledges use two meshes with an identical shared seam: an upper cap using the
-floor material and a lower shoulder using the wall material. This supports a
+Rock, soil, gravel and snow ledges use two meshes with an identical shared
+seam: an upper cap using the floor material and a lower shoulder using the wall
+material. Grass instead uses a feathered skirt over the original wall plane. This supports a
 grass or snow covering over a rock face without replacing that face's material.
-Rock shoulders use facet shading; snow remains smooth, and grass caps have a
-finer, uneven fringe. The cap follows floor rotation, scaling, panning and
+Rock shoulders use facet shading. Snow caps form a continuous rounded arc;
+its wall-side section remains smooth even over rock. Grass uses a low, smooth
+transition into the neighbouring floor, fading to the actual underlying map
+materials at both ends instead of forming a hanging turf fringe. The cap follows floor rotation, scaling, panning and
 expanded texture bindings. Its light/glow origin lies in the receiving floor
 sector, and its horizontal seam has no artificial brightness boost. Lower wall pegging uses the backing ceiling only
 when both ceilings are sky; otherwise it uses the front ceiling, matching the
@@ -62,9 +65,13 @@ engine and area-texture handler.
 
 Grass/soil steps qualify from four map units; other ledges from sixteen. Both
 sides must have sky ceilings and the upper floor must retain at least 56 units
-of headroom. The maximum base radius is eight units and shrinks with the drop.
-Caps rise at most 0.65 units above the authored floor. Selected broad wall feet
-receive shallow irregular deposits with at most 2.3 units of added height.
+of headroom. Base radii are capped at fourteen units for rock/grass, ten for
+soil, and eight for snow/gravel. Rock and soil project further to make their
+profiles readable. Crowded upper floors retain the smaller radius; grass also
+shrinks to fit the receiving lower floor. Caps rise at most one unit above the
+authored floor (snow and grass retain only a small separation offset). Selected
+broad wall feet receive wider, smoothly rounded deposits at most 1.5 units high,
+with translucent feathering into the wall/floor junction.
 Polygon checks require room on the receiving floor. Narrow ledges, short wall
 feet, technical materials, scrolling floors and action/portal lines are excluded. Authored slope
 setup lines remain supported. These are cosmetic edge details, not new walkable
@@ -79,7 +86,7 @@ unchanged by this additional sampling.
 
 Current total coverage: 2,154 skyline models, 4,152 terrain ledges represented
 by 8,304 cap/shoulder models, and 974 wall-foot models. The combined 11,432 models
-contain 1,174,400 triangles across ten maps. These totals span the whole campaign;
+contain 1,537,384 triangles across ten maps. These totals span the whole campaign;
 render visibility remains bounded per model. No measured performance gain is
 claimed.
 
@@ -95,7 +102,8 @@ rewriting WADs. Each cross-section curls over the skyline, projects toward the
 playable side and returns to the original wall. Snow uses an interpolated soft
 profile; rock uses taller, narrower crests, asymmetric shoulders and angular
 ridges at two spatial scales. Its upper faces use facet normals while the
-lower join retains smooth shading. The snow profile remains soft. Base radii
+lower join retains smooth shading. Snow uses a fuller rounded shoulder and finer sampling, including upper
+textures, with only ten percent additional underside shading. Base radii
 scale with wall clearance, capped at 24 map units for snow and 22 for rock;
 spatial variation and separately raised crests produce the final silhouette.
 Connected ends share positions and bounded miter directions. Unmatched ends
@@ -107,7 +115,10 @@ wall pegging, scales and offsets, including upper-texture pegging. Texture dista
 and meets the wall at its lower seam. Generated material wrappers reuse the
 existing diffuse textures, normal/height maps, parallax and weather state;
 a restrained orientation-dependent shade makes the underside readable without
-adding a dark border to the vertical join. Weather aliases are explicitly
+adding a dark border to the vertical join. Snow has a separate lighter wrapper;
+feathered grass and wall-foot materials add no macro underside shadow. Their
+alpha masks use per-edge world-space metadata, sharing shader programs while
+retaining the original surface relief and live glow. Weather aliases are explicitly
 registered, rather than accepting arbitrary runtime material replacements.
 
 For skyline cornices, height maps and normal maps continue through the original
@@ -122,7 +133,7 @@ is a texture binding, not a separate compiled shader. Global GLDEFS texture-glow
 fallbacks are not queried by ZScript; the existing F_SKY1 ceiling sectors use
 explicit sector glow instead.
 
-The skyline portion is 418,608 triangles across all ten maps, not simultaneously in one
+The skyline portion is 648,288 triangles across all ten maps, not simultaneously in one
 scene. Each mesh has a bounded render radius for engine culling. No general
 performance improvement is claimed.
 
@@ -145,7 +156,8 @@ remain in their standard subdirectories.
 ## Validation
 
 `python -B tools/test_terrain_edges.py` verifies cap/shoulder seams, material
-selection, small grass steps, height limits, slope normals, floor UV transforms,
+selection, small grass steps, narrow receiving-floor clearance, height limits,
+slope normals, rounded snow seams, grass floor-plane endpoints, floor UV transforms,
 height-map decoding and bounded deformation.
 
 `python -B tools/test_sky_edges.py` verifies material/boundary filtering, reversed
@@ -179,6 +191,15 @@ separate wall-foot case. Each runtime case passed 11 assertions. The final cap
 lighting refinement passed six further material cases across both renderers.
 The shared integration package passed the normal engine build check; all 12,759
 compared skyline and terrain resources matched the final isolated test package.
+
+The rounded-snow and feathered-transition refinement passed 22 geometry
+checks, all ten maps on Vulkan, and OpenGL cases for upper snow walls, grass
+and wall feet (11 assertions per runtime case). The final narrow-floor grass
+limit passed both renderers. All 3,116 checked rock-skyline and gravel-ledge
+meshes remain byte-identical to the approved version. The normal shared build
+passed its engine check; 14,081 compared feature resources match the final
+isolated package. Feathered materials retain shared shader programs; their
+additional translucent rendering cost has not been separately benchmarked.
 
 Renderer 1 is Vulkan; renderer 0 is OpenGL. Local screenshots and logs are in
 `tutnt/.codex/logs/sky-edges-*`; structured results are under

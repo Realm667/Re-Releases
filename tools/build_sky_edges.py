@@ -195,8 +195,8 @@ def wave(p, snow):
 def profile(r,snow):
     # Starts hidden inside the solid wall, rounds over its top, projects out,
     # curls underneath, then meets the original vertical face with its normal.
-    controls=[(-.28,-.35),(-.18,.20),(.04,.48),(.48,.36),(.94,.05),
-              (1.0,-.32),(.77,-.70),(.33,-1.05),(.09,-1.50),(0,-2.10)]
+    controls=[(-.28,-.35),(-.30,.28),(0,.65),(.48,.62),(.92,.24),
+              (1.05,-.22),(.87,-.76),(.45,-1.10),(.10,-1.50),(0,-2.10)]
     if not snow:
         # Broken shoulders and a narrow raised ridge, rather than a round roll.
         controls=[(-.28,-.35),(-.24,.40),(-.06,1.18),(.28,1.05),(.90,.30),
@@ -206,8 +206,8 @@ def profile(r,snow):
     result=[]
     for i in range(len(controls)-1):
         p0=controls[max(0,i-1)];p1=controls[i];p2=controls[i+1];p3=controls[min(len(controls)-1,i+2)]
-        for j in range(3):
-            t=j/3
+        for j in range(4):
+            t=j/4
             result.append(tuple(.5*((2*p1[k])+(-p0[k]+p2[k])*t+(2*p0[k]-5*p1[k]+4*p2[k]-p3[k])*t*t+(-p0[k]+3*p1[k]-3*p2[k]+p3[k])*t*t*t)*r for k in (0,1)))
     result.append((0,-2.10*r));return result
 
@@ -215,7 +215,7 @@ def mesh(e):
     mid=plus(e['a'],sub(e['b'],e['a']),.5)
     # Put the actor's sector/light origin just inside the playable sector.
     center=plus(mid,e['normal'],.5);h=plane(e['top'],mid,e['top_part'])
-    snow=e['kind']=='snow';steps=max(2,math.ceil(e['length']/(14 if snow else 18)))
+    snow=e['kind']=='snow';steps=max(2,math.ceil(e['length']/(8 if snow else 18)))
     verts=[];uv=[];normals=[];faces=[];radii=[]
     for j in range(steps+1):
         u=j/steps;p=plus(e['a'],sub(e['b'],e['a']),u)
@@ -280,8 +280,8 @@ def generate(root=ROOT,check=False):
     from build_terrain_edges import detect_terrain,terrain_mesh,floor_mapping,HeightSampler
     sampler=HeightSampler(root,variants)
     outputs={};models=[];actors=[];records=[];skins=set();glow_sectors={};skin_bindings={}
-    def glow_skin(skin,slot,terrain=False):
-        key=(skin,slot,terrain)
+    def glow_skin(skin,slot,style,blend=None):
+        key=(skin,slot,style,blend)
         if key not in skin_bindings:skin_bindings[key]=f"SG{len(skin_bindings):06d}"
         return skin_bindings[key]
     for path in sorted((root/'tutnt/maps').glob('*.wad')):
@@ -301,16 +301,23 @@ def generate(root=ROOT,check=False):
             terrain=e.get('layer',0)==1 and 'mode' in e
             sector_key=(path.stem,e['surface_id'] if terrain else e['front_id'])
             if sector_key not in glow_sectors:glow_sectors[sector_key]=len(glow_sectors)
-            slot=glow_sectors[sector_key];primary=glow_skin(c['skin'],slot,terrain)
+            slot=glow_sectors[sector_key]
+            soft='mode' in e and (e['mode']==2 or e['surface_kind']=='grass' and e['layer']==1)
+            style='soft' if soft else 'snow' if e['kind']=='snow' else 'terrain' if terrain else 'wall'
+            blend=None
+            if soft:
+                n=e['normal'];radius=e['radius'];offset=sum(e['a'][i]*n[i] for i in (0,1))
+                blend=(n[0]*4096,n[1]*4096,offset,(-.85 if e['mode']==1 else -.12)*radius,(1.1 if e['mode']==1 else .65)*radius,radius*.45)
+            primary=glow_skin(c['skin'],slot,style,blend)
             outputs[f'tutnt/models/sky-edges/{stem}.obj']=obj
             extent=math.ceil(max(math.sqrt(v[0]**2+v[2]**2) for v in verts)+8)
             parent='UTNTTerrainEdge' if 'mode' in e else 'UTNTSkyEdge'
-            actors.append(f'class {cls} : {parent} {{ Default {{ RenderRadius {extent}; }} }}')
+            actors.append(f'class {cls} : {parent} {{ Default {{ RenderRadius {extent}; '+('RenderStyle \"Translucent\"; ' if soft else '')+'} }')
             # UZDoom's model scale has an implicit 1/1.2 vertical correction.
             models.append(f'Model {cls}\n{{\n Path "models/sky-edges/"\n Model 0 "{stem}.obj"\n Skin 0 "{primary}"\n Scale 1 1 1.2\n DontCullBackfaces\n FrameIndex SKED A 0 0\n}}')
             row=[cls,e['line'],e['face'],e['part'],e['front_id'],e['top_id'],*e['a'],*e['b'],*center,h,e['h0'],e['h1'],e['texture'],c['skin'],c['sx'],c['sy'],c['ox'],c['oy'],e['radius'],e['kind'],environment.get((1,int(e['linedef']['sidefront' if e['face']==0 else 'sideback']),e['part'],c['skin']),'-')]
             if 'mode' in e and e['layer']==1:row[-1]=environment.get((0,e['surface_id'],0,c['skin']),'-')
-            alternate=glow_skin(row[-1],slot,terrain) if row[-1]!='-' else '-'
+            alternate=glow_skin(row[-1],slot,style,blend) if row[-1]!='-' else '-'
             row.extend([primary,alternate,slot])
             if 'mode' in e:
                 fu,wu=e['fu'],e['wu'];sid=int(e['linedef']['sidefront' if e['face']==0 else 'sideback'])
@@ -338,7 +345,7 @@ def generate(root=ROOT,check=False):
     for slot in glow_sectors.values():
         pixel=bytes((slot>>16,(slot>>8)&255,slot&255))
         outputs[f'tutnt/materials/sky-edges/glow-{slot}.png']=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',1,1,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(b'\0'+pixel))+chunk(b'IEND',b'')
-    for (skin,slot,terrain),alias in skin_bindings.items():
+    for (skin,slot,style,blend),alias in skin_bindings.items():
         if skin in textures:w,h,body=textures[skin]
         else:
             v=variants[skin];w,h=v['size'];lw,lh=v['logical']
@@ -346,7 +353,7 @@ def generate(root=ROOT,check=False):
         texturedefs.append(f'Texture "{alias}", {w}, {h}\n{{\n{body}\n}}')
         body=materials[skin]
         match=re.search(r'Shader\s+"([^"]+)"',body)
-        original=match[1];target='shaders/sky-edges/'+('terrain_' if terrain else '')+Path(original).name
+        original=match[1];target='shaders/sky-edges/'+('' if style=='wall' else style+'_')+Path(original).name
         if 'tutnt/'+target not in outputs:
             source=(root/'tutnt'/original).read_text()
             entry='void SetupMaterial(inout Material mat)'
@@ -354,10 +361,21 @@ def generate(root=ROOT,check=False):
             source=source.replace(entry,'void SkyEdgeOriginal(inout Material mat)')
             source+='#include "shaders/skyedges/ceiling_glow.glsl"\n'
             source+='\nvoid SetupMaterial(inout Material mat)\n{\n SkyEdgeOriginal(mat);\n float up=normalize(vWorldNormal.xyz).y;\n mat.Base.rgb*=1.0+0.12*max(up,0.0)-0.48*max(-up,0.0);\n SkyEdgeCeilingGlow(mat);\n}\n'
-            if terrain:source=source.replace('1.0+0.12*max(up,0.0)-0.48*max(-up,0.0)','1.0-0.22*max(-up,0.0)')
+            if style in ('terrain','soft','snow'):
+                shade='1.0-0.10*max(-up,0.0)' if style=='snow' else '1.0' if style=='soft' else '1.0-0.22*max(-up,0.0)'
+                source=source.replace('1.0+0.12*max(up,0.0)-0.48*max(-up,0.0)',shade)
+            if style=='soft':
+                helper='float SkyEdgeBlendValue(int i) { return (SkyGlowNumber(texelFetch(skyEdgeBlend,ivec2(i,0),0).rgb)-8388608.0)/256.0; }\n'
+                source=source.replace('void SetupMaterial(inout Material mat)',helper+'void SetupMaterial(inout Material mat)')
+                source=source.replace(' SkyEdgeCeilingGlow(mat);',' SkyEdgeCeilingGlow(mat);\n vec2 n=vec2(SkyEdgeBlendValue(0),SkyEdgeBlendValue(1))/4096.0;\n float d=dot(pixelpos.xz,n)-SkyEdgeBlendValue(2);\n float lo=SkyEdgeBlendValue(3),hi=SkyEdgeBlendValue(4),fade=SkyEdgeBlendValue(5);\n mat.Base.a*=smoothstep(lo,lo+fade,d)*(1.0-smoothstep(hi-fade,hi,d));')
             outputs['tutnt/'+target]=source
         body=body.replace(original,target)
         body+=f'\n Texture skyGlowMeta "materials/sky-edges/glow-{slot}.png"\n Texture skyGlowState "USKYGLOW"\n'
+        if blend is not None:
+            pixels=b''.join(max(0,min(16777215,round(v*256)+8388608)).to_bytes(3,'big') for v in blend)
+            name=f'materials/sky-edges/blend-{alias}.png'
+            outputs['tutnt/'+name]=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',6,1,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(b'\0'+pixels))+chunk(b'IEND',b'')
+            body+=f'\n Texture skyEdgeBlend "{name}"\n'
         materialdefs.append(f'Material "{alias}" {{\n{body}\n}}')
     outputs['tutnt/textures/definitions/TEXTURES.sky-edges']='\n'.join(texturedefs)+'\n'
     outputs['tutnt/gldefs/GLDEFS.sky-edges']='\n'.join(materialdefs)+'\n'
@@ -371,7 +389,7 @@ def generate(root=ROOT,check=False):
     previous=json.loads(inventory.read_text()) if inventory.exists() else []
     stale=[]
     for rel in previous:
-        if rel not in outputs and re.fullmatch(r'tutnt/(?:models/sky-edges/[\w-]+\.obj|skyedges/[\w-]+\.txt|materials/sky-edges/glow-\d+\.png)',rel):
+        if rel not in outputs and re.fullmatch(r'tutnt/(?:models/sky-edges/[\w-]+\.obj|skyedges/[\w-]+\.txt|materials/sky-edges/(?:glow-\d+|blend-SG\d+)\.png)',rel):
             p=(root/rel).resolve();p.relative_to(root.resolve())
             if p.exists():stale.append(p)
     outputs['tools/sky-edges-outputs.json']=json.dumps(sorted(outputs),indent=2)+'\n'
