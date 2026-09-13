@@ -13,22 +13,26 @@ accents. This is menu branding; it does not rename every Remaster option or cred
 - Main-menu placement: `StaticPatch 16,8,"M_DOOM"` in
   `tutnt/menudef/MENUDEF.base`, centered in the 320 x 200 menu coordinate space.
   Its bottom edge is 64; the first selectable row starts at 72.
-- The background and letter holes are transparent; dark metal and outlines
-  remain opaque. The patch uses binary alpha and colors from the mod's first
-  PLAYPAL palette.
+- The background and letter holes use continuous 8-bit alpha. The black outer
+  stroke is removed, while intentional dark metal inside the logo remains.
+  RGB colors still use the mod's first PLAYPAL palette; invisible texels carry
+  adjacent edge colors to prevent dark fringes during texture filtering.
 - The main-menu item labels, positions, shortcuts and navigation are preserved.
 - The title is brand artwork, shared by all four interface languages.
 
 ## Rebuilding the artwork
 
 `tools/artwork/menu-logo/approved-logo.png` is the approved source design.
-`pixel-source.png` is its Imagegen pixel-art conversion with a magenta key;
-the original request and the background correction are in `prompts.json`.
+`pixel-source.png` retains the initial pixel-art conversion. The current
+Imagegen repair, `alpha-key-source.png`, removes the black outer stroke;
+the original and repair prompts are recorded in `prompts.json`.
 The earlier wordmark was typeset from Quake / DpQuake:
 https://www.dafont.com/quake.font . No font binaries are shipped in the mod.
 
 Run `python -B tools/build_menu_logo.py` to remove the key, tightly crop, fit
-both native and double resolution, quantize to PLAYPAL and encode binary transparency.
+both native and double resolution using premultiplied color, quantize RGB to
+PLAYPAL and preserve continuous alpha. Edge colors are propagated into fully
+transparent texels so filtering does not mix the artwork with black padding.
 Run with `--check` to verify the output against the source and current palette.
 Changing PLAYPAL requires rebuilding both patches. The artwork sources and encoder
 live outside the packaged game directory.
@@ -120,3 +124,17 @@ passed visual checks in native and HiRes menus. Evidence:
 Full build `ac705d020353` passed engine validation. The shared
 `tutnt.pk3` was verified identical to that checked build, including the
 corrected selector code.
+
+## Alpha-edge repair (13 September 2026)
+
+The Imagegen repair removes the original black outer stroke. The export keeps
+all 256 alpha levels instead of thresholding the resized edge back to opaque
+pixels. Both native (288 x 56) and HiRes (576 x 112) outputs pass the
+reproducibility check and real TITLEMAP/title-intro and main-menu runs.
+Visual checks on bright ivory, amber, dark and fiery backgrounds confirm
+clean contours while dark interior metal stays intact. Evidence:
+`tutnt/.codex/validation/menu-logo-alpha/`.
+The complete current-source build `cf6e753903f2` also passed ACS,
+localization/font checks and engine loading.
+The newer shared package `1472e7e69edf` contains both repaired
+PNGs byte-for-byte and passed the final title/menu run without an overlay.
