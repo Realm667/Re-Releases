@@ -45,7 +45,7 @@
 
 - **Deadwood decorations:** three tree and three stump silhouettes in weathered, charred and frozen families replace existing decorations throughout the campaign, including type-47 stumps, using native PLAYPAL colors, original sprite pixel density and subdued brightness, with charred wood in TNT02, stable variation, preserved map placements and collision, save/load support and matching sky-room lighting. [Details](UTNT_DEADWOOD.md)
 
-- **Light rays:** soft spatial downlights preserve the original size, with visible gentle movement, softly transparent drifting dust and matching floor illumination across existing map actors. [Details](UTNT_LIGHT_RAYS.md)
+- **Light rays:** soft spatial downlights and directed grille rays preserve their original size, with gentle movement, light-dependent transparent dust, softened geometry boundaries, coordinated illumination and smooth detail transitions across existing map actors. [Details](UTNT_LIGHT_RAYS.md)
 
 - **Sparse grass:** eight randomly varied, nonblocking tufts on grass floors outside the Super Mario secret, with ground-matched pixel colors, soft roots, distance fading and stable save/load placement. [Details](UTNT_GRASS.md)
 

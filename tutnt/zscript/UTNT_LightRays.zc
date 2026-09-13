@@ -1,3 +1,35 @@
+#include "zscript/light-ray-masks.zc"
+// Bounded client data for the material. No indices or cosmetic state are written
+// onto map actors. Source positions identify all radial slices and wall sheets.
+class UTNTLightRayRender : EventHandler
+{
+    ui int UploadTic;
+    ui bool Ready;
+    override void RenderOverlay(RenderEvent e)
+    {
+        if(!level || !e.Camera)return;
+        if(Ready && UploadTic==level.time)return;
+        let canvas=TexMan.GetCanvas('URAYDATA');if(!canvas)return;
+        Ready=true;UploadTic=level.time;canvas.Clear(0,0,8,32,Color(0,0,0));
+        let it=ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);
+        UTNTLightRayEmitter emitter;int row=0;
+        while((emitter=UTNTLightRayEmitter(it.Next())) && row<32)
+        {
+            if(!emitter.Source)continue;
+            Vector3 origin=emitter.Origin;
+            for(int i=0;i<3;i++)
+            {
+                int value=int(((i==0?origin.X:i==1?origin.Y:origin.Z)+65536)*16);
+                canvas.Clear(i,row,i+1,row+1,Color((value>>16)&255,(value>>8)&255,value&255));
+            }
+            canvas.Clear(3,row,4,row+1,Color(255,int(emitter.GeometryFade*255),0));
+            canvas.Clear(4,row,5,row+1,Color(int((emitter.Axis.X+1)*127.5),int((emitter.Axis.Y+1)*127.5),int((emitter.Axis.Z+1)*127.5)));
+            int bound=int(emitter.ClipEnd*16);
+            canvas.Clear(5,row,6,row+1,Color((bound>>16)&255,(bound>>8)&255,bound&255));
+            row++;
+        }
+    }
+}
 // Local detail only. Existing map actors still own all activation and state.
 class UTNTLightRayLamp : Actor
 {
@@ -14,26 +46,98 @@ class UTNTLightRayEmitter : Thinker
 {
     LightRay_Regular Source;
     Actor Lamp;
-    int Age, NextDust;
+    int Age, NextDust, LampReconsider;
+    LineTracer Probe;
+    Vector3 Origin, Axis, Receiver;
+    double ClipEnd, DetailFade, LampFade, GeometryFade, Priority, Overlap;
+    bool Retiring, HasReceiver;
 
     static void Ensure(LightRay_Regular source)
     {
         int phase = (int(source.Pos.X)*3+int(source.Pos.Y)*5+int(source.Pos.Z))&15;
         if ((level.time+phase)%16 != 0) return;
         let runtime = UTNTFXRuntime.Get();
-        if (!runtime || runtime.Quality < 2 || !runtime.Camera
+        if (!runtime || !runtime.Camera
             || source.Distance3D(runtime.Camera) > min(640.,runtime.Range)) return;
         if (runtime.Lookup(source,0)) return;
         // Shared ambient budget plus a strict local emitter bound.
         let it = ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);
-        int count = 0;
-        while (it.Next()) if (++count >= 32) return;
+        int count = 0;UTNTLightRayEmitter weakest,current;
+        while (current=UTNTLightRayEmitter(it.Next()))
+        { count++;if(!weakest || current.Priority<weakest.Priority)weakest=current; }
+        if(count>=32)
+        {
+            // Hysteresis lets the previous effect fade before its slot is reused.
+            if(weakest && Score(source,runtime.Camera)>weakest.Priority*1.35+.02)weakest.Retiring=true;
+            return;
+        }
         let emitter = UTNTLightRayEmitter(level.CreateClientSideThinker('UTNTLightRayEmitter',Thinker.STAT_USER+24));
         if (!emitter) return;
         emitter.Source = source;
+        emitter.Priority=Score(source,runtime.Camera);
         emitter.Age = phase;
         emitter.NextDust = phase+CRandom[utntraydust](1,35);
+        emitter.Probe=new('LineTracer');emitter.ClipEnd=768;
+        emitter.RefreshGeometry();
         runtime.Register(source,0,emitter);
+    }
+
+    static double Score(LightRay_Regular source,Actor camera)
+    {
+        if(!camera)return 0;
+        double distance=source.Distance3D(camera);
+        double facing=cos(camera.AngleTo(source)-camera.Angle);
+        return clamp(abs(source.Scale.X*source.Scale.Y)*300,1.,20.)
+            *clamp(source.Alpha,.1,1.)*(facing>0?.35+.65*facing:.12)/(1+distance/96.);
+    }
+
+    static bool OpenPoint(Vector3 p)
+    {
+        let sec=level.PointInSector(p.XY);
+        if(!sec || p.Z<=sec.floorplane.ZatPoint(p.XY) || p.Z>=sec.ceilingplane.ZatPoint(p.XY))return false;
+        for(int i=0;i<sec.Get3DFloorCount();i++)
+        {
+            let f=sec.Get3DFloor(i);
+            if(!(f.flags&F3DFloor.FF_EXISTS) || !(f.flags&(F3DFloor.FF_SOLID|F3DFloor.FF_SWIMMABLE)))continue;
+            if(p.Z>=f.bottom.ZatPoint(p.XY) && p.Z<=f.top.ZatPoint(p.XY))return false;
+        }
+        let water=sec.GetHeightSec();return !water || p.Z>water.floorplane.ZatPoint(p.XY);
+    }
+
+    void RefreshGeometry()
+    {
+        Origin=Sample(Source,.5,17./256,0);
+        Axis=Sample(Source,.5,.5,0)-Origin;
+        if(Axis.Length()<.01){ClipEnd=768;HasReceiver=false;return;}
+        Axis=Axis.Unit();
+        Vector3 start=Origin+Axis*.5;
+        if(!OpenPoint(start)){ClipEnd=0;HasReceiver=false;return;}
+        Probe.Trace(start,level.PointInSector(start.XY),Axis,768,0,
+            wallMask:Line.ML_BLOCKING|Line.ML_BLOCKEVERYTHING,ignoreAllActors:true);
+        HasReceiver=Probe.Results.HitType!=TRACE_HitNone && Probe.Results.HitType!=TRACE_HasHitSky;
+        ClipEnd=HasReceiver?Probe.Results.Distance+.5:768;
+        Receiver=Origin+Axis*ClipEnd;
+        // A conservative bound also catches narrow obstacles at the shaft edge.
+        for(int i=0;i<4;i++)
+        {
+            double side=i==0?-.12:i==1?.12:0;
+            double depth=i==2?-abs(Source.Scale.X)*20:i==3?abs(Source.Scale.X)*20:0;
+            start=Sample(Source,.5+side,17./256,depth)+Axis*.5;
+            if(!OpenPoint(start))continue;
+            Probe.Trace(start,level.PointInSector(start.XY),Axis,min(768.,abs(Source.Scale.Y)*239),0,
+                wallMask:Line.ML_BLOCKING|Line.ML_BLOCKEVERYTHING,ignoreAllActors:true);
+            if(Probe.Results.HitType!=TRACE_HitNone && Probe.Results.HitType!=TRACE_HasHitSky)
+                ClipEnd=min(ClipEnd,Probe.Results.Distance+.5);
+        }
+        Overlap=1;
+        // Respect explicitly placed lamps near the receiver.
+        let lights=ThinkerIterator.Create('DynamicLight');DynamicLight light;
+        while(light=DynamicLight(lights.Next()))
+            if(!light.bDormant && (light.Pos-Receiver).Length()<max(24,light.args[3]*2))
+            {Overlap*=.55;break;}
+        let it=ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);UTNTLightRayEmitter other;
+        while(other=UTNTLightRayEmitter(it.Next()))
+            if(other!=self && other.HasReceiver && (other.Receiver-Receiver).Length()<48)Overlap*=.8;
     }
 
     static Vector3 Sample(LightRay_Regular source, double u, double v, double depth)
@@ -43,8 +147,14 @@ class UTNTLightRayEmitter : Thinker
         if (!source.bWallSprite) return source.Pos+(x,depth,z);
         // WALLSPRITE uses yaw and roll, not actor pitch. Preserve signed scale.
         double roll = source.bRollSprite ? source.Roll : 0.;
-        double side = x*cos(roll)+z*sin(roll);
-        double up = z*cos(roll)-x*sin(roll);
+        // Match HWSprite::CalculateVertices: roll is applied between pixel-
+        // aspect transforms, around the authored pivot (or sprite center).
+        double stretch=level.pixelstretch;
+        double center=-111*source.Scale.Y;
+        double pivot=source.bRollCenter?0:-center;
+        double localUp=(z-center)*stretch-pivot;
+        double side=x*cos(roll)-localUp*sin(roll);
+        double up=(x*sin(roll)+localUp*cos(roll)+pivot)/stretch+center;
         return source.Pos+(sin(source.Angle)*side+cos(source.Angle)*depth,
                            -cos(source.Angle)*side+sin(source.Angle)*depth,up);
     }
@@ -57,58 +167,87 @@ class UTNTLightRayEmitter : Thinker
 
     void UpdateLamp(double distance)
     {
-        // Only vertical downlights can safely infer a lighting direction.
-        // Preserve darkness: faint/colored decorative sheets never gain a lamp.
-        bool eligible = !Source.bWallSprite && Source.Frame == 0 && Source.Scale.Y > 0
-            && Source.Alpha >= .45 && distance < 512 && Source.CurSector.LightLevel < 220;
-        if (!eligible) { if (Lamp) Lamp.Destroy(); Lamp = null; return; }
+        // Downlights and authored grille sheets have a reliable direction.
+        // Dim decoration and bright rooms keep their existing illumination.
+        bool directed=(!Source.bWallSprite && Source.Frame==0 && Source.Scale.Y>0)
+            || (Source.bWallSprite && Source.Frame==1);
+        bool eligible = directed && Source.Alpha >= (Source.Frame==1?.12:.45)
+            && HasReceiver && distance<560 && Source.CurSector.LightLevel<220
+            && Age>=LampReconsider;
+        double target=eligible?DetailFade*clamp((560-distance)/160.,0.,1.):0;
+        LampFade+=clamp(target-LampFade,-.08,.08);
+        if(LampFade<=.001) { if(Lamp)Lamp.Destroy();Lamp=null;return; }
         if (!Lamp)
         {
             let it = ThinkerIterator.Create('UTNTLightRayLamp',Thinker.MAX_STATNUM+1,true);
             int count = 0;
-            while (it.Next()) if (++count >= 12) return;
+            while (it.Next()) count++;
+            if(count>=12)
+            {
+                // A waiting anchor starts from zero when a slot becomes free.
+                // Prefer a substantially more visible source, with a cooldown
+                // that gives the displaced lamp time to fade before retrying.
+                LampFade=0;
+                if(Age%8==0)
+                {
+                    let candidates=ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);
+                    UTNTLightRayEmitter weakest,other;
+                    while(other=UTNTLightRayEmitter(candidates.Next()))
+                        if(other.Lamp && (!weakest || other.Priority<weakest.Priority))weakest=other;
+                    if(weakest && Priority>weakest.Priority*1.35+.02)
+                        weakest.LampReconsider=weakest.Age+35;
+                }
+                return;
+            }
             Lamp = Actor.SpawnClientSide('UTNTLightRayLamp',Source.Pos);
         }
         if (!Lamp) return;
-        Lamp.SetOrigin(Source.Pos-(0,0,2),false);
+        Lamp.SetOrigin(Origin+Axis*.5,false);
+        Lamp.Angle=atan2(Axis.Y,Axis.X);
         Color tint = Source.FillColor;
         if (Source.GetRenderStyle() != STYLE_AddStencil && Source.GetRenderStyle() != STYLE_TranslucentStencil) tint = 0xffffff;
-        double fade = clamp((512-distance)/128.,0.,1.);
         // Sprite length describes visible scattering, not the distance light
         // travels. Trace the receiving surface, including solid 3D floors.
-        FLineTraceData hit;
-        if (!Lamp.LineTrace(0,768,90,TRF_THRUACTORS,data:hit)
-            || hit.HitType != FLineTraceData.TRACE_HitFloor || hit.Distance < 4)
-        { Lamp.Destroy(); Lamp=null; return; }
+        double reach=(Receiver-Origin).Length();
+        if(reach<4){Lamp.Destroy();Lamp=null;return;}
         // Engine light radius is twice the intensity argument. Leave enough
         // range beyond the receiver for attenuation to remain visible there.
-        int radius = int(clamp(hit.Distance*.85,24.,512.));
-        double cone = clamp(atan2(max(18.,abs(Source.Scale.X)*150),hit.Distance),7.,32.);
+        int radius = int(clamp(reach*.85,24.,512.));
+        double cone = clamp(atan2(max(18.,abs(Source.Scale.X)*150),reach),7.,32.);
+        double localStrength=Source.Frame==1?clamp(abs(Source.Scale.Y)*768/reach,.15,1.):1.;
         Lamp.A_AttachLight('ray',DynamicLight.PointLight,tint,radius,0,
-            DynamicLight.LF_ATTENUATE|DynamicLight.LF_SPOT,(0,0,0),0,cone*.5,cone,90,
-            .65*Source.Alpha*fade);
+            DynamicLight.LF_ATTENUATE|DynamicLight.LF_SPOT,(0,0,0),0,cone*.5,cone,-asin(Axis.Z),
+            .65*Source.Alpha*LampFade*Overlap*localStrength);
     }
 
     override void Tick()
     {
-        if (!Source || !Source.RayActive()) { Destroy(); return; }
+        if (!Source) { Destroy(); return; }
         if (Source.IsFrozen()) return;
         let runtime = UTNTFXRuntime.Get();
         double distance = runtime.Camera ? Source.Distance3D(runtime.Camera) : 1e9;
-        if (runtime.Quality < 2 || distance > min(640.,runtime.Range)) { Destroy(); return; }
+        bool active=Source.RayActive();
+        if(!active || distance>min(704.,runtime.Range+64))Retiring=true;
         Age++;
-        if (Age%8 == 0) UpdateLamp(distance);
+        GeometryFade=clamp(GeometryFade+(Retiring?-.06:.06),0.,1.);
+        double target=!Retiring && active && runtime.Quality>=2?clamp((min(640.,runtime.Range)-distance)/128.,0.,1.):0;
+        DetailFade+=clamp(target-DetailFade,-.06,.04);
+        if(Age%16==0 && active)
+        {Priority=Score(Source,runtime.Camera);RefreshGeometry();}
+        UpdateLamp(distance);
+        if(Retiring && DetailFade<=.001 && LampFade<=.001 && GeometryFade<=.001){Destroy();return;}
         if (Age < NextDust) return;
         NextDust = Age+(runtime.Quality == 3 ? 8 : 12);
-        if (distance > 448 || Source.Alpha < .15 || !UTNTVisuals.Reserve()) return;
+        if (target<=0 || distance > 448 || Source.Alpha < .15 || !UTNTVisuals.Reserve()) return;
         let dust = UTNTLightRayDust(level.SpawnClientSideVisualThinker('UTNTLightRayDust'));
-        if (dust) dust.Initialize(Source);
+        if (dust) {dust.Owner=self;dust.Initialize(Source);}
     }
 }
 
 class UTNTLightRayDust : VisualThinker
 {
     LightRay_Regular Source;
+    UTNTLightRayEmitter Owner;
     int Age, Life;
     double U, V, Depth, Drift, Strength;
 
@@ -138,10 +277,11 @@ class UTNTLightRayDust : VisualThinker
 
     override void Tick()
     {
-        if (!Source || !Source.RayActive()) { Destroy(); return; }
+        if (!Source || !Owner) { Destroy(); return; }
         if (IsFrozen() || Source.IsFrozen()) return;
         let runtime = UTNTFXRuntime.Get();
-        if (++Age >= Life || runtime.Quality < 2) { Destroy(); return; }
+        if(!Source.RayActive() || runtime.Quality<2 || Owner.Retiring)Life=min(Life,Age+12);
+        if (++Age >= Life) { Destroy(); return; }
         U += Drift; V += .0008;
         Prev = Pos; Pos = UTNTLightRayEmitter.Sample(Source,U,V,Depth);
         let sec = level.PointInSector(Pos.XY);
@@ -158,9 +298,18 @@ class UTNTLightRayDust : VisualThinker
         }
         let water=sec.GetHeightSec();
         if (water && Pos.Z <= water.floorplane.ZatPoint(Pos.XY)) { Destroy(); return; }
-        double edge = clamp((.20-abs(U-.5))/.10,0.,1.)*clamp((.95-V)/.20,0.,1.);
+        // Use the same authored density profile as the ray, including VOLT B's
+        // separated grille streaks. Leaving the light makes a grain disappear.
+        double densityU=U;
+        if(!Source.bWallSprite && abs(Source.Scale.X)>.0001)
+        {
+            double side=(U-.5)*256*Source.Scale.X;
+            densityU=.5+sqrt(side*side+Depth*Depth)/(256*abs(Source.Scale.X));
+        }
+        double edge=clamp(UTNTLightRayMask.Density(Source.Frame,densityU,V)*2,0.,1.);
+        edge*=clamp((Owner.ClipEnd-((Pos-Owner.Origin) dot Owner.Axis))/6.,0.,1.);
         double nearFade = runtime.Camera ? clamp(((Pos-runtime.Camera.Pos).Length()-4)/24.,0.,1.) : 0;
-        Alpha = Strength*edge*nearFade*min(1.,Age/20.)*min(1.,(Life-Age)/25.);
+        Alpha = Strength*edge*nearFade*Owner.DetailFade*min(1.,Age/20.)*min(1.,(Life-Age)/25.);
         UpdateSector();
     }
 }

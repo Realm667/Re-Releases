@@ -15,6 +15,11 @@ class UTNTLightRayTestMask : Thinker
     int Mode;
     override void Tick()
     {
+        if(Mode&4)
+        {
+            let it=ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);UTNTLightRayEmitter emitter;
+            while(emitter=UTNTLightRayEmitter(it.Next()))emitter.ClipEnd=20;
+        }
         if(Mode&1)
         {
             let it=ThinkerIterator.Create('UTNTLightRayLamp',Thinker.MAX_STATNUM+1,true);Actor lamp;
@@ -30,12 +35,56 @@ class UTNTLightRayTestMask : Thinker
 class UTNTLightRayTest : EventHandler
 {
     Array<LightRay_Regular> Probes;
+    LightRay_Regular GeometryProbe;
     Actor Cam;
     void Check(bool ok,String message)
     { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",message); }
 
     override void NetworkProcess(ConsoleEvent e)
     {
+        if(e.Name=="raygeometry")
+        {
+            if(e.Args[0]==0)
+            {
+                GeometryProbe=LightRay_Regular(Actor.Spawn('LightRay_Regular',(-608,1312,4)));
+                GeometryProbe.Scale=(.1,.3);
+            }
+            else
+            {
+                let it=ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);UTNTLightRayEmitter em;bool found=false;
+                while(em=UTNTLightRayEmitter(it.Next()))if(em.Source==GeometryProbe)
+                {found=true;Check(em.HasReceiver && abs(em.ClipEnd-12)<1,"geometry trace clips a shaft at the actual floor");}
+                Check(found,"geometry probe registered");
+                Check(UTNTLightRayMask.Density(0,.5,.5)>UTNTLightRayMask.Density(0,.02,.5),"dust follows the source alpha density");
+                Check(UTNTLightRayMask.Density(1,-.1,.5)==0,"dust is dark outside the authored light mask");
+                if(GeometryProbe)GeometryProbe.Destroy();GeometryProbe=null;
+            }
+        }
+        if(e.Name=="raytransition")
+        {
+            let it=ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);UTNTLightRayEmitter em;int fading=0;
+            while(em=UTNTLightRayEmitter(it.Next()))if(em.DetailFade>0 && em.DetailFade<1)fading++;
+            Check(fading>0,"quality transition fades optional detail instead of removing it in one tick");
+        }
+        if(e.Name=="rayinspect")
+        {
+            let it=ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);UTNTLightRayEmitter em;
+            while(em=UTNTLightRayEmitter(it.Next()))
+                Console.Printf("RAY_GEOMETRY source=%.1f,%.1f,%.1f frame=%d axis=%.2f,%.2f,%.2f clip=%.1f fade=%.2f lamp=%.2f overlap=%.2f",
+                    em.Source.Pos.X,em.Source.Pos.Y,em.Source.Pos.Z,em.Source.Frame,em.Axis.X,em.Axis.Y,em.Axis.Z,em.ClipEnd,em.DetailFade,em.LampFade,em.Overlap);
+        }
+        if(e.Name=="raygrille")
+        {
+            let it=ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);UTNTLightRayEmitter em;bool found=false;
+            while(em=UTNTLightRayEmitter(it.Next()))
+                if(abs(em.Source.Pos.X-4752)<1 && abs(em.Source.Pos.Y+638)<1)
+                {
+                    found=true;
+                    Check(em.Axis.Y<-.6 && em.Axis.X<-.6,"rolled TNT02 grille emits into the room");
+                    Check(em.ClipEnd>35,"grille retains its authored reach in open space");
+                }
+            Check(found,"screenshot grille uses the shared ray enhancement");
+        }
         if(e.Name=="raymask")
         {
             let it=ThinkerIterator.Create('UTNTLightRayTestMask',Thinker.MAX_STATNUM+1,true);
@@ -86,7 +135,7 @@ class UTNTLightRayTest : EventHandler
             it=ThinkerIterator.Create('UTNTLightRayLamp',Thinker.MAX_STATNUM+1,true);
             int lamps=0;while(it.Next())lamps++;
             Check(emitters<=32 && lamps<=12,"local effect limits");
-            if(e.Args[0]==1)Check(emitters==0 && lamps==0,"reduced effects clear optional detail");
+            if(e.Args[0]==1)Check(lamps==0,"reduced effects clear optional lights; geometry cache remains bounded");
             if(e.Args[0]==1)
             {
                 it=ThinkerIterator.Create('UTNTLightRayDust',Thinker.MAX_STATNUM+1,true);
@@ -139,6 +188,11 @@ class UTNTLightRayTest : EventHandler
             }
             if (level.MapName ~== "TNT02")
             {
+                if(e.Args[0]>=3)
+                {
+                    camera.SetOrigin((4601,-707,106),false);camera.Angle=e.Args[0]==3?0:20;camera.Pitch=0;
+                    return;
+                }
                 let it=ThinkerIterator.Create('LightRay2_WallSprite');LightRay_Regular ray;
                 while(ray=LightRay_Regular(it.Next()))
                 {

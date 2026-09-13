@@ -19,10 +19,11 @@ def compare_details(output):
     receiver=(slice(165,230),slice(425,535))
     light=(frame('light-on')-frame('light-off'))[receiver].mean(2)
     report={'label':'visible-local-detail','motion_mean_delta':float(motion.mean()),
-            'dust_pixels_above_6':int((dust>6).sum()),'receiver_mean_light':float(light.mean())}
+            'dust_pixels_above_3':int((dust>3).sum()),'receiver_mean_light':float(light.mean())}
     # The deliberately translucent grains inherit warm map tints. Detect their
-    # small local contribution without requiring bright white spark pixels.
-    report['ok']=report['motion_mean_delta']>.3 and report['dust_pixels_above_6']>=4 and report['receiver_mean_light']>1
+    # Density sampling further attenuates their 0.25 peak alpha. Require a
+    # localized patch of low-contrast pixels, rather than a bright spark core.
+    report['ok']=report['motion_mean_delta']>.3 and report['dust_pixels_above_3']>=8 and report['receiver_mean_light']>1
     (output/'detail-comparison.json').write_text(json.dumps(report,indent=2)+'\n')
     return report
 
@@ -47,6 +48,19 @@ def compare_size(output):
     report={'ok':ok,'profiles':measurements,'ratios':ratios}
     (output/'size-comparison.json').write_text(json.dumps(report,indent=2)+'\n')
     return report
+
+def compare_clipping(output):
+    import numpy as np
+    from PIL import Image
+    def frame(name):
+        return np.asarray(Image.open(output/'logs'/f'TNT01-clip-{name}.png').convert('RGB').resize((960,540)),dtype=float)
+    difference=np.maximum(0,frame('open')-frame('bounded'))
+    # A deliberately shortened test bound must reach the rendered shaft, not
+    # merely the CPU cache. The real-floor trace is checked independently.
+    lower=float(difference[290:400,455:505].mean())
+    upper=float(difference[220:245,465:495].mean())
+    return {'label':'rendered-geometry-bound','ok':lower>8 and lower>upper*2,
+            'lower_shaft_removed':lower,'upper_shaft_change':upper}
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
@@ -81,14 +95,20 @@ def main():
                          'netevent raymask 2','wait 2','screenshot logs/TNT01-detail-dust-off.png',
                          'netevent rayview 5','wait 20','screenshot logs/TNT01-detail-light-on.png',
                          'netevent raymask 3','wait 10','screenshot logs/TNT01-detail-light-off.png','netevent raymask 0']
+            commands += ['netevent rayview 3','netevent raymask 3','wait 16','screenshot logs/TNT01-clip-open.png',
+                         'netevent raymask 7','wait 16','screenshot logs/TNT01-clip-bounded.png',
+                         'netevent raymask 3','wait 20','netevent raygeometry 0','wait 35','netevent raygeometry 1','wait 20','netevent raymask 0']
             commands += ['UTNT_fxquality 0','netevent rayview 3','wait 35',
                          'netevent rayclassic','wait 3','screenshot logs/TNT01-size-classic.png',
                          'netevent raymodern','wait 3','screenshot logs/TNT01-size-modern.png',
                          'netevent rayoff','wait 3','screenshot logs/TNT01-size-off.png',
                          'netevent rayon','UTNT_fxquality 2','wait 20']
+        if name=='TNT02':
+            commands += ['netevent rayview 3','wait 120','netevent raygrille','screenshot logs/TNT02-grille.png',
+                         'netevent rayview 4','wait 40','screenshot logs/TNT02-grille-oblique.png']
         commands += ['save rays-active','wait 5','load rays-active','wait 40','netevent raybudget 0',
                      'netevent rayoff','wait 30','save rays-off','wait 5','load rays-off','wait 25',
-                     'netevent rayinactive','netevent rayon','wait 60','netevent raycheck 0','UTNT_reducedfx true','wait 35','netevent raybudget 1',
+                     'netevent rayinactive','netevent rayon','wait 60','netevent raycheck 0','UTNT_reducedfx true','wait 4','netevent raytransition','wait 35','netevent raybudget 1',
                      f'screenshot logs/{name}-reduced.png','echo UTNT_TEST_END','wait 3','quit']
         results.append(run_case(a.engine,a.iwad,root=a.output,mod=a.mod,
             addon=a.addon,mapname=name,renderer=a.renderer,
@@ -97,6 +117,7 @@ def main():
         comparison=compare_size(a.output)
         results.append({'label':'original-visible-size',**comparison})
         results.append(compare_details(a.output))
+        results.append(compare_clipping(a.output))
     (a.output/'results.json').write_text(json.dumps(results,indent=2)+'\n')
     for r in results:
         if not r['ok']:print(Path(r['log']).read_text()[-5000:] if 'log' in r else r)
