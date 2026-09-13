@@ -12,7 +12,7 @@ class EnvironmentContracts(unittest.TestCase):
     def test_postprocess_parameters_fit_portable_push_constant_budget(self):
         for name in ("tutnt/gldefs/GLDEFS.environment", "tutnt/environment/local-heat.gldefs", "tools/fixtures/environment/GLDEFS"):
             text = (ROOT / name).read_text(encoding="utf-8")
-            for block in re.findall(r"HardwareShader PostProcess scene\s*\{([^}]+)\}", text):
+            for block in re.findall(r"HardwareShader PostProcess (?:scene|beforebloom)\s*\{([^}]+)\}", text):
                 # Every scalar/vector is conservatively charged a full 16-byte slot.
                 fields = re.findall(r"Uniform\s+(?:float|int|vec[234])\s+(\w+)", block)
                 self.assertEqual(len(fields), len(set(fields)), name)
@@ -33,6 +33,24 @@ class EnvironmentContracts(unittest.TestCase):
                 as_float = struct.unpack("f", struct.pack("f", packed))[0]
                 self.assertEqual(as_float, packed)
                 self.assertEqual([int(as_float / 64**j) % 64 for j in range(4)], group)
+
+    def test_distance_blur_precision_and_float_transport(self):
+        limit = 16384
+        codes = []
+        for distance in range(1, limit + 1):
+            code = math.floor(math.sqrt(distance / limit) * 255 + .5)
+            recovered = code * code * limit / 65025
+            # Quantization stays within 65 units throughout the full trace range.
+            self.assertLess(abs(recovered - distance), 65)
+            if distance <= 2569:
+                self.assertLess(abs(recovered - distance), 26)
+            codes.append(code)
+        for offset in range(len(codes) - 2):
+            group = codes[offset:offset + 3]
+            packed = sum(code << (8 * j) for j, code in enumerate(group))
+            wire = struct.unpack('f', struct.pack('f', packed))[0]
+            self.assertEqual(wire, packed)
+            self.assertEqual([int(wire / 256**j) % 256 for j in range(3)], group)
 
     def test_dust_has_transparent_edges_and_bottom_pivot(self):
         paths = sorted((ROOT / "tutnt/graphics/environment").glob("mechanism-dust*.png"))

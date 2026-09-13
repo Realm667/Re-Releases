@@ -44,7 +44,7 @@
 - **Dynamic weather:** escalating rain/snow cycles, gusts, splashes, snow veils and responsive ambience, with shelter and skybox coverage. [Details](UTNT_WEATHER.md)
 - **Weather on the visor:** refracting rain droplets and trails, accumulating frost and gradual clearing under shelter. [Details](UTNT_WEATHER_VISOR.md)
 - **Wet surfaces:** gradual rain exposure and drying, subtle darkening and real reflections in irregular wet patches on eligible TNT02 floors. [Details](ENVIRONMENT_EFFECTS.md)
-- **Distance Blur:** optional global distance-based softening with adjustable intensity and a stepped start-distance slider. [Details](UTNT_DISTANCE_BLUR.md)
+- **Distance Blur:** optional global distance-based softening with adjustable intensity, a stepped start-distance slider, denser geometry/actor distance reconstruction and HUD weapon protection. [Details](UTNT_DISTANCE_BLUR.md)
 - **Underwater atmosphere:** liquid-specific tint, general and distance-dependent blur, alongside separately adjustable distortion. [Details](ENVIRONMENT_EFFECTS.md)
 - **Footprints:** fading snow and wet sole marks, including moving-floor support. [Details](ENVIRONMENT_EFFECTS.md)
 - **Moving mechanisms:** dust along rubbing edges, improved smoke clearance/fading, and distance-attenuated camera shake scaled to connected moving surfaces. [Details](ENVIRONMENT_CONTACT_DUST.md)

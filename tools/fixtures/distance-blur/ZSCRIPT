@@ -1,6 +1,7 @@
 version "5.0"
 class UTNTDistanceBlurTest : StaticEventHandler
 {
+ Actor NearActor,HiddenActor,PickupActor,DistantActor,OccludedActor;
  ui void Check(bool ok,String label)
  { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",label); }
  ui void MenuCheck()
@@ -44,9 +45,49 @@ class UTNTDistanceBlurTest : StaticEventHandler
   Check(toggles==1,"one enable option");
   Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Back,false);
  }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name=="bluractors")
+  {
+   NearActor=Actor.Spawn('DoomImp',(512,1024,16));
+   HiddenActor=Actor.Spawn('DoomImp',(256,1024,16));HiddenActor.bInvisible=true;
+   PickupActor=Actor.Spawn('Stimpack',(512,1280,16));
+   DistantActor=Actor.Spawn('DoomImp',(2048,1536,16));
+   OccludedActor=Actor.Spawn('DoomImp',(5000,1800,16));
+  }
+  if(e.Name=="blursky")level.Sectors[0].SetTexture(Sector.ceiling,TexMan.CheckForTexture("F_SKY1"));
+  if(e.Name=="blurview")
+  {
+   let mo=players[consoleplayer].mo;
+   mo.Pitch=e.Args[0];mo.Angle=e.Args[1];
+  }
+ }
+ ui void TraceCheck()
+ {
+  let probe=new('UTNTDistanceTrace');
+  Vector3 eye=(128,1024,40);let sec=level.PointInSector(eye.XY);
+  probe.Trace(eye,sec,(1,0,0),16384,TRACE_HitSky,wallMask:0,ignore:players[consoleplayer].mo);
+  Check(probe.Results.HitType==TRACE_HitActor && probe.Results.HitActor==NearActor,"visible near actor included; invisible actor skipped");
+  Check(abs(probe.Results.Distance-(384-NearActor.Radius))<1,"near actor distance measured in map units");
+  eye=(128,1280,24);probe.Trace(eye,sec,(1,0,0),16384,TRACE_HitSky,wallMask:0,ignore:players[consoleplayer].mo);
+  Check(probe.Results.HitActor==PickupActor,"non-solid pickup participates in depth");
+  eye=(128,1536,40);probe.Trace(eye,sec,(1,0,0),16384,TRACE_HitSky,wallMask:0,ignore:players[consoleplayer].mo);
+  Check(probe.Results.HitActor==DistantActor && probe.Results.Distance>1800,"distant actor distance captured");
+  eye=(128,1800,40);probe.Trace(eye,sec,(1,0,0),16384,TRACE_HitSky,wallMask:0,ignore:players[consoleplayer].mo);
+  Check(probe.Results.HitType==TRACE_HitWall && abs(probe.Results.Distance-3968)<1,"wall occludes actor behind it");
+  eye=(128,1000,1000);probe.Trace(eye,sec,(0,0,-1),16384,TRACE_HitSky,wallMask:0,ignore:players[consoleplayer].mo);
+  Check(probe.Results.HitType==TRACE_HitFloor && abs(probe.Results.Distance-1000)<1,"floor distance follows the actual plane");
+ }
  override void ConsoleProcess(ConsoleEvent e)
  {
   if(e.Name=="blurmenu")MenuCheck();
+  if(e.Name=="blurtrace")TraceCheck();
+  if(e.Name=="blurskycheck")
+  {
+   let h=UTNTEnvironment(EventHandler.Find('UTNTEnvironment'));
+   Check(h.DistanceDepth.SkyHits>0,"sky is captured as distant, not the local ceiling plane");
+   Check(h.DistanceDepth.TraceCount==456,"dense complete view grid sampled");
+  }
   if(e.Name=="blurcheck")
   {
    let h=UTNTEnvironment(EventHandler.Find('UTNTEnvironment'));
@@ -58,12 +99,12 @@ class UTNTDistanceBlurTest : StaticEventHandler
     Check(h.DistanceBlurStart==e.Args[2],"start applied and clamped");
     if(h.DistanceBlurEnabled)
     {
-     Check(h.DistanceOptics!=null,"distance cache present");
-     if(h.DistanceOptics)
+     Check(h.DistanceDepth!=null,"distance cache present");
+     if(h.DistanceDepth)
      {
-      Check(h.DistanceOptics.SampleRange==8192,"trace reaches beyond maximum start distance");
+      Check(h.DistanceDepth.SampleRange==16384,"trace reaches beyond maximum start distance");
       double farthest=0;
-      for(int i=0;i<32;i++)farthest=max(farthest,h.DistanceOptics.Samples[i]);
+      for(int i=0;i<456;i++)farthest=max(farthest,h.DistanceDepth.Samples[i]);
       Check(farthest>2569,"fixture captures distant geometry");
      }
     }

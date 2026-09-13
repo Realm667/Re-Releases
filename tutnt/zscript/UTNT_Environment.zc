@@ -1,4 +1,5 @@
 #include "zscript/UTNT_EnvironmentOptics.zc"
+#include "zscript/UTNT_DistanceBlur.zc"
 #include "zscript/UTNT_LocalHeat.zc"
 // Presentation only. No sector geometry, collision, action or gameplay RNG writes.
 class UTNTEnvironment : EventHandler
@@ -8,7 +9,8 @@ class UTNTEnvironment : EventHandler
  int SurfaceRevision, WorldSerial;
  ui int UploadedRevision, UploadTic, UploadCount, UploadedWorld;
  ui bool CanvasReady, UploadedWet;
- ui UTNTEnvironmentOptics Optics, DistanceOptics;
+ ui UTNTEnvironmentOptics Optics;
+ ui UTNTDistanceOptics DistanceDepth;
  ui bool DistanceBlurEnabled;
  ui double DistanceBlurStrength, DistanceBlurStart;
  String SnowNames;
@@ -46,8 +48,8 @@ class UTNTEnvironment : EventHandler
   let h=UTNTEnvironment(EventHandler.Find('UTNTEnvironment'));
   return h && name.Left(2)=="EV"?UTNTEnvironmentSurface.SourceName(name,h):name;
  }
- override void WorldLoaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); PPShader.SetEnabled("UTNTDistanceBlur",false); WorldSerial++; }
- override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); PPShader.SetEnabled("UTNTDistanceBlur",false); WorldSerial++; }
+ override void WorldLoaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); UTNTDistanceOptics.Enable(false); WorldSerial++; }
+ override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTUnderwaterAtmosphere",false); UTNTDistanceOptics.Enable(false); WorldSerial++; }
  override void WorldTick()
  {
   let clientCache=UTNTFXRuntime.Get();if(Runtime!=clientCache){Runtime=clientCache;WorldSerial++;}
@@ -226,13 +228,11 @@ class UTNTEnvironment : EventHandler
    DistanceBlurEnabled=Option('UTNT_distanceblur') && !Reduced() && DistanceBlurStrength>0;
    if(DistanceBlurEnabled)
    {
-    if(!DistanceOptics)DistanceOptics=new("UTNTEnvironmentOptics");
-    // Separate cache/range: existing underwater and heat distances stay unchanged.
-    DistanceOptics.Update(e,"UTNTDistanceBlur",maxDistance:8192);
-    PPShader.SetUniform2f("UTNTDistanceBlur","blurSettings",(DistanceBlurStrength,DistanceBlurStart));
+    if(!DistanceDepth)DistanceDepth=new("UTNTDistanceOptics");
+    DistanceDepth.Update(e,DistanceBlurStrength,DistanceBlurStart);
    }
   }
-  PPShader.SetEnabled("UTNTDistanceBlur",DistanceBlurEnabled);
+  UTNTDistanceOptics.Enable(DistanceBlurEnabled);
  }
  override void RenderOverlay(RenderEvent e)
  {

@@ -1,0 +1,95 @@
+// Local presentation only. Native custom PP exposes no scene-depth sampler.
+// Keep this independent of the underwater/local-heat optics and their ranges.
+class UTNTDistanceTrace : LineTracer
+{
+ override ETraceStatus TraceCallback()
+ {
+  if(Results.HitType==TRACE_HitActor)
+  {
+   let a=Results.HitActor;
+   if(!a || a.bInvisible || a.Alpha<=.01 || a.GetRenderStyle()==STYLE_None
+      || !a.CurState || TexMan.GetName(a.CurState.GetSpriteTexture(0,spritenum:a.sprite,framenum:a.frame))~=="TNT1A0")return TRACE_Skip;
+  }
+  return TRACE_Stop;
+ }
+}
+
+class UTNTDistanceOptics : Object ui
+{
+ const GridWidth=24;
+ const GridHeight=19;
+ const PassCount=9;
+ const SampleRange=16384;
+ double Samples[456];
+ int SampleTic,TraceCount,ActorHits,SkyHits;
+ Vector3 SamplePos;
+ double SampleYaw,SamplePitch,SampleRoll,SampleFov,SampleRatio;
+ Actor SampleCamera;
+ Vector4 SampleRect;
+ UTNTDistanceTrace Probe;
+ bool Ready;
+
+ clearscope static void Enable(bool enabled)
+ {
+  for(int i=0;i<PassCount;i++)PPShader.SetEnabled(String.Format("UTNTDistanceDepth%d",i),enabled);
+  PPShader.SetEnabled("UTNTDistanceBlurX",enabled);
+  PPShader.SetEnabled("UTNTDistanceBlur",enabled);
+ }
+
+ void Update(RenderEvent e,double strength,double start)
+ {
+  double ratio=Screen.GetWidth()/double(max(1,Screen.GetHeight()));
+  double fov=e.Camera.player?e.Camera.player.FOV:e.Camera.CameraFOV;
+  double ty=tan(clamp(fov,5,170)*.5)/(ratio>=1.3?1.333333:ratio),tx=ty*ratio;
+  Vector3 forward=(cos(e.ViewAngle)*cos(e.ViewPitch),sin(e.ViewAngle)*cos(e.ViewPitch),-sin(e.ViewPitch));
+  Vector3 right=(sin(e.ViewAngle),-cos(e.ViewAngle),0);
+  Vector3 up=(cos(e.ViewAngle)*sin(e.ViewPitch),sin(e.ViewAngle)*sin(e.ViewPitch),cos(e.ViewPitch));
+  Vector3 rolledRight=right*cos(e.ViewRoll)+up*sin(e.ViewRoll);
+  up=up*cos(e.ViewRoll)-right*sin(e.ViewRoll);right=rolledRight;
+  int vx,vy,vw,vh;[vx,vy,vw,vh]=Screen.GetViewWindow();
+  Vector4 rect=(vx/double(Screen.GetWidth()),1-(vy+vh)/double(Screen.GetHeight()),vw/double(Screen.GetWidth()),vh/double(Screen.GetHeight()));
+  if(!Ready || SampleCamera!=e.Camera || SampleTic!=level.time
+     || SamplePos!=e.ViewPos || SampleYaw!=e.ViewAngle || SamplePitch!=e.ViewPitch
+     || SampleRoll!=e.ViewRoll || SampleFov!=fov || SampleRatio!=ratio || SampleRect!=rect)
+  {
+   if(!Probe)Probe=new('UTNTDistanceTrace');
+   let sec=level.PointInSector(e.ViewPos.XY);TraceCount=0;ActorHits=0;SkyHits=0;
+   for(int y=0;y<GridHeight;y++)for(int x=0;x<GridWidth;x++)
+   {
+    Vector3 ray=(forward+right*((x/double(GridWidth-1)*2-1)*tx)+up*((y/double(GridHeight-1)*2-1)*ty)).Unit();
+    Probe.Trace(e.ViewPos,sec,ray,SampleRange,TRACE_HitSky,wallMask:0,ignoreAllActors:false,ignore:e.Camera);
+    bool far=Probe.Results.HitType==TRACE_HitNone || Probe.Results.HitType==TRACE_HasHitSky;
+    // HitPos may be in another portal coordinate system. Distance is travelled range.
+    Samples[y*GridWidth+x]=far?SampleRange:clamp(Probe.Results.Distance,1,SampleRange);
+    if(Probe.Results.HitType==TRACE_HitActor)ActorHits++;
+    if(Probe.Results.HitType==TRACE_HasHitSky)SkyHits++;
+    TraceCount++;
+   }
+   Ready=true;SampleCamera=e.Camera;SampleTic=level.time;
+   SamplePos=e.ViewPos;SampleYaw=e.ViewAngle;SamplePitch=e.ViewPitch;SampleRoll=e.ViewRoll;
+   SampleFov=fov;SampleRatio=ratio;SampleRect=rect;
+  }
+  // Three 8-bit square-root distances per float, exactly representable in 24 bits.
+  // Each band has three sample rows; adjacent bands share their boundary row.
+  for(int pass=0;pass<PassCount;pass++)
+  {
+   String shader=String.Format("UTNTDistanceDepth%d",pass);
+   double packed[24];
+   for(int i=0;i<24;i++)
+   {
+    packed[i]=0;
+    for(int j=0;j<3;j++)
+     packed[i]+=floor(sqrt(Samples[pass*48+i*3+j]/SampleRange)*255+.5)*(1 << (j*8));
+   }
+   for(int i=0;i<6;i++)PPShader.SetUniform4f(shader,String.Format("depth%d",i),(packed[i*4],packed[i*4+1],packed[i*4+2],packed[i*4+3]));
+   PPShader.SetUniform4f(shader,"viewRect",rect);
+   PPShader.SetUniform4f(shader,"settings",(pass,0,tx,ty));
+  }
+  for(int i=0;i<2;i++)
+  {
+   String shader=i==0?"UTNTDistanceBlurX":"UTNTDistanceBlur";
+   PPShader.SetUniform4f(shader,"viewRect",rect);
+   PPShader.SetUniform4f(shader,"settings",(strength,start,i==0?1:0,i==1?1:0));
+  }
+ }
+}

@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import shutil
 import struct
-from PIL import Image, ImageChops, ImageStat
+from PIL import Image, ImageChops, ImageStat, ImageFilter
 from check_engine import run_case
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -51,18 +51,40 @@ def main():
               'UTNT_distanceblurstrength -50','UTNT_distanceblurstart 0','wait 5','event blurcheck 0 0 128',
               'UTNT_distanceblurstrength 50','UTNT_distanceblurstart 640','UTNT_reducedfx true','wait 5','event blurcheck 0 50 640',
               'UTNT_reducedfx false','wait 5','event blurcheck 1 50 640','save blur-state','wait 5','load blur-state','wait 15','event blurcheck 1 50 640']
+        cmds += ['netevent bluractors','wait 5','event blurtrace','netevent blursky','wait 5','event blurskycheck']
+        # Aiming up puts distant scenery behind the weapon, exposing the old bug.
+        for pose, pitch, fov, blocks in (('up',-35,90,10),('wide',-20,110,8)):
+            cmds += [f'netevent blurview {pitch} 0',f'fov {fov}',f'screenblocks {blocks}',
+                     'UTNT_distanceblurstrength 100','UTNT_distanceblurstart 128','UTNT_distanceblur false','wait 5',
+                     f'screenshot logs/{label}-{pose}-weapon-off.png','r_drawplayersprites false','wait 3',
+                     f'screenshot logs/{label}-{pose}-world-off.png','r_drawplayersprites true','UTNT_distanceblur true','wait 5',
+                     f'screenshot logs/{label}-{pose}-weapon-on.png']
+        cmds += ['UTNT_distanceblurstrength 50','UTNT_distanceblurstart 640','screenblocks 10','fov 90']
         for lang in ('en','de','es','fr'):
             cmds+=['language '+lang,'openmenu UTNTDisplayOptions','wait 5',f'screenshot logs/{label}-menu-{lang}.png','event blurmenu']
         cmds+=['echo UTNT_TEST_END','quit']
         result=run_case(a.engine,a.iwad,root=out,mod=a.mod,addon=addon,mapname='BLURTEST',renderer=renderer,label=label,
-            timeout=70,commands='; '.join(cmds),regression=True,settings=[('con_notifytime',0),('vid_activeinbackground',True),
-            ('i_pauseinbackground',False),('UTNT_reducedfx',False),('UTNT_underwateratmosphere',False),('motionblur',False),('crosshair',0)])
+            timeout=90,commands='; '.join(cmds),regression=True,settings=[('con_notifytime',0),('vid_activeinbackground',True),
+            ('i_pauseinbackground',False),('UTNT_reducedfx',False),('UTNT_underwateratmosphere',False),('motionblur',False),('crosshair',0),('gl_bloom',False)])
         if result['ok']:
             images={name:Image.open(out/f'logs/{label}-{name}.png').convert('RGB') for name in ('off','zero','default','max','far')}
             diffs={name:sum(ImageStat.Stat(ImageChops.difference(images['off'],im)).mean) for name,im in images.items() if name!='off'}
             result['image_differences']=diffs
             result['ok']=diffs['zero']==0 and diffs['max']>diffs['default']>0 and 0<diffs['far']<diffs['max']
             if not result['ok']:result['errors'].append('image regression: zero equals off; maximum > default; far start reduces blur')
+            weapon_checks = {}
+            for pose in ('up','wide'):
+                off=Image.open(out/f'logs/{label}-{pose}-weapon-off.png').convert('RGB')
+                world=Image.open(out/f'logs/{label}-{pose}-world-off.png').convert('RGB')
+                on=Image.open(out/f'logs/{label}-{pose}-weapon-on.png').convert('RGB')
+                # Erode thin animated title lettering and antialiased silhouette edges.
+                mask=ImageChops.difference(off,world).convert('L').point(lambda x:255 if x>3 else 0).filter(ImageFilter.MinFilter(7))
+                pixels=sum(mask.histogram()[1:])
+                error=sum(ImageStat.Stat(ImageChops.difference(off,on),mask).mean)
+                weapon_checks[pose]={'opaque_pixels':pixels,'mean_difference':error}
+                if pixels<100 or error>.05:
+                    result['ok']=False;result['errors'].append('weapon must remain sharp at '+pose)
+            result['weapon_checks']=weapon_checks
         if not result['ok']:print(Path(result['log']).read_text(encoding='utf-8')[-5000:])
         print(json.dumps(result));results.append(result)
     (out/'results.json').write_text(json.dumps(results,indent=2))
