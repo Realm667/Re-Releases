@@ -52,7 +52,7 @@ LANGUAGE keys and the mod's SmallFont with a parchment translation and shadow.
 The three credits form a centered block, appearing successively from top to
 bottom while earlier lines remain visible. All three share one scale, fitted
 to the widest localized line. Their vertical step is exactly 1.5 times the
-font's scaled line height, with the first row at 70% of viewport height.
+font's scaled line height, with the first row at 80% of viewport height.
 No new player-facing text or language keys are introduced.
 
 Illustrations and borders cover the viewport at every aspect ratio. Their
@@ -129,3 +129,10 @@ cumulative one/two/three-line reveal and uniform spacing. Evidence is under
 is derived from integration `67ef0e2f5d7b` with the shared packager and engine
 check. Only the credit renderer and generated build identifiers changed;
 the shared package is byte-identical to this verified package.
+
+The credit block is lowered by 10% of viewport height to match the requested
+placement. UZDoom checks and screenshots at 16:9 and 4:3 confirm the lower
+position with spacing and sequential reveals preserved. Evidence:
+`tutnt/.codex/validation/titlemap-credits-lower/`. Verified test package
+`e360bddd7838` is derived from integration `f8f5de999c58`; resource comparison
+confirms only the title renderer and generated identifiers changed.

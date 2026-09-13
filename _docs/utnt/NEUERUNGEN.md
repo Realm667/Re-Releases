@@ -4,7 +4,7 @@
 
 ## Interface, accessibility and presentation
 
-- **Cinematic title intro:** music-timed illustration dissolves and slow camera travel behind a glowing fortress border, subtle embers, a staged logo and sequential, evenly spaced localized credits, a zoom-only finale with its beam aligned to the logo ampersand, ultrawide coverage and clean menu transitions; reduced effects preserve a still composition. [Details](UTNT_TITLEMAP.md)
+- **Cinematic title intro:** music-timed illustration dissolves and slow camera travel behind a glowing fortress border, subtle embers, a staged logo and sequential, evenly spaced localized credits near the bottom, a zoom-only finale with its beam aligned to the logo ampersand, ultrawide coverage and clean menu transitions; reduced effects preserve a still composition. [Details](UTNT_TITLEMAP.md)
 
 - **Sharper interface fonts:** Classic BIGFONT and Retro SMALLFONT at double resolution, with consistent letter proportions and matching localized glyphs while preserving original colors, text sizes and layouts. [Details](UTNT_HIRES_FONTS.md)
 - **Basalt fortress borders:** the selected stone-and-bronze frame with amber runes replaces both border variants, preserving their transparent opening and brighter alternate presentation. [Details](UTNT_BORDER_ARTWORK.md)
