@@ -28,6 +28,10 @@
 - **Voiceovers:** louder remaster dialogue and chapter narration with protected peaks, plus optional original UTNT voice acting. [Details](UTNT_VOICE_AUDIO.md)
 - **Subtitles and comfort:** scalable subtitles with optional speaker labels/background; separate controls for injury overlays, heartbeat, smoke, heat and motion effects. [Details](UTNT_UI_REFINEMENT.md)
 
+## Maps
+
+- **TNT01GPT — The Ashen Liturgy:** a standalone bonus map with eight connected areas, layered library and bridge routes, reactor-driven progression, three secrets, skill-scaled encounters and a guardian arena. [Details](TNT01GPT.md)
+
 ## Abilities and gameplay feel
 
 - **Six class abilities:** Commando — Overdrive (firing speed) and Bollwerk (protection); Marine — Rage (damage) and Regeneration (healing); Scout — Weak Spot (critical hits) and Cloak (invisibility). [Details](UTNT_ABILITIES.md)

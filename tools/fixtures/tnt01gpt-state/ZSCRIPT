@@ -1,0 +1,20 @@
+version "5.0.0"
+class GPTStateProbe:EventHandler {
+ void Check(bool ok,String text){Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",text);}
+ override void WorldTick(){if(players[0].mo){players[0].mo.bInvulnerable=true;players[0].mo.bNoTarget=true;}}
+ override void NetworkProcess(ConsoleEvent e){
+  let p=players[0].mo;if(!p)return;
+  if(e.Name=="gptroster"){Check(level.total_monsters==e.Args[0],"native skill roster");Check(level.total_secrets==3,"native secret count");}
+  if(e.Name=="gptseed"){
+   p.A_CallSpecial(80,1,0);p.A_CallSpecial(80,2,0);p.A_CallSpecial(80,3,0);
+  }
+  if(e.Name=="gptzero")Check(ACS_ExecuteWithResult(90,0)==0 && ACS_ExecuteWithResult(90,1)==0 && ACS_ExecuteWithResult(90,2)==0,"fresh map clears state before loading save");
+  if(e.Name=="gptverify"){
+   Check(ACS_ExecuteWithResult(90,0)==1 && ACS_ExecuteWithResult(90,1)==1 && ACS_ExecuteWithResult(90,2)==1,"key and reactor state preserved");
+   for(int tag=103;tag<=107;tag++){
+    bool found=false;let it=level.CreateSectorTagIterator(tag);int i;while((i=it.Next())>=0){let s=level.sectors[i];{found=true;Check(s.ceilingplane.ZatPoint((0,0))-s.floorplane.ZatPoint((0,0))>64,String.Format("gate %d remains open",tag));}}
+    Check(found,"gate sector present");
+   }
+  }
+ }
+}

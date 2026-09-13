@@ -1,0 +1,50 @@
+// Map-local state is serialized by ACS and shared by cooperative players.
+#include "zcommon.acs"
+int Blue, Red, Reactor, LibraryFight, StartFight, Arena, Won;
+function void Notice(str key) { HudMessage(l:key; HUDMSG_FADEOUT, 67, CR_GOLD, 0.5, 0.22, 4.0, 1.0); }
+script 1 (void) {
+ if(Blue)terminate; Blue=1; Door_Open(107,24); Notice("UTNT_GPT_BLUE");
+ if(!LibraryFight){LibraryFight=1; Delay(20); Door_Open(111,16); Delay(35); Thing_Activate(3002);}
+}
+script 2 (void) {
+ if(Reactor)terminate; Reactor=1; Notice("UTNT_GPT_REACTOR");
+ Sector_SetColor(802,128,90,48); Light_Fade(802,112,70);
+ Thing_Deactivate(4500); Floor_LowerByValue(802,8,96);
+ Delay(35); Door_Open(103,24); Door_Open(104,24); Door_Open(105,24);
+ Thing_Activate(3007); Thing_Activate(3008);
+ Delay(35); Door_Open(112,16); Thing_Activate(3003);
+ Door_Open(114,16); Thing_Activate(3004); Autosave();
+}
+script 3 (void) {
+ if(Red)terminate; Red=1; Door_Open(106,24); Notice("UTNT_GPT_RED"); Autosave();
+}
+script 5 (void) {
+ if(GetActorY(0)>2336.0){Door_Open(102,24);terminate;}
+ if(!(Red || CheckInventory("RedSkull")) || !Reactor){Notice("UTNT_GPT_GATE");terminate;}
+ Door_Open(102,24);
+}
+script 6 (void) {
+ if(!Red || !Reactor){Notice("UTNT_GPT_GATE");terminate;}
+ if(Arena && !Won){Thing_Move(0,4601,0);terminate;}
+ if(Arena)terminate; Arena=1; Notice("UTNT_GPT_ARENA");
+ Delay(105); Door_Close(115,16); SetMusic("D_BOSS"); Thing_Activate(3005);
+ Delay(210); Door_Open(113,16); Thing_Activate(3006);
+ while(ThingCount(T_NONE,3005)+ThingCount(T_NONE,3006)>0)Delay(35);
+ Won=1; Door_Open(115,24); Door_Open(116,24); SetMusic("D_TNT01");
+ Notice("UTNT_GPT_DONE"); Autosave();
+}
+script 7 (void) { if(Won)Exit_Normal(0); else Notice("UTNT_GPT_SEALED"); }
+script 9 (void) { if(Blue || CheckInventory("BlueSkull"))Door_Open(101,24); else Notice("UTNT_GPT_NEEDBLUE"); }
+script 10 (void) { if(Reactor){Door_Open(104,24);Door_Open(105,24);}else Notice("UTNT_GPT_DRAIN"); }
+script 11 (void) { if(StartFight)terminate;StartFight=1;Delay(25);Thing_Activate(3001); }
+script 12 (int tag) { Door_Open(tag,24); }
+script 20 ENTER { Delay(70); Notice("UTNT_GPT_INTRO"); }
+script 21 RESPAWN { Delay(1); if(Blue)GiveInventory("BlueSkull",1);if(Red)GiveInventory("RedSkull",1); if(Arena && !Won)Thing_Move(0,4601,0); }
+script 90 (int query) {
+ switch(query){case 0:SetResultValue(Blue);break;case 1:SetResultValue(Reactor);break;
+ case 2:SetResultValue(Red);break;case 3:SetResultValue(Arena);break;case 4:SetResultValue(Won);break;}
+}
+
+
+// Outside players can rejoin an active arena; this switch never unlocks the exit.
+script 15 (void) { if(Arena && !Won)Thing_Move(0,4601,0); }
