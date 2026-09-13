@@ -50,7 +50,7 @@
 
 - **Sparse grass:** eight randomly varied, nonblocking tufts on grass floors outside the Super Mario secret, with ground-matched pixel colors, soft roots, distance fading and stable save/load placement. [Details](UTNT_GRASS.md)
 
-- **Candelabra lighting:** restored dynamic light for the custom candelabra in TNT03B and TNT04A. [Implementation](../../tutnt/GLDEFS.txt)
+- **Candelabra lighting:** amber dynamic light for the custom candelabra in TNT03B and TNT04A. [Implementation](../../tutnt/GLDEFS.txt)
 - **Selective glow:** adjustable, color-matched projectile and explosion halos with smooth fadeout. [Details](UTNT_EFFECT_GLOW.md)
 - **Organic fire:** animated flame fragments, embers, smoke and matching light for orange, green and blue torches, burning barrels and floor fires. [Details](UTNT_FIRE_EFFECTS.md)
 - **Combat and teleport effects:** directed sparks, impact dust, electrical pulses and returning teleport fragments; corrected BFG ring sizes and restored rocket trails with smooth fading, rotation and expansion, clearer Archvile warnings, lighter Imp smoke and amber hitscan lighting. [Refinements](UTNT_TESTER_FEEDBACK.md), [Details](UTNT_INDUSTRIAL_FX.md), [Particle sizes](UTNT_PARTICLE_SIZES.md)

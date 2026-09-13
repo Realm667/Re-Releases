@@ -35,6 +35,7 @@ Implemented 14 September 2026 for UZDoom 5.0.1.
 | 25 | Yellow enemy hitscan lights | Fixed | Amber #FFA300, retaining relative intensity. |
 | 26 | TNT02 switch lacks texture/sound feedback | Fixed | Preserve native switch texture identity instead of wet aliases; switch/reset tested. |
 | 27 | Green/blue armor hard blinking | Fixed | Continuous illumination fade on a stable opaque sprite/voxel frame; pickup values preserved. |
+| 28 | CandelabraNew yellow dynamic light | Fixed | Dedicated amber #FFA300 light, preserving radius, offset, attenuation and self-light exclusion. |
 
 ## Visibility and lighting
 
