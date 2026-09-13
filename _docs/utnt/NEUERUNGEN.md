@@ -4,6 +4,8 @@
 
 ## Interface, accessibility and presentation
 
+- **Title intro:** all four illustrations stay behind the fortress border, followed by the Reforged logo and localized project, author and UZDoom credits; the completed title card stays visible. [Details](UTNT_TITLEMAP.md)
+
 - **Sharper interface fonts:** Classic BIGFONT and Retro SMALLFONT at double resolution, with consistent letter proportions and matching localized glyphs while preserving original colors, text sizes and layouts. [Details](UTNT_HIRES_FONTS.md)
 - **Basalt fortress borders:** the selected stone-and-bronze frame with amber runes replaces both border variants, preserving their transparent opening and brighter alternate presentation. [Details](UTNT_BORDER_ARTWORK.md)
 - **Cyberdemon ambush ending:** a continuous cliff panorama shows the Marine with a smoking plasma rifle and fallen aliens, with the Cyberdemon and incoming rocket in the left half; both characters follow the original sprite designs. [Details](UTNT_PFUB_ENDING.md)
