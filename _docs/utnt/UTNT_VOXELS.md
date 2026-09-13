@@ -153,6 +153,10 @@ ENDMAP credit runs passed 145 and 147 assertions respectively; all four language
 catalogues and original-font coverage passed. The import matches the supplied
 Voxel Doom sources, and a fresh Windows checkout reproduces all sixty-seven models.
 
+The added explosive barrel passed eight further assertions from the final package,
+covering native scale, actor defaults, save/load, its death transition and original
+radius damage. Both idle frames and all five explosion models are included.
+
 The shared integration package passed its engine build check. Package validation
 confirms exact model hashes, active PLAYPAL bindings, all four credit translations
 and absence of Sam & Max voxel resources. A further gallery run from the actual
