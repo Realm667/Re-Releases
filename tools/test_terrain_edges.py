@@ -38,7 +38,7 @@ class TerrainTests(unittest.TestCase):
         self.assertFalse(any(e['mode']==2 and e['front_id']==0 for e in detect_terrain(b,self.variants)))
 
     def test_layers_share_exact_seam(self):
-        for surface in ['SNOW3','QROCK3','GROUND2','GRAVE01']:
+        for surface in ['SNOW3','GROUND2','GRAVE01']:
             body,cap=self.edge(self.fixture(surface));mb=terrain_mesh(body);mc=terrain_mesh(cap)
             nb,nc=(7,13) if surface=='SNOW3' else (5,6)
             for a,b in zip(mb[-1][::nb],mc[-1][nc-1::nc]):self.assertLess(math.dist((a[0]+mb[1][0],a[1]+mb[2],-a[2]+mb[1][1]),(b[0]+mc[1][0],b[1]+mc[2],-b[2]+mc[1][1])),1e-7)
@@ -80,6 +80,21 @@ class TerrainTests(unittest.TestCase):
         for a,b in zip(ns(mb[0])[::7],ns(mc[0])[12::13]):
             self.assertGreater(sum(x*y for x,y in zip(a,b)),.96)
 
+    def test_rock_overlap_has_matching_smooth_normals(self):
+        body,cap=self.edge(self.fixture('QROCK3'));mb=terrain_mesh(body);mc=terrain_mesh(cap)
+        self.assertEqual(len(mb[-1]),len(mc[-1]))
+        def normals(obj):return [tuple(map(float,l.split()[1:])) for l in obj.splitlines() if l.startswith('vn ')]
+        self.assertEqual(len(normals(mb[0])),len(mb[-1]))
+        for a,b in zip(normals(mb[0]),normals(mc[0])):self.assertGreater(sum(x*y for x,y in zip(a,b)),.995)
+        for a,b in zip(mb[-1],mc[-1]):
+            wa=(a[0]+mb[1][0],a[1]+mb[2],-a[2]+mb[1][1]);wb=(b[0]+mc[1][0],b[1]+mc[2],-b[2]+mc[1][1])
+            self.assertGreater(math.dist(wa,wb),.02);self.assertLess(math.dist(wa,wb),.10)
+    def test_rock_skin_overlap_covers_the_old_material_cut(self):
+        body,cap=self.edge(self.fixture('QROCK3'));mb=terrain_mesh(body);mc=terrain_mesh(cap)
+        def rows(obj):return {int(v.split('/')[0])-1 for l in obj.splitlines() if l.startswith('f ') for v in l.split()[1:]}
+        overlap={i%19 for i in rows(mb[0])&rows(mc[0])}
+        self.assertGreaterEqual(len(overlap),8)
+
     def test_floor_rotation_scaling_and_area_binding(self):
         sec=self.fixture()['sector'][1];sec.update(xpanningfloor='3',ypanningfloor='7',xscalefloor='2',yscalefloor='.5',rotationfloor='90')
         c=floor_uv(sec,1,self.variants,{})
@@ -95,7 +110,7 @@ class TerrainTests(unittest.TestCase):
     def test_body_heightmap_deformation_preserves_material_seam(self):
         class Sampler:
             def sample(self,skin,uv):return math.sin(uv[0]*3+uv[1]*2)
-        body,cap=self.edge(self.fixture('QROCK3'));plain=terrain_mesh(body);deformed=terrain_mesh(body,Sampler());upper=terrain_mesh(cap,Sampler())
+        body,cap=self.edge(self.fixture('GROUND2'));plain=terrain_mesh(body);deformed=terrain_mesh(body,Sampler());upper=terrain_mesh(cap,Sampler())
         self.assertNotEqual(plain[-1],deformed[-1])
         for a,b in zip(deformed[-1][::5],upper[-1][5::6]):self.assertLess(math.dist((a[0]+deformed[1][0],a[1]+deformed[2],-a[2]+deformed[1][1]),(b[0]+upper[1][0],b[1]+upper[2],-b[2]+upper[1][1])),1e-7)
 

@@ -303,16 +303,21 @@ def generate(root=ROOT,check=False):
             if sector_key not in glow_sectors:glow_sectors[sector_key]=len(glow_sectors)
             slot=glow_sectors[sector_key]
             soft='mode' in e and (e['mode']==2 or e['surface_kind']=='grass' and e['layer']==1)
-            style='soft' if soft else 'snow' if e['kind']=='snow' else 'terrain' if terrain else 'wall'
+            rock='mode' in e and e['mode']==1 and e['surface_kind']=='rock'
+            rockcap=rock and e['layer']==1
+            style='rockcap' if rockcap else 'rockbody' if rock else 'soft' if soft else 'snow' if e['kind']=='snow' else 'terrain' if terrain else 'wall'
             blend=None
             if soft:
                 n=e['normal'];radius=e['radius'];offset=sum(e['a'][i]*n[i] for i in (0,1))
                 blend=(n[0]*4096,n[1]*4096,offset,(-.85 if e['mode']==1 else -.12)*radius,(1.1 if e['mode']==1 else .65)*radius,radius*.45)
+            elif rockcap:
+                z0=plane(e['top'],(0,0),'floor');sx=plane(e['top'],(1,0),'floor')-z0;sy=plane(e['top'],(0,1),'floor')-z0
+                blend=(sx*4096,sy*4096,z0,e['radius']*.02,e['radius']*.45,0)
             primary=glow_skin(c['skin'],slot,style,blend)
             outputs[f'tutnt/models/sky-edges/{stem}.obj']=obj
             extent=math.ceil(max(math.sqrt(v[0]**2+v[2]**2) for v in verts)+8)
             parent='UTNTTerrainEdge' if 'mode' in e else 'UTNTSkyEdge'
-            actors.append(f'class {cls} : {parent} {{ Default {{ RenderRadius {extent}; '+('RenderStyle \"Translucent\"; ' if soft else '')+'} }')
+            actors.append(f'class {cls} : {parent} {{ Default {{ RenderRadius {extent}; '+('RenderStyle \"Translucent\"; ' if soft or rockcap else '')+'} }')
             # UZDoom's model scale has an implicit 1/1.2 vertical correction.
             models.append(f'Model {cls}\n{{\n Path "models/sky-edges/"\n Model 0 "{stem}.obj"\n Skin 0 "{primary}"\n Scale 1 1 1.2\n DontCullBackfaces\n FrameIndex SKED A 0 0\n}}')
             row=[cls,e['line'],e['face'],e['part'],e['front_id'],e['top_id'],*e['a'],*e['b'],*center,h,e['h0'],e['h1'],e['texture'],c['skin'],c['sx'],c['sy'],c['ox'],c['oy'],e['radius'],e['kind'],environment.get((1,int(e['linedef']['sidefront' if e['face']==0 else 'sideback']),e['part'],c['skin']),'-')]
@@ -361,13 +366,16 @@ def generate(root=ROOT,check=False):
             source=source.replace(entry,'void SkyEdgeOriginal(inout Material mat)')
             source+='#include "shaders/skyedges/ceiling_glow.glsl"\n'
             source+='\nvoid SetupMaterial(inout Material mat)\n{\n SkyEdgeOriginal(mat);\n float up=normalize(vWorldNormal.xyz).y;\n mat.Base.rgb*=1.0+0.12*max(up,0.0)-0.48*max(-up,0.0);\n SkyEdgeCeilingGlow(mat);\n}\n'
-            if style in ('terrain','soft','snow'):
-                shade='1.0-0.10*max(-up,0.0)' if style=='snow' else '1.0' if style=='soft' else '1.0-0.22*max(-up,0.0)'
+            if style in ('terrain','soft','snow','rockcap','rockbody'):
+                shade='1.0-0.10*max(-up,0.0)' if style=='snow' else '1.0' if style=='soft' else '1.0-0.12*max(-up,0.0)' if style in ('rockcap','rockbody') else '1.0-0.22*max(-up,0.0)'
                 source=source.replace('1.0+0.12*max(up,0.0)-0.48*max(-up,0.0)',shade)
-            if style=='soft':
+            if style in ('soft','rockcap'):
                 helper='float SkyEdgeBlendValue(int i) { return (SkyGlowNumber(texelFetch(skyEdgeBlend,ivec2(i,0),0).rgb)-8388608.0)/256.0; }\n'
                 source=source.replace('void SetupMaterial(inout Material mat)',helper+'void SetupMaterial(inout Material mat)')
                 source=source.replace(' SkyEdgeCeilingGlow(mat);',' SkyEdgeCeilingGlow(mat);\n vec2 n=vec2(SkyEdgeBlendValue(0),SkyEdgeBlendValue(1))/4096.0;\n float d=dot(pixelpos.xz,n)-SkyEdgeBlendValue(2);\n float lo=SkyEdgeBlendValue(3),hi=SkyEdgeBlendValue(4),fade=SkyEdgeBlendValue(5);\n mat.Base.a*=smoothstep(lo,lo+fade,d)*(1.0-smoothstep(hi-fade,hi,d));')
+            if style=='rockcap':
+                source=source.replace('float d=dot(pixelpos.xz,n)-SkyEdgeBlendValue(2);','float d=dot(pixelpos.xz,n)+SkyEdgeBlendValue(2)-pixelpos.y;')
+                source=source.replace('mat.Base.a*=smoothstep(lo,lo+fade,d)*(1.0-smoothstep(hi-fade,hi,d));','mat.Base.a*=1.0-smoothstep(lo,hi,d);')
             outputs['tutnt/'+target]=source
         body=body.replace(original,target)
         body+=f'\n Texture skyGlowMeta "materials/sky-edges/glow-{slot}.png"\n Texture skyGlowState "USKYGLOW"\n'

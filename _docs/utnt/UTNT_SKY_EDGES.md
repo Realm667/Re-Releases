@@ -50,11 +50,16 @@ profiles: rock, grass, soil, gravel, snow, snowrock and ice. Both the upper floo
 and the exposed wall must be natural materials. Snow appears only when the
 corresponding floor or wall actually uses a snow/ice material.
 
-Rock, soil, gravel and snow ledges use two meshes with an identical shared
+Soil, gravel and snow ledges use two meshes with an identical shared
 seam: an upper cap using the floor material and a lower shoulder using the wall
 material. Grass instead uses a feathered skirt over the original wall plane. This supports a
 grass or snow covering over a rock face without replacing that face's material.
-Rock shoulders use facet shading. Snow caps form a continuous rounded arc;
+Rock ledges use a continuous, smoothly shaded shoulder with overlapping floor
+and wall skins. The upper material fades into the wall material over a band
+below the authored floor plane, including slopes. Both skins share the same
+profile normals; a small separation prevents depth fighting. The broader curved
+join and lighter underside shading remove the hard cut while retaining the
+projecting rock form. Snow caps form a continuous rounded arc;
 its wall-side section remains smooth even over rock. Grass uses a low, smooth
 transition into the neighbouring floor, fading to the actual underlying map
 materials at both ends instead of forming a hanging turf fringe. The cap follows floor rotation, scaling, panning and
@@ -79,14 +84,16 @@ platforms or collision geometry.
 
 The existing height maps now also influence these new meshes during generation.
 A smoothed, tiled sample controls small variations in reach and rock facets;
-its amplitude is bounded and shared material seams remain identical. Signed
+its amplitude is bounded and shared material seams remain identical. Rock
+ledges share the floor-height variation across both skins; separate wall-mesh
+deformation is omitted inside this smooth overlap. Signed
 height values are decoded relative to the existing neutral level. Fine surface
 relief continues in the original POM shader. The existing skyline profile is
 unchanged by this additional sampling.
 
 Current total coverage: 2,154 skyline models, 4,152 terrain ledges represented
 by 8,304 cap/shoulder models, and 974 wall-foot models. The combined 11,432 models
-contain 1,537,384 triangles across ten maps. These totals span the whole campaign;
+contain 2,075,400 triangles across ten maps. These totals span the whole campaign;
 render visibility remains bounded per model. No measured performance gain is
 claimed.
 
@@ -158,7 +165,8 @@ remain in their standard subdirectories.
 `python -B tools/test_terrain_edges.py` verifies cap/shoulder seams, material
 selection, small grass steps, narrow receiving-floor clearance, height limits,
 slope normals, rounded snow seams, grass floor-plane endpoints, floor UV transforms,
-height-map decoding and bounded deformation.
+height-map decoding, bounded deformation, and overlapping rock skins with
+matching smooth normals and sufficient blending coverage.
 
 `python -B tools/test_sky_edges.py` verifies material/boundary filtering, reversed
 lines, shared corner positions, outward and raised geometry, slope alignment,
@@ -200,6 +208,15 @@ meshes remain byte-identical to the approved version. The normal shared build
 passed its engine check; 14,081 compared feature resources match the final
 isolated package. Feathered materials retain shared shader programs; their
 additional translucent rendering cost has not been separately benchmarked.
+
+The rock-ledge seam refinement passed 24 geometry checks and six packaged
+runtime cases (11 assertions each): TNT01 on both renderers, TNT03B, TNTLE and
+TNT04CN on Vulkan, and the reported TNT01 slope again in the shared package.
+Front, close and oblique screenshots were inspected. All 7,518 models outside
+rock ledges remain byte-identical to the approved version. The regular shared
+build passed its engine check, with all 14,642 compared feature resources
+matching the isolated test package. The overlapping rock skins add translucent
+rendering and geometry; their performance cost has not been separately measured.
 
 Renderer 1 is Vulkan; renderer 0 is OpenGL. Local screenshots and logs are in
 `tutnt/.codex/logs/sky-edges-*`; structured results are under

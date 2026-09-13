@@ -150,6 +150,16 @@ def terrain_mesh(e,sampler=None):
         elif e['surface_kind']=='grass':
             drop=plane(e['top'],p,'floor')-plane(e['front'],p,'floor')
             rows=[(0,-drop*t) for t in (0,.25,.5,.75,1)]
+        elif e['surface_kind']=='rock':
+            # One continuous shoulder under an overlapping floor-material skin.
+            # Both layers use this whole profile for identical smooth normals.
+            controls=[(-.85*r,.045),(-.4*r,.10),(0,min(.65,r*.07)),(.5*r,-.12*r),(.9*r,-.36*r),(.87*r,-.78*r),(.74*r,-1.10*r),(.40*r,-1.50*r),(.08*r,-1.90*r),(0,-2.25*r)]
+            rows=[]
+            for i in range(len(controls)-1):
+                p0=controls[max(0,i-1)];p1=controls[i];p2=controls[i+1];p3=controls[min(len(controls)-1,i+2)]
+                for t in (0,.5):
+                    rows.append(tuple(.5*(2*p1[k]+(-p0[k]+p2[k])*t+(2*p0[k]-5*p1[k]+4*p2[k]-p3[k])*t*t+(-p0[k]+3*p1[k]-3*p2[k]+p3[k])*t*t*t) for k in (0,1)))
+            rows.append(controls[-1])
         else:
             seam=(.83*r,-.78*r)
             if e['layer']==1:
@@ -166,9 +176,12 @@ def terrain_mesh(e,sampler=None):
             if e['layer']==1:co=floor_coord(e['fu'],w)
             else:
                 c=e['wu'];co=((u*e['length']*c['sx']+c['ox'])/c['width'],((c['ref']-wz)*c['sy']+c['oy'])/c['height'])
-                if sampler and 0<k<len(rows)-1:
+                if sampler and 0<k<len(rows)-1 and e['surface_kind']!='rock':
                     # Wall relief affects only interior facets; shared seams stay exact.
                     w=plus(w,m,.24*sampler.sample(c['skin'],co)*math.sin(math.pi*k/(len(rows)-1)))
+            if e['mode']==1 and e['surface_kind']=='rock' and e['layer']==1:
+                # Keep the transparent covering ahead of its opaque backing.
+                w=plus(w,m,.035);wz+=.025
             verts.append((w[0]-center[0],wz-h,-(w[1]-center[1])));uv.append((co[0],1-co[1]))
     count=len(rows)
     for j in range(steps):
@@ -182,7 +195,11 @@ def terrain_mesh(e,sampler=None):
         size=math.sqrt(sum(x*x for x in n)) or 1;flat.append(tuple(x/size for x in n))
         for index in (a,b,c):normals[index]=[normals[index][k]+n[k] for k in range(3)]
     normals=[tuple(x/(math.sqrt(sum(y*y for y in n)) or 1) for x in n) for n in normals]
-    faceted=e['kind'] in ('rock','gravel') and e['layer']==0 and e['surface_kind']!='snow'
+    if e['mode']==1 and e['surface_kind']=='rock':
+        # Calculate normals across the full profile, then retain each layer's
+        # actual coverage. The floor skin fades out inside this overlap.
+        faces=[f for i,f in enumerate(faces) if (i//2)%(count-1)<12] if e['layer']==1 else [f for i,f in enumerate(faces) if (i//2)%(count-1)>=4]
+    faceted=e['kind'] in ('rock','gravel') and e['layer']==0 and e['surface_kind'] not in ('snow','rock')
     out=['# Generated outdoor terrain edge; cosmetic only.','s 1']
     out+=['v %.6f %.6f %.6f'%v for v in verts];out+=['vt %.8f %.8f'%v for v in uv]
     out+=['vn %.6f %.6f %.6f'%v for v in (flat if faceted else normals)]
