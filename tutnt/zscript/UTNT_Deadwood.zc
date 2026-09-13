@@ -3,6 +3,7 @@
 class UTNTDeadwood : EventHandler
 {
     Array<Actor> Pending;
+    transient bool Scanned;
 
     static int Kind(Actor a)
     {
@@ -12,15 +13,16 @@ class UTNTDeadwood : EventHandler
         if (cls == 'TorchTree') return 1;
         if (cls == 'IceyTree') return 2;
         if (cls == 'IceyStub') return 3;
+        if (cls == 'Stalagtite') return 4;
         return -1;
     }
 
     static int Theme(Actor a)
     {
         int kind = Kind(a);
-        if (kind >= 2 || level.MapName ~== "TNT03A1" || level.MapName ~== "TNT03A2")
+        if (kind == 2 || kind == 3 || level.MapName ~== "TNT03A1" || level.MapName ~== "TNT03A2")
             return 2;
-        if (level.MapName ~== "TNT03B" || level.MapName ~== "TNT04A" ||
+        if (level.MapName ~== "TNT02" || level.MapName ~== "TNT03B" || level.MapName ~== "TNT04A" ||
             level.MapName ~== "TNT04B" || level.MapName ~== "TNT04C" ||
             level.MapName ~== "TNT04CN" || level.MapName ~== "TNTLE" ||
             level.MapName ~== "ENDMAP01")
@@ -57,7 +59,16 @@ class UTNTDeadwood : EventHandler
         if (kind < 0) return;
         int original = kind == 0 ? Actor.GetSpriteIndex('TRE2') :
                        kind == 1 ? Actor.GetSpriteIndex('TRE1') :
-                       kind == 2 ? Actor.GetSpriteIndex('ICT1') : Actor.GetSpriteIndex('ICS1');
+                       kind == 2 ? Actor.GetSpriteIndex('ICT1') :
+                       kind == 3 ? Actor.GetSpriteIndex('ICS1') : Actor.GetSpriteIndex('SMIT');
+        // TNT02 now uses charred wood. Migrate the former dry views in saved
+        // games without rerolling their silhouette or touching custom sprites.
+        if (level.MapName ~== "TNT02" && (kind == 0 || kind == 1) &&
+            a.sprite == SpriteFor(0, kind) && a.frame >= 0 && a.frame < 3)
+        {
+            a.sprite = SpriteFor(1, kind);
+            return;
+        }
         // Already converted savegames keep their choice even if a script moved
         // the actor. Explicit script-selected non-original sprites are respected.
         if (a.sprite != original || a.frame != 0) return;
@@ -74,14 +85,21 @@ class UTNTDeadwood : EventHandler
     override void WorldLoaded(WorldEvent e)
     {
         Pending.Clear();
-        let it = ThinkerIterator.Create('Actor');
-        Actor a;
-        while (a = Actor(it.Next()))
-            if (Kind(a) >= 0) Pending.Push(a);
+        Scanned = false;
     }
 
     override void WorldTick()
     {
+        // EventHandler.WorldLoaded is skipped when restoring saved handlers.
+        // Transient state resets on load, so reconcile once on the first tick.
+        if (!Scanned)
+        {
+            Scanned = true;
+            let it = ThinkerIterator.Create('Actor');
+            Actor a;
+            while (a = Actor(it.Next()))
+                if (Kind(a) >= 0) Pending.Push(a);
+        }
         for (int i = 0; i < Pending.Size(); i++) Apply(Pending[i]);
         Pending.Clear();
     }

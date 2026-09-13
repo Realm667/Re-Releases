@@ -1,5 +1,6 @@
 version "5.0.0"
 class UTNTDeadwoodUnrelated : BigTree {}
+class UTNTDeadwoodUnrelatedStub : Stalagtite {}
 class UTNTDeadwoodPreview : Actor
 {
     Default { +NOBLOCKMAP +NOINTERACTION +NOGRAVITY }
@@ -12,13 +13,19 @@ class UTNTDeadwoodTest : EventHandler
     Array<double> ScaleX, ScaleY;
     Array<int> Tids, Kinds;
     Array<Actor> Gallery;
-    Actor Cam, Unrelated;
+    Actor Cam, Unrelated, UnrelatedStub;
     int SavedHash, SavedCount;
     bool GalleryMade;
 
     void Capture(Actor a)
     {
-        int k=UTNTDeadwood.Kind(a);if(k<0)return;
+        // Independent inventory: missing classes in the production mapper must
+        // fail the test rather than disappearing from its source collection.
+        if(!a)return;
+        name cls=a.GetClassName();
+        int k=cls=='BigTree'?0:cls=='TorchTree'?1:cls=='IceyTree'?2:
+              cls=='IceyStub'?3:cls=='Stalagtite'?4:-1;
+        if(k<0)return;
         Sources.Push(a);Radii.Push(a.Radius);Heights.Push(a.Height);
         PassHeights.Push(a.ProjectilePassHeight);ScaleX.Push(a.Scale.X);ScaleY.Push(a.Scale.Y);
         Tids.Push(a.TID);Kinds.Push(k);
@@ -33,6 +40,7 @@ class UTNTDeadwoodTest : EventHandler
     }
     void Check(bool restored)
     {
+        Console.Printf("DEADWOOD_CHECK_MAP %s",level.MapName);
         bool physics=true,visual=true,ice=true;int count=0,hash=0,mask=0;
         for(int i=0;i<Sources.Size();i++)
         {
@@ -42,7 +50,7 @@ class UTNTDeadwoodTest : EventHandler
                 a.Scale.X==ScaleX[i] && a.Scale.Y==ScaleY[i] && a.TID==Tids[i] && a.bSolid;
             visual=visual && a.sprite==UTNTDeadwood.SpriteFor(UTNTDeadwood.Theme(a),Kinds[i]) &&
                 a.frame>=0 && a.frame<3;
-            if(Kinds[i]>=2)ice=ice && UTNTDeadwood.Theme(a)==2;
+            if(Kinds[i]==2 || Kinds[i]==3)ice=ice && UTNTDeadwood.Theme(a)==2;
             mask|=1<<a.frame;hash=hash*31+a.sprite*7+a.frame;
             int sprite=a.sprite,frame=a.frame;
             UTNTDeadwood.Apply(a);
@@ -62,20 +70,93 @@ class UTNTDeadwoodTest : EventHandler
             }
             Console.Printf("UTNT_ASSERT %s sky-room light tracking preserved %d",lighting && n>0?"PASS":"FAIL",n);
         }
-        if(restored)Console.Printf("UTNT_ASSERT %s save/load preserves exact sprite choices",count==SavedCount && hash==SavedHash?"PASS":"FAIL");
+        if(level.MapName~=="TNT02")
+        {
+            int stumps=0;bool mapped=true,reported=false,theme=true;
+            for(int i=0;i<Sources.Size();i++)
+            {
+                let a=Sources[i];if(!a)continue;
+                if(Kinds[i]==4)
+                {
+                    stumps++;
+                    mapped=mapped && a.sprite==Actor.GetSpriteIndex('DWCS');
+                    if(a.Pos.X==2560 && a.Pos.Y==32)
+                        reported=a.sprite==Actor.GetSpriteIndex('DWCS') && a.frame>=0 && a.frame<3;
+                }
+                if(Kinds[i]!=2 && Kinds[i]!=3)
+                    theme=theme && UTNTDeadwood.Theme(a)==1;
+            }
+            Console.Printf("UTNT_ASSERT %s TNT02 type 47 stumps mapped %d",mapped && stumps>=41?"PASS":"FAIL",stumps);
+            Console.Printf("UTNT_ASSERT %s reported TNT02 stump at 2560 32 replaced",reported?"PASS":"FAIL");
+            Console.Printf("UTNT_ASSERT %s TNT02 uses charred wood",theme?"PASS":"FAIL");
+        }
+        if(UnrelatedStub)Console.Printf("UTNT_ASSERT %s unrelated stalagtite subclass unchanged",UnrelatedStub.sprite==Actor.GetSpriteIndex('SMIT')?"PASS":"FAIL");
+        if(restored)Console.Printf("UTNT_ASSERT %s save/load restores expected sprite choices",count==SavedCount && hash==SavedHash?"PASS":"FAIL");
         else {SavedCount=count;SavedHash=hash;}
         if(Unrelated)Console.Printf("UTNT_ASSERT %s unrelated subclasses not changed",Unrelated.sprite==Actor.GetSpriteIndex('TRE2')?"PASS":"FAIL");
     }
     void SpawnProbe()
     {
         Vector3 p=players[0].mo.Pos;
-        name classes[]={'BigTree','TorchTree','IceyTree','IceyStub'};
-        for(int i=0;i<4;i++)
+        name classes[]={'BigTree','TorchTree','IceyTree','IceyStub','Stalagtite'};
+        for(int i=0;i<5;i++)
         {
             let a=Actor.Spawn(classes[i],p+(80+i*96,100,0));
             a.Scale=(.75,1.25);a.ChangeTID(667001+i);Capture(a);
         }
         Unrelated=Actor.Spawn('UTNTDeadwoodUnrelated',p+(80,220,0));
+        UnrelatedStub=Actor.Spawn('UTNTDeadwoodUnrelatedStub',p+(160,220,0));
+    }
+
+    void SeedLegacySave()
+    {
+        if(!(level.MapName~=="TNT02"))return;
+        SavedHash=0;
+        for(int i=0;i<Sources.Size();i++)
+        {
+            let a=Sources[i];if(!a)continue;
+            // An old SMIT actor never had a variant to preserve. Its first
+            // assignment uses its saved position (after settling on the floor).
+            int expectedFrame=Kinds[i]==4?UTNTDeadwood.Variant(a):a.frame;
+            SavedHash=SavedHash*31+a.sprite*7+expectedFrame;
+            if(Kinds[i]==0 || Kinds[i]==1)a.sprite=UTNTDeadwood.SpriteFor(0,Kinds[i]);
+            if(Kinds[i]==4){a.sprite=Actor.GetSpriteIndex('SMIT');a.frame=0;}
+        }
+    }
+    void LegacyProbe()
+    {
+        if(!(level.MapName~=="TNT02"))return;
+        bool migrated=true,custom=true;
+        for(int kind=0;kind<2;kind++)
+        {
+            let a=Actor.Spawn(kind==0?'BigTree':'TorchTree',players[0].mo.Pos);
+            a.sprite=UTNTDeadwood.SpriteFor(0,kind);a.frame=2;
+            UTNTDeadwood.Apply(a);
+            migrated=migrated && a.sprite==UTNTDeadwood.SpriteFor(1,kind) && a.frame==2;
+            a.sprite=Actor.GetSpriteIndex('SMIT');a.frame=0;
+            UTNTDeadwood.Apply(a);
+            custom=custom && a.sprite==Actor.GetSpriteIndex('SMIT');
+            a.Destroy();
+        }
+        Console.Printf("UTNT_ASSERT %s former TNT02 dry sprites migrate with stable frame",migrated?"PASS":"FAIL");
+        Console.Printf("UTNT_ASSERT %s custom actor sprites remain untouched",custom?"PASS":"FAIL");
+    }
+    void ReportedView(int mode)
+    {
+        let it=ThinkerIterator.Create('Stalagtite');Actor a;
+        while(a=Actor(it.Next()))
+        {
+            if(a.Pos.X!=2560 || a.Pos.Y!=32)continue;
+            if(!Cam)Cam=Actor.Spawn('MapSpot',a.Pos);
+            Cam.SetOrigin((2671,64,a.Pos.Z+41),false);
+            Cam.Angle=VectorAngle(a.Pos.X-2671,a.Pos.Y-64);Cam.Pitch=0;
+            players[0].camera=Cam;
+            if(mode==1)a.sprite=Actor.GetSpriteIndex('SMIT');
+            else if(mode!=0)a.sprite=UTNTDeadwood.SpriteFor(mode==2?0:1,4);
+            if(mode!=0)a.frame=mode==1?0:UTNTDeadwood.Variant(a);
+            Console.Printf("DEADWOOD_REPORTED_POS %f %f %f frame %d",a.Pos.X,a.Pos.Y,a.Pos.Z,a.frame);
+            return;
+        }
     }
     void View(int skip, int direction)
     {
@@ -121,6 +202,9 @@ class UTNTDeadwoodTest : EventHandler
     }
     override void NetworkProcess(ConsoleEvent e)
     {
+        if(e.Name=="dwreported")ReportedView(e.Args[0]);
+        if(e.Name=="dwlegacyseed")SeedLegacySave();
+        if(e.Name=="dwlegacy")LegacyProbe();
         if(e.Name=="dwcheck")Check(e.Args[0]!=0);
         if(e.Name=="dwspawn")SpawnProbe();
         if(e.Name=="dwview")View(e.Args[0],e.Args[1]);

@@ -2,13 +2,14 @@
 All artifacts are local under tutnt/.codex; the fixture never ships in UTNT.
 """
 from pathlib import Path
-import argparse,json
+import argparse,json,re,time
 from check_engine import run_case,ROOT
 
 MAPS = ['TNT01','TNT02','TNT03A1','TNT03A2','TNT03B','TNT04A','TNT04B','TNT04C','TNT04CN','TNTLE','ENDMAP01']
 
 def run(engine,iwad,mod,mapname,renderer,work,restore=False,addon=None):
     label=f'deadwood-{mapname}-{renderer}'
+    save_name=f'{label}-{time.time_ns()}'
     commands=['unbindall','god','notarget','con_notifytime 0','vid_setsize 1280 720','screenblocks 12',
         'UTNT_distanceblur 0','wait 40','netevent dwcheck']
     if mapname=='DWLAB':
@@ -18,13 +19,21 @@ def run(engine,iwad,mod,mapname,renderer,work,restore=False,addon=None):
     else:
         commands += ['wait 180','netevent dwview','wait 10',f'screenshot logs/{label}.png']
         if restore:
-            commands += ['save deadwood-regression','wait 10','load deadwood-regression','wait 45',
-                'netevent dwcheck 1','netevent dwspawn','wait 3','netevent dwcheck']
+            commands += ['netevent dwlegacyseed','wait 3',f'save {save_name}','wait 10',f'load {save_name}','wait 45',
+                'netevent dwcheck 1','netevent dwlegacy','netevent dwspawn','wait 3','netevent dwcheck']
+    if mapname=='TNT02':
+        for mode,name in [(0,'fixed'),(1,'original'),(2,'dry'),(3,'charred')]:
+            commands += [f'netevent dwreported {mode}','wait 8',
+                f'screenshot logs/{label}-reported-{name}.png']
     commands += ['echo UTNT_TEST_END','wait 2','quit']
     result=run_case(engine,iwad,mod=mod,root=work,mapname=mapname,renderer=renderer,
         addon=addon or ROOT/'tools/fixtures/deadwood',label=label,commands='; '.join(commands)+'\n',
         timeout=90,settings=[('UTNT_fxquality',1),('UTNT_reducedfx','true'),('UTNT_distanceblur',0)])
-    if not result['ok']:print(Path(result['log']).read_text()[-7000:])
+    log=Path(result['log']).read_text(encoding='utf-8')
+    checked_maps=re.findall(r'DEADWOOD_CHECK_MAP (\w+)',log)
+    if mapname!='DWLAB' and (not checked_maps or any(n.upper()!=mapname.upper() for n in checked_maps)):
+        result['ok']=False;result['errors'].append('wrong or missing checked map')
+    if not result['ok']:print(log[-7000:])
     return result
 
 if __name__=='__main__':
