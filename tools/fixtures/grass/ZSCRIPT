@@ -53,6 +53,20 @@ class UTNTGrassTest : EventHandler
     override void NetworkProcess(ConsoleEvent e)
     {
         if(e.Name=="grasscheck")Check(e.Args[0]!=0);
+        if(e.Name=="grassmario")
+        {
+            int mario=0,regular=0;bool excluded=true;
+            for(int i=0;i<level.Sectors.Size();i++)
+            {
+                let sec=level.Sectors[i];String name=TexMan.GetName(sec.GetTexture(Sector.floor));
+                if(name~=="SM_GRAS") { mario++;excluded=excluded && !UTNTGrassController.Surface(sec); }
+                if(name~=="QGRASS" && UTNTGrassController.Surface(sec))regular++;
+            }
+            Console.Printf("UTNT_ASSERT %s all Mario grass sectors excluded %d",mario>0 && excluded?"PASS":"FAIL",mario);
+            Console.Printf("UTNT_ASSERT %s regular TNT02 grass remains eligible %d",regular>0?"PASS":"FAIL",regular);
+            let it=ThinkerIterator.Create('UTNTGrassTuft',Thinker.MAX_STATNUM+1,true);
+            Console.Printf("UTNT_ASSERT %s no grass actors around Mario camera",it.Next()==null?"PASS":"FAIL");
+        }
         if(e.Name=="grasshide")
         {
             let it=ThinkerIterator.Create('UTNTGrassTuft',Thinker.MAX_STATNUM+1,true);UTNTGrassTuft tuft;

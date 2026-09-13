@@ -13,13 +13,12 @@ class UTNTGrassTuft : Actor
         RenderStyle "Translucent";
         Scale .22;
     }
-    States { Spawn: GRSU A -1; Stop; BrightGrass: GRSV A -1; Stop; }
+    States { Spawn: GRSU A -1; Stop; }
     override void Tick() {} // Controller batches visibility and floor tracking.
     void Refresh(Actor camera, double range)
     {
         if(!Support || !camera) { bInvisible=true;return; }
         double z=Support.floorplane.ZatPoint(Pos.XY);
-        Sprite=GetSpriteIndex((TexMan.GetName(Support.GetTexture(Sector.floor))~=="SM_GRAS")?'GRSV':'GRSU');
         bool valid=UTNTGrassController.Surface(Support) && Support.ceilingplane.ZatPoint(Pos.XY)-z>=32;
         if(abs(Pos.Z-(z-.65))>.001)SetOrigin((Pos.X,Pos.Y,z-.65),false);
         double distance=(Pos-camera.Pos).Length();
@@ -47,7 +46,8 @@ class UTNTGrassController : Thinker
     {
         if(!sec || sec.GetHeightSec() || sec.Get3DFloorCount()>0 || sec.GetPortalType(Sector.floor)!=0)return false;
         String name=TexMan.GetName(sec.GetTexture(Sector.floor));
-        return name~=="SM_GRAS" || name~=="QGRASS" || name~=="GRASS2" || name~=="XA08TEX" || name~=="XB08TEX"
+        // SM_GRAS is deliberately excluded: preserve the Super Mario secret.
+        return name~=="QGRASS" || name~=="GRASS2" || name~=="XA08TEX" || name~=="XB08TEX"
             || name~=="XA31TEX" || name~=="XB31TEX";
     }
     static uint Mix(uint x)

@@ -10,6 +10,12 @@ def run(engine,iwad,mod,mapname='TNTLE',renderer='1',addon=None):
       f'save {label}','wait 15',f'load {label}','wait 160','netevent grasscheck 1',
       'UTNT_fxquality 0','wait 20','netevent grassoff','UTNT_fxquality 3','wait 160','netevent grasscheck 1',
       f'screenshot logs/{label}-restored.png','echo UTNT_TEST_END','wait 5','quit']
+    if mapname.upper()=='TNT02':
+        commands=['unbindall','god','notarget','vid_setsize 1280 720','con_notifytime 0','wait 20',
+          'netevent grasscamera -5056 672 370','netevent grassturn -90 10','wait 220','netevent grassmario',
+          f'screenshot logs/{label}-excluded.png',f'save {label}','wait 15',f'load {label}','wait 160',
+          'netevent grassmario','UTNT_fxquality 0','wait 20','netevent grassoff','UTNT_fxquality 3','wait 160',
+          'netevent grassmario','echo UTNT_TEST_END','wait 5','quit']
     return run_case(engine,iwad,mod=mod,mapname=mapname,renderer=renderer,addon=addon or ROOT/'tools/fixtures/grass',label=label,
       commands='; '.join(commands)+'\n',timeout=90,settings=[('UTNT_fxquality',3),('UTNT_lod',2048),('UTNT_reducedfx','false'),('UTNT_distanceblur',0)])
 if __name__=='__main__':

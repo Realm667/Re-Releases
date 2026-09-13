@@ -15,7 +15,6 @@ def generate(root=ROOT,check=False):
             if not box: raise ValueError(f'{path}: empty sprite')
         l,t,r,b=box;w,h=r-l,b-t
         rows.append(f'Sprite GRSU{c}0, {w}, {h}\n{{\n Offset {w//2}, {h}\n XScale {h/96:.10f}\n YScale {h/96:.10f}\n Patch "patches/grass/tuft-{i}.png", {-l}, {-t}\n}}\n')
-    rows += [row.replace('Sprite GRSU','Sprite GRSV') for row in rows[1:]]
     target=root/'tutnt/textures/definitions/TEXTURES.grass'
     text='\n'.join(rows).rstrip()+'\n'
     if check:

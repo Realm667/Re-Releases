@@ -37,7 +37,7 @@
 
 ## Effects and environment
 
-- **Sparse grass:** eight randomly varied, nonblocking tufts on grass floors, with ground-matched pixel colors, soft roots, distance fading and stable save/load placement. [Details](UTNT_GRASS.md)
+- **Sparse grass:** eight randomly varied, nonblocking tufts on grass floors outside the Super Mario secret, with ground-matched pixel colors, soft roots, distance fading and stable save/load placement. [Details](UTNT_GRASS.md)
 
 - **Candelabra lighting:** restored dynamic light for the custom candelabra in TNT03B and TNT04A. [Implementation](../../tutnt/GLDEFS.txt)
 - **Selective glow:** adjustable, color-matched projectile and explosion halos with smooth fadeout. [Details](UTNT_EFFECT_GLOW.md)

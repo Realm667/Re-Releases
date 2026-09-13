@@ -2,7 +2,7 @@
 
 Updated: 13 September 2026.
 
-Eight independent grass sprites add low vegetation to QGRASS, GRASS2 and SM_GRAS floors,
+Eight independent grass sprites add low vegetation to QGRASS and GRASS2 floors,
 including their XA08TEX/XB08TEX and XA31TEX/XB31TEX expanded-material aliases.
 The artwork follows the approved TNTLE mockup, with greater density and the
 subsequently requested low-resolution appearance and ground-matched colors.
@@ -13,8 +13,8 @@ Imagegen prompts and provenance are recorded in `tools/artwork/grass/prompts.jso
 
 The hardware shader samples each silhouette at 32 pixels in height with hard
 pixel edges and six brightness steps. QGRASS/GRASS2 use dark, desaturated olive
-and earth tones derived from the original floors; SM_GRAS receives a separate
-greener palette. Both palettes reuse the same eight silhouettes. Source images
+and earth tones derived from the original floors. The bright, saturated SM_GRAS
+floors of the Super Mario secret are explicitly excluded from placement. Source images
 remain at their original size as editable artwork; visible detail is limited in
 the shader, independently of the player's texture filtering setting.
 
@@ -63,9 +63,12 @@ package snapshot; `tools/build_grass_sprites.py --check` checks them independent
 
 Reference: [ZDoom sprite format](https://zdoom.org/w/index.php?title=Sprite).
 
-Validation: UZDoom 5.0.1 passed 60 runtime assertions across TNT01 (OpenGL),
-TNT02 (Vulkan) and TNTLE (Vulkan). All eight variants, unique nonblocking actors,
-grass-only floor attachment, changed materials, moving floors, quality zero and
-repeatable save/load/quality restoration passed. The grass-only staged source
-also passed independent engine compilation and the TNTLE runtime suite.
-Screenshots were reviewed for pixel scale, floor colors and soft root transitions.
+Validation: UZDoom 5.0.1 passed the placement suite on TNT01 (OpenGL) and
+TNTLE (Vulkan): eight variants, unique nonblocking actors, floor/material safety,
+moving floors, quality zero and repeatable save/load/quality restoration.
+The Mario exclusion suite on TNT02 (Vulkan) checks all 188 SM_GRAS sectors,
+preserves eligibility of its separate QGRASS sector and confirms zero actors
+around the Mario camera before and after save/load and quality restoration.
+The grass-only staged source also passed independent engine compilation.
+Screenshots were reviewed for pixel scale, floor colors, soft root transitions
+and the unchanged Mario grass floor.
