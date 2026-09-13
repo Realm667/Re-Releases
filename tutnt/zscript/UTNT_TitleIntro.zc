@@ -81,11 +81,9 @@ class UTNTTitleCanvas ui
             Top - ArtHeight*(zoom-1)/2, ArtWidth*zoom, ArtHeight*zoom, alpha);
     }
 
-    void Credit(String key, double y, double alpha)
+    void Credit(String text, double y, double scale, double alpha)
     {
         if (alpha <= 0) return;
-        String text = StringTable.Localize(key);
-        double scale = min(Unit, ArtWidth * 0.44 / max(1, Body.StringWidth(text)));
         double x = (Width - Body.StringWidth(text)*scale)/2;
         Screen.DrawText(Body, Font.CR_BLACK, x + Unit, y + Unit, text,
             DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Alpha, alpha * 0.85);
@@ -148,8 +146,18 @@ class UTNTTitleCanvas ui
         Vector2 dimensions=TexMan.GetScaledSize(Logo);
         double logoHeight=logoWidth*dimensions.Y/max(1,dimensions.X);
         Picture(Logo,(Width-logoWidth)/2,Height*0.295-logoHeight/2,logoWidth,logoHeight,reveal);
-        Credit("$UTNT_TITLE_PROJECT",Height*0.70,Ease((t-18.6)/1.2));
-        Credit("$UTNT_TITLE_AUTHOR",Height*0.75,Ease((t-20.0)/1.2));
-        Credit("$UTNT_TITLE_ENGINE",Height*0.85,Ease((t-21.4)/1.2));
+        String credits[] = {
+            StringTable.Localize("$UTNT_TITLE_PROJECT"),
+            StringTable.Localize("$UTNT_TITLE_AUTHOR"),
+            StringTable.Localize("$UTNT_TITLE_ENGINE")
+        };
+        double widest = 1;
+        for (int row = 0; row < 3; row++)
+            widest = max(widest, Body.StringWidth(credits[row]));
+        double creditScale = min(Unit, ArtWidth * 0.44 / widest);
+        double lineStep = Body.GetHeight() * creditScale * 1.5;
+        for (int row = 0; row < 3; row++)
+            Credit(credits[row], Height * 0.70 + row * lineStep, creditScale,
+                Ease((t - (18.6 + row * 1.4)) / 1.2));
     }
 }
