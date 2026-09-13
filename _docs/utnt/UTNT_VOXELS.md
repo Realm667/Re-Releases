@@ -85,6 +85,24 @@ excluded after visual review; they retain their existing sprites and have no
 voxel bindings or generated assets. The earlier keycard experiment also remains
 separate; this integration imports only the requested skull keys from Cheello.
 
+## World scale
+
+One native KVX cell is one map unit on every axis. VOXELDEF uses the engine's
+unit-scale default, and all forty selected actors use `Scale = (1,1)`. No model
+is normalized to a common display size. Doom's normal pixel aspect applies to
+the scene and does not change these map-unit measurements.
+
+The Stimpack is **14 × 10 × 15** map units (width × depth × height), matching
+its original **14 × 15** sprite-pixel width and height. The Medikit is
+**28 × 14 × 12** map units: twice the Stimpack's width, with a flatter body;
+its original 28 × 19 sprite also depicts the top surface in perspective.
+The custom Minigun remains 52 source pixels / map units wide.
+
+The earlier review gallery enlarged small objects independently for inspection
+(the Stimpack by 3.6667), which misrepresented their relative sizes. That fixture
+scaling has been removed. Current gallery screenshots use untouched actor scales
+and a shared camera, with explicit unit-scale and save/load assertions.
+
 ## Custom geometry
 
 - **Gas / BigGas:** revolved metal canisters with rounded caps, body rings and
@@ -119,13 +137,13 @@ the voxel generator/checker before taking its immutable package snapshot.
   MIPs, hashes, deterministic custom output and mappings.
 - `python -B tools/test_voxels.py --mod tutnt.pk3` opens the isolated VXLAB fixture
   and exercises all forty actual actors, multiple viewing directions and save/load.
-  Screenshots and logs stay in `.codex`. Fixture display scaling is for inspection
-  only; the fire-emitting barrel is tested at its real scale.
+  Screenshots and logs stay in `.codex`. The fixture preserves every actor at
+  `Scale = (1,1)` and asserts that scale before and after save/load.
 
 ## Validation
 
-Validated with UZDoom 5.0.1. The complete forty-actor gallery passed 53 runtime
-assertions across three viewing directions and save/load. The English and German
+Validated with UZDoom 5.0.1. The final forty-actor gallery passed 93 runtime
+assertions for native scale, three viewing directions and save/load. The English and German
 ENDMAP credit runs passed 145 and 147 assertions respectively; all four language
 catalogues and original-font coverage passed. The import matches the supplied
 Voxel Doom sources, and a fresh Windows checkout reproduces all sixty models.

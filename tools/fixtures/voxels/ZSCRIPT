@@ -8,18 +8,18 @@ class UTNTVoxelTest : EventHandler
  {
   for(int i=0;i<Items.Size();i++)if(Items[i])Items[i].Destroy();Items.Clear();self.Group=group;
   class<Actor> types[]={'Clip','Backpack','ClipBox','RocketBox','Cell','CellPack','RocketAmmo','FloatingSkull','BlueArmor','GreenArmor','Medikit','Stimpack','Candelabra','Candlestick','Berserk','Infrared','RadSuit','Allmap','Shell','BlueSkull','YellowSkull','RedSkull','ArmorBonus','HealthBonus','UTNTBFG9000','UTNTChaingun','UTNTChainsaw','UTNTPistol','UTNTPlasmaRifle','UTNTRocketLauncher','UTNTShotgun','UTNTSuperShotgun','Gas','BigGas','UTNTFlamer','UTNTPyroCannon','UTNTMinigun','PortalCoreHeart','UTNT_Barrel','CandelabraNew'};
-  double sizes[]={5.0,1.8966,1.8333,1.0185,3.2353,1.6176,2.1154,1.5714,1.7742,1.7742,1.9643,3.6667,0.9016,3.4375,1.9643,1.9643,1.1702,1.8333,3.6667,3.4375,3.4375,3.4375,3.4375,3.0556,0.9016,1.0185,0.9167,1.8333,1.0185,0.8871,0.873,1.0185,3.2353,1.7188,0.9016,0.6395,1.0577,1.1702,2.1154,0.9016};
   for(int i=0;i<4;i++)
   {
    int index=group*4+i;if(index>=40)break;
-   let a=Actor.Spawn(types[index],(-180+i*120,0,0),NO_REPLACE);
+   let a=Actor.Spawn(types[index],(-144+i*96,0,0),NO_REPLACE);
    let d=GetDefaultByType(types[index]);
    Console.Printf("UTNT_ASSERT %s original defaults index %d",a && a.Radius==d.Radius && a.Height==d.Height && a.bSolid==d.bSolid && a.bSpecial==d.bSpecial?"PASS":"FAIL",index);
    if(!a)continue;
-   a.Scale=index==38?(1,1):(sizes[index],sizes[index]);a.Angle=0;Items.Push(a);
+   Console.Printf("UTNT_ASSERT %s unit voxel scale index %d",a.Scale.X==1 && a.Scale.Y==1?"PASS":"FAIL",index);
+   a.Angle=0;Items.Push(a);
   }
-  if(!Cam)Cam=Actor.Spawn('MapSpot',(0,-300,64));
-  Cam.SetOrigin((0,-300,64),false);Cam.Angle=90;Cam.Pitch=5;players[0].camera=Cam;
+  if(!Cam)Cam=Actor.Spawn('MapSpot',(0,-230,64));
+  Cam.SetOrigin((0,-230,64),false);Cam.Angle=90;Cam.Pitch=10;players[0].camera=Cam;
  }
  override void NetworkProcess(ConsoleEvent e)
  {
@@ -27,7 +27,7 @@ class UTNTVoxelTest : EventHandler
   if(e.Name=="vxangle")for(int i=0;i<Items.Size();i++)if(Items[i])Items[i].Angle=e.Args[0];
   if(e.Name=="vxcheck")
   {
-   bool ok=Items.Size()==4;for(int i=0;i<Items.Size();i++)ok=ok && Items[i];
+   bool ok=Items.Size()==4;for(int i=0;i<Items.Size();i++)ok=ok && Items[i] && Items[i].Scale.X==1 && Items[i].Scale.Y==1;
    Console.Printf("UTNT_ASSERT %s gallery group %d survives",ok?"PASS":"FAIL",Group);
   }
  }

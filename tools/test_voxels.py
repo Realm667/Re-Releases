@@ -38,7 +38,7 @@ def main():
   r=run_case(a.engine,a.iwad,mod=a.mod,root=w,addon=addon,mapname='VXLAB',renderer=a.renderer,label=label,timeout=80,
    settings=[('UTNT_distanceblur',0),('UTNT_fxquality',2),('UTNT_reducedfx','false'),('gl_texture_filter',0)],commands=chain)
   out=Path(r['log']).read_text(encoding='utf-8')
-  r['ok']=r['ok'] and r['assertions']>=5*len(groups)+1 and not any(x in out for x in ('not a valid voxel','Unknown voxel option','Voxel "'))
+  r['ok']=r['ok'] and r['assertions']>=9*len(groups)+1 and not any(x in out for x in ('not a valid voxel','Unknown voxel option','Voxel "'))
   results.append(r)
   (ROOT/'tutnt/.codex/validation'/f'voxels-{a.label}.json').write_text(json.dumps(results,indent=2))
   if not r['ok']:print(out[-9000:]);raise SystemExit(1)
