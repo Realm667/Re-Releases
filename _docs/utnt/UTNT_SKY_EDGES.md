@@ -1,6 +1,6 @@
-# Natural skyline edges
+# Natural skyline and terrain edges
 
-Updated: 12 September 2026.
+Updated: 13 September 2026.
 
 Outdoor rock walls gain irregular outward bulges and overhangs; snow/ice walls
 receive softer cornices. Crest height and outward reach vary independently,
@@ -21,10 +21,10 @@ ceiling, and lower walls against closed sky sectors qualify. Upper walls require
 a non-sky backing ceiling and at least eight map units of visible wall height;
 the cornice radius shrinks to fit that strip without extending into the opening
 below. Closed-sector lower walls require both ceilings to be F_SKY1. Ordinary
-outdoor steps and open elevated terraces are excluded, as are horizon/portal
-lines and other walls shorter than 48 map units.
+outdoor steps and open elevated terraces use the separate terrain profiles below.
+Horizon/portal lines and other skyline walls shorter than 48 map units are excluded.
 
-Current generated coverage:
+Skyline coverage (unchanged by the terrain extension):
 
 | Map | Edges |
 | --- | ---: |
@@ -41,6 +41,52 @@ Current generated coverage:
 
 Total: 2,154 edges, comprising 1,702 rock and 452 snow/ice edges. The complete
 manifest records each map, line, side, material and generated mesh.
+
+## Outdoor terrain profiles
+
+`tools/build_terrain_edges.py` extends the shared generator to open outdoor
+ledges and selected wall-foot deposits. It uses the existing organic material
+profiles: rock, grass, soil, gravel, snow, snowrock and ice. Both the upper floor
+and the exposed wall must be natural materials. Snow appears only when the
+corresponding floor or wall actually uses a snow/ice material.
+
+Ledges use two meshes with an identical shared seam: an upper cap using the
+floor material and a lower shoulder using the wall material. This supports a
+grass or snow covering over a rock face without replacing that face's material.
+Rock shoulders use facet shading; snow remains smooth, and grass caps have a
+finer, uneven fringe. The cap follows floor rotation, scaling, panning and
+expanded texture bindings. Its light/glow origin lies in the receiving floor
+sector, and its horizontal seam has no artificial brightness boost. Lower wall pegging uses the backing ceiling only
+when both ceilings are sky; otherwise it uses the front ceiling, matching the
+engine and area-texture handler.
+
+Grass/soil steps qualify from four map units; other ledges from sixteen. Both
+sides must have sky ceilings and the upper floor must retain at least 56 units
+of headroom. The maximum base radius is eight units and shrinks with the drop.
+Caps rise at most 0.65 units above the authored floor. Selected broad wall feet
+receive shallow irregular deposits with at most 2.3 units of added height.
+Polygon checks require room on the receiving floor. Narrow ledges, short wall
+feet, technical materials, scrolling floors and action/portal lines are excluded. Authored slope
+setup lines remain supported. These are cosmetic edge details, not new walkable
+platforms or collision geometry.
+
+The existing height maps now also influence these new meshes during generation.
+A smoothed, tiled sample controls small variations in reach and rock facets;
+its amplitude is bounded and shared material seams remain identical. Signed
+height values are decoded relative to the existing neutral level. Fine surface
+relief continues in the original POM shader. The existing skyline profile is
+unchanged by this additional sampling.
+
+Current total coverage: 2,154 skyline models, 4,152 terrain ledges represented
+by 8,304 cap/shoulder models, and 974 wall-foot models. The combined 11,432 models
+contain 1,174,400 triangles across ten maps. These totals span the whole campaign;
+render visibility remains bounded per model. No measured performance gain is
+claimed.
+
+Terrain actors reuse the client-only skyline lifecycle and ceiling-glow canvas.
+They validate both floor and wall materials, their texture transforms, and both
+sectors' floor/ceiling planes. A changed dependency hides the affected model;
+restoring it enables the model again. Save/load recreates the local models.
 
 ## Geometry and material continuity
 
@@ -64,8 +110,9 @@ a restrained orientation-dependent shade makes the underside readable without
 adding a dark border to the vertical join. Weather aliases are explicitly
 registered, rather than accepting arbitrary runtime material replacements.
 
-Height maps and normal maps continue through the original POM shader on the
-curved surface; they do not independently displace the mesh silhouette.
+For skyline cornices, height maps and normal maps continue through the original
+POM shader without independently displacing the silhouette. The new terrain
+profiles additionally use the bounded build-time sampling described above.
 Sector-defined ceiling glow is transferred through a small live state canvas,
 using each sector's current color, reach and ceiling plane. The material adds
 the resulting light before surface color multiplication, preserving texture
@@ -75,7 +122,7 @@ is a texture binding, not a separate compiled shader. Global GLDEFS texture-glow
 fallbacks are not queried by ZScript; the existing F_SKY1 ceiling sectors use
 explicit sector glow instead.
 
-The total is 418,608 triangles across all ten maps, not simultaneously in one
+The skyline portion is 418,608 triangles across all ten maps, not simultaneously in one
 scene. Each mesh has a bounded render radius for engine culling. No general
 performance improvement is claimed.
 
@@ -97,11 +144,20 @@ remain in their standard subdirectories.
 
 ## Validation
 
+`python -B tools/test_terrain_edges.py` verifies cap/shoulder seams, material
+selection, small grass steps, height limits, slope normals, floor UV transforms,
+height-map decoding and bounded deformation.
+
 `python -B tools/test_sky_edges.py` verifies material/boundary filtering, reversed
 lines, shared corner positions, outward and raised geometry, slope alignment,
 upper-wall clearance and pegging, higher rock crests, and generated-asset freshness. Runtime cases check exact actor/visible counts,
 noncollision flags, invalid-material fallback, live ceiling-glow restoration and save/load. They capture front,
 close and oblique views with the edges disabled and enabled.
+
+Runtime cases additionally test terrain floor material changes, texture-offset
+changes and a moved floor, including restoration. Client-only thinker iteration
+is used for counts before and after save/load. `--mode 1 --layer 1` selects a
+terrain cap camera, `--mode 2` a wall-foot camera, and `--line` an exact map edge.
 
 Example against the built integration package:
 
@@ -116,6 +172,13 @@ automated geometry/portability checks and generated-asset freshness also pass.
 The earlier ceiling-glow build additionally covered TNT03A2 on OpenGL and
 captured a temporary red test light. The isolated commit package and shared
 integration package are validated separately.
+
+The outdoor terrain extension passed 18 geometry checks and 14 packaged runtime
+cases: all ten maps on Vulkan, snow/grass/rock comparisons on OpenGL, and a
+separate wall-foot case. Each runtime case passed 11 assertions. The final cap
+lighting refinement passed six further material cases across both renderers.
+The shared integration package passed the normal engine build check; all 12,759
+compared skyline and terrain resources matched the final isolated test package.
 
 Renderer 1 is Vulkan; renderer 0 is OpenGL. Local screenshots and logs are in
 `tutnt/.codex/logs/sky-edges-*`; structured results are under

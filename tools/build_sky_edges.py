@@ -1,7 +1,7 @@
-"""Build material-matched, noncolliding cornices at actual outdoor sky boundaries.
+"""Build material-matched, noncolliding outdoor skyline and terrain edges.
 
-One-sided sky walls, exposed upper walls and closed sky sectors qualify. Ordinary outdoor steps,
-architecture, liquids and horizon/portal lines do not. Geometry and UVs are
+Sky walls, open natural terrain ledges and selected wall feet qualify.
+Architecture, liquids and horizon/portal lines do not. Geometry and UVs are
 baked from current maps and area bindings; source WADs are never rewritten.
 """
 from pathlib import Path
@@ -114,7 +114,8 @@ def wall_uv(e, variants, bindings):
     def reference(height):
         if part==0:return fc if peg else bc+math.ceil(height/sy)
         if part==1:return ff+math.ceil(height/sy) if peg else fc
-        return bc+math.ceil(height/sy) if peg else bf
+        sky=tex(front,'textureceiling')=='F_SKY1' and back is not None and tex(back,'textureceiling')=='F_SKY1'
+        return (bc if sky else fc)+math.ceil(height/sy) if peg else bf
     row=bindings.get((e['line'],e['face'],part))
     if row:
         if row[4]!=skin: raise ValueError('Stale area binding')
@@ -276,38 +277,49 @@ def mesh(e):
 
 def generate(root=ROOT,check=False):
     root=Path(root);variants=json.loads((root/'tools/organic-materials/generated.json').read_text())['variants']
+    from build_terrain_edges import detect_terrain,terrain_mesh,floor_mapping,HeightSampler
+    sampler=HeightSampler(root,variants)
     outputs={};models=[];actors=[];records=[];skins=set();glow_sectors={};skin_bindings={}
-    def glow_skin(skin,slot):
-        key=(skin,slot)
+    def glow_skin(skin,slot,terrain=False):
+        key=(skin,slot,terrain)
         if key not in skin_bindings:skin_bindings[key]=f"SG{len(skin_bindings):06d}"
         return skin_bindings[key]
     for path in sorted((root/'tutnt/maps').glob('*.wad')):
-        b=parse(path);resolve_slopes(b,path);edges=detect(b,variants,mapping(root,path.stem));rows=[]
+        b=parse(path);resolve_slopes(b,path);bindings=mapping(root,path.stem)
+        edges=detect(b,variants,bindings)+detect_terrain(b,variants,bindings,floor_mapping(root,path.stem));rows=[]
         envpath=root/'tutnt/environment'/f'{path.stem}-surfaces.txt'
         environment={}
         if envpath.exists():
             for line in envpath.read_text().splitlines():
                 r=line.split('|')
-                if r[0]=='1':environment[(int(r[1]),int(r[2]),r[3])]=r[4]
+                if r[0] in ('0','1'):environment[(int(r[0]),int(r[1]),int(r[2]),r[3])]=r[4]
         for e in edges:
-            obj,center,h,triangles,verts=mesh(e)
+            obj,center,h,triangles,verts=terrain_mesh(e,sampler) if 'mode' in e else mesh(e)
             stem=f'{path.stem}-{e["line"]}-{e["face"]}'
+            if 'mode' in e:stem+=f'-terrain-{e["mode"]}-{e["layer"]}'
             cls='UTNTSkyEdge_'+stem.replace('-','_');c=e['uv']
-            sector_key=(path.stem,e['front_id'])
+            terrain=e.get('layer',0)==1 and 'mode' in e
+            sector_key=(path.stem,e['surface_id'] if terrain else e['front_id'])
             if sector_key not in glow_sectors:glow_sectors[sector_key]=len(glow_sectors)
-            slot=glow_sectors[sector_key];primary=glow_skin(c['skin'],slot)
+            slot=glow_sectors[sector_key];primary=glow_skin(c['skin'],slot,terrain)
             outputs[f'tutnt/models/sky-edges/{stem}.obj']=obj
             extent=math.ceil(max(math.sqrt(v[0]**2+v[2]**2) for v in verts)+8)
-            actors.append(f'class {cls} : UTNTSkyEdge {{ Default {{ RenderRadius {extent}; }} }}')
+            parent='UTNTTerrainEdge' if 'mode' in e else 'UTNTSkyEdge'
+            actors.append(f'class {cls} : {parent} {{ Default {{ RenderRadius {extent}; }} }}')
             # UZDoom's model scale has an implicit 1/1.2 vertical correction.
             models.append(f'Model {cls}\n{{\n Path "models/sky-edges/"\n Model 0 "{stem}.obj"\n Skin 0 "{primary}"\n Scale 1 1 1.2\n DontCullBackfaces\n FrameIndex SKED A 0 0\n}}')
-            row=[cls,e['line'],e['face'],e['part'],e['front_id'],e['top_id'],*e['a'],*e['b'],*center,h,e['h0'],e['h1'],e['texture'],c['skin'],c['sx'],c['sy'],c['ox'],c['oy'],e['radius'],e['kind'],environment.get((int(e['linedef']['sidefront' if e['face']==0 else 'sideback']),e['part'],c['skin']),'-')]
-            alternate=glow_skin(row[-1],slot) if row[-1]!='-' else '-'
+            row=[cls,e['line'],e['face'],e['part'],e['front_id'],e['top_id'],*e['a'],*e['b'],*center,h,e['h0'],e['h1'],e['texture'],c['skin'],c['sx'],c['sy'],c['ox'],c['oy'],e['radius'],e['kind'],environment.get((1,int(e['linedef']['sidefront' if e['face']==0 else 'sideback']),e['part'],c['skin']),'-')]
+            if 'mode' in e and e['layer']==1:row[-1]=environment.get((0,e['surface_id'],0,c['skin']),'-')
+            alternate=glow_skin(row[-1],slot,terrain) if row[-1]!='-' else '-'
             row.extend([primary,alternate,slot])
+            if 'mode' in e:
+                fu,wu=e['fu'],e['wu'];sid=int(e['linedef']['sidefront' if e['face']==0 else 'sideback'])
+                row.extend([e['mode'],e['layer'],e['surface_id'],fu['skin'],environment.get((0,e['surface_id'],0,fu['skin']),'-'),fu['sx'],fu['sy'],fu['ox'],fu['oy'],fu['angle'],wu['skin'],environment.get((1,sid,e['part'],wu['skin']),'-'),wu['sx'],wu['sy'],wu['ox'],wu['oy']])
+                row.extend(plane(sec,p,part) if sec else 0 for part in ('floor','ceiling') for sec in (e['front'],e['back']) for p in (e['a'],e['b']))
             skins.add(c['skin'])
             if row[23]!='-':skins.add(row[23])
             rows.append('|'.join(str(x) for x in row))
-            records.append({k:e[k] for k in ('line','face','part','front_id','top_id','a','b','kind','family','texture','radius','h0','h1')}|dict(map=path.stem.upper(),skin=c['skin'],center=[*center,h],triangles=triangles))
+            records.append({k:e[k] for k in ('line','face','part','front_id','top_id','a','b','kind','family','texture','radius','h0','h1')}|dict(map=path.stem.upper(),skin=c['skin'],center=[*center,h],triangles=triangles,mode=e.get('mode',0),layer=e.get('layer',0)))
         if rows:outputs[f'tutnt/skyedges/{path.stem}.txt']='\n'.join(rows)+'\n'
     # Clone the existing texture/material definitions so terrain relief and
     # weather remain authoritative. Only macro underside shading is added.
@@ -326,7 +338,7 @@ def generate(root=ROOT,check=False):
     for slot in glow_sectors.values():
         pixel=bytes((slot>>16,(slot>>8)&255,slot&255))
         outputs[f'tutnt/materials/sky-edges/glow-{slot}.png']=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',1,1,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(b'\0'+pixel))+chunk(b'IEND',b'')
-    for (skin,slot),alias in skin_bindings.items():
+    for (skin,slot,terrain),alias in skin_bindings.items():
         if skin in textures:w,h,body=textures[skin]
         else:
             v=variants[skin];w,h=v['size'];lw,lh=v['logical']
@@ -334,7 +346,7 @@ def generate(root=ROOT,check=False):
         texturedefs.append(f'Texture "{alias}", {w}, {h}\n{{\n{body}\n}}')
         body=materials[skin]
         match=re.search(r'Shader\s+"([^"]+)"',body)
-        original=match[1];target='shaders/sky-edges/'+Path(original).name
+        original=match[1];target='shaders/sky-edges/'+('terrain_' if terrain else '')+Path(original).name
         if 'tutnt/'+target not in outputs:
             source=(root/'tutnt'/original).read_text()
             entry='void SetupMaterial(inout Material mat)'
@@ -342,6 +354,7 @@ def generate(root=ROOT,check=False):
             source=source.replace(entry,'void SkyEdgeOriginal(inout Material mat)')
             source+='#include "shaders/skyedges/ceiling_glow.glsl"\n'
             source+='\nvoid SetupMaterial(inout Material mat)\n{\n SkyEdgeOriginal(mat);\n float up=normalize(vWorldNormal.xyz).y;\n mat.Base.rgb*=1.0+0.12*max(up,0.0)-0.48*max(-up,0.0);\n SkyEdgeCeilingGlow(mat);\n}\n'
+            if terrain:source=source.replace('1.0+0.12*max(up,0.0)-0.48*max(-up,0.0)','1.0-0.22*max(-up,0.0)')
             outputs['tutnt/'+target]=source
         body=body.replace(original,target)
         body+=f'\n Texture skyGlowMeta "materials/sky-edges/glow-{slot}.png"\n Texture skyGlowState "USKYGLOW"\n'
@@ -352,7 +365,7 @@ def generate(root=ROOT,check=False):
     outputs['tutnt/modeldef/MODELDEF.sky-edges']='\n'.join(models)+'\n'
     import base64
     outputs['tutnt/sprites/SKEDA0.png']=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAarVyFEAAAAASUVORK5CYII=')
-    manifest=dict(schema=2,glow_sectors=len(glow_sectors),glow_materials=len(skin_bindings),rule='one-sided/upper sky walls or closed sky sectors; material allowlist',snow=sorted(SNOW),rock=sorted(ROCK),edges=records)
+    manifest=dict(schema=3,glow_sectors=len(glow_sectors),glow_materials=len(skin_bindings),rule='sky boundaries, open outdoor terrain ledges and selected wall feet; material allowlist',snow=sorted(SNOW),rock=sorted(ROCK),edges=records)
     outputs['tools/sky-edges-manifest.json']=json.dumps(manifest,indent=2)+'\n'
     inventory=root/'tools/sky-edges-outputs.json'
     previous=json.loads(inventory.read_text()) if inventory.exists() else []
@@ -372,7 +385,7 @@ def generate(root=ROOT,check=False):
     if check and (changed or stale):raise RuntimeError('Stale sky-edge assets: '+', '.join(changed[:8]))
     if not check:
         for path in stale:path.unlink()
-    return dict(edges=len(records),maps=dict(collections.Counter(r['map'] for r in records)),kinds=dict(collections.Counter(r['kind'] for r in records)),triangles=sum(r['triangles'] for r in records),updated=len(changed))
+    return dict(edges=len(records),maps=dict(collections.Counter(r['map'] for r in records)),kinds=dict(collections.Counter(r['kind'] for r in records)),modes=dict(collections.Counter(r['mode'] for r in records)),triangles=sum(r['triangles'] for r in records),updated=len(changed))
 
 if __name__=='__main__':
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--root',type=Path,default=ROOT);ap.add_argument('--check',action='store_true');args=ap.parse_args()

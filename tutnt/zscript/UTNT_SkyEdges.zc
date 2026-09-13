@@ -16,8 +16,8 @@ class UTNTSkyEdge : Actor
         Radius 1; Height 1;
     }
     States { Spawn: SKED A -1; Stop; }
-    double TopAt(Vector2 p) { return Part!=Side.bottom ? Top.ceilingplane.ZatPoint(p) : Top.floorplane.ZatPoint(p); }
-    void Configure(Sector front, Sector top, Side wall, Sector back, Array<String> r)
+    virtual double TopAt(Vector2 p) { return Part!=Side.bottom ? Top.ceilingplane.ZatPoint(p) : Top.floorplane.ZatPoint(p); }
+    virtual void Configure(Sector front, Sector top, Side wall, Sector back, Array<String> r)
     {
         self.Front=front;self.Top=top;self.Wall=wall;self.Back=back;Part=r[3].ToInt();
         EdgeA=(r[6].ToDouble(),r[7].ToDouble());EdgeB=(r[8].ToDouble(),r[9].ToDouble());
@@ -26,7 +26,7 @@ class UTNTSkyEdge : Actor
         XScale=r[17].ToDouble();YScale=r[18].ToDouble();XOffset=r[19].ToDouble();YOffset=r[20].ToDouble();RadiusLimit=r[21].ToDouble();EnvironmentSkin=r[23];CurrentSkin=SkinName;PrimaryMaterial=r[24];EnvironmentMaterial=r[25];
         UpdateEdge();
     }
-    void UpdateEdge()
+    virtual void UpdateEdge()
     {
         if(!Front || !Top || !Wall) { bInvisible=true;return; }
         double a=TopAt(EdgeA),b=TopAt(EdgeB);
@@ -52,6 +52,7 @@ class UTNTSkyEdge : Actor
     }
     override void Tick() { if((level.time & 7)==0)UpdateEdge(); }
 }
+#include "zscript/UTNT_TerrainEdges.zc"
 #include "zscript/sky-edges-generated.zc"
 
 class UTNTSkyEdges : EventHandler
@@ -86,12 +87,13 @@ class UTNTSkyEdges : EventHandler
         for(int i=0;i<rows.Size();i++)
         {
             Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);
-            if(r.Size()!=27) { Rejected++;continue; }
+            if(r.Size()!=27 && r.Size()!=51) { Rejected++;continue; }
             int index=r[1].ToInt(),face=r[2].ToInt(),part=r[3].ToInt();
             if(index<0 || index>=level.Lines.Size() || face<0 || face>1 || (part!=Side.top && part!=Side.mid && part!=Side.bottom)) { Rejected++;continue; }
             let line=level.Lines[index];let side=line.sidedef[face];let other=line.sidedef[1-face];
             if(!side || (part==Side.mid && other) || (part!=Side.mid && !other)) { Rejected++;continue; }
-            let front=side.sector;let top=part!=Side.bottom?front:other.sector;
+            let front=side.sector;let top=(part!=Side.bottom || (r.Size()==51 && r[27].ToInt()==2))?front:other.sector;
+            if(r.Size()==51 && (r[27].ToInt()<1 || r[27].ToInt()>2 || r[28].ToInt()<0 || r[28].ToInt()>1 || r[29].ToInt()!=top.Index())) { Rejected++;continue; }
             Vector2 a=(r[6].ToDouble(),r[7].ToDouble()),b=(r[8].ToDouble(),r[9].ToDouble());
             let v1=face==0?line.v1:line.v2;let v2=face==0?line.v2:line.v1;
             if((v1.p-a).Length()>.01 || (v2.p-b).Length()>.01 || front.Index()!=r[4].ToInt() || top.Index()!=r[5].ToInt()) { Rejected++;continue; }
@@ -100,7 +102,7 @@ class UTNTSkyEdges : EventHandler
             if(!edge) { Rejected++;continue; }
             int slot=r[26].ToInt();bool known=false;
             for(int j=0;j<GlowSlots.Size();j++)if(GlowSlots[j]==slot)known=true;
-            if(!known && slot>=0 && slot<13107) { GlowSlots.Push(slot);GlowSectors.Push(front); }
+            if(!known && slot>=0 && slot<13107) { GlowSlots.Push(slot);GlowSectors.Push(r.Size()==51 && r[28].ToInt()==1 ? top : front); }
             edge.Angle=0;edge.Configure(front,top,side,other?other.sector:null,r);Applied++;
         }
     }

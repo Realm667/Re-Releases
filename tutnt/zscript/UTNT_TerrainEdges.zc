@@ -1,0 +1,45 @@
+// Outdoor ledges and wall-foot deposits share the skyline renderer and glow canvas.
+class UTNTTerrainEdge : UTNTSkyEdge
+{
+    int Mode, Layer;
+    Sector Surface;
+    String FloorSkin, FloorEnvironment, WallSkin, WallEnvironment;
+    double FloorScaleX, FloorScaleY, FloorOffsetX, FloorOffsetY, FloorAngle;
+    double WallScaleX, WallScaleY, WallOffsetX, WallOffsetY;
+    double FloorA,FloorB,BackFloorA,BackFloorB,CeilA,CeilB,BackCeilA,BackCeilB;
+    override double TopAt(Vector2 p) { return Top.floorplane.ZatPoint(p); }
+    override void Configure(Sector front,Sector top,Side wall,Sector back,Array<String> r)
+    {
+        Mode=r[27].ToInt();Layer=r[28].ToInt();Surface=level.Sectors[r[29].ToInt()];
+        FloorSkin=r[30];FloorEnvironment=r[31];FloorScaleX=r[32].ToDouble();FloorScaleY=r[33].ToDouble();
+        FloorOffsetX=r[34].ToDouble();FloorOffsetY=r[35].ToDouble();FloorAngle=r[36].ToDouble();
+        WallSkin=r[37];WallEnvironment=r[38];WallScaleX=r[39].ToDouble();WallScaleY=r[40].ToDouble();
+        WallOffsetX=r[41].ToDouble();WallOffsetY=r[42].ToDouble();
+        FloorA=r[43].ToDouble();FloorB=r[44].ToDouble();BackFloorA=r[45].ToDouble();BackFloorB=r[46].ToDouble();
+        CeilA=r[47].ToDouble();CeilB=r[48].ToDouble();BackCeilA=r[49].ToDouble();BackCeilB=r[50].ToDouble();
+        Super.Configure(front,top,wall,back,r);
+    }
+    bool PlaneChanged(Sector s,Vector2 a,Vector2 b,double fa,double fb,double ca,double cb)
+    {
+        return abs(s.floorplane.ZatPoint(a)-fa)>.01 || abs(s.floorplane.ZatPoint(b)-fb)>.01
+            || abs(s.ceilingplane.ZatPoint(a)-ca)>.01 || abs(s.ceilingplane.ZatPoint(b)-cb)>.01;
+    }
+    override void UpdateEdge()
+    {
+        if(!Front || !Top || !Wall || !Surface) { bInvisible=true;return; }
+        String floorNow=TexMan.GetName(Surface.GetTexture(Sector.floor));String wallNow=TexMan.GetName(Wall.GetTexture(Part));
+        bool floorValid=(floorNow~==FloorSkin) || (FloorEnvironment!="-" && (floorNow~==FloorEnvironment));
+        bool wallValid=(wallNow~==WallSkin) || (WallEnvironment!="-" && (wallNow~==WallEnvironment));
+        String now=Layer==1?floorNow:wallNow;
+        if(floorValid && wallValid && !(now~==CurrentSkin)) { A_ChangeModel("",skin:(now~==SkinName)?PrimaryMaterial:EnvironmentMaterial);CurrentSkin=now; }
+        bInvisible=TestHidden || !floorValid || !wallValid || !(TexMan.GetName(Front.GetTexture(Sector.ceiling))~=="F_SKY1")
+            || PlaneChanged(Front,EdgeA,EdgeB,FloorA,FloorB,CeilA,CeilB)
+            || abs(Surface.GetXScale(Sector.floor)-FloorScaleX)>.001 || abs(Surface.GetYScale(Sector.floor)-FloorScaleY)>.001
+            || abs(Surface.GetXOffset(Sector.floor)-FloorOffsetX)>.001 || abs(Surface.GetYOffset(Sector.floor)-FloorOffsetY)>.001
+            || abs(Surface.GetAngle(Sector.floor)-FloorAngle)>.001
+            || abs(Wall.GetTextureXScale(Part)-WallScaleX)>.001 || abs(Wall.GetTextureYScale(Part)-WallScaleY)>.001
+            || abs(Wall.GetTextureXOffset(Part)-WallOffsetX)>.001 || abs(Wall.GetTextureYOffset(Part)-WallOffsetY)>.001;
+        if(Back)bInvisible=bInvisible || PlaneChanged(Back,EdgeA,EdgeB,BackFloorA,BackFloorB,BackCeilA,BackCeilB);
+        if(Mode==1)bInvisible=bInvisible || !Back || !(TexMan.GetName(Back.GetTexture(Sector.ceiling))~=="F_SKY1");
+    }
+}

@@ -87,15 +87,17 @@ class GeometryTests(unittest.TestCase):
         b=self.fixture();b['sector'][0]['heightfloor']='240'
         self.assertFalse(detect(b,self.variants))
 
-def runtime(root,engine,iwad,mod,mapname,renderer,packaged=False,label_suffix="",line=None):
+def runtime(root,engine,iwad,mod,mapname,renderer,packaged=False,label_suffix="",line=None,mode=None,layer=None):
     from check_engine import run_case
     manifest=json.loads((root/'tools/sky-edges-manifest.json').read_text())['edges']
     selected=[e for e in manifest if e['map']==mapname]
     # Long edge keeps the reference camera far from a junction. TNT02 line 4
     # is a known outdoor rock wall; other maps use their longest actual rim.
     selected.sort(key=lambda e:math.dist(e['a'],e['b']),reverse=True)
-    e=next((x for x in selected if mapname=='TNT02' and x['line']==4),selected[0])
-    if line is not None:e=next(x for x in selected if x['line']==line)
+    cameras=[x for x in selected if (mode is None or x.get('mode',0)==mode) and (layer is None or x.get('layer',0)==layer)]
+    if mode is None:cameras=[x for x in cameras if x.get('mode',0)==0]
+    e=next((x for x in cameras if mapname=='TNT02' and x['line']==4),cameras[0])
+    if line is not None:e=next(x for x in cameras if x['line']==line)
     ax,ay=e['a'];bx,by=e['b'];length=math.hypot(bx-ax,by-ay)
     nx,ny=(by-ay)/length,-(bx-ax)/length;mx,my=(ax+bx)*.5,(ay+by)*.5
     z=(e['h0']+e['h1'])*.5;yaw=math.degrees(math.atan2(-ny,-nx))
@@ -112,6 +114,7 @@ def runtime(root,engine,iwad,mod,mapname,renderer,packaged=False,label_suffix=""
         (addon/'TEXTURES.txt').write_bytes((root/'tutnt/textures/definitions/TEXTURES.sky-edges').read_bytes())
         (addon/'MODELDEF.txt').write_text('#include "modeldef/MODELDEF.sky-edges"\n')
         (addon/'zscript').mkdir(exist_ok=True)
+        (addon/'zscript/UTNT_TerrainEdges.zc').write_bytes((root/'tutnt/zscript/UTNT_TerrainEdges.zc').read_bytes())
         (addon/'zscript/UTNT_SkyEdges.zc').write_bytes((root/'tutnt/zscript/UTNT_SkyEdges.zc').read_bytes())
     (addon/'MAPINFO').write_text('gameinfo { AddEventHandlers="UTNTSkyEdgeTest" }\n')
     (addon/'ZSCRIPT.test').write_text('''version "5.0.0"
@@ -127,8 +130,8 @@ class UTNTSkyEdgeTest : EventHandler
         double distance=View==0?180:View==1?90:320;
         double along=View==2?-200:0;
         if(View==2)distance=180;
-        Cam.SetOrigin((MX+NX*distance-NY*along,MY+NY*distance+NX*along,TOP-(View==1?48:100)),false);
-        Cam.Angle=YAW-(View==2?48:0);Cam.Pitch=View==1?-14:-12;players[0].camera=Cam;
+        Cam.SetOrigin((MX+NX*distance-NY*along,MY+NY*distance+NX*along,TOP+(TERRAIN?(View==1?24:42):-(View==1?48:100))),false);
+        Cam.Angle=YAW-(View==2?48:0);Cam.Pitch=TERRAIN?12:(View==1?-14:-12);players[0].camera=Cam;
     }
     override void NetworkProcess(ConsoleEvent e)
     {
@@ -148,7 +151,7 @@ class UTNTSkyEdgeTest : EventHandler
         }
         if(e.Name=="skyedgeassert")
         {
-            let it=ThinkerIterator.Create("UTNTSkyEdge");UTNTSkyEdge edge;int total=0,visible=0;bool safe=true;
+            let it=ThinkerIterator.Create("UTNTSkyEdge",Thinker.MAX_STATNUM+1,true);UTNTSkyEdge edge;int total=0,visible=0;bool safe=true;
             while(edge=UTNTSkyEdge(it.Next()))
             {
                 total++;if(!edge.bInvisible)visible++;
@@ -160,7 +163,7 @@ class UTNTSkyEdgeTest : EventHandler
         }
         if(e.Name=="skyedgeinvalid")
         {
-            let it=ThinkerIterator.Create("UTNTSkyEdge");UTNTSkyEdge edge;bool safe=true;int total=0;
+            let it=ThinkerIterator.Create("UTNTSkyEdge",Thinker.MAX_STATNUM+1,true);UTNTSkyEdge edge;bool safe=true;int total=0;
             while(edge=UTNTSkyEdge(it.Next()))
             {
                 let old=edge.Wall.GetTexture(edge.Part);
@@ -169,24 +172,47 @@ class UTNTSkyEdgeTest : EventHandler
             }
             Console.Printf("UTNT_ASSERT %s changed material fallback",safe && total>0?"PASS":"FAIL");
         }
+        if(e.Name=="terrainedgeinvalid")
+        {
+            let it=ThinkerIterator.Create("UTNTTerrainEdge",Thinker.MAX_STATNUM+1,true);UTNTTerrainEdge edge;
+            int total=0;bool material=true,mapping=true,moving=true;
+            while(edge=UTNTTerrainEdge(it.Next()))
+            {
+                let surface=edge.Surface;let old=surface.GetTexture(Sector.floor);
+                surface.SetTexture(Sector.floor,TexMan.CheckForTexture("STARTAN3"));edge.UpdateEdge();material=material && edge.bInvisible;
+                surface.SetTexture(Sector.floor,old);edge.UpdateEdge();material=material && !edge.bInvisible;
+                double offset=surface.GetXOffset(Sector.floor);surface.SetXOffset(Sector.floor,offset+3);edge.UpdateEdge();mapping=mapping && edge.bInvisible;
+                surface.SetXOffset(Sector.floor,offset);edge.UpdateEdge();mapping=mapping && !edge.bInvisible;
+                if(total==0)
+                {
+                    double d=surface.floorplane.D;
+                    surface.MoveFloor(1,surface.floorplane.GetChangedHeight(-1),-1,-1,false,true);edge.UpdateEdge();moving=edge.bInvisible;
+                    surface.MoveFloor(1,d,-1,1,false,true);edge.UpdateEdge();moving=moving && !edge.bInvisible;
+                }
+                total++;
+            }
+            Console.Printf("UTNT_ASSERT %s terrain floor material restoration",total>0 && material?"PASS":"FAIL");
+            Console.Printf("UTNT_ASSERT %s terrain floor mapping restoration",total>0 && mapping?"PASS":"FAIL");
+            Console.Printf("UTNT_ASSERT %s terrain moving floor restoration",total>0 && moving?"PASS":"FAIL");
+        }
         if(e.Name=="skyedgedetail")
         {
-            let it=ThinkerIterator.Create("UTNTSkyEdge");UTNTSkyEdge edge;int hidden=0;
+            let it=ThinkerIterator.Create("UTNTSkyEdge",Thinker.MAX_STATNUM+1,true);UTNTSkyEdge edge;int hidden=0;
             while(edge=UTNTSkyEdge(it.Next()))if(edge.bInvisible && hidden++<6)
                 Console.Printf("SKYEDGE_HIDDEN|%s|skin=%s/%s|uv=%f,%f/%f,%f|height=%f/%f",edge.GetClassName(),TexMan.GetName(edge.Wall.GetTexture(edge.Part)),edge.SkinName,edge.Wall.GetTextureXOffset(edge.Part),edge.Wall.GetTextureYOffset(edge.Part),edge.XOffset,edge.YOffset,edge.TopAt(edge.EdgeA),edge.InitialHeight);
         }
     }
 }
-'''.replace('MX','('+str(mx)+')').replace('MY','('+str(my)+')').replace('NX','('+str(nx)+')').replace('NY','('+str(ny)+')').replace('TOP','('+str(z)+')').replace('YAW','('+str(yaw)+')').replace('COUNT',str(len(selected))))
+'''.replace('MX','('+str(mx)+')').replace('MY','('+str(my)+')').replace('NX','('+str(nx)+')').replace('NY','('+str(ny)+')').replace('TOP','('+str(z)+')').replace('YAW','('+str(yaw)+')').replace('COUNT',str(len(selected))).replace('TERRAIN','true' if e.get('mode',0) else 'false'))
     prefix=f'sky-edges-{mapname}-{renderer}'+('-packaged' if packaged else '')+label_suffix
     commands=['unbindall','god','notarget','wait 180','vid_setsize 1280 720','wait 20','netevent skyedges','netevent skyedgeassert','netevent skyedgedetail']
     for view in range(3):
         commands += [f'netevent skyedgeview {view}','netevent skyedges_mode 0','wait 10',f'screenshot logs/{prefix}-{view}-before.png','netevent skyedges_mode 1','wait 10',f'screenshot logs/{prefix}-{view}-after.png']
     commands+=['netevent skyedgeview 0','netevent skyedgeglow 1','wait 20',f'screenshot logs/{prefix}-glow-on.png','netevent skyedgeglow 2','wait 20',f'screenshot logs/{prefix}-glow-off.png','netevent skyedgeglow 0','wait 10']
-    commands+=['netevent skyedgeinvalid','save sky-edge-regression','wait 10','load sky-edge-regression','wait 70','netevent skyedgeassert','netevent skyedges','wait 20','echo UTNT_TEST_END','wait 10','quit']
-    result=run_case(engine,iwad,root=root/'tutnt/.codex',mod=mod,addon=addon,mapname=mapname,renderer=renderer,label=prefix,commands='; '.join(commands)+'\n',timeout=90,settings=[('UTNT_subtitles',False),('vid_maxfps',60),('gl_texture_filter',0),('gl_bloom',False),('screenblocks',12),('crosshair',0),('r_drawplayersprites',False),('con_notifytime',0),('use_mouse',False),('use_joystick',False),('i_pauseinbackground',False),('vid_activeinbackground',True)])
+    commands+=['netevent skyedgeinvalid','netevent terrainedgeinvalid','save sky-edge-regression','wait 10','load sky-edge-regression','wait 70','netevent skyedgeassert','netevent skyedges','wait 20','echo UTNT_TEST_END','wait 10','quit']
+    result=run_case(engine,iwad,root=root/'tutnt/.codex',mod=mod,addon=addon,mapname=mapname,renderer=renderer,label=prefix,commands='; '.join(commands)+'\n',timeout=180 if renderer=='0' else 90,settings=[('UTNT_subtitles',False),('vid_maxfps',60),('gl_texture_filter',0),('gl_bloom',False),('screenblocks',12),('crosshair',0),('r_drawplayersprites',False),('con_notifytime',0),('use_mouse',False),('use_joystick',False),('i_pauseinbackground',False),('vid_activeinbackground',True)])
     log=Path(result['log']).read_text()
-    if result['assertions']!=8:
+    if result['assertions']!=11:
         result['ok']=False;result['errors'].append('missing runtime assertions (including post-load checks)')
     if any(s in log for s in ['Unable to load shader','Shader compilation failed','Failed to compile']):result['ok']=False
     out=root/'tutnt/.codex/validation/sky-edges';out.mkdir(parents=True,exist_ok=True)
@@ -194,8 +220,8 @@ class UTNTSkyEdgeTest : EventHandler
     if not result['ok']:print(log[-6000:]);raise SystemExit(1)
 
 if __name__=='__main__':
-    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--runtime',action='store_true');ap.add_argument('--packaged',action='store_true');ap.add_argument('--map',default='TNT02');ap.add_argument('--renderer',default='1',choices=['0','1']);ap.add_argument('--engine',type=Path);ap.add_argument('--iwad',type=Path,default=Path('F:/DoomDev/DOOM2.WAD'));ap.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/tutnt-sky-edges.pk3');ap.add_argument('--label-suffix',default='');ap.add_argument('--line',type=int);args=ap.parse_args()
-    if args.runtime:runtime(ROOT,args.engine,args.iwad,args.mod,args.map.upper(),args.renderer,args.packaged,args.label_suffix,args.line)
+    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--runtime',action='store_true');ap.add_argument('--packaged',action='store_true');ap.add_argument('--map',default='TNT02');ap.add_argument('--renderer',default='1',choices=['0','1']);ap.add_argument('--engine',type=Path);ap.add_argument('--iwad',type=Path,default=Path('F:/DoomDev/DOOM2.WAD'));ap.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/tutnt-sky-edges.pk3');ap.add_argument('--label-suffix',default='');ap.add_argument('--line',type=int);ap.add_argument('--mode',type=int,choices=[0,1,2]);ap.add_argument('--layer',type=int,choices=[0,1]);args=ap.parse_args()
+    if args.runtime:runtime(ROOT,args.engine,args.iwad,args.mod,args.map.upper(),args.renderer,args.packaged,args.label_suffix,args.line,args.mode,args.layer)
     else:
         suite=unittest.defaultTestLoader.loadTestsFromTestCase(GeometryTests)
         if not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful():sys.exit(1)
