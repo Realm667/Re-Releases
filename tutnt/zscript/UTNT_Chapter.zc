@@ -188,8 +188,10 @@ class UTNTChapterUI ui
         double margin=UTNTUILayout.Margin();
         double available=min(820*Unit,Screen.GetWidth()-2*margin);
         double left=(Screen.GetWidth()-available)/2;
-        // Even 4:3 keeps both original illustrations beside a readable text panel.
-        BodyWidth=available*0.62; PictureWidth=available-BodyWidth-UTNTUILayout.Gap();
+        // Split usable column space 2:1, keeping the gutter outside the ratio.
+        double columns=available-UTNTUILayout.Gap();
+        BodyWidth=chapter.Intro ? available*0.62 : columns*2/3;
+        PictureWidth=columns-BodyWidth;
         BodyX=left; PictureX=left+BodyWidth+UTNTUILayout.Gap();
         String title=Local(chapter.Intro ? "UTNT_CHAPTER_INTRO" : String.Format("UTNT_CHAPTER_%d",chapter.Episode));
         Font font=Font.GetFont('SmallFont');
@@ -257,7 +259,6 @@ class UTNTChapterUI ui
         double alpha=clamp((level.time-chapter.StartTime+frac)/35,0,1);
         Screen.Dim(0x080403,1,0,0,Screen.GetWidth(),Screen.GetHeight());
         Picture(chapter.Intro ? "TNTE4_1" : "INTERPIC",0,0,Screen.GetWidth(),Screen.GetHeight(),alpha*(chapter.Intro ? 0.3 : 1));
-        if(!chapter.Intro) Picture("INTERP2",0,0,Screen.GetWidth(),Screen.GetHeight(),alpha*0.75);
         Font font=Font.GetFont('SmallFont');
         for(int row=0;row<Heading.Count() && (chapter.Intro || chapter.Sections[consoleplayer]==0);row++)
         {
@@ -296,8 +297,12 @@ class UTNTChapterUI ui
         }
         int picture=chapter.Definition ? chapter.Definition.Picture : UTNTChapterState.ImageNumber(chapter.Episode);
         double blend=clamp((level.time-chapter.StartTime-(chapter.Intro ? 170 : chapter.Definition ? chapter.Definition.PictureTic : UTNTChapterState.ImageChange(chapter.Episode))+frac)/70,0,1);
-        Picture(chapter.Intro ? "TNTE4_1" : String.Format("I_%02dA",picture),PictureX,BodyY,PictureWidth,BodyHeight,alpha*(1-blend));
-        Picture(chapter.Intro ? "TNTE4_2" : String.Format("I_%02dB",picture),PictureX,BodyY,PictureWidth,BodyHeight,alpha*blend);
+        // Opaque chapter artwork: retain A beneath B throughout the dissolve.
+        // Full paths select the supplied artwork independently of hires settings.
+        Picture(chapter.Intro ? "TNTE4_1" : String.Format("hires/graphics/interms/I_%02dA.png",picture),
+            PictureX,BodyY,PictureWidth,BodyHeight,alpha*(chapter.Intro ? 1-blend : 1));
+        Picture(chapter.Intro ? "TNTE4_2" : String.Format("hires/graphics/interms/I_%02dB.png",picture),
+            PictureX,BodyY,PictureWidth,BodyHeight,alpha*blend);
         String hint=Local(characters<0 ? "UTNT_CHAPTER_REVEAL" : page+1<PageCount ? "UTNT_CHAPTER_NEXT"
             : "UTNT_TR_RESULTS");
         if(chapter.Intro) hint=Local(consoleplayer==UTNTChapterState.Leader() ? "UTNT_CHAPTER_INTRO_KEYS" : "UTNT_CHAPTER_INTRO_GUEST");

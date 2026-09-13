@@ -34,6 +34,22 @@ Narration uses the original continuous recordings and original start offsets;
 pagination and translation do not restart audio. UZDoom serializes active sound
 channels and their playback positions along with the saved chapter state.
 
+## Chapter artwork and reading layout
+
+The story view divides its usable width into two thirds text on the left and
+one third illustration on the right, with the gutter outside that ratio. This
+arrangement also applies on 4:3 screens; the existing text pagination remains.
+The supplied opaque 460x778 portraits in `tutnt/hires/graphics/interms/` are
+resolved directly, independent of the optional hires texture setting. They fit
+inside the image column without stretching or cropping and receive no drop shadow.
+
+The campaign uses pairs I_02A/B through I_07A/B, I_09A/B and I_10A/B; there is no
+I_08 pair in the authored sequence. Original image-change and voice timings remain.
+During each A/B dissolve, A stays opaque beneath the incoming B, preventing a
+background leak halfway through. The obsolete INTERP2 shading overlay is omitted;
+the text plaque supplies its own readable background. TNT04A retains its cinematic
+image pair and existing column proportions. Statistics retain their separate layout.
+
 ## Result presentation and black transitions
 
 Single-player uses three large bronze plaques for kills, items and secrets, each
