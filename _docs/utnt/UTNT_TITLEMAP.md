@@ -6,7 +6,7 @@ The four original illustrations play behind the original fortress border in a
 22.6-second intro. Slow camera travel and overlapping dissolves lead into a
 dimmed final illustration, a gently settling Reforged logo, and the three
 localized project, author and UZDoom credit lines. The final scene continues
-with restrained drift, warm border illumination and a small number of embers.
+with a restrained anchored zoom, warm border illumination and a small number of embers.
 Opening any menu hides the intro logo and credits immediately; closing it
 restores the current composition without restarting the sequence or music.
 
@@ -52,13 +52,19 @@ LANGUAGE keys and the mod's SmallFont with a parchment translation and shadow.
 No new player-facing text or language keys are introduced.
 
 Illustrations and borders cover the viewport at every aspect ratio. Their
-original proportions are preserved; excess artwork is cropped symmetrically.
+original proportions are preserved; the first three illustrations and border
+are centered, while the final illustration follows its fixed beam anchor.
 The transparent border opening and current viewport constrain the logo/text
 widths. This avoids the previous ultrawide black side columns. Scene zoom has
 overscan for lateral travel, so camera motion cannot reveal uncovered edges.
 
-The initial zoom grows by 4.5 percentage points. Final travel settles into a
-very slow bounded horizontal drift. The bright border variant blends gently
+The initial zoom grows by 4.5 percentage points. TITLEPIC has no lateral travel:
+its beam at x=831 in the approved 1716-pixel artwork is anchored to the logo
+ampersand at x=286 in the 576-pixel logo. Scaling around this fixed point keeps
+the beam behind the ampersand throughout the zoom and at every aspect ratio.
+After the initial zoom, a smooth bounded extension approaches another 3.5
+percentage points without a loop or reset. Reduced effects keep the same
+alignment with a stationary image. The bright border variant blends gently
 with the dark original, lighting runes and stone without full-screen flashes.
 Only twelve analytic embers are drawn; there are no particle actors, random
 streams, accumulating allocations or changes to gameplay simulation.
@@ -95,3 +101,19 @@ independent engine-side observer. Tests create only central local artifacts.
 
 The work-layout checker already reported eight unrelated TNT01/TNT02 editor
 backup files before this task; those files are left untouched.
+
+Beam alignment refinement: four UZDoom cases cover 4:3, 16:9, ultrawide and
+reduced effects. Actual rendered beam positions at intro ages 18, 23, 60 and
+180 seconds have zero horizontal pixel travel in every case. The measured
+bright core below the logo stays within 1.5 pixels of the ampersand center.
+The screenshot checks use controlled UI ages; all other rendering runs through
+the normal title renderer. Evidence is stored under
+`tutnt/.codex/validation/titlemap-beam-anchor/`.
+
+The beam refinement package (`83a143c18d3f`) was built with the shared
+packager and engine check from the previously validated integration
+`399efbebcfaa`, because concurrent grass-source edits prevented a consistent
+whole-project snapshot. The complete runtime resource comparison confirms
+that only the title renderer and generated build identifiers changed; no
+resources were added or removed. The shared `tutnt.pk3` is byte-identical to
+this checked package. In-progress grass source changes remain separate.

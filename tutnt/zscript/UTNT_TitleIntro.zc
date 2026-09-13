@@ -59,10 +59,24 @@ class UTNTTitleCanvas ui
         double progress = Ease(age / (index == 3 ? 9.5 : 4.5));
         double zoom = reduced ? 1 : 1.025 + progress * 0.045;
         double drift = reduced ? 0 : (progress - 0.5) * ArtWidth * 0.014;
-        if (index == 1 || index == 3) drift = -drift;
-        // A very slow, bounded final drift has no discontinuity at the end of the intro.
-        if (!reduced && index == 3)
-            drift += Ease((age - 9.5) / 3) * sin((age - 9.5) * 7) * ArtWidth * 0.0025;
+        if (index == 3)
+        {
+            // TITLEPIC's approved 1716px artwork has its beam at x=831.
+            // Scale about that fixed focal point, directly under M_DOOM's ampersand.
+            // The continuing zoom is bounded and joins the opening zoom smoothly.
+            double idle = max(0, age - 9.5);
+            double tail = idle / (idle + 45);
+            if (!reduced) zoom += 0.035 * tail * tail;
+            double logoWidth = min(Width * 0.8, ArtWidth * 0.44);
+            double focusX = Width / 2 + logoWidth * (286.0 / 576.0 - 0.5);
+            double focusY = Height * 0.295;
+            double sourceY = (focusY - Top) / ArtHeight;
+            Picture(Scenes[index], focusX - ArtWidth * zoom * (831.0 / 1716.0),
+                focusY - ArtHeight * zoom * sourceY,
+                ArtWidth * zoom, ArtHeight * zoom, alpha);
+            return;
+        }
+        if (index == 1) drift = -drift;
         Picture(Scenes[index], Left - ArtWidth*(zoom-1)/2 + drift,
             Top - ArtHeight*(zoom-1)/2, ArtWidth*zoom, ArtHeight*zoom, alpha);
     }
