@@ -13,6 +13,12 @@ original `STCFN` patches: neutral dark gray for BIGFONT, dark brown-bronze for
 SMALLFONT. The brighter concept-sheet colors do not become the runtime colors.
 Alpha coverage is preserved; `UCRBIG` keeps its established 1.8x brightening.
 
+SMALLFONT's R is fitted by its upright stem rather than the descending diagonal
+in the source specimen. The stem now reaches the same cap baseline as B and P;
+the leg ends at that baseline. This correction also applies to the lowercase
+alias, retaining the original cell metrics and palette indices. Other glyphs
+are unchanged by this adjustment.
+
 ## Engine integration
 
 UZDoom 5.0.1 supports `Scale 2` in the Unicode font directory's `font.inf`.
@@ -65,7 +71,7 @@ the art direction; detail at actual game size is limited by the glyph resolution
 UZDoom 5.0.1 passed 11,268 assertions across the four language/layout cases and
 four credits cases with the rebuilt integration package. All 688 packaged font
 assets match their generated sources; all font variants have real alpha and no
-magenta key pixels. Eleven font unit tests and the reproducibility, coverage and
+magenta key pixels. Twelve font unit tests and the reproducibility, coverage and
 definition-layout checks passed.
 
 `tools/build_localized_fonts.py --check`, `tools/check_font_coverage.py` and
@@ -82,3 +88,6 @@ work, final preview and exact built-in Imagegen prompts are under
 `tutnt/.codex/work/bigfont-classic/`; the six SMALLFONT proposals are under
 `tutnt/.codex/work/smallfont-six-variants/`. These local working files are excluded
 from Git and game packages; the finished atlases and glyph sources are versioned.
+
+The R adjustment has an additional stem-baseline regression check and a fresh
+German INTERMAP screenshot under `tutnt/.codex/validation/smallfont-r/`.

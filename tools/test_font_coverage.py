@@ -76,4 +76,15 @@ class FontTests(unittest.TestCase):
         remapped=b.original_color_palette(source,bright,original,oldpal)
         self.assertEqual([c[:3] for c in remapped],oldpal)
         self.assertEqual([c[3] for c in remapped],[255,255,128])
+    def test_smallfont_r_stem_reaches_the_cap_baseline(self):
+        authored=json.loads((b.ROOT/'tools/font-sources/hires/smallfont.json').read_text())
+        original=b.Glyph(**authored['glyphs']['0052']);palette=authored['palette']
+        fixed=b.fit_smallfont_r(original,palette)
+        self.assertEqual((fixed.width,fixed.height,fixed.left,fixed.top),
+                         (original.width,original.height,original.left,original.top))
+        baseline=max(y for y in range(fixed.height) for x in range(fixed.width//3)
+                     if fixed.pixels[y*fixed.width+x]>=0 and palette[fixed.pixels[y*fixed.width+x]][3]>=128)
+        self.assertEqual(baseline,fixed.height-1)
+        self.assertEqual(b.fit_smallfont_r(fixed,palette),fixed)
+        self.assertTrue(set(fixed.pixels)<=set(original.pixels))
 if __name__=='__main__':unittest.main()

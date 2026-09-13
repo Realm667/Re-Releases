@@ -55,6 +55,29 @@ def crop(g):
     x,y,right,bottom=bounds(g)
     return Glyph(right-x,bottom-y,[g.pixels[j*g.width+i] for j in range(y,bottom) for i in range(x,right)])
 
+def fit_smallfont_r(glyph,palette):
+    """Fit R's stem to the cap cell, excluding the specimen's descending tail.
+
+    The authored R has a long diagonal below its left stem. Fitting that entire
+    outline shrank the cap body. Stop the leg at the stem baseline, then fit the
+    remaining indexed artwork to the unchanged cell. Retain the original colors.
+    """
+    left,top,right,bottom=bounds(glyph)
+    stem_right=left+max(1,(right-left)//3)
+    opaque=lambda p:p>=0 and (len(palette[p])==3 or palette[p][3]>=128)
+    baseline=max(y for y in range(top,bottom) for x in range(left,stem_right)
+                 if opaque(glyph.pixels[y*glyph.width+x]))+1
+    if baseline==bottom:return glyph.copy()
+    cap_right=max(x for y in range(top,baseline) for x in range(left,right)
+                  if opaque(glyph.pixels[y*glyph.width+x]))+1
+    out=glyph.copy()
+    for y in range(top,bottom):
+        sy=top+min(baseline-top-1,(y-top)*(baseline-top)//(bottom-top))
+        for x in range(left,right):
+            sx=left+min(cap_right-left-1,(x-left)*(cap_right-left)//(right-left))
+            out.pixels[y*out.width+x]=glyph.pixels[sy*glyph.width+sx]
+    return out
+
 def original_color_palette(glyphs,palette,original,original_palette):
     """Match the original font's tone distribution without changing coverage.
 
@@ -170,6 +193,7 @@ def outputs(root=ROOT):
         pal=[tuple(c) for c in authored['palette']]
         if name=='ucrbig':pal=[tuple(min(255,round(v*1.8)) for v in c[:3])+c[3:] for c in pal]
         source={int(c,16):Glyph(**g) for c,g in authored['glyphs'].items()}
+        if name=='smallfont':source[ord('R')]=fit_smallfont_r(source[ord('R')],pal)
         glyphs=extend(source,pal,name=='smallfont',unit=2);records={}
         glyphs.update({int(c,16):Glyph(**g) for c,g in authored.get('overrides',{}).items()})
         for code,glyph in glyphs.items():
