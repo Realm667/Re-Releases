@@ -9,6 +9,24 @@ class UTNTLightRayLegacyFrames : Actor
 {
     States { Spawn: VRCL AB -1; Stop; }
 }
+// Test-only isolation of the optional contributions, after their own ticks.
+class UTNTLightRayTestMask : Thinker
+{
+    int Mode;
+    override void Tick()
+    {
+        if(Mode&1)
+        {
+            let it=ThinkerIterator.Create('UTNTLightRayLamp',Thinker.MAX_STATNUM+1,true);Actor lamp;
+            while(lamp=Actor(it.Next()))lamp.A_RemoveLight('ray');
+        }
+        if(Mode&2)
+        {
+            let it=ThinkerIterator.Create('UTNTLightRayDust',Thinker.MAX_STATNUM+1,true);UTNTLightRayDust dust;
+            while(dust=UTNTLightRayDust(it.Next()))dust.Alpha=0;
+        }
+    }
+}
 class UTNTLightRayTest : EventHandler
 {
     Array<LightRay_Regular> Probes;
@@ -18,6 +36,28 @@ class UTNTLightRayTest : EventHandler
 
     override void NetworkProcess(ConsoleEvent e)
     {
+        if(e.Name=="raymask")
+        {
+            let it=ThinkerIterator.Create('UTNTLightRayTestMask',Thinker.MAX_STATNUM+1,true);
+            let mask=UTNTLightRayTestMask(it.Next());
+            if(!mask)mask=UTNTLightRayTestMask(level.CreateClientSideThinker('UTNTLightRayTestMask',Thinker.STAT_USER+28));
+            mask.Mode=e.Args[0];
+        }
+        if(e.Name=="raydetails")
+        {
+            let it=ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);
+            UTNTLightRayEmitter emitter;int count=0;
+            while(emitter=UTNTLightRayEmitter(it.Next()))
+            {
+                if(!emitter.Source)continue;
+                count++;
+            }
+            it=ThinkerIterator.Create('UTNTLightRayDust',Thinker.MAX_STATNUM+1,true);int dust=0,visible=0;UTNTLightRayDust grain;
+            while(grain=UTNTLightRayDust(it.Next()))
+            { dust++;if(grain.Source && grain.Age>20 && grain.Alpha>.1)visible++; }
+            Console.Printf("RAY_DETAIL_TOTAL emitters=%d dust=%d",count,dust);
+            if(e.Args[0]==1)Check(visible>0,"dust survives initialization and fades into view");
+        }
         if(e.Name=="rayclassic" || e.Name=="raymodern")
         {
             let it=ThinkerIterator.Create('LightRay_Regular');LightRay_Regular ray;
@@ -36,6 +76,8 @@ class UTNTLightRayTest : EventHandler
             Check(it.Next()==null,"no inactive emitters");
             it=ThinkerIterator.Create('UTNTLightRayLamp',Thinker.MAX_STATNUM+1,true);
             Check(it.Next()==null,"no inactive lights");
+            it=ThinkerIterator.Create('UTNTLightRayDust',Thinker.MAX_STATNUM+1,true);
+            Check(it.Next()==null,"no inactive dust");
         }
         if (e.Name == "raybudget")
         {
@@ -45,6 +87,11 @@ class UTNTLightRayTest : EventHandler
             int lamps=0;while(it.Next())lamps++;
             Check(emitters<=32 && lamps<=12,"local effect limits");
             if(e.Args[0]==1)Check(emitters==0 && lamps==0,"reduced effects clear optional detail");
+            if(e.Args[0]==1)
+            {
+                it=ThinkerIterator.Create('UTNTLightRayDust',Thinker.MAX_STATNUM+1,true);
+                Check(it.Next()==null,"reduced effects clear dust");
+            }
             Console.Printf("UTNT_RAY_BUDGET emitters=%d lamps=%d",emitters,lamps);
         }
         if (e.Name == "raycheck")
@@ -87,6 +134,8 @@ class UTNTLightRayTest : EventHandler
                 if(e.Args[0]==1){camera.SetOrigin((-680,1300,231),false);camera.Angle=5;camera.Pitch=0;}
                 if(e.Args[0]==2){camera.SetOrigin((-608,1312,237),false);camera.Angle=0;camera.Pitch=-15;}
                 if(e.Args[0]==3){camera.SetOrigin((-608,1152,231),false);camera.Angle=90;camera.Pitch=0;}
+                if(e.Args[0]==4){camera.SetOrigin((-608,1152,169),false);camera.Angle=90;camera.Pitch=-8;}
+                if(e.Args[0]==5){camera.SetOrigin((-608,1152,48),false);camera.Angle=90;camera.Pitch=30;}
             }
             if (level.MapName ~== "TNT02")
             {

@@ -5,8 +5,8 @@ vec4 ProcessTexel()
     vec2 uv = vTexCoord.st;
     vec3 world = pixelpos.xyz;
     float phase = dot(world, vec3(.017, .009, .013));
-    float flow = .92 + .055*sin(world.y*.13 + phase + timer*.31)
-                      + .025*sin(world.x*.09 - world.z*.07 - timer*.19);
+    float flow = .92 + .14*sin(world.y*.22 + phase + timer*1.1)
+                     + .07*sin(world.x*.16 - world.z*.14 - timer*.73);
     float alpha;
 #if RAY_SHAPE == 0
     // The legacy alpha profile is authoritative for width, length and source

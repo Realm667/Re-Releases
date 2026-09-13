@@ -74,11 +74,19 @@ class UTNTLightRayEmitter : Thinker
         Color tint = Source.FillColor;
         if (Source.GetRenderStyle() != STYLE_AddStencil && Source.GetRenderStyle() != STYLE_TranslucentStencil) tint = 0xffffff;
         double fade = clamp((512-distance)/128.,0.,1.);
-        int radius = int(clamp(128*Source.Scale.Y,16.,96.));
-        double cone = clamp(atan2(abs(Source.Scale.X)*70,abs(Source.Scale.Y)*220),6.,32.);
+        // Sprite length describes visible scattering, not the distance light
+        // travels. Trace the receiving surface, including solid 3D floors.
+        FLineTraceData hit;
+        if (!Lamp.LineTrace(0,768,90,TRF_THRUACTORS,data:hit)
+            || hit.HitType != FLineTraceData.TRACE_HitFloor || hit.Distance < 4)
+        { Lamp.Destroy(); Lamp=null; return; }
+        // Engine light radius is twice the intensity argument. Leave enough
+        // range beyond the receiver for attenuation to remain visible there.
+        int radius = int(clamp(hit.Distance*.85,24.,512.));
+        double cone = clamp(atan2(max(18.,abs(Source.Scale.X)*150),hit.Distance),7.,32.);
         Lamp.A_AttachLight('ray',DynamicLight.PointLight,tint,radius,0,
             DynamicLight.LF_ATTENUATE|DynamicLight.LF_SPOT,(0,0,0),0,cone*.5,cone,90,
-            .22*Source.Alpha*fade);
+            .65*Source.Alpha*fade);
     }
 
     override void Tick()
@@ -91,7 +99,7 @@ class UTNTLightRayEmitter : Thinker
         Age++;
         if (Age%8 == 0) UpdateLamp(distance);
         if (Age < NextDust) return;
-        NextDust = Age+(runtime.Quality == 3 ? 24 : 42);
+        NextDust = Age+(runtime.Quality == 3 ? 8 : 12);
         if (distance > 448 || Source.Alpha < .15 || !UTNTVisuals.Reserve()) return;
         let dust = UTNTLightRayDust(level.SpawnClientSideVisualThinker('UTNTLightRayDust'));
         if (dust) dust.Initialize(Source);
@@ -106,20 +114,22 @@ class UTNTLightRayDust : VisualThinker
 
     void Initialize(LightRay_Regular source)
     {
-        Source = source;
+        // ZScript identifiers are case-insensitive: qualify the member so the
+        // parameter does not assign to itself and leave the owner null.
+        self.Source = source;
         U = CFRandom[utntraydust](.43,.57);
         V = CFRandom[utntraydust](.19,.76);
         Depth = CFRandom[utntraydust](-1.6,1.6)*abs(source.Scale.X)*10;
-        Drift = CFRandom[utntraydust](-.00055,.00055);
-        Life = CRandom[utntraydust](65,110);
-        Strength = .22*source.Alpha;
-        Texture = TexMan.CheckForTexture('UFHRA0');
-        Flags = SPF_FULLBRIGHT|SPF_STRETCHPIXELS;
+        Drift = CFRandom[utntraydust](-.0012,.0012);
+        Life = CRandom[utntraydust](90,140);
+        Strength = .25*source.Alpha;
+        Texture = TexMan.CheckForTexture('URDSTA0');
+        Flags = SPF_FULLBRIGHT|SPF_ALLOWSHADERS|SPF_STRETCHPIXELS;
         SetRenderStyle(STYLE_AddStencil);
         scolor = source.FillColor|0xff000000;
         if (source.GetRenderStyle() != STYLE_AddStencil && source.GetRenderStyle() != STYLE_TranslucentStencil) scolor = 0xffffffff;
         let size = TexMan.GetScaledSize(Texture);
-        double width = CFRandom[utntraydust](.65,1.2);
+        double width = CFRandom[utntraydust](1.8,3.2);
         Scale = (width/size.X,width/size.Y);
         Pos = UTNTLightRayEmitter.Sample(source,U,V,Depth); Prev = Pos;
         Alpha = 0;
@@ -135,11 +145,22 @@ class UTNTLightRayDust : VisualThinker
         U += Drift; V += .0008;
         Prev = Pos; Pos = UTNTLightRayEmitter.Sample(Source,U,V,Depth);
         let sec = level.PointInSector(Pos.XY);
-        if (sec != Source.CurSector || sec.Get3DFloorCount() > 0
-            || Pos.Z < sec.floorplane.ZatPoint(Pos.XY)+1 || Pos.Z > sec.ceilingplane.ZatPoint(Pos.XY)-1)
+        if (!sec || Pos.Z < sec.floorplane.ZatPoint(Pos.XY)+1 || Pos.Z > sec.ceilingplane.ZatPoint(Pos.XY)-1)
         { Destroy(); return; }
+        // Lamp housings commonly occupy a tiny adjacent sector. Reject solid
+        // volumes, not every point outside that sector or below a 3D floor.
+        for (int i=0;i<sec.Get3DFloorCount();i++)
+        {
+            let f=sec.Get3DFloor(i);
+            if (!(f.flags&F3DFloor.FF_EXISTS) || !(f.flags&(F3DFloor.FF_SOLID|F3DFloor.FF_SWIMMABLE))) continue;
+            if (Pos.Z >= f.bottom.ZatPoint(Pos.XY) && Pos.Z <= f.top.ZatPoint(Pos.XY))
+            { Destroy(); return; }
+        }
+        let water=sec.GetHeightSec();
+        if (water && Pos.Z <= water.floorplane.ZatPoint(Pos.XY)) { Destroy(); return; }
         double edge = clamp((.20-abs(U-.5))/.10,0.,1.)*clamp((.95-V)/.20,0.,1.);
-        Alpha = Strength*edge*min(1.,Age/20.)*min(1.,(Life-Age)/25.);
+        double nearFade = runtime.Camera ? clamp(((Pos-runtime.Camera.Pos).Length()-4)/24.,0.,1.) : 0;
+        Alpha = Strength*edge*nearFade*min(1.,Age/20.)*min(1.,(Life-Age)/25.);
         UpdateSector();
     }
 }
