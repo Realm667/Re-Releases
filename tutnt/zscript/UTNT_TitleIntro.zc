@@ -1,0 +1,141 @@
+// TITLEMAP-only presentation. UI time continues with the music while menus pause the world.
+class UTNTTitleIntro : EventHandler
+{
+    ui int IntroTics;
+    ui bool Started, RevealPlayed;
+    ui UTNTTitleCanvas Canvas;
+
+    override void UiTick()
+    {
+        if (!(level.MapName ~== "TITLEMAP")) return;
+        if (!Started)
+        {
+            Started = true;
+            S_ChangeMusic("D_DM2TTL", 0, true, true);
+        }
+        IntroTics++;
+        if (!RevealPlayed && IntroTics >= 571)
+        {
+            RevealPlayed = true;
+            // The musical downbeat still carries the reveal if a menu is open.
+            if (menuactive == 0)
+                S_StartSound("UTNTTitle/Reveal", CHAN_AUTO, CHANF_UI, 0.4, ATTN_NONE);
+        }
+    }
+
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (!(level.MapName ~== "TITLEMAP")) return;
+        if (!Canvas) Canvas = new("UTNTTitleCanvas");
+        Canvas.Draw((IntroTics + System.GetTimeFrac()) / 35.0);
+    }
+}
+
+class UTNTTitleCanvas ui
+{
+    TextureID Scenes[4], Border, LitBorder, Logo, Ember;
+    Font Body;
+    bool Ready;
+    double Width, Height, ArtWidth, ArtHeight, Left, Top, Unit;
+
+    static double Ease(double value)
+    {
+        value = clamp(value, 0, 1);
+        return value * value * (3 - 2 * value);
+    }
+
+    void Picture(TextureID image, double x, double y, double w, double h, double alpha)
+    {
+        if (!image.IsValid() || alpha <= 0) return;
+        Screen.DrawTexture(image, false, x, y, DTA_DestWidthF, w, DTA_DestHeightF, h,
+            DTA_LeftOffset, 0, DTA_TopOffset, 0, DTA_Alpha, clamp(alpha, 0, 1));
+    }
+
+    void Scene(int index, double t, bool reduced, double alpha)
+    {
+        // Half-phrase cuts follow the measured 2.86 + n*3.36 second music grid.
+        double starts[] = {2.86, 6.22, 9.58, 12.94};
+        double age = max(0, t - starts[index]);
+        double progress = Ease(age / (index == 3 ? 9.5 : 4.5));
+        double zoom = reduced ? 1 : 1.025 + progress * 0.045;
+        double drift = reduced ? 0 : (progress - 0.5) * ArtWidth * 0.014;
+        if (index == 1 || index == 3) drift = -drift;
+        // A very slow, bounded final drift has no discontinuity at the end of the intro.
+        if (!reduced && index == 3)
+            drift += Ease((age - 9.5) / 3) * sin((age - 9.5) * 7) * ArtWidth * 0.0025;
+        Picture(Scenes[index], Left - ArtWidth*(zoom-1)/2 + drift,
+            Top - ArtHeight*(zoom-1)/2, ArtWidth*zoom, ArtHeight*zoom, alpha);
+    }
+
+    void Credit(String key, double y, double alpha)
+    {
+        if (alpha <= 0) return;
+        String text = StringTable.Localize(key);
+        double scale = min(Unit, ArtWidth * 0.44 / max(1, Body.StringWidth(text)));
+        double x = (Width - Body.StringWidth(text)*scale)/2;
+        Screen.DrawText(Body, Font.CR_BLACK, x + Unit, y + Unit, text,
+            DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Alpha, alpha * 0.85);
+        Screen.DrawText(Body, Font.CR_TAN, x, y, text,
+            DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Alpha, alpha);
+    }
+
+    void Sparks(double t, double alpha)
+    {
+        // Twelve analytic particles: no actors, RNG, saved state or accumulating spawns.
+        for (int i=0; i<12; i++)
+        {
+            double phase = ((t * (0.075 + (i%3)*0.009) + i*0.137) % 1.0);
+            double side = (i%2) == 0 ? 0.22 : 0.78;
+            double x = Left + ArtWidth * (side + sin(t*11 + i*83)*0.009);
+            double y = Height * (1.08 - phase*1.2);
+            double a = sin(phase*180) * alpha * 0.45;
+            double size = Unit * (2 + i%3);
+            Picture(Ember, x-size/2, y-size/2, size, size*1.5, a);
+        }
+    }
+
+    void Draw(double t)
+    {
+        if (!Ready)
+        {
+            Scenes[0]=TexMan.CheckForTexture("TITLE_1"); Scenes[1]=TexMan.CheckForTexture("TITLE_2");
+            Scenes[2]=TexMan.CheckForTexture("TITLE_3"); Scenes[3]=TexMan.CheckForTexture("TITLEPIC");
+            Border=TexMan.CheckForTexture("S_BORDER"); LitBorder=TexMan.CheckForTexture("S_BORDET");
+            Logo=TexMan.CheckForTexture("M_DOOM"); Ember=TexMan.CheckForTexture("EMBRA0", TexMan.Type_Sprite);
+            Body=Font.GetFont('SmallFont'); Ready=true;
+        }
+        Width=Screen.GetWidth(); Height=Screen.GetHeight(); Unit=Height/360.0;
+        // Cover all aspect ratios without exposing edges during camera travel.
+        double fit=max(Width/858.0, Height/480.0);
+        ArtWidth=858*fit; ArtHeight=480*fit; Left=(Width-ArtWidth)/2; Top=(Height-ArtHeight)/2;
+        bool reduced=CVar.FindCVar('UTNT_reducedfx').GetBool();
+        Screen.Dim(0, 1, 0, 0, int(Width), int(Height));
+        double starts[]={2.86,6.22,9.58,12.94};
+        int scene=-1;
+        for(int i=0;i<4;i++) if(t>=starts[i]) scene=i;
+        if(scene>=0)
+        {
+            double fade=Ease((t-starts[scene])/1.15);
+            if(scene>0 && fade<1) Scene(scene-1,t,reduced,1);
+            Scene(scene,t,reduced,fade);
+        }
+        // Keep the final logo and credits readable without dimming the stone frame.
+        double finale=Ease((t-15.2)/2.4);
+        Screen.Dim(0,0.36*finale,0,0,int(Width),int(Height));
+        double frame=Ease((t-0.6)/2.1);
+        Picture(Border,Left,Top,ArtWidth,ArtHeight,frame);
+        double light=reduced?0.32:0.32+0.12*sin(t*42)+0.025*sin(t*103);
+        Picture(LitBorder,Left,Top,ArtWidth,ArtHeight,frame*light);
+        if(!reduced)Sparks(t,frame*Ease((t-2.86)/2));
+        // Menus own their logo. Hide only the title lettering and credits immediately.
+        if(menuactive!=0)return;
+        double reveal=Ease((t-16.3)/1.6);
+        double logoWidth=min(Width*0.8,ArtWidth*0.44)*(1+(reduced?0:0.025*(1-reveal)));
+        Vector2 dimensions=TexMan.GetScaledSize(Logo);
+        double logoHeight=logoWidth*dimensions.Y/max(1,dimensions.X);
+        Picture(Logo,(Width-logoWidth)/2,Height*0.295-logoHeight/2,logoWidth,logoHeight,reveal);
+        Credit("$UTNT_TITLE_PROJECT",Height*0.70,Ease((t-18.6)/1.2));
+        Credit("$UTNT_TITLE_AUTHOR",Height*0.75,Ease((t-20.0)/1.2));
+        Credit("$UTNT_TITLE_ENGINE",Height*0.85,Ease((t-21.4)/1.2));
+    }
+}

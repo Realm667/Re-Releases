@@ -4,7 +4,7 @@
 
 ## Interface, accessibility and presentation
 
-- **Title intro:** all four illustrations stay behind the fortress border, followed by the Reforged logo and localized project, author and UZDoom credits; the completed title card stays visible. [Details](UTNT_TITLEMAP.md)
+- **Cinematic title intro:** music-timed illustration dissolves and slow camera travel behind a glowing fortress border, subtle embers, a staged logo and localized credits, quiet final motion, ultrawide coverage and clean menu transitions; reduced effects preserve a still composition. [Details](UTNT_TITLEMAP.md)
 
 - **Sharper interface fonts:** Classic BIGFONT and Retro SMALLFONT at double resolution, with consistent letter proportions and matching localized glyphs while preserving original colors, text sizes and layouts. [Details](UTNT_HIRES_FONTS.md)
 - **Basalt fortress borders:** the selected stone-and-bronze frame with amber runes replaces both border variants, preserving their transparent opening and brighter alternate presentation. [Details](UTNT_BORDER_ARTWORK.md)

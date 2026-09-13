@@ -1,0 +1,20 @@
+version "4.10"
+class UTNTTitleProbe : EventHandler
+{
+    ui int Previous, MenuTicks;
+    ui bool Checked;
+    override void UiTick()
+    {
+        if (!(level.MapName ~== "TITLEMAP")) return;
+        let intro=UTNTTitleIntro(EventHandler.Find("UTNTTitleIntro"));
+        if (!intro) {Console.Printf("UTNT_ASSERT FAIL: missing title director");return;}
+        if (menuactive!=0 && intro.IntroTics>Previous) MenuTicks++;
+        Previous=intro.IntroTics;
+        if (Checked || intro.IntroTics<805) return;
+        Checked=true;
+        Console.Printf("UTNT_ASSERT %s: title timeline completes with menu-independent UI time",intro.Started && intro.RevealPlayed && intro.IntroTics>=805 ? "PASS":"FAIL");
+        Console.Printf("UTNT_ASSERT %s: title textures and original font resolve",intro.Canvas && intro.Canvas.Ready && intro.Canvas.Logo.IsValid() && intro.Canvas.Border.IsValid() && intro.Canvas.LitBorder.IsValid() && intro.Canvas.Ember.IsValid() && intro.Canvas.Body ? "PASS":"FAIL");
+        Console.Printf("UTNT_TITLE_MENU_TICKS %d",MenuTicks);
+        Console.Printf("UTNT_REGRESSION_COMPLETE");
+    }
+}
