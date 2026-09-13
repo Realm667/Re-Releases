@@ -1,0 +1,74 @@
+version "5.0"
+class UTNTDistanceBlurTest : StaticEventHandler
+{
+ ui void Check(bool ok,String label)
+ { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",label); }
+ ui void MenuCheck()
+ {
+  Menu.SetMenu('UTNTDisplayOptions');
+  let menu=OptionMenu(Menu.GetCurrentMenu());
+  Check(menu!=null,"display menu opens"); if(!menu)return;
+  Name controls[]={'UTNT_distanceblurstrength','UTNT_distanceblurstart'};
+  int defaults[]={50,640}; int steps[]={5,1}; int low[]={0,128}; int high[]={100,2569};
+  for(int n=0;n<controls.Size();n++)
+  {
+   let setting=CVar.FindCVar(controls[n]);int found=0;
+   Check(setting.GetInt()==defaults[n],"default "..controls[n]);
+   for(int i=0;i<menu.mDesc.mItems.Size();i++)
+   {
+    let [menuAction,param]=menu.mDesc.mItems[i].GetAction();
+    if(menuAction!=controls[n])continue;
+    found++;menu.mDesc.mSelectedItem=i;
+    menu.MenuEvent(Menu.MKEY_Right,false);
+    Check(setting.GetInt()==defaults[n]+steps[n],"slider right "..menuAction);
+    menu.MenuEvent(Menu.MKEY_Left,false);
+    Check(setting.GetInt()==defaults[n],"slider left "..menuAction);
+    setting.SetInt(high[n]); menu.MenuEvent(Menu.MKEY_Right,false);
+    Check(setting.GetInt()==high[n],"upper bound "..menuAction);
+    setting.SetInt(low[n]); menu.MenuEvent(Menu.MKEY_Left,false);
+    Check(setting.GetInt()==low[n],"lower bound "..menuAction);
+    setting.SetInt(defaults[n]);
+   }
+   Check(found==1,"one slider "..controls[n]);
+  }
+  let toggle=CVar.FindCVar('UTNT_distanceblur');
+  Check(toggle.GetBool(),"enabled by default");int toggles=0;
+  for(int i=0;i<menu.mDesc.mItems.Size();i++)
+  {
+   let [menuAction,param]=menu.mDesc.mItems[i].GetAction();
+   if(menuAction!='UTNT_distanceblur')continue;
+   toggles++;menu.mDesc.mSelectedItem=i;menu.MenuEvent(Menu.MKEY_Right,false);
+   Check(!toggle.GetBool(),"menu disables filter");menu.MenuEvent(Menu.MKEY_Left,false);
+   Check(toggle.GetBool(),"menu reenables filter");
+  }
+  Check(toggles==1,"one enable option");
+  Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Back,false);
+ }
+ override void ConsoleProcess(ConsoleEvent e)
+ {
+  if(e.Name=="blurmenu")MenuCheck();
+  if(e.Name=="blurcheck")
+  {
+   let h=UTNTEnvironment(EventHandler.Find('UTNTEnvironment'));
+   Check(h!=null,"environment handler present");
+   if(h)
+   {
+    Check(h.DistanceBlurEnabled==(e.Args[0]!=0),"filter enable state");
+    Check(abs(h.DistanceBlurStrength-e.Args[1]*.01)<.00001,"strength applied and clamped");
+    Check(h.DistanceBlurStart==e.Args[2],"start applied and clamped");
+    if(h.DistanceBlurEnabled)
+    {
+     Check(h.DistanceOptics!=null,"distance cache present");
+     if(h.DistanceOptics)
+     {
+      Check(h.DistanceOptics.SampleRange==8192,"trace reaches beyond maximum start distance");
+      double farthest=0;
+      for(int i=0;i<32;i++)farthest=max(farthest,h.DistanceOptics.Samples[i]);
+      Check(farthest>2569,"fixture captures distant geometry");
+     }
+    }
+   }
+   Console.Printf("UTNT_REGRESSION_COMPLETE");
+  }
+ }
+}

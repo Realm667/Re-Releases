@@ -19,19 +19,20 @@ class EnvironmentContracts(unittest.TestCase):
                 self.assertLessEqual(len(fields) * 16, 128, name)
 
     def test_quantized_distance_is_conservative_and_float_exact(self):
-        codes = []
-        for distance in range(2049):
-            code = math.floor(math.sqrt(distance / 2048) * 63)
-            recovered = code * code * 2048 / 3969
-            self.assertLessEqual(recovered, distance + 1e-9)
-            self.assertLess(distance - recovered, 65)
-            codes.append(code)
-        for offset in range(0, len(codes) - 3):
-            group = codes[offset:offset+4]
-            packed = sum(code << (6 * j) for j, code in enumerate(group))
-            as_float = struct.unpack("f", struct.pack("f", packed))[0]
-            self.assertEqual(as_float, packed)
-            self.assertEqual([int(as_float / 64**j) % 64 for j in range(4)], group)
+        for limit in (2048, 8192):
+            codes = []
+            for distance in range(limit+1):
+                code = math.floor(math.sqrt(distance / limit) * 63)
+                recovered = code * code * limit / 3969
+                self.assertLessEqual(recovered, distance + 1e-9)
+                self.assertLess(distance - recovered, limit / 31)
+                codes.append(code)
+            for offset in range(0, len(codes) - 3):
+                group = codes[offset:offset+4]
+                packed = sum(code << (6 * j) for j, code in enumerate(group))
+                as_float = struct.unpack("f", struct.pack("f", packed))[0]
+                self.assertEqual(as_float, packed)
+                self.assertEqual([int(as_float / 64**j) % 64 for j in range(4)], group)
 
     def test_dust_has_transparent_edges_and_bottom_pivot(self):
         paths = sorted((ROOT / "tutnt/graphics/environment").glob("mechanism-dust*.png"))
