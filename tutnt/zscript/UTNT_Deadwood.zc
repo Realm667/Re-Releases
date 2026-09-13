@@ -1,0 +1,110 @@
+// Cosmetic substitutions on the original actors: no map rewrites, replacements,
+// extra collision, gameplay RNG, or per-tic scans. Authored scales remain intact.
+class UTNTDeadwood : EventHandler
+{
+    Array<Actor> Pending;
+
+    static int Kind(Actor a)
+    {
+        if (!a) return -1;
+        name cls = a.GetClassName();
+        if (cls == 'BigTree') return 0;
+        if (cls == 'TorchTree') return 1;
+        if (cls == 'IceyTree') return 2;
+        if (cls == 'IceyStub') return 3;
+        return -1;
+    }
+
+    static int Theme(Actor a)
+    {
+        int kind = Kind(a);
+        if (kind >= 2 || level.MapName ~== "TNT03A1" || level.MapName ~== "TNT03A2")
+            return 2;
+        if (level.MapName ~== "TNT03B" || level.MapName ~== "TNT04A" ||
+            level.MapName ~== "TNT04B" || level.MapName ~== "TNT04C" ||
+            level.MapName ~== "TNT04CN" || level.MapName ~== "TNTLE" ||
+            level.MapName ~== "ENDMAP01")
+            return 1;
+        return 0;
+    }
+
+    static int Variant(Actor a)
+    {
+        // Unsigned wraparound is deterministic on all peers. Unlike modulo of
+        // grid coordinates alone, this also varies along regular map rows.
+        uint h = uint(int(a.Pos.X)) * 73856093;
+        h ^= uint(int(a.Pos.Y)) * 19349663;
+        h ^= uint(int(a.Pos.Z)) * 83492791;
+        h ^= uint(int(a.Angle)) * 2654435761;
+        h ^= h >> 16;
+        return int(h & 0x7fffffff) % 3;
+    }
+
+    static int SpriteFor(int theme, int kind)
+    {
+        if (kind == 3) return Actor.GetSpriteIndex('DWIS');
+        if (kind == 2) return Actor.GetSpriteIndex('DWIT');
+        if (theme == 2)
+            return kind == 0 ? Actor.GetSpriteIndex('DWFT') : Actor.GetSpriteIndex('DWFS');
+        if (theme == 1)
+            return kind == 0 ? Actor.GetSpriteIndex('DWCT') : Actor.GetSpriteIndex('DWCS');
+        return kind == 0 ? Actor.GetSpriteIndex('DWDT') : Actor.GetSpriteIndex('DWDS');
+    }
+
+    static void Apply(Actor a)
+    {
+        int kind = Kind(a);
+        if (kind < 0) return;
+        int original = kind == 0 ? Actor.GetSpriteIndex('TRE2') :
+                       kind == 1 ? Actor.GetSpriteIndex('TRE1') :
+                       kind == 2 ? Actor.GetSpriteIndex('ICT1') : Actor.GetSpriteIndex('ICS1');
+        // Already converted savegames keep their choice even if a script moved
+        // the actor. Explicit script-selected non-original sprites are respected.
+        if (a.sprite != original || a.frame != 0) return;
+        a.sprite = SpriteFor(Theme(a), kind);
+        a.frame = Variant(a);
+    }
+
+    override void WorldThingSpawned(WorldEvent e)
+    {
+        // Apply after PostBeginPlay and map-thing initialization have finished.
+        if (Kind(e.Thing) >= 0) Pending.Push(e.Thing);
+    }
+
+    override void WorldLoaded(WorldEvent e)
+    {
+        Pending.Clear();
+        let it = ThinkerIterator.Create('Actor');
+        Actor a;
+        while (a = Actor(it.Next()))
+            if (Kind(a) >= 0) Pending.Push(a);
+    }
+
+    override void WorldTick()
+    {
+        for (int i = 0; i < Pending.Size(); i++) Apply(Pending[i]);
+        Pending.Clear();
+    }
+}
+
+// Register every sprite prefix during startup, including frame C. This actor
+// is never spawned; original Doom/DECORATE classes and their states are retained.
+class UTNTDeadwoodFrames : Actor
+{
+    States
+    {
+    Spawn:
+        TNT1 A -1;
+        Stop;
+    Catalog:
+        DWDT ABC -1;
+        DWDS ABC -1;
+        DWCT ABC -1;
+        DWCS ABC -1;
+        DWFT ABC -1;
+        DWFS ABC -1;
+        DWIT ABC -1;
+        DWIS ABC -1;
+        Stop;
+    }
+}

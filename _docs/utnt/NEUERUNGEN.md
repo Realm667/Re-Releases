@@ -37,6 +37,8 @@
 
 ## Effects and environment
 
+- **Deadwood decorations:** three tree and three stump silhouettes in weathered, charred and frozen families replace existing decorations throughout the campaign, using native PLAYPAL colors and the original sprite pixel density, with stable variation, preserved map placements and collision, save/load support and matching sky-room lighting. [Details](UTNT_DEADWOOD.md)
+
 - **Light rays:** soft spatial downlights, gently moving light sheets, camera fades, sparse local dust and restrained matching illumination automatically enhance existing map actors. [Details](UTNT_LIGHT_RAYS.md)
 
 - **Sparse grass:** eight randomly varied, nonblocking tufts on grass floors outside the Super Mario secret, with ground-matched pixel colors, soft roots, distance fading and stable save/load placement. [Details](UTNT_GRASS.md)

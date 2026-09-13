@@ -1,0 +1,129 @@
+version "5.0.0"
+class UTNTDeadwoodUnrelated : BigTree {}
+class UTNTDeadwoodPreview : Actor
+{
+    Default { +NOBLOCKMAP +NOINTERACTION +NOGRAVITY }
+    States { Spawn: DWDT A -1; Stop; }
+}
+class UTNTDeadwoodTest : EventHandler
+{
+    Array<Actor> Sources;
+    Array<double> Radii, Heights, PassHeights;
+    Array<double> ScaleX, ScaleY;
+    Array<int> Tids, Kinds;
+    Array<Actor> Gallery;
+    Actor Cam, Unrelated;
+    int SavedHash, SavedCount;
+    bool GalleryMade;
+
+    void Capture(Actor a)
+    {
+        int k=UTNTDeadwood.Kind(a);if(k<0)return;
+        Sources.Push(a);Radii.Push(a.Radius);Heights.Push(a.Height);
+        PassHeights.Push(a.ProjectilePassHeight);ScaleX.Push(a.Scale.X);ScaleY.Push(a.Scale.Y);
+        Tids.Push(a.TID);Kinds.Push(k);
+    }
+    override void WorldLoaded(WorldEvent e)
+    {
+        if(e.IsSaveGame)return;
+        Sources.Clear();Radii.Clear();Heights.Clear();PassHeights.Clear();
+        ScaleX.Clear();ScaleY.Clear();Tids.Clear();Kinds.Clear();Gallery.Clear();GalleryMade=false;
+        let it=ThinkerIterator.Create('Actor');Actor a;
+        while(a=Actor(it.Next()))Capture(a);
+    }
+    void Check(bool restored)
+    {
+        bool physics=true,visual=true,ice=true;int count=0,hash=0,mask=0;
+        for(int i=0;i<Sources.Size();i++)
+        {
+            let a=Sources[i];if(!a)continue;count++;
+            physics=physics && UTNTDeadwood.Kind(a)==Kinds[i] && a.Radius==Radii[i] &&
+                a.Height==Heights[i] && a.ProjectilePassHeight==PassHeights[i] &&
+                a.Scale.X==ScaleX[i] && a.Scale.Y==ScaleY[i] && a.TID==Tids[i] && a.bSolid;
+            visual=visual && a.sprite==UTNTDeadwood.SpriteFor(UTNTDeadwood.Theme(a),Kinds[i]) &&
+                a.frame>=0 && a.frame<3;
+            if(Kinds[i]>=2)ice=ice && UTNTDeadwood.Theme(a)==2;
+            mask|=1<<a.frame;hash=hash*31+a.sprite*7+a.frame;
+            int sprite=a.sprite,frame=a.frame;
+            UTNTDeadwood.Apply(a);
+            visual=visual && a.sprite==sprite && a.frame==frame;
+        }
+        Console.Printf("UTNT_ASSERT %s all original decorations mapped %d variants %d",visual && count>0?"PASS":"FAIL",count,mask);
+        Console.Printf("UTNT_ASSERT %s original classes collision scale and TIDs preserved",physics?"PASS":"FAIL");
+        Console.Printf("UTNT_ASSERT %s explicit ice props retain snow family",ice?"PASS":"FAIL");
+        Console.Printf("UTNT_ASSERT %s three variants represented",mask==7?"PASS":"FAIL");
+        if(level.MapName~=="TNT04C")
+        {
+            let h=UTNTRiftSkyHandler(EventHandler.Find('UTNTRiftSkyHandler'));bool lighting=true;int n=0;
+            for(int i=0;i<h.AlternateDecorations.Size();i++)
+            {
+                let a=h.AlternateDecorations[i];if(!a)continue;n++;
+                lighting=lighting && a.LightLevel==a.CurSector.GetPlaneLight(Sector.floor);
+            }
+            Console.Printf("UTNT_ASSERT %s sky-room light tracking preserved %d",lighting && n>0?"PASS":"FAIL",n);
+        }
+        if(restored)Console.Printf("UTNT_ASSERT %s save/load preserves exact sprite choices",count==SavedCount && hash==SavedHash?"PASS":"FAIL");
+        else {SavedCount=count;SavedHash=hash;}
+        if(Unrelated)Console.Printf("UTNT_ASSERT %s unrelated subclasses not changed",Unrelated.sprite==Actor.GetSpriteIndex('TRE2')?"PASS":"FAIL");
+    }
+    void SpawnProbe()
+    {
+        Vector3 p=players[0].mo.Pos;
+        name classes[]={'BigTree','TorchTree','IceyTree','IceyStub'};
+        for(int i=0;i<4;i++)
+        {
+            let a=Actor.Spawn(classes[i],p+(80+i*96,100,0));
+            a.Scale=(.75,1.25);a.ChangeTID(667001+i);Capture(a);
+        }
+        Unrelated=Actor.Spawn('UTNTDeadwoodUnrelated',p+(80,220,0));
+    }
+    void View(int skip, int direction)
+    {
+        int n=0;
+        for(int i=0;i<Sources.Size();i++)
+        {
+            let a=Sources[i];if(!a || Kinds[i]%2!=0)continue;
+            if(n++<skip)continue;
+            if(!Cam)Cam=Actor.Spawn('MapSpot',a.Pos);
+            for(int j=0;j<16;j++)
+            {
+                double angle=direction+j*22.5;
+                Vector3 pos=a.Pos+(cos(angle)*220,sin(angle)*220,62);
+                let sec=level.PointInSector(pos.XY);
+                if(!sec || sec!=a.CurSector || sec.floorplane.ZatPoint(pos.XY)>pos.Z-8 ||
+                   sec.ceilingplane.ZatPoint(pos.XY)<pos.Z+8)continue;
+                Cam.SetOrigin(pos,false);Cam.Angle=VectorAngle(a.Pos.X-pos.X,a.Pos.Y-pos.Y);Cam.Pitch=0;
+                if(!Cam.CheckSight(a))continue;
+                players[0].camera=Cam;
+                Console.Printf("DEADWOOD_CAMERA target %f %f %f camera %f %f %f",a.Pos.X,a.Pos.Y,a.Pos.Z,pos.X,pos.Y,pos.Z);
+                return;
+            }
+        }
+    }
+    void SetGallery(int theme)
+    {
+        if(!GalleryMade)
+        {
+            for(int i=0;i<6;i++)Gallery.Push(Actor.Spawn('UTNTDeadwoodPreview',(-320+i*128,0,0)));
+            GalleryMade=true;
+        }
+        for(int i=0;i<Gallery.Size();i++)
+        {
+            Gallery[i].sprite=UTNTDeadwood.SpriteFor(theme,i<3?0:1);
+            Gallery[i].frame=i%3;
+        }
+        if(!Cam)Cam=Actor.Spawn('MapSpot',(0,-450,62));
+        Cam.SetOrigin((0,-450,62),false);Cam.Angle=90;Cam.Pitch=0;players[0].camera=Cam;
+    }
+    override void WorldTick()
+    {
+        if(Cam)players[0].camera=Cam;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="dwcheck")Check(e.Args[0]!=0);
+        if(e.Name=="dwspawn")SpawnProbe();
+        if(e.Name=="dwview")View(e.Args[0],e.Args[1]);
+        if(e.Name=="dwgallery")SetGallery(e.Args[0]);
+    }
+}
