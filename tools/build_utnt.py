@@ -236,6 +236,8 @@ def main():
     if not compiler.is_file(): p.error('ACC not found; set --acc or UTNT_ACC')
     from build_definition_tables import generate as generate_definition_tables
     generate_definition_tables(root, check=a.check_only)
+    from build_voxels import build as build_voxels
+    build_voxels(root, check=a.check_only)
     from build_grass_sprites import generate as generate_grass_sprites
     generate_grass_sprites(root, check=a.check_only)
     from build_lava_lips import generate as generate_lava_lips

@@ -39,6 +39,8 @@
 
 ## Effects and environment
 
+- **Voxel pickups and decorations:** selected Cheello models and original-lowres UTNT objects use the active PLAYPAL, with requested stationary or rotating presentation, preserved actor behavior and a localized Cheello credit in the ending. Sam & Max props retain their sprites. [Details](UTNT_VOXELS.md)
+
 - **Reference brightmaps:** compatible enemy and surface masks from the four TNT releases, with shared images, preserved CRT materials and incompatible sprite variants excluded. [Details](UTNT_BRIGHTMAPS.md)
 
 - **Deadwood decorations:** three tree and three stump silhouettes in weathered, charred and frozen families replace existing decorations throughout the campaign, including type-47 stumps, using native PLAYPAL colors, original sprite pixel density and subdued brightness, with charred wood in TNT02, stable variation, preserved map placements and collision, save/load support and matching sky-room lighting. [Details](UTNT_DEADWOOD.md)

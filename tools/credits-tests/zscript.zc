@@ -223,8 +223,8 @@ class UTNTCreditsTests : EventHandler
   }
   else if(op==21)
   {
-   Check(h.Pages.Size()==30,"original credits plus chapter, team, director, production tools and two dedications loaded");
-   if(h.Pages.Size()!=30)return;
+   Check(h.Pages.Size()==31,"original credits plus chapter, team, voxel artist, director, production tools and two dedications loaded");
+   if(h.Pages.Size()!=31)return;
    Check(h.Pages[24].Remaster && h.Pages[24].Layout=="chapter","Remaster chapter precedes contributors");
    let team=h.Pages[25];
    Check(team.Remaster && team.Names.Size()==3 && team.Layout=="standard","three remaster contributors share one compact page");
@@ -233,10 +233,11 @@ class UTNTCreditsTests : EventHandler
     Check(team.Names[0]=="Salahmander" && team.Names[1]=="Ozymandias81" && team.Names[2]=="DBThanatos","all remaster names retain authored order");
     Check(team.Contributions[0]=="$UTNT_CREDITS_REMASTER_SUPPORT" && team.Contributions[1]==team.Contributions[0] && team.Contributions[2]=="$UTNT_CREDITS_REMASTER_TAKE_II","all authored roles are assigned to the correct contributors");
    }
-   Check(h.Pages[26].Remaster && h.Pages[26].Layout=="creator" && h.Pages[26].Names.Size()==1 && h.Pages[26].Names[0]=="Tormentor667" && h.Pages[26].Contributions[0]=="$UTNT_CREDITS_REMASTER_DIRECTOR","director follows DBThanatos on a dedicated card");
-   Check(h.Pages[27].Remaster && h.Pages[27].Layout=="thanks" && h.Pages[27].Names.Size()==1 && h.Pages[27].Names[0]=="OpenAI & GPT-6 Astra" && h.Pages[27].Contributions[0]=="$UTNT_CREDITS_REMASTER_AI","partial AI assistance is acknowledged before the personal dedications");
-   Check(h.Pages[28].Remaster && h.Pages[28].Layout=="thanks" && h.Pages[28].Names.Size()==1 && h.Pages[28].Names[0]=="$UTNT_CREDITS_REMASTER_PARENTS_NAME","parents have a dedicated localized card");
-   Check(h.Pages[29].Remaster && h.Pages[29].Layout=="thanks" && h.Pages[29].Names.Size()==1 && h.Pages[29].Names[0]=="$UTNT_CREDITS_REMASTER_MINA_NAME","Mina has the closing localized dedication");
+   Check(h.Pages[26].Remaster && h.Pages[26].Names.Size()==1 && h.Pages[26].Names[0]=="Cheello" && h.Pages[26].Contributions[0]=="$UTNT_CREDITS_REMASTER_VOXELS","Cheello receives the localized voxel graphics credit");
+   Check(h.Pages[27].Remaster && h.Pages[27].Layout=="creator" && h.Pages[27].Names.Size()==1 && h.Pages[27].Names[0]=="Tormentor667" && h.Pages[27].Contributions[0]=="$UTNT_CREDITS_REMASTER_DIRECTOR","director follows Cheello on a dedicated card");
+   Check(h.Pages[28].Remaster && h.Pages[28].Layout=="thanks" && h.Pages[28].Names.Size()==1 && h.Pages[28].Names[0]=="OpenAI & GPT-6 Astra" && h.Pages[28].Contributions[0]=="$UTNT_CREDITS_REMASTER_AI","partial AI assistance is acknowledged before the personal dedications");
+   Check(h.Pages[29].Remaster && h.Pages[29].Layout=="thanks" && h.Pages[29].Names.Size()==1 && h.Pages[29].Names[0]=="$UTNT_CREDITS_REMASTER_PARENTS_NAME","parents have a dedicated localized card");
+   Check(h.Pages[30].Remaster && h.Pages[30].Layout=="thanks" && h.Pages[30].Names.Size()==1 && h.Pages[30].Names[0]=="$UTNT_CREDITS_REMASTER_MINA_NAME","Mina has the closing localized dedication");
   }
   else if(op==14)
   {Check(h.Page==7 && level.time-h.PageStart>=32 && level.time-h.PageStart<50,"animation time restored by save/load");}
