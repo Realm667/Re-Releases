@@ -7,11 +7,11 @@ class UTNTVoxelTest : EventHandler
  void Show(int group)
  {
   for(int i=0;i<Items.Size();i++)if(Items[i])Items[i].Destroy();Items.Clear();self.Group=group;
-  class<Actor> types[]={'Clip','Backpack','ClipBox','RocketBox','Cell','CellPack','RocketAmmo','FloatingSkull','BlueArmor','GreenArmor','Medikit','Stimpack','Candelabra','Candlestick','Berserk','Infrared','RadSuit','Allmap','Shell','BlueSkull','YellowSkull','RedSkull','ArmorBonus','HealthBonus','UTNTBFG9000','UTNTChaingun','UTNTChainsaw','UTNTPistol','UTNTPlasmaRifle','UTNTRocketLauncher','UTNTShotgun','UTNTSuperShotgun','Gas','BigGas','UTNTFlamer','UTNTPyroCannon','UTNTMinigun','PortalCoreHeart','UTNT_Barrel','CandelabraNew','ExplosiveBarrel'};
-  Expected=min(4,41-group*4);
+  class<Actor> types[]={'Clip','Backpack','ClipBox','RocketBox','Cell','CellPack','RocketAmmo','FloatingSkull','BlueArmor','GreenArmor','Medikit','Stimpack','Candelabra','Candlestick','Berserk','Infrared','RadSuit','Allmap','Shell','BlueSkull','YellowSkull','RedSkull','ArmorBonus','HealthBonus','UTNTBFG9000','UTNTChaingun','UTNTChainsaw','UTNTPistol','UTNTPlasmaRifle','UTNTRocketLauncher','UTNTShotgun','UTNTSuperShotgun','Gas','BigGas','UTNTFlamer','UTNTPyroCannon','UTNTMinigun','PortalCoreHeart','UTNT_Barrel','CandelabraNew','ExplosiveBarrel','ShellBox','BlueCard','YellowCard','RedCard'};
+  Expected=min(4,45-group*4);
   for(int i=0;i<4;i++)
   {
-   int index=group*4+i;if(index>=41)break;
+   int index=group*4+i;if(index>=45)break;
    let a=Actor.Spawn(types[index],((i-(Expected-1)*0.5)*96,0,0),NO_REPLACE);
    let d=GetDefaultByType(types[index]);
    Console.Printf("UTNT_ASSERT %s original defaults index %d",a && a.Radius==d.Radius && a.Height==d.Height && a.bSolid==d.bSolid && a.bSpecial==d.bSpecial?"PASS":"FAIL",index);

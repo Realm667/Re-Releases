@@ -2,7 +2,7 @@
 
 Updated: 14 September 2026.
 
-Forty-one selected actor types use sixty-seven native KVX models, including all original
+Forty-five selected actor types use seventy-four native KVX models, including all original
 animation frames. The mapping changes world rendering only: actor classes,
 collision, pickup amounts, weapon behavior, map placements and existing fire/light
 systems remain in place. Weapon HUD sprites are not voxelized.
@@ -32,7 +32,7 @@ build geometry or textures. The manifest records exact source hashes.
 ## Motion and scope
 
 `Spin = 0` means stationary; `Spin = 20` is a slow 18-second revolution;
-`Spin = 70` gives skull keys a roughly 5.14-second revolution. The same setting
+`Spin = 70` gives keys a roughly 5.14-second revolution. The same setting
 applies to placed and dropped pickups. No actor tick or network state is needed
 for native renderer rotation.
 
@@ -57,6 +57,10 @@ for native renderer rotation.
 | RadSuit | Cheello | 0 deg/s |
 | Allmap | Cheello | 0 deg/s |
 | Shell | Cheello | 0 deg/s |
+| ShellBox | Cheello | 0 deg/s |
+| BlueCard | Cheello | 70 deg/s |
+| YellowCard | Cheello | 70 deg/s |
+| RedCard | Cheello | 70 deg/s |
 | BlueSkull | Cheello | 70 deg/s |
 | YellowSkull | Cheello | 70 deg/s |
 | RedSkull | Cheello | 70 deg/s |
@@ -83,17 +87,21 @@ for native renderer rotation.
 The duplicate SamNMax_Zeitung request is treated once. All eight Sam & Max props
 (Ants, Box, Letters, Sandwich, Stuhl, Telef, Zeitung and TV) were explicitly
 excluded after visual review; they retain their existing sprites and have no
-voxel bindings or generated assets. The earlier keycard experiment also remains
-separate; this integration imports only the requested skull keys from Cheello.
+voxel bindings or generated assets. All three keycards now use both native Cheello frames and the requested rotation,
+including yellow cards on existing display pedestals. Sprite-based bindings also
+cover script-scaled cards without changing their actor state or authored scale.
 
 The explosive barrel includes both idle frames (BAR1 A/B) and all five explosion
 frames (BEXP A–E), with native scale, no rotation and the source angle offset.
 Its original actor, health and radius damage remain unchanged.
 
+The ShellBox uses Cheello's SBOX A model at native scale without rotation.
+Its original shell pickup amount and collision remain unchanged.
+
 ## World scale
 
 One native KVX cell is one map unit on every axis. VOXELDEF uses the engine's
-unit-scale default, and all forty-one selected actors use `Scale = (1,1)`. No model
+unit-scale default, and all forty-five selected actors use `Scale = (1,1)`. No model
 is normalized to a common display size. Doom's normal pixel aspect applies to
 the scene and does not change these map-unit measurements.
 
@@ -141,7 +149,7 @@ the voxel generator/checker before taking its immutable package snapshot.
 - `python -B tools/build_voxels.py --check` validates native KVX tables, slabs,
   MIPs, hashes, deterministic custom output and mappings.
 - `python -B tools/test_voxels.py --mod tutnt.pk3` opens the isolated VXLAB fixture
-  and exercises all forty-one actual actors, multiple viewing directions and save/load.
+  and exercises all forty-five actual actors, multiple viewing directions and save/load.
   Screenshots and logs stay in `.codex`. The fixture preserves every actor at
   `Scale = (1,1)` and asserts that scale before and after save/load.
 
@@ -162,3 +170,9 @@ confirms exact model hashes, active PLAYPAL bindings, all four credit translatio
 and absence of Sam & Max voxel resources. A further gallery run from the actual
 package covers armor, weapons and all eight custom actors. Local proof lives under
 `tutnt/.codex/validation/` and `tutnt/.codex/work/voxel-integration/`.
+
+The ShellBox and all three keycards were added on 14 September 2026. Their
+source import preserved all 67 previously integrated KVX files byte for byte.
+The ShellBox is 32 x 13 x 10 map units; each keycard is 14 x 2 x 16.
+The combined gallery passed 23 assertions for original defaults, native scale,
+save/load and retained barrel damage, including both keycard animation frames.

@@ -40,7 +40,7 @@
 
 ## Effects and environment
 
-- **Voxel pickups and decorations:** selected Cheello models, including the explosive barrel and its explosion frames, and original-lowres UTNT objects use the active PLAYPAL at native pixel scale, with correctly scaled previews and requested stationary or rotating presentation, preserved actor behavior and a localized Cheello credit in the ending. Sam & Max props retain their sprites. [Details](UTNT_VOXELS.md)
+- **Voxel pickups and decorations:** selected Cheello models, including all three keycards, the shell box, explosive barrel and its explosion frames, and original-lowres UTNT objects use the active PLAYPAL at native pixel scale, with correctly scaled previews and requested stationary or rotating presentation, preserved actor behavior and a localized Cheello credit in the ending. Sam & Max props retain their sprites. [Details](UTNT_VOXELS.md)
 
 - **Reference brightmaps:** compatible enemy and surface masks from the four TNT releases, with shared images, preserved CRT materials and incompatible sprite variants excluded. [Details](UTNT_BRIGHTMAPS.md)
 
