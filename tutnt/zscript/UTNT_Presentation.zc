@@ -68,6 +68,29 @@ class UTNTPlayerEffects : Behavior
     }
 }
 
+// Selection only affects local audio; shared queue timing covers both recordings.
+class UTNTVoiceAudio : Object
+{
+    static String LegacyName(String soundName)
+    {
+        return soundName.Length()==6 && soundName.Left(3) ~== "VOC" ? "LG"..soundName : soundName;
+    }
+
+    static Sound Resolve(String soundName)
+    {
+        if(consoleplayer>=0 && CVar.GetCVar('UTNT_legacyvoices',players[consoleplayer]).GetBool())
+            soundName=LegacyName(soundName);
+        return Sound(soundName);
+    }
+
+    static int Duration(String soundName)
+    {
+        if(soundName.Length()==0) return 0;
+        // Identical on every peer, even with different local voice preferences.
+        return int(ceil(max(S_GetLength(Sound(soundName)),S_GetLength(Sound(LegacyName(soundName))))*35));
+    }
+}
+
 class UTNTWorldHandler : EventHandler
 {
     UTNTChapterState Chapter;
@@ -192,7 +215,7 @@ class UTNTWorldHandler : EventHandler
             if (handler.VoiceQueueKeys[i]==key) return;
         handler.VoiceQueueKeys.Push(key);
         handler.VoiceQueueSounds.Push(soundName);
-        handler.VoiceQueueDurations.Push(max(max(1,seconds)*35,durationTics));
+        handler.VoiceQueueDurations.Push(max(max(max(1,seconds)*35,durationTics),UTNTVoiceAudio.Duration(soundName)));
     }
 
     // Skipping the shared TNT04A intro replaces its narration with line 22.
@@ -216,7 +239,7 @@ class UTNTWorldHandler : EventHandler
         int duration=VoiceQueueDurations[0];
         if (soundName.Length()>0)
         {
-            S_StartSound(Sound(soundName),CHAN_VOICE,0,1.0,ATTN_NONE); // Original ACS volume: 127 / 127.
+            S_StartSound(UTNTVoiceAudio.Resolve(soundName),CHAN_VOICE,0,1.0,ATTN_NONE); // Original ACS volume: 127 / 127.
         }
         VoiceEndTime=level.time+duration;
         VoiceQueueKeys.Delete(0); VoiceQueueSounds.Delete(0); VoiceQueueDurations.Delete(0);

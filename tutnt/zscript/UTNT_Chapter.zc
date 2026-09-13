@@ -86,7 +86,7 @@ class UTNTChapterState : Object
         if(!Definition) Definition=UTNTTransitionDefinition.ForEpisode(Episode);
         if(Intro || Phase || VoicePlayed || level.time<StartTime+Definition.VoiceTic) return;
         int number=Definition.Voice;
-        S_StartSound(Sound(String.Format("VOC%03d",number)),CHAN_VOICE,0,1,ATTN_NONE);
+        S_StartSound(UTNTVoiceAudio.Resolve(String.Format("VOC%03d",number)),CHAN_VOICE,0,1,ATTN_NONE);
         VoicePlayed=true;
     }
 

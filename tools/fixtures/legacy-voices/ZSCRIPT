@@ -1,0 +1,40 @@
+version "5.0"
+class UTNTLegacyVoiceTest : EventHandler
+{
+    void Check(bool ok, String message)
+    { Console.Printf("UTNT_ASSERT %s: %s",ok ? "PASS" : "FAIL",message); }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="legacyvoicecheck") return;
+        int n=e.Args[0];
+        String modern=String.Format("VOC%03d",n), legacy="LG"..modern;
+        Sound expected=Sound(e.Args[1] ? legacy : modern);
+        Check(UTNTVoiceAudio.Resolve(modern)==expected,"selected voice "..modern);
+        Check(UTNTVoiceAudio.Resolve("switches/normbutn")==Sound("switches/normbutn"),"other sounds unchanged");
+        Check(S_GetLength(Sound(modern))>0 && S_GetLength(Sound(legacy))>0,"both recordings decode "..modern);
+        int duration=UTNTVoiceAudio.Duration(modern);
+        Check(duration>=int(ceil(S_GetLength(Sound(modern))*35)) && duration>=int(ceil(S_GetLength(Sound(legacy))*35)),"queue covers both recordings");
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        h.Chapter=null;
+        if(n<=35)
+        {
+            h.VoiceQueueKeys.Clear(); h.VoiceQueueSounds.Clear(); h.VoiceQueueDurations.Clear();
+            h.VoiceKey=""; h.VoiceEndTime=level.time-18;
+            UTNTWorldHandler.BeginVoice("UTNT_VOICE_019",1,modern);
+            UTNTWorldHandler.BeginVoice("UTNT_VOICE_019",1,modern);
+            Check(h.VoiceQueueKeys.Size()==1,"duplicate voice is not queued");
+            h.TickVoice();
+            Check(h.VoiceEndTime-level.time>=duration && h.VoiceQueueKeys.Size()==0,"dialogue starts with safe duration");
+        }
+        else
+        {
+            let chapter=new("UTNTChapterState");
+            chapter.Init(1,0); chapter.Definition.Voice=n;
+            chapter.StartTime=level.time-chapter.Definition.VoiceTic;
+            chapter.Tick();
+            Check(chapter.VoicePlayed,"chapter narration starts");
+        }
+        Console.Printf("UTNT_VOICE_PLAYBACK %s",e.Args[1] ? legacy : modern);
+    }
+}

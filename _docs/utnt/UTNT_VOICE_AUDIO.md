@@ -1,17 +1,57 @@
 # Voiceover audio
 
-Updated: 12 September 2026.
+Updated: 13 September 2026.
+
+## Original voice option
+
+UTNT settings > Sound and subtitles > Legacy voice acting selects the original
+43 OGG recordings for dialogue and chapter narration. It defaults to off, is
+saved as the per-player `UTNT_legacyvoices` preference, and applies when the
+next recording starts. An already playing line finishes with its current voice.
+The menu label and help are translated into all four supported languages.
+
+Original recordings live in `tutnt/sounds/voices/legacy/LGVOC001.ogg` through
+`LGVOC043.ogg`, with matching SNDINFO names. Renaming preserves their bytes.
+The current MP3 files retain the `VOC001` through `VOC043` names.
+Both dialogue playback and chapter transitions use `UTNTVoiceAudio.Resolve`.
+Subtitles remain localized independently of the selected English audio.
+
+Dialogue queue duration covers the longer of the two actual recordings and
+the existing minimum subtitle duration, preventing early interruption. This
+timing is identical across cooperative peers even when their voice preferences
+differ. Existing chapter progression and explicit intro skipping stay intact.
+
 
 All 43 recordings in `tutnt/sounds/voices/` receive an input amplitude gain
 of 1.6 (+4.0824 dB). Dialogue and chapter narration retain their names,
 sample rates, channel counts and exact decoded sample counts, preserving
 playback timing and subtitle synchronization.
 
+## Legacy option validation (13 September 2026)
+
+- All 43 renamed OGG files match their original SHA-256 hashes byte for byte.
+- The rebuilt shared package contains all 86 recordings with matching source hashes
+  and passes the ACS, engine, localization and font gates.
+- `tools/test_legacy_voices.py` passes 511 engine assertions: both sets decode,
+  default/legacy/restored selection works, duplicate triggers stay deduplicated,
+  and dialogue timing covers both recordings. All 86 sounds were observed on
+  active audio channels through the actual dialogue and chapter playback paths.
+  Audio output was muted; this was not a subjective listening test.
+- `tools/test_options_menu.py` passes 924 assertions across English, German,
+  Spanish and French. The German voice-options menu was also visually checked.
+- Definition-table checks, native-font generation checks and all 14 localization
+  unit tests pass. A complete campaign or multiplayer playthrough was not run.
+
+Local evidence: `tutnt/.codex/validation/legacy-voices/`; audio and menu logs:
+`tutnt/.codex/logs/legacy-voices/`. The work-layout checker reports eight
+pre-existing TNT01/TNT02 editor backup/autosave files dated 10–12 September;
+none were created or moved by this change.
+
 ## Processing
 
 The current local MP3 recordings were the source for this change. Their
 amplified MP3 replacements supersede the former tracked OGG resources;
-ship only one resource per VOC001–VOC043 name. The SNDINFO bindings remain
+ship only one resource per VOC001â€“VOC043 name. The SNDINFO bindings remain
 unchanged and resolve the existing extension-independent logical names.
 
 FFmpeg 6.1.1 applies `volume=1.6:precision=double`, then encodes with
