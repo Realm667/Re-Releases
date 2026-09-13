@@ -5,7 +5,7 @@ diacritics and ligatures are composed in the same style. No system fonts.
 """
 from dataclasses import dataclass
 from pathlib import Path
-import argparse, hashlib, json, struct, unicodedata, zlib
+import argparse, bisect, collections, hashlib, json, struct, unicodedata, zlib
 ROOT=Path(__file__).resolve().parent.parent
 @dataclass
 class Glyph:
@@ -54,6 +54,28 @@ def bounds(glyph):
 def crop(g):
     x,y,right,bottom=bounds(g)
     return Glyph(right-x,bottom-y,[g.pixels[j*g.width+i] for j in range(y,bottom) for i in range(x,right)])
+
+def original_color_palette(glyphs,palette,original,original_palette):
+    """Match the original font's tone distribution without changing coverage.
+
+    One shared monotonic luminance map keeps all letters consistent. Output RGB
+    values come exclusively from colors actually used by the original artwork;
+    authored alpha is retained for the finer contours.
+    """
+    def light(c):return 2126*c[0]+7152*c[1]+722*c[2]
+    target=collections.Counter(tuple(original_palette[p][:3]) for g in original.values() for p in g.pixels if p>=0)
+    source=collections.Counter()
+    for g in glyphs.values():
+        for p in g.pixels:
+            if p>=0:source[light(palette[p])]+=palette[p][3] if len(palette[p])==4 else 255
+    colors=sorted(target,key=lambda c:(light(c),c));total=sum(target.values())
+    cumulative=[];running=0
+    for c in colors:running+=target[c];cumulative.append(running/total)
+    total=sum(source.values());running=0;tones={}
+    for value,weight in sorted(source.items()):
+        quantile=(running+weight/2)/total;running+=weight
+        tones[value]=colors[min(len(colors)-1,bisect.bisect_left(cumulative,quantile))]
+    return [tones[light(c)]+tuple(c[3:]) for c in palette]
 
 def overlay(base,mark,x,y):
     # Expand upwards without moving the base glyph's baseline or horizontal advance.
@@ -149,6 +171,7 @@ def outputs(root=ROOT):
         if name=='ucrbig':pal=[tuple(min(255,round(v*1.8)) for v in c[:3])+c[3:] for c in pal]
         source={int(c,16):Glyph(**g) for c,g in authored['glyphs'].items()}
         glyphs=extend(source,pal,name=='smallfont',unit=2);records={}
+        glyphs.update({int(c,16):Glyph(**g) for c,g in authored.get('overrides',{}).items()})
         for code,glyph in glyphs.items():
             old=reference[code]
             actual=(glyph.width,glyph.height,glyph.left,glyph.top)

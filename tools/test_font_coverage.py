@@ -68,4 +68,12 @@ class FontTests(unittest.TestCase):
         reference=b.Glyph(4,1,[0,1,2,3])
         mark=b.mask(['##','##'],palette,reference,scale=2,unit=2)
         self.assertTrue(all(palette[p][3]==255 for p in mark.pixels if p>=0))
+    def test_remaster_uses_original_colors_and_retains_alpha(self):
+        original={65:b.Glyph(4,1,[0,1,1,2])}
+        oldpal=[(12,11,10),(85,56,34),(142,81,41)]
+        source={65:b.Glyph(4,1,[0,1,1,2])}
+        bright=[(10,10,30,255),(150,160,240,255),(255,255,255,128)]
+        remapped=b.original_color_palette(source,bright,original,oldpal)
+        self.assertEqual([c[:3] for c in remapped],oldpal)
+        self.assertEqual([c[3] for c in remapped],[255,255,128])
 if __name__=='__main__':unittest.main()
