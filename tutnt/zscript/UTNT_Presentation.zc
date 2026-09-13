@@ -132,13 +132,15 @@ class UTNTWorldHandler : EventHandler
 
     Array<EffectGiver> HeatSources;
     int BossKind, BossHP, BossMaxHP, BossFirstTID, BossLastTID, BossEndTime;
-    bool AtmosphereApplied;
+    bool AtmosphereApplied, AtmosphereDensityReady;
+    Array<int> AtmosphereOriginalDensities;
     Array<int> AtmosphereSectors;
     Array<Color> AtmosphereOriginalFades;
     // Saved with the level: loading a save resumes, rather than replays, the plaque.
     int ObjectiveEpisode, ObjectiveStartTime, ObjectiveEndTime;
     int ObjectiveFlags[10];
     int CompletionCode, CompletionStartTime, CompletionEndTime;
+    bool CompletionQueueIdle;
 
     static void SetObjectiveProgress(int episode,int mask)
     {
@@ -146,14 +148,16 @@ class UTNTWorldHandler : EventHandler
         if(h && episode>=1 && episode<=9)
         {
             h.ObjectiveFlags[episode]=mask&7;
+            h.CompletionQueueIdle=false;
             let ledger=UTNTCampaignStats.Get(true);ledger.Objectives[episode]=mask&7;
         }
     }
 
     void TickObjectiveCompletion()
     {
-        if(CompletionCode && level.time<CompletionEndTime) return;
+        if(CompletionQueueIdle || (CompletionCode && level.time<CompletionEndTime)) return;
         CompletionCode=ACS_NamedExecuteWithResult("UTNT_ObjectiveNext",CompletionCode);
+        CompletionQueueIdle=CompletionCode==0;
         if(!CompletionCode) return;
         CompletionStartTime=level.time;
         CompletionEndTime=level.time+119; // 7 fade-in + 105 hold + 7 fade-out.
@@ -282,7 +286,7 @@ class UTNTWorldHandler : EventHandler
         for (int slot=0; slot<8; slot++)
         {
             int destination=1000+checkpoint*100+(playerNumber+slot)%8;
-            let it=ActorIterator.Create(destination);
+            let it=level.CreateActorIterator(destination);
             Actor spot;
             while (spot=it.Next())
             {
@@ -311,7 +315,9 @@ class UTNTWorldHandler : EventHandler
         // A shared opt-in because distant visibility must agree in cooperative play.
         bool enabled = CVar.GetCVar('UTNT_atmosphere').GetBool()
             && (level.MapName ~== "TNT03A1" || level.MapName ~== "TNT03A2" || level.MapName ~== "TNTLE");
-        if (enabled == AtmosphereApplied) return;
+        if (enabled == AtmosphereApplied && (!enabled || AtmosphereDensityReady)) return;
+        // Migrate active saves made before the explicit-density correction.
+        while(AtmosphereOriginalDensities.Size()<AtmosphereSectors.Size()) AtmosphereOriginalDensities.Push(0);
         // Per-map profiles retain existing sector colors and nearby combat contrast.
         double distance=level.MapName ~== "TNT03A1" ? 10240 : level.MapName ~== "TNT03A2" ? 8192 : 12288;
         double density=level.MapName ~== "TNTLE" ? 1.05 : 1.12;
@@ -320,6 +326,13 @@ class UTNTWorldHandler : EventHandler
         level.SetThickFog(enabled ? distance : -1,enabled ? density : 30);
         if (enabled)
         {
+            if(AtmosphereApplied && !AtmosphereDensityReady)
+                for(int i=0;i<AtmosphereSectors.Size();i++)
+                {
+                    let s=level.Sectors[AtmosphereSectors[i]];
+                    Color oldTint=level.MapName ~== "TNTLE" ? 0x21160f : level.MapName ~== "TNT03A2" ? 0x131923 : 0x101823;
+                    if(s.ColorMap.FadeColor==oldTint && s.ColorMap.FogDensity==0) s.SetFogDensity(8);
+                }
             TextureID sky=TexMan.CheckForTexture('F_SKY1');
             Color tint=level.MapName ~== "TNTLE" ? 0x21160f : level.MapName ~== "TNT03A2" ? 0x131923 : 0x101823;
             for (int i=0;i<level.Sectors.Size();i++)
@@ -327,7 +340,11 @@ class UTNTWorldHandler : EventHandler
                 let sector=level.Sectors[i];
                 if (sector.GetTexture(Sector.ceiling)!=sky || sector.ColorMap.FadeColor!=0) continue;
                 AtmosphereSectors.Push(i); AtmosphereOriginalFades.Push(sector.ColorMap.FadeColor);
+                AtmosphereOriginalDensities.Push(sector.ColorMap.FogDensity);
                 sector.SetFade(tint);
+                // Zero delegates density to (255-lightlevel), making dark rooms opaque.
+                // Preserve an explicitly authored density; bound only the added haze.
+                if(sector.ColorMap.FogDensity==0) sector.SetFogDensity(8);
             }
         }
         else
@@ -338,18 +355,23 @@ class UTNTWorldHandler : EventHandler
                 let sector=level.Sectors[AtmosphereSectors[i]];
                 // A map script may take ownership while this option is enabled.
                 // Preserve that newer authored state instead of restoring stale color.
-                if(sector.ColorMap.FadeColor==tint) sector.SetFade(AtmosphereOriginalFades[i]);
+                if(sector.ColorMap.FadeColor==tint)
+                {
+                    sector.SetFade(AtmosphereOriginalFades[i]);
+                    if(sector.ColorMap.FogDensity==8 && AtmosphereOriginalDensities[i]==0)
+                        sector.SetFogDensity(AtmosphereOriginalDensities[i]);
+                }
             }
-            AtmosphereSectors.Clear(); AtmosphereOriginalFades.Clear();
+            AtmosphereSectors.Clear(); AtmosphereOriginalFades.Clear(); AtmosphereOriginalDensities.Clear();
         }
-        AtmosphereApplied = enabled;
+        AtmosphereApplied = enabled; AtmosphereDensityReady=enabled;
     }
 
     override void WorldLoaded(WorldEvent e)
     {
         // A reopened hub has its old level handler but the campaign queue has advanced.
         // Save loads retain the exact active notification timeline instead.
-        if(!e.IsSaveGame) CompletionCode=CompletionStartTime=CompletionEndTime=0;
+        if(!e.IsSaveGame) { CompletionCode=CompletionStartTime=CompletionEndTime=0; CompletionQueueIdle=false; }
         HeatSources.Clear();
         let iter = ThinkerIterator.Create('EffectGiver');
         EffectGiver source;
@@ -626,14 +648,14 @@ class UTNTPresentation : StaticEventHandler
 
         bool heatOn = camera && !reduced && CVar.GetCVar('UTNT_shaderoverlayswitch', player).GetBool()
                       && CVar.GetCVar('UTNT_heatstrength', player).GetFloat() > 0 && effects && effects.Heat > 0.001;
-        Shader.SetEnabled(player, "heatshader", heatOn);
+        PPShader.SetEnabled("heatshader", heatOn);
         // GLSL identifiers are case-sensitive strings: the ZScript name
         // literal 'amount' resolves to the engine name "Amount".
-        if (heatOn) Shader.SetUniform1f(player, "heatshader", "amount", effects.Heat * 69 * clamp(CVar.GetCVar('UTNT_heatstrength', player).GetFloat(), 0, 1));
+        if (heatOn) PPShader.SetUniform1f("heatshader", "amount", effects.Heat * 69 * clamp(CVar.GetCVar('UTNT_heatstrength', player).GetFloat(), 0, 1));
         double waterSize = clamp(CVar.GetCVar('UTNT_uweffectsize', player).GetFloat(), 0, 0.08);
         bool underwater = camera && !reduced && camera.WaterLevel >= 3 && waterSize > 0;
-        Shader.SetEnabled(player, 'watershader', underwater);
-        if (underwater) Shader.SetUniform1f(player, 'watershader', 'waterFactor', waterSize);
+        PPShader.SetEnabled('watershader', underwater);
+        if (underwater) PPShader.SetUniform1f('watershader', 'waterFactor', waterSize);
 
         bool blurOn = camera && player.mo && player.health > 0 && !cutscene && !reduced
                       && !LevelLocals.WorldPaused() && CVar.GetCVar('motionblur', player).GetBool();
@@ -663,11 +685,11 @@ class UTNTPresentation : StaticEventHandler
         LastAngle = e.ViewAngle; LastPitch = e.ViewPitch; LastPosition = e.ViewPos; HaveView = camera != null;
         double strength = clamp(CVar.GetCVar('motionblur_strength', player).GetFloat(), 0, 100) / 64.0;
         int copies = clamp(CVar.GetCVar('motionblur_samples', player).GetInt(), 1, 12) + 1;
-        Shader.SetEnabled(player, 'motionblur', blurOn && !reset && abs(BlurX) + abs(BlurY) > 0.00001);
-        Shader.SetUniform2f(player, 'motionblur', 'steps', (BlurX, BlurY) * strength / copies);
-        Shader.SetUniform1i(player, 'motionblur', 'samples', copies);
-        Shader.SetUniform1f(player, 'motionblur', 'increment', 1.0 / copies);
-        Shader.SetUniform1i(player, 'motionblur', 'blendmode', clamp(CVar.GetCVar('motionblur_blendmode', player).GetInt(), 0, 1));
+        PPShader.SetEnabled('motionblur', blurOn && !reset && abs(BlurX) + abs(BlurY) > 0.00001);
+        PPShader.SetUniform2f('motionblur', 'steps', (BlurX, BlurY) * strength / copies);
+        PPShader.SetUniform1i('motionblur', 'samples', copies);
+        PPShader.SetUniform1f('motionblur', 'increment', 1.0 / copies);
+        PPShader.SetUniform1i('motionblur', 'blendmode', clamp(CVar.GetCVar('motionblur_blendmode', player).GetInt(), 0, 1));
         let chapterHandler=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
         if(chapterHandler && chapterHandler.Chapter && chapterHandler.Chapter.Phase!=3)
         {
@@ -704,7 +726,7 @@ class UTNTPresentation : StaticEventHandler
         bool shielded = false;
         if (handler.BossKind == 5)
         {
-            let bossIter = ActorIterator.Create(handler.BossFirstTID);
+            let bossIter = level.CreateActorIterator(handler.BossFirstTID);
             let boss = bossIter.Next();
             shielded = UTNTBossPlaque.Shielded(boss);
         }

@@ -181,11 +181,11 @@ class UTNTVisorRenderer ui
 {
     static void Disable(PlayerInfo player)
     {
-        Shader.SetUniform1f(player,"utnt_visor","wetAmount",0);
-        Shader.SetUniform1f(player,"utnt_visor","frostAmount",0);
-        Shader.SetUniform1i(player,"utnt_visor","dropCount",0);
-        Shader.SetEnabled(player,"utnt_visor",false);
-        Shader.SetEnabled(player,"utnt_visor_detail",false);
+        PPShader.SetUniform1f("utnt_visor","wetAmount",0);
+        PPShader.SetUniform1f("utnt_visor","frostAmount",0);
+        PPShader.SetUniform1i("utnt_visor","dropCount",0);
+        PPShader.SetEnabled("utnt_visor",false);
+        PPShader.SetEnabled("utnt_visor_detail",false);
     }
     static void Draw(RenderEvent e, UTNTVisorState state)
     {
@@ -206,12 +206,12 @@ class UTNTVisorRenderer ui
         {
             String shaderName=pass==0 ? "utnt_visor" : "utnt_visor_detail";
             int slots=clamp(count-pass*14,0,14);
-            if(pass>0 && (slots==0 || wet<0.0001)) { Shader.SetEnabled(player,shaderName,false); continue; }
-            Shader.SetEnabled(player,shaderName,true);
-            Shader.SetUniform1f(player,shaderName,"wetAmount",wet);
-            Shader.SetUniform1f(player,shaderName,"frostAmount",pass==0 ? frost : 0);
-            Shader.SetUniform1i(player,shaderName,"detailLevel",quality);
-            Shader.SetUniform1i(player,shaderName,"dropCount",slots);
+            if(pass>0 && (slots==0 || wet<0.0001)) { PPShader.SetEnabled(shaderName,false); continue; }
+            PPShader.SetEnabled(shaderName,true);
+            PPShader.SetUniform1f(shaderName,"wetAmount",wet);
+            PPShader.SetUniform1f(shaderName,"frostAmount",pass==0 ? frost : 0);
+            PPShader.SetUniform1i(shaderName,"detailLevel",quality);
+            PPShader.SetUniform1i(shaderName,"dropCount",slots);
             for(int i=0;i<slots;i++)
             {
                 let d=state.Drops[i+pass*14]; Vector2 pos=d.PreviousPos+(d.Pos-d.PreviousPos)*f;
@@ -226,7 +226,7 @@ class UTNTVisorRenderer ui
                     +64*floor(clamp(alpha,0,1)*63+0.5)
                     +4096*floor(clamp((stretch-1)/2,0,1)*31+0.5)
                     +131072*floor(clamp(trail/0.28,0,1)*127+0.5);
-                Shader.SetUniform2f(player,shaderName,String.Format("drop%d",i),(xy,shape));
+                PPShader.SetUniform2f(shaderName,String.Format("drop%d",i),(xy,shape));
             }
         }
     }

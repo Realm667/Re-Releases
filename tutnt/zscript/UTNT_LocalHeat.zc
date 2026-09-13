@@ -57,7 +57,7 @@ class UTNTLocalHeat : EventHandler
    int wall=-1;double wallScore=1e30;
    Vector3 forward=(cos(camera.Angle)*cos(camera.Pitch),sin(camera.Angle)*cos(camera.Pitch),-sin(camera.Pitch));
    Vector3 eye=camera.Pos+(0,0,camera.player?camera.player.ViewHeight:camera.Height*.5);
-   if(!Spatial){Spatial=new('UTNTSpatialIndex');for(int j=0;j<Sources.Size();j++)Spatial.Add(Sources[j].Offset.XY,j);HaveQuery=false;}
+   if(!Spatial){Spatial=UTNTSpatialIndex(level.CreateClientSideThinker('UTNTSpatialIndex',Thinker.STAT_USER+4));for(int j=0;j<Sources.Size();j++)Spatial.Add(Sources[j].Offset.XY,j);HaveQuery=false;}
    if(!HaveQuery || (camera.Pos.XY-LastQuery).Length()>64){Spatial.Query(camera.Pos.XY,2112,Candidates);LastQuery=camera.Pos.XY;HaveQuery=true;}
    for(int ci=0;ci<Candidates.Size();ci++)
    {

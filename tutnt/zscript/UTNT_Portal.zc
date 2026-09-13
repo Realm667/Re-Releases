@@ -220,7 +220,7 @@ class UTNTPortalSystem play
     // players crossed. Acknowledge that hint without overriding manual switches.
     static int UseLocalVisibility(int tid)
     {
-        let it=ActorIterator.Create(tid); Actor actor; int count=0;
+        let it=level.CreateActorIterator(tid); Actor actor; int count=0;
         while(actor=it.Next())
         {
             let source=UTNTPortalDecorationBase(actor);
@@ -242,7 +242,7 @@ class UTNTPortalSystem play
         // At most 32 emitters per local client; no gameplay random stream.
         let runtime=UTNTFXRuntime.Get();
         if(runtime.Lookup(source,3) || runtime.Count(3)>=32)return;
-        UTNTPortalEmitter emitter;
+        UTNTPortalEmitter emitter=null;
         emitter=UTNTPortalEmitter(level.CreateClientSideThinker('UTNTPortalEmitter',Thinker.STAT_USER+8));
         if(emitter) { emitter.Initialize(source);runtime.Register(source,3,emitter); }
     }

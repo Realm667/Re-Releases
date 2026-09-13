@@ -163,6 +163,8 @@ def publish_snapshot(source, original, output, hashes, metadata, engine=None, iw
     payload = {p.relative_to(source/'tutnt').as_posix():p.read_bytes() for p in files}
     from build_definition_tables import package_textures
     payload = package_textures(payload)
+    from package_runtime_assets import prepare_precache
+    payload = prepare_precache(payload)
     if any(name in payload for name in ('UTNTBLD','LANGUAGE.zzbuild')):
         raise RuntimeError('UTNTBLD and LANGUAGE.zzbuild are reserved build outputs.')
     metadata = dict(metadata, files={name:hashlib.sha256(data).hexdigest() for name,data in payload.items()})
@@ -181,7 +183,7 @@ def publish_snapshot(source, original, output, hashes, metadata, engine=None, iw
         with zipfile.ZipFile(temp,'w') as archive:
             for name, data in sorted(payload.items()):
                 info = zipfile.ZipInfo(name,date_time=(2026,1,1,0,0,0))
-                info.compress_type = zipfile.ZIP_DEFLATED
+                info.compress_type = zipfile.ZIP_LZMA if name.lower().endswith('.obj') else zipfile.ZIP_DEFLATED
                 archive.writestr(info,data,compresslevel=6)
         with zipfile.ZipFile(temp) as archive:
             if archive.testzip(): raise RuntimeError('PK3 integrity check failed')

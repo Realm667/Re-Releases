@@ -421,7 +421,7 @@ class UTNTCosmeticContracts play
         let first=NashGoreLocalActor.Ensure(owner);let second=NashGoreLocalActor.Ensure(owner);
         Check(first==second && first.IsClientSide(),"emitter registry reuses a client-only watcher");
         // Conservative bucket coverage, including negative coordinates and cell edges.
-        let index=new('UTNTSpatialIndex');index.Add((-1024,-.01),0);index.Add((1024,1024),1);index.Add((8192,8192),2);
+        let index=UTNTSpatialIndex(level.CreateClientSideThinker('UTNTSpatialIndex',Thinker.STAT_USER+4));index.Add((-1024,-.01),0);index.Add((1024,1024),1);index.Add((8192,8192),2);
         Array<int> candidates;index.Query((0,0),1024,candidates);
         Check(candidates.Size()==2,"spatial query retains range-boundary candidates across negative cells");
     }

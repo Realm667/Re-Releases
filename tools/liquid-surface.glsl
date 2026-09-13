@@ -1,6 +1,7 @@
 // Coarse native-texture surfaces over coherent height and independent currents.
 // All coordinates below are renderer-world coordinates (X, Doom Z, Doom Y).
 #define LIQUID_TIME (timer * 0.01)
+#define LIQUID_WAVE_TIME (timer * 0.35)
 float LiqHash(vec2 p)
 {
     vec3 q=fract(vec3(p.xyx)*0.1031);q+=dot(q,q.yzx+33.33);
@@ -47,20 +48,20 @@ float LiqField(vec2 p)
     // Travelling waves change the surface shape, rather than only translating art.
     float phase=LiqNoise(p/137.0)*5.0;
 #if LIQUID_KIND == 0
-    float waves=sin(dot(p,vec2(0.061,0.037))-LIQUID_TIME*2.8+phase)*0.13;
-    waves+=sin(dot(p,vec2(-0.043,0.081))-LIQUID_TIME*3.7+phase*0.6)*0.065;
+    float waves=sin(dot(p,vec2(0.061,0.037))-LIQUID_WAVE_TIME*2.8+phase)*0.13;
+    waves+=sin(dot(p,vec2(-0.043,0.081))-LIQUID_WAVE_TIME*3.7+phase*0.6)*0.065;
 #elif LIQUID_KIND == 1
-    float waves=sin(dot(p,vec2(0.042,0.027))-LIQUID_TIME*1.15+phase)*0.095;
+    float waves=sin(dot(p,vec2(0.042,0.027))-LIQUID_WAVE_TIME*1.15+phase)*0.095;
     // Sparse domes inflate and collapse into the moving sludge.
     vec2 cell=floor(p/71.0),local=fract(p/71.0);
     float seed=LiqHash(cell+17.3);
     vec2 center=0.25+0.5*vec2(LiqHash(cell+7.7),LiqHash(cell+39.1));
-    float life=max(0.0,sin(LIQUID_TIME*1.7+seed*31.0));
+    float life=max(0.0,sin(LIQUID_WAVE_TIME*1.7+seed*31.0));
     float dome=1.0-smoothstep(0.0,0.19,max(0.0,length(local-center)));
     waves+=dome*dome*life*0.32*step(0.62,seed);
 #else
-    float waves=sin(dot(p,vec2(0.049,0.031))-LIQUID_TIME*1.9+phase)*0.12;
-    waves+=sin(dot(p,vec2(-0.036,0.068))-LIQUID_TIME*2.4+phase*0.7)*0.05;
+    float waves=sin(dot(p,vec2(0.049,0.031))-LIQUID_WAVE_TIME*1.9+phase)*0.12;
+    waves+=sin(dot(p,vec2(-0.036,0.068))-LIQUID_WAVE_TIME*2.4+phase*0.7)*0.05;
 #endif
     waves*=1.0-smoothstep(1.0,4.0,liqLod);
     return clamp(art*0.78+0.11+waves,0.03,0.97);

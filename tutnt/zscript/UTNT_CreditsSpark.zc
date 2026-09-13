@@ -40,7 +40,7 @@ class UTNTCreditsSpark : Thinker
  void UpdatePulse()
  {
   double t=clamp((level.time-LastPulse)/18.0,0,1),strength=(1-t)*(1-t);
-  if(Anchor)Anchor.A_AttachLight('creditspark',DynamicLight.PointLight,0xff9d32,135*sqrt(strength),0,
+  if(Anchor)Anchor.A_AttachLight('creditspark',DynamicLight.PointLight,0xff9d32,int(round(135*sqrt(strength))),0,
    DynamicLight.LF_ATTENUATE|DynamicLight.LF_NOSHADOWMAP);
   if(Halo){Halo.Age=0;Halo.Strength=.42*strength;Halo.Width=Halo.Height=115+30*t;Halo.Animate();}
  }

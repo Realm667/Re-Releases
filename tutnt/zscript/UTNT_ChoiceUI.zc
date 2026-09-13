@@ -106,6 +106,8 @@ class OptionMenuItemUTNTPreset : OptionMenuItemSubmenu
     static void Apply(int preset)
     {
         bool quiet=preset==2;
+        // Move texture/model uploads to map loading for every visual preset.
+        CVar.FindCVar('gl_precache').SetBool(true);
         CVar.FindCVar('UTNT_reducedfx').SetInt(quiet);
         CVar.FindCVar('UTNT_fxquality').SetInt(quiet?1:(preset==0?2:3));
         CVar.FindCVar('UTNT_effectglow').SetInt(!quiet);

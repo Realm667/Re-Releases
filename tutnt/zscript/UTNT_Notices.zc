@@ -156,6 +156,35 @@ class UTNTNoticeFeed ui
         LayoutBuilds++;
     }
 
+    // Lock IDs retain card/skull distinctions. Alternatives are shown together.
+    static bool DrawKeys(int id,double cx,double cy,double scale,double alpha)
+    {
+        if(id<1000 || id>=9000) return false;
+        int lock=(id-1000)/2;
+        if(!UTNTNoticeLocks.Known(lock)) return false;
+        String names[]={"RedCard","BlueCard","YellowCard","RedSkull","BlueSkull","YellowSkull"};
+        Array<int> keys;
+        if(lock>=1 && lock<=6) keys.Push(lock-1);
+        else if(lock>=129 && lock<=134) { int color=(lock-129)%3;keys.Push(color);keys.Push(color+3); }
+        else for(int i=0;i<6;i++) keys.Push(i);
+        int columns=keys.Size()==6?3:1,rows=(keys.Size()+columns-1)/columns;
+        double cellW=18.0/columns,cellH=18.0/rows;
+        for(int i=0;i<keys.Size();i++)
+        {
+            class<Inventory> kind=names[keys[i]];
+            let def=GetDefaultByType(kind);
+            TextureID icon=def.Icon;if(!icon.IsValid() && def.SpawnState)icon=def.SpawnState.GetSpriteTexture(0);
+            if(!icon.IsValid())continue;
+            Vector2 size=TexMan.GetScaledSize(icon);
+            double zoom=min(cellW/max(1,size.X),cellH/max(1,size.Y))*scale*0.5;
+            double x=cx+((i%columns+.5)*cellW-9)*scale-size.X*zoom/2;
+            double y=cy+((i/columns+.5)*cellH-9)*scale-size.Y*zoom/2;
+            Screen.DrawTexture(icon,true,x,y,DTA_DestWidthF,size.X*zoom,DTA_DestHeightF,size.Y*zoom,
+                DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha);
+        }
+        return true;
+    }
+
     void Draw(double frac,double bottomLimit=-1,double topLimit=-1)
     {
         double alpha=Opacity(frac);
@@ -186,9 +215,10 @@ class UTNTNoticeFeed ui
         Screen.Dim(0x997044,alpha*0.75,l,t+edge,edge,b-t-2*edge);
         Screen.Dim(0x352b20,alpha*0.65,r-edge,t+edge,edge,b-t-2*edge);
         double cx=l+13*scale,cy=(t+b)/2.0;
-        for(int row=-4;row<=4;row++)
-            UTNTObjectivePlaque.Rect(cx,cy,scale,-(4-abs(row)),row,2*(4-abs(row))+1,1,
-                row<0?0xa17745:0x74522d,alpha*0.9);
+        if(!DrawKeys(ActiveID,cx,cy,scale,alpha))
+            for(int row=-4;row<=4;row++)
+                UTNTObjectivePlaque.Rect(cx,cy,scale,-(4-abs(row)),row,2*(4-abs(row))+1,1,
+                    row<0?0xa17745:0x74522d,alpha*0.9);
         // UTNT SmallFont has six visible capital rows; its font cell includes
         // extra shadow/descender space. Count line spacing only between rows.
         double textHeight=(lines.Count()-1)*lineHeight+6*size;

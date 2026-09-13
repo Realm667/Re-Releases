@@ -317,7 +317,7 @@ def generate(root=ROOT,check=False):
             outputs[f'tutnt/models/sky-edges/{stem}.obj']=obj
             extent=math.ceil(max(math.sqrt(v[0]**2+v[2]**2) for v in verts)+8)
             parent='UTNTTerrainEdge' if 'mode' in e else 'UTNTSkyEdge'
-            actors.append(f'class {cls} : {parent} {{ Default {{ RenderRadius {extent}; '+('RenderStyle \"Translucent\"; ' if soft or rockcap else '')+'} }')
+            actors.append(f'class {cls} : {parent} {{ Default {{ RenderRadius {extent}; '+('RenderStyle \"Translucent\"; ' if soft or rockcap else '')+'} States { Spawn: SKED A -1; Stop; } }')
             # UZDoom's model scale has an implicit 1/1.2 vertical correction.
             models.append(f'Model {cls}\n{{\n Path "models/sky-edges/"\n Model 0 "{stem}.obj"\n Skin 0 "{primary}"\n Scale 1 1 1.2\n DontCullBackfaces\n FrameIndex SKED A 0 0\n}}')
             row=[cls,e['line'],e['face'],e['part'],e['front_id'],e['top_id'],*e['a'],*e['b'],*center,h,e['h0'],e['h1'],e['texture'],c['skin'],c['sx'],c['sy'],c['ox'],c['oy'],e['radius'],e['kind'],environment.get((1,int(e['linedef']['sidefront' if e['face']==0 else 'sideback']),e['part'],c['skin']),'-')]

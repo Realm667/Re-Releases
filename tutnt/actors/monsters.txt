@@ -237,10 +237,10 @@ ACTOR UTNTDoomImpBall : DoomImpBall replaces DoomImpBall
 	States
 	{
 	Spawn:
-		BAL1 AAABBB 1 bright LIGHT("IMPBALL") A_SpawnItemEx("TT3",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.1,0.7),0,32)
+		BAL1 AAABBB 1 bright LIGHT("IMPBALL") A_SpawnItemEx("UTNTImpSmoke",CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),CRandom[utntlegacyfx](5,-5),0,0,CFRandom[utntlegacyfx](0.1,0.7),0,32)
 		loop
 	Death:
-		TNT1 AAAAAA 0 A_SpawnItemEx("TT3",0,0,0,CFRandom[utntlegacyfx](0.3,1.1),0,CFRandom[utntlegacyfx](-0.9,0.9),CRandom[utntlegacyfx](0,359),32)
+		TNT1 AAAAAA 0 A_SpawnItemEx("UTNTImpSmoke",0,0,0,CFRandom[utntlegacyfx](0.3,1.1),0,CFRandom[utntlegacyfx](-0.9,0.9),CRandom[utntlegacyfx](0,359),32)
 		BAL1 C 3 bright LIGHT("IMPBALL_X1")
 		BAL1 D 3 bright LIGHT("IMPBALL_X2")
 		BAL1 E 3 bright LIGHT("IMPBALL_X3")
@@ -1009,20 +1009,15 @@ actor UTNTArchvileFire : ArchvileFire replaces ArchvileFire
 
 Actor ArchvileFireFx : UTNTLegacyCosmetic
 {
-    +CLIENTSIDE +NOBLOCKMAP +THRUACTORS +DONTSPLASH -SOLID
-
-	+NOINTERACTION
-	States
-	{
-	Spawn:
-		TNT1 A 0
-		TNT1 AA 0 A_UTNTLocalSpawn("FlmThrwrSmoke",CRandom[utntlegacyfx](15,-15),CRandom[utntlegacyfx](0,10),CRandom[utntlegacyfx](25,47),0,0,CFRandom[utntlegacyfx](0.2,1.0))
-		TNT1 AAA 0 A_UTNTLocalSpawn("FTFlameTrail2",CRandom[utntlegacyfx](15,-15),CRandom[utntlegacyfx](0,10),CRandom[utntlegacyfx](20,40),0,0,CFRandom[utntlegacyfx](0,1),0,0,64)
-		TNT1 A 1
-		TNT1 AA 0 A_UTNTLocalSpawn("FlmThrwrSmoke",CRandom[utntlegacyfx](15,-15),CRandom[utntlegacyfx](0,10),CRandom[utntlegacyfx](25,47),0,0,CFRandom[utntlegacyfx](0.2,1.0))
-		TNT1 AAA 0 A_UTNTLocalSpawn("FTFlameTrail2",CRandom[utntlegacyfx](15,-15),CRandom[utntlegacyfx](0,10),CRandom[utntlegacyfx](20,40),0,0,CFRandom[utntlegacyfx](0,1),0,0,64)
-		Stop
-	}
+    +CLIENTSIDE +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +THRUACTORS +DONTSPLASH -SOLID
+    States
+    {
+    Spawn:
+        TNT1 A 0
+        TNT1 A 0 A_UTNTLocalSpawn("UTNTArchvileWarningFlame",CFRandom[utntlegacyfx](-12,12),CFRandom[utntlegacyfx](-6,6),CFRandom[utntlegacyfx](3,14),0,0,CFRandom[utntlegacyfx](0.1,0.35))
+        TNT1 A 0 A_UTNTLocalSpawn("UTNTArchvileWarningSmoke",CFRandom[utntlegacyfx](-12,12),0,10,0,0,0.25,0,0,192)
+        Stop
+    }
 }
 
 ACTOR UTNTSpiderMastermind : SpiderMastermind replaces SpiderMastermind

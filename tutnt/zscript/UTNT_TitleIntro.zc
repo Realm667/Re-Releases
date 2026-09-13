@@ -140,7 +140,11 @@ class UTNTTitleCanvas ui
         Picture(LitBorder,Left,Top,ArtWidth,ArtHeight,frame*light);
         if(!reduced)Sparks(t,frame*Ease((t-2.86)/2));
         // Menus own their logo. Hide only the title lettering and credits immediately.
-        if(menuactive!=0)return;
+        if(menuactive!=0)
+        {
+            Screen.Dim(0,.78,0,0,int(Width),int(Height));
+            return;
+        }
         double reveal=Ease((t-16.3)/1.6);
         double logoWidth=min(Width*0.8,ArtWidth*0.44)*(1+(reduced?0:0.025*(1-reveal)));
         Vector2 dimensions=TexMan.GetScaledSize(Logo);

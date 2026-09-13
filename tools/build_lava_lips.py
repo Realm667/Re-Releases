@@ -134,6 +134,7 @@ def shader(root):
         raise ValueError('Lava shader entry point changed; update the lip generator.')
     surface=surface.replace('void SetupMaterial(inout Material mat)','void LipSurface(inout Material mat)')
     surface=surface.replace('vec2 world=LavaWorldPosition();','vec2 world=pixelpos.xz;')
+    surface=surface.replace('vec2 current=world+LavaFloorPanning();','vec2 current=world;')
     fall=fall.replace('void SetupMaterial(inout Material mat)','void LipFall(inout Material mat)')
     fall=fall.replace('getTexel(', 'LipFallTexel(')
     # Preserve texture manipulation for PLAYPAL, sector tint and desaturation.
@@ -183,7 +184,7 @@ def generate(root,extra_maps=(),check=False):
             cls='UTNTLavaLip_'+stem.replace('-','_')
             alias='LL'+str(FLOORS.index(e['floor']))+str(FALLS.index(e['fall']))
             out['tutnt/models/lava-lips/'+stem+'.obj']=model
-            actors.append(f'class {cls} : UTNTLavaLip {{ Default {{ RenderRadius {math.ceil(e["length"]/2+64)}; }} }}')
+            actors.append(f'class {cls} : UTNTLavaLip {{ Default {{ RenderRadius {math.ceil(e["length"]/2+64)}; }} States {{ Spawn: LALP A -1; Stop; }} }}')
             models.append(f'Model {cls}\n{{\n Path "models/lava-lips/"\n Model 0 "{stem}.obj"\n Skin 0 "{alias}"\n Scale 1 1 1.2\n DontCullBackfaces\n FrameIndex LALP A 0 0\n}}')
             row=[cls,e['line'],e['face'],e['high'],e['low'],*e['a'],*e['b'],*mid,h,e['h0'],e['h1'],e['floor'],e['fall'],e['radius']]
             rows.append('|'.join(str(x) for x in row))

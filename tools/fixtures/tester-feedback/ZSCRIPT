@@ -1,0 +1,64 @@
+version "5.0.0"
+class UTNTTesterFeedbackTest : EventHandler {
+ UTNTLegacySizedVisual Smoke;
+ int Start;
+ Actor ArmorA,ArmorB;int ArmorStart,ArmorPrevious,ArmorMin,ArmorMax;bool ArmorSmooth;
+
+ clearscope void Check(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",message); }
+ override void WorldTick() {
+  if(ArmorA && ArmorB) {
+   int shade=ArmorA.LightLevel;
+   ArmorSmooth=ArmorSmooth && abs(shade-ArmorPrevious)<=12 && ArmorA.Frame==0 && ArmorB.Frame==0 && ArmorA.Alpha==1 && ArmorB.Alpha==1;
+   ArmorPrevious=shade;ArmorMin=min(ArmorMin,shade);ArmorMax=max(ArmorMax,shade);
+   if(level.time-ArmorStart>=70) {Check(ArmorSmooth && ArmorMax>ArmorMin,"armor fades continuously on an opaque stable frame");Check(BasicArmorPickup(ArmorA).SaveAmount==100 && BasicArmorPickup(ArmorB).SaveAmount==200,"armor pickup values preserved");ArmorA=null;ArmorB=null;}
+  }
+  if(!Start)return;
+  int age=level.time-Start;
+  if(age==8) Check(Smoke && Smoke.Alpha>0 && Smoke.Alpha<=.5,"rocket smoke fades in below full opacity");
+  if(age==30) Check(Smoke && Smoke.Alpha<.2 && Smoke.Alpha>0 && Smoke.Roll!=Smoke.PrevRoll && Smoke.Scale.X>.2,"rocket smoke fades, rotates and expands");
+  if(age==41) Check(Smoke && Smoke.Alpha<.01,"rocket smoke reaches transparent tail");
+  if(age==44) { Check(!Smoke,"rocket smoke expires after fade");Start=0; }
+ }
+ override void NetworkProcess(ConsoleEvent e) {
+  if(e.Name=="fbpos") { let p=players[0].mo;p.bInvulnerable=true;p.bNoGravity=true;p.bNoClip=true;p.SetOrigin((6056,1671,e.Args[0]),false);p.Vel=(0,0,0);p.Angle=90;p.Pitch=e.Args[1]; }
+  if(e.Name=="fblights") { let p=players[0].mo;p.bInvulnerable=true;p.bNoGravity=true;p.SetOrigin((-577,1052,0),false);p.Angle=270;p.Pitch=-35; }
+  if(e.Name=="fbscene") { let p=players[0].mo;p.bInvulnerable=true;p.bNoGravity=true;p.bNoClip=true;p.SetOrigin((e.Args[0],e.Args[1],e.Args[2]),false);p.Vel=(0,0,0); }
+  if(e.Name=="fbarmor") {let p=players[0].mo;ArmorA=Actor.Spawn('UTNTGreenArmor',p.Pos+(96,0,0));ArmorB=Actor.Spawn('UTNTBlueArmor',p.Pos+(96,48,0));UTNTArmorPulse.Update(ArmorA);UTNTArmorPulse.Update(ArmorB);ArmorPrevious=ArmorMin=ArmorMax=ArmorA.LightLevel;ArmorStart=level.time;ArmorSmooth=true;}
+  if(e.Name=="fbswitch") {let s=level.Sides[539];String textureName=TexMan.GetName(s.GetTexture(Side.mid));Check(textureName~==(e.Args[0]?"QBASEB3":"QBASEB1"),"native switch texture state");Console.Printf("SWITCH_TEXTURE %s",textureName);}
+  if(e.Name=="fblook") { let p=players[0].mo;p.Angle=e.Args[0];p.Pitch=e.Args[1]; }
+  if(e.Name=="fbarch") {let p=players[0].mo;let fire=Actor.Spawn('UTNTArchvileFire',p.Pos);fire.Tracer=p;fire.Target=Actor.Spawn('UTNTArchvile',p.Pos+(256,0,0));fire.Target.bDormant=true;}
+  if(e.Name=="fbfog") {
+   let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+   Check(h && h.AtmosphereApplied==(e.Args[0]!=0),"atmosphere option switches");
+   int checked=0;
+   if(e.Args[0]) for(int i=0;i<h.AtmosphereSectors.Size();i++) if(h.AtmosphereOriginalDensities[i]==0) {checked++;Check(level.Sectors[h.AtmosphereSectors[i]].ColorMap.FogDensity==8,"added haze has explicit bounded density");}
+   Check(e.Args[0]?checked>0:h.AtmosphereSectors.Size()==0,"atmosphere tracks and restores owned sectors");
+  }
+  if(e.Name=="fbcheck") {
+   let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+   Check(h && h.CompletionQueueIdle && h.CompletionCode==0,"empty objective queue sleeps");
+   let index=UTNTSpatialIndex(level.CreateClientSideThinker('UTNTSpatialIndex',Thinker.STAT_USER+4));
+   index.Add((-1024,-.01),0);index.Add((1024,1024),1);index.Add((8192,8192),2);
+   Array<int> candidates;index.Query((0,0),1024,candidates);
+   Check(index.IsClientSide() && Object.GetNetworkEntity(index.GetNetworkID())!=index && candidates.Size()==2,"client spatial index retains bucket boundaries");index.Destroy();
+   Check(abs(GetDefaultByType('UTNTImpSmoke').Alpha/GetDefaultByType('TT3').Alpha-.3)<.001,"Imp smoke opacity is 30 percent");
+   Check(abs(GetDefaultByType('UTNTArchvileWarningFlame').Scale.X-.1)<.001 && GetDefaultByType('UTNTArchvileWarningSmoke').Alpha<.121,"Archvile warning uses sparse low-opacity effects");
+  }
+  if(e.Name=="fbsmoke") {
+   FSpawnParticleParams p;p.texture=TexMan.CheckForTexture('X037A0');p.pos=players[0].mo.Pos+(0,0,48);p.lifetime=42;p.startalpha=0;p.style=STYLE_Translucent;p.color1=0xffffff;p.flags=SPF_ROLL;p.rollvel=1;p.sizestep=.012;
+   UTNTLegacySizedVisual.Emit(p,(.2,.2),2);
+   let it=ThinkerIterator.Create('UTNTLegacySizedVisual',Thinker.MAX_STATNUM+1,true);Smoke=UTNTLegacySizedVisual(it.Next());Start=level.time;
+  }
+ }
+ override void ConsoleProcess(ConsoleEvent e) {
+  if(e.Name=="fbpreset") {Menu.SetMenu('UTNTTesterPreset');}
+  if(e.Name=="fbfonts") {for(int i=1;i<=5;i++){String t=StringTable.Localize(String.Format("$UTNT_EPISODE_%d",i));int width=Font.GetFont('DBIGFONT').StringWidth(t);Console.Printf("EPISODE_WIDTH %d %s",width,t);Check(width<=272,"episode fits native BIGFONT canvas");}}
+  if(e.Name=="fbkey") {let h=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));h.EnsureNotices();h.NoticeFeed.Start(1000+e.Args[0]*2+1,-1);}
+  if(e.Name=="fbmenu") { String names[]={"MainMenu","EpisodeMenu","SkillMenu","OptionsMenu"};Menu.SetMenu(Name(names[clamp(e.Args[0],0,3)])); }
+ }
+}
+
+class UTNTTesterPresetMenu : ListMenu {
+ bool Ran;
+ override void Drawer() { Super.Drawer(); if(!Ran) { Ran=true; OptionMenuItemUTNTPreset.Apply(1); Console.Printf("UTNT_ASSERT %s: visual preset enables native precaching",CVar.FindCVar('gl_precache').GetBool()?"PASS":"FAIL"); } }
+}

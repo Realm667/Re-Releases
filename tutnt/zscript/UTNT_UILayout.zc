@@ -24,6 +24,7 @@ class UTNTUILayout ui
     {
         double s=AbilityScale();
         Vector2 hs=(s,s); if(StatusBar) hs=StatusBar.GetHUDScale();
+        if(CVar.FindCVar('screenblocks').GetInt()==12) return Screen.GetHeight()-max(64*hs.Y,72*s)-45*s;
         double reserve=max(32*hs.Y,40*s);
         if(StatusBar) reserve=max(reserve,Screen.GetHeight()-StatusBar.GetTopOfStatusBar());
         return Screen.GetHeight()-reserve-45*s;
@@ -31,6 +32,7 @@ class UTNTUILayout ui
     static double AbilityMargin()
     {
         Vector2 hs=(AbilityScale(),AbilityScale()); if(StatusBar) hs=StatusBar.GetHUDScale();
+        if(CVar.FindCVar('screenblocks').GetInt()==12) return Margin();
         // Large UI cards must also fit when the status bar uses a smaller scale.
         return min(max(Margin(),(Screen.GetWidth()-320*hs.X)/2),(Screen.GetWidth()-320*AbilityScale())/2);
     }

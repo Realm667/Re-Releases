@@ -49,8 +49,8 @@ class UTNTWeatherHandler : EventHandler
     {
         if(consoleplayer>=0)
         {
-            Shader.SetEnabled(players[consoleplayer],"utnt_visor",false);
-            Shader.SetEnabled(players[consoleplayer],"utnt_visor_detail",false);
+            PPShader.SetEnabled("utnt_visor",false);
+            PPShader.SetEnabled("utnt_visor_detail",false);
         }
     }
 
@@ -155,7 +155,7 @@ class UTNTWeatherController : Thinker
     {
         Seed=0x66701+uint(consoleplayer+1)*7919;
         Probe=new('LineTracer');
-        let skies=ThinkerIterator.Create('SkyViewpoint'); Actor sky;
+        let skies=ThinkerIterator.Create('SkyViewpoint'); Actor sky=null;
         while(sky=Actor(skies.Next()))
         {
             SkyCameras.Push(sky); SkyCounts.Push(0); SkyTargets.Push(0);
@@ -174,7 +174,7 @@ class UTNTWeatherController : Thinker
             SkySpace.Push(clamp(space/32,0.5,2.0));
             if(!SkyCamera || sky.tid==0) SkyCamera=sky;
         }
-        let it=ThinkerIterator.Create('UTNTWeatherAnchor'); UTNTWeatherAnchor a;
+        let it=ThinkerIterator.Create('UTNTWeatherAnchor'); UTNTWeatherAnchor a=null;
         while (a=UTNTWeatherAnchor(it.Next()))
         {
             Vector2 center=(floor(a.Pos.X/128)*128+64,floor(a.Pos.Y/128)*128+64);
@@ -247,7 +247,7 @@ class UTNTWeatherController : Thinker
             LastScan=Camera.Pos.XY;
             for(int i=0;i<Nearby.Size();i++)Cells[Nearby[i]].Target=0;
             Nearby.Clear();
-            if(!Spatial){Spatial=new('UTNTSpatialIndex');for(int i=0;i<Cells.Size();i++)Spatial.Add(Cells[i].Center,i);}
+            if(!Spatial){Spatial=UTNTSpatialIndex(level.CreateClientSideThinker('UTNTSpatialIndex',Thinker.STAT_USER+4));for(int i=0;i<Cells.Size();i++)Spatial.Add(Cells[i].Center,i);}
             Spatial.Query(Camera.Pos.XY,SpawnRange+128,Candidates);
             for(int ci=0;ci<Candidates.Size();ci++)
             {

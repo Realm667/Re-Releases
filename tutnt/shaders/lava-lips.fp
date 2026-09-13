@@ -109,6 +109,15 @@ vec2 LavaWorldPosition()
     return pixelpos.xz;
 }
 
+// Undo scale and rotation to express native floor panning in world units.
+// The native flat basis is (Doom X, -Doom Y)/64. Scrollers, including
+// accelerated/scripted ones, already contribute to this interpolated matrix.
+vec2 LavaFloorPanning()
+{
+    mat2 basis=mat2(TextureMatrix[0].xy,TextureMatrix[1].xy);
+    return (inverse(basis)*TextureMatrix[3].xy)*vec2(64.0,-64.0);
+}
+
 void LipSurface(inout Material mat)
 {
     vec2 world=pixelpos.xz;
@@ -116,7 +125,8 @@ void LipSurface(inout Material mat)
     // displacement at grazing angles so openings do not stretch at the horizon.
     vec3 ray=normalize(pixelpos.xyz-uCameraPos.xyz);
     vec2 parallax=ray.xz/max(abs(ray.y),0.35)*5.0;
-    vec2 top=world+timer*vec2(7.0,-4.0);
+    vec2 current=world;
+    vec2 top=current;
     vec2 broad=top/310.0;
     vec2 bend=vec2(LavaNoise(broad),LavaNoise(broad+vec2(37.2,19.8)))-0.5;
     vec2 drift=vec2(sin(top.y/91.0+timer*0.38),sin(top.x/113.0-timer*0.31))*0.045;
@@ -127,9 +137,9 @@ void LipSurface(inout Material mat)
     float opening=smoothstep(0.11,0.42,height);
     float rim=smoothstep(0.035,0.14,height)*(1.0-smoothstep(0.14,0.32,height));
 
-    // The middle current and deeper bed overtake the crust independently.
-    vec2 middle=world+parallax*0.5+timer*vec2(13.0,-8.0);
-    vec2 deep=world+parallax+timer*vec2(22.0,-13.0);
+    // All depths follow the sector current; small eddies remain local.
+    vec2 middle=current+parallax*0.5;
+    vec2 deep=current+parallax;
     vec3 channel=LavaSmooth(middle/112.0+bend*0.42-drift).rgb;
     vec3 bed=LavaSmooth(deep/83.0-bend*0.30+drift*0.7).rgb;
     float eddies=LavaNoise(deep/23.0+vec2(4.7,13.2));
@@ -160,8 +170,8 @@ void LipSurface(inout Material mat)
     // A dark lip and a warm inner edge separate the upper crust from the bed.
     color+=tint*rim*(0.12+0.13*eddies);
     // Clustered angular, folded basalt plates from the new high-resolution
-    // height texture, advected independently of the molten layers beneath them.
-    vec2 raft=world+timer*vec2(4.0,-2.4);
+    // height texture, following the same authored floor current as the melt.
+    vec2 raft=current;
     vec2 dx=dFdx(world),dy=dFdy(world);
     vec2 slope=ray.xz/max(abs(ray.y),0.30);
     vec3 hit=LavaCrustHit(raft,slope,dx,dy);

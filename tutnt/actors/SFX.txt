@@ -3551,3 +3551,15 @@ Actor PBShockwaveSmokeSmaller : PBShockwaveSmoke
 
 	Scale 0.3
 }
+// Same smoke lifetime and shape at 30% of the original opacity.
+Actor UTNTImpSmoke : TT3
+{
+    Alpha 0.171
+    States
+    {
+    Behavior:
+        "####" "#" 3 A_FadeOut(0.0069)
+        "####" "#" 0 A_ScaleVelocity(0.95)
+        Loop
+    }
+}

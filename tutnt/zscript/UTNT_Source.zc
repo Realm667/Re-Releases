@@ -279,7 +279,7 @@ class UTNTSourceEmitter : Thinker
    WallLights[i].SetOrigin(pos,false);
    if(Quality>0 && strength>0.01)
     WallLights[i].A_AttachLight('sourcewall',DynamicLight.PointLight,DeadAge?ImpactColor(i):0xffbf68,
-     (320+strength*600)*(DeadAge?sqrt(strength):1),0,DynamicLight.LF_ATTENUATE|(DeadAge?DynamicLight.LF_NOSHADOWMAP:0));
+     int(round((320+strength*600)*(DeadAge?sqrt(strength):1))),0,DynamicLight.LF_ATTENUATE|(DeadAge?DynamicLight.LF_NOSHADOWMAP:0));
    else WallLights[i].A_RemoveLight('sourcewall');
   }
   if(LightAnchor)
@@ -289,7 +289,7 @@ class UTNTSourceEmitter : Thinker
     LightAnchor.A_AttachLight('source',DynamicLight.PointLight,Opened?0xffb348:0xff7018,Opened?400:520,0,DynamicLight.LF_ATTENUATE);
    else if(Quality>0 && max(flash,Flicker(8))>0.01)
     LightAnchor.A_AttachLight('source',DynamicLight.PointLight,ImpactColor(8),
-     1100*sqrt(max(flash,Flicker(8))),0,DynamicLight.LF_ATTENUATE|DynamicLight.LF_NOSHADOWMAP);
+     int(round(1100*sqrt(max(flash,Flicker(8))))),0,DynamicLight.LF_ATTENUATE|DynamicLight.LF_NOSHADOWMAP);
    else LightAnchor.A_RemoveLight('source');
   }
  }

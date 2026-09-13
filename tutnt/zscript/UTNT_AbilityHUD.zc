@@ -88,7 +88,7 @@ class UTNTAbilityHUD ui
     {
         if(UTNTTransitionFade.HidesGameplayHUD()) return;
         if(gamestate!=GS_LEVEL || !viewactive || automapactive || menuactive || ConsoleState!=0
-            || CVar.FindCVar('screenblocks').GetInt()>=12) return;
+            || CVar.FindCVar('screenblocks').GetInt()>12) return;
         let mo=e.Camera;
         if(!mo || !mo.player || mo.Health<=0 || mo.FindInventory('UTNTHUDHidden')) return;
         let fx=UTNTPlayerEffects(mo.FindBehavior('UTNTPlayerEffects'));

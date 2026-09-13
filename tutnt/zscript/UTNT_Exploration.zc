@@ -10,7 +10,8 @@ class UTNTExplorationUI ui
     {
         AfterHUD();
         if(!automapactive || viewactive) return;
-        let [x,y,w,h]=Screen.GetClipRect();
+        int x=0,y=0,w=0,h=0;
+        [x,y,w,h]=Screen.GetClipRect();
         ClipX=x;ClipY=y;ClipW=w;ClipH=h;
         Vector2 hudScale=(1,1);
         if(StatusBar) hudScale=StatusBar.GetHUDScale();
@@ -19,11 +20,31 @@ class UTNTExplorationUI ui
         MapHUDSuppressed=true;
     }
 
+    static void DrawPosition()
+    {
+        if(consoleplayer<0 || !players[consoleplayer].mo || !StatusBar) return;
+        Font f=Font.GetFont('SmallFont');
+        Vector2 hs=StatusBar.GetHUDScale();
+        int scale=max(1,int(hs.X));
+        int w=Screen.GetWidth()/scale,h=Screen.GetHeight()/scale;
+        int x=w-f.StringWidth("X: -00000")-6;
+        int y=StatusBar.GetTopOfStatusBar()/(3*scale)-f.GetHeight();
+        Vector3 pos=players[consoleplayer].mo.Pos;
+        for(int i=0;i<3;i++)
+            Screen.DrawText(f,Font.FindFontColor('UTNTNoticeAccent'),x,y+i*f.GetHeight(),
+                String.Format("%c: %d",int("X")+i,int(i==0?pos.X:i==1?pos.Y:pos.Z)),
+                DTA_KeepRatio,true,DTA_VirtualWidth,w,DTA_VirtualHeight,h);
+    }
+
     void AfterHUD()
     {
-        if(!MapHUDSuppressed) return;
-        Screen.SetClipRect(ClipX,ClipY,ClipW,ClipH);
-        MapHUDSuppressed=false;
+        if(MapHUDSuppressed)
+        {
+            Screen.SetClipRect(ClipX,ClipY,ClipW,ClipH); MapHUDSuppressed=false;
+        }
+        // Repaint the native glyphs at identical coordinates, without changing
+        // the protected engine CVar or other uses of the green font palette.
+        if(CVar.FindCVar('idmypos').GetBool()) DrawPosition();
     }
 
     static void MapStats(double s)

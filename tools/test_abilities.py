@@ -26,7 +26,7 @@ elif args.mode=='hud':
     commands+=['netevent abview 0 1','wait 8',f'screenshot logs/{label}-cooldown.png']
     for width,height in [(640,480),(1024,768),(1920,1080),(2560,1080)]:
         commands += [f'vid_setsize {width} {height}','wait 25',f'screenshot logs/{label}-{width}.png']
-    commands+=['screenblocks 12','wait 3',f'screenshot logs/{label}-hidden.png']
+    commands+=['screenblocks 12','wait 3',f'screenshot logs/{label}-fullscreen.png']
 elif args.mode=='travel':commands+=['netevent abtravel','wait 2','changemap ABTEST2','wait 45','netevent abtravelcheck','echo UTNT_REGRESSION_COMPLETE']
 elif args.mode=='cloaktravel':commands+=['netevent abcloaktravel','wait 2','changemap ABTEST2','wait 45','netevent abcloaktravelcheck','echo UTNT_REGRESSION_COMPLETE']
 elif args.mode=='respawn':commands+=['netevent abrespawn','wait 45','+use','wait 4','-use','wait 45','netevent abrespawncheck','echo UTNT_REGRESSION_COMPLETE']

@@ -12,12 +12,15 @@ class UTNTRocketFlameVisual : VisualThinker
 {
     int Age;
     bool SecondAnimation;
+    double Spin;
     void Initialize() { UpdateSector(); UpdateSpriteInfo(); }
     override void Tick()
     {
         if (IsFrozen()) return;
         Super.Tick();
         Age++;
+        Alpha=clamp(((SecondAnimation ? 10 : 16)-Age)/5.0,0,1);
+        Roll+=Spin;
         if (Age >= (SecondAnimation ? 10 : 16)) { Destroy(); return; }
         Texture=TexMan.CheckForTexture(String.Format("X00%d%c0",SecondAnimation ? 7 : 6,65+Age));
         UpdateSpriteInfo();
@@ -29,7 +32,8 @@ class UTNTRocketFlameVisual : VisualThinker
 class UTNTLegacySizedVisual : VisualThinker
 {
     int Age, Life, Kind;
-    double FadeStep;
+    double FadeStep, StartAlpha, Spin, Growth;
+    Vector2 InitialScale;
 
     static void Emit(FSpawnParticleParams p, Vector2 spriteScale, int kind)
     {
@@ -41,16 +45,24 @@ class UTNTLegacySizedVisual : VisualThinker
         v.Flags=p.flags|SPF_STRETCHPIXELS;
         v.scolor=p.color1|0xff000000; v.SetRenderStyle(p.style);
         v.Roll=p.startroll; v.PrevRoll=v.Roll;
+        v.Spin=p.rollvel; v.Growth=p.sizestep; v.InitialScale=spriteScale; v.StartAlpha=p.startalpha;
         v.UpdateSector(); v.UpdateSpriteInfo();
     }
 
     override void Tick()
     {
         if (IsFrozen()) return;
-        if (++Age>=Life) { Destroy(); return; }
-        Alpha=min(1.0,Alpha-FadeStep);
-        if (Alpha<=0) { Destroy(); return; }
         Super.Tick();
+        if (++Age>=Life) { Destroy(); return; }
+        if(Kind==2)
+        {
+            double fade=clamp((Life-Age)/double(max(1,Life-5)),0,1);
+            Alpha=.5*min(1.0,Age/5.0)*fade*fade*(3-2*fade);
+        }
+        else Alpha=max(0.0,StartAlpha-Age*FadeStep);
+        Scale=InitialScale*(1+Growth*Age);
+        Roll+=Spin;
+        if (Alpha<=0) { Destroy(); return; }
     }
 }
 
@@ -109,9 +121,11 @@ class UTNTVisuals play
         p.lifetime = 32; p.size = size; p.sizestep = 0.15;
         p.startalpha = 0.45; p.fadestep = 0.45/32;
         p.startroll = CFRandom[utntcosmetic](0,360);
+        p.rollvel = CFRandom[utntcosmetic](-1.3,1.3);
         if (rocket)
         {
-            // Preserve the current smoke image, at the original trail envelope.
+            // Start at the original envelope, then gently expand and fade.
+            p.sizestep=0.012; p.lifetime=42; p.fadestep=p.startalpha/p.lifetime;
             let original=TexMan.GetScaledSize(TexMan.CheckForTexture('X038A0'));
             let textureSize=TexMan.GetScaledSize(p.texture);
             let scale=GetDefaultByType('RockTrailSmoke').Scale;
@@ -153,7 +167,8 @@ class UTNTVisuals play
         flame.SecondAnimation=CRandom[utntcosmetic](0,1);
         flame.Texture=TexMan.CheckForTexture(flame.SecondAnimation ? 'X007A0' : 'X006A0');
         flame.Pos=source.Vec3Offset(0,0,4); flame.Prev=flame.Pos;
-        flame.Scale=(0.13,0.13); flame.Alpha=1; flame.Flags=SPF_FULLBRIGHT;
+        flame.Scale=(0.13,0.13); flame.Alpha=1; flame.Flags=SPF_FULLBRIGHT|SPF_ROLL;
+        flame.Roll=CFRandom[utntcosmetic](0,360); flame.PrevRoll=flame.Roll; flame.Spin=CFRandom[utntcosmetic](-1.5,1.5);
         flame.Translation=GetDefaultByType('RocketFireTrail').Translation;
         flame.SetRenderStyle(STYLE_Add);
         flame.Initialize();
@@ -161,7 +176,8 @@ class UTNTVisuals play
         FSpawnParticleParams p;
         p.texture=TexMan.CheckForTexture('X037A0'); p.color1=0xffffff; p.style=STYLE_Translucent;
         p.pos=flame.Pos; p.vel=(0,0,CFRandom[utntcosmetic](0.1,0.6));
-        p.lifetime=33; p.startalpha=0.1; p.fadestep=-0.05;
+        p.lifetime=42; p.startalpha=0; p.fadestep=0; p.sizestep=.012;
+        p.flags=SPF_ROLL; p.startroll=CFRandom[utntcosmetic](0,360); p.rollvel=CFRandom[utntcosmetic](-1.1,1.1);
         UTNTLegacySizedVisual.Emit(p,GetDefaultByType('RocketSmokeCenter').Scale,2);
     }
 }
@@ -232,3 +248,26 @@ class UTNTEmberBase : SwitchableDecoration
 
 #include "zscript/UTNT_IndustrialFX.zc"
 #include "zscript/UTNT_EffectGlow.zc"
+
+// Keep one opaque sprite/voxel frame and fade its illumination continuously.
+// Alpha crossfades between coincident voxel meshes would cause depth artifacts.
+class UTNTArmorPulse play
+{
+    static void Update(Actor item)
+    {
+        if(!item.CurSector) return;
+        double pulse=(1-cos(level.time*360.0/70.0))*0.5;
+        int ambient=clamp(item.CurSector.LightLevel,0,255);
+        item.LightLevel=int(round(ambient+(255-ambient)*pulse));
+    }
+}
+class UTNTGreenArmor : GreenArmor replaces GreenArmor
+{
+    override void Tick() { Super.Tick();if(!Owner) UTNTArmorPulse.Update(self); }
+    States { Spawn: ARM1 A -1; Stop; }
+}
+class UTNTBlueArmor : BlueArmor replaces BlueArmor
+{
+    override void Tick() { Super.Tick();if(!Owner) UTNTArmorPulse.Update(self); }
+    States { Spawn: ARM2 A -1; Stop; }
+}

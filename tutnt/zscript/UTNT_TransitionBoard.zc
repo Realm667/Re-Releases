@@ -1,6 +1,12 @@
 // Bronze result plaques and raised pixel glyphs, matching the mission and ability HUD.
 class UTNTTransitionBoard ui
 {
+    static void Dim(Color color,double alpha,double x,double y,double width,double height)
+    {
+        int left=int(round(x)),top=int(round(y));
+        int w=int(round(x+width))-left,h=int(round(y+height))-top;
+        if(w>0 && h>0) Screen.Dim(color,alpha,left,top,w,h);
+    }
     static String Local(String key) { return StringTable.Localize("$"..key); }
     static String TimeText(int tics) { int s=tics/35;return String.Format("%d:%02d:%02d",s/3600,s/60%60,s%60); }
     static String Fit(String text,int width)
@@ -81,8 +87,8 @@ class UTNTTransitionBoard ui
             Label(String.Format("%d",values[i]),center,y+75*u,card-20*u,3*u,0xf0dfb6);
             String total=totals[i]>0 ? String.Format("/ %d   %d%%",totals[i],int(100.0*values[i]/totals[i])) : "-";
             Label(total,center,y+115*u,card-20*u,1.05*u,0xb4a083);
-            Screen.Dim(0x1c130e,1,left+12*u,y+137*u,card-24*u,3*u);
-            if(totals[i]>0) Screen.Dim(0xb38c47,1,left+12*u,y+137*u,(card-24*u)*clamp(double(values[i])/totals[i],0,1),3*u);
+            Dim(0x1c130e,1,left+12*u,y+137*u,card-24*u,3*u);
+            if(totals[i]>0) Dim(0xb38c47,1,left+12*u,y+137*u,(card-24*u)*clamp(double(values[i])/totals[i],0,1),3*u);
         }
         int deaths=0;for(int p=0;p<MAXPLAYERS;p++) if(r.Present[p]) deaths+=r.Values[p*4+3];
         Metric(4,Local("UTNT_TR_CLOCK"),TimeText(r.Tics),x,y+170*u,width/3,u);
@@ -120,8 +126,8 @@ class UTNTTransitionBoard ui
         {
             int panel=index/rows,row=index%rows;index++;
             double left=x+panel*panelWidth,yy=y+(53+row*32)*s;
-            Screen.Dim(p==consoleplayer ? 0x8e6434 : 0x100b08,p==consoleplayer ? .25 : .6,left,yy-5*s,panelWidth-4*s,29*s);
-            if(p==consoleplayer) Screen.Dim(0xc49a59,1,left,yy-5*s,2*s,29*s);
+            Dim(p==consoleplayer ? 0x8e6434 : 0x100b08,p==consoleplayer ? .25 : .6,left,yy-5*s,panelWidth-4*s,29*s);
+            if(p==consoleplayer) Dim(0xc49a59,1,left,yy-5*s,2*s,29*s);
             String playerName=r.Names[p];
             if(playeringame[p] && chapter.Ready[p]) playerName="+ "..playerName;
             Text(Fit(playerName,int((panelWidth*.33-12*s)/(1.3*s))),left+8*s,yy,1.3*s,0xe3d8c5);
@@ -226,8 +232,8 @@ class UTNTTransitionBoard ui
             for(int p=0;p<MAXPLAYERS;p++) if(r.Present[p])
             {
                 double left=x+(index/rows)*pw,top=y+(60+(index%rows)*29)*s;index++;
-                Screen.Dim(p==consoleplayer ? 0x8e6434 : 0x100b08,p==consoleplayer ? .25 : .6,left,top-4*s,pw-4*s,27*s);
-                if(p==consoleplayer) Screen.Dim(0xc49a59,1,left,top-4*s,2*s,27*s);
+                Dim(p==consoleplayer ? 0x8e6434 : 0x100b08,p==consoleplayer ? .25 : .6,left,top-4*s,pw-4*s,27*s);
+                if(p==consoleplayer) Dim(0xc49a59,1,left,top-4*s,2*s,27*s);
                 Text(Fit(r.Names[p],int((pw*.24-12*s)/(1.15*s))),left+7*s,top,1.15*s,0xe3d8c5);
                 for(int m=0;m<6;m++)
                 {
@@ -260,7 +266,7 @@ class UTNTTransitionBoard ui
         if(detail)
         {
             String headings[]={"COMBAT","WEAPONS1","WEAPONS2","ABILITIES"};
-            Screen.Dim(0x100b08,1,x+8*u,y+40*u,width-16*u,16*u);
+            Dim(0x100b08,1,x+8*u,y+40*u,width-16*u,16*u);
             Label(Local("UTNT_TR_"..headings[detail-1]),Screen.GetWidth()/2,y+43*u,width-32*u,1.05*u,0xb4a083);
         }
         if(!r) Label(Local("UTNT_TR_NO_DATA"),Screen.GetWidth()/2,y+92*u,width-32*u,1.2*u);
