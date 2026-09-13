@@ -1,0 +1,61 @@
+version "5.0"
+class UTNTTonalTest : StaticEventHandler
+{
+    ui void Check(bool ok, String label)
+    { Console.Printf("UTNT_ASSERT %s: %s", ok ? "PASS" : "FAIL", label); }
+
+    ui void MenuCheck()
+    {
+        Menu.SetMenu('UTNTDisplayOptions');
+        let menu = OptionMenu(Menu.GetCurrentMenu());
+        Check(menu != null, "display menu opens");
+        if (!menu) return;
+        Name controls[] = { 'UTNT_tonalshadows', 'UTNT_tonalmidtones', 'UTNT_tonalhighlights' };
+        int defaults[] = { 30, 15, 0 };
+        for (int n = 0; n < controls.Size(); n++)
+        {
+            let setting = CVar.FindCVar(controls[n]);
+            Check(setting.GetInt() == defaults[n], "default " .. controls[n]);
+            int found = 0;
+            for (int i = 0; i < menu.mDesc.mItems.Size(); i++)
+            {
+                let [menuAction, param] = menu.mDesc.mItems[i].GetAction();
+                if (menuAction != controls[n]) continue;
+                found++;
+                menu.mDesc.mSelectedItem = i;
+                menu.MenuEvent(Menu.MKEY_Right, false);
+                Check(setting.GetInt() == defaults[n] + 5, "five percent right " .. menuAction);
+                menu.MenuEvent(Menu.MKEY_Left, false);
+                Check(setting.GetInt() == defaults[n], "five percent left " .. menuAction);
+                setting.SetInt(100);
+                menu.MenuEvent(Menu.MKEY_Right, false);
+                Check(setting.GetInt() == 100, "upper bound " .. menuAction);
+                setting.SetInt(-100);
+                menu.MenuEvent(Menu.MKEY_Left, false);
+                Check(setting.GetInt() == -100, "lower bound " .. menuAction);
+                setting.SetInt(defaults[n]);
+            }
+            Check(found == 1, "one slider " .. controls[n]);
+        }
+        Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Back, false);
+    }
+
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if (e.Name == "tonalmenu") MenuCheck();
+        if (e.Name == "tonalclose" && Menu.GetCurrentMenu())
+            Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Back, false);
+        if (e.Name == "tonalcheck")
+        {
+            let h = UTNTTonalFilter(StaticEventHandler.Find('UTNTTonalFilter'));
+            Check(h != null, "local tonal handler present");
+            if (h)
+            {
+                Check(h.Enabled == (e.Args[0] != 0), "filter enabled state");
+                Check(abs(h.Amounts.X - e.Args[1] * 0.01) < 0.00001, "shadow value applied");
+                Check(abs(h.Amounts.Y - e.Args[2] * 0.01) < 0.00001, "midtone value applied");
+            }
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+    }
+}

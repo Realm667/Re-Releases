@@ -24,7 +24,8 @@ IMPORTED=[
  ('UTNTBFG9000','BFUG','A',20,0),('UTNTChaingun','MGUN','A',20,0),
  ('UTNTChainsaw','CSAW','A',20,0),('UTNTPistol','PIST','A',20,0),
  ('UTNTPlasmaRifle','PLAS','A',20,0),('UTNTRocketLauncher','LAUN','A',20,0),
- ('UTNTShotgun','SHOT','A',20,0),('UTNTSuperShotgun','SGN2','A',20,0)]
+ ('UTNTShotgun','SHOT','A',20,0),('UTNTSuperShotgun','SGN2','A',20,0),
+ ('ExplosiveBarrel','BAR1','AB',0,270),('ExplosiveBarrel','BEXP','ABCDE',0,270)]
 CUSTOM=[
  ('Gas','AGAS','A','gas',0),('BigGas','AGAS','B','biggas',0),
  ('UTNTFlamer','WFLM','A','flamer',20),('UTNTPyroCannon','WPRY','A','pyro',20),
@@ -111,7 +112,11 @@ def build(root=ROOT,source=None,iwad=None,check=False):
             changed.append(path.relative_to(root).as_posix())
             if not check:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
     for actor,prefix,frames,spin,angle in IMPORTED:
-        actors.append({'actor':actor,'sprite':prefix,'frames':frames,'spin':spin,'origin':'Cheello'})
+        entry=next((a for a in actors if a['actor']==actor),None)
+        if entry is None:
+            actors.append({'actor':actor,'sprite':prefix,'frames':frames,'spin':spin,'origin':'Cheello'})
+        else:
+            entry.setdefault('extra_states',[]).append({'sprite':prefix,'frames':frames,'spin':spin})
         for frame in frames:
             sprite=prefix+frame;name='CV'+sprite;target=dest/(name+'.kvx')
             if source:

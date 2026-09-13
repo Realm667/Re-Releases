@@ -1,0 +1,32 @@
+// UI-only grading: never reads or writes sector lights or saved world state.
+class UTNTTonalFilter : StaticEventHandler
+{
+    ui bool Enabled;
+    ui Vector3 Amounts;
+
+    ui void Update(bool hasView)
+    {
+        Enabled = false;
+        Amounts = (0, 0, 0);
+        if (gamestate == GS_LEVEL && consoleplayer >= 0 && hasView)
+        {
+            let player = players[consoleplayer];
+            if (player)
+            {
+                Amounts = (
+                    clamp(CVar.GetCVar('UTNT_tonalshadows', player).GetInt(), -100, 100) * 0.01,
+                    clamp(CVar.GetCVar('UTNT_tonalmidtones', player).GetInt(), -100, 100) * 0.01,
+                    clamp(CVar.GetCVar('UTNT_tonalhighlights', player).GetInt(), -100, 100) * 0.01);
+                Enabled = CVar.GetCVar('UTNT_tonalfilter', player).GetBool()
+                    && (Amounts.X != 0 || Amounts.Y != 0 || Amounts.Z != 0);
+            }
+        }
+        PPShader.SetUniform3f("UTNTTonalFilter", "toneAmounts", Amounts);
+        PPShader.SetEnabled("UTNTTonalFilter", Enabled);
+    }
+
+    override void UiTick() { Update(viewactive); }
+    override void RenderUnderlay(RenderEvent e) { Update(e.Camera != null && (!automapactive || viewactive)); }
+    override void WorldLoaded(WorldEvent e) { PPShader.SetEnabled("UTNTTonalFilter", false); }
+    override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTTonalFilter", false); }
+}

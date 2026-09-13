@@ -11,6 +11,7 @@
 - **Cyberdemon ambush ending:** a continuous cliff panorama shows the Marine with a smoking plasma rifle and fallen aliens, with the Cyberdemon and incoming rocket in the left half; both characters follow the original sprite designs. [Details](UTNT_PFUB_ENDING.md)
 - **Ending panorama:** a fractured planet and starfield form one continuous image across both scrolling halves. [Details](UTNT_END_PANORAMA.md)
 - **Borderless title artwork:** five refreshed title and Source illustrations follow the approved original-faithful style, preserving their scenes with detailed materials and no decorative side frames. [Details](UTNT_TITLE_ARTWORK.md)
+- **Scene brightness:** separate local shadow, midtone and highlight controls with instant preview, an extended adjustment range and stronger default shadow/midtone lift, preserving authored map lighting and HUD colors. [Details](UTNT_TONAL_FILTER.md)
 - **Status bar and HUD:** customizable statistics, remaining counts, time, complete ammo/weapon displays, smooth health/armor values, translucent and floating layouts, matching screen borders and ability cards in the fullscreen HUD. [Details](UTNT_STATUSBAR.md), [Refinements](UTNT_TESTER_FEEDBACK.md)
 - **Boss displays:** original portraits, names, health bars and percentages, plus clear shielded/vulnerable indicators for The Source. [Details](UTNT_BOSS_HUD.md)
 - **Mission objectives:** 21 goals with brief summaries, hold-to-read descriptions, completion notices and saved progress. [Details](UTNT_OBJECTIVES.md)
@@ -39,7 +40,7 @@
 
 ## Effects and environment
 
-- **Voxel pickups and decorations:** selected Cheello models and original-lowres UTNT objects use the active PLAYPAL at native pixel scale, with correctly scaled previews and requested stationary or rotating presentation, preserved actor behavior and a localized Cheello credit in the ending. Sam & Max props retain their sprites. [Details](UTNT_VOXELS.md)
+- **Voxel pickups and decorations:** selected Cheello models, including the explosive barrel and its explosion frames, and original-lowres UTNT objects use the active PLAYPAL at native pixel scale, with correctly scaled previews and requested stationary or rotating presentation, preserved actor behavior and a localized Cheello credit in the ending. Sam & Max props retain their sprites. [Details](UTNT_VOXELS.md)
 
 - **Reference brightmaps:** compatible enemy and surface masks from the four TNT releases, with shared images, preserved CRT materials and incompatible sprite variants excluded. [Details](UTNT_BRIGHTMAPS.md)
 

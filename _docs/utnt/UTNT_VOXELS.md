@@ -2,7 +2,7 @@
 
 Updated: 14 September 2026.
 
-Forty selected actor types use sixty native KVX models, including all original
+Forty-one selected actor types use sixty-seven native KVX models, including all original
 animation frames. The mapping changes world rendering only: actor classes,
 collision, pickup amounts, weapon behavior, map placements and existing fire/light
 systems remain in place. Weapon HUD sprites are not voxelized.
@@ -70,6 +70,7 @@ for native renderer rotation.
 | UTNTRocketLauncher | Cheello | 20 deg/s |
 | UTNTShotgun | Cheello | 20 deg/s |
 | UTNTSuperShotgun | Cheello | 20 deg/s |
+| ExplosiveBarrel | Cheello | 0 deg/s |
 | Gas | UTNT lowres | 0 deg/s |
 | BigGas | UTNT lowres | 0 deg/s |
 | UTNTFlamer | UTNT lowres | 20 deg/s |
@@ -85,10 +86,14 @@ excluded after visual review; they retain their existing sprites and have no
 voxel bindings or generated assets. The earlier keycard experiment also remains
 separate; this integration imports only the requested skull keys from Cheello.
 
+The explosive barrel includes both idle frames (BAR1 A/B) and all five explosion
+frames (BEXP A–E), with native scale, no rotation and the source angle offset.
+Its original actor, health and radius damage remain unchanged.
+
 ## World scale
 
 One native KVX cell is one map unit on every axis. VOXELDEF uses the engine's
-unit-scale default, and all forty selected actors use `Scale = (1,1)`. No model
+unit-scale default, and all forty-one selected actors use `Scale = (1,1)`. No model
 is normalized to a common display size. Doom's normal pixel aspect applies to
 the scene and does not change these map-unit measurements.
 
@@ -136,7 +141,7 @@ the voxel generator/checker before taking its immutable package snapshot.
 - `python -B tools/build_voxels.py --check` validates native KVX tables, slabs,
   MIPs, hashes, deterministic custom output and mappings.
 - `python -B tools/test_voxels.py --mod tutnt.pk3` opens the isolated VXLAB fixture
-  and exercises all forty actual actors, multiple viewing directions and save/load.
+  and exercises all forty-one actual actors, multiple viewing directions and save/load.
   Screenshots and logs stay in `.codex`. The fixture preserves every actor at
   `Scale = (1,1)` and asserts that scale before and after save/load.
 
@@ -146,7 +151,7 @@ Validated with UZDoom 5.0.1. The final forty-actor gallery passed 93 runtime
 assertions for native scale, three viewing directions and save/load. The English and German
 ENDMAP credit runs passed 145 and 147 assertions respectively; all four language
 catalogues and original-font coverage passed. The import matches the supplied
-Voxel Doom sources, and a fresh Windows checkout reproduces all sixty models.
+Voxel Doom sources, and a fresh Windows checkout reproduces all sixty-seven models.
 
 The shared integration package passed its engine build check. Package validation
 confirms exact model hashes, active PLAYPAL bindings, all four credit translations

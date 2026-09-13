@@ -2,16 +2,17 @@ version "5.0.0"
 class UTNTVoxelTest : EventHandler
 {
  Array<Actor> Items;
- Actor Cam;
- int Group;
+ Actor Cam, BlastTarget;
+ int Group, Expected;
  void Show(int group)
  {
   for(int i=0;i<Items.Size();i++)if(Items[i])Items[i].Destroy();Items.Clear();self.Group=group;
-  class<Actor> types[]={'Clip','Backpack','ClipBox','RocketBox','Cell','CellPack','RocketAmmo','FloatingSkull','BlueArmor','GreenArmor','Medikit','Stimpack','Candelabra','Candlestick','Berserk','Infrared','RadSuit','Allmap','Shell','BlueSkull','YellowSkull','RedSkull','ArmorBonus','HealthBonus','UTNTBFG9000','UTNTChaingun','UTNTChainsaw','UTNTPistol','UTNTPlasmaRifle','UTNTRocketLauncher','UTNTShotgun','UTNTSuperShotgun','Gas','BigGas','UTNTFlamer','UTNTPyroCannon','UTNTMinigun','PortalCoreHeart','UTNT_Barrel','CandelabraNew'};
+  class<Actor> types[]={'Clip','Backpack','ClipBox','RocketBox','Cell','CellPack','RocketAmmo','FloatingSkull','BlueArmor','GreenArmor','Medikit','Stimpack','Candelabra','Candlestick','Berserk','Infrared','RadSuit','Allmap','Shell','BlueSkull','YellowSkull','RedSkull','ArmorBonus','HealthBonus','UTNTBFG9000','UTNTChaingun','UTNTChainsaw','UTNTPistol','UTNTPlasmaRifle','UTNTRocketLauncher','UTNTShotgun','UTNTSuperShotgun','Gas','BigGas','UTNTFlamer','UTNTPyroCannon','UTNTMinigun','PortalCoreHeart','UTNT_Barrel','CandelabraNew','ExplosiveBarrel'};
+  Expected=min(4,41-group*4);
   for(int i=0;i<4;i++)
   {
-   int index=group*4+i;if(index>=40)break;
-   let a=Actor.Spawn(types[index],(-144+i*96,0,0),NO_REPLACE);
+   int index=group*4+i;if(index>=41)break;
+   let a=Actor.Spawn(types[index],((i-(Expected-1)*0.5)*96,0,0),NO_REPLACE);
    let d=GetDefaultByType(types[index]);
    Console.Printf("UTNT_ASSERT %s original defaults index %d",a && a.Radius==d.Radius && a.Height==d.Height && a.bSolid==d.bSolid && a.bSpecial==d.bSpecial?"PASS":"FAIL",index);
    if(!a)continue;
@@ -25,9 +26,18 @@ class UTNTVoxelTest : EventHandler
  {
   if(e.Name=="vxshow")Show(e.Args[0]);
   if(e.Name=="vxangle")for(int i=0;i<Items.Size();i++)if(Items[i])Items[i].Angle=e.Args[0];
+  if(e.Name=="vxexplode")
+  {
+   Actor barrel;for(int i=0;i<Items.Size();i++)if(Items[i] && Items[i].GetClassName()=='ExplosiveBarrel')barrel=Items[i];
+   if(!barrel){Console.Printf("UTNT_ASSERT FAIL explosive barrel missing");return;}
+   BlastTarget=Actor.Spawn('DoomImp',barrel.Pos+(32,0,0),NO_REPLACE);
+   barrel.DamageMobj(null,null,1000,'None');
+   Console.Printf("UTNT_ASSERT %s explosive barrel enters death",barrel.Health<=0?"PASS":"FAIL");
+  }
+  if(e.Name=="vxblastcheck")Console.Printf("UTNT_ASSERT %s original barrel radius damage retained",BlastTarget && BlastTarget.Health<=0?"PASS":"FAIL");
   if(e.Name=="vxcheck")
   {
-   bool ok=Items.Size()==4;for(int i=0;i<Items.Size();i++)ok=ok && Items[i] && Items[i].Scale.X==1 && Items[i].Scale.Y==1;
+   bool ok=Items.Size()==Expected;for(int i=0;i<Items.Size();i++)ok=ok && Items[i] && Items[i].Scale.X==1 && Items[i].Scale.Y==1;
    Console.Printf("UTNT_ASSERT %s gallery group %d survives",ok?"PASS":"FAIL",Group);
   }
  }
