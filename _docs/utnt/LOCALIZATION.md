@@ -102,6 +102,9 @@ an engine CanPrint check alone can silently substitute.
 
 The original menu font and small-font palette are retained in
 `tools/font-sources/`. Original small glyphs remain in `tutnt/graphics/fonts/`.
+The current fonts use [redrawn double-resolution artwork](UTNT_HIRES_FONTS.md)
+with `Scale 2`, preserving the original display metrics. Authored atlas imports
+and portable RGBA glyph sources live in `tools/font-sources/hires/`.
 Edit `tools/build_localized_fonts.py` to author additional native glyphs, run it,
 review the output in game, and commit the generated `tutnt/fonts/` images and
 `tools/font-glyphs.json` together. The generator uses no operating-system font or

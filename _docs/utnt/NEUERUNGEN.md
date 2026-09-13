@@ -4,6 +4,7 @@
 
 ## Interface, accessibility and presentation
 
+- **Sharper interface fonts:** redrawn BIGFONT and SMALLFONT artwork at double resolution, with clearer contours and matching localized glyphs while preserving existing text sizes and layouts. [Details](UTNT_HIRES_FONTS.md)
 - **Basalt fortress borders:** the selected stone-and-bronze frame with amber runes replaces both border variants, preserving their transparent opening and brighter alternate presentation. [Details](UTNT_BORDER_ARTWORK.md)
 - **Cyberdemon ambush ending:** a continuous cliff panorama shows the Marine with a smoking plasma rifle and fallen aliens, with the Cyberdemon and incoming rocket in the left half. [Details](UTNT_PFUB_ENDING.md)
 - **Ending panorama:** a fractured planet and starfield form one continuous image across both scrolling halves. [Details](UTNT_END_PANORAMA.md)

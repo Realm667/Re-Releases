@@ -33,8 +33,9 @@ def fixture(root, directory):
       ' let h=UTNTCreditsHandler(EventHandler.Find(\'UTNTCreditsHandler\'));Check(h && h.Initialized,"credits initialized");if(!h)return;',
       ' for(int n=0;n<h.Pages.Size();n++) { let page=h.Pages[n];let view=new("UTNTCreditsUI");view.Prepare(page);',
       ' for(int i=0;i<page.Contributions.Size();i++) { String value=StringTable.Localize(page.Contributions[i]);Check(value.Left(1)!="$","credit contribution resolved");',
-      ' if(page.Layout=="creator") Check(123+view.Wrapped[i].Count()*13<=164,"creator text fits");',
-      ' else if(page.Layout=="thanks") Check(60+view.Wrapped[i].Count()*18<=108,"thanks text clears signature");',
+      ' if(page.Layout=="creator") { Array<String> names;page.Names[i].Split(names,"~",TOK_KEEPEMPTY);Check(16+names.Size()*33+8+view.Wrapped[i].Count()*13<=view.SpecialHeight-16 && view.SpecialTop>=0 && view.SpecialTop+view.SpecialHeight<=672,"creator text fits"); }',
+      ' else if(page.Layout=="thanks") Check(60+view.Wrapped[i].Count()*18+(page.Remaster?0:34)<=view.SpecialHeight-16 && view.SpecialTop+view.SpecialHeight<=672,"thanks text clears signature");',
+      ' else if(page.Layout=="group") Check(view.SpecialTop>=0 && view.SpecialTop+view.SpecialHeight<=672,"group credit frame fits");',
       ' else Check(view.Tops[page.Layout=="dense"?i%3:i]+view.Heights[i]<=672,"credit card fits"); }',
       ' Check(StringTable.Localize(page.Heading).Left(1)!="$","credit heading resolved");',
       ' } Console.Printf("UTNT_REGRESSION_COMPLETE");return; }',
@@ -44,6 +45,7 @@ def fixture(root, directory):
     methods=[]
     font_manifest=json.loads((root/'tools/font-glyphs.json').read_text())
     for name,description in font_manifest['fonts'].items():
+        scale=description.get('scale',1)
         records=list(description['glyphs'].items())
         for chunk in range(0,len(records),40):
             method=f'Font_{name}_{chunk//40}'
@@ -52,7 +54,7 @@ def fixture(root, directory):
             methods.append(f" let font=Font.GetFont('{name}');")
             for code,metric in records[chunk:chunk+40]:
                 n=int(code,16)
-                methods.append(f' Check(font.GetCharWidth({n})=={metric["width"]} && font.GetGlyphHeight({n})=={metric["height"]} && font.GetDisplayTopOffset({n})=={metric["top"]},"native glyph {name}/{code}");')
+                methods.append(f' Check(font.GetCharWidth({n})=={metric["width"]/scale:g} && font.GetGlyphHeight({n})=={metric["height"]/scale:g} && font.GetDisplayTopOffset({n})=={metric["top"]/scale:g},"native glyph {name}/{code}");')
             methods.append('}')
     blocks.append(" Check(AlternativeSmallFont==Font.GetFont('SmallFont'),\"engine uses native SmallFont\");")
     blocks.append(" Check(AlternativeBigFont==Font.GetFont('BigFont'),\"engine uses native BigFont\");")

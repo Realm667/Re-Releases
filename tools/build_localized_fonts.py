@@ -1,7 +1,7 @@
 """Build complete UTNT Unicode bitmap fonts from the mod's original artwork.
 
-Standard library only. Existing shapes, widths, palette and offsets are retained;
-new diacritics and ligatures are composed in the same pixel style. No system fonts.
+Standard library only. Authored 2x glyphs retain the original display metrics;
+diacritics and ligatures are composed in the same style. No system fonts.
 """
 from dataclasses import dataclass
 from pathlib import Path
@@ -66,14 +66,15 @@ def overlay(base,mark,x,y):
                 if value>=0:out.pixels[(j+dy)*width+i+dx]=value
     return out
 
-def mask(rows,palette,reference,scale=1,shadow=True):
-    used=sorted(set(p for p in reference.pixels if p>=0),key=lambda p:sum(palette[p]))
+def mask(rows,palette,reference,scale=1,shadow=True,unit=1):
+    # Accent strokes need solid colors, not the translucent antialiasing fringe.
+    used=sorted(set(p for p in reference.pixels if p>=0 and (len(palette[p])==3 or palette[p][3]>=224)),key=lambda p:sum(palette[p][:3]))
     dark=used[max(0,len(used)//5)];mid=used[len(used)//2];light=used[-1]
-    w=len(rows[0])*scale+(1 if shadow else 0);h=len(rows)*scale+(1 if shadow else 0)
+    w=len(rows[0])*scale+(unit if shadow else 0);h=len(rows)*scale+(unit if shadow else 0)
     out=Glyph(w,h,[-1]*(w*h))
     points=[(x*scale+dx,y*scale+dy) for y,row in enumerate(rows) for x,c in enumerate(row) if c=='#' for dy in range(scale) for dx in range(scale)]
     if shadow:
-        for x,y in points:out.pixels[(y+1)*w+x+1]=dark
+        for x,y in points:out.pixels[(y+unit)*w+x+unit]=dark
     for x,y in points:out.pixels[y*w+x]=light if (x,y-1) not in points else mid
     return out
 
@@ -84,21 +85,21 @@ MARKS={
     '\u0327':['.#','#.'],
 }
 
-def extend(glyphs,palette,small):
+def extend(glyphs,palette,small,unit=1):
     g={c:v.copy() for c,v in glyphs.items()}
     # STCFN121 is the legacy Doom pipe slot, not a lowercase y.
     if small and 121 in g:g[124]=g.pop(121)
-    scale=1 if small else 2
+    scale=(1 if small else 2)*unit
     for char in 'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝŸ':
         decomposition=unicodedata.normalize('NFD',char);base=g[ord(decomposition[0])]
-        mark=mask(MARKS[decomposition[1]],palette,base,scale,shadow=not small)
+        mark=mask(MARKS[decomposition[1]],palette,base,scale,shadow=not small,unit=unit)
         # Small caps only have seven rows: a compact accent sits above the cap.
-        left,top,right,bottom=bounds(base);x=max(0,(left+right-mark.width)//2)
-        y=bottom if decomposition[1]=='\u0327' else top-mark.height-1
+        left,top,right,bottom=bounds(base);x=unit*max(0,(left+right-mark.width)//(2*unit))
+        y=bottom if decomposition[1]=='\u0327' else top-mark.height-unit
         g[ord(char)]=overlay(base,mark,x,y)
     for lig,left,right in [('Œ','O','E'),('Æ','A','E')]:
-        a=g[ord(left)];b=g[ord(right)];g[ord(lig)]=overlay(a,b,max(1,a.width-(2 if small else 5)),0)
-    sharp=mask(['.###..','#...#.','#..#..','#.##..','#...#.','#...#.','#.##..'],palette,g[ord('B')],scale)
+        a=g[ord(left)];b=g[ord(right)];g[ord(lig)]=overlay(a,b,max(unit,a.width-(2 if small else 5)*unit),0)
+    sharp=mask(['.###..','#...#.','#..#..','#.##..','#...#.','#...#.','#.##..'],palette,g[ord('B')],scale,unit=unit)
     # Align the sharp-S cap with B, retaining a dedicated shape for German.
     top=bounds(g[ord('B')])[1];canvas=Glyph(sharp.width,max(g[ord('B')].height,top+sharp.height),[-1]*(sharp.width*max(g[ord('B')].height,top+sharp.height)))
     g[0x1e9e]=overlay(canvas,sharp,0,top);g[0xdf]=g[0x1e9e].copy()
@@ -114,17 +115,17 @@ def extend(glyphs,palette,small):
         canvas=Glyph(original.width,original.height,[-1]*(original.width*original.height),original.left,original.top)
         g[ord(c)]=overlay(canvas,mark,0,y)
     for c,base in [('«','<'),('»','>')]:
-        a=g[ord(base)];g[ord(c)]=overlay(a,a,max(1,a.width//2),0)
+        a=g[ord(base)];g[ord(c)]=overlay(a,a,unit*max(1,a.width//(2*unit)),0)
     for c,base in [('–','-'),('—','-'),('−','-')]:
-        a=g[ord(base)];g[ord(c)]=overlay(a,a,a.width-1 if c=='—' else max(1,a.width//2),0)
-    a=g[ord('.')];g[0x2026]=overlay(overlay(a,a,a.width+1,0),a,2*(a.width+1),0)
+        a=g[ord(base)];g[ord(c)]=overlay(a,a,a.width-unit if c=='—' else unit*max(1,a.width//(2*unit)),0)
+    a=g[ord('.')];g[0x2026]=overlay(overlay(a,a,a.width+unit,0),a,2*(a.width+unit),0)
     for c,base in [('{','('),('}',')'),('`',"'")]:
         if ord(c) not in g:g[ord(c)]=g[ord(base)].copy()
     if 124 not in g:
-        a=g[ord('I')];g[124]=Glyph(2,a.height,[a.pixels[y*a.width+a.width//2+x] for y in range(a.height) for x in range(2)])
-    g[ord('~')]=mask(MARKS['\u0303'],palette,g[ord('A')],scale)
-    space=4 if small else glyphs[32].width
-    for c in (' ','\u00a0','\u202f','\u2009'):g[ord(c)]=Glyph(space,1,[-1]*space)
+        a=g[ord('I')];g[124]=Glyph(2*unit,a.height,[a.pixels[y*a.width+(a.width//(2*unit))*unit+x] for y in range(a.height) for x in range(2*unit)])
+    g[ord('~')]=mask(MARKS['\u0303'],palette,g[ord('A')],scale,unit=unit)
+    space=4*unit if small else glyphs[32].width
+    for c in (' ','\u00a0','\u202f','\u2009'):g[ord(c)]=Glyph(space,unit,[-1]*(space*unit))
     return g
 
 def png(g,palette):
@@ -132,7 +133,7 @@ def png(g,palette):
     rows=[]
     for y in range(g.height):
         row=bytearray([0])
-        for p in g.pixels[y*g.width:(y+1)*g.width]:row.extend((*palette[p],255) if p>=0 else (0,0,0,0))
+        for p in g.pixels[y*g.width:(y+1)*g.width]:row.extend((tuple(palette[p]) if len(palette[p])==4 else (*palette[p],255)) if p>=0 else (0,0,0,0))
         rows.append(bytes(row))
     return b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',g.width,g.height,8,6,0,0,0))+chunk(b'grAb',struct.pack('>ii',g.left,g.top))+chunk(b'IDAT',zlib.compress(b''.join(rows),9))+chunk(b'IEND',b'')
 
@@ -140,15 +141,25 @@ def outputs(root=ROOT):
     root=Path(root);raw=(root/'tools/font-sources/PLAYPAL.pal').read_bytes();smallpal=[tuple(raw[i:i+3]) for i in range(0,768,3)]
     small={int(p.stem[5:]):read_patch(p) for p in (root/'tutnt/graphics/fonts').glob('STCFN*.lmp')}
     big,palette,height,kern=read_fon2(root/'tools/font-sources/DBIGFONT.fon2')
-    out={};manifest={'version':1,'fonts':{}}
+    out={};manifest={'version':2,'fonts':{}}
     for name,source,pal,fh,kerning in [('smallfont',small,smallpal,11,0),('bigfont',big,palette,height,kern),('bigupper',big,palette,height,kern),('ucrbig',big,[tuple(min(255,round(v*1.8)) for v in color) for color in palette],height,kern)]:
-        glyphs=extend(source,pal,name=='smallfont');records={}
+        reference=extend(source,pal,name=='smallfont')
+        authored=json.loads((root/'tools/font-sources/hires'/('smallfont.json' if name=='smallfont' else 'bigfont.json')).read_text(encoding='utf-8'))
+        pal=[tuple(c) for c in authored['palette']]
+        if name=='ucrbig':pal=[tuple(min(255,round(v*1.8)) for v in c[:3])+c[3:] for c in pal]
+        source={int(c,16):Glyph(**g) for c,g in authored['glyphs'].items()}
+        glyphs=extend(source,pal,name=='smallfont',unit=2);records={}
+        for code,glyph in glyphs.items():
+            old=reference[code]
+            actual=(glyph.width,glyph.height,glyph.left,glyph.top)
+            expected=tuple(2*v for v in (old.width,old.height,old.left,old.top))
+            if actual!=expected:raise ValueError(f'{name}/{code:04X}: 2x metrics {actual} != {expected}')
         for code,glyph in sorted(glyphs.items()):
             rel=f'tutnt/fonts/{name}/{code:04X}.png';data=png(glyph,pal);out[rel]=data
             records[f'{code:04X}']={'sha256':hashlib.sha256(data).hexdigest(),'width':glyph.width,'height':glyph.height,'left':glyph.left,'top':glyph.top}
-        info=f'FontHeight {fh}\nSpaceWidth {4 if name=="smallfont" else big[32].width}\nKerning {kerning}\n'
+        info=f'Scale 2\nFontHeight {fh}\nSpaceWidth {4 if name=="smallfont" else big[32].width}\nKerning {kerning}\n'
         out[f'tutnt/fonts/{name}/font.inf']=info.encode()
-        manifest['fonts'][name]={'height':fh,'definition_sha256':hashlib.sha256(info.encode()).hexdigest(),'glyphs':records}
+        manifest['fonts'][name]={'height':fh,'scale':2,'definition_sha256':hashlib.sha256(info.encode()).hexdigest(),'glyphs':records}
     out['tools/font-glyphs.json']=(json.dumps(manifest,indent=2)+'\n').encode()
     return out
 

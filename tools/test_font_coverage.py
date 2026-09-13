@@ -47,4 +47,25 @@ class FontTests(unittest.TestCase):
         original,palette,_,_=b.read_fon2(b.ROOT/'tools/font-sources/DBIGFONT.fon2');g=b.extend(original,palette,False)
         self.assertLess(b.bounds(g[ord('“')])[1],b.bounds(g[ord('„')])[1])
         self.assertEqual(g[ord('“')].top,g[ord('„')].top)
+    def test_authored_fonts_have_double_pixels_and_original_display_metrics(self):
+        data=b.outputs()
+        manifest=json.loads(data['tools/font-glyphs.json'])
+        original,palette,_,_=b.read_fon2(b.ROOT/'tools/font-sources/DBIGFONT.fon2')
+        big=b.extend(original,palette,False)
+        raw=(b.ROOT/'tools/font-sources/PLAYPAL.pal').read_bytes()
+        palette=[tuple(raw[i:i+3]) for i in range(0,768,3)]
+        original={int(p.stem[5:]):b.read_patch(p) for p in (b.ROOT/'tutnt/graphics/fonts').glob('STCFN*.lmp')}
+        small=b.extend(original,palette,True)
+        for name,font in manifest['fonts'].items():
+            self.assertEqual(font['scale'],2)
+            self.assertIn(b'Scale 2\n',data[f'tutnt/fonts/{name}/font.inf'])
+            for code,metrics in font['glyphs'].items():
+                old=(small if name=='smallfont' else big)[int(code,16)]
+                for key in ('width','height','left','top'):
+                    self.assertEqual(metrics[key],2*getattr(old,key),(name,code,key))
+    def test_accent_colors_exclude_translucent_edge_samples(self):
+        palette=[(0,0,0,8),(64,64,64,255),(128,128,128,255),(224,224,224,255)]
+        reference=b.Glyph(4,1,[0,1,2,3])
+        mark=b.mask(['##','##'],palette,reference,scale=2,unit=2)
+        self.assertTrue(all(palette[p][3]==255 for p in mark.pixels if p>=0))
 if __name__=='__main__':unittest.main()
