@@ -41,12 +41,13 @@ def build(root=ROOT):
   png=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',1,1,8,6,0,0,0))
   png+=chunk(b'IDAT',zlib.compress(bytes([0,state,0,0,255])))+chunk(b'IEND',b'')
   (data/f'state{state:02}.png').write_bytes(png)
- for kind in range(3):
-  w,h=(768,64) if kind==0 else (1500,512)
-  shader=f'shaders/sourcefx/beam-{0 if kind==0 else 1}.fp'
+ # The miniature uses the same two programs with its authored texture sizes.
+ for kind,(w,h) in enumerate(((768,64),(1500,512),(1500,512),(128,1936),(636,1936),(636,1936))):
+  shader=f'shaders/sourcefx/beam-{0 if kind in (0,3) else 1}.fp'
   for state in range(29):
    name=f'USB{kind}{state}'
-   textures += [f'Texture {name}, 1, 1 {{ XScale {1/w:.12f} YScale {1/h:.12f} Patch "graphics/source-beam/state{state:02}.png", 0, 0 }}']
+   panning="WorldPanning " if kind>=3 else ""
+   textures += [f'Texture {name}, 1, 1 {{ XScale {1/w:.12f} YScale {1/h:.12f} {panning}Patch "graphics/source-beam/state{state:02}.png", 0, 0 }}']
    defs += [f'Material Texture "{name}" {{ Shader "{shader}" Texture runeAtlas "USRUNES" }}']
    # Only these generated legacy shader files belong to this generator.
    legacy=out/f'{name.lower()}.fp'

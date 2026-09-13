@@ -46,6 +46,22 @@ the immutable, engine-checked test PK3, which is also used for the remaining
 combat/glare checks. The cause of those two stalls is not established; this
 transfer does not claim to fix a general Vulkan or engine stability issue.
 
+## Miniature skybox beam — 2026-09-13
+
+TNT04C’s two BEAM sides and 28 BBEMBRD/BBEMBRDH sides now use the same
+core and helix programs as TNT04CN. The miniature centre is (6464,704);
+its 60-unit helix radius fits inside the original 128-unit-deep carrier.
+World-space energy height and noise scale with this radius; the skybox has
+no boss-target attenuation. Original 128/636 by 1936 texture dimensions
+retain carrier coverage. WorldPanning preserves the authored offsets and ACS
+scrolling instead of magnifying them with the one-texel carrier scale.
+Shield and finale states follow the shared Source
+clock. No map geometry, artwork or additional shader programs are required.
+
+The alternate-sky runtime checks verify all 30 bindings before and after
+save/load and map travel, alongside views from all three sky heights and
+the full-size arena. Shared encounter checks also cover both boss maps.
+
 ## Battle feedback
 
 - The narrow central beam and continuous world-space spiral use the existing

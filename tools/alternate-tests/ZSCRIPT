@@ -26,6 +26,16 @@ class AlternateSkyTests : EventHandler
     if(camera && camera.TID==3)lower++;
     if(sec.CenterSpot.Y>11000 && TexMan.GetName(sec.GetTexture(Sector.ceiling))=='F_SKY1' && camera==null)arena++;
    }
+   let source=UTNTSourceSystem.Find();
+   int core=0,helix=0,legacy=0;
+   for(int i=0;i<level.sides.Size();i++)
+   {
+    let tex=level.sides[i].GetTexture(Side.mid);
+    if(tex==TexMan.CheckForTexture("BEAM") || tex==TexMan.CheckForTexture("BBEMBRD") || tex==TexMan.CheckForTexture("BBEMBRDH"))legacy++;
+    if(source && tex==TexMan.CheckForTexture(String.Format("USB3%d",source.LastBeamState)))core++;
+    if(source && (tex==TexMan.CheckForTexture(String.Format("USB4%d",source.LastBeamState)) || tex==TexMan.CheckForTexture(String.Format("USB5%d",source.LastBeamState))))helix++;
+   }
+   Console.Printf("UTNT_ASSERT %s: all 30 miniature beam sides use the shared Source materials",legacy==0 && core==2 && helix==28?"PASS":"FAIL");
    int decorations=0,lit=0;
    it=ThinkerIterator.Create('Actor');
    while(a=Actor(it.Next()))

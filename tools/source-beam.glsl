@@ -18,7 +18,7 @@ vec4 ProcessTexel()
  if(state==2)return vec4(0.0);
  float intensity,marks=0.0;
  float pull=clamp(float(state-5)/23.0,0.0,1.0);
- float height=SourceHeight(pixelpos.xyz);
+ float height=SourceBeamHeight(pixelpos.xyz);
 #if BEAM_KIND == 0
  float across=fract(vTexCoord.x)-0.5;
  if(abs(across)>.18)return vec4(0.0);
@@ -49,13 +49,14 @@ vec4 ProcessTexel()
  vec2 center=SourceBeamCenter(hit.xz);
  vec3 ray=normalize(hit-eye);vec2 q=eye.xz-center;
  float a=dot(ray.xz,ray.xz),b=dot(q,ray.xz);
- float radius=430.0*(1.0-pull*pull*.97);
+ float scale=SourceBeamScale(hit.xz);
+ float radius=430.0*scale*(1.0-pull*pull*.97);
  float disc=b*b-a*(dot(q,q)-radius*radius);
  if(disc<=0.0 || a<.00001)return vec4(0.0);
  float side=dot(hit.xz-center,ray.xz)<0.0?-1.0:1.0;
  float t=(-b+side*sqrt(disc))/a;
  if(t<0.0)return vec4(0.0);
- vec3 surface=eye+ray*t;vec2 d=surface.xz-center;height=SourceHeight(surface);
+ vec3 surface=eye+ray*t;vec2 d=(surface.xz-center)/scale;height=SourceBeamHeight(surface);
  float turn=atan(d.y,d.x)/6.2831853;
  float phase=turn+height/(1100.0-600.0*pull)+pull*1.5;
  if(state<2)phase-=timer*.06;
@@ -82,7 +83,7 @@ vec4 ProcessTexel()
 #endif
  vec3 color=mix(vec3(1.0,.20,.008),vec3(1.0,.82,.32),pow(clamp(intensity,0.0,1.0),3.0));
  // Preserve the target's readability; ornament follows the same attenuation.
- float nearBoss=1.0-smoothstep(280.0,470.0,abs(height-3968.0));
+ float nearBoss=SourceMiniatureBeam(pixelpos.xz)?0.0:1.0-smoothstep(280.0,470.0,abs(height-3968.0));
 #if BEAM_KIND == 0
  float clear=mix(1.0,.10,nearBoss);
 #else

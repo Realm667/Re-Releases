@@ -18,8 +18,15 @@ class UTNTSourceBase : Actor
    if(t==TexMan.CheckForTexture("T4_BM1"))kind=0;
    if(t==TexMan.CheckForTexture("T4_BM2"))kind=1;
    if(t==TexMan.CheckForTexture("T4_BM2B"))kind=2;
+   // TNT04C also has an independently scaled miniature skybox carrier.
+   if(level.MapName~=="TNT04C")
+   {
+    if(t==TexMan.CheckForTexture("BEAM"))kind=3;
+    if(t==TexMan.CheckForTexture("BBEMBRD"))kind=4;
+    if(t==TexMan.CheckForTexture("BBEMBRDH"))kind=5;
+   }
    // Saved maps already carry these material names.
-   for(int j=0;j<3;j++)for(int k=0;k<29;k++)
+   for(int j=0;j<6;j++)for(int k=0;k<29;k++)
     if(t==TexMan.CheckForTexture(String.Format("USB%d%d",j,k)))kind=j;
    if(kind>=0){BeamSides.Push(i);BeamKinds.Push(kind);}
   }

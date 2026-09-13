@@ -25,8 +25,18 @@ vec2 SourceSealCenter(vec2 world)
 {
  return SourceArenaOffset(world)+vec2(128.0,-384.0);
 }
+bool SourceMiniatureBeam(vec2 world)
+{
+ return world.x>5120.0 && world.x<7808.0 && world.y>-1664.0 && world.y<1536.0;
+}
+float SourceBeamScale(vec2 world)
+{
+ // The miniature carrier is only 128 units deep; keep the round helix inside it.
+ return SourceMiniatureBeam(world)?60.0/430.0:1.0;
+}
 vec2 SourceBeamCenter(vec2 world)
 {
+ if(SourceMiniatureBeam(world))return vec2(6464.0,704.0);
  vec2 offset=SourceArenaOffset(world);
  // CN additionally has the remote upper-shaft carrier used by its stacked view.
  return offset+((world-offset).x>6000.0?vec2(10624.0,-192.0):vec2(130.0,-382.0));
@@ -35,6 +45,10 @@ float SourceHeight(vec3 world)
 {
  // Renderer axes are X,Z,Y; TNT04C's arena floor is 9384 units lower.
  return world.y+(world.z>6000.0?9384.0:0.0);
+}
+float SourceBeamHeight(vec3 world)
+{
+ return SourceMiniatureBeam(world.xz)?(world.y-768.0)/SourceBeamScale(world.xz)+3200.0:SourceHeight(world);
 }
 // Material-bound flecks rise with the energy; no particle actors or spawn loops.
 // Integer hashing keeps shared noise-cell corners bit-identical on every face.
@@ -56,7 +70,7 @@ vec4 ProcessTexel()
  if(state==2)return vec4(0.0);
  float intensity,marks=0.0;
  float pull=clamp(float(state-5)/23.0,0.0,1.0);
- float height=SourceHeight(pixelpos.xyz);
+ float height=SourceBeamHeight(pixelpos.xyz);
 #if BEAM_KIND == 0
  float across=fract(vTexCoord.x)-0.5;
  if(abs(across)>.18)return vec4(0.0);
@@ -87,13 +101,14 @@ vec4 ProcessTexel()
  vec2 center=SourceBeamCenter(hit.xz);
  vec3 ray=normalize(hit-eye);vec2 q=eye.xz-center;
  float a=dot(ray.xz,ray.xz),b=dot(q,ray.xz);
- float radius=430.0*(1.0-pull*pull*.97);
+ float scale=SourceBeamScale(hit.xz);
+ float radius=430.0*scale*(1.0-pull*pull*.97);
  float disc=b*b-a*(dot(q,q)-radius*radius);
  if(disc<=0.0 || a<.00001)return vec4(0.0);
  float side=dot(hit.xz-center,ray.xz)<0.0?-1.0:1.0;
  float t=(-b+side*sqrt(disc))/a;
  if(t<0.0)return vec4(0.0);
- vec3 surface=eye+ray*t;vec2 d=surface.xz-center;height=SourceHeight(surface);
+ vec3 surface=eye+ray*t;vec2 d=(surface.xz-center)/scale;height=SourceBeamHeight(surface);
  float turn=atan(d.y,d.x)/6.2831853;
  float phase=turn+height/(1100.0-600.0*pull)+pull*1.5;
  if(state<2)phase-=timer*.06;
@@ -120,7 +135,7 @@ vec4 ProcessTexel()
 #endif
  vec3 color=mix(vec3(1.0,.20,.008),vec3(1.0,.82,.32),pow(clamp(intensity,0.0,1.0),3.0));
  // Preserve the target's readability; ornament follows the same attenuation.
- float nearBoss=1.0-smoothstep(280.0,470.0,abs(height-3968.0));
+ float nearBoss=SourceMiniatureBeam(pixelpos.xz)?0.0:1.0-smoothstep(280.0,470.0,abs(height-3968.0));
 #if BEAM_KIND == 0
  float clear=mix(1.0,.10,nearBoss);
 #else

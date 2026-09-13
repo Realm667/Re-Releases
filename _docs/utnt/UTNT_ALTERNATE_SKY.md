@@ -3,7 +3,8 @@
 Implements the two approved TNT04C mockups: dark charcoal/umber clouds with amber,
 ochre and gold QLAVA reflections; a compact cloud opening at the original beam;
 two distant mountains, two cuboid antenna platforms and one small debris group.
-The existing level beam is never drawn into a sky raster or shader.
+The existing level beam is never drawn into the sky imagery. Its miniature
+wall carriers use the [shared Source beam materials](UTNT_SOURCE.md#miniature-skybox-beam--2026-09-13), scaled to the sky room.
 
 ## Runtime
 
