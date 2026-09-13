@@ -4,6 +4,7 @@
 
 ## Interface, accessibility and presentation
 
+- **Basalt fortress borders:** the selected stone-and-bronze frame with amber runes replaces both border variants, preserving their transparent opening and brighter alternate presentation. [Details](UTNT_BORDER_ARTWORK.md)
 - **Cyberdemon ambush ending:** a continuous cliff panorama shows the Marine with a smoking plasma rifle and fallen aliens, with the Cyberdemon and incoming rocket in the left half. [Details](UTNT_PFUB_ENDING.md)
 - **Ending panorama:** a fractured planet and starfield form one continuous image across both scrolling halves. [Details](UTNT_END_PANORAMA.md)
 - **Borderless title artwork:** five refreshed title and Source illustrations follow the approved original-faithful style, preserving their scenes with detailed materials and no decorative side frames. [Details](UTNT_TITLE_ARTWORK.md)
