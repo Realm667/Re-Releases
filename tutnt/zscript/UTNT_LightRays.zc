@@ -1,0 +1,145 @@
+// Local detail only. Existing map actors still own all activation and state.
+class UTNTLightRayLamp : Actor
+{
+    Default
+    {
+        +CLIENTSIDE +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +NOTONAUTOMAP
+        Radius 1; Height 1;
+    }
+    States { Spawn: TNT1 A -1; Stop; }
+    override void Tick() {}
+}
+
+class UTNTLightRayEmitter : Thinker
+{
+    LightRay_Regular Source;
+    Actor Lamp;
+    int Age, NextDust;
+
+    static void Ensure(LightRay_Regular source)
+    {
+        int phase = (int(source.Pos.X)*3+int(source.Pos.Y)*5+int(source.Pos.Z))&15;
+        if ((level.time+phase)%16 != 0) return;
+        let runtime = UTNTFXRuntime.Get();
+        if (!runtime || runtime.Quality < 2 || !runtime.Camera
+            || source.Distance3D(runtime.Camera) > min(640.,runtime.Range)) return;
+        if (runtime.Lookup(source,0)) return;
+        // Shared ambient budget plus a strict local emitter bound.
+        let it = ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);
+        int count = 0;
+        while (it.Next()) if (++count >= 32) return;
+        let emitter = UTNTLightRayEmitter(level.CreateClientSideThinker('UTNTLightRayEmitter',Thinker.STAT_USER+24));
+        if (!emitter) return;
+        emitter.Source = source;
+        emitter.Age = phase;
+        emitter.NextDust = phase+CRandom[utntraydust](1,35);
+        runtime.Register(source,0,emitter);
+    }
+
+    static Vector3 Sample(LightRay_Regular source, double u, double v, double depth)
+    {
+        double x = (u-.5)*256*source.Scale.X;
+        double z = (17.-v*256)*source.Scale.Y;
+        if (!source.bWallSprite) return source.Pos+(x,depth,z);
+        // WALLSPRITE uses yaw and roll, not actor pitch. Preserve signed scale.
+        double roll = source.bRollSprite ? source.Roll : 0.;
+        double side = x*cos(roll)+z*sin(roll);
+        double up = z*cos(roll)-x*sin(roll);
+        return source.Pos+(sin(source.Angle)*side+cos(source.Angle)*depth,
+                           -cos(source.Angle)*side+sin(source.Angle)*depth,up);
+    }
+
+    override void OnDestroy()
+    {
+        if (Lamp) Lamp.Destroy();
+        Super.OnDestroy();
+    }
+
+    void UpdateLamp(double distance)
+    {
+        // Only vertical downlights can safely infer a lighting direction.
+        // Preserve darkness: faint/colored decorative sheets never gain a lamp.
+        bool eligible = !Source.bWallSprite && Source.Frame == 0 && Source.Scale.Y > 0
+            && Source.Alpha >= .45 && distance < 512 && Source.CurSector.LightLevel < 220;
+        if (!eligible) { if (Lamp) Lamp.Destroy(); Lamp = null; return; }
+        if (!Lamp)
+        {
+            let it = ThinkerIterator.Create('UTNTLightRayLamp',Thinker.MAX_STATNUM+1,true);
+            int count = 0;
+            while (it.Next()) if (++count >= 12) return;
+            Lamp = Actor.SpawnClientSide('UTNTLightRayLamp',Source.Pos);
+        }
+        if (!Lamp) return;
+        Lamp.SetOrigin(Source.Pos-(0,0,2),false);
+        Color tint = Source.FillColor;
+        if (Source.GetRenderStyle() != STYLE_AddStencil && Source.GetRenderStyle() != STYLE_TranslucentStencil) tint = 0xffffff;
+        double fade = clamp((512-distance)/128.,0.,1.);
+        int radius = int(clamp(128*Source.Scale.Y,16.,96.));
+        double cone = clamp(atan2(abs(Source.Scale.X)*70,abs(Source.Scale.Y)*220),6.,32.);
+        Lamp.A_AttachLight('ray',DynamicLight.PointLight,tint,radius,0,
+            DynamicLight.LF_ATTENUATE|DynamicLight.LF_SPOT,(0,0,0),0,cone*.5,cone,90,
+            .22*Source.Alpha*fade);
+    }
+
+    override void Tick()
+    {
+        if (!Source || !Source.RayActive()) { Destroy(); return; }
+        if (Source.IsFrozen()) return;
+        let runtime = UTNTFXRuntime.Get();
+        double distance = runtime.Camera ? Source.Distance3D(runtime.Camera) : 1e9;
+        if (runtime.Quality < 2 || distance > min(640.,runtime.Range)) { Destroy(); return; }
+        Age++;
+        if (Age%8 == 0) UpdateLamp(distance);
+        if (Age < NextDust) return;
+        NextDust = Age+(runtime.Quality == 3 ? 24 : 42);
+        if (distance > 448 || Source.Alpha < .15 || !UTNTVisuals.Reserve()) return;
+        let dust = UTNTLightRayDust(level.SpawnClientSideVisualThinker('UTNTLightRayDust'));
+        if (dust) dust.Initialize(Source);
+    }
+}
+
+class UTNTLightRayDust : VisualThinker
+{
+    LightRay_Regular Source;
+    int Age, Life;
+    double U, V, Depth, Drift, Strength;
+
+    void Initialize(LightRay_Regular source)
+    {
+        Source = source;
+        U = CFRandom[utntraydust](.43,.57);
+        V = CFRandom[utntraydust](.19,.76);
+        Depth = CFRandom[utntraydust](-1.6,1.6)*abs(source.Scale.X)*10;
+        Drift = CFRandom[utntraydust](-.00055,.00055);
+        Life = CRandom[utntraydust](65,110);
+        Strength = .22*source.Alpha;
+        Texture = TexMan.CheckForTexture('UFHRA0');
+        Flags = SPF_FULLBRIGHT|SPF_STRETCHPIXELS;
+        SetRenderStyle(STYLE_AddStencil);
+        scolor = source.FillColor|0xff000000;
+        if (source.GetRenderStyle() != STYLE_AddStencil && source.GetRenderStyle() != STYLE_TranslucentStencil) scolor = 0xffffffff;
+        let size = TexMan.GetScaledSize(Texture);
+        double width = CFRandom[utntraydust](.65,1.2);
+        Scale = (width/size.X,width/size.Y);
+        Pos = UTNTLightRayEmitter.Sample(source,U,V,Depth); Prev = Pos;
+        Alpha = 0;
+        UpdateSector(); UpdateSpriteInfo();
+    }
+
+    override void Tick()
+    {
+        if (!Source || !Source.RayActive()) { Destroy(); return; }
+        if (IsFrozen() || Source.IsFrozen()) return;
+        let runtime = UTNTFXRuntime.Get();
+        if (++Age >= Life || runtime.Quality < 2) { Destroy(); return; }
+        U += Drift; V += .0008;
+        Prev = Pos; Pos = UTNTLightRayEmitter.Sample(Source,U,V,Depth);
+        let sec = level.PointInSector(Pos.XY);
+        if (sec != Source.CurSector || sec.Get3DFloorCount() > 0
+            || Pos.Z < sec.floorplane.ZatPoint(Pos.XY)+1 || Pos.Z > sec.ceilingplane.ZatPoint(Pos.XY)-1)
+        { Destroy(); return; }
+        double edge = clamp((.20-abs(U-.5))/.10,0.,1.)*clamp((.95-V)/.20,0.,1.);
+        Alpha = Strength*edge*min(1.,Age/20.)*min(1.,(Life-Age)/25.);
+        UpdateSector();
+    }
+}

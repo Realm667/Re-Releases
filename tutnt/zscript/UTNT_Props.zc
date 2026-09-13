@@ -22,6 +22,18 @@
 
 Class LightRay_Regular : SwitchableDecoration
 {
+	// Keep every legacy class/editor number and map-authored property. Cosmetic
+	// ownership lives entirely in the client registry, never on this map actor.
+	bool RayActive()
+	{
+		return !bInvisible && !bDormant && Alpha > 0
+			&& Sprite == GetSpriteIndex('VOLT') && CurState != FindState('Inactive');
+	}
+	override void Tick()
+	{
+		Super.Tick();
+		if (RayActive()) UTNTLightRayEmitter.Ensure(self);
+	}
 	Default
 	{
 		//$Category "UTNT Effects"
@@ -90,7 +102,7 @@ Class LightRay2_WallSprite : LightRay2_Regular
 	}
 }
 
-Class LightRay_RegularNL : SwitchableDecoration
+Class LightRay_RegularNL : LightRay_Regular
 {
 	Default
 	{
@@ -158,3 +170,5 @@ Class LightRay2_WallSpriteNL : LightRay2_RegularNL
 		+WALLSPRITE
 	}
 }
+
+#include "zscript/UTNT_LightRays.zc"

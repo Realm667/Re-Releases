@@ -1,0 +1,115 @@
+version "5.0"
+class UTNTLightRayTestCamera : Actor
+{
+    Default { +NOGRAVITY +NOINTERACTION +NOBLOCKMAP Radius 1; Height 0; }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+// Register the baseline sprite frames, without spawning a second light actor.
+class UTNTLightRayLegacyFrames : Actor
+{
+    States { Spawn: VRCL AB -1; Stop; }
+}
+class UTNTLightRayTest : EventHandler
+{
+    Array<LightRay_Regular> Probes;
+    Actor Cam;
+    void Check(bool ok,String message)
+    { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",message); }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="rayclassic" || e.Name=="raymodern")
+        {
+            let it=ThinkerIterator.Create('LightRay_Regular');LightRay_Regular ray;
+            while(ray=LightRay_Regular(it.Next()))
+            {
+                if(e.Name=="rayclassic" && ray.Sprite==Actor.GetSpriteIndex('VOLT'))ray.Sprite=Actor.GetSpriteIndex('VRCL');
+                if(e.Name=="raymodern" && ray.Sprite==Actor.GetSpriteIndex('VRCL'))ray.Sprite=Actor.GetSpriteIndex('VOLT');
+            }
+        }
+        if (e.Name == "rayinactive")
+        {
+            let it=ThinkerIterator.Create('LightRay_Regular');LightRay_Regular ray;int active=0;
+            while(ray=LightRay_Regular(it.Next()))if(ray.RayActive())active++;
+            Check(active==0,"inactive state survives save/load");
+            it=ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);
+            Check(it.Next()==null,"no inactive emitters");
+            it=ThinkerIterator.Create('UTNTLightRayLamp',Thinker.MAX_STATNUM+1,true);
+            Check(it.Next()==null,"no inactive lights");
+        }
+        if (e.Name == "raybudget")
+        {
+            let it=ThinkerIterator.Create('UTNTLightRayEmitter',Thinker.MAX_STATNUM+1,true);
+            int emitters=0;while(it.Next())emitters++;
+            it=ThinkerIterator.Create('UTNTLightRayLamp',Thinker.MAX_STATNUM+1,true);
+            int lamps=0;while(it.Next())lamps++;
+            Check(emitters<=32 && lamps<=12,"local effect limits");
+            if(e.Args[0]==1)Check(emitters==0 && lamps==0,"reduced effects clear optional detail");
+            Console.Printf("UTNT_RAY_BUDGET emitters=%d lamps=%d",emitters,lamps);
+        }
+        if (e.Name == "raycheck")
+        {
+            let it = ThinkerIterator.Create('LightRay_Regular');
+            int count = 0; LightRay_Regular ray;
+            while (ray = LightRay_Regular(it.Next())) count++;
+            Check(count >= (level.MapName ~== "TNT01" ? 206 : 276),"all placed light rays use the enhanced base");
+            Console.Printf("UTNT_RAYS map=%s count=%d",level.MapName,count);
+            if (e.Args[0] == 1)
+            {
+                Class<LightRay_Regular> kinds[] = {
+                    'LightRay_Regular','LightRay_WallSprite','LightRay2_Regular','LightRay2_WallSprite',
+                    'LightRay_RegularNL','LightRay_WallSpriteNL','LightRay2_RegularNL','LightRay2_WallSpriteNL'};
+                for (int i=0;i<kinds.Size();i++)
+                {
+                    ray = LightRay_Regular(Actor.Spawn(kinds[i],players[0].mo.Pos+(0,0,100)));
+                    ray.Scale=(.1,i==7?-.3:.3);ray.Alpha=.37;ray.SetShade(0xc6b56f);
+                    ray.Angle=37;ray.Roll=270;Probes.Push(ray);
+                    Check(ray.RayActive(),"spawn active "..kinds[i]);
+                    ray.Deactivate(null);
+                    Check(!ray.RayActive(),"deactivation stops detail "..kinds[i]);
+                    ray.Activate(null);
+                    Check(ray.RayActive(),"reactivation "..kinds[i]);
+                    Check(abs(ray.Alpha-.37)<.00001 && (ray.FillColor&0xffffff)==0xc6b56f && abs(ray.Scale.Y-(i==7?-.3:.3))<.00001
+                        && ray.Angle==37 && ray.Roll==270,"authored properties preserved "..kinds[i]);
+                }
+                for(int i=0;i<Probes.Size();i++)Probes[i].Destroy();
+                Probes.Clear();
+            }
+            Console.Printf("UTNT_REGRESSION_COMPLETE");
+        }
+        if (e.Name == "rayview")
+        {
+            if(!Cam)Cam=Actor.Spawn('UTNTLightRayTestCamera',players[0].mo.Pos);
+            let camera=Cam;players[0].camera=Cam;
+            if (level.MapName ~== "TNT01")
+            {
+                if(e.Args[0]==0){camera.SetOrigin((-512,1120,221),false);camera.Angle=90;camera.Pitch=-12;}
+                if(e.Args[0]==1){camera.SetOrigin((-680,1300,231),false);camera.Angle=5;camera.Pitch=0;}
+                if(e.Args[0]==2){camera.SetOrigin((-608,1312,237),false);camera.Angle=0;camera.Pitch=-15;}
+                if(e.Args[0]==3){camera.SetOrigin((-608,1152,231),false);camera.Angle=90;camera.Pitch=0;}
+            }
+            if (level.MapName ~== "TNT02")
+            {
+                let it=ThinkerIterator.Create('LightRay2_WallSprite');LightRay_Regular ray;
+                while(ray=LightRay_Regular(it.Next()))
+                {
+                    if(abs(ray.Pos.X-3664)>1 || abs(ray.Pos.Y+638)>1)continue;
+                    Vector3 center=UTNTLightRayEmitter.Sample(ray,.5,.5,0);
+                    double angle=ray.Angle+(e.Args[0]==1?45:0);
+                    double range=e.Args[0]==2?18:140;
+                    camera.SetOrigin(center+(cos(angle)*range,sin(angle)*range,0),false);
+                    camera.Angle=angle+180;camera.Pitch=0;
+                    Console.Printf("UTNT_RAY_SHEET source=(%.1f %.1f %.1f) camera=(%.1f %.1f %.1f)",
+                        ray.Pos.X,ray.Pos.Y,ray.Pos.Z,camera.Pos.X,camera.Pos.Y,camera.Pos.Z);
+                    break;
+                }
+            }
+        }
+        if (e.Name == "rayoff" || e.Name == "rayon")
+        {
+            let it=ThinkerIterator.Create('LightRay_Regular');LightRay_Regular ray;
+            while(ray=LightRay_Regular(it.Next()))
+            { if(e.Name=="rayoff")ray.Deactivate(null);else ray.Activate(null); }
+        }
+    }
+}

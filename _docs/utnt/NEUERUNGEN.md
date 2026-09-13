@@ -37,6 +37,8 @@
 
 ## Effects and environment
 
+- **Light rays:** soft spatial downlights, gently moving light sheets, camera fades, sparse local dust and restrained matching illumination automatically enhance existing map actors. [Details](UTNT_LIGHT_RAYS.md)
+
 - **Sparse grass:** eight randomly varied, nonblocking tufts on grass floors outside the Super Mario secret, with ground-matched pixel colors, soft roots, distance fading and stable save/load placement. [Details](UTNT_GRASS.md)
 
 - **Candelabra lighting:** restored dynamic light for the custom candelabra in TNT03B and TNT04A. [Implementation](../../tutnt/GLDEFS.txt)
