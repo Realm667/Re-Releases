@@ -53,7 +53,8 @@ The three credits form a centered block, appearing successively from top to
 bottom while earlier lines remain visible. All three share one scale, fitted
 to the widest localized line. Their vertical step is exactly 1.5 times the
 font's scaled line height, with the first row at 80% of viewport height.
-No new player-facing text or language keys are introduced.
+The author credit reads `by Daniel "Tormentor667" Gimmer`; all three
+translations preserve the quoted nickname. No new language keys are introduced.
 
 Illustrations and borders cover the viewport at every aspect ratio. Their
 original proportions are preserved; the first three illustrations and border
