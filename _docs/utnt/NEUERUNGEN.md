@@ -1,6 +1,6 @@
 # UTNT Remaster — What's New
 
-**Updated: 13 September 2026.** Current implemented features and improvements; unfinished local work is listed separately. Technical details and validation are available through the links.
+**Updated: 14 September 2026.** Current implemented features and improvements; unfinished local work is listed separately. Technical details and validation are available through the links.
 
 ## Interface, accessibility and presentation
 
@@ -30,6 +30,8 @@
 
 ## Abilities and gameplay feel
 
+- **Movement tilt:** smooth, adjustable sideways camera inclination with fixed HUD and comfort controls; reduced effects disable it. [Details](UTNT_RELEASE_EFFECTS.md)
+- **Alternate enemy deaths:** reference animations for nine enemy families and their stealth variants, preserving combat behavior, resurrection and boss completion. [Details](UTNT_RELEASE_EFFECTS.md)
 - **Six class abilities:** Commando — Overdrive (firing speed) and Bollwerk (protection); Marine — Rage (damage) and Regeneration (healing); Scout — Weak Spot (critical hits) and Cloak (invisibility). [Details](UTNT_ABILITIES.md)
 - **Ability feedback:** remappable controls, duration/cooldown cards, distinct screen effects and activation/expiry sounds. [Details](UTNT_ABILITIES.md)
 - **Smoother recoil:** camera recoil reduced by 75% and interpolated, including BFG charging. [Details](UTNT_RECOIL.md)

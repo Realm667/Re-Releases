@@ -23,6 +23,7 @@ Run `tutnt_build.bat` from the repository root. Local configuration is in the ig
 - [UTNT_ASH_SKY.md](UTNT_ASH_SKY.md)
 - [UTNT_BOSS_HUD.md](UTNT_BOSS_HUD.md)
 - [Reference enemy and surface brightmaps](UTNT_BRIGHTMAPS.md)
+- [Reference alternate deaths and movement tilt](UTNT_RELEASE_EFFECTS.md)
 - [UTNT_CALDERA.md](UTNT_CALDERA.md)
 - [UTNT_CREDITS.md](UTNT_CREDITS.md)
 - [CRT monitor glass and room reflections](UTNT_CRT.md)

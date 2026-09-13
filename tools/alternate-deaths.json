@@ -1,0 +1,929 @@
+{
+  "sources": [
+    "tnte1.released_v20-20231224",
+    "tnte2.released_v20-20240115",
+    "tnte3.released_v20-20240129",
+    "tntle.released_v20-20240306"
+  ],
+  "classes": [
+    {
+      "class": "UTNTAltZombieMan",
+      "base": "UTNTZombieMan",
+      "sprite": "POSS",
+      "states": [
+        "Death2"
+      ]
+    },
+    {
+      "class": "UTNTAltStealthZombieMan",
+      "base": "UTNTStealthZombieMan",
+      "sprite": "POSS",
+      "states": [
+        "Death2"
+      ]
+    },
+    {
+      "class": "UTNTAltShotgunGuy",
+      "base": "UTNTShotgunGuy",
+      "sprite": "SPOS",
+      "states": [
+        "Death2",
+        "Death3"
+      ]
+    },
+    {
+      "class": "UTNTAltStealthShotgunGuy",
+      "base": "UTNTStealthShotgunGuy",
+      "sprite": "SPOS",
+      "states": [
+        "Death2",
+        "Death3"
+      ]
+    },
+    {
+      "class": "UTNTAltDoomImp",
+      "base": "UTNTDoomImp",
+      "sprite": "TROO",
+      "states": [
+        "Death2",
+        "Death3",
+        "Death4"
+      ]
+    },
+    {
+      "class": "UTNTAltStealthDoomImp",
+      "base": "UTNTStealthDoomImp",
+      "sprite": "TROO",
+      "states": [
+        "Death2",
+        "Death3",
+        "Death4"
+      ]
+    },
+    {
+      "class": "UTNTAltDemon",
+      "base": "UTNTDemon",
+      "sprite": "SARG",
+      "states": [
+        "Death2",
+        "XDeath2"
+      ]
+    },
+    {
+      "class": "UTNTAltStealthDemon",
+      "base": "UTNTStealthDemon",
+      "sprite": "SARG",
+      "states": [
+        "Death2",
+        "XDeath2"
+      ]
+    },
+    {
+      "class": "UTNTAltSpectre",
+      "base": "UTNTSpectre",
+      "sprite": "SARG",
+      "states": [
+        "Death2",
+        "XDeath2"
+      ]
+    },
+    {
+      "class": "UTNTAltHellKnight",
+      "base": "UTNTHellKnight",
+      "sprite": "BOS2",
+      "states": [
+        "Death2",
+        "Death3",
+        "XDeath2"
+      ]
+    },
+    {
+      "class": "UTNTAltStealthHellKnight",
+      "base": "UTNTStealthHellKnight",
+      "sprite": "BOS2",
+      "states": [
+        "Death2",
+        "Death3",
+        "XDeath2"
+      ]
+    },
+    {
+      "class": "UTNTAltBaronOfHell",
+      "base": "UTNTBaronOfHell",
+      "sprite": "BOSS",
+      "states": [
+        "Death2",
+        "Death3",
+        "XDeath2"
+      ]
+    },
+    {
+      "class": "UTNTAltStealthBaron",
+      "base": "UTNTStealthBaron",
+      "sprite": "BOSS",
+      "states": [
+        "Death2",
+        "Death3",
+        "XDeath2"
+      ]
+    },
+    {
+      "class": "UTNTAltArachnotron",
+      "base": "UTNTArachnotron",
+      "sprite": "BSPI",
+      "states": [
+        "Death2"
+      ]
+    },
+    {
+      "class": "UTNTAltStealthArachnotron",
+      "base": "UTNTStealthArachnotron",
+      "sprite": "BSPI",
+      "states": [
+        "Death2"
+      ]
+    },
+    {
+      "class": "UTNTAltFatso",
+      "base": "UTNTFatso",
+      "sprite": "FATT",
+      "states": [
+        "Death2",
+        "Death3"
+      ]
+    },
+    {
+      "class": "UTNTAltStealthFatso",
+      "base": "UTNTStealthFatso",
+      "sprite": "FATT",
+      "states": [
+        "Death2",
+        "Death3"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PSS2A0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDZ1A0.lmp",
+      "sha256": "994691de75fbaa89f9cd42a90e946e2276585ff14e369cc8b1b04bb8aea012a6"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PSS2B0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDZ1B0.lmp",
+      "sha256": "a9a5d8a582d71f326dfbad8af32e02d4c7c7d695970ee7be6a94d186374638c6"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PSS2C0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDZ1C0.lmp",
+      "sha256": "5f98880aaf19d7c80403e53fc4151e2cb5bf0f0706e6be1c03230b190422e726"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PSS2D0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDZ1D0.lmp",
+      "sha256": "79861fa1ea2bfdf5959123a0966109abf937d84fbd27ef03a7c8167cb00d963e"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PSS2E0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDZ1E0.lmp",
+      "sha256": "f1fedf160731c7b66c881d7746b7734619eb0d1fbbfd50433a03cfad3d5cfd72"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22A0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1A0.lmp",
+      "sha256": "88d36c251cc5d1f77fb3cd6d21918ddb8b220be3bcfd1739ee1cd48e6d95326c"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22B0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1B0.lmp",
+      "sha256": "18d515ecce8cca3a7c575fae74da2456f15392adec1e2b95d2eb039706202cb3"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22C0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1C0.lmp",
+      "sha256": "16ec8affd600a998e434a4389a1be6a1563d111e784aaf2370bd5a0b68b81888"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22D0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1D0.lmp",
+      "sha256": "3ae0cdbe05ba5f35f21aa9d46228529c322ef93de43eb281f391d4f8be417eb8"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22E0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1E0.lmp",
+      "sha256": "f2eb43f0fdbaefde1270d72d36bfae60981343d703fadfe5911462167c7a0c5b"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22F0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1F0.lmp",
+      "sha256": "753ba52989296e066fbcf2f0826d6924aa744ff765f5c3babc3c90fb83614061"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22G0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1G0.lmp",
+      "sha256": "1620b831992b0229d10f6255311c31fbe4d6a9c3952b328c293ecf8c3c6c74b1"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22H0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1H0.lmp",
+      "sha256": "e69f66d09cef22c4b6c36f99988f20e22150e053a707b07c310401f8581124cd"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22I0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1I0.lmp",
+      "sha256": "c87360bd151c1e0032a56983481cdcb492ae2abbe1126ec23ab031c5ec1260dc"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22J0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1J0.lmp",
+      "sha256": "913d16f6a285faf7cccef146fe05cd3cf0ca6795f06be6a1868c806fb0ea3790"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22K0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1K0.lmp",
+      "sha256": "2cc94815d07392e057feac93b1464614a121f380a9c718d36d9298c06b708cf7"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/PS22L0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDS1L0.lmp",
+      "sha256": "d7bd88f77edda68f66b95993d8a96580752b990b20780c6b2bce0b66045f8d85",
+      "source_aliases": [
+        "tntle.released_v20-20240306/sprites/altdeaths/PS22M0.lmp"
+      ]
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TROOV0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI1V0.lmp",
+      "sha256": "630535635b04b655a5aff4f7bb75fa04f7abfc4aed6341e3dc883e01c955a904"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TROOW0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI1W0.lmp",
+      "sha256": "b875b3b486b2307869c79eae4ba1666ce7e383f9de16555c7c2e40b2a753dfc2"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TROOX0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI1X0.lmp",
+      "sha256": "02b0d6c4c3b1b8c12122cfb6543c80174f326fd99a9f480d62863705c18c8579"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TROOY0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI1Y0.lmp",
+      "sha256": "d711b0493a232773bed9090b5daf33880671ebc4110f0b9bb18180f4387540b0"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TROOZ0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI1Z0.lmp",
+      "sha256": "9bf1781778db23dea4317a0e04cd9a43a96ffb6c85a9cc040675545f04ce461f"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2A0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2A0.lmp",
+      "sha256": "8d65d73686a86d60d012bf3fdb31a2d3f7d2eb22d1ef6fb493c87d1a7c8530b4"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2B0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2B0.lmp",
+      "sha256": "2c17902e0837549cdb166296d1005d0335a13a98670a7fe4ccd682594631bc6a"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2C0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2C0.lmp",
+      "sha256": "1639c5c4ed3668410454e0bd44105b2587f6f0c0f6e962ae3108932991c02a92"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2D0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2D0.lmp",
+      "sha256": "42e307a24e5d86bb3a101c5594c94a6a7a048a9f8423cd087ca4d74e365e8e8c"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2E0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2E0.lmp",
+      "sha256": "41a04a375a7e4127dfa7b07572c221f3de145d247ee25bd7829618a01844d7b6"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2F0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2F0.lmp",
+      "sha256": "a212d17d4f1e56204a43914d6ad5016711b7b32083bfa79157adeea059032c70"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2G0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2G0.lmp",
+      "sha256": "08f44e2d118eafce45db56027734bb3f10aadcfbc0b2aaa3a95b8fcfca405af7"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2H0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2H0.lmp",
+      "sha256": "c48f64d568a746f33a053ab3884cd56e1b28df809561fa2931155215c7a4fcab"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2I0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2I0.lmp",
+      "sha256": "e75be95d6b40cf52a82618305636effc3728179a5fc6d31eb23903bd47b95707"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2J0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2J0.lmp",
+      "sha256": "6c8e7dec20183c6734686420fb85e49ea50dac22238f23c4fa5a221fec3c27f2"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2K0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2K0.lmp",
+      "sha256": "a43984836f8e63a64fd5236f10d1cde599b6596516c68e086849ca1f63bdae33"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2L0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2L0.lmp",
+      "sha256": "4e1e8d1adb4b60d6a5e91633bffa7a03f7190d9921c323fe79d9c1fde11824fe"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/TRO2M0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDI2M0.lmp",
+      "sha256": "4891d65893fcb1ae4215e9b679605323761f23af1f4c2da53b159146279a54ef"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SAARA0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD1A0.lmp",
+      "sha256": "9c83f538536b048643eade925177e6f80b37015e306081deb5ba381abb394ad4"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SAARB0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD1B0.lmp",
+      "sha256": "765235a514f64202d50ba0820ec49b25a541fa8739cca55c45d34a5a683f2510"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SAARC0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD1C0.lmp",
+      "sha256": "6846edca4e0f53cabf2218fffdecb2ce282933e6f31ae5977d44122e549d4409"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SAARD0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD1D0.lmp",
+      "sha256": "388bb1ae83081681e23e30822d35c16acda90da58c6f290f5152a62cfabcdbca"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SAARE0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD1E0.lmp",
+      "sha256": "5d1404319dc587bcbf37d7d0812325a6d094e550fed6e4fa928f017634246b31"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SAARF0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD1F0.lmp",
+      "sha256": "022cf046e27e5ed23553b807cd9e4c5399a85ecf9f812ed19914cdca2d4d0f47"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SARGO0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD2O0.lmp",
+      "sha256": "e741808686ee7ea1fb70a2c0980eee0dce7d1e16b7e37ba28822629dab94726f"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SARGP0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD2P0.lmp",
+      "sha256": "fa9e2895468e6cb949c647ded7afe51bca06c978c8a40bc8d577ea8463bf2f47"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SARGQ0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD2Q0.lmp",
+      "sha256": "590c36343eef939b6a848df7156dd3978c6852b03189e3367387a9d4bd2962a2"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SARGR0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD2R0.lmp",
+      "sha256": "480e005704e0626bc00e1de27a5225a94b7c9b9a2b353ce7a37556c4af226df0"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SARGS0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD2S0.lmp",
+      "sha256": "7d1489bd0b7e8787d6dfb240b6dee057d884c6afe5f210cb8eb8fade6626e846"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SARGT0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD2T0.lmp",
+      "sha256": "b272034ec5ef60526be1774abf979739cd07b28bd4ce314b6a1a1c859b9c3542"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SARGU0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD2U0.lmp",
+      "sha256": "0039bfa1b588348a750013bb6dae85254c8e2c4a1e66e5ad37cb07e817aae7a9"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SARGV0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD2V0.lmp",
+      "sha256": "d79a33630267779ce9425f01073e12a8e8844c3006e2b8af381fb8115a8acea0"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/SARGW0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDD2W0.lmp",
+      "sha256": "d60738be387141b904ce02f080409c662b7c406bf6521a6220b4a85e55aced12"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS22A0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK1A0.lmp",
+      "sha256": "3c61534ed41d0e771a7a45b22c6ae34bdefaf8f0b4afe5b71d4bfb299f26abd9"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS22B0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK1B0.lmp",
+      "sha256": "317bf42e6bc92fe14bb5954ee37123e05b8d6f8df28636ce706c6a182e89d42d"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS22C0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK1C0.lmp",
+      "sha256": "40b93f90f79036ffd239724228531335d909496300a6113bb37c21bd611a88ad"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS22D0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK1D0.lmp",
+      "sha256": "a37610bac4c813141332122dcd20c9cf0811242ef4b949e89de41a69bf082582"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS22E0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK1E0.lmp",
+      "sha256": "5f864ea36c4bbe8bc90962dec6c679d5cccd058a606d9b4e99377943623e9d42"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS22F0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK1F0.lmp",
+      "sha256": "40aa12dfa63d0e3b054bdc1a4ce7d405946e12820bd57a0a0fac3351968506a1"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS22G0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK1G0.lmp",
+      "sha256": "0796859d7345b89ef9e7b843c9c263018b56a7edcd6cfb3855c9b397fa04bc83"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOS2P0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK2P0.lmp",
+      "sha256": "e4e651d388bd9eac469bd14c8f9687951ca9fe6f515606798b177ea4d7dca8cc"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOS2Q0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK2Q0.lmp",
+      "sha256": "4460475074ff3ebb05b08be59b16fa9938010ffa454eb30713b28aaecbaf4f66"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOS2R0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK2R0.lmp",
+      "sha256": "8fcb1b20b2b2b25e36b8f3442255adfbce52c1bbc68f3f22f346cc18ecd38631"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOS2S0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK2S0.lmp",
+      "sha256": "8b889408ef2a366abacc384060588352d372f1eb5dba050a7b7c3bbf0fd16e11"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOS2T0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK2T0.lmp",
+      "sha256": "e2f84eed97040218bac870d02b91718bb889ec34bd50b58de4fdfb15fb8e18ca"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOS2U0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK2U0.lmp",
+      "sha256": "aea40321d93d5359ba583c8cbd391b216f1ef5268aa6dd3d23828f823f4b5529"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOS2V0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK2V0.lmp",
+      "sha256": "b3c50df41de27712bfbb1e817ab0f446df5de591fb14b6f4fa479a69b625c671"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOS2W0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK2W0.lmp",
+      "sha256": "d32fd89621301add4ec6f6365c78522bc3175fb42b780d27baa27c1e4a7cbed0"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOS2X0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDK2X0.lmp",
+      "sha256": "50c4a97a2e346c512c170444dc6a2140b7c4c2fbd416fc2e816f47a8fe48c0c2"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12A0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1A0.lmp",
+      "sha256": "859a8e0b4f677f79ec9adccaa4c5fd31a45fa650d422c2ee8110d1e5921f135b"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12B0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1B0.lmp",
+      "sha256": "4f325f8a7ea321e7d38338fe1d0cfe2912a5bc9bbaa27bd20a07b2bcea266ac1"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12C0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1C0.lmp",
+      "sha256": "d0759fcfc82df51579a8276b0aa6430ccbfbb57b6a423099254a3c1dae0bc474"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12D0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1D0.lmp",
+      "sha256": "abdcdbc23eb6f687ce07c1627723edf993d7e84003b92961083e2561e879ec01"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12E0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1E0.lmp",
+      "sha256": "a4afb0c4c3fad50fbeeead6e89b8983fca0a67fe0c13b4ced64b2fe5199b0965"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12F0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1F0.lmp",
+      "sha256": "20aa1ab01872bdca69447db00c3dd4d861d0503a0cf2b5a04652674f877c8259"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12G0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1G0.lmp",
+      "sha256": "7180e6e16f2456406a2480f95c28087fed9cfcfae6d3466514a1984155398cec"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12H0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1H0.lmp",
+      "sha256": "bc6169c4f7cb6aa32693d86f1e933d61982bf375dc9c216834e7ecaca3753c33"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12I0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1I0.lmp",
+      "sha256": "57e9428a002b34e945a2c4ea39fa78a8103f5233f4bee15dbac61e557bce392f"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12J0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1J0.lmp",
+      "sha256": "d7cf76dc839f3cabfd4422a36862ff3783489f830a403440bb8226a1305e7f43"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12K0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1K0.lmp",
+      "sha256": "40e195ca081129c91ee99b6db2bc6d7058aacb408ab8fd663ae3044fbe86e1e3"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12L0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1L0.lmp",
+      "sha256": "103d4404e0f7a92fa8e0bea6159161e18a269fe52836763ed3f8181eeface635"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12M0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1M0.lmp",
+      "sha256": "c41af0d640c41b36b2feae3cf1a1678095da1d49645d246e899a308dece62da3"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BS12N0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB1N0.lmp",
+      "sha256": "ede73f4ff08b275c2c0710a10bf1d975811f6f3166f001a7eaa9d30b5a0065e7"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOSSP0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB2P0.lmp",
+      "sha256": "f6d63d13b256201d60ca706f2c070bb32e911d1d28c5e6b9713c76c2619e6410"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOSSQ0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB2Q0.lmp",
+      "sha256": "6e37b4e00ec85ee6c66c7ecd02a0fe5909b716ca6a209193347853cc7b15a883"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOSSR0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB2R0.lmp",
+      "sha256": "d3a7504758c38f1ad41ab708795aaf0a40ccf75ff9ab5c171eeeb8b25e725fcb"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOSSS0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB2S0.lmp",
+      "sha256": "cc18868decafe62479e3debdb177cc5ffb6ecb5657f21aa8f4b541b40b62c010"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOSST0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB2T0.lmp",
+      "sha256": "6b163f65ce650f087d28f69b0558a2c9eb7fb214d6dbf089c25c36033b6f55cf"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOSSU0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB2U0.lmp",
+      "sha256": "30b8de6f47e03c8f45c700aa8841037d009c0ca5feb73ae0309ce86a2c20e721"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOSSV0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB2V0.lmp",
+      "sha256": "ab160628198d9b17ef602647a83eb8f5e6c3b5b350fb2b46f8d5de56fc7e3b97"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOSSW0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB2W0.lmp",
+      "sha256": "dd597ac191b48f8aeb74551f18fa40aa3df0c23d7eaadff28eea55be5829a983"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BOSSX0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDB2X0.lmp",
+      "sha256": "5249ed6318cabcc8f687e2880ab20ad3f2f39eb7ab77d55ee728fe879008e394"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BSPIQ0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDARQ0.lmp",
+      "sha256": "ee3376cb5b55649f218d8fe21fe0046a9a371573a98befc4b8f0af94eeffc6ad"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BSPIR0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDARR0.lmp",
+      "sha256": "13db685579e27b73da6e868e3eaab9afc3679e8f5beada40f9427d69dda1b0ac"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BSPIS0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDARS0.lmp",
+      "sha256": "01e75832ca0823fc0f02bc4d1f8121952bdac48ae93dad3dbea57d4b571b1d48"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BSPIT0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDART0.lmp",
+      "sha256": "bc3870c5c46f47d2c687d86376fd02ce3fc08fac456a2769ea99dfa7cb14e7cd"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BSPIU0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDARU0.lmp",
+      "sha256": "5a1ee087d4926db0ad5edd08c37f5028e210cd12793fcd97de8c7ce2d64a990d"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BSPIV0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDARV0.lmp",
+      "sha256": "8d9ddb4a0217857b149d0ddb4be8ce406204228aa39087b79f1071e68b7bccac"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BSPIW0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDARW0.lmp",
+      "sha256": "7ba1cf44217ef40928074e9dd9d55c4aa3c3a038c4fc0e2c701858c4b0b39d99"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BSPIX0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDARX0.lmp",
+      "sha256": "17a3482e5c6507d092069384ece387dd8e893b5ef86d007f1240d19d53c0a39a"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/BSPIY0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDARY0.lmp",
+      "sha256": "831cd967353085e67989ef04734ff2b082397eb5386cb487e4a6957fd081b87a"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2A0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1A0.lmp",
+      "sha256": "c218dfe529f756bb9f966dd513ec9a03803d700e72c7d24720a28fa6e603c061"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2B0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1B0.lmp",
+      "sha256": "620bcae89584f9259b879a420e1e68eabe7cba61b0ad7674a39a492f5df52e0c"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2C0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1C0.lmp",
+      "sha256": "79e6809c1e94163a4cbcb8c71765eddd08910cbb4698403afe04529cb04e800e"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2D0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1D0.lmp",
+      "sha256": "529c61eeb0d1d79610cd6521159b54a6f72a1b00e81af269eea645b1e78e04d3"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2E0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1E0.lmp",
+      "sha256": "0925a98736d8b1ee3a27d08682d39c75c851857f4f4d0b62e01b6efd66b83a72"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2F0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1F0.lmp",
+      "sha256": "10e86f5d3ae70739c61d2d7f42ac148532d06f186f7a87d41169a6e49b3e9291"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2G0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1G0.lmp",
+      "sha256": "e5f958b46fd99d5b084f9998339654ed9b95041ab69b8f697f933f072dcd98f3"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2H0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1H0.lmp",
+      "sha256": "dc3f663ed172880d844fbe3b6e621657e854657e752ff0ac96dd5e53970e87e2"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2I0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1I0.lmp",
+      "sha256": "e79b1f1f31cfea162a678845917ac25ba60ab5002fb2adbdf755d2f06bb54f88"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2J0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1J0.lmp",
+      "sha256": "f625c2bea0b012f47d86b1adf735c1fbd6aad5f776c0da9698923cb3a0e64e24"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2K0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1K0.lmp",
+      "sha256": "06601848ed177f1ee048901de488159328d325f68bc0ed4e77e8576528983a58"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2L0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1L0.lmp",
+      "sha256": "1bd692f647897b67c09c9efe9794b65ec084ac4d2124a8eb75d6d1184e7ef35b"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2M0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1M0.lmp",
+      "sha256": "ab95018b37f20fa47986e8af91f821a525ff143639dfb3cc7bd7b0b3da2f5918"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2N0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1N0.lmp",
+      "sha256": "0f27eca795d1a9357d3195509f8503124e5b635e8d853903ffcab3a5cd5ec596"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2O0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1O0.lmp",
+      "sha256": "8bdbdb8fbbe2bf8154dd1033c47e612c135b5d79ed917e2696cfd2b2921703ce"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2P0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1P0.lmp",
+      "sha256": "2ab71978a2a7d6d909f4584cd31d87dfe5c63c615dc47474f7cd24a46f5f3b1b"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2Q0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1Q0.lmp",
+      "sha256": "26f4e23680f2c3bbe56f3fee04dd7ca49efaccee938c3a577bd20bc8266b62e0"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/altdeaths/FAT2R0.lmp",
+      "target": "tutnt/sprites/alternate-deaths/UDF1R0.lmp",
+      "sha256": "b9e480a9f635f489d12dc826746307efd02c3e4213910548e7ebbe8f90bdb587"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/gibs/SAAGA0.png",
+      "target": "tutnt/sprites/alternate-deaths/UDA1A0.png",
+      "sha256": "dfff93e5b7e727f74b291c397f4b0b9395952f31e68f3464f56c9eaaf5871bef"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/gibs/SAAGB0.png",
+      "target": "tutnt/sprites/alternate-deaths/UDA1B0.png",
+      "sha256": "60b487c084cac8bbb4b522ef3cf16140f0f4dbdee7b60f643bc75d6733e2a0e1"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/gibs/SAAGC0.png",
+      "target": "tutnt/sprites/alternate-deaths/UDA1C0.png",
+      "sha256": "dde2bf1eff3c7032f8d7c0d795b204f9af6d2c5072dc42dd1f0b4b41bd27c89e"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/gibs/SAAGD0.png",
+      "target": "tutnt/sprites/alternate-deaths/UDA1D0.png",
+      "sha256": "6075f9d8caf39e621e2101c0135e03b041fee39767a19b3e286998b9e7a72d60"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/gibs/SAAGE0.png",
+      "target": "tutnt/sprites/alternate-deaths/UDA1E0.png",
+      "sha256": "d3d979dea17b5079cf54621a2525b92f6437e302280d782401815b51f7d5624f"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/gibs/SAAGF0.png",
+      "target": "tutnt/sprites/alternate-deaths/UDA1F0.png",
+      "sha256": "7b6842af473b845c70bbcafaecaba7d0b98c89d9b135233b91d84e51ffda0343"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/gibs/SAAGG0.png",
+      "target": "tutnt/sprites/alternate-deaths/UDA1G0.png",
+      "sha256": "d4d21e16b94f84ec8837f6ecb0af6fcd3ae7751fb94f22a4e8a994ede2a6372b"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/gibs/SAAGH0.png",
+      "target": "tutnt/sprites/alternate-deaths/UDA1H0.png",
+      "sha256": "f3bb81fc91e0a71736f73bd5e16c75e0001a9e70584c302deff70cdb2aae6845"
+    },
+    {
+      "source": "tntle.released_v20-20240306/sprites/gibs/SAAGI0.png",
+      "target": "tutnt/sprites/alternate-deaths/UDA1I0.png",
+      "sha256": "676a5aba73e7082f5d96a346592c58f0b36085ff95e2914255111d847e68acaa"
+    }
+  ],
+  "frame_mapping": {
+    "PSS2A0": "UDZ1A",
+    "PSS2B0": "UDZ1B",
+    "PSS2C0": "UDZ1C",
+    "PSS2D0": "UDZ1D",
+    "PSS2E0": "UDZ1E",
+    "PS22A0": "UDS1A",
+    "PS22B0": "UDS1B",
+    "PS22C0": "UDS1C",
+    "PS22D0": "UDS1D",
+    "PS22E0": "UDS1E",
+    "PS22F0": "UDS1F",
+    "PS22G0": "UDS1G",
+    "PS22H0": "UDS1H",
+    "PS22I0": "UDS1I",
+    "PS22J0": "UDS1J",
+    "PS22K0": "UDS1K",
+    "PS22L0": "UDS1L",
+    "PS22M0": "UDS1L",
+    "TROOV0": "UDI1V",
+    "TROOW0": "UDI1W",
+    "TROOX0": "UDI1X",
+    "TROOY0": "UDI1Y",
+    "TROOZ0": "UDI1Z",
+    "TRO2A0": "UDI2A",
+    "TRO2B0": "UDI2B",
+    "TRO2C0": "UDI2C",
+    "TRO2D0": "UDI2D",
+    "TRO2E0": "UDI2E",
+    "TRO2F0": "UDI2F",
+    "TRO2G0": "UDI2G",
+    "TRO2H0": "UDI2H",
+    "TRO2I0": "UDI2I",
+    "TRO2J0": "UDI2J",
+    "TRO2K0": "UDI2K",
+    "TRO2L0": "UDI2L",
+    "TRO2M0": "UDI2M",
+    "SAARA0": "UDD1A",
+    "SAARB0": "UDD1B",
+    "SAARC0": "UDD1C",
+    "SAARD0": "UDD1D",
+    "SAARE0": "UDD1E",
+    "SAARF0": "UDD1F",
+    "SARGO0": "UDD2O",
+    "SARGP0": "UDD2P",
+    "SARGQ0": "UDD2Q",
+    "SARGR0": "UDD2R",
+    "SARGS0": "UDD2S",
+    "SARGT0": "UDD2T",
+    "SARGU0": "UDD2U",
+    "SARGV0": "UDD2V",
+    "SARGW0": "UDD2W",
+    "BS22A0": "UDK1A",
+    "BS22B0": "UDK1B",
+    "BS22C0": "UDK1C",
+    "BS22D0": "UDK1D",
+    "BS22E0": "UDK1E",
+    "BS22F0": "UDK1F",
+    "BS22G0": "UDK1G",
+    "BOS2P0": "UDK2P",
+    "BOS2Q0": "UDK2Q",
+    "BOS2R0": "UDK2R",
+    "BOS2S0": "UDK2S",
+    "BOS2T0": "UDK2T",
+    "BOS2U0": "UDK2U",
+    "BOS2V0": "UDK2V",
+    "BOS2W0": "UDK2W",
+    "BOS2X0": "UDK2X",
+    "BS12A0": "UDB1A",
+    "BS12B0": "UDB1B",
+    "BS12C0": "UDB1C",
+    "BS12D0": "UDB1D",
+    "BS12E0": "UDB1E",
+    "BS12F0": "UDB1F",
+    "BS12G0": "UDB1G",
+    "BS12H0": "UDB1H",
+    "BS12I0": "UDB1I",
+    "BS12J0": "UDB1J",
+    "BS12K0": "UDB1K",
+    "BS12L0": "UDB1L",
+    "BS12M0": "UDB1M",
+    "BS12N0": "UDB1N",
+    "BOSSP0": "UDB2P",
+    "BOSSQ0": "UDB2Q",
+    "BOSSR0": "UDB2R",
+    "BOSSS0": "UDB2S",
+    "BOSST0": "UDB2T",
+    "BOSSU0": "UDB2U",
+    "BOSSV0": "UDB2V",
+    "BOSSW0": "UDB2W",
+    "BOSSX0": "UDB2X",
+    "BSPIQ0": "UDARQ",
+    "BSPIR0": "UDARR",
+    "BSPIS0": "UDARS",
+    "BSPIT0": "UDART",
+    "BSPIU0": "UDARU",
+    "BSPIV0": "UDARV",
+    "BSPIW0": "UDARW",
+    "BSPIX0": "UDARX",
+    "BSPIY0": "UDARY",
+    "FAT2A0": "UDF1A",
+    "FAT2B0": "UDF1B",
+    "FAT2C0": "UDF1C",
+    "FAT2D0": "UDF1D",
+    "FAT2E0": "UDF1E",
+    "FAT2F0": "UDF1F",
+    "FAT2G0": "UDF1G",
+    "FAT2H0": "UDF1H",
+    "FAT2I0": "UDF1I",
+    "FAT2J0": "UDF1J",
+    "FAT2K0": "UDF1K",
+    "FAT2L0": "UDF1L",
+    "FAT2M0": "UDF1M",
+    "FAT2N0": "UDF1N",
+    "FAT2O0": "UDF1O",
+    "FAT2P0": "UDF1P",
+    "FAT2Q0": "UDF1Q",
+    "FAT2R0": "UDF1R",
+    "SAAGA0": "UDA1A",
+    "SAAGB0": "UDA1B",
+    "SAAGC0": "UDA1C",
+    "SAAGD0": "UDA1D",
+    "SAAGE0": "UDA1E",
+    "SAAGF0": "UDA1F",
+    "SAAGG0": "UDA1G",
+    "SAAGH0": "UDA1H",
+    "SAAGI0": "UDA1I"
+  },
+  "notes": [
+    "No missing Death4 targets from the Baron/Knight reference are imported.",
+    "Undefined Arachnotron/Death2 sound uses existing A_Scream.",
+    "Boss terminal callbacks and original Raise sprite are preserved.",
+    "Unreferenced release alternate sprite frames are excluded."
+  ]
+}

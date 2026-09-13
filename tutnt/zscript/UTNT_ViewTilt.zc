@@ -1,0 +1,56 @@
+// Local movement tilt. No actor angles, movement, aim or network state are changed.
+class UTNTViewTilt : StaticEventHandler
+{
+    ui double Tilt, LastTime;
+    ui Actor LastCamera;
+    ui Vector3 LastPosition;
+    ui bool HaveView;
+    int WorldGeneration;
+    ui int LastGeneration;
+
+    ui void Reset()
+    {
+        Tilt=0; LastTime=0; LastCamera=null; HaveView=false;
+        PPShader.SetEnabled("UTNTViewTilt",false);
+    }
+
+    // Degrees, positive for local rightward motion. Pure math also used by the fixture.
+    static clearscope double Target(double lateral, double strength)
+    {
+        return clamp(lateral/12.,-1.,1.)*clamp(strength,0.,100.)*.02;
+    }
+    static clearscope double Smooth(double current,double target,double seconds)
+    {
+        return current+(target-current)*(1-exp(-clamp(seconds,0.,.25)*10.));
+    }
+
+    override void WorldLoaded(WorldEvent e) { WorldGeneration++; PPShader.SetEnabled("UTNTViewTilt",false); }
+    override void WorldUnloaded(WorldEvent e) { WorldGeneration++; PPShader.SetEnabled("UTNTViewTilt",false); }
+    override void UiTick()
+    {
+        if(gamestate!=GS_LEVEL || !viewactive) Reset();
+    }
+    override void RenderUnderlay(RenderEvent e)
+    {
+        if(LastGeneration!=WorldGeneration) { Reset(); LastGeneration=WorldGeneration; }
+        if(consoleplayer<0 || gamestate!=GS_LEVEL) { Reset(); return; }
+        let p=players[consoleplayer]; let camera=e.Camera;
+        let effects=camera?UTNTPlayerEffects(camera.FindBehavior('UTNTPlayerEffects')):null;
+        bool allowed=p && camera && camera==p.mo && p.health>0
+            && (!automapactive || viewactive) && !LevelLocals.WorldPaused()
+            && !(p.cheats & CF_TOTALLYFROZEN) && !(effects && effects.Cutscene)
+            && !camera.FindInventory('UTNTHUDHidden')
+            && !CVar.GetCVar('UTNT_reducedfx',p).GetBool()
+            && CVar.GetCVar('UTNT_viewtilt',p).GetBool();
+        if(!allowed) { Reset(); return; }
+        double now=(level.time+e.FracTic)/35.,dt=now-LastTime;
+        bool reset=!HaveView || LastCamera!=camera || dt<=0 || dt>.25
+            || (e.ViewPos-LastPosition).Length()>128;
+        double lateral=sin(e.ViewAngle)*camera.Vel.X-cos(e.ViewAngle)*camera.Vel.Y;
+        double target=Target(lateral,CVar.GetCVar('UTNT_viewtiltstrength',p).GetFloat());
+        Tilt=reset?0:Smooth(Tilt,target,dt);
+        LastTime=now; LastCamera=camera; LastPosition=e.ViewPos; HaveView=true;
+        PPShader.SetUniform1f("UTNTViewTilt","tiltDegrees",Tilt);
+        PPShader.SetEnabled("UTNTViewTilt",abs(Tilt)>.001);
+    }
+}

@@ -173,7 +173,9 @@ def publish_snapshot(source, original, output, hashes, metadata, engine=None, iw
         '['+lang+']\nUTNT_BUILD_INFO = \"'+label+'\";\n'
         for lang in ('enu default','deu de','esp es','fra fr')).encode()
     output.parent.mkdir(parents=True, exist_ok=True)
-    fd, temp = tempfile.mkstemp(prefix=output.name+'.',suffix='.tmp.pk3',dir=output.parent)
+    staging = original/'tutnt/.codex/builds'
+    staging.mkdir(parents=True, exist_ok=True)
+    fd, temp = tempfile.mkstemp(prefix=output.name+'.',suffix='.tmp.pk3',dir=staging)
     os.close(fd)
     try:
         with zipfile.ZipFile(temp,'w') as archive:

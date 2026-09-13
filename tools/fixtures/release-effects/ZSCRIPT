@@ -1,0 +1,110 @@
+version "5.0"
+class UTNTReleaseDeathTest : EventHandler
+{
+    Array<Class<Actor>> Kinds, Bases;
+    Array<Name> Labels, Sprites;
+    void Init()
+    {
+    Class<Actor> k[] = { 'UTNTAltZombieMan', 'UTNTAltStealthZombieMan', 'UTNTAltShotgunGuy', 'UTNTAltShotgunGuy', 'UTNTAltStealthShotgunGuy', 'UTNTAltStealthShotgunGuy', 'UTNTAltDoomImp', 'UTNTAltDoomImp', 'UTNTAltDoomImp', 'UTNTAltStealthDoomImp', 'UTNTAltStealthDoomImp', 'UTNTAltStealthDoomImp', 'UTNTAltDemon', 'UTNTAltDemon', 'UTNTAltStealthDemon', 'UTNTAltStealthDemon', 'UTNTAltSpectre', 'UTNTAltSpectre', 'UTNTAltHellKnight', 'UTNTAltHellKnight', 'UTNTAltHellKnight', 'UTNTAltStealthHellKnight', 'UTNTAltStealthHellKnight', 'UTNTAltStealthHellKnight', 'UTNTAltBaronOfHell', 'UTNTAltBaronOfHell', 'UTNTAltBaronOfHell', 'UTNTAltStealthBaron', 'UTNTAltStealthBaron', 'UTNTAltStealthBaron', 'UTNTAltArachnotron', 'UTNTAltStealthArachnotron', 'UTNTAltFatso', 'UTNTAltFatso', 'UTNTAltStealthFatso', 'UTNTAltStealthFatso' };
+    Name l[] = { 'Death2', 'Death2', 'Death2', 'Death3', 'Death2', 'Death3', 'Death2', 'Death3', 'Death4', 'Death2', 'Death3', 'Death4', 'Death2', 'XDeath2', 'Death2', 'XDeath2', 'Death2', 'XDeath2', 'Death2', 'Death3', 'XDeath2', 'Death2', 'Death3', 'XDeath2', 'Death2', 'Death3', 'XDeath2', 'Death2', 'Death3', 'XDeath2', 'Death2', 'Death2', 'Death2', 'Death3', 'Death2', 'Death3' };
+    Class<Actor> b[] = { 'UTNTZombieMan', 'UTNTStealthZombieMan', 'UTNTShotgunGuy', 'UTNTShotgunGuy', 'UTNTStealthShotgunGuy', 'UTNTStealthShotgunGuy', 'UTNTDoomImp', 'UTNTDoomImp', 'UTNTDoomImp', 'UTNTStealthDoomImp', 'UTNTStealthDoomImp', 'UTNTStealthDoomImp', 'UTNTDemon', 'UTNTDemon', 'UTNTStealthDemon', 'UTNTStealthDemon', 'UTNTSpectre', 'UTNTSpectre', 'UTNTHellKnight', 'UTNTHellKnight', 'UTNTHellKnight', 'UTNTStealthHellKnight', 'UTNTStealthHellKnight', 'UTNTStealthHellKnight', 'UTNTBaronOfHell', 'UTNTBaronOfHell', 'UTNTBaronOfHell', 'UTNTStealthBaron', 'UTNTStealthBaron', 'UTNTStealthBaron', 'UTNTArachnotron', 'UTNTStealthArachnotron', 'UTNTFatso', 'UTNTFatso', 'UTNTStealthFatso', 'UTNTStealthFatso' };
+    Name s[] = { 'POSS', 'POSS', 'SPOS', 'SPOS', 'SPOS', 'SPOS', 'TROO', 'TROO', 'TROO', 'TROO', 'TROO', 'TROO', 'SARG', 'SARG', 'SARG', 'SARG', 'SARG', 'SARG', 'BOS2', 'BOS2', 'BOS2', 'BOS2', 'BOS2', 'BOS2', 'BOSS', 'BOSS', 'BOSS', 'BOSS', 'BOSS', 'BOSS', 'BSPI', 'BSPI', 'FATT', 'FATT', 'FATT', 'FATT' };
+        for(int i=0;i<k.Size();i++) { Kinds.Push(k[i]); Bases.Push(b[i]); Labels.Push(l[i]); Sprites.Push(s[i]); }
+    }
+
+    Array<Actor> Corpses;
+    bool Started, Moving;
+    int Direction, KillsBefore;
+    void Check(bool ok,String label) { Console.Printf("UTNT_ASSERT %s %s",ok?"PASS":"FAIL",label); }
+    override void WorldTick()
+    {
+        if(!(level.MapName ~== "FXTEST")) return;
+        if(!Started && level.time>=5)
+        {
+            Init(); Started=true; KillsBefore=level.killed_monsters;
+            for(int i=0;i<Kinds.Size();i++)
+            {
+                let mo=Actor.Spawn(Bases[i],(-850+(i%9)*200,-300+(i/9)*180,0),ALLOW_REPLACE);
+                Check(mo && mo.GetClass()==Kinds[i],"replacement "..Kinds[i]);
+                if(!mo) continue;
+                let def=GetDefaultByType(Bases[i]);
+                Check(mo.Health==def.Health && mo.Speed==def.Speed && mo.Radius==def.Radius
+                    && mo.Height==def.Height,"combat defaults "..Kinds[i]);
+                mo.DamageMobj(null,null,mo.Health,'None',DMG_FORCED);
+                State st=Labels[i]=='Death2'?mo.FindState('Death2'):Labels[i]=='Death3'?mo.FindState('Death3'):Labels[i]=='Death4'?mo.FindState('Death4'):mo.FindState('XDeath2');
+                mo.SetState(st);
+                Corpses.Push(mo);
+            }
+            Check(Corpses.Size()==Kinds.Size(),"all alternate states instantiated");
+            // Custom monsters must retain their own sprites/states and inheritance.
+            let custom=Actor.Spawn('NamiDarkImp',(950,400,0),ALLOW_REPLACE);
+            Check(custom && custom.GetClassName()=='NamiDarkImp',"custom imp is not replaced");
+            if(custom) custom.Destroy();
+        }
+        if(Moving && players[0].mo)
+        {
+            let p=players[0].mo;p.bNOGRAVITY=true;
+            p.SetOrigin((0,-430,0),false);p.Angle=90;p.Pitch=0;p.Vel=(Direction*6.,0,0);
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="deathcheck")
+        {
+            Check(level.killed_monsters==KillsBefore+Kinds.Size(),"one kill per death");
+            for(int i=0;i<Corpses.Size();i++)
+            {
+                let a=Corpses[i];
+                Check(a && a.Health<=0 && !a.bSOLID && a.tics==-1,"terminal nonblocking corpse "..Kinds[i].." "..Labels[i]);
+            }
+        }
+        if(e.Name=="revivetest")
+        {
+            for(int i=0;i<Corpses.Size();i++) Check(Corpses[i].A_RaiseSelf(),"raise "..Kinds[i]);
+        }
+        if(e.Name=="afterraise")
+        {
+            for(int i=0;i<Corpses.Size();i++)
+            {
+                let a=Corpses[i];
+                Check(a && a.Health>0 && a.sprite==Actor.GetSpriteIndex(Sprites[i]),"restored original sprite "..Kinds[i]);
+                if(a)a.Destroy();
+            }
+            Corpses.Clear();
+        }
+        if(e.Name=="tiltmove") { Moving=true; Direction=e.Args[0]; }
+    }
+}
+
+class UTNTReleaseTiltTest : StaticEventHandler
+{
+    ui void Check(bool ok,String label) { Console.Printf("UTNT_ASSERT %s %s",ok?"PASS":"FAIL",label); }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if(e.Name=="tiltcheck")
+        {
+            let h=UTNTViewTilt(StaticEventHandler.Find('UTNTViewTilt'));
+            Check(h!=null,"tilt handler registered");if(!h)return;
+            if(e.Args[0]==0)Check(abs(h.Tilt)<.01,"tilt resets/settles");
+            if(e.Args[0]>0)Check(h.Tilt>.1 && h.Tilt<=2,"rightward tilt bounded");
+            if(e.Args[0]<0)Check(h.Tilt<-.1 && h.Tilt>=-2,"leftward tilt bounded");
+            Check(abs(players[consoleplayer].mo.ViewRoll)<.001,"actor view roll untouched");
+        }
+        if(e.Name=="tiltmath")
+        {
+            Check(UTNTViewTilt.Target(100,100)==2 && UTNTViewTilt.Target(-100,100)==-2,"tilt clamp");
+            Check(UTNTViewTilt.Target(5,0)==0 && UTNTViewTilt.Target(0,65)==0,"zero strength / no strafe");
+            double a=UTNTViewTilt.Smooth(0,1,.1), b=UTNTViewTilt.Smooth(UTNTViewTilt.Smooth(0,1,.05),1,.05);
+            Check(abs(a-b)<.00001,"frame independent smoothing");
+        }
+        if(e.Name=="tiltmenu")
+        {
+            Menu.SetMenu('UTNTComfortOptions');let menu=OptionMenu(Menu.GetCurrentMenu());int found=0;
+            if(menu) for(int i=0;i<menu.mDesc.mItems.Size();i++)
+            {let [menuAction,param]=menu.mDesc.mItems[i].GetAction();if(menuAction=='UTNT_viewtilt'||menuAction=='UTNT_viewtiltstrength')found++;}
+            Check(found==2,"one toggle and one strength slider");
+        }
+        if(e.Name=="tiltclose" && Menu.GetCurrentMenu())Menu.GetCurrentMenu().MenuEvent(Menu.MKEY_Back,false);
+        if(e.Name=="effectsdone")Console.Printf("UTNT_REGRESSION_COMPLETE");
+    }
+}
