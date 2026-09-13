@@ -66,11 +66,11 @@ class UTNTExplorationUI ui
             DTA_ScaleX,scale,DTA_ScaleY,scale,DTA_Color,0xff000000|shade,DTA_Alpha,alpha);
     }
 
-    static void Frame(double x,double y,double width,double height,double s,double alpha)
+    static void Frame(double x,double y,double width,double height,double s,double alpha,bool background=true)
     {
         int l=int(round(x)),r=int(round(x+width*s)),t=int(round(y)),b=int(round(y+height*s));
         int edge=max(1,int(round(s)));
-        UTNTObjectivePlaque.Tile("UTOCBG",l+edge,t+edge,r-edge,b-edge,alpha*0.90);
+        if(background) UTNTObjectivePlaque.Tile("UTOCBG",l+edge,t+edge,r-edge,b-edge,alpha*0.90);
         Screen.Dim(0x9e7546,alpha,l,t,r-l,edge);
         Screen.Dim(0x594127,alpha,l,b-edge,r-l,edge);
         Screen.Dim(0x77532f,alpha,l,t+edge,edge,b-t-2*edge);

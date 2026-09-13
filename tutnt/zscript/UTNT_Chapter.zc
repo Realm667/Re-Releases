@@ -33,6 +33,10 @@ class UTNTChapterState : Object
     UTNTMapResult ChapterResult, CampaignResult;
     int ChapterObjectives, CampaignObjectives;
     bool Intro; // TNT04A uses the same reader over its authored cinematic timeline.
+    // At 35 Hz: sharp background, background dissolve, then panel reveal (1.7 s).
+    const BackdropHold = 21;
+    const BackdropEnd = 42;
+    const PanelsEnd = 60;
 
     static int DestinationFor(int episode,int secret)
     {
@@ -51,7 +55,7 @@ class UTNTChapterState : Object
         self.Episode=clamp(episode,1,10); Definition=UTNTTransitionDefinition.ForEpisode(self.Episode,secret);
         Destination=Definition.Destination;
         StartTime=level.time; Phase=0;
-        for(int p=0;p<MAXPLAYERS;p++) PageTimes[p]=StartTime+110;
+        for(int p=0;p<MAXPLAYERS;p++) PageTimes[p]=StartTime+BackdropEnd;
     }
 
     play void CaptureResults()
@@ -99,7 +103,7 @@ class UTNTChapterState : Object
     void Input(int p,int op,int pageCount)
     {
         if(Phase || !(level.MapName ~== (Intro ? "TNT04A" : "INTERMAP")) || p<0 || p>=MAXPLAYERS
-            || !playeringame[p] || level.time<StartTime+(Intro ? 15 : 110) || level.time<LastInput[p]+7) return;
+            || !playeringame[p] || level.time<StartTime+(Intro ? 15 : PanelsEnd) || level.time<LastInput[p]+7) return;
         LastInput[p]=level.time;
         pageCount=clamp(pageCount,1,128);
         if(!Intro && (op==6 || op==7) && Sections[p]>0)
@@ -252,13 +256,42 @@ class UTNTChapterUI ui
             DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha);
     }
 
+    static double Reveal(double age,double start,double end)
+    {
+        double t=clamp((age-start)/(end-start),0,1);
+        return t*t*(3-2*t);
+    }
+
+    void PortraitPair(int number,double blend,double alpha)
+    {
+        String first=String.Format("hires/graphics/interms/I_%02dA.png",number);
+        String second=String.Format("hires/graphics/interms/I_%02dB.png",number);
+        Vector2 size=TexMan.GetScaledSize(TexMan.CheckForTexture(first));
+        double fit=min(PictureWidth/max(1,size.X),BodyHeight/max(1,size.Y));
+        double w=size.X*fit,h=size.Y*fit;
+        double x=PictureX+(PictureWidth-w)/2,y=BodyY+(BodyHeight-h)/2;
+        Picture(first,x,y,w,h,alpha);
+        Picture(second,x,y,w,h,alpha*blend);
+        // Draw the shared plaque edges over the artwork's old dark perimeter.
+        UTNTExplorationUI.Frame(x,y,w/Unit,h/Unit,Unit,alpha*0.96,false);
+    }
+
     void Draw(UTNTChapterState chapter,double frac)
     {
         if(chapter.Phase>=2) return; // Authored finale ACS owns its original panoramas.
         Prepare(chapter);
-        double alpha=clamp((level.time-chapter.StartTime+frac)/35,0,1);
+        double age=level.time-chapter.StartTime+frac;
+        double alpha=chapter.Intro ? clamp(age/35,0,1)
+            : Reveal(age,UTNTChapterState.BackdropEnd,UTNTChapterState.PanelsEnd);
         Screen.Dim(0x080403,1,0,0,Screen.GetWidth(),Screen.GetHeight());
-        Picture(chapter.Intro ? "TNTE4_1" : "INTERPIC",0,0,Screen.GetWidth(),Screen.GetHeight(),alpha*(chapter.Intro ? 0.3 : 1));
+        if(chapter.Intro)
+            Picture("TNTE4_1",0,0,Screen.GetWidth(),Screen.GetHeight(),alpha*0.3);
+        else
+        {
+            Picture("hires/graphics/interms/TNTE4_1.png",0,0,Screen.GetWidth(),Screen.GetHeight(),1);
+            Picture("hires/graphics/interms/TNTE4_2.png",0,0,Screen.GetWidth(),Screen.GetHeight(),
+                Reveal(age,UTNTChapterState.BackdropHold,UTNTChapterState.BackdropEnd));
+        }
         Font font=Font.GetFont('SmallFont');
         for(int row=0;row<Heading.Count() && (chapter.Intro || chapter.Sections[consoleplayer]==0);row++)
         {
@@ -297,12 +330,12 @@ class UTNTChapterUI ui
         }
         int picture=chapter.Definition ? chapter.Definition.Picture : UTNTChapterState.ImageNumber(chapter.Episode);
         double blend=clamp((level.time-chapter.StartTime-(chapter.Intro ? 170 : chapter.Definition ? chapter.Definition.PictureTic : UTNTChapterState.ImageChange(chapter.Episode))+frac)/70,0,1);
-        // Opaque chapter artwork: retain A beneath B throughout the dissolve.
-        // Full paths select the supplied artwork independently of hires settings.
-        Picture(chapter.Intro ? "TNTE4_1" : String.Format("hires/graphics/interms/I_%02dA.png",picture),
-            PictureX,BodyY,PictureWidth,BodyHeight,alpha*(chapter.Intro ? 1-blend : 1));
-        Picture(chapter.Intro ? "TNTE4_2" : String.Format("hires/graphics/interms/I_%02dB.png",picture),
-            PictureX,BodyY,PictureWidth,BodyHeight,alpha*blend);
+        if(chapter.Intro)
+        {
+            Picture("TNTE4_1",PictureX,BodyY,PictureWidth,BodyHeight,alpha*(1-blend));
+            Picture("TNTE4_2",PictureX,BodyY,PictureWidth,BodyHeight,alpha*blend);
+        }
+        else PortraitPair(picture,blend,alpha);
         String hint=Local(characters<0 ? "UTNT_CHAPTER_REVEAL" : page+1<PageCount ? "UTNT_CHAPTER_NEXT"
             : "UTNT_TR_RESULTS");
         if(chapter.Intro) hint=Local(consoleplayer==UTNTChapterState.Leader() ? "UTNT_CHAPTER_INTRO_KEYS" : "UTNT_CHAPTER_INTRO_GUEST");

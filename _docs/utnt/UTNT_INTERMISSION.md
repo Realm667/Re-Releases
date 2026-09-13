@@ -41,13 +41,22 @@ one third illustration on the right, with the gutter outside that ratio. This
 arrangement also applies on 4:3 screens; the existing text pagination remains.
 The supplied opaque 460x778 portraits in `tutnt/hires/graphics/interms/` are
 resolved directly, independent of the optional hires texture setting. They fit
-inside the image column without stretching or cropping and receive no drop shadow.
+inside the image column without stretching or cropping. The same bronze plaque
+edges and corner studs as the text box are drawn over each portrait's perimeter,
+without adding a drop shadow or a plaque fill over the illustration.
 
 The campaign uses pairs I_02A/B through I_07A/B, I_09A/B and I_10A/B; there is no
 I_08 pair in the authored sequence. Original image-change and voice timings remain.
 During each A/B dissolve, A stays opaque beneath the incoming B, preventing a
-background leak halfway through. The obsolete INTERP2 shading overlay is omitted;
-the text plaque supplies its own readable background. TNT04A retains its cinematic
+background leak halfway through. The background begins with the supplied TNTE4_1,
+holds it for 21 tics, then dissolves to the supplied blurred TNTE4_2 over 21 tics.
+Both boxes, their contents, heading and controls fade in together over the next
+18 tics (60 tics / 1.71 seconds total). Smooth easing separates the stages; the
+outgoing background remains underneath the incoming image. Text starts revealing
+with the boxes, and reader input unlocks at the end of their fade. This uses the
+saved chapter clock, so pause/save/load and changing pages do not restart it.
+The obsolete INTERP2 shading overlay is omitted; the text plaque supplies its own
+readable background. TNT04A retains its cinematic
 image pair and existing column proportions. Statistics retain their separate layout.
 
 ## Result presentation and black transitions
