@@ -9,7 +9,7 @@ class UTNTDistanceBlurTest : StaticEventHandler
   let menu=OptionMenu(Menu.GetCurrentMenu());
   Check(menu!=null,"display menu opens"); if(!menu)return;
   Name controls[]={'UTNT_distanceblurstrength','UTNT_distanceblurstart'};
-  int defaults[]={50,640}; int steps[]={5,1}; int low[]={0,128}; int high[]={100,2569};
+  int defaults[]={50,640}; int steps[]={5,32}; int low[]={0,128}; int high[]={100,2569};
   for(int n=0;n<controls.Size();n++)
   {
    let setting=CVar.FindCVar(controls[n]);int found=0;

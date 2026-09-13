@@ -6,7 +6,7 @@ in **UTNT options > Performance and presets** (localized menu heading).
 
 - Enabled by default, independently switchable.
 - Intensity: 0–100%, default 50%; zero bypasses both tracing and the shader.
-- Start distance: 128–2569 map units, default 640, adjustable in single units.
+- Start distance: 128–2569 map units, default 640, adjustable in 32-unit steps (clamped at the endpoints).
 - Blur grows smoothly over the next 1280 units, reaching a six-pixel sampling
   radius at maximum intensity (three pixels at the default intensity).
 - Reduced effects bypasses the filter. Settings are local archived user CVARs:
