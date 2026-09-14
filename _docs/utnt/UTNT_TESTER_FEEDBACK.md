@@ -38,6 +38,7 @@ Implemented 14 September 2026 for UZDoom 5.0.1.
 | 28 | CandelabraNew yellow dynamic light | Fixed | Dedicated amber #FFA300 light, preserving radius, offset, attenuation and self-light exclusion. |
 | 29 | TNT04CN black rectangles along the boss beam | Open: not reproduced | Current package checked in TNT04CN/TNT04C on Vulkan and OpenGL; original engine/renderer/package identification requested. |
 | 30 | Build line beneath Status Bar and Statistics | Fixed | Removed the build label from the HUD options menu and regenerated MENUDEF. |
+| 31 | Voxel items face the wrong direction | Fixed | Audited all 3,575 placements; corrected 1,707 individual angles in 11 maps, accounting for nearby walls and each model's front offset. Native rotation retained; 3,173 runtime assertions pass. |
 
 ## Visibility and lighting
 

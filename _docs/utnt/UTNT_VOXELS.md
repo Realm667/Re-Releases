@@ -176,3 +176,38 @@ source import preserved all 67 previously integrated KVX files byte for byte.
 The ShellBox is 32 x 13 x 10 map units; each keycard is 14 x 2 x 16.
 The combined gallery passed 23 assertions for original defaults, native scale,
 save/load and retained barrel damage, including both keycard animation frames.
+
+## Individual map facing (14 September 2026)
+
+The original sprite-era angles have been reviewed against the local geometry
+for all 3,575 mapped voxel placements across all 13 shipped maps. In the 11 maps
+containing voxel items, 1,707 stationary items now face away from their nearby
+wall, including corner placements and diagonal walls. TNT01's four shell rows
+in the starting room face east, north, west and south into the room.
+
+The orientation pass evaluates each placement at its own elevation and accounts
+for passable sector boundaries, slopes and self-referencing sectors. Native
+VOXELDEF offsets are included when matching each model's visible front to the
+wall normal, particularly for medical supplies and ammunition crates. Freestanding
+items without a nearby wall retain their authored presentation; rotating weapons,
+armor, bonuses and keys retain their requested native spin. Cylindrical items
+retain their angle. Dropped and dynamically spawned actors keep their existing
+behavior. There is no visibility-triggered or per-tic orientation work.
+
+Only individual thing angles change, directly in TEXTMAP or binary THINGS.
+Coordinates, IDs, flags, specials, geometry, compiled nodes and ACS remain intact.
+The corrections are loaded when entering a fresh map; actors already serialized
+in an older saved map retain the saved angles.
+
+`tools/orient_voxel_items.py` produces a per-placement audit under
+`tutnt/.codex/work/voxel-facing/`; `--apply` explicitly applies the proposals and
+backs up original WADs under `.codex/backups/voxel-facing/`. This is an authoring
+tool, not an automatic package-build step. Repeating the completed pass proposes
+zero further changes. `tools/test_voxel_facing.py --base <pre-change-revision>`
+checks angle-only edits and runs native-engine placement checks with example
+captures on each populated map. Its fixture is generated locally and never ships.
+
+Validation: all 11 populated maps pass 3,173 native-engine assertions, including
+TNT01 save/load. Every edited WAD passes a byte-level angle-only comparison;
+all 13 maps pass the idempotence audit. A separate native gallery visually
+confirms the front axes of all 20 stationary directional actor types.
