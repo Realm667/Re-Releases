@@ -68,7 +68,8 @@ tutnt/.codex/logs/interms-stained-glass-packed.log.
 I_INTROA and I_INTROB are two dedicated opaque 460 x 778 portraits, replacing
 widescreen background resources in the reader's right column. A adapts the user's
 TNT04CN screenshot: a floating basalt fortress beneath a fiery storm opening,
-with an amber beam, suspended rocks and a lava-edged platform. B is the unchanged
+with an amber beam, suspended rocks and organic volcanic foothills. Lava rivulets
+and ember haze blend the uneven ground into the surrounding sky. B is the unchanged
 former first portrait of the towering Source ritual chamber and amber seal.
 Both use I_06A as the stained-glass style reference. The original TNTE4 backgrounds
 are preserved. The shared reader fits the illustrations proportionally and draws
@@ -78,7 +79,8 @@ The built-in Imagegen tool authored both illustrations. Production export applie
 uniform bicubic downsampling and a small central crop to match 460:778 exactly;
 the sigil and architecture are never stretched. Local masters are retained under
 tutnt/.codex/work/intro-stained-glass/ (chamber) and
-tutnt/.codex/work/intro-stained-glass-exterior/ (fortress). The user screenshot
+tutnt/.codex/work/intro-stained-glass-exterior/ (fortress) and
+tutnt/.codex/work/intro-organic-rock/ (organic rock and atmospheric lava revision). The user screenshot
 is retained under tutnt/.codex/references/intro-stained-glass/TNT04CN.png.
 [Intro prompts](../../tools/artwork/intro-stained-glass/prompts.json) and
 [manifest](../../tools/artwork/intro-stained-glass/manifest.json) record provenance.
@@ -95,3 +97,9 @@ at 1280 x 720; both displayed positions were visually reviewed. SHA-256 confirms
 that position B is byte-identical to the former A. Evidence:
 tutnt/.codex/validation/intro-stained-glass-exterior/ and
 tutnt/.codex/logs/intro-glass-exterior-a.png / intro-glass-exterior-b.png.
+
+The organic-rock refinement passed the seven intro resource/layout assertions.
+The first portrait was visually reviewed in the German 1280 x 720 reader;
+both images remain opaque 460 x 778, and B retains its previous hash.
+Evidence: tutnt/.codex/validation/intro-organic-rock/ and
+tutnt/.codex/logs/intro-organic-rock.png.
