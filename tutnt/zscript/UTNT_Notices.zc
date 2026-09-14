@@ -185,10 +185,46 @@ class UTNTNoticeFeed ui
         return true;
     }
 
+    void DrawCoins(double alpha,double bottomLimit,double topLimit)
+    {
+        // A crisp arcade panel uses the Easter egg's own coin sprite.
+        Font font=ConFont;
+        double scale=UTNTUILayout.Scale();
+        String text=Plain(Text(ActiveID,ActiveValue)).MakeUpper();
+        let lines=font.BreakLines(text,int(UTNTUILayout.Width(360)-44));
+        double widest=0;
+        for(int i=0;i<lines.Count();i++)widest=max(widest,font.StringWidth(lines.StringAt(i)));
+        double width=max(144,widest+44),lineHeight=font.GetHeight()+3;
+        double height=max(32,lines.Count()*lineHeight+16);
+        double bottom=bottomLimit<0?UTNTUILayout.Bottom():bottomLimit;
+        double minimum=topLimit<0?UTNTUILayout.Top():max(UTNTUILayout.Top(),topLimit);
+        double top=clamp(Screen.GetHeight()*.40-height*scale/2,minimum,max(minimum,bottom-height*scale));
+        LastTop=top;LastBottom=top+height*scale;
+        double left=(Screen.GetWidth()-width*scale)/2;
+        UTNTObjectivePlaque.Rect(left,top,scale,2,3,width,height,0x191327,alpha*.8);
+        UTNTObjectivePlaque.Rect(left,top,scale,0,0,width,height,0x713515,alpha);
+        UTNTObjectivePlaque.Rect(left,top,scale,2,2,width-4,height-4,0xffc13a,alpha);
+        UTNTObjectivePlaque.Rect(left,top,scale,4,4,width-8,height-8,0x194b91,alpha*.96);
+        for(int i=0;i<2;i++)for(int j=0;j<2;j++)
+            UTNTObjectivePlaque.Rect(left,top,scale,i?width-7:5,j?height-7:5,2,2,0xffed9a,alpha);
+        int frame=(Age/5)%4;
+        TextureID coin=TexMan.CheckForTexture(String.Format("SM_O%c0",65+frame));
+        if(coin.IsValid())Screen.DrawTexture(coin,true,left+10*scale,top+(height-20)*scale/2,
+            DTA_DestWidthF,16*scale,DTA_DestHeightF,20*scale,DTA_LeftOffset,0,DTA_TopOffset,0,DTA_Alpha,alpha);
+        double y=top+(height-lines.Count()*lineHeight+3)*scale/2;
+        for(int i=0;i<lines.Count();i++) {
+            Screen.DrawText(font,Font.CR_UNTRANSLATED,left+33*scale,y+i*lineHeight*scale+scale,lines.StringAt(i),
+                DTA_ScaleX,scale,DTA_ScaleY,scale,DTA_Color,0xff102443,DTA_Alpha,alpha);
+            Screen.DrawText(font,Font.CR_UNTRANSLATED,left+32*scale,y+i*lineHeight*scale,lines.StringAt(i),
+                DTA_ScaleX,scale,DTA_ScaleY,scale,DTA_Color,ActiveID==225?0xffffdc51:0xffffffff,DTA_Alpha,alpha);
+        }
+    }
+
     void Draw(double frac,double bottomLimit=-1,double topLimit=-1)
     {
         double alpha=Opacity(frac);
         if(alpha<=0) return;
+        if(ActiveID==225 || ActiveID==226) { DrawCoins(alpha,bottomLimit,topLimit); return; }
         if(ActiveID==9001) { UTNTExplorationUI.DrawSecret(ActiveValue,alpha,bottomLimit,topLimit); return; }
         Font font=Font.GetFont('SmallFont');
         double scale=UTNTUILayout.Scale();

@@ -12,7 +12,7 @@ from build_organic_materials import texture_defs
 
 ROOT=Path(__file__).resolve().parents[1]
 PREFIXES='DRKI APYT SLHV SLHW HWAR TORT RSPI TROX HFRY PLEM TRO2 MNTR MNTS CYCL MPOS HLGD ENCD REGN PHRT'.split()
-SURFACES='IKLITF01 IKLITF07 TLITE6_1 TLITE6_5 QRUNT62 QRUNT63 TELETOP COMPBLUE COMPRED SW1NEW1 SW2NEW1 SW1NEW3 SW2NEW3 XA40TEX XB40TEX'.split()
+SURFACES='NEUESDI IKLITF01 IKLITF07 TLITE6_1 TLITE6_5 QRUNT62 QRUNT63 TELETOP COMPBLUE COMPRED SW1NEW1 SW2NEW1 SW1NEW3 SW2NEW3 XA40TEX XB40TEX'.split()
 MODULE='gldefs/GLDEFS.brightmaps-custom'
 OUT='materials/brightmaps/custom'
 def sha(data):return hashlib.sha256(data).hexdigest()
@@ -157,7 +157,9 @@ def sprite_mask(name,image):
 def surface_mask(name,image):
  a=np.array(image).astype(int);r,g,b,alpha=a.transpose(2,0,1);h,w=r.shape;y,x=np.mgrid[:h,:w];m=np.zeros((h,w),np.uint8)
  def put(sel,v=255):m[sel&(alpha>0)]=v
- if name in ('COMPBLUE','XA40TEX','XB40TEX'):
+ if name=='NEUESDI':
+  put((r>55)&(g>20)&(r>g*1.15)&(g>b*1.6),153)
+ elif name in ('COMPBLUE','XA40TEX','XB40TEX'):
   put((b>35)&(b>r*1.8)&(b>g*1.25),96)
  elif name=='COMPRED':put((r>65)&(r>g*1.8)&(r>b*1.8),112)
  elif name.startswith('QRUNT'):put((r>100)&(r>g*1.35)&(g>b*1.3),192)

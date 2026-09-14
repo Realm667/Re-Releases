@@ -1,0 +1,63 @@
+// Saved map event clock drives local effects without changing the reactor's gameplay timing.
+class UTNTMachineBurst play
+{
+    static void Tick(UTNTWorldHandler h)
+    {
+        if(!h.MachineStarted)return;
+        int age=level.time-h.MachineStart;
+        let fx=UTNTFXRuntime.Get();
+        if(age>290 || fx.Quality==0) {if(fx.MachineLight){fx.MachineLight.Destroy();fx.MachineLight=null;}return;}
+        if(!UTNTIndustrialFX.At(h.MachineOrigin))return;
+        if(!fx.MachineLight)fx.MachineLight=Actor.SpawnClientSide('UTNTPortalAnchor',h.MachineOrigin);
+        double flash=max(0,1-abs(age-105)/8.0)*.5+max(0,1-abs(age-210)/12.0)+max(0,1-abs(age-228)/9.0)*.4;
+        if(fx.Reduced)flash*=.3;
+        if(fx.MachineLight) {
+            fx.MachineLight.A_AttachLight('machine',DynamicLight.PointLight,0xffb25b,int(48+flash*480),0,DynamicLight.LF_ATTENUATE|DynamicLight.LF_DONTLIGHTSELF);
+            if(age==210)fx.MachineLight.A_StartSound("world/barrelx",CHAN_BODY);
+        }
+        bool discharge=age>=42 && age<210 && age%21==0;
+        bool detonate=age==210 || age==217 || age==228;
+        if(!discharge && !detonate)return;
+        let it=level.CreateActorIterator(252);Actor machine=null;
+        while(machine=it.Next()) {
+            if(detonate)UTNTIndustrialFX.Explosion(machine,age==210?2.5:1.2,true);
+            int count=fx.Reduced?4:12;
+            for(int i=0;i<count;i++) {
+                double a=CFRandom[utntmachine](0,360),speed=CFRandom[utntmachine](3,9);
+                let v=UTNTIndustrialFX.Make(machine.Pos+(0,0,machine.Height*.5),0,1.2,8,CRandom[utntmachine](18,38),0xffffb44c,(cos(a)*speed,sin(a)*speed,CFRandom[utntmachine](1,6)));
+                if(v)v.Gravity=.16;
+            }
+        }
+    }
+}
+class UTNTMachineBurstView ui
+{
+    static void Render(RenderEvent e)
+    {
+        PPShader.SetEnabled("UTNTMachineBurst",false);
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(!h || !h.MachineStarted || !e.Camera || consoleplayer<0)return;
+        double age=level.time-h.MachineStart+e.FracTic;
+        let p=players[consoleplayer];
+        if(age<35 || age>270 || !CVar.GetCVar('UTNT_shaderoverlayswitch',p).GetBool()
+          || CVar.GetCVar('UTNT_reducedfx',p).GetBool() || CVar.GetCVar('UTNT_fxquality',p).GetInt()==0)return;
+        Vector3 d=h.MachineOrigin-e.ViewPos;
+        Vector3 forward=(cos(e.ViewAngle)*cos(e.ViewPitch),sin(e.ViewAngle)*cos(e.ViewPitch),-sin(e.ViewPitch));
+        Vector3 right=(sin(e.ViewAngle),-cos(e.ViewAngle),0);
+        Vector3 up=(cos(e.ViewAngle)*sin(e.ViewPitch),sin(e.ViewAngle)*sin(e.ViewPitch),cos(e.ViewPitch));
+        double depth=d dot forward;if(depth<=1)return;
+        double aspect=double(Screen.GetWidth())/max(1,Screen.GetHeight());
+        double horizontal=tan(clamp(p.FOV,30,150)*.5)*max(1,aspect/(4./3.));
+        double x=(d dot right)/(depth*horizontal),y=(d dot up)/(depth*horizontal/aspect);
+        double strength=clamp((1.4-abs(x))/.4,0,1)*clamp((1.4-abs(y))/.4,0,1)*clamp((1800-d.Length())/800,0,1);
+        if(strength<=.001)return;
+        let trace=new('LineTracer');double distance=d.Length();
+        trace.Trace(e.ViewPos,e.Camera.CurSector,d/distance,max(0,distance-2),0,wallMask:0,ignoreAllActors:true);
+        if(trace.Results.HitType!=TRACE_HitNone)return;
+        double rx=x*cos(e.ViewRoll)+y*sin(e.ViewRoll),ry=y*cos(e.ViewRoll)-x*sin(e.ViewRoll);
+        PPShader.SetUniform2f("UTNTMachineBurst","focus",(.5+rx*.5,.5+ry*.5));
+        PPShader.SetUniform1f("UTNTMachineBurst","age",age);
+        PPShader.SetUniform1f("UTNTMachineBurst","strength",strength);
+        PPShader.SetEnabled("UTNTMachineBurst",true);
+    }
+}

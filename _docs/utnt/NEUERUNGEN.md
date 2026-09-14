@@ -1,6 +1,6 @@
 # UTNT Remaster — What's New
 
-**Updated: 14 September 2026.** Current implemented features and improvements; unfinished local work is listed separately. Technical details and validation are available through the links.
+**Updated: 15 September 2026.** Current implemented features and improvements; unfinished local work is listed separately. Technical details and validation are available through the links.
 
 ## Interface, accessibility and presentation
 
@@ -15,7 +15,7 @@
 - **Status bar and HUD:** customizable statistics, remaining counts, time, complete ammo/weapon displays, smooth health/armor values, translucent and floating layouts, matching screen borders and ability cards in the fullscreen HUD. [Details](UTNT_STATUSBAR.md), [Refinements](UTNT_TESTER_FEEDBACK.md)
 - **Boss displays:** original portraits, names, health bars and percentages, plus clear shielded/vulnerable indicators for The Source. [Details](UTNT_BOSS_HUD.md)
 - **Mission objectives:** 21 goals with brief summaries, hold-to-read descriptions, completion notices and saved progress. [Details](UTNT_OBJECTIVES.md)
-- **Notifications and pickups:** prioritized, deduplicated hints; secret-discovery counters; actual health, armor and ammo gains; weapon, key and power-up cards, with actual key icons in lock-denial messages. [Refinements](UTNT_TESTER_FEEDBACK.md), [Notices](UTNT_NOTICES.md), [Pickups](UTNT_USABILITY.md)
+- **Notifications and pickups:** prioritized, deduplicated hints; secret-discovery counters; actual health, armor and ammo gains; weapon, key and power-up cards, with actual key icons in lock-denial messages and an arcade coin panel for the Mario secret. [Refinements](UTNT_TESTER_FEEDBACK.md), [Notices](UTNT_NOTICES.md), [Pickups](UTNT_USABILITY.md)
 - **Readable layouts:** shared UI scaling, responsive text wrapping and coordinated placement of objectives, pickups, abilities, boss bars and subtitles. [Layout](UTNT_UI_REFINEMENT.md), [HUD](UTNT_HUD_STACKING.md)
 - **Automap and navigation:** coordinated colors, map information, statistics and key legend; discovered lock markers and light/sound cues at selected newly opened passages. [Automap](UTNT_EXPLORATION_UI.md), [Access cues](UTNT_USABILITY.md)
 - **Reforged menu artwork:** pixel-art Quake lettering, amber rune bands and a central seal, with vertically centered skull seals and softly fading amber glow; title with clean alpha edges and transparent selectors at native and double resolution. [Details](UTNT_MENU_LOGO.md)
@@ -27,12 +27,12 @@
 - **Ending atmosphere:** “Ash & Ember” color treatment, grain and stable depth of field; storm sky, glowing crater fracture and an amber lightning-and-spark finale. [Credits](UTNT_CREDITS.md), [Sky](UTNT_ENDMAP_SKY.md)
 - **Four languages:** complete English, German, Spanish and French text, with matching glyphs added to the original fonts. [Details](LOCALIZATION.md)
 - **Voiceovers:** louder remaster dialogue and chapter narration with protected peaks, plus optional original UTNT voice acting. [Details](UTNT_VOICE_AUDIO.md)
-- **Subtitles and comfort:** scalable subtitles with optional speaker labels/background; separate controls for injury overlays, heartbeat, smoke, heat and motion effects. [Details](UTNT_UI_REFINEMENT.md)
+- **Subtitles and comfort:** scalable subtitles with optional speaker labels/background and balanced vertical padding; separate controls for injury overlays, heartbeat, smoke, heat and motion effects. [Details](UTNT_UI_REFINEMENT.md)
 
 ## Abilities and gameplay feel
 
 - **Movement tilt:** smooth, adjustable sideways camera inclination with fixed HUD and comfort controls; reduced effects disable it. [Details](UTNT_RELEASE_EFFECTS.md)
-- **Alternate enemy deaths:** reference animations for nine enemy families and their stealth variants, preserving combat behavior, resurrection and boss completion. [Details](UTNT_RELEASE_EFFECTS.md)
+- **Alternate enemy deaths:** reference animations for nine enemy families and their stealth variants, preserving combat behavior, resurrection and boss completion; Flamer/Pyrocannon kills gradually char with fading amber cinders. [Fire deaths](UTNT_TESTER_EFFECTS.md) [Details](UTNT_RELEASE_EFFECTS.md)
 - **Six class abilities:** Commando — Overdrive (firing speed) and Bollwerk (protection); Marine — Rage (damage) and Regeneration (healing); Scout — Weak Spot (critical hits) and Cloak (invisibility). [Details](UTNT_ABILITIES.md)
 - **Ability feedback:** remappable controls, duration/cooldown cards, distinct screen effects and activation/expiry sounds. [Details](UTNT_ABILITIES.md)
 - **Smoother recoil:** camera recoil reduced by 75% and interpolated, including BFG charging. [Details](UTNT_RECOIL.md)
@@ -42,7 +42,7 @@
 
 - **Voxel pickups and decorations:** selected Cheello models, including all three keycards, the shell box, explosive barrel and its explosion frames, and original-lowres UTNT objects use the active PLAYPAL at native pixel scale, with correctly scaled previews, individual wall-aware map facing, requested stationary or rotating presentation, preserved actor behavior and a localized Cheello credit in the ending. Sam & Max props retain their sprites. [Details](UTNT_VOXELS.md)
 
-- **Selective brightmaps:** compatible masks from the four TNT releases plus native-pixel enemy eyes, fire attacks and explosions, seed/heart details including the heart voxel, and selected lamps, runes, circuits and switch states; shared images preserve existing CRT materials and avoid duplicate bindings, with the custom spider explosion sequence restored. [Details](UTNT_BRIGHTMAPS.md)
+- **Selective brightmaps:** compatible masks from the four TNT releases plus native-pixel enemy eyes, fire attacks and explosions, seed/heart details including the heart voxel, and selected lamps, runes, circuits and switch states; selectively glowing TNT01 glass and ceilings that visibly switch off; shared images preserve existing CRT materials and avoid duplicate bindings, with the custom spider explosion sequence restored. [Details](UTNT_BRIGHTMAPS.md)
 
 - **Deadwood decorations:** three tree and three stump sprite designs in the selected weathered, deeply charred and heavily snow-covered gray families replace existing decorations throughout the campaign, including type-47 stumps, using native PLAYPAL colors and preserved approved pixel artwork, with charred wood in TNT02, stable variation, preserved map placements and collision, save/load support and matching sky-room lighting. [Details](UTNT_DEADWOOD.md)
 
@@ -52,14 +52,14 @@
 
 - **Candelabra lighting:** amber dynamic light for the custom candelabra in TNT03B and TNT04A. [Implementation](../../tutnt/GLDEFS.txt)
 - **Selective glow:** adjustable, color-matched projectile and explosion halos with smooth fadeout. [Details](UTNT_EFFECT_GLOW.md)
-- **Organic fire:** animated flame fragments, embers, smoke and matching light for orange, green and blue torches, burning barrels and floor fires. [Details](UTNT_FIRE_EFFECTS.md)
-- **Combat and teleport effects:** directed sparks, impact dust, electrical pulses and returning teleport fragments; corrected BFG ring sizes and restored rocket trails with smooth fading, rotation and expansion, clearer Archvile warnings, lighter Imp smoke and amber hitscan lighting. [Refinements](UTNT_TESTER_FEEDBACK.md), [Details](UTNT_INDUSTRIAL_FX.md), [Particle sizes](UTNT_PARTICLE_SIZES.md)
+- **Organic fire:** animated flame fragments, embers, smoke and matching light for orange, green and blue torches, burning barrels and floor fires; continuously flowing and crossfading fire-window materials. [Materials](UTNT_TESTER_EFFECTS.md) [Details](UTNT_FIRE_EFFECTS.md)
+- **Combat and teleport effects:** directed sparks, impact dust, electrical pulses and returning teleport fragments; corrected BFG ring sizes and restored rocket trails with smooth fading, rotation and expansion, native-size Archvile fire with sparse smoke, lighter and varied projectile trails, damaging spore clouds, SoulHarvester brightmaps without self-light and amber hitscan lighting. [Follow-up](UTNT_TESTER_EFFECTS.md) [Refinements](UTNT_TESTER_FEEDBACK.md), [Details](UTNT_INDUSTRIAL_FX.md), [Particle sizes](UTNT_PARTICLE_SIZES.md)
 - **Lost Souls:** continuous ember trails anchored behind the skull. [Implementation](../../tutnt/zscript/UTNT_Fire.zc)
 - **Smoke, steam and water:** softer ambient smoke, turbulent pressure steam, improved fountains and animated impact/landing splashes. [Steam](UTNT_STEAM.md), [Water](../../tutnt/zscript/UTNT_Splash.zc)
 - **Layered liquids:** flowing water, slime and blood with visible surface waves and clearer TNT01 water; depth-layered void and star fields, retaining authored map scrolling. [Details](UTNT_LIQUIDS.md)
 - **Lava:** glowing depth, crust and cooled rafts following authored floor scrolling; rounded spill edges in TNT02/TNTLE, restored original-size lava embers and improved emissive visibility through fog. [Lava](UTNT_LAVA.md), [Embers](UTNT_PARTICLE_SIZES.md), [Edges](UTNT_LAVA_LIPS.md), [Fog](ENVIRONMENT_FOG_GUIDES.md)
-- **Portals and teleporters:** unified amber energy, original runes, rotating seals, depth effects, proximity distortion and particle suction from both sides. [Details](UTNT_RITUALS.md)
-- **Dynamic weather:** escalating rain/snow cycles, gusts, splashes, snow veils and responsive ambience, with shelter and skybox coverage. [Details](UTNT_WEATHER.md)
+- **Portals and teleporters:** unified amber energy, original runes, rotating seals, depth effects, proximity distortion and particle suction from both sides, with restored TNT01 rune spawners and smaller floor seals framed in rusty steel. [Refinements](UTNT_TESTER_EFFECTS.md) [Details](UTNT_RITUALS.md)
+- **Dynamic weather:** escalating rain/snow cycles, gusts, splashes, snow veils and responsive ambience, with shelter and skybox coverage, stronger storm thunder and reduced distant-rain rendering cost. [Refinements](UTNT_TESTER_EFFECTS.md) [Details](UTNT_WEATHER.md)
 - **Weather on the visor:** refracting rain droplets and trails, accumulating frost and gradual clearing under shelter. [Details](UTNT_WEATHER_VISOR.md)
 - **Wet surfaces:** gradual rain exposure and drying, subtle darkening and real reflections in irregular wet patches on eligible TNT02 floors. [Details](ENVIRONMENT_EFFECTS.md)
 - **Distance Blur:** optional global distance-based softening with adjustable intensity, a stepped start-distance slider, denser geometry/actor distance reconstruction and HUD weapon protection. [Details](UTNT_DISTANCE_BLUR.md)
@@ -68,7 +68,10 @@
 - **Moving mechanisms:** dust along rubbing edges, improved smoke clearance/fading, and distance-attenuated camera shake scaled to connected moving surfaces. [Details](ENVIRONMENT_CONTACT_DUST.md)
 - **Heat shimmer:** repaired original heat effects plus localized lava distortion, amber haze and glow across nine maps, including visible lava walls and 3D floors. [Heat](UTNT_HEAT_FIX.md), [Environment](ENVIRONMENT_EFFECTS.md)
 
-- **Pickup and switch feedback:** smoothly pulsing green/blue armor lighting for sprites and voxels, bonus lights without self-illumination, and native switch feedback preserved on wet surfaces. [Details](UTNT_TESTER_FEEDBACK.md)
+- **Pickup and switch feedback:** smoothly pulsing green/blue armor and key lighting for sprites and voxels, bonus lights without self-illumination, and native switch feedback preserved on wet surfaces. [Details](UTNT_TESTER_FEEDBACK.md)
+
+- **TNT01 machine failure:** timed distortion, amber flashes, sparks and explosions accompany the original reactor destruction; restored broken-computer sparking. [Details](UTNT_TESTER_EFFECTS.md)
+- **Readable signs:** the TNT02 armory sign fades out on another Use press and can be reopened immediately. [Details](UTNT_TESTER_EFFECTS.md)
 
 ## Skies and materials
 
@@ -92,7 +95,7 @@
 - **Engine modernization:** UZDoom 5.0.1 support, saved presentation states, local cosmetic simulation, current shader APIs, explicit numeric conversions and revised motion blur/postprocessing. [Refinements](UTNT_TESTER_FEEDBACK.md) [Implementation](../../tutnt/zscript/UTNT_Presentation.zc)
 - **Performance and multiplayer:** quality controls, local cosmetic actors and random streams, shared effect caches, bounded gore cleanup, client-only spatial weather/heat queries, idle objective queues, map-load model precaching, reduced canvas uploads and shader work, with eight-player and save/load regression coverage. [Details](PERFORMANCE_MULTIPLAYER.md), [Source](UTNT_SOURCE.md)
 - **Campaign and cooperative fixes:** corrected scripts/maps, shared checkpoints, safer simultaneous respawns, portal handling and cutscene recovery; complete eight-player campaign starts, with local spawn, hub-travel and multiplayer regression coverage. [Campaign](../../tools/test_campaign.py), [Coop](UTNT_COOP.md)
-- **Build and validation:** reproducible snapshot builds, lossless model compression, ACS compilation and engine checks; regression tools for gameplay, save/load, UI, effects, translations and fonts, organized definition modules with validated entrypoints, plus a walkable gallery of all 332 relief variants. [Build](README.md), [Definition layout](DEFINITION_LAYOUT.md), [Material gallery](UTNT_ORGANIC_MATERIALS.md)
+- **Build and validation:** reproducible snapshot builds, lossless model compression, ACS compilation and engine checks; regression tools for gameplay, save/load, UI, effects, translations and fonts, organized definition modules with validated entrypoints and duplicate-include rejection, plus a walkable gallery of all 332 relief variants. [Build](README.md), [Definition layout](DEFINITION_LAYOUT.md), [Material gallery](UTNT_ORGANIC_MATERIALS.md)
 
 ## Local work awaiting completion or commit
 
@@ -102,6 +105,8 @@
 - **Pending integration:** further Lost Soul/fire, palette, map, lava-spill, heat and boss-HUD corrections remain uncommitted; their completion status is not established here.
 
 The experimental TNT01 terrain remodels, underwater caustics and extra scenic lighting were withdrawn and are excluded from the current feature set.
+
+The remaining tester reports, including translucent ray ordering, unreproduced boss rectangles and editor/runtime verification limits, are tracked in [Tester effects follow-up](UTNT_TESTER_EFFECTS.md).
 
 ## Maintenance
 

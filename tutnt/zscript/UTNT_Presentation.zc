@@ -94,6 +94,37 @@ class UTNTVoiceAudio : Object
 class UTNTWorldHandler : EventHandler
 {
     UTNTChapterState Chapter;
+    Array<TranslationID> BurnTints;
+    static void CeilingPowerOff()
+    {
+        if(!(level.MapName ~== "TNT01"))return;
+        TextureID powered=TexMan.CheckForTexture('LITEF02');
+        TextureID unpowered=TexMan.CheckForTexture('ULITEOFF');
+        int tags[]={175,199};
+        for(int i=0;i<2;i++) {
+            let it=level.CreateSectorTagIterator(tags[i]);int index;
+            while((index=it.Next())>=0) {
+                let sec=level.sectors[index];
+                if(sec.GetTexture(Sector.ceiling)==powered)sec.SetTexture(Sector.ceiling,unpowered);
+            }
+        }
+    }
+    bool MachineStarted;
+    int MachineStart;
+    Vector3 MachineOrigin;
+    static void BeginMachineDestruction()
+    {
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(!h || h.MachineStarted || !(level.MapName ~== "TNT01"))return;
+        // The quake MapSpot sits behind the foreground plinth. Anchor the
+        // visible discharge above the central machine so the sight test works.
+        Actor origin=null;Actor candidate=null;let machines=level.CreateActorIterator(252);
+        while(candidate=machines.Next())if(!origin || candidate.Height>origin.Height)origin=candidate;
+        if(!origin)return;
+        h.MachineStarted=true;h.MachineStart=level.time;
+        h.MachineOrigin=origin.Pos+(0,0,origin.Height*.8);
+    }
+
 
     static void BeginChapter(int completed,int secret)
     {
@@ -310,6 +341,7 @@ class UTNTWorldHandler : EventHandler
     override void WorldTick()
     {
         if(Chapter) Chapter.Tick();
+        UTNTMachineBurst.Tick(self);
         TickVoice();
         TickObjectiveCompletion();
         // A shared opt-in because distant visibility must agree in cooperative play.
@@ -372,12 +404,25 @@ class UTNTWorldHandler : EventHandler
         // A reopened hub has its old level handler but the campaign queue has advanced.
         // Save loads retain the exact active notification timeline instead.
         if(!e.IsSaveGame) { CompletionCode=CompletionStartTime=CompletionEndTime=0; CompletionQueueIdle=false; }
+        UTNTBurnDeath.BuildPalette(self);
         HeatSources.Clear();
         let iter = ThinkerIterator.Create('EffectGiver');
         EffectGiver source;
         while (source = EffectGiver(iter.Next())) HeatSources.Push(source);
         for (int i = 0; i < MAXPLAYERS; i++)
             if (playeringame[i] && players[i].mo) players[i].mo.AddBehavior('UTNTPlayerEffects');
+    }
+
+    override void WorldThingDied(WorldEvent e)
+    {
+        if(e.Thing && e.Thing.bIsMonster && UTNTBurnDeath.FromWeapon(e.Inflictor)
+            && !e.Thing.FindBehavior('UTNTBurnDeath'))e.Thing.AddBehavior('UTNTBurnDeath');
+    }
+    override void WorldThingRevived(WorldEvent e)
+    {
+        if(!e.Thing)return;
+        let burn=UTNTBurnDeath(e.Thing.FindBehavior('UTNTBurnDeath'));
+        if(burn){burn.Restore();e.Thing.RemoveBehavior('UTNTBurnDeath');}
     }
 
     override void WorldThingSpawned(WorldEvent e)
@@ -522,6 +567,7 @@ class UTNTPresentation : StaticEventHandler
     {
         WorldGeneration++;
         PPShader.SetEnabled("UTNTSourceImpact",false);
+        PPShader.SetEnabled("UTNTMachineBurst",false);
     }
 
     override void ConsoleProcess(ConsoleEvent e)
@@ -602,13 +648,14 @@ class UTNTPresentation : StaticEventHandler
         double alpha=clamp(min((level.time-handler.VoiceStartTime+1)/18.0,(handler.VoiceEndTime+18-level.time)/18.0),0,1);
         int count=CachedVoiceLines.Count();
         double lineHeight=(font.GetHeight()+2)*scale;
-        // The background extends four scaled pixels below the text block.
-        double y=VoiceTop-count*lineHeight-4*scale;
+        // Match the six visible capital rows used by the notice renderer.
+        double textHeight=(count-1)*lineHeight+6*scale;
+        double y=VoiceTop-textHeight-4*scale;
         VoiceTop=y-UTNTUILayout.Gap();
         if(measureOnly) return;
         int widest=CachedVoiceWidest;
         if (CVar.GetCVar('UTNT_subtitlebackground',player).GetBool())
-            Screen.Dim(0x080808,alpha*0.7,int((Screen.GetWidth()-widest*scale)/2-6*scale),int(y-4*scale),int((widest+12)*scale),int(count*lineHeight+8*scale));
+            Screen.Dim(0x080808,alpha*0.7,int((Screen.GetWidth()-widest*scale)/2-6*scale),int(y-4*scale),int((widest+12)*scale),int(textHeight+8*scale));
         for (int i=0; i<count; i++)
         {
             String line=CachedVoiceLines.StringAt(i);
@@ -620,11 +667,13 @@ class UTNTPresentation : StaticEventHandler
     override void WorldUnloaded(WorldEvent e)
     {
         PPShader.SetEnabled("UTNTSourceImpact",false);
+        PPShader.SetEnabled("UTNTMachineBurst",false);
     }
 
     override void RenderUnderlay(RenderEvent e)
     {
         UTNTSourceImpactView.Render(e);
+        UTNTMachineBurstView.Render(e);
         EnsureNotices();
         ExplorationUI.BeforeHUD();
     }

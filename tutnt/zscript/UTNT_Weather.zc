@@ -261,6 +261,9 @@ class UTNTWeatherController : Thinker
                 // Preserve full storm density nearby and keep the mature outer
                 // field. Subpixel distant flakes need less additional density.
                 if(cell.Kind==2) densityScale=1+(densityScale-1)*(0.20+0.80*weight*weight);
+                // Rain keeps its dense near field; distant subpixel streaks
+                // must not multiply sixfold with the storm across the whole map.
+                else densityScale=1+(densityScale-1)*(0.12+0.88*weight*weight);
                 density*=densityScale;
                 cell.Target=max(1,int(density*(Quality==3 ? 1.0 : Quality==2 ? 0.35 : 0.10)));
                 Nearby.Push(i);
@@ -506,6 +509,12 @@ class UTNTWeatherVisual : VisualThinker
         if(SkyLayer && Age>18 && SkyIndex<Owner.SkyTargets.Size()
             && Owner.SkyCounts[SkyIndex]>Owner.SkyTargets[SkyIndex]+2) Lifetime=min(Lifetime,Age+18);
         double distance=(Pos-(SkyLayer ? SkyOrigin.Pos : Owner.Camera.Pos)).Length();
+        // Only nearby drops need per-particle dynamic-light queries. Sector
+        // brightness still applies, including distant skybox precipitation.
+        if(Kind<=2) {
+            if(SkyLayer || distance>448)Flags|=SPF_NODYNAMICLIGHTING;
+            else Flags&=~SPF_NODYNAMICLIGHTING;
+        }
         if(distance>(SkyLayer ? 256 : Owner.SpawnRange+160)) { Retire(); return; }
         if(!SkyLayer && Kind<=2 && Age>18 && level.time%4==0 && Owner.Cells[CellIndex].Live>Owner.Cells[CellIndex].Target+2)
         { Lifetime=min(Lifetime,Age+18); }

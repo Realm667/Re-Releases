@@ -1,6 +1,6 @@
 # Tester feedback fixes
 
-Implemented 14 September 2026 for UZDoom 5.0.1.
+Implemented 14 September 2026 for UZDoom 5.0.1. Follow-up changes and remaining issues are tracked in [Tester effects follow-up](UTNT_TESTER_EFFECTS.md).
 
 ## Feedback checklist
 
@@ -11,7 +11,7 @@ Implemented 14 September 2026 for UZDoom 5.0.1.
 | 1 | TNT01 opaque, dark, still water | Fixed | Lower plane opacity, brighter underwater lighting, bounded fog and visible surface motion. |
 | 2 | ObjectiveNext called every tic | Fixed | Empty queues sleep and wake on progress. |
 | 3 | Spatial index spawned during prediction | Fixed | Explicit client-side thinker lifetime; four-peer validation. |
-| 4 | Archvile fire obscures combat | Fixed | Sparse, smaller, more transparent warning effects. |
+| 4 | Archvile fire obscures combat | Superseded by later feedback | Native-size fire restored with sparse smoke; see [follow-up](UTNT_TESTER_EFFECTS.md). |
 | 5 | Rocket trail disappears abruptly | Fixed | Smooth fade, expansion and rotation. |
 | 6 | Transition board numeric warnings | Fixed | Explicitly rounded rectangle coordinates. |
 | 7 | Weather/portal deprecated calls | Fixed | Current shader/iterator APIs and explicit initialization. |

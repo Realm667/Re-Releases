@@ -20,7 +20,7 @@ class UTNTThunderHandler : EventHandler
 
     void Initialize()
     {
-        Initialized=true; NextFlash=315; PulseAge=-1; AppliedState=-1;
+        Initialized=true; NextFlash=245; PulseAge=-1; AppliedState=-1;
         WeatherSeed=667; ThunderDue=-1; LastThunderClock=-1;
         TextureID sky=TexMan.CheckForTexture("F_SKY1");
         let box=level.PointInSector((28000,-28000));
@@ -50,10 +50,13 @@ class UTNTThunderHandler : EventHandler
     }
     void StartPulse(int forcedProfile=-1)
     {
+        let weather=UTNTWeatherHandler(EventHandler.Find('UTNTWeatherHandler'));
+        double rain=weather?UTNTWeatherHandler.Strength(weather.WeatherTics):0;
+        int distantCut=int(round(62-30*rain)), nearCut=int(round(92-24*rain));
         int roll=WeatherRandom(100);
-        Profile=forcedProfile>=0 ? clamp(forcedProfile,0,2) : (roll<62 ? 0 : roll<92 || NearCooldown>0 ? 1 : 2);
+        Profile=forcedProfile>=0 ? clamp(forcedProfile,0,2) : (roll<distantCut ? 0 : roll<nearCut || NearCooldown>0 ? 1 : 2);
         if(NearCooldown>0)NearCooldown--;
-        if(Profile==2)NearCooldown=3;
+        if(Profile==2)NearCooldown=rain>=.75?1:3;
         Direction=WeatherRandom(3); Sequence++; SoundVariant=(Sequence+1)%2; PulseAge=0; FlashClock=Clock;
         if(Profile==0)
         {
@@ -73,7 +76,10 @@ class UTNTThunderHandler : EventHandler
             ThunderVolume=.95+WeatherRandom(6)*.01;
         }
         ThunderDue=Clock+ThunderDelay;
-        NextFlash=Clock+315+WeatherRandom(386); // 9..20 s.
+        // 7..16 s in light weather, 4..9 s at the rain peak. Always
+        // deliver a pending distant rumble before scheduling another flash.
+        int interval=int(round((245+WeatherRandom(316))*(1-.43*rain)));
+        NextFlash=Clock+max(interval,ThunderDelay+18);
     }
     void PlayThunder()
     {
@@ -139,7 +145,7 @@ class UTNTThunderHandler : EventHandler
             if(e.Args[0]==2){DebugStatus();return;}
             if(e.Args[0]!=0 && e.Args[0]!=1)return;
             DebugManual=e.Args[0]==0;
-            PulseAge=-1; ThunderDue=-1; Apply(0); NextFlash=Clock+315;
+            PulseAge=-1; ThunderDue=-1; Apply(0); NextFlash=Clock+245;
             Console.Printf("TNT02 thunder: %s",DebugManual ? "manual, pending flash/thunder cancelled" : "automatic weather resumed");
             return;
         }

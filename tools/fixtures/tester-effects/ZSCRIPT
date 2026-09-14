@@ -1,0 +1,39 @@
+version "5.0.0"
+class UTNTCloudVictim : Actor { Default { Health 1000; Radius 16; Height 56; +SHOOTABLE +NOGRAVITY } States { Spawn: TNT1 A -1; Stop; } }
+class UTNTTesterEffectsCheck : EventHandler {
+ Actor Victim, Cloud, Owner, Harvester, BurnOne, BurnTwo, NormalDeath; TranslationID BurnOriginal; int Started, InitialHealth;
+ void Check(bool pass,String text) { Console.Printf("UTNT_ASSERT %s %s",pass?"PASS":"FAIL",text); }
+ override void NetworkProcess(ConsoleEvent e) {
+ if(e.Name=="effectcheck") {
+  let p=players[0].mo;Started=level.time;InitialHealth=p.Health;
+  BurnOne=Actor.Spawn('ZombieMan',p.Pos+(200,0,0));BurnTwo=Actor.Spawn('ZombieMan',p.Pos+(240,0,0));NormalDeath=Actor.Spawn('ZombieMan',p.Pos+(280,0,0));BurnOriginal=BurnOne.Translation;
+  let flame=Actor.Spawn('FTFire',p.Pos+(300,200,0));let pyro=Actor.Spawn('PyroShot',p.Pos+(300,200,0));BurnOne.DamageMobj(flame,p,10000,'Fire',DMG_FORCED);BurnTwo.DamageMobj(pyro,p,10000,'Fire',DMG_FORCED);NormalDeath.DamageMobj(null,p,10000,'None',DMG_FORCED);flame.Destroy();pyro.Destroy();
+  Check(BurnOne.FindBehavior('UTNTBurnDeath')!=null && BurnTwo.FindBehavior('UTNTBurnDeath')!=null,"both fire weapons attach burn presentation");Check(NormalDeath.FindBehavior('UTNTBurnDeath')==null,"ordinary death is unchanged");
+  Owner=Actor.Spawn('MapSpot',p.Pos+(-100,0,0));
+  Victim=Actor.Spawn('UTNTCloudVictim',p.Pos+(80,0,0));
+  Cloud=Actor.Spawn('TorturedSoulPoison',p.Pos+(0,0,24));Cloud.Target=Owner;Cloud.Vel=(5,0,0);
+  Check(!Cloud.bCLIENTSIDE && !Cloud.bTHRUACTORS && Cloud.bRIPPER,"poison gameplay collision flags");
+  Check(Cloud.DamageType=='Poison',"poison damage type");
+  class<Actor> types[]={'FatsoBallTrail','UTNTCacoBallTrail','UTNTCacoBallTrailMini','HecCenterTrail','HecRingTrail'};
+  for(int k=0;k<5;k++) { double low=360,high=0,sm=10,sx=0;
+   for(int j=0;j<20;j++) {let a=Actor.Spawn(types[k],p.Pos+(100,j*2,32));a.SetState(a.FindState('Spawn'));
+    low=min(low,a.Roll);high=max(high,a.Roll);sm=min(sm,a.Scale.X);sx=max(sx,a.Scale.X);
+    Check(a.Alpha<.41 && a.bROLLSPRITE && a.bINTERPOLATEALPHA,"trail opacity/roll/fade");
+   } Check(high-low>90 && sx-sm>.01,"trail individual variation");
+  }
+  class<Actor> keys[]={'UTNTPulseBlueCard','UTNTPulseYellowCard','UTNTPulseRedCard','UTNTPulseBlueSkull','UTNTPulseYellowSkull','UTNTPulseRedSkull'};
+  for(int j=0;j<6;j++) {let a=Actor.Spawn(keys[j],p.Pos+(64,j*22-60,0));Check(a && a.Frame==0,"key stable A frame");}
+
+  let fire=Actor.Spawn('UTNTArchvileFire',p.Pos+(100,100,0));Check(fire.Scale.X==1 && fire.Scale.Y==1,"Archvile native unit scale");
+ }
+ }
+ override void WorldTick() {
+  if(!Started)return;int age=level.time-Started;
+  if(age==35) {Check(BurnOne.Translation!=BurnOriginal,"burn corpse fades to charred palette");Check(Victim && Victim.Health<1000,"poison cloud damages shootable victim");if(Victim)Console.Printf("Victim health %d",Victim.Health);
+   let p=players[0].mo;let c=Actor.Spawn('TorturedSoulPoison',p.Pos+(-80,0,24));c.Target=Owner;c.Vel=(5,0,0);
+  }
+  if(age==65)Check(players[0].mo.Health<InitialHealth,"poison cloud damages player");
+  if(age==125)Check(!Cloud,"poison cloud bounded lifetime");
+  if(age==215){Check(BurnOne.Health<=0,"burn effect does not resurrect corpse");BurnOne.Revive();Check(BurnOne.Translation==BurnOriginal && !BurnOne.FindBehavior('UTNTBurnDeath'),"resurrection restores original palette");}
+ }
+}

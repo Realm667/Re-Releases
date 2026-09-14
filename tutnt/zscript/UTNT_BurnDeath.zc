@@ -1,0 +1,54 @@
+// Keep native death/raise states and gameplay. Only the corpse presentation changes.
+class UTNTBurnDeath : Behavior
+{
+    TranslationID Original;
+    int Age;
+    override void Initialize() { Original=Owner.Translation; }
+    static bool FromWeapon(Actor inflictor)
+    {
+        return inflictor && (inflictor is 'FTFire' || inflictor is 'DropFire'
+            || inflictor is 'PyroShot' || inflictor is 'PyroBoom' || inflictor is 'PyroFlare');
+    }
+    static void BuildPalette(UTNTWorldHandler h)
+    {
+        if(h.BurnTints.Size()==33)return;
+        h.BurnTints.Clear();
+        for(int frame=0;frame<33;frame++) {
+            Translation tint;
+            double burn=min(1.,frame/16.);
+            double ember=frame<=16?burn:(32-frame)/16.;
+            for(int i=0;i<256;i++) {
+                Color c=Screen.PaletteColor(i);
+                double luma=c.R*.299+c.G*.587+c.B*.114;
+                double hot=luma>55 && luma<170 && i%7<2?ember*.25:0;
+                double ash=luma*.38;
+                tint.colors[i]=Color(int(c.R*(1-burn)+(ash*1.06+hot*150)*burn),
+                    int(c.G*(1-burn)+(ash+hot*65)*burn),int(c.B*(1-burn)+ash*.94*burn));
+            }
+            h.BurnTints.Push(tint.AddTranslation());
+        }
+    }
+    void Restore() { Owner.Translation=Original; }
+    override void Tick()
+    {
+        if(Owner.Health>0) { Restore();Owner.RemoveBehavior('UTNTBurnDeath');return; }
+        if(Age>=211)return; // Settled corpses retain only the cheap resurrection guard.
+        Age++;
+        let h=UTNTWorldHandler(EventHandler.Find('UTNTWorldHandler'));
+        if(!h)return;
+        BuildPalette(h);
+        int frame=Age<70?min(16,Age*16/70):16+min(16,(Age-70)*16/140);
+        Owner.Translation=h.BurnTints[frame];
+        if(Age>210 || Age%7!=0 || !UTNTIndustrialFX.At(Owner.Pos))return;
+        double fade=1-Age/210.;
+        double radius=min(24.,Owner.Radius*.6);
+        Vector3 pos=Owner.Pos+(CFRandom[utntburn](-radius,radius),CFRandom[utntburn](-radius,radius),max(3,Owner.Height*.35));
+        let cinder=UTNTIndustrialFX.Make(pos,4,1.5+fade*2,1.5+fade*2,24,0xffffa140,
+            (CFRandom[utntburn](-.25,.25),CFRandom[utntburn](-.25,.25),CFRandom[utntburn](.3,.8)));
+        if(cinder)cinder.Strength=fade*.7;
+        if(Age%14==0) {
+            let glow=UTNTIndustrialFX.Make(pos,4,5+fade*5,3+fade*3,20,0xffff922f);
+            if(glow)glow.Strength=fade*.2;
+        }
+    }
+}

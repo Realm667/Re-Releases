@@ -26,6 +26,10 @@ class DefinitionLayoutTests(unittest.TestCase):
  def test_missing_include_rejected(self):
   (self.mod/'GLDEFS.txt').write_text('#include "gldefs/missing"')
   with self.assertRaisesRegex(ValueError,'Missing or unsafe include'):generate(self.root)
+ def test_duplicate_native_include_rejected(self):
+  (self.mod/'GLDEFS.txt').write_text('#include "gldefs/GLDEFS.a"\n#include "gldefs/GLDEFS.a"')
+  (self.mod/'gldefs/GLDEFS.a').write_text('// one module')
+  with self.assertRaisesRegex(ValueError,'Duplicate native include'):generate(self.root)
  def test_cycle_rejected(self):
   (self.mod/'GLDEFS.txt').write_text('#include "gldefs/GLDEFS.loop"')
   (self.mod/'gldefs/GLDEFS.loop').write_text('#include "GLDEFS.txt"')

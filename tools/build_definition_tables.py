@@ -48,6 +48,7 @@ def validate_layout(mod):
             path=(mod/name).resolve()
             if not path.is_relative_to(mod.resolve()) or not path.is_file():raise ValueError('Missing or unsafe include: '+name)
             if name in stack:raise ValueError('Cyclic include: '+name)
+            if name in visited:raise ValueError("Duplicate native include: "+name)
             visited.add(name)
             for target in INCLUDE.findall(path.read_text(encoding='utf-8-sig')):
                 if group=='SNDINFO':target=(Path(name).parent/target).as_posix()
