@@ -2,8 +2,10 @@
 
 The approved weathered, charred and frozen families replace the appearance of
 existing BigTree, TorchTree, Stalagtite, IceyTree and IceyStub objects. Each family contains
-three trees and three stumps (18 original designs). Native Doom patches follow
-the active PLAYPAL and match the original sprite pixel density. Original actors, map positions,
+three trees and three stumps (18 original designs). Stationary voxel models follow
+the active PLAYPAL and match the original sprite pixel density at one map unit
+per voxel. Native Doom patches remain available as the sprite fallback.
+Original actors, map positions,
 angles, authored scale, collision dimensions, projectile pass heights, TIDs and
 script references remain intact. No campaign WAD is rewritten.
 
@@ -147,3 +149,38 @@ the test. It checks the reported coordinates, type-47 coverage, TNT02's charred
 theme, unrelated subclasses, and restoration of saves seeded with old dry
 sprites and original SMIT stumps. Local evidence and before/after screenshots
 are under `tutnt/.codex/validation/deadwood-stub-fix/`.
+
+## Approved voxel integration (14 September 2026)
+
+The user selected the voxel alternative after reviewing the weathered, charred
+and frozen designs from the front, rear and both sides. All 18 designs now use
+24 native KVX bindings in VOXELDEF: DWDT/DWDS, DWCT/DWCS, DWFT/DWFS and DWIT/DWIS,
+each with frames A/B/C. The extra six bindings retain the original frozen size
+variants. Spin is zero and OverridePalette references the active UTNT PLAYPAL.
+The existing actor mapper and its save migration remain unchanged; already
+converted actors in saves acquire the voxel representation through their sprite
+binding. Map-authored actor scale is preserved, and no campaign map is edited.
+
+[deadwood_voxel_geometry.py](../../tools/deadwood_voxel_geometry.py) describes
+explicit tapered branch networks, connected forks, front/back limbs, radial
+roots and broken stump tips. Hollow stumps have an open well and inner walls.
+[build_deadwood_voxels.py](../../tools/build_deadwood_voxels.py) samples only the
+existing low-resolution patches, keeps integer voxel cells and original floor
+anchors, and bakes the original 124/127/40/33-unit view heights into the grid.
+It runs through build_voxels.py and the standard package build; --check rejects
+stale KVX, bindings or the [voxel manifest](../../tools/artwork/deadwood/voxel-manifest.json).
+The accepted comparison KVX files are preserved byte for byte by this generator.
+The experimental textured polygon models remain local and are not shipped.
+
+```text
+python -B tools/build_voxels.py --check
+python -B tools/test_deadwood.py --maps TNT01 TNT02 TNT03A1 TNT04C --restore --renderer 0
+```
+
+The integrated package passed the engine compile check and 74 runtime assertions
+across TNT01, TNT02, TNT03A1 and TNT04C, including save/load, dynamic spawning,
+legacy save migration, exact-class filtering, original scale/collision/TIDs and
+sky-room lighting. All 24 packaged models match the approved preview hashes.
+Generator and definition-table checks pass without stale output. Local evidence:
+`tutnt/.codex/validation/deadwood-voxel-integration.json` and
+`tutnt/.codex/logs/deadwood-voxel-integration-build.log`.
