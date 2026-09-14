@@ -161,15 +161,35 @@ The existing actor mapper and its save migration remain unchanged; already
 converted actors in saves acquire the voxel representation through their sprite
 binding. Map-authored actor scale is preserved, and no campaign map is edited.
 
-[deadwood_voxel_geometry.py](../../tools/deadwood_voxel_geometry.py) describes
-explicit tapered branch networks, connected forks, front/back limbs, radial
-roots and broken stump tips. Hollow stumps have an open well and inner walls.
-[build_deadwood_voxels.py](../../tools/build_deadwood_voxels.py) samples only the
-existing low-resolution patches, keeps integer voxel cells and original floor
-anchors, and bakes the original 124/127/40/33-unit view heights into the grid.
-It runs through build_voxels.py and the standard package build; --check rejects
-stale KVX, bindings or the [voxel manifest](../../tools/artwork/deadwood/voxel-manifest.json).
-The accepted comparison KVX files are preserved byte for byte by this generator.
+The current artwork follows the later approved sprite-faithful reference pass.
+[author_deadwood_voxels.py](../../tools/author_deadwood_voxels.py) combines native
+sprite silhouettes with individually authored branch-depth guides, continuous
+rounded trunk cross-sections, connected roots and carved stump wells. Native
+bark detail continues around the sides at the original pixel pitch; source-edge
+colors are not stretched across broad side strips. Frozen models restrict snow
+colors to their original front pixels and supported, exposed upper surfaces.
+
+The full indexed grids and per-design plans are versioned as
+[voxel artwork sources](DEADWOOD_VOXEL_ARTWORK.md).
+The accepted weathered B tree and hollow B stump remain byte-identical to the
+approved side-refined reference KVX exports. Package builds use these artwork
+grids through [deadwood_voxel_geometry.py](../../tools/deadwood_voxel_geometry.py),
+without the optional sculpting dependencies. Source/grid hashes reject stale
+or unrecorded artwork changes.
+
+[build_deadwood_voxels.py](../../tools/build_deadwood_voxels.py) validates the
+actual exported KVX front independently. All 18 native designs preserve every
+opaque source pixel and its palette index in a fixed, unlit orthographic front
+projection. The six additional frozen size views use cell-center resampling,
+including transparency and front-surface colors, to retain the existing
+124/127/40/33-unit heights. Their target-grid fronts are also checked exactly.
+All runtime grids use one-map-unit cells, Spin=0 and the active PLAYPAL.
+Perspective and map lighting can differ from the flat sprite; unseen anatomy
+is an authored interpretation, not information recoverable from a single view.
+
+The builder runs through build_voxels.py and the standard package build;
+--check rejects stale KVX, bindings or the
+[voxel manifest](../../tools/artwork/deadwood/voxel-manifest.json).
 The experimental textured polygon models remain local and are not shipped.
 
 ```text
@@ -177,10 +197,19 @@ python -B tools/build_voxels.py --check
 python -B tools/test_deadwood.py --maps TNT01 TNT02 TNT03A1 TNT04C --restore --renderer 0
 ```
 
-The integrated package passed the engine compile check and 74 runtime assertions
-across TNT01, TNT02, TNT03A1 and TNT04C, including save/load, dynamic spawning,
-legacy save migration, exact-class filtering, original scale/collision/TIDs and
-sky-room lighting. All 24 packaged models match the approved preview hashes.
-Generator and definition-table checks pass without stale output. Local evidence:
-`tutnt/.codex/validation/deadwood-voxel-integration.json` and
-`tutnt/.codex/logs/deadwood-voxel-integration-build.log`.
+The full sprite-faithful set passed the engine compile check and 74 runtime
+assertions across TNT01, TNT02, TNT03A1 and TNT04C, including save/load, dynamic
+spawning, legacy save migration, exact-class filtering, original scale/collision/
+TIDs and sky-room lighting. Eight gallery groups add 32 assertions and 64 engine
+screenshots covering all 24 bindings from eight directions. The first TNT02
+attempt timed out after its assertions; an identical targeted retry completed
+successfully. These are targeted OpenGL tests, not a full campaign playthrough.
+
+All 24 decoded KVX fronts match their native or resampled reference grids with
+zero missing pixels, extra pixels or wrong palette indices. Packaged models
+match the current source exports; the two accepted reference exports remain
+byte-identical. Generator and definition-table checks pass without stale output.
+Local evidence: `tutnt/.codex/validation/deadwood-all-faithful.json`,
+`tutnt/.codex/validation/deadwood-all-artwork.json` and
+`tutnt/.codex/logs/deadwood-all-faithful/build.log`. Screenshots and reproducible
+local gallery tooling are under `tutnt/.codex/work/deadwood-all-faithful/`.
