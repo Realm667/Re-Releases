@@ -36,6 +36,7 @@ Implemented 14 September 2026 for UZDoom 5.0.1.
 | 26 | TNT02 switch lacks texture/sound feedback | Fixed | Preserve native switch texture identity instead of wet aliases; switch/reset tested. |
 | 27 | Green/blue armor hard blinking | Fixed | Continuous illumination fade on a stable opaque sprite/voxel frame; pickup values preserved. |
 | 28 | CandelabraNew yellow dynamic light | Fixed | Dedicated amber #FFA300 light, preserving radius, offset, attenuation and self-light exclusion. |
+| 29 | TNT04CN black rectangles along the boss beam | Open: not reproduced | Current package checked in TNT04CN/TNT04C on Vulkan and OpenGL; original engine/renderer/package identification requested. |
 
 ## Visibility and lighting
 
@@ -87,3 +88,22 @@ Largest compressed categories in that candidate: organic material maps 54.56 MB,
 - Eight build snapshot regressions and a map-precache metadata preservation test pass.
 
 Runtime tools: `tools/test_tester_feedback.py`, `tools/test_objective_completion.py`, `tools/test_objective_completion_travel.py`, `tools/test_cosmetic_lifecycle.py`, `tools/test_source_maps.py`. Local evidence is under `tutnt/.codex/logs/` and `tutnt/.codex/validation/`.
+
+## Source beam rectangles: investigation, 14 September 2026
+
+The supplied screenshot shows a vertical series of black squares on the energy
+beam. This has **not** been marked fixed: no matching artifact was reproduced
+with immutable integration build `0acf5ccce3a5` (source revision `ce0692e31`)
+on UZDoom 5.0.1 / NVIDIA RTX 4080. Both TNT04CN and TNT04C were captured on
+Vulkan and OpenGL. Comparisons include nearest/trilinear texture filtering,
+bloom disabled, and the tonal filter disabled or highlights at -100. The
+current captures remain free of the reported black squares; there are no
+matching rows of placed actors along the beam axis. No speculative material
+or combat change was made. Engine version, renderer and whether the reporter
+used the latest package remain needed to reproduce the original result.
+
+Unedited captures and engine logs use the `source-rectangles-` prefix under
+`tutnt/.codex/logs/`; the exact tested package is retained in
+`tutnt/.codex/builds/source-rectangles-baseline.pk3`. The first background-mode
+capture rendered at reduced resolution; only subsequent full-resolution
+captures were used for the visual assessment.
