@@ -60,8 +60,10 @@ outgoing background remains underneath the incoming image. Text starts revealing
 with the boxes, and reader input unlocks at the end of their fade. This uses the
 saved chapter clock, so pause/save/load and changing pages do not restart it.
 The obsolete INTERP2 shading overlay is omitted; the text plaque supplies its own
-readable background. TNT04A retains its cinematic
-image pair and existing column proportions. Statistics retain their separate layout.
+readable background. TNT04A uses dedicated opaque I_INTROA/B stained-glass portraits
+with the same 2:1 columns, proportional image fit and bronze frame. Its existing
+cinematic background, reveal and A/B timing remain intact. Statistics retain their
+separate layout.
 
 ## Result presentation and black transitions
 

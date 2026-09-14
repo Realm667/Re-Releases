@@ -1,6 +1,6 @@
 # Stained-glass chapter artwork
 
-Updated: 13 September 2026.
+Updated: 14 September 2026.
 
 The sixteen A/B chapter images for chapters 02, 03, 04, 05, 06, 07, 09 and 10
 use the user-approved I_06A variant 4: dark, weathered stained glass, oxidized
@@ -62,3 +62,26 @@ The integrated build b125352663ea passed its engine check; its sixteen chapter
 PNGs exactly match the installed artwork hashes.
 Runtime logs: tutnt/.codex/logs/interms-stained-glass-render.log and
 tutnt/.codex/logs/interms-stained-glass-packed.log.
+
+## TNT04A intro portraits
+
+I_INTROA and I_INTROB are two dedicated opaque 460 x 778 portraits of the Source
+ritual chamber, replacing widescreen background resources in the reader's right
+column. A shows the towering chamber; B moves closer to the looming amber seal.
+Both use I_06A as the stained-glass style reference. The original TNTE4 backgrounds
+are preserved. The shared reader fits the illustrations proportionally and draws
+the same bronze edges as the text plaque, with the shared 2:1 column split.
+
+The built-in Imagegen tool authored both illustrations. Production export applies
+uniform bicubic downsampling and a small central crop to match 460:778 exactly;
+the sigil and architecture are never stretched. Local masters are retained under
+tutnt/.codex/work/intro-stained-glass/.
+[Intro prompts](../../tools/artwork/intro-stained-glass/prompts.json) and
+[manifest](../../tools/artwork/intro-stained-glass/manifest.json) record provenance.
+
+TNT04A portrait update, 14 September 2026: two UZDoom runtime cases passed
+76 assertions at 1280 x 720 (English) and 640 x 480 with 150% UI scale (German).
+Both portraits and the intermediate dissolve were visually reviewed. Resource
+dimensions, shared columns, reader save/load and host skip cleanup passed.
+Local evidence: tutnt/.codex/validation/intro-stained-glass/runtime.json and
+assets.json; screenshots: tutnt/.codex/logs/intro-glass-*.png.

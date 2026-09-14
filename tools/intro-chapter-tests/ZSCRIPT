@@ -74,6 +74,16 @@ class UTNTIntroChapterView : StaticEventHandler
         Console.Printf("UTNT_ASSERT %s: both localized original narration parts are included",transcript.Length()>200 ? "PASS":"FAIL");
         int builds=view.LayoutBuilds;view.Prepare(h.Chapter);
         Console.Printf("UTNT_ASSERT %s: stable intro layout uses shared cache",view.LayoutBuilds==builds ? "PASS":"FAIL");
-        Console.Printf("UTNT_ASSERT %s: original illustrations exist",TexMan.CheckForTexture("TNTE4_1").isValid() && TexMan.CheckForTexture("TNTE4_2").isValid() ? "PASS":"FAIL");
+        Console.Printf("UTNT_ASSERT %s: original backgrounds remain available",TexMan.CheckForTexture("TNTE4_1").isValid() && TexMan.CheckForTexture("TNTE4_2").isValid() ? "PASS":"FAIL");
+        String portraits[]={"hires/graphics/interms/I_INTROA.png","hires/graphics/interms/I_INTROB.png"};
+        for(int i=0;i<2;i++)
+        {
+            TextureID tex=TexMan.CheckForTexture(portraits[i]);
+            Vector2 size=TexMan.GetScaledSize(tex);
+            Console.Printf("UTNT_ASSERT %s: intro portrait %d resolves at 460x778",
+                tex.isValid() && size.X==460 && size.Y==778 ? "PASS":"FAIL",i);
+        }
+        Console.Printf("UTNT_ASSERT %s: intro columns use the shared 2:1 split",
+            abs(view.BodyWidth-view.PictureWidth*2)<0.01 ? "PASS":"FAIL");
     }
 }

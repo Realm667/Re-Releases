@@ -2,7 +2,12 @@
 
 TNT04A now uses UTNTChapterState and UTNTChapterUI, the same saved reader as INTERMAP.
 The reader wraps both existing localized narration passages (UTNT_VOICE_038/039),
-uses the shared UI scale/cache, and displays the original TNTE4_1/TNTE4_2 images.
+uses the shared UI scale/cache, and displays dedicated I_INTROA/I_INTROB portraits.
+These opaque 460 x 778 stained-glass illustrations recompose the ritual chamber
+for the same 2:1 text/image columns and bronze frame used by the chapter reader.
+The image fits proportionally without runtime stretching or cropping. The original
+TNTE4_1 remains the cinematic background; the existing 170-tic image-change delay
+and 70-tic A/B dissolve remain unchanged. See [artwork](UTNT_STAINED_GLASS.md).
 The authored ACS timeline retains voice clips, music, map setup and the normal ending.
 Enter reveals text, advances pages and can finish; Left revisits the preceding page.
 A fresh Use press skips immediately for the host. Holding Use on map entry does not skip.
@@ -24,3 +29,10 @@ Tests run with audio disabled; narration timing and selected clips are asserted.
 Evidence: tools/validation/intro-chapter-2026-09-09.
 Set UTNT_ENGINE and UTNT_IWAD, then run tools/test_intro_chapter.py --case
 compile|early|saved|held|normal and tools/test_intro_chapter_coop.py.
+
+TNT04A portrait update, 14 September 2026: two UZDoom runtime cases passed
+76 assertions at 1280 x 720 (English) and 640 x 480 with 150% UI scale (German).
+Both portraits and the intermediate dissolve were visually reviewed. Resource
+dimensions, shared columns, reader save/load and host skip cleanup passed.
+Local evidence: tutnt/.codex/validation/intro-stained-glass/runtime.json and
+assets.json; screenshots: tutnt/.codex/logs/intro-glass-*.png.

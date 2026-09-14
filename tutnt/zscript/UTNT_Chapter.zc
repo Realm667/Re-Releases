@@ -195,7 +195,7 @@ class UTNTChapterUI ui
         double left=(Screen.GetWidth()-available)/2;
         // Split usable column space 2:1, keeping the gutter outside the ratio.
         double columns=available-UTNTUILayout.Gap();
-        BodyWidth=chapter.Intro ? available*0.62 : columns*2/3;
+        BodyWidth=columns*2/3;
         PictureWidth=columns-BodyWidth;
         BodyX=left; PictureX=left+BodyWidth+UTNTUILayout.Gap();
         String title=Local(chapter.Intro ? "UTNT_CHAPTER_INTRO" : String.Format("UTNT_CHAPTER_%d",chapter.Episode));
@@ -263,10 +263,8 @@ class UTNTChapterUI ui
         return t*t*(3-2*t);
     }
 
-    void PortraitPair(int number,double blend,double alpha)
+    void PortraitPair(String first,String second,double blend,double alpha)
     {
-        String first=String.Format("hires/graphics/interms/I_%02dA.png",number);
-        String second=String.Format("hires/graphics/interms/I_%02dB.png",number);
         Vector2 size=TexMan.GetScaledSize(TexMan.CheckForTexture(first));
         double fit=min(PictureWidth/max(1,size.X),BodyHeight/max(1,size.Y));
         double w=size.X*fit,h=size.Y*fit;
@@ -332,11 +330,10 @@ class UTNTChapterUI ui
         int picture=chapter.Definition ? chapter.Definition.Picture : UTNTChapterState.ImageNumber(chapter.Episode);
         double blend=clamp((level.time-chapter.StartTime-(chapter.Intro ? 170 : chapter.Definition ? chapter.Definition.PictureTic : UTNTChapterState.ImageChange(chapter.Episode))+frac)/70,0,1);
         if(chapter.Intro)
-        {
-            Picture("TNTE4_1",PictureX,BodyY,PictureWidth,BodyHeight,alpha*(1-blend));
-            Picture("TNTE4_2",PictureX,BodyY,PictureWidth,BodyHeight,alpha*blend);
-        }
-        else PortraitPair(picture,blend,alpha);
+            PortraitPair("hires/graphics/interms/I_INTROA.png",
+                "hires/graphics/interms/I_INTROB.png",blend,alpha);
+        else PortraitPair(String.Format("hires/graphics/interms/I_%02dA.png",picture),
+            String.Format("hires/graphics/interms/I_%02dB.png",picture),blend,alpha);
         String hint=Local(characters<0 ? "UTNT_CHAPTER_REVEAL" : page+1<PageCount ? "UTNT_CHAPTER_NEXT"
             : "UTNT_TR_RESULTS");
         if(chapter.Intro) hint=Local(consoleplayer==UTNTChapterState.Leader() ? "UTNT_CHAPTER_INTRO_KEYS" : "UTNT_CHAPTER_INTRO_GUEST");
