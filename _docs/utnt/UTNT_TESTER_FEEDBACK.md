@@ -37,6 +37,7 @@ Implemented 14 September 2026 for UZDoom 5.0.1.
 | 27 | Green/blue armor hard blinking | Fixed | Continuous illumination fade on a stable opaque sprite/voxel frame; pickup values preserved. |
 | 28 | CandelabraNew yellow dynamic light | Fixed | Dedicated amber #FFA300 light, preserving radius, offset, attenuation and self-light exclusion. |
 | 29 | TNT04CN black rectangles along the boss beam | Open: not reproduced | Current package checked in TNT04CN/TNT04C on Vulkan and OpenGL; original engine/renderer/package identification requested. |
+| 30 | Build line beneath Status Bar and Statistics | Fixed | Removed the build label from the HUD options menu and regenerated MENUDEF. |
 
 ## Visibility and lighting
 
