@@ -1,6 +1,6 @@
 # Deadwood decorations
 
-The approved weathered, charred and frozen families replace the appearance of
+The selected Style C weathered, K4 charred and F2 frozen sprite families replace the appearance of
 existing BigTree, TorchTree, Stalagtite, IceyTree and IceyStub objects. Each family contains
 three trees and three stumps (18 original designs). Native low-resolution Doom
 patches use the active PLAYPAL through 24 sprite views, including the original
@@ -64,36 +64,41 @@ behavior. Root anchors follow each trunk rather than the center of its widest
 branches. The existing TNT04C sky-room light override still recognizes the
 original actor classes and follows their transferred floor lighting.
 
-The charred stump's tiny ember fissure is painted into its surface, without a
-new dynamic light, fullbright tree, particle system or gameplay effect.
+Charred K4 uses dark carbonized bark with small exposed wood breaks. Frozen F2
+uses neutral gray wood, thick snow masses and icicles. Neither family adds
+emissive lighting or particles.
 
 ## Artwork and rebuilding
 
-Approved concepts: local `tutnt/.codex/work/tree-stump-mockups/`.
-The original-faithful atlas extraction and explicit key-background correction
-used built-in Imagegen. [Prompts](../../tools/artwork/deadwood/prompts.json),
-[keyed artwork and layout](../../tools/artwork/deadwood/atlas-layout.json) are
-versioned under `tools/artwork/deadwood/`.
+The user selected Style C for weathered wood and then K4/F2 for charred/frozen
+wood on 14 September 2026. All families share the same six broken, weathered
+silhouettes. The new winter family has gray bark, substantially more snow and
+ice; its pixels use only neutral grayscale indices.
 
-[build_deadwood_sprites.py](../../tools/build_deadwood_sprites.py) converts the
-explicit chroma key to real alpha, separates the six atlas subjects without
-cutting neighboring branches, and emits 18 native Doom patches plus 24 TEXTURES views.
-The extra six views retain the original Icey actor visual scales; they are not
-additional artwork. The compiler reduces trees to the original 124/127-pixel grid and stumps to
-40 pixels, without dithering or a high-resolution override. It uses the original
-TRE1/TRE2 and ICT1/ICS1 palette ramps with restrained olive moss and grey
-extensions, and matches their matte brightness.
-[Palette profiles](../../tools/artwork/deadwood/palette-profiles.json) record
-these ramps and exposure adjustments. Weathered and charred quantization now
-uses exposure factors of 0.56 and 0.55 to bring their bright pixels closer to
-TRE1/TRE2/SMIT. Frozen artwork is unchanged. TNT02 uses the neutral charred
-family to fit its dark lava and rock surroundings. The authoring palette is stored as
-quantization.pal; runtime patches contain indices, so later active PLAYPAL changes
-apply automatically. The global PLAYPAL itself is not modified.
-Every generated patch is decoded again to verify exact indices, transparent gaps
-and offsets. The compiler performs format conversion, palette matching and
-anchoring, not creative image generation. Generated sprite geometry is recorded in
-[generated.json](../../tools/artwork/deadwood/generated.json).
+The three selected ImageGen atlases and their exact [prompts](../../tools/artwork/deadwood/prompts.json)
+are versioned under `tools/artwork/deadwood/`. The approved low-resolution
+selection previews were transferred directly into [indexed native source PNGs](../../tools/artwork/deadwood/native/),
+without changing their pixel indices or transparent masks.
+[Layout metadata](../../tools/artwork/deadwood/atlas-layout.json) records source
+atlas bounds, selection identifiers, pixel hashes and explicit trunk anchors.
+The crooked middle tree is anchored at its lower trunk, not at the midpoint
+of its overhanging branches.
+
+[build_deadwood_sprites.py](../../tools/build_deadwood_sprites.py) losslessly
+compiles those 18 indexed grids into Doom patches and 24 TEXTURES views.
+The extra six views retain the original Icey actor visual scales.
+No build-time resampling, extra exposure reduction, dithering or high-resolution
+override is applied; this preserves the appearance approved in the selection
+boards. PNG index 255 is transparent, while opaque black remains visible.
+The compiler validates source palettes, heights, transparency and allowed
+[palette indices](../../tools/artwork/deadwood/palette-profiles.json), and decodes
+every output patch to verify exact indices, masks and offsets.
+
+The authoring palette in `quantization.pal` is the original Doom palette supplied
+with the user's sprite references. It documents the index meanings; the runtime
+patches contain only indices and use Remaster UTNT's active PLAYPAL. The global
+PLAYPAL remains unchanged. [Generated geometry](../../tools/artwork/deadwood/generated.json)
+records all runtime sizes and anchors.
 
 ```text
 python -B tools/build_deadwood_sprites.py
@@ -174,3 +179,24 @@ targeted OpenGL checks, not a full campaign playthrough.
 
 Local evidence: `tutnt/.codex/validation/deadwood-sprite-restore.json`; build logs
 and ingame screenshots: `tutnt/.codex/logs/deadwood-sprite-restore/`.
+
+## Selected Style C families (14 September 2026)
+
+Integrated the user's final choices: C weathered, K4 deeply charred and F2 gray
+winter wood with thicker snow and ice. All 18 native sprite masks and palette
+indices match the approved selection previews exactly; only horizontal root
+anchors were corrected. The 24 existing sprite identifiers and original
+world heights remain compatible with the existing mapper and saved actors.
+
+The rebuilt shared tutnt.pk3 passed its engine check and 56 runtime assertions
+across TNT01, TNT02 and TNT03A1, including save/load, legacy-save migration,
+dynamic spawns, original collision and actor scale. The DWLAB engine gallery
+was visually checked for all three families. This is targeted OpenGL validation,
+not a complete campaign playthrough.
+
+Package verification confirms the 18 approved pixel grids, all 24 sprite views,
+source-identical maps and mapper, unchanged active PLAYPAL and no deadwood voxel
+bindings or KVX files. Both sprite and definition stale-output checks pass.
+Local evidence: `tutnt/.codex/validation/deadwood-style-c-package.json` and
+`tutnt/.codex/validation/deadwood-style-c-runtime.json`.
+Ingame screenshots and engine logs: `tutnt/.codex/logs/deadwood-style-c/`.
