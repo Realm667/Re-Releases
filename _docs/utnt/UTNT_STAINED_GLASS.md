@@ -65,9 +65,11 @@ tutnt/.codex/logs/interms-stained-glass-packed.log.
 
 ## TNT04A intro portraits
 
-I_INTROA and I_INTROB are two dedicated opaque 460 x 778 portraits of the Source
-ritual chamber, replacing widescreen background resources in the reader's right
-column. A shows the towering chamber; B moves closer to the looming amber seal.
+I_INTROA and I_INTROB are two dedicated opaque 460 x 778 portraits, replacing
+widescreen background resources in the reader's right column. A adapts the user's
+TNT04CN screenshot: a floating basalt fortress beneath a fiery storm opening,
+with an amber beam, suspended rocks and a lava-edged platform. B is the unchanged
+former first portrait of the towering Source ritual chamber and amber seal.
 Both use I_06A as the stained-glass style reference. The original TNTE4 backgrounds
 are preserved. The shared reader fits the illustrations proportionally and draws
 the same bronze edges as the text plaque, with the shared 2:1 column split.
@@ -75,7 +77,9 @@ the same bronze edges as the text plaque, with the shared 2:1 column split.
 The built-in Imagegen tool authored both illustrations. Production export applies
 uniform bicubic downsampling and a small central crop to match 460:778 exactly;
 the sigil and architecture are never stretched. Local masters are retained under
-tutnt/.codex/work/intro-stained-glass/.
+tutnt/.codex/work/intro-stained-glass/ (chamber) and
+tutnt/.codex/work/intro-stained-glass-exterior/ (fortress). The user screenshot
+is retained under tutnt/.codex/references/intro-stained-glass/TNT04CN.png.
 [Intro prompts](../../tools/artwork/intro-stained-glass/prompts.json) and
 [manifest](../../tools/artwork/intro-stained-glass/manifest.json) record provenance.
 
@@ -85,3 +89,9 @@ Both portraits and the intermediate dissolve were visually reviewed. Resource
 dimensions, shared columns, reader save/load and host skip cleanup passed.
 Local evidence: tutnt/.codex/validation/intro-stained-glass/runtime.json and
 assets.json; screenshots: tutnt/.codex/logs/intro-glass-*.png.
+
+The exterior-first revision passed 38 UZDoom assertions with the German reader
+at 1280 x 720; both displayed positions were visually reviewed. SHA-256 confirms
+that position B is byte-identical to the former A. Evidence:
+tutnt/.codex/validation/intro-stained-glass-exterior/ and
+tutnt/.codex/logs/intro-glass-exterior-a.png / intro-glass-exterior-b.png.

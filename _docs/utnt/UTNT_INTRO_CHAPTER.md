@@ -3,8 +3,9 @@
 TNT04A now uses UTNTChapterState and UTNTChapterUI, the same saved reader as INTERMAP.
 The reader wraps both existing localized narration passages (UTNT_VOICE_038/039),
 uses the shared UI scale/cache, and displays dedicated I_INTROA/I_INTROB portraits.
-These opaque 460 x 778 stained-glass illustrations recompose the ritual chamber
-for the same 2:1 text/image columns and bronze frame used by the chapter reader.
+These opaque 460 x 778 stained-glass illustrations show the TNT04CN fortress
+exterior first, then the original first portrait of the ritual chamber,
+using the same 2:1 text/image columns and bronze frame used by the chapter reader.
 The image fits proportionally without runtime stretching or cropping. The original
 TNTE4_1 remains the cinematic background; the existing 170-tic image-change delay
 and 70-tic A/B dissolve remain unchanged. See [artwork](UTNT_STAINED_GLASS.md).
