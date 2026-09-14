@@ -1,4 +1,4 @@
-# UTNT reference brightmaps
+# UTNT brightmaps
 
 Implemented 13 September 2026. The following immutable release directories are
 the artwork reference (their local names use an underscore after `released`):
@@ -72,3 +72,95 @@ localization, fonts and engine loading passed. A dark-room comparison with
 imported masks enabled versus black test overrides confirmed emissive enemy
 details and surfaces while the CRT material remained unchanged. This verifies
 representative rendering, not every sprite angle in every campaign room.
+
+## Native-pixel additions (14 September 2026)
+
+The approved four-pixel Nami Dark Imp example is now extended to the reviewed
+custom enemies, missing compatible enemy phases, items and high/medium-priority
+map surfaces. The original sprite/texture art, actor states, existing BRIGHT
+flags, lights and imported masks are preserved. No image resampling is used.
+
+`gldefs/GLDEFS.brightmaps-custom` adds 510 bindings (496 sprite, five flat and
+nine texture bindings), backed by 478 new grayscale mask PNGs. Identical masks
+share files, including matching images in the existing banks. Sixteen reference
+bindings in the candidate families remain their sole owners; 332 examined
+frames/states have no additional emissive pixels.
+
+| Group | Selective details |
+| --- | --- |
+| NamiDarkImp | Yellow eyes in visible rotations and blue attack energy; A1 retains exactly the approved four mask pixels. |
+| Arachnophyte | Eyes, thrusters and attack cores; G–J death explosions include hot cores and progressively cooling rings. |
+| SoulHarvester / HarvesterGhost | Eyes and yellow attack fire; inherited sprites share the same masks. |
+| HellWarrior | Shield eye and yellow flame hand, including its cooling death phases. |
+| TorturedSoul / PlasmaElemental | Green eye, energy and applicable glowing mouth pixels. |
+| RailArachnotron / SourceGuardians | Eyes and visible charged details, without illuminating armor or machinery. |
+| Shadow / HellsFury / Devil | Eyes and applicable red magical energy; no glowing blood or dead bodies. |
+| TNTSpider / TNTMiniSpider | Restrained green markings and K/M fire bursts; separate MNTS gib frames remain dark. |
+| EnhancedCacodemon | Missing B–F eye/mouth/attack views; compatible A views retain the reference masks. |
+| RocketGuy / HellGuard | Rechecked: all five/eight muzzle-flash views already have reference masks. Ordinary clothing, armor and corpses do not need extra masks. |
+| SourceLifeSeed / PortalCoreHeart | Red seed interior and heart energy; sprite frames and the active heart voxel representation are covered. |
+
+High-priority surfaces: IKLITF01, IKLITF07, TLITE6_1, TLITE6_5, QRUNT62,
+QRUNT63 and TELETOP. The two rune textures reuse their exact existing ritual
+masks through native GLDEFS; the redundant material-shader bindings are removed. Medium-priority COMPBLUE/COMPRED use weaker emission than
+lamps. COMPBLUE's actual expanded XA40TEX/XB40TEX variants are included.
+SW2NEW1 lights only the skull eyes; SW2NEW3 covers its red and blue indicators.
+The corresponding SW1NEW1/SW1NEW3 off states stay unlit. CRT materials and
+existing ritual effects retain their owners. Decorations and the separately
+listed optional QCOMP/QTECH surfaces were outside the approved rollout.
+
+### Preserving the custom spider sprite sequence
+
+UZDoom's legacy Minotaur compatibility path renames MNTR F–K to U–Z when no
+Z resource exists. For this custom spider sequence that hid the authored K
+explosion and replaced its U view. A generated, fully transparent, unused
+1×1 `sprites/monsters/MNTRZ0.png` marker prevents that automatic rename.
+The original sprites, their offsets and actor state definitions remain intact;
+the K explosion and its brightmap can now use their intended names.
+
+### Portal heart voxel material
+
+UZDoom normally creates an anonymous 16×16 palette skin for native voxels, which
+cannot receive a named GLDEFS brightmap. `modeldef/MODELDEF.brightmaps-custom`
+therefore binds the **same four UVPHRT*.kvx files** to a named skin generated from
+the active PLAYPAL. Native scale, pivot, angle and uniform lighting are retained;
+no geometry is converted, duplicated or recolored. Only its red palette cells
+receive a mask. VOXELDEF remains available to the software renderer. Hardware
+rendering uses the explicit KVX model binding (controlled by model rendering,
+rather than the native voxel toggle); sprite brightmaps cover the sprite fallback.
+
+An isolated native-engine comparison found **zero changed screen pixels** between
+the previous voxel rendering and this binding with a black brightmap. Enabling
+the mask changed 132 pixels within the heart region in that fixed view.
+
+### Generation and checks
+
+- `python -B tools/build_custom_brightmaps.py` regenerates only these outputs.
+  Rules follow inspected source colors and bounded emissive regions. The recorded
+  palette, source and output hashes expose subsequent artwork changes.
+- `python -B tools/check_custom_brightmaps.py` reproduces outputs and checks
+  source dimensions, transparent borders, grayscale masks, include ownership,
+  reference/auto/material conflicts, off states, requested fire phases and the
+  exact approved Nami mask.
+- `python -B tools/check_brightmaps.py` independently verifies the untouched
+  four-release reference import.
+- `python -B tools/test_custom_brightmaps.py --mode on` and `--mode off` render
+  thirteen native-engine galleries of original sprite frames, explosions and
+  surfaces. Test-only actors freeze the images for deterministic comparisons;
+  their fixtures and black overrides never ship.
+
+The regular `tools/build_utnt.py` build regenerates the additions after voxel and
+material generation. Source-pixel contact sheets are local in
+`tutnt/.codex/work/brightmap-rollout/`; native screenshots and reports are in
+`.codex/validation/brightmap-rollout/`, and logs in `.codex/logs/brightmap-rollout/`.
+The sprite sheets review every candidate image, while native galleries validate
+representative rendering; they do not claim every angle in every campaign room.
+
+Final UZDoom 5.0.1 / Vulkan validation used shared build `0acf5ccce3a5`:
+all 13 galleries passed at 960×540, with 37 emissive sample regions responding
+to the masks and both off-switch controls remaining pixel-identical. Every
+expected test actor was present; compilation and runtime logs were clean.
+The final fixed-camera heart comparison again found zero pixel differences
+between native voxel rendering and the named material with a black mask;
+enabling its brightmap changed 100 pixels. All 482 generated package outputs
+match the manifest. The reference import and definition-table checks passed.
