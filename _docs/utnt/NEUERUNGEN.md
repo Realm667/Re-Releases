@@ -44,7 +44,7 @@
 
 - **Selective brightmaps:** compatible masks from the four TNT releases plus native-pixel enemy eyes, fire attacks and explosions, seed/heart details including the heart voxel, and selected lamps, runes, circuits and switch states; shared images preserve existing CRT materials and avoid duplicate bindings, with the custom spider explosion sequence restored. [Details](UTNT_BRIGHTMAPS.md)
 
-- **Deadwood decorations:** three tree and three stump voxel designs in weathered, charred and frozen families replace existing decorations throughout the campaign, including type-47 stumps, using native PLAYPAL colors, one-map-unit voxels, sprite-faithful fronts, consistent bark around all sides, organic stationary geometry and subdued brightness, with charred wood in TNT02, stable variation, preserved map placements and collision, save/load support and matching sky-room lighting. [Details](UTNT_DEADWOOD.md)
+- **Deadwood decorations:** three tree and three stump sprite designs in weathered, charred and frozen families replace existing decorations throughout the campaign, including type-47 stumps, using native PLAYPAL colors and subdued brightness, with charred wood in TNT02, stable variation, preserved map placements and collision, save/load support and matching sky-room lighting. [Details](UTNT_DEADWOOD.md)
 
 - **Light rays:** soft spatial downlights and directed grille rays preserve their original size, with gentle movement, light-dependent transparent dust, softened geometry boundaries, coordinated illumination and smooth detail transitions across existing map actors. [Details](UTNT_LIGHT_RAYS.md)
 

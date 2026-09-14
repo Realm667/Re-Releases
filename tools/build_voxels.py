@@ -145,14 +145,11 @@ def build(root=ROOT,source=None,iwad=None,check=False):
             name='UV'+sprite;target=dest/(name+'.kvx');output(target,data);_,mips=inspect_kvx(data)
             records.append({'sprite':sprite,'source':f.relative_to(root).as_posix(),'source_sha256':sha(raw),'file':target.relative_to(root).as_posix(),'sha256':sha(data),'geometry':kind,'source_size':[w,h],'solid_voxels':len(v),'mips':mips})
             defs.append(f'{sprite} = "{name}" {{ OverridePalette Spin = {spin} }}')
-    from build_deadwood_voxels import generate as generate_deadwood
-    deadwood_defs = generate_deadwood(root, output)
-    defs += deadwood_defs
     output(root/'tutnt/VOXELDEF.txt',('\n'.join(defs)+'\n').encode())
     manifest={'palette':'tutnt/PLAYPAL.pal','palette_mode':'native OverridePalette; imported source indices normalized to Doom order','slow_spin':20,'key_spin':70,'minigun_source':'75f81f1fc^:tutnt/sprites/MNGNA0.lmp','actors':actors,'models':records}
     output(art/'manifest.json',(json.dumps(manifest,indent=2)+'\n').encode())
     if check and changed:raise ValueError('Stale voxel outputs: '+', '.join(changed))
-    return {'actors':len(actors),'models':len(records),'deadwood_models':len(deadwood_defs),'changed':changed,'ok':True}
+    return {'actors':len(actors),'models':len(records),'changed':changed,'ok':True}
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);p.add_argument('--source',type=Path);p.add_argument('--iwad',type=Path);p.add_argument('--check',action='store_true');a=p.parse_args()
     if a.source and not a.iwad:p.error('--source requires --iwad')

@@ -2,9 +2,9 @@
 
 The approved weathered, charred and frozen families replace the appearance of
 existing BigTree, TorchTree, Stalagtite, IceyTree and IceyStub objects. Each family contains
-three trees and three stumps (18 original designs). Stationary voxel models follow
-the active PLAYPAL and match the original sprite pixel density at one map unit
-per voxel. Native Doom patches remain available as the sprite fallback.
+three trees and three stumps (18 original designs). Native low-resolution Doom
+patches use the active PLAYPAL through 24 sprite views, including the original
+frozen size variants.
 Original actors, map positions,
 angles, authored scale, collision dimensions, projectile pass heights, TIDs and
 script references remain intact. No campaign WAD is rewritten.
@@ -150,66 +150,27 @@ theme, unrelated subclasses, and restoration of saves seeded with old dry
 sprites and original SMIT stumps. Local evidence and before/after screenshots
 are under `tutnt/.codex/validation/deadwood-stub-fix/`.
 
-## Approved voxel integration (14 September 2026)
+## Sprite restoration (14 September 2026)
 
-The user selected the voxel alternative after reviewing the weathered, charred
-and frozen designs from the front, rear and both sides. All 18 designs now use
-24 native KVX bindings in VOXELDEF: DWDT/DWDS, DWCT/DWCS, DWFT/DWFS and DWIT/DWIS,
-each with frames A/B/C. The extra six bindings retain the original frozen size
-variants. Spin is zero and OverridePalette references the active UTNT PLAYPAL.
-The existing actor mapper and its save migration remain unchanged; already
-converted actors in saves acquire the voxel representation through their sprite
-binding. Map-authored actor scale is preserved, and no campaign map is edited.
+After evaluating the voxel conversion in the campaign, the user selected the
+existing sprite artwork again. All 24 deadwood VOXELDEF bindings and KVX files
+are removed, together with the dedicated voxel authoring grids and build tools.
+The standard package build no longer generates deadwood models. The discarded
+voxel experiment remains available in Git history through commit d36406314.
 
-The current artwork follows the later approved sprite-faithful reference pass.
-[author_deadwood_voxels.py](../../tools/author_deadwood_voxels.py) combines native
-sprite silhouettes with individually authored branch-depth guides, continuous
-rounded trunk cross-sections, connected roots and carved stump wells. Native
-bark detail continues around the sides at the original pixel pitch; source-edge
-colors are not stretched across broad side strips. Frozen models restrict snow
-colors to their original front pixels and supported, exposed upper surfaces.
+The existing 18 low-resolution indexed patches and 24 TEXTURES views are now
+the active representation. Their palette indices, root anchors and visual sizes
+are retained. The mapper, theme selection, collision and save migration continue
+unchanged; converted actors in existing saves render as sprites automatically.
+Other pickups and decorations retain their voxel models.
 
-The full indexed grids and per-design plans are versioned as
-[voxel artwork sources](DEADWOOD_VOXEL_ARTWORK.md).
-The accepted weathered B tree and hollow B stump remain byte-identical to the
-approved side-refined reference KVX exports. Package builds use these artwork
-grids through [deadwood_voxel_geometry.py](../../tools/deadwood_voxel_geometry.py),
-without the optional sculpting dependencies. Source/grid hashes reject stale
-or unrecorded artwork changes.
+The rebuilt shared package passed the engine check and all 74 runtime assertions
+in TNT01, TNT02, TNT03A1 and TNT04C, including save/load and legacy migration.
+An engine gallery confirms all 18 sprite designs. Package verification finds
+all 24 sprite views, no deadwood voxel bindings or model files, and byte-identical
+remaining voxel models, native patches, maps, mapper and PLAYPAL. The sprite,
+voxel and definition generators pass their stale-output checks. These are
+targeted OpenGL checks, not a full campaign playthrough.
 
-[build_deadwood_voxels.py](../../tools/build_deadwood_voxels.py) validates the
-actual exported KVX front independently. All 18 native designs preserve every
-opaque source pixel and its palette index in a fixed, unlit orthographic front
-projection. The six additional frozen size views use cell-center resampling,
-including transparency and front-surface colors, to retain the existing
-124/127/40/33-unit heights. Their target-grid fronts are also checked exactly.
-All runtime grids use one-map-unit cells, Spin=0 and the active PLAYPAL.
-Perspective and map lighting can differ from the flat sprite; unseen anatomy
-is an authored interpretation, not information recoverable from a single view.
-
-The builder runs through build_voxels.py and the standard package build;
---check rejects stale KVX, bindings or the
-[voxel manifest](../../tools/artwork/deadwood/voxel-manifest.json).
-The experimental textured polygon models remain local and are not shipped.
-
-```text
-python -B tools/build_voxels.py --check
-python -B tools/test_deadwood.py --maps TNT01 TNT02 TNT03A1 TNT04C --restore --renderer 0
-```
-
-The full sprite-faithful set passed the engine compile check and 74 runtime
-assertions across TNT01, TNT02, TNT03A1 and TNT04C, including save/load, dynamic
-spawning, legacy save migration, exact-class filtering, original scale/collision/
-TIDs and sky-room lighting. Eight gallery groups add 32 assertions and 64 engine
-screenshots covering all 24 bindings from eight directions. The first TNT02
-attempt timed out after its assertions; an identical targeted retry completed
-successfully. These are targeted OpenGL tests, not a full campaign playthrough.
-
-All 24 decoded KVX fronts match their native or resampled reference grids with
-zero missing pixels, extra pixels or wrong palette indices. Packaged models
-match the current source exports; the two accepted reference exports remain
-byte-identical. Generator and definition-table checks pass without stale output.
-Local evidence: `tutnt/.codex/validation/deadwood-all-faithful.json`,
-`tutnt/.codex/validation/deadwood-all-artwork.json` and
-`tutnt/.codex/logs/deadwood-all-faithful/build.log`. Screenshots and reproducible
-local gallery tooling are under `tutnt/.codex/work/deadwood-all-faithful/`.
+Local evidence: `tutnt/.codex/validation/deadwood-sprite-restore.json`; build logs
+and ingame screenshots: `tutnt/.codex/logs/deadwood-sprite-restore/`.
