@@ -33,6 +33,26 @@ def generate(root=ROOT, check=False):
     assert len(caps)==7, 'Review platform control-sector changes'
     outputs['tutnt/cavern/platforms.txt']='\n'.join(caps)+'\n'
 
+    # Join adjoining lava sectors before measuring shoreline clearance. Internal
+    # sector splits must not punch holes in the atmospheric layer.
+    from build_local_heat import distance_edge
+    lava={int(r.split('|')[0]) for r in rows if tex(b['sector'][int(r.split('|')[0])],'texturefloor')=='QLAVA'}
+    edges={}
+    for si in sorted(lava):
+        for a,c,li,side in geo[si]:edges.setdefault(li,[]).append((a,c))
+    shore=[v[0] for v in edges.values() if len(v)==1]
+    haze=[]
+    for y in range(-6740,-3200,224):
+        for x in range(3810,7900,224):
+            si=next((i for i in sorted(lava) if inside((x,y),geo[i])),None)
+            if si is None:continue
+            clearance=min(distance_edge((x,y),a,c) for a,c in shore)
+            if clearance<56:continue
+            floor=float(b['sector'][si]['heightfloor'])
+            assert floor==-1500, 'Review lava atmosphere elevation'
+            haze.append(f'{x}|{y}|{floor+2:g}|{min(320,clearance-8):.3f}|{si}')
+    outputs['tutnt/cavern/haze.txt']='\n'.join(haze)+'\n'
+
     def add(name, verts, faces, origin, skin, kind):
         # World-space input -> Y-up OBJ. 1.2 model Z compensates Doom's aspect.
         out=['# Cosmetic cavern mesh; no collision.','s off']
@@ -115,7 +135,7 @@ def generate(root=ROOT, check=False):
             if not path.exists() or path.read_text()!=data: raise RuntimeError('Stale cavern output: '+rel)
         else:
             path.parent.mkdir(parents=True,exist_ok=True);path.write_text(data,encoding='utf-8')
-    print(json.dumps({'sectors':len(rows),'models':len(placements),'check':check}))
+    print(json.dumps({'sectors':len(rows),'models':len(placements),'haze':len(haze),'check':check}))
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');a=p.parse_args();generate(check=a.check)

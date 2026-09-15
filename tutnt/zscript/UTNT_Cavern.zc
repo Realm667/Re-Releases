@@ -42,12 +42,58 @@ class UTNTCavernCloud : Actor
     }
 }
 
+// VisualThinkers use the renderer's smooth-alpha path even with opaque carriers.
+class UTNTCavernHaze : VisualThinker
+{
+    void Initialize(Vector3 origin, double radius)
+    {
+        Pos=origin;Prev=Pos;Texture=TexMan.CheckForTexture('UCHZA0');
+        Flags=SPF_FULLBRIGHT|SPF_ALLOWSHADERS|SPF_STRETCHPIXELS|SPF_NO_XY_BILLBOARD;
+        SetRenderStyle(STYLE_Add);scolor=0xffffffff;Alpha=0;
+        Scale=(radius*2/64.,320./128.);UpdateSector();UpdateSpriteInfo();
+    }
+    override void Tick() {}
+}
+
+class UTNTCavernMist : VisualThinker
+{
+    int Age, Life;
+    double Strength, Phase, Base;
+    bool OverLava;
+    void Initialize(Vector3 origin, bool lava, int salt)
+    {
+        Pos=origin;Prev=Pos;Texture=TexMan.CheckForTexture('UCVSA0');
+        Flags=SPF_FULLBRIGHT|SPF_ALLOWSHADERS|SPF_STRETCHPIXELS|SPF_NO_XY_BILLBOARD;
+        SetRenderStyle(STYLE_Translucent);scolor=0xffffffff;Alpha=0;
+        OverLava=lava;Life=lava?240:300;Phase=(salt*137)%360;
+        Strength=lava?.23:.14;Scale=lava?(4.,1.25):(6.,2.2);
+        UpdateSector();UpdateSpriteInfo();
+    }
+    override void Tick()
+    {
+        if(IsFrozen())return;
+        if(++Age>=Life){Destroy();return;}
+        double t=Age/double(Life);Alpha=Strength*sin(t*180)*sin(t*180);
+        Vector3 p=Pos+(sin(Phase+Age*.3)*.22,cos(Phase+Age*.4)*.16,OverLava?.6:-.08);
+        let s=level.PointInSector(p.XY);
+        if(!s || p.Z<s.floorplane.ZatPoint(p.XY)+16 || p.Z>s.ceilingplane.ZatPoint(p.XY)-48){Destroy();return;}
+        for(int i=0;i<s.Get3DFloorCount();i++)
+        {
+            let f=s.Get3DFloor(i);
+            if((f.flags&F3DFloor.FF_EXISTS) && (f.flags&F3DFloor.FF_SOLID)
+                && p.Z>=f.bottom.ZatPoint(p.XY) && p.Z<=f.top.ZatPoint(p.XY)){Destroy();return;}
+        }
+        Prev=Pos;Pos=p;UpdateSector();
+    }
+}
+
 class UTNTCavernController : Thinker
 {
     bool Ready;
     int Emissions;
     Array<UTNTCavernScenery> Scenery;
     Array<UTNTCavernLight> Lamps;
+    Array<UTNTCavernHaze> Haze;
     void Install()
     {
         Ready=true;
@@ -69,6 +115,24 @@ class UTNTCavernController : Thinker
             l.A_AttachLight('cavern',DynamicLight.PointLight,0xff7628,320,0,DynamicLight.LF_ATTENUATE);
             Lamps.Push(l);
         }
+        lump=Wads.CheckNumForFullName("cavern/haze.txt");if(lump<0)return;
+        rows.Clear();Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
+        for(int i=0;i<rows.Size();i++)
+        {
+            Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=5)continue;
+            Vector3 p=(r[0].ToDouble(),r[1].ToDouble(),r[2].ToDouble());
+            let sec=level.PointInSector(p.XY);
+            if(!sec || sec.Index()!=r[4].ToInt() || abs(sec.floorplane.ZatPoint(p.XY)-(p.Z-2))>.1)continue;
+            let h=UTNTCavernHaze(level.SpawnClientSideVisualThinker('UTNTCavernHaze'));if(!h)continue;
+            h.Initialize(p,r[3].ToDouble());Haze.Push(h);
+        }
+    }
+    void Mist(UTNTCavernHaze h, bool lava, int salt)
+    {
+        Vector3 p=h.Pos+(0,0,lava?80:850+(salt%3)*180);
+        let s=level.PointInSector(p.XY);if(!s || p.Z>s.ceilingplane.ZatPoint(p.XY)-160)return;
+        let a=UTNTCavernMist(level.SpawnClientSideVisualThinker('UTNTCavernMist'));if(!a)return;
+        a.Initialize(p,lava,salt);a.Base=h.Pos.Z;
     }
     void Cloud(Vector3 source, bool falling, int salt)
     {
@@ -81,13 +145,33 @@ class UTNTCavernController : Thinker
     override void Tick()
     {
         if(!Ready)Install();
-        if(level.isFrozen() || level.time%10!=0)return;
         let runtime=UTNTFXRuntime.Get();let camera=runtime.Camera;
+        if(level.time%4==0)for(int i=0;i<Haze.Size();i++)
+        {
+            let h=Haze[i];if(!h)continue;
+            double distance=camera?(camera.Pos-h.Pos).Length():1e9;
+            double target=runtime.Quality>0?.34*clamp((3200-distance)/650.,0.,1.):0;
+            h.Alpha+=(target-h.Alpha)*.25;
+        }
+        if(level.isFrozen() || level.time%10!=0)return;
         if(!camera || runtime.Quality<=0)return;
         Emissions++;
         if((camera.Pos-(5400,-4040,-1250)).Length()<2600)Cloud((5400,-4040,-1370),false,0);
         if(Emissions%3==0 && (camera.Pos-(5160,-3790,250)).Length()<1800)Cloud((5160,-3790,300),true,1);
         if(Emissions%4==0 && (camera.Pos-(4590,-6340,230)).Length()<1800)Cloud((4590,-6340,240),true,2);
+        if(Emissions%3==0 && Haze.Size()>0)
+        {
+            // Fixed scan/step avoids touching gameplay RNG and bounds emission.
+            int start=(Emissions*17)%Haze.Size(),made=0;
+            UTNTCavernHaze nearDust;
+            for(int j=0;j<Haze.Size() && made<2;j++)
+            {
+                let h=Haze[(start+j)%Haze.Size()];if(!h || (h.Pos-camera.Pos).Length()>2200)continue;
+                if(!nearDust)nearDust=h;
+                Mist(h,true,Emissions+j);made++;
+            }
+            if(runtime.Quality>=2 && nearDust)Mist(nearDust,false,Emissions);
+        }
     }
 }
 
@@ -153,6 +237,8 @@ class UTNTCavern : EventHandler
             Thinker a;while(a=it.Next())a.Destroy();
             it=ThinkerIterator.Create('UTNTCavernLight',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
             it=ThinkerIterator.Create('UTNTCavernCloud',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
+            it=ThinkerIterator.Create('UTNTCavernHaze',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
+            it=ThinkerIterator.Create('UTNTCavernMist',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
             it=ThinkerIterator.Create('UTNTCavernController',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
         }
         ApplyLighting();

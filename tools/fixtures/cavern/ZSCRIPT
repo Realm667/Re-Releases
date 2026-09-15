@@ -18,6 +18,8 @@ class UTNTCavernTest : EventHandler
             if(e.Args[0]==3){Camera.SetOrigin((4500,-6200,-1050),false);Camera.Angle=20;Camera.Pitch=-28;}
             if(e.Args[0]==4){Camera.SetOrigin((5290,-4320,-620),false);Camera.Angle=55;Camera.Pitch=0;}
             if(e.Args[0]==5){Camera.SetOrigin((4641,-3462,-359),false);Camera.Angle=300;Camera.Pitch=8;}
+            if(e.Args[0]==6){Camera.SetOrigin((4800,-4200,-1230),false);Camera.Angle=300;Camera.Pitch=-8;}
+            if(e.Args[0]==7){Camera.SetOrigin((4800,-4300,-1050),false);Camera.Angle=70;Camera.Pitch=20;}
             players[consoleplayer].camera=Camera;
         }
         if(e.Name!="cavecheck" && e.Name!="cavequiet")return;
@@ -26,10 +28,17 @@ class UTNTCavernTest : EventHandler
         while(a=Actor(it.Next())){models++;cosmetic=cosmetic && !a.bSolid && a.bNoInteraction && a.bNoBlockmap;}
         it=ThinkerIterator.Create('UTNTCavernLight',Thinker.MAX_STATNUM+1,true);while(it.Next())lights++;
         it=ThinkerIterator.Create('UTNTCavernCloud',Thinker.MAX_STATNUM+1,true);while(it.Next())clouds++;
+        int haze=0,mist=0;bool height=true,quiet=true,bounded=true;
+        it=ThinkerIterator.Create('UTNTCavernHaze',Thinker.MAX_STATNUM+1,true);UTNTCavernHaze v;
+        while(v=UTNTCavernHaze(it.Next())){haze++;height=height && abs(v.Scale.Y*128-320)<.01 && (v.Flags&SPF_NO_XY_BILLBOARD)!=0;quiet=quiet && v.Alpha<.001;}
+        it=ThinkerIterator.Create('UTNTCavernMist',Thinker.MAX_STATNUM+1,true);UTNTCavernMist m;
+        while(m=UTNTCavernMist(it.Next())){mist++;bounded=bounded && (!m.OverLava || m.Pos.Z+80-m.Base<=384);}
         if(e.Name=="cavequiet")
         {
-            Console.Printf("UTNT_ASSERT %s disabled quality clears clouds",clouds==0?"PASS":"FAIL");return;
+            Console.Printf("UTNT_ASSERT %s disabled quality clears clouds and haze",clouds==0 && mist==0 && quiet?"PASS":"FAIL");return;
         }
+        Console.Printf("UTNT_ASSERT %s shoreline haze reaches 320 units (%d)",haze==119 && height?"PASS":"FAIL",haze);
+        Console.Printf("UTNT_ASSERT %s smoke budget and lava height (%d)",mist<=32 && bounded?"PASS":"FAIL",mist);
         let h=UTNTCavern(EventHandler.Find('UTNTCavern'));let s=level.Sectors[895];
         Console.Printf("UTNT_ASSERT %s eight decorative models and three lights (%d/%d)",models==8 && lights==3?"PASS":"FAIL",models,lights);
         Console.Printf("UTNT_ASSERT %s decoration has no collision",cosmetic?"PASS":"FAIL");
