@@ -63,7 +63,7 @@ class UTNTPortalMaterials : EventHandler
     {
         if(HasDecoration(start,direction,width,bottom,top)) return;
         Vector2 axis=(direction.Y,-direction.X);
-        Vector2 center=start+direction*width*0.5+axis*8;
+        Vector2 center=start+direction*width*0.5+axis*1;
         let existing=ThinkerIterator.Create('UTNTPortalAutoSource',Thinker.MAX_STATNUM+1,true);
         UTNTPortalAutoSource old;
         while(old=UTNTPortalAutoSource(existing.Next()))
@@ -351,6 +351,12 @@ class UTNTPortalMote : UTNTRuneMote
         Start.Z+=emitter.Noise(-emitter.Height*0.48,emitter.Height*0.48);
         Bend=emitter.SideAxis*emitter.Noise(-emitter.Width*0.2,emitter.Width*0.2)
             +(0,0,emitter.Noise(-emitter.Height*0.12,emitter.Height*0.12));
+        // An intake must remain connected to its portal through open space.
+        // Thin portal recesses must not emit beyond their solid rear wall.
+        let trace=new('LineTracer');
+        Vector3 ray=Start-Target;
+        if(trace.Trace(Target,level.PointInSector(Target.XY),ray.Unit(),ray.Length(),0,
+            wallMask:0,ignoreAllActors:true)) { Destroy();return; }
         Diameter=wisp ? emitter.Noise(17,23) : emitter.Noise(10,16);
         Strength=emitter.Noise(0.85,1.0);
         Texture=TexMan.CheckForTexture(String.Format("UTR%cA0",65+int(emitter.Noise(0,4))));

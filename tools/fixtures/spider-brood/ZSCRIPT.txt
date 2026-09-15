@@ -1,0 +1,41 @@
+version "5.0.0"
+class SpiderBroodCheck : EventHandler
+{
+ Actor Last, Early, Late;
+ void Check(bool ok,string text){Console.Printf("UTNT_ASSERT %s %s",ok?"PASS":"FAIL",text);}
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  let p=players[0].mo;
+  if(e.Name=="broodstart")
+  {
+   Array<Actor> big;let it=ThinkerIterator.Create('TNTSpider');Actor a;
+   while(a=Actor(it.Next()))if(a.Health>0)big.Push(a);
+   if(!(level.MapName~=="TNT03B"))for(int i=0;i<2;i++)big.Push(Actor.Spawn('TNTSpider',p.Pos+(150+i*80,0,0),NO_REPLACE));
+   Check(big.Size()>=2,"multiple live mothers include dormant map placements");
+   Early=Actor.Spawn('TNTMiniSpider',p.Pos+(100,0,0),NO_REPLACE);Early.bDormant=true;
+   Last=big[big.Size()-1];
+   for(int i=0;i<big.Size()-1;i++)big[i].DamageMobj(null,p,1000000,'None',DMG_FORCED);
+  }
+  if(e.Name=="broodlast")
+  {
+   Check(Last && Last.Health>0,"last mother remains alive");
+   Check(Early && Early.Health>0,"small spider survives earlier mother deaths");
+   Last.DamageMobj(null,p,1000000,'None',DMG_FORCED);
+  }
+  if(e.Name=="brooddead")
+  {
+   let h=UTNTSpiderBrood(EventHandler.Find('UTNTSpiderBrood'));Check(h.Defeated==(level.MapName~=="TNT03B"),"brood completion persists across save/load and remains map scoped");
+   bool dead=true;int n=0;let it=ThinkerIterator.Create('TNTMiniSpider');Actor a;
+   while(a=Actor(it.Next())){n++;if(a.Health>0)dead=false;}
+   Check(level.MapName~=="TNT03B" ? dead && n>0 : !dead,"cleanup is scoped to TNT03B and includes dormant mini spiders");
+   Late=Actor.Spawn('TNTMiniSpider',p.Pos+(100,40,0),NO_REPLACE);
+   let egg=Actor.Spawn('TNTSpiderSpawner',p.Pos+(100,60,20),NO_REPLACE);egg.SetStateLabel('Death');
+  }
+  if(e.Name=="broodlate")
+  {
+   Check(Late && (level.MapName~=="TNT03B" ? Late.Health<=0 : Late.Health>0),"late hatchlings respect saved brood completion");
+   bool dead=true;let it=ThinkerIterator.Create('TNTMiniSpider');Actor a;while(a=Actor(it.Next()))if(a.Health>0)dead=false;
+   if(level.MapName~=="TNT03B")Check(dead,"death-burst eggs leave no living mini spiders");
+  }
+ }
+}

@@ -94,7 +94,7 @@ class UTNTIndustrialFX play
         for(int i=0;i<count;i++)
         {
             Vector3 velocity=normal*CFRandom[utntindustrial](2.5,5)+(CFRandom[utntindustrial](-2.4,2.4),CFRandom[utntindustrial](-2.4,2.4),CFRandom[utntindustrial](-0.6,2.0));
-            let v=Make(start,0,CFRandom[utntindustrial](0.65,1.1),CFRandom[utntindustrial](2.6,5.5),CRandom[utntindustrial](8,14),0xffce70,velocity);
+            let v=Make(start,0,CFRandom[utntindustrial](0.65,1.1),CFRandom[utntindustrial](2.6,5.5),int(CRandom[utntindustrial](8,14)*1.5+0.5),0xffce70,velocity);
             if(v) v.Gravity=0.16;
         }
         for(int i=0;i<(Quality()==1 ? 1 : 2);i++)
@@ -258,7 +258,7 @@ class UTNTIndustrialBurst : Thinker
             double a=Source.Angle+(Direction==1 ? CFRandom[utntindustrial](-22,22) : CFRandom[utntindustrial](0,360));
             double speed=CFRandom[utntindustrial](2,5);
             double z=Direction==0 ? CFRandom[utntindustrial](-2,-0.5) : Direction==2 ? CFRandom[utntindustrial](2,4) : CFRandom[utntindustrial](-0.3,1);
-            let v=UTNTIndustrialFX.Make(Source.Pos,0,CFRandom[utntindustrial](0.6,1.0),CFRandom[utntindustrial](2,5),CRandom[utntindustrial](10,21),UTNTIndustrialFX.SparkColor(ColorIndex),(cos(a)*speed,sin(a)*speed,z),false);
+            let v=UTNTIndustrialFX.Make(Source.Pos,0,CFRandom[utntindustrial](0.6,1.0),CFRandom[utntindustrial](2,5),int(CRandom[utntindustrial](10,21)*1.75+0.5),UTNTIndustrialFX.SparkColor(ColorIndex),(cos(a)*speed,sin(a)*speed,z),false);
             if(v) v.Gravity=0.16;
         }
     }

@@ -18,6 +18,7 @@ class UTNTEnvironment : EventHandler
  Array<UTNTEnvironmentSurface> Surfaces;
  Map<String,String> SurfaceNames;
  Array<int> NearSurfaces;
+ Array<double> ReflectionPlanes;
  Array<UTNTMechanismWatch> Mechanisms;
  Array<UTNTMechanismQuakeGroup> QuakeGroups;
  Array<UTNTFootState> Feet;
@@ -67,7 +68,47 @@ class UTNTEnvironment : EventHandler
   for(int i=0;i<QuakeGroups.Size();i++)QuakeGroups[i].Update();
   // Surface maintenance shares the bounded probe queue.
   UpdateSurfaces();
-  if(level.time%7==0)for(int i=0;i<Surfaces.Size();i++){bool before=Surfaces[i].Reflecting;Surfaces[i].UpdateReflection();if(before!=Surfaces[i].Reflecting)SurfaceRevision++;}
+  if(level.time%7==0)UpdateReflections();
+ }
+ // Every different floor height creates another full reflected scene, even
+ // with a tiny alpha. Wet staircases must not multiply the storm draw count.
+ void UpdateReflections()
+ {
+  Array<double> chosen;
+  if(Option('UTNT_wetsurfaces') && Quality()>0 && CVar.GetCVar('gl_plane_reflection').GetBool())
+  {
+   for(int slot=0;slot<2;slot++)
+   {
+    double best=1e20,bestZ=0;bool found=false;
+    for(int i=0;i<Surfaces.Size();i++)
+    {
+     let s=Surfaces[i];if(!s.CanReflect || s.Detached || !s.IsWet())continue;
+     double z=level.sectors[s.Index].floorplane.ZatPoint(s.Origin.XY);
+     if(chosen.Find(z)<chosen.Size())continue;
+     for(int p=0;p<MAXPLAYERS;p++)
+     {
+      if(!playeringame[p] || !players[p].camera)continue;
+      Vector3 view=players[p].camera.Pos;
+      if(view.Z+players[p].viewheight<=z)continue;
+      Vector2 nearest=(clamp(view.X,s.Origin.X,s.Origin.X+s.Width),clamp(view.Y,s.Origin.Y,s.Origin.Y+s.Height));
+      double distance=(nearest-view.XY).Length();
+      if(distance>1024 || abs(view.Z-z)>512)continue;
+      double score=distance+abs(view.Z-z)*2;
+      // Hold an existing plane across small camera movements.
+      if(ReflectionPlanes.Find(z)<ReflectionPlanes.Size())score-=64;
+      if(score<best){best=score;bestZ=z;found=true;}
+     }
+    }
+    if(!found)break;chosen.Push(bestZ);
+   }
+  }
+  ReflectionPlanes=chosen;
+  for(int i=0;i<Surfaces.Size();i++)
+  {
+   let s=Surfaces[i];bool before=s.Reflecting;
+   bool selected=s.Kind==0 && chosen.Find(level.sectors[s.Index].floorplane.ZatPoint(s.Origin.XY))<chosen.Size();
+   s.UpdateReflection(selected);if(before!=s.Reflecting)SurfaceRevision++;
+  }
  }
  void Initialize()
  {
@@ -593,7 +634,8 @@ class UTNTEnvironmentSurface : Object play
   }
   let s=level.Sectors[Index];if(!(TexMan.GetName(s.GetTexture(Part))~==Alias)){s.terrainnum[Part]=PreviousTerrain;Detached=true;}
  }
- void UpdateReflection()
+ bool IsWet() { for(int i=0;i<Wet.Size();i++)if(Wet[i]>.02)return true;return false; }
+ void UpdateReflection(bool selected)
  {
   if(!CanReflect)return;
   Maintain();let sec=level.Sectors[Index];
@@ -606,7 +648,7 @@ class UTNTEnvironmentSurface : Object play
    CanReflect=false;Reflecting=false;return;
   }
   bool active=false;
-  if(!Detached && UTNTEnvironment.Option('UTNT_wetsurfaces') && UTNTEnvironment.Quality()>0 && CVar.GetCVar('gl_plane_reflection').GetBool())
+  if(selected && !Detached && UTNTEnvironment.Option('UTNT_wetsurfaces') && UTNTEnvironment.Quality()>0 && CVar.GetCVar('gl_plane_reflection').GetBool())
    for(int i=0;i<Wet.Size();i++)if(Wet[i]>.02){active=true;break;}
   if(Reflecting!=active){sec.SetPlaneReflectivity(Part,active?1.0/255:0);sec.SetAlpha(Part,active?254.0/255:1);Reflecting=active;}
  }

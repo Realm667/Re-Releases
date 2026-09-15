@@ -1,0 +1,38 @@
+version "5.0.0"
+class PulseKeyCheck : EventHandler
+{
+ static const string NativeNames[]={"RedCard","BlueCard","YellowCard","RedSkull","BlueSkull","YellowSkull"};
+ void Assert(bool ok,string msg) { Console.Printf("UTNT_ASSERT %s %s",ok?"PASS":"FAIL",msg); }
+ void ClearKeys(Actor p) { for(int i=0;i<6;i++){let k=p.FindInventory(NativeNames[i]);if(k)k.Destroy();let old=p.FindInventory("UTNTPulse"..NativeNames[i]);if(old)old.Destroy();} }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  let p=players[0].mo;
+  if(e.Name=="keycheck")
+  {
+   for(int i=0;i<6;i++)
+   {
+    ClearKeys(p);
+    Assert(!p.CheckKeys(i+1,false,true),NativeNames[i].." locked before pickup");
+    let k=Inventory(Actor.Spawn(NativeNames[i],p.Pos,ALLOW_REPLACE));
+    Assert(k.GetClassName()==name("UTNTPulse"..NativeNames[i]),NativeNames[i].." world pulse replacement");
+    k.Touch(p);
+    Assert(p.FindInventory(NativeNames[i])!=null,NativeNames[i].." canonical inventory/HUD");
+    Assert(p.FindInventory("UTNTPulse"..NativeNames[i])==null,NativeNames[i].." no replacement in inventory");
+    Assert(p.CheckKeys(i+1,false,true),NativeNames[i].." native lock opens");
+    let duplicate=Inventory(Actor.Spawn(NativeNames[i],p.Pos,ALLOW_REPLACE));duplicate.Touch(p);
+    int count=0;for(let inv=p.Inv;inv;inv=inv.Inv)if(inv.GetClassName()==name(NativeNames[i]))count++;
+    Assert(count==1,NativeNames[i].." duplicate pickup does not duplicate inventory");
+   }
+  }
+  if(e.Name=="keylegacy")
+  {
+   ClearKeys(p);for(int i=0;i<6;i++){let old=Inventory(Actor.Spawn("UTNTPulse"..NativeNames[i],p.Pos,NO_REPLACE));old.AttachToOwner(p);}
+  }
+  if(e.Name=="keyrestored")for(int i=0;i<6;i++)
+  {
+   Assert(p.FindInventory(NativeNames[i])!=null,NativeNames[i].." old save repaired");
+   Assert(p.FindInventory("UTNTPulse"..NativeNames[i])==null,NativeNames[i].." old class removed");
+   Assert(p.CheckKeys(i+1,false,true),NativeNames[i].." old save lock opens");
+  }
+ }
+}

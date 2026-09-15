@@ -3551,6 +3551,31 @@ Actor PBShockwaveSmokeSmaller : PBShockwaveSmoke
 
 	Scale 0.3
 }
+// Bruiser-only opacity: preserve smoke timing, drag and all shared callers.
+Actor UTNTBruiserBurstSmoke : TT1
+{
+ Alpha 0.171
+ States
+ {
+ Behavior:
+  "####" "#" 3 A_FadeOut(0.0069)
+  "####" "#" 0 A_ScaleVelocity(0.95)
+  Loop
+ }
+}
+
+Actor UTNTBruiserSmoke : PBShockwaveSmokeSmaller
+{
+    Alpha 0.171
+    States
+    {
+    End:
+        X037 "#" 3 A_FadeOut(0.012)
+        X037 "#" 0 A_ScaleVelocity(0.75)
+        Loop
+    }
+}
+Actor UTNTBruiserImpactSmoke : UTNTBruiserSmoke { Scale 0.5 }
 // Same smoke lifetime and shape at 30% of the original opacity.
 Actor UTNTImpSmoke : TT3
 {

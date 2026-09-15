@@ -14,6 +14,7 @@ Updated 15 September 2026. This continues [the original feedback checklist](UTNT
 | Poison cloud appearance | Selected design 3 implemented | Eight transparent spore-cloud frames from the approved mockup direction; retained source artwork and reproducible extraction. |
 | TNT01 stained glass | Implemented; scene checked | NEUESDI uses a selective 60% brightmap on warm glass, leaving dark leading/frame unlit. |
 | TNT01 missing teleporter runes | Implemented | Reactivated the two dormant authored rune spawners (TIDs 151/152); both pads visually checked. |
+| TNT02 northern teleporter runes | Implemented; runtime and scene checked | Enabled existing dormant TeleportSparkle_R, TID 1003, at (5472, 6240), near the reported view (5494, 6101, 248); no extra emitter or gameplay changes. |
 | TNT01 broken-computer sparks | Implemented; repeated activation checked | Existing script 667 now runs at map opening, intermittently activating the authored emitters 61–63. |
 | TNT01 machine destruction | Implemented; scene checked | Timed distortion, amber flashes, sparks and explosions with bounded lifetimes; native machine destruction/unlocking remains on its original schedule. |
 | Unequal message padding | Implemented; scene checked | Subtitle background measures visible capital rows, matching top and bottom padding. |
@@ -81,6 +82,69 @@ Local evidence uses tester-effects-, tester-weather-ab-, tester-sign- and tester
 - UDB Esprima exception and actual editor load time: source scanning/duplicate includes addressed, current exception not reproduced in the isolated parser.
 - TNT02 reported severe nine-minute lag: measured peak-weather cost reduced; the exact severity/trigger on the tester's session is not fully reproduced.
 
-## Integration package
+## Previous batch integration package
 
 Shared snapshot `72f61ed5b73f` passes the engine check and all 122 effect assertions and contains the current map scripts and reactor/seal sources. Size: 372,699,675 bytes. Existing unrelated TNT02 placement edits remain in the integration package but are excluded from this task commit. The work-layout audit reports eleven existing editor settings/autosave/backup files; none was created or moved by this batch.
+
+## Follow-up corrections (15 September 2026)
+
+| Request | Implementation / evidence |
+| --- | --- |
+| BlueCard and other keys | All six pulsing cards/skulls store canonical native inventory classes; old saved pulse-key inventory converts silently on its next tick. 54 runtime assertions cover real pickups, native lock checks, duplicate pickups and migration. |
+| HellWarrior | Red blood and a synchronized random defensive hold of 30–46 tics instead of fixed 42, the whole-tic interval within 70–110 percent. All 32 measured activations stay in range and retain shield protection. |
+| Bruiser smoke | Dedicated flight/impact/explosion subclasses use 30 percent opacity with proportional fade rates, preserving lifetime and other enemies' shared smoke. Combined combat fixture: 101 assertions. |
+| Sparks | Ricochet lifetime 150 percent; generator lifetime 175 percent, rounded to tics. Emission counts, collision retirement and budgets remain unchanged. |
+| Snow seam | Expanded SNOW3 tile/band enable existing matched diffuse, height and normal edge blending. |
+| Snow veils | Ground/air mist uses 45 percent alpha and cubic 35-tic fades. Flakes and rain veils are unchanged. |
+| TNT03A2 cave | Six ordinary cave trees/stumps use dry wood, including saved winter substitutions; eleven explicit exterior ice props retain snow. Five runtime assertions cover mapping and actor properties; an in-game capture confirms the dry stump at the reported cave position. |
+| TNT02 runes | Authored TID 1003 at (5472,6240) is active. Three assertions find one emitter and its emitted glow. |
+| UDB | Skip internal EV/SG aliases; correct two invalid sprite names. See definition layout for actual parser evidence. |
+| Floor mirrors | At most two nearby horizontal reflection heights, with hysteresis; other floors retain wet shading without another scene render. |
+| CRT mirrors | Probe captures every four game tics, or immediately on a change of selected probe, instead of requesting two camera renders each video frame. |
+| TNT03B brood | After the last living TNTSpider dies, all TNTMiniSpider actors die; delayed hatchlings are also cleaned up through normal deaths. Other maps are unchanged; 13 runtime assertions cover TNT03B, saved completion and a TNT02 negative control. |
+| Rear portal runes | Automatic sources stay one unit from the portal face; intake particles require an unobstructed path to their portal, preventing emissions beyond a recess's solid rear wall. Both-side captures and two runtime assertions confirm an empty rear side and continued front emission. |
+
+Rain VisualThinkers do not expose the Actor-only INVISIBLEINMIRRORS flag in the
+installed engine. The reflection budget reduces repeated rain rendering but does
+not remove rain from mirrors. r_portal_recursions affects additional engine
+portals, so it is evaluated separately, not treated as a mirror-only control.
+
+The first scene comparison at (3908,3739,-138) reduced rendered sprites from
+18,753 to 7,719 and portal draws from 14 to 5. This confirms reduced duplicated
+scene work; individual frame timings include substantial presentation jitter and
+must not be presented as a reliable FPS forecast for the tester's machine.
+
+The tester confirmed the second reflection hotspot is **TNT03A1**, at
+(2692,-6005,-472). At that location a non-capture frame after throttling draws
+11,866 sprites and three portals versus 48,265 sprites and thirteen portals
+beforehand. Capture frames can still be costly; this is a reduction in capture
+frequency, not a guarantee against every frame-time spike. The production code
+does not override the shared engine portal-recursion setting.
+
+The snow boundary and softer storm veils were captured at the reported TNT03A1
+position. The change blends color and relief together and leaves the underlying
+artwork intact. The full editor's opening time and the tester's worst FPS still
+need confirmation in their normal play/editor session.
+
+Final follow-up validation: `tools/test_tester_followup.py` passes 170 assertions
+on the full integration candidate, including canonical key pickups/locks,
+HellWarrior protection and timing, Bruiser smoke defaults, persisted brood
+completion after save/load, delayed hatchlings and both portal sides.
+The complete package's UDB table parses without errors: 1,280 authored entries,
+zero EV aliases, 611 ms in the installed r4327 parser.
+
+Shared integration package `a269d2a43a3f` was built with the normal snapshot builder and accepted by
+UZDoom 5.0.1. It includes concurrent local cavern work and loses no resources from
+the previous shared package; that work remains outside this task's commit.
+The shared `tutnt.pk3` has exactly the tested candidate's runtime resource hashes.
+The current layout audit reports 15 unrelated editor settings/autosave/backup
+files in maps (11 pre-existing, plus four from subsequent TNT03A1/A2 editing).
+No files in that list were created, moved or deleted by this follow-up.
+
+The existing 122-assertion effect suite also passes on this shared package.
+The broader snow-weather suite passes 27 checks (including frost, shelter,
+freeze and save/load), but fails two sky-particle allocation/population checks.
+The same two checks fail on the unchanged previous package with identical zero
+sky-particle counts. This pre-existing discrepancy remains open; the entire
+snow suite is not claimed to pass. Evidence is retained under
+`.codex/validation/weather-before-followup` and `.codex/logs/response-snow-1.log`.

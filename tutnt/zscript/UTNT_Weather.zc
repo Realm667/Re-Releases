@@ -329,7 +329,7 @@ class UTNTWeatherController : Thinker
         v.Width=air ? Sample(100,180) : Sample(55,120);
         v.Height=air ? Sample(25,50) : Sample(5,12);
         if(cell.Kind==2) { v.Width*=1.25; v.Height*=1.18; v.SnowVeil=true; }
-        v.BaseAlpha=cell.Kind==2 ? (air ? 0.10+StormBoost*0.14 : 0.17+StormBoost*0.23) : 0.065+StormBoost*0.075;
+        v.BaseAlpha=cell.Kind==2 ? (air ? 0.045+StormBoost*0.063 : 0.0765+StormBoost*0.1035) : 0.065+StormBoost*0.075;
         v.Texture=TexMan.CheckForTexture(cell.Kind==2 ? 'UTNTSnowVeil' : 'UTNTRainVeil');
         // Keep the whole soft billboard clear of nearby walls and ceilings.
         double clearance=v.Width*0.5;
@@ -529,8 +529,14 @@ class UTNTWeatherVisual : VisualThinker
                 wallMask:Line.ML_BLOCKING|Line.ML_BLOCKEVERYTHING,ignoreAllActors:true);
             if(Probe.Results.HitType!=TRACE_HitNone) { Lifetime=min(Lifetime,Age+12); Vel*=0.1; }
             Super.Tick();
-            Alpha=BaseAlpha*Owner.Intensity*min(1.0,double(Age)/25)*min(1.0,double(Lifetime-Age)/25)
-                *clamp((distance-60)/150,0,1);
+            double fadeIn=clamp(double(Age)/(SnowVeil?35:25),0,1);
+            double fadeOut=clamp(double(Lifetime-Age)/(SnowVeil?35:25),0,1);
+            if(SnowVeil)
+            {
+                fadeIn=fadeIn*fadeIn*(3-2*fadeIn);
+                fadeOut=fadeOut*fadeOut*(3-2*fadeOut);
+            }
+            Alpha=BaseAlpha*Owner.Intensity*fadeIn*fadeOut*clamp((distance-60)/150,0,1);
             Scale=(Width*(SnowVeil ? 1.0 : 1+Age*0.003)/TextureSize.X,Height/TextureSize.Y);
             return;
         }

@@ -70,6 +70,19 @@ class UTNTDeadwoodTest : EventHandler
             }
             Console.Printf("UTNT_ASSERT %s sky-room light tracking preserved %d",lighting && n>0?"PASS":"FAIL",n);
         }
+        if(level.MapName~=="TNT03A2")
+        {
+            int dry=0,winter=0;bool correct=true;
+            for(int i=0;i<Sources.Size();i++)
+            {
+                let a=Sources[i];if(!a)continue;
+                if(Kinds[i]==2 || Kinds[i]==3) { winter++;continue; }
+                dry++;
+                correct=correct && UTNTDeadwood.Theme(a)==0 &&
+                    a.sprite==(Kinds[i]==0?Actor.GetSpriteIndex('DWDT'):Actor.GetSpriteIndex('DWDS'));
+            }
+            Console.Printf("UTNT_ASSERT %s six cave props dry, eleven exterior ice props preserved",correct && dry==6 && winter==11?"PASS":"FAIL");
+        }
         if(level.MapName~=="TNT02")
         {
             int stumps=0;bool mapped=true,reported=false,theme=true;

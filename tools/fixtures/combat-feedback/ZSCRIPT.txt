@@ -1,0 +1,51 @@
+version "5.0.0"
+class CombatFeedbackCheck : EventHandler
+{
+ Array<Actor> Warriors;
+ Array<int> Started, Finished;
+ bool Done;
+ void Check(bool ok,string msg){Console.Printf("UTNT_ASSERT %s %s",ok?"PASS":"FAIL",msg);}
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name!="combatcheck")return;
+  let p=players[0].mo;
+  for(int i=0;i<32;i++)
+  {
+   let w=Actor.Spawn('HellWarrior',p.Pos+(200+i*4,0,64),NO_REPLACE);
+   w.bNoGravity=true;w.bNoClip=true;w.SetStateLabel('Pain');
+   Warriors.Push(w);Started.Push(-1);Finished.Push(-1);
+   Check(w.BloodColor.R>w.BloodColor.G && w.BloodColor.R>w.BloodColor.B,"HellWarrior red blood");
+  }
+  class<Actor> types[]={'UTNTBruiserSmoke','UTNTBruiserImpactSmoke','UTNTBruiserBurstSmoke'};
+  for(int i=0;i<3;i++)Check(abs(GetDefaultByType(types[i]).Alpha-.171)<.0001,"Bruiser fog opacity at 30 percent");
+  Check(GetDefaultByType('PBShockwaveSmokeSmaller').Alpha==.57,"unrelated smoke unchanged");
+ }
+ override void WorldTick()
+ {
+  if(Done || Warriors.Size()==0)return;
+  int complete=0,low=1000,high=0;
+  for(int i=0;i<Warriors.Size();i++)
+  {
+   if(Finished[i]>=0){complete++;low=min(low,Finished[i]);high=max(high,Finished[i]);continue;}
+   let w=Warriors[i];
+   if(w.bInvulnerable && Started[i]<0)
+   {
+    Started[i]=level.time;int health=w.Health;w.DamageMobj(null,null,10,'None');
+    Check(w.Health==health,"shield still blocks damage");
+   }
+   if(!w.bInvulnerable && Started[i]>=0 && Finished[i]<0)
+   {
+    Finished[i]=level.time-Started[i];
+    Check(Finished[i]>=30 && Finished[i]<=46,"shield duration stays within 70 to 110 percent");
+    w.Destroy();
+   }
+   if(Finished[i]>=0){complete++;low=min(low,Finished[i]);high=max(high,Finished[i]);}
+  }
+  if(complete==Warriors.Size())
+  {
+   Done=true;Check(low<high,"shield duration varies across activations");
+   Console.Printf("SHIELD_RANGE %d..%d tics",low,high);
+   Console.Printf("UTNT_COMBAT_FEEDBACK_COMPLETE");
+  }
+ }
+}

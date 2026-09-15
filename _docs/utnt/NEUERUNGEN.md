@@ -31,6 +31,9 @@
 
 ## Abilities and gameplay feel
 
+- **HellWarrior:** varied shield duration and red blood. [Details](UTNT_TESTER_EFFECTS.md)
+- **TNT03B spider brood:** surviving little spiders die with the last large spider, including late hatchlings. [Details](UTNT_TESTER_EFFECTS.md)
+
 - **Movement tilt:** smooth, adjustable sideways camera inclination with fixed HUD and comfort controls; reduced effects disable it. [Details](UTNT_RELEASE_EFFECTS.md)
 - **Alternate enemy deaths:** reference animations for nine enemy families and their stealth variants, preserving combat behavior, resurrection and boss completion; Flamer/Pyrocannon kills gradually char with fading amber cinders. [Fire deaths](UTNT_TESTER_EFFECTS.md) [Details](UTNT_RELEASE_EFFECTS.md)
 - **Six class abilities:** Commando — Overdrive (firing speed) and Bollwerk (protection); Marine — Rage (damage) and Regeneration (healing); Scout — Weak Spot (critical hits) and Cloak (invisibility). [Details](UTNT_ABILITIES.md)
@@ -42,11 +45,11 @@
 
 - **TNT03A2 lava cavern:** clearer distance haze, brighter platform tops, four hanging rock formations, a framed lava fall with local glow, and sparse smoke and dust; original geometry and gameplay preserved. [Details](UTNT_CAVERN.md)
 
-- **Voxel pickups and decorations:** selected Cheello models, including all three keycards, the shell box, explosive barrel and its explosion frames, and original-lowres UTNT objects use the active PLAYPAL at native pixel scale, with correctly scaled previews, individual wall-aware map facing, requested stationary or rotating presentation, preserved actor behavior and a localized Cheello credit in the ending. Sam & Max props retain their sprites. [Details](UTNT_VOXELS.md)
+- **Voxel pickups and decorations:** selected Cheello models, including all three keycards, the shell box, explosive barrel and its explosion frames, and original-lowres UTNT objects use the active PLAYPAL at native pixel scale, with correctly scaled previews, individual wall-aware map facing, requested stationary or rotating presentation, preserved actor behavior, working card/skull inventory and locks, and a localized Cheello credit in the ending. Sam & Max props retain their sprites. [Details](UTNT_VOXELS.md)
 
 - **Selective brightmaps:** compatible masks from the four TNT releases plus native-pixel enemy eyes, fire attacks and explosions, seed/heart details including the heart voxel, and selected lamps, runes, circuits and switch states; selectively glowing TNT01 glass and ceilings that visibly switch off; shared images preserve existing CRT materials and avoid duplicate bindings, with the custom spider explosion sequence restored. [Details](UTNT_BRIGHTMAPS.md)
 
-- **Deadwood decorations:** three tree and three stump sprite designs in the selected weathered, deeply charred and heavily snow-covered gray families replace existing decorations throughout the campaign, including type-47 stumps, using native PLAYPAL colors and preserved approved pixel artwork, with charred wood in TNT02, stable variation, preserved map placements and collision, save/load support and matching sky-room lighting. [Details](UTNT_DEADWOOD.md)
+- **Deadwood decorations:** three tree and three stump sprite designs in the selected weathered, deeply charred and heavily snow-covered gray families replace existing decorations throughout the campaign, including type-47 stumps, using native PLAYPAL colors and preserved approved pixel artwork, with charred wood in TNT02, stable variation, preserved map placements and collision, dry props in the dusty TNT03A2 cave, save/load support and matching sky-room lighting. [Details](UTNT_DEADWOOD.md)
 
 - **Light rays:** soft spatial downlights and directed grille rays preserve their original size, with gentle movement, light-dependent transparent dust, softened geometry boundaries, coordinated illumination and smooth detail transitions across existing map actors. [Details](UTNT_LIGHT_RAYS.md)
 
@@ -55,15 +58,15 @@
 - **Candelabra lighting:** amber dynamic light for the custom candelabra in TNT03B and TNT04A. [Implementation](../../tutnt/GLDEFS.txt)
 - **Selective glow:** adjustable, color-matched projectile and explosion halos with smooth fadeout. [Details](UTNT_EFFECT_GLOW.md)
 - **Organic fire:** animated flame fragments, embers, smoke and matching light for orange, green and blue torches, burning barrels and floor fires; continuously flowing and crossfading fire-window materials. [Materials](UTNT_TESTER_EFFECTS.md) [Details](UTNT_FIRE_EFFECTS.md)
-- **Combat and teleport effects:** directed sparks, impact dust, electrical pulses and returning teleport fragments; corrected BFG ring sizes and restored rocket trails with smooth fading, rotation and expansion, native-size Archvile fire with sparse smoke, lighter and varied projectile trails, damaging spore clouds, SoulHarvester brightmaps without self-light and amber hitscan lighting. [Follow-up](UTNT_TESTER_EFFECTS.md) [Refinements](UTNT_TESTER_FEEDBACK.md), [Details](UTNT_INDUSTRIAL_FX.md), [Particle sizes](UTNT_PARTICLE_SIZES.md)
+- **Combat and teleport effects:** directed sparks, impact dust, electrical pulses and returning teleport fragments; corrected BFG ring sizes and restored rocket trails with smooth fading, rotation and expansion, native-size Archvile fire with sparse smoke, lighter and varied projectile trails, clearer Bruiser smoke, longer-lived impact/generator sparks, damaging spore clouds, SoulHarvester brightmaps without self-light and amber hitscan lighting. [Follow-up](UTNT_TESTER_EFFECTS.md) [Refinements](UTNT_TESTER_FEEDBACK.md), [Details](UTNT_INDUSTRIAL_FX.md), [Particle sizes](UTNT_PARTICLE_SIZES.md)
 - **Lost Souls:** continuous ember trails anchored behind the skull. [Implementation](../../tutnt/zscript/UTNT_Fire.zc)
 - **Smoke, steam and water:** softer ambient smoke, turbulent pressure steam, improved fountains and animated impact/landing splashes. [Steam](UTNT_STEAM.md), [Water](../../tutnt/zscript/UTNT_Splash.zc)
 - **Layered liquids:** flowing water, slime and blood with visible surface waves and clearer TNT01 water; depth-layered void and star fields, retaining authored map scrolling. [Details](UTNT_LIQUIDS.md)
 - **Lava:** glowing depth, crust and cooled rafts following authored floor scrolling; rounded spill edges in TNT02/TNTLE, restored original-size lava embers and improved emissive visibility through fog. [Lava](UTNT_LAVA.md), [Embers](UTNT_PARTICLE_SIZES.md), [Edges](UTNT_LAVA_LIPS.md), [Fog](ENVIRONMENT_FOG_GUIDES.md)
-- **Portals and teleporters:** unified amber energy, original runes, rotating seals, depth effects, proximity distortion and particle suction from both sides, with restored TNT01 rune spawners and smaller floor seals framed in rusty steel. [Refinements](UTNT_TESTER_EFFECTS.md) [Details](UTNT_RITUALS.md)
-- **Dynamic weather:** escalating rain/snow cycles, gusts, splashes, snow veils and responsive ambience, with shelter and skybox coverage, stronger storm thunder and reduced distant-rain rendering cost. [Refinements](UTNT_TESTER_EFFECTS.md) [Details](UTNT_WEATHER.md)
+- **Portals and teleporters:** unified amber energy, original runes, rotating seals, depth effects, proximity distortion and particle suction from both sides, with wall-occluded particles, restored TNT01 and TNT02 rune spawners and smaller floor seals framed in rusty steel. [Refinements](UTNT_TESTER_EFFECTS.md) [Details](UTNT_RITUALS.md)
+- **Dynamic weather:** escalating rain/snow cycles, gusts, splashes, snow veils and responsive ambience, with shelter and skybox coverage, softer snow veils, stronger storm thunder and reduced distant-rain rendering cost. [Refinements](UTNT_TESTER_EFFECTS.md) [Details](UTNT_WEATHER.md)
 - **Weather on the visor:** refracting rain droplets and trails, accumulating frost and gradual clearing under shelter. [Details](UTNT_WEATHER_VISOR.md)
-- **Wet surfaces:** gradual rain exposure and drying, subtle darkening and real reflections in irregular wet patches on eligible TNT02 floors. [Details](ENVIRONMENT_EFFECTS.md)
+- **Wet surfaces:** gradual rain exposure and drying, subtle darkening and real reflections in irregular wet patches on eligible TNT02 floors, with bounded reflection planes to contain repeated scene rendering. [Details](ENVIRONMENT_EFFECTS.md)
 - **Distance Blur:** optional global distance-based softening with adjustable intensity, a stepped start-distance slider, denser geometry/actor distance reconstruction and HUD weapon protection. [Details](UTNT_DISTANCE_BLUR.md)
 - **Underwater atmosphere:** liquid-specific tint and restrained distance-dependent blur for clearer visibility, alongside separately adjustable distortion. [Details](ENVIRONMENT_EFFECTS.md)
 - **Footprints:** fading snow and wet sole marks, including moving-floor support. [Details](ENVIRONMENT_EFFECTS.md)
@@ -85,13 +88,15 @@
 - **TNT04CN:** beam-aligned cloud opening, orbiting floating rocks, depth parallax and distant comets. [Details](UTNT_RIFT_SKY.md)
 - **TNT04C:** restrained lava-lit clouds and floating scenery, corrected colors/lighting and platform placement, preserving the original height-dependent sky views. [Details](UTNT_ALTERNATE_SKY.md)
 - **TNTLE:** basalt cavern with flowing lava falls and a separate ember-night sky; corrected filtering seams. [Details](UTNT_TNTLE_SKY.md)
-- **Expanded textures:** 37 active material expansions and aligned large rock surfaces reduce repetition while preserving original scale and selected original materials. [Details](UTNT_AREA_TEXTURES.md)
+- **Expanded textures:** 37 active material expansions, blended snow-tile boundaries and aligned large rock surfaces reduce repetition while preserving original scale and selected original materials. [Details](UTNT_AREA_TEXTURES.md)
 - **Natural terrain edges:** raised rock skylines, rounded snow cornices with softer shading, smoothly blended rock ledges, pronounced soil ledges, gravel caps and feathered grass/wall-foot transitions; includes upper-texture boundaries, height-map detail and sector ceiling glow. [Details](UTNT_SKY_EDGES.md)
 - **Surface relief:** normal maps and parallax across rock, ground, grass, snow, ice, masonry, metal, rust, wood, crates and technical surfaces; source-traced doors, crates, shelves, vents and technical panels, refined snow and masonry, additional slotted floors, slab joints, wood variants, profiled panels, riveted plates and coordinated door families with corrected QDOOR9 contours, further square tile floors with rounded corners or recessed scratches, supports and coordinated wall trims, aligned wall/floor relief and restrained material sheen. [Details](UTNT_ORGANIC_MATERIALS.md)
-- **CRT monitors:** stronger convex glass relief, dedicated fullbright display maps, corrected Q2COMP14 glass alignment, scanlines, threshold-controlled phosphor glow and RGB color fringes, with enhanced soft view-dependent live room reflections and separate comfort/performance controls; camera-feed textures are excluded. [Details](UTNT_CRT.md)
+- **CRT monitors:** stronger convex glass relief, dedicated fullbright display maps, corrected Q2COMP14 glass alignment, scanlines, threshold-controlled phosphor glow and RGB color fringes, with enhanced soft view-dependent live room reflections with bounded capture frequency and separate comfort/performance controls; camera-feed textures are excluded. [Details](UTNT_CRT.md)
 - **Palette consistency:** restored global PLAYPAL support, corrected blue PNG assets and coordinated plasma projectile, trail, impact, glow and lighting colors. [Details](UTNT_PALETTE.md)
 
 ## Boss encounters, stability and tools
+
+- **Editor loading:** internal surface/terrain material aliases stay out of UDB browsing, with valid sprite names throughout the packaged definitions. [Details](DEFINITION_LAYOUT.md)
 
 - **The Source in both endings:** shared runic shield, opening seal, exposed heart, impact/Guardian feedback and attack cues; flowing beam energy including TNT04C’s miniature skybox beam, and a synchronized black-hole implosion with smoke, refraction, lighting, sound and final fade. [Details](UTNT_SOURCE.md)
 - **Engine modernization:** UZDoom 5.0.1 support, saved presentation states, local cosmetic simulation, current shader APIs, explicit numeric conversions and revised motion blur/postprocessing. [Refinements](UTNT_TESTER_FEEDBACK.md) [Implementation](../../tutnt/zscript/UTNT_Presentation.zc)
@@ -108,7 +113,7 @@
 
 The experimental TNT01 terrain remodels, underwater caustics and extra scenic lighting were withdrawn and are excluded from the current feature set.
 
-The remaining tester reports, including translucent ray ordering, unreproduced boss rectangles and editor/runtime verification limits, are tracked in [Tester effects follow-up](UTNT_TESTER_EFFECTS.md).
+The remaining tester reports, including translucent ray ordering, unreproduced boss rectangles, the existing snow-sky test discrepancy and editor/runtime verification limits, are tracked in [Tester effects follow-up](UTNT_TESTER_EFFECTS.md).
 
 ## Maintenance
 

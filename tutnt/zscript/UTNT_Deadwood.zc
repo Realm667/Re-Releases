@@ -20,7 +20,7 @@ class UTNTDeadwood : EventHandler
     static int Theme(Actor a)
     {
         int kind = Kind(a);
-        if (kind == 2 || kind == 3 || level.MapName ~== "TNT03A1" || level.MapName ~== "TNT03A2")
+        if (kind == 2 || kind == 3 || level.MapName ~== "TNT03A1")
             return 2;
         if (level.MapName ~== "TNT02" || level.MapName ~== "TNT03B" || level.MapName ~== "TNT04A" ||
             level.MapName ~== "TNT04B" || level.MapName ~== "TNT04C" ||
@@ -61,6 +61,15 @@ class UTNTDeadwood : EventHandler
                        kind == 1 ? Actor.GetSpriteIndex('TRE1') :
                        kind == 2 ? Actor.GetSpriteIndex('ICT1') :
                        kind == 3 ? Actor.GetSpriteIndex('ICS1') : Actor.GetSpriteIndex('SMIT');
+        // TNT03A2's ordinary trees/stumps are in the dusty rock cave, not the
+        // exterior snowfields. Also correct their former map-wide winter theme
+        // in existing saves, retaining the chosen silhouette and actor physics.
+        if (level.MapName ~== "TNT03A2" && (kind == 0 || kind == 1 || kind == 4) &&
+            a.sprite == SpriteFor(2, kind) && a.frame >= 0 && a.frame < 3)
+        {
+            a.sprite = SpriteFor(0, kind);
+            return;
+        }
         // TNT02 now uses charred wood. Migrate the former dry views in saved
         // games without rerolling their silhouette or touching custom sprites.
         if (level.MapName ~== "TNT02" && (kind == 0 || kind == 1) &&

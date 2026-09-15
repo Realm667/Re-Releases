@@ -56,3 +56,20 @@ consult the local migration map before running an old temporary script.
 Definition scans filter files explicitly: on Windows, GLDEFS* and LANGUAGE*
 also match the new lowercase directories. Generators and localization overlays
 must not try to read or copy those directory entries as files.
+
+## Runtime-only textures in UDB (15 September 2026)
+
+The packager appends `TEXTURES.environment-generated` (EV wet-surface aliases)
+and `TEXTURES.sky-edges` (SG terrain geometry materials) after authored definitions,
+with `//$GZDB_SKIP` immediately before those two modules. UZDoom sees a comment;
+UDB stops there, avoiding thousands of redundant large composite previews.
+Both families are generated runtime bindings, not manually painted map textures.
+Source modules remain intact; regression tests protect ordering and preservation.
+Use the built PK3 rather than the source directory as the editor resource.
+
+Invalid seven-character effect sprite names become `USRIA0` (formerly USRIPA0)
+and `URDSA0` (formerly URDSTA0), consistently in definitions and consumers.
+The installed r4327 parser accepts the isolated follow-up's table without errors:
+1,279 authored textures, zero EV aliases, approximately 0.6 seconds. The old table
+failed after 4,192 textures including 3,179 EV aliases. This verifies parsing and
+namespace reduction, not the complete editor's map-opening wall-clock time.

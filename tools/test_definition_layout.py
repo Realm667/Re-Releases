@@ -48,6 +48,18 @@ class DefinitionLayoutTests(unittest.TestCase):
   self.assertNotIn('textures/definitions/TEXTURES.a',result)
   self.assertIn('textures/definitions/TEXTURES.a',payload)
   self.assertEqual(result['textures/image.png'],b'image')
+ def test_runtime_aliases_follow_editor_stop_marker(self):
+  runtime='textures/definitions/TEXTURES.environment-generated'
+  authored='textures/definitions/TEXTURES.authored'
+  sky='textures/definitions/TEXTURES.sky-edges'
+  payload={'TEXTURES.txt':f'#include "{runtime}"\n#include "{authored}"\n#include "{sky}"\n'.encode(),
+   sky:b'Texture SG000001,1,1 {}\n',runtime:b'Texture EV000001,1,1 {}\n',authored:b'Texture MAPWALL,1,1 {}\n'}
+  original=payload.copy();out=package_textures(payload)['TEXTURES.txt'].decode()
+  visible,hidden=out.split('//$GZDB_SKIP')
+  self.assertIn('MAPWALL',visible);self.assertNotIn('EV000001',visible)
+  self.assertIn('SG000001',hidden);self.assertNotIn('SG000001',visible)
+  self.assertIn('EV000001',hidden);self.assertNotIn('MAPWALL',hidden)
+  self.assertEqual(payload,original)
  def test_missing_texture_include_blocks_packaging(self):
   with self.assertRaisesRegex(ValueError,'Missing texture include'):
    package_textures({'TEXTURES.txt':b'#include "textures/definitions/missing"',

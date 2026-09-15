@@ -272,38 +272,91 @@ class UTNTBlueArmor : BlueArmor replaces BlueArmor
     States { Spawn: ARM2 A -1; Stop; }
 }
 
+// World key animation must not change the canonical inventory class used by
+// LOCKDEFS, SBARINFO and ACS. Keep the replacement only on the map.
+mixin class UTNTCanonicalPulseKey
+{
+    class<Key> NativeKey()
+    {
+        switch(GetClassName())
+        {
+        case 'UTNTPulseBlueCard': return 'BlueCard';
+        case 'UTNTPulseYellowCard': return 'YellowCard';
+        case 'UTNTPulseRedCard': return 'RedCard';
+        case 'UTNTPulseBlueSkull': return 'BlueSkull';
+        case 'UTNTPulseYellowSkull': return 'YellowSkull';
+        default: return 'RedSkull';
+        }
+    }
+
+    override Inventory CreateCopy(Actor other)
+    {
+        let copy=Inventory(Spawn(NativeKey(),(0,0,0),NO_REPLACE));
+        if(!copy) return null;
+        copy.Amount=1;
+        GoAwayAndDie(); // Retains cooperative keys and normal respawn semantics.
+        return copy;
+    }
+
+    override bool TryPickup(in out Actor toucher)
+    {
+        if(toucher.FindInventory(NativeKey()))
+        {
+            if(multiplayer) return false;
+            GoAwayAndDie();
+            return true;
+        }
+        return Super.TryPickup(toucher);
+    }
+
+    override void Tick()
+    {
+        Super.Tick();
+        if(!Owner) { UTNTArmorPulse.Update(self); return; }
+        // Repair pulse keys already stored by older saves without another pickup.
+        if(!Owner.FindInventory(NativeKey()))
+        {
+            let copy=Inventory(Spawn(NativeKey(),(0,0,0),NO_REPLACE));
+            if(!copy) return;
+            copy.Amount=1;
+            copy.AttachToOwner(Owner);
+        }
+        Destroy();
+    }
+}
+
 class UTNTPulseBlueCard : BlueCard replaces BlueCard
 {
-    override void Tick() { Super.Tick();if(!Owner) UTNTArmorPulse.Update(self); }
+    mixin UTNTCanonicalPulseKey;
     States { Spawn: BKEY A -1; Stop; }
 }
 
 class UTNTPulseYellowCard : YellowCard replaces YellowCard
 {
-    override void Tick() { Super.Tick();if(!Owner) UTNTArmorPulse.Update(self); }
+    mixin UTNTCanonicalPulseKey;
     States { Spawn: YKEY A -1; Stop; }
 }
 
 class UTNTPulseRedCard : RedCard replaces RedCard
 {
-    override void Tick() { Super.Tick();if(!Owner) UTNTArmorPulse.Update(self); }
+    mixin UTNTCanonicalPulseKey;
     States { Spawn: RKEY A -1; Stop; }
 }
 
 class UTNTPulseBlueSkull : BlueSkull replaces BlueSkull
 {
-    override void Tick() { Super.Tick();if(!Owner) UTNTArmorPulse.Update(self); }
+    mixin UTNTCanonicalPulseKey;
     States { Spawn: BSKU A -1; Stop; }
 }
 
 class UTNTPulseYellowSkull : YellowSkull replaces YellowSkull
 {
-    override void Tick() { Super.Tick();if(!Owner) UTNTArmorPulse.Update(self); }
+    mixin UTNTCanonicalPulseKey;
     States { Spawn: YSKU A -1; Stop; }
 }
 
 class UTNTPulseRedSkull : RedSkull replaces RedSkull
 {
-    override void Tick() { Super.Tick();if(!Owner) UTNTArmorPulse.Update(self); }
+    mixin UTNTCanonicalPulseKey;
     States { Spawn: RSKU A -1; Stop; }
 }

@@ -443,13 +443,13 @@ class UTNTSourceLayer : VisualThinker
   }
   if(Kind==6)
   {
-   Texture=TexMan.CheckForTexture("USRIPA0");diameter=70;
+   Texture=TexMan.CheckForTexture("USRIA0");diameter=70;
    Pos=e.GuardianPosition+(e.Center-e.GuardianPosition)*clamp(e.GuardianAge/28.0,0.0,1.0);
    if(e.GuardianAge<35)Alpha=1-e.GuardianAge/35.0;
   }
   if(Kind==7)
   {
-   Texture=TexMan.CheckForTexture("USRIPA0");
+   Texture=TexMan.CheckForTexture("USRIA0");
    diameter=s?max(1,(level.time-s.HitStart)*10):1;
    Pos=s?s.HitPosition:e.Center;
    Alpha=s && !e.Opened?max(0,1-(level.time-s.HitStart)/22.0):0;
@@ -597,7 +597,7 @@ class UTNTSourceLayer : VisualThinker
    }
    if(Kind==71)
    {
-    Texture=TexMan.CheckForTexture("USRIPA0");diameter=70+max(0,d-158)*35;
+    Texture=TexMan.CheckForTexture("USRIA0");diameter=70+max(0,d-158)*35;
     Pos=e.Center+front*36;Alpha=d>=158 && d<193?(1-(d-158)/35.0)*(e.Reduced?0.12:0.75):0;
    }
    if(d>=245)Alpha=0;

@@ -1,0 +1,34 @@
+// TNT03B brood cleanup is gameplay state, independent of visual quality.
+class UTNTSpiderBrood : EventHandler
+{
+    bool Defeated, Sweep;
+    Actor Killer;
+    Array<Actor> Pending;
+    override void WorldThingDied(WorldEvent e)
+    {
+        if(!(level.MapName ~== "TNT03B") || !(e.Thing is 'TNTSpider')) return;
+        let it=ThinkerIterator.Create('TNTSpider');Actor a;
+        while(a=Actor(it.Next()))if(a.Health>0)return;
+        Defeated=true;Sweep=true;Killer=e.DamageSource;
+    }
+    override void WorldThingSpawned(WorldEvent e)
+    {
+        // Eggs already in flight and the final mother's delayed death bursts
+        // must not leave a new living brood after completion.
+        if(Defeated && e.Thing is 'TNTMiniSpider')Pending.Push(e.Thing);
+    }
+    override void WorldTick()
+    {
+        if(!Defeated)return;
+        if(Sweep)
+        {
+            Sweep=false;let it=ThinkerIterator.Create('TNTMiniSpider');Actor a;
+            while(a=Actor(it.Next()))Pending.Push(a);
+        }
+        for(int i=0;i<Pending.Size();i++)
+        {
+            let a=Pending[i];if(a && a.Health>0)a.DamageMobj(null,Killer,1000000,'None',DMG_FORCED);
+        }
+        Pending.Clear();
+    }
+}

@@ -62,14 +62,24 @@ def package_textures(payload):
     modules={n for n in payload if n.startswith('textures/definitions/')}
     if not modules:return payload
     visited=set()
+    deferred=[]
     def expand(name, stack=()):
         if name in stack:raise ValueError('Cyclic texture include: '+name)
         if name not in payload:raise ValueError('Missing texture include: '+name)
         visited.add(name)
         text=payload[name].decode('utf-8-sig')
-        return INCLUDE.sub(lambda m:expand(m[1],stack+(name,)),text)
+        text=INCLUDE.sub(lambda m:expand(m[1],stack+(name,)),text)
+        if name in ('textures/definitions/TEXTURES.environment-generated',
+                    'textures/definitions/TEXTURES.sky-edges'):
+            deferred.append(text)
+            return ''
+        return text
     text=expand('TEXTURES.txt')
     if modules-visited:raise ValueError('Unreferenced packaged texture definitions')
+    if deferred:
+        # Runtime-only surface aliases must remain after every authored texture.
+        # UDB stops here; the engine treats this as an ordinary comment.
+        text+='\n//$GZDB_SKIP\n'+'\n'.join(deferred)
     result={n:b for n,b in payload.items() if n not in modules}
     result['TEXTURES.txt']=text.encode('utf-8')
     return result

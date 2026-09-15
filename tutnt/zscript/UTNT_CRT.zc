@@ -15,6 +15,8 @@ class UTNTCRT : EventHandler {
  Array<UTNTCRTProbe> Probes;
  ui int ActiveProbes;
  ui LineTracer Sight;
+ ui int LastCaptureTic;
+ ui Array<Actor> CapturedProbes;
  clearscope static bool Option(Name key) {
   return consoleplayer>=0 && CVar.GetCVar(key,players[consoleplayer]).GetBool();
  }
@@ -107,6 +109,9 @@ class UTNTCRT : EventHandler {
   bool reflect=enabled && Option('UTNT_crtreflections') && !reduced && quality>=2 && e.Camera;
   c.Clear(0,3,1,4,Color(enabled?255:0,motion?255:0,reflect?255:0));
   if(!reflect || !Ready)return;
+  bool refresh=gametic>=LastCaptureTic+4 || gametic<LastCaptureTic;
+  if(refresh)LastCaptureTic=gametic;
+  if(CapturedProbes.Size()!=2)CapturedProbes.Resize(2);
   int first=-1;
   Vector3 eye=e.ViewPos;
   Vector3 look=(cos(e.ViewAngle)*cos(e.ViewPitch),sin(e.ViewAngle)*cos(e.ViewPitch),-sin(e.ViewPitch));
@@ -127,14 +132,20 @@ class UTNTCRT : EventHandler {
    if(slot==0)first=best;
    let p=Probes[best];
    String texture=String.Format("UCRTP%d",slot);
-   TexMan.SetCameraToTexture(p,texture,120);
-   TexMan.SetCameraTextureAspectRatio(texture,1.0);
+   bool capture=refresh || CapturedProbes[slot]!=p;
+   if(capture)
+   {
+    TexMan.SetCameraToTexture(p,texture,120);
+    TexMan.SetCameraTextureAspectRatio(texture,1.0);
+    CapturedProbes[slot]=p;
+   }
    Number(c,0,slot,p.Pos.X);Number(c,1,slot,p.Pos.Y);Number(c,2,slot,p.Pos.Z);
    Number(c,3,slot,p.Facing.X*4096);Number(c,4,slot,p.Facing.Y*4096);Number(c,5,slot,p.Facing.Z*4096);
    c.Clear(6,slot,7,slot+1,Color(0,0,1));
    // Auxiliary material samplers alone do not request camera updates in UZDoom.
    // This private one-pixel draw marks the capture used; it is never on the HUD.
-   c.DrawTexture(TexMan.CheckForTexture(texture),false,16+slot,0,DTA_DestWidth,1,DTA_DestHeight,1);
+   // Blurred glass needs only ~9 captures/second, not two full scenes/frame.
+   if(capture)c.DrawTexture(TexMan.CheckForTexture(texture),false,16+slot,0,DTA_DestWidth,1,DTA_DestHeight,1);
    ActiveProbes++;
   }
  }

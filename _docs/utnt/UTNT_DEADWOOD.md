@@ -20,7 +20,7 @@ script references remain intact. No campaign WAD is rewritten.
 | IceyStub (20001) | Three frozen stumps at the original smaller visual scale |
 
 Ordinary Doom decorations use weathered wood in TNT01, frozen wood in
-TNT03A1/TNT03A2, and charred wood in TNT02, TNT03B, TNT04A/B/C/CN, TNTLE and ENDMAP01.
+TNT03A1 and explicitly icy props in TNT03A2, and charred wood in TNT02, TNT03B, TNT04A/B/C/CN, TNTLE and ENDMAP01.
 Explicit IceyTree/IceyStub placements always remain frozen: TNT02 includes seven.
 Other maps default to weathered wood.
 
@@ -200,3 +200,5 @@ bindings or KVX files. Both sprite and definition stale-output checks pass.
 Local evidence: `tutnt/.codex/validation/deadwood-style-c-package.json` and
 `tutnt/.codex/validation/deadwood-style-c-runtime.json`.
 Ingame screenshots and engine logs: `tutnt/.codex/logs/deadwood-style-c/`.
+
+The six ordinary trees/stumps in TNT03A2's dusty cave use dry wood; old winter substitutions are repaired on load. Explicit exterior IceyTree/IceyStub placements remain snowy.

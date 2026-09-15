@@ -1,0 +1,24 @@
+version "5.0.0"
+class PortalOcclusionCheck : EventHandler {
+ int RearCrossings, FrontSamples;
+ override void WorldTick(){
+  let p=players[0].mo;if(p){p.bInvulnerable=true;p.bNoClip=true;p.bNoGravity=true;}
+  let it=ThinkerIterator.Create('UTNTPortalMote',Thinker.MAX_STATNUM+1,true);UTNTPortalMote m;
+  while(m=UTNTPortalMote(it.Next()))if(m.Source && abs(m.Source.Pos.X+1312)<130 && abs(m.Source.Pos.Y-3920)<80){
+   if(m.Pos.Y<3904)RearCrossings++;
+   if(m.Pos.Y>3928)FrontSamples++;
+  }
+ }
+ override void NetworkProcess(ConsoleEvent e){
+  let p=players[0].mo;if(!p)return;
+  if(e.Name=="portalview"){
+   let it=ThinkerIterator.Create('Actor');Actor a;while(a=Actor(it.Next()))if(a.bISMONSTER){a.bInvisible=true;a.bDormant=true;}
+   if(e.Args[0]==0){p.SetOrigin((-1686,3448,96),false);p.Angle=52;p.Pitch=-10;}
+   else{p.SetOrigin((-1312,4200,96),false);p.Angle=270;p.Pitch=-10;}
+  }
+  if(e.Name=="portalcheck"){
+   Console.Printf("UTNT_ASSERT %s no rune crosses the TNT03B rear wall",RearCrossings==0?"PASS":"FAIL");
+   Console.Printf("UTNT_ASSERT %s front portal retains runes",FrontSamples>0?"PASS":"FAIL");
+  }
+ }
+}
