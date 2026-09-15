@@ -1,0 +1,176 @@
+// TNT03A2 presentation only. The map retains all collision, tags and scripts.
+class UTNTCavernScenery : Actor
+{
+    Default
+    {
+        +NOGRAVITY +NOINTERACTION +NOBLOCKMAP +DONTSPLASH
+        +DONTTHRUST +NOTONAUTOMAP +CLIENTSIDE
+        Radius 1; Height 1;
+    }
+    States { Spawn: SKED A -1; Stop; }
+    override void Tick() {}
+}
+#include "zscript/cavern-generated.zc"
+
+class UTNTCavernLight : Actor
+{
+    Default { +CLIENTSIDE +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +DONTTHRUST }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+
+class UTNTCavernCloud : Actor
+{
+    int Age, Life;
+    double Strength, Phase;
+    bool Falling;
+    Default
+    {
+        +NOGRAVITY +NOINTERACTION +NOBLOCKMAP +DONTSPLASH
+        +DONTTHRUST +NOTONAUTOMAP +CLIENTSIDE +FORCEXYBILLBOARD
+        Radius 1; Height 1; RenderStyle "Translucent"; Alpha 0;
+    }
+    States { Spawn: DKSM A -1; Stop; }
+    override void Tick()
+    {
+        if(++Age>=Life){Destroy();return;}
+        double t=Age/double(Life);
+        Alpha=Strength*sin(t*180)*sin(t*180);
+        Vector3 next=Pos+(sin(Phase+Age*2)*.12,cos(Phase*.7+Age*1.4)*.10,Falling?-.65:.85);
+        let s=level.PointInSector(next.XY);
+        if(!s || next.Z<s.floorplane.ZatPoint(next.XY)+12 || next.Z>s.ceilingplane.ZatPoint(next.XY)-12){Destroy();return;}
+        SetOrigin(next,true);Scale*=1.004;
+    }
+}
+
+class UTNTCavernController : Thinker
+{
+    bool Ready;
+    int Emissions;
+    Array<UTNTCavernScenery> Scenery;
+    Array<UTNTCavernLight> Lamps;
+    void Install()
+    {
+        Ready=true;
+        int lump=Wads.CheckNumForFullName("cavern/scenery.txt");if(lump<0)return;
+        Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
+        for(int i=0;i<rows.Size();i++)
+        {
+            Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=6)continue;
+            Vector3 p=(r[1].ToDouble(),r[2].ToDouble(),r[3].ToDouble());
+            let sec=level.PointInSector(p.XY);if(!sec || sec.Index()!=r[4].ToInt())continue;
+            Class<Actor> cls=r[0];if(!cls)continue;
+            let a=UTNTCavernScenery(Actor.Spawn(cls,p));if(!a)continue;
+            a.Angle=0;Scenery.Push(a);
+        }
+        for(int i=0;i<3;i++)
+        {
+            let l=UTNTCavernLight(Actor.Spawn('UTNTCavernLight',(5375,-4040,-340-i*470)));
+            if(!l)continue;
+            l.A_AttachLight('cavern',DynamicLight.PointLight,0xff7628,320,0,DynamicLight.LF_ATTENUATE);
+            Lamps.Push(l);
+        }
+    }
+    void Cloud(Vector3 source, bool falling, int salt)
+    {
+        double phase=(Emissions*137+salt*73)%360;
+        Vector3 p=source+(sin(phase)*22,cos(phase*1.7)*18,0);
+        let a=UTNTCavernCloud(Actor.Spawn('UTNTCavernCloud',p));if(!a)return;
+        a.Life=falling?110:180;a.Falling=falling;a.Phase=phase;
+        a.Strength=falling?.10:.16;a.Scale=falling?(.55,.7):(1.35,1.65);
+    }
+    override void Tick()
+    {
+        if(!Ready)Install();
+        if(level.isFrozen() || level.time%10!=0)return;
+        let runtime=UTNTFXRuntime.Get();let camera=runtime.Camera;
+        if(!camera || runtime.Quality<=0)return;
+        Emissions++;
+        if((camera.Pos-(5400,-4040,-1250)).Length()<2600)Cloud((5400,-4040,-1370),false,0);
+        if(Emissions%3==0 && (camera.Pos-(5160,-3790,250)).Length()<1800)Cloud((5160,-3790,300),true,1);
+        if(Emissions%4==0 && (camera.Pos-(4590,-6340,230)).Length()<1800)Cloud((4590,-6340,240),true,2);
+    }
+}
+
+class UTNTCavern : EventHandler
+{
+    transient UTNTCavernController Controller;
+    int Applied, Rejected;
+    bool PlatformsApplied;
+    bool RefreshPending;
+    void ApplyLighting()
+    {
+        int lump=Wads.CheckNumForFullName("cavern/sectors.txt");if(lump<0)return;
+        Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
+        for(int i=0;i<rows.Size();i++)
+        {
+            rows[i].StripRight();
+            Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=8){Rejected++;continue;}
+            int index=r[0].ToInt();if(index<0 || index>=level.Sectors.Size()){Rejected++;continue;}
+            int lineIndex=r[1].ToInt(),face=r[2].ToInt();
+            if(lineIndex<0 || lineIndex>=level.Lines.Size() || face<0 || face>1){Rejected++;continue;}
+            let s=level.Sectors[index];let line=level.Lines[lineIndex];let side=line.sidedef[face];
+            Vector2 a=(r[3].ToDouble(),r[4].ToDouble()),b=(r[5].ToDouble(),r[6].ToDouble());
+            let v1=face==0?line.v1:line.v2;let v2=face==0?line.v2:line.v1;
+            // Boundary identity also works for thin/merged BSP subsectors and
+            // after AreaTextures has replaced the authored material names.
+            if(!side || side.sector!=s || (v1.p-a).Length()>.01 || (v2.p-b).Length()>.01){Rejected++;continue;}
+            // Save/hub state already contains these properties; do not accumulate
+            // relative offsets or overwrite later authored gameplay lighting.
+            if(s.ColorMap.FadeColor!=0x62411d)continue;
+            if(s.LightLevel==150 || s.LightLevel==134)
+            {
+                s.SetLightLevel(s.LightLevel-6);
+                s.SetPlaneLight(Sector.floor,32);s.SetPlaneLight(Sector.ceiling,-16);
+            }
+            // SetFade rebuilds cached 3D-floor light lists; density must be set
+            // first so those lists receive the explicit density too.
+            s.SetFogDensity(22);s.SetFade(0x363029);
+            Applied++;
+        }
+        if(PlatformsApplied)return;
+        lump=Wads.CheckNumForFullName("cavern/platforms.txt");if(lump<0)return;
+        rows.Clear();Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
+        for(int i=0;i<rows.Size();i++)
+        {
+            Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=3){Rejected++;continue;}
+            int si=r[0].ToInt(),li=r[1].ToInt();
+            if(si<0 || si>=level.Sectors.Size() || li<0 || li>=level.Lines.Size()){Rejected++;continue;}
+            let line=level.Lines[li];let s=level.Sectors[si];
+            if(!line.sidedef[0] || line.sidedef[0].sector!=s){Rejected++;continue;}
+            // The 3D platform top is its control sector's ceiling plane.
+            // Brighten that face only; keep movers and light below unchanged.
+            s.SetPlaneLight(Sector.ceiling,36);
+        }
+        PlatformsApplied=true;
+    }
+    override void WorldLoaded(WorldEvent e)
+    {
+        Controller=null;
+        if(!(level.MapName~=="TNT03A2"))return;
+        for(int pool=0;pool<2;pool++)
+        {
+            let it=ThinkerIterator.Create('UTNTCavernScenery',Thinker.MAX_STATNUM+1,pool!=0);
+            Thinker a;while(a=it.Next())a.Destroy();
+            it=ThinkerIterator.Create('UTNTCavernLight',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
+            it=ThinkerIterator.Create('UTNTCavernCloud',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
+            it=ThinkerIterator.Create('UTNTCavernController',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
+        }
+        ApplyLighting();
+        RefreshPending=true;
+    }
+    override void WorldTick()
+    {
+        if(RefreshPending && level.time>=6)
+        {
+            RefreshPending=false;
+            // Finish after OPEN/map setup and rebuild attached 3D-floor lists.
+            for(int i=0;i<level.Sectors.Size();i++)
+            {
+                let s=level.Sectors[i];
+                if((int(s.ColorMap.FadeColor)&0xffffff)==0x363029)s.SetFade(s.ColorMap.FadeColor);
+            }
+        }
+        if(level.MapName~=="TNT03A2" && !Controller && level.time>=6 && consoleplayer>=0)
+            Controller=UTNTCavernController(level.CreateClientSideThinker('UTNTCavernController',Thinker.STAT_USER+29));
+    }
+}

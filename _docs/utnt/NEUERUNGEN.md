@@ -40,6 +40,8 @@
 
 ## Effects and environment
 
+- **TNT03A2 lava cavern:** clearer distance haze, brighter platform tops, four hanging rock formations, a framed lava fall with local glow, and sparse smoke and dust; original geometry and gameplay preserved. [Details](UTNT_CAVERN.md)
+
 - **Voxel pickups and decorations:** selected Cheello models, including all three keycards, the shell box, explosive barrel and its explosion frames, and original-lowres UTNT objects use the active PLAYPAL at native pixel scale, with correctly scaled previews, individual wall-aware map facing, requested stationary or rotating presentation, preserved actor behavior and a localized Cheello credit in the ending. Sam & Max props retain their sprites. [Details](UTNT_VOXELS.md)
 
 - **Selective brightmaps:** compatible masks from the four TNT releases plus native-pixel enemy eyes, fire attacks and explosions, seed/heart details including the heart voxel, and selected lamps, runes, circuits and switch states; selectively glowing TNT01 glass and ceilings that visibly switch off; shared images preserve existing CRT materials and avoid duplicate bindings, with the custom spider explosion sequence restored. [Details](UTNT_BRIGHTMAPS.md)

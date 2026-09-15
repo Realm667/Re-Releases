@@ -254,6 +254,8 @@ def main():
     generate_crt_materials(root, check=a.check_only)
     from build_sky_edges import generate as generate_sky_edges
     generate_sky_edges(root, check=a.check_only)
+    from build_cavern import generate as generate_cavern
+    generate_cavern(root, check=a.check_only)
     from build_custom_brightmaps import generate as generate_custom_brightmaps
     generate_custom_brightmaps(root, iwad=a.iwad, check=a.check_only)
     from build_tester_effect_artwork import generate as generate_tester_effect_artwork

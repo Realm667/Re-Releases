@@ -1,0 +1,47 @@
+version "5.0.0"
+class UTNTCavernTestCamera : Actor
+{
+    Default { +NOBLOCKMAP +NOINTERACTION +NOGRAVITY }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+class UTNTCavernTest : EventHandler
+{
+    Actor Camera;
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name=="caveview")
+        {
+            if(!Camera)Camera=Actor.Spawn('UTNTCavernTestCamera',(4641,-3462,-359));
+            if(e.Args[0]==0){Camera.SetOrigin((4641,-3462,-359),false);Camera.Angle=270;Camera.Pitch=5;}
+            if(e.Args[0]==1){Camera.SetOrigin((4900,-4060,-480),false);Camera.Angle=0;Camera.Pitch=12;}
+            if(e.Args[0]==2){Camera.SetOrigin((6490,-3990,-340),false);Camera.Angle=300;Camera.Pitch=-16;}
+            if(e.Args[0]==3){Camera.SetOrigin((4500,-6200,-1050),false);Camera.Angle=20;Camera.Pitch=-28;}
+            if(e.Args[0]==4){Camera.SetOrigin((5290,-4320,-620),false);Camera.Angle=55;Camera.Pitch=0;}
+            if(e.Args[0]==5){Camera.SetOrigin((4641,-3462,-359),false);Camera.Angle=300;Camera.Pitch=8;}
+            players[consoleplayer].camera=Camera;
+        }
+        if(e.Name!="cavecheck" && e.Name!="cavequiet")return;
+        int models=0,lights=0,clouds=0;bool cosmetic=true;
+        let it=ThinkerIterator.Create('UTNTCavernScenery',Thinker.MAX_STATNUM+1,true);Actor a;
+        while(a=Actor(it.Next())){models++;cosmetic=cosmetic && !a.bSolid && a.bNoInteraction && a.bNoBlockmap;}
+        it=ThinkerIterator.Create('UTNTCavernLight',Thinker.MAX_STATNUM+1,true);while(it.Next())lights++;
+        it=ThinkerIterator.Create('UTNTCavernCloud',Thinker.MAX_STATNUM+1,true);while(it.Next())clouds++;
+        if(e.Name=="cavequiet")
+        {
+            Console.Printf("UTNT_ASSERT %s disabled quality clears clouds",clouds==0?"PASS":"FAIL");return;
+        }
+        let h=UTNTCavern(EventHandler.Find('UTNTCavern'));let s=level.Sectors[895];
+        Console.Printf("UTNT_ASSERT %s eight decorative models and three lights (%d/%d)",models==8 && lights==3?"PASS":"FAIL",models,lights);
+        Console.Printf("UTNT_ASSERT %s decoration has no collision",cosmetic?"PASS":"FAIL");
+        Console.Printf("UTNT_ASSERT %s bounded local cloud count %d",clouds<=42?"PASS":"FAIL",clouds);
+        int rgb=int(s.ColorMap.FadeColor)&0xffffff;
+        Console.Printf("UTNT_ASSERT %s cavern fog and lighting %d/%d",rgb==0x363029 && s.ColorMap.FogDensity==22 && s.LightLevel==144?"PASS":"FAIL",h.Applied,h.Rejected);
+        Console.Printf("UTNT_ASSERT %s no rejected sector witnesses",h.Rejected==0?"PASS":"FAIL");
+        bool tops=true;int caps[]={843,891,851,848,901,902,908};
+        for(int i=0;i<7;i++)tops=tops && level.Sectors[caps[i]].GetPlaneLight(Sector.ceiling)==36;
+        Console.Printf("UTNT_ASSERT %s seven platform tops brightened",tops && h.PlatformsApplied?"PASS":"FAIL");
+        int oldFades=0;
+        for(int i=0;i<level.Sectors.Size();i++)if((int(level.Sectors[i].ColorMap.FadeColor)&0xffffff)==0x62411d)oldFades++;
+        Console.Printf("UTNT_ASSERT %s all adjoining cavern surfaces share the haze",oldFades==0?"PASS":"FAIL");
+    }
+}
