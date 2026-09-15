@@ -15,6 +15,10 @@ float CaveNoise(vec3 p)
 vec4 ProcessTexel()
 {
     vec2 uv=vTexCoord.st;
+#ifdef CAVERN_GRAIN
+    float grain=1.-smoothstep(.12,1.,length((uv-.5)*2.));
+    return vec4(.51,.45,.37,grain*grain);
+#endif
     // Engine material coordinates are X/Z horizontally, Y vertically.
     vec3 p=pixelpos.xyz/vec3(160.,105.,160.);
     p.y-=timer*.22;

@@ -87,6 +87,8 @@ class UTNTCavernMist : VisualThinker
     }
 }
 
+#include "zscript/UTNT_CavernAtmosphere.zc"
+
 class UTNTCavernController : Thinker
 {
     bool Ready;
@@ -97,6 +99,7 @@ class UTNTCavernController : Thinker
     void Install()
     {
         Ready=true;
+        level.CreateClientSideThinker('UTNTCavernAtmosphere',Thinker.STAT_USER+29);
         int lump=Wads.CheckNumForFullName("cavern/scenery.txt");if(lump<0)return;
         Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
         for(int i=0;i<rows.Size();i++)
@@ -239,6 +242,9 @@ class UTNTCavern : EventHandler
             it=ThinkerIterator.Create('UTNTCavernCloud',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
             it=ThinkerIterator.Create('UTNTCavernHaze',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
             it=ThinkerIterator.Create('UTNTCavernMist',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
+            it=ThinkerIterator.Create('UTNTCavernAir',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
+            it=ThinkerIterator.Create('UTNTCavernFall',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
+            it=ThinkerIterator.Create('UTNTCavernAtmosphere',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
             it=ThinkerIterator.Create('UTNTCavernController',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
         }
         ApplyLighting();

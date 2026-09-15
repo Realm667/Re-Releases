@@ -1,0 +1,148 @@
+// Local, bounded atmosphere. It never damages actors or consumes gameplay RNG.
+class UTNTCavernAir : VisualThinker
+{
+    int Age, Life, Kind;
+    Vector3 Drift;
+    double Phase, Strength;
+
+    static bool Open(Vector3 p)
+    {
+        let s=level.PointInSector(p.XY);
+        if(!s || (int(s.ColorMap.FadeColor)&0xffffff)!=0x363029
+            || p.Z<s.floorplane.ZatPoint(p.XY)+8 || p.Z>s.ceilingplane.ZatPoint(p.XY)-8)return false;
+        for(int i=0;i<s.Get3DFloorCount();i++)
+        {
+            let f=s.Get3DFloor(i);
+            if((f.flags&F3DFloor.FF_EXISTS) && (f.flags&F3DFloor.FF_SOLID)
+                && p.Z>=f.bottom.ZatPoint(p.XY)-4 && p.Z<=f.top.ZatPoint(p.XY)+4)return false;
+        }
+        return true;
+    }
+    static void Emit(Vector3 origin, int kind, int seed)
+    {
+        if(!Open(origin))return;
+        let a=UTNTCavernAir(level.SpawnClientSideVisualThinker('UTNTCavernAir'));
+        if(a)a.Initialize(origin,kind,seed);
+    }
+    void Initialize(Vector3 origin, int kind, int seed)
+    {
+        self.Kind=kind;Phase=(seed*137)%360;Pos=origin;Prev=Pos;
+        bool cloud=(kind&1)!=0;
+        Texture=TexMan.CheckForTexture(cloud?'UCVSA0':'UCDGA0');
+        Flags=SPF_FULLBRIGHT|SPF_ALLOWSHADERS|SPF_STRETCHPIXELS;
+        SetRenderStyle(STYLE_Translucent);scolor=0xffffffff;Alpha=0;
+        Life=kind==0?210:kind==3?240:280;
+        Strength=cloud?(kind==3?.32:.20):.58;
+        double size=cloud?(kind==3?70:220):(kind==2?5.5:2.5)+(seed%5)*.45;
+        Scale=(size/64.,size/128.);
+        Drift=(cos(Phase)*.27,sin(Phase)*.24,kind>=2?-2.8:cloud?.10:-.035);
+        UpdateSector();UpdateSpriteInfo();
+    }
+    override void Tick()
+    {
+        if(IsFrozen())return;
+        if(++Age>=Life){Destroy();return;}
+        double t=Age/double(Life);
+        let runtime=UTNTFXRuntime.Get();let camera=runtime.Camera;
+        double distance=camera?(camera.Pos-Pos).Length():1e9;
+        Alpha=Strength*sin(t*180)*sin(t*180)*clamp((distance-24)/80.,0.,1.)*clamp((1700-distance)/350.,0.,1.);
+        Vector3 step=Drift+(sin(Phase+Age*.8)*.10,cos(Phase+Age*.6)*.10,0);
+        if(Kind>=2)step.Z-=min(2.4,Age*.012);
+        Vector3 next=Pos+step;if(!Open(next)){Destroy();return;}
+        Prev=Pos;Pos=next;UpdateSector();
+        if(Kind==3)Scale*=1.004;
+    }
+}
+
+class UTNTCavernFall : Actor
+{
+    int Age, Seed, SoundEvents;
+    Default { +CLIENTSIDE +NOINTERACTION +NOBLOCKMAP +NOGRAVITY +NOTONAUTOMAP }
+    States { Spawn: TNT1 A -1; Stop; }
+    override void Tick()
+    {
+        if(level.isFrozen())return;
+        if(UTNTFXRuntime.Get().Quality<=0 || ++Age>75){A_StopSound(CHAN_BODY);Destroy();return;}
+        // A short, spatial stone/grit sequence; no looping or camera shake.
+        if(Age==1 || Age==9 || Age==21)
+        {
+            A_StartSound(Age==1?"UTNTCavern/Settle":"UTNTCavern/Grit",CHAN_BODY,0,Age==1?.48:.30,.65,Age==1?.72:.88);
+            SoundEvents++;
+        }
+        if(Age<=56 && Age%7==0)
+        {
+            for(int j=0;j<4;j++)
+            {
+                double a=(Seed*73+Age*29+j*97)%360;
+                UTNTCavernAir.Emit(Pos+(cos(a)*24,sin(a)*24,-8-j*5),2,Seed+Age+j);
+            }
+            UTNTCavernAir.Emit(Pos+(sin(Age*17)*14,cos(Age*13)*14,-20),3,Seed+Age);
+        }
+    }
+}
+
+class UTNTCavernAtmosphere : Thinker
+{
+    Vector3 FallSources[8];
+    int SourceCount;
+    bool Ready;
+    int Serial, NextFall, Falls;
+    LineTracer Sight;
+
+    void Initialize()
+    {
+        Ready=true;NextFall=level.time+420;Sight=new('LineTracer');
+        int lump=Wads.CheckNumForFullName('cavern/fall-sources.txt');if(lump<0)return;
+        Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
+        for(int i=0;i<rows.Size();i++)
+        {
+            Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=4)continue;
+            Vector3 p=(r[0].ToDouble(),r[1].ToDouble(),r[2].ToDouble());
+            let s=level.PointInSector(p.XY);
+            if(SourceCount<8 && s && s.Index()==r[3].ToInt() && UTNTCavernAir.Open(p))FallSources[SourceCount++]=p;
+        }
+    }
+    bool BeginFall(Actor camera)
+    {
+        int best=-1;double score=1e9;
+        Vector3 eye=camera.Pos+(0,0,camera.player?camera.player.ViewHeight:0);
+        for(int i=0;i<SourceCount;i++)
+        {
+            Vector3 delta=FallSources[i]-eye;double d=delta.Length();
+            if(d<100 || d>1550)continue;
+            Sight.Trace(eye,level.PointInSector(eye.XY),delta.Unit(),d,0,wallMask:0,ignoreAllActors:true,ignore:camera);
+            if(Sight.Results.HitType!=TRACE_HitNone && (Sight.Results.HitPos-eye).Length()<d-16)continue;
+            double rank=d*(1+.18*sin(i*97+Falls*131));if(rank<score){score=rank;best=i;}
+        }
+        if(best<0)return false;
+        let a=UTNTCavernFall(Actor.Spawn('UTNTCavernFall',FallSources[best]));
+        if(!a)return false;a.Seed=Serial;Falls++;return true;
+    }
+    override void Tick()
+    {
+        if(!Ready)Initialize();
+        if(level.isFrozen())return;
+        let runtime=UTNTFXRuntime.Get();let camera=runtime.Camera;
+        if(!camera || runtime.Quality<=0 || !UTNTCavernAir.Open(camera.Pos+(0,0,40)))return;
+        if(level.time%7==0)
+        {
+            int count=runtime.Quality>=3?3:runtime.Quality==2?2:1;
+            for(int i=0;i<count;i++)
+            {
+                Serial++;double a=(Serial*137)%360,r=90+(Serial*83)%580;
+                Vector3 p=camera.Pos+(cos(a)*r,sin(a)*r,(Serial*97)%480-160);
+                UTNTCavernAir.Emit(p,0,Serial);
+            }
+        }
+        if(runtime.Quality>=2 && level.time%42==0)
+        {
+            double a=(Serial*71)%360;
+            UTNTCavernAir.Emit(camera.Pos+(cos(a)*650,sin(a)*650,80+(Serial*73)%300),1,Serial);
+        }
+        if(level.time>=NextFall)
+        {
+            bool started=BeginFall(camera);
+            NextFall=level.time+(started?700+(Falls*197)%600:175);
+        }
+    }
+}

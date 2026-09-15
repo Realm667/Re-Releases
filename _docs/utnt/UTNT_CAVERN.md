@@ -5,7 +5,8 @@ Updated: 16 September 2026.
 The lava cavern receives explicit distance fog, separate floor/ceiling lighting,
 four asymmetric hanging rock formations, a flowing lava curtain with rock cheeks
 and an outlet lip, three local lights, luminous lava haze, rising smoke and
-suspended dust.
+suspended dust, organic wall/roof masses and occasional falling grit with spatial
+stone sounds.
 This is a cosmetic layer: no source WAD, collision, platform route, sector tag,
 map action, enemy placement or ACS script is edited.
 
@@ -43,7 +44,7 @@ accumulate offsets. Outdoor day/night and snowfall sectors are not selected.
 Fog density is installed before the fade update, which rebuilds UZDoom's cached
 3D-floor light lists. A single post-setup refresh handles attached floor lists.
 
-The client controller creates eight noninteracting scenery actors and three
+The client controller creates 36 noninteracting scenery actors and three
 lights. It rebuilds local objects after loading, clearing old instances from
 both thinker pools. Smoke and dust use local deterministic phases, bounded
 lifetimes, distance checks and the shared effect-quality setting. No gameplay
@@ -75,11 +76,44 @@ cloud every 30 tics. Lifetimes cap this additional population below 32. Quality
 zero stops new emissions and fades the haze; higher dust is omitted at quality
 one. Save/load and hub return rebuild the local layer without duplicates.
 
+## Organic rock overlays and ceiling dust
+
+Twenty irregular rock faces interrupt the tall cliffs below their walkable rims;
+eight broad roof masses break up the ceiling, in addition to the four existing
+stalactites and four lava-fall pieces. The new meshes use the original IKWALL44
+material, asymmetrical faceted surfaces and buried perimeter rings. They add
+3,276 triangles in total. Wall bulges remain below ledges and the lava-fall
+opening is reserved. These cosmetic models have no collision and do not create
+new stepping stones or alter the platform route.
+
+The generator resolves authored Plane_Align/Plane_Copy slopes in memory before
+sampling roof attachments, stalactite roots, ledge heights and dust sources.
+This is necessary because some native ceiling slopes only take effect when the
+engine loads the map. No WAD data is rewritten. Eight verified source positions
+are stored in `cavern/fall-sources.txt` below the roof masses.
+
+`UTNT_CavernAtmosphere.zc` adds small suspended grains around the local camera
+and slowly moving translucent smoke sheets. Emission follows effect quality;
+particles have finite lifetimes, soft alpha, near/distance fades and checks
+against floors, ceilings and solid 3D floors. They stay inside the cavern.
+No gameplay random stream or interactive actor is used.
+
+After an initial 12-second delay, a nearby unobstructed roof source can release
+a short fall of dust and grit. Successful events are separated by approximately
+20-37 seconds; unavailable sources are retried after five seconds. A burst emits
+32 falling grains and eight expanding puffs with gentle downward acceleration.
+Three spatial sound cues reuse the original stone/gravel recordings through
+`sndinfo/sndinfo.cavern`, with lowered pitch, restrained volume and distance
+attenuation. Save/load and hub return clear/rebuild the local emitters. Effect
+quality zero stops new ambient particles and roof events; existing particles
+finish their bounded fade.
+
 ## Validation
 
 Run `python -B tools/build_cavern.py --check` and
 `python -B tools/build_definition_tables.py --check` before packaging.
-`tools/test_cavern.py` captures eight views and checks model/light counts,
+`tools/test_cavern.py` captures eight room views plus a ceiling-dust sequence
+and checks model/light counts,
 noncollision, bounded clouds, haze height and sector lighting before and after
 save/load. Two low views specifically expose the haze's upper boundary.
 Use `--renderer 0` for OpenGL and `--renderer 1` for Vulkan. `--live-overlay`
@@ -89,7 +123,11 @@ iteration; final acceptance uses the rebuilt package without this option.
 Local screenshots and logs: `tutnt/.codex/logs/cavern-tnt03a2/`.
 Machine-readable results: `tutnt/.codex/validation/cavern-tnt03a2/`.
 `--hub` adds effect-quality shutdown and travel through TNT03A1 back to TNT03A2.
-It requires 28 lifecycle assertions; the ordinary save/load run requires 18.
+It requires 33 lifecycle assertions; the ordinary save/load run requires 22.
+The checks include all eight valid roof sources, a single atmosphere controller,
+bounded particles, actual falling grit and all three sound triggers with resolved
+audio resources. Runtime tests use `-nosound`; this verifies sound binding and
+triggering, not an auditory evaluation of the mix.
 The shared integration package must be built from the full current workspace;
 the isolated cavern package must never be copied over it.
 
@@ -111,3 +149,12 @@ verify all 119 haze elements, the 320-unit height, the additional smoke budget,
 its 384-unit vertical limit, clean quality shutdown and no load/hub duplicates.
 Results: `cavern-haze-final-0.json` and `cavern-haze-final-1.json` in the local
 validation directory.
+
+Organic rock/atmosphere acceptance on 16 September 2026: the rebuilt root
+`tutnt.pk3` (build `3a15357b57c1`) passed all 33 assertions on OpenGL and all
+33 on Vulkan in UZDoom 5.0.1, without a live overlay. Representative room and
+fall-sequence screenshots were inspected. Both sound resources resolve and all
+three cues execute; the automated runs have audio output disabled. All vertex,
+sector, sidedef and linedef data match the original task snapshot. Results:
+`cavern-organic-final-0.json`, `cavern-organic-final-1.json` and
+`organic-geometry.json` in the local validation directory.

@@ -20,7 +20,24 @@ class UTNTCavernTest : EventHandler
             if(e.Args[0]==5){Camera.SetOrigin((4641,-3462,-359),false);Camera.Angle=300;Camera.Pitch=8;}
             if(e.Args[0]==6){Camera.SetOrigin((4800,-4200,-1230),false);Camera.Angle=300;Camera.Pitch=-8;}
             if(e.Args[0]==7){Camera.SetOrigin((4800,-4300,-1050),false);Camera.Angle=70;Camera.Pitch=20;}
+            if(e.Args[0]==8){Camera.SetOrigin((4700,-3600,-180),false);Camera.Angle=280;Camera.Pitch=-48;}
             players[consoleplayer].camera=Camera;
+        }
+        if(e.Name=="cavefall")
+        {
+            let it=ThinkerIterator.Create('UTNTCavernAtmosphere',Thinker.MAX_STATNUM+1,true);
+            let h=UTNTCavernAtmosphere(it.Next());if(h){h.NextFall=level.time;Console.Printf("CAVERN_SOUND_LENGTH %.3f %.3f",S_GetLength("UTNTCavern/Settle"),S_GetLength("UTNTCavern/Grit"));}
+            return;
+        }
+        if(e.Name=="cavefallcheck")
+        {
+            let it=ThinkerIterator.Create('UTNTCavernFall',Thinker.MAX_STATNUM+1,true);
+            let f=UTNTCavernFall(it.Next());
+            Console.Printf("UTNT_ASSERT %s timed ceiling fall triggers its three sound cues",f && f.SoundEvents==3 && S_GetLength("UTNTCavern/Settle")>0 && S_GetLength("UTNTCavern/Grit")>0?"PASS":"FAIL");
+            it=ThinkerIterator.Create('UTNTCavernAir',Thinker.MAX_STATNUM+1,true);UTNTCavernAir a;int falling=0;
+            while(a=UTNTCavernAir(it.Next()))if(a.Kind>=2)falling++;
+            Console.Printf("UTNT_ASSERT %s falling dust and grit present (%d)",falling>0 && falling<=80?"PASS":"FAIL",falling);
+            return;
         }
         if(e.Name!="cavecheck" && e.Name!="cavequiet")return;
         int models=0,lights=0,clouds=0;bool cosmetic=true;
@@ -28,6 +45,20 @@ class UTNTCavernTest : EventHandler
         while(a=Actor(it.Next())){models++;cosmetic=cosmetic && !a.bSolid && a.bNoInteraction && a.bNoBlockmap;}
         it=ThinkerIterator.Create('UTNTCavernLight',Thinker.MAX_STATNUM+1,true);while(it.Next())lights++;
         it=ThinkerIterator.Create('UTNTCavernCloud',Thinker.MAX_STATNUM+1,true);while(it.Next())clouds++;
+        int air=0,controllers=0,sources=0;
+        it=ThinkerIterator.Create('UTNTCavernAir',Thinker.MAX_STATNUM+1,true);while(it.Next())air++;
+        it=ThinkerIterator.Create('UTNTCavernAtmosphere',Thinker.MAX_STATNUM+1,true);UTNTCavernAtmosphere atmos;
+        while(atmos=UTNTCavernAtmosphere(it.Next())){controllers++;sources=atmos.SourceCount;}
+        if(sources!=8)
+        {
+            Array<String> rows;Wads.ReadLump(Wads.CheckNumForFullName("cavern/fall-sources.txt")).Split(rows,"\n",TOK_SKIPEMPTY);
+            for(int i=0;i<rows.Size();i++)
+            {
+                Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);Vector3 p=(r[0].ToDouble(),r[1].ToDouble(),r[2].ToDouble());
+                let s=level.PointInSector(p.XY);
+                Console.Printf("CAVERN_SOURCE %d sec %d expected %d floor %.1f ceiling %.1f open %d",i,s.Index(),r[3].ToInt(),s.floorplane.ZatPoint(p.XY),s.ceilingplane.ZatPoint(p.XY),UTNTCavernAir.Open(p));
+            }
+        }
         int haze=0,mist=0;bool height=true,quiet=true,bounded=true;
         it=ThinkerIterator.Create('UTNTCavernHaze',Thinker.MAX_STATNUM+1,true);UTNTCavernHaze v;
         while(v=UTNTCavernHaze(it.Next())){haze++;height=height && abs(v.Scale.Y*128-320)<.01 && (v.Flags&SPF_NO_XY_BILLBOARD)!=0;quiet=quiet && v.Alpha<.001;}
@@ -35,12 +66,13 @@ class UTNTCavernTest : EventHandler
         while(m=UTNTCavernMist(it.Next())){mist++;bounded=bounded && (!m.OverLava || m.Pos.Z+80-m.Base<=384);}
         if(e.Name=="cavequiet")
         {
-            Console.Printf("UTNT_ASSERT %s disabled quality clears clouds and haze",clouds==0 && mist==0 && quiet?"PASS":"FAIL");return;
+            Console.Printf("UTNT_ASSERT %s disabled quality clears clouds and haze",clouds==0 && mist==0 && air==0 && quiet?"PASS":"FAIL");return;
         }
+        Console.Printf("UTNT_ASSERT %s one ambient controller, eight falls and bounded particles (%d / controllers %d / sources %d)",controllers==1 && sources==8 && air<=180?"PASS":"FAIL",air,controllers,sources);
         Console.Printf("UTNT_ASSERT %s shoreline haze reaches 320 units (%d)",haze==119 && height?"PASS":"FAIL",haze);
         Console.Printf("UTNT_ASSERT %s smoke budget and lava height (%d)",mist<=32 && bounded?"PASS":"FAIL",mist);
         let h=UTNTCavern(EventHandler.Find('UTNTCavern'));let s=level.Sectors[895];
-        Console.Printf("UTNT_ASSERT %s eight decorative models and three lights (%d/%d)",models==8 && lights==3?"PASS":"FAIL",models,lights);
+        Console.Printf("UTNT_ASSERT %s 36 decorative models and three lights (%d/%d)",models==36 && lights==3?"PASS":"FAIL",models,lights);
         Console.Printf("UTNT_ASSERT %s decoration has no collision",cosmetic?"PASS":"FAIL");
         Console.Printf("UTNT_ASSERT %s bounded local cloud count %d",clouds<=42?"PASS":"FAIL",clouds);
         int rgb=int(s.ColorMap.FadeColor)&0xffffff;
