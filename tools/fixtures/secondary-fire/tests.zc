@@ -1,0 +1,160 @@
+class SecondaryTestTarget : Actor
+{
+    Default { Health 10000; Radius 20; Height 64; +SHOOTABLE +SOLID +ISMONSTER +NOBLOOD +DONTTHRUST }
+    States { Spawn: POSS A -1; Stop; Death: POSS H -1; Stop; }
+}
+class SecondaryTestShield : SecondaryTestTarget
+{
+    override int TakeSpecialDamage(Actor inflictor,Actor source,int damage,Name dtype,int flags,double angle) { return 0; }
+}
+class SecondaryTestCritical : UTNTAbilities
+{
+    int Rolls;
+    override bool RollCritical() { Rolls++; return true; }
+}
+class SecondaryTestBoss : SecondaryTestTarget { Default { +BOSS } }
+class SecondaryTestHandler : EventHandler
+{
+    Array<Actor> Targets;
+    Array<int> ShotTimes;
+    Actor Tracked;
+    int Mode, BeforeAmmo, ShotCount, Started, EndAge, TotalDamage, Boost;
+    bool Tracking, Bounced, Rate;
+    Vector3 PreviousVel;
+    void Check(bool ok,String message) { Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",message); }
+    void Clear()
+    {
+        Tracking=false;
+        for(int i=0;i<Targets.Size();i++) if(Targets[i]) Targets[i].Destroy();
+        Targets.Clear();
+        let it=ThinkerIterator.Create('Actor');Actor x;
+        while(x=Actor(it.Next())) if(x.bMissile) x.Destroy();
+        Tracked=null; ShotTimes.Clear();ShotCount=TotalDamage=EndAge=0;Bounced=false;
+        for(int p=0;p<MAXPLAYERS;p++)if(playeringame[p]) {let a=UTNTAbilities.Get(players[p].mo);if(a)a.Finish();}
+    }
+    Actor Dummy(Vector3 pos,class<Actor> type='SecondaryTestTarget')
+    {let m=Actor.Spawn(type,pos,NO_REPLACE);Targets.Push(m);return m;}
+    void Setup(Actor p,int mode)
+    {
+        Clear();self.Mode=mode; Started=level.time; Tracking=true;Rate=false;
+        p.SetOrigin((0,0,0),false);p.Vel=(0,0,0);p.Angle=0;p.Pitch=0;p.bInvulnerable=true;
+        p.player.cheats&=~(CF_TOTALLYFROZEN|CF_FROZEN);
+        let w=p.player.ReadyWeapon;
+        Console.Printf("SECONDARY setup mode=%d weapon=%s",mode,w.GetClassName());
+        if(w.Ammo1)w.Ammo1.Amount=mode==0?10:mode==3?80:200;
+        BeforeAmmo=w.Ammo1?w.Ammo1.Amount:0;
+        if(mode==0) {UTNTSSGBase(w).SpentBarrels=0;Dummy((80,0,0));}
+        if(mode==1) p.SetOrigin((1200,0,0),false);
+        if(mode==4) Dummy((280,0,0));
+        if(mode==3)for(int i=0;i<15;i++)Dummy((200+(i%5)*150,(i/5)*160,0));
+        if(mode==5) {Dummy((300,0,0));Dummy((450,80,0)).bFriendly=true;Dummy((450,-80,0)).bInvulnerable=true;}
+        if(mode==6) Dummy((300,0,0),'SecondaryTestShield');
+    }
+    override void WorldThingSpawned(WorldEvent e)
+    {
+        if(!Tracking)return;
+        if(e.Thing is 'UTNTHeavyPlasma' || e.Thing is 'UTNTGrenade' || e.Thing is 'UTNTBFGChain'
+            || (Mode==7 && e.Thing is 'UTNTPlasmaBall'))
+        { ShotTimes.Push(level.time);ShotCount++;Tracked=e.Thing;PreviousVel=Tracked.Vel; }
+    }
+    override void WorldThingDamaged(WorldEvent e)
+    {
+        if(!Tracking)return;
+        for(int i=0;i<Targets.Size();i++)if(e.Thing==Targets[i])TotalDamage+=e.Damage;
+    }
+    override void WorldTick()
+    {
+        if(!Tracking || !Tracked)return;
+        if(Tracked is 'UTNTGrenade')
+        {
+            if(Tracked.bMissile && PreviousVel.X>0 && Tracked.Vel.X<0)Bounced=true;
+            if(!Tracked.bMissile && !EndAge)EndAge=UTNTGrenade(Tracked).Age;
+            PreviousVel=Tracked.Vel;
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let p=players[e.Player].mo;let w=p.player.ReadyWeapon;
+        if(e.Name=="secdefaults")
+        {
+            let plasma=Actor.Spawn('UTNTHeavyPlasma',(1000,1000,100));
+            Check(abs(plasma.Scale.X-0.675)<0.001 && plasma.Radius==19.5 && plasma.Height==12,"heavy plasma is 150 percent of primary size");
+            Check(plasma.GetMissileDamage(0,1)==25,"heavy plasma base damage is five times primary");plasma.Destroy();
+            class<Weapon> types[]={ 'UTNTSuperShotgun','UTNTRocketLauncher','UTNTPlasmaRifle','UTNTBFG9000' };
+            for(int i=0;i<4;i++) {let v=Weapon(GetDefaultByType(types[i]));Check(v.FindState('AltFire')!=null,"secondary state exists");}
+        }
+        if(e.Name=="secsetup")Setup(p,e.Args[0]);
+        if(e.Name=="secclear")Clear();
+        if(e.Name=="secone") {UTNTSSGBase(w).SpentBarrels=0;w.Ammo1.Amount=1;}
+        if(e.Name=="secverify")
+        {
+            int n=e.Args[0];
+            if(n==1)Check(UTNTSSGBase(w).SpentBarrels==1 && w.Ammo1.Amount==9,"one barrel and one shell survive idle/save/weapon switch");
+            if(n==2) {Check(UTNTSSGBase(w).SpentBarrels==0 && w.Ammo1.Amount==8,"primary fires remaining single barrel and reloads both");Check(TotalDamage>=100 && TotalDamage<=300,"two single barrels deliver twenty pellets");}
+            if(n==3)Check(p.CountInv('Shell')==0 && UTNTSSGBase(p.FindInventory('UTNTSuperShotgun')).SpentBarrels==0,"last shell fires and finishes reload");
+            if(n==4) {Check(ShotCount==1 && w.Ammo1.Amount==BeforeAmmo-1,"grenade costs one rocket");Check(Bounced,"grenade bounces off wall");Check(EndAge==88,"grenade fuse expires at 88 tics");}
+            if(n==5)Check(TotalDamage>0 && EndAge>0 && EndAge<88,"grenade detonates on enemy contact before fuse");
+            if(n==6)
+            {
+                int hits=0;for(int i=0;i<Targets.Size();i++) if(Targets[i].Health<10000)hits++;
+                Check(hits==12,"BFG chain hits twelve different enemies across save/load");
+                Check(TotalDamage==3120,"complete BFG chain deals 3120 damage without spray");
+                Check(w.Ammo1.Amount==40 && ShotCount==1,"BFG chain costs forty cells");
+            }
+            if(n==7)Check(TotalDamage==260 && Targets[1].Health==10000 && Targets[2].Health==10000,"sparse chain does not repeat targets or hit friendly/invulnerable actors");
+            if(n==8)Check(TotalDamage==0 && Targets[0].Health==10000,"BFG chain respects custom shields");
+            Console.Printf("SECONDARY metrics mode=%d shots=%d damage=%d fuse=%d ammo=%d",Mode,ShotCount,TotalDamage,EndAge,w.Ammo1.Amount);
+        }
+        if(e.Name=="secdirect")
+        {
+            Setup(p,2);let m=Dummy((600,0,0));let plasma=Actor.Spawn('UTNTHeavyPlasma',(0,0,40));plasma.target=p;plasma.tracer=m;plasma.Angle=8;plasma.VelFromAngle(25);Tracked=plasma;
+            Check(UTNTSecondaryTarget.Find(plasma,1024,20)==m,"plasma acquires visible target in narrow forward cone");
+            let shield=Dummy((200,200,0));shield.bInvulnerable=true;Check(!UTNTSecondaryTarget.Valid(shield,p),"homing rejects invulnerable targets");
+        }
+        if(e.Name=="secdirectcheck")
+        {
+            Check(Tracked && Tracked.Angle<8 && Tracked.Angle>0,"plasma turns gently rather than snapping to target");
+            Clear();let m=Dummy((800,800,0));let probe=Actor.Spawn('UTNTBFGChain',(200,800,32));probe.target=p;
+            Check(UTNTSecondaryTarget.Find(probe,1024)==null,"homing cannot acquire enemies through solid map geometry");
+            probe.Destroy();Clear();
+            let prior=UTNTAbilities.Get(p);if(prior)prior.Destroy();
+            p.GiveInventory('SecondaryTestCritical',1);let ability=SecondaryTestCritical(UTNTAbilities.Get(p));
+            ability.ClassKind=0;ability.ActiveSlot=1;ability.Remaining=100;
+            m=Dummy((300,0,0));let chain=UTNTBFGChain(Actor.Spawn('UTNTBFGChain',(200,0,32)));chain.target=p;
+            chain.SpecialMissileHit(m);Check(m.Health==9480,"Marine Rage doubles chain damage once");chain.Destroy();
+            Clear();ability.ClassKind=1;ability.ActiveSlot=1;ability.Remaining=100;
+            let boss=Dummy((300,0,0),'SecondaryTestBoss');let shield=Dummy((400,0,0),'SecondaryTestShield');
+            chain=UTNTBFGChain(Actor.Spawn('UTNTBFGChain',(200,0,32)));chain.target=p;
+            chain.SpecialMissileHit(shield);
+            Check(shield.Health==10000,"Scout critical cannot bypass custom shield");
+            chain.SpecialMissileHit(boss);int health=boss.Health;chain.SpecialMissileHit(boss);
+            Check(boss.Health==health && chain.HitCount==2,"chain cannot damage the same boss twice");
+            Check(health>=9000 && ability.BossCriticalCooldown>0,"Scout boss critical remains capped and starts cooldown");
+            chain.Destroy();Clear();ability.Destroy();p.GiveInventory('UTNTAbilities',1);
+        }
+        if(e.Name=="secratebegin")
+        {
+            Setup(p,e.Args[0]);Rate=true;Boost=e.Args[1];
+            for(int i=0;i<Targets.Size();i++)Targets[i].Destroy();Targets.Clear();
+            if(w.Ammo1)w.Ammo1.Amount=1000;BeforeAmmo=1000;
+            if(Boost) {let a=UTNTAbilities.Get(p);a.Cooldown[0]=a.LockRemaining=0;a.Activate(1);}
+        }
+        if(e.Name=="secrateend")
+        {
+            int used=BeforeAmmo-w.Ammo1.Amount;
+            if(Mode==2)
+            {
+                Check(used==ShotCount*5,"every heavy plasma shot costs five cells");
+                Check(ShotCount>10,"sustained heavy plasma fires repeatedly");
+                bool cadence=true;for(int i=1;i<ShotTimes.Size();i++)
+                {int dt=ShotTimes[i]-ShotTimes[i-1];if(Boost?dt<3||dt>10:dt!=5&&dt!=15)cadence=false;}
+                Check(cadence,"heavy plasma sustains fivefold primary interval including Overdrive");
+            }
+            else if(Mode==0)Check(used>2 && UTNTSSGBase(w).SpentBarrels==used%2,"single-barrel sequence keeps cycling through reload");
+            else Check(used==ShotCount*(Mode==3?40:1) && ShotCount>1,"sustained secondary ammo matches projectile count");
+            Console.Printf("SECONDARY rate mode=%d boost=%d shots=%d ammo=%d",Mode,Boost,ShotCount,used);Tracking=false;
+        }
+        if(e.Name=="secprimary") {Setup(p,7);w.Ammo1.Amount=1000;BeforeAmmo=1000;}
+        if(e.Name=="secprimaryend") {Check(ShotCount>75 && ShotCount<100 && BeforeAmmo-w.Ammo1.Amount==ShotCount,"primary plasma cadence and one-cell cost preserved");Console.Printf("SECONDARY primary shots=%d",ShotCount);}
+    }
+}

@@ -1,0 +1,34 @@
+// Run by two actual engine peers; both validate the same synchronized shot.
+class SecondaryCoopTest : SecondaryTestHandler
+{
+    bool Prepared,Complete;
+    override void WorldTick()
+    {
+        if(Complete)return;
+        if(!Prepared && level.time>=60 && playeringame[0] && playeringame[1])
+        {
+            Prepared=true;Tracking=true;Mode=3;
+            for(int i=0;i<2;i++)
+            {
+                let p=players[i].mo;
+                p.SetOrigin((i*100,0,0),false);p.Vel=(0,0,0);p.Angle=0;p.Pitch=0;
+                p.Health=p.player.Health=100;p.bInvulnerable=false;
+                p.player.cheats&=~(CF_TOTALLYFROZEN|CF_FROZEN|CF_GODMODE);
+                p.GiveInventory('UTNTBFG9000',1);p.GiveInventory('Cell',80);
+                p.FindInventory('Cell').Amount=80;
+                p.player.PendingWeapon=Weapon(p.FindInventory('UTNTBFG9000'));
+            }
+            for(int i=0;i<15;i++)Dummy((250+(i%5)*150,(i/5)*160,0));
+        }
+        if(Prepared && level.time>=440)
+        {
+            Complete=true;int hits=0,checksum=0;
+            for(int i=0;i<Targets.Size();i++){if(Targets[i].Health<10000)hits++;checksum+=(i+1)*Targets[i].Health;}
+            Check(hits==12 && TotalDamage==3120,"cooperative chain hits twelve enemies with identical damage");
+            Check(players[0].mo.CountInv('Cell')==40 && players[1].mo.CountInv('Cell')==80,"cooperative ammo belongs only to firing player");
+            Check(players[0].mo.Health==100 && players[1].mo.Health==100,"chain passes through cooperative player without damage");
+            Console.Printf("SECONDARY_COOP_CHECKSUM %d",checksum);
+            Console.Printf("SECONDARY_COOP_COMPLETE");
+        }
+    }
+}

@@ -18,6 +18,7 @@ Run `tutnt_build.bat` from the repository root. Local configuration is in the ig
 - [Performance and multiplayer simulation](PERFORMANCE_MULTIPLAYER.md)
 
 - [UTNT_ABILITIES.md](UTNT_ABILITIES.md)
+- [Secondary weapon fire](UTNT_SECONDARY_FIRE.md)
 - [UTNT_ALTERNATE_SKY.md](UTNT_ALTERNATE_SKY.md)
 - [UTNT_AREA_TEXTURES.md](UTNT_AREA_TEXTURES.md)
 - [UTNT_ASH_SKY.md](UTNT_ASH_SKY.md)
