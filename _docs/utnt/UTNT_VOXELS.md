@@ -1,8 +1,8 @@
 # UTNT voxel pickups and decorations
 
-Updated: 14 September 2026.
+Updated: 16 September 2026.
 
-Forty-five selected actor types use seventy-four native KVX models, including all original
+Forty-six selected actor types use seventy-five native KVX models, including all original
 animation frames. The mapping changes world rendering only: actor classes,
 collision, pickup amounts, weapon behavior, map placements and existing fire/light
 systems remain in place. Weapon HUD sprites are not voxelized.
@@ -211,3 +211,7 @@ Validation: all 11 populated maps pass 3,173 native-engine assertions, including
 TNT01 save/load. Every edited WAD passes a byte-level angle-only comparison;
 all 13 maps pass the idempotence audit. A separate native gallery visually
 confirms the front axes of all 20 stationary directional actor types.
+
+## Grenade projectile (16 September 2026)
+
+The alternate rocket-launcher shot uses a dedicated authored KVX based on the user-provided Quake grenade reference, with dark octagonal metal, a pointed cap and red bands. It uses the active PLAYPAL and has an indexed fallback sprite. Unlike pickups, the projectile uses actor-driven pitch, yaw and roll at 0.4 scale with a central pivot. The editable profile is `tutnt/voxels/source/grenade.json`; regenerate explicitly with `tools/build_voxels.py`. Existing pickup models are unchanged. See [secondary fire](UTNT_SECONDARY_FIRE.md) for flight, smoke and validation.

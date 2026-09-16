@@ -91,8 +91,8 @@ class UTNTGrenade : Actor
         Damage 0; Projectile; -NOGRAVITY
         BounceType "Hexen"; -BOUNCEONACTORS
         BounceFactor 0.5; WallBounceFactor 0.5;
-        +ROLLSPRITE
-        Scale 0.65;
+        +ROLLSPRITE +INTERPOLATEANGLES
+        Scale 0.4;
         BounceSound "weapons/shell";
         SeeSound "weapons/rocklf";
         DeathSound "weapons/rocklx";
@@ -102,14 +102,30 @@ class UTNTGrenade : Actor
     {
         Super.Tick();
         if(!bMissile) return;
-        Roll+=12;
+        // Orientation only: never rotate the physical velocity or collision hull.
+        if(Vel.LengthSquared()>1 && Pos.Z>floorz+0.5)
+        {
+            Angle+=1.4; Pitch+=2.2; Roll+=1.8;
+            int interval=UTNTIndustrialFX.Quality()==1?6:3;
+            if(Age%interval==0 && UTNTVisuals.Visible(self,combat:true))
+            {
+                let puff=UTNTIndustrialFX.Make(Pos-Vel.Unit()*3+(0,0,3),1,
+                    2.4,2.4,21,0xff9a9287,
+                    (CFRandom[utntcosmetic](-0.08,0.08),CFRandom[utntcosmetic](-0.08,0.08),0.16));
+                if(puff)
+                {
+                    puff.Strength=0.18; puff.Growth=0.65; puff.FadeIn=2;
+                    puff.Flags&=~SPF_FULLBRIGHT;
+                }
+            }
+        }
         // Quake's 2.5 seconds rounded to the next Doom simulation tic.
         if(++Age>=88) ExplodeMissile(null,null);
     }
     States
     {
     Spawn:
-        ROCK A 1;
+        UGRN A 1;
         Loop;
     Death:
         TNT1 A 0 A_SpawnItemEx("UTNTRocketExplosion");

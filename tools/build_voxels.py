@@ -145,6 +145,14 @@ def build(root=ROOT,source=None,iwad=None,check=False):
             name='UV'+sprite;target=dest/(name+'.kvx');output(target,data);_,mips=inspect_kvx(data)
             records.append({'sprite':sprite,'source':f.relative_to(root).as_posix(),'source_sha256':sha(raw),'file':target.relative_to(root).as_posix(),'sha256':sha(data),'geometry':kind,'source_size':[w,h],'solid_voxels':len(v),'mips':mips})
             defs.append(f'{sprite} = "{name}" {{ OverridePalette Spin = {spin} }}')
+    from grenade_voxel import geometry, fallback
+    v,dims,pivot,palette,source=geometry(root)
+    data=encode(v,dims,pivot,palette);target=dest/'UVUGRNA.kvx'
+    output(target,data);output(root/'tutnt/sprites/UGRNA0.lmp',fallback(v,dims))
+    _,mips=inspect_kvx(data)
+    records.append({'sprite':'UGRNA','source':source.relative_to(root).as_posix(),'source_sha256':sha(source.read_bytes().replace(b'\r\n',b'\n')),'file':target.relative_to(root).as_posix(),'sha256':sha(data),'geometry':'grenade','solid_voxels':len(v),'mips':mips})
+    actors.append({'actor':'UTNTGrenade','sprite':'UGRN','frames':'A','spin':0,'origin':'UTNT authored','geometry':'grenade'})
+    defs.append('UGRNA = "UVUGRNA" { OverridePalette Spin = 0 UseActorPitch UseActorRoll }')
     output(root/'tutnt/VOXELDEF.txt',('\n'.join(defs)+'\n').encode())
     manifest={'palette':'tutnt/PLAYPAL.pal','palette_mode':'native OverridePalette; imported source indices normalized to Doom order','slow_spin':20,'key_spin':70,'minigun_source':'75f81f1fc^:tutnt/sprites/MNGNA0.lmp','actors':actors,'models':records}
     output(art/'manifest.json',(json.dumps(manifest,indent=2)+'\n').encode())

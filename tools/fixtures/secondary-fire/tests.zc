@@ -75,6 +75,38 @@ class SecondaryTestHandler : EventHandler
     override void NetworkProcess(ConsoleEvent e)
     {
         let p=players[e.Player].mo;let w=p.player.ReadyWeapon;
+        if(e.Name=="secgrenade")
+        {
+            if(e.Args[0]==0)
+            {
+                Clear();p.SetOrigin((0,0,0),false);p.Angle=0;p.Pitch=-8;p.bInvulnerable=true;
+                let g=UTNTGrenade(Actor.Spawn('UTNTGrenade',(120,0,58)));
+                g.target=p;g.Angle=0;g.Pitch=0;g.Roll=0;g.Vel=(0,3,2);Tracked=g;
+                Check(g.Sprite==Actor.GetSpriteIndex('UGRN') && abs(g.Scale.X-0.4)<0.001,"grenade uses its dedicated native-scale voxel sprite");
+            }
+            if(e.Args[0]==1)
+            {
+                let g=UTNTGrenade(Tracked);
+                Check(g && g.Age>0 && g.Angle>0 && g.Pitch>0 && g.Roll>0,"airborne grenade turns around all three axes");
+                Check(g && abs(g.Vel.Y-3)<0.001 && abs(g.Vel.X)<0.001,"cosmetic tumble leaves horizontal flight unchanged");
+                Check(g && abs(g.Pitch-g.Age*2.2)<0.01 && abs(g.Roll-g.Age*1.8)<0.01,"tumble remains continuous across save and load");
+                let smoke=ThinkerIterator.Create('UTNTIndustrialParticle',Thinker.MAX_STATNUM+1,true);
+                UTNTIndustrialParticle puff;bool found;
+                while(puff=UTNTIndustrialParticle(smoke.Next()))
+                    if(puff.Kind==1 && abs(puff.Width-2.4)<0.001 && puff.Strength==0.18 && puff.Life==21)found=true;
+                Check(found,"grenade emits tiny translucent local smoke particles");
+            }
+            if(e.Args[0]==2)
+            {
+                Clear();p.SetOrigin((0,0,0),false);p.Angle=0;p.Pitch=0;
+                for(int i=0;i<3;i++)
+                {
+                    let g=Actor.Spawn('UTNTGrenade',(170,(i-1)*62,44));
+                    g.bMissile=false;g.bNoGravity=true;g.Vel=(0,0,0);g.Scale=(1.5,1.5);
+                    g.Angle=i*45;g.Pitch=i==2?70:0;g.Roll=i==2?25:0;Targets.Push(g);
+                }
+            }
+        }
         if(e.Name=="secdefaults")
         {
             let plasma=Actor.Spawn('UTNTHeavyPlasma',(1000,1000,100));

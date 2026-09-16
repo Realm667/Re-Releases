@@ -11,7 +11,7 @@ p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
 p.add_argument('--overlay',action='store_true',help='Test local weapon sources over the previous integration PK3')
 p.add_argument('--compile-only',action='store_true')
 p.add_argument('--class',dest='playerclass',default='Marine')
-p.add_argument('--mode',default='logic',choices=['logic','rate','chain','visual'])
+p.add_argument('--mode',default='logic',choices=['logic','rate','chain','visual','grenade'])
 a=p.parse_args()
 local=ROOT/'tutnt/.codex'
 logs=local/'logs/secondary-fire';logs.mkdir(parents=True,exist_ok=True)
@@ -28,8 +28,10 @@ for i in range(4):text+=f'thing {{ x=0.0; y={-i*64}.0; angle=0; type={i+1}; skil
 with zipfile.ZipFile(addon,'w',zipfile.ZIP_DEFLATED) as z:
  entry='version "5.0.0"\n'
  if a.overlay:
-  entry+='#include "zscript/UTNT_SecondaryFire.zc"\n'
-  for f in ['zscript/UTNT_SecondaryFire.zc','actors/weapons.txt']:z.write(ROOT/'tutnt'/f,f)
+  with zipfile.ZipFile(a.mod) as base:
+   if "zscript/utnt_secondaryfire.zc" not in {n.lower() for n in base.namelist()}:
+    entry+='#include "zscript/UTNT_SecondaryFire.zc"\n'
+  for f in ['zscript/UTNT_SecondaryFire.zc','actors/weapons.txt','VOXELDEF.txt','voxels/UVUGRNA.kvx','sprites/UGRNA0.lmp']:z.write(ROOT/'tutnt'/f,f)
  entry+='#include "secondary-tests.zc"\n'
  z.writestr('ZSCRIPT',entry)
  z.write(ROOT/'tools/fixtures/secondary-fire/tests.zc','secondary-tests.zc')
@@ -46,13 +48,15 @@ elif a.mode=='rate':
  commands+=['netevent secclear','give ammo','use UTNTPlasmaRifle','wait 60','netevent secprimary','+attack','wait 210','-attack','wait 50','netevent secprimaryend']
 elif a.mode=='chain':
  commands+=['use UTNTBFG9000','wait 60','netevent secsetup 3','+altattack','wait 1','-altattack','wait 48','save secondary-chain','wait 4','load secondary-chain','wait 270','netevent secverify 6','netevent secsetup 5','+altattack','wait 1','-altattack','wait 160','netevent secverify 7','netevent secsetup 6','+altattack','wait 1','-altattack','wait 160','netevent secverify 8']
+elif a.mode=='grenade':
+ commands+=['UTNT_fxquality 3','wait 100','netevent secgrenade 0','wait 8','netevent secgrenade 1','screenshot logs/grenade-flight.png','save grenade-tumble','wait 4','load grenade-tumble','wait 6','netevent secgrenade 1','netevent secgrenade 2','wait 8','screenshot logs/grenade-voxel-detail.png']
 elif a.mode=='visual':
  for weapon,mode in [('UTNTSuperShotgun',0),('UTNTRocketLauncher',1),('UTNTPlasmaRifle',2),('UTNTBFG9000',3)]:
   commands+=['give ammo','use '+weapon,'wait 60',f'netevent secsetup {mode}','+altattack','wait 1','-altattack','wait 42' if weapon=='UTNTBFG9000' else 'wait 12',f'screenshot logs/{weapon}-secondary.png','wait 120']
 commands+=['wait 3','echo UTNT_REGRESSION_COMPLETE','echo UTNT_TEST_END','quit']
 label=a.playerclass.lower()+'-'+a.mode+('-compile' if a.compile_only else '')
 result=run_case(a.engine,a.iwad,root=logs,mod=a.mod,addon=addon,mapname=None if a.compile_only else 'SECTEST',playerclass=a.playerclass,label=label,commands='; '.join(commands)+'\n',timeout=170,regression=not a.compile_only,settings=[('use_mouse',False),('i_pauseinbackground',False),('vid_maxfps',200),('screenblocks',11),('motionblur',False),('con_notifytime',0)])
-if not a.compile_only and result['assertions']<{'logic':24,'rate':13,'chain':11,'visual':6}[a.mode]:result['ok']=False
+if not a.compile_only and result['assertions']<{'logic':24,'rate':13,'chain':11,'visual':6,'grenade':15}[a.mode]:result['ok']=False
 (reports/(label+'.json')).write_text(json.dumps(result,indent=2))
 if not result['ok']:print(Path(result['log']).read_text()[-9000:])
 sys.exit(0 if result['ok'] else 1)
