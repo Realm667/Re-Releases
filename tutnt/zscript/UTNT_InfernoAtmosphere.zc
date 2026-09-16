@@ -1,0 +1,59 @@
+// Editable continuation of the opaque wall, fading into the fire sky.
+class UTNTInfernoFade : Actor {
+ Default { +NOGRAVITY +NOINTERACTION +NOBLOCKMAP +DONTSPLASH +NOTONAUTOMAP
+ Radius 1; Height 1; RenderStyle "Translucent"; Alpha .999; }
+ States { Spawn: SKED A -1; Stop; }
+ override void Tick() {}
+}
+#include "zscript/inferno-fade-actors.zc"
+
+// Serialized map sources; only the short-lived flecks use the client visual pool.
+class UTNTInfernoEmitter : Actor {
+ int Serial, Emitted;
+ double CurrentRadius;
+ Default { +NOGRAVITY +NOINTERACTION +NOBLOCKMAP +DONTSPLASH +NOTONAUTOMAP
+ Radius 1; Height 1; }
+ States { Spawn: TNT1 A -1; Stop; }
+ override void Tick() {
+  if(level.isFrozen())return;
+  double phase=Pos.X*.17+Pos.Y*.13;
+  if(args[1] && level.time%3==0) {
+   double f=.73+.16*sin(level.time*13+phase)+.08*sin(level.time*31+phase*2.3);
+   CurrentRadius=400*f;
+   double brightness=.55+.45*clamp((f-.49)/.48,0.,1.);
+   int color=(int(255*brightness)<<16)|(int(176*brightness)<<8)|int(116*brightness);
+   A_AttachLight('inferno',DynamicLight.PointLight,color,CurrentRadius,0,DynamicLight.LF_ATTENUATE);
+  }
+  int q=UTNTFXRuntime.Get().Quality;if(q<=0)return;
+  int period=q>=2?(args[0]?9:12):24;
+  if((level.time+int(abs(phase)))%period!=0)return;
+  let a=UTNTInfernoCinder(level.SpawnClientSideVisualThinker('UTNTInfernoCinder'));
+  if(a){a.Initialize(self,++Serial);Emitted++;}
+ }
+}
+class UTNTInfernoCinder : VisualThinker {
+ int Age,Life;
+ double Phase,Strength;
+ Vector3 Drift;
+ Vector2 InitialScale;
+ void Initialize(Actor source,int serial) {
+  bool distant=source.args[0]!=0;double unit=distant?.075:1.;
+  Phase=(int(abs(source.Pos.X*7+source.Pos.Y*13))+serial*137)%360;
+  Life=170+(serial*47)%140;Strength=.85;
+  Texture=TexMan.CheckForTexture('UFEBA0');Flags=SPF_FULLBRIGHT|SPF_ALLOWSHADERS|SPF_STRETCHPIXELS;
+  SetRenderStyle(STYLE_Add);scolor=0xffffcf8a;
+  Pos=source.Pos+(cos(Phase)*22*unit,sin(Phase)*22*unit,((serial*23)%32)*unit);Prev=Pos;
+  double width=(2.4+(serial*7)%9*.28)*unit;let size=TexMan.GetScaledSize(Texture);
+  Scale=(width/size.X,width*1.5/size.Y);InitialScale=Scale;
+  Drift=(cos(Phase)*.43*unit,sin(Phase)*.43*unit,(.9+(serial%5)*.2)*unit);Alpha=0;
+  Roll=Phase;UpdateSector();UpdateSpriteInfo();
+ }
+ override void Tick() {
+  if(IsFrozen())return;if(++Age>=Life){Destroy();return;}
+  Alpha=Strength*min(1.,Age/16.)*min(1.,(Life-Age)/45.);
+  Prev=Pos;Pos+=Drift+(sin(Phase+Age*2.5)*Drift.Z*.25,cos(Phase+Age*1.7)*Drift.Z*.2,0);
+  let sec=level.PointInSector(Pos.XY);
+  if(!sec || Pos.Z>sec.ceilingplane.ZatPoint(Pos.XY)-1 || Pos.Z<sec.floorplane.ZatPoint(Pos.XY)+1){Destroy();return;}
+  Scale=InitialScale*(1.-.40*Age/Life);Roll+=.8;UpdateSector();
+ }
+}

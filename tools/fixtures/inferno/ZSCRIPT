@@ -1,11 +1,28 @@
 version "4.14"
 class UTNTInfernoTest : EventHandler {
+ double FirstRadius;
+ double sourceRadius(){let it=ThinkerIterator.Create('UTNTInfernoEmitter');UTNTInfernoEmitter a;while((a=UTNTInfernoEmitter(it.Next())))if(a.args[1])return a.CurrentRadius;return 0;}
  void Check(bool ok,String message){Console.Printf("UTNT_ASSERT %s %s",ok?"PASS":"FAIL",message);}
  override void NetworkProcess(ConsoleEvent e) {
   if(e.Name!="infernocheck")return;
   int count=0;bool valid=true;let it=ThinkerIterator.Create('UTNTInfernoHaze');Actor a;
   while((a=Actor(it.Next()))){count++;valid=valid && a.bNoInteraction && a.bNoGravity && !a.bSolid && abs(a.Pos.Z+192)<.02;}
   Check(count==83,"83 authored haze actors survive loading");Check(valid,"haze stays cosmetic at authored elevation");
+  int fades=0;valid=true;it=ThinkerIterator.Create('UTNTInfernoFade');
+  while((a=Actor(it.Next()))){fades++;valid=valid && a.bNoInteraction && a.bNoGravity && !a.bSolid && abs(a.Pos.Z+128)<.02 && a.Alpha<1;}
+  Check(fades==83 && valid,"83 translucent wall bands stay cosmetic at authored elevation");
+  int emit=0,sky=0,lights=0;valid=true;it=ThinkerIterator.Create('UTNTInfernoEmitter');UTNTInfernoEmitter source;
+  while((source=UTNTInfernoEmitter(it.Next()))){emit++;sky+=source.args[0]!=0;lights+=source.args[1]!=0;
+   valid=valid && source.Emitted>0 && source.bNoInteraction && !source.bSolid;
+   if(source.args[1])valid=valid && source.CurrentRadius>175 && source.CurrentRadius<400;
+  }
+  Check(emit==71 && sky==8 && lights==20 && valid,"71 active cosmetic ember sources and 20 flickering lights");
+  Check(FirstRadius==0 || abs(sourceRadius()-FirstRadius)>.001,"light radius changes over time and across save load");FirstRadius=sourceRadius();
+  valid=true;
+  for(int i=0;i<2;i++){let sec=level.sectors[i?2227:1463];let h=sec.heightsec;
+   valid=valid && h && h.floorplane.ZatPoint((0,0))==-128 && (h.MoreFlags&Sector.SECMF_UNDERWATERMASK)==0 && (h.MoreFlags&Sector.SECMF_NOFAKELIGHT)!=0 && (sec.ColorMap.LightColor&0xffffff)==0xf2c9af;
+  }
+  Check(valid,"render-only floor and warm ambient tint active in both island rooms");
   let cam=level.CreateActorIterator(3,'SkyViewpoint').Next();
   Check(cam && abs(cam.Pos.X+1280)<.01 && abs(cam.Pos.Y-256)<.01 && abs(cam.Pos.Z-64)<.01,"fire viewpoint origin preserved");
   Check(level.sectors[1463].floorplane.ZatPoint((287,-4599))==-224 && level.sectors[2227].floorplane.ZatPoint((1198,-7961))==-224,"both gameplay void floors preserved");

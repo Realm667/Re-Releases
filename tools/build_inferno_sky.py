@@ -28,5 +28,6 @@ def build(root=ROOT):
   Image.fromarray(np.uint8(np.clip(color*.91*255,0,255))).save(out/f'textures/UFI{face}.png')
   gl.append(f'material texture UFI{face} {{ shader "shaders/inferno/sky.fp" texture panoramamap "graphics/inferno/panorama.png" texture cloudmap "graphics/inferno/zenith.png" texture magmamap "graphics/inferno/magma.png" }}')
  gl.append('material texture UFIHAZE { shader "shaders/inferno/haze.fp" }')
+ for texture in ('UFIROCK','UFISTONE'):gl.append(f'material texture {texture} {{ shader "shaders/inferno/wall-fade.fp" }}')
  (out/'gldefs/GLDEFS.inferno').write_text('\n'.join(gl)+'\n',encoding='utf-8',newline='\n')
 if __name__=='__main__':build()
