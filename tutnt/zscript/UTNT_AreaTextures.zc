@@ -124,8 +124,6 @@ class UTNT_AreaTextures : EventHandler
             }
             if(ok)Applied++;else {Rejected++;if(Rejected<=12)Console.Printf("AREAALIGN_REJECT|%s|%s",level.MapName,lines[i]);}
         }
-        Console.Printf("AREAALIGN|%s|%d|%d|%d",level.MapName,Applied,Rejected,Expected);
-        Console.Printf("AREAALIGN_SHARED_CONSTRAINTS|%s|%d",level.MapName,SharedConstraints);
     }
 
     bool AddWatch(Array<String> r)
@@ -178,8 +176,8 @@ class UTNT_AreaTextures : EventHandler
             double width=size.X/abs(s.GetTextureXScale(Side.mid));
             double diff=x-s.GetTextureXOffset(Side.mid);
             if(width>0 && Near(diff-round(diff/width)*width,0))s.SetTextureXOffset(Side.mid,x);
-            else {SharedConstraints++;if(SharedConstraints<=12)Console.Printf("AREAALIGN_SHARED|%s|%d|%d|x",level.MapName,li,face);}
-            if(!Near(y,s.GetTextureYOffset(Side.mid))){SharedConstraints++;if(SharedConstraints<=12)Console.Printf("AREAALIGN_SHARED|%s|%d|%d|y",level.MapName,li,face);}
+            else SharedConstraints++;
+            if(!Near(y,s.GetTextureYOffset(Side.mid)))SharedConstraints++;
         }
         else {s.SetTextureXOffset(Side.mid,x);s.SetTextureYOffset(Side.mid,y);}
         return true;
@@ -187,6 +185,11 @@ class UTNT_AreaTextures : EventHandler
 
     override void NetworkProcess(ConsoleEvent e)
     {
-        if(e.Name=="areaalign")Console.Printf("AREAALIGN_STATUS|%s|%d|%d|%d",level.MapName,Applied,Rejected,Expected);
+        // Texture-alignment counters are developer diagnostics, requested explicitly.
+        if(e.Name=="areaalign")
+        {
+            Console.Printf("AREAALIGN_STATUS|%s|%d|%d|%d",level.MapName,Applied,Rejected,Expected);
+            Console.Printf("AREAALIGN_SHARED_CONSTRAINTS|%s|%d",level.MapName,SharedConstraints);
+        }
     }
 }

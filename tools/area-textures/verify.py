@@ -31,7 +31,7 @@ def main():
         if regression:cmd+=f'god; notarget; netevent areabaseline; wait 35; netevent areasnapshot 0; wait 2; save area-{name}; wait 8; load area-{name}; wait 70; netevent areasnapshot 1; wait 2; netevent areadynamic 0; wait 3; netevent areadynamic 1; netevent areaterrain; wait 3; '
         cmd+='echo UTNT_TEST_END; quit'
         r=run_case(**common,mapname=name,renderer='0' if name=='TNTLE' else '1',label=name,timeout=120,commands=cmd,settings=[('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_lowerinbackground',False)])
-        log=Path(r['log']).read_text();match=re.search(r'AREAALIGN\|'+name+r'\|(\d+)\|(\d+)\|(\d+)',log)
+        log=Path(r['log']).read_text();match=re.search(r'AREAALIGN_STATUS\|'+name+r'\|(\d+)\|(\d+)\|(\d+)',log)
         expected=int(rows[0][-1]);r['bindings_ok']=bool(match and list(map(int,match.groups()))==[expected,0,expected])
         r['shader_errors']=any(s in log.lower() for s in ['shader compilation failed','failed to compile','unable to load shader'])
         required=1+sum(row[0]=='D' for row in rows) if regression else 0

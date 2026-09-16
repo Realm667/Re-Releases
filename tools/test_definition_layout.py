@@ -64,6 +64,29 @@ class DefinitionLayoutTests(unittest.TestCase):
   with self.assertRaisesRegex(ValueError,'Missing texture include'):
    package_textures({'TEXTURES.txt':b'#include "textures/definitions/missing"',
     'textures/definitions/unused':b''})
+ def test_generated_texture_table_preserves_package_and_editor_materials(self):
+  from build_definition_tables import TEXTURE_SOURCE, TEXTURE_HEADER
+  base=self.mod/TEXTURE_SOURCE
+  authored='textures/definitions/TEXTURES.cavern'
+  runtime='textures/definitions/TEXTURES.environment-generated'
+  base.write_text(f'#include "{runtime}"\nTexture ORIGINAL,1,1 {{}}\n#include "{authored}"\n')
+  (self.mod/authored).write_text('Texture UCAVROCK,1,1 {}\nTexture UCAVFALL,1,1 {}\n')
+  (self.mod/runtime).write_text('Texture EV000001,1,1 {}\n')
+  generate(self.root);generate(self.root,True)
+  payload={p.relative_to(self.mod).as_posix():p.read_bytes() for p in [base,self.mod/authored,self.mod/runtime,self.mod/'TEXTURES.txt']}
+  text=payload['TEXTURES.txt'].decode();visible,hidden=text.split('//$GZDB_SKIP')
+  self.assertIn('UCAVROCK',visible);self.assertIn('UCAVFALL',visible)
+  self.assertIn('EV000001',hidden);self.assertNotIn('#include',visible)
+  self.assertEqual(package_textures(payload)['TEXTURES.txt'],payload['TEXTURES.txt'])
+  # Hand-editing a final table cannot silently diverge from its authoring modules.
+  (self.mod/authored).write_text('Texture UCAVROCK,2,2 {}')
+  with self.assertRaisesRegex(ValueError,'Stale definition'):generate(self.root,True)
+  payload[authored]=(self.mod/authored).read_bytes()
+  with self.assertRaisesRegex(ValueError,'Stale TEXTURES'):package_textures(payload)
+ def test_generated_texture_entry_keeps_native_include_validation(self):
+  from build_definition_tables import TEXTURE_SOURCE
+  (self.mod/TEXTURE_SOURCE).write_text('#include "textures/definitions/missing"')
+  with self.assertRaisesRegex(ValueError,'Missing texture include'):generate(self.root)
  def test_material_scan_ignores_matching_directories(self):
   import build_environment_fx as environment
   from unittest.mock import patch

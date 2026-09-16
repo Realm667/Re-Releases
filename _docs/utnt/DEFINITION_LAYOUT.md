@@ -5,7 +5,7 @@ The nine engine entrypoints stay in `tutnt/`. Modules live in these directories:
 | Root entrypoint | Module directory | Loading |
 | --- | --- | --- |
 | GLDEFS.txt | gldefs/ | Native #include |
-| TEXTURES.txt | textures/definitions/ | Native #include |
+| TEXTURES.txt | textures/definitions/ | Generated table; TEXTURES.base defines source include order |
 | CVARINFO.txt | cvarinfo/ | Generated table |
 | KEYCONF.txt | keyconf/ | Generated table |
 | LANGUAGE.txt | language/ | Generated table |
@@ -34,10 +34,12 @@ root-relative paths. SNDINFO includes are relative to the including file.
 The migration preserves the previous alphabetic root-lump order and existing
 nested include order, including repeated includes that existed before. This
 preserves override precedence. Shader, texture-image, model and sound asset paths
-remain relative to the package root. Definition files under textures/definitions
-are explicitly included. UZDoom also scans this directory as a texture-image
-namespace. To avoid an invalid-image warning, the packager expands these includes
-into TEXTURES.txt and omits textures/definitions/ from the PK3. All image assets
+remain relative to the package root. TEXTURES.base retains the original texture definitions and source include order;
+build_definition_tables.py expands it into the checked-in TEXTURES.txt because
+UDB does not implement TEXTURES includes. Other native formats retain their includes.
+Definition files under textures/definitions are source modules. UZDoom also scans this directory as a texture-image
+namespace. To avoid an invalid-image warning, the packager checks the already generated
+TEXTURES.txt against its modules and omits textures/definitions/ from the PK3. All image assets
 remain unchanged. Direct source-directory loading works but produces this engine
 warning; use the built PK3 for a warning-free definition load.
 
@@ -59,13 +61,14 @@ must not try to read or copy those directory entries as files.
 
 ## Runtime-only textures in UDB (15 September 2026)
 
-The packager appends `TEXTURES.environment-generated` (EV wet-surface aliases)
+The table generator appends `TEXTURES.environment-generated` (EV wet-surface aliases)
 and `TEXTURES.sky-edges` (SG terrain geometry materials) after authored definitions,
 with `//$GZDB_SKIP` immediately before those two modules. UZDoom sees a comment;
 UDB stops there, avoiding thousands of redundant large composite previews.
 Both families are generated runtime bindings, not manually painted map textures.
 Source modules remain intact; regression tests protect ordering and preservation.
-Use the built PK3 rather than the source directory as the editor resource.
+The generated root table exposes the same authored definitions to UDB for both
+source-directory and PK3 resources.
 
 Invalid seven-character effect sprite names become `USRIA0` (formerly USRIPA0)
 and `URDSA0` (formerly URDSTA0), consistently in definitions and consumers.
@@ -111,3 +114,42 @@ Validation: ordered class/include round-trip and chunk-bound tests, definition
 and localization gates, full editor load, and the normal game-package engine
 check. Local phase logs and the original-version source excerpts are retained
 under `tutnt/.codex/work/udb-open-profile/`.
+
+## TNT03A2 editor resource errors (16 September 2026)
+
+UDB r4327 silently skips TEXTURES #include directives. Source-folder loading
+therefore lacked UCAVROCK/UCAVFALL and other modular composites even though the
+packaged game resolved them. TEXTURES.base now owns the source include order,
+and build_definition_tables.py emits a checked-in, fully expanded TEXTURES.txt.
+All original nonblank runtime definition lines and their order are preserved;
+EV/SG aliases remain after the editor stop marker. Packaging validates and keeps
+the final table byte-for-byte. Edit the modules and regenerate; --check rejects
+stale tables. The existing material bindings and shaders are unchanged.
+
+TNT03A2 explicitly declares SKY1, matching its previous Doom default. Placed
+skybox viewpoints still control the actual map sky. This supplies the fallback
+required by UDB without changing the cavern's sky-room construction.
+
+The local UDBScript ScanComments exception came from System.Memory.dll existing
+both beside Builder.exe and directly in Plugins/. The plugin loader loaded the
+extra copy as a plugin, producing two assembly loads and incompatible type
+identities despite identical version numbers and bytes. The duplicate was moved
+to tutnt/.codex/backups/udb-errors-tnt03a2/. The root DLL remains installed;
+a complete editor restart is required for the repair to take effect.
+
+Remaining compatibility notices are intentional: r4327 rejects the four native
+KVX MODELDEF heart frames supported by UZDoom, and warns about the twelve native
+Doom locks whose map colors are deliberately overridden. Their game definitions
+are retained; clearing native locks or removing the heart material would change
+runtime behavior merely to silence editor warnings.
+
+Texture-alignment startup counters (AREAALIGN and shared-surface constraints)
+are now silent during ordinary play. `netevent areaalign` explicitly reports
+AREAALIGN_STATUS and AREAALIGN_SHARED_CONSTRAINTS; the alignment verifier reads
+that requested status. Actual stale/rejected binding warnings remain visible.
+
+Validation: thirteen definition tests, a real UDB load of both UCAV images and all
+102 cavern models, parsing all 21 UDBScript examples, and a clean diagnostic editor
+shutdown. A real TNT03A2 engine run confirms silent startup and an explicit status
+of 2786 applied / 0 rejected / 2786 expected. Test evidence is local under
+.codex/work/udb-errors-tnt03a2 and .codex/validation/udb-console-errors.
