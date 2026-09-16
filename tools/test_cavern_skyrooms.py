@@ -52,16 +52,24 @@ class SkyroomMapTest(unittest.TestCase):
         self.assertEqual(len(cameras),3)
         self.assertEqual(len({t['id'] for t in cameras}),3)
 
-    def test_distant_halls_are_darker_with_matching_fog(self):
+    def test_distant_halls_have_denser_dark_warm_fog(self):
         sectors=blocks(self.after['TEXTMAP'].decode(),'sector')
         halls=[s for s in sectors if 65300<=int(s.get('id',0))<=65302]
         self.assertEqual(len(halls),3)
         for s in halls:
+            self.assertEqual(int(s['fadecolor']),0x1b1814)
+            self.assertEqual(int(s['fogdensity']),24)
+            self.assertEqual(int(s['lightlevel']),96)
+            self.assertEqual(int(s['lightfloor']),80)
+            self.assertEqual(int(s['lightceiling']),64)
+
+    def test_pockets_match_foreground_fog_and_have_readable_light(self):
+        sectors=blocks(self.after['TEXTMAP'].decode(),'sector')
+        for window in self.spec['windows']:
+            s=sectors[window['pocket']]
             self.assertEqual(int(s['fadecolor']),0x363029)
-            self.assertEqual(int(s['fogdensity']),6)
-            self.assertEqual(int(s['lightlevel']),128)
-            self.assertEqual(int(s['lightfloor']),112)
-            self.assertEqual(int(s['lightceiling']),96)
+            self.assertEqual(int(s['fogdensity']),44)
+            self.assertEqual(int(s['lightlevel']),160)
 
     def test_stale_patch_rejected_without_topology_change(self):
         changed=self.source.replace(b'1920.0',b'1921.0',1)

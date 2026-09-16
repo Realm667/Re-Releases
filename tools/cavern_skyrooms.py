@@ -68,7 +68,7 @@ def generate(b,geo,add,source):
                 assert not any(inside(p,ee) for ee in geo.values()),('Occupied skybox pocket',li,p)
         bottom=max(plane(s,mid,'floor')+48,-920);top=min(plane(s,mid)-48,bottom+(900 if j==2 else 540))
         assert top-bottom>=300
-        pocket=sector(round(bottom),round(top),138,0x363029)
+        pocket=sector(round(bottom),round(top),160,0x363029,fog=44,lightfloor=16,lightceiling=-16)
         backside=side(pocket,'-')
         changes['linedef'][str(li)]={'sideback':str(backside),'twosided':'true','blocking':'true'}
         changes['sidedef'][str(sd)]={'texturemiddle':'"-"','texturetop':'"IKWALL44"','texturebottom':'"IKWALL44"'}
@@ -113,7 +113,7 @@ def generate(b,geo,add,source):
         # perspective, depth testing and fog, with a client-local parallax viewpoint anchored to SkyCamCompat.
         ox,oy=((-11000,-23000),(1000,-23000),(-11000,-12000))[j]
         windows[-1]['view_origin']=[ox-1200,oy+(-350,350,-150)[j],-450]
-        room=sector(-650,2200,128,0x363029,floor_texture="UCAVSLAV",fog=6,lightfloor=112,lightfloorabsolute='true',lightceiling=96,lightceilingabsolute='true',id=65300+j,
+        room=sector(-650,2200,96,0x1b1814,floor_texture="UCAVSLAV",fog=24,lightfloor=80,lightfloorabsolute='true',lightceiling=64,lightceilingabsolute='true',id=65300+j,
                     **{axis+'scale'+plane:(SKY_LAVA_SCALE if plane=='floor' else SKY_TEXTURE_SCALE) for axis in ('x','y') for plane in ('floor','ceiling')})
         sky_sectors.add(room)
         outline=[(-2400,-1400),(-2600,800),(-1300,2100),(1600,2200),(2800,900),(3300,600),(3900,1100),(5400,1700),(7200,1400),(7800,0),(7200,-1800),(4900,-1900),(3600,-800),(2900,-700),(2000,-2200),(-1000,-2200)]

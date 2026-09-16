@@ -230,6 +230,29 @@ class UTNTCavern : EventHandler
     int Applied, Rejected;
     bool PlatformsApplied;
     bool RefreshPending;
+    void ApplyPortalAtmosphere()
+    {
+        int lump=Wads.CheckNumForFullName("cavern/portal-atmosphere.txt");if(lump<0)return;
+        Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
+        for(int i=0;i<rows.Size();i++)
+        {
+            Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=5)continue;
+            int li=r[0].ToInt(),pi=r[4].ToInt();
+            if(li<0 || li>=level.lines.Size() || pi<0 || pi>=level.lines.Size())continue;
+            let entry=level.lines[li];let portal=level.lines[pi];
+            if(!entry.sidedef[0] || !entry.sidedef[1] || !portal.sidedef[0])continue;
+            let pocket=entry.sidedef[1].sector;
+            if(entry.sidedef[0].sector.Index()!=r[1].ToInt() || pocket.Index()!=r[2].ToInt() || portal.sidedef[0].sector!=pocket)continue;
+            let it=level.CreateActorIterator(r[3].ToInt(),'SkyCamCompat');let camera=it.Next();if(!camera)continue;
+            // Reapply absolute settings after loading older cavern saves too.
+            pocket.SetLightLevel(160);pocket.SetPlaneLight(Sector.floor,16);pocket.SetPlaneLight(Sector.ceiling,-16);
+            pocket.SetFogDensity(22);pocket.SetFade(0x363029);
+            let hall=camera.CurSector;
+            hall.SetLightLevel(96);hall.SetPlaneLight(Sector.floor,80);hall.SetPlaneLight(Sector.ceiling,64);
+            // Same warm hue at half luminance: dense portal fog must stay dark.
+            hall.SetFogDensity(12);hall.SetFade(0x1b1814);
+        }
+    }
     void ApplyLighting()
     {
         int lump=Wads.CheckNumForFullName("cavern/sectors.txt");if(lump<0)return;
@@ -269,6 +292,7 @@ class UTNTCavern : EventHandler
             s.SetFogDensity(22);s.SetFade(0x363029);
             Applied++;
         }
+        ApplyPortalAtmosphere();
         if(PlatformsApplied)return;
         lump=Wads.CheckNumForFullName("cavern/platforms.txt");if(lump<0)return;
         rows.Clear();Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);

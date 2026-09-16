@@ -33,6 +33,7 @@ class UTNTCavernTest : EventHandler
             if(e.Args[0]==17){Camera.SetOrigin((4671,-4139,-38),false);Camera.Angle=35;Camera.Pitch=0;}
             if(e.Args[0]==18){Camera.SetOrigin((4800,-4300,-600),false);Camera.Angle=70;Camera.Pitch=65;}
             if(e.Args[0]==19){Camera.SetOrigin((4879,-6173,-476),false);Camera.Angle=180;Camera.Pitch=0;}
+            if(e.Args[0]==20){Camera.SetOrigin((4594,-3695,-74),false);Camera.Angle=355;Camera.Pitch=0;}
             players[consoleplayer].camera=Camera;
         }
         if(e.Name=="caveparallax")
@@ -94,12 +95,20 @@ class UTNTCavernTest : EventHandler
                 bound=bound && linked && local.Camera && local.Camera.CurSector==level.PointInSector(local.Origin.XY);
                 // UZDoom 5.0.1 miscompares a chained uint16 member; materialize it.
                 int skyFog=local.Camera.CurSector.ColorMap.FogDensity;
-                dark=dark && local.Camera.CurSector.LightLevel==128 && (int(local.Camera.CurSector.ColorMap.FadeColor)&0xffffff)==0x363029
-                    && skyFog==3 && local.Camera.CurSector.GetPlaneLight(Sector.floor)==112 && local.Camera.CurSector.GetPlaneLight(Sector.ceiling)==96;
+                dark=dark && local.Camera.CurSector.LightLevel==96 && (int(local.Camera.CurSector.ColorMap.FadeColor)&0xffffff)==0x1b1814
+                    && skyFog==12 && local.Camera.CurSector.GetPlaneLight(Sector.floor)==80 && local.Camera.CurSector.GetPlaneLight(Sector.ceiling)==64;
                 follows=follows && Camera && (local.Camera.Pos-local.PositionFor(Camera.Pos)).Length()<.01;
             }
             Console.Printf("UTNT_ASSERT %s three local parallax views bound without duplicate cameras",localViews==3 && bound && follows?"PASS":"FAIL");
-            Console.Printf("UTNT_ASSERT %s darker sky halls share main cavern fog colour",localViews==3 && dark?"PASS":"FAIL");
+            Console.Printf("UTNT_ASSERT %s darker sky halls have dense warm fog",localViews==3 && dark?"PASS":"FAIL");
+            int entries[]={4783,4729,4969};bool pockets=true;
+            for(int j=0;j<3;j++)
+            {
+                let pocket=level.lines[entries[j]].sidedef[1].sector;
+                int fog=pocket.ColorMap.FogDensity;
+                pockets=pockets && pocket.LightLevel==160 && fog==22 && (int(pocket.ColorMap.FadeColor)&0xffffff)==0x363029;
+            }
+            Console.Printf("UTNT_ASSERT %s all entrance pockets carry lit main-cavern fog",pockets?"PASS":"FAIL");
             bool blocked=(level.lines[4783].flags&Line.ML_BLOCKING) && (level.lines[4729].flags&Line.ML_BLOCKING) && (level.lines[4969].flags&Line.ML_BLOCKING);
             Console.Printf("UTNT_ASSERT %s three native skybox cameras and wall portals (%d/%d)",skies==3 && portals==3 && blocked && weatherFree?"PASS":"FAIL",skies,portals);
         }

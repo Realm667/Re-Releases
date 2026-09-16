@@ -145,9 +145,11 @@ views, not traversable passages.
 Each of the three isolated scenes contains two connected large halls, lava,
 six differently sized occluding rock pillars and three hanging rock formations. Varied
 camera positions/yaw and layered fog expose different views. Their fog colour
-matches the main cavern (`#363029`). Hall lighting is 128, floor lighting 112 and
-ceiling lighting 96, below the main chamber's 144 / 176 / 128 baseline; lava
-remains luminous. The distant rooms use UDMF fog density 6 (runtime 3) to keep their silhouettes dark.
+retains the main cavern's warm hue at lower brightness (`#1b1814` versus
+`#363029`). Hall lighting is 96, floor lighting 80 and ceiling lighting 64.
+The distant rooms use UDMF fog density 24 (runtime 12). Entrance recesses use
+light 160, floor offset +16, ceiling offset -16, and UDMF fog density 44
+(runtime 22), so their nearby rock reads through the main cavern haze.
 Sky-room rock walls, pillars, ceilings and the nine distant models use UV scale
 4, corresponding to one eighth of the enlarged foreground rock size. Lava uses
 scale 8. Foreground fissure frames and shallow recesses share the main room's
@@ -317,3 +319,36 @@ resources. Evidence: `cavern-refinement-final-0.json`,
 `refinement-package.json` in the central local validation directory.
 The layout check reports only the fifteen pre-existing editor sidecars/backups
 in `tutnt/maps`; this task did not create or move those files.
+
+## Entrance and distant fog correction (16 September 2026)
+
+The entrance recesses previously had runtime fog density 5 instead of the main
+cave's 22. They now share the exact foreground fog colour and density, with
+brighter rock lighting. Distant rooms have four times their previous density
+(12 instead of 3), lower light, and the same warm hue at half RGB brightness.
+The darker fog endpoint is intentional: increasing density with the old bright
+endpoint would turn the distant scene into a brighter coloured fill.
+
+`cavern/portal-atmosphere.txt` binds the three entrances, recesses, rear portal
+lines and native viewpoint TIDs. Runtime validates these relationships and sets
+the absolute presentation values after map startup and after loading a save.
+This prevents serialized portal settings from bypassing the presentation setup.
+Geometry, portal links, parallax and gameplay are unchanged. UZDoom rejects
+saves from the previous package because the authored TEXTMAP lighting values
+change its map checksum; start TNT03A2 fresh with this package.
+
+Regression view 20 uses the reported (4594, -3695, -115) player position with
+view-height adjustment. All three openings and this view are now captured with
+UTNT_atmosphere both off and on: the optional atmosphere multiplies skybox thick
+fog, which the earlier default-only captures did not exercise.
+
+Acceptance: complete root package build `166283e3e2b6` passed all 49 assertions
+on OpenGL and all 49 on Vulkan in UZDoom 5.0.1, including save/load and hub return.
+Eight structure tests pass. Final view 20 was visually checked on both renderers
+with the atmosphere option on, and on Vulkan with it off. Package/runtime/map
+comparison passed. Evidence: `cavern-portal-fog-final-0.json`,
+`cavern-portal-fog-final-1.json` and `portal-fog-package.json` in central validation.
+The separate previous-package save probe was rejected by the engine as a
+different level; it is recorded as an unsuccessful compatibility test, not a
+passed lifecycle test. The layout checker still reports only the fifteen
+pre-existing editor sidecars/backups under `tutnt/maps`.

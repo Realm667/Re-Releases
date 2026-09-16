@@ -201,6 +201,7 @@ def generate(root=ROOT, check=False):
     from cavern_skyrooms import generate as generate_skyrooms
     skyrooms=generate_skyrooms(b,geo,add,map_path.read_bytes())
     outputs['tutnt/cavern/skyrooms.json']=json.dumps(skyrooms,indent=2)+'\n'
+    outputs['tutnt/cavern/portal-atmosphere.txt']='\n'.join('|'.join(map(str,[w['line'],w['sector'],w['pocket'],65200+j,w['portal_line']])) for j,w in enumerate(skyrooms['windows']))+'\n'
     # The lava material deliberately ignores flat UV scaling. Generate a local
     # variant from the shared source, scaling its physical pattern but not fog.
     lava=(root/'tutnt/shaders/lava-surface.fp').read_text()
