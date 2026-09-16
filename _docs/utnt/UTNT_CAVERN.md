@@ -148,6 +148,14 @@ camera positions/yaw and layered fog expose different views. Their fog colour
 matches the main cavern (`#363029`). Hall lighting is 112, floor lighting 128 and
 ceiling lighting 80, below the main chamber's 144 / 176 / 128 baseline; lava
 remains luminous. The distant rooms retain fog density 10 for their larger scale.
+All sky-room wall, pillar, floor and ceiling textures use eight times the UV
+density: texture features occupy one eighth of their normal map-unit size,
+matching the 1:8 camera parallax. The nine distant rock models use the same UV
+multiplier. Foreground fissure frames and their shallow recesses retain normal
+texture scale. The `UCAVSLAV` carrier uses `shaders/cavern-lava.fp`, generated
+from the shared lava shader: its world-space pattern and relief are scaled
+consistently, while fog distances remain in actual scene units. This is necessary
+because ordinary lava deliberately ignores flat UV scaling.
 
 `UTNTCavernSkyView` uses three client-side thinkers to position the native portal
 viewpoints for the current local camera, including spectator/camera switches.
@@ -256,3 +264,12 @@ confirm the new lighting, parallax code and immutable camera origins are present
 while SCRIPTS and BEHAVIOR remain unchanged. Evidence: `cavern-parallax-final-0.json`,
 `cavern-parallax-final-1.json`, `cavern-parallax-coop-final.json` and
 `parallax-package.json` in the local validation directory.
+
+Texture-scale acceptance on 16 September 2026: root package build `78944e691776`
+passed all 29 save/load and movement assertions on OpenGL and all 29 on Vulkan.
+Final fissure views were visually inspected in both renderers. Seven map
+structure tests pass. Direct source/package checks cover all three hall sectors,
+156 wall sides, nine model UV sets and the world-space lava variant; foreground
+geometry and the shared lava shader remain unchanged. Evidence:
+`cavern-texture-scale-final-0.json`, `cavern-texture-scale-final-1.json` and
+`texture-scale.json` in the local validation directory.

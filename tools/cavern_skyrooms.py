@@ -5,6 +5,9 @@ from build_environment_fx import inside
 from build_sky_edges import plane
 
 MARKER='// UTNT_CAVERN_SKYROOMS_V1'
+# One eighth camera travel represents scenery at eight times its model distance.
+# Shrink texture features to one eighth of their normal map-unit size as well.
+SKY_TEXTURE_SCALE=8.0
 
 def textmap_digest(data):
     # Fingerprint the topology and placement inputs, normalizing editor number
@@ -33,7 +36,7 @@ def textmap_digest(data):
 
 def generate(b,geo,add,source):
     positions=[(float(v['x']),float(v['y'])) for v in b['vertex']]
-    counts={k:len(v) for k,v in b.items()};blocks=[];changes={'linedef':{},'sidedef':{}};windows=[]
+    counts={k:len(v) for k,v in b.items()};blocks=[];changes={'linedef':{},'sidedef':{}};windows=[];sky_sectors=set()
     def block(kind,**fields):
         index=counts.get(kind,0);counts[kind]=index+1
         blocks.append(kind+' { '+' '.join(k+'='+str(v)+';' for k,v in fields.items())+' }')
@@ -42,10 +45,11 @@ def generate(b,geo,add,source):
         positions.append((x,y))
         return block('vertex',x=f'{x:.6f}',y=f'{y:.6f}')
     def side(sector,texture='IKWALL44'):
-        return block('sidedef',sector=sector,texturemiddle=json.dumps(texture),texturetop='"IKWALL44"',texturebottom='"IKWALL44"')
+        scale={axis+'_'+part:SKY_TEXTURE_SCALE for axis in ('scalex','scaley') for part in ('top','mid','bottom')} if sector in sky_sectors else {}
+        return block('sidedef',sector=sector,texturemiddle=json.dumps(texture),texturetop='"IKWALL44"',texturebottom='"IKWALL44"',**scale)
     def line(a,c,sector,**fields):return block('linedef',v1=a,v2=c,sidefront=side(sector),blocking='true',**fields)
-    def sector(floor,ceiling,light=150,fade=0x302a24,**fields):
-        return block('sector',heightfloor=floor,heightceiling=ceiling,texturefloor='"QLAVA"',textureceiling='"IKWALL44"',lightlevel=light,fadecolor=fade,fogdensity=10,**fields)
+    def sector(floor,ceiling,light=150,fade=0x302a24,floor_texture="QLAVA",**fields):
+        return block('sector',heightfloor=floor,heightceiling=ceiling,texturefloor=json.dumps(floor_texture),textureceiling='"IKWALL44"',lightlevel=light,fadecolor=fade,fogdensity=10,**fields)
     used={int(s.get('id',0)) for kind in ('sector','linedef') for s in b[kind]}
     assert not used.intersection(range(65200,65500)),'Reserved cavern skybox tags are in use'
     for j,li in enumerate((4783,4729,4969)):
@@ -96,7 +100,9 @@ def generate(b,geo,add,source):
         # perspective, depth testing and fog, with a client-local parallax viewpoint anchored to SkyCamCompat.
         ox,oy=((-11000,-23000),(1000,-23000),(-11000,-12000))[j]
         windows[-1]['view_origin']=[ox-1200,oy+(-350,350,-150)[j],-450]
-        room=sector(-650,2200,112,0x363029,lightfloor=128,lightfloorabsolute='true',lightceiling=80,lightceilingabsolute='true',id=65300+j)
+        room=sector(-650,2200,112,0x363029,floor_texture="UCAVSLAV",lightfloor=128,lightfloorabsolute='true',lightceiling=80,lightceilingabsolute='true',id=65300+j,
+                    **{axis+'scale'+plane:SKY_TEXTURE_SCALE for axis in ('x','y') for plane in ('floor','ceiling')})
+        sky_sectors.add(room)
         outline=[(-2400,-1400),(-2600,800),(-1300,2100),(1600,2200),(2800,900),(3300,600),(3900,1100),(5400,1700),(7200,1400),(7800,0),(7200,-1800),(4900,-1900),(3600,-800),(2900,-700),(2000,-2200),(-1000,-2200)]
         vv=[vertex(ox+x,oy+y) for x,y in outline]
         for k in range(len(vv)):
@@ -122,7 +128,7 @@ def generate(b,geo,add,source):
             for ring in range(4):
                 for q in range(9):
                     a0=ring*9+q;c0=ring*9+(q+1)%9;d=a0+9;e=c0+9;faces.extend(((a0,d,c0),(c0,d,e)))
-            add(f'skyrock_{j}_{k}',verts,faces,(ox+x,oy+y,2100),'IKWALL44',5,sector_override=room)
+            add(f'skyrock_{j}_{k}',verts,faces,(ox+x,oy+y,2100),'IKWALL44',5,sector_override=room,uv_scale=SKY_TEXTURE_SCALE)
     assert all(max(p[k] for p in positions)-min(p[k] for p in positions)<32760 for k in (0,1)), 'Cavern skybox BSP extent exceeded'
     return {'version':1,'textmap_sha256':textmap_digest(source),'counts':{k:len(v) for k,v in b.items()},'changes':changes,'append':MARKER+'\n'+'\n'.join(blocks)+'\n','windows':windows,'models':12}
 

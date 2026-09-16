@@ -27,7 +27,7 @@ def main():
         if old.is_file():old.unlink()
         for p in (ROOT/'tools/fixtures/cavern').iterdir():
             if p.is_file():shutil.copyfile(p,addon/('zscript.zc' if p.name=='ZSCRIPT' else p.name))
-        files=['zscript/UTNT_Cavern.zc','zscript/cavern-generated.zc','modeldef/MODELDEF.cavern','gldefs/GLDEFS.cavern','shaders/cavern-haze.fp','zscript/UTNT_CavernAtmosphere.zc','sndinfo/sndinfo.cavern','zscript/UTNT_Weather.zc']
+        files=['zscript/UTNT_Cavern.zc','zscript/cavern-generated.zc','modeldef/MODELDEF.cavern','gldefs/GLDEFS.cavern','shaders/cavern-haze.fp','shaders/cavern-lava.fp','zscript/UTNT_CavernAtmosphere.zc','sndinfo/sndinfo.cavern','zscript/UTNT_Weather.zc']
         for folder in ['cavern','models/cavern']:
             files += [p.relative_to(ROOT/'tutnt').as_posix() for p in (ROOT/'tutnt'/folder).rglob('*') if p.is_file()]
         for name in files:
