@@ -107,13 +107,17 @@ A subsequent normal build correctly refused publication after concurrent source
 changes. Verification therefore used `.codex/builds/tutnt-png-optimized.pk3`;
 the optimized editable assets are already present in `tutnt/`. This isolated
 package uses DEFLATE for all assets, so its total size is not compared with the
-shared package's mixed model compression. The next normal integration build
-will include the optimized PNGs.
+shared package's mixed model compression. A parallel task subsequently rebuilt
+the common `tutnt.pk3`. A read-only audit confirmed that all 13,049 PNGs in that
+336,320,574-byte package match the reviewed optimized hashes; this task did not
+overwrite that integration build. Its total size change also includes parallel
+work and is not attributed solely to PNG optimization.
 
 Runtime evidence: `.codex/validation/png-optimization-runtime.json` and
 `.codex/logs/png-gallery-*`; package evidence:
 `.codex/validation/png-optimization-package.json` and
-`.codex/validation/png-optimization-package-sources.json`.
+`.codex/validation/png-optimization-package-sources.json` and
+`.codex/validation/png-optimization-common-package.json`.
 
 The complete package/source comparison confirmed all 13,049 PNGs match the
 reviewed hashes and packaged bytes. No map or other included production asset
