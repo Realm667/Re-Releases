@@ -30,6 +30,9 @@ class UTNTCavernTest : EventHandler
             if(e.Args[0]==14){Camera.SetOrigin((-12200,-23000,-200),false);Camera.Angle=0;Camera.Pitch=5;}
             if(e.Args[0]==15){Camera.SetOrigin((-200,-23000,-200),false);Camera.Angle=0;Camera.Pitch=5;}
             if(e.Args[0]==16){Camera.SetOrigin((-12200,-12000,-200),false);Camera.Angle=0;Camera.Pitch=5;}
+            if(e.Args[0]==17){Camera.SetOrigin((4671,-4139,-38),false);Camera.Angle=35;Camera.Pitch=0;}
+            if(e.Args[0]==18){Camera.SetOrigin((4800,-4300,-600),false);Camera.Angle=70;Camera.Pitch=65;}
+            if(e.Args[0]==19){Camera.SetOrigin((4879,-6173,-476),false);Camera.Angle=180;Camera.Pitch=0;}
             players[consoleplayer].camera=Camera;
         }
         if(e.Name=="caveparallax")
@@ -71,6 +74,7 @@ class UTNTCavernTest : EventHandler
         if(e.Name!="cavecheck" && e.Name!="cavequiet")return;
         if(e.Name=="cavecheck")
         {
+            Console.Printf("UTNT_ASSERT %s local rock material survives map startup and restore",TexMan.GetName(level.lines[4783].sidedef[0].GetTexture(Side.top))=="UCAVROCK" && TexMan.GetName(level.sectors[895].GetTexture(Sector.ceiling))=="UCAVROCK"?"PASS":"FAIL");
             int skies=0,portals=0;
             let skyit=ThinkerIterator.Create('SkyCamCompat');Actor sky;
             while(sky=Actor(skyit.Next()))if(sky.TID>=65200 && sky.TID<=65202){skies++;Console.Printf("CAVERN_SKY %d pos %.1f %.1f %.1f sector %d",sky.TID,sky.Pos.X,sky.Pos.Y,sky.Pos.Z,sky.CurSector.Index());}
@@ -88,8 +92,10 @@ class UTNTCavernTest : EventHandler
                 localViews++;bool linked=false;
                 for(int j=0;j<level.sectorPortals.Size();j++)if(level.sectorPortals[j].mSkybox==local.Camera)linked=true;
                 bound=bound && linked && local.Camera && local.Camera.CurSector==level.PointInSector(local.Origin.XY);
-                dark=dark && local.Camera.CurSector.LightLevel==112 && (int(local.Camera.CurSector.ColorMap.FadeColor)&0xffffff)==0x363029
-                    && local.Camera.CurSector.GetPlaneLight(Sector.floor)==128 && local.Camera.CurSector.GetPlaneLight(Sector.ceiling)==80;
+                // UZDoom 5.0.1 miscompares a chained uint16 member; materialize it.
+                int skyFog=local.Camera.CurSector.ColorMap.FogDensity;
+                dark=dark && local.Camera.CurSector.LightLevel==128 && (int(local.Camera.CurSector.ColorMap.FadeColor)&0xffffff)==0x363029
+                    && skyFog==3 && local.Camera.CurSector.GetPlaneLight(Sector.floor)==112 && local.Camera.CurSector.GetPlaneLight(Sector.ceiling)==96;
                 follows=follows && Camera && (local.Camera.Pos-local.PositionFor(Camera.Pos)).Length()<.01;
             }
             Console.Printf("UTNT_ASSERT %s three local parallax views bound without duplicate cameras",localViews==3 && bound && follows?"PASS":"FAIL");
@@ -118,7 +124,7 @@ class UTNTCavernTest : EventHandler
         }
         int haze=0,mist=0;bool height=true,quiet=true,bounded=true;
         it=ThinkerIterator.Create('UTNTCavernHaze',Thinker.MAX_STATNUM+1,true);UTNTCavernHaze v;
-        while(v=UTNTCavernHaze(it.Next())){haze++;height=height && abs(v.Scale.Y*128-320)<.01 && (v.Flags&SPF_NO_XY_BILLBOARD)!=0;quiet=quiet && v.Alpha<.001;}
+        while(v=UTNTCavernHaze(it.Next())){haze++;height=height && abs(v.Scale.Y*128-320)<.01 && (v.Flags&SPF_NO_XY_BILLBOARD)==0;quiet=quiet && v.Alpha<.001;}
         it=ThinkerIterator.Create('UTNTCavernMist',Thinker.MAX_STATNUM+1,true);UTNTCavernMist m;
         while(m=UTNTCavernMist(it.Next())){mist++;bounded=bounded && (!m.OverLava || m.Pos.Z+80-m.Base<=384);}
         if(e.Name=="cavequiet")
@@ -129,7 +135,7 @@ class UTNTCavernTest : EventHandler
         Console.Printf("UTNT_ASSERT %s shoreline haze reaches 320 units (%d)",haze==119 && height?"PASS":"FAIL",haze);
         Console.Printf("UTNT_ASSERT %s smoke budget and lava height (%d)",mist<=32 && bounded?"PASS":"FAIL",mist);
         let h=UTNTCavern(EventHandler.Find('UTNTCavern'));let s=level.Sectors[895];
-        Console.Printf("UTNT_ASSERT %s 94 decorative models and three lights (%d/%d)",models==94 && lights==3?"PASS":"FAIL",models,lights);
+        Console.Printf("UTNT_ASSERT %s 102 decorative models and three lights (%d/%d)",models==102 && lights==3?"PASS":"FAIL",models,lights);
         Console.Printf("UTNT_ASSERT %s decoration has no collision",cosmetic?"PASS":"FAIL");
         Console.Printf("UTNT_ASSERT %s bounded local cloud count %d",clouds<=42?"PASS":"FAIL",clouds);
         int rgb=int(s.ColorMap.FadeColor)&0xffffff;

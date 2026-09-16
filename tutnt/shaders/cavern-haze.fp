@@ -28,11 +28,13 @@ vec4 ProcessTexel()
     float mask=1.-smoothstep(.18,1.,radius);
     return vec4(vec3(.31,.265,.22),mask*mask*(.35+n*.65));
 #else
-    float height=1.-uv.y;
-    float side=1.-smoothstep(.2,1.,abs(uv.x*2.-1.));
-    float vertical=smoothstep(0.,.035,height)*(1.-smoothstep(.08,1.,height));
-    // Broad luminous bed, with gentle rising folds rather than isolated flames.
-    float density=side*vertical*(.62+.38*n);
+    float radius=length((uv-.5)*2.);
+    float mask=1.-smoothstep(.05,1.,radius);
+    float height=pixelpos.y+1500.;
+    float vertical=smoothstep(0.,48.,height)*(1.-smoothstep(96.,336.,height));
+    // Centered soft clouds turn with the view. Fade by world height before a
+    // tilted card meets lava, so a steep downward view cannot expose its edge.
+    float density=mask*mask*vertical*(.62+.38*n);
     vec3 tint=getTexel(vec2(.9453125,.58203125)).rgb;
     tint/=max(.001,max(tint.r,max(tint.g,tint.b)));
     return vec4(tint,density);

@@ -13,7 +13,7 @@ def main():
     a=p.parse_args();work=ROOT/'tutnt/.codex/work/cavern-tnt03a2';work.mkdir(parents=True,exist_ok=True)
     label=a.label+'-'+a.renderer
     commands=['god','notarget','wait 100','netevent caveview 0','wait 100','netevent cavecheck']
-    for v in [*range(8),9,10,11,12,13]:commands += [f'netevent caveview {v}','wait 45',f'screenshot logs/{label}-{v}.png']
+    for v in [*range(8),9,10,11,12,13,17,18,19]:commands += [f'netevent caveview {v}','wait 45',f'screenshot logs/{label}-{v}.png']
     commands += ['netevent caveview 13','wait 20','netevent caveparallax 0','wait 10','netevent caveparallax 1',f'screenshot logs/{label}-parallax.png']
     commands += ['netevent caveview 8','wait 30','netevent cavefall','wait 50','netevent cavefallcheck',f'screenshot logs/{label}-fall.png','wait 100',f'screenshot logs/{label}-fall-drift.png','netevent caveview 0']
     commands += [f'save {label}','wait 15',f'load {label}','wait 100','netevent cavecheck','wait 10',f'screenshot logs/{label}-restored.png']
@@ -27,7 +27,7 @@ def main():
         if old.is_file():old.unlink()
         for p in (ROOT/'tools/fixtures/cavern').iterdir():
             if p.is_file():shutil.copyfile(p,addon/('zscript.zc' if p.name=='ZSCRIPT' else p.name))
-        files=['zscript/UTNT_Cavern.zc','zscript/cavern-generated.zc','modeldef/MODELDEF.cavern','gldefs/GLDEFS.cavern','shaders/cavern-haze.fp','shaders/cavern-lava.fp','zscript/UTNT_CavernAtmosphere.zc','sndinfo/sndinfo.cavern','zscript/UTNT_Weather.zc']
+        files=['zscript/UTNT_Cavern.zc','zscript/cavern-generated.zc','modeldef/MODELDEF.cavern','gldefs/GLDEFS.cavern','shaders/cavern-haze.fp','shaders/cavern-lava.fp','shaders/cavern-rock.fp','zscript/UTNT_CavernAtmosphere.zc','sndinfo/sndinfo.cavern','zscript/UTNT_Weather.zc']
         for folder in ['cavern','models/cavern']:
             files += [p.relative_to(ROOT/'tutnt').as_posix() for p in (ROOT/'tutnt'/folder).rglob('*') if p.is_file()]
         for name in files:
@@ -39,7 +39,7 @@ def main():
         (addon/'SNDINFO.txt').write_text('$include "sndinfo/sndinfo.cavern"\n')
     r=run_case(a.engine,a.iwad,root=work,mod=a.mod,mapname='TNT03A2',addon=addon,renderer=a.renderer,label=label,timeout=110,
         commands='; '.join(commands),settings=[('win_w',1440),('win_h',900),('vid_maxfps',60),('gl_texture_filter',0),('screenblocks',12),('crosshair',0),('con_notifytime',0),('r_drawplayersprites',False),('UTNT_subtitles',False),('fullhud_fullstats',False),('UTNT_fxquality',3),('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_lowerinbackground',False),('use_mouse',False),('use_joystick',False)])
-    expected=43 if a.hub else 29
+    expected=46 if a.hub else 31
     if r['assertions']!=expected:r['ok']=False;r['errors'].append(f'Expected {expected} lifecycle assertions')
     out=ROOT/'tutnt/.codex/validation/cavern-tnt03a2';out.mkdir(parents=True,exist_ok=True);(out/(label+'.json')).write_text(json.dumps(r,indent=2))
     return 0 if r['ok'] else 1

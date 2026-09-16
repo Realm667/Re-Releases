@@ -47,8 +47,8 @@ class UTNTCavernHaze : VisualThinker
 {
     void Initialize(Vector3 origin, double radius)
     {
-        Pos=origin;Prev=Pos;Texture=TexMan.CheckForTexture('UCHZA0');
-        Flags=SPF_FULLBRIGHT|SPF_ALLOWSHADERS|SPF_STRETCHPIXELS|SPF_NO_XY_BILLBOARD;
+        Pos=origin+(0,0,158);Prev=Pos;Texture=TexMan.CheckForTexture('UCHZA0');
+        Flags=SPF_FULLBRIGHT|SPF_ALLOWSHADERS|SPF_STRETCHPIXELS|SPF_FACECAMERA;
         SetRenderStyle(STYLE_Add);scolor=0xffffffff;Alpha=0;
         Scale=(radius*2/64.,320./128.);UpdateSector();UpdateSpriteInfo();
     }
@@ -155,7 +155,7 @@ class UTNTCavernController : Thinker
             let sec=level.PointInSector(p.XY);if(!sec || sec.Index()!=r[4].ToInt())continue;
             Class<Actor> cls=r[0];if(!cls)continue;
             let a=UTNTCavernScenery(Actor.Spawn(cls,p));if(!a)continue;
-            a.Angle=0;Scenery.Push(a);
+            a.Angle=0;if(r[5].ToInt()!=1)a.LightLevel=sec.LightLevel;Scenery.Push(a);
         }
         for(int i=0;i<3;i++)
         {
@@ -178,10 +178,10 @@ class UTNTCavernController : Thinker
     }
     void Mist(UTNTCavernHaze h, bool lava, int salt)
     {
-        Vector3 p=h.Pos+(0,0,lava?80:850+(salt%3)*180);
+        Vector3 p=h.Pos+(0,0,(lava?80:850+(salt%3)*180)-158);
         let s=level.PointInSector(p.XY);if(!s || p.Z>s.ceilingplane.ZatPoint(p.XY)-160)return;
         let a=UTNTCavernMist(level.SpawnClientSideVisualThinker('UTNTCavernMist'));if(!a)return;
-        a.Initialize(p,lava,salt);a.Base=h.Pos.Z;
+        a.Initialize(p,lava,salt);a.Base=h.Pos.Z-158;
     }
     void Cloud(Vector3 source, bool falling, int salt)
     {
@@ -247,6 +247,15 @@ class UTNTCavern : EventHandler
             // Boundary identity also works for thin/merged BSP subsectors and
             // after AreaTextures has replaced the authored material names.
             if(!side || side.sector!=s || (v1.p-a).Length()>.01 || (v2.p-b).Length()>.01){Rejected++;continue;}
+            let rock=TexMan.CheckForTexture('IKWALL44');
+            let rockFlat=TexMan.CheckForTexture('XA01TEX');let rockWall=TexMan.CheckForTexture('XB01TEX');
+            let localRock=TexMan.CheckForTexture('UCAVROCK');
+            for(int plane=0;plane<2;plane++)if((s.GetTexture(plane)==rock || s.GetTexture(plane)==rockFlat || s.GetTexture(plane)==rockWall))s.SetTexture(plane,localRock);
+            for(int j=0;j<s.lines.Size();j++)for(int faceIndex=0;faceIndex<2;faceIndex++)
+            {
+                let wall=s.lines[j].sidedef[faceIndex];if(!wall || wall.sector!=s)continue;
+                for(int part=0;part<3;part++)if((wall.GetTexture(part)==rock || wall.GetTexture(part)==rockFlat || wall.GetTexture(part)==rockWall))wall.SetTexture(part,localRock);
+            }
             // Save/hub state already contains these properties; do not accumulate
             // relative offsets or overwrite later authored gameplay lighting.
             if(s.ColorMap.FadeColor!=0x62411d)continue;
@@ -302,6 +311,7 @@ class UTNTCavern : EventHandler
         if(RefreshPending && level.time>=6)
         {
             RefreshPending=false;
+            ApplyLighting();
             // Finish after OPEN/map setup and rebuild attached 3D-floor lists.
             for(int i=0;i<level.Sectors.Size();i++)
             {

@@ -67,9 +67,22 @@ def generate(root=ROOT, check=False):
             n=(u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]);ln=math.sqrt(sum(q*q for q in n)) or 1
             ns.append((n[0]/ln,n[2]/ln,-n[1]/ln));axis=max(range(3),key=lambda k:abs(n[k]))
             for x,y,z in (a,c,d):uv.append(((y if axis==0 else x)*uv_scale/128,(y if axis==2 else z)*uv_scale/128))
-        out+=['vt %.6f %.6f'%p for p in uv];out+=['vn %.6f %.6f %.6f'%n for n in ns]
-        out+=['f '+' '.join(f'{v+1}/{j*3+k+1}/{j+1}' for k,v in enumerate(f)) for j,f in enumerate(faces)]
+        out+=['vt %.6f %.6f'%p for p in uv]
+        if kind in (2,3,4):
+            # Shared vertex normals make the finer ridges read as continuous stone
+            # and prevent the world projection from changing at every triangle.
+            smooth=[[0.,0.,0.] for _ in verts]
+            for face,n in zip(faces,ns):
+                for index in face:
+                    for axis in range(3):smooth[index][axis]+=n[axis]
+            smooth=[tuple(q/max(1e-9,math.sqrt(sum(v*v for v in n))) for q in n) for n in smooth]
+            out+=['vn %.6f %.6f %.6f'%n for n in smooth]
+            out+=['f '+' '.join(f'{v+1}/{j*3+k+1}/{v+1}' for k,v in enumerate(f)) for j,f in enumerate(faces)]
+        else:
+            out+=['vn %.6f %.6f %.6f'%n for n in ns]
+            out+=['f '+' '.join(f'{v+1}/{j*3+k+1}/{j+1}' for k,v in enumerate(f)) for j,f in enumerate(faces)]
         outputs[f'tutnt/models/cavern/{name}.obj']='\n'.join(out)+'\n'
+        if skin=='IKWALL44' and kind!=5:skin='UCAVROCK'
         cls='UTNTCavern_'+name;radius=math.ceil(max(math.hypot(x-origin[0],y-origin[1]) for x,y,z in verts)+16)
         state=' States { Spawn: SKED A -1 Bright; Stop; }' if kind==1 else ''
         classes.append(f'class {cls} : UTNTCavernScenery {{ Default {{ RenderRadius {radius}; }}{state} }}')
@@ -136,19 +149,19 @@ def generate(root=ROOT, check=False):
         # An irregular convex rock face. The outer ring is buried behind its
         # supporting plane, so models merge into the authored wall/ceiling.
         verts=[tuple(center[k]+normal[k]*depth for k in range(3))];faces=[]
-        for ring in range(1,6):
-            r=ring/5
-            for j in range(13):
-                angle=j*math.tau/13
+        for ring in range(1,9):
+            r=ring/8
+            for j in range(25):
+                angle=j*math.tau/25
                 wobble=1+.09*math.sin(j*2.7+seed)+.06*math.cos(j*4.1-seed)
                 u=math.cos(angle)*r*width*wobble;v=math.sin(angle)*r*length*wobble
-                bump=depth*math.sqrt(max(0,1-r*r))*(1+.15*math.sin(j*2.3+seed+ring))
-                if ring==5:bump=-12
+                bump=depth*max(0,1-r*r)**.7*(1+.19*math.sin(j*1.3+seed)+.12*math.sin(j*2.3+seed+ring*.7))
+                if ring==8:bump=-28
                 verts.append(tuple(center[k]+axis_u[k]*u+axis_v[k]*v+normal[k]*bump for k in range(3)))
-        for j in range(13):faces.append((0,1+j,1+(j+1)%13))
-        for ring in range(4):
-            for j in range(13):
-                a=1+ring*13+j;c=1+ring*13+(j+1)%13;d=a+13;e=c+13
+        for j in range(25):faces.append((0,1+j,1+(j+1)%25))
+        for ring in range(7):
+            for j in range(25):
+                a=1+ring*25+j;c=1+ring*25+(j+1)%25;d=a+25;e=c+25
                 faces.extend([(a,d,c),(c,d,e)])
         # Consistent outward normals matter even with backface culling disabled.
         for j,f in enumerate(faces):
@@ -174,6 +187,11 @@ def generate(root=ROOT, check=False):
             tangent=((c[0]-a[0])/span,(c[1]-a[1])/span,0);normal=(tangent[1],-tangent[0],0)
             center=((a[0]+c[0])/2,(a[1]+c[1])/2,(-1500+top)/2-60)
             rock_patch(f'wall_{li}',center,tangent,(0,0,1),normal,min(220,span*.43),(top+1500)*.31,72+(li%4)*12,li)
+            if span>=240:
+                for q in (-1,1):
+                    offset=span*.23*q
+                    ribcenter=(center[0]+tangent[0]*offset,center[1]+tangent[1]*offset,center[2]-90)
+                    rock_patch(f'wall_rib_{li}_{q+1}',ribcenter,tangent,(0,0,1),normal,min(86,span*.16),(top+1500)*.24,100+(li%3)*16,li+q*17)
             wall_count+=1
 
     from cavern_rock_details import generate_details

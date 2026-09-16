@@ -58,9 +58,10 @@ class SkyroomMapTest(unittest.TestCase):
         self.assertEqual(len(halls),3)
         for s in halls:
             self.assertEqual(int(s['fadecolor']),0x363029)
-            self.assertEqual(int(s['lightlevel']),112)
-            self.assertEqual(int(s['lightfloor']),128)
-            self.assertEqual(int(s['lightceiling']),80)
+            self.assertEqual(int(s['fogdensity']),6)
+            self.assertEqual(int(s['lightlevel']),128)
+            self.assertEqual(int(s['lightfloor']),112)
+            self.assertEqual(int(s['lightceiling']),96)
 
     def test_stale_patch_rejected_without_topology_change(self):
         changed=self.source.replace(b'1920.0',b'1921.0',1)

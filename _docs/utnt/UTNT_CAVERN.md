@@ -45,7 +45,7 @@ accumulate offsets. Outdoor day/night and snowfall sectors are not selected.
 Fog density is installed before the fade update, which rebuilds UZDoom's cached
 3D-floor light lists. A single post-setup refresh handles attached floor lists.
 
-The client controller creates 94 noninteracting scenery actors and three
+The client controller creates 102 noninteracting scenery actors and three
 lights. It rebuilds local objects after loading, clearing old instances from
 both thinker pools. Smoke and dust use local deterministic phases, bounded
 lifetimes, distance checks and the shared effect-quality setting. No gameplay
@@ -55,7 +55,7 @@ clouds fade out. Cosmetic models remain visible as part of the room design.
 ## Lava haze, smoke and suspended dust
 
 The lava carries a visibly luminous orange haze reaching 320 map units above
-its base, starting two units above the surface. Its density fades upward and
+the lava surface. Its density fades upward and
 across the sides; slow world-space noise creates rising folds. The generator
 joins the 206 adjoining lava sectors before measuring shoreline clearance,
 then emits 119 fixed positions in `cavern/haze.txt`. Their horizontal radius
@@ -81,9 +81,9 @@ one. Save/load and hub return rebuild the local layer without duplicates.
 
 Twenty irregular rock faces interrupt the tall cliffs below their walkable rims;
 eight broad roof masses break up the ceiling, in addition to the four existing
-stalactites and four lava-fall pieces. The new meshes use the original IKWALL44
-material, asymmetrical faceted surfaces and buried perimeter rings. They add
-3,276 triangles in total. Wall bulges remain below ledges and the lava-fall
+stalactites and four lava-fall pieces. The meshes use the local IKWALL44-based material, asymmetric ridges, smooth
+vertex normals and buried perimeter rings. They add
+13,500 triangles across these masses and the eight additional narrow cliff ribs. Wall bulges remain below ledges and the lava-fall
 opening is reserved. These cosmetic models have no collision and do not create
 new stepping stones or alter the platform route.
 
@@ -127,7 +127,7 @@ floor plane: rims remain at least eight units below it, corner ribs at least
 unchanged. Per-model vertex/triangle counts and minimum clearance are recorded
 in `cavern/detail-clearance.txt`; duplicate model names and degenerate triangles
 are rejected, and face normals point outward. Together
-with the existing scenery, the main cavern has 82 static decorative models before the skybox extension.
+with the existing scenery, the main cavern has 90 static decorative models before the skybox extension.
 
 ## Fissures into distant cavern skyboxes
 
@@ -143,16 +143,15 @@ forward and sideways motion stay aligned with the visible hall. These are scenic
 views, not traversable passages.
 
 Each of the three isolated scenes contains two connected large halls, lava,
-four massive occluding rock pillars and three hanging rock formations. Varied
+six differently sized occluding rock pillars and three hanging rock formations. Varied
 camera positions/yaw and layered fog expose different views. Their fog colour
-matches the main cavern (`#363029`). Hall lighting is 112, floor lighting 128 and
-ceiling lighting 80, below the main chamber's 144 / 176 / 128 baseline; lava
-remains luminous. The distant rooms retain fog density 10 for their larger scale.
-All sky-room wall, pillar, floor and ceiling textures use eight times the UV
-density: texture features occupy one eighth of their normal map-unit size,
-matching the 1:8 camera parallax. The nine distant rock models use the same UV
-multiplier. Foreground fissure frames and their shallow recesses retain normal
-texture scale. The `UCAVSLAV` carrier uses `shaders/cavern-lava.fp`, generated
+matches the main cavern (`#363029`). Hall lighting is 128, floor lighting 112 and
+ceiling lighting 96, below the main chamber's 144 / 176 / 128 baseline; lava
+remains luminous. The distant rooms use UDMF fog density 6 (runtime 3) to keep their silhouettes dark.
+Sky-room rock walls, pillars, ceilings and the nine distant models use UV scale
+4, corresponding to one eighth of the enlarged foreground rock size. Lava uses
+scale 8. Foreground fissure frames and shallow recesses share the main room's
+world-projected rock material. The `UCAVSLAV` carrier uses `shaders/cavern-lava.fp`, generated
 from the shared lava shader: its world-space pattern and relief are scaled
 consistently, while fog distances remain in actual scene units. This is necessary
 because ordinary lava deliberately ignores flat UV scaling.
@@ -167,7 +166,7 @@ Horizontal offsets are bounded to 512 units per axis and vertical positions stay
 inside the sky room. Parallax remains active even with effect quality zero.
 
 All twelve added models (three foreground frames, nine distant formations) bring the full scenic
-population to 94. The three indoor cameras are explicitly excluded from the
+population to 102. The three indoor cameras are explicitly excluded from the
 outdoor weather controller, preventing snow or rain inside these halls.
 
 `tools/cavern_skyrooms.py` generates `cavern/skyrooms.json` from the current map.
@@ -273,3 +272,48 @@ structure tests pass. Direct source/package checks cover all three hall sectors,
 geometry and the shared lava shader remain unchanged. Evidence:
 `cavern-texture-scale-final-0.json`, `cavern-texture-scale-final-1.json` and
 `texture-scale.json` in the local validation directory.
+
+## Screenshot-driven refinement (16 September 2026)
+
+The three frames now have 52 contour points and seven radial bands (624
+triangles each). Their outer perimeter sinks 48 units into the supporting wall.
+Rock patches use eight rings with 25 points and smooth shared vertex normals;
+eight narrower ribs add secondary structure beneath existing ledges. All 102
+scenery actors remain cosmetic. Rock actors take their supporting sector light
+instead of the brighter lava-floor light, reducing lighting seams.
+
+Main-room rock uses a local UCAVROCK material based on the existing expanded
+IKWALL44 artwork. Walls, floor/ceiling rock and models share a world projection,
+1024-unit texture period (twice the existing expanded material), broad coordinate
+variation and blended normal detail. This avoids per-face UV discontinuities.
+The replacement recognizes both original and generated area-material names and
+is reapplied once after map startup. It does not affect other map areas. The
+local shader uses normal detail rather than the shared UV-based parallax shader.
+Distant rock uses scale 4, retaining one-eighth apparent features relative to the
+enlarged foreground; sky lava retains scale 8 and the existing world-space shader.
+
+Sky rooms keep precisely the main cave fog colour, but use UDMF density 6
+(runtime density 3). UZDoom halves the authored integer, so a value of 1 would
+become zero and fall back to excessive light-dependent fog. Reduced optical
+depth removes the bright uniform fill. Two extra foreground pillars per distant
+scene provide nearer silhouettes. The one-eighth camera movement is unchanged.
+
+Lava haze now uses centered camera-facing soft clouds instead of floor-anchored
+upright cards. Radial alpha and a world-height fade make tilted floor intersections
+transparent before they clip. The 320-unit carriers are centered 160 units above
+lava; their shader fades completely by height 336. Mist source heights and the
+384-unit smoke bound remain unchanged. Three added regression views reproduce
+the reported fissure, steep downward lava view and lower cavern wall.
+
+Refinement acceptance on 16 September 2026: complete root package build
+`0bc66f02b5b2` passed 46 assertions on OpenGL and 46 on Vulkan in UZDoom 5.0.1,
+including save/load, hub return, quality shutdown, local material persistence,
+measured parallax and effect budgets. Seven structural tests pass. Final views
+17-19 and representative fissure views were visually inspected. The eight new
+ribs have at least 355.7 units of clearance below neighbouring walkable planes.
+Source/package comparison confirms the generated map patch and changed runtime
+resources. Evidence: `cavern-refinement-final-0.json`,
+`cavern-refinement-final-1.json`, `refinement-clearance.json` and
+`refinement-package.json` in the central local validation directory.
+The layout check reports only the fifteen pre-existing editor sidecars/backups
+in `tutnt/maps`; this task did not create or move those files.

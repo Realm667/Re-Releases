@@ -7,7 +7,8 @@ from build_sky_edges import plane
 MARKER='// UTNT_CAVERN_SKYROOMS_V1'
 # One eighth camera travel represents scenery at eight times its model distance.
 # Shrink texture features to one eighth of their normal map-unit size as well.
-SKY_TEXTURE_SCALE=8.0
+SKY_TEXTURE_SCALE=4.0 # rock is now twice its original foreground size
+SKY_LAVA_SCALE=8.0
 
 def textmap_digest(data):
     # Fingerprint the topology and placement inputs, normalizing editor number
@@ -46,10 +47,11 @@ def generate(b,geo,add,source):
         return block('vertex',x=f'{x:.6f}',y=f'{y:.6f}')
     def side(sector,texture='IKWALL44'):
         scale={axis+'_'+part:SKY_TEXTURE_SCALE for axis in ('scalex','scaley') for part in ('top','mid','bottom')} if sector in sky_sectors else {}
-        return block('sidedef',sector=sector,texturemiddle=json.dumps(texture),texturetop='"IKWALL44"',texturebottom='"IKWALL44"',**scale)
+        rock='IKWALL44' if sector in sky_sectors else 'UCAVROCK'
+        return block('sidedef',sector=sector,texturemiddle=json.dumps(rock if texture=='IKWALL44' else texture),texturetop=json.dumps(rock),texturebottom=json.dumps(rock),**scale)
     def line(a,c,sector,**fields):return block('linedef',v1=a,v2=c,sidefront=side(sector),blocking='true',**fields)
-    def sector(floor,ceiling,light=150,fade=0x302a24,floor_texture="QLAVA",**fields):
-        return block('sector',heightfloor=floor,heightceiling=ceiling,texturefloor=json.dumps(floor_texture),textureceiling='"IKWALL44"',lightlevel=light,fadecolor=fade,fogdensity=10,**fields)
+    def sector(floor,ceiling,light=150,fade=0x302a24,floor_texture="QLAVA",fog=10,**fields):
+        return block('sector',heightfloor=floor,heightceiling=ceiling,texturefloor=json.dumps(floor_texture),textureceiling=json.dumps('IKWALL44' if floor_texture=='UCAVSLAV' else 'UCAVROCK'),lightlevel=light,fadecolor=fade,fogdensity=fog,**fields)
     used={int(s.get('id',0)) for kind in ('sector','linedef') for s in b[kind]}
     assert not used.intersection(range(65200,65500)),'Reserved cavern skybox tags are in use'
     for j,li in enumerate((4783,4729,4969)):
@@ -79,16 +81,27 @@ def generate(b,geo,add,source):
         # A deep irregular rock frame masks the rectangular engine aperture.
         inner=[(-.08,-.46),(.17,-.42),(.30,-.28),(.24,-.04),(.40,.14),(.30,.30),(.08,.46),(-.08,.47),(-.26,.30),(-.20,.1),(-.36,-.1),(-.27,-.29),(-.24,-.41)]
         outer=[(0,-.5),(.5,-.5),(.5,-.3),(.5,-.05),(.5,.15),(.5,.5),(.2,.5),(-.5,.5),(-.5,.3),(-.5,.1),(-.5,-.1),(-.5,-.5),(-.2,-.5)]
-        verts=[];faces=[];height=top-bottom;zmid=(top+bottom)/2
-        for ring in range(3):
-            for k,((u,v),(ou,ov)) in enumerate(zip(inner,outer)):
-                if ring==0:x=ou*(span+100);z=ov*(height+100);depth=-12
-                elif ring==1:x=(u*span*.40+ou*(span+100)*.60);z=v*height*.4+ov*(height+100)*.6;depth=38+10*math.sin(k*2.1+j)
-                else:x=u*span;z=v*height;depth=16+9*math.sin(k*1.7+j)
+        # Four samples per original contour segment, seven radial bands. The
+        # exterior sinks well into the wall and never ends at a visible rectangle.
+        contour=[]
+        for k in range(len(inner)):
+            for q in range(4):
+                f=q/4;u,v=inner[k];nu,nv=inner[(k+1)%len(inner)]
+                ou,ov=outer[k];no,nv2=outer[(k+1)%len(outer)]
+                jitter=math.sin(q*math.pi/4)*math.sin(k*3.7+j)*.015
+                contour.append((u+(nu-u)*f+jitter,v+(nv-v)*f+jitter,ou+(no-ou)*f,ov+(nv2-ov)*f))
+        verts=[];faces=[];height=top-bottom;zmid=(top+bottom)/2;count=len(contour)
+        for ring in range(7):
+            f=ring/6
+            for k,(u,v,ou,ov) in enumerate(contour):
+                x=ou*(span+220)*(1-f)+u*span*f
+                z=ov*(height+240)*(1-f)+v*height*f
+                ridge=(math.sin(k*.77+j)*12+math.sin(k*1.81+ring*.8)*7)*math.sin(math.pi*f)
+                depth=-48*(1-f)+72*math.sin(math.pi*f)+22*f+ridge
                 verts.append((mid[0]+t[0]*x+n[0]*depth,mid[1]+t[1]*x+n[1]*depth,zmid+z))
-        for ring in range(2):
-            for k in range(len(inner)):
-                a0=ring*len(inner)+k;c0=ring*len(inner)+(k+1)%len(inner);d=a0+len(inner);e=c0+len(inner)
+        for ring in range(6):
+            for k in range(count):
+                a0=ring*count+k;c0=ring*count+(k+1)%count;d=a0+count;e=c0+count
                 faces.extend(((a0,c0,d),(c0,e,d)))
         for k,f in enumerate(faces):
             v0,v1,v2=[verts[q] for q in f];u=[v1[q]-v0[q] for q in range(3)];v=[v2[q]-v0[q] for q in range(3)]
@@ -100,8 +113,8 @@ def generate(b,geo,add,source):
         # perspective, depth testing and fog, with a client-local parallax viewpoint anchored to SkyCamCompat.
         ox,oy=((-11000,-23000),(1000,-23000),(-11000,-12000))[j]
         windows[-1]['view_origin']=[ox-1200,oy+(-350,350,-150)[j],-450]
-        room=sector(-650,2200,112,0x363029,floor_texture="UCAVSLAV",lightfloor=128,lightfloorabsolute='true',lightceiling=80,lightceilingabsolute='true',id=65300+j,
-                    **{axis+'scale'+plane:SKY_TEXTURE_SCALE for axis in ('x','y') for plane in ('floor','ceiling')})
+        room=sector(-650,2200,128,0x363029,floor_texture="UCAVSLAV",fog=6,lightfloor=112,lightfloorabsolute='true',lightceiling=96,lightceilingabsolute='true',id=65300+j,
+                    **{axis+'scale'+plane:(SKY_LAVA_SCALE if plane=='floor' else SKY_TEXTURE_SCALE) for axis in ('x','y') for plane in ('floor','ceiling')})
         sky_sectors.add(room)
         outline=[(-2400,-1400),(-2600,800),(-1300,2100),(1600,2200),(2800,900),(3300,600),(3900,1100),(5400,1700),(7200,1400),(7800,0),(7200,-1800),(4900,-1900),(3600,-800),(2900,-700),(2000,-2200),(-1000,-2200)]
         vv=[vertex(ox+x,oy+y) for x,y in outline]
@@ -111,7 +124,7 @@ def generate(b,geo,add,source):
         yaw=math.degrees(math.atan2(-n[1],-n[0]))
         block('thing',x=ox-1200,y=oy+(-350,350,-150)[j],height=200,type=9083,id=65200+j,angle=round(-yaw+(-8,10,0)[j])%360,skill1='true',skill2='true',skill3='true',skill4='true',skill5='true',single='true',coop='true',dm='true')
         # Void pillars are real occluders; their unequal sizes expose the second hall.
-        for k,(x,y,radius) in enumerate(((700,-1150,430),(1700,1350,540),(4800,-1050,510),(6200,850,460))):
+        for k,(x,y,radius) in enumerate(((-850,-1450,190),(-200,-1900,230),(700,-1150,430),(1700,1350,540),(4800,-1050,510),(6200,850,460))):
             vv=[]
             for q in range(9):
                 angle=q*math.tau/9;rr=radius*(1+.13*math.sin(q*2.1+k+j))
