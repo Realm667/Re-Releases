@@ -1,4 +1,4 @@
-# UTNT Remaster — What's New
+# UTNT Reforged — What's New
 
 **Updated: 16 September 2026.** Current implemented features and improvements; unfinished local work is listed separately. Technical details and validation are available through the links.
 
@@ -19,7 +19,7 @@
 - **Readable layouts:** shared UI scaling, responsive text wrapping and coordinated placement of objectives, pickups, abilities, boss bars and subtitles. [Layout](UTNT_UI_REFINEMENT.md), [HUD](UTNT_HUD_STACKING.md)
 - **Automap and navigation:** coordinated colors, map information, statistics and key legend; discovered lock markers and light/sound cues at selected newly opened passages. [Automap](UTNT_EXPLORATION_UI.md), [Access cues](UTNT_USABILITY.md)
 - **Reforged menu artwork:** pixel-art Quake lettering, amber rune bands and a central seal, with vertically centered skull seals and softly fading amber glow; title with clean alpha edges and transparent selectors at native and double resolution. [Details](UTNT_MENU_LOGO.md)
-- **Menus and class selection:** illustrated class cards, organized Remaster options in both native menus with restored ability/environment controls, three visual presets, bronze-and-parchment colors with gold selection, a matching menu cursor, darker backgrounds, consistent BIGFONT text with concise episode translations and no build label in HUD options. [Details](UTNT_USABILITY.md), [Refinements](UTNT_TESTER_FEEDBACK.md)
+- **Menus and class selection:** illustrated class cards, organized Reforged options in both native menus with restored ability/environment controls, three visual presets, bronze-and-parchment colors with gold selection, a matching menu cursor, darker backgrounds, consistent BIGFONT text with concise episode translations and no build label in HUD options; consistent Reforged branding in the window title, options and credits. [Details](UTNT_USABILITY.md), [Refinements](UTNT_TESTER_FEEDBACK.md)
 - **Chapter reader:** self-paced pages with larger body text across chapter and intro dialogs, opaque chapter illustrations in a two-thirds text / one-third image layout, matching bronze frames, a staged sharp-to-soft background reveal, smooth image crossfades, original voice recordings, saved reading progress and independent cooperative reading; shared, skippable TNT04A intro. [Chapters](UTNT_INTERMISSION.md), [Intro](UTNT_INTRO_CHAPTER.md)
 - **Stained-glass chapters:** all sixteen chapter illustrations and two dedicated TNT04A intro portraits recreated in the approved dark, weathered glass style, with full rectangular artwork and matching proportions; the intro moves from the TNT04CN exterior, with natural volcanic terrain and soft lava haze, to the ritual chamber. [Details](UTNT_STAINED_GLASS.md)
 - **Unified transitions:** narration, artwork and saved chapter/campaign results; distinct solo plaques and cooperative comparisons, including combat, weapon and ability use, collected health/armor, tied leaders and team readiness; black fades keep gameplay overlays hidden. [Details](UTNT_INTERMISSION.md)
@@ -100,7 +100,7 @@
 
 - **Smaller game package:** shared duplicate images and generated models, lossless model-number compaction and removal of obsolete water atlases, with preserved resource references and pixel/geometry regression checks. [Details](ASSET_OPTIMIZATION.md)
 
-- **Editor loading:** internal surface/terrain material aliases stay out of UDB browsing, with valid sprite names throughout the packaged definitions. [Details](DEFINITION_LAYOUT.md)
+- **Editor loading:** bounded generated terrain-class files eliminate long UDB parsing stalls while preserving model definitions; internal surface/terrain material aliases stay out of texture browsing. [Details](DEFINITION_LAYOUT.md)
 
 - **The Source in both endings:** shared runic shield, opening seal, exposed heart, impact/Guardian feedback and attack cues; flowing beam energy including TNT04C’s miniature skybox beam, and a synchronized black-hole implosion with smoke, refraction, lighting, sound and final fade. [Details](UTNT_SOURCE.md)
 - **Engine modernization:** UZDoom 5.0.1 support, saved presentation states, local cosmetic simulation, current shader APIs, explicit numeric conversions and revised motion blur/postprocessing. [Refinements](UTNT_TESTER_FEEDBACK.md) [Implementation](../../tutnt/zscript/UTNT_Presentation.zc)

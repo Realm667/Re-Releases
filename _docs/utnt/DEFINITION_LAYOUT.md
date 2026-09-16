@@ -73,3 +73,41 @@ The installed r4327 parser accepts the isolated follow-up's table without errors
 1,279 authored textures, zero EV aliases, approximately 0.6 seconds. The old table
 failed after 4,192 textures including 3,179 EV aliases. This verifies parsing and
 namespace reduction, not the complete editor's map-opening wall-clock time.
+
+## UDB generated class parsing (16 September 2026)
+
+The installed UDB r4327 creates a fresh `ZScriptTokenizer` for every actor during
+`ZScriptParser.Finalize`. The tokenizer constructor scans its entire input stream
+to rebuild line positions. The former 11,432-class, 1.54 MB sky-edge source thus
+caused repeated complete scans even when opening an unrelated campaign map.
+
+`build_sky_edges.actor_sources` now generates source files of at most 128 classes
+under `zscript/sky-edges-generated/`, included by the original entrypoint. All
+class declarations, order, defaults, states and MODELDEF bindings are preserved.
+The generated-file inventory tracks the chunks and removes obsolete chunks when
+regenerating. Splitting is preferable to hiding these ZScript classes: hiding
+also leaves MODELDEF references unresolved and floods the editor with warnings.
+
+An isolated copy of installed UDB r4327 loaded a copy of TNT03A2 with the live
+source directory, DOOM2.WAD and gzdoom.pk3. Detailed timing reduced the ZScript
+phase from 350.234 to 22.543 seconds. A final run using only timestamps on normal
+log messages completed from `Opening map` to `Map loading done` in 13.828 seconds.
+These are local measurements, not a promise of an identical cold-load time on
+another machine. The earlier detailed baseline reached the editing mode after
+about six minutes but hit UDB's `-delaywindow` AutoSaver initialization bug;
+the final successful run uses the normal startup sequence and an explicit ACS
+configuration. The baseline is therefore evidence for the parser phase, not a
+successful full-map-open benchmark. Existing UDBScript/Esprima and KVX preview
+warnings remain separate; the former appeared after map loading completed.
+
+The local UDB Common.cfg excludes `.codex` from the resource index for all 51
+installed configurations. That exclusion alone did not solve the actor parser
+stall. It is a local installation setting and may need restoring after updates.
+Do not copy `.codex` into editor resources or release packages. The built PK3
+remains suitable as an editor resource, and source-folder loading now also
+benefits from the class-file split.
+
+Validation: ordered class/include round-trip and chunk-bound tests, definition
+and localization gates, full editor load, and the normal game-package engine
+check. Local phase logs and the original-version source excerpts are retained
+under `tutnt/.codex/work/udb-open-profile/`.

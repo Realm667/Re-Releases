@@ -120,3 +120,11 @@ The native-font update passed 10,552 engine assertions across all four languages
 39 credit/save/load/finale assertions, eight glyph regression tests and the
 existing localization and build-snapshot test suites. Screenshots of the final
 accents, quotes, class cards and dense credits were visually checked.
+
+## Reforged product naming (16 September 2026)
+
+The startup/window title uses **The Ultimate Torment & Torture - Reforged Edition**.
+Options and authored credit headings/roles use Reforged in all four languages.
+Existing LANGUAGE identifiers containing `REMASTER` remain stable internal keys;
+only displayed values change. Historical descriptions of remastering work are
+not product-title overrides.
