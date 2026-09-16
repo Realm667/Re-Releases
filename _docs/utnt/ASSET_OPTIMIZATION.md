@@ -90,10 +90,13 @@ Their timestamps and paths are recorded in the local audit evidence.
 
 ## Source tree and package comparison
 
-The final publication uses the `tools/build_utnt.py` snapshot packaging API on
-already validated production files; it does not rerun asset generators or
-replace manual source edits. All compact/shared production models and images
-are present under `tutnt/`. `.codex` is not needed at runtime or shipped.
+The engine-checked common `tutnt.pk3` already contains every validated change:
+11,758 changed runtime resources match the tested candidate and all 716 removed
+resources remain absent. Final verification did not rerun asset generators or
+overwrite manual edits. Other tasks continue to update unrelated weapon/voxel
+sources; the common package is not claimed to match every later live edit. All
+compact/shared production models and images are present under `tutnt/`.
+`.codex` is not needed at runtime or shipped.
 
 There are **pre-existing packaging exceptions**, unchanged by this audit:
 TEXTURES source modules are expanded into the root table; native model precache
@@ -120,6 +123,9 @@ content hashes. The palette checker follows these aliases while retaining the
 original expected hashes and offsets. If a shared image is intentionally
 changed later, review all consumers and update this manifest or split the asset.
 
-Local recovery/evidence: `tutnt/.codex/builds/size-audit-before.pk3`,
-`tutnt/.codex/backups/size-audit-assets.zip`, `tutnt/.codex/work/size-audit/`,
-and the `size-audit-*` reports under `.codex/validation` and `.codex/logs`.
+Local recovery/evidence: `tutnt/.codex/backups/size-audit-assets.zip`,
+`tutnt/.codex/work/size-audit/`, and the `size-audit-*` reports under
+`.codex/validation` and `.codex/logs`. The two disposable comparison PK3s
+(739,505,283 bytes in total) were removed after verification; their complete
+resource/hash manifests and rendered comparisons remain. Original production
+assets are also recoverable from Git history. The common `tutnt.pk3` is retained.
