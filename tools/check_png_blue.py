@@ -83,8 +83,10 @@ def main():
                                          (a[:, :, 2] <= a[:, :, 1]))), ('non-blue pixels', name)
             # Includes IHDR, grAb offsets, transparency keys and color profiles.
             mutable = b'PLTE' if before.mode == 'P' else b'IDAT'
-            assert [block for kind, _, block in chunks(original) if kind != mutable] == [
-                block for kind, _, block in chunks(current) if kind != mutable], ('metadata/index data', name)
+            # Recompression can change IDAT framing/filters and repair CRCs.
+            # Compare semantic metadata; palette indices are checked below.
+            assert [(kind,data) for kind,data,_ in chunks(original) if kind not in (mutable,b'IDAT')] == [
+                (kind,data) for kind,data,_ in chunks(current) if kind not in (mutable,b'IDAT')], ('metadata',name)
             if before.mode == 'P':
                 assert np.array_equal(np.array(before), np.array(after)), ('palette indices', name)
             if archive:

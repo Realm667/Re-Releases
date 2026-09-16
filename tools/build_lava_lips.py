@@ -4,6 +4,7 @@ No WADs are rewritten. Re-run automatically through build_utnt.py after map or
 lava shader edits. Geometry is a 4-unit liquid meniscus over the existing edge;
 the collision surface, sector tags, terrain and wall textures remain original.
 """
+from png_storage import preserve_png
 from pathlib import Path
 import argparse, collections, json, math, os, re, struct, tempfile
 
@@ -216,6 +217,7 @@ def generate(root,extra_maps=(),check=False):
     changed=[]
     for rel,data in out.items():
         p=root/rel;data=data.encode() if isinstance(data,str) else data
+        data=preserve_png(p,data)
         if not p.exists() or p.read_bytes()!=data:
             changed.append(rel)
             if not check:

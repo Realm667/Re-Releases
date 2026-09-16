@@ -1,5 +1,6 @@
 """Require real, intact mod glyphs for every localized character; no font fallback."""
 from pathlib import Path
+from png_storage import decoded
 import argparse,hashlib,json,re,struct,zipfile,zlib
 from check_localization import ROOT,COLOR,catalogs
 FONTS=('smallfont','bigfont','bigupper','ucrbig')
@@ -34,13 +35,10 @@ def validate(root=ROOT,pk3=None):
                 if content is None or hashlib.sha256(content).hexdigest()!=entry['sha256']:
                     errors.append(font+'/'+code+': glyph missing or changed; rebuild/review assets');continue
                 if chr(int(code,16)).isspace():continue
-                pos=8;compressed=b''
-                while pos<len(content):
-                    length=struct.unpack_from('>I',content,pos)[0];kind=content[pos+4:pos+8]
-                    if kind==b'IDAT':compressed+=content[pos+8:pos+8+length]
-                    pos+=length+12
-                raw=zlib.decompress(compressed);stride=entry['width']*4+1
-                if not any(raw[y*stride+x*4+4] for y in range(entry['height']) for x in range(entry['width'])):
+                size,pixels,_=decoded(content)
+                if size!=(entry['width'],entry['height']):
+                    errors.append(font+'/'+code+': glyph dimensions changed')
+                if not any(pixels[3::4]):
                     errors.append(font+'/'+code+': blank glyph')
     finally:
         if archive:archive.close()

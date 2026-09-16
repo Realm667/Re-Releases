@@ -4,6 +4,7 @@ Per-face metadata shares shader programs across textures. Rain exposure remains
 a runtime trace against the actual geometry, including solid 3D floors.
 """
 from pathlib import Path
+from png_storage import save_png
 import collections, hashlib, json, math, re, struct
 from PIL import Image
 from build_lava_lips import parse,tex,point,height
@@ -113,15 +114,15 @@ def dust_texture():
   im.putdata(pixels);info=PngInfo();info.add(b'grAb',struct.pack('>ii',48,96))
   suffix='' if variant==0 else '-'+str(variant)
   path=MOD/f'graphics/environment/mechanism-dust{suffix}.png';path.parent.mkdir(parents=True,exist_ok=True)
-  im.save(path,pnginfo=info)
+  save_png(im,path,pnginfo=info)
 
 def main():
  dust_texture()
  materials,textures,terrain,files=material_library();out=MOD/'environment';out.mkdir(exist_ok=True)
  shaders=MOD/'shaders/environment';shaders.mkdir(exist_ok=True)
  meta=MOD/'materials/environment';meta.mkdir(exist_ok=True)
- Image.new('RGB',(1,1),(128,128,255)).save(meta/'normal.png')
- Image.new('RGB',(1,1),(180,180,180)).save(meta/'specular.png')
+ save_png(Image.new('RGB',(1,1),(128,128,255)),meta/'normal.png')
+ save_png(Image.new('RGB',(1,1),(180,180,180)),meta/'specular.png')
  texdefs=[];gldefs=[];terraindefs=[];summary={};shader_cache={};snow_names=set();serial=0
  def shape(original):
   if original in textures:return textures[original]
@@ -164,7 +165,7 @@ def main():
   gldefs.append(f'Material Texture "{alias}" {{ {residual}\n Shader "shaders/environment/{shader_cache[key]}" Texture envMeta "materials/environment/{alias}.png" Texture envState "UENVSTATE" }}')
   # Fixed-point data pixels, not artwork. NEAREST via texelFetch in the shader.
   values=[base,nx,ny,*[round((v+65536)*16) for v in origin],*[round((v+1)*32767) for v in axis],round(w*16),round(h*16),kind,0,0,1 if any(x in raw for x in ('METAL','PIPE','TEK','ECOP')) else 0,0]
-  im=Image.new('RGB',(16,1));im.putdata([((v>>16)&255,(v>>8)&255,v&255) for v in values]);im.save(meta/(alias+'.png'))
+  im=Image.new('RGB',(16,1));im.putdata([((v>>16)&255,(v>>8)&255,v&255) for v in values]);save_png(im,meta/(alias+'.png'))
   rows.append('|'.join(map(str,[kind,index,part,original,alias,base,*origin,*axis,w,h,nx,ny])))
   return base+nx*ny
  for path in sorted((MOD/'maps').glob('*.wad')):

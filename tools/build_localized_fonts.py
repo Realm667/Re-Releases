@@ -5,6 +5,7 @@ diacritics and ligatures are composed in the same style. No system fonts.
 """
 from dataclasses import dataclass
 from pathlib import Path
+from png_storage import preserve_png
 import argparse, bisect, collections, hashlib, json, struct, unicodedata, zlib
 ROOT=Path(__file__).resolve().parent.parent
 @dataclass
@@ -202,7 +203,7 @@ def outputs(root=ROOT):
             expected=tuple(2*v for v in (old.width,old.height,old.left,old.top))
             if actual!=expected:raise ValueError(f'{name}/{code:04X}: 2x metrics {actual} != {expected}')
         for code,glyph in sorted(glyphs.items()):
-            rel=f'tutnt/fonts/{name}/{code:04X}.png';data=png(glyph,pal);out[rel]=data
+            rel=f'tutnt/fonts/{name}/{code:04X}.png';data=preserve_png(root/rel,png(glyph,pal));out[rel]=data
             records[f'{code:04X}']={'sha256':hashlib.sha256(data).hexdigest(),'width':glyph.width,'height':glyph.height,'left':glyph.left,'top':glyph.top}
         info=f'Scale 2\nFontHeight {fh}\nSpaceWidth {4 if name=="smallfont" else big[32].width}\nKerning {kerning}\n'
         out[f'tutnt/fonts/{name}/font.inf']=info.encode()

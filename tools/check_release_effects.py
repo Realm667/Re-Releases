@@ -25,7 +25,7 @@ def check(root=ROOT):
         for asset in manifest['assets']:
             for name in [asset['source']]+asset.get('source_aliases',[]):
                 p=originals[Path(name).name.casefold()]
-                assert hashlib.sha256(p.read_bytes()).hexdigest()==asset['sha256'], 'Reference differs: '+str(p)
+                assert hashlib.sha256(p.read_bytes()).hexdigest()==asset.get('source_sha256',asset['sha256']), 'Reference differs: '+str(p)
         references+=1
     states=(mod/'actors/alternate-deaths.txt').read_text(encoding='utf-8')
     used=set()

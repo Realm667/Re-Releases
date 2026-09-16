@@ -1,6 +1,7 @@
 """Reproduce stable shader frame samples and pack the selected poison sprite sheet.
 Source artwork is retained under tools/artwork/tester-effects; no AI generation runs here.
 """
+from png_storage import preserve_png
 from pathlib import Path
 import argparse,io,struct
 from PIL import Image,PngImagePlugin
@@ -20,6 +21,7 @@ def generate(root=ROOT,check=False,iwad=Path('F:/DoomDev/DOOM2.WAD')):
   frame.save(out,format='PNG',pnginfo=info,optimize=True)
   outputs[ROOT/f'tutnt/sprites/projs/poison/UPZN{chr(65+i)}0.png']=out.getvalue()
  for path,data in outputs.items():
+  data=preserve_png(path,data)
   if check:
    if not path.exists() or path.read_bytes()!=data:raise ValueError('Stale effect artwork: '+str(path))
   else:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)

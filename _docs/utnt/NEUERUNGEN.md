@@ -98,7 +98,7 @@
 
 ## Boss encounters, stability and tools
 
-- **Smaller game package:** shared duplicate images and generated models, lossless model-number compaction and removal of obsolete water atlases, with preserved resource references and pixel/geometry regression checks. [Details](ASSET_OPTIMIZATION.md)
+- **Smaller game package:** shared duplicate images and generated models, lossless PNG recompression and model-number compaction, plus removal of obsolete water atlases, with preserved resource references and pixel/geometry regression checks. [Details](ASSET_OPTIMIZATION.md), [PNG optimization](PNG_OPTIMIZATION.md)
 
 - **Editor loading:** bounded generated terrain-class files eliminate long UDB parsing stalls while preserving model definitions; internal surface/terrain material aliases stay out of texture browsing, and generated texture tables restore modular material previews when loading the source folder. [Details](DEFINITION_LAYOUT.md)
 

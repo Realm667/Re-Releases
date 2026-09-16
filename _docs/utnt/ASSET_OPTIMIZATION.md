@@ -137,3 +137,11 @@ Local recovery/evidence: `tutnt/.codex/backups/size-audit-assets.zip`,
 (739,505,283 bytes in total) were removed after verification; their complete
 resource/hash manifests and rendered comparisons remain. Original production
 assets are also recoverable from Git history. The common `tutnt.pk3` is retained.
+
+## Lossless PNG follow-up (16 September 2026)
+
+All 13,049 production PNGs were audited with the local SLADE optimization tools.
+8,178 smaller, pixel-identical encodings save 30,316,829 source bytes and
+30,263,751 ZIP-deflated payload bytes at the package compression level. Resource
+paths and consumers remain unchanged. See [PNG optimization](PNG_OPTIMIZATION.md)
+for preservation rules, repeatable tools and validation.

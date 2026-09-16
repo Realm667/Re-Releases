@@ -3,6 +3,7 @@
 Requires NumPy and Pillow. --check verifies all recorded inputs and outputs.
 The regular UTNT build regenerates only this tool's outputs when inputs change.
 """
+from png_storage import preserve_png
 from pathlib import Path
 import argparse, hashlib, io, json, math, os, re, struct
 import numpy as np
@@ -455,6 +456,7 @@ def generate(root=ROOT, *, check=False, iwad=None):
     for n,m in sorted(bindings.items()):gldefs.append(definition(n,m))
     for n,(m,base) in sorted(env_bindings.items()):gldefs.append(definition(n,m,True))
     emit('tutnt/gldefs/GLDEFS.organic','\n\n'.join(gldefs)+'\n')
+    outputs={name:preserve_png(root/name,data) for name,data in outputs.items()}
     manifest=dict(schema=2,height_encoding=dict(neutral=127,gain=HEIGHT_GAIN,profile_baselines=PROFILE_BASE),inputs=inputs,outputs={k:digest(v) for k,v in outputs.items()},
                   materials=records,variants=bindings,environment_tables=tables,bindings=len(bindings)+len(env_bindings),
                   environment_bindings={n:base for n,(m,base) in env_bindings.items()})

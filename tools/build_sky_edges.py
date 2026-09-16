@@ -4,6 +4,7 @@ Sky walls, open natural terrain ledges and selected wall feet qualify.
 Architecture, liquids and horizon/portal lines do not. Geometry and UVs are
 baked from current maps and area bindings; source WADs are never rewritten.
 """
+from png_storage import preserve_png
 from pathlib import Path
 import argparse, collections, hashlib, json, math, re
 from build_lava_lips import parse, tex, point, plus, sub, dot, norm
@@ -421,6 +422,7 @@ def generate(root=ROOT,check=False):
     changed=[]
     for rel,data in outputs.items():
         path=root/rel;data=data.encode() if isinstance(data,str) else data
+        data=preserve_png(path,data)
         if path.exists() and path.read_bytes()==data:continue
         changed.append(rel)
         if not check:

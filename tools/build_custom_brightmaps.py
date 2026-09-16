@@ -3,6 +3,7 @@
 No resampling, blur, painted diffuse pixels or changes to release masks.
 Requires Pillow and NumPy. --check reproduces outputs without writing.
 """
+from png_storage import preserve_png
 from pathlib import Path
 from functools import lru_cache
 import argparse,hashlib,io,json,re,struct
@@ -225,6 +226,7 @@ def generate(root=ROOT,iwad='F:/DoomDev/DOOM2.WAD',check=False):
   model.append(f'Model PortalCoreHeart\n{{\n Path "voxels"\n Model 0 "UVPHRT{frame}.kvx"\n Skin 0 "heart-palette.png"\n Scale 1 1 1\n AngleOffset 90\n NoInterpolation\n NoPerPixelLighting\n FrameIndex PHRT {frame} 0 0\n}}')
  outputs['modeldef/MODELDEF.brightmaps-custom']=('\n\n'.join(model)+'\n').encode()
  outputs[MODULE]=('\n\n'.join(lines)+'\n').encode()
+ outputs={name:preserve_png(mod/name,data) for name,data in outputs.items()}
  manifest={'version':1,'inputs':dict(sorted(art.inputs.items())),'families':PREFIXES,'surfaces':SURFACES,'bindings':records,'outputs':{p:sha(data) for p,data in outputs.items()}}
  outputs['../tools/artwork/brightmaps/custom-manifest.json']=(json.dumps(manifest,indent=2)+'\n').encode()
  for rel,data in outputs.items():

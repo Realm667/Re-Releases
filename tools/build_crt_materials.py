@@ -1,4 +1,5 @@
 """Generate explicit CRT glass bindings. Original diffuse/animation data is never changed."""
+from png_storage import preserve_png
 from pathlib import Path
 import argparse,json,io
 from PIL import Image
@@ -38,6 +39,7 @@ def generate(root=ROOT,check=False):
    path.parent.mkdir(parents=True,exist_ok=True);path.write_text(data,encoding='utf-8',newline='\n')
  for name,data in images.items():
   path=root/name
+  data=preserve_png(path,data)
   if check:
    if not path.exists() or path.read_bytes()!=data:raise ValueError('Stale CRT brightmap: '+name)
   elif not path.exists() or path.read_bytes()!=data:
