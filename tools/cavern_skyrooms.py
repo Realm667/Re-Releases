@@ -93,9 +93,10 @@ def generate(b,geo,add,source):
         add(f'fissure_{j}',verts,faces,(mid[0]+n[0]*12,mid[1]+n[1]*12,zmid),'IKWALL44',4)
 
         # Two large connected halls per skybox. Each has independent native
-        # perspective, depth testing and fog, with a fixed SkyCamCompat viewpoint.
+        # perspective, depth testing and fog, with a client-local parallax viewpoint anchored to SkyCamCompat.
         ox,oy=((-11000,-23000),(1000,-23000),(-11000,-12000))[j]
-        room=sector(-650,2200,196,0x4a443a,lightfloor=190,lightfloorabsolute='true',lightceiling=144,lightceilingabsolute='true',id=65300+j)
+        windows[-1]['view_origin']=[ox-1200,oy+(-350,350,-150)[j],-450]
+        room=sector(-650,2200,112,0x363029,lightfloor=128,lightfloorabsolute='true',lightceiling=80,lightceilingabsolute='true',id=65300+j)
         outline=[(-2400,-1400),(-2600,800),(-1300,2100),(1600,2200),(2800,900),(3300,600),(3900,1100),(5400,1700),(7200,1400),(7800,0),(7200,-1800),(4900,-1900),(3600,-800),(2900,-700),(2000,-2200),(-1000,-2200)]
         vv=[vertex(ox+x,oy+y) for x,y in outline]
         for k in range(len(vv)):

@@ -137,13 +137,28 @@ chamber's northeastern wall and the southern cavern boundary. Each opening has
 a shallow 96-unit recess behind the original wall. `Sector_SetPortal` type 2
 creates a `SkyCamCompat` portal, then type 5 transfers it to the recess's rear
 wall. These are real scene portals, with native depth testing and camera rotation.
-The viewpoint stays fixed at a distance, as expected for a skybox; the foreground
-rock frame moves with the player. They are scenic views, not traversable passages.
+Each viewpoint follows the local player's active camera at one eighth of its
+translation speed. The offset is rotated by that sky camera's authored yaw, so
+forward and sideways motion stay aligned with the visible hall. These are scenic
+views, not traversable passages.
 
 Each of the three isolated scenes contains two connected large halls, lava,
 four massive occluding rock pillars and three hanging rock formations. Varied
-camera positions/yaw and layered fog expose different views. All twelve added
-models (three foreground frames, nine distant formations) bring the full scenic
+camera positions/yaw and layered fog expose different views. Their fog colour
+matches the main cavern (`#363029`). Hall lighting is 112, floor lighting 128 and
+ceiling lighting 80, below the main chamber's 144 / 176 / 128 baseline; lava
+remains luminous. The distant rooms retain fog density 10 for their larger scale.
+
+`UTNTCavernSkyView` uses three client-side thinkers to position the native portal
+viewpoints for the current local camera, including spectator/camera switches.
+It leaves portal bindings and all gameplay actors intact. Normal motion uses
+native interpolation; camera switches and large teleports clear interpolation.
+Offsets are relative to immutable origins in `cavern/skyviews.txt`, never to a
+previous saved offset. Save/load and hub return rebuild the local thinkers.
+Horizontal offsets are bounded to 512 units per axis and vertical positions stay
+inside the sky room. Parallax remains active even with effect quality zero.
+
+All twelve added models (three foreground frames, nine distant formations) bring the full scenic
 population to 94. The three indoor cameras are explicitly excluded from the
 outdoor weather controller, preventing snow or rain inside these halls.
 
@@ -175,11 +190,15 @@ iteration; final acceptance uses the rebuilt package without this option.
 Local screenshots and logs: `tutnt/.codex/logs/cavern-tnt03a2/`.
 Machine-readable results: `tutnt/.codex/validation/cavern-tnt03a2/`.
 `--hub` adds effect-quality shutdown and travel through TNT03A1 back to TNT03A2.
-It requires 36 lifecycle assertions; the ordinary save/load run requires 24.
-Six additional structural tests in `tools/test_cavern_skyrooms.py` verify map
+It requires 43 lifecycle/movement assertions; the ordinary save/load run requires 29.
+Seven additional structural tests in `tools/test_cavern_skyrooms.py` verify map
 preservation, native portal wiring, blocked entrances and stale/double-patch
 rejection. Runtime checks also verify the three cameras/portals and their
-exclusion from outdoor weather.
+exclusion from outdoor weather. A controlled 256 / 128 / 64 unit view movement
+must produce exactly 32 / 16 / 8 units of skybox movement, rotated by camera yaw.
+`python -B tools/test_cavern_coop.py` launches two real peers with different local
+views and effect quality settings. Fourteen checks cover independent viewpoints,
+portal bindings, immutable origins, measured movement and active-camera switching.
 The checks include all eight valid roof sources, a single atmosphere controller,
 bounded particles, actual falling grit and all three sound triggers with resolved
 audio resources. Runtime tests use `-nosound`; this verifies sound binding and
@@ -226,3 +245,14 @@ The original routes remain blocked at the three scenic openings; the added
 recesses can extend projectile traces behind those walls. Results:
 `cavern-skybox-final-0.json`, `cavern-skybox-final-1.json` and
 `skybox-package.json` in the local validation directory.
+
+Darkness/parallax acceptance on 16 September 2026: root `tutnt.pk3` build
+`4c6cc0cec90c` passed 43 assertions on OpenGL and 43 on Vulkan, without a live
+overlay. Two real network peers passed fourteen additional checks with distinct
+local sky viewpoints, measured one-eighth movement, camera switching and opposing
+effect-quality settings. Seven structural tests pass. Representative final
+fissure screenshots were inspected in both renderers. Package/source comparisons
+confirm the new lighting, parallax code and immutable camera origins are present,
+while SCRIPTS and BEHAVIOR remain unchanged. Evidence: `cavern-parallax-final-0.json`,
+`cavern-parallax-final-1.json`, `cavern-parallax-coop-final.json` and
+`parallax-package.json` in the local validation directory.

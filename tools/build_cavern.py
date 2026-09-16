@@ -183,6 +183,7 @@ def generate(root=ROOT, check=False):
     from cavern_skyrooms import generate as generate_skyrooms
     skyrooms=generate_skyrooms(b,geo,add,map_path.read_bytes())
     outputs['tutnt/cavern/skyrooms.json']=json.dumps(skyrooms,indent=2)+'\n'
+    outputs['tutnt/cavern/skyviews.txt']='\n'.join('|'.join(map(str,[65200+j,*w['center'],*w['view_origin']])) for j,w in enumerate(skyrooms['windows']))+'\n'
 
     fall_sources=[]
     for j,(x,y) in enumerate([(4840,-4030),(5170,-4460),(6840,-3920),(6960,-4500),

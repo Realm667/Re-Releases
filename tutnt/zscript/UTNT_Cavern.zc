@@ -1,4 +1,4 @@
-// TNT03A2 presentation only. The map retains all collision, tags and scripts.
+// TNT03A2 presentation. Scenic openings retain their blocking lines.
 class UTNTCavernScenery : Actor
 {
     Default
@@ -89,6 +89,36 @@ class UTNTCavernMist : VisualThinker
 
 #include "zscript/UTNT_CavernAtmosphere.zc"
 
+// Local thinkers move only the three noninteractive native sky viewpoints.
+// The renderer's portal pointers remain intact. Immutable manifest origins keep
+// save/load and hub return from accumulating another client's saved offset.
+class UTNTCavernSkyView : Thinker
+{
+    Actor Camera, LastViewer;
+    Vector3 Origin, Anchor, LastView;
+    double Angle;
+    bool Positioned;
+    Vector3 PositionFor(Vector3 view) const
+    {
+        Vector3 d=(view-Anchor)*.125;
+        Vector2 rotated=(d.X*cos(Angle)-d.Y*sin(Angle),d.X*sin(Angle)+d.Y*cos(Angle));
+        Vector3 p=Origin+(clamp(rotated.X,-512.,512.),clamp(rotated.Y,-512.,512.),d.Z);
+        let room=level.PointInSector(Origin.XY);
+        p.Z=clamp(p.Z,room.floorplane.ZatPoint(p.XY)+16,room.ceilingplane.ZatPoint(p.XY)-16);
+        return p;
+    }
+    override void Tick()
+    {
+        if(!Camera || consoleplayer<0)return;
+        Actor viewer=players[consoleplayer].camera;if(!viewer)return;
+        Vector3 view=viewer.Pos;
+        if(viewer.player && viewer==viewer.player.mo)view.Z=viewer.player.viewz;
+        Camera.SetOrigin(PositionFor(view),false);
+        if(!Positioned || viewer!=LastViewer || (view-LastView).Length()>512)Camera.ClearInterpolation();
+        Positioned=true;LastViewer=viewer;LastView=view;
+    }
+}
+
 class UTNTCavernController : Thinker
 {
     bool Ready;
@@ -96,8 +126,24 @@ class UTNTCavernController : Thinker
     Array<UTNTCavernScenery> Scenery;
     Array<UTNTCavernLight> Lamps;
     Array<UTNTCavernHaze> Haze;
+    void InstallSkyViews()
+    {
+        int lump=Wads.CheckNumForFullName("cavern/skyviews.txt");if(lump<0)return;
+        Array<String> rows;Wads.ReadLump(lump).Split(rows,"\n",TOK_SKIPEMPTY);
+        for(int i=0;i<rows.Size();i++)
+        {
+            Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=7)continue;
+            let it=level.CreateActorIterator(r[0].ToInt(),'SkyCamCompat');Actor camera=it.Next();
+            if(!camera)continue;
+            let sky=UTNTCavernSkyView(level.CreateClientSideThinker('UTNTCavernSkyView',Thinker.STAT_USER+30));
+            sky.Camera=camera;sky.Anchor=(r[1].ToDouble(),r[2].ToDouble(),r[3].ToDouble());
+            sky.Origin=(r[4].ToDouble(),r[5].ToDouble(),r[6].ToDouble());
+            sky.Angle=camera.Angle;sky.Tick();
+        }
+    }
     void Install()
     {
+        InstallSkyViews();
         Ready=true;
         level.CreateClientSideThinker('UTNTCavernAtmosphere',Thinker.STAT_USER+29);
         int lump=Wads.CheckNumForFullName("cavern/scenery.txt");if(lump<0)return;
@@ -238,6 +284,7 @@ class UTNTCavern : EventHandler
         {
             let it=ThinkerIterator.Create('UTNTCavernScenery',Thinker.MAX_STATNUM+1,pool!=0);
             Thinker a;while(a=it.Next())a.Destroy();
+            it=ThinkerIterator.Create('UTNTCavernSkyView',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
             it=ThinkerIterator.Create('UTNTCavernLight',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
             it=ThinkerIterator.Create('UTNTCavernCloud',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();
             it=ThinkerIterator.Create('UTNTCavernHaze',Thinker.MAX_STATNUM+1,pool!=0);while(a=it.Next())a.Destroy();

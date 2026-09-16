@@ -1,0 +1,65 @@
+version "5.0.0"
+class UTNTCavernPeerView : Actor
+{
+    Default { +CLIENTSIDE +NOINTERACTION +NOBLOCKMAP +NOGRAVITY }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+class UTNTCavernPeerTest : Thinker
+{
+    int Age;
+    Actor View, Alternate;
+    Array<double> Before;
+    void Check(bool ok, String message) { Console.Printf("UTNT_ASSERT %s %s",ok?"PASS":"FAIL",message); }
+    override void Tick()
+    {
+        Age++;
+        if(Age==20)
+        {
+            Vector3 p=consoleplayer==0?(5010,-3890,-280):(6430,-6100,-400);
+            View=Actor.SpawnClientSide('UTNTCavernPeerView',p);View.Angle=consoleplayer==0?72:270;
+            players[consoleplayer].camera=View;
+        }
+        if(Age!=80 && Age!=100 && Age!=120 && Age!=140 && Age!=160)return;
+        if(Age==100){View.SetOrigin(View.Pos+(256,128,64),false);return;}
+        if(Age==140)
+        {
+            Alternate=Actor.SpawnClientSide('UTNTCavernPeerView',View.Pos+(-128,256,-32));
+            players[consoleplayer].camera=Alternate;return;
+        }
+        let it=ThinkerIterator.Create('UTNTCavernSkyView',Thinker.MAX_STATNUM+1,true);
+        UTNTCavernSkyView sky;int count=0;bool follows=true,bound=true,delta=true,anchors=true;
+        Vector3 eye=players[consoleplayer].camera.Pos;
+        while(sky=UTNTCavernSkyView(it.Next()))
+        {
+            follows=follows && (sky.Camera.Pos-sky.PositionFor(eye)).Length()<.01;
+            bool linked=false;for(int j=0;j<level.sectorPortals.Size();j++)if(level.sectorPortals[j].mSkybox==sky.Camera)linked=true;
+            bound=bound && linked;
+            int id=sky.Camera.TID-65200;
+            Vector3 original=id==0?(-12200,-23350,-450):id==1?(-200,-22650,-450):(-12200,-12150,-450);
+            anchors=anchors && (sky.Origin-original).Length()<.01;
+            if(Age==80)
+            {
+                Before.Push(sky.Camera.Pos.X);Before.Push(sky.Camera.Pos.Y);Before.Push(sky.Camera.Pos.Z);
+                Console.Printf("CAVERN_PEER_VIEW %d %d %.3f %.3f %.3f",consoleplayer,id,sky.Camera.Pos.X,sky.Camera.Pos.Y,sky.Camera.Pos.Z);
+            }
+            if(Age==120)
+            {
+                Vector3 expected=(32*cos(sky.Angle)-16*sin(sky.Angle),32*sin(sky.Angle)+16*cos(sky.Angle),8);
+                delta=delta && (sky.Camera.Pos-(Before[count*3],Before[count*3+1],Before[count*3+2])-expected).Length()<.01;
+            }
+            count++;
+        }
+        Check(count==3 && follows,"three local cameras follow this peer's active view");
+        Check(count==3 && bound && anchors,"local portals bound while immutable sky anchors stay unchanged");
+        if(Age==120)Check(count==3 && delta,"measured movement is one eighth with correct rotation");
+        if(Age==160)Console.Printf("UTNT_CAVERN_COOP_COMPLETE");
+    }
+}
+class UTNTCavernPeerSetup : EventHandler
+{
+    override void WorldTick()
+    {
+        if(level.time==10 && consoleplayer>=0)
+            level.CreateClientSideThinker('UTNTCavernPeerTest',Thinker.STAT_USER+30);
+    }
+}
