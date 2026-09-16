@@ -4,7 +4,7 @@ Current feature and maintenance documentation is collected here. Commands and in
 
 ## Remaster overview
 
-- [UTNT Remaster — What's New](NEUERUNGEN.md): compact, continuously maintained English overview of implemented features, improvements and ongoing local integration.
+- [UTNT Remaster — What's New](WHATS_NEW.md): compact, continuously maintained English overview of implemented features, improvements and ongoing local integration.
 - For every UTNT feature, behavior change, improvement, fix or reversal, review and update this overview in the same task before committing. Keep entries brief and in English, consolidate related refinements, distinguish unfinished work, and keep the date and detail links current. Tuning values and implementation history belong in the linked detail documents. Internal changes without a relevant new outcome need no artificial entry.
 
 ## Build and checks
