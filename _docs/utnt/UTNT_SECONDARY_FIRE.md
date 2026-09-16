@@ -1,9 +1,13 @@
 # UTNT secondary fire
 
-Four weapons gain alternate attacks through the engine's existing **Secondary Fire** (`+altattack`) control. Existing bindings are preserved. The remaining eight weapons retain their primary attack only. Both modes share the existing ammunition pool; the HUD continues to show that pool once.
+Eight weapons gain alternate attacks through the engine's existing **Secondary Fire** (`+altattack`) control. Existing bindings are preserved. Fist, Chainsaw, Chaingun and Minigun retain their primary attack only. Both modes share the existing ammunition pool; the HUD continues to show that pool once.
 
 | Weapon | Secondary behavior | Cost |
 | --- | --- | --- |
+| Pistol | Three rapid bullets followed by recovery; sustained cadence equals primary, including Overdrive. Partial bursts use remaining ammo. | One bullet per shot |
+| Shotgun | Seven pellets with the original horizontal spread rotated into the vertical axis; unchanged damage and pump timing. | One shell |
+| Flamethrower | Forward pressure cone pushes ordinary hostile monsters and redirects small hostile monster missiles, with a short world-projected refraction shader and local dust ring. | Eight gas |
+| PyroCannon | Slow orb passes through actors, damages and ignites nearby visible enemies, and explodes against level geometry. | Forty-eight gas |
 | Super Shotgun | Ten pellets from one barrel. The second barrel remains available after releasing fire, changing weapons, saving or loading. Firing primary with one barrel remaining fires that barrel; both empty barrels then use the existing reload animation. | One shell per barrel |
 | Rocket launcher | Ballistic, bouncing grenade with enemy-contact detonation and an 88-tic (approximately 2.5-second) fuse. Explosion can hurt the shooter. | One rocket |
 | Plasma rifle | Five times the projectile damage, five times the sustained primary firing intervals, 150% sprite and collision dimensions, and gentle homing in a narrow forward cone. | Five cells |
@@ -23,6 +27,16 @@ The 16 x 16 x 40 voxel model renders at 0.4 scale (6.4 x 6.4 x 16 map units), wi
 
 While airborne and moving, the grenade turns 1.4 / 2.2 / 1.8 degrees per tic in yaw / pitch / roll, with angle interpolation. The changes affect orientation only, preserving velocity, bounce response, hitbox, fuse and damage. Orientation and age are saved with the projectile. The smoke consists of small 2.4-unit puffs, growing to less than four units, at 18% opacity and a 21-tic lifetime. One puff every three tics (six at low effects quality) uses the existing local cosmetic budget, distance limits and cosmetic random stream; no smoke is emitted once the missile explodes. Smoke respects world lighting.
 
+## Additional weapon modes
+
+The pistol fires its burst at four-tic intervals within a 39-tic repeating cycle, matching three primary 13-tic cycles. The longer recovery cannot be skipped by releasing secondary fire. Each bullet consumes one round, including a final partial burst. The existing Overdrive weapon-tick acceleration affects the entire burst and recovery; measured over 390 tics, primary/secondary both fire 30 bullets normally and 45 with Overdrive. Damage per bullet remains unchanged.
+
+The Shotgun switches `5.6 / 0` horizontal/vertical spread to `0 / 5.6`. Both modes retain seven damage-5 pellets, one shell, the existing recoil and the full pump sequence.
+
+The Flamethrower pressure blast uses a 160-unit range and a 35-degree half-cone around the aimed direction, with line-of-sight checks. It deals no direct damage. Mass reduces the push; bosses, friendly actors, players, dormant/invulnerable enemies and actors that forbid thrust are protected. Small ordinary monster missiles (radius at most 8, height at most 16, speed at most 35) are redirected away from the player and attributed to the firing player. Player/friendly/boss projectiles are excluded. The one-shot actor scan includes missiles with `NOBLOCKMAP`. The refraction front lasts 14 tics, stays attached to a saved world anchor, checks occlusion, and leaves HUD/weapon pixels untouched. Existing reduced-effects, shader and quality controls suppress the shader; bounded local dust remains the lighter visual cue. No view shake is added.
+
+The Pyro orb travels at speed 8 instead of the primary's 30. Every seven tics it applies 40 fire damage to eligible enemies within 112 units and line of sight. A successful hit refreshes two seconds of afterburn, dealing 6 fire damage every seven tics; burns do not stack. Both effects honor normal damage factors, shields and class abilities, and use the existing charred-corpse presentation on kills. The orb passes through players, monsters and other actors; world impact causes a 192-damage/128-radius explosion, which retains normal self-damage rules. An orb that never reaches geometry disappears silently after 14 seconds. Local flame fragments keep the slow projectile readable without piling up the primary's large trail. Orb and burn state survive saves; existing cooperative friendly-fire rules still apply to the final explosion.
+
 ## Validation
 
 Target engine: UZDoom 5.0.1. Run `python -B tools/test_secondary_fire.py` with `--mode logic`, `--mode chain`, and `--mode rate --class Commando`. Set `UTNT_ENGINE` and `UTNT_IWAD`, or use `--engine` and `--iwad` to select the installation. Optional `--mod` and `--compile-only` select the package and compile check. `python -B tools/test_secondary_fire_coop.py` runs two local network peers and compares their damage checksums. During development, `--overlay` tests changed weapon/voxel resources over a previous integration package; omit it to validate the package itself.
@@ -32,6 +46,8 @@ Fixtures live under `tools/fixtures/secondary-fire/`; generated test packages go
 Validated on 16 September 2026 with UZDoom 5.0.1: 24 state/damage checks, 11 chain checks and 19 cadence/ammo checks passed. Two real local peers passed three checks each with identical target-health checksums, unchanged teammate health and separate ammo ownership. The final integration package passed engine loading plus integrated logic, chain and cooperative checks. Four in-game views cover the weapon/projectile presentation. The regular build also validated generated definitions, localization, font coverage and ACS; a final launch-sound-only package refresh used the same verified snapshot builder and engine check.
 
 The grenade-voxel follow-up passed 15 targeted runtime checks for the dedicated sprite, three-axis orientation, unchanged horizontal flight, save/load continuity and tiny local smoke particles, plus the 24 weapon logic checks. Native engine captures verify upright, angled and airborne views; the enlarged gallery uses 1.5 scale only for inspection, while normal projectiles remain at 0.4. All 74 previous KVX models remain byte-identical. `--mode grenade` reproduces this focused check.
+
+The four additional modes passed 32 Marine checks and 35 Commando checks, including equal primary/burst cadence with and without Overdrive, last-round behavior, save/load, rotated pellet spread, pressure mass scaling and projectile ownership, geometry occlusion, orb penetration, afterburn expiry and charred deaths. Two actual local peers each passed seven further checks with identical gameplay checksums while using different local effects quality. Reproduce with `--mode extended`, `--mode extended --class Commando`, and `tools/test_secondary_fire_coop.py --extended`; development source overlays use `--overlay`. The shared integration package also passed all 32 extended checks without overlays. OpenGL is selectable with `--renderer 0` for independent presentation checks.
 
 These are focused regressions, not a full campaign balance playthrough or WAN multiplayer test. The work-layout checker still reports 15 pre-existing map editor/autosave/backup files; this task did not create or move them.
 

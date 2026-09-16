@@ -1,0 +1,120 @@
+class ExtendedSecondaryTest : SecondaryTestHandler
+{
+    int ExtraMode,StartAmmo,LastAmmo,PrimaryShots,BurstShots;
+    Array<double> Impacts,ImpactZ;
+    Actor SmallMissile,BossMissile;
+    bool WallDetonation;
+    override void WorldThingSpawned(WorldEvent e)
+    {
+        Super.WorldThingSpawned(e);
+        if(ExtraMode==2 && e.Thing is 'NewPuff'){Impacts.Push(e.Thing.Pos.Y);ImpactZ.Push(e.Thing.Pos.Z);}
+        if(ExtraMode==4 && e.Thing is 'UTNTPyroOrb')Tracked=e.Thing;
+    }
+    override void WorldTick()
+    {
+        Super.WorldTick();
+        if(ExtraMode==1)
+        {
+            let p=players[0].mo;
+            int ammo=p.CountInv('Clip');
+            if(ammo<LastAmmo)ShotTimes.Push(level.time);
+            LastAmmo=ammo;
+        }
+        if(ExtraMode==4 && Tracked && !Tracked.bMissile)WallDetonation=true;
+    }
+    void ExtraSetup(Actor p,int mode)
+    {
+        Clear();ExtraMode=mode;Impacts.Clear();ImpactZ.Clear();WallDetonation=false;
+        p.SetOrigin((0,0,0),false);p.Angle=0;p.Pitch=0;p.Vel=(0,0,0);p.bInvulnerable=true;
+        p.player.cheats&=~(CF_TOTALLYFROZEN|CF_FROZEN);
+        p.player.ReadyWeapon.Ammo1.Amount=200;
+        StartAmmo=LastAmmo=200;
+        if(mode==2)p.SetOrigin((1100,0,0),false);
+        if(mode==3)
+        {
+            let m=Dummy((95,0,0));m.bDontThrust=false;m.Mass=100;
+            m=Dummy((125,70,0));m.bDontThrust=false;m.Mass=1000;
+            m=Dummy((110,-65,0));m.bBoss=true;m.bDontThrust=false;
+            Dummy((60,40,0)).bFriendly=true;
+            Dummy((-80,0,0));
+            SmallMissile=Actor.Spawn('DoomImpBall',(130,10,95));SmallMissile.target=Targets[4];SmallMissile.Vel=(-2,0,0);
+            BossMissile=Actor.Spawn('DoomImpBall',(145,0,100));BossMissile.target=Targets[2];BossMissile.Vel=(-2,0,0);
+        }
+        if(mode==4)
+        {
+            Dummy((200,0,0));Dummy((320,0,0));Dummy((250,85,0));
+            Dummy((250,-60,0)).bFriendly=true;
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        Super.NetworkProcess(e);
+        let p=players[e.Player].mo;
+        if(e.Name=="xsetup")ExtraSetup(p,e.Args[0]);
+        if(e.Name=="xammo") {p.player.ReadyWeapon.Ammo1.Amount=e.Args[0];StartAmmo=LastAmmo=e.Args[0];}
+        if(e.Name=="xrate")
+        {
+            int shots=StartAmmo-p.CountInv('Clip');
+            Console.Printf("SECONDARY_PISTOL shots=%d first=%d last=%d",shots,ShotTimes[0],ShotTimes[ShotTimes.Size()-1]);
+            if(e.Args[0]==0){PrimaryShots=shots;Check(shots>=25,"pistol primary cadence sampled");}
+            else
+            {
+                BurstShots=shots;Check(abs(shots-PrimaryShots)<=1,"pistol burst sustained bullet DPS matches primary");
+                Check(ShotTimes.Size()>=6 && ShotTimes[1]-ShotTimes[0]<ShotTimes[3]-ShotTimes[2],"three quick bullets followed by longer recovery");
+            }
+        }
+        if(e.Name=="xburstcheck")
+        { Console.Printf("BURST_SAVE ammo=%d start=%d expected=%d",p.CountInv('Clip'),StartAmmo,e.Args[0]);
+            Check(StartAmmo-p.CountInv('Clip')==e.Args[0],"single pistol burst and partial-ammo/save case finish correctly"); }
+        if(e.Name=="xspread")
+        {
+            double lowY=1e9,highY=-1e9,lowZ=1e9,highZ=-1e9;
+            for(int i=0;i<Impacts.Size();i++){lowY=min(lowY,Impacts[i]);highY=max(highY,Impacts[i]);lowZ=min(lowZ,ImpactZ[i]);highZ=max(highZ,ImpactZ[i]);}
+            Check(Impacts.Size()==7 && p.CountInv('Shell')==199,"shotgun fires seven pellets for one shell");
+            Check(e.Args[0]==0 ? highY-lowY>12 && highZ-lowZ<8 : highZ-lowZ>12 && highY-lowY<1,"shotgun spread changes between horizontal and vertical");
+            Console.Printf("SECONDARY_SPREAD y=%f z=%f count=%d",highY-lowY,highZ-lowZ,Impacts.Size());
+        }
+        if(e.Name=="xair")
+        {
+            Console.Printf("AIR positions=%f,%f missile_alive=%d reflected=%d",Targets[0].Pos.X,Targets[1].Pos.X,SmallMissile!=null,SmallMissile && SmallMissile.target==p);
+            Check(p.CountInv('Gas')==192,"pressure blast costs eight gas");
+            Check(Targets[0].Pos.X>100 && Targets[1].Pos.X-125<Targets[0].Pos.X-95,"pressure pushes lighter targets farther");
+            Check(Targets[2].Pos.X==110 && Targets[3].Pos.X==60 && Targets[4].Pos.X== -80,"pressure excludes bosses, friends and rear targets");
+            Check(SmallMissile && SmallMissile.target==p && SmallMissile.Vel.X>0,"pressure redirects small hostile missiles and transfers attribution");
+            Check(BossMissile && BossMissile.target==Targets[2],"pressure preserves boss missiles");
+            Check(Targets[0].Health==10000,"pressure applies no direct damage");
+        }
+        if(e.Name=="xpyro")
+        {
+            Check(p.CountInv('Gas')==152,"pyro alternate costs forty-eight gas");
+            Check(Tracked && Tracked.bMissile && Tracked.Pos.X>340 && Tracked.Speed==8,"slow pyro orb passes through enemies intact");
+            Check(Targets[0].Health<10000 && Targets[1].Health<10000 && Targets[2].Health<10000,"pyro aura damages direct and nearby enemies");
+            Check(Targets[3].Health==10000,"pyro aura excludes allies");
+            Check(Targets[1].FindInventory('UTNTPyroBurn')!=null,"pyro aura ignites targets");
+        }
+        if(e.Name=="xpyrowall")Check(WallDetonation,"pyro orb detonates upon reaching world geometry");
+        if(e.Name=="xburnend")
+        {
+            Check(Targets[0].FindInventory('UTNTPyroBurn')==null && Targets[1].FindInventory('UTNTPyroBurn')==null,"afterburn expires without lingering thinkers");
+            ExtraSetup(p,0);
+            let victim=Dummy((100,0,0));victim.Health=4;UTNTPyroBurn.Ignite(victim,p);
+        }
+        if(e.Name=="xchar")Check(Targets[0].Health<=0 && Targets[0].FindBehavior('UTNTBurnDeath')!=null,"afterburn uses existing charred-corpse presentation");
+        if(e.Name=="xpyroblocked")
+        {
+            ExtraSetup(p,0);Dummy((450,580,0));
+            Tracked=Actor.Spawn('UTNTPyroOrb',(380,650,32));Tracked.target=p;Tracked.Vel=(0,0,0);
+        }
+        if(e.Name=="xblockedcheck")Check(Targets[0].Health==10000 && Targets[0].FindInventory('UTNTPyroBurn')==null,"pyro aura cannot burn through a solid corner");
+        if(e.Name=="xairblocked")
+        {
+            ExtraSetup(p,0);p.SetOrigin((380,650,0),false);p.Angle=-45;
+            let m=Dummy((450,580,0));m.bDontThrust=false;
+        }
+        if(e.Name=="xairblockedcheck")Check(Targets[0].Pos.X==450 && Targets[0].Pos.Y==580,"pressure cannot push through solid geometry");
+        if(e.Name=="xboost")
+        {
+            let a=UTNTAbilities.Get(p);a.ClassKind=2;a.ActiveSlot=e.Args[0];a.Remaining=2000;
+        }
+    }
+}

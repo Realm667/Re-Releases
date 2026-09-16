@@ -208,3 +208,188 @@ class UTNTBFGChain : Actor
         Stop;
     }
 }
+
+
+class UTNTPistolBase : Pistol
+{
+    action State A_UTNTBurstShot()
+    {
+        let w=Weapon(invoker);
+        if(!w.DepleteAmmo(true)) return w.FindState('AltRecover');
+        A_GunFlash();
+        A_SetBlend("Orange",0.02,5);
+        A_SpawnItemEx('PisCaseSpawn',20,0,29);
+        A_FireBullets(4,4,1,5,'NewPuff',0);
+        return null;
+    }
+}
+
+class UTNTFlamerBase : Weapon
+{
+    action void A_UTNTAirBlast()
+    {
+        if(!invoker.DepleteAmmo(true))return;
+        Vector3 forward=(cos(Angle)*cos(Pitch),sin(Angle)*cos(Pitch),-sin(Pitch));
+        Vector3 origin=Pos+(0,0,player?player.ViewHeight:Height*.5);
+        let wave=UTNTPressureWave(Spawn('UTNTPressureWave',origin));
+        wave.target=self;wave.Angle=Angle;wave.Pitch=Pitch;wave.Vel=forward*10;
+        A_StartSound("weapons/flamer",CHAN_WEAPON,0,0.7,ATTN_NORM,1.4);
+        // Missiles commonly have NOBLOCKMAP: include them explicitly in this one-shot scan.
+        let it=ThinkerIterator.Create('Actor',Thinker.STAT_DEFAULT);Actor m;
+        while(m=Actor(it.Next()))
+        {
+            if(!m.bMissile && !m.bIsMonster)continue;
+            if(!m || m==self || m.player || m.bFriendly || m.bBoss || m.bDormant)continue;
+            Vector3 delta=Vec3To(m)+(0,0,m.Height*.5-(origin.Z-Pos.Z));
+            double distance=delta.Length();
+            if(distance>160 || distance<1 || (delta.Unit() dot forward)<cos(35) || !CheckSight(m))continue;
+            if(m.bMissile)
+            {
+                // Only small, hostile, ordinary monster missiles; preserve player projectiles.
+                if(!m.target || !m.target.bIsMonster || m.target.bFriendly || m.target.bBoss || m.Radius>8 || m.Height>16 || m.Vel.Length()>35)continue;
+                double speed=m.Vel.Length();if(speed<1)continue;
+                m.target=self;m.tracer=null;
+                m.Vel=(forward*.8+delta.Unit()*.2).Unit()*speed;
+                m.Angle=atan2(m.Vel.Y,m.Vel.X);
+                m.Pitch=-atan2(m.Vel.Z,m.Vel.XY.Length());
+            }
+            else if(UTNTSecondaryTarget.Valid(m,self) && !m.bDontThrust)
+            {
+                double force=12*clamp(100./max(1,m.Mass),0.15,1.);
+                m.Vel+=forward*force+(0,0,min(2,force*.2));
+            }
+        }
+    }
+}
+
+// Saved short-lived world anchor; all particles and refraction are local cosmetics.
+class UTNTPressureWave : Actor
+{
+    int Age;
+    Default { +NOINTERACTION +NOGRAVITY +NOBLOCKMAP Radius 1; Height 1; }
+    override void Tick()
+    {
+        Super.Tick();
+        if(++Age>=14){Destroy();return;}
+        if(Age%3!=1 || !UTNTIndustrialFX.At(Pos))return;
+        Vector3 right=(-sin(Angle),cos(Angle),0);
+        Vector3 up=(cos(Angle)*sin(Pitch),sin(Angle)*sin(Pitch),cos(Pitch));
+        for(int i=0;i<8;i++)
+        {
+            double a=i*45+Age*4;
+            Vector3 dir=right*cos(a)+up*sin(a);
+            let puff=UTNTIndustrialFX.Make(Pos+dir*(8+Age*3),1,4,4,10,0xffc6d7db,dir*.4);
+            if(puff){puff.Strength=.14;puff.Growth=.7;puff.Flags&=~SPF_FULLBRIGHT;}
+        }
+    }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+
+class UTNTPressureView ui
+{
+    static void Render(RenderEvent e)
+    {
+        PPShader.SetEnabled('UTNTPressure',false);
+        if(!e.Camera || consoleplayer<0)return;
+        let p=players[consoleplayer];
+        if(!CVar.GetCVar('UTNT_shaderoverlayswitch',p).GetBool() || CVar.GetCVar('UTNT_reducedfx',p).GetBool() || CVar.GetCVar('UTNT_fxquality',p).GetInt()==0)return;
+        let it=ThinkerIterator.Create('UTNTPressureWave');UTNTPressureWave wave;
+        double best=0;Vector2 focus;double radius=0;
+        Vector3 forward=(cos(e.ViewAngle)*cos(e.ViewPitch),sin(e.ViewAngle)*cos(e.ViewPitch),-sin(e.ViewPitch));
+        Vector3 right=(sin(e.ViewAngle),-cos(e.ViewAngle),0);
+        Vector3 up=(cos(e.ViewAngle)*sin(e.ViewPitch),sin(e.ViewAngle)*sin(e.ViewPitch),cos(e.ViewPitch));
+        double aspect=double(Screen.GetWidth())/max(1,Screen.GetHeight());
+        double horizontal=tan(clamp(p.FOV,30,150)*.5)*max(1,aspect/(4./3.));
+        while(wave=UTNTPressureWave(it.Next()))
+        {
+            Vector3 d=wave.Pos+wave.Vel*e.FracTic-e.ViewPos;
+            double depth=d dot forward;if(depth<=4 || d.Length()>768)continue;
+            double x=(d dot right)/(depth*horizontal),y=(d dot up)/(depth*horizontal/aspect);
+            double age=wave.Age+e.FracTic;
+            double strength=(1-age/14.)*clamp((768-d.Length())/400,0,1);
+            if(strength<=best || abs(x)>1.4 || abs(y)>1.4)continue;
+            let trace=new('LineTracer');
+            trace.Trace(e.ViewPos,e.Camera.CurSector,d.Unit(),max(0,d.Length()-2),0,wallMask:0,ignoreAllActors:true);
+            if(trace.Results.HitType!=TRACE_HitNone)continue;
+            double rx=x*cos(e.ViewRoll)+y*sin(e.ViewRoll),ry=y*cos(e.ViewRoll)-x*sin(e.ViewRoll);
+            focus=(.5+rx*.5,.5+ry*.5);radius=(8+age*3)/(depth*horizontal/aspect)*.5;best=strength;
+        }
+        if(best<=0)return;
+        PPShader.SetUniform2f('UTNTPressure','focus',focus);
+        PPShader.SetUniform1f('UTNTPressure','radius',radius);
+        PPShader.SetUniform1f('UTNTPressure','strength',best);
+        PPShader.SetEnabled('UTNTPressure',true);
+    }
+}
+
+class UTNTPyroBurn : Inventory
+{
+    Actor Shooter;
+    int Remaining,Clock;
+    Default { Inventory.MaxAmount 1; +INVENTORY.UNDROPPABLE +INVENTORY.UNTOSSABLE }
+    static void Ignite(Actor victim,Actor shooter)
+    {
+        if(!victim || victim.Health<=0)return;
+        let burn=UTNTPyroBurn(victim.FindInventory('UTNTPyroBurn'));
+        if(!burn){burn=UTNTPyroBurn(Spawn('UTNTPyroBurn'));burn.AttachToOwner(victim);}
+        burn.Shooter=shooter;burn.Remaining=70;
+    }
+    override void DoEffect()
+    {
+        if(!Owner || Owner.Health<=0 || Remaining--<=0){Destroy();return;}
+        if(++Clock%7!=0)return;
+        if(!UTNTSecondaryTarget.Valid(Owner,Shooter))return;
+        Owner.DamageMobj(self,Shooter,6,'Fire');
+        if(Owner && Owner.Health>0 && UTNTIndustrialFX.At(Owner.Pos))
+        {
+            double radius=min(14,Owner.Radius*.6);
+            Vector3 pos=Owner.Pos+(CFRandom[utntcosmetic](-radius,radius),CFRandom[utntcosmetic](-radius,radius),Owner.Height*.45);
+            let flame=UTNTIndustrialFX.Make(pos,2,10,16,12,0xffffaa60,(0,0,.5));
+            if(flame)flame.Strength=.55;
+        }
+    }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+
+class UTNTPyroOrb : Actor
+{
+    int Age;
+    Default
+    {
+        Radius 12;Height 16;Speed 8;Damage 0;Projectile;
+        RenderStyle "Add";Alpha .95;Scale .9;DamageType "Fire";
+        SeeSound "weapons/hellfi";DeathSound "weapons/hellex";Obituary "$WB_PYROC";
+    }
+    override int SpecialMissileHit(Actor victim) { return 1; }
+    override void Tick()
+    {
+        Super.Tick();if(!bMissile)return;
+        // Silent cleanup in open/sky spaces; only geometry impact detonates.
+        if(++Age>14*TICRATE){Destroy();return;}
+        if(Age%2==0 && UTNTIndustrialFX.At(Pos))
+        {
+            let flame=UTNTIndustrialFX.Make(Pos-Vel.Unit()*8,2,14,18,12,0xffffa650,-Vel*.08+(0,0,.15));
+            if(flame)flame.Strength=.6;
+        }
+        if(Age%7!=0)return;
+        let it=BlockThingsIterator.Create(self,112);
+        while(it.Next())
+        {
+            let m=it.thing;if(!UTNTSecondaryTarget.Valid(m,target))continue;
+            Vector3 d=Vec3To(m)+(0,0,clamp(Pos.Z-m.Pos.Z,0,m.Height));
+            if(d.Length()>112 || !CheckSight(m))continue;
+            if(m.DamageMobj(self,target,40,'Fire')>0)UTNTPyroBurn.Ignite(m,target);
+        }
+    }
+    States
+    {
+    Spawn:
+        PBAL AAAABBBB 1 Bright LIGHT("PyroShot");
+        Loop;
+    Death:
+        TNT1 A 0 A_SpawnItemEx("PBExplosionSpawner");
+        PYXP C 2 Bright LIGHT("PyroShot_1") A_Explode(192,128,XF_HURTSOURCE);
+        PYXP DEFGHIJKLMNOPQRSTU 1 Bright;
+        Stop;
+    }
+}

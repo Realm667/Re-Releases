@@ -1,0 +1,45 @@
+class ExtendedSecondaryCoopTest : SecondaryTestHandler
+{
+    int Phase,PyroChecksum;
+    Actor SmallMissile;
+    override void WorldTick()
+    {
+        if(Phase==0 && level.time>=60 && playeringame[0] && playeringame[1])
+        {
+            Phase=1;
+            for(int i=0;i<2;i++)
+            {
+                let p=players[i].mo;p.SetOrigin((i*120,-64,0),false);p.Vel=(0,0,0);p.Angle=0;p.Pitch=0;
+                p.Health=p.player.Health=100;p.bInvulnerable=false;
+                p.player.cheats&=~(CF_TOTALLYFROZEN|CF_FROZEN|CF_GODMODE);
+                p.GiveInventory('UTNTPyroCannon',1);p.GiveInventory('UTNTFlamer',1);p.GiveInventory('Gas',96);p.FindInventory('Gas').Amount=96;
+                p.player.PendingWeapon=Weapon(p.FindInventory('UTNTPyroCannon'));
+            }
+            Dummy((250,-64,0));Dummy((350,0,0));Dummy((450,-64,0));
+        }
+        if(Phase==1 && level.time>=340)
+        {
+            Phase=2;int hits=0;
+            for(int i=0;i<Targets.Size();i++){if(Targets[i].Health<10000)hits++;PyroChecksum+=(i+1)*Targets[i].Health;}
+            Check(hits==3,"cooperative pyro orb damages all three targets");
+            Check(players[1].mo.Health==100 && players[1].mo.FindInventory('UTNTPyroBurn')==null,"pyro passes through teammate without aura or burn damage");
+            Check(players[0].mo.CountInv('Gas')==48 && players[1].mo.CountInv('Gas')==96,"cooperative pyro ammo belongs to shooter");
+            Clear();
+            for(int i=0;i<2;i++){let p=players[i].mo;p.SetOrigin((i*80,i*20,0),false);p.Vel=(0,0,0);p.Angle=0;p.Pitch=0;}
+            players[0].mo.player.PendingWeapon=Weapon(players[0].mo.FindInventory('UTNTFlamer'));
+            let enemy=Dummy((120,-15,0));enemy.bDontThrust=false;enemy.Mass=100;
+            SmallMissile=Actor.Spawn('DoomImpBall',(155,0,95));SmallMissile.target=enemy;SmallMissile.Vel=(0,0,0);
+        }
+        if(Phase==2 && level.time==375 && SmallMissile)SmallMissile.Vel=(-2,0,0);
+        if(Phase==2 && level.time>=415)
+        {
+            Phase=3;
+            Check(Targets[0].Pos.X>120,"cooperative pressure blast pushes hostile target");
+            Check(players[1].mo.Pos.X==80 && players[1].mo.Pos.Y==20,"pressure leaves cooperative teammate in place");
+            Check(SmallMissile && SmallMissile.target==players[0].mo && SmallMissile.Vel.X>0,"cooperative pressure redirects hostile missile consistently");
+            Check(players[0].mo.CountInv('Gas')==40 && players[1].mo.CountInv('Gas')==96,"cooperative pressure costs shooter eight gas");
+            Console.Printf("SECONDARY_COOP_CHECKSUM %d %d %d",PyroChecksum,int(Targets[0].Pos.X*100),SmallMissile?int(SmallMissile.Pos.X*100):0);
+            Console.Printf("SECONDARY_COOP_COMPLETE");
+        }
+    }
+}

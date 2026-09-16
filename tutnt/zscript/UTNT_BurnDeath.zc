@@ -7,6 +7,7 @@ class UTNTBurnDeath : Behavior
     static bool FromWeapon(Actor inflictor)
     {
         return inflictor && (inflictor is 'FTFire' || inflictor is 'DropFire'
+            || inflictor is 'UTNTPyroOrb' || inflictor is 'UTNTPyroBurn'
             || inflictor is 'PyroShot' || inflictor is 'PyroBoom' || inflictor is 'PyroFlare');
     }
     static void BuildPalette(UTNTWorldHandler h)

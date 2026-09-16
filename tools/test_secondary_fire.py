@@ -10,8 +10,9 @@ p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD','F:/DoomDev/DOOM2.WAD
 p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
 p.add_argument('--overlay',action='store_true',help='Test local weapon sources over the previous integration PK3')
 p.add_argument('--compile-only',action='store_true')
+p.add_argument('--renderer',choices=('0','1'),default='1',help='0: OpenGL, 1: Vulkan')
 p.add_argument('--class',dest='playerclass',default='Marine')
-p.add_argument('--mode',default='logic',choices=['logic','rate','chain','visual','grenade'])
+p.add_argument('--mode',default='logic',choices=['logic','rate','chain','visual','grenade','extended','pressure','burst'])
 a=p.parse_args()
 local=ROOT/'tutnt/.codex'
 logs=local/'logs/secondary-fire';logs.mkdir(parents=True,exist_ok=True)
@@ -31,11 +32,13 @@ with zipfile.ZipFile(addon,'w',zipfile.ZIP_DEFLATED) as z:
   with zipfile.ZipFile(a.mod) as base:
    if "zscript/utnt_secondaryfire.zc" not in {n.lower() for n in base.namelist()}:
     entry+='#include "zscript/UTNT_SecondaryFire.zc"\n'
-  for f in ['zscript/UTNT_SecondaryFire.zc','actors/weapons.txt','VOXELDEF.txt','voxels/UVUGRNA.kvx','sprites/UGRNA0.lmp']:z.write(ROOT/'tutnt'/f,f)
+  for f in ['zscript/UTNT_SecondaryFire.zc','actors/weapons.txt','VOXELDEF.txt','voxels/UVUGRNA.kvx','sprites/UGRNA0.lmp','zscript/UTNT_Presentation.zc','zscript/UTNT_BurnDeath.zc','shaders/pressure-wave.fp']:z.write(ROOT/'tutnt'/f,f)
+  z.writestr('GLDEFS',(ROOT/'tutnt/gldefs/GLDEFS.secondary-fire').read_bytes())
  entry+='#include "secondary-tests.zc"\n'
+ if a.mode in ('extended','pressure','burst'):entry+='#include "extended-tests.zc"\n';z.write(ROOT/'tools/fixtures/secondary-fire/extended.zc','extended-tests.zc')
  z.writestr('ZSCRIPT',entry)
  z.write(ROOT/'tools/fixtures/secondary-fire/tests.zc','secondary-tests.zc')
- z.writestr('MAPINFO','gameinfo { AddEventHandlers = "SecondaryTestHandler" }\nmap SECTEST "Secondary fire proving ground" { next="SECTEST2" NoIntermission }\nmap SECTEST2 "Secondary travel" { next="SECTEST" NoIntermission }\n')
+ z.writestr('MAPINFO','gameinfo { AddEventHandlers = "'+('ExtendedSecondaryTest' if a.mode in ('extended','pressure','burst') else 'SecondaryTestHandler')+'" }\nmap SECTEST "Secondary fire proving ground" { next="SECTEST2" NoIntermission }\nmap SECTEST2 "Secondary travel" { next="SECTEST" NoIntermission }\n')
  for name in ['SECTEST','SECTEST2']:z.writestr('maps/'+name+'.wad',write_wad(b'PWAD',[(name.encode(),b''),(b'TEXTMAP',text.encode()),(b'ENDMAP',b'')]))
 commands=['wait 45','netevent secdefaults','give UTNTSuperShotgun','give UTNTPistol','give UTNTRocketLauncher','give UTNTPlasmaRifle','give UTNTBFG9000','give ammo','wait 10','use UTNTSuperShotgun','wait 60']
 if a.mode=='logic':
@@ -48,6 +51,19 @@ elif a.mode=='rate':
  commands+=['netevent secclear','give ammo','use UTNTPlasmaRifle','wait 60','netevent secprimary','+attack','wait 210','-attack','wait 50','netevent secprimaryend']
 elif a.mode=='chain':
  commands+=['use UTNTBFG9000','wait 60','netevent secsetup 3','+altattack','wait 1','-altattack','wait 48','save secondary-chain','wait 4','load secondary-chain','wait 270','netevent secverify 6','netevent secsetup 5','+altattack','wait 1','-altattack','wait 160','netevent secverify 7','netevent secsetup 6','+altattack','wait 1','-altattack','wait 160','netevent secverify 8']
+elif a.mode=='pressure':
+ commands+=['give UTNTFlamer','use UTNTFlamer','wait 120','UTNT_fxquality 3','netevent xsetup 3','+altattack','wait 1','-altattack','wait 5','screenshot logs/pressure-shader.png','netevent xair','wait 45','netevent xairblocked','+altattack','wait 1','-altattack','wait 10','netevent xairblockedcheck']
+elif a.mode=='burst':
+ commands+=['use UTNTPistol','wait 60','netevent xsetup 1','+altattack','wait 1','-altattack','wait 5','save pistol-burst','wait 2','load pistol-burst','wait 60','netevent xburstcheck 3']
+elif a.mode=='extended':
+ commands+=['give UTNTFlamer','give UTNTPyroCannon','give UTNTShotgun','wait 100','use UTNTPistol','wait 60']
+ for boost in ([0,1] if a.playerclass=='Commando' else [0]):
+  for button,mode in [('attack',0),('altattack',1)]:
+   commands+=['netevent xsetup 1',f'netevent xboost {boost}',f'+{button}','wait 390',f'-{button}','wait 60',f'netevent xrate {mode}']
+ commands+=['netevent xsetup 1','+altattack','wait 1','-altattack','wait 60','netevent xburstcheck 3','netevent xsetup 1','netevent xammo 2','+altattack','wait 1','-altattack','wait 60','netevent xburstcheck 2','give Clip 200','use UTNTPistol','wait 60','netevent xsetup 1','+altattack','wait 1','-altattack','wait 5','save pistol-burst','wait 2','load pistol-burst','wait 60','netevent xburstcheck 3','use UTNTShotgun','wait 60']
+ for button,mode in [('attack',0),('altattack',1)]:
+  commands+=['netevent xsetup 2',f'+{button}','wait 1',f'-{button}','wait 60',f'netevent xspread {mode}']
+ commands+=['use UTNTFlamer','wait 60','UTNT_fxquality 3','netevent xsetup 3','+altattack','wait 1','-altattack','wait 5','screenshot logs/pressure-shader.png','netevent xair','wait 45','netevent xairblocked','+altattack','wait 1','-altattack','wait 10','netevent xairblockedcheck','wait 45','use UTNTPyroCannon','wait 60','netevent xsetup 4','+altattack','wait 1','-altattack','wait 62','netevent xpyro','screenshot logs/pyro-orb.png','save pyro-burn','wait 2','load pyro-burn','wait 200','netevent xpyrowall','netevent xburnend','wait 10','netevent xchar','netevent xpyroblocked','wait 20','netevent xblockedcheck']
 elif a.mode=='grenade':
  commands+=['UTNT_fxquality 3','wait 100','netevent secgrenade 0','wait 8','netevent secgrenade 1','screenshot logs/grenade-flight.png','save grenade-tumble','wait 4','load grenade-tumble','wait 6','netevent secgrenade 1','netevent secgrenade 2','wait 8','screenshot logs/grenade-voxel-detail.png']
 elif a.mode=='visual':
@@ -55,8 +71,8 @@ elif a.mode=='visual':
   commands+=['give ammo','use '+weapon,'wait 60',f'netevent secsetup {mode}','+altattack','wait 1','-altattack','wait 42' if weapon=='UTNTBFG9000' else 'wait 12',f'screenshot logs/{weapon}-secondary.png','wait 120']
 commands+=['wait 3','echo UTNT_REGRESSION_COMPLETE','echo UTNT_TEST_END','quit']
 label=a.playerclass.lower()+'-'+a.mode+('-compile' if a.compile_only else '')
-result=run_case(a.engine,a.iwad,root=logs,mod=a.mod,addon=addon,mapname=None if a.compile_only else 'SECTEST',playerclass=a.playerclass,label=label,commands='; '.join(commands)+'\n',timeout=170,regression=not a.compile_only,settings=[('use_mouse',False),('i_pauseinbackground',False),('vid_maxfps',200),('screenblocks',11),('motionblur',False),('con_notifytime',0)])
-if not a.compile_only and result['assertions']<{'logic':24,'rate':13,'chain':11,'visual':6,'grenade':15}[a.mode]:result['ok']=False
+result=run_case(a.engine,a.iwad,renderer=a.renderer,root=logs,mod=a.mod,addon=addon,mapname=None if a.compile_only else 'SECTEST',playerclass=a.playerclass,label=label,commands='; '.join(commands)+'\n',timeout=170,regression=not a.compile_only,settings=[('use_mouse',False),('i_pauseinbackground',False),('vid_maxfps',200),('screenblocks',11),('motionblur',False),('con_notifytime',0)])
+if not a.compile_only and result['assertions']<{'logic':24,'rate':13,'chain':11,'visual':6,'grenade':15,'extended':32,'pressure':13,'burst':7}[a.mode]:result['ok']=False
 (reports/(label+'.json')).write_text(json.dumps(result,indent=2))
 if not result['ok']:print(Path(result['log']).read_text()[-9000:])
 sys.exit(0 if result['ok'] else 1)

@@ -31,7 +31,7 @@
 
 ## Abilities and gameplay feel
 
-- **Secondary weapon fire:** single-barrel Super Shotgun, bouncing rocket-launcher grenades with a dedicated tumbling voxel and subtle smoke trail, heavy homing plasma and chained BFG shots, with shared ammo, saved barrel/chain state and class-ability support. [Details](UTNT_SECONDARY_FIRE.md)
+- **Secondary weapon fire:** balanced pistol bursts, vertical Shotgun spread, defensive Flamethrower pressure blasts with refraction, piercing PyroCannon fireballs with afterburn, single-barrel Super Shotgun, bouncing rocket-launcher grenades with a dedicated tumbling voxel and subtle smoke trail, heavy homing plasma and chained BFG shots, with shared ammo, saved barrel/chain state and class-ability support. [Details](UTNT_SECONDARY_FIRE.md)
 
 - **HellWarrior:** varied shield duration and red blood. [Details](UTNT_TESTER_EFFECTS.md)
 - **TNT03B spider brood:** surviving little spiders die with the last large spider, including late hatchlings. [Details](UTNT_TESTER_EFFECTS.md)
