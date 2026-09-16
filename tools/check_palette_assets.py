@@ -10,10 +10,13 @@ def main():
     p.add_argument('--manifest',type=pathlib.Path,default=ROOT/'tools/fixtures/palette-restore/assets.json')
     p.add_argument('--pk3',type=pathlib.Path)
     args=p.parse_args();assets=json.loads(args.manifest.read_text(encoding='utf-8'))
+    consolidation=args.root/'tools/asset-consolidation.json'
+    aliases={'tutnt/'+a['removed']:'tutnt/'+a['canonical'] for a in json.loads(consolidation.read_text())['duplicates']} if consolidation.exists() else {}
     archive=zipfile.ZipFile(args.pk3) if args.pk3 else None
     try:
         for a in assets:
-            path=args.root/a['lmp'];raw=path.read_bytes()
+            canonical=aliases.get(a['lmp'],a['lmp'])
+            path=args.root/canonical;raw=path.read_bytes()
             assert hashlib.sha256(raw).hexdigest()==a['sha256'],path
             assert not raw.startswith(b'\x89PNG\r\n\x1a\n'),path
             assert not (args.root/a['removed_png']).exists(),a['removed_png']
@@ -28,7 +31,7 @@ def main():
                         assert 0<=top<=h and top+n<=h and off+n+4<=len(raw),path
                         off+=n+4
             if archive:
-                name=a['lmp'].removeprefix('tutnt/');old=a['removed_png'].removeprefix('tutnt/')
+                name=canonical.removeprefix('tutnt/');old=a['removed_png'].removeprefix('tutnt/')
                 assert archive.read(name)==raw,name
                 assert old not in archive.namelist(),old
         print(json.dumps({'ok':True,'assets':len(assets),'package_checked':bool(archive)}))

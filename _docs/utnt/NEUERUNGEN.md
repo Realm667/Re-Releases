@@ -98,6 +98,8 @@
 
 ## Boss encounters, stability and tools
 
+- **Smaller game package:** shared duplicate images and generated models, lossless model-number compaction and removal of obsolete water atlases, with preserved resource references and pixel/geometry regression checks. [Details](ASSET_OPTIMIZATION.md)
+
 - **Editor loading:** internal surface/terrain material aliases stay out of UDB browsing, with valid sprite names throughout the packaged definitions. [Details](DEFINITION_LAYOUT.md)
 
 - **The Source in both endings:** shared runic shield, opening seal, exposed heart, impact/Guardian feedback and attack cues; flowing beam energy including TNT04C’s miniature skybox beam, and a synchronized black-hole implosion with smoke, refraction, lighting, sound and final fade. [Details](UTNT_SOURCE.md)

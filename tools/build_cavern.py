@@ -81,7 +81,8 @@ def generate(root=ROOT, check=False):
         else:
             out+=['vn %.6f %.6f %.6f'%n for n in ns]
             out+=['f '+' '.join(f'{v+1}/{j*3+k+1}/{j+1}' for k,v in enumerate(f)) for j,f in enumerate(faces)]
-        outputs[f'tutnt/models/cavern/{name}.obj']='\n'.join(out)+'\n'
+        from model_assets import compact_obj
+        outputs[f'tutnt/models/cavern/{name}.obj']=compact_obj('\n'.join(out)+'\n')
         if skin=='IKWALL44' and kind!=5:skin='UCAVROCK'
         cls='UTNTCavern_'+name;radius=math.ceil(max(math.hypot(x-origin[0],y-origin[1]) for x,y,z in verts)+16)
         state=' States { Spawn: SKED A -1 Bright; Stop; }' if kind==1 else ''

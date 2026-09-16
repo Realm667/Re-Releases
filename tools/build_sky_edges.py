@@ -280,6 +280,8 @@ def generate(root=ROOT,check=False):
     from build_terrain_edges import detect_terrain,terrain_mesh,floor_mapping,HeightSampler
     sampler=HeightSampler(root,variants)
     outputs={};models=[];actors=[];records=[];skins=set();glow_sectors={};skin_bindings={}
+    from model_assets import ModelPool
+    model_pool=ModelPool(outputs, "tutnt/models/sky-edges")
     def glow_skin(skin,slot,style,blend=None):
         key=(skin,slot,style,blend)
         if key not in skin_bindings:skin_bindings[key]=f"SG{len(skin_bindings):06d}"
@@ -314,12 +316,12 @@ def generate(root=ROOT,check=False):
                 z0=plane(e['top'],(0,0),'floor');sx=plane(e['top'],(1,0),'floor')-z0;sy=plane(e['top'],(0,1),'floor')-z0
                 blend=(sx*4096,sy*4096,z0,e['radius']*.02,e['radius']*.45,0)
             primary=glow_skin(c['skin'],slot,style,blend)
-            outputs[f'tutnt/models/sky-edges/{stem}.obj']=obj
+            model_name=model_pool.add(stem,obj)
             extent=math.ceil(max(math.sqrt(v[0]**2+v[2]**2) for v in verts)+8)
             parent='UTNTTerrainEdge' if 'mode' in e else 'UTNTSkyEdge'
             actors.append(f'class {cls} : {parent} {{ Default {{ RenderRadius {extent}; '+('RenderStyle \"Translucent\"; ' if soft or rockcap else '')+'} States { Spawn: SKED A -1; Stop; } }')
             # UZDoom's model scale has an implicit 1/1.2 vertical correction.
-            models.append(f'Model {cls}\n{{\n Path "models/sky-edges/"\n Model 0 "{stem}.obj"\n Skin 0 "{primary}"\n Scale 1 1 1.2\n DontCullBackfaces\n FrameIndex SKED A 0 0\n}}')
+            models.append(f'Model {cls}\n{{\n Path "models/sky-edges/"\n Model 0 "{model_name}"\n Skin 0 "{primary}"\n Scale 1 1 1.2\n DontCullBackfaces\n FrameIndex SKED A 0 0\n}}')
             row=[cls,e['line'],e['face'],e['part'],e['front_id'],e['top_id'],*e['a'],*e['b'],*center,h,e['h0'],e['h1'],e['texture'],c['skin'],c['sx'],c['sy'],c['ox'],c['oy'],e['radius'],e['kind'],environment.get((1,int(e['linedef']['sidefront' if e['face']==0 else 'sideback']),e['part'],c['skin']),'-')]
             if 'mode' in e and e['layer']==1:row[-1]=environment.get((0,e['surface_id'],0,c['skin']),'-')
             alternate=glow_skin(row[-1],slot,style,blend) if row[-1]!='-' else '-'

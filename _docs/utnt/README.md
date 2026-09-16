@@ -13,6 +13,7 @@ Run `tutnt_build.bat` from the repository root. Local configuration is in the ig
 
 ## Features and maintenance
 
+- [Asset storage optimization and audit](ASSET_OPTIMIZATION.md)
 - [Localization: English, German, Spanish and French](LOCALIZATION.md)
 - [Double-resolution interface fonts](UTNT_HIRES_FONTS.md)
 - [Performance and multiplayer simulation](PERFORMANCE_MULTIPLAYER.md)

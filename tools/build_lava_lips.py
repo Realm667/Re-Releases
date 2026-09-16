@@ -170,6 +170,8 @@ void SetupMaterial(inout Material mat)
 
 def generate(root,extra_maps=(),check=False):
     root=Path(root);out={};records=[];actors=[];models=[];definitions=[]
+    from model_assets import ModelPool
+    model_pool=ModelPool(out, "tutnt/models/lava-lips")
     textures=[]
     for floor in FLOORS:
         for fall in FALLS:
@@ -183,9 +185,9 @@ def generate(root,extra_maps=(),check=False):
             stem=f'{path.stem.lower()}-{e["line"]}-{e["face"]}'
             cls='UTNTLavaLip_'+stem.replace('-','_')
             alias='LL'+str(FLOORS.index(e['floor']))+str(FALLS.index(e['fall']))
-            out['tutnt/models/lava-lips/'+stem+'.obj']=model
+            model_name=model_pool.add(stem,model)
             actors.append(f'class {cls} : UTNTLavaLip {{ Default {{ RenderRadius {math.ceil(e["length"]/2+64)}; }} States {{ Spawn: LALP A -1; Stop; }} }}')
-            models.append(f'Model {cls}\n{{\n Path "models/lava-lips/"\n Model 0 "{stem}.obj"\n Skin 0 "{alias}"\n Scale 1 1 1.2\n DontCullBackfaces\n FrameIndex LALP A 0 0\n}}')
+            models.append(f'Model {cls}\n{{\n Path "models/lava-lips/"\n Model 0 "{model_name}"\n Skin 0 "{alias}"\n Scale 1 1 1.2\n DontCullBackfaces\n FrameIndex LALP A 0 0\n}}')
             row=[cls,e['line'],e['face'],e['high'],e['low'],*e['a'],*e['b'],*mid,h,e['h0'],e['h1'],e['floor'],e['fall'],e['radius']]
             rows.append('|'.join(str(x) for x in row))
             records.append(dict(map=path.stem.upper(),line=e['line'],face=e['face'],high=e['high'],low=e['low'],radius=e['radius'],triangles=triangles,a=e['a'],b=e['b'],height=h))
