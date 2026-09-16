@@ -17,6 +17,11 @@ class UTNTSSGBase : SuperShotgun
     {
         let w=UTNTSSGBase(invoker);
         if(!w.DepleteAmmo(single)) return;
+        if(single)
+        {
+            if(w.SpentBarrels==0) A_GunFlash('AltFlashLeft');
+            else A_GunFlash('AltFlashRight');
+        }
         w.SpentBarrels=single?w.SpentBarrels+1:2;
         A_FireBullets(12,6,single?10:20,5,'NewPuff',0);
     }
@@ -36,6 +41,18 @@ class UTNTRocketLauncherBase : RocketLauncher
     {
         Actor grenade=A_FireProjectile('UTNTGrenade',flags:FPF_NOAUTOAIM);
         if(grenade) grenade.Vel+=(cos(Angle)*sin(Pitch),sin(Angle)*sin(Pitch),cos(Pitch))*(200.0/TICRATE);
+    }
+}
+
+class UTNTPlasmaRifleBase : PlasmaRifle
+{
+    int HeavyPhase;
+    action void A_UTNTHeavyDelay()
+    {
+        let w=UTNTPlasmaRifleBase(invoker);
+        w.HeavyPhase=(w.HeavyPhase+1)%3;
+        // 35 weapon tics / 3 shots, within the same Overdrive-aware sequence.
+        player.GetPSprite(PSprite.WEAPON).tics=w.HeavyPhase==0?8:9;
     }
 }
 
@@ -85,15 +102,23 @@ class UTNTSecondaryTarget : Object play
 class UTNTGrenade : Actor
 {
     int Age;
+    double SpinYaw,SpinPitch,SpinRoll;
+    override void BeginPlay()
+    {
+        Super.BeginPlay();
+        SpinYaw=Random[utntgrenadespin](0,1)?1.4:-1.4;
+        SpinPitch=Random[utntgrenadespin](0,1)?2.2:-2.2;
+        SpinRoll=Random[utntgrenadespin](0,1)?1.8:-1.8;
+    }
     Default
     {
         Radius 6; Height 6; Speed 17.142857; Gravity 0.653061;
         Damage 0; Projectile; -NOGRAVITY
         BounceType "Hexen"; -BOUNCEONACTORS
-        BounceFactor 0.5; WallBounceFactor 0.5;
+        BounceFactor 0.7; WallBounceFactor 0.6;
         +ROLLSPRITE +INTERPOLATEANGLES
         Scale 0.4;
-        BounceSound "weapons/shell";
+        BounceSound "weapons/grenadebounce";
         SeeSound "weapons/rocklf";
         DeathSound "weapons/rocklx";
         Obituary "$OB_MPROCKET";
@@ -105,7 +130,7 @@ class UTNTGrenade : Actor
         // Orientation only: never rotate the physical velocity or collision hull.
         if(Vel.LengthSquared()>1 && Pos.Z>floorz+0.5)
         {
-            Angle+=1.4; Pitch+=2.2; Roll+=1.8;
+            Angle+=SpinYaw; Pitch+=SpinPitch; Roll+=SpinRoll;
             int interval=UTNTIndustrialFX.Quality()==1?6:3;
             if(Age%interval==0 && UTNTVisuals.Visible(self,combat:true))
             {
@@ -145,7 +170,7 @@ class UTNTBFGChain : Actor
     const HIT_DAMAGE=260; // 3120 total; vanilla ball + full spray averages 3150.
     Default
     {
-        Radius 8; Height 8; Speed 32; Damage 0;
+        Radius 8; Height 8; Speed 21.44; Damage 0;
         Projectile; +SEEKERMISSILE
         RenderStyle "Add"; Alpha 0.9; Scale 0.28;
         Translation "0:255=%[0,0,0]:[0.65,0.81,0.34]";
@@ -232,7 +257,7 @@ class UTNTFlamerBase : Weapon
         Vector3 forward=(cos(Angle)*cos(Pitch),sin(Angle)*cos(Pitch),-sin(Pitch));
         Vector3 origin=Pos+(0,0,player?player.ViewHeight:Height*.5);
         let wave=UTNTPressureWave(Spawn('UTNTPressureWave',origin));
-        wave.target=self;wave.Angle=Angle;wave.Pitch=Pitch;wave.Vel=forward*10;
+        wave.target=self;wave.Angle=Angle;wave.Pitch=Pitch;wave.Vel=forward*22;
         A_StartSound("weapons/flamer",CHAN_WEAPON,0,0.7,ATTN_NORM,1.4);
         // Missiles commonly have NOBLOCKMAP: include them explicitly in this one-shot scan.
         let it=ThinkerIterator.Create('Actor',Thinker.STAT_DEFAULT);Actor m;
@@ -242,7 +267,7 @@ class UTNTFlamerBase : Weapon
             if(!m || m==self || m.player || m.bFriendly || m.bBoss || m.bDormant)continue;
             Vector3 delta=Vec3To(m)+(0,0,m.Height*.5-(origin.Z-Pos.Z));
             double distance=delta.Length();
-            if(distance>160 || distance<1 || (delta.Unit() dot forward)<cos(35) || !CheckSight(m))continue;
+            if(distance>320 || distance<1 || (delta.Unit() dot forward)<cos(50) || !CheckSight(m))continue;
             if(m.bMissile)
             {
                 // Only small, hostile, ordinary monster missiles; preserve player projectiles.
@@ -255,8 +280,8 @@ class UTNTFlamerBase : Weapon
             }
             else if(UTNTSecondaryTarget.Valid(m,self) && !m.bDontThrust)
             {
-                double force=12*clamp(100./max(1,m.Mass),0.15,1.);
-                m.Vel+=forward*force+(0,0,min(2,force*.2));
+                double force=36*clamp(100./max(1,m.Mass),0.2,1.);
+                m.Vel+=forward*force+(0,0,min(6,force*.2));
             }
         }
     }
@@ -278,7 +303,7 @@ class UTNTPressureWave : Actor
         {
             double a=i*45+Age*4;
             Vector3 dir=right*cos(a)+up*sin(a);
-            let puff=UTNTIndustrialFX.Make(Pos+dir*(8+Age*3),1,4,4,10,0xffc6d7db,dir*.4);
+            let puff=UTNTIndustrialFX.Make(Pos+dir*(12+Age*12),1,4,4,10,0xffc6d7db,dir*.4);
             if(puff){puff.Strength=.14;puff.Growth=.7;puff.Flags&=~SPF_FULLBRIGHT;}
         }
     }
@@ -312,7 +337,7 @@ class UTNTPressureView ui
             trace.Trace(e.ViewPos,e.Camera.CurSector,d.Unit(),max(0,d.Length()-2),0,wallMask:0,ignoreAllActors:true);
             if(trace.Results.HitType!=TRACE_HitNone)continue;
             double rx=x*cos(e.ViewRoll)+y*sin(e.ViewRoll),ry=y*cos(e.ViewRoll)-x*sin(e.ViewRoll);
-            focus=(.5+rx*.5,.5+ry*.5);radius=(8+age*3)/(depth*horizontal/aspect)*.5;best=strength;
+            focus=(.5+rx*.5,.5+ry*.5);radius=(12+age*12)/(depth*horizontal/aspect)*.5;best=strength;
         }
         if(best<=0)return;
         PPShader.SetUniform2f('UTNTPressure','focus',focus);
@@ -387,9 +412,88 @@ class UTNTPyroOrb : Actor
         PBAL AAAABBBB 1 Bright LIGHT("PyroShot");
         Loop;
     Death:
-        TNT1 A 0 A_SpawnItemEx("PBExplosionSpawner");
         PYXP C 2 Bright LIGHT("PyroShot_1") A_Explode(192,128,XF_HURTSOURCE);
         PYXP DEFGHIJKLMNOPQRSTU 1 Bright;
         Stop;
+    }
+}
+
+class UTNTSecondaryInfo : Object
+{
+    static int Index(Name type)
+    {
+        if(type=='UTNTPistol')return 1;
+        if(type=='UTNTShotgun')return 2;
+        if(type=='UTNTSuperShotgun')return 3;
+        if(type=='UTNTRocketLauncher')return 4;
+        if(type=='UTNTPlasmaRifle')return 5;
+        if(type=='UTNTBFG9000')return 6;
+        if(type=='UTNTFlamer')return 7;
+        if(type=='UTNTPyroCannon')return 8;
+        return 0;
+    }
+    static String HintKey(int mode)
+    {
+        String keys[]={"PISTOL","SHOTGUN","SSG","GRENADE","PLASMA","BFG","FLAMER","PYRO"};
+        return mode>=1 && mode<=8?"UTNT_ALT_"..keys[mode-1]:"";
+    }
+}
+
+// Like the campaign ledger, this thinker travels and saves with the game.
+class UTNTSecondaryHints : Thinker
+{
+    int Seen[MAXPLAYERS];
+    static UTNTSecondaryHints Get(bool create=true)
+    {
+        let it=ThinkerIterator.Create('UTNTSecondaryHints',STAT_STATIC);
+        let h=UTNTSecondaryHints(it.Next());
+        if(!h && create){h=new('UTNTSecondaryHints');h.ChangeStatNum(STAT_STATIC);}
+        return h;
+    }
+    static bool Claim(int playerNumber,int mode)
+    {
+        if(playerNumber<0 || playerNumber>=MAXPLAYERS || mode<1 || mode>8)return false;
+        let h=Get();int bit=1<<(mode-1);
+        if(h.Seen[playerNumber]&bit)return false;
+        h.Seen[playerNumber]|=bit;return true;
+    }
+}
+
+class UTNTSecondaryHUD ui
+{
+    static void Badge(double x,double y,double s,int mode,bool firing)
+    {
+        int ink=firing?0xffd58a:0xbe965e;
+        UTNTObjectivePlaque.Rect(x,y,s,0,0,12,9,0x080706,.9);
+        UTNTObjectivePlaque.Rect(x,y,s,0,0,12,1,ink,.8);
+        UTNTObjectivePlaque.Rect(x,y,s,0,8,12,1,0x58432b,1);
+        UTNTObjectivePlaque.Rect(x,y,s,0,0,1,9,0x725639,1);
+        UTNTObjectivePlaque.Rect(x,y,s,11,0,1,9,0x725639,1);
+        for(int i=0;i<mode;i++)
+        {
+            int left=mode==1?5:3+i*4;
+            UTNTObjectivePlaque.Rect(x,y,s,left,2,2,5,ink,1);
+        }
+    }
+    static void Draw(RenderEvent e)
+    {
+        if(UTNTTransitionFade.HidesGameplayHUD() || gamestate!=GS_LEVEL || !viewactive
+            || automapactive || menuactive || ConsoleState!=0 || CVar.FindCVar('screenblocks').GetInt()>11)return;
+        let mo=e.Camera;
+        if(!mo || !mo.player || mo.Health<=0 || mo.FindInventory('UTNTHUDHidden'))return;
+        let fx=UTNTPlayerEffects(mo.FindBehavior('UTNTPlayerEffects'));
+        if(fx && fx.Cutscene || mo.player.cheats&CF_TOTALLYFROZEN)return;
+        let w=mo.player.ReadyWeapon;if(!w)return;
+        let psp=mo.player.FindPSprite(PSprite.WEAPON);
+        bool firing=psp && (mo.InStateSequence(psp.CurState,w.FindState('Fire'))
+            || mo.InStateSequence(psp.CurState,w.FindState('Hold'))
+            || mo.InStateSequence(psp.CurState,w.FindState('AltFire'))
+            || mo.InStateSequence(psp.CurState,w.FindState('AltHold')));
+        bool secondary=UTNTSecondaryInfo.Index(w.GetClassName())>0;
+        Vector2 scale=StatusBar?StatusBar.GetHUDScale():(2,2);
+        double s=max(1,scale.Y),x=Screen.GetWidth()*.5-(secondary?13:6)*s;
+        double y=Screen.GetHeight()-43*s;
+        Badge(x,y,s,1,firing && !w.bAltFire);
+        if(secondary)Badge(x+14*s,y,s,2,firing && w.bAltFire);
     }
 }

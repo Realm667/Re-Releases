@@ -87,9 +87,9 @@ class SecondaryTestHandler : EventHandler
             if(e.Args[0]==1)
             {
                 let g=UTNTGrenade(Tracked);
-                Check(g && g.Age>0 && g.Angle>0 && g.Pitch>0 && g.Roll>0,"airborne grenade turns around all three axes");
+                Check(g && g.Age>0 && abs(Actor.DeltaAngle(0,g.Angle))>0 && abs(g.Pitch)>0 && abs(g.Roll)>0,"airborne grenade turns around all three axes");
                 Check(g && abs(g.Vel.Y-3)<0.001 && abs(g.Vel.X)<0.001,"cosmetic tumble leaves horizontal flight unchanged");
-                Check(g && abs(g.Pitch-g.Age*2.2)<0.01 && abs(g.Roll-g.Age*1.8)<0.01,"tumble remains continuous across save and load");
+                Check(g && abs(Actor.DeltaAngle(g.Pitch,g.Age*g.SpinPitch))<0.01 && abs(Actor.DeltaAngle(g.Roll,g.Age*g.SpinRoll))<0.01,"tumble remains continuous across save and load");
                 let smoke=ThinkerIterator.Create('UTNTIndustrialParticle',Thinker.MAX_STATNUM+1,true);
                 UTNTIndustrialParticle puff;bool found;
                 while(puff=UTNTIndustrialParticle(smoke.Next()))
@@ -179,8 +179,8 @@ class SecondaryTestHandler : EventHandler
                 Check(used==ShotCount*5,"every heavy plasma shot costs five cells");
                 Check(ShotCount>10,"sustained heavy plasma fires repeatedly");
                 bool cadence=true;for(int i=1;i<ShotTimes.Size();i++)
-                {int dt=ShotTimes[i]-ShotTimes[i-1];if(Boost?dt<3||dt>10:dt!=5&&dt!=15)cadence=false;}
-                Check(cadence,"heavy plasma sustains fivefold primary interval including Overdrive");
+                {int dt=ShotTimes[i]-ShotTimes[i-1];if(Boost?dt<7||dt>8:dt!=11&&dt!=12)cadence=false;}
+                Check(cadence,"heavy plasma uses near-uniform intervals including Overdrive");
             }
             else if(Mode==0)Check(used>2 && UTNTSSGBase(w).SpentBarrels==used%2,"single-barrel sequence keeps cycling through reload");
             else Check(used==ShotCount*(Mode==3?40:1) && ShotCount>1,"sustained secondary ammo matches projectile count");

@@ -13,6 +13,8 @@ class ExtendedSecondaryCoopTest : SecondaryTestHandler
                 p.Health=p.player.Health=100;p.bInvulnerable=false;
                 p.player.cheats&=~(CF_TOTALLYFROZEN|CF_FROZEN|CF_GODMODE);
                 p.GiveInventory('UTNTPyroCannon',1);p.GiveInventory('UTNTFlamer',1);p.GiveInventory('Gas',96);p.FindInventory('Gas').Amount=96;
+                class<Inventory> pickupType=i==0?'UTNTRocketLauncher':'UTNTShotgun';
+                let pickup=Inventory(Actor.Spawn(pickupType,p.Pos));pickup.Touch(p);
                 p.player.PendingWeapon=Weapon(p.FindInventory('UTNTPyroCannon'));
             }
             Dummy((250,-64,0));Dummy((350,0,0));Dummy((450,-64,0));
@@ -38,7 +40,18 @@ class ExtendedSecondaryCoopTest : SecondaryTestHandler
             Check(players[1].mo.Pos.X==80 && players[1].mo.Pos.Y==20,"pressure leaves cooperative teammate in place");
             Check(SmallMissile && SmallMissile.target==players[0].mo && SmallMissile.Vel.X>0,"cooperative pressure redirects hostile missile consistently");
             Check(players[0].mo.CountInv('Gas')==40 && players[1].mo.CountInv('Gas')==96,"cooperative pressure costs shooter eight gas");
-            Console.Printf("SECONDARY_COOP_CHECKSUM %d %d %d",PyroChecksum,int(Targets[0].Pos.X*100),SmallMissile?int(SmallMissile.Pos.X*100):0);
+            let hints=UTNTSecondaryHints.Get();
+            Check(hints.Seen[0]==8 && hints.Seen[1]==2,"first pickup hints remain separate for cooperative players");
+            Check(!UTNTSecondaryHints.Claim(0,4) && !UTNTSecondaryHints.Claim(1,2),"cooperative duplicate pickup hints are suppressed");
+            int spin=0;
+            for(int i=0;i<16;i++)
+            {
+                let g=UTNTGrenade(Actor.Spawn('UTNTGrenade',(-700,0,128)));
+                spin+=(i+1)*(int(g.SpinYaw*10)+int(g.SpinPitch*10)*3+int(g.SpinRoll*10)*7);
+                g.Destroy();
+            }
+            Check(spin!=0,"grenade spin initializes in synchronized gameplay");
+            Console.Printf("SECONDARY_COOP_CHECKSUM %d %d %d %d",PyroChecksum,int(Targets[0].Pos.X*100),SmallMissile?int(SmallMissile.Pos.X*100):0,spin);
             Console.Printf("SECONDARY_COOP_COMPLETE");
         }
     }

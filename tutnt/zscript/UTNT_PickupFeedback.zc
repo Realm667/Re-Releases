@@ -27,14 +27,18 @@ class UTNTPickupSnapshot play
         if(ItemClass!=itemcls || Tic!=level.time) return;
         ItemClass=null;
         UTNTStatsHandler.Pickup(who.PlayerNumber(),Value(who,0)-Before[0],Value(who,1)-Before[1]);
+        let def=GetDefaultByType(itemcls);
+        int mode=UTNTSecondaryInfo.Index(def.GetClassName());
+        bool altHint=mode>0 && UTNTSecondaryHints.Claim(who.PlayerNumber(),mode);
         if(!who.CheckLocalView() || level.time<2 || !CVar.GetCVar('UTNT_pickupfeedback',who.player).GetBool()) return;
         for(int i=0;i<7;i++)
         {
             int amount=Value(who,i)-Before[i];
             if(amount>0) EventHandler.SendInterfaceEvent(who.PlayerNumber(),"utnt_gain",i,amount);
         }
-        let def=GetDefaultByType(itemcls);
-        if((def is 'Weapon' || def is 'Key') && !AlreadyOwned || def is 'PowerupGiver')
+        if(altHint)
+            EventHandler.SendInterfaceEvent(who.PlayerNumber(),"utnt_alt_acquired_"..def.GetClassName());
+        else if((def is 'Weapon' || def is 'Key') && !AlreadyOwned || def is 'PowerupGiver')
             EventHandler.SendInterfaceEvent(who.PlayerNumber(),"utnt_acquired_"..def.GetClassName());
     }
 }
@@ -43,9 +47,16 @@ class UTNTPickupFeed : StaticEventHandler
 {
     ui int Gains[7],EndTimes[7],Clock;
     ui Array<String> Items;
+    ui Array<int> HintModes;
     ui int ItemAge;
     ui Actor Camera;
     override void OnRegister() { SetOrder(150); }
+    override void PlayerDisconnected(PlayerEvent e)
+    {
+        let hints=UTNTSecondaryHints.Get(false);
+        if(hints)hints.Seen[e.PlayerNumber]=0;
+    }
+    ui int CardDuration() { return HintModes.Size() && HintModes[0]>0?175:105; }
     override void InterfaceProcess(ConsoleEvent e)
     {
         if(e.Name=="utnt_gain" && e.Args[0]>=0 && e.Args[0]<7)
@@ -54,11 +65,15 @@ class UTNTPickupFeed : StaticEventHandler
             if(EndTimes[i]<=Clock) Gains[i]=0;
             Gains[i]+=e.Args[1];EndTimes[i]=Clock+53;
         }
-        if(e.Name.Left(14)=="utnt_acquired_")
+        bool hint=e.Name.Left(18)=="utnt_alt_acquired_";
+        if(hint || e.Name.Left(14)=="utnt_acquired_")
         {
-            String name=e.Name.Mid(14);
-            for(int i=0;i<Items.Size();i++) if(Items[i]==name) return;
-            if(Items.Size()<6) Items.Push(name);
+            String name=e.Name.Mid(hint?18:14);
+            class<Actor> type=name;
+            int mode=hint && type?UTNTSecondaryInfo.Index(GetDefaultByType(type).GetClassName()):0;
+            for(int i=0;i<Items.Size();i++)if(Items[i]==name)
+            {if(mode>0)HintModes[i]=mode;return;}
+            if(Items.Size()<8){Items.Push(name);HintModes.Push(mode);}
         }
     }
     override void UiTick()
@@ -66,14 +81,14 @@ class UTNTPickupFeed : StaticEventHandler
         Actor camera=players[consoleplayer].camera;
         if(Camera!=camera || gamestate!=GS_LEVEL)
         {
-            Camera=camera;Items.Clear();ItemAge=0;
+            Camera=camera;Items.Clear();HintModes.Clear();ItemAge=0;
             for(int i=0;i<7;i++) Gains[i]=EndTimes[i]=0;
         }
         if(menuactive || ConsoleState!=0 || paused) return;
         Clock++;
         let h=UTNTPresentation(StaticEventHandler.Find('UTNTPresentation'));
         if(automapactive || h && (h.ObjectivesHeld || h.ObjectivesFadeTics>0)) return;
-        if(Items.Size() && ++ItemAge>=105) { Items.Delete(0);ItemAge=0; }
+        if(Items.Size() && ++ItemAge>=CardDuration()) { Items.Delete(0);HintModes.Delete(0);ItemAge=0; }
     }
     ui bool Visible(Actor camera)
     {
@@ -90,6 +105,13 @@ class UTNTPickupFeed : StaticEventHandler
         let def=GetDefaultByType(type);
         String text=StringTable.Localize(def.PickupMsg);
         String tag=def.GetTag();if(tag.Length()>0) text=StringTable.Localize(tag);
+        if(HintModes.Size() && HintModes[0]>0)
+        {
+            let [key,other]=Bindings.GetKeysForCommand("+altattack");
+            String binding=key?KeyBindings.NameKeys(key,0,false):UTNTExplorationUI.Local("UTNT_ALT_UNBOUND");
+            text=text.."\n"..String.Format(UTNTExplorationUI.Local("UTNT_ALT_HINT"),binding,
+                UTNTExplorationUI.Local(UTNTSecondaryInfo.HintKey(HintModes[0])));
+        }
         return Font.GetFont('SmallFont').BreakLines(text,int(UTNTUILayout.Width(276)-56));
     }
     ui double ReservedBottom()
@@ -125,7 +147,7 @@ class UTNTPickupFeed : StaticEventHandler
         let lines=CardLines();
         double height=max(36,lines.Count()*11+12);
         double x=UTNTUILayout.PickupLeft(),y=UTNTUILayout.PickupTop();
-        double alpha=clamp(min((ItemAge+e.FracTic)/7.0,(105-ItemAge-e.FracTic)/11.0),0,1);
+        double alpha=clamp(min((ItemAge+e.FracTic)/7.0,(CardDuration()-ItemAge-e.FracTic)/11.0),0,1);
         UTNTExplorationUI.Frame(x,y,width,height,scale,alpha);
         TextureID icon=def.Icon;if(!icon.IsValid() && def.SpawnState) icon=def.SpawnState.GetSpriteTexture(0);
         if(icon.IsValid())

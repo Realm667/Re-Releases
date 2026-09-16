@@ -1,0 +1,131 @@
+class SecondaryRefinementTest : SecondaryTestHandler
+{
+    int Stage,Puffs,Fragments,FlashKind,PrimaryCount;
+    double BounceSpeed;
+    Actor FarTarget;
+    override void WorldThingSpawned(WorldEvent e)
+    {
+        Super.WorldThingSpawned(e);
+        if(Stage==1 && e.Thing is 'NewPuff')Puffs++;
+        if(Stage==3 && (e.Thing is 'PBExplosionSpawner' || e.Thing is 'PBExploBack' || e.Thing is 'PyroFlare'))Fragments++;
+    }
+    override void WorldTick()
+    {
+        Super.WorldTick();
+        let p=players[0].mo;if(!p)return;
+        if(Stage==1)
+        {
+            let flash=p.player.FindPSprite(PSprite.FLASH);let w=p.player.ReadyWeapon;
+            if(flash && w)
+            {
+                if(p.InStateSequence(flash.CurState,w.FindState('AltFlashLeft')))FlashKind=1;
+                if(p.InStateSequence(flash.CurState,w.FindState('AltFlashRight')))FlashKind=2;
+                if(p.InStateSequence(flash.CurState,w.FindState('Flash')))FlashKind=3;
+            }
+        }
+        if(Stage==2 && Tracked && Tracked.Vel.Z>0)BounceSpeed=max(BounceSpeed,Tracked.Vel.Z);
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        Super.NetworkProcess(e);
+        let p=players[e.Player].mo;let w=p.player.ReadyWeapon;
+        if(e.Name=="refflashgallery")
+        {
+            Stage=0;
+            if(e.Args[0]==1)p.player.SetPSprite(PSprite.FLASH,w.FindState('AltFlashLeft'));
+            else p.player.SetPSprite(PSprite.FLASH,w.FindState('AltFlashRight'));
+            p.player.GetPSprite(PSprite.FLASH).tics=35;
+        }
+        if(e.Name=="refshot")
+        {
+            Clear();Stage=1;Puffs=FlashKind=0;
+            p.SetOrigin((1400,0,0),false);p.Angle=p.Pitch=0;p.Vel=(0,0,0);p.bInvulnerable=true;
+            w.Ammo1.Amount=100;
+            if(e.Args[0]==0)UTNTSSGBase(w).SpentBarrels=0;
+        }
+        if(e.Name=="refshotcheck")
+        {
+            Check(Puffs==(e.Args[0]==3?20:10),"single SSG barrel emits exactly half of twenty hitscans");
+            Check(FlashKind==e.Args[0],"SSG flash matches left, right or both barrels");
+            Console.Printf("SSG_FLASH kind=%d pellets=%d",FlashKind,Puffs);
+        }
+        if(e.Name=="refgrenade")
+        {
+            Clear();Stage=2;BounceSpeed=0;bool yp,yn,pp,pn,rp,rn;
+            for(int i=0;i<32;i++)
+            {
+                let g=UTNTGrenade(Actor.Spawn('UTNTGrenade',(500,0,150)));
+                yp|=g.SpinYaw>0;yn|=g.SpinYaw<0;pp|=g.SpinPitch>0;pn|=g.SpinPitch<0;rp|=g.SpinRoll>0;rn|=g.SpinRoll<0;
+                g.Destroy();
+            }
+            Check(yp && yn && pp && pn && rp && rn,"grenade launch spin varies on all three axes");
+            let g=UTNTGrenade(Actor.Spawn('UTNTGrenade',(500,0,30)));g.target=p;g.Vel=(0,0,-10);Tracked=g;
+            Check(g.BounceSound=="weapons/grenadebounce","grenade uses supplied bounce sound");
+        }
+        if(e.Name=="refbounce")Check(BounceSpeed>7,"grenade keeps stronger vertical bounce energy");
+        if(e.Name=="refpyro")
+        {
+            Clear();Stage=3;Fragments=0;
+            let orb=Actor.Spawn('UTNTPyroOrb',(1490,0,64));orb.target=p;orb.Vel=(8,0,0);Tracked=orb;
+        }
+        if(e.Name=="refpyrocheck")
+        {
+            Check(Tracked && !Tracked.bMissile,"pyro geometry impact retains core explosion");
+            Check(Fragments==0,"secondary pyro explosion has no scatter-particle controllers");
+        }
+        if(e.Name=="refpressure")
+        {
+            Clear();Stage=4;p.SetOrigin((0,0,0),false);p.Angle=p.Pitch=0;p.Vel=(0,0,0);
+            FarTarget=Dummy((260,170,0));FarTarget.bDontThrust=false;FarTarget.Mass=100;
+            w.Ammo1.Amount=100;
+        }
+        if(e.Name=="refpressurecheck")
+        {
+            Check(FarTarget.Vel.X>25 && FarTarget.Pos.X>260,"broader pressure reaches distant enemies with much stronger thrust");
+            Check(p.CountInv('Gas')==92,"stronger pressure still costs eight gas");
+        }
+        if(e.Name=="refprofiles")
+        {
+            class<Actor> kinds[]={'UTNTHeavyPlasma','UTNTBFGChain','UTNTPyroOrb','UTNTGrenade','UTNTPressureWave'};
+            int expected[]={2,3,1,0,0};
+            for(int i=0;i<5;i++)
+            {
+                let a=Actor.Spawn(kinds[i],(600,600,100));
+                Check(UTNTEffectGlow.Profile(a)==expected[i],"energy projectiles get matching selective glow, metal and air stay neutral");a.Destroy();
+            }
+            let chain=Actor.Spawn('UTNTBFGChain',(600,600,100));Check(abs(chain.Speed-32*.67)<.001,"BFG chain is 33 percent slower");chain.Destroy();
+            Name weapons[]={'UTNTPistol','UTNTShotgun','UTNTSuperShotgun','UTNTRocketLauncher','UTNTPlasmaRifle','UTNTBFG9000','UTNTFlamer','UTNTPyroCannon'};
+            bool all=true;for(int i=0;i<8;i++)if(UTNTSecondaryInfo.Index(weapons[i])==0)all=false;
+            Check(all && UTNTSecondaryInfo.Index('UTNTChaingun')==0,"HUD distinguishes all eight alternate weapons from primary-only weapons");
+        }
+        if(e.Name=="refpickup")
+        {
+            let h=UTNTSecondaryHints.Get();h.Seen[e.Player]=0;
+            p.TakeInventory('UTNTRocketLauncher',999);p.TakeInventory('RocketAmmo',999);
+            let gun=Inventory(Actor.Spawn('UTNTRocketLauncher',p.Pos,NO_REPLACE));gun.Touch(p);
+            Check(p.FindInventory('UTNTRocketLauncher') && h.Seen[e.Player]==8,"real first pickup marks one secondary hint");
+            Check(h.Seen[(e.Player+1)%MAXPLAYERS]==0,"pickup hint state belongs only to receiving player");
+        }
+        if(e.Name=="refhintlong")
+        {
+            p.TakeInventory('UTNTPyroCannon',999);p.TakeInventory('Gas',999);
+            let gun=Inventory(Actor.Spawn('UTNTPyroCannon',p.Pos,NO_REPLACE));gun.Touch(p);
+            Check((UTNTSecondaryHints.Get().Seen[e.Player]&128)!=0,"long Pyro description uses the same first-pickup path");
+        }
+        if(e.Name=="refpickupagain")
+        {
+            Check(!UTNTSecondaryHints.Claim(e.Player,4),"secondary hint remains acknowledged after save/load or duplicate pickup");
+            p.TakeInventory('RocketAmmo',999);
+            let gun=Inventory(Actor.Spawn('UTNTRocketLauncher',p.Pos,NO_REPLACE));gun.Touch(p);
+        }
+        if(e.Name=="refdps")
+        {
+            if(e.Args[0]==0)PrimaryCount=ShotCount;
+            else
+            {
+                Check(abs(PrimaryCount-ShotCount*5)<=5,"plasma sustained expected DPS matches primary at fivefold damage");
+                Console.Printf("PLASMA_DPS primary=%d heavy=%d weighted=%d",PrimaryCount,ShotCount,ShotCount*5);
+            }
+        }
+    }
+}

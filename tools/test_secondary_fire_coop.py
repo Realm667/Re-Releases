@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parent.parent
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE',str(ROOT/'engine/uzdoom.exe')));p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD','F:/DoomDev/DOOM2.WAD'))
 p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3');p.add_argument('--port',type=int,default=15327)
-p.add_argument('--extended',action='store_true');p.add_argument('--overlay',action='store_true')
+p.add_argument('--compile-only',action='store_true');p.add_argument('--extended',action='store_true');p.add_argument('--overlay',action='store_true')
 a=p.parse_args();local=ROOT/'tutnt/.codex';out=local/('logs/secondary-fire/coop-extended' if a.extended else 'logs/secondary-fire/coop');out.mkdir(parents=True,exist_ok=True)
 reports=local/'validation/secondary-fire';reports.mkdir(parents=True,exist_ok=True)
 fixture=local/('builds/utnt-secondary-coop-extended.pk3' if a.extended else 'builds/utnt-secondary-coop.pk3')
@@ -18,11 +18,16 @@ for i in range(2):text+=f'thing {{ x={i*100}.0; y=0.0; angle=0; type={i+1}; skil
 with zipfile.ZipFile(fixture,'w',zipfile.ZIP_DEFLATED) as z:
  z.writestr('ZSCRIPT','version "5.0.0"\n#include "tests.zc"\n#include "'+('extended-coop.zc' if a.extended else 'coop.zc')+'"\n')
  if a.overlay:
-  for f in ['zscript/UTNT_SecondaryFire.zc','actors/weapons.txt','zscript/UTNT_Presentation.zc','zscript/UTNT_BurnDeath.zc','shaders/pressure-wave.fp']:z.write(ROOT/'tutnt'/f,f)
+  for f in ['zscript/UTNT_SecondaryFire.zc','actors/weapons.txt','zscript/UTNT_Presentation.zc','zscript/UTNT_BurnDeath.zc','shaders/pressure-wave.fp','zscript/UTNT_PickupFeedback.zc','zscript/UTNT_EffectGlow.zc','LANGUAGE.txt','TEXTURES.txt','sounds/UGRBOUNC.ogg']:z.write(ROOT/'tutnt'/f,f)
   z.writestr('GLDEFS',(ROOT/'tutnt/gldefs/GLDEFS.secondary-fire').read_bytes())
+  z.writestr('SNDINFO','weapons/grenadebounce UGRBOUNC\n')
  for f in ['tests.zc','coop.zc','extended-coop.zc']:z.write(ROOT/'tools/fixtures/secondary-fire'/f,f)
  z.writestr('MAPINFO','gameinfo { AddEventHandlers="'+('ExtendedSecondaryCoopTest' if a.extended else 'SecondaryCoopTest')+'" }\nmap SECCOOP "Secondary coop test" {}\n')
  z.writestr('maps/SECCOOP.wad',write_wad(b'PWAD',[(b'SECCOOP',b''),(b'TEXTMAP',text.encode()),(b'ENDMAP',b'')]))
+if a.compile_only:
+ from check_engine import run_case
+ result=run_case(a.engine,a.iwad,root=out,mod=a.mod,addon=fixture,label='coop-compile')
+ raise SystemExit(0 if result['ok'] else 1)
 children=[];results=[];checksums=[]
 si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
 try:
