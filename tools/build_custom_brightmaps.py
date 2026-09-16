@@ -224,6 +224,16 @@ def generate(root=ROOT,iwad='F:/DoomDev/DOOM2.WAD',check=False):
  for frame in 'ABCD':
   art.read(mod/f'voxels/UVPHRT{frame}.kvx')
   model.append(f'Model PortalCoreHeart\n{{\n Path "voxels"\n Model 0 "UVPHRT{frame}.kvx"\n Skin 0 "heart-palette.png"\n Scale 1 1 1\n AngleOffset 90\n NoInterpolation\n NoPerPixelLighting\n FrameIndex PHRT {frame} 0 0\n}}')
+ # Barrel slime uses the bright green/yellow Doom ramp; darker indices 124-127
+ # also occur on the metal sides and must remain non-emissive. Both idle KVXs
+ # keep their native geometry/pivot. VOXELDEF's 270 + internal 90 = MODELDEF 0.
+ outputs['voxels/barrel-palette.png']=png(skin)
+ levels=np.zeros(256,dtype=np.uint8);levels[112:124]=255
+ mask=Image.fromarray(levels.reshape(16,16)).convert('RGB')
+ bind('texture','"voxels/barrel-palette.png"',skin,mask,('thiswad',))
+ for frame in 'AB':
+  art.read(mod/f'voxels/CVBAR1{frame}.kvx')
+  model.append(f'Model ExplosiveBarrel\n{{\n Path "voxels"\n Model 0 "CVBAR1{frame}.kvx"\n Skin 0 "barrel-palette.png"\n Scale 1 1 1\n AngleOffset 0\n NoInterpolation\n NoPerPixelLighting\n FrameIndex BAR1 {frame} 0 0\n}}')
  outputs['modeldef/MODELDEF.brightmaps-custom']=('\n\n'.join(model)+'\n').encode()
  outputs[MODULE]=('\n\n'.join(lines)+'\n').encode()
  outputs={name:preserve_png(mod/name,data) for name,data in outputs.items()}

@@ -38,7 +38,14 @@ def check(root=ROOT,iwad='F:/DoomDev/DOOM2.WAD'):
   if records[name]['status']!='mapped':errors.append('Missing requested emissive phase: '+name)
  # Brightmaps do not introduce a per-pixel shader cost or alter the KVX shape.
  model=(mod/'modeldef/MODELDEF.brightmaps-custom').read_text()
- if model.count('AngleOffset 90')!=4 or model.count('NoPerPixelLighting')!=4:errors.append('Native voxel presentation flags missing')
+ if model.count('AngleOffset 90')!=4 or model.count('NoPerPixelLighting')!=6:errors.append('Native voxel presentation flags missing')
+ # Do not let a future color-rule change make the metal glow again.
+ barrel=np.array(Image.open(mod/records['voxels/barrel-palette.png']['map']).convert('L')).reshape(-1)
+ if set(np.flatnonzero(barrel))!=set(range(112,124)):errors.append('Barrel mask includes metal or omits slime')
+ for frame in 'AB':
+  if f'Model 0 "CVBAR1{frame}.kvx"' not in model or f'FrameIndex BAR1 {frame} 0 0' not in model:errors.append('Missing original barrel idle voxel')
+ light=re.search(r'pulselight BARREL\s*\{([^}]+)\}',(mod/'GLDEFS.txt').read_text())
+ if not light or not re.search(r'DontLightSelf\s+1',light[1]):errors.append('Barrel self-light exclusion missing')
  result={'ok':not errors,'new_bindings':len(mapped),'by_kind':dict(Counter(r['kind'] for r in mapped)),'new_mask_images':len(list((mod/OUT).glob('*.png'))),'preserved_candidate_frames':sum(r['status']=='reference preserved' for r in manifest['bindings']),'reviewed_non_emissive_frames_or_states':sum(r['status']=='no emissive pixels' for r in manifest['bindings']),'errors':errors}
  print(json.dumps(result,indent=2));return result
 if __name__=='__main__':

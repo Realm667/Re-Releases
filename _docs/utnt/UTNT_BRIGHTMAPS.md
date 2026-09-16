@@ -133,6 +133,25 @@ An isolated native-engine comparison found **zero changed screen pixels** betwee
 the previous voxel rendering and this binding with a black brightmap. Enabling
 the mask changed 132 pixels within the heart region in that fixed view.
 
+### Explosive barrel lighting (16 September 2026)
+
+The barrel's `BARREL` dynamic light uses `DontLightSelf 1`: it still lights its
+surroundings, but not the barrel owning it. Lights from other actors remain valid.
+Both original idle KVXs (`CVBAR1A/B`) use a named PLAYPAL skin with a selective
+brightmap for the yellow-green nukage ramp (indices 112–123). The darker green
+indices 124–127 also occur on the metal and remain unlit, as do all metal bands.
+The two idle models retain the original scale, pivot and orientation (native
+VOXELDEF 270° plus its internal 90° equals MODELDEF 0°). Explosion states, models,
+lights and radius damage are unchanged. Existing reference sprite masks remain
+available for the sprite fallback.
+
+An isolated UZDoom 5.0.1 OpenGL comparison found zero changed pixels between
+the original voxel and the new binding with emission disabled. Enabling the
+brightmap changed 1,150 pixels, all within the nukage at the top, and none on
+the metal. Dynamic-light on/off comparisons still illuminated the floor. The
+existing actor-default, save/load and barrel radius-damage checks passed
+(11 assertions).
+
 ### Generation and checks
 
 - `python -B tools/build_custom_brightmaps.py` regenerates only these outputs.
