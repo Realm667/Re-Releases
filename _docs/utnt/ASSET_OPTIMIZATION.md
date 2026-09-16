@@ -108,6 +108,14 @@ cavern map transformation belongs to the source-tree integration work, not this
 storage cleanup. The exact comparison is recorded locally in
 `.codex/validation/size-audit-package-source.json`.
 
+### Subsequent cavern source integration (16 September 2026)
+
+The cavern exception above was subsequently resolved: TNT03A2 now contains the
+final rooms, scenery Things and authored lighting in its source WAD, and the
+packager no longer patches it. Direct source-ZIP lifecycle tests passed. The
+TEXTURES expansion, precache and build-label distinctions remain; see
+[production sources](PRODUCTION_SOURCES.md) and [cavern authoring](UTNT_CAVERN.md).
+
 ## Repeat checks
 
 ```text

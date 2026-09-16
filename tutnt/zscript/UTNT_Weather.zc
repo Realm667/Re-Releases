@@ -159,7 +159,7 @@ class UTNTWeatherController : Thinker
         while(sky=Actor(skies.Next()))
         {
             // These three wall skyboxes depict enclosed cavern halls.
-            if(level.MapName~=="TNT03A2" && sky.GetClassName()=='SkyCamCompat'
+            if(level.MapName~=="TNT03A2" && sky is 'SkyCamCompat'
                 && sky.TID>=65200 && sky.TID<=65202)continue;
             SkyCameras.Push(sky); SkyCounts.Push(0); SkyTargets.Push(0);
             // Sample the reachable sky volume once; larger rooms need more

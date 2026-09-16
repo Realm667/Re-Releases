@@ -99,7 +99,7 @@ class UTNTCavernAtmosphere : Thinker
             Array<String> r;rows[i].Split(r,"|",TOK_KEEPEMPTY);if(r.Size()!=4)continue;
             Vector3 p=(r[0].ToDouble(),r[1].ToDouble(),r[2].ToDouble());
             let s=level.PointInSector(p.XY);
-            if(SourceCount<8 && s && s.Index()==r[3].ToInt() && UTNTCavernAir.Open(p))FallSources[SourceCount++]=p;
+            if(SourceCount<8 && s && UTNTCavernAir.Open(p))FallSources[SourceCount++]=p;
         }
     }
     bool BeginFall(Actor camera)

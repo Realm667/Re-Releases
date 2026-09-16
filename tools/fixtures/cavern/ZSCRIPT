@@ -33,6 +33,8 @@ class UTNTCavernTest : EventHandler
             if(e.Args[0]==17){Camera.SetOrigin((4671,-4139,-38),false);Camera.Angle=35;Camera.Pitch=0;}
             if(e.Args[0]==18){Camera.SetOrigin((4800,-4300,-600),false);Camera.Angle=70;Camera.Pitch=65;}
             if(e.Args[0]==19){Camera.SetOrigin((4879,-6173,-476),false);Camera.Angle=180;Camera.Pitch=0;}
+            if(e.Args[0]==21){Camera.SetOrigin((5410,-3839,-52),false);Camera.Angle=280;Camera.Pitch=38;}
+            if(e.Args[0]==22){Camera.SetOrigin((5148,-3584,-217),false);Camera.Angle=65;Camera.Pitch=30;}
             if(e.Args[0]==20){Camera.SetOrigin((4594,-3695,-74),false);Camera.Angle=355;Camera.Pitch=0;}
             players[consoleplayer].camera=Camera;
         }
@@ -113,9 +115,9 @@ class UTNTCavernTest : EventHandler
             Console.Printf("UTNT_ASSERT %s three native skybox cameras and wall portals (%d/%d)",skies==3 && portals==3 && blocked && weatherFree?"PASS":"FAIL",skies,portals);
         }
         int models=0,lights=0,clouds=0;bool cosmetic=true;
-        let it=ThinkerIterator.Create('UTNTCavernScenery',Thinker.MAX_STATNUM+1,true);Actor a;
+        let it=ThinkerIterator.Create('UTNTCavernScenery');Actor a;
         while(a=Actor(it.Next())){models++;cosmetic=cosmetic && !a.bSolid && a.bNoInteraction && a.bNoBlockmap;}
-        it=ThinkerIterator.Create('UTNTCavernLight',Thinker.MAX_STATNUM+1,true);while(it.Next())lights++;
+        it=ThinkerIterator.Create('UTNTCavernLight');while(it.Next())lights++;
         it=ThinkerIterator.Create('UTNTCavernCloud',Thinker.MAX_STATNUM+1,true);while(it.Next())clouds++;
         int air=0,controllers=0,sources=0;
         it=ThinkerIterator.Create('UTNTCavernAir',Thinker.MAX_STATNUM+1,true);while(it.Next())air++;
@@ -143,16 +145,18 @@ class UTNTCavernTest : EventHandler
         Console.Printf("UTNT_ASSERT %s one ambient controller, eight falls and bounded particles (%d / controllers %d / sources %d)",controllers==1 && sources==8 && air<=180?"PASS":"FAIL",air,controllers,sources);
         Console.Printf("UTNT_ASSERT %s shoreline haze reaches 320 units (%d)",haze==119 && height?"PASS":"FAIL",haze);
         Console.Printf("UTNT_ASSERT %s smoke budget and lava height (%d)",mist<=32 && bounded?"PASS":"FAIL",mist);
-        let h=UTNTCavern(EventHandler.Find('UTNTCavern'));let s=level.Sectors[895];
+        let s=level.Sectors[895];
         Console.Printf("UTNT_ASSERT %s 102 decorative models and three lights (%d/%d)",models==102 && lights==3?"PASS":"FAIL",models,lights);
         Console.Printf("UTNT_ASSERT %s decoration has no collision",cosmetic?"PASS":"FAIL");
         Console.Printf("UTNT_ASSERT %s bounded local cloud count %d",clouds<=42?"PASS":"FAIL",clouds);
         int rgb=int(s.ColorMap.FadeColor)&0xffffff;
-        Console.Printf("UTNT_ASSERT %s cavern fog and lighting %d/%d",rgb==0x363029 && s.ColorMap.FogDensity==22 && s.LightLevel==144?"PASS":"FAIL",h.Applied,h.Rejected);
-        Console.Printf("UTNT_ASSERT %s no rejected sector witnesses",h.Rejected==0?"PASS":"FAIL");
+        Console.Printf("UTNT_ASSERT %s cavern fog and lighting %d/%d",rgb==0x363029 && s.ColorMap.FogDensity==22 && s.LightLevel==144?"PASS":"FAIL",s.LightLevel,int(s.ColorMap.FogDensity));
+        let authoredIt=ThinkerIterator.Create('UTNTCavern_stalactite_a');
+        let authoredModel=Actor(authoredIt.Next());
+        Console.Printf("UTNT_ASSERT %s authored model position survives lifecycle",authoredModel && (authoredModel.Pos-(5280,-4400,632)).Length()<.02 && !authoredIt.Next()?"PASS":"FAIL");
         bool tops=true;int caps[]={843,891,851,848,901,902,908};
         for(int i=0;i<7;i++)tops=tops && level.Sectors[caps[i]].GetPlaneLight(Sector.ceiling)==36;
-        Console.Printf("UTNT_ASSERT %s seven platform tops brightened",tops && h.PlatformsApplied?"PASS":"FAIL");
+        Console.Printf("UTNT_ASSERT %s seven platform tops brightened",tops?"PASS":"FAIL");
         int oldFades=0;
         for(int i=0;i<level.Sectors.Size();i++)if((int(level.Sectors[i].ColorMap.FadeColor)&0xffffff)==0x62411d)oldFades++;
         Console.Printf("UTNT_ASSERT %s all adjoining cavern surfaces share the haze",oldFades==0?"PASS":"FAIL");

@@ -86,3 +86,5 @@ Screenshots formerly tracked in `tools/validation/` link to their preserved Git 
 See [Definition layout](DEFINITION_LAYOUT.md) for the nine root entrypoints, module directories, generated tables and validation commands.
 
 - [Voxel pickups and decorations](UTNT_VOXELS.md): selected models, original-lowres sources, palette mapping, rotation and validation.
+
+- [Editable production sources and direct ZIP rules](PRODUCTION_SOURCES.md)

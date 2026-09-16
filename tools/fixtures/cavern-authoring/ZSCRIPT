@@ -1,0 +1,18 @@
+version "5.0.0"
+class UTNTCavernAuthoredTest : EventHandler
+{
+    void Check(bool ok,String message){Console.Printf("UTNT_ASSERT %s %s",ok?"PASS":"FAIL",message);}
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if(e.Name!="authorcheck")return;
+        let it=ThinkerIterator.Create('UTNTCavern_stalactite_a');let a=Actor(it.Next());
+        Check(a && (a.Pos-(5304,-4400,644)).Length()<.02 && abs(a.Angle-37)<.02 && !it.Next(),"manual model position height and rotation persist");
+        let pocket=level.lines[4783].sidedef[1].sector;int pf=pocket.ColorMap.FogDensity;
+        Check(pocket.LightLevel==171 && pf==26,"manual entrance light and fog persist");
+        let camera=UTNTCavernSkyCamera(level.CreateActorIterator(65200,'UTNTCavernSkyCamera').Next());
+        Check(camera && (camera.MapOrigin-(-12160,-23350,-450)).Length()<.02,"manual sky camera origin persists without parallax drift");
+        int sf=camera.CurSector.ColorMap.FogDensity;
+        Check(camera.CurSector.LightLevel==81 && sf==19,"manual skyroom light and fog persist");
+        Check(abs(level.lines[4783].alpha-.35)<.001,"manual window transparency persists");
+    }
+}

@@ -13,7 +13,7 @@ def main():
     a=p.parse_args();work=ROOT/'tutnt/.codex/work/cavern-tnt03a2';work.mkdir(parents=True,exist_ok=True)
     label=a.label+'-'+a.renderer
     commands=['god','notarget','wait 100','netevent caveview 0','wait 100','netevent cavecheck']
-    for v in [*range(8),9,10,11,12,13,17,18,19,20]:commands += [f'netevent caveview {v}','wait 45',f'screenshot logs/{label}-{v}.png']
+    for v in [*range(8),9,10,11,12,13,17,18,19,20,21,22]:commands += [f'netevent caveview {v}','wait 45',f'screenshot logs/{label}-{v}.png']
     commands += ['UTNT_atmosphere true','wait 15']
     for v in [11,12,13,20]:commands += [f'netevent caveview {v}','wait 20',f'screenshot logs/{label}-atmosphere-{v}.png']
     commands += ['UTNT_atmosphere false','wait 15']
@@ -30,15 +30,16 @@ def main():
         if old.is_file():old.unlink()
         for p in (ROOT/'tools/fixtures/cavern').iterdir():
             if p.is_file():shutil.copyfile(p,addon/('zscript.zc' if p.name=='ZSCRIPT' else p.name))
-        files=['zscript/UTNT_Cavern.zc','zscript/cavern-generated.zc','modeldef/MODELDEF.cavern','gldefs/GLDEFS.cavern','shaders/cavern-haze.fp','shaders/cavern-lava.fp','shaders/cavern-rock.fp','zscript/UTNT_CavernAtmosphere.zc','sndinfo/sndinfo.cavern','zscript/UTNT_Weather.zc']
+        files=['zscript/UTNT_Cavern.zc','zscript/cavern-actors.zc','modeldef/MODELDEF.cavern','gldefs/GLDEFS.cavern','shaders/cavern-haze.fp','shaders/cavern-lava.fp','shaders/cavern-rock.fp','zscript/UTNT_CavernAtmosphere.zc','sndinfo/sndinfo.cavern','zscript/UTNT_Weather.zc']
         for folder in ['cavern','models/cavern']:
             files += [p.relative_to(ROOT/'tutnt').as_posix() for p in (ROOT/'tutnt'/folder).rglob('*') if p.is_file()]
         for name in files:
             dest=addon/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/'tutnt'/name,dest)
         shutil.copyfile(ROOT/'tutnt/textures/definitions/TEXTURES.cavern',addon/'TEXTURES.txt')
-        from cavern_skyrooms import apply as skyroom_map
         (addon/'maps').mkdir(exist_ok=True)
-        (addon/'maps/tnt03a2.wad').write_bytes(skyroom_map((ROOT/'tutnt/maps/tnt03a2.wad').read_bytes(),json.loads((ROOT/'tutnt/cavern/skyrooms.json').read_text())))
+        shutil.copyfile(ROOT/'tutnt/maps/tnt03a2.wad',addon/'maps/tnt03a2.wad')
+        info=(ROOT/'tutnt/mapinfo/MAPINFO.cavern').read_text()
+        with (addon/'MAPINFO').open('a') as f:f.write('\n'+info[info.index('DoomEdNums'):])
         (addon/'SNDINFO.txt').write_text('$include "sndinfo/sndinfo.cavern"\n')
     r=run_case(a.engine,a.iwad,root=work,mod=a.mod,mapname='TNT03A2',addon=addon,renderer=a.renderer,label=label,timeout=110,
         commands='; '.join(commands),settings=[('win_w',1440),('win_h',900),('vid_maxfps',60),('gl_texture_filter',0),('screenblocks',12),('crosshair',0),('con_notifytime',0),('r_drawplayersprites',False),('UTNT_subtitles',False),('fullhud_fullstats',False),('UTNT_fxquality',3),('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_lowerinbackground',False),('use_mouse',False),('use_joystick',False)])

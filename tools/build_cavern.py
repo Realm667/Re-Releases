@@ -12,6 +12,9 @@ from build_sky_edges import resolve_slopes, plane
 ROOT = Path(__file__).resolve().parents[1]
 
 def generate(root=ROOT, check=False):
+    if (root/'tutnt/cavern/authored.json').is_file():
+        from author_cavern import validate
+        return validate(root)
     map_path=root/'tutnt/maps/tnt03a2.wad'
     b=parse(map_path);resolve_slopes(b,map_path);geo=geometry(b)
     outputs={}; rows=[]; models=[]; classes=[]; placements=[]

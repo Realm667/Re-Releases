@@ -2,55 +2,111 @@
 
 Updated: 16 September 2026.
 
-The lava cavern receives explicit distance fog, separate floor/ceiling lighting,
-four asymmetric hanging rock formations, a flowing lava curtain with rock cheeks
-and an outlet lip, three local lights, luminous lava haze, rising smoke and
-suspended dust, organic wall/roof masses and occasional falling grit with spatial
-stone sounds, plus three framed fissures revealing distant cavern skyboxes.
-The editable source WAD is preserved. The package builder opens three boundary
-walls into blocked scenic recesses and appends isolated skybox scenery; platform
-routes, original sector tags, enemies, map actions and ACS remain unchanged.
+## Authoritative, editable production sources
 
-## Source and placement
+The final cavern is authored directly in `tutnt/maps/tnt03a2.wad`. Its three
+blocked fissures, recesses, distant skybox rooms, 102 scenery Things, three
+lights, rock materials and sector light/fog settings are present in the source
+map. The package builder no longer changes this map or creates these placements.
+The original map's vertices, Things, gameplay actions and script lumps were
+preserved; only the three original entrance lines become blocked two-sided windows.
 
-`tools/build_cavern.py` generates the OBJ scenery, MODELDEF module, actor classes
-and sector/placement manifests. The regular package builder regenerates these
-assets and `--check` rejects stale output. The generator checks the actual map
-before placing the hanging formations above lava beneath the high ceiling.
+Open this WAD in Ultimate Doom Builder with the current `tutnt.pk3` or the
+`tutnt/` source directory as resource, using the existing UZDoom/ZDoom UDMF
+configuration. Reload resources after updating them. Enable model display in
+visual mode. The scenery is in the **UTNT/Cavern** Thing category (editor numbers
+25000–25101); the parallax sky camera is 25110 and the lava-fall light is 25111.
+Models are cosmetic, so moving them does not add collision or new platforms.
 
-The curtain follows the east cliff of the first chamber, near (5470, -4040),
-from the existing ledge at roughly -248 down to the lava at -1500. Its bowed
-surface, irregular rock cheeks and shallow lip conceal the edges against the
-original cliff. It uses the shared lava-fall shader. Rock uses the original
-IKWALL44 artwork. The four ceiling formations are distributed across the first,
-second and lower chambers and remain outside the platform route.
+| What to edit | Authoritative file under `tutnt/` |
+| --- | --- |
+| Rooms, openings, model positions/angles/scales, lights, fog and texture assignments | `maps/tnt03a2.wad` |
+| Rock and lava-fall mesh surfaces | `models/cavern/*.obj` |
+| Model skins and rendering definitions | `modeldef/MODELDEF.cavern` |
+| Editor numbers | `mapinfo/MAPINFO.cavern` |
+| Editable scenery actor definitions and editor labels | `zscript/cavern-actors.zc` |
+| Local materials, including the fog window tint | `textures/definitions/TEXTURES.cavern`, `gldefs/GLDEFS.cavern`, `shaders/cavern-*.fp` |
+| Lava haze positions/radii | `cavern/haze.txt` |
+| Falling ceiling-dust positions | `cavern/fall-sources.txt` |
+| Main-room parallax anchors | `cavern/skyviews.txt` |
+| Particle behavior, budgets, light color/radius and parallax speed | `zscript/UTNT_Cavern.zc`, `zscript/UTNT_CavernAtmosphere.zc` |
 
-The 538 sector bindings select the authored brown cavern region within
-x=3700..8000, y=-6800..-3180 and its separate skybox sector. Each binding includes
-a boundary line, its side and endpoint coordinates; runtime rejects a binding
-if that boundary no longer identifies the same sector.
-Material names are not identity checks because the existing area-material
-handler replaces them with aliases before this handler runs.
+Map camera Things determine each skyroom's actual initial camera position.
+Their saved `MapOrigin` prevents parallax drift after save/load or hub return.
+The skyview table supplies the corresponding main-room anchor; its historical
+origin columns are only a compatibility fallback for native cameras.
 
-## Lighting and lifecycle
+`cavern/authored.json` switches the former cavern generator to read-only
+validation in both normal and check builds. It never regenerates the map,
+meshes, actor definitions, shaders or effect manifests. `tools/author_cavern.py`
+records the one-time migration and validates required production resources.
+The old `cavern-generated.zc`, scenery/sector/platform/portal manifests and
+`skyrooms.json` are legacy migration inputs, not active placement instructions.
+Edit the WAD and `cavern-actors.zc`; do not regenerate the old layer. Keeping the
+legacy class file separate preserves the concurrent editor-skip optimization.
 
-`UTNTCavern` changes the original 0x62411d fade to a subdued warm 0x363029 and sets
-explicit fog density 22. Authored static light values 150/134 receive a -6
-adjustment, with +32 floor and -16 ceiling offsets. The seven moving platform
-control sectors receive a +36 ceiling light offset for their top faces only.
-Other authored light levels
-are preserved. Settings are applied once, then serialized by the engine; map
-scripts remain free to change lighting. Save/load and hub return do not
-accumulate offsets. Outdoor day/night and snowfall sectors are not selected.
-Fog density is installed before the fade update, which rebuilds UZDoom's cached
-3D-floor light lists. A single post-setup refresh handles attached floor lists.
+## Windows and closed lava-fall meshes
 
-The client controller creates 102 noninteracting scenery actors and three
-lights. It rebuilds local objects after loading, clearing old instances from
-both thinker pools. Smoke and dust use local deterministic phases, bounded
-lifetimes, distance checks and the shared effect-quality setting. No gameplay
-random stream is consumed. Effect quality zero stops new clouds; existing
-clouds fade out. Cosmetic models remain visible as part of the room design.
+All three entrance floors, ceilings and borders use UCAVROCK. The entrance
+middle texture UCAVFOG is a solid `#1b1814` tint matching the distant fog endpoint;
+the line uses ordinary translucent rendering with alpha 0.5 and wrapped middle
+texture. The original blocking flag remains set. These are ordinary editable
+UDMF fields, not runtime overrides.
+
+The lava curtain, both rock cheeks and the outlet lip have closed upper, lower
+and rear surfaces. Their backs are buried in the supporting cliff. Every mesh
+edge has two adjacent triangles, so looking down no longer reveals an open shell.
+
+## Light, fog and lifecycle
+
+Main cavern fog is authored as `#363029`, UDMF density 44 (runtime 22). The
+entrance pockets use light 160 with that same fog. Distant rooms use `#1b1814`,
+UDMF density 24 (runtime 12), light 96, floor light 80 and ceiling light 64.
+Seven platform control ceilings carry a relative +36 light offset. These are
+starting values: later manual edits remain authoritative. Runtime does not
+reset sector light/fog or texture choices. A cache refresh preserves the actual
+sector values after map setup.
+
+Scenery and light actors are ordinary serialized map actors. Only transient
+smoke, dust, haze and local parallax controllers are rebuilt after loading.
+Procedural particles, animated shaders and per-player parallax require the
+running engine; UDB can edit their sources but cannot fully preview them.
+
+## Verification of the authoring migration
+
+The isolated production candidate passed 49 lifecycle assertions each on
+OpenGL and Vulkan, 15 checks of deliberately edited map values through startup,
+save/load and hub return, 14 cooperative parallax assertions, and six structural
+regressions. An additional 14-point source comparison verified preservation of
+original vertices, Things and non-geometry lumps, editor registrations, closed
+meshes and unchanged manual source bytes after both build modes.
+
+A direct ZIP of the production tree also passed the OpenGL lifecycle checks.
+It has one existing texture-loader warning for `textures/definitions`; the
+normal builder expands these modules and avoids that warning. Packaging still
+adds precache lists/build metadata, so playable direct-ZIP content does not mean
+byte-for-byte archive equivalence. See [production rules](PRODUCTION_SOURCES.md).
+The source WAD checksum changes; begin a fresh TNT03A2 visit when updating from
+the previous package. Saves made with the new map pass the lifecycle checks.
+
+Local evidence is under `.codex/validation/cavern-tnt03a2/authoring-*.json` and
+`.codex/logs/cavern-tnt03a2/authoring-*`. The saved source before migration is in
+`.codex/backups/cavern-authoring-before.zip`. No runtime resource depends on it.
+
+Final common package `fd7438eaf0ef` passed 49 Vulkan lifecycle checks and the
+15 deliberate manual-edit checks. A fresh, direct ZIP of the current production
+sources passed 49 OpenGL checks. Package/source comparison confirms identical
+cavern map/model/runtime bytes (TEXTURES is assembled from the matching module).
+The installed UDB parser recognizes all 102 scenery classes without syntax
+errors; this is a parser check, not an interactive visual-mode acceptance.
+The layout checker reports only the 15 pre-existing editor sidecars/backups.
+
+## Earlier implementation notes
+
+The sections below record the earlier generator/runtime implementation and its
+visual refinements. The authoritative source and lifecycle rules above supersede
+references below to package-only geometry, regenerated scenery and runtime
+lighting overrides.
 
 ## Lava haze, smoke and suspended dust
 
