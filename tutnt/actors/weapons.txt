@@ -547,13 +547,17 @@ ACTOR UTNTRocketLauncher : UTNTRocketLauncherBase replaces RocketLauncher
 		Goto Ready
     AltFire:
         MISG A 4
-        PKRL B 2 A_GunFlash
+        PKRL B 2
+        PKRL D 0 A_GunFlash("AltFlash")
         PKRL D 0 A_UTNTGrenade
         PKRL DD 1 A_SetPitch(pitch-0.3, SPF_INTERPOLATE)
         PKRL CCBBEE 1 A_SetPitch(pitch+0.1, SPF_INTERPOLATE)
         MISG A 7
         TNT1 A 0 A_ReFire
         Goto Ready
+    AltFlash:
+        UGRF ABCD 3
+        Goto LightDone
 	Flash:
 		PKRF A 3 Bright A_Light1
 		PKRF B 2 Bright

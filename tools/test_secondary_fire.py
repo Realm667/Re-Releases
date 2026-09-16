@@ -13,7 +13,7 @@ p.add_argument('--compile-only',action='store_true')
 p.add_argument('--renderer',choices=('0','1'),default='1',help='0: OpenGL, 1: Vulkan')
 p.add_argument('--language',choices=('en','de','es','fr'),default='de')
 p.add_argument('--class',dest='playerclass',default='Marine')
-p.add_argument('--mode',default='logic',choices=['logic','rate','chain','visual','grenade','extended','pressure','burst','refined','hud','flashes'])
+p.add_argument('--mode',default='logic',choices=['logic','rate','chain','visual','grenade','extended','pressure','burst','refined','hud','flashes','followup'])
 a=p.parse_args()
 local=ROOT/'tutnt/.codex'
 logs=local/'logs/secondary-fire';logs.mkdir(parents=True,exist_ok=True)
@@ -33,15 +33,15 @@ with zipfile.ZipFile(addon,'w',zipfile.ZIP_DEFLATED) as z:
   with zipfile.ZipFile(a.mod) as base:
    if "zscript/utnt_secondaryfire.zc" not in {n.lower() for n in base.namelist()}:
     entry+='#include "zscript/UTNT_SecondaryFire.zc"\n'
-  for f in ['zscript/UTNT_SecondaryFire.zc','actors/weapons.txt','VOXELDEF.txt','voxels/UVUGRNA.kvx','sprites/UGRNA0.lmp','zscript/UTNT_Presentation.zc','zscript/UTNT_BurnDeath.zc','shaders/pressure-wave.fp','zscript/UTNT_PickupFeedback.zc','zscript/UTNT_EffectGlow.zc','LANGUAGE.txt','TEXTURES.txt','sounds/UGRBOUNC.ogg']:z.write(ROOT/'tutnt'/f,f)
+  for f in ['zscript/UTNT_SecondaryFire.zc','actors/weapons.txt','actors/SFX.txt','graphics/weapons/grenade-muzzle-smoke.png','VOXELDEF.txt','voxels/UVUGRNA.kvx','sprites/UGRNA0.lmp','zscript/UTNT_Presentation.zc','zscript/UTNT_BurnDeath.zc','shaders/pressure-wave.fp','zscript/UTNT_PickupFeedback.zc','zscript/UTNT_EffectGlow.zc','LANGUAGE.txt','TEXTURES.txt','sounds/UGRBOUNC.ogg']:z.write(ROOT/'tutnt'/f,f)
   z.writestr('GLDEFS',(ROOT/'tutnt/gldefs/GLDEFS.secondary-fire').read_bytes())
   z.writestr('SNDINFO','weapons/grenadebounce UGRBOUNC\n')
  entry+='#include "secondary-tests.zc"\n'
- if a.mode in ('refined','hud','flashes'):entry+='#include "refinements.zc"\n';z.write(ROOT/'tools/fixtures/secondary-fire/refinements.zc','refinements.zc')
+ if a.mode in ('refined','hud','flashes','followup'):entry+='#include "refinements.zc"\n';z.write(ROOT/'tools/fixtures/secondary-fire/refinements.zc','refinements.zc')
  if a.mode in ('extended','pressure','burst'):entry+='#include "extended-tests.zc"\n';z.write(ROOT/'tools/fixtures/secondary-fire/extended.zc','extended-tests.zc')
  z.writestr('ZSCRIPT',entry)
  z.write(ROOT/'tools/fixtures/secondary-fire/tests.zc','secondary-tests.zc')
- z.writestr('MAPINFO','gameinfo { AddEventHandlers = "'+('SecondaryRefinementTest' if a.mode in ('refined','hud','flashes') else 'ExtendedSecondaryTest' if a.mode in ('extended','pressure','burst') else 'SecondaryTestHandler')+'" }\nmap SECTEST "Secondary fire proving ground" { next="SECTEST2" NoIntermission }\nmap SECTEST2 "Secondary travel" { next="SECTEST" NoIntermission }\n')
+ z.writestr('MAPINFO','gameinfo { AddEventHandlers = "'+('SecondaryRefinementTest' if a.mode in ('refined','hud','flashes','followup') else 'ExtendedSecondaryTest' if a.mode in ('extended','pressure','burst') else 'SecondaryTestHandler')+'" }\nmap SECTEST "Secondary fire proving ground" { next="SECTEST2" NoIntermission }\nmap SECTEST2 "Secondary travel" { next="SECTEST" NoIntermission }\n')
  for name in ['SECTEST','SECTEST2']:z.writestr('maps/'+name+'.wad',write_wad(b'PWAD',[(name.encode(),b''),(b'TEXTMAP',text.encode()),(b'ENDMAP',b'')]))
 commands=['wait 45','netevent secdefaults','give UTNTSuperShotgun','give UTNTPistol','give UTNTRocketLauncher','give UTNTPlasmaRifle','give UTNTBFG9000','give ammo','wait 10','use UTNTSuperShotgun','wait 60']
 if a.mode=='logic':
@@ -56,6 +56,12 @@ elif a.mode=='chain':
  commands+=['use UTNTBFG9000','wait 60','netevent secsetup 3','+altattack','wait 1','-altattack','wait 48','save secondary-chain','wait 4','load secondary-chain','wait 270','netevent secverify 6','netevent secsetup 5','+altattack','wait 1','-altattack','wait 160','netevent secverify 7','netevent secsetup 6','+altattack','wait 1','-altattack','wait 160','netevent secverify 8']
 elif a.mode=='refined':
  commands+=['netevent refshot 0','+altattack','wait 1','-altattack','wait 5','screenshot logs/ssg-left.png','wait 20','netevent refshotcheck 1','netevent refshot 1','+altattack','wait 1','-altattack','wait 5','screenshot logs/ssg-right.png','wait 100','netevent refshotcheck 2','netevent refshot 0','+attack','wait 1','-attack','wait 100','netevent refshotcheck 3','netevent refgrenade','wait 12','netevent refbounce','netevent refpyro','wait 7','netevent refpyrocheck','give UTNTFlamer','use UTNTFlamer','wait 90','netevent refpressure','+altattack','wait 1','-altattack','wait 1','netevent refpressurecheck','wait 45','netevent refprofiles','use UTNTPlasmaRifle','give ammo','wait 60','netevent secprimary','+attack','wait 420','-attack','wait 45','netevent refdps 0','netevent secratebegin 2 0','+altattack','wait 420','-altattack','wait 45','netevent secrateend 2 0','netevent refdps 1','netevent refpickup','wait 50','save secondary-hints','wait 3','load secondary-hints','wait 20','netevent refpickupagain','changelevel SECTEST2','wait 60','netevent refpickupagain']
+elif a.mode=='followup':
+ commands+=['UTNT_fxquality 3','use UTNTRocketLauncher','wait 60','netevent followflash','+altattack','wait 1','-altattack','wait 7','netevent followflashcheck','wait 4','screenshot logs/grenade-muzzle-smoke.png','wait 50','netevent followbounce 0','wait 12','netevent followbouncecheck','netevent followbounce 1','wait 8','netevent followbouncecheck','netevent followsmoke 0','wait 10','netevent followsmokecheck','screenshot logs/pyro-impact-smoke.png','wait 100','netevent followsmoke 1','wait 10','netevent followsmokecheck','wait 100']
+ for scenario in range(6):
+  commands += [f'netevent followroute {scenario}','wait 10']
+  if scenario==0:commands+=['save secondary-route','wait 2','load secondary-route','wait 3']
+  commands+=['wait 65',f'netevent followroutecheck {scenario}']
 elif a.mode=='flashes':
  commands+=['wait 90','netevent refflashgallery 1','wait 10','screenshot logs/ssg-left-gallery.png','wait 35','netevent refflashgallery 2','wait 10','screenshot logs/ssg-right-gallery.png']
 elif a.mode=='hud':
@@ -81,7 +87,7 @@ elif a.mode=='visual':
 commands+=['wait 3','echo UTNT_REGRESSION_COMPLETE','echo UTNT_TEST_END','quit']
 label=a.playerclass.lower()+'-'+a.mode+('-compile' if a.compile_only else '')
 result=run_case(a.engine,a.iwad,renderer=a.renderer,root=logs,mod=a.mod,addon=addon,mapname=None if a.compile_only else 'SECTEST',playerclass=a.playerclass,label=label,commands='; '.join(commands)+'\n',timeout=170,regression=not a.compile_only,settings=[('use_mouse',False),('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_maxfps',200),('screenblocks',11),('motionblur',False),('con_notifytime',0),('language',a.language)])
-if not a.compile_only and result['assertions']<{'logic':24,'rate':13,'chain':11,'visual':6,'grenade':15,'extended':32,'pressure':13,'burst':7,'refined':34,'hud':10,'flashes':6}[a.mode]:result['ok']=False
+if not a.compile_only and result['assertions']<{'logic':24,'rate':13,'chain':11,'visual':6,'grenade':15,'extended':32,'pressure':13,'burst':7,'refined':34,'hud':10,'flashes':6,'followup':34}[a.mode]:result['ok']=False
 (reports/(label+'.json')).write_text(json.dumps(result,indent=2))
 if not result['ok']:print(Path(result['log']).read_text()[-9000:])
 sys.exit(0 if result['ok'] else 1)

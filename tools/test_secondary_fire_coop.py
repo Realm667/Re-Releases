@@ -14,11 +14,13 @@ text='namespace="ZDoom";\n'
 for x,y in [(-1536,-1536),(-1536,1536),(1536,1536),(1536,-1536)]:text+=f'vertex {{ x={x}.0; y={y}.0; }}\n'
 text+='sector { heightfloor=0; heightceiling=256; texturefloor="FLAT5_4"; textureceiling="CEIL1_1"; lightlevel=192; }\n'
 for i in range(4):text+=f'sidedef {{ sector=0; texturemiddle="METAL2"; }}\nlinedef {{ v1={i}; v2={(i+1)%4}; sidefront={i}; blocking=true; }}\n'
+for x,y in [(400,600),(600,600),(600,1000),(400,1000)]:text+=f'vertex {{ x={x}.0; y={y}.0; }}\n'
+for i in range(4):text+=f'sidedef {{ sector=0; texturemiddle="METAL2"; }}\nlinedef {{ v1={i+4}; v2={(i+1)%4+4}; sidefront={i+4}; blocking=true; }}\n'
 for i in range(2):text+=f'thing {{ x={i*100}.0; y=0.0; angle=0; type={i+1}; skill1=true; skill2=true; skill3=true; skill4=true; skill5=true; single=true; coop=true; }}\n'
 with zipfile.ZipFile(fixture,'w',zipfile.ZIP_DEFLATED) as z:
  z.writestr('ZSCRIPT','version "5.0.0"\n#include "tests.zc"\n#include "'+('extended-coop.zc' if a.extended else 'coop.zc')+'"\n')
  if a.overlay:
-  for f in ['zscript/UTNT_SecondaryFire.zc','actors/weapons.txt','zscript/UTNT_Presentation.zc','zscript/UTNT_BurnDeath.zc','shaders/pressure-wave.fp','zscript/UTNT_PickupFeedback.zc','zscript/UTNT_EffectGlow.zc','LANGUAGE.txt','TEXTURES.txt','sounds/UGRBOUNC.ogg']:z.write(ROOT/'tutnt'/f,f)
+  for f in ['zscript/UTNT_SecondaryFire.zc','actors/weapons.txt','actors/SFX.txt','graphics/weapons/grenade-muzzle-smoke.png','zscript/UTNT_Presentation.zc','zscript/UTNT_BurnDeath.zc','shaders/pressure-wave.fp','zscript/UTNT_PickupFeedback.zc','zscript/UTNT_EffectGlow.zc','LANGUAGE.txt','TEXTURES.txt','sounds/UGRBOUNC.ogg']:z.write(ROOT/'tutnt'/f,f)
   z.writestr('GLDEFS',(ROOT/'tutnt/gldefs/GLDEFS.secondary-fire').read_bytes())
   z.writestr('SNDINFO','weapons/grenadebounce UGRBOUNC\n')
  for f in ['tests.zc','coop.zc','extended-coop.zc']:z.write(ROOT/'tools/fixtures/secondary-fire'/f,f)

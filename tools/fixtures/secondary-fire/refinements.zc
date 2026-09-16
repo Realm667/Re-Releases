@@ -3,6 +3,8 @@ class SecondaryRefinementTest : SecondaryTestHandler
     int Stage,Puffs,Fragments,FlashKind,PrimaryCount;
     double BounceSpeed;
     Actor FarTarget;
+    Vector3 LaunchSpin;
+    bool CrossedWall,SmokeFlash,FireFlash;
     override void WorldThingSpawned(WorldEvent e)
     {
         Super.WorldThingSpawned(e);
@@ -23,12 +25,85 @@ class SecondaryRefinementTest : SecondaryTestHandler
                 if(p.InStateSequence(flash.CurState,w.FindState('Flash')))FlashKind=3;
             }
         }
+        if(Stage==5 && Tracked && Tracked.bMissile && Tracked.Pos.X>400 && Tracked.Pos.X<600 && Tracked.Pos.Y>600 && Tracked.Pos.Y<1000)CrossedWall=true;
+        if(Stage==6)
+        {
+            let flash=p.player.FindPSprite(PSprite.FLASH);
+            if(flash){SmokeFlash|=flash.Sprite==Actor.GetSpriteIndex('UGRF');FireFlash|=flash.Sprite==Actor.GetSpriteIndex('PKRF');}
+        }
         if(Stage==2 && Tracked && Tracked.Vel.Z>0)BounceSpeed=max(BounceSpeed,Tracked.Vel.Z);
     }
     override void NetworkProcess(ConsoleEvent e)
     {
         Super.NetworkProcess(e);
         let p=players[e.Player].mo;let w=p.player.ReadyWeapon;
+        if(e.Name=="followflash")
+        {
+            Clear();Stage=6;SmokeFlash=FireFlash=false;
+            p.SetOrigin((0,0,0),false);p.Angle=p.Pitch=0;p.Vel=(0,0,0);p.bInvulnerable=true;
+        }
+        if(e.Name=="followflashcheck")
+        {
+            Check(SmokeFlash && !FireFlash,"grenade input uses smoke flash without fire sprites");
+            Check(p.player.extralight==0,"smoke muzzle creates no fire lighting");
+        }
+        if(e.Name=="followbounce")
+        {
+            Clear();Stage=0;
+            let g=UTNTGrenade(Actor.Spawn('UTNTGrenade',e.Args[0]==0?(500,0,30):(1490,0,100)));
+            g.target=p;g.Vel=e.Args[0]==0?(0,0,-10):(17,0,0);Tracked=g;
+            LaunchSpin=(g.SpinYaw,g.SpinPitch,g.SpinRoll);
+        }
+        if(e.Name=="followbouncecheck")
+        {
+            let g=UTNTGrenade(Tracked);
+            Check(g && g.bMissile && (LaunchSpin-(g.SpinYaw,g.SpinPitch,g.SpinRoll)).Length()>0.1,"floor and wall impacts change angular momentum");
+            Check(g && g.SpinYaw*LaunchSpin.X<0 && g.SpinRoll*LaunchSpin.Z<0,"contact reverses tumbling axes without changing fuse");
+        }
+        if(e.Name=="followsmoke")
+        {
+            Clear();Stage=3;Fragments=0;
+            p.SetOrigin((1300,0,0),false);p.Angle=p.Pitch=0;p.Vel=(0,0,0);p.bInvulnerable=true;
+            let orb=Actor.Spawn('UTNTPyroOrb',(1490,0,e.Args[0]==0?64:0));orb.target=p;orb.Vel=(8,0,0);Tracked=orb;
+        }
+        if(e.Name=="followsmokecheck")
+        {
+            bool mid,wave,scatter;
+            for(int client=0;client<2;client++)
+            {
+                let it=ThinkerIterator.Create('Actor',Thinker.MAX_STATNUM+1,client==1);Actor fx;
+                while(fx=Actor(it.Next()))
+                {
+                    if(fx is 'PBMidSmoke')mid=true;
+                    if(fx is 'PBShockwaveSmoke')wave=true;
+                    if(fx is 'PBDebris' || fx is 'PBExploBack' || fx is 'PBExploMiniBack')scatter=true;
+                }
+            }
+            Check(Tracked && !Tracked.bMissile,"secondary Pyro still detonates on geometry");
+            Check(mid && wave,"air and ground impacts retain original core and shockwave smoke");
+            Check(!scatter && Fragments==0,"restored smoke contains no scatter fireballs or debris");
+        }
+        if(e.Name=="followroute")
+        {
+            Clear();Stage=5;CrossedWall=false;
+            p.SetOrigin((0,0,0),false);p.Angle=p.Pitch=0;p.Vel=(0,0,0);
+            int scenario=e.Args[0];
+            if(scenario==0 || scenario==5)FarTarget=Dummy((670,680,0));
+            if(scenario==5)Dummy((380,680,0));
+            if(scenario==1)FarTarget=Dummy((800,800,0));
+            if(scenario==2)FarTarget=Dummy((500,800,0));
+            if(scenario==4){FarTarget=Dummy((670,680,0));FarTarget.bFriendly=true;}
+            let chain=UTNTBFGChain(Actor.Spawn('UTNTBFGChain',(350,scenario==0||scenario==4||scenario==5?680:800,28)));
+            chain.target=p;chain.Angle=0;chain.Vel=(chain.Speed,0,0);Tracked=chain;
+        }
+        if(e.Name=="followroutecheck")
+        {
+            if(e.Args[0]==0 || e.Args[0]==5)Check(FarTarget.Health==9740,"BFG routes around pillar and hits once after save/load");
+            else Check(!Tracked || !Tracked.bMissile,"BFG ends at obstacle without an eligible reachable target within 384 units");
+            if(e.Args[0]==5)Check(Targets[1].Health==9740,"BFG continues from a hit to a hidden nearby enemy");
+            Check(!CrossedWall,"BFG route never crosses the solid pillar");
+            if(e.Args[0]==1 || e.Args[0]==2 || e.Args[0]==4)Check(FarTarget.Health==10000,"distant sealed or friendly targets remain unharmed");
+        }
         if(e.Name=="refflashgallery")
         {
             Stage=0;

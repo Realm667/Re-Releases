@@ -1,7 +1,10 @@
 // Run by two actual engine peers; both validate the same synchronized shot.
 class SecondaryCoopTest : SecondaryTestHandler
 {
-    bool Prepared,Complete;
+    bool Prepared,Complete,RouteStarted;
+    int BaseChecksum;
+    UTNTGrenade Grenade;
+    double LaunchYaw;
     override void WorldTick()
     {
         if(Complete)return;
@@ -20,14 +23,26 @@ class SecondaryCoopTest : SecondaryTestHandler
             }
             for(int i=0;i<15;i++)Dummy((250+(i%5)*150,(i/5)*160,0));
         }
-        if(Prepared && level.time>=440)
+        if(Prepared && !RouteStarted && level.time>=440)
         {
-            Complete=true;int hits=0,checksum=0;
+            RouteStarted=true;int hits=0,checksum=0;
             for(int i=0;i<Targets.Size();i++){if(Targets[i].Health<10000)hits++;checksum+=(i+1)*Targets[i].Health;}
             Check(hits==12 && TotalDamage==3120,"cooperative chain hits twelve enemies with identical damage");
             Check(players[0].mo.CountInv('Cell')==40 && players[1].mo.CountInv('Cell')==80,"cooperative ammo belongs only to firing player");
             Check(players[0].mo.Health==100 && players[1].mo.Health==100,"chain passes through cooperative player without damage");
-            Console.Printf("SECONDARY_COOP_CHECKSUM %d",checksum);
+            BaseChecksum=checksum;Clear();
+            Dummy((670,680,0));
+            let chain=UTNTBFGChain(Actor.Spawn('UTNTBFGChain',(350,680,28)));
+            chain.target=players[0].mo;chain.Vel=(chain.Speed,0,0);
+            Grenade=UTNTGrenade(Actor.Spawn('UTNTGrenade',(-700,0,30)));
+            Grenade.target=players[0].mo;Grenade.Vel=(0,0,-10);LaunchYaw=Grenade.SpinYaw;
+        }
+        if(RouteStarted && level.time>=490)
+        {
+            Complete=true;
+            Check(Targets[0].Health==9740,"both peers route the chain around the solid pillar");
+            Check(Grenade && abs(Grenade.SpinYaw-LaunchYaw)>.01,"both peers apply grenade impact spin");
+            Console.Printf("SECONDARY_COOP_CHECKSUM %d %d %d %d %d",BaseChecksum,Targets[0].Health,int(Grenade.SpinYaw*10000),int(Grenade.SpinPitch*10000),int(Grenade.SpinRoll*10000));
             Console.Printf("SECONDARY_COOP_COMPLETE");
         }
     }
