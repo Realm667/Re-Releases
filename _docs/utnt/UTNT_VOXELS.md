@@ -7,6 +7,26 @@ animation frames. The mapping changes world rendering only: actor classes,
 collision, pickup amounts, weapon behavior, map placements and existing fire/light
 systems remain in place. Weapon HUD sprites are not voxelized.
 
+## Voxel option
+
+UTNT Options → Performance and presets → Voxel models defaults to On.
+The archived, local `UTNT_voxels` preference switches existing and newly spawned
+voxel items to their original sprites when Off, and restores their voxel
+presentation when On. This includes the explicitly bound barrel/heart KVXs and
+the secondary-fire grenade. Changes apply on the next game tick after leaving
+the menu. Terrain, light-ray models, gameplay and weapon HUD sprites are unchanged.
+
+A presentation behavior supplies the current state's sprite texture while Off;
+restoring the original texture override lets the engine resolve the native KVX
+or brightmapped model again. No protected engine rendering CVAR is changed.
+The behavior follows animation frames, is saved with the actor, and reevaluates
+the current preference after loading. Existing explicit sprite overrides are
+preserved. The normal engine renderer/model capabilities still apply.
+
+`tools/test_voxel_options.py` checks VOXELDEF coverage, default On, repeated
+switching, newly spawned barrels, loading an Off save with the preference On,
+unchanged actor defaults and animated explosion sprites (53 runtime assertions).
+
 ## Sources and palette
 
 The imported models are by **Cheello**, Daniel Peterson, from Voxel Doom 2.4

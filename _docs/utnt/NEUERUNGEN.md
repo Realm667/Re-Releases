@@ -4,7 +4,7 @@
 
 ## Interface, accessibility and presentation
 
-- **Cinematic title intro:** music-timed illustration dissolves and slow camera travel behind a glowing fortress border, subtle embers, a staged logo and sequential, evenly spaced localized project, author and engine credits near the bottom, a zoom-only finale with its beam aligned to the logo ampersand, ultrawide coverage and clean menu transitions; reduced effects preserve a still composition. [Details](UTNT_TITLEMAP.md)
+- **Cinematic title intro:** music-timed illustration dissolves and slow camera travel behind a glowing fortress border, subtle embers, a staged logo and sequential, evenly spaced localized project, author and engine credits near the bottom, a zoom-only finale with its beam aligned to the logo ampersand, ultrawide coverage, a localized “Forged in Fire” map title and clean menu transitions; reduced effects preserve a still composition. [Details](UTNT_TITLEMAP.md)
 
 - **Sharper interface fonts:** Classic BIGFONT and Retro SMALLFONT at double resolution, with consistent letter proportions and matching localized glyphs while preserving original colors, text sizes and layouts. [Details](UTNT_HIRES_FONTS.md)
 - **Basalt fortress borders:** the selected stone-and-bronze frame with amber runes replaces both border variants, preserving their transparent opening and brighter alternate presentation. [Details](UTNT_BORDER_ARTWORK.md)
@@ -74,6 +74,8 @@
 - **Footprints:** fading snow and wet sole marks, including moving-floor support. [Details](ENVIRONMENT_EFFECTS.md)
 - **Moving mechanisms:** dust along rubbing edges, improved smoke clearance/fading, and distance-attenuated camera shake scaled to connected moving surfaces. [Details](ENVIRONMENT_CONTACT_DUST.md)
 - **Heat shimmer:** repaired original heat effects plus localized lava distortion, amber haze and glow across nine maps, including visible lava walls and 3D floors. [Heat](UTNT_HEAT_FIX.md), [Environment](ENVIRONMENT_EFFECTS.md)
+
+- **Voxel display option:** default-on voxel models can be switched to original sprites during play, including brightmapped barrels and hearts, with saved local preferences. [Details](UTNT_VOXELS.md)
 
 - **Pickup and switch feedback:** smoothly pulsing green/blue armor and key lighting for sprites and voxels, bonus lights without self-illumination, and native switch feedback preserved on wet surfaces. [Details](UTNT_TESTER_FEEDBACK.md)
 

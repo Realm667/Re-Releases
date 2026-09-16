@@ -1,0 +1,36 @@
+version "5.0.0"
+class UTNTVoxelOptionTests : EventHandler
+{
+ Array<Actor> Items;
+ Actor Cam;
+ void Check(bool ok,String label) { Console.Printf("UTNT_ASSERT %s %s",ok?"PASS":"FAIL",label); }
+ override void WorldLoaded(WorldEvent e)
+ {
+  if(e.IsSaveGame)return;
+  class<Actor> types[]={'ExplosiveBarrel','PortalCoreHeart','Medikit','BlueCard'};
+  for(int i=0;i<4;i++)Items.Push(Actor.Spawn(types[i],((i-1.5)*90,0,0),NO_REPLACE));
+  Cam=Actor.Spawn('MapSpot',(0,-270,72));Cam.Angle=90;Cam.Pitch=10;
+ }
+ override void WorldTick() { if(Cam)players[0].camera=Cam; }
+ override void ConsoleProcess(ConsoleEvent e)
+ { if(e.Name=="voptionmenu")Menu.SetMenu('UTNTDisplayOptions'); }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name=="voptioncheck")
+  {
+   bool enabled=e.Args[0]!=0;
+   Check(CVar.GetCVar('UTNT_voxels',players[consoleplayer]).GetBool()==enabled,"saved option value");
+
+   for(int i=0;i<Items.Size();i++)
+   {
+    let a=Items[i];let d=GetDefaultByType(a.GetClass());
+    Check(a.Radius==d.Radius && a.Height==d.Height && a.bSpecial==d.bSpecial && a.bSolid==d.bSolid,"gameplay defaults preserved");
+    Check(a.picnum.IsValid()!=enabled,"voxel actor uses correct representation");
+   }
+  }
+  if(e.Name=="voptionspawn")Items.Push(Actor.Spawn('ExplosiveBarrel',(210,0,0),NO_REPLACE));
+  if(e.Name=="voptionnew")Check(Items[4].picnum.IsValid(),"new barrel starts in sprite mode");
+  if(e.Name=="voptionexplode")Items[0].DamageMobj(null,null,1000,'None');
+  if(e.Name=="voptionframe")Check(Items[0].picnum==Items[0].CurState.GetSpriteTexture(0,spritenum:Items[0].sprite,framenum:Items[0].frame),"sprite fallback follows explosion frame");
+ }
+}

@@ -1,0 +1,58 @@
+// Local presentation only: preserve all actor classes, states and inventory.
+class UTNTVoxelSpriteFallback : Behavior
+{
+    TextureID Original, LastSprite;
+    bool Applied;
+    override void Tick()
+    {
+        bool enabled=CVar.GetCVar('UTNT_voxels',players[consoleplayer]).GetBool();
+        if(enabled)
+        {
+            if(Applied && Owner.picnum==LastSprite)Owner.picnum=Original;
+            Applied=false;
+            return;
+        }
+        if(!Applied)
+        {
+            // An existing explicit sprite override already suppresses models.
+            if(Owner.picnum.IsValid())return;
+            Original=Owner.picnum;
+            Applied=true;
+        }
+        if(Owner.CurState)
+        {
+            LastSprite=Owner.CurState.GetSpriteTexture(0,spritenum:Owner.sprite,framenum:Owner.frame);
+            Owner.picnum=LastSprite;
+        }
+    }
+}
+
+class UTNTVoxelOptions : StaticEventHandler
+{
+    Array<bool> VoxelSprites;
+    void CacheSprites()
+    {
+        if(VoxelSprites.Size())return;
+        // Keep synchronized with VOXELDEF; checked by test_voxel_options.py.
+        name names[]={'AGAS','AMMO','ARM1','ARM2','BAR1','BEXP','BFUG','BKEY','BON1','BON2','BPAK','BROK','BSKU','CAND','CBRA','CELL','CELP','CLIP','CSAW','FCAN','FSKU','LAUN','MEDI','MGUN','MNGN','PHRT','PIST','PLAS','PMAP','PSTR','PVIS','RKEY','ROCK','RSKU','SBOX','SGN2','SHEL','SHOT','STIM','SUIT','T6CB','UGRN','WFLM','WPRY','YKEY','YSKU'};
+        for(int i=0;i<names.Size();i++)
+        {
+            int index=Actor.GetSpriteIndex(names[i]);
+            if(index<0)continue;
+            if(index>=VoxelSprites.Size())VoxelSprites.Resize(index+1);
+            VoxelSprites[index]=true;
+        }
+    }
+    void Track(Actor a)
+    {
+        CacheSprites();
+        if(a && a.sprite>=0 && a.sprite<VoxelSprites.Size() && VoxelSprites[a.sprite]
+            && !a.FindBehavior('UTNTVoxelSpriteFallback'))a.AddBehavior('UTNTVoxelSpriteFallback');
+    }
+    override void WorldThingSpawned(WorldEvent e) { Track(e.Thing); }
+    override void WorldLoaded(WorldEvent e)
+    {
+        let items=ThinkerIterator.Create('Actor');Actor a;
+        while(a=Actor(items.Next()))Track(a);
+    }
+}

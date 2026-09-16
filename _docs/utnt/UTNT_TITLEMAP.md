@@ -1,6 +1,8 @@
 # Cinematic TITLEMAP intro
 
-Updated: 13 September 2026.
+Updated: 16 September 2026.
+
+TITLEMAP now has the localized map title **Forged in Fire** (German: **Im Feuer geschmiedet**), with Spanish and French equivalents. Only map-name metadata changes.
 
 The four original illustrations play behind the original fortress border in a
 22.6-second intro. Slow camera travel and overlapping dissolves lead into a
