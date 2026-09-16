@@ -43,7 +43,7 @@
 
 ## Effects and environment
 
-- **TNT03A2 lava cavern:** clearer distance haze, brighter platform tops, organic wall and ceiling rock formations, a framed lava fall, luminous lava haze, drifting smoke, suspended dust and occasional ceiling grit with spatial sound; original collision and gameplay preserved. [Details](UTNT_CAVERN.md)
+- **TNT03A2 lava cavern:** clearer distance haze, brighter platform tops, organic wall and ceiling formations, irregular cliff edges, corner ribs and shoreline rocks, fissures revealing distant cavern skyboxes, a framed lava fall, luminous lava haze, drifting smoke, suspended dust and occasional ceiling grit with spatial sound; original routes and encounters preserved. [Details](UTNT_CAVERN.md)
 
 - **Voxel pickups and decorations:** selected Cheello models, including all three keycards, the shell box, explosive barrel and its explosion frames, and original-lowres UTNT objects use the active PLAYPAL at native pixel scale, with correctly scaled previews, individual wall-aware map facing, requested stationary or rotating presentation, preserved actor behavior, working card/skull inventory and locks, and a localized Cheello credit in the ending. Sam & Max props retain their sprites. [Details](UTNT_VOXELS.md)
 

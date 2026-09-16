@@ -163,6 +163,8 @@ def publish_snapshot(source, original, output, hashes, metadata, engine=None, iw
     payload = {p.relative_to(source/'tutnt').as_posix():p.read_bytes() for p in files}
     from build_definition_tables import package_textures
     payload = package_textures(payload)
+    from cavern_skyrooms import package_skyrooms
+    payload = package_skyrooms(payload)
     from package_runtime_assets import prepare_precache
     payload = prepare_precache(payload)
     if any(name in payload for name in ('UTNTBLD','LANGUAGE.zzbuild')):

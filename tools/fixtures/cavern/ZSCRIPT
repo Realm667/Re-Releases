@@ -21,6 +21,14 @@ class UTNTCavernTest : EventHandler
             if(e.Args[0]==6){Camera.SetOrigin((4800,-4200,-1230),false);Camera.Angle=300;Camera.Pitch=-8;}
             if(e.Args[0]==7){Camera.SetOrigin((4800,-4300,-1050),false);Camera.Angle=70;Camera.Pitch=20;}
             if(e.Args[0]==8){Camera.SetOrigin((4700,-3600,-180),false);Camera.Angle=280;Camera.Pitch=-48;}
+            if(e.Args[0]==9){Camera.SetOrigin((4400,-3850,-520),false);Camera.Angle=130;Camera.Pitch=-18;}
+            if(e.Args[0]==10){Camera.SetOrigin((4400,-3850,-1260),false);Camera.Angle=130;Camera.Pitch=27;}
+            if(e.Args[0]==11){Camera.SetOrigin((5010,-3890,-280),false);Camera.Angle=72;Camera.Pitch=-10;}
+            if(e.Args[0]==12){Camera.SetOrigin((7220,-3860,-100),false);Camera.Angle=15;Camera.Pitch=-8;}
+            if(e.Args[0]==13){Camera.SetOrigin((6430,-6100,-400),false);Camera.Angle=270;Camera.Pitch=0;}
+            if(e.Args[0]==14){Camera.SetOrigin((-12200,-23000,-200),false);Camera.Angle=0;Camera.Pitch=5;}
+            if(e.Args[0]==15){Camera.SetOrigin((-200,-23000,-200),false);Camera.Angle=0;Camera.Pitch=5;}
+            if(e.Args[0]==16){Camera.SetOrigin((-12200,-12000,-200),false);Camera.Angle=0;Camera.Pitch=5;}
             players[consoleplayer].camera=Camera;
         }
         if(e.Name=="cavefall")
@@ -40,6 +48,20 @@ class UTNTCavernTest : EventHandler
             return;
         }
         if(e.Name!="cavecheck" && e.Name!="cavequiet")return;
+        if(e.Name=="cavecheck")
+        {
+            int skies=0,portals=0;
+            let skyit=ThinkerIterator.Create('SkyCamCompat');Actor sky;
+            while(sky=Actor(skyit.Next()))if(sky.TID>=65200 && sky.TID<=65202){skies++;Console.Printf("CAVERN_SKY %d pos %.1f %.1f %.1f sector %d",sky.TID,sky.Pos.X,sky.Pos.Y,sky.Pos.Z,sky.CurSector.Index());}
+            for(int i=0;i<level.lines.Size();i++)if(level.lines[i].portaltransferred>0 && level.lines[i].portaltransferred<0x7fffffff)portals++;
+            bool weatherFree=true;
+            let weatherit=ThinkerIterator.Create('UTNTWeatherController',Thinker.MAX_STATNUM+1,true);
+            UTNTWeatherController weather;
+            while(weather=UTNTWeatherController(weatherit.Next()))for(int k=0;k<weather.SkyCameras.Size();k++)
+                if(weather.SkyCameras[k].TID>=65200 && weather.SkyCameras[k].TID<=65202)weatherFree=false;
+            bool blocked=(level.lines[4783].flags&Line.ML_BLOCKING) && (level.lines[4729].flags&Line.ML_BLOCKING) && (level.lines[4969].flags&Line.ML_BLOCKING);
+            Console.Printf("UTNT_ASSERT %s three native skybox cameras and wall portals (%d/%d)",skies==3 && portals==3 && blocked && weatherFree?"PASS":"FAIL",skies,portals);
+        }
         int models=0,lights=0,clouds=0;bool cosmetic=true;
         let it=ThinkerIterator.Create('UTNTCavernScenery',Thinker.MAX_STATNUM+1,true);Actor a;
         while(a=Actor(it.Next())){models++;cosmetic=cosmetic && !a.bSolid && a.bNoInteraction && a.bNoBlockmap;}
@@ -72,7 +94,7 @@ class UTNTCavernTest : EventHandler
         Console.Printf("UTNT_ASSERT %s shoreline haze reaches 320 units (%d)",haze==119 && height?"PASS":"FAIL",haze);
         Console.Printf("UTNT_ASSERT %s smoke budget and lava height (%d)",mist<=32 && bounded?"PASS":"FAIL",mist);
         let h=UTNTCavern(EventHandler.Find('UTNTCavern'));let s=level.Sectors[895];
-        Console.Printf("UTNT_ASSERT %s 36 decorative models and three lights (%d/%d)",models==36 && lights==3?"PASS":"FAIL",models,lights);
+        Console.Printf("UTNT_ASSERT %s 94 decorative models and three lights (%d/%d)",models==94 && lights==3?"PASS":"FAIL",models,lights);
         Console.Printf("UTNT_ASSERT %s decoration has no collision",cosmetic?"PASS":"FAIL");
         Console.Printf("UTNT_ASSERT %s bounded local cloud count %d",clouds<=42?"PASS":"FAIL",clouds);
         int rgb=int(s.ColorMap.FadeColor)&0xffffff;

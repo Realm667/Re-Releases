@@ -55,7 +55,8 @@ def generate(root=ROOT, check=False):
             haze.append(f'{x}|{y}|{floor+2:g}|{min(320,clearance-8):.3f}|{si}')
     outputs['tutnt/cavern/haze.txt']='\n'.join(haze)+'\n'
 
-    def add(name, verts, faces, origin, skin, kind):
+    def add(name, verts, faces, origin, skin, kind, sector_override=None):
+        assert f'tutnt/models/cavern/{name}.obj' not in outputs, ('Duplicate cavern mesh',name)
         # World-space input -> Y-up OBJ. 1.2 model Z compensates Doom's aspect.
         out=['# Cosmetic cavern mesh; no collision.','s off']
         out += ['v %.6f %.6f %.6f'%(x-origin[0],z-origin[2],-(y-origin[1])) for x,y,z in verts]
@@ -73,7 +74,7 @@ def generate(root=ROOT, check=False):
         state=' States { Spawn: SKED A -1 Bright; Stop; }' if kind==1 else ''
         classes.append(f'class {cls} : UTNTCavernScenery {{ Default {{ RenderRadius {radius}; }}{state} }}')
         models.append(f'Model {cls}\n{{\n Path "models/cavern/"\n Model 0 "{name}.obj"\n Skin 0 "{skin}"\n Scale 1 1 1.2\n DontCullBackfaces\n FrameIndex SKED A 0 0\n}}')
-        sector=next((i for i,ee in geo.items() if inside(origin[:2],ee)),None)
+        sector=sector_override if sector_override is not None else next((i for i,ee in geo.items() if inside(origin[:2],ee)),None)
         assert sector is not None, (name,origin)
         placements.append('|'.join(map(str,[cls,*origin,sector,kind])))
 
@@ -175,6 +176,14 @@ def generate(root=ROOT, check=False):
             rock_patch(f'wall_{li}',center,tangent,(0,0,1),normal,min(220,span*.43),(top+1500)*.31,72+(li%4)*12,li)
             wall_count+=1
 
+    from cavern_rock_details import generate_details
+    details,detail_checks=generate_details(b,geo,lava,add)
+    outputs['tutnt/cavern/detail-clearance.txt']='\n'.join('|'.join(map(str,row)) for row in detail_checks)+'\n'
+
+    from cavern_skyrooms import generate as generate_skyrooms
+    skyrooms=generate_skyrooms(b,geo,add,map_path.read_bytes())
+    outputs['tutnt/cavern/skyrooms.json']=json.dumps(skyrooms,indent=2)+'\n'
+
     fall_sources=[]
     for j,(x,y) in enumerate([(4840,-4030),(5170,-4460),(6840,-3920),(6960,-4500),
                               (4780,-5980),(5050,-6420),(6600,-5910),(6400,-6250)]):
@@ -194,7 +203,7 @@ def generate(root=ROOT, check=False):
             if not path.exists() or path.read_text()!=data: raise RuntimeError('Stale cavern output: '+rel)
         else:
             path.parent.mkdir(parents=True,exist_ok=True);path.write_text(data,encoding='utf-8')
-    print(json.dumps({'sectors':len(rows),'models':len(placements),'wall_models':wall_count,'haze':len(haze),'check':check}))
+    print(json.dumps({'sectors':len(rows),'models':len(placements),'wall_models':wall_count,'details':details,'haze':len(haze),'check':check}))
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');a=p.parse_args();generate(check=a.check)

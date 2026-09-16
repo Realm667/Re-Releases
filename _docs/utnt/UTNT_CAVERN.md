@@ -6,9 +6,10 @@ The lava cavern receives explicit distance fog, separate floor/ceiling lighting,
 four asymmetric hanging rock formations, a flowing lava curtain with rock cheeks
 and an outlet lip, three local lights, luminous lava haze, rising smoke and
 suspended dust, organic wall/roof masses and occasional falling grit with spatial
-stone sounds.
-This is a cosmetic layer: no source WAD, collision, platform route, sector tag,
-map action, enemy placement or ACS script is edited.
+stone sounds, plus three framed fissures revealing distant cavern skyboxes.
+The editable source WAD is preserved. The package builder opens three boundary
+walls into blocked scenic recesses and appends isolated skybox scenery; platform
+routes, original sector tags, enemies, map actions and ACS remain unchanged.
 
 ## Source and placement
 
@@ -44,7 +45,7 @@ accumulate offsets. Outdoor day/night and snowfall sectors are not selected.
 Fog density is installed before the fade update, which rebuilds UZDoom's cached
 3D-floor light lists. A single post-setup refresh handles attached floor lists.
 
-The client controller creates 36 noninteracting scenery actors and three
+The client controller creates 94 noninteracting scenery actors and three
 lights. It rebuilds local objects after loading, clearing old instances from
 both thinker pools. Smoke and dust use local deterministic phases, bounded
 lifetimes, distance checks and the shared effect-quality setting. No gameplay
@@ -108,11 +109,62 @@ attenuation. Save/load and hub return clear/rebuild the local emitters. Effect
 quality zero stops new ambient particles and roof events; existing particles
 finish their bounded fade.
 
+## Cliff edges, corner ribs and lava-foot formations
+
+A second geometry pass adds 46 cosmetic models: twenty folded cliff-edge skirts,
+fourteen tapered corner ribs and twelve rock fans at the lava shoreline, using
+3,608 additional triangles in total. The
+skirts follow sloping ledges, curl outward beneath the top and disappear into
+the wall at both ends. Corner ribs span two adjoining cliff faces with unequal
+heights; straight stretches and tight turns remain open. Each shoreline fan
+combines three differently sized, partly submerged rock mounds in one model.
+The existing lava-fall mouth is excluded.
+
+`tools/cavern_rock_details.py` derives these meshes from the original cliff
+boundaries. Every generated vertex is checked against the neighbouring walkable
+floor plane: rims remain at least eight units below it, corner ribs at least
+110 units below both adjoining planes. The source map and collision remain
+unchanged. Per-model vertex/triangle counts and minimum clearance are recorded
+in `cavern/detail-clearance.txt`; duplicate model names and degenerate triangles
+are rejected, and face normals point outward. Together
+with the existing scenery, the main cavern has 82 static decorative models before the skybox extension.
+
+## Fissures into distant cavern skyboxes
+
+Three irregular rock frames reveal native UZDoom wall skyboxes at original
+boundary lines 4783, 4729 and 4969: the first chamber's northern rim, the second
+chamber's northeastern wall and the southern cavern boundary. Each opening has
+a shallow 96-unit recess behind the original wall. `Sector_SetPortal` type 2
+creates a `SkyCamCompat` portal, then type 5 transfers it to the recess's rear
+wall. These are real scene portals, with native depth testing and camera rotation.
+The viewpoint stays fixed at a distance, as expected for a skybox; the foreground
+rock frame moves with the player. They are scenic views, not traversable passages.
+
+Each of the three isolated scenes contains two connected large halls, lava,
+four massive occluding rock pillars and three hanging rock formations. Varied
+camera positions/yaw and layered fog expose different views. All twelve added
+models (three foreground frames, nine distant formations) bring the full scenic
+population to 94. The three indoor cameras are explicitly excluded from the
+outdoor weather controller, preventing snow or rain inside these halls.
+
+`tools/cavern_skyrooms.py` generates `cavern/skyrooms.json` from the current map.
+`build_utnt.py` applies that manifest only to the immutable package payload.
+The editor's source WAD is never overwritten. Existing vertex, sector, thing and
+script data remain unchanged; exactly three original linedefs become two-sided,
+retaining their blocking flag, and their three sidedefs receive upper/lower rock
+textures. Recesses and skybox geometry are appended without reindexing existing
+elements. Obsolete node lumps are removed so the engine rebuilds the BSP.
+The patch rejects a changed geometry fingerprint, mismatched topology or a second
+application. Behind-wall clearance and coordinate extents are checked during
+generation. Skybox tags/TIDs occupy 65200-65402 and must remain reserved.
+Use the built PK3 to see the full presentation; the editable WAD intentionally
+does not contain these generated recesses or sky rooms.
+
 ## Validation
 
 Run `python -B tools/build_cavern.py --check` and
 `python -B tools/build_definition_tables.py --check` before packaging.
-`tools/test_cavern.py` captures eight room views plus a ceiling-dust sequence
+`tools/test_cavern.py` captures thirteen room/detail views plus a ceiling-dust sequence
 and checks model/light counts,
 noncollision, bounded clouds, haze height and sector lighting before and after
 save/load. Two low views specifically expose the haze's upper boundary.
@@ -123,7 +175,11 @@ iteration; final acceptance uses the rebuilt package without this option.
 Local screenshots and logs: `tutnt/.codex/logs/cavern-tnt03a2/`.
 Machine-readable results: `tutnt/.codex/validation/cavern-tnt03a2/`.
 `--hub` adds effect-quality shutdown and travel through TNT03A1 back to TNT03A2.
-It requires 33 lifecycle assertions; the ordinary save/load run requires 22.
+It requires 36 lifecycle assertions; the ordinary save/load run requires 24.
+Six additional structural tests in `tools/test_cavern_skyrooms.py` verify map
+preservation, native portal wiring, blocked entrances and stale/double-patch
+rejection. Runtime checks also verify the three cameras/portals and their
+exclusion from outdoor weather.
 The checks include all eight valid roof sources, a single atmosphere controller,
 bounded particles, actual falling grit and all three sound triggers with resolved
 audio resources. Runtime tests use `-nosound`; this verifies sound binding and
@@ -158,3 +214,15 @@ three cues execute; the automated runs have audio output disabled. All vertex,
 sector, sidedef and linedef data match the original task snapshot. Results:
 `cavern-organic-final-0.json`, `cavern-organic-final-1.json` and
 `organic-geometry.json` in the local validation directory.
+
+Cliff-detail and skybox acceptance on 16 September 2026: the rebuilt root
+`tutnt.pk3` (build `0d812125b62c`) passed all 36 assertions on OpenGL and all
+36 on Vulkan in UZDoom 5.0.1, without a live overlay. The six structural tests
+also pass. Final fissure views were visually inspected in both renderers.
+Package inspection confirms that the transformed TEXTMAP matches the manifest
+and that SCRIPTS and BEHAVIOR are unchanged. The same manifest also applies to
+the committed source map despite unrelated local editor formatting changes.
+The original routes remain blocked at the three scenic openings; the added
+recesses can extend projectile traces behind those walls. Results:
+`cavern-skybox-final-0.json`, `cavern-skybox-final-1.json` and
+`skybox-package.json` in the local validation directory.
