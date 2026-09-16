@@ -1,0 +1,14 @@
+version "4.14"
+class UTNTInfernoTest : EventHandler {
+ void Check(bool ok,String message){Console.Printf("UTNT_ASSERT %s %s",ok?"PASS":"FAIL",message);}
+ override void NetworkProcess(ConsoleEvent e) {
+  if(e.Name!="infernocheck")return;
+  int count=0;bool valid=true;let it=ThinkerIterator.Create('UTNTInfernoHaze');Actor a;
+  while((a=Actor(it.Next()))){count++;valid=valid && a.bNoInteraction && a.bNoGravity && !a.bSolid && abs(a.Pos.Z+192)<.02;}
+  Check(count==83,"83 authored haze actors survive loading");Check(valid,"haze stays cosmetic at authored elevation");
+  let cam=level.CreateActorIterator(3,'SkyViewpoint').Next();
+  Check(cam && abs(cam.Pos.X+1280)<.01 && abs(cam.Pos.Y-256)<.01 && abs(cam.Pos.Z-64)<.01,"fire viewpoint origin preserved");
+  Check(level.sectors[1463].floorplane.ZatPoint((287,-4599))==-224 && level.sectors[2227].floorplane.ZatPoint((1198,-7961))==-224,"both gameplay void floors preserved");
+  Check(level.sectors[1449].special==90 && level.sectors[1450].special==90,"fire skyroom excludes ambient occlusion");
+ }
+}
