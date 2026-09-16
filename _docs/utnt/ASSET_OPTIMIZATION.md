@@ -88,6 +88,23 @@ pass. The work-layout checker reports 15 pre-existing editor `.dbs`, backup and
 autosave files under `tutnt/maps`; none was created, moved or removed here.
 Their timestamps and paths are recorded in the local audit evidence.
 
+## Source tree and package comparison
+
+The final publication uses the `tools/build_utnt.py` snapshot packaging API on
+already validated production files; it does not rerun asset generators or
+replace manual source edits. All compact/shared production models and images
+are present under `tutnt/`. `.codex` is not needed at runtime or shipped.
+
+There are **pre-existing packaging exceptions**, unchanged by this audit:
+TEXTURES source modules are expanded into the root table; native model precache
+lists are appended to MAPINFO; the cavern skyroom specification transforms
+TNT03A2 only inside the package; authoring-source folders are omitted, and build metadata plus
+its language label are added. Consequently a plain ZIP of the source directory
+is not yet equivalent to the regular production build. Resolving the existing
+cavern map transformation belongs to the source-tree integration work, not this
+storage cleanup. The exact comparison is recorded locally in
+`.codex/validation/size-audit-package-source.json`.
+
 ## Repeat checks
 
 ```text
