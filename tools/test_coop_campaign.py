@@ -1,8 +1,9 @@
-"""Four real peers: death during the original TNT04A cutscene and transition to TNT04B."""
+"""Four real peers: cutscene death/respawn and TNT04B travel. UTNT_MOD overrides the built package."""
 import json,os,pathlib,subprocess,time
 from check_engine import ROOT
 
 engine=pathlib.Path(os.environ['UTNT_ENGINE']);iwad=pathlib.Path(os.environ['UTNT_IWAD'])
+mod=pathlib.Path(os.environ.get('UTNT_MOD',ROOT/'tutnt.pk3'))
 logs=ROOT/'logs';logs.mkdir(exist_ok=True)
 processes=[];results=[]
 si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
@@ -11,7 +12,7 @@ try:
   label=f'coop-campaign-{i}'
   ini=logs/(label+'.ini');ini.write_text('[GlobalSettings]\nvid_fullscreen=false\nwin_w=658\nwin_h=527\nvid_maxfps=35\n')
   cfg=logs/(label+'.cfg');cfg.write_text('\n')
-  args=[str(engine),'-iwad',str(iwad),'-file',str(ROOT/'tutnt'),str(ROOT/'tools/coop-campaign'),'-config',str(ini),'-noautoload','-nosound','-stdout','-noidle','+vid_fullscreen','false','+vid_preferbackend','1','+playerclass',('Marine','Scout','Commando','Marine')[i],'+UTNT_fxquality',str(i),'+UTNT_reducedfx','true' if i==2 else 'false','+map','TNT04A','+exec',str(cfg)]
+  args=[str(engine),'-iwad',str(iwad),'-file',str(mod),str(ROOT/'tools/coop-campaign'),'-config',str(ini),'-noautoload','-nosound','-stdout','-noidle','+vid_fullscreen','false','+vid_preferbackend','1','+playerclass',('Marine','Scout','Commando','Marine')[i],'+UTNT_fxquality',str(i),'+UTNT_reducedfx','true' if i==2 else 'false','+map','TNT04A','+exec',str(cfg)]
   args+=['-host','4','-port','15229'] if i==0 else ['-join','127.0.0.1:15229']
   f=(logs/(label+'.log')).open('wb')
   child=subprocess.Popen(args,cwd=ROOT,stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)

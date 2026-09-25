@@ -154,6 +154,7 @@ def main():
     parser.add_argument('--mod', type=Path, default=ROOT / 'tutnt.pk3')
     parser.add_argument('--timeout', type=int, default=300)
     parser.add_argument('--port', type=int, default=15239)
+    parser.add_argument('--work', type=Path, default=ROOT / 'tutnt/.codex/work/eight-player/campaign-fixture')
     args = parser.parse_args()
     starts, report = audit()
     print(json.dumps(dict(starts=report)), flush=True)
@@ -164,7 +165,7 @@ def main():
         if not value.exists():
             parser.error(f'{key} does not exist: {value}')
         setattr(args, key, value)
-    work = ROOT / 'tutnt/.codex/work/eight-player/campaign-fixture'
+    work = args.work.resolve()
     fixture(starts, work)
     results = run(args, work, ROOT / 'tutnt/.codex/logs/eight-player-campaign')
     output = ROOT / 'tutnt/.codex/validation/eight-player-campaign.json'

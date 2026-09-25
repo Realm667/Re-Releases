@@ -10,6 +10,7 @@ def main():
     for key in ['engine','iwad','mod','output']:p.add_argument('--'+key,type=Path,required=True)
     p.add_argument('--root',type=Path,default=ROOT)
     p.add_argument('--reference-geometry',type=Path)
+    p.add_argument('--maps',nargs='+',help='Verify only these map names')
     a=p.parse_args();work=a.output.resolve();fixture=work/'fixture';fixture.mkdir(parents=True,exist_ok=True)
     (fixture/'geometry.zc').write_text((HERE/'geometry.zc').read_text().split('\n',1)[1])
     (fixture/'zscript.zc').write_text('version "4.14"\n#include "geometry.zc"\n#include "regression.zc"\n')
@@ -22,6 +23,11 @@ def main():
             _,si,part,old,alias,ow,oh=r
             tests.append(f'''if(level.MapName=="{item.stem}") {{ let s=level.Sectors[{si}];if(e.Args[0]==0){{s.SetTexture({part},TexMan.CheckForTexture("{old}"));s.SetXOffset({part},{int(ow)*3+7});s.SetYOffset({part},{int(oh)*2+9});}}else Console.Printf("UTNT_ASSERT %s area-dynamic-{si}",TexMan.GetName(s.GetTexture({part}))=="{alias}" && abs(s.GetXOffset({part})-7)<.001 && abs(s.GetYOffset({part})-9)<.001 ? "PASS" : "FAIL"); }}''')
     (fixture/'regression.zc').write_text(code.replace('// GENERATED_DYNAMIC_TEST','\n'.join(tests)))
+    if a.maps:
+        requested={name.upper() for name in a.maps}
+        unknown=requested-set(tables)
+        if unknown:p.error('Unknown maps: '+', '.join(sorted(unknown)))
+        tables={name:rows for name,rows in tables.items() if name in requested}
     common=dict(engine=a.engine,iwad=a.iwad,root=work,mod=a.mod,addon=fixture)
     r=run_case(**common,label='compile');assert r['ok'],Path(r['log']).read_text()[-4000:]
     results=[]
@@ -47,6 +53,7 @@ def main():
         r['ok']=r['ok'] and r['bindings_ok'] and r['regression_ok'] and not r['shader_errors'] and not r['finite_failures']
         results.append(r);(work/'results.json').write_text(json.dumps(results,indent=2))
         if not r['ok']:raise RuntimeError(json.dumps(r)+'\n'+log[-2500:])
-    print('PASS: all maps, material bindings, finite panels, save/load, scripted changes, OpenGL and Vulkan.')
+    scope='all maps' if not a.maps else ', '.join(sorted(tables))
+    print(f'PASS: {scope}; material bindings, finite panels, save/load and scripted changes.')
 
 if __name__=='__main__':main()

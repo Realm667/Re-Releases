@@ -87,3 +87,17 @@ Die PrÃ¼fung lÃ¤dt alle 13 Maps, verlangt vollstÃ¤ndige Annahme der Tabell
 Die separate lokale Ãœbersicht enthÃ¤lt die 44 Materialien gruppiert nach Namen, Map-Zuordnungen und 43 per Raytrace geprÃ¼fte Vorher/Nachher-Aufnahmen. FÃ¼r RROCK01 treffen die vorhandenen Audit-Kameras Ã¼berdeckende Geometrie; dort wird die Materialvorschau ausdrÃ¼cklich als solche gezeigt. Die Zuordnung selbst wurde Ã¼ber die native Sektorausgabe geprÃ¼ft.
 
 Technische Referenz fÃ¼r WorldPanning, Offset-Einheiten und die gerundeten DarstellungsgrÃ¶ÃŸen: [GZDoom FTexCoordInfo](https://github.com/ZDoom/gzdoom/blob/master/src/common/textures/gametexture.cpp). Die Umsetzung und PrÃ¼fungen liefen mit UZDoom 5.0.1.
+
+## TNT04B alignment guard refresh (25 September 2026)
+
+A map edit added four lines and one sector to TNT04B. Its checked-in alignment
+table still expected the previous geometry, so UTNT_AreaTextures emitted
+AREAALIGN_STALE and skipped all 9,744 material bindings. The native-engine
+rebuild now supports --maps for a single map and --baseline-package for storing
+its test PK3 under tutnt/.codex/builds. Regenerating TNT04B changed only the
+table's geometry header; all binding rows remained identical.
+
+The targeted verifier accepts --maps as well. With the editable production
+tree loaded, TNT04B reported AREAALIGN_STATUS|TNT04B|9744|0|9744. Its
+save/load and scripted material-change assertions passed without shader errors.
+The full visual appearance still requires a manual in-game review.
