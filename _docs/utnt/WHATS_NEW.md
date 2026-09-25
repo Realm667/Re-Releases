@@ -1,6 +1,6 @@
 # UTNT Reforged — What's New
 
-**Updated: 16 September 2026.** Current implemented features and improvements; unfinished local work is listed separately. Technical details and validation are available through the links.
+**Updated: 25 September 2026.** Current implemented features and improvements; unfinished local work is listed separately. Technical details and validation are available through the links.
 
 ## Interface, accessibility and presentation
 
@@ -88,7 +88,7 @@
 - **TNT02:** dark thunderclouds, distant mountains, coordinated outdoor lighting and distance-dependent lightning/thunder. [Details](UTNT_THUNDER.md)
 - **Cursed Peak (TNT03A1/TNT03A2):** shared winter panorama, moving clouds, southern sunset, day/night transitions and snowfall-responsive haze. [Details](UTNT_CURSED_SKY.md)
 - **TNT03B/TNT04A:** layered volcanic caldera, glowing valleys, ash clouds and rotating storm eye; distant burning comets in TNT04A. [Caldera](UTNT_CALDERA.md), [Comets](UTNT_WAR_SKY.md)
-- **TNT04B:** ash-dark outer sky with layered basalt mountains, embers and comets; a separate animated inferno around the floating islands, with towering fire, distant cliffs, a magma abyss, transparent island undersides, rising cinders and flickering firelight in a warm ambient tint. [Ash sky](UTNT_ASH_SKY.md), [Inferno](UTNT_INFERNO_SKY.md)
+- **TNT04B:** ash-dark outer sky with layered basalt mountains, embers and comets; a separate animated inferno around the floating islands, with towering fire, distant cliffs, a magma abyss, transparent island undersides, rising cinders and flickering firelight with a consistent warm ambient tint throughout the fire-sky exterior. [Ash sky](UTNT_ASH_SKY.md), [Inferno](UTNT_INFERNO_SKY.md)
 - **TNT04CN:** beam-aligned cloud opening, orbiting floating rocks, depth parallax and distant comets. [Details](UTNT_RIFT_SKY.md)
 - **TNT04C:** restrained lava-lit clouds and floating scenery, corrected colors/lighting and platform placement, preserving the original height-dependent sky views. [Details](UTNT_ALTERNATE_SKY.md)
 - **TNTLE:** basalt cavern with flowing lava falls and a separate ember-night sky; corrected filtering seams. [Details](UTNT_TNTLE_SKY.md)
