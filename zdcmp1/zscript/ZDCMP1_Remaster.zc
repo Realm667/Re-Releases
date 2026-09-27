@@ -151,7 +151,6 @@ class ZDCMP1Remaster : EventHandler
 
     override void RenderOverlay(RenderEvent e)
     {
-        ZDCMapGuide.Draw(self);
         if (NoticeVisible()) ZDCLogUI.Notice(notices[0], min(1., noticeAge / 7.));
         if (!finale || !ZDCMP1_skippablefinale) return;
         String text = StringTable.Localize(multiplayer && consoleplayer != Net_Arbitrator ? "$ZDC_SKIPHOST" : "$ZDC_SKIP");

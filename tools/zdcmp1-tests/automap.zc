@@ -89,9 +89,9 @@ class ZDCMapUICheck : StaticEventHandler
         Console.Printf("UTNT_ASSERT %s: requested automap mode active", valid ? "PASS" : "FAIL");
         let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
         Console.Printf("UTNT_ASSERT %s: notices yield to automap", !h.NoticeVisible() ? "PASS" : "FAIL");
-        bool textures = TexMan.CheckForTexture("ZDCTOP", TexMan.Type_Any).IsValid()
-            && TexMan.CheckForTexture("ZDCBOT", TexMan.Type_Any).IsValid()
-            && TexMan.CheckForTexture("ZDMAA0", TexMan.Type_Sprite).IsValid();
-        Console.Printf("UTNT_ASSERT %s: SBAR crops and marker sprites resolve", textures ? "PASS" : "FAIL");
+        bool textures = TexMan.CheckForTexture("ZDMAA0", TexMan.Type_Sprite).IsValid()
+            && TexMan.CheckForTexture("ZDMAB0", TexMan.Type_Sprite).IsValid()
+            && TexMan.CheckForTexture("ZDMAC0", TexMan.Type_Sprite).IsValid();
+        Console.Printf("UTNT_ASSERT %s: round marker sprites resolve", textures ? "PASS" : "FAIL");
     }
 }

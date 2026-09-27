@@ -114,13 +114,14 @@ including its ammunition panel, without touching metal, lettering or portrait.
 The source PNG is unchanged. `tools/build_zdcmp1_sbar.py` (Pillow) derives exact
 red-only rectangle masks and generates the native TEXTURES composition.
 
-**ZDCMP1 Options > Automap** contains the personal frame switch, the engine's
-existing mod-color preference, and host-controlled marker/completed-marker
-switches. Active markers default on; completed markers default off. Marker
+**ZDCMP1 Options > Automap** contains the engine's existing mod-color
+preference and host-controlled marker/completed-marker switches. Active markers
+default on; completed markers default off. Marker
 actors are invisible, nonblocking and do not affect combat or item counts.
-Native rendering handles rotation, zoom, pan and the overlay map. The decorative
-frame and legend are restricted to the full map and leave native statistics
-and the map title visible. Map colors preserve key-lock colors and discovery.
+Native rendering handles rotation, zoom, pan and the overlay map. The automap
+uses no additional frame, header or legend. Small red circular marker backgrounds
+keep the glyphs visible over dense geometry. Map colors
+preserve key-lock colors and discovery.
 
 `!` marks explicit gear/pump objectives, `?` marks reported hints/obstacles,
 and `+` marks confirmed endpoints when enabled. The gear target moves to the

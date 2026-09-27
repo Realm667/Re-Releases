@@ -85,7 +85,7 @@ class ZDCMP1Integrity(unittest.TestCase):
         self.assertIn('Graphic ZDCDISPLAY, 32, 16 { Patch STBAR, -8, -5 }', textures)
         menu = (ROOT / "zdcmp1/menudef.txt").read_text()
         block = re.search(r'OptionMenu "ZDCMP1AutomapMenu"\s*\{([^}]+)\}', menu)[1]
-        for name in ("ZDCMP1_mapframe", "ZDCMP1_mapmarkers", "ZDCMP1_mapcompleted", "am_customcolors"):
+        for name in ("ZDCMP1_mapmarkers", "ZDCMP1_mapcompleted", "am_customcolors"):
             self.assertIn('"' + name + '"', block)
 
     def test_terrain_references_resolve(self):

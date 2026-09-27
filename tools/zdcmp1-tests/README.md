@@ -126,7 +126,7 @@ The automap regression runs with `python -B tools/test_zdcmp1_automap.py` using
 the same `--engine`, `--iwad`, `--mod` and `--renderer` arguments as the journal
 test. It checks 23 conditions covering empty discovery, real marker anchors,
 save/load, read-vs-completion semantics, quest transitions, marker toggles,
-overlay/full-map mode and native asset resolution. Screenshots include rotation
+overlay/full-map mode and round marker asset resolution. Screenshots include rotation
 and zoom. Geometry is revealed only inside screenshot fixtures, never runtime.
 The real two-peer coop test also checks the production shared-hint mask.
 
