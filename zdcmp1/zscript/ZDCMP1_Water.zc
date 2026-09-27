@@ -29,7 +29,8 @@ class ZDCMP1WaterHandler : StaticEventHandler {
 			PPShader.SetEnabled("waterzoomshader", false);
 			return;
 		}
-		double effectSize = clamp(CVar.GetCVar("ZDCMP1_uweffectsize", p).GetFloat(), 0.0, 0.015);
+		double effectSize = CVar.GetCVar("ZDCMP1_comfortpreset", p).GetBool() ? 0
+			: clamp(CVar.GetCVar("ZDCMP1_uweffectsize", p).GetFloat(), 0.0, 0.015);
 		PPShader.SetUniform1f("watershader", "timer", gametic + e.FracTic);
 
 		if (p.mo && p.mo.waterlevel >= 3 && effectSize > 0) {

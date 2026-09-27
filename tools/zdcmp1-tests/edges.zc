@@ -43,12 +43,12 @@ class ZDCMP1Edges : EventHandler
         }
         Actor original = players[0].camera;
         players[0].camera = null;
-        weather.SpawnLavaActors();
-        weather.SpawnNukeActors();
+        weather.SpawnParticles(lava, "ZDCMP1LavaParticle");
+        weather.SpawnParticles(weather.nukeTexture, "ZDCMP1NukeParticle");
         Check(players[0].camera == null, "weather tolerates missing camera");
         players[0].camera = Actor.Spawn("MapSpot", (128, 128, 128));
-        weather.SpawnLavaActors();
-        weather.SpawnNukeActors();
+        weather.SpawnParticles(lava, "ZDCMP1LavaParticle");
+        weather.SpawnParticles(weather.nukeTexture, "ZDCMP1NukeParticle");
         Check(players[0].camera != null, "weather accepts alternate camera");
         players[0].camera.Destroy();
         players[0].camera = original;

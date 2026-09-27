@@ -39,16 +39,21 @@ def main():
                 raise RuntimeError(Path(result["log"]).read_text()[-7000:])
             return Path(result["log"]).read_text()
         weapon_samples = []
-        for value in (0, 1):
-            script = (f"unbindall; ZDCMP1_weaponflash {value}; ZDCMP1_weaponshake {value}; wait 35; "
+        for value in (0, 1, 2):
+            setting = 1 if value else 0
+            preset = "true" if value == 2 else "false"
+            script = (f"unbindall; ZDCMP1_weaponflash {setting}; ZDCMP1_weaponshake {setting}; "
+                      f"ZDCMP1_comfortpreset {preset}; wait 35; "
                       "netevent zdcwstart; wait 5; use Freezer; wait 70; +attack; wait 175; -attack; "
                       "wait 35; use NukeLauncher; wait 70; +altattack; wait 175; -altattack; "
-                      "wait 35; netevent zdcwstop; wait 350; netevent zdcwcheck; wait 5; ")
+                      "wait 35; netevent zdcwstop; wait 350; netevent zdcwcheck; wait 5; "
+                      "netevent zdcwrocketstart; wait 5; +attack; wait 9; -attack; "
+                      "wait 35; netevent zdcwrocketcheck; wait 5; ")
             text = run(args.mod, f"zdc-weapons-{args.renderer}-{value}", script)
-            if results[-1]["assertions"] != 7:
+            if results[-1]["assertions"] != 8:
                 raise RuntimeError("Missing weapon assertions")
             weapon_samples.append(re.findall(r"ZDC_WEAPONS .*", text))
-        if not weapon_samples[0] or weapon_samples[0] != weapon_samples[1]:
+        if not weapon_samples[0] or any(sample != weapon_samples[0] for sample in weapon_samples[1:]):
             raise RuntimeError(f"Comfort settings changed weapon workload/ammo: {weapon_samples}")
         if args.compare:
             script = ("unbindall; wait 35; netevent zdcmove; +forward; wait 20; netevent zdcmove; "

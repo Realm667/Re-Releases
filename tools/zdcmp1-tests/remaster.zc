@@ -3,6 +3,7 @@ version "4.8"
 class ZDCMP1RemasterCheck : EventHandler
 {
     bool observedFinale;
+    bool bossTriggered;
     override void WorldUnloaded(WorldEvent e)
     {
         let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
@@ -50,6 +51,9 @@ class ZDCMP1RemasterCheck : EventHandler
         if (e.Name == "zdcrshared")
         {
             Check(h.hints[0] == 37, "pump power message recorded by real shared script");
+            h.UpdateScreens();
+            Check(level.lines[4071].sidedef[Line.front].GetAdditiveColor(Side.mid) == 0xff082115,
+                "power restoration switches CRTs to their active color");
             let weapon = NukeLauncher(GetDefaultByType("NukeLauncher"));
             Check(weapon.AmmoUse1 == 1 && weapon.AmmoUse2 == 2, "nuke ammo consumption unchanged");
             Check(Weapon(GetDefaultByType("Freezer")).AmmoUse1 == 1, "freezer ammo consumption unchanged");
@@ -67,12 +71,23 @@ class ZDCMP1RemasterCheck : EventHandler
         if (e.Name == "zdcrfinale" || e.Name == "zdcrcredits")
         {
             observedFinale = true;
+            bossTriggered = e.Name == "zdcrfinale";
             p.mo.bInvulnerable = true;
             p.mo.A_CallSpecial(80, e.Name == "zdcrcredits" ? 264 : 133, 0);
         }
         if (e.Name == "zdcrfinalecheck")
         {
-            Check(h.finale && !h.skipRequested, "real finale begins without auto-skip");
+            let report = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
+            Check(h.finale && h.finalePhase == (bossTriggered ? 1 : 2)
+                && !h.skipRequested && (!bossTriggered || report.captured && report.frozenTime > 0),
+                "boss death freezes report before the finale begins");
+            if (bossTriggered)
+            {
+                int shots = report.shots[0], ammo = report.ammoSpent[0];
+                ZDCMP1Results.Shot(p.mo, 1);
+                Check(report.shots[0] == shots && report.ammoSpent[0] == ammo,
+                    "post-boss firing cannot change captured report metrics");
+            }
             Check(p.mo.FindInventory("CutsceneEnabled") != null, "finale hides HUD");
         }
         if (e.Name == "zdcrskip")
@@ -96,7 +111,9 @@ class ZDCMP1RemasterCheck : EventHandler
         }
         if (e.Name == "zdcrreportcheck")
         {
-            Check(ZDCMP1Results.IsActive() && ZDCMP1Results.HasShown(),
+            let report = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
+            Check(ZDCMP1Results.IsActive() && ZDCMP1Results.HasShown()
+                && h.finalePhase == 3 && report.captured,
                   "skipping boss sequence opens completion report before credits");
         }
         if (e.Name == "zdcrmetrics")
@@ -122,6 +139,13 @@ class ZDCMP1MenuCheck : StaticEventHandler
 {
     override void ConsoleProcess(ConsoleEvent e)
     {
+        if (e.Name == "zdcrecap")
+        {
+            let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+            Console.Printf("UTNT_ASSERT %s: save-load recap shows the next objective",
+                h && h.recapAge > 0 && h.recapGoal == 2 ? "PASS" : "FAIL");
+            return;
+        }
         if (e.Name != "zdcuimenu") return;
         let menu = OptionMenu(Menu.GetCurrentMenu());
         bool ok = menu != null;

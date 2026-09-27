@@ -279,6 +279,50 @@ Class NewChaingun : Chaingun replaces Chaingun
 
 Class NewPuff : BulletPuff //replaces BulletPuff
 {
+	static int SurfaceKind(String textureName)
+	{
+		textureName.MakeUpper();
+		if (textureName.IndexOf("WATER") >= 0 || textureName.IndexOf("FWATER") >= 0) return 1;
+		if (textureName.IndexOf("NUKAGE") >= 0 || textureName.IndexOf("SLIME") >= 0) return 2;
+		if (textureName.IndexOf("LAVA") >= 0) return 3;
+		if (textureName.IndexOf("METAL") >= 0 || textureName.IndexOf("TEK") >= 0
+			|| textureName.IndexOf("PIPE") >= 0 || textureName.IndexOf("SILVER") >= 0) return 4;
+		if (textureName.IndexOf("ROCK") >= 0 || textureName.IndexOf("STONE") >= 0
+			|| textureName.IndexOf("BRICK") >= 0) return 5;
+		return 0;
+	}
+
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		String material = Pos.Z - FloorZ <= 6 ? TexMan.GetName(floorpic) : "";
+		if (target)
+		{
+			Vector3 delta = Pos - (target.Pos + (0, 0, target.Height * .7));
+			double distance = delta.XY.Length();
+			if (distance > 1)
+			{
+				FLineTraceData hit;
+				target.LineTrace(atan2(delta.Y, delta.X), distance + 8,
+					-atan2(delta.Z, distance), TRF_THRUACTORS,
+					offsetz: target.Height * .7, data: hit);
+				if (hit.HitType == FLineTraceData.TRACE_HitWall
+					&& hit.HitTexture.IsValid()) material = TexMan.GetName(hit.HitTexture);
+			}
+		}
+		int kind = SurfaceKind(material);
+		if (kind == 0) return;
+		Color tint = kind == 1 ? 0xff8acfe3 : kind == 2 ? 0xff80d878
+			: kind == 3 ? 0xffff9445 : kind == 4 ? 0xffffd073 : 0xffb8ada0;
+		for (int i = 0; i < (kind == 4 ? 4 : 2); i++)
+			A_SpawnParticle(tint, lifetime: kind == 4 ? 12 : 20, size: kind == 4 ? 1.8 : 2.8,
+				xoff: frandom[rnd_ZDCCosmetic](-4, 4),
+				yoff: frandom[rnd_ZDCCosmetic](-4, 4),
+				velx: frandom[rnd_ZDCCosmetic](-1.2, 1.2),
+				vely: frandom[rnd_ZDCCosmetic](-1.2, 1.2),
+				velz: frandom[rnd_ZDCCosmetic](0.2, 1.6), startalphaf: .8);
+	}
+
 	Default
 	{
 		Alpha 1.0;

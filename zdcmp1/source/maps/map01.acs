@@ -202,6 +202,7 @@ script 9(int cheat)
    else
    {
       ScriptCall("ZDCMP1Remaster", "RecordHint", 6, -1);
+      ACS_NamedExecuteAlways("ZDC_MilestoneAutosave", 0, 1);
       Ceiling_lowerbyvalue(15,2,128);
       ceiling_raisebyvalue(968,2,48);
       spawnspot("DoomImp",17,0,0);
@@ -401,6 +402,7 @@ Script 45 (void)  //Another door deactivated script
 Script 46 (void) //Open the door
 {
     ScriptCall("ZDCMP1Remaster", "RecordHint", 11, -1);
+	ACS_NamedExecuteAlways("ZDC_MilestoneAutosave", 0, 2);
 	Door_Open(150, 64);
 	Thing_SpawnNoFog(74, T_IMP, 0);
 	Thing_SpawnNoFog(75, T_SHOTGUY, 0);
@@ -1235,6 +1237,7 @@ int bossdead=0;
 script 133 (void)
 {
 	ScriptCall("ZDCMP1Remaster", "SetFinale", 1);
+	ScriptCall("ZDCMP1Results", "Capture");
 
 	acs_terminate(256,0); //stop the random fountains
 	radius_quake(25,35*10,0,128,54);
@@ -1324,6 +1327,9 @@ script 991 (int set,int height) //78=inner 79=middle 80=outer
 // BioHazard so neeya! //
 /////////////////////////
 int checkpoint = -1;
+int lastSoloCheckpoint = -1;
+int lastAutosaveTime = -10000;
+int savedMilestones = 0;
 script 220 (int set)
 {
     if (GameType() == GAME_NET_COOPERATIVE)
@@ -1333,8 +1339,22 @@ script 220 (int set)
 	}
 	ELSE
 	{
-		autosave();
+		if (set != lastSoloCheckpoint && Timer() - lastAutosaveTime >= 15 * 35)
+		{
+			lastSoloCheckpoint = set;
+			lastAutosaveTime = Timer();
+			autosave();
+		}
 	}
+}
+
+script "ZDC_MilestoneAutosave" (int milestone)
+{
+	if (GameType() == GAME_NET_COOPERATIVE || bossdead || (savedMilestones & milestone)
+		|| Timer() - lastAutosaveTime < 15 * 35) terminate;
+	savedMilestones |= milestone;
+	lastAutosaveTime = Timer();
+	autosave();
 }
 
 script 221 respawn
@@ -1829,7 +1849,7 @@ script 214 (int automatic) // natural completion or authorized manual skip
 
 script 271 (void) // map-specific completion report
 {
-	ScriptCall("ZDCMP1Remaster", "SetFinale", 1);
+	ScriptCall("ZDCMP1Remaster", "SetFinale", 3);
 	thing_deactivate(60);
 	teleport_nofog(59);
 	setplayerproperty(1,1,Prop_TotallyFrozen);

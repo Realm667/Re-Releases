@@ -36,6 +36,12 @@ class ZDCMP1Coop : EventHandler
         {
             players[1].mo.DamageMobj(null, null, 10000, 'None');
         }
+        if (t == 100)
+        {
+            let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+            Check(h.pingMarkers[0] != null && h.pingUntil[0] > t,
+                "first peer's map ping is shared and time-limited");
+        }
         if (t == 140) Check(players[1].mo.health <= 0, "second player died");
         if (t == 175) players[1].playerstate = PST_REBORN;
         if (t == 245)
@@ -92,6 +98,7 @@ class ZDCMP1CoopUI : StaticEventHandler
             Console.Printf("UTNT_ASSERT %s: notifications delivered only to intended peer", ok ? "PASS" : "FAIL");
             EventHandler.SendNetworkEvent("zdc_hintread", 0);
             EventHandler.SendNetworkEvent("zdc_hintread", 12);
+            if (consoleplayer == 0) EventHandler.SendNetworkEvent("zdc_ping");
         }
         if (checked || level.time < 300) return;
         checked = true;

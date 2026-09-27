@@ -3,27 +3,41 @@ class ZDCMP1Remaster : EventHandler
 {
     int hints[MAXPLAYERS];
     int readHints[MAXPLAYERS];
+    int pinnedHint[MAXPLAYERS]; // id + 1; zero selects the automatic goal
     ZDCMapMarker mapMarkers[13];
     ZDCMapMarker routeMarkers[2];
     Vector2 routeNext[MAXPLAYERS];
     int routeHint[MAXPLAYERS];
     bool routeReady[MAXPLAYERS];
+    int cachedSector[MAXPLAYERS];
+    int cachedGoal[MAXPLAYERS];
+    Vector2 cachedWaypoint[MAXPLAYERS];
+    bool cachedValid[MAXPLAYERS];
+    int routeComputations[MAXPLAYERS];
+    bool nearbyUse[MAXPLAYERS];
+    ZDCCoopPing pingMarkers[MAXPLAYERS];
+    int pingUntil[MAXPLAYERS];
+    int lastPing[MAXPLAYERS];
+    bool recapPending;
+    ui int recapGoal;
+    ui int recapAge;
     ui Array<int> notices;
     ui int noticeAge;
     bool finale;
+    int finalePhase; // 0 gameplay, 1 boss, 2 credits, 3 report
     bool skipRequested;
 
     static int CanSkip(int who)
     {
         let handler = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
-        return handler && handler.finale && !ZDCMP1Results.IsActive()
+        return handler && (handler.finalePhase == 1 || handler.finalePhase == 2)
             && ZDCMP1_skippablefinale && who == Net_Arbitrator;
     }
 
     static void RecordHint(int hint, int who)
     {
         let handler = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
-        if (!handler || hint < 0 || hint >= 13) return;
+        if (!handler || !ZDCMapGuide.Valid(hint)) return;
         for (int i = 0; i < MAXPLAYERS; i++)
             if (playeringame[i] && (who == -1 || who == i))
             {
@@ -36,17 +50,57 @@ class ZDCMP1Remaster : EventHandler
     override void NetworkProcess(ConsoleEvent e)
     {
         if (e.Name == "zdc_hintread" && e.Player >= 0 && e.Player < MAXPLAYERS
-            && e.Args[0] >= 0 && e.Args[0] < 13)
+            && ZDCMapGuide.Valid(e.Args[0]))
             readHints[e.Player] |= hints[e.Player] & (1 << e.Args[0]);
+        if (e.Name == "zdc_hintpin" && e.Player >= 0 && e.Player < MAXPLAYERS)
+        {
+            int id = e.Args[0];
+            int known = hints[e.Player], delivered = 0;
+            for (int i = 0; i < MAXPLAYERS; i++) delivered |= hints[i];
+            if (ZDCMapGuide.Valid(id) && ZDCMapGuide.IsRouteGoal(id)
+                && ZDCMapGuide.Eligible(id, known, delivered))
+                pinnedHint[e.Player] = pinnedHint[e.Player] == id + 1 ? 0 : id + 1;
+        }
+        if (e.Name == "zdc_ping" && multiplayer && !deathmatch && !finale
+            && e.Player >= 0 && e.Player < MAXPLAYERS && playeringame[e.Player]
+            && players[e.Player].mo && level.time - lastPing[e.Player] >= 35)
+        {
+            let player = players[e.Player].mo;
+            FLineTraceData hit;
+            player.LineTrace(player.Angle, 1024, player.Pitch, TRF_THRUACTORS,
+                offsetz: player.Height * .7, data: hit);
+            if (hit.HitType != FLineTraceData.TRACE_HitWall
+                && hit.HitType != FLineTraceData.TRACE_HitFloor
+                && hit.HitType != FLineTraceData.TRACE_HitCeiling) return;
+            if (pingMarkers[e.Player]) pingMarkers[e.Player].Destroy();
+            pingMarkers[e.Player] = ZDCCoopPing(Actor.Spawn("ZDCCoopPing", hit.HitLocation, NO_REPLACE));
+            if (pingMarkers[e.Player]) pingMarkers[e.Player].bDormant = false;
+            pingUntil[e.Player] = level.time + 12 * 35;
+            lastPing[e.Player] = level.time;
+            for (int i = 0; i < MAXPLAYERS; i++)
+                if (playeringame[i]) EventHandler.SendInterfaceEvent(i, "zdc_pingnotice", e.Player);
+        }
     }
 
     override void InterfaceProcess(ConsoleEvent e)
     {
-        if (e.Name != "zdc_hint" || e.Args[0] < 0 || e.Args[0] >= 13) return;
+        if (e.Name == "zdc_recap")
+        {
+            recapGoal = e.Args[0];
+            recapAge = 7 * 35;
+            return;
+        }
+        if (e.Name == "zdc_pingnotice")
+        {
+            recapGoal = -2;
+            recapAge = 3 * 35;
+            return;
+        }
+        if (e.Name != "zdc_hint" || !ZDCMapGuide.Valid(e.Args[0])) return;
         if (!ZDCLogUI.Setting("ZDCMP1_hintnotifications")) return;
         for (int i = 0; i < notices.Size(); i++)
             if (notices[i] == e.Args[0]) return;
-        if (notices.Size() < 13) notices.Push(e.Args[0]);
+        if (notices.Size() < ZDCMapGuide.Count()) notices.Push(e.Args[0]);
     }
 
     ui bool NoticeVisible()
@@ -58,6 +112,7 @@ class ZDCMP1Remaster : EventHandler
 
     override void UiTick()
     {
+        if (recapAge > 0 && !Menu.GetCurrentMenu() && !finale) recapAge--;
         if (!ZDCLogUI.Setting("ZDCMP1_hintnotifications"))
         {
             notices.Clear();
@@ -77,8 +132,9 @@ class ZDCMP1Remaster : EventHandler
     {
         let handler = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
         if (!handler) return;
+        handler.finalePhase = enabled;
         handler.finale = enabled != 0;
-        if (enabled == 2) handler.skipRequested = false;
+        if (enabled == 2 || enabled == 3) handler.skipRequested = false;
         if (!enabled)
             for (int i = 0; i < MAXPLAYERS; i++)
                 if (playeringame[i] && players[i].mo)
@@ -90,8 +146,28 @@ class ZDCMP1Remaster : EventHandler
 
     override void WorldTick()
     {
+        if (recapPending)
+        {
+            int delivered = 0;
+            for (int i = 0; i < MAXPLAYERS; i++) delivered |= hints[i];
+            for (int i = 0; i < MAXPLAYERS; i++)
+                if (playeringame[i])
+                {
+                    EventHandler.SendInterfaceEvent(i, "zdc_recap",
+                        ZDCMapGuide.RouteGoal(hints[i], delivered));
+                    recapPending = false;
+                }
+        }
         UpdateMapMarkers();
         if (level.time % 12 == 0) UpdateRoutes();
+        if (level.time % 6 == 0) UpdateInteractions();
+        if (level.time % 35 == 0) UpdateScreens();
+        for (int i = 0; i < MAXPLAYERS; i++)
+            if (pingMarkers[i] && level.time >= pingUntil[i])
+            {
+                pingMarkers[i].Destroy();
+                pingMarkers[i] = null;
+            }
         for (int i = 0; i < MAXPLAYERS; i++)
         {
             if (!playeringame[i] || !players[i].mo) continue;
@@ -109,7 +185,7 @@ class ZDCMP1Remaster : EventHandler
             }
             // Only the host can end a shared finale. Edge-triggered to avoid
             // skipping it when USE was held before the boss died.
-            if (finale && !ZDCMP1Results.IsActive() && !skipRequested
+            if ((finalePhase == 1 || finalePhase == 2) && !skipRequested
                 && ZDCMP1_skippablefinale && i == Net_Arbitrator
                 && (p.cmd.buttons & BT_USE) && !(p.oldbuttons & BT_USE))
             {
@@ -121,7 +197,7 @@ class ZDCMP1Remaster : EventHandler
 
     int SharedHintMask()
     {
-        int known = 8191, count = 0;
+        int known = ZDCMapGuide.AllMask(), count = 0;
         for (int i = 0; i < MAXPLAYERS; i++)
             if (playeringame[i])
             {
@@ -129,6 +205,24 @@ class ZDCMP1Remaster : EventHandler
                 known &= hints[i];
             }
         return count ? known : 0;
+    }
+
+    void UpdateScreens()
+    {
+        if (level.MapName != "MAP01" || level.lines.Size() <= 28546) return;
+        int progress = 0;
+        for (int i = 0; i < MAXPLAYERS; i++) progress |= hints[i];
+        int mode = progress & ((1 << 5) | (1 << 6)) ? 2
+            : progress & (1 << 1) ? 1 : 0;
+        Color tint = mode == 2 ? 0xff082115 : 0xff230c08;
+        int indices[3] = {4071, 4072, 28546};
+        for (int i = 0; i < 3; i++)
+        {
+            Side screen = level.lines[indices[i]].sidedef[Line.front];
+            if (!screen) continue;
+            screen.SetAdditiveColor(Side.mid, tint);
+            screen.EnableAdditiveColor(Side.mid, mode != 0);
+        }
     }
 
     void UpdateMapMarkers()
@@ -139,7 +233,7 @@ class ZDCMP1Remaster : EventHandler
             delivered |= hints[i]; // Completed events survive the recipient leaving coop.
         // The native marker renderer has no per-player filter. Intersection avoids
         // leaking personal discoveries, including when a new coop player joins.
-        for (int id = 0; id < 13; id++)
+        for (int id = 0; id < ZDCMapGuide.Count(); id++)
         {
             bool visible = !deathmatch && ZDCMP1_mapmarkers && !finale
                 && ZDCMapGuide.Eligible(id, known, delivered)
@@ -181,12 +275,44 @@ class ZDCMP1Remaster : EventHandler
                 || !playeringame[i] || !players[i].mo || finale || deathmatch)
                 continue;
             int goal = ZDCMapGuide.RouteGoal(hints[i], delivered);
+            int pinned = pinnedHint[i] - 1;
+            if (pinned >= 0 && ZDCMapGuide.IsRouteGoal(pinned)
+                && ZDCMapGuide.Eligible(pinned, hints[i], delivered)) goal = pinned;
+            else if (pinned >= 0) pinnedHint[i] = 0;
             if (goal < 0) continue;
             routeHint[i] = goal;
-            let route = ZDCNavigation.NextWaypoint(players[i].mo,
-                ZDCMapGuide.RoutePosition(goal));
-            routeNext[i] = route.Waypoint;
+            let traveller = players[i].mo;
+            int sector = traveller.CurSector ? traveller.CurSector.Index() : -1;
+            if (cachedValid[i] && sector >= 0 && cachedSector[i] == sector && cachedGoal[i] == goal
+                && ZDCNavigation.ClearFirstLeg(traveller, cachedWaypoint[i]))
+            {
+                routeNext[i] = cachedWaypoint[i];
+                routeReady[i] = true;
+                continue;
+            }
+            let route = ZDCNavigation.NextWaypoint(traveller, ZDCMapGuide.RoutePosition(goal));
+            routeComputations[i]++;
+            routeNext[i] = cachedWaypoint[i] = route.Waypoint;
             routeReady[i] = route.Ready;
+            cachedSector[i] = route.Ready ? sector : -1;
+            cachedGoal[i] = goal;
+            cachedValid[i] = route.Ready;
+        }
+    }
+
+    void UpdateInteractions()
+    {
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            nearbyUse[i] = false;
+            if (finale || !playeringame[i] || !players[i].mo || players[i].health <= 0
+                || players[i].camera != players[i].mo) continue;
+            let mo = players[i].mo;
+            FLineTraceData hit;
+            mo.LineTrace(mo.Angle, 88, mo.Pitch, TRF_THRUACTORS,
+                offsetz: mo.Height * .7, data: hit);
+            nearbyUse[i] = hit.HitLine && (hit.HitLine.activation & SPAC_Use) != 0
+                && hit.HitLine.special != 0;
         }
     }
 
@@ -198,9 +324,32 @@ class ZDCMP1Remaster : EventHandler
             && p.camera == p.mo && routeReady[consoleplayer]
             && ZDCLogUI.Setting("ZDCMP1_wayfinding"))
             ZDCNavigation.DrawPointer(routeNext[consoleplayer], routeHint[consoleplayer], p.mo);
-        if (!finale || ZDCMP1Results.IsActive() || !ZDCMP1_skippablefinale) return;
+        if (!finale && !automapactive && !Menu.GetCurrentMenu() && p.mo && p.health > 0
+            && p.camera == p.mo && nearbyUse[consoleplayer]
+            && ZDCLogUI.Setting("ZDCMP1_interactionprompts"))
+            ZDCLogUI.Text(StringTable.Localize("$ZDC_INTERACT"), 351, 286, 11, 0xffffce67);
+        if (recapAge > 0 && !finale && !Menu.GetCurrentMenu() && !automapactive)
+        {
+            String message = recapGoal == -2 ? StringTable.Localize("$ZDC_PING_SENT")
+                : recapGoal >= 0 ? StringTable.Localize("$ZDC_RECAP") .. ": "
+                    .. ZDCMapGuide.RouteTitle(recapGoal)
+                : StringTable.Localize("$ZDC_RECAP_NONE");
+            ZDCLogUI.Box(150, 310, 500, 44, 0xff101416, .86);
+            ZDCLogUI.Wrapped(message, 162, 318, 476, 10, 0xffe5e7e5, 2);
+        }
+        if ((finalePhase != 1 && finalePhase != 2) || !ZDCMP1_skippablefinale) return;
         String text = StringTable.Localize(multiplayer && consoleplayer != Net_Arbitrator ? "$ZDC_SKIPHOST" : "$ZDC_SKIP");
         Screen.DrawText(SmallFont, Font.CR_WHITE, 320, 345, text,
             DTA_VirtualWidth, 640, DTA_VirtualHeight, 360, DTA_CenterOffset, true);
+    }
+}
+
+class ZDCMP1RecapLoader : StaticEventHandler
+{
+    override void WorldLoaded(WorldEvent e)
+    {
+        if (!e.IsSaveGame || level.MapName != "MAP01") return;
+        let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        if (h) h.recapPending = true;
     }
 }

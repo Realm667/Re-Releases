@@ -1,0 +1,43 @@
+brightmap texture SCREEN1 { map "Textures/SCREEN1.png" }
+brightmap texture SCREEN2 { map "Textures/SCREEN2.png" }
+brightmap texture SCREEN3 { map "Textures/SCREEN3.png" }
+
+pointlight ZDCFREEZER
+{
+    color 0.38 0.75 1.0
+    size 72
+    attenuate 1
+}
+
+pointlight ZDCNUKE
+{
+    color 1.0 0.48 0.16
+    size 100
+    attenuate 1
+}
+
+pointlight ZDCBOSSCHARGE
+{
+    color 1.0 0.24 0.14
+    size 104
+    attenuate 1
+}
+
+object FreezerBall
+{
+    frame FROMC { light ZDCFREEZER }
+    frame FROMD { light ZDCFREEZER }
+}
+
+object NukeShot
+{
+    frame NUKSA { light ZDCNUKE }
+    frame NUKEA { light ZDCNUKE }
+    frame NUKED { light ZDCNUKE }
+}
+
+object OblivionTelegraph
+{
+    frame COMTB { light ZDCBOSSCHARGE }
+    frame COMTC { light ZDCBOSSCHARGE }
+}

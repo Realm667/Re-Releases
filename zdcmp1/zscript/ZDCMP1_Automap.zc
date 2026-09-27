@@ -23,10 +23,24 @@ class ZDCMapMarker : MapMarker
     }
 }
 
+class ZDCCoopPing : ZDCMapMarker
+{
+    States
+    {
+    Spawn:
+        ZDMA B -1;
+        Stop;
+    }
+}
+
 class ZDCMapGuide : Object
 {
+    static int Count() { return 13; }
+    static bool Valid(int id) { return id >= 0 && id < Count(); }
+    static int AllMask() { return (1 << Count()) - 1; }
     static bool Complete(int id) { return id == 6 || id == 7 || id == 9 || id == 11; }
     static bool Objective(int id) { return id >= 2 && id <= 5; }
+    static bool IsRouteGoal(int id) { return id == 0 || Objective(id) || id == 8 || id == 10; }
 
     static int RouteGoal(int known, int delivered)
     {
@@ -55,7 +69,7 @@ class ZDCMapGuide : Object
 
     static bool Eligible(int id, int known, int delivered)
     {
-        if (id < 0 || id >= 13 || !(known & (1 << id))) return false;
+        if (!Valid(id) || !(known & (1 << id))) return false;
         int superseded = 0;
         switch (id)
         {

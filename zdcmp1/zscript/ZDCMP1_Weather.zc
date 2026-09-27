@@ -34,12 +34,19 @@ class ZDCMP1WeatherHandler : EventHandler //nifty tweaked version elaborated for
 
 	FSpawnParticleParams lava;
 	FSpawnParticleParams nuke;
+	TextureID lavaTexture, nukeTexture;
+
+	override void WorldLoaded(WorldEvent e)
+	{
+		lavaTexture = TexMan.CheckForTexture("QLAVA", TexMan.Type_Any);
+		nukeTexture = TexMan.CheckForTexture("NUKAGEW", TexMan.Type_Any);
+	}
 
 	override void WorldTick(void)
 	{
 		if (Level.IsFrozen() || gameaction == ga_savegame || !ZDCMP1_weatherfx) return;
-		SpawnLavaActors(); //lava floors, shortnamed
-		SpawnNukeActors(); //nukage floors, shortnamed
+		SpawnParticles(lavaTexture, "ZDCMP1LavaParticle");
+		SpawnParticles(nukeTexture, "ZDCMP1NukeParticle");
 	}
 
 	bool CanSpawnAt(Vector3 pos, TextureID texture)
@@ -52,16 +59,20 @@ class ZDCMP1WeatherHandler : EventHandler //nifty tweaked version elaborated for
 		return sec.GetTexture(Sector.floor) == texture;
 	}
 	
-	void SpawnLavaActors(void)
+	void SpawnParticles(TextureID texture, class<Actor> particleClass)
 	{
-		TextureID texture = TexMan.CheckForTexture("QLAVA", TexMan.Type_Any);
-
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].mo && players[i].mo.player)
 			{
 				Actor cam = players[i].camera;
 				if (!cam) continue;
+				bool sharedView = false;
+				for (int previous = 0; previous < i; previous++)
+					if (playeringame[previous] && players[previous].camera
+						&& cam.Distance2D(players[previous].camera) < 512)
+						sharedView = true;
+				if (sharedView) continue;
 
 				int density = 2 + 2 * clamp(ZDCMP1_fxquality, 0, 2);
 				while (density--)
@@ -71,47 +82,14 @@ class ZDCMP1WeatherHandler : EventHandler //nifty tweaked version elaborated for
 					Vector3 sPos = cam.Vec3Offset(spx, spy, EMBERS_HEIGHT);
 					if (!CanSpawnAt(sPos, texture)) continue;
 
-					let lava = cam.Spawn("ZDCMP1LavaParticle", sPos, NO_REPLACE);
-					if (lava)
+					let particle = cam.Spawn(particleClass, sPos, NO_REPLACE);
+					if (particle)
 					{
-						lava.SetZ(min(lava.FloorZ, sPos.Z));
-						lava.Tracer = cam;
-						lava.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
-						lava.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
-						lava.Vel.Z = frandom[rnd_SpawnPrecip](4.0, 1.5);
-					}
-				}
-			}
-		}
-	}
-	
-	void SpawnNukeActors(void)
-	{
-		TextureID texture = TexMan.CheckForTexture("NUKAGEW", TexMan.Type_Any);
-
-		for (int i = 0; i < MAXPLAYERS; i++)
-		{
-			if (playeringame[i] && players[i].mo && players[i].mo.player)
-			{
-				Actor cam = players[i].camera;
-				if (!cam) continue;
-
-				int density = 2 + 2 * clamp(ZDCMP1_fxquality, 0, 2);
-				while (density--)
-				{
-					double spx = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
-					double spy = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
-					Vector3 sPos = cam.Vec3Offset(spx, spy, EMBERS_HEIGHT);
-					if (!CanSpawnAt(sPos, texture)) continue;
-
-					let nuke = cam.Spawn("ZDCMP1NukeParticle", sPos, NO_REPLACE);
-					if (nuke)
-					{
-						nuke.SetZ(min(nuke.FloorZ, sPos.Z));
-						nuke.Tracer = cam;
-						nuke.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
-						nuke.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
-						nuke.Vel.Z = frandom[rnd_SpawnPrecip](4.0, 1.5);
+						particle.SetZ(min(particle.FloorZ, sPos.Z));
+						particle.Tracer = cam;
+						particle.Vel.X = frandom[rnd_SpawnPrecip](-0.8, 0.8);
+						particle.Vel.Y = frandom[rnd_SpawnPrecip](-0.8, 0.8);
+						particle.Vel.Z = frandom[rnd_SpawnPrecip](4.0, 1.5);
 					}
 				}
 			}

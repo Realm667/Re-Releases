@@ -1,0 +1,31 @@
+version "4.8"
+
+class ZDCMP1VisualCheck : EventHandler
+{
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if (e.Name != "zdcvisual" || !players[0].mo) return;
+        let player = players[0].mo;
+        player.bInvulnerable = true;
+        switch (e.Args[0])
+        {
+        case 0:
+            player.SetOrigin((690, -690, 16), false);
+            player.Angle = 180;
+            player.Pitch = 10;
+            break;
+        case 1:
+            player.SetOrigin((179, -4120, 24), false);
+            player.Angle = 90;
+            player.Pitch = 0;
+            break;
+        case 2:
+            player.SetOrigin((2848, 2190, 160), false);
+            player.Angle = 270;
+            player.Pitch = 0;
+            break;
+        }
+        Console.Printf("UTNT_VISUAL %d %.1f %.1f %.1f", e.Args[0],
+            player.Pos.X, player.Pos.Y, player.Pos.Z);
+    }
+}

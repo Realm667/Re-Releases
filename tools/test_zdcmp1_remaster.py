@@ -25,7 +25,7 @@ def main():
             archive.writestr("mapinfo.txt", 'gameinfo { AddEventHandlers="ZDCMP1RemasterCheck", "ZDCMP1MenuCheck" }\n')
         scripts = {
             "story": ("wait 35; netevent zdcrstart; wait 185; netevent zdcrpreview; wait 2; "
-                      "save zdc-remaster; wait 5; load zdc-remaster; wait 5; netevent zdcrpreview; "
+                      "save zdc-remaster; wait 5; load zdc-remaster; wait 5; event zdcrecap; netevent zdcrpreview; "
                       "wait 180; netevent zdcrreturn; wait 5; netevent zdcrshared; wait 5; netevent zdcrmetrics; wait 5; "
                       "openmenu ZDCMP1JournalMenu; wait 10; event zdcuimenu 0; screenshot logs/zdc-journal.png; wait 5; "),
             "finale": ("wait 35; netevent zdcrfinale; wait 5; netevent zdcrfinalecheck; wait 5; "
@@ -47,7 +47,7 @@ def main():
                               settings=[("use_mouse", False), ("use_joystick", False),
                                         ("i_pauseinbackground", False), ("vid_activeinbackground", True)],
                               commands=script + "echo UTNT_REGRESSION_COMPLETE; echo UTNT_TEST_END; quit\n")
-            expected = {"story": 24, "finale": 8, "credits-skip": 3, "credits": 3}[name]
+            expected = {"story": 26, "finale": 10, "credits-skip": 3, "credits": 4}[name]
             if result["assertions"] != expected:
                 result["ok"] = False
                 result["errors"].append(f"expected {expected} assertions")

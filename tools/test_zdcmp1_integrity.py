@@ -2,6 +2,7 @@
 from pathlib import Path
 import hashlib
 import re
+import struct
 import tempfile
 import unittest
 import zipfile
@@ -70,7 +71,8 @@ class ZDCMP1Integrity(unittest.TestCase):
         self.assertIn('script "ZDC_ShowCredits"', acs)
         results = (ROOT / "zdcmp1/zscript/ZDCMP1_Results.zc").read_text()
         for metric in ("healthLost", "distanceUnits", "ammoSpent", "shots", "hits", "frozenTime",
-                       "frozenKills", "frozenItems", "frozenSecrets"):
+                       "frozenKills", "frozenItems", "frozenSecrets", "frozenTotalMonsters",
+                       "frozenTotalItems", "frozenTotalSecrets"):
             self.assertIn(metric, results)
         self.assertIn("distanceUnits[i] / 64.", results)
         self.assertNotIn("deathcount", results)
@@ -128,6 +130,35 @@ class ZDCMP1Integrity(unittest.TestCase):
         definitions = set(re.findall(r"(?im)^\s*terrain\s+(\w+)", text))
         uses = set(re.findall(r"(?im)^\s*floor\s+\S+\s+(\w+)", text))
         self.assertEqual(uses - definitions, set())
+
+    def test_remaster_assets_and_controls(self):
+        root = ROOT / "zdcmp1"
+        for manifest in (root / "zscript.zc", root / "gldefs.txt", root / "modeldef.txt",
+                         root / "gldefs/brightm.txt"):
+            for include in re.findall(r'(?m)^#include\s+"?([^"\s]+)"?', manifest.read_text()):
+                self.assertTrue((root / include).is_file(), f"{manifest.name}: {include}")
+        shaders = (root / "gldefs/shaders.txt").read_text()
+        for path in re.findall(r'Shader "(shaders/zdc_[^"]+)"', shaders):
+            self.assertTrue((root / path).is_file(), path)
+        brightmaps = (root / "gldefs/remaster.txt").read_text()
+        for texture, path in re.findall(r'brightmap texture (SCREEN[123]) \{ map "([^"]+)" \}', brightmaps):
+            source = root / "Textures" / f"{texture}.png"
+            target = root / path
+            self.assertEqual(source, target)
+            image = target.read_bytes()
+            self.assertEqual(image[:8], b"\x89PNG\r\n\x1a\n")
+            self.assertEqual(struct.unpack(">II", image[16:24]), (128, 104))
+        self.assertNotIn("warp flat WATER", (root / "animdefs.def").read_text())
+        menu = (root / "menudef.txt").read_text()
+        cvars = (root / "cvarinfo.txt").read_text()
+        for name in ("ZDCMP1_interactionprompts", "ZDCMP1_comfortpreset"):
+            self.assertIn(f'"{name}"', menu)
+            self.assertIn(f"user bool {name}", cvars)
+        self.assertIn('Control "$ZDC_PING", "netevent zdc_ping"', menu)
+        self.assertIn("class OblivionTelegraph", (root / "zscript/monsters/ZDCMP1_Oblivion.zc").read_text())
+        acs = (root / "source/maps/map01.acs").read_text()
+        self.assertIn('script "ZDC_MilestoneAutosave"', acs)
+        self.assertIn('set != lastSoloCheckpoint', acs)
 
     def test_map_activation_has_no_unused_arguments(self):
         lumps = dict((n.rstrip(b"\0"), data) for n, data in read_wad(ROOT / "zdcmp1/Maps/map01.wad")[1])

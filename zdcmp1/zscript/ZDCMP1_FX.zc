@@ -137,23 +137,23 @@ class ZDCMP1FireSpawner : ZDCMP1SwitchableDecoration
 			if (IsSmallFire())
 			{
 				fireScale = 0.35;
-				vx = frandom(-1.0, 1.0);
-				vy = frandom(-1.0, 1.0);
-				vz = frandom(2.0, 4.0);
+				vx = frandom[rnd_ZDCCosmetic](-1.0, 1.0);
+				vy = frandom[rnd_ZDCCosmetic](-1.0, 1.0);
+				vz = frandom[rnd_ZDCCosmetic](2.0, 4.0);
 			}
 			else if (IsMediumFire())
 			{
 				fireScale = 0.7;
-				vx = frandom(-2.0, 2.0);
-				vy = frandom(-2.0, 2.0);
-				vz = frandom(6.0, 8.0);
+				vx = frandom[rnd_ZDCCosmetic](-2.0, 2.0);
+				vy = frandom[rnd_ZDCCosmetic](-2.0, 2.0);
+				vz = frandom[rnd_ZDCCosmetic](6.0, 8.0);
 			}
 			else if (IsLargeFire())
 			{
 				fireScale = 1.4;
-				vx = frandom(-4.0, 4.0);
-				vy = frandom(-4.0, 4.0);
-				vz = frandom(10.0, 12.0);
+				vx = frandom[rnd_ZDCCosmetic](-4.0, 4.0);
+				vy = frandom[rnd_ZDCCosmetic](-4.0, 4.0);
+				vz = frandom[rnd_ZDCCosmetic](10.0, 12.0);
 			}
 
 			fire.A_SetScale(fireScale);

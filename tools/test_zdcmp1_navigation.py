@@ -29,7 +29,9 @@ def main():
             script += "vid_hidpi false; wait 35; "
         script += (
             "vid_setsize 1280 720; ZDCMP1_hintnotifications false; wait 35; "
-            "netevent zdcnavseed; wait 10; "
+            "netevent zdcnavseed; wait 10; netevent zdc_hintpin 0; wait 5; "
+            "netevent zdcnavpincheck; wait 5; netevent zdc_hintpin 0; wait 5; "
+            "netevent zdcnavunpincheck; wait 5; "
             "screenshot logs/zdc-navigation-hud.png; netevent zdcnavturn; wait 5; "
             "screenshot logs/zdc-navigation-turned.png; save zdc-nav; wait 5; "
             "load zdc-nav; wait 35; netevent zdcnavsaved; wait 5; event zdcnavui; wait 5; "
@@ -44,7 +46,7 @@ def main():
                           regression=True, commands=script,
                           settings=[("use_mouse", False), ("use_joystick", False),
                                     ("i_pauseinbackground", False), ("vid_activeinbackground", True)])
-        if not result["ok"] or result["assertions"] != 18:
+        if not result["ok"] or result["assertions"] != 22:
             print(Path(result["log"]).read_text()[-9000:])
             return 1
     return 0

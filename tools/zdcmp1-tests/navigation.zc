@@ -48,6 +48,19 @@ class ZDCNavigationCheck : EventHandler
             h.UpdateRoutes();
             Check(h.routeHint[0] == 0 && h.routeReady[0], "wayfinding survives save and load");
         }
+        if (e.Name == "zdcnavpincheck")
+        {
+            Check(h.pinnedHint[0] == 1, "discovered objective can be pinned");
+            h.UpdateRoutes();
+            Check(h.routeHint[0] == 0 && h.routeReady[0],
+                "pinned objective remains reachable after route refresh");
+            int before = h.routeComputations[0];
+            h.UpdateRoutes();
+            Check(h.routeComputations[0] == before,
+                "unchanged sector and visible waypoint reuse the route cache");
+        }
+        if (e.Name == "zdcnavunpincheck")
+            Check(h.pinnedHint[0] == 0, "second pin action restores automatic routing");
         if (e.Name == "zdcnavspawn")
         {
             player.SetOrigin((416, -32, 0), false);

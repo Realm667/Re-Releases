@@ -59,7 +59,7 @@ ZDCMP1_fxquality 2; nashgore_maxgore 8; netevent zdcgore; wait 35; netevent zdcc
 netevent zdcsmokemark; wait 35; netevent zdcsmoke 1;
 ZDCMP1_shaderoverlayswitch false; wait 10; netevent zdcheat; netevent zdcsmokemark; wait 35; netevent zdcsmoke 0;
 netevent zdcreplacesmoke; wait 20; netevent zdcsmokemark; wait 35; netevent zdcsmoke 0;
-ZDCMP1_shaderoverlayswitch true; netevent zdcsmokemark; wait 35; netevent zdcsmoke 1;
+ZDCMP1_shaderoverlayswitch true; netevent zdcsmokemark; wait 105; netevent zdcsmoke 1;
 netevent zdcrange 10; wait 10; netevent zdcsmokemark; wait 35; netevent zdcsmoke 0;
 netevent zdcrange 1200; netevent zdcsmokemark; wait 35; netevent zdcsmoke 1;
 save zdcmp1-effects; wait 10; ZDCMP1_shaderoverlayswitch false; wait 10;

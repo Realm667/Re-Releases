@@ -71,6 +71,10 @@ jobs:
         run: xvfb-run -a python -B tools/test_zdcmp1_map.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
       - name: Remaster hints, cameras and finale
         run: xvfb-run -a python -B tools/test_zdcmp1_remaster.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
+      - name: MAP01 route graph and HUD pointer
+        run: xvfb-run -a python -B tools/test_zdcmp1_navigation.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
+      - name: MAP01 visual review frames
+        run: xvfb-run -a python -B tools/test_zdcmp1_visuals.py --mod zdcmp1.pk3
       - name: Sustained weapons at both comfort extremes
         run: xvfb-run -a python -B tools/test_zdcmp1_weapons.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
       - name: Field terminal and hint notifications

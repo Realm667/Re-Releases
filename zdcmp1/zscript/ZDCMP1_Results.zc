@@ -14,10 +14,14 @@ class ZDCMP1Results : EventHandler
     Array<bool> projectileHit;
     bool active;
     bool shown;
+    bool captured;
     int frozenTime;
     int frozenKills;
     int frozenItems;
     int frozenSecrets;
+    int frozenTotalMonsters;
+    int frozenTotalItems;
+    int frozenTotalSecrets;
 
     static clearscope bool IsActive()
     {
@@ -31,14 +35,25 @@ class ZDCMP1Results : EventHandler
         return h && h.shown;
     }
 
-    static void Begin()
+    static void Capture()
     {
         let h = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
-        if (!h || h.shown) return;
+        if (!h || h.captured) return;
         h.frozenTime = level.time;
         h.frozenKills = level.killed_monsters;
         h.frozenItems = level.found_items;
         h.frozenSecrets = level.found_secrets;
+        h.frozenTotalMonsters = level.total_monsters;
+        h.frozenTotalItems = level.total_items;
+        h.frozenTotalSecrets = level.total_secrets;
+        h.captured = true;
+    }
+
+    static void Begin()
+    {
+        let h = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
+        if (!h || h.shown) return;
+        Capture();
         h.shown = true;
         h.active = true;
     }
@@ -46,7 +61,7 @@ class ZDCMP1Results : EventHandler
     static void Shot(Actor shooter, int ammo)
     {
         let h = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
-        if (!h || h.shown || !shooter || !shooter.player) return;
+        if (!h || h.captured || !shooter || !shooter.player) return;
         int i = level.PlayerNum(shooter.player);
         h.ammoSpent[i] += ammo;
         h.shots[i]++;
@@ -56,10 +71,10 @@ class ZDCMP1Results : EventHandler
 
     override void WorldThingSpawned(WorldEvent e)
     {
-        if (shown || !e.Thing || !e.Thing.target || !e.Thing.target.player) return;
+        if (captured || !e.Thing || !e.Thing.target || !e.Thing.target.player) return;
         Name type = e.Thing.GetClassName();
         int ammo = 0;
-        if (type == 'Rocket' || type == 'PlasmaBall' || type == 'FreezerBall') ammo = 1;
+        if (type == 'Rocket' || type == 'RocketNew' || type == 'PlasmaBall' || type == 'FreezerBall') ammo = 1;
         else if (type == 'BFGBall') ammo = 40;
         else if (type == 'NukeShot') ammo = 2;
         if (!ammo) return;
@@ -72,7 +87,7 @@ class ZDCMP1Results : EventHandler
 
     override void WorldThingDamaged(WorldEvent e)
     {
-        if (shown || !e.Thing || e.Damage <= 0) return;
+        if (captured || !e.Thing || e.Damage <= 0) return;
         if (e.Thing.player)
         {
             int i = level.PlayerNum(e.Thing.player);
@@ -111,7 +126,7 @@ class ZDCMP1Results : EventHandler
         {
             if (!playeringame[i] || !players[i].mo) { hasPosition[i] = false; continue; }
             let p = players[i];
-            if (!shown && p.health > 0 && p.camera == p.mo)
+            if (!captured && p.health > 0 && p.camera == p.mo)
             {
                 Vector2 xy = p.mo.Pos.XY;
                 if (hasPosition[i])
@@ -139,9 +154,9 @@ class ZDCMP1Results : EventHandler
     {
         // Eight capped factors; repeatable actions cannot farm an unlimited score.
         int score = 0;
-        score += level.total_monsters ? min(2400, 2400 * frozenKills / max(1, level.total_monsters)) : 0;
-        score += level.total_secrets ? min(1600, 1600 * frozenSecrets / max(1, level.total_secrets)) : 0;
-        score += level.total_items ? min(800, 800 * frozenItems / max(1, level.total_items)) : 0;
+        score += frozenTotalMonsters ? min(2400, 2400 * frozenKills / max(1, frozenTotalMonsters)) : 0;
+        score += frozenTotalSecrets ? min(1600, 1600 * frozenSecrets / max(1, frozenTotalSecrets)) : 0;
+        score += frozenTotalItems ? min(800, 800 * frozenItems / max(1, frozenTotalItems)) : 0;
         score += 1300 * 300 / max(300, 300 + healthLost[i]);
         score += 900 * 2700 / max(2700, frozenTime / 35);
         score += 500 * min(1., distanceUnits[i] / (2500. * 64.));
@@ -166,10 +181,10 @@ class ZDCMP1Results : EventHandler
         String rank = points >= 9000 ? "S" : points >= 7500 ? "A" : points >= 6000 ? "B" : points >= 4000 ? "C" : "D";
         int next = points >= 9000 ? 10000 : points >= 7500 ? 9000 : points >= 6000 ? 7500 : points >= 4000 ? 6000 : 4000;
         String tip = L("$ZDC_RESULT_AGAIN");
-        if (level.total_secrets > frozenSecrets)
-            tip = String.Format(L("$ZDC_RESULT_SECRET_TIP"), level.total_secrets - frozenSecrets);
-        else if (level.total_items > frozenItems)
-            tip = String.Format(L("$ZDC_RESULT_ITEM_TIP"), level.total_items - frozenItems);
+        if (frozenTotalSecrets > frozenSecrets)
+            tip = String.Format(L("$ZDC_RESULT_SECRET_TIP"), frozenTotalSecrets - frozenSecrets);
+        else if (frozenTotalItems > frozenItems)
+            tip = String.Format(L("$ZDC_RESULT_ITEM_TIP"), frozenTotalItems - frozenItems);
 
         ZDCLogUI.Box(0, 0, 800, 450, 0xff080a0b);
         let bg = TexMan.CheckForTexture("ZDCRESBG", TexMan.Type_Any);
@@ -194,11 +209,11 @@ class ZDCMP1Results : EventHandler
         Label("$ZDC_RESULT_TIME", 33, 137);
         Value(String.Format("%02d:%02d:%02d", frozenTime / 126000, frozenTime / 2100 % 60, frozenTime / 35 % 60), 33, 154);
         Label("$ZDC_RESULT_KILLS", 260, 137);
-        Value(String.Format("%d / %d", frozenKills, level.total_monsters), 260, 154);
+        Value(String.Format("%d / %d", frozenKills, frozenTotalMonsters), 260, 154);
         Label("$ZDC_RESULT_SECRETS", 33, 205);
-        Value(String.Format("%d / %d", frozenSecrets, level.total_secrets), 33, 222);
+        Value(String.Format("%d / %d", frozenSecrets, frozenTotalSecrets), 33, 222);
         Label("$ZDC_RESULT_ITEMS", 260, 205);
-        Value(String.Format("%d / %d", frozenItems, level.total_items), 260, 222);
+        Value(String.Format("%d / %d", frozenItems, frozenTotalItems), 260, 222);
         Label("$ZDC_RESULT_HEALTH", 33, 273);
         Value(String.Format("%d HP", healthLost[i]), 33, 290);
         Label("$ZDC_RESULT_DISTANCE", 260, 273);

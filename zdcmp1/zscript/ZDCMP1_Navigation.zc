@@ -8,6 +8,20 @@ class ZDCNavResult : Object
 
 class ZDCNavigation : Object
 {
+    static bool LayerClear(Sector sector, Vector2 point, double bottom, double height)
+    {
+        if (!sector) return false;
+        for (int i = 0; i < sector.Get3DFloorCount(); i++)
+        {
+            F3DFloor floor = sector.Get3DFloor(i);
+            if (!(floor.flags & F3DFloor.FF_EXISTS) || !(floor.flags & F3DFloor.FF_SOLID)) continue;
+            double low = floor.bottom.ZatPoint(point);
+            double high = floor.top.ZatPoint(point);
+            if (low < bottom + height && high > bottom) return false;
+        }
+        return true;
+    }
+
     static bool Crossable(Actor traveller, Line portal, Sector from, Sector to)
     {
         if (!to || (portal.flags & (Line.ML_BLOCKING | Line.ML_BLOCK_PLAYERS | Line.ML_BLOCKEVERYTHING))
@@ -26,9 +40,9 @@ class ZDCNavigation : Object
             if (!usableDoor || (portal.special == 13
                 && !traveller.CheckKeys(portal.args[3], false, true))) return false;
         }
-        // The 2D sector graph cannot describe stacked walkable layers safely.
-        if (from.Get3DFloorCount() || to.Get3DFloorCount()) return false;
-        return true;
+        double standing = max(floorA, floorB);
+        return LayerClear(from, mid, standing, traveller.Height)
+            && LayerClear(to, mid, standing, traveller.Height);
     }
 
     static Actor TeleportTarget(Line portal)
@@ -69,7 +83,8 @@ class ZDCNavigation : Object
             && entry && exit && entry.special >= 11 && entry.special <= 13
             && exit.special >= 11 && exit.special <= 13)
             return true; // Both edges operate the same closed, usable door.
-        if (sector.ceilingplane.ZatPoint(middle) - sector.floorplane.ZatPoint(middle) < traveller.Height)
+        if (sector.ceilingplane.ZatPoint(middle) - sector.floorplane.ZatPoint(middle) < traveller.Height
+            || !LayerClear(sector, middle, sector.floorplane.ZatPoint(middle), traveller.Height))
             return false;
         for (int i = 0; i < sector.lines.Size(); i++)
         {
@@ -98,6 +113,9 @@ class ZDCNavigation : Object
     {
         let result = new("ZDCNavResult");
         if (!traveller || !traveller.CurSector) return result;
+        if (traveller.CurSector.Get3DFloorCount()
+            && traveller.Pos.Z > traveller.CurSector.floorplane.ZatPoint(traveller.Pos.XY) + 24)
+            return result; // Upper layers require an authored link; never route on the wrong deck.
         Sector destination = level.PointInSector(goal);
         if (!destination) return result;
         int count = level.Sectors.Size();

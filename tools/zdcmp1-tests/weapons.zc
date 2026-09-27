@@ -5,6 +5,7 @@ class ZDCMP1WeaponCheck : EventHandler
     int peakFreezer;
     int peakNuke;
     bool firing;
+    int beforeRocketShots, beforeRocketAmmo;
 
     int Count(class<Actor> cls)
     {
@@ -32,6 +33,20 @@ class ZDCMP1WeaponCheck : EventHandler
             firing = true;
         }
         if (e.Name == "zdcwstop") firing = false;
+        if (e.Name == "zdcwrocketstart")
+        {
+            let report = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
+            beforeRocketShots = report.shots[0];
+            beforeRocketAmmo = report.ammoSpent[0];
+            mo.GiveInventory("RocketAmmo", 3);
+        }
+        if (e.Name == "zdcwrocketcheck")
+        {
+            let report = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
+            Check(report.shots[0] == beforeRocketShots + 1
+                && report.ammoSpent[0] == beforeRocketAmmo + 1,
+                "replacement RocketNew counts as one shot and one round");
+        }
         if (e.Name == "zdcwcheck")
         {
             Check(peakFreezer > 0 && peakFreezer < 200, "real sustained freezer fire creates bounded trails");

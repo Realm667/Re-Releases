@@ -60,7 +60,8 @@ class CustomShaderHandler : StaticEventHandler
 	{
 		PlayerInfo p = players[consoleplayer];
 		PPShader.SetEnabled("heatshader", false);
-		if (!p || !p.mo || !ZDCMP1_shaderoverlayswitch) return;
+		if (!p || !p.mo || !ZDCMP1_shaderoverlayswitch
+			|| CVar.GetCVar("ZDCMP1_comfortpreset", p).GetBool()) return;
 
 		for (Inventory item = p.mo.Inv; item; item = item.Inv)
 		{
