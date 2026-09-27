@@ -28,6 +28,11 @@ jobs:
           python-version: '3.12'
       - name: Fast integrity checks
         run: python -B -m unittest discover -s tools -p test_zdcmp1_integrity.py -v
+      - name: Verify red-only status bar skin
+        run: |
+          python -m pip install Pillow==11.3.0
+          python -B tools/build_zdcmp1_sbar.py --check
+          python -B tools/test_zdcmp1_sbar.py
       - name: Prepare isolated logs and graphics
         run: |
           mkdir -p tutnt/.codex/logs
@@ -70,6 +75,8 @@ jobs:
         run: xvfb-run -a python -B tools/test_zdcmp1_weapons.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
       - name: Field terminal and hint notifications
         run: xvfb-run -a python -B tools/test_zdcmp1_logbook.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
+      - name: Automap skin and objective markers
+        run: xvfb-run -a python -B tools/test_zdcmp1_automap.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
       - name: Short stress and save/load regression
         run: xvfb-run -a python -B tools/test_zdcmp1_stress.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }} --soak --seconds 60 --repeats 1
       - name: Preserve test evidence

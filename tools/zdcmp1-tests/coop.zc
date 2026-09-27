@@ -27,6 +27,10 @@ class ZDCMP1Coop : EventHandler
             ZDCMP1Remaster.RecordHint(5, -1);
             let hints = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
             Check(hints.hints[0] == 32 && hints.hints[1] == 33, "shared and personal journal hints stay distinct");
+            Check(hints.SharedHintMask() == 32
+                && !ZDCMapGuide.Eligible(0, hints.SharedHintMask(), 33)
+                && ZDCMapGuide.Eligible(5, hints.SharedHintMask(), 33),
+                "automap shares only objectives known to both real peers");
         }
         if (t == 105)
         {

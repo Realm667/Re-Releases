@@ -1,0 +1,95 @@
+// Native MapMarker rendering preserves zoom, panning, rotation and clipping.
+class ZDCMapMarker : MapMarker
+{
+    Default
+    {
+        +DORMANT
+        +NOTONAUTOMAP
+        Radius 1;
+        Height 1;
+        Scale 0.8;
+    }
+    States
+    {
+    Spawn:
+        ZDMA B -1;
+        Stop;
+    Objective:
+        ZDMA A -1;
+        Stop;
+    Complete:
+        ZDMA C -1;
+        Stop;
+    }
+}
+
+class ZDCMapGuide : Object
+{
+    static bool Complete(int id) { return id == 6 || id == 7 || id == 9 || id == 11; }
+    static bool Objective(int id) { return id >= 2 && id <= 5; }
+
+    static bool Eligible(int id, int known, int delivered)
+    {
+        if (id < 0 || id >= 13 || !(known & (1 << id))) return false;
+        int superseded = 0;
+        switch (id)
+        {
+        case 0: superseded = 1 << 7; break;
+        case 1: superseded = (1 << 3) | (1 << 4) | (1 << 5); break;
+        case 2: superseded = (1 << 3) | (1 << 4) | (1 << 5); break;
+        case 3:
+            if (!(known & (1 << 1))) return false; // No switch location before discovery.
+            superseded = (1 << 4) | (1 << 5); break;
+        case 4: superseded = 1 << 5; break;
+        case 5: superseded = 1 << 6; break;
+        case 8: superseded = 1 << 9; break;
+        case 10: superseded = 1 << 11; break;
+        }
+        return !(delivered & superseded);
+    }
+
+    static Vector3 Position(int id)
+    {
+        // MAP01 geometry is release-locked and these anchors are verified by tests.
+        if (id == 2) return (1120, 352, 8); // Gear spawn spot, TID 13.
+        int index;
+        switch (id)
+        {
+        case 0: case 7: index = 6183; break;
+        case 1: case 3: case 4: index = 4080; break;
+        case 5: case 6: index = 16183; break;
+        case 8: case 9: index = 15634; break;
+        case 10: case 11: index = 26576; break;
+        default: index = 23199; break;
+        }
+        let line = level.lines[index];
+        Vector2 point = (line.v1.p + line.v2.p) * .5;
+        return (point.x, point.y, 0);
+    }
+
+    static ui void Draw(ZDCMP1Remaster h)
+    {
+        if (!automapactive || viewactive || Menu.GetCurrentMenu() || h.finale
+            || !ZDCLogUI.Setting("ZDCMP1_mapframe")) return;
+        double x = 8 - ZDCLogUI.Left() / ZDCLogUI.Scale();
+        // Leave the native kill/item/secret readout and map title unobstructed.
+        double y = 72 - ZDCLogUI.Top() / ZDCLogUI.Scale();
+        double w = Screen.GetWidth() / ZDCLogUI.Scale() - 16;
+        double height = Screen.GetHeight() / ZDCLogUI.Scale() - 100;
+        double footer = y + height - 26;
+        ZDCLogUI.Tile("ZDCDISPLAY", x + 6, y + 6, w - 12, 28, 64, 32);
+        ZDCLogUI.Text("UAC / " .. ZDCLogUI.Local("$ZDC_AUTOMAP"), x + 17, y + 15, 13);
+        ZDCLogUI.Box(x + 6, footer - 9, w - 12, 29, 0xff101416, .96);
+        ZDCLogUI.Frame(x, y, w, height);
+        ZDCLogUI.Text("!", x + 17, footer, 12, 0xffffce67);
+        ZDCLogUI.Text(ZDCLogUI.Local("$ZDC_MAPGOAL"), x + 35, footer + 1, 10, 0xffffce67);
+        ZDCLogUI.Text("?", x + 217, footer, 12);
+        ZDCLogUI.Text(ZDCLogUI.Local("$ZDC_MAPHINT"), x + 235, footer + 1, 10);
+        ZDCLogUI.Text("+", x + 417, footer, 12, 0xff8ce4ad);
+        ZDCLogUI.Text(ZDCLogUI.Local("$ZDC_MAPDONE"), x + 435, footer + 1, 10, 0xff8ce4ad);
+        int count = 0;
+        for (int i = 0; i < 13; i++)
+            if (h.mapMarkers[i] && !h.mapMarkers[i].bDormant) count++;
+        ZDCLogUI.Text(String.Format("%02d %s", count, ZDCLogUI.Local("$ZDC_MAPMARKERS")), x + w - 156, footer + 1, 10);
+    }
+}

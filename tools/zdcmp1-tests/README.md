@@ -122,6 +122,20 @@ python3 -B tools/test_zdcmp1_stress.py --scene mixed --seconds 15 --repeats 2 --
 python3 -B tools/test_zdcmp1_stress.py --scene mixed --soak --seconds 1800 --repeats 1 --label zdc-soak-30min
 ```
 
+The automap regression runs with `python -B tools/test_zdcmp1_automap.py` using
+the same `--engine`, `--iwad`, `--mod` and `--renderer` arguments as the journal
+test. It checks 23 conditions covering empty discovery, real marker anchors,
+save/load, read-vs-completion semantics, quest transitions, marker toggles,
+overlay/full-map mode and native asset resolution. Screenshots include rotation
+and zoom. Geometry is revealed only inside screenshot fixtures, never runtime.
+The real two-peer coop test also checks the production shared-hint mask.
+
+The red-only status bar mask has two additional tests:
+`python -B tools/test_zdcmp1_sbar.py` (requires Pillow). They verify exact red
+coverage, no overlapping rectangles, and current generated composition.
+Regenerate native definitions with `python -B tools/build_zdcmp1_sbar.py`;
+`--check` verifies without rewriting. No source PNG is modified.
+
 Run benchmarks without other engine processes. Available fixed-seed scenes are
 `weather`, `smoke`, `fire`, `gore` and `mixed`. Weather uses this mod's lava
 particles, not an invented rain implementation. Profiles stay on Max, with a

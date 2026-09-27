@@ -1,0 +1,97 @@
+version "4.8"
+
+class ZDCMapCheck : EventHandler
+{
+    void Check(bool value, String label)
+    {
+        Console.Printf("UTNT_ASSERT %s: %s", value ? "PASS" : "FAIL", label);
+    }
+    bool Visible(ZDCMP1Remaster h, int id)
+    {
+        return h.mapMarkers[id] && !h.mapMarkers[id].bDormant;
+    }
+    int Count(ZDCMP1Remaster h)
+    {
+        int count = 0;
+        for (int i = 0; i < 13; i++) if (Visible(h, i)) count++;
+        return count;
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        if (e.Name == "zdcmapseed")
+        {
+            players[0].mo.bInvulnerable = true;
+            players[0].mo.SetOrigin((1056, -256, 40), false);
+            Check(Count(h) == 0, "undiscovered objectives expose no markers");
+            ZDCMP1Remaster.RecordHint(0, 0);
+            ZDCMP1Remaster.RecordHint(1, 0);
+            ZDCMP1Remaster.RecordHint(2, 0);
+            ZDCMP1Remaster.RecordHint(8, 0);
+            ZDCMP1Remaster.RecordHint(10, 0);
+            ZDCMP1Remaster.RecordHint(12, 0);
+            h.UpdateMapMarkers();
+            Check(Count(h) == 6, "received hints produce six distinct markers");
+            Check(h.mapMarkers[2].pos.xy == (1120, 352), "gear objective uses the real spawn location");
+            Check(h.mapMarkers[0].pos.xy == (1056, 16), "supply door marker uses its real linedef");
+            Check(!h.mapMarkers[2].bSolid && h.mapMarkers[2].bNoBlockmap
+                && h.mapMarkers[2].bInvisible, "map-only markers do not affect world collisions or visuals");
+        }
+        if (e.Name == "zdcmapsaved")
+        {
+            Check(Count(h) == 6, "markers survive save/load without duplicates");
+            h.readHints[0] = h.hints[0];
+            h.UpdateMapMarkers();
+            Check(Count(h) == 6, "reading hints does not complete objectives");
+            Check(!ZDCMapGuide.Eligible(2, 0, 4), "personal discoveries are hidden from unknowing peers");
+            Check(!ZDCMapGuide.Eligible(2, 4, 12), "team item collection retires the obsolete gear objective");
+            Check(!ZDCMapGuide.Eligible(3, 8, 8), "gear pickup alone does not reveal an unknown switch");
+        }
+        if (e.Name == "zdcmapprogress")
+        {
+            ZDCMP1Remaster.RecordHint(3, 0);
+            h.UpdateMapMarkers();
+            Check(!Visible(h, 1) && !Visible(h, 2) && Visible(h, 3), "gear pickup replaces search with return-to-switch objective");
+            Check(h.mapMarkers[3].pos.xy == (266, -4387.5), "return objective points at the real broken switch");
+            ZDCMP1Remaster.RecordHint(4, 0);
+            h.UpdateMapMarkers();
+            Check(!Visible(h, 3) && Visible(h, 4), "repair advances to using the repaired switch");
+            ZDCMP1Remaster.RecordHint(5, -1);
+            h.UpdateMapMarkers();
+            Check(!Visible(h, 4) && Visible(h, 5), "restored power advances to tank controls");
+            ZDCMP1Remaster.RecordHint(6, -1);
+            ZDCMP1Remaster.RecordHint(7, -1);
+            ZDCMP1Remaster.RecordHint(9, -1);
+            ZDCMP1Remaster.RecordHint(11, -1);
+            h.UpdateMapMarkers();
+            Check(Count(h) == 1 && Visible(h, 12), "completed chains retire while unresolved lift remains");
+        }
+        if (e.Name == "zdcmapcomplete")
+        {
+            h.UpdateMapMarkers();
+            Check(Count(h) == 5 && Visible(h, 6) && Visible(h, 7) && Visible(h, 9) && Visible(h, 11),
+                "completed marker option restores only confirmed endpoints");
+        }
+        if (e.Name == "zdcmapdisabled")
+        {
+            h.UpdateMapMarkers();
+            Check(Count(h) == 0 && h.hints[0] == 8191, "disabling markers preserves the journal");
+        }
+    }
+}
+
+class ZDCMapUICheck : StaticEventHandler
+{
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if (e.Name != "zdcmapui") return;
+        bool valid = automapactive && viewactive == (e.Args[0] != 0);
+        Console.Printf("UTNT_ASSERT %s: requested automap mode active", valid ? "PASS" : "FAIL");
+        let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        Console.Printf("UTNT_ASSERT %s: notices yield to automap", !h.NoticeVisible() ? "PASS" : "FAIL");
+        bool textures = TexMan.CheckForTexture("ZDCTOP", TexMan.Type_Any).IsValid()
+            && TexMan.CheckForTexture("ZDCBOT", TexMan.Type_Any).IsValid()
+            && TexMan.CheckForTexture("ZDMAA0", TexMan.Type_Sprite).IsValid();
+        Console.Printf("UTNT_ASSERT %s: SBAR crops and marker sprites resolve", textures ? "PASS" : "FAIL");
+    }
+}

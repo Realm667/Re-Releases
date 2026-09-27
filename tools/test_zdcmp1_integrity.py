@@ -49,7 +49,7 @@ class ZDCMP1Integrity(unittest.TestCase):
     def test_remaster_localization(self):
         language = (ROOT / "zdcmp1/language.enu").read_text()
         keys = set(re.findall(r'(?m)^(\w+)\s*=', language))
-        for path in (ROOT / "zdcmp1/menudef.txt", ROOT / "zdcmp1/zscript/ZDCMP1_Remaster.zc", ROOT / "zdcmp1/zscript/ZDCMP1_Logbook.zc"):
+        for path in (ROOT / "zdcmp1/menudef.txt", ROOT / "zdcmp1/zscript/ZDCMP1_Remaster.zc", ROOT / "zdcmp1/zscript/ZDCMP1_Logbook.zc", ROOT / "zdcmp1/zscript/ZDCMP1_Automap.zc"):
             references = set(re.findall(r'\$(ZDC_[A-Z0-9_]+)(?=["\s])', path.read_text()))
             self.assertFalse(references - keys)
         self.assertTrue(all(f"ZDC_HINT{i}" in keys for i in range(13)))
@@ -67,6 +67,26 @@ class ZDCMP1Integrity(unittest.TestCase):
             self.assertRegex(cvars, rf'user (?:bool|int) ZDCMP1_{name}\s*=')
         self.assertIn('user int ZDCMP1_hintduration = 6;', cvars)
         self.assertEqual(menu.count('Control "$ZDC_JOURNAL"'), 1)
+
+    def test_automap_anchors_and_skin(self):
+        lumps = dict((n.rstrip(b"\0"), d) for n, d in read_wad(ROOT / "zdcmp1/Maps/map01.wad")[1])
+        data = udmf(lumps[b"TEXTMAP"].decode())
+        for index, expected_id, expected_script in ((6183, 56, None), (4080, None, 8),
+                (16183, None, 9), (15634, 4, None), (26576, None, 45), (23199, None, 52)):
+            line = data["linedef"][index]
+            if expected_id is not None:
+                self.assertEqual(line["id"], expected_id)
+            if expected_script is not None:
+                self.assertEqual((line["special"], line["arg0"]), (80, expected_script))
+        gear = next(t for t in data["thing"] if t.get("id") == 13)
+        self.assertEqual((gear["x"], gear["y"]), (1120, 352))
+        textures = (ROOT / "zdcmp1/textures.txt").read_text()
+        self.assertIn('Graphic ZDCBOT, 32, 3 { Patch ZDCTOP, 0, 0 { FlipY } }', textures)
+        self.assertIn('Graphic ZDCDISPLAY, 32, 16 { Patch STBAR, -8, -5 }', textures)
+        menu = (ROOT / "zdcmp1/menudef.txt").read_text()
+        block = re.search(r'OptionMenu "ZDCMP1AutomapMenu"\s*\{([^}]+)\}', menu)[1]
+        for name in ("ZDCMP1_mapframe", "ZDCMP1_mapmarkers", "ZDCMP1_mapcompleted", "am_customcolors"):
+            self.assertIn('"' + name + '"', block)
 
     def test_terrain_references_resolve(self):
         text = "\n".join(p.read_text() for p in (ROOT / "zdcmp1").glob("terrain*"))

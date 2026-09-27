@@ -3,7 +3,7 @@
 ## Player-facing changes
 
 The full and simplified engine menus each have one **ZDCMP1 Options** entry.
-Display & Accessibility, HUD & Statistics, Audio, Gameplay Comfort, Hints & Logbook, Shared
+Display & Accessibility, HUD & Statistics, Audio, Gameplay Comfort, Hints & Logbook, Automap, Shared
 Effects (Host), Gore (Host), and Hint Logbook live below that entry. The mod no
 longer replaces the engine's simplified options menu. Existing user values
 are retained; Max remains the default and no global audio/video preferences
@@ -16,6 +16,8 @@ are deduplicated, survive new-version saves and coop respawns, and reset with
 the map. Hiding the logbook does not erase its history. A key can be assigned
 under Hints & Logbook; no existing key binding is overwritten. This is not
 a quest compass and does not reveal undiscovered secrets or hard-skill hints.
+The automap adds markers only for received observations and explicit gear/pump
+objectives; it never enables map cheats or changes the discovery of geometry.
 
 Camera previews automatically hide the mod HUD and motion blur, then restore
 them on return. The boss finale does the same without asking players to edit
@@ -102,8 +104,42 @@ The local release package SHA-256 is
 
 ## Field-terminal design
 
+### Shared SBAR Skin and Automap
+
+The journal, notifications and full automap use native crops of the original
+`Graphics/sbar/stbar.png`. The bottom rail mirrors the top metal rail; it never
+crops the baked AMMO/HEALTH lettering. The red display uses 88% solid oxblood
+blending and 12% original texture. The same treatment applies to the SBAR,
+including its ammunition panel, without touching metal, lettering or portrait.
+The source PNG is unchanged. `tools/build_zdcmp1_sbar.py` (Pillow) derives exact
+red-only rectangle masks and generates the native TEXTURES composition.
+
+**ZDCMP1 Options > Automap** contains the personal frame switch, the engine's
+existing mod-color preference, and host-controlled marker/completed-marker
+switches. Active markers default on; completed markers default off. Marker
+actors are invisible, nonblocking and do not affect combat or item counts.
+Native rendering handles rotation, zoom, pan and the overlay map. The decorative
+frame and legend are restricted to the full map and leave native statistics
+and the map title visible. Map colors preserve key-lock colors and discovery.
+
+`!` marks explicit gear/pump objectives, `?` marks reported hints/obstacles,
+and `+` marks confirmed endpoints when enabled. The gear target moves to the
+known broken switch after pickup, then advances through repair, power and
+drainage. Door hints retire on activation/unlocking. Reading a log entry never
+advances this state. These are script-derived observations, not a new quest
+system, pathfinder or secret detector.
+
+UZDoom 5.0.1's native MapMarker renderer has no per-player filter. To avoid
+leaking private observations or desynchronizing the game, coop markers require
+the intersection of all connected players' received hints. A completed event
+from any player retires obsolete objectives, including after that player leaves.
+Map markers and hint history are serialized and bounded to thirteen entries.
+No existing bindings, map geometry, skill gates or Max effect defaults change.
+
+### Journal and Notifications
+
 The journal now implements the UAC field-terminal concept: a dark, two-column
-surface, the mod's existing metal texture around the frame, an oxblood header,
+surface, the original SBAR metal frame artwork, a low-texture oxblood header,
 readable pale text, amber hint markers, and green checks for confirmed events.
 The left list contains only received hints. The right pane shows the selected
 hint, its full text and source. Five rows fit per page, with keyboard, controller,
@@ -120,7 +156,7 @@ New in-game notices use the same dark surface, amber/green accent and icon.
 They fade in over seven UI ticks without flashing, appear one at a time in
 delivery order, and last six seconds by default. Duplicate received hints do
 not create repeat entries or notices. Notices wait during menus, camera previews,
-death and the finale. Turning notifications off clears their queue, not history.
+death, the automap and the finale. Turning notifications off clears their queue, not history.
 The old central print/chat calls for these hints are replaced; unrelated map
 dialogue remains. The optional local signal uses the existing chat sound at
 30% volume and does not modify global sound settings.

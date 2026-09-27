@@ -3,6 +3,7 @@ class ZDCMP1Remaster : EventHandler
 {
     int hints[MAXPLAYERS];
     int readHints[MAXPLAYERS];
+    ZDCMapMarker mapMarkers[13];
     ui Array<int> notices;
     ui int noticeAge;
     bool finale;
@@ -46,7 +47,7 @@ class ZDCMP1Remaster : EventHandler
     ui bool NoticeVisible()
     {
         let p = players[consoleplayer];
-        return notices.Size() > 0 && !Menu.GetCurrentMenu() && !finale
+        return notices.Size() > 0 && !Menu.GetCurrentMenu() && !automapactive && !finale
             && p.mo && p.health > 0 && p.camera == p.mo;
     }
 
@@ -83,6 +84,7 @@ class ZDCMP1Remaster : EventHandler
 
     override void WorldTick()
     {
+        UpdateMapMarkers();
         for (int i = 0; i < MAXPLAYERS; i++)
         {
             if (!playeringame[i] || !players[i].mo) continue;
@@ -109,8 +111,47 @@ class ZDCMP1Remaster : EventHandler
         }
     }
 
+    int SharedHintMask()
+    {
+        int known = 8191, count = 0;
+        for (int i = 0; i < MAXPLAYERS; i++)
+            if (playeringame[i])
+            {
+                count++;
+                known &= hints[i];
+            }
+        return count ? known : 0;
+    }
+
+    void UpdateMapMarkers()
+    {
+        if (level.MapName != "MAP01" || level.lines.Size() <= 26576) return;
+        int known = SharedHintMask(), delivered = 0;
+        for (int i = 0; i < MAXPLAYERS; i++)
+            delivered |= hints[i]; // Completed events survive the recipient leaving coop.
+        // The native marker renderer has no per-player filter. Intersection avoids
+        // leaking personal discoveries, including when a new coop player joins.
+        for (int id = 0; id < 13; id++)
+        {
+            bool visible = !deathmatch && ZDCMP1_mapmarkers && !finale
+                && ZDCMapGuide.Eligible(id, known, delivered)
+                && (!ZDCMapGuide.Complete(id) || ZDCMP1_mapcompleted);
+            if (visible && !mapMarkers[id])
+            {
+                mapMarkers[id] = ZDCMapMarker(Actor.Spawn("ZDCMapMarker", ZDCMapGuide.Position(id), NO_REPLACE));
+                if (mapMarkers[id])
+                {
+                    if (ZDCMapGuide.Complete(id)) mapMarkers[id].SetStateLabel("Complete");
+                    else if (ZDCMapGuide.Objective(id)) mapMarkers[id].SetStateLabel("Objective");
+                }
+            }
+            if (mapMarkers[id]) mapMarkers[id].bDormant = !visible;
+        }
+    }
+
     override void RenderOverlay(RenderEvent e)
     {
+        ZDCMapGuide.Draw(self);
         if (NoticeVisible()) ZDCLogUI.Notice(notices[0], min(1., noticeAge / 7.));
         if (!finale || !ZDCMP1_skippablefinale) return;
         String text = StringTable.Localize(multiplayer && consoleplayer != Net_Arbitrator ? "$ZDC_SKIPHOST" : "$ZDC_SKIP");

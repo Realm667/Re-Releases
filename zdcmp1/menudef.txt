@@ -16,6 +16,7 @@ OptionMenu "ZDCMP1OptionsMenu"
 	Submenu "$ZDC_AUDIO", "ZDCMP1AudioMenu"
 	Submenu "$ZDC_COMFORT", "ZDCMP1ComfortMenu"
 	Submenu "$ZDC_HINTOPTIONS", "ZDCMP1HintsMenu"
+	Submenu "$ZDC_AUTOMAP", "ZDCMP1AutomapMenu"
 	Submenu "$ZDC_SHARED", "ZDCMP1EffectsMenu"
 	Submenu "$ZDC_GORE", "NashGoreMenu"
 	StaticText ""
@@ -85,6 +86,17 @@ OptionMenu "ZDCMP1HintsMenu"
 	Slider "$ZDC_DURATION", "ZDCMP1_hintduration", 3, 15, 1, 0
 	Option "$ZDC_POSITION", "ZDCMP1_hintposition", "ZDCHintPosition"
 	Option "$ZDC_SIGNAL", "ZDCMP1_hintsound", "YesNo"
+}
+
+OptionMenu "ZDCMP1AutomapMenu"
+{
+	Title "$ZDC_AUTOMAP"
+	Option "$ZDC_MAPFRAME", "ZDCMP1_mapframe", "YesNo"
+	Option "$ZDC_MAPCOLORS", "am_customcolors", "YesNo"
+	StaticText ""
+	StaticText "$ZDC_HOSTSETTINGS", 1
+	Option "$ZDC_MAPMARKERS", "ZDCMP1_mapmarkers", "YesNo"
+	Option "$ZDC_MAPCOMPLETED", "ZDCMP1_mapcompleted", "YesNo"
 }
 
 OptionValue "ZDCHintSize"

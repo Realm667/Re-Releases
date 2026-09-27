@@ -23,6 +23,32 @@ class ZDCLogUI : Object ui
         Screen.Dim(col, alpha, int(Left() + x * s), int(Top() + y * s), int(ceil(w * s)), int(ceil(h * s)));
     }
 
+    static void Tile(String name, double x, double y, double w, double h,
+        double tileW, double tileH, double alpha = 1)
+    {
+        let texture = TexMan.CheckForTexture(name, TexMan.Type_Any);
+        if (!texture.IsValid()) return;
+        double s = Scale();
+        for (double yy = 0; yy < h; yy += tileH)
+            for (double xx = 0; xx < w; xx += tileW)
+                Screen.DrawTexture(texture, false, Left() + (x + xx) * s, Top() + (y + yy) * s,
+                    DTA_DestWidth, int(ceil(tileW * s)), DTA_DestHeight, int(ceil(tileH * s)),
+                    DTA_Alpha, alpha, DTA_TopLeft, true,
+                    DTA_ClipLeft, int(Left() + x * s), DTA_ClipRight, int(Left() + (x + w) * s),
+                    DTA_ClipTop, int(Top() + y * s), DTA_ClipBottom, int(Top() + (y + h) * s));
+    }
+
+    static void Frame(double x = 40, double y = 35, double w = 720, double h = 380, double alpha = 1)
+    {
+        Tile("ZDCTOP", x, y, w, 6, 64, 6, alpha);
+        Tile("ZDCBOT", x, y + h - 6, w, 6, 64, 6, alpha);
+        Tile("ZDCLEFT", x, y + 6, 6, h - 12, 6, 32, alpha);
+        Tile("ZDCRIGHT", x + w - 6, y + 6, 6, h - 12, 6, 32, alpha);
+        for (int i = 0; i < 4; i++)
+            Tile(i == 0 ? "ZDCCORNER" : i == 1 ? "ZDCCORNERR" : i == 2 ? "ZDCCORNERB" : "ZDCCORNERBR",
+                x + ((i & 1) ? w - 8 : 0), y + ((i & 2) ? h - 8 : 0), 8, 8, 8, 8, alpha);
+    }
+
     static void Text(String text, double x, double y, double size, Color col = 0xffe5e7e5, double alpha = 1)
     {
         double s = Scale() * size / NewConsoleFont.GetHeight();
@@ -76,12 +102,13 @@ class ZDCLogUI : Object ui
         double x = NoticeSide() ? 432 : 18;
         Color accent = Confirmed(id) ? 0xff8ce4ad : 0xffffce67;
         let lines = NewConsoleFont.BreakLines(Body(id), int(306 * NewConsoleFont.GetHeight() / size));
-        double height = 42 + min(lines.Count(), 4) * (size + 4);
+        double height = 50 + min(lines.Count(), 4) * (size + 4);
         bool saved = Setting("ZDCMP1_logbook") != 0;
         if (!saved) height -= 14;
-        Box(x, 22, 350, height, 0xff60696b, alpha);
-        Box(x + 1, 23, 348, height - 2, 0xff101416, alpha * .96);
-        Box(x, 22, 3, height, accent, alpha);
+        Box(x, 22, 350, height, 0xff101416, alpha * .96);
+        Tile("ZDCDISPLAY", x + 3, 25, 344, 18, 64, 32, alpha);
+        Frame(x, 22, 350, height, alpha);
+        Box(x + 6, 28, 2, height - 12, accent, alpha);
         Icon(id, x + 12, 37, accent, alpha);
         Text(Local(Confirmed(id) ? "$ZDC_UPDATED" : "$ZDC_NEWHINT"), x + 34, 31, 10, accent, alpha);
         int count = Wrapped(Body(id), x + 34, 47, 306, size, 0xffe5e7e5, 4, alpha);
@@ -184,25 +211,15 @@ class ZDCMP1JournalMenu : OptionMenu
     {
         let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
         double size = ZDCLogUI.TextSize();
-        // Reuse the mod's metal texture only on the frame, never behind body text.
-        let metal = TexMan.CheckForTexture("XMETAL1F", TexMan.Type_Any);
         ZDCLogUI.Box(38, 33, 724, 384, 0xff080a0b);
-        if (metal.IsValid()) Screen.DrawTexture(metal, false,
-            ZDCLogUI.Left() + 40 * ZDCLogUI.Scale(), ZDCLogUI.Top() + 35 * ZDCLogUI.Scale(),
-            DTA_DestWidth, int(720 * ZDCLogUI.Scale()), DTA_DestHeight, int(380 * ZDCLogUI.Scale()));
         ZDCLogUI.Box(46, 41, 708, 368, 0xff101416);
-        ZDCLogUI.Box(47, 42, 706, 58, 0xff49191e);
+        ZDCLogUI.Tile("ZDCDISPLAY", 46, 41, 708, 59, 64, 32);
+        ZDCLogUI.Box(46, 41, 708, 59, 0xff000000, .25);
         ZDCLogUI.Box(47, 100, 706, 1, 0xff6c7274);
         ZDCLogUI.Text("UAC / FIELD TERMINAL", 61, 50, 10, 0xffb8bfc0);
         ZDCLogUI.Text(ZDCLogUI.Local("$ZDC_LOGTITLE"), 60, 66, 24);
         ZDCLogUI.Text(String.Format("%02d %s", entries.Size(), ZDCLogUI.Local("$ZDC_ENTRIES")), 626, 78, 10);
-        for (int i = 0; i < 4; i++)
-        {
-            double x = (i & 1) ? 748 : 43;
-            double y = (i & 2) ? 404 : 38;
-            ZDCLogUI.Box(x, y, 5, 5, 0xffa6afb0);
-            ZDCLogUI.Box(x + 1, y + 2, 3, 1, 0xff30383a);
-        }
+        ZDCLogUI.Frame();
         ZDCLogUI.Box(327, 114, 1, 260, 0xff525d60);
         for (int row = 0; row < 5 && first + row < entries.Size(); row++)
         {
