@@ -50,12 +50,12 @@ def main():
 netevent zdclight; wait 5; netevent zdcoff; wait 10;
 netevent zdclight; wait 5; netevent zdcoff; wait 10;
 netevent zdcdestroy; netevent zdcladder; netevent zdcweather;
-nashgore_maxgore 8; netevent zdcgore; wait 5; netevent zdccount 8;
-ZDCMP1_fxquality 1; wait 5; netevent zdccount 4;
-ZDCMP1_fxquality 0; wait 5; netevent zdccount 2;
-nashgore_maxgore 0; wait 5; netevent zdccount 0;
-nashgore_maxgore -1; netevent zdcgore; wait 5; netevent zdccount 0;
-ZDCMP1_fxquality 2; nashgore_maxgore 8; netevent zdcgore; wait 5; netevent zdccount 8;
+nashgore_maxgore 8; netevent zdcgore; wait 35; netevent zdccount 8;
+ZDCMP1_fxquality 1; wait 35; netevent zdccount 4;
+ZDCMP1_fxquality 0; wait 35; netevent zdccount 2;
+nashgore_maxgore 0; wait 35; netevent zdccount 0;
+nashgore_maxgore -1; netevent zdcgore; wait 35; netevent zdccount 0;
+ZDCMP1_fxquality 2; nashgore_maxgore 8; netevent zdcgore; wait 35; netevent zdccount 8;
 netevent zdcsmokemark; wait 35; netevent zdcsmoke 1;
 ZDCMP1_shaderoverlayswitch false; wait 10; netevent zdcheat; netevent zdcsmokemark; wait 35; netevent zdcsmoke 0;
 netevent zdcreplacesmoke; wait 20; netevent zdcsmokemark; wait 35; netevent zdcsmoke 0;

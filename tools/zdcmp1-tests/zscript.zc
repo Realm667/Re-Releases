@@ -83,6 +83,8 @@ class ZDCMP1Regression : EventHandler
 		}
 		else if (e.Name == "zdccount")
 		{
+			let handler = NashGoreHandler(EventHandler.Find("NashGoreHandler"));
+			Console.Printf("ZDC_GORE_STATE tick=%d quality=%d budget=%d applied=%d", level.time, ZDCMP1_fxquality, nashgore_maxgore, handler.maxgore_new);
 			Check(CountGore() == e.Args[0], String.Format("gore count = %d (actual %d)", e.Args[0], CountGore()));
 		}
 		else if (e.Name == "zdcsmokemark") previousSmokeSpawns = smokeSpawns;
