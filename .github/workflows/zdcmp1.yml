@@ -19,6 +19,10 @@ jobs:
       LIBGL_ALWAYS_SOFTWARE: '1'
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            zdcmp1
+            tools
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -37,6 +41,10 @@ jobs:
           echo 'a0fb4fd09264ec55827911316454eedb667fc22ac23b6d505a1a2a076b549e4f  uzdoom.AppImage' | sha256sum --check
           chmod +x uzdoom.AppImage
           ./uzdoom.AppImage --appimage-extract > /dev/null
+          # Test runners resolve AppRun's symlink to usr/bin/uzdoom. Keep the
+          # engine's own resources beside that executable, independent of cwd.
+          find squashfs-root -type f -name '*.pk3' -not -path 'squashfs-root/usr/bin/*' -exec cp -t squashfs-root/usr/bin/ {} +
+          test -f squashfs-root/usr/bin/uzdoom.pk3
           curl --fail --location --retry 3 -o freedoom.zip https://github.com/freedoom/freedoom/releases/download/v0.13.0/freedoom-0.13.0.zip
           echo '3f9b264f3e3ce503b4fb7f6bdcb1f419d93c7b546f4df3e874dd878db9688f59  freedoom.zip' | sha256sum --check
           unzip -q freedoom.zip
