@@ -65,6 +65,7 @@ python3 -B tools/test_zdcmp1_edges.py --mod zdcmp1.pk3
 python3 -B tools/test_zdcmp1_coop.py --mod zdcmp1.pk3 --renderer 0
 python3 -B tools/test_zdcmp1_map.py --mod zdcmp1.pk3
 python3 -B tools/test_zdcmp1_remaster.py --mod zdcmp1.pk3
+python3 -B tools/test_zdcmp1_logbook.py --mod zdcmp1.pk3 --visual-matrix
 python3 -B tools/test_zdcmp1_weapons.py --mod zdcmp1.pk3 --compare /path/to/baseline.pk3
 python3 -B tools/audit_zdcmp1.py
 ```
@@ -80,9 +81,10 @@ save/load. Particle acceptance is checked after actor initialization, not
 immediately after `Spawn`.
 
 The cooperative suite starts two actual local peers with separate configuration
-files and opposing motion-blur settings. Fourteen assertions per peer cover entry,
+files and opposing motion-blur settings. Sixteen assertions per peer cover entry,
 Max server quality, death, respawn, gore inventory, camera switching and local
-blur state, journal ownership/respawn and non-host finale-skip rejection.
+blur state, journal ownership/respawn, private notifications, sender-owned read
+acknowledgments and non-host finale-skip rejection.
 It compares final state between peers and only terminates its own
 processes. It is a lifecycle test, not a campaign-wide desynchronization proof.
 
@@ -98,6 +100,15 @@ natural credits run as well. The weapons suite uses real sustained primary and
 alternate fire, compares ammo and object peaks at both comfort extremes and
 requires projectile/effect cleanup. Its optional `--compare` also checks six
 deterministic movement/camera samples against a previous package.
+
+The field-terminal suite requires 32 assertions for notification ordering,
+deduplication, expiry, menu pause, keyboard/controller/mouse navigation,
+unread-state save/load, five-row scrolling, both localizations at large text,
+HUD-corner avoidance, and disabled-state history preservation. Its optional
+`--visual-matrix` adds nine assertions and real 1280x720, 960x720 and 1680x720
+screenshots. The engine must actually reach each requested resolution; fitting
+a frame into an unchanged resolution is not a passing viewport test. Window
+size changes and macOS HiDPI changes affect only the isolated test configuration.
 
 GitHub Actions runs the release checks on relevant pushes and pull requests.
 It uses checksum-pinned UZDoom 5.0.1 and Freedoom 2 0.13.0, pinned ACC 1.60

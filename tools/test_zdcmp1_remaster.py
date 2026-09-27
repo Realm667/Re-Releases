@@ -57,7 +57,7 @@ def main():
                 break
         if all(r["ok"] for r in results):
             script = "wait 35; "
-            for name in ("Options", "Display", "HUD", "Audio", "Comfort", "Effects"):
+            for name in ("Options", "Display", "HUD", "Audio", "Comfort", "Hints", "Effects"):
                 script += (f"openmenu ZDCMP1{name}Menu; wait 5; event zdcuimenu 1; "
                            f"screenshot logs/zdc-menu-{name}-{args.renderer}.png; wait 5; closemenu; wait 5; ")
             result = run_case(args.engine, args.iwad, mod=args.mod, addon=addon, mapname="MAP01",
@@ -66,7 +66,7 @@ def main():
                               settings=[("use_mouse", False), ("use_joystick", False),
                                         ("i_pauseinbackground", False), ("vid_activeinbackground", True)],
                               commands=script + "echo UTNT_REGRESSION_COMPLETE; echo UTNT_TEST_END; quit\n")
-            result["ok"] = result["ok"] and result["assertions"] == 6
+            result["ok"] = result["ok"] and result["assertions"] == 7
             results.append(result)
     (ROOT / "logs" / f"zdc-remaster-{args.renderer}-results.json").write_text(json.dumps(results, indent=2) + "\n")
     return 0 if len(results) == (5 if args.full_finale else 4) and all(r["ok"] for r in results) else 1

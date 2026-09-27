@@ -1,0 +1,245 @@
+// One coordinate space for rendering and hit testing; never stretches with aspect ratio.
+class ZDCLogUI : Object ui
+{
+    static int Setting(String name)
+    {
+        return CVar.GetCVar(name, players[consoleplayer]).GetInt();
+    }
+
+    static double Scale() { return min(Screen.GetWidth() / 800., Screen.GetHeight() / 450.); }
+    static double Left() { return (Screen.GetWidth() - 800 * Scale()) / 2; }
+    static double Top() { return (Screen.GetHeight() - 450 * Scale()) / 2; }
+    static double TextSize() { return 11 + clamp(Setting("ZDCMP1_hintsize"), 0, 2) * 2; }
+    static String Local(String key) { return StringTable.Localize(key); }
+    static String Title(int id) { return Local(String.Format("$ZDC_TITLE%d", id)); }
+    static String Body(int id) { return Local(String.Format("$ZDC_BODY%d", id)); }
+    static String Source(int id) { return Local(String.Format("$ZDC_SOURCE%d", id)); }
+    static String State(int id) { return Local(String.Format("$ZDC_STATE%d", id)); }
+    static bool Confirmed(int id) { return id >= 3 && id <= 7 || id == 9 || id == 11; }
+
+    static void Box(double x, double y, double w, double h, Color col, double alpha = 1)
+    {
+        double s = Scale();
+        Screen.Dim(col, alpha, int(Left() + x * s), int(Top() + y * s), int(ceil(w * s)), int(ceil(h * s)));
+    }
+
+    static void Text(String text, double x, double y, double size, Color col = 0xffe5e7e5, double alpha = 1)
+    {
+        double s = Scale() * size / NewConsoleFont.GetHeight();
+        Screen.DrawText(NewConsoleFont, Font.CR_WHITE, Left() + x * Scale(), Top() + y * Scale(),
+            text, DTA_ScaleX, s, DTA_ScaleY, s, DTA_Color, col, DTA_Alpha, alpha);
+    }
+
+    static int Wrapped(String text, double x, double y, double width, double size,
+        Color col = 0xffe5e7e5, int limit = 10, double alpha = 1)
+    {
+        let lines = NewConsoleFont.BreakLines(text, int(width * NewConsoleFont.GetHeight() / size));
+        for (int i = 0; i < min(lines.Count(), limit); i++)
+            Text(lines.StringAt(i), x, y + i * (size + 4), size, col, alpha);
+        return min(lines.Count(), limit);
+    }
+
+    static void Icon(int id, double x, double y, Color col, double alpha = 1)
+    {
+        if (Confirmed(id))
+        {
+            for (int i = 0; i < 5; i++) Box(x + i, y + 7 + i, 2, 2, col, alpha);
+            for (int i = 0; i < 10; i++) Box(x + 4 + i, y + 11 - i, 2, 2, col, alpha);
+        }
+        else
+        {
+            Box(x, y, 11, 16, col, alpha);
+            Box(x + 1, y + 1, 9, 14, 0xff101416, alpha);
+            for (int i = 0; i < 3; i++) Box(x + 3, y + 5 + i * 3, 5, 1, col, alpha);
+        }
+    }
+
+    static int NoticeSide()
+    {
+        int side = clamp(Setting("ZDCMP1_hintposition"), 0, 2) == 2 ? 1 : 0;
+        int stats = Setting("fullhud_statspos");
+        if (Setting("fullhud_stats") && stats < 2 && stats == side) side = 1 - side;
+        return side;
+    }
+
+    static void Gear(double x, double y, Color col)
+    {
+        Box(x + 4, y, 8, 20, col);
+        Box(x, y + 5, 20, 9, col);
+        Box(x + 2, y + 2, 16, 16, col);
+        Box(x + 6, y + 6, 8, 8, 0xff101416);
+    }
+
+    static void Notice(int id, double alpha)
+    {
+        double size = TextSize();
+        double x = NoticeSide() ? 432 : 18;
+        Color accent = Confirmed(id) ? 0xff8ce4ad : 0xffffce67;
+        let lines = NewConsoleFont.BreakLines(Body(id), int(306 * NewConsoleFont.GetHeight() / size));
+        double height = 42 + min(lines.Count(), 4) * (size + 4);
+        bool saved = Setting("ZDCMP1_logbook") != 0;
+        if (!saved) height -= 14;
+        Box(x, 22, 350, height, 0xff60696b, alpha);
+        Box(x + 1, 23, 348, height - 2, 0xff101416, alpha * .96);
+        Box(x, 22, 3, height, accent, alpha);
+        Icon(id, x + 12, 37, accent, alpha);
+        Text(Local(Confirmed(id) ? "$ZDC_UPDATED" : "$ZDC_NEWHINT"), x + 34, 31, 10, accent, alpha);
+        int count = Wrapped(Body(id), x + 34, 47, 306, size, 0xffe5e7e5, 4, alpha);
+        if (saved) Text(Local("$ZDC_SAVED"), x + 34, 49 + count * (size + 4), 9, 0xffa4abad, alpha);
+    }
+}
+
+class ZDCMP1JournalMenu : OptionMenu
+{
+    Array<int> entries;
+    int selected;
+    int first;
+    int seenMask;
+
+    override void Init(Menu parent, OptionMenuDescriptor desc)
+    {
+        Super.Init(parent, desc);
+        DontBlur = true;
+        Refresh();
+        let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        if (h)
+            for (int i = 0; i < entries.Size(); i++)
+                if (!(h.readHints[consoleplayer] & (1 << entries[i]))) { selected = i; break; }
+        ReadSelected();
+    }
+
+    void Refresh()
+    {
+        entries.Clear();
+        let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        if (h && ZDCLogUI.Setting("ZDCMP1_logbook"))
+            for (int i = 0; i < 13; i++)
+                if (h.hints[consoleplayer] & (1 << i)) entries.Push(i);
+        selected = clamp(selected, 0, max(0, entries.Size() - 1));
+        first = clamp(first, max(0, selected - 4), selected);
+    }
+
+    void ReadSelected()
+    {
+        if (!entries.Size()) return;
+        int bit = 1 << entries[selected];
+        if (!(seenMask & bit))
+        {
+            seenMask |= bit;
+            EventHandler.SendNetworkEvent("zdc_hintread", entries[selected]);
+        }
+    }
+
+    override void Ticker()
+    {
+        Refresh();
+        ReadSelected();
+    }
+
+    override bool MenuEvent(int key, bool fromcontroller)
+    {
+        if (key == MKEY_Back) { Close(); return true; }
+        int old = selected;
+        if (key == MKEY_Up || key == MKEY_Left) selected--;
+        else if (key == MKEY_Down || key == MKEY_Right) selected++;
+        else if (key == MKEY_PageUp) selected -= 5;
+        else if (key == MKEY_PageDown) selected += 5;
+        else if (key == MKEY_Home) selected = 0;
+        else if (key == MKEY_End) selected = entries.Size() - 1;
+        else if (key != MKEY_Enter) return false;
+        Refresh();
+        ReadSelected();
+        if (old != selected) MenuSound("menu/cursor");
+        return true;
+    }
+
+    override bool MouseEvent(int type, int x, int y)
+    {
+        double vx = (x - ZDCLogUI.Left()) / ZDCLogUI.Scale();
+        double vy = (y - ZDCLogUI.Top()) / ZDCLogUI.Scale();
+        if (type != MOUSE_Click) return false;
+        if (vx >= 635 && vx <= 743 && vy >= 380 && vy <= 411) { Close(); return true; }
+        if (vx >= 55 && vx <= 313 && vy >= 115 && vy < 375)
+        {
+            int row = int((vy - 115) / 52) + first;
+            if (row < entries.Size()) { selected = row; ReadSelected(); return true; }
+        }
+        if (vx >= 314 && vx <= 327)
+        {
+            if (vy >= 98 && vy < 115) return MenuEvent(MKEY_PageUp, false);
+            if (vy >= 361 && vy < 381) return MenuEvent(MKEY_PageDown, false);
+        }
+        return false;
+    }
+
+    override bool OnUIEvent(UIEvent e)
+    {
+        if (e.Type == UIEvent.Type_WheelUp) return MenuEvent(MKEY_Up, false);
+        if (e.Type == UIEvent.Type_WheelDown) return MenuEvent(MKEY_Down, false);
+        if (e.Type == UIEvent.Type_LButtonDown) return MouseEvent(MOUSE_Click, e.MouseX, e.MouseY);
+        return false;
+    }
+
+    override void Drawer()
+    {
+        let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        double size = ZDCLogUI.TextSize();
+        // Reuse the mod's metal texture only on the frame, never behind body text.
+        let metal = TexMan.CheckForTexture("XMETAL1F", TexMan.Type_Any);
+        ZDCLogUI.Box(38, 33, 724, 384, 0xff080a0b);
+        if (metal.IsValid()) Screen.DrawTexture(metal, false,
+            ZDCLogUI.Left() + 40 * ZDCLogUI.Scale(), ZDCLogUI.Top() + 35 * ZDCLogUI.Scale(),
+            DTA_DestWidth, int(720 * ZDCLogUI.Scale()), DTA_DestHeight, int(380 * ZDCLogUI.Scale()));
+        ZDCLogUI.Box(46, 41, 708, 368, 0xff101416);
+        ZDCLogUI.Box(47, 42, 706, 58, 0xff49191e);
+        ZDCLogUI.Box(47, 100, 706, 1, 0xff6c7274);
+        ZDCLogUI.Text("UAC / FIELD TERMINAL", 61, 50, 10, 0xffb8bfc0);
+        ZDCLogUI.Text(ZDCLogUI.Local("$ZDC_LOGTITLE"), 60, 66, 24);
+        ZDCLogUI.Text(String.Format("%02d %s", entries.Size(), ZDCLogUI.Local("$ZDC_ENTRIES")), 626, 78, 10);
+        for (int i = 0; i < 4; i++)
+        {
+            double x = (i & 1) ? 748 : 43;
+            double y = (i & 2) ? 404 : 38;
+            ZDCLogUI.Box(x, y, 5, 5, 0xffa6afb0);
+            ZDCLogUI.Box(x + 1, y + 2, 3, 1, 0xff30383a);
+        }
+        ZDCLogUI.Box(327, 114, 1, 260, 0xff525d60);
+        for (int row = 0; row < 5 && first + row < entries.Size(); row++)
+        {
+            int index = first + row;
+            int id = entries[index];
+            double y = 115 + row * 52;
+            Color accent = ZDCLogUI.Confirmed(id) ? 0xff8ce4ad : 0xffffce67;
+            bool unread = h && !((h.readHints[consoleplayer] | seenMask) & (1 << id));
+            if (index == selected)
+            {
+                ZDCLogUI.Box(56, y, 256, 50, 0xff323b3f);
+                ZDCLogUI.Box(56, y, 3, 50, accent);
+            }
+            ZDCLogUI.Icon(id, 67, y + 16, accent);
+            int lines = ZDCLogUI.Wrapped(ZDCLogUI.Title(id), 90, y + 7, 210, size, 0xffe5e7e5, 2);
+            if (unread) ZDCLogUI.Text(ZDCLogUI.Local("$ZDC_NEW"), 90, y + (lines > 1 ? 43 : 32), lines > 1 ? 7 : 9, accent);
+            else if (lines == 1) ZDCLogUI.Text(ZDCLogUI.State(id), 90, y + 32, 9, 0xffb8bfc0);
+            ZDCLogUI.Box(60, y + 51, 249, 1, 0xff30393c);
+        }
+        if (first > 0) ZDCLogUI.Text("^", 318, 102, 11, 0xffffce67);
+        if (first + 5 < entries.Size()) ZDCLogUI.Text("v", 318, 367, 11, 0xffffce67);
+        if (entries.Size())
+        {
+            int id = entries[selected];
+            Color accent = ZDCLogUI.Confirmed(id) ? 0xff8ce4ad : 0xffffce67;
+            ZDCLogUI.Text(ZDCLogUI.Local(id == 2 ? "$ZDC_COMPUTERHINT" : ZDCLogUI.Confirmed(id) ? "$ZDC_UPDATED" : "$ZDC_RECORDED"), 347, 117, 10, accent);
+            if (id == 2) ZDCLogUI.Gear(345, 142, 0xffb8bfc0);
+            else ZDCLogUI.Icon(id, 348, 146, accent);
+            int titleLines = ZDCLogUI.Wrapped(ZDCLogUI.Title(id), 371, 141, 354, size + 6, 0xffe5e7e5, 2);
+            ZDCLogUI.Wrapped(ZDCLogUI.Body(id), 347, 153 + titleLines * (size + 10), 380, size + 2, 0xffe5e7e5, 6);
+            ZDCLogUI.Box(347, 316, 383, 1, 0xff525d60);
+            ZDCLogUI.Wrapped(ZDCLogUI.Local("$ZDC_SOURCE") .. ": " .. ZDCLogUI.Source(id), 347, 329, 380, size - 2, 0xffb8bfc0, 2);
+        }
+        else ZDCLogUI.Wrapped(ZDCLogUI.Local(ZDCLogUI.Setting("ZDCMP1_logbook") ? "$ZDC_NOHINTS" : "$ZDC_JOURNALOFF"),
+            347, 155, 380, size + 2);
+        ZDCLogUI.Box(60, 381, 680, 1, 0xff525d60);
+        if (entries.Size()) ZDCLogUI.Text(String.Format("%02d / %02d", selected + 1, entries.Size()), 62, 391, 10, 0xffb8bfc0);
+        ZDCLogUI.Text("[X] " .. ZDCLogUI.Local("$ZDC_CLOSE"), 643, 390, 11);
+    }
+}

@@ -49,10 +49,24 @@ class ZDCMP1Integrity(unittest.TestCase):
     def test_remaster_localization(self):
         language = (ROOT / "zdcmp1/language.enu").read_text()
         keys = set(re.findall(r'(?m)^(\w+)\s*=', language))
-        for path in (ROOT / "zdcmp1/menudef.txt", ROOT / "zdcmp1/zscript/ZDCMP1_Remaster.zc"):
+        for path in (ROOT / "zdcmp1/menudef.txt", ROOT / "zdcmp1/zscript/ZDCMP1_Remaster.zc", ROOT / "zdcmp1/zscript/ZDCMP1_Logbook.zc"):
             references = set(re.findall(r'\$(ZDC_[A-Z0-9_]+)(?=["\s])', path.read_text()))
             self.assertFalse(references - keys)
         self.assertTrue(all(f"ZDC_HINT{i}" in keys for i in range(13)))
+        german = set(re.findall(r'(?m)^(\w+)\s*=', (ROOT / "zdcmp1/language.deu").read_text()))
+        for prefix in ("ZDC_TITLE", "ZDC_BODY", "ZDC_SOURCE", "ZDC_STATE"):
+            for i in range(13):
+                self.assertIn(f"{prefix}{i}", keys & german)
+
+    def test_logbook_option_ownership(self):
+        menu = (ROOT / "zdcmp1/menudef.txt").read_text()
+        block = re.search(r'OptionMenu "ZDCMP1HintsMenu"\s*\{([^}]+)\}', menu)[1]
+        cvars = (ROOT / "zdcmp1/cvarinfo.txt").read_text()
+        for name in ("logbook", "hintnotifications", "hintsize", "hintduration", "hintposition", "hintsound"):
+            self.assertIn(f'"ZDCMP1_{name}"', block)
+            self.assertRegex(cvars, rf'user (?:bool|int) ZDCMP1_{name}\s*=')
+        self.assertIn('user int ZDCMP1_hintduration = 6;', cvars)
+        self.assertEqual(menu.count('Control "$ZDC_JOURNAL"'), 1)
 
     def test_terrain_references_resolve(self):
         text = "\n".join(p.read_text() for p in (ROOT / "zdcmp1").glob("terrain*"))

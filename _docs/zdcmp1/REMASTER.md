@@ -3,7 +3,7 @@
 ## Player-facing changes
 
 The full and simplified engine menus each have one **ZDCMP1 Options** entry.
-Display & Accessibility, HUD & Statistics, Audio, Gameplay Comfort, Shared
+Display & Accessibility, HUD & Statistics, Audio, Gameplay Comfort, Hints & Logbook, Shared
 Effects (Host), Gore (Host), and Hint Logbook live below that entry. The mod no
 longer replaces the engine's simplified options menu. Existing user values
 are retained; Max remains the default and no global audio/video preferences
@@ -14,7 +14,7 @@ pump, gear, main-door, surface-teleport and damaged-lift scripts. Personal
 messages remain personal; broadcast messages go to connected players. Hints
 are deduplicated, survive new-version saves and coop respawns, and reset with
 the map. Hiding the logbook does not erase its history. A key can be assigned
-under Gameplay Comfort; no existing key binding is overwritten. This is not
+under Hints & Logbook; no existing key binding is overwritten. This is not
 a quest compass and does not reveal undiscovered secrets or hard-skill hints.
 
 Camera previews automatically hide the mod HUD and motion blur, then restore
@@ -72,7 +72,7 @@ No new benchmark-based speedup or universal hardware compatibility is claimed.
 The previous 30-minute endurance evidence predates these feature changes;
 it must not be presented as a new 30-minute run of this revision.
 
-## Verification evidence
+## Previous remaster verification
 
 Both Linux renderer jobs passed every release check for commit `7865619`:
 [GitHub Actions run 36330464323](https://github.com/Realm667/Re-Releases/actions/runs/36330464323).
@@ -99,3 +99,53 @@ Native UZDoom 5.0.1 on Apple M3/macOS, using Freedoom 0.13.0, passed:
 
 The local release package SHA-256 is
 `6abf5f2a3d346279731881a2df2c79ef4742722638fc22f7e1dc9f4ed7a5efd1`.
+
+## Field-terminal design
+
+The journal now implements the UAC field-terminal concept: a dark, two-column
+surface, the mod's existing metal texture around the frame, an oxblood header,
+readable pale text, amber hint markers, and green checks for confirmed events.
+The left list contains only received hints. The right pane shows the selected
+hint, its full text and source. Five rows fit per page, with keyboard, controller,
+mouse-wheel and mouse-click navigation. Reading selects an entry and removes
+its NEW marker; it never completes an objective or reveals an unreceived hint.
+Hints remain a history of observations, not an inferred quest-state tracker.
+
+Read acknowledgments are validated against the sending player's received mask
+and survive new-version save/load. Confirmed states come only from existing
+map events (pickup, repair, power, drainage, door activation). Existing hint
+ownership, skill gates, geometry, enemies and gameplay timing are unchanged.
+
+New in-game notices use the same dark surface, amber/green accent and icon.
+They fade in over seven UI ticks without flashing, appear one at a time in
+delivery order, and last six seconds by default. Duplicate received hints do
+not create repeat entries or notices. Notices wait during menus, camera previews,
+death and the finale. Turning notifications off clears their queue, not history.
+The old central print/chat calls for these hints are replaced; unrelated map
+dialogue remains. The optional local signal uses the existing chat sound at
+30% volume and does not modify global sound settings.
+
+All controls are personal and consolidated under **ZDCMP1 Options > Hints &
+Logbook**: journal visibility, assigned key, in-game notices, three text sizes,
+3-15-second duration, automatic/left/right position, and signal sound. A notice
+moves to the opposite top corner if its chosen corner contains the mod's stats.
+English is the fallback; German texts follow the engine's selected language.
+Both text wrapping and input coordinates share an aspect-preserving layout.
+No existing binding or Max effect default is changed.
+
+Start a new game after updating, as described above: old saves contain their
+old ACS display calls. Current acceptance remains code-path and UI testing with
+Freedoom, not a complete Doom II playthrough or universal hardware guarantee.
+
+Native verification of the field-terminal package passed on UZDoom 5.0.1:
+32 field-terminal assertions plus nine real viewport assertions on each of
+OpenGL and Vulkan; actual MAP01 remaster tests and seven menu checks on both;
+16 assertions per peer in native OpenGL coop; ten integrity tests and ACC 1.60
+bytecode verification. Screenshots were inspected at 1280x720, 960x720 and
+1680x720, including large German text. The native Vulkan coop limitation noted
+above is unchanged. The unrelated UTNT generated-table check cannot run in
+this local sparse checkout because `tutnt/cvarinfo` is absent; no UTNT definition
+tables were changed.
+
+Field-terminal package SHA-256:
+`a4a52f253f58700d1bc12893f3088b4c8edb69ee654d87b9042342545d60661b`.

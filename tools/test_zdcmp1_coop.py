@@ -76,7 +76,7 @@ def main():
                 if not complete:
                     errors.append("missing completion markers")
                 state = re.search(r"ZDC_COOP_STATE (.*)", text)
-                result = {"peer": i, "ok": complete and not errors and text.count("UTNT_ASSERT PASS") == 14,
+                result = {"peer": i, "ok": complete and not errors and text.count("UTNT_ASSERT PASS") == 16,
                           "errors": errors, "assertions": text.count("UTNT_ASSERT PASS"),
                           "state": state[1] if state else None, "log": str(log), "teardown": "runner stops only its two peers after checks"}
                 results.append(result)

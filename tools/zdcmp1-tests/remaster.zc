@@ -104,7 +104,7 @@ class ZDCMP1MenuCheck : StaticEventHandler
         if (e.Name != "zdcuimenu") return;
         let menu = OptionMenu(Menu.GetCurrentMenu());
         bool ok = menu != null;
-        if (e.Args[0] == 0) ok = ok && menu is "ZDCMP1JournalMenu" && menu.mDesc.mItems.Size() == 4;
+        if (e.Args[0] == 0) ok = ok && menu is "ZDCMP1JournalMenu" && ZDCMP1JournalMenu(menu).entries.Size() == 3;
         Console.Printf("UTNT_ASSERT %s: remaster menu is open", ok ? "PASS" : "FAIL");
     }
 }

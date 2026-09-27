@@ -15,6 +15,7 @@ OptionMenu "ZDCMP1OptionsMenu"
 	Submenu "$ZDC_HUD", "ZDCMP1HUDMenu"
 	Submenu "$ZDC_AUDIO", "ZDCMP1AudioMenu"
 	Submenu "$ZDC_COMFORT", "ZDCMP1ComfortMenu"
+	Submenu "$ZDC_HINTOPTIONS", "ZDCMP1HintsMenu"
 	Submenu "$ZDC_SHARED", "ZDCMP1EffectsMenu"
 	Submenu "$ZDC_GORE", "NashGoreMenu"
 	StaticText ""
@@ -69,12 +70,35 @@ OptionMenu "ZDCMP1AudioMenu"
 OptionMenu "ZDCMP1ComfortMenu"
 {
 	Title "$ZDC_COMFORT"
-	Option "$ZDC_ENABLEJOURNAL", "ZDCMP1_logbook", "YesNo"
-	Control "$ZDC_JOURNAL", "openmenu ZDCMP1JournalMenu"
-	StaticText ""
 	StaticText "$ZDC_HOSTSETTINGS", 1
 	Option "$ZDC_SKIPFINALE", "ZDCMP1_skippablefinale", "YesNo"
 	Option "$ZDC_WEAPONSHAKE", "ZDCMP1_weaponshake", "YesNo"
+}
+
+OptionMenu "ZDCMP1HintsMenu"
+{
+	Title "$ZDC_HINTOPTIONS"
+	Option "$ZDC_ENABLEJOURNAL", "ZDCMP1_logbook", "YesNo"
+	Control "$ZDC_JOURNAL", "openmenu ZDCMP1JournalMenu"
+	Option "$ZDC_NOTIFICATIONS", "ZDCMP1_hintnotifications", "YesNo"
+	Option "$ZDC_TEXTSIZE", "ZDCMP1_hintsize", "ZDCHintSize"
+	Slider "$ZDC_DURATION", "ZDCMP1_hintduration", 3, 15, 1, 0
+	Option "$ZDC_POSITION", "ZDCMP1_hintposition", "ZDCHintPosition"
+	Option "$ZDC_SIGNAL", "ZDCMP1_hintsound", "YesNo"
+}
+
+OptionValue "ZDCHintSize"
+{
+	0, "$ZDC_SMALL"
+	1, "$ZDC_NORMAL"
+	2, "$ZDC_LARGE"
+}
+
+OptionValue "ZDCHintPosition"
+{
+	0, "$ZDC_AUTO"
+	1, "$ZDC_TOPLEFT"
+	2, "$ZDC_TOPRIGHT"
 }
 
 OptionMenu "ZDCMP1JournalMenu"

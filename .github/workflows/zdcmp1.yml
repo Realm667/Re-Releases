@@ -68,6 +68,8 @@ jobs:
         run: xvfb-run -a python -B tools/test_zdcmp1_remaster.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
       - name: Sustained weapons at both comfort extremes
         run: xvfb-run -a python -B tools/test_zdcmp1_weapons.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
+      - name: Field terminal and hint notifications
+        run: xvfb-run -a python -B tools/test_zdcmp1_logbook.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
       - name: Short stress and save/load regression
         run: xvfb-run -a python -B tools/test_zdcmp1_stress.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }} --soak --seconds 60 --repeats 1
       - name: Preserve test evidence

@@ -53,8 +53,6 @@ script 5 OPEN
 
 script 13 (void) // added by BioHazard
 {
-	LocalAmbientsound ("misc/chat", 127);
-	Print(s:"\cCThe door to the supply room is locked remotely...");
 	ScriptCall("ZDCMP1Remaster", "RecordHint", 0, PlayerNumber());
 }
 
@@ -160,7 +158,6 @@ script 8(void)
 	ceiling_raisebyvalue(12,64,64);
 	door_open(14, 64);
 	delay(70);
-	print(s:"\cGShit, it's broken");
 	ScriptCall("ZDCMP1Remaster", "RecordHint", 1, PlayerNumber());
 	delay(70);
 	if (CheckInventory("PuzzGear1")) { // HotWax: when you've found the gear before trying the switch
@@ -204,8 +201,6 @@ script 9(int cheat)
    }
    else
    {
-      ambientsound ("misc/chat", 127);
-      printbold(s:"\cCDraining storage tank");
       ScriptCall("ZDCMP1Remaster", "RecordHint", 6, -1);
       Ceiling_lowerbyvalue(15,2,128);
       ceiling_raisebyvalue(968,2,48);
@@ -233,7 +228,6 @@ script 11(void)
 {
 	setlinetexture(14,SIDE_FRONT, TEXTURE_MIDDLE, "GEAR02");
 	delay(35);
-	print(s:"\cGThat seems to fix it. Let's try the switch again");
 	ScriptCall("ZDCMP1Remaster", "RecordHint", 4, PlayerNumber());
 	door_close(12, 64);
 	setlinespecial(12, ACS_Execute, 12, 0, 0, 0, 0);
@@ -241,8 +235,6 @@ script 11(void)
 
 script 12(void)
 {
-	ambientsound ("misc/chat", 127);
-	printbold(s:"\cCPower to pumps restored");
 	ScriptCall("ZDCMP1Remaster", "RecordHint", 5, -1);
 	power=1;
 	spawnspot("DoomImp",17,0,0);
@@ -254,8 +246,6 @@ script 14 (void) // added by BioHazard
 	print(s:"\cGComputer, Locate a spare gear for the tank power switch");
 	Delay(175);
 	Changecamera(39,0,0);
-	localambientsound ("misc/chat", 127);
-	print(s:"\cCPart found, location is part storage, sector B");
 	ScriptCall("ZDCMP1Remaster", "RecordHint", 2, PlayerNumber());
 	Delay(175);
 	Changecamera(0,0,0);
@@ -265,8 +255,6 @@ Script 16 (void) // added by biohazard
 {
 	Thing_SpawnFacing(15, T_IMP, 1, 0);	// HotWax: Repopulate the teleport room
 	Setlinespecial(56,206,3,32,105); // added by BioHazard
-	ambientsound ("misc/chat", 127);
-	Printbold(s:"\cCSupply room door unlocked");
 	ScriptCall("ZDCMP1Remaster", "RecordHint", 7, -1);
 	Delay(70);
 }
@@ -338,16 +326,12 @@ script 67 (void)
 
 Script 17 (void)  //Door deactivated script
 {
-	localambientsound ("misc/chat", 127);
-	print (s: "\cCdoor deactivated.\n\cCfind the master switch.");
 	ScriptCall("ZDCMP1Remaster", "RecordHint", 8, PlayerNumber());
 }
 
 Script 18 (void)
 {
 	setlinespecial (4, 11, 53, 16, 0, 0, 0); //change door to a regular door open type
-	ambientsound ("misc/chat", 127);
-	printbold(s: "\cCmain door activated.");
 	ScriptCall("ZDCMP1Remaster", "RecordHint", 9, -1);
 	Floor_LowerToLowest (54, 64);
 }
@@ -410,16 +394,12 @@ script 21 (void)  //Break a fan
 
 Script 45 (void)  //Another door deactivated script
 {
-	localambientsound ("misc/chat", 127);
-	print (s: "\cCEmergency surface teleport door sealed.\n\cCit is opened from the control console.");
     ScriptCall("ZDCMP1Remaster", "RecordHint", 10, PlayerNumber());
 }
 
 
 Script 46 (void) //Open the door
 {
-	ambientsound ("misc/chat", 127);
-	printbold(s: "\cCEmergency surface teleport door open.");
     ScriptCall("ZDCMP1Remaster", "RecordHint", 11, -1);
 	Door_Open(150, 64);
 	Thing_SpawnNoFog(74, T_IMP, 0);
@@ -466,8 +446,6 @@ Script 51 (void) //Fire in the lift
 
 Script 52 (void) //Lift broken
 {
-	localambientsound ("misc/chat", 127);
-	print (s: "\cCThis lift is very damaged.\n\cCFind another way");
     ScriptCall("ZDCMP1Remaster", "RecordHint", 12, PlayerNumber());
 }
 

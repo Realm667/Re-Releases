@@ -1,0 +1,121 @@
+version "4.8"
+
+class ZDCFieldCheck : EventHandler
+{
+    void Check(bool value, String label)
+    {
+        Console.Printf("UTNT_ASSERT %s: %s", value ? "PASS" : "FAIL", label);
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        if (e.Name == "zdcfieldseed")
+        {
+            players[0].mo.bInvulnerable = true;
+            Check(h.hints[0] == 0 && h.readHints[0] == 0, "new journal starts empty and unread");
+            ZDCMP1Remaster.RecordHint(0, 0);
+            ZDCMP1Remaster.RecordHint(2, 0);
+            ZDCMP1Remaster.RecordHint(5, -1);
+            ZDCMP1Remaster.RecordHint(2, 0);
+            Check(h.hints[0] == 37 && h.hints[1] == 0, "deduplicated received hints stay personal");
+        }
+        if (e.Name == "zdcfieldread")
+        {
+            Check((h.readHints[0] & 37) == 37, "selected hints acknowledged and serialized");
+            Check(h.readHints[1] == 0, "reading does not mark another player read");
+            Check(h.hints[0] == 37, "reading never completes or reveals another objective");
+        }
+        if (e.Name == "zdcfieldall")
+        {
+            for (int i = 0; i < 13; i++) ZDCMP1Remaster.RecordHint(i, 0);
+            Check(h.hints[0] == 8191, "fixture delivers all 13 real hint types");
+        }
+    }
+}
+
+class ZDCFieldUICheck : StaticEventHandler
+{
+    ui int pausedAge;
+    ui void Check(bool value, String label)
+    {
+        Console.Printf("UTNT_ASSERT %s: %s", value ? "PASS" : "FAIL", label);
+    }
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        let m = ZDCMP1JournalMenu(Menu.GetCurrentMenu());
+        if (e.Name == "zdcfieldqueue")
+        {
+            Check(h.notices.Size() == 3 && h.notices[0] == 0 && h.notices[1] == 2 && h.notices[2] == 5,
+                "notifications queued in delivery order without repeats");
+            Check(h.noticeAge > 0 && h.noticeAge < 210, "default notification lasts six seconds");
+            Check(ZDCLogUI.NoticeSide() == 0, "default notice avoids upper-right statistics");
+        }
+        if (e.Name == "zdcfieldnavigate")
+        {
+            Check(m && m.entries.Size() == 3, "journal contains only received hints");
+            if (!m) return;
+            m.MenuEvent(Menu.MKEY_End, true);
+            Check(m.selected == 2, "controller End selects final received hint");
+            m.MenuEvent(Menu.MKEY_Up, false);
+            Check(m.entries[m.selected] == 2, "keyboard navigation selects gear detail");
+            m.MouseEvent(Menu.MOUSE_Click, int(ZDCLogUI.Left() + 100 * ZDCLogUI.Scale()),
+                int(ZDCLogUI.Top() + 130 * ZDCLogUI.Scale()));
+            Check(m.selected == 0, "mouse hit testing matches scaled row");
+            m.MenuEvent(Menu.MKEY_Down, false);
+            pausedAge = h.noticeAge;
+        }
+        if (e.Name == "zdcfieldpaused")
+        {
+            Check(h.noticeAge == pausedAge && !h.NoticeVisible(), "notifications pause and hide while journal is open");
+        }
+        if (e.Name == "zdcfieldadvanced")
+        {
+            Check(h.notices.Size() == e.Args[0] && h.notices[0] == e.Args[1], "next notification replaces expired notice in order");
+        }
+        if (e.Name == "zdcfieldscroll")
+        {
+            Check(m && m.entries.Size() == 13, "full journal contains all delivered entries");
+            if (!m) return;
+            m.MenuEvent(Menu.MKEY_End, false);
+            Check(m.selected == 12 && m.first == 8, "last entry scrolls into visible five-row page");
+            m.MenuEvent(Menu.MKEY_Down, true);
+            Check(m.selected == 12, "navigation clamps at last entry");
+            m.MenuEvent(Menu.MKEY_PageUp, true);
+            Check(m.selected == 7, "controller page navigation works");
+            m.MenuEvent(Menu.MKEY_Home, false);
+            m.MenuEvent(Menu.MKEY_Down, false);
+            m.MenuEvent(Menu.MKEY_Down, false);
+        }
+        if (e.Name == "zdcfieldlayout")
+        {
+            bool fits = true;
+            double size = ZDCLogUI.TextSize();
+            for (int i = 0; i < 13; i++)
+            {
+                let title = NewConsoleFont.BreakLines(ZDCLogUI.Title(i), int(354 * NewConsoleFont.GetHeight() / (size + 6)));
+                let body = NewConsoleFont.BreakLines(ZDCLogUI.Body(i), int(380 * NewConsoleFont.GetHeight() / (size + 2)));
+                let list = NewConsoleFont.BreakLines(ZDCLogUI.Title(i), int(210 * NewConsoleFont.GetHeight() / size));
+                fits = fits && title.Count() <= 2 && list.Count() <= 2
+                    && 153 + title.Count() * (size + 10) + body.Count() * (size + 6) <= 312;
+            }
+            Check(fits, "all localized details fit at selected text size");
+            Check(ZDCLogUI.NoticeSide() == e.Args[0], "notice avoids configured statistics corner");
+        }
+        if (e.Name == "zdcfieldviewport")
+        {
+            Console.Printf("ZDC_VIEWPORT %d %d", Screen.GetWidth(), Screen.GetHeight());
+            Check(Screen.GetWidth() == e.Args[0] && Screen.GetHeight() == e.Args[1], "requested viewport is active");
+            Check(ZDCLogUI.Left() + 38 * ZDCLogUI.Scale() >= 0
+                && ZDCLogUI.Top() + 33 * ZDCLogUI.Scale() >= 0
+                && ZDCLogUI.Left() + 762 * ZDCLogUI.Scale() <= Screen.GetWidth()
+                && ZDCLogUI.Top() + 417 * ZDCLogUI.Scale() <= Screen.GetHeight(), "terminal frame stays within viewport");
+        }
+        if (e.Name == "zdcfieldhidden")
+        {
+            Check(m && m.entries.Size() == 0, "disabled logbook exposes no rows");
+            Check(h.hints[0] == 8191, "hiding logbook preserves history");
+            Check(h.notices.Size() == 0, "disabled notifications clear pending queue");
+        }
+    }
+}

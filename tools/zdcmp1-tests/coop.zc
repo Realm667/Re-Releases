@@ -52,6 +52,8 @@ class ZDCMP1Coop : EventHandler
         }
         if (t == 315)
         {
+            let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+            Check(h.readHints[0] == 0 && h.readHints[1] == 1, "reading is owned by sender and cannot mark unreceived hints");
             Check(players[1].camera == players[1].mo, "camera restored after respawn");
             Check(!players[1].mo.FindInventory("CutsceneEnabled"), "coop HUD restored after camera");
         }
@@ -74,8 +76,19 @@ class ZDCMP1Coop : EventHandler
 class ZDCMP1CoopUI : StaticEventHandler
 {
     ui bool checked;
+    ui bool checkedHints;
     override void RenderOverlay(RenderEvent e)
     {
+        if (!checkedHints && level.time >= 80)
+        {
+            checkedHints = true;
+            let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+            bool ok = h.notices.Size() == (consoleplayer == 0 ? 1 : 2)
+                && h.notices[0] == (consoleplayer == 0 ? 5 : 0);
+            Console.Printf("UTNT_ASSERT %s: notifications delivered only to intended peer", ok ? "PASS" : "FAIL");
+            EventHandler.SendNetworkEvent("zdc_hintread", 0);
+            EventHandler.SendNetworkEvent("zdc_hintread", 12);
+        }
         if (checked || level.time < 300) return;
         checked = true;
         bool enabled = CVar.GetCVar("motionblur", players[consoleplayer]).GetBool();
