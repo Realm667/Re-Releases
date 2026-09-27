@@ -52,7 +52,74 @@ Recompile `zdcmp1/source/zdcmp1.acs` with ACC when changing the comfort options;
 the tracked `zdcmp1/acs/zdcmp1.o` must match its source. Keep this test directory
 outside the shipped mod. The existing Windows build already excludes PSD art.
 
-Full-map playthroughs, Doom II visual balance, linked-portal/3D-floor fixtures,
-and network multiplayer remain separate acceptance tasks. These regression
-checks are not a frame-time benchmark. Existing `Unknown terrain ZDCMP1_`
-warnings and MAP01 line 23532's unused argument predate these changes.
+## Extended release checks
+
+The following tools accept `--engine`, `--iwad`, `--mod` and `--renderer`, or
+the same `UTNT_ENGINE` / `UTNT_IWAD` environment variables as the original test.
+
+```sh
+python3 -B -m unittest discover -s tools -p test_zdcmp1_integrity.py -v
+python3 -B tools/build_zdcmp1.py --acc /path/to/acc
+python3 -B tools/test_zdcmp1_effects.py --mod zdcmp1.pk3
+python3 -B tools/test_zdcmp1_edges.py --mod zdcmp1.pk3
+python3 -B tools/test_zdcmp1_coop.py --mod zdcmp1.pk3 --renderer 0
+python3 -B tools/test_zdcmp1_map.py --mod zdcmp1.pk3
+python3 -B tools/audit_zdcmp1.py
+```
+
+The build verifies both tracked ACS libraries byte-for-byte with ACC 1.60 and
+creates a deterministic PK3. Editor backups, source artwork, test tools and
+local working data are excluded. A stale ACS file fails the build; the build
+does not silently change tracked binaries.
+
+The edge suite has 34 assertions across real 3D floors, transferred heights,
+ordinary floor portals, linked portal groups, missing/alternate cameras and
+save/load. Particle acceptance is checked after actor initialization, not
+immediately after `Spawn`.
+
+The cooperative suite starts two actual local peers with separate configuration
+files and opposing motion-blur settings. Nine assertions per peer cover entry,
+Max server quality, death, respawn, gore inventory, camera switching and local
+blur state. It compares final state between peers and only terminates its own
+processes. It is a lifecycle test, not a campaign-wide desynchronization proof.
+
+The map suite starts MAP01 on all five skills, checks Max defaults and a living
+player, and verifies save/load and absence of the known terrain/line warnings.
+It records monster/item/secret counts and screenshots. This is not a full-map
+playthrough or a measurement of combat balance.
+
+GitHub Actions runs the release checks on relevant pushes and pull requests.
+It uses checksum-pinned UZDoom 5.0.1 and Freedoom 2 0.13.0, pinned ACC 1.60
+source, and software OpenGL/Vulkan. CI timing must not be used as GPU performance
+evidence. Logs are retained for seven days.
+
+## Performance and soak runs
+
+```sh
+python3 -B tools/test_zdcmp1_stress.py --scene mixed --seconds 15 --repeats 2 --compare /path/to/baseline.pk3
+python3 -B tools/test_zdcmp1_stress.py --scene mixed --soak --seconds 1800 --repeats 1 --label zdc-soak-30min
+```
+
+Run benchmarks without other engine processes. Available fixed-seed scenes are
+`weather`, `smoke`, `fire`, `gore` and `mixed`. Weather uses this mod's lava
+particles, not an invented rain implementation. Profiles stay on Max, with a
+1024 gore budget. Frame intervals are measured after a five-second warmup and
+reported as median, p95, p99 and maximum. Engine thinker profiling runs only
+after the frame sample window. Baseline comparisons alternate AB/BA order.
+Frame intervals include presentation/compositor pacing; they are not pure GPU
+times. Requested benchmark resolution is 1280x720 without HiDPI, and the engine's
+reported resolution is included in results.
+
+The real-time soak performs ten save/load cycles, checks effect counts before
+and after each load, then destroys emitters, clears gore, disables weather and
+waits for particles to expire. Success requires all 21 assertions, completion
+markers and at least the requested wall-clock duration. A 64-item within-tick
+gore burst is allowed because trimming occurs on the next handler tick. The
+final cleanup must leave no tracked lights, smoke, gore or weather particles.
+
+Resident memory is sampled every 30 seconds on macOS/Linux. First/second-half
+medians after warmup help identify sustained growth, but RSS includes allocator
+caches and excludes much GPU memory. Stable RSS alone is not proof of no leaks.
+Results and raw logs are written under `logs/`, the compatibility path to
+`tutnt/.codex/logs`. Full Doom II playthroughs and visual balance remain separate
+acceptance tasks; Freedoom does not substitute for the intended artwork/IWAD.

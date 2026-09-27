@@ -1,0 +1,56 @@
+version "4.8"
+
+class ZDCMP1Edges : EventHandler
+{
+    Actor belowFloor;
+    Actor aboveFloor;
+    void Check(bool condition, String message)
+    {
+        Console.Printf("UTNT_ASSERT %s: %s", condition ? "PASS" : "FAIL", message);
+    }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if (e.Name == "zdcfloor")
+        {
+            Check(!belowFloor, "actor rejects dry floor below 3D floor after initialization");
+            Check(aboveFloor != null, "actor accepts lava on top of 3D floor after initialization");
+            if (aboveFloor) aboveFloor.Destroy();
+            if (belowFloor) belowFloor.Destroy();
+            return;
+        }
+        if (e.Name != "zdcedges") return;
+        let weather = ZDCMP1WeatherHandler(EventHandler.Find("ZDCMP1WeatherHandler"));
+        let lava = TexMan.CheckForTexture("QLAVA", TexMan.Type_Any);
+        if (e.Args[0])
+        {
+            Check(Level.GetPortalGroupCount() > 1, "fixture has linked portal groups");
+            Check(weather.CanSpawnAt((0, 0, 8), lava), "linked group delegates floor resolution to actor");
+            Check(weather.CanSpawnAt((2048, 0, -128), lava), "destination group delegates floor resolution to actor");
+        }
+        else
+        {
+            Check(Level.GetPortalGroupCount() <= 1, "ordinary fixture has no linked groups");
+            Check(!weather.CanSpawnAt((0, 0, 8), lava), "plain dry floor prefilter rejects lava");
+            Check(Level.PointInSector((2048, 0)).Get3DFloorCount() > 0, "fixture has a real 3D floor");
+            Check(weather.CanSpawnAt((2048, 0, 160), lava), "3D floor delegates to actor");
+            Check(Level.PointInSector((4096, 0)).heightsec != null, "fixture has a real height transfer");
+            Check(weather.CanSpawnAt((4096, 0, 8), lava), "height transfer delegates to actor");
+            Check(Level.PointInSector((6144, 0)).GetPortalType(Sector.floor) > 0, "fixture has a real floor portal");
+            Check(weather.CanSpawnAt((6144, 0, 8), lava), "floor portal delegates to actor");
+            belowFloor = Actor.Spawn("ZDCMP1LavaParticle", (2048, 0, 8), NO_REPLACE);
+            aboveFloor = Actor.Spawn("ZDCMP1LavaParticle", (2048, 0, 160), NO_REPLACE);
+        }
+        Actor original = players[0].camera;
+        players[0].camera = null;
+        weather.SpawnLavaActors();
+        weather.SpawnNukeActors();
+        Check(players[0].camera == null, "weather tolerates missing camera");
+        players[0].camera = Actor.Spawn("MapSpot", (128, 128, 128));
+        weather.SpawnLavaActors();
+        weather.SpawnNukeActors();
+        Check(players[0].camera != null, "weather accepts alternate camera");
+        players[0].camera.Destroy();
+        players[0].camera = original;
+    }
+}

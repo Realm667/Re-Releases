@@ -1,0 +1,97 @@
+version "4.8"
+
+// Test-only workload. Never ship this handler with the mod.
+class ZDCMP1Stress : EventHandler
+{
+    Array<Actor> emitters;
+    int scenario;
+    bool running;
+
+    int Count(class<Actor> cls, int stat = Thinker.MAX_STATNUM + 1)
+    {
+        let it = ThinkerIterator.Create(cls, stat);
+        int count = 0;
+        while (it.Next()) count++;
+        return count;
+    }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if (e.Name == "zdcstress")
+        {
+            scenario = e.Args[0];
+            running = true;
+            if (scenario == 1 || scenario == 4)
+                for (int i = 0; i < 8; i++)
+                    emitters.Push(Actor.Spawn("DarkSmokeSpawner", (128 + (i % 4) * 64, -96 + (i / 4) * 192, 0)));
+            if (scenario == 2 || scenario == 4)
+                for (int i = 0; i < 8; i++)
+                    emitters.Push(Actor.Spawn("ZDCMP1FireSpawner", (128 + (i % 4) * 64, -192 + (i / 4) * 384, 0)));
+        }
+        else if (e.Name == "zdcstop")
+        {
+            running = false;
+            for (int i = 0; i < emitters.Size(); i++)
+                if (emitters[i]) emitters[i].Destroy();
+            emitters.Clear();
+            NashGoreStatics.ClearGore();
+        }
+        else if (e.Name == "zdcsnapshot")
+        {
+            int lights = Count("ZDCMP1FireSpawnerLight");
+            int smoke = Count("DarkSmokeBase");
+            int gore = Count("Actor", STAT_NashGore_Gore);
+            int weather = Count("ZDCMP1LavaParticle") + Count("ZDCMP1NukeParticle");
+            Console.Printf("ZDC_COUNTS tick=%d lights=%d smoke=%d gore=%d weather=%d", level.time, lights, smoke, gore, weather);
+            bool valid = lights == (running && (scenario == 2 || scenario == 4) ? 8 : 0);
+            // The handler trims on the next tick; the current 64-item burst may still be queued.
+            valid = valid && gore <= 1088 && smoke <= 800 && weather <= 3000;
+            if (!running) valid = valid && smoke == 0 && gore == 0 && weather == 0;
+            Console.Printf("UTNT_ASSERT %s: bounded stress objects and emitter ownership", valid ? "PASS" : "FAIL");
+        }
+    }
+
+    override void WorldTick()
+    {
+        if (running && (scenario == 3 || scenario == 4) && level.time % 7 == 0)
+            for (int i = 0; i < 64; i++)
+                Actor.Spawn("NashGoreWallBloodSmall", (160 + (i % 8) * 16, -64 + (i / 8) * 16, 8));
+    }
+}
+
+class ZDCMP1Frames : StaticEventHandler
+{
+    ui double previous;
+    ui String samples;
+    ui int count;
+    ui bool collecting;
+
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if (e.Name == "zdcframes")
+        {
+            collecting = bool(e.Args[0]);
+            previous = 0;
+            if (!collecting && count > 0) Flush();
+        }
+    }
+
+    ui void Flush()
+    {
+        Console.Printf("ZDC_FRAME_MS %s", samples);
+        samples = "";
+        count = 0;
+    }
+
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (!collecting) return;
+        double now = MSTimeF();
+        if (previous > 0)
+        {
+            samples = samples .. String.Format(count ? ",%.4f" : "%.4f", now - previous);
+            if (++count == 120) Flush();
+        }
+        previous = now;
+    }
+}

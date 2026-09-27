@@ -1,0 +1,13 @@
+version "4.8"
+
+class ZDCMP1MapCheck : EventHandler
+{
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if (e.Name != "zdcmapcheck") return;
+        Console.Printf("UTNT_ASSERT %s: MAP01 player is alive", players[0].mo && players[0].mo.health > 0 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: Max remains default in campaign", ZDCMP1_fxquality == 2 ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: campaign monsters and secrets exist", level.total_monsters > 0 && level.total_secrets > 0 ? "PASS" : "FAIL");
+        Console.Printf("ZDC_MAP_COUNTS monsters=%d items=%d secrets=%d", level.total_monsters, level.total_items, level.total_secrets);
+    }
+}

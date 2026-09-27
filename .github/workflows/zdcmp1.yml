@@ -1,0 +1,68 @@
+name: ZDCMP1 release checks
+on:
+  push:
+    paths: ['zdcmp1/**', 'tools/*zdcmp1*', 'tools/zdcmp1-tests/**', 'tools/check_engine.py', 'tools/build_utnt.py', 'tools/audit_campaign.py', '.github/workflows/zdcmp1.yml']
+  pull_request:
+    paths: ['zdcmp1/**', 'tools/*zdcmp1*', 'tools/zdcmp1-tests/**', 'tools/check_engine.py', 'tools/build_utnt.py', 'tools/audit_campaign.py', '.github/workflows/zdcmp1.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        renderer: ['0', '1']
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fast integrity checks
+        run: python -B -m unittest discover -s tools -p test_zdcmp1_integrity.py -v
+      - name: Prepare isolated logs and graphics
+        run: |
+          mkdir -p tutnt/.codex/logs
+          ln -s tutnt/.codex/logs logs
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1-mesa-dri mesa-vulkan-drivers libvulkan1 libsdl2-2.0-0 libgtk-3-0t64 libopenal1
+      - name: Download pinned test dependencies
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl --fail --location --retry 3 -o uzdoom.AppImage https://github.com/UZDoom/UZDoom/releases/download/5.0.1/Linux-UZDoom-Release-x86_64.AppImage
+          echo 'a0fb4fd09264ec55827911316454eedb667fc22ac23b6d505a1a2a076b549e4f  uzdoom.AppImage' | sha256sum --check
+          chmod +x uzdoom.AppImage
+          ./uzdoom.AppImage --appimage-extract > /dev/null
+          curl --fail --location --retry 3 -o freedoom.zip https://github.com/freedoom/freedoom/releases/download/v0.13.0/freedoom-0.13.0.zip
+          echo '3f9b264f3e3ce503b4fb7f6bdcb1f419d93c7b546f4df3e874dd878db9688f59  freedoom.zip' | sha256sum --check
+          unzip -q freedoom.zip
+          curl --fail --location --retry 3 -o acc.tar.gz https://codeload.github.com/ZDoom/acc/tar.gz/e37b18ed84b7aa165b558c8af270fd7d50fc4beb
+          mkdir acc
+          tar -xzf acc.tar.gz --strip-components=1 -C acc
+          cc -O2 acc/*.c -o acc/acc
+          echo "UTNT_ENGINE=$RUNNER_TEMP/squashfs-root/AppRun" >> "$GITHUB_ENV"
+          echo "UTNT_IWAD=$RUNNER_TEMP/freedoom-0.13.0/freedoom2.wad" >> "$GITHUB_ENV"
+      - name: Verify ACS and build package
+        run: python -B tools/build_zdcmp1.py --acc "$RUNNER_TEMP/acc/acc"
+      - name: Effect lifecycle assertions
+        run: xvfb-run -a python -B tools/test_zdcmp1_effects.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
+      - name: Portal, floor and camera assertions
+        run: xvfb-run -a python -B tools/test_zdcmp1_edges.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
+      - name: Cooperative lifecycle assertions
+        run: xvfb-run -a python -B tools/test_zdcmp1_coop.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
+      - name: Packaged MAP01 startup and save/load
+        run: xvfb-run -a python -B tools/test_zdcmp1_map.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }}
+      - name: Short stress and save/load regression
+        run: xvfb-run -a python -B tools/test_zdcmp1_stress.py --mod zdcmp1.pk3 --renderer ${{ matrix.renderer }} --soak --seconds 60 --repeats 1
+      - name: Preserve test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zdcmp1-renderer-${{ matrix.renderer }}
+          path: tutnt/.codex/logs/
+          include-hidden-files: true
+          retention-days: 7

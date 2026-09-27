@@ -1,0 +1,71 @@
+version "4.8"
+
+class ZDCMP1Coop : EventHandler
+{
+    int respawns;
+    Actor camera;
+
+    void Check(bool condition, String message)
+    {
+        Console.Printf("UTNT_ASSERT %s: %s", condition ? "PASS" : "FAIL", message);
+    }
+
+    override void PlayerRespawned(PlayerEvent e)
+    {
+        if (e.PlayerNumber == 1) respawns++;
+    }
+
+    override void WorldTick()
+    {
+        int t = level.time;
+        if (t == 70)
+        {
+            Check(playeringame[0] && playeringame[1], "both peers entered");
+            Check(ZDCMP1_fxquality == 2, "server quality remains Max");
+            Check(players[0].mo != players[1].mo, "peers have distinct pawns");
+        }
+        if (t == 105)
+        {
+            players[1].mo.DamageMobj(null, null, 10000, 'None');
+        }
+        if (t == 140) Check(players[1].mo.health <= 0, "second player died");
+        if (t == 175) players[1].playerstate = PST_REBORN;
+        if (t == 245)
+        {
+            Check(respawns == 1 && players[1].playerstate == PST_LIVE && players[1].mo.health > 0, "second player respawned once");
+            let gore = NashGoreActor(players[1].mo.FindInventory("NashGoreActor"));
+            Check(gore && !gore.bIsDead, "respawn resets gore inventory");
+            camera = Actor.Spawn("MapSpot", (128, 128, 128));
+            players[1].camera = camera;
+        }
+        if (t == 280)
+        {
+            Check(players[1].camera == camera, "alternate camera survives weather ticks");
+            players[1].camera = players[1].mo;
+            camera.Destroy();
+        }
+        if (t == 315) Check(players[1].camera == players[1].mo, "camera restored after respawn");
+        if (t == 350)
+        {
+            Console.Printf("ZDC_COOP_STATE time=%d respawns=%d health0=%d health1=%d quality=%d",
+                           t, respawns, players[0].mo.health, players[1].mo.health, ZDCMP1_fxquality);
+            Console.Printf("ZDC_COOP_COMPLETE");
+        }
+    }
+}
+
+class ZDCMP1CoopUI : StaticEventHandler
+{
+    ui bool checked;
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (checked || level.time < 300) return;
+        checked = true;
+        bool enabled = CVar.GetCVar("motionblur", players[consoleplayer]).GetBool();
+        let blur = MBlurShaderHandler(StaticEventHandler.Find("MBlurShaderHandler"));
+        bool finite = blur && abs(blur.xtravel) < 1000000 && abs(blur.ytravel) < 1000000;
+        Console.Printf("UTNT_ASSERT %s: per-peer blur setting and finite camera state",
+                       enabled == bool(consoleplayer) && finite ? "PASS" : "FAIL");
+        Console.Printf("ZDC_COOP_UI_COMPLETE");
+    }
+}
