@@ -1,0 +1,97 @@
+// Map-scoped, serialized state. UI only reads it; ACS and player input own writes.
+class ZDCMP1Remaster : EventHandler
+{
+    int hints[MAXPLAYERS];
+    bool finale;
+    bool skipRequested;
+
+    static int CanSkip(int who)
+    {
+        let handler = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        return handler && handler.finale && ZDCMP1_skippablefinale && who == Net_Arbitrator;
+    }
+
+    static void RecordHint(int hint, int who)
+    {
+        let handler = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        if (!handler || hint < 0 || hint >= 13) return;
+        for (int i = 0; i < MAXPLAYERS; i++)
+            if (playeringame[i] && (who == -1 || who == i))
+                handler.hints[i] |= 1 << hint;
+    }
+
+    static void SetFinale(int enabled)
+    {
+        let handler = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        if (!handler) return;
+        handler.finale = enabled != 0;
+        if (!enabled)
+            for (int i = 0; i < MAXPLAYERS; i++)
+                if (playeringame[i] && players[i].mo)
+                {
+                    players[i].mo.TakeInventory("CutsceneEnabled", 1);
+                    players[i].mo.TakeInventory("isIntro", 1);
+                }
+    }
+
+    override void WorldTick()
+    {
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            if (!playeringame[i] || !players[i].mo) continue;
+            let p = players[i];
+            bool cinematic = finale || (p.health > 0 && p.camera && p.camera != p.mo);
+            if (cinematic)
+            {
+                if (!p.mo.FindInventory("CutsceneEnabled")) p.mo.GiveInventory("CutsceneEnabled", 1);
+                if (!p.mo.FindInventory("isIntro")) p.mo.GiveInventory("isIntro", 1);
+            }
+            else
+            {
+                p.mo.TakeInventory("CutsceneEnabled", 1);
+                p.mo.TakeInventory("isIntro", 1);
+            }
+            // Only the host can end a shared finale. Edge-triggered to avoid
+            // skipping it when USE was held before the boss died.
+            if (finale && !skipRequested && ZDCMP1_skippablefinale && i == Net_Arbitrator
+                && (p.cmd.buttons & BT_USE) && !(p.oldbuttons & BT_USE))
+            {
+                skipRequested = true;
+                p.mo.ACS_NamedExecuteAlways("ZDC_SkipFinale", 0);
+            }
+        }
+    }
+
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (!finale || !ZDCMP1_skippablefinale) return;
+        String text = StringTable.Localize(multiplayer && consoleplayer != Net_Arbitrator ? "$ZDC_SKIPHOST" : "$ZDC_SKIP");
+        Screen.DrawText(SmallFont, Font.CR_WHITE, 320, 345, text,
+            DTA_VirtualWidth, 640, DTA_VirtualHeight, 360, DTA_CenterOffset, true);
+    }
+}
+
+class ZDCMP1JournalMenu : OptionMenu
+{
+    override void Init(Menu parent, OptionMenuDescriptor desc)
+    {
+        desc.mItems.Clear();
+        desc.mSelectedItem = -1;
+        desc.mScrollPos = 0;
+        let handler = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        int mask = handler ? handler.hints[consoleplayer] : 0;
+        bool enabled = CVar.GetCVar("ZDCMP1_logbook", players[consoleplayer]).GetBool();
+        if (!enabled || !mask)
+            desc.mItems.Push(new("OptionMenuItemStaticText").Init(enabled ? "$ZDC_NOHINTS" : "$ZDC_JOURNALOFF"));
+        else
+        {
+            for (int i = 0; i < 13; i++)
+            {
+                if (!(mask & (1 << i))) continue;
+                desc.mItems.Push(new("OptionMenuItemStaticText").Init(String.Format("$ZDC_HINT%d", i)));
+                if (i == 2) desc.mItems.Push(new("OptionMenuItemStaticText").Init("$ZDC_HINT2B"));
+            }
+        }
+        Super.Init(parent, desc);
+    }
+}

@@ -64,10 +64,12 @@ python3 -B tools/test_zdcmp1_effects.py --mod zdcmp1.pk3
 python3 -B tools/test_zdcmp1_edges.py --mod zdcmp1.pk3
 python3 -B tools/test_zdcmp1_coop.py --mod zdcmp1.pk3 --renderer 0
 python3 -B tools/test_zdcmp1_map.py --mod zdcmp1.pk3
+python3 -B tools/test_zdcmp1_remaster.py --mod zdcmp1.pk3
+python3 -B tools/test_zdcmp1_weapons.py --mod zdcmp1.pk3 --compare /path/to/baseline.pk3
 python3 -B tools/audit_zdcmp1.py
 ```
 
-The build verifies both tracked ACS libraries byte-for-byte with ACC 1.60 and
+The build verifies both tracked ACS libraries and MAP01 ACS byte-for-byte with ACC 1.60 and
 creates a deterministic PK3. Editor backups, source artwork, test tools and
 local working data are excluded. A stale ACS file fails the build; the build
 does not silently change tracked binaries.
@@ -78,15 +80,24 @@ save/load. Particle acceptance is checked after actor initialization, not
 immediately after `Spawn`.
 
 The cooperative suite starts two actual local peers with separate configuration
-files and opposing motion-blur settings. Nine assertions per peer cover entry,
+files and opposing motion-blur settings. Fourteen assertions per peer cover entry,
 Max server quality, death, respawn, gore inventory, camera switching and local
-blur state. It compares final state between peers and only terminates its own
+blur state, journal ownership/respawn and non-host finale-skip rejection.
+It compares final state between peers and only terminates its own
 processes. It is a lifecycle test, not a campaign-wide desynchronization proof.
 
 The map suite starts MAP01 on all five skills, checks Max defaults and a living
 player, and verifies save/load and absence of the known terrain/line warnings.
 It records monster/item/secret counts and screenshots. This is not a full-map
 playthrough or a measurement of combat balance.
+
+The remaster suite checks actual MAP01 script-delivered hints, camera previews
+across save/load, HUD restoration, finale save/load, disabled/enabled skipping,
+normal exit cleanup and menu opening. Add `--full-finale` for a roughly five-minute
+natural credits run as well. The weapons suite uses real sustained primary and
+alternate fire, compares ammo and object peaks at both comfort extremes and
+requires projectile/effect cleanup. Its optional `--compare` also checks six
+deterministic movement/camera samples against a previous package.
 
 GitHub Actions runs the release checks on relevant pushes and pull requests.
 It uses checksum-pinned UZDoom 5.0.1 and Freedoom 2 0.13.0, pinned ACC 1.60

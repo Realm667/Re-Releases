@@ -23,6 +23,10 @@ class ZDCMP1Coop : EventHandler
             Check(playeringame[0] && playeringame[1], "both peers entered");
             Check(ZDCMP1_fxquality == 2, "server quality remains Max");
             Check(players[0].mo != players[1].mo, "peers have distinct pawns");
+            ZDCMP1Remaster.RecordHint(0, 1);
+            ZDCMP1Remaster.RecordHint(5, -1);
+            let hints = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+            Check(hints.hints[0] == 32 && hints.hints[1] == 33, "shared and personal journal hints stay distinct");
         }
         if (t == 105)
         {
@@ -35,18 +39,31 @@ class ZDCMP1Coop : EventHandler
             Check(respawns == 1 && players[1].playerstate == PST_LIVE && players[1].mo.health > 0, "second player respawned once");
             let gore = NashGoreActor(players[1].mo.FindInventory("NashGoreActor"));
             Check(gore && !gore.bIsDead, "respawn resets gore inventory");
+            Check(ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster")).hints[1] == 33, "journal survives coop respawn");
             camera = Actor.Spawn("MapSpot", (128, 128, 128));
             players[1].camera = camera;
         }
         if (t == 280)
         {
             Check(players[1].camera == camera, "alternate camera survives weather ticks");
+            Check(players[1].mo.FindInventory("CutsceneEnabled") != null, "coop camera hides only affected HUD");
             players[1].camera = players[1].mo;
             camera.Destroy();
         }
-        if (t == 315) Check(players[1].camera == players[1].mo, "camera restored after respawn");
+        if (t == 315)
+        {
+            Check(players[1].camera == players[1].mo, "camera restored after respawn");
+            Check(!players[1].mo.FindInventory("CutsceneEnabled"), "coop HUD restored after camera");
+        }
         if (t == 350)
         {
+            let handler = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+            handler.finale = true;
+            players[1].cmd.buttons |= BT_USE;
+            players[1].oldbuttons &= ~BT_USE;
+            handler.WorldTick();
+            Check(!handler.skipRequested, "non-host cannot skip shared finale");
+            handler.finale = false;
             Console.Printf("ZDC_COOP_STATE time=%d respawns=%d health0=%d health1=%d quality=%d",
                            t, respawns, players[0].mo.health, players[1].mo.health, ZDCMP1_fxquality);
             Console.Printf("ZDC_COOP_COMPLETE");

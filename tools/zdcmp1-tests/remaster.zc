@@ -1,0 +1,110 @@
+version "4.8"
+
+class ZDCMP1RemasterCheck : EventHandler
+{
+    bool observedFinale;
+    override void WorldUnloaded(WorldEvent e)
+    {
+        let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        if (h && observedFinale)
+            Check(!h.finale && players[0].camera == players[0].mo
+                && !(players[0].cheats & CF_TOTALLYFROZEN)
+                && !players[0].mo.FindInventory("CutsceneEnabled"), "finale actually exits with camera and control restored");
+    }
+    void Check(bool value, String label)
+    {
+        Console.Printf("UTNT_ASSERT %s: %s", value ? "PASS" : "FAIL", label);
+    }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let p = players[0];
+        let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        if (e.Name == "zdcrstart")
+        {
+            Check(h && h.hints[0] == 0, "new game has no spoiled hints");
+            Check(ZDCMP1_fxquality == 2 && ZDCMP1_weaponshake, "Max and full weapon shake default");
+            Check(CVar.GetCVar("ZDCMP1_weaponflash", p).GetFloat() == 1, "full weapon flash default");
+            p.mo.bInvulnerable = true;
+            p.mo.A_CallSpecial(80, 13, 0);
+            p.mo.A_CallSpecial(80, 14, 0);
+        }
+        if (e.Name == "zdcrpreview")
+        {
+            Check(h.hints[0] == 5, "only actually delivered local hints recorded");
+            Check(p.camera && p.camera != p.mo, "real computer preview camera active");
+            Check(p.mo.FindInventory("CutsceneEnabled") && p.mo.FindInventory("isIntro"), "preview hides HUD and blur");
+            Check(h.hints[1] == 0, "local hints not leaked to absent peers");
+        }
+        if (e.Name == "zdcrreturn")
+        {
+            Check(p.camera == p.mo, "original ACS returns camera after save and reload");
+            Check(!p.mo.FindInventory("CutsceneEnabled") && !p.mo.FindInventory("isIntro"), "HUD and blur markers restored");
+            Check(h.hints[0] == 5, "hint log survives save/load");
+            ZDCMP1Remaster.RecordHint(0, 0);
+            ZDCMP1Remaster.RecordHint(-1, 0);
+            ZDCMP1Remaster.RecordHint(13, 0);
+            Check(h.hints[0] == 5, "duplicate and invalid hints ignored");
+            p.mo.A_CallSpecial(80, 12, 0);
+        }
+        if (e.Name == "zdcrshared")
+        {
+            Check(h.hints[0] == 37, "pump power message recorded by real shared script");
+            let weapon = NukeLauncher(GetDefaultByType("NukeLauncher"));
+            Check(weapon.AmmoUse1 == 1 && weapon.AmmoUse2 == 2, "nuke ammo consumption unchanged");
+            Check(Weapon(GetDefaultByType("Freezer")).AmmoUse1 == 1, "freezer ammo consumption unchanged");
+            let mo = ZDCMPPlayer(p.mo);
+            let ladder = Actor.Spawn("MapSpot", mo.Pos);
+            mo.climbing = ladder;
+            mo.Vel = (0, 0, 0);
+            double view = p.viewz;
+            mo.CalcHeight();
+            Check(p.viewz == view, "stationary ladder camera does not bob");
+            mo.climbing = null;
+            ladder.Destroy();
+            Check(Inventory(GetDefaultByType("NukeAmmo")).MaxAmount == 20, "nuke ammo capacity unchanged");
+        }
+        if (e.Name == "zdcrfinale" || e.Name == "zdcrcredits")
+        {
+            observedFinale = true;
+            p.mo.bInvulnerable = true;
+            p.mo.A_CallSpecial(80, e.Name == "zdcrcredits" ? 264 : 133, 0);
+        }
+        if (e.Name == "zdcrfinalecheck")
+        {
+            Check(h.finale && !h.skipRequested, "real finale begins without auto-skip");
+            Check(p.mo.FindInventory("CutsceneEnabled") != null, "finale hides HUD");
+        }
+        if (e.Name == "zdcrskip")
+        {
+            p.cmd.buttons |= BT_USE;
+            p.oldbuttons &= ~BT_USE;
+            h.WorldTick();
+            Check(h.skipRequested, "host USE requests synchronized finale skip");
+        }
+        if (e.Name == "zdcrblocked")
+        {
+            p.cmd.buttons |= BT_USE;
+            p.oldbuttons &= ~BT_USE;
+            h.WorldTick();
+            Check(!h.skipRequested && !ZDCMP1_skippablefinale, "disabled finale skip respects host setting");
+            p.mo.A_CallSpecial(80, 214, 0);
+        }
+        if (e.Name == "zdcrstillhere")
+        {
+            Check(h.finale && !h.skipRequested, "legacy manual exit also respects disabled skip");
+        }
+    }
+}
+
+class ZDCMP1MenuCheck : StaticEventHandler
+{
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if (e.Name != "zdcuimenu") return;
+        let menu = OptionMenu(Menu.GetCurrentMenu());
+        bool ok = menu != null;
+        if (e.Args[0] == 0) ok = ok && menu is "ZDCMP1JournalMenu" && menu.mDesc.mItems.Size() == 4;
+        Console.Printf("UTNT_ASSERT %s: remaster menu is open", ok ? "PASS" : "FAIL");
+    }
+}

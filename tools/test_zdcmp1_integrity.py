@@ -1,5 +1,6 @@
 """Fast, engine-independent release contracts for ZDCMP1."""
 from pathlib import Path
+import hashlib
 import re
 import tempfile
 import unittest
@@ -18,6 +19,40 @@ class ZDCMP1Integrity(unittest.TestCase):
         self.assertRegex(text, r"server int ZDCMP1_fxquality\s*=\s*2\s*;")
         for name in ("motionblur", "ZDCMP1_heartbeat", "ZDCMP1_injuryoverlay", "ZDCMP1_weatherfx", "ZDCMP1_shaderoverlayswitch"):
             self.assertRegex(text, rf"\b{name}\s*=\s*true\s*;")
+        self.assertIn("user float ZDCMP1_weaponflash = 1.0;", text)
+        self.assertIn("server bool ZDCMP1_weaponshake = true;", text)
+
+    def test_map_source_and_geometry_contract(self):
+        lumps = dict((n.rstrip(b"\0"), d) for n, d in read_wad(ROOT / "zdcmp1/Maps/map01.wad")[1])
+        self.assertEqual(lumps[b"SCRIPTS"], (ROOT / "zdcmp1/source/maps/map01.acs").read_bytes())
+        for name, digest in {
+            b"TEXTMAP": "083ecd933defb78bd6f221d563daffd0bf9c80887441f33fc69c1c7eae05ac1a",
+            b"ZNODES": "495bc6c02468df6cbde5ffe745aeb46dd9343586365db8165acf31642862169f",
+        }.items():
+            self.assertEqual(hashlib.sha256(lumps[name]).hexdigest(), digest)
+
+    def test_consolidated_options_and_release_references(self):
+        menu = (ROOT / "zdcmp1/menudef.txt").read_text()
+        for parent in ("OptionsMenu", "OptionsMenuSimple"):
+            block = re.search(r'AddOptionMenu "' + parent + r'"\s*\{([^}]+)\}', menu)[1]
+            self.assertEqual(block.count("Submenu"), 1)
+            self.assertIn('"ZDCMP1OptionsMenu"', block)
+        self.assertNotIn('protected', menu)
+        self.assertFalse((ROOT / "zdcmp1/menudef.zsimple").exists())
+        cvars = (ROOT / "zdcmp1/cvarinfo.txt").read_text()
+        for name in ("ZDCMP1_weaponflash", "ZDCMP1_weaponshake", "ZDCMP1_skippablefinale", "ZDCMP1_logbook", "ZDCMP1_footstepvolume"):
+            self.assertIn('"' + name + '"', menu)
+            self.assertIn(name, cvars)
+        self.assertIn('statscreen_single = "ZPackStatusScreen"', (ROOT / "zdcmp1/mapinfo.def").read_text())
+        self.assertIn('class ZPackStatusScreen', (ROOT / "zdcmp1/zscript/ZDCMP1_Inter.zc").read_text())
+
+    def test_remaster_localization(self):
+        language = (ROOT / "zdcmp1/language.enu").read_text()
+        keys = set(re.findall(r'(?m)^(\w+)\s*=', language))
+        for path in (ROOT / "zdcmp1/menudef.txt", ROOT / "zdcmp1/zscript/ZDCMP1_Remaster.zc"):
+            references = set(re.findall(r'\$(ZDC_[A-Z0-9_]+)(?=["\s])', path.read_text()))
+            self.assertFalse(references - keys)
+        self.assertTrue(all(f"ZDC_HINT{i}" in keys for i in range(13)))
 
     def test_terrain_references_resolve(self):
         text = "\n".join(p.read_text() for p in (ROOT / "zdcmp1").glob("terrain*"))

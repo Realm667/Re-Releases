@@ -1,21 +1,96 @@
 AddOptionMenu "OptionsMenu"
 {
-	Submenu "$MN_OPEFFECTS", "ZDCMP1EffectsMenu"
+	Submenu "$ZDC_OPTIONS", "ZDCMP1OptionsMenu"
+}
+
+AddOptionMenu "OptionsMenuSimple"
+{
+	Submenu "$ZDC_OPTIONS", "ZDCMP1OptionsMenu"
+}
+
+OptionMenu "ZDCMP1OptionsMenu"
+{
+	Title "$ZDC_OPTIONS"
+	Submenu "$ZDC_DISPLAY", "ZDCMP1DisplayMenu"
+	Submenu "$ZDC_HUD", "ZDCMP1HUDMenu"
+	Submenu "$ZDC_AUDIO", "ZDCMP1AudioMenu"
+	Submenu "$ZDC_COMFORT", "ZDCMP1ComfortMenu"
+	Submenu "$ZDC_SHARED", "ZDCMP1EffectsMenu"
+	Submenu "$ZDC_GORE", "NashGoreMenu"
+	StaticText ""
+	Submenu "$ZDC_JOURNAL", "ZDCMP1JournalMenu"
+}
+
+OptionMenu "ZDCMP1DisplayMenu"
+{
+	Title "$ZDC_DISPLAY"
+	Option "$MN_OPBLUR", "motionblur", "YesNo"
+	Slider "$ZDC_BLURSTRENGTH", "motionblur_strength", 0, 100, 5, 0
+	Slider "$ZDC_BLURSAMPLES", "motionblur_samples", 1, 16, 1, 0
+	Option "$ZDC_BLURAUTOSTOP", "motionblur_autostop", "YesNo"
+	Slider "$MN_OPWATER", "ZDCMP1_uweffectsize", 0, 0.015, 0.001, 3
+	Option "$MN_OPINJURY", "ZDCMP1_injuryoverlay", "YesNo"
+	Slider "$ZDC_WEAPONFLASH", "ZDCMP1_weaponflash", 0, 1, 0.1, 1
+}
+
+OptionMenu "ZDCMP1HUDMenu"
+{
+	Title "$ZDC_HUD"
+	Option "$ZDC_STATS", "fullhud_stats", "ZDCStats"
+	Option "$ZDC_STATSPOS", "fullhud_statspos", "ZDCStatsPosition"
+	Option "$ZDC_ITEMSTATS", "fullhud_fullstats", "YesNo"
+	Option "$ZDC_MUGSHOT", "fullhud_mugswitch", "YesNo"
+	Option "$ZDC_BERSERK", "fullhud_berserk", "YesNo"
+}
+
+OptionValue "ZDCStats"
+{
+	0, "$ZDC_OFF"
+	1, "$ZDC_PERCENT"
+	2, "$ZDC_REMAINING"
+	3, "$ZDC_BOTH"
+}
+
+OptionValue "ZDCStatsPosition"
+{
+	0, "$ZDC_TOPLEFT"
+	1, "$ZDC_TOPRIGHT"
+	2, "$ZDC_BOTTOMLEFT"
+	3, "$ZDC_BOTTOMRIGHT"
+}
+
+OptionMenu "ZDCMP1AudioMenu"
+{
+	Title "$ZDC_AUDIO"
+	Slider "$ZDC_STEPS", "ZDCMP1_footstepvolume", 0, 1, 0.1, 1
+	Option "$MN_OPHEART", "ZDCMP1_heartbeat", "YesNo"
+}
+
+OptionMenu "ZDCMP1ComfortMenu"
+{
+	Title "$ZDC_COMFORT"
+	Option "$ZDC_ENABLEJOURNAL", "ZDCMP1_logbook", "YesNo"
+	Control "$ZDC_JOURNAL", "openmenu ZDCMP1JournalMenu"
+	StaticText ""
+	StaticText "$ZDC_HOSTSETTINGS", 1
+	Option "$ZDC_SKIPFINALE", "ZDCMP1_skippablefinale", "YesNo"
+	Option "$ZDC_WEAPONSHAKE", "ZDCMP1_weaponshake", "YesNo"
+}
+
+OptionMenu "ZDCMP1JournalMenu"
+{
+	Class "ZDCMP1JournalMenu"
+	Title "$ZDC_JOURNAL"
+	StaticText "$ZDC_NOHINTS"
 }
 
 OptionMenu "ZDCMP1EffectsMenu"
 {
-	Title "$MN_OPEFFECTS"
+	Title "$ZDC_SHARED"
 	Option "$MN_OPQUALITY","ZDCMP1_fxquality","ZDCQuality"
 	Option "$MN_OPDIST","ZDCMP1_lod","ZDCDist"
 	Option "$MN_OPWEAT","ZDCMP1_weatherfx","YesNo"
 	Option "$MN_OPHEAT","ZDCMP1_shaderoverlayswitch","YesNo"
-	Option "$MN_OPBLUR","motionblur","YesNo"
-	Slider "$MN_OPWATER","ZDCMP1_uweffectsize",0,0.015,0.001,3
-	Option "$MN_OPHEART","ZDCMP1_heartbeat","YesNo"
-	Option "$MN_OPINJURY","ZDCMP1_injuryoverlay","YesNo"
-	StaticText ""
-	Submenu "$OPTMNU_NASHGORE", "NashGoreMenu"
 }
 
 OptionValue "ZDCQuality"
@@ -32,13 +107,6 @@ OptionValue "ZDCDist"
 	2048, "$MN_OPNORM"
 	4096, "$MN_OPFAR1"
 	8192, "$MN_OPFAR2"
-}
-
-AddOptionMenu "OptionsMenu"
-{
-	StaticText ""
-	StaticText "Nash's Gore Mod: Vengeance Edition v1.01 Hotfix"
-	Submenu "$OPTMNU_NASHGORE", "NashGoreMenu"
 }
 
 OptionMenu "NashGoreMenu"

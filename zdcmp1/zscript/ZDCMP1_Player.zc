@@ -121,86 +121,21 @@ class ZDCMPPlayer : DoomPlayer
 	
 	override void PlayerThink()
 	{
-		let player = self.player;
-		UserCmd cmd = player.cmd;
-		
-		CheckFOV();
+		// Keep the mod's inventory timer; delegate engine lifecycle and prediction.
+		if (player.inventorytics) player.inventorytics--;
+		Super.PlayerThink();
+	}
 
-		if (player.inventorytics)
-		{
-			player.inventorytics--;
-		}
-		CheckCheats();
+	override void CheckPitch()
+	{
+		if (climbing && player.cmd.buttons & BT_CROUCH) vel.z -= 0.95;
+		Super.CheckPitch();
+	}
 
-		if (bJustAttacked)
-		{ // Chainsaw/Gauntlets attack auto forward motion
-			cmd.yaw = 0;
-			cmd.forwardmove = 0xc800/2;
-			cmd.sidemove = 0;
-			bJustAttacked = false;
-		}
-
-		bool totallyfrozen = CheckFrozen();
-
-		// Handle crouching
-		CheckCrouch(totallyfrozen);
-		CheckMusicChange();
-
-		if (player.playerstate == PST_DEAD)
-		{
-			DeathThink ();
-			return;
-		}
-		if (player.jumpTics != 0)
-		{
-			player.jumpTics--;
-			if (player.onground && player.jumpTics < -18)
-			{
-				player.jumpTics = 0;
-			}
-		}
-		if (player.morphTics && !(player.cheats & CF_PREDICTING))
-		{
-			MorphPlayerThink ();
-		}
-
-		// Crouching moves down while climbing
-		if (climbing && cmd.buttons & BT_CROUCH) { vel.z -= 0.95; }
-
-		CheckPitch();
-		HandleMovement();
-		
-		// Only recalculate the view position if you're not climbing or if you are climbing at speed
-		// Keeps the float bob effect from being visible to the player
-		if (!climbing || abs(vel.length()) > 1.0) { CalcHeight (); }
-		
-		//CalcHeight ();
-
-		if (!(player.cheats & CF_PREDICTING))
-		{
-			CheckEnvironment();
-			// Note that after this point the PlayerPawn may have changed due to getting unmorphed or getting its skull popped so 'self' is no longer safe to use.
-			// This also must not read mo into a local variable because several functions in this block can change the attached PlayerPawn.
-			player.mo.CheckUse();
-			player.mo.CheckUndoMorph();
-			// Cycle psprites.
-			player.mo.TickPSprites();
-			// Other Counters
-			if (player.damagecount)	player.damagecount--;
-			if (player.bonuscount) player.bonuscount--;
-
-			if (player.hazardcount)
-			{
-				player.hazardcount--;
-				if (player.hazardinterval <= 0)
-					player.hazardinterval = 32; // repair invalid hazardinterval
-				if (!(Level.maptime % player.hazardinterval) && player.hazardcount > 16*TICRATE)
-					player.mo.DamageMobj (NULL, NULL, 5, player.hazardtype);
-			}
-			player.mo.CheckPoison();
-			player.mo.CheckDegeneration();
-			player.mo.CheckAirSupply();
-		}
+	override void CalcHeight()
+	{
+		// A stationary climber must not bob. Ordinary camera behavior stays native.
+		if (!climbing || health <= 0 || player.playerstate != PST_LIVE || abs(vel.length()) > 1.0) Super.CalcHeight();
 	}
 
 	//----------------------------------------------------------------------------

@@ -27,6 +27,8 @@ def runtime_files(root):
 
 
 def check_acs(root, acc):
+    from sync_zdcmp1_map import sync
+    sync(root, acc)
     acc = acc.resolve()
     with tempfile.TemporaryDirectory(prefix="zdc-acs-") as directory:
         for source in sorted((root / "source").glob("*.acs")):

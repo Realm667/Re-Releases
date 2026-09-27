@@ -1,0 +1,1887 @@
+/////////////////////////////////////////
+// Welcome to the ZDCMP SCRIPTS Lump!  //
+// this lump contains almost 2,000     //
+// lines of ACS code!, we worked       //
+// really hard on it dont rip it off   //
+// without credit (i mean come on,     //
+// what do you think there are comment //
+// tags are for?        -The Team      //
+/////////////////////////////////////////
+
+#include "zcommon.acs"
+
+int GearMode=0; // HotWax, for use with alternate gear message
+int switches[3];	// Hey look!  More HotWax globals!
+
+//Xaser's Scripts!!!!!!!!!!!!!!11111111111oneoneonetwo
+script 1 (void)
+{
+	//thing_remove(3);  //Removed this because it stopped the water telepport - Enjay
+	floor_lowerinstant(7,0,7);
+	thing_spawnnofog(2,239,0,0);
+	ambientsound("world/barrelx",255);
+	Thing_SpawnFacing(15, T_IMP, 1, 0);	// HotWax: Repopulate teleport room
+}
+
+//Giest's Scripts!!!!!!!!!!!!!!11111111111oneoneonetwo
+Script 2 OPEN
+{
+	Setlinespecial(56,ACS_Execute,13,0); // added by BioHazard
+}
+
+Script 3 OPEN
+{
+	CreateTranslation(1, 128:152=173:191, 64:79=173:191, 48:63=173:191, 168:191=192:207); //UberImp Translation!!!!1111
+	Thing_SetTranslation(1337, 1);
+}
+
+/*This script section thingy is the soul ownership... thngy
+of Lexus Alyus... thingy :D.
+
+:twisted:
+*/
+
+script 4 (void) //No, really, I had no idea where to go here, we need clues man! :D
+{
+	print(s:"\cGHmm... that wall looks unstable...");
+}
+
+script 5 OPEN
+{
+	Floor_Waggle(179,10,10,10,-1); // the raft in the arena should bob up and down!
+}
+
+script 13 (void) // added by BioHazard
+{
+	LocalAmbientsound ("misc/chat", 127);
+	Print(s:"\cCThe door to the supply room is locked remotely...");
+	ScriptCall("ZDCMP1Remaster", "RecordHint", 0, PlayerNumber());
+}
+
+//TORMENTOR667 START
+//definiton fpr switch combinations
+str count[1]={"one"};
+int c;
+int c2;
+
+
+
+//Introduction Script
+script 6 OPEN
+{
+	//printbold(s:"\cCWelcome to the\n\cGZDoom Community Map Project");
+
+	//Initial Stuff
+    setlinespecial (4, 80, 17, 0, 0, 0, 0);  //Enjay set warehouse door to run "door deactivated" script
+    setlinespecial (3, 80, 19, 0, 0, 0, 0);  //Enjay set pipe imp activation lines
+    //Sector_SetColor (63,255,128,0);	         //Enjay colour some sectors orange (starting area)
+    setlineblocking(5,BLOCK_EVERYTHING);     //Enjay set up smashable fan
+    setlinespecial (5, 80, 21, 0, 0, 0, 0);  //Enjay set up smashable fan
+}
+
+script 69 (void)
+{
+    print(s:"\cGDamnit, Hotwax, where have you been when I needed you the most??");
+}
+
+script 70 (void)
+{
+    print(s:"\cGErr... still not finished? .64 will obviously take forever!");
+}
+
+// [GRB] Removed, useless
+/*script 71 (void)
+{
+        ambientsound ("misc/chat", 127);
+        print (s:"\cCThis Door can't be opened!");
+}
+
+script 72 OPEN
+//sparks at the door in T667 room
+{
+        thing_activate(3);
+        delay(70);
+        thing_activate(4);
+        delay(35);
+        thing_activate(3);
+        delay(95);
+        thing_activate(3);
+        delay(10);
+        thing_activate(4);
+        delay(70);
+        restart;
+}*/
+
+script 7 (int which)
+//first sequence -- Modified by HotWax
+{
+	Localambientsound ("misc/chat", 127);
+
+	if((which == 1 && CheckInventory("RedSkull")) || (which == 2 && CheckInventory("BlueSkull"))) {
+		ClearLineSpecial();
+		if(c == 1) {
+        	print(s: "\cCSequence Complete");
+        	door_open (4, 30);
+    	} else {
+        	print(s:"\cC", s:count[c], s:" more to go");
+        	c++;
+    	}
+    } else {
+    	if (which == 1) {
+    		Print(s:"\cCyou need a red skull to use this switch");
+    	} else {
+    		Print(s:"\cCyou need a blue skull to use this switch");
+    	}
+	delay(35*2);
+    }
+}
+//TORMENTOR667 END
+
+
+// Graf Zahl's scripts
+
+int power=0;
+
+Script 700 OPEN // added by BioHazard
+{
+	setlineblocking(58,BLOCK_EVERYTHING);
+	// Moved by HotWax, gear no longer magically appears when you need it
+	spawnspot("PuzzGear1",13,14,0);
+	thing_setspecial(14,ACS_Execute,10,0,0); // added by BioHazard
+
+}
+
+script 8(void)
+{
+	activatorsound ("*usefail", 127);
+	delay(16);
+	print(s:"\cGHmm...");
+	delay(35);
+	ceiling_raisebyvalue(12,64,64);
+	door_open(14, 64);
+	delay(70);
+	print(s:"\cGShit, it's broken");
+	ScriptCall("ZDCMP1Remaster", "RecordHint", 1, PlayerNumber());
+	delay(70);
+	if (CheckInventory("PuzzGear1")) { // HotWax: when you've found the gear before trying the switch
+		print(s:"\cGHey! Maybe this gear-thingy I found will fix it!");
+		delay(105);
+	} else {
+		GearMode = 1;
+		print(s:"\cGSo where do I get some spare parts now...");
+		delay(105);
+		if (GameSkill() != SKILL_VERY_HARD)
+		{
+			if (GameSkill() != SKILL_HARD)
+			{
+				print(s:"\cGMaybe i can use the computer over there to check the parts inventory...");
+				delay(70);
+			}
+		}
+		if (GameSkill() != SKILL_VERY_HARD)
+		{
+			if (GameSkill() != SKILL_HARD)
+			{
+				Setlinespecial(57,ACS_Execute,14,0); // added by BioHazard
+			}
+		}
+	}
+	clearlinespecial();
+	spawnspot("DoomImp",17,0,0);
+	spawnspot("NamiDarkImp",18,0,0);
+}
+
+
+script 9(int cheat)
+{
+   if (!power && !cheat)
+   {
+      localambientsound ("misc/chat", 127);
+      print(s:"\cCUnable to drain tank");
+      delay(105);
+      localambientsound ("misc/chat", 127);
+      print(s:"\cCPlease restore power");
+   }
+   else
+   {
+      ambientsound ("misc/chat", 127);
+      printbold(s:"\cCDraining storage tank");
+      ScriptCall("ZDCMP1Remaster", "RecordHint", 6, -1);
+      Ceiling_lowerbyvalue(15,2,128);
+      ceiling_raisebyvalue(968,2,48);
+      spawnspot("DoomImp",17,0,0);
+      spawnspot("VoidDarkImp",18,0,0);
+      setlineblocking(58,BLOCK_NOTHING);
+      Floor_LowerToLowest (64, 64);
+      clearlinespecial();
+   }
+}
+
+script 10(void)
+{
+	ScriptCall("ZDCMP1Remaster", "RecordHint", 3, PlayerNumber());
+	if (GearMode==1) {
+		print(s:"\cGAh! This might fix that broken switch!");
+	} else {
+		print(s:"\cGWhat the... What's this doohicky?");
+	}
+	spawnspot("HellWarrior",19,0,0);
+}
+
+
+script 11(void)
+{
+	setlinetexture(14,SIDE_FRONT, TEXTURE_MIDDLE, "GEAR02");
+	delay(35);
+	print(s:"\cGThat seems to fix it. Let's try the switch again");
+	ScriptCall("ZDCMP1Remaster", "RecordHint", 4, PlayerNumber());
+	door_close(12, 64);
+	setlinespecial(12, ACS_Execute, 12, 0, 0, 0, 0);
+}
+
+script 12(void)
+{
+	ambientsound ("misc/chat", 127);
+	printbold(s:"\cCPower to pumps restored");
+	ScriptCall("ZDCMP1Remaster", "RecordHint", 5, -1);
+	power=1;
+	spawnspot("DoomImp",17,0,0);
+	spawnspot("DoomImp",18,0,0);
+}
+
+script 14 (void) // added by BioHazard
+{
+	print(s:"\cGComputer, Locate a spare gear for the tank power switch");
+	Delay(175);
+	Changecamera(39,0,0);
+	localambientsound ("misc/chat", 127);
+	print(s:"\cCPart found, location is part storage, sector B");
+	ScriptCall("ZDCMP1Remaster", "RecordHint", 2, PlayerNumber());
+	Delay(175);
+	Changecamera(0,0,0);
+}
+
+Script 16 (void) // added by biohazard
+{
+	Thing_SpawnFacing(15, T_IMP, 1, 0);	// HotWax: Repopulate the teleport room
+	Setlinespecial(56,206,3,32,105); // added by BioHazard
+	ambientsound ("misc/chat", 127);
+	Printbold(s:"\cCSupply room door unlocked");
+	ScriptCall("ZDCMP1Remaster", "RecordHint", 7, -1);
+	Delay(70);
+}
+
+// Graf Zahl end
+
+/////////////////////////////
+// BioHazard's Scripts! :D //
+/////////////////////////////
+script 998 open
+{
+	Line_AlignCeiling(72,SIDE_FRONT);
+	scroll_ceiling (32,0,1,1);
+
+	setlineblocking (2, block_everything);
+
+	// [GRB] Now shaded
+//	sector_setcolor(34,0,0,255);
+
+	Floor_Waggle(34,10,10,5,-1);
+}
+
+//Commented Out by Tormentor667, Reason: It looks odd in outdoor areas, if the
+//light of the sky changes, but the sectors light itself stays, someone might
+//reactivate this feature, if he wants to apply this to 1000's of sectors :)
+/*script 999 open // Time of day script
+{
+	light_fade (32,110,2625);
+	delay (2625);
+	light_fade (32,200,2625);
+	delay (2625);
+	Restart;
+}*/
+
+script 25 (void)
+{
+	floor_lowerbyvalue(37,255,64);
+	floor_lowerbyvalue(38,255,24);
+	ceiling_Raisebyvalue(38,255,16);
+}
+///////////////////
+// BioHazard End //
+///////////////////
+
+/* Grubber Start **********************************************/
+
+script 600 open
+{
+	//Sector_SetFade(115, 0, 128, 128);   //Removed because sector colouring has now been
+	//Sector_SetFade(112, 0, 128, 128);   //done the old fashioned, clumsy way
+	//Sector_SetFade(111, 0, 0, 192);     //but looks better IMO - Enjay
+}
+
+
+// Nuke startup
+script 67 (void)
+{
+	GiveInventory ("NukeLauncher", 1);
+	TakeInventory ("NukeAmmo", 2);
+}
+
+/* Grubber End ************************************************/
+
+
+/////////////////////////////////////////////////////
+//  Enjay's scripts start here - such as they are  //
+/////////////////////////////////////////////////////
+
+
+Script 17 (void)  //Door deactivated script
+{
+	localambientsound ("misc/chat", 127);
+	print (s: "\cCdoor deactivated.\n\cCfind the master switch.");
+	ScriptCall("ZDCMP1Remaster", "RecordHint", 8, PlayerNumber());
+}
+
+Script 18 (void)
+{
+	setlinespecial (4, 11, 53, 16, 0, 0, 0); //change door to a regular door open type
+	ambientsound ("misc/chat", 127);
+	printbold(s: "\cCmain door activated.");
+	ScriptCall("ZDCMP1Remaster", "RecordHint", 9, -1);
+	Floor_LowerToLowest (54, 64);
+}
+
+script 19 (void) //teleport imps to the pipe
+{
+	int var0;
+	setlinespecial (3, 0, 0, 0, 0, 0, 0);  //deactivate the lines so the script only runs once
+	Floor_LowerToLowest (184, 64);
+	thingsound(7, "doors/dr2_open", 127);
+	Light_ChangeToValue (58, 160);        //brighten the pipe
+	Light_ChangeToValue (59, 144);        //brighten the pipe
+	Light_ChangeToValue (60, 128);        //brighten the pipe
+
+	ACS_Execute(44, 0, 0, 0, 0);
+
+}
+
+///////////////////////////////////////////////
+//Close the pipe after the guys are all dead
+///////////////////////////////////////////////
+
+Script 44 (void)
+{
+    while (thingcount (0, 34))
+	{
+	delay (16);
+       	}
+
+	thingsound(7, "doors/dr2_clos", 127);
+	Light_ChangeToValue (58, 112);        //dull the pipe
+	Light_ChangeToValue (59, 112);        //dull the pipe
+	Light_ChangeToValue (60, 112);        //dull the pipe
+}
+
+script 20 OPEN  //nuthin fancy.  Just make a spark on a computer
+{
+    Thing_Activate(9);
+    delay(random(const:70,140));
+    restart;
+}
+
+script 21 (void)  //Break a fan
+{
+    int var0;
+    var0 = 8;
+    setlinespecial (5, 0, 0, 0, 0, 0, 0);
+    setlinetexture(5, SIDE_FRONT, TEXTURE_MIDDLE, "FAN03");
+    setlinetexture(5, SIDE_BACK, TEXTURE_MIDDLE, "FAN03");
+    setlineblocking(5,BLOCK_NOTHING);
+    thingsound(14, "ELECNJ", 127);
+    while(var0 > 0)
+    	{
+    	 Thing_Activate(14);
+    	 delay(random(const:16,70));
+    	 var0--;
+    	}
+ }
+
+
+Script 45 (void)  //Another door deactivated script
+{
+ 	localambientsound ("misc/chat", 127);
+ 	print (s: "\cCEmergency surface teleport door sealed.\n\cCit is opened from the control console.");
+    ScriptCall("ZDCMP1Remaster", "RecordHint", 10, PlayerNumber());
+}
+
+
+Script 46 (void) //Open the door
+{
+ 	ambientsound ("misc/chat", 127);
+ 	printbold(s: "\cCEmergency surface teleport door open.");
+    ScriptCall("ZDCMP1Remaster", "RecordHint", 11, -1);
+ 	Door_Open(150, 64);
+ 	Thing_SpawnNoFog(74, T_IMP, 0);
+ 	Thing_SpawnNoFog(75, T_SHOTGUY, 0);
+ 	Thing_SpawnNoFog(76, T_CHAINGUY, 0);
+ 	Thing_SpawnNoFog(86, T_ARACHNOTRON, 0);
+ }
+
+
+Script 47 (void) //Flame towers in the unholy chapel place
+{
+
+ 	thing_spawnnofog(random (69, 71), 239, 0, 0);
+ 	Delay(random(3*35,5*35));
+	Restart;
+
+ }
+
+Script 48 (void) //A creepy noise
+{
+ 	activatorsound ("CREEPY1", 127);
+}
+
+Script 49 (void) //Another creepy noise
+{
+ 	activatorsound ("CREEPY2", 127);
+}
+
+Script 50 (void)
+{
+ 	ceiling_raiseByValue(165, 16, 32);
+ 	TagWait(165);
+ 	thing_activate(72);
+	delay(16);
+	ceiling_lowerByValue(165, 16, 32);
+}
+
+Script 51 (void) //Fire in the lift
+{
+ 	thing_spawnnofog(73, 239, 0, 0);
+ 	Delay (35);
+	Restart;
+}
+
+Script 52 (void) //Lift broken
+{
+ 	localambientsound ("misc/chat", 127);
+ 	print (s: "\cCThis lift is very damaged.\n\cCFind another way");
+    ScriptCall("ZDCMP1Remaster", "RecordHint", 12, PlayerNumber());
+}
+
+/////////////////////////////////////////////////////
+//  Enjay's scripts end here - amateur stuff huh?  //
+/////////////////////////////////////////////////////
+
+
+// HotWax's scripts begin
+script 22 OPEN { // Setup and Enjay's bosses
+	SetLineBlocking(130, BLOCK_CREATURES);
+	SetLineBlocking(131, BLOCK_CREATURES);
+	for (int i=0; i<3; i++) switches[i]=0;
+
+	while (ThingCount(T_NONE, 16)) delay(1);
+
+	delay(20);
+	Print(s:"\cGWow.  This is starting to get serious!");
+}
+
+script 23 (void) { // Door beyond bosses
+	if (ThingCount(T_NONE, 16)) {
+		localambientsound("misc/chat", 127);
+		Print(s:"\cCKill the monsters first...");
+	} else {
+		Door_Raise(0, 16, 150);
+	}
+}
+
+
+
+
+///////////////////////////////////////////////////////////////////////
+//Arena thing edited around by Xaser during that 2.1.0 remake period.//
+//As such, some fights are a bit harder, but the whole arena thing is//
+//much, much shorter in general. Hopefully this helps a wee bit. :P  //
+//Any comments starting with <XM> are me saying stuff, obviously. :P //
+///////////////////////////////////////////////////////////////////////
+
+script 24 (void) { // Arena begin
+	SetMusic("", 0, 0);
+	light_fade(32,144,35*6);
+	light_fade(180,144,35*6);
+	light_fade(126,144,35*6);
+	light_fade(179,144,35*6);
+	light_fade(77,144,35*6);
+	light_fade(78,144,35*6);
+	light_fade(79,144,35*6);
+	light_fade(80,144,35*6);
+	light_fade(81,144,35*6);
+	delay(35*2);
+	Printbold(s:"\cGOh snap... that doesn't look good at all.");
+	scroll_ceiling (32,0,7,7);
+	delay(35*5);
+	ACS_Execute(57,0);
+	delay(35);
+	SetMusic("D_OBLVN");
+
+	ACS_Execute(26, 0, 0, 0, 0);
+}
+
+// Who took 25?  grumble...grumble...grumble...
+
+// <XM> Watch your back, Bio. :P
+
+int arenadone = 0;
+
+// <XM> some random information so I don't have to go back and forth between here and the map window.
+
+//Spawnspot IDs -
+//20 - 4, diamond
+//21 - 4, square
+//22 - 8, circle
+//23 - 1, raft
+//24 - 1, raft
+//25 - 6, raft
+//26 - 4, corners
+//28 - bigass ring
+
+script 26 (void) { // Game on!
+
+   //<XM> Blast! This script makes Zen's look like an "ACS for Dummies" handbook. o_O
+
+
+   //Wave 1 : Imp x4 (Removed for time's sake, as it's so easy it's pointless
+   TagWait(76);
+   /*
+   Thing_SpawnFacing(20, T_IMP, 0, 20000); //<XM> I did not even know this existed until now. >_<
+   if (GameSkill() == SKILL_VERY_HARD) Thing_SpawnFacing(21, T_IMP, 0, 20000);
+
+   while(ThingCount(T_NONE, 20000)) delay(1);
+   if (GameSkill() == SKILL_VERY_HARD) {
+      delay(12);
+      Thing_Remove(20000);
+   }
+   */
+
+   //Wave 2 : Imp x8, Demon x4
+   Thing_SpawnFacing(22, T_IMP, 0, 20000);
+   if (GameSkill() == SKILL_HARD || GameSkill() == SKILL_VERY_HARD) Thing_SpawnFacing(20, T_DEMON, 0, 20000);
+   if (GameSkill() == SKILL_VERY_HARD) Thing_SpawnFacing(21, T_SPECTRE, 0, 20000);
+   while(ThingCount(T_NONE, 20000)) delay(1);
+   if (GameSkill() == SKILL_VERY_HARD) {
+      delay(12);
+      Thing_Remove(20000);
+   }
+
+   if (GameSkill() == SKILL_HARD) {
+      Thing_Spawn(23, T_STIMPACK, 0, 0);
+      Thing_Spawn(24, T_STIMPACK, 0, 0);
+   } else {
+      Thing_Spawn(23, T_HEALTHBONUS, 0, 0);
+      Thing_Spawn(24, T_HEALTHBONUS, 0, 0);
+   }
+   Thing_Spawn(25, T_HEALTHBONUS, 0, 0);
+   delay(35*5);
+
+   //Wave 3 : Lost Soul x8, Imp x4, Spectre x4
+   if (GameSkill() == SKILL_HARD || GameSkill() == SKILL_VERY_HARD) {
+   	  //<XM>Spectres suck in this level because it's too bloody hard to see them!
+      //Thing_SpawnFacing(20, T_SPECTRE, 0, 20000);
+      Thing_SpawnFacing(20, T_DEMON, 0, 20000);
+   } else {
+      Thing_SpawnFacing(20, T_DEMON, 0, 20000);
+   }
+   Thing_SpawnFacing(21, T_IMP, 0, 20000);
+   if (GameSkill() == SKILL_HARD) {
+      Thing_SpawnFacing(22, T_LOSTSOUL, 0, 20000);
+   } else if (GameSkill() == SKILL_VERY_HARD) {
+      Thing_SpawnFacing(22, T_CACODEMON, 0, 20000);
+   }
+   while(ThingCount(T_NONE, 20000)) delay(1);
+   if (GameSkill() == SKILL_VERY_HARD) {
+      delay(12);
+      Thing_Remove(20000);
+   }
+
+	//Wave 4 : Baron x4, Shotguy x4, Spectre x4
+   if (GameSkill() == SKILL_HARD || GameSkill() == SKILL_VERY_HARD) {
+      Thing_SpawnFacing(26, T_HELLKNIGHT, 0, 20000); //Used to be a baron, but 4 take too long to kill.
+   } else if (GameSkill() == SKILL_VERY_EASY) {
+      Thing_SpawnFacing(26, T_IMP, 0, 20000);
+   } else {
+      Thing_SpawnFacing(26, T_CACODEMON, 0, 20000);
+   }
+
+   delay(35*5);
+
+   if (GameSkill() != SKILL_VERY_EASY && GameSkill() != SKILL_EASY) {
+      //Thing_SpawnFacing(20, T_SPECTRE, 0, 20000);
+      Thing_SpawnFacing(20, T_DEMON, 0, 20000);
+      if (GameSkill() == SKILL_NORMAL) {
+         Thing_SpawnFacing(21, T_ZOMBIE, 0, 20000);
+      } else {
+         Thing_SpawnFacing(21, T_SHOTGUY, 0, 20000);
+      }
+   }
+
+   while(ThingCount(T_NONE, 20000)) delay(1);
+   if (GameSkill() == SKILL_VERY_HARD) {
+      delay(12);
+      Thing_Remove(20000);
+   }
+
+   Thing_Spawn(27, T_CHAINGUN, 0, 0);
+   Thing_Spawn(23, T_AMMOBOX, 0, 0);
+   Thing_Spawn(24, T_AMMOBOX, 0, 0);
+   Thing_Spawn(25, T_CLIP, 0, 0);
+
+   delay(35*5);
+
+	//Wave 5 : Insane amounts of Lost Souls (too extreme; changed to imps), Imp x8, Chainguy x4
+   int hwcount = 2;
+   //if (GameSkill() == SKILL_NORMAL) hwcount = 2;
+   if (GameSkill() == SKILL_EASY) hwcount = 1;
+   if (GameSkill() == SKILL_VERY_EASY) hwcount = 1;
+
+   int i;
+   for (i=0;i<hwcount;i++) {
+      //<XM> Whoa... Lost Souls take WAAAAY too long to kill here. Maybe Imps would work better.
+      //Thing_SpawnFacing(28, T_LOSTSOUL, 0, 20000);
+      Thing_SpawnFacing(28, T_IMP, 0, 20000);
+      delay(35*3);
+   }
+   delay(5*35);
+
+   Thing_SpawnFacing(22, T_LOSTSOUL, 0, 20000);
+   Thing_Spawn(27, T_SHOTGUN, 0, 0);
+   Thing_Spawn(23, T_MEDKIT, 0, 0);
+   Thing_Spawn(24, T_MEDKIT, 0, 0);
+   if (GameSkill() == SKILL_HARD || GameSkill() == SKILL_VERY_HARD) {
+      Thing_Spawn(25, T_SHELLBOX, 0, 0);
+   } else {
+      Thing_Spawn(25, T_SHELLS, 0, 0);
+   }
+
+   delay(5*35);
+
+   if (GameSkill() == SKILL_VERY_HARD) {
+      Thing_SpawnFacing(26, T_CHAINGUY, 0, 20000);
+   } else {
+      Thing_SpawnFacing(26, T_SHOTGUY, 0, 20000);
+   }
+
+   delay(5*35);
+
+   if (GameSkill() == SKILL_VERY_EASY || GameSkill() == SKILL_EASY) {
+      Thing_SpawnFacing(20, T_DEMON, 0, 20000);
+      Thing_SpawnFacing(21, T_ZOMBIE, 0, 20000);
+   } else {
+      //Thing_SpawnFacing(20, T_SPECTRE, 0, 20000);
+      Thing_SpawnFacing(20, T_DEMON, 0, 20000);
+      Thing_SpawnFacing(21, T_SHOTGUY, 0, 20000);
+   }
+   Thing_Spawn(23, T_ARMORBONUS, 0, 0);
+   Thing_Spawn(24, T_HEALTHBONUS, 0, 0);
+   Thing_Spawn(25, T_CLIP, 0, 0);
+
+   while(ThingCount(T_NONE, 20000)) delay(1);
+   if (GameSkill() == SKILL_VERY_HARD) {
+      delay(12);
+      Thing_Remove(20000);
+   }
+
+	Printbold(s:"\cGHoly Hell on a Stick, they just keep on coming!");
+
+   Thing_Spawn(27, T_BACKPACK, 0, 20000);
+   Thing_Spawn(27, T_BACKPACK, 0, 0);
+   Thing_Spawn(27, T_BACKPACK, 0, 0);
+   Thing_Spawn(27, T_BACKPACK, 0, 0);
+   Thing_Spawn(27, T_BACKPACK, 0, 0);
+   Thing_Spawn(23, T_STIMPACK, 0, 0);
+   Thing_Spawn(24, T_STIMPACK, 0, 0);
+   Thing_Spawn(25, T_SHELLS, 0, 0);
+
+   //Wave 6 : Randomized Chaingun guys
+
+   while(ThingCount(T_NONE, 20000)) delay(1);
+   delay(5*35);
+
+   hwcount=10;
+   if(GameSkill() == SKILL_VERY_HARD) hwcount=20; //Did he realize that VERY_HARD is Nightmare mode?
+                                                  //I thought that would break the entire battle here
+                                                  //as Thingcount doesn't work well with respawning
+                                                  //monsters. :P
+
+   for(i=0;i<hwcount;i++) { //Isn't it ironic that Hotwax put a chaingun sniping part in here? XD
+      Spawn("MapSpot", 65536*(random(-5280, -3040)), 65536*(random(1120, 3296)), 65536*160, 20001, 0);
+      if (GameSkill() == SKILL_VERY_EASY || GameSkill() == SKILL_EASY) {
+         Thing_Spawn(20001, T_SHOTGUY, 0, 20000);
+      } else {
+         Thing_Spawn(20001, T_CHAINGUY, 0, 20000);
+      }
+      Thing_Remove(20001);
+      if (GameSkill() == SKILL_VERY_EASY || GameSkill() == SKILL_NORMAL) {
+         delay(2*35);
+      } else if (GameSkill() == SKILL_VERY_HARD) {
+         delay(20);
+      } else {
+         delay(40);
+      }
+   }
+
+   while(ThingCount(T_NONE, 20000)) delay(1);
+   if (GameSkill() == SKILL_VERY_HARD) {
+      delay(12);
+      Thing_Remove(20000);
+   }
+
+
+   Thing_Spawn(27, T_PLASMAGUN, 0, 0);
+   Thing_Spawn(23, T_BATTERY, 0, 0);
+   Thing_Spawn(24, T_BATTERY, 0, 0); //<XM> Eh, 'battery?' Odd naming for a Cellpack there...
+   if (GameSkill() == SKILL_HARD || GameSkill() == SKILL_VERY_HARD) {
+      Thing_Spawn(25, T_MEDKIT, 0, 0);
+   } else {
+      Thing_Spawn(25, T_STIMPACK, 0, 0);
+   }
+
+   delay(5*35);
+
+   //Following wave removed for time and pointlessness
+
+   /*
+
+   if (GameSkill() == SKILL_VERY_EASY || GameSkill() == SKILL_EASY) {
+      Thing_SpawnFacing(28, T_ZOMBIE, 0, 20000);
+   } else {
+      Thing_SpawnFacing(28, T_IMP, 0, 20000);
+   }
+   while (ThingCount(T_NONE, 20000)) delay(1);
+   if (GameSkill() == SKILL_VERY_HARD) {
+      delay(12);
+      Thing_Remove(20000);
+   }
+   */
+
+   //Wave 8 : Various enemies, including a ring of imps and Knights and crap.
+
+   if (GameSkill() == SKILL_EASY) {
+      Thing_Spawn(23, T_STIMPACK, 0, 0);
+      Thing_Spawn(24, T_STIMPACK, 0, 0);
+      Thing_Spawn(25, T_CLIP, 0, 0);
+      Thing_SpawnFacing(28, T_ZOMBIE, 0, 20000);
+   } else if (GameSkill() == SKILL_NORMAL) {
+      Thing_Spawn(23, T_SHELLS, 0, 0);
+      Thing_Spawn(24, T_SHELLS, 0, 0);
+      Thing_Spawn(25, T_SHELLS, 0, 0);
+      Thing_SpawnFacing(28, T_IMP, 0, 20000);
+   } else if (GameSkill() == SKILL_HARD) {
+      Thing_Spawn(23, T_SHELLBOX, 0, 0);
+      Thing_Spawn(24, T_SHELLBOX, 0, 0);
+      Thing_Spawn(25, T_SHELLS, 0, 0);
+      Thing_SpawnFacing(28, T_IMP, 0, 20000);
+      Thing_SpawnFacing(22, T_HELLKNIGHT, 0, 20000);
+   } else if (GameSkill() == SKILL_VERY_HARD) {
+      Thing_Spawn(23, T_ROCKETBOX, 0, 0);
+      Thing_Spawn(24, T_ROCKETBOX, 0, 0);
+      Thing_Spawn(25, T_SHELLS, 0, 0);
+      Thing_SpawnFacing(28, T_IMP, 0, 20000);
+      Thing_SpawnFacing(22, T_HELLKNIGHT, 0, 20000);
+      Thing_SpawnFacing(20, T_HELLKNIGHT, 0, 20000); //No Revenants... they suck in open areas.
+   }
+   while (ThingCount(T_NONE, 20000)) delay(1);
+   if (GameSkill() == SKILL_VERY_HARD) {
+      delay(12);
+      Thing_Remove(20000);
+   }
+
+   //Wave 9 (omitted, Revenants suck in open areas)
+
+   /*
+   if (GameSkill() == SKILL_NORMAL) {
+      Thing_Spawn(23, T_STIMPACK, 0, 0);
+      Thing_Spawn(24, T_STIMPACK, 0, 0);
+      Thing_Spawn(25, T_BATTERY, 0, 0);
+      Thing_SpawnFacing(28, T_LOSTSOUL, 0, 20000);
+      Thing_SpawnFacing(20, T_SHOTGUY, 0, 20000);
+      Thing_SpawnFacing(21, T_IMP, 0, 20000);
+      Thing_SpawnFacing(26, T_HELLKNIGHT, 0, 20000);
+   } else if (GameSkill() == SKILL_HARD || GameSkill() == SKILL_VERY_HARD) {
+      Thing_Spawn(23, T_ROCKETBOX, 0, 0);
+      Thing_Spawn(24, T_ROCKETBOX, 0, 0);
+      Thing_Spawn(25, T_HEALTHBONUS, 0, 0);
+      Thing_SpawnFacing(28, T_SHOTGUY, 0, 20000); 		//insane amounts
+      Thing_SpawnFacing(20, T_IMP, 0, 20000); 			//4 diamond
+      Thing_SpawnFacing(21, T_HELLKNIGHT, 0, 20000); 	//4 square
+      Thing_SpawnFacing(22, T_SPECTRE, 0, 20000); 		//8 circle
+      Thing_SpawnFacing(26, T_REVENANT, 0, 20000); 		//4 corners
+   }
+   while (ThingCount(T_NONE, 20000)) delay(1);
+   if (GameSkill() == SKILL_VERY_HARD) {
+      delay(12);
+      Thing_Remove(20000);
+   }
+   */
+
+   //Wave 10 : Stuff. :P
+
+   if (GameSkill() == SKILL_HARD || GameSkill() == SKILL_VERY_HARD) {
+      Thing_Spawn(27, T_BLUEARMOR, 0, 0);
+      Thing_Spawn(23, T_STIMPACK, 0, 0);
+      Thing_Spawn(24, T_STIMPACK, 0, 0);
+      Thing_Spawn(25, T_BATTERY, 0, 0);
+      Thing_SpawnFacing(21, T_HELLKNIGHT, 0, 20000); 	//Copied from earlier (omitted) wave
+      Thing_SpawnFacing(28, T_IMP, 0, 20000);
+      Thing_SpawnFacing(26, T_ARACHNOTRON, 0, 20000);
+      Thing_SpawnFacing(22, T_CHAINGUY, 0, 20000);
+   }
+   while (ThingCount(T_NONE, 20000)) delay(1);
+   if (GameSkill() == SKILL_VERY_HARD) {
+      delay(12);
+      Thing_Remove(20000);
+   }
+
+   /*
+   delay(5*35);
+	Printbold(s:"\cGWhat, that's it? I was expecting a bit more than this!");
+   delay(5*35);
+	Printbold(s:"\cGOh shit... spoke too soon! >_<");
+   //<XM> What? It seemed appropriate. :P
+
+   //Final Wave : Cyberdemon Fight!?
+
+   if (GameSkill() == SKILL_HARD) {
+      Thing_Spawn(27, T_CYBERDEMON, 0, 20001);
+   } else if (GameSkill() == SKILL_VERY_HARD) {
+      Thing_Spawn(23, T_CYBERDEMON, 0, 20001);
+      Thing_Spawn(24, T_CYBERDEMON, 0, 20001);
+   }
+
+   //Done to distinguish this Cyber from the rest. :P
+   SetActorProperty(20001, APROP_SPEED, getactorproperty(20001,APROP_SPEED)*2);  //Twice as fast
+   SetActorProperty(20001, APROP_HEALTH, 2500); //Slightly weaker...
+   CreateTranslation(17,168:191=192:207);
+   Thing_SetTranslation(20001,17);
+   thing_deactivate(20001);
+   delay(3*35);
+   thing_activate(20001);
+
+   while (ThingCount(T_NONE, 20001)) delay(1);
+   if (GameSkill() == SKILL_VERY_HARD) {
+      delay(12);
+      Thing_Remove(20001);
+   }
+   */
+
+   Thing_Spawn(27, T_SOULSPHERE, 0, 0);
+   Printbold(s:"\cGYEEEEEEE-HAW!!");
+   //<XM> That's what I'm sayin', after messing with this script. :P
+
+   Door_Open(76, 16);
+   arenadone = 1;
+}
+
+//<XM> And that's it for me. Too bad I never really contributed much else besides that lame HELLDOOM
+//     Ripoff area at the start. :P Maybe someday I'll do something more useful. :P
+
+
+script 27 (void) { // Dead mancubus
+	Thing_Spawn(29, T_YELLOWSKULLKEY, 0, 20000);
+	Thing_SetSpecial(20000, ACS_EXECUTE, 31, 0, 0);
+	delay(35/2);
+	Floor_RaiseByValue(77, 32, 76);
+	delay(35*2);
+	Thing_SpawnFacing(30, T_HELLKNIGHT, 0, 20001);
+	while(ThingCount(T_NONE, 20001)) delay(1);
+	switches[0] = 1;
+	Floor_RaiseByValue(78, 16, 32);
+}
+
+script 28 (void) { // First switch
+	if (!switches[0]) {
+
+	//you know, thats just downright mean
+		/*ambientsound("misc/chat", 127);
+		Print(s:"\cCTrying to cheat, eh?!");
+		delay(35);
+		DamageThing(0);*/
+
+	} else {
+		ClearLineSpecial();
+		Floor_LowerByValue(78, 32, 32);
+		Thing_SpawnFacing(31, T_IMP, 0, 20001);
+		while(ThingCount(T_NONE, 20001)) delay(1);
+		switches[1] = 2;
+		Floor_RaiseByValue(79, 16, 32);
+	}
+}
+
+script 29 (void) { // Second switches
+	if (!switches[1]) {
+
+	//you know, thats just downright mean
+		/*ambientsound("misc/chat", 127);
+		Print(s:"\cCI don't think so...");
+		delay(35);
+		DamageThing(0);*/
+
+	} else {
+		if (--switches[1] == 1) {
+			ClearLineSpecial();
+			localambientsound("misc/chat", 127);
+			Print(s:"\cCOne switch left...");
+		} else {
+			ClearLineSpecial();
+			Floor_LowerByValue(79, 32, 32);
+			Thing_SpawnFacing(32, T_REVENANT, 0, 20001);
+			while(ThingCount(T_NONE, 20001)) delay(1);
+			switches[2] = 1;
+			Floor_RaiseByValue(80, 16, 32);
+		}
+	}
+}
+
+script 30 (void) { // Third switch
+	if (!switches[2]) {
+	//you know, thats just downright mean
+		/*ambientsound("misc/chat", 127);
+		Print(s:"\cCYou ARE the weakest link.... Goodbye!");
+		delay(35);
+		DamageThing(0);*/
+	} else {
+		ClearLineSpecial();
+		Floor_LowerByValue(80, 32, 32);
+		Floor_LowerByValue(77, 16, 76);
+		SetLineBlocking(130, BLOCK_NOTHING);
+	}
+}
+
+script 31 (void) { // Got the red skull
+	Printbold(s:"\cGFinally!");
+	delay(35*3);
+	Thing_SpawnFacing(30, T_VILE, 0, 20001);
+	Printbold(s:"\cGUh oh...");
+	while(ThingCount(T_NONE, 20001)) delay(1);
+	SetLineBlocking(131, BLOCK_NOTHING);
+	Floor_LowertoLowest(81, 16);
+	//added by Lexus Alyus
+	Printbold(s:"\cCBars have lowered... don't let the big gun drown...");
+	Floor_LowerByValue(115, 8, 80);
+	Thing_Activate(49);
+	thing_spawn(50, T_MANCUBUS, 0, 0);  //Mancubi now spwan instead of activating - Enjay
+	//Thing_Activate(50);
+	ACS_Terminate(57,0);
+	light_fade(32,200,35*4);
+	light_fade(180,160,35*4);
+	light_fade(126,160,35*4);
+	light_fade(179,160,35*4);
+	light_fade(77,160,35*4);
+	light_fade(78,160,35*4);
+	light_fade(79,160,35*4);
+	light_fade(80,160,35*4);
+	light_fade(81,160,35*4);
+	scroll_ceiling (32,0,1,1);
+
+	SetMusic("D_TNDC");
+	//end of LA
+}
+
+script 57 (void) // yay lightning! \o/
+{
+	int randval = random(160,255);
+	light_changetovalue(32,randval);
+	light_changetovalue(180,randval);
+	light_changetovalue(126,randval);
+	light_changetovalue(179,randval);
+	light_changetovalue(77,randval);
+	light_changetovalue(78,randval);
+	light_changetovalue(79,randval);
+	light_changetovalue(80,randval);
+	light_changetovalue(81,randval);
+	delay(random(5,10));
+	light_changetovalue(32,144);
+	light_changetovalue(180,144);
+	light_changetovalue(126,144);
+	light_changetovalue(179,144);
+	light_changetovalue(77,144);
+	light_changetovalue(78,144);
+	light_changetovalue(79,144);
+	light_changetovalue(80,144);
+	light_changetovalue(81,144);
+	Ambientsound("Thunder",random(160,255));
+	delay(35*random(10,15));
+	restart;
+}
+
+script 34 (void)
+{
+	if (arenadone)
+	{
+		Door_Open(76, 16);
+	}
+}
+//END THEM HOT WAX SCRIPTS! :D
+
+//DD_133's Scripts begin! Which were completely modified be Lexus :D
+
+Script 32 (void)
+{
+	print(s:"\cGNo other way than to go through this portal...");
+}
+
+Script 33 (void)
+{
+	SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
+	ChangeCamera(48, 0, 0);
+	localSetMusic("", 0, 0);
+	teleport_nofog(81+Playernumber());
+	delay(5*35);
+	print(s:"\cGSo Peaceful...");
+	delay(5*35);
+	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
+	teleport_nofog(2020+Playernumber());
+	ChangeCamera(0, 0, 0);
+	LocaLSetMusic("D_TNDC", 0, 0);
+	delay(2*35);
+	print(s:"\cGOh well this is just Fucking \ccGREAT\cg, Hell again. No matter, theres a plasma gun!");
+}
+
+//DD_133's Scripts end!
+//CCCP_Leha's script, courtesy of Lexus Alyus (that should have been added!).
+//**************************************************
+//*************** leha scripts begin ***************
+//**************************************************
+
+script 35 OPEN {
+	floor_raiseByValue(97, 64, 96);
+}
+
+
+//*** trap the player; spawn a baron ball and two caco's
+script 36 (void)
+{
+	thing_projectileGravity(36, T_BARONBALL, 192, 128, 32);
+	floor_raiseByValue(96, 64, 64);
+	ceiling_lowerByValue(96, 64, 64);
+	delay(70);
+	thing_spawn(35, T_CACODEMON, 64, 66);  //tid changed to avoid conflict - Enjay
+	while(thingCount(0, 66) > 0)
+	{
+		//print(s:"\cGhow many: ", d:thingCount(0, 66)); //tid changed to avoid conflict - Enjay
+		delay(1);
+	}
+	floor_lowerByValue(96, 32, 64);
+	ceiling_raiseByValue(96, 32, 64);
+	thing_activate(45);
+}
+
+//***
+script 37 (void)
+{
+	light_fade(89, 200, 64);
+	pillar_open(90, 16, 32, 32);
+}
+
+script 38 (void) {
+	floor_raiseByValue(91, 64, 32);
+	floor_raiseByValue(92, 64, 80);
+	ceiling_lowerByValue(92, 64, 80);
+	delay(35);
+	// Lesson of the day: If you see a bug, report it, don't exploit it!
+	//print(s:"\cBOMG, that Megasphere is nucking futs!");
+	delay(35);
+	thing_activate(68);
+	Ceiling_RaiseByValue (164, 16, 72);
+}
+
+script 39 (void) {
+	light_fade(94, 100, 35);
+	delay(70);
+	door_open(93, 16);
+}
+
+script 40 (void) {
+	door_open(103, 16);
+	thing_spawn(42, T_REVENANT, 128, 0);
+}
+
+script 41 (void) {
+	while(thingCount(0, 38) > 0) {
+//		print(d:thingCount(0, 38), s:" hell guards left");
+		delay(1);
+	}
+	delay(35);
+	floor_lowerByValue(97, 64, 96);
+	delay(35);
+	thing_activate(46);
+	while(thingCount(0, 46) > 0) {
+//		print(d:thingCount(0, 46), s:" dark imps left");
+		delay(1);
+	}
+	delay(35);
+	thing_activate(40);
+	while(thingCount(0, 40) > 0) {
+//		print(d:thingCount(0, 40), s:" lost souls left");
+		delay(1);
+	}
+	print(s:"\cBWill it never end?");
+	delay(70);
+	thing_spawn(41, T_REVENANT, 192);
+}
+
+int lehaSwitch = 0;
+
+script 42 (void) {
+	if (lehaSwitch == 0) {
+		lehaSwitch++;
+		changeCamera(44, 0, 0);
+		floor_lowerByValue(91, 8, 32);
+		tagWait(91);
+		delay(35);
+		changeCamera(0, 0, 0);
+		localambientsound ("misc/chat", 127);
+		print(s:"\cCOne more to go!");
+	}
+	else if (lehaSwitch == 1) {
+		lehaSwitch++;
+		changeCamera(44, 0, 0);
+		floor_lowerByValue(92, 8, 80);
+		ceiling_raiseByValue(92, 8, 80);
+		tagWait(92);
+		delay(35);
+		changeCamera(67, 0, 0);
+		door_open (163, 16);
+		tagWait(163);
+		delay(35);
+		changeCamera(0, 0, 0);
+
+		ambientsound ("misc/chat", 127);
+		sethudsize(640,480,0);
+		hudmessagebold(s:"Complete the\nsequence is";HUDMSG_FADEOUT,0,CR_GREEN,100.0,325.0,2.5,1.0);
+		setfont("yoda");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,0,CR_UNTRANSLATED,50.0,400.0,2.5,1.0);
+		thing_activate(43);
+
+		ACS_execute(53, 0, 0, 0, 0);
+	}
+}
+
+script 43 (void) {
+	for (int i = 42; i > 1; i-= 10)
+		for (int j = 100; j <= 105; j++) {
+			changeCamera(j, 0, 0);
+			delay(i);
+		}
+	teleport(34);
+	changeCamera(0, 0, 0);
+
+/*	changeCamera(100, 0, 0);
+	delay(70);
+	changeCamera(101, 0, 0);
+	delay(70);
+	changeCamera(102, 0, 0);
+	delay(70);
+	changeCamera(103, 0, 0);
+	delay(70);
+	changeCamera(104, 0, 0);
+	delay(70);
+	changeCamera(105, 0, 0);
+	delay(70);
+	changeCamera(0, 0, 0);
+*/
+}
+
+
+script 53 (void) {
+	ceiling_raiseByValue(133, 4, 64);
+	floor_raiseByValue(167, 4, 4);
+	tagWait(2);
+	ceiling_lowerByValue(167, 4, 4);
+	ceiling_lowerByValue(168, 32, 80);
+}
+
+
+script 54 (void) {
+// why should it say that IN GAME??
+/*	print(s:"please fix my under-laval colour, it looks like shit!!!");*/
+}
+
+
+script 55 (void) {
+	ceiling_lowerByValue(176, 16, 64);
+	tagWait(176);
+	thing_activate(62);
+	delay(35);
+	ceiling_lowerByValue(177, 16, 64);
+	thing_activate(77);
+}
+
+
+// Graf Zahl again...
+
+//End of CCCP_Leha's script
+//Giests tiny script (but not so tiny anymore ;D )
+Script 255 (void)
+{
+	SetMusic("D_OBLVN");
+	ACS_Execute(256, 0);
+	thing_activate(60);
+	thing_activate(61);
+}
+//added by Lexus Alyus but totally revamped by BioHazard
+Script 256 (void) // randomly shoots the fountains
+{
+	radius_quake(5,35*5,0,128,54);
+	acs_execute(990,0,10,random(16,32),random(48,64));
+	delay(5*35);
+	radius_quake(5,35*5,0,128,54);
+
+	for (int i=78;i<81;i++)
+	{
+		acs_execute(991,0,i,random(48,64));
+		delay(35);
+	}
+	Delay(random(5*35,10*35));
+	Restart;
+}
+//End of Giests tiny script
+
+/////////////////////////
+// cool death sequence //
+/////////////////////////
+
+int bossdead=0;
+
+script 133 (void)
+{
+	ScriptCall("ZDCMP1Remaster", "SetFinale", 1);
+
+	acs_terminate(256,0); //stop the random fountains
+	radius_quake(25,35*10,0,128,54);
+	fadeto(1,1,1,1.0,10.0); //fade out for dramatic effect
+
+	acs_execute(259,0); //start the fountains on command
+	acs_execute(260,0); //more death show! :D
+	acs_execute(261,0); //and MORE death show!! :D
+
+	delay(35*5);
+	acs_terminate(259,0); //stop the fountains
+	acs_terminate(260,0); //stop the ring of fire
+	acs_terminate(261,0); //stop the upwards comets
+
+	delay(35*5);
+    if (GameType() == GAME_NET_COOPERATIVE)
+		acs_execute(264,0); //on to the credits
+	else
+		bossdead=1;
+}
+
+script 134 ENTER
+{
+    if (GameType() != GAME_NET_COOPERATIVE)
+	{
+		while (bossdead==0)
+		{
+			delay(2);
+		}
+		acs_execute(264,0); //on to the credits
+	}
+}
+
+script 259 (void) // cool random fountains
+{
+	acs_execute(990,0,5,random(32,64),random(32,64));
+	acs_execute(991,0,random(78,80),random(48,72));
+	delay(random(15,35));
+	restart;
+}
+
+script 260 (void) // ring of fire
+{
+	for(int i=0;i<360;i+=45)
+	{
+		Thing_ProjectileGravity(61, 238, i, 0, -128);
+		delay(5);
+	}
+	restart;
+}
+
+script 261 (void) //upwards comets
+{
+	Thing_ProjectileGravity(61, 237, random(0,360), random(0,32), random(64,72));
+	Thing_ProjectileGravity(61, 237, random(0,360), random(0,32), random(64,72));
+	thing_spawnnofog(59,239,0,0);
+	delay(5);
+	restart;
+}
+
+/////////////////////////
+// Generalized effects //
+/////////////////////////
+
+script 990 (int wait,int dist,int height) // i (BioHazard) seperated this from the
+{                                         // rest of the script cause i want to use
+	int angle = 0;                        // it too! (and i simplified it too! :D )
+	for(int i=51;i<59;i++)
+	{
+		Thing_ProjectileGravity(i, 237, angle, dist, height);
+		thing_spawnnofog(i,239,0,0);
+		angle += 45;
+		delay(wait);
+	}
+}
+
+script 991 (int set,int height) //78=inner 79=middle 80=outer
+{
+	Thing_ProjectileGravity(set, 237, 0, 0, height);
+	thing_spawnnofog(59,239,0,0);
+}
+
+
+/////////////////////////
+// Checkpoint system   //
+// Copyright (c) to    //
+// BioHazard so neeya! //
+/////////////////////////
+int checkpoint = -1;
+script 220 (int set)
+{
+    if (GameType() == GAME_NET_COOPERATIVE)
+    {
+		checkpoint = set;
+		hudmessagebold(s:"checkpoint ", i:set+1, s:" reached";HUDMSG_PLAIN,0,CR_GRAY,0.5,1.0,2.5);
+	}
+	ELSE
+	{
+		autosave();
+	}
+}
+
+script 221 respawn
+{
+	if (GameType() == GAME_NET_COOPERATIVE)
+	{
+		if (checkpoint != -1)
+		{
+			hudmessage(s:"warped to checkpoint ", i:checkpoint+1;HUDMSG_PLAIN,0,CR_GRAY,0.5,1.0,2.5);
+			teleport(2000+(checkpoint*4)+playernumber());
+		}
+	}
+}
+
+  ///////////////////////////////
+ ///////////////////////////////
+///////////////////////////////
+//                    ////////
+// Cool Credits Scene ///////
+//  by BioHazard ACS  //////
+//  spectaculars inc. /////
+//                    ////
+/////////////////////////
+
+script 264 (void)
+{
+	ScriptCall("ZDCMP1Remaster", "SetFinale", 1);
+	thing_deactivate(60);
+	teleport_nofog(59);
+	setplayerproperty(1,1,Prop_TotallyFrozen);
+
+	changecamera(135,1,0);
+	fadeto(0, 0, 0, 0.0, 0.0);
+
+	delay(1); //lets you puke it accurately
+	setmusic("D_Credit");
+
+	//start!
+	ACS_Execute(265,0); //start the text
+}
+
+script 265 (void) //text
+{
+	sethudsize(640,480,0);
+
+	setfont("bigfont");
+	hudmessagebold(s:"The ZDoom Community Map Project";HUDMSG_FADEOUT,0,CR_UNTRANSLATED,320.0,240.0,10.0,5.0);
+
+	setfont("smallfont");
+	for (int i=480.0;i>256.0;i-=2.0)
+	{
+		hudmessagebold(s:"By the ZDoom.ORG Forumers!";HUDMSG_FADEOUT,1,CR_BLUE,320.0,i,8.0,5.0);
+		delay(1);
+	}
+	hudmessagebold(s:"Xaser";HUDMSG_FADEOUT,0,CR_GREEN,40.0,5.0,5.0,2.5);
+	hudmessagebold(s:"Giest118";HUDMSG_FADEOUT,0,CR_GREEN,590.0,5.0,5.0,2.5);
+	delay(10);
+	hudmessagebold(s:"LexusAylus";HUDMSG_FADEOUT,0,CR_GREEN,40.0,15.0,5.0,2.5);
+	hudmessagebold(s:"Tormentor667";HUDMSG_FADEOUT,0,CR_GREEN,590.0,15.0,5.0,2.5);
+	delay(10);
+	hudmessagebold(s:"Graf Zahl";HUDMSG_FADEOUT,0,CR_GREEN,40.0,25.0,5.0,2.5);
+	hudmessagebold(s:"BioHazard";HUDMSG_FADEOUT,0,CR_GREEN,590.0,25.0,5.0,2.5);
+	delay(10);
+	hudmessagebold(s:"Grubber";HUDMSG_FADEOUT,0,CR_GREEN,40.0,35.0,5.0,2.5);
+	hudmessagebold(s:"Enjay";HUDMSG_FADEOUT,0,CR_GREEN,590.0,35.0,5.0,2.5);
+	delay(10);
+	hudmessagebold(s:"HotWax";HUDMSG_FADEOUT,0,CR_GREEN,40.0,45.0,5.0,2.5);
+	hudmessagebold(s:"Dochist";HUDMSG_FADEOUT,0,CR_GREEN,590.0,45.0,5.0,2.5);
+	delay(10);
+	hudmessagebold(s:"DD_133";HUDMSG_FADEOUT,0,CR_GREEN,40.0,55.0,5.0,2.5);
+	hudmessagebold(s:"cccp_leha";HUDMSG_FADEOUT,0,CR_GREEN,590.0,55.0,5.0,2.5);
+	delay(10);
+	delay(12*35);
+	delay(35/2);
+
+	ACS_Execute(266,0); //start the cameras
+
+	acs_execute(270,0,1); //project leader
+	ACS_Execute(267,0,1); //display xaser's profile
+	delay(35*17);
+	delay(35/2);
+
+	acs_execute(270,0,2); //Monster resource
+	ACS_Execute(267,0,2); //display hotwax's profile
+	delay(35*17);
+	delay(35/2);
+
+	acs_execute(270,0,3); //Detailing
+	ACS_Execute(267,0,3); //display Leha's's profile
+	delay(35*17);
+	delay(35/2);
+
+	acs_execute(270,0,4); //credits
+	ACS_Execute(267,0,4); //display Enjay's profile
+	delay(35*18);
+
+	acs_execute(270,0,5); //Bug spotters
+	ACS_Execute(267,0,5); //display BioHazard's profile
+	delay(35*17);
+
+	ACS_Execute(267,0,6); //display Tormentor's profile
+	delay(35*8);
+	delay(35/2);
+	delay(35/4);
+
+	acs_execute(270,0,6); //Multiplay
+	ACS_Execute(267,0,7); //display Graf's profile
+	delay(35*18);
+
+	acs_execute(270,0,7); //thanks
+	ACS_Execute(267,0,8); //display Lexus's profile
+	delay(35*18);
+
+	acs_execute(270,0,8); //We hate you
+	ACS_Execute(267,0,9); //display DD_133's profile
+	delay(35*17);
+
+	acs_execute(270,0,9); //we really hate you
+	ACS_Execute(267,0,10); //display Grubber's profile
+	delay(35*17);
+	delay(35/2);
+
+	acs_execute(270,0,10); //More special thanks
+	ACS_Execute(267,0,11); //display Dochist's profile
+	delay(35*18);
+	delay(35/2);
+
+	acs_execute(270,0,11); //viewers like you
+	ACS_Execute(267,0,12); //display Giest's profile
+	delay(35*17);
+
+	acs_execute(270,0,12); // we <3 randy
+}
+
+script 266 (void) //cameras
+{
+	changecamera(143,1,0); //Xaser's camera
+	thing_activate(143);
+	delay(35*17);
+	delay(35/2);
+
+	thing_activate(143);
+	changecamera(150,1,0); //hotwax's camera
+	thing_activate(150);
+	delay(35*17);
+	delay(35/2);
+
+	thing_deactivate(150);
+	changecamera(157,1,0); //leha's camera
+	thing_activate(157);
+	delay(35*17);
+	delay(35/2);
+
+	thing_deactivate(157);
+	changecamera(164,1,0); //enjays's camera 1
+	thing_activate(164);
+	delay(35*9);
+	delay(35/2);
+	thing_deactivate(164);
+	changecamera(170,1,0); //enjays's camera 2
+	delay(35/2);
+	changecamera(171,1,0); //enjays's camera 3
+	delay(35/2);
+	changecamera(172,1,0); //enjays's camera 4
+	delay(35/2);
+	changecamera(173,1,0); //enjays's camera 5
+	delay(35/2);
+	changecamera(174,1,0); //enjays's camera 6
+	delay(35/2);
+	changecamera(175,1,0); //enjays's camera 7
+	thing_activate(175);
+	delay(35*6);
+
+	thing_deactivate(175);
+	changecamera(179,1,0); //BioHazard's Camera
+	thing_activate(179);
+	delay(35*17);
+	thing_deactivate(175);
+	changecamera(187,1,0); //Tormentor's Camera
+	thing_activate(187);
+	delay(35*8);
+	delay(35/2);
+	delay(35/4);
+
+	thing_deactivate(187);
+	changecamera(139,1,0); //graf's camera 1
+	thing_activate(139);
+	delay(35*9);
+	delay(35/4);
+	thing_deactivate(139);
+	changecamera(192,1,0); //graf's camera 2
+	thing_activate(192);
+	delay(35*8);
+	delay(35/2);
+
+	thing_deactivate(192);
+	changecamera(136,1,0); //lexus' camera 1
+	thing_activate(136);
+	delay(35*6);
+	thing_deactivate(136);
+	changecamera(196,1,0); //lexus' camera 2
+	thing_activate(196);
+	delay(35*9);
+	thing_deactivate(96);
+	changecamera(203,1,0); //lexus' camera 3
+	thing_activate(203);
+	delay(35*3);
+
+	thing_deactivate(203);
+	changecamera(206,1,0); //dd_133's camera
+	thing_activate(206);
+	delay(35*17);
+
+	thing_deactivate(206);
+	changecamera(212,1,0); //grubber's camera 1
+	thing_activate(212);
+	delay(35*13);
+	thing_deactivate(212);
+	changecamera(217,1,0); //grubber's camera 1
+	thing_activate(217);
+	delay(35*4);
+	delay(35/2);
+
+	thing_deactivate(217);
+	changecamera(220,1,0); //Dochist's camera
+	thing_activate(220);
+	delay(35*18);
+
+	thing_deactivate(220);
+	changecamera(227,1,0); //giest's camera
+	thing_activate(227);
+	delay(35*17);
+	delay(35/2);
+
+	changecamera(135,1,0);
+	delay(35*10);
+
+	delay(35*7);
+	acs_execute(214,0,1); // natural completion bypasses the manual-skip option
+}
+
+script 267 (int messid) //user messages
+{
+	sethudsize(648,480,0);
+	if(messid == 1)
+	{
+		setfont("XaserAV");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,15.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"Xaser\nmapping since '01\nMade with DoomBuilder\nthanks to tormentor for the detail!";
+		HUDMSG_TYPEON,2,CR_BROWN,165.0,225.0,13.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"HELLDOOM Ripoff";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+	if(messid == 2)
+	{
+		setfont("HotWaxAV");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,14.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"HotWax\nmapping since '96\nMade with DoomBuilder\nthanks to Lexus for the detail!";
+		HUDMSG_TYPEON,2,CR_BROWN,150.0,225.0,12.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"Seriously ScriptZ0r'd Arena";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+	if(messid == 3)
+	{
+		setfont("LehaAV");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,15.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"cccp_leha\nmapping since '98";
+		HUDMSG_TYPEON,2,CR_BROWN,100.0,225.0,15.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"Some hellbase place";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+	if(messid == 4)
+	{
+		setfont("EnjayAV");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,15.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"Enjay\nmapping since '94\nCreated with DeePSea\n";
+		HUDMSG_TYPEON,2,CR_BROWN,120.0,225.0,14.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"Many Rooms of 1337ness";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+	if(messid == 5)
+	{
+		setfont("BioAV");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,14.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"BioHazard\nmapping since '98\nMade with WadAuthor\nThanks to #NZDR for being so great!";
+		HUDMSG_TYPEON,2,CR_BROWN,165.0,225.0,12.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"ImmersionFactor";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+	if(messid == 6)
+	{
+		setfont("T667AV");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,5.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"Tormentor667\nmapping since '97\nMade with DoomBuilder\nThanks to all the participants!";
+		HUDMSG_TYPEON,2,CR_BROWN,150.0,225.0,4.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"The Courtyard";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+	if(messid == 7)
+	{
+		setfont("grafAV");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,15.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"Graf Zahl\nMade with DoomBuilder\nThanks to T667 and Enjay for detailing!";
+		HUDMSG_TYPEON,2,CR_BROWN,170.0,225.0,15.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"Puzzle of the Pumps";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+	if(messid == 8)
+	{
+		setfont("LexusAV");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,15.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"Lexus Aylus\nMade with DoomBuilder";
+		HUDMSG_TYPEON,2,CR_BROWN,125.0,225.0,15.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"Realm of something not green";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+	if(messid == 9)
+	{
+		setfont("dd_133AV");
+		hudmessage(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,15.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"DD_133\nmapping since '04\nMade with DoomBuilder\nThanks to tormentor for having the idea!";
+		HUDMSG_TYPEON,2,CR_BROWN,180.0,225.0,14.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"Not hell again! >:(";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+	if(messid == 10)
+	{
+		setfont("GruberAV");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,15.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"Grubber";
+		HUDMSG_TYPEON,2,CR_BROWN,100.0,225.0,15.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"Underground passage";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+
+	if(messid == 11)
+	{
+		setfont("DochstAV");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,15.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"Pablo dictter\nMade with HellMaker";
+		HUDMSG_TYPEON,2,CR_BROWN,120.0,225.0,15.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"No info";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+	if(messid == 12)
+	{
+		setfont("giestAV");
+		hudmessagebold(s:"A";HUDMSG_FADEOUT,1,CR_UNTRANSLATED,40.0,440.0,15.0,2.5);
+
+		sethudsize(320,240,0);
+		setfont("smallfont");
+		hudmessagebold(s:"Giest118\nMapping since '03\nMade with DoomBuilder\nThanks to T667 for the detailing!ONE?//";
+		HUDMSG_TYPEON,2,CR_BROWN,175.0,225.0,12.0,0.025,2.5);
+
+		sethudsize(640,480,0);
+		setfont("bigfont");
+		hudmessagebold(s:"OMG UBER IMP ARENA!!!ONEONE/...//!!/?.../!??/";HUDMSG_FADEOUT,3,CR_WHITE,320.0,10.0,13.0,2.5);
+	}
+}
+
+script 268 (int messid) //scrolls down
+{
+	sethudsize(640,480,0);
+	for (int i=0.0;i<235.0;i+=1.0)
+	{
+		if(messid == 1){hudmessagebold(s:"Project Leader";HUDMSG_FADEOUT,6,CR_BLUE,575.0,i,3.0,3.0);}
+		if(messid == 2){hudmessagebold(s:"Decorate Monsters";HUDMSG_FADEOUT,6,CR_BLUE,575.0,i,3.0,3.0);}
+		if(messid == 3){hudmessagebold(s:"Primary detailing team";HUDMSG_FADEOUT,6,CR_BLUE,550.0,i,3.0,3.0);}
+		if(messid == 4){hudmessagebold(s:"Credits Sequence";HUDMSG_FADEOUT,6,CR_BLUE,575.0,i,3.0,3.0);}
+		if(messid == 5){hudmessagebold(s:"BugFinders";HUDMSG_FADEOUT,6,CR_BLUE,575.0,i,3.0,3.0);}
+		if(messid == 6){hudmessagebold(s:"Multiplayer Features";HUDMSG_FADEOUT,6,CR_BLUE,565.0,i,3.0,3.0);}
+		if(messid == 7){hudmessagebold(s:"Special thanks to";HUDMSG_FADEOUT,6,CR_BLUE,575.0,i,3.0,3.0);}
+		if(messid == 8){hudmessagebold(s:"Music";HUDMSG_FADEOUT,6,CR_BLUE,550.0,i,3.0,3.0);}
+		if(messid == 9){hudmessagebold(s:"Intense Playtesting";HUDMSG_FADEOUT,6,CR_BLUE,572.0,i,3.0,3.0);}
+		if(messid == 10){hudmessagebold(s:"More special thanks to";HUDMSG_FADEOUT,6,CR_BLUE,565.0,i,3.0,3.0);}
+		if(messid == 11){hudmessagebold(s:"Uber mega thanks and stuff plus things";HUDMSG_FADEOUT,6,CR_BLUE,320.0,i,3.0,3.0);}
+		if(messid == 12){hudmessagebold(s:"ZDoom 2.1.1 version";HUDMSG_FADEOUT,6,CR_BLUE,575.0,i,3.0,3.0);}
+		delay(1);
+	}
+}
+
+script 269 (int messid) //scrolls up
+{
+	sethudsize(640,480,0);
+	for (int i=480.0;i>245.0;i -= 1.0)
+	{
+		if(messid == 1){hudmessagebold(s:"Tormentor667";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,575.0,i,3.0,3.0);}
+		if(messid == 2){hudmessagebold(s:"Nanami";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,550.0,i,3.0,3.0);}
+		if(messid == 3){hudmessagebold(s:"Tormentor667\nLexus Aylus";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,575.0,i+3.0,3.0,3.0);}
+		if(messid == 4){hudmessagebold(s:"BioHazard";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,575.0,i,3.0,3.0);}
+		if(messid == 5){hudmessagebold(s:"Enjay\nGraf Zahl\nBetaSword\nLexus Alyus\nBioHazard\nHotWax";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,575.0,i+17.0,3.0,3.0);}
+		if(messid == 6){hudmessagebold(s:"BioHazard\nHotWax";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,575.0,i+3.0,3.0,3.0);}
+		if(messid == 7){hudmessagebold(s:"#NOTZDoomRelated\nDestroyer\nBagel Bites";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,575.0,i+9.0,3.0,3.0);}
+		if(messid == 8){hudmessagebold(s:"ModArchive\nLexus Aylus\nEpic MegaGames";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,575.0,i+9.0,3.0,3.0);}
+		if(messid == 9){hudmessagebold(s:"BioHazard\nHotWax\nCyber-Menace";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,550.0,i+9.0,3.0,3.0);}
+		if(messid == 10){hudmessagebold(s:"Williston Consulting\nPascal v.d. Heiden";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,575.0,i+3.0,3.0,3.0);}
+		if(messid == 11){hudmessagebold(s:"Randy Heit";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,320.0,i,3.0,3.0);}
+		if(messid == 12){hudmessagebold(s:"Graf Zahl\nEnjay\nXaser";HUDMSG_FADEOUT,5,CR_UNTRANSLATED,560.0,i+12.0,3.0,3.0);}
+		delay(1);
+	}
+}
+
+script 270 (int messid) //saves code
+{
+	ACS_Execute(268,0,messid);
+	ACS_Execute(269,0,messid);
+}
+
+script 214 (int automatic) // natural completion or authorized manual skip
+{
+	if (!automatic && !ScriptCall("ZDCMP1Remaster", "CanSkip", PlayerNumber())) terminate;
+	// The original exit trigger remains valid; clean every finale producer.
+	acs_terminate(133,0);
+	acs_terminate(134,0);
+	acs_terminate(259,0);
+	acs_terminate(260,0);
+	acs_terminate(261,0);
+	acs_terminate(264,0);
+	acs_terminate(265,0); //  STOP
+	acs_terminate(266,0); //   THE
+	acs_terminate(267,0); // PRESSES
+	acs_terminate(268,0); //   !!!
+	acs_terminate(269,0);
+	acs_terminate(270,0);
+	ScriptCall("ZDCMP1Remaster", "SetFinale", 0);
+	changecamera(0,1,0);
+	setplayerproperty(1,0,Prop_TotallyFrozen);
+	fadeto(0,0,0,0.0,0.0);
+	exit_normal(0);
+}
+
+script "ZDC_SkipFinale" (void)
+{
+	// Only the synchronized event handler requests this after boss death.
+	ACS_ExecuteAlways(214, 0);
+}
+
+//Salahmander2/RichardDS90
+script 789 open //flicker lights
+{
+Thing_Activate(202);
+    delay(random(5,70));
+	Thing_DeActivate(202);
+	delay(random(5,35));
+	restart;
+	}
+
+script 790 open //flicker lights 1
+{
+Thing_Activate(240);
+    delay(random(5,35));
+	Thing_DeActivate(240);
+	delay(random(5,35));
+	restart;
+	}
+
+	script 791 open //flicker lights 2
+{
+Thing_Activate(241);
+    delay(random(5,35));
+	Thing_DeActivate(241);
+	delay(random(5,35));
+	restart;
+	}
+
+		script 792 open //flicker lights 3
+{
+Thing_Activate(242);
+    delay(random(5,35));
+	Thing_DeActivate(242);
+	delay(random(5,35));
+	restart;
+	}

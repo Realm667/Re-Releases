@@ -1,0 +1,58 @@
+version "4.8"
+
+class ZDCMP1WeaponCheck : EventHandler
+{
+    int peakFreezer;
+    int peakNuke;
+    bool firing;
+
+    int Count(class<Actor> cls)
+    {
+        let it = ThinkerIterator.Create(cls, Thinker.MAX_STATNUM + 1);
+        int n = 0;
+        while (it.Next()) n++;
+        return n;
+    }
+
+    void Check(bool value, String label)
+    {
+        Console.Printf("UTNT_ASSERT %s: %s", value ? "PASS" : "FAIL", label);
+    }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let mo = players[0].mo;
+        if (e.Name == "zdcwstart")
+        {
+            mo.bInvulnerable = true;
+            mo.GiveInventory("Freezer", 1);
+            mo.GiveInventory("FreezeAmmo", 300);
+            mo.GiveInventory("NukeLauncher", 1);
+            mo.GiveInventory("NukeAmmo", 20);
+            firing = true;
+        }
+        if (e.Name == "zdcwstop") firing = false;
+        if (e.Name == "zdcwcheck")
+        {
+            Check(peakFreezer > 0 && peakFreezer < 200, "real sustained freezer fire creates bounded trails");
+            Check(peakNuke > 0 && peakNuke < 2000, "real nuke salvos create bounded explosions");
+            Check(Count("FrostTrail") == 0 && Count("FreezerBall") == 0, "freezer actors expire after firing");
+            Check(Count("NukeShot") == 0 && Count("MultiExplo") == 0, "nuke actors expire after firing");
+            Check(mo.CountInv("FreezeAmmo") < 300 && mo.CountInv("NukeAmmo") < 20, "both weapons consumed ammo");
+            Console.Printf("ZDC_WEAPONS freezer=%d nukes=%d ammo=%d,%d", peakFreezer, peakNuke,
+                mo.CountInv("FreezeAmmo"), mo.CountInv("NukeAmmo"));
+        }
+        if (e.Name == "zdcmove")
+        {
+            Console.Printf("ZDC_MOVE %.6f %.6f %.6f %.6f %.6f %.6f %.6f", mo.Pos.X, mo.Pos.Y, mo.Pos.Z,
+                mo.Vel.X, mo.Vel.Y, mo.Vel.Z, players[0].viewz);
+        }
+    }
+
+    override void WorldTick()
+    {
+        if (!firing) return;
+        peakFreezer = max(peakFreezer, Count("FrostTrail"));
+        peakNuke = max(peakNuke, Count("MultiExplo"));
+    }
+}
