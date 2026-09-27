@@ -1,0 +1,182 @@
+// Sector portals form a small, live graph. Closed/blocked transitions are not
+// advertised as walkable, and the visible first leg is checked again in-world.
+class ZDCNavResult : Object
+{
+    bool Ready;
+    Vector2 Waypoint;
+}
+
+class ZDCNavigation : Object
+{
+    static bool Crossable(Actor traveller, Line portal, Sector from, Sector to)
+    {
+        if (!to || (portal.flags & (Line.ML_BLOCKING | Line.ML_BLOCK_PLAYERS | Line.ML_BLOCKEVERYTHING))
+            || (portal.v2.p - portal.v1.p).Length() < traveller.Radius * 2)
+            return false;
+        Vector2 mid = (portal.v1.p + portal.v2.p) * .5;
+        double floorA = from.floorplane.ZatPoint(mid);
+        double floorB = to.floorplane.ZatPoint(mid);
+        double ceiling = min(from.ceilingplane.ZatPoint(mid), to.ceilingplane.ZatPoint(mid));
+        if (floorB > floorA + 24 || floorA > floorB + 64)
+            return false;
+        if (ceiling - max(floorA, floorB) < traveller.Height)
+        {
+            bool usableDoor = (portal.activation & SPAC_Use)
+                && (portal.special == 11 || portal.special == 12 || portal.special == 13);
+            if (!usableDoor || (portal.special == 13
+                && !traveller.CheckKeys(portal.args[3], false, true))) return false;
+        }
+        // The 2D sector graph cannot describe stacked walkable layers safely.
+        if (from.Get3DFloorCount() || to.Get3DFloorCount()) return false;
+        return true;
+    }
+
+    static Actor TeleportTarget(Line portal)
+    {
+        if (portal.special != 70 || portal.args[0] <= 0) return null;
+        let targets = level.CreateActorIterator(portal.args[0], "TeleportDest");
+        Actor destination = targets.Next();
+        if (!destination)
+        {
+            targets = level.CreateActorIterator(portal.args[0], "MapSpot");
+            destination = targets.Next();
+        }
+        return destination;
+    }
+
+    static Sector TeleportDestination(Line portal)
+    {
+        Actor destination = TeleportTarget(portal);
+        return destination ? destination.CurSector : null;
+    }
+
+    static Vector2 ArrivalPoint(Line portal)
+    {
+        Actor destination = TeleportTarget(portal);
+        return destination ? destination.Pos.XY : (portal.v1.p + portal.v2.p) * .5;
+    }
+
+    static double Cross2D(Vector2 a, Vector2 b) { return a.X * b.Y - a.Y * b.X; }
+
+    static play bool ClearPortalLeg(Actor traveller, Sector sector,
+        Vector2 start, Vector2 end, Line entry, Line exit)
+    {
+        Vector2 delta = end - start;
+        double distance = delta.Length();
+        if (distance < 8) return true;
+        Vector2 middle = (start + end) * .5;
+        if (sector.ceilingplane.ZatPoint(middle) - sector.floorplane.ZatPoint(middle) < traveller.Height
+            && entry && exit && entry.special >= 11 && entry.special <= 13
+            && exit.special >= 11 && exit.special <= 13)
+            return true; // Both edges operate the same closed, usable door.
+        if (sector.ceilingplane.ZatPoint(middle) - sector.floorplane.ZatPoint(middle) < traveller.Height)
+            return false;
+        for (int i = 0; i < sector.lines.Size(); i++)
+        {
+            Line wall = sector.lines[i];
+            if (wall == entry || wall == exit || wall.frontsector == wall.backsector) continue;
+            Vector2 edge = wall.v2.p - wall.v1.p;
+            double denominator = Cross2D(delta, edge);
+            if (abs(denominator) < .001) continue;
+            Vector2 offset = wall.v1.p - start;
+            double along = Cross2D(offset, edge) / denominator;
+            double across = Cross2D(offset, delta) / denominator;
+            if (along > .02 && along < .98 && across >= 0 && across <= 1) return false;
+        }
+        return true;
+    }
+
+    static play bool ClearFirstLeg(Actor traveller, Vector2 waypoint)
+    {
+        Vector2 delta = waypoint - traveller.Pos.XY;
+        double distance = delta.Length();
+        if (distance < 30) return true;
+        return !traveller.LineTrace(atan2(delta.Y, delta.X), distance - 20, 0, TRF_THRUACTORS);
+    }
+
+    static play ZDCNavResult NextWaypoint(Actor traveller, Vector2 goal)
+    {
+        let result = new("ZDCNavResult");
+        if (!traveller || !traveller.CurSector) return result;
+        Sector destination = level.PointInSector(goal);
+        if (!destination) return result;
+        int count = level.Sectors.Size();
+        int start = traveller.CurSector.Index();
+        int finish = destination.Index();
+        if (start < 0 || finish < 0 || start >= count || finish >= count) return result;
+        if (start == finish)
+        {
+            result.Waypoint = goal;
+            result.Ready = ClearFirstLeg(traveller, goal);
+            return result;
+        }
+
+        Array<int> previous, portalLine, queue;
+        previous.Resize(count);
+        portalLine.Resize(count);
+        for (int i = 0; i < count; i++) previous[i] = -1;
+        previous[start] = start;
+        queue.Push(start);
+        for (int read = 0; read < queue.Size() && previous[finish] == -1; read++)
+        {
+            int here = queue[read];
+            Sector sector = level.Sectors[here];
+            for (int j = 0; j < sector.lines.Size(); j++)
+            {
+                Line line = sector.lines[j];
+                Sector next = line.frontsector == sector ? line.backsector : line.frontsector;
+                if (line.special == 70)
+                {
+                    if (line.frontsector != sector) continue;
+                    next = TeleportDestination(line);
+                    if (!next || (line.flags & (Line.ML_BLOCKING | Line.ML_BLOCK_PLAYERS | Line.ML_BLOCKEVERYTHING)))
+                        continue;
+                }
+                else if (!Crossable(traveller, line, sector, next)) continue;
+                Vector2 midpoint = (line.v1.p + line.v2.p) * .5;
+                if (here == start)
+                {
+                    if (!ClearFirstLeg(traveller, midpoint)) continue;
+                }
+                else
+                {
+                    Line entry = level.lines[portalLine[here]];
+                    if (!ClearPortalLeg(traveller, sector, ArrivalPoint(entry),
+                        midpoint, entry, line)) continue;
+                }
+                if (next == destination && !ClearPortalLeg(traveller, next,
+                    ArrivalPoint(line), goal, line, null)) continue;
+                int target = next.Index();
+                if (target < 0 || target >= count || previous[target] != -1) continue;
+                previous[target] = here;
+                portalLine[target] = line.Index();
+                queue.Push(target);
+                if (target == finish) break;
+            }
+        }
+        if (previous[finish] == -1) return result;
+        Array<int> path;
+        for (int step = finish; step != start; step = previous[step]) path.Push(step);
+        Line portal = level.lines[portalLine[path[path.Size() - 1]]];
+        result.Waypoint = (portal.v1.p + portal.v2.p) * .5;
+        result.Ready = ClearFirstLeg(traveller, result.Waypoint);
+        return result;
+    }
+
+    static ui void DrawPointer(Vector2 waypoint, int hint, Actor traveller)
+    {
+        Vector2 delta = waypoint - traveller.Pos.XY;
+        double relative = atan2(delta.Y, delta.X) - traveller.Angle;
+        let arrow = TexMan.CheckForTexture("ZDNAV0", TexMan.Type_Any);
+        if (!arrow.IsValid()) return;
+        String title = ZDCMapGuide.RouteTitle(hint);
+        ZDCLogUI.Box(294, 354, 212, 23, 0xff101416, .86);
+        ZDCLogUI.Box(294, 354, 212, 1, 0xff6c7274, .8);
+        double scale = ZDCLogUI.Scale();
+        Screen.DrawTexture(arrow, false, ZDCLogUI.Left() + 310 * scale,
+            ZDCLogUI.Top() + 366 * scale, DTA_DestWidth, int(20 * scale),
+            DTA_DestHeight, int(20 * scale), DTA_CenterOffset, true,
+            DTA_Rotate, relative);
+        ZDCLogUI.Text(title, 326, 360, 11, 0xffe5e7e5);
+    }
+}

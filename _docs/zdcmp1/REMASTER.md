@@ -119,22 +119,36 @@ preference and host-controlled marker/completed-marker switches. Active markers
 default on; completed markers default off. Marker
 actors are invisible, nonblocking and do not affect combat or item counts.
 Native rendering handles rotation, zoom, pan and the overlay map. The automap
-uses no additional frame, header or legend. Small red circular marker backgrounds
-keep the glyphs visible over dense geometry. Map colors
+uses no additional frame, header or legend. Steel-rimmed red enamel marker
+backgrounds match the HUD; objective markers get an amber rim. Map colors
 preserve key-lock colors and discovery.
 
 `!` marks explicit gear/pump objectives, `?` marks reported hints/obstacles,
 and `+` marks confirmed endpoints when enabled. The gear target moves to the
 known broken switch after pickup, then advances through repair, power and
-drainage. Door hints retire on activation/unlocking. Reading a log entry never
+drainage. Door hints retire on activation/unlocking. When the main gate or
+teleporter door is reported blocked, an additional `!` marks the actual switch
+or console while `?` remains at the obstacle. Reading a log entry never
 advances this state. These are script-derived observations, not a new quest
-system, pathfinder or secret detector.
+system or secret detector.
+
+**ZDCMP1 Options > HUD > HUD route pointer** defaults on for each player.
+The continuously rotating compass needle above the status bar points to the first visible portal on
+a route to the next actionable known goal, never merely toward its coordinates.
+The live sector graph accounts for floor height, passage width, clearance, blocked lines,
+usable/key doors and actor-backed teleport destinations. It is recalculated
+every twelve tics. Unreachable routes and stacked 3D-floor sectors yield no
+arrow rather than a direction through a wall. A report about a broken switch
+or lift is not treated as a walkable destination. Menus, automap, death and
+cutscenes suppress the pointer. This is conservative guidance, not a full
+navmesh for all geometry or a new hint/quest progression system.
 
 UZDoom 5.0.1's native MapMarker renderer has no per-player filter. To avoid
 leaking private observations or desynchronizing the game, coop markers require
 the intersection of all connected players' received hints. A completed event
 from any player retires obsolete objectives, including after that player leaves.
-Map markers and hint history are serialized and bounded to thirteen entries.
+Hint history is bounded to thirteen entries; at most two additional objective
+markers are spawned for the switch and console.
 No existing bindings, map geometry, skill gates or Max effect defaults change.
 
 ### Journal and Notifications

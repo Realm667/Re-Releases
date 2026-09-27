@@ -41,7 +41,7 @@ def main():
                           timeout=60, regression=True, commands=script,
                           settings=[("use_mouse", False), ("use_joystick", False),
                                     ("i_pauseinbackground", False), ("vid_activeinbackground", True)])
-        if not result["ok"] or result["assertions"] != 23:
+        if not result["ok"] or result["assertions"] != 24:
             print(Path(result["log"]).read_text()[-9000:])
             return 1
     return 0

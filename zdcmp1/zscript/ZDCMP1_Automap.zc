@@ -28,6 +28,31 @@ class ZDCMapGuide : Object
     static bool Complete(int id) { return id == 6 || id == 7 || id == 9 || id == 11; }
     static bool Objective(int id) { return id >= 2 && id <= 5; }
 
+    static int RouteGoal(int known, int delivered)
+    {
+        for (int id = 5; id >= 2; id--)
+            if (Eligible(id, known, delivered)) return id;
+        if (Eligible(8, known, delivered)) return 8;
+        if (Eligible(10, known, delivered)) return 10;
+        if (!(known & (1 << 1)) && Eligible(0, known, delivered)) return 0;
+        return -1; // Reports about blocked machinery are not destinations.
+    }
+
+    static Vector2 RoutePosition(int id)
+    {
+        if (id == 8) return (488, 856); // Main-switch script 18, linedef 15012.
+        if (id == 10) return (5056, 824); // Console thing 1966 executes script 46.
+        Vector3 location = Position(id);
+        return location.XY;
+    }
+
+    static ui String RouteTitle(int id)
+    {
+        if (id == 8) return StringTable.Localize("$ZDC_ROUTE_SWITCH");
+        if (id == 10) return StringTable.Localize("$ZDC_ROUTE_CONSOLE");
+        return ZDCLogUI.Title(id);
+    }
+
     static bool Eligible(int id, int known, int delivered)
     {
         if (id < 0 || id >= 13 || !(known & (1 << id))) return false;
@@ -66,5 +91,4 @@ class ZDCMapGuide : Object
         Vector2 point = (line.v1.p + line.v2.p) * .5;
         return (point.x, point.y, 0);
     }
-
 }

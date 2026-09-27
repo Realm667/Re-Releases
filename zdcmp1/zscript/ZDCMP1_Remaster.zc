@@ -4,6 +4,10 @@ class ZDCMP1Remaster : EventHandler
     int hints[MAXPLAYERS];
     int readHints[MAXPLAYERS];
     ZDCMapMarker mapMarkers[13];
+    ZDCMapMarker routeMarkers[2];
+    Vector2 routeNext[MAXPLAYERS];
+    int routeHint[MAXPLAYERS];
+    bool routeReady[MAXPLAYERS];
     ui Array<int> notices;
     ui int noticeAge;
     bool finale;
@@ -85,6 +89,7 @@ class ZDCMP1Remaster : EventHandler
     override void WorldTick()
     {
         UpdateMapMarkers();
+        if (level.time % 12 == 0) UpdateRoutes();
         for (int i = 0; i < MAXPLAYERS; i++)
         {
             if (!playeringame[i] || !players[i].mo) continue;
@@ -147,11 +152,49 @@ class ZDCMP1Remaster : EventHandler
             }
             if (mapMarkers[id]) mapMarkers[id].bDormant = !visible;
         }
+        for (int slot = 0; slot < 2; slot++)
+        {
+            int id = slot == 0 ? 8 : 10;
+            bool visible = !deathmatch && ZDCMP1_mapmarkers && !finale
+                && ZDCMapGuide.Eligible(id, known, delivered);
+            if (visible && !routeMarkers[slot])
+            {
+                Vector2 xy = ZDCMapGuide.RoutePosition(id);
+                routeMarkers[slot] = ZDCMapMarker(Actor.Spawn("ZDCMapMarker", (xy.X, xy.Y, 0), NO_REPLACE));
+                if (routeMarkers[slot]) routeMarkers[slot].SetStateLabel("Objective");
+            }
+            if (routeMarkers[slot]) routeMarkers[slot].bDormant = !visible;
+        }
+    }
+
+    void UpdateRoutes()
+    {
+        int delivered = 0;
+        for (int i = 0; i < MAXPLAYERS; i++) delivered |= hints[i];
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            routeReady[i] = false;
+            if (level.MapName != "MAP01" || level.lines.Size() <= 26576
+                || !playeringame[i] || !players[i].mo || finale || deathmatch)
+                continue;
+            int goal = ZDCMapGuide.RouteGoal(hints[i], delivered);
+            if (goal < 0) continue;
+            routeHint[i] = goal;
+            let route = ZDCNavigation.NextWaypoint(players[i].mo,
+                ZDCMapGuide.RoutePosition(goal));
+            routeNext[i] = route.Waypoint;
+            routeReady[i] = route.Ready;
+        }
     }
 
     override void RenderOverlay(RenderEvent e)
     {
         if (NoticeVisible()) ZDCLogUI.Notice(notices[0], min(1., noticeAge / 7.));
+        let p = players[consoleplayer];
+        if (!finale && !automapactive && !Menu.GetCurrentMenu() && p.mo && p.health > 0
+            && p.camera == p.mo && routeReady[consoleplayer]
+            && ZDCLogUI.Setting("ZDCMP1_wayfinding"))
+            ZDCNavigation.DrawPointer(routeNext[consoleplayer], routeHint[consoleplayer], p.mo);
         if (!finale || !ZDCMP1_skippablefinale) return;
         String text = StringTable.Localize(multiplayer && consoleplayer != Net_Arbitrator ? "$ZDC_SKIPHOST" : "$ZDC_SKIP");
         Screen.DrawText(SmallFont, Font.CR_WHITE, 320, 345, text,

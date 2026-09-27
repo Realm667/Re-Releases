@@ -88,6 +88,22 @@ class ZDCMP1Integrity(unittest.TestCase):
         for name in ("ZDCMP1_mapmarkers", "ZDCMP1_mapcompleted", "am_customcolors"):
             self.assertIn('"' + name + '"', block)
 
+    def test_navigation_anchors_and_option(self):
+        lumps = dict((n.rstrip(b"\0"), d) for n, d in read_wad(ROOT / "zdcmp1/Maps/map01.wad")[1])
+        data = udmf(lumps[b"TEXTMAP"].decode())
+        self.assertEqual((data["linedef"][15012]["special"], data["linedef"][15012]["arg0"]), (80, 18))
+        console = data["thing"][1966]
+        self.assertEqual((console["x"], console["y"], console["special"], console["arg0"]),
+                         (5056, 824, 80, 46))
+        menu = (ROOT / "zdcmp1/menudef.txt").read_text()
+        cvars = (ROOT / "zdcmp1/cvarinfo.txt").read_text()
+        self.assertIn('"ZDCMP1_wayfinding"', menu)
+        self.assertIn('user bool ZDCMP1_wayfinding = true;', cvars)
+        self.assertIn('#include "zscript/ZDCMP1_Navigation.zc"',
+                      (ROOT / "zdcmp1/zscript.zc").read_text())
+        for name in ("zdcmapbg", "zdcmapgo", "zdnav0"):
+            self.assertTrue((ROOT / f"zdcmp1/Graphics/hud/{name}.png").exists())
+
     def test_terrain_references_resolve(self):
         text = "\n".join(p.read_text() for p in (ROOT / "zdcmp1").glob("terrain*"))
         text = re.sub(r"/\*.*?\*/|//[^\n]*", "", text, flags=re.S)

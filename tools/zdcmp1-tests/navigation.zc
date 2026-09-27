@@ -1,0 +1,81 @@
+version "4.8"
+
+class ZDCNavigationCheck : EventHandler
+{
+    void Check(bool value, String label)
+    {
+        Console.Printf("UTNT_ASSERT %s: %s", value ? "PASS" : "FAIL", label);
+    }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        let h = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
+        let player = players[0].mo;
+        if (e.Name == "zdcnavseed")
+        {
+            player.bInvulnerable = true;
+            player.SetOrigin((416, -32, 32), false);
+            let portal = ZDCNavigation.NextWaypoint(player, (416, -80));
+            Check(portal.Ready && portal.Waypoint != (416, -80),
+                "nearby sector route uses a visible portal instead of direct bearing");
+            Check(ZDCNavigation.ClearFirstLeg(player, portal.Waypoint),
+                "nearby first portal is visible from the player");
+            player.SetOrigin((1056, -64, 80), false);
+            ZDCMP1Remaster.RecordHint(0, 0);
+            h.UpdateRoutes();
+            Check(h.routeHint[0] == 0 && h.routeReady[0], "known supply room has a reachable local waypoint");
+            Check(ZDCMapGuide.RouteGoal((1 << 0) | (1 << 2), 0) == 2,
+                "actionable gear goal takes priority over reported obstacle");
+            Check(ZDCMapGuide.RouteGoal((1 << 0) | (1 << 1), 0) == -1,
+                "broken switch does not point back to a locked door");
+            Check(ZDCMapGuide.RoutePosition(8) == (488, 856), "main-switch route targets its real trigger");
+            Check(ZDCMapGuide.RoutePosition(10) == (5056, 824), "console route targets its real actor");
+            Check(ZDCNavigation.TeleportDestination(level.lines[252]) != null,
+                "teleporter links resolve through their destination actor");
+            Check(ZDCNavigation.TeleportDestination(level.lines[1033]) != null,
+                "teleporter links can target a map spot");
+            Line blocked = level.lines[1091];
+            Check(!ZDCNavigation.Crossable(player, blocked, blocked.frontsector, blocked.backsector),
+                "blocking two-sided line is not routed through");
+            Line locked = level.lines[29];
+            Check(!ZDCNavigation.Crossable(player, locked, locked.frontsector, locked.backsector),
+                "closed key door stays blocked without the required key");
+            let gear = ZDCNavigation.NextWaypoint(player, ZDCMapGuide.RoutePosition(2));
+            Check(!gear.Ready, "currently unreachable gear route suppresses the arrow");
+        }
+        if (e.Name == "zdcnavsaved")
+        {
+            h.UpdateRoutes();
+            Check(h.routeHint[0] == 0 && h.routeReady[0], "wayfinding survives save and load");
+        }
+        if (e.Name == "zdcnavspawn")
+        {
+            player.SetOrigin((416, -32, 0), false);
+            h.UpdateRoutes();
+            Check(!h.routeReady[0], "locked start door does not advertise a route without its key");
+        }
+        if (e.Name == "zdcnavturn")
+        {
+            player.Angle += 30;
+            Check(h.routeReady[0], "route remains active while the player turns");
+        }
+    }
+}
+
+class ZDCNavigationUICheck : StaticEventHandler
+{
+    override void ConsoleProcess(ConsoleEvent e)
+    {
+        if (e.Name == "zdcnavoff")
+        {
+            Console.Printf("UTNT_ASSERT %s: personal HUD route option can be disabled",
+                !ZDCLogUI.Setting("ZDCMP1_wayfinding") ? "PASS" : "FAIL");
+            return;
+        }
+        if (e.Name != "zdcnavui") return;
+        bool asset = TexMan.CheckForTexture("ZDNAV0", TexMan.Type_Any).IsValid();
+        Console.Printf("UTNT_ASSERT %s: rotatable HUD arrow resolves", asset ? "PASS" : "FAIL");
+        Console.Printf("UTNT_ASSERT %s: route pointer defaults on",
+            ZDCLogUI.Setting("ZDCMP1_wayfinding") ? "PASS" : "FAIL");
+    }
+}

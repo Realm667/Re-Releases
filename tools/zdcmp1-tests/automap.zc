@@ -34,6 +34,10 @@ class ZDCMapCheck : EventHandler
             Check(Count(h) == 6, "received hints produce six distinct markers");
             Check(h.mapMarkers[2].pos.xy == (1120, 352), "gear objective uses the real spawn location");
             Check(h.mapMarkers[0].pos.xy == (1056, 16), "supply door marker uses its real linedef");
+            Check(h.routeMarkers[0] && h.routeMarkers[1]
+                && h.routeMarkers[0].pos.xy == (488, 856)
+                && h.routeMarkers[1].pos.xy == (5056, 824),
+                "new objective markers identify the switch and console, not their blocked doors");
             Check(!h.mapMarkers[2].bSolid && h.mapMarkers[2].bNoBlockmap
                 && h.mapMarkers[2].bInvisible, "map-only markers do not affect world collisions or visuals");
         }
