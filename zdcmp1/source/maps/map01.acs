@@ -120,18 +120,18 @@ script 7 (int which)
 	if((which == 1 && CheckInventory("RedSkull")) || (which == 2 && CheckInventory("BlueSkull"))) {
 		ClearLineSpecial();
 		if(c == 1) {
-        	print(s: "\cCSequence Complete");
-        	door_open (4, 30);
-    	} else {
-        	print(s:"\cC", s:count[c], s:" more to go");
-        	c++;
-    	}
+	print(s: "\cCSequence Complete");
+	door_open (4, 30);
+	} else {
+	print(s:"\cC", s:count[c], s:" more to go");
+	c++;
+	}
     } else {
-    	if (which == 1) {
-    		Print(s:"\cCyou need a red skull to use this switch");
-    	} else {
-    		Print(s:"\cCyou need a blue skull to use this switch");
-    	}
+	if (which == 1) {
+		Print(s:"\cCyou need a red skull to use this switch");
+	} else {
+		Print(s:"\cCyou need a blue skull to use this switch");
+	}
 	delay(35*2);
     }
 }
@@ -375,7 +375,7 @@ Script 44 (void)
     while (thingcount (0, 34))
 	{
 	delay (16);
-       	}
+	}
 
 	thingsound(7, "doors/dr2_clos", 127);
 	Light_ChangeToValue (58, 112);        //dull the pipe
@@ -400,74 +400,74 @@ script 21 (void)  //Break a fan
     setlineblocking(5,BLOCK_NOTHING);
     thingsound(14, "ELECNJ", 127);
     while(var0 > 0)
-    	{
-    	 Thing_Activate(14);
-    	 delay(random(const:16,70));
-    	 var0--;
-    	}
+	{
+	 Thing_Activate(14);
+	 delay(random(const:16,70));
+	 var0--;
+	}
  }
 
 
 Script 45 (void)  //Another door deactivated script
 {
- 	localambientsound ("misc/chat", 127);
- 	print (s: "\cCEmergency surface teleport door sealed.\n\cCit is opened from the control console.");
+	localambientsound ("misc/chat", 127);
+	print (s: "\cCEmergency surface teleport door sealed.\n\cCit is opened from the control console.");
     ScriptCall("ZDCMP1Remaster", "RecordHint", 10, PlayerNumber());
 }
 
 
 Script 46 (void) //Open the door
 {
- 	ambientsound ("misc/chat", 127);
- 	printbold(s: "\cCEmergency surface teleport door open.");
+	ambientsound ("misc/chat", 127);
+	printbold(s: "\cCEmergency surface teleport door open.");
     ScriptCall("ZDCMP1Remaster", "RecordHint", 11, -1);
- 	Door_Open(150, 64);
- 	Thing_SpawnNoFog(74, T_IMP, 0);
- 	Thing_SpawnNoFog(75, T_SHOTGUY, 0);
- 	Thing_SpawnNoFog(76, T_CHAINGUY, 0);
- 	Thing_SpawnNoFog(86, T_ARACHNOTRON, 0);
+	Door_Open(150, 64);
+	Thing_SpawnNoFog(74, T_IMP, 0);
+	Thing_SpawnNoFog(75, T_SHOTGUY, 0);
+	Thing_SpawnNoFog(76, T_CHAINGUY, 0);
+	Thing_SpawnNoFog(86, T_ARACHNOTRON, 0);
  }
 
 
 Script 47 (void) //Flame towers in the unholy chapel place
 {
 
- 	thing_spawnnofog(random (69, 71), 239, 0, 0);
- 	Delay(random(3*35,5*35));
+	thing_spawnnofog(random (69, 71), 239, 0, 0);
+	Delay(random(3*35,5*35));
 	Restart;
 
  }
 
 Script 48 (void) //A creepy noise
 {
- 	activatorsound ("CREEPY1", 127);
+	activatorsound ("CREEPY1", 127);
 }
 
 Script 49 (void) //Another creepy noise
 {
- 	activatorsound ("CREEPY2", 127);
+	activatorsound ("CREEPY2", 127);
 }
 
 Script 50 (void)
 {
- 	ceiling_raiseByValue(165, 16, 32);
- 	TagWait(165);
- 	thing_activate(72);
+	ceiling_raiseByValue(165, 16, 32);
+	TagWait(165);
+	thing_activate(72);
 	delay(16);
 	ceiling_lowerByValue(165, 16, 32);
 }
 
 Script 51 (void) //Fire in the lift
 {
- 	thing_spawnnofog(73, 239, 0, 0);
- 	Delay (35);
+	thing_spawnnofog(73, 239, 0, 0);
+	Delay (35);
 	Restart;
 }
 
 Script 52 (void) //Lift broken
 {
- 	localambientsound ("misc/chat", 127);
- 	print (s: "\cCThis lift is very damaged.\n\cCFind another way");
+	localambientsound ("misc/chat", 127);
+	print (s: "\cCThis lift is very damaged.\n\cCFind another way");
     ScriptCall("ZDCMP1Remaster", "RecordHint", 12, PlayerNumber());
 }
 
@@ -587,7 +587,7 @@ script 26 (void) { // Game on!
 
    //Wave 3 : Lost Soul x8, Imp x4, Spectre x4
    if (GameSkill() == SKILL_HARD || GameSkill() == SKILL_VERY_HARD) {
-   	  //<XM>Spectres suck in this level because it's too bloody hard to see them!
+	  //<XM>Spectres suck in this level because it's too bloody hard to see them!
       //Thing_SpawnFacing(20, T_SPECTRE, 0, 20000);
       Thing_SpawnFacing(20, T_DEMON, 0, 20000);
    } else {
