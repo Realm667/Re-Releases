@@ -186,6 +186,7 @@ Class NewPistol : Pistol replaces Pistol
 		PISG A 2;
 		PISG A 1 A_SpawnItemEx("PisCaseSpawn",20,0,29,0,0,0,0,SXF_CLIENTSIDE);
 		PISG B 0 A_GunFlash();
+		PISG B 0 { ZDCMP1Results.Shot(invoker.owner, 1); }
 		PISG B 6 A_FireBullets(5.6, 0, 1, 5, "NewPuff");
 		PISG C 4;
 		PISG B 5 A_Refire();
@@ -206,6 +207,7 @@ Class NewShotgun : Shotgun replaces Shotgun
 	Hold:
 		SHTG A 3;
 		SHTG A 0 A_GunFlash();
+		SHTG A 0 { ZDCMP1Results.Shot(invoker.owner, 1); }
 		SHTG A 7 A_FireBullets(5.6, 0, 7, 5, "NewPuff");
 		SHTG BC 5;
 		SHTG D 1;
@@ -229,6 +231,7 @@ Class NewSuperShotgun : SuperShotgun replaces SuperShotgun
 	Fire:
 		SHT2 A 3;
 		SHT2 A 0 A_GunFlash();
+		SHT2 A 0 { ZDCMP1Results.Shot(invoker.owner, 2); }
 		SHT2 A 7 A_FireBullets(11.2, 7.1, 20, 5, "NewPuff");
 		SHT2 B 7 A_CheckReload();
 		SHT2 C 7;
@@ -257,9 +260,11 @@ Class NewChaingun : Chaingun replaces Chaingun
 	Hold:
 		CHGG A 0 A_GunFlash();
 		CHGG A 0 A_SpawnItemEx("PisCaseSpawn", 20, 6, 20, 0, 0, 0, 0, SXF_CLIENTSIDE);
+		CHGG A 0 { ZDCMP1Results.Shot(invoker.owner, 1); }
 		CHGG A 4 A_FireBullets(5.6, 0, 1, 5, "NewPuff");
 		CHGG A 0 A_JumpIfNoAmmo(3);
 		CHGG B 0 A_SpawnItemEx("PisCaseSpawn", 20, 6, 20, 0, 0, 0, 0, SXF_CLIENTSIDE);
+		CHGG B 0 { ZDCMP1Results.Shot(invoker.owner, 1); }
 		CHGG B 4 A_FireBullets(5.6, 0, 1, 5, "NewPuff");
 		CHGG B 0 A_Refire();
 		Goto Ready;

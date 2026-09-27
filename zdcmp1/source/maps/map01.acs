@@ -1250,8 +1250,8 @@ script 133 (void)
 	acs_terminate(261,0); //stop the upwards comets
 
 	delay(35*5);
-    if (GameType() == GAME_NET_COOPERATIVE)
-		acs_execute(264,0); //on to the credits
+	if (GameType() == GAME_NET_COOPERATIVE)
+		acs_execute(271,0); //run report before the original credits
 	else
 		bossdead=1;
 }
@@ -1264,7 +1264,7 @@ script 134 ENTER
 		{
 			delay(2);
 		}
-		acs_execute(264,0); //on to the credits
+		acs_execute(271,0); //run report before the original credits
 	}
 }
 
@@ -1361,7 +1361,7 @@ script 221 respawn
 
 script 264 (void)
 {
-	ScriptCall("ZDCMP1Remaster", "SetFinale", 1);
+	ScriptCall("ZDCMP1Remaster", "SetFinale", 2);
 	thing_deactivate(60);
 	teleport_nofog(59);
 	setplayerproperty(1,1,Prop_TotallyFrozen);
@@ -1801,6 +1801,7 @@ script 270 (int messid) //saves code
 script 214 (int automatic) // natural completion or authorized manual skip
 {
 	if (!automatic && !ScriptCall("ZDCMP1Remaster", "CanSkip", PlayerNumber())) terminate;
+	int showReport = !automatic && !ScriptCall("ZDCMP1Results", "HasShown");
 	// The original exit trigger remains valid; clean every finale producer.
 	acs_terminate(133,0);
 	acs_terminate(134,0);
@@ -1814,11 +1815,32 @@ script 214 (int automatic) // natural completion or authorized manual skip
 	acs_terminate(268,0); //   !!!
 	acs_terminate(269,0);
 	acs_terminate(270,0);
+	if (showReport)
+	{
+		acs_execute(271,0);
+		terminate;
+	}
 	ScriptCall("ZDCMP1Remaster", "SetFinale", 0);
 	changecamera(0,1,0);
 	setplayerproperty(1,0,Prop_TotallyFrozen);
 	fadeto(0,0,0,0.0,0.0);
 	exit_normal(0);
+}
+
+script 271 (void) // map-specific completion report
+{
+	ScriptCall("ZDCMP1Remaster", "SetFinale", 1);
+	thing_deactivate(60);
+	teleport_nofog(59);
+	setplayerproperty(1,1,Prop_TotallyFrozen);
+	changecamera(135,1,0);
+	fadeto(0,0,0,0.0,0.0);
+	ScriptCall("ZDCMP1Results", "Begin");
+}
+
+script "ZDC_ShowCredits" (void)
+{
+	acs_execute(264,0);
 }
 
 script "ZDC_SkipFinale" (void)

@@ -94,6 +94,27 @@ class ZDCMP1RemasterCheck : EventHandler
         {
             Check(h.finale && !h.skipRequested, "legacy manual exit also respects disabled skip");
         }
+        if (e.Name == "zdcrreportcheck")
+        {
+            Check(ZDCMP1Results.IsActive() && ZDCMP1Results.HasShown(),
+                  "skipping boss sequence opens completion report before credits");
+        }
+        if (e.Name == "zdcrmetrics")
+        {
+            let report = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
+            let dummy = Actor.Spawn("DoomImp", p.mo.Pos + (96, 0, 0));
+            ZDCMP1Results.Shot(p.mo, 1);
+            dummy.DamageMobj(null, p.mo, 8, 'Normal');
+            dummy.DamageMobj(null, p.mo, 8, 'Normal');
+            Check(report.ammoSpent[0] == 1 && report.shots[0] == 1,
+                  "one hitscan trigger consumes one recorded round");
+            Check(report.hits[0] == 1, "multiple damage events count as one hit");
+            p.mo.bInvulnerable = false;
+            p.mo.DamageMobj(null, dummy, 10, 'Normal');
+            Check(report.healthLost[0] > 0, "player damage enters health-lost metric");
+            p.mo.bInvulnerable = true;
+            dummy.Destroy();
+        }
     }
 }
 

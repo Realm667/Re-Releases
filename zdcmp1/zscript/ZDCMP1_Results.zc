@@ -1,0 +1,230 @@
+// MAP01 completion report. Gameplay counters are serialized with the map.
+class ZDCMP1Results : EventHandler
+{
+    int healthLost[MAXPLAYERS];
+    double distanceUnits[MAXPLAYERS];
+    Vector2 lastPosition[MAXPLAYERS];
+    bool hasPosition[MAXPLAYERS];
+    int ammoSpent[MAXPLAYERS];
+    int shots[MAXPLAYERS];
+    int hits[MAXPLAYERS];
+    int lastShotTick[MAXPLAYERS];
+    int lastHitShot[MAXPLAYERS];
+    Array<Actor> projectiles;
+    Array<bool> projectileHit;
+    bool active;
+    bool shown;
+    int frozenTime;
+    int frozenKills;
+    int frozenItems;
+    int frozenSecrets;
+
+    static clearscope bool IsActive()
+    {
+        let h = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
+        return h && h.active;
+    }
+
+    static int HasShown()
+    {
+        let h = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
+        return h && h.shown;
+    }
+
+    static void Begin()
+    {
+        let h = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
+        if (!h || h.shown) return;
+        h.frozenTime = level.time;
+        h.frozenKills = level.killed_monsters;
+        h.frozenItems = level.found_items;
+        h.frozenSecrets = level.found_secrets;
+        h.shown = true;
+        h.active = true;
+    }
+
+    static void Shot(Actor shooter, int ammo)
+    {
+        let h = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
+        if (!h || h.shown || !shooter || !shooter.player) return;
+        int i = level.PlayerNum(shooter.player);
+        h.ammoSpent[i] += ammo;
+        h.shots[i]++;
+        h.lastShotTick[i] = level.time;
+        h.lastHitShot[i] = -1;
+    }
+
+    override void WorldThingSpawned(WorldEvent e)
+    {
+        if (shown || !e.Thing || !e.Thing.target || !e.Thing.target.player) return;
+        Name type = e.Thing.GetClassName();
+        int ammo = 0;
+        if (type == 'Rocket' || type == 'PlasmaBall' || type == 'FreezerBall') ammo = 1;
+        else if (type == 'BFGBall') ammo = 40;
+        else if (type == 'NukeShot') ammo = 2;
+        if (!ammo) return;
+        int i = level.PlayerNum(e.Thing.target.player);
+        ammoSpent[i] += ammo;
+        shots[i]++;
+        projectiles.Push(e.Thing);
+        projectileHit.Push(false);
+    }
+
+    override void WorldThingDamaged(WorldEvent e)
+    {
+        if (shown || !e.Thing || e.Damage <= 0) return;
+        if (e.Thing.player)
+        {
+            int i = level.PlayerNum(e.Thing.player);
+            healthLost[i] += min(e.Damage, max(0, e.Thing.health + e.Damage));
+        }
+        if (!e.Thing.bIsMonster || !e.DamageSource || !e.DamageSource.player) return;
+        int i = level.PlayerNum(e.DamageSource.player);
+        if (e.Inflictor)
+            for (int j = 0; j < projectiles.Size(); j++)
+                if (projectiles[j] == e.Inflictor)
+                {
+                    if (!projectileHit[j]) { hits[i]++; projectileHit[j] = true; }
+                    return;
+                }
+        if (lastShotTick[i] == level.time && lastHitShot[i] != shots[i])
+        {
+            hits[i]++;
+            lastHitShot[i] = shots[i];
+        }
+    }
+
+    override void WorldThingDestroyed(WorldEvent e)
+    {
+        if (!e.Thing) return;
+        for (int j = projectiles.Size() - 1; j >= 0; j--)
+            if (projectiles[j] == e.Thing)
+            {
+                projectiles.Delete(j);
+                projectileHit.Delete(j);
+            }
+    }
+
+    override void WorldTick()
+    {
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            if (!playeringame[i] || !players[i].mo) { hasPosition[i] = false; continue; }
+            let p = players[i];
+            if (!shown && p.health > 0 && p.camera == p.mo)
+            {
+                Vector2 xy = p.mo.Pos.XY;
+                if (hasPosition[i])
+                {
+                    double step = (xy - lastPosition[i]).Length();
+                    if (step <= 64.) distanceUnits[i] += step;
+                }
+                lastPosition[i] = xy;
+                hasPosition[i] = true;
+            }
+            else hasPosition[i] = false;
+        }
+        if (active && Net_Arbitrator >= 0 && playeringame[Net_Arbitrator])
+        {
+            let host = players[Net_Arbitrator];
+            if (host.mo && (host.cmd.buttons & BT_USE) && !(host.oldbuttons & BT_USE))
+            {
+                active = false;
+                host.mo.ACS_NamedExecuteAlways("ZDC_ShowCredits", 0);
+            }
+        }
+    }
+
+    clearscope int Score(int i)
+    {
+        // Eight capped factors; repeatable actions cannot farm an unlimited score.
+        int score = 0;
+        score += level.total_monsters ? min(2400, 2400 * frozenKills / max(1, level.total_monsters)) : 0;
+        score += level.total_secrets ? min(1600, 1600 * frozenSecrets / max(1, level.total_secrets)) : 0;
+        score += level.total_items ? min(800, 800 * frozenItems / max(1, level.total_items)) : 0;
+        score += 1300 * 300 / max(300, 300 + healthLost[i]);
+        score += 900 * 2700 / max(2700, frozenTime / 35);
+        score += 500 * min(1., distanceUnits[i] / (2500. * 64.));
+        score += 900 * max(0., 1. - max(0, ammoSpent[i] - frozenKills * 3) / 1600.);
+        score += shots[i] ? min(1600, 1600 * hits[i] / shots[i]) : 0;
+        return clamp(score, 0, 10000);
+    }
+
+    static ui String L(String key) { return StringTable.Localize(key); }
+    static ui String Number(int value)
+    {
+        return value >= 1000 ? String.Format("%d %03d", value / 1000, value % 1000) : String.Format("%d", value);
+    }
+    static ui void Label(String key, int x, int y) { ZDCLogUI.Text(L(key), x, y, 11, 0xffb8bfc0); }
+    static ui void Value(String value, int x, int y) { ZDCLogUI.Text(value, x, y, 21, 0xfff0eee7); }
+
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (!active || !players[consoleplayer].mo) return;
+        int i = consoleplayer;
+        int points = Score(i);
+        String rank = points >= 9000 ? "S" : points >= 7500 ? "A" : points >= 6000 ? "B" : points >= 4000 ? "C" : "D";
+        int next = points >= 9000 ? 10000 : points >= 7500 ? 9000 : points >= 6000 ? 7500 : points >= 4000 ? 6000 : 4000;
+        String tip = L("$ZDC_RESULT_AGAIN");
+        if (level.total_secrets > frozenSecrets)
+            tip = String.Format(L("$ZDC_RESULT_SECRET_TIP"), level.total_secrets - frozenSecrets);
+        else if (level.total_items > frozenItems)
+            tip = String.Format(L("$ZDC_RESULT_ITEM_TIP"), level.total_items - frozenItems);
+
+        ZDCLogUI.Box(0, 0, 800, 450, 0xff080a0b);
+        let bg = TexMan.CheckForTexture("ZDCRESBG", TexMan.Type_Any);
+        if (bg.IsValid())
+            Screen.DrawTexture(bg, false, ZDCLogUI.Left(), ZDCLogUI.Top(),
+                DTA_DestWidth, int(800 * ZDCLogUI.Scale()), DTA_DestHeight, int(450 * ZDCLogUI.Scale()),
+                DTA_TopLeft, true);
+        ZDCLogUI.Box(0, 0, 800, 450, 0xff080a0b, .78);
+        ZDCLogUI.Box(15, 16, 770, 418, 0xff090b0c, .94);
+        ZDCLogUI.Frame(13, 13, 774, 424);
+        ZDCLogUI.Box(21, 22, 758, 65, 0xff621e20);
+        ZDCLogUI.Box(21, 85, 758, 3, 0xffa14a42);
+        ZDCLogUI.Box(31, 36, 4, 34, 0xffe0a65c);
+        ZDCLogUI.Text(L("$ZDC_RESULT_DONE"), 43, 32, 29, 0xfff5eee4);
+        ZDCLogUI.Text(L("$ZDC_RESULT_SUB"), 44, 66, 10, 0xffcfb3a9);
+        ZDCLogUI.Text(G_SkillName(), 518, 51, 12);
+        ZDCLogUI.Text(multiplayer ? L("$ZDC_RESULT_COOP") : L("$ZDC_RESULT_SOLO"), 673, 51, 12);
+        ZDCLogUI.Text(L("$ZDC_RESULT_RUN"), 33, 109, 12, 0xffe3ab64);
+        ZDCLogUI.Text(L("$ZDC_RESULT_SCORE"), 514, 109, 12, 0xffe3ab64);
+        ZDCLogUI.Box(498, 104, 1, 270, 0xff677071, .65);
+
+        Label("$ZDC_RESULT_TIME", 33, 137);
+        Value(String.Format("%02d:%02d:%02d", frozenTime / 126000, frozenTime / 2100 % 60, frozenTime / 35 % 60), 33, 154);
+        Label("$ZDC_RESULT_KILLS", 260, 137);
+        Value(String.Format("%d / %d", frozenKills, level.total_monsters), 260, 154);
+        Label("$ZDC_RESULT_SECRETS", 33, 205);
+        Value(String.Format("%d / %d", frozenSecrets, level.total_secrets), 33, 222);
+        Label("$ZDC_RESULT_ITEMS", 260, 205);
+        Value(String.Format("%d / %d", frozenItems, level.total_items), 260, 222);
+        Label("$ZDC_RESULT_HEALTH", 33, 273);
+        Value(String.Format("%d HP", healthLost[i]), 33, 290);
+        Label("$ZDC_RESULT_DISTANCE", 260, 273);
+        Value(Number(int(distanceUnits[i] / 64.)) .. " m", 260, 290);
+        Label("$ZDC_RESULT_AMMO", 33, 341);
+        Value(Number(ammoSpent[i]), 33, 358);
+        Label("$ZDC_RESULT_ACCURACY", 260, 341);
+        Value(String.Format("%d / %d", hits[i], max(0, shots[i] - hits[i])), 260, 358);
+        for (int row = 0; row < 3; row++) ZDCLogUI.Box(33, 191 + row * 68, 449, 1, 0xff677071, .5);
+
+        Label("$ZDC_RESULT_TOTAL", 515, 143);
+        ZDCLogUI.Text(Number(points), 515, 165, 48, 0xfff4eee6);
+        ZDCLogUI.Text(rank, 684, 173, 38, 0xffe3ab64);
+        Label("$ZDC_RESULT_RANK", 685, 207);
+        ZDCLogUI.Box(515, 231, 246, 8, 0xff202829);
+        ZDCLogUI.Box(515, 231, 246. * points / 10000., 8, 0xffb34b42);
+        Label(points >= 9000 ? "$ZDC_RESULT_MAX" : "$ZDC_RESULT_NEXT", 515, 249);
+        if (points < 9000)
+            ZDCLogUI.Text(String.Format(L("$ZDC_RESULT_POINTS"), next - points), 657, 249, 11, 0xffb8bfc0);
+        ZDCLogUI.Box(515, 281, 246, 1, 0xff677071, .5);
+        ZDCLogUI.Text(L("$ZDC_RESULT_REPLAY"), 515, 294, 12, 0xffe3ab64);
+        ZDCLogUI.Text(tip, 515, 318, 14);
+        ZDCLogUI.Text(L("$ZDC_RESULT_FOOT"), 515, 344, 10, 0xffb8bfc0);
+        ZDCLogUI.Box(515, 379, 246, 35, 0xff5b1c1d);
+        ZDCLogUI.Box(515, 379, 246, 1, 0xffa24b43);
+        ZDCLogUI.Text(consoleplayer == Net_Arbitrator ? L("$ZDC_RESULT_CONTINUE") : L("$ZDC_RESULT_HOST"), 525, 389, 12, 0xfff2e7dd);
+        ZDCLogUI.Text(">", 738, 388, 16, 0xffe3ab64);
+    }
+}

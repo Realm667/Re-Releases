@@ -49,7 +49,7 @@ class ZDCMP1Integrity(unittest.TestCase):
     def test_remaster_localization(self):
         language = (ROOT / "zdcmp1/language.enu").read_text()
         keys = set(re.findall(r'(?m)^(\w+)\s*=', language))
-        for path in (ROOT / "zdcmp1/menudef.txt", ROOT / "zdcmp1/zscript/ZDCMP1_Remaster.zc", ROOT / "zdcmp1/zscript/ZDCMP1_Logbook.zc", ROOT / "zdcmp1/zscript/ZDCMP1_Automap.zc"):
+        for path in (ROOT / "zdcmp1/menudef.txt", ROOT / "zdcmp1/zscript/ZDCMP1_Remaster.zc", ROOT / "zdcmp1/zscript/ZDCMP1_Logbook.zc", ROOT / "zdcmp1/zscript/ZDCMP1_Automap.zc", ROOT / "zdcmp1/zscript/ZDCMP1_Results.zc"):
             references = set(re.findall(r'\$(ZDC_[A-Z0-9_]+)(?=["\s])', path.read_text()))
             self.assertFalse(references - keys)
         self.assertTrue(all(f"ZDC_HINT{i}" in keys for i in range(13)))
@@ -57,6 +57,24 @@ class ZDCMP1Integrity(unittest.TestCase):
         for prefix in ("ZDC_TITLE", "ZDC_BODY", "ZDC_SOURCE", "ZDC_STATE"):
             for i in range(13):
                 self.assertIn(f"{prefix}{i}", keys & german)
+        self.assertTrue(all(key in german for key in keys if key.startswith("ZDC_RESULT_")))
+
+    def test_map01_completion_report_contract(self):
+        mapinfo = (ROOT / "zdcmp1/mapinfo.def").read_text()
+        map01 = mapinfo.split('map MAP01 "ZDoom Community Map #1"', 1)[1].split("cluster 1", 1)[0]
+        self.assertIn("nointermission", map01)
+        self.assertIn('"ZDCMP1Results"', mapinfo)
+        acs = (ROOT / "zdcmp1/source/maps/map01.acs").read_text()
+        self.assertEqual(acs.count("acs_execute(271,0)"), 3)
+        self.assertIn('ScriptCall("ZDCMP1Results", "Begin")', acs)
+        self.assertIn('script "ZDC_ShowCredits"', acs)
+        results = (ROOT / "zdcmp1/zscript/ZDCMP1_Results.zc").read_text()
+        for metric in ("healthLost", "distanceUnits", "ammoSpent", "shots", "hits", "frozenTime",
+                       "frozenKills", "frozenItems", "frozenSecrets"):
+            self.assertIn(metric, results)
+        self.assertIn("distanceUnits[i] / 64.", results)
+        self.assertNotIn("deathcount", results)
+        self.assertTrue((ROOT / "zdcmp1/Graphics/ZDCRESBG.png").exists())
 
     def test_logbook_option_ownership(self):
         menu = (ROOT / "zdcmp1/menudef.txt").read_text()

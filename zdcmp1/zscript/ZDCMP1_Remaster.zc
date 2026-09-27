@@ -16,7 +16,8 @@ class ZDCMP1Remaster : EventHandler
     static int CanSkip(int who)
     {
         let handler = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
-        return handler && handler.finale && ZDCMP1_skippablefinale && who == Net_Arbitrator;
+        return handler && handler.finale && !ZDCMP1Results.IsActive()
+            && ZDCMP1_skippablefinale && who == Net_Arbitrator;
     }
 
     static void RecordHint(int hint, int who)
@@ -77,6 +78,7 @@ class ZDCMP1Remaster : EventHandler
         let handler = ZDCMP1Remaster(EventHandler.Find("ZDCMP1Remaster"));
         if (!handler) return;
         handler.finale = enabled != 0;
+        if (enabled == 2) handler.skipRequested = false;
         if (!enabled)
             for (int i = 0; i < MAXPLAYERS; i++)
                 if (playeringame[i] && players[i].mo)
@@ -107,7 +109,8 @@ class ZDCMP1Remaster : EventHandler
             }
             // Only the host can end a shared finale. Edge-triggered to avoid
             // skipping it when USE was held before the boss died.
-            if (finale && !skipRequested && ZDCMP1_skippablefinale && i == Net_Arbitrator
+            if (finale && !ZDCMP1Results.IsActive() && !skipRequested
+                && ZDCMP1_skippablefinale && i == Net_Arbitrator
                 && (p.cmd.buttons & BT_USE) && !(p.oldbuttons & BT_USE))
             {
                 skipRequested = true;
@@ -195,7 +198,7 @@ class ZDCMP1Remaster : EventHandler
             && p.camera == p.mo && routeReady[consoleplayer]
             && ZDCLogUI.Setting("ZDCMP1_wayfinding"))
             ZDCNavigation.DrawPointer(routeNext[consoleplayer], routeHint[consoleplayer], p.mo);
-        if (!finale || !ZDCMP1_skippablefinale) return;
+        if (!finale || ZDCMP1Results.IsActive() || !ZDCMP1_skippablefinale) return;
         String text = StringTable.Localize(multiplayer && consoleplayer != Net_Arbitrator ? "$ZDC_SKIPHOST" : "$ZDC_SKIP");
         Screen.DrawText(SmallFont, Font.CR_WHITE, 320, 345, text,
             DTA_VirtualWidth, 640, DTA_VirtualHeight, 360, DTA_CenterOffset, true);

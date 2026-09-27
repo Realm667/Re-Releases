@@ -39,6 +39,10 @@ class ZDCMP1WeaponCheck : EventHandler
             Check(Count("FrostTrail") == 0 && Count("FreezerBall") == 0, "freezer actors expire after firing");
             Check(Count("NukeShot") == 0 && Count("MultiExplo") == 0, "nuke actors expire after firing");
             Check(mo.CountInv("FreezeAmmo") < 300 && mo.CountInv("NukeAmmo") < 20, "both weapons consumed ammo");
+            let report = ZDCMP1Results(EventHandler.Find("ZDCMP1Results"));
+            Check(report != null && report.shots[0] > 0, "completion report tracks projectile shots");
+            Check(report != null && report.ammoSpent[0] == 320 - mo.CountInv("FreezeAmmo") - mo.CountInv("NukeAmmo"),
+                  "completion report counts actual freezer and nuke ammo spent");
             Console.Printf("ZDC_WEAPONS freezer=%d nukes=%d ammo=%d,%d", peakFreezer, peakNuke,
                 mo.CountInv("FreezeAmmo"), mo.CountInv("NukeAmmo"));
         }

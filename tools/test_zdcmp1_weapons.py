@@ -45,7 +45,7 @@ def main():
                       "wait 35; use NukeLauncher; wait 70; +altattack; wait 175; -altattack; "
                       "wait 35; netevent zdcwstop; wait 350; netevent zdcwcheck; wait 5; ")
             text = run(args.mod, f"zdc-weapons-{args.renderer}-{value}", script)
-            if results[-1]["assertions"] != 5:
+            if results[-1]["assertions"] != 7:
                 raise RuntimeError("Missing weapon assertions")
             weapon_samples.append(re.findall(r"ZDC_WEAPONS .*", text))
         if not weapon_samples[0] or weapon_samples[0] != weapon_samples[1]:

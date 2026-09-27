@@ -200,3 +200,27 @@ tables were changed.
 
 Field-terminal package SHA-256:
 `a4a52f253f58700d1bc12893f3088b4c8edb69ee654d87b9042342545d60661b`.
+
+## MAP01 completion report
+
+After the boss sequence, MAP01 now shows its own report before the original
+credits. USE advances to the credits; in co-op only the host can advance. The
+existing finale-skip option advances to this report first, then can skip the
+credits. MAP01 suppresses the engine's normal intermission at level exit.
+
+The report freezes elapsed time, kills, items and secrets at completion. Health
+lost, distance, ammunition and hit/miss counts are tracked per player across
+respawns and saves. Distance is horizontal movement divided by 64 map units
+per metre; teleport jumps are excluded. A hit is a ranged trigger that damages
+at least one monster, so shotgun pellets and blast damage do not inflate hits.
+Melee attacks do not consume ammunition and are not included in accuracy.
+
+The score is capped at 10,000 points, with only the agreed eight factors:
+enemies 2,400, secrets 1,600, items 800, health lost 1,300, time 900,
+distance 500, ammunition efficiency 900, and hit ratio 1,600. Full time
+points are awarded at 45 minutes or faster, full distance points at 2,500 m,
+and ammunition efficiency compares rounds spent to three rounds per defeated
+enemy. The letter thresholds are D < 4,000, C >= 4,000, B >= 6,000,
+A >= 7,500 and S >= 9,000. Each factor is capped independently; deaths,
+cheats and `nomonsters` have no special score rule. Map-wide kills, items and
+secrets are shared in co-op; the other four tracked factors are personal.
