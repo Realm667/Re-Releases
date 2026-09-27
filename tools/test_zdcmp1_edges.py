@@ -67,7 +67,8 @@ def main():
         with tempfile.TemporaryDirectory() as directory:
             addon = Path(directory) / "edges.pk3"
             fixture(addon, linked)
-            floor_check = "netevent zdcfloor; wait 5; " if not linked else ""
+            # Network events must settle before save/load or shutdown on fast renderers.
+            floor_check = "netevent zdcfloor; wait 35; " if not linked else ""
             cmd = (f"unbindall; wait 35; netevent zdcedges {int(linked)}; wait 10; {floor_check}save zdc-edges; wait 10; "
                    f"load zdc-edges; wait 35; netevent zdcedges {int(linked)}; wait 10; {floor_check}"
                    "echo UTNT_REGRESSION_COMPLETE; echo UTNT_TEST_END; quit\n")
