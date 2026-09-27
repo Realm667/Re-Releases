@@ -59,25 +59,26 @@ class CustomShaderHandler : StaticEventHandler
 	override void RenderOverlay(RenderEvent e)
 	{
 		PlayerInfo p = players[consoleplayer];
-		ThinkerIterator shaderIter = ThinkerIterator.Create("ShaderControl");
+		PPShader.SetEnabled("heatshader", false);
+		if (!p || !p.mo || !ZDCMP1_shaderoverlayswitch) return;
 
-		ShaderControl shaderControl;
-
-		while (shaderControl = ShaderControl(shaderIter.Next()))
+		for (Inventory item = p.mo.Inv; item; item = item.Inv)
 		{
+			let shaderControl = ShaderControl(item);
+			if (!shaderControl) continue;
 			if (shaderControl.Owner && shaderControl.Owner == p.mo) {
 				//Console.Printf("Shader: %s", shaderControl.ShaderToControl);
 				if (shaderControl.amount >= 2)
 				{
-					Shader.SetUniform1f(p, shaderControl.ShaderToControl, "timer", gametic + e.FracTic);
-					Shader.SetUniform1f(p, shaderControl.ShaderToControl, "amount", shaderControl.amount - 1);
-					Shader.SetUniform1f(p, shaderControl.ShaderToControl, "alpha", shaderControl.alpha);
+					PPShader.SetUniform1f(shaderControl.ShaderToControl, "timer", gametic + e.FracTic);
+					PPShader.SetUniform1f(shaderControl.ShaderToControl, "amount", shaderControl.amount - 1);
+					PPShader.SetUniform1f(shaderControl.ShaderToControl, "alpha", shaderControl.alpha);
 					shaderControl.SetUniforms(p, e);
-					Shader.SetEnabled(p, shaderControl.ShaderToControl, true);
+					PPShader.SetEnabled(shaderControl.ShaderToControl, true);
 				}
 				else
 				{
-					Shader.SetEnabled(p, shaderControl.ShaderToControl, false);
+					PPShader.SetEnabled(shaderControl.ShaderToControl, false);
 				}
 			}
 		}
@@ -124,17 +125,13 @@ class EffectSpawner : SwitchableDecoration //following code has been adapted by 
 			else { Activate(null); }
 		}
 
-		tics += Random(0, 35);
+		if (tics > 0) tics += Random(0, 35);
 	}
 
 	override void Activate(Actor activator)
 	{
-		if (switchcvar && !switchcvar.GetBool()) { SetStateLabel("Inactive"); }
-		else
-		{
-			bDormant = false;
-			SetStateLabel("Active");
-		}
+		bDormant = false;
+		SetStateLabel("Active");
 	}
 
 	override void Deactivate(Actor activator)
@@ -192,6 +189,7 @@ class EffectGiver : EffectSpawner
 
 	override bool CanCollideWith(Actor other, bool passive)
 	{
+		if (!switchcvar && switchvar.Length()) switchcvar = CVar.FindCVar(switchvar);
 		if (!Activators.Size() && switchcvar && !switchcvar.GetBool()) { return false; }
 		if (other.player && Activators.Find(other) == Activators.Size()) { Activators.Push(other); return true; }
 
@@ -200,9 +198,10 @@ class EffectGiver : EffectSpawner
 
 	override void Tick()
 	{
+		if (!switchcvar && switchvar.Length()) switchcvar = CVar.FindCVar(switchvar);
 		if (Activators.Size() && switchcvar && !switchcvar.GetBool())
 		{
-			for (int i = 0; i < Activators.Size(); i++)
+			for (int i = int(Activators.Size()) - 1; i >= 0; i--)
 			{
 				Actor mo = Activators[i];
 
@@ -210,15 +209,16 @@ class EffectGiver : EffectSpawner
 				{
 					ShaderControl control = ShaderControl(mo.FindInventory(controlclass));
 					if (control) { control.amount = 1; }
-					Activators.Delete(i);
 				}
+				Activators.Delete(i);
 			}
 		}
 		else if (!bDormant && level.time % 5 == 0)
 		{
-			for (int i = 0; i < Activators.Size(); i++)
+			for (int i = int(Activators.Size()) - 1; i >= 0; i--)
 			{
 				Actor mo = Activators[i];
+				if (!mo || !(mo is "PlayerPawn")) { Activators.Delete(i); continue; }
 
 				if (mo && mo is "PlayerPawn")
 				{

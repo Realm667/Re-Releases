@@ -1,0 +1,140 @@
+version "4.8"
+
+class ZDCMP1Regression : EventHandler
+{
+	ZDCMP1FireSpawner fire;
+	DarkSmokeSpawner smoke;
+	int smokeSpawns;
+	int previousSmokeSpawns;
+	int blurNetworkEvents;
+
+	override void ConsoleProcess(ConsoleEvent e)
+	{
+		if (e.Name != "zdcblur") return;
+		let blur = MBlurShaderHandler(StaticEventHandler.Find("MBlurShaderHandler"));
+		bool finite = blur && abs(blur.xtravel) < 1000000 && abs(blur.ytravel) < 1000000;
+		bool moving = blur && abs(blur.xtravel) + abs(blur.ytravel) > 0;
+		Console.Printf("UTNT_ASSERT %s: local blur state is finite and matches enabled state",
+			finite && moving == bool(e.Args[0]) ? "PASS" : "FAIL");
+	}
+
+	void Check(bool condition, String label)
+	{
+		Console.Printf("UTNT_ASSERT %s: %s", condition ? "PASS" : "FAIL", label);
+	}
+
+	int CountGore()
+	{
+		let it = ThinkerIterator.Create("Actor", STAT_NashGore_Gore);
+		int count = 0;
+		while (it.Next()) count++;
+		return count;
+	}
+
+	int CountLights()
+	{
+		let it = ThinkerIterator.Create("ZDCMP1FireSpawnerLight");
+		int count = 0;
+		while (it.Next()) count++;
+		return count;
+	}
+
+	override void WorldThingSpawned(WorldEvent e)
+	{
+		if (e.Thing is "DarkSmokeBase") smokeSpawns++;
+	}
+
+	override void NetworkProcess(ConsoleEvent e)
+	{
+		if (e.Name == "liveupdate") blurNetworkEvents++;
+		let player = players[0].mo;
+		if (!player) return;
+		if (e.Name == "zdcsetup")
+		{
+			Check(ZDCMP1_fxquality == 2, "Max is the default quality");
+			Check(CVar.GetCVar("motionblur", players[0]).GetBool(), "motion blur enabled by default");
+			Check(CVar.GetCVar("ZDCMP1_heartbeat", players[0]).GetBool(), "heartbeat enabled by default");
+			Check(CVar.GetCVar("ZDCMP1_injuryoverlay", players[0]).GetBool(), "injury overlay enabled by default");
+			fire = ZDCMP1FireSpawner(Actor.Spawn("ZDCMP1FireSpawner", (128, 0, 0)));
+			fire.Args[1] = 1;
+			smoke = DarkSmokeSpawner(Actor.Spawn("DarkSmokeSpawner", (256, 0, 0)));
+		}
+		else if (e.Name == "zdclight")
+		{
+			Check(fire && fire.light && CountLights() == 1, "silent fire owns exactly one light");
+			fire.SpawnLight();
+			Check(CountLights() == 1, "repeated light creation is idempotent");
+			fire.Deactivate(null);
+		}
+		else if (e.Name == "zdcoff")
+		{
+			Check(!fire.light && CountLights() == 0, "deactivation removes light");
+			fire.Activate(null);
+		}
+		else if (e.Name == "zdcdestroy")
+		{
+			fire.Destroy();
+			Check(CountLights() == 0, "destroying emitter removes light");
+		}
+		else if (e.Name == "zdcgore")
+		{
+			NashGoreStatics.ClearGore();
+			for (int i = 0; i < 40; i++) Actor.Spawn("NashGoreWallBloodSmall", (0, 128, 8));
+		}
+		else if (e.Name == "zdccount")
+		{
+			Check(CountGore() == e.Args[0], String.Format("gore count = %d (actual %d)", e.Args[0], CountGore()));
+		}
+		else if (e.Name == "zdcsmokemark") previousSmokeSpawns = smokeSpawns;
+		else if (e.Name == "zdcreplacesmoke")
+		{
+			smoke.Destroy();
+			smoke = DarkSmokeSpawner(Actor.Spawn("DarkSmokeSpawner", (256, 0, 0)));
+		}
+		else if (e.Name == "zdcheat")
+		{
+			let giver = HeatEffectGiver(Actor.Spawn("HeatEffectGiver", (0, 0, 0)));
+			player.SetInventory("HeatShaderControl", 64);
+			giver.Activators.Push(player);
+			giver.Activators.Push(null);
+			giver.Tick();
+			Check(giver.Activators.Size() == 0, "disabled heat clears all activators");
+			Check(player.FindInventory("HeatShaderControl").Amount == 1, "disabled heat resets intensity");
+			giver.Destroy();
+		}
+		else if (e.Name == "zdcnetwork") Check(blurNetworkEvents == 0, "motion blur sends no network updates");
+		else if (e.Name == "zdcsmoke")
+		{
+			Check((smokeSpawns > previousSmokeSpawns) == bool(e.Args[0]), "smoke emission matches switch/range");
+		}
+		else if (e.Name == "zdcrange")
+		{
+			smoke.range = e.Args[0];
+			smoke.rangeCheck = 0;
+		}
+		else if (e.Name == "zdcladder")
+		{
+			let ladder = LadderBase(Actor.Spawn("ClimbableZone", (300, 300, 128)));
+			let a = Actor.Spawn("DoomPlayer", (-300, -300, 0));
+			let b = Actor.Spawn("DoomPlayer", (-300, -300, 0));
+			ladder.Climbers.Push(a);
+			ladder.Climbers.Push(b);
+			ladder.Climbers.Push(null);
+			a.bNoGravity = b.bNoGravity = true;
+			ladder.Tick();
+			Check(ladder.Climbers.Size() == 0, "all departed and null climbers removed together");
+			Check(!a.bNoGravity && !b.bNoGravity, "gravity restored for both climbers");
+			a.Destroy(); b.Destroy(); ladder.Destroy();
+		}
+		else if (e.Name == "zdcweather")
+		{
+			let weather = ZDCMP1WeatherHandler(EventHandler.Find("ZDCMP1WeatherHandler"));
+			TextureID lava = TexMan.CheckForTexture("QLAVA", TexMan.Type_Any);
+			TextureID original = player.CurSector.GetTexture(Sector.floor);
+			Check(!weather.CanSpawnAt(player.Pos, lava), "ordinary floor rejected before spawning");
+			player.CurSector.SetTexture(Sector.floor, lava);
+			Check(weather.CanSpawnAt(player.Pos, lava), "lava floor accepted before spawning");
+			player.CurSector.SetTexture(Sector.floor, original);
+		}
+	}
+}

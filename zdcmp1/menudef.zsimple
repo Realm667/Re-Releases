@@ -1,7 +1,7 @@
 OptionMenu "OptionsMenuSimple" protected //here to force the override without the AddOptionMenu
 {
 	Title "$OPTMNU_TITLE"
-	Submenu "$OPTMNU_ZDC",			"ZDCMenu"
+	Submenu "$MN_OPEFFECTS",			"ZDCMP1EffectsMenu"
 	Submenu "$OPTMNU_CONTROLS",			"CustomizeControls"
 	Submenu "$OPTMNU_MOUSE",			"MouseOptionsSimple"
 	Submenu "$OPTMNU_JOYSTICK",			"JoystickOptions"
@@ -14,16 +14,6 @@ OptionMenu "OptionsMenuSimple" protected //here to force the override without th
 	StaticText " "
 	Submenu "$OPTMNU_MISCELLANEOUS",	"MiscOptionsSimple"	
 	StaticText " "
-}
-
-OptionMenu "ZDCMenu"
-{
-	StaticText "$MN_OPUZDC"
-	StaticText ""
-	Option "$MN_OPDIST","ZDCMP1_lod","ZDCDist"
-	Option "$MN_OPWEAT","ZDCMP1_weatherfx","YesNo"
-	Option "$MN_OPHEAT","ZDCMP1_shaderoverlayswitch","YesNo"
-	Option "$MN_OPBLUR","motionblur","YesNo"
 }
 
 OptionValue "ZDCDist"

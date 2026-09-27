@@ -34,6 +34,7 @@ class NashGoreHandler : EventHandler
 {
 	int maxgore;
 	int maxgore_old, maxgore_new;
+	bool goreDirty;
 
 	Array<String> bloodTypes;
 
@@ -67,16 +68,24 @@ class NashGoreHandler : EventHandler
 	override void WorldLoaded(WorldEvent e)
 	{
 		BuildBloodTypes();
+		goreDirty = true;
 	}
 
 	override void WorldTick(void)
 	{
 		// update gore queue
-		maxgore_new = nashgore_maxgore;
+		int quality = clamp(ZDCMP1_fxquality, 0, 2);
+		maxgore_new = max(0, nashgore_maxgore) / (quality == 2 ? 1 : quality == 1 ? 2 : 4);
 		if (maxgore_old != maxgore_new)
 		{
 			maxgore = maxgore_new;
 			maxgore_old = maxgore_new;
+			goreDirty = true;
+		}
+		if (goreDirty)
+		{
+			goreDirty = false;
+			NashGoreStatics.TrimGore(maxgore_new);
 		}
 	}
 

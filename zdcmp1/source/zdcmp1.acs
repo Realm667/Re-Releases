@@ -26,7 +26,8 @@ script "30Health" ENTER
 		int health = GetActorProperty(0, APROP_HEALTH);
 		if (health > 0 && health <= 30)
 		{
-			HudMessage(s:"A"; HUDMSG_FADEINOUT, 0, CR_WHITE, half_width, half_height, 0.0, 0.5, 0.5);
+			if (GetUserCVar(PlayerNumber(), "ZDCMP1_injuryoverlay"))
+				HudMessage(s:"A"; HUDMSG_FADEINOUT, 0, CR_WHITE, half_width, half_height, 0.0, 0.5, 0.5);
 
 			// Volume and delay of heartbeat (faster and louder with less health).
 			int volume = MAX_VOLUME;
@@ -46,9 +47,10 @@ script "30Health" ENTER
 				delay2 = 24;
 			}
 
-			LocalAmbientSound("hbeat", volume);
+			if (GetUserCVar(PlayerNumber(), "ZDCMP1_heartbeat")) LocalAmbientSound("hbeat", volume);
 			Delay(delay1);
-			LocalAmbientSound("hbeat", volume);
+			if (GetActorProperty(0, APROP_HEALTH) > 0 && GetActorProperty(0, APROP_HEALTH) <= 30
+				&& GetUserCVar(PlayerNumber(), "ZDCMP1_heartbeat")) LocalAmbientSound("hbeat", volume);
 			Delay(delay2);
 		}
 

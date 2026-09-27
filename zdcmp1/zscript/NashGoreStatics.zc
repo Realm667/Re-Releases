@@ -118,34 +118,24 @@ class NashGoreStatics play
 	static void QueueGore(void)
 	{
 		let eh = NashGoreHandler(NashGoreHandler.Find("NashGoreHandler"));
-		if (eh)
+		if (eh) eh.goreDirty = true;
+	}
+
+	static void TrimGore(int countmax)
+	{
+		// Batch spawns before scanning. Include wall blood in both count and removal.
+		ThinkerIterator it = ThinkerIterator.Create("Actor", STAT_NashGore_Gore);
+		Actor mo;
+		int count = 0;
+		while (mo = Actor(it.Next())) count++;
+		int excess = count - max(countmax, 0);
+		if (excess <= 0) return;
+
+		it.Reinit();
+		while (excess > 0 && (mo = Actor(it.Next())))
 		{
-			// get max gore count
-			int countmax = eh.maxgore;
-
-			// count current amount of gore objects
-			ThinkerIterator it = ThinkerIterator.Create("Actor", STAT_NashGore_Gore);
-			Actor mo;
-			int count;
-			while (mo = Actor(it.Next()))
-			{
-				count++;
-			}
-
-			// clean up excessive gore
-			while (count > countmax)
-			{
-				// destroy the first one it can find
-				it.Reinit();
-				if (mo = Actor(it.Next()))
-				{
-					bool valid = (mo is "NashGoreBloodPlane" || mo is "NashGoreGibs" ||
-									mo is "NashGoreIceChunk" || mo is "NashGoreSquishyGibs");
-
-					if (valid) mo.Destroy();
-					count--;
-				}
-			}
+			mo.Destroy();
+			excess--;
 		}
 	}
 

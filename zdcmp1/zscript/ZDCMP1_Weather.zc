@@ -37,33 +37,39 @@ class ZDCMP1WeatherHandler : EventHandler //nifty tweaked version elaborated for
 
 	override void WorldTick(void)
 	{
+		if (Level.IsFrozen() || gameaction == ga_savegame || !ZDCMP1_weatherfx) return;
 		SpawnLavaActors(); //lava floors, shortnamed
 		SpawnNukeActors(); //nukage floors, shortnamed
+	}
+
+	bool CanSpawnAt(Vector3 pos, TextureID texture)
+	{
+		// Let the actor resolve complex floors and linked portal groups as before.
+		if (Level.GetPortalGroupCount() > 1) return true;
+		Sector sec = Level.PointInSector(pos.xy);
+		if (!sec) return false;
+		if (sec.Get3DFloorCount() || sec.heightsec || sec.GetPortalType(Sector.floor) > 0) return true;
+		return sec.GetTexture(Sector.floor) == texture;
 	}
 	
 	void SpawnLavaActors(void)
 	{
-		if (Level.IsFrozen())
-			return;
+		TextureID texture = TexMan.CheckForTexture("QLAVA", TexMan.Type_Any);
 
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].mo && players[i].mo.player)
 			{
-				if (gameaction == ga_savegame)
-					continue;
-
-				if (!CVar.GetCVar("ZDCMP1_weatherfx", players[consoleplayer]).GetBool())
-					continue;
-
 				Actor cam = players[i].camera;
+				if (!cam) continue;
 
-				int density = 6;
+				int density = 2 + 2 * clamp(ZDCMP1_fxquality, 0, 2);
 				while (density--)
 				{
 					double spx = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
 					double spy = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
 					Vector3 sPos = cam.Vec3Offset(spx, spy, EMBERS_HEIGHT);
+					if (!CanSpawnAt(sPos, texture)) continue;
 
 					let lava = cam.Spawn("ZDCMP1LavaParticle", sPos, NO_REPLACE);
 					if (lava)
@@ -81,27 +87,22 @@ class ZDCMP1WeatherHandler : EventHandler //nifty tweaked version elaborated for
 	
 	void SpawnNukeActors(void)
 	{
-		if (Level.IsFrozen())
-			return;
+		TextureID texture = TexMan.CheckForTexture("NUKAGEW", TexMan.Type_Any);
 
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].mo && players[i].mo.player)
 			{
-				if (gameaction == ga_savegame)
-					continue;
-
-				if (!CVar.GetCVar("ZDCMP1_weatherfx", players[consoleplayer]).GetBool())
-					continue;
-
 				Actor cam = players[i].camera;
+				if (!cam) continue;
 
-				int density = 6;
+				int density = 2 + 2 * clamp(ZDCMP1_fxquality, 0, 2);
 				while (density--)
 				{
 					double spx = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
 					double spy = frandom[rnd_SpawnPrecip](-PARTICLES_RADIUS, PARTICLES_RADIUS);
 					Vector3 sPos = cam.Vec3Offset(spx, spy, EMBERS_HEIGHT);
+					if (!CanSpawnAt(sPos, texture)) continue;
 
 					let nuke = cam.Spawn("ZDCMP1NukeParticle", sPos, NO_REPLACE);
 					if (nuke)
@@ -153,6 +154,7 @@ mixin Class ZDCMP1Particle
 	
 	override void Tick(void)
 	{
+		if (IsFrozen() || Level.IsFrozen()) return;
 		if (!ticked)
 		{
 			Super.Tick();
@@ -178,7 +180,10 @@ mixin Class ZDCMP1Particle
 			if (Alpha > 0)
 				Alpha -= 0.1;
 			else
+			{
 				Destroy();
+				return;
+			}
 		}
 
 		SetXYZ(Vec3Offset(Vel.X, Vel.Y, Vel.Z));

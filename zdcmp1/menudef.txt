@@ -1,11 +1,28 @@
 AddOptionMenu "OptionsMenu"
 {
-	StaticText "$MN_OPUZDC"
-	StaticText ""
+	Submenu "$MN_OPEFFECTS", "ZDCMP1EffectsMenu"
+}
+
+OptionMenu "ZDCMP1EffectsMenu"
+{
+	Title "$MN_OPEFFECTS"
+	Option "$MN_OPQUALITY","ZDCMP1_fxquality","ZDCQuality"
 	Option "$MN_OPDIST","ZDCMP1_lod","ZDCDist"
 	Option "$MN_OPWEAT","ZDCMP1_weatherfx","YesNo"
 	Option "$MN_OPHEAT","ZDCMP1_shaderoverlayswitch","YesNo"
 	Option "$MN_OPBLUR","motionblur","YesNo"
+	Slider "$MN_OPWATER","ZDCMP1_uweffectsize",0,0.015,0.001,3
+	Option "$MN_OPHEART","ZDCMP1_heartbeat","YesNo"
+	Option "$MN_OPINJURY","ZDCMP1_injuryoverlay","YesNo"
+	StaticText ""
+	Submenu "$OPTMNU_NASHGORE", "NashGoreMenu"
+}
+
+OptionValue "ZDCQuality"
+{
+	0, "$MN_QUALITYLOW"
+	1, "$MN_QUALITYBALANCED"
+	2, "$MN_QUALITYMAX"
 }
 
 OptionValue "ZDCDist"

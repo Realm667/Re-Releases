@@ -163,6 +163,7 @@ class ZDCMP1FireSpawner : ZDCMP1SwitchableDecoration
 
 	void SpawnLight(void)
 	{
+		if (light) return;
 		// To do: the lights look really weird. Improve this
 		String cls;
 		if (IsSmallFire())
@@ -183,6 +184,13 @@ class ZDCMP1FireSpawner : ZDCMP1SwitchableDecoration
 	void RemoveLight(void)
 	{
 		if (light) light.Destroy();
+		light = null;
+	}
+
+	override void OnDestroy()
+	{
+		RemoveLight();
+		Super.OnDestroy();
 	}
 
 	//===========================================================================
@@ -216,8 +224,8 @@ class ZDCMP1FireSpawner : ZDCMP1SwitchableDecoration
 				}
 
 				A_StartSound(snd, CHAN_6, CHANF_LOOP, 1.0);
-				SpawnLight();
 			}
+			SpawnLight();
 		}
 		TNT1 A 1
 		{
