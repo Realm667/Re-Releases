@@ -71,3 +71,31 @@ Freedoom tests validate code paths, not Doom II artwork or combat balance.
 No new benchmark-based speedup or universal hardware compatibility is claimed.
 The previous 30-minute endurance evidence predates these feature changes;
 it must not be presented as a new 30-minute run of this revision.
+
+## Verification evidence
+
+Both Linux renderer jobs passed every release check for commit `7865619`:
+[GitHub Actions run 36330464323](https://github.com/Realm667/Re-Releases/actions/runs/36330464323).
+This includes coop, all five skill starts, remaster behavior, sustained weapons,
+and the short stress/save-load regression. Later documentation-only changes
+do not change the tested package.
+
+Native UZDoom 5.0.1 on Apple M3/macOS, using Freedoom 0.13.0, passed:
+
+- Nine integrity tests, reproducible ACS checks, and unchanged map geometry/node hashes.
+- Effect lifecycle and portal/floor/camera suites with both OpenGL and Vulkan.
+- MAP01 startup and save/load on all five skills with both renderers.
+- Real hint/camera tests (21 assertions), finale/save/load/skip guards (8),
+  actual USE during credits (3), and six menu checks with both renderers.
+- Sustained Freezer and Nuke fire at both comfort extremes with both renderers;
+  peak actor counts and remaining ammunition matched between settings.
+- Six deterministic walking, jumping and strafing samples matched the previous
+  package exactly under Vulkan, including position, velocity and view height.
+- The full unskipped finale and credits reached the normal exit under Vulkan
+  with manual skipping disabled (approximately 291 seconds).
+- Two-peer native OpenGL coop passed all 14 assertions per peer. Native Vulkan
+  coop timed out after connection and is not counted as a pass; Linux Vulkan
+  coop passed in release checks. This remains a native-runtime test limitation.
+
+The local release package SHA-256 is
+`6abf5f2a3d346279731881a2df2c79ef4742722638fc22f7e1dc9f4ed7a5efd1`.
