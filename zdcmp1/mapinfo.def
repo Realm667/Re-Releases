@@ -335,3 +335,53 @@ Intermission ZDCMPCast
 	}
 	Link = ZDCMPCast	// restart cast call
 }
+
+
+// Keep UZDoom's Doom skill gameplay settings, but render menu names with BIGFONT.
+// PicName is intentionally omitted so SkillMenu creates text items.
+skill baby
+{
+    AutoUseHealth
+    AmmoFactor = 2
+    DamageFactor = 0.5
+    EasyBossBrain
+    SpawnFilter = Baby
+    Name = "$SKILL_BABY"
+    Key = "i"
+}
+
+skill easy
+{
+    EasyBossBrain
+    SpawnFilter = Easy
+    Name = "$SKILL_EASY"
+    Key = "h"
+}
+
+skill normal
+{
+    SpawnFilter = Normal
+    Name = "$SKILL_NORMAL"
+    Key = "h"
+    DefaultSkill
+}
+
+skill hard
+{
+    SpawnFilter = Hard
+    Name = "$SKILL_HARD"
+    Key = "u"
+}
+
+skill nightmare
+{
+    AmmoFactor = 2
+    FastMonsters
+    InstantReaction
+    DisableCheats
+    RespawnTime = 12
+    SpawnFilter = Nightmare
+    Name = "$SKILL_NIGHTMARE"
+    MustConfirm
+    Key = "n"
+}

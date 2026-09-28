@@ -9,6 +9,8 @@ longer replaces the engine's simplified options menu. Existing user values
 are retained; Max remains the default and no global audio/video preferences
 are changed.
 
+The main menu uses a 179 x 57 M_DOOM base patch and its exact 3x HiRes image, so UZDoom no longer stretches the 537 x 171 logo against Doom II's 125 x 60 patch. A silver two-frame M_SKULL selector matches the logo. The skill menu draws localized UZDoom skill names in BIGFONT instead of the original label patches; the five skill gameplay properties, default skill and Nightmare confirmation are preserved.
+
 The logbook remembers only messages actually delivered by MAP01's supply,
 pump, gear, main-door, surface-teleport and damaged-lift scripts. Personal
 messages remain personal; broadcast messages go to connected players. Hints
