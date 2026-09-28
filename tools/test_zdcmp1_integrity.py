@@ -27,8 +27,8 @@ class ZDCMP1Integrity(unittest.TestCase):
         lumps = dict((n.rstrip(b"\0"), d) for n, d in read_wad(ROOT / "zdcmp1/Maps/map01.wad")[1])
         self.assertEqual(lumps[b"SCRIPTS"], (ROOT / "zdcmp1/source/maps/map01.acs").read_bytes().replace(b"\r\n", b"\n"))
         for name, digest in {
-            b"TEXTMAP": "1bbfa256e65088c62ab050f1d348bc75770da1266919af7fe99700aa4706a501",
-            b"ZNODES": "bf230c1d5708a71a3801555183032c24ebbdd11b3b660da70b16b755f139172e",
+            b"TEXTMAP": "ffc7616ae08789a9a584e9efa8ee05612cf1c992e32bfb075ed8612f44ee6b52",
+            b"ZNODES": "0d781b7ba95f742303c8211cca61af5de5264d17ef9482c1de5e9d832f9f92f5",
         }.items():
             self.assertEqual(hashlib.sha256(lumps[name]).hexdigest(), digest)
 
@@ -65,6 +65,23 @@ class ZDCMP1Integrity(unittest.TestCase):
                     self.assertEqual(side.get("offsetx", 0), 0)
                     self.assertEqual(side.get("offsety", 0), 0)
                     self.assertTrue(side["nofakecontrast"])
+        # Self-referencing wall rings must face the camera. A mirrored ring
+        # renders its untextured backs, hiding the landscape in the Hell sky.
+        for sector, camera, bounds in ((740, (2848, 2272), (2688, 3008, 2112, 2432)),
+                                       (2635, (3812, -2272), (3652, 3972, -2432, -2112))):
+            points = []
+            for line in data["linedef"]:
+                side = data["sidedef"][line["sidefront"]]
+                if side["sector"] != sector:
+                    continue
+                a, b = (data["vertex"][line[k]] for k in ("v1", "v2"))
+                points.extend((a, b))
+                if side.get("texturemiddle", "").startswith(("ZD_", "ZH_")):
+                    cross = ((b["x"]-a["x"])*(camera[1]-a["y"])
+                             -(b["y"]-a["y"])*(camera[0]-a["x"]))
+                    self.assertLess(cross, 0)
+            self.assertEqual((min(p["x"] for p in points), max(p["x"] for p in points),
+                              min(p["y"] for p in points), max(p["y"] for p in points)), bounds)
         textures = (root / "textures.txt").read_text()
         animations = (root / "animdefs.def").read_text()
         for prefix, name in (("ZD", "outdoor"), ("ZH", "hell")):

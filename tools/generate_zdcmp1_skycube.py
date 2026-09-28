@@ -40,8 +40,11 @@ def sample(image, x, y, z):
     lon = np.arctan2(y, x)
     lat = np.degrees(np.arctan2(z, np.hypot(x, y)))
     px = ((lon / (2*np.pi) + 0.5) * (w-1)) % (w-1)
-    # The generated landscape's horizon is at 75% of the source height.
-    py = np.where(lat >= 0, .75*(1-lat/90), .75 + .25*(-lat/90)) * (h-1)
+    # Put the landscape base at eye level and the ridges above map roofs.
+    # The source is a panorama, not an equirectangular photograph.
+    horizon = 0.98
+    upper = horizon * np.power(np.clip(1-lat/90, 0, 1), 0.65)
+    py = np.where(lat >= 0, upper, horizon + (1-horizon)*(-lat/90)) * (h-1)
     py = np.clip(py, 0, h-1)
     x0 = np.floor(px).astype(np.int32); y0 = np.floor(py).astype(np.int32)
     x1 = (x0+1) % (w-1); y1 = np.minimum(y0+1, h-1)
@@ -63,8 +66,10 @@ def cube_vectors(face):
     if face == 'w': return -np.ones_like(U), U, -V
     if face == 's': return U, np.ones_like(U), -V
     if face == 'e': return np.ones_like(U), -U, -V
-    if face == 'top': return U, V, np.ones_like(U)
-    if face == 'bottom': return U, V, -np.ones_like(U)
+    # Special 90 spans the 320-unit sector, including the four-unit
+    # apron behind its 312-unit textured wall ring.
+    if face == 'top': return U*(320/312), -V*(320/312), np.ones_like(U)
+    if face == 'bottom': return U*(320/312), -V*(320/312), -np.ones_like(U)
     raise ValueError(face)
 
 
@@ -93,20 +98,13 @@ def render(name):
     source = periodic_source(SOURCE / f'{name}-source.png')
     faces = {face: sample(source, *cube_vectors(face))
              for face in ('n','w','s','e','top','bottom')}
-    # A shared calm high-altitude colour closes the cap even when the engine's
-    # wall/flat UV precision differs by a texel. The landscape below is intact.
-    cap = np.mean(np.concatenate([faces[f][0] for f in 'nwse']), axis=0)
+    # GZDoom special 90 maps u west-to-east and v north-to-south.
+    # All faces retain their common spherical edge samples. Animation fades
+    # out before reaching an edge, leaving the static landscape registered.
     position = np.linspace(0.0, 1.0, SIZE, dtype=np.float32)
     U, V = np.meshgrid(position, position)
     distance = np.minimum(np.minimum(U, 1.0-U), np.minimum(V, 1.0-V))
-    top_weight = smoothstep(0.0, 0.30, distance)[..., None]
-    # The red source has much stronger high-cloud contrast. Keep its zenith
-    # restrained so the flat/wall transition stays invisible in live views.
-    strength = 0.10 if name == 'hell' else 1.0
-    faces['top'] = cap * (1.0-top_weight*strength) + faces['top'] * (top_weight*strength)
-    wall_weight = smoothstep(0.0, 0.32, V)[..., None]
-    for face in 'nwse':
-        faces[face] = cap * (1.0-wall_weight) + faces[face] * wall_weight
+    top_weight = smoothstep(0.03, 0.25, distance)[..., None]
     for face, rgb in faces.items():
         face_image = Image.fromarray(np.uint8(np.clip(np.rint(rgb),0,255)))
         face_image.save(DEST / f'{name}-{face}.png', optimize=True)
@@ -118,7 +116,7 @@ def render(name):
         moved = np.roll(clouds, shift, axis=1)
         moved = np.asarray(Image.fromarray(np.uint8(np.rint(moved*255)))
                            .resize((SIZE, SIZE), Image.Resampling.BILINEAR), dtype=np.float32) / 255.0
-        motion = 1.0 + (moved[..., None]-0.5) * (0.05 if name == 'hell' else 0.12) * top_weight
+        motion = 1.0 + (moved[..., None]-0.5) * 0.12 * top_weight
         frame = np.uint8(np.clip(np.rint(faces['top'] * motion), 0, 255))
         Image.fromarray(frame).save(DEST / f'{name}-top-{index:02d}.png', optimize=True)
 

@@ -50,13 +50,14 @@ Editable source panoramas live in `zdcmp1/source/art/skybox/`; the
 reproducible projection is `tools/generate_zdcmp1_skycube.py`. It samples
 the same spherical direction for every shared cube edge, generating
 1024-pixel top/bottom faces and two exact 512-pixel halves per side.
-The four landscape faces never animate. The upper wall and cap edges
-fade into the same high-altitude sky colour so the ceiling remains
-continuous in real player views despite GZDoom's differing wall/flat UV
-mapping. This edge treatment does not affect the mountain silhouettes.
-The Hell zenith uses lower high-cloud contrast than the outdoor zenith
-because the red source made the flat/wall boundary visible in wide
-gameplay views; its wall clouds and volcanic landscape remain textured.
+The landscape base sits at eye level; the raised ridges remain visible above
+MAP01's perimeter walls from normal player height. The four landscape faces
+never animate. Ceiling/floor projection follows GZDoom's actual UV direction
+and covers the full 320-unit sector bounds, including the four-unit apron
+behind the 312-unit wall ring. This prevents the former square ceiling seam
+without hiding cloud detail. The Hell wall ring faces inward, like the outdoor
+ring. Only these isolated camera-room vertices were corrected; gameplay
+geometry, SkyPickers, ACS and the serialized day/night/storm clock are unchanged.
 
 Each cap has eight ANIMDEFS frames. A separately generated, tileable
 cloud mask shifts by at most 16 pixels across those frames and modulates
@@ -66,8 +67,18 @@ perimeter does not change. The old ACS ceiling scrollers on tags 32 and
 113, including the storm acceleration, are removed because they moved
 the complete ceiling image through its seam. No custom shader is needed.
 The same authored frames run on Vulkan, OpenGL and the software scene
-renderer. Software quantizes the dark clouds and shows a more apparent
-square cap transition; Vulkan and OpenGL are the intended presentation.
+renderer. Software uses explicit 320-unit flat scale and world offsets to
+match the special-90 hardware projection. Its palette and lighting remain
+less smooth than the hardware renderers. No custom shader is required.
+
+Validation: 15 integrity tests plus three image-space tests cover inward
+wall winding, sector bounds, matching wall corners, wall/cap intersections,
+static animation edges and changing cloud interiors. UZDoom 5.0.3 was checked
+with Vulkan and OpenGL (SSAO enabled), and the software scene renderer, from
+the start courtyard, outdoor arena and Hell arena in four directions plus
+the zenith. Day, dusk, night, dawn, storm and save/load were exercised. The
+49 packaged sky/map/definition files match their editable production sources.
+Start MAP01 afresh after this geometry update: older saves retain old map data.
 
 A map-local ZDCMP1SkyCycle EventHandler restores the original 75-second
 descent into night and 75-second return to day. Its serialized clock
