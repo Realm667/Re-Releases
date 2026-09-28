@@ -1,6 +1,9 @@
 #library "strnghld"
 #include "zcommon.acs"
 
+// UZDoom 5 supports player indices 0 through 63.
+#define STRONGHOLD_MAX_PLAYERS 64
+
 //////////////////////////////////////////////////////////////////
 // SHOP SYSTEM by Cutmanmike /////////////////////////////////////
 // [optimised by Jimmy]		 /////////////////////////////////////
@@ -237,14 +240,18 @@ int ShopItemCosts[MAX_SHOPITEMS][2] =
 	{600,0},{1000,0}
 };
 
-int PlayerConfirm[32];
+int PlayerConfirm[STRONGHOLD_MAX_PLAYERS];
 
 // Hopefully Cutmanmike doesn't mind me simplifying his shop script. :P
 // - Jimmy
 script "Shop"(int shopitem)
 {
+	int player = PlayerNumber();
+	if(player < 0 || player >= STRONGHOLD_MAX_PLAYERS ||
+		shopitem <= SHOP_INVALID || shopitem >= MAX_SHOPITEMS)
+		terminate;
 	SetHudSize(640,480,0);
-	if(!PlayerConfirm[PlayerNumber()])
+	if(!PlayerConfirm[player])
 	{
 		// Print the description to the screen.
 		HudMessage(s:"\cg",s:Shop[shopitem][0],s:"  \cf($",d:ShopItemCosts[shopitem][0],s:")\n",
@@ -260,7 +267,7 @@ script "Shop"(int shopitem)
 			HudMessage(s:"You do not have enough \cgcoins \clto buy this item!";
 				HUDMSG_FADEINOUT,998,CR_UNTRANSLATED,230.4,30.0,1.5,0.3,0.3);
 			LocalAmbientSound("No",128);
-			PlayerConfirm[PlayerNumber()] = 0;
+			PlayerConfirm[player] = 0;
 		}
 		// Check if the player has the max amount of this item.
 		else if(CheckInventory(Shop[shopitem][1])>=ShopItemCosts[shopitem][1])
@@ -268,7 +275,7 @@ script "Shop"(int shopitem)
 			HudMessage(s:"You already have the \cgmaximum amount \clof this item!";
 				HUDMSG_FADEINOUT,998,CR_UNTRANSLATED,230.4,30.0,1.5,0.3,0.3);
 			LocalAmbientSound("No",128);
-			PlayerConfirm[PlayerNumber()] = 0;
+			PlayerConfirm[player] = 0;
 		}
 		// Just added this check into the new system: warn the play if he has no lives left.
 		// (And forbid him from buying anything except lives until he has at least one.)
@@ -277,7 +284,7 @@ script "Shop"(int shopitem)
 			HudMessage(s:"You have \cgno lives \clleft!\n\nBuy an \cgextra life or two \clbefore you buy anything else!";
 				HUDMSG_FADEINOUT,998,CR_UNTRANSLATED,230.4,30.0,3.5,0.3,0.3);
 			LocalAmbientSound("No",128);
-			PlayerConfirm[PlayerNumber()] = 0;
+			PlayerConfirm[player] = 0;
 		}
 		else
 		{
@@ -290,7 +297,7 @@ script "Shop"(int shopitem)
 			TakeInventory("CoinItem",ShopItemCosts[shopitem][0]);
 			HudMessage(s:"Thank you!"; HUDMSG_FADEINOUT,998,CR_UNTRANSLATED,230.4,30.0,1.5,0.3,0.3);
 			LocalAmbientSound("Cash",128);
-			PlayerConfirm[PlayerNumber()] = 0;
+			PlayerConfirm[player] = 0;
 			delay(1);
 		}
 	}
@@ -298,11 +305,14 @@ script "Shop"(int shopitem)
 
 script 4(void)
 {
-	PlayerConfirm[PlayerNumber()] = 1;
+	int player = PlayerNumber();
+	if(player < 0 || player >= STRONGHOLD_MAX_PLAYERS)
+		terminate;
+	PlayerConfirm[player] = 1;
 	SetPlayerProperty(0,1,PROP_TOTALLYFROZEN);
 	delay(35);
 	SetPlayerProperty(0,0,PROP_TOTALLYFROZEN);
-	PlayerConfirm[PlayerNumber()] = 0;
+	PlayerConfirm[player] = 0;
 }
 
 str mapinfo[56][8] =
@@ -1258,7 +1268,7 @@ bool BriefTalking;	// When true, talking animation in briefing happens
 bool BriefActive;	// Should be TRUE when players should be frozen (PROP_TOTALLY_FROZEN)
 bool BriefNoGun;	// The player won't be given a gun on first spawn while this is true
 int BriefScript;	// Set to script number of briefing script. See STR01 for example.
-int DamageTaken[32];
+int DamageTaken[STRONGHOLD_MAX_PLAYERS];
 bool PlayersAreLate;
 int LatePlayersDelay=35*60; // Time before late players are put into jail immediately.
 str BriefBackground;
@@ -1950,42 +1960,51 @@ Script S_DETECTENDOFLVL ENTER
 
 function void AddMapReward(str actor,int amount)
 {
-	if(MapRewardsUsed==MAX_MAP_REWARDS)
+	if(MapRewardsUsed>=MAX_MAP_REWARDS)
+	{
 		PrintBold(s:"Error: MapRewards[] limit hit");
+		return;
+	}
 	MapRewards[MapRewardsUsed][0]=actor;
 	MapRewards[MapRewardsUsed++][1]=amount;
 }
 
 //Added by Jimmy. Tweak if needed.
-int bonuses[32];
-int BonusQueue[MAXBONUSES];
-
+int bonuses[STRONGHOLD_MAX_PLAYERS];
+// Index zero is unused because the bonus display numbers entries from one.
+int BonusQueue[STRONGHOLD_MAX_PLAYERS][MAXBONUSES + 1];
 function void GetBonus(int bonustype)
 {
-	bonuses[playernumber()]++;
-	log(i:bonustype,s:"    ",i:bonuses[playernumber()]);
-	BonusQueue[bonuses[playernumber()]]=bonustype;
+	int player = PlayerNumber();
+	if(player < 0 || player >= STRONGHOLD_MAX_PLAYERS ||
+		bonustype < 0 || bonustype >= MAXBONUSES || bonuses[player] >= MAXBONUSES)
+		return;
+	bonuses[player]++;
+	log(i:bonustype,s:"    ",i:bonuses[player]);
+	BonusQueue[player][bonuses[player]]=bonustype;
 	LocalAmbientSound("Cash",128);
 }
-
 script S_GETBONUS(int bonustype)
 {
+	int player = PlayerNumber();
+	if(player < 0 || player >= STRONGHOLD_MAX_PLAYERS)
+		terminate;
 	SetHudSize(800,600,1);
 	SetFont("BigFont");
 	str bigmessage="";
-	if(bonuses[playernumber()])
+	if(bonuses[player])
 		bigmessage="Extra Bonuses Awarded!";
-	HudMessage(s:bigmessage; HUDMSG_FADEOUT|HUDMSG_LOG,200,CR_WHITE,400.4,392.2,4.0+bonuses[playernumber()],1.0);
+	HudMessage(s:bigmessage; HUDMSG_FADEOUT|HUDMSG_LOG,200,CR_WHITE,400.4,392.2,4.0+bonuses[player],1.0);
 	SetFont("ConFont");
-	for(int i=1; i<=bonuses[playernumber()]; i++)
+	for(int i=1; i<=bonuses[player]; i++)
 	{
-		HudMessage(s:BonusArray[BonusQueue[i]][1],s:" BONUS \cf($",d:BonusAwards[BonusQueue[i]],s:")";
-			HUDMSG_FADEOUT|HUDMSG_LOG,200+i,CR_UNTRANSLATED,400.4,416.2+(8.0*i),4.0+bonuses[playernumber()],1.0);
-		HudMessage(s:BonusArray[BonusQueue[i]][2];
-			HUDMSG_FADEOUT|HUDMSG_LOG,300+i,CR_WHITE,400.4,432.2+(8.0*i)+(8.0*bonuses[playernumber()]),4.0+bonuses[playernumber()],1.0);
-		GiveInventory("CoinItem",BonusAwards[BonusQueue[i]]);
+		HudMessage(s:BonusArray[BonusQueue[player][i]][1],s:" BONUS \cf($",d:BonusAwards[BonusQueue[player][i]],s:")";
+			HUDMSG_FADEOUT|HUDMSG_LOG,200+i,CR_UNTRANSLATED,400.4,416.2+(8.0*i),4.0+bonuses[player],1.0);
+		HudMessage(s:BonusArray[BonusQueue[player][i]][2];
+			HUDMSG_FADEOUT|HUDMSG_LOG,300+i,CR_WHITE,400.4,432.2+(8.0*i)+(8.0*bonuses[player]),4.0+bonuses[player],1.0);
+		GiveInventory("CoinItem",BonusAwards[BonusQueue[player][i]]);
 	}
-	bonuses[playernumber()]=0;
+	bonuses[player]=0;
 	SetFont("BigFont");
 	for(i=0;i<=3;i++)
 	{

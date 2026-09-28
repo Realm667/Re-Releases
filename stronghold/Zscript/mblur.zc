@@ -29,6 +29,7 @@ class SthBlurShaderHandler : StaticEventHandler
 	
 	int			pitch, yaw ;
 	double		xtravel, ytravel ;
+	ui int		lastUpdateTic;
 	
 	override void PlayerEntered( PlayerEvent e )
 	{
@@ -78,7 +79,11 @@ class SthBlurShaderHandler : StaticEventHandler
 		{
 			if( plr.health > 0 && Cvar.GetCVar( "sthblur", plr ).GetBool() && !plr.mo.FindInventory("isIntro") )//&& yaw && pitch )
 			{
-				EventHandler.SendNetworkEvent( "liveupdate" );
+				// Input changes once per game tic, while UiTick can run every rendered frame.
+				if (lastUpdateTic != gametic) {
+					EventHandler.SendNetworkEvent( "liveupdate" );
+					lastUpdateTic = gametic;
+				}
 				
 				int copies			= 1 + Cvar.GetCVar( "sthblur_samples", plr ).GetInt() ;
 				double increment	= 1. / copies ;

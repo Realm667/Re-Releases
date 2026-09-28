@@ -8,12 +8,12 @@ class StrongholdEventHandler : StaticEventHandler
 	override void RenderOverlay(RenderEvent e)
 	{
 		PlayerInfo p = players[consoleplayer];
-		ThinkerIterator shaderIter = ThinkerIterator.Create("ShaderControl");
-
-		ShaderControl shaderControl;
-
-		while (shaderControl = ShaderControl(shaderIter.Next()))
+		if (!p || !p.mo) return;
+		// ShaderControl is an Inventory item: inspect only this player's items.
+		for (Inventory item = p.mo.Inv; item != null; item = item.Inv)
 		{
+			ShaderControl shaderControl = ShaderControl(item);
+			if (!shaderControl) continue;
 			if (shaderControl.Owner && shaderControl.Owner == p.mo) {
 				//Console.Printf("Shader: %s", shaderControl.ShaderToControl);
 				if (shaderControl.amount >= 2)

@@ -24,6 +24,12 @@ class EnhWaterHandler : StaticEventHandler {
 	override void RenderOverlay(RenderEvent e) {
 		// set the player's timer up correctly (more-than-1-tick precision)
 		PlayerInfo p = players[consoleplayer];
+		if (!p) return;
+		if (!p.mo) {
+			Shader.SetEnabled(p, "watershader", false);
+			Shader.SetEnabled(p, "waterzoomshader", false);
+			return;
+		}
 		Shader.SetUniform1f(p, "watershader", "timer", gametic + e.FracTic);
 
 		if (p.mo.waterlevel >= 3) {
