@@ -13,6 +13,8 @@ class ZDCMP1Remaster : EventHandler
     int cachedGoal[MAXPLAYERS];
     Vector2 cachedWaypoint[MAXPLAYERS];
     bool cachedValid[MAXPLAYERS];
+    double cachedHeight[MAXPLAYERS];
+    int cachedAt[MAXPLAYERS];
     int routeComputations[MAXPLAYERS];
     bool nearbyUse[MAXPLAYERS];
     ZDCCoopPing pingMarkers[MAXPLAYERS];
@@ -284,6 +286,8 @@ class ZDCMP1Remaster : EventHandler
             let traveller = players[i].mo;
             int sector = traveller.CurSector ? traveller.CurSector.Index() : -1;
             if (cachedValid[i] && sector >= 0 && cachedSector[i] == sector && cachedGoal[i] == goal
+                && abs(cachedHeight[i] - traveller.Pos.Z) < 8
+                && level.time - cachedAt[i] < 35
                 && ZDCNavigation.ClearFirstLeg(traveller, cachedWaypoint[i]))
             {
                 routeNext[i] = cachedWaypoint[i];
@@ -297,6 +301,8 @@ class ZDCMP1Remaster : EventHandler
             cachedSector[i] = route.Ready ? sector : -1;
             cachedGoal[i] = goal;
             cachedValid[i] = route.Ready;
+            cachedHeight[i] = traveller.Pos.Z;
+            cachedAt[i] = level.time;
         }
     }
 

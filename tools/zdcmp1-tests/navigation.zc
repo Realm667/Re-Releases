@@ -58,6 +58,15 @@ class ZDCNavigationCheck : EventHandler
             h.UpdateRoutes();
             Check(h.routeComputations[0] == before,
                 "unchanged sector and visible waypoint reuse the route cache");
+            h.cachedAt[0] = level.time - 35;
+            h.UpdateRoutes();
+            Check(h.routeComputations[0] == before + 1,
+                "moving geometry is rechecked after one second");
+            before = h.routeComputations[0];
+            h.cachedHeight[0] = player.Pos.Z - 16;
+            h.UpdateRoutes();
+            Check(h.routeComputations[0] == before + 1,
+                "height changes invalidate a cached route");
         }
         if (e.Name == "zdcnavunpincheck")
             Check(h.pinnedHint[0] == 0, "second pin action restores automatic routing");
