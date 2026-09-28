@@ -39,9 +39,10 @@ MAP01 retains its outdoor and Hell SkyViewpoints, the Hell SkyPickers
 rooms are square 312-unit cubes centered on their original viewpoints.
 Outdoor sector 740 spans 152..464; Hell sector 2635 spans 0..312.
 Both cameras stand 156 map units above their floors. Both sectors use
-GZDoom's Skybox Sector special 90, which prevents the renderer's ambient
-occlusion from darkening their cube corners. Wall sides disable fake
-contrast and anchor their textures at the ceiling.
+GZDoom's Skybox Sector special 90 for skybox surface rendering. MAP01
+also sets `disableskyboxao` in MAPINFO, preventing SSAO in camera portals
+while leaving ambient occlusion active in the playable map. Wall sides
+disable fake contrast and anchor their textures at the ceiling.
 
 Editable source panoramas live in `zdcmp1/source/art/skybox/`; the
 reproducible projection is `tools/generate_zdcmp1_skycube.py`. It samples

@@ -48,6 +48,9 @@ class ZDCMP1Integrity(unittest.TestCase):
         self.assertEqual(data["thing"][265]["height"], 156.0)
         self.assertEqual(data["thing"][1292]["height"], 156.0)
         self.assertEqual(data["thing"][1292]["x"], 3812.0)
+        mapinfo = (root / "mapinfo.def").read_text()
+        map01 = mapinfo.split('map MAP01 "ZDoom Community Map #1"', 1)[1].split("}", 1)[0]
+        self.assertIn("disableskyboxao", map01)
         groups = (
             ("ZD", (("N", (6950, 6952)), ("W", (6964, 6954)),
                     ("S", (6962, 6956)), ("E", (6960, 6958)))),
