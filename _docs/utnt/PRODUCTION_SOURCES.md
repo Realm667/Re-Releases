@@ -14,6 +14,8 @@ replace hand-edited final maps or visual assets.
 The standard builder remains `python -B tools/build_utnt.py`: it validates,
 compiles and checks the engine, and excludes local work. New work must keep final
 content in the source tree and document any explicit regeneration workflow.
+The build and `--check-only` modes show a progress bar for completed phases;
+its percentage counts phases rather than estimating elapsed time.
 
 ## Current verified scope and remaining distinctions
 

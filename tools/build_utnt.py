@@ -8,6 +8,33 @@ import argparse, hashlib, json, os, pathlib, struct, subprocess, tempfile, zipfi
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
+class BuildProgress:
+    """Report completed build phases without hiding output from individual tools."""
+    def __init__(self, total):
+        self.total = total
+        self.completed = 0
+
+    def report(self, label, running=False):
+        width = 24
+        filled = width * self.completed // self.total
+        bar = '#' * filled + '-' * (width - filled)
+        percent = 100 * self.completed // self.total
+        state = 'Running' if running else 'Done'
+        print(f'UTNT [{bar}] {percent:3}% ({self.completed}/{self.total}) {state}: {label}', flush=True)
+
+    def start(self, label):
+        self.report(label, running=True)
+
+    def finish(self, label):
+        self.completed += 1
+        self.report(label)
+
+    def run(self, label, action, *args, **kwargs):
+        self.start(label)
+        result = action(*args, **kwargs)
+        self.finish(label)
+        return result
+
 def read_wad(path):
     data = path.read_bytes()
     magic, count, directory = struct.unpack_from('<4sII', data)
@@ -236,45 +263,49 @@ def main():
     p.add_argument('--skip-engine-check',action='store_true')
     a=p.parse_args(); root=a.root.resolve(); compiler=a.acc.resolve()
     if not compiler.is_file(): p.error('ACC not found; set --acc or UTNT_ACC')
+    progress = BuildProgress(16 if a.check_only else 17)
     from build_definition_tables import generate as generate_definition_tables
-    generate_definition_tables(root, check=a.check_only)
+    progress.run('Definition tables', generate_definition_tables, root, check=a.check_only)
     from build_voxels import build as build_voxels
-    build_voxels(root, check=a.check_only)
+    progress.run('Voxel assets', build_voxels, root, check=a.check_only)
     from build_grass_sprites import generate as generate_grass_sprites
-    generate_grass_sprites(root, check=a.check_only)
+    progress.run('Grass sprites', generate_grass_sprites, root, check=a.check_only)
     from build_lava_lips import generate as generate_lava_lips
-    generate_lava_lips(root,check=a.check_only)
+    progress.run('Lava edges', generate_lava_lips, root, check=a.check_only)
     from build_environment_fx import check as check_environment_fx
-    check_environment_fx(root)
+    progress.run('Environment effects', check_environment_fx, root)
     from build_local_heat import generate as generate_local_heat
-    generate_local_heat(root, check=a.check_only)
+    progress.run('Local heat', generate_local_heat, root, check=a.check_only)
     from build_organic_materials import generate as generate_organic_materials
-    generate_organic_materials(root, check=a.check_only, iwad=a.iwad)
+    progress.run('Organic materials', generate_organic_materials, root, check=a.check_only, iwad=a.iwad)
     from build_crt_materials import generate as generate_crt_materials
-    generate_crt_materials(root, check=a.check_only)
+    progress.run('CRT materials', generate_crt_materials, root, check=a.check_only)
     from build_sky_edges import generate as generate_sky_edges
-    generate_sky_edges(root, check=a.check_only)
+    progress.run('Sky edges', generate_sky_edges, root, check=a.check_only)
     from build_cavern import generate as generate_cavern
-    generate_cavern(root, check=a.check_only)
+    progress.run('Authored cavern', generate_cavern, root, check=a.check_only)
     from build_custom_brightmaps import generate as generate_custom_brightmaps
-    generate_custom_brightmaps(root, iwad=a.iwad, check=a.check_only)
+    progress.run('Custom brightmaps', generate_custom_brightmaps, root, iwad=a.iwad, check=a.check_only)
     from build_tester_effect_artwork import generate as generate_tester_effect_artwork
-    generate_tester_effect_artwork(root,iwad=a.iwad,check=a.check_only)
+    progress.run('Effect artwork', generate_tester_effect_artwork, root, iwad=a.iwad, check=a.check_only)
     output=(a.output or root/'tutnt.pk3').resolve()
+    progress.start('Source snapshot')
     with BuildLock(output), snapshot(root) as (source, hashes, metadata):
+        progress.finish('Source snapshot')
         from check_localization import validate as validate_localization
         # Validate the immutable source snapshot, using the reviewed source manifest.
         (source/'tools').mkdir(exist_ok=True)
         shutil.copyfile(root/'tools/localization-review.json', source/'tools/localization-review.json')
-        localization = validate_localization(source)
+        localization = progress.run('Localization', validate_localization, source)
         from check_font_coverage import validate as validate_fonts
         shutil.copyfile(root/'tools/font-glyphs.json', source/'tools/font-glyphs.json')
-        localization['fonts'] = validate_fonts(source)
-        result={'localization':localization, 'acs':compile_sources(source,compiler,a.check_only)}
+        localization['fonts'] = progress.run('Font coverage', validate_fonts, source)
+        result={'localization':localization, 'acs':progress.run('ACS compilation', compile_sources, source,compiler,a.check_only)}
         if not a.check_only:
             if not a.skip_engine_check and (not a.engine.is_file() or not a.iwad.is_file()):
                 p.error('Set UTNT_ENGINE / UTNT_IWAD or explicitly use --skip-engine-check')
-            result['pk3']=publish_snapshot(source,root,output,hashes,metadata,
+            result['pk3']=progress.run('PK3 packaging and engine check', publish_snapshot,
+                source,root,output,hashes,metadata,
                 None if a.skip_engine_check else a.engine.resolve(),a.iwad.resolve())
     print(json.dumps(result,indent=2))
 
