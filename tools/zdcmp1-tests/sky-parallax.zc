@@ -1,0 +1,55 @@
+version "4.8"
+class ZDCSkyParallaxQA : EventHandler
+{
+    void Check(bool ok, String label)
+    {
+        Console.Printf("SKY_ASSERT %s %s", ok ? "PASS" : "FAIL", label);
+    }
+    override void WorldTick()
+    {
+        if (!(level.MapName ~== "MAP01")) return;
+        if (level.time == 100)
+        {
+            for (int i=0;i<MAXPLAYERS;i++) if (playeringame[i] && players[i].mo)
+            {
+                Actor p=players[i].mo;
+                p.bNoGravity=true; p.bNoClip=true;
+                players[i].cheats |= CF_GODMODE;
+                p.SetOrigin(i==0 ? (-6392,2218,264) : (6032,-5152,-100),false);
+                p.Angle=i==0 ? 90 : 0;
+                p.Pitch=-15;
+                p.ClearInterpolation();
+            }
+        }
+        if (level.time==200 && players[0].mo)
+            players[0].mo.SetOrigin(players[0].mo.Pos+(256,0,0),false);
+        if (level.time==280 && playeringame[1] && players[1].mo)
+            players[1].mo.SetOrigin(players[1].mo.Pos+(0,256,0),false);
+        if (level.time==360 && playeringame[1])
+            for(int i=0;i<2;i++) players[i].camera=players[1-i].mo;
+        if (level.time==400)
+            for(int i=0;i<MAXPLAYERS;i++) if(playeringame[i]) players[i].camera=players[i].mo;
+        if (level.time==160 || level.time==240 || level.time==320 || level.time==380 || level.time==440)
+        {
+            let h=ZDCMP1SkyCycle(EventHandler.Find('ZDCMP1SkyCycle'));
+            let local=h.Parallax;
+            Check(local && local.Outdoor && local.Hell,"both cameras installed");
+            if (!local || !local.Outdoor || !local.Hell) return;
+            Actor viewer=players[consoleplayer].camera;
+            Vector3 view=viewer.Pos;
+            if(viewer.player && viewer==viewer.player.mo) view.Z=viewer.player.viewz;
+            Vector3 a=local.Outdoor.Pos-(2848,2272,308);
+            Vector3 b=local.Hell.Pos-(3812,-2272,156);
+            Check((a-ZDCMP1SkyParallax.OffsetFor(view,(0,0,64))).Length()<0.001,"outdoor follows current local viewer");
+            Check((b-ZDCMP1SkyParallax.OffsetFor(view,(6000,-3200,0))).Length()<0.001,"hell follows current local viewer");
+            Check(a.XY.Length()<24.001 && b.XY.Length()<24.001 && abs(a.Z)<8.001 && abs(b.Z)<8.001,"offset stays inside both cubes");
+            Console.Printf("SKY_VIEW %d %d %.6f %.6f %.6f %.6f %.6f %.6f",consoleplayer,level.time,a.X,a.Y,a.Z,b.X,b.Y,b.Z);
+        }
+        if(level.time==480)
+        {
+            let h=ZDCMP1SkyCycle(EventHandler.Find('ZDCMP1SkyCycle'));
+            Console.Printf("SKY_SYNC %d %d %d %.3f %.3f",h.Clock,h.StormBlend,h.HeldClock,players[0].mo.Pos.X,players[1].mo ? players[1].mo.Pos.Y : 0);
+            Console.Printf("SKY_PARALLAX_COMPLETE");
+        }
+    }
+}

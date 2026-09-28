@@ -59,6 +59,33 @@ without hiding cloud detail. The Hell wall ring faces inward, like the outdoor
 ring. Only these isolated camera-room vertices were corrected; gameplay
 geometry, SkyPickers, ACS and the serialized day/night/storm clock are unchanged.
 
+The outdoor panorama grades its nearest mountain chains toward warm brown
+`#64523E`, the farthest toward cool grey `#424449`, with intermediate ridges
+and haze preserving depth. The editable Imagegen source and exact edit prompt
+are stored in `zdcmp1/source/art/skybox/outdoor-source.png` and
+`outdoor-depth-color.txt`. The hex values describe base material colours;
+lighting and atmospheric haze vary individual pixels.
+
+Both sky viewpoints have bounded translational parallax, managed by
+`ZDCMP1SkyParallax`, a nonserialized client-side thinker. Each client reads its
+own current camera, including a spectated player, and offsets only the two
+noninteractive native SkyViewpoints. No player position, geometry, sector
+colour, portal assignment, random stream or shared weather clock is changed.
+The horizontal response starts at 1/384 of world motion and smoothly saturates
+at a 24-unit radius; vertical response starts at 1/768 and saturates at 8 units.
+Authored origins and fixed world anchors prevent save/load drift. Teleports
+and viewer changes clear interpolation; ordinary movement interpolates.
+The same camera path works for hardware and software rendering.
+
+The focused multiplayer test `tools/test_zdcmp1_sky_parallax.py` launches two
+real peers. It checks independent positions in both skies, one player moving
+while the other remains still, spectator camera swaps and matching world
+clocks, with 20 assertions per peer. It writes local evidence under `.codex`.
+The revision was also checked in UZDoom 5.0.3 on Vulkan, OpenGL and software,
+with day/night/storm screenshots. Save/load and MAP01 -> MAP02 -> MAP01
+retain exactly one local camera controller and reproduce the same offsets.
+Software retains its existing palette/lighting limitations.
+
 Each cap has eight ANIMDEFS frames. A separately generated, tileable
 cloud mask shifts by at most 16 pixels across those frames and modulates
 only the cap interior. Each frame lasts 20 tics. The layer moves gently;

@@ -1,0 +1,54 @@
+// Presentation-only camera offsets. The client thinker is neither networked nor
+// serialized; immutable authored origins prevent save/load offset accumulation.
+class ZDCMP1SkyParallax : Thinker
+{
+    Actor Outdoor, Hell, LastViewer;
+    Vector3 LastView;
+    bool Positioned;
+
+    static Vector3 OffsetFor(Vector3 view, Vector3 anchor)
+    {
+        Vector3 d = view-anchor;
+        Vector2 xy = d.XY/384.0;
+        // Smoothly bounded: never approach the walls of the 312-unit cube.
+        xy /= sqrt(1.0+xy.LengthSquared()/(24.0*24.0));
+        double z = d.Z/768.0;
+        z /= sqrt(1.0+z*z/64.0);
+        return (xy.X, xy.Y, z);
+    }
+
+    void Initialize()
+    {
+        let it = ThinkerIterator.Create('SkyViewpoint');
+        Actor camera;
+        while (camera = Actor(it.Next()))
+        {
+            if (camera.CurSector.Index() == 740) Outdoor = camera;
+            else if (camera.CurSector.Index() == 2635) Hell = camera;
+        }
+    }
+
+    override void Tick()
+    {
+        if (consoleplayer < 0 || !(level.MapName ~== "MAP01")) return;
+        Actor viewer = players[consoleplayer].camera;
+        if (!viewer) return;
+        Vector3 view = viewer.Pos;
+        if (viewer.player && viewer == viewer.player.mo) view.Z = viewer.player.viewz;
+        bool snap = !Positioned || viewer != LastViewer || (view-LastView).Length() > 512;
+        // Only native NOSECTOR/NOBLOCKMAP sky cameras move, never players,
+        // geometry, portal assignments, sector lighting or synchronized clocks.
+        if (Outdoor)
+        {
+            Outdoor.SetOrigin((2848,2272,308)+OffsetFor(view,(0,0,64)), false);
+            if (snap) Outdoor.ClearInterpolation();
+        }
+        if (Hell)
+        {
+            Hell.SetOrigin((3812,-2272,156)+OffsetFor(view,(6000,-3200,0)), false);
+            if (snap) Hell.ClearInterpolation();
+        }
+        LastView = view; LastViewer = viewer; Positioned = true;
+    }
+}
+

@@ -2,6 +2,7 @@
 // Only the outdoor sky and its immediate neutral roof neighbours follow it.
 class ZDCMP1SkyCycle : EventHandler
 {
+    transient ZDCMP1SkyParallax Parallax;
     Array<int> Exposure, BaseLight, StormSector;
     bool Initialized, Storm, DebugHold;
     int Clock, HeldClock, StormBlend, FlashLevel;
@@ -98,6 +99,12 @@ class ZDCMP1SkyCycle : EventHandler
     {
         if (!Active()) return;
         if (!Initialized) Initialize();
+        if (!Parallax && consoleplayer >= 0)
+        {
+            Parallax = ZDCMP1SkyParallax(level.CreateClientSideThinker(
+                'ZDCMP1SkyParallax', Thinker.STAT_USER+30));
+            Parallax.Initialize();
+        }
         if (!level.isFrozen())
         {
             Clock = (Clock+1)%5250;
