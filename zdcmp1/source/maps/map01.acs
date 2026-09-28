@@ -269,6 +269,7 @@ script 998 open
 {
 	Line_AlignCeiling(72,SIDE_FRONT);
 	scroll_ceiling (32,0,1,1);
+	scroll_ceiling (113,0,1,1);
 
 	setlineblocking (2, block_everything);
 
@@ -489,15 +490,7 @@ script 23 (void) { // Door beyond bosses
 
 script 24 (void) { // Arena begin
 	SetMusic("", 0, 0);
-	light_fade(32,144,35*6);
-	light_fade(180,144,35*6);
-	light_fade(126,144,35*6);
-	light_fade(179,144,35*6);
-	light_fade(77,144,35*6);
-	light_fade(78,144,35*6);
-	light_fade(79,144,35*6);
-	light_fade(80,144,35*6);
-	light_fade(81,144,35*6);
+	ScriptCall("ZDCMP1SkyCycle", "BeginStorm");
 	delay(35*2);
 	Printbold(s:"\cGOh snap... that doesn't look good at all.");
 	scroll_ceiling (32,0,7,7);
@@ -953,15 +946,7 @@ script 31 (void) { // Got the red skull
 	thing_spawn(50, T_MANCUBUS, 0, 0);  //Mancubi now spwan instead of activating - Enjay
 	//Thing_Activate(50);
 	ACS_Terminate(57,0);
-	light_fade(32,200,35*4);
-	light_fade(180,160,35*4);
-	light_fade(126,160,35*4);
-	light_fade(179,160,35*4);
-	light_fade(77,160,35*4);
-	light_fade(78,160,35*4);
-	light_fade(79,160,35*4);
-	light_fade(80,160,35*4);
-	light_fade(81,160,35*4);
+	ScriptCall("ZDCMP1SkyCycle", "EndStorm");
 	scroll_ceiling (32,0,1,1);
 
 	SetMusic("D_TNDC");
@@ -971,25 +956,9 @@ script 31 (void) { // Got the red skull
 script 57 (void) // yay lightning! \o/
 {
 	int randval = random(160,255);
-	light_changetovalue(32,randval);
-	light_changetovalue(180,randval);
-	light_changetovalue(126,randval);
-	light_changetovalue(179,randval);
-	light_changetovalue(77,randval);
-	light_changetovalue(78,randval);
-	light_changetovalue(79,randval);
-	light_changetovalue(80,randval);
-	light_changetovalue(81,randval);
+	ScriptCall("ZDCMP1SkyCycle", "Flash", randval);
 	delay(random(5,10));
-	light_changetovalue(32,144);
-	light_changetovalue(180,144);
-	light_changetovalue(126,144);
-	light_changetovalue(179,144);
-	light_changetovalue(77,144);
-	light_changetovalue(78,144);
-	light_changetovalue(79,144);
-	light_changetovalue(80,144);
-	light_changetovalue(81,144);
+	ScriptCall("ZDCMP1SkyCycle", "Flash", 0);
 	Ambientsound("Thunder",random(160,255));
 	delay(35*random(10,15));
 	restart;

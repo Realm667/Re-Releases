@@ -27,7 +27,7 @@ class ZDCMP1Integrity(unittest.TestCase):
         lumps = dict((n.rstrip(b"\0"), d) for n, d in read_wad(ROOT / "zdcmp1/Maps/map01.wad")[1])
         self.assertEqual(lumps[b"SCRIPTS"], (ROOT / "zdcmp1/source/maps/map01.acs").read_bytes().replace(b"\r\n", b"\n"))
         for name, digest in {
-            b"TEXTMAP": "7ea1aff6af7949a00158b1720c2e99cc990d48f609f8b4f3d989d71e3866d289",
+            b"TEXTMAP": "cb714f098da4337201ce2d467d886dfe38e873ebd1b26d37bf7f085d77a1a3a7",
             b"ZNODES": "495bc6c02468df6cbde5ffe745aeb46dd9343586365db8165acf31642862169f",
         }.items():
             self.assertEqual(hashlib.sha256(lumps[name]).hexdigest(), digest)
@@ -36,20 +36,23 @@ class ZDCMP1Integrity(unittest.TestCase):
         root = ROOT / "zdcmp1"
         lumps = dict((n.rstrip(b"\0"), d) for n, d in read_wad(root / "Maps/map01.wad")[1])
         data = udmf(lumps[b"TEXTMAP"].decode())
-        self.assertEqual(data["sector"][740]["heightceiling"], 539)
-        self.assertEqual(data["sector"][740]["lightlevel"], 255)
-        self.assertEqual(data["sector"][2635]["heightceiling"], 344)
-        self.assertEqual(data["thing"][265]["height"], 250.0)
-        self.assertEqual(data["thing"][1292]["height"], 220.0)
+        self.assertEqual(data["sector"][740]["heightceiling"], 1176)
+        self.assertEqual(data["sector"][740]["lightlevel"], 200)
+        self.assertEqual(data["sector"][2635]["heightceiling"], 1024)
+        self.assertEqual(data["thing"][265]["height"], 400.0)
+        self.assertEqual(data["thing"][1292]["height"], 400.0)
         for offsets in (
-            {6950: 0, 6952: 128, 6964: 258, 6954: 386,
-             6962: 516, 6956: 644, 6960: 774, 6958: 902},
-            {31235: 0, 31226: 128, 31239: 258, 32360: 386,
-             31233: 516, 31230: 644, 31237: 774, 31228: 902},
+            {6950: 0, 6952: 254, 6964: 512, 6954: 766,
+             6962: 1024, 6956: 1278, 6960: 1536, 6958: 1790},
+            {31235: 0, 31226: 254, 31239: 512, 32360: 766,
+             31233: 1024, 31230: 1278, 31237: 1536, 31228: 1790},
         ):
             for index, offset in offsets.items():
                 self.assertEqual(data["sidedef"][index].get("offsetx", 0), offset)
+                self.assertEqual(data["sidedef"][index]["nofakecontrast"], True)
+                self.assertEqual(data["sidedef"][index]["offsety"], 110 if index < 10000 else 200)
         textures = (root / "textures.txt").read_text()
+        self.assertNotIn("WorldPanning", textures.split("// Each cloud field", 1)[0])
         for name in ("SKYWALL", "SKYHELL", "CLOUDS", "SKYBLO0D"):
             self.assertIn(name, textures)
         for name in ("outdoor-panorama", "hell-panorama", "outdoor-clouds", "hell-clouds"):

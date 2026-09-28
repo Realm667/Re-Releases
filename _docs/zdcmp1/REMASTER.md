@@ -34,28 +34,41 @@ photosensitivity mode: map flicker and other effects remain present.
 
 ## Skybox remaster
 
-MAP01 keeps its two existing SkyViewpoints and the Hell SkyPickers (viewpoint
-ID 47). The outdoor camera room (sector 740) and Hell camera room (sector
-2635) now have 387 and 344 map units of wall height respectively; their
-camera heights are 250 and 220 units above the floor. The outdoor skybox
-sector is lit at level 255. Each room's eight wall
-segments use one continuous panorama with cumulative offsets around the
-octagon. WorldPanning in zdcmp1/textures.txt keeps those offsets in map
-units despite the high-resolution art.
+MAP01 retains its two SkyViewpoints, the Hell SkyPickers (viewpoint ID 47),
+and every playable sector/thing/line. Only the isolated camera rooms have been
+resized: outdoor sector 740 spans heights 152..1176, Hell sector 2635 spans
+0..1024, and both viewpoints stand 400 map units above their floors. The
+outdoor room starts at light 200. The eight wall faces in each octagon use one
+2048�768 panorama. Scaled TEXTURES use *texel* offsets at each wall boundary;
+WorldPanning is deliberately absent. Every skybox wall side disables fake
+contrast, so its compass direction cannot add an artificial brightness seam.
+The outdoor/hell wall Y offsets (110/200) were chosen from in-game player
+views, not the concept paintings. The ceiling cloud textures each span the
+roughly 320-unit room. The horizon mountains are static. The existing ACS
+ceiling scroller moves outdoor clouds; MAP01 startup now also scrolls Hell
+clouds at the same restrained rate. The earlier wall/ceiling shaders are
+removed; OpenGL, Vulkan and software use the same authored textures and ACS
+motion. Software renders the cloud field with coarser filtering, but no sky
+feature requires a hardware-only shader.
 
-The four runtime images live under zdcmp1/PATCHES/skybox/: an outdoor
-panorama, a Hell panorama, and one ceiling cloud field for each. SKYWALL,
-SKYHELL, CLOUDS, and SKYBLO0D remain the texture names used by the map.
-The old low-resolution PNGs were removed. The wall shader drifts only the
-upper sky region; a separate shader gives the cloud ceilings two subtle
-opposing motions. The original SKYBLO0D warp was removed to avoid double
-animation. The original camera selection and all normal play-area geometry,
-things, scripts, and nodes are unchanged.
+A map-local ZDCMP1SkyCycle EventHandler restores the original 75-second
+descent into night and 75-second return to day. Its serialized clock
+synchronizes the outdoor skybox, exposed F_SKY1 sectors, and directly adjacent
+neutral roofed sectors. Hell sky sectors and their red ambience stay outside
+this cycle. Existing authored green/red fades are not overwritten. Night
+tints neutral exterior light slightly blue-gray and lowers it without hiding
+navigation. The original arena scripts still trigger the thunder timing,
+music, ceiling scroll, and fight; their light fades/flashes now call the
+serialized handler so storm, night, and roofed sectors cannot fight over the
+same light level. A flash illuminates only the existing tagged arena sectors.
+No lightning bolt, lens flare, sun, or unoccluded screen overlay is introduced.
 
-The conceptual paintings are not a promise of exact seam-free source art:
-the map offsets and WorldPanning make a continuous circuit, while the
-left/right edge of each generated painting has only an approximate visual
-match. UZDoom 5.0.3 Vulkan and OpenGL load and in-map visual captures were checked.
+For repeatable inspection on MAP01, the host may use
+`netevent zdc_skytime 0|1|2|3|4|5` (day, dusk, night, dawn, resume, status)
+and `netevent zdc_skystorm 0|1|2|3` (clear, storm, held test flash, status).
+The debug values and the weather clock are saved with the map; normal ACS
+events resume their established sequence after loading. MAP01 is the only
+ZDCMP1 map, so these sky resources do not alter another map.
 
 ## Engine integration
 

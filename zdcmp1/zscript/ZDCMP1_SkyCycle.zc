@@ -1,0 +1,154 @@
+// MAP01's two existing skybox cameras share one serialized world clock.
+// Only the outdoor sky and its immediate neutral roof neighbours follow it.
+class ZDCMP1SkyCycle : EventHandler
+{
+    Array<int> Exposure, BaseLight, StormSector;
+    bool Initialized, Storm, DebugHold;
+    int Clock, HeldClock, StormBlend, FlashLevel;
+
+    static bool IsHell(int i)
+    {
+        switch(i)
+        {
+            case 2716: case 2718: case 2719: case 2720: case 2721:
+            case 2722: case 2731: case 2733: case 2735: case 2736:
+            case 2737: case 2738: case 2739: case 2740: case 2752:
+            case 2753: case 2763: case 2770: case 2855: case 2856:
+            case 2929: case 3357: return true;
+        }
+        return false;
+    }
+
+    static bool Active() { return level.MapName ~== "MAP01"; }
+
+    void MarkStorm(int tag)
+    {
+        let it = level.CreateSectorTagIterator(tag);
+        int i;
+        while ((i = it.Next()) >= 0) StormSector[i] = 1;
+    }
+
+    void Initialize()
+    {
+        Initialized = true;
+        TextureID sky = TexMan.CheckForTexture("F_SKY1");
+        for (int i = 0; i < level.Sectors.Size(); i++)
+        {
+            let s = level.Sectors[i];
+            int outside = (s.GetTexture(Sector.ceiling) == sky && !IsHell(i)
+                && s.ColorMap.FadeColor == 0) || i == 740 ? 2 : 0;
+            Exposure.Push(outside);
+            BaseLight.Push(s.GetLightLevel());
+            StormSector.Push(0);
+        }
+        // One boundary inward catches overhangs. Authored fog and coloured
+        // light sectors keep their own appearance.
+        for (int i = 0; i < level.Lines.Size(); i++)
+        {
+            let line = level.Lines[i];
+            if (!line.frontsector || !line.backsector) continue;
+            int a = line.frontsector.Index(), b = line.backsector.Index();
+            if (Exposure[a] == 2 && Exposure[b] == 0 && !IsHell(b)
+                && level.Sectors[b].ColorMap.FadeColor == 0) Exposure[b] = 1;
+            if (Exposure[b] == 2 && Exposure[a] == 0 && !IsHell(a)
+                && level.Sectors[a].ColorMap.FadeColor == 0) Exposure[a] = 1;
+        }
+        MarkStorm(32); MarkStorm(180); MarkStorm(126); MarkStorm(179);
+        MarkStorm(77); MarkStorm(78); MarkStorm(79); MarkStorm(80); MarkStorm(81);
+    }
+
+    static double Smooth(double x)
+    {
+        x = clamp(x, 0.0, 1.0);
+        return x*x*(3.0-2.0*x);
+    }
+
+    void Apply()
+    {
+        int phase = DebugHold ? HeldClock : Clock;
+        // Original 75-second descent and 75-second return, with a soft turn.
+        double triangle = phase < 2625 ? phase/2625.0 : (5250-phase)/2625.0;
+        double night = Smooth(triangle);
+        double storm = Smooth(StormBlend/210.0);
+        for (int i = 0; i < Exposure.Size(); i++)
+        {
+            if (Exposure[i] == 0 && StormSector[i] == 0) continue;
+            let s = level.Sectors[i];
+            int light = BaseLight[i];
+            if (Exposure[i] == 2) light = max(120, light-int(35*night));
+            else if (Exposure[i] == 1) light = max(100, light-int(15*night));
+            if (StormSector[i] != 0)
+            {
+                light = min(light, int(light*(1.0-storm)+144*storm));
+                if (FlashLevel > 0) light = max(light, FlashLevel);
+            }
+            s.SetLightLevel(clamp(light, 0, 255));
+            if (Exposure[i] == 2)
+            {
+                // Match the uncoloured outside air; local sector fades are
+                // never replaced. Lightning is a light pulse, not a bolt.
+                int warm = int(255-night*31-storm*13);
+                s.SetColor(Color(warm, int(255-night*21-storm*9),
+                    int(255-night*8-storm*5)), 0);
+            }
+        }
+    }
+
+    override void WorldTick()
+    {
+        if (!Active()) return;
+        if (!Initialized) Initialize();
+        if (!level.isFrozen())
+        {
+            Clock = (Clock+1)%5250;
+            StormBlend = clamp(StormBlend+(Storm ? 1 : -1), 0, 210);
+        }
+        Apply();
+    }
+
+    static void BeginStorm()
+    {
+        let h = ZDCMP1SkyCycle(EventHandler.Find('ZDCMP1SkyCycle'));
+        if (h && Active()) { h.Storm = true; h.FlashLevel = 0; }
+    }
+    static void EndStorm()
+    {
+        let h = ZDCMP1SkyCycle(EventHandler.Find('ZDCMP1SkyCycle'));
+        if (h && Active()) { h.Storm = false; h.FlashLevel = 0; }
+    }
+    static void Flash(int value)
+    {
+        let h = ZDCMP1SkyCycle(EventHandler.Find('ZDCMP1SkyCycle'));
+        if (h && Active()) h.FlashLevel = clamp(value, 0, 255);
+    }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if (e.Name != "zdc_skytime" && e.Name != "zdc_skystorm") return;
+        if (!Active() || e.Player != Net_Arbitrator) return;
+        if (!Initialized) Initialize();
+        int mode = e.Args[0];
+        if (e.Name == "zdc_skytime")
+        {
+            if (mode >= 0 && mode <= 3)
+            {
+                DebugHold = true;
+                HeldClock = mode == 0 ? 0 : mode == 1 ? 1312 :
+                    mode == 2 ? 2625 : 3937;
+            }
+            else if (mode == 4) DebugHold = false;
+            else if (mode == 5) {}
+            else { Console.Printf("Usage: netevent zdc_skytime <0 noon, 1 dusk, 2 night, 3 dawn, 4 resume, 5 status>"); return; }
+        }
+        else
+        {
+            if (mode == 0) { Storm = false; FlashLevel = 0; }
+            else if (mode == 1) { Storm = true; FlashLevel = 0; }
+            else if (mode == 2) { Storm = true; StormBlend = 210; FlashLevel = 245; }
+            else if (mode == 3) {}
+            else { Console.Printf("Usage: netevent zdc_skystorm <0 clear, 1 storm, 2 flash, 3 status>"); return; }
+        }
+        Apply();
+        Console.Printf("MAP01 sky: phase %d, held %d, storm %d, flash %d", DebugHold ? HeldClock : Clock, DebugHold, StormBlend, FlashLevel);
+    }
+}
