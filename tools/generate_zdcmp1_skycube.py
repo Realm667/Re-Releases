@@ -100,7 +100,10 @@ def render(name):
     U, V = np.meshgrid(position, position)
     distance = np.minimum(np.minimum(U, 1.0-U), np.minimum(V, 1.0-V))
     top_weight = smoothstep(0.0, 0.30, distance)[..., None]
-    faces['top'] = cap * (1.0-top_weight) + faces['top'] * top_weight
+    # The red source has much stronger high-cloud contrast. Keep its zenith
+    # restrained so the flat/wall transition stays invisible in live views.
+    strength = 0.10 if name == 'hell' else 1.0
+    faces['top'] = cap * (1.0-top_weight*strength) + faces['top'] * (top_weight*strength)
     wall_weight = smoothstep(0.0, 0.32, V)[..., None]
     for face in 'nwse':
         faces[face] = cap * (1.0-wall_weight) + faces[face] * wall_weight
@@ -115,7 +118,7 @@ def render(name):
         moved = np.roll(clouds, shift, axis=1)
         moved = np.asarray(Image.fromarray(np.uint8(np.rint(moved*255)))
                            .resize((SIZE, SIZE), Image.Resampling.BILINEAR), dtype=np.float32) / 255.0
-        motion = 1.0 + (moved[..., None]-0.5) * 0.12 * top_weight
+        motion = 1.0 + (moved[..., None]-0.5) * (0.05 if name == 'hell' else 0.12) * top_weight
         frame = np.uint8(np.clip(np.rint(faces['top'] * motion), 0, 255))
         Image.fromarray(frame).save(DEST / f'{name}-top-{index:02d}.png', optimize=True)
 

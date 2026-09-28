@@ -51,6 +51,9 @@ The four landscape faces never animate. The upper wall and cap edges
 fade into the same high-altitude sky colour so the ceiling remains
 continuous in real player views despite GZDoom's differing wall/flat UV
 mapping. This edge treatment does not affect the mountain silhouettes.
+The Hell zenith uses lower high-cloud contrast than the outdoor zenith
+because the red source made the flat/wall boundary visible in wide
+gameplay views; its wall clouds and volcanic landscape remain textured.
 
 Each cap has eight ANIMDEFS frames. A separately generated, tileable
 cloud mask shifts by at most 16 pixels across those frames and modulates
