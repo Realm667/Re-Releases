@@ -24,7 +24,7 @@ def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
         cfg=logs/(label+'.cfg')
         cfg.write_text(commands or f'wait {duration}; echo UTNT_TEST_END; screenshot logs/{label}.png; wait 5; quit\n')
         args+=['+exec',cfg.as_posix()]
-    else: args+=['-norun','-errorlog',label]
+    else: args+=['+vid_preferbackend',str(renderer),'-norun','-errorlog',label]
     options={}
     if os.name=='nt':
         si=subprocess.STARTUPINFO(); si.dwFlags|=subprocess.STARTF_USESHOWWINDOW; si.wShowWindow=0

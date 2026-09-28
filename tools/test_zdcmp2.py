@@ -30,7 +30,10 @@ def main() -> None:
             raise SystemExit("Corrupt PK3")
 
     label = f"zdcmp2-5-parse-{args.renderer}"
-    parsed = run_case(args.engine, args.iwad, root=local, mod=args.mod, label=label, timeout=60)
+    # Headless CI has a reliable OpenGL path for the parser check; the map
+    # smoke test below still exercises the requested rendering backend.
+    parsed = run_case(args.engine, args.iwad, root=local, mod=args.mod,
+                      renderer="0", label=label, timeout=60)
     parse_log = Path(parsed["log"]).read_text(errors="replace")
     if not parsed["ok"] or "Script warning," in parse_log or "Unknown flat " in parse_log:
         raise SystemExit(f"UZDoom parse failed: {parsed['log']}")
