@@ -98,6 +98,7 @@ global int 10: logEntryFound[];
 global int 11: logEntryMaxIndex;
 
 #define MAX_PLAYERS 64
+#define MAX_QUEUED_MESSAGES 32
 int MAPMARKERTID = 0;
 
 // Initialize default objectives/logs
@@ -242,7 +243,7 @@ function void showMessage(str title, str message, str icon, str sound, int durat
 	HUDMSG_PLAIN | HUDMSG_LOG, 0, CR_WHITE, 0.0, 0.0, 0.01);
 }
 
-str MessageQueue[MAX_PLAYERS][32][5]; // [XA] Seriously, more than 32 messages queued per-player would be nuts! :P
+str MessageQueue[MAX_PLAYERS][MAX_QUEUED_MESSAGES][5];
 int QueueLength[MAX_PLAYERS];
 int PlayerSelector[64] =
 {	AAPTR_PLAYER1
@@ -258,6 +259,10 @@ int PlayerSelector[64] =
 
 // Queue a message for display.
 function void queueMessage(int playerNum, str title, str message, str icon, str sound, int duration) {
+	// Keep the queue within its fixed ACS array, even when several events fire
+	// before the currently displayed message has finished.
+	if (playerNum < 0 || playerNum >= MAX_PLAYERS || QueueLength[playerNum] >= MAX_QUEUED_MESSAGES)
+		return;
 
     // set default duration of 3 -- this is needed so queue delay works right.
     // Either the special case goes here or there, so here we go. :P

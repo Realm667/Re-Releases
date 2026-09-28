@@ -1,0 +1,135 @@
+// Emitters
+class StreakEmitter : Actor
+{
+    Default
+    {
+        RenderStyle "STYLE_none";
+        +NOCLIP
+        +NOGRAVITY
+    }
+}
+class streakemitter_red_inv : StreakEmitter
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            STRK A 2 A_SpawnItemEx("streak_red_inv", random(-32, 32), random(-32, 32), 152, 0, 0, -3, 0, SXF_CLIENTSIDE, 0);
+            Loop;
+    }
+}
+class streakemitter_red : StreakEmitter
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            STRK A 2 A_SpawnItemEx("streak_red", random(-32, 32), random(-32, 32), 0, 0, 0, 3, 0, SXF_CLIENTSIDE, 0);
+            Loop;
+    }
+}
+class streakemitter_blue : StreakEmitter
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            STRK A 2 A_SpawnItemEx("streak_blue", random(-32, 32), random(-32, 32), 0, 0, 0, 3, 0, SXF_CLIENTSIDE, 0);
+            Loop;
+    }
+}
+
+// Streaks
+class Streak : Actor
+{
+    Default
+    {
+        RenderStyle "STYLE_add";
+        +FORCEYBILLBOARD
+        +CLIENTSIDEONLY
+        +NOINTERACTION
+    }
+}
+class streak_red : Streak
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            STRK A 1 bright A_FadeOut(0.02);
+            Loop;
+    }
+}
+class streak_blue : Streak
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            STRK B 1 bright A_FadeOut(0.02);
+            Loop;
+    }
+}
+class streak_yellow : Streak
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            STRK C 1 bright A_FadeOut(0.02);
+            Loop;
+    }
+}
+class streak_green : Streak
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            STRK D 1 bright A_FadeOut(0.02);
+            Loop;
+    }
+}
+class streak_red_inv : streak_red
+{
+    Default
+    {
+        Alpha 0;
+
+    }
+    States
+    {
+
+        Spawn:
+            STRK AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 bright A_FadeIn(0.02);
+            Stop;
+    }
+}

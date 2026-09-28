@@ -1,0 +1,76 @@
+class Greenlight : SwitchableDecoration
+{
+    Default
+    {
+
+        //$Category Light sources
+        //$Title Green alert light
+        radius 8;
+        height 16;
+        -SOLID
+        -SHOOTABLE
+        +SPAWNCEILING
+        +NOGRAVITY
+        +SYNCHRONIZED
+
+    }
+    States
+    {
+
+        Inactive:
+        Spawn:
+            GRLT A 6 Bright;
+            GRLT BC 6;
+            loop;
+        Active:
+            RDLT A 6 Bright;
+            RDLT BC 6;
+            Loop;
+
+    }
+}
+class yellowlight : GreenLight
+{
+    Default
+    {
+
+        //$Category Light sources
+        //$Title Yellow alert light
+
+    }
+    States
+    {
+
+        Inactive:
+        Active:
+        Spawn:
+            YELT A 6 Bright;
+            YELT BC 6;
+            loop;
+
+    }
+}
+class Redlight : GreenLight
+{
+    Default
+    {
+
+        //$Category Light sources
+        //$Title Red alert light
+
+    }
+    States
+    {
+
+        Inactive:
+        Spawn:
+            RDLT A 6 Bright;
+            RDLT BC 6;
+            loop;
+        Active:
+            GRLT A 6 Bright;
+            GRLT BC 6;
+            loop;
+
+    }
+}

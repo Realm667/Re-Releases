@@ -1,0 +1,52 @@
+class BreakableLamp : Actor
+{
+    Default
+    {
+
+        //$Category Light sources
+        //$Title Breakable Lamp
+        Health 20;
+        Radius 12;
+        Height 52;
+        DeathHeight 30;
+        Mass 99999999;
+        +SOLID
+        +SHOOTABLE
+        +NOBLOOD
+        +DONTGIB
+
+    }
+    States
+    {
+
+        Spawn:
+            LAMP A -1 bright;
+            Stop;
+        Death:
+            BLMP A 5 bright;
+            ZLMP AB 5 bright;
+            goto death+1;
+
+    }
+}
+class SolidLamp : Actor
+{
+    Default
+    {
+
+        //$Category Light sources
+        //$Title Solid lamp
+        radius 8;
+        height 48;
+        +SOLID
+
+    }
+    States
+    {
+
+        Spawn:
+            LAM2 A -1 bright;
+            stop;
+
+    }
+}

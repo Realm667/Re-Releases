@@ -1,0 +1,74 @@
+class BoundPlayerShootable1 : Actor
+{
+    Default
+    {
+
+        Radius 16;
+        Height 40;
+        Health 1;
+        Mass 9001;
+        DeathSound "bound/death";
+        +SOLID
+        +SHOOTABLE
+        +NOTAUTOAIMED // [Dusk]
+
+    }
+    States
+    {
+
+        Spawn:
+            BDOM A 6;
+            Loop;
+        Death:
+            BDOM B 6 A_Scream;
+            BDOM CD 6;
+            BDOM E -1 A_Fall;
+            Stop;
+
+    }
+}
+class BoundPlayerShootable2 : Actor
+{
+    Default
+    {
+
+        Radius 16;
+        Height 40;
+        Health 1;
+        Mass 9001;
+        DeathSound "bound/death";
+        +SOLID
+        +SHOOTABLE
+        +NOTAUTOAIMED // [Dusk]
+
+    }
+    States
+    {
+
+        Spawn:
+            BDOM F 6;
+            Loop;
+        Death:
+            BDOM G 6 A_Scream;
+            BDOM HI 6;
+            BDOM J -1 A_Fall;
+            Stop;
+
+    }
+}
+class BoundPlayer1 : BoundPlayerShootable1
+{
+    Default
+    {
+
+        -SHOOTABLE
+    }
+}
+class BoundPlayer2 : BoundPlayerShootable2
+{
+    Default
+    {
+
+        -SHOOTABLE
+    }
+}

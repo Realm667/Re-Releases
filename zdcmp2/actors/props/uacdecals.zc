@@ -1,0 +1,569 @@
+//RED
+class RedUPainter : Actor
+{
+    Default
+    {
+
+        Radius 2;
+        Height 2;
+        Damage 0;
+        Speed 100;
+        Decal "RedU";
+        Projectile;
+        //-ACTIVATEIMPACT
+        //-ACTIVATECROSS
+        +RIPPER
+        +BLOODLESSIMPACT
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 1;
+            loop;
+        Death:
+            TNT1 A 1;
+            stop;
+
+    }
+}
+class RedAPainter : RedUPainter
+{
+    Default
+    {
+
+        Decal "RedA";
+    }
+}
+class RedCPainter : RedUPainter
+{
+    Default
+    {
+
+        Decal "RedC";
+    }
+}
+
+//GREEN
+class GreenUPainter : RedUPainter
+{
+    Default
+    {
+
+        Decal "GreenU";
+    }
+}
+class GreenAPainter : RedUPainter
+{
+    Default
+    {
+
+        Decal "GreenA";
+    }
+}
+class GreenCPainter : RedUPainter
+{
+    Default
+    {
+
+        Decal "GreenC";
+    }
+}
+
+//BLUE
+class BlueUPainter : RedUPainter
+{
+    Default
+    {
+
+        Decal "BlueU";
+    }
+}
+class BlueAPainter : RedUPainter
+{
+    Default
+    {
+
+        Decal "BlueA";
+    }
+}
+class BlueCPainter : RedUPainter
+{
+    Default
+    {
+
+        Decal "BlueC";
+    }
+}
+
+//YELLOW
+class YellowUPainter : RedUPainter
+{
+    Default
+    {
+
+        Decal "YellowU";
+    }
+}
+class YellowAPainter : RedUPainter
+{
+    Default
+    {
+
+        Decal "YellowA";
+    }
+}
+class YellowCPainter : RedUPainter
+{
+    Default
+    {
+
+        Decal "YellowC";
+    }
+}
+
+//DECAL ANIMATOR
+class RedUACPainter : Actor
+{
+    Default
+    {
+
+        Radius 2;
+        Height 2;
+        +NOINTERACTION
+        +NOGRAVITY
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 0;
+            //fall through
+        Paint:
+            TNT1 A 16 A_SpawnItemEx ("RedUPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("RedAPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("RedCPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 32;
+            loop;
+
+    }
+}
+class GreenUACPainter : Actor
+{
+    Default
+    {
+
+        Radius 2;
+        Height 2;
+        +NOINTERACTION
+        +NOGRAVITY
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 0;
+            //fall through
+        Paint:
+            TNT1 A 16 A_SpawnItemEx ("GreenUPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("GreenAPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("GreenCPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 32;
+            loop;
+
+    }
+}
+class BlueUACPainter : Actor
+{
+    Default
+    {
+
+        Radius 2;
+        Height 2;
+        +NOINTERACTION
+        +NOGRAVITY
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 0;
+            //fall through
+        Paint:
+            TNT1 A 16 A_SpawnItemEx ("BlueUPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("BlueAPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("BlueCPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 32;
+            loop;
+
+    }
+}
+class YellowUACPainter : Actor
+{
+    Default
+    {
+
+        Radius 2;
+        Height 2;
+        +NOINTERACTION
+        +NOGRAVITY
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 0;
+            //fall through
+        Paint:
+            TNT1 A 16 A_SpawnItemEx ("YellowUPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("YellowAPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("YellowCPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 32;
+            loop;
+
+    }
+}
+
+
+//// Smaller versions
+
+//RED
+class LittleRedUPainter : Actor
+{
+    Default
+    {
+
+        Radius 2;
+        Height 2;
+        Damage 0;
+        Speed 100;
+        Decal "LittleRedU";
+        Projectile;
+        //-ACTIVATEIMPACT
+        //-ACTIVATECROSS
+        +RIPPER
+        +BLOODLESSIMPACT
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 1;
+            loop;
+        Death:
+            TNT1 A 1;
+            stop;
+
+    }
+}
+class LittleRedAPainter : LittleRedUPainter
+{
+    Default
+    {
+
+        Decal "LittleRedA";
+    }
+}
+class LittleRedCPainter : LittleRedUPainter
+{
+    Default
+    {
+
+        Decal "LittleRedC";
+    }
+}
+
+//GREEN
+class LittleGreenUPainter : LittleRedUPainter
+{
+    Default
+    {
+
+        Decal "LittleGreenU";
+    }
+}
+class LittleGreenAPainter : LittleRedUPainter
+{
+    Default
+    {
+
+        Decal "LittleGreenA";
+    }
+}
+class LittleGreenCPainter : LittleRedUPainter
+{
+    Default
+    {
+
+        Decal "LittleGreenC";
+    }
+}
+
+//BLUE
+class LittleBlueUPainter : LittleRedUPainter
+{
+    Default
+    {
+
+        Decal "LittleBlueU";
+    }
+}
+class LittleBlueAPainter : LittleRedUPainter
+{
+    Default
+    {
+
+        Decal "LittleBlueA";
+    }
+}
+class LittleBlueCPainter : LittleRedUPainter
+{
+    Default
+    {
+
+        Decal "LittleBlueC";
+    }
+}
+
+//YELLOW
+class LittleYellowUPainter : LittleRedUPainter
+{
+    Default
+    {
+
+        Decal "LittleYellowU";
+    }
+}
+class LittleYellowAPainter : LittleRedUPainter
+{
+    Default
+    {
+
+        Decal "LittleYellowA";
+    }
+}
+class LittleYellowCPainter : LittleRedUPainter
+{
+    Default
+    {
+
+        Decal "LittleYellowC";
+    }
+}
+
+//DECAL ANIMATOR
+class LittleRedUACPainter : Actor
+{
+    Default
+    {
+
+        Radius 2;
+        Height 2;
+        +NOINTERACTION
+        +NOGRAVITY
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 0;
+            //fall through
+        Paint:
+            TNT1 A 16 A_SpawnItemEx ("LittleRedUPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("LittleRedAPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("LittleRedCPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 32;
+            loop;
+
+    }
+}
+class LittleGreenUACPainter : Actor
+{
+    Default
+    {
+
+        //$Category Decoration
+        //$Title UAC Decal 64 Green
+        Radius 2;
+        Height 2;
+        +NOINTERACTION
+        +NOGRAVITY
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 0;
+            //fall through
+        Paint:
+            TNT1 A 16 A_SpawnItemEx ("LittleGreenUPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("LittleGreenAPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("LittleGreenCPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 32;
+            loop;
+
+    }
+}
+class LittleBlueUACPainter : Actor
+{
+    Default
+    {
+
+        //$Category Decoration
+        //$Title UAC Decal 64 Blue
+        Radius 2;
+        Height 2;
+        +NOINTERACTION
+        +NOGRAVITY
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 0;
+            //fall through
+        Paint:
+            TNT1 A 16 A_SpawnItemEx ("LittleBlueUPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("LittleBlueAPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("LittleBlueCPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 32;
+            loop;
+
+    }
+}
+class LittleYellowUACPainter : Actor
+{
+    Default
+    {
+
+        //$Category Decoration
+        //$Title UAC Decal 64 Yellow
+        Radius 2;
+        Height 2;
+        +NOINTERACTION
+        +NOGRAVITY
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 0;
+            //fall through
+        Paint:
+            TNT1 A 16 A_SpawnItemEx ("LittleYellowUPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("LittleYellowAPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("LittleYellowCPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 32;
+            loop;
+
+    }
+}
+
+
+// ZDoom/ZDCMP2 Logos
+class ZDLogoZPainter : RedUPainter
+{
+    Default
+    {
+        Decal "ZDLogoZ";
+    }
+}
+class ZDLogoDPainter : RedUPainter
+{
+    Default
+    {
+        Decal "ZDLogoD";
+    }
+}
+class ZDLogoOPainter : RedUPainter
+{
+    Default
+    {
+        Decal "ZDLogoO";
+    }
+}
+class ZDLogoMPainter : RedUPainter
+{
+    Default
+    {
+        Decal "ZDLogoM";
+    }
+}
+class ZDLogo2Painter : RedUPainter
+{
+    Default
+    {
+        Decal "ZDLogo2";
+    }
+}
+class ZDLogoCPainter : RedUPainter
+{
+    Default
+    {
+        Decal "ZDLogoC";
+    }
+}
+class ZDLogoPPainter : RedUPainter
+{
+    Default
+    {
+        Decal "ZDLogoP";
+    }
+}
+class ZDoomLogoPainter : RedUACPainter
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 0;
+            //fall through
+        Paint:
+            TNT1 A 16 A_SpawnItemEx ("ZDLogoZPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("ZDLogoDPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("ZDLogoOPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("ZDLogoOPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("ZDLogoMPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 32;
+            loop;
+
+    }
+}
+class ZDCMP2LogoPainter : RedUACPainter
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 0;
+            //fall through
+        Paint:
+            TNT1 A 16 A_SpawnItemEx ("ZDLogoZPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("ZDLogoDPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("ZDLogoCPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("ZDLogoMPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("ZDLogoPPainter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 16 A_SpawnItemEx ("ZDLogo2Painter", 0, 0, 0, 100, 0, 0, 0, 0, 0);
+            TNT1 A 32;
+            loop;
+
+    }
+}

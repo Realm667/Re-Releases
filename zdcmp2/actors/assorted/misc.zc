@@ -1,0 +1,185 @@
+class ObjectiveMarker : MapMarker
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            EXCL A -1;
+            Stop;
+
+    }
+}
+class LogBook : FakeInventory
+{
+    Default
+    {
+
+        inventory.pickupmessage "You found a data log!";
+        inventory.pickupsound "misc/k_pkup";
+        +COUNTITEM
+
+    }
+    States
+    {
+
+        Spawn:
+            LOGB ABCD 4 Bright;
+            loop;
+
+    }
+}
+class LogBookGold : LogBook
+{
+    Default
+    {
+
+        Translation "112:127=160:167", "152:159=80:111";
+    }
+}
+class BlankCard : FakeInventory
+{
+    Default
+    {
+
+        inventory.pickupmessage "Picked up a blank keycard.";
+        inventory.pickupsound "misc/k_pkup";
+        +COUNTITEM
+
+    }
+    States
+    {
+
+        Spawn:
+            GKEY A -1;
+            stop;
+
+    }
+}
+class DeadScientist : Actor
+{
+    Default
+    {
+
+        +CORPSE
+
+    }
+    States
+    {
+
+        Spawn:
+            DSCI A -1;
+            Stop;
+
+    }
+}
+class DeadDude1 : Actor
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            DEDD A -1;
+            Stop;
+
+    }
+}
+class DeadDude2 : Actor
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            DEDD B -1;
+            Stop;
+
+    }
+}
+
+// [XA] Object which executes its special when it sees a player. Handy for
+//      executing an action when a monster is activated, among other things. ;)
+class OnSightExecutor : Actor
+{
+    Default
+    {
+
+        Monster;
+        -COUNTKILL
+        -SHOOTABLE
+        -SOLID
+        Health 99999;
+
+    }
+    States
+    {
+
+        Spawn:
+            TNT1 A 10 A_Look;
+            Loop;
+        See:
+            TNT1 A 0 A_CallSpecial (Special, Args[0], Args[1], Args[2], Args[3], Args[4]);
+            TNT1 A 0 A_Die;
+        Death:
+            TNT1 A 1;
+            Stop;
+
+    }
+}
+class Crowbargh : Actor
+{
+    Default
+    {
+
+        Scale 0.2;
+
+    }
+    States
+    {
+
+        Spawn:
+            CBAR A -1;
+            Stop;
+
+    }
+}
+class THE_CAPITOL_OF_THE_USA : Actor
+{
+    Default
+    {
+
+        Monster;
+        -COUNTKILL
+        -SHOOTABLE
+        -SOLID
+        +FRIGHTENED
+        Health 9999;
+        Speed 8;
+        Scale 0.5;
+
+    }
+    States
+    {
+
+        Spawn:
+            CAPI A 10 A_Look;
+            Loop;
+        See:
+            CAPI BBBBCCCCDDDD 1 A_Wander;
+            Loop;
+        Death:
+            TNT1 A 1;
+            Stop;
+
+    }
+}

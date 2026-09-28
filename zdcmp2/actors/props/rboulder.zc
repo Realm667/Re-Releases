@@ -1,0 +1,200 @@
+class RollingBoulderGrey : Actor
+{
+    Default
+    {
+
+        Radius 24;
+        Height 48;
+        Speed 10;
+        Damage 250;
+        Scale 0.5;
+        obituary "%o was flattened by a boulder.";
+        Projectile;
+        +RIPPER
+        +NODAMAGETHRUST
+        +FLOORHUGGER
+        +NOEXTREMEDEATH
+        -NOGRAVITY
+        -NOTELEPORT
+        DeathSound "boulder/stop";
+
+    }
+    States
+    {
+
+        Spawn:
+            GBOL A 0;
+            GBOL A 2 A_PlaySoundEx ("Boulder/Roll", "SoundSlot5", 1);
+            // Fall through
+        Roll:
+            GBOL BCDA 2 A_Quake (1, 2, 0, 192, "");
+            loop;
+        Death:
+            TNT1 A 1 A_SpawnItem ("BoulderStoppedGrey");
+            TNT1 A 0 A_StopSoundEx ("SoundSlot5");
+            TNT1 A 0 A_PlaySound ("Boulder/Stop");
+            stop;
+
+    }
+}
+class RollingBoulderBrown : RollingBoulderGrey
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            BBOL A 0;
+            BBOL A 2 A_PlaySoundEx ("Boulder/Roll", "SoundSlot5", 1);
+            // Fall through
+        Roll:
+            BBOL BCDA 2 A_Quake (1, 2, 0, 192, "");
+            loop;
+        Death:
+            TNT1 A 1 A_SpawnItem ("BoulderStoppedBrown");
+            TNT1 A 0 A_StopSoundEx ("SoundSlot5");
+            TNT1 A 0 A_PlaySound ("Boulder/Stop");
+            stop;
+
+    }
+}
+class RollingBoulderGreen : RollingBoulderGrey
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            MBOL A 0;
+            MBOL A 2 A_PlaySoundEx ("Boulder/Roll", "SoundSlot5", 1);
+            // Fall through
+        Roll:
+            MBOL BCDA 2 A_Quake (1, 2, 0, 192, "");
+            loop;
+        Death:
+            TNT1 A 1 A_SpawnItem ("BoulderStoppedGreen");
+            TNT1 A 0 A_StopSoundEx ("SoundSlot5");
+            TNT1 A 0 A_PlaySound ("Boulder/Stop");
+            stop;
+
+    }
+}
+class BoulderStoppedGrey : Actor
+{
+    Default
+    {
+
+        Radius 24;
+        Height 48;
+        Scale 0.5;
+        +SOLID
+
+    }
+    States
+    {
+
+        Spawn:
+            GBOL A -1;
+            stop;
+
+    }
+}
+class BoulderStoppedBrown : BoulderStoppedGrey
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            BBOL A -1;
+            stop;
+
+    }
+}
+class BoulderStoppedGreen : BoulderStoppedGrey
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+            MBOL A -1;
+            stop;
+
+    }
+}
+class BoulderStartGrey : SwitchableDecoration
+{
+    Default
+    {
+
+        Radius 24;
+        Height 48;
+        Scale 0.5;
+        obituary "%o was flattened by a boulder.";
+        +SOLID
+
+    }
+    States
+    {
+
+        Spawn:
+        Inactive:
+            GBOL A -1;
+            stop;
+        Active:
+            TNT1 A 1 A_SpawnItemEx ("RollingBoulderGrey", 0, 0, 0, 10, 0, 0, 0);
+            stop;
+
+    }
+}
+class BoulderStartBrown : BoulderStartGrey
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+        Inactive:
+            BBOL A -1;
+            stop;
+        Active:
+            TNT1 A 1 A_SpawnItemEx ("RollingBoulderBrown", 0, 0, 0, 10, 0, 0, 0);
+            stop;
+
+    }
+}
+class BoulderStartGreen : BoulderStartGrey
+{
+    Default
+    {
+
+    }
+    States
+    {
+
+        Spawn:
+        Inactive:
+            MBOL A -1;
+            stop;
+        Active:
+            TNT1 A 1 A_SpawnItemEx ("RollingBoulderGreen", 0, 0, 0, 10, 0, 0, 0);
+            stop;
+
+    }
+}
