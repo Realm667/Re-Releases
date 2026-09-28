@@ -1,0 +1,139 @@
+// Nine scene-faithful images are shown once per shuffled cycle.
+// The incoming image fades for 35 tics, then remains fully visible for 70.
+class ZDCMP1TitleSlideshow : StaticEventHandler
+{
+    const SlideCount = 9;
+    const FadeTics = 35;
+    const HoldTics = 70;
+
+    ui bool initialized;
+    ui int deck[9];
+    ui int deckPosition;
+    ui int currentSlide;
+    ui int incomingSlide;
+    ui int phaseTic;
+    ui int rngState;
+
+    ui int NextRandom(int upper)
+    {
+        rngState = (rngState * 1664525 + 1013904223) & 0x7fffffff;
+        return rngState % upper;
+    }
+
+    ui void Shuffle(int avoidFirst)
+    {
+        for (int i = 0; i < SlideCount; i++) deck[i] = i + 1;
+        for (int i = SlideCount - 1; i > 0; i--)
+        {
+            int j = NextRandom(i + 1);
+            int old = deck[i];
+            deck[i] = deck[j];
+            deck[j] = old;
+        }
+        if (deck[0] == avoidFirst)
+        {
+            int old = deck[0];
+            deck[0] = deck[1];
+            deck[1] = old;
+        }
+    }
+
+    override void UiTick()
+    {
+        if (level.MapName != "TITLEMAP")
+        {
+            initialized = false;
+            return;
+        }
+        if (!initialized)
+        {
+            rngState = (gametic + 0x2a73f41) & 0x7fffffff;
+            Shuffle(-1);
+            deckPosition = 0;
+            currentSlide = deck[0];
+            incomingSlide = deck[1];
+            phaseTic = 0;
+            initialized = true;
+            return;
+        }
+
+        if (++phaseTic < HoldTics + FadeTics) return;
+        phaseTic = 0;
+        currentSlide = incomingSlide;
+        deckPosition++;
+        if (deckPosition == SlideCount - 1)
+        {
+            Shuffle(currentSlide);
+            deckPosition = -1;
+        }
+        incomingSlide = deck[deckPosition + 1];
+    }
+
+    ui void DrawBorder()
+    {
+        int width = Screen.GetWidth();
+        int height = Screen.GetHeight();
+        int centerWidth = min(width, int(double(height) * 1600. / 900. + 0.5));
+        int sideWidth = (width - centerWidth) / 2;
+        int rightWidth = width - sideWidth - centerWidth;
+        if (sideWidth <= 0) return;
+
+        let left = TexMan.CheckForTexture("ZDTBL", TexMan.Type_Any);
+        let right = TexMan.CheckForTexture("ZDTBR", TexMan.Type_Any);
+        if (left.IsValid())
+        {
+            Screen.DrawTexture(left, false, 0, 0,
+                DTA_DestWidth, sideWidth, DTA_DestHeight, height,
+                DTA_TopLeft, true);
+        }
+        if (right.IsValid())
+        {
+            Screen.DrawTexture(right, false, sideWidth + centerWidth, 0,
+                DTA_DestWidth, rightWidth, DTA_DestHeight, height,
+                DTA_TopLeft, true);
+        }
+    }
+
+    ui void DrawSlide(int slide, double age, double alpha)
+    {
+        let texture = TexMan.CheckForTexture(String.Format("ZDTS%02d", slide), TexMan.Type_Any);
+        if (!texture.IsValid()) return;
+
+        int width = Screen.GetWidth();
+        int height = Screen.GetHeight();
+        int centerWidth = min(width, int(double(height) * 1600. / 900. + 0.5));
+        int centerX = (width - centerWidth) / 2;
+        double aspect = double(centerWidth) / height;
+        double baseWidth = 1600.;
+        double baseHeight = 900.;
+        if (aspect < 1600. / 900.) baseWidth = 900. * aspect;
+
+        // A 2-6% source crop produces a slow Ken Burns move without revealing edges.
+        double travel = clamp(age / 4., 0., 1.);
+        double zoom = 1.02 + 0.04 * travel;
+        double sourceWidth = baseWidth / zoom;
+        double sourceHeight = baseHeight / zoom;
+        double sweep = (slide & 1) ? travel : 1. - travel;
+        double sourceX = (1600. - sourceWidth) * (0.2 + 0.6 * sweep);
+        double sourceY = (900. - sourceHeight) * (0.65 - 0.3 * sweep);
+
+        Screen.DrawTexture(texture, false, centerX, 0,
+            DTA_DestWidth, centerWidth, DTA_DestHeight, height,
+            DTA_SrcX, int(sourceX), DTA_SrcY, int(sourceY),
+            DTA_SrcWidth, int(sourceWidth), DTA_SrcHeight, int(sourceHeight),
+            DTA_Alpha, alpha, DTA_TopLeft, true);
+    }
+
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (!initialized || level.MapName != "TITLEMAP") return;
+        DrawBorder();
+        double time = (phaseTic + e.FracTic) / 35.;
+        DrawSlide(currentSlide, time + 1., 1.);
+        if (phaseTic >= HoldTics)
+        {
+            double fade = clamp(time - 2., 0., 1.);
+            DrawSlide(incomingSlide, fade, fade);
+        }
+    }
+}
