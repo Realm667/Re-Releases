@@ -1,0 +1,33 @@
+// Local view treatment for TNT02's spatially isolated Super Mario secret.
+class UTNTMarioCRT : StaticEventHandler
+{
+    ui void Disable() { PPShader.SetEnabled("UTNTMarioCRT", false); }
+
+    override void WorldLoaded(WorldEvent e) { PPShader.SetEnabled("UTNTMarioCRT", false); }
+    override void WorldUnloaded(WorldEvent e) { PPShader.SetEnabled("UTNTMarioCRT", false); }
+
+    override void UiTick()
+    {
+        if (gamestate != GS_LEVEL || !viewactive) Disable();
+    }
+
+    override void RenderUnderlay(RenderEvent e)
+    {
+        bool active = false;
+        if (gamestate == GS_LEVEL && consoleplayer >= 0 && level.MapName ~== "TNT02"
+            && e.Camera && (!automapactive || viewactive))
+        {
+            let player = players[consoleplayer];
+            // The bounded cluster contains 310 Mario sectors and no regular
+            // TNT02 sectors. Check the live camera position after each teleport.
+            let sector = e.Camera.CurSector;
+            String floorName = sector ? TexMan.GetName(sector.GetTexture(Sector.floor)) : "";
+            String ceilingName = sector ? TexMan.GetName(sector.GetTexture(Sector.ceiling)) : "";
+            active = player && player.mo && sector
+                && e.ViewPos.X > -8500 && e.ViewPos.X < -3500
+                && e.ViewPos.Y > -1100 && e.ViewPos.Y < 2500
+                && (floorName.Left(3) ~== "SM_" || ceilingName.Left(3) ~== "SM_");
+        }
+        PPShader.SetEnabled("UTNTMarioCRT", active);
+    }
+}
