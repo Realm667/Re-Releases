@@ -1,0 +1,466 @@
+///////////////////
+// BASE STATISTS //
+///////////////////
+
+class StatistMarine1 : Actor
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Height 56;
+    Speed .75;
+    MaxStepHeight 16;
+    MaxDropoffHeight 32;
+    MONSTER;
+    +FLOORCLIP;
+    +FRIENDLY;
+    -SHOOTABLE;
+    }
+    States
+    {
+    Spawn:
+        PLAY A 0;
+    See:
+        "####" AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDD 1 A_Wander;
+        Loop;
+
+    }
+}
+
+class StatistMarine2 : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    }
+    States
+    {
+    Spawn:
+        PLA2 A 0;
+        Goto See;
+
+    }
+}
+
+class StatistScientist : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    }
+    States
+    {
+    Spawn:
+        SCIN U 0;
+        Goto See;
+
+    }
+}
+
+class StatistArmorer : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    }
+    States
+    {
+    Spawn:
+        MRST A 80;
+        MRLK A 40;
+        MRST A 80;
+        MRLK B 40;
+        MRBD ABC 80;
+        Loop;
+
+    }
+}
+
+class StatistSellerr : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    }
+    States
+    {
+    Spawn:
+        LEDR A 80;
+        LEDR B 40;
+        LEDR A 80;
+        LEDR C 40;
+        Loop;
+
+    }
+}
+
+class StatistMarine5 : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    }
+    States
+    {
+    Spawn:
+        HAVC A 0;
+        Goto See;
+
+    }
+}
+
+class StatistMarine6 : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    }
+    States
+    {
+    Spawn:
+        RAVW A 0;
+        Goto See;
+
+    }
+}
+
+class StatistMarine7 : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    }
+    States
+    {
+    Spawn:
+        REEG A 0;
+        Goto See;
+
+    }
+}
+
+class StatistFemaleMarine : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    }
+    States
+    {
+    Spawn:
+        FEML A 0;
+        Goto See;
+
+    }
+}
+
+/////////////////////////////
+// STRIFE INTERMAP SCRIPTS //
+/////////////////////////////
+
+class LtRandyHeit : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 2;
+    }
+}
+
+class SgtMNiggel : StatistMarine2
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 2;
+    }
+}
+
+class ProfDrOelckers : StatistScientist
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 2;
+    }
+}
+
+class SgtRowand : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 0;
+    }
+}
+
+class LTToenail : StatistMarine2
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 0;
+    }
+}
+
+class ProfICTux : StatistScientist
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 0;
+    }
+}
+
+class MajorBjoernV : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 2;
+    speed 0;
+    }
+    States
+    {
+    Spawn:
+        LEDR ABAC 50 A_Wander;
+        Loop;
+
+    }
+}
+
+class ProfMikeCutman : StatistScientist
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 0;
+    }
+}
+
+class SgtJPaddock : StatistMarine5
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 1;
+    }
+}
+
+class CmdNickBaker : StatistMarine7
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 2;
+    }
+}
+
+class ProfDArchon : StatistScientist
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 0;
+    }
+}
+
+class ColLWMouse : StatistFemaleMarine
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 1;
+    }
+}
+
+class LtWWeasel : StatistMarine6
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 2;
+    }
+}
+
+class LtSPriestess : StatistFemaleMarine
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 0;
+    }
+}
+
+class Leonidas : StatistMarine2
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Speed 0;
+    }
+    States
+    {
+    Spawn:
+        TNT1 A -1;
+        Stop;
+
+    }
+}
+
+class DrDentz : StatistScientist
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 1;
+    }
+}
+
+class BlastHardCheese : StatistMarine7
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 2;
+    }
+}
+
+class GregTGreat : StatistMarine5
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 1;
+    }
+}
+
+class PrivateGina : StatistFemaleMarine
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 2;
+    }
+}
+
+class ProfDrPegCop : StatistScientist
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 0;
+    }
+}
+
+class FemaleScientist : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    }
+    States
+    {
+    Spawn:
+        SCI3 N 0;
+        Goto See;
+
+    }
+}
+
+class ProfGDragon : FemaleScientist
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    }
+}
+
+class McKenzie : StatistMarine6
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 1;
+    }
+}
+
+class Reinhardt : StatistMarine5
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 0;
+    }
+}
+
+class Thatcher : StatistMarine2
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 1;
+    }
+}
+
+class Demonslayer : StatistMarine7
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 2;
+    }
+}
+
+class Shoemaker : StatistMarine2
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 0;
+    }
+}
+
+class LtCarmack : StatistMarine1
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    }
+    States
+    {
+    Spawn:
+        LTCR A -1;
+        Loop;
+
+    }
+}
+
+class StarScream : StatistMarine7
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 2;
+    }
+}
+
+class SgtMorpheus : StatistMarine7
+{
+    Default
+    {
+    //$Category Stronghold_StatistNPCs
+    Translation 1;
+    }
+}
+
+class DrAeonD : StatistMarine1
+{
+    States
+    {
+    Spawn:
+        LANN A -1;
+        Loop;
+
+    }
+}

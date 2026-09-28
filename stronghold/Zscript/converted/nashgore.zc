@@ -1,0 +1,70 @@
+class NashGore_Blood : Blood replaces Blood
+{
+    States
+    {
+    Spawn:
+        BLUD C 8;
+        BLUD B 8 A_SpawnItemEx("NashGore_FlyingBlood",0,0,8,random(-4,4),random(-4,4),random(2,5),0,143,SXF_ABSOLUTEVELOCITY|SXF_NOCHECKPOSITION); // [Nash] it used to use A_SpawnItem, but we're getting rid of that crap
+        BLUD A 8;
+        stop;
+
+    }
+}
+
+class NashGore_Bloodsplatter : NashGore_Blood replaces Bloodsplatter
+{
+
+}
+
+class NashGore_FlyingBlood : Actor
+{
+    Default
+    {
+    +CLIENTSIDEONLY;
+    scale 0.75;
+    health 1;
+    radius 8;
+    height 1;
+    mass 1;
+    gravity 0.5; // [Nash] make it fall slower. pretty!
+    +CORPSE;
+    +NOTELEPORT;
+    +NOBLOCKMAP;
+    }
+    States
+    {
+    Spawn:
+        FBLD AABBCCDD 2 NODELAY A_SpawnItemEx("NashGore_FlyingBloodTrail",0,0,0,0,0,0,0,SXF_TRANSFERTRANSLATION);
+        loop;
+    Crash:
+        TNT1 A 0 A_PlaySound("bloodsplat");
+        TNT1 A 0 A_Jump(256,1,2,3,4);
+        BSPT ABCD 0 A_Jump(256,"End");
+        // make the blood spots stay on the ground. 1500 is the default duration.
+        // Fadeout added by Zero Prophet for effect.
+    End:
+        BSPT "#" 1500;
+        BSPT "#" 1 A_FadeOut(0.02);
+        Wait;
+
+    }
+}
+
+class NashGore_FlyingBloodTrail : Actor
+{
+    Default
+    {
+    scale 0.70;
+    mass 1;
+    Gravity .125;
+    +NOTELEPORT;
+    +NOBLOCKMAP;
+    }
+    States
+    {
+    Spawn:
+        BTRL ABCD 4;
+        stop;
+
+    }
+}

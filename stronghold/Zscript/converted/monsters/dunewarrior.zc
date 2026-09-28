@@ -1,0 +1,127 @@
+class DuneWarrior : StrongholdZombieman
+{
+    Default
+    {
+    Species "DuneWarrior";
+    //$Category Stronghold_Monsters
+    painchance "Stunner",128;
+    OBITUARY "%o was killed by a dune warrior.";
+    Health 120;
+    Mass 100;
+    Speed 3;
+    PainChance 160;
+    SEESOUND "dune/sight";
+    ATTACKSOUND "chainguy/attack";
+    PAINSOUND "dune/pain";
+    DEATHSOUND "dune/death";
+    ActiveSound "";
+    DropItem "Clip", 256;
+    DropItem "Shell", 256;
+    DropItem "RocketAmmo", 256;
+    DropItem "Cell", 256;
+    RenderStyle "Translucent";
+    }
+    States
+    {
+    Spawn:
+        ZHRT AB 10 A_Look;
+        Loop;
+    Missile:
+        ZHRT E 0 A_Jump(80,6);
+        ZHRT E 0 A_Jump(80,20);
+        ZHRT E 0 A_Jump(80,24);
+        ZHRT E 10 A_FaceTarget;
+        ZHRT F 10 A_CustomMissile("DuneWarriorGrenade",32,0,random(16,-16));
+        ZHRT E 10;
+        Goto See;
+    Missile2:
+        ZHRT E 10 A_FaceTarget;
+        ZHRT FE 4 BRIGHT A_CPosAttack;
+        ZHRT F 1;
+        ZHRT FE 4 BRIGHT A_CPosAttack;
+        ZHRT F 1;
+        ZHRT FE 4 BRIGHT A_CPosAttack;
+        ZHRT F 1;
+        ZHRT FE 4 BRIGHT A_CPosAttack;
+        ZHRT F 1;
+        ZHRT FE 4 BRIGHT A_CPosAttack;
+        ZHRT F 1;
+        Goto See;
+    Missile3:
+        ZHRT E 6 A_FaceTarget;
+        ZHRT F 12 A_CustomMissile("DuneWarriorMissile",32,0,random(16,-16));
+        ZHRT E 12 A_FaceTarget;
+        ZHRT F 12 A_CustomMissile("DuneWarriorMissile",32,0,random(16,-16));
+        Goto See;
+    Missile4:
+        ZHRT A 0 A_PlaySound("dune/active");
+        ZHRT AAAAA 1 A_FadeOut(0.2,0);
+        ZHRT AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDDAAAAAAAABBBBBBBBCCCCCCCCDDDDDDDDAAAAAAAABBBBBBBBCCCCCCCCDDDDDDDDAAAAAAAABBBBBBBBCCCCCCCCDDDDDDDD 1 A_Chase(null,null);
+        ZHRT A 0 A_PlaySound("dune/active");
+        ZHRT CCDDD 1 A_FadeIn(0.2);
+        Goto Missile3;
+    Pain:
+        ZHRT G 3 A_SetTranslucent(1);
+        ZHRT G 3 A_Pain;
+        ZHRT G 0 A_Jump(128,"Missile4");
+        Goto Missile;
+    Pain.Stunner:
+        ZHRT G 0 A_ChangeFlag("NoPain",1);
+        ZHRT G 3 A_SetTranslucent(1);
+        ZHRT G 300 A_Pain;
+        ZHRT G 0 A_ChangeFlag("NoPain",0);
+        goto See;
+    Death:
+        ZHRT H 5 ACS_NamedExecuteAlways("AwardPoints",0);
+        ZHRT I 5 A_Scream;
+        ZHRT J 5 A_NoBlocking;
+        ZHRT K 5;
+        ZHRT L 3000;
+        ZHRT L 1 A_FadeOut(0.05);
+        Wait;
+    XDeath:
+        ZHRT O 5 ACS_NamedExecuteAlways("AwardPoints",0,1);
+        ZHRT P 5 A_XScream;
+        ZHRT Q 5 A_NoBlocking;
+        ZHRT RTUV 5;
+        ZHRT W 3000;
+        ZHRT W 1 A_FadeOut(0.05);
+        Wait;
+
+    }
+}
+
+class DuneWarriorMissile : BruiserMissile
+{
+    Default
+    {
+    Scale 0.6;
+    }
+}
+
+class DuneWarriorGrenade : CatharsiDetonator
+{
+    Default
+    {
+    Speed 20;
+    BounceSound "dune/bounce";
+    -SOLID;
+    -FloatBob;
+    -SHOOTABLE;
+    PROJECTILE;
+    BounceType "Doom";
+    -NoGravity;
+    }
+    States
+    {
+    Spawn:
+        THR2 A 4 A_PlaySound("catharsi/thermtick");
+        THR2 B 16 A_SetUserVar("user_theta",user_theta+1);
+        THR2 A 0 A_JumpIf(user_theta==5,"Death");
+        Loop;
+    Death:
+        THR2 A 0 A_SetUserVar("user_theta",0);
+        Goto Super::Death;
+
+    }
+}

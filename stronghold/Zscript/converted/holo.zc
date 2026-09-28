@@ -1,0 +1,784 @@
+/////////////////////////////////////////////////////////////////////////////////////
+// MONSTER ENCYCLOPEDIA /////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+class HoloDecoBase : Actor
+{
+    Default
+    {
+    renderstyle "Translucent";
+    alpha 0.45;
+    +FLOORCLIP;
+    }
+}
+
+class HoloDeco_StrongholdZombieman : HoloDecoBase
+{
+    Default
+    {
+    renderstyle "Translucent";
+    alpha 0.45;
+    +FLOORCLIP;
+    //$Category Stronghold_HoloDeco
+    Health 20;
+    Tag "Former Human";
+    }
+    States
+    {
+    spawn:
+        YYSS A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdShotgunGuy : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 30;
+    Tag "Former Human Sergeant";
+    }
+    States
+    {
+    spawn:
+        YYOS A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdChaingunGuy : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 70;
+    Tag "Former Human Commando";
+    }
+    States
+    {
+    spawn:
+        YPOS A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_RocketGuy : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 50;
+    Tag "Former Human Rocketeer";
+    }
+    States
+    {
+    spawn:
+        YXOS A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_PlasmaZombie : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 50;
+    Tag "Former Human Plasmagunner";
+    }
+    States
+    {
+    spawn:
+        YYSS A -1 BRIGHT LIGHT("Holo"); //Placeholder
+        stop;
+
+    }
+}
+
+class HoloDeco_DuneWarrior : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 120;
+    Tag "Dune Warrior";
+    }
+    States
+    {
+    spawn:
+        XHRT A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_SuicideBomber : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    health 80;
+    Tag "Suicide Bomber";
+    }
+    States
+    {
+    spawn:
+        YMBE A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_ZombieTank : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 600;
+    Tag "Zombie Tank";
+    }
+    States
+    {
+    spawn:
+        XTNK A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdDoomImp : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 60;
+    Tag "Imp";
+    }
+    States
+    {
+    spawn:
+        YROO A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_PhaseImp : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 150;
+    Tag "Phase Imp";
+    }
+    States
+    {
+    spawn:
+        YIMP A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Shadow : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 80;
+    Tag "Shadow";
+    }
+    States
+    {
+    spawn:
+        YHDW A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Catharsi : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 120;
+    Tag "Catharsi";
+    }
+    States
+    {
+    spawn:
+        YDDM A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdDemon : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 150;
+    Tag "Bull Demon (aka pinky)";
+    }
+    States
+    {
+    spawn:
+        YARG A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_BloodDemon : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 300;
+    Tag "Mech Demon / Blood Demon";
+    }
+    States
+    {
+    spawn:
+        YRG2 A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_NightmareDemon : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 260;
+    Tag "Nightmare Demon";
+    }
+    States
+    {
+    spawn:
+        YAR2 A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdLostSoul : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 100;
+    Tag "Lost Soul";
+    }
+    States
+    {
+    spawn:
+        YKUL A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Guardian : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 80;
+    Tag "Guardian Cube";
+    }
+    States
+    {
+    spawn:
+        ZUBE A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_HS : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 35;
+    Tag "Hades Sphere";
+    }
+    States
+    {
+    spawn:
+        YADE A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Wicked : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 275;
+    Tag "Wicked";
+    }
+    States
+    {
+    spawn:
+        YICK A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdCacodemon : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 400;
+    Tag "Cacodemon";
+    }
+    States
+    {
+    spawn:
+        YEAD A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_EnhancedCaco : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 300;
+    Tag "Enhanced Cacodemon";
+    }
+    States
+    {
+    spawn:
+        YNCD A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_NightmareCaco : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 700;
+    Tag "Nightmare Cacodemon";
+    }
+    States
+    {
+    spawn:
+        YEAD A -1 BRIGHT LIGHT("Holo"); //Placeholder
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdPainElemental : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 400;
+    Tag "Pain Elemental";
+    }
+    States
+    {
+    spawn:
+        YAIN A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Helemental : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    health 1600;
+    Tag "Hades Elemental";
+    }
+    States
+    {
+    spawn:
+        YELE A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdRevenant : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 300;
+    Tag "Revenant";
+    }
+    States
+    {
+    spawn:
+        YKEL A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Satyr : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 400;
+    Tag "Satyr";
+    }
+    States
+    {
+    spawn:
+        YOS2 A -1 BRIGHT LIGHT("Holo"); //Placeholder
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdHellKnight : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 500;
+    Tag "Hell Knight";
+    }
+    States
+    {
+    spawn:
+        YOS2 A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdBaronOfHell : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 1000;
+    Tag "Baron of Hell";
+    }
+    States
+    {
+    spawn:
+        YOSS A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_HellWarrior : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 400;
+    Tag "Hell Warrior";
+    }
+    States
+    {
+    spawn:
+        ZWAR A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_BruiserDemon : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 1500;
+    Tag "Bruiser Demon";
+    }
+    States
+    {
+    spawn:
+        YRUS A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Cybruiser : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 2000;
+    Tag "Cyber Baron / Cybruiser";
+    }
+    States
+    {
+    spawn:
+        YRU2 A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_ArchonOfHell : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 2000;
+    Tag "Archon of Hell";
+    }
+    States
+    {
+    spawn:
+        ZOS4 A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Azazel : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 2400;
+    Tag "Azazel";
+    }
+    States
+    {
+    spawn:
+        ZZEA A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_PyroDemon : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 2500;
+    Tag "Pyro Demon";
+    }
+    States
+    {
+    spawn:
+        YYRO A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdFatso : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 600;
+    Tag "Mancubus";
+    }
+    States
+    {
+    spawn:
+        YATT A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Hectebus : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 1500;
+    Tag "Hectebus";
+    }
+    States
+    {
+    spawn:
+        YECT A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdArachnotron : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 500;
+    Tag "Arachnotron";
+    }
+    States
+    {
+    spawn:
+        YSPI A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_FusionSpider : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 600;
+    Tag "Fusion Cannon Arachnotron";
+    }
+    States
+    {
+    spawn:
+        YXPI A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Hellion : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    health 70;
+    Tag "Hellion";
+    }
+    States
+    {
+    spawn:
+        YELN A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdArchVile : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 700;
+    Tag "Arch-vile";
+    }
+    States
+    {
+    spawn:
+        YILE A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Diabloist : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 1400;
+    Tag "Diabloist";
+    }
+    States
+    {
+    spawn:
+        ZIAB A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdSpiderMastermind : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 3000;
+    scale 0.6;
+    Tag "Spider Mastermind";
+    }
+    States
+    {
+    spawn:
+        YPID A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Demolisher : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    scale 0.6;
+    Health 6000;
+    Tag "Spider Demolisher";
+    }
+    States
+    {
+    spawn:
+        YEMO A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_StrongholdCyberDemon : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    scale 0.8;
+    Health 4000;
+    Tag "Cyberdemon";
+    }
+    States
+    {
+    spawn:
+        YYBR A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}
+
+class HoloDeco_Terminator : HoloDecoBase
+{
+    Default
+    {
+    //$Category Stronghold_HoloDeco
+    Health 7000;
+    Tag "Terminator";
+    }
+    States
+    {
+    spawn:
+        YERM A -1 BRIGHT LIGHT("Holo");
+        stop;
+
+    }
+}

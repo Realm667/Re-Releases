@@ -1,0 +1,131 @@
+//////////////////////
+// DISCO DECORATION //
+//////////////////////
+
+class Disco_DJ : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    radius 12;
+    height 72;
+    +SOLID;
+    }
+    States
+    {
+    Spawn:
+        VIDE A 8;
+        VIDE B 5;
+        loop;
+
+    }
+}
+
+class Disco_Stripper : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    height 72;
+    scale 0.70;
+    +SOLID;
+    }
+    States
+    {
+    Spawn:
+        WOM4 A 5;
+        WOM4 BC 4;
+        WOM4 D 5;
+        WOM4 CB 4;
+        loop;
+
+    }
+}
+
+class Disco_Woman : Disco_Stripper
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    }
+    States
+    {
+    Spawn:
+        WOM1 A 3;
+        WOM1 BCD 4;
+        WOM1 E 3;
+        WOM1 DCB 4;
+        loop;
+
+    }
+}
+
+class Disco_Marine : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    radius 24;
+    height 72;
+    +SOLID;
+    }
+    States
+    {
+    Spawn:
+        DDAN DAB 4;
+        DDAN C 3;
+        DDAN DEF 4;
+        DDAN C 3;
+        loop;
+
+    }
+}
+
+class Disco_Marine2 : Disco_Marine
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    }
+    States
+    {
+    Spawn:
+        DDA2 A 3;
+        DDA2 BCDCB 2;
+        loop;
+
+    }
+}
+
+class Disco_Marine3 : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    radius 24;
+    height 40;
+    +SOLID;
+    }
+    States
+    {
+    Spawn:
+        DDA3 ABCDEFGH 2;
+        loop;
+
+    }
+}
+
+class Disco_SittingMarine : Disco_Marine3
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    }
+    States
+    {
+    Spawn:
+        SIT3 A -1;
+        stop;
+
+    }
+}

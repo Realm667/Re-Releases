@@ -1,0 +1,25 @@
+class EnhancedCaco : StrongholdCacodemon
+{
+    Default
+    {
+    //$Category Stronghold_Monsters
+    painchance "Stunner",128;
+    Health 300;
+    HitObituary "%o was mowed down by an enhanced cacodemon.";
+    Obituary "%o was made into a snack by the enhanced cacodemon.";
+    bloodcolor "red";
+    }
+    States
+    {
+    Spawn:
+        ENCD A 10 A_Look;
+        Loop;
+    Missile:
+        ENCD BC 5 A_FaceTarget;
+        ENCD B 0 A_CustomMissile("CacodemonBall",24,0,0,1);
+        ENCD B 0 A_CustomMissile("CacodemonBall",24,0,-8,1);
+        ENCD B 5 bright A_CustomMissile("CacodemonBall",24,0,8,1);
+        Goto See;
+
+    }
+}

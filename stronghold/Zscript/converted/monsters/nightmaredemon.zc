@@ -1,0 +1,72 @@
+class NightmareDemon : StrongholdDemon
+{
+    Default
+    {
+    //$Category Stronghold_Monsters
+    painchance "Stunner",128;
+    Health 260;
+    Speed 8;
+    Mass 200;
+    PainChance 200;
+    RenderStyle "TRANSLUCENT";
+    Alpha 0.6;
+    MeleeThreshold 196;
+    SeeSound "nightmareDemon/sight";
+    AttackSound "nightmareDemon/melee";
+    PainSound "nightmareDemon/pain";
+    DeathSound "nightmareDemon/death";
+    ActiveSound "nightmareDemon/active";
+    Obituary "%o was spooked by a Nightmare Demon.";
+    }
+    States
+    {
+    Spawn:
+        SAR2 AB 10 A_look;
+        Loop;
+    Melee:
+        SAR2 EF 6 Fast A_FaceTarget;
+        SAR2 G 6 Fast A_SargAttack;
+        Goto See;
+    Missile:
+        SAR2 O 6 Fast A_FaceTarget;
+        SAR2 P 8 Fast A_CustomMissile("NDemonBall",24);
+        Goto See;
+    Death:
+        SAR2 I 5 ACS_NamedExecuteAlways("AwardPoints",0);
+        SAR2 J 5 A_Scream;
+        SAR2 K 5;
+        SAR2 L 5 A_Fall;
+        SAR2 M 5;
+        SAR2 N 3000;
+        SAR2 N 1 A_FadeOut(0.05);
+        Wait;
+
+    }
+}
+
+class NDemonBall : Actor
+{
+    Default
+    {
+    Radius 8;
+    Height 6;
+    Speed 12;
+    Damage 4;
+    PROJECTILE;
+    SeeSound "64ball/shoot";
+    DeathSound "64ball/explode";
+    }
+    States
+    {
+    Spawn:
+        NBAL AB 4 Bright LIGHT("NDemonBall");
+        Loop;
+    Death:
+        NBAL C 4 Bright LIGHT("NDemonBall2");
+        NBAL D 4 Bright LIGHT("NDemonBall3");
+        NBAL E 4 Bright LIGHT("NDemonBall4");
+        NBAL FGH 4 Bright;
+        Stop;
+
+    }
+}

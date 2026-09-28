@@ -1,0 +1,94 @@
+class FusionSpider : StrongholdArachnotron
+{
+    Default
+    {
+    //$Category Stronghold_Monsters
+    painchance "Stunner",255;
+    OBITUARY "%o was vaporized by a fusion cannon arachnotron.";
+    Health 600;
+    PainChance 30;
+    +MissileMore;
+    +MissileEvenMore;
+    }
+    States
+    {
+    Spawn:
+        FSPI AB 10 A_Look;
+        Loop;
+    Missile:
+        FSPI A 4 BRIGHT A_FaceTarget;
+        FSPI A 0 A_FaceTarget;
+        FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,0);
+        FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,15);
+        FSPI G 0 A_FaceTarget;
+        FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,-15);
+        FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,10);
+        FSPI G 0 A_FaceTarget;
+        FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,-30);
+        FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,30);
+        FSPI G 0 A_FaceTarget;
+        FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,-10);
+        FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,25);
+        FSPI G 0 A_FaceTarget;
+        FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,5);
+        FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,-5);
+        FSPI G 0 A_FaceTarget;
+        FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,0);
+        FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,-45);
+        FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,40);
+        FSPI G 0 A_FaceTarget;
+        FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,-20);
+        FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,10);
+        FSPI G 0 A_FaceTarget;
+        FSPI G 3 BRIGHT A_CustomMissile("FusionShot",24,0,-35);
+        FSPI H 3 BRIGHT A_CustomMissile("FusionShot",24,0,50);
+        FSPI H 1 BRIGHT;
+        Goto See+1;
+
+    }
+}
+
+class FusionShot : Actor
+{
+    Default
+    {
+    Radius 13;
+    Height 8;
+    Speed 6;
+    Damage 5;
+    RENDERSTYLE "Add";
+    SEESOUND "fusionspid/see";
+    DEATHSOUND "fusionspid/die";
+    PROJECTILE;
+    }
+    States
+    {
+    Spawn:
+        FS03 AB 10 BRIGHT LIGHT("FusionShot") A_SpawnItemEx("FusionTrail",0,0,0,0,0,0,random(10,-10));
+        Loop;
+    Death:
+        FS03 HIJG 3 BRIGHT;
+        Stop;
+
+    }
+}
+
+class FusionTrail : Actor
+{
+    Default
+    {
+    +CLIENTSIDEONLY;
+    Radius 4;
+    Height 8;
+    RENDERSTYLE "Add";
+    PROJECTILE;
+    }
+    States
+    {
+    Spawn:
+        TNT0 A 2;
+        FS03 FG 6 BRIGHT A_FadeOut;
+        Stop;
+
+    }
+}

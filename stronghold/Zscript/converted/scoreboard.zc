@@ -1,0 +1,54 @@
+///////////////////////////////////////
+// SCOREBOARD CONTROL INVENTORY ITEM //
+///////////////////////////////////////
+
+class ScoreboardToggle : CustomInventory
+{
+    Default
+    {
+    +INVENTORY.UNDROPPABLE;
+    }
+    States
+    {
+//	Optional ScoreboardOn and ScoreboardOff items - just uncomment next two comment sections
+    Pickup:
+//		TNT1 A 0 A_GiveInventory ("ScoreboardOn",1)
+//		TNT1 A 0 A_GiveInventory ("ScoreboardOff",1)
+        TNT1 A 0 A_ChangeFlag ("ACTLIKEBRIDGE", 0); // Make sure state doesn't fail
+        stop;
+    Use:
+        TNT1 A 0 ACS_ExecuteAlways (75,0,0,0,0);
+        fail; // Doesn't use up item
+
+    }
+}
+
+/*
+class ScoreboardOn : ScoreboardToggle
+{
+    States
+    {
+    Pickup:
+        TNT1 A 0 A_ChangeFlag ("ACTLIKEBRIDGE", 0); // Make sure state doesn't fail
+        stop;
+    Use:
+        TNT1 A 0 ACS_ExecuteAlways (75,0,1,0,0);
+        fail; // Doesn't use up item
+
+    }
+}
+
+class ScoreboardOff : ScoreboardToggle
+{
+    States
+    {
+    Pickup:
+        TNT1 A 0 A_ChangeFlag ("ACTLIKEBRIDGE", 0); // Make sure state doesn't fail
+        stop;
+    Use:
+        TNT1 A 0 ACS_ExecuteAlways (75,0,2,0,0);
+        fail; // Doesn't use up item
+
+    }
+}
+*/

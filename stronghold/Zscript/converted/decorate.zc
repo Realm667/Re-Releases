@@ -1,0 +1,5964 @@
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////SIMPLE DECORATIONS/////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////
+// FAKE GOAL //
+///////////////
+
+class FakeGoalBase : Actor
+{
+    Default
+    {
+    DamageFactor "MarineAlly",0;
+    DamageFactor "CoreFriendly",0;
+    DamageFactor "BossFactor",0;
+    DamageFactor "BFGSplash",0;
+    DamageFactor "Stunner",0;
+    DamageFactor "Cyber2Factor",0.5;
+    DamageFactor "STBoss",0.02;
+    DamageFactor "STBossFactor",0.25;
+    DamageFactor "Animate",0.1;
+    radius 40;
+    height 40;
+    mass 0x7fffffff;
+    scale 0.3;
+    DeathSound "weapons/rocklx";
+    RenderStyle "Add";
+    +SHOOTABLE;
+    +SOLID;
+    +NOGRAVITY;
+    +NOBLOOD;
+    +DONTSPLASH;
+    +FRIENDLY;
+    }
+    States
+    {
+    Spawn:
+        TRGT A 1 A_SpawnItemEx("FakeGoalSparks",0,0,20,random(-3,3),random(-3,3),random(-3,3),0,SXF_TRANSFERTRANSLATION);
+        loop;
+    Death:
+        TNT1 A 1 A_Scream;
+        stop;
+
+    }
+}
+
+class Goal_Red : FakeGoalBase
+{
+    Default
+    {
+    //$Category Stronghold
+    Translation "80:111=170:191";
+    }
+    States
+    {
+    Death:
+        TNT1 A 0 ACS_ExecuteAlways(926,0,1);
+        Goto Super::Death;
+
+    }
+}
+
+class Goal_Orange : FakeGoalBase
+{
+    Default
+    {
+    //$Category Stronghold
+    Translation "80:111=209:223";
+    }
+    States
+    {
+    Death:
+        TNT1 A 0 ACS_ExecuteAlways(926,0,2);
+        Goto Super::Death;
+
+    }
+}
+
+class Goal_Blue : FakeGoalBase
+{
+    Default
+    {
+    //$Category Stronghold
+    Translation "80:111=192:207";
+    }
+    States
+    {
+    Death:
+        TNT1 A 0 ACS_ExecuteAlways(926,0,3);
+        Goto Super::Death;
+
+    }
+}
+
+class Goal_Green : FakeGoalBase
+{
+    Default
+    {
+    //$Category Stronghold
+    Translation "80:111=112:127";
+    }
+    States
+    {
+    Death:
+        TNT1 A 0 ACS_ExecuteAlways(926,0,4);
+        Goto Super::Death;
+
+    }
+}
+
+class Goal_White : FakeGoalBase
+{
+    Default
+    {
+    //$Category Stronghold
+    }
+    States
+    {
+    Death:
+        TNT1 A 0 ACS_ExecuteAlways(926,0,5);
+        Goto Super::Death;
+
+    }
+}
+/////////////////////////////
+// THUNDER by TORMENTOR667 //
+/////////////////////////////
+
+class Thunder_Generator : SwitchableDecoration
+{
+    Default
+    {
+    //$Category Stronghold_SFX
+    +NoBlockMap;
+    +NoGravity;
+    +NoInteraction;
+    +NoClip;
+    +CLIENTSIDEONLY;
+    Renderstyle "Add";
+    Height 1;
+    Radius 1;
+    Alpha 0.2;
+    Scale 4.0;
+    translation "80:111=48:79";
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("Thunder_Spark",0,0,0,random(1,10),0,random(1,10),random(0,359),1);
+        THND AAAA 1 Bright A_FadeIn(0.2);
+        THND AAAA 2 Bright A_FadeOut(0.2);
+        TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 A_SpawnItemEx("Thunder_Smoke",0,0,0,random(0,3),0,random(2,3),random(0,359));
+    Inactive:
+        TNT1 A -1;
+        Loop;
+
+    }
+}
+
+class Thunder_Spark : Actor
+{
+    Default
+    {
+    +CLIENTSIDEONLY;
+    Speed 3;
+    Height 2;
+    Radius 1;
+    Mass 0;
+    +Missile +LowGravity;
+    RenderStyle "Add";
+    Scale 0.4;
+    }
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        SPRK A 1 A_Jump(80,4);
+        SPRK A 1 A_Jump(80,4);
+        SPRK A 1 A_Jump(80,4);
+        SPRK AAAA 32 Bright;
+    Death:
+        SPRK ABCDEFGHHH 1 Bright A_FadeOut(0.1);
+        Stop;
+
+    }
+}
+
+/////////////////////////////
+// SKYBEAM by Tormentor667 //
+/////////////////////////////
+
+class Skybeam_Projectile : Actor
+{
+    Default
+    {
+    +CLIENTSIDEONLY;
+    Height 32;
+    Radius 32;
+    Mass 0;
+    +Missile;
+    +Nogravity;
+    RenderStyle "Add";
+    YScale 2.0;
+    Alpha 0.8;
+    }
+    States
+    {
+    Spawn:
+        SKBP A 60 Bright;
+    Death:
+        SKBP A 1 Bright A_FadeOut(0.05);
+        Wait;
+
+    }
+}
+
+class Skybeam_ProjectileSmall : Skybeam_Projectile
+{
+    Default
+    {
+    XScale 0.2;
+    YScale 0.1;
+    Alpha 0.6;
+    }
+}
+
+class IonCannon_Beam : Thunder_Generator
+{
+    Default
+    {
+    //$Category Stronghold_SFX
+    XScale 1.5;
+    YScale 4.0;
+    Alpha 0.01;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("Thunder_Spark",0,0,0,random(1,10),0,random(1,10),random(0,359),129);
+        SKBM AAAAA 1 Bright A_FadeIn(0.2);
+        SKBM A 1 Bright A_SpawnItemEx("Skybeam_Projectile",0,0,0,0,0,30);
+        SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("Skybeam_ProjectileSmall",random(-32,32),random(-32,32),0,0,0,random(15,25),0);
+        SKBM A 1 Bright A_SpawnItemEx("Skybeam_Projectile",0,0,0,0,0,30);
+        SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("Skybeam_ProjectileSmall",random(-32,32),random(-32,32),0,0,0,random(15,25),0);
+        SKBM A 1 Bright A_SpawnItemEx("Skybeam_Projectile",0,0,0,0,0,30);
+        SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("Skybeam_ProjectileSmall",random(-32,32),random(-32,32),0,0,0,random(15,25),0);
+        SKBM A 1 Bright A_SpawnItemEx("Skybeam_Projectile",0,0,0,0,0,30);
+        SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("Skybeam_ProjectileSmall",random(-32,32),random(-32,32),0,0,0,random(15,25),0);
+        SKBM A 1 Bright A_SpawnItemEx("Skybeam_Projectile",0,0,0,0,0,30);
+        SKBM AAAAAAAAAAAAAA 1 Bright A_SpawnItemEx("Skybeam_ProjectileSmall",random(-32,32),random(-32,32),0,0,0,random(15,25),0);
+        SKBM A 30 Bright;
+        SKBM AAAAAAAAA 5 Bright A_FadeOut(0.1);
+    Inactive:
+        TNT1 A -1;
+        Loop;
+
+    }
+}
+
+class IonCannon_Beam_XXL : IonCannon_Beam
+{
+    Default
+    {
+    //$Category Stronghold_SFX
+    XScale 2.75;
+    YScale 4.0;
+    }
+}
+
+//////////////////////////////
+// RADIOACTIVE WASTE SHOWER //
+// by Tormentor667 ///////////
+//////////////////////////////
+
+class BaseWasteShower01 : Actor
+{
+    Default
+    {
+    +Missile;
+    +NoBlockmap;
+    +NoGravity;
+    Radius 1;
+    Height 1;
+    RenderStyle "Add";
+    Alpha 0.0;
+    Scale 0.2;
+    }
+    States
+    {
+    Spawn:
+        BLT0 AAAAAAAAAAAAAAAAAAAA 3  A_FadeIn(0.05);
+        BLT0 A 50;
+        BLT0 AAAAAAAAAAAAAAAAAAAA 3 A_FadeOut(0.05);
+    Death:
+        BLT0 A 1 A_FadeOut;
+        Wait;
+
+    }
+}
+
+class Radioactive_Shower : Actor
+{
+    Default
+    {
+    //$Category Stronghold_SFX
+    +NoBlockMap;
+    +NoGravity;
+    +NoSector;
+    +NoInteraction;
+    +NoClip;
+    +CLIENTSIDEONLY;
+    +SPAWNCEILING;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 5 A_SpawnItemEx ("BaseWasteShower01",random(1024,-1024),random(1024,-1024),random(0,-512),random(5,20),0,random(-2,-10),random(0,359),129);
+        Loop;
+    Inactive:
+        TNT1 A -1;
+        Loop;
+
+    }
+}
+
+////////////////////////////////////////
+// PORTAL EFFECT ///////////////////////
+// by Tormentor667 /////////////////////
+////////////////////////////////////////
+
+class BaseParticle : Actor
+{
+    Default
+    {
+    +Missile;
+    +NoBlockmap;
+    +NoGravity;
+    Radius 64;
+    Height 64;
+    RenderStyle "Add";
+    Alpha 0.1;
+    Scale 0.1;
+    }
+    States
+    {
+    Spawn:
+        STEM LLLLLLLLLL 5 Bright A_FadeIn(0.05);
+        STEM L -1 Bright;
+        Stop;
+    Death:
+        STEM L 1 Bright A_FadeOut(0.05);
+        Wait;
+
+    }
+}
+
+class Portal_ParticleLeecher : Actor
+{
+    Default
+    {
+    //$Category Stronghold_SFX
+    +NoBlockMap;
+    +NoGravity;
+    +NoSector;
+    +NoInteraction;
+    +NoClip;
+    +CLIENTSIDEONLY;
+    translation "80:111=48:79";
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 5 A_SpawnItemEx ("BaseParticle",random(256,-256),random(0,0),random(0,512),random(2,20),0,0,random(10,-10),129);
+        Loop;
+    Inactive:
+        TNT1 A -1;
+        Loop;
+
+    }
+}
+
+////////////////////////////////////////
+// DESERT CLOUDS & STORM ////// ////////
+// by Tormentor667 //////START//////////
+////////////////////////////////////////
+
+class BaseCloud : Actor
+{
+    Default
+    {
+    +Missile;
+    +NoBlockmap;
+    +NoGravity;
+    Radius 64;
+    Height 64;
+    RenderStyle "Add";
+    Alpha 0.1;
+    Scale 4.0;
+    }
+    States
+    {
+    Spawn:
+        CLFX AAAAA 3 A_FadeIn(0.1);
+        CLFX A 400 Bright;
+    Death:
+        CLFX A 1 A_FadeOut(0.033);
+        Wait;
+
+    }
+}
+
+class Desert_Sandstorm_CloudGen : Actor
+{
+    Default
+    {
+    //$Category Stronghold_SFX
+    +NoBlockMap;
+    +NoGravity;
+    +NoSector;
+    +NoInteraction;
+    +NoClip;
+    +CLIENTSIDEONLY;
+    translation "80:111=48:79","3:3=74:74","5:8=[40,21,12]:[12,6,3]";
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 30 A_SpawnItemEx ("BaseCloud",random(512,-512),random(128,-128),random(0,128),random(5,15),0,0,random(3,-3),129,208);
+        Loop;
+    Inactive:
+        TNT1 A -1;
+        Loop;
+
+    }
+}
+
+class BaseSandParticle : Actor
+{
+    Default
+    {
+    +Missile;
+    +NoBlockmap;
+    +NoGravity;
+    Radius 1;
+    Height 1;
+    RenderStyle "Translucent";
+    Alpha 0.5;
+    }
+    States
+    {
+    Spawn:
+        DSFX A 500 Bright;
+        Stop;
+
+    }
+}
+
+class Desert_Sandstorm_ParticleGen : Actor
+{
+    Default
+    {
+    //$Category Stronghold_SFX
+    +NoBlockMap;
+    +NoGravity;
+    +NoSector;
+    +NoInteraction;
+    +NoClip;
+    +CLIENTSIDEONLY;
+    translation "80:111=48:79";
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 3 A_SpawnItemEx ("BaseSandParticle",random(512,-512),random(128,-128),random(0,128),random(10,20),0,0,random(3,-3),129,0);
+        Loop;
+    Inactive:
+        TNT1 A -1;
+        Loop;
+
+    }
+}
+
+class Desert_Whitesmoke_CloudGen : Actor
+{
+    Default
+    {
+    //$Category Stronghold_SFX
+    +NoBlockMap;
+    +NoGravity;
+    +NoSector;
+    +NoInteraction;
+    +NoClip;
+    +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 50 A_SpawnItemEx ("White_Cloud",random(512,-512),random(128,-128),random(0,128),random(5,15),0,0,random(3,-3),129,192);
+        Loop;
+    Inactive:
+        TNT1 A -1;
+        Loop;
+
+    }
+}
+
+class White_Cloud : Actor
+{
+    Default
+    {
+    +Missile;
+    +NoBlockmap;
+    +NoGravity;
+    +NoInteraction;
+    Radius 64;
+    Height 64;
+    RenderStyle "Add";
+    Alpha 0.1;
+    Scale 4.0;
+    }
+    States
+    {
+    Spawn:
+        CLFX AA 3 A_FadeIn(0.1);
+        CLFX A 1;
+        wait;
+    Death:
+        CLFX A 1 A_FadeOut(0.01);
+        Wait;
+
+    }
+}
+
+////////////////////////////////////////
+// POWERUP POD STRING FOUNTAINS ////////
+// by Tormentor667 //////START//////////
+////////////////////////////////////////
+
+class BaseLine : Actor
+{
+    Default
+    {
+    +CLIENTSIDEONLY;
+    +Missile;
+    +NoGravity;
+    +NoBlockmap;
+    +NoInteraction;
+    Radius 0;
+    Height 0;
+    RenderStyle "Add";
+    Alpha 0.01;
+    Scale 0.37;
+    }
+    States
+    {
+    Spawn:
+        SPFX AAAAA 1 Bright A_FadeIn(0.2);
+        SPFX A 1 Bright A_FadeOut(0.06);
+        Wait;
+
+    }
+}
+
+class WhiteParticleGenerator_64x64 : Actor
+{
+    Default
+    {
+    //$Category Stronghold_PowerUpPads
+    +NoBlockMap;
+    +NoGravity;
+    +NoSector;
+    +NoInteraction;
+    +NoClip;
+    +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 1 A_SpawnItemEx ("BaseLine",random(-32,32),random(-32,32),random(0,8),0,0,random(1,3),0,1);
+        Loop;
+    Inactive:
+        TNT1 A -1;
+        Loop;
+
+    }
+}
+
+class BlueParticleGenerator_64x64 : WhiteParticleGenerator_64x64
+{
+    Default
+    {
+    //$Category Stronghold_PowerUpPads
+    translation "80:111=196:207";
+    }
+}
+
+class GreenParticleGenerator_64x64 : WhiteParticleGenerator_64x64
+{
+    Default
+    {
+    //$Category Stronghold_PowerUpPads
+    translation "80:111=112:127";
+    }
+}
+
+class RedParticleGenerator_64x64 : WhiteParticleGenerator_64x64
+{
+    Default
+    {
+    //$Category Stronghold_PowerUpPads
+    translation "80:111=176:191";
+    }
+}
+
+class OrangeParticleGenerator_64x64 : WhiteParticleGenerator_64x64
+{
+    Default
+    {
+    //$Category Stronghold_PowerUpPads
+    translation "80:111=214:223";
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////7
+
+class BasePointer : Actor
+{
+    Default
+    {
+    +Missile;
+    +NoGravity;
+    +NoBlockmap;
+    +NoInteraction;
+    Radius 0;
+    Height 0;
+    RenderStyle "Add";
+    Alpha 0.01;
+    Scale 0.2;
+    }
+    States
+    {
+    Spawn:
+        PNTR AAAAA 1 A_FadeIn(0.2);
+        PNTR A 1 A_FadeOut(0.06);
+        Wait;
+
+    }
+}
+
+class Pointer_Middle : BasePointer
+{
+    Default
+    {
+    scale 0.34;
+    }
+}
+
+class Pointer_Large : BasePointer
+{
+    Default
+    {
+    scale 0.60;
+    }
+}
+
+class JumpPadIndicator_64x64 : WhiteParticleGenerator_64x64
+{
+    Default
+    {
+    //$Category Stronghold_PowerUpPads
+    +NoBlockMap;
+    +NoGravity;
+    +NoSector;
+    +NoInteraction;
+    +NoClip;
+    +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 AAA 5 A_SpawnItemEx ("BasePointer",random(-32,32),random(-32,32),random(0,8),0,0,random(1,3),0,129,0);
+        TNT1 A 5 A_SpawnItemEx ("Pointer_Middle",random(-32,32),random(-32,32),random(0,8),0,0,random(1,3),0,129,0);
+        TNT1 AAA 5 A_SpawnItemEx ("BasePointer",random(-32,32),random(-32,32),random(0,8),0,0,random(1,3),0,129,0);
+        TNT1 A 5 A_SpawnItemEx ("Pointer_Large",random(-32,32),random(-32,32),random(0,8),0,0,random(1,3),0,129,0);
+        TNT1 AAA 5 A_SpawnItemEx ("BasePointer",random(-32,32),random(-32,32),random(0,8),0,0,random(1,3),0,129,0);
+        TNT1 A 5 A_SpawnItemEx ("Pointer_Middle",random(-32,32),random(-32,32),random(0,8),0,0,random(1,3),0,129,0);
+        Loop;
+    Inactive:
+        TNT1 A -1;
+        Loop;
+
+    }
+}
+
+////////////////////////////////////////
+// POWERUP POD STRING FOUNTAINS ////////
+// by Tormentor667 //////END////////////
+////////////////////////////////////////
+
+
+/////////////////////////////////////////
+/// SPECIAL EFFECTS by SOLARSNOWFALL ////
+/////////////////START///////////////////
+/////////////////////////////////////////
+class Drop_B1A : Actor
+{
+    Default
+    {
+    Speed 5;
+    Height 2;
+    Radius 1;
+    Mass 5;
+    +Missile +LowGravity +DontSplash;
+    Mass 0;
+    RenderStyle "Add";
+    Scale 0.25;
+    }
+    States
+    {
+    Spawn:
+        DROP A -1;
+        Loop;
+    Death:
+        DROP A 1 A_FadeOut;
+        Loop;
+
+    }
+}
+
+class Drop_B1B : Drop_B1A
+{
+    Default
+    {
+    Scale 0.23;
+    }
+}
+
+class Drop_B1C : Drop_B1A
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class Drop_B2A : Drop_B1A
+{
+    Default
+    {
+    Speed 4;
+    }
+}
+
+class Drop_B2B : Drop_B1A
+{
+    Default
+    {
+    Scale 0.23;
+    Speed 4;
+    }
+}
+
+class Drop_B2C : Drop_B1A
+{
+    Default
+    {
+    Scale 0.2;
+    Speed 4;
+    }
+}
+
+
+class Drop_B3A : Drop_B1A
+{
+    Default
+    {
+    Speed 3;
+    }
+}
+
+class Drop_B3B : Drop_B1A
+{
+    Default
+    {
+    Scale 0.23;
+    Speed 3;
+    }
+}
+
+class Drop_B3C : Drop_B1A
+{
+    Default
+    {
+    Scale 0.2;
+    Speed 3;
+    }
+}
+
+class Liquid_Fountain_B1A : SwitchableDecoration
+{
+    Default
+    {
+    //$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Drop_B1A",0,0,random(0,360),2,random(45,135));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Drop_B1B",0,0,random(0,360),2,random(45,135));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Drop_B1C",0,0,random(0,360),2,random(45,135));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Liquid_Fountain_B1B : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Drop_B1A",0,0,random(0,360),2,random(68,112));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Drop_B1B",0,0,random(0,360),2,random(68,112));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Drop_B1C",0,0,random(0,360),2,random(68,112));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Liquid_Fountain_B1C : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Drop_B1A",0,0,random(0,360),2,random(81,101));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Drop_B1B",0,0,random(0,360),2,random(81,101));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Drop_B1C",0,0,random(0,360),2,random(81,101));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Liquid_Fountain_B2A : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Drop_B2A",0,0,random(0,360),2,random(45,135));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Drop_B2B",0,0,random(0,360),2,random(45,135));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Drop_B2C",0,0,random(0,360),2,random(45,135));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Liquid_Fountain_B2B : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Drop_B2A",0,0,random(0,360),2,random(68,112));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Drop_B2B",0,0,random(0,360),2,random(68,112));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Drop_B2C",0,0,random(0,360),2,random(68,112));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Liquid_Fountain_B2C : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Drop_B2A",0,0,random(0,360),2,random(81,101));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Drop_B2B",0,0,random(0,360),2,random(81,101));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Drop_B2C",0,0,random(0,360),2,random(81,101));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Liquid_Fountain_B3A : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Drop_B3A",0,0,random(0,360),2,random(45,135));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Drop_B3B",0,0,random(0,360),2,random(45,135));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Drop_B3C",0,0,random(0,360),2,random(45,135));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Liquid_Fountain_B3B : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Drop_B3A",0,0,random(0,360),2,random(68,112));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Drop_B3B",0,0,random(0,360),2,random(68,112));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Drop_B3C",0,0,random(0,360),2,random(68,112));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Liquid_Fountain_B3C : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Drop_B3A",0,0,random(0,360),2,random(81,101));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Drop_B3B",0,0,random(0,360),2,random(81,101));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Drop_B3C",0,0,random(0,360),2,random(81,101));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Smoke : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 1;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(240,2);
+        TNT1 A 1 A_SpawnItem("SmokeA",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(224,2);
+        TNT1 A 1 A_SpawnItem("SmokeB",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(208,2);
+        TNT1 A 1 A_SpawnItem("SmokeC",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_SpawnItem("SmokeD",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(176,2);
+        TNT1 A 1 A_SpawnItem("SmokeE",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(160,2);
+        TNT1 A 1 A_SpawnItem("SmokeF",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(144,2);
+        TNT1 A 1 A_SpawnItem("SmokeG",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 0 A_SpawnItem("SmokeH",0,0,0);
+        Loop;
+        TNT1 A 1 A_SpawnItem("SmokeI",0,0,0);
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Flame1A : Actor
+{
+    Default
+    {
+  height 2;
+  radius 1;
+  +NOGRAVITY +NOCLIP +NOBLOCKMAP +MISSILE +NOINTERACTION;
+  renderstyle "Add";
+  alpha 0.8;
+  scale 0.35;
+    }
+    States
+    {
+  Spawn:
+    FLM1 A 0;
+    FLM1 A 0 ThrustThingZ (0,random (2,6),0,0);
+    FLM1 A 0 ThrustThing (random (0,255),random (0,1),0,0);
+    FLM1 ABCDE 2 bright;
+    FLM1 F 1 bright A_SetTranslucent (0.75,1);
+    FLM1 F 1 bright A_SetTranslucent (0.7,1);
+    FLM1 G 1 bright A_SetTranslucent (0.65,1);
+    FLM1 G 1 bright A_SetTranslucent (0.6,1);
+    FLM1 H 1 bright A_SetTranslucent (0.55,1);
+    FLM1 H 1 bright A_SetTranslucent (0.5,1);
+    FLM1 I 1 bright A_SetTranslucent (0.45,1);
+    FLM1 I 1 bright A_SetTranslucent (0.4,1);
+    FLM1 J 1 bright A_SetTranslucent (0.35,1);
+    FLM1 J 1 bright A_SetTranslucent (0.3,1);
+    FLM1 K 1 bright A_SetTranslucent (0.25,1);
+    FLM1 K 1 bright A_SetTranslucent (0.2,1);
+    FLM1 L 1 bright A_SetTranslucent (0.15,1);
+    FLM1 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Fire_1x : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 1;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(240,2);
+        TNT1 A 1 A_SpawnItem("OMGFireA",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(224,2);
+        TNT1 A 1 A_SpawnItem("OMGFireB",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(208,2);
+        TNT1 A 1 A_SpawnItem("OMGFireC",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_SpawnItem("OMGFireD",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(176,2);
+        TNT1 A 1 A_SpawnItem("OMGFireE",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(160,2);
+        TNT1 A 1 A_SpawnItem("OMGFireF",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(144,2);
+        TNT1 A 1 A_SpawnItem("OMGFireG",0,0,0);
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 0 A_SpawnItem("OMGFireH",0,0,0);
+        Loop;
+        TNT1 A 1 A_SpawnItem("OMGFireI",0,0,0);
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Fire_2x : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+  +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+  Spawn:
+  Active:
+    TNT1 A 0;
+    TNT1 A 0 A_Jump (216,3);
+    TNT1 A 1 A_SpawnItem ("Flame4A",0,0,0);
+    TNT1 A 0 A_SpawnItem ("Ember2",0,0,0);
+    loop;
+    TNT1 A 0 A_Jump (176,2);
+    TNT1 A 1 A_SpawnItem ("FLame4B",0,0,0);
+    loop;
+    TNT1 A 0 A_Jump (136,2);
+    TNT1 A 1 A_SpawnItem ("Flame5A",0,0,0);
+    loop;
+    TNT1 A 0 A_Jump (96,2);
+    TNT1 A 1 A_SpawnItem ("Flame5B",0,0,0);
+    loop;
+    TNT1 A 0 A_Jump (56,2);
+    TNT1 A 1 A_SpawnItem ("Flame6A",0,0,0);
+    loop;
+    TNT1 A 1 A_SpawnItem ("Flame6B",0,0,0);
+    loop;
+  Inactive:
+    TNT1 A 1;
+    loop;
+
+    }
+}
+
+class Flame4A : Actor
+{
+    Default
+    {
+  height 2;
+  radius 1;
+  +NOGRAVITY +NOCLIP +NOBLOCKMAP +MISSILE +NOINTERACTION;
+  renderstyle "Add";
+  alpha 0.8;
+  scale 0.7;
+    }
+    States
+    {
+  Spawn:
+    FLM1 A 0;
+    FLM1 A 0 ThrustThingZ (0,random (4,12),0,0);
+    FLM1 A 0 ThrustThing (random (0,255),random (0,2),0,0);
+    FLM1 ABCDE 2 bright;
+    FLM1 F 1 bright A_SetTranslucent (0.75,1);
+    FLM1 F 1 bright A_SetTranslucent (0.7,1);
+    FLM1 G 1 bright A_SetTranslucent (0.65,1);
+    FLM1 G 1 bright A_SetTranslucent (0.6,1);
+    FLM1 H 1 bright A_SetTranslucent (0.55,1);
+    FLM1 H 1 bright A_SetTranslucent (0.5,1);
+    FLM1 I 1 bright A_SetTranslucent (0.45,1);
+    FLM1 I 1 bright A_SetTranslucent (0.4,1);
+    FLM1 J 1 bright A_SetTranslucent (0.35,1);
+    FLM1 J 1 bright A_SetTranslucent (0.3,1);
+    FLM1 K 1 bright A_SetTranslucent (0.25,1);
+    FLM1 K 1 bright A_SetTranslucent (0.2,1);
+    FLM1 L 1 bright A_SetTranslucent (0.15,1);
+    FLM1 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Ember2 : Flame1A
+{
+    Default
+    {
+  scale 0.1;
+    }
+    States
+    {
+  Spawn:
+    EMBR A 0;
+    EMBR A 0 ThrustThingZ (0,random (4,16),0,0);
+    EMBR A 0 ThrustThing (random (0,255),random (0,1),0,0);
+    EMBR A 64 bright;
+  Death:
+    EMBR A 2 bright A_FadeOut (0.1);
+    loop;
+
+    }
+}
+
+class Flame4B : Flame4A
+{
+    States
+    {
+  Spawn:
+    FLM2 A 0;
+    FLM2 A 0 ThrustThingZ (0,random (4,12),0,0);
+    FLM2 A 0 ThrustThing (random (0,255),random (0,2),0,0);
+    FLM2 ABCDE 2 bright;
+    FLM2 F 1 bright A_SetTranslucent (0.75,1);
+    FLM2 F 1 bright A_SetTranslucent (0.7,1);
+    FLM2 G 1 bright A_SetTranslucent (0.65,1);
+    FLM2 G 1 bright A_SetTranslucent (0.6,1);
+    FLM2 H 1 bright A_SetTranslucent (0.55,1);
+    FLM2 H 1 bright A_SetTranslucent (0.5,1);
+    FLM2 I 1 bright A_SetTranslucent (0.45,1);
+    FLM2 I 1 bright A_SetTranslucent (0.4,1);
+    FLM2 J 1 bright A_SetTranslucent (0.35,1);
+    FLM2 J 1 bright A_SetTranslucent (0.3,1);
+    FLM2 K 1 bright A_SetTranslucent (0.25,1);
+    FLM2 K 1 bright A_SetTranslucent (0.2,1);
+    FLM2 L 1 bright A_SetTranslucent (0.15,1);
+    FLM2 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Flame5A : Flame4A
+{
+    States
+    {
+  Spawn:
+    FLM3 A 0;
+    FLM3 A 0 ThrustThingZ (0,random (4,12),0,0);
+    FLM3 A 0 ThrustThing (random (0,255),random (0,2),0,0);
+    FLM3 ABCDE 2 bright;
+    FLM3 F 1 bright A_SetTranslucent (0.75,1);
+    FLM3 F 1 bright A_SetTranslucent (0.7,1);
+    FLM3 G 1 bright A_SetTranslucent (0.65,1);
+    FLM3 G 1 bright A_SetTranslucent (0.6,1);
+    FLM3 H 1 bright A_SetTranslucent (0.55,1);
+    FLM3 H 1 bright A_SetTranslucent (0.5,1);
+    FLM3 I 1 bright A_SetTranslucent (0.45,1);
+    FLM3 I 1 bright A_SetTranslucent (0.4,1);
+    FLM3 J 1 bright A_SetTranslucent (0.35,1);
+    FLM3 J 1 bright A_SetTranslucent (0.3,1);
+    FLM3 K 1 bright A_SetTranslucent (0.25,1);
+    FLM3 K 1 bright A_SetTranslucent (0.2,1);
+    FLM3 L 1 bright A_SetTranslucent (0.15,1);
+    FLM3 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Flame5B : Flame4A
+{
+    States
+    {
+  Spawn:
+    FLM4 A 0;
+    FLM4 A 0 ThrustThingZ (0,random (4,12),0,0);
+    FLM4 A 0 ThrustThing (random (0,255),random (0,2),0,0);
+    FLM4 ABCDE 2 bright;
+    FLM4 F 1 bright A_SetTranslucent (0.75,1);
+    FLM4 F 1 bright A_SetTranslucent (0.7,1);
+    FLM4 G 1 bright A_SetTranslucent (0.65,1);
+    FLM4 G 1 bright A_SetTranslucent (0.6,1);
+    FLM4 H 1 bright A_SetTranslucent (0.55,1);
+    FLM4 H 1 bright A_SetTranslucent (0.5,1);
+    FLM4 I 1 bright A_SetTranslucent (0.45,1);
+    FLM4 I 1 bright A_SetTranslucent (0.4,1);
+    FLM4 J 1 bright A_SetTranslucent (0.35,1);
+    FLM4 J 1 bright A_SetTranslucent (0.3,1);
+    FLM4 K 1 bright A_SetTranslucent (0.25,1);
+    FLM4 K 1 bright A_SetTranslucent (0.2,1);
+    FLM4 L 1 bright A_SetTranslucent (0.15,1);
+    FLM4 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Flame6A : Flame4A
+{
+    States
+    {
+  Spawn:
+    FLM5 A 0;
+    FLM5 A 0 ThrustThingZ (0,random (4,12),0,0);
+    FLM5 A 0 ThrustThing (random (0,255),random (0,2),0,0);
+    FLM5 ABCDE 2 bright;
+    FLM5 F 1 bright A_SetTranslucent (0.75,1);
+    FLM5 F 1 bright A_SetTranslucent (0.7,1);
+    FLM5 G 1 bright A_SetTranslucent (0.65,1);
+    FLM5 G 1 bright A_SetTranslucent (0.6,1);
+    FLM5 H 1 bright A_SetTranslucent (0.55,1);
+    FLM5 H 1 bright A_SetTranslucent (0.5,1);
+    FLM5 I 1 bright A_SetTranslucent (0.45,1);
+    FLM5 I 1 bright A_SetTranslucent (0.4,1);
+    FLM5 J 1 bright A_SetTranslucent (0.35,1);
+    FLM5 J 1 bright A_SetTranslucent (0.3,1);
+    FLM5 K 1 bright A_SetTranslucent (0.25,1);
+    FLM5 K 1 bright A_SetTranslucent (0.2,1);
+    FLM5 L 1 bright A_SetTranslucent (0.15,1);
+    FLM5 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Flame6B : Flame4A
+{
+    States
+    {
+  Spawn:
+    FLM6 A 0;
+    FLM6 A 0 ThrustThingZ (0,random (4,12),0,0);
+    FLM6 A 0 ThrustThing (random (0,255),random (0,2),0,0);
+    FLM6 ABCDE 2 bright;
+    FLM6 F 1 bright A_SetTranslucent (0.75,1);
+    FLM6 F 1 bright A_SetTranslucent (0.7,1);
+    FLM6 G 1 bright A_SetTranslucent (0.65,1);
+    FLM6 G 1 bright A_SetTranslucent (0.6,1);
+    FLM6 H 1 bright A_SetTranslucent (0.55,1);
+    FLM6 H 1 bright A_SetTranslucent (0.5,1);
+    FLM6 I 1 bright A_SetTranslucent (0.45,1);
+    FLM6 I 1 bright A_SetTranslucent (0.4,1);
+    FLM6 J 1 bright A_SetTranslucent (0.35,1);
+    FLM6 J 1 bright A_SetTranslucent (0.3,1);
+    FLM6 K 1 bright A_SetTranslucent (0.25,1);
+    FLM6 K 1 bright A_SetTranslucent (0.2,1);
+    FLM6 L 1 bright A_SetTranslucent (0.15,1);
+    FLM6 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Fire_4x : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+  +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+  Spawn:
+  Active:
+    TNT1 A 0;
+    TNT1 A 0 A_Jump (216,3);
+    TNT1 A 1 A_SpawnItem ("Flame7A",0,0,0);
+    TNT1 A 0 A_SpawnItem ("Ember2",0,0,0);
+    loop;
+    TNT1 A 0 A_Jump (176,2);
+    TNT1 A 1 A_SpawnItem ("FLame7B",0,0,0);
+    loop;
+    TNT1 A 0 A_Jump (136,2);
+    TNT1 A 1 A_SpawnItem ("Flame8A",0,0,0);
+    loop;
+    TNT1 A 0 A_Jump (96,2);
+    TNT1 A 1 A_SpawnItem ("Flame8B",0,0,0);
+    loop;
+    TNT1 A 0 A_Jump (56,2);
+    TNT1 A 1 A_SpawnItem ("Flame9A",0,0,0);
+    loop;
+    TNT1 A 1 A_SpawnItem ("Flame9B",0,0,0);
+    loop;
+  Inactive:
+    TNT1 A 1;
+    loop;
+
+    }
+}
+
+class Flame7A : Actor
+{
+    Default
+    {
+  height 2;
+  radius 1;
+  +NOGRAVITY +NOCLIP +NOBLOCKMAP +MISSILE +NOINTERACTION;
+  renderstyle "Add";
+  alpha 0.8;
+  scale 1.4;
+    }
+    States
+    {
+  Spawn:
+    FLM1 A 0;
+    FLM1 A 0 ThrustThingZ (0,random (8,24),0,0);
+    FLM1 A 0 ThrustThing (random (0,255),random (0,4),0,0);
+    FLM1 ABCDE 2 bright;
+    FLM1 F 1 bright A_SetTranslucent (0.75,1);
+    FLM1 F 1 bright A_SetTranslucent (0.7,1);
+    FLM1 G 1 bright A_SetTranslucent (0.65,1);
+    FLM1 G 1 bright A_SetTranslucent (0.6,1);
+    FLM1 H 1 bright A_SetTranslucent (0.55,1);
+    FLM1 H 1 bright A_SetTranslucent (0.5,1);
+    FLM1 I 1 bright A_SetTranslucent (0.45,1);
+    FLM1 I 1 bright A_SetTranslucent (0.4,1);
+    FLM1 J 1 bright A_SetTranslucent (0.35,1);
+    FLM1 J 1 bright A_SetTranslucent (0.3,1);
+    FLM1 K 1 bright A_SetTranslucent (0.25,1);
+    FLM1 K 1 bright A_SetTranslucent (0.2,1);
+    FLM1 L 1 bright A_SetTranslucent (0.15,1);
+    FLM1 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Flame7B : Flame7A
+{
+    States
+    {
+  Spawn:
+    FLM2 A 0;
+    FLM2 A 0 ThrustThingZ (0,random (8,24),0,0);
+    FLM2 A 0 ThrustThing (random (0,255),random (0,4),0,0);
+    FLM2 ABCDE 2 bright;
+    FLM2 F 1 bright A_SetTranslucent (0.75,1);
+    FLM2 F 1 bright A_SetTranslucent (0.7,1);
+    FLM2 G 1 bright A_SetTranslucent (0.65,1);
+    FLM2 G 1 bright A_SetTranslucent (0.6,1);
+    FLM2 H 1 bright A_SetTranslucent (0.55,1);
+    FLM2 H 1 bright A_SetTranslucent (0.5,1);
+    FLM2 I 1 bright A_SetTranslucent (0.45,1);
+    FLM2 I 1 bright A_SetTranslucent (0.4,1);
+    FLM2 J 1 bright A_SetTranslucent (0.35,1);
+    FLM2 J 1 bright A_SetTranslucent (0.3,1);
+    FLM2 K 1 bright A_SetTranslucent (0.25,1);
+    FLM2 K 1 bright A_SetTranslucent (0.2,1);
+    FLM2 L 1 bright A_SetTranslucent (0.15,1);
+    FLM2 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Flame8A : Flame7A
+{
+    States
+    {
+  Spawn:
+    FLM3 A 0;
+    FLM3 A 0 ThrustThingZ (0,random (8,24),0,0);
+    FLM3 A 0 ThrustThing (random (0,255),random (0,4),0,0);
+    FLM3 ABCDE 2 bright;
+    FLM3 F 1 bright A_SetTranslucent (0.75,1);
+    FLM3 F 1 bright A_SetTranslucent (0.7,1);
+    FLM3 G 1 bright A_SetTranslucent (0.65,1);
+    FLM3 G 1 bright A_SetTranslucent (0.6,1);
+    FLM3 H 1 bright A_SetTranslucent (0.55,1);
+    FLM3 H 1 bright A_SetTranslucent (0.5,1);
+    FLM3 I 1 bright A_SetTranslucent (0.45,1);
+    FLM3 I 1 bright A_SetTranslucent (0.4,1);
+    FLM3 J 1 bright A_SetTranslucent (0.35,1);
+    FLM3 J 1 bright A_SetTranslucent (0.3,1);
+    FLM3 K 1 bright A_SetTranslucent (0.25,1);
+    FLM3 K 1 bright A_SetTranslucent (0.2,1);
+    FLM3 L 1 bright A_SetTranslucent (0.15,1);
+    FLM3 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Flame8B : Flame7A
+{
+    States
+    {
+  Spawn:
+    FLM4 A 0;
+    FLM4 A 0 ThrustThingZ (0,random (8,24),0,0);
+    FLM4 A 0 ThrustThing (random (0,255),random (0,4),0,0);
+    FLM4 ABCDE 2 bright;
+    FLM4 F 1 bright A_SetTranslucent (0.75,1);
+    FLM4 F 1 bright A_SetTranslucent (0.7,1);
+    FLM4 G 1 bright A_SetTranslucent (0.65,1);
+    FLM4 G 1 bright A_SetTranslucent (0.6,1);
+    FLM4 H 1 bright A_SetTranslucent (0.55,1);
+    FLM4 H 1 bright A_SetTranslucent (0.5,1);
+    FLM4 I 1 bright A_SetTranslucent (0.45,1);
+    FLM4 I 1 bright A_SetTranslucent (0.4,1);
+    FLM4 J 1 bright A_SetTranslucent (0.35,1);
+    FLM4 J 1 bright A_SetTranslucent (0.3,1);
+    FLM4 K 1 bright A_SetTranslucent (0.25,1);
+    FLM4 K 1 bright A_SetTranslucent (0.2,1);
+    FLM4 L 1 bright A_SetTranslucent (0.15,1);
+    FLM4 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Flame9A : Flame7A
+{
+    States
+    {
+  Spawn:
+    FLM5 A 0;
+    FLM5 A 0 ThrustThingZ (0,random (8,24),0,0);
+    FLM5 A 0 ThrustThing (random (0,255),random (0,4),0,0);
+    FLM5 ABCDE 2 bright;
+    FLM5 F 1 bright A_SetTranslucent (0.75,1);
+    FLM5 F 1 bright A_SetTranslucent (0.7,1);
+    FLM5 G 1 bright A_SetTranslucent (0.65,1);
+    FLM5 G 1 bright A_SetTranslucent (0.6,1);
+    FLM5 H 1 bright A_SetTranslucent (0.55,1);
+    FLM5 H 1 bright A_SetTranslucent (0.5,1);
+    FLM5 I 1 bright A_SetTranslucent (0.45,1);
+    FLM5 I 1 bright A_SetTranslucent (0.4,1);
+    FLM5 J 1 bright A_SetTranslucent (0.35,1);
+    FLM5 J 1 bright A_SetTranslucent (0.3,1);
+    FLM5 K 1 bright A_SetTranslucent (0.25,1);
+    FLM5 K 1 bright A_SetTranslucent (0.2,1);
+    FLM5 L 1 bright A_SetTranslucent (0.15,1);
+    FLM5 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+class Flame9B : Flame7A
+{
+    States
+    {
+  Spawn:
+    FLM6 A 0;
+    FLM6 A 0 ThrustThingZ (0,random (8,24),0,0);
+    FLM6 A 0 ThrustThing (random (0,255),random (0,4),0,0);
+    FLM6 ABCDE 2 bright;
+    FLM6 F 1 bright A_SetTranslucent (0.75,1);
+    FLM6 F 1 bright A_SetTranslucent (0.7,1);
+    FLM6 G 1 bright A_SetTranslucent (0.65,1);
+    FLM6 G 1 bright A_SetTranslucent (0.6,1);
+    FLM6 H 1 bright A_SetTranslucent (0.55,1);
+    FLM6 H 1 bright A_SetTranslucent (0.5,1);
+    FLM6 I 1 bright A_SetTranslucent (0.45,1);
+    FLM6 I 1 bright A_SetTranslucent (0.4,1);
+    FLM6 J 1 bright A_SetTranslucent (0.35,1);
+    FLM6 J 1 bright A_SetTranslucent (0.3,1);
+    FLM6 K 1 bright A_SetTranslucent (0.25,1);
+    FLM6 K 1 bright A_SetTranslucent (0.2,1);
+    FLM6 L 1 bright A_SetTranslucent (0.15,1);
+    FLM6 L 1 bright A_SetTranslucent (0.1,1);
+    stop;
+
+    }
+}
+
+
+class SmokeA : Actor
+{
+    Default
+    {
+    Height 2;
+    Radius 1;
+    +Missile +NoGravity +NoInteraction +NoBlockmap;
+    RenderStyle "Translucent";
+    Alpha .5;
+    Scale .35;
+    }
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(8,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        SMK1 I 4;
+        SMK1 H 4;
+        SMK1 G 4;
+        SMK1 F 4;
+        SMK1 E 2 A_SetTranslucent(.45,0);
+        SMK1 E 2 A_SetTranslucent(.4,0);
+        SMK1 D 2 A_SetTranslucent(.35,0);
+        SMK1 D 2 A_SetTranslucent(.3,0);
+        SMK1 C 2 A_SetTranslucent(.25,0);
+        SMK1 C 2 A_SetTranslucent(.2,0);
+        SMK1 B 1 A_SetTranslucent(.18,0);
+        SMK1 B 1 A_SetTranslucent(.16,0);
+        SMK1 B 1 A_SetTranslucent(.14,0);
+        SMK1 B 1 A_SetTranslucent(.12,0);
+        SMK1 A 1 A_SetTranslucent(.1,0);
+        SMK1 A 1 A_SetTranslucent(.08,0);
+        SMK1 A 1 A_SetTranslucent(.06,0);
+        SMK1 A 1 A_SetTranslucent(.04,0);
+        Stop;
+
+    }
+}
+
+class SmokeB : SmokeA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(8,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        SMK2 I 4;
+        SMK2 H 4;
+        SMK2 G 4;
+        SMK2 F 4;
+        SMK2 E 2 A_SetTranslucent(.45,0);
+        SMK2 E 2 A_SetTranslucent(.4,0);
+        SMK2 D 2 A_SetTranslucent(.35,0);
+        SMK2 D 2 A_SetTranslucent(.3,0);
+        SMK2 C 2 A_SetTranslucent(.25,0);
+        SMK2 C 2 A_SetTranslucent(.2,0);
+        SMK2 B 1 A_SetTranslucent(.18,0);
+        SMK2 B 1 A_SetTranslucent(.16,0);
+        SMK2 B 1 A_SetTranslucent(.14,0);
+        SMK2 B 1 A_SetTranslucent(.12,0);
+        SMK2 A 1 A_SetTranslucent(.1,0);
+        SMK2 A 1 A_SetTranslucent(.08,0);
+        SMK2 A 1 A_SetTranslucent(.06,0);
+        SMK2 A 1 A_SetTranslucent(.04,0);
+        Stop;
+
+    }
+}
+
+class SmokeC : SmokeA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(8,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        SMK3 I 4;
+        SMK3 H 4;
+        SMK3 G 4;
+        SMK3 F 4;
+        SMK3 E 2 A_SetTranslucent(.45,0);
+        SMK3 E 2 A_SetTranslucent(.4,0);
+        SMK3 D 2 A_SetTranslucent(.35,0);
+        SMK3 D 2 A_SetTranslucent(.3,0);
+        SMK3 C 2 A_SetTranslucent(.25,0);
+        SMK3 C 2 A_SetTranslucent(.2,0);
+        SMK3 B 1 A_SetTranslucent(.18,0);
+        SMK3 B 1 A_SetTranslucent(.16,0);
+        SMK3 B 1 A_SetTranslucent(.14,0);
+        SMK3 B 1 A_SetTranslucent(.12,0);
+        SMK3 A 1 A_SetTranslucent(.1,0);
+        SMK3 A 1 A_SetTranslucent(.08,0);
+        SMK3 A 1 A_SetTranslucent(.06,0);
+        SMK3 A 1 A_SetTranslucent(.04,0);
+    Stop;
+
+    }
+}
+
+class SmokeD : SmokeA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(8,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        SMK4 I 4;
+        SMK4 H 4;
+        SMK4 G 4;
+        SMK4 F 4;
+        SMK4 E 2 A_SetTranslucent(.45,0);
+        SMK4 E 2 A_SetTranslucent(.4,0);
+        SMK4 D 2 A_SetTranslucent(.35,0);
+        SMK4 D 2 A_SetTranslucent(.3,0);
+        SMK4 C 2 A_SetTranslucent(.25,0);
+        SMK4 C 2 A_SetTranslucent(.2,0);
+        SMK4 B 1 A_SetTranslucent(.18,0);
+        SMK4 B 1 A_SetTranslucent(.16,0);
+        SMK4 B 1 A_SetTranslucent(.14,0);
+        SMK4 B 1 A_SetTranslucent(.12,0);
+        SMK4 A 1 A_SetTranslucent(.1,0);
+        SMK4 A 1 A_SetTranslucent(.08,0);
+        SMK4 A 1 A_SetTranslucent(.06,0);
+        SMK4 A 1 A_SetTranslucent(.04,0);
+    Stop;
+
+    }
+}
+
+class SmokeE : SmokeA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(8,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        SMK5 I 4;
+        SMK5 H 4;
+        SMK5 G 4;
+        SMK5 F 4;
+        SMK5 E 2 A_SetTranslucent(.45,0);
+        SMK5 E 2 A_SetTranslucent(.4,0);
+        SMK5 D 2 A_SetTranslucent(.35,0);
+        SMK5 D 2 A_SetTranslucent(.3,0);
+        SMK5 C 2 A_SetTranslucent(.25,0);
+        SMK5 C 2 A_SetTranslucent(.2,0);
+        SMK5 B 1 A_SetTranslucent(.18,0);
+        SMK5 B 1 A_SetTranslucent(.16,0);
+        SMK5 B 1 A_SetTranslucent(.14,0);
+        SMK5 B 1 A_SetTranslucent(.12,0);
+        SMK5 A 1 A_SetTranslucent(.1,0);
+        SMK5 A 1 A_SetTranslucent(.08,0);
+        SMK5 A 1 A_SetTranslucent(.06,0);
+        SMK5 A 1 A_SetTranslucent(.04,0);
+        Stop;
+
+    }
+}
+
+class SmokeF : SmokeA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(8,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        SMK6 I 4;
+        SMK6 H 4;
+        SMK6 G 4;
+        SMK6 F 4;
+        SMK6 E 2 A_SetTranslucent(.45,0);
+        SMK6 E 2 A_SetTranslucent(.4,0);
+        SMK6 D 2 A_SetTranslucent(.35,0);
+        SMK6 D 2 A_SetTranslucent(.3,0);
+        SMK6 C 2 A_SetTranslucent(.25,0);
+        SMK6 C 2 A_SetTranslucent(.2,0);
+        SMK6 B 1 A_SetTranslucent(.18,0);
+        SMK6 B 1 A_SetTranslucent(.16,0);
+        SMK6 B 1 A_SetTranslucent(.14,0);
+        SMK6 B 1 A_SetTranslucent(.12,0);
+        SMK6 A 1 A_SetTranslucent(.1,0);
+        SMK6 A 1 A_SetTranslucent(.08,0);
+        SMK6 A 1 A_SetTranslucent(.06,0);
+        SMK6 A 1 A_SetTranslucent(.04,0);
+        Stop;
+
+    }
+}
+
+class SmokeG : SmokeA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(8,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        SMK7 I 4;
+        SMK7 H 4;
+        SMK7 G 4;
+        SMK7 F 4;
+        SMK7 E 2 A_SetTranslucent(.45,0);
+        SMK7 E 2 A_SetTranslucent(.4,0);
+        SMK7 D 2 A_SetTranslucent(.35,0);
+        SMK7 D 2 A_SetTranslucent(.3,0);
+        SMK7 C 2 A_SetTranslucent(.25,0);
+        SMK7 C 2 A_SetTranslucent(.2,0);
+        SMK7 B 1 A_SetTranslucent(.18,0);
+        SMK7 B 1 A_SetTranslucent(.16,0);
+        SMK7 B 1 A_SetTranslucent(.14,0);
+        SMK7 B 1 A_SetTranslucent(.12,0);
+        SMK7 A 1 A_SetTranslucent(.1,0);
+        SMK7 A 1 A_SetTranslucent(.08,0);
+        SMK7 A 1 A_SetTranslucent(.06,0);
+        SMK7 A 1 A_SetTranslucent(.04,0);
+        Stop;
+
+    }
+}
+
+class SmokeH : SmokeA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(8,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        SMK8 I 4;
+        SMK8 H 4;
+        SMK8 G 4;
+        SMK8 F 4;
+        SMK8 E 2 A_SetTranslucent(.45,0);
+        SMK8 E 2 A_SetTranslucent(.4,0);
+        SMK8 D 2 A_SetTranslucent(.35,0);
+        SMK8 D 2 A_SetTranslucent(.3,0);
+        SMK8 C 2 A_SetTranslucent(.25,0);
+        SMK8 C 2 A_SetTranslucent(.2,0);
+        SMK8 B 1 A_SetTranslucent(.18,0);
+        SMK8 B 1 A_SetTranslucent(.16,0);
+        SMK8 B 1 A_SetTranslucent(.14,0);
+        SMK8 B 1 A_SetTranslucent(.12,0);
+        SMK8 A 1 A_SetTranslucent(.1,0);
+        SMK8 A 1 A_SetTranslucent(.08,0);
+        SMK8 A 1 A_SetTranslucent(.06,0);
+        SMK8 A 1 A_SetTranslucent(.04,0);
+    Stop;
+
+    }
+}
+
+class SmokeI : SmokeA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(8,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        SMK9 I 4;
+        SMK9 H 4;
+        SMK9 G 4;
+        SMK9 F 4;
+        SMK9 E 2 A_SetTranslucent(.45,0);
+        SMK9 E 2 A_SetTranslucent(.4,0);
+        SMK9 D 2 A_SetTranslucent(.35,0);
+        SMK9 D 2 A_SetTranslucent(.3,0);
+        SMK9 C 2 A_SetTranslucent(.25,0);
+        SMK9 C 2 A_SetTranslucent(.2,0);
+        SMK9 B 1 A_SetTranslucent(.18,0);
+        SMK9 B 1 A_SetTranslucent(.16,0);
+        SMK9 B 1 A_SetTranslucent(.14,0);
+        SMK9 B 1 A_SetTranslucent(.12,0);
+        SMK9 A 1 A_SetTranslucent(.1,0);
+        SMK9 A 1 A_SetTranslucent(.08,0);
+        SMK9 A 1 A_SetTranslucent(.06,0);
+        SMK9 A 1 A_SetTranslucent(.04,0);
+        Stop;
+
+    }
+}
+
+class OMGFireA : Actor
+{
+    Default
+    {
+    Height 2;
+    Radius 1;
+    +NoBlockMap +NoGravity +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    RenderStyle "Add";
+    Alpha .8;
+    Scale .25;
+    }
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(4,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        FLM1 A 2 Bright;
+        FLM1 B 1 Bright A_SetTranslucent(.75,1);
+        FLM1 B 1 Bright A_SetTranslucent(.7,1);
+        FLM1 C 1 Bright A_SetTranslucent(.65,1);
+        FLM1 C 1 Bright A_SetTranslucent(.6,1);
+        FLM1 D 1 Bright A_SetTranslucent(.55,1);
+        FLM1 D 1 Bright A_SetTranslucent(.5,1);
+        FLM1 E 1 Bright A_SetTranslucent(.45,1);
+        FLM1 E 1 Bright A_SetTranslucent(.4,1);
+        FLM1 F 1 Bright A_SetTranslucent(.35,1);
+        FLM1 F 1 Bright A_SetTranslucent(.3,1);
+        FLM1 G 1 Bright A_SetTranslucent(.25,1);
+        FLM1 G 1 Bright A_SetTranslucent(.2,1);
+        FLM1 H 1 Bright A_SetTranslucent(.15,1);
+        FLM1 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class OMGFireB : OMGFireA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(4,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        FLM2 A 2 Bright;
+        FLM2 B 1 Bright A_SetTranslucent(.75,1);
+        FLM2 B 1 Bright A_SetTranslucent(.7,1);
+        FLM2 C 1 Bright A_SetTranslucent(.65,1);
+        FLM2 C 1 Bright A_SetTranslucent(.6,1);
+        FLM2 D 1 Bright A_SetTranslucent(.55,1);
+        FLM2 D 1 Bright A_SetTranslucent(.5,1);
+        FLM2 E 1 Bright A_SetTranslucent(.45,1);
+        FLM2 E 1 Bright A_SetTranslucent(.4,1);
+        FLM2 F 1 Bright A_SetTranslucent(.35,1);
+        FLM2 F 1 Bright A_SetTranslucent(.3,1);
+        FLM2 G 1 Bright A_SetTranslucent(.25,1);
+        FLM2 G 1 Bright A_SetTranslucent(.2,1);
+        FLM2 H 1 Bright A_SetTranslucent(.15,1);
+        FLM2 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class OMGFireC : OMGFireA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(4,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        FLM3 A 2 Bright;
+        FLM3 B 1 Bright A_SetTranslucent(.75,1);
+        FLM3 B 1 Bright A_SetTranslucent(.7,1);
+        FLM3 C 1 Bright A_SetTranslucent(.65,1);
+        FLM3 C 1 Bright A_SetTranslucent(.6,1);
+        FLM3 D 1 Bright A_SetTranslucent(.55,1);
+        FLM3 D 1 Bright A_SetTranslucent(.5,1);
+        FLM3 E 1 Bright A_SetTranslucent(.45,1);
+        FLM3 E 1 Bright A_SetTranslucent(.4,1);
+        FLM3 F 1 Bright A_SetTranslucent(.35,1);
+        FLM3 F 1 Bright A_SetTranslucent(.3,1);
+        FLM3 G 1 Bright A_SetTranslucent(.25,1);
+        FLM3 G 1 Bright A_SetTranslucent(.2,1);
+        FLM3 H 1 Bright A_SetTranslucent(.15,1);
+        FLM3 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class OMGFireD : OMGFireA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(4,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        FLM4 A 2 Bright;
+        FLM4 B 1 Bright A_SetTranslucent(.75,1);
+        FLM4 B 1 Bright A_SetTranslucent(.7,1);
+        FLM4 C 1 Bright A_SetTranslucent(.65,1);
+        FLM4 C 1 Bright A_SetTranslucent(.6,1);
+        FLM4 D 1 Bright A_SetTranslucent(.55,1);
+        FLM4 D 1 Bright A_SetTranslucent(.5,1);
+        FLM4 E 1 Bright A_SetTranslucent(.45,1);
+        FLM4 E 1 Bright A_SetTranslucent(.4,1);
+        FLM4 F 1 Bright A_SetTranslucent(.35,1);
+        FLM4 F 1 Bright A_SetTranslucent(.3,1);
+        FLM4 G 1 Bright A_SetTranslucent(.25,1);
+        FLM4 G 1 Bright A_SetTranslucent(.2,1);
+        FLM4 H 1 Bright A_SetTranslucent(.15,1);
+        FLM4 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class OMGFireE : OMGFireA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(4,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        FLM5 A 2 Bright;
+        FLM5 B 1 Bright A_SetTranslucent(.75,1);
+        FLM5 B 1 Bright A_SetTranslucent(.7,1);
+        FLM5 C 1 Bright A_SetTranslucent(.65,1);
+        FLM5 C 1 Bright A_SetTranslucent(.6,1);
+        FLM5 D 1 Bright A_SetTranslucent(.55,1);
+        FLM5 D 1 Bright A_SetTranslucent(.5,1);
+        FLM5 E 1 Bright A_SetTranslucent(.45,1);
+        FLM5 E 1 Bright A_SetTranslucent(.4,1);
+        FLM5 F 1 Bright A_SetTranslucent(.35,1);
+        FLM5 F 1 Bright A_SetTranslucent(.3,1);
+        FLM5 G 1 Bright A_SetTranslucent(.25,1);
+        FLM5 G 1 Bright A_SetTranslucent(.2,1);
+        FLM5 H 1 Bright A_SetTranslucent(.15,1);
+        FLM5 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class OMGFireF : OMGFIreA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,random(4,16),0,0);
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        FLM6 A 2 Bright;
+        FLM6 B 1 Bright A_SetTranslucent(.75,1);
+        FLM6 B 1 Bright A_SetTranslucent(.7,1);
+        FLM6 C 1 Bright A_SetTranslucent(.65,1);
+        FLM6 C 1 Bright A_SetTranslucent(.6,1);
+        FLM6 D 1 Bright A_SetTranslucent(.55,1);
+        FLM6 D 1 Bright A_SetTranslucent(.5,1);
+        FLM6 E 1 Bright A_SetTranslucent(.45,1);
+        FLM6 E 1 Bright A_SetTranslucent(.4,1);
+        FLM6 F 1 Bright A_SetTranslucent(.35,1);
+        FLM6 F 1 Bright A_SetTranslucent(.3,1);
+        FLM6 G 1 Bright A_SetTranslucent(.25,1);
+        FLM6 G 1 Bright A_SetTranslucent(.2,1);
+        FLM6 H 1 Bright A_SetTranslucent(.15,1);
+        FLM6 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class OMGFireG : OMGFireA
+{
+
+}
+
+class OMGFireH : OMGFireB
+{
+
+}
+
+class OMGFireI : OMGFireC
+{
+
+}
+
+class DummyFireA : Actor
+{
+    Default
+    {
+    Height 2;
+    Radius 1;
+    +Missile +NoGravity	+NoInteraction +NoBlockmap +NoClip;
+    RenderStyle "Add";
+    Alpha .8;
+    Scale .25;
+    }
+    States
+    {
+    Spawn:
+        FLM1 A 2 Bright;
+        FLM1 B 1 Bright A_SetTranslucent(.75,1);
+        FLM1 B 1 Bright A_SetTranslucent(.7,1);
+        FLM1 C 1 Bright A_SetTranslucent(.65,1);
+        FLM1 C 1 Bright A_SetTranslucent(.6,1);
+        FLM1 D 1 Bright A_SetTranslucent(.55,1);
+        FLM1 D 1 Bright A_SetTranslucent(.5,1);
+        FLM1 E 1 Bright A_SetTranslucent(.45,1);
+        FLM1 E 1 Bright A_SetTranslucent(.4,1);
+        FLM1 F 1 Bright A_SetTranslucent(.35,1);
+        FLM1 F 1 Bright A_SetTranslucent(.3,1);
+        FLM1 G 1 Bright A_SetTranslucent(.25,1);
+        FLM1 G 1 Bright A_SetTranslucent(.2,1);
+        FLM1 H 1 Bright A_SetTranslucent(.15,1);
+        FLM1 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class DummyFireB : DummyFireA
+{
+    States
+    {
+    Spawn:
+        FLM2 A 2 Bright;
+        FLM2 B 1 Bright A_SetTranslucent(.75,1);
+        FLM2 B 1 Bright A_SetTranslucent(.7,1);
+        FLM2 C 1 Bright A_SetTranslucent(.65,1);
+        FLM2 C 1 Bright A_SetTranslucent(.6,1);
+        FLM2 D 1 Bright A_SetTranslucent(.55,1);
+        FLM2 D 1 Bright A_SetTranslucent(.5,1);
+        FLM2 E 1 Bright A_SetTranslucent(.45,1);
+        FLM2 E 1 Bright A_SetTranslucent(.4,1);
+        FLM2 F 1 Bright A_SetTranslucent(.35,1);
+        FLM2 F 1 Bright A_SetTranslucent(.3,1);
+        FLM2 G 1 Bright A_SetTranslucent(.25,1);
+        FLM2 G 1 Bright A_SetTranslucent(.2,1);
+        FLM2 H 1 Bright A_SetTranslucent(.15,1);
+        FLM2 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class DummyFireC : DummyFireA
+{
+    States
+    {
+    Spawn:
+        FLM3 A 2 Bright;
+        FLM3 B 1 Bright A_SetTranslucent(.75,1);
+        FLM3 B 1 Bright A_SetTranslucent(.7,1);
+        FLM3 C 1 Bright A_SetTranslucent(.65,1);
+        FLM3 C 1 Bright A_SetTranslucent(.6,1);
+        FLM3 D 1 Bright A_SetTranslucent(.55,1);
+        FLM3 D 1 Bright A_SetTranslucent(.5,1);
+        FLM3 E 1 Bright A_SetTranslucent(.45,1);
+        FLM3 E 1 Bright A_SetTranslucent(.4,1);
+        FLM3 F 1 Bright A_SetTranslucent(.35,1);
+        FLM3 F 1 Bright A_SetTranslucent(.3,1);
+        FLM3 G 1 Bright A_SetTranslucent(.25,1);
+        FLM3 G 1 Bright A_SetTranslucent(.2,1);
+        FLM3 H 1 Bright A_SetTranslucent(.15,1);
+        FLM3 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class DummyFireD : DummyFireA
+{
+    States
+    {
+    Spawn:
+        FLM4 A 2 Bright;
+        FLM4 B 1 Bright A_SetTranslucent(.75,1);
+        FLM4 B 1 Bright A_SetTranslucent(.7,1);
+        FLM4 C 1 Bright A_SetTranslucent(.65,1);
+        FLM4 C 1 Bright A_SetTranslucent(.6,1);
+        FLM4 D 1 Bright A_SetTranslucent(.55,1);
+        FLM4 D 1 Bright A_SetTranslucent(.5,1);
+        FLM4 E 1 Bright A_SetTranslucent(.45,1);
+        FLM4 E 1 Bright A_SetTranslucent(.4,1);
+        FLM4 F 1 Bright A_SetTranslucent(.35,1);
+        FLM4 F 1 Bright A_SetTranslucent(.3,1);
+        FLM4 G 1 Bright A_SetTranslucent(.25,1);
+        FLM4 G 1 Bright A_SetTranslucent(.2,1);
+        FLM4 H 1 Bright A_SetTranslucent(.15,1);
+        FLM4 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class DummyFireE : DummyFireA
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0 ThrustThing(random(0,255),random(-1,1),0,0);
+        FLM5 A 2 Bright;
+        FLM5 B 1 Bright A_SetTranslucent(.75,1);
+        FLM5 B 1 Bright A_SetTranslucent(.7,1);
+        FLM5 C 1 Bright A_SetTranslucent(.65,1);
+        FLM5 C 1 Bright A_SetTranslucent(.6,1);
+        FLM5 D 1 Bright A_SetTranslucent(.55,1);
+        FLM5 D 1 Bright A_SetTranslucent(.5,1);
+        FLM5 E 1 Bright A_SetTranslucent(.45,1);
+        FLM5 E 1 Bright A_SetTranslucent(.4,1);
+        FLM5 F 1 Bright A_SetTranslucent(.35,1);
+        FLM5 F 1 Bright A_SetTranslucent(.3,1);
+        FLM5 G 1 Bright A_SetTranslucent(.25,1);
+        FLM5 G 1 Bright A_SetTranslucent(.2,1);
+        FLM5 H 1 Bright A_SetTranslucent(.15,1);
+        FLM5 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class DummyFireF : DummyFIreA
+{
+    States
+    {
+    Spawn:
+        FLM6 A 2 Bright;
+        FLM6 B 1 Bright A_SetTranslucent(.75,1);
+        FLM6 B 1 Bright A_SetTranslucent(.7,1);
+        FLM6 C 1 Bright A_SetTranslucent(.65,1);
+        FLM6 C 1 Bright A_SetTranslucent(.6,1);
+        FLM6 D 1 Bright A_SetTranslucent(.55,1);
+        FLM6 D 1 Bright A_SetTranslucent(.5,1);
+        FLM6 E 1 Bright A_SetTranslucent(.45,1);
+        FLM6 E 1 Bright A_SetTranslucent(.4,1);
+        FLM6 F 1 Bright A_SetTranslucent(.35,1);
+        FLM6 F 1 Bright A_SetTranslucent(.3,1);
+        FLM6 G 1 Bright A_SetTranslucent(.25,1);
+        FLM6 G 1 Bright A_SetTranslucent(.2,1);
+        FLM6 H 1 Bright A_SetTranslucent(.15,1);
+        FLM6 H 1 Bright A_SetTranslucent(.1,1);
+        Stop;
+
+    }
+}
+
+class DummyFireG : DummyFireA
+{
+
+}
+
+class DummyFireH : DummyFireB
+{
+
+}
+
+class DummyFireI : DummyFireC
+{
+
+}
+
+class WhiteParticleA1 : Actor
+{
+    Default
+    {
+    Height 0;
+    Radius 0;
+    Mass   0;
+    PROJECTILE;
+    Speed 0;
+    +NoClip;
+    +NoBLockMap;
+        +NoInteraction;
+    RenderStyle "Add";
+    Scale 0.25;
+    }
+    States
+    {
+    Spawn:
+        PTCL A 0;
+        PTCL A 0 ThrustThingZ(0,random(5,7),0,0);
+        PTCL ABCABCABCABC 2;
+        PTCL A 2 A_SetTranslucent(0.9,1);
+        PTCL B 2 A_SetTranslucent(0.8,1);
+        PTCL C 2 A_SetTranslucent(0.7,1);
+        PTCL A 2 A_SetTranslucent(0.6,1);
+        PTCL B 2 A_SetTranslucent(0.5,1);
+        PTCL C 2 A_SetTranslucent(0.4,1);
+        PTCL A 2 A_SetTranslucent(0.3,1);
+        PTCL B 2 A_SetTranslucent(0.2,1);
+        PTCL C 2 A_SetTranslucent(0.1,1);
+        Stop;
+
+    }
+}
+
+class WhiteParticleB1 : WhiteParticleA1
+{
+    States
+    {
+    Spawn:
+        PTCL C 0;
+        PTCL C 0 ThrustThingZ(0,random(5,7),0,0);
+        PTCL CBACBACBACBA 2;
+        PTCL C 2 A_SetTranslucent(0.9,1);
+        PTCL B 2 A_SetTranslucent(0.8,1);
+        PTCL A 2 A_SetTranslucent(0.7,1);
+        PTCL C 2 A_SetTranslucent(0.6,1);
+        PTCL B 2 A_SetTranslucent(0.5,1);
+        PTCL A 2 A_SetTranslucent(0.4,1);
+        PTCL C 2 A_SetTranslucent(0.3,1);
+        PTCL B 2 A_SetTranslucent(0.2,1);
+        PTCL A 2 A_SetTranslucent(0.1,1);
+        Stop;
+
+    }
+}
+
+class WhiteParticleA2 : WhiteParticleA1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class WhiteParticleB2 : WhiteParticleB1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class WhiteParticleA3 : WhiteParticleA1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+class WhiteParticleB3 : WhiteParticleB1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+
+class RedParticleA1 : WhiteParticleA1
+{
+    Default
+    {
+
+    Translation "80:80=174:174","82:82=176:176","84:84=178:178","86:86=178:178",
+            "88:88=180:180","90:90=182:182","92:92=184:184","94:94=186:186",
+            "96:96=188:188";
+    }
+}
+
+class RedParticleB1 : WhiteParticleB1
+{
+    Default
+    {
+
+    Translation "80:80=174:174","82:82=176:176","84:84=178:178","86:86=178:178",
+            "88:88=180:180","90:90=182:182","92:92=184:184","94:94=186:186",
+            "96:96=188:188";
+    }
+}
+
+class RedParticleA2 : RedParticleA1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class RedParticleB2 : RedParticleB1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class RedParticleA3 : RedParticleA1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+class RedParticleB3 : RedParticleB1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+class BlueParticleA1 : WhiteParticleA1
+{
+    Default
+    {
+
+    Translation "80:80=192:192","82:82=193:193","84:84=194:178","86:86=195:196",
+            "88:88=197:197","90:90=198:198","92:92=201:201","94:94=202:202",
+            "96:96=203:203";
+    }
+}
+
+class BlueParticleB1 : WhiteParticleB1
+{
+    Default
+    {
+
+    Translation "80:80=192:192","82:82=193:193","84:84=194:178","86:86=195:196",
+            "88:88=197:197","90:90=198:198","92:92=201:201","94:94=202:202",
+            "96:96=203:203";
+    }
+}
+
+class BlueParticleA2 : BlueParticleA1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class BlueParticleB2 : BlueParticleB1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class BlueParticleA3 : BlueParticleA1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+class BlueParticleB3 : BlueParticleB1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+class OrangeParticleA1 : WhiteParticleA1
+{
+    Default
+    {
+
+    Translation "80:80=209:209","82:82=210:210","84:84=211:211","86:86=212:212",
+            "88:88=213:213","90:90=214:214","92:92=215:215","94:94=217:217",
+            "96:96=219:219";
+    }
+}
+
+class OrangeParticleB1 : WhiteParticleB1
+{
+    Default
+    {
+
+    Translation "80:80=209:209","82:82=210:210","84:84=211:211","86:86=212:212",
+            "88:88=213:213","90:90=214:214","92:92=215:215","94:94=217:217",
+            "96:96=219:219";
+    }
+}
+
+class OrangeParticleA2 : OrangeParticleA1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class OrangeParticleB2 : OrangeParticleB1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class OrangeParticleA3 : OrangeParticleA1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+class OrangeParticleB3 : OrangeParticleB1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+class YellowParticleA1 : WhiteParticleA1
+{
+    Default
+    {
+
+    Translation "80:80=225:225","82:82=226:226","84:84=227:227","86:86=228:228",
+            "88:88=160:160","90:90=161:161","92:92=162:162","94:94=163:163",
+            "96:96=164:164";
+    }
+}
+
+class YellowParticleB1 : WhiteParticleB1
+{
+    Default
+    {
+
+    Translation "80:80=225:225","82:82=226:226","84:84=227:227","86:86=228:228",
+            "88:88=160:160","90:90=161:161","92:92=162:162","94:94=163:163",
+            "96:96=164:164";
+    }
+}
+
+class YellowParticleA2 : YellowParticleA1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class YellowParticleB2 : YellowParticleB1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class YellowParticleA3 : YellowParticleA1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+class YellowParticleB3 : YellowParticleB1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+class GreenParticleA1 : WhiteParticleA1
+{
+    Default
+    {
+
+    Translation "80:80=112:112","82:82=116:116","84:84=114:114","86:86=115:115",
+            "88:88=116:116","90:90=117:117","92:92=118:118","94:94=119:119",
+            "96:96=120:120";
+    }
+}
+
+class GreenParticleB1 : WhiteParticleB1
+{
+    Default
+    {
+
+    Translation "80:80=112:112","82:82=116:116","84:84=114:114","86:86=115:115",
+            "88:88=116:116","90:90=117:117","92:92=118:118","94:94=119:119",
+            "96:96=120:120";
+    }
+}
+
+class GreenParticleA2 : GreenParticleA1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class GreenParticleB2 : GreenParticleB1
+{
+    Default
+    {
+    Scale 0.2;
+    }
+}
+
+class GreenParticleA3 : GreenParticleA1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+class GreenParticleB3 : GreenParticleB1
+{
+    Default
+    {
+    Scale 0.15;
+    }
+}
+
+class ParticleSpawnerWhite : Actor
+{
+    Default
+    {
+    Height 0;
+    Radius 0;
+    Speed 1;
+    PROJECTILE;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(224,2);
+        TNT1 A 1 A_SpawnItem("WhiteParticleA1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_SpawnItem("WhiteParticleB1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(160,2);
+        TNT1 A 1 A_SpawnItem("WhiteParticleA2",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_SpawnItem("WhiteParticleB2",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(96,2);
+        TNT1 A 1 A_SpawnItem("WhiteParticleA3",0,0,0);
+        Stop;
+        TNT1 A 1 A_SpawnItem("WhiteParticleB3",0,0,0);
+        Stop;
+
+    }
+}
+
+
+
+class ParticleSpawnerRed : ParticleSpawnerWhite
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(224,2);
+        TNT1 A 1 A_SpawnItem("RedParticleA1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_SpawnItem("RedParticleB1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(160,2);
+        TNT1 A 1 A_SpawnItem("RedParticleA1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_SpawnItem("RedParticleB1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(96,2);
+        TNT1 A 1 A_SpawnItem("RedParticleA1",0,0,0);
+        Stop;
+        TNT1 A 1 A_SpawnItem("RedParticleB1",0,0,0);
+        Stop;
+
+    }
+}
+
+class ParticleSpawnerBlue : ParticleSpawnerWhite
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(224,2);
+        TNT1 A 1 A_SpawnItem("BlueParticleA1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_SpawnItem("BlueParticleB1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(160,2);
+        TNT1 A 1 A_SpawnItem("BlueParticleA2",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_SpawnItem("BlueParticleB2",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(96,2);
+        TNT1 A 1 A_SpawnItem("BlueParticleA3",0,0,0);
+        Stop;
+        TNT1 A 1 A_SpawnItem("BlueParticleB3",0,0,0);
+        Stop;
+
+    }
+}
+
+class ParticleSpawnerOrange : ParticleSpawnerWhite
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(224,2);
+        TNT1 A 1 A_SpawnItem("OrangeParticleA1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_SpawnItem("OrangeParticleB1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(160,2);
+        TNT1 A 1 A_SpawnItem("OrangeParticleA2",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_SpawnItem("OrangeParticleB2",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(96,2);
+        TNT1 A 1 A_SpawnItem("OrangeParticleA3",0,0,0);
+        Stop;
+        TNT1 A 1 A_SpawnItem("OrangeParticleB3",0,0,0);
+        Stop;
+
+    }
+}
+
+class ParticleSpawnerYellow : ParticleSpawnerWhite
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(224,2);
+        TNT1 A 1 A_SpawnItem("YellowParticleA1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_SpawnItem("YellowParticleB1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(160,2);
+        TNT1 A 1 A_SpawnItem("YellowParticleA2",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_SpawnItem("YellowParticleB2",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(96,2);
+        TNT1 A 1 A_SpawnItem("YellowParticleA3",0,0,0);
+        Stop;
+        TNT1 A 1 A_SpawnItem("YellowParticleB3",0,0,0);
+        Stop;
+
+    }
+}
+
+class ParticleSpawnerGreen : ParticleSpawnerWhite
+{
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1;
+        TNT1 A 0 A_Jump(224,2);
+        TNT1 A 1 A_SpawnItem("GreenParticleA1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_SpawnItem("GreenParticleB1",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(160,2);
+        TNT1 A 1 A_SpawnItem("GreenParticleA2",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_SpawnItem("GreenParticleB2",0,0,0);
+        Stop;
+        TNT1 A 0 A_Jump(96,2);
+        TNT1 A 1 A_SpawnItem("GreenParticleA3",0,0,0);
+        Stop;
+        TNT1 A 1 A_SpawnItem("GreenParticleB3",0,0,0);
+        Stop;
+
+    }
+}
+
+class SparkleFountain_W : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 0;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 1 A_CustomMissile("ParticleSpawnerWhite",0,0,random(0,360),2,0);
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class SparkleFountain_R : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 0;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 1 A_CustomMissile("ParticleSpawnerRed",0,0,random(0,360),2,0);
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class SparkleFountain_B : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 0;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 1 A_CustomMissile("ParticleSpawnerBlue",0,0,random(0,360),2,0);
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class SparkelFountain_O : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 0;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 1 A_CustomMissile("ParticleSpawnerOrange",0,0,random(0,360),2,0);
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class SparkelFountain_Y : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 0;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 1 A_CustomMissile("ParticleSpawnerYellow",0,0,random(0,360),2,0);
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class SparkleFountain_G : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 0;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 1 A_CustomMissile("ParticleSpawnerGreen",0,0,random(0,360),2,0);
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class SparkFlare_B1 : Actor
+{
+    Default
+    {
+    Height 0;
+    Radius 0;
+    +Missile +NoGravity +NoClip +NoBlockMap +NoInteraction;
+    RenderStyle "Add";
+    Translation "80:104=192:204","105:111=240:246","3:3=206:206";
+    }
+    States
+    {
+    Spawn:
+        SPRK A 1 Bright;
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+
+    }
+}
+
+class SparkFlare_G1 : SparkFlare_B1
+{
+    Default
+    {
+    Translation "80:111=112:127","3:3=125:125";
+    }
+}
+
+class SparkFlare_O1 : SparkFlare_B1
+{
+    Default
+    {
+    Translation "80:106=209:223","107:111=232:236","3:3=233:233";
+    }
+}
+
+class SparkFlare_R1 : SparkFlare_B1
+{
+    Default
+    {
+    Translation "80:111=169:191","3:3=187:187";
+    }
+}
+
+class SparkFlare_C1 : SparkFlare_B1
+{
+    Default
+    {
+    Translation "80:82=225:227","83:83=160:160","84:87=228:231","88:111=161:167","3:3=164:164";
+    }
+}
+
+class SparkFlare_Y1 : SparkFlare_B1
+{
+    Default
+    {
+    Translation "80:97=225:227","98:98=160:160","99:103=228:231","104:111=161:167","3:3=161:161";
+    }
+}
+
+class Sparker_B_Down : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_B1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_B1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B9",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 1 A_CustomMissile("Spark_B1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_B9",0,0,random(0,360),2,random(-158,-22));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_B_Normal : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_B1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_B1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B9",0,0,random(0,360),2,random(45,135));
+        TNT1 A 1 A_CustomMissile("Spark_B1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_B9",0,0,random(0,360),2,random(45,135));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_B_Up : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_B1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_B1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B9",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 1 A_CustomMissile("Spark_B1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_B9",0,0,random(-45,45),2,random(-45,45));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_G_Down : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_G1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_G1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G9",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 1 A_CustomMissile("Spark_G1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_G9",0,0,random(0,360),2,random(-158,-22));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_G_Normal : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_G1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_G1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G9",0,0,random(0,360),2,random(45,135));
+        TNT1 A 1 A_CustomMissile("Spark_G1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_G9",0,0,random(0,360),2,random(45,135));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_G_Up : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_G1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_G1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G9",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 1 A_CustomMissile("Spark_G1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_G9",0,0,random(-45,45),2,random(-45,45));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_O_Down : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_O1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_O1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O9",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 1 A_CustomMissile("Spark_O1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_O9",0,0,random(0,360),2,random(-158,-22));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_O_Normal : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_O1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_O1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O9",0,0,random(0,360),2,random(45,135));
+        TNT1 A 1 A_CustomMissile("Spark_O1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_O9",0,0,random(0,360),2,random(45,135));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_O_Up : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_O1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_O1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O9",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 1 A_CustomMissile("Spark_O1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_O9",0,0,random(-45,45),2,random(-45,45));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_R_Down : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_R1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_R1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R9",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 1 A_CustomMissile("Spark_R1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_R9",0,0,random(0,360),2,random(-158,-22));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_R_Normal : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_R1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_R1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R9",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 1 A_CustomMissile("Spark_R2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_R9",0,0,random(0,360),2,random(45,135));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_R_Up : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_R1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_R1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R9",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 1 A_CustomMissile("Spark_R1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_R9",0,0,random(-45,45),2,random(-45,45));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_C_Down : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_C1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_C1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C9",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 1 A_CustomMissile("Spark_C1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_C9",0,0,random(0,360),2,random(-158,-22));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_C_Normal : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_C1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_C1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C9",0,0,random(0,360),2,random(45,135));
+        TNT1 A 1 A_CustomMissile("Spark_C1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_C9",0,0,random(0,360),2,random(45,135));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_C_Up : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_C1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_C1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C9",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 1 A_CustomMissile("Spark_C1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_C9",0,0,random(-45,45),2,random(-45,45));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_Y_Down : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_Y1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_Y1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y9",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 1 A_CustomMissile("Spark_Y1",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y2",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y3",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y4",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y5",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y6",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y7",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y8",0,0,random(0,360),2,random(-158,-22));
+        TNT1 A 0 A_CustomMissile("Spark_Y9",0,0,random(0,360),2,random(-158,-22));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_Y_Normal : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_Y1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_Y1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y9",0,0,random(0,360),2,random(45,135));
+        TNT1 A 1 A_CustomMissile("Spark_Y1",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y2",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y3",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y4",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y5",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y6",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y7",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y8",0,0,random(0,360),2,random(45,135));
+        TNT1 A 0 A_CustomMissile("Spark_Y9",0,0,random(0,360),2,random(45,135));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Sparker_Y_Up : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_PlaySound("world/spark");
+        TNT1 A 1 A_SpawnItem("SparkFlare_Y1",0,0,0);
+        TNT1 A 0 A_CustomMissile("Spark_Y1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y9",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 1 A_CustomMissile("Spark_Y1",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y2",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y3",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y4",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y5",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y6",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y7",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y8",0,0,random(-45,45),2,random(-45,45));
+        TNT1 A 0 A_CustomMissile("Spark_Y9",0,0,random(-45,45),2,random(-45,45));
+        Goto Inactive;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Spark_B1 : Actor
+{
+    Default
+    {
+    Speed 3;
+    Height 2;
+    Radius 1;
+    Mass 0;
+    +Missile +LowGravity;
+    RenderStyle "Add";
+    Scale 0.12;
+    Translation "80:104=192:204","205:211=240:246","3:3=206:206";
+    }
+    States
+    {
+    Spawn:
+        SPRK A 0;
+        SPRK A 64 Bright;
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+    Death:
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+
+    }
+}
+
+class Spark_B2 : Spark_B1
+{
+    Default
+    {
+    Scale 0.1;
+    }
+}
+
+class Spark_B3 : Spark_B1
+{
+    Default
+    {
+    Scale 0.08;
+    }
+}
+
+class Spark_B4 : Spark_B1
+{
+    Default
+    {
+    Speed 2;
+    }
+}
+
+class Spark_B5 : Spark_B1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.1;
+    }
+}
+
+class Spark_B6 : Spark_B1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.08;
+    }
+}
+
+class Spark_B7 : Spark_B1
+{
+    Default
+    {
+    Speed 1;
+    }
+}
+
+class Spark_B8 : Spark_B1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.1;
+    }
+}
+
+class Spark_B9 : Spark_B1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.08;
+    }
+}
+
+class Spark_G1 : Actor
+{
+    Default
+    {
+    Speed 3;
+    Height 2;
+    Radius 1;
+    Mass 0;
+    +Missile +LowGravity;
+    RenderStyle "Add";
+    Scale 0.12;
+    Translation "80:111=112:127","3:3=125:125";
+    }
+    States
+    {
+    Spawn:
+        SPRK A 0;
+        SPRK A 64 Bright;
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+    Death:
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+
+    }
+}
+
+class Spark_G2 : Spark_G1
+{
+    Default
+    {
+    Scale 0.1;
+    }
+}
+
+class Spark_G3 : Spark_G1
+{
+    Default
+    {
+    Scale 0.08;
+    }
+}
+
+class Spark_G4 : Spark_G1
+{
+    Default
+    {
+    Speed 2;
+    }
+}
+
+class Spark_G5 : Spark_G1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.1;
+    }
+}
+
+class Spark_G6 : Spark_G1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.08;
+    }
+}
+
+class Spark_G7 : Spark_G1
+{
+    Default
+    {
+    Speed 1;
+    }
+}
+
+class Spark_G8 : Spark_G1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.1;
+    }
+}
+
+class Spark_G9 : Spark_G1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.08;
+    }
+}
+
+class Spark_O1 : Actor
+{
+    Default
+    {
+    Speed 3;
+    Height 2;
+    Radius 1;
+    Mass 0;
+    +Missile +LowGravity;
+    RenderStyle "Add";
+    Scale 0.12;
+    Translation "80:106=209:223","107:111=232:236","3:3=233:233";
+    }
+    States
+    {
+    Spawn:
+        SPRK A 0;
+        SPRK A 64 Bright;
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+    Death:
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+
+    }
+}
+
+class Spark_O2 : Spark_O1
+{
+    Default
+    {
+    Scale 0.1;
+    }
+}
+
+class Spark_O3 : Spark_O1
+{
+    Default
+    {
+    Scale 0.08;
+    }
+}
+
+class Spark_O4 : Spark_O1
+{
+    Default
+    {
+    Speed 2;
+    }
+}
+
+class Spark_O5 : Spark_O1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.1;
+    }
+}
+
+class Spark_O6 : Spark_O1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.08;
+    }
+}
+
+class Spark_O7 : Spark_O1
+{
+    Default
+    {
+    Speed 1;
+    }
+}
+
+class Spark_O8 : Spark_O1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.1;
+    }
+}
+
+class Spark_O9 : Spark_O1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.08;
+    }
+}
+
+class Spark_R1 : Actor
+{
+    Default
+    {
+    Speed 3;
+    Height 2;
+    Radius 1;
+    Mass 0;
+    +Missile +LowGravity;
+    RenderStyle "Add";
+    Scale 0.12;
+    Translation "80:111=169:191","3:3=187:187";
+    }
+    States
+    {
+    Spawn:
+        SPRK A 0;
+        SPRK A 64 Bright;
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+    Death:
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+
+    }
+}
+
+class Spark_R2 : Spark_R1
+{
+    Default
+    {
+    Scale 0.1;
+    }
+}
+
+class Spark_R3 : Spark_R1
+{
+    Default
+    {
+    Scale 0.08;
+    }
+}
+
+class Spark_R4 : Spark_R1
+{
+    Default
+    {
+    Speed 2;
+    }
+}
+
+class Spark_R5 : Spark_R1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.1;
+    }
+}
+
+class Spark_R6 : Spark_R1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.08;
+    }
+}
+
+class Spark_R7 : Spark_R1
+{
+    Default
+    {
+    Speed 1;
+    }
+}
+
+class Spark_R8 : Spark_R1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.1;
+    }
+}
+
+class Spark_R9 : Spark_R1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.08;
+    }
+}
+
+class Spark_C1 : Actor
+{
+    Default
+    {
+    Speed 3;
+    Height 2;
+    Radius 1;
+    Mass 0;
+    +Missile +LowGravity;
+    RenderStyle "Add";
+    Scale 0.12;
+    Translation "80:82=225:227","83:83=160:160","84:87=228:231","88:111=161:167","3:3=164:164";
+    }
+    States
+    {
+    Spawn:
+        SPRK A 0;
+        SPRK A 64 Bright;
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+    Death:
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+
+    }
+}
+
+class Spark_C2 : Spark_C1
+{
+    Default
+    {
+    Scale 0.1;
+    }
+}
+
+class Spark_C3 : Spark_C1
+{
+    Default
+    {
+    Scale 0.08;
+    }
+}
+
+class Spark_C4 : Spark_C1
+{
+    Default
+    {
+    Speed 2;
+    }
+}
+
+class Spark_C5 : Spark_C1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.1;
+    }
+}
+
+class Spark_C6 : Spark_C1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.08;
+    }
+}
+
+class Spark_C7 : Spark_C1
+{
+    Default
+    {
+    Speed 1;
+    }
+}
+
+class Spark_C8 : Spark_C1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.1;
+    }
+}
+
+class Spark_C9 : Spark_C1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.08;
+    }
+}
+
+class Spark_Y1 : Actor
+{
+    Default
+    {
+    Speed 3;
+    Height 2;
+    Radius 1;
+    Mass 0;
+    +Missile +LowGravity;
+    RenderStyle "Add";
+    Scale 0.12;
+    Translation "80:97=225:227","98:98=160:160","99:103=228:231","104:111=161:167","3:3=161:161";
+    }
+    States
+    {
+    Spawn:
+        SPRK A 0;
+        SPRK A 64 Bright;
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+    Death:
+        SPRK B 1 Bright A_SetTranslucent(.8,1);
+        SPRK C 1 Bright A_SetTranslucent(.7,1);
+        SPRK D 1 Bright A_SetTranslucent(.6,1);
+        SPRK E 1 Bright A_SetTranslucent(.5,1);
+        SPRK F 1 Bright A_SetTranslucent(.4,1);
+        SPRK G 1 Bright A_SetTranslucent(.3,1);
+            SPRK H 1 Bright A_SetTranslucent(.2,1);
+        Stop;
+
+    }
+}
+
+class Spark_Y2 : Spark_Y1
+{
+    Default
+    {
+    Scale 0.1;
+    }
+}
+
+class Spark_Y3 : Spark_Y1
+{
+    Default
+    {
+    Scale 0.08;
+    }
+}
+
+class Spark_Y4 : Spark_Y1
+{
+    Default
+    {
+    Speed 2;
+    }
+}
+
+class Spark_Y5 : Spark_Y1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.1;
+    }
+}
+
+class Spark_Y6 : Spark_Y1
+{
+    Default
+    {
+    Speed 2;
+    Scale 0.08;
+    }
+}
+
+class Spark_Y7 : Spark_Y1
+{
+    Default
+    {
+    Speed 1;
+    }
+}
+
+class Spark_Y8 : Spark_Y1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.1;
+    }
+}
+
+class Spark_Y9 : Spark_Y1
+{
+    Default
+    {
+    Speed 1;
+    Scale 0.08;
+    }
+}
+
+class Steamer_Upward : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    Mass 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Steam1",0,0,random(0,360),2,random(85,95));
+        Loop;
+        TNT1 A 0 A_Jump(160,2);
+        TNT1 A 1 A_CustomMissile("Steam2",0,0,random(0,360),2,random(85,95));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Steam3",0,0,random(0,360),2,random(85,95));
+        Loop;
+        TNT1 A 0 A_Jump(96,2);
+        TNT1 A 1 A_CustomMissile("Steam4",0,0,random(0,360),2,random(85,95));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Steam5",0,0,random(0,360),2,random(85,95));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Steamer_Forward : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    Mass 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Steam1",0,0,random(-5,5),2,random(175,185));
+        Loop;
+        TNT1 A 0 A_Jump(160,2);
+        TNT1 A 1 A_CustomMissile("Steam2",0,0,random(-5,5),2,random(175,185));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Steam3",0,0,random(-5,5),2,random(175,185));
+        Loop;
+        TNT1 A 0 A_Jump(96,2);
+        TNT1 A 1 A_CustomMissile("Steam4",0,0,random(-5,5),2,random(175,185));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Steam5",0,0,random(-5,5),2,random(175,185));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Steamer_Downward : SwitchableDecoration
+{
+    Default
+    {
+//$Category Stronghold_SFX
+    Height 2;
+    Radius 0;
+    Mass 0;
+    +NoBlockMap +NoGravity +NoSector +NoInteraction +NoClip -Solid +CLIENTSIDEONLY;
+    }
+    States
+    {
+    Spawn:
+    Active:
+        TNT1 A 0;
+        TNT1 A 0 A_Jump(192,2);
+        TNT1 A 1 A_CustomMissile("Steam1",-8,0,random(0,360),2,random(-95,-85));
+        Loop;
+        TNT1 A 0 A_Jump(160,2);
+        TNT1 A 1 A_CustomMissile("Steam2",-8,0,random(0,360),2,random(-95,-85));
+        Loop;
+        TNT1 A 0 A_Jump(128,2);
+        TNT1 A 1 A_CustomMissile("Steam3",-8,0,random(0,360),2,random(-95,-85));
+        Loop;
+        TNT1 A 0 A_Jump(96,2);
+        TNT1 A 1 A_CustomMissile("Steam4",-8,0,random(0,360),2,random(-95,-85));
+        Loop;
+        TNT1 A 1 A_CustomMissile("Steam5",-8,0,random(0,360),2,random(-95,-85));
+        Loop;
+    Inactive:
+        TNT1 A 1;
+        Loop;
+
+    }
+}
+
+class Steam1 : Actor
+{
+    Default
+    {
+    Height 2;
+    Radius 1;
+    Speed 4;
+    +Missile +NoGravity +NoClip	+NoInteraction -Solid;
+    RenderStyle "Add";
+    Scale 0.5;
+    Alpha 0.65;
+    }
+    States
+    {
+    Spawn:
+        STEM A 2 A_SetTranslucent(0.6,1);
+        STEM B 2 A_SetTranslucent(0.55,1);
+        STEM C 2 A_SetTranslucent(0.5,1);
+        STEM D 2 A_SetTranslucent(0.45,1);
+        STEM E 2 A_SetTranslucent(0.4,1);
+        STEM F 2 A_SetTranslucent(0.35,1);
+        STEM G 2 A_SetTranslucent(0.3,1);
+        STEM H 2 A_SetTranslucent(0.25,1);
+        STEM I 2 A_SetTranslucent(0.2,1);
+        STEM J 2 A_SetTranslucent(0.15,1);
+        STEM K 2 A_SetTranslucent(0.1,1);
+        STEM L 2 A_SetTranslucent(0.05,1);
+        Stop;
+
+    }
+}
+
+class Steam2 : Steam1
+{
+    Default
+    {
+    Scale 0.45;
+    }
+}
+
+class Steam3 : Steam1
+{
+    Default
+    {
+    Scale 0.4;
+    }
+}
+
+class Steam4 : Steam1
+{
+    Default
+    {
+    Scale 0.35;
+    }
+}
+
+class Steam5 : Steam1
+{
+    Default
+    {
+    Scale 0.3;
+    }
+}
+
+///////////////////////////////////////////////////////
+////////////////// VEGETATION & TREES /////////////////
+///////////////////////////////////////////////////////
+
+class Large_Palm1 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 16;
+  height 160;
+  +SOLID;
+    }
+    States
+    {
+  Spawn:
+    BTRA A -1;
+    stop;
+
+    }
+}
+
+class Large_Tree2 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 32;
+  height 128;
+  +SOLID;
+    }
+    States
+    {
+  Spawn:
+    BTRB A -1;
+    stop;
+
+    }
+}
+
+class Medium_Tree5 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 16;
+  height 128;
+  +SOLID;
+    }
+    States
+    {
+  Spawn:
+    BTRC A -1;
+    stop;
+
+    }
+}
+
+class Medium_Tree2 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 16;
+  height 128;
+  +SOLID;
+    }
+    States
+    {
+  Spawn:
+    BTRD A -1;
+    stop;
+
+    }
+}
+
+class Medium_Tree1 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 16;
+  height 128;
+  +SOLID;
+    }
+    States
+    {
+  Spawn:
+    BTRE A -1;
+    stop;
+
+    }
+}
+
+class Large_Tree3 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 32;
+  height 128;
+  +SOLID;
+    }
+    States
+    {
+  Spawn:
+    BTRF A -1;
+    stop;
+
+    }
+}
+
+class Small_Bush1 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 16;
+  height 16;
+    }
+    States
+    {
+  Spawn:
+    BTRG A -1;
+    stop;
+
+    }
+}
+
+class Small_Bush2 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 16;
+  height 16;
+    }
+    States
+    {
+  Spawn:
+    BTRH A -1;
+    stop;
+
+    }
+}
+
+class Small_Grass1 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 16;
+  height 16;
+    }
+    States
+    {
+  Spawn:
+    BTRI A -1;
+    stop;
+
+    }
+}
+
+class Small_Grass2 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 16;
+  height 16;
+    }
+    States
+    {
+  Spawn:
+    BTRJ A -1;
+    stop;
+
+    }
+}
+
+class Large_Bush1 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 16;
+  height 16;
+    }
+    States
+    {
+  Spawn:
+    BTRK A -1;
+    stop;
+
+    }
+}
+
+class Large_Palm2 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 16;
+  height 160;
+  +SOLID;
+    }
+    States
+    {
+  Spawn:
+    BTRL Y -1;
+    stop;
+
+    }
+}
+
+class Medium_Tree4 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 32;
+  height 160;
+  +SOLID;
+    }
+    States
+    {
+  Spawn:
+    BTRM A -1;
+    stop;
+
+    }
+}
+
+class Medium_Tree3 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 32;
+  height 160;
+  +SOLID;
+    }
+    States
+    {
+  Spawn:
+    BTRN A -1;
+    stop;
+
+    }
+}
+
+class YellowTorch : FXYellowTorch
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+}
+
+class PurpleTorch : FXPurpleTorch
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+}
+
+class BloodTorch : FXBloodTorch
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+}
+
+class CyanTorch : FXCyanTorch
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+}
+
+class WhiteTorch : FXWhiteTorch
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+}
+
+class BlackTorch : RedTorch
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+    States
+    {
+    Spawn:
+        TDRK ABCD 4 Bright;
+        Loop;
+
+    }
+}
+
+class TorchStick : RedTorch
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+    States
+    {
+    Spawn:
+        TBLX A -1;
+        Loop;
+
+    }
+}
+
+class YellowFirestick : FXShortYellowTorch
+{
+
+}
+class WhiteFirestick : FXShortWhiteTorch
+{
+
+}
+class BloodFirestick : FXShortBloodTorch
+{
+
+}
+class CyanFirestick : FXShortCyanTorch
+{
+
+}
+class PurpleFirestick : FXShortPurpleTorch
+{
+
+}
+
+class Stick : ShortRedTorch
+{
+    Default
+    {
+    //$Category Stronghold_LightSources
+    }
+    States
+    {
+    Spawn:
+        SMRX A -1;
+        Loop;
+
+    }
+}
+
+class RedWallTorch : FXRedWallTorch
+{
+
+}
+class BlueWallTorch : FXBlueWallTorch
+{
+
+}
+class GreenWallTorch : FXGreenWallTorch
+{
+
+}
+class YellowWallTorch : FXYellowWallTorch
+{
+
+}
+class WhiteWallTorch : FXWhiteWallTorch
+{
+
+}
+class PurpleWallTorch : FXPurpleWallTorch
+{
+
+}
+class BloodRedWallTorch : FXBloodRedWallTorch
+{
+
+}
+
+class RedCandle : Candlestick
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+    States
+    {
+    Spawn:
+        CANR A -1 Bright;
+        Loop;
+
+    }
+}
+
+class Cactus2 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+    Radius 48;
+    Height 136;
+    }
+    States
+    {
+    Spawn:
+        CTS1 A -1;
+        Stop;
+
+    }
+}
+
+// For STR12
+
+class Cactus3 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 36;
+  height 72;
+    }
+    States
+    {
+  Spawn:
+    CTS2 A -1;
+    stop;
+
+    }
+}
+
+class Cactus4 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+  radius 36;
+  height 64;
+    }
+    States
+    {
+  Spawn:
+    CTS3 A -1;
+    stop;
+
+    }
+}
+
+class BlueCandle : Candlestick
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+    States
+    {
+   Spawn:
+      CANB A -1 Bright;
+      Loop;
+
+    }
+}
+
+class GreenCandle : Candlestick
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+    States
+    {
+   Spawn:
+      CANG A -1 Bright;
+      Loop;
+
+    }
+}
+
+class BlackCandle : Candlestick
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+    States
+    {
+   Spawn:
+      CANE A -1 Bright;
+      Loop;
+
+    }
+}
+
+class WhiteCandle : Candlestick
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+    States
+    {
+   Spawn:
+      CANW A -1 Bright;
+      Loop;
+
+    }
+}
+
+class Candlera : BloodyTwitch
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+Height 64;
+Radius 16;
+    }
+    States
+    {
+   Spawn:
+      CDLR ABC 4 Bright;
+      Loop;
+
+    }
+}
+
+class CandleraNoFire : Candlera
+{
+    Default
+    {
+//$Category Stronghold_LightSources
+    }
+    States
+    {
+   Spawn:
+      CDLR D -1;
+      Loop;
+
+    }
+}
+
+//Obstacles
+
+class Cave_Pillar : TallGreenColumn
+{
+    Default
+    {
+//$Category Stronghold_Decoration
+   Height 128;
+   Radius 20;
+    }
+    States
+    {
+   Spawn:
+      CSMT A -1;
+      Loop;
+
+    }
+}
+
+class Cave_Stump1 : TallGreenColumn
+{
+    Default
+    {
+//$Category Stronghold_Decoration
+   Height 70;
+   Radius 20;
+    }
+    States
+    {
+   Spawn:
+      CSMT B -1;
+      Loop;
+
+    }
+}
+
+class Cave_Stump2 : TallGreenColumn
+{
+    Default
+    {
+//$Category Stronghold_Decoration
+   Height 56;
+   Radius 20;
+    }
+    States
+    {
+   Spawn:
+      CSMT C -1;
+      Loop;
+
+    }
+}
+
+class Cave_Stump3 : TallGreenColumn
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    Height 44;
+    Radius 20;
+    }
+    States
+    {
+    Spawn:
+        CSMT D -1;
+        Loop;
+
+    }
+}
+
+class Cave_HungStump1 : BloodyTwitch
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    Height 56;
+    Radius 20;
+    +CEILINGHUGGER;
+    +SPAWNCEILING;
+    }
+    States
+    {
+    Spawn:
+        CSMT E -1;
+        Loop;
+
+    }
+}
+
+class Cave_HungStump2 : Cave_HungStump1
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    }
+    States
+    {
+    Spawn:
+        CSMT F -1;
+        Loop;
+
+    }
+}
+
+class Cave_HungStump3 : Cave_HungStump1
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    Height 44;
+    Radius 20;
+    }
+    States
+    {
+    Spawn:
+        CSMT G -1;
+        Loop;
+
+    }
+}
+
+class City_StreetLight : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    radius 16;
+    height 128;
+    }
+    States
+    {
+    Spawn:
+        ELEC Z -1;
+        stop;
+
+    }
+}
+
+class DeadTree : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Vegetation
+    radius 32;
+    height 128;
+    }
+    States
+    {
+    Spawn:
+        TREE K -1;
+        stop;
+
+    }
+}
+
+class Cactus : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Vegetation
+    scale 0.8;
+    radius 16;
+    height 128;
+    }
+    States
+    {
+    Spawn:
+    TREE M -1;
+    stop;
+
+    }
+}
+
+class City_Hydrant : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    radius 16;
+    height 32;
+    }
+    States
+    {
+    Spawn:
+        UHDR A -1;
+        stop;
+
+    }
+}
+
+class Misc_Cocktail : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    scale 0.5;
+    radius 1;
+    height 1;
+    }
+    States
+    {
+    Spawn:
+        UKTC C -1;
+        stop;
+
+    }
+}
+
+class Misc_Bottle1 : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    scale 0.5;
+    radius 1;
+    height 1;
+    }
+    States
+    {
+    Spawn:
+        UKTC D -1;
+        stop;
+
+    }
+}
+
+class Misc_Bottle2 : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    scale 0.5;
+    radius 1;
+    height 1;
+    }
+    States
+    {
+    Spawn:
+        UKTC E -1;
+        stop;
+
+    }
+}
+
+class City_Trash : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    scale 0.75;
+    radius 16;
+    height 32;
+    }
+    States
+    {
+    Spawn:
+        UTRS A -1;
+        stop;
+
+    }
+}
+
+
+class Misc_LampDesk : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Decoration
+    scale 0.75;
+    radius 16;
+    height 32;
+    }
+    States
+    {
+    Spawn:
+        NJEX A -1;
+        stop;
+
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////// POWER CORE ////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+
+class PowerCore : Actor
+{
+    Default
+    {
+    DamageFactor "MarineAlly",0;
+    DamageFactor "BossFactor",0;
+    DamageFactor "BFGSplash",0;
+    DamageFactor "Stunner",0;
+    DamageFactor "STBoss",0.015;
+    DamageFactor "STBossFactor",0.1;
+    DamageFactor "Animate",0;
+    DamageFactor "Cyber2Factor",0.25;
+    DamageFactor "Normal",0.4;
+    DamageFactor "Lightning",0.5;
+    DamageFactor "Fire",0.5;
+    DamageFactor "RedBlast",0.5;
+    DamageFactor "OvermindFactor",0.25;
+    //$Category Stronghold
+    damagefactor "corefriendly",0;
+    damagefactor "massacre",0;
+    radius 24;
+    height 128;
+    mass 0x7FFFFFFF;
+    painchance 255;
+    deathsound "world/barrelx";
+    +SOLID;
+    +SHOOTABLE;
+    +ISMONSTER;
+    +FRIENDLY;
+    +NOBLOOD;
+    +DONTGIB;
+    }
+    States
+    {
+    Spawn:
+        SECG ABCD 6;
+        SECG A 0 A_JumpIfHealthLower(666,"Spawn_66");
+        loop;
+    Pain:
+        SECG A 0 A_JumpIfHealthLower(333,"Spawn_33");
+        SECG A 0 A_JumpIfHealthLower(666,"Spawn_66");
+        SECO A 0 ACS_Execute(929,0,1);
+        goto Spawn;
+    Spawn_66:
+        SECY A 0 ACS_Execute(929,0,2);
+        SECY ABCD 6;
+        SECY A 0 A_JumpIfHealthLower(333,"Spawn_33");
+        goto Spawn_66+1;
+    Spawn_33:
+        SECR A 0 ACS_Execute(929,0,3);
+        SECR ABCD 6;
+        goto Spawn_33+1;
+    Death:
+        SECR E 0 ACS_ExecuteAlways(929,0,4);
+        SECR E 6 A_Scream;
+        SECR FGHJKLMNO 6;
+        SECR P -1;
+        stop;
+
+    }
+}
+
+//////////////////////////////////////
+// Overmind Core /////////////////////
+// Used in STR21 /////////////////////
+//////////////////////////////////////
+
+class OvermindCore : Actor
+{
+    Default
+    {
+    //$Category Stronghold
+    +Solid;
+    +Shootable;
+    +Friendly;
+    +IsMonster;
+    +NoBlood;
+    Radius 24;
+    height 80;
+    mass 0x7FFFFFFF;
+    translation 2;
+    damagefactor "corefriendly",0;
+    damagefactor "massacre",0;
+    damagefactor "overmindfactor",10;
+    DeathSound "weapons/rocklx";
+    DamageFactor "MarineAlly",0;
+    DamageFactor "CoreFriendly",0;
+    DamageFactor "BossFactor",0;
+    DamageFactor "BFGSplash",0;
+    DamageFactor "Stunner",0;
+    Health 50000;
+    }
+    States
+    {
+    Spawn:
+        ZECR ABCD 4;
+        loop;
+    Death:
+        TNT1 A 0 A_Scream;
+        MISL BCD 3 Bright;
+        stop;
+
+    }
+}
+
+//////////////////////////////////////
+// Odd Grass	 /////////////////////
+// Used in STR33 /////////////////////
+//////////////////////////////////////
+
+class Oddgrass1 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+
+    }
+    States
+    {
+    Spawn:
+        OGR1 A -1;
+        Stop;
+
+    }
+}
+
+class Oddgrass2 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+
+    }
+    States
+    {
+    Spawn:
+        OGR2 A -1;
+        Stop;
+
+    }
+}
+
+class Oddgrass3 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+
+    }
+    States
+    {
+    Spawn:
+        OGR3 A -1;
+        Stop;
+
+    }
+}
+
+class Oddgrass4 : Actor
+{
+    Default
+    {
+//$Category Stronghold_Vegetation
+
+    }
+    States
+    {
+    Spawn:
+        OGR4 A -1;
+        Stop;
+
+    }
+}
+
+///////////////////////////////////////
+// ALARM ACTOR ////////////////////////
+///////////////////////////////////////
+
+class AlarmSounder : Actor
+{
+    Default
+    {
+    //$Category Stronghold
+    +NOBLOCKMAP;
+    +FRIENDLY;
+    }
+    States
+    {
+    Spawn:
+        TNT1 A 1 A_LookEx(LOF_NOSOUNDCHECK,0,192,0,360,"See");
+        Loop;
+    See:
+        TNT1 A 56 A_PlaySound("AMB16",CHAN_AUTO,1,0,ATTN_NONE);
+        goto spawn;
+
+    }
+}
+
+////////////////
+// UTNT COMET //
+////////////////
+
+class CometLarge_Enhanced : Actor
+{
+    Default
+    {
+    Radius 6;
+    Height 8;
+    Speed 10;
+    Damage 5;
+    PROJECTILE;
+    SeeSound "comet/launch";
+    DeathSound "comet/explosion";
+    }
+    States
+    {
+    Spawn:
+        COMT AAAABBBBCCCC 1 Bright LIGHT("Comet") A_SpawnItemEx("CometFire_Orange",Random(-2,2),Random(-2,2),Random(-2,2));
+        Loop;
+    Death:
+        COMT D 3 Bright LIGHT("CometX_1");
+        COMT E 3 Bright LIGHT("CometX_2") A_Explode(40,80);
+        COMT FGHI 3 Bright;
+        Stop;
+
+    }
+}
+
+class CometLarge_Enhanced_NoDmg : CometLarge_Enhanced
+{
+    Default
+    {
+    +CLIENTSIDEONLY;
+    Damage 0;
+    }
+    States
+    {
+    Death:
+        COMT D 3 Bright LIGHT("CometX_1");
+        COMT E 3 Bright LIGHT("CometX_2");
+        COMT FGHI 3 Bright;
+        Stop;
+
+    }
+}
+
+class CometSpawner_512 : Actor
+{
+    Default
+    {
+    //$Category Stronghold_Weather
+    +NoBlockMap;
+    +NoGravity;
+    +NoInteraction;
+    +NoClip;
+    +CLIENTSIDEONLY;
+    +SPAWNCEILING;
+    Radius 3;
+    Height 3;
+    }
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 16 A_SpawnItemEx("CometLarge_Enhanced_NoDmg",random(512,-512),random(512,-512),-8,random(6,18),0,random(-6,-18),0,0,160);
+        loop;
+
+    }
+}
+
+class CometFire_Orange : Actor
+{
+    Default
+    {
+    +CLIENTSIDEONLY;
+    +Missile;
+    +NoGravity;
+    +NoBlockmap;
+    Radius 0;
+    Height 0;
+    RenderStyle "Add";
+    Scale 1.6;
+    }
+    States
+    {
+    Spawn:
+        TNT1 A 0;
+        TNT1 A 0 ThrustThingZ(0,Random(2,4),0,0);
+        FORA AAABBCDEEEEEEEEEEEEEEEE 1 A_FadeOut(0.04);
+        Stop;
+
+    }
+}
+
+///////////////////////////////////////////
+/////////////Final maps stuff//////////////
+///////////////////////////////////////////
+
+class IWantToKickAss : CustomInventory
+{
+    States
+    {
+    Pickup:
+        TNT1 A 0 ACS_Execute(900,0);
+        Stop;
+
+    }
+}
+
+class IWantToGoRestock : Inventory
+{
+
+}
+class AllTiersCompleted : Inventory
+{
+
+}
+
+// Includes
