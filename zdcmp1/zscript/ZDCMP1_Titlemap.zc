@@ -12,6 +12,7 @@ class ZDCMP1TitleSlideshow : StaticEventHandler
     ui int currentSlide;
     ui int incomingSlide;
     ui int phaseTic;
+    ui int crawlTic;
     ui int rngState;
 
     ui int NextRandom(int upper)
@@ -53,10 +54,12 @@ class ZDCMP1TitleSlideshow : StaticEventHandler
             currentSlide = deck[0];
             incomingSlide = deck[1];
             phaseTic = 0;
+            crawlTic = 0;
             initialized = true;
             return;
         }
 
+        crawlTic++;
         if (++phaseTic < HoldTics + FadeTics) return;
         phaseTic = 0;
         currentSlide = incomingSlide;
@@ -108,9 +111,11 @@ class ZDCMP1TitleSlideshow : StaticEventHandler
         double baseHeight = 900.;
         if (aspect < 1600. / 900.) baseWidth = 900. * aspect;
 
-        // A 2-6% source crop produces a slow Ken Burns move without revealing edges.
-        double travel = clamp(age / 4., 0., 1.);
-        double zoom = 1.02 + 0.04 * travel;
+        // Subpixel sampling and eased endpoints keep the camera from stepping
+        // between integer source pixels or snapping at a slide change.
+        double fraction = clamp(age / 4., 0., 1.);
+        double travel = fraction * fraction * (3. - 2. * fraction);
+        double zoom = 1.015 + 0.025 * travel;
         double sourceWidth = baseWidth / zoom;
         double sourceHeight = baseHeight / zoom;
         double sweep = (slide & 1) ? travel : 1. - travel;
@@ -119,9 +124,26 @@ class ZDCMP1TitleSlideshow : StaticEventHandler
 
         Screen.DrawTexture(texture, false, centerX, 0,
             DTA_DestWidth, centerWidth, DTA_DestHeight, height,
-            DTA_SrcX, int(sourceX), DTA_SrcY, int(sourceY),
-            DTA_SrcWidth, int(sourceWidth), DTA_SrcHeight, int(sourceHeight),
+            DTA_SrcX, sourceX, DTA_SrcY, sourceY,
+            DTA_SrcWidth, sourceWidth, DTA_SrcHeight, sourceHeight,
             DTA_Alpha, alpha, DTA_TopLeft, true);
+    }
+
+    ui void DrawCredits(double fraction)
+    {
+        String line = "A Realm667 Production     /     Powered by the ZDoom Community     /     Remaster by Ozymandias81, Salahmander & Tormentor667";
+        int width = Screen.GetWidth();
+        int height = Screen.GetHeight();
+        double scale = clamp(double(height) / 360., 1., 4.);
+        double lineWidth = SmallFont.StringWidth(line) * scale;
+        double speed = 30. * scale;
+        int cycleTics = max(1, int(35. * (width + lineWidth) / speed));
+        double distance = (crawlTic % cycleTics + fraction) * speed / 35.;
+        int stripHeight = int(16. * scale);
+        Screen.Dim(0x090D11, 0.58, 0, height - stripHeight, width, stripHeight);
+        Screen.DrawText(SmallFont, Font.CR_UNTRANSLATED, width - distance,
+            height - 11. * scale, line,
+            DTA_ScaleX, scale, DTA_ScaleY, scale);
     }
 
     override void RenderOverlay(RenderEvent e)
@@ -135,5 +157,6 @@ class ZDCMP1TitleSlideshow : StaticEventHandler
             double fade = clamp(time - 2., 0., 1.);
             DrawSlide(incomingSlide, fade, fade);
         }
+        DrawCredits(e.FracTic);
     }
 }

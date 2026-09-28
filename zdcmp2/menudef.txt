@@ -13,16 +13,36 @@ DefaultListMenu
 
 ListMenu "MainMenu"
 {
-	StaticPatch 94, 2, "M_DOOM"
-	Position 97, 64
+    StaticPatch 94, 12, "M_DOOM"
+    Position 97, 77
 
-	TextItem "Start Map", "s", "PlayerclassMenu"
-	TextItem "Load Game", "l", "LoadGameMenu"
-	TextItem "Save Game", "s", "SaveGameMenu"
-	TextItem "Zdcmp2 Options", "z", "ZDCMP2Menu"
-	TextItem "Options","o", "OptionsMenu"
-	TextItem "Quit Game", "q", "QuitMenu"
+    TextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+    TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+    TextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+    TextItem "$ZDC2_OPTIONS", "z", "ZDCMP2Menu"
+    TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+    TextItem "$MNU_QUITGAME", "q", "QuitMenu"
 }
+
+// The built-in menu templates fill the episode and skill entries at runtime.
+// Only their static header graphics are replaced here.
+ListMenu "EpisodeMenu"
+{
+    NetgameMessage "$NEWGAME"
+    StaticTextCentered 160, 38, "$MNU_EPISODE"
+    Position 48, 63
+    LineSpacing 16
+}
+
+ListMenu "SkillMenu"
+{
+    NetgameMessage "$NEWGAME"
+    StaticTextCentered 160, 14, "$MNU_NEWGAME"
+    StaticTextCentered 160, 38, "$MNU_CHOOSESKILL"
+    Position 48, 63
+    LineSpacing 16
+}
+
 
 
 //-------------------------------------------------------------------------------------------
@@ -33,19 +53,19 @@ ListMenu "MainMenu"
 
 OptionMenu "ZDCMP2Menu"
 {
-	Title       "Zdcmp2 Options"
+	Title       "$ZDC2_OPTIONS"
 	StaticText 	""
-	StaticText 	"ZDCMP2 Settings"              , 1
-	Option      "Scripted autosaves"           , "zdcmp2_autosave", "YesNo"
-	Option      "Watch endgame credits"        , "zdcmp2_credits",  "YesNo"
-	Option      "Enable CPU-intensive effects" , "zdcmp2_effects",  "YesNo"
+	StaticText 	"$ZDC2_SETTINGS"              , 1
+	Option      "$ZDC2_AUTOSAVES"           , "zdcmp2_autosave", "YesNo"
+	Option      "$ZDC2_CREDITS"        , "zdcmp2_credits",  "YesNo"
+	Option      "$ZDC2_EFFECTS" , "zdcmp2_effects",  "YesNo"
 	StaticText 	""
-	StaticText 	"ZDCMP2 Controls"              , 1
-	Control		"Throw Grenade"                , "+zdcmp2grenade"
-	Control 	"Show Objectives Display"      , "showpop 3"
-	Control 	"Show Log Display"             , "showpop 1"
-	Control 	"Cycle Previous Log Entry"     , "zdcmp2prevLog"
-	Control 	"Cycle Next Log Entry"         , "zdcmp2nextLog"
+	StaticText 	"$ZDC2_CONTROLS"              , 1
+	Control		"$ZDC2_THROW"                , "+zdcmp2grenade"
+	Control 	"$ZDC2_OBJECTIVES"      , "showpop 3"
+	Control 	"$ZDC2_LOG"             , "showpop 1"
+	Control 	"$ZDC2_PREV_LOG"     , "zdcmp2prevLog"
+	Control 	"$ZDC2_NEXT_LOG"         , "zdcmp2nextLog"
 }
 
 

@@ -1,3 +1,41 @@
+// Text menu labels can be localized; the M_DOOM logo stays centered above them.
+DefaultListMenu
+{
+    Font "BigFont", "Untranslated"
+    Selector "M_SKULL1", -32, -5
+    LineSpacing 16
+}
+
+ListMenu "MainMenu"
+{
+    StaticPatch 94, 12, "M_DOOM"
+    Position 97, 77
+    TextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+    TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+    TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+    TextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+    TextItem "$MNU_QUITGAME", "q", "QuitMenu"
+}
+
+// The built-in menu templates fill the episode and skill entries at runtime.
+// Only their static header graphics are replaced here.
+ListMenu "EpisodeMenu"
+{
+    NetgameMessage "$NEWGAME"
+    StaticTextCentered 160, 38, "$MNU_EPISODE"
+    Position 48, 63
+    LineSpacing 16
+}
+
+ListMenu "SkillMenu"
+{
+    NetgameMessage "$NEWGAME"
+    StaticTextCentered 160, 14, "$MNU_NEWGAME"
+    StaticTextCentered 160, 38, "$MNU_CHOOSESKILL"
+    Position 48, 63
+    LineSpacing 16
+}
+
 AddOptionMenu "OptionsMenu"
 {
 	Submenu "$ZDC_OPTIONS", "ZDCMP1OptionsMenu"
