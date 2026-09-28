@@ -41,7 +41,11 @@ def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
     errors=[s for s in ('UTNT_ASSERT FAIL','VM execution aborted','errors while parsing','Script error,','Execution could not continue','ACS: Unknown','P_StartScript: Unknown script','mismatched client-side handling','There is a thinker in the fresh list') if s in output]
     if mapname and 'UTNT_TEST_END' not in output: errors.append('missing completion marker')
     if regression and 'UTNT_REGRESSION_COMPLETE' not in output: errors.append('missing regression assertions')
-    result={'label':label,'ok':code in (0,1337) and not errors,'exit':code,'seconds':round(time.monotonic()-start,2),'log':str(log),'errors':errors,'assertions':output.count('UTNT_ASSERT PASS')}
+    # POSIX process exit statuses retain only the low 8 bits of Doom's
+    # 1337 return value for a successful -norun compile check.
+    norun_success = 1337 if os.name == 'nt' else 1337 & 0xff
+    success_codes = (0, norun_success) if not mapname else (0,)
+    result={'label':label,'ok':code in success_codes and not errors,'exit':code,'seconds':round(time.monotonic()-start,2),'log':str(log),'errors':errors,'assertions':output.count('UTNT_ASSERT PASS')}
     if not quiet: print(json.dumps(result),flush=True)
     return result
 
