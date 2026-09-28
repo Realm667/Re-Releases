@@ -86,19 +86,26 @@ with day/night/storm screenshots. Save/load and MAP01 -> MAP02 -> MAP01
 retain exactly one local camera controller and reproduce the same offsets.
 Software retains its existing palette/lighting limitations.
 
-Each cap has eight ANIMDEFS frames. A separately generated, tileable
-cloud mask shifts by at most 16 pixels across those frames and modulates
-only the cap interior. Each frame lasts 20 tics. The layer moves gently;
-the surrounding mountains and wall clouds remain fixed, and the cap
-perimeter does not change. The old ACS ceiling scrollers on tags 32 and
-113, including the storm acceleration, are removed because they moved
-the complete ceiling image through its seam. No custom shader is needed.
-The same authored frames run on Vulkan, OpenGL and the software scene
-renderer. Software uses explicit 320-unit flat scale and world offsets to
-match the special-90 hardware projection. Its palette and lighting remain
-less smooth than the hardware renderers. No custom shader is required.
+Vulkan and OpenGL add a continuously scrolling cloud sheet to both skies.
+`shaders/zdc_sky_clouds.fp` samples the existing tileable cloud masks in one
+shared world-space plane across the top and upper walls. One horizontal tile
+passes in 200 seconds, with a smaller diagonal drift. The layer fades out above
+the mountain silhouettes and modulates cloud brightness by at most 16 percent;
+the underlying landscape and cube projection never scroll. Sampling uses texel
+centres to avoid auxiliary-texture border seams. All eight top frame aliases
+receive the same material with a static base, avoiding double animation.
 
-Validation: 15 integrity tests plus three image-space tests cover inward
+The shader uses local renderer time, so its purely decorative cloud phase may
+differ between clients and restart on application restart. It writes no game
+state and leaves the serialized day/night/storm clock and per-client parallax
+unchanged. The software renderer retains the existing eight-frame, low-amplitude
+cap animation as a simpler fallback; it does not render the continuous upper-wall
+cloud sheet. Its 320-unit flat scale and offsets still match the cube geometry.
+The old ACS whole-ceiling scrollers remain disabled to preserve the seams.
+Time-separated Vulkan/OpenGL captures verify moving clouds and pixel-identical
+mountain samples in both skies.
+
+Validation: 15 integrity tests plus four texture/material tests cover inward
 wall winding, sector bounds, matching wall corners, wall/cap intersections,
 static animation edges and changing cloud interiors. UZDoom 5.0.3 was checked
 with Vulkan and OpenGL (SSAO enabled), and the software scene renderer, from

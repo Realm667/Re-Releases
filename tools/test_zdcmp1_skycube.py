@@ -37,6 +37,20 @@ class SkyCubeImages(unittest.TestCase):
                 self.assertLess(error.mean(), 0.6, (name, face, error.mean()))
                 self.assertLess(error.max(), 5, (name, face, error.max()))
 
+    def test_cloud_material_covers_every_animated_face(self):
+        import re
+        root = ROOT.parents[2]
+        text = (root / 'gldefs/sky-clouds.txt').read_text()
+        blocks = dict(re.findall(r'material texture (\w+)\s*\{([^}]+)\}', text))
+        expected = {f'{p}_{f}{h}' for p in ('ZD','ZH') for f in 'NWSE' for h in (0,1)}
+        expected |= {f'{p}_TOP' if i == 0 else f'{p}_T{i:02d}'
+                     for p in ('ZD','ZH') for i in range(8)}
+        self.assertEqual(set(blocks), expected)
+        for body in blocks.values():
+            for path in re.findall(r'"([^"]+)"', body):
+                self.assertTrue((root / path).is_file(), path)
+        self.assertIn('#include "gldefs/sky-clouds.txt"', (root/'gldefs.txt').read_text())
+
     def test_cloud_frames_keep_wall_intersections_static(self):
         for name in ('outdoor', 'hell'):
             base = pixels(f'{name}-top')
