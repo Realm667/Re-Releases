@@ -1,0 +1,29 @@
+// ACS cannot select player slots above eight with AAPTR_PLAYER1..8.
+// Dispatch the existing ACS HUD queue through the actual player pawns.
+class ZDCMP2MessageDispatcher : Actor
+{
+	Default
+	{
+		+NOINTERACTION
+		+NOBLOCKMAP
+		+NOSECTOR
+	}
+
+	States
+	{
+	Spawn:
+		TNT1 A -1;
+		Stop;
+	}
+
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i] && players[i].mo)
+				players[i].mo.ACS_NamedExecuteAlways('ProcessMessageQueue', 0, i);
+		}
+		Destroy();
+	}
+}

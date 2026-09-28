@@ -1,0 +1,11 @@
+#library "z2test"
+#include "zcommon.acs"
+#import "zdcmp2.acs"
+
+script "ZDCMP2TestNotify" (void)
+{
+    Log(s:"ZDCMP2_FIXTURE_CALLED");
+    queueMessageAll("ZDCMP2 Test", "Message dispatch reached the player.", "", "", 1.0);
+    delay(280);
+    Log(s:"ZDCMP2_QUEUE_REMAINING=", d:QueueLength[0]);
+}

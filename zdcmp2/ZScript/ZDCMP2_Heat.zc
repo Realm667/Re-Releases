@@ -59,13 +59,11 @@ class CustomShaderHandler : StaticEventHandler
 	override void RenderOverlay(RenderEvent e)
 	{
 		PlayerInfo p = players[consoleplayer];
-		ThinkerIterator shaderIter = ThinkerIterator.Create("ShaderControl");
-
-		ShaderControl shaderControl;
-
-		while (shaderControl = ShaderControl(shaderIter.Next()))
+		if (!p || !p.mo) return;
+		for (Inventory item = p.mo.Inv; item != null; item = item.Inv)
 		{
-			if (shaderControl.Owner && shaderControl.Owner == p.mo) {
+			ShaderControl shaderControl = ShaderControl(item);
+			if (shaderControl) {
 				//Console.Printf("Shader: %s", shaderControl.ShaderToControl);
 				if (shaderControl.amount >= 2)
 				{
@@ -200,9 +198,14 @@ class EffectGiver : EffectSpawner
 
 	override void Tick()
 	{
+		for (int i = Activators.Size() - 1; i >= 0; i--)
+		{
+			if (!Activators[i] || !Activators[i].player) Activators.Delete(i);
+		}
+
 		if (Activators.Size() && switchcvar && !switchcvar.GetBool())
 		{
-			for (int i = 0; i < Activators.Size(); i++)
+			for (int i = Activators.Size() - 1; i >= 0; i--)
 			{
 				Actor mo = Activators[i];
 
@@ -216,7 +219,7 @@ class EffectGiver : EffectSpawner
 		}
 		else if (!bDormant && level.time % 5 == 0)
 		{
-			for (int i = 0; i < Activators.Size(); i++)
+			for (int i = Activators.Size() - 1; i >= 0; i--)
 			{
 				Actor mo = Activators[i];
 

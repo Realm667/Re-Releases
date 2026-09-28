@@ -245,17 +245,7 @@ function void showMessage(str title, str message, str icon, str sound, int durat
 
 str MessageQueue[MAX_PLAYERS][MAX_QUEUED_MESSAGES][5];
 int QueueLength[MAX_PLAYERS];
-int PlayerSelector[64] =
-{	AAPTR_PLAYER1
-,	AAPTR_PLAYER2
-,	AAPTR_PLAYER3
-,	AAPTR_PLAYER4
-,	AAPTR_PLAYER5
-,	AAPTR_PLAYER6
-,	AAPTR_PLAYER7
-,	AAPTR_PLAYER8
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-};
+int QueueRunning[MAX_PLAYERS];
 
 // Queue a message for display.
 function void queueMessage(int playerNum, str title, str message, str icon, str sound, int duration) {
@@ -270,7 +260,6 @@ function void queueMessage(int playerNum, str title, str message, str icon, str 
         duration = 3.0;
 
 	int queueIndex = QueueLength[playerNum];
-	int queueRunning = (QueueLength[playerNum] > 0);
         
     MessageQueue[playerNum][queueIndex][0] = title;
     MessageQueue[playerNum][queueIndex][1] = message;
@@ -278,16 +267,19 @@ function void queueMessage(int playerNum, str title, str message, str icon, str 
     MessageQueue[playerNum][queueIndex][3] = sound;
     MessageQueue[playerNum][queueIndex][4] = duration;
     QueueLength[playerNum]++;
-	if(!queueRunning)
-		ACS_NamedExecuteAlways("ProcessMessageQueue", 0, playerNum);
 }
 function void queueMessageAll(str title, str message, str icon, str sound, int duration) {	
 	for(int playerNum = 0; playerNum < MAX_PLAYERS; playerNum++)
-		queueMessage(playerNum, title, message, icon, sound, duration);
+		if(PlayerInGame(playerNum))
+			queueMessage(playerNum, title, message, icon, sound, duration);
+	// ZScript starts each consumer with its player pawn as ACS activator.
+	SpawnForced("ZDCMP2MessageDispatcher", 0.0, 0.0, 0.0, 0, 0);
 }
 
 script "ProcessMessageQueue" (int playerNum) {
-	SetActivator(0, PlayerSelector[playerNum]);
+	if(playerNum < 0 || playerNum >= MAX_PLAYERS || PlayerNumber() != playerNum || QueueRunning[playerNum] || QueueLength[playerNum] == 0)
+		terminate;
+	QueueRunning[playerNum] = true;
 	// Process entire "queue" -- show all messages until the
 	// end of the queue is reached.
 	for(int i = 0; i < QueueLength[playerNum]; i++) {
@@ -301,4 +293,5 @@ script "ProcessMessageQueue" (int playerNum) {
     
 	// Reset queue counter -- this will effectively "clear" the queue.
 	QueueLength[playerNum] = 0;
+	QueueRunning[playerNum] = false;
 }

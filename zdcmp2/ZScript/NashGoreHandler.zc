@@ -35,7 +35,7 @@ class NashGoreHandler : EventHandler
 	int maxgore;
 	int maxgore_old, maxgore_new;
 
-	Array<String> bloodTypes;
+	Array<Class<Actor> > bloodTypes;
 
 	//===========================================================================
 	//
@@ -46,6 +46,7 @@ class NashGoreHandler : EventHandler
 	override void PlayerEntered(PlayerEvent e)
 	{
 		PlayerPawn plr = players[e.PlayerNumber].mo;
+		if (!plr) return;
 		if (!plr.CountInv("NashGoreActor"))
 		{
 			plr.A_GiveInventory("NashGoreActor", 1);
@@ -55,6 +56,7 @@ class NashGoreHandler : EventHandler
 	override void PlayerRespawned(PlayerEvent e)
 	{
 		PlayerPawn plr = players[e.PlayerNumber].mo;
+		if (!plr) return;
 		DoThingRevive(plr);
 	}
 
@@ -142,33 +144,22 @@ class NashGoreHandler : EventHandler
 
 	override void CheckReplacement(ReplaceEvent e)
 	{
-		// blood stuff
-		for (int i = 0; i < bloodTypes.Size(); i++)
+		bool replaceBlood = e.Replacee == "Blood" || e.Replacee == "BloodSplatter" || e.Replacee == "AxeBlood";
+		if (!replaceBlood)
 		{
-			// find all known blood types from the BLUDTYPE lump
-			class<Actor> miscBloodCls;
-			miscBloodCls = String.Format("%s", bloodTypes[i]);
-
-			if (e.Replacee == "Blood" || e.Replacee == "BloodSplatter" || e.Replacee == "AxeBlood"
-				|| (miscBloodCls != NULL && e.Replacee == miscBloodCls))
+			for (int i = 0; i < bloodTypes.Size(); i++)
 			{
-				class<Actor> bloodCls;
-
-				switch(nashgore_bloodtype)
-				{
-					default:
-					case 0:
-						bloodCls = "NashGoreBlood";
-						break;
-					case 1:
-						bloodCls = "NashGoreClassicBlood";
-						break;
-					case 2:
-						bloodCls = "Blood";
-						break;
-				}
-
-				e.Replacement = bloodCls;
+				if (e.Replacee == bloodTypes[i]) { replaceBlood = true; break; }
+			}
+		}
+		if (replaceBlood)
+		{
+			switch(nashgore_bloodtype)
+			{
+				default:
+				case 0: e.Replacement = "NashGoreBlood"; break;
+				case 1: e.Replacement = "NashGoreClassicBlood"; break;
+				case 2: e.Replacement = "Blood"; break;
 			}
 		}
 
@@ -214,35 +205,15 @@ class NashGoreHandler : EventHandler
 			lines.Clear();
 			data.Split(lines, "\n", TOK_KEEPEMPTY);
 
-			// strip comments
+			// Accept both CRLF and LF without truncating a real class name.
 			for (int i = 0; i < lines.Size(); i++)
 			{
-				if (lines[i].IndexOf("//") == 0)
-				{
-					continue;
-				}
-				else
-				{
-					bloodTypes.Push(lines[i]);
-				}
+				String line = lines[i];
+				line.StripLeftRight();
+				if (!line.Length() || line.IndexOf("//") == 0) continue;
+				Class<Actor> cls = line;
+				if (cls) bloodTypes.Push(cls);
 			}
-
-			// [lolhack] remove the last line because it's usually blank
-			//bloodTypes.Delete(bloodTypes.Size() - 1, 1);
-		}
-
-		//Console.Printf("size: %d", bloodTypes.Size());
-		for (int i = 0; i < bloodTypes.Size(); i++)
-		{
-			// delete that weird character that gets added at the end
-			bloodTypes[i].Truncate(bloodTypes[i].Length() - 1);
-
-			/*
-			if (bloodTypes[i])
-			{
-				Console.Printf("%s\n", bloodTypes[i]);
-			}
-			*/
 		}
 	}
 

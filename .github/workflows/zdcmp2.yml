@@ -1,0 +1,63 @@
+name: ZDCMP2 UZDoom 5.0.3 checks
+on:
+  push:
+    paths: ['zdcmp2/**', 'tools/fixtures/zdcmp2/**', 'tools/build_zdcmp2.py', 'tools/test_zdcmp2.py', 'tools/build_zdcmp1.py', 'tools/check_engine.py', '.github/workflows/zdcmp2.yml']
+  pull_request:
+    paths: ['zdcmp2/**', 'tools/fixtures/zdcmp2/**', 'tools/build_zdcmp2.py', 'tools/test_zdcmp2.py', 'tools/build_zdcmp1.py', 'tools/check_engine.py', '.github/workflows/zdcmp2.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        renderer: ['0', '1']
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            zdcmp2
+            tools
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare runner
+        run: |
+          mkdir -p tutnt/.codex/builds tutnt/.codex/logs
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1-mesa-dri mesa-vulkan-drivers libvulkan1 libsdl2-2.0-0 libgtk-3-0t64 libopenal1
+      - name: Download UZDoom 5.0.3, Freedoom II and ACC
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl --fail --location --retry 3 -o uzdoom.AppImage https://github.com/UZDoom/UZDoom/releases/download/5.0.3/Linux-UZDoom-Release-x86_64.AppImage
+          echo '9c5166febc09cbf80c24612a78829037c953f38c4d986e36f8475ddd507e0228  uzdoom.AppImage' | sha256sum --check
+          chmod +x uzdoom.AppImage
+          ./uzdoom.AppImage --appimage-extract > /dev/null
+          find squashfs-root -type f -name '*.pk3' -not -path 'squashfs-root/usr/bin/*' -exec cp -t squashfs-root/usr/bin/ {} +
+          test -f squashfs-root/usr/bin/uzdoom.pk3
+          curl --fail --location --retry 3 -o freedoom.zip https://github.com/freedoom/freedoom/releases/download/v0.13.0/freedoom-0.13.0.zip
+          echo '3f9b264f3e3ce503b4fb7f6bdcb1f419d93c7b546f4df3e874dd878db9688f59  freedoom.zip' | sha256sum --check
+          unzip -q freedoom.zip
+          curl --fail --location --retry 3 -o acc.tar.gz https://codeload.github.com/ZDoom/acc/tar.gz/e37b18ed84b7aa165b558c8af270fd7d50fc4beb
+          mkdir acc
+          tar -xzf acc.tar.gz --strip-components=1 -C acc
+          cc -O2 acc/*.c -o acc/acc
+          echo "UTNT_ENGINE=$RUNNER_TEMP/squashfs-root/AppRun" >> "$GITHUB_ENV"
+          echo "UTNT_IWAD=$RUNNER_TEMP/freedoom-0.13.0/freedoom2.wad" >> "$GITHUB_ENV"
+      - name: Verify ACS and build package
+        run: python -B tools/build_zdcmp2.py --acc "$RUNNER_TEMP/acc/acc"
+      - name: Parse, actors, map and save/load
+        run: xvfb-run -a python -B tools/test_zdcmp2.py --renderer ${{ matrix.renderer }} --acc "$RUNNER_TEMP/acc/acc"
+      - name: Preserve logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zdcmp2-renderer-${{ matrix.renderer }}
+          path: tutnt/.codex/logs/
+          include-hidden-files: true
+          retention-days: 7
