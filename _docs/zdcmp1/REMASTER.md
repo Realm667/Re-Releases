@@ -32,6 +32,31 @@ Both default to their full original values. Neither changes damage, ammo,
 projectile density, weapon timing or explosion actors. They are not a blanket
 photosensitivity mode: map flicker and other effects remain present.
 
+## Skybox remaster
+
+MAP01 keeps its two existing SkyViewpoints and the Hell SkyPickers (viewpoint
+ID 47). The outdoor camera room (sector 740) and Hell camera room (sector
+2635) now have 387 and 344 map units of wall height respectively; their
+camera heights are 250 and 220 units above the floor. The outdoor skybox
+sector is lit at level 255. Each room's eight wall
+segments use one continuous panorama with cumulative offsets around the
+octagon. WorldPanning in zdcmp1/textures.txt keeps those offsets in map
+units despite the high-resolution art.
+
+The four runtime images live under zdcmp1/PATCHES/skybox/: an outdoor
+panorama, a Hell panorama, and one ceiling cloud field for each. SKYWALL,
+SKYHELL, CLOUDS, and SKYBLO0D remain the texture names used by the map.
+The old low-resolution PNGs were removed. The wall shader drifts only the
+upper sky region; a separate shader gives the cloud ceilings two subtle
+opposing motions. The original SKYBLO0D warp was removed to avoid double
+animation. The original camera selection and all normal play-area geometry,
+things, scripts, and nodes are unchanged.
+
+The conceptual paintings are not a promise of exact seam-free source art:
+the map offsets and WorldPanning make a continuous circuit, while the
+left/right edge of each generated painting has only an approximate visual
+match. UZDoom 5.0.3 Vulkan and OpenGL load and in-map visual captures were checked.
+
 ## Engine integration
 
 UZDoom 5.0.1 is the tested minimum. The large copied PlayerThink implementation

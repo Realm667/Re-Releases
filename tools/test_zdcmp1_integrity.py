@@ -25,12 +25,35 @@ class ZDCMP1Integrity(unittest.TestCase):
 
     def test_map_source_and_geometry_contract(self):
         lumps = dict((n.rstrip(b"\0"), d) for n, d in read_wad(ROOT / "zdcmp1/Maps/map01.wad")[1])
-        self.assertEqual(lumps[b"SCRIPTS"], (ROOT / "zdcmp1/source/maps/map01.acs").read_bytes())
+        self.assertEqual(lumps[b"SCRIPTS"], (ROOT / "zdcmp1/source/maps/map01.acs").read_bytes().replace(b"\r\n", b"\n"))
         for name, digest in {
-            b"TEXTMAP": "083ecd933defb78bd6f221d563daffd0bf9c80887441f33fc69c1c7eae05ac1a",
+            b"TEXTMAP": "7ea1aff6af7949a00158b1720c2e99cc990d48f609f8b4f3d989d71e3866d289",
             b"ZNODES": "495bc6c02468df6cbde5ffe745aeb46dd9343586365db8165acf31642862169f",
         }.items():
             self.assertEqual(hashlib.sha256(lumps[name]).hexdigest(), digest)
+
+    def test_skybox_panorama_contract(self):
+        root = ROOT / "zdcmp1"
+        lumps = dict((n.rstrip(b"\0"), d) for n, d in read_wad(root / "Maps/map01.wad")[1])
+        data = udmf(lumps[b"TEXTMAP"].decode())
+        self.assertEqual(data["sector"][740]["heightceiling"], 539)
+        self.assertEqual(data["sector"][740]["lightlevel"], 255)
+        self.assertEqual(data["sector"][2635]["heightceiling"], 344)
+        self.assertEqual(data["thing"][265]["height"], 250.0)
+        self.assertEqual(data["thing"][1292]["height"], 220.0)
+        for offsets in (
+            {6950: 0, 6952: 128, 6964: 258, 6954: 386,
+             6962: 516, 6956: 644, 6960: 774, 6958: 902},
+            {31235: 0, 31226: 128, 31239: 258, 32360: 386,
+             31233: 516, 31230: 644, 31237: 774, 31228: 902},
+        ):
+            for index, offset in offsets.items():
+                self.assertEqual(data["sidedef"][index].get("offsetx", 0), offset)
+        textures = (root / "textures.txt").read_text()
+        for name in ("SKYWALL", "SKYHELL", "CLOUDS", "SKYBLO0D"):
+            self.assertIn(name, textures)
+        for name in ("outdoor-panorama", "hell-panorama", "outdoor-clouds", "hell-clouds"):
+            self.assertTrue((root / "PATCHES/skybox" / (name + ".png")).is_file())
 
     def test_consolidated_options_and_release_references(self):
         menu = (ROOT / "zdcmp1/menudef.txt").read_text()
