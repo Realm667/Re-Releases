@@ -268,8 +268,6 @@ Script 16 (void) // added by biohazard
 script 998 open
 {
 	Line_AlignCeiling(72,SIDE_FRONT);
-	scroll_ceiling (32,0,1,1);
-	scroll_ceiling (113,0,1,1);
 
 	setlineblocking (2, block_everything);
 
@@ -493,7 +491,6 @@ script 24 (void) { // Arena begin
 	ScriptCall("ZDCMP1SkyCycle", "BeginStorm");
 	delay(35*2);
 	Printbold(s:"\cGOh snap... that doesn't look good at all.");
-	scroll_ceiling (32,0,7,7);
 	delay(35*5);
 	ACS_Execute(57,0);
 	delay(35);
@@ -947,7 +944,6 @@ script 31 (void) { // Got the red skull
 	//Thing_Activate(50);
 	ACS_Terminate(57,0);
 	ScriptCall("ZDCMP1SkyCycle", "EndStorm");
-	scroll_ceiling (32,0,1,1);
 
 	SetMusic("D_TNDC");
 	//end of LA

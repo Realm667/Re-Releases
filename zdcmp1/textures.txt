@@ -1,31 +1,241 @@
-// Full-wrap skybox panoramas; 1032 map units around each eight-sided camera room.
-Texture SKYWALL, 2048, 768
+// Seam-matched 312-unit cube rooms and scrolling cloud-cap frames.
+
+Texture ZD_N0, 512, 1024
 {
-    XScale 1.984496
-    YScale 0.75
-    Patch "PATCHES/skybox/outdoor-panorama.png", 0, 0
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-n0.png", 0, 0
 }
 
-Texture SKYHELL, 2048, 768
+Texture ZD_N1, 512, 1024
 {
-    XScale 1.984496
-    YScale 0.75
-    Patch "PATCHES/skybox/hell-panorama.png", 0, 0
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-n1.png", 0, 0
 }
 
-// Each cloud field spans the roughly 320-unit skybox ceiling.
-Flat CLOUDS, 1254, 1254
+Texture ZD_W0, 512, 1024
 {
-    XScale 3.91875
-    YScale 3.91875
-    Patch "PATCHES/skybox/outdoor-clouds.png", 0, 0
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-w0.png", 0, 0
 }
 
-Texture SKYBLO0D, 1254, 1254
+Texture ZD_W1, 512, 1024
 {
-    XScale 3.91875
-    YScale 3.91875
-    Patch "PATCHES/skybox/hell-clouds.png", 0, 0
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-w1.png", 0, 0
+}
+
+Texture ZD_S0, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-s0.png", 0, 0
+}
+
+Texture ZD_S1, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-s1.png", 0, 0
+}
+
+Texture ZD_E0, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-e0.png", 0, 0
+}
+
+Texture ZD_E1, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-e1.png", 0, 0
+}
+
+Flat ZD_TOP, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-top-00.png", 0, 0
+}
+
+Flat ZD_T01, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-top-01.png", 0, 0
+}
+
+Flat ZD_T02, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-top-02.png", 0, 0
+}
+
+Flat ZD_T03, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-top-03.png", 0, 0
+}
+
+Flat ZD_T04, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-top-04.png", 0, 0
+}
+
+Flat ZD_T05, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-top-05.png", 0, 0
+}
+
+Flat ZD_T06, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-top-06.png", 0, 0
+}
+
+Flat ZD_T07, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-top-07.png", 0, 0
+}
+
+Flat ZD_BOT, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/outdoor-bottom.png", 0, 0
+}
+
+Texture ZH_N0, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-n0.png", 0, 0
+}
+
+Texture ZH_N1, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-n1.png", 0, 0
+}
+
+Texture ZH_W0, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-w0.png", 0, 0
+}
+
+Texture ZH_W1, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-w1.png", 0, 0
+}
+
+Texture ZH_S0, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-s0.png", 0, 0
+}
+
+Texture ZH_S1, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-s1.png", 0, 0
+}
+
+Texture ZH_E0, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-e0.png", 0, 0
+}
+
+Texture ZH_E1, 512, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-e1.png", 0, 0
+}
+
+Flat ZH_TOP, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-top-00.png", 0, 0
+}
+
+Flat ZH_T01, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-top-01.png", 0, 0
+}
+
+Flat ZH_T02, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-top-02.png", 0, 0
+}
+
+Flat ZH_T03, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-top-03.png", 0, 0
+}
+
+Flat ZH_T04, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-top-04.png", 0, 0
+}
+
+Flat ZH_T05, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-top-05.png", 0, 0
+}
+
+Flat ZH_T06, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-top-06.png", 0, 0
+}
+
+Flat ZH_T07, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-top-07.png", 0, 0
+}
+
+Flat ZH_BOT, 1024, 1024
+{
+    XScale 3.282051282
+    YScale 3.282051282
+    Patch "PATCHES/skybox/cube/hell-bottom.png", 0, 0
 }
 
 // BEGIN GENERATED CALM SBAR (tools/build_zdcmp1_sbar.py)

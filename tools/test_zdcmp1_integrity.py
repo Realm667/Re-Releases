@@ -27,36 +27,54 @@ class ZDCMP1Integrity(unittest.TestCase):
         lumps = dict((n.rstrip(b"\0"), d) for n, d in read_wad(ROOT / "zdcmp1/Maps/map01.wad")[1])
         self.assertEqual(lumps[b"SCRIPTS"], (ROOT / "zdcmp1/source/maps/map01.acs").read_bytes().replace(b"\r\n", b"\n"))
         for name, digest in {
-            b"TEXTMAP": "cb714f098da4337201ce2d467d886dfe38e873ebd1b26d37bf7f085d77a1a3a7",
-            b"ZNODES": "495bc6c02468df6cbde5ffe745aeb46dd9343586365db8165acf31642862169f",
+            b"TEXTMAP": "1bbfa256e65088c62ab050f1d348bc75770da1266919af7fe99700aa4706a501",
+            b"ZNODES": "bf230c1d5708a71a3801555183032c24ebbdd11b3b660da70b16b755f139172e",
         }.items():
             self.assertEqual(hashlib.sha256(lumps[name]).hexdigest(), digest)
 
-    def test_skybox_panorama_contract(self):
+    def test_skybox_cube_contract(self):
         root = ROOT / "zdcmp1"
         lumps = dict((n.rstrip(b"\0"), d) for n, d in read_wad(root / "Maps/map01.wad")[1])
         data = udmf(lumps[b"TEXTMAP"].decode())
-        self.assertEqual(data["sector"][740]["heightceiling"], 1176)
-        self.assertEqual(data["sector"][740]["lightlevel"], 200)
-        self.assertEqual(data["sector"][2635]["heightceiling"], 1024)
-        self.assertEqual(data["thing"][265]["height"], 400.0)
-        self.assertEqual(data["thing"][1292]["height"], 400.0)
-        for offsets in (
-            {6950: 0, 6952: 254, 6964: 512, 6954: 766,
-             6962: 1024, 6956: 1278, 6960: 1536, 6958: 1790},
-            {31235: 0, 31226: 254, 31239: 512, 32360: 766,
-             31233: 1024, 31230: 1278, 31237: 1536, 31228: 1790},
+        for sector, ceiling, top, bottom in (
+            (740, 464, "ZD_TOP", "ZD_BOT"),
+            (2635, 312, "ZH_TOP", "ZH_BOT"),
         ):
-            for index, offset in offsets.items():
-                self.assertEqual(data["sidedef"][index].get("offsetx", 0), offset)
-                self.assertEqual(data["sidedef"][index]["nofakecontrast"], True)
-                self.assertEqual(data["sidedef"][index]["offsety"], 110 if index < 10000 else 200)
+            box = data["sector"][sector]
+            self.assertEqual(box["special"], 90)
+            self.assertEqual(box["heightceiling"], ceiling)
+            self.assertEqual(box["textureceiling"], top)
+            self.assertEqual(box["texturefloor"], bottom)
+        self.assertEqual(data["thing"][265]["height"], 156.0)
+        self.assertEqual(data["thing"][1292]["height"], 156.0)
+        self.assertEqual(data["thing"][1292]["x"], 3812.0)
+        groups = (
+            ("ZD", (("N", (6950, 6952)), ("W", (6964, 6954)),
+                    ("S", (6962, 6956)), ("E", (6960, 6958)))),
+            ("ZH", (("N", (31226, 31239)), ("W", (32360, 31233)),
+                    ("S", (31230, 31237)), ("E", (31228, 31235)))),
+        )
+        for prefix, faces in groups:
+            for face, sides in faces:
+                for half, index in enumerate(sides):
+                    side = data["sidedef"][index]
+                    self.assertEqual(side["texturemiddle"], f"{prefix}_{face}{half}")
+                    self.assertEqual(side.get("offsetx", 0), 0)
+                    self.assertEqual(side.get("offsety", 0), 0)
+                    self.assertTrue(side["nofakecontrast"])
         textures = (root / "textures.txt").read_text()
-        self.assertNotIn("WorldPanning", textures.split("// Each cloud field", 1)[0])
-        for name in ("SKYWALL", "SKYHELL", "CLOUDS", "SKYBLO0D"):
-            self.assertIn(name, textures)
-        for name in ("outdoor-panorama", "hell-panorama", "outdoor-clouds", "hell-clouds"):
-            self.assertTrue((root / "PATCHES/skybox" / (name + ".png")).is_file())
+        animations = (root / "animdefs.def").read_text()
+        for prefix, name in (("ZD", "outdoor"), ("ZH", "hell")):
+            self.assertIn(f"flat {prefix}_TOP", animations)
+            for frame in range(8):
+                label = f"{prefix}_TOP" if frame == 0 else f"{prefix}_T{frame:02d}"
+                self.assertIn(f"Flat {label}, 1024, 1024", textures)
+                self.assertIn(f"pic {label} tics 20", animations)
+                self.assertTrue((root / "PATCHES/skybox/cube" / f"{name}-top-{frame:02d}.png").is_file())
+            for face in "nwse":
+                for half in (0, 1):
+                    self.assertTrue((root / "PATCHES/skybox/cube" / f"{name}-{face}{half}.png").is_file())
+            self.assertTrue((root / "source/art/skybox" / f"{name}-source.png").is_file())
 
     def test_consolidated_options_and_release_references(self):
         menu = (ROOT / "zdcmp1/menudef.txt").read_text()

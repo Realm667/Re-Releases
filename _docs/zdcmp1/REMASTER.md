@@ -34,22 +34,34 @@ photosensitivity mode: map flicker and other effects remain present.
 
 ## Skybox remaster
 
-MAP01 retains its two SkyViewpoints, the Hell SkyPickers (viewpoint ID 47),
-and every playable sector/thing/line. Only the isolated camera rooms have been
-resized: outdoor sector 740 spans heights 152..1176, Hell sector 2635 spans
-0..1024, and both viewpoints stand 400 map units above their floors. The
-outdoor room starts at light 200. The eight wall faces in each octagon use one
-2048�768 panorama. Scaled TEXTURES use *texel* offsets at each wall boundary;
-WorldPanning is deliberately absent. Every skybox wall side disables fake
-contrast, so its compass direction cannot add an artificial brightness seam.
-The outdoor/hell wall Y offsets (110/200) were chosen from in-game player
-views, not the concept paintings. The ceiling cloud textures each span the
-roughly 320-unit room. The horizon mountains are static. The existing ACS
-ceiling scroller moves outdoor clouds; MAP01 startup now also scrolls Hell
-clouds at the same restrained rate. The earlier wall/ceiling shaders are
-removed; OpenGL, Vulkan and software use the same authored textures and ACS
-motion. Software renders the cloud field with coarser filtering, but no sky
-feature requires a hardware-only shader.
+MAP01 retains its outdoor and Hell SkyViewpoints, the Hell SkyPickers
+(viewpoint ID 47), and all playable geometry. The two isolated camera
+rooms are square 312-unit cubes centered on their original viewpoints.
+Outdoor sector 740 spans 152..464; Hell sector 2635 spans 0..312.
+Both cameras stand 156 map units above their floors. Both sectors use
+GZDoom's Skybox Sector special 90, which prevents the renderer's ambient
+occlusion from darkening their cube corners. Wall sides disable fake
+contrast and anchor their textures at the ceiling.
+
+Editable source panoramas live in `zdcmp1/source/art/skybox/`; the
+reproducible projection is `tools/generate_zdcmp1_skycube.py`. It samples
+the same spherical direction for every shared cube edge, generating
+1024-pixel top/bottom faces and two exact 512-pixel halves per side.
+The four landscape faces never animate. The upper wall and cap edges
+fade into the same high-altitude sky colour so the ceiling remains
+continuous in real player views despite GZDoom's differing wall/flat UV
+mapping. This edge treatment does not affect the mountain silhouettes.
+
+Each cap has eight ANIMDEFS frames. A separately generated, tileable
+cloud mask shifts by at most 16 pixels across those frames and modulates
+only the cap interior. Each frame lasts 20 tics. The layer moves gently;
+the surrounding mountains and wall clouds remain fixed, and the cap
+perimeter does not change. The old ACS ceiling scrollers on tags 32 and
+113, including the storm acceleration, are removed because they moved
+the complete ceiling image through its seam. No custom shader is needed.
+The same authored frames run on Vulkan, OpenGL and the software scene
+renderer. Software quantizes the dark clouds and shows a more apparent
+square cap transition; Vulkan and OpenGL are the intended presentation.
 
 A map-local ZDCMP1SkyCycle EventHandler restores the original 75-second
 descent into night and 75-second return to day. Its serialized clock
@@ -58,7 +70,7 @@ neutral roofed sectors. Hell sky sectors and their red ambience stay outside
 this cycle. Existing authored green/red fades are not overwritten. Night
 tints neutral exterior light slightly blue-gray and lowers it without hiding
 navigation. The original arena scripts still trigger the thunder timing,
-music, ceiling scroll, and fight; their light fades/flashes now call the
+music, and fight; their light fades/flashes now call the
 serialized handler so storm, night, and roofed sectors cannot fight over the
 same light level. A flash illuminates only the existing tagged arena sectors.
 No lightning bolt, lens flare, sun, or unoccluded screen overlay is introduced.
