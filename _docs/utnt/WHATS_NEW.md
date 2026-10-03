@@ -1,6 +1,6 @@
 # UTNT Reforged — What's New
 
-**Updated: 25 September 2026.** Current implemented features and improvements; unfinished local work is listed separately. Technical details and validation are available through the links.
+**Updated: 3 October 2026.** Current implemented features and improvements; unfinished local work is listed separately. Technical details and validation are available through the links.
 
 ## Interface, accessibility and presentation
 
@@ -105,7 +105,7 @@
 
 - **Editor loading:** bounded generated terrain-class files eliminate long UDB parsing stalls while preserving model definitions; internal surface/terrain material aliases stay out of texture browsing, and generated texture tables restore modular material previews when loading the source folder. [Details](DEFINITION_LAYOUT.md)
 
-- **The Source in both endings:** shared runic shield, opening seal, exposed heart, impact/Guardian feedback and attack cues; flowing beam energy including TNT04C’s miniature skybox beam, and a synchronized black-hole implosion with smoke, refraction, lighting, sound and final fade. [Details](UTNT_SOURCE.md)
+- **The Source in both endings:** shared runic shield, opening seal, exposed heart, impact/Guardian feedback and attack cues; a broad orange-gold plasma helix with flowing hot currents, shared by both arenas and their skybox beams, and a synchronized black-hole implosion with smoke, refraction, lighting, sound and final fade. [Details](UTNT_SOURCE.md)
 - **Quieter map starts:** texture-alignment counters appear only when explicitly requested for diagnostics.
 - **Engine modernization:** UZDoom 5.0.1 support, saved presentation states, local cosmetic simulation, current shader APIs, explicit numeric conversions and revised motion blur/postprocessing. [Refinements](UTNT_TESTER_FEEDBACK.md) [Implementation](../../tutnt/zscript/UTNT_Presentation.zc)
 - **Performance and multiplayer:** quality controls, local cosmetic actors and random streams, shared effect caches, bounded gore cleanup, client-only spatial weather/heat queries, idle objective queues, map-load model precaching, reduced canvas uploads and shader work, with eight-player and save/load regression coverage. [Details](PERFORMANCE_MULTIPLAYER.md), [Source](UTNT_SOURCE.md)

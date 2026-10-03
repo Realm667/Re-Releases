@@ -67,11 +67,16 @@ vec4 ProcessTexel()
  float warp=(grain-.5)*.011+sin(flow*.027+turn*18.84956)*.003;
  float band=fract(phase-warp)-.5,edge=abs(band);
  float aa=clamp(fwidth(phase),.0004,.006);
- float width=.00006+aa*aa;
- intensity=(.55+.70*grain)*exp(-edge*edge/width);
- float filaments=.5+.5*sin(band*760.0+flow*.042+grain*5.0);
- intensity+=.58*exp(-edge*edge*950.0)*filaments*grain;
- intensity+=.12*exp(-edge*edge*140.0)*grain*grain;
+ // A broad plasma ribbon: a much thicker hot core, with an
+ // emissive body rather than bloom alone. Phase units keep miniature and
+ // full-size carriers proportional without changing radius or coil spacing.
+ float swell=.88+.24*EnergyNoise(vec2(d.x*.006+d.y*.004,flow*.008));
+ float width=.0025*swell*swell+aa*aa;
+ intensity=(.72+.60*grain)*exp(-edge*edge/width);
+ float filaments=.5+.5*sin(band*210.0+flow*.042+grain*5.0);
+ intensity+=.72*exp(-edge*edge*200.0)*(.40+.60*grain);
+ intensity+=.48*exp(-edge*edge*460.0)*filaments*grain;
+ intensity+=.24*exp(-edge*edge*110.0)*grain*grain;
  intensity*=coverage;
  if(state<2 && edge<.06)
  {
@@ -81,7 +86,12 @@ vec4 ProcessTexel()
   marks+=1.25*exp(-band*band*180000.0-sy*sy*1100.0);
  }
 #endif
+#if BEAM_KIND == 0
  vec3 color=mix(vec3(1.0,.20,.008),vec3(1.0,.82,.32),pow(clamp(intensity,0.0,1.0),3.0));
+#else
+ // Gold-white currents within the orange body; the straight beam is unchanged.
+ vec3 color=mix(vec3(1.0,.23,.015),vec3(1.0,.88,.48),pow(clamp(intensity/1.8,0.0,1.0),3.0));
+#endif
  // Preserve the target's readability; ornament follows the same attenuation.
  float nearBoss=SourceMiniatureBeam(pixelpos.xz)?0.0:1.0-smoothstep(280.0,470.0,abs(height-3968.0));
 #if BEAM_KIND == 0

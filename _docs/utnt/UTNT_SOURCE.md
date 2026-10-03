@@ -62,6 +62,54 @@ The alternate-sky runtime checks verify all 30 bindings before and after
 save/load and map travel, alongside views from all three sky heights and
 the full-size arena. Shared encounter checks also cover both boss maps.
 
+## Approved plasma ribbon — 2026-10-03
+
+Option 1 of the approved skybox concepts replaces the wire-like helix with a
+broad orange-gold plasma ribbon. A denser emissive body surrounds hot currents,
+with slowly travelling thickness variations and textured edges. The hot-core
+Gaussian variance is 0.0025 instead of 0.00006; the wider body is visible without
+relying on additional bloom. Colour grading preserves an orange body and
+reserves pale gold for the hottest portions rather than whitening the whole band.
+
+The shared phase-space material covers TNT04C's three miniature skybox heights,
+both full-size boss arenas and TNT04CN's remote upper-shaft beam. Radius, pitch,
+rotation rate, straight main beam, cloud materials and map geometry are unchanged.
+The existing near-seal attenuation, open-shield dimming and saved defeat sequence
+still control the ribbon. No additional actors, lights or render programs are
+introduced. The approved image is an artistic target, not a pixel-identical
+engine render; in particular its brighter cloud treatment is not applied.
+
+Editable shader source remains `tools/source-beam.glsl`; both generated programs
+are stored in `tutnt/shaders/sourcefx/beam-0.fp` and `beam-1.fp`. Regeneration uses
+`tools/build_source_materials.py`. Its PNG output can differ only in compression
+from the optimized carriers; retain the optimized originals after confirming
+identical decoded pixels. Normal packaging uses the already authored resources.
+
+Fresh before/after engine captures are retained locally under
+`.codex/logs/skybox-beam-concepts-current/` and
+`.codex/logs/source-plasma-band/visual-v2/`. Verification reports are under
+`.codex/validation/source-plasma-band/` and runtime checks under
+`.codex/logs/source-plasma-band/`.
+
+The source/package comparison matched 30,816 runtime files byte-for-byte,
+including both maps and both beam shaders. Existing packaging exceptions remain:
+MAPINFO gains model precache lists, 31 already-expanded texture definition modules
+are omitted, and two build-metadata lumps are added. The regular build check
+confirmed current ACS bytecode and generated resources before packaging.
+
+OpenGL validation passed 274 assertions: 96 encounter checks in each boss map,
+48 miniature skybox checks across save/load and map travel, and 17 energy/finale
+checks per map. Fresh captures cover all three sky heights, both arenas and the
+remote upper shaft, including moving and restored views.
+
+Validation uses the installed UZDoom 5.0.3. Vulkan could not be verified on this
+host: both the UTNT run (180 seconds) and a plain Doom II MAP01 control without
+UTNT (45 seconds) stalled after device initialization, before the first frame.
+The first source-directory battle run passed 94 assertions but timed out while
+travelling to TNT04B; the packaged repeat completed. The old structure runner
+also expects the already-removed RUNE9.lmp; preservation was checked against the
+actual tracked artwork, complete map WADs and gameplay sources instead.
+
 ## Battle feedback
 
 - The narrow central beam and continuous world-space spiral use the existing
