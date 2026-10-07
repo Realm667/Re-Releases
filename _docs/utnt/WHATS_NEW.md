@@ -1,6 +1,6 @@
 # UTNT Reforged — What's New
 
-**Updated: 3 October 2026.** Current implemented features and improvements; unfinished local work is listed separately. Technical details and validation are available through the links.
+**Updated: 7 October 2026.** Current implemented features and improvements; unfinished local work is listed separately. Technical details and validation are available through the links.
 
 ## Interface, accessibility and presentation
 
@@ -108,7 +108,7 @@
 - **The Source in both endings:** shared runic shield, opening seal, exposed heart, impact/Guardian feedback and attack cues; a broad orange-gold plasma helix with flowing hot currents, shared by both arenas and their skybox beams, and a synchronized black-hole implosion with smoke, refraction, lighting, sound and final fade. [Details](UTNT_SOURCE.md)
 - **Quieter map starts:** texture-alignment counters appear only when explicitly requested for diagnostics.
 - **Engine modernization:** UZDoom 5.0.1 support, saved presentation states, local cosmetic simulation, current shader APIs, explicit numeric conversions and revised motion blur/postprocessing. [Refinements](UTNT_TESTER_FEEDBACK.md) [Implementation](../../tutnt/zscript/UTNT_Presentation.zc)
-- **Performance and multiplayer:** quality controls, local cosmetic actors and random streams, shared effect caches, bounded gore cleanup, client-only spatial weather/heat queries, idle objective queues, map-load model precaching, reduced canvas uploads and shader work, with eight-player and save/load regression coverage. [Details](PERFORMANCE_MULTIPLAYER.md), [Source](UTNT_SOURCE.md)
+- **Performance and multiplayer:** quality controls, local cosmetic actors and random streams, shared effect caches, distance-aware limits for legacy projectile trails, staggered terrain checks, bounded gore cleanup, client-only spatial weather/heat queries, idle objective queues, map-load model precaching, reduced canvas uploads and shader work, with eight-player and save/load regression coverage. [Details](PERFORMANCE_MULTIPLAYER.md), [Source](UTNT_SOURCE.md)
 - **Campaign and cooperative fixes:** corrected scripts/maps, shared checkpoints, safer simultaneous respawns, portal handling and cutscene recovery; complete eight-player campaign starts, with local spawn, hub-travel and multiplayer regression coverage. [Campaign](../../tools/test_campaign.py), [Coop](UTNT_COOP.md)
 - **Build and validation:** reproducible snapshot builds, lossless model compression, ACS compilation and engine checks; regression tools for gameplay, save/load, UI, effects, translations and fonts, organized definition modules with validated entrypoints and duplicate-include rejection, synchronized generated manifests and stable heat-table line endings, plus a walkable gallery of all 332 relief variants. [Build](README.md), [Production sources](PRODUCTION_SOURCES.md), [Definition layout](DEFINITION_LAYOUT.md), [Material gallery](UTNT_ORGANIC_MATERIALS.md)
 

@@ -1,0 +1,65 @@
+version "5.0.0"
+class UTNTTrailBudgetDummy : UTNTBudgetedTrail
+{
+ Default { +CLIENTSIDE +NOINTERACTION +NOGRAVITY +NOBLOCKMAP }
+ States { Spawn: TNT1 A -1; Stop; }
+}
+class UTNTTrailBudgetTest : EventHandler
+{
+ void Check(bool ok,String label){Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",label);}
+ void Clear()
+ {
+  let it=ThinkerIterator.Create('UTNTBudgetedTrail',Thinker.MAX_STATNUM+1,true);Actor a;
+  while(a=Actor(it.Next()))a.Destroy();
+ }
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name!="trailbudget")return;
+  let r=UTNTFXRuntime.Get();let camera=r.Camera;
+  if(!camera){Check(false,"camera exists");return;}
+  if(e.Args[0]==0)
+  {
+   Clear();Check(!r.TrailBudget || r.TrailBudget.Live==0,"destroy releases all reservations");return;
+  }
+  if(e.Args[0]==1)
+  {
+   int expected=e.Args[1];
+   for(int i=0;i<1100;i++)Actor.Spawn('UTNTTrailBudgetDummy',camera.Pos+(0,0,8));
+   Check((r.TrailBudget?r.TrailBudget.Live:0)==expected,"near pool honors selected quality");
+   Clear();Check(!r.TrailBudget || r.TrailBudget.Live==0,"pool can be reused after saturation");
+   for(int i=0;i<600;i++)Actor.Spawn('UTNTTrailBudgetDummy',camera.Pos+(900,0,8));
+   Check((r.TrailBudget?r.TrailBudget.Live:0)==expected/2,"far pool reserves nearby capacity");
+   for(int i=0;i<1100;i++)Actor.Spawn('UTNTTrailBudgetDummy',camera.Pos+(0,0,8));
+   Check((r.TrailBudget?r.TrailBudget.Live:0)==expected,"near effects use reserved half");Clear();
+   Actor.Spawn('UTNTTrailBudgetDummy',camera.Pos+(8192,0,8));
+   Check(!r.TrailBudget || r.TrailBudget.Live==0,"out-of-range trails rejected");
+  }
+  if(e.Args[0]==2)
+  {
+   Clear();int count=0;
+   Class<Actor> kinds[]={'TT1','TT2','TT3','TT4','TT5','UTNTImpSmoke','UTNTBruiserBurstSmoke','PBShockwaveSmokeHalf','PBTrail','FatsoBallTrail','UTNTCacoBallTrail','UTNTCacoBallTrailMini','UTNTCacoBallParticleSpawner'};
+   for(int i=0;i<kinds.Size();i++)
+   {
+    let fx=Actor.Spawn(kinds[i],camera.Pos+(64,0,24));
+    Check(fx && fx.IsClientSide() && Object.GetNetworkEntity(fx.GetNetworkID())!=fx,String.Format("legacy family %d stays local",i));
+    Check(r.TrailBudget && r.TrailBudget.Live>count,String.Format("legacy family %d joins pool",i));count=r.TrailBudget?r.TrailBudget.Live:0;
+   }
+  }
+  if(e.Args[0]==5)
+  {
+   Class<Actor> missiles[]={'PBCluster','MiniFirePuff'};
+   for(int i=0;i<missiles.Size();i++)
+   {
+    let missile=Actor.Spawn(missiles[i],camera.Pos+(128,0,32));
+    Check(missile && !missile.IsClientSide() && !UTNTBudgetedTrail(missile),"damaging missile survives disabled cosmetic effects");
+    if(missile)missile.Destroy();
+   }
+  }
+  if(e.Args[0]==3)Check(!r.TrailBudget || r.TrailBudget.Live==0,"natural trail expiry releases budget");
+  if(e.Args[0]==4)
+  {
+   Clear();for(int i=0;i<8;i++)Actor.Spawn('UTNTTrailBudgetDummy',camera.Pos+(0,0,8));
+   Check(r.TrailBudget.Live==8,"save fixture populated");
+  }
+ }
+}

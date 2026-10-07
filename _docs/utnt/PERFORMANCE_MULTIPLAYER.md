@@ -67,3 +67,116 @@ Integration validation also passed all eight peers, both Source endings, the ste
 The integration environment fixture passed 20 assertions. The signed/repeated UV oracle passed all 243,200 sampled pixels on each of Vulkan and OpenGL; three floor views were captured per backend.
 
 All three 1280x720 Vulkan floor views were pixel-identical between the before and optimized relief shader (zero differing pixels per view).
+
+
+## TNT04A bridge audit — 7 October 2026
+
+The reported bridge battle was reproduced with the current TNT04A map. Its two
+combat factions contain 61 and 205 tagged enemies. The camera is placed at
+(-1408, 6300, 160), looking across the battle, and sweeps a fixed yaw arc between
+level tics 140 and 490. An isolated fixture calls the existing intro-completion
+script to start the encounter; residual intro text remains identical in both
+versions. This is a short, seeded battle benchmark, not a tester savegame replay
+or a long-session leak test.
+
+### Confirmed bottleneck and implemented changes
+
+The older DECORATE trails were client-side but did not obey the effect quality,
+reduced-effects or distance settings. One profiler sample contained 541 Imp smoke
+actors, 583 Cacodemon trail actors, 413 miniature Cacodemon trails, 432 TT1 smoke
+actors, 249 plasma trails and 129 Mancubus trails. The sprite workload, including
+unmodified flying blood, dominated the sampled rendering workload.
+
+`UTNTBudgetedTrail` now admits only a bounded number of live trail actors per
+client: 768 / 384 / 192 at quality 3 / 2 / 1, and none at quality 0. Reduced effects
+use the quality-1 limit. New trails outside the existing effect distance are
+omitted; beyond 768 map units they may only enter while the total pool is below
+half the cap, preserving capacity for nearby combat. Accepted particles retain
+their existing animation and natural lifetime. Lowering quality limits new
+admissions; it does not abruptly delete existing smoke. Destroying or expiring
+an accepted actor releases its reservation, and save/load reconstructs the local
+pool. The scope includes TT1 descendants, Imp/Bruiser/Pyrocannon smoke, Cacodemon,
+Mancubus/Hectebus and plasma trails. Dense or distant combat can consequently have
+less secondary smoke; the actual missiles, damage, impacts and monster AI are
+unchanged.
+
+Skyline and terrain-edge checks retain their immediate initial update and
+eight-tic cadence, but use a wall-derived phase instead of all running on one
+tic. TNT04A has 272 such actors. The benchmark measures both changes together;
+it does not isolate a separate speedup for the scheduling change.
+
+### Repeated measurements
+
+UZDoom 5.0.3 (23 September build), Ryzen 9 7950X, RTX 4080, OpenGL, 960x540,
+uncapped rendering, VSync off, clean test configuration with normal default
+quality settings. Three runs per immutable package, alternating AB / BA / AB;
+no simultaneous engine benchmarks. Each row averages the three per-run
+statistics. FPS below is the reciprocal of the averaged median frame interval,
+not an independently averaged FPS counter.
+
+| Metric | Before | After | Change |
+| --- | ---: | ---: | ---: |
+| Median frame interval | 51.60 ms | 38.05 ms | 26.3% less |
+| FPS corresponding to median | 19.4 | 26.3 | 35.6% more |
+| 95th-percentile frame interval | 68.94 ms | 51.83 ms | 24.8% less |
+| 99th-percentile frame interval | 81.67 ms | 66.75 ms | 18.3% less |
+| Local actor count at tic 490 | 5,457 | 3,300 | 39.5% fewer |
+| Shared actor count at tic 490 | 625 | 625 | unchanged in all six runs |
+| Kills at tic 490 | 85 | 85 | unchanged in all six runs |
+
+Before medians: 51.01 / 55.38 / 48.43 ms; after: 37.04 / 38.39 / 38.72 ms.
+All six runs completed without engine errors. These are measurements of this
+view and machine, not a guarantee for other maps, resolutions or beta testers.
+Vulkan startup stalled before reaching the map on this machine, so this audit
+has no Vulkan performance result and did not alter the user's graphics settings
+or pipeline cache.
+
+Reproduce with `tools/profile_bridge.py --mod <after.pk3> --compare <before.pk3>
+--repeats 3 --renderer 0`. The runner stores package hashes, frame samples in logs,
+per-run statistics, actor counts, profiler output and screenshots under `.codex/`.
+Results: `tutnt/.codex/validation/oct-bridge-final.json`.
+Before SHA-256: `88f88cabf2a745a5b30a09d931eb30288a62d34f19e6e78a32325c35e573974a`.
+After SHA-256: `896380ee804098a53138112145c649cab68a0e991cbd67f82c936d12d1d21fc7`.
+
+The native `tools/test_legacy_trail_budget.py` fixture passed 61 assertions:
+all quality limits, reduced effects, near/far admission, distance rejection,
+13 actual trail families, local network ownership, intact shared damaging
+projectiles, reservation reuse, natural expiry and save/load recovery. Existing
+cosmetic lifecycle tests also passed six assertions each in TNT04A and TNT02,
+including restoration of skyline, lava, CRT and heat pools.
+
+### Remaining candidates and tester evidence
+
+- Flying blood and gore remain a substantial part of the client actor workload.
+  The persistent-gore cap does not bound every transient blood trail. Measure a
+  long, blood-heavy battle before changing its appearance or cleanup policy.
+- Distance blur can perform 456 depth traces per changing view plus multiple
+  screen passes. Disabling it, heat or glow individually did not establish a
+  dominant cost in exploratory bridge runs; they are not disabled by this fix.
+- Wet-floor and CRT reflections still warrant measurements in the previously
+  reported TNT02 exterior and TNT03A1 monitor room. Their existing capture limits
+  and weather exclusions do not prove that every reflective view is affordable.
+- Relief shaders are a possible GPU cost at higher resolutions; the bridge test
+  does not justify reducing their authored quality globally.
+
+For the next tester report, retain the exact build, savegame, map/position,
+viewing direction, renderer, resolution, GPU/CPU and time until the drop. Compare
+`stat rendertimes` and `stat renderstats` from that same view, with one setting
+changed at a time. `profilethinkers -t 20` and `profilecsthinkers -t 20` record the
+shared and local thinker workloads; let another tic run after these commands.
+A before/after savegame or short movement route is preferable to unrelated FPS
+screenshots. The new bridge runner provides a repeatable first reference case.
+
+### Packaging and workspace scope
+
+All five changed runtime resources live in editable `tutnt/` sources; the new
+fixtures are tests only. Packaging uses the existing snapshot packager without
+regenerating authored scenery or maps. Legacy package transformations remain:
+TEXTURES module flattening, generated precache declarations and build metadata.
+These pre-existing exceptions mean a literal source ZIP is not claimed equivalent
+to the integration package. The packaged runtime changes are checked byte for
+byte against their production sources.
+
+The layout checker reports 15 pre-existing UDB `.dbs`, autosave and backup files
+under `tutnt/maps/`. This audit did not create, move or delete those editor files;
+its own temporary files stay under `.codex/`.

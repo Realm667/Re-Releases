@@ -11,6 +11,7 @@ class UTNTFXRuntime : Thinker
     int NextCleanup;
     UTNTVisualBudget VisualBudget;
     UTNTIndustrialBudget IndustrialBudget;
+    UTNTLegacyTrailBudget TrailBudget;
     Actor MachineLight;
     static UTNTFXRuntime Get()
     {
@@ -186,5 +187,38 @@ class UTNTLegacyGore : UTNTLegacyCosmetic
     override void BeginPlay()
     {
         Super.BeginPlay();ChangeStatNum(STAT_NashGore_Gore);NashGoreStatics.QueueGore();
+    }
+}
+
+// Legacy DECORATE trails previously bypassed all effect limits. Keep this pool
+// separate from impacts, damaging missiles, and persistent decoration.
+class UTNTLegacyTrailBudget : Thinker
+{
+    int Live, Peak, Accepted, Rejected;
+}
+class UTNTBudgetedTrail : UTNTLegacyCosmetic
+{
+    UTNTLegacyTrailBudget TrailBudget;
+    override void BeginPlay()
+    {
+        Super.BeginPlay();
+        let runtime=UTNTFXRuntime.Get();
+        if(!runtime || !runtime.Camera || !runtime.Quality || !runtime.Range)
+        { Destroy(); return; }
+        let budget=runtime.TrailBudget;
+        if(!budget)budget=runtime.TrailBudget=UTNTLegacyTrailBudget(level.CreateClientSideThinker('UTNTLegacyTrailBudget',Thinker.STAT_USER+29));
+        if(!budget){Destroy();return;}
+        int limit=runtime.Quality==3?768:runtime.Quality==2?384:192;
+        Vector3 delta=Pos-runtime.Camera.Pos;double distance2=delta dot delta;
+        // Reserve half the pool for nearby combat; distant smoke cannot fill it.
+        if(distance2>768.*768.)limit/=2;
+        if(distance2>double(runtime.Range)*runtime.Range || budget.Live>=limit)
+        { budget.Rejected++;Destroy();return; }
+        TrailBudget=budget;budget.Live++;budget.Accepted++;budget.Peak=max(budget.Peak,budget.Live);
+    }
+    override void OnDestroy()
+    {
+        if(TrailBudget){TrailBudget.Live=max(0,TrailBudget.Live-1);TrailBudget=null;}
+        Super.OnDestroy();
     }
 }

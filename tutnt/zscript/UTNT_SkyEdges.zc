@@ -4,7 +4,7 @@ class UTNTSkyEdge : Actor
     Sector Front, Top, Back;
     Side Wall;
     Vector2 EdgeA, EdgeB, Center;
-    int Part;
+    int Part, UpdatePhase;
     double Slope, RadiusLimit, InitialHeight;
     double XScale, YScale, XOffset, YOffset;
     String SkinName, EnvironmentSkin, CurrentSkin, PrimaryMaterial, EnvironmentMaterial;
@@ -24,6 +24,7 @@ class UTNTSkyEdge : Actor
         Center=(r[10].ToDouble(),r[11].ToDouble());InitialHeight=r[12].ToDouble();
         Slope=r[14].ToDouble()-r[13].ToDouble();SkinName=r[16];
         XScale=r[17].ToDouble();YScale=r[18].ToDouble();XOffset=r[19].ToDouble();YOffset=r[20].ToDouble();RadiusLimit=r[21].ToDouble();EnvironmentSkin=r[23];CurrentSkin=SkinName;PrimaryMaterial=r[24];EnvironmentMaterial=r[25];
+        UpdatePhase=Wall.Index()&7;
         UpdateEdge();
     }
     virtual void UpdateEdge()
@@ -50,7 +51,7 @@ class UTNTSkyEdge : Actor
         // instead of presenting a detached seam on moving map machinery.
         bInvisible=bInvisible || abs((a+b)*.5-InitialHeight)>.01;
     }
-    override void Tick() { if((level.time & 7)==0)UpdateEdge(); }
+    override void Tick() { if(((level.time+UpdatePhase) & 7)==0)UpdateEdge(); }
 }
 #include "zscript/UTNT_TerrainEdges.zc"
 #include "zscript/sky-edges-generated.zc"
