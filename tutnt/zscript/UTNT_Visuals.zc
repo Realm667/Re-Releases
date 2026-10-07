@@ -99,8 +99,7 @@ class UTNTVisuals play
         if(distance>range)return false;
         if (combat) return true; // One-shot impacts must not disappear on a skipped ambient tic.
         int divisor = quality == 1 ? 3 : quality == 2 ? 2 : 1;
-        if (distance > range*0.5) divisor*=2;
-        return (level.time + phase) % divisor == 0;
+        return (level.time + phase) % divisor == 0 && UTNTDistanceFX.Admit(source.Pos);
     }
 
     static void Torch(Actor source, int colorIndex, bool shortFlame)
@@ -110,7 +109,7 @@ class UTNTVisuals play
 
     static void Smoke(Actor source, double x = 0, double y = 0, double z = 0, double size = 8, bool rocket = false)
     {
-        if (!Visible(source, combat: true) || !ReserveCount(1,true)) return;
+        if (!Visible(source, combat: true) || !UTNTDistanceFX.Admit(source.Pos) || !ReserveCount(1,true)) return;
         FSpawnParticleParams p;
         p.texture = TexMan.CheckForTexture('X143J0K0');
         p.color1 = 0xffffff;
@@ -138,9 +137,10 @@ class UTNTVisuals play
     static void Sparks(Actor source, int count = 10)
     {
         if (!Visible(source, combat: true)) return;
-        count=ReserveCount(count,true);
         for (int i=0; i<count; i++)
         {
+            if(!UTNTDistanceFX.Admit(source.Pos))continue;
+            if(!ReserveCount(1,true))break;
             FSpawnParticleParams p;
             p.texture = TexMan.CheckForTexture('FX26K0');
             p.color1 = 0xffffff; p.style = STYLE_Add; p.flags = SPF_FULLBRIGHT;
@@ -159,7 +159,7 @@ class UTNTVisuals play
 
     static void RocketFlame(Actor source)
     {
-        if (!Visible(source, combat: true)) return;
+        if (!Visible(source, combat: true) || !UTNTDistanceFX.Admit(source.Pos)) return;
         int granted=ReserveCount(2,true);
         if (!granted) return;
         let flame=UTNTRocketFlameVisual(level.SpawnClientSideVisualThinker('UTNTRocketFlameVisual'));

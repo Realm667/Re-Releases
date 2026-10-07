@@ -73,7 +73,7 @@ class UTNTFireEmitter : Thinker
         if (quality<2) return;
         int emberInterval=Kind==2 ? 5 : Kind==1 ? 16 : 10;
         if (ColorIndex!=0) emberInterval*=2;
-        if (Age%emberInterval==0 && UTNTVisuals.Reserve())
+        if (Age%emberInterval==0 && UTNTDistanceFX.Admit(Source.Pos) && UTNTVisuals.Reserve())
         {
             let p=UTNTFireDetail(level.SpawnClientSideVisualThinker('UTNTFireDetail'));
             if (p) p.Initialize(self,false);
@@ -81,7 +81,7 @@ class UTNTFireEmitter : Thinker
         int smokeInterval=Kind==2 ? 7 : 12;
         if (quality==2) smokeInterval*=2;
         if (ColorIndex==1) smokeInterval*=3;
-        if (ColorIndex!=2 && Age%smokeInterval==0 && UTNTVisuals.Reserve())
+        if (ColorIndex!=2 && Age%smokeInterval==0 && UTNTDistanceFX.Admit(Source.Pos) && UTNTVisuals.Reserve())
         {
             let p=UTNTFireDetail(level.SpawnClientSideVisualThinker('UTNTFireDetail'));
             if (p) p.Initialize(self,true);

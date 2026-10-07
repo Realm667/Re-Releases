@@ -128,3 +128,19 @@ class OptionMenuItemUTNTPreset : OptionMenuItemSubmenu
         Apply(mParam);Menu.MenuSound("menu/change");return true;
     }
 }
+
+class OptionMenuItemUTNTDistanceReset : OptionMenuItemSubmenu
+{
+    static void Apply()
+    {
+        CVar.FindCVar('UTNT_fxgraduated').SetBool(true);
+        CVar.FindCVar('UTNT_fxfull').SetInt(768);
+        CVar.FindCVar('UTNT_fxhalf').SetInt(1536);
+        CVar.FindCVar('UTNT_fxminimal').SetInt(2048);
+        CVar.FindCVar('UTNT_lod').SetInt(2048);
+    }
+    override bool Activate()
+    {
+        Apply();Menu.MenuSound("menu/change");return true;
+    }
+}

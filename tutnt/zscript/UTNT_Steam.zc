@@ -67,7 +67,7 @@ class UTNTSteamEmitter : Thinker
         int quality=clamp(CVar.GetCVar('UTNT_fxquality',player).GetInt(),1,3);
         if(CVar.GetCVar('UTNT_reducedfx',player).GetBool()
             || Source.Distance3D(player.camera)>640) quality=1;
-        if(!UTNTVisuals.Reserve()) return;
+        if(!UTNTDistanceFX.Admit(Source.Pos) || !UTNTVisuals.Reserve()) return;
         let wisp=UTNTSteamWisp(level.SpawnClientSideVisualThinker('UTNTSteamWisp'));
         if(wisp) wisp.Initialize(self,quality);
         NextBirth=Age+(quality==1 ? 3 : quality==2 ? 2 : 1);

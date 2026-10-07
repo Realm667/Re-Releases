@@ -128,6 +128,7 @@ OptionMenu "UTNTDisplayOptions"
     Option "$UTNT_OPT_QUALITY", "UTNT_fxquality", "UTNTQuality"
     Tooltip "$UTNT_TIP_QUALITY"
     Option "$MN_OPDIST", "UTNT_lod", "UTNTDist"
+    Submenu "$UTNT_FXLOD_TITLE", "UTNTDistanceOptions"
     Option "$UTNT_OPT_REDUCED", "UTNT_reducedfx", "UTNTYesNo"
     Tooltip "$UTNT_TIP_REDUCED"
     StaticText ""
@@ -136,4 +137,21 @@ OptionMenu "UTNTDisplayOptions"
     UTNTPreset "$UTNT_PRESET_ATMOSPHERIC", "none", 1
     UTNTPreset "$UTNT_PRESET_REDUCED", "none", 2
     StaticText "$UTNT_PRESET_HELP"
+}
+
+OptionMenu "UTNTDistanceOptions"
+{
+    Title "$UTNT_FXLOD_TITLE"
+    Option "$UTNT_FXLOD_ENABLED", "UTNT_fxgraduated", "UTNTYesNo"
+    Tooltip "$UTNT_FXLOD_TIP"
+    Slider "$UTNT_FXLOD_FULL", "UTNT_fxfull", 128, 8192, 64, 0
+    Tooltip "$UTNT_FXLOD_FULL_TIP"
+    Slider "$UTNT_FXLOD_HALF", "UTNT_fxhalf", 192, 12288, 64, 0
+    Tooltip "$UTNT_FXLOD_HALF_TIP"
+    Slider "$UTNT_FXLOD_MINIMAL", "UTNT_fxminimal", 256, 16384, 64, 0
+    Tooltip "$UTNT_FXLOD_MINIMAL_TIP"
+    Option "$MN_OPDIST", "UTNT_lod", "UTNTDist"
+    Tooltip "$UTNT_FXLOD_RANGE_TIP"
+    StaticText ""
+    UTNTDistanceReset "$UTNT_FXLOD_RESET", "none", 0
 }

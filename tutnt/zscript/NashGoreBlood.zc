@@ -64,7 +64,9 @@ class NashGoreBloodBase : Blood
 			return;
 		}
 
-		NashGoreStatics.RandomXFlip(self);
+        if((self is 'NashGoreBloodParticle1' || self is 'NashGoreBloodParticle2')
+            && !UTNTDistanceFX.Admit(Pos)) { Destroy();return; }
+        NashGoreStatics.RandomXFlip(self);
 	}
 
 	override void PostBeginPlay(void)

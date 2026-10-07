@@ -180,3 +180,84 @@ byte against their production sources.
 The layout checker reports 15 pre-existing UDB `.dbs`, autosave and backup files
 under `tutnt/maps/`. This audit did not create, move or delete those editor files;
 its own temporary files stay under `.codex/`.
+
+
+## Adjustable particle detail distance — 7 October 2026
+
+The performance submenu now includes **Effect detail distance**. Each client can
+adjust full / half / minimum particle-density distances, enable or disable the
+gradual reduction, change the existing outer effect distance, and restore the
+recommended distances. The menu and tooltips are available in English, German,
+Spanish and French. Existing visual presets keep these three custom thresholds;
+their existing quality and sight-distance choices still apply.
+
+| Local user setting | Default | Menu range |
+| --- | ---: | ---: |
+| `UTNT_fxgraduated` | true | on/off |
+| `UTNT_fxfull` | 768 | 128–8192, step 64 |
+| `UTNT_fxhalf` | 1536 | 192–12288, step 64 |
+| `UTNT_fxminimal` | 2048 | 256–16384, step 64 |
+| Existing `UTNT_lod` | 2048 | existing distance choices |
+
+These values are map units measured from the local viewing camera. Emission
+probability is 1 up to the full-detail distance, smoothly approaches 0.5 at the
+half-detail distance and 0.25 at the minimum-detail distance, then stays at 0.25.
+The outer effect distance takes precedence: emission probability also smoothly
+falls to zero over its final 128 units (or one eighth for shorter ranges). Thus,
+at the default outer limit of 2048 there are no new optional particles, even
+though the unconstrained minimum-density anchor is also 2048. Raising the outer
+limit exposes the quarter-density plateau. The enable switch bypasses the new
+smooth reduction but retains quality, budgets and the outer range limit.
+
+Thresholds are cached once per tic. Runtime validation clamps console inputs and
+keeps the half and minimum thresholds at least 64 units beyond their predecessor;
+crossed sliders cannot produce division by zero or inverted density. The menu
+tooltip explains the ordering and outer limit. Restoring recommendations resets
+these distances, enables reduction and restores the outer range to 2048 without
+changing overall quality or unrelated graphics options.
+
+The admission decision runs at particle birth using a dedicated cosmetic random
+stream. Existing particles keep their natural lifetime when a threshold changes
+or the camera moves. No probabilistic test runs in a particle's visibility/lifetime
+check. There are no additional per-particle line-of-sight traces.
+
+Coverage: legacy projectile smoke/trails, legacy MCBlood particles and flying
+blood trails, modern NashGore blood particles 1/2, ambient smoke and embers,
+fire's optional smoke/embers, Lost Soul embers, pressure-steam births, rocket
+smoke/flame trails, impact/electrical sparks and optional industrial explosion
+smoke/teleport fragments. Existing quality-specific core fire/steam policies
+remain in force. The invisible Cacodemon trail controller is not sampled twice;
+its two visible children make individual decisions. Discarded sparks do not
+consume the shared emission allowance. Large industrial secondary particles use
+their world-space size to retain detail longer, within the unchanged outer limit.
+
+Actual missiles, damage areas, monster AI, boss attacks, primary impact flashes,
+explosion flame cores and rocket nozzle cores are not subject to this new
+probability. Persistent corpse/gib policy, weather, mirror captures and material
+shaders are outside this particle pass. Local density choices do not change
+shared combat simulation.
+
+Regression entrypoint: `tools/test_distance_fx.py --mod <package> --renderer 0`.
+The fixture checks density anchors, monotonicity, continuity, outer fading, size
+handling, actual near/far actor admission and client ownership for six families,
+retention of existing smoke and impact cores, immediate shorter/longer/crossed
+settings, opt-out, the menu reset and save/load recovery. Menu screenshots are
+captured in all four languages. `tools/test_legacy_trail_budget.py` additionally
+checks quality budgets, natural expiry and shared damaging projectiles with
+cosmetic quality disabled. Local evidence lives in `.codex/validation/distance-fx.json`
+and `distance-menu-*.png`. No additional FPS percentage is promised solely from
+the density reduction; rendering cost depends on how much combat is distant.
+
+Validation: 43 native distance assertions and all four menu captures passed on
+UZDoom 5.0.3/OpenGL. The existing legacy-trail suite passed all 61 assertions;
+14 localization unit tests, definition-table consistency and the four-font
+689-file check passed. Menu labels and tooltips were visually reviewed at
+960x540 in all four languages.
+
+A supplementary TNT04A bridge AB/BA check (two runs per version, same OpenGL
+setup as above) compared the previous capped-trail implementation with this
+distance pass. Mean per-run medians were 44.14 / 41.14 ms and p95 values
+61.89 / 59.24 ms; local actors averaged 3262 / 2788. All four runs
+retained 625 shared actors and 85 kills. The small timing difference is not
+strong evidence of an additional general FPS gain; the actor reduction is clear.
+Results: `.codex/validation/distance-fx-bridge.json`.

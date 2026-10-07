@@ -1,0 +1,61 @@
+version "5.0.0"
+class UTNTDistanceTest : EventHandler
+{
+ void Check(bool ok,String label){Console.Printf("UTNT_ASSERT %s: %s",ok?"PASS":"FAIL",label);}
+ override void NetworkProcess(ConsoleEvent e)
+ {
+  if(e.Name!="distancecheck")return;
+  let r=UTNTFXRuntime.Get();let p=players[0].mo;if(!p){Check(false,"player");return;}
+  if(e.Args[0]==0)
+  {
+   Check(r.FullDistance==768 && r.HalfDistance==1536 && r.MinimalDistance==2048,"recommended thresholds");
+   Check(UTNTDistanceFX.Density(768)==1,"full near density");
+   Check(abs(UTNTDistanceFX.Density(1536)-.5)<.0001,"half density anchor");
+   Check(abs(UTNTDistanceFX.Density(2048)-.25)<.0001,"quarter density anchor");
+   Check(abs(UTNTDistanceFX.Density(3000)-.25)<.0001,"far density plateau");
+   Check(abs(UTNTDistanceFX.Density(4032)-.125)<.0001,"soft outer range taper");
+   Check(UTNTDistanceFX.Density(4096)==0,"outer range rejects births");
+   Check(UTNTDistanceFX.Density(3072,256)==1,"large secondary effects retain detail");
+   bool monotonic=true;double previous=1;
+   for(int d=0;d<=4096;d+=16){double v=UTNTDistanceFX.Density(d);if(v>previous || v<0 || v>1)monotonic=false;previous=v;}
+   Check(monotonic,"density decreases continuously with distance");
+   Check(abs(UTNTDistanceFX.Density(1535)-UTNTDistanceFX.Density(1537))<.001,"continuous tier boundary");
+   Vector3 home=p.Pos;Class<Actor> kinds[]={'TT1','UTNTCacoBallTrail','UTNTCacoBallTrailMini','MCBloodParticle','NashGoreBloodParticle1','NashGoreBloodParticle2'};
+   p.bNoClip=true;p.bNoGravity=true;
+   for(int k=0;k<kinds.Size();k++)
+   {
+    for(int far=0;far<2;far++)
+    {
+     p.SetOrigin(home+(far?3000:0,0,0),false);int count=0;bool local=true;
+     for(int i=0;i<800;i++)
+     {
+      let a=Actor.Spawn(kinds[k],home);
+      if(a && !a.bDestroyed){count++;local=local && a.IsClientSide() && Object.GetNetworkEntity(a.GetNetworkID())!=a;a.Destroy();}
+     }
+     Check(far?(count>150 && count<250):count==800,String.Format("family %d distance %d admitted %d",k,far,count));
+     Check(local,"admitted particles stay client-side");
+    }
+   }
+   p.SetOrigin(home,false);
+   let smoke=Actor.Spawn('TT1',home);Check(smoke && !smoke.bDestroyed,"existing smoke born near");
+   p.SetOrigin(home+(3000,0,0),false);
+   Check(smoke && !smoke.bDestroyed && smoke.Alpha>0,"moving camera does not remove existing smoke");
+   if(smoke)smoke.Destroy();p.SetOrigin(home,false);
+   // At the same far distance, short impact cores are never randomly removed.
+   p.SetOrigin(home+(3000,0,0),false);int cores=0;
+   for(int i=0;i<20;i++){let v=UTNTIndustrialFX.Make(home,4,8,8,4,0xffffff);if(v){cores++;v.Destroy();}}
+   Check(cores==20,"all contact cores retained despite distance thinning");
+   p.SetOrigin(home,false);
+  }
+  if(e.Args[0]==1)Check(r.FullDistance==256 && r.HalfDistance==512 && r.MinimalDistance==1024 && abs(UTNTDistanceFX.Density(512)-.5)<.001,"shorter distances apply live");
+  if(e.Args[0]==2)Check(r.FullDistance==1536 && r.HalfDistance==3072 && r.MinimalDistance==4096 && UTNTDistanceFX.Density(1500)==1,"longer distances apply live");
+  if(e.Args[0]==3)Check(r.HalfDistance>r.FullDistance && r.MinimalDistance>r.HalfDistance && UTNTDistanceFX.Density(1600)>=0,"crossed sliders normalize safely");
+  if(e.Args[0]==4)Check(UTNTDistanceFX.Density(3000)==1 && UTNTDistanceFX.Density(4096)==0,"disabled graduation retains sight limit");
+  if(e.Args[0]==5)Check(r.Range==2048 && r.FullDistance==768 && r.HalfDistance==1536 && r.MinimalDistance==2048 && r.Graduated,"menu reset restores recommended distances");
+ }
+ override void ConsoleProcess(ConsoleEvent e)
+ {
+  if(e.Name=="distancereset")OptionMenuItemUTNTDistanceReset.Apply();
+  if(e.Name=="distancemenu")Menu.SetMenu('UTNTDistanceOptions');
+ }
+}

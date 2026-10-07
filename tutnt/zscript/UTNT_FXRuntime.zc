@@ -2,7 +2,8 @@
 class UTNTFXRuntime : Thinker
 {
     int SettingsTic, Quality, Range;
-    bool Ready, Reduced;
+    bool Ready, Reduced, Graduated;
+    int FullDistance, HalfDistance, MinimalDistance;
     Actor Camera;
     Map<uint,int> Heads;
     Array<Actor> Sources;
@@ -32,6 +33,10 @@ class UTNTFXRuntime : Thinker
         Range=p?max(0,CVar.GetCVar('UTNT_lod',p).GetInt()):0;
         Reduced=p && CVar.GetCVar('UTNT_reducedfx',p).GetBool();
         if(Reduced)Quality=min(Quality,1);
+        Graduated=p && CVar.GetCVar('UTNT_fxgraduated',p).GetBool();
+        FullDistance=p?clamp(CVar.GetCVar('UTNT_fxfull',p).GetInt(),64,8192):768;
+        HalfDistance=p?max(FullDistance+64,clamp(CVar.GetCVar('UTNT_fxhalf',p).GetInt(),64,12288)):1536;
+        MinimalDistance=p?max(HalfDistance+64,clamp(CVar.GetCVar('UTNT_fxminimal',p).GetInt(),64,16384)):2048;
     }
     int Binding(Actor source,bool create=false)
     {
@@ -211,8 +216,12 @@ class UTNTBudgetedTrail : UTNTLegacyCosmetic
         int limit=runtime.Quality==3?768:runtime.Quality==2?384:192;
         Vector3 delta=Pos-runtime.Camera.Pos;double distance2=delta dot delta;
         // Reserve half the pool for nearby combat; distant smoke cannot fill it.
-        if(distance2>768.*768.)limit/=2;
+        if(distance2>double(runtime.FullDistance)*runtime.FullDistance)limit/=2;
         if(distance2>double(runtime.Range)*runtime.Range || budget.Live>=limit)
+        { budget.Rejected++;Destroy();return; }
+        // The invisible Cacodemon controller is not sampled a second time:
+        // its two visible children each make their own admission decision.
+        if(!(self is 'UTNTCacoBallParticleSpawner') && !UTNTDistanceFX.Admit(Pos))
         { budget.Rejected++;Destroy();return; }
         TrailBudget=budget;budget.Live++;budget.Accepted++;budget.Peak=max(budget.Peak,budget.Live);
     }
@@ -220,5 +229,47 @@ class UTNTBudgetedTrail : UTNTLegacyCosmetic
     {
         if(TrailBudget){TrailBudget.Live=max(0,TrailBudget.Live-1);TrailBudget=null;}
         Super.OnDestroy();
+    }
+}
+
+// Birth-only thinning: never use this probabilistic decision to hide a live
+// particle, kill its controller, or decide damage/AI. Dedicated client RNG.
+class UTNTDistanceFX play
+{
+    static double Smooth(double x) { x=clamp(x,0,1);return x*x*(3-2*x); }
+    static double Density(double distance, double extent=0)
+    {
+        return Evaluate(UTNTFXRuntime.Get(),distance,extent);
+    }
+    static double Evaluate(UTNTFXRuntime r, double distance, double extent)
+    {
+        if(!r || !r.Camera || !r.Quality || r.Range<=0 || distance>=r.Range)return 0;
+        if(!r.Graduated)return 1;
+        // Large secondary effects keep detail longer, but never extend sight range.
+        double d=max(0,distance)/max(1.0,extent/64.0);
+        double density=1;
+        if(d>r.HalfDistance)
+            density=.5-.25*Smooth((d-r.HalfDistance)/double(r.MinimalDistance-r.HalfDistance));
+        else if(d>r.FullDistance)
+            density=1-.5*Smooth((d-r.FullDistance)/double(r.HalfDistance-r.FullDistance));
+        // Taper new emissions at the outer sight limit instead of a hard cutoff.
+        return density*Smooth((r.Range-distance)/min(128.0,r.Range*.125));
+    }
+    static bool Admit(Vector3 pos, double extent=0)
+    {
+        let r=UTNTFXRuntime.Get();
+        if(!r || !r.Camera)return false;
+        double density=Evaluate(r,(pos-r.Camera.Pos).Length(),extent);
+        if(density>=1)return true;
+        return density>0 && CFRandom[utntdistancelod](0,1)<density;
+    }
+}
+// Preserve Blood's native state/layout contract for the legacy local particles.
+class UTNTDistanceBlood : Blood
+{
+    override void BeginPlay()
+    {
+        Super.BeginPlay();
+        if(!UTNTDistanceFX.Admit(Pos))Destroy();
     }
 }

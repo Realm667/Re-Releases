@@ -40,6 +40,8 @@ class UTNTIndustrialFX play
     static UTNTIndustrialParticle Make(Vector3 pos, int kind, double width, double height, int life, Color tint, Vector3 velocity=(0,0,0), bool combat=true)
     {
         if(!At(pos)) return null;
+        // Keep contact/teleport cores, explosion flames and rocket nozzles intact.
+        if(kind!=2 && kind!=4 && kind!=6 && !UTNTDistanceFX.Admit(pos,max(width,height)))return null;
         let b=Budget();
         if(!b || b.Live>=768 || !UTNTVisuals.ReserveCount(1,combat)) return null;
         let v=UTNTIndustrialParticle(level.SpawnClientSideVisualThinker('UTNTIndustrialParticle'));
