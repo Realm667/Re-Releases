@@ -1,0 +1,34 @@
+version "5.0.3"
+class UTNTBaselineMenu : OptionMenu
+{
+ bool RunActions;
+ override void Drawer()
+ {
+  Super.Drawer();
+  if(!RunActions) return;
+  RunActions = false;
+  // Native CCMD items may only execute from engine-dispatched menu code.
+  for(int i = 0; i < 2; i++)
+  {
+   let item = GetItem(i == 0 ? 'stat rendergraph' : 'stat rendertimes');
+   Console.Printf("UTNT_ASSERT %s: native diagnostic menu action", item && item.Activate() ? "PASS" : "FAIL");
+  }
+  Close();
+ }
+}
+class UTNTEngineBaselineTest : EventHandler
+{
+ override void ConsoleProcess(ConsoleEvent e)
+ {
+  if(e.Name == "diagnosticmenu") Menu.SetMenu('UTNTDiagnosticsOptions');
+  if(e.Name == "diagnostictoggle")
+  {
+   // Retain the production descriptor and its actual command items.
+   let desc = MenuDescriptor.GetDescriptor('UTNTDiagnosticsOptions');
+   desc.mClass = 'UTNTBaselineMenu';
+   Menu.SetMenu('UTNTDiagnosticsOptions');
+   let menu = UTNTBaselineMenu(Menu.GetCurrentMenu());
+   if(menu) menu.RunActions = true;
+  }
+ }
+}

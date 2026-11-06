@@ -7,6 +7,10 @@ Current feature and maintenance documentation is collected here. Commands and in
 - [UTNT Remaster — What's New](WHATS_NEW.md): compact, continuously maintained English overview of implemented features, improvements and ongoing local integration.
 - For every UTNT feature, behavior change, improvement, fix or reversal, review and update this overview in the same task before committing. Keep entries brief and in English, consolidate related refinements, distinguish unfinished work, and keep the date and detail links current. Tuning values and implementation history belong in the linked detail documents. Internal changes without a relevant new outcome need no artificial entry.
 
+## Engine requirement
+
+UTNT Reforged requires **UZDoom 5.0.3 or later** and DOOM2.WAD. The production ZScript version directive rejects older engines with an upgrade message. All cooperative peers must use matching engine and mod builds. See [the 5.0.3 assessment and diagnostics](PERFORMANCE_MULTIPLAYER.md#uzdoom-503-baseline-2026-11-07).
+
 ## Build and checks
 
 Run `tutnt_build.bat` from the repository root. Local configuration is in the ignored `tools/utnt-env.cmd` (`UTNT_PYTHON`, `UTNT_ACC`, `UTNT_ENGINE`, `UTNT_IWAD`). Keep the shared `tutnt.pk3` at the root; temporary packages belong under `tutnt/.codex/builds/`. Run `python -B tools/check_work_layout.py` before finishing a task.

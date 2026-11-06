@@ -105,6 +105,8 @@ OptionMenu "UTNTComfortOptions"
 OptionMenu "UTNTDisplayOptions"
 {
     Title "$UTNT_GROUP_DISPLAY"
+    Submenu "$UTNT_DIAG_TITLE", "UTNTDiagnosticsOptions"
+    StaticText ""
     Option "$UTNT_OPT_VOXELS", "UTNT_voxels", "UTNTOnOff"
     Tooltip "$UTNT_TIP_VOXELS"
     StaticText ""
@@ -154,4 +156,13 @@ OptionMenu "UTNTDistanceOptions"
     Tooltip "$UTNT_FXLOD_RANGE_TIP"
     StaticText ""
     UTNTDistanceReset "$UTNT_FXLOD_RESET", "none", 0
+}
+
+OptionMenu "UTNTDiagnosticsOptions"
+{
+    Title "$UTNT_DIAG_TITLE"
+    Command "$UTNT_DIAG_GRAPH", "stat rendergraph"
+    Tooltip "$UTNT_DIAG_GRAPH_TIP"
+    Command "$UTNT_DIAG_STATS", "stat rendertimes"
+    Tooltip "$UTNT_DIAG_STATS_TIP"
 }

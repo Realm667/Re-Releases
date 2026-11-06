@@ -103,7 +103,7 @@ the new card dimensions; native episode/difficulty selection is retained.
 
 ## Validation
 
-Target engine: **UZDoom 5.0.1**. Test fixtures are outside `tutnt` and never ship
+Target engine: **UZDoom 5.0.3 or later**. Test fixtures are outside `tutnt` and never ship
 in the PK3. Set `UTNT_ENGINE` and `UTNT_IWAD` (or pass explicit paths).
 
 ```text

@@ -93,7 +93,7 @@ clock, so phase is not serialized or synchronized between players.
 
 ## Reproduce validation
 
-Requires UZDoom 5.0.1, DOOM2, Python, Pillow and NumPy. Set `UTNT_ENGINE` and
+Requires UZDoom 5.0.3 or later, DOOM2, Python, Pillow and NumPy. Set `UTNT_ENGINE` and
 `UTNT_IWAD`, or pass `--engine` and `--iwad`. Files are generated under
 `logs/lava-test`, or the supplied `--out` directory.
 

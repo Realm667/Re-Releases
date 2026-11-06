@@ -91,7 +91,7 @@ Implementation: `tutnt/zscript/UTNT_Props.zc`,
 `tutnt/zscript/UTNT_LightRays.zc`, `tutnt/shaders/light-rays.fp`, and the
 `GLDEFS.light-rays`, `MODELDEF.light-rays`, `TEXTURES.light-rays` modules.
 
-Validation targets UZDoom 5.0.1 on Vulkan and OpenGL, including active and
+Validation targets UZDoom 5.0.3 on Vulkan and OpenGL, including active and
 inactive saves in TNT01 and TNT02. Width and length comparisons measure visible
 profiles against the original sprites, not merely unchanged actor dimensions.
 Local results for the 14 September 2026 refinement are kept in

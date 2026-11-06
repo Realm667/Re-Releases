@@ -1,6 +1,6 @@
 # UTNT performance and multiplayer
 
-Target: UZDoom 5.0.1 and compatible later versions. Implementation dated 2026-09-12. Runtime checks use UZDoom 5.0.1; later binaries require the same regression suite.
+Minimum engine: **UZDoom 5.0.3** (since 2026-11-07), enforced by the production ZScript entrypoint. Original implementation dated 2026-09-12; older version numbers below identify historical test runs.
 
 ## Simulation ownership
 
@@ -261,3 +261,65 @@ distance pass. Mean per-run medians were 44.14 / 41.14 ms and p95 values
 retained 625 shared actors and 85 kills. The small timing difference is not
 strong evidence of an additional general FPS gain; the actor reduction is clear.
 Results: `.codex/validation/distance-fx-bridge.json`.
+
+## UZDoom 5.0.3 baseline (2026-11-07)
+
+UTNT now declares `version "5.0.3"` in `tutnt/zscript.zc`. UZDoom compares this
+against its full major/minor/revision version before compiling the mod and tells
+users of older releases to upgrade. The normal package validation consequently
+also rejects an older build engine. This requirement applies equally to the
+source tree and the packaged game; no runtime dependency lives under `.codex/`.
+All cooperative peers should use the same engine version and package.
+
+The assessment compares the official 5.0.1 and 5.0.3 tags, rather than development
+branch features. [5.0.2](https://github.com/UZDoom/UZDoom/releases/tag/5.0.2)
+adds rendering-time diagnostics and fixes model-animation queries, automap,
+notification layout and console text handling. [5.0.3](https://github.com/UZDoom/UZDoom/releases/tag/5.0.3)
+fixes a save-loading regression: automap `bigstate` written as an integer by older
+versions can again be read after the field became Boolean (`15ee086`). These are
+engine corrections; duplicating them in UTNT scripts would not help.
+
+The corrected skeletal/decoupled-animation entrypoints (`CalculateAnimation*`,
+`GetBoneFramePose`, `GetNamedBoneFramePose`, `GetAnimStartFrame`, `GetAnimEndFrame`,
+`GetAnimFramerate`) have no callers in UTNT's runtime scripts. Its state-driven
+voxel presentation and texture/shader animation do not need migration to those
+APIs. The SBARINFO time-anchor workaround is retained: the upstream fixes do not
+establish that its TIME alignment issue has been corrected. No shader, weather,
+reflection or particle-performance improvement is attributed to this patch release.
+
+UTNT Options > Performance and presets > Performance diagnostics exposes native
+`stat rendergraph` and `stat rendertimes` toggles, in all four supported languages.
+They are off in a fresh engine session and do not change effect quality. Close
+the menu after toggling to inspect the live view; activate the same entry again
+to turn it off. The graph plots rendering time, not total simulation frame time;
+its fixed 20 ms scale can draw larger spikes beyond the graph area. For a slowdown report, include the
+map/position, engine version, effect settings and a screenshot with detailed
+render timings. Compare the same view with the relevant effect disabled. The
+new diagnostics are measurement aids, not a claim of faster rendering.
+
+`tools/test_engine_baseline.py --mod <package> --old-engine <5.0.2 executable>`
+checks rejection by the actual old engine, activates both native menu items twice,
+verifies the registered statistics become active and inactive, and captures the
+menu and graph in English, German, Spanish and French. Save/load reconstruction
+uses `tools/test_cosmetic_lifecycle.py`; artifacts remain under `.codex/validation/`
+and `.codex/logs/`.
+
+Validation on 2026-11-07: UZDoom 5.0.3 compiled the full package; actual 5.0.2
+rejected its ZScript directive. The four localized native-menu runs passed 16
+action assertions and verified both statistics on/off; menu captures were checked
+visually. TNT02 and TNT04A save/load tests each passed all six lifecycle
+assertions. An actual TNT02 save from 5.0.1/the previous integration package loaded
+with the new package on 5.0.3: automap `bigstate` changed from integer to Boolean,
+saved player flags were retained, and map time continued from 104 to 205 tics.
+That test retains the `tutnt.pk3` filename, because UZDoom checks saved resource
+names; a differently named test package is correctly rejected as missing content.
+This is targeted save compatibility, not a guarantee for arbitrary older mod builds.
+
+Runtime checks used OpenGL on the local RTX 4080. This task does not establish a
+Vulkan regression result or an FPS gain. Localization coverage (1,000 keys in each
+language), 14 localization unit tests, 689 font files and generated definition
+checks also pass. The local ignored build configuration now selects the installed
+5.0.3 executable; its previous path still pointed to a separate 5.0.1 installation.
+No engine binary or machine-specific path is committed. Evidence:
+`engine-baseline.json`, `uzdoom503-load-legacy.json`, `cosmetic-lifecycle.json`
+under `.codex/validation/` and matching `.codex/logs/` files.
