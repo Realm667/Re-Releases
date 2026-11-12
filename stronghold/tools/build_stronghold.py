@@ -19,10 +19,10 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SHARED = ROOT.parent / "tutnt" / ".codex"
-WORK = SHARED / "work" / "stronghold-build"
-BUILDS = SHARED / "builds"
-LOGS = SHARED / "logs" / "stronghold"
+# Set by main() from the explicitly selected local workspace, never another mod.
+WORK: Path
+BUILDS: Path
+LOGS: Path
 RUNTIME_DIRS = {
     "acs", "flats", "graphics", "hires", "maps", "materials", "models",
     "music", "patches", "shaders", "sounds", "sprites", "textures", "Zscript",
@@ -187,13 +187,20 @@ def net_smoke(engine: Path, iwad: Path, mod: Path, seconds: int) -> None:
 
 
 def main() -> int:
+    global WORK, BUILDS, LOGS
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--workspace", type=Path, required=True,
+                        help="Local artifact directory containing work/, builds/ and logs/")
+    parser.add_argument("--work-dir", type=Path,
+                        help="Override the workspace's compilation/test directory")
+    parser.add_argument("--log-dir", type=Path,
+                        help="Override the workspace's compiler/engine log directory")
     found_acc = shutil.which("acc")
     parser.add_argument("--acc", type=Path, default=Path(found_acc) if found_acc else None)
     parser.add_argument("--update-acs", action="store_true")
     parser.add_argument("--build", action="store_true")
     parser.add_argument("--repro-check", action="store_true")
-    parser.add_argument("--output", type=Path, default=BUILDS / "stronghold-uzdoom503.pk3")
+    parser.add_argument("--output", type=Path)
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--net-smoke", action="store_true")
     parser.add_argument("--engine", type=Path)
@@ -206,10 +213,14 @@ def main() -> int:
         parser.error("--smoke and --net-smoke require --engine and --iwad")
     if args.repro_check and not args.build:
         parser.error("--repro-check requires --build")
+    workspace = args.workspace.resolve()
+    WORK = args.work_dir.resolve() if args.work_dir else workspace / "work" / "stronghold-build"
+    BUILDS = workspace / "builds"
+    LOGS = args.log_dir.resolve() if args.log_dir else workspace / "logs" / "stronghold"
     compile_acs(args.acc, args.update_acs)
     subprocess.run([sys.executable, "-B", str(ROOT / "tools" / "check_clientside.py")],
                    check=True)
-    package = args.output.resolve()
+    package = args.output.resolve() if args.output else BUILDS / "stronghold-uzdoom503.pk3"
     if args.build:
         build_package(package)
         if args.repro_check:
