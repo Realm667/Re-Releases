@@ -1,6 +1,7 @@
 """Real ACS completion triggers, saved progress, queue order and exit/hub travel.
 Set UTNT_ENGINE / UTNT_IWAD. No test addon is included in the game package.
 """
+from work_paths import codex_root
 from pathlib import Path
 import os,json,argparse
 from check_engine import run_case
@@ -50,6 +51,6 @@ for mapname in episodes if a.all else [a.map]:
         r['ok']=False;r['errors'].append('legacy completion message or unknown command')
     if not r['ok']:print(log[-5000:])
     results.append(r)
-    (R/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
+    (codex_root(R)/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
     if not r['ok']:break
 raise SystemExit(0 if all(r['ok'] for r in results) else 1)

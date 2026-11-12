@@ -1,4 +1,5 @@
 """Render all class ability edges, pulse phases and view/lifecycle transitions."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,os,shutil,sys
 repo=Path(__file__).resolve().parent.parent
@@ -8,7 +9,7 @@ p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE'))
 p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD'))
 p.add_argument('--mod',default=str(repo/'tutnt'))
-p.add_argument('--output',type=Path,default=repo/'logs/ability-edges')
+p.add_argument('--output',type=Path,default=codex_root(repo)/'logs/ability-edges')
 p.add_argument('--class',dest='cls',choices=['Marine','Scout','Commando'],default='Marine')
 p.add_argument('--renderer',choices=['0','1'],default='1')
 p.add_argument('--sizes',action='store_true')

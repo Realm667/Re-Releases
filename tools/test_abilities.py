@@ -1,11 +1,12 @@
 """Class ability runtime, save/travel/respawn, weapon cadence and HUD checks."""
+from work_paths import codex_root
 from pathlib import Path
 import sys,json,struct,argparse,os,shutil
 repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'tools'))
 from check_engine import run_case
 from build_utnt import write_wad
-p=argparse.ArgumentParser();p.add_argument('--class',dest='cls',default='Marine');p.add_argument('--mode',default='logic');p.add_argument('--renderer',default='1');p.add_argument('--map',default='ABTEST');p.add_argument('--mod',default=str(repo/'tutnt'));p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE'));p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD'));p.add_argument('--output',type=Path,default=repo/'logs/class-abilities');args=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--class',dest='cls',default='Marine');p.add_argument('--mode',default='logic');p.add_argument('--renderer',default='1');p.add_argument('--map',default='ABTEST');p.add_argument('--mod',default=str(repo/'tutnt'));p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE'));p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD'));p.add_argument('--output',type=Path,default=codex_root(repo)/'logs/class-abilities');args=p.parse_args()
 if not args.engine or not args.iwad:p.error('Set UTNT_ENGINE and UTNT_IWAD, or pass --engine and --iwad')
 w=args.output.resolve();w.mkdir(parents=True,exist_ok=True)
 shutil.copytree(repo/'tools/ability-tests',w/'tests',dirs_exist_ok=True)

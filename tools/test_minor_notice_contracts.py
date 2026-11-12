@@ -1,4 +1,5 @@
 """Prove notice adapters preserve campaign geometry and all other ACS statements."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse, collections, json, re, struct, subprocess
 from build_utnt import read_wad
@@ -59,5 +60,5 @@ assert old.count(old_call)==new.count(new_call)==1
 assert old.replace(old_call,new_call)==new, 'shared ACS changes outside checkpoint presentation'
 result = {'ok':True,'base':a.base,'maps':report,'checkpoint_adapters':1,
     'map_adapters':sum(x['adapters'] for x in report)}
-(R/'logs/minor-notices-contracts.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+(codex_root(R)/'logs/minor-notices-contracts.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
 print(f"PASS: {len(report)} maps, {result['map_adapters']} message adapters and checkpoint; geometry and remaining ACS unchanged.")

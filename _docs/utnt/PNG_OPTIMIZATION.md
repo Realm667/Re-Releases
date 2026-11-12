@@ -26,9 +26,9 @@ in each local report.
 
 ```text
 python -B tools/optimize_utnt_pngs.py --plugins "<SLADE plugins directory>" --run-name review-1
-python -B tools/optimize_utnt_pngs.py --apply-report tutnt/.codex/validation/png-optimization-review-1.json
+python -B tools/optimize_utnt_pngs.py --apply-report D:/Codex/ReReleases/UTNT Reforged/.codex/validation/png-optimization-review-1.json
 python -B tools/test_png_storage.py
-python -B tools/test_png_storage_runtime.py --report tutnt/.codex/validation/png-optimization-review-1.json --package tutnt.pk3 --engine "<uzdoom.exe>"
+python -B tools/test_png_storage_runtime.py --report D:/Codex/ReReleases/UTNT Reforged/.codex/validation/png-optimization-review-1.json --package tutnt.pk3 --engine "<uzdoom.exe>"
 ```
 
 The first command operates only on copies. It inventories runtime PNG inputs,

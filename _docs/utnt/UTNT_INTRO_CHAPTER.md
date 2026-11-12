@@ -35,5 +35,5 @@ TNT04A portrait update, 14 September 2026: two UZDoom runtime cases passed
 76 assertions at 1280 x 720 (English) and 640 x 480 with 150% UI scale (German).
 Both portraits and the intermediate dissolve were visually reviewed. Resource
 dimensions, shared columns, reader save/load and host skip cleanup passed.
-Local evidence: tutnt/.codex/validation/intro-stained-glass/runtime.json and
-assets.json; screenshots: tutnt/.codex/logs/intro-glass-*.png.
+Local evidence: D:/Codex/ReReleases/UTNT Reforged/.codex/validation/intro-stained-glass/runtime.json and
+assets.json; screenshots: D:/Codex/ReReleases/UTNT Reforged/.codex/logs/intro-glass-*.png.

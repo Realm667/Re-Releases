@@ -1,4 +1,5 @@
 """Focused real hub roundtrip and simultaneous-completion queue regression."""
+from work_paths import codex_root
 from pathlib import Path
 import os,argparse,json
 from check_engine import run_case
@@ -22,5 +23,5 @@ r=run_case(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],root=R,mod=a.mod,ma
     addon=R/'tools/objective-completion-tests',label=label,commands='; '.join(cmd)+'\n',timeout=65,regression=True,
     settings=[('language','enu'),('con_notifytime',0),('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_lowerinbackground',False)])
 if not r['ok']:print(Path(r['log']).read_text(encoding='utf-8')[-4500:])
-(R/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
+(codex_root(R)/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
 raise SystemExit(0 if r['ok'] else 1)

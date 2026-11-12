@@ -1,11 +1,12 @@
 """Two local peers, isolated configs, opposing local effect settings; no user saves."""
+from work_paths import codex_root
 import json, os, pathlib, subprocess, time
 from check_engine import ROOT
 from compile_test_acs import compile_tests
 compile_tests()
 engine=pathlib.Path(os.environ.get('UTNT_ENGINE',ROOT/'engine/uzdoom.exe'))
 iwad=pathlib.Path(os.environ.get('UTNT_IWAD',r'F:\DoomDev\DOOM2.WAD'))
-logs=ROOT/'logs'; processes=[]; results=[]
+logs=codex_root(ROOT)/'logs'; processes=[]; results=[]
 si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
 try:
  for i in range(2):
@@ -15,7 +16,7 @@ try:
   args=[str(engine),'-iwad',str(iwad),'-file',str(ROOT/'tutnt'),str(ROOT/'tools/runtime-tests'),'-config',str(config),'-noautoload','-nosound','-stdout','-noidle','+vid_fullscreen','false','+vid_preferbackend','1','+UTNT_fxquality','0' if i==0 else '3','+motionblur','false' if i==0 else 'true','+map','UTNTTEST','+exec',str(cfg)]
   args+=['-host','2','-port','15209'] if i==0 else ['-join','127.0.0.1:15209']
   f=(logs/(label+'.log')).open('wb')
-  child=subprocess.Popen(args,cwd=ROOT,stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
+  child=subprocess.Popen(args,cwd=codex_root(ROOT),stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
   processes.append((child,f,label))
   if i==0:time.sleep(1)
  deadline=time.monotonic()+40

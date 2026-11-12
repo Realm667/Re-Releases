@@ -1,6 +1,7 @@
 """Two local UZDoom peers: map-wide statistics and independent HUD settings/state.
 Set UTNT_ENGINE and UTNT_IWAD. Each peer uses its own temporary config.
 """
+from work_paths import codex_root
 import argparse,json,os,pathlib,subprocess,time
 from check_engine import ROOT
 from test_statusbar import compile_fixture
@@ -8,7 +9,7 @@ from test_statusbar import compile_fixture
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--mod',type=pathlib.Path,default=ROOT/'tutnt')
-    a=p.parse_args();addon=compile_fixture();logs=ROOT/'logs';processes=[];results=[]
+    a=p.parse_args();addon=compile_fixture();logs=codex_root(ROOT)/'logs';processes=[];results=[]
     si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
     try:
         for i in range(2):
@@ -22,7 +23,7 @@ def main():
                 '+vid_preferbackend','1','+screenblocks','11','+fullhud_stats',str(mode),'+map','UTNTTEST','+exec',str(cfg)]
             args+=['-host','2','-port','15219'] if i==0 else ['-join','127.0.0.1:15219']
             handle=(logs/(label+'.log')).open('wb')
-            child=subprocess.Popen(args,cwd=ROOT,stdout=handle,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
+            child=subprocess.Popen(args,cwd=codex_root(ROOT),stdout=handle,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
             processes.append((child,handle,label))
             if i==0:time.sleep(1)
         deadline=time.monotonic()+40

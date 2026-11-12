@@ -3,6 +3,7 @@
 Python 3.11+; ACC 1.60 or compatible is required. Map SCRIPTS remain authoritative.
 Usage: python tools/build_utnt.py --acc /path/to/acc.exe [--check-only]
 """
+from work_paths import codex_root
 import contextlib, shutil
 import argparse, hashlib, json, os, pathlib, struct, subprocess, tempfile, zipfile
 
@@ -202,7 +203,7 @@ def publish_snapshot(source, original, output, hashes, metadata, engine=None, iw
         '['+lang+']\nUTNT_BUILD_INFO = \"'+label+'\";\n'
         for lang in ('enu default','deu de','esp es','fra fr')).encode()
     output.parent.mkdir(parents=True, exist_ok=True)
-    staging = original/'tutnt/.codex/builds'
+    staging = codex_root(original)/'builds'
     staging.mkdir(parents=True, exist_ok=True)
     fd, temp = tempfile.mkstemp(prefix=output.name+'.',suffix='.tmp.pk3',dir=staging)
     os.close(fd)
@@ -219,7 +220,7 @@ def publish_snapshot(source, original, output, hashes, metadata, engine=None, iw
         validation = None
         if engine:
             from check_engine import run_case
-            validation_root = original/'tutnt/.codex/validation/build-engine'
+            validation_root = codex_root(original)/'validation/build-engine'
             validation_root.mkdir(parents=True,exist_ok=True)
             validation = run_case(engine,iwad,root=validation_root,mod=pathlib.Path(temp),
                                   label='build-'+metadata['build_id']+'-engine',quiet=True)
@@ -239,8 +240,8 @@ def publish_snapshot(source, original, output, hashes, metadata, engine=None, iw
     result = {'path':str(output),'files':len(payload),'bytes':output.stat().st_size,
               'sha256':digest,'engine_checked':bool(engine),'build_id':metadata['build_id'],
               'commit':metadata['commit'],'local_changes':metadata['local_changes']}
-    (original/'logs').mkdir(exist_ok=True)
-    atomic_write(original/'logs'/('build-'+metadata['build_id']+'.json'),
+    (codex_root(original)/'logs').mkdir(exist_ok=True)
+    atomic_write(codex_root(original)/'logs'/('build-'+metadata['build_id']+'.json'),
                  (json.dumps(result,indent=2)+'\n').encode())
     return result
 

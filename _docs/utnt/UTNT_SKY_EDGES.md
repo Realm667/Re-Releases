@@ -219,7 +219,7 @@ matching the isolated test package. The overlapping rock skins add translucent
 rendering and geometry; their performance cost has not been separately measured.
 
 Renderer 1 is Vulkan; renderer 0 is OpenGL. Local screenshots and logs are in
-`tutnt/.codex/logs/sky-edges-*`; structured results are under
-`tutnt/.codex/validation/sky-edges/`. The test harness and its development
-overlays stay under `tutnt/.codex/work/sky-edges/`. Full campaign playthrough and
+`D:/Codex/ReReleases/UTNT Reforged/.codex/logs/sky-edges-*`; structured results are under
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/sky-edges/`. The test harness and its development
+overlays stay under `D:/Codex/ReReleases/UTNT Reforged/.codex/work/sky-edges/`. Full campaign playthrough and
 software-renderer equivalence are outside these checks.

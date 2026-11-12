@@ -1,4 +1,5 @@
 """Explicit editable TNT04B fade-band, cinder and lighting authoring. Not packaging."""
+from work_paths import codex_root
 from pathlib import Path
 from collections import defaultdict
 import math,json,subprocess
@@ -82,7 +83,7 @@ def author(root=ROOT):
   f=root/'tutnt'/name;s=f.read_text(encoding='utf-8');assert line not in s;f.write_text(s+'\n'+line+'\n',encoding='utf-8')
  text=edit_text(l['TEXTMAP'].decode(),changes,'\n'.join(append+placed)+'\n');magic,entries=read_wad(p)
  atomic_write(p,write_wad(magic,[(n,text.encode() if n.rstrip(b'\0')==b'TEXTMAP' else d) for n,d in entries]))
- work=root/'tutnt/.codex/work/tnt04b-inferno-finish';out=work/'nodes.wad'
+ work=codex_root(root)/'work/tnt04b-inferno-finish';out=work/'nodes.wad'
  run=subprocess.run(['F:/DoomDev/Tools/UltimateDoombuilder/Compilers/Nodebuilders/zdbsp.exe','-q','-X','-g','-o',str(out),str(p)],capture_output=True);assert run.returncode==0,run.stdout+run.stderr
  # UDMF authored text must not change/reindex during node compilation.
  mm,ee=read_wad(out);_,authored=parse(p);_,rebuilt=parse(out);assert authored==rebuilt

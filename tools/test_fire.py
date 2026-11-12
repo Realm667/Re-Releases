@@ -2,6 +2,7 @@
 Run with configured UTNT_ENGINE/UTNT_IWAD. Writes only logs and isolated saves.
 The fixture exercises default map replacements, explicit aliases and barrels.
 """
+from work_paths import codex_root
 import argparse, json, os
 from pathlib import Path
 from check_engine import ROOT,run_case
@@ -42,7 +43,7 @@ def inspect_pixels(label):
     from PIL import Image,ImageChops
     results={}
     for color in ['orange','green','blue']:
-        im=Image.open(ROOT/'logs'/f'{label}-{color}.png').convert('RGB')
+        im=Image.open(codex_root(ROOT)/'logs'/f'{label}-{color}.png').convert('RGB')
         assert im.size==(1920,1080),im.size
         pixels=im.crop((870,150,1050,450)).getdata()
         if color=='green': n=sum(g>90 and g>r*1.6 and g>b*1.6 for r,g,b in pixels)
@@ -50,12 +51,12 @@ def inspect_pixels(label):
         else: n=sum(r>150 and r>g*1.3 and g>b*1.5 for r,g,b in pixels)
         results[color+'_pixels']=n
         assert n>300,(color,n)
-    a=Image.open(ROOT/'logs'/f'{label}-orange.png').convert('RGB').crop((870,150,1050,450))
-    b=Image.open(ROOT/'logs'/f'{label}-motion.png').convert('RGB').crop((870,150,1050,450))
+    a=Image.open(codex_root(ROOT)/'logs'/f'{label}-orange.png').convert('RGB').crop((870,150,1050,450))
+    b=Image.open(codex_root(ROOT)/'logs'/f'{label}-motion.png').convert('RGB').crop((870,150,1050,450))
     n=sum(max(rgb)>20 for rgb in ImageChops.difference(a,b).getdata())
     results['animated_pixels']=n
     assert n>200,n
-    probe=Image.open(ROOT/'logs'/f'{label}-ember-palette.png').convert('RGB')
+    probe=Image.open(codex_root(ROOT)/'logs'/f'{label}-ember-palette.png').convert('RGB')
     # Isolated probes at distance 80 with the engine widescreen FOV adjustment.
     for color,cx in [('orange',744),('green',960),('blue',1176)]:
         pixels=probe.crop((cx-70,470,cx+70,610)).getdata()
@@ -90,7 +91,7 @@ def main():
             try:r['pixels']=inspect_pixels(label)
             except Exception as e:r['ok']=False;r['errors'].append(str(e))
         results.append(r)
-    (ROOT/'logs'/(a.label+'-results.json')).write_text(json.dumps(results,indent=2)+'\n')
+    (codex_root(ROOT)/'logs'/(a.label+'-results.json')).write_text(json.dumps(results,indent=2)+'\n')
     print(json.dumps(results,indent=2))
     raise SystemExit(0 if all(r['ok'] for r in results) else 1)
 if __name__=='__main__':main()

@@ -1,4 +1,5 @@
 """Native map/material checks and repeatable screenshots for organic relief."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,re,sys,shutil
 from check_engine import run_case
@@ -18,7 +19,7 @@ def main():
     p.add_argument('--live-shaders',action='store_true',help='Check current shader source over a previously built package')
     a=p.parse_args()
     if not re.fullmatch(r'[a-z0-9-]+',a.tag):p.error('--tag must use lowercase letters, numbers and hyphens')
-    central=ROOT/'tutnt/.codex';work=central/'work'/f'{a.tag}-materials';logs=central/'logs'/f'{a.tag}-materials'
+    central=codex_root(ROOT);work=central/'work'/f'{a.tag}-materials';logs=central/'logs'/f'{a.tag}-materials'
     work.mkdir(parents=True,exist_ok=True);logs.mkdir(parents=True,exist_ok=True)
     fixture=work/(('fixture-original' if a.baseline else 'fixture-relief')+('-live' if a.live_shaders else ''));fixture.mkdir(exist_ok=True)
     if a.live_shaders:

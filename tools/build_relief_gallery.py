@@ -1,13 +1,14 @@
 """Build the walkable RELTEST addon from every registered organic relief variant.
 
 The addon contains geometry, signs and navigation only. Load it AFTER tutnt.pk3.
-Test packages and local launchers stay under tutnt/.codex; no campaign map changes.
+Test packages and local launchers stay under the Codex agent workspace; no campaign map changes.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,math,struct,zipfile,hashlib,collections
 from build_utnt import read_wad,write_wad
 ROOT=Path(__file__).resolve().parent.parent
-C=ROOT/'tutnt/.codex'
+C=codex_root(ROOT)
 COLS=15;PITCH=384;ROW=512
 
 

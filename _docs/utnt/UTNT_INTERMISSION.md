@@ -187,4 +187,4 @@ The fixtures exercise actual map exits, save rollback, frozen result pages,
 reopened hubs, cumulative counts, deaths and four real peers with different
 languages. Existing route tests run all ten chapter definitions, the secret branch
 and the original endings. These are targeted regressions, not a full playthrough.
-Local evidence: `tutnt/.codex/logs/transitions-*` and `chapter-route-*`.
+Local evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/logs/transitions-*` and `chapter-route-*`.

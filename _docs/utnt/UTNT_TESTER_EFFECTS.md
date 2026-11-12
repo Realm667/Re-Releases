@@ -72,7 +72,7 @@ UDB enumerates source-directory files recursively before applying ignored-direct
 - Reactor scene checks also confirm all three native monster kills and cleanup of the temporary light. The computer check confirms repeated activation of the placed sources in the normal actor list.
 - Scene captures cover the selective glass, both rune emitters, French remaining-coin notice, rusty seal/runes, 32 switched ceiling textures, subtitle padding, coin panel and reactor sequence. The sign was captured visible, dismissed and reopened.
 
-Local evidence uses tester-effects-, tester-weather-ab-, tester-sign- and tester-seal prefixes under tutnt/.codex/logs and tutnt/.codex/validation. Additional thunder/rain evidence is in tutnt/.codex/work/tester-effects/thunder-check. Work files and exploratory patches are excluded from the game package.
+Local evidence uses tester-effects-, tester-weather-ab-, tester-sign- and tester-seal prefixes under D:/Codex/ReReleases/UTNT Reforged/.codex/logs and D:/Codex/ReReleases/UTNT Reforged/.codex/validation. Additional thunder/rain evidence is in D:/Codex/ReReleases/UTNT Reforged/.codex/work/tester-effects/thunder-check. Work files and exploratory patches are excluded from the game package.
 
 ## Still open across the complete feedback set
 

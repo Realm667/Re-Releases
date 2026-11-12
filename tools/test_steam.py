@@ -2,6 +2,7 @@
 
 Set UTNT_ENGINE / UTNT_IWAD. Run python tools/test_steam.py --mod tutnt.pk3.
 """
+from work_paths import runtime_root
 from pathlib import Path
 import argparse,json,os
 from check_engine import run_case
@@ -37,7 +38,7 @@ echo UTNT_REGRESSION_COMPLETE;echo UTNT_TEST_END;quit
         res['ok']=res['ok'] and res['assertions']==65;results.append(res)
         slab=run_case(engine,iwad,root=a.root,mod=a.mod,addon=a.fixture,mapname='UTNTST3',renderer=backend,label=label+'-3dfloor',commands='wait 160;event steamcheck 3;event steam3dcheck;echo UTNT_REGRESSION_COMPLETE;echo UTNT_TEST_END;quit\n',timeout=35,regression=True,settings=settings)
         slab['ok']=slab['ok'] and slab['assertions']==6;results.append(slab)
-    (a.root/'logs'/f'{a.label}-results.json').write_text(json.dumps(results,indent=2)+'\n')
+    (runtime_root(a.root)/'logs'/f'{a.label}-results.json').write_text(json.dumps(results,indent=2)+'\n')
     if not all(r['ok'] for r in results):raise SystemExit('Steam regression failed; see logs')
     print('Steam lifecycle and solid 3D-floor checks passed.')
 if __name__=='__main__':main()

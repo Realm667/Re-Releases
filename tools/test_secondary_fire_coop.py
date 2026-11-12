@@ -1,4 +1,5 @@
 """Two-peer secondary-fire network regression using the current integration package."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,os,subprocess,time,zipfile
 from build_utnt import write_wad
@@ -7,7 +8,7 @@ p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE',str(ROOT/'engine/uzdoom.exe')));p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD','F:/DoomDev/DOOM2.WAD'))
 p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3');p.add_argument('--port',type=int,default=15327)
 p.add_argument('--compile-only',action='store_true');p.add_argument('--extended',action='store_true');p.add_argument('--overlay',action='store_true')
-a=p.parse_args();local=ROOT/'tutnt/.codex';out=local/('logs/secondary-fire/coop-extended' if a.extended else 'logs/secondary-fire/coop');out.mkdir(parents=True,exist_ok=True)
+a=p.parse_args();local=codex_root(ROOT);out=local/('logs/secondary-fire/coop-extended' if a.extended else 'logs/secondary-fire/coop');out.mkdir(parents=True,exist_ok=True)
 reports=local/'validation/secondary-fire';reports.mkdir(parents=True,exist_ok=True)
 fixture=local/('builds/utnt-secondary-coop-extended.pk3' if a.extended else 'builds/utnt-secondary-coop.pk3')
 text='namespace="ZDoom";\n'

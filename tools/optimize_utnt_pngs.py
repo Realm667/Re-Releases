@@ -1,8 +1,9 @@
 """Review/apply strictly verified PNGCrush -> PNGOUT -> DeflOpt compression.
 
 Production files are changed only with --apply-report. All working files and
-original-byte backups stay in tutnt/.codex. No optimizer binary is distributed.
+original-byte backups stay in the Codex agent workspace. No optimizer binary is distributed.
 """
+from work_paths import codex_root
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
@@ -135,7 +136,7 @@ def main():
     p.add_argument('--workers',type=int,default=12);p.add_argument('--timeout',type=int,default=180)
     p.add_argument('--apply-report',type=Path);p.add_argument('--limit',type=int)
     p.add_argument('--run-name', help='Unique name for retained backup and report files')
-    a=p.parse_args();root=ROOT.resolve();work=root/'tutnt/.codex/work/png-optimization';work.mkdir(parents=True,exist_ok=True)
+    a=p.parse_args();root=ROOT.resolve();work=codex_root(root)/'work/png-optimization';work.mkdir(parents=True,exist_ok=True)
     if a.apply_report:
         report=json.loads(a.apply_report.read_text(encoding='utf-8')); applied=[]
         if report['errors']:raise ValueError('Resolve report errors before applying PNGs')
@@ -178,7 +179,7 @@ def main():
     label=a.run_name or ('pilot' if a.limit else 'all')
     if not label or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_' for c in label):
         raise ValueError('Run name must contain only letters, digits, dash or underscore')
-    backup=root/('tutnt/.codex/backups/png-optimization-'+label+'.zip')
+    backup=codex_root(root)/'backups/png-optimization-'+label+'.zip'
     if backup.exists():raise FileExistsError('Use a new run after preserving existing evidence: '+str(backup))
     groups={}; report=dict(schema=1,backup=backup.as_posix(),tools={},files=[],errors=[])
     for name in ('pngcrush','pngout','deflopt'):
@@ -190,7 +191,7 @@ def main():
             if key not in groups:groups[key]=[data,[]]
             groups[key][1].append(name)
     start=time.monotonic();total=len(groups)
-    destination=root/('tutnt/.codex/validation/png-optimization-'+label+'.json')
+    destination=codex_root(root)/'validation/png-optimization-'+label+'.json'
     with ThreadPoolExecutor(max_workers=a.workers) as pool:
         tasks={pool.submit(optimize_one,data,work,a.plugins.resolve(),a.timeout):names for data,names in groups.values()}
         for done,future in enumerate(as_completed(tasks),1):

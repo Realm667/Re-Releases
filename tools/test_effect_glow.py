@@ -2,6 +2,7 @@
 
 Uses the existing industrial test room, with an isolated addon and test saves.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse, json, os, shutil
 from check_engine import ROOT, run_case
@@ -40,7 +41,7 @@ def main():
     p.add_argument('--mod', type=Path, default=ROOT/'tutnt.pk3')
     p.add_argument('--renderer', choices=['0','1'], default='1')
     a = p.parse_args()
-    work = ROOT/'tutnt/.codex/work/effect-glow'
+    work = codex_root(ROOT)/'work/effect-glow'
     addon = work/'addon'
     (addon/'maps').mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT/'tools/industrial-revision-tests/maps/utntifx.wad', addon/'maps/utntifx.wad')
@@ -102,12 +103,12 @@ def main():
     result['ok'] &= result['assertions'] >= 150
     if result['ok']:
         try:
-            result['colors'] = check_glow_colors(*[ROOT/f'tutnt/.codex/logs/effect-glow-color-{state}-{a.renderer}.png' for state in ('on', 'off', 'repeat')])
+            result['colors'] = check_glow_colors(*[codex_root(ROOT)/f'logs/effect-glow-color-{state}-{a.renderer}.png' for state in ('on', 'off', 'repeat')])
         except (AssertionError, OSError) as error:
             result['ok'] = False
             result['errors'].append('rendered glow colors: '+str(error))
             print(result['errors'][-1])
-    report = ROOT/'tutnt/.codex/validation/effect-glow'
+    report = codex_root(ROOT)/'validation/effect-glow'
     report.mkdir(parents=True, exist_ok=True)
     (report/f'runtime-{a.renderer}.json').write_text(json.dumps(result, indent=2)+'\n')
     if not result['ok']:

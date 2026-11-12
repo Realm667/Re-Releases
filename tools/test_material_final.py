@@ -1,9 +1,10 @@
 """Render the user-reported relief materials on walls and floors in RELTEST."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,zipfile
 from check_engine import run_case
 ROOT=Path(__file__).resolve().parent.parent
-C=ROOT/'tutnt/.codex'
+C=codex_root(ROOT)
 NAMES='ADEL_W39 CITYF01 XA22TEX XB22TEX IKTCR05B IKWALL28 METALF12 PANBOOK OTECH6 QMET10 QTECH30 QTECH31 QTECH32 SNOW3 XA16TEX XB16TEX TECHG QMET33'.split()
 
 def capture(renderer='1',live=False,batch=0,names=None,suite='final'):

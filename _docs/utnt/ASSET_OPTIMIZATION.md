@@ -120,7 +120,7 @@ TEXTURES expansion, precache and build-label distinctions remain; see
 
 ```text
 python -B tools/audit_utnt_assets.py --check
-python -B tools/audit_utnt_assets.py --report tutnt/.codex/validation/asset-inventory.json
+python -B tools/audit_utnt_assets.py --report D:/Codex/ReReleases/UTNT Reforged/.codex/validation/asset-inventory.json
 python -B tools/test_model_assets.py
 python -B tools/test_asset_consolidation.py --before <baseline.pk3> --after <candidate.pk3> --engine <uzdoom.exe>
 python -B tools/build_definition_tables.py --check
@@ -131,8 +131,8 @@ content hashes. The palette checker follows these aliases while retaining the
 original expected hashes and offsets. If a shared image is intentionally
 changed later, review all consumers and update this manifest or split the asset.
 
-Local recovery/evidence: `tutnt/.codex/backups/size-audit-assets.zip`,
-`tutnt/.codex/work/size-audit/`, and the `size-audit-*` reports under
+Local recovery/evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/backups/size-audit-assets.zip`,
+`D:/Codex/ReReleases/UTNT Reforged/.codex/work/size-audit/`, and the `size-audit-*` reports under
 `.codex/validation` and `.codex/logs`. The two disposable comparison PK3s
 (739,505,283 bytes in total) were removed after verification; their complete
 resource/hash manifests and rendered comparisons remain. Original production

@@ -1,6 +1,7 @@
 """Structural and in-engine regression for generated sky cornices.
-All transient products are stored under tutnt/.codex.
+All transient products are stored under the Codex agent workspace.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse, collections, json, math, sys, unittest
 from build_sky_edges import detect, mesh, generate, mapping, resolve_slopes, plane, profile, ROOT
@@ -101,7 +102,7 @@ def runtime(root,engine,iwad,mod,mapname,renderer,packaged=False,label_suffix=""
     ax,ay=e['a'];bx,by=e['b'];length=math.hypot(bx-ax,by-ay)
     nx,ny=(by-ay)/length,-(bx-ax)/length;mx,my=(ax+bx)*.5,(ay+by)*.5
     z=(e['h0']+e['h1'])*.5;yaw=math.degrees(math.atan2(-ny,-nx))
-    addon=root/('tutnt/.codex/work/sky-edges/runtime-packaged' if packaged else 'tutnt/.codex/work/sky-edges/runtime');addon.mkdir(parents=True,exist_ok=True)
+    addon=codex_root(root)/('work/sky-edges/runtime-packaged' if packaged else 'work/sky-edges/runtime');addon.mkdir(parents=True,exist_ok=True)
     if not packaged:
         import shutil
         for rel in json.loads((root/'tools/sky-edges-outputs.json').read_text()):
@@ -210,17 +211,17 @@ class UTNTSkyEdgeTest : EventHandler
         commands += [f'netevent skyedgeview {view}','netevent skyedges_mode 0','wait 10',f'screenshot logs/{prefix}-{view}-before.png','netevent skyedges_mode 1','wait 10',f'screenshot logs/{prefix}-{view}-after.png']
     commands+=['netevent skyedgeview 0','netevent skyedgeglow 1','wait 20',f'screenshot logs/{prefix}-glow-on.png','netevent skyedgeglow 2','wait 20',f'screenshot logs/{prefix}-glow-off.png','netevent skyedgeglow 0','wait 10']
     commands+=['netevent skyedgeinvalid','netevent terrainedgeinvalid','save sky-edge-regression','wait 10','load sky-edge-regression','wait 70','netevent skyedgeassert','netevent skyedges','wait 20','echo UTNT_TEST_END','wait 10','quit']
-    result=run_case(engine,iwad,root=root/'tutnt/.codex',mod=mod,addon=addon,mapname=mapname,renderer=renderer,label=prefix,commands='; '.join(commands)+'\n',timeout=180 if renderer=='0' else 90,settings=[('UTNT_subtitles',False),('vid_maxfps',60),('gl_texture_filter',0),('gl_bloom',False),('screenblocks',12),('crosshair',0),('r_drawplayersprites',False),('con_notifytime',0),('use_mouse',False),('use_joystick',False),('i_pauseinbackground',False),('vid_activeinbackground',True)])
+    result=run_case(engine,iwad,root=codex_root(root),mod=mod,addon=addon,mapname=mapname,renderer=renderer,label=prefix,commands='; '.join(commands)+'\n',timeout=180 if renderer=='0' else 90,settings=[('UTNT_subtitles',False),('vid_maxfps',60),('gl_texture_filter',0),('gl_bloom',False),('screenblocks',12),('crosshair',0),('r_drawplayersprites',False),('con_notifytime',0),('use_mouse',False),('use_joystick',False),('i_pauseinbackground',False),('vid_activeinbackground',True)])
     log=Path(result['log']).read_text()
     if result['assertions']!=11:
         result['ok']=False;result['errors'].append('missing runtime assertions (including post-load checks)')
     if any(s in log for s in ['Unable to load shader','Shader compilation failed','Failed to compile']):result['ok']=False
-    out=root/'tutnt/.codex/validation/sky-edges';out.mkdir(parents=True,exist_ok=True)
+    out=codex_root(root)/'validation/sky-edges';out.mkdir(parents=True,exist_ok=True)
     (out/(prefix+'.json')).write_text(json.dumps(result|dict(camera_edge=e),indent=2))
     if not result['ok']:print(log[-6000:]);raise SystemExit(1)
 
 if __name__=='__main__':
-    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--runtime',action='store_true');ap.add_argument('--packaged',action='store_true');ap.add_argument('--map',default='TNT02');ap.add_argument('--renderer',default='1',choices=['0','1']);ap.add_argument('--engine',type=Path);ap.add_argument('--iwad',type=Path,default=Path('F:/DoomDev/DOOM2.WAD'));ap.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/tutnt-sky-edges.pk3');ap.add_argument('--label-suffix',default='');ap.add_argument('--line',type=int);ap.add_argument('--mode',type=int,choices=[0,1,2]);ap.add_argument('--layer',type=int,choices=[0,1]);args=ap.parse_args()
+    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--runtime',action='store_true');ap.add_argument('--packaged',action='store_true');ap.add_argument('--map',default='TNT02');ap.add_argument('--renderer',default='1',choices=['0','1']);ap.add_argument('--engine',type=Path);ap.add_argument('--iwad',type=Path,default=Path('F:/DoomDev/DOOM2.WAD'));ap.add_argument('--mod',type=Path,default=codex_root(ROOT)/'builds/tutnt-sky-edges.pk3');ap.add_argument('--label-suffix',default='');ap.add_argument('--line',type=int);ap.add_argument('--mode',type=int,choices=[0,1,2]);ap.add_argument('--layer',type=int,choices=[0,1]);args=ap.parse_args()
     if args.runtime:runtime(ROOT,args.engine,args.iwad,args.mod,args.map.upper(),args.renderer,args.packaged,args.label_suffix,args.line,args.mode,args.layer)
     else:
         suite=unittest.defaultTestLoader.loadTestsFromTestCase(GeometryTests)

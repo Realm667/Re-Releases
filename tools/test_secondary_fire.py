@@ -1,4 +1,5 @@
 """Runtime regression for UTNT secondary fire; all generated files stay in .codex."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse, json, os, sys, zipfile
 from build_utnt import write_wad
@@ -15,7 +16,7 @@ p.add_argument('--language',choices=('en','de','es','fr'),default='de')
 p.add_argument('--class',dest='playerclass',default='Marine')
 p.add_argument('--mode',default='logic',choices=['logic','rate','chain','visual','grenade','extended','pressure','burst','refined','hud','flashes','followup'])
 a=p.parse_args()
-local=ROOT/'tutnt/.codex'
+local=codex_root(ROOT)
 logs=local/'logs/secondary-fire';logs.mkdir(parents=True,exist_ok=True)
 reports=local/'validation/secondary-fire';reports.mkdir(parents=True,exist_ok=True)
 addon=local/('builds/utnt-secondary-tests-'+a.playerclass.lower()+'-'+a.mode+'.pk3')

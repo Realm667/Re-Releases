@@ -61,7 +61,7 @@ alongside the current Distance Blur and other local integration work.
 
 The follow-up defaults of +30% shadows and +15% midtones, with five-point menu
 steps for all three controls, passed all 63 runtime assertions and the image
-comparisons. Evidence: `tutnt/.codex/validation/tonal-filter/defaults-30-15/`.
+comparisons. Evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/tonal-filter/defaults-30-15/`.
 
 The extended -100% to +100% range passed 63 assertions and the image comparisons
 under both Vulkan and OpenGL. The shared integration build `adba34c87004` passed
@@ -71,6 +71,6 @@ bounded, monotonic output and preserved black/white endpoints; the denominator
 never fell below 0.5. Evidence: `range-100-vulkan/` (including `curve-check.json`)
 and `range-100-opengl/` beneath the same validation directory.
 
-Local evidence: `tutnt/.codex/validation/tonal-filter/` (`package`, `opengl`,
+Local evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/tonal-filter/` (`package`, `opengl`,
 `options-package`, `integration`). Reproduce with `tools/test_tonal_filter.py` and
 `tools/test_options_menu.py`, specifying the engine, PK3 and central output paths.

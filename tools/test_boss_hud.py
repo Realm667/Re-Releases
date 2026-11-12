@@ -2,6 +2,7 @@
 Requires UTNT_ENGINE and UTNT_IWAD; uses isolated configs/saves and writes logs/.
 The fixture changes only its own test actor and the production boss adapter.
 """
+from work_paths import codex_root
 import argparse, json, os, pathlib, struct
 from check_engine import ROOT, run_case
 
@@ -45,7 +46,7 @@ def main():
     p.add_argument('--renderer',choices=['0','1','both'],default='both')
     p.add_argument('--mod',type=pathlib.Path)
     p.add_argument('--label',default='boss-plaque')
-    p.add_argument('--work',type=pathlib.Path,default=ROOT/'tutnt/.codex/logs/boss-hud')
+    p.add_argument('--work',type=pathlib.Path,default=codex_root(ROOT)/'logs/boss-hud')
     args=p.parse_args(); results=[]
     work=args.work.resolve(); work.mkdir(parents=True,exist_ok=True)
     for renderer in ['0','1'] if args.renderer=='both' else [args.renderer]:

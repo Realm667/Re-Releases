@@ -1,3 +1,4 @@
+from work_paths import codex_root
 from pathlib import Path
 import json
 import os
@@ -40,6 +41,6 @@ cmd=['wait 180','netevent usreset','wait 5','event usclear',
 if a.dungeon:
  cmd=['wait 180','netevent usdungeon','wait 350','event uspulses 1','wait 110','event uspulses 0','event usdone','echo UTNT_TEST_END','wait 3','quit']
 r=run_case(a.engine,a.iwad,root=R,mod=a.mod,addon=addon,mapname='TNT01' if a.dungeon else 'TNT02',playerclass=a.playerclass,label=label,commands='; '.join(cmd),timeout=65,regression=True,settings=[('language',a.language),('win_w',a.width+18),('win_h',a.height+47),('vid_activeinbackground',True),('i_pauseinbackground',False),('con_notifytime',0)])
-(R/'logs'/(label+'-results.json')).write_text(json.dumps(r,indent=2))
+(codex_root(R)/'logs'/(label+'-results.json')).write_text(json.dumps(r,indent=2))
 if not r['ok']:print(Path(r['log']).read_text()[-5000:])
 raise SystemExit(0 if r['ok'] else 1)

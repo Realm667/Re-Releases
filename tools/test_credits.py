@@ -1,4 +1,5 @@
 """Exercise all credit layouts, save/load, authored finale and optional Remaster cards."""
+from work_paths import codex_root, runtime_root
 from pathlib import Path
 import sys,json,argparse,subprocess,re
 REPO=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(REPO/'tools'))
@@ -55,7 +56,7 @@ if a.mode=='look':
  if len(re.findall(r'Shader \(\d+\): UTNTEndingLook\s',log))!=1:r['ok']=False;r['errors'].append('ending shader must be registered exactly once')
  from PIL import Image,ImageChops,ImageStat
  try:
-  graded=Image.open(ROOT/'logs'/f'{label}-graded.png').convert('RGB');baseline=Image.open(ROOT/'logs'/f'{label}-baseline.png').convert('RGB')
+  graded=Image.open(runtime_root(ROOT)/'logs'/f'{label}-graded.png').convert('RGB');baseline=Image.open(runtime_root(ROOT)/'logs'/f'{label}-baseline.png').convert('RGB')
   scale=graded.height/720;left=(graded.width-min(1280,graded.width/scale)*scale)/2
   # Opaque text interiors avoid antialiased frame edges that reveal the world beneath.
   errors=[]

@@ -1,11 +1,12 @@
 """Combined live UI regressions: notices, objectives, boss, subtitles and chapter reading.
 Set UTNT_ENGINE / UTNT_IWAD. Screenshots and machine-readable results go to logs/.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,os
 from check_engine import ROOT,run_case
 from compile_ui_fixture import compile_fixture
-compile_fixture()
+addon=compile_fixture()
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--mod',type=Path,default=ROOT/'tutnt')
 p.add_argument('--mode',choices=['hud','chapter','build'],default='hud')
@@ -33,12 +34,12 @@ else: cmd+=['event uitbuild','openmenu UTNTHUDOptions','wait 5',f'screenshot log
 cmd+=['netevent uitcomplete','wait 3','echo UTNT_TEST_END','wait 3','quit']
 cmd=[step for c in cmd for step in ([c,'wait 3'] if c.startswith('screenshot ') else [c])]
 r=run_case(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],root=ROOT,mod=a.mod,
- mapname='INTERMAP' if a.mode=='chapter' else 'TNT02',addon=ROOT/'tools/ui-regression-tests',
+ mapname='INTERMAP' if a.mode=='chapter' else 'TNT02',addon=addon,
  label=label,renderer=a.renderer,commands='; '.join(cmd)+'\n',timeout=65,regression=True,
  settings=[('language',a.language),('UTNT_uiscale',a.scale),('UTNT_subtitles',True),('UTNT_subtitlescale',1.5),
  ('win_w',a.width+18),('win_h',a.height+47),('con_notifytime',0),('i_pauseinbackground',False),('vid_activeinbackground',True)])
 log=Path(r['log']).read_text(encoding='utf-8')
 if 'Unknown command' in log:r['ok']=False;r['errors'].append('unknown command')
-(ROOT/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
+(codex_root(ROOT)/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
 if not r['ok']:print(log[-6000:])
 raise SystemExit(0 if r['ok'] else 1)

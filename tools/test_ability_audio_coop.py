@@ -1,8 +1,9 @@
 """Verify local ability cue routing on two actual network peers with sound enabled."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,subprocess,sys,os,json,time,shutil
 repo=Path(__file__).resolve().parent.parent
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE'));p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD'));p.add_argument('--mod',type=Path,default=repo/'tutnt');p.add_argument('--output',type=Path,default=repo/'logs/ability-audio-coop');a=p.parse_args()
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE'));p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD'));p.add_argument('--mod',type=Path,default=repo/'tutnt');p.add_argument('--output',type=Path,default=codex_root(repo)/'logs/ability-audio-coop');a=p.parse_args()
 if not a.engine or not a.iwad:p.error('Pass --engine/--iwad or set UTNT_ENGINE/UTNT_IWAD')
 w=a.output.resolve();w.mkdir(parents=True,exist_ok=True);logs=w/'logs';logs.mkdir(exist_ok=True)
 fixture=w/'fixture';shutil.copytree(repo/'tools/ability-tests',fixture,dirs_exist_ok=True)

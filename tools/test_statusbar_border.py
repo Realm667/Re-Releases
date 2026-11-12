@@ -1,6 +1,7 @@
 """Capture native reduced-view borders on both renderers and three aspect ratios.
 Set UTNT_ENGINE and UTNT_IWAD; optionally pass --mod for a release PK3.
 """
+from work_paths import codex_root
 from pathlib import Path
 import sys, json, argparse, os, struct
 
@@ -27,15 +28,15 @@ for renderer in ['0','1'] if args.renderer=='both' else [args.renderer]:
         settings=[('i_pauseinbackground',False),('vid_activeinbackground',True),('con_notifytime',0)])
     for w,h,sizes in [(1920,1080,[9,7,3,10,11]),(1024,768,[8]),(2560,1080,[8])]:
         for size in sizes:
-            shot=root/'logs'/f'{label}-{w}x{h}-s{size}.png'
+            shot=codex_root(root)/'logs'/f'{label}-{w}x{h}-s{size}.png'
             actual=struct.unpack('>II',shot.read_bytes()[16:24]) if shot.exists() else None
             if actual!=(w,h): result['errors'].append(f'Missing or incorrectly sized capture: {shot.name}')
-    band_shot=root/'logs'/f'{label}-1920x1080-s3.png'
+    band_shot=codex_root(root)/'logs'/f'{label}-1920x1080-s3.png'
     if band_shot.exists():
         result['longest_black_band_px']=longest_black_band(band_shot)
         if result['longest_black_band_px']>=4:
             result['errors'].append('Black horizontal band in reduced-view surround')
     result['ok']=result['ok'] and not result['errors']
     results.append(result)
-(root/'logs'/f'{args.label}-results.json').write_text(json.dumps(results,indent=2)+'\n')
+(codex_root(root)/'logs'/f'{args.label}-results.json').write_text(json.dumps(results,indent=2)+'\n')
 raise SystemExit(0 if all(r['ok'] for r in results) else 1)

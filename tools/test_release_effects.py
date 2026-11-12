@@ -1,7 +1,8 @@
 """Exercise imported enemy deaths and local movement tilt in UZDoom.
 
-Outputs are kept under tutnt/.codex. --overlay supports a small development addon.
+Outputs are kept under the Codex agent workspace. --overlay supports a small development addon.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,zipfile
 from build_utnt import write_wad
@@ -39,8 +40,8 @@ def main():
     p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
     p.add_argument('--overlay',type=Path)
     p.add_argument('--renderer',choices=['0','1'],default='1')
-    a=p.parse_args();out=ROOT/'tutnt/.codex/validation/release-effects';out.mkdir(parents=True,exist_ok=True)
-    addon=fixture(ROOT/'tutnt/.codex/builds/release-effects-test.pk3',a.overlay)
+    a=p.parse_args();out=codex_root(ROOT)/'validation/release-effects';out.mkdir(parents=True,exist_ok=True)
+    addon=fixture(codex_root(ROOT)/'builds/release-effects-test.pk3',a.overlay)
     compiled=run_case(a.engine,a.iwad,root=out,mod=a.mod,addon=addon,label='release-effects-fixture-compile')
     if not compiled['ok']:
         print(Path(compiled['log']).read_text(errors='replace')[-7000:]);raise SystemExit(1)

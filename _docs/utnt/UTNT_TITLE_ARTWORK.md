@@ -22,8 +22,8 @@ PNGs at 1716 x 960 pixels, matching the preceding hires files. The logical
 Generated with the built-in Imagegen tool. The generated masters are resized
 once with high-quality bicubic interpolation to the exact target dimensions,
 without cropping. Prompts and masters are retained locally under
-tutnt/.codex/work/interms-borderless/; previous hires files are backed up under
-tutnt/.codex/backups/interms-borderless-20260913/.
+D:/Codex/ReReleases/UTNT Reforged/.codex/work/interms-borderless/; previous hires files are backed up under
+D:/Codex/ReReleases/UTNT Reforged/.codex/backups/interms-borderless-20260913/.
 
 This replaces the 8 September framed treatment only for the five named files.
 Other chapter images and the separate TNTE4_2 illustration remain outside this
@@ -35,7 +35,7 @@ Each exported file is decoded and checked for PNG format, RGBA mode, exact
 dimensions and full opacity. The generated images were visually reviewed for
 subject, style and absence of frames. Pixel data is checked against the packaged
 resources after the standard integration build and engine load check.
-Local results are stored in tutnt/.codex/validation/interms-borderless.json
-and tutnt/.codex/logs/interms-borderless-build.log.
+Local results are stored in D:/Codex/ReReleases/UTNT Reforged/.codex/validation/interms-borderless.json
+and D:/Codex/ReReleases/UTNT Reforged/.codex/logs/interms-borderless-build.log.
 
 This is an artwork/resource check, not a full campaign playthrough.

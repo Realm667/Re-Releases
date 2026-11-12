@@ -1,4 +1,5 @@
 """Check native options placement, reachable settings and navigation in UZDoom."""
+from work_paths import codex_root
 import argparse
 import json
 import os
@@ -13,7 +14,7 @@ def main():
     parser.add_argument('--iwad', default=os.environ.get('UTNT_IWAD', 'F:/DoomDev/DOOM2.WAD'))
     parser.add_argument('--mod', type=Path, default=ROOT/'tutnt.pk3')
     parser.add_argument('--languages', nargs='+', choices=['en','de','es','fr'], default=['en','de','es','fr'])
-    parser.add_argument('--output', type=Path, default=ROOT/'tutnt/.codex/validation/options-menu')
+    parser.add_argument('--output', type=Path, default=codex_root(ROOT)/'validation/options-menu')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     addon = ROOT/'tools/fixtures/options-menu'

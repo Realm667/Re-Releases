@@ -10,7 +10,7 @@ Updated: 12 September 2026.
 - Production: built-in Imagegen edit of the palette-decoded source, followed by Lanczos3 downsampling. Colors are inspired by the current PLAYPAL reference and allow intermediate truecolor shades; they are not restricted to 256 entries and do not track later palette changes automatically.
 - Validation: original/output dimension ratio, opaque RGB PNG encoding, successful decoding, packager inclusion and visual comparison. No in-game rendering test or shared integration-package rebuild was performed for this asset-only change.
 
-The generation prompt, full-resolution intermediate and local validation record are stored in `tutnt/.codex/work/ocomp-hires/`.
+The generation prompt, full-resolution intermediate and local validation record are stored in `D:/Codex/ReReleases/UTNT Reforged/.codex/work/ocomp-hires/`.
 
 ## Texture remaster batch, 12 September 2026
 
@@ -38,7 +38,7 @@ Built-in Imagegen produced the artwork from individual original references. Mech
 
 The six Q2COMP8-13 originals have identical decoded pixels to Q2CMP085-090 respectively. Each pair therefore shares the same remaster bytes under both required names. Q2G colors remain gold, Q2M panel layouts retain mirrored placement with readable new labels, Q2R remains blue/cyan and Q2Y remains purple/magenta.
 
-Local production records are in tutnt/.codex/work/texture-hires-batch/manifest.json, including exact prompts and generation paths. Per-set folders hold palette-decoded originals, generated artwork and review sheets. validation.json checks original hashes, exact doubled dimensions, truecolor encoding, transparent pixels where required and inclusion by the existing packager. Saved artwork has been visually reviewed. No in-engine rendering test or shared tutnt.pk3 rebuild was performed.
+Local production records are in D:/Codex/ReReleases/UTNT Reforged/.codex/work/texture-hires-batch/manifest.json, including exact prompts and generation paths. Per-set folders hold palette-decoded originals, generated artwork and review sheets. validation.json checks original hashes, exact doubled dimensions, truecolor encoding, transparent pixels where required and inclusion by the existing packager. Saved artwork has been visually reviewed. No in-engine rendering test or shared tutnt.pk3 rebuild was performed.
 
 
 ## Revised artwork, 12 September 2026
@@ -51,7 +51,7 @@ Local production records are in tutnt/.codex/work/texture-hires-batch/manifest.j
 - QWINDOW1 through QWINDOW5 depict HECTA1, MNTRA1, BRUSA1, HWARD1 and STYRB1 respectively, translated from the supplied UTNT sprites into dark medieval glass mosaics.
 - Twenty-eight rectangular Q2 computer resources have newly authored portal arrays, slipgate synchronization, OGROS steelworks, containment experiments, plasma reactors and Source research diagrams. The six Q2COMP8-13 aliases share their corresponding Q2CMP085-090 artwork. Q2CMP091 and Q2CMP092 are excluded from this revision. No LCD grid or CRT scanlines are baked into the new images. The existing runtime CRT shader is explicitly retained at the user's request.
 
-Built-in Imagegen produced 45 unique edited images; mechanical Lanczos3 downsampling exports the final RGB PNGs. Prompts and full-resolution outputs are preserved in tutnt/.codex/work/texture-revisions/, with manifest.json recording the sprite mapping, aliases and output hashes. Previous replacements are backed up in tutnt/.codex/backups/texture-revisions-20260912/.
+Built-in Imagegen produced 45 unique edited images; mechanical Lanczos3 downsampling exports the final RGB PNGs. Prompts and full-resolution outputs are preserved in D:/Codex/ReReleases/UTNT Reforged/.codex/work/texture-revisions/, with manifest.json recording the sprite mapping, aliases and output hashes. Previous replacements are backed up in D:/Codex/ReReleases/UTNT Reforged/.codex/backups/texture-revisions-20260912/.
 
 The scoped validation.json passes all 51 files: exact doubled width and height, truecolor RGB encoding, unchanged original hashes, identical alias bytes and packager inclusion. Artwork was visually checked at generated and final scales. No engine rendering test or shared package rebuild was performed.
 
@@ -60,6 +60,6 @@ A broader historical batch check encountered the unrelated ADEL_N07 replacement 
 
 ## TNT2SCHL warning sign alternatives
 
-Four 400 x 700 RGBA designs are preserved in tutnt/.codex/work/tnt2schl-sign/: A retains the original engraved character, B uses a riveted steel/stencil layout, C uses a cast plaque with raised lettering, and D uses worn enamel with hazard stripes. Each replaces the screenshot with an OGROS STEEL ARMORY GROUNDS / NO ENTRY / TRESPASSING PROHIBITED sign.
+Four 400 x 700 RGBA designs are preserved in D:/Codex/ReReleases/UTNT Reforged/.codex/work/tnt2schl-sign/: A retains the original engraved character, B uses a riveted steel/stencil layout, C uses a cast plaque with raised lettering, and D uses worn enamel with hazard stripes. Each replaces the screenshot with an OGROS STEEL ARMORY GROUNDS / NO ENTRY / TRESPASSING PROHIBITED sign.
 
-The user selected variant B, now installed locally as tutnt/hires/graphics/interms/TNT2SCHL.png. Its riveted dark steel, worn stencil lettering and red warning panel replace the screenshot with a clear forbidden-entry sign. The 400 x 700 fully opaque RGBA PNG is byte-identical to the selected variant and included by the packager. The low-resolution original remains unchanged. No shared package rebuild or new engine rendering test was performed. The existing replacement is backed up under tutnt/.codex/backups/tnt2schl-sign-20260912/. Built-in Imagegen prompts, full-resolution images, the comparison sheet and PNG validation are recorded in the work folder's manifest.json and validation.json.
+The user selected variant B, now installed locally as tutnt/hires/graphics/interms/TNT2SCHL.png. Its riveted dark steel, worn stencil lettering and red warning panel replace the screenshot with a clear forbidden-entry sign. The 400 x 700 fully opaque RGBA PNG is byte-identical to the selected variant and included by the packager. The low-resolution original remains unchanged. No shared package rebuild or new engine rendering test was performed. The existing replacement is backed up under D:/Codex/ReReleases/UTNT Reforged/.codex/backups/tnt2schl-sign-20260912/. Built-in Imagegen prompts, full-resolution images, the comparison sheet and PNG validation are recorded in the work folder's manifest.json and validation.json.

@@ -135,9 +135,9 @@ scenes instead of retaining the startup image. Runtime checks cover rain exposur
 shelter, native mirror state, real submersion, footprints, mechanisms and save/load.
 Contract checks cover shader budgets, packed distances, dust alpha/pivots/variants
 and removal of water-light bindings. Visual evidence and exact console sequences
-are under `tutnt/.codex/validation/environment-motion/` and
-`tutnt/.codex/work/environment-motion/`. Test packages stay under
-`tutnt/.codex/builds/`. These checks are not a complete campaign or multiplayer
+are under `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/environment-motion/` and
+`D:/Codex/ReReleases/UTNT Reforged/.codex/work/environment-motion/`. Test packages stay under
+`D:/Codex/ReReleases/UTNT Reforged/.codex/builds/`. These checks are not a complete campaign or multiplayer
 performance certification.
 
 ## Campaign source inventory

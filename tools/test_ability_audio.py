@@ -1,4 +1,5 @@
 """Ability sound delivery and decoding with the actual audio backend enabled."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,os,shutil,subprocess,sys
 repo=Path(__file__).resolve().parent.parent
@@ -6,7 +7,7 @@ sys.path.insert(0,str(repo/'tools'))
 from check_engine import run_case
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE'));p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD'))
-p.add_argument('--mod',default=str(repo/'tutnt'));p.add_argument('--output',type=Path,default=repo/'logs/ability-audio')
+p.add_argument('--mod',default=str(repo/'tutnt'));p.add_argument('--output',type=Path,default=codex_root(repo)/'logs/ability-audio')
 p.add_argument('--class',dest='cls',default='Marine');p.add_argument('--fast',action='store_true',help='Shorten both active timers; still expire through the production Tick path');a=p.parse_args()
 if not a.engine or not a.iwad:p.error('Pass --engine/--iwad or set UTNT_ENGINE/UTNT_IWAD')
 w=a.output.resolve();w.mkdir(parents=True,exist_ok=True)

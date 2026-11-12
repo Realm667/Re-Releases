@@ -4,7 +4,7 @@ Current feature and maintenance documentation is collected here. Commands and in
 
 ## Remaster overview
 
-- [UTNT Remaster — What's New](WHATS_NEW.md): compact, continuously maintained English overview of implemented features, improvements and ongoing local integration.
+- [UTNT Remaster â€” What's New](WHATS_NEW.md): compact, continuously maintained English overview of implemented features, improvements and ongoing local integration.
 - For every UTNT feature, behavior change, improvement, fix or reversal, review and update this overview in the same task before committing. Keep entries brief and in English, consolidate related refinements, distinguish unfinished work, and keep the date and detail links current. Tuning values and implementation history belong in the linked detail documents. Internal changes without a relevant new outcome need no artificial entry.
 
 ## Engine requirement
@@ -13,7 +13,7 @@ UTNT Reforged requires **UZDoom 5.0.3 or later** and DOOM2.WAD. The production Z
 
 ## Build and checks
 
-Run `tutnt_build.bat` from the repository root. Local configuration is in the ignored `tools/utnt-env.cmd` (`UTNT_PYTHON`, `UTNT_ACC`, `UTNT_ENGINE`, `UTNT_IWAD`). Keep the shared `tutnt.pk3` at the root; temporary packages belong under `tutnt/.codex/builds/`. Run `python -B tools/check_work_layout.py` before finishing a task.
+Run `tutnt_build.bat` from the repository root. Local configuration is in the ignored `tools/utnt-env.cmd` (`UTNT_PYTHON`, `UTNT_ACC`, `UTNT_ENGINE`, `UTNT_IWAD`). Keep the shared `tutnt.pk3` at the root; temporary packages belong under `D:/Codex/ReReleases/UTNT Reforged/.codex/builds/`. Run `python -B tools/check_work_layout.py` before finishing a task.
 
 ## Features and maintenance
 
@@ -75,15 +75,15 @@ Run `tutnt_build.bat` from the repository root. Local configuration is in the ig
 
 ## Historical reports and concepts
 
-The editable local archive is `tutnt/.codex/notes/README.md`. These fixed Git-history links remain available on GitHub:
+The editable local archive is `D:/Codex/ReReleases/UTNT Reforged/.codex/notes/README.md`. These fixed Git-history links remain available on GitHub:
 
-- [TNT04B_SKY_CONCEPT.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/TNT04B_SKY_CONCEPT.md) — Approved initial concept; implementation: UTNT_ASH_SKY.md.
-- [UTNT_MODERNIZATION.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_MODERNIZATION.md) — Historical first modernization report.
-- [UTNT_SECOND_PASS.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_SECOND_PASS.md) — Dated second-pass implementation and acceptance report.
-- [UTNT_PACKAGE_AUDIT.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_PACKAGE_AUDIT.md) — Historical package-loss investigation; permanent rules are in AGENTS.md.
-- [UTNT_TNT01_ORGANIC.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_TNT01_ORGANIC.md) — Both terrain revisions withdrawn on 2026-09-11; restoration: UTNT_TNT01_LANDSCAPE.md.
+- [TNT04B_SKY_CONCEPT.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/TNT04B_SKY_CONCEPT.md) â€” Approved initial concept; implementation: UTNT_ASH_SKY.md.
+- [UTNT_MODERNIZATION.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_MODERNIZATION.md) â€” Historical first modernization report.
+- [UTNT_SECOND_PASS.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_SECOND_PASS.md) â€” Dated second-pass implementation and acceptance report.
+- [UTNT_PACKAGE_AUDIT.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_PACKAGE_AUDIT.md) â€” Historical package-loss investigation; permanent rules are in AGENTS.md.
+- [UTNT_TNT01_ORGANIC.md](https://github.com/Realm667/Re-Releases/blob/aea25d019f137f47a7772a895d9f4733f62a6898/UTNT_TNT01_ORGANIC.md) â€” Both terrain revisions withdrawn on 2026-09-11; restoration: UTNT_TNT01_LANDSCAPE.md.
 
-Screenshots formerly tracked in `tools/validation/` link to their preserved Git revisions. Local originals remain under `tutnt/.codex/validation/`. Runtime source files and build commands retain their existing locations.
+Screenshots formerly tracked in `tools/validation/` link to their preserved Git revisions. Local originals remain under `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/`. Runtime source files and build commands retain their existing locations.
 
 ## Definition file layout
 
@@ -92,3 +92,10 @@ See [Definition layout](DEFINITION_LAYOUT.md) for the nine root entrypoints, mod
 - [Voxel pickups and decorations](UTNT_VOXELS.md): selected models, original-lowres sources, palette mapping, rotation and validation.
 
 - [Editable production sources and direct ZIP rules](PRODUCTION_SOURCES.md)
+
+## Local development workspace
+
+New local chats start in `D:/Codex/ReReleases/UTNT Reforged`; attach the unchanged
+`F:/DoomDev/Projects/realm667.git` source checkout as the second folder.
+Agent outputs and local dependency copies live directly below the D: project
+`.codex/` directory. See [tools/LOCAL_WORK.md](../../tools/LOCAL_WORK.md).

@@ -3,6 +3,7 @@
 Run sequentially with the same immutable full PK3 and renderer/settings. Results
 include first-use stalls; no samples are trimmed. Work products stay in .codex.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,re,statistics,subprocess,tempfile
 from check_engine import ROOT,run_case
@@ -14,7 +15,7 @@ def main():
  p.add_argument('--baseline-ref');p.add_argument('--shadows',choices=['true','false'],default='true')
  a=p.parse_args();work=a.work.resolve();work.mkdir(parents=True,exist_ok=True)
  if not re.fullmatch(r'[A-Za-z0-9_-]+',a.label):p.error('label must be a plain identifier')
- fixture_root=ROOT/'tutnt/.codex/work/source-performance'/a.label;fixture_root.mkdir(parents=True,exist_ok=True)
+ fixture_root=codex_root(ROOT)/'work/source-performance'/a.label;fixture_root.mkdir(parents=True,exist_ok=True)
  fixture=Path(tempfile.mkdtemp(prefix='fixture-',dir=fixture_root))
  (fixture/'ZSCRIPT.txt').write_text((ROOT/'tools/source-tests/ZSCRIPT').read_text()+'\n'+(ROOT/'tools/source-profile/frames.zc').read_text())
  (fixture/'MAPINFO').write_text('GameInfo { AddEventHandlers = "UTNTSourceTests", "UTNTSourceFrameProfile" }\n')

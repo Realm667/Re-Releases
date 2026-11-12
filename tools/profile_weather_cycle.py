@@ -1,9 +1,10 @@
 """Compare disabled, light and peak weather in a short fixed camera window."""
+from work_paths import runtime_root
 from pathlib import Path
 import os,sys,json,re,statistics,argparse,shutil
 from check_engine import ROOT,run_case
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,default=ROOT);p.add_argument('--mod',type=Path);p.add_argument('--map',choices=['TNT02','TNT03A1']);p.add_argument('--phase',choices=['off','light','storm']);a=p.parse_args()
-addon=a.root/'logs/weather-cycle-profile-addon';addon.mkdir(parents=True,exist_ok=True)
+addon=runtime_root(a.root)/'logs/weather-cycle-profile-addon';addon.mkdir(parents=True,exist_ok=True)
 fixture=ROOT/'tools/weather-tests/ZSCRIPT'
 (addon/'fixture.zc').write_text(fixture.read_text(encoding='utf-8').replace('version "5.0.0"',''),encoding='utf-8')
 (addon/'ZSCRIPT').write_text('''version "5.0.0"
@@ -65,5 +66,5 @@ for mapname in ['TNT02','TNT03A1']:
   r.update(map=mapname,phase=phase,samples=len(values));r['ok'] &= len(values)>80
   if values:r['frame_ms']={'median':round(statistics.median(values),3),'p95':round(values[int(len(values)*.95)],3)}
   records.append(r);print(json.dumps(r),flush=True)
-(a.root/'logs'/('weather-cycle-profile-'+a.map+'-'+a.phase+'-results.json' if a.map and a.phase else 'weather-cycle-profile-results.json')).write_text(json.dumps(records,indent=2))
+(runtime_root(a.root)/'logs'/('weather-cycle-profile-'+a.map+'-'+a.phase+'-results.json' if a.map and a.phase else 'weather-cycle-profile-results.json')).write_text(json.dumps(records,indent=2))
 raise SystemExit(0 if all(r['ok'] for r in records) else 1)

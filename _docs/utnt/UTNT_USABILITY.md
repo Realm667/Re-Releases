@@ -33,7 +33,7 @@ native option toggle/restore. The source runtime passed 218 assertions per
 language (872 total across English, German, Spanish and French); the 14
 localization unit tests also passed. The built PK3 passed another 218 menu
 assertions and 25 usability assertions, including all three presets. Evidence is under
-`tutnt/.codex/validation/options-menu/`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/options-menu/`.
 
 ## Options palette (12 September 2026)
 
@@ -56,7 +56,7 @@ Validation: UZDoom 5.0.1 loaded the color overlay on the existing integration
 PK3; the full current source also passed its engine compile check.
 English/German runtime checks completed of the simple options, sound
 sliders and UTNT combat options. Screenshots and logs are under
-`tutnt/.codex/validation/options-colors/`. The shared `tutnt.pk3` now includes
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/options-colors/`. The shared `tutnt.pk3` now includes
 the palette and reorganized menus (build `7925bbddb1d8`, engine check passed).
 Environment bindings were refreshed for the user-saved TNT02; the map itself
 remained byte-identical and was included in the package. The earlier standalone

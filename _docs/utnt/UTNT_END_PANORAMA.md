@@ -19,10 +19,10 @@ reproduce the panorama pixel for pixel. The outer edges do not wrap.
 
 The original low-resolution resources remain unchanged. The built-in Imagegen
 prompt and complete master are retained locally under
-tutnt/.codex/work/border-and-ending/. Previous hires files are backed up under
-tutnt/.codex/backups/ending-panorama-20260913/.
+D:/Codex/ReReleases/UTNT Reforged/.codex/work/border-and-ending/. Previous hires files are backed up under
+D:/Codex/ReReleases/UTNT Reforged/.codex/backups/ending-panorama-20260913/.
 
 Validation checks the two export sizes, full opacity and exact pixel
-reconstruction. Results: tutnt/.codex/validation/border-and-ending.json.
+reconstruction. Results: D:/Codex/ReReleases/UTNT Reforged/.codex/validation/border-and-ending.json.
 The full panorama was visually inspected for continuous atmosphere and detail
 across the join. This does not change the ending timing or scroll logic.

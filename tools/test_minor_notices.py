@@ -1,4 +1,5 @@
 """Focused native notice delivery, key-use, layout and recipient regressions."""
+from work_paths import codex_root
 from pathlib import Path
 import os,json,argparse
 from check_engine import run_case
@@ -32,5 +33,5 @@ r=run_case(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],root=R,mod=a.mod,ma
  label=label,renderer=a.renderer,commands='; '.join(cmd)+'\n',timeout=80,regression=True,
  settings=[('language',a.lang),('win_w',1306),('win_h',791),('con_notifytime',0),('i_pauseinbackground',False),('vid_activeinbackground',True)])
 if not r['ok']:print(Path(r['log']).read_text(encoding='utf-8')[-5500:])
-(R/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
+(codex_root(R)/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
 raise SystemExit(0 if r['ok'] else 1)

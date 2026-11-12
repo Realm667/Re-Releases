@@ -1,4 +1,5 @@
 """Run every campaign map on both hardware renderers and all three player classes in the regression arena."""
+from work_paths import codex_root
 import json, os, pathlib
 from check_engine import ROOT, run_case
 from compile_test_acs import compile_tests
@@ -12,10 +13,10 @@ for renderer in ('0','1'):
         result=run_case(engine,iwad,mapname=name,renderer=renderer,label=f'map-{name}-{renderer}',duration=140,
             settings=[('UTNT_atmosphere','true')] if name in ('TNT03A1','TNT03A2','TNTLE') else [])
         results.append(result)
-        (ROOT/'logs/runtime-matrix.json').write_text(json.dumps(results,indent=2))
+        (codex_root(ROOT)/'logs/runtime-matrix.json').write_text(json.dumps(results,indent=2))
     for player in ('Marine','Scout','Commando'):
         result=run_case(engine,iwad,mapname='UTNTTEST',addon=ROOT/'tools/runtime-tests',renderer=renderer,
             playerclass=player,label=f'arena-{player}-{renderer}',regression=True)
         results.append(result)
-        (ROOT/'logs/runtime-matrix.json').write_text(json.dumps(results,indent=2))
+        (codex_root(ROOT)/'logs/runtime-matrix.json').write_text(json.dumps(results,indent=2))
 raise SystemExit(0 if all(r['ok'] for r in results) else 1)

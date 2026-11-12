@@ -89,7 +89,7 @@ Largest compressed categories in that candidate: organic material maps 54.56 MB,
 - Captures cover TNT01 water and HUD, card/skull notices, menus in four languages, TNT02 lava and the reported door. New fixtures are test-only and excluded from the game package.
 - Eight build snapshot regressions and a map-precache metadata preservation test pass.
 
-Runtime tools: `tools/test_tester_feedback.py`, `tools/test_objective_completion.py`, `tools/test_objective_completion_travel.py`, `tools/test_cosmetic_lifecycle.py`, `tools/test_source_maps.py`. Local evidence is under `tutnt/.codex/logs/` and `tutnt/.codex/validation/`.
+Runtime tools: `tools/test_tester_feedback.py`, `tools/test_objective_completion.py`, `tools/test_objective_completion_travel.py`, `tools/test_cosmetic_lifecycle.py`, `tools/test_source_maps.py`. Local evidence is under `D:/Codex/ReReleases/UTNT Reforged/.codex/logs/` and `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/`.
 
 ## Source beam rectangles: investigation, 14 September 2026
 
@@ -105,7 +105,7 @@ or combat change was made. Engine version, renderer and whether the reporter
 used the latest package remain needed to reproduce the original result.
 
 Unedited captures and engine logs use the `source-rectangles-` prefix under
-`tutnt/.codex/logs/`; the exact tested package is retained in
-`tutnt/.codex/builds/source-rectangles-baseline.pk3`. The first background-mode
+`D:/Codex/ReReleases/UTNT Reforged/.codex/logs/`; the exact tested package is retained in
+`D:/Codex/ReReleases/UTNT Reforged/.codex/builds/source-rectangles-baseline.pk3`. The first background-mode
 capture rendered at reduced resolution; only subsequent full-resolution
 captures were used for the visual assessment.

@@ -1,4 +1,5 @@
 """Native rollout coverage and neutral/periodic data checks. Fixtures stay in .codex."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,collections,hashlib,json,re,shutil,sys
 import numpy as np
@@ -6,7 +7,7 @@ from PIL import Image
 from build_organic_materials import ROOT,STRUCTURE_PRESETS,relief,height_depth,validate_compatibility
 from check_engine import run_case
 import test_metal_materials as room
-C=ROOT/'tutnt/.codex'
+C=codex_root(ROOT)
 
 
 def data_checks():

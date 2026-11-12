@@ -1,6 +1,7 @@
 """Compare actual cap joins over black/white backgrounds, opaque and fading.
 Set UTNT_ENGINE / UTNT_IWAD. Requires Pillow and numpy for screenshot reads.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,os
 import numpy as np
@@ -29,7 +30,7 @@ checks=[]
 if r['ok']:
     for preset,(scale,height) in enumerate(zip(scales,heights)):
         for half in range(2):
-            images=[np.asarray(Image.open(R/'logs'/f'{label}-{preset}-{half}-{b}.png').convert('RGB'),dtype=np.int16) for b in range(2)]
+            images=[np.asarray(Image.open(codex_root(R)/'logs'/f'{label}-{preset}-{half}-{b}.png').convert('RGB'),dtype=np.int16) for b in range(2)]
             delta=images[1]-images[0]
             assert np.all(delta[0,0]==255),'Contrast backgrounds not captured'
             left=round(51.37+12*scale);right=round(51.37+508*scale)
@@ -42,6 +43,6 @@ if r['ok']:
     r['ok']=all(c['ok'] for c in checks)
     if not r['ok']:r['errors'].append('cap join has a gap or double alpha blending')
 r['pixel_checks']=checks
-(R/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
+(codex_root(R)/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
 print(json.dumps({'ok':r['ok'],'pixel_checks':len(checks),'failed':[c for c in checks if not c['ok']]}))
 raise SystemExit(0 if r['ok'] else 1)

@@ -42,8 +42,8 @@ playback timing and subtitle synchronization.
 - Definition-table checks, native-font generation checks and all 14 localization
   unit tests pass. A complete campaign or multiplayer playthrough was not run.
 
-Local evidence: `tutnt/.codex/validation/legacy-voices/`; audio and menu logs:
-`tutnt/.codex/logs/legacy-voices/`. The work-layout checker reports eight
+Local evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/legacy-voices/`; audio and menu logs:
+`D:/Codex/ReReleases/UTNT Reforged/.codex/logs/legacy-voices/`. The work-layout checker reports eight
 pre-existing TNT01/TNT02 editor backup/autosave files dated 10–12 September;
 none were created or moved by this change.
 
@@ -92,9 +92,9 @@ match the validated outputs. A separate UZDoom run loaded every voice from
 the package and confirmed all 43 on active sound channels with the output
 volume muted. The run reached its completion marker and exited normally.
 
-- Original inputs and SHA-256 manifest: `tutnt/.codex/backups/voice-gain-20260912/`.
-- Engine playback and package evidence: `tutnt/.codex/validation/voice-gain-20260912/engine-audio.json`.
-- Per-file processing, hashes and measurements: `tutnt/.codex/validation/voice-gain-20260912/audio-validation.json`.
-- Reproduction script and checked candidates: `tutnt/.codex/work/voice-gain-20260912/`.
+- Original inputs and SHA-256 manifest: `D:/Codex/ReReleases/UTNT Reforged/.codex/backups/voice-gain-20260912/`.
+- Engine playback and package evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/voice-gain-20260912/engine-audio.json`.
+- Per-file processing, hashes and measurements: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/voice-gain-20260912/audio-validation.json`.
+- Reproduction script and checked candidates: `D:/Codex/ReReleases/UTNT Reforged/.codex/work/voice-gain-20260912/`.
 
 Always reprocess from the saved originals, never from the amplified files.

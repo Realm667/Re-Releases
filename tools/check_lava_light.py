@@ -3,6 +3,7 @@
 Capture with test_lava.py --label lit --time 3.75 and then --label dark
 --time 3.75 --dark. Use the same renderer and --out for both runs.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json
 import numpy as np
@@ -31,7 +32,7 @@ def compare(logs,renderer,previous=None):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--logs',type=Path,default=Path(__file__).resolve().parent.parent/'logs/lava-test/logs')
+    p.add_argument('--logs',type=Path,default=codex_root(Path(__file__).resolve().parent.parent)/'logs/lava-test/logs')
     p.add_argument('--renderer',choices=['0','1','both'],default='both')
     p.add_argument('--previous',help='Optional label for an earlier-version frozen capture.')
     a=p.parse_args()

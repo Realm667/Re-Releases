@@ -1,4 +1,5 @@
 """TNT04B inferno structure and engine/save-load checks. No source regeneration."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json
 from test_caldera_structure import parse
@@ -16,8 +17,8 @@ def main():
  assert l['SCRIPTS'].find(b'sector_setfade(23, 255, 120, 0);')<0
  for i in (1449,1450):assert g['sector'][i]['texturefloor']=='"UFID"' and g['sector'][i]['textureceiling']=='"UFIU"'
  cmd='wait 140; netevent infernocheck; wait 8; save inferno-test; wait 8; load inferno-test; wait 105; netevent infernocheck; wait 8; echo UTNT_TEST_END; quit'
- result=run_case(a.engine,a.iwad,root=ROOT/'tutnt/.codex',mod=a.mod or ROOT/'tutnt',addon=ROOT/'tools/fixtures/inferno',mapname='TNT04B',renderer=a.renderer,label='inferno-runtime-'+a.renderer,timeout=90,commands=cmd,settings=[('use_mouse','false'),('use_joystick','false'),('i_pauseinbackground','false'),('vid_activeinbackground','true')])
- out=ROOT/'tutnt/.codex/validation/tnt04b-inferno-finish';out.mkdir(parents=True,exist_ok=True)
+ result=run_case(a.engine,a.iwad,root=codex_root(ROOT),mod=a.mod or ROOT/'tutnt',addon=ROOT/'tools/fixtures/inferno',mapname='TNT04B',renderer=a.renderer,label='inferno-runtime-'+a.renderer,timeout=90,commands=cmd,settings=[('use_mouse','false'),('use_joystick','false'),('i_pauseinbackground','false'),('vid_activeinbackground','true')])
+ out=codex_root(ROOT)/'validation/tnt04b-inferno-finish';out.mkdir(parents=True,exist_ok=True)
  (out/('runtime-'+a.renderer+('-package' if a.mod else '')+'.json')).write_text(json.dumps(result,indent=2))
  assert result['ok'] and result['assertions']==18,Path(result['log']).read_text()[-4500:]
 if __name__=='__main__':main()

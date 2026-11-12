@@ -3,6 +3,7 @@
 Set UTNT_ENGINE / UTNT_IWAD or pass --engine / --iwad. Test addons and logs
 are generated under --output; no campaign maps or user settings are changed.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse, json, os, struct
 from PIL import Image, ImageChops, ImageStat
@@ -83,7 +84,7 @@ def main():
     p.add_argument('--mod',type=Path,default=root/'tutnt.pk3')
     p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE'))
     p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD'))
-    p.add_argument('--output',type=Path,default=root/'logs/heat-tests')
+    p.add_argument('--output',type=Path,default=codex_root(root)/'logs/heat-tests')
     p.add_argument('--renderer',choices=['0','1','both'],default='both')
     a=p.parse_args()
     if not a.engine or not a.iwad: p.error('set UTNT_ENGINE/UTNT_IWAD or pass --engine/--iwad')

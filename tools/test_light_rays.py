@@ -1,4 +1,5 @@
 """Validate legacy ray activation, map coverage, saved state and rendered views."""
+from work_paths import codex_root
 import argparse
 import json
 import os
@@ -68,7 +69,7 @@ def main():
     p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD','F:/DoomDev/DOOM2.WAD'))
     p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
     p.add_argument('--addon',type=Path,default=ROOT/'tools/fixtures/light-rays')
-    p.add_argument('--output',type=Path,default=ROOT/'tutnt/.codex/validation/light-rays')
+    p.add_argument('--output',type=Path,default=codex_root(ROOT)/'validation/light-rays')
     p.add_argument('--renderer',default='1',choices=['0','1'])
     p.add_argument('--maps',nargs='+',default=['TNT01','TNT02'])
     a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)

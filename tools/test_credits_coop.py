@@ -1,9 +1,10 @@
 """Two actual peers verify shared credits and host-only advancement/skip."""
+from work_paths import codex_root, runtime_root
 from pathlib import Path
 import subprocess,time,json,argparse
 REPO=Path(__file__).resolve().parent.parent
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,required=True);p.add_argument('--engine',required=True);p.add_argument('--iwad',required=True);p.add_argument('--mod',type=Path,default=REPO/'tutnt.pk3');p.add_argument('--port',default='15387');a=p.parse_args()
-ROOT=a.out.resolve();ROOT.mkdir(parents=True,exist_ok=True);logs=ROOT/'logs';logs.mkdir(exist_ok=True);processes=[];results=[]
+ROOT=a.out.resolve();ROOT.mkdir(parents=True,exist_ok=True);logs=runtime_root(ROOT)/'logs';logs.mkdir(exist_ok=True);processes=[];results=[]
 si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
 try:
  for peer in range(2):
@@ -14,7 +15,7 @@ try:
   cfg.write_text(commands)
   args=[a.engine,'-iwad',a.iwad,'-file',str(a.mod.resolve()),str(REPO/'tools/credits-tests'),'-config',str(ini),'-noautoload','-nosound','-stdout','-noidle','+vid_fullscreen','false','+vid_preferbackend','1','+con_notifytime','0','+use_mouse','false','+map','ENDMAP01','+exec',cfg.as_posix()]
   args+=['-host','2','-port',a.port] if peer==0 else ['-join','127.0.0.1:'+a.port]
-  stream=(logs/(label+'.log')).open('wb');child=subprocess.Popen(args,cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW);processes.append((child,stream,label))
+  stream=(logs/(label+'.log')).open('wb');child=subprocess.Popen(args,cwd=runtime_root(ROOT),stdout=stream,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW);processes.append((child,stream,label))
   if peer==0:time.sleep(1)
  deadline=time.monotonic()+65
  while time.monotonic()<deadline:

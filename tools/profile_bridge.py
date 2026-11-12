@@ -1,4 +1,5 @@
 """Alternating immutable-package TNT04A bridge benchmark. Never runs alongside another benchmark."""
+from work_paths import codex_root
 import argparse,json,re,statistics,hashlib
 from pathlib import Path
 from check_engine import ROOT,run_case
@@ -8,7 +9,7 @@ p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3');p.add_argument('--com
 p.add_argument('--renderer',default='0',choices=['0','1']);p.add_argument('--repeats',type=int,default=3)
 p.add_argument('--label',default='bridge-performance');a=p.parse_args()
 if not re.fullmatch(r'[a-zA-Z0-9_-]+',a.label):p.error('label must be a simple filename')
-w=ROOT/'tutnt/.codex/work/performance-audit-oct';w.mkdir(parents=True,exist_ok=True)
+w=codex_root(ROOT)/'work/performance-audit-oct';w.mkdir(parents=True,exist_ok=True)
 results=[]
 packages=[('before',a.compare),('after',a.mod)] if a.compare else [('current',a.mod)]
 hashes={name:hashlib.sha256(file.read_bytes()).hexdigest() for name,file in packages}
@@ -24,5 +25,5 @@ for repeat in range(a.repeats):
   r['ok'] &= len(values)>=100 and bool(counts)
   if values:r['frame_ms']={'samples':len(values),'median':statistics.median(values),'p95':values[int(len(values)*.95)],'p99':values[int(len(values)*.99)]}
   results.append(r);print(json.dumps(r),flush=True)
-  (ROOT/'tutnt/.codex/validation'/(a.label+'.json')).write_text(json.dumps(results,indent=2))
+  (codex_root(ROOT)/'validation'/(a.label+'.json')).write_text(json.dumps(results,indent=2))
   if not r['ok']:print(text[-4000:]);raise SystemExit(1)

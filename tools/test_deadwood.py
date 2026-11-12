@@ -1,6 +1,7 @@
 """Validate actual deadwood substitutions, collision, dynamic spawn and save/load.
-All artifacts are local under tutnt/.codex; the fixture never ships in UTNT.
+All artifacts are local under the Codex agent workspace; the fixture never ships in UTNT.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,re,time
 from check_engine import run_case,ROOT
@@ -45,7 +46,7 @@ if __name__=='__main__':
     p.add_argument('--renderer',default='1')
     p.add_argument('--restore',action='store_true')
     p.add_argument('--addon',type=Path)
-    p.add_argument('--work',type=Path,default=ROOT/'tutnt/.codex/validation/deadwood')
+    p.add_argument('--work',type=Path,default=codex_root(ROOT)/'validation/deadwood')
     a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
     results=[]
     for mapname in a.maps:

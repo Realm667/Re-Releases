@@ -1,11 +1,12 @@
 """Native regression for signed/repeated material UVs and side-on floor relief."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,zipfile
 import numpy as np
 from PIL import Image
 from check_engine import run_case
 ROOT=Path(__file__).resolve().parent.parent
-C=ROOT/'tutnt/.codex'
+C=codex_root(ROOT)
 
 ORACLE='''
 float ReliefUVError(sampler2D dataMap,vec2 uv,vec2 gx,vec2 gy)

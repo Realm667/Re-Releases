@@ -313,7 +313,7 @@ save/restore, the single collapse and empty centre on OpenGL and Vulkan.
 quality zero, looking away and map cleanup. `tools/test_source_finale.py` retains
 the actual nine-second ending and saved finale; `tools/test_source_coop.py`
 checks opposing client settings against the same authoritative encounter.
-Local evidence: `tutnt/.codex/logs/source-implosion/`. Screenshots there are
+Local evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/logs/source-implosion/`. Screenshots there are
 unaltered engine captures. The shared tutnt.pk3 is built from the complete live
 integration tree with `tools/build_utnt.py`, preserving other local work.
 
@@ -351,7 +351,7 @@ hardware results, not a minimum-FPS guarantee for every Vulkan device.
 unchanged logical dimensions and removal of the spent beam. The living battle,
 OpenGL/Vulkan finale, saved reconstruction, FX switches and real ending remain
 covered by the existing tests. Local evidence is under
-`tutnt/.codex/logs/source-performance/` and `.codex/validation/source-performance/`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/logs/source-performance/` and `.codex/validation/source-performance/`.
 
 Measured on Ryzen 9 7950X / RTX 4080, Vulkan with shadow maps enabled, in a
 sequential A-B-B-A comparison of the same complete package: average finale frame

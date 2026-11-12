@@ -48,7 +48,7 @@ visual class reference was updated so it compiles with the current mod.
 
 Runtime fixtures remain under `tools/fixtures/eight-player` and
 `tools/runtime-tests`. Generated expectations live under
-`tutnt/.codex/work/eight-player`; logs and validation results remain in the
+`D:/Codex/ReReleases/UTNT Reforged/.codex/work/eight-player`; logs and validation results remain in the
 central `.codex` directories.
 
 ## Validation scope

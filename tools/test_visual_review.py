@@ -1,4 +1,5 @@
 """Paired outdoor screenshots and reversible atmosphere save/load regression."""
+from work_paths import codex_root
 import json,os,pathlib
 from check_engine import ROOT,run_case
 results=[]
@@ -9,5 +10,5 @@ for backend in ('0','1'):
   r=run_case(pathlib.Path(os.environ['UTNT_ENGINE']),pathlib.Path(os.environ['UTNT_IWAD']),mapname=name,renderer=backend,addon=ROOT/'tools/visual-review',label=label,commands=cfg,timeout=40)
   if 'UTNT_VISUAL_REVIEW_COMPLETE' not in pathlib.Path(r['log']).read_text():r['ok']=False
   results.append(r)
-(ROOT/'logs/visual-review-results.json').write_text(json.dumps(results,indent=2))
+(codex_root(ROOT)/'logs/visual-review-results.json').write_text(json.dumps(results,indent=2))
 raise SystemExit(0 if all(r['ok'] for r in results) else 1)

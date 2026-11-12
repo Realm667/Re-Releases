@@ -9,6 +9,7 @@ HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
 from build_utnt import snapshot,input_files,compile_sources
 from check_engine import run_case
+from work_paths import codex_root
 from area_maps import allmaps
 import area_plan
 
@@ -26,7 +27,7 @@ def main():
     for key in ['engine','iwad','acc']:
         if not getattr(a,key) or not getattr(a,key).is_file():p.error('Supply --'+key+' or UTNT_'+key.upper())
     root=a.root.resolve();work=a.output.resolve();work.mkdir(parents=True,exist_ok=True)
-    package=(a.baseline_package or root/'tutnt/.codex/builds/areaalign-baseline.pk3').resolve();package.parent.mkdir(parents=True,exist_ok=True)
+    package=(a.baseline_package or codex_root(root)/'builds/areaalign-baseline.pk3').resolve();package.parent.mkdir(parents=True,exist_ok=True)
     sourcehashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (root/'tutnt/maps').glob('*.wad')}
     shutil.copy2(root/'tools/artwork/area-textures/materials.json',work/'materials.json')
     shutil.copy2(root/'tools/artwork/area-textures/legacy.json',work/'legacy.json')

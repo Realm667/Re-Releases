@@ -1,4 +1,5 @@
 """Validate source landmarks, family construction and all pre-existing assets."""
+from work_paths import codex_root
 import json
 from pathlib import Path
 import numpy as np
@@ -58,13 +59,13 @@ def check():
  assert np.array_equal(fields['QCITY10'][:48],fields['QCITY11'][:48])
  assert np.array_equal(fields['QCITY07'][100:152],fields['QCITY11'][100:152])
  assert np.array_equal(fields['OBR01'][14:18],fields['OBRL11'][14:18])
- before=ROOT/'tutnt/.codex/work/material-support-pass/before-manifest.json'
+ before=codex_root(ROOT)/'work/material-support-pass/before-manifest.json'
  old=json.loads(before.read_text()) if before.exists() else {'variants':{}}
  for n,v in old['variants'].items():
   for suffix in ('-height.png','-normal.png'):
    assert old['outputs']['tutnt/'+v['stem']+suffix]==g['outputs']['tutnt/'+g['variants'][n]['stem']+suffix],n
  r=dict(ok=True,materials=len(NAMES),landmarks=len(LANDMARKS),unchanged_variants=len(old['variants']) if before.exists() else None,data=data)
- out=ROOT/'tutnt/.codex/validation/material-support-pass';out.mkdir(exist_ok=True)
+ out=codex_root(ROOT)/'validation/material-support-pass';out.mkdir(exist_ok=True)
  (out/'data.json').write_text(json.dumps(r,indent=2));return r
 
 if __name__=='__main__':

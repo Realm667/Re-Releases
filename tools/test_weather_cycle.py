@@ -1,4 +1,5 @@
 """Production weather-cycle checks. --root isolates logs, saves and fixtures."""
+from work_paths import runtime_root
 from pathlib import Path
 import argparse,os,sys,json,re
 from check_engine import run_case,ROOT
@@ -38,7 +39,7 @@ elif a.case=='profile':
 if 'echo UTNT_TEST_END' not in cmd:cmd+='echo UTNT_TEST_END; wait 5; quit\n'
 cmd=cmd.replace('weather-cycle-save',label+'-save')
 # run_case accepts one directory. A tiny overlay includes the shared fixture.
-combined=a.root/'logs'/('addon-'+label);combined.mkdir(parents=True,exist_ok=True)
+combined=runtime_root(a.root)/'logs'/('addon-'+label);combined.mkdir(parents=True,exist_ok=True)
 import shutil
 shutil.copytree(fixture,combined,dirs_exist_ok=True)
 (combined/'fixture.zc').write_text((fixture/'ZSCRIPT').read_text(encoding='utf-8').replace('version "5.0.0"',''),encoding='utf-8')
@@ -51,18 +52,18 @@ if a.case=='coop':
     import test_weather
     test_weather.ROOT=a.root
     results=test_weather.coop(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],a.mod,combined)
-    climates=[re.findall(r'CLIMATE_SHARED.*',(a.root/'logs'/f'weather-final-coop-{i}.log').read_text(encoding='utf-8')) for i in range(2)]
+    climates=[re.findall(r'CLIMATE_SHARED.*',(runtime_root(a.root)/'logs'/f'weather-final-coop-{i}.log').read_text(encoding='utf-8')) for i in range(2)]
     matched=bool(climates[0]) and climates[0]==climates[1]
     for result in results:result['climate_matches']=matched;result['ok'] &= matched
-    (a.root/'logs/weather-cycle-coop-results.json').write_text(json.dumps(results,indent=2))
+    (runtime_root(a.root)/'logs/weather-cycle-coop-results.json').write_text(json.dumps(results,indent=2))
     print(json.dumps(results));raise SystemExit(0 if all(result['ok'] for result in results) else 1)
 r=run_case(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],root=a.root,mod=a.mod,mapname=a.mapname,addon=combined,renderer=a.renderer,label=label,commands=cmd,timeout=120,regression=a.case!='colors',settings=[('weatherfx',True),('UTNT_fxquality',3),('UTNT_lod',2048),('UTNT_atmosphere',False),('con_notifytime',0),('vid_activeinbackground',True),('vid_lowerinbackground',False),('i_pauseinbackground',False)])
 if a.case=='colors' and r['ok']:
     from PIL import Image
-    im=Image.open(a.root/'logs'/(label+'.png')).convert('RGB')
+    im=Image.open(runtime_root(a.root)/'logs'/(label+'.png')).convert('RGB')
     colors=[im.crop((100+n*100,100,116+n*100,116)).getextrema() for n in range(3)]
     r['neutral_cc_swatches']=all(c[0]==c[1]==c[2] and abs(c[0][1]-188)<=1 for c in colors)
     r['swatches']=colors;r['ok'] &= r['neutral_cc_swatches']
-out=a.root/'logs'/(label+'-result.json');out.write_text(json.dumps(r,indent=2))
+out=runtime_root(a.root)/'logs'/(label+'-result.json');out.write_text(json.dumps(r,indent=2))
 if not r['ok']:print(Path(r['log']).read_text(encoding='utf-8')[-11000:])
 raise SystemExit(0 if r['ok'] else 1)

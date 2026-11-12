@@ -1,4 +1,5 @@
 """Exercise local tone controls, save/load, map travel and rendered image changes."""
+from work_paths import codex_root
 import argparse
 import json
 import os
@@ -13,7 +14,7 @@ def main():
     parser.add_argument('--engine', default=os.environ.get('UTNT_ENGINE', ROOT/'engine/uzdoom.exe'))
     parser.add_argument('--iwad', default=os.environ.get('UTNT_IWAD', 'F:/DoomDev/DOOM2.WAD'))
     parser.add_argument('--mod', type=Path, default=ROOT/'tutnt.pk3')
-    parser.add_argument('--output', type=Path, default=ROOT/'tutnt/.codex/validation/tonal-filter')
+    parser.add_argument('--output', type=Path, default=codex_root(ROOT)/'validation/tonal-filter')
     parser.add_argument('--renderer', choices=['0', '1'], default='1')
     parser.add_argument('--maps', nargs='*', default=[])
     args = parser.parse_args()

@@ -1,11 +1,12 @@
 """Isolated lava spill geometry regression, with optional packaged input."""
+from work_paths import codex_root
 from pathlib import Path
 import sys,struct,json,re,shutil,argparse
 HERE=ROOT=ENGINE=IWAD=MOD=None
 
 def fixture():
     from build_lava_lips import generate
-    project=ROOT/'tutnt/.codex/work/performance-multiplayer/lava-fixture-project';addon=project/'tutnt';(addon/'maps').mkdir(parents=True,exist_ok=True)
+    project=codex_root(ROOT)/'work/performance-multiplayer/lava-fixture-project';addon=project/'tutnt';(addon/'maps').mkdir(parents=True,exist_ok=True)
     # Clockwise high pool, two joined fall segments; low pool below it.
     vertices=[(-384,-384),(-384,0),(0,0),(384,96),(384,-384),(-384,512),(384,512)]
     lines=[(0,1,0,None),(1,2,0,1),(2,3,0,1),(3,4,0,None),(4,0,0,None),(1,5,1,None),(5,6,1,None),(6,3,1,None)]
@@ -100,7 +101,7 @@ def run(renderer='1',mapname='LIPTEST'):
     addon=fixture()
     if mapname!='LIPTEST':
         # Real-map run uses the project's generated registration/model assets.
-        scene=ROOT/'tutnt/.codex/work/performance-multiplayer/lava-scene';scene.mkdir(exist_ok=True)
+        scene=codex_root(ROOT)/'work/performance-multiplayer/lava-scene';scene.mkdir(exist_ok=True)
         for n in ('MAPINFO','ZSCRIPT.test'):shutil.copyfile(addon/n,scene/n)
         (scene/'shaders').mkdir(exist_ok=True)
         if MOD is None:

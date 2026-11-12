@@ -62,9 +62,9 @@ legacy actor/new visual size probes in OpenGL and Vulkan, using the same
 texture, scale, depth and alpha. Actor/visual texture filtering can affect
 the apparent bright-core boundary.
 
-Local evidence: `tutnt/.codex/validation/particle-size-results.json` and
-`tutnt/.codex/logs/particle-size-*`. The initial TNT02 diagnosis is recorded
-under `tutnt/.codex/work/ember-audit/README.md`.
+Local evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/particle-size-results.json` and
+`D:/Codex/ReReleases/UTNT Reforged/.codex/logs/particle-size-*`. The initial TNT02 diagnosis is recorded
+under `D:/Codex/ReReleases/UTNT Reforged/.codex/work/ember-audit/README.md`.
 
 Both hardware backends passed 26 runtime assertions each. The rebuilt shared
 package passed its engine load and TNT02 check: nine live lava embers were

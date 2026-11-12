@@ -1,4 +1,5 @@
 """Four real peers compare all rows, reject guest skip and require readiness."""
+from work_paths import codex_root
 import argparse,json,os,subprocess,time
 from pathlib import Path
 from check_engine import ROOT
@@ -7,7 +8,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
     parser.add_argument('--metrics',action='store_true')
-    a=parser.parse_args();logs=ROOT/'tutnt/.codex/logs';children=[];results=[]
+    a=parser.parse_args();logs=codex_root(ROOT)/'logs';children=[];results=[]
     si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
     try:
         for i in range(4):
@@ -46,7 +47,7 @@ def main():
               '+wipetype','1','+con_notifytime','0','+map','TNT01','+exec',str(cfg)]
             args+=['-host','4','-port','15257'] if i==0 else ['-join','127.0.0.1:15257']
             f=(logs/(label+'.log')).open('wb')
-            child=subprocess.Popen(args,cwd=ROOT,stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
+            child=subprocess.Popen(args,cwd=codex_root(ROOT),stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
             children.append((child,f,label))
             if i==0:time.sleep(1)
         deadline=time.monotonic()+100

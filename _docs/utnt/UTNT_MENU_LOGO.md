@@ -40,7 +40,7 @@ live outside the packaged game directory.
 ## Validation
 
 Engine and visual checks are recorded under
-`tutnt/.codex/validation/reforged-menu-logo/`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/reforged-menu-logo/`.
 
 
 Verified on 12 September 2026 with UZDoom 5.0.1:
@@ -63,7 +63,7 @@ The 576 x 112 HiRes replacement passed the encoder check and the complete
 package build with engine validation (build `9b1af87fe731`). TITLEMAP visual
 review confirmed that the HiRes patch is selected, its text and runes gain
 detail, transparency remains correct, and its screen position and logical size
-match the base patch. Evidence: `tutnt/.codex/validation/reforged-hires-logo/`.
+match the base patch. Evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/reforged-hires-logo/`.
 The checked package was promoted to `tutnt.pk3` after checking its source
 fingerprint and comparing the resource inventory with the existing package.
 
@@ -100,7 +100,7 @@ ACS compilation, engine loading and its direct TITLEMAP menu check.
 A newer concurrently built `tutnt.pk3` already contained all four identical
 assets; its direct menu check also passed, so it was retained instead of
 replacing newer integration. Evidence is under
-`tutnt/.codex/validation/reforged-menu-skulls/`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/reforged-menu-skulls/`.
 
 The fade is implemented in `tutnt/zscript/UTNT_MenuSeal.zc` and registered
 through `mapinfo/MAPINFO.usability`. It inherits Doom menu sounds and only
@@ -116,11 +116,11 @@ respectively; all TITLEMAP image changes stay inside the original selector
 area. A paused TNT01 check also passed with 36 distinct states. The final
 full package passed its direct menu test and was promoted to `tutnt.pk3`
 after a source-fingerprint and resource comparison with no removed entries.
-Evidence and animated preview: `tutnt/.codex/validation/menu-seal-fade/`.
+Evidence and animated preview: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/menu-seal-fade/`.
 
 Alignment validation (12 September 2026): the four-pixel downward adjustment
 passed visual checks in native and HiRes menus. Evidence:
-`tutnt/.codex/validation/menu-seal-alignment/`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/menu-seal-alignment/`.
 Full build `ac705d020353` passed engine validation. The shared
 `tutnt.pk3` was verified identical to that checked build, including the
 corrected selector code.
@@ -133,7 +133,7 @@ pixels. Both native (288 x 56) and HiRes (576 x 112) outputs pass the
 reproducibility check and real TITLEMAP/title-intro and main-menu runs.
 Visual checks on bright ivory, amber, dark and fiery backgrounds confirm
 clean contours while dark interior metal stays intact. Evidence:
-`tutnt/.codex/validation/menu-logo-alpha/`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/menu-logo-alpha/`.
 The complete current-source build `cf6e753903f2` also passed ACS,
 localization/font checks and engine loading.
 The newer shared package `1472e7e69edf` contains both repaired

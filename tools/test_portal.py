@@ -1,11 +1,12 @@
 """Portal lifecycle and campaign smoke checks in isolated UZDoom profiles."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,os
 from check_engine import run_case
 ROOT=Path(__file__).resolve().parent.parent
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
-p.add_argument('--out',type=Path,default=ROOT/'logs/portal-tests')
+p.add_argument('--out',type=Path,default=codex_root(ROOT)/'logs/portal-tests')
 p.add_argument('--engine',type=Path,default=os.environ.get('UTNT_ENGINE',ROOT/'engine/uzdoom.exe'))
 p.add_argument('--iwad',type=Path,default=os.environ.get('UTNT_IWAD','F:/DoomDev/DOOM2.WAD'))
 p.add_argument('--renderer',choices=['0','1','both'],default='both')

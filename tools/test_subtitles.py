@@ -1,4 +1,5 @@
 """German subtitle layout, menu captures and saved voice queue on two aspect ratios."""
+from work_paths import codex_root
 import json,os,pathlib
 from check_engine import ROOT,run_case
 results=[]
@@ -8,5 +9,5 @@ for width,height in ((960,540),(1260,540)):
  r=run_case(pathlib.Path(os.environ['UTNT_ENGINE']),pathlib.Path(os.environ['UTNT_IWAD']),mapname='TNT02',addon=ROOT/'tools/subtitle-review',label=label,commands=cfg,timeout=60,settings=[('language','deu'),('UTNT_subtitlescale','1.5'),('win_w',str(width+18)),('win_h',str(height+47))])
  if 'UTNT_SUBTITLE_COMPLETE' not in pathlib.Path(r['log']).read_text(): r['ok']=False;r['errors'].append('missing subtitle queue completion')
  results.append(r)
-(ROOT/'logs/subtitle-results.json').write_text(json.dumps(results,indent=2))
+(codex_root(ROOT)/'logs/subtitle-results.json').write_text(json.dumps(results,indent=2))
 raise SystemExit(0 if all(r['ok'] for r in results) else 1)

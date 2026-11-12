@@ -1,4 +1,5 @@
 """Engine and image regression for global Distance Blur; artifacts stay in .codex."""
+from work_paths import codex_root
 import argparse
 import json
 from pathlib import Path
@@ -10,7 +11,7 @@ from check_engine import run_case
 ROOT=Path(__file__).resolve().parents[1]
 
 def fixture():
-    addon=ROOT/'tutnt/.codex/work/distance-blur/fixture'
+    addon=codex_root(ROOT)/'work/distance-blur/fixture'
     addon.mkdir(parents=True,exist_ok=True)
     for name in ('MAPINFO','ZSCRIPT'):
         shutil.copyfile(ROOT/'tools/fixtures/distance-blur'/name,addon/name)
@@ -37,7 +38,7 @@ def main():
     p.add_argument('--iwad',default='F:/DoomDev/DOOM2.WAD')
     p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
     p.add_argument('--renderers',nargs='+',default=['0','1'])
-    a=p.parse_args();addon=fixture();out=ROOT/'tutnt/.codex/validation/distance-blur';out.mkdir(parents=True,exist_ok=True)
+    a=p.parse_args();addon=fixture();out=codex_root(ROOT)/'validation/distance-blur';out.mkdir(parents=True,exist_ok=True)
     results=[]
     for renderer in a.renderers:
         label='blur-'+renderer

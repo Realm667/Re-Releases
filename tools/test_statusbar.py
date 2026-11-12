@@ -2,6 +2,7 @@
 Runs isolated UZDoom configs on both renderers; addon assets never ship in the PK3.
 Set UTNT_ENGINE and UTNT_IWAD. Optional --mod checks a freshly built package.
 """
+from work_paths import codex_root
 import argparse,json,os,pathlib,shutil,subprocess,struct
 from check_engine import ROOT,run_case
 
@@ -70,12 +71,12 @@ def commands(label):
     c.extend(['language deu','openmenu UTNTHUDOptions']);snap('menu-de')
     c.extend(['closemenu','map TNT03A1','wait 60','netevent hudcheck 0','wait 12','echo UTNT_TEST_END','wait 5','quit'])
     # Keep each exec line below the engine limit without bypassing queued waits.
-    (ROOT/'logs').mkdir(exist_ok=True)
+    (codex_root(ROOT)/'logs').mkdir(exist_ok=True)
     chunks=[c[i:i+30] for i in range(0,len(c),30)]
     for i in range(len(chunks)-1):
         chunks[i].append(f'exec logs/{label}-step{i+1}.cfg')
     for i in range(1,len(chunks)):
-        (ROOT/'logs'/f'{label}-step{i}.cfg').write_text('; '.join(chunks[i])+'\n')
+        (codex_root(ROOT)/'logs'/f'{label}-step{i}.cfg').write_text('; '.join(chunks[i])+'\n')
     return '; '.join(chunks[0])+'\n'
 
 
@@ -96,11 +97,11 @@ def main():
             if error in log: result['errors'].append(error)
         if 'UTNT_HUD_STATS_COMPLETE' not in log:result['errors'].append('missing live statistics tests')
         for name,size in [('1080p',(1920,1080)),('4by3',(1024,768)),('ultrawide',(2560,1080)),('floating-1080p',(1920,1080)),('floating-4by3',(1024,768)),('floating-ultrawide',(2560,1080))]:
-            shot=ROOT/'logs'/f'{label}-{name}.png'
+            shot=codex_root(ROOT)/'logs'/f'{label}-{name}.png'
             actual=struct.unpack('>II',shot.read_bytes()[16:24]) if shot.exists() else None
             if actual!=size:result['errors'].append(f'{name}: expected {size}, got {actual}')
         result['ok']=result['ok'] and not result['errors'];results.append(result)
-    (ROOT/'logs'/f'{a.label}-results.json').write_text(json.dumps(results,indent=2)+'\n',encoding='utf-8')
+    (codex_root(ROOT)/'logs'/f'{a.label}-results.json').write_text(json.dumps(results,indent=2)+'\n',encoding='utf-8')
     raise SystemExit(0 if all(r['ok'] for r in results) else 1)
 
 if __name__=='__main__':main()

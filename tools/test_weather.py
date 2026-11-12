@@ -3,6 +3,7 @@
 Set UTNT_ENGINE / UTNT_IWAD, then run python tools/test_weather.py.
 --case selects a smaller subset; --mod can test the final packaged PK3.
 """
+from work_paths import codex_root, runtime_root
 import argparse,json,os,pathlib,re,subprocess,time
 from check_engine import ROOT,run_case
 
@@ -40,7 +41,7 @@ def main():
                 if not r['ok']: print(log[-5000:]); break
     if 'audio' in cases: results.append(audio(engine,iwad,a.mod,addon))
     if 'coop' in cases: results.extend(coop(engine,iwad,a.mod,addon))
-    (ROOT/'logs'/f'weather-final-{a.case}-results.json').write_text(json.dumps(results,indent=2)+'\n')
+    (runtime_root(ROOT)/'logs'/f'weather-final-{a.case}-results.json').write_text(json.dumps(results,indent=2)+'\n')
     raise SystemExit(0 if results and all(r['ok'] for r in results) else 1)
 
 def launch_options():
@@ -49,12 +50,12 @@ def launch_options():
     return dict(startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
 
 def audio(engine,iwad,mod,addon):
-    label='weather-final-audio'; logs=ROOT/'logs'
+    label='weather-final-audio'; logs=runtime_root(ROOT)/'logs'
     ini=logs/(label+'.ini'); ini.write_text('[GlobalSettings]\nvid_fullscreen=false\nwin_w=658\nwin_h=527\n')
     cfg=logs/(label+'.cfg'); cfg.write_text('wait 100; netevent weatheraudio; wait 10; echo UTNT_TEST_END; quit\n')
     args=[engine,'-iwad',iwad,'-file',str(mod or ROOT/'tutnt'),str(addon),'-config',str(ini),'-noautoload','-stdout','-noidle',
           '+snd_sfxvolume','0.01','+snd_musicvolume','0','+map','UTNTWX','+exec',str(cfg)]
-    r=subprocess.run(args,cwd=ROOT,capture_output=True,timeout=30,**launch_options())
+    r=subprocess.run(args,cwd=runtime_root(ROOT),capture_output=True,timeout=30,**launch_options())
     out=(r.stdout+r.stderr).decode(errors='replace'); (logs/(label+'.log')).write_text(out)
     result=dict(label=label,ok=r.returncode==0 and 'UTNT_ASSERT PASS: weather audio decodes' in out and 'UTNT_TEST_END' in out,assertions=out.count('UTNT_ASSERT PASS'))
     print(json.dumps(result),flush=True)
@@ -62,7 +63,7 @@ def audio(engine,iwad,mod,addon):
     return result
 
 def coop(engine,iwad,mod,addon):
-    logs=ROOT/'logs'; children=[]; results=[]
+    logs=runtime_root(ROOT)/'logs'; children=[]; results=[]
     try:
         for i in range(2):
             label=f'weather-final-coop-{i}'; config=logs/(label+'.ini')
@@ -73,7 +74,7 @@ def coop(engine,iwad,mod,addon):
                   '+vid_fullscreen','false','+vid_preferbackend','1','+weatherfx','true','+UTNT_fxquality',str(0 if i==0 else 3),'+map','UTNTWX','+exec',str(cfg)]
             args+=['-host','2','-port','15239'] if i==0 else ['-join','127.0.0.1:15239']
             handle=(logs/(label+'.log')).open('wb')
-            child=subprocess.Popen(args,cwd=ROOT,stdout=handle,stderr=subprocess.STDOUT,**launch_options());children.append((child,handle,label))
+            child=subprocess.Popen(args,cwd=runtime_root(ROOT),stdout=handle,stderr=subprocess.STDOUT,**launch_options());children.append((child,handle,label))
             if i==0: time.sleep(1)
         deadline=time.monotonic()+40
         while time.monotonic()<deadline:

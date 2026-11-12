@@ -28,7 +28,7 @@ python -B tools/test_environment_fx.py --case motion --renderer 1 --mod tutnt.pk
 
 Der historische Fallname `area` prüft jetzt Kontaktkanten statt flächiger Geburt: keine Partikel im Inneren, zur Kontaktlänge passende Häufigkeit, Streuung entlang der Kanten über die gesamte Bewegung und Erzeugungsende beim Stopp. Zusätzlich werden der Abstand zur fahrenden Decke beziehungsweise zum Boden und die kontinuierliche Transparenz bestehender Wolken erfasst. `guides` prüft zurückbleibenden Türstaub und misst die tatsächliche gerenderte Kamera mit aktivem und inaktivem Noclip sowie bei 512, 384 und 32 Einheiten Entfernung. `motion` prüft kurze Bewegungen, Ausblenden, Türen und Decken sowie den unveränderten lokalen Hitzeeffekt.
 
-Lokale Laufzeitnachweise: `tutnt/.codex/validation/mechanism-contact/`. Die Kontaktprüfung nutzt den Mittelpunkt einer vorhandenen Kante; ungewöhnliche geneigte Übergänge sind entsprechend angenähert. Ein vollständig geschlossener Sektor kann keine sichtbare Rauchwolke im Inneren erhalten.
+Lokale Laufzeitnachweise: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/mechanism-contact/`. Die Kontaktprüfung nutzt den Mittelpunkt einer vorhandenen Kante; ungewöhnliche geneigte Übergänge sind entsprechend angenähert. Ein vollständig geschlossener Sektor kann keine sichtbare Rauchwolke im Inneren erhalten.
 
 ## Wandabstand und Auslöseschwellen (12.09.2026)
 
@@ -40,7 +40,7 @@ Bei hoher Qualität beträgt die erwartete Erzeugungsrate vor Platzprüfungen 12
 
 Für die Stauberzeugung werden gleich getaggte, angrenzende Sektoren weiterhin einzeln beobachtet, nicht ausdrücklich zu einem zusammenhängenden Verbund zusammengefasst. Bündige offene Innengrenzen erzeugen keine Reibung; die äußeren Kontaktlängen tragen jeweils zur Gesamtrate bei. Daher ist die Summe unterhalb der Einzelbudgets weitgehend proportional zur gemeinsamen Außenkontaktlänge, aber kein gemeinsames Gruppenlimit implementiert.
 
-Die Regression prüft den Wandabstand bei Geburt und Wachstum, beide Wände einer Ecke und die Ablehnung einer zu großen Wolke in einer engen Führung. Nachweise: `tutnt/.codex/validation/smoke-wall-clearance/`.
+Die Regression prüft den Wandabstand bei Geburt und Wachstum, beide Wände einer Ecke und die Ablehnung einer zu großen Wolke in einer engen Führung. Nachweise: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/smoke-wall-clearance/`.
 
 ## Flächenabhängiges Kamerawackeln (12.09.2026)
 
@@ -57,4 +57,4 @@ Das Beben beim Start, während der Bewegung und beim Stopp skaliert mit der tats
 
 Zwischen diesen Werten erfolgt ein weicher Anstieg über die Quadratwurzel der Fläche. Die bereits um 20 Prozent reduzierten Basiswerte bleiben bei 256×256 erhalten. Reichweite von 768 Einheiten, Entfernungsabschwächung ab 128 Einheiten, stärkere Start-/Stoppimpulse und die Noclip-Unterdrückung bleiben bestehen. Die Größenkopplung verändert weder Staubrate noch Map-Geometrie.
 
-`python -B tools/test_environment_fx.py --case sizes --renderer 1 --mod tutnt.pk3` prüft einen Verbund aus vier 64×64-Sektoren, einen getrennten Sektor mit demselben Tag, 16×128 sowie gleich große geteilte und ungeteilte 128×128-Flächen. Die gerenderte Kamerabewegung wird mit 256×256 verglichen. Der Fall `fixture` prüft zusätzlich den Erhalt der Gruppen beim Speichern/Laden und den Neuaufbau bei fehlenden Gruppendaten älterer Spielstände. Nachweise für OpenGL, Vulkan und die bestehenden Bewegungs-/Entfernungstests: `tutnt/.codex/validation/quake-area-groups/`.
+`python -B tools/test_environment_fx.py --case sizes --renderer 1 --mod tutnt.pk3` prüft einen Verbund aus vier 64×64-Sektoren, einen getrennten Sektor mit demselben Tag, 16×128 sowie gleich große geteilte und ungeteilte 128×128-Flächen. Die gerenderte Kamerabewegung wird mit 256×256 verglichen. Der Fall `fixture` prüft zusätzlich den Erhalt der Gruppen beim Speichern/Laden und den Neuaufbau bei fehlenden Gruppendaten älterer Spielstände. Nachweise für OpenGL, Vulkan und die bestehenden Bewegungs-/Entfernungstests: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/quake-area-groups/`.

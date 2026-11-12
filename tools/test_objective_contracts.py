@@ -1,6 +1,7 @@
 """Verify objective integration preserves map geometry and exit destinations.
 Pass the immutable pre-completion revision with --base.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse,subprocess,struct,json
 from build_utnt import read_wad
@@ -39,5 +40,5 @@ for f in sorted((R/'tutnt/maps').glob('*.wad')):
         assert set(exits)==allowed[f.stem]
     results.append({'map':f.stem,'changed_lumps':changed,'wrapped_exits':exits,'geometry_preserved':True})
 out={'base':a.base,'maps':results,'ok':True}
-(R/'logs/objectives-completion-contracts.json').write_text(json.dumps(out,indent=2)+'\n',encoding='utf-8')
+(codex_root(R)/'logs/objectives-completion-contracts.json').write_text(json.dumps(out,indent=2)+'\n',encoding='utf-8')
 print('All map geometry, node lumps and authored exit arguments preserved; only six explicit exit adapters added.')

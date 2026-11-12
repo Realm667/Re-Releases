@@ -1,8 +1,9 @@
 """Verify compatible metal data and render adjacent variants in a native UZDoom room.
 
-All generated fixtures, reports and captures stay under tutnt/.codex. No game map
+All generated fixtures, reports and captures stay under the Codex agent workspace. No game map
 is edited. Requires the same NumPy/Pillow runtime as build_organic_materials.py.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse, json, struct, sys
 import numpy as np
@@ -10,7 +11,7 @@ from PIL import Image
 from build_organic_materials import ROOT, metal_height, metal_surface, relief, validate_compatibility, height_depth
 from check_engine import run_case
 
-CENTRAL=ROOT/'tutnt/.codex'
+CENTRAL=codex_root(ROOT)
 # Related variants share the centre wall seam; outer panels exercise more variants.
 CASES=[
  ('rust-panels',['ORUST01','ORUST02','ORUST03','ORUST04'],'METALF01'),

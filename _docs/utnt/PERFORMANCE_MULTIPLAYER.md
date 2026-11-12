@@ -43,7 +43,7 @@ UZDoom skips non-static EventHandler.WorldLoaded on savegame restore. Persistent
 - `tools/test_relief_uv.py`: signed/repeated UV oracle and floor views on Vulkan/OpenGL.
 - `tools/check_engine.py`: engine completion, parsing, replacement-domain and thinker-list errors.
 
-Artifacts stay under `tutnt/.codex/`. The immutable before package is `builds/performance-multiplayer-before.pk3`, SHA-256 `c95210918a02cd242bfd6c0ac4aaa562de2d5658b51b3848812f5cee173d47bf`. Comparison builds retain its resources and isolate this task's code from concurrent material/map work. The shared integration package is built separately from the complete working tree.
+Artifacts stay under `D:/Codex/ReReleases/UTNT Reforged/.codex/`. The immutable before package is `builds/performance-multiplayer-before.pk3`, SHA-256 `c95210918a02cd242bfd6c0ac4aaa562de2d5658b51b3848812f5cee173d47bf`. Comparison builds retain its resources and isolate this task's code from concurrent material/map work. The shared integration package is built separately from the complete working tree.
 
 ## Measurements
 
@@ -57,7 +57,7 @@ Measured on Ryzen 9 7950X / RTX 4080, Vulkan, uncapped rendering, quality 3, gor
 | TNTLE | 7.628 / 4.285 | 43.8% | 12.567 / 7.789 | 5114 / 2060 |
 | TNT04CN | 12.391 / 11.048 | 10.8% | 14.249 / 13.225 | 2785 / 1073 |
 
-All twelve measurement runs completed without engine errors. TNT02 produced no kills, so that row primarily measures the environment/effects path. TNTLE reported 344 versus 343 kills; it is not a bit-identical combat replay. Shared actor counts exclude client actors and should not be read as total visible objects. Results: `tutnt/.codex/validation/performance-multiplayer-profile-results.json`.
+All twelve measurement runs completed without engine errors. TNT02 produced no kills, so that row primarily measures the environment/effects path. TNTLE reported 344 versus 343 kills; it is not a bit-identical combat replay. Shared actor counts exclude client actors and should not be read as total visible objects. Results: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/performance-multiplayer-profile-results.json`.
 
 The extended eight-peer fixture passed 157 assertions on six peers, 158 on one, and 149 on the disconnecting peer. Both Source endings passed 57 assertions per peer; steam passed 14/12. Save/load restored TNT02's 9 lava lips, 158 CRT probes and 185 baseline skyline models; the isolated moving-lava fixture passed 12 assertions. These counts belong to the isolated comparison resources and can differ in the current integration maps.
 
@@ -134,7 +134,7 @@ or pipeline cache.
 Reproduce with `tools/profile_bridge.py --mod <after.pk3> --compare <before.pk3>
 --repeats 3 --renderer 0`. The runner stores package hashes, frame samples in logs,
 per-run statistics, actor counts, profiler output and screenshots under `.codex/`.
-Results: `tutnt/.codex/validation/oct-bridge-final.json`.
+Results: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/oct-bridge-final.json`.
 Before SHA-256: `88f88cabf2a745a5b30a09d931eb30288a62d34f19e6e78a32325c35e573974a`.
 After SHA-256: `896380ee804098a53138112145c649cab68a0e991cbd67f82c936d12d1d21fc7`.
 

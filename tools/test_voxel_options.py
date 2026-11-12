@@ -1,4 +1,5 @@
 """Check live voxel switching, explicit KVX fallback, save/load and menu rendering."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,zipfile,re
 from check_engine import ROOT,run_case
@@ -15,8 +16,8 @@ def main():
  expected=set(re.findall(r'^([A-Z0-9]{4})[A-Z] =',(ROOT/'tutnt/VOXELDEF.txt').read_text(),re.M))
  actual=set(re.findall(r"'([A-Z0-9]{4})'",(ROOT/'tutnt/zscript/UTNT_VoxelOptions.zc').read_text()))
  assert expected==actual,(expected-actual,actual-expected)
- w=ROOT/'tutnt/.codex/work/voxel-option';w.mkdir(parents=True,exist_ok=True)
- addon=ROOT/'tutnt/.codex/builds/voxel-option-runtime.pk3'
+ w=codex_root(ROOT)/'work/voxel-option';w.mkdir(parents=True,exist_ok=True)
+ addon=codex_root(ROOT)/'builds/voxel-option-runtime.pk3'
  with zipfile.ZipFile(addon,'w') as z:
   for f in (ROOT/'tools/fixtures/voxel-options').iterdir():z.write(f,f.name)
   z.write(ROOT/'tools/fixtures/voxels/maps/VXLAB.wad','maps/VXLAB.wad')
@@ -35,7 +36,7 @@ def main():
  result=run_case(a.engine,a.iwad,mod=a.mod,addon=addon,mapname='VXLAB',renderer=a.renderer,label='voxel-option-runtime',timeout=65,
   commands='; '.join(cmd),settings=[('vid_activeinbackground','true'),('i_pauseinbackground','false'),('use_mouse','false'),('use_joystick','false'),('language','en'),('con_notifytime',0),('UTNT_tonalfilter','false'),('UTNT_distanceblur','false')])
  result['ok'] &= result['assertions']==53
- (ROOT/'tutnt/.codex/validation/voxel-option.json').write_text(json.dumps(result,indent=2))
+ (codex_root(ROOT)/'validation/voxel-option.json').write_text(json.dumps(result,indent=2))
  if not result['ok']:print(Path(result['log']).read_text()[-6000:])
  return 0 if result['ok'] else 1
 

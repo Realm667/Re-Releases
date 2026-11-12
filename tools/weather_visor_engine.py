@@ -1,20 +1,22 @@
 """Isolated UZDoom compile/runtime checks. Set UTNT_ENGINE and UTNT_IWAD.
 Python 3.11+. Every runtime case must reach its completion marker.
 """
+from work_paths import codex_root
 import argparse, json, os, pathlib, subprocess, time
 ROOT=pathlib.Path(__file__).resolve().parent.parent
 
 def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
              renderer='1', playerclass='Marine', timeout=30, label='load',
              commands=None, settings=(), regression=False, duration=140, quiet=False):
-    root=pathlib.Path(root).resolve()
+    source_root=pathlib.Path(root).resolve()
+    root=codex_root(source_root) if source_root == ROOT else source_root
     engine=pathlib.Path(engine).resolve(); iwad=pathlib.Path(iwad).resolve()
     if mod: mod=pathlib.Path(mod).resolve()
-    logs=root/'logs'; logs.mkdir(exist_ok=True)
+    logs=root/'logs'; logs.mkdir(parents=True,exist_ok=True)
     (logs/'saves').mkdir(exist_ok=True)
     config=logs/(label+'.ini')
     config.write_text('[GlobalSettings]\nvid_fullscreen=false\nwin_w=978\nwin_h=587\nvid_vsync=false\nvid_maxfps=120\n')
-    args=[str(engine),'-iwad',str(iwad),'-file',str(mod or root/'tutnt')]
+    args=[str(engine),'-iwad',str(iwad),'-file',str(mod or source_root/'tutnt')]
     if addon: args.append(str(pathlib.Path(addon).resolve()))
     args+=['-config',str(config),'-savedir',str(logs/'saves'),'-noautoload','-nosound','-stdout','-noidle','-rngseed','667']
     if mapname:
@@ -32,7 +34,7 @@ def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
         options={'startupinfo':si,'creationflags':subprocess.CREATE_NO_WINDOW}
     start=time.monotonic()
     try:
-        r=subprocess.run(args,cwd=root,capture_output=True,timeout=timeout,**options)
+        r=subprocess.run(args,cwd=root if mapname else logs,capture_output=True,timeout=timeout,**options)
         output=(r.stdout+r.stderr).decode(errors='replace'); code=r.returncode
     except subprocess.TimeoutExpired as e:
         output=((e.stdout or b'')+(e.stderr or b'')).decode(errors='replace'); code=-1

@@ -1,4 +1,5 @@
 """Run TITLEMAP presentation, menu-clock, aspect-ratio and reduced-effects regressions."""
+from work_paths import codex_root
 import argparse,json,os,zipfile
 from pathlib import Path
 from PIL import Image,ImageChops
@@ -11,8 +12,8 @@ def main():
     parser.add_argument('--overlay',type=Path)
     parser.add_argument('--engine',default=os.environ.get('UTNT_ENGINE',str(ROOT/'engine/uzdoom.exe')))
     parser.add_argument('--iwad',default=os.environ.get('UTNT_IWAD','F:/DoomDev/DOOM2.WAD'))
-    a=parser.parse_args();out=ROOT/'tutnt/.codex/validation/titlemap-cinematic';out.mkdir(parents=True,exist_ok=True)
-    addon=ROOT/'tutnt/.codex/builds/titlemap-regression.pk3'
+    a=parser.parse_args();out=codex_root(ROOT)/'validation/titlemap-cinematic';out.mkdir(parents=True,exist_ok=True)
+    addon=codex_root(ROOT)/'builds/titlemap-regression.pk3'
     with zipfile.ZipFile(addon,'w') as z:
         if a.overlay:
             with zipfile.ZipFile(a.overlay) as src:

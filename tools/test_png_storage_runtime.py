@@ -1,4 +1,5 @@
 """Render a diverse before/after PNG gallery with the real engine and compare pixels."""
+from work_paths import codex_root
 import argparse
 import json
 from pathlib import Path
@@ -23,7 +24,7 @@ def run(report,package,engine,iwad):
         for row in (rows[:20] if category=='crc_errors' else rows):chosen[row['path']]=row
     rows=list(chosen.values())
     if len(rows)>800:raise ValueError('Gallery capacity exceeded')
-    work=ROOT/'tutnt/.codex/work/png-optimization';results=[];screens=[]
+    work=codex_root(ROOT)/'work/png-optimization';results=[];screens=[]
     script='''version "5.0.0"
 class UTNTPngGallery : StaticEventHandler {
  ui bool Reported;
@@ -51,19 +52,19 @@ class UTNTPngGallery : StaticEventHandler {
             (addon/'ZSCRIPT').write_text(script)
             for filtering in (0,4):
                 label=f'png-gallery-{stage}-{filtering}'
-                result=run_case(engine,iwad,root=ROOT/'tutnt/.codex',mod=package,addon=addon,mapname='INTERMAP',
+                result=run_case(engine,iwad,root=codex_root(ROOT),mod=package,addon=addon,mapname='INTERMAP',
                     label=label,timeout=90,regression=True,settings=[('con_notifytime',0),('screenblocks',12),('vid_maxfps',60),('gl_texture_filter',filtering)],
                     commands=f'vid_setsize 1600 800; wait 180; screenshot logs/{label}.png; echo UTNT_TEST_END; wait 5; quit\n')
                 results.append(result)
                 if not result['ok'] or result['assertions']!=len(rows):raise RuntimeError(result)
-                screens.append(ROOT/f'tutnt/.codex/logs/{label}.png')
+                screens.append(codex_root(ROOT)/f'logs/{label}.png')
     differences=[]
     for i in range(2):
         a,b=[Image.open(screens[j]).convert('RGB') for j in (i,i+2)]
         if a.size!=b.size or a.size!=(1600,800):raise ValueError('Gallery resolution mismatch')
         av,bv=a.tobytes(),b.tobytes();differences.append(sum(av[j:j+3]!=bv[j:j+3] for j in range(0,len(av),3)))
     evidence={'resources':[r['path'] for r in rows],'count':len(rows),'changed_pixels_nearest_linear':differences,'runtime':results}
-    (ROOT/'tutnt/.codex/validation/png-optimization-runtime.json').write_text(json.dumps(evidence,indent=2)+'\n')
+    (codex_root(ROOT)/'validation/png-optimization-runtime.json').write_text(json.dumps(evidence,indent=2)+'\n')
     print(json.dumps({'resources':len(rows),'changed_pixels':differences}))
     if any(differences):raise ValueError('PNG appearance changed')
 

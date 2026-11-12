@@ -1,4 +1,5 @@
 """Real-engine cavern views and save/load regression on both hardware backends."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,shutil
 from check_engine import run_case
@@ -10,7 +11,7 @@ def main():
     p.add_argument('--renderer',default='1',choices=['0','1']);p.add_argument('--label',default='cavern')
     p.add_argument('--live-overlay',action='store_true',help='Test current cavern resources over the last complete build')
     p.add_argument('--hub',action='store_true',help='Also exercise hub travel and effect quality zero')
-    a=p.parse_args();work=ROOT/'tutnt/.codex/work/cavern-tnt03a2';work.mkdir(parents=True,exist_ok=True)
+    a=p.parse_args();work=codex_root(ROOT)/'work/cavern-tnt03a2';work.mkdir(parents=True,exist_ok=True)
     label=a.label+'-'+a.renderer
     commands=['god','notarget','wait 100','netevent caveview 0','wait 100','netevent cavecheck']
     for v in [*range(8),9,10,11,12,13,17,18,19,20,21,22]:commands += [f'netevent caveview {v}','wait 45',f'screenshot logs/{label}-{v}.png']
@@ -45,6 +46,6 @@ def main():
         commands='; '.join(commands),settings=[('win_w',1440),('win_h',900),('vid_maxfps',60),('gl_texture_filter',0),('screenblocks',12),('crosshair',0),('con_notifytime',0),('r_drawplayersprites',False),('UTNT_subtitles',False),('fullhud_fullstats',False),('UTNT_fxquality',3),('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_lowerinbackground',False),('use_mouse',False),('use_joystick',False)])
     expected=49 if a.hub else 33
     if r['assertions']!=expected:r['ok']=False;r['errors'].append(f'Expected {expected} lifecycle assertions')
-    out=ROOT/'tutnt/.codex/validation/cavern-tnt03a2';out.mkdir(parents=True,exist_ok=True);(out/(label+'.json')).write_text(json.dumps(r,indent=2))
+    out=codex_root(ROOT)/'validation/cavern-tnt03a2';out.mkdir(parents=True,exist_ok=True);(out/(label+'.json')).write_text(json.dumps(r,indent=2))
     return 0 if r['ok'] else 1
 if __name__=='__main__':raise SystemExit(main())

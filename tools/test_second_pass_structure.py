@@ -1,4 +1,5 @@
 """Verify the exact second-pass map edits, localization, and voice timing against committed sources."""
+from work_paths import codex_root
 import hashlib,io,json,math,pathlib,re,struct,subprocess,tempfile
 from build_utnt import ROOT,read_wad
 from audit_campaign import udmf
@@ -51,6 +52,6 @@ def main():
     check(stored==durations,'Shared voice timings match original Ogg durations without runtime audio-device queries')
     check('S_GetLength' not in (ROOT/'tutnt/zscript/UTNT_Presentation.zc').read_text(),'Sound-device-dependent length never changes shared voice timing')
     report=dict(baseline=BASE,checks=checks,source_hashes={p.relative_to(ROOT/'tutnt').as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((ROOT/'tutnt').rglob('*')) if p.is_file()})
-    (ROOT/'logs/second-pass-structure.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+    (codex_root(ROOT)/'logs/second-pass-structure.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps(dict(passed=len(checks),files=len(report['source_hashes']))))
 if __name__=='__main__':main()

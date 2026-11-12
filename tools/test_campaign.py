@@ -1,9 +1,10 @@
 """Critical original boss scripts, save/load and both Source finale maps. Not a full playthrough."""
+from work_paths import codex_root
 import argparse,json,os,pathlib
 from check_engine import ROOT,run_case
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--retry-failed',action='store_true');args=parser.parse_args()
-report=ROOT/'logs/campaign-results.json'
+report=codex_root(ROOT)/'logs/campaign-results.json'
 results=json.loads(report.read_text()) if args.retry_failed and report.exists() else []
 for renderer in ('0','1'):
  for name in ('TNT01','TNT02','TNT03A1','TNT03A2','TNT03B','TNT04B','TNT04C','TNT04CN','TNTLE'):
@@ -19,5 +20,5 @@ for renderer in ('0','1'):
   missing=[s for s in required if s not in text]
   r['errors']+=missing;r['ok']=r['ok'] and not missing
   results.append(r)
-  (ROOT/'logs/campaign-results.json').write_text(json.dumps(results,indent=2))
+  (codex_root(ROOT)/'logs/campaign-results.json').write_text(json.dumps(results,indent=2))
 raise SystemExit(0 if all(r['ok'] for r in results) else 1)

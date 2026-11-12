@@ -1,3 +1,4 @@
+from work_paths import codex_root
 from pathlib import Path
 import sys,os,re,json,statistics,argparse
 ROOT=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(ROOT/'tools'))
@@ -42,5 +43,5 @@ for name in ['TNT02','TNT03A1']:
   r['ok'] &= len(values)>100
   if values:r['frame_ms']={'median':round(statistics.median(values),3),'p95':round(values[int(len(values)*.95)],3)}
   results.append(r); print(json.dumps(r),flush=True)
-(ROOT/'logs/weather-profile-results.json').write_text(json.dumps(results,indent=2)+'\n')
+(codex_root(ROOT)/'logs/weather-profile-results.json').write_text(json.dumps(results,indent=2)+'\n')
 raise SystemExit(0 if all(r['ok'] for r in results) else 1)

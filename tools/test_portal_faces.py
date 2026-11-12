@@ -1,10 +1,11 @@
 """Verify every portal face owns its oriented effects, including crossing TNT04C."""
+from work_paths import codex_root
 from pathlib import Path
 import sys,json,argparse
 R=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(R/'tools'))
 from check_engine import run_case
-p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=R/'logs/portal-faces');p.add_argument('--engine',type=Path,default=R/'engine/uzdoom.exe');p.add_argument('--iwad',type=Path,default=Path('F:/DoomDev/DOOM2.WAD'));p.add_argument('--mod',type=Path,default=R/'tutnt');p.add_argument('--renderer',default='1');p.add_argument('--maps',nargs='+',default=['ENDMAP01','TNT03B','TNT04A','TNT04B','TNT04C','TNT04CN']);p.add_argument('--label',default='source');a=p.parse_args();W=a.out.resolve();W.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=codex_root(R)/'logs/portal-faces');p.add_argument('--engine',type=Path,default=R/'engine/uzdoom.exe');p.add_argument('--iwad',type=Path,default=Path('F:/DoomDev/DOOM2.WAD'));p.add_argument('--mod',type=Path,default=R/'tutnt');p.add_argument('--renderer',default='1');p.add_argument('--maps',nargs='+',default=['ENDMAP01','TNT03B','TNT04A','TNT04B','TNT04C','TNT04CN']);p.add_argument('--label',default='source');a=p.parse_args();W=a.out.resolve();W.mkdir(parents=True,exist_ok=True)
 results=[]
 for name in a.maps:
     commands=['unbindall','god','notarget','wait 100','netevent portalfaces 0','wait 10']

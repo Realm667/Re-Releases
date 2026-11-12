@@ -1,6 +1,7 @@
 """Four or eight real peers: simultaneous checkpoint respawns and disconnect.
 Run with --players 8 for coverage of player slots 5-8.
 """
+from work_paths import codex_root
 import argparse,json,os,pathlib,subprocess,time
 from check_engine import ROOT
 from compile_test_acs import compile_tests
@@ -12,7 +13,7 @@ prefix="eight-player" if count==8 else "four-player"
 marker="UTNT_EIGHTPLAYER_COMPLETE" if count==8 else "UTNT_FOURPLAYER_COMPLETE"
 compile_tests()
 engine=pathlib.Path(os.environ['UTNT_ENGINE']);iwad=pathlib.Path(os.environ['UTNT_IWAD'])
-logs=ROOT/'tutnt/.codex/logs'/prefix;logs.mkdir(parents=True,exist_ok=True)
+logs=codex_root(ROOT)/'logs'/prefix;logs.mkdir(parents=True,exist_ok=True)
 processes=[];results=[]
 si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
 try:
@@ -23,7 +24,7 @@ try:
   args=[str(engine),'-iwad',str(iwad),'-file',str(opts.mod.resolve()),str(ROOT/'tools/runtime-tests'),'-config',str(ini),'-savedir',str(logs),'-noautoload','-nosound','-stdout','-noidle','+vid_fullscreen','false','+vid_preferbackend','1','+playerclass',('Marine','Scout','Commando','Marine')[i%4],'+UTNT_fxquality',str(i%4),'+UTNT_reducedfx','true' if i==2 else 'false','+UTNT_shaderoverlayswitch','true' if i%2 else 'false','+UTNT_ambientsmoke','false' if i%2 else 'true','+UTNT_heartbeatvolume',str((i%4)/3),'+UTNT_lowhealthfx','true' if i%2 else 'false','+map','UTNTTEST','+exec',str(cfg)]
   args+=['-host',str(count),'-port','15219'] if i==0 else ['-join','127.0.0.1:15219']
   f=(logs/(label+'.log')).open('wb')
-  child=subprocess.Popen(args,cwd=ROOT,stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
+  child=subprocess.Popen(args,cwd=codex_root(ROOT),stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
   processes.append((child,f,label))
   if i==0:time.sleep(1)
  deadline=time.monotonic()+150

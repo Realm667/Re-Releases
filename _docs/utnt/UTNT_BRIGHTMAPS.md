@@ -64,7 +64,7 @@ The checker is read-only; intentional future artwork changes require a fresh
 alignment review and a corresponding manifest update.
 
 Local image comparisons and working scripts are under
-`tutnt/.codex/work/brightmap-reference-audit/`; test packages, engine logs and
+`D:/Codex/ReReleases/UTNT Reforged/.codex/work/brightmap-reference-audit/`; test packages, engine logs and
 validation reports use the shared `.codex` artifact directories.
 
 Validation completed with UZDoom 5.0.1, test build `41f72739c824`: ACS,
@@ -170,7 +170,7 @@ existing actor-default, save/load and barrel radius-damage checks passed
 
 The regular `tools/build_utnt.py` build regenerates the additions after voxel and
 material generation. Source-pixel contact sheets are local in
-`tutnt/.codex/work/brightmap-rollout/`; native screenshots and reports are in
+`D:/Codex/ReReleases/UTNT Reforged/.codex/work/brightmap-rollout/`; native screenshots and reports are in
 `.codex/validation/brightmap-rollout/`, and logs in `.codex/logs/brightmap-rollout/`.
 The sprite sheets review every candidate image, while native galleries validate
 representative rendering; they do not claim every angle in every campaign room.

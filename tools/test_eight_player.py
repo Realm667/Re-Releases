@@ -1,7 +1,8 @@
 """Audit eight-player starts and run eight real peers through campaign entries.
 This checks spawns, hub travel and TNT04A intro skip, not a full playthrough.
-Outputs stay under tutnt/.codex; use --static-only without launching the engine.
+Outputs stay under the Codex agent workspace; use --static-only without launching the engine.
 """
+from work_paths import codex_root
 import argparse
 import json
 import os
@@ -154,7 +155,7 @@ def main():
     parser.add_argument('--mod', type=Path, default=ROOT / 'tutnt.pk3')
     parser.add_argument('--timeout', type=int, default=300)
     parser.add_argument('--port', type=int, default=15239)
-    parser.add_argument('--work', type=Path, default=ROOT / 'tutnt/.codex/work/eight-player/campaign-fixture')
+    parser.add_argument('--work', type=Path, default=codex_root(ROOT)/'work/eight-player/campaign-fixture')
     args = parser.parse_args()
     starts, report = audit()
     print(json.dumps(dict(starts=report)), flush=True)
@@ -167,8 +168,8 @@ def main():
         setattr(args, key, value)
     work = args.work.resolve()
     fixture(starts, work)
-    results = run(args, work, ROOT / 'tutnt/.codex/logs/eight-player-campaign')
-    output = ROOT / 'tutnt/.codex/validation/eight-player-campaign.json'
+    results = run(args, work, codex_root(ROOT)/'logs/eight-player-campaign')
+    output = codex_root(ROOT)/'validation/eight-player-campaign.json'
     output.write_text(json.dumps(dict(starts=report, peers=results), indent=2))
     print(json.dumps(results, indent=2))
     raise SystemExit(0 if all(item['ok'] for item in results) else 1)

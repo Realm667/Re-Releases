@@ -37,12 +37,12 @@ style, per-image scene instructions and approved example prompt.
 [Manifest](../../tools/artwork/interms-stained-glass/manifest.json) records the
 source and installed PNG SHA-256 hashes.
 
-Local source references live under `tutnt/.codex/references/interms-stained-glass/`.
+Local source references live under `D:/Codex/ReReleases/UTNT Reforged/.codex/references/interms-stained-glass/`.
 Production masters, export helpers, rejected drafts and review sheets live under
-`tutnt/.codex/work/interms-stained-glass-series/`; the exact approved example
-remains in `tutnt/.codex/work/interms-stained-glass-i06a/`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/work/interms-stained-glass-series/`; the exact approved example
+remains in `D:/Codex/ReReleases/UTNT Reforged/.codex/work/interms-stained-glass-i06a/`.
 Previous replacement PNGs are retained under
-`tutnt/.codex/backups/interms-stained-glass-20260913/`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/backups/interms-stained-glass-20260913/`.
 These local artifacts are excluded from Git and game packages.
 
 ## Validation
@@ -51,7 +51,7 @@ All sixteen PNGs were visually reviewed individually and as a series.
 Automated decoding confirmed 460 x 778 dimensions and fully opaque alpha.
 The installed I_06A matches the approved export byte for byte; hashes of all
 original low-resolution chapter PNGs remain unchanged.
-Local evidence: `tutnt/.codex/validation/interms-stained-glass/assets.json`.
+Local evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/interms-stained-glass/assets.json`.
 
 
 UZDoom's actual resource-render checks passed for both the live source directory
@@ -60,8 +60,8 @@ assertions passed in each run (230 x 389), with completion markers and exit 0.
 The rendered contact sheet was reviewed. No full campaign playthrough was performed.
 The integrated build b125352663ea passed its engine check; its sixteen chapter
 PNGs exactly match the installed artwork hashes.
-Runtime logs: tutnt/.codex/logs/interms-stained-glass-render.log and
-tutnt/.codex/logs/interms-stained-glass-packed.log.
+Runtime logs: D:/Codex/ReReleases/UTNT Reforged/.codex/logs/interms-stained-glass-render.log and
+D:/Codex/ReReleases/UTNT Reforged/.codex/logs/interms-stained-glass-packed.log.
 
 ## TNT04A intro portraits
 
@@ -78,10 +78,10 @@ the same bronze edges as the text plaque, with the shared 2:1 column split.
 The built-in Imagegen tool authored both illustrations. Production export applies
 uniform bicubic downsampling and a small central crop to match 460:778 exactly;
 the sigil and architecture are never stretched. Local masters are retained under
-tutnt/.codex/work/intro-stained-glass/ (chamber) and
-tutnt/.codex/work/intro-stained-glass-exterior/ (fortress) and
-tutnt/.codex/work/intro-organic-rock/ (organic rock and atmospheric lava revision). The user screenshot
-is retained under tutnt/.codex/references/intro-stained-glass/TNT04CN.png.
+D:/Codex/ReReleases/UTNT Reforged/.codex/work/intro-stained-glass/ (chamber) and
+D:/Codex/ReReleases/UTNT Reforged/.codex/work/intro-stained-glass-exterior/ (fortress) and
+D:/Codex/ReReleases/UTNT Reforged/.codex/work/intro-organic-rock/ (organic rock and atmospheric lava revision). The user screenshot
+is retained under D:/Codex/ReReleases/UTNT Reforged/.codex/references/intro-stained-glass/TNT04CN.png.
 [Intro prompts](../../tools/artwork/intro-stained-glass/prompts.json) and
 [manifest](../../tools/artwork/intro-stained-glass/manifest.json) record provenance.
 
@@ -89,17 +89,17 @@ TNT04A portrait update, 14 September 2026: two UZDoom runtime cases passed
 76 assertions at 1280 x 720 (English) and 640 x 480 with 150% UI scale (German).
 Both portraits and the intermediate dissolve were visually reviewed. Resource
 dimensions, shared columns, reader save/load and host skip cleanup passed.
-Local evidence: tutnt/.codex/validation/intro-stained-glass/runtime.json and
-assets.json; screenshots: tutnt/.codex/logs/intro-glass-*.png.
+Local evidence: D:/Codex/ReReleases/UTNT Reforged/.codex/validation/intro-stained-glass/runtime.json and
+assets.json; screenshots: D:/Codex/ReReleases/UTNT Reforged/.codex/logs/intro-glass-*.png.
 
 The exterior-first revision passed 38 UZDoom assertions with the German reader
 at 1280 x 720; both displayed positions were visually reviewed. SHA-256 confirms
 that position B is byte-identical to the former A. Evidence:
-tutnt/.codex/validation/intro-stained-glass-exterior/ and
-tutnt/.codex/logs/intro-glass-exterior-a.png / intro-glass-exterior-b.png.
+D:/Codex/ReReleases/UTNT Reforged/.codex/validation/intro-stained-glass-exterior/ and
+D:/Codex/ReReleases/UTNT Reforged/.codex/logs/intro-glass-exterior-a.png / intro-glass-exterior-b.png.
 
 The organic-rock refinement passed the seven intro resource/layout assertions.
 The first portrait was visually reviewed in the German 1280 x 720 reader;
 both images remain opaque 460 x 778, and B retains its previous hash.
-Evidence: tutnt/.codex/validation/intro-organic-rock/ and
-tutnt/.codex/logs/intro-organic-rock.png.
+Evidence: D:/Codex/ReReleases/UTNT Reforged/.codex/validation/intro-organic-rock/ and
+D:/Codex/ReReleases/UTNT Reforged/.codex/logs/intro-organic-rock.png.

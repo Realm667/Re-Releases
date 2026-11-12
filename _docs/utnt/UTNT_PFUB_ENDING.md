@@ -27,10 +27,10 @@ resources remain unchanged. Generate one full panorama, resize it once to
 1280..2559. Never independently generate or resample the two halves.
 
 The built-in Imagegen prompts, intermediate corrections and complete exported
-panorama are retained locally in tutnt/.codex/work/pfub-ending/. The current
+panorama are retained locally in D:/Codex/ReReleases/UTNT Reforged/.codex/work/pfub-ending/. The current
 character refinement and its prompts are in
-tutnt/.codex/work/pfub-launcher-refinement/.
-Previous hires files are backed up in tutnt/.codex/backups/pfub-ending-20260913/.
+D:/Codex/ReReleases/UTNT Reforged/.codex/work/pfub-launcher-refinement/.
+Previous hires files are backed up in D:/Codex/ReReleases/UTNT Reforged/.codex/backups/pfub-ending-20260913/.
 
 ## Verification
 
@@ -38,7 +38,7 @@ The panorama was visually checked for character orientation, launcher mounted at
 rocket placement, lowered smoking plasma gun and reference alien corpses.
 Concatenating PFUB2 then PFUB1 reconstructs the complete export pixel for pixel:
 no missing or repeated columns and no gap or seam adjustment.
-Local evidence: tutnt/.codex/validation/pfub-ending.json and
-tutnt/.codex/validation/pfub-launcher-refinement.json.
+Local evidence: D:/Codex/ReReleases/UTNT Reforged/.codex/validation/pfub-ending.json and
+D:/Codex/ReReleases/UTNT Reforged/.codex/validation/pfub-launcher-refinement.json.
 
 No gameplay, ending timing or scroll code is changed.

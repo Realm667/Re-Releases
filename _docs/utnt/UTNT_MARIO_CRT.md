@@ -29,7 +29,7 @@ texture, savegame state or network gameplay is changed.
 Production files: [shader](../../tutnt/shaders/crt/mario-view.fp),
 [GLDEFS binding](../../tutnt/gldefs/GLDEFS.mario-crt),
 [view handler](../../tutnt/zscript/UTNT_MarioCRT.zc). The conceptual
-mockup is local at `tutnt/.codex/work/tnt02-mario-crt/mario-crt-mockup-v2.png`.
+mockup is local at `D:/Codex/ReReleases/UTNT Reforged/.codex/work/tnt02-mario-crt/mario-crt-mockup-v2.png`.
 It was generated from an actual TNT02 screenshot and is an art direction
 preview, not a captured engine result. ImageGen edit prompt: preserve all
 game objects and composition; apply restrained curved CRT glass, horizontal
@@ -40,7 +40,7 @@ scanlines, RGB phosphor fringes, mild glow and a weak, even vignette along all f
 Validated with UZDoom 5.0.1 on 28 September 2026. The full UTNT
 `--check-only` build passed without stale ACS or generated tables.
 The isolated test package at
-`tutnt/.codex/builds/tutnt-mario-crt.pk3` loaded TNT02. Vulkan captures
+`D:/Codex/ReReleases/UTNT Reforged/.codex/builds/tutnt-mario-crt.pk3` loaded TNT02. Vulkan captures
 show the CRT treatment in the Mario scene, its removal when the local
 camera leaves the secret, and its restoration on reentry and save/load.
 Two real cooperative clients ran simultaneously with the final package:
@@ -49,9 +49,9 @@ TNT02 scene without the CRT treatment. Both reached their completion
 markers without script errors, consistency failures or out-of-sync
 messages. OpenGL rendered the final shader successfully on a small
 TNT02 test sector with `SM_GRAS` under
-`tutnt/.codex/work/tnt02-mario-crt/opengl-fixture/`. Logs and captures
-are under `tutnt/.codex/logs/mario-crt-*`; the cooperative summary is
-`tutnt/.codex/validation/mario-crt/coop.json`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/work/tnt02-mario-crt/opengl-fixture/`. Logs and captures
+are under `D:/Codex/ReReleases/UTNT Reforged/.codex/logs/mario-crt-*`; the cooperative summary is
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/mario-crt/coop.json`.
 
 The test used controlled camera positions rather than walking both
 teleporter lines. Full-map OpenGL did not reach the screenshot within

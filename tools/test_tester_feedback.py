@@ -1,7 +1,8 @@
 """Engine regression and captures for the September tester feedback.
 
-All outputs go under tutnt/.codex. Requires a built PK3 and UZDoom 5.0.1.
+All outputs go under the Codex agent workspace. Requires a built PK3 and UZDoom 5.0.1.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,os
 from check_engine import run_case
@@ -11,7 +12,7 @@ def main():
  p=argparse.ArgumentParser(description=__doc__)
  p.add_argument('--engine',required=True);p.add_argument('--iwad',required=True);p.add_argument('--mod',type=Path,required=True)
  p.add_argument('--case',choices=['core','fog','menu','lava','door','switch','armor','preset','all'],default='all');a=p.parse_args()
- base=dict(root=R/'tutnt/.codex',mod=a.mod,addon=R/'tools/fixtures/tester-feedback',renderer='1',timeout=95)
+ base=dict(root=codex_root(R),mod=a.mod,addon=R/'tools/fixtures/tester-feedback',renderer='1',timeout=95)
  r=run_case(a.engine,a.iwad,label='tester-feedback-compile',**base)
  if not r['ok']:raise SystemExit(1)
  settings=[('developer',1),('con_notifytime',0),('i_pauseinbackground',False),('vid_maxfps',60),('language','enu'),('screenblocks',12)]
@@ -30,6 +31,6 @@ def main():
   extra=[('gl_precache',True)] if name=='door' else []
   r=run_case(a.engine,a.iwad,label='tester-feedback-'+name,mapname=mapname,commands=commands+' echo UTNT_TEST_END; quit\n',settings=settings+extra,**base)
   results.append(r)
- (R/f'tutnt/.codex/validation/tester-feedback-{a.case}-results.json').write_text(json.dumps(results,indent=2)+'\n')
+ (codex_root(R)/f'validation/tester-feedback-{a.case}-results.json').write_text(json.dumps(results,indent=2)+'\n')
  raise SystemExit(0 if all(r['ok'] for r in results) else 1)
 if __name__=='__main__':main()

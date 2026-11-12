@@ -1,4 +1,5 @@
 """Exercise every UTNT weapon, measuring pitch peaks, per-tic motion and recovery."""
+from work_paths import codex_root
 from pathlib import Path
 import json, sys, struct, argparse, os
 
@@ -14,7 +15,7 @@ LIMITS = [0.15,0.5,0.75,0.175,0.175,1.2,0.175,1.75,1.875,0,0,0]
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--mod',type=Path,default=REPO/'tutnt.pk3')
-    parser.add_argument('--output',type=Path,default=REPO/'logs/recoil-tests')
+    parser.add_argument('--output',type=Path,default=codex_root(REPO)/'logs/recoil-tests')
     parser.add_argument('--engine',default=os.environ.get('UTNT_ENGINE',str(REPO/'engine/uzdoom.exe')))
     parser.add_argument('--iwad',default=os.environ.get('UTNT_IWAD'))
     a=parser.parse_args(); out=a.output.resolve(); addon=out/'fixture'

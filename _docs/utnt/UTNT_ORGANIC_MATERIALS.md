@@ -84,7 +84,7 @@ tools/test_organic_materials.py loads maps, checks native floor texture names ag
     python -B tools/test_organic_materials.py --mod tutnt.pk3 --engine /path/to/uzdoom.exe --capture --baseline --maps TNT01 TNT02 TNTLE TNT03A1 TNT04C
     python -B tools/test_organic_materials.py --mod tutnt.pk3 --engine /path/to/uzdoom.exe --renderer 0
 
-The baseline overlay disables only the new organic material definitions. Runtime logs and captures are local under tutnt/.codex/logs/, reports under tutnt/.codex/validation/organic-materials/. Native reference images must be reviewed alongside the numeric checks.
+The baseline overlay disables only the new organic material definitions. Runtime logs and captures are local under D:/Codex/ReReleases/UTNT Reforged/.codex/logs/, reports under D:/Codex/ReReleases/UTNT Reforged/.codex/validation/organic-materials/. Native reference images must be reviewed alongside the numeric checks.
 
 Winter capture set (separate reports and images):
 
@@ -323,7 +323,7 @@ images use the same camera and original artwork with relief enabled/disabled.
 ## Walkable relief test map
 
 `python -B tools/build_relief_gallery.py` creates the separate addon
-`tutnt/.codex/builds/tutnt-relief-gallery.pk3`. Load it **after `tutnt.pk3`**, with
+`D:/Codex/ReReleases/UTNT Reforged/.codex/builds/tutnt-relief-gallery.pk3`. Load it **after `tutnt.pk3`**, with
 DOOM2.WAD, and enter `map RELTEST`. It does not replace the shared package or
 change the campaign maps. The generated local launcher
 `.codex/work/relief-gallery/Relief-Test-starten.cmd` starts this combination using

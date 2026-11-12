@@ -1,4 +1,5 @@
 """Check legacy emitter dimensions and lifecycle in UZDoom (OpenGL/Vulkan)."""
+from work_paths import codex_root
 import argparse, json, os, zipfile
 from pathlib import Path
 from check_engine import ROOT, run_case
@@ -11,7 +12,7 @@ def main():
     p.add_argument('--renderer',choices=['0','1','both'],default='both')
     p.add_argument('--overlay-source',action='store_true',help='Overlay only the current UTNT_Visuals.zc for isolated pre-build checks')
     a=p.parse_args(); results=[]
-    addon=ROOT/'tutnt/.codex/builds/particle-size-tests.pk3'
+    addon=codex_root(ROOT)/'builds/particle-size-tests.pk3'
     with zipfile.ZipFile(addon,'w') as z:
         z.write(ROOT/'tools/particle-size-tests/ZSCRIPT','ZSCRIPT')
         z.writestr('MAPINFO','gameinfo { AddEventHandlers="UTNTParticleSizeTest" }\nmap UTNTIFX "Particle size validation" { levelnum=98 }\n')
@@ -34,6 +35,6 @@ def main():
             label=label,timeout=100,commands='; '.join(commands)+'\n',
             settings=[('UTNT_fxquality',3),('UTNT_reducedfx',False),('UTNT_lod',2048),('use_mouse',False),
                       ('i_pauseinbackground',False),('screenblocks',12),('r_drawplayersprites',False),('crosshair',0),('gl_bloom',False)]))
-    out=ROOT/'tutnt/.codex/validation/particle-size-results.json';out.write_text(json.dumps(results,indent=2)+'\n')
+    out=codex_root(ROOT)/'validation/particle-size-results.json';out.write_text(json.dumps(results,indent=2)+'\n')
     raise SystemExit(not all(r['ok'] for r in results))
 if __name__=='__main__':main()

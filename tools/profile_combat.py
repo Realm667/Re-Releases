@@ -1,4 +1,5 @@
 """Repeated frame-interval measurements in three original maps; run without other engine processes."""
+from work_paths import codex_root
 import argparse,json,os,pathlib,re,statistics
 from check_engine import ROOT,run_case
 p=argparse.ArgumentParser(description=__doc__)
@@ -26,6 +27,6 @@ for renderer in a.renderers:
      r.update(map=mapname,renderer=renderer,gore_limit=gore,repeat=repeat,version=version,package=str(package.resolve()))
      counts=re.search(r'UTNT_COMBAT_COUNTS actors=(\d+) visuals=(\d+) kills=(\d+)',out)
      if counts:r['counts']=dict(zip(('actors','visuals','kills'),map(int,counts.groups())))
-     results.append(r);(ROOT/('tutnt/.codex/validation/'+a.prefix+'-profile-results.json')).write_text(json.dumps(results,indent=2))
+     results.append(r);(codex_root(ROOT)/'validation/'+a.prefix+'-profile-results.json').write_text(json.dumps(results,indent=2))
      if not r['ok']:raise SystemExit(1)
 raise SystemExit(0)

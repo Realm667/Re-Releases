@@ -3,6 +3,7 @@
 Uses original native palette assets. Requires UZDoom and DOOM2 via environment
 or command line; writes fixtures, frames and logs only under the output folder.
 """
+from work_paths import runtime_root
 from pathlib import Path
 import argparse,sys,os,json,struct,re
 
@@ -78,7 +79,7 @@ def main():
     p.add_argument('--bloom',action='store_true')
     a=p.parse_args();sys.path.insert(0,str(a.project/'tools'))
     from check_engine import run_case
-    out=(a.out or a.project/'logs/lava-test').resolve();out.mkdir(parents=True,exist_ok=True)
+    out=(a.out or runtime_root(a.project)/'logs/lava-test').resolve();out.mkdir(parents=True,exist_ok=True)
     addon=fixture(out,32 if a.dark else 160)
     if a.map!='LAVATEST':
         (addon/'ZSCRIPT').write_text('''version "5.0.0"

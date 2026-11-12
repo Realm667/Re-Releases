@@ -1,11 +1,12 @@
 """Deterministic engine fixtures for environmental effects. Outputs stay local."""
+from work_paths import codex_root
 from pathlib import Path
 import shutil
 import argparse,json,sys,struct,os,re
 from PIL import Image,ImageChops,ImageStat
 from check_engine import run_case
 ROOT=Path(__file__).resolve().parent.parent
-WORK=ROOT/'tutnt/.codex/validation/environment-fx'
+WORK=codex_root(ROOT)/'validation/environment-fx'
 ENGINE=Path('F:/DoomDev/Projects/wolfendoom.dev/#standalone/uzdoom.exe')
 IWAD=Path('F:/DoomDev/DOOM2.WAD')
 def wad(path,text):
@@ -330,7 +331,7 @@ class UTNTEnvironmentRegression : EventHandler
 }
 '''
 def main():
- p=argparse.ArgumentParser();p.add_argument('--case',default='fixture',choices=['fixture','campaign','compile','prototype','motion','area','lake','guides','fog','sizes']);p.add_argument('--renderer',default='1');p.add_argument('--map',default='TNT02');p.add_argument('--at',nargs=3,type=int);p.add_argument('--angle',type=int,default=0);p.add_argument('--pitch',type=int,default=10);p.add_argument('--mod',type=Path,default=ROOT/'tutnt/.codex/builds/environment-dev.pk3');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--case',default='fixture',choices=['fixture','campaign','compile','prototype','motion','area','lake','guides','fog','sizes']);p.add_argument('--renderer',default='1');p.add_argument('--map',default='TNT02');p.add_argument('--at',nargs=3,type=int);p.add_argument('--angle',type=int,default=0);p.add_argument('--pitch',type=int,default=10);p.add_argument('--mod',type=Path,default=codex_root(ROOT)/'builds/environment-dev.pk3');a=p.parse_args()
  WORK.mkdir(parents=True,exist_ok=True)
  addon=fixture()
  if a.case!='compile':

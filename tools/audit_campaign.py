@@ -1,6 +1,7 @@
 """Inventory of original map progression contracts and UDMF boundary integrity.
 Reports static script/lock references; does not claim reachability from the player start.
 """
+from work_paths import codex_root
 import collections,json,pathlib,re,struct
 from build_utnt import ROOT,read_wad
 
@@ -62,8 +63,8 @@ def audit():
             item['unbalanced_sector_vertices']=[dict(sector=sec,vertices={v:n for v,n in vs.items() if n}) for sec,vs in edges.items() if any(vs.values())]
         else:item['format']='Hexen'
         report.append(item)
-    (ROOT/'logs').mkdir(exist_ok=True)
-    out=ROOT/'logs/campaign-contracts.json';out.write_text(json.dumps(report,indent=2),encoding='utf-8')
+    (codex_root(ROOT)/'logs').mkdir(exist_ok=True)
+    out=codex_root(ROOT)/'logs/campaign-contracts.json';out.write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps([dict(map=i['map'],scripts=len(i['critical_scripts']),unresolved=i.get('unresolved_local_numeric_ACS',[]),open_boundaries=len(i.get('unbalanced_sector_vertices',[]))) for i in report],indent=2))
     return report
 if __name__=='__main__':audit()

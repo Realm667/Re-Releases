@@ -1,4 +1,5 @@
 """Check neutral height, signed ray intersections and the authored ORUST plate data."""
+from work_paths import codex_root
 from pathlib import Path
 import json
 import numpy as np
@@ -69,7 +70,7 @@ def check():
     shared=outside & np.all(a==b,axis=2)
     assert shared.sum()>1000 and np.array_equal(ha[shared],hb[shared])
     result=dict(ok=True,neutral_gray=127,materials=len(manifest['materials']),variants=len(variants),rust=rust,shared_rust_pixels=int(shared.sum()),analytic_planes=48)
-    dest=ROOT/'tutnt/.codex/validation/neutral-relief';dest.mkdir(parents=True,exist_ok=True)
+    dest=codex_root(ROOT)/'validation/neutral-relief';dest.mkdir(parents=True,exist_ok=True)
     (dest/'data.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))
 
 if __name__=='__main__':check()

@@ -1,6 +1,7 @@
 """One-time explicit authoring of the TNT04B fire sky room; never run at build.
 Preserves gameplay geometry, camera bindings and all original actors.
 """
+from work_paths import codex_root
 from pathlib import Path
 import subprocess,json
 from build_utnt import read_wad,write_wad,atomic_write
@@ -27,7 +28,7 @@ def author(root=ROOT):
    changes['linedef'][i]=dict(special=0)
  text=edit_text(l['TEXTMAP'].decode(),changes,'\n// Authored TNT04B inferno. Textures and room fields remain editable in UDB.\n')
  script=l['SCRIPTS'].decode();script=script.replace('Sector_SetCeilingScale(23, 0, 64, 0, 64);','// Inferno sky room uses authored texture scales.').replace('Sector_SetFloorScale(23, 3, 0, 3, 0);','').replace('sector_setfade(23, 255, 120, 0);','// Inferno colors are authored in their materials; no orange sector fog.')
- work=root/'tutnt/.codex/work/tnt04b-second-fire-sky';src=work/'tnt04b.acs';obj=work/'tnt04b.o';src.write_text(script,encoding='utf-8')
+ work=codex_root(root)/'work/tnt04b-second-fire-sky';src=work/'tnt04b.acs';obj=work/'tnt04b.o';src.write_text(script,encoding='utf-8')
  acc=Path('F:/DoomDev/Tools/UltimateDoombuilder/Compilers/ZDoom/acc.exe')
  result=subprocess.run([str(acc),'-i',str(acc.parent),str(src),str(obj)],capture_output=True);assert result.returncode==0,(result.stdout+result.stderr).decode(errors='replace')
  repl={b'TEXTMAP':text.encode(),b'SCRIPTS':script.encode(),b'BEHAVIOR':obj.read_bytes()}

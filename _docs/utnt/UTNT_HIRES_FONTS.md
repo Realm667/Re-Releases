@@ -83,11 +83,11 @@ uses the group's frame bounds rather than indexing a three-row card layout;
 creator and thanks cards are checked against their actual dynamic heights.
 
 Classic/Retro screenshots and runtime results are under
-`tutnt/.codex/validation/fonts-classic-retro/`. The selected specimens, extraction
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/fonts-classic-retro/`. The selected specimens, extraction
 work, final preview and exact built-in Imagegen prompts are under
-`tutnt/.codex/work/bigfont-classic/`; the six SMALLFONT proposals are under
-`tutnt/.codex/work/smallfont-six-variants/`. These local working files are excluded
+`D:/Codex/ReReleases/UTNT Reforged/.codex/work/bigfont-classic/`; the six SMALLFONT proposals are under
+`D:/Codex/ReReleases/UTNT Reforged/.codex/work/smallfont-six-variants/`. These local working files are excluded
 from Git and game packages; the finished atlases and glyph sources are versioned.
 
 The R adjustment has an additional stem-baseline regression check and a fresh
-German INTERMAP screenshot under `tutnt/.codex/validation/smallfont-r/`.
+German INTERMAP screenshot under `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/smallfont-r/`.

@@ -1,8 +1,9 @@
 """Two real local peers: network controls, Cloak, damage and respawn persistence."""
+from work_paths import codex_root
 from pathlib import Path
 import subprocess,time,json,os,argparse,shutil
 repo=Path(__file__).resolve().parent.parent
-p=argparse.ArgumentParser();p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE'));p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD'));p.add_argument('--mod',type=Path,default=repo/'tutnt');p.add_argument('--output',type=Path,default=repo/'logs/class-abilities');a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE'));p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD'));p.add_argument('--mod',type=Path,default=repo/'tutnt');p.add_argument('--output',type=Path,default=codex_root(repo)/'logs/class-abilities');a=p.parse_args()
 if not a.engine or not a.iwad:p.error('Set UTNT_ENGINE and UTNT_IWAD, or pass --engine and --iwad')
 w=a.output.resolve();w.mkdir(parents=True,exist_ok=True)
 shutil.copytree(repo/'tools/ability-tests',w/'tests',dirs_exist_ok=True)

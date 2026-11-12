@@ -1,4 +1,5 @@
 """Source landmarks, family phases and unchanged material protection."""
+from work_paths import codex_root
 from pathlib import Path
 import json
 import numpy as np
@@ -50,7 +51,7 @@ def check():
   assert np.allclose(np.roll(fields[n],-64,axis=1)[200:208],fields['ADEL_G01'][200:208],atol=.025),n
  assert np.allclose(fields['ADEL_G04'][40:200],fields['ADEL_G01'][40:200],atol=.025)
  assert np.array_equal(fields['OBR09'][:128],fields['OBR09'][128:])
- before=ROOT/'tutnt/.codex/work/material-next-pass/before-manifest.json'
+ before=codex_root(ROOT)/'work/material-next-pass/before-manifest.json'
  unchanged=0
  if before.exists():
   old=json.loads(before.read_text())
@@ -62,7 +63,7 @@ def check():
     assert old['outputs'][key]==g['outputs'][newkey],n
    unchanged+=1
  r=dict(ok=True,materials=len(NAMES),landmarks=len(LANDMARKS),unchanged_variants=unchanged,data=report)
- out=ROOT/'tutnt/.codex/validation/material-next-pass';out.mkdir(exist_ok=True)
+ out=codex_root(ROOT)/'validation/material-next-pass';out.mkdir(exist_ok=True)
  (out/'data.json').write_text(json.dumps(r,indent=2));return r
 
 if __name__=='__main__':

@@ -2,6 +2,7 @@
 Set UTNT_ENGINE / UTNT_IWAD. Requires Pillow for read-only screenshot comparisons.
 Writes isolated test palettes and engine output below logs/palette-restore.
 """
+from work_paths import codex_root
 import argparse,json,os,pathlib,shutil
 from PIL import Image
 from check_engine import ROOT,run_case
@@ -12,7 +13,7 @@ def main():
     parser.add_argument('--mod',type=pathlib.Path,default=ROOT/'tutnt.pk3')
     parser.add_argument('--label',default='palette')
     args=parser.parse_args()
-    output=ROOT/'logs/palette-restore';output.mkdir(exist_ok=True)
+    output=codex_root(ROOT)/'logs/palette-restore';output.mkdir(exist_ok=True)
     palette=(ROOT/'tutnt/PLAYPAL.pal').read_bytes()
     variants={'project':palette,'swapped':bytes(255-v for v in palette)}
     results=[];comparisons=[]
@@ -26,8 +27,8 @@ def main():
                 mapname='TNT01',addon=addon,renderer=renderer,label=label,regression=True,
                 settings=[('con_notifytime',0)],commands=f'wait 180; screenshot logs/{label}.png; echo UTNT_TEST_END; wait 5; quit\n')
             results.append(r)
-        before=Image.open(ROOT/'logs'/f'{args.label}-project-{renderer}.png').convert('RGB')
-        after=Image.open(ROOT/'logs'/f'{args.label}-swapped-{renderer}.png').convert('RGB')
+        before=Image.open(codex_root(ROOT)/'logs'/f'{args.label}-project-{renderer}.png').convert('RGB')
+        after=Image.open(codex_root(ROOT)/'logs'/f'{args.label}-swapped-{renderer}.png').convert('RGB')
         assert before.size==after.size==(960,540)
         for i in range(13):
             x=8+(i%4)*236;y=8+(i//4)*128+20

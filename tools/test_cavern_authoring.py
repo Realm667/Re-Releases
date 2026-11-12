@@ -1,4 +1,5 @@
 """Prove that manual cavern edits survive startup, save/load and hub return."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,shutil
 from author_cavern import lumps,wad,edit_text
@@ -9,7 +10,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
     p.add_argument('--engine',default='F:/DoomDev/uzdoom.exe');p.add_argument('--iwad',default='F:/DoomDev/DOOM2.WAD')
-    a=p.parse_args();work=ROOT/'tutnt/.codex/work/cavern-tnt03a2';addon=work/'authoring-regression'
+    a=p.parse_args();work=codex_root(ROOT)/'work/cavern-tnt03a2';addon=work/'authoring-regression'
     (addon/'maps').mkdir(parents=True,exist_ok=True)
     for name in ('ZSCRIPT','MAPINFO'):shutil.copyfile(ROOT/'tools/fixtures/cavern-authoring'/name,addon/name)
     magic,entries=lumps((ROOT/'tutnt/maps/tnt03a2.wad').read_bytes())
@@ -23,7 +24,7 @@ def main():
         commands='wait 100; netevent authorcheck; wait 10; save authoring-manual-production; wait 15; load authoring-manual-production; wait 100; netevent authorcheck; wait 10; changemap TNT03A1; wait 80; changemap TNT03A2; wait 100; netevent authorcheck; wait 10; echo UTNT_TEST_END; quit',
         settings=[('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_maxfps',60),('use_mouse',False),('use_joystick',False)])
     result['ok']=result['ok'] and result['assertions']==15
-    out=ROOT/'tutnt/.codex/validation/cavern-tnt03a2';out.mkdir(parents=True,exist_ok=True)
+    out=codex_root(ROOT)/'validation/cavern-tnt03a2';out.mkdir(parents=True,exist_ok=True)
     (out/'authoring-manual-production.json').write_text(json.dumps(result,indent=2)+'\n')
     return 0 if result['ok'] else 1
 if __name__=='__main__':raise SystemExit(main())

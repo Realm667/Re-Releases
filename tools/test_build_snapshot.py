@@ -25,7 +25,9 @@ class SnapshotTests(unittest.TestCase):
   (private/'private.txt').write_text('local data')
   original=b.os.scandir
   def guarded(path):
-   self.assertNotIn('.codex',pathlib.Path(path).parts)
+   path=pathlib.Path(path)
+   if path.is_relative_to(self.root/'tutnt'):
+    self.assertNotIn('.codex',path.relative_to(self.root/'tutnt').parts)
    return original(path)
   with patch('os.scandir',side_effect=guarded):
    self.assertEqual(before,b.source_hashes(self.root))

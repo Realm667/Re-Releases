@@ -94,7 +94,7 @@ A map edit added four lines and one sector to TNT04B. Its checked-in alignment
 table still expected the previous geometry, so UTNT_AreaTextures emitted
 AREAALIGN_STALE and skipped all 9,744 material bindings. The native-engine
 rebuild now supports --maps for a single map and --baseline-package for storing
-its test PK3 under tutnt/.codex/builds. Regenerating TNT04B changed only the
+its test PK3 under D:/Codex/ReReleases/UTNT Reforged/.codex/builds. Regenerating TNT04B changed only the
 table's geometry header; all binding rows remained identical.
 
 The targeted verifier accepts --maps as well. With the editable production

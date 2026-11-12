@@ -1,4 +1,5 @@
 """Native UZDoom A/B brightmap galleries; generated test content stays in .codex."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,math,re,zipfile
 import numpy as np
@@ -51,7 +52,7 @@ def fixture(z,groups):
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--mode',choices=['on','off','base'],default='on');p.add_argument('--overlay',action='store_true');p.add_argument('--groups',type=int,nargs='+',default=list(range(len(GROUPS))));p.add_argument('--renderer',default='1');p.add_argument('--compare',action='store_true');a=p.parse_args()
- c=ROOT/'tutnt/.codex';w=c/'work/brightmap-rollout/runtime';w.mkdir(parents=True,exist_ok=True);v=c/'validation/brightmap-rollout';v.mkdir(parents=True,exist_ok=True)
+ c=codex_root(ROOT);w=c/'work/brightmap-rollout/runtime';w.mkdir(parents=True,exist_ok=True);v=c/'validation/brightmap-rollout';v.mkdir(parents=True,exist_ok=True)
  if a.compare:
   results=[]
   for gi in a.groups:

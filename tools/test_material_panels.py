@@ -1,4 +1,5 @@
 """Validate source landmarks, family construction and all pre-existing assets."""
+from work_paths import codex_root
 import json
 from pathlib import Path
 import numpy as np
@@ -56,13 +57,13 @@ def check():
  a,b=fields['OIDOOR2'],fields['OSNOW2']
  assert np.all(b>=a-1e-5),'Snow must not erode its substrate'
  assert np.mean(a==b)>.92,'Winter variant changes unrelated metal'
- before=ROOT/'tutnt/.codex/work/material-panel-pass/before-manifest.json'
+ before=codex_root(ROOT)/'work/material-panel-pass/before-manifest.json'
  old=json.loads(before.read_text()) if before.exists() else {'variants':{}}
  for n,v in old['variants'].items():
   for suffix in ('-height.png','-normal.png'):
    assert old['outputs']['tutnt/'+v['stem']+suffix]==g['outputs']['tutnt/'+g['variants'][n]['stem']+suffix],n
  r=dict(ok=True,materials=len(NAMES),landmarks=len(LANDMARKS),unchanged_variants=len(old['variants']) if before.exists() else None,data=data)
- out=ROOT/'tutnt/.codex/validation/material-panel-pass';out.mkdir(exist_ok=True)
+ out=codex_root(ROOT)/'validation/material-panel-pass';out.mkdir(exist_ok=True)
  (out/'data.json').write_text(json.dumps(r,indent=2));return r
 
 if __name__=='__main__':

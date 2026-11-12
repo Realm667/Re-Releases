@@ -1,4 +1,5 @@
 """Exercise both voice sets through dialogue/chapter playback with a real audio backend."""
+from work_paths import codex_root
 import argparse
 import hashlib
 import json
@@ -17,8 +18,8 @@ def main():
     parser.add_argument('--iwad', type=Path, default=os.environ.get('UTNT_IWAD', 'F:/DoomDev/DOOM2.WAD'))
     parser.add_argument('--mod', type=Path, default=ROOT/'tutnt.pk3')
     args = parser.parse_args()
-    logs = ROOT/'tutnt/.codex/logs/legacy-voices'
-    report = ROOT/'tutnt/.codex/validation/legacy-voices'
+    logs = codex_root(ROOT)/'logs/legacy-voices'
+    report = codex_root(ROOT)/'validation/legacy-voices'
     logs.mkdir(parents=True, exist_ok=True)
     report.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(args.mod) as archive:

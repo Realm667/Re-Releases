@@ -1,4 +1,5 @@
 """Physical ordering, color-independent bodies, rotation and neutral-plane checks."""
+from work_paths import codex_root
 import json
 import numpy as np
 from PIL import Image
@@ -58,7 +59,7 @@ def check():
         value=at('ADEL_D11',*point)
         assert lo<=value<=hi,('ADEL_D11 registration',label,point,value)
     out=dict(ok=True,materials=len(selected),variants=len(details),semantic_order_checks=len(checks),registration_landmarks=len(registration),data=details)
-    p=ROOT/'tutnt/.codex/validation/material-reanalysis';p.mkdir(parents=True,exist_ok=True)
+    p=codex_root(ROOT)/'validation/material-reanalysis';p.mkdir(parents=True,exist_ok=True)
     (p/'data.json').write_text(json.dumps(out,indent=2),encoding='utf-8')
     return out
 if __name__=='__main__':

@@ -1,4 +1,5 @@
 """Check top-centered key pickups and SBAR ability cards at varied HUD/UI scales."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,shutil,sys,zipfile
 
@@ -15,7 +16,7 @@ p.add_argument('--palette-probe',action='store_true',help='Rotate RGB in an isol
 a=p.parse_args()
 sys.path.insert(0,str(a.repo/'tools'))
 from check_engine import run_case
-output=(a.output or a.repo/'logs/hud-stacking').resolve();output.mkdir(parents=True,exist_ok=True)
+output=(a.output or codex_root(a.repo)/'logs/hud-stacking').resolve();output.mkdir(parents=True,exist_ok=True)
 fixture=a.fixture or a.repo/'tools/hud-stacking-tests'
 mod=a.mod or a.repo/'tutnt'
 if a.palette_probe:

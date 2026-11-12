@@ -97,8 +97,8 @@ resource comparison found no removed files. Only SCRIPTS and BEHAVIOR changed
 in the map WAD.
 
 Evidence is stored under
-`tutnt/.codex/validation/titlemap-cinematic/`; build logs are under
-`tutnt/.codex/logs/titlemap-cinematic-build.log`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/titlemap-cinematic/`; build logs are under
+`D:/Codex/ReReleases/UTNT Reforged/.codex/logs/titlemap-cinematic-build.log`.
 
 The reusable `tools/test_titlemap.py` checks menu-independent timing, scene and
 idle motion, a pixel-stable reduced-effects title card, original texture/font
@@ -115,7 +115,7 @@ reduced effects. Actual rendered beam positions at intro ages 18, 23, 60 and
 bright core below the logo stays within 1.5 pixels of the ampersand center.
 The screenshot checks use controlled UI ages; all other rendering runs through
 the normal title renderer. Evidence is stored under
-`tutnt/.codex/validation/titlemap-beam-anchor/`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/titlemap-beam-anchor/`.
 
 The beam refinement package (`83a143c18d3f`) was built with the shared
 packager and engine check from the previously validated integration
@@ -128,7 +128,7 @@ this checked package. In-progress grass source changes remain separate.
 Credit spacing refinement: UZDoom compilation and four language runs passed,
 including 4:3 and ultrawide. Captures at 19.9, 21.3 and 23 seconds confirm the
 cumulative one/two/three-line reveal and uniform spacing. Evidence is under
-`tutnt/.codex/validation/titlemap-credit-spacing/`. Package `f8f5de999c58`
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/titlemap-credit-spacing/`. Package `f8f5de999c58`
 is derived from integration `67ef0e2f5d7b` with the shared packager and engine
 check. Only the credit renderer and generated build identifiers changed;
 the shared package is byte-identical to this verified package.
@@ -136,6 +136,6 @@ the shared package is byte-identical to this verified package.
 The credit block is lowered by 10% of viewport height to match the requested
 placement. UZDoom checks and screenshots at 16:9 and 4:3 confirm the lower
 position with spacing and sequential reveals preserved. Evidence:
-`tutnt/.codex/validation/titlemap-credits-lower/`. Verified test package
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/titlemap-credits-lower/`. Verified test package
 `e360bddd7838` is derived from integration `f8f5de999c58`; resource comparison
 confirms only the title renderer and generated identifiers changed.

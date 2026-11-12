@@ -85,7 +85,7 @@ cover deactivation, destruction, save loading and map changes.
   An unmodified sprite alias and fixed camera
   compare the visible width and length against the model, allowing at most 8%
   variation in brightness-weighted dimensions. Pass `--renderer 0` for OpenGL or `1` for
-  Vulkan. Results belong in `tutnt/.codex/validation/light-rays/`.
+  Vulkan. Results belong in `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/light-rays/`.
 
 Implementation: `tutnt/zscript/UTNT_Props.zc`,
 `tutnt/zscript/UTNT_LightRays.zc`, `tutnt/shaders/light-rays.fp`, and the
@@ -95,7 +95,7 @@ Validation targets UZDoom 5.0.3 on Vulkan and OpenGL, including active and
 inactive saves in TNT01 and TNT02. Width and length comparisons measure visible
 profiles against the original sprites, not merely unchanged actor dimensions.
 Local results for the 14 September 2026 refinement are kept in
-`tutnt/.codex/validation/light-rays-refinement/`. Both populated maps passed on
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/light-rays-refinement/`. Both populated maps passed on
 Vulkan and OpenGL, including 49 TNT01 and 47 TNT02 runtime assertions per renderer.
 The original-size comparisons differed by approximately 2.5% in width and 0.5%
 in length. Rendered geometry clipping preserved the upper shaft while removing

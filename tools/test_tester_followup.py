@@ -1,4 +1,5 @@
 """Regression checks for canonical keys, combat feedback and TNT03B brood cleanup."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse, json
 from check_engine import run_case, ROOT
@@ -8,7 +9,7 @@ def main():
     p.add_argument('--engine',type=Path,required=True)
     p.add_argument('--iwad',type=Path,required=True)
     p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
-    p.add_argument('--work',type=Path,default=ROOT/'tutnt/.codex/validation/tester-followup')
+    p.add_argument('--work',type=Path,default=codex_root(ROOT)/'validation/tester-followup')
     a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
     common=dict(engine=a.engine,iwad=a.iwad,root=a.work,mod=a.mod)
     settings=[('vid_activeinbackground',True),('i_pauseinbackground',False)]

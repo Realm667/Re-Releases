@@ -1,8 +1,9 @@
 """Two real TNT04A peers: independent reading and host-only cinematic skip."""
+from work_paths import codex_root
 import argparse,json,os,pathlib,subprocess,time
 from check_engine import ROOT
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--mod',type=pathlib.Path,default=ROOT/'tutnt');a=p.parse_args()
-addon=ROOT/'tools/intro-chapter-tests';logs=ROOT/'logs';processes=[];results=[]
+addon=ROOT/'tools/intro-chapter-tests';logs=codex_root(ROOT)/'logs';processes=[];results=[]
 si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
 try:
  for i in range(2):
@@ -16,7 +17,7 @@ try:
         '-noautoload','-nosound','-stdout','-noidle','+vid_fullscreen','false','+vid_preferbackend','1','+UTNT_uiscale','1.5' if i else '1',
         '+language','deu' if i else 'enu','+map','TNT04A','+exec',cfg.as_posix()]
   args+=['-host','2','-port','15349'] if i==0 else ['-join','127.0.0.1:15349']
-  f=(logs/(label+'.log')).open('wb');child=subprocess.Popen(args,cwd=ROOT,stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
+  f=(logs/(label+'.log')).open('wb');child=subprocess.Popen(args,cwd=codex_root(ROOT),stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
   processes.append((child,f,label))
   if i==0:time.sleep(1)
  deadline=time.monotonic()+50

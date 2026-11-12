@@ -139,8 +139,8 @@ The `--map TNT02` / `--map TNT03A2` paths capture original map placements.
 `--map TNT03A1` also includes Q2COMP3 and a reproducible view at the reported
 player position (-3901, -313, 44).
 
-Local captures and results: `tutnt/.codex/logs/crt-*` and
-`tutnt/.codex/validation/crt/`. They are not packaged or committed.
+Local captures and results: `D:/Codex/ReReleases/UTNT Reforged/.codex/logs/crt-*` and
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/crt/`. They are not packaged or committed.
 
 Validated on 12 September 2026 with UZDoom 5.0.1:
 

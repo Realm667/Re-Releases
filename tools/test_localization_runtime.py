@@ -3,6 +3,7 @@
 Generated expectations come from the reviewed LANGUAGE files, not an English
 fallback. Tests use a separate temporary addon and separate game configuration.
 """
+from work_paths import codex_root
 import argparse
 import json
 import os
@@ -92,7 +93,7 @@ def main():
     p.add_argument('--engine',default=os.environ.get('UTNT_ENGINE',str(ROOT/'engine/uzdoom.exe')))
     p.add_argument('--iwad',default=os.environ.get('UTNT_IWAD',r'F:\DoomDev\DOOM2.WAD'))
     p.add_argument('--overlay',action='store_true',help='Preview the supplied root catalogs over the base package')
-    p.add_argument('--output',type=Path,default=ROOT/'tutnt/.codex/validation/font-glyphs-2026-09-10')
+    p.add_argument('--output',type=Path,default=codex_root(ROOT)/'validation/font-glyphs-2026-09-10')
     p.add_argument('--languages',nargs='+',default=list(LANGUAGES),choices=LANGUAGES)
     a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True);results=[]
     with tempfile.TemporaryDirectory(prefix='utnt-localization-') as temp:

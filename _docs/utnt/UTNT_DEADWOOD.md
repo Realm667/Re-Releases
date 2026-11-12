@@ -135,9 +135,9 @@ assertions without an overlay. All 13 current WADs and all 19 deadwood runtime
 resources (handler plus 18 native patches) match their live sources byte for byte.
 These correction tests used OpenGL and are not a full campaign playthrough.
 
-Local evidence belongs under `tutnt/.codex/validation/deadwood/`; working
+Local evidence belongs under `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/deadwood/`; working
 baselines and source-map SHA-256 checks are in
-`tutnt/.codex/work/deadwood-integration/`. The integration uses the live map
+`D:/Codex/ReReleases/UTNT Reforged/.codex/work/deadwood-integration/`. The integration uses the live map
 files, not historical snapshots or editor backup files.
 
 ## Type-47 correction (13 September 2026)
@@ -153,7 +153,7 @@ the production mapper, so an omitted class fails rather than disappearing from
 the test. It checks the reported coordinates, type-47 coverage, TNT02's charred
 theme, unrelated subclasses, and restoration of saves seeded with old dry
 sprites and original SMIT stumps. Local evidence and before/after screenshots
-are under `tutnt/.codex/validation/deadwood-stub-fix/`.
+are under `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/deadwood-stub-fix/`.
 
 ## Sprite restoration (14 September 2026)
 
@@ -177,8 +177,8 @@ remaining voxel models, native patches, maps, mapper and PLAYPAL. The sprite,
 voxel and definition generators pass their stale-output checks. These are
 targeted OpenGL checks, not a full campaign playthrough.
 
-Local evidence: `tutnt/.codex/validation/deadwood-sprite-restore.json`; build logs
-and ingame screenshots: `tutnt/.codex/logs/deadwood-sprite-restore/`.
+Local evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/deadwood-sprite-restore.json`; build logs
+and ingame screenshots: `D:/Codex/ReReleases/UTNT Reforged/.codex/logs/deadwood-sprite-restore/`.
 
 ## Selected Style C families (14 September 2026)
 
@@ -197,8 +197,8 @@ not a complete campaign playthrough.
 Package verification confirms the 18 approved pixel grids, all 24 sprite views,
 source-identical maps and mapper, unchanged active PLAYPAL and no deadwood voxel
 bindings or KVX files. Both sprite and definition stale-output checks pass.
-Local evidence: `tutnt/.codex/validation/deadwood-style-c-package.json` and
-`tutnt/.codex/validation/deadwood-style-c-runtime.json`.
-Ingame screenshots and engine logs: `tutnt/.codex/logs/deadwood-style-c/`.
+Local evidence: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/deadwood-style-c-package.json` and
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/deadwood-style-c-runtime.json`.
+Ingame screenshots and engine logs: `D:/Codex/ReReleases/UTNT Reforged/.codex/logs/deadwood-style-c/`.
 
 The six ordinary trees/stumps in TNT03A2's dusty cave use dry wood; old winter substitutions are repaired on load. Explicit exterior IceyTree/IceyStub placements remain snowy.

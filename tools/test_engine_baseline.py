@@ -1,4 +1,5 @@
 """Verify UTNT's engine floor and real diagnostic menu actions with isolated configs."""
+from work_paths import codex_root
 import argparse
 import json
 from pathlib import Path
@@ -16,9 +17,9 @@ def main():
     parser.add_argument('--renderer', choices=['0', '1'], default='0')
     parser.add_argument('--timeout', type=int, default=90, help='Per-runtime timeout; raise for cold shader compilation')
     args = parser.parse_args()
-    addon = ROOT/'tutnt/.codex/builds/engine-baseline-fixture.pk3'
+    addon = codex_root(ROOT)/'builds/engine-baseline-fixture.pk3'
     addon.parent.mkdir(parents=True, exist_ok=True)
-    (ROOT/'tutnt/.codex/validation').mkdir(parents=True, exist_ok=True)
+    (codex_root(ROOT)/'validation').mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(addon, 'w') as archive:
         for file in (ROOT/'tools/fixtures/engine-baseline').iterdir():
             archive.write(file, file.name)
@@ -35,7 +36,7 @@ def main():
         results.append(result)
         print(json.dumps(result), flush=True)
     for lang in ['en', 'de', 'es', 'fr']:
-        out = ROOT/'tutnt/.codex/validation'
+        out = codex_root(ROOT)/'validation'
         menu_shot = out/f'engine-baseline-menu-{lang}.png'
         graph_shot = out/f'engine-baseline-graph-{lang}.png'
         for shot in (menu_shot, graph_shot):
@@ -63,7 +64,7 @@ def main():
         if not result['ok']:
             print(log[-6000:])
             break
-    (ROOT/'tutnt/.codex/validation/engine-baseline.json').write_text(json.dumps(results, indent=2)+'\n')
+    (codex_root(ROOT)/'validation/engine-baseline.json').write_text(json.dumps(results, indent=2)+'\n')
     return 0 if all(result['ok'] for result in results) else 1
 
 

@@ -1,7 +1,8 @@
 """Native-engine voxel gallery, actor-default and save/load regression.
 
-All screenshots and command files stay in tutnt/.codex; fixtures never ship.
+All screenshots and command files stay in the Codex agent workspace; fixtures never ship.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,zipfile
 from check_engine import ROOT,run_case
@@ -11,15 +12,15 @@ def main():
  p.add_argument('--engine',type=Path,default=Path('F:/DoomDev/uzdoom.exe'));p.add_argument('--iwad',type=Path,default=Path('F:/DoomDev/DOOM2.WAD'))
  p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3');p.add_argument('--groups',type=int,nargs='+',default=None)
  p.add_argument('--overlay',action='store_true');p.add_argument('--label',default='gallery');p.add_argument('--renderer',default='1')
- p.add_argument('--work',type=Path,default=ROOT/'tutnt/.codex/work/voxel-integration');a=p.parse_args();w=a.work.resolve();w.mkdir(parents=True,exist_ok=True)
+ p.add_argument('--work',type=Path,default=codex_root(ROOT)/'work/voxel-integration');a=p.parse_args();w=a.work.resolve();w.mkdir(parents=True,exist_ok=True)
  actor_count=len(json.loads((ROOT/'tools/artwork/voxels/manifest.json').read_text())['actors'])
  if a.groups is None:a.groups=list(range((actor_count+3)//4))
  if any(g<0 or g*4>=actor_count for g in a.groups):p.error('Group outside actor gallery')
  # check_engine writes root/logs. Require the pre-created central log junction.
- if not (w/'logs').exists() or not (w/'logs').resolve().is_relative_to((ROOT/'tutnt/.codex/logs').resolve()):raise ValueError('Create work/logs junction into .codex/logs before running')
+ if not (w/'logs').exists() or not (w/'logs').resolve().is_relative_to((codex_root(ROOT)/'logs').resolve()):raise ValueError('Create work/logs junction into .codex/logs before running')
  addon=ROOT/'tools/fixtures/voxels'
  if a.overlay:
-  addon=ROOT/'tutnt/.codex/builds/voxel-integration-review.pk3'
+  addon=codex_root(ROOT)/'builds/voxel-integration-review.pk3'
   with zipfile.ZipFile(addon,'w',zipfile.ZIP_DEFLATED) as z:
    for f in (ROOT/'tools/fixtures/voxels').rglob('*'):
     if f.is_file():z.write(f,f.relative_to(ROOT/'tools/fixtures/voxels').as_posix())
@@ -49,6 +50,6 @@ def main():
   out=Path(r['log']).read_text(encoding='utf-8')
   r['ok']=r['ok'] and r['assertions']>=sum(2*min(4,actor_count-g*4)+1 for g in groups)+1+(2 if 10 in groups else 0) and not any(x in out for x in ('not a valid voxel','Unknown voxel option','Voxel "'))
   results.append(r)
-  (ROOT/'tutnt/.codex/validation'/f'voxels-{a.label}.json').write_text(json.dumps(results,indent=2))
+  (codex_root(ROOT)/'validation'/f'voxels-{a.label}.json').write_text(json.dumps(results,indent=2))
   if not r['ok']:print(out[-9000:]);raise SystemExit(1)
 if __name__=='__main__':main()

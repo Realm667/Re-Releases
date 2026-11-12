@@ -170,7 +170,7 @@ Die Shader-Parameter liegen in 15 ausgerichteten vec4-Blöcken (240 Byte), damit
 Padding einzelner Skalarwerte die Vulkan-Push-Constant-Grenze nicht überschreitet.
 Native Prüfungen kontrollieren echte Blitzimpulse, lebenden Halo und Lichtanker,
 begrenzte Funkenzahl, genau einen Controller und dessen Abbau vor „THE END“.
-Prüfungen und Bilder: `tutnt/.codex/validation/credits-spark-accent`.
+Prüfungen und Bilder: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/credits-spark-accent`.
 
 ## Original Version und Remaster
 
@@ -269,9 +269,9 @@ Schriftbereiche und den sichtbaren Effekt auf die Welt. Der Remaster-Test verän
 Zwei echte Koop-Clients prüft `tools/test_credits_coop.py` mit denselben Pfadoptionen.
 
 Ergebnisse und repräsentative Spielansichten stehen unter
-`tutnt/.codex/validation/credits-polish`; die Kraterkorrektur unter
-`tutnt/.codex/validation/credits-spark`, die Postprocess-Prüfungen unter
-`tutnt/.codex/validation/credits-ash-ember`, die Stabilitätskorrektur unter
-`tutnt/.codex/validation/credits-dof-stability`. Automatisierte Tests laufen ohne
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/credits-polish`; die Kraterkorrektur unter
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/credits-spark`, die Postprocess-Prüfungen unter
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/credits-ash-ember`, die Stabilitätskorrektur unter
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/credits-dof-stability`. Automatisierte Tests laufen ohne
 Ton; sie behaupten kein subjektives Abhören und keinen vollständigen Kampagnenlauf.
 Bei einem Versionswechsel ENDMAP neu betreten, um die neue Kapitelstruktur zu laden.

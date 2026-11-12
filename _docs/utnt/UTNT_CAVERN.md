@@ -252,8 +252,8 @@ Use `--renderer 0` for OpenGL and `--renderer 1` for Vulkan. `--live-overlay`
 tests current cavern resources over an existing complete cavern package during
 iteration; final acceptance uses the rebuilt package without this option.
 
-Local screenshots and logs: `tutnt/.codex/logs/cavern-tnt03a2/`.
-Machine-readable results: `tutnt/.codex/validation/cavern-tnt03a2/`.
+Local screenshots and logs: `D:/Codex/ReReleases/UTNT Reforged/.codex/logs/cavern-tnt03a2/`.
+Machine-readable results: `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/cavern-tnt03a2/`.
 `--hub` adds effect-quality shutdown and travel through TNT03A1 back to TNT03A2.
 It requires 43 lifecycle/movement assertions; the ordinary save/load run requires 29.
 Seven additional structural tests in `tools/test_cavern_skyrooms.py` verify map

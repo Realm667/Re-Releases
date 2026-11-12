@@ -1,4 +1,5 @@
 """Real exits, saved ledgers and hub revisits in the unified transition system."""
+from work_paths import codex_root
 import argparse,json,os
 from pathlib import Path
 from check_engine import ROOT,run_case
@@ -74,7 +75,7 @@ def main():
     if a.case=='fade':
         log=Path(result['log']).read_text(encoding='utf-8',errors='replace')
         result['ok'] = result['ok'] and 'UTNT_ASSERT PASS: load restores departure clock before travel' in log
-    (ROOT/'tutnt/.codex/logs'/f'{label}-results.json').write_text(json.dumps(result,indent=2)+'\n')
+    (codex_root(ROOT)/'logs'/f'{label}-results.json').write_text(json.dumps(result,indent=2)+'\n')
     if not result['ok']:print(Path(result['log']).read_text()[-6500:])
     raise SystemExit(0 if result['ok'] else 1)
 

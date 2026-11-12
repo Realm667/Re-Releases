@@ -2,8 +2,9 @@
 
 Only UDMF or binary thing angles are edited. No geometry, nodes, scripts, flags or IDs change.
 Default is read-only; --apply writes reviewed proposals and retains exact backups.
-All evidence is under tutnt/.codex. Native rotating items retain their motion.
+All evidence is under the Codex agent workspace. Native rotating items retain their motion.
 """
+from work_paths import codex_root
 from pathlib import Path
 import argparse, collections, hashlib, json, math, re, struct
 from build_utnt import read_wad, write_wad
@@ -215,11 +216,11 @@ def main():
         report.append(dict(map=path.stem,format=kind,placements=len(records),changed=changed,items=records))
         print(f'{path.stem}: {len(records)} voxel placements, {changed} angle changes',flush=True)
         if data:changes.append((path,before,data))
-    work=root/'tutnt/.codex/work/voxel-facing';work.mkdir(parents=True,exist_ok=True)
+    work=codex_root(root)/'work/voxel-facing';work.mkdir(parents=True,exist_ok=True)
     if Path(args.report).name!=args.report: parser.error('--report must be a filename')
     (work/args.report).write_text(json.dumps(report,indent=2))
     if args.apply:
-        backup=root/'tutnt/.codex/backups/voxel-facing';backup.mkdir(parents=True,exist_ok=True)
+        backup=codex_root(root)/'backups/voxel-facing';backup.mkdir(parents=True,exist_ok=True)
         for path,before,data in changes:
             if path.read_bytes()!=before:raise RuntimeError('Map changed concurrently: '+str(path))
             digest=hashlib.sha256(before).hexdigest()[:12]

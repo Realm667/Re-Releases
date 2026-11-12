@@ -1,4 +1,5 @@
 """Two real peers must have independent local cavern skybox parallax."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,os,re,subprocess,time
 ROOT=Path(__file__).resolve().parents[1]
@@ -7,7 +8,7 @@ def main():
     p.add_argument('--engine',default='F:/DoomDev/uzdoom.exe');p.add_argument('--iwad',default='F:/DoomDev/DOOM2.WAD')
     p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3');p.add_argument('--overlay',type=Path)
     p.add_argument('--label',default='cavern-parallax-coop');p.add_argument('--port',default='15517')
-    a=p.parse_args();work=ROOT/'tutnt/.codex/work/cavern-tnt03a2';logs=ROOT/'tutnt/.codex/logs/cavern-tnt03a2'
+    a=p.parse_args();work=codex_root(ROOT)/'work/cavern-tnt03a2';logs=codex_root(ROOT)/'logs/cavern-tnt03a2'
     logs.mkdir(parents=True,exist_ok=True);children=[];results=[];positions=[]
     si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
     try:
@@ -44,7 +45,7 @@ def main():
         for child,handle,_ in children:
             if child.poll() is None:child.kill();child.wait()
             if not handle.closed:handle.close()
-    dest=ROOT/'tutnt/.codex/validation/cavern-tnt03a2';dest.mkdir(parents=True,exist_ok=True)
+    dest=codex_root(ROOT)/'validation/cavern-tnt03a2';dest.mkdir(parents=True,exist_ok=True)
     (dest/(a.label+'.json')).write_text(json.dumps(results,indent=2))
     print(json.dumps(results),flush=True)
     return 0 if len(results)==2 and all(r['ok'] for r in results) else 1

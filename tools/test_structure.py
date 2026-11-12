@@ -1,4 +1,5 @@
 """Structural regression checks: map integrity, localization, deterministic packaging."""
+from work_paths import codex_root
 import argparse, hashlib, json, pathlib, re, tempfile, zipfile
 from build_utnt import ROOT, read_wad, package
 p=argparse.ArgumentParser();p.add_argument('--baseline',type=pathlib.Path,required=True);a=p.parse_args()
@@ -46,4 +47,4 @@ with tempfile.TemporaryDirectory(prefix='utnt-package-test-') as temp:
   assert out.read_bytes()==previous,'failed build replaced previous package'
  finally:check_engine.run_case=saved
 report['packaging']={'deterministic':True,'deleted_assets_removed':True,'rejected_package_preserves_previous':True}
-(ROOT/'logs/structural-tests.json').write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
+(codex_root(ROOT)/'logs/structural-tests.json').write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))

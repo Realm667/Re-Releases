@@ -19,7 +19,7 @@ python -B tools/check_png_blue.py --pk3 tutnt.pk3
 python -B tools/check_png_blue.py --pk3 tutnt.pk3 --require-current-palette
 ```
 
-Die zweite Variante verlangt zusaetzlich exakt den lokalen PLAYPAL-Blaustand dieses Abgleichs. Der historische `check_palette_assets.py`-Gesamttest ist davon unabhaengig: Sein alter Manifest verweist noch auf `DROPA0.lmp`, das bereits in `14944cc00` entfernt wurde. Dieser vorbestehende Manifestfehler wurde nicht mit der Farbkorrektur vermischt. Lokale Nachweise: `tutnt/.codex/work/truecolor-blue/`, `tutnt/.codex/logs/truecolor-blue-*`; Originale unter `tutnt/.codex/backups/truecolor-blue/`.
+Die zweite Variante verlangt zusaetzlich exakt den lokalen PLAYPAL-Blaustand dieses Abgleichs. Der historische `check_palette_assets.py`-Gesamttest ist davon unabhaengig: Sein alter Manifest verweist noch auf `DROPA0.lmp`, das bereits in `14944cc00` entfernt wurde. Dieser vorbestehende Manifestfehler wurde nicht mit der Farbkorrektur vermischt. Lokale Nachweise: `D:/Codex/ReReleases/UTNT Reforged/.codex/work/truecolor-blue/`, `D:/Codex/ReReleases/UTNT Reforged/.codex/logs/truecolor-blue-*`; Originale unter `D:/Codex/ReReleases/UTNT Reforged/.codex/backups/truecolor-blue/`.
 
 ## Plasmagun: Laufzeitfarbe #3B7CD3 (12.09.2026)
 
@@ -29,7 +29,7 @@ Die eigentlichen Plasmagun-Kugeln verwenden X029-Sprites mit einer zusätzlichen
 
 Der Halo bekommt seine Plasmafarbe gezielt anhand des Quell-Actors. Die bereits abgenommenen gemeinsamen Blautöne von Dark-Imp-Projektilen und QueenElectro bleiben erhalten. Grafikdateien, PLAYPAL, Geschwindigkeit, Schaden, Skalierung, Zustandsdauer und Effektanzahl werden durch diese Korrektur nicht verändert. Gegner und Marines, die denselben PlasmaBall verschießen, erhalten dieselbe Projektilfarbe.
 
-[tools/test_plasma_color.py](../../tools/test_plasma_color.py) prüft die gemeinsamen Translationen und die tatsächlichen Halo-Farben zur Laufzeit, einschließlich unveränderter anderer blauer Projektiltypen. Er nimmt Flug, Einschlag und echtes Plasmagewehrfeuer in UZDoom auf. Lokale Vorher-/Nachher-Aufnahmen und Laufzeitberichte liegen unter `tutnt/.codex/validation/plasma-blue/`. Vulkan und OpenGL bestanden jeweils sieben Laufzeit-Assertions; Flug, Einschlag und echtes Waffenfeuer wurden visuell geprüft. Das gemeinsame Paket wurde mit ACS-, Lokalisierungs-, Schrift- und Engine-Prüfung gebaut; die drei geänderten Laufzeitdateien sind byteidentisch im PK3 enthalten.
+[tools/test_plasma_color.py](../../tools/test_plasma_color.py) prüft die gemeinsamen Translationen und die tatsächlichen Halo-Farben zur Laufzeit, einschließlich unveränderter anderer blauer Projektiltypen. Er nimmt Flug, Einschlag und echtes Plasmagewehrfeuer in UZDoom auf. Lokale Vorher-/Nachher-Aufnahmen und Laufzeitberichte liegen unter `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/plasma-blue/`. Vulkan und OpenGL bestanden jeweils sieben Laufzeit-Assertions; Flug, Einschlag und echtes Waffenfeuer wurden visuell geprüft. Das gemeinsame Paket wurde mit ACS-, Lokalisierungs-, Schrift- und Engine-Prüfung gebaut; die drei geänderten Laufzeitdateien sind byteidentisch im PK3 enthalten.
 
 ```text
 python -B tools/test_plasma_color.py --renderer 1

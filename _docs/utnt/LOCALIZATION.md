@@ -90,7 +90,7 @@ assertions across the four languages, including actual StringTable lookup, font
 glyph coverage, class-card and chapter layout, and localized credit pages.
 German, Spanish and French menu/card screenshots and dense French credits were
 visually checked. This is targeted UI validation, not a full campaign playthrough.
-Local evidence is under `tutnt/.codex/validation/localization-2026-09-10/`.
+Local evidence is under `D:/Codex/ReReleases/UTNT Reforged/.codex/validation/localization-2026-09-10/`.
 
 ## Maintaining native glyph coverage
 

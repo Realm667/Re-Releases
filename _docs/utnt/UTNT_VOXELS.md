@@ -189,7 +189,7 @@ The shared integration package passed its engine build check. Package validation
 confirms exact model hashes, active PLAYPAL bindings, all four credit translations
 and absence of Sam & Max voxel resources. A further gallery run from the actual
 package covers armor, weapons and all eight custom actors. Local proof lives under
-`tutnt/.codex/validation/` and `tutnt/.codex/work/voxel-integration/`.
+`D:/Codex/ReReleases/UTNT Reforged/.codex/validation/` and `D:/Codex/ReReleases/UTNT Reforged/.codex/work/voxel-integration/`.
 
 The ShellBox and all three keycards were added on 14 September 2026. Their
 source import preserved all 67 previously integrated KVX files byte for byte.
@@ -220,7 +220,7 @@ The corrections are loaded when entering a fresh map; actors already serialized
 in an older saved map retain the saved angles.
 
 `tools/orient_voxel_items.py` produces a per-placement audit under
-`tutnt/.codex/work/voxel-facing/`; `--apply` explicitly applies the proposals and
+`D:/Codex/ReReleases/UTNT Reforged/.codex/work/voxel-facing/`; `--apply` explicitly applies the proposals and
 backs up original WADs under `.codex/backups/voxel-facing/`. This is an authoring
 tool, not an automatic package-build step. Repeating the completed pass proposes
 zero further changes. `tools/test_voxel_facing.py --base <pre-change-revision>`

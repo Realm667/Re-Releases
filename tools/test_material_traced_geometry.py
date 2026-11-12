@@ -1,4 +1,5 @@
 """Original-artwork landmarks and physical bounds for the final relief pass."""
+from work_paths import codex_root
 import json
 from pathlib import Path
 import numpy as np
@@ -82,7 +83,7 @@ def check():
     tiled=snow_height(np.tile(rgb,(2,2,1)),(128,128))
     assert np.max(abs(tiled-np.tile(reconstructed,(2,2))))<.02
     result=dict(ok=True,materials=len(selected),variants=len(report),landmarks=len(LANDMARKS),snow_phase_correlation=correlation,data=report)
-    p=ROOT/'tutnt/.codex/validation/material-final-pass';p.mkdir(exist_ok=True)
+    p=codex_root(ROOT)/'validation/material-final-pass';p.mkdir(exist_ok=True)
     (p/'data.json').write_text(json.dumps(result,indent=2),encoding='utf8');return result
 
 if __name__=='__main__':

@@ -113,7 +113,7 @@ benefits from the class-file split.
 Validation: ordered class/include round-trip and chunk-bound tests, definition
 and localization gates, full editor load, and the normal game-package engine
 check. Local phase logs and the original-version source excerpts are retained
-under `tutnt/.codex/work/udb-open-profile/`.
+under `D:/Codex/ReReleases/UTNT Reforged/.codex/work/udb-open-profile/`.
 
 ## TNT03A2 editor resource errors (16 September 2026)
 
@@ -134,7 +134,7 @@ The local UDBScript ScanComments exception came from System.Memory.dll existing
 both beside Builder.exe and directly in Plugins/. The plugin loader loaded the
 extra copy as a plugin, producing two assembly loads and incompatible type
 identities despite identical version numbers and bytes. The duplicate was moved
-to tutnt/.codex/backups/udb-errors-tnt03a2/. The root DLL remains installed;
+to D:/Codex/ReReleases/UTNT Reforged/.codex/backups/udb-errors-tnt03a2/. The root DLL remains installed;
 a complete editor restart is required for the repair to take effect.
 
 Remaining compatibility notices are intentional: r4327 rejects the four native

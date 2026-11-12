@@ -1,9 +1,10 @@
 """Two real peers: independent pages, rejected guest travel and host-authorized map change."""
+from work_paths import codex_root
 import argparse,json,os,pathlib,subprocess,time
 from check_engine import ROOT
 from compile_ui_fixture import compile_fixture
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--mod',type=pathlib.Path,default=ROOT/'tutnt');a=p.parse_args()
-addon=compile_fixture();logs=ROOT/'logs';processes=[];results=[]
+addon=compile_fixture();logs=codex_root(ROOT)/'logs';processes=[];results=[]
 si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
 try:
  for i in range(2):
@@ -17,7 +18,7 @@ try:
         '-noautoload','-nosound','-stdout','-noidle','+vid_fullscreen','false','+vid_preferbackend','1','+UTNT_uiscale','1.5' if i else '1',
         '+language','deu' if i else 'enu','+map','INTERMAP','+exec',cfg.as_posix()]
   args+=['-host','2','-port','15239'] if i==0 else ['-join','127.0.0.1:15239']
-  f=(logs/(label+'.log')).open('wb');child=subprocess.Popen(args,cwd=ROOT,stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
+  f=(logs/(label+'.log')).open('wb');child=subprocess.Popen(args,cwd=codex_root(ROOT),stdout=f,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
   processes.append((child,f,label))
   if i==0:time.sleep(1)
  deadline=time.monotonic()+50

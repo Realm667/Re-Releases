@@ -1,9 +1,10 @@
+from work_paths import codex_root
 from pathlib import Path
 import sys,json,argparse,os
 R=Path(__file__).resolve().parent.parent
 p=argparse.ArgumentParser(description="Approach TNT03B via noclip/fly without invoking portal activation.")
 p.add_argument('--mod',type=Path,default=R/'tutnt.pk3')
-p.add_argument('--out',type=Path,default=R/'logs/portal-approach')
+p.add_argument('--out',type=Path,default=codex_root(R)/'logs/portal-approach')
 p.add_argument('--engine',type=Path,default=os.environ.get('UTNT_ENGINE',R/'engine/uzdoom.exe'))
 p.add_argument('--iwad',type=Path,default=os.environ.get('UTNT_IWAD','F:/DoomDev/DOOM2.WAD'))
 p.add_argument('--renderer',choices=['0','1'],default='1')

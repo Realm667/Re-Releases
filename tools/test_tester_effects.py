@@ -1,4 +1,5 @@
 """Exercise projectile readability, real poison damage, native fire size and burn resurrection."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,shutil
 from check_engine import run_case,ROOT
@@ -7,7 +8,7 @@ def main():
  p=argparse.ArgumentParser(description=__doc__)
  p.add_argument('--engine',type=Path,required=True);p.add_argument('--iwad',type=Path,required=True)
  p.add_argument('--mod',type=Path,default=ROOT/'tutnt.pk3')
- p.add_argument('--work',type=Path,default=ROOT/'tutnt/.codex/validation/tester-effects')
+ p.add_argument('--work',type=Path,default=codex_root(ROOT)/'validation/tester-effects')
  a=p.parse_args();a.work.mkdir(parents=True,exist_ok=True)
  fixture=a.work/'fixture';fixture.mkdir(exist_ok=True);(fixture/'maps').mkdir(exist_ok=True)
  for name in ['ZSCRIPT','MAPINFO']:shutil.copy2(ROOT/'tools/fixtures/tester-effects'/name,fixture/name)

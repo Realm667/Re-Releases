@@ -1,4 +1,5 @@
 """Exercise every real INTERMAP destination, including both original finale timelines."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,os
 from check_engine import ROOT,run_case
@@ -22,5 +23,5 @@ for ep in a.episodes:
   r=run_case(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],mod=a.mod,mapname='INTERMAP',addon=addon,
       renderer=a.renderer,label=label,commands='; '.join(cmd)+'\n',timeout=115 if ep>=8 else 35,regression=True,
       settings=[('con_notifytime',0),('i_pauseinbackground',False),('vid_activeinbackground',True)])
-  results.append(r);(ROOT/'logs/chapter-route-results.json').write_text(json.dumps(results,indent=2)+'\n',encoding='utf-8')
+  results.append(r);(codex_root(ROOT)/'logs/chapter-route-results.json').write_text(json.dumps(results,indent=2)+'\n',encoding='utf-8')
   if not r['ok']:print(Path(r['log']).read_text(encoding='utf-8')[-5000:]);raise SystemExit(1)

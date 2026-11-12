@@ -1,4 +1,5 @@
 """Targeted five-tic heat update, source cleanup and subtitle save/load on both renderers."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,os
 from check_engine import ROOT,run_case
@@ -19,5 +20,5 @@ r=run_case(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],mod=a.mod,mapname='
  settings=[('language','deu'),('UTNT_subtitlescale',1.5),('i_pauseinbackground',False),('vid_activeinbackground',True)])
 if 'UTNT_SUBTITLE_COMPLETE' not in Path(r['log']).read_text(encoding='utf-8'):r['ok']=False
 results.append(r)
-(ROOT/'logs/ui-additional-results.json').write_text(json.dumps(results,indent=2)+'\n',encoding='utf-8')
+(codex_root(ROOT)/'logs/ui-additional-results.json').write_text(json.dumps(results,indent=2)+'\n',encoding='utf-8')
 raise SystemExit(0 if r['ok'] else 1)

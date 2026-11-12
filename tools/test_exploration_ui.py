@@ -1,4 +1,5 @@
 """Native secret discovery and full-screen/overlay automap acceptance."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse, os, json
 from check_engine import run_case
@@ -30,6 +31,6 @@ r=run_case(os.environ['UTNT_ENGINE'],os.environ['UTNT_IWAD'],root=R,mod=a.mod,ma
     ('i_pauseinbackground',False),('vid_activeinbackground',True),('vid_lowerinbackground',False)])
 log=Path(r['log']).read_text(encoding='utf-8')
 if 'Unknown command' in log:r['ok']=False;r['errors'].append('unknown console command')
-(R/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
+(codex_root(R)/'logs'/f'{label}-results.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
 if not r['ok']:print(log[-5500:])
 raise SystemExit(0 if r['ok'] else 1)

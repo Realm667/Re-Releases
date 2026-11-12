@@ -2,19 +2,21 @@
 Python 3.11+. Every runtime case must reach its completion marker.
 """
 import argparse, json, os, pathlib, subprocess, time
+from work_paths import codex_root
 ROOT=pathlib.Path(__file__).resolve().parent.parent
 
 def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
              renderer='1', playerclass='Marine', timeout=30, label='load',
              commands=None, settings=(), regression=False, duration=140, quiet=False):
-    root=pathlib.Path(root).resolve()
+    source_root=pathlib.Path(root).resolve()
+    root=codex_root(source_root) if source_root == ROOT else source_root
     engine=pathlib.Path(engine).resolve(); iwad=pathlib.Path(iwad).resolve()
     if mod: mod=pathlib.Path(mod).resolve()
-    logs=root/'logs'; logs.mkdir(exist_ok=True)
+    logs=root/'logs'; logs.mkdir(parents=True,exist_ok=True)
     (logs/'saves').mkdir(exist_ok=True)
     config=logs/(label+'.ini')
     config.write_text('[GlobalSettings]\nvid_fullscreen=false\nwin_w=978\nwin_h=587\nvid_vsync=false\nvid_maxfps=120\n')
-    args=[str(engine),'-iwad',str(iwad),'-file',str(mod or root/'tutnt')]
+    args=[str(engine),'-iwad',str(iwad),'-file',str(mod or source_root/'tutnt')]
     if addon: args.append(str(pathlib.Path(addon).resolve()))
     args+=['-config',str(config),'-savedir',str(logs/'saves'),'-noautoload','-nosound','-stdout','-noidle','-rngseed','667']
     if mapname:
@@ -22,7 +24,7 @@ def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
         for name,value in settings: args+=['+'+name,str(value)]
         args+=['+map',mapname]
         cfg=logs/(label+'.cfg')
-        cfg.write_text(commands or f'wait {duration}; echo UTNT_TEST_END; screenshot logs/{label}.png; wait 5; quit\n')
+        cfg.write_text(commands or f'wait {duration}; echo UTNT_TEST_END; screenshot "{(logs/(label+".png")).as_posix()}"; wait 5; quit\n')
         args+=['+exec',cfg.as_posix()]
     else: args+=['+vid_preferbackend',str(renderer),'-norun','-errorlog',label]
     options={}

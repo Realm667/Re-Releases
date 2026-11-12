@@ -1,10 +1,11 @@
 """CRT material/render checks and a reproducible gallery; results live under .codex."""
+from work_paths import codex_root
 from pathlib import Path
 import argparse,json,struct,zipfile,time
 from build_utnt import write_wad,read_wad
 from check_engine import run_case
 from build_crt_materials import generate
-ROOT=Path(__file__).resolve().parents[1];C=ROOT/'tutnt/.codex'
+ROOT=Path(__file__).resolve().parents[1];C=codex_root(ROOT)
 ENGINE=Path('F:/DoomDev/Projects/wolfendoom.dev/#standalone/uzdoom.exe')
 def fixture(packaged=False):
  items=json.loads((ROOT/'tools/crt-materials.json').read_text())['screens']
