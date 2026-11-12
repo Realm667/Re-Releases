@@ -12,23 +12,26 @@ import zipfile
 
 from check_engine import ROOT
 from test_zdcmp1_edges import geometry
+from zdcmp1_paths import configure_environment, data_root, native_options, temporary_root
 
 
 def main():
+    configure_environment()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", default=os.environ.get("UTNT_ENGINE"), required=not os.environ.get("UTNT_ENGINE"))
     parser.add_argument("--iwad", default=os.environ.get("UTNT_IWAD"), required=not os.environ.get("UTNT_IWAD"))
     parser.add_argument("--mod", type=Path, default=ROOT / "zdcmp1")
     parser.add_argument("--renderer", choices=("0", "1"), default="1")
     args = parser.parse_args()
-    logs = ROOT / "logs" / f"zdc-coop-{args.renderer}"
+    logs = data_root() / "logs" / f"zdc-coop-{args.renderer}"
     logs.mkdir(parents=True, exist_ok=True)
+    (logs / "saves").mkdir(exist_ok=True)
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as listener:
         listener.bind(("127.0.0.1", 0))
         port = listener.getsockname()[1]
     peers = []
     results = []
-    with tempfile.TemporaryDirectory() as directory:
+    with tempfile.TemporaryDirectory(dir=temporary_root()) as directory:
         addon = Path(directory) / "coop.pk3"
         with zipfile.ZipFile(addon, "w") as archive:
             archive.writestr("maps/zdcedge.wad", geometry())
@@ -44,7 +47,7 @@ def main():
                 script.write_text("wait 420; quit\n")
                 command = [str(Path(args.engine).resolve()), "-iwad", str(Path(args.iwad).resolve()),
                            "-file", str(args.mod.resolve()), str(addon), "-config", str(config),
-                           "-noautoload", "-nosound", "-stdout", "-noidle", "-rngseed", "667",
+                           "-savedir", str(logs / "saves"), "-noautoload", "-nosound", "-stdout", "-noidle", "-rngseed", "667",
                            "+vid_fullscreen", "false", "+vid_preferbackend", args.renderer,
                            "+vid_maxfps", "60", "+vid_vsync", "false", "+i_pauseinbackground", "false", "+vid_activeinbackground", "true",
                            "+use_mouse", "false", "+use_joystick", "false", "+motionblur", "true" if i else "false",
@@ -52,7 +55,7 @@ def main():
                 command += ["-host", "2", "-port", str(port)] if i == 0 else ["-join", f"127.0.0.1:{port}"]
                 output = log.open("wb")
                 try:
-                    child = subprocess.Popen(command, cwd=ROOT, stdout=output, stderr=subprocess.STDOUT)
+                    child = subprocess.Popen(command, cwd=data_root(), stdout=output, stderr=subprocess.STDOUT, **native_options())
                 except BaseException:
                     output.close()
                     raise

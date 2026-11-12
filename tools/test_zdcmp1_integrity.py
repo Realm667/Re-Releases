@@ -12,6 +12,7 @@ from build_utnt import read_wad
 from build_zdcmp1 import package, runtime_files
 from check_engine import ROOT
 from test_zdcmp1_stress import stress_fixture, commands
+from zdcmp1_paths import temporary_root
 
 
 class ZDCMP1Integrity(unittest.TestCase):
@@ -234,7 +235,7 @@ class ZDCMP1Integrity(unittest.TestCase):
                 self.assertTrue(all(line.get(f"arg{i}", 0) == 0 for i in range(1, 5)))
 
     def test_package_filters_and_reproducibility(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=temporary_root()) as directory:
             root = Path(directory) / "mod"
             root.mkdir()
             for name in ("zscript.zc", "Maps/map01.wad", "#PSD/test.psd", ".codex/private.txt", "tools/check.py", "map.wad.backup1", ".DS_Store"):
@@ -250,7 +251,7 @@ class ZDCMP1Integrity(unittest.TestCase):
                 package(root, root / "recursive.pk3")
 
     def test_stress_fixture_lump_integrity(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=temporary_root()) as directory:
             for scene in ("weather", "smoke", "fire", "gore", "mixed"):
                 pk3 = Path(directory) / "test.pk3"
                 stress_fixture(pk3, scene)

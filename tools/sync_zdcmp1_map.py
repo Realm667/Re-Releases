@@ -6,13 +6,14 @@ import tempfile
 
 from build_utnt import read_wad, write_wad
 from check_engine import ROOT
+from zdcmp1_paths import configure_environment, temporary_root, tool_default
 
 
 def sync(root, acc, write=False):
     wad = root / "Maps/map01.wad"
     source = root / "source/maps/map01.acs"
     magic, lumps = read_wad(wad)
-    with tempfile.TemporaryDirectory(prefix="zdc-map-acs-") as directory:
+    with tempfile.TemporaryDirectory(dir=temporary_root(), prefix="zdc-map-acs-") as directory:
         output = Path(directory) / "map01.o"
         result = subprocess.run([str(acc.resolve()), "-i", str(acc.resolve().parent),
                                  str(source.resolve()), str(output)], capture_output=True, text=True)
@@ -34,9 +35,10 @@ def sync(root, acc, write=False):
 
 
 def main():
+    configure_environment()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT / "zdcmp1")
-    parser.add_argument("--acc", type=Path)
+    parser.add_argument("--acc", type=Path, default=tool_default('acc'))
     parser.add_argument("--extract", action="store_true")
     parser.add_argument("--write", action="store_true")
     args = parser.parse_args()

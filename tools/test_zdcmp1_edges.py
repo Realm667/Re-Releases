@@ -6,7 +6,9 @@ import tempfile
 import zipfile
 
 from build_utnt import write_wad
-from check_engine import ROOT, run_case
+from check_engine import ROOT
+from zdcmp1_paths import run_case
+from zdcmp1_paths import configure_environment, temporary_root
 
 
 def geometry(linked=False):
@@ -57,6 +59,7 @@ def fixture(path, linked=False):
 
 
 def main():
+    configure_environment()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", default=os.environ.get("UTNT_ENGINE"), required=not os.environ.get("UTNT_ENGINE"))
     parser.add_argument("--iwad", default=os.environ.get("UTNT_IWAD"), required=not os.environ.get("UTNT_IWAD"))
@@ -64,7 +67,7 @@ def main():
     parser.add_argument("--renderer", choices=("0", "1"), default="1")
     args = parser.parse_args()
     for linked in (False, True):
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory(dir=temporary_root()) as directory:
             addon = Path(directory) / "edges.pk3"
             fixture(addon, linked)
             # Network events must settle before save/load or shutdown on fast renderers.

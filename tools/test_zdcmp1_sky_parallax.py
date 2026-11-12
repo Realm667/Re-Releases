@@ -1,23 +1,25 @@
 """Two real peers: independent sky parallax, viewer switches, shared world clock."""
 from pathlib import Path
-import argparse,json,re,socket,subprocess,time,zipfile
+import argparse,json,os,re,socket,subprocess,time,zipfile
+from zdcmp1_paths import configure_environment, data_root, native_options
 ROOT=Path(__file__).resolve().parents[1]
 
 def main():
+    configure_environment()
     ap=argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--engine',default='F:/DoomDev/uzdoom.exe')
-    ap.add_argument('--iwad',default='F:/DoomDev/DOOM2.WAD')
-    ap.add_argument('--mod',type=Path,default=ROOT/'zdcmp1.pk3')
+    ap.add_argument('--engine',default=os.environ.get('UTNT_ENGINE'),required=not os.environ.get('UTNT_ENGINE'))
+    ap.add_argument('--iwad',default=os.environ.get('UTNT_IWAD'),required=not os.environ.get('UTNT_IWAD'))
+    ap.add_argument('--mod',type=Path,default=ROOT/'zdcmp1')
     args=ap.parse_args()
-    logs=ROOT/'tutnt/.codex/logs/zdc-sky-parallax-coop';logs.mkdir(parents=True,exist_ok=True)
-    addon=ROOT/'tutnt/.codex/builds/zdc-sky-parallax-qa.pk3'
+    logs=data_root()/'logs/zdc-sky-parallax-coop';logs.mkdir(parents=True,exist_ok=True)
+    (logs/'saves').mkdir(exist_ok=True)
+    addon=data_root()/'builds/zdc-sky-parallax-qa.pk3'
     with zipfile.ZipFile(addon,'w') as z:
         z.write(ROOT/'tools/zdcmp1-tests/sky-parallax.zc','zscript.zc')
         z.writestr('mapinfo.txt','gameinfo { AddEventHandlers="ZDCSkyParallaxQA" }')
     with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as s:
         s.bind(('127.0.0.1',0));port=s.getsockname()[1]
     peers=[];results=[];views=[];states=[]
-    si=subprocess.STARTUPINFO();si.dwFlags|=subprocess.STARTF_USESHOWWINDOW;si.wShowWindow=0
     try:
         for i in range(2):
             cfg=logs/f'peer-{i}.ini'
@@ -25,9 +27,9 @@ def main():
             script=logs/f'peer-{i}.cfg'
             script.write_text('wait 600; quit\n')
             log=logs/f'peer-{i}.log';out=log.open('wb')
-            command=[args.engine,'-iwad',args.iwad,'-file',str(args.mod.resolve()),str(addon),'-config',str(cfg),'-noautoload','-nosound','-stdout','-noidle','-rngseed','667','+vid_fullscreen','false','+vid_preferbackend','1','+use_mouse','false','+use_joystick','false','+map','MAP01','+exec',str(script)]
+            command=[args.engine,'-iwad',args.iwad,'-file',str(args.mod.resolve()),str(addon),'-config',str(cfg),'-savedir',str(logs/'saves'),'-noautoload','-nosound','-stdout','-noidle','-rngseed','667','+vid_fullscreen','false','+vid_preferbackend','1','+use_mouse','false','+use_joystick','false','+map','MAP01','+exec',str(script)]
             command+=['-host','2','-port',str(port)] if i==0 else ['-join',f'127.0.0.1:{port}']
-            child=subprocess.Popen(command,cwd=logs,stdout=out,stderr=subprocess.STDOUT,startupinfo=si,creationflags=subprocess.CREATE_NO_WINDOW)
+            child=subprocess.Popen(command,cwd=logs,stdout=out,stderr=subprocess.STDOUT,**native_options())
             peers.append((child,out,log))
             if i==0:time.sleep(1)
         deadline=time.monotonic()+55
@@ -61,7 +63,7 @@ def main():
             except subprocess.TimeoutExpired:p.kill();p.wait()
             out.close()
     report=dict(results=results,views=views,world_states=states)
-    (ROOT/'tutnt/.codex/validation/zdc-sky-parallax-coop.json').write_text(json.dumps(report,indent=2))
+    (data_root()/'validation/zdc-sky-parallax-coop.json').write_text(json.dumps(report,indent=2))
     print(json.dumps(report,indent=2))
     return 0 if len(results)==2 and all(r['ok'] for r in results) else 1
 if __name__=='__main__':raise SystemExit(main())

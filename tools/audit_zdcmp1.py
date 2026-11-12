@@ -8,6 +8,7 @@ from pathlib import Path
 from audit_campaign import scripts, udmf
 from build_utnt import read_wad
 from check_engine import ROOT
+from zdcmp1_paths import configure_environment, data_root
 
 KEYS = {5, 6, 13, 38, 39, 40}
 WEAPONS = {2001, 2002, 2003, 2004, 2005, 2006, 82, 6001, 6003}
@@ -44,9 +45,10 @@ def audit(path):
 
 
 def main():
+    configure_environment()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--map", type=Path, default=ROOT / "zdcmp1/Maps/map01.wad")
-    parser.add_argument("--output", type=Path, default=ROOT / "logs/zdc-map-audit.json")
+    parser.add_argument("--output", type=Path, default=data_root() / "logs/zdc-map-audit.json")
     args = parser.parse_args()
     report = audit(args.map)
     args.output.parent.mkdir(parents=True, exist_ok=True)

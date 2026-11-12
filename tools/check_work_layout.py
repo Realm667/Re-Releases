@@ -94,7 +94,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=ROOT)
     parser.add_argument('--workspace-config', type=Path)
+    parser.add_argument('--project', choices=('utnt', 'zdcmp1'), default='utnt')
+    parser.add_argument('--workspace', type=Path, help='Explicit workspace for a scoped project check')
     args = parser.parse_args()
+    if args.project == 'zdcmp1':
+        from check_zdcmp1_layout import violations as project_violations
+        issues = project_violations(args.root, args.workspace, args.workspace_config)
+        print(json.dumps({'ok': not issues, 'violations': issues}, indent=2))
+        return int(bool(issues))
     config = args.workspace_config or codex_root(args.root)/'policy/workspace-root.json'
     issues = violations(args.root, config if config.is_file() else None)
     print(json.dumps({'ok': not issues, 'violations': issues}, indent=2, ensure_ascii=False))

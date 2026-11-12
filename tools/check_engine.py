@@ -3,13 +3,17 @@ Python 3.11+. Every runtime case must reach its completion marker.
 """
 import argparse, json, os, pathlib, subprocess, time
 from work_paths import codex_root
+from zdcmp1_paths import configure_environment, data_root, is_zdcmp1_mod, tool_default
 ROOT=pathlib.Path(__file__).resolve().parent.parent
 
 def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
              renderer='1', playerclass='Marine', timeout=30, label='load',
              commands=None, settings=(), regression=False, duration=140, quiet=False):
     source_root=pathlib.Path(root).resolve()
-    root=codex_root(source_root) if source_root == ROOT else source_root
+    if source_root == ROOT:
+        root=data_root() if is_zdcmp1_mod(mod) else codex_root(source_root)
+    else:
+        root=source_root
     engine=pathlib.Path(engine).resolve(); iwad=pathlib.Path(iwad).resolve()
     if mod: mod=pathlib.Path(mod).resolve()
     logs=root/'logs'; logs.mkdir(parents=True,exist_ok=True)
@@ -53,8 +57,8 @@ def run_case(engine, iwad, *, root=ROOT, mod=None, mapname=None, addon=None,
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--engine',type=pathlib.Path,default=os.environ.get('UTNT_ENGINE',ROOT/'engine/uzdoom.exe'))
-    p.add_argument('--iwad',type=pathlib.Path,default=os.environ.get('UTNT_IWAD',r'F:\DoomDev\DOOM2.WAD'))
+    p.add_argument('--engine',type=pathlib.Path)
+    p.add_argument('--iwad',type=pathlib.Path)
     p.add_argument('--root',type=pathlib.Path,default=ROOT)
     p.add_argument('--mod',type=pathlib.Path)
     p.add_argument('--map',dest='mapname')
@@ -67,6 +71,15 @@ def main():
     p.add_argument('--regression',action='store_true')
     p.add_argument('--set',dest='settings',action='append',default=[])
     a=vars(p.parse_args()); a['settings']=[s.split('=',1) for s in a['settings']]
+    if is_zdcmp1_mod(a['mod']):
+        configure_environment()
+        engine,iwad=tool_default('engine'),tool_default('iwad')
+    else:
+        engine=os.environ.get('UTNT_ENGINE',ROOT/'engine/uzdoom.exe')
+        iwad=os.environ.get('UTNT_IWAD',r'F:\DoomDev\DOOM2.WAD')
+    a['engine']=a['engine'] or (pathlib.Path(engine) if engine else None)
+    a['iwad']=a['iwad'] or (pathlib.Path(iwad) if iwad else None)
+    if not a['engine'] or not a['iwad']: p.error('Provide --engine and --iwad or configure the project tools')
     cfg=a.pop('cfg'); a['commands']=cfg.read_text() if cfg else None
     result=run_case(**a)
     if not result['ok']: print(pathlib.Path(result['log']).read_text()[-6000:])

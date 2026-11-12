@@ -7,11 +7,14 @@ import re
 import tempfile
 import zipfile
 
-from check_engine import ROOT, run_case
+from check_engine import ROOT
+from zdcmp1_paths import run_case
 from test_zdcmp1_effects import fixture
+from zdcmp1_paths import configure_environment, data_root, temporary_root
 
 
 def main():
+    configure_environment()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", default=os.environ.get("UTNT_ENGINE"), required=not os.environ.get("UTNT_ENGINE"))
     parser.add_argument("--iwad", default=os.environ.get("UTNT_IWAD"), required=not os.environ.get("UTNT_IWAD"))
@@ -20,7 +23,7 @@ def main():
     parser.add_argument("--renderer", choices=("0", "1"), default="1")
     args = parser.parse_args()
     results = []
-    with tempfile.TemporaryDirectory() as directory:
+    with tempfile.TemporaryDirectory(dir=temporary_root()) as directory:
         base = Path(directory) / "base.pk3"
         addon = Path(directory) / "weapons.pk3"
         fixture(base)
@@ -65,7 +68,7 @@ def main():
                 samples.append(re.findall(r"ZDC_MOVE .*", text))
             if len(samples[0]) != 6 or samples[0] != samples[1]:
                 raise RuntimeError(f"Movement differs: {samples}")
-    (ROOT / "logs" / f"zdc-weapons-{args.renderer}-results.json").write_text(json.dumps(results, indent=2) + "\n")
+    (data_root() / "logs" / f"zdc-weapons-{args.renderer}-results.json").write_text(json.dumps(results, indent=2) + "\n")
 
 
 if __name__ == "__main__":

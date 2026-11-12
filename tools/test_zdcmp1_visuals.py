@@ -5,10 +5,13 @@ from pathlib import Path
 import tempfile
 import zipfile
 
-from check_engine import ROOT, run_case
+from check_engine import ROOT
+from zdcmp1_paths import run_case
+from zdcmp1_paths import configure_environment, temporary_root
 
 
 def main():
+    configure_environment()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", default=os.environ.get("UTNT_ENGINE"),
                         required=not os.environ.get("UTNT_ENGINE"))
@@ -16,7 +19,7 @@ def main():
                         required=not os.environ.get("UTNT_IWAD"))
     parser.add_argument("--mod", type=Path, default=ROOT / "zdcmp1")
     args = parser.parse_args()
-    with tempfile.TemporaryDirectory() as directory:
+    with tempfile.TemporaryDirectory(dir=temporary_root()) as directory:
         addon = Path(directory) / "visual.pk3"
         with zipfile.ZipFile(addon, "w") as archive:
             archive.write(ROOT / "tools/zdcmp1-tests/visual.zc", "zscript.zc")

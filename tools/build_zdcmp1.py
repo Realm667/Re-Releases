@@ -7,6 +7,7 @@ import tempfile
 import zipfile
 
 from check_engine import ROOT
+from zdcmp1_paths import configure_environment, temporary_root, tool_default, workspace
 
 EXCLUDED_DIRS = {".git", ".vscode", ".codex", "#psd", "tools", "__pycache__"}
 EXCLUDED_SUFFIXES = {".psd", ".otf", ".ttf", ".rar", ".zip", ".bat", ".dbs", ".pyc"}
@@ -30,7 +31,7 @@ def check_acs(root, acc):
     from sync_zdcmp1_map import sync
     sync(root, acc)
     acc = acc.resolve()
-    with tempfile.TemporaryDirectory(prefix="zdc-acs-") as directory:
+    with tempfile.TemporaryDirectory(dir=temporary_root(), prefix="zdc-acs-") as directory:
         for source in sorted((root / "source").glob("*.acs")):
             output = Path(directory) / (source.stem + ".o")
             subprocess.run([str(acc), "-i", str(acc.parent), str(source.resolve()), str(output)], check=True,
@@ -63,10 +64,11 @@ def package(root, output):
 
 
 def main():
+    configure_environment()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT / "zdcmp1")
-    parser.add_argument("--output", type=Path, default=ROOT / "zdcmp1.pk3")
-    parser.add_argument("--acc", type=Path)
+    parser.add_argument("--output", type=Path, default=workspace() / "builds/zdcmp1.pk3")
+    parser.add_argument("--acc", type=Path, default=tool_default('acc'))
     parser.add_argument("--check-only", action="store_true")
     args = parser.parse_args()
     if args.check_only and not args.acc:

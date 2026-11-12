@@ -17,12 +17,13 @@ import zipfile
 
 from check_engine import ROOT
 from test_zdcmp1_effects import fixture
+from zdcmp1_paths import configure_environment, data_root, native_options, temporary_root
 
 SCENES = {"weather": 0, "smoke": 1, "fire": 2, "gore": 3, "mixed": 4}
 
 
 def stress_fixture(path, scene):
-    with tempfile.TemporaryDirectory() as directory:
+    with tempfile.TemporaryDirectory(dir=temporary_root()) as directory:
         base = Path(directory) / "base.pk3"
         fixture(base)
         with zipfile.ZipFile(base) as source, zipfile.ZipFile(path, "w") as target:
@@ -55,7 +56,7 @@ def commands(scene, seconds, soak):
 
 
 def run(engine, iwad, mod, addon, renderer, scene, seconds, soak, label):
-    directory = ROOT / "logs" / label
+    directory = data_root() / "logs" / label
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "saves").mkdir(exist_ok=True)
     config = directory / "engine.ini"
@@ -74,7 +75,7 @@ def run(engine, iwad, mod, addon, renderer, scene, seconds, soak, label):
     log = directory / "engine.log"
     timed_out = False
     with log.open("wb") as output:
-        child = subprocess.Popen(args, cwd=ROOT, stdout=output, stderr=subprocess.STDOUT)
+        child = subprocess.Popen(args, cwd=data_root(), stdout=output, stderr=subprocess.STDOUT, **native_options())
         try:
             next_sample = started
             while child.poll() is None:
@@ -142,6 +143,7 @@ def run(engine, iwad, mod, addon, renderer, scene, seconds, soak, label):
 
 
 def main():
+    configure_environment()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", default=os.environ.get("UTNT_ENGINE"), required=not os.environ.get("UTNT_ENGINE"))
     parser.add_argument("--iwad", default=os.environ.get("UTNT_IWAD"), required=not os.environ.get("UTNT_IWAD"))
@@ -157,7 +159,7 @@ def main():
     if not math.isfinite(args.seconds) or args.seconds <= 0 or args.repeats < 1:
         parser.error("seconds and repeats must be positive")
     results = []
-    with tempfile.TemporaryDirectory(prefix="zdc-stress-") as directory:
+    with tempfile.TemporaryDirectory(dir=temporary_root(), prefix="zdc-stress-") as directory:
         addon = Path(directory) / "fixture.pk3"
         stress_fixture(addon, args.scene)
         for repeat in range(args.repeats):
@@ -173,7 +175,7 @@ def main():
                 if not result["ok"]:
                     print(Path(result["log"]).read_text()[-5000:])
                     return 1
-    (ROOT / "logs" / f"{args.label}-results.json").write_text(json.dumps(results, indent=2) + "\n")
+    (data_root() / "logs" / f"{args.label}-results.json").write_text(json.dumps(results, indent=2) + "\n")
     return 0
 
 

@@ -6,10 +6,13 @@ from pathlib import Path
 import tempfile
 import zipfile
 
-from check_engine import ROOT, run_case
+from check_engine import ROOT
+from zdcmp1_paths import run_case
+from zdcmp1_paths import configure_environment, data_root, temporary_root
 
 
 def main():
+    configure_environment()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", default=os.environ.get("UTNT_ENGINE"), required=not os.environ.get("UTNT_ENGINE"))
     parser.add_argument("--iwad", default=os.environ.get("UTNT_IWAD"), required=not os.environ.get("UTNT_IWAD"))
@@ -18,7 +21,7 @@ def main():
     parser.add_argument("--full-finale", action="store_true", help="Also let the entire credits sequence finish naturally")
     args = parser.parse_args()
     results = []
-    with tempfile.TemporaryDirectory() as directory:
+    with tempfile.TemporaryDirectory(dir=temporary_root()) as directory:
         addon = Path(directory) / "remaster.pk3"
         with zipfile.ZipFile(addon, "w") as archive:
             archive.write(ROOT / "tools/zdcmp1-tests/remaster.zc", "zscript.zc")
@@ -68,7 +71,7 @@ def main():
                               commands=script + "echo UTNT_REGRESSION_COMPLETE; echo UTNT_TEST_END; quit\n")
             result["ok"] = result["ok"] and result["assertions"] == 7
             results.append(result)
-    (ROOT / "logs" / f"zdc-remaster-{args.renderer}-results.json").write_text(json.dumps(results, indent=2) + "\n")
+    (data_root() / "logs" / f"zdc-remaster-{args.renderer}-results.json").write_text(json.dumps(results, indent=2) + "\n")
     return 0 if len(results) == (5 if args.full_finale else 4) and all(r["ok"] for r in results) else 1
 
 

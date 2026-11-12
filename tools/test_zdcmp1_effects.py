@@ -11,7 +11,8 @@ import struct
 import tempfile
 import zipfile
 
-from check_engine import run_case
+from zdcmp1_paths import run_case
+from zdcmp1_paths import configure_environment, temporary_root
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -40,6 +41,7 @@ def fixture(path):
 
 
 def main():
+    configure_environment()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--engine', default=os.environ.get('UTNT_ENGINE'), required=not os.environ.get('UTNT_ENGINE'))
     parser.add_argument('--iwad', default=os.environ.get('UTNT_IWAD'), required=not os.environ.get('UTNT_IWAD'))
@@ -70,7 +72,7 @@ motionblur_samples -1; +left; wait 10; motionblur_samples 999; wait 10; event zd
 motionblur false; wait 10; event zdcblur 0; motionblur true; wait 10; netevent zdcnetwork; wait 5;
 echo UTNT_REGRESSION_COMPLETE; echo UTNT_TEST_END; quit
 '''
-    with tempfile.TemporaryDirectory(prefix='zdcmp1-tests-') as directory:
+    with tempfile.TemporaryDirectory(dir=temporary_root(), prefix='zdcmp1-tests-') as directory:
         addon = Path(directory) / 'tests.pk3'
         fixture(addon)
         result = run_case(args.engine, args.iwad, mod=args.mod, addon=addon,
