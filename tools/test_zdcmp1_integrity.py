@@ -198,10 +198,12 @@ class ZDCMP1Integrity(unittest.TestCase):
 
     def test_remaster_assets_and_controls(self):
         root = ROOT / "zdcmp1"
+        # UZDoom resolves virtual resource names without case sensitivity.
+        resources = {name.casefold() for _, name in runtime_files(root)}
         for manifest in (root / "zscript.zc", root / "gldefs.txt", root / "modeldef.txt",
                          root / "gldefs/brightm.txt"):
             for include in re.findall(r'(?m)^#include\s+"?([^"\s]+)"?', manifest.read_text()):
-                self.assertTrue((root / include).is_file(), f"{manifest.name}: {include}")
+                self.assertIn(include.casefold(), resources, f"{manifest.name}: {include}")
         shaders = (root / "gldefs/shaders.txt").read_text()
         for path in re.findall(r'Shader "(shaders/zdc_[^"]+)"', shaders):
             self.assertTrue((root / path).is_file(), path)
